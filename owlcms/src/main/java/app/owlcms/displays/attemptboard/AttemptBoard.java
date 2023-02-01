@@ -224,6 +224,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
      * @param fop
      */
     protected void doBreak(FieldOfPlay fop) {
+        //logger.debug("dobreak");
         this.getElement().setProperty("lastName", inferGroupName(fop.getCeremonyType()));
         this.getElement().setProperty("firstName", inferMessage(fop.getBreakType(), fop.getCeremonyType()));
         this.getElement().setProperty("teamName", "");
@@ -237,7 +238,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
             showPlates();
         }
 
-        boolean showWeights = fop.getCeremonyType() == null;
+        boolean showWeights = fop.getCeremonyType() == null && fop.getGroup() != null;
         // logger.trace("*** doBreak {} {} {}", showWeights, fop.getCeremonyType(), LoggerUtils.whereFrom());
         this.getElement().callJsFunction("doBreak", showWeights);
         uiEventLogger.debug("$$$ attemptBoard doBreak(fop)");
@@ -245,7 +246,6 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 
     @Override
     public void doBreak(UIEvent e) {
-        // logger.trace("doBreak({})", e);
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             BreakType breakType = fop.getBreakType();
             // logger.trace("doBreak({}) bt={} a={}}", e, breakType, fop.getCurAthlete());
@@ -308,6 +308,9 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
     protected void doEmpty() {
         hidePlates();
         FieldOfPlay fop2 = OwlcmsSession.getFop();
+        if (fop2.getGroup() == null) {
+            setDisplayedWeight("");
+        }
         boolean inactive = fop2 == null || fop2.getState() == FOPState.INACTIVE;
         // this.getElement().callJsFunction("clear");
         this.getElement().setProperty("inactiveBlockStyle", (inactive ? "display:grid" : "display:none"));
@@ -790,6 +793,11 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 
     @Subscribe
     public void slaveStartLifting(UIEvent.StartLifting e) {
+        //logger.debug("start lifting");
+        if (e.getGroup() == null) {
+            doEmpty();
+            return;
+        }
         doNotEmpty();
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
@@ -881,7 +889,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
             doNotEmpty();
             Athlete curAthlete = fop.getCurAthlete();
             if (fop.getState() == FOPState.BREAK || fop.getState() == FOPState.INACTIVE) {
-                // logger.trace("syncwithfop {} {}",fop.getBreakType(), fop.getCeremonyType());
+                //logger.debug("syncwithfop {} {}",fop.getBreakType(), fop.getCeremonyType());
                 if (fop.getCeremonyType() != null) {
                     doBreak(fop);
                 } else if (curAthlete != null && curAthlete.getAttemptsDone() >= 6) {

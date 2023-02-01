@@ -33,7 +33,11 @@ public interface BreakDisplay {
         }
         Group group = fop.getGroup();
         String groupName = group != null ? group.getName() : "";
-        return Translator.translate("Group_number", groupName);
+        if (!groupName.isBlank()) {
+            return Translator.translate("Group_number", groupName);
+        } else {
+            return "";
+        }
     }
 
     public default String inferMessage(BreakType breakType, CeremonyType ceremonyType) {

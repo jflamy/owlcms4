@@ -369,7 +369,7 @@ public class FieldOfPlay {
     private void doJuryMemberDecisionUpdate(FOPEvent.JuryMemberDecisionUpdate e) {
         getJuryMemberDecision()[e.refIndex] = e.decision;
         juryMemberTime[e.refIndex] = 0;
-        processJuryMemberDecisions(e.origin,e.refIndex);
+        processJuryMemberDecisions(e.origin, e.refIndex);
     }
 
     private void doSetState(FOPState state) {
@@ -410,7 +410,7 @@ public class FieldOfPlay {
     }
 
     private void doTONotifications(BreakType newBreak) {
-        // logger.debug("doTONotifications {}\n{}", newBreak, LoggerUtils.stackTrace());
+        //logger.debug("doTONotifications {}\n{}", newBreak, LoggerUtils.stackTrace());
         if (newBreak == null) {
             // resuming
             if (state == BREAK) {
@@ -927,17 +927,29 @@ public class FieldOfPlay {
         } else if (e instanceof SummonReferee) {
             // Summoning a referee must trigger a break if not already done
             if (state != DECISION_VISIBLE && state != DOWN_SIGNAL_VISIBLE) {
-                transitionToBreak(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, null, null, true,
-                        e.getOrigin()));
-                doSummonReferee((SummonReferee) e);
+                if (getBreakType() != null) {
+                    //logger.debug("summoning");
+                    doSummonReferee((SummonReferee) e);
+                } else {
+                    transitionToBreak(
+                            new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, null, null, true,
+                                    e.getOrigin()));
+                    doSummonReferee((SummonReferee) e);
+                }
                 return;
             }
             // do not return; error message will be shown if state does not allow summon.
         } else if (e instanceof StartLifting) {
             if (state == BREAK && (breakType == BreakType.JURY || breakType == BreakType.TECHNICAL
                     || breakType == BreakType.MARSHAL)) {
-                // if group under way, this will try to just keep going.
-                resumeLifting(e);
+                if (getGroup() == null) {
+                    // break took place while inactive
+                    state = INACTIVE;
+                    pushOutSwitchGroup(this);
+                } else {
+                 // if group under way, this will try to just keep going.
+                    resumeLifting(e);
+                }
                 return;
             } else if (state == BREAK && (breakType == BreakType.GROUP_DONE)) {
                 // resume lifting only if current athlete has one more lift to do
@@ -1407,7 +1419,8 @@ public class FieldOfPlay {
 
     /**
      * events resulting from decisions received so far (down signal, stopping timer, all decisions entered, etc.)
-     * @param refIndex 
+     * 
+     * @param refIndex
      */
     private void processJuryMemberDecisions(Object origin, int refIndex) {
         logger.debug("*** process jury member decisions {} {} {} {}", Competition.getCurrent().getJurySize(),
@@ -1436,8 +1449,9 @@ public class FieldOfPlay {
                     // make sure all greens are shown before showing decisions.
                     Thread.sleep(200);
                 } catch (InterruptedException e) {
-                } 
-                showJuryMemberDecisionsNow(origin, (reds == jurySize || whites == jurySize), jurySize, getJuryMemberDecision());
+                }
+                showJuryMemberDecisionsNow(origin, (reds == jurySize || whites == jurySize), jurySize,
+                        getJuryMemberDecision());
             }).start();
         }
     }
@@ -1814,7 +1828,7 @@ public class FieldOfPlay {
             doTONotifications(null);
             Athlete clockOwner = getClockOwner();
             if (getCurAthlete().equals(clockOwner) && getState() == FOPState.BREAK) {
-                logger.debug("resuming lifting from state {}",getState());
+                logger.debug("resuming lifting from state {}", getState());
                 // allows referees to enter decisions even if time is not restarted (which
                 // sometimes happens).
                 setClockStoppedDecisionsAllowed(true);
@@ -2195,14 +2209,15 @@ public class FieldOfPlay {
                 }, DECISION_VISIBLE_DURATION);
     }
 
-    private void showJuryMemberDecisionsNow(Object origin, boolean unanimous, int jurySize, Boolean[] juryMemberDecision2) {
-        logger.warn("{}reveal jury member decisions {}", getLoggingName(), juryMemberDecision2);
+    private void showJuryMemberDecisionsNow(Object origin, boolean unanimous, int jurySize,
+            Boolean[] juryMemberDecision2) {
+        //logger.debug("{}reveal jury member decisions {}", getLoggingName(), juryMemberDecision2);
         getUiEventBus().post(new UIEvent.JuryUpdate(origin, unanimous, juryMemberDecision2, jurySize));
     }
 
     private void showJuryMemberDecisionReceived(Object origin, int i, Boolean[] juryMemberDecision2, int jurySize) {
         // show that one jury decision has been received (green LED)
-        logger.warn("{}updating jury member {}", getLoggingName(), i);
+        //logger.debug("{}updating jury member {}", getLoggingName(), i);
         getUiEventBus().post(new UIEvent.JuryUpdate(origin, i, juryMemberDecision2, jurySize));
     }
 
@@ -2315,7 +2330,8 @@ public class FieldOfPlay {
                             CountdownType.DURATION, LoggerUtils.stackTrace(), getBreakTimer().isIndefinite()));
                     return;
                 } else {
-                    logger.debug("{}break switch: from {} to {} {}", getLoggingName(), getBreakType(), newBreak, newCountdownType);
+                    logger.debug("{}break switch: from {} to {} {}", getLoggingName(), getBreakType(), newBreak,
+                            newCountdownType);
                     breakTimer.stop();
                     setBreakParams(e, breakTimer, newBreak, newCountdownType);
                     breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), newBreak.isInterruption());
@@ -2357,12 +2373,13 @@ public class FieldOfPlay {
 //        logger.debug("transitionToLifting {} {} from:{}", e.getAthlete(), stopBreakTimer,
 //                LoggerUtils.whereFrom());
         Athlete clockOwner = getClockOwner();
-        logger.debug("transition to lifting curState = {}",getState());
+        logger.debug("transition to lifting curState = {}", getState());
         if (getState() == TIME_RUNNING || getState() == TIME_STOPPED || getState() == CURRENT_ATHLETE_DISPLAYED) {
             // we are already lifting
             return;
         }
-        if (getCurAthlete() != null && getCurAthlete().equals(clockOwner) && (getState() == FOPState.BREAK || getState() == FOPState.INACTIVE)) {
+        if (getCurAthlete() != null && getCurAthlete().equals(clockOwner)
+                && (getState() == FOPState.BREAK || getState() == FOPState.INACTIVE)) {
             setClockStoppedDecisionsAllowed(true);
             setState(CURRENT_ATHLETE_DISPLAYED);
         } else {

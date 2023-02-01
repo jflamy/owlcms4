@@ -551,6 +551,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     @Subscribe
     public void slaveBreakStart(UIEvent.BreakStarted e) {
+        summonNotificationSent = false;
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             if (e.isDisplayToggle()) {
                 logger.debug("{} ignoring switch to break", this.getClass().getSimpleName());
@@ -613,7 +614,6 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     @Subscribe
     public void slaveJuryNotification(UIEvent.JuryNotification e) {
-        // logger.debug("slaveJuryNotification {}",e.getDeliberationEventType());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             String text = "";
             String reversalText = "";
