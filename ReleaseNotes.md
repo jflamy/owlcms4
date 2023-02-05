@@ -1,14 +1,14 @@
-37.3.0-alpha00: Improvements to Jury breaks, additional support for Firmata Jury devices.
+37.3.0-beta00: Improvements to Jury breaks, additional support for Firmata Jury devices.
 
-- 37. 3 Enhancements
-  
-  - Jury break would switch from "technical" to "deliberation" if referees were called.
-  - Jury breaks now work when the platform is inactive, allowing referees to be called.
+- 37.3 Enhancements
   - MQTT Message added for telling a Firmata device that a jury member has voted.
-  
-- 37. 3Fixes
-  
+  - Added the group description to the group dropdown entries on the registration page.
+- 37.3 Fixes
+  - Fix: a solo laptop not connected to a router could not run the application - an IP address from the router was required (the router does not need to be connected).  Applied a workaround from the framework provider. ([#624](https://github.com/jflamy/owlcms4/issues/624))
+  - Fix: Jury break would switch from "technical" to "deliberation" if referees were called, it no longer does.
+  - Jury breaks now work when the platform is inactive, allowing referees to be called.
   - Fix: If an athlete had no associated flag (or picture), the image from the previous athlete would remain shown. ([#623](https://github.com/jflamy/owlcms4/issues/623))
+
 
 
 ##### Highlights from recent stable releases
@@ -25,11 +25,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_37.3.0-alpha00.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_37.3.0-beta00.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_37.3.0-alpha00.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_37.3.0-beta00.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the [Heroku](https://owlcms.github.io/owlcms4-prerelease/#Heroku) or (recommended) **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
