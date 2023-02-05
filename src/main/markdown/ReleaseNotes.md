@@ -1,4 +1,4 @@
-37.3.0-rc00: Fix for 2-minute timer and "announcer enters decisions" mode.
+37.3.0: Fix for 2-minute timer in "announcer enters decisions" mode.
 
 - 37.3 Enhancements
   - MQTT Message added for telling  the jury device that a jury member has voted so it does not have to keep track.
