@@ -823,31 +823,25 @@ public class FieldOfPlay {
         Athlete owner = getClockOwner();
 
         if (owner != null && owner.equals(a)) {
-            logger.warn("A0");
             // the clock was started for us. we own the clock, clock is already set to what time was
             // left
             timeAllowed = getAthleteTimer().getTimeRemainingAtLastStop();
         } else if (getPreviousAthlete() != null && getPreviousAthlete().equals(a)) {
             // ** resetDecisions();
             if (owner != null || a.getAttemptNumber() == 1) {
-                logger.warn("A1");
                 // clock has started for someone else, one minute
                 // first C&J, one minute (doesn't matter who lifted last during snatch)
                 timeAllowed = 60000;
             } else {
-                logger.warn("A2");
                 timeAllowed = 120000;
             }
             if (owner == null) {
-                logger.warn("A3");
                 setClockOwnerInitialTimeAllowed(timeAllowed);
             }
         } else {
             // ** resetDecisions();
             timeAllowed = 60000;
-            logger.warn("A4");
             if (owner == null) {
-                logger.warn("A5");
                 setClockOwnerInitialTimeAllowed(timeAllowed);
             }
         }
@@ -2049,7 +2043,7 @@ public class FieldOfPlay {
     }
 
     private void setPreviousAthlete(Athlete athlete) {
-        logger.warn("setting previousAthlete to {}", getCurAthlete());
+        //logger.trace("setting previousAthlete to {}", getCurAthlete());
         this.previousAthlete = athlete;
     }
 
