@@ -1,9 +1,10 @@
-37.3.0-beta00: Improvements to Jury breaks, additional support for Firmata Jury devices.
+37.3.0-rc00: Fix for 2-minute timer.
 
 - 37.3 Enhancements
   - MQTT Message added for telling a Firmata device that a jury member has voted.
   - Added the group description to the group dropdown entries on the registration page.
 - 37.3 Fixes
+  - Fix: 2-minute timer behavior could be erratic due to miscomputing of the previous lifter.
   - Fix: a solo laptop not connected to a router could not run the application - an IP address from the router was required (the router does not need to be connected).  Applied a workaround from the framework provider. ([#624](https://github.com/jflamy/owlcms4/issues/624))
   - Fix: Jury break would switch from "technical" to "deliberation" if referees were called, it no longer does.
   - Jury breaks now work when the platform is inactive, allowing referees to be called.
