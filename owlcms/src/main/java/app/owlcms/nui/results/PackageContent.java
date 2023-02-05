@@ -78,7 +78,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
     final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
     final private static Logger logger = (Logger) LoggerFactory.getLogger(PackageContent.class);
-    private static final String TITLE = "Results.EndOfCompetition";
+    static final String TITLE = "Results.EndOfCompetition";
     static {
         logger.setLevel(Level.INFO);
         jexlLogger.setLevel(Level.ERROR);
@@ -132,9 +132,10 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 //        catResultsAnchor.add(catDownloadButton);
 
         Button finalPackageDownloadButton = createFinalPackageDownloadButton();
+        Button registrationResultsButton = createRegistrationResultsDownloadButton();
         Button categoryResultsDownloadButton = createCategoryResultsDownloadButton();
 
-        HorizontalLayout buttons = new HorizontalLayout(finalPackageDownloadButton, categoryResultsDownloadButton);
+        HorizontalLayout buttons = new HorizontalLayout(registrationResultsButton, categoryResultsDownloadButton, finalPackageDownloadButton);
         buttons.getStyle().set("margin-left", "5em");
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
         buttons.setPadding(false);
@@ -347,6 +348,144 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
                 new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
     }
 
+    /**
+     * @return true if the current group is safe for editing -- i.e. not lifting currently
+     */
+    private boolean checkFOP() {
+        Collection<FieldOfPlay> fops = OwlcmsFactory.getFOPs();
+        FieldOfPlay liftingFop = null;
+        search: for (FieldOfPlay fop : fops) {
+            if (fop.getGroup() != null && fop.getGroup().equals(currentGroup)) {
+                liftingFop = fop;
+                break search;
+            }
+        }
+        if (liftingFop != null) {
+            Notification.show(
+                    getTranslation("Warning_GroupLifting") + liftingFop.getName() + getTranslation("CannotEditResults"),
+                    3000, Position.MIDDLE);
+            logger.debug(getTranslation("CannotEditResults_logging"), currentGroup, liftingFop);
+        } else {
+            logger.debug(getTranslation("EditingResults_logging"), currentGroup, liftingFop);
+        }
+        return liftingFop != null;
+    }
+
+    private Button createCategoryResultsDownloadButton() {
+        downloadDialog = new DownloadDialog(
+                () -> {
+                    JXLSResultSheet rs = new JXLSResultSheet();
+                    rs.setAgeDivision(ageDivision);
+                    rs.setAgeGroupPrefix(ageGroupPrefix);
+                    rs.setCategory(categoryValue);
+                    // group may have been edited since the page was loaded
+                    rs.setGroup(currentGroup != null ? GroupRepository.getById(currentGroup.getId()) : null);
+                    rs.setSortedAthletes((List<Athlete>) findAll());
+                    return rs;
+                },
+                "/templates/protocol",
+                null,
+                Competition::getComputedProtocolTemplateFileName,
+                Competition::setProtocolTemplateFileName,
+                Translator.translate("EligibilityCategoryResults"), "results", Translator.translate("Download"));
+        Button resultsButton = downloadDialog.createTopBarDownloadButton();
+        return resultsButton;
+    }
+
+    private Button createFinalPackageDownloadButton() {
+        downloadDialog = new DownloadDialog(
+                () -> {
+                    JXLSCompetitionBook rs = new JXLSCompetitionBook(locationUI);
+                    // group may have been edited since the page was loaded
+                    rs.setGroup(currentGroup != null ? GroupRepository.getById(currentGroup.getId()) : null);
+                    rs.setAgeDivision(ageDivision);
+                    rs.setAgeGroupPrefix(ageGroupPrefix);
+                    rs.setCategory(categoryValue);
+                    return rs;
+                },
+                "/templates/competitionBook",
+                null,
+                Competition::getComputedFinalPackageTemplateFileName,
+                Competition::setFinalPackageTemplateFileName,
+                Translator.translate("FinalResultsPackage"), "finalPackage", Translator.translate("Download"));
+        Button resultsButton = downloadDialog.createTopBarDownloadButton();
+        return resultsButton;
+    }
+
+    private Button createRegistrationResultsDownloadButton() {
+        downloadDialog = new DownloadDialog(
+                () -> {
+                    JXLSResultSheet rs = new JXLSResultSheet(false);
+                    // group may have been edited since the page was loaded
+                    rs.setGroup(currentGroup != null ? GroupRepository.getById(currentGroup.getId()) : null);
+                    return rs;
+                },
+                "/templates/protocol",
+                null,
+                Competition::getComputedProtocolTemplateFileName,
+                Competition::setProtocolTemplateFileName,
+                Translator.translate("RegistrationCategoryResults"), "results", Translator.translate("Download"));
+        Button resultsButton = downloadDialog.createTopBarDownloadButton();
+        return resultsButton;
+    }
+
+    private void doAgeGroupPrefixRefresh(String string) {
+        setAgeGroupPrefix(string);
+        updateFilters(getAgeDivision(), getAgeGroupPrefix());
+        // xlsWriter.setAgeGroupPrefix(ageGroupPrefix);
+        if (crudGrid != null) {
+            crudGrid.refreshGrid();
+        }
+    }
+
+    private AgeDivision getAgeDivision() {
+        return ageDivision;
+    }
+
+    private String getAgeGroupPrefix() {
+        return ageGroupPrefix;
+    }
+
+    private Category getCategoryValue() {
+        // logger.trace("categoryValue = {} {}", categoryValue, LoggerUtils.whereFrom());
+        return categoryValue;
+    }
+
+    private void setAgeDivision(AgeDivision ageDivision) {
+        // logger.debug("setAgeDivision to {} from {}",ageDivision, LoggerUtils.whereFrom());
+        this.ageDivision = ageDivision;
+    }
+
+    private void setAgeGroupPrefix(String value) {
+        this.ageGroupPrefix = value;
+    }
+
+    private void updateFilters(AgeDivision ageDivision2, String ageGroupPrefix2) {
+        // logger.debug("updateFilters {} {} {} {}", ageDivision2, ageGroupPrefix2,
+        // getCategoryValue(),LoggerUtils.whereFrom());
+        List<Category> categories = CategoryRepository.findByGenderDivisionAgeBW(genderFilter.getValue(),
+                getAgeDivision(), null, null);
+        if (getAgeGroupPrefix() != null && !getAgeGroupPrefix().isBlank()) {
+            categories = categories.stream().filter((c) -> c.getAgeGroup().getCode().equals(getAgeGroupPrefix()))
+                    .collect(Collectors.toList());
+        }
+        if (ageGroupPrefix == null || ageGroupPrefix.isBlank()) {
+            categoryFilter.setItems(new ArrayList<>());
+        } else {
+            Category prevValue = getCategoryValue();
+            categoryFilter.setItems(categories);
+            // contains is not reliable for Categories, check codes
+            if (categories != null && prevValue != null
+                    && categories.stream()
+                            .anyMatch(c -> c.getComputedCode().contentEquals(prevValue.getComputedCode()))) {
+                categoryFilter.setValue(prevValue);
+            } else {
+                categoryFilter.setValue(null);
+            }
+
+        }
+    }
+
     @Override
     protected HorizontalLayout announcerButtons(FlexLayout topBar2) {
         return null;
@@ -413,8 +552,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
     @Override
     protected void defineFilters(GridCrud<Athlete> crud) {
-        //logger.debug("defineFilters from {}",LoggerUtils.whereFrom());
-        
+        // logger.debug("defineFilters from {}",LoggerUtils.whereFrom());
+
         if (topBarAgeDivisionSelect == null) {
             topBarAgeDivisionSelect = new ComboBox<>();
             topBarAgeDivisionSelect.setPlaceholder(getTranslation("AgeDivision"));
@@ -425,9 +564,9 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             topBarAgeDivisionSelect.setClearButtonVisible(true);
             topBarAgeDivisionSelect.getStyle().set("margin-left", "1em");
             setAgeDivisionSelectionListener();
-            //logger.debug("adItems {}",adItems);
+            // logger.debug("adItems {}",adItems);
         }
-        
+
         if (topBarAgeGroupPrefixSelect == null) {
             topBarAgeGroupPrefixSelect = new ComboBox<>();
             topBarAgeGroupPrefixSelect.setPlaceholder(getTranslation("AgeGroup"));
@@ -437,7 +576,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             topBarAgeGroupPrefixSelect.setWidth("20ch");
             topBarAgeGroupPrefixSelect.setClearButtonVisible(true);
             topBarAgeGroupPrefixSelect.getStyle().set("margin-left", "1em");
-            setAgeGroupPrefixSelectionListener(); 
+            setAgeGroupPrefixSelectionListener();
         }
 
         crud.getCrudLayout().addFilterComponent(topBarAgeDivisionSelect);
@@ -473,7 +612,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         });
         genderFilter.setWidth("10em");
         crud.getCrudLayout().addFilterComponent(genderFilter);
-        
+
         if (adItems != null && adItems.size() == 1) {
             setAgeDivision(adItems.get(0));
             topBarAgeDivisionSelect.setValue(adItems.get(0));
@@ -491,7 +630,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
     protected void setAgeDivisionSelectionListener() {
         topBarAgeDivisionSelect.addValueChangeListener(e -> {
-            //logger.debug("topBarAgeDivisionSelect {}",e.getValue());
+            // logger.debug("topBarAgeDivisionSelect {}",e.getValue());
             // the name of the resulting file is set as an attribute on the <a href tag that
             // surrounds the packageDownloadButton button.
             AgeDivision ageDivisionValue = e.getValue();
@@ -510,10 +649,11 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
             topBarAgeGroupPrefixSelect.setItems(ageDivisionAgeGroupPrefixes);
             boolean notEmpty = ageDivisionAgeGroupPrefixes.size() > 0;
-            //logger.debug("ageDivisionAgeGroupPrefixes {}",ageDivisionAgeGroupPrefixes);
+            // logger.debug("ageDivisionAgeGroupPrefixes {}",ageDivisionAgeGroupPrefixes);
             topBarAgeGroupPrefixSelect.setEnabled(notEmpty);
-            String first = (notEmpty && ageDivisionValue == AgeDivision.IWF) || (ageDivisionAgeGroupPrefixes.size() == 1)? ageDivisionAgeGroupPrefixes.get(0)
-                    : null;
+            String first = (notEmpty && ageDivisionValue == AgeDivision.IWF)
+                    || (ageDivisionAgeGroupPrefixes.size() == 1) ? ageDivisionAgeGroupPrefixes.get(0)
+                            : null;
 
             String ageGroupPrefix2 = getAgeGroupPrefix();
             if (ageDivisionAgeGroupPrefixes.contains(ageGroupPrefix2)) {
@@ -552,127 +692,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         updateURLLocation(UI.getCurrent(), getLocation(), "cat",
                 cat);
         // logger.debug("update URL {} {} {}",ag,ad,cat);
-    }
-
-    /**
-     * @return true if the current group is safe for editing -- i.e. not lifting currently
-     */
-    private boolean checkFOP() {
-        Collection<FieldOfPlay> fops = OwlcmsFactory.getFOPs();
-        FieldOfPlay liftingFop = null;
-        search: for (FieldOfPlay fop : fops) {
-            if (fop.getGroup() != null && fop.getGroup().equals(currentGroup)) {
-                liftingFop = fop;
-                break search;
-            }
-        }
-        if (liftingFop != null) {
-            Notification.show(
-                    getTranslation("Warning_GroupLifting") + liftingFop.getName() + getTranslation("CannotEditResults"),
-                    3000, Position.MIDDLE);
-            logger.debug(getTranslation("CannotEditResults_logging"), currentGroup, liftingFop);
-        } else {
-            logger.debug(getTranslation("EditingResults_logging"), currentGroup, liftingFop);
-        }
-        return liftingFop != null;
-    }
-
-    private Button createCategoryResultsDownloadButton() {
-        downloadDialog = new DownloadDialog(
-                () -> {
-                    JXLSResultSheet rs = new JXLSResultSheet();
-                    rs.setAgeDivision(ageDivision);
-                    rs.setAgeGroupPrefix(ageGroupPrefix);
-                    rs.setCategory(categoryValue);
-                    // group may have been edited since the page was loaded
-                    rs.setGroup(currentGroup != null ? GroupRepository.getById(currentGroup.getId()) : null);
-                    rs.setSortedAthletes((List<Athlete>) findAll());
-                    return rs;
-                },
-                "/templates/protocol",
-                null,
-                Competition::getComputedProtocolTemplateFileName,
-                Competition::setProtocolTemplateFileName,
-                Translator.translate("CategoryResults"), "results", Translator.translate("Download"));
-        Button resultsButton = downloadDialog.createTopBarDownloadButton();
-        return resultsButton;
-    }
-
-    private Button createFinalPackageDownloadButton() {
-        downloadDialog = new DownloadDialog(
-                () -> {
-                    JXLSCompetitionBook rs = new JXLSCompetitionBook(locationUI);
-                    // group may have been edited since the page was loaded
-                    rs.setGroup(currentGroup != null ? GroupRepository.getById(currentGroup.getId()) : null);
-                    rs.setAgeDivision(ageDivision);
-                    rs.setAgeGroupPrefix(ageGroupPrefix);
-                    rs.setCategory(categoryValue);
-                    return rs;
-                },
-                "/templates/competitionBook",
-                null,
-                Competition::getComputedFinalPackageTemplateFileName,
-                Competition::setFinalPackageTemplateFileName,
-                Translator.translate("FinalResultsPackage"), "finalPackage", Translator.translate("Download"));
-        Button resultsButton = downloadDialog.createTopBarDownloadButton();
-        return resultsButton;
-    }
-
-    private void doAgeGroupPrefixRefresh(String string) {
-        setAgeGroupPrefix(string);
-        updateFilters(getAgeDivision(), getAgeGroupPrefix());
-        //xlsWriter.setAgeGroupPrefix(ageGroupPrefix);
-        if (crudGrid != null) {
-            crudGrid.refreshGrid();
-        }
-    }
-
-    private AgeDivision getAgeDivision() {
-        return ageDivision;
-    }
-
-    private String getAgeGroupPrefix() {
-        return ageGroupPrefix;
-    }
-
-    private Category getCategoryValue() {
-        // logger.trace("categoryValue = {} {}", categoryValue, LoggerUtils.whereFrom());
-        return categoryValue;
-    }
-
-    private void setAgeDivision(AgeDivision ageDivision) {
-        //logger.debug("setAgeDivision to {} from {}",ageDivision, LoggerUtils.whereFrom());
-        this.ageDivision = ageDivision;
-    }
-
-    private void setAgeGroupPrefix(String value) {
-        this.ageGroupPrefix = value;
-    }
-
-    private void updateFilters(AgeDivision ageDivision2, String ageGroupPrefix2) {
-        // logger.debug("updateFilters {} {} {} {}", ageDivision2, ageGroupPrefix2,
-        // getCategoryValue(),LoggerUtils.whereFrom());
-        List<Category> categories = CategoryRepository.findByGenderDivisionAgeBW(genderFilter.getValue(),
-                getAgeDivision(), null, null);
-        if (getAgeGroupPrefix() != null && !getAgeGroupPrefix().isBlank()) {
-            categories = categories.stream().filter((c) -> c.getAgeGroup().getCode().equals(getAgeGroupPrefix()))
-                    .collect(Collectors.toList());
-        }
-        if (ageGroupPrefix == null || ageGroupPrefix.isBlank()) {
-            categoryFilter.setItems(new ArrayList<>());
-        } else {
-            Category prevValue = getCategoryValue();
-            categoryFilter.setItems(categories);
-            // contains is not reliable for Categories, check codes
-            if (categories != null && prevValue != null
-                    && categories.stream()
-                            .anyMatch(c -> c.getComputedCode().contentEquals(prevValue.getComputedCode()))) {
-                categoryFilter.setValue(prevValue);
-            } else {
-                categoryFilter.setValue(null);
-            }
-
-        }
     }
 
 }

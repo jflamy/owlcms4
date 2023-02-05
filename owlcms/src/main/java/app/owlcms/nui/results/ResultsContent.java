@@ -203,12 +203,13 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 
         topBar = new FlexLayout();
 
-        Button resultsButton = createGroupResultsDownloadButton();
+        Button resultsButton = createEligibilityResultsDownloadButton();
+        Button registrationResultsButton = createRegistrationResultsDownloadButton();
         Button medalsButtons = createGroupMedalsDownloadButton();
 
         createTopBarGroupSelect();
 
-        HorizontalLayout buttons = new HorizontalLayout(resultsButton, medalsButtons);
+        HorizontalLayout buttons = new HorizontalLayout(resultsButton, registrationResultsButton, medalsButtons);
         buttons.getStyle().set("margin-left", "5em");
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
         buttons.setMargin(false);
@@ -501,7 +502,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         return resultsButton;
     }
 
-    private Button createGroupResultsDownloadButton() {
+    private Button createEligibilityResultsDownloadButton() {
         downloadDialog = new DownloadDialog(
                 () -> {
                     JXLSResultSheet rs = new JXLSResultSheet();
@@ -513,7 +514,24 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
                 null,
                 Competition::getComputedProtocolTemplateFileName,
                 Competition::setProtocolTemplateFileName,
-                Translator.translate("GroupResults"), "results", Translator.translate("Download"));
+                Translator.translate("EligibilityCategoryResults"), "results", Translator.translate("Download"));
+        Button resultsButton = downloadDialog.createTopBarDownloadButton();
+        return resultsButton;
+    }
+    
+    private Button createRegistrationResultsDownloadButton() {
+        downloadDialog = new DownloadDialog(
+                () -> {
+                    JXLSResultSheet rs = new JXLSResultSheet(false);
+                    // group may have been edited since the page was loaded
+                    rs.setGroup(currentGroup != null ? GroupRepository.getById(currentGroup.getId()) : null);
+                    return rs;
+                },
+                "/templates/protocol",
+                null,
+                Competition::getComputedProtocolTemplateFileName,
+                Competition::setProtocolTemplateFileName,
+                Translator.translate("RegistrationCategoryResults"), "results", Translator.translate("Download"));
         Button resultsButton = downloadDialog.createTopBarDownloadButton();
         return resultsButton;
     }

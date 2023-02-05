@@ -186,7 +186,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
     }
 
     public String getTemplateFileName() {
-        logger.debug("getTemplateFileName {}", templateFileName);
+        logger.warn("getTemplateFileName {}", templateFileName);
         return templateFileName;
     }
 

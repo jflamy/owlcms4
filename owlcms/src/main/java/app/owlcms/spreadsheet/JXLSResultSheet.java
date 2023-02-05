@@ -19,7 +19,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
-import app.owlcms.data.config.Config;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -40,8 +40,14 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
         tagLogger.setLevel(Level.ERROR);
     }
 
+    private boolean resultsByCategory;
+
     public JXLSResultSheet() {
-        super();
+        this(true);
+    }
+
+    public JXLSResultSheet(boolean b) {
+        this.resultsByCategory = b;
     }
 
     @Override
@@ -57,7 +63,7 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
         
         // get all the PAthletes for the current group - athletes show as many times as they have participations.
         List<Athlete> pAthletes;
-        if (Config.getCurrent().featureSwitch("oldProtocol", false)) {
+        if (resultsByCategory) {
             pAthletes = new ArrayList<Athlete>(rankedAthletes.size()*2);
             for (Athlete a : rankedAthletes) {
                 for (Participation p : a.getParticipations()) {
@@ -121,7 +127,8 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
     @Override
     protected void postProcess(Workbook workbook) {
         final Group currentCompetitionSession = getGroup();
-        if (currentCompetitionSession == null) {
+        logger.warn("template {}", getTemplateFileName());
+        if (currentCompetitionSession == null && !Competition.getCurrent().getProtocolTemplateFileName().contains("USAW")) {
             zapCellPair(workbook, 3, 9);
         }
     }

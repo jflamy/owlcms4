@@ -46,11 +46,11 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
      */
     public ResultsNavigationContent() {
         Button groupResults = openInNewTab(ResultsContent.class, getTranslation("GroupResults"));
-        Button medals = openInNewTab(ResultsContent.class, getTranslation("Results.Medals"));
+        //Button medals = openInNewTab(ResultsContent.class, getTranslation("Results.Medals"));
         Button teamResults = openInNewTabNoParam(TeamResultsContent.class, getTranslation("TeamResults.Title"));
         Button teams = openInNewTabNoParam(TeamSelectionContent.class, getTranslation(TeamSelectionContent.TITLE));
-        Button categoryResults = openInNewTabNoParam(PackageContent.class, getTranslation("CategoryResults"));
-        Button finalPackage = openInNewTabNoParam(PackageContent.class, getTranslation("FinalResultsPackage"));
+        //Button categoryResults = openInNewTabNoParam(PackageContent.class, getTranslation("CategoryResults"));
+        Button finalPackage = openInNewTabNoParam(PackageContent.class, getTranslation("CompetitionResults"));
 
         Div timingStats = DownloadButtonFactory.createDynamicXLSDownloadButton("timingStats",
                 getTranslation("TimingStatistics"), new JXLSTimingStats(UI.getCurrent()));
@@ -59,9 +59,9 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
                 getTranslation("Results.NewRecords"), new JXLSExportRecords(UI.getCurrent()));
         ((Button) newRecords.getComponentAt(0)).setWidth("100%");
 
-        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(groupResults, medals);
+        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(groupResults);
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(teamResults, teams);
-        FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(finalPackage, categoryResults, newRecords,
+        FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(finalPackage, newRecords,
                 timingStats);
 
         doGroup(getTranslation("ForEachCompetitionGroup"), grid1, this);
