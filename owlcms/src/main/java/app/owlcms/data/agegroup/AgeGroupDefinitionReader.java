@@ -150,35 +150,43 @@ public class AgeGroupDefinitionReader {
                         break;
                     case 2: {
                         String cellValue = cell.getStringCellValue();
-                        ag.setAgeDivision(AgeDivision.getAgeDivisionFromCode(cellValue));
+                        if (ag != null) {
+                            ag.setAgeDivision(AgeDivision.getAgeDivisionFromCode(cellValue));
+                        }
                     }
                         break;
                     case 3: {
                         String cellValue = cell.getStringCellValue();
-                        if (cellValue != null && !cellValue.trim().isEmpty()) {
+                        if (cellValue != null && !cellValue.trim().isEmpty() && ag != null) {
                             ag.setGender(cellValue.contentEquals("F") ? Gender.F : Gender.M);
                         }
                     }
                         break;
                     case 4: {
                         long cellValue = Math.round(cell.getNumericCellValue());
-                        ag.setMinAge(Math.toIntExact(cellValue));
+                        if (ag != null) {
+                            ag.setMinAge(Math.toIntExact(cellValue));
+                        }
                     }
                         break;
                     case 5: {
                         long cellValue = Math.round(cell.getNumericCellValue());
-                        ag.setMaxAge(Math.toIntExact(cellValue));
+                        if (ag != null) {
+                            ag.setMaxAge(Math.toIntExact(cellValue));
+                        }
                     }
                         break;
                     case 6: {
                         boolean explicitlyActive = cell.getBooleanCellValue();
                         // age division is active according to spreadsheet, unless we are given an explicit
                         // list of age divisions as override (e.g. to setup tests or demos)
-                        AgeDivision aDiv = ag.getAgeDivision();
-                        boolean active = ageDivisionOverride == null ? explicitlyActive
-                                : ageDivisionOverride.stream()
-                                        .anyMatch((Predicate<AgeDivision>) (ad) -> ad.equals(aDiv));
-                        ag.setActive(active);
+                        if (ag != null) {
+                            AgeDivision aDiv = ag.getAgeDivision();
+                            boolean active = ageDivisionOverride == null ? explicitlyActive
+                                    : ageDivisionOverride.stream()
+                                            .anyMatch((Predicate<AgeDivision>) (ad) -> ad.equals(aDiv));
+                            ag.setActive(active);
+                        }
                     }
                         break;
                     default: {
