@@ -12,18 +12,6 @@ steps:
 #      cp ./node /usr/local/bin
 #      cp ./npm /usr/local/bin
 -  script: |
-      pwd
-      mkdir owlcms-heroku
-      cd owlcms-heroku
-      git init
-      git clone https://github.com/jflamy/owlcms-heroku
-      git checkout $(Build.SourceBranchName)
-      cd ..
-      mkdir publicresults-heroku
-      cd publicresults-heroku
-      git init
-      git clone https://github.com/jflamy/publicresults-heroku
-      git checkout $(Build.SourceBranchName)
       mkdir $HOME/.m2
       cp src/main/azure-pipelines/settings.xml $HOME/.m2/settings.xml
 -  task: MavenAuthenticate@0
