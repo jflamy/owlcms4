@@ -71,6 +71,7 @@ public class AgeGroupDefinitionReader {
                     String cellValue = dataFormatter.formatCellValue(cell);
                     String trim = cellValue.trim();
                     if (trim.isBlank()) {
+                        c = null;
                         break rows;
                     }
                     c.setCode(trim);
@@ -126,7 +127,7 @@ public class AgeGroupDefinitionReader {
                 }
                 row = rowIterator.next();
 
-                AgeGroup ag = new AgeGroup();
+                AgeGroup ag = null;
                 double curMin = 0.0D;
 
                 Iterator<Cell> cellIterator = row.cellIterator();
@@ -137,9 +138,12 @@ public class AgeGroupDefinitionReader {
                         String cellValue = cell.getStringCellValue();
                         String trim = cellValue.trim();
                         if (trim.isBlank()) {
+                            ag = null;
                             break rows;
+                        } else {
+                            ag = new AgeGroup();
+                            ag.setCode(trim);
                         }
-                        ag.setCode(trim);
                     }
                         break;
                     case 1:
@@ -170,9 +174,10 @@ public class AgeGroupDefinitionReader {
                         boolean explicitlyActive = cell.getBooleanCellValue();
                         // age division is active according to spreadsheet, unless we are given an explicit
                         // list of age divisions as override (e.g. to setup tests or demos)
+                        AgeDivision aDiv = ag.getAgeDivision();
                         boolean active = ageDivisionOverride == null ? explicitlyActive
                                 : ageDivisionOverride.stream()
-                                        .anyMatch((Predicate<AgeDivision>) (ad) -> ad.equals(ag.getAgeDivision()));
+                                        .anyMatch((Predicate<AgeDivision>) (ad) -> ad.equals(aDiv));
                         ag.setActive(active);
                     }
                         break;
@@ -212,7 +217,9 @@ public class AgeGroupDefinitionReader {
                     }
                     iColumn++;
                 }
-                em.persist(ag);
+                if (ag != null) {
+                    em.persist(ag);
+                }
                 iRow++;
             }
             Competition comp = Competition.getCurrent();
