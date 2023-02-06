@@ -1,14 +1,9 @@
-37.3.0: Fix for 2-minute timer in "announcer enters decisions" mode.
+37.4.0-beta00: Fix for Age Group imports; Separate eligible and registration results.
 
-- 37.3 Enhancements
-  - MQTT Message added for telling  the jury device that a jury member has voted so it does not have to keep track.
-  - Added the group description to the group dropdown entries on the registration page.
+- 37.4 Enhancements
+  - Ability to produce results by registration category (only one result per athlete) or by multiple eligibility categories (ranking varies according to category)
 - 37.3 Fixes
-  - Fix: 2-minute timer behavior could be erratic when using the "announcer enters flag decisions" mode.
-  - Fix: a solo laptop not connected to a router could not run the application - an IP address from the router was required (the router does not need to be connected).  Applied a workaround from the framework provider. ([#624](https://github.com/jflamy/owlcms4/issues/624))
-  - Fix: Jury break would switch from "technical" to "deliberation" if referees were called, it no longer does.
-  - Jury breaks now work when the platform is inactive, allowing referees to be called.
-  - Fix: If an athlete had no associated flag (or picture), the image from the previous athlete would remain shown. ([#623](https://github.com/jflamy/owlcms4/issues/623))
+  - Empty lines at the end of an Age Group/Category definition file would cause Age Groups without codes, and prevent database export ([#625](https://github.com/jflamy/owlcms4/issues/625))
 
 ##### Highlights from recent stable releases
 
