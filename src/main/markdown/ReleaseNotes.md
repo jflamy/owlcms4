@@ -1,8 +1,9 @@
-37.4.0-beta00: Fix for Age Group imports; Separate eligible and registration results.
+37.4.0-beta02: MQTT Latency fixed, Result export improvements
 
 - 37.4 Enhancements
   - Ability to produce results by registration category (only one result per athlete) or with multiple eligibility categories (ranking varies according to category)
   - The warmup scoreboard title does not change during ceremonies (only the attempt board and public scoreboards) 
+  - 37.4.0-beta02: translations.
 - 37.4 Fixes
   - MQTT messages were being needlessly buffered by the built-in server.  Buffering now disabled, propagation delays < 2ms . [(#629)](https://github.com/jflamy/owlcms4/issues/629)
   - Empty lines at the end of an Age Group/Category definition file would cause Age Groups without codes, and prevent database export ([#625](https://github.com/jflamy/owlcms4/issues/625))
