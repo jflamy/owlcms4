@@ -140,7 +140,7 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
     public void doBreak(UIEvent e) {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getElement().setProperty("fullName",
-                    inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType()));
+                    inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
             getElement().setProperty("teamName", "");
             getElement().setProperty("attempt", "");
             setHidden(false);
@@ -155,7 +155,7 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
     public void doCeremony(UIEvent.CeremonyStarted e) {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getElement().setProperty("fullName",
-                    inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType()));
+                    inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
             getElement().setProperty("teamName", "");
             getElement().setProperty("attempt", "");
             setHidden(false);

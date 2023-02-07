@@ -144,7 +144,7 @@ public class EventForwarder implements BreakDisplay {
             break;
         default:
             setFullName((group != null ? (Translator.translate("Group_number", group.getName()) + " &ndash; ") : "")
-                    + inferMessage(fop.getBreakType(), fop.getCeremonyType()));
+                    + inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
             break;
         }
         setTeamName("");
@@ -165,7 +165,7 @@ public class EventForwarder implements BreakDisplay {
             break;
         default:
             setFullName((group != null ? (Translator.translate("Group_number", group.getName()) + " &ndash; ") : "")
-                    + inferMessage(fop.getBreakType(), fop.getCeremonyType()));
+                    + inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
             break;
         }
         setTeamName("");
@@ -211,11 +211,11 @@ public class EventForwarder implements BreakDisplay {
      * @see app.owlcms.uievents.BreakDisplay#inferMessage(app.owlcms.uievents.BreakType)
      */
     @Override
-    public String inferMessage(BreakType breakType, CeremonyType ceremonyType) {
+    public String inferMessage(BreakType breakType, CeremonyType ceremonyType, boolean publicDisplay) {
         if (breakType == null) {
             return Translator.translate("PublicMsg.CompetitionPaused");
         }
-        if (ceremonyType != null) {
+        if (ceremonyType != null && publicDisplay) {
             switch (ceremonyType) {
             case INTRODUCTION:
                 return Translator.translate("BreakMgmt.IntroductionOfAthletes");

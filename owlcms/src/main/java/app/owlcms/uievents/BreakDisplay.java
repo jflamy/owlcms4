@@ -40,11 +40,11 @@ public interface BreakDisplay {
         }
     }
 
-    public default String inferMessage(BreakType breakType, CeremonyType ceremonyType) {
+    public default String inferMessage(BreakType breakType, CeremonyType ceremonyType, boolean publicDisplay) {
         if (breakType == null && ceremonyType == null) {
             return Translator.translate("PublicMsg.CompetitionPaused");
         }
-        if (ceremonyType != null) {
+        if (ceremonyType != null && publicDisplay) {
             switch (ceremonyType) {
             case INTRODUCTION:
                 return Translator.translate("BreakMgmt.IntroductionOfAthletes");

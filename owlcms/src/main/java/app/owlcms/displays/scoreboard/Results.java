@@ -167,7 +167,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 
     private void doFopBreak() {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            String title = inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType());
+            String title = inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType(), this.isSwitchableDisplay());
             this.getElement().setProperty("fullName", title);
             this.getElement().setProperty("teamName", "");
             this.getElement().setProperty("attempt", "");
@@ -212,7 +212,7 @@ public class Results extends PolymerTemplate<TemplateModel>
                 UI.getCurrent().navigate("displays/resultsMedals", QueryParameters.simple(map));
             }
 
-            String title = inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType());
+            String title = inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType(), this.isSwitchableDisplay());
             this.getElement().setProperty("fullName", title);
             this.getElement().setProperty("teamName", "");
             this.getElement().setProperty("groupName", "");

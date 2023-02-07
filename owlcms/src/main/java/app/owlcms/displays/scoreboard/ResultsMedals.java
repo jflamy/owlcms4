@@ -144,7 +144,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             this.getElement().setProperty("fullName",
-                    inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType()));
+                    inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
             this.getElement().setProperty("teamName", "");
             this.getElement().setProperty("attempt", "");
             setHidden(false);
@@ -163,7 +163,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
             setCategory(ceremonyCategory);
 
             this.getElement().setProperty("fullName",
-                    inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType()));
+                    inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
             this.getElement().setProperty("teamName", "");
             this.getElement().setProperty("attempt", "");
             setHidden(false);

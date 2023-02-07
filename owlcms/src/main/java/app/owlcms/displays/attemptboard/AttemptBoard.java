@@ -226,7 +226,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
     protected void doBreak(FieldOfPlay fop) {
         //logger.debug("dobreak");
         this.getElement().setProperty("lastName", inferGroupName(fop.getCeremonyType()));
-        this.getElement().setProperty("firstName", inferMessage(fop.getBreakType(), fop.getCeremonyType()));
+        this.getElement().setProperty("firstName", inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
         this.getElement().setProperty("teamName", "");
         this.getElement().setProperty("attempt", "");
         Athlete a = fop.getCurAthlete();
@@ -258,7 +258,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
             }
 
             this.getElement().setProperty("lastName", inferGroupName());
-            this.getElement().setProperty("firstName", inferMessage(breakType, fop.getCeremonyType()));
+            this.getElement().setProperty("firstName", inferMessage(breakType, fop.getCeremonyType(), true));
             this.getElement().setProperty("teamName", "");
 
             setDisplayedWeight("");
@@ -333,7 +333,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 
     private void doJuryBreak(FieldOfPlay fop, BreakType breakType) {
         this.getElement().setProperty("lastName", inferGroupName());
-        this.getElement().setProperty("firstName", inferMessage(breakType, fop.getCeremonyType()));
+        this.getElement().setProperty("firstName", inferMessage(breakType, fop.getCeremonyType(), true));
         this.getElement().setProperty("teamName", "");
         // hide the weight and plates.
         this.getElement().callJsFunction("doBreak", false);
