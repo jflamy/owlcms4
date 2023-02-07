@@ -51,6 +51,7 @@ public class MQTTMonitor {
         String jurySummonTopicName;
         String deprecatedDecisionTopicName;
         String clockTopicName;
+        String testTopicName;
 
         MQTTCallback() {
             // these are the device-initiated events that the monitor tracks
@@ -62,6 +63,7 @@ public class MQTTMonitor {
             this.juryMemberDecisionTopicName = "owlcms/jurybox/juryMember/decision/" + fop.getName();
             this.juryDecisionTopicName = "owlcms/jurybox/decision/" + fop.getName();
             this.jurySummonTopicName = "owlcms/jurybox/summon/" + fop.getName();
+            this.testTopicName = "owlcms/test/" + fop.getName();
         }
 
         @Override
@@ -96,6 +98,9 @@ public class MQTTMonitor {
                     postFopEventJuryDecision(topic, messageStr);
                 } else if (topic.endsWith(jurySummonTopicName)) {
                     postFopEventSummonReferee(topic, messageStr);
+                } else if (topic.endsWith(testTopicName)) {
+                    long before = Long.parseLong(messageStr);
+                    logger.warn("{} timing = {}", System.currentTimeMillis() - before);       
                 } else {
                     logger.error("{}Malformed MQTT unrecognized topic message topic='{}' message='{}'",
                             fop.getLoggingName(), topic, messageStr);
