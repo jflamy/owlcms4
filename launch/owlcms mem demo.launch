@@ -11,6 +11,8 @@
         <mapEntry key="OWLCMS_INITIALDATA" value="LARGEGROUP_DEMO"/>
         <mapEntry key="OWLCMS_LOCALE" value="en"/>
         <mapEntry key="OWLCMS_MEMORYMODE" value="true"/>
+        <mapEntry key="OWLCMS_MQTTPASSWORD" value="test"/>
+        <mapEntry key="OWLCMS_MQTTUSERNAME" value="test"/>
         <mapEntry key="OWLCMS_PORT" value="8081"/>
         <mapEntry key="OWLCMS_RESETMODE" value="true"/>
         <mapEntry key="_OWLCMS_BACKDOOR" value="10.0.0.221,127.0.0.1,[0:0:0:0:0:0:0:1]"/>
@@ -18,14 +20,13 @@
         <mapEntry key="_OWLCMS_DISPLAYPIN" value="dis"/>
         <mapEntry key="_OWLCMS_ENABLEEMBEDDEDMQTT" value="true"/>
         <mapEntry key="_OWLCMS_MASTERS" value="false"/>
-        <mapEntry key="_OWLCMS_MQTTPASSWORD" value="Louis-Cyr"/>
         <mapEntry key="_OWLCMS_MQTTPORT" value="8883"/>
         <mapEntry key="_OWLCMS_MQTTSERVER" value="44341a3e47cc48d2b260b8064120f2df.s2.eu.hivemq.cloud"/>
-        <mapEntry key="_OWLCMS_MQTTUSERNAME" value="owlcms"/>
         <mapEntry key="_OWLCMS_PIN" value="test"/>
         <mapEntry key="_OWLCMS_PUBLICDEMO" value="60"/>
         <mapEntry key="_OWLCMS_REMOTE" value="http://localhost:8082/update"/>
         <mapEntry key="_OWLCMS_UPDATEKEY" value="maryhadalittlelamb"/>
+        <mapEntry key="__OWLCMS_MQTTSERVER" value="127.0.0.1"/>
     </mapAttribute>
     <mapAttribute key="org.eclipse.debug.core.preferred_launchers">
         <mapEntry key="[debug]" value="org.eclipse.jdt.launching.localJavaApplication"/>
