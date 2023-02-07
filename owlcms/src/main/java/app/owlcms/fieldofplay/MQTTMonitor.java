@@ -100,7 +100,7 @@ public class MQTTMonitor {
                     postFopEventSummonReferee(topic, messageStr);
                 } else if (topic.endsWith(testTopicName)) {
                     long before = Long.parseLong(messageStr);
-                    logger.warn("{} timing = {}", System.currentTimeMillis() - before);       
+                    logger.warn("{} timing = {}", getFop(), System.currentTimeMillis() - before);       
                 } else {
                     logger.error("{}Malformed MQTT unrecognized topic message topic='{}' message='{}'",
                             fop.getLoggingName(), topic, messageStr);
@@ -409,6 +409,9 @@ public class MQTTMonitor {
                 client.getCurrentServerURI());
         client.subscribe(callback.clockTopicName, 0);
         logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.clockTopicName,
+                client.getCurrentServerURI());
+        client.subscribe(callback.testTopicName, 0);
+        logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.testTopicName,
                 client.getCurrentServerURI());
     }
 
