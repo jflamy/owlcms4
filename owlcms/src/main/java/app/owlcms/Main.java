@@ -410,6 +410,8 @@ public class Main {
         Config.getCurrent().setMqttConfig(mqttConfig);
         mqttConfig.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.toString(Config.getCurrent().getParamMqttUserName() == null));
         mqttConfig.setProperty(BrokerConstants.AUTHENTICATOR_CLASS_NAME, "app.owlcms.init.MoquetteAuthenticator");
+        mqttConfig.setProperty(BrokerConstants.PERSISTENT_STORE_PROPERTY_NAME, "");
+        mqttConfig.setProperty(BrokerConstants.IMMEDIATE_BUFFER_FLUSH_PROPERTY_NAME, "true");
 
         final Server mqttBroker = new Server();
         List<? extends InterceptHandler> userHandlers = Collections.singletonList(new PublisherListener());
