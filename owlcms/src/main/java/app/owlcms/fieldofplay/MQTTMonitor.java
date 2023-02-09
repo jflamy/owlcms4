@@ -100,7 +100,7 @@ public class MQTTMonitor {
                     postFopEventSummonReferee(topic, messageStr);
                 } else if (topic.endsWith(testTopicName)) {
                     long before = Long.parseLong(messageStr);
-                    logger.warn("{} timing = {}", getFop(), System.currentTimeMillis() - before);       
+                    logger.info("{} timing = {}", getFop(), System.currentTimeMillis() - before);       
                 } else {
                     logger.error("{}Malformed MQTT unrecognized topic message topic='{}' message='{}'",
                             fop.getLoggingName(), topic, messageStr);

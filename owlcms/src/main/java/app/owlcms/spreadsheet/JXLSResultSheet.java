@@ -127,7 +127,6 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
     @Override
     protected void postProcess(Workbook workbook) {
         final Group currentCompetitionSession = getGroup();
-        logger.warn("template {}", getTemplateFileName());
         if (currentCompetitionSession == null && !Competition.getCurrent().getProtocolTemplateFileName().contains("USAW")) {
             zapCellPair(workbook, 3, 9);
         }

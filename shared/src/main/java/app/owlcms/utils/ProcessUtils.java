@@ -69,7 +69,7 @@ public class ProcessUtils {
                     } else if (level == Level.INFO) {
                         logger.info(line);
                     } else if (level == Level.WARN) {
-                        logger.warn(line);
+                        logger./**/warn(line);
                     }
                  }
             } catch (IOException e) {
