@@ -1,11 +1,10 @@
-37.4.0: MQTT Latency fixed, Result export improvements
+37.5.0-alpha00: MQTT Latency fixed, Result export improvements
 
-- 37.4 Enhancements
-  - Ability to produce results by registration category (only one result per athlete) or with multiple eligibility categories (ranking varies according to category)
-  - The warmup scoreboard title does not change during ceremonies (only the attempt board and public scoreboards) 
-- 37.4 Fixes
-  - MQTT messages were being needlessly buffered by the built-in server.  Buffering now disabled, propagation delays < 2ms . [(#629)](https://github.com/jflamy/owlcms4/issues/629)
-  - Empty lines at the end of an Age Group/Category definition file would cause Age Groups without codes, and prevent database export ([#625](https://github.com/jflamy/owlcms4/issues/625))
+- 37.5 Enhancements
+  - The blank weigh-in form is now available from the pre-competition documents page in addition to the weigh-in page. On the weigh-in page, the form has been moved to its own button. ([#630](https://github.com/jflamy/owlcms4/issues/630))
+  - The empty protocol sheets are now in a separate section in the templates, and on their own button on the weigh-in page.
+- 37.5 Fixes
+  - none
   
 
 ##### Highlights from recent stable releases
