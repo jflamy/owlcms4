@@ -66,6 +66,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCardsDocs;
 import app.owlcms.spreadsheet.JXLSCategoriesListDocs;
 import app.owlcms.spreadsheet.JXLSStartingListDocs;
+import app.owlcms.spreadsheet.JXLSWeighInSheet;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
@@ -155,6 +156,29 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
                 downloadedFilePrefix, Translator.translate("Download"));
         return cardsButtonFactory.createTopBarDownloadButton();
     }
+    
+    
+    private Button createWeighInButton() {
+        String resourceDirectoryLocation = "/templates/weighin";
+        String title = Translator.translate("WeighinForm");
+        String downloadedFilePrefix = "weighIn";
+
+        DownloadDialog startingWeightsButton = new DownloadDialog(
+                () -> {
+                    JXLSWeighInSheet rs = new JXLSWeighInSheet();
+                    // group may have been edited since the page was loaded
+                    Group curGroup = getGroupFilter().getValue();
+                    rs.setGroup(curGroup != null ? GroupRepository.getById(curGroup.getId()) : null);
+                    return rs;
+                },
+                resourceDirectoryLocation,
+                null,
+                Competition::getComputedStartingWeightsSheetTemplateFileName,
+                Competition::setStartingWeightsSheetTemplateFileName,
+                title,
+                downloadedFilePrefix, Translator.translate("Download"));
+        return startingWeightsButton.createTopBarDownloadButton();
+    }
 
     /**
      * Gets the crudGrid.
@@ -215,6 +239,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         topBar = new FlexLayout();
 
         Button cardsButton = createCardsButton();
+        Button weighInButton = createWeighInButton();
         Button startingListButton = createStartingListButton();
         Button categoriesListButton = createCategoriesListButton();
         Button teamsListButton = createTeamsListButton();
@@ -222,7 +247,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 
         createTopBarGroupSelect();
 
-        HorizontalLayout buttons = new HorizontalLayout(startingListButton, categoriesListButton, teamsListButton, officialSchedule, cardsButton);
+        HorizontalLayout buttons = new HorizontalLayout(startingListButton, categoriesListButton, teamsListButton, officialSchedule, cardsButton, weighInButton);
         buttons.setPadding(false);
         buttons.setMargin(false);
         buttons.setSpacing(true);

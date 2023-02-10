@@ -121,6 +121,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     private Button juryButton;
 
     private Button startingWeightsButton;
+	private Button weighInButton;
 
     /**
      * Instantiates the athlete crudGrid
@@ -149,6 +150,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         JXLSJurySheet juryWriter = new JXLSJurySheet();
         cardsButton = createCardsButton(cardsWriter);
         startingWeightsButton = createStartingWeightsButton();
+        weighInButton = createWeighInButton();
         juryButton = createJuryButton(juryWriter);
 
         Button start = new Button(getTranslation("GenerateStartNumbers"), (e) -> {
@@ -158,7 +160,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
             clearStartNumbers();
         });
 
-        HorizontalLayout buttons = new HorizontalLayout(start, clear, startingWeightsButton, cardsButton, juryButton);
+        HorizontalLayout buttons = new HorizontalLayout(start, clear, weighInButton, cardsButton, startingWeightsButton, juryButton);
         buttons.setPadding(false);
         buttons.setSpacing(true);
         buttons.setMargin(false);
@@ -687,9 +689,31 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     }
 
     private Button createStartingWeightsButton() {
-        String resourceDirectoryLocation = "/templates/weighin";
-        String title = Translator.translate("StartingWeightsSheet");
+        String resourceDirectoryLocation = "/templates/emptyProtocol";
+        String title = Translator.translate("EmptyProtocolSheet");
         String downloadedFilePrefix = "startingWeights";
+
+        DownloadDialog startingWeightsButton = new DownloadDialog(
+                () -> {
+                    JXLSWeighInSheet rs = new JXLSWeighInSheet();
+                    // group may have been edited since the page was loaded
+                    Group curGroup = getGroupFilter().getValue();
+                    rs.setGroup(curGroup != null ? GroupRepository.getById(curGroup.getId()) : null);
+                    return rs;
+                },
+                resourceDirectoryLocation,
+                null,
+                Competition::getComputedStartingWeightsSheetTemplateFileName,
+                Competition::setStartingWeightsSheetTemplateFileName,
+                title,
+                downloadedFilePrefix, Translator.translate("Download"));
+        return startingWeightsButton.createTopBarDownloadButton();
+    }
+    
+    private Button createWeighInButton() {
+        String resourceDirectoryLocation = "/templates/weighin";
+        String title = Translator.translate("WeighinForm");
+        String downloadedFilePrefix = "weighIn";
 
         DownloadDialog startingWeightsButton = new DownloadDialog(
                 () -> {
