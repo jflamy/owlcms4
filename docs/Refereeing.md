@@ -5,7 +5,7 @@ There are several ways to referee using owlcms.  Each is discussed in details in
 1. [Manual refereeing](#manual-refereeing), where the referees use flags, cards, or hand signals.  The announcer enters the decisions.
 2. [Mobile devices](#mobile-device-refereeing): Using phones, tablets or laptops to referee.  Any device that has a browser can be used to enter decisions and receive notifications.
 3. [Button keypads](#button-keypads): These devices provide real buttons, which many referees prefer over using a phone.  They can be bought, or built from affordable supplies. However they do not provide the feedback when a referee needs to be reminded to enter a decision.
-4. [Arduino-based devices](#full-feedback-devices).  Diagrams are available to build such devices (see below), as well as all the software required. Such devices can be made as simple (buttons only) or as compliant (LED and buzzer feedback) as you wish.
+4. [Arduino-based devices](#arduino-based-devices).  Diagrams are available to build such devices (see [below](#arduino-based-devices)). All the software required is already available and the devices can be built without any programming. Such devices can be made as simple (buttons only) or as compliant (LED and buzzer feedback) as you wish.
 
 ## Manual Refereeing
 
@@ -106,9 +106,9 @@ Note that the shortcut keys are as defined according to [a standard](https://www
 
 ## Arduino-Based Devices
 
-Arduino boards are an affordable way to build your own devices.  Diagrams are available on [this page](https://github.com/owlcms/owlcms-firmata/tree/main/diagrams) for working timekeeper, referee, and jury setups.  The firmware that runs on the Arduino and the software that interfaces with owlcms are provided.  There is actually nothing to program.  
+Arduino boards are an affordable way to build your own devices.  See [this page](https://github.com/owlcms/owlcms-firmata/tree/main/README.md) for working timekeeper, referee, and jury setups.  Both the firmware that runs on the Arduino *and* the software that interfaces with owlcms are provided.  There is actually nothing to program.  
 
-The diagrams are fully compliant with IWF requirements.  But you can simply omit any part you don't want. For example, in the refereeing diagram below, if you don't want an external down signal light and buzzer, you would ignore the relays on the left-hand side.  And if you need to arrange the connections differently, you can just change a configuration file.  There is no need to change the firmware or the interface program.
+For example, a fully IWF-compliant design for the referee box is shown below. You can simply omit any part you don't need. For example, in the refereeing diagram below, if you don't want an external down signal light and buzzer, you can ignore the two relays on the left-hand side.  And if you need to arrange the connections, there is no need to change the firmware or the interface program, a simple change to a configuration file will do.
 
 ![refereeBox](img/MQTT/refereeBoxDown.png)
 
