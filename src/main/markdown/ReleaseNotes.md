@@ -6,6 +6,7 @@
 - 37.5 Fixes
   - 37.5.0-beta00: Leaders were not shown on the very first lift.
   - 37.5.0-beta00: The warmup scoreboards show the Introduction of Athletes title during the introduction of the group that is currently warming up.
+  - 37.5.0-beta00: Blinking of current athlete restored except during presentation ceremonies.
   
 
 ##### Highlights from recent stable releases
