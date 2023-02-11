@@ -136,6 +136,8 @@ public class Results extends PolymerTemplate<TemplateModel>
         setDarkMode(true);
         setDefaultLeadersDisplay(true);
         setDefaultRecordsDisplay(true);
+        setLeadersDisplay(isDefaultLeadersDisplay());
+        setRecordsDisplay(isDefaultRecordsDisplay());
         // js files add the build number to file names in order to prevent cache collisions
         this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
     }
@@ -731,11 +733,11 @@ public class Results extends PolymerTemplate<TemplateModel>
     }
 
     private boolean showCurrent(FieldOfPlay fop) {
-        // No blinking during introductions, medals etc.
+        // blink only on warmup scoreboards during ceremonies/breaks
         if (fop.getState() == FOPState.BREAK) {
-            if (fop.getBreakType() == BreakType.FIRST_SNATCH
+            if (isSwitchableDisplay() && (fop.getBreakType() == BreakType.FIRST_SNATCH
                     || fop.getBreakType() == BreakType.FIRST_CJ
-                    || fop.getBreakType() == BreakType.GROUP_DONE) {
+                    || fop.getBreakType() == BreakType.GROUP_DONE)) {
                 return false;
             }
         }

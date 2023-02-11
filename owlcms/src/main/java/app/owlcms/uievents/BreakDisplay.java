@@ -54,6 +54,11 @@ public interface BreakDisplay {
                 return Translator.translate("BreakMgmt.IntroductionOfOfficials");
             }
         }
+        if (ceremonyType != null && ceremonyType == CeremonyType.INTRODUCTION) {
+        	// we display the introduction title even in the warmup room because it
+        	// is the introduction of the group that is warming up.
+        	return Translator.translate("BreakMgmt.IntroductionOfAthletes");
+        }
         if (breakType == null) {
             return "";
         }

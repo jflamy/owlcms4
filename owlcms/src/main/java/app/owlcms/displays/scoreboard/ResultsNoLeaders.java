@@ -37,6 +37,8 @@ public class ResultsNoLeaders extends Results {
         setDarkMode(true);
         setDefaultLeadersDisplay(false);
         setDefaultRecordsDisplay(false);
+        setLeadersDisplay(isDefaultLeadersDisplay());
+        setRecordsDisplay(isDefaultRecordsDisplay());
     }
 
     @Override
