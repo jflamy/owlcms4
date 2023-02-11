@@ -29,7 +29,13 @@ Jury decisions are shown in yellow to the other technical officials consoles to 
 
 The "Call Referee(s)" button is used to summon referees to the Jury Table outside of a lift-reversal deliberation.  It is also possible to start a technical break if the Jury notices something is wrong with the platform or the equipment.
 
-## Jury Member Keypad
+## Jury Devices
+
+There are two ways to build jury devices.  The first way is to emulate a keyboard (one-way to owlcms), the second way is to use an Arduino to communicate with owlcms (bi-directional).
+
+### Jury Keypads
+
+##### Jury Member Keypad
 
 Each jury member must have a button keypad connected to the laptop (either directly, via a USB hub, or via Bluetooth).  Phone and MQTT keypads are not supported for the Jury in the current version.  See the [Refereeing](Refereeing) page for details about these devices.
 
@@ -43,7 +49,9 @@ The same conventions are used as for the refereeing keypads.  You can use the sa
 | 4     | 7    | 8    |
 | 5     | 9    | 0    |
 
-## Jury President Keypad
+##### Jury President Keypad
+
+> If you intend to build a jury president keypad, you should consider the Arduino-based [button-only jury box](#button-only-jury-box) below, since the hardware is identical, and you can save yourself the programming.
 
 An additional keypad can be connected to the Jury console, which would typically be operated by the Jury president.  This keypad also works using keyboard shortcuts.
 
@@ -58,3 +66,24 @@ In order to support a jury console keypad, the following shortcuts are bound.  D
 - "Escape" to close the dialog and ends the jury break (`Escape` event code)
 
 Please refer to [this document](https://www.w3.org/TR/uievents-code/#key-alphanumeric-writing-system) for the exact definition of the event codes.
+
+### Arduino-based Jury Devices
+
+Another way to build a device is to use the MQTT protocol that owlcms supports which provides bi-directional communcations.   Commercially available devices that use this approach are being developed (see the [BlueOwl project](https://github.com/scottgonzales/blue-owl)).
+
+But you can in fact use the same approach to build your own devices. Arduino boards are an affordable way to build your own devices.  Diagrams are available on [this page](https://github.com/owlcms/owlcms-firmata/tree/main/diagrams) for working timekeeper, referee, and jury setups.  The Firmata firmware that runs on the Arduino and the [interface program for owlcms](https://github.com/owlcms/owlcms-firmata) are provided.  There is actually nothing to program.  
+
+##### Button-only Jury Box
+
+A simple button-only jury control box and the associated jury member buttons, using the owlcms display to look at decisions, is shown here.  This is the same hardware as required to build a jury keypad, except that you don't have anything to program since all the software is already provided.  You would only adjust the configuration file if you needed to use different pins in your build.
+
+ ![refereeBox](img/MQTT/juryButtons.png)
+
+##### Full Jury Control Box with Indicator Lights
+
+A full 5-member jury device is shown below.  In actual practice, you might want to include only 3 jury members and if so you would only keep 3 sets of buttons on the left.   This design includes all the green/red/white indicator lights and uses an Arduino Mega to provide more pins.
+
+ ![refereeBox](img/MQTT/juryBox.png)
+
+owlcms uses the MQTT protocol used in Internet-Of-Things automation and monitoring applications to talks to the devices.  See the [MQTT](MQTT) page for more details and for schematics that you can use for your own devices.  Commercially available pre-built devices using the same protocol are also being developed.
+

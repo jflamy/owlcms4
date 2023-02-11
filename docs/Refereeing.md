@@ -4,8 +4,8 @@ There are several ways to referee using owlcms.  Each is discussed in details in
 
 1. [Manual refereeing](#manual-refereeing), where the referees use flags, cards, or hand signals.  The announcer enters the decisions.
 2. [Mobile devices](#mobile-device-refereeing): Using phones, tablets or laptops to referee.  Any device that has a browser can be used to enter decisions and receive notifications.
-3. [Button keypads](#button-keypads): These devices  provide real buttons, which many referees prefer over using a phone.  They can be bought, or built from affordable supplies. However they do not provide the feedback when a referee needs to be reminded to enter a decision.
-4. [Full feedback Devices](#full-feedback-devices).  These devices have a LED and buzzer to remind the referee.  This enables compliance with the TCRR requirements.  The devices use the MQTT protocol to communicate.
+3. [Button keypads](#button-keypads): These devices provide real buttons, which many referees prefer over using a phone.  They can be bought, or built from affordable supplies. However they do not provide the feedback when a referee needs to be reminded to enter a decision.
+4. [Arduino-based devices](#full-feedback-devices).  Diagrams are available to build such devices (see below), as well as all the software required. Such devices can be made as simple (buttons only) or as compliant (LED and buzzer feedback) as you wish.
 
 ## Manual Refereeing
 
@@ -104,11 +104,12 @@ Note that the shortcut keys are as defined according to [a standard](https://www
 
 - For most countries, hitting the key "Digit1" sends a 1.  But there are exceptions. For example, in France, hitting Digit1 will actually send a "&" and depending on the software you may actually need to use "&" instead of "1".  Fortunately, most national keyboards send the digits directly.
 
-## Full-feedback Devices
+## Arduino-Based Devices
 
-In order to provide referees with a reminder to enter a decision, or to signal that they need to go to the jury table, it is necessary for owlcms to be able to communicate back with the devices. 
+Arduino boards are an affordable way to build your own devices.  Diagrams are available on [this page](https://github.com/owlcms/owlcms-firmata/tree/main/diagrams) for working timekeeper, referee, and jury setups.  The firmware that runs on the Arduino and the software that interfaces with owlcms are provided.  There is actually nothing to program.  
 
-owlcms uses the MQTT protocol used in Internet-Of-Things automation and monitoring applications to talks to the devices.  See the [MQTT](MQTT) page for more details and for schematics that you can use for your own devices.  It is also expected that owlcms-compatible devices will be offered commercially.
+The diagrams are fully compliant with IWF requirements.  But you can simply omit any part you don't want. For example, in the refereeing diagram below, if you don't want an external down signal light and buzzer, you would ignore the relays on the left-hand side.  And if you need to arrange the connections differently, you can just change a configuration file.  There is no need to change the firmware or the interface program.
 
-![refereeBox](img/MQTT/refereeBox.png)
+![refereeBox](img/MQTT/refereeBoxDown.png)
 
+owlcms uses the MQTT protocol used in Internet-Of-Things automation and monitoring applications to talks to the devices.  See the [MQTT](MQTT) page for more details and for schematics that you can use for your own devices.  Commercially available pre-built devices using the same protocol are also being developed.
