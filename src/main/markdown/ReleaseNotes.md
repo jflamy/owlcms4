@@ -1,10 +1,11 @@
-37.5.0-alpha00: MQTT Latency fixed, Result export improvements
+37.5.0  Scoreboard fixes, Template improvements
 
 - 37.5 Enhancements
   - The blank weigh-in form is now available from the pre-competition documents page in addition to the weigh-in page. On the weigh-in page, the form has been moved to its own button. ([#630](https://github.com/jflamy/owlcms4/issues/630))
   - The empty protocol sheets are now in a separate section in the templates, and on their own button on the weigh-in page.
 - 37.5 Fixes
-  - none
+  - 37.5.0-beta00: Leaders were not shown on the very first lift.
+  - 37.5.0-beta00: The warmup scoreboards show the Introduction of Athletes title during the introduction of the group that is currently warming up.
   
 
 ##### Highlights from recent stable releases
