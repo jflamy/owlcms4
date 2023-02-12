@@ -37,7 +37,7 @@ There are two ways to build jury devices.  The first way is to emulate a keyboar
 
 ##### Jury Member Keypad
 
-Each jury member must have a button keypad connected to the laptop (either directly, via a USB hub, or via Bluetooth).  Phone and MQTT keypads are not supported for the Jury in the current version.  See the [Refereeing](Refereeing) page for details about these devices.
+Each jury member must have a button keypad connected to the laptop (either directly, via a USB hub, or via Bluetooth). 
 
 The same conventions are used as for the refereeing keypads.  You can use the same devices for the first three jury members as for the three referees.
 
@@ -71,7 +71,7 @@ Please refer to [this document](https://www.w3.org/TR/uievents-code/#key-alphanu
 
 Another way to build a device is to use the MQTT protocol that owlcms supports which provides bi-directional communcations.   Commercially available devices that use this approach are being developed (see the [BlueOwl project](https://github.com/scottgonzales/blue-owl)).
 
-But you can in fact use the same approach to build your own devices. Arduino boards are an affordable way to build your own devices.  Diagrams are available on [this page](https://github.com/owlcms/owlcms-firmata/tree/main/diagrams) for working timekeeper, referee, and jury setups.  The Firmata firmware that runs on the Arduino and the [interface program for owlcms](https://github.com/owlcms/owlcms-firmata) are provided.  There is actually nothing to program.  
+But you can in fact use the same approach to build your own devices. Arduino boards are an affordable way to build your own devices.  Designs are available on [this page](https://github.com/owlcms/owlcms-firmata/tree/main/README.md) for working timekeeper, referee, and jury setups.  The Firmata firmware that runs on the Arduino and the [interface program for owlcms](https://github.com/owlcms/owlcms-firmata) are provided.  There is actually nothing to program.  
 
 ##### Button-only Jury Box
 
