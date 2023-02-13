@@ -6,7 +6,7 @@
 
 .wrapper {
     --attemptBarFontSize: 1.8em;
-    --fontSizeRows-height: 2.2vh;
+    --fontSizeRows-height: 1.35vmax;
 }
 
 table.results tr td {
@@ -225,7 +225,7 @@ table.results td.category {
     white-space: nowrap;
     border: none;
     background-color: var(--pageBackgroundColor);
-    font-size: var(--fontSizeRows-height)*1.1;
+    font-size: calc(var(--fontSizeRows-height)*1.3);
 }
 
 table.results td.category div {
