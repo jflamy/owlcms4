@@ -3,10 +3,12 @@
 - 37.5 Enhancements
   - The blank weigh-in form is now available from the pre-competition documents page in addition to the weigh-in page. On the weigh-in page, the form has been moved to its own button. ([#630](https://github.com/jflamy/owlcms4/issues/630))
   - The empty protocol sheets are now in a separate section in the templates, and on their own button on the weigh-in page.
+  - Better font size behavior when resizing the current athlete display used for streaming
 - 37.5 Fixes
-  - 37.5.0-beta00: Leaders were not shown on the very first lift.
-  - 37.5.0-beta00: The warmup scoreboards show the Introduction of Athletes title during the introduction of the group that is currently warming up.
-  - 37.5.0-beta00: Blinking of current athlete restored except during presentation ceremonies.
+  - Leaders were not shown on the very first lift.
+  - The warmup scoreboard title now indicates Introduction of Athletes when the group warming up is being introduced. Other ceremony titles are not shown as they do not concern the athletes of the group warming up.
+  - Blinking of current athlete restored except during presentation ceremonies.
+  - MQTT port override using environment variable was not being observed
   
 
 ##### Highlights from recent stable releases
@@ -23,11 +25,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_37.5.0-beta00.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_37.5.0-rc00.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_37.5.0-beta00.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_37.5.0-rc00.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the [Heroku](https://owlcms.github.io/owlcms4-prerelease/#Heroku) or (recommended) **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
