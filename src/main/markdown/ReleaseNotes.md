@@ -3,10 +3,12 @@
 - 37.5 Enhancements
   - The blank weigh-in form is now available from the pre-competition documents page in addition to the weigh-in page. On the weigh-in page, the form has been moved to its own button. ([#630](https://github.com/jflamy/owlcms4/issues/630))
   - The empty protocol sheets are now in a separate section in the templates, and on their own button on the weigh-in page.
+  - Better font size behavior when resizing the current athlete display used for streaming
 - 37.5 Fixes
   - Leaders were not shown on the very first lift.
   - The warmup scoreboard title now indicates Introduction of Athletes when the group warming up is being introduced. Other ceremony titles are not shown as they do not concern the athletes of the group warming up.
   - Blinking of current athlete restored except during presentation ceremonies.
+  - MQTT port override using environment variable was not being observed
   
 
 ##### Highlights from recent stable releases
