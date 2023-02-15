@@ -119,7 +119,7 @@ class ResultsMedals extends PolymerElement {
     ready() {
         console.debug("ready");
         super.ready();
-        document.body.setAttribute("theme","dark");
+        document.body.setAttribute("theme", "dark");
         this.$.groupDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.display = "flex";
