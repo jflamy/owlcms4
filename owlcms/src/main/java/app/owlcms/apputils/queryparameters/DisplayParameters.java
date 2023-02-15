@@ -138,10 +138,11 @@ public interface DisplayParameters extends ContentParameters {
      * java.lang.String)
      */
     @Override
-    public default void setParameter(BeforeEvent event, @OptionalParameter String unused) {
+    public default void setParameter(BeforeEvent event, @OptionalParameter String routeParameter) {
         Location location = event.getLocation();
         setLocation(location);
         setLocationUI(event.getUI());
+        setRouteParameter(routeParameter);
 
         // the OptionalParameter string is the part of the URL path that can be interpreted as REST arguments
         // we use the ? query parameters instead.
@@ -153,7 +154,10 @@ public interface DisplayParameters extends ContentParameters {
                 new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
     }
 
-    public void addDialogContent(Component target, VerticalLayout vl);
+    public void setRouteParameter(String routeParameter);
+    public String getRouteParameter();
+
+	public void addDialogContent(Component target, VerticalLayout vl);
 
     @SuppressWarnings("unchecked")
     public default void buildDialog(Component target) {

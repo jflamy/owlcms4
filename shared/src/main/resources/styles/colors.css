@@ -167,4 +167,8 @@
     --darkRecordHighlightText: white;
     --darkAttemptHighlightText: white;
     --darkAttemptHighlightBackground: purple;
+
+    /* video header */
+    --videoHeaderBackgroundColor: darkblue;
+    --videoHeaderTextColor: white;
 }
