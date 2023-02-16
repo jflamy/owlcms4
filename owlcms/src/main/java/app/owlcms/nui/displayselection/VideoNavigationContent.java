@@ -27,12 +27,8 @@ import app.owlcms.displays.monitor.OBSMonitor;
 import app.owlcms.displays.scoreboard.CurrentAthlete;
 import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.displays.scoreboard.ResultsLeadersRanks;
-import app.owlcms.displays.scoreboard.ResultsLiftingOrder;
 import app.owlcms.displays.scoreboard.ResultsMedals;
 import app.owlcms.displays.scoreboard.ResultsNoLeaders;
-import app.owlcms.displays.topathletes.TopSinclair;
-import app.owlcms.displays.topteams.TopTeams;
-import app.owlcms.displays.topteams.TopTeamsSinclair;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.home.HomeNavigationContent;
@@ -75,19 +71,19 @@ public class VideoNavigationContent extends BaseNavigationContent
 		Button medals;
 
 		scoreboard = openInNewTab(ResultsNoLeaders.class, getTranslation("Scoreboard"), "video");
-		scoreboardWLeaders = openInNewTab(Results.class, getTranslation("ScoreboardWLeadersButton"));
+		scoreboardWLeaders = openInNewTab(Results.class, getTranslation("ScoreboardWLeadersButton"), "video");
 		scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
 		scoreboardMultiRanks = openInNewTab(ResultsLeadersRanks.class,
 		        getTranslation("ScoreboardMultiRanksButton"));
 		medals = openInNewTab(ResultsMedals.class, getTranslation("CeremonyType.MEDALS"), "video");
-		currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"));
+		currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"),"video");
 
 		// Button liftingOrder = openInNewTab(LiftingOrder.class,
 		// getTranslation("Scoreboard.LiftingOrder"));
-		Button liftingOrder = openInNewTab(ResultsLiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
-		Button topSinclair = openInNewTab(TopSinclair.class, getTranslation("Scoreboard.TopSinclair"));
-		Button topTeams = openInNewTab(TopTeams.class, getTranslation("Scoreboard.TopTeams"));
-		Button topTeamsSinclair = openInNewTab(TopTeamsSinclair.class, getTranslation("Scoreboard.TopTeamsSinclair"));
+//		Button liftingOrder = openInNewTab(ResultsLiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
+//		Button topSinclair = openInNewTab(TopSinclair.class, getTranslation("Scoreboard.TopSinclair"));
+//		Button topTeams = openInNewTab(TopTeams.class, getTranslation("Scoreboard.TopTeams"));
+//		Button topTeamsSinclair = openInNewTab(TopTeamsSinclair.class, getTranslation("Scoreboard.TopTeamsSinclair"));
 
 		Button obsMonitor = openInNewTab(OBSMonitor.class, getTranslation("OBS.MonitoringButton"));
 		Button publicDecisions = openInNewTab(PublicFacingDecisionBoard.class, getTranslation("RefereeDecisions"));
@@ -100,8 +96,12 @@ public class VideoNavigationContent extends BaseNavigationContent
 		VerticalLayout intro1 = new VerticalLayout();
 		addP(intro1, getTranslation("darkModeSelect"));
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders,
-		        scoreboardMultiRanks, liftingOrder,
-		        topSinclair, topTeams, topTeamsSinclair, medals);
+		        scoreboardMultiRanks,
+//		        liftingOrder,
+//		        topSinclair,
+//		        topTeams,
+//		        topTeamsSinclair,
+		        medals);
 		doGroup(getTranslation("Scoreboards"), intro1, grid1, this);
 
 		VerticalLayout intro4 = new VerticalLayout();
