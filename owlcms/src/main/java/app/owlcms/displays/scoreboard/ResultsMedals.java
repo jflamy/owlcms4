@@ -116,6 +116,8 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 
 	private String routeParameter;
 
+	private Double emFontSize;
+
 	/**
 	 * Instantiates a new results board.
 	 */
@@ -135,6 +137,23 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	@Override
 	public void addDialogContent(Component target, VerticalLayout vl) {
 		DisplayOptions.addLightingEntries(vl, target, this);
+		DisplayOptions.addRule(vl);
+		DisplayOptions.addSizingEntries(vl, target, this);
+	}
+	
+	@Override
+	public void setEmFontSize(Double emFontSize) {
+		this.emFontSize = emFontSize;
+		doChangeEmSize();
+	}
+	private void doChangeEmSize() {
+		if (getEmFontSize() != null) {
+			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + getEmFontSize() + "rem;");
+		}
+	}
+	@Override
+	public Double getEmFontSize() {
+		return emFontSize;
 	}
 
 	@Override
@@ -150,7 +169,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 			        inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
 			this.getElement().setProperty("teamName", "");
 			this.getElement().setProperty("attempt", "");
-			setHidden(false);
+			setDisplay(false);
 
 			updateBottom(computeLiftType(fop.getCurAthlete()), fop);
 			this.getElement().callJsFunction("doBreak");
@@ -169,7 +188,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 			        inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
 			this.getElement().setProperty("teamName", "");
 			this.getElement().setProperty("attempt", "");
-			setHidden(false);
+			setDisplay(false);
 
 			updateBottom(computeLiftType(fop.getCurAthlete()), fop);
 			this.getElement().callJsFunction("doBreak");
@@ -246,99 +265,99 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		return silenced;
 	}
 
-	@Override
-	public HashMap<String, List<String>> readParams(Location location,
-	        Map<String, List<String>> parametersMap) {
-		// handle FOP and Group by calling superclass
-		FOPParameters r = (this);
-		HashMap<String, List<String>> newParameterMap = new HashMap<>(parametersMap);
-
-		// get the fop from the query parameters, set to the default FOP if not provided
-		FieldOfPlay fop = null;
-
-		@Nonnull
-		List<String> fopNames = parametersMap.get("fop");
-		boolean fopFound = fopNames != null && fopNames.get(0) != null;
-		if (!fopFound) {
-			r.setShowInitialDialog(true);
-		}
-
-		if (!r.isIgnoreFopFromURL()) {
-			if (fopFound) {
-				FOPParameters.logger.trace("fopNames {}", fopNames);
-				fop = OwlcmsFactory.getFOPByName(fopNames.get(0));
-			} else if (OwlcmsSession.getFop() != null) {
-				FOPParameters.logger.trace("OwlcmsSession.getFop() {}", OwlcmsSession.getFop());
-				fop = OwlcmsSession.getFop();
-			}
-			if (fop == null) {
-				FOPParameters.logger.trace("OwlcmsFactory.getDefaultFOP() {}", OwlcmsFactory.getDefaultFOP());
-				fop = OwlcmsFactory.getDefaultFOP();
-			}
-			newParameterMap.put("fop", Arrays.asList(URLUtils.urlEncode(fop.getName())));
-			this.setFop(fop);
-		} else {
-			newParameterMap.remove("fop");
-		}
-
-		// get the group from query parameters
-		Group group = null;
-		if (!r.isIgnoreGroupFromURL()) {
-			List<String> groupNames = parametersMap.get("group");
-			if (groupNames != null && groupNames.get(0) != null) {
-				group = GroupRepository.findByName(groupNames.get(0));
-			} else {
-				group = (fop != null ? fop.getGroup() : null);
-			}
-			if (group != null) {
-				newParameterMap.put("group", Arrays.asList(URLUtils.urlEncode(group.getName())));
-			}
-			this.setGroup(group);
-		} else {
-			newParameterMap.remove("group");
-		}
-
-		// get the category from query parameters
-		Category cat = null;
-		if (!r.isIgnoreGroupFromURL()) {
-			List<String> catCodes = parametersMap.get("cat");
-			if (catCodes != null && catCodes.get(0) != null) {
-				cat = CategoryRepository.findByCode(catCodes.get(0));
-			}
-			// logger.trace("cat = {}", cat);
-			if (cat != null) {
-				newParameterMap.put("cat", Arrays.asList(URLUtils.urlEncode(cat.getName())));
-			}
-			this.setCategory(cat);
-		} else {
-			newParameterMap.remove("cat");
-		}
-
-		FOPParameters.logger.debug("URL parsing: {} OwlcmsSession: fop={} group={}", LoggerUtils.whereFrom(),
-		        (fop != null ? fop.getName() : null), (cat != null ? cat.getName() : null));
-		HashMap<String, List<String>> params = newParameterMap;
-
-		List<String> darkParams = params.get(DARK);
-		// dark is the default. dark=false or dark=no or ... will turn off dark mode.
-		boolean darkMode = darkParams == null || darkParams.isEmpty() || darkParams.get(0).toLowerCase().equals("true");
-		setDarkMode(darkMode);
-		switchLightingMode(this, darkMode, false);
-		updateParam(params, DARK, !isDarkMode() ? "false" : null);
-
-		List<String> silentParams = params.get(SILENT);
-		// silent is the default. silent=false will cause sound
-		boolean silentMode = silentParams == null || silentParams.isEmpty()
-		        || silentParams.get(0).toLowerCase().equals("true");
-		if (!isSilencedByDefault()) {
-			// for referee board, default is noise
-			silentMode = silentParams != null && !silentParams.isEmpty()
-			        && silentParams.get(0).toLowerCase().equals("true");
-		}
-		switchSoundMode(this, silentMode, false);
-		updateParam(params, SILENT, !isSilenced() ? "false" : "true");
-
-		return params;
-	}
+//	@Override
+//	public HashMap<String, List<String>> readParams(Location location,
+//	        Map<String, List<String>> parametersMap) {
+//		// handle FOP and Group by calling superclass
+//		FOPParameters r = (this);
+//		HashMap<String, List<String>> newParameterMap = new HashMap<>(parametersMap);
+//
+//		// get the fop from the query parameters, set to the default FOP if not provided
+//		FieldOfPlay fop = null;
+//
+//		@Nonnull
+//		List<String> fopNames = parametersMap.get("fop");
+//		boolean fopFound = fopNames != null && fopNames.get(0) != null;
+//		if (!fopFound) {
+//			r.setShowInitialDialog(true);
+//		}
+//
+//		if (!r.isIgnoreFopFromURL()) {
+//			if (fopFound) {
+//				FOPParameters.logger.trace("fopNames {}", fopNames);
+//				fop = OwlcmsFactory.getFOPByName(fopNames.get(0));
+//			} else if (OwlcmsSession.getFop() != null) {
+//				FOPParameters.logger.trace("OwlcmsSession.getFop() {}", OwlcmsSession.getFop());
+//				fop = OwlcmsSession.getFop();
+//			}
+//			if (fop == null) {
+//				FOPParameters.logger.trace("OwlcmsFactory.getDefaultFOP() {}", OwlcmsFactory.getDefaultFOP());
+//				fop = OwlcmsFactory.getDefaultFOP();
+//			}
+//			newParameterMap.put("fop", Arrays.asList(URLUtils.urlEncode(fop.getName())));
+//			this.setFop(fop);
+//		} else {
+//			newParameterMap.remove("fop");
+//		}
+//
+//		// get the group from query parameters
+//		Group group = null;
+//		if (!r.isIgnoreGroupFromURL()) {
+//			List<String> groupNames = parametersMap.get("group");
+//			if (groupNames != null && groupNames.get(0) != null) {
+//				group = GroupRepository.findByName(groupNames.get(0));
+//			} else {
+//				group = (fop != null ? fop.getGroup() : null);
+//			}
+//			if (group != null) {
+//				newParameterMap.put("group", Arrays.asList(URLUtils.urlEncode(group.getName())));
+//			}
+//			this.setGroup(group);
+//		} else {
+//			newParameterMap.remove("group");
+//		}
+//
+//		// get the category from query parameters
+//		Category cat = null;
+//		if (!r.isIgnoreGroupFromURL()) {
+//			List<String> catCodes = parametersMap.get("cat");
+//			if (catCodes != null && catCodes.get(0) != null) {
+//				cat = CategoryRepository.findByCode(catCodes.get(0));
+//			}
+//			// logger.trace("cat = {}", cat);
+//			if (cat != null) {
+//				newParameterMap.put("cat", Arrays.asList(URLUtils.urlEncode(cat.getName())));
+//			}
+//			this.setCategory(cat);
+//		} else {
+//			newParameterMap.remove("cat");
+//		}
+//
+//		FOPParameters.logger.debug("URL parsing: {} OwlcmsSession: fop={} group={}", LoggerUtils.whereFrom(),
+//		        (fop != null ? fop.getName() : null), (cat != null ? cat.getName() : null));
+//		HashMap<String, List<String>> params = newParameterMap;
+//
+//		List<String> darkParams = params.get(DARK);
+//		// dark is the default. dark=false or dark=no or ... will turn off dark mode.
+//		boolean darkMode = darkParams == null || darkParams.isEmpty() || darkParams.get(0).toLowerCase().equals("true");
+//		setDarkMode(darkMode);
+//		switchLightingMode(this, darkMode, false);
+//		updateParam(params, DARK, !isDarkMode() ? "false" : null);
+//
+//		List<String> silentParams = params.get(SILENT);
+//		// silent is the default. silent=false will cause sound
+//		boolean silentMode = silentParams == null || silentParams.isEmpty()
+//		        || silentParams.get(0).toLowerCase().equals("true");
+//		if (!isSilencedByDefault()) {
+//			// for referee board, default is noise
+//			silentMode = silentParams != null && !silentParams.isEmpty()
+//			        && silentParams.get(0).toLowerCase().equals("true");
+//		}
+//		switchSoundMode(this, silentMode, false);
+//		updateParam(params, SILENT, !isSilenced() ? "false" : "true");
+//
+//		return params;
+//	}
 
 	@Override
 	public void setDarkMode(boolean dark) {
@@ -411,7 +430,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
 			// logger.trace("------- slaveBreakDone {}", e.getBreakType());
-			setHidden(false);
+			setDisplay(false);
 			doUpdate(e);
 		}));
 	}
@@ -439,7 +458,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		// logger.trace("------- slaveCeremonyStarted {}", e.getCeremonyType());
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			setHidden(false);
+			setDisplay(false);
 			doCeremony(e);
 		});
 	}
@@ -449,7 +468,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		// logger.trace("------- slaveStartBreak {}", e.getBreakType());
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			setHidden(false);
+			setDisplay(false);
 			doBreak(e);
 		});
 	}
@@ -459,7 +478,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		// logger.trace("****** slaveStartLifting ");
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			setHidden(false);
+			setDisplay(false);
 			// If this page was opened in replacement of a display, go back to the display.
 			unregister(this, uiEventBus);
 			retrieveFromSessionStorage("pageURL", result -> {
@@ -575,6 +594,20 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 			return total.toString();
 		}
 	}
+	
+	private boolean isVideo() {
+		return routeParameter != null && routeParameter.contentEquals("video");
+	}
+
+	private void setDisplay(boolean hidden) {
+		this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
+		this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
+		this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" : "display:grid"));
+		this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" : "display:none"));
+		this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
+		this.getElement().setProperty("videoHeaderDisplay", (hidden || !isVideo() ? "display:none" : "display:block"));
+		this.getElement().setProperty("normalHeaderDisplay", (hidden || isVideo() ? "display:none" : "display:block"));
+	}
 
 	private void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
 		String category;
@@ -587,7 +620,9 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		ja.put("category", category != null ? category : "");
 		getAttemptsJson(a, liftOrderRank);
 		ja.put("sattempts", sattempts);
+		ja.put("bestSnatch", formatInt(a.getBestSnatch()));
 		ja.put("cattempts", cattempts);
+		ja.put("bestCleanJerk", formatInt(a.getBestCleanJerk()));
 		ja.put("total", formatInt(a.getTotal()));
 		Participation mainRankings = a.getMainRankings();
 		if (mainRankings != null) {
@@ -727,14 +762,6 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		this.category = cat;
 	}
 
-	private void setHidden(boolean hidden) {
-		this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
-		this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
-		this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" : "display:grid"));
-		this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" : "display:none"));
-		this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
-	}
-
 	private void setWideTeamNames(boolean wide) {
 		this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
 	}
@@ -754,7 +781,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 			}
 			break;
 		default:
-			setHidden(false);
+			setDisplay(false);
 			doUpdate(e);
 		}
 	}
@@ -808,7 +835,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 			init();
 			// logger.debug("group {}", this.getGroup());
 			medals = Competition.getCurrent().getMedals(this.getGroup());
-			setHidden(false);
+			setDisplay(false);
 			computeMedalsJson();
 			// we listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
@@ -818,6 +845,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 			getElement().setProperty("noLiftRanks", "noranks");
 		}
 		SoundUtils.enableAudioContextNotification(this.getElement());
+		this.getElement().setProperty("video", routeParameter != null ? routeParameter + "/" : "");
 	}
 
 	protected void setTranslationMap() {

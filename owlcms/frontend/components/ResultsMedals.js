@@ -13,15 +13,20 @@ class ResultsMedals extends PolymerElement {
 
     static get template() {
         return html`
-<link rel="stylesheet" type="text/css" href="local/styles/results_[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/styles/[[video]]results_[[autoversion]].css">
 
-<div class$="wrapper [[teamWidthClass]] [[inactiveClass]]">
+<div class$="wrapper medals [[teamWidthClass]] [[inactiveClass]]" style$="[[sizeOverride]];">
     <div style$="[[inactiveBlockStyle]]">
         <div class="competitionName">[[competitionName]]</div><br>
         <div class="nextGroup">[[t.WaitingNextGroup]]</div>
     </div>
-    <div class="attemptBar" style$="[[hiddenBlockStyle]]">
+    <div class="attemptBar" style$="[[normalHeaderDisplay]];">
         <div class="athleteInfo" id="athleteInfoDiv">
+            <div class="fullName ellipsis" id="fullNameDiv" inner-h-t-m-l="[[t.Medals]]"></div>
+        </div>
+    </div>
+    <div class="video" style$="[[videoHeaderDisplay]]">
+        <div id="groupDiv">
             <div class="fullName ellipsis" id="fullNameDiv" inner-h-t-m-l="[[t.Medals]]"></div>
         </div>
     </div>
@@ -42,10 +47,15 @@ class ResultsMedals extends PolymerElement {
                     <th class="custom1" inner-h-t-m-l="[[t.Custom1]]"></th>
                     <th class="custom2" inner-h-t-m-l="[[t.Custom2]]"></th>
                     <th class="club" inner-h-t-m-l="[[t.Team]]"></th>
+                	<th class="vspacer"></th>
                     <th style="grid-column: span 3;" inner-h-t-m-l="[[t.Snatch]]"></th>
+                	<th class="best" inner-h-t-m-l="[[t.Best]]"></th>
                     <th class="rank" inner-h-t-m-l="[[t.Rank]]"></th>
+                	<th class="vspacer"></th>
                     <th style="grid-column: span 3;" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
+                	<th class="best" inner-h-t-m-l="[[t.Best]]"></th>
                     <th class="rank" inner-h-t-m-l="[[t.Rank]]"></th>
+                	<th class="vspacer"></th>
                     <th class="total" inner-h-t-m-l="[[t.Total]]"></th>
                     <th class="totalRank" inner-h-t-m-l="[[t.Rank]]"></th>
                     <th class="sinclair" inner-h-t-m-l="[[t.Sinclair]]"></th>
@@ -67,7 +77,9 @@ class ResultsMedals extends PolymerElement {
                         <td class="category">
                             <div>[[l.category]]</div>
                         </td>
-                        <td class="yob">[[l.yearOfBirth]]</td>
+                        <td class="yob">
+                            <div>[[l.yearOfBirth]]</div>
+                        </td>
                         <td class="custom1">
                             <div>[[l.custom1]]</div>
                         </td>
@@ -77,22 +89,31 @@ class ResultsMedals extends PolymerElement {
                         <td class="club">
                             <div class="ellipsis">[[l.teamName]]</div>
                         </td>
+                        <td class="vspacer"></td>
                         <template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
                             <td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
                                 <div>[[attempt.stringValue]]</div>
                             </td>
                         </template>
+                        <td class="best">
+                            <div inner-h-t-m-l="[[l.bestSnatch]]"></div>
+                        </td>
                         <td class="rank">
                             <div inner-h-t-m-l="[[l.snatchRank]]"></div>
                         </td>
+                        <td class="vspacer"></td>
                         <template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
                             <td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
                                 <div>[[attempt.stringValue]]</div>
                             </td>
                         </template>
+                        <td class="best">
+                            <div inner-h-t-m-l="[[l.bestCleanJerk]]"></div>
+                        </td>
                         <td class="rank">
                             <div inner-h-t-m-l="[[l.cleanJerkRank]]"></div>
                         </td>
+                        <td class="vspacer"></td>
                         <td class="total">
                             <div>[[l.total]]</div>
                         </td>

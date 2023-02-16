@@ -140,7 +140,9 @@ class Results extends PolymerElement {
                             <div inner-h-t-m-l="[[l.cleanJerkRank]]"></div>
                         </td>
                         <td class="vspacer"></td>
-                        <td class="total">[[l.total]]</td>
+                        <td class="total">
+                            <div>[[l.total]]</div>
+                        </td>
                         <td class="totalRank">
                             <div inner-h-t-m-l="[[l.totalRank]]"></div>
                         </td>

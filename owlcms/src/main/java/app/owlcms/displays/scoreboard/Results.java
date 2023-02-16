@@ -611,18 +611,18 @@ public class Results extends PolymerTemplate<TemplateModel>
 		displayOrder = ImmutableList.of();
 	}
 
+	private boolean isVideo() {
+		return routeParameter != null && routeParameter.contentEquals("video");
+	}
+
 	private void setDisplay(boolean hidden) {
 		this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
 		this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
 		this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" : "display:grid"));
 		this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" : "display:none"));
 		this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
-		this.getElement().setProperty("videoHeaderDisplay", (hidden || ! isVideo() ? "display:none" : "display:block"));
+		this.getElement().setProperty("videoHeaderDisplay", (hidden || !isVideo() ? "display:none" : "display:block"));
 		this.getElement().setProperty("normalHeaderDisplay", (hidden || isVideo() ? "display:none" : "display:block"));
-	}
-
-	private boolean isVideo() {
-		return routeParameter != null && routeParameter.contentEquals("video");
 	}
 
 	private void setWideTeamNames(boolean wide) {
@@ -1049,7 +1049,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 		} else {
 			getElement().setProperty("noLiftRanks", "nosinclair");
 		}
-		this.getElement().setProperty("video", routeParameter != null ? routeParameter+"/" : "");
+		this.getElement().setProperty("video", routeParameter != null ? routeParameter + "/" : "");
 		SoundUtils.enableAudioContextNotification(this.getElement());
 		storeReturnURL();
 	}
