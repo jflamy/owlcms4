@@ -1080,7 +1080,12 @@ public class Results extends PolymerTemplate<TemplateModel>
 		if (liftType != null && curGroup != null) {
 			this.getElement().setProperty("displayType", getDisplayType());
 		}
-		if (liftType != null) {
+		logger.warn("isVideo {} public {} desc {}",isVideo(), isSwitchableDisplay(), groupDescription);
+		if ((isSwitchableDisplay() || isVideo()) && groupDescription != null) {
+			this.getElement().setProperty("liftsDone", groupDescription);
+			this.getElement().setProperty("groupName", "");
+			this.getElement().callJsFunction("groupDone"); 
+		} else if (liftType != null) {
 			this.getElement().setProperty("groupName",
 			        curGroup != null
 			                ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
@@ -1092,9 +1097,6 @@ public class Results extends PolymerTemplate<TemplateModel>
 				this.getElement().setProperty("liftsDone", Translator.translate("Scoreboard.AttemptsDone", liftsDone));
 			}
 		} else {
-			if (isSwitchableDisplay() && groupDescription != null) {
-				this.getElement().setProperty("liftsDone", groupDescription);
-			}
 			this.getElement().setProperty("groupName", "");
 			this.getElement().callJsFunction("groupDone");
 		}

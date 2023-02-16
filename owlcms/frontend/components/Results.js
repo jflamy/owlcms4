@@ -51,9 +51,7 @@ class Results extends PolymerElement {
         </div>
     </div>
     <div class="video" style$="[[videoHeaderDisplay]]">
-        <div id="groupDiv">
-            <span class="groupName">[[displayType]][[groupName]]</span> &ndash; [[liftsDone]]
-        </div>
+        <span class="groupName">[[competitionName]]</span> &ndash; [[liftsDone]]
     </div>
 
 
@@ -297,7 +295,7 @@ class Results extends PolymerElement {
     }
 
     reset() {
-        console.debug("reset");
+        console.warn("reset");
         //this.marqueeIfTooBig();
         this.$.timer.reset(this.$.timer);
         this.$.groupDiv.style.visibility = "visible";
@@ -313,7 +311,7 @@ class Results extends PolymerElement {
     }
 
     down() {
-        console.debug("refereeDecision");
+        console.warn("refereeDecision");
         this.$.groupDiv.style.visibility = "visible";
         this.$.startNumberDiv.style.display = "flex";
         this.$.teamNameDiv.style.display = "flex";
@@ -325,7 +323,7 @@ class Results extends PolymerElement {
     }
 
     doBreak(showWeights) {
-        console.debug("break");
+        console.warn("break");
         this.$.groupDiv.style.visibility = "hidden";
         this.$.fullNameDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.display = "flex";
@@ -346,7 +344,7 @@ class Results extends PolymerElement {
     }
 
     groupDone() {
-        console.debug("done");
+        console.warn("done");
         this.$.groupDiv.style.visibility = "hidden";
         this.$.fullNameDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.display = "flex";
@@ -360,7 +358,7 @@ class Results extends PolymerElement {
     }
 
     refereeDecision() {
-        console.debug("refereeDecision");
+        console.warn("refereeDecision");
         this.$.groupDiv.style.visibility = "visible";
         this.$.decisionDiv.style.display = "flex";
         this.$.weightDiv.style.display = "flex";
