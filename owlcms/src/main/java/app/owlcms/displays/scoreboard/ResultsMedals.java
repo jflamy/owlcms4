@@ -7,18 +7,13 @@
 package app.owlcms.displays.scoreboard;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
-import javax.annotation.Nonnull;
 
 import org.slf4j.LoggerFactory;
 
@@ -40,17 +35,14 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
-import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.category.Category;
-import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
-import app.owlcms.data.group.GroupRepository;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -65,7 +57,6 @@ import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
-import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
