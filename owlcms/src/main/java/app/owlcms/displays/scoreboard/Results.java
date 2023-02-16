@@ -1080,7 +1080,6 @@ public class Results extends PolymerTemplate<TemplateModel>
 		if (liftType != null && curGroup != null) {
 			this.getElement().setProperty("displayType", getDisplayType());
 		}
-		logger.warn("isVideo {} public {} desc {}",isVideo(), isSwitchableDisplay(), groupDescription);
 		if ((isSwitchableDisplay() || isVideo()) && groupDescription != null) {
 			this.getElement().setProperty("liftsDone", groupDescription);
 			this.getElement().setProperty("groupName", "");
