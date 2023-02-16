@@ -848,7 +848,9 @@ public class EventForwarder implements BreakDisplay {
         ja.put("category", category != null ? category : "");
         getAttemptsJson(a, liftOrderRank);
         ja.put("sattempts", sattempts);
+		ja.put("bestSnatch", formatInt(a.getBestSnatch()));
         ja.put("cattempts", cattempts);
+		ja.put("bestCleanJerk", formatInt(a.getBestCleanJerk()));
         ja.put("total", formatInt(a.getTotal()));
         Participation mainRankings = a.getMainRankings();
         if (mainRankings != null) {
@@ -1035,14 +1037,20 @@ public class EventForwarder implements BreakDisplay {
                 Supplier<byte[]> localZipBlobSupplier = ResourceWalker.getLocalZipBlobSupplier();
                 byte[] blob = null;
                 if (localZipBlobSupplier != null) {
+                	logger.info("sending database blob");
                     blob = localZipBlobSupplier.get();
+                    if (blob.length == 0) {
+                    	blob = null;
+                    }
                 }
+
                 HttpPost post = new HttpPost(destination);
 
                 MultipartEntityBuilder builder = MultipartEntityBuilder.create();
                 builder.addPart("updateKey", new StringBody(updateKey, ContentType.TEXT_PLAIN));
                 InputStream inputStream;
                 if (blob == null) {
+                	logger.info("creating blob");
                     try {
                         inputStream = ResourceWalker.getFileOrResource("/styles/results.css");
                     } catch (FileNotFoundException e) {
