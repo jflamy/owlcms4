@@ -15,11 +15,11 @@
     --startWidth: 4em;
 
     /* spacers */
-    --spacerWidth.25vh;
+    --spacerWidth: 1vh;
 
     /* normally these do not need to change */
     --categoryWidth: 9ch;
-	--liftResultWidth: 8ch;
+    --liftResultWidth: 6ch;
 
     /* to show these columns 
     - change hidden to visible
@@ -76,6 +76,40 @@
     line-height: unset;
 }
 
+.video {
+    font-size: 1.6rem;
+    font-weight: bold;
+    background-color: var(--videoHeaderBackgroundColor);
+    color: var(--videoHeaderTextColor);
+    margin-bottom: 1.2rem;
+    padding: 0.25em;
+    padding-left: 0.5em;
+    display: flex;
+    align-items: center;
+    justify-items: center;
+}
+
+.video .eventlogo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 0;
+}
+
+.video .videoheader {
+    display: flex;
+    align-self: center;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+.video .federationlogo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 0;
+}
+
 /* table general parameters */
 table.results {
     border-collapse: collapse;
@@ -94,6 +128,7 @@ table.results {
     --spacerWidth: 0vh;
     --rowSmallSpacerHeight: 0;
 }
+
 :host(.dark) table.results {
     --spacerWidth: 1vh;
     --rowSmallSpacerHeight: 0.25vh;
@@ -126,7 +161,7 @@ table.results.sinclair {
 }
 
 /* default cell colors, backgrounds and borders */
-:host(.dark) table.results tr td, 
+:host(.dark) table.results tr td,
 :host(.dark) table.results tr th {
     background-color: var(--darkBackgroundColor);
     color: var(--darkTextColor);
@@ -279,6 +314,7 @@ table.results.sinclair {
     background-color: var(--lightStartBackgroundColor);
     color: var(--lightStartTextColor);
 }
+
 :host(.dark) table.results tr td.groupCol {
     background-color: var(--darkStartBackgroundColor);
     color: var(--darkStartTextColor);
@@ -334,6 +370,7 @@ table.results.sinclair {
     color: var(--darkTextColor);
     visibility: var(--sinclairVisibility);
 }
+
 :host(.dark) table.results .nosinclair tr td.sinclair,
 :host(.dark) table.results .nosinclair tr th.sinclair {
     visibility: hidden;
@@ -345,6 +382,7 @@ table.results.sinclair {
     color: var(--lightTextColor);
     visibility: var(--sinclairVisibility);
 }
+
 :host(.light) table.results .nosinclair tr td.sinclair,
 :host(.light) table.results .nosinclair tr th.sinclair {
     visibility: hidden;
@@ -357,6 +395,7 @@ table.results.sinclair {
     color: var(--darkRankTextColor);
     visibility: var(--sinclairRankVisibility);
 }
+
 :host(.dark) table.results .nosinclair tr td.sinclairRank,
 :host(.dark) table.results .nosinclair tr th.sinclairRank {
     visibility: hidden;
@@ -428,6 +467,7 @@ table.results.sinclair {
     color: var(--darkRequestTextColor);
     font-style: italic;
 }
+
 :host(.light) table.results tr td.request {
     background-color: var(--lightRequestBackgroundColor);
     color: var(--lightRequestTextColor);
@@ -505,20 +545,15 @@ table {
         /* team name */
         minmax(50px, var(--clubWidth))
         /* snatch results */
-        var(--spacerWidth)
-        repeat(3, var(--liftResultWidth))
-        var(--bestWidth)
+        var(--spacerWidth) repeat(3, var(--liftResultWidth)) var(--bestWidth)
         /* one snatch rank per category */
         repeat(var(--nbRanks), var(--rankWidth))
         /* clean&jerk */
-        var(--spacerWidth)
-        repeat(3, var(--liftResultWidth))
-        var(--bestWidth)
+        var(--spacerWidth) repeat(3, var(--liftResultWidth)) var(--bestWidth)
         /* one snatch rank per category */
         repeat(var(--nbRanks), var(--rankWidth))
         /* total */
-        var(--spacerWidth)
-        repeat(1, var(--liftResultWidth))
+        var(--spacerWidth) repeat(1, var(--liftResultWidth))
         /* one total rank per category */
         repeat(var(--nbRanks), var(--totalRankWidth))
         /* sinclair result */
@@ -547,22 +582,15 @@ table.medals {
         /* team name */
         minmax(50px, var(--clubWidth))
         /* snatch results */
-        var(--spacerWidth)
-        repeat(3, var(--liftResultWidth))
-        var(--bestWidth)
+        var(--spacerWidth) repeat(3, var(--liftResultWidth)) var(--bestWidth)
         /* one snatch rank per category */
         repeat(var(--nbRanks), var(--rankWidth))
-
         /* clean&jerk */
-        var(--spacerWidth)
-        repeat(3, var(--liftResultWidth))
-        var(--bestWidth)
+        var(--spacerWidth) repeat(3, var(--liftResultWidth)) var(--bestWidth)
         /* one snatch rank per category */
         repeat(var(--nbRanks), var(--rankWidth))
-        
         /* total */
-        var(--spacerWidth)
-        repeat(1, var(--liftResultWidth))
+        var(--spacerWidth) repeat(1, var(--liftResultWidth))
         /* one total rank per category */
         repeat(var(--nbRanks), var(--totalRankWidth))
         /* sinclair result */
@@ -786,16 +814,6 @@ div.ellipsis {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
-}
-
-.video {
-    font-size: 1.6rem;
-    font-weight: bold;
-    background-color: var(--videoHeaderBackgroundColor);
-    color: var(--videoHeaderTextColor);
-    margin-bottom: 1.2rem;
-    padding: 0.25em;
-    padding-left: 0.5em;
 }
 
 /* table sizes: 1024 projector */

@@ -1,6 +1,6 @@
 * {
-    --pageBackgroundColor: #00ff00;
-    --pageTextColor: black;
+    --pageBackgroundColor: black;
+    --pageTextColor: white;
 
     /* control record notification on scoreboard and attempt board.
        Set to 10 to show notifications, set to -10 if notifications not wanted */
@@ -75,20 +75,20 @@
     /* results table section, "white on black", most cells have same dark background as page */
 
     --darkTableBorders: var(--pageTextColor);
-    --darkTextColor: white;
-    --darkBackgroundColor: var(--darkEmptyBackgroundColor);
+    --darkTextColor: var(--pageTextColor);
+    --darkBackgroundColor: var(--pageBackgroundColor);
 
     --darkTitleTextColor: var(--darkTextColor);
     --darkTitleBackgroundColor: var(--darkBackgroundColor);
 
     --darkCurrentTextColor: yellow;
-    --darkCurrentBackgroundColor: var(--darkEmptyBackgroundColor);
+    --darkCurrentBackgroundColor: var(--darkBackgroundColor);
 
     --darkNextTextColor: orange;
-    --darkNextBackgroundColor: var(--darkEmptyBackgroundColor);
+    --darkNextBackgroundColor: var(--darkBackgroundColor);
 
-    --darkRequestTextColor: silver;
-    --darkRequestBackgroundColor: var(--darkEmptyBackgroundColor);
+    --darkRequestTextColor: var(--darkTextColor);
+    --darkRequestBackgroundColor: var(--darkBackgroundColor);
 
     --darkStartBackgroundColor: var(--darkBackgroundColor);
     --darkStartTextColor: var(--darkTextColor);
@@ -105,8 +105,8 @@
     --darkTeamTextColor: var(--darkTextColor);
     --darkTeamBackgroundColor: var(--darkBackgroundColor);
 
-    --darkGoodTextColor: black;
-    --darkGoodBackgroundColor: white;
+    --darkGoodTextColor: white;
+    --darkGoodBackgroundColor: green;
 
     --darkFailTextColor: white;
     --darkFailBackgroundColor: darkred;
@@ -117,10 +117,10 @@
     --darkTotalRankTextColor: var(--darkTextColor);
     --darkTotalRankBackgroundColor: var(--darkBackgroundColor);
 
-    --darkTotalTextColor: white;
+    --darkTotalTextColor: var(--darkGoodTextColor);
     --darkTotalBackgroundColor: blue;
 
-    --darkSpacerBackgroundColor: #00ff00;
+    --darkSpacerBackgroundColor: var(--darkBackgroundColor);
     --darkEmptyTextColor: #4d4d4d;
     --darkEmptyBackgroundColor: #4d4d4d;
 
@@ -169,6 +169,6 @@
     --darkAttemptHighlightBackground: purple;
 
     /* video header */
-    --videoHeaderBackgroundColor: darkblue;
-    --videoHeaderTextColor: white;
+    --videoHeaderBackgroundColor: var(--pageBackgroundColor);
+    --videoHeaderTextColor: var(--pageTextColor);
 }

@@ -6,8 +6,8 @@
 
 .wrapper {
 	font: Arial;
-	color: var(--videoTextColor);
-	background-color: var(--videoHeaderBackgroundColor);
+	color: var(--pageTextColor);
+	background-color: var(--pageBackgroundColor);
 	height: 100vh;
 	width: 100vw;
 }
