@@ -621,7 +621,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 		this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" : "display:grid"));
 		this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" : "display:none"));
 		this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
-		this.getElement().setProperty("videoHeaderDisplay", (hidden || !isVideo() ? "display:none" : "display:block"));
+		this.getElement().setProperty("videoHeaderDisplay", (hidden || !isVideo() ? "display:none" : "display:flex"));
 		this.getElement().setProperty("normalHeaderDisplay", (hidden || isVideo() ? "display:none" : "display:block"));
 	}
 

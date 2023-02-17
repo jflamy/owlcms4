@@ -47,11 +47,13 @@ class Results extends PolymerElement {
     </div>
     <div class="group" style$="[[normalHeaderDisplay]];">
         <div id="groupDiv">
-            <span class="groupName">[[displayType]][[groupName]]  &ndash; </span>[[liftsDone]]
+            <span class="groupName">[[displayType]][[groupName]]</span> &ndash; [[liftsDone]]
         </div>
     </div>
     <div class="video" style$="[[videoHeaderDisplay]]">
-        <span class="groupName">[[competitionName]]  &ndash; </span> [[liftsDone]]
+        <div class="eventlogo"></div>
+        <div class="videoheader"><span class="groupName">[[competitionName]]  &ndash; [[liftsDone]]</span></div>
+        <div class="federationlogo"></div>
     </div>
 
 
