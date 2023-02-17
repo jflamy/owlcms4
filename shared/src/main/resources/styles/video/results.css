@@ -25,8 +25,8 @@
     - change hidden to visible
     - set the width to value like 8ch 
     */
-    --birthWidth: 6ch;
-    --birthVisibility: visible;
+    --birthWidth: 0;
+    --birthVisibility: hidden;
     --custom1Width: 0;
     --custom1Visibility: hidden;
     --custom2Width: 0;
@@ -35,8 +35,8 @@
     --rankWidth: var(--liftResultWidth);
     --rankVisibility: visible;
 
-    --bestWidth: 0;
-    --bestVisibility: hidden;
+    --bestWidth: var(--liftResultWidth);
+    --bestVisibility: visible;
 
     /* top part: current attempt information */
     --topRowFontSize: 3vh;

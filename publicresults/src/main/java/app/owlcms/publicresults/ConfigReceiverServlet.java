@@ -95,6 +95,7 @@ public class ConfigReceiverServlet extends HttpServlet {
                     deny(req, resp, null);
                     return;
                 }
+                logger.warn("{} {}",item, item.getContentType());
                 if (!item.getContentType().contains("zip")) {
                     copyFile(item);
                 } else {

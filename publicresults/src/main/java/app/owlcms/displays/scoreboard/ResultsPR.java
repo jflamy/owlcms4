@@ -109,6 +109,7 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
         setDarkMode(true);
         setDefaultLeadersDisplay(true);
         setDefaultRecordsDisplay(true);
+        this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
     }
 
     @Override

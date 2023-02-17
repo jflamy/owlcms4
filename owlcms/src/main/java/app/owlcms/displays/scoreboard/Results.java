@@ -126,6 +126,8 @@ public class Results extends PolymerTemplate<TemplateModel>
 		uiEventLogger.setLevel(Level.INFO);
 	}
 
+	private String routeParameter;
+
 	/**
 	 * Instantiates a new results board.
 	 */
@@ -167,36 +169,6 @@ public class Results extends PolymerTemplate<TemplateModel>
 		doFopBreak();
 	}
 
-	private void doFopBreak() {
-		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			String title = inferGroupName() + " &ndash; "
-			        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), this.isSwitchableDisplay());
-			this.getElement().setProperty("fullName", title);
-			this.getElement().setProperty("teamName", "");
-			this.getElement().setProperty("attempt", "");
-			this.getElement().setProperty("kgSymbol", Translator.translate("kgSymbol"));
-			Athlete a = fop.getCurAthlete();
-
-			this.getElement().setProperty("weight", "");
-			boolean showWeight = false;
-			Integer nextAttemptRequestedWeight = null;
-			if (a != null) {
-				nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
-			}
-			if (fop.getCeremonyType() == null && a != null && nextAttemptRequestedWeight != null
-			        && nextAttemptRequestedWeight > 0) {
-				this.getElement().setProperty("weight", nextAttemptRequestedWeight);
-				showWeight = true;
-			}
-			breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
-			setHidden(false);
-			updateBottom(computeLiftType(a), fop);
-			// logger.trace("doBreak results {} {} {}", fop.getCeremonyType(), a,
-			// showWeight);
-			this.getElement().callJsFunction("doBreak", showWeight);
-		}));
-	}
-
 	@Override
 	public void doCeremony(UIEvent.CeremonyStarted e) {
 		ceremonyGroup = e.getCeremonyGroup();
@@ -222,7 +194,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 			this.getElement().setProperty("teamName", "");
 			this.getElement().setProperty("groupName", "");
 			breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
-			setHidden(false);
+			setDisplay(false);
 
 			updateBottom(computeLiftType(fop.getCurAthlete()), fop);
 			this.getElement().callJsFunction("doBreak");
@@ -262,6 +234,11 @@ public class Results extends PolymerTemplate<TemplateModel>
 	@Override
 	public String getPageTitle() {
 		return getTranslation("ScoreboardWLeadersTitle") + OwlcmsSession.getFopNameIfMultiple();
+	}
+
+	@Override
+	public String getRouteParameter() {
+		return this.routeParameter;
 	}
 
 	@Override
@@ -385,6 +362,11 @@ public class Results extends PolymerTemplate<TemplateModel>
 		}
 	}
 
+	@Override
+	public void setRouteParameter(String routeParameter) {
+		this.routeParameter = routeParameter;
+	}
+
 	/**
 	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
 	 */
@@ -411,7 +393,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
 			Athlete a = e.getAthlete();
-			setHidden(false);
+			setDisplay(false);
 			if (a == null) {
 				displayOrder = fop.getLiftingOrder();
 				a = displayOrder.size() > 0 ? displayOrder.get(0) : null;
@@ -429,7 +411,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 		// logger.trace"------- slaveCeremonyDone {}", e.getCeremonyType());
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			setHidden(false);
+			setDisplay(false);
 			// revert to current break
 			doBreak(null);
 		});
@@ -440,7 +422,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 		// logger.trace"------- slaveCeremonyStarted {}", e.getCeremonyType());
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			setHidden(false);
+			setDisplay(false);
 			doCeremony(e);
 		});
 	}
@@ -449,7 +431,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 	public void slaveDecision(UIEvent.Decision e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			setHidden(false);
+			setDisplay(false);
 			doUpdateBottomPart(e);
 			this.getElement().callJsFunction("refereeDecision");
 		});
@@ -459,7 +441,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			setHidden(false);
+			setDisplay(false);
 			doUpdateBottomPart(e);
 			this.getElement().callJsFunction("reset");
 		});
@@ -469,7 +451,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 	public void slaveDownSignal(UIEvent.DownSignal e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			setHidden(false);
+			setDisplay(false);
 			this.getElement().callJsFunction("down");
 		});
 	}
@@ -478,7 +460,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 	public void slaveGroupDone(UIEvent.GroupDone e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			setHidden(false);
+			setDisplay(false);
 			doDone(e.getGroup());
 		});
 	}
@@ -487,7 +469,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 	public void slaveJuryNotification(UIEvent.JuryNotification e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			setHidden(false);
+			setDisplay(false);
 			if (e.getNewRecord()) {
 				spotlightNewRecord();
 			}
@@ -509,7 +491,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 	public void slaveStartBreak(UIEvent.BreakStarted e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			setHidden(false);
+			setDisplay(false);
 			doBreak(e);
 		});
 	}
@@ -518,7 +500,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 	public void slaveStartLifting(UIEvent.StartLifting e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			setHidden(false);
+			setDisplay(false);
 			syncWithFOP();
 		});
 	}
@@ -543,6 +525,171 @@ public class Results extends PolymerTemplate<TemplateModel>
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			syncWithFOP(e);
 		});
+	}
+
+	private String computeLiftType(Athlete a) {
+		if (a == null || a.getAttemptsDone() > 6) {
+			return null;
+		}
+		String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
+		        : Translator.translate("Snatch");
+		return liftType;
+	}
+
+	private void doChangeEmSize() {
+		if (getEmFontSize() != null) {
+			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + getEmFontSize() + "rem;");
+		}
+	}
+
+	private void doDone(Group g) {
+		logger.debug("doDone {}", g == null ? null : g.getName());
+		if (g == null) {
+			doEmpty();
+		} else {
+			OwlcmsSession.withFop(fop -> {
+				this.getElement().setProperty("fullName", getTranslation("Group_number_results", g.toString()));
+				this.getElement().callJsFunction("groupDone");
+			});
+		}
+	}
+
+	private void doFopBreak() {
+		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			String title = inferGroupName() + " &ndash; "
+			        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), this.isSwitchableDisplay());
+			this.getElement().setProperty("fullName", title);
+			this.getElement().setProperty("teamName", "");
+			this.getElement().setProperty("attempt", "");
+			this.getElement().setProperty("kgSymbol", Translator.translate("kgSymbol"));
+			Athlete a = fop.getCurAthlete();
+
+			this.getElement().setProperty("weight", "");
+			boolean showWeight = false;
+			Integer nextAttemptRequestedWeight = null;
+			if (a != null) {
+				nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
+			}
+			if (fop.getCeremonyType() == null && a != null && nextAttemptRequestedWeight != null
+			        && nextAttemptRequestedWeight > 0) {
+				this.getElement().setProperty("weight", nextAttemptRequestedWeight);
+				showWeight = true;
+			}
+			breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
+			setDisplay(false);
+			updateBottom(computeLiftType(a), fop);
+			// logger.trace("doBreak results {} {} {}", fop.getCeremonyType(), a,
+			// showWeight);
+			this.getElement().callJsFunction("doBreak", showWeight);
+		}));
+	}
+
+	private void doUpdateBottomPart(UIEvent e) {
+		Athlete a = e.getAthlete();
+		updateBottom(computeLiftType(a), OwlcmsSession.getFop());
+	}
+
+	private String formatAttempt(Integer attemptNo) {
+		String translate = Translator.translate("AttemptBoard_attempt_number", (attemptNo % 3) + 1);
+		return translate;
+	}
+
+	private String formatKg(String total) {
+		return (total == null || total.trim().isEmpty()) ? "-"
+		        : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
+	}
+
+	private void init() {
+		OwlcmsSession.withFop(fop -> {
+			logger.trace("{}Starting result board on FOP {}", fop.getLoggingName());
+			setId("scoreboard-" + fop.getName());
+			curGroup = fop.getGroup();
+			setWideTeamNames(false);
+			this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
+		});
+		setTranslationMap();
+		displayOrder = ImmutableList.of();
+	}
+
+	private boolean isVideo() {
+		return routeParameter != null && routeParameter.contentEquals("video");
+	}
+
+	private void setDisplay(boolean hidden) {
+		this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
+		this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
+		this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" : "display:grid"));
+		this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" : "display:none"));
+		this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
+		this.getElement().setProperty("videoHeaderDisplay", (hidden || !isVideo() ? "display:none" : "display:flex"));
+		this.getElement().setProperty("normalHeaderDisplay", (hidden || isVideo() ? "display:none" : "display:block"));
+	}
+
+	private void setWideTeamNames(boolean wide) {
+		this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
+	}
+
+	private boolean showCurrent(FieldOfPlay fop) {
+		// blink only on warmup scoreboards during ceremonies/breaks
+//        if (fop.getState() == FOPState.BREAK) {
+//            if (isSwitchableDisplay() && (fop.getBreakType() == BreakType.FIRST_SNATCH
+//                    || fop.getBreakType() == BreakType.FIRST_CJ
+//                    || fop.getBreakType() == BreakType.GROUP_DONE)) {
+//                return false;
+//            }
+//        }
+
+		if (isSwitchableDisplay() && fop.getState() == FOPState.BREAK && fop.getCeremonyType() != null) {
+			return false;
+		}
+		return true;
+	}
+
+	private void spotlightNewRecord() {
+		this.getElement().setProperty("recordKind", "new");
+		this.getElement().setProperty("recordMessage", Translator.translate("Scoreboard.NewRecord"));
+	}
+
+	private void spotlightRecordAttempt() {
+		this.getElement().setProperty("recordKind", "attempt");
+		this.getElement().setProperty("recordMessage",
+		        Translator.translate("Scoreboard.RecordAttempt"));
+	}
+
+	private void spotlightRecords(FieldOfPlay fop) {
+		if (fop.getNewRecords() != null && !fop.getNewRecords().isEmpty()) {
+			spotlightNewRecord();
+		} else if (fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty()) {
+			spotlightRecordAttempt();
+		} else {
+			this.getElement().setProperty("recordKind", "none");
+		}
+	}
+
+	private void syncWithFOP() {
+		OwlcmsSession.withFop(fop -> {
+			syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this));
+		});
+
+	}
+
+	private void syncWithFOP(UIEvent.SwitchGroup e) {
+		switch (OwlcmsSession.getFop().getState()) {
+		case INACTIVE:
+			doEmpty();
+			break;
+		case BREAK:
+			if (e.getGroup() == null) {
+				doEmpty();
+			} else {
+				doUpdate(e.getAthlete(), e);
+				doBreak(e);
+			}
+			break;
+		default:
+			setDisplay(false);
+			doUpdate(e.getAthlete(), e);
+		}
 	}
 
 	protected void computeLeaders(boolean done) {
@@ -618,7 +765,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 	}
 
 	protected void doEmpty() {
-		this.setHidden(true);
+		this.setDisplay(true);
 	}
 
 	protected void doUpdate(Athlete a, UIEvent e) {
@@ -699,7 +846,9 @@ public class Results extends PolymerTemplate<TemplateModel>
 		ja.put("category", category != null ? category : "");
 		getAttemptsJson(a, liftOrderRank, fop);
 		ja.put("sattempts", sattempts);
+		ja.put("bestSnatch", formatInt(a.getBestSnatch()));
 		ja.put("cattempts", cattempts);
+		ja.put("bestCleanJerk", formatInt(a.getBestCleanJerk()));
 		ja.put("total", formatInt(a.getTotal()));
 		Participation mainRankings = a.getMainRankings();
 		if (mainRankings != null) {
@@ -734,22 +883,6 @@ public class Results extends PolymerTemplate<TemplateModel>
 		}
 		// logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
 		ja.put("classname", highlight);
-	}
-
-	private boolean showCurrent(FieldOfPlay fop) {
-		// blink only on warmup scoreboards during ceremonies/breaks
-//        if (fop.getState() == FOPState.BREAK) {
-//            if (isSwitchableDisplay() && (fop.getBreakType() == BreakType.FIRST_SNATCH
-//                    || fop.getBreakType() == BreakType.FIRST_CJ
-//                    || fop.getBreakType() == BreakType.GROUP_DONE)) {
-//                return false;
-//            }
-//        }
-
-		if (isSwitchableDisplay() && fop.getState() == FOPState.BREAK && fop.getCeremonyType() != null) {
-			return false;
-		}
-		return true;
 	}
 
 	/**
@@ -916,6 +1049,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 		} else {
 			getElement().setProperty("noLiftRanks", "nosinclair");
 		}
+		this.getElement().setProperty("video", routeParameter != null ? routeParameter + "/" : "");
 		SoundUtils.enableAudioContextNotification(this.getElement());
 		storeReturnURL();
 	}
@@ -952,14 +1086,16 @@ public class Results extends PolymerTemplate<TemplateModel>
 			                ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
 			                : "");
 			liftsDone = AthleteSorter.countLiftsDone(displayOrder);
-			if (isSwitchableDisplay() && groupDescription != null) {
+			if ((isSwitchableDisplay() || isVideo()) && groupDescription != null) {
 				this.getElement().setProperty("liftsDone", groupDescription);
 			} else {
 				this.getElement().setProperty("liftsDone", Translator.translate("Scoreboard.AttemptsDone", liftsDone));
 			}
 		} else {
-			if (isSwitchableDisplay() && groupDescription != null) {
+			if ((isSwitchableDisplay() || isVideo()) && groupDescription != null) {
 				this.getElement().setProperty("liftsDone", groupDescription);
+				this.getElement().setProperty("groupName", "");
+				this.getElement().callJsFunction("groupDone"); 
 			}
 			this.getElement().setProperty("groupName", "");
 			this.getElement().callJsFunction("groupDone");
@@ -978,118 +1114,4 @@ public class Results extends PolymerTemplate<TemplateModel>
 			this.getElement().callJsFunction("groupDone");
 		}
 	}
-
-	private String computeLiftType(Athlete a) {
-		if (a == null || a.getAttemptsDone() > 6) {
-			return null;
-		}
-		String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
-		        : Translator.translate("Snatch");
-		return liftType;
-	}
-
-	private void doChangeEmSize() {
-		if (getEmFontSize() != null) {
-			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + getEmFontSize() + "rem;");
-		}
-	}
-
-	private void doDone(Group g) {
-		logger.debug("doDone {}", g == null ? null : g.getName());
-		if (g == null) {
-			doEmpty();
-		} else {
-			OwlcmsSession.withFop(fop -> {
-				this.getElement().setProperty("fullName", getTranslation("Group_number_results", g.toString()));
-				this.getElement().callJsFunction("groupDone");
-			});
-		}
-	}
-
-	private void doUpdateBottomPart(UIEvent e) {
-		Athlete a = e.getAthlete();
-		updateBottom(computeLiftType(a), OwlcmsSession.getFop());
-	}
-
-	private String formatAttempt(Integer attemptNo) {
-		String translate = Translator.translate("AttemptBoard_attempt_number", (attemptNo % 3) + 1);
-		return translate;
-	}
-
-	private String formatKg(String total) {
-		return (total == null || total.trim().isEmpty()) ? "-"
-		        : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
-	}
-
-	private void init() {
-		OwlcmsSession.withFop(fop -> {
-			logger.trace("{}Starting result board on FOP {}", fop.getLoggingName());
-			setId("scoreboard-" + fop.getName());
-			curGroup = fop.getGroup();
-			setWideTeamNames(false);
-			this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
-		});
-		setTranslationMap();
-		displayOrder = ImmutableList.of();
-	}
-
-	private void setHidden(boolean hidden) {
-		this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
-		this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
-		this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" : "display:grid"));
-		this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" : "display:none"));
-		this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
-	}
-
-	private void setWideTeamNames(boolean wide) {
-		this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
-	}
-
-	private void spotlightNewRecord() {
-		this.getElement().setProperty("recordKind", "new");
-		this.getElement().setProperty("recordMessage", Translator.translate("Scoreboard.NewRecord"));
-	}
-
-	private void spotlightRecordAttempt() {
-		this.getElement().setProperty("recordKind", "attempt");
-		this.getElement().setProperty("recordMessage",
-		        Translator.translate("Scoreboard.RecordAttempt"));
-	}
-
-	private void spotlightRecords(FieldOfPlay fop) {
-		if (fop.getNewRecords() != null && !fop.getNewRecords().isEmpty()) {
-			spotlightNewRecord();
-		} else if (fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty()) {
-			spotlightRecordAttempt();
-		} else {
-			this.getElement().setProperty("recordKind", "none");
-		}
-	}
-
-	private void syncWithFOP(UIEvent.SwitchGroup e) {
-		switch (OwlcmsSession.getFop().getState()) {
-		case INACTIVE:
-			doEmpty();
-			break;
-		case BREAK:
-			if (e.getGroup() == null) {
-				doEmpty();
-			} else {
-				doUpdate(e.getAthlete(), e);
-				doBreak(e);
-			}
-			break;
-		default:
-			setHidden(false);
-			doUpdate(e.getAthlete(), e);
-		}
-	}
-
-	private void syncWithFOP() {
-		OwlcmsSession.withFop(fop -> {
-			syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this));
-		});
-
-	}
-
 }

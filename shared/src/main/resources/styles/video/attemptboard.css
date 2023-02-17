@@ -1,0 +1,327 @@
+@import 'colors.css';
+
+* {
+	box-sizing: border-box;
+}
+
+.wrapper {
+	font: Arial;
+	color: var(--pageTextColor);
+	background-color: var(--pageBackgroundColor);
+	height: 100vh;
+	width: 100vw;
+}
+
+.attemptBoard {
+	font-family: "Arial", "Helvetica", sans-serif;
+	display: grid;
+	width: 100vw;
+	height: 100vh;
+	grid-template-columns: [firstName-start lastName-start teamName-start
+  startNumber-start weight-start] 1fr [startNumber-end attempt-start] 2fr [attempt-end
+  weight-end barbell-start down-start decision-start] 4fr [barbell-end
+  timer-start] 2fr [timer-end name-end down-end decision-end];
+	grid-template-rows: [lastName-start] 1fr [lastName-end firstName-start] 1fr [firstName-end
+		teamName-start down-start] 2fr [teamName-end  decision-start] 1fr [startNumber-start
+		attempt-start barbell-start timer-start] 1fr [startNumber-end
+		attempt-end weight-start] 5fr [weight-end barbell-end timer-end down-end
+		decision-end];
+	justify-content: center;
+	align-content: center;
+	align-items: stretch;
+	justify-items: stretch;
+	padding: 5vmin;
+}
+
+.attemptBoard .lastName {
+	justify-self: left;
+	font-size: 12vh;
+	line-height: 12vh;
+	grid-area: lastName-start/lastName-start/lastName-end/lastName-end;
+}
+
+.attemptBoard .lastNameWithPicture {
+	justify-self: left;
+	font-size: 9vh;
+	line-height: 10vh;
+	font-weight: bold;
+	grid-area: lastName-start/lastName-start/lastName-end/lastName-end;
+}
+
+.attemptBoard .lastNameWithPicture div {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+	font-weight: normal;
+	max-width: 70vw;
+}
+
+
+@media screen and (max-width: 1300px) {
+	.attemptBoard .lastName {
+		font-size: 7vw;
+		line-height: 7vw;
+	}
+}
+
+.attemptBoard .firstName {
+	justify-self: left;
+	font-size: 10vh;
+	grid-area: firstName-start/firstName-start/firstName-end/firstName-end;
+}
+
+.attemptBoard .firstNameWithPicture {
+	justify-self: left;
+	font-size: 9vh;
+	line-height: 10vh;
+	font-weight: normal;
+	grid-area: firstName-start/firstName-start/firstName-end/timer-start;
+}
+
+.attemptBoard .firstNameWithPicture div {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+	max-width: 70vw;
+}
+
+
+@media screen and (max-width: 1300px) {
+	.attemptBoard .firstName {
+		font-size: 7vw;
+		line-height: 7vw;
+	}
+}
+
+.attemptBoard .teamName {
+	justify-self: left;
+	align-self: center;
+	font-size: 8vh;
+	line-height: 8vh;
+	grid-area: teamName-start/teamName-start/teamName-end/teamName-end;
+}
+
+.attemptBoard .flag {
+	justify-self: center;
+	justify-content: center;
+	align-self: start;
+	align-self: end;
+	grid-area: teamName-start/timer-start/timer-start/timer-end;
+	z-index: 10;
+}
+.attemptBoard .flag > img {
+	object-fit: cover;
+	max-height: 100%;
+	width: 15vw;
+}
+
+.attemptBoard .flagWithPicture {
+	justify-self: center;
+	justify-content: center;
+	align-self: start;
+	grid-area: teamName-start/barbell-start/barbell-start/barbell-end;
+	z-index: 0;
+}
+.attemptBoard .flagWithPicture > img {
+	height: 14vh;
+	align-self: start;
+}
+
+.attemptBoard .picture {
+	justify-self: center;
+	justify-content: center;
+	align-self: start;
+	grid-area: lastName-start/timer-start/timer-start/timer-end;
+	z-index: 0;
+}
+.attemptBoard .picture > img {
+	height: 40vh;
+	/* align-self: end; */
+}
+
+.attemptBoard .recordNotification {
+	justify-self: center;
+	font-size: 8vh;
+	height: 100%;
+	grid-area: teamName-start/teamName-start/teamName-end/teamName-end;
+}
+
+.attemptBoard .recordNotification.new {
+	display: grid;
+	grid-area: teamName-start/teamName-start/teamName-end/teamName-end;
+    background-color: var(--darkRecordHighlightBackground);
+    color: var(--darkRecordHighlightText);
+    visibility: var(--showRecordNotifications);
+    width: 100%;
+    align-self: center;
+    justify-content: center;
+    align-content: center;
+    padding: 0.4em;
+	z-index: var(--zIndexRecordNotifications);
+}
+
+.attemptBoard .recordNotification.attempt {
+	display: grid;
+	grid-area: teamName-start/teamName-start/teamName-end/teamName-end;
+    background-color: var(--darkAttemptHighlightBackground);
+    color: var(--darkAttemptHighlightText);
+    visibility: var(--showRecordNotifications);
+    width: 100%;
+    align-self: center;
+    justify-content: center;
+    align-content: center;
+    padding: 0.4em;
+	z-index: var(--zIndexRecordNotifications);
+}
+
+.attemptBoard .recordNotification.none {
+	display: grid;
+	grid-area: teamName-start/teamName-start/teamName-end/teamName-end;
+    background-color: var(--darkAttemptHighlightBackground);
+    color: var(--darkAttemptHighlightText);
+    visibility: var(--showRecordNotifications);
+    width: 100%;
+    align-self: center;
+    justify-content: center;
+    align-content: center;
+    padding: 0.4em;
+	z-index: -10;
+}
+
+.hideBecauseRecord {
+	visibility: hidden;
+}
+
+.hideBecauseDecision {
+	visibility: hidden;
+}
+
+@media screen and (max-width: 1300px) {
+	.attemptBoard .teamName {
+		font-size: 8vh;
+		line-height: 8vh;
+		padding-top: 3vmin;
+	}
+}
+
+.attemptBoard .startNumber {
+	font-size: 10vh;
+	grid-area: startNumber-start/startNumber-start/startNumber-end/startNumber-end;
+}
+
+@media screen and (max-width: 1300px) {
+	.attemptBoard .startNumber {
+		font-size: 8vh;
+	}
+}
+
+.attemptBoard .startNumber span {
+	border-width: 0.2ex;
+	border-style: solid;
+	border-color: var(--startNumberBoxColor);
+	width: 1.5em;
+	display: flex;
+	justify-content: center;
+}
+
+.attemptBoard .attempt {
+    display: block;
+	font-size: 10vh;
+	line-height: 10vh;
+	align-self: center;
+	grid-area: attempt-start/attempt-start/attempt-end/attempt-end;
+}
+
+@media screen and (max-width: 1300px) {
+	.attemptBoard .attempt {
+		font-size: 8vh;
+		line-height: 8vh;
+	}
+}
+
+.attemptBoard .weight {
+	color: var(--athleteAttemptWeightColor);
+	font-size: 20vh;
+	line-height: 20vh;
+	font-weight: bold;
+	grid-area: weight-start/weight-start/weight-end/weight-end;
+	align-self: center;
+	justify-self: stretch;
+}
+
+@media screen and (max-width: 1300px) {
+	.attemptBoard .weight {
+		font-size: 12vw;
+		line-height: 7vw;
+	}
+}
+
+.attemptBoard .barbell {
+	grid-area: barbell-start/barbell-start/barbell-end/barbell-end;
+	justify-self: center;
+}
+
+.attemptBoard .timer {
+	font-size: 24vh;
+	font-weight: bold;
+	grid-area: timer-start/timer-start/timer-end/timer-end;
+	align-self: center;
+	justify-self: center;
+}
+
+@media screen and (max-width: 1025px) {
+	.attemptBoard .timer {
+		font-size: 12vw;
+	}
+}
+
+@media screen and (max-width: 1300px) {
+	.attemptBoard .timer {
+		font-size: 15vw;
+	}
+}
+
+.breakTime {
+	/* color: #99CCFF; */
+	color: var(--breakTimerColor);
+}
+
+.athleteTimer {
+	color: var(--athleteTimerColor);
+}
+
+.attemptBoard .down {
+	grid-area: down-start/down-start/down-end/down-end;
+	align-self: stretch;
+	justify-self: stretch;
+	--iron-icon-height: 120%;
+	--iron-icon-width: 120%;
+	font-weight: normal;
+	color: var(--downColor);
+	display: none;
+	overflow: hidden;
+}
+
+.attemptBoard .decision {
+	grid-area: decision-start/decision-start/decision-end/decision-end;
+	font-size: 30vh;
+}
+
+.v-system-error {
+	display: none;
+}
+
+.bigTitle {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+	display:flex;
+}
+
+.competitionName {
+    font-size: 8vh;
+}
+
+.nextGroup {
+    font-size: 4vh;
+}

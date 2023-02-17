@@ -50,7 +50,7 @@ import ch.qos.logback.classic.Logger;
  */
 public class ResourceWalker {
 
-    static Logger logger = (Logger) LoggerFactory.getLogger(ResourceWalker.class);
+    static Logger logger = (Logger) LoggerFactory.getLogger(ResourceWalker.class); 
 
     private static boolean initializedLocalDir = false;
 
@@ -135,11 +135,11 @@ public class ResourceWalker {
                 }
             }
         } else {
-            is = ResourceWalker.class.getResourceAsStream(name);
+            is = ResourceWalker.class.getResourceAsStream(name.startsWith("/") ? name : "/"+name);
             if (is != null) {
                 logger.trace("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
             } else {
-                logger.trace("not found {} {}", name, LoggerUtils.whereFrom(1));
+                logger.trace("not found {} {}", name, LoggerUtils.whereFrom(0));
                 throw new FileNotFoundException(name);
             }
         }

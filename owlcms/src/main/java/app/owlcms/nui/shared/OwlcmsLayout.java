@@ -7,6 +7,7 @@ import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
+import com.flowingcode.vaadin.addons.ironicons.AvIcons;
 import com.flowingcode.vaadin.addons.ironicons.HardwareIcons;
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.flowingcode.vaadin.addons.ironicons.MapsIcons;
@@ -22,7 +23,6 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
-
 import com.vaadin.flow.component.icon.IronIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
@@ -38,6 +38,7 @@ import com.vaadin.flow.router.RouterLink;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.displayselection.DisplayNavigationContent;
+import app.owlcms.nui.displayselection.VideoNavigationContent;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.home.InfoNavigationContent;
 import app.owlcms.nui.lifting.LiftingNavigationContent;
@@ -293,6 +294,7 @@ public class OwlcmsLayout extends AppLayout {
     private Tabs getTabs() {
         Tabs tabs = new Tabs();
         String docOpener = "javascript:window.open('https://jflamy.github.io/owlcms4/#/index','_blank')";
+//        boolean tv = new OwlcmsLicense().isFeatureAllowed("tv");
         tabs.add(
                 createTab(IronIcons.HOME.create(),
                         Translator.translate("Home"),
@@ -305,7 +307,14 @@ public class OwlcmsLayout extends AppLayout {
                         LiftingNavigationContent.class),
                 createTab(HardwareIcons.DESKTOP_WINDOWS.create(),
                         Translator.translate("StartDisplays"),
-                        DisplayNavigationContent.class),
+                        DisplayNavigationContent.class));
+//        if (tv) {
+        	 tabs.add(
+                     createTab(AvIcons.VIDEOCAM.create(),
+                             Translator.translate("VideoStreaming"),
+                             VideoNavigationContent.class));
+//        }
+        tabs.add(
                 createTab(MapsIcons.LOCAL_PRINTSHOP.create(),
                         Translator.translate("Results"),
                         ResultsNavigationContent.class),

@@ -13,13 +13,13 @@ class ResultsFull extends PolymerElement {
 
     static get template() {
         return html`
-<link rel="stylesheet" type="text/css" href="local/styles/results_[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/styles/[[video]]results_[[autoversion]].css">
 <div class$="wrapper [[teamWidthClass]] [[inactiveClass]]" style$="[[sizeOverride]];">
     <div style$="[[inactiveBlockStyle]]">
         <div class="competitionName">[[competitionName]]</div><br>
         <div class="nextGroup">[[t.WaitingNextGroup]]</div>
     </div>
-    <div class="attemptBar" style$="[[hiddenBlockStyle]]">
+    <div class="attemptBar" style$="[[normalHeaderDisplay]];">
         <div class="athleteInfo" id="athleteInfoDiv">
             <div class="startNumber" id="startNumberDiv">
                 <span>[[startNumber]]</span>
@@ -44,10 +44,15 @@ class ResultsFull extends PolymerElement {
             </div>
         </div>
     </div>
-    <div class="group" style$="[[hiddenBlockStyle]]">
+    <div class="group" style$="[[normalHeaderDisplay]];">
         <div id="groupDiv">
-            <span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]
+            <span class="groupName">[[displayType]][[groupName]]  &ndash; </span>[[liftsDone]]
         </div>
+    </div>
+    <div class="video" style$="[[videoHeaderDisplay]]">
+        <div class="eventlogo"></div>
+        <div class="videoheader"><span class="groupName">[[competitionName]]  &ndash; [[liftsDone]]</span></div>
+        <div class="federationlogo"></div>
     </div>
 
     <table class="results"
@@ -76,9 +81,15 @@ class ResultsFull extends PolymerElement {
                 <th class="club" style="grid-row: span 2">
                     <div style="display: grid; align-self: center" inner-h-t-m-l="[[t.Team]]"></div>
                 </th>
-                <th style$="grid-column: span calc(3 + [[nbRanks]]);" inner-h-t-m-l="[[t.Snatch]]"></th>
-                <th style$="grid-column: span calc(3 + [[nbRanks]]);" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
+                <th class="vspacer"></th>
+                <th style$="grid-column: span calc(3 + [[nbRanks]] + 1);" inner-h-t-m-l="[[t.Snatch]]"></th>
+
+                <th class="vspacer"></th>
+                <th style$="grid-column: span calc(3 + [[nbRanks]] + 1);" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
+                
+                <th class="vspacer"></th>
                 <th style$="grid-column: span calc(1 + [[nbRanks]]);" inner-h-t-m-l="[[t.Total]]"></th>
+                
                 <th class="sinclair" style="grid-row: span 2">
                     <div style="display: grid; align-self: center" inner-h-t-m-l="[[t.Sinclair]]"></div>
                 </th>
@@ -87,21 +98,24 @@ class ResultsFull extends PolymerElement {
             <tr class="head">
                 <!-- second row is already partially filled from the row spans, only provide the empty cells
                     on the bottom row -->
-
+<th class="vspacer"></th>
                 <th class="narrow">1</th>
                 <th class="narrow">2</th>
                 <th class="narrow">3</th>
+                <th class="best" inner-h-t-m-l="[[t.Best]]"></th>
                 <template is="dom-repeat" id="snatchAgeGroups" items="[[ageGroups]]" as="sag">
                     <th>[[sag]]</th>
                 </template>
-
+                
+<th class="vspacer"></th>
                 <th class="narrow">1</th>
                 <th class="narrow">2</th>
                 <th class="narrow">3</th>
+                <th class="best" inner-h-t-m-l="[[t.Best]]"></th>
                 <template is="dom-repeat" id="cjAgeGroups" items="[[ageGroups]]" as="cjag">
                     <th>[[cjag]]</th>
                 </template>
-
+<th class="vspacer"></th>
                 <th class="narrow" inner-h-t-m-l="[[t.Total]]"></th>
                 <template is="dom-repeat" id="totalAgeGroups" items="[[ageGroups]]" as="tag">
                     <th>[[tag]]</th>
@@ -139,28 +153,37 @@ class ResultsFull extends PolymerElement {
                         <td class="club">
                             <div class="ellipsis">[[l.teamName]]</div>
                         </td>
+                        <td class="vspacer"></td>
                         <template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
                             <td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
                                 <div class$="[[attempt.goodBadClassName]] [[attempt.className]]">[[attempt.stringValue]]
                                 </div>
                             </td>
                         </template>
+                        <td class="best">
+                            <div inner-h-t-m-l="[[l.bestSnatch]]"></div>
+                        </td>
                         <template is="dom-repeat" id="snatchRanks" items="[[l.snatchRanks]]" as="sr">
                             <td class="rank">
                                 <div inner-h-t-m-l="[[sr]]"></div>
                             </td>
                         </template>
+                                                <td class="vspacer"></td>
                         <template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
                             <td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
                                 <div class$="[[attempt.goodBadClassName]] [[attempt.className]]">[[attempt.stringValue]]
                                 </div>
                             </td>
                         </template>
+                        <td class="best">
+                            <div inner-h-t-m-l="[[l.bestCleanJerk]]"></div>
+                        </td>
                         <template is="dom-repeat" id="cleanJerkRanks" items="[[l.cleanJerkRanks]]" as="cjr">
                             <td class="rank">
                                 <div inner-h-t-m-l="[[cjr]]"></div>
                             </td>
                         </template>
+                                                <td class="vspacer"></td>
                         <td class="total">[[l.total]]</td>
                         <template is="dom-repeat" id="totalRanks" items="[[l.totalRanks]]" as="tr">
                             <td class="totalRank">
@@ -216,28 +239,36 @@ class ResultsFull extends PolymerElement {
                             <td class="club">
                                 <div class="ellipsis">[[l.teamName]]</div>
                             </td>
+                            <td class="vspacer"></td>
                             <template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
                                 <td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
                                     <div>[[attempt.stringValue]]</div>
                                 </td>
                             </template>
-                            <template is="dom-repeat" id="snatchRanks" items="[[l.snatchRanks]]" as="sr">
+                            <td class="best" style$="[[leadersVisibility]]">
+                                <div inner-h-t-m-l="[[l.bestSnatch]]"></div>
+                            </td>
+                                                        <template is="dom-repeat" id="snatchRanks" items="[[l.snatchRanks]]" as="sr">
                                 <td class="rank" style$="[[leadersVisibility]]">
                                     <div inner-h-t-m-l="[[sr]]"></div>
                                 </td>
-                            </template>
+                                                            </template>
+                            <td class="vspacer" style$="[[leadersVisibility]]"></td>
                             <template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
                                 <td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
                                     <div>[[attempt.stringValue]]</div>
                                 </td>
                             </template>
-                            <template is="dom-repeat" id="cleanJerkRanks" items="[[l.cleanJerkRanks]]" as="cjr">
+                            <td class="best" style$="[[leadersVisibility]]">
+                                <div inner-h-t-m-l="[[l.bestCleanJerk]]"></div>
+                            </td>
+                                                        <template is="dom-repeat" id="cleanJerkRanks" items="[[l.cleanJerkRanks]]" as="cjr">
                                 <td class="rank" style$="[[leadersVisibility]]">
                                     <div inner-h-t-m-l="[[cjr]]"></div>
                                 </td>
                             </template>
+                            <td class="vspacer"></td>
                             <td class="total" style$="[[leadersVisibility]]">[[l.total]]</td>
-
                             <template is="dom-repeat" id="totalRanks" items="[[l.totalRanks]]" as="tr">
                                 <td class="totalRank" style$="[[leadersVisibility]]">
                                     <div inner-h-t-m-l="[[tr]]"></div>

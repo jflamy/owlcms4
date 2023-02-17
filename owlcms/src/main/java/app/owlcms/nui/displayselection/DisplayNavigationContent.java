@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2023 Jean-François Lamy
+L * Copyright (c) 2009-2023 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -24,9 +24,6 @@ import app.owlcms.apputils.DebugUtils;
 import app.owlcms.displays.attemptboard.AthleteFacingAttemptBoard;
 import app.owlcms.displays.attemptboard.AthleteFacingDecisionBoard;
 import app.owlcms.displays.attemptboard.AttemptBoard;
-import app.owlcms.displays.attemptboard.PublicFacingDecisionBoard;
-import app.owlcms.displays.monitor.OBSMonitor;
-import app.owlcms.displays.scoreboard.CurrentAthlete;
 import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.displays.scoreboard.ResultsLeadersRanks;
 import app.owlcms.displays.scoreboard.ResultsLiftingOrder;
@@ -75,7 +72,7 @@ public class DisplayNavigationContent extends BaseNavigationContent
         Button scoreboard;
         Button scoreboardWLeaders;
         Button scoreboardMultiRanks;
-        Button currentAthlete;
+//        Button currentAthlete;
         Button medals;
 
         scoreboard = openInNewTab(ResultsNoLeaders.class, getTranslation("Scoreboard"));
@@ -84,7 +81,7 @@ public class DisplayNavigationContent extends BaseNavigationContent
         scoreboardMultiRanks = openInNewTab(ResultsLeadersRanks.class,
                 getTranslation("ScoreboardMultiRanksButton"));
         medals = openInNewTab(ResultsMedals.class, getTranslation("CeremonyType.MEDALS"));
-        currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"));
+//        currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"));
 
         // Button liftingOrder = openInNewTab(LiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
         Button liftingOrder = openInNewTab(ResultsLiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
@@ -92,8 +89,8 @@ public class DisplayNavigationContent extends BaseNavigationContent
         Button topTeams = openInNewTab(TopTeams.class, getTranslation("Scoreboard.TopTeams"));
         Button topTeamsSinclair = openInNewTab(TopTeamsSinclair.class, getTranslation("Scoreboard.TopTeamsSinclair"));
 
-        Button obsMonitor = openInNewTab(OBSMonitor.class, getTranslation("OBS.MonitoringButton"));
-        Button publicDecisions = openInNewTab(PublicFacingDecisionBoard.class, getTranslation("RefereeDecisions"));
+//        Button obsMonitor = openInNewTab(OBSMonitor.class, getTranslation("OBS.MonitoringButton"));
+//        Button publicDecisions = openInNewTab(PublicFacingDecisionBoard.class, getTranslation("RefereeDecisions"));
 
         fillH(intro, this);
 
@@ -112,10 +109,10 @@ public class DisplayNavigationContent extends BaseNavigationContent
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(decisions);
         doGroup(getTranslation("Refereeing_Displays"), intro2, grid2, this);
 
-        VerticalLayout intro4 = new VerticalLayout();
-        addP(intro4, getTranslation("OBS.MonitoringExplanation"));
-        FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(obsMonitor, currentAthlete, publicDecisions);
-        doGroup(getTranslation("OBS.MonitoringTitle"), intro4, grid4, this);
+//        VerticalLayout intro4 = new VerticalLayout();
+//        addP(intro4, getTranslation("OBS.MonitoringExplanation"));
+//        FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(obsMonitor, currentAthlete, publicDecisions);
+//        doGroup(getTranslation("OBS.MonitoringTitle"), intro4, grid4, this);
 
         DebugUtils.gc();
     }

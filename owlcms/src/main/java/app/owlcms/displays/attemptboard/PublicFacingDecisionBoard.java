@@ -58,6 +58,7 @@ public class PublicFacingDecisionBoard extends AttemptBoard {
         setPublicFacing(true);
         setShowBarbell(false);
         setSilenced(isSilencedByDefault());
+		this.getElement().setProperty("video", routeParameter != null ? routeParameter + "/" : "");
     }
 
 }
