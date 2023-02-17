@@ -56,6 +56,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 	 * Instantiates a new display navigation content.
 	 */
 	public VideoNavigationContent() {
+		//FIXME: need a way to select the group because the video can be about previous group
 		VerticalLayout intro = new VerticalLayout();
 		intro.setSpacing(false);
 		addP(intro, getTranslation("VideoStreaming.Intro"));
@@ -97,7 +98,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 		doGroup(getTranslation("AttemptBoard"), grid3, this);
 
 		VerticalLayout intro1 = new VerticalLayout();
-		addP(intro1, getTranslation("darkModeSelect"));
+		//addP(intro1, getTranslation("darkModeSelect"));
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders,
 		        scoreboardMultiRanks,
 //		        liftingOrder,

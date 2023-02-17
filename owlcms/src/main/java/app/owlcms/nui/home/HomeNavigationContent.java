@@ -34,6 +34,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.displayselection.DisplayNavigationContent;
+import app.owlcms.nui.displayselection.VideoNavigationContent;
 import app.owlcms.nui.lifting.LiftingNavigationContent;
 import app.owlcms.nui.preparation.PreparationNavigationContent;
 import app.owlcms.nui.results.ResultsNavigationContent;
@@ -84,6 +85,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
     String PREPARE_COMPETITION = Translator.translate("PrepareCompetition");
     String RESULT_DOCUMENTS = Translator.translate("Results");
     String RUN_LIFTING_GROUP = Translator.translate("RunLiftingGroup");
+    String VIDEO_STREAMING = Translator.translate("VideoStreaming");
 
     String START_DISPLAYS = Translator.translate("StartDisplays");
 
@@ -98,11 +100,13 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
                 buttonClickEvent -> UI.getCurrent().navigate(PreparationNavigationContent.class));
         Button displays = new Button(START_DISPLAYS,
                 buttonClickEvent -> UI.getCurrent().navigate(DisplayNavigationContent.class));
+        Button video = new Button(VIDEO_STREAMING,
+                buttonClickEvent -> UI.getCurrent().navigate(VideoNavigationContent.class));
         Button lifting = new Button(RUN_LIFTING_GROUP,
                 buttonClickEvent -> UI.getCurrent().navigate(LiftingNavigationContent.class));
         Button documents = new Button(RESULT_DOCUMENTS,
                 buttonClickEvent -> UI.getCurrent().navigate(ResultsNavigationContent.class));
-        FlexibleGridLayout grid = HomeNavigationContent.navigationGrid(prepare, lifting, displays, documents);
+        FlexibleGridLayout grid = HomeNavigationContent.navigationGrid(prepare, lifting, displays, video, documents);
 
         fillH(intro, this);
         fillH(grid, this);
