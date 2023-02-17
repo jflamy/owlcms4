@@ -295,7 +295,7 @@ public class OwlcmsLayout extends AppLayout {
     private Tabs getTabs() {
         Tabs tabs = new Tabs();
         String docOpener = "javascript:window.open('https://jflamy.github.io/owlcms4/#/index','_blank')";
-        boolean tv = new OwlcmsLicense().isFeatureAllowed("tv");
+//        boolean tv = new OwlcmsLicense().isFeatureAllowed("tv");
         tabs.add(
                 createTab(IronIcons.HOME.create(),
                         Translator.translate("Home"),
@@ -309,12 +309,12 @@ public class OwlcmsLayout extends AppLayout {
                 createTab(HardwareIcons.DESKTOP_WINDOWS.create(),
                         Translator.translate("StartDisplays"),
                         DisplayNavigationContent.class));
-        if (tv) {
+//        if (tv) {
         	 tabs.add(
                      createTab(AvIcons.VIDEOCAM.create(),
                              Translator.translate("VideoStreaming"),
                              VideoNavigationContent.class));
-        }
+//        }
         tabs.add(
                 createTab(MapsIcons.LOCAL_PRINTSHOP.create(),
                         Translator.translate("Results"),
