@@ -44,7 +44,6 @@ import app.owlcms.nui.home.InfoNavigationContent;
 import app.owlcms.nui.lifting.LiftingNavigationContent;
 import app.owlcms.nui.preparation.PreparationNavigationContent;
 import app.owlcms.nui.results.ResultsNavigationContent;
-import app.owlcms.utils.OwlcmsLicense;
 import ch.qos.logback.classic.Logger;
 
 /**
