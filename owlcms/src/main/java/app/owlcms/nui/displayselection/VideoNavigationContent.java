@@ -74,7 +74,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 		scoreboardWLeaders = openInNewTab(Results.class, getTranslation("ScoreboardWLeadersButton"), "video");
 		scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
 		scoreboardMultiRanks = openInNewTab(ResultsLeadersRanks.class,
-		        getTranslation("ScoreboardMultiRanksButton"));
+		        getTranslation("ScoreboardMultiRanksButton"), "video");
 		medals = openInNewTab(ResultsMedals.class, getTranslation("CeremonyType.MEDALS"), "video");
 		currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"),"video");
 

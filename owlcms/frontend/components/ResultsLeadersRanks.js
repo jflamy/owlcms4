@@ -13,13 +13,13 @@ class ResultsFull extends PolymerElement {
 
     static get template() {
         return html`
-<link rel="stylesheet" type="text/css" href="local/styles/results_[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/styles/[[video]]results_[[autoversion]].css">
 <div class$="wrapper [[teamWidthClass]] [[inactiveClass]]" style$="[[sizeOverride]];">
     <div style$="[[inactiveBlockStyle]]">
         <div class="competitionName">[[competitionName]]</div><br>
         <div class="nextGroup">[[t.WaitingNextGroup]]</div>
     </div>
-    <div class="attemptBar" style$="[[hiddenBlockStyle]]">
+    <div class="attemptBar" style$="[[normalHeaderDisplay]];">
         <div class="athleteInfo" id="athleteInfoDiv">
             <div class="startNumber" id="startNumberDiv">
                 <span>[[startNumber]]</span>
@@ -44,10 +44,13 @@ class ResultsFull extends PolymerElement {
             </div>
         </div>
     </div>
-    <div class="group" style$="[[hiddenBlockStyle]]">
+    <div class="group" style$="[[normalHeaderDisplay]];">
         <div id="groupDiv">
-            <span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]
+            <span class="groupName">[[displayType]][[groupName]]  &ndash; </span>[[liftsDone]]
         </div>
+    </div>
+    <div class="video" style$="[[videoHeaderDisplay]]">
+        <span class="groupName">[[competitionName]]  &ndash; </span> [[liftsDone]]
     </div>
 
     <table class="results"

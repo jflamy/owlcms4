@@ -1080,22 +1080,23 @@ public class Results extends PolymerTemplate<TemplateModel>
 		if (liftType != null && curGroup != null) {
 			this.getElement().setProperty("displayType", getDisplayType());
 		}
-		if ((isSwitchableDisplay() || isVideo()) && groupDescription != null) {
-			this.getElement().setProperty("liftsDone", groupDescription);
-			this.getElement().setProperty("groupName", "");
-			this.getElement().callJsFunction("groupDone"); 
-		} else if (liftType != null) {
+		if (liftType != null) {
 			this.getElement().setProperty("groupName",
 			        curGroup != null
 			                ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
 			                : "");
 			liftsDone = AthleteSorter.countLiftsDone(displayOrder);
-			if (isSwitchableDisplay() && groupDescription != null) {
+			if ((isSwitchableDisplay() || isVideo()) && groupDescription != null) {
 				this.getElement().setProperty("liftsDone", groupDescription);
 			} else {
 				this.getElement().setProperty("liftsDone", Translator.translate("Scoreboard.AttemptsDone", liftsDone));
 			}
 		} else {
+			if ((isSwitchableDisplay() || isVideo()) && groupDescription != null) {
+				this.getElement().setProperty("liftsDone", groupDescription);
+				this.getElement().setProperty("groupName", "");
+				this.getElement().callJsFunction("groupDone"); 
+			}
 			this.getElement().setProperty("groupName", "");
 			this.getElement().callJsFunction("groupDone");
 		}

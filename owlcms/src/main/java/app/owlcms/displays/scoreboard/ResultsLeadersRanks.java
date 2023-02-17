@@ -86,7 +86,6 @@ public class ResultsLeadersRanks extends Results {
         ja.put("custom1", a.getCustom1() != null ?  a.getCustom1() : "");
         ja.put("custom2", a.getCustom2() != null ?  a.getCustom2() : "");
 
-
         boolean notDone = a.getAttemptsDone() < 6;
         String blink = (notDone ? " blink" : "");
         String highlight = "";
