@@ -169,6 +169,6 @@
     --darkAttemptHighlightBackground: purple;
 
     /* video header */
-    --videoHeaderBackgroundColor: darkblue;
-    --videoHeaderTextColor: white;
+    --videoHeaderBackgroundColor: var(--pageBackgroundColor);
+    --videoHeaderTextColor: var(--pageTextColor);
 }
