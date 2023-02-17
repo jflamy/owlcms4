@@ -280,7 +280,7 @@ class Results extends PolymerElement {
         console.debug("ready");
         super.ready();
         document.body.setAttribute("theme", "dark");
-        this.$.groupDiv.style.visibility = "visible";
+        //this.$.groupDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.display = "flex";
         this.$.startNumberDiv.style.display = "flex";
@@ -300,7 +300,7 @@ class Results extends PolymerElement {
         console.warn("reset");
         //this.marqueeIfTooBig();
         this.$.timer.reset(this.$.timer);
-        this.$.groupDiv.style.visibility = "visible";
+        //this.$.groupDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.display = "flex";
         this.$.startNumberDiv.style.display = "flex";
@@ -314,7 +314,7 @@ class Results extends PolymerElement {
 
     down() {
         console.warn("refereeDecision");
-        this.$.groupDiv.style.visibility = "visible";
+        //this.$.groupDiv.style.visibility = "visible";
         this.$.startNumberDiv.style.display = "flex";
         this.$.teamNameDiv.style.display = "flex";
         this.$.attemptDiv.style.display = "flex";
@@ -326,7 +326,7 @@ class Results extends PolymerElement {
 
     doBreak(showWeights) {
         console.warn("break");
-        this.$.groupDiv.style.visibility = "hidden";
+        //this.$.groupDiv.style.visibility = "hidden";
         this.$.fullNameDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.display = "flex";
         this.$.startNumberDiv.style.display = "none";
@@ -347,7 +347,7 @@ class Results extends PolymerElement {
 
     groupDone() {
         console.warn("done");
-        this.$.groupDiv.style.visibility = "hidden";
+        //this.$.groupDiv.style.visibility = "hidden";
         this.$.fullNameDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.display = "flex";
         this.$.startNumberDiv.style.display = "none";
@@ -361,7 +361,7 @@ class Results extends PolymerElement {
 
     refereeDecision() {
         console.warn("refereeDecision");
-        this.$.groupDiv.style.visibility = "visible";
+        //this.$.groupDiv.style.visibility = "visible";
         this.$.decisionDiv.style.display = "flex";
         this.$.weightDiv.style.display = "flex";
         this.$.timerDiv.style.display = "flex";

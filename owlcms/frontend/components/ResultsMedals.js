@@ -26,9 +26,9 @@ class ResultsMedals extends PolymerElement {
         </div>
     </div>
     <div class="video" style$="[[videoHeaderDisplay]]">
-        <div id="groupDiv">
-            <div class="fullName ellipsis" id="fullNameDiv" inner-h-t-m-l="[[t.Medals]]"></div>
-        </div>
+        <div class="eventlogo"></div>
+        <div class="videoheader"><span class="groupName">[[competitionName]]</span></div>
+        <div class="federationlogo"></div>
     </div>
     <template is="dom-if" if="[[medalCategories]]">
         <table class$="results medals [[noLiftRanks]]" style$="[[hiddenGridStyle]]; padding-top: 1em;">
