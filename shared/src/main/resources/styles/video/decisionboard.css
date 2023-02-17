@@ -1,0 +1,96 @@
+@import 'colors.css';
+
+* {
+	box-sizing: border-box;
+}
+
+.wrapper {
+	font: Arial;
+	color: var(--videoTextColor);
+	background-color: var(--videoHeaderBackgroundColor);
+	height: 100vh;
+	width: 100vw;
+}
+
+.decisionBoard {
+	font-family: "Arial", "Helvetica", sans-serif;
+	display: grid;
+	width: 100vw;
+	height: 100vh;
+	grid-template-columns:
+		[barbell-start down-start decision-start timer-start] 1fr
+		[barbell-end timer-end name down-end decision-end];
+	grid-template-rows: 0.25fr [down-start decision-start barbell-start timer-start] 1fr
+		[barbell-end timer-end down-end	decision-end] 0.25fr;
+	justify-content: center;
+	align-content: center;
+	align-items: stretch;
+	justify-items: stretch;
+	padding: 5vmin;
+}
+
+
+.decisionBoard .barbell {
+	grid-area: barbell-start/barbell-start/barbell-end/barbell-end;
+}
+
+.decisionBoard .timer {
+	font-size: 50vh;
+	font-weight: bold;
+	grid-area: timer-start/timer-start/timer-end/timer-end;
+	align-self: center;
+	justify-self: center;
+}
+
+@media screen and (max-width: 1300px) {
+	.decisionBoard .timer {
+		font-size: 35vw;
+	}
+}
+
+.breakTime {
+	/* color: #99CCFF; */
+	color: var(--breakTimerColor);
+}
+
+.athleteTimer {
+	color: var(--athleteTimerColor);
+}
+
+.decisionBoard .down {
+	grid-area: down-start/down-start/down-end/down-end;
+	align-self: center;
+	justify-self: center;
+	--iron-icon-height: 10%;
+	--iron-icon-width: 10%;
+	font-weight: normal;
+	color: var(--downColor);
+	display: none;
+	overflow: hidden;
+}
+
+.decisionBoard .decision {
+	grid-area: decision-start/decision-start/decision-end/decision-end;
+	font-size: 50vh;
+	height: 100%;
+	align-self: center;
+}
+
+.v-system-error {
+	display: none;
+}
+
+.bigTitle {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+	display: flex;
+}
+
+.competitionName {
+    font-size: 8vh;
+}
+
+.nextGroup {
+    font-size: 4vh;
+}
