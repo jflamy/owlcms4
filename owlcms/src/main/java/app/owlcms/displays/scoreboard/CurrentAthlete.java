@@ -744,6 +744,7 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 			uiEventBus = uiEventBusRegister(this, fop);
 		});
 		switchLightingMode(this, isDarkMode(), true);
+		this.getElement().setProperty("video", routeParameter != null ? routeParameter + "/" : "");
 	}
 
 	protected void setTranslationMap() {

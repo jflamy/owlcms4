@@ -118,7 +118,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 	protected boolean teamFlags;
 	protected boolean athletePictures;
 
-	private String routeParameter;
+	protected String routeParameter;
 
 	/**
 	 * Instantiates a new attempt board.
@@ -926,6 +926,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 			syncWithFOP(fop);
 			// we send on fopEventBus, listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
+			this.getElement().setProperty("video", routeParameter != null ? routeParameter + "/" : "");
 		});
 	}
 
