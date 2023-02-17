@@ -71,7 +71,9 @@ public class ResultsLeadersRanks extends Results {
         ja.put("category", category != null ? category : "");
         getAttemptsJson(a, liftOrderRank, fop);
         ja.put("sattempts", sattempts);
+        ja.put("bestSnatch", formatInt(a.getBestSnatch()));
         ja.put("cattempts", cattempts);
+        ja.put("bestCleanJerk", formatInt(a.getBestCleanJerk()));
         ja.put("total", formatInt(a.getTotal()));
         setCurrentAthleteParticipations(a);
         ja.put("snatchRanks", getRanksJson(a, Ranking.SNATCH, ageGroupMap));
