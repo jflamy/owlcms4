@@ -54,14 +54,14 @@ public class ResultsRankings extends ResultsMedals {
 	
 	@Override
 	public String getPageTitle() {
-		String translation = getTranslation("Scoreboard.RANKINGS");
+		String translation = getTranslation("Scoreboard.RANKING");
 		return translation;
 	}
 	
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
-		String translation = getTranslation("Scoreboard.RANKINGS");
+		String translation = getTranslation("Scoreboard.RANKING");
 		this.getElement().setProperty("displayTitle", translation);
 	}
 

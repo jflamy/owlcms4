@@ -9,6 +9,7 @@ package app.owlcms.nui.displayselection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +23,14 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
+import app.owlcms.components.GroupCategorySelectionMenu;
+import app.owlcms.data.category.Category;
+import app.owlcms.data.group.Group;
+import app.owlcms.data.group.GroupRepository;
 import app.owlcms.displays.attemptboard.AttemptBoard;
 import app.owlcms.displays.attemptboard.PublicFacingDecisionBoard;
 import app.owlcms.displays.monitor.OBSMonitor;
@@ -33,6 +39,7 @@ import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.displays.scoreboard.ResultsLeadersRanks;
 import app.owlcms.displays.scoreboard.ResultsMedals;
 import app.owlcms.displays.scoreboard.ResultsNoLeaders;
+import app.owlcms.displays.scoreboard.ResultsRankings;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.home.HomeNavigationContent;
@@ -40,6 +47,7 @@ import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.NavigationPage;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.nui.shared.RequireDisplayLogin;
+import app.owlcms.utils.NaturalOrderComparator;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -57,68 +65,104 @@ public class VideoNavigationContent extends BaseNavigationContent
 	}
 
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	private Category medalCategory;
+	private Group medalGroup;
 
 	/**
 	 * Instantiates a new display navigation content.
 	 */
 	public VideoNavigationContent() {
-		// FIXME: need a way to select the group because the video can be about previous
-		// group
 		VerticalLayout intro = new VerticalLayout();
 		intro.setSpacing(false);
 		addP(intro, getTranslation("VideoStreaming.Intro"));
 		addP(intro, getTranslation("Button_Open_Display"));
 		intro.getStyle().set("margin-bottom", "0");
+		Button currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"), "video");
+		Button attempt = openInNewTab(AttemptBoard.class, getTranslation("AttemptBoard"), "video");
+		Button publicDecisions = openInNewTab(PublicFacingDecisionBoard.class, getTranslation("RefereeDecisions"),
+		        "video");
+
+		fillH(intro, this);
+		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(attempt, currentAthlete, publicDecisions);
+		doGroup(getTranslation("AttemptBoard"), grid3, this);
 
 		Button scoreboard;
 		Button scoreboardWLeaders;
 		Button scoreboardMultiRanks;
-		Button currentAthlete;
-		Button medals;
-
-		Button attempt = openInNewTab(AttemptBoard.class, getTranslation("AttemptBoard"), "video");
-		currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"), "video");
-		Button publicDecisions = openInNewTab(PublicFacingDecisionBoard.class, getTranslation("RefereeDecisions"),
-		        "video");
-
 		scoreboard = openInNewTab(ResultsNoLeaders.class, getTranslation("Scoreboard"), "video");
 		scoreboardWLeaders = openInNewTab(Results.class, getTranslation("ScoreboardWLeadersButton"), "video");
 		scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
 		scoreboardMultiRanks = openInNewTab(ResultsLeadersRanks.class,
 		        getTranslation("ScoreboardMultiRanksButton"), "video");
-		medals = openInNewTab(ResultsMedals.class, getTranslation("CeremonyType.MEDALS"), "video");
 
-		// Button liftingOrder = openInNewTab(LiftingOrder.class,
-		// getTranslation("Scoreboard.LiftingOrder"));
-//		Button liftingOrder = openInNewTab(ResultsLiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
-//		Button topSinclair = openInNewTab(TopSinclair.class, getTranslation("Scoreboard.TopSinclair"));
-//		Button topTeams = openInNewTab(TopTeams.class, getTranslation("Scoreboard.TopTeams"));
-//		Button topTeamsSinclair = openInNewTab(TopTeamsSinclair.class, getTranslation("Scoreboard.TopTeamsSinclair"));
+		List<Group> groups = GroupRepository.findAll();
+		groups.sort(new NaturalOrderComparator<Group>());
+		FieldOfPlay curFop = OwlcmsSession.getFop();
+		GroupCategorySelectionMenu groupCategorySelectionMenu = new GroupCategorySelectionMenu(groups, curFop,
+		        // group has been selected
+		        (g1, c1, fop1) -> selectCeremonyCategory(g1, c1, fop1),
+		        // no group
+		        (g1, c1, fop1) -> selectCeremonyCategory(null, c1, fop1));
 
-		Button obsMonitor = openInNewTab(OBSMonitor.class, getTranslation("OBS.MonitoringButton"));
-
-		fillH(intro, this);
-
-		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(attempt, currentAthlete, publicDecisions);
-		doGroup(getTranslation("AttemptBoard"), grid3, this);
+		Button medals = new Button(getTranslation("CeremonyType.MEDALS"));
+		medals.addClickListener((e) -> {
+			Class<ResultsMedals> class1 = ResultsMedals.class;
+	        openClass(class1);
+		});
+		Button rankings = new Button(getTranslation("Scoreboard.RANKING"));
+		rankings.addClickListener((e) -> {
+			Class<ResultsRankings> class1 = ResultsRankings.class;
+	        openClass(class1);
+		});
 
 		VerticalLayout intro1 = new VerticalLayout();
 		// addP(intro1, getTranslation("darkModeSelect"));
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders,
-		        scoreboardMultiRanks,
-//		        liftingOrder,
-//		        topSinclair,
-//		        topTeams,
-//		        topTeamsSinclair,
-		        medals);
+		        scoreboardMultiRanks);
 		doGroup(getTranslation("Scoreboards"), intro1, grid1, this);
 
+		VerticalLayout intro1a = new VerticalLayout();
+		// addP(intro1, getTranslation("darkModeSelect"));
+		intro1a.add(groupCategorySelectionMenu);
+		FlexibleGridLayout grid1a = HomeNavigationContent.navigationGrid(medals, rankings);
+		doGroup(getTranslation("Scoreboard.RANKINGS"), intro1a, grid1a, this);
+
+		Button obsMonitor = openInNewTab(OBSMonitor.class, getTranslation("OBS.MonitoringButton"));
 		VerticalLayout intro4 = new VerticalLayout();
 		addP(intro4, getTranslation("OBS.MonitoringExplanation"));
 		FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(obsMonitor);
 		doGroup(getTranslation("OBS.MonitoringButton"), intro4, grid4, this);
 
 		DebugUtils.gc();
+	}
+
+	private void openClass(Class<?> class1) {
+		Map<String, String> params = new TreeMap<>();
+		Category medalCategory2 = getMedalCategory();
+		if (medalCategory2 != null) {
+		    params.put("cat", medalCategory2.getCode().toString());
+		}
+		if (getMedalGroup() != null) {
+		    params.put("group", getMedalGroup().toString());
+		}
+		QueryParameters qp = QueryParameters.simple(params);
+		doOpenInNewTab(class1,
+		        getTranslation("CeremonyType.MEDALS"),
+		        "video",
+		        qp);
+	}
+
+	private void selectCeremonyCategory(Group g, Category c, FieldOfPlay fop) {
+		setMedalGroup(g);
+		setMedalCategory(c);
+	}
+
+	private void setMedalCategory(Category c) {
+		this.medalCategory = c;
+	}
+
+	private void setMedalGroup(Group g) {
+		this.medalGroup = g;
 	}
 
 	@Override
@@ -190,5 +234,14 @@ public class VideoNavigationContent extends BaseNavigationContent
 		HorizontalLayout fopField = new HorizontalLayout(fopLabel, fopSelect);
 		fopField.setAlignItems(Alignment.CENTER);
 		return fopField;
+	}
+
+	@SuppressWarnings("unused")
+	private Group getMedalGroup() {
+		return medalGroup;
+	}
+
+	private Category getMedalCategory() {
+		return medalCategory;
 	}
 }

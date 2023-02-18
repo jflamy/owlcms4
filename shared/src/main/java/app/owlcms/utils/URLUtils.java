@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.server.VaadinServletRequest;
 
@@ -129,6 +130,22 @@ public class URLUtils {
         }
         String absoluteURL = URLUtils.buildAbsoluteURL(VaadinServletRequest.getCurrent().getHttpServletRequest(),
                 relativeURL);
+        return absoluteURL;
+    }
+    
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static <T extends Component & HasUrlParameter<String>> String getUrlFromTargetClass(Class class1,
+            String parameter, QueryParameters q) {
+        RouteConfiguration routeResolver = RouteConfiguration.forApplicationScope();
+        String relativeURL;
+        if (parameter == null) {
+            relativeURL = routeResolver.getUrl(class1);
+        } else {
+            relativeURL = routeResolver.<String, T>getUrl(class1, parameter);
+        }
+        String queryParameters = q != null ? "?" + q.getQueryString() : "";
+        String absoluteURL = URLUtils.buildAbsoluteURL(VaadinServletRequest.getCurrent().getHttpServletRequest(),
+                relativeURL)+queryParameters;
         return absoluteURL;
     }
 

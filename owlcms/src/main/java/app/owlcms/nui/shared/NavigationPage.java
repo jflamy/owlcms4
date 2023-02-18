@@ -9,6 +9,7 @@ package app.owlcms.nui.shared;
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.ListItem;
@@ -16,6 +17,7 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
@@ -103,6 +105,15 @@ public interface NavigationPage extends ContentWrapping {
 		return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass, parameter) + "','"
 		        + targetClass.getSimpleName() + name + "')";
 	}
+	
+	public default <T extends Component & HasUrlParameter<String>> String getWindowOpenerFromClass(Class<?> class1,
+	        String parameter, QueryParameters qp) {
+		FieldOfPlay fop = OwlcmsSession.getFop();
+		String name = fop == null ? "" : "_" + fop.getName();
+		return "window.open('" + URLUtils.getUrlFromTargetClass(class1, parameter, qp) + "','"
+		        + class1.getSimpleName() + name + "')";
+	}
+
 
 	public default <T extends Component> String getWindowOpenerFromClassNoParam(Class<T> targetClass) {
 		FieldOfPlay fop = OwlcmsSession.getFop();
@@ -128,6 +139,11 @@ public interface NavigationPage extends ContentWrapping {
 		Button button = new Button(label);
 		button.getElement().setAttribute("onClick", getWindowOpenerFromClassNoParam(targetClass));
 		return button;
+	}
+	
+	public default <T extends Component & HasUrlParameter<String>> void doOpenInNewTab(Class<?> class1, String label, String parameter, QueryParameters qp) {
+		String windowOpenerFromClass = getWindowOpenerFromClass(class1, parameter, qp);
+		UI.getCurrent().getPage().executeJs(windowOpenerFromClass);
 	}
 
 }
