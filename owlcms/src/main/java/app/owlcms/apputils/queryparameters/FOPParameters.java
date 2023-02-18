@@ -158,7 +158,7 @@ public interface FOPParameters extends HasUrlParameter<String> {
 	public default void setShowInitialDialog(boolean b) {
 	}
 
-	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap);
+	public void setUrlParameterMap(Map<String, List<String>> parametersMap);
 
 	public default void storeInSessionStorage(String key, String value) {
 		UI.getCurrent().getElement().executeJs("window.sessionStorage.setItem($0, $1);", key, value);
@@ -176,7 +176,7 @@ public interface FOPParameters extends HasUrlParameter<String> {
 	}
 
 	public default void updateURLLocation(UI ui, Location location, String parameter, String value) {
-		TreeMap<String, List<String>> parametersMap = new TreeMap<>(location.getQueryParameters().getParameters());
+		Map<String, List<String>> parametersMap = new TreeMap<>(location.getQueryParameters().getParameters());
 		// get current values
 		if (!this.isIgnoreFopFromURL()) {
 			FieldOfPlay fop = OwlcmsSession.getFop();
@@ -187,13 +187,17 @@ public interface FOPParameters extends HasUrlParameter<String> {
 
 		// override with the update
 		updateParam(parametersMap, parameter, value);
+		doUpdateUrlLocation(ui, location, parametersMap);
+	}
 
-		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(parametersMap)));
+	public default void doUpdateUrlLocation(UI ui, Location location, Map<String, List<String>> queryParameterMap) {
+		setUrlParameterMap(queryParameterMap);
+		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(queryParameterMap)));
 		ui.getPage().getHistory().replaceState(null, location2);
 		setLocation(location2);
 		storeReturnURL();
 	}
 
-	HashMap<String, List<String>> getUrlParameterMap();
+	Map<String, List<String>> getUrlParameterMap();
 
 }

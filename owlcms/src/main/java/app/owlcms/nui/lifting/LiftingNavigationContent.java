@@ -8,6 +8,7 @@ package app.owlcms.nui.lifting;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,7 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 		logger.setLevel(Level.INFO);
 	}
 
-	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	/**
 	 * Competition Group Navigation
@@ -108,7 +109,7 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 	}
 
 	@Override
-	public HashMap<String, List<String>> getUrlParameterMap() {
+	public Map<String, List<String>> getUrlParameterMap() {
 		return urlParameterMap;
 	}
 
@@ -123,7 +124,7 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 	}
 
 	@Override
-	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
 		this.urlParameterMap = newParameterMap;
 	}
 

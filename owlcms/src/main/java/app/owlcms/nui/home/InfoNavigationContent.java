@@ -78,7 +78,7 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 		return layout;
 	}
 
-	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	/**
 	 * Instantiates a new main navigation content.
@@ -117,7 +117,7 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 	}
 
 	@Override
-	public HashMap<String, List<String>> getUrlParameterMap() {
+	public Map<String, List<String>> getUrlParameterMap() {
 		return urlParameterMap;
 	}
 
@@ -140,7 +140,7 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 	}
 
 	@Override
-	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
 		this.urlParameterMap = newParameterMap;
 	}
 

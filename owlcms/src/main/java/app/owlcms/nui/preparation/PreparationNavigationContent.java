@@ -61,7 +61,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 
 	private Group currentGroup;
 
-	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	/**
 	 * Instantiates a new preparation navigation content.
@@ -154,7 +154,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 	}
 
 	@Override
-	public HashMap<String, List<String>> getUrlParameterMap() {
+	public Map<String, List<String>> getUrlParameterMap() {
 		return urlParameterMap;
 	}
 
@@ -220,7 +220,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 	}
 
 	@Override
-	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
 		this.urlParameterMap = newParameterMap;
 	}
 

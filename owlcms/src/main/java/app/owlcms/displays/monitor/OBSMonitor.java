@@ -9,6 +9,7 @@ package app.owlcms.displays.monitor;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
@@ -131,7 +132,7 @@ public class OBSMonitor extends PolymerTemplate<TemplateModel> implements FOPPar
 
 	private long expiryBeforeChangingStatus;
 
-	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	/**
 	 * Instantiates a new results board.
@@ -155,7 +156,7 @@ public class OBSMonitor extends PolymerTemplate<TemplateModel> implements FOPPar
 	}
 
 	@Override
-	public HashMap<String, List<String>> getUrlParameterMap() {
+	public Map<String, List<String>> getUrlParameterMap() {
 		return urlParameterMap;
 	}
 
@@ -183,7 +184,7 @@ public class OBSMonitor extends PolymerTemplate<TemplateModel> implements FOPPar
 	}
 
 	@Override
-	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
 		this.urlParameterMap = newParameterMap;
 	}
 

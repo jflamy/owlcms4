@@ -7,14 +7,18 @@
 package app.owlcms.displays.scoreboard;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import javax.annotation.Nonnull;
 
 import org.slf4j.LoggerFactory;
 
@@ -36,14 +40,17 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.data.group.GroupRepository;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -58,6 +65,7 @@ import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -110,7 +118,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 
 	private Double emFontSize;
 
-	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	/**
 	 * Instantiates a new results board.
@@ -227,7 +235,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	}
 
 	@Override
-	public HashMap<String, List<String>> getUrlParameterMap() {
+	public Map<String, List<String>> getUrlParameterMap() {
 		return urlParameterMap;
 	}
 
@@ -254,99 +262,99 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		return silenced;
 	}
 
-//	@Override
-//	public HashMap<String, List<String>> readParams(Location location,
-//	        Map<String, List<String>> parametersMap) {
-//		// handle FOP and Group by calling superclass
-//		FOPParameters r = (this);
-//		HashMap<String, List<String>> newParameterMap = new HashMap<>(parametersMap);
-//
-//		// get the fop from the query parameters, set to the default FOP if not provided
-//		FieldOfPlay fop = null;
-//
-//		@Nonnull
-//		List<String> fopNames = parametersMap.get("fop");
-//		boolean fopFound = fopNames != null && fopNames.get(0) != null;
-//		if (!fopFound) {
-//			r.setShowInitialDialog(true);
-//		}
-//
-//		if (!r.isIgnoreFopFromURL()) {
-//			if (fopFound) {
-//				FOPParameters.logger.trace("fopNames {}", fopNames);
-//				fop = OwlcmsFactory.getFOPByName(fopNames.get(0));
-//			} else if (OwlcmsSession.getFop() != null) {
-//				FOPParameters.logger.trace("OwlcmsSession.getFop() {}", OwlcmsSession.getFop());
-//				fop = OwlcmsSession.getFop();
-//			}
-//			if (fop == null) {
-//				FOPParameters.logger.trace("OwlcmsFactory.getDefaultFOP() {}", OwlcmsFactory.getDefaultFOP());
-//				fop = OwlcmsFactory.getDefaultFOP();
-//			}
-//			newParameterMap.put("fop", Arrays.asList(URLUtils.urlEncode(fop.getName())));
-//			this.setFop(fop);
-//		} else {
-//			newParameterMap.remove("fop");
-//		}
-//
-//		// get the group from query parameters
-//		Group group = null;
-//		if (!r.isIgnoreGroupFromURL()) {
-//			List<String> groupNames = parametersMap.get("group");
-//			if (groupNames != null && groupNames.get(0) != null) {
-//				group = GroupRepository.findByName(groupNames.get(0));
-//			} else {
-//				group = (fop != null ? fop.getGroup() : null);
-//			}
-//			if (group != null) {
-//				newParameterMap.put("group", Arrays.asList(URLUtils.urlEncode(group.getName())));
-//			}
-//			this.setGroup(group);
-//		} else {
-//			newParameterMap.remove("group");
-//		}
-//
-//		// get the category from query parameters
-//		Category cat = null;
-//		if (!r.isIgnoreGroupFromURL()) {
-//			List<String> catCodes = parametersMap.get("cat");
-//			if (catCodes != null && catCodes.get(0) != null) {
-//				cat = CategoryRepository.findByCode(catCodes.get(0));
-//			}
-//			// logger.trace("cat = {}", cat);
-//			if (cat != null) {
-//				newParameterMap.put("cat", Arrays.asList(URLUtils.urlEncode(cat.getName())));
-//			}
-//			this.setCategory(cat);
-//		} else {
-//			newParameterMap.remove("cat");
-//		}
-//
-//		FOPParameters.logger.debug("URL parsing: {} OwlcmsSession: fop={} group={}", LoggerUtils.whereFrom(),
-//		        (fop != null ? fop.getName() : null), (cat != null ? cat.getName() : null));
-//		HashMap<String, List<String>> params = newParameterMap;
-//
-//		List<String> darkParams = params.get(DARK);
-//		// dark is the default. dark=false or dark=no or ... will turn off dark mode.
-//		boolean darkMode = darkParams == null || darkParams.isEmpty() || darkParams.get(0).toLowerCase().equals("true");
-//		setDarkMode(darkMode);
-//		switchLightingMode(this, darkMode, false);
-//		updateParam(params, DARK, !isDarkMode() ? "false" : null);
-//
-//		List<String> silentParams = params.get(SILENT);
-//		// silent is the default. silent=false will cause sound
-//		boolean silentMode = silentParams == null || silentParams.isEmpty()
-//		        || silentParams.get(0).toLowerCase().equals("true");
-//		if (!isSilencedByDefault()) {
-//			// for referee board, default is noise
-//			silentMode = silentParams != null && !silentParams.isEmpty()
-//			        && silentParams.get(0).toLowerCase().equals("true");
-//		}
-//		switchSoundMode(this, silentMode, false);
-//		updateParam(params, SILENT, !isSilenced() ? "false" : "true");
-//
-//		return params;
-//	}
+	@Override
+	public HashMap<String, List<String>> readParams(Location location,
+	        Map<String, List<String>> parametersMap) {
+		// handle FOP and Group by calling superclass
+		FOPParameters r = (this);
+		HashMap<String, List<String>> newParameterMap = new HashMap<>(parametersMap);
+
+		// get the fop from the query parameters, set to the default FOP if not provided
+		FieldOfPlay fop = null;
+
+		@Nonnull
+		List<String> fopNames = parametersMap.get("fop");
+		boolean fopFound = fopNames != null && fopNames.get(0) != null;
+		if (!fopFound) {
+			r.setShowInitialDialog(true);
+		}
+
+		if (!r.isIgnoreFopFromURL()) {
+			if (fopFound) {
+				FOPParameters.logger.trace("fopNames {}", fopNames);
+				fop = OwlcmsFactory.getFOPByName(fopNames.get(0));
+			} else if (OwlcmsSession.getFop() != null) {
+				FOPParameters.logger.trace("OwlcmsSession.getFop() {}", OwlcmsSession.getFop());
+				fop = OwlcmsSession.getFop();
+			}
+			if (fop == null) {
+				FOPParameters.logger.trace("OwlcmsFactory.getDefaultFOP() {}", OwlcmsFactory.getDefaultFOP());
+				fop = OwlcmsFactory.getDefaultFOP();
+			}
+			newParameterMap.put("fop", Arrays.asList(URLUtils.urlEncode(fop.getName())));
+			this.setFop(fop);
+		} else {
+			newParameterMap.remove("fop");
+		}
+
+		// get the group from query parameters
+		Group group = null;
+		if (!r.isIgnoreGroupFromURL()) {
+			List<String> groupNames = parametersMap.get("group");
+			if (groupNames != null && groupNames.get(0) != null) {
+				group = GroupRepository.findByName(groupNames.get(0));
+			} else {
+				group = (fop != null ? fop.getGroup() : null);
+			}
+			if (group != null) {
+				newParameterMap.put("group", Arrays.asList(URLUtils.urlEncode(group.getName())));
+			}
+			this.setGroup(group);
+		} else {
+			newParameterMap.remove("group");
+		}
+
+		// get the category from query parameters
+		Category cat = null;
+		if (!r.isIgnoreGroupFromURL()) {
+			List<String> catCodes = parametersMap.get("cat");
+			if (catCodes != null && catCodes.get(0) != null) {
+				cat = CategoryRepository.findByCode(catCodes.get(0));
+			}
+			// logger.trace("cat = {}", cat);
+			if (cat != null) {
+				newParameterMap.put("cat", Arrays.asList(URLUtils.urlEncode(cat.getName())));
+			}
+			this.setCategory(cat);
+		} else {
+			newParameterMap.remove("cat");
+		}
+
+		FOPParameters.logger.debug("URL parsing: {} OwlcmsSession: fop={} group={}", LoggerUtils.whereFrom(),
+		        (fop != null ? fop.getName() : null), (cat != null ? cat.getName() : null));
+		
+		HashMap<String, List<String>> params = newParameterMap;
+		List<String> darkParams = params.get(DARK);
+		// dark is the default. dark=false or dark=no or ... will turn off dark mode.
+		boolean darkMode = darkParams == null || darkParams.isEmpty() || darkParams.get(0).toLowerCase().equals("true");
+		setDarkMode(darkMode);
+		switchLightingMode(this, darkMode, false);
+		updateParam(params, DARK, !isDarkMode() ? "false" : null);
+
+		List<String> silentParams = params.get(SILENT);
+		// silent is the default. silent=false will cause sound
+		boolean silentMode = silentParams == null || silentParams.isEmpty()
+		        || silentParams.get(0).toLowerCase().equals("true");
+		if (!isSilencedByDefault()) {
+			// for referee board, default is noise
+			silentMode = silentParams != null && !silentParams.isEmpty()
+			        && silentParams.get(0).toLowerCase().equals("true");
+		}
+		switchSoundMode(this, silentMode, false);
+		updateParam(params, SILENT, !isSilenced() ? "false" : "true");
+		setUrlParameterMap(params);
+		return params;
+	}
 
 	@Override
 	public void setDarkMode(boolean dark) {
@@ -416,7 +424,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 //    }
 
 	@Override
-	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
 		this.urlParameterMap = newParameterMap;
 	}
 

@@ -10,6 +10,7 @@ package app.owlcms.nui.lifting;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +94,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	int currentAttemptNumber;
 	private boolean newClock;
 
-	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	public JuryContent() {
 		// we don't actually inherit behaviour from the superclass because
@@ -137,12 +138,12 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	}
 
 	@Override
-	public HashMap<String, List<String>> getUrlParameterMap() {
+	public Map<String, List<String>> getUrlParameterMap() {
 		return urlParameterMap;
 	}
 
 	@Override
-	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
 		this.urlParameterMap = newParameterMap;
 	}
 

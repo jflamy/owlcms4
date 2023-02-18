@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TreeMap;
 
@@ -121,7 +122,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 
 	protected String routeParameter;
 
-	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	/**
 	 * Instantiates a new attempt board.
@@ -227,7 +228,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 	}
 
 	@Override
-	public HashMap<String, List<String>> getUrlParameterMap() {
+	public Map<String, List<String>> getUrlParameterMap() {
 		return urlParameterMap;
 	}
 
@@ -347,7 +348,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 	}
 
 	@Override
-	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
 		this.urlParameterMap = newParameterMap;
 	}
 
@@ -592,6 +593,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		updateParam(parametersMap, parameter, mode);
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		updateParam(parametersMap, "fop", fop != null ? fop.getName() : null);
+		setUrlParameterMap(parametersMap);
 		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(parametersMap)));
 		ui.getPage().getHistory().replaceState(null, location2);
 		setLocation(location2);

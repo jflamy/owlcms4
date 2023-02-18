@@ -106,7 +106,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 	private Platform platform;
 	private Gender gender;
 
-	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	/**
 	 * Instantiates a new announcer content. Does nothing. Content is created in
@@ -297,7 +297,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 	}
 
 	@Override
-	public HashMap<String, List<String>> getUrlParameterMap() {
+	public Map<String, List<String>> getUrlParameterMap() {
 		return urlParameterMap;
 	}
 
@@ -438,7 +438,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 	}
 
 	@Override
-	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
 		this.urlParameterMap = newParameterMap;
 	}
 

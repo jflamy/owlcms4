@@ -124,7 +124,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 	private Button startingWeightsButton;
 	private Button weighInButton;
 
-	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	/**
 	 * Instantiates the athlete crudGrid
@@ -241,7 +241,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 	}
 
 	@Override
-	public HashMap<String, List<String>> getUrlParameterMap() {
+	public Map<String, List<String>> getUrlParameterMap() {
 		return urlParameterMap;
 	}
 
@@ -337,7 +337,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 	}
 
 	@Override
-	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
 		this.urlParameterMap = newParameterMap;
 	}
 

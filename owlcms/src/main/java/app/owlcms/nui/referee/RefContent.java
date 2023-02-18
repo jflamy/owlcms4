@@ -107,7 +107,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 
 	private boolean whiteTouched;
 
-	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	public RefContent() {
 		OwlcmsFactory.waitDBInitialized();
@@ -140,7 +140,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 	}
 
 	@Override
-	public HashMap<String, List<String>> getUrlParameterMap() {
+	public Map<String, List<String>> getUrlParameterMap() {
 		return urlParameterMap;
 	}
 
@@ -195,7 +195,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 	}
 
 	@Override
-	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
 		this.urlParameterMap = newParameterMap;
 	}
 

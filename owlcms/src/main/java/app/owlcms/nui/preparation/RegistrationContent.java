@@ -115,7 +115,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 	private GroupSelectionMenu topBarMenu;
 	private FlexLayout topBar;
 
-	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	/**
 	 * Instantiates the athlete crudGrid
@@ -265,7 +265,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 	}
 
 	@Override
-	public HashMap<String, List<String>> getUrlParameterMap() {
+	public Map<String, List<String>> getUrlParameterMap() {
 		return urlParameterMap;
 	}
 
@@ -365,7 +365,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 	}
 
 	@Override
-	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
 		this.urlParameterMap = newParameterMap;
 	}
 

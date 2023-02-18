@@ -8,6 +8,7 @@ package app.owlcms.nui.home;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
@@ -92,7 +93,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 
 	String START_DISPLAYS = Translator.translate("StartDisplays");
 
-	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	/**
 	 * Instantiates a new main navigation content.
@@ -143,7 +144,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	}
 
 	@Override
-	public HashMap<String, List<String>> getUrlParameterMap() {
+	public Map<String, List<String>> getUrlParameterMap() {
 		return urlParameterMap;
 	}
 
@@ -166,7 +167,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	}
 
 	@Override
-	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
 		this.urlParameterMap = newParameterMap;
 	}
 

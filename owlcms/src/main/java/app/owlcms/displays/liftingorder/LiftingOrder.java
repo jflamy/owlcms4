@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 
 import org.slf4j.LoggerFactory;
@@ -93,7 +94,7 @@ public class LiftingOrder extends PolymerTemplate<TemplateModel> implements Disp
 
 	private String routeParameter;
 
-	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	/**
 	 * Instantiates a new results board.
@@ -162,7 +163,7 @@ public class LiftingOrder extends PolymerTemplate<TemplateModel> implements Disp
 	}
 
 	@Override
-	public HashMap<String, List<String>> getUrlParameterMap() {
+	public Map<String, List<String>> getUrlParameterMap() {
 		return urlParameterMap;
 	}
 
@@ -243,7 +244,7 @@ public class LiftingOrder extends PolymerTemplate<TemplateModel> implements Disp
 	}
 
 	@Override
-	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
 		this.urlParameterMap = newParameterMap;
 	}
 

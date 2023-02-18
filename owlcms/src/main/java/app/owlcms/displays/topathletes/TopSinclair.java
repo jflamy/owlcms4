@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 
 import org.slf4j.LoggerFactory;
@@ -96,7 +97,7 @@ public class TopSinclair extends PolymerTemplate<TemplateModel> implements Displ
 
 	private String routeParameter;
 
-	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 //    @Override
 //    public void configurePage(InitialPageSettings settings) {
@@ -212,7 +213,7 @@ public class TopSinclair extends PolymerTemplate<TemplateModel> implements Displ
 	}
 
 	@Override
-	public HashMap<String, List<String>> getUrlParameterMap() {
+	public Map<String, List<String>> getUrlParameterMap() {
 		return urlParameterMap;
 	}
 
@@ -291,7 +292,7 @@ public class TopSinclair extends PolymerTemplate<TemplateModel> implements Displ
 	}
 
 	@Override
-	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
 		this.urlParameterMap = newParameterMap;
 	}
 

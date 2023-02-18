@@ -9,6 +9,7 @@ package app.owlcms.displays.athletecard;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +67,7 @@ public class AthleteCard extends PolymerTemplate<TemplateModel>
 	private Location location;
 	private UI locationUI;
 
-	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	/**
 	 * Instantiates a new attempt board.
@@ -91,7 +92,7 @@ public class AthleteCard extends PolymerTemplate<TemplateModel>
 	}
 
 	@Override
-	public HashMap<String, List<String>> getUrlParameterMap() {
+	public Map<String, List<String>> getUrlParameterMap() {
 		return urlParameterMap;
 	}
 
@@ -116,7 +117,7 @@ public class AthleteCard extends PolymerTemplate<TemplateModel>
 	}
 
 	@Override
-	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
 		this.urlParameterMap = newParameterMap;
 	}
 

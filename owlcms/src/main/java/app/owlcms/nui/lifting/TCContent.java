@@ -9,6 +9,7 @@ package app.owlcms.nui.lifting;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.LoggerFactory;
@@ -69,7 +70,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 	private Plates plates;
 	private Platform platform;
 
-	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	public TCContent() {
 		super();
@@ -116,7 +117,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 	}
 
 	@Override
-	public HashMap<String, List<String>> getUrlParameterMap() {
+	public Map<String, List<String>> getUrlParameterMap() {
 		return urlParameterMap;
 	}
 
@@ -125,7 +126,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 	}
 
 	@Override
-	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
 		this.urlParameterMap = newParameterMap;
 	}
 

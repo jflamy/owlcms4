@@ -10,6 +10,7 @@ package app.owlcms.nui.lifting;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
@@ -51,7 +52,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 
 	private HorizontalLayout decisionLights;
 
-	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	public MarshallContent() {
 		super();
@@ -98,12 +99,12 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 	}
 
 	@Override
-	public HashMap<String, List<String>> getUrlParameterMap() {
+	public Map<String, List<String>> getUrlParameterMap() {
 		return urlParameterMap;
 	}
 
 	@Override
-	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
 		this.urlParameterMap = newParameterMap;
 	}
 

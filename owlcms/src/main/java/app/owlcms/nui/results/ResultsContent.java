@@ -137,7 +137,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 
 	private Checkbox medalsOnly;
 
-	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	/**
 	 * Instantiates a new announcer content. Does nothing. Content is created in
@@ -282,7 +282,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	@Override
-	public HashMap<String, List<String>> getUrlParameterMap() {
+	public Map<String, List<String>> getUrlParameterMap() {
 		return urlParameterMap;
 	}
 
@@ -357,7 +357,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	@Override
-	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
 		this.urlParameterMap = newParameterMap;
 	}
 

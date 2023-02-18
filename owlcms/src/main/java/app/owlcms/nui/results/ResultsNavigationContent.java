@@ -8,6 +8,7 @@ package app.owlcms.nui.results;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +45,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 		logger.setLevel(Level.INFO);
 	}
 
-	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	/**
 	 * Instantiates a new wrapup navigation content.
@@ -99,7 +100,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 	}
 
 	@Override
-	public HashMap<String, List<String>> getUrlParameterMap() {
+	public Map<String, List<String>> getUrlParameterMap() {
 		return urlParameterMap;
 	}
 
@@ -114,7 +115,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 	}
 
 	@Override
-	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
 		this.urlParameterMap = newParameterMap;
 	}
 
