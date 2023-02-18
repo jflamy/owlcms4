@@ -289,6 +289,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		updateParam(params1, "cat", catValue);
 
 		// logger.debug("params {}", params1);
+		setUrlParameterMap(params1);
 		return params1;
 	}
 

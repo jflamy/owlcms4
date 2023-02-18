@@ -72,6 +72,7 @@ public interface ContentParameters extends FOPParameters {
 			switchImmediateDecisionMode((Component) this, imm, false);
 			updateParam(params, IMMEDIATE, imm ? null : "false");
 		}
+		setUrlParameterMap(params);
 		return params;
 	}
 

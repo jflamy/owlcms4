@@ -568,7 +568,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 		        || silentParams.get(0).toLowerCase().equals("true");
 		switchSoundMode(this, silentMode, false);
 		updateParam(params, SILENT, !isSilenced() ? "false" : null);
-
+		setUrlParameterMap(params);
 		return params;
 	}
 

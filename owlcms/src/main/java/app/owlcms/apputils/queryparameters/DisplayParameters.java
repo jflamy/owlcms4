@@ -251,6 +251,7 @@ public interface DisplayParameters extends ContentParameters {
 			setEmFontSize(null);
 			updateParam(params, FONTSIZE, null);
 		}
+		setUrlParameterMap(params);
 		return params;
 	}
 

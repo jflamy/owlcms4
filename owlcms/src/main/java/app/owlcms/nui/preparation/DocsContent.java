@@ -368,6 +368,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 		updateParam(params1, "platform", platform != null ? platformParam : null);
 
 		// logger.debug("params {}", params1);
+		setUrlParameterMap(params1);
 		return params1;
 	}
 

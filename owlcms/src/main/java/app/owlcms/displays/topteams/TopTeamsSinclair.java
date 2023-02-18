@@ -353,6 +353,7 @@ public class TopTeamsSinclair extends PolymerTemplate<TemplateModel>
 		if (getDialog() == null) {
 			buildDialog(this);
 		}
+		setUrlParameterMap(params1);
 		return params1;
 	}
 
