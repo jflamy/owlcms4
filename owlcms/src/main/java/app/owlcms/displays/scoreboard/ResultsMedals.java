@@ -7,7 +7,6 @@
 package app.owlcms.displays.scoreboard;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -17,8 +16,6 @@ import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
-import javax.annotation.Nonnull;
 
 import org.slf4j.LoggerFactory;
 
@@ -39,18 +36,15 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
 import app.owlcms.apputils.SoundUtils;
-import app.owlcms.apputils.queryparameters.DisplayParameters;
-import app.owlcms.apputils.queryparameters.FOPParameters;
+import app.owlcms.apputils.queryparameters.ContextFreeDisplayParameters;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.category.Category;
-import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
-import app.owlcms.data.group.GroupRepository;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -65,7 +59,6 @@ import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
-import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -85,40 +78,29 @@ import elemental.json.JsonValue;
 @Route("displays/resultsMedals")
 
 public class ResultsMedals extends PolymerTemplate<TemplateModel>
-        implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
+        implements ContextFreeDisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
+        HasDynamicTitle,
         RequireDisplayLogin {
 
-	JsonArray cattempts;
-
-	JsonArray sattempts;
-
 	private Category category;
-
+	private JsonArray cattempts;
 	private boolean darkMode = true;
-
 	private Dialog dialog;
+	private Timer dialogTimer;
+	private Double emFontSize;
 	private FieldOfPlay fop;
 	private Group group;
 	private boolean initializationNeeded;
 	private Location location;
 	private UI locationUI;
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsMedals.class);
-
 	private TreeMap<Category, TreeSet<Athlete>> medals;
-
-	private boolean silenced = true;
-
-	private EventBus uiEventBus;
-
-	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-
-	private Timer dialogTimer;
-
 	private String routeParameter;
-
-	private Double emFontSize;
-
-	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	private JsonArray sattempts;
+	private boolean silenced = true;
+	private EventBus uiEventBus;
+	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	private Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	/**
 	 * Instantiates a new results board.
@@ -245,6 +227,11 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	}
 
 	@Override
+	public boolean isIgnoreFopFromURL() {
+		return true;
+	}
+
+	@Override
 	public boolean isIgnoreGroupFromURL() {
 		return false;
 	}
@@ -262,98 +249,8 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		return silenced;
 	}
 
-	@Override
-	public HashMap<String, List<String>> readParams(Location location,
-	        Map<String, List<String>> parametersMap) {
-		// handle FOP and Group by calling superclass
-		FOPParameters r = (this);
-		HashMap<String, List<String>> newParameterMap = new HashMap<>(parametersMap);
-
-		// get the fop from the query parameters, set to the default FOP if not provided
-		FieldOfPlay fop = null;
-
-		@Nonnull
-		List<String> fopNames = parametersMap.get("fop");
-		boolean fopFound = fopNames != null && fopNames.get(0) != null;
-		if (!fopFound) {
-			r.setShowInitialDialog(true);
-		}
-
-		if (!r.isIgnoreFopFromURL()) {
-			if (fopFound) {
-				FOPParameters.logger.trace("fopNames {}", fopNames);
-				fop = OwlcmsFactory.getFOPByName(fopNames.get(0));
-			} else if (OwlcmsSession.getFop() != null) {
-				FOPParameters.logger.trace("OwlcmsSession.getFop() {}", OwlcmsSession.getFop());
-				fop = OwlcmsSession.getFop();
-			}
-			if (fop == null) {
-				FOPParameters.logger.trace("OwlcmsFactory.getDefaultFOP() {}", OwlcmsFactory.getDefaultFOP());
-				fop = OwlcmsFactory.getDefaultFOP();
-			}
-			newParameterMap.put("fop", Arrays.asList(URLUtils.urlEncode(fop.getName())));
-			this.setFop(fop);
-		} else {
-			newParameterMap.remove("fop");
-		}
-
-		// get the group from query parameters
-		Group group = null;
-		if (!r.isIgnoreGroupFromURL()) {
-			List<String> groupNames = parametersMap.get("group");
-			if (groupNames != null && groupNames.get(0) != null) {
-				group = GroupRepository.findByName(groupNames.get(0));
-			} else {
-				group = (fop != null ? fop.getGroup() : null);
-			}
-			if (group != null) {
-				newParameterMap.put("group", Arrays.asList(URLUtils.urlEncode(group.getName())));
-			}
-			this.setGroup(group);
-		} else {
-			newParameterMap.remove("group");
-		}
-
-		// get the category from query parameters
-		Category cat = null;
-		if (!r.isIgnoreGroupFromURL()) {
-			List<String> catCodes = parametersMap.get("cat");
-			if (catCodes != null && catCodes.get(0) != null) {
-				cat = CategoryRepository.findByCode(catCodes.get(0));
-			}
-			// logger.trace("cat = {}", cat);
-			if (cat != null) {
-				newParameterMap.put("cat", Arrays.asList(URLUtils.urlEncode(cat.getName())));
-			}
-			this.setCategory(cat);
-		} else {
-			newParameterMap.remove("cat");
-		}
-
-		FOPParameters.logger.debug("URL parsing: {} OwlcmsSession: fop={} group={}", LoggerUtils.whereFrom(),
-		        (fop != null ? fop.getName() : null), (cat != null ? cat.getName() : null));
-		
-		HashMap<String, List<String>> params = newParameterMap;
-		List<String> darkParams = params.get(DARK);
-		// dark is the default. dark=false or dark=no or ... will turn off dark mode.
-		boolean darkMode = darkParams == null || darkParams.isEmpty() || darkParams.get(0).toLowerCase().equals("true");
-		setDarkMode(darkMode);
-		switchLightingMode(this, darkMode, false);
-		updateParam(params, DARK, !isDarkMode() ? "false" : null);
-
-		List<String> silentParams = params.get(SILENT);
-		// silent is the default. silent=false will cause sound
-		boolean silentMode = silentParams == null || silentParams.isEmpty()
-		        || silentParams.get(0).toLowerCase().equals("true");
-		if (!isSilencedByDefault()) {
-			// for referee board, default is noise
-			silentMode = silentParams != null && !silentParams.isEmpty()
-			        && silentParams.get(0).toLowerCase().equals("true");
-		}
-		switchSoundMode(this, silentMode, false);
-		updateParam(params, SILENT, !isSilenced() ? "false" : "true");
-		setUrlParameterMap(params);
-		return params;
+	public void setCategory(Category cat) {
+		this.category = cat;
 	}
 
 	@Override
@@ -400,6 +297,17 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		this.routeParameter = routeParameter;
 	}
 
+//    @Subscribe
+//    public void slaveStopBreak(UIEvent.BreakDone e) {
+//        // logger.debug("------ slaveStopBreak {}", e.getBreakType());
+//        uiLog(e);
+//        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+//            setHidden(false);
+//            this.getElement().callJsFunction("reset");
+//            doUpdate(e);
+//        });
+//    }
+
 	/**
 	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
 	 */
@@ -411,17 +319,6 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	@Override
 	public void setSilenced(boolean silent) {
 	}
-
-//    @Subscribe
-//    public void slaveStopBreak(UIEvent.BreakDone e) {
-//        // logger.debug("------ slaveStopBreak {}", e.getBreakType());
-//        uiLog(e);
-//        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-//            setHidden(false);
-//            this.getElement().callJsFunction("reset");
-//            doUpdate(e);
-//        });
-//    }
 
 	@Override
 	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
@@ -507,12 +404,80 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		});
 	}
 
-	private void computeCategoryMedalsJson() {
+	protected void doEmpty() {
+		// no need to hide, text is self evident.
+		// this.setHidden(true);
+	}
+
+	protected void doUpdate(UIEvent e) {
+		// logger.trace("---------- doUpdate {} {} {}", e != null ?
+		// e.getClass().getSimpleName() : "no event");
+		boolean leaveTopAlone = false;
+		if (e instanceof UIEvent.LiftingOrderUpdated) {
+			LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
+			if (e2.isInBreak()) {
+				leaveTopAlone = !e2.isDisplayToggle();
+			} else {
+				leaveTopAlone = !e2.isCurrentDisplayAffected();
+			}
+		}
+
+		FieldOfPlay fop = OwlcmsSession.getFop();
+		if (!leaveTopAlone) {
+			this.getElement().callJsFunction("reset");
+		}
+		logger.debug("updating bottom");
+		updateBottom(null, fop);
+	}
+
+	/*
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
+	 * AttachEvent)
+	 */
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		// fop obtained via FOPParameters interface default methods.
+		OwlcmsSession.withFop(fop -> {
+			init();
+			// logger.debug("group {}", this.getGroup());
+			if (this.getCategory() == null) {
+				medals = Competition.getCurrent().getMedals(this.getGroup());
+			} else {
+				TreeSet<Athlete> catMedals = Competition.getCurrent().computeMedalsForCategory(this.getCategory());
+				logger.warn("group {} category {} catMedals {}", getGroup(), getCategory(), catMedals);
+				medals = new TreeMap<Category, TreeSet<Athlete>>();
+				medals.put(this.getCategory(), catMedals);
+			}
+			setDisplay(false);
+			computeMedalsJson(medals);
+			// we listen on uiEventBus.
+			uiEventBus = uiEventBusRegister(this, fop);
+		});
+		switchLightingMode(this, isDarkMode(), true);
+		if (!Competition.getCurrent().isSnatchCJTotalMedals()) {
+			getElement().setProperty("noLiftRanks", "noranks");
+		}
+		SoundUtils.enableAudioContextNotification(this.getElement());
+		this.getElement().setProperty("video", routeParameter != null ? routeParameter + "/" : "");
+	}
+
+	protected void setTranslationMap() {
+		JsonObject translations = Json.createObject();
+		Enumeration<String> keys = Translator.getKeys();
+		while (keys.hasMoreElements()) {
+			String curKey = keys.nextElement();
+			if (curKey.startsWith("Scoreboard.")) {
+				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
+			}
+		}
+		this.getElement().setPropertyJson("t", translations);
+	}
+
+	private void computeCategoryMedalsJson(TreeMap<Category, TreeSet<Athlete>> medals2) {
 		// logger.trace("computeCategoryMedalsJson = {} {}", getCategory(),
 		// LoggerUtils.whereFrom(1));
 		OwlcmsSession.withFop(fop -> {
-			medals = Competition.getCurrent().getMedals(getGroup() != null ? getGroup() : fop.getGroup());
-			TreeSet<Athlete> medalists = medals.get(getCategory());
+			TreeSet<Athlete> medalists = medals2.get(getCategory());
 
 			JsonArray jsonMCArray = Json.createArray();
 			JsonObject jMC = Json.createObject();
@@ -533,14 +498,13 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		});
 	}
 
-	private void computeGroupMedalsJson() {
+	private void computeGroupMedalsJson(TreeMap<Category, TreeSet<Athlete>> medals2) {
 		OwlcmsSession.withFop(fop -> {
 			// logger.trace("computeGroupMedalsJson = {} {}", getGroup(),
 			// LoggerUtils.stackTrace());
-			medals = Competition.getCurrent().getMedals(getGroup() != null ? getGroup() : fop.getGroup());
 			JsonArray jsonMCArray = Json.createArray();
 			int mcX = 0;
-			for (Entry<Category, TreeSet<Athlete>> medalCat : medals.entrySet()) {
+			for (Entry<Category, TreeSet<Athlete>> medalCat : medals2.entrySet()) {
 				JsonObject jMC = Json.createObject();
 				TreeSet<Athlete> medalists = medalCat.getValue();
 				if (medalists != null && !medalists.isEmpty()) {
@@ -568,11 +532,11 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		return liftType;
 	}
 
-	private void computeMedalsJson() {
+	private void computeMedalsJson(TreeMap<Category, TreeSet<Athlete>> medals2) {
 		if (getCategory() != null) {
-			computeCategoryMedalsJson();
+			computeCategoryMedalsJson(medals2);
 		} else {
-			computeGroupMedalsJson();
+			computeGroupMedalsJson(medals2);
 		}
 	}
 
@@ -762,10 +726,6 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		        .then(String.class, resultHandler);
 	}
 
-	private void setCategory(Category cat) {
-		this.category = cat;
-	}
-
 	private void setDisplay(boolean hidden) {
 		this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
 		this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
@@ -809,68 +769,6 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		// logger.debug("updateBottom");
 		this.getElement().setProperty("groupName", "");
 		this.getElement().setProperty("liftDone", "-");
-		computeMedalsJson();
-	}
-
-	protected void doEmpty() {
-		// no need to hide, text is self evident.
-		// this.setHidden(true);
-	}
-
-	protected void doUpdate(UIEvent e) {
-		// logger.trace("---------- doUpdate {} {} {}", e != null ?
-		// e.getClass().getSimpleName() : "no event");
-		boolean leaveTopAlone = false;
-		if (e instanceof UIEvent.LiftingOrderUpdated) {
-			LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
-			if (e2.isInBreak()) {
-				leaveTopAlone = !e2.isDisplayToggle();
-			} else {
-				leaveTopAlone = !e2.isCurrentDisplayAffected();
-			}
-		}
-
-		FieldOfPlay fop = OwlcmsSession.getFop();
-		if (!leaveTopAlone) {
-			this.getElement().callJsFunction("reset");
-		}
-		logger.debug("updating bottom");
-		updateBottom(null, fop);
-	}
-
-	/*
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-	 * AttachEvent)
-	 */
-	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		// fop obtained via FOPParameters interface default methods.
-		OwlcmsSession.withFop(fop -> {
-			init();
-			// logger.debug("group {}", this.getGroup());
-			medals = Competition.getCurrent().getMedals(this.getGroup());
-			setDisplay(false);
-			computeMedalsJson();
-			// we listen on uiEventBus.
-			uiEventBus = uiEventBusRegister(this, fop);
-		});
-		switchLightingMode(this, isDarkMode(), true);
-		if (!Competition.getCurrent().isSnatchCJTotalMedals()) {
-			getElement().setProperty("noLiftRanks", "noranks");
-		}
-		SoundUtils.enableAudioContextNotification(this.getElement());
-		this.getElement().setProperty("video", routeParameter != null ? routeParameter + "/" : "");
-	}
-
-	protected void setTranslationMap() {
-		JsonObject translations = Json.createObject();
-		Enumeration<String> keys = Translator.getKeys();
-		while (keys.hasMoreElements()) {
-			String curKey = keys.nextElement();
-			if (curKey.startsWith("Scoreboard.")) {
-				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
-			}
-		}
-		this.getElement().setPropertyJson("t", translations);
+		computeMedalsJson(medals);
 	}
 }

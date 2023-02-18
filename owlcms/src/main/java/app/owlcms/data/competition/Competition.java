@@ -262,6 +262,13 @@ public class Competition {
 		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g);
 		return computeMedals(g, rankedAthletes);
 	}
+	
+	public TreeSet<Athlete> computeMedalsForCategory(Category category) {
+		// brute force - reuse what works
+		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(null);
+		return computeMedalsByCategory(rankedAthletes).get(category);
+	}
+
 
 	/**
 	 * @param g
@@ -284,6 +291,12 @@ public class Competition {
 			return treeMap;
 		}
 
+		TreeMap<Category, TreeSet<Athlete>> medals = computeMedalsByCategory(rankedAthletes);
+		medalsByGroup.put(g, medals);
+		return medals;
+	}
+
+	public TreeMap<Category, TreeSet<Athlete>> computeMedalsByCategory(List<Athlete> rankedAthletes) {
 		// extract all categories
 		Set<Category> medalCategories = rankedAthletes.stream()
 		        .map(a -> a.getEligibleCategories())
@@ -349,7 +362,6 @@ public class Competition {
 //                        medalist.getCleanJerkRank(), medalist.getTotalRank(), medalist.getSinclairRank());
 //            }
 		}
-		medalsByGroup.put(g, medals);
 		return medals;
 	}
 
@@ -1580,4 +1592,5 @@ public class Competition {
 
 		reportSMF(sortedMen, sortedWomen);
 	}
+
 }
