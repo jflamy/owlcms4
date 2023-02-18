@@ -11,51 +11,51 @@ import app.owlcms.data.athlete.LiftDefinition.Stage;
 
 public class LiftInfo {
 
-    int liftNo;
+	int liftNo;
 
-    Integer value;
+	Integer value;
 
-    private int changeNo;
+	private int changeNo;
 
-    private Stage stage;
+	private Stage stage;
 
-    private String stringValue;
+	private String stringValue;
 
-    LiftInfo(Stage stage, int liftNo, int changeNo, String stringValue) {
-        this.stage = stage;
-        this.liftNo = liftNo;
-        this.changeNo = changeNo;
-        this.stringValue = stringValue;
-    }
+	LiftInfo(Stage stage, int liftNo, int changeNo, String stringValue) {
+		this.stage = stage;
+		this.liftNo = liftNo;
+		this.changeNo = changeNo;
+		this.stringValue = stringValue;
+	}
 
-    public String getChangeName() {
-        if (changeNo < 0) {
-            return "";
-        }
-        Changes changes = LiftDefinition.Changes.values()[changeNo];
-        return changes.name();
-    }
+	public String getChangeName() {
+		if (changeNo < 0) {
+			return "";
+		}
+		Changes changes = LiftDefinition.Changes.values()[changeNo];
+		return changes.name();
+	}
 
-    public int getChangeNo() {
-        return changeNo;
-    }
+	public int getChangeNo() {
+		return changeNo;
+	}
 
-    public int getLiftNo() {
-        return liftNo;
-    }
+	public int getLiftNo() {
+		return liftNo;
+	}
 
-    public Stage getStage() {
-        return stage;
-    }
+	public Stage getStage() {
+		return stage;
+	}
 
-    public String getStringValue() {
-        return stringValue;
-    }
+	public String getStringValue() {
+		return stringValue;
+	}
 
-    public Integer getValue() {
-        if (stringValue == null) {
-            return null;
-        }
-        return Integer.parseInt(stringValue);
-    }
+	public Integer getValue() {
+		if (stringValue == null) {
+			return null;
+		}
+		return Integer.parseInt(stringValue);
+	}
 }

@@ -9,6 +9,7 @@ package app.owlcms.displays.topathletes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 
@@ -95,15 +96,7 @@ public class TopSinclair extends PolymerTemplate<TemplateModel> implements Displ
 
 	private String routeParameter;
 
-	/**
-	 * Instantiates a new results board.
-	 */
-	public TopSinclair() {
-		OwlcmsFactory.waitDBInitialized();
-		// js files add the build number to file names in order to prevent cache
-		// collisions
-		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
-	}
+	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
 
 //    @Override
 //    public void configurePage(InitialPageSettings settings) {
@@ -113,6 +106,16 @@ public class TopSinclair extends PolymerTemplate<TemplateModel> implements Displ
 //        settings.addFavIcon("icon", "frontend/images/logo.png", "96x96");
 //        settings.setViewport("width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes");
 //    }
+
+	/**
+	 * Instantiates a new results board.
+	 */
+	public TopSinclair() {
+		OwlcmsFactory.waitDBInitialized();
+		// js files add the build number to file names in order to prevent cache
+		// collisions
+		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
+	}
 
 	/**
 	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
@@ -209,6 +212,11 @@ public class TopSinclair extends PolymerTemplate<TemplateModel> implements Displ
 	}
 
 	@Override
+	public HashMap<String, List<String>> getUrlParameterMap() {
+		return urlParameterMap;
+	}
+
+	@Override
 	public boolean isDarkMode() {
 		return this.darkMode;
 	}
@@ -280,6 +288,11 @@ public class TopSinclair extends PolymerTemplate<TemplateModel> implements Displ
 	@Override
 	public void setSilenced(boolean silent) {
 		// no-op, silenced by definition
+	}
+
+	@Override
+	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+		this.urlParameterMap = newParameterMap;
 	}
 
 	@Subscribe

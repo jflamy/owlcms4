@@ -32,61 +32,62 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class JXLSMedalsSheet extends JXLSWorkbookStreamSource {
 
-    final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSMedalsSheet.class);
-    final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
-    static {
-        logger.setLevel(Level.INFO);
-        jexlLogger.setLevel(Level.ERROR);
-        tagLogger.setLevel(Level.ERROR);
-    }
+	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSMedalsSheet.class);
+	final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
+	static {
+		logger.setLevel(Level.INFO);
+		jexlLogger.setLevel(Level.ERROR);
+		tagLogger.setLevel(Level.ERROR);
+	}
 
-    public JXLSMedalsSheet() {
-        super();
-    }
+	public JXLSMedalsSheet() {
+		super();
+	}
 
-    @Override
-    protected List<Athlete> getSortedAthletes() {
-        if (sortedAthletes != null) {
-            return sortedAthletes;
-        }
+	@Override
+	protected List<Athlete> getSortedAthletes() {
+		if (sortedAthletes != null) {
+			return sortedAthletes;
+		}
 
-        Group group = getGroup();
-        TreeMap<Category, TreeSet<Athlete>> medals = Competition.getCurrent().getMedals(group);
-        sortedAthletes = new ArrayList<>();
-        for (Entry<Category, TreeSet<Athlete>> medalCat : medals.entrySet()) {
-            TreeSet<Athlete> medalists = medalCat.getValue();
-            if (medalists != null && !medalists.isEmpty()) {
-                for (Athlete p : medalists) {
-                    // logger.trace("Competition.getCurrent().isSnatchCJTotalMedals()
-                    // {}",Competition.getCurrent().isSnatchCJTotalMedals());
-                    if (Competition.getCurrent().isSnatchCJTotalMedals()) {
-                        sortedAthletes
-                                .add(new MAthlete((PAthlete) p, Ranking.SNATCH, p.getSnatchRank(), p.getBestSnatch()));
-                        sortedAthletes.add(new MAthlete((PAthlete) p, Ranking.CLEANJERK, p.getCleanJerkRank(),
-                                p.getBestCleanJerk()));
-                    }
-                    sortedAthletes.add(new MAthlete((PAthlete) p, Ranking.TOTAL, p.getTotalRank(), p.getTotal()));
-                }
-            }
-        }
+		Group group = getGroup();
+		TreeMap<Category, TreeSet<Athlete>> medals = Competition.getCurrent().getMedals(group);
+		sortedAthletes = new ArrayList<>();
+		for (Entry<Category, TreeSet<Athlete>> medalCat : medals.entrySet()) {
+			TreeSet<Athlete> medalists = medalCat.getValue();
+			if (medalists != null && !medalists.isEmpty()) {
+				for (Athlete p : medalists) {
+					// logger.trace("Competition.getCurrent().isSnatchCJTotalMedals()
+					// {}",Competition.getCurrent().isSnatchCJTotalMedals());
+					if (Competition.getCurrent().isSnatchCJTotalMedals()) {
+						sortedAthletes
+						        .add(new MAthlete((PAthlete) p, Ranking.SNATCH, p.getSnatchRank(), p.getBestSnatch()));
+						sortedAthletes.add(new MAthlete((PAthlete) p, Ranking.CLEANJERK, p.getCleanJerkRank(),
+						        p.getBestCleanJerk()));
+					}
+					sortedAthletes.add(new MAthlete((PAthlete) p, Ranking.TOTAL, p.getTotalRank(), p.getTotal()));
+				}
+			}
+		}
 
-        MAthlete[] array = sortedAthletes.toArray(new MAthlete[0]);
-        Arrays.sort(array, new MAthlete.MedalComparator());
-        sortedAthletes = Arrays.asList(array).stream().filter(m -> m.getLiftRank() >= 1 && m.getLiftRank() <= 3)
-                .collect(Collectors.toList());
-        return sortedAthletes;
-        // @formatter:on
-    }
+		MAthlete[] array = sortedAthletes.toArray(new MAthlete[0]);
+		Arrays.sort(array, new MAthlete.MedalComparator());
+		sortedAthletes = Arrays.asList(array).stream().filter(m -> m.getLiftRank() >= 1 && m.getLiftRank() <= 3)
+		        .collect(Collectors.toList());
+		return sortedAthletes;
+		// @formatter:on
+	}
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
-     * postProcess(org.apache.poi.ss.usermodel.Workbook)
-     */
-    @Override
-    protected void postProcess(Workbook workbook) {
-    }
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
+	 * postProcess(org.apache.poi.ss.usermodel.Workbook)
+	 */
+	@Override
+	protected void postProcess(Workbook workbook) {
+	}
 
 }

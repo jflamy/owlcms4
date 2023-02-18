@@ -12,20 +12,20 @@ import app.owlcms.uievents.BreakType;
 
 public interface IBreakTimer extends IProxyTimer {
 
-    Integer getBreakDuration();
+	Integer getBreakDuration();
 
-    BreakType getBreakType();
+	BreakType getBreakType();
 
-    boolean isIndefinite();
+	boolean isIndefinite();
 
-    void setBreakDuration(Integer breakDuration);
+	void setBreakDuration(Integer breakDuration);
 
-    void setEnd(LocalDateTime targetTime);
+	void setEnd(LocalDateTime targetTime);
 
-    void setIndefinite();
+	void setIndefinite();
 
-    void setOrigin(Object origin);
+	void setOrigin(Object origin);
 
-    @Override
-    void setTimeRemaining(int intValue, boolean indefinite);
+	@Override
+	void setTimeRemaining(int intValue, boolean indefinite);
 }

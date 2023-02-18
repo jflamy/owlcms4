@@ -8,6 +8,7 @@ package app.owlcms.displays.scoreboard;
 
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 
@@ -121,6 +122,8 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 
 	private String routeParameter;
 
+	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+
 	/**
 	 * Instantiates a new results board.
 	 */
@@ -206,6 +209,11 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 	}
 
 	@Override
+	public HashMap<String, List<String>> getUrlParameterMap() {
+		return urlParameterMap;
+	}
+
+	@Override
 	public boolean isDarkMode() {
 		return darkMode;
 	}
@@ -276,6 +284,11 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 	@Override
 	public void setSilenced(boolean silent) {
 		// no op, silenced by definition
+	}
+
+	@Override
+	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+		this.urlParameterMap = newParameterMap;
 	}
 
 	@Subscribe
@@ -416,6 +429,11 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 		        this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
 	}
 
+//    private void doUpdateBottomPart(UIEvent e) {
+//        Athlete a = e.getAthlete();
+//        updateBottom(computeLiftType(a), OwlcmsSession.getFop());
+//    }
+
 	private String computeLiftType(Athlete a) {
 		if (a == null || a.getAttemptsDone() > 6) {
 			return null;
@@ -442,11 +460,6 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 		String translate = Translator.translate("AttemptBoard_attempt_number", (attemptNo % 3) + 1);
 		return translate;
 	}
-
-//    private void doUpdateBottomPart(UIEvent e) {
-//        Athlete a = e.getAthlete();
-//        updateBottom(computeLiftType(a), OwlcmsSession.getFop());
-//    }
 
 	private String formatInt(Integer total) {
 		if (total == null || total == 0) {

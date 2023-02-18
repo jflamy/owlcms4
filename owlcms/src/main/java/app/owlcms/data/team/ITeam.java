@@ -10,24 +10,24 @@ import app.owlcms.data.athlete.Gender;
 
 public interface ITeam {
 
-    int getCounted();
+	int getCounted();
 
-    Gender getGender();
+	Gender getGender();
 
-    String getName();
+	String getName();
 
-    int getScore();
+	int getScore();
 
-    long getSize();
+	long getSize();
 
-    void setCounted(int counted);
+	void setCounted(int counted);
 
-    void setGender(Gender gender);
+	void setGender(Gender gender);
 
-    void setName(String name);
+	void setName(String name);
 
-    void setScore(int score);
+	void setScore(int score);
 
-    void setSize(long size);
+	void setSize(long size);
 
 }

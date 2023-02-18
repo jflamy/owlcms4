@@ -108,6 +108,8 @@ public class TopTeams extends PolymerTemplate<TemplateModel> implements DisplayP
 
 	private String routeParameter;
 
+	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+
 	/**
 	 * Instantiates a new results board.
 	 */
@@ -238,6 +240,11 @@ public class TopTeams extends PolymerTemplate<TemplateModel> implements DisplayP
 	@Override
 	public String getRouteParameter() {
 		return this.routeParameter;
+	}
+
+	@Override
+	public HashMap<String, List<String>> getUrlParameterMap() {
+		return urlParameterMap;
 	}
 
 	/**
@@ -378,6 +385,11 @@ public class TopTeams extends PolymerTemplate<TemplateModel> implements DisplayP
 	@Override
 	public void setSilenced(boolean silent) {
 		// no-op, silenced by definition
+	}
+
+	@Override
+	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+		this.urlParameterMap = newParameterMap;
 	}
 
 	@Subscribe

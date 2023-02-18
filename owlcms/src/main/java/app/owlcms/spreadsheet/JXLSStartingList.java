@@ -25,46 +25,46 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class JXLSStartingList extends JXLSWorkbookStreamSource {
 
-    final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
+	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSStartingList.class);
-    final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
-    static {
-        logger.setLevel(Level.INFO);
-        jexlLogger.setLevel(Level.ERROR);
-        tagLogger.setLevel(Level.ERROR);
-    }
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSStartingList.class);
+	final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
+	static {
+		logger.setLevel(Level.INFO);
+		jexlLogger.setLevel(Level.ERROR);
+		tagLogger.setLevel(Level.ERROR);
+	}
 
-    public JXLSStartingList() {
-        super();
-        this.setExcludeNotWeighed(false);
-    }
+	public JXLSStartingList() {
+		super();
+		this.setExcludeNotWeighed(false);
+	}
 
-    @Override
-    protected List<Athlete> getSortedAthletes() {
-        if (Competition.getCurrent().getComputedStartListTemplateFileName().contains("Categor")) {
-            List<Athlete> collect = AthleteSorter.displayOrderCopy(AthleteRepository.findAll()).stream()
-                    .filter(a -> a.getCategory() != null)
-                    .map(a -> {
-                        if (a.getTeam() == null) {
-                            a.setTeam("-");
-                        }
-                        return a;
-                    }).collect(Collectors.toList());
-            //logger.debug("sorted by category {}", collect);
-            return collect;
-        } else {
-            List<Athlete> collect = AthleteSorter.registrationOrderCopy(AthleteRepository.findAll()).stream()
-                    .filter(a -> a.getGroup() != null)
-                    .map(a -> {
-                        if (a.getTeam() == null) {
-                            a.setTeam("-");
-                        }
-                        return a;
-                    }).collect(Collectors.toList());
-            //logger.debug("sorted by group {}", collect);
-            return collect;
-        }
-    }
+	@Override
+	protected List<Athlete> getSortedAthletes() {
+		if (Competition.getCurrent().getComputedStartListTemplateFileName().contains("Categor")) {
+			List<Athlete> collect = AthleteSorter.displayOrderCopy(AthleteRepository.findAll()).stream()
+			        .filter(a -> a.getCategory() != null)
+			        .map(a -> {
+				        if (a.getTeam() == null) {
+					        a.setTeam("-");
+				        }
+				        return a;
+			        }).collect(Collectors.toList());
+			// logger.debug("sorted by category {}", collect);
+			return collect;
+		} else {
+			List<Athlete> collect = AthleteSorter.registrationOrderCopy(AthleteRepository.findAll()).stream()
+			        .filter(a -> a.getGroup() != null)
+			        .map(a -> {
+				        if (a.getTeam() == null) {
+					        a.setTeam("-");
+				        }
+				        return a;
+			        }).collect(Collectors.toList());
+			// logger.debug("sorted by group {}", collect);
+			return collect;
+		}
+	}
 
 }

@@ -8,6 +8,7 @@ package app.owlcms.displays.attemptboard;
 
 import java.io.FileNotFoundException;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TreeMap;
@@ -120,6 +121,8 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 
 	protected String routeParameter;
 
+	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+
 	/**
 	 * Instantiates a new attempt board.
 	 */
@@ -221,6 +224,11 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 	@Override
 	public String getRouteParameter() {
 		return this.routeParameter;
+	}
+
+	@Override
+	public HashMap<String, List<String>> getUrlParameterMap() {
+		return urlParameterMap;
 	}
 
 	@Override
@@ -336,6 +344,11 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		this.breakTimer.setSilenced(silenced);
 		this.decisions.setSilenced(silenced);
 		this.silenced = silenced;
+	}
+
+	@Override
+	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+		this.urlParameterMap = newParameterMap;
 	}
 
 	@Subscribe

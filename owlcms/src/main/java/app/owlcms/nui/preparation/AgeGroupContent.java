@@ -64,314 +64,316 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "preparation/agegroup", layout = OwlcmsLayout.class)
 public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeGroup>, OwlcmsContent, RequireLogin {
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupContent.class);
-    static {
-        logger.setLevel(Level.INFO);
-    }
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupContent.class);
+	static {
+		logger.setLevel(Level.INFO);
+	}
 
-    private Checkbox activeFilter = new Checkbox();
-    private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
-    private ComboBox<Resource> ageGroupDefinitionSelect;
-    private OwlcmsCrudFormFactory<AgeGroup> ageGroupEditingFormFactory;
-    private GridCrud<AgeGroup> crud;
-    // private ComboBox<AgeGroup> ageGroupFilter = new ComboBox<>();
-    private TextField nameFilter = new TextField();
-    private Button resetCats;
-    private OwlcmsLayout routerLayout;
-    private FlexLayout topBar;
+	private Checkbox activeFilter = new Checkbox();
+	private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
+	private ComboBox<Resource> ageGroupDefinitionSelect;
+	private OwlcmsCrudFormFactory<AgeGroup> ageGroupEditingFormFactory;
+	private GridCrud<AgeGroup> crud;
+	// private ComboBox<AgeGroup> ageGroupFilter = new ComboBox<>();
+	private TextField nameFilter = new TextField();
+	private Button resetCats;
+	private OwlcmsLayout routerLayout;
+	private FlexLayout topBar;
 
-    /**
-     * Instantiates the ageGroup crudGrid.
-     */
-    public AgeGroupContent() {
-        OwlcmsFactory.waitDBInitialized();
-        OwlcmsCrudFormFactory<AgeGroup> editingFormFactory = new AgeGroupEditingFormFactory(AgeGroup.class, this);
-        setAgeGroupEditingFormFactory(editingFormFactory);
-        crud = createGrid(getAgeGroupEditingFormFactory());
-        defineFilters(crud);
-        fillHW(crud, this);
-    }
+	/**
+	 * Instantiates the ageGroup crudGrid.
+	 */
+	public AgeGroupContent() {
+		OwlcmsFactory.waitDBInitialized();
+		OwlcmsCrudFormFactory<AgeGroup> editingFormFactory = new AgeGroupEditingFormFactory(AgeGroup.class, this);
+		setAgeGroupEditingFormFactory(editingFormFactory);
+		crud = createGrid(getAgeGroupEditingFormFactory());
+		defineFilters(crud);
+		fillHW(crud, this);
+	}
 
-    @Override
-    public AgeGroup add(AgeGroup ageGroup) {
-        return getAgeGroupEditingFormFactory().add(ageGroup);
-    }
+	@Override
+	public AgeGroup add(AgeGroup ageGroup) {
+		return getAgeGroupEditingFormFactory().add(ageGroup);
+	}
 
-    /**
-     * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
-     */
-    @Override
-    public FlexLayout createMenuArea() {
-        topBar = new FlexLayout();
-        resetCats = new Button(getTranslation("ResetCategories.ResetAthletes"), (e) -> {
-            new ConfirmationDialog(
-                    getTranslation("ResetCategories.ResetCategories"),
-                    getTranslation("ResetCategories.Warning_ResetCategories"),
-                    getTranslation("ResetCategories.CategoriesReset"), () -> {
-                        resetCategories();
-                    }).open();
-        });
-        resetCats.getElement().setAttribute("title", getTranslation("ResetCategories.ResetCategoriesMouseOver"));
-        HorizontalLayout resetButton = new HorizontalLayout(resetCats);
-        resetButton.setMargin(false);
+	/**
+	 * @see #showRouterLayoutContent(HasElement) for how to content to layout and
+	 *      vice-versa
+	 */
+	@Override
+	public FlexLayout createMenuArea() {
+		topBar = new FlexLayout();
+		resetCats = new Button(getTranslation("ResetCategories.ResetAthletes"), (e) -> {
+			new ConfirmationDialog(
+			        getTranslation("ResetCategories.ResetCategories"),
+			        getTranslation("ResetCategories.Warning_ResetCategories"),
+			        getTranslation("ResetCategories.CategoriesReset"), () -> {
+				        resetCategories();
+			        }).open();
+		});
+		resetCats.getElement().setAttribute("title", getTranslation("ResetCategories.ResetCategoriesMouseOver"));
+		HorizontalLayout resetButton = new HorizontalLayout(resetCats);
+		resetButton.setMargin(false);
 
-        ageGroupDefinitionSelect = new ComboBox<>();
-        ageGroupDefinitionSelect.setPlaceholder(getTranslation("ResetCategories.AvailableDefinitions"));
-        List<Resource> resourceList = new ResourceWalker().getResourceList("/agegroups", ResourceWalker::relativeName,
-                null, new Locale(""));
-        resourceList.sort((a, b) -> a.compareTo(b));
-        ageGroupDefinitionSelect.setItems(resourceList);
-        ageGroupDefinitionSelect.setValue(null);
-        ageGroupDefinitionSelect.setWidth("15em");
-        ageGroupDefinitionSelect.getStyle().set("margin-left", "1em");
-        setAgeGroupsSelectionListener(resourceList);
+		ageGroupDefinitionSelect = new ComboBox<>();
+		ageGroupDefinitionSelect.setPlaceholder(getTranslation("ResetCategories.AvailableDefinitions"));
+		List<Resource> resourceList = new ResourceWalker().getResourceList("/agegroups", ResourceWalker::relativeName,
+		        null, new Locale(""));
+		resourceList.sort((a, b) -> a.compareTo(b));
+		ageGroupDefinitionSelect.setItems(resourceList);
+		ageGroupDefinitionSelect.setValue(null);
+		ageGroupDefinitionSelect.setWidth("15em");
+		ageGroupDefinitionSelect.getStyle().set("margin-left", "1em");
+		setAgeGroupsSelectionListener(resourceList);
 
-        Button reload = new Button(getTranslation("ResetCategories.ReloadAgeGroups"), (e) -> {
-            Resource definitions = ageGroupDefinitionSelect.getValue();
-            if (definitions == null) {
-                String labelText = getTranslation("ResetCategories.PleaseSelectDefinitionFile");
-                NotificationUtils.errorNotification(labelText);
-            } else {
-                new ConfirmationDialog(getTranslation("ResetCategories.ResetCategories"),
-                        getTranslation("ResetCategories.Warning_ResetCategories"),
-                        getTranslation("ResetCategories.CategoriesReset"), () -> {
-                            AgeGroupRepository.reloadDefinitions(definitions.getFileName());
-                            resetCategories();
-                        }).open();
-            }
-        });
+		Button reload = new Button(getTranslation("ResetCategories.ReloadAgeGroups"), (e) -> {
+			Resource definitions = ageGroupDefinitionSelect.getValue();
+			if (definitions == null) {
+				String labelText = getTranslation("ResetCategories.PleaseSelectDefinitionFile");
+				NotificationUtils.errorNotification(labelText);
+			} else {
+				new ConfirmationDialog(getTranslation("ResetCategories.ResetCategories"),
+				        getTranslation("ResetCategories.Warning_ResetCategories"),
+				        getTranslation("ResetCategories.CategoriesReset"), () -> {
+					        AgeGroupRepository.reloadDefinitions(definitions.getFileName());
+					        resetCategories();
+				        }).open();
+			}
+		});
 
-        HorizontalLayout reloadDefinition = new HorizontalLayout(ageGroupDefinitionSelect, reload);
-        reloadDefinition.setAlignItems(FlexComponent.Alignment.BASELINE);
-        reloadDefinition.setMargin(false);
-        reloadDefinition.setPadding(false);
-        reloadDefinition.setSpacing(false);
+		HorizontalLayout reloadDefinition = new HorizontalLayout(ageGroupDefinitionSelect, reload);
+		reloadDefinition.setAlignItems(FlexComponent.Alignment.BASELINE);
+		reloadDefinition.setMargin(false);
+		reloadDefinition.setPadding(false);
+		reloadDefinition.setSpacing(false);
 
-        topBar.add(resetButton, reloadDefinition);
-        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+		topBar.add(resetButton, reloadDefinition);
+		topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+		topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        return topBar;
-    }
+		return topBar;
+	}
 
-    @Override
-    public void delete(AgeGroup domainObjectToDelete) {
-        getAgeGroupEditingFormFactory().delete(domainObjectToDelete);
-    }
+	@Override
+	public void delete(AgeGroup domainObjectToDelete) {
+		getAgeGroupEditingFormFactory().delete(domainObjectToDelete);
+	}
 
-    /**
-     * The refresh button on the toolbar
-     *
-     * @see org.vaadin.crudui.crud.CrudListener#findAll()
-     */
-    @Override
-    public Collection<AgeGroup> findAll() {
-        List<AgeGroup> all = AgeGroupRepository.findFiltered(nameFilter.getValue(), (Gender) null,
-                ageDivisionFilter.getValue(),
-                (Integer) null, activeFilter.getValue(), -1, -1);
-        all.sort((ag1, ag2) -> {
-            int compare = 0;
-            compare = ObjectUtils.compare(ag1.getAgeDivision(), ag2.getAgeDivision());
-            if (compare != 0) {
-                return -compare; // DEFAULT first.
-            }
-            compare = ObjectUtils.compare(ag1.getGender(), ag2.getGender());
-            if (compare != 0) {
-                return compare;
-            }
-            compare = ObjectUtils.compare(ag1.getMinAge(), ag2.getMinAge());
-            if (compare != 0) {
-                return compare;
-            }
-            compare = ObjectUtils.compare(ag1.getMaxAge(), ag2.getMaxAge());
-            if (compare != 0) {
-                return compare;
-            }
-            return 0;
-        });
-        return all;
-    }
+	/**
+	 * The refresh button on the toolbar
+	 *
+	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
+	 */
+	@Override
+	public Collection<AgeGroup> findAll() {
+		List<AgeGroup> all = AgeGroupRepository.findFiltered(nameFilter.getValue(), (Gender) null,
+		        ageDivisionFilter.getValue(),
+		        (Integer) null, activeFilter.getValue(), -1, -1);
+		all.sort((ag1, ag2) -> {
+			int compare = 0;
+			compare = ObjectUtils.compare(ag1.getAgeDivision(), ag2.getAgeDivision());
+			if (compare != 0) {
+				return -compare; // DEFAULT first.
+			}
+			compare = ObjectUtils.compare(ag1.getGender(), ag2.getGender());
+			if (compare != 0) {
+				return compare;
+			}
+			compare = ObjectUtils.compare(ag1.getMinAge(), ag2.getMinAge());
+			if (compare != 0) {
+				return compare;
+			}
+			compare = ObjectUtils.compare(ag1.getMaxAge(), ag2.getMaxAge());
+			if (compare != 0) {
+				return compare;
+			}
+			return 0;
+		});
+		return all;
+	}
 
-    @Override
-    public String getMenuTitle() {
-        return Translator.translate("EditAgeGroups");
-    }
+	@Override
+	public String getMenuTitle() {
+		return Translator.translate("EditAgeGroups");
+	}
 
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("Preparation_AgeGroups");
-    }
+	/**
+	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+	 */
+	@Override
+	public String getPageTitle() {
+		return getTranslation("Preparation_AgeGroups");
+	}
 
-    @Override
-    public OwlcmsLayout getRouterLayout() {
-        return routerLayout;
-    }
+	@Override
+	public OwlcmsLayout getRouterLayout() {
+		return routerLayout;
+	}
 
-    public void highlightResetButton() {
-        resetCats.setThemeName("primary error");
-    }
+	public void highlightResetButton() {
+		resetCats.setThemeName("primary error");
+	}
 
-    @Override
-    public void setHeaderContent() {
-        getRouterLayout().setMenuTitle(getMenuTitle());
-        getRouterLayout().setMenuArea(createMenuArea());
-        getRouterLayout().showLocaleDropdown(false);
-        getRouterLayout().setDrawerOpened(false);
-        getRouterLayout().updateHeader(true);
-    }
+	@Override
+	public void setHeaderContent() {
+		getRouterLayout().setMenuTitle(getMenuTitle());
+		getRouterLayout().setMenuArea(createMenuArea());
+		getRouterLayout().showLocaleDropdown(false);
+		getRouterLayout().setDrawerOpened(false);
+		getRouterLayout().updateHeader(true);
+	}
 
-    @Override
-    public void setRouterLayout(OwlcmsLayout routerLayout) {
-        this.routerLayout = routerLayout;
-    }
+	@Override
+	public void setRouterLayout(OwlcmsLayout routerLayout) {
+		this.routerLayout = routerLayout;
+	}
 
-    @Override
-    public AgeGroup update(AgeGroup domainObjectToUpdate) {
-        AgeGroup ageGroup = getAgeGroupEditingFormFactory().update(domainObjectToUpdate);
-        return ageGroup;
-    }
+	@Override
+	public AgeGroup update(AgeGroup domainObjectToUpdate) {
+		AgeGroup ageGroup = getAgeGroupEditingFormFactory().update(domainObjectToUpdate);
+		return ageGroup;
+	}
 
-    /**
-     * The columns of the crudGrid
-     *
-     * @param crudFormFactory what to call to create the form for editing an athlete
-     * @return
-     */
-    protected GridCrud<AgeGroup> createGrid(OwlcmsCrudFormFactory<AgeGroup> crudFormFactory) {
-        Grid<AgeGroup> grid = new Grid<>(AgeGroup.class, false);
-        grid.getThemeNames().add("row-stripes");
-        grid.addColumn(new ComponentRenderer<>(cat -> {
-            // checkbox to avoid entering in the form
-            Checkbox activeBox = new Checkbox("Name");
-            activeBox.setLabel(null);
-            activeBox.getElement().getThemeList().set("secondary", true);
-            activeBox.setValue(cat.isActive());
-            activeBox.addValueChangeListener(click -> {
-                activeBox.setValue(click.getValue());
-                cat.setActive(click.getValue());
-                AgeGroupRepository.save(cat);
-                grid.getDataProvider().refreshItem(cat);
-            });
-            return activeBox;
-        })).setHeader(getTranslation("Active")).setWidth("0");
-        grid.addColumn(AgeGroup::getName).setHeader(getTranslation("Name"));
-        grid.addColumn(new TextRenderer<AgeGroup>(
-                item -> {
-                    AgeDivision ageDivision = item.getAgeDivision();
-                    logger.trace("createGrid age division {}", ageDivision);
-                    String tr = getTranslation("Division." + (ageDivision != null ? ageDivision.name() : "?"));
-                    return tr;
-                }))
-                .setHeader(getTranslation("AgeDivision"));
-        grid.addColumn(AgeGroup::getGender).setHeader(getTranslation("Gender"));
-        grid.addColumn(AgeGroup::getMinAge).setHeader(getTranslation("MinimumAge"));
-        grid.addColumn(AgeGroup::getMaxAge).setHeader(getTranslation("MaximumAge"));
-        grid.addColumn(AgeGroup::getCategoriesAsString).setAutoWidth(true)
-                .setHeader(getTranslation("BodyWeightCategories"));
+	private OwlcmsCrudFormFactory<AgeGroup> getAgeGroupEditingFormFactory() {
+		return ageGroupEditingFormFactory;
+	}
 
-        crud = new OwlcmsCrudGrid<>(AgeGroup.class, new OwlcmsGridLayout(AgeGroup.class),
-                crudFormFactory, grid);
-        crud.setCrudListener(this);
-        crud.setClickRowToUpdate(true);
-        return crud;
-    }
+	private void resetCategories() {
+		AthleteRepository.resetParticipations();
+		crud.refreshGrid();
+		unHighlightResetButton();
+	}
 
-    /**
-     * The filters at the top of the crudGrid
-     *
-     * @param crudGrid the crudGrid that will be filtered.
-     */
-    protected void defineFilters(GridCrud<AgeGroup> crud) {
-        nameFilter.setPlaceholder(getTranslation("Name"));
-        nameFilter.setClearButtonVisible(true);
-        nameFilter.setValueChangeMode(ValueChangeMode.EAGER);
-        nameFilter.addValueChangeListener(e -> {
-            crud.refreshGrid();
-        });
-        crud.getCrudLayout().addFilterComponent(nameFilter);
+	private Resource searchMatch(List<Resource> resourceList, String curTemplateName) {
+		Resource found = null;
+		for (Resource curResource : resourceList) {
+			String fileName = curResource.getFileName();
+			if (fileName.equals(curTemplateName)) {
+				found = curResource;
+				break;
+			}
+		}
+		return found;
+	}
 
-        ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
-        ageDivisionFilter.setItems(AgeDivision.findAll());
-        ageDivisionFilter.setItemLabelGenerator((ad) -> getTranslation("Division." + ad.name()));
-        ageDivisionFilter.setClearButtonVisible(true);
-        ageDivisionFilter.addValueChangeListener(e -> {
-            crud.refreshGrid();
-        });
-        crud.getCrudLayout().addFilterComponent(ageDivisionFilter);
-        crud.getCrudLayout().addToolbarComponent(new Label(""));
+	private void setAgeGroupEditingFormFactory(OwlcmsCrudFormFactory<AgeGroup> ageGroupEditingFormFactory) {
+		this.ageGroupEditingFormFactory = ageGroupEditingFormFactory;
+	}
 
-        activeFilter.addValueChangeListener(e -> {
-            crud.refreshGrid();
-        });
-        activeFilter.setLabel(getTranslation("Active"));
-        activeFilter.setAriaLabel(getTranslation("ActiveCategoriesOnly"));
-        crud.getCrudLayout().addFilterComponent(activeFilter);
+	private void setAgeGroupsSelectionListener(List<Resource> resourceList) {
+		String curTemplateName = Competition.getCurrent().getAgeGroupsFileName();
+		Resource found = searchMatch(resourceList, curTemplateName);
+		ageGroupDefinitionSelect.addValueChangeListener((e) -> {
+			logger.debug("setTemplateSelectionListener {}", found);
+			Competition.getCurrent().setAgeGroupsFileName(e.getValue().getFileName());
+			CompetitionRepository.save(Competition.getCurrent());
+		});
+		ageGroupDefinitionSelect.setValue(found);
+	}
 
-        Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
-        clearFilters.addClickListener(event -> {
-            nameFilter.clear();
-            activeFilter.clear();
-            ageDivisionFilter.clear();
-        });
-        crud.getCrudLayout().addFilterComponent(clearFilters);
-    }
+	private void unHighlightResetButton() {
+		resetCats.setThemeName("");
+	}
 
-    /**
-     * We do not connect to the event bus, and we do not track a field of play (non-Javadoc)
-     *
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
-     */
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-    }
+	/**
+	 * The columns of the crudGrid
+	 *
+	 * @param crudFormFactory what to call to create the form for editing an athlete
+	 * @return
+	 */
+	protected GridCrud<AgeGroup> createGrid(OwlcmsCrudFormFactory<AgeGroup> crudFormFactory) {
+		Grid<AgeGroup> grid = new Grid<>(AgeGroup.class, false);
+		grid.getThemeNames().add("row-stripes");
+		grid.addColumn(new ComponentRenderer<>(cat -> {
+			// checkbox to avoid entering in the form
+			Checkbox activeBox = new Checkbox("Name");
+			activeBox.setLabel(null);
+			activeBox.getElement().getThemeList().set("secondary", true);
+			activeBox.setValue(cat.isActive());
+			activeBox.addValueChangeListener(click -> {
+				activeBox.setValue(click.getValue());
+				cat.setActive(click.getValue());
+				AgeGroupRepository.save(cat);
+				grid.getDataProvider().refreshItem(cat);
+			});
+			return activeBox;
+		})).setHeader(getTranslation("Active")).setWidth("0");
+		grid.addColumn(AgeGroup::getName).setHeader(getTranslation("Name"));
+		grid.addColumn(new TextRenderer<AgeGroup>(
+		        item -> {
+			        AgeDivision ageDivision = item.getAgeDivision();
+			        logger.trace("createGrid age division {}", ageDivision);
+			        String tr = getTranslation("Division." + (ageDivision != null ? ageDivision.name() : "?"));
+			        return tr;
+		        }))
+		        .setHeader(getTranslation("AgeDivision"));
+		grid.addColumn(AgeGroup::getGender).setHeader(getTranslation("Gender"));
+		grid.addColumn(AgeGroup::getMinAge).setHeader(getTranslation("MinimumAge"));
+		grid.addColumn(AgeGroup::getMaxAge).setHeader(getTranslation("MaximumAge"));
+		grid.addColumn(AgeGroup::getCategoriesAsString).setAutoWidth(true)
+		        .setHeader(getTranslation("BodyWeightCategories"));
 
-    void closeDialog() {
-        crud.getCrudLayout().hideForm();
-        crud.getGrid().asSingleSelect().clear();
-    }
+		crud = new OwlcmsCrudGrid<>(AgeGroup.class, new OwlcmsGridLayout(AgeGroup.class),
+		        crudFormFactory, grid);
+		crud.setCrudListener(this);
+		crud.setClickRowToUpdate(true);
+		return crud;
+	}
 
-    private OwlcmsCrudFormFactory<AgeGroup> getAgeGroupEditingFormFactory() {
-        return ageGroupEditingFormFactory;
-    }
+	/**
+	 * The filters at the top of the crudGrid
+	 *
+	 * @param crudGrid the crudGrid that will be filtered.
+	 */
+	protected void defineFilters(GridCrud<AgeGroup> crud) {
+		nameFilter.setPlaceholder(getTranslation("Name"));
+		nameFilter.setClearButtonVisible(true);
+		nameFilter.setValueChangeMode(ValueChangeMode.EAGER);
+		nameFilter.addValueChangeListener(e -> {
+			crud.refreshGrid();
+		});
+		crud.getCrudLayout().addFilterComponent(nameFilter);
 
-    private void resetCategories() {
-        AthleteRepository.resetParticipations();
-        crud.refreshGrid();
-        unHighlightResetButton();
-    }
+		ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
+		ageDivisionFilter.setItems(AgeDivision.findAll());
+		ageDivisionFilter.setItemLabelGenerator((ad) -> getTranslation("Division." + ad.name()));
+		ageDivisionFilter.setClearButtonVisible(true);
+		ageDivisionFilter.addValueChangeListener(e -> {
+			crud.refreshGrid();
+		});
+		crud.getCrudLayout().addFilterComponent(ageDivisionFilter);
+		crud.getCrudLayout().addToolbarComponent(new Label(""));
 
-    private Resource searchMatch(List<Resource> resourceList, String curTemplateName) {
-        Resource found = null;
-        for (Resource curResource : resourceList) {
-            String fileName = curResource.getFileName();
-            if (fileName.equals(curTemplateName)) {
-                found = curResource;
-                break;
-            }
-        }
-        return found;
-    }
+		activeFilter.addValueChangeListener(e -> {
+			crud.refreshGrid();
+		});
+		activeFilter.setLabel(getTranslation("Active"));
+		activeFilter.setAriaLabel(getTranslation("ActiveCategoriesOnly"));
+		crud.getCrudLayout().addFilterComponent(activeFilter);
 
-    private void setAgeGroupEditingFormFactory(OwlcmsCrudFormFactory<AgeGroup> ageGroupEditingFormFactory) {
-        this.ageGroupEditingFormFactory = ageGroupEditingFormFactory;
-    }
+		Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
+		clearFilters.addClickListener(event -> {
+			nameFilter.clear();
+			activeFilter.clear();
+			ageDivisionFilter.clear();
+		});
+		crud.getCrudLayout().addFilterComponent(clearFilters);
+	}
 
-    private void setAgeGroupsSelectionListener(List<Resource> resourceList) {
-        String curTemplateName = Competition.getCurrent().getAgeGroupsFileName();
-        Resource found = searchMatch(resourceList, curTemplateName);
-        ageGroupDefinitionSelect.addValueChangeListener((e) -> {
-            logger.debug("setTemplateSelectionListener {}", found);
-            Competition.getCurrent().setAgeGroupsFileName(e.getValue().getFileName());
-            CompetitionRepository.save(Competition.getCurrent());
-        });
-        ageGroupDefinitionSelect.setValue(found);
-    }
+	/**
+	 * We do not connect to the event bus, and we do not track a field of play
+	 * (non-Javadoc)
+	 *
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
+	 */
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+	}
 
-    private void unHighlightResetButton() {
-        resetCats.setThemeName("");
-    }
+	void closeDialog() {
+		crud.getCrudLayout().hideForm();
+		crud.getGrid().asSingleSelect().clear();
+	}
 
 }

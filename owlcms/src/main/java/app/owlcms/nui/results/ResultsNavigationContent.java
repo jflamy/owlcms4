@@ -6,6 +6,9 @@
  *******************************************************************************/
 package app.owlcms.nui.results;
 
+import java.util.HashMap;
+import java.util.List;
+
 import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.layout.FlexibleGridLayout;
@@ -36,73 +39,87 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "results", layout = OwlcmsLayout.class)
 public class ResultsNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsNavigationContent.class);
-    static {
-        logger.setLevel(Level.INFO);
-    }
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsNavigationContent.class);
+	static {
+		logger.setLevel(Level.INFO);
+	}
 
-    /**
-     * Instantiates a new wrapup navigation content.
-     */
-    public ResultsNavigationContent() {
-        Button groupResults = openInNewTab(ResultsContent.class, getTranslation("GroupResults"));
-        //Button medals = openInNewTab(ResultsContent.class, getTranslation("Results.Medals"));
-        Button teamResults = openInNewTabNoParam(TeamResultsContent.class, getTranslation("TeamResults.Title"));
-        Button teams = openInNewTabNoParam(TeamSelectionContent.class, getTranslation(TeamSelectionContent.TITLE));
-        //Button categoryResults = openInNewTabNoParam(PackageContent.class, getTranslation("CategoryResults"));
-        Button finalPackage = openInNewTabNoParam(PackageContent.class, getTranslation("CompetitionResults"));
+	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
 
-        Div timingStats = DownloadButtonFactory.createDynamicXLSDownloadButton("timingStats",
-                getTranslation("TimingStatistics"), new JXLSTimingStats(UI.getCurrent()));
-        ((Button) timingStats.getComponentAt(0)).setWidth("100%");
-        Div newRecords = DownloadButtonFactory.createDynamicXLSDownloadButton("records",
-                getTranslation("Results.NewRecords"), new JXLSExportRecords(UI.getCurrent()));
-        ((Button) newRecords.getComponentAt(0)).setWidth("100%");
+	/**
+	 * Instantiates a new wrapup navigation content.
+	 */
+	public ResultsNavigationContent() {
+		Button groupResults = openInNewTab(ResultsContent.class, getTranslation("GroupResults"));
+		// Button medals = openInNewTab(ResultsContent.class,
+		// getTranslation("Results.Medals"));
+		Button teamResults = openInNewTabNoParam(TeamResultsContent.class, getTranslation("TeamResults.Title"));
+		Button teams = openInNewTabNoParam(TeamSelectionContent.class, getTranslation(TeamSelectionContent.TITLE));
+		// Button categoryResults = openInNewTabNoParam(PackageContent.class,
+		// getTranslation("CategoryResults"));
+		Button finalPackage = openInNewTabNoParam(PackageContent.class, getTranslation("CompetitionResults"));
 
-        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(groupResults);
-        FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(teamResults, teams);
-        FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(finalPackage, newRecords,
-                timingStats);
+		Div timingStats = DownloadButtonFactory.createDynamicXLSDownloadButton("timingStats",
+		        getTranslation("TimingStatistics"), new JXLSTimingStats(UI.getCurrent()));
+		((Button) timingStats.getComponentAt(0)).setWidth("100%");
+		Div newRecords = DownloadButtonFactory.createDynamicXLSDownloadButton("records",
+		        getTranslation("Results.NewRecords"), new JXLSExportRecords(UI.getCurrent()));
+		((Button) newRecords.getComponentAt(0)).setWidth("100%");
 
-        doGroup(getTranslation("ForEachCompetitionGroup"), grid1, this);
-        doGroup(getTranslation("TeamResults.Title"), grid2, this);
-        doGroup(getTranslation("Results.EndOfCompetition"), grid3, this);
+		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(groupResults);
+		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(teamResults, teams);
+		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(finalPackage, newRecords,
+		        timingStats);
 
-        DebugUtils.gc();
-    }
+		doGroup(getTranslation("ForEachCompetitionGroup"), grid1, this);
+		doGroup(getTranslation("TeamResults.Title"), grid2, this);
+		doGroup(getTranslation("Results.EndOfCompetition"), grid3, this);
 
-    @Override
-    public Location getLocation() {
-        return this.location;
-    }
+		DebugUtils.gc();
+	}
 
-    @Override
-    public UI getLocationUI() {
-        return this.locationUI;
-    }
+	@Override
+	public Location getLocation() {
+		return this.location;
+	}
 
-    @Override
-    public String getMenuTitle() {
-        return getTranslation("ShortTitle.Results");
-    }
+	@Override
+	public UI getLocationUI() {
+		return this.locationUI;
+	}
 
-    @Override
-    public String getPageTitle() {
-        return getTranslation("ShortTitle.Results");
-    }
+	@Override
+	public String getMenuTitle() {
+		return getTranslation("ShortTitle.Results");
+	}
 
-    @Override
-    public void setLocation(Location location) {
-        this.location = location;
-    }
+	@Override
+	public String getPageTitle() {
+		return getTranslation("ShortTitle.Results");
+	}
 
-    @Override
-    public void setLocationUI(UI locationUI) {
-        this.locationUI = locationUI;
-    }
+	@Override
+	public HashMap<String, List<String>> getUrlParameterMap() {
+		return urlParameterMap;
+	}
 
-    @Override
-    protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {
-        return null;
-    }
+	@Override
+	public void setLocation(Location location) {
+		this.location = location;
+	}
+
+	@Override
+	public void setLocationUI(UI locationUI) {
+		this.locationUI = locationUI;
+	}
+
+	@Override
+	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+		this.urlParameterMap = newParameterMap;
+	}
+
+	@Override
+	protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {
+		return null;
+	}
 }

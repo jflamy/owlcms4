@@ -16,39 +16,39 @@ import app.owlcms.data.competition.Competition;
 @SuppressWarnings("serial")
 public class JXLSCardsDocs extends JXLSWorkbookStreamSource {
 
-    private final static Logger logger = LoggerFactory.getLogger(JXLSCardsDocs.class);
+	private final static Logger logger = LoggerFactory.getLogger(JXLSCardsDocs.class);
 
-    public JXLSCardsDocs() {
-        super();
-    }
+	public JXLSCardsDocs() {
+		super();
+	}
 
+	private void setPageBreaks(Workbook workbook, int cardsPerPage, int linesPerCard) {
+		Sheet sheet = workbook.getSheetAt(0);
+		int lastRowNum = sheet.getLastRowNum();
+		sheet.setAutobreaks(false);
+		int increment = cardsPerPage * linesPerCard + (cardsPerPage - 1);
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
-     * postProcess(org.apache.poi.ss.usermodel.Workbook)
-     */
-    @Override
-    protected void postProcess(Workbook workbook) {
-        if (Competition.getCurrent().getComputedCardsTemplateFileName().contains("IWF-")) {
-            setPageBreaks(workbook, 1, 17);
-        } else if (Competition.getCurrent().getComputedCardsTemplateFileName().contains("SmallCards")) {
-            setPageBreaks(workbook, 2, 10);
-        }
-    }
+		for (int curRowNum = increment; curRowNum < lastRowNum;) {
+			logger.debug("setting break on line {}", curRowNum);
+			sheet.setRowBreak(curRowNum - 1);
+			curRowNum += increment;
+		}
+	}
 
-    private void setPageBreaks(Workbook workbook, int cardsPerPage, int linesPerCard) {
-        Sheet sheet = workbook.getSheetAt(0);
-        int lastRowNum = sheet.getLastRowNum();
-        sheet.setAutobreaks(false);
-        int increment = cardsPerPage * linesPerCard + (cardsPerPage - 1);
-
-        for (int curRowNum = increment; curRowNum < lastRowNum;) {
-            logger.debug("setting break on line {}",curRowNum);
-            sheet.setRowBreak(curRowNum - 1);
-            curRowNum += increment;
-        }
-    }
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
+	 * postProcess(org.apache.poi.ss.usermodel.Workbook)
+	 */
+	@Override
+	protected void postProcess(Workbook workbook) {
+		if (Competition.getCurrent().getComputedCardsTemplateFileName().contains("IWF-")) {
+			setPageBreaks(workbook, 1, 17);
+		} else if (Competition.getCurrent().getComputedCardsTemplateFileName().contains("SmallCards")) {
+			setPageBreaks(workbook, 2, 10);
+		}
+	}
 
 }

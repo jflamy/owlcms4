@@ -33,185 +33,188 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Singleton, one per running JVM (i.e. one instance of owlcms, or one unit test)
+ * Singleton, one per running JVM (i.e. one instance of owlcms, or one unit
+ * test)
  *
- * This class allows a web session to locate the event bus on which information will be broacast. All web pages talk to
- * one another via the event bus. The {@link OwlcmsSession} class is used to remember the current field of play for the
- * user.
+ * This class allows a web session to locate the event bus on which information
+ * will be broacast. All web pages talk to one another via the event bus. The
+ * {@link OwlcmsSession} class is used to remember the current field of play for
+ * the user.
  *
  * @author owlcms
  */
 public class OwlcmsFactory {
 
-    /** The fop by name. */
-    private static Map<String, FieldOfPlay> fopByName = null;
+	/** The fop by name. */
+	private static Map<String, FieldOfPlay> fopByName = null;
 
-    private static FieldOfPlay defaultFOP;
-    private static CountDownLatch latch = new CountDownLatch(1);
+	private static FieldOfPlay defaultFOP;
+	private static CountDownLatch latch = new CountDownLatch(1);
 
-    private static EventBus appEventBus;
+	private static EventBus appEventBus;
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsFactory.class);
-    static {
-        logger.setLevel(Level.INFO);
-    }
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsFactory.class);
+	static {
+		logger.setLevel(Level.INFO);
+	}
 
-    public static String getBuildTimestamp() {
-        return StartupUtils.getBuildTimestamp();
-    }
+	public static EventBus getAppUIBus() {
+		if (appEventBus == null) {
+			appEventBus = new EventBus();
+		}
+		return appEventBus;
+	}
 
-    /**
-     * @return first field of play, sorted alphabetically
-     */
-    public static FieldOfPlay getDefaultFOP() {
-        return defaultFOP;
-    }
+	public static String getBuildTimestamp() {
+		return StartupUtils.getBuildTimestamp();
+	}
 
-    public static FieldOfPlay getFOPByGroupName(String name) {
-        if (getFopByName() == null) {
-            return null; // no group is lifting yet.
-        }
-        Collection<FieldOfPlay> values = getFopByName().values();
-        for (FieldOfPlay v : values) {
-            if (v.getGroup().getName().equals(name)) {
-                return v;
-            }
-        }
-        return null;
-    }
+	/**
+	 * @return first field of play, sorted alphabetically
+	 */
+	public static FieldOfPlay getDefaultFOP() {
+		return defaultFOP;
+	}
 
-    /**
-     * Gets the FOP by name.
-     *
-     * @param key the key
-     * @return the FOP by name
-     */
-    public static FieldOfPlay getFOPByName(String key) {
-        return getFopByName().get(key);
-    }
+	public static FieldOfPlay getFOPByGroupName(String name) {
+		if (getFopByName() == null) {
+			return null; // no group is lifting yet.
+		}
+		Collection<FieldOfPlay> values = getFopByName().values();
+		for (FieldOfPlay v : values) {
+			if (v.getGroup().getName().equals(name)) {
+				return v;
+			}
+		}
+		return null;
+	}
 
-    public static Collection<FieldOfPlay> getFOPs() {
-        Collection<FieldOfPlay> values = getFopByName().values();
-        return values;
-    }
+	/**
+	 * Gets the FOP by name.
+	 *
+	 * @param key the key
+	 * @return the FOP by name
+	 */
+	public static FieldOfPlay getFOPByName(String key) {
+		return getFopByName().get(key);
+	}
 
-    public static CountDownLatch getInitializationLatch() {
-        return latch;
-    }
+	public static Collection<FieldOfPlay> getFOPs() {
+		Collection<FieldOfPlay> values = getFopByName().values();
+		return values;
+	}
 
-    public static String getVersion() {
-        return StartupUtils.getVersion();
-    }
+	public static CountDownLatch getInitializationLatch() {
+		return latch;
+	}
 
-    /**
-     * @return first field of play, sorted alphabetically
-     */
-    public static synchronized FieldOfPlay initDefaultFOP() {
-        logger.trace("initDefaultFOP {} {}", getFopByName() != null ? getFopByName().size() : null, LoggerUtils.stackTrace());
-        initFOPByName();
-        setFirstFOPAsDefault();
-        return getDefaultFOP();
-    }
+	public static String getVersion() {
+		return StartupUtils.getVersion();
+	}
 
-    public static FieldOfPlay registerEmptyFOP(Platform platform) {
-        String name = platform.getName();
-        FieldOfPlay fop = new FieldOfPlay(null, platform);
-        logger.trace("{} Initialized", fop.getLoggingName());
-        // no group selected, no athletes, announcer will need to pick a group.
-        fop.init(new LinkedList<Athlete>(), new ProxyAthleteTimer(fop), new ProxyBreakTimer(fop), true);
-        getFopByName().put(name, fop);
-        return fop;
-    }
+	/**
+	 * @return first field of play, sorted alphabetically
+	 */
+	public static synchronized FieldOfPlay initDefaultFOP() {
+		logger.trace("initDefaultFOP {} {}", getFopByName() != null ? getFopByName().size() : null,
+		        LoggerUtils.stackTrace());
+		initFOPByName();
+		setFirstFOPAsDefault();
+		return getDefaultFOP();
+	}
 
-    public static void resetFOPByName() {
-        if (getFopByName() != null) {
-            Iterator<Entry<String, FieldOfPlay>> it = getFopByName().entrySet().iterator();
-            while (it.hasNext()) {
-                Entry<String, FieldOfPlay> f = it.next();
+	public static synchronized void initFOPByName() {
+		resetFOPByName();
+		for (Platform platform : PlatformRepository.findAll()) {
+			// logger.trace("registering fop for {}", platform);
+			registerEmptyFOP(platform);
+		}
+		logger.trace("after initFOPByName {}", getFopByName() != null ? getFopByName().size() : null);
+	}
 
-                FieldOfPlay fop = f.getValue();
-                EventBus fopEventBus = fop.getFopEventBus();
-                if (fopEventBus != null) {
-                    try {
-                        fopEventBus.unregister(fop);
-                    } catch (IllegalArgumentException e) {
-                        // not registered, or already unregistered
-                    }
-                }
-            }
-        }
-        setFopByName(new HashMap<>());
-        logger.trace("fopByName reset done.");
-    }
+	public static FieldOfPlay registerEmptyFOP(Platform platform) {
+		String name = platform.getName();
+		FieldOfPlay fop = new FieldOfPlay(null, platform);
+		logger.trace("{} Initialized", fop.getLoggingName());
+		// no group selected, no athletes, announcer will need to pick a group.
+		fop.init(new LinkedList<Athlete>(), new ProxyAthleteTimer(fop), new ProxyBreakTimer(fop), true);
+		getFopByName().put(name, fop);
+		return fop;
+	}
 
-    public static void setFirstFOPAsDefault() {
-        Optional<FieldOfPlay> fop = getFopByName().entrySet().stream()
-                .sorted(Comparator.comparing(x -> x.getKey()))
-                .map(x -> x.getValue())
-                .findFirst();
-        if (fop.isPresent()) {
-            setDefaultFOP(fop.get());
-        } else {
-            Platform platform = new Platform(Translator.translate("Default"));
-            PlatformRepository.save(platform);
-            initDefaultFOP();
-        }
+	public static void resetFOPByName() {
+		if (getFopByName() != null) {
+			Iterator<Entry<String, FieldOfPlay>> it = getFopByName().entrySet().iterator();
+			while (it.hasNext()) {
+				Entry<String, FieldOfPlay> f = it.next();
 
-    }
+				FieldOfPlay fop = f.getValue();
+				EventBus fopEventBus = fop.getFopEventBus();
+				if (fopEventBus != null) {
+					try {
+						fopEventBus.unregister(fop);
+					} catch (IllegalArgumentException e) {
+						// not registered, or already unregistered
+					}
+				}
+			}
+		}
+		setFopByName(new HashMap<>());
+		logger.trace("fopByName reset done.");
+	}
 
-    public static void unregisterFOP(Platform platform) {
-        if (getFopByName() == null) {
-            return;
-        }
-        String name = platform.getName();
-        if (name == null) {
-            throw new RuntimeException("can't happen, platform with no name");
-        }
-        try {
-            FieldOfPlay fop = getFopByName().get(name);
-            fop.getFopEventBus().unregister(fop);
-        } catch (IllegalArgumentException e) {
-        }
-        logger.trace("unregistering and unmapping fop {}", name);
-        getFopByName().remove(name);
-    }
+	public static void setFirstFOPAsDefault() {
+		Optional<FieldOfPlay> fop = getFopByName().entrySet().stream()
+		        .sorted(Comparator.comparing(x -> x.getKey()))
+		        .map(x -> x.getValue())
+		        .findFirst();
+		if (fop.isPresent()) {
+			setDefaultFOP(fop.get());
+		} else {
+			Platform platform = new Platform(Translator.translate("Default"));
+			PlatformRepository.save(platform);
+			initDefaultFOP();
+		}
 
-    public static void waitDBInitialized() {
-        try {
-            OwlcmsFactory.getInitializationLatch().await();
-        } catch (InterruptedException e) {
-        }
-    }
+	}
 
-    public static synchronized void initFOPByName() {
-        resetFOPByName();
-        for (Platform platform : PlatformRepository.findAll()) {
-            // logger.trace("registering fop for {}", platform);
-            registerEmptyFOP(platform);
-        }
-        logger.trace("after initFOPByName {}", getFopByName() != null ? getFopByName().size() : null);
-    }
+	public static void unregisterFOP(Platform platform) {
+		if (getFopByName() == null) {
+			return;
+		}
+		String name = platform.getName();
+		if (name == null) {
+			throw new RuntimeException("can't happen, platform with no name");
+		}
+		try {
+			FieldOfPlay fop = getFopByName().get(name);
+			fop.getFopEventBus().unregister(fop);
+		} catch (IllegalArgumentException e) {
+		}
+		logger.trace("unregistering and unmapping fop {}", name);
+		getFopByName().remove(name);
+	}
 
-    /**
-     * @param defaultFOP the defaultFOP to set
-     */
-    private static void setDefaultFOP(FieldOfPlay defaultFOP) {
-        OwlcmsFactory.defaultFOP = defaultFOP;
-    }
+	public static void waitDBInitialized() {
+		try {
+			OwlcmsFactory.getInitializationLatch().await();
+		} catch (InterruptedException e) {
+		}
+	}
 
-    public static EventBus getAppUIBus() {
-        if (appEventBus == null) {
-            appEventBus = new EventBus();
-        }
-        return appEventBus;
-    }
+	/**
+	 * @param defaultFOP the defaultFOP to set
+	 */
+	private static void setDefaultFOP(FieldOfPlay defaultFOP) {
+		OwlcmsFactory.defaultFOP = defaultFOP;
+	}
 
-    static Map<String, FieldOfPlay> getFopByName() {
-        return fopByName;
-    }
+	static Map<String, FieldOfPlay> getFopByName() {
+		return fopByName;
+	}
 
-    static void setFopByName(Map<String, FieldOfPlay> fopByName) {
-        OwlcmsFactory.fopByName = fopByName;
-    }
+	static void setFopByName(Map<String, FieldOfPlay> fopByName) {
+		OwlcmsFactory.fopByName = fopByName;
+	}
 
 }

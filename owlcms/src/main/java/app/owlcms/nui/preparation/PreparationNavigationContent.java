@@ -54,167 +54,178 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "preparation", layout = OwlcmsLayout.class)
 public class PreparationNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(PreparationNavigationContent.class);
-    static {
-        logger.setLevel(Level.INFO);
-    }
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(PreparationNavigationContent.class);
+	static {
+		logger.setLevel(Level.INFO);
+	}
 
-    private Group currentGroup;
+	private Group currentGroup;
 
-    /**
-     * Instantiates a new preparation navigation content.
-     */
-    public PreparationNavigationContent() {
+	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
 
-        Button competition = openInNewTabNoParam(CompetitionContent.class, getTranslation("CompetitionInformation"));
-        Button config = openInNewTabNoParam(ConfigContent.class, getTranslation("Config.Title"));
-        Button ageGroups = openInNewTabNoParam(AgeGroupContent.class, getTranslation("DefineAgeGroups"));
-        Button groups = openInNewTabNoParam(GroupContent.class, getTranslation("DefineGroups"));
-        Button platforms = openInNewTabNoParam(PlatformContent.class, getTranslation("DefineFOP"));
-        Button clearNewRecords = new Button(getTranslation("Preparation.ClearNewRecords"),
-                buttonClickEvent -> {
-                    try {
-                        RecordRepository.clearNewRecords();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-        clearNewRecords.getElement().setProperty("title",
-                Translator.translate("Preparation.ClearNewRecordsExplanation"));
-        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, platforms,
-                clearNewRecords);
-        doGroup(getTranslation("PreCompetitionSetup"), grid1, this);
+	/**
+	 * Instantiates a new preparation navigation content.
+	 */
+	public PreparationNavigationContent() {
 
-        Div downloadDiv = DownloadButtonFactory.createDynamicXLSDownloadButton("registration",
-                getTranslation("DownloadRegistrationTemplate"), new JXLSRegistrationEmptyExport(UI.getCurrent()));
-        Optional<Component> content = downloadDiv.getChildren().findFirst();
-        content.ifPresent(c -> ((Button) c).setWidth("100%"));
-        downloadDiv.setWidthFull();
-        
-        Button upload = new Button(getTranslation("UploadRegistrations"), new Icon(VaadinIcon.UPLOAD_ALT),
-                buttonClickEvent -> new RegistrationFileUploadDialog().open());
-        
-        Div exportDiv = DownloadButtonFactory.createDynamicXLSDownloadButton("exportRegistration",
-                getTranslation("ExportRegistrationData"), new JXLSRegistrationExport(UI.getCurrent()));
-        Optional<Component> exportDivButton = exportDiv.getChildren().findFirst();
-        exportDivButton.ifPresent(c -> ((Button) c).setWidth("100%"));
-        exportDiv.setWidthFull();
-        
-        FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(ageGroups, groups, downloadDiv, upload);
-        doGroup(getTranslation("Registration"), grid2, this);
+		Button competition = openInNewTabNoParam(CompetitionContent.class, getTranslation("CompetitionInformation"));
+		Button config = openInNewTabNoParam(ConfigContent.class, getTranslation("Config.Title"));
+		Button ageGroups = openInNewTabNoParam(AgeGroupContent.class, getTranslation("DefineAgeGroups"));
+		Button groups = openInNewTabNoParam(GroupContent.class, getTranslation("DefineGroups"));
+		Button platforms = openInNewTabNoParam(PlatformContent.class, getTranslation("DefineFOP"));
+		Button clearNewRecords = new Button(getTranslation("Preparation.ClearNewRecords"),
+		        buttonClickEvent -> {
+			        try {
+				        RecordRepository.clearNewRecords();
+			        } catch (IOException e) {
+				        throw new RuntimeException(e);
+			        }
+		        });
+		clearNewRecords.getElement().setProperty("title",
+		        Translator.translate("Preparation.ClearNewRecordsExplanation"));
+		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, platforms,
+		        clearNewRecords);
+		doGroup(getTranslation("PreCompetitionSetup"), grid1, this);
 
-        Button athletes = openInNewTabNoParam(RegistrationContent.class, getTranslation("EditAthletes"));
-        Button teams = openInNewTabNoParam(TeamSelectionContent.class, getTranslation(TeamSelectionContent.TITLE));
-        FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes, teams, exportDiv);
-        doGroup(getTranslation("EditAthletes_Groups"), grid3, this);
+		Div downloadDiv = DownloadButtonFactory.createDynamicXLSDownloadButton("registration",
+		        getTranslation("DownloadRegistrationTemplate"), new JXLSRegistrationEmptyExport(UI.getCurrent()));
+		Optional<Component> content = downloadDiv.getChildren().findFirst();
+		content.ifPresent(c -> ((Button) c).setWidth("100%"));
+		downloadDiv.setWidthFull();
 
-        //if (Config.getCurrent().featureSwitch("preCompDocs", true)) {
-            FlexibleGridLayout grid6;
-            Button documents = openInNewTabNoParam(DocsContent.class, getTranslation(DocsContent.PRECOMP_DOCS_TITLE));
-            grid6 = HomeNavigationContent.navigationGrid(documents);
-            doGroup(getTranslation(DocsContent.PRECOMP_DOCS_TITLE), grid6, this);
-        //}
+		Button upload = new Button(getTranslation("UploadRegistrations"), new Icon(VaadinIcon.UPLOAD_ALT),
+		        buttonClickEvent -> new RegistrationFileUploadDialog().open());
 
-        Button uploadJson = new Button(getTranslation("ExportDatabase.UploadJson"), new Icon(VaadinIcon.UPLOAD_ALT),
-                buttonClickEvent -> new JsonUploadDialog(UI.getCurrent()).open());
-        Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton("owlcmsDatabase",
-                getTranslation("ExportDatabase.DownloadJson"));
-        Optional<Component> exportJsonButton = exportJsonDiv.getChildren().findFirst();
-        exportJsonButton.ifPresent(c -> ((Button) c).setWidth("100%"));
-        exportJsonDiv.setWidthFull();
-        FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(exportJsonDiv, uploadJson/* , clearDatabase */);
-        doGroup(getTranslation("ExportDatabase.ExportImport"), grid4, this);
+		Div exportDiv = DownloadButtonFactory.createDynamicXLSDownloadButton("exportRegistration",
+		        getTranslation("ExportRegistrationData"), new JXLSRegistrationExport(UI.getCurrent()));
+		Optional<Component> exportDivButton = exportDiv.getChildren().findFirst();
+		exportDivButton.ifPresent(c -> ((Button) c).setWidth("100%"));
+		exportDiv.setWidthFull();
 
+		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(ageGroups, groups, downloadDiv, upload);
+		doGroup(getTranslation("Registration"), grid2, this);
+
+		Button athletes = openInNewTabNoParam(RegistrationContent.class, getTranslation("EditAthletes"));
+		Button teams = openInNewTabNoParam(TeamSelectionContent.class, getTranslation(TeamSelectionContent.TITLE));
+		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes, teams, exportDiv);
+		doGroup(getTranslation("EditAthletes_Groups"), grid3, this);
+
+		// if (Config.getCurrent().featureSwitch("preCompDocs", true)) {
+		FlexibleGridLayout grid6;
+		Button documents = openInNewTabNoParam(DocsContent.class, getTranslation(DocsContent.PRECOMP_DOCS_TITLE));
+		grid6 = HomeNavigationContent.navigationGrid(documents);
+		doGroup(getTranslation(DocsContent.PRECOMP_DOCS_TITLE), grid6, this);
+		// }
+
+		Button uploadJson = new Button(getTranslation("ExportDatabase.UploadJson"), new Icon(VaadinIcon.UPLOAD_ALT),
+		        buttonClickEvent -> new JsonUploadDialog(UI.getCurrent()).open());
+		Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton("owlcmsDatabase",
+		        getTranslation("ExportDatabase.DownloadJson"));
+		Optional<Component> exportJsonButton = exportJsonDiv.getChildren().findFirst();
+		exportJsonButton.ifPresent(c -> ((Button) c).setWidth("100%"));
+		exportJsonDiv.setWidthFull();
+		FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(exportJsonDiv, uploadJson/* , clearDatabase */);
+		doGroup(getTranslation("ExportDatabase.ExportImport"), grid4, this);
 
 //        FlexibleGridLayout grid5 = HomeNavigationContent.navigationGrid(clearNewRecords);
 //        doGroup(getTranslation("Preparation.Records"), grid5, this);
 
-        DebugUtils.gc();
-    }
+		DebugUtils.gc();
+	}
 
-    @Override
-    public Location getLocation() {
-        return this.location;
-    }
+	@Override
+	public Location getLocation() {
+		return this.location;
+	}
 
-    @Override
-    public UI getLocationUI() {
-        return this.locationUI;
-    }
+	@Override
+	public UI getLocationUI() {
+		return this.locationUI;
+	}
 
-    @Override
-    public String getMenuTitle() {
-        return getTranslation("PrepareCompetition");
-    }
+	@Override
+	public String getMenuTitle() {
+		return getTranslation("PrepareCompetition");
+	}
 
-    @Override
-    public String getPageTitle() {
-        return getTranslation("ShortTitle.Preparation");
-    }
+	@Override
+	public String getPageTitle() {
+		return getTranslation("ShortTitle.Preparation");
+	}
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see app.owlcms.nui.shared.QueryParameterReader#isIgnoreGroupFromURL()
-     */
-    @Override
-    public boolean isIgnoreGroupFromURL() {
-        return true;
-    }
+	@Override
+	public HashMap<String, List<String>> getUrlParameterMap() {
+		return urlParameterMap;
+	}
 
-    @Override
-    public void setLocation(Location location) {
-        this.location = location;
-    }
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see app.owlcms.nui.shared.QueryParameterReader#isIgnoreGroupFromURL()
+	 */
+	@Override
+	public boolean isIgnoreGroupFromURL() {
+		return true;
+	}
 
-    @Override
-    public void setLocationUI(UI locationUI) {
-        this.locationUI = locationUI;
-    }
+	@Override
+	public void setLocation(Location location) {
+		this.location = location;
+	}
 
-    /**
-     * Parse the http query parameters
-     *
-     * Note: because we have the @Route, the parameters are parsed *before* our parent layout is created.
-     *
-     * @param event     Vaadin navigation event
-     * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
-     *                  parameters instead.
-     *
-     * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
-     *      java.lang.String)
-     */
-    @Override
-    public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-        setLocation(event.getLocation());
-        setLocationUI(event.getUI());
-        QueryParameters queryParameters = getLocation().getQueryParameters();
-        Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
-        HashMap<String, List<String>> params = new HashMap<>(parametersMap);
+	@Override
+	public void setLocationUI(UI locationUI) {
+		this.locationUI = locationUI;
+	}
 
-        logger.debug("parsing query parameters");
-        List<String> groupNames = params.get("group");
-        if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
-            String groupName = groupNames.get(0);
-            currentGroup = GroupRepository.findByName(groupName);
-        } else {
-            currentGroup = null;
-        }
-        if (currentGroup != null) {
-            params.put("group", Arrays.asList(URLUtils.urlEncode(currentGroup.getName())));
-        } else {
-            params.remove("group");
-        }
-        params.remove("fop");
+	/**
+	 * Parse the http query parameters
+	 *
+	 * Note: because we have the @Route, the parameters are parsed *before* our
+	 * parent layout is created.
+	 *
+	 * @param event     Vaadin navigation event
+	 * @param parameter null in this case -- we don't want a vaadin "/" parameter.
+	 *                  This allows us to add query parameters instead.
+	 *
+	 * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
+	 *      java.lang.String)
+	 */
+	@Override
+	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		setLocation(event.getLocation());
+		setLocationUI(event.getUI());
+		QueryParameters queryParameters = getLocation().getQueryParameters();
+		Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
+		HashMap<String, List<String>> params = new HashMap<>(parametersMap);
 
-        // change the URL to reflect group
-        event.getUI().getPage().getHistory().replaceState(null,
-                new Location(getLocation().getPath(), new QueryParameters(URLUtils.cleanParams(params))));
-    }
+		logger.debug("parsing query parameters");
+		List<String> groupNames = params.get("group");
+		if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
+			String groupName = groupNames.get(0);
+			currentGroup = GroupRepository.findByName(groupName);
+		} else {
+			currentGroup = null;
+		}
+		if (currentGroup != null) {
+			params.put("group", Arrays.asList(URLUtils.urlEncode(currentGroup.getName())));
+		} else {
+			params.remove("group");
+		}
+		params.remove("fop");
 
-    @Override
-    protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {
-        return null;
-    }
+		// change the URL to reflect group
+		event.getUI().getPage().getHistory().replaceState(null,
+		        new Location(getLocation().getPath(), new QueryParameters(URLUtils.cleanParams(params))));
+	}
 
+	@Override
+	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+		this.urlParameterMap = newParameterMap;
+	}
+
+	@Override
+	protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {
+		return null;
+	}
 }

@@ -26,64 +26,64 @@ import ch.qos.logback.classic.Logger;
  */
 public class DownloadButtonFactory {
 
-    @SuppressWarnings("unused")
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(DownloadButtonFactory.class);
+	@SuppressWarnings("unused")
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(DownloadButtonFactory.class);
 
-    public static Div createDynamicJsonDownloadButton(String prefix, String label) {
-        final LazyDownloadButton downloadButton = new LazyDownloadButton(
-                label,
-                new Icon(VaadinIcon.DOWNLOAD_ALT),
-                () -> {
-                    LocalDateTime now = LocalDateTime.now().withNano(0);
-                    return prefix
-                            + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm"))
-                            + ".json";
-                },
-                () -> {
-                    return new CompetitionData().exportData();
-                });
+	public static Div createDynamicJsonDownloadButton(String prefix, String label) {
+		final LazyDownloadButton downloadButton = new LazyDownloadButton(
+		        label,
+		        new Icon(VaadinIcon.DOWNLOAD_ALT),
+		        () -> {
+			        LocalDateTime now = LocalDateTime.now().withNano(0);
+			        return prefix
+			                + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm"))
+			                + ".json";
+		        },
+		        () -> {
+			        return new CompetitionData().exportData();
+		        });
 
-        return new Div(downloadButton);
-    }
+		return new Div(downloadButton);
+	}
 
-    /**
-     * Creates a new DownloadButton object for a dynamically created file.
-     *
-     * @param prefix    the prefix
-     * @param label     the label
-     * @param xlsSource the xls source
-     * @return the div
-     */
-    public static Div createDynamicXLSDownloadButton(String prefix, String label, JXLSWorkbookStreamSource xlsSource) {
-        final LazyDownloadButton downloadButton = new LazyDownloadButton(
-                label,
-                new Icon(VaadinIcon.DOWNLOAD_ALT),
-                () -> {
-                    LocalDateTime now = LocalDateTime.now().withNano(0);
-                    return prefix
-                            + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm';'ss"))
-                            + ".xls";
-                },
-                xlsSource);
+	/**
+	 * Creates a new DownloadButton object for a dynamically created file.
+	 *
+	 * @param prefix    the prefix
+	 * @param label     the label
+	 * @param xlsSource the xls source
+	 * @return the div
+	 */
+	public static Div createDynamicXLSDownloadButton(String prefix, String label, JXLSWorkbookStreamSource xlsSource) {
+		final LazyDownloadButton downloadButton = new LazyDownloadButton(
+		        label,
+		        new Icon(VaadinIcon.DOWNLOAD_ALT),
+		        () -> {
+			        LocalDateTime now = LocalDateTime.now().withNano(0);
+			        return prefix
+			                + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm';'ss"))
+			                + ".xls";
+		        },
+		        xlsSource);
 
-        return new Div(downloadButton);
-    }
+		return new Div(downloadButton);
+	}
 
-    public static Div createDynamicZipDownloadButton(String prefix, String label, byte[] content) {
-        final LazyDownloadButton downloadButton = new LazyDownloadButton(
-                label,
-                new Icon(VaadinIcon.DOWNLOAD_ALT),
-                () -> {
-                    LocalDateTime now = LocalDateTime.now().withNano(0);
-                    return prefix
-                            + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm"))
-                            + ".zip";
-                },
-                () -> {
-                    return new ByteArrayInputStream(content);
-                });
+	public static Div createDynamicZipDownloadButton(String prefix, String label, byte[] content) {
+		final LazyDownloadButton downloadButton = new LazyDownloadButton(
+		        label,
+		        new Icon(VaadinIcon.DOWNLOAD_ALT),
+		        () -> {
+			        LocalDateTime now = LocalDateTime.now().withNano(0);
+			        return prefix
+			                + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm"))
+			                + ".zip";
+		        },
+		        () -> {
+			        return new ByteArrayInputStream(content);
+		        });
 
-        return new Div(downloadButton);
-    }
+		return new Div(downloadButton);
+	}
 
 }

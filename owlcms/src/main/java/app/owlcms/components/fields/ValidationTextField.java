@@ -11,8 +11,9 @@ import com.vaadin.flow.component.textfield.TextField;
 /**
  * Absolutely horrible workaround for validations.
  *
- * Validations in user mode correctly sets the invalid flag, but something unknown causes a second property change event
- * to be triggered, which resets the invalid indicator on the text field.¸
+ * Validations in user mode correctly sets the invalid flag, but something
+ * unknown causes a second property change event to be triggered, which resets
+ * the invalid indicator on the text field.¸
  *
  * We have no idea why that is.
  *
@@ -21,17 +22,17 @@ import com.vaadin.flow.component.textfield.TextField;
  */
 @SuppressWarnings("serial")
 public class ValidationTextField extends TextField {
-    private boolean invalid;
+	private boolean invalid;
 
-    @Override
-    public void setInvalid(boolean invalid) {
-        if (this.invalid && !invalid) {
-            // ignore setting invalid to false if current state is false.
-        } else {
-            super.setInvalid(invalid);
-        }
-        // next update from true to false will be acceped.
-        this.invalid = invalid;
+	@Override
+	public void setInvalid(boolean invalid) {
+		if (this.invalid && !invalid) {
+			// ignore setting invalid to false if current state is false.
+		} else {
+			super.setInvalid(invalid);
+		}
+		// next update from true to false will be acceped.
+		this.invalid = invalid;
 
-    }
+	}
 }

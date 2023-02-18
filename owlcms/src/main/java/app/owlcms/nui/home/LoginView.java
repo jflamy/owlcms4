@@ -37,121 +37,126 @@ import ch.qos.logback.classic.Logger;
  *
  * Scenarios:
  * <ul>
- * <li>If the IP environment variable is present, it is expected to be a commma-separated address list of IPv4
- * addresses. Browser must come from one of these addresses The IP address(es) will normally be those for the local
+ * <li>If the IP environment variable is present, it is expected to be a
+ * commma-separated address list of IPv4 addresses. Browser must come from one
+ * of these addresses The IP address(es) will normally be those for the local
  * router or routers used at the competition site.
- * <li>if a PIN environment variable is present, the PIN will be required (even if no IP whitelist)
- * <li>if PIN enviroment variable is not present, all accesses from the whitelisted routers will be allowed. This can be
- * sufficient if the router password is well-protected (which is not likely). Users can type any NIP, including an empty
- * value.
- * <li>if neither IP nor PIN is present, no check is done ({@link RequireLogin} does not display this view).
+ * <li>if a PIN environment variable is present, the PIN will be required (even
+ * if no IP whitelist)
+ * <li>if PIN enviroment variable is not present, all accesses from the
+ * whitelisted routers will be allowed. This can be sufficient if the router
+ * password is well-protected (which is not likely). Users can type any NIP,
+ * including an empty value.
+ * <li>if neither IP nor PIN is present, no check is done ({@link RequireLogin}
+ * does not display this view).
  * </ul>
  */
 @SuppressWarnings("serial")
 @Route(value = LoginView.LOGIN, layout = OwlcmsLayout.class)
-public class LoginView extends Composite<VerticalLayout> implements OwlcmsLayoutAware, ContentWrapping, HasDynamicTitle {
+public class LoginView extends Composite<VerticalLayout>
+        implements OwlcmsLayoutAware, ContentWrapping, HasDynamicTitle {
 
-    public static final String LOGIN = "login";
+	public static final String LOGIN = "login";
 
-    static Logger logger = (Logger) LoggerFactory.getLogger(LoginView.class);
+	static Logger logger = (Logger) LoggerFactory.getLogger(LoginView.class);
 
-    private PasswordField pinField = new PasswordField();
+	private PasswordField pinField = new PasswordField();
 
-    private OwlcmsLayout routerLayout;
+	private OwlcmsLayout routerLayout;
 
-    public LoginView() {
-        pinField.setClearButtonVisible(true);
-        pinField.setRevealButtonVisible(true);
-        pinField.setLabel(getTranslation("EnterPin"));
-        pinField.setWidthFull();
-        pinField.addValueChangeListener(event -> {
-            String value = event.getValue();
-            logger.debug("login input {}", value);
-            if (checkAuthenticated(value)) {
-                pinField.setErrorMessage(getTranslation("LoginDenied"));
-                pinField.setInvalid(true);
-            } else {
-                pinField.setInvalid(false);
-                redirect();
-            }
-        });
+	public LoginView() {
+		pinField.setClearButtonVisible(true);
+		pinField.setRevealButtonVisible(true);
+		pinField.setLabel(getTranslation("EnterPin"));
+		pinField.setWidthFull();
+		pinField.addValueChangeListener(event -> {
+			String value = event.getValue();
+			logger.debug("login input {}", value);
+			if (checkAuthenticated(value)) {
+				pinField.setErrorMessage(getTranslation("LoginDenied"));
+				pinField.setInvalid(true);
+			} else {
+				pinField.setInvalid(false);
+				redirect();
+			}
+		});
 
-        // brute-force the color because some display views use a white text color.
-        H3 h3 = new H3(getTranslation("Log_In"));
-        h3.getStyle().set("color", "var(--lumo-header-text-color)");
-        h3.getStyle().set("font-size", "var(--lumo-font-size-xl)");
+		// brute-force the color because some display views use a white text color.
+		H3 h3 = new H3(getTranslation("Log_In"));
+		h3.getStyle().set("color", "var(--lumo-header-text-color)");
+		h3.getStyle().set("font-size", "var(--lumo-font-size-xl)");
 
-        Button button = new Button(getTranslation("Login"));
-        button.addClickShortcut(Key.ENTER);
-        button.setWidth("10em");
-        button.getThemeNames().add("primary");
-        button.getThemeNames().add("icon");
+		Button button = new Button(getTranslation("Login"));
+		button.addClickShortcut(Key.ENTER);
+		button.setWidth("10em");
+		button.getThemeNames().add("primary");
+		button.getThemeNames().add("icon");
 
-        VerticalLayout form = new VerticalLayout();
-        form.add(h3, pinField, button);
-        form.setWidth("20em");
-        form.setAlignSelf(Alignment.CENTER, button);
+		VerticalLayout form = new VerticalLayout();
+		form.add(h3, pinField, button);
+		form.setWidth("20em");
+		form.setAlignSelf(Alignment.CENTER, button);
 
-        getContent().add(form);
+		getContent().add(form);
 
-    }
+	}
 
-    @Override
-    public FlexLayout createMenuArea() {
-        return new FlexLayout();
-    }
+	@Override
+	public FlexLayout createMenuArea() {
+		return new FlexLayout();
+	}
 
-    @Override
-    public String getPageTitle() {
-        return Translator.translate("Login");
-    }
+	public String getMenuTitle() {
+		return getTranslation("OWLCMS_Top");
+	}
 
-    @Override
-    public OwlcmsLayout getRouterLayout() {
-        return routerLayout;
-    }
+	@Override
+	public String getPageTitle() {
+		return Translator.translate("Login");
+	}
 
-    @Override
-    public void setHeaderContent() {
-        Label label = new Label(getMenuTitle());
-        label.getStyle().set("font-size", "var(--lumo-font-size-xl");
-        Image image = new Image("icons/owlcms.png", "owlcms icon");
-        image.getStyle().set("height", "7ex");
-        image.getStyle().set("width", "auto");
-        HorizontalLayout topBarTitle = new HorizontalLayout(image, label);
-        topBarTitle.setAlignSelf(Alignment.CENTER, label);
-        routerLayout.setMenuTitle(topBarTitle);
-        routerLayout.setMenuArea(createMenuArea());
-        routerLayout.showLocaleDropdown(true);
-        routerLayout.setDrawerOpened(true);
-        routerLayout.updateHeader(true);
-    }
+	@Override
+	public OwlcmsLayout getRouterLayout() {
+		return routerLayout;
+	}
 
-    public String getMenuTitle() {
-        return getTranslation("OWLCMS_Top");
-    }
+	@Override
+	public void setHeaderContent() {
+		Label label = new Label(getMenuTitle());
+		label.getStyle().set("font-size", "var(--lumo-font-size-xl");
+		Image image = new Image("icons/owlcms.png", "owlcms icon");
+		image.getStyle().set("height", "7ex");
+		image.getStyle().set("width", "auto");
+		HorizontalLayout topBarTitle = new HorizontalLayout(image, label);
+		topBarTitle.setAlignSelf(Alignment.CENTER, label);
+		routerLayout.setMenuTitle(topBarTitle);
+		routerLayout.setMenuArea(createMenuArea());
+		routerLayout.showLocaleDropdown(true);
+		routerLayout.setDrawerOpened(true);
+		routerLayout.updateHeader(true);
+	}
 
-    @Override
-    public void setRouterLayout(OwlcmsLayout routerLayout) {
-        this.routerLayout = routerLayout;
-    }
+	@Override
+	public void setPadding(boolean b) {
+		// not needed
+	}
 
-    protected boolean checkAuthenticated(String value) {
-        return !AccessUtils.checkAuthenticated(value);
-    }
+	@Override
+	public void setRouterLayout(OwlcmsLayout routerLayout) {
+		this.routerLayout = routerLayout;
+	}
 
-    protected void redirect() {
-        String requestedUrl = OwlcmsSession.getRequestedUrl();
-        if (requestedUrl != null) {
-            UI.getCurrent().navigate(requestedUrl, OwlcmsSession.getRequestedQueryParameters());
-        } else {
-            UI.getCurrent().navigate(HomeNavigationContent.class);
-        }
-    }
-    
-    @Override
-    public void setPadding(boolean b) {
-        // not needed
-    }
+	protected boolean checkAuthenticated(String value) {
+		return !AccessUtils.checkAuthenticated(value);
+	}
+
+	protected void redirect() {
+		String requestedUrl = OwlcmsSession.getRequestedUrl();
+		if (requestedUrl != null) {
+			UI.getCurrent().navigate(requestedUrl, OwlcmsSession.getRequestedQueryParameters());
+		} else {
+			UI.getCurrent().navigate(HomeNavigationContent.class);
+		}
+	}
 
 }

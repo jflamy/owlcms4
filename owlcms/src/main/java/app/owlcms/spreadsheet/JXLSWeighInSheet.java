@@ -26,43 +26,45 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class JXLSWeighInSheet extends JXLSWorkbookStreamSource {
 
-    final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSWeighInSheet.class);
-    final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
-    static {
-        logger.setLevel(Level.INFO);
-        jexlLogger.setLevel(Level.ERROR);
-        tagLogger.setLevel(Level.ERROR);
-    }
+	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSWeighInSheet.class);
+	final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
+	static {
+		logger.setLevel(Level.INFO);
+		jexlLogger.setLevel(Level.ERROR);
+		tagLogger.setLevel(Level.ERROR);
+	}
 
-    public JXLSWeighInSheet() {
-        super();
-    }
+	public JXLSWeighInSheet() {
+		super();
+	}
 
-    @Override
-    protected List<Athlete> getSortedAthletes() {
-        final Group currentGroup = getGroup();
-        String computedStartingWeightsSheetTemplateFileName = Competition.getCurrent().getComputedStartingWeightsSheetTemplateFileName();
-        //logger.debug(computedStartingWeightsSheetTemplateFileName);
-        if (computedStartingWeightsSheetTemplateFileName.contains("Weigh")) {
-            List<Athlete> collect = AthleteSorter.displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup, null)).stream()
-                    .map(a -> {
-                        if (a.getTeam() == null) {
-                            a.setTeam("-");
-                        }
-                        return a;
-                    }).collect(Collectors.toList());
-            //logger.debug("sorted by category {}", collect);
-            return collect;
-        } if (currentGroup != null) {
-            return AthleteSorter
-                    .displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup, isExcludeNotWeighed()));
-        } else {
-            return AthleteSorter
-                    .displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, isExcludeNotWeighed()));
-        }
-        
-        
-    }
+	@Override
+	protected List<Athlete> getSortedAthletes() {
+		final Group currentGroup = getGroup();
+		String computedStartingWeightsSheetTemplateFileName = Competition.getCurrent()
+		        .getComputedStartingWeightsSheetTemplateFileName();
+		// logger.debug(computedStartingWeightsSheetTemplateFileName);
+		if (computedStartingWeightsSheetTemplateFileName.contains("Weigh")) {
+			List<Athlete> collect = AthleteSorter
+			        .displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup, null)).stream()
+			        .map(a -> {
+				        if (a.getTeam() == null) {
+					        a.setTeam("-");
+				        }
+				        return a;
+			        }).collect(Collectors.toList());
+			// logger.debug("sorted by category {}", collect);
+			return collect;
+		}
+		if (currentGroup != null) {
+			return AthleteSorter
+			        .displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup, isExcludeNotWeighed()));
+		} else {
+			return AthleteSorter
+			        .displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, isExcludeNotWeighed()));
+		}
+
+	}
 
 }

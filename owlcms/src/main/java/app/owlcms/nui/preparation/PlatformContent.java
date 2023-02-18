@@ -46,145 +46,148 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "preparation/platforms", layout = OwlcmsLayout.class)
 public class PlatformContent extends VerticalLayout implements CrudListener<Platform>, OwlcmsContent {
 
-    final static Logger logger = (Logger) LoggerFactory.getLogger(PlatformContent.class);
-    static {
-        logger.setLevel(Level.INFO);
-    }
+	final static Logger logger = (Logger) LoggerFactory.getLogger(PlatformContent.class);
+	static {
+		logger.setLevel(Level.INFO);
+	}
 
-    private OwlcmsCrudFormFactory<Platform> editingFormFactory;
-    private OwlcmsLayout routerLayout;
+	private OwlcmsCrudFormFactory<Platform> editingFormFactory;
+	private OwlcmsLayout routerLayout;
 
-    /**
-     * Instantiates the Platform crudGrid.
-     */
-    public PlatformContent() {
-        OwlcmsCrudFormFactory<Platform> crudFormFactory = createFormFactory();
-        GridCrud<Platform> crud = createGrid(crudFormFactory);
-        // defineFilters(crudGrid);
-        fillHW(crud, this);
-    }
+	/**
+	 * Instantiates the Platform crudGrid.
+	 */
+	public PlatformContent() {
+		OwlcmsCrudFormFactory<Platform> crudFormFactory = createFormFactory();
+		GridCrud<Platform> crud = createGrid(crudFormFactory);
+		// defineFilters(crudGrid);
+		fillHW(crud, this);
+	}
 
-    @Override
-    public Platform add(Platform domainObjectToAdd) {
-        return editingFormFactory.add(domainObjectToAdd);
-    }
+	@Override
+	public Platform add(Platform domainObjectToAdd) {
+		return editingFormFactory.add(domainObjectToAdd);
+	}
 
-    @Override
-    public FlexLayout createMenuArea() {
-        return new FlexLayout();
-    }
+	@Override
+	public FlexLayout createMenuArea() {
+		return new FlexLayout();
+	}
 
-    @Override
-    public void delete(Platform domainObjectToDelete) {
-        editingFormFactory.delete(domainObjectToDelete);
-    }
+	@Override
+	public void delete(Platform domainObjectToDelete) {
+		editingFormFactory.delete(domainObjectToDelete);
+	}
 
-    /**
-     * The refresh button on the toolbar
-     *
-     * @see org.vaadin.crudui.crud.CrudListener#findAll()
-     */
-    @Override
-    public Collection<Platform> findAll() {
-        return PlatformRepository.findAll();
-    }
+	/**
+	 * The refresh button on the toolbar
+	 *
+	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
+	 */
+	@Override
+	public Collection<Platform> findAll() {
+		return PlatformRepository.findAll();
+	}
 
-    @Override
-    public String getMenuTitle() {
-        return Translator.translate("EditPlatforms");
-    }
+	@Override
+	public String getMenuTitle() {
+		return Translator.translate("EditPlatforms");
+	}
 
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("Preparation_Platforms");
-    }
+	/**
+	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+	 */
+	@Override
+	public String getPageTitle() {
+		return getTranslation("Preparation_Platforms");
+	}
 
-    @Override
-    public OwlcmsLayout getRouterLayout() {
-        return routerLayout;
-    }
+	@Override
+	public OwlcmsLayout getRouterLayout() {
+		return routerLayout;
+	}
 
-    @Override
-    public void setRouterLayout(OwlcmsLayout routerLayout) {
-        this.routerLayout = routerLayout;
-    }
+	@Override
+	public void setRouterLayout(OwlcmsLayout routerLayout) {
+		this.routerLayout = routerLayout;
+	}
 
-    @Override
-    public Platform update(Platform domainObjectToUpdate) {
-        return editingFormFactory.update(domainObjectToUpdate);
-    }
+	@Override
+	public Platform update(Platform domainObjectToUpdate) {
+		return editingFormFactory.update(domainObjectToUpdate);
+	}
 
-    /**
-     * The content and ordering of the editing form.
-     *
-     * @param crudFormFactory the factory that will create the form using this information
-     */
-    protected void createFormLayout(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
-        crudFormFactory.setVisibleProperties("name", "soundMixerName");
-        crudFormFactory.setFieldCaptions(getTranslation("PlatformName"), getTranslation("Speakers"));
-        List<String> outputNames = Speakers.getOutputNames();
-        outputNames.add(0, getTranslation("UseBrowserSound"));
-        crudFormFactory.setFieldProvider("soundMixerName", new OwlcmsComboBoxProvider<>(outputNames));
-    }
+	/**
+	 * Define the form used to edit a given Platform.
+	 *
+	 * @return the form factory that will create the actual form on demand
+	 */
+	private OwlcmsCrudFormFactory<Platform> createFormFactory() {
+		editingFormFactory = createPlatformEditingFactory();
+		createFormLayout(editingFormFactory);
+		return editingFormFactory;
+	}
 
-    /**
-     * The columns of the crudGrid
-     *
-     * @param crudFormFactory what to call to create the form for editing an athlete
-     * @return
-     */
-    protected GridCrud<Platform> createGrid(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
-        Grid<Platform> grid = new Grid<>(Platform.class, false);
-        grid.getThemeNames().add("row-stripes");
-        grid.addColumn(Platform::getName).setHeader(getTranslation("Name"));
-        grid.addColumn(Platform::getSoundMixerName).setHeader(getTranslation("Speakers"));
-        grid.addColumn(new ComponentRenderer<>(p -> {
-            Button technical = openInNewTab(TCContent.class, getTranslation("PlatesCollarBarbell"), p.getName());
-            return technical;
-        })).setHeader(getTranslation("PlatesCollarBarbell")).setWidth("0");
+	/**
+	 * Create the actual form generator with all the conversions and validations
+	 * required
+	 *
+	 * {@link RegistrationContent#createAthleteEditingFormFactory} for example of
+	 * redefinition of bindField
+	 *
+	 * @return the actual factory, with the additional mechanisms to do validation
+	 */
+	private OwlcmsCrudFormFactory<Platform> createPlatformEditingFactory() {
+		return new PlatformEditingFormFactory(Platform.class);
+	}
 
-        GridCrud<Platform> crud = new OwlcmsCrudGrid<>(Platform.class, new OwlcmsGridLayout(Platform.class),
-                crudFormFactory, grid);
-        crud.setCrudListener(this);
-        crud.setClickRowToUpdate(true);
-        return crud;
-    }
+	private <T extends Component & HasUrlParameter<String>> String getWindowOpenerFromClass(Class<T> targetClass,
+	        String parameter) {
+		return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "?fop=" + parameter
+		        + "','" + targetClass.getSimpleName() + "')";
+	}
 
-    /**
-     * Define the form used to edit a given Platform.
-     *
-     * @return the form factory that will create the actual form on demand
-     */
-    private OwlcmsCrudFormFactory<Platform> createFormFactory() {
-        editingFormFactory = createPlatformEditingFactory();
-        createFormLayout(editingFormFactory);
-        return editingFormFactory;
-    }
+	private <T extends Component & HasUrlParameter<String>> Button openInNewTab(Class<T> targetClass,
+	        String label, String parameter) {
+		Button button = new Button(label);
+		button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
+		return button;
+	}
 
-    /**
-     * Create the actual form generator with all the conversions and validations required
-     *
-     * {@link RegistrationContent#createAthleteEditingFormFactory} for example of redefinition of bindField
-     *
-     * @return the actual factory, with the additional mechanisms to do validation
-     */
-    private OwlcmsCrudFormFactory<Platform> createPlatformEditingFactory() {
-        return new PlatformEditingFormFactory(Platform.class);
-    }
+	/**
+	 * The content and ordering of the editing form.
+	 *
+	 * @param crudFormFactory the factory that will create the form using this
+	 *                        information
+	 */
+	protected void createFormLayout(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
+		crudFormFactory.setVisibleProperties("name", "soundMixerName");
+		crudFormFactory.setFieldCaptions(getTranslation("PlatformName"), getTranslation("Speakers"));
+		List<String> outputNames = Speakers.getOutputNames();
+		outputNames.add(0, getTranslation("UseBrowserSound"));
+		crudFormFactory.setFieldProvider("soundMixerName", new OwlcmsComboBoxProvider<>(outputNames));
+	}
 
-    private <T extends Component & HasUrlParameter<String>> String getWindowOpenerFromClass(Class<T> targetClass,
-            String parameter) {
-        return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "?fop=" + parameter
-                + "','" + targetClass.getSimpleName() + "')";
-    }
+	/**
+	 * The columns of the crudGrid
+	 *
+	 * @param crudFormFactory what to call to create the form for editing an athlete
+	 * @return
+	 */
+	protected GridCrud<Platform> createGrid(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
+		Grid<Platform> grid = new Grid<>(Platform.class, false);
+		grid.getThemeNames().add("row-stripes");
+		grid.addColumn(Platform::getName).setHeader(getTranslation("Name"));
+		grid.addColumn(Platform::getSoundMixerName).setHeader(getTranslation("Speakers"));
+		grid.addColumn(new ComponentRenderer<>(p -> {
+			Button technical = openInNewTab(TCContent.class, getTranslation("PlatesCollarBarbell"), p.getName());
+			return technical;
+		})).setHeader(getTranslation("PlatesCollarBarbell")).setWidth("0");
 
-    private <T extends Component & HasUrlParameter<String>> Button openInNewTab(Class<T> targetClass,
-            String label, String parameter) {
-        Button button = new Button(label);
-        button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
-        return button;
-    }
+		GridCrud<Platform> crud = new OwlcmsCrudGrid<>(Platform.class, new OwlcmsGridLayout(Platform.class),
+		        crudFormFactory, grid);
+		crud.setCrudListener(this);
+		crud.setClickRowToUpdate(true);
+		return crud;
+	}
 }

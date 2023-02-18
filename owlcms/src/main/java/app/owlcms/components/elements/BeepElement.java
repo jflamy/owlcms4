@@ -23,16 +23,17 @@ import app.owlcms.nui.shared.SafeEventBusRegistration;
 public class BeepElement extends PolymerTemplate<TemplateModel>
         implements SafeEventBusRegistration {
 
-    public void beep() {
-        this.getElement().callJsFunction("beep");
-    }
+	public void beep() {
+		this.getElement().callJsFunction("beep");
+	}
 
-    /*
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
-     */
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
-        getElement().setProperty("silent", false);
-    }
+	/*
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
+	 * AttachEvent)
+	 */
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		super.onAttach(attachEvent);
+		getElement().setProperty("silent", false);
+	}
 }

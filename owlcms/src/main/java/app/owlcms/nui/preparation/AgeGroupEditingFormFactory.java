@@ -47,173 +47,173 @@ public class AgeGroupEditingFormFactory
         extends OwlcmsCrudFormFactory<AgeGroup>
         implements CustomFormFactory<AgeGroup> {
 
-    private CategoryGridField catField;
-    @SuppressWarnings("unused")
-    private Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupEditingFormFactory.class);
-    private AgeGroupContent origin;
+	private CategoryGridField catField;
+	@SuppressWarnings("unused")
+	private Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupEditingFormFactory.class);
+	private AgeGroupContent origin;
 
-    AgeGroupEditingFormFactory(Class<AgeGroup> domainType, AgeGroupContent origin) {
-        super(domainType);
-        this.origin = origin;
-    }
+	AgeGroupEditingFormFactory(Class<AgeGroup> domainType, AgeGroupContent origin) {
+		super(domainType);
+		this.origin = origin;
+	}
 
-    @Override
-    public AgeGroup add(AgeGroup AgeGroup) {
-        AgeGroupRepository.add(AgeGroup);
-        return AgeGroup;
-    }
+	@Override
+	public AgeGroup add(AgeGroup AgeGroup) {
+		AgeGroupRepository.add(AgeGroup);
+		return AgeGroup;
+	}
 
-    @Override
-    public Binder<AgeGroup> buildBinder(CrudOperation operation, AgeGroup domainObject) {
-        return super.buildBinder(operation, domainObject);
-    }
+	@Override
+	public Binder<AgeGroup> buildBinder(CrudOperation operation, AgeGroup domainObject) {
+		return super.buildBinder(operation, domainObject);
+	}
 
-    @Override
-    public String buildCaption(CrudOperation operation, AgeGroup domainObject) {
-        String name = domainObject.getName();
-        if (name == null || name.isEmpty()) {
-            return Translator.translate("AgeGroup");
-        } else {
-            return Translator.translate("AgeGroup") + " " + domainObject.getName();
-        }
-    }
+	@Override
+	public String buildCaption(CrudOperation operation, AgeGroup domainObject) {
+		String name = domainObject.getName();
+		if (name == null || name.isEmpty()) {
+			return Translator.translate("AgeGroup");
+		} else {
+			return Translator.translate("AgeGroup") + " " + domainObject.getName();
+		}
+	}
 
-    @Override
-    public Component buildFooter(CrudOperation operation, AgeGroup domainObject,
-            ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
-            ComponentEventListener<ClickEvent<Button>> postOperationCallBack,
-            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, boolean shortcutEnter,
-            Button... buttons) {
-        return super.buildFooter(operation, domainObject, cancelButtonClickListener, postOperationCallBack,
-                deleteButtonClickListener, false, buttons);
-    }
+	@Override
+	public Component buildFooter(CrudOperation operation, AgeGroup domainObject,
+	        ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
+	        ComponentEventListener<ClickEvent<Button>> postOperationCallBack,
+	        ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, boolean shortcutEnter,
+	        Button... buttons) {
+		return super.buildFooter(operation, domainObject, cancelButtonClickListener, postOperationCallBack,
+		        deleteButtonClickListener, false, buttons);
+	}
 
-    @Override
-    public Component buildNewForm(CrudOperation operation, AgeGroup aFromDb, boolean readOnly,
-            ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
-            ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
-            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
+	@Override
+	public Component buildNewForm(CrudOperation operation, AgeGroup aFromDb, boolean readOnly,
+	        ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
+	        ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
+	        ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
 
-        FormLayout formLayout = new FormLayout();
-        formLayout.setResponsiveSteps(new ResponsiveStep("0", 1, LabelsPosition.ASIDE));
-        formLayout.setWidth("50em");
+		FormLayout formLayout = new FormLayout();
+		formLayout.setResponsiveSteps(new ResponsiveStep("0", 1, LabelsPosition.ASIDE));
+		formLayout.setWidth("50em");
 
-        binder = buildBinder(null, aFromDb);
-        String message = Translator.translate("AgeFormat");
+		binder = buildBinder(null, aFromDb);
+		String message = Translator.translate("AgeFormat");
 
-        TextField codeField = new TextField();
-        formLayout.addFormItem(codeField, Translator.translate("AgeGroupCode"));
-        int maxLength = 5;
-        codeField.setRequired(true);
-        binder.forField(codeField)
-                .withValidator(
-                        new StringLengthValidator(Translator.translate("ThisFieldIsRequired", maxLength), 1, maxLength))
-                .withValidator(
-                        new StringLengthValidator(Translator.translate("CodeMustBeShort", maxLength), 0, maxLength))
-                .bind(AgeGroup::getCode, AgeGroup::setCode);
+		TextField codeField = new TextField();
+		formLayout.addFormItem(codeField, Translator.translate("AgeGroupCode"));
+		int maxLength = 5;
+		codeField.setRequired(true);
+		binder.forField(codeField)
+		        .withValidator(
+		                new StringLengthValidator(Translator.translate("ThisFieldIsRequired", maxLength), 1, maxLength))
+		        .withValidator(
+		                new StringLengthValidator(Translator.translate("CodeMustBeShort", maxLength), 0, maxLength))
+		        .bind(AgeGroup::getCode, AgeGroup::setCode);
 
-        ComboBox<AgeDivision> ageDivisionField = new ComboBox<>();
-        ageDivisionField.setItems(new ListDataProvider<>(Arrays.asList(AgeDivision.values())));
-        ageDivisionField.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
-        binder.forField(ageDivisionField).bind(AgeGroup::getAgeDivision, AgeGroup::setAgeDivision);
-        formLayout.addFormItem(ageDivisionField, Translator.translate("AgeDivision"));
+		ComboBox<AgeDivision> ageDivisionField = new ComboBox<>();
+		ageDivisionField.setItems(new ListDataProvider<>(Arrays.asList(AgeDivision.values())));
+		ageDivisionField.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
+		binder.forField(ageDivisionField).bind(AgeGroup::getAgeDivision, AgeGroup::setAgeDivision);
+		formLayout.addFormItem(ageDivisionField, Translator.translate("AgeDivision"));
 
-        TextField minAgeField = new TextField();
-        formLayout.addFormItem(minAgeField, Translator.translate("MinimumAge"));
-        binder.forField(minAgeField)
-                .withNullRepresentation("")
-                .withConverter(new StringToIntegerConverter(message))
-                .withValidator(new IntegerRangeValidator(message, 0, 999))
-                .bind(AgeGroup::getMinAge, AgeGroup::setMinAge);
+		TextField minAgeField = new TextField();
+		formLayout.addFormItem(minAgeField, Translator.translate("MinimumAge"));
+		binder.forField(minAgeField)
+		        .withNullRepresentation("")
+		        .withConverter(new StringToIntegerConverter(message))
+		        .withValidator(new IntegerRangeValidator(message, 0, 999))
+		        .bind(AgeGroup::getMinAge, AgeGroup::setMinAge);
 
-        TextField maxAgeField = new TextField();
-        formLayout.addFormItem(maxAgeField, Translator.translate("MaximumAge"));
-        binder.forField(maxAgeField)
-                .withNullRepresentation("")
-                .withConverter(new StringToIntegerConverter(message))
-                .withValidator(new IntegerRangeValidator(message, 0, 999))
-                .bind(AgeGroup::getMaxAge, AgeGroup::setMaxAge);
+		TextField maxAgeField = new TextField();
+		formLayout.addFormItem(maxAgeField, Translator.translate("MaximumAge"));
+		binder.forField(maxAgeField)
+		        .withNullRepresentation("")
+		        .withConverter(new StringToIntegerConverter(message))
+		        .withValidator(new IntegerRangeValidator(message, 0, 999))
+		        .bind(AgeGroup::getMaxAge, AgeGroup::setMaxAge);
 
-        ComboBox<Gender> genderField = new ComboBox<>();
-        genderField.setItems(new ListDataProvider<>(Arrays.asList(Gender.mfValues())));
-        binder.forField(genderField).bind(AgeGroup::getGender, AgeGroup::setGender);
-        formLayout.addFormItem(genderField, Translator.translate("Gender"));
+		ComboBox<Gender> genderField = new ComboBox<>();
+		genderField.setItems(new ListDataProvider<>(Arrays.asList(Gender.mfValues())));
+		binder.forField(genderField).bind(AgeGroup::getGender, AgeGroup::setGender);
+		formLayout.addFormItem(genderField, Translator.translate("Gender"));
 
-        catField = new CategoryGridField(aFromDb);
-        catField.setWidthFull();
+		catField = new CategoryGridField(aFromDb);
+		catField.setWidthFull();
 
-        binder.forField(catField).bind(AgeGroup::getCategories, AgeGroup::setCategories);
-        formLayout.addFormItem(catField, Translator.translate("BodyWeightCategories"));
+		binder.forField(catField).bind(AgeGroup::getCategories, AgeGroup::setCategories);
+		formLayout.addFormItem(catField, Translator.translate("BodyWeightCategories"));
 
-        binder.readBean(aFromDb);
-        if (minAgeField.getValue().isEmpty()) {
-            minAgeField.setValue("0");
-        }
-        if (maxAgeField.getValue().isEmpty()) {
-            maxAgeField.setValue("999");
-        }
-        if (genderField.getValue() == null) {
-            genderField.setValue(Gender.F);
-        }
-        if (ageDivisionField.getValue() == null) {
-            ageDivisionField.setValue(AgeDivision.U);
-        }
+		binder.readBean(aFromDb);
+		if (minAgeField.getValue().isEmpty()) {
+			minAgeField.setValue("0");
+		}
+		if (maxAgeField.getValue().isEmpty()) {
+			maxAgeField.setValue("999");
+		}
+		if (genderField.getValue() == null) {
+			genderField.setValue(Gender.F);
+		}
+		if (ageDivisionField.getValue() == null) {
+			ageDivisionField.setValue(AgeDivision.U);
+		}
 
-        Component footerLayout = this.buildFooter(operation, aFromDb, cancelButtonClickListener,
-                updateButtonClickListener, deleteButtonClickListener, false);
+		Component footerLayout = this.buildFooter(operation, aFromDb, cancelButtonClickListener,
+		        updateButtonClickListener, deleteButtonClickListener, false);
 
-        VerticalLayout mainLayout = new VerticalLayout(footerLayout, formLayout);
-        mainLayout.setHorizontalComponentAlignment(Alignment.END, footerLayout);
-        mainLayout.setMargin(false);
-        mainLayout.setPadding(false);
-        return mainLayout;
-    }
+		VerticalLayout mainLayout = new VerticalLayout(footerLayout, formLayout);
+		mainLayout.setHorizontalComponentAlignment(Alignment.END, footerLayout);
+		mainLayout.setMargin(false);
+		mainLayout.setPadding(false);
+		return mainLayout;
+	}
 
-    @Override
-    public Button buildOperationButton(CrudOperation operation, AgeGroup domainObject,
-            ComponentEventListener<ClickEvent<Button>> gridCallBackAction) {
-        return super.buildOperationButton(operation, domainObject, gridCallBackAction);
-    }
+	@Override
+	public Button buildOperationButton(CrudOperation operation, AgeGroup domainObject,
+	        ComponentEventListener<ClickEvent<Button>> gridCallBackAction) {
+		return super.buildOperationButton(operation, domainObject, gridCallBackAction);
+	}
 
-    @Override
-    public TextField defineOperationTrigger(CrudOperation operation, AgeGroup domainObject,
-            ComponentEventListener<ClickEvent<Button>> action) {
-        return super.defineOperationTrigger(operation, domainObject, action);
-    }
+	@Override
+	public TextField defineOperationTrigger(CrudOperation operation, AgeGroup domainObject,
+	        ComponentEventListener<ClickEvent<Button>> action) {
+		return super.defineOperationTrigger(operation, domainObject, action);
+	}
 
-    @Override
-    public void delete(AgeGroup ageGroup) {
-        AgeGroupRepository.delete(ageGroup);
-    }
+	@Override
+	public void delete(AgeGroup ageGroup) {
+		AgeGroupRepository.delete(ageGroup);
+	}
 
-    @Override
-    public Collection<AgeGroup> findAll() {
-        // will not be called, handled by the grid.
-        return null;
-    }
+	@Override
+	public Collection<AgeGroup> findAll() {
+		// will not be called, handled by the grid.
+		return null;
+	}
 
-    @Override
-    public boolean setErrorLabel(BinderValidationStatus<?> validationStatus, boolean showErrorOnFields) {
-        return super.setErrorLabel(validationStatus, showErrorOnFields);
-    }
+	@Override
+	public boolean setErrorLabel(BinderValidationStatus<?> validationStatus, boolean showErrorOnFields) {
+		return super.setErrorLabel(validationStatus, showErrorOnFields);
+	}
 
-    /**
-     * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
-     */
-    @Override
-    public AgeGroup update(AgeGroup ageGroup) {
-        AgeGroup saved = AgeGroupRepository.save(ageGroup);
-        // logger.trace("saved {}", saved.getCategories().get(0).longDump());
-        origin.closeDialog();
-        origin.highlightResetButton();
-        return saved;
-    }
+	/**
+	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
+	 */
+	@Override
+	public AgeGroup update(AgeGroup ageGroup) {
+		AgeGroup saved = AgeGroupRepository.save(ageGroup);
+		// logger.trace("saved {}", saved.getCategories().get(0).longDump());
+		origin.closeDialog();
+		origin.highlightResetButton();
+		return saved;
+	}
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Override
-    protected void bindField(HasValue field, String property, Class<?> propertyType, CrudFormConfiguration c) {
-        binder.forField(field);
-        super.bindField(field, property, propertyType, c);
-    }
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	protected void bindField(HasValue field, String property, Class<?> propertyType, CrudFormConfiguration c) {
+		binder.forField(field);
+		super.bindField(field, property, propertyType, c);
+	}
 
 }

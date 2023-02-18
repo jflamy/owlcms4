@@ -46,73 +46,73 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "preparation/groups", layout = OwlcmsLayout.class)
 public class GroupContent extends VerticalLayout implements CrudListener<Group>, OwlcmsContent {
 
-    final static Logger logger = (Logger) LoggerFactory.getLogger(GroupContent.class);
-    static {
-        logger.setLevel(Level.INFO);
-    }
-    private OwlcmsCrudFormFactory<Group> editingFormFactory;
-    private OwlcmsLayout routerLayout;
+	final static Logger logger = (Logger) LoggerFactory.getLogger(GroupContent.class);
+	static {
+		logger.setLevel(Level.INFO);
+	}
+	private OwlcmsCrudFormFactory<Group> editingFormFactory;
+	private OwlcmsLayout routerLayout;
 
-    /**
-     * Instantiates the Group crudGrid.
-     */
-    public GroupContent() {
-        editingFormFactory = new GroupEditingFormFactory(Group.class, this);
-        GridCrud<Group> crud = createGrid(editingFormFactory);
+	/**
+	 * Instantiates the Group crudGrid.
+	 */
+	public GroupContent() {
+		editingFormFactory = new GroupEditingFormFactory(Group.class, this);
+		GridCrud<Group> crud = createGrid(editingFormFactory);
 //		defineFilters(crudGrid);
-        fillHW(crud, this);
-    }
+		fillHW(crud, this);
+	}
 
-    @Override
-    public Group add(Group domainObjectToAdd) {
-        return editingFormFactory.add(domainObjectToAdd);
-    }
+	@Override
+	public Group add(Group domainObjectToAdd) {
+		return editingFormFactory.add(domainObjectToAdd);
+	}
 
-    public void closeDialog() {
-    }
+	public void closeDialog() {
+	}
 
-    @Override
-    public FlexLayout createMenuArea() {
-        return new FlexLayout();
-    }
+	@Override
+	public FlexLayout createMenuArea() {
+		return new FlexLayout();
+	}
 
-    @Override
-    public void delete(Group domainObjectToDelete) {
-        editingFormFactory.delete(domainObjectToDelete);
-    }
+	@Override
+	public void delete(Group domainObjectToDelete) {
+		editingFormFactory.delete(domainObjectToDelete);
+	}
 
-    /**
-     * The refresh button on the toolbar
-     *
-     * @see org.vaadin.crudui.crud.CrudListener#findAll()
-     */
-    @Override
-    public Collection<Group> findAll() {
-        return GroupRepository.findAll().stream().sorted(Group::compareToWeighIn).collect(Collectors.toList());
-    }
+	/**
+	 * The refresh button on the toolbar
+	 *
+	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
+	 */
+	@Override
+	public Collection<Group> findAll() {
+		return GroupRepository.findAll().stream().sorted(Group::compareToWeighIn).collect(Collectors.toList());
+	}
 
-    @Override
-    public String getMenuTitle() {
-        return getPageTitle();
-    }
+	@Override
+	public String getMenuTitle() {
+		return getPageTitle();
+	}
 
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("Preparation_Groups");
-    }
+	/**
+	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+	 */
+	@Override
+	public String getPageTitle() {
+		return getTranslation("Preparation_Groups");
+	}
 
-    @Override
-    public OwlcmsLayout getRouterLayout() {
-        return routerLayout;
-    }
+	@Override
+	public OwlcmsLayout getRouterLayout() {
+		return routerLayout;
+	}
 
-    @Override
-    public void setRouterLayout(OwlcmsLayout routerLayout) {
-        this.routerLayout = routerLayout;
-    }
+	@Override
+	public void setRouterLayout(OwlcmsLayout routerLayout) {
+		this.routerLayout = routerLayout;
+	}
 
 //    /**
 //     * The content and ordering of the editing form.
@@ -138,55 +138,55 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
 //        crudFormFactory.setFieldType("competitionTime", LocalDateTimePicker.class);
 //    }
 
-    @Override
-    public Group update(Group domainObjectToUpdate) {
-        return editingFormFactory.update(domainObjectToUpdate);
-    }
+	@Override
+	public Group update(Group domainObjectToUpdate) {
+		return editingFormFactory.update(domainObjectToUpdate);
+	}
 
-    /**
-     * The columns of the crudGrid
-     *
-     * @param crudFormFactory what to call to create the form for editing an athlete
-     * @return
-     */
-    protected GridCrud<Group> createGrid(OwlcmsCrudFormFactory<Group> crudFormFactory) {
-        Grid<Group> grid = new Grid<>(Group.class, false);
-        grid.getThemeNames().add("row-stripes");
-        grid.addColumn(Group::getName).setHeader(getTranslation("Name")).setComparator(Group::compareTo);
-        grid.addColumn(Group::getDescription).setHeader(getTranslation("Group.Description"));
-        grid.addColumn(Group::size).setHeader(getTranslation("GroupSize")).setTextAlign(ColumnTextAlign.CENTER);
-        grid.addColumn(LocalDateTimeField.getRenderer(Group::getWeighInTime, this.getLocale()))
-                .setHeader(getTranslation("WeighInTime")).setComparator(Group::compareToWeighIn);
-        grid.addColumn(LocalDateTimeField.getRenderer(Group::getCompetitionTime, this.getLocale()))
-                .setHeader(getTranslation("StartTime"));
-        grid.addColumn(Group::getPlatform).setHeader(getTranslation("Platform"));
-        String translation = getTranslation("EditAthletes");
-        int tSize = translation.length();
-        grid.addColumn(new ComponentRenderer<>(p -> {
-            Button technical = openInNewTab(RegistrationContent.class, translation, p.getName());
-            technical.addThemeVariants(ButtonVariant.LUMO_SMALL);
-            return technical;
-        })).setHeader("").setWidth(tSize + "ch");
+	private <T extends Component> String getWindowOpenerFromClass(Class<T> targetClass,
+	        String parameter) {
+		return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "?group="
+		        + URLEncoder.encode(parameter, StandardCharsets.UTF_8)
+		        + "','" + targetClass.getSimpleName() + "')";
+	}
 
-        GridCrud<Group> crud = new OwlcmsCrudGrid<>(Group.class, new OwlcmsGridLayout(Group.class),
-                crudFormFactory, grid);
-        crud.setCrudListener(this);
-        crud.setClickRowToUpdate(true);
-        return crud;
-    }
+	private <T extends Component> Button openInNewTab(Class<T> targetClass,
+	        String label, String parameter) {
+		Button button = new Button(label);
+		button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
+		return button;
+	}
 
-    private <T extends Component> String getWindowOpenerFromClass(Class<T> targetClass,
-            String parameter) {
-        return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "?group="
-                + URLEncoder.encode(parameter, StandardCharsets.UTF_8)
-                + "','" + targetClass.getSimpleName() + "')";
-    }
+	/**
+	 * The columns of the crudGrid
+	 *
+	 * @param crudFormFactory what to call to create the form for editing an athlete
+	 * @return
+	 */
+	protected GridCrud<Group> createGrid(OwlcmsCrudFormFactory<Group> crudFormFactory) {
+		Grid<Group> grid = new Grid<>(Group.class, false);
+		grid.getThemeNames().add("row-stripes");
+		grid.addColumn(Group::getName).setHeader(getTranslation("Name")).setComparator(Group::compareTo);
+		grid.addColumn(Group::getDescription).setHeader(getTranslation("Group.Description"));
+		grid.addColumn(Group::size).setHeader(getTranslation("GroupSize")).setTextAlign(ColumnTextAlign.CENTER);
+		grid.addColumn(LocalDateTimeField.getRenderer(Group::getWeighInTime, this.getLocale()))
+		        .setHeader(getTranslation("WeighInTime")).setComparator(Group::compareToWeighIn);
+		grid.addColumn(LocalDateTimeField.getRenderer(Group::getCompetitionTime, this.getLocale()))
+		        .setHeader(getTranslation("StartTime"));
+		grid.addColumn(Group::getPlatform).setHeader(getTranslation("Platform"));
+		String translation = getTranslation("EditAthletes");
+		int tSize = translation.length();
+		grid.addColumn(new ComponentRenderer<>(p -> {
+			Button technical = openInNewTab(RegistrationContent.class, translation, p.getName());
+			technical.addThemeVariants(ButtonVariant.LUMO_SMALL);
+			return technical;
+		})).setHeader("").setWidth(tSize + "ch");
 
-    private <T extends Component> Button openInNewTab(Class<T> targetClass,
-            String label, String parameter) {
-        Button button = new Button(label);
-        button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
-        return button;
-    }
+		GridCrud<Group> crud = new OwlcmsCrudGrid<>(Group.class, new OwlcmsGridLayout(Group.class),
+		        crudFormFactory, grid);
+		crud.setCrudListener(this);
+		crud.setClickRowToUpdate(true);
+		return crud;
+	}
 
 }

@@ -9,7 +9,6 @@ package app.owlcms.nui.results;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,479 +77,495 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "results/results", layout = OwlcmsLayout.class)
 public class ResultsContent extends AthleteGridContent implements HasDynamicTitle {
 
-    final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsContent.class);
-    static {
-        logger.setLevel(Level.INFO);
-        jexlLogger.setLevel(Level.ERROR);
-    }
+	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsContent.class);
+	static {
+		logger.setLevel(Level.INFO);
+		jexlLogger.setLevel(Level.ERROR);
+	}
 
-    public static Grid<Athlete> createResultGrid() {
-        Grid<Athlete> grid = new Grid<>(Athlete.class, false);
-        grid.getThemeNames().add("row-stripes");
-        ThemeList themes = grid.getThemeNames();
-        themes.add("compact");
-        themes.add("row-stripes");
+	public static Grid<Athlete> createResultGrid() {
+		Grid<Athlete> grid = new Grid<>(Athlete.class, false);
+		grid.getThemeNames().add("row-stripes");
+		ThemeList themes = grid.getThemeNames();
+		themes.add("compact");
+		themes.add("row-stripes");
 
-        grid.addColumn("category").setHeader(Translator.translate("Category"));
+		grid.addColumn("category").setHeader(Translator.translate("Category"));
 
-        grid.addColumn("total").setHeader(Translator.translate("Total"))
-                .setComparator(new WinningOrderComparator(Ranking.TOTAL, true));
-        grid.addColumn("totalRank").setHeader(Translator.translate("TotalRank"))
-                .setComparator(new WinningOrderComparator(Ranking.TOTAL, false));
+		grid.addColumn("total").setHeader(Translator.translate("Total"))
+		        .setComparator(new WinningOrderComparator(Ranking.TOTAL, true));
+		grid.addColumn("totalRank").setHeader(Translator.translate("TotalRank"))
+		        .setComparator(new WinningOrderComparator(Ranking.TOTAL, false));
 
-        grid.addColumn("lastName").setHeader(Translator.translate("LastName"));
-        grid.addColumn("firstName").setHeader(Translator.translate("FirstName"));
-        grid.addColumn("team").setHeader(Translator.translate("Team"));
-        grid.addColumn("group").setHeader(Translator.translate("Group"));
-        grid.addColumn("bestSnatch").setHeader(Translator.translate("Snatch"));
-        grid.addColumn("snatchRank").setHeader(Translator.translate("SnatchRank"))
-                .setComparator(new WinningOrderComparator(Ranking.SNATCH, false));
-        grid.addColumn("bestCleanJerk").setHeader(Translator.translate("Clean_and_Jerk"));
-        grid.addColumn("cleanJerkRank").setHeader(Translator.translate("Clean_and_Jerk_Rank"))
-                .setComparator(new WinningOrderComparator(Ranking.CLEANJERK, false));
+		grid.addColumn("lastName").setHeader(Translator.translate("LastName"));
+		grid.addColumn("firstName").setHeader(Translator.translate("FirstName"));
+		grid.addColumn("team").setHeader(Translator.translate("Team"));
+		grid.addColumn("group").setHeader(Translator.translate("Group"));
+		grid.addColumn("bestSnatch").setHeader(Translator.translate("Snatch"));
+		grid.addColumn("snatchRank").setHeader(Translator.translate("SnatchRank"))
+		        .setComparator(new WinningOrderComparator(Ranking.SNATCH, false));
+		grid.addColumn("bestCleanJerk").setHeader(Translator.translate("Clean_and_Jerk"));
+		grid.addColumn("cleanJerkRank").setHeader(Translator.translate("Clean_and_Jerk_Rank"))
+		        .setComparator(new WinningOrderComparator(Ranking.CLEANJERK, false));
 
-        grid.addColumn(new NumberRenderer<>(Athlete::getRobi, "%.3f", OwlcmsSession.getLocale(), "-"))
-                .setSortProperty("robi")
-                .setHeader(Translator.translate("robi")).setComparator(new WinningOrderComparator(Ranking.ROBI, true));
+		grid.addColumn(new NumberRenderer<>(Athlete::getRobi, "%.3f", OwlcmsSession.getLocale(), "-"))
+		        .setSortProperty("robi")
+		        .setHeader(Translator.translate("robi")).setComparator(new WinningOrderComparator(Ranking.ROBI, true));
 
-        String protocolFileName = Competition.getCurrent().getProtocolTemplateFileName();
-        if (protocolFileName != null && (protocolFileName.toLowerCase().contains("fhq"))) {
-            // historical
-            grid.addColumn(new NumberRenderer<>(Athlete::getCategorySinclair, "%.3f", OwlcmsSession.getLocale(), "-"))
-                    .setSortProperty("categorySinclair")
-                    .setHeader("Cat. Sinclair")
-                    .setComparator(new WinningOrderComparator(Ranking.CAT_SINCLAIR, true));
-        }
+		String protocolFileName = Competition.getCurrent().getProtocolTemplateFileName();
+		if (protocolFileName != null && (protocolFileName.toLowerCase().contains("fhq"))) {
+			// historical
+			grid.addColumn(new NumberRenderer<>(Athlete::getCategorySinclair, "%.3f", OwlcmsSession.getLocale(), "-"))
+			        .setSortProperty("categorySinclair")
+			        .setHeader("Cat. Sinclair")
+			        .setComparator(new WinningOrderComparator(Ranking.CAT_SINCLAIR, true));
+		}
 
-        grid.addColumn(new NumberRenderer<>(Athlete::getSinclairForDelta, "%.3f", OwlcmsSession.getLocale(), "0.000"))
-                .setSortProperty("sinclair").setHeader(Translator.translate("sinclair"))
-                .setComparator(new WinningOrderComparator(Ranking.BW_SINCLAIR, true));
-        grid.addColumn(new NumberRenderer<>(Athlete::getSmfForDelta, "%.3f", OwlcmsSession.getLocale(), "-"))
-                .setHeader(Translator.translate("smm"))
-                .setSortProperty("smm")
-                .setComparator(new WinningOrderComparator(Ranking.SMM, true));
-        return grid;
-    }
+		grid.addColumn(new NumberRenderer<>(Athlete::getSinclairForDelta, "%.3f", OwlcmsSession.getLocale(), "0.000"))
+		        .setSortProperty("sinclair").setHeader(Translator.translate("sinclair"))
+		        .setComparator(new WinningOrderComparator(Ranking.BW_SINCLAIR, true));
+		grid.addColumn(new NumberRenderer<>(Athlete::getSmfForDelta, "%.3f", OwlcmsSession.getLocale(), "-"))
+		        .setHeader(Translator.translate("smm"))
+		        .setSortProperty("smm")
+		        .setComparator(new WinningOrderComparator(Ranking.SMM, true));
+		return grid;
+	}
 
-    private Group currentGroup;
-    private DownloadDialog downloadDialog;
+	private Group currentGroup;
+	private DownloadDialog downloadDialog;
 
-    private Checkbox medalsOnly;
+	private Checkbox medalsOnly;
 
-    /**
-     * Instantiates a new announcer content. Does nothing. Content is created in
-     * {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
-     */
-    public ResultsContent() {
-        super();
-        defineFilters(crudGrid);
-    }
+	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
 
-    /**
-     * Gets the crudGrid.
-     *
-     * @return the crudGrid crudGrid
-     *
-     * @see app.owlcms.nui.shared.AthleteGridContent#createCrudGrid(app.owlcms.nui.crudui.OwlcmsCrudFormFactory)
-     */
-    @Override
-    public AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
-        Grid<Athlete> grid = createResultGrid();
+	/**
+	 * Instantiates a new announcer content. Does nothing. Content is created in
+	 * {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
+	 */
+	public ResultsContent() {
+		super();
+		defineFilters(crudGrid);
+	}
 
-        OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
-        AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class, gridLayout, crudFormFactory, grid) {
+	/**
+	 * Gets the crudGrid.
+	 *
+	 * @return the crudGrid crudGrid
+	 *
+	 * @see app.owlcms.nui.shared.AthleteGridContent#createCrudGrid(app.owlcms.nui.crudui.OwlcmsCrudFormFactory)
+	 */
+	@Override
+	public AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
+		Grid<Athlete> grid = createResultGrid();
 
-            @Override
-            protected void initToolbar() {
-                Component reset = createReset();
-                if (reset != null) {
-                    crudLayout.addToolbarComponent(reset);
-                }
-            }
+		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
+		AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class, gridLayout, crudFormFactory, grid) {
 
-            @Override
-            protected void updateButtonClicked() {
-                // only edit non-lifting groups
-                if (!checkFOP()) {
-                    super.updateButtonClicked();
-                }
-            }
+			@Override
+			protected void initToolbar() {
+				Component reset = createReset();
+				if (reset != null) {
+					crudLayout.addToolbarComponent(reset);
+				}
+			}
 
-            @Override
-            protected void updateButtons() {
-            }
-        };
+			@Override
+			protected void updateButtonClicked() {
+				// only edit non-lifting groups
+				if (!checkFOP()) {
+					super.updateButtonClicked();
+				}
+			}
 
-        defineFilters(crudGrid);
+			@Override
+			protected void updateButtons() {
+			}
+		};
 
-        crudGrid.setCrudListener(this);
-        crudGrid.setClickRowToUpdate(true);
-        crudGrid.getCrudLayout().addToolbarComponent(getGroupFilter());
+		defineFilters(crudGrid);
 
-        return crudGrid;
-    }
+		crudGrid.setCrudListener(this);
+		crudGrid.setClickRowToUpdate(true);
+		crudGrid.getCrudLayout().addToolbarComponent(getGroupFilter());
 
-    /**
-     * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
-     */
-    @Override
-    public FlexLayout createMenuArea() {
-        logger.debug("createMenuArea");
-        // show back arrow but close menu
-        getAppLayout().setMenuVisible(true);
-        getAppLayout().closeDrawer();
+		return crudGrid;
+	}
 
-        topBar = new FlexLayout();
+	/**
+	 * @see #showRouterLayoutContent(HasElement) for how to content to layout and
+	 *      vice-versa
+	 */
+	@Override
+	public FlexLayout createMenuArea() {
+		logger.debug("createMenuArea");
+		// show back arrow but close menu
+		getAppLayout().setMenuVisible(true);
+		getAppLayout().closeDrawer();
 
-        Button resultsButton = createEligibilityResultsDownloadButton();
-        Button registrationResultsButton = createRegistrationResultsDownloadButton();
-        Button medalsButtons = createGroupMedalsDownloadButton();
+		topBar = new FlexLayout();
 
-        createTopBarGroupSelect();
+		Button resultsButton = createEligibilityResultsDownloadButton();
+		Button registrationResultsButton = createRegistrationResultsDownloadButton();
+		Button medalsButtons = createGroupMedalsDownloadButton();
 
-        HorizontalLayout buttons = new HorizontalLayout(resultsButton, registrationResultsButton, medalsButtons);
-        buttons.getStyle().set("margin-left", "5em");
-        buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
-        buttons.setMargin(false);
-        buttons.setPadding(false);
-        buttons.setSpacing(true);
+		createTopBarGroupSelect();
 
-        topBar.getStyle().set("flex", "100 1");
-        topBar.removeAll();
-        topBar.add(topBarMenu, buttons);
-        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
-        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+		HorizontalLayout buttons = new HorizontalLayout(resultsButton, registrationResultsButton, medalsButtons);
+		buttons.getStyle().set("margin-left", "5em");
+		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+		buttons.setMargin(false);
+		buttons.setPadding(false);
+		buttons.setSpacing(true);
 
-        return topBar;
-    }
-    
-    @Override
-    protected void createTopBarGroupSelect() {
-        // there is already all the SQL filtering logic for the group attached
-        // hidden field in the crudGrid part of the page so we just set that
-        // filter.
+		topBar.getStyle().set("flex", "100 1");
+		topBar.removeAll();
+		topBar.add(topBarMenu, buttons);
+		topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+		topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        List<Group> groups = GroupRepository.findAll();
-        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
+		return topBar;
+	}
 
-        OwlcmsSession.withFop(fop -> {
-            logger.trace("initial setting group to {} {}", currentGroup, LoggerUtils.whereFrom());
-            getGroupFilter().setValue(currentGroup);
-            // switching to group "*" is understood to mean all groups
-            topBarMenu = new GroupSelectionMenu(groups, currentGroup,
-                    fop,
-                    (g1) -> doSwitchGroup(g1),
-                    (g1) -> doSwitchGroup(new Group("*")),
-                    null, 
-                    Translator.translate("AllGroups"));
-        });
-    }
+	/**
+	 * Get the content of the crudGrid. Invoked by refreshGrid.
+	 *
+	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
+	 */
+	@Override
+	public Collection<Athlete> findAll() {
+		Group currentGroup = getGroupFilter().getValue();
+		Gender currentGender = genderFilter.getValue();
 
-    /**
-     * Get the content of the crudGrid. Invoked by refreshGrid.
-     *
-     * @see org.vaadin.crudui.crud.CrudListener#findAll()
-     */
-    @Override
-    public Collection<Athlete> findAll() {
-        Group currentGroup = getGroupFilter().getValue();
-        Gender currentGender = genderFilter.getValue();
+		List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(currentGroup);
 
-        List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(currentGroup);
+		if (currentGroup != null) {
+			rankedAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
+			        .filter(a -> a.getGroup() != null ? a.getGroup().equals(currentGroup) : false)
+			        .filter(a -> a.getGender() != null
+			                ? (currentGender != null ? currentGender.equals(a.getGender()) : true)
+			                : false)
+			        .collect(Collectors.toList());
+		} else {
+			rankedAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
+			        .filter(a -> a.getGender() != null
+			                ? (currentGender != null ? currentGender.equals(a.getGender()) : true)
+			                : false)
+			        .collect(Collectors.toList());
+		}
 
-        if (currentGroup != null) {
-            rankedAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
-                    .filter(a -> a.getGroup() != null ? a.getGroup().equals(currentGroup) : false)
-                    .filter(a -> a.getGender() != null
-                            ? (currentGender != null ? currentGender.equals(a.getGender()) : true)
-                            : false)
-                    .collect(Collectors.toList());
-        } else {
-            rankedAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
-                    .filter(a -> a.getGender() != null
-                            ? (currentGender != null ? currentGender.equals(a.getGender()) : true)
-                            : false)
-                    .collect(Collectors.toList());
-        }
+		Boolean medals = medalsOnly.getValue();
+		if (medals != null && medals) {
+			return rankedAthletes.stream()
+			        .filter(a -> a.getMainRankings().getTotalRank() >= 1 && a.getMainRankings().getTotalRank() <= 3)
+			        .collect(Collectors.toList());
+		} else {
+			return rankedAthletes;
+		}
+	}
 
-        Boolean medals = medalsOnly.getValue();
-        if (medals != null && medals) {
-            return rankedAthletes.stream()
-                    .filter(a -> a.getMainRankings().getTotalRank() >= 1 && a.getMainRankings().getTotalRank() <= 3)
-                    .collect(Collectors.toList());
-        } else {
-            return rankedAthletes;
-        }
-    }
+	public Group getGridGroup() {
+		return getGroupFilter().getValue();
+	}
 
-    public Group getGridGroup() {
-        return getGroupFilter().getValue();
-    }
+	@Override
+	public String getMenuTitle() {
+		return getPageTitle();
+	}
 
-    @Override
-    public String getMenuTitle() {
-        return getPageTitle();
-    }
+	/**
+	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+	 */
+	@Override
+	public String getPageTitle() {
+		return getTranslation("GroupResults");
+	}
 
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("GroupResults");
-    }
+	@Override
+	public HashMap<String, List<String>> getUrlParameterMap() {
+		return urlParameterMap;
+	}
 
-    @Override
-    public boolean isIgnoreGroupFromURL() {
-        return false;
-    }
+	@Override
+	public boolean isIgnoreGroupFromURL() {
+		return false;
+	}
 
-    public void refresh() {
-        crudGrid.sort(null);
-        crudGrid.refreshGrid();
-    }
+	public void refresh() {
+		crudGrid.sort(null);
+		crudGrid.refreshGrid();
+	}
 
-    public void setGridGroup(Group group) {
+	public void setGridGroup(Group group) {
 //        subscribeIfLifting(group);
-        getGroupFilter().setValue(group);
-        refresh();
-    }
+		getGroupFilter().setValue(group);
+		refresh();
+	}
 
-    /**
-     * Parse the http query parameters
-     *
-     * Note: because we have the @Route, the parameters are parsed *before* our parent layout is created.
-     *
-     * @param event     Vaadin navigation event
-     * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
-     *                  parameters instead.
-     *
-     * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
-     *      java.lang.String)
-     */
-    @Override
-    public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-        setLocation(event.getLocation());
-        setLocationUI(event.getUI());
-        QueryParameters queryParameters = getLocation().getQueryParameters();
-        Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
-        HashMap<String, List<String>> params = new HashMap<>(parametersMap);
+	/**
+	 * Parse the http query parameters
+	 *
+	 * Note: because we have the @Route, the parameters are parsed *before* our
+	 * parent layout is created.
+	 *
+	 * @param event     Vaadin navigation event
+	 * @param parameter null in this case -- we don't want a vaadin "/" parameter.
+	 *                  This allows us to add query parameters instead.
+	 *
+	 * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
+	 *      java.lang.String)
+	 */
+	@Override
+	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		setLocation(event.getLocation());
+		setLocationUI(event.getUI());
+		QueryParameters queryParameters = getLocation().getQueryParameters();
+		Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
+		HashMap<String, List<String>> params = new HashMap<>(parametersMap);
 
-        logger.debug("parsing query parameters ResultContent");
-        List<String> groupNames = params.get("group");
-        if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
-            String groupName = groupNames.get(0);
-            if (groupName == "*") {
-                // special group to show all athletes
-                currentGroup = null;
-            } else {
-                currentGroup = GroupRepository.findByName(groupName);
-            }
-        } else {
-            // if no group, we pick the first alphabetical group as a filter
-            // to avoid showing hundreds of athlete at the end of each of the groups
-            // (which has a noticeable impact on slower machines)
-            List<Group> groups = GroupRepository.findAll();
-            groups.sort(new NaturalOrderComparator<Group>());
-            currentGroup = (groups.size() > 0 ? groups.get(0) : null);
-        }
-        if (currentGroup != null) {
-            params.put("group", Arrays.asList(URLUtils.urlEncode(currentGroup.getName())));
-        } else {
-            // params.remove("group");
-            params.put("group", Arrays.asList(URLUtils.urlEncode("*")));
-        }
-        doSwitchGroup(currentGroup);
-        params.remove("fop");
-        logger.debug("params {}", params);
+		logger.debug("parsing query parameters ResultContent");
+		List<String> groupNames = params.get("group");
+		if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
+			String groupName = groupNames.get(0);
+			if (groupName == "*") {
+				// special group to show all athletes
+				currentGroup = null;
+			} else {
+				currentGroup = GroupRepository.findByName(groupName);
+			}
+		} else {
+			// if no group, we pick the first alphabetical group as a filter
+			// to avoid showing hundreds of athlete at the end of each of the groups
+			// (which has a noticeable impact on slower machines)
+			List<Group> groups = GroupRepository.findAll();
+			groups.sort(new NaturalOrderComparator<Group>());
+			currentGroup = (groups.size() > 0 ? groups.get(0) : null);
+		}
+		if (currentGroup != null) {
+			params.put("group", Arrays.asList(URLUtils.urlEncode(currentGroup.getName())));
+		} else {
+			// params.remove("group");
+			params.put("group", Arrays.asList(URLUtils.urlEncode("*")));
+		}
+		doSwitchGroup(currentGroup);
+		params.remove("fop");
+		logger.debug("params {}", params);
 
-        // change the URL to reflect group
-        event.getUI().getPage().getHistory().replaceState(null,
-                new Location(getLocation().getPath(), new QueryParameters(URLUtils.cleanParams(params))));
-    }
+		// change the URL to reflect group
+		event.getUI().getPage().getHistory().replaceState(null,
+		        new Location(getLocation().getPath(), new QueryParameters(URLUtils.cleanParams(params))));
+	}
 
-    @Override
-    public void updateURLLocation(UI ui, Location location, Group newGroup) {
-        // change the URL to reflect fop group
-        HashMap<String, List<String>> params = new HashMap<>(
-                location.getQueryParameters().getParameters());
-        if (!isIgnoreGroupFromURL() && newGroup != null) {
-            params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
-        } else {
-            params.remove("group");
-        }
-        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
-    }
+	@Override
+	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+		this.urlParameterMap = newParameterMap;
+	}
 
-    @Override
-    protected HorizontalLayout announcerButtons(FlexLayout topBar2) {
-        return null;
-    }
+	@Override
+	public void updateURLLocation(UI ui, Location location, Group newGroup) {
+		// change the URL to reflect fop group
+		HashMap<String, List<String>> params = new HashMap<>(
+		        location.getQueryParameters().getParameters());
+		if (!isIgnoreGroupFromURL() && newGroup != null) {
+			params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
+		} else {
+			params.remove("group");
+		}
+		ui.getPage().getHistory().replaceState(null,
+		        new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
+	}
 
-    /**
-     * @see app.owlcms.nui.shared.AthleteGridContent#createReset()
-     */
-    @Override
-    protected Component createReset() {
-        reset = new Button(getTranslation("RecomputeRanks"), IronIcons.REFRESH.create(),
-                (e) -> OwlcmsSession.withFop((fop) -> {
-                    AthleteRepository.assignCategoryRanks();
-                    refresh();
-                }));
-
-        reset.getElement().setAttribute("title", getTranslation("RecomputeRanks"));
-        reset.getElement().setAttribute("theme", "secondary contrast small icon");
-        return reset;
-    }
-
-    /**
-     * We do not control the groups on other screens/displays
-     *
-     * @param crudGrid the crudGrid that will be filtered.
-     */
-    @Override
-    protected void defineFilters(GridCrud<Athlete> crud) {
-        if (medalsOnly != null) {
-            return;
-        }
-
-        getGroupFilter().setPlaceholder(getTranslation("Group"));
-        List<Group> groups = GroupRepository.findAll();
-        groups.sort(new NaturalOrderComparator<Group>());
-        getGroupFilter().setItems(groups);
-        getGroupFilter().setItemLabelGenerator(Group::getName);
-        // hide because the top bar has it
-        getGroupFilter().getStyle().set("display", "none");
-        getGroupFilter().addValueChangeListener(e -> {
-            logger.debug("updating filters: group={}", e.getValue());
-            currentGroup = e.getValue();
-            updateURLLocation(getLocationUI(), getLocation(), currentGroup);
-//            subscribeIfLifting(e.getValue());
-        });
-        crud.getCrudLayout().addFilterComponent(getGroupFilter());
-
-        medalsOnly = new Checkbox();
-        medalsOnly.setLabel(getTranslation("MedalsOnly"));
-        medalsOnly.setValue(false);
-        medalsOnly.addValueChangeListener(e -> {
-            crudGrid.getGrid().getElement().getClassList().set("medals", Boolean.TRUE.equals(e.getValue()));
-            crud.refreshGrid();
-        });
-        crud.getCrudLayout().addFilterComponent(medalsOnly);
-
-        genderFilter.setPlaceholder(getTranslation("Gender"));
-        genderFilter.setItems(Gender.M, Gender.F);
-        genderFilter.setItemLabelGenerator((i) -> {
-            return i == Gender.M ? getTranslation("Gender.M") : getTranslation("Gender.F");
-        });
-        genderFilter.setClearButtonVisible(true);
-        genderFilter.addValueChangeListener(e -> {
-            crud.refreshGrid();
-        });
-        genderFilter.setWidth("10em");
-        crud.getCrudLayout().addFilterComponent(genderFilter);
-    }
-
-    /**
-     * We do not connect to the event bus, and we do not track a field of play (non-Javadoc)
-     *
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
-     */
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-    }
-
-    /**
-     * @return true if the current group is safe for editing -- i.e. not lifting currently
-     */
-    private boolean checkFOP() {
-        Collection<FieldOfPlay> fops = OwlcmsFactory.getFOPs();
-        FieldOfPlay liftingFop = null;
-        search: for (FieldOfPlay fop : fops) {
-            if (fop.getGroup() != null && fop.getGroup().equals(currentGroup)) {
-                liftingFop = fop;
-                break search;
-            }
-        }
-        if (liftingFop != null) {
-            Notification.show(
-                    getTranslation("Warning_GroupLifting") + liftingFop.getName() + getTranslation("CannotEditResults"),
-                    3000, Position.MIDDLE);
-            logger.debug(getTranslation("CannotEditResults_logging"), currentGroup, liftingFop);
+	/**
+	 * @return true if the current group is safe for editing -- i.e. not lifting
+	 *         currently
+	 */
+	private boolean checkFOP() {
+		Collection<FieldOfPlay> fops = OwlcmsFactory.getFOPs();
+		FieldOfPlay liftingFop = null;
+		search: for (FieldOfPlay fop : fops) {
+			if (fop.getGroup() != null && fop.getGroup().equals(currentGroup)) {
+				liftingFop = fop;
+				break search;
+			}
+		}
+		if (liftingFop != null) {
+			Notification.show(
+			        getTranslation("Warning_GroupLifting") + liftingFop.getName() + getTranslation("CannotEditResults"),
+			        3000, Position.MIDDLE);
+			logger.debug(getTranslation("CannotEditResults_logging"), currentGroup, liftingFop);
 //            subscribeIfLifting(currentGroup);
-        } else {
-            logger.debug(getTranslation("EditingResults_logging"), currentGroup, liftingFop);
-        }
-        return liftingFop != null;
-    }
+		} else {
+			logger.debug(getTranslation("EditingResults_logging"), currentGroup, liftingFop);
+		}
+		return liftingFop != null;
+	}
 
-    private Button createGroupMedalsDownloadButton() {
-        downloadDialog = new DownloadDialog(
-                () -> {
-                    JXLSMedalsSheet rs = new JXLSMedalsSheet();
-                    // group may have been edited since the page was loaded
-                    rs.setGroup(currentGroup != null ? GroupRepository.getById(currentGroup.getId()) : null);
-                    return rs;
-                },
-                "/templates/medals",
-                null,
-                Competition::getComputedMedalsTemplateFileName,
-                Competition::setMedalsTemplateFileName,
-                Translator.translate("Results.Medals"), "medals", Translator.translate("Download"));
-        Button resultsButton = downloadDialog.createTopBarDownloadButton();
-        return resultsButton;
-    }
+	private Button createEligibilityResultsDownloadButton() {
+		downloadDialog = new DownloadDialog(
+		        () -> {
+			        JXLSResultSheet rs = new JXLSResultSheet();
+			        // group may have been edited since the page was loaded
+			        rs.setGroup(currentGroup != null ? GroupRepository.getById(currentGroup.getId()) : null);
+			        return rs;
+		        },
+		        "/templates/protocol",
+		        null,
+		        Competition::getComputedProtocolTemplateFileName,
+		        Competition::setProtocolTemplateFileName,
+		        Translator.translate("EligibilityCategoryResults"), "results", Translator.translate("Download"));
+		Button resultsButton = downloadDialog.createTopBarDownloadButton();
+		return resultsButton;
+	}
 
-    private Button createEligibilityResultsDownloadButton() {
-        downloadDialog = new DownloadDialog(
-                () -> {
-                    JXLSResultSheet rs = new JXLSResultSheet();
-                    // group may have been edited since the page was loaded
-                    rs.setGroup(currentGroup != null ? GroupRepository.getById(currentGroup.getId()) : null);
-                    return rs;
-                },
-                "/templates/protocol",
-                null,
-                Competition::getComputedProtocolTemplateFileName,
-                Competition::setProtocolTemplateFileName,
-                Translator.translate("EligibilityCategoryResults"), "results", Translator.translate("Download"));
-        Button resultsButton = downloadDialog.createTopBarDownloadButton();
-        return resultsButton;
-    }
-    
-    private Button createRegistrationResultsDownloadButton() {
-        downloadDialog = new DownloadDialog(
-                () -> {
-                    JXLSResultSheet rs = new JXLSResultSheet(false);
-                    // group may have been edited since the page was loaded
-                    rs.setGroup(currentGroup != null ? GroupRepository.getById(currentGroup.getId()) : null);
-                    return rs;
-                },
-                "/templates/protocol",
-                null,
-                Competition::getComputedProtocolTemplateFileName,
-                Competition::setProtocolTemplateFileName,
-                Translator.translate("RegistrationCategoryResults"), "results", Translator.translate("Download"));
-        Button resultsButton = downloadDialog.createTopBarDownloadButton();
-        return resultsButton;
-    }
+	private Button createGroupMedalsDownloadButton() {
+		downloadDialog = new DownloadDialog(
+		        () -> {
+			        JXLSMedalsSheet rs = new JXLSMedalsSheet();
+			        // group may have been edited since the page was loaded
+			        rs.setGroup(currentGroup != null ? GroupRepository.getById(currentGroup.getId()) : null);
+			        return rs;
+		        },
+		        "/templates/medals",
+		        null,
+		        Competition::getComputedMedalsTemplateFileName,
+		        Competition::setMedalsTemplateFileName,
+		        Translator.translate("Results.Medals"), "medals", Translator.translate("Download"));
+		Button resultsButton = downloadDialog.createTopBarDownloadButton();
+		return resultsButton;
+	}
 
-    private void doSwitchGroup(Group newCurrentGroup) {
-        if (newCurrentGroup != null && newCurrentGroup.getName() == "*") {
-            currentGroup = null;
-        } else {
-            currentGroup = newCurrentGroup;
-        }
-        setGridGroup(currentGroup);
-        if (downloadDialog != null) {
-            downloadDialog.createTopBarDownloadButton();
-        }
-        MenuBar oldMenu = topBarMenu;
-        createTopBarGroupSelect();
-        if (topBar != null) {
-            topBar.replace(oldMenu, topBarMenu);
-        }
-    }
+	private Button createRegistrationResultsDownloadButton() {
+		downloadDialog = new DownloadDialog(
+		        () -> {
+			        JXLSResultSheet rs = new JXLSResultSheet(false);
+			        // group may have been edited since the page was loaded
+			        rs.setGroup(currentGroup != null ? GroupRepository.getById(currentGroup.getId()) : null);
+			        return rs;
+		        },
+		        "/templates/protocol",
+		        null,
+		        Competition::getComputedProtocolTemplateFileName,
+		        Competition::setProtocolTemplateFileName,
+		        Translator.translate("RegistrationCategoryResults"), "results", Translator.translate("Download"));
+		Button resultsButton = downloadDialog.createTopBarDownloadButton();
+		return resultsButton;
+	}
 
+	private void doSwitchGroup(Group newCurrentGroup) {
+		if (newCurrentGroup != null && newCurrentGroup.getName() == "*") {
+			currentGroup = null;
+		} else {
+			currentGroup = newCurrentGroup;
+		}
+		setGridGroup(currentGroup);
+		if (downloadDialog != null) {
+			downloadDialog.createTopBarDownloadButton();
+		}
+		MenuBar oldMenu = topBarMenu;
+		createTopBarGroupSelect();
+		if (topBar != null) {
+			topBar.replace(oldMenu, topBarMenu);
+		}
+	}
+
+	@Override
+	protected HorizontalLayout announcerButtons(FlexLayout topBar2) {
+		return null;
+	}
+
+	/**
+	 * @see app.owlcms.nui.shared.AthleteGridContent#createReset()
+	 */
+	@Override
+	protected Component createReset() {
+		reset = new Button(getTranslation("RecomputeRanks"), IronIcons.REFRESH.create(),
+		        (e) -> OwlcmsSession.withFop((fop) -> {
+			        AthleteRepository.assignCategoryRanks();
+			        refresh();
+		        }));
+
+		reset.getElement().setAttribute("title", getTranslation("RecomputeRanks"));
+		reset.getElement().setAttribute("theme", "secondary contrast small icon");
+		return reset;
+	}
+
+	@Override
+	protected void createTopBarGroupSelect() {
+		// there is already all the SQL filtering logic for the group attached
+		// hidden field in the crudGrid part of the page so we just set that
+		// filter.
+
+		List<Group> groups = GroupRepository.findAll();
+		groups.sort(new NaturalOrderComparator<Group>());
+
+		OwlcmsSession.withFop(fop -> {
+			logger.trace("initial setting group to {} {}", currentGroup, LoggerUtils.whereFrom());
+			getGroupFilter().setValue(currentGroup);
+			// switching to group "*" is understood to mean all groups
+			topBarMenu = new GroupSelectionMenu(groups, currentGroup,
+			        fop,
+			        (g1) -> doSwitchGroup(g1),
+			        (g1) -> doSwitchGroup(new Group("*")),
+			        null,
+			        Translator.translate("AllGroups"));
+		});
+	}
+
+	/**
+	 * We do not control the groups on other screens/displays
+	 *
+	 * @param crudGrid the crudGrid that will be filtered.
+	 */
+	@Override
+	protected void defineFilters(GridCrud<Athlete> crud) {
+		if (medalsOnly != null) {
+			return;
+		}
+
+		getGroupFilter().setPlaceholder(getTranslation("Group"));
+		List<Group> groups = GroupRepository.findAll();
+		groups.sort(new NaturalOrderComparator<Group>());
+		getGroupFilter().setItems(groups);
+		getGroupFilter().setItemLabelGenerator(Group::getName);
+		// hide because the top bar has it
+		getGroupFilter().getStyle().set("display", "none");
+		getGroupFilter().addValueChangeListener(e -> {
+			logger.debug("updating filters: group={}", e.getValue());
+			currentGroup = e.getValue();
+			updateURLLocation(getLocationUI(), getLocation(), currentGroup);
+//            subscribeIfLifting(e.getValue());
+		});
+		crud.getCrudLayout().addFilterComponent(getGroupFilter());
+
+		medalsOnly = new Checkbox();
+		medalsOnly.setLabel(getTranslation("MedalsOnly"));
+		medalsOnly.setValue(false);
+		medalsOnly.addValueChangeListener(e -> {
+			crudGrid.getGrid().getElement().getClassList().set("medals", Boolean.TRUE.equals(e.getValue()));
+			crud.refreshGrid();
+		});
+		crud.getCrudLayout().addFilterComponent(medalsOnly);
+
+		genderFilter.setPlaceholder(getTranslation("Gender"));
+		genderFilter.setItems(Gender.M, Gender.F);
+		genderFilter.setItemLabelGenerator((i) -> {
+			return i == Gender.M ? getTranslation("Gender.M") : getTranslation("Gender.F");
+		});
+		genderFilter.setClearButtonVisible(true);
+		genderFilter.addValueChangeListener(e -> {
+			crud.refreshGrid();
+		});
+		genderFilter.setWidth("10em");
+		crud.getCrudLayout().addFilterComponent(genderFilter);
+	}
+
+	/**
+	 * We do not connect to the event bus, and we do not track a field of play
+	 * (non-Javadoc)
+	 *
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
+	 */
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+	}
 }

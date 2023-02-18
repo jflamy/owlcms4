@@ -6,6 +6,9 @@
  *******************************************************************************/
 package app.owlcms.nui.lifting;
 
+import java.util.HashMap;
+import java.util.List;
+
 import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.layout.FlexibleGridLayout;
@@ -40,100 +43,113 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "lifting", layout = OwlcmsLayout.class)
 public class LiftingNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(LiftingNavigationContent.class);
-    static {
-        logger.setLevel(Level.INFO);
-    }
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(LiftingNavigationContent.class);
+	static {
+		logger.setLevel(Level.INFO);
+	}
 
-    /**
-     * Competition Group Navigation
-     */
-    public LiftingNavigationContent() {
-        logger.trace("LiftingNavigationContent constructor start");
+	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
 
-        Button weighIn = openInNewTabNoParam(WeighinContent.class, getTranslation("WeighIn_StartNumbers"));
-        //weighIn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(weighIn);
-        doGroup(getTranslation("WeighIn"), grid3, this);
+	/**
+	 * Competition Group Navigation
+	 */
+	public LiftingNavigationContent() {
+		logger.trace("LiftingNavigationContent constructor start");
 
-        Button announcer = openInNewTab(AnnouncerContent.class, getTranslation("Announcer"));
-        announcer.setIcon(new Icon(VaadinIcon.MICROPHONE));
-        announcer.setTabIndex(2);
-        announcer.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
-        announcer.setThemeName(FOP, isAttached());
-        Button marshall = openInNewTab(MarshallContent.class, getTranslation("Marshall"));
-        Button timekeeper = openInNewTab(TimekeeperContent.class, getTranslation("Timekeeper"));
-        Button technical = openInNewTab(TCContent.class, getTranslation("PlatesCollarBarbell"));
+		Button weighIn = openInNewTabNoParam(WeighinContent.class, getTranslation("WeighIn_StartNumbers"));
+		// weighIn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(weighIn);
+		doGroup(getTranslation("WeighIn"), grid3, this);
 
-        VerticalLayout intro = new VerticalLayout();
-        addP(intro, getTranslation("AnnouncerSelectsGroup") + getTranslation("ChangesGroupEverywhere")
-                + getTranslation("AnnouncerEtc"));
-        intro.getStyle().set("margin-bottom", "0");
+		Button announcer = openInNewTab(AnnouncerContent.class, getTranslation("Announcer"));
+		announcer.setIcon(new Icon(VaadinIcon.MICROPHONE));
+		announcer.setTabIndex(2);
+		announcer.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+		announcer.setThemeName(FOP, isAttached());
+		Button marshall = openInNewTab(MarshallContent.class, getTranslation("Marshall"));
+		Button timekeeper = openInNewTab(TimekeeperContent.class, getTranslation("Timekeeper"));
+		Button technical = openInNewTab(TCContent.class, getTranslation("PlatesCollarBarbell"));
 
-        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(announcer, marshall, timekeeper, technical);
-        doGroup(getTranslation("Scoreboard.LiftingOrder"), intro, grid1, this);
+		VerticalLayout intro = new VerticalLayout();
+		addP(intro, getTranslation("AnnouncerSelectsGroup") + getTranslation("ChangesGroupEverywhere")
+		        + getTranslation("AnnouncerEtc"));
+		intro.getStyle().set("margin-bottom", "0");
 
-        Button referee = openInNewTab(RefContent.class, getTranslation("Referee_Mobile_Device"));
-        Button jury = openInNewTab(JuryContent.class, getTranslation("Jury_Console"));
-        FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(referee, jury);
-        doGroup(getTranslation("Referees_Jury"), grid2, this);
+		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(announcer, marshall, timekeeper, technical);
+		doGroup(getTranslation("Scoreboard.LiftingOrder"), intro, grid1, this);
 
-        DebugUtils.gc();
-    }
+		Button referee = openInNewTab(RefContent.class, getTranslation("Referee_Mobile_Device"));
+		Button jury = openInNewTab(JuryContent.class, getTranslation("Jury_Console"));
+		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(referee, jury);
+		doGroup(getTranslation("Referees_Jury"), grid2, this);
 
-    @Override
-    public Location getLocation() {
-        return this.location;
-    }
+		DebugUtils.gc();
+	}
 
-    @Override
-    public UI getLocationUI() {
-        return this.locationUI;
-    }
+	@Override
+	public Location getLocation() {
+		return this.location;
+	}
 
-    @Override
-    public String getMenuTitle() {
-        return getTranslation("RunLiftingGroup");
-    }
+	@Override
+	public UI getLocationUI() {
+		return this.locationUI;
+	}
 
-    @Override
-    public String getPageTitle() {
-        String fopNameIfMultiple = OwlcmsSession.getFopNameIfMultiple();
-        return getTranslation("ShortTitle.Lifting") + (!fopNameIfMultiple.isBlank() ? (" - " + fopNameIfMultiple) : "");
-    }
+	@Override
+	public String getMenuTitle() {
+		return getTranslation("RunLiftingGroup");
+	}
 
-    @Override
-    public void setLocation(Location location) {
-        this.location = location;
-    }
+	@Override
+	public String getPageTitle() {
+		String fopNameIfMultiple = OwlcmsSession.getFopNameIfMultiple();
+		return getTranslation("ShortTitle.Lifting") + (!fopNameIfMultiple.isBlank() ? (" - " + fopNameIfMultiple) : "");
+	}
 
-    @Override
-    public void setLocationUI(UI locationUI) {
-        this.locationUI = locationUI;
-    }
+	@Override
+	public HashMap<String, List<String>> getUrlParameterMap() {
+		return urlParameterMap;
+	}
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see app.owlcms.nui.home.BaseNavigationContent#createTopBarFopField(java.lang. String, java.lang.String)
-     */
-    @Override
-    protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {
-        Label fopLabel = new Label(label);
-        formatLabel(fopLabel);
+	@Override
+	public void setLocation(Location location) {
+		this.location = location;
+	}
 
-        ComboBox<FieldOfPlay> fopSelect = createFopSelect(placeHolder);
-        OwlcmsSession.withFop((fop) -> {
-            fopSelect.setValue(fop);
-        });
-        fopSelect.addValueChangeListener(e -> {
-            OwlcmsSession.setFop(e.getValue());
-            updateURLLocation(getLocationUI(), getLocation(), null);
-        });
+	@Override
+	public void setLocationUI(UI locationUI) {
+		this.locationUI = locationUI;
+	}
 
-        HorizontalLayout fopField = new HorizontalLayout(fopLabel, fopSelect);
-        fopField.setAlignItems(Alignment.CENTER);
-        return fopField;
-    }
+	@Override
+	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+		this.urlParameterMap = newParameterMap;
+	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * app.owlcms.nui.home.BaseNavigationContent#createTopBarFopField(java.lang.
+	 * String, java.lang.String)
+	 */
+	@Override
+	protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {
+		Label fopLabel = new Label(label);
+		formatLabel(fopLabel);
+
+		ComboBox<FieldOfPlay> fopSelect = createFopSelect(placeHolder);
+		OwlcmsSession.withFop((fop) -> {
+			fopSelect.setValue(fop);
+		});
+		fopSelect.addValueChangeListener(e -> {
+			OwlcmsSession.setFop(e.getValue());
+			updateURLLocation(getLocationUI(), getLocation(), null);
+		});
+
+		HorizontalLayout fopField = new HorizontalLayout(fopLabel, fopSelect);
+		fopField.setAlignItems(Alignment.CENTER);
+		return fopField;
+	}
 }

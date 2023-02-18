@@ -41,218 +41,222 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class CategoryGridField extends CustomField<List<Category>> {
 
-    Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
+	Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
 
-    Logger logger = (Logger) LoggerFactory.getLogger(CategoryGridField.class);
+	Logger logger = (Logger) LoggerFactory.getLogger(CategoryGridField.class);
 
-    TextField qualTotField = new TextField();
+	TextField qualTotField = new TextField();
 
-    private AgeGroup ageGroup;
+	private AgeGroup ageGroup;
 
-    private Binder<Category> catBinder;
+	private Binder<Category> catBinder;
 
-    private Editor<Category> catEditor;
+	private Editor<Category> catEditor;
 
-    private Grid<Category> catGrid;
+	private Grid<Category> catGrid;
 
-    private List<Category> presentationCategories = new ArrayList<>();
+	private List<Category> presentationCategories = new ArrayList<>();
 
-    private Grid.Column<Category> qualTotColumn;
+	private Grid.Column<Category> qualTotColumn;
 
-    private Div validationStatus;
+	private Div validationStatus;
 
-    public CategoryGridField(AgeGroup ag) {
-        super(new ArrayList<Category>());
-        this.ageGroup = ag;
+	public CategoryGridField(AgeGroup ag) {
+		super(new ArrayList<Category>());
+		this.ageGroup = ag;
 
-        validationStatus = new Div();
+		validationStatus = new Div();
 
-        catGrid = new Grid<>();
-        catGrid
-                .addColumn(Category::getLimitString)
-                .setHeader(Translator.translate("LimitForCategory"));
-        qualTotColumn = catGrid
-                .addColumn(Category::getQualifyingTotal)
-                .setHeader(Translator.translate("Category.QualificationTotal"));
-        catGrid.setAllRowsVisible(true);
-        catGrid.setSizeUndefined();
-        this.setWidth("50em");
+		catGrid = new Grid<>();
+		catGrid
+		        .addColumn(Category::getLimitString)
+		        .setHeader(Translator.translate("LimitForCategory"));
+		qualTotColumn = catGrid
+		        .addColumn(Category::getQualifyingTotal)
+		        .setHeader(Translator.translate("Category.QualificationTotal"));
+		catGrid.setAllRowsVisible(true);
+		catGrid.setSizeUndefined();
+		this.setWidth("50em");
 
-        setupEditing(catGrid);
+		setupEditing(catGrid);
 
-        HorizontalLayout adder = new HorizontalLayout();
-        adder.getStyle().set("margin-top", "0.5em");
-        adder.getStyle().set("margin-bottom", "1em");
-        TextField newCategoryField = new TextField();
-        newCategoryField.setPlaceholder(getTranslation("LimitForCategory"));
-        newCategoryField.setAllowedCharPattern("[0-9]");
-        newCategoryField.setPattern("[0-9]{0,3}");
+		HorizontalLayout adder = new HorizontalLayout();
+		adder.getStyle().set("margin-top", "0.5em");
+		adder.getStyle().set("margin-bottom", "1em");
+		TextField newCategoryField = new TextField();
+		newCategoryField.setPlaceholder(getTranslation("LimitForCategory"));
+		newCategoryField.setAllowedCharPattern("[0-9]");
+		newCategoryField.setPattern("[0-9]{0,3}");
 
-        Button button = new Button(getTranslation("AddNewCategory"));
-        button.addClickListener((click) -> {
-            react(ag, newCategoryField);
-        });
+		Button button = new Button(getTranslation("AddNewCategory"));
+		button.addClickListener((click) -> {
+			react(ag, newCategoryField);
+		});
 
-        button.setIcon(new Icon(VaadinIcon.PLUS));
-        button.setThemeName("primary success");
-        button.addClickShortcut(Key.ENTER);
-        adder.add(newCategoryField, button);
+		button.setIcon(new Icon(VaadinIcon.PLUS));
+		button.setThemeName("primary success");
+		button.addClickShortcut(Key.ENTER);
+		adder.add(newCategoryField, button);
 
-        updatePresentation();
+		updatePresentation();
 
-        add(adder);
-        add(validationStatus);
-        add(catGrid);
+		add(adder);
+		add(validationStatus);
+		add(catGrid);
 
-    }
+	}
 
-    @Override
-    public List<Category> getValue() {
-        return presentationCategories;
-    }
+	@Override
+	public List<Category> getValue() {
+		return presentationCategories;
+	}
 
-    @Override
-    protected List<Category> generateModelValue() {
-        // the presentation objects are already model values and no conversion is necessary
-        // the business model can use them as is; the model ignores the categories with no age group
-        // the database ids are also preserved in the copy, and used to update the database
-        return presentationCategories;
-    }
+	private void addSentinel() {
+		Category newCat = new Category(0.0, 999.0D, ageGroup.getGender(), true,
+		        0, 0, 0, ageGroup, 0);
+		presentationCategories.add(newCat);
+	}
 
-    @Override
-    protected void setPresentationValue(List<Category> iCategories) {
-        presentationCategories = iCategories.stream().map(c -> new Category(c)).collect(Collectors.toList());
-        updatePresentation();
-    }
+	private void react(AgeGroup ag, TextField newCategoryField) {
+		String value = newCategoryField.getValue();
+		if (ag == null) {
+			Notification notif = new Notification();
+			notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
+			notif.setText(getTranslation("SaveAgeGroupBefore"));
+			return; // was missing ?
+		}
+		if ((value == null) || value.trim().isEmpty()) {
+			return;
+		}
+		double newMax = Double.parseDouble(value);
+		Category newCat = new Category(0.0, newMax, ag.getGender(), true,
+		        0, 0, 0, ag, 0);
+		presentationCategories.add(newCat);
+		updatePresentation();
+		updateValue();
+		newCategoryField.clear();
+	}
 
-    private void addSentinel() {
-        Category newCat = new Category(0.0, 999.0D, ageGroup.getGender(), true,
-                0, 0, 0, ageGroup, 0);
-        presentationCategories.add(newCat);
-    }
+	private void setupEditing(Grid<Category> grid) {
+		catBinder = new Binder<>(Category.class);
+		catEditor = grid.getEditor();
+		catEditor.setBinder(catBinder);
+		catEditor.setBuffered(true);
 
-    private void react(AgeGroup ag, TextField newCategoryField) {
-        String value = newCategoryField.getValue();
-        if (ag == null) {
-            Notification notif = new Notification();
-            notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
-            notif.setText(getTranslation("SaveAgeGroupBefore"));
-            return; // was missing ?
-        }
-        if ((value == null) || value.trim().isEmpty()) {
-            return;
-        }
-        double newMax = Double.parseDouble(value);
-        Category newCat = new Category(0.0, newMax, ag.getGender(), true,
-                0, 0, 0, ag, 0);
-        presentationCategories.add(newCat);
-        updatePresentation();
-        updateValue();
-        newCategoryField.clear();
-    }
+		catBinder
+		        .forField(qualTotField)
+		        .withConverter(
+		                new StringToIntegerConverter("Qualifying total must be a number."))
+		        .withStatusLabel(validationStatus).bind("qualifyingTotal");
+		qualTotColumn.setEditorComponent(qualTotField);
 
-    private void setupEditing(Grid<Category> grid) {
-        catBinder = new Binder<>(Category.class);
-        catEditor = grid.getEditor();
-        catEditor.setBinder(catBinder);
-        catEditor.setBuffered(true);
+		Grid.Column<Category> editorColumn = catGrid.addComponentColumn(cat -> {
+			Button edit = new Button(Translator.translate("Edit"));
+			edit.addClassName("edit");
+			edit.addClickListener(e -> {
+				catEditor.editItem(cat);
+				// logger.trace("editing {} {}",cat != null ? cat.shortDump() : null,
+				// presentationCategories.contains(cat));
+				qualTotField.focus();
+			});
+			Button delete = new Button(Translator.translate("Delete"));
+			delete.addClassName("delete");
+			delete.addClickListener(e -> {
+				// logger.trace("deleting {} {}",cat != null ? cat.shortDump() : null,
+				// presentationCategories.contains(cat));
+				if (cat.getMaximumWeight() >= 998.9D) {
+					return; // leave the sentinel.
+				}
+				cat.setMaximumWeight(0D); // disconnect
+				updatePresentation();
+				updateValue();
+			});
+			edit.setEnabled(!catEditor.isOpen());
+			delete.setEnabled(!catEditor.isOpen());
+			editButtons.add(edit);
+			editButtons.add(delete);
 
-        catBinder
-                .forField(qualTotField)
-                .withConverter(
-                        new StringToIntegerConverter("Qualifying total must be a number."))
-                .withStatusLabel(validationStatus).bind("qualifyingTotal");
-        qualTotColumn.setEditorComponent(qualTotField);
+			HorizontalLayout buttons = new HorizontalLayout();
+			buttons.setSizeUndefined();
+			buttons.setMargin(false);
+			buttons.setPadding(false);
+			buttons.setSpacing(true);
+			buttons.add(edit, delete);
+			return buttons;
+		});
+		editorColumn.setWidth("20em");
 
-        Grid.Column<Category> editorColumn = catGrid.addComponentColumn(cat -> {
-            Button edit = new Button(Translator.translate("Edit"));
-            edit.addClassName("edit");
-            edit.addClickListener(e -> {
-                catEditor.editItem(cat);
-                // logger.trace("editing {} {}",cat != null ? cat.shortDump() : null,
-                // presentationCategories.contains(cat));
-                qualTotField.focus();
-            });
-            Button delete = new Button(Translator.translate("Delete"));
-            delete.addClassName("delete");
-            delete.addClickListener(e -> {
-                // logger.trace("deleting {} {}",cat != null ? cat.shortDump() : null,
-                // presentationCategories.contains(cat));
-                if (cat.getMaximumWeight() >= 998.9D) {
-                    return; // leave the sentinel.
-                }
-                cat.setMaximumWeight(0D); // disconnect
-                updatePresentation();
-                updateValue();
-            });
-            edit.setEnabled(!catEditor.isOpen());
-            delete.setEnabled(!catEditor.isOpen());
-            editButtons.add(edit);
-            editButtons.add(delete);
-            
-            HorizontalLayout buttons = new HorizontalLayout();
-            buttons.setSizeUndefined();
-            buttons.setMargin(false);
-            buttons.setPadding(false);
-            buttons.setSpacing(true);
-            buttons.add(edit, delete);
-            return buttons;
-        });
-        editorColumn.setWidth("20em");
+		catEditor.addOpenListener(e -> editButtons.stream()
+		        .forEach(button -> button.setEnabled(!catEditor.isOpen())));
+		catEditor.addCloseListener(e -> editButtons.stream()
+		        .forEach(button -> button.setEnabled(!catEditor.isOpen())));
 
-        catEditor.addOpenListener(e -> editButtons.stream()
-                .forEach(button -> button.setEnabled(!catEditor.isOpen())));
-        catEditor.addCloseListener(e -> editButtons.stream()
-                .forEach(button -> button.setEnabled(!catEditor.isOpen())));
+		Button save = new Button("OK", e -> catEditor.save());
+		save.addClassName("save");
+		Button cancel = new Button("Cancel", e -> catEditor.cancel());
+		cancel.addClassName("cancel");
+		HorizontalLayout buttons = new HorizontalLayout(save, cancel);
+		buttons.setSizeUndefined();
+		buttons.setPadding(false);
+		buttons.setMargin(false);
+		buttons.setSpacing(true);
+		editorColumn.setEditorComponent(buttons);
 
-        Button save = new Button("OK", e -> catEditor.save());
-        save.addClassName("save");
-        Button cancel = new Button("Cancel", e -> catEditor.cancel());
-        cancel.addClassName("cancel");
-        HorizontalLayout buttons = new HorizontalLayout(save, cancel);
-        buttons.setSizeUndefined();
-        buttons.setPadding(false);
-        buttons.setMargin(false);
-        buttons.setSpacing(true);
-        editorColumn.setEditorComponent(buttons);
+		catEditor.addSaveListener(
+		        event -> {
+			        // Category cat = event.getItem();
+			        updatePresentation();
+			        updateValue();
+		        });
+	}
 
-        catEditor.addSaveListener(
-                event -> {
-                    // Category cat = event.getItem();
-                    updatePresentation();
-                    updateValue();
-                });
-    }
+	private void updatePresentation() {
+		double prevDouble = 0.0;
+		presentationCategories.sort((c1, c2) -> ObjectUtils.compare(c1.getMaximumWeight(), c2.getMaximumWeight()));
 
-    private void updatePresentation() {
-        double prevDouble = 0.0;
-        presentationCategories.sort((c1, c2) -> ObjectUtils.compare(c1.getMaximumWeight(), c2.getMaximumWeight()));
+		// last category must be 999, create one if not the case. the loop below will
+		// sort out the labels.
+		if (presentationCategories.size() == 0) {
+			addSentinel();
+		} else if (presentationCategories.get(presentationCategories.size() - 1).getMaximumWeight() <= 998.9D) {
+			addSentinel();
+		}
 
-        // last category must be 999, create one if not the case. the loop below will sort out the labels.
-        if (presentationCategories.size() == 0) {
-            addSentinel();
-        } else if (presentationCategories.get(presentationCategories.size() - 1).getMaximumWeight() <= 998.9D) {
-            addSentinel();
-        }
+		Iterator<Category> ic = presentationCategories.iterator();
+		while (ic.hasNext()) {
+			Category c = ic.next();
+			AgeGroup ageGroup2 = c.getAgeGroup();
+			if (c.getMaximumWeight() < 0.01) {
+				ic.remove();
+				continue;
+			}
+			c.setGender(ageGroup2.getGender() != null ? ageGroup2.getGender() : Gender.F);
 
-        Iterator<Category> ic = presentationCategories.iterator();
-        while (ic.hasNext()) {
-            Category c = ic.next();
-            AgeGroup ageGroup2 = c.getAgeGroup();
-            if (c.getMaximumWeight() < 0.01) {
-                ic.remove();
-                continue;
-            }
-            c.setGender(ageGroup2.getGender() != null ? ageGroup2.getGender() : Gender.F);
+			Double maximumWeight = c.getMaximumWeight();
+			c.setMinimumWeight(prevDouble); // cover the gap if intervening weights have been skipped...
 
-            Double maximumWeight = c.getMaximumWeight();
-            c.setMinimumWeight(prevDouble); // cover the gap if intervening weights have been skipped...
+			prevDouble = maximumWeight;
 
-            prevDouble = maximumWeight;
+		}
+		catGrid.setItems(presentationCategories);
+		catGrid.setSizeUndefined();
+	}
 
-        }
-        catGrid.setItems(presentationCategories);
-        catGrid.setSizeUndefined();
-    }
+	@Override
+	protected List<Category> generateModelValue() {
+		// the presentation objects are already model values and no conversion is
+		// necessary
+		// the business model can use them as is; the model ignores the categories with
+		// no age group
+		// the database ids are also preserved in the copy, and used to update the
+		// database
+		return presentationCategories;
+	}
+
+	@Override
+	protected void setPresentationValue(List<Category> iCategories) {
+		presentationCategories = iCategories.stream().map(c -> new Category(c)).collect(Collectors.toList());
+		updatePresentation();
+	}
 
 }

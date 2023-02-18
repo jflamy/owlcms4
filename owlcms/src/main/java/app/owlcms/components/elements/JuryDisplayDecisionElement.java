@@ -21,102 +21,102 @@ import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public class JuryDisplayDecisionElement extends DecisionElement {
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(JuryDisplayDecisionElement.class);
-    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(JuryDisplayDecisionElement.class);
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
-    static {
-        logger.setLevel(Level.INFO);
-        uiEventLogger.setLevel(Level.INFO);
-    }
+	static {
+		logger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.INFO);
+	}
 
-    private boolean automaticReset;
+	private boolean automaticReset;
 
-    public JuryDisplayDecisionElement() {
-        super();
-        this.setJury(true);
-        this.getElement().getStyle().set("font-size", "19vh");
-    }
+	public JuryDisplayDecisionElement() {
+		super();
+		this.setJury(true);
+		this.getElement().getStyle().set("font-size", "19vh");
+	}
 
-    public JuryDisplayDecisionElement(boolean b) {
-        this();
-        this.setAutomaticReset(b);
-    }
+	public JuryDisplayDecisionElement(boolean b) {
+		this();
+		this.setAutomaticReset(b);
+	}
 
-    @Subscribe
-    public void slaveBreakDone(UIEvent.BreakDone e) {
-        OwlcmsSession.withFop((fop) -> {
-            UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
-                uiEventLogger.debug("*** {} break start -> reset", this.getOrigin());
-                doReset();
-            });
-        });
-    }
+	public void doReset() {
+		this.getElement().callJsFunction("reset", false);
+	}
 
-    @Subscribe
-    public void slaveBreakStarted(UIEvent.BreakStarted e) {
-        if (e.isDisplayToggle()) {
-            return;
-        }
-        OwlcmsSession.withFop((fop) -> {
-            if (fop.getBreakType() != BreakType.JURY) {
-                // don't reset on a break we just created !
-                UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
-                    uiEventLogger.debug("*** {} break start -> reset", this.getOrigin());
-                    doReset();
-                });
-            }
-        });
-    }
+	@Subscribe
+	public void slaveBreakDone(UIEvent.BreakDone e) {
+		OwlcmsSession.withFop((fop) -> {
+			UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
+				uiEventLogger.debug("*** {} break start -> reset", this.getOrigin());
+				doReset();
+			});
+		});
+	}
 
 //    @Override
 //    public void slaveDownSignal(DownSignal e) {
 //        // ignore
 //    }
 
-    @Subscribe
-    public void slaveRefereeUpdate(UIEvent.RefereeUpdate e) {
-        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
-            uiEventLogger.debug("*** {} referee update ({} {} {})", this.getOrigin(), e.ref1, e.ref2, e.ref3);
-            this.getElement().callJsFunction("showDecisionsForJury", e.ref1, e.ref2, e.ref3, intBox(e.ref1Time),
-                    intBox(e.ref2Time),
-                    intBox(e.ref3Time));
-        });
-    }
+	@Subscribe
+	public void slaveBreakStarted(UIEvent.BreakStarted e) {
+		if (e.isDisplayToggle()) {
+			return;
+		}
+		OwlcmsSession.withFop((fop) -> {
+			if (fop.getBreakType() != BreakType.JURY) {
+				// don't reset on a break we just created !
+				UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
+					uiEventLogger.debug("*** {} break start -> reset", this.getOrigin());
+					doReset();
+				});
+			}
+		});
+	}
 
-    private Integer intBox(Long ref1Time) {
-        return ref1Time != null ? ref1Time.intValue() : null;
-    }
+	@Override
+	public void slaveDecisionReset(DecisionReset e) {
+		// ignore
+	}
 
-    @Override
-    public void slaveDecisionReset(DecisionReset e) {
-        // ignore
-    }
+	@Subscribe
+	public void slaveRefereeUpdate(UIEvent.RefereeUpdate e) {
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
+			uiEventLogger.debug("*** {} referee update ({} {} {})", this.getOrigin(), e.ref1, e.ref2, e.ref3);
+			this.getElement().callJsFunction("showDecisionsForJury", e.ref1, e.ref2, e.ref3, intBox(e.ref1Time),
+			        intBox(e.ref2Time),
+			        intBox(e.ref3Time));
+		});
+	}
 
-    @Override
-    public void slaveShowDecision(Decision e) {
-        // ignore
-    }
+	@Override
+	public void slaveShowDecision(Decision e) {
+		// ignore
+	}
 
-    @Subscribe
-    public void slaveStartTime(UIEvent.StartTime e) {
-        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
-            uiEventLogger.debug("*** {} startTime -> reset", this.getOrigin());
-            if (isAutomaticReset()) {
-                doReset();
-            }
-        });
-    }
+	@Subscribe
+	public void slaveStartTime(UIEvent.StartTime e) {
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
+			uiEventLogger.debug("*** {} startTime -> reset", this.getOrigin());
+			if (isAutomaticReset()) {
+				doReset();
+			}
+		});
+	}
 
-    public void doReset() {
-        this.getElement().callJsFunction("reset", false);
-    }
+	private Integer intBox(Long ref1Time) {
+		return ref1Time != null ? ref1Time.intValue() : null;
+	}
 
-    private boolean isAutomaticReset() {
-        return automaticReset;
-    }
+	private boolean isAutomaticReset() {
+		return automaticReset;
+	}
 
-    private void setAutomaticReset(boolean automaticReset) {
-        this.automaticReset = automaticReset;
-    }
+	private void setAutomaticReset(boolean automaticReset) {
+		this.automaticReset = automaticReset;
+	}
 
 }

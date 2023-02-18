@@ -39,132 +39,131 @@ import elemental.json.JsonValue;
 @JsModule("./components/AudioContext.js")
 @Route("displays/resultsLeadersRanks")
 
-
 public class ResultsLeadersRanks extends Results {
 
-    protected Logger logger = (Logger) LoggerFactory.getLogger(ResultsLeadersRanks.class);
-    private LinkedHashMap<String, Participation> ageGroupMap;
+	protected Logger logger = (Logger) LoggerFactory.getLogger(ResultsLeadersRanks.class);
+	private LinkedHashMap<String, Participation> ageGroupMap;
 
-    /**
-     * Instantiates a new results board.
-     */
-    public ResultsLeadersRanks() {
-        OwlcmsFactory.waitDBInitialized();
-        timer.setOrigin(this);
-        setDarkMode(true);
-    }
+	/**
+	 * Instantiates a new results board.
+	 */
+	public ResultsLeadersRanks() {
+		OwlcmsFactory.waitDBInitialized();
+		timer.setOrigin(this);
+		setDarkMode(true);
+	}
 
-    @Override
-    public String getPageTitle() {
-        return getTranslation("ScoreboardMultiRanksTitle") + OwlcmsSession.getFopNameIfMultiple();
-    }
+	@Override
+	public String getPageTitle() {
+		return getTranslation("ScoreboardMultiRanksTitle") + OwlcmsSession.getFopNameIfMultiple();
+	}
 
-    @Override
-    protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
-        String category;
-        category = curCat != null ? curCat.getName() : "";
-        ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
-        ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
-        ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
-        Integer startNumber = a.getStartNumber();
-        ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
-        ja.put("category", category != null ? category : "");
-        getAttemptsJson(a, liftOrderRank, fop);
-        ja.put("sattempts", sattempts);
-        ja.put("bestSnatch", formatInt(a.getBestSnatch()));
-        ja.put("cattempts", cattempts);
-        ja.put("bestCleanJerk", formatInt(a.getBestCleanJerk()));
-        ja.put("total", formatInt(a.getTotal()));
-        setCurrentAthleteParticipations(a);
-        ja.put("snatchRanks", getRanksJson(a, Ranking.SNATCH, ageGroupMap));
-        ja.put("cleanJerkRanks", getRanksJson(a, Ranking.CLEANJERK, ageGroupMap));
-        ja.put("totalRanks", getRanksJson(a, Ranking.TOTAL, ageGroupMap));
-        ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
-        Double double1 = a.getAttemptsDone() <= 3 ? a.getSinclairForDelta()
-                : a.getSinclair();
-        ja.put("sinclair", double1 > 0.001 ? String.format("%.3f", double1) : "-");
-        ja.put("custom1", a.getCustom1() != null ?  a.getCustom1() : "");
-        ja.put("custom2", a.getCustom2() != null ?  a.getCustom2() : "");
+	private JsonValue getRanksJson(Athlete a, Ranking r, LinkedHashMap<String, Participation> ageGroupMap2) {
+		JsonArray ranks = Json.createArray();
+		int i = 0;
+		for (Entry<String, Participation> e : ageGroupMap.entrySet()) {
+			Participation p = e.getValue();
+			// logger,debug("a {} k {} v {}", a.getShortName(), e.getKey(), p);
+			if (p == null) {
+				ranks.set(i, formatRank(null));
+			} else {
+				switch (r) {
+				case CLEANJERK:
+					ranks.set(i, formatRank(p.getCleanJerkRank()));
+					break;
+				case SNATCH:
+					ranks.set(i, formatRank(p.getSnatchRank()));
+					break;
+				case TOTAL:
+					ranks.set(i, formatRank(p.getTotalRank()));
+					break;
+				default:
+					break;
+				}
+			}
+			i++;
+		}
+		return ranks;
+	}
 
-        boolean notDone = a.getAttemptsDone() < 6;
-        String blink = (notDone ? " blink" : "");
-        String highlight = "";
-        if (fop.getState() != FOPState.DECISION_VISIBLE && notDone) {
-            switch (liftOrderRank) {
-            case 1:
-                highlight = (" current" + blink);
-                break;
-            case 2:
-                highlight = " next";
-                break;
-            default:
-                highlight = "";
-            }
-        }
-        // logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
-        ja.put("classname", highlight);
-    }
+	private void setCurrentAthleteParticipations(Athlete a) {
+		OwlcmsSession.withFop(fop -> {
+			ageGroupMap = new LinkedHashMap<>(fop.getAgeGroupMap());
+			for (Entry<String, Participation> cape : ageGroupMap.entrySet()) {
+				cape.setValue(null);
+			}
+			if (a != null) {
+				// logger,debug(">>>setCurrentAthleteParticipations begin");
+				// logger,debug("setting {}", a.getShortName());
+				for (Participation p : a.getParticipations()) {
+					AgeGroup ag = p.getCategory() != null ? p.getCategory().getAgeGroup() : null;
+					if (ag != null) {
+						// logger,debug("athlete {} curRankings {} {}", a, ag.getCode(), p);
+						ageGroupMap.put(ag.getCode(), p);
+					}
+				}
+				// logger,debug("<<<setCurrentAthleteParticipations end");
+			} else {
+				// logger,debug("+++ cleared");
+			}
+		});
+	}
 
+	@Override
+	protected JsonArray getAgeGroupNamesJson(LinkedHashMap<String, Participation> currentAthleteParticipations) {
+		JsonArray ageGroups = Json.createArray();
+		int i = 0;
+		for (Entry<String, Participation> e : OwlcmsSession.getFop().getAgeGroupMap().entrySet()) {
+			ageGroups.set(i, e.getKey());
+			i++;
+		}
+		getElement().setProperty("nbRanks", "" + i);
+		return ageGroups;
+	}
 
-    protected JsonArray getAgeGroupNamesJson(LinkedHashMap<String, Participation> currentAthleteParticipations) {
-        JsonArray ageGroups = Json.createArray();
-        int i = 0;
-        for (Entry<String, Participation> e : OwlcmsSession.getFop().getAgeGroupMap().entrySet()) {
-            ageGroups.set(i, e.getKey());
-            i++;
-        }
-        getElement().setProperty("nbRanks", "" + i);
-        return ageGroups;
-    }
+	@Override
+	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
+		String category;
+		category = curCat != null ? curCat.getName() : "";
+		ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
+		ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
+		ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
+		Integer startNumber = a.getStartNumber();
+		ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
+		ja.put("category", category != null ? category : "");
+		getAttemptsJson(a, liftOrderRank, fop);
+		ja.put("sattempts", sattempts);
+		ja.put("bestSnatch", formatInt(a.getBestSnatch()));
+		ja.put("cattempts", cattempts);
+		ja.put("bestCleanJerk", formatInt(a.getBestCleanJerk()));
+		ja.put("total", formatInt(a.getTotal()));
+		setCurrentAthleteParticipations(a);
+		ja.put("snatchRanks", getRanksJson(a, Ranking.SNATCH, ageGroupMap));
+		ja.put("cleanJerkRanks", getRanksJson(a, Ranking.CLEANJERK, ageGroupMap));
+		ja.put("totalRanks", getRanksJson(a, Ranking.TOTAL, ageGroupMap));
+		ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
+		Double double1 = a.getAttemptsDone() <= 3 ? a.getSinclairForDelta()
+		        : a.getSinclair();
+		ja.put("sinclair", double1 > 0.001 ? String.format("%.3f", double1) : "-");
+		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
+		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
 
-    private JsonValue getRanksJson(Athlete a, Ranking r, LinkedHashMap<String, Participation> ageGroupMap2) {
-        JsonArray ranks = Json.createArray();
-        int i = 0;
-        for (Entry<String, Participation> e : ageGroupMap.entrySet()) {
-            Participation p = e.getValue();
-            // logger,debug("a {} k {} v {}", a.getShortName(), e.getKey(), p);
-            if (p == null) {
-                ranks.set(i, formatRank(null));
-            } else {
-                switch (r) {
-                case CLEANJERK:
-                    ranks.set(i, formatRank(p.getCleanJerkRank()));
-                    break;
-                case SNATCH:
-                    ranks.set(i, formatRank(p.getSnatchRank()));
-                    break;
-                case TOTAL:
-                    ranks.set(i, formatRank(p.getTotalRank()));
-                    break;
-                default:
-                    break;
-                }
-            }
-            i++;
-        }
-        return ranks;
-    }
-
-    private void setCurrentAthleteParticipations(Athlete a) {
-        OwlcmsSession.withFop(fop -> {
-            ageGroupMap = new LinkedHashMap<>(fop.getAgeGroupMap());
-            for (Entry<String, Participation> cape : ageGroupMap.entrySet()) {
-                cape.setValue(null);
-            }
-            if (a != null) {
-                // logger,debug(">>>setCurrentAthleteParticipations begin");
-                // logger,debug("setting {}", a.getShortName());
-                for (Participation p : a.getParticipations()) {
-                    AgeGroup ag = p.getCategory() != null ? p.getCategory().getAgeGroup() : null;
-                    if (ag != null) {
-                        // logger,debug("athlete {} curRankings {} {}", a, ag.getCode(), p);
-                        ageGroupMap.put(ag.getCode(), p);
-                    }
-                }
-                // logger,debug("<<<setCurrentAthleteParticipations end");
-            } else {
-                // logger,debug("+++ cleared");
-            }
-        });
-    }
+		boolean notDone = a.getAttemptsDone() < 6;
+		String blink = (notDone ? " blink" : "");
+		String highlight = "";
+		if (fop.getState() != FOPState.DECISION_VISIBLE && notDone) {
+			switch (liftOrderRank) {
+			case 1:
+				highlight = (" current" + blink);
+				break;
+			case 2:
+				highlight = " next";
+				break;
+			default:
+				highlight = "";
+			}
+		}
+		// logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
+		ja.put("classname", highlight);
+	}
 }

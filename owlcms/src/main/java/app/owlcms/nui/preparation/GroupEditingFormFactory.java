@@ -45,265 +45,265 @@ public class GroupEditingFormFactory
         extends OwlcmsCrudFormFactory<Group>
         implements CustomFormFactory<Group> {
 
-    @SuppressWarnings("unused")
-    private Logger logger = (Logger) LoggerFactory.getLogger(GroupEditingFormFactory.class);
-    private GroupContent origin;
+	@SuppressWarnings("unused")
+	private Logger logger = (Logger) LoggerFactory.getLogger(GroupEditingFormFactory.class);
+	private GroupContent origin;
 
-    GroupEditingFormFactory(Class<Group> domainType, GroupContent origin) {
-        super(domainType);
-        this.origin = origin;
-    }
+	GroupEditingFormFactory(Class<Group> domainType, GroupContent origin) {
+		super(domainType);
+		this.origin = origin;
+	}
 
-    @Override
-    public Group add(Group Group) {
-        GroupRepository.add(Group);
-        return Group;
-    }
+	@Override
+	public Group add(Group Group) {
+		GroupRepository.add(Group);
+		return Group;
+	}
 
-    @Override
-    public Binder<Group> buildBinder(CrudOperation operation, Group domainObject) {
-        return super.buildBinder(operation, domainObject);
-    }
+	@Override
+	public Binder<Group> buildBinder(CrudOperation operation, Group domainObject) {
+		return super.buildBinder(operation, domainObject);
+	}
 
-    @Override
-    public String buildCaption(CrudOperation operation, Group domainObject) {
-        String name = domainObject.getName();
-        if (name == null || name.isEmpty()) {
-            return Translator.translate("Group");
-        } else {
-            return Translator.translate("Group") + " " + domainObject.getName();
-        }
-    }
+	@Override
+	public String buildCaption(CrudOperation operation, Group domainObject) {
+		String name = domainObject.getName();
+		if (name == null || name.isEmpty()) {
+			return Translator.translate("Group");
+		} else {
+			return Translator.translate("Group") + " " + domainObject.getName();
+		}
+	}
 
-    @Override
-    public Component buildFooter(CrudOperation operation, Group domainObject,
-            ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
-            ComponentEventListener<ClickEvent<Button>> postOperationCallBack,
-            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, boolean shortcutEnter,
-            Button... buttons) {
-        return super.buildFooter(operation, domainObject, cancelButtonClickListener, postOperationCallBack,
-                deleteButtonClickListener, false, buttons);
-    }
+	@Override
+	public Component buildFooter(CrudOperation operation, Group domainObject,
+	        ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
+	        ComponentEventListener<ClickEvent<Button>> postOperationCallBack,
+	        ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, boolean shortcutEnter,
+	        Button... buttons) {
+		return super.buildFooter(operation, domainObject, cancelButtonClickListener, postOperationCallBack,
+		        deleteButtonClickListener, false, buttons);
+	}
 
-    @Override
-    public Component buildNewForm(CrudOperation operation, Group aFromDb, boolean readOnly,
-            ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
-            ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
-            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
+	@Override
+	public Component buildNewForm(CrudOperation operation, Group aFromDb, boolean readOnly,
+	        ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
+	        ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
+	        ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
 
-        FormLayout formLayout = new FormLayout();
-        binder = buildBinder(null, aFromDb);
+		FormLayout formLayout = new FormLayout();
+		binder = buildBinder(null, aFromDb);
 
-        TextField nameField = new TextField(Translator.translate("Name"));
-        formLayout.add(nameField);
-        int maxLength = 16;
-        binder.forField(nameField)
-                .withValidator(
-                        new StringLengthValidator(Translator.translate("CodeMustBeShort", maxLength), 1, maxLength))
-                .bind(Group::getName, Group::setName);
+		TextField nameField = new TextField(Translator.translate("Name"));
+		formLayout.add(nameField);
+		int maxLength = 16;
+		binder.forField(nameField)
+		        .withValidator(
+		                new StringLengthValidator(Translator.translate("CodeMustBeShort", maxLength), 1, maxLength))
+		        .bind(Group::getName, Group::setName);
 
-        ComboBox<Platform> platformField = new ComboBox<>(Translator.translate("Platform"));
-        platformField.setSizeUndefined();
-        List<Platform> allPlatforms = PlatformRepository.findAll();
-        platformField.setItems(new ListDataProvider<>(allPlatforms));
+		ComboBox<Platform> platformField = new ComboBox<>(Translator.translate("Platform"));
+		platformField.setSizeUndefined();
+		List<Platform> allPlatforms = PlatformRepository.findAll();
+		platformField.setItems(new ListDataProvider<>(allPlatforms));
 
-        platformField.setItemLabelGenerator(Platform::getName);
-        platformField.setClearButtonVisible(true);
-        formLayout.add(platformField);
-        binder.forField(platformField).bind(Group::getPlatform, Group::setPlatform);
+		platformField.setItemLabelGenerator(Platform::getName);
+		platformField.setClearButtonVisible(true);
+		formLayout.add(platformField);
+		binder.forField(platformField).bind(Group::getPlatform, Group::setPlatform);
 
-        TextField descriptionField = new TextField(Translator.translate("Group.Description"));
-        descriptionField.setSizeFull();
-        formLayout.add(descriptionField);
-        formLayout.setColspan(descriptionField, 2);
-        binder.forField(descriptionField)
-                .withNullRepresentation("")
-                .bind(Group::getDescription, Group::setDescription);
+		TextField descriptionField = new TextField(Translator.translate("Group.Description"));
+		descriptionField.setSizeFull();
+		formLayout.add(descriptionField);
+		formLayout.setColspan(descriptionField, 2);
+		binder.forField(descriptionField)
+		        .withNullRepresentation("")
+		        .bind(Group::getDescription, Group::setDescription);
 
-        addRuler(formLayout);
+		addRuler(formLayout);
 
-        LocalDateTimePicker weighInTimeField = new LocalDateTimePicker();
-        weighInTimeField.setLabel(Translator.translate("WeighInTime"));
-        formLayout.add(weighInTimeField);
-        binder.forField(weighInTimeField)
-                .bind(Group::getWeighInTime, Group::setWeighInTime);
+		LocalDateTimePicker weighInTimeField = new LocalDateTimePicker();
+		weighInTimeField.setLabel(Translator.translate("WeighInTime"));
+		formLayout.add(weighInTimeField);
+		binder.forField(weighInTimeField)
+		        .bind(Group::getWeighInTime, Group::setWeighInTime);
 
-        LocalDateTimePicker competitionTimeField = new LocalDateTimePicker();
-        competitionTimeField.setLabel(Translator.translate("StartTime"));
-        formLayout.add(competitionTimeField);
-        binder.forField(competitionTimeField)
-                .bind(Group::getCompetitionTime, Group::setCompetitionTime);
+		LocalDateTimePicker competitionTimeField = new LocalDateTimePicker();
+		competitionTimeField.setLabel(Translator.translate("StartTime"));
+		formLayout.add(competitionTimeField);
+		binder.forField(competitionTimeField)
+		        .bind(Group::getCompetitionTime, Group::setCompetitionTime);
 
-        TextField weighIn1 = new TextField(Translator.translate("Weighin1"));
-        formLayout.add(weighIn1);
-        binder.forField(weighIn1)
-                .withNullRepresentation("")
-                .bind(Group::getWeighIn1, Group::setWeighIn1);
+		TextField weighIn1 = new TextField(Translator.translate("Weighin1"));
+		formLayout.add(weighIn1);
+		binder.forField(weighIn1)
+		        .withNullRepresentation("")
+		        .bind(Group::getWeighIn1, Group::setWeighIn1);
 
-        TextField weighIn2 = new TextField(Translator.translate("Weighin2"));
-        formLayout.add(weighIn2);
-        binder.forField(weighIn2)
-                .withNullRepresentation("")
-                .bind(Group::getWeighIn2, Group::setWeighIn2);
+		TextField weighIn2 = new TextField(Translator.translate("Weighin2"));
+		formLayout.add(weighIn2);
+		binder.forField(weighIn2)
+		        .withNullRepresentation("")
+		        .bind(Group::getWeighIn2, Group::setWeighIn2);
 
-        addRuler(formLayout);
+		addRuler(formLayout);
 
-        TextField announcer = new TextField(Translator.translate("Announcer"));
-        formLayout.add(announcer);
-        binder.forField(announcer)
-                .withNullRepresentation("")
-                .bind(Group::getAnnouncer, Group::setAnnouncer);
+		TextField announcer = new TextField(Translator.translate("Announcer"));
+		formLayout.add(announcer);
+		binder.forField(announcer)
+		        .withNullRepresentation("")
+		        .bind(Group::getAnnouncer, Group::setAnnouncer);
 
-        TextField marshall = new TextField(Translator.translate("Marshall"));
-        formLayout.add(marshall);
-        binder.forField(marshall)
-                .withNullRepresentation("")
-                .bind(Group::getMarshall, Group::setMarshall);
+		TextField marshall = new TextField(Translator.translate("Marshall"));
+		formLayout.add(marshall);
+		binder.forField(marshall)
+		        .withNullRepresentation("")
+		        .bind(Group::getMarshall, Group::setMarshall);
 
-        TextField marshal2 = new TextField(Translator.translate("Marshal2"));
-        formLayout.add(marshal2);
-        binder.forField(marshal2)
-                .withNullRepresentation("")
-                .bind(Group::getMarshal2, Group::setMarshal2);
+		TextField marshal2 = new TextField(Translator.translate("Marshal2"));
+		formLayout.add(marshal2);
+		binder.forField(marshal2)
+		        .withNullRepresentation("")
+		        .bind(Group::getMarshal2, Group::setMarshal2);
 
-        TextField technicalController = new TextField(Translator.translate("TechnicalController"));
-        formLayout.add(technicalController);
-        binder.forField(technicalController)
-                .withNullRepresentation("")
-                .bind(Group::getTechnicalController, Group::setTechnicalController);
+		TextField technicalController = new TextField(Translator.translate("TechnicalController"));
+		formLayout.add(technicalController);
+		binder.forField(technicalController)
+		        .withNullRepresentation("")
+		        .bind(Group::getTechnicalController, Group::setTechnicalController);
 
-        TextField technicalController2 = new TextField(Translator.translate("TechnicalController2"));
-        formLayout.add(technicalController2);
-        binder.forField(technicalController2)
-                .withNullRepresentation("")
-                .bind(Group::getTechnicalController2, Group::setTechnicalController2);
+		TextField technicalController2 = new TextField(Translator.translate("TechnicalController2"));
+		formLayout.add(technicalController2);
+		binder.forField(technicalController2)
+		        .withNullRepresentation("")
+		        .bind(Group::getTechnicalController2, Group::setTechnicalController2);
 
-        TextField timeKeeper = new TextField(Translator.translate("Timekeeper"));
-        formLayout.add(timeKeeper);
-        binder.forField(timeKeeper)
-                .withNullRepresentation("")
-                .bind(Group::getTimeKeeper, Group::setTimeKeeper);
+		TextField timeKeeper = new TextField(Translator.translate("Timekeeper"));
+		formLayout.add(timeKeeper);
+		binder.forField(timeKeeper)
+		        .withNullRepresentation("")
+		        .bind(Group::getTimeKeeper, Group::setTimeKeeper);
 
-        addRuler(formLayout);
+		addRuler(formLayout);
 
-        TextField referee1 = new TextField(Translator.translate("Referee1"));
-        formLayout.add(referee1);
-        binder.forField(referee1)
-                .withNullRepresentation("")
-                .bind(Group::getReferee1, Group::setReferee1);
+		TextField referee1 = new TextField(Translator.translate("Referee1"));
+		formLayout.add(referee1);
+		binder.forField(referee1)
+		        .withNullRepresentation("")
+		        .bind(Group::getReferee1, Group::setReferee1);
 
-        TextField referee2 = new TextField(Translator.translate("Referee2"));
-        formLayout.add(referee2);
-        binder.forField(referee2)
-                .withNullRepresentation("")
-                .bind(Group::getReferee2, Group::setReferee2);
+		TextField referee2 = new TextField(Translator.translate("Referee2"));
+		formLayout.add(referee2);
+		binder.forField(referee2)
+		        .withNullRepresentation("")
+		        .bind(Group::getReferee2, Group::setReferee2);
 
-        TextField referee3 = new TextField(Translator.translate("Referee3"));
-        formLayout.add(referee3);
-        binder.forField(referee3)
-                .withNullRepresentation("")
-                .bind(Group::getReferee3, Group::setReferee3);
+		TextField referee3 = new TextField(Translator.translate("Referee3"));
+		formLayout.add(referee3);
+		binder.forField(referee3)
+		        .withNullRepresentation("")
+		        .bind(Group::getReferee3, Group::setReferee3);
 
-        addRuler(formLayout);
+		addRuler(formLayout);
 
-        TextField jury1 = new TextField(Translator.translate("Jury1"));
-        formLayout.add(jury1);
-        binder.forField(jury1)
-                .withNullRepresentation("")
-                .bind(Group::getJury1, Group::setJury1);
+		TextField jury1 = new TextField(Translator.translate("Jury1"));
+		formLayout.add(jury1);
+		binder.forField(jury1)
+		        .withNullRepresentation("")
+		        .bind(Group::getJury1, Group::setJury1);
 
-        TextField jury2 = new TextField(Translator.translate("Jury2"));
-        formLayout.add(jury2);
-        binder.forField(jury2)
-                .withNullRepresentation("")
-                .bind(Group::getJury2, Group::setJury2);
+		TextField jury2 = new TextField(Translator.translate("Jury2"));
+		formLayout.add(jury2);
+		binder.forField(jury2)
+		        .withNullRepresentation("")
+		        .bind(Group::getJury2, Group::setJury2);
 
-        TextField jury3 = new TextField(Translator.translate("Jury3"));
-        formLayout.add(jury3);
-        binder.forField(jury3)
-                .withNullRepresentation("")
-                .bind(Group::getJury3, Group::setJury3);
+		TextField jury3 = new TextField(Translator.translate("Jury3"));
+		formLayout.add(jury3);
+		binder.forField(jury3)
+		        .withNullRepresentation("")
+		        .bind(Group::getJury3, Group::setJury3);
 
-        TextField jury4 = new TextField(Translator.translate("Jury4"));
-        formLayout.add(jury4);
-        binder.forField(jury4)
-                .withNullRepresentation("")
-                .bind(Group::getJury4, Group::setJury4);
+		TextField jury4 = new TextField(Translator.translate("Jury4"));
+		formLayout.add(jury4);
+		binder.forField(jury4)
+		        .withNullRepresentation("")
+		        .bind(Group::getJury4, Group::setJury4);
 
-        TextField jury5 = new TextField(Translator.translate("Jury5"));
-        formLayout.add(jury5);
-        binder.forField(jury5)
-                .withNullRepresentation("")
-                .bind(Group::getJury5, Group::setJury5);
-        
-        if (allPlatforms != null && allPlatforms.size() > 0) {
-            aFromDb.setPlatform(allPlatforms.get(0));
-        }
-        binder.readBean(aFromDb);
+		TextField jury5 = new TextField(Translator.translate("Jury5"));
+		formLayout.add(jury5);
+		binder.forField(jury5)
+		        .withNullRepresentation("")
+		        .bind(Group::getJury5, Group::setJury5);
 
-        Component footerLayout = this.buildFooter(operation, aFromDb, cancelButtonClickListener,
-                updateButtonClickListener, deleteButtonClickListener, false);
+		if (allPlatforms != null && allPlatforms.size() > 0) {
+			aFromDb.setPlatform(allPlatforms.get(0));
+		}
+		binder.readBean(aFromDb);
 
-        VerticalLayout mainLayout = new VerticalLayout(formLayout, footerLayout);
-        mainLayout.setHorizontalComponentAlignment(Alignment.END, footerLayout);
-        mainLayout.setMargin(false);
-        mainLayout.setPadding(false);
-        return mainLayout;
-    }
+		Component footerLayout = this.buildFooter(operation, aFromDb, cancelButtonClickListener,
+		        updateButtonClickListener, deleteButtonClickListener, false);
 
-    @Override
-    public Button buildOperationButton(CrudOperation operation, Group domainObject,
-            ComponentEventListener<ClickEvent<Button>> gridCallBackAction) {
-        return super.buildOperationButton(operation, domainObject, gridCallBackAction);
-    }
+		VerticalLayout mainLayout = new VerticalLayout(formLayout, footerLayout);
+		mainLayout.setHorizontalComponentAlignment(Alignment.END, footerLayout);
+		mainLayout.setMargin(false);
+		mainLayout.setPadding(false);
+		return mainLayout;
+	}
 
-    @Override
-    public TextField defineOperationTrigger(CrudOperation operation, Group domainObject,
-            ComponentEventListener<ClickEvent<Button>> action) {
-        return super.defineOperationTrigger(operation, domainObject, action);
-    }
+	@Override
+	public Button buildOperationButton(CrudOperation operation, Group domainObject,
+	        ComponentEventListener<ClickEvent<Button>> gridCallBackAction) {
+		return super.buildOperationButton(operation, domainObject, gridCallBackAction);
+	}
 
-    @Override
-    public void delete(Group ageGroup) {
-        GroupRepository.delete(ageGroup);
-    }
+	@Override
+	public TextField defineOperationTrigger(CrudOperation operation, Group domainObject,
+	        ComponentEventListener<ClickEvent<Button>> action) {
+		return super.defineOperationTrigger(operation, domainObject, action);
+	}
 
-    @Override
-    public Collection<Group> findAll() {
-        // will not be called, handled by the grid.
-        return null;
-    }
+	@Override
+	public void delete(Group ageGroup) {
+		GroupRepository.delete(ageGroup);
+	}
 
-    @Override
-    public boolean setErrorLabel(BinderValidationStatus<?> validationStatus, boolean showErrorOnFields) {
-        return super.setErrorLabel(validationStatus, showErrorOnFields);
-    }
+	@Override
+	public Collection<Group> findAll() {
+		// will not be called, handled by the grid.
+		return null;
+	}
 
-    /**
-     * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
-     */
-    @Override
-    public Group update(Group ageGroup) {
-        Group saved = GroupRepository.save(ageGroup);
-        // logger.trace("saved {}", saved.getCategories().get(0).longDump());
-        origin.closeDialog();
+	@Override
+	public boolean setErrorLabel(BinderValidationStatus<?> validationStatus, boolean showErrorOnFields) {
+		return super.setErrorLabel(validationStatus, showErrorOnFields);
+	}
+
+	/**
+	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
+	 */
+	@Override
+	public Group update(Group ageGroup) {
+		Group saved = GroupRepository.save(ageGroup);
+		// logger.trace("saved {}", saved.getCategories().get(0).longDump());
+		origin.closeDialog();
 //        origin.highlightResetButton();
-        return saved;
-    }
+		return saved;
+	}
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Override
-    protected void bindField(HasValue field, String property, Class<?> propertyType, CrudFormConfiguration c) {
-        binder.forField(field);
-        super.bindField(field, property, propertyType, c);
-    }
+	private void addRuler(FormLayout formLayout) {
+		Paragraph hr11 = new Paragraph();
+		hr11.add("\u0020");
+		hr11.add(new Hr());
+		formLayout.add(hr11);
+		formLayout.setColspan(hr11, 2);
+	}
 
-    private void addRuler(FormLayout formLayout) {
-        Paragraph hr11 = new Paragraph();
-        hr11.add("\u0020");
-        hr11.add(new Hr());
-        formLayout.add(hr11);
-        formLayout.setColspan(hr11, 2);
-    }
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	protected void bindField(HasValue field, String property, Class<?> propertyType, CrudFormConfiguration c) {
+		binder.forField(field);
+		super.bindField(field, property, propertyType, c);
+	}
 
 }

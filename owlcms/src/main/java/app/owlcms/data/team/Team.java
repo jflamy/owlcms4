@@ -19,101 +19,101 @@ import app.owlcms.data.athlete.Gender;
  */
 public class Team {
 
-    public static Comparator<Team> pointsComparator = ((a,
-            b) -> -ObjectUtils.compare(a.getPoints(), b.getPoints(), true));
+	public static Comparator<Team> pointsComparator = ((a,
+	        b) -> -ObjectUtils.compare(a.getPoints(), b.getPoints(), true));
 
-    public static Comparator<Team> scoreComparator = ((a,
-            b) -> -ObjectUtils.compare(a.sinclairScore, b.sinclairScore, true));
+	public static Comparator<Team> scoreComparator = ((a,
+	        b) -> -ObjectUtils.compare(a.sinclairScore, b.sinclairScore, true));
 
-    private int counted;
+	private int counted;
 
-    private Gender gender;
+	private Gender gender;
 
-    private String name;
+	private String name;
 
-    private int points = 0;
+	private int points = 0;
 
-    private double sinclairScore = 0.0D;
+	private double sinclairScore = 0.0D;
 
-    private long size;
+	private long size;
 
-    private double smfScore = 0.0D;
+	private double smfScore = 0.0D;
 
-    private double robi = 0.0D;
+	private double robi = 0.0D;
 
-    public void setRobi(double robi) {
-        this.robi = robi;
-    }
+	public Team(String curTeamName, Gender gender) {
+		name = curTeamName;
+		this.gender = gender;
+	}
 
-    public Team(String curTeamName, Gender gender) {
-        name = curTeamName;
-        this.gender = gender;
-    }
+	public int getCounted() {
+		return counted;
+	}
 
-    public int getCounted() {
-        return counted;
-    }
+	public Gender getGender() {
+		return gender;
+	}
 
-    public Gender getGender() {
-        return gender;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public int getPoints() {
+		return points;
+	}
 
-    public int getPoints() {
-        return points;
-    }
+	public double getRobi() {
+		return robi;
+	}
 
-    public double getSinclairScore() {
-        return sinclairScore;
-    }
+	public double getSinclairScore() {
+		return sinclairScore;
+	}
 
-    public long getSize() {
-        return size;
-    }
+	public long getSize() {
+		return size;
+	}
 
-    /**
-     * @return the smfScore
-     */
-    public double getSmfScore() {
-        return smfScore;
-    }
+	/**
+	 * @return the smfScore
+	 */
+	public double getSmfScore() {
+		return smfScore;
+	}
 
-    public void setCounted(int counted) {
-        this.counted = counted;
-    }
+	public void setCounted(int counted) {
+		this.counted = counted;
+	}
 
-    public void setGender(Gender gender) {
-        this.gender = gender;
-    }
+	public void setGender(Gender gender) {
+		this.gender = gender;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public void setPoints(int points) {
-        this.points = points;
-    }
+	public void setPoints(int points) {
+		this.points = points;
+	}
 
-    public void setSinclairScore(double d) {
-        this.sinclairScore = d;
-    }
+	public void setRobi(double robi) {
+		this.robi = robi;
+	}
 
-    public void setSize(long size) {
-        this.size = size;
-    }
+	public void setSinclairScore(double d) {
+		this.sinclairScore = d;
+	}
 
-    /**
-     * @param smfScore the smfScore to set
-     */
-    public void setSmfScore(double smfScore) {
-        this.smfScore = smfScore;
-    }
+	public void setSize(long size) {
+		this.size = size;
+	}
 
-    public double getRobi() {
-        return robi;
-    }
+	/**
+	 * @param smfScore the smfScore to set
+	 */
+	public void setSmfScore(double smfScore) {
+		this.smfScore = smfScore;
+	}
 
 }

@@ -11,139 +11,139 @@ import java.util.Objects;
 import app.owlcms.data.athlete.Athlete;
 
 public class LiftOrderInfo implements Comparable<LiftOrderInfo> {
-    private Athlete athlete;
+	private Athlete athlete;
 
-    private int attemptNo;
+	private int attemptNo;
 
-    private int lotNumber;
+	private int lotNumber;
 
-    private int progression;
+	private int progression;
 
-    private int startNumber;
+	private int startNumber;
 
-    private int weight;
+	private int weight;
 
-    @Override
-    public int compareTo(LiftOrderInfo actualLiftInfo) {
-        int compare = 0;
+	@Override
+	public int compareTo(LiftOrderInfo actualLiftInfo) {
+		int compare = 0;
 
-        // all snatches come before all clean and jerks
-        if (this.getAttemptNo() <= 3 && actualLiftInfo.getAttemptNo() > 3) {
-            return -1;
-        }
-        if (this.getAttemptNo() > 3 && actualLiftInfo.getAttemptNo() <= 3) {
-            return 1;
-        }
+		// all snatches come before all clean and jerks
+		if (this.getAttemptNo() <= 3 && actualLiftInfo.getAttemptNo() > 3) {
+			return -1;
+		}
+		if (this.getAttemptNo() > 3 && actualLiftInfo.getAttemptNo() <= 3) {
+			return 1;
+		}
 
-        // same kind of lift.
+		// same kind of lift.
 
-        compare = Integer.compare(this.getWeight(), actualLiftInfo.getWeight());
-        if (compare != 0) {
-            return compare;
-        }
+		compare = Integer.compare(this.getWeight(), actualLiftInfo.getWeight());
+		if (compare != 0) {
+			return compare;
+		}
 
-        compare = Integer.compare(this.getAttemptNo(), actualLiftInfo.getAttemptNo());
-        if (compare != 0) {
-            return compare;
-        }
+		compare = Integer.compare(this.getAttemptNo(), actualLiftInfo.getAttemptNo());
+		if (compare != 0) {
+			return compare;
+		}
 
-        compare = Integer.compare(this.getProgression(), actualLiftInfo.getProgression());
-        if (compare != 0) {
-            return compare;
-        }
+		compare = Integer.compare(this.getProgression(), actualLiftInfo.getProgression());
+		if (compare != 0) {
+			return compare;
+		}
 
-        compare = Integer.compare(this.getStartNumber(), actualLiftInfo.getStartNumber());
-        if (compare != 0) {
-            return compare;
-        }
+		compare = Integer.compare(this.getStartNumber(), actualLiftInfo.getStartNumber());
+		if (compare != 0) {
+			return compare;
+		}
 
-        compare = Integer.compare(this.getLotNumber(), actualLiftInfo.getLotNumber());
-        if (compare != 0) {
-            return compare;
-        }
+		compare = Integer.compare(this.getLotNumber(), actualLiftInfo.getLotNumber());
+		if (compare != 0) {
+			return compare;
+		}
 
-        return compare;
-    }
+		return compare;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if ((obj == null) || (getClass() != obj.getClass())) {
-            return false;
-        }
-        LiftOrderInfo other = (LiftOrderInfo) obj;
-        return getAttemptNo() == other.getAttemptNo()
-                && getLotNumber() == other.getLotNumber() && getProgression() == other.getProgression()
-                && getStartNumber() == other.getStartNumber() && getWeight() == other.getWeight();
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if ((obj == null) || (getClass() != obj.getClass())) {
+			return false;
+		}
+		LiftOrderInfo other = (LiftOrderInfo) obj;
+		return getAttemptNo() == other.getAttemptNo()
+		        && getLotNumber() == other.getLotNumber() && getProgression() == other.getProgression()
+		        && getStartNumber() == other.getStartNumber() && getWeight() == other.getWeight();
+	}
 
-    public Athlete getAthlete() {
-        return athlete;
-    }
+	public Athlete getAthlete() {
+		return athlete;
+	}
 
-    public int getAttemptNo() {
-        return attemptNo;
-    }
+	public int getAttemptNo() {
+		return attemptNo;
+	}
 
-    public int getLotNumber() {
-        return lotNumber;
-    }
+	public int getLotNumber() {
+		return lotNumber;
+	}
 
-    public int getProgression() {
-        return progression;
-    }
+	public int getProgression() {
+		return progression;
+	}
 
-    public int getStartNumber() {
-        return startNumber;
-    }
+	public int getStartNumber() {
+		return startNumber;
+	}
 
-    public int getWeight() {
-        return weight;
-    }
+	public int getWeight() {
+		return weight;
+	}
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result
-                + Objects.hash(getAttemptNo(), getLotNumber(), getProgression(), getStartNumber(), getWeight());
-        return result;
-    }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+		        + Objects.hash(getAttemptNo(), getLotNumber(), getProgression(), getStartNumber(), getWeight());
+		return result;
+	}
 
-    public void setAthlete(Athlete athlete) {
-        this.athlete = athlete;
-    }
+	public void setAthlete(Athlete athlete) {
+		this.athlete = athlete;
+	}
 
-    public void setAttemptNo(int attemptNo) {
-        // 1-based !!!
-        this.attemptNo = attemptNo;
-    }
+	public void setAttemptNo(int attemptNo) {
+		// 1-based !!!
+		this.attemptNo = attemptNo;
+	}
 
-    public void setLotNumber(int lotNumber) {
-        this.lotNumber = lotNumber;
-    }
+	public void setLotNumber(int lotNumber) {
+		this.lotNumber = lotNumber;
+	}
 
-    public void setProgression(int progression) {
-        this.progression = progression;
-    }
+	public void setProgression(int progression) {
+		this.progression = progression;
+	}
 
-    public void setStartNumber(int startNumber) {
-        this.startNumber = startNumber;
-    }
+	public void setStartNumber(int startNumber) {
+		this.startNumber = startNumber;
+	}
 
-    public void setWeight(int weight) {
-        this.weight = weight;
-    }
+	public void setWeight(int weight) {
+		this.weight = weight;
+	}
 
-    @Override
-    public String toString() {
-        return "LiftOrderInfo [athlete=" + getAthlete().getLastName() + ", weight=" + getWeight() + ", attemptNo="
-                + getAttemptNo()
-                + ", progression=" + getProgression() + ", startNumber=" + getStartNumber() + ", lotNumber="
-                + getLotNumber()
-                + "]";
-    }
+	@Override
+	public String toString() {
+		return "LiftOrderInfo [athlete=" + getAthlete().getLastName() + ", weight=" + getWeight() + ", attemptNo="
+		        + getAttemptNo()
+		        + ", progression=" + getProgression() + ", startNumber=" + getStartNumber() + ", lotNumber="
+		        + getLotNumber()
+		        + "]";
+	}
 
 }

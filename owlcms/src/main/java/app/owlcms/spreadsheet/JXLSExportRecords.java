@@ -32,51 +32,53 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 
-    Logger logger = (Logger) LoggerFactory.getLogger(JXLSExportRecords.class);
+	Logger logger = (Logger) LoggerFactory.getLogger(JXLSExportRecords.class);
 
-    public JXLSExportRecords(Group group, boolean excludeNotWeighed, UI ui) {
-        super();
-    }
+	public JXLSExportRecords(Group group, boolean excludeNotWeighed, UI ui) {
+		super();
+	}
 
-    public JXLSExportRecords(UI ui) {
-        super();
-    }
+	public JXLSExportRecords(UI ui) {
+		super();
+	}
 
-    @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        return getLocalizedTemplate("/templates/records/exportRecords", ".xls", locale);
-    }
+	@Override
+	public InputStream getTemplate(Locale locale) throws IOException {
+		return getLocalizedTemplate("/templates/records/exportRecords", ".xls", locale);
+	}
 
-    @Override
-    protected List<Athlete> getSortedAthletes() {
-        HashMap<String, Object> reportingBeans = getReportingBeans();
+	public Comparator<RecordEvent> sortRecords() {
+		return Comparator
+		        .comparing(RecordEvent::getRecordFederation) // all records for a federation go together (masters are
+		                                                     // separate)
+		        .thenComparing(RecordEvent::getRecordName) // sometimes several record names for same federation
+		                                                   // (example: event-specific)
+		        .thenComparing(RecordEvent::getGender) // all women, then all men
+		        .thenComparing(RecordEvent::getAgeGrpUpper) // U13 U15 U17 U20 U23 SR
+		        .thenComparing(RecordEvent::getAgeGrpLower) // increasing age groups for masters (35, 40, 45...)
+		        .thenComparing(RecordEvent::getBwCatUpper) // increasing body weights
+		        .thenComparing((r) -> r.getRecordLift().ordinal()) // SNATCH, CJ, TOTAL
+		        .thenComparing(RecordEvent::getRecordValue) // increasing records
+		;
+	}
 
-        List<Athlete> athletes = AthleteSorter
-                .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, isExcludeNotWeighed()));
-        if (athletes.isEmpty()) {
-            // prevent outputting silliness.
-            throw new RuntimeException("");
-        } else {
-            logger.debug("{} athletes", athletes.size());
-        }
+	@Override
+	protected List<Athlete> getSortedAthletes() {
+		HashMap<String, Object> reportingBeans = getReportingBeans();
 
-        List<RecordEvent> records = RecordRepository.findFiltered(null, null, null, null, true);
-        records.sort(sortRecords());
-        reportingBeans.put("records", records);
-        return athletes;
-    }
+		List<Athlete> athletes = AthleteSorter
+		        .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, isExcludeNotWeighed()));
+		if (athletes.isEmpty()) {
+			// prevent outputting silliness.
+			throw new RuntimeException("");
+		} else {
+			logger.debug("{} athletes", athletes.size());
+		}
 
-    public Comparator<RecordEvent> sortRecords() {
-        return Comparator
-                .comparing(RecordEvent::getRecordFederation) // all records for a federation go together (masters are separate)
-                .thenComparing(RecordEvent::getRecordName) // sometimes several record names for same federation (example: event-specific)
-                .thenComparing(RecordEvent::getGender) // all women, then all men
-                .thenComparing(RecordEvent::getAgeGrpUpper) // U13 U15 U17 U20 U23 SR
-                .thenComparing(RecordEvent::getAgeGrpLower) // increasing age groups for masters (35, 40, 45...)
-                .thenComparing(RecordEvent::getBwCatUpper) // increasing body weights
-                .thenComparing((r) -> r.getRecordLift().ordinal()) // SNATCH, CJ, TOTAL
-                .thenComparing(RecordEvent::getRecordValue) // increasing records
-;
-    }
+		List<RecordEvent> records = RecordRepository.findFiltered(null, null, null, null, true);
+		records.sort(sortRecords());
+		reportingBeans.put("records", records);
+		return athletes;
+	}
 
 }

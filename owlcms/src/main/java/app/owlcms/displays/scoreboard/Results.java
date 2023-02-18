@@ -128,6 +128,8 @@ public class Results extends PolymerTemplate<TemplateModel>
 
 	private String routeParameter;
 
+	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+
 	/**
 	 * Instantiates a new results board.
 	 */
@@ -239,6 +241,11 @@ public class Results extends PolymerTemplate<TemplateModel>
 	@Override
 	public String getRouteParameter() {
 		return this.routeParameter;
+	}
+
+	@Override
+	public HashMap<String, List<String>> getUrlParameterMap() {
+		return urlParameterMap;
 	}
 
 	@Override
@@ -386,6 +393,11 @@ public class Results extends PolymerTemplate<TemplateModel>
 	@Override
 	public void setSwitchableDisplay(boolean warmUpDisplay) {
 		this.switchableDisplay = warmUpDisplay;
+	}
+
+	@Override
+	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+		this.urlParameterMap = newParameterMap;
 	}
 
 	@Subscribe
@@ -1095,7 +1107,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 			if ((isSwitchableDisplay() || isVideo()) && groupDescription != null) {
 				this.getElement().setProperty("liftsDone", groupDescription);
 				this.getElement().setProperty("groupName", "");
-				this.getElement().callJsFunction("groupDone"); 
+				this.getElement().callJsFunction("groupDone");
 			}
 			this.getElement().setProperty("groupName", "");
 			this.getElement().callJsFunction("groupDone");

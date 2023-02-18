@@ -129,6 +129,8 @@ public class TopTeamsSinclair extends PolymerTemplate<TemplateModel>
 
 	private String routeParameter;
 
+	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+
 	/**
 	 * Instantiates a new results board.
 	 */
@@ -259,6 +261,11 @@ public class TopTeamsSinclair extends PolymerTemplate<TemplateModel>
 	@Override
 	public String getRouteParameter() {
 		return this.routeParameter;
+	}
+
+	@Override
+	public HashMap<String, List<String>> getUrlParameterMap() {
+		return urlParameterMap;
 	}
 
 	/**
@@ -401,6 +408,11 @@ public class TopTeamsSinclair extends PolymerTemplate<TemplateModel>
 	@Override
 	public void setSilenced(boolean silent) {
 		// no-op, silenced by definition
+	}
+
+	@Override
+	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+		this.urlParameterMap = newParameterMap;
 	}
 
 	@Subscribe

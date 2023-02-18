@@ -8,6 +8,8 @@
 package app.owlcms.nui.lifting;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
@@ -41,130 +43,142 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "lifting/marshall", layout = OwlcmsLayout.class)
 public class MarshallContent extends AthleteGridContent implements HasDynamicTitle {
 
-    // @SuppressWarnings("unused")
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(MarshallContent.class);
-    static {
-        logger.setLevel(Level.INFO);
-    }
+	// @SuppressWarnings("unused")
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(MarshallContent.class);
+	static {
+		logger.setLevel(Level.INFO);
+	}
 
-    private HorizontalLayout decisionLights;
+	private HorizontalLayout decisionLights;
 
-    public MarshallContent() {
-        super();
-    }
+	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
 
-    /**
-     * Use lifting order instead of display order
-     *
-     * @see app.owlcms.nui.shared.AthleteGridContent#findAll()
-     */
-    @Override
-    public Collection<Athlete> findAll() {
-        FieldOfPlay fop = OwlcmsSession.getFop();
-        if (fop != null) {
-            logger.trace("{}findAll {} {} {}", fop.getLoggingName(),
-                    fop.getGroup() == null ? null : fop.getGroup().getName(),
-                    LoggerUtils.whereFrom());
-            final String filterValue;
-            if (lastNameFilter.getValue() != null) {
-                filterValue = lastNameFilter.getValue().toLowerCase();
-                return fop.getLiftingOrder().stream().filter(a -> a.getLastName().toLowerCase().startsWith(filterValue))
-                        .collect(Collectors.toList());
-            } else {
-                return fop.getLiftingOrder();
-            }
-        } else {
-            // no field of play, no group, empty list
-            logger.debug("findAll fop==null");
-            return ImmutableList.of();
-        }
-    }
+	public MarshallContent() {
+		super();
+	}
 
-    @Override
-    public String getMenuTitle() {
-        return getPageTitle();
-    }
+	/**
+	 * Use lifting order instead of display order
+	 *
+	 * @see app.owlcms.nui.shared.AthleteGridContent#findAll()
+	 */
+	@Override
+	public Collection<Athlete> findAll() {
+		FieldOfPlay fop = OwlcmsSession.getFop();
+		if (fop != null) {
+			logger.trace("{}findAll {} {} {}", fop.getLoggingName(),
+			        fop.getGroup() == null ? null : fop.getGroup().getName(),
+			        LoggerUtils.whereFrom());
+			final String filterValue;
+			if (lastNameFilter.getValue() != null) {
+				filterValue = lastNameFilter.getValue().toLowerCase();
+				return fop.getLiftingOrder().stream().filter(a -> a.getLastName().toLowerCase().startsWith(filterValue))
+				        .collect(Collectors.toList());
+			} else {
+				return fop.getLiftingOrder();
+			}
+		} else {
+			// no field of play, no group, empty list
+			logger.debug("findAll fop==null");
+			return ImmutableList.of();
+		}
+	}
 
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("Marshall") + OwlcmsSession.getFopNameIfMultiple();
-    }
+	@Override
+	public String getMenuTitle() {
+		return getPageTitle();
+	}
 
-    @Subscribe
-    public void slaveRefereeDecision(UIEvent.Decision e) {
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            hideLiveDecisions();
+	/**
+	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+	 */
+	@Override
+	public String getPageTitle() {
+		return getTranslation("Marshall") + OwlcmsSession.getFopNameIfMultiple();
+	}
 
-            int d = e.decision ? 1 : 0;
-            String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
+	@Override
+	public HashMap<String, List<String>> getUrlParameterMap() {
+		return urlParameterMap;
+	}
 
-            Notification n = new Notification();
-            String themeName = e.decision ? "success" : "error";
-            n.getElement().getThemeList().add(themeName);
+	@Override
+	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+		this.urlParameterMap = newParameterMap;
+	}
 
-            Div label = new Div();
-            label.add(text);
-            label.addClickListener((event) -> n.close());
-            label.setSizeFull();
-            label.getStyle().set("font-size", "large");
-            n.add(label);
-            n.setPosition(Position.TOP_START);
-            n.setDuration(5000);
-            n.open();
-        });
-    }
+	@Subscribe
+	public void slaveRefereeDecision(UIEvent.Decision e) {
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			hideLiveDecisions();
 
-    @Subscribe
-    public void slaveStartTime(UIEvent.StartTime e) {
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            buttonsTimeStarted();
-            displayLiveDecisions();
-        });
-    }
+			int d = e.decision ? 1 : 0;
+			String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
 
-    /**
-     * @see app.owlcms.nui.shared.AthleteGridContent#announcerButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
-     */
-    @Override
-    protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
-        createStopTimeButton();
-        HorizontalLayout buttons = new HorizontalLayout(stopTimeButton);
-        buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
-        return buttons;
-    }
+			Notification n = new Notification();
+			String themeName = e.decision ? "success" : "error";
+			n.getElement().getThemeList().add(themeName);
 
-    /**
-     * @see app.owlcms.nui.shared.AthleteGridContent#decisionButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
-     */
-    @Override
-    protected HorizontalLayout decisionButtons(FlexLayout announcerBar) {
-        HorizontalLayout decisions = new HorizontalLayout();
-        return decisions;
-    }
+			Div label = new Div();
+			label.add(text);
+			label.addClickListener((event) -> n.close());
+			label.setSizeFull();
+			label.getStyle().set("font-size", "large");
+			n.add(label);
+			n.setPosition(Position.TOP_START);
+			n.setDuration(5000);
+			n.open();
+		});
+	}
 
-    protected void displayLiveDecisions() {
-        if (decisionLights == null) {
-            getTopBarLeft().removeAll();
-            createDecisionLights();
-            getTopBarLeft().add(decisionLights);
-        }
-    }
+	@Subscribe
+	public void slaveStartTime(UIEvent.StartTime e) {
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			buttonsTimeStarted();
+			displayLiveDecisions();
+		});
+	}
 
-    private void createDecisionLights() {
-        JuryDisplayDecisionElement decisionDisplay = new JuryDisplayDecisionElement();
+	private void createDecisionLights() {
+		JuryDisplayDecisionElement decisionDisplay = new JuryDisplayDecisionElement();
 //        Icon silenceIcon = AvIcons.MIC_OFF.create();
-        decisionLights = new HorizontalLayout(decisionDisplay);
-        decisionLights.addClassName("announcerLeft");
-        // decisionLights.setWidth("12em");
-        decisionLights.getStyle().set("line-height", "2em");
-    }
+		decisionLights = new HorizontalLayout(decisionDisplay);
+		decisionLights.addClassName("announcerLeft");
+		// decisionLights.setWidth("12em");
+		decisionLights.getStyle().set("line-height", "2em");
+	}
 
-    private void hideLiveDecisions() {
-        getTopBarLeft().removeAll();
-        fillTopBarLeft();
-        decisionLights = null;
-    }
+	private void hideLiveDecisions() {
+		getTopBarLeft().removeAll();
+		fillTopBarLeft();
+		decisionLights = null;
+	}
+
+	/**
+	 * @see app.owlcms.nui.shared.AthleteGridContent#announcerButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
+	 */
+	@Override
+	protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
+		createStopTimeButton();
+		HorizontalLayout buttons = new HorizontalLayout(stopTimeButton);
+		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+		return buttons;
+	}
+
+	/**
+	 * @see app.owlcms.nui.shared.AthleteGridContent#decisionButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
+	 */
+	@Override
+	protected HorizontalLayout decisionButtons(FlexLayout announcerBar) {
+		HorizontalLayout decisions = new HorizontalLayout();
+		return decisions;
+	}
+
+	protected void displayLiveDecisions() {
+		if (decisionLights == null) {
+			getTopBarLeft().removeAll();
+			createDecisionLights();
+			getTopBarLeft().add(decisionLights);
+		}
+	}
 }

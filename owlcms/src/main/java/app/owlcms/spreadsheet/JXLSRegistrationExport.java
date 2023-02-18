@@ -32,44 +32,44 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class JXLSRegistrationExport extends JXLSWorkbookStreamSource {
 
-    final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSRegistrationExport.class);
-    final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
-    static {
-        logger.setLevel(Level.INFO);
-        jexlLogger.setLevel(Level.ERROR);
-        tagLogger.setLevel(Level.ERROR);
-    }
+	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSRegistrationExport.class);
+	final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
+	static {
+		logger.setLevel(Level.INFO);
+		jexlLogger.setLevel(Level.ERROR);
+		tagLogger.setLevel(Level.ERROR);
+	}
 
-    public JXLSRegistrationExport(UI ui) {
-        super();
-    }
+	public JXLSRegistrationExport(UI ui) {
+		super();
+	}
 
-    @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        return getLocalizedTemplate("/templates/registration/RegistrationExport", ".xls", locale);
-    }
+	@Override
+	public HashMap<String, Object> getReportingBeans() {
+		HashMap<String, Object> beans = super.getReportingBeans();
+		// the purpose of allocating groups, better to sort by platform first.
+		beans.put("groups", GroupRepository.findAll().stream().sorted((a, b) -> {
+			int compare = ObjectUtils.compare(a.getPlatform(), b.getPlatform(), true);
+			if (compare != 0) {
+				return compare;
+			}
+			compare = ObjectUtils.compare(a.getWeighInTime(), b.getWeighInTime(), true);
+			return compare;
+		}).collect(Collectors.toList()));
+		return beans;
+	}
 
-    @Override
-    protected List<Athlete> getSortedAthletes() {
-        List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, null);
-        return AthleteSorter
-                .registrationExportCopy(athletes);
-    }
-    
-    @Override
-    public HashMap<String, Object> getReportingBeans() {
-        HashMap<String, Object> beans = super.getReportingBeans();
-        // the purpose of allocating groups, better to sort by platform first.
-        beans.put("groups", GroupRepository.findAll().stream().sorted((a, b) -> {
-            int compare = ObjectUtils.compare(a.getPlatform(), b.getPlatform(), true);
-            if (compare != 0) {
-                return compare;
-            }
-            compare = ObjectUtils.compare(a.getWeighInTime(), b.getWeighInTime(), true);
-            return compare;
-        }).collect(Collectors.toList()));
-        return beans;
-    }
+	@Override
+	public InputStream getTemplate(Locale locale) throws IOException {
+		return getLocalizedTemplate("/templates/registration/RegistrationExport", ".xls", locale);
+	}
+
+	@Override
+	protected List<Athlete> getSortedAthletes() {
+		List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, null);
+		return AthleteSorter
+		        .registrationExportCopy(athletes);
+	}
 
 }

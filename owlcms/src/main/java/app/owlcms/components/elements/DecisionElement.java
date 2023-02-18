@@ -35,24 +35,24 @@ import ch.qos.logback.classic.Logger;
 public class DecisionElement extends PolymerTemplate<TemplateModel>
         implements SafeEventBusRegistration {
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElement.class);
-    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElement.class);
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
-    static {
-        logger.setLevel(Level.INFO);
-        uiEventLogger.setLevel(Level.INFO);
-    }
+	static {
+		logger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.INFO);
+	}
 
-    protected EventBus fopEventBus;
-    protected EventBus uiEventBus;
-    private boolean silenced;
+	protected EventBus fopEventBus;
+	protected EventBus uiEventBus;
+	private boolean silenced;
 //    private Boolean prevRef1;
 //    private Boolean prevRef2;
 //    private Boolean prevRef3;
 //    private MqttAsyncClient client;
-    private boolean juryMode;
+	private boolean juryMode;
 
-    public DecisionElement() {
+	public DecisionElement() {
 //        if (isMqttDecisions()) {
 //            try {
 //                client = MQTTMonitor.createMQTTClient(OwlcmsSession.getFop());
@@ -65,7 +65,7 @@ public class DecisionElement extends PolymerTemplate<TemplateModel>
 //            } catch (MqttException e) {
 //            }
 //        }
-    }
+	}
 
 //    private MqttConnectOptions setUpConnectionOptions(String username, String password) {
 //        MqttConnectOptions connOpts = new MqttConnectOptions();
@@ -81,34 +81,36 @@ public class DecisionElement extends PolymerTemplate<TemplateModel>
 //        return connOpts;
 //    }
 
-    /**
-     * @return the silenced
-     */
-    public boolean isSilenced() {
-        return silenced;
-    }
+	/**
+	 * @return the silenced
+	 */
+	public boolean isSilenced() {
+		return silenced;
+	}
 
-    @ClientCallable
-    /**
-     * client side only sends after timer has been started until decision reset or break
-     *
-     * @param ref1
-     * @param ref2
-     * @param ref3
-     * @param ref1Time
-     * @param ref2Time
-     * @param ref3Time
-     */
-    public void masterRefereeUpdate(String fopName, Boolean ref1, Boolean ref2, Boolean ref3, Integer ref1Time,
-            Integer ref2Time,
-            Integer ref3Time) {
-        Object origin = this.getOrigin();
-        OwlcmsSession.withFop((fop) -> {
-            if (!fopName.contentEquals(fop.getName())) {
-                return;
-            }
-            // logger.debug("master referee update {} ({} {} {})", fop.getCurAthlete(), ref1, ref2, ref3, ref1Time,
-            // ref2Time, ref3Time);
+	@ClientCallable
+	/**
+	 * client side only sends after timer has been started until decision reset or
+	 * break
+	 *
+	 * @param ref1
+	 * @param ref2
+	 * @param ref3
+	 * @param ref1Time
+	 * @param ref2Time
+	 * @param ref3Time
+	 */
+	public void masterRefereeUpdate(String fopName, Boolean ref1, Boolean ref2, Boolean ref3, Integer ref1Time,
+	        Integer ref2Time,
+	        Integer ref3Time) {
+		Object origin = this.getOrigin();
+		OwlcmsSession.withFop((fop) -> {
+			if (!fopName.contentEquals(fop.getName())) {
+				return;
+			}
+			// logger.debug("master referee update {} ({} {} {})", fop.getCurAthlete(),
+			// ref1, ref2, ref3, ref1Time,
+			// ref2Time, ref3Time);
 //            if (isMqttDecisions()) {
 //                if (ref1 != null && prevRef1 != ref1) {
 //                    // logger.debug("update 1 {}", ref1);
@@ -126,14 +128,14 @@ public class DecisionElement extends PolymerTemplate<TemplateModel>
 //                    prevRef3 = ref3;
 //                }
 //            } else {
-                fop.fopEventPost(
-                        new FOPEvent.DecisionFullUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3,
-                                Long.valueOf(ref1Time),
-                                Long.valueOf(ref2Time), Long.valueOf(ref3Time), false));
+			fop.fopEventPost(
+			        new FOPEvent.DecisionFullUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3,
+			                Long.valueOf(ref1Time),
+			                Long.valueOf(ref2Time), Long.valueOf(ref3Time), false));
 //            }
-        });
+		});
 
-    }
+	}
 
 //    private void mqttPublish(String topic, String message) {
 //        try {
@@ -147,155 +149,157 @@ public class DecisionElement extends PolymerTemplate<TemplateModel>
 //        return Config.getCurrent().featureSwitch("mqttDecisions");
 //    }
 
-    @ClientCallable
-    /**
-     * client side only sends after timer has been started until decision reset or break
-     *
-     * @param decision
-     * @param ref1
-     * @param ref2
-     * @param ref3
-     */
-    public void masterShowDown(String fopName, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
-        Object origin = this.getOrigin();
-        // logger.debug("=== master {} down: decision={} ({} {} {})", origin, decision.getClass().getSimpleName(), ref1,
-        // ref2, ref3);
-        OwlcmsSession.getFop().fopEventPost(new FOPEvent.DownSignal(origin));
-    }
+	@ClientCallable
+	/**
+	 * client side only sends after timer has been started until decision reset or
+	 * break
+	 *
+	 * @param decision
+	 * @param ref1
+	 * @param ref2
+	 * @param ref3
+	 */
+	public void masterShowDown(String fopName, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
+		Object origin = this.getOrigin();
+		// logger.debug("=== master {} down: decision={} ({} {} {})", origin,
+		// decision.getClass().getSimpleName(), ref1,
+		// ref2, ref3);
+		OwlcmsSession.getFop().fopEventPost(new FOPEvent.DownSignal(origin));
+	}
 
-    public void setJury(boolean juryMode) {
-        this.setJuryMode(juryMode);
-        getElement().setProperty("jury", juryMode);
-    }
+	public void setJury(boolean juryMode) {
+		this.setJuryMode(juryMode);
+		getElement().setProperty("jury", juryMode);
+	}
 
-    public void setPublicFacing(boolean publicFacing) {
-        getElement().setProperty("publicFacing", publicFacing);
-    }
+	public void setPublicFacing(boolean publicFacing) {
+		getElement().setProperty("publicFacing", publicFacing);
+	}
 
-    public void setSilenced(boolean b) {
-        // logger.trace("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.whereFrom(1));
-        getElement().setProperty("silent",b);
-        silenced = b;
-    }
+	public void setSilenced(boolean b) {
+		// logger.trace("{} silenced = {} from {}", this.getClass().getSimpleName(), b,
+		// LoggerUtils.whereFrom(1));
+		getElement().setProperty("silent", b);
+		silenced = b;
+	}
 
-    @Subscribe
-    public void slaveBreakStart(UIEvent.BreakStarted e) {
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            logger.debug("slaveBreakStart disable");
-            this.getElement().callJsFunction("setEnabled", false);
-        });
-    }
+	@Subscribe
+	public void slaveBreakStart(UIEvent.BreakStarted e) {
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			logger.debug("slaveBreakStart disable");
+			this.getElement().callJsFunction("setEnabled", false);
+		});
+	}
 
-    @Subscribe
-    public void slaveDownSignal(UIEvent.DownSignal e) {
-        if (isJuryMode()) {
-            return;
-        }
-        // logger.trace("slaveDownSignal {} {} {}", this, this.getOrigin(), e.getOrigin());
-        if (this.getOrigin() == e.getOrigin()) {
-            // we emitted the down signal, don't do it again.
-            // logger.trace("skipping down, {} is origin",this.getOrigin());
-            return;
-        }
-        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
-            uiEventLogger.debug("!!! {} down ({})", this.getOrigin(),
-                    this.getParent().get().getClass().getSimpleName());
-            this.getElement().callJsFunction("showDown", false,
-                    isSilenced() || OwlcmsSession.getFop().isEmitSoundsOnServer());
-        });
-    }
-
-    @Subscribe
-    public void slaveDecisionReset(UIEvent.DecisionReset e) {
-        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
-            getElement().callJsFunction("reset", false);
+	@Subscribe
+	public void slaveDecisionReset(UIEvent.DecisionReset e) {
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
+			getElement().callJsFunction("reset", false);
 //            prevRef1 = null;
 //            prevRef2 = null;
 //            prevRef3 = null;
-        });
-    }
+		});
+	}
 
-    @Subscribe
-    public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
-        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
-            getElement().callJsFunction("reset", false);
+	@Subscribe
+	public void slaveDownSignal(UIEvent.DownSignal e) {
+		// logger.trace("slaveDownSignal {} {} {}", this, this.getOrigin(),
+		// e.getOrigin());
+		if (isJuryMode() || (this.getOrigin() == e.getOrigin())) {
+			// we emitted the down signal, don't do it again.
+			// logger.trace("skipping down, {} is origin",this.getOrigin());
+			return;
+		}
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
+			uiEventLogger.debug("!!! {} down ({})", this.getOrigin(),
+			        this.getParent().get().getClass().getSimpleName());
+			this.getElement().callJsFunction("showDown", false,
+			        isSilenced() || OwlcmsSession.getFop().isEmitSoundsOnServer());
+		});
+	}
+
+	@Subscribe
+	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
+			getElement().callJsFunction("reset", false);
 //            prevRef1 = null;
 //            prevRef2 = null;
 //            prevRef3 = null;
-        });
-    }
+		});
+	}
 
-    @Subscribe
-    public void slaveShowDecision(UIEvent.Decision e) {
-        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
-            uiEventLogger.debug("*** {} majority decision ({})", this.getOrigin(),
-                    this.getParent().get().getClass().getSimpleName());
-            this.getElement().callJsFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
-            this.getElement().callJsFunction("setEnabled", false);
-        });
-    }
+	@Subscribe
+	public void slaveShowDecision(UIEvent.Decision e) {
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
+			uiEventLogger.debug("*** {} majority decision ({})", this.getOrigin(),
+			        this.getParent().get().getClass().getSimpleName());
+			this.getElement().callJsFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
+			this.getElement().callJsFunction("setEnabled", false);
+		});
+	}
 
-    @Subscribe
-    public void slaveStartTimer(UIEvent.StartTime e) {
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            logger.debug("slaveStartTimer enable");
-            this.getElement().callJsFunction("setEnabled", true);
-        });
-    }
+	@Subscribe
+	public void slaveStartTimer(UIEvent.StartTime e) {
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			logger.debug("slaveStartTimer enable");
+			this.getElement().callJsFunction("setEnabled", true);
+		});
+	}
 
-    @Subscribe
-    public void slaveStopTimer(UIEvent.StopTime e) {
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            logger.debug("slaveStopTimer enable");
-            this.getElement().callJsFunction("setEnabled", true);
-        });
-    }
+	@Subscribe
+	public void slaveStopTimer(UIEvent.StopTime e) {
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			logger.debug("slaveStopTimer enable");
+			this.getElement().callJsFunction("setEnabled", true);
+		});
+	}
 
-    protected Object getOrigin() {
-        // we use the identity of our parent AttemptBoard or AthleteFacingAttemptBoard
-        // to identify
-        // our actions.
-        return this.getParent().get();
-    }
+	private void init(String fopName) {
+		getElement().setProperty("publicFacing", true);
+		getElement().setProperty("fopName", fopName);
 
-    /*
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
-     */
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
-        OwlcmsSession.withFop(fop -> {
-            init(fop.getName());
-            // we send on fopEventBus, listen on uiEventBus.
-            fopEventBus = fop.getFopEventBus();
-            uiEventBus = uiEventBusRegister(this, fop);
-        });
-    }
+		Element elem = this.getElement();
+		elem.addPropertyChangeListener("ref1", "ref1-changed", (e) -> {
+			uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
+		});
+		elem.addPropertyChangeListener("ref2", "ref2-changed", (e) -> {
+			uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
+		});
+		elem.addPropertyChangeListener("ref3", "ref3-changed", (e) -> {
+			uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
+		});
+		elem.addPropertyChangeListener("decision", "decision-changed", (e) -> {
+			uiEventLogger.debug(e.getPropertyName() + " changed to " + e.getValue());
+		});
+	}
 
-    private void init(String fopName) {
-        getElement().setProperty("publicFacing", true);
-        getElement().setProperty("fopName", fopName);
+	private boolean isJuryMode() {
+		return juryMode;
+	}
 
-        Element elem = this.getElement();
-        elem.addPropertyChangeListener("ref1", "ref1-changed", (e) -> {
-            uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
-        });
-        elem.addPropertyChangeListener("ref2", "ref2-changed", (e) -> {
-            uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
-        });
-        elem.addPropertyChangeListener("ref3", "ref3-changed", (e) -> {
-            uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
-        });
-        elem.addPropertyChangeListener("decision", "decision-changed", (e) -> {
-            uiEventLogger.debug(e.getPropertyName() + " changed to " + e.getValue());
-        });
-    }
+	private void setJuryMode(boolean juryMode) {
+		this.juryMode = juryMode;
+	}
 
-    private boolean isJuryMode() {
-        return juryMode;
-    }
+	protected Object getOrigin() {
+		// we use the identity of our parent AttemptBoard or AthleteFacingAttemptBoard
+		// to identify
+		// our actions.
+		return this.getParent().get();
+	}
 
-    private void setJuryMode(boolean juryMode) {
-        this.juryMode = juryMode;
-    }
+	/*
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
+	 * AttachEvent)
+	 */
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		super.onAttach(attachEvent);
+		OwlcmsSession.withFop(fop -> {
+			init(fop.getName());
+			// we send on fopEventBus, listen on uiEventBus.
+			fopEventBus = fop.getFopEventBus();
+			uiEventBus = uiEventBusRegister(this, fop);
+		});
+	}
 }

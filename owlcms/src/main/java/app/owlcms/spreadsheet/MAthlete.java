@@ -10,89 +10,89 @@ import app.owlcms.i18n.Translator;
 
 public class MAthlete extends PAthlete {
 
-    public static class MedalComparator implements Comparator<MAthlete> {
+	public static class MedalComparator implements Comparator<MAthlete> {
 
-        @Override
-        public int compare(MAthlete o1, MAthlete o2) {
-            int compare;
+		@Override
+		public int compare(MAthlete o1, MAthlete o2) {
+			int compare;
 
-            compare = ObjectUtils.compare(o1.getCategory(), o2.getCategory(), false);
-            if (compare != 0) {
-                return compare;
-            }
+			compare = ObjectUtils.compare(o1.getCategory(), o2.getCategory(), false);
+			if (compare != 0) {
+				return compare;
+			}
 
-            compare = ObjectUtils.compare(o1.getRanking(), o2.getRanking(), false);
-            if (compare != 0) {
-                return compare;
-            }
+			compare = ObjectUtils.compare(o1.getRanking(), o2.getRanking(), false);
+			if (compare != 0) {
+				return compare;
+			}
 
-            // bronze first
-            compare = ObjectUtils.compare(o1.getLiftRank(), o2.getLiftRank(), false);
-            if (compare != 0) {
-                return -compare;
-            }
+			// bronze first
+			compare = ObjectUtils.compare(o1.getLiftRank(), o2.getLiftRank(), false);
+			if (compare != 0) {
+				return -compare;
+			}
 
-            return 0;
-        }
+			return 0;
+		}
 
-    }
+	}
 
-    static boolean winsMedal(PAthlete p, Ranking r) {
-        Integer rank = AthleteSorter.getRank(p, r);
-        return rank >= 1 && rank <= 3;
-    }
+	static boolean winsMedal(PAthlete p, Ranking r) {
+		Integer rank = AthleteSorter.getRank(p, r);
+		return rank >= 1 && rank <= 3;
+	}
 
-    private int liftRank;
+	private int liftRank;
 
-    private int liftResult;
+	private int liftResult;
 
-    private Ranking ranking;
+	private Ranking ranking;
 
-    public MAthlete(PAthlete p, Ranking r, int rank, Integer result) {
-        super(p._getParticipation());
-        this.setRanking(r);
-        this.setLiftRank(rank);
-        this.setLiftResult(result == null ? 0 : result);
-    }
+	public MAthlete(PAthlete p, Ranking r, int rank, Integer result) {
+		super(p._getParticipation());
+		this.setRanking(r);
+		this.setLiftRank(rank);
+		this.setLiftResult(result == null ? 0 : result);
+	}
 
-    public int getLiftRank() {
-        return liftRank;
-    }
+	public int getLiftRank() {
+		return liftRank;
+	}
 
-    public int getLiftResult() {
-        return liftResult;
-    }
+	public int getLiftResult() {
+		return liftResult;
+	}
 
-    public Ranking getRanking() {
-        return ranking;
-    }
+	public Ranking getRanking() {
+		return ranking;
+	}
 
-    public void setRankingText() {
-    }
+	public String getRankingText() {
+		switch (ranking) {
+		case CLEANJERK:
+			return Translator.translate("Clean_and_Jerk");
+		case SNATCH:
+			return Translator.translate("Snatch");
+		case TOTAL:
+			return Translator.translate("Total");
+		default:
+			return ranking.name();
+		}
+	}
 
-    public String getRankingText() {
-        switch (ranking) {
-        case CLEANJERK:
-            return Translator.translate("Clean_and_Jerk");
-        case SNATCH:
-            return Translator.translate("Snatch");
-        case TOTAL:
-            return Translator.translate("Total");
-        default:
-            return ranking.name();
-        }
-    }
+	public void setLiftResult(int liftResult) {
+		this.liftResult = liftResult;
+	}
 
-    public void setLiftResult(int liftResult) {
-        this.liftResult = liftResult;
-    }
+	public void setRanking(Ranking ranking) {
+		this.ranking = ranking;
+	}
 
-    public void setRanking(Ranking ranking) {
-        this.ranking = ranking;
-    }
+	public void setRankingText() {
+	}
 
-    private void setLiftRank(int catMedalRank) {
-        this.liftRank = catMedalRank;
-    }
+	private void setLiftRank(int catMedalRank) {
+		this.liftRank = catMedalRank;
+	}
 
 }

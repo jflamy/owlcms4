@@ -10,7 +10,7 @@ import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 
 public interface IAthleteEditing {
 
-    void closeDialog();
+	void closeDialog();
 
-    OwlcmsCrudGrid<?> getEditingGrid();
+	OwlcmsCrudGrid<?> getEditingGrid();
 }

@@ -31,51 +31,51 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 
-    final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSResultSheet.class);
-    final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
-    static {
-        logger.setLevel(Level.INFO);
-        jexlLogger.setLevel(Level.ERROR);
-        tagLogger.setLevel(Level.ERROR);
-    }
+	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSResultSheet.class);
+	final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
+	static {
+		logger.setLevel(Level.INFO);
+		jexlLogger.setLevel(Level.ERROR);
+		tagLogger.setLevel(Level.ERROR);
+	}
 
-    private boolean resultsByCategory;
+	private boolean resultsByCategory;
 
-    public JXLSResultSheet() {
-        this(true);
-    }
+	public JXLSResultSheet() {
+		this(true);
+	}
 
-    public JXLSResultSheet(boolean b) {
-        this.resultsByCategory = b;
-    }
+	public JXLSResultSheet(boolean b) {
+		this.resultsByCategory = b;
+	}
 
-    @Override
-    protected List<Athlete> getSortedAthletes() {
-        if (sortedAthletes != null) {
-            return sortedAthletes;
-        }
-        final Group currentGroup = getGroup();
-        Category currentCategory = getCategory();
-        AgeDivision currentAgeDivision = getAgeDivision();
-        String currentAgeGroupPrefix = getAgeGroupPrefix();
-        List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(currentGroup);
-        
-        // get all the PAthletes for the current group - athletes show as many times as they have participations.
-        List<Athlete> pAthletes;
-        if (resultsByCategory) {
-            pAthletes = new ArrayList<Athlete>(rankedAthletes.size()*2);
-            for (Athlete a : rankedAthletes) {
-                for (Participation p : a.getParticipations()) {
-                    pAthletes.add(new PAthlete(p));
-                }
-            }
-        } else {
-            pAthletes = rankedAthletes;
-        }
-        
+	@Override
+	protected List<Athlete> getSortedAthletes() {
+		if (sortedAthletes != null) {
+			return sortedAthletes;
+		}
+		final Group currentGroup = getGroup();
+		Category currentCategory = getCategory();
+		AgeDivision currentAgeDivision = getAgeDivision();
+		String currentAgeGroupPrefix = getAgeGroupPrefix();
+		List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(currentGroup);
 
-        // @formatter:off
+		// get all the PAthletes for the current group - athletes show as many times as
+		// they have participations.
+		List<Athlete> pAthletes;
+		if (resultsByCategory) {
+			pAthletes = new ArrayList<>(rankedAthletes.size() * 2);
+			for (Athlete a : rankedAthletes) {
+				for (Participation p : a.getParticipations()) {
+					pAthletes.add(new PAthlete(p));
+				}
+			}
+		} else {
+			pAthletes = rankedAthletes;
+		}
+
+		// @formatter:off
         List<Athlete> athletes = AthleteSorter.displayOrderCopy(pAthletes).stream()
                 .filter(a -> {
                     Double bw;
@@ -116,20 +116,22 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
                 .collect(Collectors.toList());
         return athletes;
         // @formatter:on
-    }
+	}
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
-     * postProcess(org.apache.poi.ss.usermodel.Workbook)
-     */
-    @Override
-    protected void postProcess(Workbook workbook) {
-        final Group currentCompetitionSession = getGroup();
-        if (currentCompetitionSession == null && !Competition.getCurrent().getProtocolTemplateFileName().contains("USAW")) {
-            zapCellPair(workbook, 3, 9);
-        }
-    }
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
+	 * postProcess(org.apache.poi.ss.usermodel.Workbook)
+	 */
+	@Override
+	protected void postProcess(Workbook workbook) {
+		final Group currentCompetitionSession = getGroup();
+		if (currentCompetitionSession == null
+		        && !Competition.getCurrent().getProtocolTemplateFileName().contains("USAW")) {
+			zapCellPair(workbook, 3, 9);
+		}
+	}
 
 }

@@ -107,6 +107,8 @@ public class TeamSelectionContent extends VerticalLayout
 
 	private String routeParameter;
 
+	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+
 	/**
 	 * Instantiates a new announcer content. Does nothing. Content is created in
 	 * {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
@@ -324,6 +326,11 @@ public class TeamSelectionContent extends VerticalLayout
 	}
 
 	@Override
+	public HashMap<String, List<String>> getUrlParameterMap() {
+		return urlParameterMap;
+	}
+
+	@Override
 	public boolean isDarkMode() {
 		return false;
 	}
@@ -434,6 +441,11 @@ public class TeamSelectionContent extends VerticalLayout
 	@Override
 	public void setSilenced(boolean silent) {
 		return;
+	}
+
+	@Override
+	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+		this.urlParameterMap = newParameterMap;
 	}
 
 	@Override

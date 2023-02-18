@@ -31,162 +31,164 @@ import net.sf.jxls.transformer.XLSTransformer;
  */
 public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    private AgeDivision ageDivision;
+	private AgeDivision ageDivision;
 
-    private String ageGroupPrefix;
+	private String ageGroupPrefix;
 
-    @SuppressWarnings("unused")
-    private Logger logger = LoggerFactory.getLogger(JXLSCompetitionBook.class);
+	@SuppressWarnings("unused")
+	private Logger logger = LoggerFactory.getLogger(JXLSCompetitionBook.class);
 
-    public JXLSCompetitionBook(boolean excludeNotWeighed, UI ui) {
-        super();
-    }
+	public JXLSCompetitionBook(boolean excludeNotWeighed, UI ui) {
+		super();
+	}
 
-    public JXLSCompetitionBook(UI ui) {
-        // by default, we exclude athletes who did not weigh in.
-        super();
-    }
+	public JXLSCompetitionBook(UI ui) {
+		// by default, we exclude athletes who did not weigh in.
+		super();
+	}
 
-    /**
-     * @return the ageDivision
-     */
-    @Override
-    public AgeDivision getAgeDivision() {
-        return ageDivision;
-    }
+	/**
+	 * @return the ageDivision
+	 */
+	@Override
+	public AgeDivision getAgeDivision() {
+		return ageDivision;
+	}
 
-    @Override
-    public String getAgeGroupPrefix() {
-        return ageGroupPrefix;
-    }
+	@Override
+	public String getAgeGroupPrefix() {
+		return ageGroupPrefix;
+	}
 
-    /**
-     * @param ageDivision the ageDivision to set
-     */
-    @Override
-    public void setAgeDivision(AgeDivision ageDivision) {
-        // logger.debug("set ad {} \\n{}",ageDivision,LoggerUtils.stackTrace());
-        this.ageDivision = ageDivision;
-    }
+	/**
+	 * @param ageDivision the ageDivision to set
+	 */
+	@Override
+	public void setAgeDivision(AgeDivision ageDivision) {
+		// logger.debug("set ad {} \\n{}",ageDivision,LoggerUtils.stackTrace());
+		this.ageDivision = ageDivision;
+	}
 
-    @Override
-    public void setAgeGroupPrefix(String ageGroupPrefix) {
-        this.ageGroupPrefix = ageGroupPrefix;
-    }
+	@Override
+	public void setAgeGroupPrefix(String ageGroupPrefix) {
+		this.ageGroupPrefix = ageGroupPrefix;
+	}
 
-    @Override
-    protected void configureTransformer(XLSTransformer transformer) {
-        super.configureTransformer(transformer);
-        transformer.markAsFixedSizeCollection("clubs");
-        transformer.markAsFixedSizeCollection("mTeam");
-        transformer.markAsFixedSizeCollection("wTeam");
-        transformer.markAsFixedSizeCollection("mwTeam");
-        transformer.markAsFixedSizeCollection("mCombined");
-        transformer.markAsFixedSizeCollection("wCombined");
-        transformer.markAsFixedSizeCollection("mCustom");
-        transformer.markAsFixedSizeCollection("wCustom");
-    }
+	private void setTeamSheetPrintArea(Workbook workbook, String sheetName, int nbClubs) {
+		// int sheetIndex = workbook.getSheetIndex(sheetName);
+		// if (sheetIndex >= 0) {
+		// workbook.setPrintArea(sheetIndex, 0, 4, TEAMSHEET_FIRST_ROW,
+		// TEAMSHEET_FIRST_ROW+nbClubs);
+		// }
+	}
 
-    @Override
-    protected List<Athlete> getSortedAthletes() {
-        // not used (setReportingInfo does all the work)
-        return null;
-    }
+	/**
+	 * jxls does not translate sheet names and header/footers.
+	 *
+	 * @param workbook
+	 */
+	private void translateSheets(Workbook workbook) {
+		int nbSheets = workbook.getNumberOfSheets();
+		for (int sheetIndex = 0; sheetIndex < nbSheets; sheetIndex++) {
+			Sheet curSheet = workbook.getSheetAt(sheetIndex);
+			String sheetName = curSheet.getSheetName();
+			String translate = Translator.translateOrElseNull("CompetitionBook." + sheetName,
+			        OwlcmsSession.getLocale());
+			workbook.setSheetName(sheetIndex, translate != null ? translate : sheetName);
 
-    /*
-     * team result sheets need columns hidden, print area fixed
-     *
-     * @see org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
-     * postProcess(org.apache.poi.ss.usermodel.Workbook)
-     */
-    @Override
-    protected void postProcess(Workbook workbook) {
-        super.postProcess(workbook);
-        @SuppressWarnings("unchecked")
-        int nbClubs = ((Set<String>) getReportingBeans().get("clubs")).size();
+			// use translate so this shows as missing on the sheet.
+			String leftHeader = Translator.translate("CompetitionBook." + sheetName + "_LeftHeader",
+			        OwlcmsSession.getLocale());
+			if (leftHeader != null) {
+				curSheet.getHeader().setLeft(leftHeader);
+			}
+			String centerHeader = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_CenterHeader",
+			        OwlcmsSession.getLocale());
+			if (centerHeader != null) {
+				curSheet.getHeader().setCenter(centerHeader);
+			}
+			// use translate so this shows as missing on the sheet.
+			String rightHeader = Translator.translate("CompetitionBook." + sheetName + "_RightHeader",
+			        OwlcmsSession.getLocale());
+			if (rightHeader != null) {
+				curSheet.getHeader().setRight(rightHeader);
+			}
 
-        setTeamSheetPrintArea(workbook, "MT", nbClubs);
-        setTeamSheetPrintArea(workbook, "WT", nbClubs);
-        setTeamSheetPrintArea(workbook, "MWT", nbClubs);
+			String leftFooter = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_LeftFooter",
+			        OwlcmsSession.getLocale());
+			if (leftFooter != null) {
+				curSheet.getFooter().setLeft(leftFooter);
+			}
+			String centerFooter = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_CenterFooter",
+			        OwlcmsSession.getLocale());
+			if (centerFooter != null) {
+				curSheet.getFooter().setCenter(centerFooter);
+			}
+			String rightFooter = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_RightFooter",
+			        OwlcmsSession.getLocale());
+			if (rightFooter != null) {
+				curSheet.getFooter().setRight(rightFooter);
+			}
+		}
+	}
 
-        setTeamSheetPrintArea(workbook, "MXT", nbClubs);
-        setTeamSheetPrintArea(workbook, "WXT", nbClubs);
+	@Override
+	protected void configureTransformer(XLSTransformer transformer) {
+		super.configureTransformer(transformer);
+		transformer.markAsFixedSizeCollection("clubs");
+		transformer.markAsFixedSizeCollection("mTeam");
+		transformer.markAsFixedSizeCollection("wTeam");
+		transformer.markAsFixedSizeCollection("mwTeam");
+		transformer.markAsFixedSizeCollection("mCombined");
+		transformer.markAsFixedSizeCollection("wCombined");
+		transformer.markAsFixedSizeCollection("mCustom");
+		transformer.markAsFixedSizeCollection("wCustom");
+	}
 
-        setTeamSheetPrintArea(workbook, "MCT", nbClubs);
-        setTeamSheetPrintArea(workbook, "WCT", nbClubs);
-        setTeamSheetPrintArea(workbook, "MWCT", nbClubs);
+	@Override
+	protected List<Athlete> getSortedAthletes() {
+		// not used (setReportingInfo does all the work)
+		return null;
+	}
 
-        translateSheets(workbook);
-        workbook.setForceFormulaRecalculation(true);
+	/*
+	 * team result sheets need columns hidden, print area fixed
+	 *
+	 * @see
+	 * org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
+	 * postProcess(org.apache.poi.ss.usermodel.Workbook)
+	 */
+	@Override
+	protected void postProcess(Workbook workbook) {
+		super.postProcess(workbook);
+		@SuppressWarnings("unchecked")
+		int nbClubs = ((Set<String>) getReportingBeans().get("clubs")).size();
 
-    }
+		setTeamSheetPrintArea(workbook, "MT", nbClubs);
+		setTeamSheetPrintArea(workbook, "WT", nbClubs);
+		setTeamSheetPrintArea(workbook, "MWT", nbClubs);
 
-    @Override
-    protected void setReportingInfo() {
-        Competition competition = Competition.getCurrent();
-        competition.computeReportingInfo(getAgeGroupPrefix(), getAgeDivision());
+		setTeamSheetPrintArea(workbook, "MXT", nbClubs);
+		setTeamSheetPrintArea(workbook, "WXT", nbClubs);
 
-        super.setReportingInfo();
-        setReportingBeans(competition.getReportingBeans());
-    }
+		setTeamSheetPrintArea(workbook, "MCT", nbClubs);
+		setTeamSheetPrintArea(workbook, "WCT", nbClubs);
+		setTeamSheetPrintArea(workbook, "MWCT", nbClubs);
 
-    private void setTeamSheetPrintArea(Workbook workbook, String sheetName, int nbClubs) {
-        // int sheetIndex = workbook.getSheetIndex(sheetName);
-        // if (sheetIndex >= 0) {
-        // workbook.setPrintArea(sheetIndex, 0, 4, TEAMSHEET_FIRST_ROW,
-        // TEAMSHEET_FIRST_ROW+nbClubs);
-        // }
-    }
+		translateSheets(workbook);
+		workbook.setForceFormulaRecalculation(true);
 
-    /**
-     * jxls does not translate sheet names and header/footers.
-     *
-     * @param workbook
-     */
-    private void translateSheets(Workbook workbook) {
-        int nbSheets = workbook.getNumberOfSheets();
-        for (int sheetIndex = 0; sheetIndex < nbSheets; sheetIndex++) {
-            Sheet curSheet = workbook.getSheetAt(sheetIndex);
-            String sheetName = curSheet.getSheetName();
-            String translate = Translator.translateOrElseNull("CompetitionBook." + sheetName, OwlcmsSession.getLocale());
-            workbook.setSheetName(sheetIndex, translate != null ? translate : sheetName);
+	}
 
-            // use translate so this shows as missing on the sheet.
-            String leftHeader = Translator.translate("CompetitionBook." + sheetName + "_LeftHeader",
-                    OwlcmsSession.getLocale());
-            if (leftHeader != null) {
-                curSheet.getHeader().setLeft(leftHeader);
-            }
-            String centerHeader = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_CenterHeader",
-                    OwlcmsSession.getLocale());
-            if (centerHeader != null) {
-                curSheet.getHeader().setCenter(centerHeader);
-            }
-            // use translate so this shows as missing on the sheet.
-            String rightHeader = Translator.translate("CompetitionBook." + sheetName + "_RightHeader",
-                    OwlcmsSession.getLocale());
-            if (rightHeader != null) {
-                curSheet.getHeader().setRight(rightHeader);
-            }
+	@Override
+	protected void setReportingInfo() {
+		Competition competition = Competition.getCurrent();
+		competition.computeReportingInfo(getAgeGroupPrefix(), getAgeDivision());
 
-            String leftFooter = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_LeftFooter",
-                    OwlcmsSession.getLocale());
-            if (leftFooter != null) {
-                curSheet.getFooter().setLeft(leftFooter);
-            }
-            String centerFooter = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_CenterFooter",
-                    OwlcmsSession.getLocale());
-            if (centerFooter != null) {
-                curSheet.getFooter().setCenter(centerFooter);
-            }
-            String rightFooter = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_RightFooter",
-                    OwlcmsSession.getLocale());
-            if (rightFooter != null) {
-                curSheet.getFooter().setRight(rightFooter);
-            }
-        }
-    }
+		super.setReportingInfo();
+		setReportingBeans(competition.getReportingBeans());
+	}
 
 }

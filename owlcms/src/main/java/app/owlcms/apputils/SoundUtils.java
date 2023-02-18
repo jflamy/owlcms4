@@ -22,59 +22,61 @@ import ch.qos.logback.classic.Logger;
 
 public class SoundUtils {
 
-    static Logger logger = (Logger) LoggerFactory.getLogger(SoundUtils.class);
+	static Logger logger = (Logger) LoggerFactory.getLogger(SoundUtils.class);
 
-    public static void doEnableAudioContext(Element element) {
-        // this.getElement().executeJs("window.audioCtx.suspend()");
-        PendingJavaScriptResult result = element.executeJs("return (window.isIOS ? window.audioCtx.state : 'running')");
-        result.then(String.class, r -> {
-            logger.debug("audio state {}", r);
-            if (!r.equals("running")) {
-                element.executeJs("window.audioCtx.resume()");
-            } else {
-                // Notification.show("Audio enabled");
-            }
-        });
-    }
+	public static void doEnableAudioContext(Element element) {
+		// this.getElement().executeJs("window.audioCtx.suspend()");
+		PendingJavaScriptResult result = element.executeJs("return (window.isIOS ? window.audioCtx.state : 'running')");
+		result.then(String.class, r -> {
+			logger.debug("audio state {}", r);
+			if (!r.equals("running")) {
+				element.executeJs("window.audioCtx.resume()");
+			} else {
+				// Notification.show("Audio enabled");
+			}
+		});
+	}
 
-    public static void enableAudioContextNotification(Element element) {
-        // this.getElement().executeJs("window.audioCtx.suspend()");
-        PendingJavaScriptResult result = element.executeJs("return (window.isIOS ? window.audioCtx.state : 'running')");
-        // PendingJavaScriptResult result = element.executeJs("return window.audioCtx.state");
-        audioStatusCallback(element, result);
-    }
+	public static void enableAudioContextNotification(Element element) {
+		// this.getElement().executeJs("window.audioCtx.suspend()");
+		PendingJavaScriptResult result = element.executeJs("return (window.isIOS ? window.audioCtx.state : 'running')");
+		// PendingJavaScriptResult result = element.executeJs("return
+		// window.audioCtx.state");
+		audioStatusCallback(element, result);
+	}
 
-    public static void enableAudioContextNotification(Element element, boolean useState) {
-        PendingJavaScriptResult result = element
-                .executeJs("return (window.isIOS ||" + useState + " ? window.audioCtx.state : 'running')");
-        // PendingJavaScriptResult result = element.executeJs("return window.audioCtx.state");
-        audioStatusCallback(element, result);
-    }
+	public static void enableAudioContextNotification(Element element, boolean useState) {
+		PendingJavaScriptResult result = element
+		        .executeJs("return (window.isIOS ||" + useState + " ? window.audioCtx.state : 'running')");
+		// PendingJavaScriptResult result = element.executeJs("return
+		// window.audioCtx.state");
+		audioStatusCallback(element, result);
+	}
 
-    private static void audioStatusCallback(Element element, PendingJavaScriptResult result) {
-        result.then(String.class, r -> {
-            // logger.debug("audio state {}", r);
-            if (!r.equals("running")) {
-                Notification n = new Notification();
-                n.setDuration(0);
-                n.setPosition(Position.TOP_STRETCH);
-                n.addThemeVariants(NotificationVariant.LUMO_ERROR);
-                Button content = new Button();
-                content.setText(Translator.translate("ClickOrTapToEnableSound"));
-                content.addClickListener(c -> {
-                    element.executeJs("window.audioCtx.resume()");
-                    Component component = element.getComponent().get();
-                    if (component instanceof DisplayParameters) {
-                        ((DisplayParameters) component).setSilenced(false);
-                    }
-                    n.close();
-                });
-                n.add(content);
-                n.open();
-            } else {
-                // Notification.show("Audio enabled");
-            }
-        });
-    }
+	private static void audioStatusCallback(Element element, PendingJavaScriptResult result) {
+		result.then(String.class, r -> {
+			// logger.debug("audio state {}", r);
+			if (!r.equals("running")) {
+				Notification n = new Notification();
+				n.setDuration(0);
+				n.setPosition(Position.TOP_STRETCH);
+				n.addThemeVariants(NotificationVariant.LUMO_ERROR);
+				Button content = new Button();
+				content.setText(Translator.translate("ClickOrTapToEnableSound"));
+				content.addClickListener(c -> {
+					element.executeJs("window.audioCtx.resume()");
+					Component component = element.getComponent().get();
+					if (component instanceof DisplayParameters) {
+						((DisplayParameters) component).setSilenced(false);
+					}
+					n.close();
+				});
+				n.add(content);
+				n.open();
+			} else {
+				// Notification.show("Audio enabled");
+			}
+		});
+	}
 
 }

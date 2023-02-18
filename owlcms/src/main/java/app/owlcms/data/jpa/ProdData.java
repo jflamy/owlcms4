@@ -26,99 +26,100 @@ import ch.qos.logback.classic.Logger;
  */
 public class ProdData {
 
-    @SuppressWarnings("unused")
-    private static Logger logger = (Logger) LoggerFactory.getLogger(ProdData.class);
+	@SuppressWarnings("unused")
+	private static Logger logger = (Logger) LoggerFactory.getLogger(ProdData.class);
 
-    /**
-     * Insert initial data if the database is empty.
-     *
-     * @param nbAthletes how many athletes
-     */
-    public static void insertInitialData(int nbAthletes) {
-        JPAService.runInTransaction(em -> {
-            Competition competition = createDefaultCompetition();
-            CompetitionRepository.save(competition);
+	/**
+	 * Insert initial data if the database is empty.
+	 *
+	 * @param nbAthletes how many athletes
+	 */
+	public static void insertInitialData(int nbAthletes) {
+		JPAService.runInTransaction(em -> {
+			Competition competition = createDefaultCompetition();
+			CompetitionRepository.save(competition);
 
-            AgeGroupRepository.insertAgeGroups(em, null);
-            return null;
-        });
-        JPAService.runInTransaction(em -> {
-            setupEmptyCompetition(em);
-            return null;
-        });
-    }
+			AgeGroupRepository.insertAgeGroups(em, null);
+			return null;
+		});
+		JPAService.runInTransaction(em -> {
+			setupEmptyCompetition(em);
+			return null;
+		});
+	}
 
-    protected static Competition createDefaultCompetition() {
-        Competition competition = new Competition();
+	private static Locale getLocale() {
+		return Locale.ENGLISH;
+	}
 
-        competition.setCompetitionName(Translator.translate("Competition", getLocale()) + " ?");
-        competition.setCompetitionCity(Translator.translate("Competition.competitionCity", getLocale()) + " ?");
-        competition.setCompetitionDate(LocalDate.now());
-        competition
-                .setCompetitionOrganizer(Translator.translate("Competition.competitionOrganizer", getLocale()) + " ?");
-        competition.setCompetitionSite(Translator.translate("Competition.competitionSite", getLocale()) + " ?");
+	protected static Competition createDefaultCompetition() {
+		Competition competition = new Competition();
 
-        String federationLabel = Translator.translate("Competition.federation", getLocale()) + " ?";
-        String defaultFederationKey = "Competition.defaultFederation";
-        String defaultFederation = Translator.translate(defaultFederationKey, getLocale());
-        // if string is not translated, we get its key back.
-        competition.setFederation(defaultFederation.equals(defaultFederationKey) ? federationLabel : defaultFederation);
+		competition.setCompetitionName(Translator.translate("Competition", getLocale()) + " ?");
+		competition.setCompetitionCity(Translator.translate("Competition.competitionCity", getLocale()) + " ?");
+		competition.setCompetitionDate(LocalDate.now());
+		competition
+		        .setCompetitionOrganizer(Translator.translate("Competition.competitionOrganizer", getLocale()) + " ?");
+		competition.setCompetitionSite(Translator.translate("Competition.competitionSite", getLocale()) + " ?");
 
-        String federationAddressLabel = Translator.translate("Competition.federationAddress", getLocale()) + " ?";
-        String defaultFederationAddressKey = "Competition.defaultFederationAddress";
-        String defaultFederationAddress = Translator.translate(defaultFederationAddressKey, getLocale());
-        // if string is not translated, we get its key back.
-        competition.setFederationAddress(
-                defaultFederationAddress.equals(defaultFederationAddressKey) ? federationAddressLabel
-                        : defaultFederationAddress);
+		String federationLabel = Translator.translate("Competition.federation", getLocale()) + " ?";
+		String defaultFederationKey = "Competition.defaultFederation";
+		String defaultFederation = Translator.translate(defaultFederationKey, getLocale());
+		// if string is not translated, we get its key back.
+		competition.setFederation(defaultFederation.equals(defaultFederationKey) ? federationLabel : defaultFederation);
 
-        String federationEMailLabel = Translator.translate("Competition.federationEMail", getLocale()) + " ?";
-        String defaultFederationEMailKey = "Competition.defaultFederationEMail";
-        String defaultFederationEMail = Translator.translate(defaultFederationEMailKey, getLocale());
-        // if string is not translated, we get its key back.
-        competition.setFederationEMail(defaultFederationEMail.equals(defaultFederationEMailKey) ? federationEMailLabel
-                : defaultFederationEMail);
+		String federationAddressLabel = Translator.translate("Competition.federationAddress", getLocale()) + " ?";
+		String defaultFederationAddressKey = "Competition.defaultFederationAddress";
+		String defaultFederationAddress = Translator.translate(defaultFederationAddressKey, getLocale());
+		// if string is not translated, we get its key back.
+		competition.setFederationAddress(
+		        defaultFederationAddress.equals(defaultFederationAddressKey) ? federationAddressLabel
+		                : defaultFederationAddress);
 
-        String federationWebSiteLabel = Translator.translate("Competition.federationWebSite", getLocale()) + " ?";
-        String defaultFederationWebSiteKey = "Competition.defaultFederationWebSite";
-        String defaultFederationWebSite = Translator.translate(defaultFederationWebSiteKey, getLocale());
-        // if string is not translated, we get its key back.
-        competition.setFederationWebSite(
-                defaultFederationWebSite.equals(defaultFederationWebSiteKey) ? federationWebSiteLabel
-                        : defaultFederationWebSite);
+		String federationEMailLabel = Translator.translate("Competition.federationEMail", getLocale()) + " ?";
+		String defaultFederationEMailKey = "Competition.defaultFederationEMail";
+		String defaultFederationEMail = Translator.translate(defaultFederationEMailKey, getLocale());
+		// if string is not translated, we get its key back.
+		competition.setFederationEMail(defaultFederationEMail.equals(defaultFederationEMailKey) ? federationEMailLabel
+		        : defaultFederationEMail);
 
-        competition.setUseBirthYear(false);
-        competition.setEnforce20kgRule(true);
-        competition.setAnnouncerLiveDecisions(true);
-        competition.setMensTeamSize(null);
-        competition.setWomensTeamSize(null);
+		String federationWebSiteLabel = Translator.translate("Competition.federationWebSite", getLocale()) + " ?";
+		String defaultFederationWebSiteKey = "Competition.defaultFederationWebSite";
+		String defaultFederationWebSite = Translator.translate(defaultFederationWebSiteKey, getLocale());
+		// if string is not translated, we get its key back.
+		competition.setFederationWebSite(
+		        defaultFederationWebSite.equals(defaultFederationWebSiteKey) ? federationWebSiteLabel
+		                : defaultFederationWebSite);
 
-        return competition;
-    }
+		competition.setUseBirthYear(false);
+		competition.setEnforce20kgRule(true);
+		competition.setAnnouncerLiveDecisions(true);
+		competition.setMensTeamSize(null);
+		competition.setWomensTeamSize(null);
 
-    /**
-     * Create an empty competition. Set-up the defaults for using the timekeeping and refereeing features.
-     *
-     * @param em
-     */
-    protected static void setupEmptyCompetition(EntityManager em) {
-        Platform platform1 = new Platform("A");
+		return competition;
+	}
 
-        em.persist(new Group("M1", null, null));
-        em.persist(new Group("M2", null, null));
-        em.persist(new Group("M3", null, null));
-        em.persist(new Group("M4", null, null));
-        em.persist(new Group("F1", null, null));
-        em.persist(new Group("F2", null, null));
-        em.persist(new Group("F3", null, null));
-        em.persist(new Group("F4", null, null));
+	/**
+	 * Create an empty competition. Set-up the defaults for using the timekeeping
+	 * and refereeing features.
+	 *
+	 * @param em
+	 */
+	protected static void setupEmptyCompetition(EntityManager em) {
+		Platform platform1 = new Platform("A");
 
-        em.persist(platform1);
+		em.persist(new Group("M1", null, null));
+		em.persist(new Group("M2", null, null));
+		em.persist(new Group("M3", null, null));
+		em.persist(new Group("M4", null, null));
+		em.persist(new Group("F1", null, null));
+		em.persist(new Group("F2", null, null));
+		em.persist(new Group("F3", null, null));
+		em.persist(new Group("F4", null, null));
 
-    }
+		em.persist(platform1);
 
-    private static Locale getLocale() {
-        return Locale.ENGLISH;
-    }
+	}
 
 }

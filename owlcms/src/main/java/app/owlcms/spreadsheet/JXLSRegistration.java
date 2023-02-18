@@ -27,28 +27,28 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class JXLSRegistration extends JXLSWorkbookStreamSource {
 
-    final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSRegistration.class);
-    final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
-    static {
-        logger.setLevel(Level.INFO);
-        jexlLogger.setLevel(Level.ERROR);
-        tagLogger.setLevel(Level.ERROR);
-    }
+	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSRegistration.class);
+	final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
+	static {
+		logger.setLevel(Level.INFO);
+		jexlLogger.setLevel(Level.ERROR);
+		tagLogger.setLevel(Level.ERROR);
+	}
 
-    public JXLSRegistration(UI ui) {
-        super();
-    }
+	public JXLSRegistration(UI ui) {
+		super();
+	}
 
-    @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        return getLocalizedTemplate("/templates/registration/RegistrationTemplate", ".xls", locale);
-    }
+	@Override
+	public InputStream getTemplate(Locale locale) throws IOException {
+		return getLocalizedTemplate("/templates/registration/RegistrationTemplate", ".xls", locale);
+	}
 
-    @Override
-    protected List<Athlete> getSortedAthletes() {
-        getReportingBeans();
-        return ImmutableList.of(new Athlete());
-    }
+	@Override
+	protected List<Athlete> getSortedAthletes() {
+		getReportingBeans();
+		return ImmutableList.of(new Athlete());
+	}
 
 }

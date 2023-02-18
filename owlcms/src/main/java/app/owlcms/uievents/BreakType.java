@@ -8,16 +8,19 @@ package app.owlcms.uievents;
 
 /**
  * <p>
- * A break type is either a countdown, or a ceremony taking place during a countdown. When a ceremony is taking place, a
- * countdown timer MUST be running with the state that we go to when the ceremony ends.
+ * A break type is either a countdown, or a ceremony taking place during a
+ * countdown. When a ceremony is taking place, a countdown timer MUST be running
+ * with the state that we go to when the ceremony ends.
  * </p>
  * <p>
- * Rule: because it is possible to hide/show the break dialog, the break timer shown on entry is the one already set or
- * running. So the timer must be set at the end of the previous break. E.g. end of BEFORE_INTRODUCTION sets
+ * Rule: because it is possible to hide/show the break dialog, the break timer
+ * shown on entry is the one already set or running. So the timer must be set at
+ * the end of the previous break. E.g. end of BEFORE_INTRODUCTION sets
  * BEFORE_SNATCH 10:00 minutes as the duration, and pauses the timer.
  * </p>
  * <ol>
- * <li>Medals for group 1 before introduction of group 2, countdown started *after* medals
+ * <li>Medals for group 1 before introduction of group 2, countdown started
+ * *after* medals
  *
  * <pre>
  * GROUP_DONE (indefinite timer, end break = resume current group that was just done)
@@ -42,8 +45,8 @@ package app.owlcms.uievents;
  * CURRENT_ATHLETE_DISPLAYED
  * </pre>
  *
- * <li>Medals for group 1 given after the introduction of the next group 2. Officials before or after medals does not
- * matter.
+ * <li>Medals for group 1 given after the introduction of the next group 2.
+ * Officials before or after medals does not matter.
  *
  * <pre>
  * GROUP_DONE (indefinite timer, end break = resume current group that was just done)
@@ -73,8 +76,8 @@ package app.owlcms.uievents;
  * </li>
  *
  * </li>
- * <li>Doable even though not compliant with rules: first snatch at scheduled time, no introduction timer (introduction
- * done informally)
+ * <li>Doable even though not compliant with rules: first snatch at scheduled
+ * time, no introduction timer (introduction done informally)
  *
  * <pre>
  * GROUP_DONE (indefinite timer, manual end break = resume current group that was just done)
@@ -99,29 +102,29 @@ package app.owlcms.uievents;
  */
 public enum BreakType {
 
-    BEFORE_INTRODUCTION(true, false),
-    FIRST_SNATCH(true, false),
-    FIRST_CJ(true, false),
-    GROUP_DONE(false, false),
+	BEFORE_INTRODUCTION(true, false),
+	FIRST_SNATCH(true, false),
+	FIRST_CJ(true, false),
+	GROUP_DONE(false, false),
 
-    TECHNICAL(false, true),
-    MARSHAL (false, true),
-    JURY(false, true);
+	TECHNICAL(false, true),
+	MARSHAL(false, true),
+	JURY(false, true);
 
-    private boolean countdown;
-    private boolean interruption;
+	private boolean countdown;
+	private boolean interruption;
 
-    BreakType(boolean countdown, boolean interruption) {
-        this.countdown = countdown;
-        this.interruption = interruption;
-    }
+	BreakType(boolean countdown, boolean interruption) {
+		this.countdown = countdown;
+		this.interruption = interruption;
+	}
 
-    public boolean isCountdown() {
-        return countdown;
-    }
+	public boolean isCountdown() {
+		return countdown;
+	}
 
-    public boolean isInterruption() {
-        return interruption;
-    }
+	public boolean isInterruption() {
+		return interruption;
+	}
 
 }

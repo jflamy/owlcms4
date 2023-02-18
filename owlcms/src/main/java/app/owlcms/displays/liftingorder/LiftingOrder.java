@@ -8,6 +8,7 @@ package app.owlcms.displays.liftingorder;
 
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 
@@ -92,6 +93,8 @@ public class LiftingOrder extends PolymerTemplate<TemplateModel> implements Disp
 
 	private String routeParameter;
 
+	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+
 	/**
 	 * Instantiates a new results board.
 	 */
@@ -156,6 +159,11 @@ public class LiftingOrder extends PolymerTemplate<TemplateModel> implements Disp
 	@Override
 	public String getRouteParameter() {
 		return this.routeParameter;
+	}
+
+	@Override
+	public HashMap<String, List<String>> getUrlParameterMap() {
+		return urlParameterMap;
 	}
 
 	@Override
@@ -232,6 +240,11 @@ public class LiftingOrder extends PolymerTemplate<TemplateModel> implements Disp
 	@Override
 	public void setSilenced(boolean silent) {
 		// no-op, silenced by definition
+	}
+
+	@Override
+	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+		this.urlParameterMap = newParameterMap;
 	}
 
 	@Subscribe
@@ -476,5 +489,4 @@ public class LiftingOrder extends PolymerTemplate<TemplateModel> implements Disp
 		}
 		this.getElement().setPropertyJson("t", translations);
 	}
-
 }

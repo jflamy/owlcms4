@@ -7,5 +7,5 @@
 package app.owlcms.uievents;
 
 public enum DecisionEventType {
-    DOWN_SIGNAL, FULL_DECISION, RESET
+	DOWN_SIGNAL, FULL_DECISION, RESET
 }

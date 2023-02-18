@@ -19,46 +19,46 @@ import app.owlcms.init.OwlcmsSession;
 @JsModule("./components/AudioContext.js")
 @Route("displays/publicFacingDecision")
 
-
 public class PublicFacingDecisionBoard extends AttemptBoard {
 
-    public PublicFacingDecisionBoard() {
-        super();
-        setPublicFacing(true);
-        setShowBarbell(false);
-        setSilenced(isSilencedByDefault());
-        breakTimer.setParent("DecisionBoard");
-    }
-    
-    @Override
-    protected void checkImages() {
-        athletePictures = false;
-        teamFlags = false;
-    }
+	public PublicFacingDecisionBoard() {
+		super();
+		setPublicFacing(true);
+		setShowBarbell(false);
+		setSilenced(isSilencedByDefault());
+		breakTimer.setParent("DecisionBoard");
+	}
 
-    @Override
-    public String getPageTitle() {
-        return getTranslation("Decision_PF_") + OwlcmsSession.getFopNameIfMultiple();
-    }
+	@Override
+	public String getPageTitle() {
+		return getTranslation("Decision_PF_") + OwlcmsSession.getFopNameIfMultiple();
+	}
 
-    @Override
-    public boolean isSilencedByDefault() {
-        return true;
-    }
+	@Override
+	public boolean isSilencedByDefault() {
+		return true;
+	}
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see app.owlcms.displays.attemptboard.AttemptBoard#onAttach(com.vaadin.flow. component.AttachEvent)
-     */
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
-        decisions.setPublicFacing(true);
-        setPublicFacing(true);
-        setShowBarbell(false);
-        setSilenced(isSilencedByDefault());
+	@Override
+	protected void checkImages() {
+		athletePictures = false;
+		teamFlags = false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see app.owlcms.displays.attemptboard.AttemptBoard#onAttach(com.vaadin.flow.
+	 * component.AttachEvent)
+	 */
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		super.onAttach(attachEvent);
+		decisions.setPublicFacing(true);
+		setPublicFacing(true);
+		setShowBarbell(false);
+		setSilenced(isSilencedByDefault());
 		this.getElement().setProperty("video", routeParameter != null ? routeParameter + "/" : "");
-    }
+	}
 
 }

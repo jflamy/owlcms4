@@ -25,26 +25,25 @@ import app.owlcms.init.OwlcmsSession;
 @JsModule("./components/AudioContext.js")
 @Route("displays/results")
 
-
 public class ResultsNoLeaders extends Results {
 
-    /**
-     * Instantiates a new results board.
-     */
-    public ResultsNoLeaders() {
-        OwlcmsFactory.waitDBInitialized();
-        timer.setOrigin(this);
-        setDarkMode(true);
-        setDefaultLeadersDisplay(false);
-        setDefaultRecordsDisplay(false);
-        setLeadersDisplay(isDefaultLeadersDisplay());
-        setRecordsDisplay(isDefaultRecordsDisplay());
-    }
+	/**
+	 * Instantiates a new results board.
+	 */
+	public ResultsNoLeaders() {
+		OwlcmsFactory.waitDBInitialized();
+		timer.setOrigin(this);
+		setDarkMode(true);
+		setDefaultLeadersDisplay(false);
+		setDefaultRecordsDisplay(false);
+		setLeadersDisplay(isDefaultLeadersDisplay());
+		setRecordsDisplay(isDefaultRecordsDisplay());
+	}
 
-    @Override
-    public String getPageTitle() {
-        return getTranslation("Scoreboard") + OwlcmsSession.getFopNameIfMultiple();
-    }
+	@Override
+	public String getPageTitle() {
+		return getTranslation("Scoreboard") + OwlcmsSession.getFopNameIfMultiple();
+	}
 
 //    @Override
 //    protected void computeLeaders(boolean done) {

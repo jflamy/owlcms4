@@ -18,19 +18,19 @@ import app.owlcms.i18n.Translator;
 
 public class NotificationUtils {
 
-    public static void errorNotification(String labelText) {
-        Notification error = new Notification();
-        error.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        Button button = new Button(Translator.translate("GotIt"), (c) -> {
-            error.close();
-        });
-        button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        Label label = new Label(labelText);
-        HorizontalLayout layout = new HorizontalLayout(label, button);
-        layout.setSpacing(true);
-        error.add(layout);
-        error.setPosition(Position.MIDDLE);
-        error.open();
-    }
+	public static void errorNotification(String labelText) {
+		Notification error = new Notification();
+		error.addThemeVariants(NotificationVariant.LUMO_ERROR);
+		Button button = new Button(Translator.translate("GotIt"), (c) -> {
+			error.close();
+		});
+		button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		Label label = new Label(labelText);
+		HorizontalLayout layout = new HorizontalLayout(label, button);
+		layout.setSpacing(true);
+		error.add(layout);
+		error.setPosition(Position.MIDDLE);
+		error.open();
+	}
 
 }

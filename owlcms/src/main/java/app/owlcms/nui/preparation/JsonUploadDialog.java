@@ -30,52 +30,52 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class JsonUploadDialog extends Dialog {
 
-    final static Logger logger = (Logger) LoggerFactory.getLogger(JsonUploadDialog.class);
-    private UI ui;
+	final static Logger logger = (Logger) LoggerFactory.getLogger(JsonUploadDialog.class);
+	private UI ui;
 
-    public JsonUploadDialog(UI ui) {
-        this.ui = ui;
+	public JsonUploadDialog(UI ui) {
+		this.ui = ui;
 
-        H5 label = new H5(Translator.translate("ExportDatabase.WarningWillReplaceAll"));
-        label.getStyle().set("color", "red");
+		H5 label = new H5(Translator.translate("ExportDatabase.WarningWillReplaceAll"));
+		label.getStyle().set("color", "red");
 
-        MemoryBuffer buffer = new MemoryBuffer();
-        Upload upload = new Upload(buffer);
-        upload.setWidth("40em");
-        upload.setAcceptedFileTypes("application/json");
+		MemoryBuffer buffer = new MemoryBuffer();
+		Upload upload = new Upload(buffer);
+		upload.setWidth("40em");
+		upload.setAcceptedFileTypes("application/json");
 
-        TextArea ta = new TextArea(getTranslation("Errors"));
-        ta.setHeight("20ex");
-        ta.setWidth("80em");
-        ta.setVisible(false);
+		TextArea ta = new TextArea(getTranslation("Errors"));
+		ta.setHeight("20ex");
+		ta.setWidth("80em");
+		ta.setVisible(false);
 
-        upload.addSucceededListener(event -> {
-            try {
-                processInput(event.getFileName(), buffer.getInputStream(), ta);
-            } catch (IOException e) {
-                ta.setValue(LoggerUtils./**/stackTrace(e));
-            }
-        });
+		upload.addSucceededListener(event -> {
+			try {
+				processInput(event.getFileName(), buffer.getInputStream(), ta);
+			} catch (IOException e) {
+				ta.setValue(LoggerUtils./**/stackTrace(e));
+			}
+		});
 
-        upload.addStartedListener(event -> {
-            ta.clear();
-            ta.setVisible(false);
-        });
+		upload.addStartedListener(event -> {
+			ta.clear();
+			ta.setVisible(false);
+		});
 
-        H3 title = new H3(getTranslation("ExportDatabase.UploadJson"));
-        VerticalLayout vl = new VerticalLayout(title, label, upload, ta);
-        add(vl);
-    }
+		H3 title = new H3(getTranslation("ExportDatabase.UploadJson"));
+		VerticalLayout vl = new VerticalLayout(title, label, upload, ta);
+		add(vl);
+	}
 
-    private void processInput(String fileName, InputStream inputStream, TextArea ta)
-            throws StreamReadException, DatabindException, IOException {
-        try {
-            new CompetitionData().restore(inputStream);
-            ui.getPage().reload();
-        } catch (Throwable e1) {
-            ta.setValue(LoggerUtils.exceptionMessage(e1));
-        }
-    }
+	private void processInput(String fileName, InputStream inputStream, TextArea ta)
+	        throws StreamReadException, DatabindException, IOException {
+		try {
+			new CompetitionData().restore(inputStream);
+			ui.getPage().reload();
+		} catch (Throwable e1) {
+			ta.setValue(LoggerUtils.exceptionMessage(e1));
+		}
+	}
 
 //    private void resetAthletes() {
 //        // delete all athletes and groups (naive version).

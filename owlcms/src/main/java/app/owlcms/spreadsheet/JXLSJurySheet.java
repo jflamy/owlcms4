@@ -23,27 +23,28 @@ import net.sf.jxls.transformer.XLSTransformer;
 @SuppressWarnings("serial")
 public class JXLSJurySheet extends JXLSWorkbookStreamSource {
 
-    Logger logger = LoggerFactory.getLogger(JXLSJurySheet.class);
+	Logger logger = LoggerFactory.getLogger(JXLSJurySheet.class);
 
-    public JXLSJurySheet() {
-        super();
-    }
+	public JXLSJurySheet() {
+		super();
+	}
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
-     * configureTransformer(net.sf.jxls.transformer.XLSTransformer )
-     */
-    @Override
-    protected void configureTransformer(XLSTransformer transformer) {
-        transformer.markAsFixedSizeCollection("athletes");
-    }
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
+	 * configureTransformer(net.sf.jxls.transformer.XLSTransformer )
+	 */
+	@Override
+	protected void configureTransformer(XLSTransformer transformer) {
+		transformer.markAsFixedSizeCollection("athletes");
+	}
 
-    @Override
-    protected List<Athlete> getSortedAthletes() {
-        return AthleteSorter
-                .displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getGroup(), isExcludeNotWeighed()));
-    }
+	@Override
+	protected List<Athlete> getSortedAthletes() {
+		return AthleteSorter
+		        .displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getGroup(), isExcludeNotWeighed()));
+	}
 
 }

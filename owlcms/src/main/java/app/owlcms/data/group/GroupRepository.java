@@ -26,130 +26,130 @@ import ch.qos.logback.classic.Logger;
  */
 public class GroupRepository {
 
-    static Logger logger = (Logger) LoggerFactory.getLogger(GroupRepository.class);
+	static Logger logger = (Logger) LoggerFactory.getLogger(GroupRepository.class);
 
-    public static Group add(Group group) {
-        // first clean up the age group
-        Group nGroup = JPAService.runInTransaction(em -> {
-            try {
-                em.persist(group);
-            } catch (Exception e) {
-                LoggerUtils.logError(logger, e);
-            }
-            return null;
-        });
-        return nGroup;
-    }
+	public static Group add(Group group) {
+		// first clean up the age group
+		Group nGroup = JPAService.runInTransaction(em -> {
+			try {
+				em.persist(group);
+			} catch (Exception e) {
+				LoggerUtils.logError(logger, e);
+			}
+			return null;
+		});
+		return nGroup;
+	}
 
-    /**
-     * Delete.
-     *
-     * @param Group the group
-     */
+	/**
+	 * Delete.
+	 *
+	 * @param Group the group
+	 */
 
-    public static void delete(Group groupe) {
-        if (groupe.getId() == null) {
-            return;
-        }
-        JPAService.runInTransaction(em -> {
-            try {
-                // this is the only case where group needs to know its athletes, so we do a
-                // query instead of adding a relationship.
-                Query aQ = em.createQuery("select a from Athlete a join a.group g where g.id = :groupId");
-                aQ.setParameter("groupId", groupe.getId());
-                @SuppressWarnings("unchecked")
-                List<Athlete> aL = aQ.getResultList();
-                for (Athlete a : aL) {
-                    a.setGroup(null);
-                }
-                em.flush();
-                em.remove(em.contains(groupe) ? groupe : em.merge(groupe));
-                em.flush();
-            } catch (Exception e) {
-                LoggerUtils.logError(logger, e);
-            }
-            return null;
-        });
-    }
+	public static void delete(Group groupe) {
+		if (groupe.getId() == null) {
+			return;
+		}
+		JPAService.runInTransaction(em -> {
+			try {
+				// this is the only case where group needs to know its athletes, so we do a
+				// query instead of adding a relationship.
+				Query aQ = em.createQuery("select a from Athlete a join a.group g where g.id = :groupId");
+				aQ.setParameter("groupId", groupe.getId());
+				@SuppressWarnings("unchecked")
+				List<Athlete> aL = aQ.getResultList();
+				for (Athlete a : aL) {
+					a.setGroup(null);
+				}
+				em.flush();
+				em.remove(em.contains(groupe) ? groupe : em.merge(groupe));
+				em.flush();
+			} catch (Exception e) {
+				LoggerUtils.logError(logger, e);
+			}
+			return null;
+		});
+	}
 
-    @SuppressWarnings("unchecked")
-    public static List<Group> doFindAll(EntityManager em) {
-        return em.createQuery("select c from CompetitionGroup c order by c.name").getResultList();
-    }
+	@SuppressWarnings("unchecked")
+	public static List<Group> doFindAll(EntityManager em) {
+		return em.createQuery("select c from CompetitionGroup c order by c.name").getResultList();
+	}
 
-    @SuppressWarnings("unchecked")
-    public static Group doFindByName(String name, EntityManager em) {
-        Query query = em.createQuery("select u from CompetitionGroup u where u.name=:name");
-        query.setParameter("name", name);
-        return (Group) query.getResultList().stream().findFirst().orElse(null);
-    }
+	@SuppressWarnings("unchecked")
+	public static Group doFindByName(String name, EntityManager em) {
+		Query query = em.createQuery("select u from CompetitionGroup u where u.name=:name");
+		query.setParameter("name", name);
+		return (Group) query.getResultList().stream().findFirst().orElse(null);
+	}
 
-    /**
-     * Find all.
-     *
-     * @return the list
-     */
-    @SuppressWarnings("unchecked")
-    public static List<Group> findAll() {
-        return JPAService.runInTransaction(
-                em -> em.createQuery("select c from CompetitionGroup c order by c.name").getResultList());
-    }
+	/**
+	 * Find all.
+	 *
+	 * @return the list
+	 */
+	@SuppressWarnings("unchecked")
+	public static List<Group> findAll() {
+		return JPAService.runInTransaction(
+		        em -> em.createQuery("select c from CompetitionGroup c order by c.name").getResultList());
+	}
 
-    public static Group findByName(String name) {
-        return JPAService.runInTransaction(em -> {
-            return doFindByName(name, em);
-        });
-    }
+	public static Group findByName(String name) {
+		return JPAService.runInTransaction(em -> {
+			return doFindByName(name, em);
+		});
+	}
 
-    /**
-     * Gets group by id
-     *
-     * @param id the id
-     * @param em entity manager
-     * @return the group, null if not found
-     */
-    @SuppressWarnings("unchecked")
-    public static Group getById(Long id, EntityManager em) {
-        Query query = em.createQuery("select u from CompetitionGroup u where u.id=:id");
-        query.setParameter("id", id);
-        return (Group) query.getResultList().stream().findFirst().orElse(null);
-    }
+	public static Group getById(Long id) {
+		return JPAService.runInTransaction((em) -> {
+			return getById(id, em);
+		});
+	}
 
-    /**
-     * Save.
-     *
-     * @param Group the group
-     * @return the group
-     */
-    public static Group save(Group Group) {
-        return JPAService.runInTransaction(em -> em.merge(Group));
-    }
+	/**
+	 * Gets group by id
+	 *
+	 * @param id the id
+	 * @param em entity manager
+	 * @return the group, null if not found
+	 */
+	@SuppressWarnings("unchecked")
+	public static Group getById(Long id, EntityManager em) {
+		Query query = em.createQuery("select u from CompetitionGroup u where u.id=:id");
+		query.setParameter("id", id);
+		return (Group) query.getResultList().stream().findFirst().orElse(null);
+	}
 
-    public List<Category> allCategories(Group g) {
-        return JPAService.runInTransaction((em) -> {
-            TypedQuery<Category> q = em.createQuery(
-                    "select distinct c from Athlete a join a.group g join a.participations p join p.category c where g.id = :groupId",
-                    Category.class);
-            q.setParameter("groupId", g.getId());
-            return q.getResultList();
-        });
-    }
+	/**
+	 * Save.
+	 *
+	 * @param Group the group
+	 * @return the group
+	 */
+	public static Group save(Group Group) {
+		return JPAService.runInTransaction(em -> em.merge(Group));
+	}
 
-    public List<Athlete> getAthletes(Group g) {
-        return JPAService.runInTransaction((em) -> {
-            // this is the only case where group needs to know its athletes, so we do a
-            // query instead of adding a relationship.
-            TypedQuery<Athlete> aQ = em.createQuery("select a from Athlete a join a.group g where g.id = :groupId",
-                    Athlete.class);
-            aQ.setParameter("groupId", g.getId());
-            return aQ.getResultList();
-        });
-    }
+	public List<Category> allCategories(Group g) {
+		return JPAService.runInTransaction((em) -> {
+			TypedQuery<Category> q = em.createQuery(
+			        "select distinct c from Athlete a join a.group g join a.participations p join p.category c where g.id = :groupId",
+			        Category.class);
+			q.setParameter("groupId", g.getId());
+			return q.getResultList();
+		});
+	}
 
-    public static Group getById(Long id) {
-        return JPAService.runInTransaction((em) -> {
-            return getById(id,em);
-        });
-    }
+	public List<Athlete> getAthletes(Group g) {
+		return JPAService.runInTransaction((em) -> {
+			// this is the only case where group needs to know its athletes, so we do a
+			// query instead of adding a relationship.
+			TypedQuery<Athlete> aQ = em.createQuery("select a from Athlete a join a.group g where g.id = :groupId",
+			        Athlete.class);
+			aQ.setParameter("groupId", g.getId());
+			return aQ.getResultList();
+		});
+	}
 
 }

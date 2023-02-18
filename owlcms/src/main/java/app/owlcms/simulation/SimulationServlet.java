@@ -39,17 +39,18 @@ import app.owlcms.utils.ProxyUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
- * A file servlet supporting resume of downloads and client-side caching and GZIP of text content. This servlet can also
- * be used for images, client-side caching would become more efficient. This servlet can also be used for text files,
- * GZIP would decrease network bandwidth.
+ * A file servlet supporting resume of downloads and client-side caching and
+ * GZIP of text content. This servlet can also be used for images, client-side
+ * caching would become more efficient. This servlet can also be used for text
+ * files, GZIP would decrease network bandwidth.
  *
  * @author BalusC
  * @link http://balusc.blogspot.com/2009/02/fileservlet-supporting-resume-and.html
  */
 @SuppressWarnings("serial")
 /**
- * Modified to fetch files under the ./local directory relative to the startup directory and, failing that, as a
- * resource on the classpath.
+ * Modified to fetch files under the ./local directory relative to the startup
+ * directory and, failing that, as a resource on the classpath.
  *
  * @author Jean-François Lamy
  *
@@ -57,88 +58,95 @@ import ch.qos.logback.classic.Logger;
 @WebServlet("/simulation/*")
 public class SimulationServlet extends HttpServlet {
 
-    // Helpers (can be refactored to public utility class) ----------------------------------------
+	// Helpers (can be refactored to public utility class)
+	// ----------------------------------------
 
-    private static Logger logger = (Logger) LoggerFactory.getLogger(SimulationServlet.class);
+	private static Logger logger = (Logger) LoggerFactory.getLogger(SimulationServlet.class);
 //    { logger.setLevel(Level.DEBUG); }
 
-    // Inner classes ------------------------------------------------------------------------------
+	// Inner classes
+	// ------------------------------------------------------------------------------
 
-    /**
-     * Process GET request.
-     *
-     * @see HttpServlet#doGet(HttpServletRequest, HttpServletResponse).
-     */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        // Process request with content.
-        processRequest(request, response, true);
-    }
+	/**
+	 * Process the actual request.
+	 *
+	 * @param request  The request to be processed.
+	 * @param response The response to be created.
+	 * @param content  Whether the request body should be written (GET) or not
+	 *                 (HEAD).
+	 * @throws IOException If something fails at I/O level.
+	 */
+	private void processRequest(HttpServletRequest request, HttpServletResponse response, boolean content)
+	        throws IOException {
+		logger.info("processing simulation request");
+		// use proxyutils because this is a plain servlet, not a Vaadin servlet
+		String host = ProxyUtils.getClientIp(request);
+		boolean bd = AccessUtils.checkBackdoor(host);
+		if (!bd) {
+			logger.error("{} not in backdoor list, denied simulation", host);
+			response.setStatus(403);
+			response.flushBuffer();
+			return;
+		} else {
+			logger.info("{} authorized simulation", host);
+		}
 
-    /**
-     * Process HEAD request. This returns the same headers as GET request, but without content.
-     *
-     * @see HttpServlet#doHead(HttpServletRequest, HttpServletResponse).
-     */
-    @Override
-    protected void doHead(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        // Process request without content.
-        processRequest(request, response, false);
-    }
+		// Get requested file by path info.
+		String requestedFileName = request.getPathInfo();
+		logger.debug("requested file = {}", requestedFileName);
 
-    /**
-     * Process the actual request.
-     *
-     * @param request  The request to be processed.
-     * @param response The response to be created.
-     * @param content  Whether the request body should be written (GET) or not (HEAD).
-     * @throws IOException If something fails at I/O level.
-     */
-    private void processRequest(HttpServletRequest request, HttpServletResponse response, boolean content)
-            throws IOException {
-        logger.info("processing simulation request");
-        // use proxyutils because this is a plain servlet, not a Vaadin servlet
-        String host = ProxyUtils.getClientIp(request);
-        boolean bd = AccessUtils.checkBackdoor(host);
-        if (!bd) {
-            logger.error("{} not in backdoor list, denied simulation", host);
-            response.setStatus(403);
-            response.flushBuffer();
-            return;
-        } else {
-            logger.info("{} authorized simulation", host);
-        }
+		// Prepare and initialize response
+		// --------------------------------------------------------
 
-        // Get requested file by path info.
-        String requestedFileName = request.getPathInfo();
-        logger.debug("requested file = {}", requestedFileName);
+		// Initialize response.
+		response.reset();
 
-        // Prepare and initialize response --------------------------------------------------------
+		// Prepare streams.
+		OutputStream output = null;
 
-        // Initialize response.
-        response.reset();
+		try {
+			// Open streams.
+			output = response.getOutputStream();
+			PrintWriter pw = new PrintWriter(output, true, StandardCharsets.UTF_8);
+			pw.write("Starting simulation");
+			pw.flush();
+			output.flush();
+			response.setStatus(200);
+			response.flushBuffer();
+			new CompetitionSimulator().runSimulation();
+		} catch (Throwable t) {
+			logger.error("{}", LoggerUtils.stackTrace(t));
+			response.setStatus(500);
+		} finally {
+			if (output != null) {
+				output.close();
+			}
+		}
+	}
 
-        // Prepare streams.
-        OutputStream output = null;
+	/**
+	 * Process GET request.
+	 *
+	 * @see HttpServlet#doGet(HttpServletRequest, HttpServletResponse).
+	 */
+	@Override
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+	        throws ServletException, IOException {
+		// Process request with content.
+		processRequest(request, response, true);
+	}
 
-        try {
-            // Open streams.
-            output = response.getOutputStream();
-            PrintWriter pw = new PrintWriter(output, true, StandardCharsets.UTF_8);
-            pw.write("Starting simulation");
-            pw.flush();
-            output.flush();
-            response.setStatus(200);
-            response.flushBuffer();
-            new CompetitionSimulator().runSimulation();
-        } catch (Throwable t) {
-            logger.error("{}", LoggerUtils.stackTrace(t));
-            response.setStatus(500);
-        } finally {
-            if (output != null) output.close();
-        }
-    }
+	/**
+	 * Process HEAD request. This returns the same headers as GET request, but
+	 * without content.
+	 *
+	 * @see HttpServlet#doHead(HttpServletRequest, HttpServletResponse).
+	 */
+	@Override
+	protected void doHead(HttpServletRequest request, HttpServletResponse response)
+	        throws ServletException, IOException {
+		// Process request without content.
+		processRequest(request, response, false);
+	}
 
 }

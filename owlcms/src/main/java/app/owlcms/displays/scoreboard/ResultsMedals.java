@@ -9,6 +9,7 @@ package app.owlcms.displays.scoreboard;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Timer;
@@ -109,6 +110,8 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 
 	private Double emFontSize;
 
+	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+
 	/**
 	 * Instantiates a new results board.
 	 */
@@ -130,21 +133,6 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		DisplayOptions.addLightingEntries(vl, target, this);
 		DisplayOptions.addRule(vl);
 		DisplayOptions.addSizingEntries(vl, target, this);
-	}
-	
-	@Override
-	public void setEmFontSize(Double emFontSize) {
-		this.emFontSize = emFontSize;
-		doChangeEmSize();
-	}
-	private void doChangeEmSize() {
-		if (getEmFontSize() != null) {
-			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + getEmFontSize() + "rem;");
-		}
-	}
-	@Override
-	public Double getEmFontSize() {
-		return emFontSize;
 	}
 
 	@Override
@@ -205,6 +193,11 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		return this.dialogTimer;
 	}
 
+	@Override
+	public Double getEmFontSize() {
+		return emFontSize;
+	}
+
 	public FieldOfPlay getFop() {
 		return fop;
 	}
@@ -231,6 +224,11 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	@Override
 	public String getRouteParameter() {
 		return this.routeParameter;
+	}
+
+	@Override
+	public HashMap<String, List<String>> getUrlParameterMap() {
+		return urlParameterMap;
 	}
 
 	@Override
@@ -365,6 +363,12 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		this.dialogTimer = timer;
 	}
 
+	@Override
+	public void setEmFontSize(Double emFontSize) {
+		this.emFontSize = emFontSize;
+		doChangeEmSize();
+	}
+
 	public void setFop(FieldOfPlay fop) {
 		this.fop = fop;
 	}
@@ -400,11 +404,6 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	public void setSilenced(boolean silent) {
 	}
 
-	@Subscribe
-	public void slaveAllEvents(UIEvent e) {
-		// logger.trace("*** {}", e);
-	}
-
 //    @Subscribe
 //    public void slaveStopBreak(UIEvent.BreakDone e) {
 //        // logger.debug("------ slaveStopBreak {}", e.getBreakType());
@@ -415,6 +414,16 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 //            doUpdate(e);
 //        });
 //    }
+
+	@Override
+	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+		this.urlParameterMap = newParameterMap;
+	}
+
+	@Subscribe
+	public void slaveAllEvents(UIEvent e) {
+		// logger.trace("*** {}", e);
+	}
 
 	@Subscribe
 	public void slaveBreakDone(UIEvent.BreakDone e) {
@@ -559,6 +568,12 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		}
 	}
 
+	private void doChangeEmSize() {
+		if (getEmFontSize() != null) {
+			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + getEmFontSize() + "rem;");
+		}
+	}
+
 	private String formatInt(Integer total) {
 		if (total == null || total == 0) {
 			return "-";
@@ -584,20 +599,6 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		} else {
 			return total.toString();
 		}
-	}
-	
-	private boolean isVideo() {
-		return routeParameter != null && routeParameter.contentEquals("video");
-	}
-
-	private void setDisplay(boolean hidden) {
-		this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
-		this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
-		this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" : "display:grid"));
-		this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" : "display:none"));
-		this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
-		this.getElement().setProperty("videoHeaderDisplay", (hidden || !isVideo() ? "display:none" : "display:flex"));
-		this.getElement().setProperty("normalHeaderDisplay", (hidden || isVideo() ? "display:none" : "display:block"));
 	}
 
 	private void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
@@ -744,6 +745,10 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		setTranslationMap();
 	}
 
+	private boolean isVideo() {
+		return routeParameter != null && routeParameter.contentEquals("video");
+	}
+
 	private void retrieveFromSessionStorage(String key, SerializableConsumer<String> resultHandler) {
 		getElement().executeJs("return window.sessionStorage.getItem($0);", key)
 		        .then(String.class, resultHandler);
@@ -751,6 +756,16 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 
 	private void setCategory(Category cat) {
 		this.category = cat;
+	}
+
+	private void setDisplay(boolean hidden) {
+		this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
+		this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
+		this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" : "display:grid"));
+		this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" : "display:none"));
+		this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
+		this.getElement().setProperty("videoHeaderDisplay", (hidden || !isVideo() ? "display:none" : "display:flex"));
+		this.getElement().setProperty("normalHeaderDisplay", (hidden || isVideo() ? "display:none" : "display:block"));
 	}
 
 	private void setWideTeamNames(boolean wide) {

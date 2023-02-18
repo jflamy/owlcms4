@@ -6,6 +6,9 @@
  *******************************************************************************/
 package app.owlcms.nui.displayselection;
 
+import java.util.HashMap;
+import java.util.List;
+
 import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.layout.FlexibleGridLayout;
@@ -52,17 +55,19 @@ public class VideoNavigationContent extends BaseNavigationContent
 		logger.setLevel(Level.INFO);
 	}
 
+	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
+
 	/**
 	 * Instantiates a new display navigation content.
 	 */
 	public VideoNavigationContent() {
-		//FIXME: need a way to select the group because the video can be about previous group
+		// FIXME: need a way to select the group because the video can be about previous
+		// group
 		VerticalLayout intro = new VerticalLayout();
 		intro.setSpacing(false);
 		addP(intro, getTranslation("VideoStreaming.Intro"));
 		addP(intro, getTranslation("Button_Open_Display"));
 		intro.getStyle().set("margin-bottom", "0");
-
 
 		Button scoreboard;
 		Button scoreboardWLeaders;
@@ -71,16 +76,16 @@ public class VideoNavigationContent extends BaseNavigationContent
 		Button medals;
 
 		Button attempt = openInNewTab(AttemptBoard.class, getTranslation("AttemptBoard"), "video");
-		currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"),"video");
-		Button publicDecisions = openInNewTab(PublicFacingDecisionBoard.class, getTranslation("RefereeDecisions"), "video");
-		
+		currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"), "video");
+		Button publicDecisions = openInNewTab(PublicFacingDecisionBoard.class, getTranslation("RefereeDecisions"),
+		        "video");
+
 		scoreboard = openInNewTab(ResultsNoLeaders.class, getTranslation("Scoreboard"), "video");
 		scoreboardWLeaders = openInNewTab(Results.class, getTranslation("ScoreboardWLeadersButton"), "video");
 		scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
 		scoreboardMultiRanks = openInNewTab(ResultsLeadersRanks.class,
 		        getTranslation("ScoreboardMultiRanksButton"), "video");
 		medals = openInNewTab(ResultsMedals.class, getTranslation("CeremonyType.MEDALS"), "video");
-
 
 		// Button liftingOrder = openInNewTab(LiftingOrder.class,
 		// getTranslation("Scoreboard.LiftingOrder"));
@@ -91,14 +96,13 @@ public class VideoNavigationContent extends BaseNavigationContent
 
 		Button obsMonitor = openInNewTab(OBSMonitor.class, getTranslation("OBS.MonitoringButton"));
 
-
 		fillH(intro, this);
 
 		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(attempt, currentAthlete, publicDecisions);
 		doGroup(getTranslation("AttemptBoard"), grid3, this);
 
 		VerticalLayout intro1 = new VerticalLayout();
-		//addP(intro1, getTranslation("darkModeSelect"));
+		// addP(intro1, getTranslation("darkModeSelect"));
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders,
 		        scoreboardMultiRanks,
 //		        liftingOrder,
@@ -142,6 +146,11 @@ public class VideoNavigationContent extends BaseNavigationContent
 	}
 
 	@Override
+	public HashMap<String, List<String>> getUrlParameterMap() {
+		return urlParameterMap;
+	}
+
+	@Override
 	public void setLocation(Location location) {
 		this.location = location;
 	}
@@ -149,6 +158,11 @@ public class VideoNavigationContent extends BaseNavigationContent
 	@Override
 	public void setLocationUI(UI locationUI) {
 		this.locationUI = locationUI;
+	}
+
+	@Override
+	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+		this.urlParameterMap = newParameterMap;
 	}
 
 	/*
@@ -176,5 +190,4 @@ public class VideoNavigationContent extends BaseNavigationContent
 		fopField.setAlignItems(Alignment.CENTER);
 		return fopField;
 	}
-
 }

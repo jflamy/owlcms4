@@ -22,50 +22,50 @@ import app.owlcms.sound.Speakers;
 
 @SuppressWarnings("serial")
 class PlatformEditingFormFactory extends OwlcmsCrudFormFactory<Platform> {
-    PlatformEditingFormFactory(Class<Platform> domainType) {
-        super(domainType);
-    }
+	PlatformEditingFormFactory(Class<Platform> domainType) {
+		super(domainType);
+	}
 
-    @Override
-    public Platform add(Platform platform) {
-        platform.defaultPlates();
-        PlatformRepository.save(platform);
-        return platform;
-    }
+	@Override
+	public Platform add(Platform platform) {
+		platform.defaultPlates();
+		PlatformRepository.save(platform);
+		return platform;
+	}
 
-    @Override
-    public void delete(Platform platform) {
-        PlatformRepository.delete(platform);
-    }
+	@Override
+	public void delete(Platform platform) {
+		PlatformRepository.delete(platform);
+	}
 
-    @Override
-    public Collection<Platform> findAll() {
-        // implemented on grid
-        return null;
-    }
+	@Override
+	public Collection<Platform> findAll() {
+		// implemented on grid
+		return null;
+	}
 
-    @Override
-    public Platform update(Platform platform) {
-        return PlatformRepository.save(platform);
-    }
+	@Override
+	public Platform update(Platform platform) {
+		return PlatformRepository.save(platform);
+	}
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    @Override
-    protected void bindField(HasValue field, String property, Class<?> propertyType, CrudFormConfiguration c) {
-        if (property.equals("soundMixerName")) {
-            field.addValueChangeListener(e -> {
-                List<Mixer> soundMixers = Speakers.getOutputs();
-                for (Mixer curMixer : soundMixers) {
-                    if (curMixer.getMixerInfo().getName().equals(e.getValue())) {
-                        if (e.getOldValue() != null && !e.getValue().equals(e.getOldValue())) {
-                            Speakers.testSound(curMixer);
-                        }
-                        PlatformContent.logger.debug("testing mixer {}", curMixer.getMixerInfo().getName());
-                        break;
-                    }
-                }
-            });
-        }
-        super.bindField(field, property, propertyType, c);
-    }
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	protected void bindField(HasValue field, String property, Class<?> propertyType, CrudFormConfiguration c) {
+		if (property.equals("soundMixerName")) {
+			field.addValueChangeListener(e -> {
+				List<Mixer> soundMixers = Speakers.getOutputs();
+				for (Mixer curMixer : soundMixers) {
+					if (curMixer.getMixerInfo().getName().equals(e.getValue())) {
+						if (e.getOldValue() != null && !e.getValue().equals(e.getOldValue())) {
+							Speakers.testSound(curMixer);
+						}
+						PlatformContent.logger.debug("testing mixer {}", curMixer.getMixerInfo().getName());
+						break;
+					}
+				}
+			});
+		}
+		super.bindField(field, property, propertyType, c);
+	}
 }

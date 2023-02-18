@@ -19,44 +19,45 @@ import app.owlcms.init.OwlcmsSession;
 @JsModule("./components/AudioContext.js")
 @Route("displays/athleteFacingDecision")
 
-
 public class AthleteFacingDecisionBoard extends AttemptBoard {
 
-    public AthleteFacingDecisionBoard() {
-        super();
-        setPublicFacing(false);
-        setShowBarbell(false);
-        breakTimer.setParent("DecisionBoard");
-    }
+	public AthleteFacingDecisionBoard() {
+		super();
+		setPublicFacing(false);
+		setShowBarbell(false);
+		breakTimer.setParent("DecisionBoard");
+	}
 
-    @Override
-    public String getPageTitle() {
-        return getTranslation("Decision_AF_") + OwlcmsSession.getFopNameIfMultiple();
-    }
+	@Override
+	public String getPageTitle() {
+		return getTranslation("Decision_AF_") + OwlcmsSession.getFopNameIfMultiple();
+	}
 
-    public boolean isPublicFacing() {
-        return Boolean.TRUE.equals(isPublicFacing());
-    }
+	@Override
+	public boolean isPublicFacing() {
+		return isPublicFacing();
+	}
 
-    @Override
-    public boolean isSilencedByDefault() {
-        return false;
-    }
+	@Override
+	public boolean isSilencedByDefault() {
+		return false;
+	}
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see app.owlcms.displays.attemptboard.AttemptBoard#onAttach(com.vaadin.flow. component.AttachEvent)
-     */
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
-        decisions.setPublicFacing(false);
-    }
+	@Override
+	protected void checkImages() {
+		athletePictures = false;
+		teamFlags = false;
+	}
 
-    @Override
-    protected void checkImages() {
-        athletePictures = false;
-        teamFlags = false;
-    }
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see app.owlcms.displays.attemptboard.AttemptBoard#onAttach(com.vaadin.flow.
+	 * component.AttachEvent)
+	 */
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		super.onAttach(attachEvent);
+		decisions.setPublicFacing(false);
+	}
 }

@@ -6,6 +6,9 @@
  *******************************************************************************/
 package app.owlcms.nui.home;
 
+import java.util.HashMap;
+import java.util.List;
+
 import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.css.grid.GridLayoutComponent.AutoFlow;
@@ -56,149 +59,161 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "", layout = OwlcmsLayout.class)
 public class HomeNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(HomeNavigationContent.class);
-    static {
-        logger.setLevel(Level.INFO);
-    }
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(HomeNavigationContent.class);
+	static {
+		logger.setLevel(Level.INFO);
+	}
 
-    /**
-     * Navigation crudGrid.
-     *
-     * @param items the items
-     * @return the flexible crudGrid layout
-     */
-    public static FlexibleGridLayout navigationGrid(Component... items) {
-        FlexibleGridLayout layout = new FlexibleGridLayout();
-        layout.withColumns(Repeat.RepeatMode.AUTO_FILL, new MinMax(new Length("300px"), new Flex(1)))
-                .withAutoRows(new Length("1fr")).withItems(items)
-                .withOverflow(Overflow.AUTO).withAutoFlow(AutoFlow.ROW).withMargin(false).withPadding(true)
-                .withSpacing(false);
-        layout.getContent().setGap(new Length("0.5em"), new Length("1.0em"));
-        layout.setSizeUndefined();
-        layout.setWidth("80%");
-        layout.setBoxSizing(BoxSizing.BORDER_BOX);
-        layout.setPadding(true);
-        return layout;
-    }
+	/**
+	 * Navigation crudGrid.
+	 *
+	 * @param items the items
+	 * @return the flexible crudGrid layout
+	 */
+	public static FlexibleGridLayout navigationGrid(Component... items) {
+		FlexibleGridLayout layout = new FlexibleGridLayout();
+		layout.withColumns(Repeat.RepeatMode.AUTO_FILL, new MinMax(new Length("300px"), new Flex(1)))
+		        .withAutoRows(new Length("1fr")).withItems(items)
+		        .withOverflow(Overflow.AUTO).withAutoFlow(AutoFlow.ROW).withMargin(false).withPadding(true)
+		        .withSpacing(false);
+		layout.getContent().setGap(new Length("0.5em"), new Length("1.0em"));
+		layout.setSizeUndefined();
+		layout.setWidth("80%");
+		layout.setBoxSizing(BoxSizing.BORDER_BOX);
+		layout.setPadding(true);
+		return layout;
+	}
 
-    String INFO = Translator.translate("About");
-    String PREPARE_COMPETITION = Translator.translate("PrepareCompetition");
-    String RESULT_DOCUMENTS = Translator.translate("Results");
-    String RUN_LIFTING_GROUP = Translator.translate("RunLiftingGroup");
-    String VIDEO_STREAMING = Translator.translate("VideoStreaming");
+	String INFO = Translator.translate("About");
+	String PREPARE_COMPETITION = Translator.translate("PrepareCompetition");
+	String RESULT_DOCUMENTS = Translator.translate("Results");
+	String RUN_LIFTING_GROUP = Translator.translate("RunLiftingGroup");
+	String VIDEO_STREAMING = Translator.translate("VideoStreaming");
 
-    String START_DISPLAYS = Translator.translate("StartDisplays");
+	String START_DISPLAYS = Translator.translate("StartDisplays");
 
-    /**
-     * Instantiates a new main navigation content.
-     */
-    public HomeNavigationContent() {
-        VerticalLayout intro = buildIntro();
-        intro.setSpacing(false);
+	HashMap<String, List<String>> urlParameterMap = new HashMap<>();
 
-        Button prepare = new Button(PREPARE_COMPETITION,
-                buttonClickEvent -> UI.getCurrent().navigate(PreparationNavigationContent.class));
-        Button displays = new Button(START_DISPLAYS,
-                buttonClickEvent -> UI.getCurrent().navigate(DisplayNavigationContent.class));
-        Button video = new Button(VIDEO_STREAMING,
-                buttonClickEvent -> UI.getCurrent().navigate(VideoNavigationContent.class));
-        Button lifting = new Button(RUN_LIFTING_GROUP,
-                buttonClickEvent -> UI.getCurrent().navigate(LiftingNavigationContent.class));
-        Button documents = new Button(RESULT_DOCUMENTS,
-                buttonClickEvent -> UI.getCurrent().navigate(ResultsNavigationContent.class));
-        FlexibleGridLayout grid = HomeNavigationContent.navigationGrid(prepare, lifting, displays, video, documents);
+	/**
+	 * Instantiates a new main navigation content.
+	 */
+	public HomeNavigationContent() {
+		VerticalLayout intro = buildIntro();
+		intro.setSpacing(false);
 
-        fillH(intro, this);
-        fillH(grid, this);
+		Button prepare = new Button(PREPARE_COMPETITION,
+		        buttonClickEvent -> UI.getCurrent().navigate(PreparationNavigationContent.class));
+		Button displays = new Button(START_DISPLAYS,
+		        buttonClickEvent -> UI.getCurrent().navigate(DisplayNavigationContent.class));
+		Button video = new Button(VIDEO_STREAMING,
+		        buttonClickEvent -> UI.getCurrent().navigate(VideoNavigationContent.class));
+		Button lifting = new Button(RUN_LIFTING_GROUP,
+		        buttonClickEvent -> UI.getCurrent().navigate(LiftingNavigationContent.class));
+		Button documents = new Button(RESULT_DOCUMENTS,
+		        buttonClickEvent -> UI.getCurrent().navigate(ResultsNavigationContent.class));
+		FlexibleGridLayout grid = HomeNavigationContent.navigationGrid(prepare, lifting, displays, video, documents);
 
-        DebugUtils.gc();
-    }
+		fillH(intro, this);
+		fillH(grid, this);
 
-    @Override
-    public Location getLocation() {
-        return this.location;
-    }
+		DebugUtils.gc();
+	}
 
-    @Override
-    public UI getLocationUI() {
-        return this.locationUI;
-    }
+	@Override
+	public Location getLocation() {
+		return this.location;
+	}
 
-    @Override
-    public String getMenuTitle() {
-        return getTranslation("OWLCMS_Top");
-    }
+	@Override
+	public UI getLocationUI() {
+		return this.locationUI;
+	}
 
-    /**
-     * @see app.owlcms.nui.shared.BaseNavigationContent#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("OWLCMS_Top");
-    }
+	@Override
+	public String getMenuTitle() {
+		return getTranslation("OWLCMS_Top");
+	}
 
-    /**
-     * @see app.owlcms.apputils.queryparameters.FOPParameters#isIgnoreFopFromURL()
-     */
-    @Override
-    public boolean isIgnoreFopFromURL() {
-        return true;
-    }
+	/**
+	 * @see app.owlcms.nui.shared.BaseNavigationContent#getPageTitle()
+	 */
+	@Override
+	public String getPageTitle() {
+		return getTranslation("OWLCMS_Top");
+	}
 
-    @Override
-    public void setLocation(Location location) {
-        this.location = location;
-    }
+	@Override
+	public HashMap<String, List<String>> getUrlParameterMap() {
+		return urlParameterMap;
+	}
 
-    @Override
-    public void setLocationUI(UI locationUI) {
-        this.locationUI = locationUI;
-    }
+	/**
+	 * @see app.owlcms.apputils.queryparameters.FOPParameters#isIgnoreFopFromURL()
+	 */
+	@Override
+	public boolean isIgnoreFopFromURL() {
+		return true;
+	}
 
-    /**
-     * @see app.owlcms.nui.shared.BaseNavigationContent#createMenuBarFopField(java.lang.String, java.lang.String)
-     */
-    @Override
-    protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {
-        return null;
-    }
+	@Override
+	public void setLocation(Location location) {
+		this.location = location;
+	}
 
-    private VerticalLayout buildIntro() {
-        VerticalLayout intro = new VerticalLayout();
-        intro.setSpacing(false);
-        intro.setId("homeIntro");
-        IPInterfaceUtils urlFinder = new IPInterfaceUtils();
-        urlFinder.checkRequest();
-        addP(intro, getTranslation("SystemURL"));
-        UnorderedList ul = new UnorderedList();
-        for (String url : urlFinder.getRecommended()) {
-            ul.add(new ListItem(new Anchor(url, url)));
-        }
-        for (String url : urlFinder.getWired()) {
-            ul.add(new ListItem(new Anchor(url, url), new Label(getTranslation("Wired"))));
-        }
-        for (String url : urlFinder.getWireless()) {
-            ul.add(new ListItem(new Anchor(url, url), new Label(getTranslation("Wireless"))));
-        }
-        for (String url : urlFinder.getLocalUrl()) {
-            ul.add(new ListItem(new Anchor(url, url), new Label(getTranslation("LocalComputer"))));
-        }
-        intro.add(ul);
-        Div div = new Div();
-        intro.add(div);
-        div.getStyle().set("margin-bottom", "1ex");
-        Hr hr = new Hr();
-        hr.getStyle().set("margin-bottom", "2ex");
-        intro.add(hr);
-        addP(intro,
-                getTranslation("LeftMenuNavigate")
-                        + getTranslation("PrepareCompatition_description", PREPARE_COMPETITION)
-                        + getTranslation("RunLiftingGroup_description", RUN_LIFTING_GROUP)
-                        + getTranslation("StartDisplays_description", START_DISPLAYS)
-                        + getTranslation("CompetitionDocuments_description", RESULT_DOCUMENTS)
-                        + getTranslation("SeparateLaptops"));
-        intro.getStyle().set("margin-bottom", "-1em");
-        return intro;
-    }
+	@Override
+	public void setLocationUI(UI locationUI) {
+		this.locationUI = locationUI;
+	}
 
+	@Override
+	public void setUrlParameterMap(HashMap<String, List<String>> newParameterMap) {
+		this.urlParameterMap = newParameterMap;
+	}
+
+	private VerticalLayout buildIntro() {
+		VerticalLayout intro = new VerticalLayout();
+		intro.setSpacing(false);
+		intro.setId("homeIntro");
+		IPInterfaceUtils urlFinder = new IPInterfaceUtils();
+		urlFinder.checkRequest();
+		addP(intro, getTranslation("SystemURL"));
+		UnorderedList ul = new UnorderedList();
+		for (String url : urlFinder.getRecommended()) {
+			ul.add(new ListItem(new Anchor(url, url)));
+		}
+		for (String url : urlFinder.getWired()) {
+			ul.add(new ListItem(new Anchor(url, url), new Label(getTranslation("Wired"))));
+		}
+		for (String url : urlFinder.getWireless()) {
+			ul.add(new ListItem(new Anchor(url, url), new Label(getTranslation("Wireless"))));
+		}
+		for (String url : urlFinder.getLocalUrl()) {
+			ul.add(new ListItem(new Anchor(url, url), new Label(getTranslation("LocalComputer"))));
+		}
+		intro.add(ul);
+		Div div = new Div();
+		intro.add(div);
+		div.getStyle().set("margin-bottom", "1ex");
+		Hr hr = new Hr();
+		hr.getStyle().set("margin-bottom", "2ex");
+		intro.add(hr);
+		addP(intro,
+		        getTranslation("LeftMenuNavigate")
+		                + getTranslation("PrepareCompatition_description", PREPARE_COMPETITION)
+		                + getTranslation("RunLiftingGroup_description", RUN_LIFTING_GROUP)
+		                + getTranslation("StartDisplays_description", START_DISPLAYS)
+		                + getTranslation("CompetitionDocuments_description", RESULT_DOCUMENTS)
+		                + getTranslation("SeparateLaptops"));
+		intro.getStyle().set("margin-bottom", "-1em");
+		return intro;
+	}
+
+	/**
+	 * @see app.owlcms.nui.shared.BaseNavigationContent#createMenuBarFopField(java.lang.String,
+	 *      java.lang.String)
+	 */
+	@Override
+	protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {
+		return null;
+	}
 }

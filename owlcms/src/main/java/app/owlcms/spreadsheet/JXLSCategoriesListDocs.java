@@ -22,24 +22,24 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class JXLSCategoriesListDocs extends JXLSWorkbookStreamSource {
 
-    final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
+	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSCategoriesListDocs.class);
-    final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
-    static {
-        logger.setLevel(Level.INFO);
-        jexlLogger.setLevel(Level.ERROR);
-        tagLogger.setLevel(Level.ERROR);
-    }
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSCategoriesListDocs.class);
+	final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
+	static {
+		logger.setLevel(Level.INFO);
+		jexlLogger.setLevel(Level.ERROR);
+		tagLogger.setLevel(Level.ERROR);
+	}
 
-    public JXLSCategoriesListDocs() {
-        super();
-        this.setExcludeNotWeighed(false);
-    }
+	public JXLSCategoriesListDocs() {
+		super();
+		this.setExcludeNotWeighed(false);
+	}
 
-    @Override
-    protected List<Athlete> getSortedAthletes() {
-        List<Athlete> displayOrderCopy = AthleteSorter.displayOrderCopy(sortedAthletes);
-        return displayOrderCopy;
-    }
+	@Override
+	protected List<Athlete> getSortedAthletes() {
+		List<Athlete> displayOrderCopy = AthleteSorter.displayOrderCopy(sortedAthletes);
+		return displayOrderCopy;
+	}
 }

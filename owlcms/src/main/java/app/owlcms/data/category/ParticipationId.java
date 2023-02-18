@@ -21,43 +21,43 @@ import javax.persistence.Embeddable;
 public class ParticipationId
         implements Serializable {
 
-    private static final long serialVersionUID = -5619538756170067634L;
+	private static final long serialVersionUID = -5619538756170067634L;
 
-    @Column(name = "athlete_id")
-    public Long athleteId;
+	@Column(name = "athlete_id")
+	public Long athleteId;
 
-    @Column(name = "category_id")
-    public Long categoryId;
+	@Column(name = "category_id")
+	public Long categoryId;
 
-    public ParticipationId(Long athleteId, Long categoryId) {
-        this();
-        this.athleteId = athleteId;
-        this.categoryId = categoryId;
-    }
+	public ParticipationId(Long athleteId, Long categoryId) {
+		this();
+		this.athleteId = athleteId;
+		this.categoryId = categoryId;
+	}
 
-    private ParticipationId() {
-    }
+	private ParticipationId() {
+	}
 
-    // Getters omitted for brevity
+	// Getters omitted for brevity
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
 
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
-        ParticipationId that = (ParticipationId) o;
-        return Objects.equals(athleteId, that.athleteId) &&
-                Objects.equals(categoryId, that.categoryId);
-    }
+		ParticipationId that = (ParticipationId) o;
+		return Objects.equals(athleteId, that.athleteId) &&
+		        Objects.equals(categoryId, that.categoryId);
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(athleteId, categoryId);
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(athleteId, categoryId);
+	}
 
 }

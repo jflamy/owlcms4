@@ -20,60 +20,65 @@ import ch.qos.logback.classic.Logger;
  */
 public enum AgeDivision {
 
-    /* the divisions are listed in preference order, from more specific to more generic */
-    MASTERS,    /** 35+ (30+ in some federations) */
-    U,    /** for age groups */
-    OLY,
-    IWF,
-    DEFAULT, /* All ages */
-    SPECIAL;
-
-    @SuppressWarnings("unused")
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(AgeDivision.class);
-
-    /**
-     * Find all.
-     *
-     * @return the collection
+    /*
+     * the divisions are listed in preference order, from more specific to more
+     * generic
      */
-    public static Collection<AgeDivision> findAll() {
-        return EnumSet.of(AgeDivision.DEFAULT, AgeDivision.IWF, AgeDivision.U, AgeDivision.MASTERS);
-        // return Arrays.asList(AgeDivision.values());
-    }
+	MASTERS,
+	/** 35+ (30+ in some federations) */
+	U,
+	/** for age groups */
+	OLY,
+	IWF,
+	DEFAULT, /* All ages */
+	SPECIAL;
 
-    /**
-     * Gets the age division from code.
-     *
-     * @param code the code
-     * @return the age division from code
-     */
-    static public AgeDivision getAgeDivisionFromCode(String code) {
-        if (code == null) {
-            return null;
-        }
-        for (AgeDivision curAD : AgeDivision.values()) {
-            if (code.equalsIgnoreCase(curAD.name())) {
-                return curAD;
-            }
-        }
-        return AgeDivision.DEFAULT;
-    }
+	@SuppressWarnings("unused")
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(AgeDivision.class);
 
-    /**
-     * Gets the code.
-     *
-     * @return the code
-     */
-    public String getCode() {
-        return (isDefault() ? "" : name().substring(0, 1).toLowerCase());
-    }
+	/**
+	 * Find all.
+	 *
+	 * @return the collection
+	 */
+	public static Collection<AgeDivision> findAll() {
+		return EnumSet.of(AgeDivision.DEFAULT, AgeDivision.IWF, AgeDivision.U, AgeDivision.MASTERS);
+		// return Arrays.asList(AgeDivision.values());
+	}
 
-    /**
-     * Checks if is default.
-     *
-     * @return true, if is default
-     */
-    public boolean isDefault() {
-        return this == DEFAULT;
-    }
+	/**
+	 * Gets the age division from code.
+	 *
+	 * @param code the code
+	 * @return the age division from code
+	 */
+	static public AgeDivision getAgeDivisionFromCode(String code) {
+		if (code == null) {
+			return null;
+		}
+		for (AgeDivision curAD : AgeDivision.values()) {
+			if (code.equalsIgnoreCase(curAD.name())) {
+				return curAD;
+			}
+		}
+		return AgeDivision.DEFAULT;
+	}
+
+	/**
+	 * Gets the code.
+	 *
+	 * @return the code
+	 */
+	public String getCode() {
+		return (isDefault() ? "" : name().substring(0, 1).toLowerCase());
+	}
+
+	/**
+	 * Checks if is default.
+	 *
+	 * @return true, if is default
+	 */
+	public boolean isDefault() {
+		return this == DEFAULT;
+	}
 }

@@ -19,32 +19,32 @@ import app.owlcms.init.OwlcmsSession;
 @JsModule("./components/AudioContext.js")
 @Route("displays/athleteFacingAttempt")
 
-
 public class AthleteFacingAttemptBoard extends AttemptBoard {
 
-    public AthleteFacingAttemptBoard() {
-        super();
-        setPublicFacing(false);
-    }
+	public AthleteFacingAttemptBoard() {
+		super();
+		setPublicFacing(false);
+	}
 
-    @Override
-    public String getPageTitle() {
-        return getTranslation("AttemptAF") + OwlcmsSession.getFopNameIfMultiple();
-    }
+	@Override
+	public String getPageTitle() {
+		return getTranslation("AttemptAF") + OwlcmsSession.getFopNameIfMultiple();
+	}
 
-    @Override
-    public boolean isSilencedByDefault() {
-        return false;
-    }
+	@Override
+	public boolean isSilencedByDefault() {
+		return false;
+	}
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see app.owlcms.displays.attemptboard.AttemptBoard#onAttach(com.vaadin.flow. component.AttachEvent)
-     */
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
-        decisions.setPublicFacing(false);
-    }
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see app.owlcms.displays.attemptboard.AttemptBoard#onAttach(com.vaadin.flow.
+	 * component.AttachEvent)
+	 */
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		super.onAttach(attachEvent);
+		decisions.setPublicFacing(false);
+	}
 }

@@ -46,317 +46,318 @@ import io.moquette.broker.config.IConfig;
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
 public class Config {
 
-    public static final String FAKE_PIN = "\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF";
+	public static final String FAKE_PIN = "\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF";
 
-    public static final int SHORT_TEAM_LENGTH = 6;
+	public static final int SHORT_TEAM_LENGTH = 6;
 
-    private static Config current;
+	private static Config current;
 
-    @Transient
-    final static private Logger logger = (Logger) LoggerFactory.getLogger(Config.class);
+	@Transient
+	final static private Logger logger = (Logger) LoggerFactory.getLogger(Config.class);
 
-    /**
-     * Gets the current.
-     *
-     * @return the current
-     */
-    public static Config getCurrent() {
-        // *******
-        current = ConfigRepository.findAll().get(0);
-        current.setSkipReading(false);
-        return current;
-    }
+	/**
+	 * Gets the current.
+	 *
+	 * @return the current
+	 */
+	public static Config getCurrent() {
+		// *******
+		current = ConfigRepository.findAll().get(0);
+		current.setSkipReading(false);
+		return current;
+	}
 
-    public static void initConfig() {
-        JPAService.runInTransaction(em -> {
-            if (ConfigRepository.findAll().isEmpty()) {
-                Config config = new Config();
-                config.setMqttInternal(true);
-                Config.setCurrent(config);
-            }
-            return null;
-        });
-    }
+	public static void initConfig() {
+		JPAService.runInTransaction(em -> {
+			if (ConfigRepository.findAll().isEmpty()) {
+				Config config = new Config();
+				config.setMqttInternal(true);
+				Config.setCurrent(config);
+			}
+			return null;
+		});
+	}
 
-    public static Config setCurrent(Config config) {
-        current = ConfigRepository.save(config);
-        return current;
-    }
+	public static Config setCurrent(Config config) {
+		current = ConfigRepository.save(config);
+		return current;
+	}
 
-    @Id
-    Long id = 1L; // is a singleton. if we ever create a new one it should merge.
+	@Id
+	Long id = 1L; // is a singleton. if we ever create a new one it should merge.
 
-    @Column(columnDefinition = "boolean default false")
-    private boolean clearZip;
+	@Column(columnDefinition = "boolean default false")
+	private boolean clearZip;
 
-    @Convert(converter = LocaleAttributeConverter.class)
-    private Locale defaultLocale = null;
+	@Convert(converter = LocaleAttributeConverter.class)
+	private Locale defaultLocale = null;
 
-    private String pin;
-    private String displayPin;
-    private String ipAccessList;
-    private String ipDisplayList;
-    private String ipBackdoorList;
+	private String pin;
+	private String displayPin;
+	private String ipAccessList;
+	private String ipDisplayList;
+	private String ipBackdoorList;
 
-    private String mqttServer;
-    private String mqttPort;
-    private String mqttUserName;
-    private String mqttPassword;
+	private String mqttServer;
+	private String mqttPort;
+	private String mqttUserName;
+	private String mqttPassword;
 
-    /**
-     * Local Override: a zip file that is used to override resources, stored as a blob
-     */
-    @Lob
-    @Column(name = "localcontent", nullable = true)
-    private Blob localOverride;
+	/**
+	 * Local Override: a zip file that is used to override resources, stored as a
+	 * blob
+	 */
+	@Lob
+	@Column(name = "localcontent", nullable = true)
+	private Blob localOverride;
 
-    private String publicResultsURL;
+	private String publicResultsURL;
 
-    private String salt;
+	private String salt;
 
-    private String timeZoneId;
+	private String timeZoneId;
 
-    private Boolean traceMemory;
+	private Boolean traceMemory;
 
-    private String updatekey;
+	private String updatekey;
 
-    @Transient
-    @JsonIgnore
-    private boolean skipReading;
+	@Transient
+	@JsonIgnore
+	private boolean skipReading;
 
-    private String featureSwitches;
+	private String featureSwitches;
 
-    @Column(columnDefinition = "boolean default false")
-    private boolean localTemplatesOnly;
+	@Column(columnDefinition = "boolean default false")
+	private boolean localTemplatesOnly;
 
-    @Transient
-    @JsonIgnore
-    private Boolean useCompetitionDate;
+	@Transient
+	@JsonIgnore
+	private Boolean useCompetitionDate;
 
-    @Column(columnDefinition = "boolean default true")
-    private Boolean mqttInternal = true;
+	@Column(columnDefinition = "boolean default true")
+	private Boolean mqttInternal = true;
 
-    @Transient
-    @JsonIgnore
-    private IConfig mqttConfig;
+	@Transient
+	@JsonIgnore
+	private IConfig mqttConfig;
 
-    public String computeSalt() {
-        this.setSalt(null);
-        return Integer.toHexString(new Random(System.currentTimeMillis()).nextInt());
-    }
+	public String computeSalt() {
+		this.setSalt(null);
+		return Integer.toHexString(new Random(System.currentTimeMillis()).nextInt());
+	}
 
-    public String encodeUserPassword(String password, String storedPassword) {
-        String encodedPassword = AccessUtils.encodePin(password, storedPassword, true);
-        return encodedPassword;
-    }
+	public String encodeUserPassword(String password, String storedPassword) {
+		String encodedPassword = AccessUtils.encodePin(password, storedPassword, true);
+		return encodedPassword;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
-        if (this == obj) {
-            return true;
-        }
-        if ((obj == null) || (getClass() != obj.getClass())) {
-            return false;
-        }
-        Config other = (Config) obj;
-        return id != null && id.equals(other.getId());
-    }
+	@Override
+	public boolean equals(Object obj) {
+		// https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+		if (this == obj) {
+			return true;
+		}
+		if ((obj == null) || (getClass() != obj.getClass())) {
+			return false;
+		}
+		Config other = (Config) obj;
+		return id != null && id.equals(other.getId());
+	}
 
-    public boolean featureSwitch(String string) {
-        return featureSwitch(string, true);
-    }
+	public boolean featureSwitch(String string) {
+		return featureSwitch(string, true);
+	}
 
-    public boolean featureSwitch(String string, boolean trueIfPresent) {
-        String paramFeatureSwitches = getParamFeatureSwitches();
-        if (paramFeatureSwitches == null) {
-            return !trueIfPresent;
-        }
-        String[] switches = paramFeatureSwitches.toLowerCase().split("[,; ]");
-        boolean present = Arrays.asList(switches).contains(string.toLowerCase());
-        return trueIfPresent ? present : !present;
-    }
+	public boolean featureSwitch(String string, boolean trueIfPresent) {
+		String paramFeatureSwitches = getParamFeatureSwitches();
+		if (paramFeatureSwitches == null) {
+			return !trueIfPresent;
+		}
+		String[] switches = paramFeatureSwitches.toLowerCase().split("[,; ]");
+		boolean present = Arrays.asList(switches).contains(string.toLowerCase());
+		return trueIfPresent ? present : !present;
+	}
 
-    /**
-     * Gets the default locale.
-     *
-     * @return the default locale
-     */
-    public Locale getDefaultLocale() {
-        return defaultLocale;
-    }
+	/**
+	 * Gets the default locale.
+	 *
+	 * @return the default locale
+	 */
+	public Locale getDefaultLocale() {
+		return defaultLocale;
+	}
 
-    public String getDisplayPin() {
-        return displayPin;
-    }
+	public String getDisplayPin() {
+		return displayPin;
+	}
 
-    @Transient
-    @JsonIgnore
-    public String getDisplayPinForField() {
-        if (getDisplayPin() == null) {
-            return "";
-        } else {
-            return FAKE_PIN;
-        }
-    }
+	@Transient
+	@JsonIgnore
+	public String getDisplayPinForField() {
+		if (getDisplayPin() == null) {
+			return "";
+		} else {
+			return FAKE_PIN;
+		}
+	}
 
-    public String getFeatureSwitches() {
-        return featureSwitches;
-    }
+	public String getFeatureSwitches() {
+		return featureSwitches;
+	}
 
-    /**
-     * Gets the id.
-     *
-     * @return the id
-     */
-    public Long getId() {
-        return id;
-    }
+	/**
+	 * Gets the id.
+	 *
+	 * @return the id
+	 */
+	public Long getId() {
+		return id;
+	}
 
-    public String getIpAccessList() {
-        return ipAccessList;
-    }
+	public String getIpAccessList() {
+		return ipAccessList;
+	}
 
-    public String getIpBackdoorList() {
-        return ipBackdoorList;
-    }
+	public String getIpBackdoorList() {
+		return ipBackdoorList;
+	}
 
-    public String getIpDisplayList() {
-        return ipDisplayList;
-    }
+	public String getIpDisplayList() {
+		return ipDisplayList;
+	}
 
-    /**
-     * Gets the locale.
-     *
-     * @return the locale
-     */
-    @Transient
-    @JsonIgnore
-    public Locale getLocale() {
-        return getDefaultLocale();
-    }
+	/**
+	 * Gets the locale.
+	 *
+	 * @return the locale
+	 */
+	@Transient
+	@JsonIgnore
+	public Locale getLocale() {
+		return getDefaultLocale();
+	}
 
-    /**
-     * @return zip file containing a zipped ./local structure to override resources
-     * @throws SQLException
-     */
-    public byte[] getLocalZipBlob() {
-        // logger.debug("getLocalZipBlob skip={}",skipReading);
-        if (localOverride == null || skipReading) {
-            return null;
-        }
+	/**
+	 * @return zip file containing a zipped ./local structure to override resources
+	 * @throws SQLException
+	 */
+	public byte[] getLocalZipBlob() {
+		// logger.debug("getLocalZipBlob skip={}",skipReading);
+		if (localOverride == null || skipReading) {
+			return null;
+		}
 
-        return JPAService.runInTransaction(em -> {
-            try {
-                Config thisConfig = em.find(Config.class, this.id);
-                byte[] res = thisConfig.localOverride.getBytes(1, (int) localOverride.length());
-                logger.debug("getLocalZipBlob read {} bytes", res.length);
-                return res;
-            } catch (SQLException e) {
-                em.getTransaction().rollback();
-                throw new RuntimeException(e);
-            }
-        });
+		return JPAService.runInTransaction(em -> {
+			try {
+				Config thisConfig = em.find(Config.class, this.id);
+				byte[] res = thisConfig.localOverride.getBytes(1, (int) localOverride.length());
+				logger.debug("getLocalZipBlob read {} bytes", res.length);
+				return res;
+			} catch (SQLException e) {
+				em.getTransaction().rollback();
+				throw new RuntimeException(e);
+			}
+		});
 
-    }
+	}
 
-    public IConfig getMqttConfig() {
-        return mqttConfig;
-    }
+	public IConfig getMqttConfig() {
+		return mqttConfig;
+	}
 
-    public Boolean getMqttInternal() {
-        return mqttInternal;
-    }
+	public Boolean getMqttInternal() {
+		return mqttInternal;
+	}
 
-    public String getMqttPassword() {
-        return mqttPassword;
-    }
+	public String getMqttPassword() {
+		return mqttPassword;
+	}
 
-    @Transient
-    @JsonIgnore
-    public String getMqttPasswordForField() {
-        if (getMqttPassword() == null) {
-            return "";
-        } else {
-            return FAKE_PIN;
-        }
-    }
+	@Transient
+	@JsonIgnore
+	public String getMqttPasswordForField() {
+		if (getMqttPassword() == null) {
+			return "";
+		} else {
+			return FAKE_PIN;
+		}
+	}
 
-    public String getMqttPort() {
-        return mqttPort;
-    }
+	public String getMqttPort() {
+		return mqttPort;
+	}
 
-    public String getMqttServer() {
-        return mqttServer;
-    }
+	public String getMqttServer() {
+		return mqttServer;
+	}
 
-    public String getMqttUserName() {
-        return mqttUserName;
-    }
+	public String getMqttUserName() {
+		return mqttUserName;
+	}
 
-    /**
-     * @return the current whitelist.
-     */
-    @Transient
-    @JsonIgnore
-    public String getParamAccessList() {
-        String uAccessList = StartupUtils.getStringParam("ip");
-        if (uAccessList == null) {
-            // use access list from database
-            uAccessList = Config.getCurrent().ipAccessList;
-            if (uAccessList == null || uAccessList.isBlank()) {
-                uAccessList = null;
-            }
-        }
-        return uAccessList;
-    }
+	/**
+	 * @return the current whitelist.
+	 */
+	@Transient
+	@JsonIgnore
+	public String getParamAccessList() {
+		String uAccessList = StartupUtils.getStringParam("ip");
+		if (uAccessList == null) {
+			// use access list from database
+			uAccessList = Config.getCurrent().ipAccessList;
+			if (uAccessList == null || uAccessList.isBlank()) {
+				uAccessList = null;
+			}
+		}
+		return uAccessList;
+	}
 
-    /**
-     * @return the current whitelist.
-     */
-    @Transient
-    @JsonIgnore
-    public String getParamBackdoorList() {
-        String uAccessList = StartupUtils.getStringParam("backdoor");
-        if (uAccessList == null) {
-            // use access list from database
-            uAccessList = Config.getCurrent().ipBackdoorList;
-            if (uAccessList == null || uAccessList.isBlank()) {
-                uAccessList = null;
-            }
-        }
-        return uAccessList;
-    }
+	/**
+	 * @return the current whitelist.
+	 */
+	@Transient
+	@JsonIgnore
+	public String getParamBackdoorList() {
+		String uAccessList = StartupUtils.getStringParam("backdoor");
+		if (uAccessList == null) {
+			// use access list from database
+			uAccessList = Config.getCurrent().ipBackdoorList;
+			if (uAccessList == null || uAccessList.isBlank()) {
+				uAccessList = null;
+			}
+		}
+		return uAccessList;
+	}
 
-    @Transient
-    @JsonIgnore
-    public String getParamDecisionUrl() {
-        String paramPublicResultsURL = getParamPublicResultsURL();
-        return paramPublicResultsURL != null ? paramPublicResultsURL + "/decision" : null;
-    }
+	@Transient
+	@JsonIgnore
+	public String getParamDecisionUrl() {
+		String paramPublicResultsURL = getParamPublicResultsURL();
+		return paramPublicResultsURL != null ? paramPublicResultsURL + "/decision" : null;
+	}
 
-    @Transient
-    @JsonIgnore
-    public String getParamDisplayList() {
-        String uAccessList = StartupUtils.getStringParam("displayList");
-        if (uAccessList == null) {
-            // use access list from database
-            uAccessList = Config.getCurrent().getIpDisplayList();
-            if (uAccessList == null || uAccessList.isBlank()) {
-                uAccessList = null;
-            }
-        }
-        return uAccessList;
-    }
+	@Transient
+	@JsonIgnore
+	public String getParamDisplayList() {
+		String uAccessList = StartupUtils.getStringParam("displayList");
+		if (uAccessList == null) {
+			// use access list from database
+			uAccessList = Config.getCurrent().getIpDisplayList();
+			if (uAccessList == null || uAccessList.isBlank()) {
+				uAccessList = null;
+			}
+		}
+		return uAccessList;
+	}
 
-    /**
-     * @return the current password.
-     */
-    @Transient
-    @JsonIgnore
-    public String getParamDisplayPin() {
-        String uPin = StartupUtils.getStringParam("displayPin");
-        if (uPin == null) {
+	/**
+	 * @return the current password.
+	 */
+	@Transient
+	@JsonIgnore
+	public String getParamDisplayPin() {
+		String uPin = StartupUtils.getStringParam("displayPin");
+		if (uPin == null) {
 //            // not defined in environment
 //            // use pin from database, which is either empty (no password required)
 //            // or current.
@@ -367,50 +368,50 @@ public class Config {
 //            } else {
 //                return uPin; // what is in the database is already encrypted
 //            }
-            return null;
-        } else if (uPin.isBlank()) {
-            // no password will be expected
-            return null;
-        } else {
-            return uPin;
-        }
-    }
+			return null;
+		} else if (uPin.isBlank()) {
+			// no password will be expected
+			return null;
+		} else {
+			return uPin;
+		}
+	}
 
-    /**
-     * @return the current list of feature switches.
-     */
-    @Transient
-    @JsonIgnore
-    public String getParamFeatureSwitches() {
-        String uAccessList = StartupUtils.getStringParam("featureSwitches");
-        if (uAccessList == null) {
-            // use access list from database
-            uAccessList = Config.getCurrent().getFeatureSwitches();
-            if (uAccessList == null || uAccessList.isBlank()) {
-                uAccessList = null;
-            }
-        }
-        return uAccessList;
-    }
+	/**
+	 * @return the current list of feature switches.
+	 */
+	@Transient
+	@JsonIgnore
+	public String getParamFeatureSwitches() {
+		String uAccessList = StartupUtils.getStringParam("featureSwitches");
+		if (uAccessList == null) {
+			// use access list from database
+			uAccessList = Config.getCurrent().getFeatureSwitches();
+			if (uAccessList == null || uAccessList.isBlank()) {
+				uAccessList = null;
+			}
+		}
+		return uAccessList;
+	}
 
-    public boolean getParamMqttInternal() {
-        Boolean enableInternal = StartupUtils.getBooleanParamOrElseNull("enableEmbeddedMqtt");
-        if (enableInternal != null) {
-            return enableInternal;
-        } else {
-            return isMqttInternal();
-        }
-    }
+	public boolean getParamMqttInternal() {
+		Boolean enableInternal = StartupUtils.getBooleanParamOrElseNull("enableEmbeddedMqtt");
+		if (enableInternal != null) {
+			return enableInternal;
+		} else {
+			return isMqttInternal();
+		}
+	}
 
-    /**
-     * @return the current mqtt server.
-     */
-    @Transient
-    @JsonIgnore
-    public String getParamMqttPassword() {
-        // get non-encrypted password
-        String param = StartupUtils.getStringParam("mqttPassword");
-        // don't get from the database - useless because encrypted
+	/**
+	 * @return the current mqtt server.
+	 */
+	@Transient
+	@JsonIgnore
+	public String getParamMqttPassword() {
+		// get non-encrypted password
+		String param = StartupUtils.getStringParam("mqttPassword");
+		// don't get from the database - useless because encrypted
 //        if (param == null) {
 //            // get from database
 //            param = Config.getCurrent().getMqttPassword();
@@ -418,64 +419,64 @@ public class Config {
 //                param = null;
 //            }
 //        }
-        return param;
-    }
+		return param;
+	}
 
-    /**
-     * @return the current mqtt port.
-     */
-    @Transient
-    @JsonIgnore
-    public String getParamMqttPort() {
-        String param = StartupUtils.getStringParam("mqttPort");
-        if (param == null) {
-            // get from database
-            param = Config.getCurrent().getMqttPort();
-            if (param == null || param.isBlank()) {
-                param = "1883";
-            }
-        }
-        return param;
-    }
+	/**
+	 * @return the current mqtt port.
+	 */
+	@Transient
+	@JsonIgnore
+	public String getParamMqttPort() {
+		String param = StartupUtils.getStringParam("mqttPort");
+		if (param == null) {
+			// get from database
+			param = Config.getCurrent().getMqttPort();
+			if (param == null || param.isBlank()) {
+				param = "1883";
+			}
+		}
+		return param;
+	}
 
-    /**
-     * @return the current mqtt server.
-     */
-    @Transient
-    @JsonIgnore
-    public String getParamMqttServer() {
-        String param = StartupUtils.getStringParam("mqttServer");
-        return param;
-    }
+	/**
+	 * @return the current mqtt server.
+	 */
+	@Transient
+	@JsonIgnore
+	public String getParamMqttServer() {
+		String param = StartupUtils.getStringParam("mqttServer");
+		return param;
+	}
 
-    /**
-     * @return the current mqtt server.
-     */
-    @Transient
-    @JsonIgnore
-    public String getParamMqttUserName() {
-        String param = StartupUtils.getStringParam("mqttUserName");
-        if (param == null) {
-            // get from database
-            param = Config.getCurrent().getMqttUserName();
-            if (param == null || param.isBlank()) {
-                param = null;
-            }
-        }
-        return param;
-    }
+	/**
+	 * @return the current mqtt server.
+	 */
+	@Transient
+	@JsonIgnore
+	public String getParamMqttUserName() {
+		String param = StartupUtils.getStringParam("mqttUserName");
+		if (param == null) {
+			// get from database
+			param = Config.getCurrent().getMqttUserName();
+			if (param == null || param.isBlank()) {
+				param = null;
+			}
+		}
+		return param;
+	}
 
-    /**
-     * @return the current password.
-     */
-    @Transient
-    @JsonIgnore
-    public String getParamPin() {
-        String uPin = StartupUtils.getStringParam("pin");
-        if (uPin == null) {
-            // not defined in environment
-            // use pin from database, which is either empty (no password required)
-            // or legacy (not crypted) or current.
+	/**
+	 * @return the current password.
+	 */
+	@Transient
+	@JsonIgnore
+	public String getParamPin() {
+		String uPin = StartupUtils.getStringParam("pin");
+		if (uPin == null) {
+			// not defined in environment
+			// use pin from database, which is either empty (no password required)
+			// or legacy (not crypted) or current.
 //            uPin = Config.getCurrent().getPin();
 //            logger.debug("getParamPin uPin = {}", uPin);
 //            if (uPin == null || uPin.isBlank() || uPin.trim().contentEquals(FAKE_PIN)) {
@@ -490,297 +491,299 @@ public class Config {
 //                logger.debug("encrypted uPin");
 //                return uPin; // what is in the database is already encrypted
 //            }
-            return null;
-        } else if (uPin.isBlank()) {
-            // no password will be expected
-            return null;
-        } else {
-            logger.debug("param uPin {}", uPin);
-            return uPin;
-        }
-    }
+			return null;
+		} else if (uPin.isBlank()) {
+			// no password will be expected
+			return null;
+		} else {
+			logger.debug("param uPin {}", uPin);
+			return uPin;
+		}
+	}
 
-    /**
-     * @return the public results url stored in the database, except if overridden by system property or envariable.
-     */
-    public String getParamPublicResultsURL() {
-        String uURL = StartupUtils.getStringParam("remote");
-        if (uURL != null) {
-            // old configs with environment variable may still have a trailing /update.
-            uURL = uURL.replaceFirst("/update$", "");
-            return uURL;
-        } else {
-            uURL = publicResultsURL;
-            if (uURL == null || uURL.isBlank()) {
-                return null;
-            } else {
-                // user may have copied URL with trailing /
-                uURL = uURL.replaceFirst("/$", "");
-                return uURL;
-            }
-        }
-    }
+	/**
+	 * @return the public results url stored in the database, except if overridden
+	 *         by system property or envariable.
+	 */
+	public String getParamPublicResultsURL() {
+		String uURL = StartupUtils.getStringParam("remote");
+		if (uURL != null) {
+			// old configs with environment variable may still have a trailing /update.
+			uURL = uURL.replaceFirst("/update$", "");
+			return uURL;
+		} else {
+			uURL = publicResultsURL;
+			if (uURL == null || uURL.isBlank()) {
+				return null;
+			} else {
+				// user may have copied URL with trailing /
+				uURL = uURL.replaceFirst("/$", "");
+				return uURL;
+			}
+		}
+	}
 
-    @Transient
-    @JsonIgnore
-    public String getParamTimerUrl() {
-        String paramPublicResultsURL = getParamPublicResultsURL();
-        return paramPublicResultsURL != null ? paramPublicResultsURL + "/timer" : null;
-    }
+	@Transient
+	@JsonIgnore
+	public String getParamTimerUrl() {
+		String paramPublicResultsURL = getParamPublicResultsURL();
+		return paramPublicResultsURL != null ? paramPublicResultsURL + "/timer" : null;
+	}
 
-    /**
-     * @return the updateKey stored in the database, except if overridden by system property or envariable.
-     */
-    @Transient
-    @JsonIgnore
-    public String getParamUpdateKey() {
-        String uKey = StartupUtils.getStringParam("updateKey");
-        if (uKey == null) {
-            // use pin from database
-            uKey = Config.getCurrent().updatekey;
-            if (uKey == null || uKey.isBlank()) {
-                uKey = null;
-            }
-        }
-        return uKey;
-    }
+	/**
+	 * @return the updateKey stored in the database, except if overridden by system
+	 *         property or envariable.
+	 */
+	@Transient
+	@JsonIgnore
+	public String getParamUpdateKey() {
+		String uKey = StartupUtils.getStringParam("updateKey");
+		if (uKey == null) {
+			// use pin from database
+			uKey = Config.getCurrent().updatekey;
+			if (uKey == null || uKey.isBlank()) {
+				uKey = null;
+			}
+		}
+		return uKey;
+	}
 
-    @Transient
-    @JsonIgnore
-    public String getParamUpdateUrl() {
-        String publicResultsURLParam = getParamPublicResultsURL();
-        return publicResultsURLParam != null ? publicResultsURLParam + "/update" : null;
-    }
+	@Transient
+	@JsonIgnore
+	public String getParamUpdateUrl() {
+		String publicResultsURLParam = getParamPublicResultsURL();
+		return publicResultsURLParam != null ? publicResultsURLParam + "/update" : null;
+	}
 
-    public String getPin() {
-        return pin;
-    }
+	public String getPin() {
+		return pin;
+	}
 
-    @Transient
-    @JsonIgnore
-    public String getPinForField() {
-        if (getPin() == null) {
-            return "";
-        } else {
-            return FAKE_PIN;
-        }
-    }
+	@Transient
+	@JsonIgnore
+	public String getPinForField() {
+		if (getPin() == null) {
+			return "";
+		} else {
+			return FAKE_PIN;
+		}
+	}
 
-    public String getPublicResultsURL() {
-        return publicResultsURL;
-    }
+	public String getPublicResultsURL() {
+		return publicResultsURL;
+	}
 
-    public String getSalt() {
-        return this.salt;
-    }
+	public String getSalt() {
+		return this.salt;
+	}
 
-    public TimeZone getTimeZone() {
-        if (timeZoneId == null) {
-            return null;
-        } else {
-            return TimeZone.getTimeZone(timeZoneId);
-        }
-    }
+	public TimeZone getTimeZone() {
+		if (timeZoneId == null) {
+			return null;
+		} else {
+			return TimeZone.getTimeZone(timeZoneId);
+		}
+	}
 
-    public String getUpdatekey() {
-        return updatekey;
-    }
+	public String getUpdatekey() {
+		return updatekey;
+	}
 
-    @Override
-    public int hashCode() {
-        // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
-        return 31;
-    }
+	@Override
+	public int hashCode() {
+		// https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+		return 31;
+	}
 
-    @Transient
-    @JsonIgnore
-    public boolean isClearZip() {
-        if (localOverride == null) {
-            clearZip = false;
-        }
-        return clearZip;
-    }
+	@Transient
+	@JsonIgnore
+	public boolean isClearZip() {
+		if (localOverride == null) {
+			clearZip = false;
+		}
+		return clearZip;
+	}
 
-    @Transient
-    @JsonIgnore
-    public boolean isIgnoreCaching() {
-        return FileServlet.isIgnoreCaching();
-    }
+	@Transient
+	@JsonIgnore
+	public boolean isIgnoreCaching() {
+		return FileServlet.isIgnoreCaching();
+	}
 
-    public boolean isLocalTemplatesOnly() {
-        return this.localTemplatesOnly || featureSwitch("localTemplatesOnly");
-    }
+	public boolean isLocalTemplatesOnly() {
+		return this.localTemplatesOnly || featureSwitch("localTemplatesOnly");
+	}
 
-    public boolean isMqttInternal() {
-        return mqttInternal;
-    }
+	public boolean isMqttInternal() {
+		return mqttInternal;
+	}
 
-    @Transient
-    @JsonIgnore
-    public boolean isTraceMemory() {
-        if (traceMemory == null) {
-            traceMemory = StartupUtils.getBooleanParam("traceMemory");
-        }
-        return Boolean.TRUE.equals(traceMemory);
-    }
+	@Transient
+	@JsonIgnore
+	public boolean isTraceMemory() {
+		if (traceMemory == null) {
+			traceMemory = StartupUtils.getBooleanParam("traceMemory");
+		}
+		return Boolean.TRUE.equals(traceMemory);
+	}
 
-    @Transient
-    @JsonIgnore
-    public boolean isUseCompetitionDate() {
-        if (useCompetitionDate == null) {
-            useCompetitionDate = StartupUtils.getBooleanParam("useCompetitionDate");
-        }
-        return useCompetitionDate;
-    }
+	@Transient
+	@JsonIgnore
+	public boolean isUseCompetitionDate() {
+		if (useCompetitionDate == null) {
+			useCompetitionDate = StartupUtils.getBooleanParam("useCompetitionDate");
+		}
+		return useCompetitionDate;
+	}
 
-    public void setClearZip(boolean clearZipRequested) {
-        this.clearZip = clearZipRequested;
-    }
+	public void setClearZip(boolean clearZipRequested) {
+		this.clearZip = clearZipRequested;
+	}
 
-    public void setDefaultLocale(Locale defaultLocale) {
-        this.defaultLocale = defaultLocale;
-    }
+	public void setDefaultLocale(Locale defaultLocale) {
+		this.defaultLocale = defaultLocale;
+	}
 
-    public void setDisplayPin(String displayPin) {
-        // logger.debug("setting displayPin {}",displayPin);
-        this.displayPin = displayPin;
-    }
+	public void setDisplayPin(String displayPin) {
+		// logger.debug("setting displayPin {}",displayPin);
+		this.displayPin = displayPin;
+	}
 
-    public void setDisplayPinForField(String displayPin) {
-        // logger.debug("setDisplayPinForField with {}", displayPin);
-        if (displayPin != null && displayPin.length() != 64 && displayPin != FAKE_PIN) {
-            String encodedPin = AccessUtils.encodePin(displayPin, Config.getCurrent().getPin(), false);
-            logger.debug("encoded displayPin {}", encodedPin);
-            this.setDisplayPin(encodedPin);
-        } else if (displayPin == null || displayPin.isBlank()) {
-            logger.debug("empty {}", displayPin);
-            this.setDisplayPin(null);
-        }
-    }
+	public void setDisplayPinForField(String displayPin) {
+		// logger.debug("setDisplayPinForField with {}", displayPin);
+		if (displayPin != null && displayPin.length() != 64 && displayPin != FAKE_PIN) {
+			String encodedPin = AccessUtils.encodePin(displayPin, Config.getCurrent().getPin(), false);
+			logger.debug("encoded displayPin {}", encodedPin);
+			this.setDisplayPin(encodedPin);
+		} else if (displayPin == null || displayPin.isBlank()) {
+			logger.debug("empty {}", displayPin);
+			this.setDisplayPin(null);
+		}
+	}
 
-    public void setFeatureSwitches(String featureSwitches) {
-        this.featureSwitches = featureSwitches;
-    }
+	public void setFeatureSwitches(String featureSwitches) {
+		this.featureSwitches = featureSwitches;
+	}
 
-    public void setIgnoreCaching(boolean ignoreCaching) {
-        FileServlet.setIgnoreCaching(ignoreCaching);
-    }
+	public void setIgnoreCaching(boolean ignoreCaching) {
+		FileServlet.setIgnoreCaching(ignoreCaching);
+	}
 
-    public void setIpAccessList(String ipAccessList) {
-        this.ipAccessList = ipAccessList;
-    }
+	public void setIpAccessList(String ipAccessList) {
+		this.ipAccessList = ipAccessList;
+	}
 
-    public void setIpBackdoorList(String ipBackdoorList) {
-        this.ipBackdoorList = ipBackdoorList;
-    }
+	public void setIpBackdoorList(String ipBackdoorList) {
+		this.ipBackdoorList = ipBackdoorList;
+	}
 
-    public void setIpDisplayList(String ipDisplayList) {
-        this.ipDisplayList = ipDisplayList;
-    }
+	public void setIpDisplayList(String ipDisplayList) {
+		this.ipDisplayList = ipDisplayList;
+	}
 
-    public void setLocalTemplatesOnly(boolean localTemplatesOnly) {
-        this.localTemplatesOnly = localTemplatesOnly;
-    }
+	public void setLocalTemplatesOnly(boolean localTemplatesOnly) {
+		this.localTemplatesOnly = localTemplatesOnly;
+	}
 
-    public void setLocalZipBlob(byte[] localContent) {
-        if (this.clearZip) {
-            this.localOverride = null;
-            this.clearZip = false;
-        } else if (localContent != null) {
-            logger.debug("setting {}", localContent.length);
-            this.localOverride = BlobProxy.generateProxy(localContent);
-        } else {
-            this.localOverride = null;
-        }
-    }
+	public void setLocalZipBlob(byte[] localContent) {
+		if (this.clearZip) {
+			this.localOverride = null;
+			this.clearZip = false;
+		} else if (localContent != null) {
+			logger.debug("setting {}", localContent.length);
+			this.localOverride = BlobProxy.generateProxy(localContent);
+		} else {
+			this.localOverride = null;
+		}
+	}
 
-    public void setMqttConfig(IConfig mqttConfig) {
-        this.mqttConfig = mqttConfig;
-    }
+	public void setMqttConfig(IConfig mqttConfig) {
+		this.mqttConfig = mqttConfig;
+	}
 
-    public void setMqttInternal(boolean mqttInternal) {
-        this.mqttInternal = mqttInternal;
-    }
+	public void setMqttInternal(boolean mqttInternal) {
+		this.mqttInternal = mqttInternal;
+	}
 
-    public void setMqttInternal(Boolean mqttInternal) {
-        this.mqttInternal = mqttInternal;
-    }
+	public void setMqttInternal(Boolean mqttInternal) {
+		this.mqttInternal = mqttInternal;
+	}
 
-    public void setMqttPassword(String mqttPassword) {
-        this.mqttPassword = mqttPassword;
-    }
+	public void setMqttPassword(String mqttPassword) {
+		this.mqttPassword = mqttPassword;
+	}
 
-    public void setMqttPasswordForField(String mqttPassword) {
-        // logger.debug("setMqttPasswordForField with {}", mqttPassword);
-        if (mqttPassword != null && mqttPassword.length() != 64 && mqttPassword != FAKE_PIN) {
-            String encodedPin = AccessUtils.encodePin(mqttPassword, Config.getCurrent().getPin(), false);
-            logger.debug("encoded mqttPassword {}", encodedPin);
-            this.setMqttPassword(encodedPin);
-        } else if (mqttPassword == null || mqttPassword.isBlank()) {
-            logger.debug("empty mqttPassword {}", mqttPassword);
-            this.setMqttPassword(null);
-        }
-    }
+	public void setMqttPasswordForField(String mqttPassword) {
+		// logger.debug("setMqttPasswordForField with {}", mqttPassword);
+		if (mqttPassword != null && mqttPassword.length() != 64 && mqttPassword != FAKE_PIN) {
+			String encodedPin = AccessUtils.encodePin(mqttPassword, Config.getCurrent().getPin(), false);
+			logger.debug("encoded mqttPassword {}", encodedPin);
+			this.setMqttPassword(encodedPin);
+		} else if (mqttPassword == null || mqttPassword.isBlank()) {
+			logger.debug("empty mqttPassword {}", mqttPassword);
+			this.setMqttPassword(null);
+		}
+	}
 
-    public void setMqttPort(String mqttPort) {
-        this.mqttPort = mqttPort;
-    }
+	public void setMqttPort(String mqttPort) {
+		this.mqttPort = mqttPort;
+	}
 
-    public void setMqttServer(String mqttServer) {
-        this.mqttServer = mqttServer;
-    }
+	public void setMqttServer(String mqttServer) {
+		this.mqttServer = mqttServer;
+	}
 
-    public void setMqttUserName(String mqttUserName) {
-        // anonymous allowed iff mqttUserName is empty or null.
-        // we cannot override Moquette login to directly invoke our authenticator...
-        if (getMqttConfig() != null) {
-            getMqttConfig().setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME,
-                    Boolean.toString(mqttUserName == null || mqttUserName.isBlank()));
-        }
-        this.mqttUserName = mqttUserName;
-    }
+	public void setMqttUserName(String mqttUserName) {
+		// anonymous allowed iff mqttUserName is empty or null.
+		// we cannot override Moquette login to directly invoke our authenticator...
+		if (getMqttConfig() != null) {
+			getMqttConfig().setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME,
+			        Boolean.toString(mqttUserName == null || mqttUserName.isBlank()));
+		}
+		this.mqttUserName = mqttUserName;
+	}
 
-    public void setPin(String pin) {
-        // logger.debug("setting pin {}",pin);
-        this.pin = pin;
-    }
+	public void setPin(String pin) {
+		// logger.debug("setting pin {}",pin);
+		this.pin = pin;
+	}
 
-    public void setPinForField(String pin) {
-        // logger.debug("displayPin setter called with {}", displayPin);
-        if (pin != null && pin.length() != 64 && pin != FAKE_PIN) {
-            this.setPin(AccessUtils.encodePin(pin, Config.getCurrent().getPin(), false));
-        } else if (pin == null || pin.isBlank()) {
-            this.setPin(null);
-        }
-    }
+	public void setPinForField(String pin) {
+		// logger.debug("displayPin setter called with {}", displayPin);
+		if (pin != null && pin.length() != 64 && pin != FAKE_PIN) {
+			this.setPin(AccessUtils.encodePin(pin, Config.getCurrent().getPin(), false));
+		} else if (pin == null || pin.isBlank()) {
+			this.setPin(null);
+		}
+	}
 
-    public void setPublicResultsURL(String publicResultsURL) {
-        this.publicResultsURL = publicResultsURL;
-    }
+	public void setPublicResultsURL(String publicResultsURL) {
+		this.publicResultsURL = publicResultsURL;
+	}
 
-    /**
-     * @param salt the salt to set
-     */
-    private void setSalt(String salt) {
-        this.salt = salt;
-        logger.debug("setting salt to {}", this.salt);
-    }
+	public void setSkipReading(boolean b) {
+		this.skipReading = b;
+	}
 
-    public void setSkipReading(boolean b) {
-        this.skipReading = b;
-    }
+	public void setTimeZone(TimeZone timeZone) {
+		if (timeZone == null) {
+			this.timeZoneId = null;
+			return;
+		} else {
+			this.timeZoneId = timeZone.getID();
+		}
+	}
 
-    public void setTimeZone(TimeZone timeZone) {
-        if (timeZone == null) {
-            this.timeZoneId = null;
-            return;
-        } else {
-            this.timeZoneId = timeZone.getID();
-        }
-    }
+	public void setUpdatekey(String updatekey) {
+		this.updatekey = updatekey;
+	}
 
-    public void setUpdatekey(String updatekey) {
-        this.updatekey = updatekey;
-    }
+	/**
+	 * @param salt the salt to set
+	 */
+	private void setSalt(String salt) {
+		this.salt = salt;
+		logger.debug("setting salt to {}", this.salt);
+	}
 
 }
