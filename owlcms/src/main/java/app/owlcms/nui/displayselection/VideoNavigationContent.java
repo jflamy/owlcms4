@@ -141,8 +141,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 		Category medalCategory2 = getMedalCategory();
 		if (medalCategory2 != null) {
 		    params.put("cat", medalCategory2.getCode().toString());
-		}
-		if (getMedalGroup() != null) {
+		} else if (getMedalGroup() != null) {
 		    params.put("group", getMedalGroup().toString());
 		}
 		QueryParameters qp = QueryParameters.simple(params);
