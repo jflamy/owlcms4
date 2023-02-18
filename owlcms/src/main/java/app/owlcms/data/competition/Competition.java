@@ -258,17 +258,16 @@ public class Competition {
 	 * @return for each category represented in group g where all athletes have
 	 *         lifted, the medals
 	 */
-	public TreeMap<Category, TreeSet<Athlete>> computeMedals(Group g) {
+	public TreeMap<Category, TreeSet<Athlete>> computeMedals(Group g, boolean onlyFinished) {
 		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g);
-		return computeMedals(g, rankedAthletes);
+		return computeMedals(g, rankedAthletes, onlyFinished);
 	}
-	
+
 	public TreeSet<Athlete> computeMedalsForCategory(Category category) {
 		// brute force - reuse what works
 		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(null);
-		return computeMedalsByCategory(rankedAthletes).get(category);
+		return computeMedalsByCategory(rankedAthletes, false).get(category);
 	}
-
 
 	/**
 	 * @param g
@@ -277,7 +276,7 @@ public class Competition {
 	 * @return for each category, medal-winnning athletes in snatch, clean & jerk
 	 *         and total.
 	 */
-	public TreeMap<Category, TreeSet<Athlete>> computeMedals(Group g, List<Athlete> rankedAthletes) {
+	public TreeMap<Category, TreeSet<Athlete>> computeMedals(Group g, List<Athlete> rankedAthletes, boolean onlyFinished) {
 		if (g == null) {
 			return new TreeMap<>();
 		}
@@ -291,25 +290,28 @@ public class Competition {
 			return treeMap;
 		}
 
-		TreeMap<Category, TreeSet<Athlete>> medals = computeMedalsByCategory(rankedAthletes);
+		TreeMap<Category, TreeSet<Athlete>> medals = computeMedalsByCategory(rankedAthletes, onlyFinished);
 		medalsByGroup.put(g, medals);
 		return medals;
 	}
 
-	public TreeMap<Category, TreeSet<Athlete>> computeMedalsByCategory(List<Athlete> rankedAthletes) {
+	public TreeMap<Category, TreeSet<Athlete>> computeMedalsByCategory(List<Athlete> rankedAthletes,
+	        boolean onlyFinished) {
 		// extract all categories
 		Set<Category> medalCategories = rankedAthletes.stream()
 		        .map(a -> a.getEligibleCategories())
 		        .flatMap(Collection::stream)
 		        .collect(Collectors.toSet());
 
-		// exclude categories where athletes still have to lift
-		Set<Category> notDone = rankedAthletes.stream()
-		        .filter(a -> a.getSnatch1AsInteger() == null)
-		        .map(a -> a.getCategory())
-		        .collect(Collectors.toSet());
-		// logger.debug("medalCategories: all {} notDone {}", medalCategories, notDone);
-		medalCategories.removeAll(notDone);
+		if (onlyFinished) {
+			// exclude categories where athletes still have to lift
+			Set<Category> notDone = rankedAthletes.stream()
+			        .filter(a -> a.getSnatch1AsInteger() == null)
+			        .map(a -> a.getCategory())
+			        .collect(Collectors.toSet());
+			// logger.debug("medalCategories: all {} notDone {}", medalCategories, notDone);
+			medalCategories.removeAll(notDone);
+		}
 
 		TreeMap<Category, TreeSet<Athlete>> medals = new TreeMap<>();
 
@@ -334,16 +336,13 @@ public class Competition {
 			if (isSnatchCJTotalMedals()) {
 				snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
 				        .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
-				        .limit(3)
 				        .collect(Collectors.toList());
 				cjLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.CLEANJERK)
 				        .stream().filter(a -> a.getBestCleanJerk() > 0 && a.isEligibleForIndividualRanking())
-				        .limit(3)
 				        .collect(Collectors.toList());
 			}
 			List<Athlete> totalLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.TOTAL)
 			        .stream().filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
-			        .limit(3)
 			        .collect(Collectors.toList());
 
 			// Athletes excluded from Total due to bombing out can still win medals, so we
@@ -728,19 +727,19 @@ public class Competition {
 		return isMasters();
 	}
 
-	public TreeMap<Category, TreeSet<Athlete>> getMedals(Group g) {
+	public TreeMap<Category, TreeSet<Athlete>> getMedals(Group g, boolean onlyFinished) {
 		TreeMap<Category, TreeSet<Athlete>> medals;
 		if (medalsByGroup == null || (medals = medalsByGroup.get(g)) == null) {
-			medals = computeMedals(g);
+			medals = computeMedals(g, onlyFinished);
 		}
 		return medals;
 
 	}
 
-	public TreeSet<Athlete> getMedals(Group g, Category c) {
+	public TreeSet<Athlete> getMedals(Group g, Category c, boolean onlyFinished) {
 		TreeMap<Category, TreeSet<Athlete>> medals;
 		if (medalsByGroup == null || (medals = medalsByGroup.get(g)) == null) {
-			medals = computeMedals(g);
+			medals = computeMedals(g, onlyFinished);
 		}
 		return medals.get(c);
 

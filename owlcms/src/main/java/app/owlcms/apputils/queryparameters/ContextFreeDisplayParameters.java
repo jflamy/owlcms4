@@ -91,7 +91,7 @@ public interface ContextFreeDisplayParameters extends DisplayParameters {
 			newParameterMap.remove("cat");
 		}
 
-		FOPParameters.logger.warn("URL parsing: {} OwlcmsSession: fop={} cat={}", LoggerUtils.whereFrom(),
+		logger.debug("URL parsing - {} OwlcmsSession: fop={} cat={}", LoggerUtils.whereFrom(),
 		        (fop != null ? fop.getName() : null), (cat != null ? cat.getName() : null));
 
 		HashMap<String, List<String>> params = newParameterMap;

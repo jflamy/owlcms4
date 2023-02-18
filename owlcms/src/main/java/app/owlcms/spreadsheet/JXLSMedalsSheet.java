@@ -52,7 +52,7 @@ public class JXLSMedalsSheet extends JXLSWorkbookStreamSource {
 		}
 
 		Group group = getGroup();
-		TreeMap<Category, TreeSet<Athlete>> medals = Competition.getCurrent().getMedals(group);
+		TreeMap<Category, TreeSet<Athlete>> medals = Competition.getCurrent().getMedals(group, true);
 		sortedAthletes = new ArrayList<>();
 		for (Entry<Category, TreeSet<Athlete>> medalCat : medals.entrySet()) {
 			TreeSet<Athlete> medalists = medalCat.getValue();
@@ -61,12 +61,19 @@ public class JXLSMedalsSheet extends JXLSWorkbookStreamSource {
 					// logger.trace("Competition.getCurrent().isSnatchCJTotalMedals()
 					// {}",Competition.getCurrent().isSnatchCJTotalMedals());
 					if (Competition.getCurrent().isSnatchCJTotalMedals()) {
-						sortedAthletes
-						        .add(new MAthlete((PAthlete) p, Ranking.SNATCH, p.getSnatchRank(), p.getBestSnatch()));
-						sortedAthletes.add(new MAthlete((PAthlete) p, Ranking.CLEANJERK, p.getCleanJerkRank(),
-						        p.getBestCleanJerk()));
+						if (p.getSnatchRank() <= 3) {
+							sortedAthletes
+							        .add(new MAthlete((PAthlete) p, Ranking.SNATCH, p.getSnatchRank(),
+							                p.getBestSnatch()));
+						}
+						if (p.getCleanJerkRank() <= 3) {
+							sortedAthletes.add(new MAthlete((PAthlete) p, Ranking.CLEANJERK, p.getCleanJerkRank(),
+							        p.getBestCleanJerk()));
+						}
 					}
-					sortedAthletes.add(new MAthlete((PAthlete) p, Ranking.TOTAL, p.getTotalRank(), p.getTotal()));
+					if (p.getTotalRank() <= 3) {
+						sortedAthletes.add(new MAthlete((PAthlete) p, Ranking.TOTAL, p.getTotalRank(), p.getTotal()));
+					}
 				}
 			}
 		}

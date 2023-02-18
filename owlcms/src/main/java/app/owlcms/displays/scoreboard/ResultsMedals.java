@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.LoggerFactory;
 
@@ -81,6 +82,9 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
         implements ContextFreeDisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
         HasDynamicTitle,
         RequireDisplayLogin {
+	
+	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsMedals.class);
+	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
 	private Category category;
 	private JsonArray cattempts;
@@ -93,13 +97,13 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	private boolean initializationNeeded;
 	private Location location;
 	private UI locationUI;
-	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsMedals.class);
+
 	private TreeMap<Category, TreeSet<Athlete>> medals;
 	private String routeParameter;
 	private JsonArray sattempts;
 	private boolean silenced = true;
 	private EventBus uiEventBus;
-	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+
 	private Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	/**
@@ -441,10 +445,10 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 			init();
 			// logger.debug("group {}", this.getGroup());
 			if (this.getCategory() == null) {
-				medals = Competition.getCurrent().getMedals(this.getGroup());
+				medals = Competition.getCurrent().getMedals(this.getGroup(), true);
 			} else {
 				TreeSet<Athlete> catMedals = Competition.getCurrent().computeMedalsForCategory(this.getCategory());
-				logger.warn("group {} category {} catMedals {}", getGroup(), getCategory(), catMedals);
+				//logger.debug("group {} category {} catMedals {}", getGroup(), getCategory(), catMedals);
 				medals = new TreeMap<Category, TreeSet<Athlete>>();
 				medals.put(this.getCategory(), catMedals);
 			}
@@ -459,6 +463,8 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		}
 		SoundUtils.enableAudioContextNotification(this.getElement());
 		this.getElement().setProperty("video", routeParameter != null ? routeParameter + "/" : "");
+
+		this.getElement().setProperty("displayTitle", Translator.translate("CeremonyType.MEDALS"));
 	}
 
 	protected void setTranslationMap() {
@@ -573,7 +579,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		}
 	}
 
-	private void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
+	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
 		String category;
 		category = curCat != null ? curCat.getName() : "";
 		ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
@@ -612,23 +618,16 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	 * @param groupAthletes, List<Athlete> liftOrder
 	 * @return
 	 */
-	private JsonValue getAthletesJson(List<Athlete> displayOrder, FieldOfPlay fop) {
+	protected JsonValue getAthletesJson(List<Athlete> displayOrder, final FieldOfPlay _unused) {
 		JsonArray jath = Json.createArray();
-		int athx = 0;
+		AtomicInteger athx = new AtomicInteger(0);
 //        Category prevCat = null;
 		List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
 		        : Collections.emptyList();
-		for (Athlete a : athletes) {
+		
+		athletes.stream().limit(3).forEach(a -> {
 			JsonObject ja = Json.createObject();
 			Category curCat = a.getCategory();
-//            if (curCat != null && !curCat.sameAs(prevCat)) {
-//                // changing categories, put marker before athlete
-//                ja.put("isSpacer", true);
-//                jath.set(athx, ja);
-//                ja = Json.createObject();
-//                prevCat = curCat;
-//                athx++;
-//            }
 			// no blinking = 0
 			getAthleteJson(a, ja, curCat, 0);
 			String team = a.getTeam();
@@ -636,9 +635,9 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 				logger.trace("long team {}", team);
 				setWideTeamNames(true);
 			}
-			jath.set(athx, ja);
-			athx++;
-		}
+			jath.set(athx.getAndIncrement(), ja);
+		});
+		
 		return jath;
 	}
 
@@ -736,7 +735,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		this.getElement().setProperty("normalHeaderDisplay", (hidden || isVideo() ? "display:none" : "display:block"));
 	}
 
-	private void setWideTeamNames(boolean wide) {
+	protected void setWideTeamNames(boolean wide) {
 		this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
 	}
 

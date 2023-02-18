@@ -1904,7 +1904,7 @@ public class FieldOfPlay {
 		} else {
 
 			if (recomputeRanks) {
-				setMedals(Competition.getCurrent().computeMedals(g, athletes));
+				setMedals(Competition.getCurrent().computeMedals(g, athletes, true));
 			}
 			endMedals = System.nanoTime();
 

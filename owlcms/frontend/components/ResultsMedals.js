@@ -22,12 +22,12 @@ class ResultsMedals extends PolymerElement {
     </div>
     <div class="attemptBar" style$="[[normalHeaderDisplay]];">
         <div class="athleteInfo" id="athleteInfoDiv">
-            <div class="fullName ellipsis" id="fullNameDiv" inner-h-t-m-l="[[t.Medals]]"></div>
+            <div class="fullName ellipsis" id="fullNameDiv" inner-h-t-m-l="[[displayTitle]]"></div>
         </div>
     </div>
     <div class="video" style$="[[videoHeaderDisplay]]">
         <div class="eventlogo"></div>
-        <div class="videoheader"><span class="groupName">[[competitionName]]</span></div>
+        <div class="videoheader"><span class="groupName">[[competitionName]] &ndash; [[displayTitle]]</span></div>
         <div class="federationlogo"></div>
     </div>
     <template is="dom-if" if="[[medalCategories]]">
