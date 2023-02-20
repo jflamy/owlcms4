@@ -732,15 +732,15 @@ public class Competition {
 			List<Category> toRemove = medals.keySet().stream()
 			        .filter(k -> {
 				        TreeSet<Athlete> athletes = m.get(k);
-				        logger.warn("athletes {} {}",k, athletes);
+				        //logger.debug("athletes {} {}",k, athletes);
 				        // category includes an athlete that has not finished, mark it as "to be removed"
 				        boolean anyMatch = athletes.stream()
 				                .anyMatch(a -> a.getSnatch3AsInteger() == null || a.getCleanJerk3AsInteger() == null);
-				        logger.warn("category {} has finished {}", k, !anyMatch);
+				        //logger.debug("category {} has finished {}", k, !anyMatch);
 						return anyMatch;
 			        })
 			        .collect(Collectors.toList());
-			logger.warn("notFinished {}",toRemove);
+			//logger.debug("notFinished {}",toRemove);
 			for (Category notFinished: toRemove) {
 				m.remove(notFinished);
 			}

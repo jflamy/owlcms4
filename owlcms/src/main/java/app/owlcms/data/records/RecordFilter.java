@@ -170,8 +170,7 @@ public class RecordFilter {
 
 		List<RecordEvent> records = RecordRepository.findFiltered(curAthlete.getGender(), curAthlete.getAge(),
 		        curAthlete.getBodyWeight(), null, null);
-		logger.warn("records size {}  {}  {}  {}" ,curAthlete.getGender(), curAthlete.getAge(),
-		        curAthlete.getBodyWeight(), records.size());
+		//logger.debug("records size {}  {}  {}  {}" ,curAthlete.getGender(), curAthlete.getAge(),curAthlete.getBodyWeight(), records.size());
 
 		// remove duplicates for each kind of record, keep largest
 		Map<String, RecordEvent> cleanMap = records.stream().collect(
@@ -181,24 +180,12 @@ public class RecordFilter {
 		                (r1, r2) -> r1.getRecordValue() > r2.getRecordValue() ? r1 : r2));
 
 		Collection<RecordEvent> candidateRecords = cleanMap.values();
-
-		// if a record is defined to apply to an age group that is active in the
-		// competition, athlete must be eligible
-		// in that age group.
-//        Set<String> activeAgeGroupCodes = AgeGroupRepository.findActive().stream().map(a -> a.getCode())
-//                .collect(Collectors.toSet());
-//        Set<String> athleteAgeGroupCodes = curAthlete.getParticipations().stream()
-//                .map(a -> a.getCategory().getAgeGroup().getCode()).collect(Collectors.toSet());
 		Set<String> athleteFederations = curAthlete.getFederationCodes() != null
 		        ? new HashSet<>(Arrays.asList(curAthlete.getFederationCodes().split("[,;]")))
 		        : Set.of();
 //        logger.debug(" *** athlete {} agegroups {} active {} federations {}", curAthlete.getShortName(), athleteAgeGroupCodes, activeAgeGroupCodes, athleteFederations);
 		records = candidateRecords.stream()
 		        .filter(c -> athleteFederations.isEmpty() ? true : athleteFederations.contains(c.getRecordFederation()))
-//                .peek(c -> logger.debug("retained {}", c.getRecordFederation()))
-//                .filter(c -> activeAgeGroupCodes
-//                        .contains(c.getAgeGrp()) ? athleteAgeGroupCodes.contains(c.getAgeGrp())
-//                                : true)
 		        .collect(Collectors.toList());
 		return records;
 	}

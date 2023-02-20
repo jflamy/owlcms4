@@ -441,10 +441,8 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		// fop obtained via FOPParameters interface default methods.
-		logger.warn("onAttach");
 		OwlcmsSession.withFop(fop -> {
 			init();
-			logger.warn("group {} category {}", this.getGroup(), this.getCategory());
 			if (this.getCategory() == null) {
 				medals = Competition.getCurrent().getMedals(this.getGroup(), true);
 			} else {
