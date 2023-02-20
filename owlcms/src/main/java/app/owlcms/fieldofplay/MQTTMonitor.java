@@ -54,6 +54,7 @@ public class MQTTMonitor {
 		String deprecatedDecisionTopicName;
 		String clockTopicName;
 		String testTopicName;
+		String configTopicName;
 
 		MQTTCallback() {
 			// these are the device-initiated events that the monitor tracks
@@ -66,6 +67,8 @@ public class MQTTMonitor {
 			this.juryDecisionTopicName = "owlcms/jurybox/decision/" + fop.getName();
 			this.jurySummonTopicName = "owlcms/jurybox/summon/" + fop.getName();
 			this.testTopicName = "owlcms/test/" + fop.getName();
+			// no FOP on this message, it is used for the device to query what FOPs are present
+			this.configTopicName = "owlcms/config";
 		}
 
 		@Override
@@ -100,6 +103,9 @@ public class MQTTMonitor {
 					postFopEventJuryDecision(topic, messageStr);
 				} else if (topic.endsWith(jurySummonTopicName)) {
 					postFopEventSummonReferee(topic, messageStr);
+				} else if (topic.endsWith(configTopicName)) {
+					//TODO: return list of platforms
+					logger.info("{} received", configTopicName);
 				} else if (topic.endsWith(testTopicName)) {
 					long before = Long.parseLong(messageStr);
 					logger.info("{} timing = {}", getFop(), System.currentTimeMillis() - before);
