@@ -64,6 +64,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
@@ -576,6 +577,12 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 	@SuppressWarnings("unchecked")
 	private Integer getAgeFromFields() {
 		Integer age = null;
+		LocalDate now;
+		if (Config.getCurrent().isUseCompetitionDate()) {
+			now = Competition.getCurrent().getCompetitionDate();
+		} else {
+			now = LocalDate.now();
+		}
 		if (Competition.getCurrent().isUseBirthYear()) {
 			Optional<Binding<Athlete, ?>> yobBinding = binder.getBinding("yearOfBirth");
 			HasValue<?, String> yobField = (HasValue<?, String>) yobBinding.get().getField();
@@ -585,7 +592,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 				Integer yob = yR.getOrThrow((message) -> {
 					return new Exception(message);
 				});
-				age = (LocalDate.now().getYear()) - yob;
+
+				age = (now.getYear()) - yob;
 			} catch (Exception e) {
 				age = null;
 			}
@@ -594,7 +602,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 			HasValue<?, LocalDate> dateField = (HasValue<?, LocalDate>) fbdBinding.get().getField();
 			LocalDate date = dateField.getValue();
 			if (date != null) {
-				age = (LocalDate.now().getYear() - date.getYear());
+				age = (now.getYear() - date.getYear());
 			}
 		}
 		return age;
