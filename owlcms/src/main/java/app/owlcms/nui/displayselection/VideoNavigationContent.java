@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -41,6 +42,7 @@ import app.owlcms.displays.scoreboard.ResultsMedals;
 import app.owlcms.displays.scoreboard.ResultsNoLeaders;
 import app.owlcms.displays.scoreboard.ResultsRankings;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
@@ -100,9 +102,17 @@ public class VideoNavigationContent extends BaseNavigationContent
 		FieldOfPlay curFop = OwlcmsSession.getFop();
 		GroupCategorySelectionMenu groupCategorySelectionMenu = new GroupCategorySelectionMenu(groups, curFop,
 		        // group has been selected
-		        (g1, c1, fop1) -> selectCeremonyCategory(g1, c1, fop1),
+		        (g1, c1, fop1) -> selectVideoContext(g1, c1, fop1),
 		        // no group
-		        (g1, c1, fop1) -> selectCeremonyCategory(null, c1, fop1));
+		        (g1, c1, fop1) -> selectVideoContext(null, c1, fop1));
+		Checkbox includeNotCompleted = new Checkbox();
+		includeNotCompleted.addValueChangeListener(e -> {
+			groupCategorySelectionMenu.setIncludeNotCompleted(e.getValue());
+			groupCategorySelectionMenu.recompute();
+		});
+		includeNotCompleted.setLabel(Translator.translate("Video.includeNotCompleted"));
+		HorizontalLayout hl = new HorizontalLayout();
+		hl.add(groupCategorySelectionMenu, includeNotCompleted);
 
 		Button medals = new Button(getTranslation("CeremonyType.MEDALS"));
 		medals.addClickListener((e) -> {
@@ -123,7 +133,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 
 		VerticalLayout intro1a = new VerticalLayout();
 		// addP(intro1, getTranslation("darkModeSelect"));
-		intro1a.add(groupCategorySelectionMenu);
+		intro1a.add(hl);
 		FlexibleGridLayout grid1a = HomeNavigationContent.navigationGrid(medals, rankings);
 		doGroup(getTranslation("Scoreboard.RANKINGS"), intro1a, grid1a, this);
 
@@ -151,7 +161,9 @@ public class VideoNavigationContent extends BaseNavigationContent
 		        qp);
 	}
 
-	private void selectCeremonyCategory(Group g, Category c, FieldOfPlay fop) {
+	private void selectVideoContext(Group g, Category c, FieldOfPlay fop) {
+		fop.setVideoGroup(g);
+		fop.setVideoCategory(c);
 		setMedalGroup(g);
 		setMedalCategory(c);
 	}

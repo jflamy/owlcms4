@@ -151,7 +151,6 @@ class ResultsMedals extends PolymerElement {
 
     reset() {
         console.debug("reset");
-        this.$.timer.reset(this.$.timer);
         this.$.fullNameDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.display = "flex";
     }

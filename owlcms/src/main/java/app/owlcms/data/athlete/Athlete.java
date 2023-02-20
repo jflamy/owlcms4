@@ -5055,7 +5055,7 @@ public class Athlete {
 	 * @return the integer
 	 */
 	protected Integer asInteger(String stringValue) {
-		if (stringValue == null) {
+		if (stringValue == null || stringValue.isBlank()) {
 			return null;
 		}
 		try {

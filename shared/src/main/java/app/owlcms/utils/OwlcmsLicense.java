@@ -56,14 +56,14 @@ public class OwlcmsLicense {
                     try {
                         LocalDate expiry = LocalDate.parse(substring);
                         if (LocalDate.now().isAfter(expiry)) {
-                            logger.warn("license expired on {}", expiry);
+                            logger./**/warn("license expired on {}", expiry);
                             return false;
                         }
                     } catch (Exception e) {
                         return false;
                     }
                 } else {
-                    logger.warn("invalid license, no expiry date");
+                    logger./**/warn("invalid license, no expiry date");
                     return false;
                 }
                 Feature f = license.get(featureName);

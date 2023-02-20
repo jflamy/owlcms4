@@ -258,15 +258,15 @@ public class Competition {
 	 * @return for each category represented in group g where all athletes have
 	 *         lifted, the medals
 	 */
-	public TreeMap<Category, TreeSet<Athlete>> computeMedals(Group g, boolean onlyFinished) {
+	public TreeMap<Category, TreeSet<Athlete>> computeMedals(Group g) {
 		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g);
-		return computeMedals(g, rankedAthletes, onlyFinished);
+		return computeMedals(g, rankedAthletes);
 	}
 
 	public TreeSet<Athlete> computeMedalsForCategory(Category category) {
 		// brute force - reuse what works
 		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(null);
-		return computeMedalsByCategory(rankedAthletes, false).get(category);
+		return computeMedalsByCategory(rankedAthletes).get(category);
 	}
 
 	/**
@@ -276,7 +276,9 @@ public class Competition {
 	 * @return for each category, medal-winnning athletes in snatch, clean & jerk
 	 *         and total.
 	 */
-	public TreeMap<Category, TreeSet<Athlete>> computeMedals(Group g, List<Athlete> rankedAthletes, boolean onlyFinished) {
+	public TreeMap<Category, TreeSet<Athlete>> computeMedals(Group g, List<Athlete> rankedAthletes
+			//,	        boolean onlyFinished
+	        ) {
 		if (g == null) {
 			return new TreeMap<>();
 		}
@@ -290,28 +292,21 @@ public class Competition {
 			return treeMap;
 		}
 
-		TreeMap<Category, TreeSet<Athlete>> medals = computeMedalsByCategory(rankedAthletes, onlyFinished);
+		TreeMap<Category, TreeSet<Athlete>> medals = computeMedalsByCategory(rankedAthletes);
 		medalsByGroup.put(g, medals);
 		return medals;
 	}
 
-	public TreeMap<Category, TreeSet<Athlete>> computeMedalsByCategory(List<Athlete> rankedAthletes,
-	        boolean onlyFinished) {
+	public TreeMap<Category, TreeSet<Athlete>> computeMedalsByCategory(List<Athlete> rankedAthletes
+			//,	        boolean onlyFinished
+	        ) {
 		// extract all categories
 		Set<Category> medalCategories = rankedAthletes.stream()
 		        .map(a -> a.getEligibleCategories())
 		        .flatMap(Collection::stream)
 		        .collect(Collectors.toSet());
 
-		if (onlyFinished) {
-			// exclude categories where athletes still have to lift
-			Set<Category> notDone = rankedAthletes.stream()
-			        .filter(a -> a.getSnatch1AsInteger() == null)
-			        .map(a -> a.getCategory())
-			        .collect(Collectors.toSet());
-			// logger.debug("medalCategories: all {} notDone {}", medalCategories, notDone);
-			medalCategories.removeAll(notDone);
-		}
+		//onlyFinishedCategories(rankedAthletes, onlyFinished, medalCategories);
 
 		TreeMap<Category, TreeSet<Athlete>> medals = new TreeMap<>();
 
@@ -730,18 +725,27 @@ public class Competition {
 	public TreeMap<Category, TreeSet<Athlete>> getMedals(Group g, boolean onlyFinished) {
 		TreeMap<Category, TreeSet<Athlete>> medals;
 		if (medalsByGroup == null || (medals = medalsByGroup.get(g)) == null) {
-			medals = computeMedals(g, onlyFinished);
+			medals = computeMedals(g);
 		}
-		return medals;
-
-	}
-
-	public TreeSet<Athlete> getMedals(Group g, Category c, boolean onlyFinished) {
-		TreeMap<Category, TreeSet<Athlete>> medals;
-		if (medalsByGroup == null || (medals = medalsByGroup.get(g)) == null) {
-			medals = computeMedals(g, onlyFinished);
+		final TreeMap<Category, TreeSet<Athlete>> m = new TreeMap<>(medals);
+		if (onlyFinished) {
+			List<Category> toRemove = medals.keySet().stream()
+			        .filter(k -> {
+				        TreeSet<Athlete> athletes = m.get(k);
+				        logger.warn("athletes {} {}",k, athletes);
+				        // category includes an athlete that has not finished, mark it as "to be removed"
+				        boolean anyMatch = athletes.stream()
+				                .anyMatch(a -> a.getSnatch3AsInteger() == null || a.getCleanJerk3AsInteger() == null);
+				        logger.warn("category {} has finished {}", k, !anyMatch);
+						return anyMatch;
+			        })
+			        .collect(Collectors.toList());
+			logger.warn("notFinished {}",toRemove);
+			for (Category notFinished: toRemove) {
+				m.remove(notFinished);
+			}
 		}
-		return medals.get(c);
+		return m;
 
 	}
 

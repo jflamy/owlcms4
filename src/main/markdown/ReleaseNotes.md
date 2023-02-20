@@ -1,7 +1,10 @@
 37.6.0  Separate styles for video feed displays
 
 - 37.6 Enhancements
-  - It is now possible to have scoreboards and displays with alternate color and font schemes for video streaming, and slightly different content (for example, the scoreboard titles)  The colors and styling can be changed using the instructions in [Style Customization](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Styles) (by default they are the same as for the site scoreboards).
+  - Separate site section to launch displays used for video streaming. The video displays now have their own style sheets. 
+    - The video-specific style sheets are in the `local/styles/video`. By default the color scheme is the same as the site pages, with slight differences in the content shown (matches the columns used on IWF broadcasts). A Web Designer (or a motivated person) can use the [Style Customization](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Styles) instructions to change the colors, what columns are visible, to include logos, etc.
+  - A current "video group" and "video category" can be set for medals and ranking pages. If medals for group F1 are being awarded during the warmup of group H1, the current group is H1, but the current "video group" needs to be F1. The "video category" can be set when there are several categories in a group and it is desired to show them one by one.  
+    - The video group and category settings are currently taken into account when the video page is refreshed.
 - 37.6 Fixes
   - Restored the publicresults remote scoreboard capability.
   

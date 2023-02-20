@@ -21,7 +21,7 @@ import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
 
 public interface ContextFreeDisplayParameters extends DisplayParameters {
-	
+
 	@Override
 	public default HashMap<String, List<String>> readParams(Location location,
 	        Map<String, List<String>> parametersMap) {
@@ -63,14 +63,16 @@ public interface ContextFreeDisplayParameters extends DisplayParameters {
 			List<String> groupNames = parametersMap.get("group");
 			if (groupNames != null && groupNames.get(0) != null) {
 				group = GroupRepository.findByName(groupNames.get(0));
-			} else {
-				// medals are for a past group, not the current group
-				// group = (fop != null ? fop.getGroup() : null);
+			} else if (fop != null && isVideo(location) && fop.getVideoGroup() != null) {
+				group = fop.getVideoGroup();
 			}
 			if (group != null) {
 				newParameterMap.put("group", Arrays.asList(URLUtils.urlEncode(group.getName())));
 			}
 			this.setGroup(group);
+		} else if (fop != null && isVideo(location) && fop.getVideoGroup() != null) {
+			group = fop.getVideoGroup();
+			newParameterMap.put("group", Arrays.asList(URLUtils.urlEncode(group.getName())));
 		} else {
 			newParameterMap.remove("group");
 		}
@@ -81,12 +83,17 @@ public interface ContextFreeDisplayParameters extends DisplayParameters {
 			List<String> catCodes = parametersMap.get("cat");
 			if (catCodes != null && catCodes.get(0) != null) {
 				cat = CategoryRepository.findByCode(catCodes.get(0));
+			} else if (fop != null && isVideo(location) && fop.getVideoCategory() != null) {
+				cat = fop.getVideoCategory();
 			}
 			// logger.trace("cat = {}", cat);
 			if (cat != null) {
 				newParameterMap.put("cat", Arrays.asList(URLUtils.urlEncode(cat.getName())));
 			}
 			this.setCategory(cat);
+		} else if (fop != null && isVideo(location) && fop.getVideoCategory() != null) {
+			cat = fop.getVideoCategory();
+			newParameterMap.put("cat", Arrays.asList(URLUtils.urlEncode(cat.getName())));
 		} else {
 			newParameterMap.remove("cat");
 		}
@@ -113,8 +120,13 @@ public interface ContextFreeDisplayParameters extends DisplayParameters {
 		}
 		switchSoundMode((Component) this, silentMode, false);
 		updateParam(params, SILENT, !isSilenced() ? "false" : "true");
+		
 		setUrlParameterMap(params);
 		return params;
+	}
+
+	public default boolean isVideo(Location location) {
+		return location.getPath().endsWith("video");
 	}
 
 	public void setGroup(Group group);
@@ -124,4 +136,3 @@ public interface ContextFreeDisplayParameters extends DisplayParameters {
 	public void setFop(FieldOfPlay fop);
 
 }
-

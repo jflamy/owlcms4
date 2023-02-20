@@ -42,6 +42,36 @@ import ch.qos.logback.classic.Logger;
 @JsonInclude(Include.NON_NULL)
 public class RecordEvent {
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(ageGrp, ageGrpLower, ageGrpUpper, athleteName, birthDate, birthYear, bwCatLower,
+		        bwCatString, bwCatUpper, categoryString, event, eventLocation, gender, groupNameString, id, nation,
+		        recordDate, recordFederation, recordLift, recordName, recordValue, recordYear);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		RecordEvent other = (RecordEvent) obj;
+		return Objects.equals(ageGrp, other.ageGrp) && ageGrpLower == other.ageGrpLower
+		        && ageGrpUpper == other.ageGrpUpper && Objects.equals(athleteName, other.athleteName)
+		        && Objects.equals(birthDate, other.birthDate) && Objects.equals(birthYear, other.birthYear)
+		        && bwCatLower == other.bwCatLower && Objects.equals(bwCatString, other.bwCatString)
+		        && Objects.equals(bwCatUpper, other.bwCatUpper) && Objects.equals(categoryString, other.categoryString)
+		        && Objects.equals(event, other.event) && Objects.equals(eventLocation, other.eventLocation)
+		        && gender == other.gender && Objects.equals(groupNameString, other.groupNameString)
+		        && Objects.equals(id, other.id) && Objects.equals(nation, other.nation)
+		        && Objects.equals(recordDate, other.recordDate)
+		        && Objects.equals(recordFederation, other.recordFederation) && recordLift == other.recordLift
+		        && Objects.equals(recordName, other.recordName) && Objects.equals(recordValue, other.recordValue)
+		        && recordYear == other.recordYear;
+	}
+
 	public class MissingAgeGroup extends Exception {
 	}
 

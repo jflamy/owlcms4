@@ -38,22 +38,34 @@ public class GroupCategorySelectionMenu extends MenuBar {
 		void accept(T t, U u, V v);
 	}
 
+	private boolean includeNotCompleted;
+	private List<Group> groups;
+	private FieldOfPlay fop;
+	private TriConsumer<Group, Category, FieldOfPlay> whenChecked;
+	private TriConsumer<Group, Category, FieldOfPlay> whenUnselected;
+
 	public GroupCategorySelectionMenu(List<Group> groups, FieldOfPlay fop,
 	        TriConsumer<Group, Category, FieldOfPlay> whenChecked,
 	        TriConsumer<Group, Category, FieldOfPlay> whenUnselected) {
+		
+		this.groups = groups;
+		this.fop = fop;
+		this.whenChecked = whenChecked;
+		this.whenUnselected = whenUnselected;
+		init(groups, fop, whenChecked, whenUnselected);
+	}
+
+	private void init(List<Group> groups, FieldOfPlay fop, TriConsumer<Group, Category, FieldOfPlay> whenChecked,
+	        TriConsumer<Group, Category, FieldOfPlay> whenUnselected) {
 		MenuItem item;
-//        if (fop.getGroup() != null) {
-//            item = this.addItem(fop.getGroup().getName() + "\u2003\u25bd");
-//            this.addThemeVariants(MenuBarVariant.LUMO_SMALL);
-//        } else {
 		String menuTitle = Translator.translate("Group") + "/" + Translator.translate("Category") + "\u2003\u25bc";
 		item = this.addItem(menuTitle);
 		this.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_PRIMARY);
-//        }
+
 		SubMenu subMenu = item.getSubMenu();
 		for (Group g : groups) {
-			Set<Category> finishedCategories = getFinishedCategories(g);
-			if (finishedCategories.size() > 0) {
+			Set<Category> categories = includeNotCompleted ? getAllCategories(g) : getFinishedCategories(g);
+			if (categories.size() > 0) {
 				MenuItem subItem = subMenu.addItem(
 				        g.getName(),
 				        e -> {
@@ -69,7 +81,7 @@ public class GroupCategorySelectionMenu extends MenuBar {
 				subItem.getElement().setAttribute("style", "margin: 0px; padding: 0px");
 			}
 
-			for (Category c : finishedCategories) {
+			for (Category c : categories) {
 				MenuItem subItem1 = subMenu.addItem(
 				        g.getName() + " - " + c.getName(),
 				        e -> {
@@ -104,6 +116,11 @@ public class GroupCategorySelectionMenu extends MenuBar {
 		item.setEnabled(true);
 	}
 
+	private Set<Category> getAllCategories(Group g) {
+		TreeMap<Category, TreeSet<Athlete>> medals = Competition.getCurrent().getMedals(g, false);
+		return medals.keySet();
+	}
+
 	@SuppressWarnings("unused")
 	private String describedName(Group g) {
 		String desc = g.getDescription();
@@ -128,6 +145,15 @@ public class GroupCategorySelectionMenu extends MenuBar {
 		if (checked) {
 			menuItem.setChecked(checked);
 		}
+	}
+
+	public void setIncludeNotCompleted(Boolean value) {
+		this.includeNotCompleted = value;
+	}
+
+	public void recompute() {
+		this.removeAll();
+		init(groups, fop, whenChecked, whenUnselected);
 	}
 
 }

@@ -48,7 +48,6 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.LiftDefinition;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
@@ -231,6 +230,10 @@ public class FieldOfPlay {
 
 	private boolean clockStoppedDecisionsAllowed;
 
+	private Group videoGroup;
+
+	private Category videoCategory;
+
 	/**
 	 * Instantiates a new field of play state. When using this constructor
 	 * {@link #init(List, IProxyTimer)} must later be used to provide the athletes
@@ -270,6 +273,7 @@ public class FieldOfPlay {
 
 	public boolean computeShowAllGroupRecords() {
 		boolean forced = Config.getCurrent().featureSwitch("forceAllGroupRecords");
+		logger.warn("forceAllGroupRecords {}", forced || showAllGroupRecords);
 		return forced || showAllGroupRecords;
 	}
 
@@ -548,6 +552,14 @@ public class FieldOfPlay {
 	 */
 	public EventBus getUiEventBus() {
 		return uiEventBus;
+	}
+
+	public Category getVideoCategory() {
+		return videoCategory;
+	}
+
+	public Group getVideoGroup() {
+		return videoGroup;
 	}
 
 	public Integer getWeightAtLastStart() {
@@ -1107,9 +1119,9 @@ public class FieldOfPlay {
 		        : null;
 
 		List<RecordEvent> eligibleRecords = recordsByAthlete.get(curAthlete);
-//        logger.debug("groupRecords {}", groupRecords);
-//        for (RecordEvent rec : eligibleRecords) {
-//            logger.debug("eligibleRecord {}", rec);
+//        logger.warn("============== groupRecords {}", groupRecords.size());
+//        for (RecordEvent rec : groupRecords) {
+//            logger.warn("group record {}", rec);
 //        }
 		List<RecordEvent> challengedRecords = RecordFilter.computeChallengedRecords(
 		        eligibleRecords,
@@ -1249,6 +1261,14 @@ public class FieldOfPlay {
 		this.testingMode = testingMode;
 	}
 
+	public void setVideoCategory(Category c) {
+		this.videoCategory = c;
+	}
+
+	public void setVideoGroup(Group g) {
+		this.videoGroup = g;
+	}
+
 	public void setWeightAtLastStart(Integer nextAttemptRequestedWeight) {
 		weightAtLastStart = nextAttemptRequestedWeight;
 		setLiftsDoneAtLastStart(((getCurAthlete() != null) ? getCurAthlete().getAttemptsDone() : 0));
@@ -1278,6 +1298,56 @@ public class FieldOfPlay {
 		        (group != null ? group.getName() : group), origin);
 		// intentionally posting an event for testing purposes
 		fopEventPost(new StartLifting(origin));
+	}
+
+	void emitFinalWarning() {
+		if (!isFinalWarningEmitted()) {
+			logger.info("{}Final Warning", getLoggingName());
+			if (isEmitSoundsOnServer()) {
+				new Sound(getSoundMixer(), "finalWarning.wav").emit();
+			}
+			setFinalWarningEmitted(true);
+		}
+	}
+
+	void emitInitialWarning() {
+		if (!isInitialWarningEmitted()) {
+			logger.info("{}Initial Warning", getLoggingName());
+			if (isEmitSoundsOnServer()) {
+				new Sound(getSoundMixer(), "initialWarning.wav").emit();
+			}
+			setInitialWarningEmitted(true);
+		}
+	}
+
+	void emitTimeOver() {
+		if (!isTimeoutEmitted()) {
+			logger.info("{}Time Over", getLoggingName());
+			if (isEmitSoundsOnServer()) {
+				new Sound(getSoundMixer(), "timeOver.wav").emit();
+			}
+			setTimeoutEmitted(true);
+		}
+	}
+
+	void pushOutUIEvent(UIEvent event) {
+		getUiEventBus().post(event);
+		getPostEventBus().post(event);
+	}
+
+	/**
+	 * Sets the state.
+	 *
+	 * @param state the new state
+	 */
+	void setState(FOPState state) {
+		logger.info("{}entering {} {}", getLoggingName(), stateName(state), LoggerUtils.whereFrom());
+		doSetState(state);
+	}
+
+	void setState(FOPState state, String whereFrom) {
+		logger.info("{}entering {} {}", getLoggingName(), stateName(state), whereFrom);
+		doSetState(state);
 	}
 
 	private void cancelWakeUpRef() {
@@ -1643,7 +1713,7 @@ public class FieldOfPlay {
 	/**
 	 * events resulting from decisions received so far (down signal, stopping timer,
 	 * all decisions entered, etc.)
-	 * 
+	 *
 	 * @param refIndex
 	 */
 	private void processJuryMemberDecisions(Object origin, int refIndex) {
@@ -1804,6 +1874,10 @@ public class FieldOfPlay {
 
 		if (getCurAthlete() != null) {
 			Category category = getCurAthlete().getCategory();
+			logger.warn("medals {}", getMedals().get(category));
+			TreeSet<Athlete> medalists = getMedals().get(category);
+			List<Athlete> snatchMedalists = medalists.stream().filter(a -> a.getSnatchRank() <= 3).collect(Collectors.toList());
+			List<Athlete> totalMedalists = medalists.stream().filter(a -> a.getTotalRank() <= 3).collect(Collectors.toList());
 
 			List<Athlete> currentCategoryAthletes = new ArrayList<>();
 			for (Athlete a : rankedAthletes) {
@@ -1817,23 +1891,24 @@ public class FieldOfPlay {
 				}
 			}
 
-			// logger.trace("currentCategoryAthletes {} {}", currentCategoryAthletes,
-			// cjStarted2);
+			logger.warn("currentCategoryAthletes {} {}", currentCategoryAthletes, isCjStarted());
 			if (!isCjStarted()) {
-				List<Athlete> snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
-				        .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
-				        .limit(3)
-				        .collect(Collectors.toList());
-				setLeaders(snatchLeaders);
-				logger.trace("snatch warn {} {}", snatchLeaders, currentCategoryAthletes);
+//				List<Athlete> snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
+//				        .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
+//				        .limit(3)
+//				        .collect(Collectors.toList());
+//				setLeaders(snatchLeaders);
+				setLeaders(snatchMedalists);
+				logger.trace("snatch warn {} {}", snatchMedalists, currentCategoryAthletes);
 			} else {
-				List<Athlete> totalLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.TOTAL)
-				        .stream()
-				        .filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
-				        .limit(3)
-				        .collect(Collectors.toList());
-				setLeaders(totalLeaders);
-				logger.trace("total warn {} {}", totalLeaders, currentCategoryAthletes);
+//				List<Athlete> totalLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.TOTAL)
+//				        .stream()
+//				        .filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
+//				        .limit(3)
+//				        .collect(Collectors.toList());
+//				setLeaders(totalLeaders);
+				
+				logger.trace("total warn {} {}", totalMedalists, currentCategoryAthletes);
 			}
 		} else {
 			setLeaders(null);
@@ -1904,7 +1979,7 @@ public class FieldOfPlay {
 		} else {
 
 			if (recomputeRanks) {
-				setMedals(Competition.getCurrent().computeMedals(g, athletes, true));
+				setMedals(Competition.getCurrent().computeMedals(g, athletes));
 			}
 			endMedals = System.nanoTime();
 
@@ -1946,6 +2021,7 @@ public class FieldOfPlay {
 	}
 
 	private void recomputeRecordsMap(List<Athlete> athletes) {
+		groupRecords.clear();
 		for (Athlete a : athletes) {
 			List<RecordEvent> eligibleRecords = RecordFilter.computeEligibleRecordsForAthlete(a);
 			recordsByAthlete.put(a, eligibleRecords);
@@ -2654,56 +2730,6 @@ public class FieldOfPlay {
 	private void weightChangeDoNotDisturb(WeightChange e) {
 		recomputeOrderAndRanks(e.isResultChange());
 		uiDisplayCurrentAthleteAndTime(false, e, false);
-	}
-
-	void emitFinalWarning() {
-		if (!isFinalWarningEmitted()) {
-			logger.info("{}Final Warning", getLoggingName());
-			if (isEmitSoundsOnServer()) {
-				new Sound(getSoundMixer(), "finalWarning.wav").emit();
-			}
-			setFinalWarningEmitted(true);
-		}
-	}
-
-	void emitInitialWarning() {
-		if (!isInitialWarningEmitted()) {
-			logger.info("{}Initial Warning", getLoggingName());
-			if (isEmitSoundsOnServer()) {
-				new Sound(getSoundMixer(), "initialWarning.wav").emit();
-			}
-			setInitialWarningEmitted(true);
-		}
-	}
-
-	void emitTimeOver() {
-		if (!isTimeoutEmitted()) {
-			logger.info("{}Time Over", getLoggingName());
-			if (isEmitSoundsOnServer()) {
-				new Sound(getSoundMixer(), "timeOver.wav").emit();
-			}
-			setTimeoutEmitted(true);
-		}
-	}
-
-	void pushOutUIEvent(UIEvent event) {
-		getUiEventBus().post(event);
-		getPostEventBus().post(event);
-	}
-
-	/**
-	 * Sets the state.
-	 *
-	 * @param state the new state
-	 */
-	void setState(FOPState state) {
-		logger.info("{}entering {} {}", getLoggingName(), stateName(state), LoggerUtils.whereFrom());
-		doSetState(state);
-	}
-
-	void setState(FOPState state, String whereFrom) {
-		logger.info("{}entering {} {}", getLoggingName(), stateName(state), whereFrom);
-		doSetState(state);
 	}
 
 }

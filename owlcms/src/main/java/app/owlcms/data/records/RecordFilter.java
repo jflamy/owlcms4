@@ -170,6 +170,8 @@ public class RecordFilter {
 
 		List<RecordEvent> records = RecordRepository.findFiltered(curAthlete.getGender(), curAthlete.getAge(),
 		        curAthlete.getBodyWeight(), null, null);
+		logger.warn("records size {}  {}  {}  {}" ,curAthlete.getGender(), curAthlete.getAge(),
+		        curAthlete.getBodyWeight(), records.size());
 
 		// remove duplicates for each kind of record, keep largest
 		Map<String, RecordEvent> cleanMap = records.stream().collect(
