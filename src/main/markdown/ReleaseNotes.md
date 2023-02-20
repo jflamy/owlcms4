@@ -1,12 +1,14 @@
-37.6.0  Separate styles for video feed displays
+38.0.0  Support for video displays with specific styling
 
-- 37.6 Enhancements
-  - Separate site section to launch displays used for video streaming. The video displays now have their own style sheets. 
-    - The video-specific style sheets are in the `local/styles/video`. By default the color scheme is the same as the site pages, with slight differences in the content shown (matches the columns used on IWF broadcasts). A Web Designer (or a motivated person) can use the [Style Customization](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Styles) instructions to change the colors, what columns are visible, to include logos, etc.
+- 38.0 Enhancements
+  - A separate site section has been added to manage the displays used for video streaming. The video displays now have their own style sheets. 
+    - The video-specific style sheets are in the `local/styles/video`. By default, the color scheme is the same as the site pages, with slight differences in the content shown (to match the columns used on IWF broadcasts). A Web Designer (or a motivated person) can use the [Style Customization](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Styles) instructions to change the colors, what columns are visible, to include logos, etc.
   - A current "video group" and "video category" can be set for medals and ranking pages. If medals for group F1 are being awarded during the warmup of group H1, the current group is H1, but the current "video group" needs to be F1. The "video category" can be set when there are several categories in a group and it is desired to show them one by one.  
     - The video group and category settings are currently taken into account when the video page is refreshed.
-- 37.6 Fixes
+- 38.0-alpha01 Fixes
   - Restored the publicresults remote scoreboard capability.
+  - Leaders from previous B/C/D group were not shown on first athlete of next group  ([#633](https://github.com/jflamy/owlcms4/issues/633))
+  - When using the `forceAllGroupRecords` feature switch to show records applicable to all participants in a group, the records were not being fetched correctly ([#634](https://github.com/jflamy/owlcms4/issues/634))
   
 
 ##### Highlights from recent stable releases
