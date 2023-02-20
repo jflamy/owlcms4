@@ -273,7 +273,6 @@ public class FieldOfPlay {
 
 	public boolean computeShowAllGroupRecords() {
 		boolean forced = Config.getCurrent().featureSwitch("forceAllGroupRecords");
-		logger.warn("forceAllGroupRecords {}", forced || showAllGroupRecords);
 		return forced || showAllGroupRecords;
 	}
 
@@ -1119,9 +1118,9 @@ public class FieldOfPlay {
 		        : null;
 
 		List<RecordEvent> eligibleRecords = recordsByAthlete.get(curAthlete);
-//        logger.warn("============== groupRecords {}", groupRecords.size());
+//        logger.debug("============== groupRecords {}", groupRecords.size());
 //        for (RecordEvent rec : groupRecords) {
-//            logger.warn("group record {}", rec);
+//            logger.debug("group record {}", rec);
 //        }
 		List<RecordEvent> challengedRecords = RecordFilter.computeChallengedRecords(
 		        eligibleRecords,
@@ -1874,41 +1873,18 @@ public class FieldOfPlay {
 
 		if (getCurAthlete() != null) {
 			Category category = getCurAthlete().getCategory();
-			logger.warn("medals {}", getMedals().get(category));
+
 			TreeSet<Athlete> medalists = getMedals().get(category);
+			logger.debug("medals {}",medalists);
 			List<Athlete> snatchMedalists = medalists.stream().filter(a -> a.getSnatchRank() <= 3).collect(Collectors.toList());
 			List<Athlete> totalMedalists = medalists.stream().filter(a -> a.getTotalRank() <= 3).collect(Collectors.toList());
 
-			List<Athlete> currentCategoryAthletes = new ArrayList<>();
-			for (Athlete a : rankedAthletes) {
-				// fetch the participation that matches the current athlete registration
-				// category
-				Optional<Participation> matchingParticipation = a.getParticipations().stream()
-				        .filter(p -> p.getCategory().sameAs(category)).findFirst();
-				// get an athlete proxy that has the rankings based on that participation
-				if (matchingParticipation.isPresent()) {
-					currentCategoryAthletes.add(new PAthlete(matchingParticipation.get()));
-				}
-			}
-
-			logger.warn("currentCategoryAthletes {} {}", currentCategoryAthletes, isCjStarted());
 			if (!isCjStarted()) {
-//				List<Athlete> snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
-//				        .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
-//				        .limit(3)
-//				        .collect(Collectors.toList());
-//				setLeaders(snatchLeaders);
 				setLeaders(snatchMedalists);
-				logger.trace("snatch warn {} {}", snatchMedalists, currentCategoryAthletes);
+				logger.trace("snatch medalists {} {}", snatchMedalists);
 			} else {
-//				List<Athlete> totalLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.TOTAL)
-//				        .stream()
-//				        .filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
-//				        .limit(3)
-//				        .collect(Collectors.toList());
-//				setLeaders(totalLeaders);
-				
-				logger.trace("total warn {} {}", totalMedalists, currentCategoryAthletes);
+				setLeaders(totalMedalists);
+				logger.trace("total medalists {} {}", totalMedalists);
 			}
 		} else {
 			setLeaders(null);
