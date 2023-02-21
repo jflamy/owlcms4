@@ -36,28 +36,41 @@ public class ResultsRankings extends ResultsMedals {
 		List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
 		        : Collections.emptyList();
 
-		athletes.stream().limit(15).forEach(a -> {
-			JsonObject ja = Json.createObject();
-			Category curCat = a.getCategory();
-			// no blinking = 0
-			getAthleteJson(a, ja, curCat, 0);
-			String team = a.getTeam();
-			if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
-				logger.trace("long team {}", team);
-				setWideTeamNames(true);
-			}
-			jath.set(athx.getAndIncrement(), ja);
-		});
+		athletes.stream()
+		        .sorted((a, b) -> {
+			        int aTotalRank = a.getTotalRank();
+			        aTotalRank = aTotalRank == 0 ? 999 : aTotalRank;
+			        int bTotalRank = b.getTotalRank();
+			        bTotalRank = bTotalRank == 0 ? 999 : bTotalRank;
+			        if (aTotalRank == bTotalRank) {
+				        // both were 0
+				        return Integer.compare(a.getSnatchRank(), b.getSnatchRank());
+			        } else {
+				        return Integer.compare(aTotalRank, bTotalRank);
+			        }
+		        })
+		        .limit(15).forEach(a -> {
+			        JsonObject ja = Json.createObject();
+			        Category curCat = a.getCategory();
+			        // no blinking = 0
+			        getAthleteJson(a, ja, curCat, 0);
+			        String team = a.getTeam();
+			        if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
+				        logger.trace("long team {}", team);
+				        setWideTeamNames(true);
+			        }
+			        jath.set(athx.getAndIncrement(), ja);
+		        });
 
 		return jath;
 	}
-	
+
 	@Override
 	public String getPageTitle() {
 		String translation = getTranslation("Scoreboard.RANKING");
 		return translation;
 	}
-	
+
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
