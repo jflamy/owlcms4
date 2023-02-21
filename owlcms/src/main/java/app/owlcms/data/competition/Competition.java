@@ -732,6 +732,9 @@ public class Competition {
 			List<Category> toRemove = medals.keySet().stream()
 			        .filter(k -> {
 				        TreeSet<Athlete> athletes = m.get(k);
+				        if (athletes.isEmpty()) {
+				        	return true; // remove from list.
+				        }
 				        //logger.debug("athletes {} {}",k, athletes);
 				        // category includes an athlete that has not finished, mark it as "to be removed"
 				        boolean anyMatch = athletes.stream()
