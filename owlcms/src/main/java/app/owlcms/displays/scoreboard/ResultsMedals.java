@@ -415,7 +415,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 					medals = Competition.getCurrent().getMedals(this.getGroup(), false);
 				} else {
 					TreeSet<Athlete> catMedals = Competition.getCurrent().computeMedalsForCategory(this.getCategory());
-					logger.warn("group {} category {} catMedals {}", getGroup(), getCategory(), catMedals);
+					//logger.debug("group {} category {} catMedals {}", getGroup(), getCategory(), catMedals);
 					medals = new TreeMap<Category, TreeSet<Athlete>>();
 					medals.put(this.getCategory(), catMedals);
 				}
@@ -430,8 +430,9 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 
 	@Subscribe
 	public void slaveVideoRefresh(UIEvent.VideoRefresh e) {
-		//logger.debug("videoRefresh group={} cat={}", getGroup(), getCategory());
-		uiLog(e);
+		this.setGroup(fop.getVideoGroup());
+		this.setCategory(fop.getVideoCategory());
+		//logger.info("videoRefresh {} {}", getGroup() != null ? getGroup().getName() : null , getCategory() != null ? getCategory().getName() : null);
 		doRefresh(e);
 	}
 

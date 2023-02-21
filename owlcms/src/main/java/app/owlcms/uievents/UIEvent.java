@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2023 Jean-François Lamy
+ * Copyright (category) 2009-2023 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -1050,8 +1050,29 @@ public class UIEvent {
 	}
 
 	public static class VideoRefresh extends UIEvent {
-		public VideoRefresh(Object origin) {
+		private Group group;
+		private Category category;
+
+		public VideoRefresh(Object origin, Group g, Category c) {
 			super(origin);
+			this.setGroup(g);
+			this.setCategory(c);
+		}
+
+		public Group getGroup() {
+			return group;
+		}
+
+		public void setGroup(Group g) {
+			this.group = g;
+		}
+
+		public Category getCategory() {
+			return category;
+		}
+
+		public void setCategory(Category c) {
+			this.category = c;
 		}
 	}
 

@@ -30,6 +30,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.components.GroupCategorySelectionMenu;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.displays.attemptboard.AttemptBoard;
@@ -163,11 +164,13 @@ public class VideoNavigationContent extends BaseNavigationContent
 	}
 
 	private void selectVideoContext(Group g, Category c, FieldOfPlay fop) {
+		Competition.getCurrent().computeMedals(g);
 		fop.setVideoGroup(g);
 		fop.setVideoCategory(c);
 		setMedalGroup(g);
 		setMedalCategory(c);
-		fop.getUiEventBus().post(new UIEvent.VideoRefresh(this));
+		logger.info("switching to {} {}", g.getName(), c != null ? c.getName() : "");
+		fop.getUiEventBus().post(new UIEvent.VideoRefresh(this, g, c));
 	}
 
 	private void setMedalCategory(Category c) {
