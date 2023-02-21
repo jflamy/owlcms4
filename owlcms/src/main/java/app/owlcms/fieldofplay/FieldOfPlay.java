@@ -1873,9 +1873,15 @@ public class FieldOfPlay {
 			Category category = getCurAthlete().getCategory();
 
 			TreeSet<Athlete> medalists = getMedals().get(category);
-			logger.debug("medals {}",medalists);
-			List<Athlete> snatchMedalists = medalists.stream().filter(a -> a.getSnatchRank() <= 3).collect(Collectors.toList());
-			List<Athlete> totalMedalists = medalists.stream().filter(a -> a.getTotalRank() <= 3).collect(Collectors.toList());
+			logger.debug("medals {}", medalists);
+			List<Athlete> snatchMedalists = medalists.stream().filter(a -> {
+				int r = a.getSnatchRank();
+				return r <= 3 && r > 0;
+			}).collect(Collectors.toList());
+			List<Athlete> totalMedalists = medalists.stream().filter(a -> {
+                int r = a.getTotalRank();
+                return r <= 3 && r > 0;
+            }).collect(Collectors.toList());
 
 			if (!isCjStarted()) {
 				setLeaders(snatchMedalists);
