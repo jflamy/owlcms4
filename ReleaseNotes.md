@@ -5,12 +5,16 @@
     - The video-specific style sheets are in the `local/styles/video`. By default, the color scheme is the same as the site pages, with slight differences in the content shown (to match the columns used on IWF broadcasts). A Web Designer (or a motivated person) can use the [Style Customization](https://owlcms.github.io/owlcms4-prerelease/#/Styles) instructions to change the colors, what columns are visible, to include logos, etc.
   - Experimental: A current "video group" and "video category" can be set for medals and ranking pages.
     - A "video group" and a "video category" are linked to the current platform.  If the medals video page is opened without explicit group and category parameters, the "video group" and "video category" selected on the video page are used. In this way, there is no need to manipulate the streaming software.
-    - Example: Group H1 has been presented and is warming up.  Medal ceremony for the categories of group F1 starts. To use F1 for the video screens, the "video group" can be set to F1  and the "video category" can be used if there are several categories in a group and it is desired to show them one by one.  
-- 38.0-alpha01 Fixes
+    - Example: Group H1 has been presented and is warming up.  Medal ceremony for the categories of group F1 starts. To use F1 for the video screens, the "video group" can be set to F1  and the "video category" can be used if there are several categories in a group and it is desired to show them one by one. 
+  - New MQTT messages.  A device driver can query what platforms are configured in owlcms using `owlcms/config` message.  Reply comes in a `owlcms/fop/config` message as a JSON object. Other items such as the owlcms version may be included.
+- 38.0.0-alpha01 Fixes:
+  - Leaders section on scoreboard was not being updated during clean&jerk
+
+- 38.0 Fixes
   - Re-enabled the publicresults remote scoreboard capability.
   - Leaders from previous B/C/D group were not shown on first athlete of next group  ([#633](https://github.com/jflamy/owlcms4/issues/633))
   - When using the `forceAllGroupRecords` feature switch to show records applicable to all participants in a group, the records were not being fetched correctly ([#634](https://github.com/jflamy/owlcms4/issues/634))
-  
+
 
 ##### Highlights from recent stable releases
 
@@ -25,11 +29,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_38.0.0-alpha00.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_38.0.0-alpha01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_38.0.0-alpha00.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_38.0.0-alpha01.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the [Heroku](https://owlcms.github.io/owlcms4-prerelease/#Heroku) or (recommended) **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
