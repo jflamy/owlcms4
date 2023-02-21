@@ -82,7 +82,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
         implements ContextFreeDisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
         HasDynamicTitle,
         RequireDisplayLogin {
-	
+
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsMedals.class);
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
@@ -402,6 +402,40 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	}
 
 	@Subscribe
+	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
+		//logger.debug("slaveOrderUpdated {} {}", getGroup(), getCategory());
+		uiLog(e);
+		doRefresh(e);
+	}
+
+	private void doRefresh(UIEvent e) {
+		Thread t1 = new Thread(() -> {
+			UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+				if (this.getCategory() == null) {
+					medals = Competition.getCurrent().getMedals(this.getGroup(), false);
+				} else {
+					TreeSet<Athlete> catMedals = Competition.getCurrent().computeMedalsForCategory(this.getCategory());
+					logger.warn("group {} category {} catMedals {}", getGroup(), getCategory(), catMedals);
+					medals = new TreeMap<Category, TreeSet<Athlete>>();
+					medals.put(this.getCategory(), catMedals);
+				}
+				setDisplay(false);
+				computeMedalsJson(medals);
+			});
+		});
+		// medal stuff can wait.
+		t1.setPriority(Thread.MIN_PRIORITY);
+		t1.start();
+	}
+
+	@Subscribe
+	public void slaveVideoRefresh(UIEvent.VideoRefresh e) {
+		//logger.debug("videoRefresh group={} cat={}", getGroup(), getCategory());
+		uiLog(e);
+		doRefresh(e);
+	}
+
+	@Subscribe
 	public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
@@ -448,7 +482,8 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 				medals = Competition.getCurrent().getMedals(this.getGroup(), false);
 			} else {
 				TreeSet<Athlete> catMedals = Competition.getCurrent().computeMedalsForCategory(this.getCategory());
-				//logger.debug("group {} category {} catMedals {}", getGroup(), getCategory(), catMedals);
+				// logger.debug("group {} category {} catMedals {}", getGroup(), getCategory(),
+				// catMedals);
 				medals = new TreeMap<Category, TreeSet<Athlete>>();
 				medals.put(this.getCategory(), catMedals);
 			}
@@ -482,7 +517,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	private void computeCategoryMedalsJson(TreeMap<Category, TreeSet<Athlete>> medals2) {
 		OwlcmsSession.withFop(fop -> {
 			TreeSet<Athlete> medalists = medals2.get(getCategory());
-			//logger.debug("medalists {}", medalists);
+			// logger.debug("medalists {}", medalists);
 
 			JsonArray jsonMCArray = Json.createArray();
 			JsonObject jMC = Json.createObject();
@@ -504,7 +539,8 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 
 	private void computeGroupMedalsJson(TreeMap<Category, TreeSet<Athlete>> medals2) {
 		OwlcmsSession.withFop(fop -> {
-			//logger.debug("computeGroupMedalsJson = {} {}", getGroup(), LoggerUtils.stackTrace());
+			// logger.debug("computeGroupMedalsJson = {} {}", getGroup(),
+			// LoggerUtils.stackTrace());
 			JsonArray jsonMCArray = Json.createArray();
 			int mcX = 0;
 			for (Entry<Category, TreeSet<Athlete>> medalCat : medals2.entrySet()) {
@@ -513,7 +549,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 				if (medalists != null && !medalists.isEmpty()) {
 					jMC.put("categoryName", medalCat.getKey().getName());
 					jMC.put("leaders", getAthletesJson(new ArrayList<>(medalists), fop));
-					//logger.debug("medalCategory: {}", jMC.toJson());
+					// logger.debug("medalCategory: {}", jMC.toJson());
 					jsonMCArray.set(mcX, jMC);
 					mcX++;
 				}
@@ -622,22 +658,22 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 //        Category prevCat = null;
 		List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
 		        : Collections.emptyList();
-		
+
 		athletes.stream()
-		.filter(a -> isMedalist(a))
-		.forEach(a -> {
-			JsonObject ja = Json.createObject();
-			Category curCat = a.getCategory();
-			// no blinking = 0
-			getAthleteJson(a, ja, curCat, 0);
-			String team = a.getTeam();
-			if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
-				logger.trace("long team {}", team);
-				setWideTeamNames(true);
-			}
-			jath.set(athx.getAndIncrement(), ja);
-		});
-		
+		        .filter(a -> isMedalist(a))
+		        .forEach(a -> {
+			        JsonObject ja = Json.createObject();
+			        Category curCat = a.getCategory();
+			        // no blinking = 0
+			        getAthleteJson(a, ja, curCat, 0);
+			        String team = a.getTeam();
+			        if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
+				        logger.trace("long team {}", team);
+				        setWideTeamNames(true);
+			        }
+			        jath.set(athx.getAndIncrement(), ja);
+		        });
+
 		return jath;
 	}
 

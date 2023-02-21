@@ -49,6 +49,7 @@ import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.NavigationPage;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.nui.shared.RequireDisplayLogin;
+import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.NaturalOrderComparator;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -166,6 +167,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 		fop.setVideoCategory(c);
 		setMedalGroup(g);
 		setMedalCategory(c);
+		fop.getUiEventBus().post(new UIEvent.VideoRefresh(this));
 	}
 
 	private void setMedalCategory(Category c) {

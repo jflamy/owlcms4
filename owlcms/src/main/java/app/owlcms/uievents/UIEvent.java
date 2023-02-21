@@ -1049,6 +1049,12 @@ public class UIEvent {
 		}
 	}
 
+	public static class VideoRefresh extends UIEvent {
+		public VideoRefresh(Object origin) {
+			super(origin);
+		}
+	}
+
 	static public class WakeUpRef extends UIEvent {
 
 		public boolean on;
