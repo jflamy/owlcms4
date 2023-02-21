@@ -2,7 +2,11 @@ package app.owlcms.fieldofplay;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
@@ -16,14 +20,18 @@ import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.eventbus.Subscribe;
 
 import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -67,7 +75,8 @@ public class MQTTMonitor {
 			this.juryDecisionTopicName = "owlcms/jurybox/decision/" + fop.getName();
 			this.jurySummonTopicName = "owlcms/jurybox/summon/" + fop.getName();
 			this.testTopicName = "owlcms/test/" + fop.getName();
-			// no FOP on this message, it is used for the device to query what FOPs are present
+			// no FOP on this message, it is used for the device to query what FOPs are
+			// present
 			this.configTopicName = "owlcms/config";
 		}
 
@@ -104,8 +113,7 @@ public class MQTTMonitor {
 				} else if (topic.endsWith(jurySummonTopicName)) {
 					postFopEventSummonReferee(topic, messageStr);
 				} else if (topic.endsWith(configTopicName)) {
-					//TODO: return list of platforms
-					logger.info("{} received", configTopicName);
+					publishMqttConfig("owlcms/fop/config");
 				} else if (topic.endsWith(testTopicName)) {
 					long before = Long.parseLong(messageStr);
 					logger.info("{} timing = {}", getFop(), System.currentTimeMillis() - before);
@@ -114,6 +122,20 @@ public class MQTTMonitor {
 					        fop.getLoggingName(), topic, messageStr);
 				}
 			}).start();
+		}
+
+		private void publishMqttConfig(String topic) {
+			Map<String, Object> payload = new TreeMap<>();
+			List<String> platforms = PlatformRepository.findAll().stream().map(p -> p.getName())
+			        .collect(Collectors.toList());
+			payload.put("platforms", platforms);
+			payload.put("version", StartupUtils.getVersion());
+			try {
+				String json = new ObjectMapper().writeValueAsString(payload);
+				logger.warn("json {}", json);
+				client.publish(topic, new MqttMessage(json.getBytes(StandardCharsets.UTF_8)));
+			} catch (JsonProcessingException | MqttException e) {
+			}
 		}
 
 		/**
@@ -426,6 +448,9 @@ public class MQTTMonitor {
 		        client.getCurrentServerURI());
 		client.subscribe(callback.testTopicName, 0);
 		logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.testTopicName,
+		        client.getCurrentServerURI());
+		client.subscribe(callback.configTopicName, 0);
+		logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.configTopicName,
 		        client.getCurrentServerURI());
 	}
 

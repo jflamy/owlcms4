@@ -6,11 +6,14 @@
   - Experimental: A current "video group" and "video category" can be set for medals and ranking pages.
     - A "video group" and a "video category" are linked to the current platform.  If the medals video page is opened without explicit group and category parameters, the "video group" and "video category" selected on the video page are used. In this way, there is no need to manipulate the streaming software.
     - Example: Group H1 has been presented and is warming up.  Medal ceremony for the categories of group F1 starts. To use F1 for the video screens, the "video group" can be set to F1  and the "video category" can be used if there are several categories in a group and it is desired to show them one by one.  
-- 38.0-alpha01 Fixes
+- 38.0.0-alpha01 Fixes:
+  - Leaders section on scoreboard was not being updated during clean&jerk
+
+- 38.0 Fixes
   - Re-enabled the publicresults remote scoreboard capability.
   - Leaders from previous B/C/D group were not shown on first athlete of next group  ([#633](https://github.com/jflamy/owlcms4/issues/633))
   - When using the `forceAllGroupRecords` feature switch to show records applicable to all participants in a group, the records were not being fetched correctly ([#634](https://github.com/jflamy/owlcms4/issues/634))
-  
+
 
 ##### Highlights from recent stable releases
 
