@@ -7,9 +7,11 @@
     - A "video group" and a "video category" are linked to the current platform.  If the medals video page is opened without explicit group and category parameters, the "video group" and "video category" selected on the video page are used. In this way, there is no need to manipulate the streaming software.
     - Example: Group H1 has been presented and is warming up.  Medal ceremony for the categories of group F1 starts. To use F1 for the video screens, the "video group" can be set to F1  and the "video category" can be used if there are several categories in a group and it is desired to show them one by one. 
   - New MQTT messages.  A device driver can query what platforms are configured in owlcms using `owlcms/config` message.  Reply comes in a `owlcms/fop/config` message as a JSON object. Other items such as the owlcms version may be included.
-- 38.0.0-alpha01 Fixes:
-  - Leaders section on scoreboard was not being updated during clean&jerk
-
+- 38.0.0-alpha02 Fixes:
+  - There were missing entries in the medals listing when different sets of 3 athletes won snatch, cj or total
+  - Experimental: showing the video "Rankings" page on an "in-progress" category or group should now give a meaningful provisional order
+  - Zero total athletes were wrongly included as leaders;
+  - Computation of the finished categories suitable for medal ceremony was incorrect
 - 38.0 Fixes
   - Re-enabled the publicresults remote scoreboard capability.
   - Leaders from previous B/C/D group were not shown on first athlete of next group  ([#633](https://github.com/jflamy/owlcms4/issues/633))
@@ -29,11 +31,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_38.0.0-alpha01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_38.0.0-alpha02.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_38.0.0-alpha01.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_38.0.0-alpha02.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the [Heroku](https://owlcms.github.io/owlcms4-prerelease/#Heroku) or (recommended) **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
