@@ -5,7 +5,8 @@
     - The video-specific style sheets are in the `local/styles/video`. By default, the color scheme is the same as the site pages, with slight differences in the content shown (to match the columns used on IWF broadcasts). A Web Designer (or a motivated person) can use the [Style Customization](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Styles) instructions to change the colors, what columns are visible, to include logos, etc.
   - Experimental: A current "video group" and "video category" can be set for medals and ranking pages.
     - A "video group" and a "video category" are linked to the current platform.  If the medals video page is opened without explicit group and category parameters, the "video group" and "video category" selected on the video page are used. In this way, there is no need to manipulate the streaming software.
-    - Example: Group H1 has been presented and is warming up.  Medal ceremony for the categories of group F1 starts. To use F1 for the video screens, the "video group" can be set to F1  and the "video category" can be used if there are several categories in a group and it is desired to show them one by one.  
+    - Example: Group H1 has been presented and is warming up.  Medal ceremony for the categories of group F1 starts. To use F1 for the video screens, the "video group" can be set to F1  and the "video category" can be used if there are several categories in a group and it is desired to show them one by one. 
+  - New MQTT messages.  A device driver can query what platforms are configured in owlcms using `owlcms/config` message.  Reply comes in a `owlcms/fop/config` message as a JSON object. Other items such as the owlcms version may be included.
 - 38.0.0-alpha01 Fixes:
   - Leaders section on scoreboard was not being updated during clean&jerk
 
