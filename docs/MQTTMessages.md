@@ -15,6 +15,10 @@
     - `status` is `on` or `off`
     - Turns the LEDs on (or off) on external devices to confirm connectivity.
     - DEPRECATED : the following message legacy message is equivalent : `led/A :status`
+- `fop/config`  this message published in response to a `config` request from the device.
+    - returns a JSON map of the form `{"platforms":["A","B"],"version":"38.0.0-alpha00"}` 
+    - the `platforms` entry contains the list of configured platforms.
+
 
 #### Subscribed by jury and referee devices
 
@@ -51,6 +55,14 @@ These messages would be used by a signal tower with a white light and a buzzer.
 
 - `fop/down/A`: The down signal has been given
     - device must turn itself off.
+
+### Messages published by all devices
+
+Only owlcms listens; all devices can query owlcms for its configuration
+
+- `config` request the owlcms configuration
+  - no parameter
+  - The response will come in an a `fop/config` message.
 
 ### Messages published by the referee devices
 
