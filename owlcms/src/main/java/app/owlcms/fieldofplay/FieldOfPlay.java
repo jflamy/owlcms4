@@ -1878,17 +1878,22 @@ public class FieldOfPlay {
 				int r = a.getSnatchRank();
 				return r <= 3 && r > 0;
 			}).collect(Collectors.toList());
+			//logger.debug("snatch medalists {}", snatchMedalists);
 			List<Athlete> totalMedalists = medalists.stream().filter(a -> {
-                int r = a.getTotalRank();
-                return r <= 3 && r > 0;
-            }).collect(Collectors.toList());
+				int r = a.getTotalRank();
+				return r <= 3 && r > 0;
+			}).collect(Collectors.toList());
+			//logger.debug("total medalists {}", totalMedalists);
 
 			if (!isCjStarted()) {
 				setLeaders(snatchMedalists);
-				logger.trace("snatch medalists {} {}", snatchMedalists);
 			} else {
-				setLeaders(totalMedalists);
-				logger.trace("total medalists {} {}", totalMedalists);
+				if (totalMedalists.size() > 0) {
+					setLeaders(totalMedalists);
+				} else {
+					setLeaders(snatchMedalists);
+				}
+
 			}
 		} else {
 			setLeaders(null);
