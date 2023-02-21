@@ -5,6 +5,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.slf4j.LoggerFactory;
+
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.flowingcode.vaadin.addons.ironicons.IronIcons.Icon;
 import com.vaadin.flow.component.contextmenu.MenuItem;
@@ -22,9 +24,12 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
+import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public class GroupCategorySelectionMenu extends MenuBar {
+	
+	Logger logger = (Logger) LoggerFactory.getLogger(GroupCategorySelectionMenu.class);
 
 	@FunctionalInterface
 	public interface TriConsumer<T, U, V> {
