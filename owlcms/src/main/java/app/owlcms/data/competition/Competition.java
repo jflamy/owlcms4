@@ -266,7 +266,9 @@ public class Competition {
 	public TreeSet<Athlete> computeMedalsForCategory(Category category) {
 		// brute force - reuse what works
 		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(null);
-		return computeMedalsByCategory(rankedAthletes).get(category);
+		TreeSet<Athlete> treeSet = computeMedalsByCategory(rankedAthletes).get(category);
+		//logger.debug("computeMedalsForCategory {}",treeSet);
+		return treeSet;
 	}
 
 	/**
