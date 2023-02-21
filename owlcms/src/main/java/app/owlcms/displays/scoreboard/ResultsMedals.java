@@ -105,6 +105,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	private EventBus uiEventBus;
 
 	private Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	private boolean snatchCJTotalMedals;
 
 	/**
 	 * Instantiates a new results board.
@@ -444,7 +445,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		OwlcmsSession.withFop(fop -> {
 			init();
 			if (this.getCategory() == null) {
-				medals = Competition.getCurrent().getMedals(this.getGroup(), true);
+				medals = Competition.getCurrent().getMedals(this.getGroup(), false);
 			} else {
 				TreeSet<Athlete> catMedals = Competition.getCurrent().computeMedalsForCategory(this.getCategory());
 				//logger.debug("group {} category {} catMedals {}", getGroup(), getCategory(), catMedals);
@@ -479,10 +480,9 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	}
 
 	private void computeCategoryMedalsJson(TreeMap<Category, TreeSet<Athlete>> medals2) {
-		// logger.trace("computeCategoryMedalsJson = {} {}", getCategory(),
-		// LoggerUtils.whereFrom(1));
 		OwlcmsSession.withFop(fop -> {
 			TreeSet<Athlete> medalists = medals2.get(getCategory());
+			//logger.debug("medalists {}", medalists);
 
 			JsonArray jsonMCArray = Json.createArray();
 			JsonObject jMC = Json.createObject();
@@ -495,7 +495,6 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 				mcX++;
 			}
 
-			// logger.debug("medalCategories {}", jsonMCArray.toJson());
 			this.getElement().setPropertyJson("medalCategories", jsonMCArray);
 			if (mcX == 0) {
 				this.getElement().setProperty("noCategories", true);
@@ -505,8 +504,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 
 	private void computeGroupMedalsJson(TreeMap<Category, TreeSet<Athlete>> medals2) {
 		OwlcmsSession.withFop(fop -> {
-			// logger.trace("computeGroupMedalsJson = {} {}", getGroup(),
-			// LoggerUtils.stackTrace());
+			//logger.debug("computeGroupMedalsJson = {} {}", getGroup(), LoggerUtils.stackTrace());
 			JsonArray jsonMCArray = Json.createArray();
 			int mcX = 0;
 			for (Entry<Category, TreeSet<Athlete>> medalCat : medals2.entrySet()) {
@@ -515,7 +513,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 				if (medalists != null && !medalists.isEmpty()) {
 					jMC.put("categoryName", medalCat.getKey().getName());
 					jMC.put("leaders", getAthletesJson(new ArrayList<>(medalists), fop));
-					// logger.debug("medalCategory: {}", jMC.toJson());
+					//logger.debug("medalCategory: {}", jMC.toJson());
 					jsonMCArray.set(mcX, jMC);
 					mcX++;
 				}
@@ -618,13 +616,16 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	 * @return
 	 */
 	protected JsonValue getAthletesJson(List<Athlete> displayOrder, final FieldOfPlay _unused) {
+		snatchCJTotalMedals = Competition.getCurrent().isSnatchCJTotalMedals();
 		JsonArray jath = Json.createArray();
 		AtomicInteger athx = new AtomicInteger(0);
 //        Category prevCat = null;
 		List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
 		        : Collections.emptyList();
 		
-		athletes.stream().limit(3).forEach(a -> {
+		athletes.stream()
+		.filter(a -> isMedalist(a))
+		.forEach(a -> {
 			JsonObject ja = Json.createObject();
 			Category curCat = a.getCategory();
 			// no blinking = 0
@@ -638,6 +639,24 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		});
 		
 		return jath;
+	}
+
+	private boolean isMedalist(Athlete a) {
+		if (snatchCJTotalMedals) {
+			int snatchRank = a.getSnatchRank();
+			if (snatchRank <= 3 && snatchRank > 0) {
+				return true;
+			}
+			int cjRank = a.getCleanJerkRank();
+			if (cjRank <= 3 && cjRank > 0) {
+				return true;
+			}
+		}
+		int totalRank = a.getTotalRank();
+		if (totalRank <= 3 && totalRank > 0) {
+			return true;
+		}
+		return false;
 	}
 
 	/**
