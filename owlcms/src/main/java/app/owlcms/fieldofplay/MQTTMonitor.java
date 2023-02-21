@@ -132,7 +132,6 @@ public class MQTTMonitor {
 			payload.put("version", StartupUtils.getVersion());
 			try {
 				String json = new ObjectMapper().writeValueAsString(payload);
-				logger.warn("json {}", json);
 				client.publish(topic, new MqttMessage(json.getBytes(StandardCharsets.UTF_8)));
 			} catch (JsonProcessingException | MqttException e) {
 			}
