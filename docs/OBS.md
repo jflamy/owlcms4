@@ -1,11 +1,11 @@
-# Broadcasting a Virtual Competition using OBS
+# Broadcasting a Competition using OBS
 
-This page explains how to broadcast a Virtual Meet using Zoom and OBS (Open Broadcast Software).
+This page explains how to broadcast a Meet using OBS (Open Broadcast Software).  The process is the same for a live meet or for a virtual meet.  For a live meet, you will use a "video capture source".  For a Zoom meet, you will use a window running zoom, or a monitor showing zoom as a source.
 
 Requirements:
 
 1. A laptop and at least one external monitor.
-2. A Zoom license.
+2. A Zoom license if using zoom.
 3. The [OBS Studio](https://obsproject.com/) free software that will combine what we want to show and stream it out.
 4. A Facebook or YouTube account -- we will use Facebook live for this demo, but you can use whatever streaming service OBS Studio supports (including YouTube, Twitch, etc.)
 
@@ -76,7 +76,7 @@ Close the definition pane.  Whenever you click on the scene in the list at the l
 
 The second scene will be built with three elements. 
 
-1. a Window Capture to get our video from the Zoom window that shows the meet.
+1. a Window Capture to get our video from the live video or Zoom window that shows the meet.
 2. the owlcms attempt board and shrink it so it occupies a corner of the screen.  This will show the athlete's info, the requested weight, the timer, and the decisions.
 3. the owlcms Current Athlete view to show previous attempts and current ranking
 
@@ -84,7 +84,7 @@ The second scene will be built with three elements.
 
 #### 5.2.1 Add a Live Video Source
 
-**Create the Live Video source:** Create a <u>Display Capture</u> source using the + sign at the bottom of the source pane.  Select your Monitor where Zoom is running.  You may alternately, if you are familiar with OBS, use a Window Capture.
+**Create the Live Video source:** Create a <u>Display Capture</u> source using the + sign at the bottom of the source pane.  Select your Monitor where Zoom is running, or select the live vido source.  You may alternately, if you are familiar with OBS, use a Window Capture.
 
 ![DisplayCapture](img/ZoomVideo/DisplayCapture.png)
 
@@ -109,7 +109,7 @@ Troubleshooting: If you see a black area instead of your screen or window, go to
 
 ![ShrinkAttempt](img/OBS/ShrinkAttempt.png)
 
-#### 5.2.3 Add Previous Attempts Browser Source
+#### 5.2.3 Add Current Attempt Browser Source
 
 There is another view  available on owlcms that shows the current athlete's previous attempt.  You can add another browser view to the scene to show the "Current Athlete" display which includes that informatio.
 
