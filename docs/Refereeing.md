@@ -54,12 +54,13 @@ There are three ways to create such a keypad
 
 #### **Example of USB keypads**
 
-USB Keypads can be bought from industrial device providers, such as [Delcom USB keypads](http://www.delcomproducts.com/productdetails.asp?PartNumber=706502-5M). Specific notes for Delcom keypads can be found [here](Delcom) (older keypads don't work with Linux computers such as Raspberry Pis)
+The cheapest alternative is to buy a 5$ [two-button USB-keypad from AliExpress](https://a.aliexpress.com/_EzYdIBr), and either put a red sticker or buy [red and white key caps](https://fr.aliexpress.com/item/1005004086674770.html?spm=a2g0o.order_list.order_list_main.4.10995e5bCefEi7&gatewayAdapt=glo2fra) to replace the original black key caps.  The buttons are programmed in advance for each referee or jury member (see the table below) using the supplier's [configuration software](https://key.itytsoft.com/).
 
-You can also build you own: 
+<img src="img/Refereeing/ali_red_white.jpg" alt="Wi" style="zoom: 25%;" />
 
-- You can use an Arduino to emulate a USB keyboard:  [Keyboard - Arduino Reference](https://www.arduino.cc/reference/en/language/functions/usb/keyboard/)
-- Or you can use devices that emulate a USB keyboard: [Simple USB Buttons Using an Adafruit Trinket M0 - Hackster.io](https://www.hackster.io/laurentslab/simple-usb-buttons-using-an-adafruit-trinket-m0-5ad900#toc-programming-3)
+Industrial-strength USB Keypads can be bought from industrial device providers, such as [Delcom USB keypads](http://www.delcomproducts.com/productdetails.asp?PartNumber=706502-5M).  (see picture below). These are indestructible, but pricier.
+
+You can also build you own using an Arduino to emulate a USB keyboard:  [Keyboard - Arduino Reference](https://www.arduino.cc/reference/en/language/functions/usb/keyboard/)
 
 ![refereeingSetup](img\equipment\refereeingSetup.jpg)
 
@@ -75,16 +76,9 @@ The refereeing computer sees the device as a Joystick.  To convert the button pr
 
 
 
-#### Example of Bluetooth buttons
+#### Bluetooth buttons
 
-You can use Bluetooth buttons to control an iPad or a Windows laptop.  You can find Bluetooth buttons from Home Automation providers, such as Flic.  Illustrated below, [Flic2](https://flic.io/) buttons can act as stand-alone devices using their [Universal mode](https://flic.io/flic-universal) (you only need the buttons, not the hub)
-
-You can also build your own Bluetooth buttons, 
-
-- You can program an Arduino-like device, the ESP32, to [act as a Bluetooth keyboard](https://gist.github.com/manuelbl/66f059effc8a7be148adb1f104666467).  
-- You can also find devices that do the Bluetooth emulation. See  [these instructions](https://learn.adafruit.com/introducing-the-adafruit-bluefruit-spi-breakout/hidkeyboard) as a starting point.
-
-![030_iPad_Flic](img/Refereeing/030_iPad_Flic.jpg)
+You can use Bluetooth buttons to control an iPad or a Windows laptop.  You can find Bluetooth buttons from Home Automation providers, such as [Flic2](https://flic.io/) buttons in Universal mode](https://flic.io/flic-universal) (you only need the buttons, not the hub)
 
 #### Keypad Configuration
 
@@ -106,10 +100,12 @@ Note that the shortcut keys are as defined according to [a standard](https://www
 
 ## Arduino-Based Devices
 
-Arduino boards are an affordable way to build your own devices.  See [this page](https://github.com/owlcms/owlcms-firmata/tree/main/README.md) for working timekeeper, referee, and jury setups.  Both the firmware that runs on the Arduino *and* the software that interfaces with owlcms are provided.  There is actually nothing to program.  
+If you want devices that can provide feedback, then you can build your own using an Arduino board. Commercially available pre-built devices using the same protocol are also being developed. 
+
+See [this page](https://github.com/owlcms/owlcms-firmata/tree/main/README.md) for working timekeeper, referee, and jury setups.  Both the firmware that runs on the Arduino *and* the software that interfaces with owlcms are provided.  There is actually nothing to program.  
 
 For example, a fully IWF-compliant design for the referee box is shown below. You can simply omit any part you don't need. For example, in the refereeing diagram below, if you don't want an external down signal light and buzzer, you can ignore the two relays on the left-hand side.  And if you need to arrange the connections, there is no need to change the firmware or the interface program, a simple change to a configuration file will do.
 
 ![refereeBox](img/MQTT/refereeBoxDown.png)
 
-owlcms uses the MQTT protocol used in Internet-Of-Things automation and monitoring applications to talks to the devices.  See the [MQTT](MQTT) page for more details and for schematics that you can use for your own devices.  Commercially available pre-built devices using the same protocol are also being developed.
+owlcms uses the MQTT protocol used in Internet-Of-Things automation and monitoring applications to talks to the devices.  See the [MQTT](MQTT) page for more details and for schematics that you can use for your own devices.  
