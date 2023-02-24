@@ -14,7 +14,7 @@ The recommended way to edit the CSS files is to use the developer mode in your b
 4. Tell the developer mode to synchronize with your files, 
    1. Go to the Source section
    2. Select Filesystem
-   3. Locate the folder where your style files are found (inside your installation directory)
+   3. Locate the folder where your style files are found (inside your installation directory).  If editing the video files, make sure to select the `styles/video` folder and not the parent styles folder.
    4. Select and answer the prompts to confirm that you allow the developer mode to access and update the files.
 
 ![styles01](img/Styles/styles01.png)
@@ -43,7 +43,7 @@ So we go ahead and click on the black colored square next to background-color.  
 1. We **Copy** the color with # in the color picker
 2. We remember the `--` name of the color we will want to change.
 3. We get out of the color picker by typing "Escape"
-4. Normally we are back to the value before editing.
+4. We are back to the value before editing.
 
 ![style04](img/Styles/style04.png)
 
@@ -64,7 +64,8 @@ Typing "Ctrl-S" in the colors.css file should save it. You can also do a "Save A
 ### Other tips
 
 - If the files in the Filesystem section no longer show the circle icon, this means that they have become unsynchronized. Normally, doing a Ctrl-F5 to force the browser to reload will resynchronize things.
-- You can actually edit results.css in the same way, to change things like the font-weight (to go bold, for example), or to edit border styles.  Just remember that you are more likely to have to redo these changes because results.css is likely to change. 
+- the file `resultsCustomization.css` contains the settings to hide/show columns.  To hide a column you set the width to 0, and you set the visibility to `hidden`.  To show a column you pick a width (ideally using a `var` formula, and you set the visibility to `visible`.
+- You can actually `results.css` to change things like the font-weight (to go bold, for example), or to edit border styles.  But remember that you may have to redo these changes if the program updates results.css (which happens occasionally)
 
 ### Hiding Notifications
 

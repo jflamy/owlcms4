@@ -65,19 +65,13 @@ The second scene will be built with three elements.
 
 **Create the scene**: Same as before, create a new scene with a meaningful name -- say "Current Athlete"
 
-#### 5.1 Add a background image
+**Add a background image** Create an "Image" source and pick a meaningful image from your competition site.
 
-Create an "Image" source and pick a meaningful image from your competition site.
-
-#### 5.2 Add the video source
-
-Create a video source and select your camera.  Turn off the camera source by clicking on the "eye" icon.  We will turn the camera on once our layout is done.
-
-#### 5.3 Add a Current Athlete Browser Source
+**Add the video source** Create a video source and select your camera.  Turn off the camera source by clicking on the "eye" icon.  We will turn the camera on once our layout is done.
 
 **Create the Current Athlete Source:** We now redo the same process as before for the scoreboard, but this time we use the Attempt Board as our URL.  So we create a source using the + at the bottom, select "Browser" as our type, give it a meaningful name like "Attempt Board".
 
-**Define the properties:** We use the URL for the current attempt. We make it full-size (1920 x 1080).  We use the handles to move the top of the source where we want it, and make it slightly narrower than the screen area.
+**Define the properties:** Same as before, but we use the URL for the current attempt. We make it full-size (1920 x 1080).  We use the handles to move the top of the source where we want it, and make it slightly narrower than the screen area.
 
 **Crop the view** We only need the top part.  To crop, we add a filter to the current athlete browser source.  We select the source and right-click to select "Filter"
 
@@ -91,9 +85,7 @@ We can use the handles to fine-tune the position and size.
 
 ![08_endResults](img/OBSVideo/08_endResults.png)
 
-#### 5.4 Final Steps
-
-You can now go to your scenes and click on the eyes to hide the background image and enable your camera.
+**Final Steps** You can now go to your scenes and click on the eyes to hide the background image and enable your camera.
 
 ## 6. Advanced Options
 
@@ -109,13 +101,17 @@ The style sheets for the video streaming are actually separate from those used o
 - You can change the color of the video header to create a banner
 - You can edit the style of the video header to include logos
 
-All these steps can be performed by a Web Designer (since the styles use standard CSS) or by the author of the program (but as a paid consulting service).
-
 ![09_transparent](img/OBSVideo/09_transparent.jpg)
+
+The general process for style changes is described on the [Style Customization](Styles) page.
+
+All these steps can be performed by a Web Designer or by a sufficiently motivated person -- the configuration uses standard CSS files for which there are literally hundreds of introductions and tutorials on the Web.  
+
+As a last option, the author of the program can be contacted for an estimate. Since most large events use paid graphic designers and paid video technicians, customization for video is normally a billable consulting service (just as if the organizing committee uses a Web Designer to do the work.)
 
 ## 7. Setup Streaming
 
-The steps necessary to setup streaming on Facebook Live are described on [this page](Streaming).  The process for YouTube is similar (grab a Stream Key, apply it to OBS, Start Streaming.)
+The steps necessary to set up streaming on Facebook Live are described on [this page](Streaming).  The process for YouTube is similar (grab a Stream Key, apply it to OBS, Start Streaming.)
 
 ## 8. Broadcasting a Zoom Virtual meet
 

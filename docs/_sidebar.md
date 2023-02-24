@@ -4,11 +4,13 @@
   * [Downloads](Downloads)
   * [Installation](InstallationOverview)
   * [Equipment Setup](EquipmentSetup)
+
 * Competition Setup
   * [Pre-Competition Setup](2100PreCompetitionSetup)
   * [Registration](2200Registration)
   * [Edit Athlete Entries](2300EditAthleteEntries)
   * [Pre-competition Documents](2400PreCompetitionDocuments)
+
 * Running a Competition
   * [Weigh-in and Start Numbers](WeighIn)
   * [Announcing, Marshaling and Timekeeping](Announcing)
@@ -18,20 +20,20 @@
   * [Breaks and Ceremonies](Breaks)
   * [Records](Records)
   * [Result Documents](Documents)
-* Virtual Competitions
-  * [Overview](VirtualOverview)
-  * [Full Cloud Setup](HerokuLarge)
-  * [Running a Virtual Competition](Zoom)
   * [Optional Modified Competition Rules](ModifiedRules)
-  * [Preparing the Zoom Setup](PrepareZoomBroadcasting)
+
 * Video
   * [Preparing the Video Setup](OBS)
   * [Live Streaming Events](Streaming)
   * [Automatic Scene Switching](OBSSceneSwitching)
+* Virtual Competitions
+  * [Overview](VirtualOverview)
+  * [Preparing the Zoom Setup](PrepareZoomBroadcasting)
+  * [Running a Virtual Competition](Zoom)
 * Advanced Topics
   * [Customization](UploadingLocalSettings)
   * [Scoreboard Colors](Styles)
-  * [Flags and Pictures (experimental)](FlagsPictures)
+  * [Flags and Pictures](FlagsPictures)
   * [Excel Template Variables](TemplateVariables)
   * [Translations](Translation)
   * [Configuration Parameters](Configuration)

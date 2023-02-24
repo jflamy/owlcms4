@@ -11,12 +11,12 @@ Warning:  This feature is new and may evolve.  It has been implemented in the si
 
 The current implementation is very simple and is meant for inter-provincial or international meets where the team name matches the flag. 
 
-- Flags are expected to be in `.svg` or `.png` format.  
+- Flags are expected to be in `.svg` or `.png` format and are copied to the  `local/flags` folder in the installation directory.
 - In the above example, the team name for the athlete is CAN and the flag is expected to be found in the `local/flags/CAN.svg` file.  *The spelling of the file name must be identical to the team name (spaces, lower and upper case, accented characters, etc.)*.
 - If the flag is not found, the space will be left empty
-- This feature can be used in the cloud, but pay attention to the file sizes.  Smaller is better.
+- This feature can be used in the cloud  Once you have tested your setup on a laptop, you will package the local directory and upload it to the cloud.  See the [Customization](Customization) page for details.
 
-### Finding Flags
+### Finding Flags to Display
 
 The easiest place to find flags is Wikipedia.
 

@@ -20,7 +20,8 @@ In this example, we use one of our two monitors to have all the Zoom control win
 - The current athlete and the next athlete can be monitored on the left screen (they blink or are highlighted)
 - On the right screen, make sure you are in Gallery View - there is an icon at the top right of the Zoom Meeting window for selecting.  In this way you see all the participants.
 - Right-click on the participant that you wish to select.
-- Select "`Spotlight`" or "`Replace Spotlight`" in the context menu.  This will switch the video output on all the users.  As described below, users can select whether they watch the video of the athlete or the scoreboard.
+- Select "`Spotlight`" or "`Replace Spotlight`" in the context menu.  This will switch the video output on all the users.  
+- As described [here](UserInstructionsForZoom), users can select whether they watch the video of the athlete or the scoreboard.
 
 #### Rehearsal of the Broadcasting setup
 

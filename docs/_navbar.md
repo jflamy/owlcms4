@@ -17,20 +17,19 @@
   * [Breaks and Ceremonies](Breaks)
   * [Records](Records)
   * [Result Documents](Documents)
-* Virtual Competitions
-  * [Overview](VirtualOverview)
-  * [Full Cloud Setup](HerokuLarge)
-  * [Running a Virtual Competition](Zoom)
   * [Optional Modified Competition Rules](ModifiedRules)
-  * [Preparing the Zoom Setup](PrepareZoomBroadcasting)
 * Video
   * [Preparing the Video Setup](OBS)
   * [Live Streaming Events](Streaming)
   * [Automatic Scene Switching](OBSSceneSwitching)
+* Virtual Competitions
+  * [Overview](VirtualOverview)
+  * [Preparing the Zoom Setup](PrepareZoomBroadcasting)
+  * [Running a Virtual Competition](Zoom)
 * Advanced Topics
   * [Customization](UploadingLocalSettings)
   * [Scoreboard Colors](Styles)
-  * [Flags and Pictures (experimental)](FlagsPictures)
+  * [Flags and Pictures](FlagsPictures)
   * [Excel Template Variables](TemplateVariables)
   * [Translations](Translation)
   * [Configuration Parameters](Configuration)

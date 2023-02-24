@@ -15,10 +15,10 @@ It is strongly recommended to use two networks.
 
 The competition router protects the competition network.  
 
-- If you use a typical domestic or gaming router, by default it will call itself something like 192.168.1.1 and allocate addresses that start with 192.168.1.x.  
-  - *We suggest that you change the default network to something different.*  This will make it easier to take your competition router and plug it into another router (see below.)  In our example, we have changed the network used to 192.168.4.x.
+- If you use a typical domestic or gaming router, by default it will call itself something like 192.168.0.1 and allocate addresses that start with 192.168.0.x.  
+  - *We suggest that you change the default competition network to something different.*  If you connect the competition router to another router, it cannot have the same address.  Since the other router will likely have 192.168.0.1, we change our competition router to something else. changed the network used to 192.168.4.x.
   - The Competition Network should have a strong WPA2 security key configured that cannot be easily guessed.
-- **Important**: The competition network is connected to the coaches network by running a wire <u>**from** the WAN/Internet port on the competition router **to** a LAN port on the coaches router</u>.  
+- **Important**: The competition network is connected to the coaches network by running a wire <u>**from** the WAN/Internet port on the competition router **to** a LAN port on the coaches/public router</u>.  
   - By making the connection in that way, the competition router will prevent anything coming in on its WAN port from reaching the 192.168.4 private network *except* if the connection originated from the private network.  
   - So only connections initiated from the blue competition network to the orange competition network are possible, not the other way around
   - And because it is the (blue) owlcms server that opens the http connection to the (brown) publicserver machine, things work without any further setup.

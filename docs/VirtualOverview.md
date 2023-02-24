@@ -13,9 +13,10 @@ Two cloud-based applications are used.  The officials use owlcms.  A second appl
 
 The following pages will guide you through setting up a virtual competition. First, install and configure the applications:
 
-1. [Setup Heroku for a Virtual Competition](HerokuLarge)
+- [Setup Heroku for a Virtual Competition](HerokuLarge)  Make sure that publicresults is configured, and that you apply the scaled-up settings.
+- [Setup Fly.io for a Virtual Competition](Fly) : Follow the standard instructions, but make sure that you configure the publicresults module, and apply the scaling-up settings.
 
-Once the application is installed, you can setup the video and broadcasting elements:
+Once the application is installed, you can set up the video and broadcasting elements:
 
 1. [Preparing the Zoom Setup](PrepareZoomBroadcasting)
 2. [Participant Instructions for Zoom](UserInstructionsForZoom)
