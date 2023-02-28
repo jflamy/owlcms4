@@ -121,6 +121,25 @@ public interface ContextFreeDisplayParameters extends DisplayParameters {
 		switchSoundMode((Component) this, silentMode, false);
 		updateParam(params, SILENT, !isSilenced() ? "false" : "true");
 		
+
+		List<String> sizeParams = params.get(FONTSIZE);
+		Double emSize;
+		try {
+			emSize = (sizeParams != null && !sizeParams.isEmpty() ? Double.parseDouble(sizeParams.get(0)) : 0.0D);
+			if (emSize > 0.0D) {
+				setEmFontSize(emSize);
+				updateParam(params, FONTSIZE, emSize.toString());
+			} else {
+				setEmFontSize(null);
+				updateParam(params, FONTSIZE, null);
+			}
+			buildDialog((Component) this);
+		} catch (NumberFormatException e) {
+			emSize = 0.0D;
+			setEmFontSize(null);
+			updateParam(params, FONTSIZE, null);
+		}
+		
 		setUrlParameterMap(params);
 		return params;
 	}
