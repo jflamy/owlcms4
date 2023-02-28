@@ -286,6 +286,7 @@ public class AthleteRepository {
 			List<Athlete> athletes = AthleteRepository.doFindAll(em);
 			for (Athlete a : athletes) {
 				a.computeMainAndEligibleCategories();
+				a.getParticipations().stream().forEach(p -> p.setTeamMember(true));
 				em.merge(a);
 			}
 			em.flush();
