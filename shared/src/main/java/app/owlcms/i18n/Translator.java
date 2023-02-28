@@ -192,6 +192,10 @@ public class Translator implements I18NProvider {
     public static String translateNoOverrideOrElseNull(String string, Locale locale) {
         return helper.getTranslationNoOverrideOrElseNull(string, locale);
     }
+    
+    public static String translateNoInheritanceOrElseNull(String string, Locale locale) {
+        return helper.getTranslationNoInheritanceOrElseNull(string, locale);
+    }
 
     public static String translateOrElseEn(String string, Locale locale) {
         return helper.getTranslationOrElseEn(string, locale);
@@ -388,12 +392,35 @@ public class Translator implements I18NProvider {
         final PropertyResourceBundle bundle = (PropertyResourceBundle) getBundleFromCSV(locale);
 
         String value;
+        
+        //value = (String) bundle.handleGetObject(key);
+        try {
+            value = bundle.getString(key);
+        } catch (final MissingResourceException e) {
+            return null;
+        }
+        if (params.length > 0) {
+            value = format(value, params);
+        }
+        return value;
+    }
+    
+    public String getTranslationNoInheritanceOrElseNull(String key, Locale locale, Object... params) {
+        if (key == null) {
+            nullTranslationKey();
+            return "";
+        }
+        final PropertyResourceBundle bundle = (PropertyResourceBundle) getBundleFromCSV(locale);
+
+        String value;
+        
         value = (String) bundle.handleGetObject(key);
         if (params.length > 0) {
             value = format(value, params);
         }
         return value;
     }
+
 
     public String getTranslationOrElseEn(String key, Locale locale, Object... params) {
         locale = overrideLocale(locale);
