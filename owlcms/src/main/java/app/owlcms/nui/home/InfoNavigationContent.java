@@ -186,7 +186,7 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 	private String translators() {
 		Map<String, List<Locale>> translatorToLocales = new HashMap<>();
 		for (Locale l : Translator.getAllAvailableLocales()) {
-			String translator = Translator.translateNoOverrideOrElseNull("Translator", l);
+			String translator = Translator.translateNoInheritanceOrElseNull("Translator", l);
 			if (translator != null) {
 				List<Locale> list = translatorToLocales.get(translator);
 				if (list == null) {
