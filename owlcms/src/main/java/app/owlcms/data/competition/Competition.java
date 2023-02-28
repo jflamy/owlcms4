@@ -121,6 +121,22 @@ public class Competition {
 			}
 		}
 	}
+	
+	public static void splitPTeamMembersByGender(List<Athlete> athletes, List<Athlete> men, List<Athlete> women) {
+		for (Athlete l : athletes) {
+			if (!l.isTeamMember()) {
+				continue;
+			}
+			Gender gender = l.getGender();
+			if (Gender.M == gender) {
+				men.add(l);
+			} else if (Gender.F == gender) {
+				women.add(l);
+			} else {
+				// throw new RuntimeException("gender is " + gender);
+			}
+		}
+	}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -1372,7 +1388,7 @@ public class Competition {
 		List<Athlete> sortedAthletes;
 		List<Athlete> sortedMen = new ArrayList<>();
 		List<Athlete> sortedWomen = new ArrayList<>();
-		splitPByGender(athletes, sortedMen, sortedWomen);
+		splitPTeamMembersByGender(athletes, sortedMen, sortedWomen);
 
 		sortedAthletes = AthleteSorter.teamPointsOrderCopy(athletes, Ranking.TOTAL);
 		sortedMen = AthleteSorter.teamPointsOrderCopy(sortedMen, Ranking.TOTAL);
