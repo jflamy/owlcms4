@@ -635,6 +635,17 @@ public class Results extends PolymerTemplate<TemplateModel>
 		this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
 		this.getElement().setProperty("videoHeaderDisplay", (hidden || !isVideo() ? "display:none" : "display:flex"));
 		this.getElement().setProperty("normalHeaderDisplay", (hidden || isVideo() ? "display:none" : "display:block"));
+		OwlcmsSession.withFop(fop -> {
+			Group group = fop.getGroup();
+			String description = null;
+			if (group != null) {
+				description = group.getDescription();
+				if (description == null) {
+					description = Translator.translate("Group_number", group.getName());
+				}
+			}
+			this.getElement().setProperty("groupDescription", description != null ? " \u2013 " + description : "");
+		});
 	}
 
 	private void setWideTeamNames(boolean wide) {

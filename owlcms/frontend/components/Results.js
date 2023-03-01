@@ -52,7 +52,7 @@ class Results extends PolymerElement {
     </div>
     <div class="video" style$="[[videoHeaderDisplay]]">
         <div class="eventlogo"></div>
-        <div class="videoheader"><span class="groupName">[[competitionName]]  &ndash; [[liftsDone]]</span></div>
+        <div class="videoheader"><span class="groupName">[[competitionName]][[groupDescription]]</span></div>
         <div class="federationlogo"></div>
     </div>
 
