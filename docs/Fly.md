@@ -24,17 +24,18 @@ You will now have to type three commands, and answer a few questions.  The fly u
    fly launch -i owlcms/owlcms:stable
    ```
 
-      - You will be asked for the name of the application: in our example use `myclub`
+   - Name of the application: your choice, in our example we use `myclub`
 
-   - You should use your `personal` organization
-   - **Answer `y` (YES) ** when asked if you want a Postgres database.  This is required for owlcms to store its data.
+   - Organization: you can use the default `personal` organization.
 
-      - **Answer n (No)** when asked if you want a Redis database
+   - Postgres Database: IMPORTANT, answer **y (YES)**  when asked if you want a Postgres database.  This is required for owlcms to store its data.
 
-      - **Answer n (No)** when asked to deploy immediately.
+   - Redis : Answer **n (No)**
+
+   - Deploy immediately: Answer **n (No)** 
 
 
-3. Add memory for the application and launch it. 
+3. Request more  memory for the application and then launch it. 
    ```
    fly scale memory 512
    fly deploy
@@ -44,7 +45,7 @@ You will now have to type three commands, and answer a few questions.  The fly u
 
 
 
-#### Updating for new releases
+### Updating for new releases
 
 The `fly deploy` command fetches the newest version available and restarts the application (owlcms stores the versions in the public hub.docker.com repository)
 
@@ -64,17 +65,18 @@ This second site will allow anyone in the world to watch the scoreboard, includi
 
 This is not required, but since there is no extra cost associated, you might as well configure it even if you don't need it immediately.
 
-1. Install public results.  This is the same as before, except we don't want the databases
+1. Install public results.  This is the same as process as for owlcms, except we don't want the databases
 
-   > Replace `myclub-results` with the name you want for your remote scoreboard application
-   >
-   > **Answer `n` (NO)** when asked if you want a Postgres database.  publicresults does not need a database.
+   - Choose a meaningful application name.  In our example we use `myclub-results` with the name you want for your remote scoreboard application
+
+
+   - **Answer `n` (NO)** when asked if you want a Postgres database.  publicresults does not need a database.
 
    ```
-   fly launch -image owlcms/publicresults:stable --app myclub-results
+   fly launch -i owlcms/publicresults:stable
    ```
 
-2. The two applications (owlcms and publicresults) need to trust one another. So we create a shared secret between the two applications. See [this page](PublicResults) for an overview of how owlcms and publicresults work together.
+2. The two applications (owlcms and publicresults) need to trust one another. So we create a secret and set tell both applications about it. See [this page](PublicResults) for an overview of how owlcms and publicresults work together.
 
    > OWLCMS_UPDATEKEY is the name of the secret, and `MaryHadALittleLamb` is the secret.  Please use your own secret! 
    >
@@ -86,7 +88,7 @@ This is not required, but since there is no extra cost associated, you might as 
     fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app myclub
     ```
 
-3. Tell your owlcms application where your public results application is so it can connect.
+3. The last step is to tell owlcms where the results publishing application resides so it can feed it with results.
 
       > Replace `myclub` and `myclub-results` with your own names
 
@@ -108,7 +110,7 @@ fly deploy --image owlcms/publicresults:stable --app myclub-results
 
 In a gym setting, people can read the web addresses on the screens.  Because the cloud application is visible to the world, some "funny" person may be tempted to log in to the system and mess things up.  See this [page](AdvancedSystemSettings) for how to control access.
 
-### Using you own site name
+### Using your own site name
 
 Note that if you own your own domain, you can add names under your own domain to reach the fly.io applications.  This is done from the fly.io dashboard, under the `Certificates`
 
@@ -135,7 +137,7 @@ For a larger competition, you might want to give owlcms a dedicated virtual mach
 
 ### Stopping and Resuming Billing
 
-The nice thing about cloud services is that they are billed according to actual use, by the second.  Since the service is essentially free because it falls under the billing threshold, this is "just in case"
+The nice thing about cloud services is that they are billed according to actual use, by the second.  Since the service is essentially free because it falls under the billing threshold, this information is "just in case", for example if you set up several apps and want to activate one of them at a time.
 
 You can run the commands from any command shell you have.
 
@@ -153,5 +155,3 @@ You can run the commands from any command shell you have.
    fly scale count 1 --app myclub
    fly scale count 1 --app myclub-results
    ```
-
-### 
