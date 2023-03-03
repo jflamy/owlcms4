@@ -6,15 +6,21 @@
  *******************************************************************************/
 package app.owlcms.data.athlete;
 
+import app.owlcms.data.competition.Competition;
+
 /**
  * The Enum Gender.
  */
 public enum Gender {
-	F, M;
+	F, M, I;
 
 	static Gender[] mfValueArray = new Gender[] { F, M };
+	static Gender[] mfiValueArray = new Gender[] { F, M, I };
 
 	public static Gender[] mfValues() {
+		if (Competition.getCurrent().isGenderInclusive()) {
+			return mfiValueArray;
+		}
 		return mfValueArray;
 	}
 }

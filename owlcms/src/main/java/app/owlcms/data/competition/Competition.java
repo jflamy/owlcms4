@@ -1617,4 +1617,8 @@ public class Competition {
 		reportSMF(sortedMen, sortedWomen);
 	}
 
+	public boolean isGenderInclusive() {
+		return Config.getCurrent().featureSwitch("genderInclusive");
+	}
+
 }

@@ -37,6 +37,7 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.CustomFormFactory;
@@ -135,7 +136,34 @@ public class AgeGroupEditingFormFactory
 		        .bind(AgeGroup::getMaxAge, AgeGroup::setMaxAge);
 
 		ComboBox<Gender> genderField = new ComboBox<>();
-		genderField.setItems(new ListDataProvider<>(Arrays.asList(Gender.mfValues())));
+		genderField.setPlaceholder(Translator.translate("Gender"));
+		if (Competition.getCurrent().isGenderInclusive()) {
+			genderField.setItems(Gender.M, Gender.F);
+			genderField.setItemLabelGenerator((i) -> {
+				switch (i) {
+				case M:
+					return Translator.translate("Gender.M");
+				case F:
+					return Translator.translate("Gender.F");
+				default:
+					throw new IllegalStateException("can't happen");
+				}
+			});
+		} else {
+			genderField.setItems(Gender.M, Gender.F, Gender.I);
+			genderField.setItemLabelGenerator((i) -> {
+				switch (i) {
+				case M:
+					return Translator.translate("Gender.M");
+				case F:
+					return Translator.translate("Gender.F");
+				case I:
+					return Translator.translate("Gender.I");
+				default:
+					throw new IllegalStateException("can't happen");
+				}
+			});
+		}
 		binder.forField(genderField).bind(AgeGroup::getGender, AgeGroup::setGender);
 		formLayout.addFormItem(genderField, Translator.translate("Gender"));
 

@@ -743,10 +743,33 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 		crudGrid.getCrudLayout().addFilterComponent(weighedInFilter);
 
 		genderFilter.setPlaceholder(getTranslation("Gender"));
-		genderFilter.setItems(Gender.M, Gender.F);
-		genderFilter.setItemLabelGenerator((i) -> {
-			return i == Gender.M ? getTranslation("Gender.M") : getTranslation("Gender.F");
-		});
+		if (Competition.getCurrent().isGenderInclusive()) {
+			genderFilter.setItems(Gender.M, Gender.F);
+			genderFilter.setItemLabelGenerator((i) -> {
+				switch (i) {
+				case M:
+					return getTranslation("Gender.M");
+				case F:
+					return getTranslation("Gender.F");
+				default:
+					throw new IllegalStateException("can't happen");
+				}
+			});
+		} else {
+			genderFilter.setItems(Gender.M, Gender.F, Gender.I);
+			genderFilter.setItemLabelGenerator((i) -> {
+				switch (i) {
+				case M:
+					return getTranslation("Gender.M");
+				case F:
+					return getTranslation("Gender.F");
+				case I:
+					return getTranslation("Gender.I");
+				default:
+					throw new IllegalStateException("can't happen");
+				}
+			});
+		}
 		genderFilter.setClearButtonVisible(true);
 		genderFilter.addValueChangeListener(e -> {
 			crudGrid.refreshGrid();

@@ -81,7 +81,11 @@ public class AgeGroupDefinitionReader {
 				case 1: {
 					String cellValue = dataFormatter.formatCellValue(cell);
 					if (cellValue != null && !cellValue.trim().isEmpty()) {
-						c.setGender(cellValue.contentEquals("F") || cellValue.contentEquals("W") ? Gender.F : Gender.M);
+						try {
+							c.setGender(Gender.valueOf(cellValue));
+						} catch (IllegalArgumentException e) {
+							c.setGender(cellValue.contentEquals("W") ? Gender.F : Gender.M);
+						}
 					}
 				}
 					break;
@@ -161,7 +165,11 @@ public class AgeGroupDefinitionReader {
 					case 3: {
 						String cellValue = cell.getStringCellValue();
 						if (cellValue != null && !cellValue.trim().isEmpty() && ag != null) {
-							ag.setGender(cellValue.contentEquals("F") ? Gender.F : Gender.M);
+							try {
+								ag.setGender(Gender.valueOf(cellValue));
+							} catch (IllegalArgumentException e) {
+								ag.setGender(cellValue.contentEquals("W") ? Gender.F : Gender.M);
+							}
 						}
 					}
 						break;

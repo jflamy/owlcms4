@@ -996,12 +996,14 @@ public class Athlete {
 			} else if (categoryWeight > getSinclairProperties().menMaxWeight()) {
 				categoryWeight = getSinclairProperties().menMaxWeight();
 			}
-		} else {
+		} else if (getGender() == Gender.F) {
 			if (categoryWeight < 45.0) {
 				categoryWeight = 45.0;
 			} else if (categoryWeight > getSinclairProperties().womenMaxWeight()) {
 				categoryWeight = getSinclairProperties().womenMaxWeight();
 			}
+		} else {
+			return 0.0D;
 		}
 		return getSinclair(categoryWeight);
 	}
@@ -2069,9 +2071,11 @@ public class Athlete {
 		if (gender == Gender.M) {
 			return sinclairFactor(this.bodyWeight, getSinclairProperties().menCoefficient(),
 			        getSinclairProperties().menMaxWeight());
-		} else {
+		} else if (getGender() == Gender.F) {
 			return sinclairFactor(this.bodyWeight, getSinclairProperties().womenCoefficient(),
 			        getSinclairProperties().womenMaxWeight());
+		} else {
+			return 0.0D;
 		}
 	}
 
@@ -4692,9 +4696,11 @@ public class Athlete {
 		if (gender == Gender.M) { // $NON-NLS-1$
 			return total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.menCoefficient(),
 			        sinclairProperties2020.menMaxWeight());
-		} else {
+		} else if (gender == Gender.F) {
 			return total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.womenCoefficient(),
 			        sinclairProperties2020.womenMaxWeight());
+		} else {
+			return 1.0;
 		}
 	}
 
@@ -4717,9 +4723,11 @@ public class Athlete {
 		if (gender == Gender.M) { // $NON-NLS-1$
 			return total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.menCoefficient(),
 			        sinclairProperties2020.menMaxWeight());
-		} else {
+		} else if (gender == Gender.F) {
 			return total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.womenCoefficient(),
 			        sinclairProperties2020.womenMaxWeight());
+		} else {
+			return 1.0;
 		}
 	}
 
@@ -4771,9 +4779,11 @@ public class Athlete {
 		if (gender == Gender.M) { // $NON-NLS-1$
 			return total1 * sinclairFactor(bodyWeight1, getSinclairProperties().menCoefficient(),
 			        getSinclairProperties().menMaxWeight());
-		} else {
+		} else if (gender == Gender.F) {
 			return total1 * sinclairFactor(bodyWeight1, getSinclairProperties().womenCoefficient(),
 			        getSinclairProperties().womenMaxWeight());
+		} else {
+			return 1.0;
 		}
 	}
 

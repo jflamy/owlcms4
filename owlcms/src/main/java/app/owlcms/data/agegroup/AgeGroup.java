@@ -238,9 +238,9 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		if (ageDivision == AgeDivision.MASTERS) {
 			return translatedCode;
 		} else if (ageDivision == AgeDivision.DEFAULT) {
-			return getGender().toString();
+			return getGender() == Gender.I ? "" : getGender().toString();
 		} else {
-			return translatedCode + " " + getGender();
+			return translatedCode + (getGender() != Gender.I ? (" " + getGender()) : "");
 		}
 	}
 
@@ -274,34 +274,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	public void setAgeDivision(AgeDivision ageDivision) {
 		this.ageDivision = ageDivision;
 	}
-
-//    /**
-//     * Set the categories.
-//     *
-//     * We preserve existing category Ids so as not to pollute the database. Categories with no age group will be removed
-//     * when saving. New categories will be persisted by the save.
-//     *
-//     * @param nCats
-//     * @see AgeGroupRepository#save(AgeGroup)
-//     */
-//    public void setCategories(List<Category> nCats) {
-//        logger.debug("ageGroup {} setting categories {}", System.identityHashCode(this), nCats);
-//        Map<Long, Category> curCatMap = new HashMap<>();
-//        categories.forEach(c -> curCatMap.put(c.getId(), c));
-//        for (Category nc : nCats) {
-//            Category curCat = curCatMap.get(nc.getId());
-//            if (curCat != null) {
-//                curCat.setActive(nc.getActive());
-//                curCat.setMaximumWeight(nc.getMaximumWeight());
-//                curCat.setMinimumWeight(nc.getMinimumWeight());
-//                curCat.setAgeGroup(nc.getAgeGroup());
-//                curCat.setGender(this.getGender()); // category gets gender of age group
-//            } else {
-//                categories.add(new Category(nc));
-//            }
-//        }
-//        categories.sort((c1, c2) -> ObjectUtils.compare(c1.getMaximumWeight(), c2.getMaximumWeight()));
-//    }
 
 	public void setCategories(List<Category> value) {
 		this.categories = value;
