@@ -6,12 +6,10 @@
   - The medals and rankings video displays can be controlled from the video streaming page. When on-site scoreboards show a group that has been presented and is warming up, the video displays can be switched independently to show a previous group or category for medal presentations.
     - The medals and rankings displays track the group chosen on the video page; the other displays track the group selected by the announcer or timekeeper.
   - New MQTT messages.  A device driver can query what platforms are configured in owlcms using `owlcms/config` message.  Reply comes in a `owlcms/fop/config` message as a JSON object. Other items such as the owlcms version may be included.
-- 38.0.0-rc01 Fixes:
-  - `em`*=size* parameter now obeyed by medals and rankings page, same as other scoreboards.
 - 38.0 Fixes
   - Only athletes listed as team members are now shown in the final package team scores. This makes it obvious when team memberships have not been assigned.
-  - Team memberships were cleared when reassigning categories after changing age group definitions.  When reassigning, athletes are now made members of their age group teams, it is less work to remove the extras.
-  - In the final package, Tab names were not being translated for some derived languages (ex: fr_CA) due to (correct) empty cells in the translation file.
+  - Team memberships were cleared when reassigning categories after changing age group definitions.  When reassigning, athletes are included in the teams by default, it is less work to remove the extras.
+  - In the final package, Tab names were not being translated for some derived languages (ex: fr_CA)
   - Re-enabled the publicresults remote scoreboard capability.
   - Leaders from previous B/C/D group were not shown on first athlete of next group  ([#633](https://github.com/jflamy/owlcms4/issues/633))
   - When using the `forceAllGroupRecords` feature switch to show records applicable to all participants in a group, the records were not being fetched correctly ([#634](https://github.com/jflamy/owlcms4/issues/634))
