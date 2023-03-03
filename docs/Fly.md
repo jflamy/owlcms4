@@ -2,50 +2,115 @@
 
 Fly.io is a cloud service that is, in effect, free. The charges incurred for a single owlcms application and the matching remote scoreboard are less than their 5US$ per month threshold, so there is no bill emitted.
 
-Compared to Heroku, the only drawback is that the configuration is done from an application installed on the laptop, but this actually makes other things like updating easier. 
+In order to install an application you will need to log in to their site and then type 3 commands.
 
-### Choose Application Names
+### Log in
 
-The application names in fly.io are global, so someone may have already used the name you want.  You will be asked for two names;
+Go to the site https://fly.io
 
-- one for <u>owlcms</u> -- this is the one you will be using to setup the competition, and from the competition site.  If your club is named `myclub`,  you might pick `myclub` as the name, and the URL would be `https://myclub.fly.dev`
-- one for the <u>public scoreboard</u>.  Whether you intend to use it immediately or not, it comes for free, so you might as well configure it.  This allows anyone in the world to watch the scoreboard, including the audience (useful if the scoreboard is small or faint).  Something like `myclub-results` makes sense as a name, and people would then use `myclub-results.fly.dev` to reach the scoreboard from their phone.
+If you do not have an account, create one.  Running owlcms requires an account, but you will not actually get billed because the fees are lower than their minimum
 
-You should check that the names are free: type the URL in your browser. If you get a 404 Not Found error, then the name is still free and you can claim it.
+If there is a "use the Web CLI" button, click it, otherwise type the https://fly.io/terminal yourself.
 
-Note that if you own your own domain, you can add names under your own domain to reach the fly.io applications. After creating your applications, you will be able to go to the Certificates section on the dashboard and request free automatically renewed certificates for the desired aliases. 
+### Install owlcms
 
-### Install
+1. Choose an application name The application names in fly.io are global.  If the name you want is already taken, you will be told.  If your club is named `myclub`,  you might pick `myclub` as the name, and the URL will be `https://myclub.fly.dev` . See "Advanced topics" below if your club already has a domain name - you will be also be able to use it.
 
-1. Install the `flyctl` tool (`fly` for short) as explained on [this page](https://fly.io/docs/hands-on/installing/).  You can install it on a Mac, Linux, or Windows. 
+You will now have to type three commands, and answer a few questions.  The fly user interface will highlight the default values in pale blue, you can accept them by just using the "enter" key.
 
-   > If you are running on Windows, you will need to start a PowerShell in administrative mode as explained [here](https://www.howtogeek.com/742916/how-to-open-windows-powershell-as-an-admin-in-windows-10/).  Then you can paste the command
-   > `iwr https://fly.io/install.ps1 -useb | iex` 
+1. Install owlcms.  Type the following command, and answer the questions as explained below
 
-2. Depending on whether or not you already have an account, you will use one of the following options type the following command. 
+   ```
+   fly launch -i owlcms/owlcms:stable
+   ```
 
-   1. If you do not have an account, create one and associate a credit card -- it will not be billed, but that is required.
-   
-      ```bash
-      fly auth create
-      ```
-   
-   2. If you already have a fly.io account, type this command instead.
+      - You will be asked for the name of the application: in our example use `myclub`
 
-      ```bash
-      fly auth login
-      ```
-   
-3. install owlcms and give it enough memory.
+   - You should use your `personal` organization
+   - **Answer `y` (YES) ** when asked if you want a Postgres database.  This is required for owlcms to store its data.
 
-   > **Answer `y` (YES) ** when asked if you want a Postgres database.  This is required for owlcms to store its data.
+      - **Answer n (No)** when asked if you want a Redis database
+
+      - **Answer n (No)** when asked to deploy immediately.
+
+
+3. Add memory for the application and launch it. 
+   ```
+   fly scale memory 512
+   fly deploy
+   ```
+
+> You are now done and can use https://myclub.fly.dev
+
+
+
+#### Updating for new releases
+
+The `fly deploy` command fetches the newest version available and restarts the application (owlcms stores the versions in the public hub.docker.com repository)
+
+To update to the latest stable version, log in again to https://fly.io/terminal and type
+
+```
+fly deploy -i owlcms/owlcms:stable -a myclub
+```
+
+
+
+### Advanced topics
+
+#### (Optional) Install the public results scoreboard
+
+This second site will allow anyone in the world to watch the scoreboard, including the audience (useful if the scoreboard is missing, small or faint).   Something like `myclub-results` makes sense as a name, and people would then use `myclub-results.fly.dev` to reach the scoreboard from their phone.
+
+This is not required, but since there is no extra cost associated, you might as well configure it even if you don't need it immediately.
+
+1. Install public results.  This is the same as before, except we don't want the databases
+
+   > Replace `myclub-results` with the name you want for your remote scoreboard application
    >
-   > Replace `myclub` with the name you want for your application
+   > **Answer `n` (NO)** when asked if you want a Postgres database.  publicresults does not need a database.
 
-      ```
-   fly launch --image owlcms/owlcms:stable --app myclub
-   fly scale memory 512 --app myclub
-      ```
+   ```
+   fly launch -image owlcms/publicresults:stable --app myclub-results
+   ```
+
+2. The two applications (owlcms and publicresults) need to trust one another. So we create a shared secret between the two applications. See [this page](PublicResults) for an overview of how owlcms and publicresults work together.
+
+   > OWLCMS_UPDATEKEY is the name of the secret, and `MaryHadALittleLamb` is the secret.  Please use your own secret! 
+   >
+   > Replace `myclub` and `myclub-results` with your own names
+   >
+
+    ```
+    fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app myclub-results
+    fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app myclub
+    ```
+
+3. Tell your owlcms application where your public results application is so it can connect.
+
+      > Replace `myclub` and `myclub-results` with your own names
+
+    ```
+    fly secrets set OWLCMS_REMOTE=https://myclub-results.fly.dev --app myclub-results
+    ```
+
+### Updating publicresults for new releases
+
+The `fly deploy` command fetches the newest version available from the public hub.docker.com repository and restarts the application.
+
+To update to the latest stable version
+
+```
+fly deploy --image owlcms/publicresults:stable --app myclub-results
+```
+
+### Control access to the owlcms application
+
+In a gym setting, people can read the web addresses on the screens.  Because the cloud application is visible to the world, some "funny" person may be tempted to log in to the system and mess things up.  See this [page](AdvancedSystemSettings) for how to control access.
+
+### Using you own site name
+
+Note that if you own your own domain, you can add names under your own domain to reach the fly.io applications.  This is done from the fly.io dashboard, under the `Certificates`
 
 ### Scale-up and Scale-down of owlcms
 
@@ -67,62 +132,6 @@ For a larger competition, you might want to give owlcms a dedicated virtual mach
    fly scale memory 512 --app myclub
    fly scale count 0 --app myclub
    ```
-
-### (Optional) Install the public results scoreboard
-
-This is not required, but since there is no extra cost associated, you might as well configure it even if you don't need it immediately.
-
-1. Install public results.
-
-   > Replace `myclub-results` with the name you want for your remote scoreboard application
-   >
-   > **Answer `n` (NO)** when asked if you want a Postgres database.  publicresults does not need a database.
-
-   ```
-   fly launch --image owlcms/publicresults:stable --app myclub-results
-   ```
-
-2. Create a shared secret between the two applications. See [this page](PublicResults) for an overview of how owlcms and publicresults work together.
-
-   > Use your own secret - do not paste this line as is !  
-   >
-   > Replace myclub and myclub-results with your own names
-   >
-
-    ```
-    fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app myclub-results
-    fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app myclub
-    ```
-
-3. Tell your owlcms application where your public results application is so it can connect.
-
-      > Replace myclub and myclub-results with your own names
-
-    ```
-    fly secrets set OWLCMS_REMOTE=https://myclub-results.fly.dev --app myclub-results
-    ```
-
-### Updating for new releases
-
-The `fly deploy` command fetches the newest version available from the public hub.docker.com repository and restarts the application.
-
-To update to the latest stable version
-
-```
-fly deploy --image owlcms/owlcms:stable --app myclub
-fly deploy --image owlcms/publicresults:stable --app myclub-results
-```
-
-To switch to the latest prerelease version
-
-```
-fly deploy --image owlcms/owlcms:prerelease --app myclub
-fly deploy --image owlcms/publicresults:prelease --app myclub-results
-```
-
-### Control access to the application
-
-In a gym setting, people can read the web addresses on the screens.  Because the cloud application is visible to the world, some "funny" person may be tempted to log in to the system and mess things up.  See this [page](AdvancedSystemSettings) for how to control access.
 
 ### Stopping and Resuming Billing
 
