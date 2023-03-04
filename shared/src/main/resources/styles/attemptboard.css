@@ -18,13 +18,13 @@
 	width: 100vw;
 	height: 100vh;
 	grid-template-columns: [firstName-start lastName-start teamName-start
-  startNumber-start weight-start] 1fr [startNumber-end attempt-start] 2fr [attempt-end
+  startNumber-start weight-start] 1fr [startNumber-end] 2fr [
   weight-end barbell-start down-start decision-start] 4fr [barbell-end
-  timer-start] 2fr [timer-end name-end down-end decision-end];
+  timer-start attempt-start] 2fr [timer-end name-end down-end decision-end attempt-end];
 	grid-template-rows: [lastName-start] 1fr [lastName-end firstName-start] 1fr [firstName-end
 		teamName-start down-start] 2fr [teamName-end  decision-start] 1fr [startNumber-start
-		attempt-start barbell-start timer-start] 1fr [startNumber-end
-		attempt-end weight-start] 5fr [weight-end barbell-end timer-end down-end
+		attempt-start barbell-start] 1fr [startNumber-end
+		attempt-end weight-start timer-start] 5fr [weight-end barbell-end timer-end down-end
 		decision-end];
 	justify-content: center;
 	align-content: center;
@@ -102,17 +102,17 @@
 }
 
 .attemptBoard .flag {
-	justify-self: center;
-	justify-content: center;
-	align-self: start;
-	align-self: end;
-	grid-area: teamName-start/timer-start/startNumber-start/timer-end;
+	display: grid;
+	grid-area: firstName-start/timer-start/teamName-end/timer-end;
 	z-index: 10;
 }
 .attemptBoard .flag > img {
+    justify-self: center;
+    align-self: center;
+    display: grid;
 	object-fit: cover;
 	max-height: 100%;
-	width: 15vw;
+    width: 90%;
 }
 
 .attemptBoard .flagWithPicture {
@@ -209,9 +209,20 @@
 	grid-area: startNumber-start/startNumber-start/startNumber-end/startNumber-end;
 }
 
+.attemptBoard .category {
+	margin-left: 1.5rem;
+	justify-self: start;
+	align-self: center;
+	font-size: 8.5vh;
+	grid-area: startNumber-start/startNumber-end/startNumber-end/startNumber-end;
+}
+
 @media screen and (max-width: 1300px) {
 	.attemptBoard .startNumber {
 		font-size: 8vh;
+	}
+	.attemptBoard .category {
+		font-size: 7.5vh;
 	}
 }
 
@@ -226,7 +237,7 @@
 
 .attemptBoard .attempt {
 	font-size: 8vh;
-	align-self: center;
+	align-self: end;
 	justify-self: center;
 	grid-area: attempt-start/attempt-start/attempt-end/attempt-end;
 }

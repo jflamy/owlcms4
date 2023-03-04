@@ -73,6 +73,10 @@ public class SinclairCoefficients {
 				return smhf.get(80);
 			}
 			return smhf.get(age);
+		case I:
+			return 1.0F;
+		default:
+			break;
 		}
 		return 0.0F;
 	}

@@ -29,6 +29,9 @@ class CurrentAttempt extends PolymerElement {
 		<div class="startNumber" id="startNumberDiv">
 			<span>[[startNumber]]</span>
 		</div>
+		<div class="category" id="categoryDiv">
+			<nobr>[[category]]</nobr>
+		</div>
 		<div class="attempt" id="attemptDiv">
 			<span inner-h-t-m-l="[[attempt]]"></span>
 		</div><!-- kludge to have preformatted html -->
@@ -103,6 +106,7 @@ class CurrentAttempt extends PolymerElement {
 		this.$.firstNameDiv.style.display = "grid";
 		this.$.teamNameDiv.style.display = "grid";
 		this.$.attemptDiv.style.display = "grid";
+		this.$.categoryDiv.style.display = "grid";
 		this.$.breakTimerDiv.style.display = "none";
 		this.$.weightDiv.style.display = "grid";
 		this.$.startNumberDiv.style.display = "block";
@@ -129,6 +133,7 @@ class CurrentAttempt extends PolymerElement {
 		this.$.firstNameDiv.style.display = "grid";
 		this.$.teamNameDiv.style.display = "none";
 		this.$.attemptDiv.style.display = "none";
+		this.$.categoryDiv.style.display = "none";
 		this.$.startNumberDiv.style.display = "none";
 		if (showWeight) {
 			this.$.weightDiv.style.display = "grid";
@@ -153,6 +158,7 @@ class CurrentAttempt extends PolymerElement {
 		this.$.firstNameDiv.style.display = "none";
 		this.$.teamNameDiv.style.display = "none";
 		this.$.attemptDiv.style.display = "none";
+		this.$.categoryDiv.style.display = "none";
 		this.$.breakTimerDiv.style.display = "none";
 		this.$.weightDiv.style.display = "none";
 		this.$.startNumberDiv.style.display = "none";

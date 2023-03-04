@@ -216,6 +216,10 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
 		case F:
 			maxCount = comp.getWomensTeamSize() != null ? comp.getWomensTeamSize() : Integer.MAX_VALUE;
 			break;
+		case I:
+			return 0;
+		default:
+			break;
 		}
 		return maxCount;
 	}

@@ -168,7 +168,8 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 			setDisplayedWeight("");
 
 			Athlete a = fop.getCurAthlete();
-			if (a != null) {
+			if (a != null) {;
+				this.getElement().setProperty("category", a.getCategory().getName());
 				String formattedAttempt = formatAttempt(a.getAttemptNumber());
 				this.getElement().setProperty("attempt", formattedAttempt);
 				Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
@@ -832,6 +833,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		this.getElement().setProperty("lastName", lastName.toUpperCase());
 		this.getElement().setProperty("firstName", a.getFirstName());
 		this.getElement().setProperty("hideBecauseDecision", "");
+		this.getElement().setProperty("category", a.getCategory().getName());
 
 		String team = a.getTeam();
 		this.getElement().setProperty("teamName", team);
@@ -885,6 +887,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		this.getElement().setProperty("attempt", "");
 		Athlete a = fop.getCurAthlete();
 		if (a != null) {
+			this.getElement().setProperty("category", a.getCategory().getName());
 			String formattedAttempt = formatAttempt(a.getAttemptNumber());
 			this.getElement().setProperty("attempt", formattedAttempt);
 			Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
