@@ -16,7 +16,7 @@ table.results tr td {
     --veryNarrow-width: 4.5ch;
     --max-veryNarrow-width: 4.5ch;
     --medium-width: 6ch;
-    --category-width: 9ch;
+    --category-width: 10ch;
     line-height: 135%;
     display: table-cell;
 }
