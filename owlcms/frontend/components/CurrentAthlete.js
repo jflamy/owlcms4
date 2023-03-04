@@ -76,10 +76,10 @@ class CurrentAthlete extends PolymerElement {
 								<div id="totalNameTd" style$="[[hideInherited]]" inner-h-t-m-l="[[t.Total]]"></div>
 							</td>
 							<td class="total" style$="[[hideTableCell]]">
-								<div id="totalCellTd" style$="[[noneBlock]]">[[l.total]]</div>
+								<div id="totalCellTd" style$="[[noneBlock]];[[hideInherited]]">[[l.total]]</div>
 							</td>
 							<td class="totalRank">
-								<div id="totalRankTd" style$="[[hideBlock]]">[[t.Rank]] <b>[[l.totalRank]]</b></div>
+								<div id="totalRankTd" style$="[[hideBlock]];[[hideInherited]]">[[t.Rank]] <b>[[l.totalRank]]</b></div>
 							</td>
 						</tr>
 					</template>
