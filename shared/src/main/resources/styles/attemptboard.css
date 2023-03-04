@@ -14,8 +14,6 @@
 
 .attemptBoard {
 	font-family: "Arial", "Helvetica", sans-serif;
-	color: var(--pageTextColor);
-	background-color: var(--pageBackgroundColor);
 	display: grid;
 	width: 100vw;
 	height: 100vh;
@@ -108,7 +106,7 @@
 	justify-content: center;
 	align-self: start;
 	align-self: end;
-	grid-area: teamName-start/timer-start/timer-start/timer-end;
+	grid-area: teamName-start/timer-start/startNumber-start/timer-end;
 	z-index: 10;
 }
 .attemptBoard .flag > img {
@@ -133,7 +131,7 @@
 	justify-self: center;
 	justify-content: center;
 	align-self: start;
-	grid-area: lastName-start/timer-start/timer-start/timer-end;
+	grid-area: lastName-start/timer-start/startNumber-start/timer-end;
 	z-index: 0;
 }
 .attemptBoard .picture > img {
@@ -227,10 +225,9 @@
 }
 
 .attemptBoard .attempt {
-    display: block;
-	font-size: 10vh;
-	line-height: 10vh;
+	font-size: 8vh;
 	align-self: center;
+	justify-self: center;
 	grid-area: attempt-start/attempt-start/attempt-end/attempt-end;
 }
 
