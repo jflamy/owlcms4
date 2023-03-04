@@ -6,8 +6,8 @@
 
 .wrapper {
 	font: Arial;
-	color: var(--pageTextColor);
-	background-color: var(--pageBackgroundColor);
+	color: var(--videoTextColor);
+	background-color: var(--videoHeaderBackgroundColor);
 	height: 100vh;
 	width: 100vw;
 }
@@ -236,8 +236,9 @@
 }
 
 .attemptBoard .attempt {
-	font-size: 8vh;
-	align-self: end;
+	font-size: 8.5vh;
+    font-weight: bold;
+	align-self: center;
 	justify-self: center;
 	grid-area: attempt-start/attempt-start/attempt-end/attempt-end;
 }

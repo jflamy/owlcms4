@@ -236,7 +236,8 @@
 }
 
 .attemptBoard .attempt {
-	font-size: 8vh;
+	font-size: 8.5vh;
+    font-weight: bold;
 	align-self: end;
 	justify-self: center;
 	grid-area: attempt-start/attempt-start/attempt-end/attempt-end;

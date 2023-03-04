@@ -665,7 +665,17 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 	}
 
 	private String formatAttempt(Integer attemptNo) {
-		return getTranslation("AttemptBoard_attempt_number", attemptNo);
+		String translation = Translator.translateOrElseNull("AttemptBoard_lift_attempt_number", getLocale());
+		if (translation != null) {
+			if (attemptNo <= 3) {
+				translation = Translator.translate("AttemptBoard_lift_attempt_number", attemptNo, Translator.translate("AttemptBoard_lift.SNATCH"));
+			} else {
+				translation = Translator.translate("AttemptBoard_lift_attempt_number", attemptNo - 3, Translator.translate("AttemptBoard_lift.CLEANJERK"));
+			}		
+		} else {
+			translation = Translator.translate("AttemptBoard_attempt_number", attemptNo);
+		}
+		return translation;
 	}
 
 	private Object getOrigin() {
