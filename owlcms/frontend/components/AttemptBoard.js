@@ -29,7 +29,9 @@ class CurrentAttempt extends PolymerElement {
 		<div class="startNumber" id="startNumberDiv">
 			<span>[[startNumber]]</span>
 		</div>
-		<div class="attempt" id="attemptDiv" inner-h-t-m-l="[[attempt]]"></div><!-- kludge to have preformatted html -->
+		<div class="attempt" id="attemptDiv">
+			<span inner-h-t-m-l="[[attempt]]"></span>
+		</div><!-- kludge to have preformatted html -->
 		<div class="weight" id="weightDiv">
 			<span style="white-space: nowrap;">[[weight]]<span style="font-size: 75%">[[kgSymbol]]</span></span>
 		</div>
@@ -100,7 +102,7 @@ class CurrentAttempt extends PolymerElement {
 		this.$.athleteTimerDiv.style.display = "grid";
 		this.$.firstNameDiv.style.display = "grid";
 		this.$.teamNameDiv.style.display = "grid";
-		this.$.attemptDiv.style.display = "block";
+		this.$.attemptDiv.style.display = "grid";
 		this.$.breakTimerDiv.style.display = "none";
 		this.$.weightDiv.style.display = "grid";
 		this.$.startNumberDiv.style.display = "block";
