@@ -333,7 +333,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	 */
 	@Override
 	protected Component createReset() {
-		reset = new Button(getTranslation("RefreshList"), IronIcons.REFRESH.create(),
+		reset = new Button(getTranslation("Announcer.ReloadGroup"), IronIcons.REFRESH.create(),
 		        (e) -> OwlcmsSession.withFop((fop) -> {
 			        Group group = fop.getGroup();
 			        logger.info("resetting {} from database", group);
@@ -341,6 +341,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			        fop.fopEventPost(new FOPEvent.SwitchGroup(group, this));
 			        syncWithFOP(true); // loadgroup does not refresh grid, true=ask for refresh
 		        }));
+		reset.getElement().setProperty("title", Translator.translate("Announcer.ReloadGroupTooltip"));
 
 		reset.getElement().setAttribute("title", getTranslation("Reload_group"));
 		reset.getElement().setAttribute("theme", "secondary contrast small icon");

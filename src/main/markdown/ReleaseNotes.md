@@ -1,17 +1,17 @@
 38.1.0-alpha00  Additional attempt board information
 
 - 38.1 Enhancements
-  - The attempt board now shows the athlete category and the lift type.  If you do not wish to see the lift type, leave the `AttemptBoard_lift_attempt_number` translation empty.
-
+  - The attempt board now shows the athlete category and the lift type.  If you only want to see the attempt number, leave the `AttemptBoard_lift_attempt_number` translation empty.
+  - The announcer "refresh list" button has been renamed to "Reload Group". It reloads the group completely (same as exiting and re-entering the group). This also sends a refresh signal to all displays. This is useful if for some reason it is necessary to edit athlete registration information.
+- 38.1 Fixes
+  - 38.1.0-alpha01: the current attempt number was not being hidden correctly on the down signal.
+  - The total of the last snatch athlete was being shown during the clean & jerk break on the "current athlete" video streaming footer.
 - 38.0 Enhancements
   - A new site section has been added to start the displays used for video streaming (see the [streaming documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/OBS?id=_2-setup-owlcms-with-some-data)). The video-oriented scoreboards have a different header with the event name and group description, and show different columns (by default, the same as used by IWF).
     - The video pages can be changed to have a different look than the on-site displays. They have their own style sheets in `local/styles/video`. The [Style Customization](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Styles) instructions can be used to change the colors, what columns are visible, to include logos, etc.
   - The medals and rankings video displays can be controlled from the video streaming page. When on-site scoreboards show a group that has been presented and is warming up, the video displays can be switched independently to show a previous group or category for medal presentations.
     - The medals and rankings displays track the group chosen on the video page; the other displays track the group selected by the announcer or timekeeper.
   - New MQTT messages.  A device driver can query what platforms are configured in owlcms using `owlcms/config` message.  Reply comes in a `owlcms/fop/config` message as a JSON object. Other items such as the owlcms version may be included.
-- 38.1 Fixes
-  - The total of the last snatch athlete was being shown during the clean & jerk break on the "current athlete" video streaming footer.
-
 - 38.0 Fixes
   - Only athletes listed as team members are now shown in the final package team scores. This makes it obvious when team memberships have not been assigned.
   - Team memberships were cleared when reassigning categories after changing age group definitions.  When reassigning, athletes are included in the teams by default, it is less work to remove the extras.

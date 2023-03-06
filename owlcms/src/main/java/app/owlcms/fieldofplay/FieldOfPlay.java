@@ -673,12 +673,12 @@ public class FieldOfPlay {
 			boolean inBreak = state == BREAK || state == INACTIVE;
 			if (Objects.equals(oldGroup, newGroup)) {
 				loadGroup(newGroup, this, true);
-				if (inBreak) {
+//				if (inBreak) {
 					pushOutSwitchGroup(e.getOrigin());
-				} else {
-					// start lifting.
-					transitionToLifting(e, newGroup, inBreak);
-				}
+//				} else {
+//					// start lifting.
+//					transitionToLifting(e, newGroup, inBreak);
+//				}
 			} else {
 				if (!inBreak) {
 					setState(INACTIVE);
