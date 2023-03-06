@@ -30,11 +30,11 @@ class CurrentAttempt extends PolymerElement {
 			<span>[[startNumber]]</span>
 		</div>
 		<div class="category" id="categoryDiv">
-			<nobr>[[category]]</nobr>
+			<span style="white-space: nowrap;">[[category]]</span>
 		</div>
 		<div class="attempt" id="attemptDiv">
-			<span inner-h-t-m-l="[[attempt]]"></span>
-		</div><!-- kludge to have preformatted html -->
+			<span inner-h-t-m-l="[[attempt]]"></span><!-- kludge to have preformatted html -->
+		</div>
 		<div class="weight" id="weightDiv">
 			<span style="white-space: nowrap;">[[weight]]<span style="font-size: 75%">[[kgSymbol]]</span></span>
 		</div>
@@ -120,6 +120,7 @@ class CurrentAttempt extends PolymerElement {
 		this.$.athleteTimerDiv.style.display = "none";
 		this.$.breakTimerDiv.style.display = "none";
 		this.$.barbellDiv.style.display = "none";
+		this.$.attemptDiv.style.display = "none";
 		this.$.decisionDiv.style.display = "grid";
 		console.debug("end of attemptBoard dome " + this.javaComponentId);
 	}

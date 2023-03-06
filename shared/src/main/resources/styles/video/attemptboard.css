@@ -102,17 +102,19 @@
 }
 
 .attemptBoard .flag {
-	display: grid;
-	grid-area: firstName-start/timer-start/teamName-end/timer-end;
-	z-index: 10;
+    justify-content: center;
+    align-self: center;
+    display: grid;
+    grid-area: firstName-start/timer-start/teamName-end/timer-end;
 }
+
 .attemptBoard .flag > img {
     justify-self: center;
     align-self: center;
-    display: grid;
-	object-fit: cover;
-	max-height: 100%;
+    object-fit: contain;
+    max-height: 90%;
     width: 90%;
+    max-width: 90%;
 }
 
 .attemptBoard .flagWithPicture {
