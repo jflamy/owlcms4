@@ -93,7 +93,8 @@ public class RecordFilter {
 		}
 
 		JsonArray columns = Json.createArray();
-		for (int j = 0; j < recordTable[0].length; j++) {
+		int categoryRecordsLength = recordTable[0].length;
+		for (int j = 0; j < categoryRecordsLength; j++) {
 			JsonObject column = Json.createObject();
 			JsonArray columnCells = Json.createArray();
 			for (int i = 0; i < recordTable.length; i++) {
@@ -130,13 +131,30 @@ public class RecordFilter {
 				columnCells.set(i, cell);
 			}
 			column.put("records", columnCells);
+			column.put("recordClass", "recordBox");
 			columns.set(j, column);
+		}
+
+		int personalRecordsLength = 1;
+		{
+			JsonObject column = Json.createObject();
+			JsonArray columnCells = Json.createArray();
+			JsonObject cell = Json.createObject();
+			String string = Translator.translate("Record.PersonalTitle");
+			column.put("cat", string);
+			cell.put(Ranking.SNATCH.name(), "\u00a0s");
+			cell.put(Ranking.CLEANJERK.name(), "\u00a0c");
+			cell.put(Ranking.TOTAL.name(), "\u00a0t");
+			columnCells.set(0, cell);
+			column.put("records", columnCells);
+			columns.set(categoryRecordsLength, column);
+			column.put("recordClass", "recordBoxPersonal");
 		}
 
 		recordInfo.put("recordNames", recordFederations);
 		recordInfo.put("recordCategories", recordCategories);
 		recordInfo.put("recordTable", columns);
-		recordInfo.put("nbRecords", Json.create(recordTable[0].length + 1));
+		recordInfo.put("nbRecords", Json.create(categoryRecordsLength + 1 + personalRecordsLength  ));
 
 		return recordInfo;
 	}
@@ -170,7 +188,8 @@ public class RecordFilter {
 
 		List<RecordEvent> records = RecordRepository.findFiltered(curAthlete.getGender(), curAthlete.getAge(),
 		        curAthlete.getBodyWeight(), null, null);
-		//logger.debug("records size {}  {}  {}  {}" ,curAthlete.getGender(), curAthlete.getAge(),curAthlete.getBodyWeight(), records.size());
+		// logger.debug("records size {} {} {} {}" ,curAthlete.getGender(),
+		// curAthlete.getAge(),curAthlete.getBodyWeight(), records.size());
 
 		// remove duplicates for each kind of record, keep largest
 		Map<String, RecordEvent> cleanMap = records.stream().collect(

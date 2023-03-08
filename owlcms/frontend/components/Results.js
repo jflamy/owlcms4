@@ -252,7 +252,7 @@ class Results extends PolymerElement {
                 </div>
 
                 <template is="dom-repeat" id="result-table" items="[[records.recordTable]]" as="c">
-                    <div class="recordBox">
+                    <div class$="[[c.recordClass]]">
                         <div class="recordCat" inner-h-t-m-l="[[c.cat]]"></div>
                         <div>
                             <div class="recordLiftType">[[t.recordS]]</div>
