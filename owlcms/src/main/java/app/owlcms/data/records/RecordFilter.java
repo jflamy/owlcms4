@@ -33,7 +33,8 @@ public class RecordFilter {
 
 	public static JsonValue buildRecordJson(List<RecordEvent> displayedRecords, Set<RecordEvent> challengedRecords,
 	        Integer snatchRequest, Integer cjRequest,
-	        Integer totalRequest) {
+	        Integer totalRequest,
+	        Athlete a) {
 
 		if (displayedRecords == null || displayedRecords.isEmpty()) {
 			return Json.createNull();
@@ -135,16 +136,23 @@ public class RecordFilter {
 			columns.set(j, column);
 		}
 
-		int personalRecordsLength = 1;
-		{
+		int personalRecordsLength = 0;
+		Integer bestSnatch = a.getPersonalBestSnatch();
+		Integer bestCleanJerk = a.getPersonalBestCleanJerk();
+		Integer bestTotal = a.getPersonalBestTotal();
+		
+		if (bestSnatch != null || bestCleanJerk != null || bestTotal != null) {
+			personalRecordsLength = 1;
 			JsonObject column = Json.createObject();
 			JsonArray columnCells = Json.createArray();
 			JsonObject cell = Json.createObject();
-			String string = Translator.translate("Record.PersonalTitle");
+			String string = Translator.translate("Record.PersonalBest");
 			column.put("cat", string);
-			cell.put(Ranking.SNATCH.name(), "\u00a0s");
-			cell.put(Ranking.CLEANJERK.name(), "\u00a0c");
-			cell.put(Ranking.TOTAL.name(), "\u00a0t");
+
+			cell.put(Ranking.SNATCH.name(), bestSnatch != null ? bestSnatch.toString() : "\u00a0");
+
+			cell.put(Ranking.CLEANJERK.name(),  bestCleanJerk != null ? bestCleanJerk.toString() : "\u00a0");
+			cell.put(Ranking.TOTAL.name(), bestTotal != null ? bestTotal.toString() : "\u00a0");
 			columnCells.set(0, cell);
 			column.put("records", columnCells);
 			columns.set(categoryRecordsLength, column);

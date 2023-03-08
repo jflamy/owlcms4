@@ -429,6 +429,12 @@ public class Athlete {
 
 	private String federationCodes;
 
+	private Integer personalBestSnatch;
+
+	private Integer personalBestCleanJerk;
+
+	private Integer personalBestTotal;
+
 	/**
 	 * Instantiates a new athlete.
 	 */
@@ -1821,6 +1827,18 @@ public class Athlete {
 
 	public List<Participation> getParticipations() {
 		return participations;
+	}
+
+	public Integer getPersonalBestCleanJerk() {
+		return this.personalBestCleanJerk;
+	}
+
+	public Integer getPersonalBestSnatch() {
+		return this.personalBestSnatch;
+	}
+
+	public Integer getPersonalBestTotal() {
+		return this.personalBestTotal;
 	}
 
 	public Double getPresumedBodyWeight() {
@@ -3265,6 +3283,13 @@ public class Athlete {
 		this.federationCodes = federationCodes;
 	}
 
+	/*
+	 * General event framework: we implement the com.vaadin.event.MethodEventSource
+	 * interface which defines how a notifier can call a method on a listener to
+	 * signal that an event has occurred, and how the listener can
+	 * register/unregister itself.
+	 */
+
 	/**
 	 * Sets the first name.
 	 *
@@ -3289,13 +3314,6 @@ public class Athlete {
 		// LoggerUtils.whereFrom());
 		this.forcedAsCurrent = forcedAsCurrent;
 	}
-
-	/*
-	 * General event framework: we implement the com.vaadin.event.MethodEventSource
-	 * interface which defines how a notifier can call a method on a listener to
-	 * signal that an event has occurred, and how the listener can
-	 * register/unregister itself.
-	 */
 
 	/**
 	 * Sets the full birth date.
@@ -3376,6 +3394,18 @@ public class Athlete {
 
 	public void setParticipations(List<Participation> participations) {
 		this.participations = participations;
+	}
+
+	public void setPersonalBestCleanJerk(Integer personalBestCleanJerk) {
+		this.personalBestCleanJerk = personalBestCleanJerk;
+	}
+
+	public void setPersonalBestSnatch(Integer personalBestSnatch) {
+		this.personalBestSnatch = personalBestSnatch;
+	}
+
+	public void setPersonalBestTotal(Integer personalBestTotal) {
+		this.personalBestTotal = personalBestTotal;
 	}
 
 	public void setPresumedBodyWeight(Double presumedBodyWeight) {
@@ -3594,6 +3624,27 @@ public class Athlete {
 		        snatch2Change1);
 	}
 
+//    /**
+//     * Sets the snatch rank.
+//     *
+//     * @param snatchRank the new snatch rank
+//     */
+//    public void setSnatchRank(Integer snatchRank) {
+//        this.snatchRank = snatchRank;
+//    }
+//
+//    public void setSnatchRankJr(Integer snatchRankJr) {
+//        this.snatchRankJr = snatchRankJr;
+//    }
+//
+//    public void setSnatchRankSr(Integer snatchRankSr) {
+//        this.snatchRankSr = snatchRankSr;
+//    }
+//
+//    public void setSnatchRankYth(Integer snatchRankYth) {
+//        this.snatchRankYth = snatchRankYth;
+//    }
+
 	/**
 	 * Sets the snatch 2 change 2.
 	 *
@@ -3688,27 +3739,6 @@ public class Athlete {
 		getLogger().info("{}{} snatch3Change1={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
 		        snatch3Change1);
 	}
-
-//    /**
-//     * Sets the snatch rank.
-//     *
-//     * @param snatchRank the new snatch rank
-//     */
-//    public void setSnatchRank(Integer snatchRank) {
-//        this.snatchRank = snatchRank;
-//    }
-//
-//    public void setSnatchRankJr(Integer snatchRankJr) {
-//        this.snatchRankJr = snatchRankJr;
-//    }
-//
-//    public void setSnatchRankSr(Integer snatchRankSr) {
-//        this.snatchRankSr = snatchRankSr;
-//    }
-//
-//    public void setSnatchRankYth(Integer snatchRankYth) {
-//        this.snatchRankYth = snatchRankYth;
-//    }
 
 	/**
 	 * Sets the snatch 3 change 2.
@@ -4265,6 +4295,44 @@ public class Athlete {
 		}
 	}
 
+//    @SuppressWarnings("unused")
+//    private Long getCopyId() {
+//        return copyId;
+//    }
+
+//    @SuppressWarnings("unused")
+//    private Integer getDeclaredAndActuallyAttempted(Integer... items) {
+//        int lastIndex = items.length - 1;
+//        if (items.length == 0) {
+//            return 0;
+//        }
+//        while (lastIndex >= 0) {
+//            if (items[lastIndex] > 0) {
+//                // if went down from declared weight, then return lower weight
+//                return (items[lastIndex] < items[0] ? items[lastIndex] : items[0]);
+//            }
+//            lastIndex--;
+//        }
+//        return 0;
+//    }
+
+	/**
+	 * As integer.
+	 *
+	 * @param stringValue the string value
+	 * @return the integer
+	 */
+	protected Integer asInteger(String stringValue) {
+		if (stringValue == null || stringValue.isBlank()) {
+			return null;
+		}
+		try {
+			return Integer.parseInt(stringValue);
+		} catch (NumberFormatException nfe) {
+			return null;
+		}
+	}
+
 	private Category bestMatch(List<Category> allEligible2) {
 		return allEligible2 != null ? (allEligible2.size() > 0 ? allEligible2.get(0) : null) : null;
 	}
@@ -4313,6 +4381,17 @@ public class Athlete {
 		}
 		timingLogger.info("    checkAttemptVsLiftOrderReference {}", System.currentTimeMillis() - start);
 	}
+
+//    /**
+//     * Null-safe comparison for longs.
+//     *
+//     * @param o1
+//     * @param o2
+//     * @return
+//     */
+//    private boolean LongEquals(Long o1, Long o2) {
+//        return o1 == o2 || o1 != null && o2 != null && o1.longValue() == (o2.longValue());
+//    }
 
 	/**
 	 * Check that the change does not allow lifter to lift out of order
@@ -4408,27 +4487,6 @@ public class Athlete {
 		        LoggerUtils.whereFrom());
 	}
 
-//    @SuppressWarnings("unused")
-//    private Long getCopyId() {
-//        return copyId;
-//    }
-
-//    @SuppressWarnings("unused")
-//    private Integer getDeclaredAndActuallyAttempted(Integer... items) {
-//        int lastIndex = items.length - 1;
-//        if (items.length == 0) {
-//            return 0;
-//        }
-//        while (lastIndex >= 0) {
-//            if (items[lastIndex] > 0) {
-//                // if went down from declared weight, then return lower weight
-//                return (items[lastIndex] < items[0] ? items[lastIndex] : items[0]);
-//            }
-//            lastIndex--;
-//        }
-//        return 0;
-//    }
-
 	private void checkSameWeightAsReference(LiftOrderInfo reference, Integer requestedWeight, int referenceWeight,
 	        int referenceAttemptNo, int currentLiftNo) {
 		long start = System.currentTimeMillis();
@@ -4504,17 +4562,6 @@ public class Athlete {
 			return;
 		}
 	}
-
-//    /**
-//     * Null-safe comparison for longs.
-//     *
-//     * @param o1
-//     * @param o2
-//     * @return
-//     */
-//    private boolean LongEquals(Long o1, Long o2) {
-//        return o1 == o2 || o1 != null && o2 != null && o1.longValue() == (o2.longValue());
-//    }
 
 	private void doCheckChangeOwningTimer(String declaration, String change1, String change2, FieldOfPlay fop,
 	        int clock, int initialTime) {
@@ -5056,23 +5103,6 @@ public class Athlete {
 		}
 		timingLogger.info("validateDeclaration {}ms {} {}", System.currentTimeMillis() - start, curLift,
 		        LoggerUtils.whereFrom());
-	}
-
-	/**
-	 * As integer.
-	 *
-	 * @param stringValue the string value
-	 * @return the integer
-	 */
-	protected Integer asInteger(String stringValue) {
-		if (stringValue == null || stringValue.isBlank()) {
-			return null;
-		}
-		try {
-			return Integer.parseInt(stringValue);
-		} catch (NumberFormatException nfe) {
-			return null;
-		}
 	}
 
 }

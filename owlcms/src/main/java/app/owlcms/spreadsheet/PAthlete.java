@@ -529,6 +529,21 @@ public class PAthlete extends Athlete implements IRankHolder {
 	}
 
 	@Override
+	public Integer getPersonalBestCleanJerk() {
+		return a.getPersonalBestCleanJerk();
+	}
+
+	@Override
+	public Integer getPersonalBestSnatch() {
+		return a.getPersonalBestSnatch();
+	}
+
+	@Override
+	public Integer getPersonalBestTotal() {
+		return a.getPersonalBestTotal();
+	}
+
+	@Override
 	public Double getPresumedBodyWeight() {
 		return a.getPresumedBodyWeight();
 	}
@@ -899,6 +914,21 @@ public class PAthlete extends Athlete implements IRankHolder {
 	}
 
 	@Override
+	public void setPersonalBestCleanJerk(Integer personalBestCleanJerk) {
+		a.setPersonalBestCleanJerk(personalBestCleanJerk);
+	}
+
+	@Override
+	public void setPersonalBestSnatch(Integer personalBestSnatch) {
+		a.setPersonalBestSnatch(personalBestSnatch);
+	}
+
+	@Override
+	public void setPersonalBestTotal(Integer personalBestTotal) {
+		a.setPersonalBestTotal(personalBestTotal);
+	}
+
+	@Override
 	public void setRobiRank(Integer robiRank) {
 		a.setRobiRank(robiRank);
 	}
@@ -954,5 +984,4 @@ public class PAthlete extends Athlete implements IRankHolder {
 		// and we don't want to copy the code.
 		return super.toStringRanks();
 	}
-
 }

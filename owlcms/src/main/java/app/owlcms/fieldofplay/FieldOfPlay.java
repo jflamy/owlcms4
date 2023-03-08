@@ -1129,7 +1129,7 @@ public class FieldOfPlay {
 		JsonValue recordsJson = RecordFilter.buildRecordJson(
 		        computeShowAllGroupRecords() ? new ArrayList<>(groupRecords) : eligibleRecords,
 		        new HashSet<>(challengedRecords), snatchRequest, cjRequest,
-		        totalRequest);
+		        totalRequest, curAthlete);
 		setRecordsJson(recordsJson);
 		setChallengedRecords(challengedRecords);
 		for (RecordEvent re : challengedRecords) {
