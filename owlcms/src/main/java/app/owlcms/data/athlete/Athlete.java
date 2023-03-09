@@ -765,7 +765,7 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
-	private String getAllCategoriesAsString() {
+	public String getAllCategoriesAsString() {
 		Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
 		// use getName because we don't want the translated gender.
 		String mainCategory = mrCat != null ? mrCat.getComputedName() : "";
