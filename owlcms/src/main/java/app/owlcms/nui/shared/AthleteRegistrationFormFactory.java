@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.form.CrudFormConfiguration;
@@ -654,8 +653,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 				// body weight, gender, date
 				allEligible = findEligibleCategories(genderField, getAgeFromFields(), bodyWeightField,
 				        categoryField, qualifyingTotalField);
-				//FIXME if empty, no qualifying category
-				logger.warn("cat {} eli {}", value, allEligible);
+				//logger.debug("cat {} eli {}", value, allEligible);
 				if (value != null && categoryIsEligible(value, allEligible)) {
 					// current category is amongst eligibles. Don't recompute anything.
 					// logger.debug("leave alone");
@@ -732,9 +730,9 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 		} else {
 			prevEligibles = eligibleField.getValue();
 		}
-		logger.warn("updateCategoryFields {} {} - {} {} {}",
-		categoryField.getValue(), bestMatch, prevEligibles, allEligible,
-		LoggerUtils.whereFrom());
+		//logger.debug("updateCategoryFields {} {} - {} {} {}",
+		//categoryField.getValue(), bestMatch, prevEligibles, allEligible,
+		//LoggerUtils.whereFrom());
 
 		if (prevEligibles != null) {
 			// update the list of eligible categories. Must use the matching items in
@@ -751,7 +749,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 					}
 				}
 			}
-			logger.warn("all eligibles {}", allEligible.stream().map(v -> v.longDump()).collect(Collectors.toList()));
+			//logger.debug("all eligibles {}", allEligible.stream().map(v -> v.longDump()).collect(Collectors.toList()));
 
 			List<Category> pertinentCategories = CategoryRepository.findByGenderAgeBW(getGenderFieldValue(),
 			        getAgeFromFields(), null);
@@ -888,12 +886,12 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 		// check that category is consistent with body weight
 		Validator<Category> v0 = Validator.from((category) -> {
 			try {
-				Binding<Athlete, ?> catBinding = binder.getBinding("category").get();
-				Category cat = (Category) catBinding.getField().getValue();
+				//Binding<Athlete, ?> catBinding = binder.getBinding("category").get();
+				//Category cat = (Category) catBinding.getField().getValue();
 				Binding<Athlete, ?> bwBinding = binder.getBinding("bodyWeight").get();
 				Double bw = (Double) bwBinding.getField().getValue();
 				if (category == null && bw != null) {
-					logger.warn("0 category {} {} bw {}", category, cat, bw);
+					//logger.debug("0 category {} {} bw {}", category, cat, bw);
 					return false;
 				} else {
 					return true;
@@ -908,24 +906,24 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 		// check that category is consistent with body weight
 		Validator<Category> v1 = Validator.from((category) -> {
 			try {
-				Binding<Athlete, ?> catBinding = binder.getBinding("category").get();
-				Category cat = (Category) catBinding.getField().getValue();
+				//Binding<Athlete, ?> catBinding = binder.getBinding("category").get();
+				//Category cat = (Category) catBinding.getField().getValue();
 				Binding<Athlete, ?> bwBinding = binder.getBinding("bodyWeight").get();
 				Double bw = (Double) bwBinding.getField().getValue();
 				if (category == null && bw == null) {
-					logger.warn("1 category {} {} bw {}", category, cat, bw);
+					//logger.debug("1 category {} {} bw {}", category, cat, bw);
 					return true;
 				} else if (bw == null) {
-					logger.warn("2 category {} {} bw {}", category != null ? category.getComputedName() : null, cat, bw);
+					//logger.debug("2 category {} {} bw {}", category != null ? category.getComputedName() : null, cat, bw);
 					// no body weight - no contradiction
 					return true;
 				} else if (bw != null && category == null) {
-					logger.warn("3 category {} {} bw {}", category, cat, bw);
+					//logger.debug("3 category {} {} bw {}", category, cat, bw);
 					return false;
 				}
 				Double min = category.getMinimumWeight();
 				Double max = category.getMaximumWeight();
-				logger.warn("comparing {} ]{},{}] with body weight {}", category.getComputedName(), min, max, bw);
+				//logger.debug("comparing {} ]{},{}] with body weight {}", category.getComputedName(), min, max, bw);
 				return (bw > min && bw <= max);
 			} catch (Exception e) {
 				LoggerUtils.logError(logger, e);
