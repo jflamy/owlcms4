@@ -719,7 +719,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 		OwlcmsSession.withFop(fop -> {
 			Athlete curAthlete = fop.getCurAthlete();
 			if (curAthlete != null && curAthlete.getGender() != null) {
-				this.getElement().setProperty("categoryName", curAthlete.getCategory().getName());
+				this.getElement().setProperty("categoryName", curAthlete.getCategory().getTranslatedName());
 
 				if (Competition.getCurrent().isSinclair()) {
 					List<Athlete> sortedAthletes = new ArrayList<>(
@@ -860,7 +860,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 		String category;
-		category = curCat != null ? curCat.getComputedName() : "";
+		category = curCat != null ? curCat.getTranslatedName() : "";
 		ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
 		ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
 		ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");

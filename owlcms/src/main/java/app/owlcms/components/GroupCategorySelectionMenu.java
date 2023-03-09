@@ -88,11 +88,11 @@ public class GroupCategorySelectionMenu extends MenuBar {
 
 			for (Category c : categories) {
 				MenuItem subItem1 = subMenu.addItem(
-				        g.getName() + " - " + c.getName(),
+				        g.getName() + " - " + c.getTranslatedName(),
 				        e -> {
 					        whenChecked.accept(g, c, fop);
 					        setChecked(e.getSource(), subMenu, true);
-					        item.setText(g.getName() + " - " + c.getName() + "\u2003\u25bd");
+					        item.setText(g.getName() + " - " + c.getTranslatedName() + "\u2003\u25bd");
 				        });
 				subItem1.setCheckable(true);
 				subItem1.getElement().setAttribute("style", "margin: 0px; padding: 0px");

@@ -288,12 +288,24 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		String agName = (ageGroup != null ? ageGroup.getName() : "");
 		String catName = getLimitString();
 		if (agName == null || agName.isEmpty()) {
-			return getTranslatedGender() + " " + catName;
+			return getGender() + " " + catName;
 		} else {
 			return agName + " " + catName;
 		}
 	}
 
+	@JsonIgnore
+	@Transient
+	public String getTranslatedName() {
+		String agName = (ageGroup != null ? ageGroup.getName() : "");
+		String catName = getLimitString();
+		if (agName == null || agName.isEmpty()) {
+			return getTranslatedGender() + " " + catName;
+		} else {
+			return agName + " " + catName;
+		}
+	}
+	
 	public String getTranslatedGender() {
 		switch (getGender()) {
 		case F:

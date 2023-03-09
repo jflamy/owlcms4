@@ -942,14 +942,14 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 					logger.debug("1 category {} {} age {}", category, cat, age);
 					return true;
 				} else if (age == null) {
-					logger.debug("2 category {} {} age {}", category != null ? category.getComputedName() : null, cat, age);
+					logger.debug("2 category {} {} age {}", category != null ? category.getCode() : null, cat, age);
 					// no body weight - no contradiction
 					return true;
 				}
 				if (category != null && age != null) {
 					int min = category.getAgeGroup().getMinAge();
 					int max = category.getAgeGroup().getMaxAge();
-					logger.debug("comparing {} [{},{}] with age {}", category.getComputedName(), min, max, age);
+					logger.debug("comparing {} [{},{}] with age {}", category.getCode(), min, max, age);
 					return (age >= min && age <= max);
 				} else {
 					return true;

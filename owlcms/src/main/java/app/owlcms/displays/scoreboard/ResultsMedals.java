@@ -524,7 +524,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 			JsonObject jMC = Json.createObject();
 			int mcX = 0;
 			if (medalists != null && !medalists.isEmpty()) {
-				jMC.put("categoryName", getCategory().getName());
+				jMC.put("categoryName", getCategory().getTranslatedName());
 				jMC.put("leaders", getAthletesJson(new ArrayList<>(medalists), fop));
 				// logger.debug("medalCategory: {}", jMC.toJson());
 				jsonMCArray.set(mcX, jMC);
@@ -548,7 +548,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 				JsonObject jMC = Json.createObject();
 				TreeSet<Athlete> medalists = medalCat.getValue();
 				if (medalists != null && !medalists.isEmpty()) {
-					jMC.put("categoryName", medalCat.getKey().getName());
+					jMC.put("categoryName", medalCat.getKey().getTranslatedName());
 					jMC.put("leaders", getAthletesJson(new ArrayList<>(medalists), fop));
 					// logger.debug("medalCategory: {}", jMC.toJson());
 					jsonMCArray.set(mcX, jMC);
@@ -615,7 +615,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
 		String category;
-		category = curCat != null ? curCat.getName() : "";
+		category = curCat != null ? curCat.getTranslatedName() : "";
 		ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
 		ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
 		ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");

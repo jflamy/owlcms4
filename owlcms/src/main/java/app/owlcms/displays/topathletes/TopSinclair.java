@@ -160,7 +160,7 @@ public class TopSinclair extends PolymerTemplate<TemplateModel> implements Displ
 
 	public void getAthleteJson(Athlete a, JsonObject ja, Gender g, int needed) {
 		String category;
-		category = a.getCategory() != null ? a.getCategory().getName() : "";
+		category = a.getCategory() != null ? a.getCategory().getTranslatedName() : "";
 		ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
 		ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
 		ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");

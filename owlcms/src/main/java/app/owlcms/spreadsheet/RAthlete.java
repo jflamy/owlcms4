@@ -378,7 +378,7 @@ public class RAthlete {
 		if (a.getFullBirthDate() == null) {
 			age = 0;
 		} else {
-			age = LocalDate.now().getYear() - a.getYearOfBirth();
+			age = a.getAge();
 		}
 
 		Integer qualifyingTotal = this.getAthlete().getQualifyingTotal();
@@ -389,7 +389,7 @@ public class RAthlete {
 		// logger.debug("setting category to {} athlete {}",category.longDump(),
 		// a.longDump());
 	}
-
+	
 	Pattern getLegacyPattern() {
 		if (legacyPattern == null) {
 			setLegacyPattern(Pattern

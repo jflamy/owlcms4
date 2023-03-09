@@ -392,7 +392,7 @@ public class LiftingOrder extends PolymerTemplate<TemplateModel> implements Disp
 			if (Competition.getCurrent().isMasters()) {
 				category = a.getBWCategory();
 			} else {
-				category = curCat != null ? curCat.getName() : "";
+				category = curCat != null ? curCat.getTranslatedName() : "";
 			}
 			ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
 			ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");

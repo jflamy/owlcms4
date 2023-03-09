@@ -561,7 +561,7 @@ public class TeamSelectionContent extends VerticalLayout
 				activeBox.setValue(value);
 				JPAService.runInTransaction(em -> {
 					logger.info("{} {} as team member for category {}", value ? "setting" : "removing",
-					        p.getAthlete().getShortName(), p.getCategory().getName());
+					        p.getAthlete().getShortName(), p.getCategory().getTranslatedName());
 					p.setTeamMember(Boolean.TRUE.equals(value));
 					em.merge(p);
 					return null;

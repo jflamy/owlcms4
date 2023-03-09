@@ -469,7 +469,7 @@ public class EventForwarder implements BreakDisplay {
 //                System.identityHashCode(fop), fop.getGroup(), fop.getCurAthlete(), LoggerUtils.stackTrace());
 		Athlete curAthlete = fop.getCurAthlete();
 		if (curAthlete != null && curAthlete.getGender() != null) {
-			setCategoryName(curAthlete.getCategory().getName());
+			setCategoryName(curAthlete.getCategory().getTranslatedName());
 			groupLeaders = fop.getLeaders();
 			if (groupLeaders == null || groupLeaders.isEmpty()) {
 				setLeaders(null);
@@ -800,7 +800,7 @@ public class EventForwarder implements BreakDisplay {
 
 	private void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
 		String category;
-		category = curCat != null ? curCat.getName() : "";
+		category = curCat != null ? curCat.getTranslatedName() : "";
 		ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
 		ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
 		ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");

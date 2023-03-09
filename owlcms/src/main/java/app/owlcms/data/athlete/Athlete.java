@@ -640,7 +640,7 @@ public class Athlete {
 			// so we find the one in the eligibility list and use it.
 			Category matchingEligible = null;
 			for (Category eligible : getEligibleCategories()) {
-				if (ObjectUtils.compare(eligible.getName(), category.getName()) == 0) {
+				if (sameCategory(eligible, category)) {
 					matchingEligible = eligible;
 					break;
 				}
@@ -765,9 +765,10 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
-	public String getAllCategoriesAsString() {
+	private String getAllCategoriesAsString() {
 		Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
-		String mainCategory = mrCat != null ? mrCat.getName() : "";
+		// use getName because we don't want the translated gender.
+		String mainCategory = mrCat != null ? mrCat.getComputedName() : "";
 
 		String mainCategoryString = mainCategory;
 		if (mrCat != null && !getMainRankings().getTeamMember()) {
@@ -777,7 +778,32 @@ public class Athlete {
 		String eligiblesAsString = this.getParticipations().stream()
 		        .filter(p -> (p.getCategory() != mrCat))
 		        .map(p -> {
-			        String catName = p.getCategory().getName();
+			        String catName = p.getCategory().getComputedName();
+			        return catName + (!p.getTeamMember() ? RAthlete.NoTeamMarker : "");
+		        })
+		        .collect(Collectors.joining(";"));
+		if (eligiblesAsString.isBlank()) {
+			return mainCategoryString;
+		} else {
+			return mainCategory + "|" + eligiblesAsString;
+		}
+	}
+	
+	@Transient
+	@JsonIgnore
+	public String getAllTranslatedCategoriesAsString() {
+		Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
+		String mainCategory = mrCat != null ? mrCat.getTranslatedName() : "";
+
+		String mainCategoryString = mainCategory;
+		if (mrCat != null && !getMainRankings().getTeamMember()) {
+			mainCategoryString = mainCategory + RAthlete.NoTeamMarker;
+		}
+
+		String eligiblesAsString = this.getParticipations().stream()
+		        .filter(p -> (p.getCategory() != mrCat))
+		        .map(p -> {
+			        String catName = p.getCategory().getTranslatedName();
 			        return catName + (!p.getTeamMember() ? RAthlete.NoTeamMarker : "");
 		        })
 		        .collect(Collectors.joining(";"));
@@ -1690,7 +1716,7 @@ public class Athlete {
 	@JsonIgnore
 	public String getLongCategory() {
 		Category category = getCategory();
-		return (category != null ? category.getName() : "");
+		return (category != null ? category.getTranslatedName() : "");
 	}
 
 	/**
@@ -1786,7 +1812,7 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public String getMastersLongCategory() {
-		return getCategory().getName();
+		return getCategory().getComputedName();
 	}
 
 	/**
@@ -2752,7 +2778,7 @@ public class Athlete {
 		        .append(" group=" + (group != null ? group.getName() : null)).append(" team=" + this.getTeam())
 		        .append(" gender=" + this.getGender()).append(" bodyWeight=" + this.getBodyWeight())
 		        .append(" birthDate=" + this.getYearOfBirth())
-		        .append(" category=" + (category != null ? category.getName().toLowerCase() : null))
+		        .append(" category=" + (category != null ? category.getComputedName().toLowerCase() : null))
 		        .append(" actualCategory=" + this.getLongCategory().toString().toLowerCase())
 		        .append(" snatch1ActualLift=" + this.getSnatch1ActualLift())
 		        .append(" snatch2=" + this.getSnatch2ActualLift()).append(" snatch3=" + this.getSnatch3ActualLift())
@@ -2770,7 +2796,7 @@ public class Athlete {
 			boolean athleteEqual = participation.getAthlete().equals(this);
 
 			Category category2 = participation.getCategory();
-			boolean categoryEqual = category2 != null && category2.getName().contentEquals(category.getName());
+			boolean categoryEqual = sameCategory(category, category2);
 			if (athleteEqual && categoryEqual) {
 				logger.trace("removeCategory removing {} {}", category, participation);
 				iterator.remove();
@@ -2784,6 +2810,11 @@ public class Athlete {
 				        categoryEqual);
 			}
 		}
+	}
+
+	private boolean sameCategory(Category category1, Category category2) {
+		boolean categoryEqual = category2 != null && category2.getCode().contentEquals(category1.getCode());
+		return categoryEqual;
 	}
 
 	/**

@@ -184,7 +184,7 @@ public class AthleteCard extends PolymerTemplate<TemplateModel>
 		}
 		Category category = athlete.getCategory();
 		if (category != null) {
-			getElement().setProperty("category", category.getName());
+			getElement().setProperty("category", category.getTranslatedName());
 		} else {
 			getElement().setProperty("category", "");
 		}

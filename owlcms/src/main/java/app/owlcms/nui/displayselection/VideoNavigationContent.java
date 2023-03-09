@@ -169,7 +169,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 		fop.setVideoCategory(c);
 		setMedalGroup(g);
 		setMedalCategory(c);
-		logger.info("switching to {} {}", g.getName(), c != null ? c.getName() : "");
+		logger.info("switching to {} {}", g.getName(), c != null ? c.getTranslatedName() : "");
 		fop.getUiEventBus().post(new UIEvent.VideoRefresh(this, g, c));
 	}
 
