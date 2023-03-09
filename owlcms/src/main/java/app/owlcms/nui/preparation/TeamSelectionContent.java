@@ -648,7 +648,7 @@ public class TeamSelectionContent extends VerticalLayout
 			genderFilter.setPlaceholder(getTranslation("Gender"));
 			genderFilter.setItems(Gender.M, Gender.F);
 			genderFilter.setItemLabelGenerator((i) -> {
-				return i == Gender.M ? getTranslation("Gender.M") : getTranslation("Gender.F");
+				return i == Gender.M ? getTranslation("Gender.Men") : getTranslation("Gender.Women");
 			});
 			genderFilter.setClearButtonVisible(true);
 			genderFilter.addValueChangeListener(e -> {

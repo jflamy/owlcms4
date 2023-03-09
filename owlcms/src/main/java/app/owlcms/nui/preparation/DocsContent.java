@@ -740,7 +740,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 		genderFilter.setPlaceholder(Translator.translate("Gender"));
 		genderFilter.setItems(Gender.M, Gender.F);
 		genderFilter.setItemLabelGenerator((i) -> {
-			return i == Gender.M ? Translator.translate("Gender.M") : Translator.translate("Gender.F");
+			return i == Gender.M ? Translator.translate("Gender.Men") : Translator.translate("Gender.Women");
 		});
 		genderFilter.setClearButtonVisible(true);
 		genderFilter.addValueChangeListener(e -> {

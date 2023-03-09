@@ -123,7 +123,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	}
 
 	public Category(Category c) {
-		this(c.minimumWeight, c.maximumWeight, c.gender, c.active, c.getWrYth(), c.getWrJr(), c.getWrSr(), c.ageGroup,
+		this(c.minimumWeight, c.maximumWeight, c.getGender(), c.active, c.getWrYth(), c.getWrJr(), c.getWrSr(), c.ageGroup,
 		        c.qualifyingTotal);
 	}
 
@@ -156,7 +156,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 			return -1; // we are smaller than null -- null goes to the end;
 		}
 
-		int compare = ObjectUtils.compare(this.gender, o.getGender());
+		int compare = ObjectUtils.compare(this.getGender(), o.getGender());
 		if (compare != 0) {
 			return compare;
 		}
@@ -176,7 +176,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	public String dump() {
 		return "Category [code=" + code + ", name=" + getName() + ", minimumWeight=" + minimumWeight
 		        + ", maximumWeight="
-		        + maximumWeight + ", ageGroup=" + ageGroup + ", gender=" + gender + ", active=" + active + ", wrSr="
+		        + maximumWeight + ", ageGroup=" + ageGroup + ", gender=" + getGender() + ", active=" + active + ", wrSr="
 		        + getWrSr() + ", wrJr=" + getWrJr() + ", wrYth=" + getWrYth() + "]";
 	}
 
@@ -275,10 +275,10 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		String agName = (ageGroup != null ? ageGroup.getName() : "");
 
 		if (agName == null || agName.isEmpty()) {
-			String catName = gender + getCodeLimitString();
+			String catName = getGender() + getCodeLimitString();
 			return catName;
 		} else {
-			return ageGroup.getCode() + "_" + gender + getCodeLimitString();
+			return ageGroup.getCode() + "_" + getGender() + getCodeLimitString();
 		}
 	}
 
@@ -288,9 +288,20 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		String agName = (ageGroup != null ? ageGroup.getName() : "");
 		String catName = getLimitString();
 		if (agName == null || agName.isEmpty()) {
-			return gender + catName;
+			return getTranslatedGender() + " " + catName;
 		} else {
 			return agName + " " + catName;
+		}
+	}
+
+	public String getTranslatedGender() {
+		switch (getGender()) {
+		case F:
+		case I:
+		case M:
+			return getGender().asPublicGenderCode();
+		default:
+			throw new IllegalStateException();
 		}
 	}
 
@@ -461,7 +472,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		        + ", id=" + getId()
 		        + ", minimumWeight=" + minimumWeight
 		        + ", maximumWeight=" + maximumWeight + ", ageGroup=" + (ageGroup != null ? ageGroup.getName() : null)
-		        + ", gender=" + gender
+		        + ", gender=" + getGender()
 		        + ", qualifying=" + qualifyingTotal
 		        + ", wr=" + getWrSr()
 		        + ", code=" + code + "]";
@@ -561,7 +572,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	 * @return the string
 	 */
 	public String shortDump() {
-		return getName() + "_" + System.identityHashCode(this) + "_" + active + "_" + gender + "_" + ageGroup;
+		return getName() + "_" + System.identityHashCode(this) + "_" + active + "_" + getGender() + "_" + ageGroup;
 	}
 
 	/*
@@ -571,7 +582,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	 */
 	@Override
 	public String toString() {
-		return getName();
+		return getComputedName();
 	}
 
 }

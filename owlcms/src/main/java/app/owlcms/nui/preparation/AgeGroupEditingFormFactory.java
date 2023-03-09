@@ -142,9 +142,9 @@ public class AgeGroupEditingFormFactory
 			genderField.setItemLabelGenerator((i) -> {
 				switch (i) {
 				case M:
-					return Translator.translate("Gender.M");
+					return Translator.translate("Gender.Men");
 				case F:
-					return Translator.translate("Gender.F");
+					return Translator.translate("Gender.Women");
 				default:
 					throw new IllegalStateException("can't happen");
 				}
@@ -154,11 +154,11 @@ public class AgeGroupEditingFormFactory
 			genderField.setItemLabelGenerator((i) -> {
 				switch (i) {
 				case M:
-					return Translator.translate("Gender.M");
+					return Translator.translate("Gender.Men");
 				case F:
-					return Translator.translate("Gender.F");
+					return Translator.translate("Gender.Women");
 				case I:
-					return Translator.translate("Gender.I");
+					return Translator.translate("Gender.Inclusive");
 				default:
 					throw new IllegalStateException("can't happen");
 				}

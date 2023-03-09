@@ -654,7 +654,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 				// body weight, gender, date
 				allEligible = findEligibleCategories(genderField, getAgeFromFields(), bodyWeightField,
 				        categoryField, qualifyingTotalField);
-				// logger.debug("cat {} eli {}", value, allEligible);
+				//FIXME if empty, no qualifying category
+				logger.warn("cat {} eli {}", value, allEligible);
 				if (value != null && categoryIsEligible(value, allEligible)) {
 					// current category is amongst eligibles. Don't recompute anything.
 					// logger.debug("leave alone");
@@ -731,9 +732,9 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 		} else {
 			prevEligibles = eligibleField.getValue();
 		}
-		// logger.debug("updateCategoryFields {} {} - {} {} {}",
-		// categoryField.getValue(), bestMatch, prevEligibles, allEligible,
-		// LoggerUtils.whereFrom());
+		logger.warn("updateCategoryFields {} {} - {} {} {}",
+		categoryField.getValue(), bestMatch, prevEligibles, allEligible,
+		LoggerUtils.whereFrom());
 
 		if (prevEligibles != null) {
 			// update the list of eligible categories. Must use the matching items in
@@ -742,7 +743,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
 			for (Category oldEligible : prevEligibles) {
 				for (Category newEligible : allEligible) {
-					if (ObjectUtils.compare(newEligible.getName(), oldEligible.getName()) == 0) {
+					if (newEligible.getCode().contentEquals(oldEligible.getCode())) {
 						logger.debug("substituting eligibles {} {}", newEligible.longDump(),
 						        System.identityHashCode(newEligible));
 						newEligibles.add(newEligible);
@@ -750,7 +751,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 					}
 				}
 			}
-			logger.debug("all eligibles {}", allEligible.stream().map(v -> v.longDump()).collect(Collectors.toList()));
+			logger.warn("all eligibles {}", allEligible.stream().map(v -> v.longDump()).collect(Collectors.toList()));
 
 			List<Category> pertinentCategories = CategoryRepository.findByGenderAgeBW(getGenderFieldValue(),
 			        getAgeFromFields(), null);
@@ -767,7 +768,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 			// so we find the one in the eligibility list and use it.
 			matchingEligible = null;
 			for (Category eligible : newEligibles) {
-				if (ObjectUtils.compare(eligible.getName(), bestMatch.getName()) == 0) {
+				if (eligible.getCode().contentEquals(bestMatch.getCode())) {
 					matchingEligible = eligible;
 					break;
 				}
@@ -883,6 +884,27 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void validateCategory(Binder.BindingBuilder bindingBuilder) {
 
+		// check that there are eligibility categories
+		// check that category is consistent with body weight
+		Validator<Category> v0 = Validator.from((category) -> {
+			try {
+				Binding<Athlete, ?> catBinding = binder.getBinding("category").get();
+				Category cat = (Category) catBinding.getField().getValue();
+				Binding<Athlete, ?> bwBinding = binder.getBinding("bodyWeight").get();
+				Double bw = (Double) bwBinding.getField().getValue();
+				if (category == null && bw != null) {
+					logger.warn("0 category {} {} bw {}", category, cat, bw);
+					return false;
+				} else {
+					return true;
+				}
+			} catch (Exception e) {
+				LoggerUtils.logError(logger, e);
+			}
+			return true;
+		}, Translator.translate("Category_noEligiblity_check_age_entry"));
+		bindingBuilder.withValidator(v0);
+		
 		// check that category is consistent with body weight
 		Validator<Category> v1 = Validator.from((category) -> {
 			try {
@@ -891,19 +913,19 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 				Binding<Athlete, ?> bwBinding = binder.getBinding("bodyWeight").get();
 				Double bw = (Double) bwBinding.getField().getValue();
 				if (category == null && bw == null) {
-					logger.debug("1 category {} {} bw {}", category, cat, bw);
+					logger.warn("1 category {} {} bw {}", category, cat, bw);
 					return true;
 				} else if (bw == null) {
-					logger.debug("2 category {} {} bw {}", category != null ? category.getName() : null, cat, bw);
+					logger.warn("2 category {} {} bw {}", category != null ? category.getComputedName() : null, cat, bw);
 					// no body weight - no contradiction
 					return true;
 				} else if (bw != null && category == null) {
-					logger.debug("3 category {} {} bw {}", category, cat, bw);
+					logger.warn("3 category {} {} bw {}", category, cat, bw);
 					return false;
 				}
 				Double min = category.getMinimumWeight();
 				Double max = category.getMaximumWeight();
-				logger.debug("comparing {} ]{},{}] with body weight {}", category.getName(), min, max, bw);
+				logger.warn("comparing {} ]{},{}] with body weight {}", category.getComputedName(), min, max, bw);
 				return (bw > min && bw <= max);
 			} catch (Exception e) {
 				LoggerUtils.logError(logger, e);
@@ -922,14 +944,14 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 					logger.debug("1 category {} {} age {}", category, cat, age);
 					return true;
 				} else if (age == null) {
-					logger.debug("2 category {} {} age {}", category != null ? category.getName() : null, cat, age);
+					logger.debug("2 category {} {} age {}", category != null ? category.getComputedName() : null, cat, age);
 					// no body weight - no contradiction
 					return true;
 				}
 				if (category != null && age != null) {
 					int min = category.getAgeGroup().getMinAge();
 					int max = category.getAgeGroup().getMaxAge();
-					logger.debug("comparing {} [{},{}] with age {}", category.getName(), min, max, age);
+					logger.debug("comparing {} [{},{}] with age {}", category.getComputedName(), min, max, age);
 					return (age >= min && age <= max);
 				} else {
 					return true;

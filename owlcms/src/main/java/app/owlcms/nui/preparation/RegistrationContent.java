@@ -465,10 +465,10 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		crudFormFactory.setFieldProvider("group", new OwlcmsComboBoxProvider<>(getTranslation("Group"),
 		        groups, new TextRenderer<>(Group::getName), Group::getName));
 		crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
-		        CategoryRepository.findActive(), new TextRenderer<>(Category::getName), Category::getName, false));
+		        CategoryRepository.findActive(), new TextRenderer<>(Category::getComputedName), Category::getName, false));
 		crudFormFactory.setFieldProvider("eligibleCategories",
 		        new CheckBoxGroupProvider<>(getTranslation("Registration.EligibleCategories"),
-		                new ArrayList<Category>(), (c) -> (c.getName())));
+		                new ArrayList<Category>(), (c) -> (c.getComputedName())));
 //        crudFormFactory.setFieldProvider("ageDivision",
 //                new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"), Arrays.asList(AgeDivision.values()),
 //                        new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), AgeDivision::name));
@@ -734,7 +734,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		genderFilter.setPlaceholder(getTranslation("Gender"));
 		genderFilter.setItems(Gender.M, Gender.F);
 		genderFilter.setItemLabelGenerator((i) -> {
-			return i == Gender.M ? getTranslation("Gender.M") : getTranslation("Gender.F");
+			return i == Gender.M ? getTranslation("Gender.Men") : getTranslation("Gender.Women");
 		});
 		genderFilter.setClearButtonVisible(true);
 		genderFilter.addValueChangeListener(e -> {

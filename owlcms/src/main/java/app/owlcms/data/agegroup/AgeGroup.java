@@ -234,16 +234,30 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 			return "";
 		}
 
+		String value = null;
 		String translatedCode = getTranslatedCode(code2);
 		if (ageDivision == AgeDivision.MASTERS) {
-			return translatedCode;
+			value = translatedCode;
 		} else if (ageDivision == AgeDivision.DEFAULT) {
-			return getGender() == Gender.I ? "" : getGender().toString();
+			value = getTranslatedGender();
 		} else {
-			return translatedCode + (getGender() != Gender.I ? (" " + getGender()) : "");
+			value = translatedCode + " " + getTranslatedGender();
+		}
+		return value;
+	}
+
+	public String getTranslatedGender() {
+		switch (getGender()) {
+		case F:
+		case I:
+		case M:
+			return getGender().asPublicGenderCode();
+		default:
+			throw new IllegalStateException();
 		}
 	}
 
+	
 	/**
 	 * @return the qualificationTotal
 	 */

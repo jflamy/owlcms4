@@ -748,9 +748,9 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 			genderFilter.setItemLabelGenerator((i) -> {
 				switch (i) {
 				case M:
-					return getTranslation("Gender.M");
+					return getTranslation("Gender.Men");
 				case F:
-					return getTranslation("Gender.F");
+					return getTranslation("Gender.Women");
 				default:
 					throw new IllegalStateException("can't happen");
 				}
@@ -760,11 +760,11 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 			genderFilter.setItemLabelGenerator((i) -> {
 				switch (i) {
 				case M:
-					return getTranslation("Gender.M");
+					return getTranslation("Gender.Men");
 				case F:
-					return getTranslation("Gender.F");
+					return getTranslation("Gender.Women");
 				case I:
-					return getTranslation("Gender.I");
+					return getTranslation("Gender.Inclusive");
 				default:
 					throw new IllegalStateException("can't happen");
 				}

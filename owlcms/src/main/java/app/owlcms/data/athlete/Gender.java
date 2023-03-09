@@ -7,6 +7,7 @@
 package app.owlcms.data.athlete;
 
 import app.owlcms.data.competition.Competition;
+import app.owlcms.i18n.Translator;
 
 /**
  * The Enum Gender.
@@ -22,5 +23,29 @@ public enum Gender {
 			return mfiValueArray;
 		}
 		return mfValueArray;
+	}
+	
+	public String asGenderName() {
+		switch (this) {
+		case F:
+			return (Translator.translate("Gender.Women"));
+		case I:
+			return (Translator.translate("Gender.Inclusive"));
+		case M:
+			return (Translator.translate("Gender.Men"));
+		default:
+			throw new IllegalStateException();
+		}
+	}
+	
+	public String asPublicGenderCode() {
+		switch (this) {
+		case F:
+		case I:
+		case M:
+			return (Translator.translate("Gender."+this.name()));
+		default:
+			throw new IllegalStateException();
+		}
 	}
 }
