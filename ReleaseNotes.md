@@ -5,6 +5,7 @@
   - The announcer "refresh list" button has been renamed to "Reload Group". It reloads the group completely (same as exiting and re-entering the group). This also sends a refresh signal to all displays. This is useful if for some reason it is necessary to edit athlete registration information.
   - The gender letters used for displaying *age groups* and *categories* are no longer fixed to `M` and `F` and can now be translated (for example, Germany could choose to use U17 D instead of U17 F)
 - 38.1 Fixes
+  - 38.1.0-alpha03: Translated gender letters for age groups and categories were not being used consistently on all displays.
   - 38.1.0-alpha02: A specific error message is given if the athlete's body weight is changed and the athlete does not meet the minimum entry total for the new category and is therefore not eligible.
   - 38.1.0-alpha01: the current attempt number was not being hidden correctly on the down signal.
   - The total of the last snatch athlete was being shown during the clean & jerk break on the "current athlete" video streaming footer.
@@ -37,11 +38,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_38.1.0-alpha02.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_38.1.0-alpha03.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_38.1.0-alpha02.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_38.1.0-alpha03.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the [Heroku](https://owlcms.github.io/owlcms4-prerelease/#Heroku) or (recommended) **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
