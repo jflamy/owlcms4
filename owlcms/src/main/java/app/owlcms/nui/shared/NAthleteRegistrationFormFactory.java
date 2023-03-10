@@ -27,7 +27,6 @@ import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.HasValue.ValueChangeEvent;
@@ -46,6 +45,8 @@ import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
@@ -66,7 +67,6 @@ import com.vaadin.flow.function.ValueProvider;
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.components.fields.LocalizedDecimalField;
 import app.owlcms.components.fields.LocalizedIntegerField;
-import app.owlcms.components.fields.ValidationTextField;
 import app.owlcms.components.fields.ValidationUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -124,9 +124,9 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 	private StringToIntegerConverter yobConverter;
 
-	private ValidationTextField snatch1DeclarationField;
+	private LocalizedIntegerField snatch1DeclarationField;
 
-	private ValidationTextField cleanJerk1DeclarationField;
+	private LocalizedIntegerField cleanJerk1DeclarationField;
 
 	private LocalizedIntegerField qualifyingTotalField;
 
@@ -151,6 +151,16 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	private CheckboxGroup<Category> eligibleField;
 
 	private Map<HasValue<?, ?>, Binding<Athlete, ?>> fieldToBinding = new HashMap<>();
+
+	private TextField firstNameField;
+
+	private TextField teamField;
+
+	private TextField coachField;
+
+	private TextField custom1Field;
+
+	private TextField custom2Field;
 
 	public NAthleteRegistrationFormFactory(Class<Athlete> domainType, Group group) {
 		super(domainType);
@@ -299,43 +309,6 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 		setFocus(form);
 		return form;
-	}
-
-	private VerticalLayout createTabSheets(Component footer) {
-		binder = new Binder<Athlete>();
-		TabSheet ts = new TabSheet();
-		
-		FormLayout idLayout = createIdForm();
-		FormLayout groupCatLayout = createGroupCategoryForm();
-		FormLayout weighInLayout = createWeighInForm();
-		ts.add(Translator.translate("Athlete.IdTab"),
-		        new VerticalLayout(new Div(), 
-						idLayout, 
-						separator(),
-						weighInLayout, 
-						separator(), 
-						groupCatLayout
-						));
-		
-		ts.add(Translator.translate("Athlete.InfoTab"),
-		        new VerticalLayout(new Div()
-						));
-		
-		Div div = new Div(new Label("footer"));
-		VerticalLayout mainLayout = new VerticalLayout(
-		        ts, div);
-		mainLayout.setHeight("35rem");
-		mainLayout.setWidth("60rem");
-		return mainLayout;
-	}
-
-	private Hr separator() {
-		Hr hr = new Hr();
-		hr.getStyle().set("margin-top", "0.5em");
-		hr.getStyle().set("margin-bottom", "1.0em");
-		hr.getStyle().set("background-color", "var(--lumo-contrast-30pct)");
-		hr.getStyle().set("height", "2px");
-		return hr;
 	}
 
 	/**
@@ -650,6 +623,12 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		return allEligible2 != null ? (allEligible2.size() > 0 ? allEligible2.get(0) : null) : null;
 	}
 
+	private <T> void bindField(HasValue<?, T> field, ValueProvider<Athlete, T> getter, Setter<Athlete, T> setter) {
+		Binding<Athlete, T> binding;
+		binding = binder.forField(field).bind(getter, setter);
+		fieldToBinding.put(field, binding);
+	}
+
 	private Checkbox buildIgnoreErrorsCheckbox() {
 		ignoreErrorsCheckbox = new Checkbox(Translator.translate("RuleViolation.ignoreErrors"), e -> {
 			if (BooleanUtils.isTrue(isIgnoreErrors())) {
@@ -711,38 +690,6 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		});
 	}
 
-	private FormLayout createIdForm() {
-		FormLayout layout = createLayout();
-		Component title = createTitle("Athlete.IdentificationTitle");
-		layout.add(title);
-		layout.setColspan(title, NB_COLUMNS);
-
-		lastNameField = new TextField();
-		lastNameField.setPlaceholder("name");
-		// bindField(lastNameField, Athlete::getLastName, Athlete::setLastName);
-		layout.addFormItem(lastNameField, Translator.translate("LastName"));
-
-		Competition competition = Competition.getCurrent();
-		if (competition.isUseBirthYear()) {
-			yobField = new LocalizedIntegerField();
-			// bindField(yobField, Athlete::getYearOfBirth, Athlete::setYearOfBirth);
-			layout.addFormItem(yobField, Translator.translate("YearOfBirth"));
-		} else {
-			fullBirthDateField = new LocalDateField();
-			fullBirthDateField.getWrappedTextField().setPlaceholder("date");
-			// bindField(fullBirthDateField, Athlete::getFullBirthDate,
-			// Athlete::setFullBirthDate);
-			layout.addFormItem(fullBirthDateField, Translator.translate("BirthDate_yyyy"));
-		}
-
-		genderField = new ComboBox<>();
-		// bindField(genderField, Athlete::getGender, Athlete::setGender);
-		genderField.setPlaceholder("gender");
-		layout.addFormItem(genderField, Translator.translate("Gender"));
-
-		return layout;
-	}
-
 	private FormLayout createGroupCategoryForm() {
 		FormLayout layout = createLayout();
 		Component title = createTitle("Athlete.GroupCatTitle");
@@ -763,27 +710,68 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		return layout;
 	}
 
-	private FormLayout createWeighInForm() {
+	private FormLayout createIdForm() {
 		FormLayout layout = createLayout();
-		Component title = createTitle("Athlete.WeighInTitle");
+		Component title = createTitle("Athlete.IdentificationTitle");
 		layout.add(title);
 		layout.setColspan(title, NB_COLUMNS);
 
-		bodyWeightField = new LocalizedDecimalField();
-		bindField(bodyWeightField, Athlete::getBodyWeight, Athlete::setBodyWeight);
-		layout.addFormItem(bodyWeightField, Translator.translate("BodyWeight"));
+		lastNameField = new TextField();
+		lastNameField.setSizeFull();
+		bindField(lastNameField, Athlete::getLastName, Athlete::setLastName);
+		layout.addFormItem(lastNameField, Translator.translate("LastName"));
 
-		qualifyingTotalField = new LocalizedIntegerField();
-		bindField(qualifyingTotalField, Athlete::getQualifyingTotal, Athlete::setQualifyingTotal);
-		layout.addFormItem(qualifyingTotalField, Translator.translate("EntryTotal"));
+		firstNameField = new TextField();
+		firstNameField.setSizeFull();
+		bindField(firstNameField, Athlete::getFirstName, Athlete::setFirstName);
+		layout.addFormItem(firstNameField, Translator.translate("FirstName"));
+
+		Competition competition = Competition.getCurrent();
+		if (competition.isUseBirthYear()) {
+			yobField = new LocalizedIntegerField();
+			bindField(yobField, Athlete::getYearOfBirth, Athlete::setYearOfBirth);
+			layout.addFormItem(yobField, Translator.translate("YearOfBirth"));
+		} else {
+			fullBirthDateField = new LocalDateField();
+			fullBirthDateField.getWrappedTextField().setPlaceholder("date");
+			bindField(fullBirthDateField, Athlete::getFullBirthDate, Athlete::setFullBirthDate);
+			layout.addFormItem(fullBirthDateField, Translator.translate("BirthDate_yyyy"));
+		}
+
+		genderField = new ComboBox<>();
+		bindField(genderField, Athlete::getGender, Athlete::setGender);
+		layout.addFormItem(genderField, Translator.translate("Gender"));
+
+		teamField = new TextField();
+		teamField.setSizeFull();
+		bindField(teamField, Athlete::getTeam, Athlete::setTeam);
+		layout.addFormItem(teamField, Translator.translate("Team"));
 
 		return layout;
 	}
 
-	private <T> void bindField(HasValue<?, T> field, ValueProvider<Athlete, T> getter, Setter<Athlete, T> setter) {
-		Binding<Athlete, T> binding;
-		binding = binder.forField(field).bind(getter, setter);
-		fieldToBinding.put(field, binding);
+	private FormLayout createInfoForm() {
+		FormLayout layout = createLayout();
+		Component title = createTitle("Athlete.InfoTitle");
+		layout.add(title);
+		layout.setColspan(title, NB_COLUMNS);
+
+		coachField = new TextField();
+		coachField.setSizeFull();
+		bindField(coachField, Athlete::getCoach, Athlete::setCoach);
+		layout.addFormItem(coachField, Translator.translate("Coach"));
+
+		custom1Field = new TextField();
+		custom1Field.setSizeFull();
+		bindField(custom1Field, Athlete::getCustom1, Athlete::setCustom1);
+		layout.addFormItem(custom1Field, Translator.translate("Custom1.Title"));
+		
+		custom2Field = new TextField();
+		custom2Field.setSizeFull();
+		bindField(custom2Field, Athlete::getCustom2, Athlete::setCustom2);
+		layout.addFormItem(custom2Field, Translator.translate("Custom2.Title"));
+		
+		return layout;
 	}
 
 	private FormLayout createLayout() {
@@ -793,11 +781,26 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		return layout;
 	}
 
-	private Component createTitle(String string) {
-		H4 title = new H4(Translator.translate(string));
-		title.getStyle().set("margin-top", "0");
-		title.getStyle().set("margin-bottom", "0");
-		return title;
+	private FormLayout createPersonalBestForm() {
+		FormLayout layout = createLayout();
+		Component title = createTitle("Athlete.PersonalBestTitle");
+		layout.add(title);
+		layout.setColspan(title, NB_COLUMNS);
+
+		LocalizedIntegerField bestSnatchField = new LocalizedIntegerField();
+		bindField(bestSnatchField, Athlete::getPersonalBestSnatch, Athlete::setPersonalBestSnatch);
+		layout.addFormItem(bestSnatchField, Translator.translate("PersonalBestSnatch"));
+
+		LocalizedIntegerField bestCleanJerkField = new LocalizedIntegerField();
+		bindField(bestCleanJerkField, Athlete::getPersonalBestCleanJerk, Athlete::setPersonalBestCleanJerk);
+		layout.addFormItem(bestCleanJerkField, Translator.translate("PersonalBestCleanJerk"));
+		
+		LocalizedIntegerField bestTotalField = new LocalizedIntegerField();
+		bindField(bestTotalField, Athlete::getPersonalBestTotal, Athlete::setPersonalBestTotal);
+		layout.addFormItem(bestTotalField, Translator.translate("PersonalBestTotal"));
+
+		
+		return layout;
 	}
 
 	private void createPrintButton() {
@@ -822,6 +825,81 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			}
 
 		});
+	}
+
+	private FlexLayout createTabSheets(Component footer) {
+		binder = new Binder<>();
+		TabSheet ts = new TabSheet();
+
+		FormLayout idLayout = createIdForm();
+		FormLayout groupCatLayout = createGroupCategoryForm();
+		FormLayout weighInLayout = createWeighInForm();
+		VerticalLayout content = new VerticalLayout(new Div(),
+		        idLayout,
+		        separator(),
+		        weighInLayout,
+		        separator(),
+		        groupCatLayout);
+		ts.add(Translator.translate("Athlete.IdTab"),
+		        content);
+
+		FormLayout infoLayout = createInfoForm();
+		FormLayout personalBestLayout = createPersonalBestForm();
+		VerticalLayout content2 = new VerticalLayout(new Div(),
+				infoLayout,
+				separator(),
+				personalBestLayout
+				);
+		ts.add(Translator.translate("Athlete.InfoTab"),
+		        content2);
+		Div div = new Div(new Label("footer"));
+		FlexLayout mainLayout = new FlexLayout(
+		        ts, div);
+		mainLayout.setFlexDirection(FlexDirection.COLUMN);
+		mainLayout.setFlexGrow(1.0D, ts);
+		mainLayout.setHeight("40rem");
+		mainLayout.setWidth("60rem");
+		return mainLayout;
+	}
+
+	private Component createTitle(String string) {
+		H4 title = new H4(Translator.translate(string));
+		title.getStyle().set("margin-top", "0");
+		// title.getStyle().set("margin-bottom", "0");
+		return title;
+	}
+
+	private FormLayout createWeighInForm() {
+		FormLayout layout = createLayout();
+		Component title = createTitle("Athlete.WeighInTitle");
+		layout.add(title);
+		layout.setColspan(title, NB_COLUMNS);
+
+		bodyWeightField = new LocalizedDecimalField();
+		bindField(bodyWeightField, Athlete::getBodyWeight, Athlete::setBodyWeight);
+		layout.addFormItem(bodyWeightField, Translator.translate("BodyWeight"));
+
+		snatch1DeclarationField = new LocalizedIntegerField();
+		bindField(snatch1DeclarationField,
+		        a -> Integer.valueOf(zeroIfEmpty(a.getSnatch1Declaration())),
+		        (a, v) -> {
+			        a.setSnatch1Declaration(v.toString());
+		        });
+		layout.addFormItem(snatch1DeclarationField, Translator.translate("SnatchDecl_"));
+
+		cleanJerk1DeclarationField = new LocalizedIntegerField();
+		bindField(cleanJerk1DeclarationField,
+		        a -> Integer.valueOf(zeroIfEmpty(a.getCleanJerk1Declaration())),
+		        (a, v) -> {
+			        a.setCleanJerk1Declaration(v.toString());
+		        });
+		layout.addFormItem(cleanJerk1DeclarationField, Translator.translate("C_and_J_decl"));
+
+		qualifyingTotalField = new LocalizedIntegerField();
+		bindField(qualifyingTotalField, Athlete::getQualifyingTotal, Athlete::setQualifyingTotal);
+		layout.addFormItem(qualifyingTotalField, Translator.translate("EntryTotal"));
+
+		return layout;
 	}
 
 	private List<Category> doFindEligibleCategories(Gender gender, Integer ageFromFields, Double bw,
@@ -999,10 +1077,6 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		        ageFromFields, bw, zeroIfNull(qualifyingTotalField2.getValue()));
 	}
 
-	private int zeroIfNull(Integer value) {
-		return value != null ? value : 0;
-	}
-
 	@SuppressWarnings("unchecked")
 	private Integer getAgeFromFields() {
 		Integer age = null;
@@ -1052,21 +1126,9 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		return gender;
 	}
 
-	@SuppressWarnings("unchecked")
-	private Integer getIntegerFieldValue(HasValue<?, String> field) {
-		return Athlete.zeroIfInvalid(field.getValue());
-	}
-
 	private boolean isChangeListenersEnabled() {
 		return changeListenersEnabled;
 	}
-
-//	@SuppressWarnings("unchecked")
-//	private Integer getIntegerFieldValue(String property) {
-//		Optional<Binding<Athlete, ?>> binding = binder.getBinding(property);
-//		HasValue<?, String> field = (HasValue<?, String>) binding.get().getField();
-//		return Athlete.zeroIfInvalid(field.getValue());
-//	}
 
 	private boolean isCheckOther20kgFields() {
 		return checkOther20kgFields;
@@ -1120,6 +1182,22 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			}
 		}
 
+	}
+
+//	@SuppressWarnings("unchecked")
+//	private Integer getIntegerFieldValue(String property) {
+//		Optional<Binding<Athlete, ?>> binding = binder.getBinding(property);
+//		HasValue<?, String> field = (HasValue<?, String>) binding.get().getField();
+//		return Athlete.zeroIfInvalid(field.getValue());
+//	}
+
+	private Hr separator() {
+		Hr hr = new Hr();
+		hr.getStyle().set("margin-top", "0.5em");
+		hr.getStyle().set("margin-bottom", "1.0em");
+		hr.getStyle().set("background-color", "var(--lumo-contrast-30pct)");
+		hr.getStyle().set("height", "2px");
+		return hr;
 	}
 
 	private void setChangeListenersEnabled(boolean changeListenersEnabled) {
@@ -1236,8 +1314,8 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		}
 		try {
 			logger.debug("before {} validation", mainProp);
-			getEditedAthlete().validateStartingTotalsRule(getIntegerFieldValue(snatch1DeclarationField),
-			        getIntegerFieldValue(cleanJerk1DeclarationField), qualifyingTotalField.getValue());
+			getEditedAthlete().validateStartingTotalsRule(zeroIfNull(snatch1DeclarationField.getValue()),
+			        zeroIfNull(cleanJerk1DeclarationField.getValue()), zeroIfNull(qualifyingTotalField.getValue()));
 			// clear errors on other fields.
 			logger.debug("clearing errors on {} {}", otherProp1, otherProp2);
 			clearErrors(otherProp1, otherProp2);
@@ -1250,6 +1328,17 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			throw e1;
 		}
 		return true;
+	}
+
+	private String zeroIfEmpty(String snatch1Declaration) {
+		if (snatch1Declaration == null || snatch1Declaration.isBlank()) {
+			return "0";
+		}
+		return snatch1Declaration;
+	}
+
+	private int zeroIfNull(Integer value) {
+		return value != null ? value : 0;
 	}
 
 }
