@@ -31,7 +31,7 @@ public class ValidationTextField extends TextField {
 		} else {
 			super.setInvalid(invalid);
 		}
-		// next update from true to false will be acceped.
+		// next update from true to false will be accepted.
 		this.invalid = invalid;
 
 	}
