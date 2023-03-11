@@ -39,8 +39,8 @@ public class LocalizedIntegerField extends WrappedTextField<Integer> {
 
 	private static NumberFormat getFormatter(Locale locale) {
 		NumberFormat formatter = new DecimalFormat("0");
-		formatter.setMaximumFractionDigits(2);
-		formatter.setMinimumFractionDigits(2);
+		formatter.setMaximumFractionDigits(0);
+		formatter.setMinimumFractionDigits(0);
 		formatter.setGroupingUsed(false);
 		return formatter;
 	}
@@ -103,7 +103,7 @@ public class LocalizedIntegerField extends WrappedTextField<Integer> {
 	}
 
 	private Result<Integer> parseWithSeparator(String content, Locale locale, char separator) {
-		DecimalFormat formatter2 = new DecimalFormat("0.00");
+		DecimalFormat formatter2 = new DecimalFormat("0");
 		DecimalFormatSymbols symbols = formatter2.getDecimalFormatSymbols();
 		symbols.setDecimalSeparator(separator);
 		formatter2.setDecimalFormatSymbols(symbols);
