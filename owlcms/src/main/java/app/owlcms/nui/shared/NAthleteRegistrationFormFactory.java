@@ -48,7 +48,9 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.orderedlayout.FlexLayout.ContentAlignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
+import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexWrap;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
@@ -291,6 +293,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		// logger.trace("buildNewForm {} {} {}", System.identityHashCode(this),
 		// getCurrentGroup(), LoggerUtils.stackTrace());
 		setupAthlete(operation, aFromList);
+		binder = buildBinder(operation, getEditedAthlete());
 
 		// when in weigh-in, the validations need to ignore the weight that was last
 		// loaded.
@@ -395,7 +398,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		// check that there are eligibility categories
 		// check that category is consistent with body weight
 		Validator<Category> v0 = Validator.from((category) -> {
-			logger.warn("v0");
+			// logger.debug("v0");
 			try {
 				Double bw = bodyWeightField.getValue();
 				if (category == null && bw != null) {
@@ -413,7 +416,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 		// check that category is consistent with body weight
 		Validator<Category> v1 = Validator.from((category) -> {
-			logger.warn("v1");
+			// logger.debug("v1");
 			try {
 				Double bw = bodyWeightField.getValue();
 				if (category == null && bw == null) {
@@ -442,7 +445,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 		// check that category is consistent with age
 		Validator<Category> v2 = Validator.from((category) -> {
-			logger.warn("v2");
+			// logger.debug("v2");
 			try {
 				Category cat = categoryField.getValue();
 				Integer age = getAgeFromFields();
@@ -471,7 +474,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 		// check that category is consistent with gender
 		Validator<Category> v3 = Validator.from((category) -> {
-			logger.warn("v3");
+			// logger.debug("v3");
 			try {
 				if (category == null) {
 					return true;
@@ -501,7 +504,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 		// a category change requires explicit ok.
 		Validator<Category> v4 = Validator.from((category) -> {
-			logger.warn("v4");
+			// logger.debug("v4");
 			try {
 				if (isIgnoreErrors() || initialCategory == null
 				        || (getEditedAthlete().getBodyWeight() == null && category == null)) {
@@ -653,12 +656,12 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 		lotNumberField = new LocalizedIntegerField();
 		bindField(binder.forField(lotNumberField), lotNumberField, Athlete::getLotNumber, Athlete::setLotNumber);
-		layout.addFormItem(lotNumberField, Translator.translate("Lot"));
+		layoutAddFormItem(layout,lotNumberField, Translator.translate("Lot"));
 
 		startNumberField = new LocalizedIntegerField();
 		bindField(binder.forField(startNumberField), startNumberField, Athlete::getStartNumber,
 		        Athlete::setStartNumber);
-		layout.addFormItem(startNumberField, Translator.translate("StartNumber"));
+		layoutAddFormItem(layout,startNumberField, Translator.translate("StartNumber"));
 		return layout;
 	}
 
@@ -674,24 +677,26 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		bindField(bb, categoryField, Athlete::getCategory, Athlete::setCategory);
 		categoryField.setItems(CategoryRepository.findActive());
 		categoryField.setRenderer(new TextRenderer<>(Category::getTranslatedName));
-		layout.addFormItem(categoryField, Translator.translate("Category"));
+		FormItem fi = layoutAddFormItem(layout,categoryField, Translator.translate("Category"));
+		layout.setColspan(fi, NB_COLUMNS);
 
 		eligibleField = new CheckboxGroup<>();
 		bindField(binder.forField(eligibleField), eligibleField, Athlete::getEligibleCategories,
 		        Athlete::setEligibleCategories);
 		eligibleField.setRenderer(new TextRenderer<>(Category::getTranslatedName));
-		layout.addFormItem(eligibleField, Translator.translate("Weighin.EligibleCategories"));
-		layout.add(new Div());
+		FormItem fi1 = layoutAddFormItem(layout, eligibleField, Translator.translate("Weighin.EligibleCategories"));
+		layout.setColspan(fi1, NB_COLUMNS);
 
 		groupField = new ComboBox<>();
 		bindField(binder.forField(groupField), groupField, Athlete::getGroup, Athlete::setGroup);
 		List<Group> allGroups = GroupRepository.findAll();
 		allGroups.sort(new NaturalOrderComparator<Group>());
 		groupField.setItems(allGroups);
+		groupField.setWidth("25em");
 		groupField.setRenderer(new TextRenderer<Group>(g -> computeDesc(g)));
 		groupField.setItemLabelGenerator(g -> computeDesc(g));
-
-		layout.addFormItem(groupField, Translator.translate("Group"));
+		FormItem fi2 = layoutAddFormItem(layout,groupField, Translator.translate("Group"));
+		layout.setColspan(fi2, NB_COLUMNS);
 		return layout;
 	}
 
@@ -704,12 +709,12 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		lastNameField = new TextField();
 		bindField(binder.forField(lastNameField), lastNameField, Athlete::getLastName, Athlete::setLastName);
 		lastNameField.setSizeFull();
-		layout.addFormItem(lastNameField, Translator.translate("LastName"));
+		layoutAddFormItem(layout,lastNameField, Translator.translate("LastName"));
 
 		firstNameField = new TextField();
 		firstNameField.setSizeFull();
 		bindField(binder.forField(firstNameField), firstNameField, Athlete::getFirstName, Athlete::setFirstName);
-		layout.addFormItem(firstNameField, Translator.translate("FirstName"));
+		layoutAddFormItem(layout, firstNameField, Translator.translate("FirstName"));
 
 		Competition competition = Competition.getCurrent();
 		if (competition.isUseBirthYear()) {
@@ -718,14 +723,14 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			BindingBuilder<Athlete, Integer> bb = binder.forField(yobField);
 			validateYearOfBirth(bb);
 			bindField(bb, yobField, Athlete::getYearOfBirth, Athlete::setYearOfBirth);
-			layout.addFormItem(yobField, Translator.translate("YearOfBirth"));
+			layoutAddFormItem(layout,yobField, Translator.translate("YearOfBirth"));
 		} else {
 			fullBirthDateField = new LocalDateField();
 			fullBirthDateField.getWrappedTextField().setPlaceholder("yyyy-mm-dd");
 			BindingBuilder<Athlete, LocalDate> bb = binder.forField(fullBirthDateField);
 			validateFullBirthDate(bb);
 			bindField(bb, fullBirthDateField, Athlete::getFullBirthDate, Athlete::setFullBirthDate);
-			layout.addFormItem(fullBirthDateField, Translator.translate("BirthDate_yyyy"));
+			layoutAddFormItem(layout,fullBirthDateField, Translator.translate("BirthDate_yyyy"));
 		}
 
 		genderField = new ComboBox<>();
@@ -733,16 +738,16 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		validateGender(bb);
 		bindField(bb, genderField, Athlete::getGender, Athlete::setGender);
 		genderField.setItems(Arrays.asList(Gender.mfValues()));
-		layout.addFormItem(genderField, Translator.translate("Gender"));
+		layoutAddFormItem(layout,genderField, Translator.translate("Gender"));
 
 		teamField = new TextField();
 		teamField.setSizeFull();
 		bindField(binder.forField(teamField), teamField, Athlete::getTeam, Athlete::setTeam);
-		layout.addFormItem(teamField, Translator.translate("Team"));
+		layoutAddFormItem(layout,teamField, Translator.translate("Team"));
 
 		membershipField = new TextField();
 		bindField(binder.forField(membershipField), membershipField, Athlete::getMembership, Athlete::setMembership);
-		layout.addFormItem(membershipField, Translator.translate("Membership"));
+		layoutAddFormItem(layout,membershipField, Translator.translate("Membership"));
 
 		return layout;
 	}
@@ -755,7 +760,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 		coachField = new TextField();
 		bindField(binder.forField(coachField), coachField, Athlete::getCoach, Athlete::setCoach);
-		FormItem formItem = layout.addFormItem(coachField, Translator.translate("Coach"));
+		FormItem formItem = layoutAddFormItem(layout,coachField, Translator.translate("Coach"));
 		coachField.setSizeFull();
 		layout.add(new Div());
 		layout.setColspan(formItem, 2);
@@ -763,12 +768,12 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		custom1Field = new TextField();
 		bindField(binder.forField(custom1Field), custom1Field, Athlete::getCustom1, Athlete::setCustom1);
 		custom1Field.setSizeFull();
-		layout.addFormItem(custom1Field, Translator.translate("Custom1.Title"));
+		layoutAddFormItem(layout,custom1Field, Translator.translate("Custom1.Title"));
 
 		custom2Field = new TextField();
 		bindField(binder.forField(custom2Field), custom2Field, Athlete::getCustom2, Athlete::setCustom2);
 		custom2Field.setSizeFull();
-		layout.addFormItem(custom2Field, Translator.translate("Custom2.Title"));
+		layoutAddFormItem(layout,custom2Field, Translator.translate("Custom2.Title"));
 
 		return layout;
 	}
@@ -815,30 +820,29 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		federationCodesField.setHelperText(Translator.translate("Registration.FederationCodes"));
 		bindField(binder.forField(federationCodesField), federationCodesField, Athlete::getFederationCodes,
 		        Athlete::setFederationCodes);
-		FormItem formItem2 = layout.addFormItem(federationCodesField, Translator.translate("Registration.Federations"));
+		FormItem formItem2 = layoutAddFormItem(layout,federationCodesField, Translator.translate("Registration.Federations"));
 		layout.setColspan(formItem2, 2);
 		layout.add(new Div());
 
 		LocalizedIntegerField bestSnatchField = new LocalizedIntegerField();
 		bindField(binder.forField(bestSnatchField), bestSnatchField, Athlete::getPersonalBestSnatch,
 		        Athlete::setPersonalBestSnatch);
-		layout.addFormItem(bestSnatchField, Translator.translate("PersonalBestSnatch"));
+		layoutAddFormItem(layout,bestSnatchField, Translator.translate("PersonalBestSnatch"));
 
 		LocalizedIntegerField bestCleanJerkField = new LocalizedIntegerField();
 		bindField(binder.forField(bestCleanJerkField), bestCleanJerkField, Athlete::getPersonalBestCleanJerk,
 		        Athlete::setPersonalBestCleanJerk);
-		layout.addFormItem(bestCleanJerkField, Translator.translate("PersonalBestCleanJerk"));
+		layoutAddFormItem(layout,bestCleanJerkField, Translator.translate("PersonalBestCleanJerk"));
 
 		LocalizedIntegerField bestTotalField = new LocalizedIntegerField();
 		bindField(binder.forField(bestTotalField), bestTotalField, Athlete::getPersonalBestTotal,
 		        Athlete::setPersonalBestTotal);
-		layout.addFormItem(bestTotalField, Translator.translate("PersonalBestTotal"));
+		layoutAddFormItem(layout,bestTotalField, Translator.translate("PersonalBestTotal"));
 
 		return layout;
 	}
 
 	private FlexLayout createTabSheets(Component footer) {
-		binder = new Binder<>();
 		TabSheet ts = new TabSheet();
 
 		FormLayout idLayout = createIdForm();
@@ -891,7 +895,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		BindingBuilder<Athlete, Double> bb = binder.forField(bodyWeightField);
 		validateBodyWeight(bb, false);
 		bindField(bb, bodyWeightField, Athlete::getBodyWeight, Athlete::setBodyWeight);
-		layout.addFormItem(bodyWeightField, Translator.translate("BodyWeight"));
+		layoutAddFormItem(layout,bodyWeightField, Translator.translate("BodyWeight"));
 
 		snatch1DeclarationField = new LocalizedIntegerField();
 		BindingBuilder<Athlete, Integer> bb1 = binder.forField(snatch1DeclarationField);
@@ -905,7 +909,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		        (a, v) -> {
 			        a.setSnatch1Declaration(v.toString());
 		        });
-		layout.addFormItem(snatch1DeclarationField, Translator.translate("SnatchDecl_"));
+		layoutAddFormItem(layout,snatch1DeclarationField, Translator.translate("SnatchDecl_"));
 
 		cleanJerk1DeclarationField = new LocalizedIntegerField();
 		BindingBuilder<Athlete, Integer> bb2 = binder.forField(cleanJerk1DeclarationField);
@@ -919,7 +923,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		        (a, v) -> {
 			        a.setCleanJerk1Declaration(v.toString());
 		        });
-		layout.addFormItem(cleanJerk1DeclarationField, Translator.translate("C_and_J_decl"));
+		layoutAddFormItem(layout,cleanJerk1DeclarationField, Translator.translate("C_and_J_decl"));
 
 		qualifyingTotalField = new LocalizedIntegerField();
 		BindingBuilder<Athlete, Integer> bb3 = binder.forField(qualifyingTotalField);
@@ -929,9 +933,20 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		});
 		bb3.withValidator(v3);
 		bindField(bb3, qualifyingTotalField, Athlete::getQualifyingTotal, Athlete::setQualifyingTotal);
-		layout.addFormItem(qualifyingTotalField, Translator.translate("EntryTotal"));
+		layoutAddFormItem(layout, qualifyingTotalField, Translator.translate("EntryTotal"));
 
 		return layout;
+	}
+
+	private FormItem layoutAddFormItem(FormLayout layout, Component field,
+	        String translate) {
+		Div label = new Div();
+		label.setText(translate);
+		label.getStyle().set("text-align", "right");
+		FormItem fi = layout.addFormItem(field,label);
+		fi.getStyle().set("align-items", "center");
+		fi.getStyle().set("align-self", "center");
+		return fi;
 	}
 
 	private List<Category> doFindEligibleCategories(Gender gender, Integer ageFromFields, Double bw,
@@ -945,7 +960,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	@SuppressWarnings({ "unchecked" })
 	private void filterCategories(Category category, boolean initCategories) {
 		setChangeListenersEnabled(false);
-		
+
 		Group curGroup = groupField.getValue();
 		// force reading all groups
 		groupField.setValue(curGroup);
@@ -1014,7 +1029,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 		categoryField.addValueChangeListener((vc) -> {
 			Category value = vc.getValue();
-			logger.warn("category new value {}",value);
+			// logger.debug("category new value {}",value);
 			if (!isChangeListenersEnabled()) {
 				return;
 			}
@@ -1240,7 +1255,9 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		} else {
 			prevEligibles = eligibleField.getValue();
 		}
-		//logger.warn("updateCategoryFields {} {} - {} {} {}", categoryField.getValue(), bestMatch, prevEligibles, allEligible, LoggerUtils.whereFrom());
+		// logger.debug("updateCategoryFields {} {} - {} {} {}",
+		// categoryField.getValue(), bestMatch, prevEligibles, allEligible,
+		// LoggerUtils.whereFrom());
 
 		if (prevEligibles != null) {
 			// update the list of eligible categories. Must use the matching items in
@@ -1278,9 +1295,10 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 					break;
 				}
 			}
-			logger.warn("category {} {} matching eligible {}", categoryField, bestMatch, matchingEligible);
+			// logger.debug("category {} {} matching eligible {}", categoryField, bestMatch,
+			// matchingEligible);
 			categoryField.setValue(matchingEligible);
-			logger.warn("after categoryField.setValue");
+			// logger.debug("after categoryField.setValue");
 		} else {
 			logger.debug("category is null");
 		}
@@ -1293,18 +1311,20 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			return true;
 		}
 		try {
-			logger.warn("before {} validation", snatch1DeclarationField2);
+			// logger.debug("before {} validation", snatch1DeclarationField2);
 			getEditedAthlete().validateStartingTotalsRule(
 			        zeroIfNull(snatch1DeclarationField),
 			        zeroIfNull(cleanJerk1DeclarationField),
 			        zeroIfNull(qualifyingTotalField));
 			// clear errors on other fields.
-			logger.warn("clearing errors on {} {}", cleanJerk1DeclarationField2, qualifyingTotalField2);
+			// logger.debug("clearing errors on {} {}", cleanJerk1DeclarationField2,
+			// qualifyingTotalField2);
 			clearErrors(cleanJerk1DeclarationField2, qualifyingTotalField2);
-			logger.warn("checking again on {} {}", cleanJerk1DeclarationField2, qualifyingTotalField2);
+			// logger.debug("checking again on {} {}", cleanJerk1DeclarationField2,
+			// qualifyingTotalField2);
 			checkOther20kgFields(cleanJerk1DeclarationField2, qualifyingTotalField2);
 		} catch (Exception e1) {
-			logger.warn("{} validation failed", snatch1DeclarationField2);
+			// logger.debug("{} validation failed", snatch1DeclarationField2);
 			// signal exception on all fields that must be mutually-consistent
 			checkOther20kgFields(cleanJerk1DeclarationField2, qualifyingTotalField2);
 			throw e1;
