@@ -38,6 +38,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition;
 import com.vaadin.flow.component.html.Div;
@@ -156,11 +157,17 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 	private TextField teamField;
 
+	private LocalizedIntegerField lotNumberField;
+
+	private LocalizedIntegerField startNumberField;
+
+	private TextField custom2Field;
+
+	private TextField federationCodesField;
+
 	private TextField coachField;
 
 	private TextField custom1Field;
-
-	private TextField custom2Field;
 
 	public NAthleteRegistrationFormFactory(Class<Athlete> domainType, Group group) {
 		super(domainType);
@@ -759,7 +766,9 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		coachField = new TextField();
 		coachField.setSizeFull();
 		bindField(coachField, Athlete::getCoach, Athlete::setCoach);
-		layout.addFormItem(coachField, Translator.translate("Coach"));
+		FormItem formItem = layout.addFormItem(coachField, Translator.translate("Coach"));
+		layout.add(new Div());
+		layout.setColspan(formItem, 2);
 
 		custom1Field = new TextField();
 		custom1Field.setSizeFull();
@@ -770,7 +779,23 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		custom2Field.setSizeFull();
 		bindField(custom2Field, Athlete::getCustom2, Athlete::setCustom2);
 		layout.addFormItem(custom2Field, Translator.translate("Custom2.Title"));
-		
+				
+		return layout;
+	}
+	
+	private FormLayout createDrawForm() {
+		FormLayout layout = createLayout();
+		Component title = createTitle("Athlete.DrawTitle");
+		layout.add(title);
+		layout.setColspan(title, NB_COLUMNS);
+
+		lotNumberField = new LocalizedIntegerField();
+		bindField(lotNumberField, Athlete::getLotNumber, Athlete::setLotNumber);
+		layout.addFormItem(lotNumberField, Translator.translate("Lot"));
+
+		startNumberField = new LocalizedIntegerField();
+		bindField(startNumberField, Athlete::getStartNumber, Athlete::setStartNumber);
+		layout.addFormItem(startNumberField, Translator.translate("StartNumber"));
 		return layout;
 	}
 
@@ -781,11 +806,20 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		return layout;
 	}
 
-	private FormLayout createPersonalBestForm() {
+	private FormLayout createRecordForm() {
 		FormLayout layout = createLayout();
-		Component title = createTitle("Athlete.PersonalBestTitle");
+		Component title = createTitle("Athlete.RecordsTitle");
 		layout.add(title);
 		layout.setColspan(title, NB_COLUMNS);
+		
+	
+		federationCodesField = new TextField();
+		federationCodesField.setSizeFull();
+		federationCodesField.setHelperText(Translator.translate("Registration.FederationCodes"));
+		bindField(federationCodesField, Athlete::getFederationCodes, Athlete::setFederationCodes);
+		FormItem formItem2 = layout.addFormItem(federationCodesField, Translator.translate("Registration.Federations"));
+		layout.setColspan(formItem2, 2);
+		layout.add(new Div());
 
 		LocalizedIntegerField bestSnatchField = new LocalizedIntegerField();
 		bindField(bestSnatchField, Athlete::getPersonalBestSnatch, Athlete::setPersonalBestSnatch);
@@ -844,17 +878,21 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		        content);
 
 		FormLayout infoLayout = createInfoForm();
-		FormLayout personalBestLayout = createPersonalBestForm();
+		FormLayout personalBestLayout = createRecordForm();
+		FormLayout drawLayout = createDrawForm();
 		VerticalLayout content2 = new VerticalLayout(new Div(),
 				infoLayout,
 				separator(),
-				personalBestLayout
+				personalBestLayout,
+				separator(),
+				drawLayout
 				);
 		ts.add(Translator.translate("Athlete.InfoTab"),
 		        content2);
 		Div div = new Div(new Label("footer"));
 		FlexLayout mainLayout = new FlexLayout(
 		        ts, div);
+		
 		mainLayout.setFlexDirection(FlexDirection.COLUMN);
 		mainLayout.setFlexGrow(1.0D, ts);
 		mainLayout.setHeight("40rem");
