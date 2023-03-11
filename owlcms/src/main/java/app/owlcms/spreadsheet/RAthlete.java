@@ -53,21 +53,21 @@ public class RAthlete {
 		return a;
 	}
 
-	public String getCoach() {
-		return a.getCoach();
-	}
-
-	public String getCustom1() {
-		return a.getCustom1();
-	}
-
-	public String getCustom2() {
-		return a.getCustom2();
-	}
-
-	public String getFederationCodes() {
-		return a.getFederationCodes();
-	}
+//	public String getCoach() {
+//		return a.getCoach();
+//	}
+//
+//	public String getCustom1() {
+//		return a.getCustom1();
+//	}
+//
+//	public String getCustom2() {
+//		return a.getCustom2();
+//	}
+//
+//	public String getFederationCodes() {
+//		return a.getFederationCodes();
+//	}
 
 	/**
 	 * @param bodyWeight
@@ -202,19 +202,6 @@ public class RAthlete {
 			throw new Exception(Translator.translate("Upload.GroupNotDefined", groupName));
 		}
 	}
-
-//	/**
-//	 * @param category
-//	 * @throws Exception
-//	 * @see app.owlcms.data.athlete.Athlete#setCategory(app.owlcms.data.category.Category)
-//	 */
-//	public void setFullBirthDate(Date fullBirthDate) throws Exception {
-//		if (fullBirthDate == null) return;
-//		LocalDate fbd = fullBirthDate.toInstant()
-//			      .atZone(ZoneId.systemDefault())
-//			      .toLocalDate();
-//		a.setFullBirthDate(fbd);
-//	}
 
 	/**
 	 * @param lastName
@@ -402,4 +389,21 @@ public class RAthlete {
 		this.legacyPattern = legacyPattern;
 	}
 
+	public void setPersonalBestSnatch(String s) {
+		if (s != null && !s.isEmpty()) {
+			a.setPersonalBestSnatch(Integer.parseInt(s));
+		}
+	}
+	
+	public void setPersonalBestCleanJerk(String s) {
+		if (s != null && !s.isEmpty()) {
+			a.setPersonalBestCleanJerk(Integer.parseInt(s));
+		}
+	}
+	
+	public void setPersonalBestTotal(String s) {
+		if (s != null && !s.isEmpty()) {
+			a.setPersonalBestTotal(Integer.parseInt(s));
+		}
+	}
 }
