@@ -73,7 +73,7 @@ import app.owlcms.nui.crudui.OwlcmsComboBoxProvider;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
-import app.owlcms.nui.shared.AthleteRegistrationFormFactory;
+import app.owlcms.nui.shared.NAthleteRegistrationFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.utils.NaturalOrderComparator;
@@ -578,7 +578,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 	 * @return the form factory that will create the actual form on demand
 	 */
 	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
-		OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory = new AthleteRegistrationFormFactory(Athlete.class,
+		OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory = new NAthleteRegistrationFormFactory(Athlete.class,
 		        getCurrentGroup());
 		createFormLayout(athleteEditingFormFactory);
 		return athleteEditingFormFactory;

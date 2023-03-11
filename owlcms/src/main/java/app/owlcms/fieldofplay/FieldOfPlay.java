@@ -1037,7 +1037,7 @@ public class FieldOfPlay {
 
 		if (group != null) {
 			// debounce spurious requests due to misconfigured client that would trigger
-			// a loadGroup upon receiveing a UIEvent.
+			// a loadGroup upon receiving a UIEvent.
 			long now = System.currentTimeMillis();
 			if (!testingMode && now - this.lastGroupLoaded < 300) {
 				logger./**/warn("ignoring request to load group {}", group);
@@ -1217,7 +1217,7 @@ public class FieldOfPlay {
 
 	public void setNewRecords(List<RecordEvent> newRecords) {
 		if (newRecords == null || newRecords.isEmpty()) {
-			logger.debug("{} + clearing records {}", getLoggingName(), LoggerUtils.whereFrom());
+			logger.debug("{} + clearing athlete records {}", getLoggingName(), LoggerUtils.whereFrom());
 		}
 		this.newRecords = newRecords;
 	}
@@ -2006,9 +2006,11 @@ public class FieldOfPlay {
 	}
 
 	private void recomputeRecordsMap(List<Athlete> athletes) {
+		//logger.debug("recompute record map");
 		groupRecords.clear();
 		for (Athlete a : athletes) {
 			List<RecordEvent> eligibleRecords = RecordFilter.computeEligibleRecordsForAthlete(a);
+			//logger.debug("athlete {} {}",a, eligibleRecords);
 			recordsByAthlete.put(a, eligibleRecords);
 			groupRecords.addAll(eligibleRecords);
 		}

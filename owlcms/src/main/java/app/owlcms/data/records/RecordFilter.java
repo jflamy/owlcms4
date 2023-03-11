@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,11 @@ public class RecordFilter {
 	        Integer totalRequest,
 	        Athlete a) {
 
-		if (displayedRecords == null || displayedRecords.isEmpty()) {
+		Integer bestSnatch = a.getPersonalBestSnatch();
+		Integer bestCleanJerk = a.getPersonalBestCleanJerk();
+		Integer bestTotal = a.getPersonalBestTotal();
+		boolean personalRecords = bestSnatch != null || bestCleanJerk != null || bestTotal != null;
+		if (!personalRecords && (displayedRecords == null || displayedRecords.isEmpty())) {
 			return Json.createNull();
 		}
 
@@ -94,54 +98,56 @@ public class RecordFilter {
 		}
 
 		JsonArray columns = Json.createArray();
-		int categoryRecordsLength = recordTable[0].length;
-		for (int j = 0; j < categoryRecordsLength; j++) {
-			JsonObject column = Json.createObject();
-			JsonArray columnCells = Json.createArray();
-			for (int i = 0; i < recordTable.length; i++) {
-				JsonObject cell = Json.createObject();
-				cell.put(Ranking.SNATCH.name(), "\u00a0");
-				cell.put(Ranking.CLEANJERK.name(), "\u00a0");
-				cell.put(Ranking.TOTAL.name(), "\u00a0");
-				for (RecordEvent rec : recordTable[i][j]) {
-					if (recordCategories.length() <= j || recordCategories.get(j) == null) {
-						String string = Translator.translate("Record.CategoryTitle", rec.getAgeGrp(),
-						        rec.getBwCatString());
-						recordCategories.set(j, string);
-						column.put("cat", string);
-					}
-					Double recordValue = rec.getRecordValue();
-					cell.put(rec.getRecordLift().name(), recordValue != null ? recordValue : 999.0D);
-
-					if (challengedRecords.stream().anyMatch(cr -> cr.sameAs(rec))) {
-						// logger.debug("rec found {}", rec);
-						if (rec.getRecordLift() == Ranking.SNATCH && snatchRequest != null && recordValue != null
-						        && snatchRequest > recordValue) {
-							cell.put("snatchHighlight", "highlight");
-						} else if (rec.getRecordLift() == Ranking.CLEANJERK && cjRequest != null && recordValue != null
-						        && cjRequest > +recordValue) {
-							cell.put("cjHighlight", "highlight");
-						} else if (rec.getRecordLift() == Ranking.TOTAL && totalRequest != null && recordValue != null
-						        && totalRequest > +recordValue) {
-							cell.put("totalHighlight", "highlight");
+		int categoryRecordsLength = 0;
+		if (recordTable.length > 0) {
+			categoryRecordsLength = recordTable[0].length;
+			for (int j = 0; j < categoryRecordsLength; j++) {
+				JsonObject column = Json.createObject();
+				JsonArray columnCells = Json.createArray();
+				for (int i = 0; i < recordTable.length; i++) {
+					JsonObject cell = Json.createObject();
+					cell.put(Ranking.SNATCH.name(), "\u00a0");
+					cell.put(Ranking.CLEANJERK.name(), "\u00a0");
+					cell.put(Ranking.TOTAL.name(), "\u00a0");
+					for (RecordEvent rec : recordTable[i][j]) {
+						if (recordCategories.length() <= j || recordCategories.get(j) == null) {
+							String string = Translator.translate("Record.CategoryTitle", rec.getAgeGrp(),
+							        rec.getBwCatString());
+							recordCategories.set(j, string);
+							column.put("cat", string);
 						}
-					} else {
-						// logger.debug("rec {} not found in {}", rec, challengedRecords);
+						Double recordValue = rec.getRecordValue();
+						cell.put(rec.getRecordLift().name(), recordValue != null ? recordValue : 999.0D);
+
+						if (challengedRecords.stream().anyMatch(cr -> cr.sameAs(rec))) {
+							// logger.debug("rec found {}", rec);
+							if (rec.getRecordLift() == Ranking.SNATCH && snatchRequest != null && recordValue != null
+							        && snatchRequest > recordValue) {
+								cell.put("snatchHighlight", "highlight");
+							} else if (rec.getRecordLift() == Ranking.CLEANJERK && cjRequest != null
+							        && recordValue != null
+							        && cjRequest > +recordValue) {
+								cell.put("cjHighlight", "highlight");
+							} else if (rec.getRecordLift() == Ranking.TOTAL && totalRequest != null
+							        && recordValue != null
+							        && totalRequest > +recordValue) {
+								cell.put("totalHighlight", "highlight");
+							}
+						} else {
+							// logger.debug("rec {} not found in {}", rec, challengedRecords);
+						}
 					}
+					columnCells.set(i, cell);
 				}
-				columnCells.set(i, cell);
+				column.put("records", columnCells);
+				column.put("recordClass", "recordBox");
+				columns.set(j, column);
 			}
-			column.put("records", columnCells);
-			column.put("recordClass", "recordBox");
-			columns.set(j, column);
 		}
 
 		int personalRecordsLength = 0;
-		Integer bestSnatch = a.getPersonalBestSnatch();
-		Integer bestCleanJerk = a.getPersonalBestCleanJerk();
-		Integer bestTotal = a.getPersonalBestTotal();
-		
-		if (bestSnatch != null || bestCleanJerk != null || bestTotal != null) {
+
+		if (personalRecords) {
 			personalRecordsLength = 1;
 			JsonObject column = Json.createObject();
 			JsonArray columnCells = Json.createArray();
@@ -151,7 +157,7 @@ public class RecordFilter {
 
 			cell.put(Ranking.SNATCH.name(), bestSnatch != null ? bestSnatch.toString() : "\u00a0");
 
-			cell.put(Ranking.CLEANJERK.name(),  bestCleanJerk != null ? bestCleanJerk.toString() : "\u00a0");
+			cell.put(Ranking.CLEANJERK.name(), bestCleanJerk != null ? bestCleanJerk.toString() : "\u00a0");
 			cell.put(Ranking.TOTAL.name(), bestTotal != null ? bestTotal.toString() : "\u00a0");
 			columnCells.set(0, cell);
 			column.put("records", columnCells);
@@ -162,7 +168,7 @@ public class RecordFilter {
 		recordInfo.put("recordNames", recordFederations);
 		recordInfo.put("recordCategories", recordCategories);
 		recordInfo.put("recordTable", columns);
-		recordInfo.put("nbRecords", Json.create(categoryRecordsLength + 1 + personalRecordsLength  ));
+		recordInfo.put("nbRecords", Json.create(categoryRecordsLength + 1 + personalRecordsLength));
 
 		return recordInfo;
 	}
@@ -196,24 +202,31 @@ public class RecordFilter {
 
 		List<RecordEvent> records = RecordRepository.findFiltered(curAthlete.getGender(), curAthlete.getAge(),
 		        curAthlete.getBodyWeight(), null, null);
-		// logger.debug("records size {} {} {} {}" ,curAthlete.getGender(),
-		// curAthlete.getAge(),curAthlete.getBodyWeight(), records.size());
+		//logger.debug("records size {} {} {} {}", curAthlete.getGender(), curAthlete.getAge(), curAthlete.getBodyWeight(),records);
 
 		// remove duplicates for each kind of record, keep largest
-		Map<String, RecordEvent> cleanMap = records.stream().collect(
-		        Collectors.toMap(
-		                RecordEvent::getKey,
-		                Function.identity(),
-		                (r1, r2) -> r1.getRecordValue() > r2.getRecordValue() ? r1 : r2));
+		Map<String, RecordEvent> cleanMap = new HashMap<>();
+		for (RecordEvent r : records) {
+			RecordEvent curMax = cleanMap.get(r.getKey());
+			if (curMax == null || r.getRecordValue() > curMax.getRecordValue()) {
+				//logger.debug("updating {} {}", r.getKey(), r.getRecordValue());
+				cleanMap.put(r.getKey(), r);
+			} else {
+				//logger.debug("DISCARDING {} {}", r.getKey(), r.getRecordValue());
+			}
+		}
 
 		Collection<RecordEvent> candidateRecords = cleanMap.values();
-		Set<String> athleteFederations = curAthlete.getFederationCodes() != null
-		        ? new HashSet<>(Arrays.asList(curAthlete.getFederationCodes().split("[,;]")))
-		        : Set.of();
-//        logger.debug(" *** athlete {} agegroups {} active {} federations {}", curAthlete.getShortName(), athleteAgeGroupCodes, activeAgeGroupCodes, athleteFederations);
+		//logger.debug("candidate records {}", candidateRecords);
+		String federationCodes = curAthlete.getFederationCodes();
+		Set<String> athleteFederations = (federationCodes == null || federationCodes.isBlank())
+		        ? Set.of()
+		        : new HashSet<>(Arrays.asList(federationCodes.split("[,;]")));
+		//logger.debug(" *** athlete {} agegroups {} federations {}", curAthlete.getShortName(), curAthlete.getEligibleCategories(), athleteFederations);
 		records = candidateRecords.stream()
 		        .filter(c -> athleteFederations.isEmpty() ? true : athleteFederations.contains(c.getRecordFederation()))
 		        .collect(Collectors.toList());
+		//logger.debug("retained records {}", records);
 		return records;
 	}
 

@@ -739,6 +739,7 @@ public class Athlete {
 		LocalDate date = null;
 		if (Config.getCurrent().isUseCompetitionDate()) {
 			date = Competition.getCurrent().getCompetitionDate();
+			//logger.debug("competition date {}", date);
 		}
 		if (date == null) {
 			date = LocalDate.now();
