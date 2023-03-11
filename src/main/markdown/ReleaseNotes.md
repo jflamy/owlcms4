@@ -1,8 +1,9 @@
-38.1.0-alpha00  Additional attempt board information
+38.1.0-alpha Additional attempt board information
 
 - 38.1 Enhancements
   - The editing page for athlete registration and weigh-in has been redone to be more readable and better organized.
   - It is now possible to add personal bests for athletes, which are displayed along with records. Personal bests are for information and not highlighted like official records.
+  - 38.1.0-alpha05: personal bests are read from and exported on the registration spreadsheets
   - The attempt board now shows the athlete category and the lift type.  If you only want to see the attempt number, leave the `AttemptBoard_lift_attempt_number` translation empty.
   - The announcer "refresh list" button has been renamed to "Reload Group". It reloads the group completely (same as exiting and re-entering the group). This also sends a refresh signal to all displays. This is useful if for some reason it is necessary to edit athlete registration information.
   - The gender letters used for displaying *age groups* and *categories* are no longer fixed to `M` and `F` and can now be translated (for example, Germany could choose to use U17 D instead of U17 F)
