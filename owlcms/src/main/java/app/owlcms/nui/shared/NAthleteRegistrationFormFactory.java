@@ -145,8 +145,6 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 	private TextField lastNameField;
 
-	private Object lastNameValue;
-
 	private LocalizedIntegerField lotNumberField;
 
 	private TextField membershipField;
@@ -236,6 +234,8 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		} else if (operation == CrudOperation.ADD) {
 			operationButton = buildOperationButton(CrudOperation.ADD, athlete, postOperationCallBack);
 		}
+		operationButton.addClickShortcut(Key.ENTER);
+		
 		Button deleteButton = buildDeleteButton(CrudOperation.DELETE, athlete, deleteButtonClickListener);
 		Checkbox validateEntries = buildIgnoreErrorsCheckbox();
 		Button cancelButton = buildCancelButton(cancelButtonClickListener);
@@ -1212,17 +1212,15 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	}
 
 	private void setFocus(Component form) {
-		lastNameField = null;
-		lastNameValue = null;
-		try {
-			lastNameValue = lastNameField.getValue();
-		} catch (Exception e1) {
-		}
 		form.addAttachListener((e) -> {
-			if (lastNameField != null && lastNameValue == null) {
+			String lastNameValue;
+			Double bwValue;
+			if ((lastNameValue = lastNameField.getValue()) == null || lastNameValue.isBlank()) {
 				lastNameField.focus();
-			} else {
+			} else if ((bwValue = bodyWeightField.getValue()) == null || bwValue < 0.01D) {
 				bodyWeightField.focus();
+			} else {
+				groupField.focus();
 			}
 		});
 	}

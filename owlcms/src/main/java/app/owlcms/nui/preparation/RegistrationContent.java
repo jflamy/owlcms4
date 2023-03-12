@@ -64,6 +64,7 @@ import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
@@ -73,6 +74,7 @@ import app.owlcms.nui.crudui.OwlcmsComboBoxProvider;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
+import app.owlcms.nui.shared.AthleteRegistrationFormFactory;
 import app.owlcms.nui.shared.NAthleteRegistrationFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
@@ -396,6 +398,9 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 	 *                        information
 	 */
 	private void createFormLayout(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
+		if (!Config.getCurrent().featureSwitch("oldAthleteForm")) {
+			return;
+		}
 		List<String> props = new LinkedList<>();
 		List<String> captions = new LinkedList<>();
 
@@ -578,8 +583,14 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 	 * @return the form factory that will create the actual form on demand
 	 */
 	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
-		OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory = new NAthleteRegistrationFormFactory(Athlete.class,
-		        getCurrentGroup());
+		OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory;
+		if (Config.getCurrent().featureSwitch("oldAthleteForm")) {
+			athleteEditingFormFactory = new AthleteRegistrationFormFactory(Athlete.class,
+			        currentGroup);
+		} else {
+			athleteEditingFormFactory = new NAthleteRegistrationFormFactory(Athlete.class,
+			        currentGroup);
+		}
 		createFormLayout(athleteEditingFormFactory);
 		return athleteEditingFormFactory;
 	}
