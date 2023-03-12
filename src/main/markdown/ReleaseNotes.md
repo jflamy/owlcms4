@@ -1,7 +1,7 @@
 38.1.0-alpha Additional attempt board information
 
 - 38.1 Enhancements
-  - The editing page for athlete registration and weigh-in has been redone to be more readable and better organized.
+  - The editing page for athlete registration and weigh-in has been redone to be more readable and better organized.  The old editing forms are available (temporarily) by enabling the `oldAthleteForm` feature switch.
   - It is now possible to add personal bests for athletes, which are displayed along with records. Personal bests are for information and not highlighted like official records.
   - 38.1.0-alpha05: personal bests are read from and exported on the registration spreadsheets
   - The attempt board now shows the athlete category and the lift type.  If you only want to see the attempt number, leave the `AttemptBoard_lift_attempt_number` translation empty.
