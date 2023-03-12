@@ -157,6 +157,7 @@ public class CategoryGridField extends CustomField<List<Category>> {
 				catEditor.editItem(cat);
 				// logger.trace("editing {} {}",cat != null ? cat.shortDump() : null,
 				// presentationCategories.contains(cat));
+				qualTotField.setAutoselect(true);
 				qualTotField.focus();
 			});
 			Button delete = new Button(Translator.translate("Delete"));
