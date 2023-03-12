@@ -238,9 +238,32 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		String translatedCode = getTranslatedCode(code2);
 		if (ageDivision == AgeDivision.MASTERS) {
 			value = translatedCode;
-		} else if (ageDivision == AgeDivision.DEFAULT) {
+		}
+		else if (ageDivision == AgeDivision.DEFAULT) {
 			value = getTranslatedGender();
-		} else {
+		}
+		else {
+			value = translatedCode + " " + getTranslatedGender();
+		}
+		return value;
+	}
+	
+	@JsonIgnore
+	public String getDisplayName() {
+		String code2 = this.getCode();
+		if (code2 == null) {
+			return "";
+		}
+
+		String value = null;
+		String translatedCode = getTranslatedCode(code2);
+		if (ageDivision == AgeDivision.MASTERS) {
+			value = translatedCode;
+		}
+//		else if (ageDivision == AgeDivision.DEFAULT) {
+//			value = getTranslatedGender();
+//		}
+		else {
 			value = translatedCode + " " + getTranslatedGender();
 		}
 		return value;
@@ -322,11 +345,11 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 	@Override
 	public String toString() {
-		return getName();
+		return getDisplayName();
 	}
 
 	private String getTranslatedCode(String code2) {
-		String translatedCode = Translator.translateOrElseEn(
+		String translatedCode = Translator.translateOrElseNull(
 		        "AgeGroup." + code2,
 		        OwlcmsSession.getLocale());
 		return translatedCode != null ? translatedCode : code2;
