@@ -170,8 +170,8 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 			Athlete a = fop.getCurAthlete();
 			if (a != null) {;
 				this.getElement().setProperty("category", a.getCategory().getTranslatedName());
-				String formattedAttempt = formatAttempt(a.getAttemptNumber());
-				this.getElement().setProperty("attempt", formattedAttempt);
+				String formattedAttempt = formatAttempt(a);
+				this.getElement().setProperty("attempt - ", formattedAttempt);
 				Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
 				setDisplayedWeight(nextAttemptRequestedWeight > 0 ? nextAttemptRequestedWeight.toString() : "");
 				showPlates();
@@ -664,7 +664,9 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		return;
 	}
 
-	private String formatAttempt(Integer attemptNo) {
+	private String formatAttempt(Athlete a) {
+		int attemptNo = a.getAttemptsDone() + 1;
+	    logger.warn("attemptNo {}",attemptNo);
 		String translation = Translator.translateOrElseNull("AttemptBoard_lift_attempt_number", getLocale());
 		if (translation != null) {
 			if (attemptNo <= 3) {
@@ -873,7 +875,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		spotlightRecords(fop);
 
 		this.getElement().setProperty("startNumber", a.getStartNumber());
-		String formattedAttempt = formatAttempt(a.getAttemptNumber());
+		String formattedAttempt = formatAttempt(a);
 		this.getElement().setProperty("attempt", formattedAttempt);
 		Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
 		setDisplayedWeight(nextAttemptRequestedWeight > 0 ? nextAttemptRequestedWeight.toString() : "");
@@ -898,7 +900,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		Athlete a = fop.getCurAthlete();
 		if (a != null) {
 			this.getElement().setProperty("category", a.getCategory().getTranslatedName());
-			String formattedAttempt = formatAttempt(a.getAttemptNumber());
+			String formattedAttempt = formatAttempt(a);
 			this.getElement().setProperty("attempt", formattedAttempt);
 			Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
 			setDisplayedWeight(nextAttemptRequestedWeight > 0 ? nextAttemptRequestedWeight.toString() : "");
