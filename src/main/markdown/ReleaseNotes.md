@@ -8,8 +8,10 @@
   - The gender letters used for displaying *age groups* and *categories* are no longer fixed to `M` and `F` and can now be translated (for example, Germany could choose to use U17 D instead of U17 F)
   - Switched the demo site back to Heroku (https://owlcms.herokuapp.com).
 - 38.1 Fixes
+  - 38.1.0-beta02: Attempt board now correctly switches from snatch to clean&jerk.
   - 38.1.0-alpha04: Fixed edge cases when all records were excluded for an invited athlete
   - The total of the last snatch athlete was being shown during the clean & jerk break on the "current athlete" video streaming footer.
+  
 
 ##### Highlights from recent stable releases
 
