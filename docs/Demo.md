@@ -14,7 +14,7 @@ This second video shows how a full competition with the normal technical officia
 
 ## Live Demo
 
-- A [Live Version](https://owlcms-demo.lerta.ca) of the current build is available.  After looking at the videos above, you should be able to use the demo to explore the application.  
+- A [Live Version](https://owlcms.herokuapp.com) of the current build is available.  After looking at the videos above, you should be able to use the demo to explore the application.  
 
 - There is a single demo database, which will is reset periodically without warning.
 
