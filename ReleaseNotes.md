@@ -8,8 +8,10 @@
   - The gender letters used for displaying *age groups* and *categories* are no longer fixed to `M` and `F` and can now be translated (for example, Germany could choose to use U17 D instead of U17 F)
   - Switched the demo site back to Heroku (https://owlcms.herokuapp.com).
 - 38.1 Fixes
+  - 38.1.0-beta02: Attempt board now correctly switches from snatch to clean&jerk.
   - 38.1.0-alpha04: Fixed edge cases when all records were excluded for an invited athlete
   - The total of the last snatch athlete was being shown during the clean & jerk break on the "current athlete" video streaming footer.
+  
 
 ##### Highlights from recent stable releases
 
@@ -25,11 +27,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_38.1.0-beta01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_38.1.0-beta02.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_38.1.0-beta01.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_38.1.0-beta02.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the [Heroku](https://owlcms.github.io/owlcms4-prerelease/#Heroku) or (recommended) **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
