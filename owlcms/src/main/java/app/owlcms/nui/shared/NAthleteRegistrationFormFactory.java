@@ -1017,7 +1017,8 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		wrappedBWTextField = bodyWeightField.getWrappedTextField();
 		wrappedBWTextField.setValueChangeMode(ValueChangeMode.ON_BLUR);
 		wrappedBWTextField.setAutoselect(true);
-		bodyWeightField.addValueChangeListener((vc) -> {
+		wrappedBWTextField.addValueChangeListener((vc) -> {
+			//logger.debug("wrappedBWTextField listenersEnabled={} invalid={}", isChangeListenersEnabled(), bodyWeightField.isInvalid());
 			if (!isChangeListenersEnabled() || bodyWeightField.isInvalid()) {
 				return;
 			}
