@@ -905,7 +905,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		bindField(bb1, snatch1DeclarationField,
 		        a -> Integer.valueOf(zeroIfEmpty(a.getSnatch1Declaration())),
 		        (a, v) -> {
-			        a.setSnatch1Declaration(v.toString());
+			        a.setSnatch1Declaration(v != null ? v.toString() : "");
 		        });
 		layoutAddFormItem(layout,snatch1DeclarationField, Translator.translate("SnatchDecl_"));
 
@@ -916,10 +916,11 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			return validateStartingTotals(cleanJerk1DeclarationField, snatch1DeclarationField, qualifyingTotalField);
 		});
 		bb2.withValidator(v2);
+
 		bindField(bb2, cleanJerk1DeclarationField,
 		        a -> Integer.valueOf(zeroIfEmpty(a.getCleanJerk1Declaration())),
 		        (a, v) -> {
-			        a.setCleanJerk1Declaration(v.toString());
+			        a.setCleanJerk1Declaration(v != null ? v.toString() : "");
 		        });
 		layoutAddFormItem(layout,cleanJerk1DeclarationField, Translator.translate("C_and_J_decl"));
 
