@@ -68,19 +68,18 @@ This is not required, but since there is no extra cost associated, you might as 
 1. Install public results.  This is the same as process as for owlcms, except we don't want the databases
 
    - Choose a meaningful application name.  In our example we use `myclub-results` with the name you want for your remote scoreboard application
-
-
-   - **Answer `n` (NO)** when asked if you want a Postgres database.  publicresults does not need a database.
+   - Answer **`n` (NO)** when asked if you want a Postgres database.  publicresults does not need a database.
+   
 
    ```
    fly launch -i owlcms/publicresults:stable
    ```
 
-2. The two applications (owlcms and publicresults) need to trust one another. So we create a secret and set tell both applications about it. See [this page](PublicResults) for an overview of how owlcms and publicresults work together.
+2. The two applications (owlcms and publicresults) need to trust one another. So we create a secret and give it to both applications. See [this page](PublicResults) for an overview of how owlcms and publicresults work together.
 
-   > OWLCMS_UPDATEKEY is the name of the secret, and `MaryHadALittleLamb` is the secret.  Please use your own secret! 
+   > `MaryHadALittleLamb` is the secret in this example.  Please use your own secret! 
    >
-   > Replace `myclub` and `myclub-results` with your own names
+   > Also replace `myclub` and `myclub-results` with your own names
    >
 
     ```
