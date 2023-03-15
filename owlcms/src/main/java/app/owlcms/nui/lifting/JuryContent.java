@@ -516,7 +516,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	}
 
 	private void resetJuryVoting() {
-		logger.warn("resetJuryVoting {} {}", UI.getCurrent(), LoggerUtils.whereFrom());
+		//logger.debug("resetJuryVoting {} {}", UI.getCurrent(), LoggerUtils.whereFrom());
 		for (ShortcutRegistration sr : registrations) {
 			sr.remove();
 		}

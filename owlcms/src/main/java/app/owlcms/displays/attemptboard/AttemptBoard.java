@@ -666,7 +666,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 
 	private String formatAttempt(Athlete a) {
 		int attemptNo = a.getAttemptsDone() + 1;
-	    logger.warn("attemptNo {}",attemptNo);
+	    //logger.debug("attemptNo {}",attemptNo);
 		String translation = Translator.translateOrElseNull("AttemptBoard_lift_attempt_number", getLocale());
 		if (translation != null) {
 			if (attemptNo <= 3) {
