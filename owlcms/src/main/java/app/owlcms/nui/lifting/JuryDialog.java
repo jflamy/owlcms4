@@ -9,14 +9,13 @@ package app.owlcms.nui.lifting;
 import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
-import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
-import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
@@ -37,7 +36,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-public class JuryDialog extends EnhancedDialog {
+public class JuryDialog extends Dialog {
 	private static final int CONTROLLER_REFNUM = 4;
 	private JuryDeliberationEventType deliberation;
 	private String endBreakText;
@@ -53,19 +52,15 @@ public class JuryDialog extends EnhancedDialog {
 		logger.setLevel(Level.INFO);
 	}
 
-	/**
-	 * Used by the announcer -- tries to guess what type of break is pertinent based
-	 * on field of play.
-	 *
-	 * @param origin             the origin
-	 * @param athleteUnderReview
-	 * @param deliberation
-	 */
+
 	public JuryDialog(Object origin, Athlete athleteUnderReview, JuryDeliberationEventType deliberation,
 	        boolean summonEnabled) {
 		this.origin = origin;
 		this.deliberation = deliberation;
 		this.setCloseOnEsc(false);
+		this.setCloseOnOutsideClick(false);
+		this.setModal(false);
+		this.setDraggable(true);
 		logger.info(
 		        deliberation == JuryDeliberationEventType.START_DELIBERATION ? "{}{} reviewedAthlete {}" : "{}{}",
 		        OwlcmsSession.getFop().getLoggingName(), deliberation, athleteUnderReview);
@@ -208,6 +203,7 @@ public class JuryDialog extends EnhancedDialog {
 			// not already in a jury break, force one.
 			fop.fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
 		}
+		this.setDraggable(true);
 
 		Button goodLift = new Button(IronIcons.DONE.create(),
 		        (e) -> doGoodLift(athleteUnderReview, OwlcmsSession.getFop()));
@@ -258,19 +254,27 @@ public class JuryDialog extends EnhancedDialog {
 					layoutGreen.setEnabled(false);
 					layoutRed.setEnabled(false);
 				}
-				H3 status1 = new H3(status);
-				H3 weight = new H3(liftValue != null ? Translator.translate("Kg", Math.abs(liftValue)) : "");
-				H3 athlete = new H3(getReviewedAthlete().getFullId());
-				HorizontalLayout header = new HorizontalLayout(
-				        athlete,
-				        weight,
-				        status1);
-				header.setFlexGrow(1, athlete);
-				header.setWidthFull();
-				header.setPadding(true);
-				this.setHeader(header);
+				String weightText = liftValue != null ? Translator.translate("Kg", Math.abs(liftValue)) : "";
+				String athleteText = getReviewedAthlete().getFullId();
+				this.setHeaderTitle(athleteText+" \u2003 "+weightText+" \u2013 "+status);
+				
+//				H3 status1 = new H3(status);
+//				H3 weight = new H3(weightText);
+//				H3 athlete = new H3(athleteText);
+//				status1.getStyle().set("margin-top", "0");
+//				athlete.getStyle().set("margin-top", "0");
+//				status1.getStyle().set("margin-top", "0");
+//				HorizontalLayout header = new HorizontalLayout(
+//				        athlete,
+//				        weight,
+//				        status1);
+//				header.setFlexGrow(1, athlete);
+//				header.setWidth("90%");
+//				header.setPadding(true);
+//				header.setMargin(false);
+//				this.getHeader().add(header);
 			} else {
-				this.setHeader(Translator.translate("JuryDialog.NoCurrentAthlete"));
+				this.setHeaderTitle(Translator.translate("JuryDialog.NoCurrentAthlete"));
 				redLabel.setText(Translator.translate("JuryDialog.NotLiftedYet"));
 				greenLabel.setText(Translator.translate("JuryDialog.NotLiftedYet"));
 				layoutGreen.setEnabled(false);
@@ -290,7 +294,7 @@ public class JuryDialog extends EnhancedDialog {
 		FlexLayout footer = new FlexLayout(endBreak);
 		endBreak.getElement().setAttribute("theme", "primary");
 		footer.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-		this.addToFooter(footer);
+		this.getFooter().add(footer);
 
 		this.addDialogCloseActionListener((e) -> {
 			if (shortcutTooSoon()) {
@@ -313,7 +317,7 @@ public class JuryDialog extends EnhancedDialog {
 		// jury calls referees
 		endBreakText = Translator.translate("JuryDialog.ResumeCompetition");
 		this.addAttachListener((e) -> {
-			this.setHeader(Translator.translate("JuryDialog.CALL_REFEREES"));
+			this.setHeaderTitle(Translator.translate("JuryDialog.CALL_REFEREES"));
 		});
 	}
 
@@ -327,7 +331,7 @@ public class JuryDialog extends EnhancedDialog {
 		endBreakText = Translator.translate("JuryDialog.ResumeCompetition");
 
 		this.addAttachListener((e) -> {
-			this.setHeader(Translator.translate("JuryDialog.TECHNICAL_PAUSE"));
+			this.setHeaderTitle(Translator.translate("JuryDialog.TECHNICAL_PAUSE"));
 		});
 	}
 

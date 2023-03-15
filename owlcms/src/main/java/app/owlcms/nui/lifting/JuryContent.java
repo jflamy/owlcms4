@@ -490,6 +490,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		if (now - lastOpen > 100 && (juryDialog == null || !juryDialog.isOpened())) {
 			OwlcmsSession.withFop(fop -> {
 				if (fop.getState() != FOPState.BREAK && deliberation != JuryDeliberationEventType.TECHNICAL_PAUSE) {
+					resetJuryVoting();
 					fop.fopEventPost(
 					        new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
 				}
@@ -508,6 +509,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		}
 		juryIcons = new Icon[getNbJurors()];
 		juryVotes = new Boolean[getNbJurors()];
+		juryVotingButtons.removeAll();
 		for (int i = 0; i < getNbJurors(); i++) {
 			final int ix = i;
 			Icon nonVotedIcon = bigIcon(VaadinIcon.CIRCLE_THIN, "gray");
