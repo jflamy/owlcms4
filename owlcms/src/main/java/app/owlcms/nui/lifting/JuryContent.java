@@ -55,6 +55,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -205,6 +206,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> syncWithFOP(true));
 	}
 
+	/**
+	 * @see app.owlcms.nui.shared.AthleteGridContent#slaveStartLifting(app.owlcms.uievents.UIEvent.StartLifting)
+	 */
 	@Override
 	@Subscribe
 	public void slaveStartLifting(UIEvent.StartLifting e) {
@@ -215,6 +219,17 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 				doSync();
 			}
 		});
+	}
+
+	@Override
+	@Subscribe
+	public void slaveBreakStart(UIEvent.BreakStarted e) {
+		super.slaveBreakStart(e);
+		if (e.getBreakType() == BreakType.JURY) {
+			UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+				resetJuryVoting();
+			});
+		}
 	}
 
 	@Subscribe
@@ -490,7 +505,6 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		if (now - lastOpen > 100 && (juryDialog == null || !juryDialog.isOpened())) {
 			OwlcmsSession.withFop(fop -> {
 				if (fop.getState() != FOPState.BREAK && deliberation != JuryDeliberationEventType.TECHNICAL_PAUSE) {
-					resetJuryVoting();
 					fop.fopEventPost(
 					        new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
 				}
@@ -502,8 +516,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	}
 
 	private void resetJuryVoting() {
-		// logger.debug("resetJuryVoting {} {}", UI.getCurrent(),
-		// LoggerUtils.whereFrom());
+		logger.warn("resetJuryVoting {} {}", UI.getCurrent(), LoggerUtils.whereFrom());
 		for (ShortcutRegistration sr : registrations) {
 			sr.remove();
 		}
