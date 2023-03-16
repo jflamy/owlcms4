@@ -8,7 +8,7 @@ Yet it is simple enough to setup that you can use it to run a club or regional c
 
 ### Features, Documentation and Installation
 - See the application **[Web Site](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#)** for a full overview and extensive documentation.
-- Refer to the [Installation Overview](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/InstallationOverview) and to the following [page](Releases.md) for the various setups and releases.
+- Refer to the [Installation Overview](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/InstallationOverview) and to the [Downloads](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Downloads) page for the various setups and releases.
 
 ### Help, Issues, Feature Requests
 
