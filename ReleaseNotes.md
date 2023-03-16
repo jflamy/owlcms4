@@ -1,6 +1,7 @@
-38.1.0-beta Additional attempt board information, revised Athlete Editing form, Personal bests
+38.1.0-beta Additional attempt board information, Revised Athlete Editing form, Personal bests
 
 - 38.1 Enhancements
+  - 38.1.0-beta04:  The jury members can now vote again during a deliberation break. The decision lights are reset when deliberation starts so the post-video vote is a secret vote.  A new MQTT message (`fop/juryDeliberation`) has been added so devices know when to reset the jury lights.
   - The editing page for athlete registration and weigh-in has been redone to be more readable and better organized.  The old editing forms are available (temporarily) by enabling the `oldAthleteForm` [Feature Toggle](https://owlcms.github.io/owlcms4-prerelease/#/FeatureToggles).
   - It is now possible to add personal bests for athletes, which are displayed along with records. Personal bests are for information and not highlighted like official records.  Personal bests are read from and exported on the registration spreadsheets.
   - The attempt board now shows the athlete category and the lift type.  If you only want to see the attempt number, leave the `AttemptBoard_lift_attempt_number` translation empty.
@@ -28,11 +29,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_38.1.0-beta03.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_38.1.0-beta04.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_38.1.0-beta03.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_38.1.0-beta04.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the [Heroku](https://owlcms.github.io/owlcms4-prerelease/#Heroku) or (recommended) **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
