@@ -25,6 +25,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
+import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -33,6 +34,8 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 public class JXLSTimingStats extends JXLSWorkbookStreamSource {
+
+	private static final String TIMING_STATS = "/templates/timing/TimingStats";
 
 	public class SessionStats {
 
@@ -183,15 +186,23 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 
 	public JXLSTimingStats(Group group, boolean excludeNotWeighed, UI ui) {
 		super();
+		try {
+			getLocalizedTemplate(TIMING_STATS, ".xls", OwlcmsSession.getLocale());
+		} catch (IOException e) {
+		}
 	}
 
 	public JXLSTimingStats(UI ui) {
 		super();
+		try {
+			getLocalizedTemplate(TIMING_STATS, ".xls", OwlcmsSession.getLocale());
+		} catch (IOException e) {
+		}
 	}
 
 	@Override
 	public InputStream getTemplate(Locale locale) throws IOException {
-		return getLocalizedTemplate("/templates/timing/TimingStats", ".xls", locale);
+		return getLocalizedTemplate(TIMING_STATS, ".xls", locale);
 	}
 
 	private void addSessionStatsIfNotEmpty(List<SessionStats> sessions, SessionStats curStat) {

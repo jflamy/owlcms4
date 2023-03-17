@@ -23,6 +23,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordRepository;
+import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -32,19 +33,25 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 
+	private static final String TEMPLATES_RECORDS_EXPORT_RECORDS = "/templates/records/exportRecords";
 	Logger logger = (Logger) LoggerFactory.getLogger(JXLSExportRecords.class);
 
 	public JXLSExportRecords(Group group, boolean excludeNotWeighed, UI ui) {
 		super();
+		logger.warn("huh$$$");
 	}
 
 	public JXLSExportRecords(UI ui) {
 		super();
+		try {
+			getLocalizedTemplate(TEMPLATES_RECORDS_EXPORT_RECORDS, ".xls", OwlcmsSession.getLocale());
+		} catch (IOException e) {
+		}
 	}
 
 	@Override
 	public InputStream getTemplate(Locale locale) throws IOException {
-		return getLocalizedTemplate("/templates/records/exportRecords", ".xls", locale);
+		return getLocalizedTemplate(TEMPLATES_RECORDS_EXPORT_RECORDS, ".xls", locale);
 	}
 
 	public Comparator<RecordEvent> sortRecords() {

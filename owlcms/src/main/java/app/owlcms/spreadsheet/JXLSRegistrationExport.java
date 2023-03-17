@@ -22,6 +22,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -32,6 +33,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class JXLSRegistrationExport extends JXLSWorkbookStreamSource {
 
+	private static final String TEMPLATES_REGISTRATION_REGISTRATION_EXPORT = "/templates/registration/RegistrationExport";
 	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSRegistrationExport.class);
 	final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
@@ -43,6 +45,10 @@ public class JXLSRegistrationExport extends JXLSWorkbookStreamSource {
 
 	public JXLSRegistrationExport(UI ui) {
 		super();
+		try {
+			getLocalizedTemplate(TEMPLATES_REGISTRATION_REGISTRATION_EXPORT, ".xls", OwlcmsSession.getLocale());
+		} catch (IOException e) {
+		}
 	}
 
 	@Override
@@ -62,7 +68,7 @@ public class JXLSRegistrationExport extends JXLSWorkbookStreamSource {
 
 	@Override
 	public InputStream getTemplate(Locale locale) throws IOException {
-		return getLocalizedTemplate("/templates/registration/RegistrationExport", ".xls", locale);
+		return getLocalizedTemplate(TEMPLATES_REGISTRATION_REGISTRATION_EXPORT, ".xls", locale);
 	}
 
 	@Override

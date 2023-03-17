@@ -10,6 +10,7 @@ import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.html.Div;
@@ -62,7 +63,7 @@ public class DownloadButtonFactory {
 			        LocalDateTime now = LocalDateTime.now().withNano(0);
 			        return prefix
 			                + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm';'ss"))
-			                + ".xlsx";
+			                + "." + FilenameUtils.getExtension(xlsSource.getTemplateFileName());
 		        },
 		        xlsSource);
 
