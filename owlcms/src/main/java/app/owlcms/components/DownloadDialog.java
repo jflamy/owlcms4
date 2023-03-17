@@ -15,6 +15,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.button.Button;
@@ -143,20 +144,21 @@ public class DownloadDialog {
 					}
 					logger.debug("(2) template found {}", res != null ? res.getFilePath() : null);
 					templateNameSetter.accept(current, newTemplateName);
-					logger.debug("(2) template as set {}", templateNameGetter.apply(current));
+					String templateFileName = templateNameGetter.apply(current);
+					logger.debug("(2) template as set {}", templateFileName);
 
 					CompetitionRepository.save(current);
 					current = Competition.getCurrent();
-					logger.debug("(2) template as stored {}", templateNameGetter.apply(current));
+					logger.debug("(2) template as stored {}", templateFileName);
 
 					InputStream is = res.getStream();
 					xlsWriter.setInputStream(is);
 					logger.debug("(2) filter present = {}", xlsWriter.getGroup());
 
-					String targetFileName = getTargetFileName();
+					String targetFileName = computeTargetFileName(templateFileName);
 					logger.debug("(2) targetFileName final = {}", targetFileName);
 
-					Supplier<String> supplier = () -> getTargetFileName();
+					Supplier<String> supplier = () -> computeTargetFileName(templateFileName);
 
 					downloadButton.setFileNameCallback(supplier);
 					downloadButton.setStreamResourceWriter(xlsWriter);
@@ -181,7 +183,7 @@ public class DownloadDialog {
 		return dialog;
 	}
 
-	private String getTargetFileName() {
+	private String computeTargetFileName(String templateName) {
 		StringBuilder suffix = new StringBuilder();
 		if (xlsWriter.getCategory() != null) {
 			suffix.append("_");
@@ -201,10 +203,8 @@ public class DownloadDialog {
 		LocalDateTime now = LocalDateTime.now().withNano(0);
 		suffix.append("_");
 		suffix.append(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm';'ss")));
-		suffix.append(".xls");
-		String fileName = outputFileName + suffix;
-		fileName = sanitizeFilename(fileName);
-		logger.trace(fileName);
+		String fileName = sanitizeFilename(outputFileName+suffix) + "." + FilenameUtils.getExtension(templateName);
+		logger.warn("*** "+fileName);
 		return fileName;
 	}
 

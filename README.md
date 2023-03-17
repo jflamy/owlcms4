@@ -8,7 +8,7 @@ Yet it is simple enough to setup that you can use it to run a club or regional c
 
 ### Features, Documentation and Installation
 - See the application **[Web Site](https://owlcms.github.io/owlcms4-prerelease/#)** for a full overview and extensive documentation.
-- Refer to the [Installation Overview](https://owlcms.github.io/owlcms4-prerelease/#/InstallationOverview) and to the following [page](Releases.md) for the various setups and releases.
+- Refer to the [Installation Overview](https://owlcms.github.io/owlcms4-prerelease/#/InstallationOverview) and to the following [Downloads](https://owlcms.github.io/owlcms4-prerelease/#/Downloads) page for the various setups and releases.
 
 ### Help, Issues, Feature Requests
 

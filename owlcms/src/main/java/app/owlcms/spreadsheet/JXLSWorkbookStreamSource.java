@@ -84,7 +84,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 	}
 
 	/**
-	 * Read the xls template and write the processed XLS file out.
+	 * Read the Excel template and write the processed file out.
+	 * The type of Excel file matches the template read (xls or xlsx)
 	 *
 	 * @see com.vaadin.flow.server.StreamResourceWriter#accept(java.io.OutputStream,
 	 *      com.vaadin.flow.server.VaadinSession)
@@ -99,7 +100,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 			configureTransformer(transformer);
 			Workbook workbook = null;
 			try {
-				// logger.debug("wsss setReportingInfo");
 				setReportingInfo();
 				HashMap<String, Object> reportingInfo = getReportingBeans();
 				List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
@@ -126,6 +126,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 				LoggerUtils.logError(logger, e);
 			}
 			if (workbook != null) {
+				logger.warn("workbook type {}", workbook.getClass().getSimpleName());
 				workbook.write(stream);
 			}
 		} catch (IOException e) {
@@ -274,8 +275,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 	        throws IOException {
 		List<String> tryList = getSuffixes(locale);
 		List<String> extensionList;
-		if (extension.equals(".xls")) {
-			extensionList = Arrays.asList(".xlsx", ".xls");
+		if (extension.startsWith(".xls")) {
+			extensionList = Arrays.asList(
+					".xlsx",
+					".xls");
 		} else {
 			extensionList = Arrays.asList(extension);
 		}
@@ -285,7 +288,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 				String name = templateName + suffix + ext;
 				try {
 					final InputStream resourceAsStream = ResourceWalker.getFileOrResource(name);
-					// logger.debug("trying {} : {}", name, resourceAsStream);
+					this.setTemplateFileName(name);
 					if (resourceAsStream != null) {
 						return resourceAsStream;
 					}
@@ -302,9 +305,9 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 	}
 
 	protected InputStream getTemplate(Locale locale) throws IOException, Exception {
-		if (inputStream != null) {
-			logger.debug("explicitly set template {}", inputStream);
-			return inputStream;
+		if (getInputStream() != null) {
+			logger.warn("explicitly set template {}", getInputStream());
+			return getInputStream();
 		}
 		InputStream resourceAsStream = ResourceWalker.getFileOrResource(getTemplateFileName());
 		return resourceAsStream;
@@ -344,5 +347,14 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 			}
 			return compare = ObjectUtils.compare(a.getPlatform(), b.getPlatform(), true);
 		}).collect(Collectors.toList()));
+	}
+
+	public void setTemplateFileName(String templateFileName) {
+		logger.warn("setting template file name {}",templateFileName);
+		this.templateFileName = templateFileName;
+	}
+
+	private InputStream getInputStream() {
+		return inputStream;
 	}
 }
