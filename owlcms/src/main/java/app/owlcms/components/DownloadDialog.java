@@ -204,7 +204,6 @@ public class DownloadDialog {
 		suffix.append("_");
 		suffix.append(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm';'ss")));
 		String fileName = sanitizeFilename(outputFileName+suffix) + "." + FilenameUtils.getExtension(templateName);
-		logger.warn("*** "+fileName);
 		return fileName;
 	}
 
