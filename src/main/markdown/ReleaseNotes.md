@@ -1,6 +1,7 @@
 38.1.0-beta Additional attempt board information, Revised Athlete Editing form, Personal bests
 
 - 38.1 Enhancements
+  - 38.1.0-rc01:  If a `.xlsx` template is available for a report, it will be used, and the report will be in that format.  All recent versions of Office/OpenOffice/LibreOffice support that format.
   - 38.1.0-beta04:  The jury members can now vote again during a deliberation break. The decision lights are reset when deliberation starts so the post-video vote is a secret vote.  A new MQTT message (`fop/juryDeliberation`) has been added so devices know when to reset the jury lights.
   - The editing page for athlete registration and weigh-in has been redone to be more readable and better organized.  The old editing forms are available (temporarily) by enabling the `oldAthleteForm` [Feature Toggle](https://owlcms.github.io/owlcms4-prerelease/#/FeatureToggles).
   - It is now possible to add personal bests for athletes, which are displayed along with records. Personal bests are for information and not highlighted like official records.  Personal bests are read from and exported on the registration spreadsheets.
