@@ -30,19 +30,11 @@
 
 ### **Installation Instructions**
 
-<<<<<<< HEAD
   - For **Windows**, download `owlcms_setup_38.1.0-rc01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalWindowsSetup)
-=======
-  - For **Windows**, download `owlcms_setup_38.1.0-rc01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
->>>>>>> branch 'v23_3' of https://github.com/jflamy/owlcms4.git
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-<<<<<<< HEAD
   - For **Linux** and **Mac OS**, download the `owlcms_38.1.0-rc01.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalLinuxMacSetup)
-=======
-  - For **Linux** and **Mac OS**, download the `owlcms_38.1.0-rc01.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
->>>>>>> branch 'v23_3' of https://github.com/jflamy/owlcms4.git
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the [Heroku](https://owlcms.github.io/owlcms4/#Heroku) or (recommended) **[Fly.io](https://owlcms.github.io/owlcms4/#Fly)** installation instructions.
 
