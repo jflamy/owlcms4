@@ -10,6 +10,8 @@
   - The gender letters used for displaying *age groups* and *categories* are no longer fixed to `M` and `F` and can now be translated (for example, Germany could choose to use U17 D instead of U17 F)
   - Switched the demo site back to Heroku (https://owlcms.herokuapp.com).
 - 38.1 Fixes
+  - 38.1.0-rc02: Wrong attempt number shown when  `AttemptBoard_lift_attempt_number` translation was empty
+  - 38.1.0-rc02: Year of birth would be shown at the bottom on the multiple ranks scoreboard if the "show leaders" option was off.
   - 38.1.0-beta03: updating an athlete could fail due to a broken validation.  This would also prevent the ENTER shortcut from working.
   - 38.1.0-beta02: Attempt board now correctly switches from snatch to clean&jerk.
   - 38.1.0-alpha04: Fixed edge cases when all records were excluded for an invited athlete
