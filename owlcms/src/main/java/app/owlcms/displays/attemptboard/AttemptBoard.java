@@ -665,7 +665,8 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 	}
 
 	private String formatAttempt(Athlete a) {
-		int attemptNo = a.getAttemptsDone() + 1;
+		Integer attemptsDone = a.getAttemptsDone();
+		int attemptNo = attemptsDone + 1;
 	    //logger.debug("attemptNo {}",attemptNo);
 		String translation = Translator.translateOrElseNull("AttemptBoard_lift_attempt_number", getLocale());
 		if (translation != null) {
@@ -675,7 +676,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 				translation = Translator.translate("AttemptBoard_lift_attempt_number", attemptNo - 3, Translator.translate("AttemptBoard_lift.CLEANJERK"));
 			}		
 		} else {
-			translation = Translator.translate("AttemptBoard_attempt_number", attemptNo);
+			translation = Translator.translate("AttemptBoard_attempt_number", ((attemptsDone % 3) + 1) );
 		}
 		return translation;
 	}
