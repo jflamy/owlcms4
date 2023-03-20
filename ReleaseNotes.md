@@ -1,43 +1,37 @@
 38.1.0-beta Additional attempt board information, Revised Athlete Editing form, Personal bests
 
 - 38.1 Enhancements
-  - 38.1.0-rc01:  If a `.xlsx` template is available for a report, it will be used, and the report will be in that format.  All recent versions of Office/OpenOffice/LibreOffice support that format.
-  - 38.1.0-beta04:  The jury members can now vote again during a deliberation break. The decision lights are reset when deliberation starts so the post-video vote is a secret vote.  A new MQTT message (`fop/juryDeliberation`) has been added so devices know when to reset the jury lights.
-  - The editing page for athlete registration and weigh-in has been redone to be more readable and better organized.  The old editing forms are available (temporarily) by enabling the `oldAthleteForm` [Feature Toggle](https://owlcms.github.io/owlcms4-prerelease/#/FeatureToggles).
+  - The editing page used for athlete registration and weigh-in has been redone to be more readable and better organized.
   - It is now possible to add personal bests for athletes, which are displayed along with records. Personal bests are for information and not highlighted like official records.  Personal bests are read from and exported on the registration spreadsheets.
   - The attempt board now shows the athlete category and the lift type.  If you only want to see the attempt number, leave the `AttemptBoard_lift_attempt_number` translation empty.
-  - The announcer "refresh list" button has been renamed to "Reload Group". It reloads the group completely (same as exiting and re-entering the group). This also sends a refresh signal to all displays. This is useful if for some reason it is necessary to edit athlete registration information.
   - The gender letters used for displaying *age groups* and *categories* are no longer fixed to `M` and `F` and can now be translated (for example, Germany could choose to use U17 D instead of U17 F)
+  - The jury members can now vote again during a deliberation break. The decision lights are reset when deliberation starts so the post-video vote is a secret vote.  A new MQTT message (`fop/juryDeliberation`) has been added so devices know when to reset the jury lights.
+  - The announcer "refresh list" button has been renamed to "Reload Group". It reloads the group completely (same as exiting and re-entering the group). This also sends a refresh signal to all displays. This is useful if for some reason it is necessary to edit athlete registration information.
+  - If a `.xlsx` template is available for a report, it will be used, and the report will be in that format.  All recent versions of Office/OpenOffice/LibreOffice support that format.  If both .xls and .xlsx templates are present, the .xlsx is given precedence.
   - Switched the demo site back to Heroku (https://owlcms.herokuapp.com).
 - 38.1 Fixes
-  - 38.1.0-rc02: Wrong attempt number shown when  `AttemptBoard_lift_attempt_number` translation was empty
-  - 38.1.0-rc02: Year of birth would be shown at the bottom on the multiple ranks scoreboard if the "show leaders" option was off.
-  - 38.1.0-beta03: updating an athlete could fail due to a broken validation.  This would also prevent the ENTER shortcut from working.
-  - 38.1.0-beta02: Attempt board now correctly switches from snatch to clean&jerk.
-  - 38.1.0-alpha04: Fixed edge cases when all records were excluded for an invited athlete
   - The total of the last snatch athlete was being shown during the clean & jerk break on the "current athlete" video streaming footer.
-  
 
 ##### Highlights from recent stable releases
 
-- A new site section has been added to start the displays used for video streaming (see the [streaming documentation](https://owlcms.github.io/owlcms4-prerelease/#/OBS?id=_2-setup-owlcms-with-some-data)). The video-oriented scoreboards have a different header with the event name and group description, and show different columns (by default, the same as used by IWF).
+- A new site section has been added to start the displays used for video streaming (see the [streaming documentation](https://owlcms.github.io/owlcms4/#/OBS?id=_2-setup-owlcms-with-some-data)). The video-oriented scoreboards have a different header with the event name and group description, and show different columns (by default, the same as used by IWF).
 - The announcer and marshal screens show the 6 attempts and total for each athlete. ([#525](https://github.com/jflamy/owlcms4/issues/525))
 - Capability to add flags and athlete pictures on the attempt board (#508).  See [Flags and Pictures](https://owlcms.github.io/owlcms4-prerelease/#/FlagsPicture) documentation.
-- There is now a separate page for pre-competition documents. There are now separate sections for each purpose instead of multiple tabs. See [Pre-Competition Documents Documentation](https://owlcms.github.io/owlcms4-prerelease/#/2400PreCompetitionDocuments).
+- There is now a separate page for pre-competition documents. There are now separate sections for each purpose instead of multiple tabs. See [Pre-Competition Documents Documentation](https://owlcms.github.io/owlcms4/#/2400PreCompetitionDocuments).
 - Customization of team points. Templates for the final results package now have an extra tab that contains the points awarded for each rank. Copy and rename the template if you need to change the point system for a given competition.
-- Improvements to Records eligibility. See [Records Eligibility](https://owlcms.github.io/owlcms4-prerelease/#/Records) documentation. 
+- Improvements to Records eligibility. See [Records Eligibility](https://owlcms.github.io/owlcms4/#/Records) documentation. 
 - New Weigh-in template to create an empty Weigh-in Summary (used to facilitate data entry)
 - New Sinclair coefficients for the 2024 Olympiad.  An option on the Competition rules page allows using the previous (2020 Olympiad) values if your local rules require them.  Masters SMF and SMHF use the 2020 Olympiad values until further notice.
 
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_38.1.0-rc02.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_38.1.0.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_38.1.0-rc02.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_38.1.0.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalLinuxMacSetup)
 
-  - For **Cloud PaaS** installs, no download is necessary. Follow the [Heroku](https://owlcms.github.io/owlcms4-prerelease/#Heroku) or (recommended) **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
+  - For **Cloud PaaS** installs, no download is necessary. Follow the [Heroku](https://owlcms.github.io/owlcms4/#Heroku) or (recommended) **[Fly.io](https://owlcms.github.io/owlcms4/#Fly)** installation instructions.
 
-  - For self-hosted **Docker**, see [Docker](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup). For self-hosted **Kubernetes** see [Kubernetes](https://owlcms.github.io/owlcms4-prerelease/#/DigitalOcean)
+  - For self-hosted **Docker**, see [Docker](https://owlcms.github.io/owlcms4/#/LocalWindowsSetup). For self-hosted **Kubernetes** see [Kubernetes](https://owlcms.github.io/owlcms4/#/DigitalOcean)
