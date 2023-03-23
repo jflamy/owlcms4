@@ -38,7 +38,6 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 
 	public JXLSExportRecords(Group group, boolean excludeNotWeighed, UI ui) {
 		super();
-		logger.warn("huh$$$");
 	}
 
 	public JXLSExportRecords(UI ui) {

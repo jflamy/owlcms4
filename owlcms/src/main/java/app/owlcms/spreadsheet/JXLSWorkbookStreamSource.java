@@ -184,7 +184,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 	}
 
 	public String getTemplateFileName() {
-		logger.warn("getTemplateFileName {} from {}",templateFileName, LoggerUtils.whereFrom());
+		//logger.debug("getTemplateFileName {} from {}",templateFileName, LoggerUtils.whereFrom());
 		return templateFileName;
 	}
 
@@ -290,7 +290,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 				try {
 					final InputStream resourceAsStream = ResourceWalker.getFileOrResource(name);
 					if (resourceAsStream != null) {
-						logger.warn("template found {}",name);
+						//logger.debug("template found {}",name);
 						this.setTemplateFileName(name);
 						return resourceAsStream;
 					}
