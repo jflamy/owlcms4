@@ -1,7 +1,7 @@
 38.2.0 Additional attempt board information, Revised Athlete Editing form, Personal bests
 
-- 38.2 Changes
-  - Heroku cloud installation is now deprecated. Heroku has broken the easy one-click installation process as it was used by owlcms.  The documentation now shows the alternative "official" installation process which is much more complicated.  We now recommend using fly.io as the installation is much simpler and owlcms can be run for free (it is below their monthly minimum for processing a bill.)
+- 38.2 Documentation Changes
+  - Documentation: Heroku cloud installation is now deprecated. Heroku has broken the easy one-click installation process as it was used by owlcms.  The documentation has been updated to show the "official" command-line installation process which is much more complicated.  We now recommend using fly.io as the installation is much simpler and owlcms can be run for free (it is below their monthly minimum for processing a bill.)
 
 - 38.1 Enhancements
   - The editing page used for athlete registration and weigh-in has been redone to be more readable and better organized.
