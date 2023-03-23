@@ -1,8 +1,43 @@
 
 
-# Deploy OWLCMS on Heroku
+# (Deprecated) Deploy OWLCMS on Heroku
 
-Heroku is a cloud service provider that provides an attractive pricing plan for running programs like OWLCMS.  The installation process for Heroku is extremely simple and there is nothing whatsoever that needs to be installed on any of the laptops other than a browser.  
+> #### Heroku has made changes to its platform and the "purple button" instructions down this page no longer work.
+>
+> If you need a cloud version of owlcms, we strongly recommend that you use the [fly.io](https;//fly.io) service because installation is much simpler.  See the instructions on the [Fly](Fly) page.
+>
+> Deploying an Heroku app currently requires installing Java, installing their command-line took, and typing commands.
+>
+> The following are "emergency" installations if you absolutely must install a new Heroku app. 
+
+- Install Java
+  - Go to https://adoptium.net/ and download a version (there is a .pkg installer for Mac)
+
+- Install Heroku CLI from [The Heroku CLI | Heroku Dev Center](https://devcenter.heroku.com/articles/heroku-cli)   You can ignore the steps about `git`, they are not needed.
+- Run the following commands
+
+```
+heroku login
+heroku plugins:install java
+```
+
+- Get a current release zip from a release directory
+- Unzip file
+- Go to https://github.com/owlcms/owlcsms-heroku and get a copy of the system.properties and Procfile
+- Add the two files to where you unzipped
+- Run the following commands.  Replace `myclub` with you own application name.
+
+```
+heroku deploy:jar owlcms.jar --app myclub
+heroku addons:create heroku-postgresql:mini --app myclub
+heroku ps:restart --app myclub
+```
+
+------
+
+
+
+Heroku is a cloud service provider that provides an affordable pricing plan for running programs like OWLCMS.  
 
 There used to be a completely free plan, but this was discontinued in 2022. Because Heroku bills by the second, you can actually turn off your site when you don't use it.  By doing so the costs for preparing, running a competition and gathering the results is roughly 0.50 US$ per day.  You can then stop billing (see the [Stopping and Resuming Billing](#stopping-and-resuming-billing) section below)
 
@@ -17,21 +52,7 @@ For larger competitions, you can run a very large meet for less than 10$ per day
 
 ### Install owlcms
 
-**1. Start the deployment process**
-
-Click on this purple button to start installation of owlcms on Heroku cloud.
-
-[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/owlcms/owlcms-heroku)
-
-**2. Name your application and deploy**
-
-Enter the name that will be used by the officials.  Once you are done start the deployment (this will prepare the application and make it available)
-
-![020_selectName](img/Heroku/020_selectName.png)
-
-**3. Check correct deployment**
-
-![030_deployApp](img/Heroku/030_deployApp.png)
+**1. **Steps 1 to 3 are replaced by the emergency installation options above
 
 **4. Go to the application**
 
@@ -69,20 +90,7 @@ See [this page](PublicResults) for details.
 
 The process is the same as for the owlcms application
 
-1. Click on the purple button below to start the installation of the public scoreboard on Heroku Cloud.
-
-   [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/owlcms/publicresults-heroku)
-
-2. Enter your Heroku account (or create one if you haven't)
-
-3. Enter a meaningful application name.  In the following example, we use `owlcms-test-publicresults` We will later use `owlcms-test-publicresults.herokuapp.com`  to see the results.  You should use a name that makes sense to your club or federation.
-
-   *(Reminder: You can click on the images to make them bigger)*
-
-   ![020_appName](img/PublicResults/020_appName.png)
-
-4. Deploy the application. This will fetch the application, install it, and make it available to the public.
-   ![030_deploy](img/PublicResults/030_deploy.png)
+1. Use the emergency instructions at the top of the page, but replace `owlcms` with `publicresults`
 
 5. You can check that the application is running by starting a new browser tab. In our example, we connect to `https://owlcms-test-publicresults.herokuapp.com`.  Since we have not yet connected owlcms to feed publicresults, you will see this screen.
    ![032_viewApp1](img/PublicResults/032_viewApp1.png)
@@ -124,7 +132,7 @@ In order to stop billing *without* uninstalling the application, you need to ins
 - In order to restart the application
 
   ```
-  heroku scale web:1 -a myowlcms
+  heroku scale web:1 -a myclub
   ```
 
 ### Scaling Up or Down
