@@ -39,11 +39,11 @@ jobs:
       dependsOn: BuildOwlcmsUberJar
       moduleName: owlcms
       artifactName: OwlcmsSetup
-  - template: src/main/azure-pipelines/job-herokuRelease.yml
-    parameters:
-      jobName: ReleaseOwlcmsHeroku
-      dependsOn: BuildOwlcmsUberJar
-      moduleName: owlcms
+  # - template: src/main/azure-pipelines/job-herokuRelease.yml
+  #   parameters:
+  #     jobName: ReleaseOwlcmsHeroku
+  #     dependsOn: BuildOwlcmsUberJar
+  #     moduleName: owlcms
 
   # build publicresults uberjar, zip and installer
   - template: src/main/azure-pipelines/job-buildUberJar.yml
@@ -57,13 +57,13 @@ jobs:
       dependsOn: BuildPublicResultsUberJar
       moduleName: publicresults
       artifactName: PublicResultsSetup
-  - template: src/main/azure-pipelines/job-herokuRelease.yml
-    parameters:
-      jobName: ReleasePublicResultsHeroku
-      dependsOn: 
-        - BuildPublicResultsUberJar
-        - BuildOwlcmsUberJar
-      moduleName: publicresults
+  # - template: src/main/azure-pipelines/job-herokuRelease.yml
+  #   parameters:
+  #     jobName: ReleasePublicResultsHeroku
+  #     dependsOn: 
+  #       - BuildPublicResultsUberJar
+  #       - BuildOwlcmsUberJar
+  #     moduleName: publicresults
 
   # release the installers to github repositories
   - job: ReleaseInstallers
@@ -128,7 +128,7 @@ jobs:
           # publish sources and docs to prerelease repo
           # library group ReleaseRepoCredentials contains github users and tokens
           git push https://$(releaseToken)@github.com/$(releaseUser)/owlcms4$(RELEASE_SUFFIX).git $(Build.SourceBranchName):master --force
-        condition: or(eq(variables['Build.SourceBranchName'], 'develop'), eq(variables['Build.SourceBranchName'], 'v23_3'))
+        condition: or(eq(variables['Build.SourceBranchName'], 'develop'), eq(variables['Build.SourceBranchName'], 'v23_38_1b03'))
         displayName: sync prerelease repo
       - script: |
           # publish sources and docs to release repo
@@ -153,7 +153,7 @@ jobs:
             gitHubConnection: github.com_jflamy-dev
             repositoryName: $(RELEASE_USER)/owlcms4$(RELEASE_SUFFIX)
             isPreRelease: false
-          ${{ if eq(variables['Build.SourceBranchName'], 'v23_3') }}:
+          ${{ if eq(variables['Build.SourceBranchName'], 'v23_38_1b03') }}:
             gitHubConnection: github.com_jflamy-dev
             repositoryName: $(RELEASE_USER)/owlcms4$(RELEASE_SUFFIX)
             isPreRelease: false
