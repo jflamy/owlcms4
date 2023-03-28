@@ -6,7 +6,6 @@
  *******************************************************************************/
 package app.owlcms.nui.shared;
 
-import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,7 +62,7 @@ import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.validator.DoubleRangeValidator;
-import com.vaadin.flow.data.validator.RegexpValidator;
+import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.ValueProvider;
 
@@ -562,19 +561,21 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void validateYearOfBirth(Binder.BindingBuilder bindingBuilder) {
-		String message = Translator.translate("InvalidYearFormat");
-		RegexpValidator re = new RegexpValidator(message, "|((19|20)[0-9][0-9])");
-		bindingBuilder.withNullRepresentation("");
-		bindingBuilder.withValidator(re);
-		yobConverter = new StringToIntegerConverter(message) {
-			@Override
-			protected NumberFormat getFormat(java.util.Locale locale) {
-				NumberFormat format = NumberFormat.getIntegerInstance();
-				format.setGroupingUsed(false);
-				return format;
-			}
-		};
-		bindingBuilder.withConverter(yobConverter);
+//		String message = Translator.translate("InvalidYearFormat");
+//		RegexpValidator re = new RegexpValidator(message, "|((19|20)[0-9][0-9])");
+//		bindingBuilder.withNullRepresentation("");
+//		bindingBuilder.withValidator(re);
+//		yobConverter = new StringToIntegerConverter(message) {
+//			@Override
+//			protected NumberFormat getFormat(java.util.Locale locale) {
+//				NumberFormat format = NumberFormat.getIntegerInstance();
+//				format.setGroupingUsed(false);
+//				return format;
+//			}
+//		};
+//		bindingBuilder.withConverter(yobConverter);
+		Validator<Integer> v1 = new IntegerRangeValidator(Translator.translate("InvalidYearFormat"), 1900, 2050);
+		bindingBuilder.withValidator(v1);
 	}
 
 	private Category bestMatch(List<Category> allEligible2) {

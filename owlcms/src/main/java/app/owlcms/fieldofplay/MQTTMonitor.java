@@ -124,19 +124,6 @@ public class MQTTMonitor {
 			}).start();
 		}
 
-		private void publishMqttConfig(String topic) {
-			Map<String, Object> payload = new TreeMap<>();
-			List<String> platforms = PlatformRepository.findAll().stream().map(p -> p.getName())
-			        .collect(Collectors.toList());
-			payload.put("platforms", platforms);
-			payload.put("version", StartupUtils.getVersion());
-			try {
-				String json = new ObjectMapper().writeValueAsString(payload);
-				client.publish(topic, new MqttMessage(json.getBytes(StandardCharsets.UTF_8)));
-			} catch (JsonProcessingException | MqttException e) {
-			}
-		}
-
 		/**
 		 * @param athleteUnderReview the athleteUnderReview to set
 		 */
@@ -146,7 +133,7 @@ public class MQTTMonitor {
 
 		/**
 		 * Tell others that the refbox has given the down signal
-		 * 
+		 *
 		 * @param topic
 		 * @param messageStr
 		 */
@@ -253,6 +240,19 @@ public class MQTTMonitor {
 				        fop.getLoggingName(), topic, messageStr);
 			}
 		}
+
+		private void publishMqttConfig(String topic) {
+			Map<String, Object> payload = new TreeMap<>();
+			List<String> platforms = PlatformRepository.findAll().stream().map(p -> p.getName())
+			        .collect(Collectors.toList());
+			payload.put("platforms", platforms);
+			payload.put("version", StartupUtils.getVersion());
+			try {
+				String json = new ObjectMapper().writeValueAsString(payload);
+				client.publish(topic, new MqttMessage(json.getBytes(StandardCharsets.UTF_8)));
+			} catch (JsonProcessingException | MqttException e) {
+			}
+		}
 	}
 
 	private static Logger logger = (Logger) LoggerFactory.getLogger(MQTTMonitor.class);
@@ -308,15 +308,19 @@ public class MQTTMonitor {
 	}
 
 	@Subscribe
-	public void slaveDecisionReset(UIEvent.DecisionReset e) {
-		// Event Ignored. We reset all devices on the clock start for next attempt
-		// (resetDecisions MQTT)
+	public void slaveBreakStart(UIEvent.BreakStarted e) {
+		if (e.getBreakType() == BreakType.JURY) {
+			try {
+				publishMqttJuryDeliberation();
+			} catch (MqttException e1) {
+			}
+		}
 	}
 
 	/**
 	 * A display or console has triggered the down signal (e.g. keypad connected to
 	 * a laptop) and down signal post connected via MQTT.
-	 * 
+	 *
 	 * @param d
 	 */
 	@Subscribe
@@ -462,7 +466,12 @@ public class MQTTMonitor {
 
 	private void publishMqttDownSignal() throws MqttException, MqttPersistenceException {
 		String topic = "owlcms/fop/down/" + fop.getName();
-		client.publish(topic, new MqttMessage("on".getBytes(StandardCharsets.UTF_8)));
+		client.publish(topic, new MqttMessage());
+	}
+
+	private void publishMqttJuryDeliberation() throws MqttPersistenceException, MqttException {
+		String topic = "owlcms/fop/juryDeliberation/" + fop.getName();
+		client.publish(topic, new MqttMessage());
 	}
 
 	private void publishMqttJuryMemberDecision(Integer juryMemberUpdated) {

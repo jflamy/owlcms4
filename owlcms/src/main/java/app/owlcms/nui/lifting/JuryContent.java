@@ -205,6 +205,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> syncWithFOP(true));
 	}
 
+	/**
+	 * @see app.owlcms.nui.shared.AthleteGridContent#slaveStartLifting(app.owlcms.uievents.UIEvent.StartLifting)
+	 */
 	@Override
 	@Subscribe
 	public void slaveStartLifting(UIEvent.StartLifting e) {
@@ -215,6 +218,17 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 				doSync();
 			}
 		});
+	}
+
+	@Override
+	@Subscribe
+	public void slaveBreakStart(UIEvent.BreakStarted e) {
+		super.slaveBreakStart(e);
+		if (e.getBreakType() == BreakType.JURY) {
+			UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+				resetJuryVoting();
+			});
+		}
 	}
 
 	@Subscribe
@@ -501,13 +515,13 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	}
 
 	private void resetJuryVoting() {
-		// logger.debug("resetJuryVoting {} {}", UI.getCurrent(),
-		// LoggerUtils.whereFrom());
+		//logger.debug("resetJuryVoting {} {}", UI.getCurrent(), LoggerUtils.whereFrom());
 		for (ShortcutRegistration sr : registrations) {
 			sr.remove();
 		}
 		juryIcons = new Icon[getNbJurors()];
 		juryVotes = new Boolean[getNbJurors()];
+		juryVotingButtons.removeAll();
 		for (int i = 0; i < getNbJurors(); i++) {
 			final int ix = i;
 			Icon nonVotedIcon = bigIcon(VaadinIcon.CIRCLE_THIN, "gray");
