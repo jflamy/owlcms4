@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
@@ -248,15 +249,28 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 		        });
 
 		// for categories listing we want all the participation categories
-		List<Athlete> found = stream.sorted(Comparator.comparing(Athlete::getGroup).thenComparing(Athlete::getCategory))
-		        .collect(Collectors.toList());
+//		List<Athlete> found = stream.sorted(Comparator.comparing(Athlete::getGroup).thenComparing(Athlete::getCategory))
+//		        .collect(Collectors.toList());
+		Comparator<? super Athlete> groupCategoryComparator = (a1, a2) -> {
+			int compare;
+			compare = ObjectUtils.compare(a1.getGroup(), a2.getGroup(), true);
+			if (compare != 0) {
+				return compare;
+			}
+			compare = ObjectUtils.compare(a1.getCategory(), a2.getCategory(), true);
+			return compare;
+		};
+		List<Athlete> found = stream.sorted(
+				groupCategoryComparator)
+				.collect(Collectors.toList());
 		categoriesXlsWriter.setSortedAthletes(found);
 
 		// cards and starting we only want the actual athlete, without duplicates
 		Set<Athlete> regCatAthletes = found.stream().map(pa -> ((PAthlete) pa)._getAthlete())
 		        .collect(Collectors.toSet());
 		List<Athlete> regCatAthletesList = new ArrayList<>(regCatAthletes);
-		regCatAthletesList.sort(Comparator.comparing(Athlete::getGroup).thenComparing(Athlete::getCategory));
+//		regCatAthletesList.sort(Comparator.comparing(Athlete::getGroup).thenComparing(Athlete::getCategory));
+		regCatAthletesList.sort(groupCategoryComparator);
 
 		cardsXlsWriter.setSortedAthletes(regCatAthletesList);
 		startingXlsWriter.setSortedAthletes(regCatAthletesList);
