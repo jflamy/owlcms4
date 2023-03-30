@@ -30,18 +30,39 @@ You will now have to type three commands, and answer a few questions.  The fly u
 
    - Postgres Database: IMPORTANT, answer **y (YES)**  when asked if you want a Postgres database.  This is required for owlcms to store its data.
 
+   - Configuration: Choose `Development`
+
    - Redis : Answer **n (No)**
+   
+   - Deploy immediately: Answer **y (Yes)** 
 
-   - Deploy immediately: Answer **n (No)** 
 
+3. Obtain the Id for the machine that was just created and copy it (ctrl-C)
 
-3. Request more  memory for the application and then launch it. 
    ```
-   fly scale memory 512
-   fly deploy
+   fly machines list
    ```
 
-> You are now done and can use https://myclub.fly.dev
+    This will give you an output similar that includes information like the following
+
+   ```
+   ID              NAME                    STATE   REGION  IMAGE 
+   6e82dd72a14187  withered-frost-7643     started iad     owlcms/owlcms:stable
+   ```
+
+   The id in this example would be `6e82dd72a14187`
+
+4. We now request more memory for the application
+
+   ```
+   fly machine update --memory 512 6e82dd72a14187
+   ```
+
+   Answer **Yes** when asked to apply the changes
+
+   
+
+You are now done and can use https://myclub.fly.dev
 
 
 
@@ -116,42 +137,4 @@ Note that if you own your own domain, you can add names under your own domain to
 
 ### Scale-up and Scale-down of owlcms
 
-For a larger competition, you might want to give owlcms a dedicated virtual machine with more memory.  **This is only needed for the duration of the competition.**
-
-> NOTE: scaling the memory must be done after scaling the vm because default sizes are re-applied.
-
-1. Make the application bigger. 
-
-   ```
-   fly scale vm dedicated-cpu-1x --app myclub
-   fly scale memory 1024 --app myclub
-   ```
-
-2. Revert to cheaper settings: make the application smaller, use a smaller computer, and either shut it down (count 0) or leave it running (count 1)
-
-   ```
-   fly scale vm shared-cpu-1x --app myclub
-   fly scale memory 512 --app myclub
-   fly scale count 0 --app myclub
-   ```
-
-### Stopping and Resuming Billing
-
-The nice thing about cloud services is that they are billed according to actual use, by the second.  Since the service is essentially free because it falls under the billing threshold, this information is "just in case", for example if you set up several apps and want to activate one of them at a time.
-
-You can run the commands from any command shell you have.
-
-1. If you want to stop the applications (and stopped being billed) 
-
-   ```
-   fly scale count 0 --app myclub
-   fly scale count 0 --app myclub-results
-   ```
-
-
-2. If you then want to start using the applications again, scale them back up to 1. <u>Do NOT use any other value than 0 or 1</u>.
-
-   ```
-   fly scale count 1 --app myclub
-   fly scale count 1 --app myclub-results
-   ```
+If you run a very large competition, you may wish to increase the memory for the duration of the competition. You would use the same commands as above (`fly machine update`) to set the memory to `1024` and after the competition you would set it back to `512`.
