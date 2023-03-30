@@ -5,6 +5,8 @@
 
   - Preparation document page would fail if some groups had not been assigned.
   
+  - Fly.io cloud setup documentation updated to match their new updated v2 machines
+  
 - 38.2 Documentation Changes
   - Documentation: Heroku cloud installation is now deprecated. Heroku has broken the easy one-click installation process as it was used by owlcms.  The documentation has been updated to show the "official" command-line installation process which is much more complicated.  We now recommend using fly.io as the installation is much simpler and owlcms can be run for free (it is below their monthly minimum for processing a bill.)
 
