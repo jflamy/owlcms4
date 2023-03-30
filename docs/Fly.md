@@ -18,26 +18,26 @@ If there is a "use the Web CLI" button, click it, otherwise type the https://fly
 
 You will now have to type three commands, and answer a few questions.  The fly user interface will highlight the default values in pale blue, you can accept them by just using the "enter" key.
 
-1. Install owlcms.  Type the following command, and answer the questions as explained below
+1. Install owlcms.  Type the following command, and then answer the questions as explained below
 
    ```
-   fly launch -i owlcms/owlcms:stable
+   fly launch -i owlcms/owlcms:stable --force-machines
    ```
 
-   - Name of the application: your choice, in our example we use `myclub`
+   - Name of the application: pick you own name, in our example we use `myclub`
 
-   - Organization: you can use the default `personal` organization.
+   - Organization:  use the default `Personal` organization.
 
-   - Postgres Database: IMPORTANT, answer **y (YES)**  when asked if you want a Postgres database.  This is required for owlcms to store its data.
+   - Postgres Database: **IMPORTANT**, answer **y (YES)**  when asked if you want a Postgres database.  This is required for owlcms to store its data.
 
-   - Configuration: Choose `Development`
+   - Configuration of the Postgres database : Choose the default option  `Development`
 
-   - Redis : Answer **n (No)**
+   - Upstash Redis : Answer **n (No)**
    
    - Deploy immediately: Answer **y (Yes)** 
 
 
-3. Obtain the Id for the machine that was just created and copy it (ctrl-C)
+3. Obtain the Id for the machine that was just created and copy it -- select the text and use the browser command to copy (right-click)
 
    ```
    fly machines list
@@ -97,9 +97,9 @@ This is not required, but since there is no extra cost associated, you might as 
    fly launch -i owlcms/publicresults:stable
    ```
 
-2. The two applications (owlcms and publicresults) need to trust one another. So we create a secret and set tell both applications about it. See [this page](PublicResults) for an overview of how owlcms and publicresults work together.
+2. The two applications (owlcms and publicresults) need to trust one another. So we create a secret phrase and configure both applications to use it. See [this page](PublicResults) for an overview of how owlcms and publicresults work together.
 
-   > OWLCMS_UPDATEKEY is the name of the secret, and `MaryHadALittleLamb` is the secret.  Please use your own secret! 
+   > OWLCMS_UPDATEKEY is the setting name for the secret, and `MaryHadALittleLamb` is the secret phrase.  **Please use your own secret!** 
    >
    > Replace `myclub` and `myclub-results` with your own names
    >
