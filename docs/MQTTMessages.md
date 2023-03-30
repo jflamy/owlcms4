@@ -22,7 +22,8 @@
 
 #### Subscribed by jury and referee devices
 
-- `fop/resetDecisions/A`: The clock has started for a new attempt. All LEDs for referee and jury member decisions are turned off. 
+- `fop/resetDecisions/A :option`: The clock has started for a new attempt. All LEDs for referee and jury member decisions are turned off. 
+    - `option` is currently `reset` but is ignored.
     - This is not the timekeeper clock start.  It is the clock start only when a new attempt clock is starting, or athlete clock continues after changes. This event does not occur if the athlete lifts the bar and puts it down.
 - `fop/decision/A :ref :decision`: 
    A referee has made a decision.  The jury devices shows the decision if it has the red/white LEDs.
@@ -36,6 +37,9 @@
    A jury device may perform this processing autonomously and ignore these messages.
    - `juryMember ` is 1 2 3 4 or 5
     - `decision` is `hidden` `good` or `bad`
+
+- `fop/juryDeliberation/A`: 
+  Jury deliberation has been started (the application is in BreakType.JURY mode.)  There is no argument. The device should clear the jury member decision lights in order to allow a secret vote to be taken on a video replay.
 
 #### Subscribed by the referee device:
 

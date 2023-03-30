@@ -43,7 +43,7 @@ You will now have to type three commands, and answer a few questions.  The fly u
    fly machines list
    ```
 
-    This will give you an output similar that includes information like the following
+    In the output you will find information lines that start with the following information
 
    ```
    ID              NAME                    STATE   REGION  IMAGE 
