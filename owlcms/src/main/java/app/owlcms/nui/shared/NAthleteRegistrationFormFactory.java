@@ -605,13 +605,13 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		return eligibles.stream().anyMatch(c -> c.sameAs(category));
 	}
 
-	private void checkOther20kgFields(LocalizedIntegerField cleanJerk1DeclarationField2,
-	        LocalizedIntegerField qualifyingTotalField2) {
+	private void checkOther20kgFields(LocalizedIntegerField fieldA,
+	        LocalizedIntegerField fieldB) {
 		logger.debug("entering checkOther20kgFields {} {}", isCheckOther20kgFields(), LoggerUtils.whereFrom());
 		if (isCheckOther20kgFields()) {
 			setCheckOther20kgFields(false); // prevent recursion
-			fieldToBinding.get(cleanJerk1DeclarationField2).validate();
-			fieldToBinding.get(qualifyingTotalField2).validate();
+			fieldToBinding.get(fieldA).validate();
+			fieldToBinding.get(fieldB).validate();
 		}
 	}
 
@@ -901,7 +901,10 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		});
 		bb1.withValidator(v1);
 		bindField(bb1, snatch1DeclarationField,
-		        a -> Integer.valueOf(zeroIfEmpty(a.getSnatch1Declaration())),
+		        a -> {
+					String snatch1Declaration = a.getSnatch1Declaration();
+					return snatch1Declaration != null && !snatch1Declaration.isBlank() ? Integer.valueOf(snatch1Declaration) : null;
+				},
 		        (a, v) -> {
 			        a.setSnatch1Declaration(v != null ? v.toString() : "");
 		        });
@@ -916,7 +919,10 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		bb2.withValidator(v2);
 
 		bindField(bb2, cleanJerk1DeclarationField,
-		        a -> Integer.valueOf(zeroIfEmpty(a.getCleanJerk1Declaration())),
+		        a -> {
+					String cleanJerk1Declaration = a.getCleanJerk1Declaration();
+					return cleanJerk1Declaration != null && !cleanJerk1Declaration.isBlank() ? Integer.valueOf(cleanJerk1Declaration) : null;
+				},
 		        (a, v) -> {
 			        a.setCleanJerk1Declaration(v != null ? v.toString() : "");
 		        });
