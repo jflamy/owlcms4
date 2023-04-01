@@ -1,13 +1,15 @@
 38.3.0 Additional attempt board information, Revised Athlete Editing form, Personal bests
 
 - 38.3 Fixes
-  - The new athlete editing dialog could mistakenly create a 0 declaration and a 0 lift for the first snatch and first clean & jerk.  Now fixed.
-  - Download dialogs would fail randomly.  Reverted to 38.1.0-beta03 dialog due to bug introduced in UI framework.
-  - If some athletes had not been assigned to a group, errors could occur on the preparation document page. Also, the start list and the athlete cards would fail when printing for all athletes.
-  - A team name with a character that cannot be found in a file name would cause errors.
-  - Fly.io cloud setup documentation updated to match their new updated v2 machines
-- 38.2 Documentation Changes
-  - Documentation: Heroku cloud installation is now deprecated. Heroku has broken the easy one-click installation process as it was used by owlcms.  The documentation has been updated to show the "official" command-line installation process which is much more complicated.  We now recommend using fly.io as the installation is much simpler and owlcms can be run for free (it is below their monthly minimum for processing a bill.)
+  - The new athlete editing dialog could mistakenly create a 0 declaration and a failed 0 kg lift for the first snatch and first clean & jerk.  Now fixed.
+  - Download dialogs for pre-competition and results documents could fail randomly.  Reverted to the previous version of the UI dialog component due to a bug introduced in the user interface library.
+  - If some athletes had not been assigned to a group, errors could occur on the preparation document page. Also, the start list and the athlete cards would fail when printing them for all athletes.
+  - A team name with characters that cannot be used in file names (like "/" or "?") would cause errors on the attempt board if flag images were used.
+  - [Fly.io](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Fly) cloud setup documentation updated to match their new updated v2 machines
+- 38.2 Heroku deprecated
+  - Heroku cloud installation is no longer recommended.
+    - We now recommend using [fly.io](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Fly) as the cloud installation is straightforward and owlcms can be run for free (it is below their monthly minimum for processing a bill.)
+    -  Heroku has broken the easy one-click installation process as it was used by owlcms.  The Heroku documentation has been updated to show the "official" command-line installation process.
 - 38.1 Enhancements
   - The editing page used for athlete registration and weigh-in has been redone to be more readable and better organized.
   - It is now possible to add personal bests for athletes, which are displayed along with records. Personal bests are for information and not highlighted like official records.  Personal bests are read from and exported on the registration spreadsheets.
@@ -15,8 +17,6 @@
   - The gender letters used for displaying *age groups* and *categories* are no longer fixed to `M` and `F` and can now be translated (for example, Germany could choose to use U17 D instead of U17 F)
   - The jury members can now vote again during a deliberation break. The decision lights are reset when deliberation starts so the post-video vote is a secret vote.  A new MQTT message (`fop/juryDeliberation`) has been added so devices know when to reset the jury lights.
   - The announcer "refresh list" button has been renamed to "Reload Group". It reloads the group completely (same as exiting and re-entering the group). This also sends a refresh signal to all displays. This is useful if for some reason it is necessary to edit athlete registration information.
-  - If a `.xlsx` template is available for a report, it will be used, and the report will be in that format.  All recent versions of Office/OpenOffice/LibreOffice support that format.  If both .xls and .xlsx templates are present, the .xlsx is given precedence.
-  - Switched the demo site back to Heroku (https://owlcms.herokuapp.com).
 - 38.1 Fixes
   - The total of the last snatch athlete was being shown during the clean & jerk break on the "current athlete" video streaming footer.
 
