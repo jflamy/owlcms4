@@ -1,15 +1,13 @@
 38.3.0 Additional attempt board information, Revised Athlete Editing form, Personal bests
 
 - 38.3 Fixes
+  - The new athlete editing dialog could mistakenly create a 0 declaration and a 0 lift for the first snatch and first clean & jerk.  Now fixed.
   - Download dialogs would fail randomly.  Reverted to 38.1.0-beta03 dialog due to bug introduced in UI framework.
-
-  - Preparation document page would fail if some groups had not been assigned.
-  
+  - If some athletes had not been assigned to a group, errors could occur on the preparation document page. Also, the start list and the athlete cards would fail when printing for all athletes.
+  - A team name with a character that cannot be found in a file name would cause errors.
   - Fly.io cloud setup documentation updated to match their new updated v2 machines
-  
 - 38.2 Documentation Changes
   - Documentation: Heroku cloud installation is now deprecated. Heroku has broken the easy one-click installation process as it was used by owlcms.  The documentation has been updated to show the "official" command-line installation process which is much more complicated.  We now recommend using fly.io as the installation is much simpler and owlcms can be run for free (it is below their monthly minimum for processing a bill.)
-
 - 38.1 Enhancements
   - The editing page used for athlete registration and weigh-in has been redone to be more readable and better organized.
   - It is now possible to add personal bests for athletes, which are displayed along with records. Personal bests are for information and not highlighted like official records.  Personal bests are read from and exported on the registration spreadsheets.

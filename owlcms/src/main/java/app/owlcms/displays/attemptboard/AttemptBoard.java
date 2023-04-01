@@ -824,6 +824,17 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		}
 	}
 
+	 /**
+	  * replace illegal characters in a filename with "_"
+	  * illegal characters :
+	  *           : \ / * ? | < >
+	  * @param name
+	  * @return
+	  */
+	  public String sanitizeFilename(String name) {
+	    return name.replaceAll("[:\\\\/*?|<>]", "_");
+	  }
+	
 	protected void doAthleteUpdate(Athlete a) {
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		FOPState state = fop.getState();
@@ -851,13 +862,14 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		String team = a.getTeam();
 		this.getElement().setProperty("teamName", team);
 		this.getElement().setProperty("teamFlagImg", "");
+		String teamFileName = sanitizeFilename(team);
 		if (teamFlags && team != null) {
 			boolean done;
-			done = setImgProp("teamFlagImg", "flags/", team, ".svg");
+			done = setImgProp("teamFlagImg", "flags/", teamFileName, ".svg");
 			if (!done) {
-				done = setImgProp("teamFlagImg", "flags/", team, ".png");
+				done = setImgProp("teamFlagImg", "flags/", teamFileName, ".png");
 				if (!done) {
-					done = setImgProp("teamFlagImg", "flags/", team, ".jpg");
+					done = setImgProp("teamFlagImg", "flags/", teamFileName, ".jpg");
 				}
 			}
 		}
