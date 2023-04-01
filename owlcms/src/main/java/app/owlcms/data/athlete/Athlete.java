@@ -2985,13 +2985,13 @@ public class Athlete {
 	 * @param cleanJerk1Declaration the new clean jerk 1 declaration
 	 */
 	public void setCleanJerk1Declaration(String cleanJerk1Declaration) {
-//		if ("0".equals(cleanJerk1Declaration)) {
-//			this.cleanJerk1Declaration = cleanJerk1Declaration;
-//			getLogger().info("{}{} cleanJerk1Declaration={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
-//			        cleanJerk1Declaration);
-//			setCleanJerk1ActualLift("0");
-//			return;
-//		}
+		if ("0".equals(cleanJerk1Declaration)) {
+			this.cleanJerk1Declaration = cleanJerk1Declaration;
+			getLogger().info("{}{} cleanJerk1Declaration={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
+			        cleanJerk1Declaration);
+			setCleanJerk1ActualLift("0");
+			return;
+		}
 
 		if (isValidation()) {
 			validateDeclaration(1, getCleanJerk1AutomaticProgression(), cleanJerk1Declaration, cleanJerk1Change1,
@@ -3598,13 +3598,13 @@ public class Athlete {
 	 * @param snatch1Declaration the new snatch 1 declaration
 	 */
 	public void setSnatch1Declaration(String snatch1Declaration) {
-//		if ("0".equals(snatch1Declaration)) {
-//			this.snatch1Declaration = snatch1Declaration;
-//			getLogger().info("{}{} snatch1Declaration={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
-//			        snatch1Declaration);
-//			setSnatch1ActualLift("0");
-//			return;
-//		}
+		if ("0".equals(snatch1Declaration)) {
+			this.snatch1Declaration = snatch1Declaration;
+			getLogger().info("{}{} snatch1Declaration={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
+			        snatch1Declaration);
+			setSnatch1ActualLift("0");
+			return;
+		}
 		if (isValidation()) {
 			validateDeclaration(1, getSnatch1AutomaticProgression(), snatch1Declaration, snatch1Change1, snatch1Change2,
 			        snatch1ActualLift);
