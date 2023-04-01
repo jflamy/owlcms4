@@ -249,8 +249,6 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 		        });
 
 		// for categories listing we want all the participation categories
-//		List<Athlete> found = stream.sorted(Comparator.comparing(Athlete::getGroup).thenComparing(Athlete::getCategory))
-//		        .collect(Collectors.toList());
 		Comparator<? super Athlete> groupCategoryComparator = (a1, a2) -> {
 			int compare;
 			compare = ObjectUtils.compare(a1.getGroup(), a2.getGroup(), true);
@@ -269,7 +267,6 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 		Set<Athlete> regCatAthletes = found.stream().map(pa -> ((PAthlete) pa)._getAthlete())
 		        .collect(Collectors.toSet());
 		List<Athlete> regCatAthletesList = new ArrayList<>(regCatAthletes);
-//		regCatAthletesList.sort(Comparator.comparing(Athlete::getGroup).thenComparing(Athlete::getCategory));
 		regCatAthletesList.sort(groupCategoryComparator);
 
 		cardsXlsWriter.setSortedAthletes(regCatAthletesList);
