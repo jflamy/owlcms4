@@ -160,8 +160,6 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 	private TextField wrappedBWTextField;
 
-	private StringToIntegerConverter yobConverter;
-
 	private LocalizedIntegerField yobField;
 
 	public NAthleteRegistrationFormFactory(Class<Athlete> domainType, Group group) {
