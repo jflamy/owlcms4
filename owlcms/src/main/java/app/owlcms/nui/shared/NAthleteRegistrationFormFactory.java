@@ -1334,12 +1334,12 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		return true;
 	}
 
-	private String zeroIfEmpty(String snatch1Declaration) {
-		if (snatch1Declaration == null || snatch1Declaration.isBlank()) {
-			return "0";
-		}
-		return snatch1Declaration;
-	}
+//	private String zeroIfEmpty(String snatch1Declaration) {
+//		if (snatch1Declaration == null || snatch1Declaration.isBlank()) {
+//			return "0";
+//		}
+//		return snatch1Declaration;
+//	}
 
 	private int zeroIfNull(LocalizedIntegerField intField) {
 		Integer value = intField.getValue();

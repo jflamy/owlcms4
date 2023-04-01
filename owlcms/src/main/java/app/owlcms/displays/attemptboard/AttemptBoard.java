@@ -860,10 +860,13 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		this.getElement().setProperty("category", a.getCategory().getTranslatedName());
 
 		String team = a.getTeam();
+		if (team == null) {
+			team = "";
+		}
 		this.getElement().setProperty("teamName", team);
 		this.getElement().setProperty("teamFlagImg", "");
 		String teamFileName = sanitizeFilename(team);
-		if (teamFlags && team != null) {
+		if (teamFlags &&!team.isBlank()) {
 			boolean done;
 			done = setImgProp("teamFlagImg", "flags/", teamFileName, ".svg");
 			if (!done) {
