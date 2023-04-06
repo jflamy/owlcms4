@@ -1,8 +1,9 @@
 38.4 Minor enhancements
 
-- 38.4 Enhancements
-  - The list of networking addresses on the home page has been improved for Linux and macOS.
-
+- 38.4 Fix
+  - Correct IP addresses now shown on home page for Linux and macOS.
+  - Demo site moved to owlcms.fly.dev
+  
 - 38.3 Fixes
   - The new athlete editing dialog could mistakenly create a 0 declaration and a failed 0 kg lift for the first snatch and first clean & jerk.  Now fixed.
   - Download dialogs for pre-competition and results documents could fail randomly.  Reverted to the previous version of the UI dialog component due to a bug introduced in the user interface library.
