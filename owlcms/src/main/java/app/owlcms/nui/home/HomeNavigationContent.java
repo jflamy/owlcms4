@@ -188,6 +188,9 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		for (String url : urlFinder.getWireless()) {
 			ul.add(new ListItem(new Anchor(url, url), new Label(getTranslation("Wireless"))));
 		}
+		for (String url : urlFinder.getNetworking()) {
+			ul.add(new ListItem(new Anchor(url, url), new Label("")));
+		}
 		for (String url : urlFinder.getLocalUrl()) {
 			ul.add(new ListItem(new Anchor(url, url), new Label(getTranslation("LocalComputer"))));
 		}

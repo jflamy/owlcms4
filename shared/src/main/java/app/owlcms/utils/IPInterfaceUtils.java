@@ -43,15 +43,20 @@ public class IPInterfaceUtils {
 
     ArrayList<String> wireless = new ArrayList<>();
     ArrayList<String> loopback = new ArrayList<>();
+    ArrayList<String> networking = new ArrayList<>();
 
     /**
      * Try to guess URLs that can reach the system.
      *
-     * The browser on the master laptop most likely uses "localhost" in its URL. We can't know which of its available IP
-     * addresses can actually reach the application. We scan the network addresses, and try the URLs one by one, listing
-     * wired interfaces first, and wireless interfaces second (in as much as we can guess).
+     * The browser on the master laptop most likely uses "localhost" in its URL. We
+     * can't know which of its available IP
+     * addresses can actually reach the application. We scan the network addresses,
+     * and try the URLs one by one, listing
+     * wired interfaces first, and wireless interfaces second (in as much as we can
+     * guess).
      *
-     * We rely on the URL used to reach the "about" screen to know how the application is named, what port is used, and
+     * We rely on the URL used to reach the "about" screen to know how the
+     * application is named, what port is used, and
      * which protocol works.
      *
      * @return HTML ("a" tags) for the various URLs that appear to work.
@@ -67,7 +72,7 @@ public class IPInterfaceUtils {
             NetworkInterface iface = interfaces.nextElement();
             // filters out 127.0.0.1 and inactive interfaces
             if (// iface.isLoopback() ||
-            !iface.isUp()) {
+                    !iface.isUp()) {
                 continue;
             }
 
@@ -92,40 +97,6 @@ public class IPInterfaceUtils {
             }
         }
     }
-    
-    public List<String> getLocalAdresses() {
-        String ip;
-        ArrayList<String> localAdresses = new ArrayList<>();
-        Enumeration<NetworkInterface> interfaces;
-        try {
-            interfaces = NetworkInterface.getNetworkInterfaces();
-            while (interfaces.hasMoreElements()) {
-                NetworkInterface iface = interfaces.nextElement();
-                // filters out 127.0.0.1 and inactive interfaces
-                if (// iface.isLoopback() ||
-                !iface.isUp()) {
-                    continue;
-                }
-
-                String displayName = iface.getDisplayName();
-                String ifaceDisplay = displayName.toLowerCase();
-
-                // filter out interfaces to virtual machines
-                if (!virtual(ifaceDisplay)) {
-                    Enumeration<InetAddress> addresses = iface.getInetAddresses();
-                    while (addresses.hasMoreElements()) {
-                        InetAddress addr = addresses.nextElement();
-                        ip = addr.getHostAddress();
-                        if (addr instanceof Inet4Address) {
-                            localAdresses.add(ip);
-                        }
-                    }
-                }
-            }
-        } catch (SocketException e) {
-        }
-        return localAdresses;
-    }
 
     public void checkRequest() {
         try {
@@ -147,7 +118,7 @@ public class IPInterfaceUtils {
             boolean loopbackAddress;
             boolean siteLocalAddress;
             try {
-                InetAddress serverAddr = Inet4Address.getByName(server);
+                InetAddress serverAddr = InetAddress.getByName(server);
                 loopbackAddress = serverAddr.isLoopbackAddress();
                 siteLocalAddress = serverAddr.isSiteLocalAddress();
                 local = loopbackAddress || siteLocalAddress;
@@ -158,7 +129,8 @@ public class IPInterfaceUtils {
             }
 
             if (!local || server.matches(FQDN_REGEX)) {
-                // an external name or address outside the local machine or local site (non-routable network).
+                // an external name or address outside the local machine or local site
+                // (non-routable network).
                 // or a
                 if (absoluteURL.endsWith("/")) {
                     absoluteURL = requestURL.substring(0, requestURL.length() - 1);
@@ -182,11 +154,49 @@ public class IPInterfaceUtils {
         logger.trace("wireless = {} {}", wireless, wireless.size());
     }
 
+    public List<String> getLocalAdresses() {
+        String ip;
+        ArrayList<String> localAdresses = new ArrayList<>();
+        Enumeration<NetworkInterface> interfaces;
+        try {
+            interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface iface = interfaces.nextElement();
+                // filters out 127.0.0.1 and inactive interfaces
+                if (// iface.isLoopback() ||
+                        !iface.isUp()) {
+                    continue;
+                }
+
+                String displayName = iface.getDisplayName();
+                String ifaceDisplay = displayName.toLowerCase();
+
+                // filter out interfaces to virtual machines
+                if (!virtual(ifaceDisplay)) {
+                    Enumeration<InetAddress> addresses = iface.getInetAddresses();
+                    while (addresses.hasMoreElements()) {
+                        InetAddress addr = addresses.nextElement();
+                        ip = addr.getHostAddress();
+                        if (addr instanceof Inet4Address) {
+                            localAdresses.add(ip);
+                        }
+                    }
+                }
+            }
+        } catch (SocketException e) {
+        }
+        return localAdresses;
+    }
+
     /**
      * @return the loopback
      */
     public ArrayList<String> getLocalUrl() {
         return loopback;
+    }
+
+    public ArrayList<String> getNetworking() {
+        return networking;
     }
 
     /**
@@ -227,6 +237,10 @@ public class IPInterfaceUtils {
         return wireless;
     }
 
+    public void setNetworking(ArrayList<String> networking) {
+        this.networking = networking;
+    }
+
     private void checkTargetFileOk(String targetFile) {
         try {
             ResourceWalker.getResourceAsStream("/" + targetFile);
@@ -262,12 +276,13 @@ public class IPInterfaceUtils {
                 }
                 if (ifaceName.startsWith("lo") || ifaceDisplay.contains("loopback")) {
                     loopback.add(siteURLString);
-                } else if (ifaceName.startsWith("wlan") || ifaceDisplay.contains("wireless")) {
+                } else if (ifaceName.startsWith("wlan") || ifaceName.startsWith("wlp") || ifaceDisplay.contains("wireless")) {
                     wireless.add(siteURLString);
-                } else if (ifaceName.startsWith("eth")) {
+                } else if (ifaceName.startsWith("eth") || ifaceName.startsWith("enp")) {
                     wired.add(siteURLString);
                 } else {
-                    logger./**/warn("inferface type not recognized: {} {}", ifaceName, ifaceDisplay);
+                    // on certain versions of macOS, wireless and wired interfaces are both "en"
+                    networking.add(siteURLString);
                 }
             }
         } catch (Exception e) {

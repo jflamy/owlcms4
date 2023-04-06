@@ -1,4 +1,7 @@
-38.3.0 Additional attempt board information, Revised Athlete Editing form, Personal bests
+38.4 Minor enhancements
+
+- 38.4 Enhancements
+  - The list of networking addresses on the home page has been improved for Linux and macOS.
 
 - 38.3 Fixes
   - The new athlete editing dialog could mistakenly create a 0 declaration and a failed 0 kg lift for the first snatch and first clean & jerk.  Now fixed.
