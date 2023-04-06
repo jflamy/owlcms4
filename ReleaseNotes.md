@@ -1,14 +1,17 @@
-38.3.0 Additional attempt board information, Revised Athlete Editing form, Personal bests
+38.4 Minor enhancements
+
+- 38.4 Enhancements
+  - The list of networking addresses on the home page has been improved for Linux and macOS.
 
 - 38.3 Fixes
   - The new athlete editing dialog could mistakenly create a 0 declaration and a failed 0 kg lift for the first snatch and first clean & jerk.  Now fixed.
   - Download dialogs for pre-competition and results documents could fail randomly.  Reverted to the previous version of the UI dialog component due to a bug introduced in the user interface library.
   - If some athletes had not been assigned to a group, errors could occur on the preparation document page. Also, the start list and the athlete cards would fail when printing them for all athletes.
   - A team name with characters that cannot be used in file names (like "/" or "?") would cause errors on the attempt board if flag images were used.
-  - [Fly.io](https://owlcms.github.io/owlcms4/#/Fly) cloud setup documentation updated to match their new updated v2 machines
+  - [Fly.io](https://owlcms.github.io/owlcms4-prerelease/#/Fly) cloud setup documentation updated to match their new updated v2 machines
 - 38.2 Heroku deprecated
   - Heroku cloud installation is no longer recommended.
-    - We now recommend using [fly.io](https://owlcms.github.io/owlcms4/#/Fly) as the cloud installation is straightforward and owlcms can be run for free (it is below their monthly minimum for processing a bill.)
+    - We now recommend using [fly.io](https://owlcms.github.io/owlcms4-prerelease/#/Fly) as the cloud installation is straightforward and owlcms can be run for free (it is below their monthly minimum for processing a bill.)
     -  Heroku has broken the easy one-click installation process as it was used by owlcms.  The Heroku documentation has been updated to show the "official" command-line installation process.
 - 38.1 Enhancements
   - The editing page used for athlete registration and weigh-in has been redone to be more readable and better organized.
@@ -22,24 +25,24 @@
 
 ##### Highlights from recent stable releases
 
-- A new site section has been added to start the displays used for video streaming (see the [streaming documentation](https://owlcms.github.io/owlcms4/#/OBS?id=_2-setup-owlcms-with-some-data)). The video-oriented scoreboards have a different header with the event name and group description, and show different columns (by default, the same as used by IWF).
+- A new site section has been added to start the displays used for video streaming (see the [streaming documentation](https://owlcms.github.io/owlcms4-prerelease/#/OBS?id=_2-setup-owlcms-with-some-data)). The video-oriented scoreboards have a different header with the event name and group description, and show different columns (by default, the same as used by IWF).
 - The announcer and marshal screens show the 6 attempts and total for each athlete. ([#525](https://github.com/jflamy/owlcms4/issues/525))
 - Capability to add flags and athlete pictures on the attempt board (#508).  See [Flags and Pictures](https://owlcms.github.io/owlcms4-prerelease/#/FlagsPicture) documentation.
-- There is now a separate page for pre-competition documents. There are now separate sections for each purpose instead of multiple tabs. See [Pre-Competition Documents Documentation](https://owlcms.github.io/owlcms4/#/2400PreCompetitionDocuments).
+- There is now a separate page for pre-competition documents. There are now separate sections for each purpose instead of multiple tabs. See [Pre-Competition Documents Documentation](https://owlcms.github.io/owlcms4-prerelease/#/2400PreCompetitionDocuments).
 - Customization of team points. Templates for the final results package now have an extra tab that contains the points awarded for each rank. Copy and rename the template if you need to change the point system for a given competition.
-- Improvements to Records eligibility. See [Records Eligibility](https://owlcms.github.io/owlcms4/#/Records) documentation. 
+- Improvements to Records eligibility. See [Records Eligibility](https://owlcms.github.io/owlcms4-prerelease/#/Records) documentation. 
 - New Weigh-in template to create an empty Weigh-in Summary (used to facilitate data entry)
 - New Sinclair coefficients for the 2024 Olympiad.  An option on the Competition rules page allows using the previous (2020 Olympiad) values if your local rules require them.  Masters SMF and SMHF use the 2020 Olympiad values until further notice.
 
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_38.3.1.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_38.4.0-beta00.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_38.3.1.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_38.4.0-beta00.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
-  - For **Cloud PaaS** installs, no download is necessary. Follow the [Heroku](https://owlcms.github.io/owlcms4/#Heroku) or (recommended) **[Fly.io](https://owlcms.github.io/owlcms4/#Fly)** installation instructions.
+  - For **Cloud PaaS** installs, no download is necessary. Follow the [Heroku](https://owlcms.github.io/owlcms4-prerelease/#Heroku) or (recommended) **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
-  - For self-hosted **Docker**, see [Docker](https://owlcms.github.io/owlcms4/#/LocalWindowsSetup). For self-hosted **Kubernetes** see [Kubernetes](https://owlcms.github.io/owlcms4/#/DigitalOcean)
+  - For self-hosted **Docker**, see [Docker](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup). For self-hosted **Kubernetes** see [Kubernetes](https://owlcms.github.io/owlcms4-prerelease/#/DigitalOcean)
