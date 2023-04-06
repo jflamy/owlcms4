@@ -31,7 +31,7 @@ The following videos and demos are available
 
 - [Simple setup](Demo1): running a minimal setup for a small club meet with a single person controlling the meet.
 - [Full setup](Demo2): running a regular or virtual competition with technical officials
-- Live demo: after watching the videos, try the [Live demo](https://owlcms.herokuapp.com) site, or better yet, [install your own copy](installationOverview) and experiment.
+- Live demo: after watching the videos, try the [Live demo](https://owlcms.fly.dev) site, or better yet, [install your own copy](installationOverview) and experiment.
 
 ## Features
 
