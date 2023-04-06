@@ -345,9 +345,10 @@ public class Main {
 	private static void startMQTT() {
 		Config conf = Config.getCurrent();
 		if (conf.getMqttInternal() == null) {
-			logger.info("setting MQTT server as enabled unless overridden by environment or properties.");
 			conf.setMqttInternal(true);
 			Config.setCurrent(conf);
+		} else {
+			logger.info("MQTT server disabled by database configuration");
 		}
 
 		mqttStartup = Long.toString(System.currentTimeMillis());
@@ -364,7 +365,7 @@ public class Main {
 		List<? extends InterceptHandler> userHandlers = Collections.singletonList(new PublisherListener());
 
 		if (Config.getCurrent().getParamMqttServer() != null) {
-			logger.info("MQTT Server override by environment or system parameter, not starting embedded MQTT");
+			logger.info("MQTT Server overridden by environment or system parameter, not starting embedded MQTT");
 			return;
 		}
 		if (Config.getCurrent().getMqttInternal() == null) {
