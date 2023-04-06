@@ -61,7 +61,6 @@ public class LocalizedIntegerField extends WrappedTextField<Integer> {
 			public Result<Integer> convertToModel(String value, ValueContext context) {
 				Locale locale = context.getLocale().orElse(Locale.ENGLISH);
 				if (value != null && value.isBlank()) {
-					logger.warn("returning Null");
 					return Result.ok(null);
 				}
 				return doParse(value, locale, getFormatter(locale));
@@ -70,7 +69,6 @@ public class LocalizedIntegerField extends WrappedTextField<Integer> {
 			@Override
 			public String convertToPresentation(Integer value, ValueContext context) {
 				Locale locale = context.getLocale().orElse(Locale.ENGLISH);
-				logger.warn("value {}",value);
 				return (value != null ? getFormatter(locale).format(value) : "");
 			}
 		};
