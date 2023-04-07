@@ -1,16 +1,14 @@
 [Home](index)
 
 * Installation
-  * [Downloads](Downloads)
-  * [Installation](InstallationOverview)
+  * [Downloads and Instructions](Downloads)
+  * [Installation Options](InstallationOverview)
   * [Equipment Setup](EquipmentSetup)
-
 * Competition Setup
   * [Pre-Competition Setup](2100PreCompetitionSetup)
   * [Registration](2200Registration)
   * [Edit Athlete Entries](2300EditAthleteEntries)
   * [Pre-competition Documents](2400PreCompetitionDocuments)
-
 * Running a Competition
   * [Weigh-in and Start Numbers](WeighIn)
   * [Announcing, Marshaling and Timekeeping](Announcing)
@@ -21,8 +19,7 @@
   * [Records](Records)
   * [Result Documents](Documents)
   * [Optional Modified Competition Rules](ModifiedRules)
-
-* Video
+* Video Streaming
   * [Preparing the Video Setup](OBS)
   * [Live Streaming Events](Streaming)
   * [Automatic Scene Switching](OBSSceneSwitching)
@@ -44,7 +41,6 @@
   * [MQTT Messaging Specification](MQTTMessages)
   * [Using PostgreSQL](PostgreSQL)
   * [Contributing to the code](Gitpod)
-* Downloads
+* Licensing
   * [Licensing and Notes](Licensing)
-  * [Downloads](Downloads)
   * [Source Repository](https://github.com/jflamy/owlcms4)

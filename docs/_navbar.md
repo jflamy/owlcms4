@@ -1,7 +1,7 @@
 * [Home](index)
 * Installation
-  * [Downloads](Downloads)
-  * [Installation](InstallationOverview)
+  * [Downloads and Instructions](Downloads)
+  * [Installation Options](InstallationOverview)
   * [Equipment Setup](EquipmentSetup)
 * Competition Setup
   * [Pre-Competition Setup](2100PreCompetitionSetup)
@@ -26,7 +26,7 @@
   * [Overview](VirtualOverview)
   * [Preparing the Zoom Setup](PrepareZoomBroadcasting)
   * [Running a Virtual Competition](Zoom)
-* Advanced Topics
+* Advanced
   * [Customization](UploadingLocalSettings)
   * [Scoreboard Colors](Styles)
   * [Flags and Pictures](FlagsPictures)
@@ -40,7 +40,6 @@
   * [MQTT Messaging Specification](MQTTMessages)
   * [Using PostgreSQL](PostgreSQL)
   * [Contributing to the code](Gitpod)
-* Downloads
+* Licensing
   * [Licensing and Notes](Licensing)
-  * [Downloads](Downloads)
   * [Source Repository](https://github.com/jflamy/owlcms4)

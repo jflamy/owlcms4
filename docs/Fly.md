@@ -1,8 +1,8 @@
 # Installation on fly.io
 
-Fly.io is a cloud service that is, in effect, free. The charges incurred for a single owlcms application and the matching remote scoreboard are less than their 5US$ per month threshold, so there is no bill emitted.
+Fly.io is a cloud service that is, in effect, free. The charges incurred for a single owlcms application and the matching remote scoreboard are about 1US$ per month, cheaper than the minimal amount for which they emit a bill.
 
-In order to install an application you will need to log in to their site and then type 3 commands.
+In order to install an application you will need to log in to their site and then issue 3 commands.
 
 ### Log in
 
@@ -10,21 +10,25 @@ Go to the site https://fly.io
 
 If you do not have an account, create one.  Running owlcms requires an account, but you will not actually get billed because the fees are lower than their minimum
 
-If there is a "use the Web CLI" button, click it, otherwise type the https://fly.io/terminal yourself.
+If there is a "use the Web CLI" button, click it, otherwise type https://fly.io/terminal in your browser address bar yourself.
 
 ### Install owlcms
 
-1. Choose an application name The application names in fly.io are global.  If the name you want is already taken, you will be told.  If your club is named `myclub`,  you might pick `myclub` as the name, and the URL will be `https://myclub.fly.dev` . See "Advanced topics" below if your club already has a domain name - you will be also be able to use it.
+1. Choose an application name.
 
-You will now have to type three commands, and answer a few questions.  The fly user interface will highlight the default values in pale blue, you can accept them by just using the "enter" key.
+   The application names in fly.io are global.  If the name you want is already taken, you will be told.  If your club is named `myclub`,  you might pick `myclub` as the name, and the URL will be `https://myclub.fly.dev`
 
-1. Install owlcms.  Type the following command, and then answer the questions as explained below
+   Type the following command in the black command line area, replacing `myclub` with the name you want.
 
    ```
-   fly launch -i owlcms/owlcms:stable --force-machines
+   export APP=myclub
    ```
 
-   - Name of the application: pick you own name, in our example we use `myclub`
+2. Click on the grey box below to copy the command.  Paste it to the command line interface (use right-click on Windows, or ctrl-click on macOS, or the browser Edit menu)
+
+   ```
+   fly launch -name $APP -i owlcms/owlcms:stable --force-machines
+   ```
 
    - Organization:  use the default `Personal` organization.
 
@@ -33,50 +37,27 @@ You will now have to type three commands, and answer a few questions.  The fly u
    - Configuration of the Postgres database : Choose the default option  `Development`
 
    - Upstash Redis : Answer **n (No)**
-   
+
    - Deploy immediately: Answer **y (Yes)** 
 
 
-3. Obtain the Id for the machine that was just created and copy it -- select the text and use the browser command to copy (right-click)
+3. We now request more memory for the machine. Click the grey box below to copy the command and paste it to the command line (use right-click on Windows, or ctrl-click on macOS, or the browser Edit menu)
 
    ```
-   fly machines list
+   fly machine update $(fly m list -a $APP -q) --memory 512 --app $APP --yes
    ```
 
-    In the output you will find information lines that start with the following information
-
-   ```
-   ID              NAME                    STATE   REGION  IMAGE 
-   6e82dd72a14187  withered-frost-7643     started iad     owlcms/owlcms:stable
-   ```
-
-   The id in this example would be `6e82dd72a14187`
-
-4. We now request more memory for the application
-
-   ```
-   fly machine update --memory 512 6e82dd72a14187
-   ```
-
-   Answer **Yes** when asked to apply the changes
-
-   
-
-You are now done and can use https://myclub.fly.dev
-
-
+   You are now done and can use https://myclub.fly.dev
 
 ### Updating for new releases
 
 The `fly deploy` command fetches the newest version available and restarts the application (owlcms stores the versions in the public hub.docker.com repository)
 
-To update to the latest stable version, log in again to https://fly.io/terminal and type
+To update to the latest stable version, log in again to https://fly.io/terminal and type the following command (replacing `myclub` with your own site name)
 
 ```
 fly deploy -i owlcms/owlcms:stable -a myclub
 ```
-
-
 
 ### Advanced topics
 
@@ -86,15 +67,13 @@ This second site will allow anyone in the world to watch the scoreboard, includi
 
 This is not required, but since there is no extra cost associated, you might as well configure it even if you don't need it immediately.
 
-1. Install public results.  This is the same as process as for owlcms, except we don't want the databases
+1. Install public results.
 
    - Choose a meaningful application name.  In our example we use `myclub-results` with the name you want for your remote scoreboard application
-
-
    - **Answer `n` (NO)** when asked if you want a Postgres database.  publicresults does not need a database.
 
    ```
-   fly launch -i owlcms/publicresults:stable
+   fly launch -i owlcms/publicresults:stable --name myclub-results
    ```
 
 2. The two applications (owlcms and publicresults) need to trust one another. So we create a secret phrase and configure both applications to use it. See [this page](PublicResults) for an overview of how owlcms and publicresults work together.

@@ -1,16 +1,10 @@
 Several installation options are possible, depending on what is available at the competition site and the size of the competition.
 
 - Stand-alone installation, if you prefer to run things locally ([details below](#stand-alone-laptop-installation))
-  - [Windows Stand-alone Installation](LocalWindowsSetup)
-  - [Linux or Mac Stand-alone Installation](LocalLinuxMacSetup)
 
 
 - Cloud-based options, where all you need are browsers (and a good internet connection).  Such setups are ideal for virtual competitions. ([more details below](#cloud-based-installation))
 
-  - [Fly Cloud Installation Instructions](Fly). 
-  - (Deprecated) [Heroku Cloud Installation Instructions](Heroku)
-
-- Finally, there is an optional module to provide remote scoreboards.  These are typically used during virtual competitions, or when the public cannot see the scoreboard.  The public results scoreboard is normally installed in the cloud. See the [Public Scoreboard](PublicResults) page for more information. 
 
 ## Stand-alone: Laptop installation
 
@@ -39,19 +33,18 @@ See the following instructions
 
 In this scenario, the owlcms software runs as a web site on the Internet, but it is your own private copy, with your own database.  All that is needed is a good internet connection from the competition site.
 
+In the following diagram, phones are shown as the referee device, which would be the case for virtual competition.  But all the refereeing options are available, see [this page](Refereeing)
+
+![Slide9](img/PublicResults/CloudExplained/Slide9.SVG)
+
 We provide instructions for the following variations
 
 - **Fly.io**: Fly.io is in practice free because running owlcms costs about 10 cents per day BUT there is no billing for less than 5$ usage per month. No software needs to be installed locally to create a fly.io application (only 3 commands need to be typed). See the [Fly Cloud Installation Instructions](Fly).  
 - **Heroku**: (Deprecated).  Heroku is no longer free, and what used to be a very simple installation process is no longer available -- the current process is unfortunately much more involved. See [Heroku Cloud Installation Instructions](Heroku).  For this reason we strongly recommend using fly.io
-  Current pricing is 5$ per month for all the applications you can use in "Economy mode", but there is an extra 5$ per month for *each* database (each owlcms application needs one).  Hosting one owlcms and one publicresults costs 10$ per month because only owlcms needs a database.
 - **Docker**: if you have your own hosting, you can deploy a docker image using [Docker Instructions](Docker) 
 - **Kubernetes**: see [self-hosted Kubernetes instructions](DigitalOcean)
 
 All the various display screens and devices connect to the cloud using the competition site's network.
-
-In the following diagram phones are shown as the referee device.  But you can actually referee using hand signals, flags, phones, or dedicated keypads (USB or Bluetooth). See [this page](Refereeing)
-
-![Slide9](img/PublicResults/CloudExplained/Slide9.SVG)
 
 ## Public Scoreboard
 

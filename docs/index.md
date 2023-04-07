@@ -20,12 +20,14 @@
 
 ## Downloads and Installation
 
-To run the program on a laptop at the competition site ([overview](InstallationOverview#stand-alone-laptop-installation))
+Most people run the program on a laptop at the competition site (see [this link](InstallationOverview#stand-alone-laptop-installation) for an overview)
 
 - [Windows Stand-alone Installation](LocalWindowsSetup)
 - [Linux or Mac Stand-alone Installation](LocalLinuxMacSetup)
 
-You can also run the program in the cloud, for example to host virtual meets. See [here](InstallationOverview#cloud-based-installation) for instructions
+But you can also run the program in the cloud, for example, to host virtual meets (see [this link](InstallationOverview#cloud-based-installation) for an overview)
+
+-   [Fly.io Cloud Installation Instructions](https://owlcms.github.io/owlcms4/#/Fly)
 
 ## Demo
 
