@@ -2,7 +2,13 @@
 
 > **The full-range solution for running competitions**
 >
-> This free application is a *fully-compliant* weightlifting competition management system that has been used worldwide to manage many large-scale championships. **BUT** at the same time, it is simple enough that you can run a small club meet with just a single laptop, or a regional meet with only everyday electronics (a couple laptops and TVs, some phones).
+> This free application is a *fully-compliant* weightlifting competition management system that has been used worldwide to manage many large-scale championships. 
+>
+> **Simple and automatic**
+>
+> The program computes lifting order automatically, and automatically sets the clock correctly.  It also enforces the rules for weight changes (time remaining, moving down).  The announcer always sees the lifting order, and is informed of all the changes, and is shown what weight is required on the bar.
+>
+> It is actually simple enough that you can run a small club meet with just a single laptop, or a regional meet with only everyday electronics (a couple of laptops and TVs, some phones).
 
 ## Gallery
 
@@ -20,14 +26,12 @@
 
 ## Downloads and Installation
 
-Most people run the program on a laptop at the competition site (see [this link](InstallationOverview#stand-alone-laptop-installation) for an overview)
+Most people run the program on a laptop at the competition site ([overview](InstallationOverview#stand-alone-laptop-installation))
 
 - [Windows Stand-alone Installation](LocalWindowsSetup)
 - [Linux or Mac Stand-alone Installation](LocalLinuxMacSetup)
 
-But you can also run the program in the cloud, for example, to host virtual meets (see [this link](InstallationOverview#cloud-based-installation) for an overview)
-
--   [Fly.io Cloud Installation Instructions](https://owlcms.github.io/owlcms4/#/Fly)
+You can also run the program in the cloud, for example to host virtual meets. See [here](InstallationOverview#cloud-based-installation) for instructions
 
 ## Demo
 
@@ -35,7 +39,7 @@ The following videos and demos are available
 
 - [Simple setup](Demo1): running a minimal setup for a small club meet with a single person controlling the meet.
 - [Full setup](Demo2): running a regular or virtual competition with technical officials
-- Live demo: after watching the videos, try the [Live demo](https://owlcms.fly.dev) site, or better yet, [install your own copy](installationOverview) and experiment.
+- Live demo: after watching the videos, try the [Live demo](https://owlcms.fly.dev) site, or better yet, [install your own copy](Downloads) and experiment.
 
 ## Features
 
