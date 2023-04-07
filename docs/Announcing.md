@@ -18,7 +18,7 @@ Let's assume we are running an informal club meet and we want to start lifting r
 
 ## Announcing an athlete
 
-The display shifts to the lifting order and announcing mode.  The next athlete to lift is displayed. The next weight requested is highlighted in yellow.
+The display shifts to the lifting order and announcing mode.  The next athlete to lift is displayed. Athletes are shown in lifting order. The next weight requested is highlighted in yellow.
 
 ![013_ShowCurrent](nimg/3200Lifting/040.png)
 
@@ -60,7 +60,9 @@ Notes:
 
 - The first time an athlete or coach indicates a weight should always be noted in the Declaration row. It is *not* the first change.  The official should pay attention and refuse a declaration after the first 30 seconds have elapsed. In a two-minute situation, further changes cannot be made if a declaration has not been given.
 
-- In order to reverse a ruling, edit the bottom row which is the actual weight that was lifted or failed (negative number).  In the screen shot below, changing the snatch 1 from "62" to "**-62**" <u>on the bottom row</u> would mark the lift as <u>failed</u>.
+- When the jury screen is used, reversal of decisions is automatic.
+
+- In order to manually reverse a ruling, edit the bottom row which is the actual weight that was lifted or failed (negative number).  In the screen shot below, changing the snatch 1 from "62" to "**-62**" <u>on the bottom row</u> would mark the lift as <u>failed</u>.
 
   > NOTE: the ability to edit the results is OFF by default on the Marshall screen, to prevent entering an extra change by mistake (which would then count as a good lift)
 
@@ -95,7 +97,7 @@ When a weight change occurs for the athlete currently announced, a notification 
 
 ## Forcing the current athlete
 
-In some small competitions, the official lifting order is not followed.  For example, all athletes may take their first attempts before their second, or the official two-minute rules for lifting order are not followed strictly. It is possible to force an athlete to become the current athlete using a checkbox on the athlete card.  In the example below, using the checkbox means that Jackson will be lifting next even though Brown has a lower requested weight.
+In some small competitions, the official lifting order is not followed. It is possible to force an athlete to become the current athlete using a checkbox on the athlete card.  In the example below, using the checkbox means that Jackson will be lifting next even though Brown has a lower requested weight.
 
 ![021_ForcedAsCurrent-](img/Lifting/021_ForcedAsCurrent-.png)
 
