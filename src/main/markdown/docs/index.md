@@ -12,6 +12,8 @@
 
 ## Gallery
 
+The owlcms competition management system is currently in use in well over 30 federations.  See here for [a list.](Countries)
+
 <table>
 <tr><td><img src='img/Gallery/lima.jpg'></img></td><td>PanAm Junior and SouthAmerican  U20/U17/U15 Championships, Lima, Peru.<br>The program  supports simultaneous platforms and displays the multiple rankings for multiple concurrent age group competitions</td></tr>
 <tr><td><img src='img/Gallery/ElSalvador.jpg'></img></td><td>National Competition, El Salvador.<br>A simple setup with everyday electronics.</td></tr>
@@ -143,7 +145,7 @@ The following list is a sampling of the many features available.  <u>*Click on t
   
 - **[Video Streaming Scene Switching](OBSSceneSwitching)** When using OBS (or similar software) to stream a competition, a special status window can be monitored to switch scenes, trigger replays, or provide information as to the course of the competition (for example, jury deliberation, etc.)
   
-- [**Multiple languages**](Preparation#display-language). Currently English, French, Spanish, Danish, Swedish, German, Portuguese, Russian, Ukrainian, Armenian.
+- [**Multiple languages**](Preparation#display-language). Currently English, French, Spanish (Latin America, Spain), Danish, Swedish, German, Portuguese, Romanian, Hungarian, Russian, and Armenian.
   
 - **[Color and Visual Styling Customization](Styles)**  The colors of the displays are controlled by Web-standard CSS stylesheets, the format used by web designers world wide. A tutorial is given for the common case of adjusting the color scheme to local preferences.
   
