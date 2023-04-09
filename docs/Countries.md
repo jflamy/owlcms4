@@ -1,6 +1,6 @@
 ## Countries
 
-The following list is not exhaustive and has been compiled from questions asked on the [support forum](https://groups.google.com/g/owlcms) and from postings, pictures or videos made available on various media, and 
+The following list is not exhaustive and has been compiled from questions asked on the [support forum](https://groups.google.com/g/owlcms) and from postings, pictures or videos made available on various media.
 
 The (\*) indicates that a translation to the local language(s) is available.  In all cases, the competitor names and team names can be written in the local alphabet.
 
