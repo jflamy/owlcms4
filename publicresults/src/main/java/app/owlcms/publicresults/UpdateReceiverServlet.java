@@ -133,6 +133,7 @@ public class UpdateReceiverServlet extends HttpServlet {
 
             updateEvent.setNoLiftRanks(req.getParameter("noLiftRanks"));
             updateEvent.setAthletes(req.getParameter("groupAthletes"));
+            updateEvent.setLiftingOrderAthletes(req.getParameter("liftingOrderAthletes"));
             updateEvent.setLeaders(req.getParameter("leaders"));
 
             updateEvent.setRecords(req.getParameter("records"));

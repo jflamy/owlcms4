@@ -91,6 +91,7 @@ public class EventForwarder implements BreakDisplay {
 	private FieldOfPlay fop;
 	private String fullName;
 	private JsonValue groupAthletes;
+	private JsonValue liftingOrderAthletes;
 	private List<Athlete> groupLeaders;
 	private String groupName;
 	private boolean hidden;
@@ -449,9 +450,11 @@ public class EventForwarder implements BreakDisplay {
 		setGroupName(computeSecondLine(getFop().getCurAthlete(), group != null ? group.getName() : null));
 		setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
 		if (displayOrder != null && displayOrder.size() > 0) {
-			setGroupAthletes(getAthletesJson(displayOrder, getFop().getLiftingOrder()));
+			setGroupAthletes(getAthletesJson(displayOrder, getFop().getDisplayOrder(), true));
+			setLiftingOrderAthletes(getAthletesJson(displayOrder, getFop().getLiftingOrder(), false));
 		} else {
 			setGroupAthletes(null);
+			setLiftingOrderAthletes(null);
 		}
 		if (Competition.getCurrent().isSinclair()) {
 			setNoLiftRanks("noranks sinclair");
@@ -481,12 +484,12 @@ public class EventForwarder implements BreakDisplay {
 			} else if (groupLeaders.size() > 0) {
 				// null as second argument because we do not highlight current athletes in the
 				// leaderboard
-				setLeaders(getAthletesJson(groupLeaders, null));
+				setLeaders(getAthletesJson(groupLeaders, null, true));
 			} else {
 				// no one has totaled, so we show the snatch leaders
 				if (!fop.isCjStarted()) {
 					if (groupLeaders.size() > 0) {
-						setLeaders(getAthletesJson(groupLeaders, null));
+						setLeaders(getAthletesJson(groupLeaders, null, true));
 					} else {
 						// nothing to show
 						setLeaders(null);
@@ -640,6 +643,9 @@ public class EventForwarder implements BreakDisplay {
 		mapPut(sb, "noLiftRanks", getNoLiftRanks());
 		if (groupAthletes != null) {
 			mapPut(sb, "groupAthletes", groupAthletes.toJson());
+		}
+		if (liftingOrderAthletes != null) {
+			mapPut(sb, "groupAthletes", liftingOrderAthletes.toJson());
 		}
 		if (leaders != null) {
 			mapPut(sb, "leaders", leaders.toJson());
@@ -836,13 +842,15 @@ public class EventForwarder implements BreakDisplay {
 	}
 
 	/**
+	 * @param startOrder     TODO
 	 * @param groupAthletes, List<Athlete> liftOrder
 	 * @return
 	 */
-	private JsonValue getAthletesJson(List<Athlete> groupAthletes, List<Athlete> liftOrder) {
+	private JsonValue getAthletesJson(List<Athlete> groupAthletes, List<Athlete> liftOrder, boolean startOrder) {
 		JsonArray jath = Json.createArray();
 		int athx = 0;
 		Category prevCat = null;
+		Athlete prevAth = null;
 		long currentId = (liftOrder != null && liftOrder.size() > 0) ? liftOrder.get(0).getId() : -1L;
 		long nextId = (liftOrder != null && liftOrder.size() > 1) ? liftOrder.get(1).getId() : -1L;
 		List<Athlete> athletes = groupAthletes != null ? Collections.unmodifiableList(groupAthletes)
@@ -850,13 +858,26 @@ public class EventForwarder implements BreakDisplay {
 		for (Athlete a : athletes) {
 			JsonObject ja = Json.createObject();
 			Category curCat = a.getCategory();
-			if (curCat != null && !curCat.sameAs(prevCat)) {
-				// changing categories, put marker before athlete
-				ja.put("isSpacer", true);
-				jath.set(athx, ja);
-				ja = Json.createObject();
-				prevCat = curCat;
-				athx++;
+			if (startOrder) {
+				if (curCat != null && !curCat.sameAs(prevCat)) {
+					// changing categories, put marker before athlete
+					ja.put("isSpacer", true);
+					jath.set(athx, ja);
+					ja = Json.createObject();
+					prevCat = curCat;
+					athx++;
+				}
+			} else {
+				if (prevAth != null 
+						&& a.getActuallyAttemptedLifts() >= 3 
+						&& prevAth.getActuallyAttemptedLifts() < 3) {
+					// changing categories, put marker before athlete
+					ja.put("isSpacer", true);
+					jath.set(athx, ja);
+					ja = Json.createObject();
+					athx++;
+				}
+				prevAth = a;
 			}
 			getAthleteJson(a, ja, curCat, (a.getId() == currentId)
 			        ? 1
@@ -1083,7 +1104,10 @@ public class EventForwarder implements BreakDisplay {
 
 	private void setGroupAthletes(JsonValue athletesJson) {
 		this.groupAthletes = athletesJson;
-
+	}
+	
+	private void setLiftingOrderAthletes(JsonValue athletesJson) {
+		this.liftingOrderAthletes = athletesJson;
 	}
 
 	private void setLeaders(JsonValue athletesJson) {

@@ -356,6 +356,7 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
 
         ui.access(() -> {
             String athletes = e.getAthletes();
+            String liftingOrder = e.getLiftingOrderAthletes();
             String leaders = e.getLeaders();
             String records = e.getRecords();
             String translationMap = e.getTranslationMap();
