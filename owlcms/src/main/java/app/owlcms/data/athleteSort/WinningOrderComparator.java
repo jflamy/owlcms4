@@ -313,9 +313,9 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 			                // best attempt), smaller first
 		}
 
-		compare = compareLotNumber(lifter1, lifter2);
+		compare = compareStartNumber(lifter1, lifter2);
 		if (trace) {
-			logger.trace("compareLotNumber {}", compare);
+			logger.warn("compareStartNumber {}", compare);
 		}
 		if (compare != 0) {
 			return compare; // if equality within a group,
@@ -438,7 +438,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 
 		// if equality within a group, smallest lot number wins (same session, same
 		// category, same weight, same attempt) -- smaller lot lifted first.
-		compare = compareLotNumber(lifter1, lifter2);
+		compare = compareStartNumber(lifter1, lifter2);
 		if (compare != 0) {
 			return compare; // compare attempted weights (prior to best attempt), smaller first
 		}
