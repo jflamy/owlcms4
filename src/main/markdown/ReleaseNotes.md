@@ -1,6 +1,9 @@
 38.4 Minor enhancements
 
-- 38.4 Fix
+- 38.4.1 Fix
+  - Fixed an obscure tie-break issue that would only arise if the competition secretary had forgotten to draw the lot numbers. ([#657](https://github.com/jflamy/owlcms4/issues/657))
+  
+- 38.4 Fixes
   - Correct IP addresses now shown on home page for Linux and macOS.
   - Demo site moved to owlcms.fly.dev
   
