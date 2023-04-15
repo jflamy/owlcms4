@@ -10,32 +10,33 @@ import java.util.Objects;
 
 public class UpdateEvent {
 
-    private String leaders;
-    private String categoryName;
-    private boolean wideTeamNames;
     private String athletes;
-    private String liftsDone;
-    private String translationMap;
     private String attempt;
+    private Integer breakRemaining;
+    private BreakType breakType;
+    private String categoryName;
+    private String competitionName;
+    private String fopName;
+    private String fopState;
     private String fullName;
     private String groupName;
     private boolean hidden;
-    private Integer startNumber;
-    private String teamName;
-    private Integer weight;
-    private Integer timeAllowed;
-    private String fopName;
-    private String fopState;
-    private String competitionName;
-    private Boolean isBreak;
-    private BreakType breakType;
-    private Integer breakRemaining;
     private boolean indefinite;
+    private Boolean isBreak;
+    private String leaders;
+    private String liftingOrderAthletes;
+    private String liftsDone;
     private String noLiftRanks;
-    private String records;
     private String recordKind;
     private String recordMessage;
+    private String records;
     private boolean sinclairMeet;
+    private Integer startNumber;
+    private String teamName;
+    private Integer timeAllowed;
+    private String translationMap;
+    private Integer weight;
+    private boolean wideTeamNames;
 
     public UpdateEvent() {
         setLeaders(leaders);
@@ -110,6 +111,10 @@ public class UpdateEvent {
 
     public String getLeaders() {
         return leaders;
+    }
+
+    public String getLiftingOrderAthletes() {
+        return liftingOrderAthletes;
     }
 
     public String getLiftsDone() {
@@ -229,6 +234,10 @@ public class UpdateEvent {
 
     public void setLeaders(String leaders) {
         this.leaders = leaders;
+    }
+
+    public void setLiftingOrderAthletes(String athletes) {
+        this.liftingOrderAthletes = athletes;
     }
 
     public void setLiftsDone(String liftsDone) {
