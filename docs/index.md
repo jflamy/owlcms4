@@ -12,7 +12,7 @@
 
 ## Gallery
 
-The competition management system is currently in use in over 30 federations.  See here for [a list.](Countries)
+The owlcms competition management system is currently in use in well over 30 federations.  See here for [a list.](Countries)
 
 <table>
 <tr><td><img src='img/Gallery/lima.jpg'></img></td><td>PanAm Junior and SouthAmerican  U20/U17/U15 Championships, Lima, Peru.<br>The program  supports simultaneous platforms and displays the multiple rankings for multiple concurrent age group competitions</td></tr>

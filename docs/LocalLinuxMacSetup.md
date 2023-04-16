@@ -1,45 +1,34 @@
 ## macOS or Linux Installation
 
-- **Get the installation zip archive**: Get the current  [`owlcms_38.4.0.zip`](https://github.com/owlcms/owlcms4/releases/latest/download/owlcms_38.4.0.zip) file  (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4/releases/latest) .
+- **Get the installation zip archive**: Get the current  [`owlcms_38.4.1-rc00.zip`](https://github.com/owlcms/owlcms4-prerelease/releases/latest/download/owlcms_38.4.1-rc00.zip) file  (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4-prerelease/releases/latest) .
 
-- Double-click on the downloaded zip file, and extract the files to a directory.  We suggest you use `~/owlcms` as the unzipped location.
+- Double-click on the downloaded zip file, and extract the files to a directory. 
+
+  - On a Mac We suggest you use `~/owlcms` as the unzipped location.
+
+  - If you are running on a Linux single-board computer, we suggest that you run the cpr
 
 - Make sure you have a Java 11 or 17 installed (JRE or JDK)
 
-  - For Linux, refer to [Latest Releases | Adoptium](https://adoptium.net/temurin/releases/) depending on the Linux type you run
+  - For Linux, refer to [Latest Releases | Adoptium](https://adoptium.net/temurin/releases/) depending on the Linux type you run. For Ubuntu and other Debian variants, the following should work 
 
-    - For Ubuntu and other Debian variants, the following should work 
+    ```bash
+    sudo apt install default-jre
+    ```
+    
+  - For macOS, see [Latest Releases | Adoptium](https://adoptium.net/temurin/releases/) and download the .pkg file.  Double-click the file.
 
-       ```bash
-       sudo apt install default-jre
-       ```
-
-  - For macOS, you can use Homebrew to install (or see [Latest Releases | Adoptium](https://adoptium.net/temurin/releases/) if you prefer)
-
-    - Start a terminal and run the following commands - each command is on a single line -- move your mouse over the grey box and use "Copy to Clipboard".
-
-      ```bash
-      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-      ```
-
-      ```bash
-      brew install openjdk@17
-      ```
-
-      
-
-- To start the program, open a Terminal window,  directory to the location where you unzipped the files and launch Java as follows.  Assuming you extracted to a directory called `owlcms` in your home, the following would work
+- Go to your installation directory where you unzipped owlcms
 
   ```bash
-  cd ~/owlcms
   java -jar owlcms.jar
   ```
   This will actually start the program. See [Initial Startup](#initial-startup) for how to proceed.
 
-  If you just want to use dummy data to practice (which will not touch the actual database), use instead:
+  If you just want to use dummy data to practice (this will not touch your actual database), click on the grey box to copy this command and paste it.
 
   ```
-  java -DdemoMode=true -jar owlcms.jar
+  java -DmemoryMode=true -DinitialData=LARGEGROUP_DEMO -jar owlcms.jar
   ```
 
 
