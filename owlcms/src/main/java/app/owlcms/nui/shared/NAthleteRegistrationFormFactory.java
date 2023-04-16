@@ -868,7 +868,9 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 		mainLayout.setFlexDirection(FlexDirection.COLUMN);
 		mainLayout.setFlexGrow(1.0D, ts);
-		mainLayout.setHeight("37rem");
+		// 37rem is the dialog height for the first tab - fits on a 1366x768 laptop with
+		// bookmark bar open.  We don't need bigger than 37rem
+		mainLayout.setHeight("calc(min(\"100%\",\"37rem\"))");
 		mainLayout.setWidth("60rem");
 		return mainLayout;
 	}
