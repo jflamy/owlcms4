@@ -389,7 +389,7 @@
 					</archive>
 				</configuration>
 			</plugin>
-			<plugin>
+			<!-- plugin>
 				<groupId>com.google.cloud.tools</groupId>
 				<artifactId>jib-maven-plugin</artifactId>
 				<version>3.3.0</version>
@@ -412,7 +412,7 @@
 						<creationTime>USE_CURRENT_TIMESTAMP</creationTime>
 					</container>
 				</configuration>
-			</plugin>
+			</plugin -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
@@ -613,7 +613,6 @@
 	</build>
 	<profiles>
 		<profile>
-			<!-- Production mode is activated using -Pproduction -->
 			<id>production</id>
 			<properties>
 				<vaadin.productionMode>true</vaadin.productionMode>

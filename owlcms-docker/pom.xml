@@ -102,7 +102,7 @@
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
-                <version>0.33.0</version>
+                <version>0.42.1</version>
                 <extensions>true</extensions>
                 <configuration>
                     <skipRun>true</skipRun>
@@ -115,14 +115,14 @@
                         </push>
                     </authConfig>
                     <images>
-                        <image>
+                        <image> 	
                             <name>${DOCKER_REG}/owlcms:${project.version}</name>
                             <build>
                                 <tags>
                                     <tag>latest</tag>
                                     <tag>${env.DOCKER_TAG}</tag>
                                 </tags>
-                                <from>adoptopenjdk:11-jre-openj9</from>
+                                <from>eclipse-temurin:17-jre</from>
                                 <assembly>
                                     <descriptor>owlcms.xml</descriptor>
                                 </assembly>
@@ -144,8 +144,8 @@
                                     <tag>latest</tag>
                                     <tag>${env.DOCKER_TAG}</tag>
                                 </tags>
-                                <!-- from>docker.io/eclipse-temurin:17-jre</from -->
-                                <from>docker.io/adoptopenjdk:11-jre-openj9</from>
+                                <from>eclipse-temurin:17-jre</from>
+                                <!-- from>docker.io/adoptopenjdk:11-jre-openj9</from -->
                                 <assembly>
                                     <descriptor>publicresults.xml</descriptor>
                                 </assembly>
