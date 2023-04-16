@@ -284,8 +284,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	        ComponentEventListener<ClickEvent<Button>> operationButtonClickListener,
 	        ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
 
-		// logger.trace("buildNewForm {} {} {}", System.identityHashCode(this),
-		// getCurrentGroup(), LoggerUtils.stackTrace());
+		// logger.trace("buildNewForm {} {} {}", System.identityHashCode(this), getCurrentGroup(), LoggerUtils.stackTrace());
 		setupAthlete(operation, aFromList);
 		binder = buildBinder(operation, getEditedAthlete());
 
@@ -674,14 +673,14 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		categoryField.setItems(CategoryRepository.findActive());
 		categoryField.setRenderer(new TextRenderer<>(Category::getTranslatedName));
 		FormItem fi = layoutAddFormItem(layout,categoryField, Translator.translate("Category"));
-		layout.setColspan(fi, NB_COLUMNS);
+		layout.setColspan(fi, 1);
 
 		eligibleField = new CheckboxGroup<>();
 		bindField(binder.forField(eligibleField), eligibleField, Athlete::getEligibleCategories,
 		        Athlete::setEligibleCategories);
 		eligibleField.setRenderer(new TextRenderer<>(Category::getTranslatedName));
 		FormItem fi1 = layoutAddFormItem(layout, eligibleField, Translator.translate("Weighin.EligibleCategories"));
-		layout.setColspan(fi1, NB_COLUMNS);
+		layout.setColspan(fi1, NB_COLUMNS-1);
 
 		groupField = new ComboBox<>();
 		bindField(binder.forField(groupField), groupField, Athlete::getGroup, Athlete::setGroup);
@@ -869,7 +868,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 		mainLayout.setFlexDirection(FlexDirection.COLUMN);
 		mainLayout.setFlexGrow(1.0D, ts);
-		mainLayout.setHeight("40rem");
+		mainLayout.setHeight("37rem");
 		mainLayout.setWidth("60rem");
 		return mainLayout;
 	}
