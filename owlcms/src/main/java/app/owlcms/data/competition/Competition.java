@@ -1389,6 +1389,9 @@ public class Competition {
 		List<Athlete> sortedMen = new ArrayList<>();
 		List<Athlete> sortedWomen = new ArrayList<>();
 		splitPTeamMembersByGender(athletes, sortedMen, sortedWomen);
+		athletes = new ArrayList<>();
+		athletes.addAll(sortedMen);
+		athletes.addAll(sortedWomen);
 
 		sortedAthletes = AthleteSorter.teamPointsOrderCopy(athletes, Ranking.TOTAL);
 		sortedMen = AthleteSorter.teamPointsOrderCopy(sortedMen, Ranking.TOTAL);
@@ -1477,7 +1480,9 @@ public class Competition {
 		// only needed once
 		reportingBeans.put("nbMen", sortedMen.size());
 		reportingBeans.put("nbWomen", sortedWomen.size());
-		reportingBeans.put("nbAthletes", sortedMen.size() + sortedWomen.size());
+		reportingBeans.put("nbAthletes", sortedAthletes.size());
+		logger.warn("sortedMen {} sortedWomen {} sortedCombined {}",sortedMen.size(), sortedWomen.size(), sortedAthletes.size());
+		
 		// extract club lists
 		TreeSet<String> teams = new TreeSet<>();
 		for (Athlete curAthlete : sortedAthletes) {
