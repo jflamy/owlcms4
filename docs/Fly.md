@@ -120,23 +120,27 @@ If you run a very large competition, you may wish to increase the memory for the
 
 ### Attach to Postgres DB manually
 
-For some reason if your application is not attached to Postgres DB, the internal H2 database will be used and data will be lost when server is restarted. 
+If for some reason if your application is not attached to Postgres DB, the internal H2 database will be used and data will be lost when server is restarted. 
 
 You can follow the below steps to attach your application to the postgres DB:
 
-1. (Optional) Create a postgres DB if you didn't create it before
+1. If you have data in the H2 database and need to keep it, export the database from the "Prepare Competition" page
+2. Create a postgres DB if you didn't create it before
+
 ```
 fly postgres create myclub-db
 ```
 
-2. Attach application to the database
+3. Attach the application to the database
+
 ```
 fly postgres attach myclub-db --app myclub --database-name myclub-db --database-user owlcms
 ```
 
-3. (Optional) Export Database if you already have updated competition info
-
 4. Restart the application
+
 ```
 fly deploy --app myclub
 ```
+
+5. Reload the database export, if you created one at step 1.
