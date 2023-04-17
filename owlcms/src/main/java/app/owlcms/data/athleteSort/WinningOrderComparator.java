@@ -315,7 +315,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 
 		compare = compareStartNumber(lifter1, lifter2);
 		if (trace) {
-			logger.warn("compareStartNumber {}", compare);
+			logger.trace("compareStartNumber {}", compare);
 		}
 		if (compare != 0) {
 			return compare; // if equality within a group,
