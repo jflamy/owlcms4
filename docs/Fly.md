@@ -27,7 +27,7 @@ If there is a "use the Web CLI" button, click it, otherwise type https://fly.io/
 2. Click on the grey box below to copy the command.  Paste it to the command line interface (use right-click on Windows, or ctrl-click on macOS, or the browser Edit menu)
 
    ```
-   fly launch -name $APP -i owlcms/owlcms:stable --force-machines
+   fly launch --name $APP -i owlcms/owlcms:stable --force-machines
    ```
 
    - Organization:  use the default `Personal` organization.
@@ -117,3 +117,26 @@ Note that if you own your own domain, you can add names under your own domain to
 ### Scale-up and Scale-down of owlcms
 
 If you run a very large competition, you may wish to increase the memory for the duration of the competition. You would use the same commands as above (`fly machine update`) to set the memory to `1024` and after the competition you would set it back to `512`.
+
+### Attach to Postgres DB manually
+
+For some reason if your application is not attached to Postgres DB, the internal H2 database will be used and data will be lost when server is restarted. 
+
+You can follow the below steps to attach your application to the postgres DB:
+
+1. (Optional) Create a postgres DB if you didn't create it before
+```
+fly postgres create myclub-db
+```
+
+2. Attach application to the database
+```
+fly postgres attach myclub-db --app myclub --database-name myclub-db --database-user owlcms
+```
+
+3. (Optional) Export Database if you already have updated competition info
+
+4. Restart the application
+```
+fly deploy --app myclub
+```
