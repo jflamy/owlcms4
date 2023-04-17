@@ -2,7 +2,7 @@
 
 - 38.4.2 Fix
   - Fixed an obscure tie-break issue that would only arise if the competition secretary had forgotten to draw the lot numbers. ([#657](https://github.com/jflamy/owlcms4/issues/657))
-  - Fixed a typo in the Fly installation command, added notes for adding the database if the initial install omitted to do so (Kenny Ng, [#658](https://github.com/jflamy/owlcms4/pull/658))
+  - Fixed a typo in the Fly installation command and added notes for adding the database if not done in the initial install (Keni Ng, [#658](https://github.com/jflamy/owlcms4/pull/658))
   
 - 38.4 Fixes
   - Correct IP addresses now shown on home page for Linux and macOS.
