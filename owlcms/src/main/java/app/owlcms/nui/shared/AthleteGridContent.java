@@ -1033,6 +1033,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 		Grid<Athlete> grid = new Grid<>(Athlete.class, false);
 		grid.getThemeNames().add("row-stripes");
 		grid.getThemeNames().add("compact");
+		grid.addColumn("startNumber").setHeader(getTranslation("StartNumber")).setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn(
 		        createLastNameRenderer()).setHeader(getTranslation("LastName"));
 		grid.addColumn(
@@ -1045,7 +1046,6 @@ public abstract class AthleteGridContent extends VerticalLayout
 		        a -> (a.getTotal() > 0 ? a.getTotal() : "-")).setHeader(getTranslation("Total"))
 		        .setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn((a) -> formatAttemptNumber(a), "attemptsDone").setHeader(getTranslation("Attempt"));
-		grid.addColumn("startNumber").setHeader(getTranslation("StartNumber"));
 
 		crudLayout = new OwlcmsGridLayout(Athlete.class);
 		AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class, crudLayout, crudFormFactory, grid) {

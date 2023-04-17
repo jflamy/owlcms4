@@ -1,5 +1,10 @@
 38.4 Minor enhancements
 
+- 38.4.3 Changes
+  
+  - Wrapping on long team names of IWF-format marshal cards.
+  - Moved start number to the left of the announcer and marshal screens.
+  
 - 38.4.2 Changes
   
   - Fixed a typo in the Fly installation command and added notes for adding the database if not done in the initial install (Keni Ng, [#658](https://github.com/jflamy/owlcms4/pull/658))
