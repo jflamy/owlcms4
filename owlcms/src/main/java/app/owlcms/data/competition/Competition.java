@@ -1481,7 +1481,7 @@ public class Competition {
 		reportingBeans.put("nbMen", sortedMen.size());
 		reportingBeans.put("nbWomen", sortedWomen.size());
 		reportingBeans.put("nbAthletes", sortedAthletes.size());
-		logger.warn("sortedMen {} sortedWomen {} sortedCombined {}",sortedMen.size(), sortedWomen.size(), sortedAthletes.size());
+		logger.debug("sortedMen {} sortedWomen {} sortedCombined {}",sortedMen.size(), sortedWomen.size(), sortedAthletes.size());
 		
 		// extract club lists
 		TreeSet<String> teams = new TreeSet<>();

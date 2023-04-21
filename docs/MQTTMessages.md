@@ -97,7 +97,7 @@ Only owlcms listens; devices do not listen to one another.
 - `jurybox/decision/A :decision`: The jury has made a decision.
     - `decision` is `good` or `bad`
 - `jurybox/break/A :breakEvent`: The jury has called for a break.
-   - `breakEvent` is `technical` `deliberation` (start a break of the correct kind) or `stop` (resume competition).
+   - `breakEvent` is `technical` `deliberation` (start a jury-initiated break), `challenge` (start a challenge-initiated break) or `stop` (resume competition).
 
 ## External controller logic:
 

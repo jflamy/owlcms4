@@ -708,7 +708,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 			int previousAttemptNo;
 			JuryDeliberationEventType et = e.getDeliberationEventType();
 			
-			logger.warn("slaveJuryNotification {} {} {}", et, e.getDeliberationEventType(), e.getTrace());
+			//logger.debug("slaveJuryNotification {} {} {}", et, e.getDeliberationEventType(), e.getTrace());
 			switch (et) {
 			case CALL_REFEREES:
 				text = Translator.translate("JuryNotification." + et.name());
