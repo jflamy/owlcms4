@@ -707,6 +707,8 @@ public abstract class AthleteGridContent extends VerticalLayout
 			String style = "warning";
 			int previousAttemptNo;
 			JuryDeliberationEventType et = e.getDeliberationEventType();
+			
+			logger.warn("slaveJuryNotification {} {} {}", et, e.getDeliberationEventType(), e.getTrace());
 			switch (et) {
 			case CALL_REFEREES:
 				text = Translator.translate("JuryNotification." + et.name());
@@ -722,9 +724,17 @@ public abstract class AthleteGridContent extends VerticalLayout
 				}
 				deliberationNotificationSent = true;
 				return;
+			case CHALLENGE:
+				text = Translator.translate("JuryNotification." + et.name());
+				if (!deliberationNotificationSent) {
+					doNotification(text, style);
+				}
+				deliberationNotificationSent = true;
+				return;
 			case END_CALL_REFEREES:
 			case END_DELIBERATION:
 			case END_TECHNICAL_PAUSE:
+			case END_CHALLENGE:
 				text = Translator.translate("JuryNotification." + et.name());
 				break;
 			case BAD_LIFT:

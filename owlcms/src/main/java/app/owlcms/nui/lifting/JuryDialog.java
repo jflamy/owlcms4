@@ -52,7 +52,6 @@ public class JuryDialog extends Dialog {
 		logger.setLevel(Level.INFO);
 	}
 
-
 	public JuryDialog(Object origin, Athlete athleteUnderReview, JuryDeliberationEventType deliberation,
 	        boolean summonEnabled) {
 		this.origin = origin;
@@ -73,6 +72,12 @@ public class JuryDialog extends Dialog {
 			break;
 		case START_DELIBERATION:
 			doDeliberation(origin, athleteUnderReview, null);
+			if (summonEnabled) {
+				addSummonReferees(origin);
+			}
+			break;
+		case CHALLENGE:
+			doChallenge(origin, athleteUnderReview, null);
 			if (summonEnabled) {
 				addSummonReferees(origin);
 			}
@@ -99,9 +104,13 @@ public class JuryDialog extends Dialog {
 			}
 			this.close();
 
+			String message = deliberation == JuryDeliberationEventType.START_DELIBERATION
+			        ? "{}end of jury deliberation"
+			        : (deliberation == JuryDeliberationEventType.CHALLENGE
+			                ? "{}end of challenge"
+			                : "{}end jury break");
 			logger.info(
-			        deliberation == JuryDeliberationEventType.START_DELIBERATION ? "{}end of jury deliberation"
-			                : "{}end jury break",
+			        message,
 			        OwlcmsSession.getFop().getLoggingName());
 
 			this.close();
@@ -205,6 +214,25 @@ public class JuryDialog extends Dialog {
 		}
 		this.setDraggable(true);
 
+		doDebate(athleteUnderReview);
+	}
+
+	private void doChallenge(Object origin, Athlete athleteUnderReview, Object newParam) {
+		// stop competition
+		FieldOfPlay fop = OwlcmsSession.getFop();
+		if (fop == null) {
+			return;
+		}
+		if (!(fop.getState() != FOPState.BREAK && fop.getBreakType() == BreakType.CHALLENGE)) {
+			// not already in a jury break, force one.
+			fop.fopEventPost(new FOPEvent.BreakStarted(BreakType.CHALLENGE, CountdownType.INDEFINITE, 0, null, true, this));
+		}
+		this.setDraggable(true);
+
+		doDebate(athleteUnderReview);
+	}
+
+	private void doDebate(Athlete athleteUnderReview) {
 		Button goodLift = new Button(IronIcons.DONE.create(),
 		        (e) -> doGoodLift(athleteUnderReview, OwlcmsSession.getFop()));
 		Shortcuts.addShortcutListener(this, () -> doGoodLift(athleteUnderReview, OwlcmsSession.getFop()), Key.KEY_G);
@@ -256,8 +284,8 @@ public class JuryDialog extends Dialog {
 				}
 				String weightText = liftValue != null ? Translator.translate("Kg", Math.abs(liftValue)) : "";
 				String athleteText = getReviewedAthlete().getFullId();
-				this.setHeaderTitle(athleteText+" \u2003 "+weightText+" \u2013 "+status);
-				
+				this.setHeaderTitle(athleteText + " \u2003 " + weightText + " \u2013 " + status);
+
 //				H3 status1 = new H3(status);
 //				H3 weight = new H3(weightText);
 //				H3 athlete = new H3(athleteText);

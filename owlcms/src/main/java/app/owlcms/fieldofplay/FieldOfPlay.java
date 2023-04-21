@@ -1495,6 +1495,9 @@ public class FieldOfPlay {
 					getUiEventBus().post(new UIEvent.JuryNotification(athleteUnderReview, this,
 					        JuryDeliberationEventType.END_JURY_BREAK, null, null));
 					break;
+				case CHALLENGE:
+					getUiEventBus().post(new UIEvent.JuryNotification(athleteUnderReview, this,
+					        JuryDeliberationEventType.END_CHALLENGE, null, null));
 				default:
 					break;
 				}
@@ -1512,6 +1515,10 @@ public class FieldOfPlay {
 			case TECHNICAL:
 				getUiEventBus().post(new UIEvent.JuryNotification(null, this,
 				        JuryDeliberationEventType.TECHNICAL_PAUSE, null, null));
+				break;
+			case CHALLENGE:
+				getUiEventBus().post(new UIEvent.JuryNotification(null, this,
+				        JuryDeliberationEventType.CHALLENGE, null, null));
 				break;
 			default:
 				break;

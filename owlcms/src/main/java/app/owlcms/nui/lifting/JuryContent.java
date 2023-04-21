@@ -224,7 +224,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	@Subscribe
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
 		super.slaveBreakStart(e);
-		if (e.getBreakType() == BreakType.JURY) {
+		if (e.getBreakType() == BreakType.JURY || e.getBreakType() == BreakType.CHALLENGE) {
 			UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 				resetJuryVoting();
 			});
@@ -455,6 +455,12 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		});
 		juryDeliberationButton.getElement().setAttribute("theme", "primary");
 		juryDeliberationButton.setText(getTranslation("BreakButton.JuryDeliberation"));
+		
+		Button challengeButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
+			openJuryDialog(JuryDeliberationEventType.CHALLENGE);
+		});
+		challengeButton.getElement().setAttribute("theme", "primary");
+		challengeButton.setText(getTranslation("BreakButton.CHALLENGE"));
 		// juryDeliberationButton.getElement().setAttribute("title",
 		// getTranslation("BreakButton.JuryDeliberation"));
 
@@ -464,7 +470,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		technicalPauseButton.getElement().setAttribute("theme", "primary");
 		technicalPauseButton.setText(getTranslation("BreakType.TECHNICAL"));
 
-		HorizontalLayout buttons = new HorizontalLayout(juryDeliberationButton, technicalPauseButton);
+		HorizontalLayout buttons = new HorizontalLayout(juryDeliberationButton, challengeButton, technicalPauseButton);
 
 		if (summonEnabled) {
 			Button summonRefereesButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
@@ -505,7 +511,8 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 			OwlcmsSession.withFop(fop -> {
 				if (fop.getState() != FOPState.BREAK && deliberation != JuryDeliberationEventType.TECHNICAL_PAUSE) {
 					fop.fopEventPost(
-					        new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
+					        new FOPEvent.BreakStarted(
+					        		deliberation == JuryDeliberationEventType.CHALLENGE ? BreakType.CHALLENGE : BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
 				}
 				juryDialog = new JuryDialog(JuryContent.this, getAthleteUnderReview(), deliberation, summonEnabled);
 				juryDialog.open();
@@ -539,6 +546,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 			registrations.add(reg);
 			reg = UI.getCurrent().addShortcutListener(
 			        () -> openJuryDialog(JuryDeliberationEventType.START_DELIBERATION), Key.KEY_D);
+			registrations.add(reg);
+			reg = UI.getCurrent().addShortcutListener(
+			        () -> openJuryDialog(JuryDeliberationEventType.CHALLENGE), Key.KEY_C);
 			registrations.add(reg);
 			reg = UI.getCurrent().addShortcutListener(
 			        () -> openJuryDialog(JuryDeliberationEventType.TECHNICAL_PAUSE), Key.KEY_T);

@@ -73,6 +73,8 @@ public interface BreakDisplay {
 			return Translator.translate("PublicMsg.CompetitionPaused");
 		case JURY:
 			return Translator.translate("PublicMsg.JuryDeliberation");
+		case CHALLENGE:
+			return Translator.translate("PublicMsg.CHALLENGE");
 		case GROUP_DONE:
 			return Translator.translate("PublicMsg.GroupDone");
 		case MARSHAL:

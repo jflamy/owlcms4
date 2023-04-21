@@ -494,6 +494,7 @@ public class UIEvent {
 			this.setDeliberationEventType(deliberationEventType);
 			this.setReversal(reversal);
 			this.setNewRecord(newRecord != null && newRecord);
+			this.setTrace(LoggerUtils.stackTrace());
 		}
 
 		/**

@@ -109,7 +109,8 @@ public enum BreakType {
 
 	TECHNICAL(false, true),
 	MARSHAL(false, true),
-	JURY(false, true);
+	JURY(false, true),
+	CHALLENGE(false,true);
 
 	private boolean countdown;
 	private boolean interruption;

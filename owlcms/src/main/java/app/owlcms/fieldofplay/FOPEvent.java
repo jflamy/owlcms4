@@ -152,7 +152,9 @@ public class FOPEvent {
 			if (countdownType != null) {
 				return countdownType == CountdownType.INDEFINITE;
 			} else {
-				return breakType == BreakType.JURY || breakType == BreakType.TECHNICAL
+				return breakType == BreakType.JURY
+						|| breakType == BreakType.CHALLENGE
+						|| breakType == BreakType.TECHNICAL
 				        || breakType == BreakType.GROUP_DONE;
 			}
 		}

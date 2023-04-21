@@ -156,7 +156,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 			if (breakType == BreakType.GROUP_DONE) {
 				doGroupDoneBreak(fop);
 				return;
-			} else if (breakType == BreakType.JURY) {
+			} else if (breakType == BreakType.JURY || breakType == BreakType.CHALLENGE) {
 				doJuryBreak(fop, breakType);
 				return;
 			}
@@ -168,7 +168,8 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 			setDisplayedWeight("");
 
 			Athlete a = fop.getCurAthlete();
-			if (a != null) {;
+			if (a != null) {
+				;
 				this.getElement().setProperty("category", a.getCategory().getTranslatedName());
 				String formattedAttempt = formatAttempt(a);
 				this.getElement().setProperty("attempt - ", formattedAttempt);
@@ -667,16 +668,18 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 	private String formatAttempt(Athlete a) {
 		Integer attemptsDone = a.getAttemptsDone();
 		int attemptNo = attemptsDone + 1;
-	    //logger.debug("attemptNo {}",attemptNo);
+		// logger.debug("attemptNo {}",attemptNo);
 		String translation = Translator.translateOrElseNull("AttemptBoard_lift_attempt_number", getLocale());
 		if (translation != null) {
 			if (attemptNo <= 3) {
-				translation = Translator.translate("AttemptBoard_lift_attempt_number", attemptNo, Translator.translate("AttemptBoard_lift.SNATCH"));
+				translation = Translator.translate("AttemptBoard_lift_attempt_number", attemptNo,
+				        Translator.translate("AttemptBoard_lift.SNATCH"));
 			} else {
-				translation = Translator.translate("AttemptBoard_lift_attempt_number", attemptNo - 3, Translator.translate("AttemptBoard_lift.CLEANJERK"));
-			}		
+				translation = Translator.translate("AttemptBoard_lift_attempt_number", attemptNo - 3,
+				        Translator.translate("AttemptBoard_lift.CLEANJERK"));
+			}
 		} else {
-			translation = Translator.translate("AttemptBoard_attempt_number", ((attemptsDone % 3) + 1) );
+			translation = Translator.translate("AttemptBoard_attempt_number", ((attemptsDone % 3) + 1));
 		}
 		return translation;
 	}
@@ -824,17 +827,17 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		}
 	}
 
-	 /**
-	  * replace illegal characters in a filename with "_"
-	  * illegal characters :
-	  *           : \ / * ? | < >
-	  * @param name
-	  * @return
-	  */
-	  public String sanitizeFilename(String name) {
-	    return name.replaceAll("[:\\\\/*?|<>]", "_");
-	  }
-	
+	/**
+	 * replace illegal characters in a filename with "_" illegal characters : : \ /
+	 * * ? | < >
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public String sanitizeFilename(String name) {
+		return name.replaceAll("[:\\\\/*?|<>]", "_");
+	}
+
 	protected void doAthleteUpdate(Athlete a) {
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		FOPState state = fop.getState();
@@ -866,7 +869,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		this.getElement().setProperty("teamName", team);
 		this.getElement().setProperty("teamFlagImg", "");
 		String teamFileName = sanitizeFilename(team);
-		if (teamFlags &&!team.isBlank()) {
+		if (teamFlags && !team.isBlank()) {
 			boolean done;
 			done = setImgProp("teamFlagImg", "flags/", teamFileName, ".svg");
 			if (!done) {

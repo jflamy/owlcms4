@@ -216,6 +216,9 @@ public class MQTTMonitor {
 			} else if (messageStr.equalsIgnoreCase("deliberation")) {
 				fop.fopEventPost(
 				        new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
+			} else if (messageStr.equalsIgnoreCase("challenge")) {
+				fop.fopEventPost(
+				        new FOPEvent.BreakStarted(BreakType.CHALLENGE, CountdownType.INDEFINITE, 0, null, true, this));
 			} else if (messageStr.equalsIgnoreCase("stop")) {
 				fop.fopEventPost(
 				        new FOPEvent.StartLifting(this));
