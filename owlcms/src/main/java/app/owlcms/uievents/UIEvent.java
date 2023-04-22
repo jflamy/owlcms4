@@ -72,6 +72,30 @@ public class UIEvent {
 		}
 	}
 
+	static public class TimeRemaining extends UIEvent {
+
+		private int timeRemaining;
+
+		/**
+		 * Instantiates a new break done.
+		 *
+		 * @param origin    the origin
+		 * @param breakType
+		 */
+		public TimeRemaining(Object origin, int timeRemaining) {
+			super(origin);
+			this.timeRemaining = timeRemaining;
+		}
+
+		public int getTimeRemaining() {
+			return timeRemaining;
+		}
+
+		public void setTimeRemaining(int timeRemaining) {
+			this.timeRemaining = timeRemaining;
+		}
+	}
+
 	/**
 	 * Class BreakPaused.
 	 */

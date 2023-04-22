@@ -1303,6 +1303,7 @@ public class FieldOfPlay {
 			if (isEmitSoundsOnServer()) {
 				new Sound(getSoundMixer(), "finalWarning.wav").emit();
 			}
+			pushOutUIEvent(new UIEvent.TimeRemaining(this, 30));
 			setFinalWarningEmitted(true);
 		}
 	}
@@ -1313,6 +1314,7 @@ public class FieldOfPlay {
 			if (isEmitSoundsOnServer()) {
 				new Sound(getSoundMixer(), "initialWarning.wav").emit();
 			}
+			pushOutUIEvent(new UIEvent.TimeRemaining(this, 90));
 			setInitialWarningEmitted(true);
 		}
 	}
@@ -1323,6 +1325,7 @@ public class FieldOfPlay {
 			if (isEmitSoundsOnServer()) {
 				new Sound(getSoundMixer(), "timeOver.wav").emit();
 			}
+			pushOutUIEvent(new UIEvent.TimeRemaining(this, 0));
 			setTimeoutEmitted(true);
 		}
 	}

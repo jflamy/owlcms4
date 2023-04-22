@@ -398,6 +398,12 @@ public class MQTTMonitor {
 		int ref = e.ref;
 		publishMqttWakeUpRef(ref, e.on);
 	}
+	
+	@Subscribe
+	public void slaveTimeRemaining(UIEvent.TimeRemaining e) {
+		int tr = e.getTimeRemaining();
+		publishMqttTimeRemaining(tr);
+	}
 
 	private void connectionLoop(MqttAsyncClient mqttAsyncClient) {
 		while (!mqttAsyncClient.isConnected()) {
@@ -566,6 +572,16 @@ public class MQTTMonitor {
 			}
 		} catch (MqttException e1) {
 			logger.error("could not publish summon {}", e1.getCause());
+		}
+	}
+	
+	private void publishMqttTimeRemaining(int tr) {
+		logger.debug("{}MQTT timeRemaining {}", fop.getLoggingName(), tr);
+		try {
+			client.publish("owlcms/fop/timeRemaining/" + fop.getName(),
+			        new MqttMessage(Integer.toString(tr).getBytes(StandardCharsets.UTF_8)));
+		} catch (MqttException e1) {
+			logger.error("could not publish timeRemaining {}", e1.getCause());
 		}
 	}
 
