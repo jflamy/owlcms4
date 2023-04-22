@@ -7,6 +7,8 @@
     - This displays "Challenge" on the attempt board as required by TCRR and also changes the video status monitor to BREAK.CHALLENGE.
 
     - Added a MQTT message `owlcms/jurybox/challenge` which is the same as the deliberation message, but transitions to a BREAK.CHALLENGE state instead of a BREAK.JURY state.
+  
+  - If using a down signal light equipped with a buzzer, the down signal sound from the countdown displays is redundant and potentially confusing.  It can now to be turned off separately from the clock warnings.
 
 
 ##### Highlights from recent stable releases
