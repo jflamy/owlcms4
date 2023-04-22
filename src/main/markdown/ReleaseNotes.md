@@ -1,14 +1,16 @@
 38.5 Minor enhancements
 
 - 38.5 Changes
-  - alpha: Athlete Challenge
+  - Athlete Challenge
     - Added a Challenge button to the Jury dialog, and a keyboard shortcut (C). 
 
     - This displays "Challenge" on the attempt board as required by TCRR and also changes the video status monitor to BREAK.CHALLENGE.
 
     - Added a MQTT message `owlcms/jurybox/challenge` which is the same as the deliberation message, but transitions to a BREAK.CHALLENGE state instead of a BREAK.JURY state.
   
-  - If using a down signal light equipped with a buzzer, the down signal sound from the countdown displays is redundant and potentially confusing.  It can now to be turned off separately from the clock warnings.
+  - If using a down signal light equipped with a buzzer, the down signal sound from the countdown displays is redundant and potentially confusing.  
+    - The down sound can now to be turned off separately from the clock warnings.
+    - Added a MQTT message `owlcms/fop/timeRemaining` that is emitted at 90, 30, 0 seconds remaining for the various warnings.
 
 
 ##### Highlights from recent stable releases

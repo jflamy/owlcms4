@@ -51,14 +51,16 @@
     - LEGACY: `summon/A/:official :status` (status is `on` or `off`, off is unused, device turns it off on its own)
     - `official` is `1`, `2`, `3`
     - Summon `all` results in 3 individual messages for referees 1 2 and 3;
-    - Official 4 is used for the technical controller.  Currently results in a notification on the announcer/marshall/timekeeper screens 
+    - Official 4 is used for the technical controller.  Currently results in a notification on the announcer/marshal/timekeeper screens 
 
 #### Subscribed by the down signal device:
 
-These messages would be used by a signal tower with a white light and a buzzer.
+These messages are used by a signal tower with a white light and a buzzer.
 
 - `fop/down/A`: The down signal has been given
     - device must turn itself off.
+- `fop/timeRemaining/A :seconds`
+    - `seconds` are remaining for the athlete.  Values are 90 (timeout for declarations on a 2:00 clock), 30 (final warning), 0 seconds (time is over).
 
 ### Messages published by all devices
 
