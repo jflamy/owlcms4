@@ -15,11 +15,18 @@ public interface ContentParameters extends FOPParameters {
 	public static final String SILENT = "silent";
 	public static final String SINGLEREF = "singleRef";
 	public static final String IMMEDIATE = "immediate";
+	public static final String DOWNSILENT = "downSilent";
 
 	public default void buildDialog(Component target) {
 	}
 
-	public boolean isSilenced();
+	public default boolean isSilenced() {
+		return true;
+	}
+	
+	public default boolean isDownSilenced() {
+		return true;
+	}
 
 	public default boolean isSilencedByDefault() {
 		return true;
@@ -46,6 +53,18 @@ public interface ContentParameters extends FOPParameters {
 		}
 		switchSoundMode((Component) this, silentMode, false);
 		updateParam(params, SILENT, !isSilenced() ? "false" : "true");
+		
+		List<String> downSilentParams = params.get(DOWNSILENT);
+		// down silent is the default. downSilent=false will cause sound
+		boolean downSilentMode = downSilentParams == null || downSilentParams.isEmpty()
+		        || downSilentParams.get(0).toLowerCase().equals("true");
+		if (!isSilencedByDefault()) {
+			// for referee board, default is noise
+			downSilentMode = downSilentParams != null && !downSilentParams.isEmpty()
+			        && downSilentParams.get(0).toLowerCase().equals("true");
+		}
+		switchDownMode((Component) this, downSilentMode, false);
+		updateParam(params, DOWNSILENT, !isDownSilenced() ? "false" : "true");
 
 		List<String> refParams = params.get(SINGLEREF);
 		boolean sr = refParams != null && !refParams.isEmpty()
@@ -77,6 +96,10 @@ public interface ContentParameters extends FOPParameters {
 	}
 
 	public void setSilenced(boolean silent);
+	
+	public default void setDownSilenced(boolean silent) {
+		// ignored
+	}
 
 	public default void setSingleReferee(boolean b) {
 	}
@@ -108,4 +131,15 @@ public interface ContentParameters extends FOPParameters {
 		}
 		buildDialog(target);
 	}
+	
+	public default void switchDownMode(Component target, boolean silent, boolean updateURL) {
+		setDownSilenced(silent);
+		// logger.debug("switching down");
+
+		if (updateURL) {
+			updateURLLocation(getLocationUI(), getLocation(), DOWNSILENT, silent ? "true" : "false");
+		}
+		buildDialog(target);
+	}
+	
 }

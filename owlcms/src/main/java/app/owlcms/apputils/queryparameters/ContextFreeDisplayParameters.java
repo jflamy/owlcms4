@@ -121,6 +121,18 @@ public interface ContextFreeDisplayParameters extends DisplayParameters {
 		switchSoundMode((Component) this, silentMode, false);
 		updateParam(params, SILENT, !isSilenced() ? "false" : "true");
 		
+		List<String> downSilentParams = params.get(DOWNSILENT);
+		// silent is the default. silent=false will cause sound
+		boolean downSilentMode = downSilentParams == null || downSilentParams.isEmpty()
+		        || downSilentParams.get(0).toLowerCase().equals("true");
+		if (!isSilencedByDefault()) {
+			// for referee board, default is noise
+			downSilentMode = downSilentParams != null && !downSilentParams.isEmpty()
+			        && downSilentParams.get(0).toLowerCase().equals("true");
+		}
+		switchDownMode((Component) this, downSilentMode, false);
+		updateParam(params, DOWNSILENT, !isDownSilenced() ? "false" : "true");
+		
 
 		List<String> sizeParams = params.get(FONTSIZE);
 		Double emSize;

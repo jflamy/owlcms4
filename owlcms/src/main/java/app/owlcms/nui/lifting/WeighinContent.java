@@ -638,7 +638,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 		grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
 		grid.addColumn("team").setHeader(getTranslation("Team")).setAutoWidth(true);
 		grid.addColumn("gender").setHeader(getTranslation("Gender")).setAutoWidth(true);
-		grid.addColumn(new TextRenderer<Athlete>(a -> a.getAgeGroup().getDisplayName())).setHeader(getTranslation("AgeGroup")).setAutoWidth(true);
+		grid.addColumn(new TextRenderer<Athlete>(a -> a.getAgeGroupDisplayName())).setHeader(getTranslation("AgeGroup")).setAutoWidth(true);
 		grid.addColumn("category").setHeader(getTranslation("Category")).setAutoWidth(true);
 		grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))
 		        .setSortProperty("bodyWeight")

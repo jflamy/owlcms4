@@ -71,7 +71,7 @@ public class DisplayOptions {
 		Label label = new Label(Translator.translate("DisplayParameters.Content"));
 
 		Checkbox recordsDisplayCheckbox = null;
-		if (!RecordRepository.findAll().isEmpty()) {
+		//if (!RecordRepository.findAll().isEmpty()) {
 			boolean showRecords = dp.isRecordsDisplay();
 			recordsDisplayCheckbox = new Checkbox(Translator.translate("DisplayParameters.ShowRecords"));//
 			recordsDisplayCheckbox.setValue(showRecords);
@@ -80,7 +80,7 @@ public class DisplayOptions {
 					dp.switchRecords(target, e.getValue(), true);
 				}
 			});
-		}
+		//}
 
 		boolean showLeaders = dp.isLeadersDisplay();
 		Checkbox leadersDisplayCheckbox = new Checkbox(Translator.translate("DisplayParameters.ShowLeaders"));//
@@ -138,13 +138,12 @@ public class DisplayOptions {
 		}
 
 		boolean silentMode = dp.isSilenced();
-		Button silentButton = new Button(Translator.translate("DisplayParameters.Silent", AvIcons.VOLUME_OFF.create()));
-		Button soundButton = new Button(Translator.translate("DisplayParameters.SoundOn", AvIcons.VOLUME_UP.create()));
+		Button silentButton = new Button(Translator.translate("DisplayParameters.ClockSoundOff", AvIcons.VOLUME_OFF.create()));
+		Button soundButton = new Button(Translator.translate("DisplayParameters.ClockSoundOn", AvIcons.VOLUME_UP.create()));
 
 		RadioButtonGroup<Boolean> rbgroup = new RadioButtonGroup<>();
 		rbgroup.setRequired(true);
 		rbgroup.setLabel(null);
-		rbgroup.setHelperText(Translator.translate("DisplayParameters.SoundHelper"));
 		rbgroup.setItems(Boolean.TRUE, Boolean.FALSE);
 		rbgroup.setValue(silentMode);
 		rbgroup.setRenderer(new ComponentRenderer<Button, Boolean>((mn) -> mn ? silentButton : soundButton));
@@ -155,9 +154,28 @@ public class DisplayOptions {
 				SoundUtils.doEnableAudioContext(target.getElement());
 			}
 		});
+		
+		boolean downSilentMode = dp.isDownSilenced();
+		Button downSilencedButton = new Button(Translator.translate("DisplayParameters.DownSoundOff", AvIcons.VOLUME_OFF.create()));
+		Button downSoundButton = new Button(Translator.translate("DisplayParameters.DownSoundOn", AvIcons.VOLUME_UP.create()));
+
+		RadioButtonGroup<Boolean> rb2group = new RadioButtonGroup<>();
+		rb2group.setRequired(true);
+		rb2group.setLabel(null);
+		rb2group.setItems(Boolean.TRUE, Boolean.FALSE);
+		rb2group.setValue(downSilentMode);
+		rb2group.setRenderer(new ComponentRenderer<Button, Boolean>((mn) -> mn ? downSilencedButton : downSoundButton));
+		rb2group.addValueChangeListener(e -> {
+			Boolean downSilenced = e.getValue();
+			dp.switchDownMode(target, downSilenced, true);
+			if (!downSilenced) {
+				SoundUtils.doEnableAudioContext(target.getElement());
+			}
+		});
+		rb2group.setHelperText(Translator.translate("DisplayParameters.SoundHelper"));
 
 		layout.add(label);
-		layout.add(rbgroup);
+		layout.add(rbgroup, rb2group);
 	}
 
 	public static void addSwitchableEntries(VerticalLayout layout, Component target, DisplayParameters dp) {

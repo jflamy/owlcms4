@@ -5150,4 +5150,9 @@ public class Athlete {
 		        LoggerUtils.whereFrom());
 	}
 
+	public String getAgeGroupDisplayName() {
+		AgeGroup ag = getAgeGroup();
+		return ag != null ? ag.getDisplayName() : "";
+	}
+
 }

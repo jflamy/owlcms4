@@ -129,6 +129,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 	private String routeParameter;
 
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	private boolean downSilenced;
 
 	/**
 	 * Instantiates a new results board.
@@ -290,6 +291,19 @@ public class Results extends PolymerTemplate<TemplateModel>
 	public boolean isSilenced() {
 		return silenced;
 	}
+	
+	@Override
+	public boolean isDownSilenced() {
+		return downSilenced;
+	}
+	
+
+	@Override
+	public void setDownSilenced(boolean silenced) {
+		this.decisions.setSilenced(silenced);
+		this.downSilenced = silenced;
+	}
+
 
 	/**
 	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#isSwitchableDisplay()
@@ -386,7 +400,6 @@ public class Results extends PolymerTemplate<TemplateModel>
 	public void setSilenced(boolean silenced) {
 		this.timer.setSilenced(silenced);
 		this.breakTimer.setSilenced(silenced);
-		this.decisions.setSilenced(silenced);
 		this.silenced = silenced;
 	}
 

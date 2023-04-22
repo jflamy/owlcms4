@@ -122,7 +122,8 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 
 	protected String routeParameter;
 
-	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	Map<String, List<String>> urlParameterMap = new HashMap<>();
+	private boolean downSilenced;
 
 	/**
 	 * Instantiates a new attempt board.
@@ -169,7 +170,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 
 			Athlete a = fop.getCurAthlete();
 			if (a != null) {
-				;
+
 				this.getElement().setProperty("category", a.getCategory().getTranslatedName());
 				String formattedAttempt = formatAttempt(a);
 				this.getElement().setProperty("attempt - ", formattedAttempt);
@@ -239,6 +240,11 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		return true;
 	}
 
+	@Override
+	public boolean isDownSilenced() {
+		return downSilenced;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 *
@@ -282,6 +288,17 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 	}
 
 	/**
+	 * replace illegal characters in a filename with "_" illegal characters : : \ /
+	 * * ? | < >
+	 *
+	 * @param name
+	 * @return
+	 */
+	public String sanitizeFilename(String name) {
+		return name.replaceAll("[:\\\\/*?|<>]", "_");
+	}
+
+	/**
 	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setDarkMode(boolean)
 	 */
 	@Override
@@ -297,6 +314,12 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 	@Override
 	public void setDialogTimer(Timer dialogTimer) {
 		this.dialogTimer = dialogTimer;
+	}
+
+	@Override
+	public void setDownSilenced(boolean silenced) {
+		this.decisions.setSilenced(silenced);
+		this.downSilenced = silenced;
 	}
 
 	@Override
@@ -345,7 +368,6 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		// LoggerUtils.whereFrom());
 		this.athleteTimer.setSilenced(silenced);
 		this.breakTimer.setSilenced(silenced);
-		this.decisions.setSilenced(silenced);
 		this.silenced = silenced;
 	}
 
@@ -601,6 +623,175 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		setLocation(location2);
 	}
 
+	protected void checkImages() {
+		try {
+			ResourceWalker.getFileOrResourcePath("pictures");
+			athletePictures = true;
+		} catch (FileNotFoundException e) {
+			athletePictures = false;
+		}
+
+		try {
+			ResourceWalker.getFileOrResourcePath("flags");
+			teamFlags = true;
+		} catch (FileNotFoundException e) {
+			teamFlags = false;
+		}
+	}
+
+	protected void doAthleteUpdate(Athlete a) {
+		FieldOfPlay fop = OwlcmsSession.getFop();
+		FOPState state = fop.getState();
+		if (fop.getState() == FOPState.INACTIVE
+		        || (state == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE)) {
+			doEmpty();
+			return;
+		}
+
+		if (a == null) {
+			doEmpty();
+			return;
+		} else if (a.getAttemptsDone() >= 6) {
+			doNotEmpty();
+			setDone(true);
+			return;
+		}
+
+		String lastName = a.getLastName();
+		this.getElement().setProperty("lastName", lastName.toUpperCase());
+		this.getElement().setProperty("firstName", a.getFirstName());
+		this.getElement().setProperty("hideBecauseDecision", "");
+		this.getElement().setProperty("category", a.getCategory().getTranslatedName());
+
+		String team = a.getTeam();
+		if (team == null) {
+			team = "";
+		}
+		this.getElement().setProperty("teamName", team);
+		this.getElement().setProperty("teamFlagImg", "");
+		String teamFileName = sanitizeFilename(team);
+		if (teamFlags && !team.isBlank()) {
+			boolean done;
+			done = setImgProp("teamFlagImg", "flags/", teamFileName, ".svg");
+			if (!done) {
+				done = setImgProp("teamFlagImg", "flags/", teamFileName, ".png");
+				if (!done) {
+					done = setImgProp("teamFlagImg", "flags/", teamFileName, ".jpg");
+				}
+			}
+		}
+
+		String membership = a.getMembership();
+		this.getElement().setProperty("athleteImg", "");
+		if (athletePictures && membership != null) {
+			boolean done;
+			done = setImgProp("athleteImg", "pictures/", membership, ".jpg");
+			if (!done) {
+				done = setImgProp("athleteImg", "pictures/", membership, ".jpeg");
+			}
+			this.getElement().setProperty("WithPicture", done ? "WithPicture" : "");
+		}
+
+		spotlightRecords(fop);
+
+		this.getElement().setProperty("startNumber", a.getStartNumber());
+		String formattedAttempt = formatAttempt(a);
+		this.getElement().setProperty("attempt", formattedAttempt);
+		Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
+		setDisplayedWeight(nextAttemptRequestedWeight > 0 ? nextAttemptRequestedWeight.toString() : "");
+		showPlates();
+		this.getElement().callJsFunction("reset");
+
+		setDone(false);
+	}
+
+	/**
+	 * Restoring the attempt board during a break. The information about how/why the
+	 * break was started is unavailable.
+	 *
+	 * @param fop
+	 */
+	protected void doBreak(FieldOfPlay fop) {
+		// logger.debug("dobreak");
+		this.getElement().setProperty("lastName", inferGroupName(fop.getCeremonyType()));
+		this.getElement().setProperty("firstName", inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
+		this.getElement().setProperty("teamName", "");
+		this.getElement().setProperty("attempt", "");
+		Athlete a = fop.getCurAthlete();
+		if (a != null) {
+			this.getElement().setProperty("category", a.getCategory().getTranslatedName());
+			String formattedAttempt = formatAttempt(a);
+			this.getElement().setProperty("attempt", formattedAttempt);
+			Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
+			setDisplayedWeight(nextAttemptRequestedWeight > 0 ? nextAttemptRequestedWeight.toString() : "");
+			showPlates();
+		}
+
+		boolean showWeights = fop.getCeremonyType() == null && fop.getGroup() != null;
+		// logger.trace("*** doBreak {} {} {}", showWeights, fop.getCeremonyType(),
+		// LoggerUtils.whereFrom());
+		this.getElement().callJsFunction("doBreak", showWeights);
+		uiEventLogger.debug("$$$ attemptBoard doBreak(fop)");
+	}
+
+	protected void doEmpty() {
+		hidePlates();
+		FieldOfPlay fop2 = OwlcmsSession.getFop();
+		if (fop2.getGroup() == null) {
+			setDisplayedWeight("");
+		}
+		boolean inactive = fop2 == null || fop2.getState() == FOPState.INACTIVE;
+		// this.getElement().callJsFunction("clear");
+		this.getElement().setProperty("inactiveBlockStyle", (inactive ? "display:grid" : "display:none"));
+		this.getElement().setProperty("activeGridStyle", (inactive ? "display:none" : "display:grid"));
+		this.getElement().setProperty("inactiveClass", (inactive ? "bigTitle" : ""));
+		this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
+	}
+
+	protected void doNotEmpty() {
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			boolean inactive = false;
+			this.getElement().setProperty("inactiveBlockStyle", (inactive ? "display:grid" : "display:none"));
+			this.getElement().setProperty("activeGridStyle", (inactive ? "display:none" : "display:grid"));
+			this.getElement().setProperty("inactiveClass", (inactive ? "bigTitle" : ""));
+		});
+	}
+
+	/*
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
+	 * AttachEvent)
+	 */
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		// fop obtained via FOPParameters interface default methods.
+		OwlcmsSession.withFop(fop -> {
+			logger.debug("{}onAttach {}", fop.getLoggingName(), fop.getState());
+			init();
+			ThemeList themeList = UI.getCurrent().getElement().getThemeList();
+			themeList.remove(Lumo.LIGHT);
+			themeList.add(Lumo.DARK);
+
+			SoundUtils.enableAudioContextNotification(this.getElement());
+
+			syncWithFOP(fop);
+			// we send on fopEventBus, listen on uiEventBus.
+			uiEventBus = uiEventBusRegister(this, fop);
+			this.getElement().setProperty("video", routeParameter != null ? routeParameter + "/" : "");
+		});
+	}
+
+	protected void setTranslationMap() {
+		JsonObject translations = Json.createObject();
+		Enumeration<String> keys = Translator.getKeys();
+		while (keys.hasMoreElements()) {
+			String curKey = keys.nextElement();
+			if (curKey.startsWith("Scoreboard.")) {
+				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
+			}
+		}
+		this.getElement().setPropertyJson("t", translations);
+	}
+
 	private void doDone(Group g) {
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			if (g != null) {
@@ -809,185 +1000,5 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 				athleteTimer.syncWithFop();
 			}
 		}
-	}
-
-	protected void checkImages() {
-		try {
-			ResourceWalker.getFileOrResourcePath("pictures");
-			athletePictures = true;
-		} catch (FileNotFoundException e) {
-			athletePictures = false;
-		}
-
-		try {
-			ResourceWalker.getFileOrResourcePath("flags");
-			teamFlags = true;
-		} catch (FileNotFoundException e) {
-			teamFlags = false;
-		}
-	}
-
-	/**
-	 * replace illegal characters in a filename with "_" illegal characters : : \ /
-	 * * ? | < >
-	 * 
-	 * @param name
-	 * @return
-	 */
-	public String sanitizeFilename(String name) {
-		return name.replaceAll("[:\\\\/*?|<>]", "_");
-	}
-
-	protected void doAthleteUpdate(Athlete a) {
-		FieldOfPlay fop = OwlcmsSession.getFop();
-		FOPState state = fop.getState();
-		if (fop.getState() == FOPState.INACTIVE
-		        || (state == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE)) {
-			doEmpty();
-			return;
-		}
-
-		if (a == null) {
-			doEmpty();
-			return;
-		} else if (a.getAttemptsDone() >= 6) {
-			doNotEmpty();
-			setDone(true);
-			return;
-		}
-
-		String lastName = a.getLastName();
-		this.getElement().setProperty("lastName", lastName.toUpperCase());
-		this.getElement().setProperty("firstName", a.getFirstName());
-		this.getElement().setProperty("hideBecauseDecision", "");
-		this.getElement().setProperty("category", a.getCategory().getTranslatedName());
-
-		String team = a.getTeam();
-		if (team == null) {
-			team = "";
-		}
-		this.getElement().setProperty("teamName", team);
-		this.getElement().setProperty("teamFlagImg", "");
-		String teamFileName = sanitizeFilename(team);
-		if (teamFlags && !team.isBlank()) {
-			boolean done;
-			done = setImgProp("teamFlagImg", "flags/", teamFileName, ".svg");
-			if (!done) {
-				done = setImgProp("teamFlagImg", "flags/", teamFileName, ".png");
-				if (!done) {
-					done = setImgProp("teamFlagImg", "flags/", teamFileName, ".jpg");
-				}
-			}
-		}
-
-		String membership = a.getMembership();
-		this.getElement().setProperty("athleteImg", "");
-		if (athletePictures && membership != null) {
-			boolean done;
-			done = setImgProp("athleteImg", "pictures/", membership, ".jpg");
-			if (!done) {
-				done = setImgProp("athleteImg", "pictures/", membership, ".jpeg");
-			}
-			this.getElement().setProperty("WithPicture", done ? "WithPicture" : "");
-		}
-
-		spotlightRecords(fop);
-
-		this.getElement().setProperty("startNumber", a.getStartNumber());
-		String formattedAttempt = formatAttempt(a);
-		this.getElement().setProperty("attempt", formattedAttempt);
-		Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
-		setDisplayedWeight(nextAttemptRequestedWeight > 0 ? nextAttemptRequestedWeight.toString() : "");
-		showPlates();
-		this.getElement().callJsFunction("reset");
-
-		setDone(false);
-	}
-
-	/**
-	 * Restoring the attempt board during a break. The information about how/why the
-	 * break was started is unavailable.
-	 *
-	 * @param fop
-	 */
-	protected void doBreak(FieldOfPlay fop) {
-		// logger.debug("dobreak");
-		this.getElement().setProperty("lastName", inferGroupName(fop.getCeremonyType()));
-		this.getElement().setProperty("firstName", inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
-		this.getElement().setProperty("teamName", "");
-		this.getElement().setProperty("attempt", "");
-		Athlete a = fop.getCurAthlete();
-		if (a != null) {
-			this.getElement().setProperty("category", a.getCategory().getTranslatedName());
-			String formattedAttempt = formatAttempt(a);
-			this.getElement().setProperty("attempt", formattedAttempt);
-			Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
-			setDisplayedWeight(nextAttemptRequestedWeight > 0 ? nextAttemptRequestedWeight.toString() : "");
-			showPlates();
-		}
-
-		boolean showWeights = fop.getCeremonyType() == null && fop.getGroup() != null;
-		// logger.trace("*** doBreak {} {} {}", showWeights, fop.getCeremonyType(),
-		// LoggerUtils.whereFrom());
-		this.getElement().callJsFunction("doBreak", showWeights);
-		uiEventLogger.debug("$$$ attemptBoard doBreak(fop)");
-	}
-
-	protected void doEmpty() {
-		hidePlates();
-		FieldOfPlay fop2 = OwlcmsSession.getFop();
-		if (fop2.getGroup() == null) {
-			setDisplayedWeight("");
-		}
-		boolean inactive = fop2 == null || fop2.getState() == FOPState.INACTIVE;
-		// this.getElement().callJsFunction("clear");
-		this.getElement().setProperty("inactiveBlockStyle", (inactive ? "display:grid" : "display:none"));
-		this.getElement().setProperty("activeGridStyle", (inactive ? "display:none" : "display:grid"));
-		this.getElement().setProperty("inactiveClass", (inactive ? "bigTitle" : ""));
-		this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
-	}
-
-	protected void doNotEmpty() {
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			boolean inactive = false;
-			this.getElement().setProperty("inactiveBlockStyle", (inactive ? "display:grid" : "display:none"));
-			this.getElement().setProperty("activeGridStyle", (inactive ? "display:none" : "display:grid"));
-			this.getElement().setProperty("inactiveClass", (inactive ? "bigTitle" : ""));
-		});
-	}
-
-	/*
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-	 * AttachEvent)
-	 */
-	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		// fop obtained via FOPParameters interface default methods.
-		OwlcmsSession.withFop(fop -> {
-			logger.debug("{}onAttach {}", fop.getLoggingName(), fop.getState());
-			init();
-			ThemeList themeList = UI.getCurrent().getElement().getThemeList();
-			themeList.remove(Lumo.LIGHT);
-			themeList.add(Lumo.DARK);
-
-			SoundUtils.enableAudioContextNotification(this.getElement());
-
-			syncWithFOP(fop);
-			// we send on fopEventBus, listen on uiEventBus.
-			uiEventBus = uiEventBusRegister(this, fop);
-			this.getElement().setProperty("video", routeParameter != null ? routeParameter + "/" : "");
-		});
-	}
-
-	protected void setTranslationMap() {
-		JsonObject translations = Json.createObject();
-		Enumeration<String> keys = Translator.getKeys();
-		while (keys.hasMoreElements()) {
-			String curKey = keys.nextElement();
-			if (curKey.startsWith("Scoreboard.")) {
-				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
-			}
-		}
-		this.getElement().setPropertyJson("t", translations);
 	}
 }
