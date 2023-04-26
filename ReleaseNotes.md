@@ -1,11 +1,13 @@
 38.5 Minor enhancements
 
 - 38.5 Changes
-  - alpha01: If using a down signal light equipped with a buzzer, the down signal sound from the countdown displays is redundant and potentially confusing.  
+  - beta01: Fix:  USAW Results template to correctly match Open M and Open F names
+  - beta01: Fix: Platform selection would be reset to first available after editing a group 
+  - If using a down signal light equipped with a buzzer, the down signal sound from the countdown displays is redundant and potentially confusing.  
     - The down sound can now to be turned off separately from the clock warnings.
     - Added a MQTT message `owlcms/fop/timeRemaining` that is emitted at 90, 30, 0 seconds remaining for the various warnings.
-  - alpha01: Fix: Weigh-in screen could fail to load if an athlete had been registered without a category or age group.
-  - alpha00: Athlete Challenge
+  - Fix: Weigh-in screen could fail to load if an athlete had been registered without a category or age group.
+  - Athlete Challenge
     - Added a Challenge button to the Jury dialog, and a keyboard shortcut (C). 
   
     - This displays "Challenge" on the attempt board as required by TCRR and also changes the video status monitor to BREAK.CHALLENGE.
@@ -23,11 +25,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_38.5.0-alpha01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_38.5.0-beta01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_38.5.0-alpha01.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_38.5.0-beta01.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
