@@ -105,8 +105,13 @@ public class GroupEditingFormFactory
 		ComboBox<Platform> platformField = new ComboBox<>(Translator.translate("Platform"));
 		platformField.setSizeUndefined();
 		List<Platform> allPlatforms = PlatformRepository.findAll();
-		platformField.setItems(new ListDataProvider<>(allPlatforms));
-
+		ListDataProvider<Platform> dataProvider = new ListDataProvider<>(allPlatforms);
+		platformField.setItems(dataProvider);
+		
+		Platform platform = aFromDb.getPlatform();
+//		dataProvider.getItems().stream().forEach((p) -> logger.warn("p {} {}",p.getId(), System.identityHashCode(p)));
+//		logger.warn("platform {} {}",platform.getId(), , System.identityHashCode(p));
+//		
 		platformField.setItemLabelGenerator(Platform::getName);
 		platformField.setClearButtonVisible(true);
 		formLayout.add(platformField);
@@ -240,6 +245,7 @@ public class GroupEditingFormFactory
 			aFromDb.setPlatform(allPlatforms.get(0));
 		}
 		binder.readBean(aFromDb);
+		platformField.setValue(platform);
 
 		Component footerLayout = this.buildFooter(operation, aFromDb, cancelButtonClickListener,
 		        updateButtonClickListener, deleteButtonClickListener, false);
