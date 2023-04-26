@@ -1,11 +1,13 @@
 38.5 Minor enhancements
 
 - 38.5 Changes
-  - alpha01: If using a down signal light equipped with a buzzer, the down signal sound from the countdown displays is redundant and potentially confusing.  
+  - beta01: Fix:  USAW Results template to correctly match Open M and Open F names
+  - beta01: Fix: Platform selection would be reset to first available after editing a group 
+  - If using a down signal light equipped with a buzzer, the down signal sound from the countdown displays is redundant and potentially confusing.  
     - The down sound can now to be turned off separately from the clock warnings.
     - Added a MQTT message `owlcms/fop/timeRemaining` that is emitted at 90, 30, 0 seconds remaining for the various warnings.
-  - alpha01: Fix: Weigh-in screen could fail to load if an athlete had been registered without a category or age group.
-  - alpha00: Athlete Challenge
+  - Fix: Weigh-in screen could fail to load if an athlete had been registered without a category or age group.
+  - Athlete Challenge
     - Added a Challenge button to the Jury dialog, and a keyboard shortcut (C). 
   
     - This displays "Challenge" on the attempt board as required by TCRR and also changes the video status monitor to BREAK.CHALLENGE.
