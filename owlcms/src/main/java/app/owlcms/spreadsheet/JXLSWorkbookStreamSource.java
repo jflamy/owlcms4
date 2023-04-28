@@ -39,6 +39,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.data.records.RecordEvent;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
@@ -160,6 +161,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 	}
 
 	public HashMap<String, Object> getReportingBeans() {
+		logger.warn("reporting beans : {} {}",reportingBeans.keySet(), LoggerUtils.whereFrom());
 		return reportingBeans;
 	}
 
@@ -336,6 +338,14 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 		getReportingBeans().put("competition", competition);
 		getReportingBeans().put("session", getGroup()); // legacy
 		getReportingBeans().put("group", getGroup());
+		
+		// reuse existing logic for processing records
+		JXLSExportRecords jxlsExportRecords = new JXLSExportRecords(null);
+		jxlsExportRecords.setGroup(getGroup());
+		jxlsExportRecords.getSortedAthletes();
+		List<RecordEvent> records = jxlsExportRecords.getRecords();
+		getReportingBeans().put("records", records);
+		
 		getReportingBeans().put("masters", Competition.getCurrent().isMasters());
 		getReportingBeans().put("groups", GroupRepository.findAll().stream().sorted((a, b) -> {
 			int compare = ObjectUtils.compare(a.getWeighInTime(), b.getWeighInTime(), true);

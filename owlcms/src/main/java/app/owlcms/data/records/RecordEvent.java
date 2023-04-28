@@ -108,8 +108,7 @@ public class RecordEvent {
 		newRecord.setFileName(rec.getFileName());
 		newRecord.setGroupNameString(currentGroup != null ? currentGroup.getName() : null);
 		newRecord.setCategoryString(a.getDisplayCategory());
-		// logger.debug("*** {} {} {}", newRecord.getRecordDateAsString(),
-		// newRecord.getGroupNameString(), newRecord.getCategoryString());
+		logger.warn("*** {} {} {}", newRecord.getRecordDateAsString(),newRecord.getGroupNameString(), newRecord.getCategoryString());
 		return newRecord;
 	}
 
@@ -311,6 +310,34 @@ public class RecordEvent {
 		        && Objects.equals(recordDate, other.recordDate)
 		        && Objects.equals(recordFederation, other.recordFederation) && recordLift == other.recordLift
 		        && Objects.equals(recordName, other.recordName) && Objects.equals(recordValue, other.recordValue)
+		        && recordYear == other.recordYear;
+	}
+	
+	/**
+	 * The two records are the same record, excluding the record value
+	 *
+	 * @param obj
+	 * @return
+	 */
+	public boolean sameRecordAs(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if ((obj == null) || (getClass() != obj.getClass())) {
+			return false;
+		}
+		RecordEvent other = (RecordEvent) obj;
+		return Objects.equals(ageGrp, other.ageGrp) && ageGrpLower == other.ageGrpLower
+		        && ageGrpUpper == other.ageGrpUpper && Objects.equals(athleteName, other.athleteName)
+		        && Objects.equals(birthDate, other.birthDate) && Objects.equals(birthYear, other.birthYear)
+		        && bwCatLower == other.bwCatLower && Objects.equals(bwCatString, other.bwCatString)
+		        && Objects.equals(bwCatUpper, other.bwCatUpper) && Objects.equals(categoryString, other.categoryString)
+		        && Objects.equals(event, other.event) && Objects.equals(eventLocation, other.eventLocation)
+		        && Objects.equals(fileName, other.fileName) && gender == other.gender
+		        && Objects.equals(groupNameString, other.groupNameString) && Objects.equals(nation, other.nation)
+		        && Objects.equals(recordDate, other.recordDate)
+		        && Objects.equals(recordFederation, other.recordFederation) && recordLift == other.recordLift
+		        && Objects.equals(recordName, other.recordName)
 		        && recordYear == other.recordYear;
 	}
 

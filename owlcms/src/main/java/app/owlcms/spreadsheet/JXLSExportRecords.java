@@ -8,10 +8,12 @@ package app.owlcms.spreadsheet;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +35,8 @@ import ch.qos.logback.classic.Logger;
 public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(JXLSExportRecords.class);
+	Group group;
+	private List<RecordEvent> bestRecords;
 
 	public JXLSExportRecords(Group group, boolean excludeNotWeighed, UI ui) {
 		super();
@@ -43,8 +47,18 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 	}
 
 	@Override
+	public Group getGroup() {
+		return group;
+	}
+
+	@Override
 	public InputStream getTemplate(Locale locale) throws IOException {
 		return getLocalizedTemplate("/templates/records/exportRecords", ".xls", locale);
+	}
+
+	@Override
+	public void setGroup(Group group) {
+		this.group = group;
 	}
 
 	public Comparator<RecordEvent> sortRecords() {
@@ -63,7 +77,7 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 	}
 
 	@Override
-	protected List<Athlete> getSortedAthletes() {
+	public List<Athlete> getSortedAthletes() {
 		HashMap<String, Object> reportingBeans = getReportingBeans();
 
 		List<Athlete> athletes = AthleteSorter
@@ -75,10 +89,34 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 			logger.debug("{} athletes", athletes.size());
 		}
 
-		List<RecordEvent> records = RecordRepository.findFiltered(null, null, null, null, true);
+		String groupName = group != null ? group.getName() : null;
+		List<RecordEvent> records = RecordRepository.findFiltered(null, null, null, groupName, true);
 		records.sort(sortRecords());
-		reportingBeans.put("records", records);
+
+		// keep best record if beaten several times
+		RecordEvent[] best = records.toArray(new RecordEvent[0]);
+		RecordEvent prev = null;
+		for (int i = best.length - 1; i >= 0; i--) {
+			if (best[i].sameRecordAs(prev)) {
+				prev = best[i];
+				best[i] = null;
+			} else {
+				prev = best[i];
+			}
+		}
+
+		bestRecords = Arrays.stream(best).filter(re -> re != null).collect(Collectors.toList());
+		logger.warn("setting bestRecords = {}", bestRecords);
+		if (!bestRecords.isEmpty()) {
+			reportingBeans.put("records", bestRecords);
+		}
 		return athletes;
+	}
+
+	public List<RecordEvent> getRecords() {
+		logger.warn("nb records = {}",bestRecords);
+		return bestRecords;
+		
 	}
 
 }
