@@ -211,7 +211,7 @@ public class GroupEditingFormFactory
 
 		addRuler(formLayout);
 
-		TextField jury1 = new TextField(Translator.translate("Jury1"));
+		TextField jury1 = new TextField(Translator.translate("JuryPresident"));
 		formLayout.add(jury1);
 		binder.forField(jury1)
 		        .withNullRepresentation("")
