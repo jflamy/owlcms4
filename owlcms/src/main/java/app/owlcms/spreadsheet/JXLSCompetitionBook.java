@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.spreadsheet;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -189,7 +190,10 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 		competition.computeReportingInfo(getAgeGroupPrefix(), getAgeDivision());
 
 		super.setReportingInfo();
-		setReportingBeans(competition.getReportingBeans());
+		Object records = super.getReportingBeans().get("records");
+		HashMap<String, Object> reportingBeans = competition.getReportingBeans();
+		reportingBeans.put("records", records);
+		setReportingBeans(reportingBeans);
 	}
 
 }
