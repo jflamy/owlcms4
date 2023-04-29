@@ -145,6 +145,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 		transformer.markAsFixedSizeCollection("mwTeam");
 		transformer.markAsFixedSizeCollection("mCombined");
 		transformer.markAsFixedSizeCollection("wCombined");
+		transformer.markAsFixedSizeCollection("mwCombined");
 		transformer.markAsFixedSizeCollection("mCustom");
 		transformer.markAsFixedSizeCollection("wCustom");
 	}
