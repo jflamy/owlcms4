@@ -1,6 +1,7 @@
 38.5 Minor enhancements
 
 - 38.5 Changes
+  - beta03: translations
   - beta02: Added Records section on the results sheet for each group, and added a record sheet on the final package competition book.
   - beta02: Jury 1 is translated as Jury President on the Groups page and the various schedules/reports
   - beta01: Fix:  USAW Results template to correctly match Open M and Open F names
