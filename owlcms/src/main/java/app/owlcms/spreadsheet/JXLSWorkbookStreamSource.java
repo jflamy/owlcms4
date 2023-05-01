@@ -342,9 +342,13 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 		// reuse existing logic for processing records
 		JXLSExportRecords jxlsExportRecords = new JXLSExportRecords(null);
 		jxlsExportRecords.setGroup(getGroup());
-		jxlsExportRecords.getSortedAthletes();
-		List<RecordEvent> records = jxlsExportRecords.getRecords();
-		getReportingBeans().put("records", records);
+		try {
+			jxlsExportRecords.getSortedAthletes();
+			List<RecordEvent> records = jxlsExportRecords.getRecords();
+			getReportingBeans().put("records", records);
+		} catch (Exception e) {
+			// no records
+		}
 		
 		getReportingBeans().put("masters", Competition.getCurrent().isMasters());
 		getReportingBeans().put("groups", GroupRepository.findAll().stream().sorted((a, b) -> {
