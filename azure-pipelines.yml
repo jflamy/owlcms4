@@ -169,8 +169,6 @@ jobs:
             $(Pipeline.Workspace)/PublicResultsZip/*
             $(Pipeline.Workspace)/OwlcmsSetup/*
             $(Pipeline.Workspace)/PublicResultsSetup/*
-            $(Agent.BuildDirectory)/s/owlcms-docker/target/k8s.zip
-            $(Agent.BuildDirectory)/s/owlcms-docker/target/k8s/k3s_setup.yaml
           assetUploadMode: "delete" # Optional. Options: delete, replace
           addChangeLog: false # Optional
         
