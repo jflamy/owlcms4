@@ -1,22 +1,21 @@
 38.5 Minor enhancements
 
 - 38.5 Changes
-  - beta03: starting list and other reports would fail if there were no records
-  - beta03: translations
-  - beta02: Added Records section on the results sheet for each group, and added a record sheet on the final package competition book.
-  - beta02: Jury 1 is translated as Jury President on the Groups page and the various schedules/reports
-  - beta01: Fix:  USAW Results template to correctly match Open M and Open F names
-  - beta01: Fix: Platform selection would be reset to first available after editing a group 
-  - If using a down signal light equipped with a buzzer, the down signal sound from the countdown displays is redundant and potentially confusing.  
-    - The down sound can now to be turned off separately from the clock warnings.
+  - Added a "Records" section on the results sheet for each group, and added a record sheet on the final package competition book.
+  - Jury 1 is now translated as Jury President on the Groups page and the various schedules/reports
+  - The down sound can now to be turned off separately from the clock warnings.
+    - If using a down signal light equipped with a buzzer, the down signal sound from the countdown displays is redundant and potentially confusing.  
     - Added a MQTT message `owlcms/fop/timeRemaining` that is emitted at 90, 30, 0 seconds remaining for the various warnings.
-  - Fix: Weigh-in screen could fail to load if an athlete had been registered without a category or age group.
   - Athlete Challenge
-    - Added a Challenge button to the Jury dialog, and a keyboard shortcut (C). 
+    - Added a Challenge button to the Jury dialog, and a matching keyboard shortcut (the `c` key on the keyboard). 
   
     - This displays "Challenge" on the attempt board as required by TCRR and also changes the video status monitor to BREAK.CHALLENGE.
   
-    - Added a MQTT message `owlcms/jurybox/challenge` which is the same as the deliberation message, but transitions to a BREAK.CHALLENGE state instead of a BREAK.JURY state.
+    - Added a MQTT message `owlcms/jurybox/challenge` which is the same as the deliberation message, but triggers a BREAK.CHALLENGE instead
+  
+  - Fix: Weigh-in screen could fail to load if an athlete had been registered without a category or age group.
+  - Fix: USAW Results template fixed to correctly match Open M and Open F names
+  - Fix: Platform selection would be reset to first available after editing a group 
 
 
 ##### Highlights from recent stable releases
