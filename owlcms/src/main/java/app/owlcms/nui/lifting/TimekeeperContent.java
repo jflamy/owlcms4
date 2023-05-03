@@ -68,6 +68,8 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 
 	private ShortcutRegistration startReg;
 	private ShortcutRegistration stopReg;
+	private ShortcutRegistration _1minReg;
+	private ShortcutRegistration _2minReg;
 
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
@@ -176,22 +178,24 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 
 		createStartTimeButton();
 		createStopTimeButton();
+		create1MinButton();
+		create2MinButton();
 
 		registerShortcuts();
 
-		_1min = new Button("1:00", (e2) -> {
-			OwlcmsSession.withFop(fop -> {
-				fop.fopEventPost(new FOPEvent.ForceTime(60000, this.getOrigin()));
-			});
-		});
-		_1min.getElement().setAttribute("theme", "icon");
-
-		_2min = new Button("2:00", (e3) -> {
-			OwlcmsSession.withFop(fop -> {
-				fop.fopEventPost(new FOPEvent.ForceTime(120000, this.getOrigin()));
-			});
-		});
-		_2min.getElement().setAttribute("theme", "icon");
+//		_1min = new Button("1:00", (e2) -> {
+//			OwlcmsSession.withFop(fop -> {
+//				fop.fopEventPost(new FOPEvent.ForceTime(60000, this.getOrigin()));
+//			});
+//		});
+//		_1min.getElement().setAttribute("theme", "icon");
+//
+//		_2min = new Button("2:00", (e3) -> {
+//			OwlcmsSession.withFop(fop -> {
+//				fop.fopEventPost(new FOPEvent.ForceTime(120000, this.getOrigin()));
+//			});
+//		});
+//		_2min.getElement().setAttribute("theme", "icon");
 
 		startTimeButton.setSizeFull();
 		stopTimeButton.setSizeFull();
@@ -223,6 +227,8 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	private void registerShortcuts() {
 		startReg = startTimeButton.addClickShortcut(Key.COMMA);
 		stopReg = stopTimeButton.addClickShortcut(Key.PERIOD);
+		_1minReg = _1min.addClickShortcut(Key.BRACKET_LEFT);
+		_2minReg = _2min.addClickShortcut(Key.BRACKET_RIGHT);
 	}
 
 	private void showButtons() {
@@ -242,13 +248,21 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 			stopReg.remove();
 			stopReg = null;
 		}
+		if (_1minReg != null) {
+			_1minReg.remove();
+			_1minReg = null;
+		}
+		if (_2minReg != null) {
+			_2minReg.remove();
+			_2minReg = null;
+		}
 	}
 
 	@Override
 	protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
 		createStartTimeButton();
 		createStopTimeButton();
-		create1minButton();
+		create1MinButton();
 		create2MinButton();
 
 		HorizontalLayout buttons = new HorizontalLayout(startTimeButton, stopTimeButton, _1min, _2min);

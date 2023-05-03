@@ -1014,7 +1014,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 		}
 	}
 
-	protected void create1minButton() {
+	protected void create1MinButton() {
 		_1min = new Button("1:00", (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				fop.fopEventPost(new FOPEvent.ForceTime(60000, this.getOrigin()));

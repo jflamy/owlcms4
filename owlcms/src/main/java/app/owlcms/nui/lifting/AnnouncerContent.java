@@ -260,7 +260,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
 		createStartTimeButton();
 		createStopTimeButton();
-		create1minButton();
+		create1MinButton();
 		create2MinButton();
 
 		timerButtons = new HorizontalLayout(
@@ -368,6 +368,19 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	protected void createStopTimeButton() {
 		super.createStopTimeButton();
 		UI.getCurrent().addShortcutListener(() -> doStopTime(), Key.PERIOD);
+	}
+	
+	@Override
+	protected void create1MinButton() {
+		super.create1MinButton();
+		_1min.addClickShortcut(Key.BRACKET_LEFT);
+	}
+	
+	@Override
+	protected void create2MinButton() {
+		super.create2MinButton();
+		_2min.addClickShortcut(Key.BRACKET_RIGHT);
+
 	}
 
 	@Override
