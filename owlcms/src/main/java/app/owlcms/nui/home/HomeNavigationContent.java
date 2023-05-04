@@ -201,7 +201,6 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		Hr hr = new Hr();
 		hr.getStyle().set("margin-bottom", "2ex");
 		intro.add(hr);
-		logger.warn("ingro {}",getTranslation("VideoStreaming_description", VIDEO_STREAMING));
 		addP(intro,
 		        getTranslation("LeftMenuNavigate")
 		                + getTranslation("PrepareCompatition_description", PREPARE_COMPETITION)

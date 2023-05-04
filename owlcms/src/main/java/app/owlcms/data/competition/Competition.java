@@ -264,6 +264,7 @@ public class Competition {
 
 	private String officialsListTemplateFileName;
 	private String teamsListTemplateFileName;
+	private String recordOrder;
 
 	public Competition() {
 		medalsByGroup = new HashMap<>();
@@ -1624,6 +1625,14 @@ public class Competition {
 
 	public boolean isGenderInclusive() {
 		return Config.getCurrent().featureSwitch("genderInclusive");
+	}
+
+	public String getRecordOrder() {
+		return recordOrder;
+	}
+
+	public void setRecordOrder(String recordOrder) {
+		this.recordOrder = recordOrder;
 	}
 
 }

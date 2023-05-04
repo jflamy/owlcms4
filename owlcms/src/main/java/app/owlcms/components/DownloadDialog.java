@@ -152,7 +152,7 @@ public class DownloadDialog {
 
 					InputStream is = res.getStream();
 					xlsWriter.setInputStream(is);
-					logger.debug("(2) filter present = {}", xlsWriter.getGroup());
+					logger.debug("(2) filter present = {} {} {}", xlsWriter.getGroup(), xlsWriter.getCategory(), xlsWriter.getAgeDivision());
 
 					String targetFileName = getTargetFileName();
 					logger.debug("(2) targetFileName final = {}", targetFileName);

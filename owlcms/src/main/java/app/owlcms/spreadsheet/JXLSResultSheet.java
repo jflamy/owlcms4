@@ -57,6 +57,7 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 		}
 		final Group currentGroup = getGroup();
 		Category currentCategory = getCategory();
+		logger.warn("&&&&&&&& result sheet category ");
 		AgeDivision currentAgeDivision = getAgeDivision();
 		String currentAgeGroupPrefix = getAgeGroupPrefix();
 		List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(currentGroup);

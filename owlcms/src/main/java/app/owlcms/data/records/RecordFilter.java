@@ -47,14 +47,15 @@ public class RecordFilter {
 		Multimap<Integer, RecordEvent> recordsByAgeWeight = ArrayListMultimap.create();
 		TreeMap<String, String> rowOrder = new TreeMap<>();
 		for (RecordEvent re : displayedRecords) {
-			// rows are ordered according to file name.
-			rowOrder.put(re.getFileName(), re.getRecordName());
+			// rows are ordered according to configuration
+			String order = getRowOrder(re.getRecordName(), re.getFileName());
+			rowOrder.put(order , re.getRecordName());
 			// synthetic key to arrange records in correct column.
 			recordsByAgeWeight.put((re.getGender().ordinal() * 100000000) + re.getAgeGrpLower() * 1000000
 			        + re.getAgeGrpUpper() * 1000 + re.getBwCatUpper(), re);
 		}
 
-		// order columns in ascending age groups;
+		// order columns left to right in ascending age groups;
 		List<Integer> columnOrder = recordsByAgeWeight.keySet().stream().sorted((e1, e2) -> Integer.compare(e1, e2))
 		        .collect(Collectors.toList());
 
@@ -171,6 +172,11 @@ public class RecordFilter {
 		recordInfo.put("nbRecords", Json.create(categoryRecordsLength + 1 + personalRecordsLength));
 
 		return recordInfo;
+	}
+
+	private static String getRowOrder(String recordName, String fileName) {
+		// FIXME change to a key from the UI, initially the fileName if missing.
+		return fileName;
 	}
 
 	public static List<RecordEvent> computeChallengedRecords(List<RecordEvent> eligibleRecords, Integer snatchRequest,

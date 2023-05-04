@@ -8,6 +8,7 @@ package app.owlcms.spreadsheet;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import com.vaadin.flow.component.UI;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordRepository;
@@ -113,10 +115,25 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 		return athletes;
 	}
 
-	public List<RecordEvent> getRecords() {
-		logger.warn("nb records = {}",bestRecords);
-		return bestRecords;
-		
+	public List<RecordEvent> getRecords(Category cat) {
+		logger.warn("nb records = {} cat={}",bestRecords, cat);
+		if (cat == null) {
+			return bestRecords;
+		}
+		List<RecordEvent> catRecords = new ArrayList<>();
+		for (RecordEvent record : bestRecords) {
+			Integer athleteAge = record.getAthleteAge();
+			Double athleteBW = record.getAthleteBW();
+			logger.warn("name {} aa {} abw {} cat {}",record.getAthleteName(), athleteBW, cat);
+			if (record.getGender() == cat.getGender()
+					&& athleteAge >= cat.getAgeGroup().getMinAge()
+					&& athleteAge <= cat.getAgeGroup().getMaxAge()
+					&& athleteBW > cat.getMinimumWeight()
+					&& athleteBW <= cat.getMaximumWeight()) {
+				catRecords.add(record);
+			}
+		}
+		return catRecords.isEmpty() ? null : catRecords;
 	}
 
 }
