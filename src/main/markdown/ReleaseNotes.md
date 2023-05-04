@@ -1,6 +1,8 @@
 38.5 Minor enhancements
 
 - 38.5 Changes
+  - 38.5.1: When using the Category Results options of the Competition Results to get the results for a complete category (as opposed to a group), the new records for that age group/weight class are shown.  Also fixed the processing of the filters.
+    - Note: this only applies to competitions run using 38.5.1 or later; this feature required additional information to be stored about the record attempts taking place during a meet.
   - Added a "Records" section on the results sheet for each group, and added a record sheet on the final package competition book.
   - Jury 1 is now translated as Jury President on the Groups page and the various schedules/reports
   - The down sound can now to be turned off separately from the clock warnings.
