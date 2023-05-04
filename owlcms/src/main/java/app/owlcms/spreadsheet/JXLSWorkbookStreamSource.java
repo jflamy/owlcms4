@@ -161,7 +161,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 	}
 
 	public HashMap<String, Object> getReportingBeans() {
-		logger.warn("reporting beans : {} {}",reportingBeans.keySet(), LoggerUtils.whereFrom());
 		return reportingBeans;
 	}
 

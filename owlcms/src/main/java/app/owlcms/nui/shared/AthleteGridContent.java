@@ -559,7 +559,6 @@ public abstract class AthleteGridContent extends VerticalLayout
 	@Override
 	public HashMap<String, List<String>> readParams(Location location,
 	        Map<String, List<String>> parametersMap) {
-		logger.warn("&&&&&& readparams");
 		// handle FOP and Group by calling superclass
 		HashMap<String, List<String>> params = ContentParameters.super.readParams(location, parametersMap);
 

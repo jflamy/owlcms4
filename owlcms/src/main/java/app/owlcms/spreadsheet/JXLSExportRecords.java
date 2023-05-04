@@ -108,7 +108,7 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 		}
 
 		bestRecords = Arrays.stream(best).filter(re -> re != null).collect(Collectors.toList());
-		logger.warn("setting bestRecords = {}", bestRecords);
+
 		if (!bestRecords.isEmpty()) {
 			reportingBeans.put("records", bestRecords);
 		}
@@ -116,7 +116,6 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 	}
 
 	public List<RecordEvent> getRecords(Category cat) {
-		logger.warn("nb records = {} cat={}",bestRecords, cat);
 		if (cat == null) {
 			return bestRecords;
 		}
@@ -124,7 +123,6 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 		for (RecordEvent record : bestRecords) {
 			Integer athleteAge = record.getAthleteAge();
 			Double athleteBW = record.getAthleteBW();
-			logger.warn("name {} aa {} abw {} cat {}",record.getAthleteName(), athleteBW, cat);
 			if (record.getGender() == cat.getGender()
 					&& athleteAge >= cat.getAgeGroup().getMinAge()
 					&& athleteAge <= cat.getAgeGroup().getMaxAge()

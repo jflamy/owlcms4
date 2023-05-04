@@ -64,7 +64,6 @@ import app.owlcms.nui.shared.AthleteGridContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCompetitionBook;
 import app.owlcms.spreadsheet.JXLSResultSheet;
-import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -261,7 +260,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	 */
 	@Override
 	public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
-		logger.warn("&&&&&&&&& params {}", LoggerUtils.whereFrom());
 		HashMap<String, List<String>> params1 = new HashMap<>(parametersMap);
 
 		List<String> ageDivisionParams = params1.get("ad");
@@ -476,8 +474,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	private Category getCategoryValue() {
-		 logger.warn("categoryValue ***** = {} {}", categoryValue,
-		 LoggerUtils.whereFrom());
 		return categoryValue;
 	}
 
@@ -488,18 +484,15 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	private void setAgeGroupPrefix(String value) {
-		logger.warn("setGroupPrefix {} {}",value, LoggerUtils.whereFrom());
 		this.ageGroupPrefix = value;
 	}
 
 	private void updateCategoryFilter(AgeDivision ageDivision2, String ageGroupPrefix2) {
-		logger.warn("updateCategoryFilter {} {} {} {}", ageDivision2, ageGroupPrefix2, getCategoryValue(),LoggerUtils.whereFrom());
 		List<Category> categories = CategoryRepository.findByGenderDivisionAgeBW(genderFilter.getValue(),
 		        getAgeDivision(), null, null);
 		if (getAgeGroupPrefix() != null && !getAgeGroupPrefix().isBlank()) {
 			categories = categories.stream().filter((c) -> c.getAgeGroup().getCode().equals(getAgeGroupPrefix()))
 			        .collect(Collectors.toList());
-			logger.warn("agegrouprefix is not null {}", getAgeGroupPrefix());
 		}
 		
 		// FIXME: category in URL should be reflected.
@@ -508,13 +501,11 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		} else {
 			Category prevValue = getCategoryValue();
 			categoryFilter.setItems(categories);
-			logger.warn("categories {}", categories);
 			// contains is not reliable for Categories, check codes
 			if (categories != null && prevValue != null) {
 			        Optional<Category> cat = categories.stream()
 			                .filter(c -> c.getComputedCode().contentEquals(prevValue.getComputedCode())).findFirst();
 				Category value = cat.isPresent() ? cat.get() : null;
-				logger.warn("value {}",value);
 				categoryFilter.setValue(value);
 			} else {
 				categoryFilter.setValue(null);
@@ -589,7 +580,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
 	@Override
 	protected void defineFilters(GridCrud<Athlete> crud) {
-		logger.warn("&&&&&&defineFilters from {}",LoggerUtils.whereFrom());
 
 		if (topBarAgeDivisionSelect == null) {
 			topBarAgeDivisionSelect = new ComboBox<>();

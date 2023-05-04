@@ -108,10 +108,7 @@ public class GroupEditingFormFactory
 		ListDataProvider<Platform> dataProvider = new ListDataProvider<>(allPlatforms);
 		platformField.setItems(dataProvider);
 		
-		Platform platform = aFromDb.getPlatform();
-//		dataProvider.getItems().stream().forEach((p) -> logger.warn("p {} {}",p.getId(), System.identityHashCode(p)));
-//		logger.warn("platform {} {}",platform.getId(), , System.identityHashCode(p));
-//		
+		Platform platform = aFromDb.getPlatform();	
 		platformField.setItemLabelGenerator(Platform::getName);
 		platformField.setClearButtonVisible(true);
 		formLayout.add(platformField);
