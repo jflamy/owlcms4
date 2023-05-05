@@ -291,7 +291,8 @@ public class MQTTMonitor {
 		fop.getFopEventBus().register(this);
 
 		try {
-			if (Config.getCurrent().getParamMqttInternal() || Config.getCurrent().getParamMqttServer() != null) {
+			String paramMqttServer = Config.getCurrent().getParamMqttServer();
+			if (Config.getCurrent().getParamMqttInternal() || (paramMqttServer != null && !paramMqttServer.isBlank())) {
 				client = createMQTTClient(fop);
 				connectionLoop(client);
 			} else {

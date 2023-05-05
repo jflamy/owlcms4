@@ -344,11 +344,17 @@ public class Main {
 
 	private static void startMQTT() {
 		Config conf = Config.getCurrent();
-		if (conf.getMqttInternal() == null) {
+		Boolean mqttInternal = conf.getMqttInternal();
+		if (mqttInternal == null) {
 			conf.setMqttInternal(true);
 			Config.setCurrent(conf);
 		} else {
-			logger.info("MQTT server disabled by database configuration");
+//			conf.setMqttInternal(true);
+//			Config.setCurrent(conf);
+			if (!mqttInternal) {
+				logger.info("MQTT server disabled using database configuration");
+				return;
+			}
 		}
 
 		mqttStartup = Long.toString(System.currentTimeMillis());
