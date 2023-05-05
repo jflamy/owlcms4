@@ -19,12 +19,14 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.utils.NaturalOrderComparator;
 
 /**
  * The Class AbstractLifterComparator.
  */
 public class AbstractLifterComparator {
 	final private static Logger logger = LoggerFactory.getLogger(AbstractLifterComparator.class);
+	private NaturalOrderComparator<String> noc;
 
 	/**
 	 * Compare age group.
@@ -413,7 +415,15 @@ public class AbstractLifterComparator {
 
 		String lifter1String = lifter1Group.getName();
 		String lifter2String = lifter2Group.getName();
-		compare = ObjectUtils.compare(lifter1String, lifter2String, true);
+		
+
+		if (lifter1String == null || lifter2String == null) {
+			compare = ObjectUtils.compare(lifter1String, lifter2String, true);
+		} else {
+			noc = new NaturalOrderComparator<String>();
+			compare = noc.compare(lifter1String, lifter2String);
+		}
+		compare = noc.compare(lifter1String, lifter2String);
 		if (compare != 0) {
 			// logger.trace("different group {} {} {}", lifter1String, lifter2String,
 			// LoggerUtils.whereFrom(10));
