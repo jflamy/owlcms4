@@ -370,18 +370,19 @@ public class Main {
 		final Server mqttBroker = new Server();
 		List<? extends InterceptHandler> userHandlers = Collections.singletonList(new PublisherListener());
 
-		if (Config.getCurrent().getParamMqttServer() != null) {
+		if (Config.getCurrent().getParamMqttServer() != null && !Config.getCurrent().getParamMqttServer().isBlank()) {
 			logger.info("MQTT Server overridden by environment or system parameter, not starting embedded MQTT");
+			return;
+		}
+		if (!Config.getCurrent().getParamMqttInternal()) {
+			logger.info("Internal MQTT server not enabled, skipping");
 			return;
 		}
 		if (Config.getCurrent().getMqttInternal() == null) {
 			// default should be true if not set previously
 			Config.getCurrent().setMqttInternal(true);
 		}
-		if (!Config.getCurrent().getParamMqttInternal()) {
-			logger.info("internal MQTT server not enabled, skipping");
-			return;
-		}
+
 
 		try {
 			logger.info("starting MQTT broker.");

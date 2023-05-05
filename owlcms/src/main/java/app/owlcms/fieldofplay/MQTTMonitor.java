@@ -262,7 +262,7 @@ public class MQTTMonitor {
 
 	public static MqttAsyncClient createMQTTClient(FieldOfPlay fop) throws MqttException {
 		String server = Config.getCurrent().getParamMqttServer();
-		server = (server != null ? server : "127.0.0.1");
+		server = (server != null && !server.isBlank() ? server : "127.0.0.1");
 		String port = Config.getCurrent().getParamMqttPort();
 		port = (port != null ? port : "1883");
 		String string = port.startsWith("8") ? "ssl://" : "tcp://";
@@ -423,13 +423,15 @@ public class MQTTMonitor {
 	}
 
 	private void doConnect() throws MqttSecurityException, MqttException {
-		if (Config.getCurrent().getParamMqttInternal() && Config.getCurrent().getParamMqttServer() == null) {
-			userName = Config.getCurrent().getMqttUserName();
-			password = Main.mqttStartup;
-		} else {
+		if (Config.getCurrent().getParamMqttServer() != null && !Config.getCurrent().getParamMqttServer().isBlank()) {
+			logger.info("Connecting to external MQTT server");
 			userName = Config.getCurrent().getParamMqttUserName();
 			password = Config.getCurrent().getParamMqttPassword();
-		}
+		} else if (Config.getCurrent().getParamMqttInternal()) {
+			logger.info("Connecting to embedded MQTT server");
+			userName = Config.getCurrent().getMqttUserName();
+			password = Main.mqttStartup;
+		} 
 		MqttConnectOptions connOpts = setupMQTTClient(userName, password);
 		client.connect(connOpts).waitForCompletion();
 
