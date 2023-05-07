@@ -104,7 +104,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	private boolean silenced = true;
 	private EventBus uiEventBus;
 
-	private Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	private Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private boolean snatchCJTotalMedals;
 
 	/**
@@ -254,6 +254,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		return silenced;
 	}
 
+	@Override
 	public void setCategory(Category cat) {
 		this.category = cat;
 	}
@@ -279,10 +280,12 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		doChangeEmSize();
 	}
 
+	@Override
 	public void setFop(FieldOfPlay fop) {
 		this.fop = fop;
 	}
 
+	@Override
 	public void setGroup(Group group) {
 		this.group = group;
 	}
@@ -301,18 +304,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	public void setRouteParameter(String routeParameter) {
 		this.routeParameter = routeParameter;
 	}
-
-//    @Subscribe
-//    public void slaveStopBreak(UIEvent.BreakDone e) {
-//        // logger.debug("------ slaveStopBreak {}", e.getBreakType());
-//        uiLog(e);
-//        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-//            setHidden(false);
-//            this.getElement().callJsFunction("reset");
-//            doUpdate(e);
-//        });
-//    }
-
+	
 	/**
 	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
 	 */
@@ -374,8 +366,25 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	}
 
 	@Subscribe
+	public void slaveGroupDone(UIEvent.GroupDone e) {
+		uiLog(e);
+		doRefresh(e);
+	}
+
+	@Subscribe
+	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
+		uiLog(e);
+		doRefresh(e);
+	}
+
+	@Subscribe
+	public void slaveDecision(UIEvent.DecisionReset e) {
+		uiLog(e);
+		doRefresh(e);
+	}
+
+	@Subscribe
 	public void slaveStartBreak(UIEvent.BreakStarted e) {
-		// logger.trace("------- slaveStartBreak {}", e.getBreakType());
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			setDisplay(false);
@@ -402,46 +411,20 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	}
 
 	@Subscribe
-	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-		//logger.debug("slaveOrderUpdated {} {}", getGroup(), getCategory());
+	public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
 		uiLog(e);
-		doRefresh(e);
-	}
-
-	private void doRefresh(UIEvent e) {
-		Thread t1 = new Thread(() -> {
-			UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-				if (this.getCategory() == null) {
-					medals = Competition.getCurrent().getMedals(this.getGroup(), false);
-				} else {
-					TreeSet<Athlete> catMedals = Competition.getCurrent().computeMedalsForCategory(this.getCategory());
-					//logger.debug("group {} category {} catMedals {}", getGroup(), getCategory(), catMedals);
-					medals = new TreeMap<Category, TreeSet<Athlete>>();
-					medals.put(this.getCategory(), catMedals);
-				}
-				setDisplay(false);
-				computeMedalsJson(medals);
-			});
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			syncWithFOP(e);
 		});
-		// medal stuff can wait.
-		t1.setPriority(Thread.MIN_PRIORITY);
-		t1.start();
 	}
 
 	@Subscribe
 	public void slaveVideoRefresh(UIEvent.VideoRefresh e) {
 		this.setGroup(fop.getVideoGroup());
 		this.setCategory(fop.getVideoCategory());
-		//logger.info("videoRefresh {} {}", getGroup() != null ? getGroup().getName() : null , getCategory() != null ? getCategory().getName() : null);
+		// logger.info("videoRefresh {} {}", getGroup() != null ? getGroup().getName() :
+		// null , getCategory() != null ? getCategory().getName() : null);
 		doRefresh(e);
-	}
-
-	@Subscribe
-	public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
-		uiLog(e);
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			syncWithFOP(e);
-		});
 	}
 
 	protected void doEmpty() {
@@ -470,6 +453,71 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		updateBottom(null, fop);
 	}
 
+	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
+		String category;
+		category = curCat != null ? curCat.getTranslatedName() : "";
+		ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
+		ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
+		ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
+		Integer startNumber = a.getStartNumber();
+		ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
+		ja.put("category", category != null ? category : "");
+		getAttemptsJson(a, liftOrderRank);
+		ja.put("sattempts", sattempts);
+		ja.put("bestSnatch", formatInt(a.getBestSnatch()));
+		ja.put("cattempts", cattempts);
+		ja.put("bestCleanJerk", formatInt(a.getBestCleanJerk()));
+		ja.put("total", formatInt(a.getTotal()));
+		Participation mainRankings = a.getMainRankings();
+		if (mainRankings != null) {
+			ja.put("snatchRank", formatRank(mainRankings.getSnatchRank()));
+			ja.put("cleanJerkRank", formatRank(mainRankings.getCleanJerkRank()));
+			ja.put("totalRank", formatRank(mainRankings.getTotalRank()));
+		} else {
+			logger.error("main rankings null for {}", a);
+		}
+		ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
+		Double double1 = a.getAttemptsDone() <= 3 ? a.getSinclairForDelta()
+		        : a.getSinclair();
+		ja.put("sinclair", double1 > 0.001 ? String.format("%.3f", double1) : "-");
+		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
+		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
+		ja.put("sinclairRank", a.getSinclairRank() != null ? "" + a.getSinclairRank() : "-");
+
+		String highlight = "";
+		ja.put("classname", highlight);
+	}
+
+	/**
+	 * @param groupAthletes, List<Athlete> liftOrder
+	 * @return
+	 */
+	protected JsonValue getAthletesJson(List<Athlete> displayOrder, final FieldOfPlay _unused) {
+		snatchCJTotalMedals = Competition.getCurrent().isSnatchCJTotalMedals();
+		JsonArray jath = Json.createArray();
+		AtomicInteger athx = new AtomicInteger(0);
+//        Category prevCat = null;
+		List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
+		        : Collections.emptyList();
+
+		athletes.stream()
+		        .filter(a -> isMedalist(a))
+		        .forEach(a -> {
+			        JsonObject ja = Json.createObject();
+			        Category curCat = a.getCategory();
+			        // no blinking = 0
+			        getAthleteJson(a, ja, curCat, 0);
+			        String team = a.getTeam();
+			        if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
+				        logger.trace("long team {}", team);
+				        setWideTeamNames(true);
+			        }
+			        jath.set(athx.getAndIncrement(), ja);
+		        });
+
+		return jath;
+	}
+
 	/*
 	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
 	 * AttachEvent)
@@ -480,12 +528,18 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		OwlcmsSession.withFop(fop -> {
 			init();
 			if (this.getCategory() == null) {
-				medals = Competition.getCurrent().getMedals(this.getGroup(), false);
+				if (this.getGroup() != null) {
+					medals = Competition.getCurrent().getMedals(this.getGroup(), false);
+				} else {
+					// we listen on uiEventBus.
+					uiEventBus = uiEventBusRegister(this, fop);
+					medals = Competition.getCurrent().getMedals(OwlcmsSession.getFop().getGroup(), false);
+				}
 			} else {
 				TreeSet<Athlete> catMedals = Competition.getCurrent().computeMedalsForCategory(this.getCategory());
 				// logger.debug("group {} category {} catMedals {}", getGroup(), getCategory(),
 				// catMedals);
-				medals = new TreeMap<Category, TreeSet<Athlete>>();
+				medals = new TreeMap<>();
 				medals.put(this.getCategory(), catMedals);
 			}
 			setDisplay(false);
@@ -513,6 +567,10 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 			}
 		}
 		this.getElement().setPropertyJson("t", translations);
+	}
+
+	protected void setWideTeamNames(boolean wide) {
+		this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
 	}
 
 	private void computeCategoryMedalsJson(TreeMap<Category, TreeSet<Athlete>> medals2) {
@@ -586,6 +644,32 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		}
 	}
 
+	private void doRefresh(UIEvent e) {
+		Thread t1 = new Thread(() -> {
+			UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+				if (this.getCategory() == null) {
+					if (this.getGroup() != null) {
+						medals = Competition.getCurrent().getMedals(this.getGroup(), false);
+					} else {
+						OwlcmsSession.getCurrent();
+						medals = Competition.getCurrent().getMedals(OwlcmsSession.getFop().getGroup(), false);
+					}
+				} else {
+					TreeSet<Athlete> catMedals = Competition.getCurrent().computeMedalsForCategory(this.getCategory());
+					// logger.debug("group {} category {} catMedals {}", getGroup(), getCategory(),
+					// catMedals);
+					medals = new TreeMap<>();
+					medals.put(this.getCategory(), catMedals);
+				}
+				setDisplay(false);
+				computeMedalsJson(medals);
+			});
+		});
+		// medal stuff can wait.
+		t1.setPriority(Thread.MIN_PRIORITY);
+		t1.start();
+	}
+
 	private String formatInt(Integer total) {
 		if (total == null || total == 0) {
 			return "-";
@@ -611,89 +695,6 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		} else {
 			return total.toString();
 		}
-	}
-
-	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
-		String category;
-		category = curCat != null ? curCat.getTranslatedName() : "";
-		ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
-		ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
-		ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
-		Integer startNumber = a.getStartNumber();
-		ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
-		ja.put("category", category != null ? category : "");
-		getAttemptsJson(a, liftOrderRank);
-		ja.put("sattempts", sattempts);
-		ja.put("bestSnatch", formatInt(a.getBestSnatch()));
-		ja.put("cattempts", cattempts);
-		ja.put("bestCleanJerk", formatInt(a.getBestCleanJerk()));
-		ja.put("total", formatInt(a.getTotal()));
-		Participation mainRankings = a.getMainRankings();
-		if (mainRankings != null) {
-			ja.put("snatchRank", formatRank(mainRankings.getSnatchRank()));
-			ja.put("cleanJerkRank", formatRank(mainRankings.getCleanJerkRank()));
-			ja.put("totalRank", formatRank(mainRankings.getTotalRank()));
-		} else {
-			logger.error("main rankings null for {}", a);
-		}
-		ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
-		Double double1 = a.getAttemptsDone() <= 3 ? a.getSinclairForDelta()
-		        : a.getSinclair();
-		ja.put("sinclair", double1 > 0.001 ? String.format("%.3f", double1) : "-");
-		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
-		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
-		ja.put("sinclairRank", a.getSinclairRank() != null ? "" + a.getSinclairRank() : "-");
-
-		String highlight = "";
-		ja.put("classname", highlight);
-	}
-
-	/**
-	 * @param groupAthletes, List<Athlete> liftOrder
-	 * @return
-	 */
-	protected JsonValue getAthletesJson(List<Athlete> displayOrder, final FieldOfPlay _unused) {
-		snatchCJTotalMedals = Competition.getCurrent().isSnatchCJTotalMedals();
-		JsonArray jath = Json.createArray();
-		AtomicInteger athx = new AtomicInteger(0);
-//        Category prevCat = null;
-		List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
-		        : Collections.emptyList();
-
-		athletes.stream()
-		        .filter(a -> isMedalist(a))
-		        .forEach(a -> {
-			        JsonObject ja = Json.createObject();
-			        Category curCat = a.getCategory();
-			        // no blinking = 0
-			        getAthleteJson(a, ja, curCat, 0);
-			        String team = a.getTeam();
-			        if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
-				        logger.trace("long team {}", team);
-				        setWideTeamNames(true);
-			        }
-			        jath.set(athx.getAndIncrement(), ja);
-		        });
-
-		return jath;
-	}
-
-	private boolean isMedalist(Athlete a) {
-		if (snatchCJTotalMedals) {
-			int snatchRank = a.getSnatchRank();
-			if (snatchRank <= 3 && snatchRank > 0) {
-				return true;
-			}
-			int cjRank = a.getCleanJerkRank();
-			if (cjRank <= 3 && cjRank > 0) {
-				return true;
-			}
-		}
-		int totalRank = a.getTotalRank();
-		if (totalRank <= 3 && totalRank > 0) {
-			return true;
-		}
-		return false;
 	}
 
 	/**
@@ -771,6 +772,24 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		setTranslationMap();
 	}
 
+	private boolean isMedalist(Athlete a) {
+		if (snatchCJTotalMedals) {
+			int snatchRank = a.getSnatchRank();
+			if (snatchRank <= 3 && snatchRank > 0) {
+				return true;
+			}
+			int cjRank = a.getCleanJerkRank();
+			if (cjRank <= 3 && cjRank > 0) {
+				return true;
+			}
+		}
+		int totalRank = a.getTotalRank();
+		if (totalRank <= 3 && totalRank > 0) {
+			return true;
+		}
+		return false;
+	}
+
 	private boolean isVideo() {
 		return routeParameter != null && routeParameter.contentEquals("video");
 	}
@@ -788,10 +807,6 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
 		this.getElement().setProperty("videoHeaderDisplay", (hidden || !isVideo() ? "display:none" : "display:flex"));
 		this.getElement().setProperty("normalHeaderDisplay", (hidden || isVideo() ? "display:none" : "display:block"));
-	}
-
-	protected void setWideTeamNames(boolean wide) {
-		this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
 	}
 
 	private void syncWithFOP(UIEvent.SwitchGroup e) {
