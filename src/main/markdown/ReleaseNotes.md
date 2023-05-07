@@ -1,6 +1,7 @@
 38.5 Minor enhancements
 
 - 38.5 Changes
+  - 38.5.2: Don't show empty records list.
   - 38.5.1: On the start list, if weigh-in times are not provided, the natural order of group names will be used to order the groups (Group 8 will come before Group 15 even though the alphabetical order says otherwise).
   - 38.5.1: When using the "Competition Results" section to get the results for a specific category  the new records for that age group/weight class are shown in the report.
     - Note: this only applies to competitions run using 38.5.1 or later; this feature required additional information to be stored about the record attempts taking place during a meet.
