@@ -8,7 +8,6 @@
         <listEntry value="1"/>
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-        <mapEntry key="OWLCMS_MQTTSERVER" value=""/>
         <mapEntry key="OWLCMS_PORT" value="8080"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="maryhadalittlelamb"/>
         <mapEntry key="OWLCMS_USECOMPETITIONDATE" value="true"/>
@@ -18,6 +17,7 @@
         <mapEntry key="_OWLCMS_H2SERVERPORT" value="9092"/>
         <mapEntry key="_OWLCMS_LOCALE" value="en_CA"/>
         <mapEntry key="_OWLCMS_MQTTPASSWORD" value="45454545"/>
+        <mapEntry key="_OWLCMS_MQTTSERVER" value=""/>
         <mapEntry key="_OWLCMS_MQTTUSERNAME" value="owlcms"/>
         <mapEntry key="_OWLCMS_PIN" value="1234"/>
         <mapEntry key="_OWLCMS_REMOTE" value="http://127.0.0.1:8082/update"/>

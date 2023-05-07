@@ -117,7 +117,7 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 
 	public List<RecordEvent> getRecords(Category cat) {
 		if (cat == null) {
-			return bestRecords;
+			return bestRecords.isEmpty() ? null : bestRecords;
 		}
 		List<RecordEvent> catRecords = new ArrayList<>();
 		for (RecordEvent record : bestRecords) {
