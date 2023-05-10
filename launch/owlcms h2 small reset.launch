@@ -28,5 +28,6 @@
     <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="app.owlcms.Main"/>
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="owlcms"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="owlcms"/>
+    <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
     <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dlogback.configurationFile=logback-console.xml -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false"/>
 </launchConfiguration>
