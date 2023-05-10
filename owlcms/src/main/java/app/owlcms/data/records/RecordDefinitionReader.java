@@ -128,7 +128,7 @@ public class RecordDefinitionReader {
 									rec.setBwCatString(cellValue);
 									try {
 										rec.setBwCatUpper(
-										        cellValue.startsWith(">") ? 999 : Integer.parseInt(cellValue));
+										        (cellValue.startsWith(">") || cellValue.startsWith("+")) ? 999 : Integer.parseInt(cellValue));
 									} catch (NumberFormatException e) {
 										if (cellValue != null && !cellValue.isBlank()) {
 											startupLogger

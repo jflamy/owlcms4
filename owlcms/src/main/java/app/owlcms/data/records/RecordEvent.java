@@ -541,7 +541,8 @@ public class RecordEvent {
 				}
 				break;
 			default:
-				throw new UnknownIWFBodyWeightCategory();
+				//throw new UnknownIWFBodyWeightCategory();
+				//leave alone
 			}
 		} else {
 			switch (bwCatUpper) {
@@ -587,7 +588,8 @@ public class RecordEvent {
 				}
 				break;
 			default:
-				throw new UnknownIWFBodyWeightCategory();
+				//throw new UnknownIWFBodyWeightCategory();
+				//leave alone
 			}
 
 		}
