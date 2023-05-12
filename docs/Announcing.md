@@ -34,11 +34,17 @@ Either the announcer or the timekeeper can start the clock.
 
 ![014_StartClock](nimg/3200Lifting/050.png)
 
+The clock can also be started by using the `,` or `/`keys on the keyboard.  The `*` key on the numeric keypad acts as a toggle (start if stopped, stop if started).
+
+The clock can be reset to 1:00 or 2:00 using the buttons, or by using the `-` and `=` keys respectively.
+
 ## Stopping/Restarting the clock
 
 The announcer (if acting as timekeeper), or the timekeeper (using the timekeeper screen), can stop the clock when the bar leaves ground.  Either person can restart the clock if the bar is put down not having travelled above the knee.
 
 ![016_StopClock](nimg/3200Lifting/060.png)
+
+The clock can also be stopped by using the `.` key on the keyboard.   The `*` key on the numeric keypad acts as a toggle (start if stopped, stop if started).
 
 ## Manual Refereeing
 
@@ -136,11 +142,15 @@ Notes:
 
 ![timekeeper](nimg/3200Lifting/140.png)
 
-## Technical Controller
+The clock can be started using the `,` and`/` keys.  It can be stopped by using the `.` key on the keyboard.   The `*` key on the numeric keypad acts as a toggle (start if stopped, stop if started).
 
-In school-age kids competitions, it is often the case that a non-standard bar is used (say 10kg) or that large lightweight bumper plates (2,5kg or 5kg) are used.  Since loaders are not used to such setups, it is useful to refer to the attempt board graphical display.
+The clock can be reset to 1:00 or 2:00 using the buttons, or by using the `-` and `=` keys respectively.
 
-The technical controller screen is used to match what is on the platform.  Once `Apply` is clicked the attempt board(s) is updated with the proper graphics.
+## Technical Controller (Plates, Collar and Barbell)
+
+In school-age kids competitions, it is often the case that a non-standard bar is used (say 10kg) or that large lightweight bumper plates (2,5kg or 5kg) are used.  
+
+The Plates, Collar and Barbell screen is used to match what is on the platform.  Once `Apply` is clicked the attempt board(s) is updated with the proper graphics.
 
 This has no incidence other than the graphics shown on the attempt board.
 

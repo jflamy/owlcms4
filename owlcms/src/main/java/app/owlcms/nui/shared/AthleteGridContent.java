@@ -281,6 +281,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 	private boolean summonNotificationSent;
 
 	private boolean deliberationNotificationSent;
+	private long previousToggleMillis;
 
 	/**
 	 * Instantiates a new announcer content. Content is created in
@@ -707,8 +708,9 @@ public abstract class AthleteGridContent extends VerticalLayout
 			String style = "warning";
 			int previousAttemptNo;
 			JuryDeliberationEventType et = e.getDeliberationEventType();
-			
-			//logger.debug("slaveJuryNotification {} {} {}", et, e.getDeliberationEventType(), e.getTrace());
+
+			// logger.debug("slaveJuryNotification {} {} {}", et,
+			// e.getDeliberationEventType(), e.getTrace());
 			switch (et) {
 			case CALL_REFEREES:
 				text = Translator.translate("JuryNotification." + et.name());
@@ -1015,21 +1017,25 @@ public abstract class AthleteGridContent extends VerticalLayout
 	}
 
 	protected void create1MinButton() {
-		_1min = new Button("1:00", (e) -> {
-			OwlcmsSession.withFop(fop -> {
-				fop.fopEventPost(new FOPEvent.ForceTime(60000, this.getOrigin()));
-			});
-		});
+		_1min = new Button("1:00", (e) -> do1Minute());
 		_1min.getElement().setAttribute("theme", "icon");
 	}
 
 	protected void create2MinButton() {
-		_2min = new Button("2:00", (e) -> {
-			OwlcmsSession.withFop(fop -> {
-				fop.fopEventPost(new FOPEvent.ForceTime(120000, this.getOrigin()));
-			});
-		});
+		_2min = new Button("2:00", (e) -> do2Minutes());
 		_2min.getElement().setAttribute("theme", "icon");
+	}
+
+	protected void do1Minute() {
+		OwlcmsSession.withFop(fop -> {
+			fop.fopEventPost(new FOPEvent.ForceTime(60000, this.getOrigin()));
+		});
+	}
+
+	protected void do2Minutes() {
+		OwlcmsSession.withFop(fop -> {
+			fop.fopEventPost(new FOPEvent.ForceTime(120000, this.getOrigin()));
+		});
 	}
 
 	/**
@@ -1366,6 +1372,22 @@ public abstract class AthleteGridContent extends VerticalLayout
 		});
 		OwlcmsSession.withFop(fop -> {
 
+		});
+	}
+
+	protected void doToggleTime() {
+		OwlcmsSession.withFop(fop -> {
+			long now = System.currentTimeMillis();
+			long timeElapsed = now - previousToggleMillis;
+			if (timeElapsed > 100) {
+				boolean running = fop.getAthleteTimer().isRunning();
+				if (running) {
+					doStopTime();
+				} else {
+					doStartTime();
+				}
+			}
+			previousToggleMillis = now;
 		});
 	}
 

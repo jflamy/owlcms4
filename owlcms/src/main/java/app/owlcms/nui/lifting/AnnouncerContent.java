@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.KeyModifier;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.MenuItem;
@@ -357,6 +358,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	protected void createStartTimeButton() {
 		super.createStartTimeButton();
 		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.COMMA);
+		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.SLASH);
+		UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.NUMPAD_MULTIPLY);
+		UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.DIGIT_8, KeyModifier.SHIFT);
 	}
 
 	/**
@@ -373,13 +377,13 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	@Override
 	protected void create1MinButton() {
 		super.create1MinButton();
-		_1min.addClickShortcut(Key.BRACKET_LEFT);
+		UI.getCurrent().addShortcutListener(() -> do1Minute(), Key.MINUS);
 	}
 	
 	@Override
 	protected void create2MinButton() {
 		super.create2MinButton();
-		_2min.addClickShortcut(Key.BRACKET_RIGHT);
+		UI.getCurrent().addShortcutListener(() -> do2Minutes(), Key.EQUAL);
 
 	}
 

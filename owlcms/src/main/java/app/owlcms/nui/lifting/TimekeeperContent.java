@@ -18,6 +18,7 @@ import com.flowingcode.vaadin.addons.ironicons.AvIcons;
 import com.flowingcode.vaadin.addons.ironicons.PlacesIcons;
 import com.google.common.collect.ImmutableList;
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.KeyModifier;
 import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -72,6 +73,9 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	private ShortcutRegistration _2minReg;
 
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	private ShortcutRegistration startReg2;
+	private ShortcutRegistration toggleReg;
+	private ShortcutRegistration toggleReg2;
 
 	public TimekeeperContent() {
 		super();
@@ -225,10 +229,14 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	}
 
 	private void registerShortcuts() {
-		startReg = startTimeButton.addClickShortcut(Key.COMMA);
-		stopReg = stopTimeButton.addClickShortcut(Key.PERIOD);
-		_1minReg = _1min.addClickShortcut(Key.BRACKET_LEFT);
-		_2minReg = _2min.addClickShortcut(Key.BRACKET_RIGHT);
+		startReg = UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.COMMA);
+		startReg2 =UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.SLASH);
+		stopReg = UI.getCurrent().addShortcutListener(() -> doStopTime(), Key.PERIOD);
+		toggleReg = UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.DIGIT_8, KeyModifier.SHIFT);
+		toggleReg2 = UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.NUMPAD_MULTIPLY);
+		_1minReg = UI.getCurrent().addShortcutListener(() -> do1Minute(), Key.MINUS);
+		_2minReg = UI.getCurrent().addShortcutListener(() -> do2Minutes(), Key.EQUAL);
+
 	}
 
 	private void showButtons() {
@@ -236,7 +244,6 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 			buttons.setVisible(true);
 		}
 		timer.getElement().setVisible(true);
-		registerShortcuts();
 	}
 
 	private void unregisterShortcuts() {
@@ -244,9 +251,21 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 			startReg.remove();
 			startReg = null;
 		}
+		if (startReg2 != null) {
+			startReg2.remove();
+			startReg2 = null;
+		}
 		if (stopReg != null) {
 			stopReg.remove();
 			stopReg = null;
+		}
+		if (toggleReg != null) {
+			toggleReg.remove();
+			toggleReg = null;
+		}
+		if (toggleReg2 != null) {
+			toggleReg2.remove();
+			toggleReg2 = null;
 		}
 		if (_1minReg != null) {
 			_1minReg.remove();
