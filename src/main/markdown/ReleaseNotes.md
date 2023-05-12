@@ -1,6 +1,7 @@
 38.5 Minor enhancements
 
 - 38.5 Changes
+  - 38.5.3: Keyboard shortcuts for announcer/timekeeper were adjusted so that Flic2 buttons can be used. `.` for stop;   `/` and `,` for start;    `-` for 1 minute;  `=` for 2 minute;  `*` toggles start/stop.  Note that `*` is the numeric keypad `*`.  Shift-8 is also understood as `*`  as most keyboards have `*` at that location.
   - 38.5.2: By default, the "Medals" display now updates along with the current group of the current platform
   - 38.5.2: Non standard bodyweight categories now accepted as IWF records, for convenience (typically used to add YTH records).  Also, the upper bound of a category can now be written using either `>` or `+` as the first character (for example `>87`  or `+87`)
   - 38.5.1: On the start list, if weigh-in times are not provided, the natural order of group names will be used to order the groups (Group 8 will come before Group 15 even though the alphabetical order says otherwise).
