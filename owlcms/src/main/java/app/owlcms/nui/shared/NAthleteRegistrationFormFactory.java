@@ -683,14 +683,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		        Athlete::setEligibleCategories);
 		eligibleField.setRenderer(new TextRenderer<>(Category::getTranslatedName));
 		FormItem fi1 = layoutAddFormItem(layout, eligibleField, Translator.translate("Weighin.EligibleCategories"));
-		layout.setColspan(fi1, 1);
-
-		invitedCheckbox = new Checkbox();
-		bindField(binder.forField(invitedCheckbox), invitedCheckbox,
-		        (a) -> !a.isEligibleForIndividualRanking(),
-		        (a, b) -> a.setEligibleForIndividualRanking(!b));
-		FormItem fi3 = layoutAddFormItem(layout, invitedCheckbox, Translator.translate("Invited/Extra"));
-		layout.setColspan(fi3, NB_COLUMNS - 2);
+		layout.setColspan(fi1, NB_COLUMNS - 1);
 
 		groupField = new ComboBox<>();
 		bindField(binder.forField(groupField), groupField, Athlete::getGroup, Athlete::setGroup);
@@ -701,7 +694,15 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		groupField.setRenderer(new TextRenderer<Group>(g -> computeDesc(g)));
 		groupField.setItemLabelGenerator(g -> computeDesc(g));
 		FormItem fi2 = layoutAddFormItem(layout, groupField, Translator.translate("Group"));
-		layout.setColspan(fi2, NB_COLUMNS);
+		layout.setColspan(fi2, 2);
+		
+		invitedCheckbox = new Checkbox();
+		bindField(binder.forField(invitedCheckbox), invitedCheckbox,
+		        (a) -> !a.isEligibleForIndividualRanking(),
+		        (a, b) -> a.setEligibleForIndividualRanking(!b));
+		FormItem fi3 = layoutAddFormItem(layout, invitedCheckbox, Translator.translate("Invited/Extra"));
+		layout.setColspan(fi3, NB_COLUMNS - 2);
+		
 		return layout;
 	}
 
