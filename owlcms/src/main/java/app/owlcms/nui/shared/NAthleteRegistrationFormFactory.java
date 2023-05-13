@@ -733,6 +733,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		} else {
 			fullBirthDateField = new LocalDateField();
 			fullBirthDateField.getWrappedTextField().setPlaceholder("yyyy-mm-dd");
+			fullBirthDateField.getWrappedTextField().setValueChangeMode(ValueChangeMode.ON_BLUR);
 			BindingBuilder<Athlete, LocalDate> bb = binder.forField(fullBirthDateField);
 			validateFullBirthDate(bb);
 			bindField(bb, fullBirthDateField, Athlete::getFullBirthDate, Athlete::setFullBirthDate);
@@ -901,6 +902,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		layout.setColspan(title, NB_COLUMNS);
 
 		bodyWeightField = new LocalizedDecimalField();
+		bodyWeightField.getWrappedTextField().setAllowedCharPattern("[0-9.,]");
 		BindingBuilder<Athlete, Double> bb = binder.forField(bodyWeightField);
 		validateBodyWeight(bb, false);
 		bindField(bb, bodyWeightField, Athlete::getBodyWeight, Athlete::setBodyWeight);
