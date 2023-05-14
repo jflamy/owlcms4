@@ -842,7 +842,7 @@ public class EventForwarder implements BreakDisplay {
 	}
 
 	/**
-	 * @param startOrder     TODO
+	 * @param startOrder     use starting order or lifting order ?
 	 * @param groupAthletes, List<Athlete> liftOrder
 	 * @return
 	 */

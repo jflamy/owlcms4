@@ -169,7 +169,6 @@ public class AgeGroupEditingFormFactory
 
 		catField = new CategoryGridField(aFromDb);
 		catField.setWidthFull();
-
 		binder.forField(catField).bind(AgeGroup::getCategories, AgeGroup::setCategories);
 		formLayout.addFormItem(catField, Translator.translate("BodyWeightCategories"));
 

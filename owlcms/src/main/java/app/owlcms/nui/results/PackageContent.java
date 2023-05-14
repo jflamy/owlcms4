@@ -495,7 +495,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        .collect(Collectors.toList());
 		}
 		
-		// FIXME: category in URL should be reflected.
 		if (ageGroupPrefix == null || ageGroupPrefix.isBlank()) {
 			categoryFilter.setItems(new ArrayList<>());
 		} else {

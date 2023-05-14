@@ -175,7 +175,7 @@ public class RecordFilter {
 	}
 
 	private static String getRowOrder(String recordName, String fileName) {
-		// FIXME change to a key from the UI, initially the fileName if missing.
+		// FIXME change to something from record config.
 		return fileName;
 	}
 

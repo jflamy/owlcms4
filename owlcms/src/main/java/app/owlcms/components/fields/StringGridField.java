@@ -42,8 +42,8 @@ public class StringGridField extends CustomField<List<String>> {
 
 		catGrid = new Grid<>();
 		catGrid
-		        .addColumn(String::toString)
-		        .setHeader(Translator.translate("LimitForCategory"));
+		        .addColumn(String::toString);
+//		        .setHeader(Translator.translate("LimitForCategory"));
 		catGrid.setAllRowsVisible(true);
 		catGrid.setSizeUndefined();
 		this.setWidth("50em");
@@ -52,6 +52,10 @@ public class StringGridField extends CustomField<List<String>> {
 		add(validationStatus);
 		add(catGrid);
 
+	}
+
+	public StringGridField() {
+		this(new ArrayList<String>());
 	}
 
 	@Override

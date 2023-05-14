@@ -8,6 +8,7 @@ package app.owlcms.data.records;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -230,6 +231,22 @@ public class RecordRepository {
 		if (groupName != null) {
 			query.setParameter("groupName", groupName);
 		}
+	}
+
+	public static List<String> findAllRecordNames() {
+		ArrayList<String> names = new ArrayList<String>();
+		JPAService.runInTransaction(em -> {
+			Query q = em.createNativeQuery("SELECT DISTINCT a.recordName FROM RecordEvent a");
+			@SuppressWarnings("unchecked")
+			List<Object> records = q.getResultList();
+
+			for (Object a : records) {
+				names.add((String) a);
+			}
+			return null;
+		});
+		logger.warn("record names {}", names);
+		return names;
 	}
 
 }

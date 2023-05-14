@@ -23,6 +23,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.records.RecordConfig;
+import app.owlcms.data.records.RecordRepository;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
@@ -47,7 +48,9 @@ public class RecordsContent extends Composite<VerticalLayout>
 	public RecordsContent() {
 		initLoggers();
 		factory = createFormFactory();
-		Component form = factory.buildNewForm(CrudOperation.UPDATE, RecordConfig.getCurrent(), false, null, event -> {
+		RecordConfig current = RecordConfig.getCurrent();
+		current.setRecordOrder(RecordRepository.findAllRecordNames());
+		Component form = factory.buildNewForm(CrudOperation.UPDATE, current, false, null, event -> {
 		});
 		fillH(form, getContent());
 	}
@@ -94,7 +97,7 @@ public class RecordsContent extends Composite<VerticalLayout>
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("EditCompetitionInformation");
+		return getTranslation("Records.ConfigurationTab");
 	}
 
 	@Override
@@ -158,11 +161,9 @@ public class RecordsContent extends Composite<VerticalLayout>
 	 * @return the form factory that will create the actual form on demand
 	 */
 	protected OwlcmsCrudFormFactory<RecordConfig> createFormFactory() {
-//		OwlcmsCrudFormFactory<RecordConfig> competitionEditingFormFactory = new RecordConfigEditingFactory(
-//		        RecordConfig.class, this);
-//		return competitionEditingFormFactory;
-		//FIXME: missing code
-		return null;
+		OwlcmsCrudFormFactory<RecordConfig> factory = new RecordConfigEditingFormFactory(
+		        RecordConfig.class);
+		return factory;
 	}
 
 }
