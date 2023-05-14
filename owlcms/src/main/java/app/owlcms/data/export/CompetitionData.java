@@ -14,6 +14,7 @@ import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -40,6 +41,7 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CompetitionData {
 
 	final static Logger logger = (Logger) LoggerFactory.getLogger(CompetitionData.class);
