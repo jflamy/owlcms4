@@ -7,6 +7,7 @@
 package app.owlcms.data.jpa;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Locale;
 
 import javax.persistence.EntityManager;
@@ -18,6 +19,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.data.records.RecordConfig;
 import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
@@ -53,6 +55,12 @@ public class ProdData {
 	}
 
 	protected static Competition createDefaultCompetition() {
+		RecordConfig rc = new RecordConfig(Arrays.asList());
+		JPAService.runInTransaction(em -> {		
+			em.persist(rc);
+			return null;
+		});
+		
 		Competition competition = new Competition();
 
 		competition.setCompetitionName(Translator.translate("Competition", getLocale()) + " ?");

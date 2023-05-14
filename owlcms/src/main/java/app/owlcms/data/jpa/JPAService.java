@@ -53,6 +53,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.data.records.RecordConfig;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
@@ -479,6 +480,7 @@ public class JPAService {
 		        .add(Config.class.getName())
 		        .add(RecordEvent.class.getName())
 		        .add(Participation.class.getName())
+		        .add(RecordConfig.class.getName())
 		        .build();
 		return vals;
 	}

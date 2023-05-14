@@ -33,6 +33,7 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
+import app.owlcms.data.records.RecordConfig;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordRepository;
 import app.owlcms.i18n.Translator;
@@ -51,6 +52,7 @@ public class CompetitionData {
 	private List<Group> groups;
 	private List<Platform> platforms;
 	private List<RecordEvent> records;
+	private RecordConfig recordConfig;
 
 	public CompetitionData() {
 	}
@@ -111,6 +113,7 @@ public class CompetitionData {
 		setConfigForExport(Config.getCurrent());
 		setCompetitionForExport(Competition.getCurrent());
 		setRecords(RecordRepository.findAll());
+		setRecordConfig(RecordConfig.getCurrent());
 		return this;
 	}
 
@@ -147,6 +150,15 @@ public class CompetitionData {
 	@JsonProperty(index = 50)
 	public List<RecordEvent> getRecords() {
 		return records;
+	}
+	
+	@JsonProperty(index = 60)
+	public RecordConfig getRecordConfig() {
+		return recordConfig;
+	}
+
+	public void setRecordConfig(RecordConfig recordConfig) {
+		this.recordConfig = recordConfig;
 	}
 
 	public CompetitionData importData(InputStream serialized) {
