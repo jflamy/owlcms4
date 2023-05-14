@@ -28,9 +28,9 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -121,27 +121,25 @@ public class CompetitionEditingFormFactory
 		FormLayout rulesLayout = rulesForm();
 		FormLayout specialLayout = specialRulesForm();
 
-		// footerLayout1 callbacks are not actually used -- footerLayout2 overwrites the
-		// callbacks.
-//        Component footerLayout1 = this.buildFooter(operation, competition, cancelButtonClickListener,
-//                c -> {
-//                    Competition nCompetition = this.update(competition);
-//                    Locale defaultLocale = nCompetition.getDefaultLocale();
-//                    Translator.setForcedLocale(defaultLocale);
-//                    Translator.reset();
-//                }, deleteButtonClickListener, false);
-		Component footerLayout2 = this.buildFooter(operation, comp, cancelButtonClickListener,
+		Component footer = this.buildFooter(operation, comp, cancelButtonClickListener,
 		        c -> {
 			        this.update(comp);
 		        }, deleteButtonClickListener, false);
+		
+		TabSheet ts = new TabSheet();
+		ts.add(Translator.translate("Competition.InformationTab"),
+				 new VerticalLayout(
+					        competitionLayout, separator(),
+					        federationLayout));
+		ts.add(Translator.translate("Competition.RulesTab"),
+				 new VerticalLayout(
+					        rulesLayout, separator(),
+					        specialLayout));
+				
 
 		VerticalLayout mainLayout = new VerticalLayout(
-		        footerLayout2,
-		        competitionLayout, separator(),
-		        federationLayout, separator(),
-		        rulesLayout, separator(),
-		        specialLayout);
-		mainLayout.setHorizontalComponentAlignment(Alignment.END, footerLayout2);
+		        footer,
+		        ts);
 		mainLayout.setMargin(false);
 		mainLayout.setPadding(false);
 
