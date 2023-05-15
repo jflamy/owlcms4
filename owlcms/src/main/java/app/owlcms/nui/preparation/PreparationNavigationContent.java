@@ -70,7 +70,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		Button ageGroups = openInNewTabNoParam(AgeGroupContent.class, getTranslation("DefineAgeGroups"));
 		Button groups = openInNewTabNoParam(GroupContent.class, getTranslation("DefineGroups"));
 		Button platforms = openInNewTabNoParam(PlatformContent.class, getTranslation("DefineFOP"));
-		Button configureRecords = openInNewTabNoParam(RecordsContent.class, getTranslation("Records.ConfigurationTab"));
+		Button configureRecords = openInNewTabNoParam(RecordsContent.class, getTranslation("Records.RecordsManagementTitle"));
 
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, platforms,
 		        configureRecords);
