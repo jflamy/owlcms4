@@ -73,18 +73,10 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		Button ageGroups = openInNewTabNoParam(AgeGroupContent.class, getTranslation("DefineAgeGroups"));
 		Button groups = openInNewTabNoParam(GroupContent.class, getTranslation("DefineGroups"));
 		Button platforms = openInNewTabNoParam(PlatformContent.class, getTranslation("DefineFOP"));
-		Button clearNewRecords = new Button(getTranslation("Preparation.ClearNewRecords"),
-		        buttonClickEvent -> {
-			        try {
-				        RecordRepository.clearNewRecords();
-			        } catch (IOException e) {
-				        throw new RuntimeException(e);
-			        }
-		        });
-		clearNewRecords.getElement().setProperty("title",
-		        Translator.translate("Preparation.ClearNewRecordsExplanation"));
+		Button configureRecords = openInNewTabNoParam(RecordsContent.class, getTranslation("Records.ConfigurationTab"));
+
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, platforms,
-		        clearNewRecords);
+		        configureRecords);
 		doGroup(getTranslation("PreCompetitionSetup"), grid1, this);
 
 		Div downloadDiv = DownloadButtonFactory.createDynamicXLSDownloadButton("registration",
