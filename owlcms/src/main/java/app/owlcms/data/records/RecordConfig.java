@@ -7,9 +7,11 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import app.owlcms.apputils.JpaJsonConverter;
@@ -67,6 +69,17 @@ public class RecordConfig {
 		// new items in database but not in list, add them at the end to preserve current sort order
 		findAllRecordNames.removeAll(recordOrder);
 		recordOrder.addAll(findAllRecordNames);
+	}
+	
+	@Transient
+	@JsonIgnore
+	public void setLoadedFiles(List<RecordEvent> ignored) {
+	}
+	
+	@Transient
+	@JsonIgnore
+	public List<RecordEvent> getLoadedFiles(){
+		return RecordRepository.findAllLoadedRecords();
 	}
 
 }

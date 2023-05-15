@@ -23,26 +23,27 @@ import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-public class StringGridField extends CustomField<List<String>> {
+public class GridField<T> extends CustomField<List<T>> {
 
 	Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
 
-	Logger logger = (Logger) LoggerFactory.getLogger(StringGridField.class);
+	Logger logger = (Logger) LoggerFactory.getLogger(GridField.class);
 
-	private Grid<String> grid;
+	protected Grid<T> grid;
 
-	private List<String> presentationStrings = new ArrayList<>();
+	private List<T> presentationStrings = new ArrayList<>();
 
 	private Object draggedItem;
 
-	public StringGridField(List<String> strings) {
-		super(new ArrayList<String>(strings));
+	@SuppressWarnings("unchecked")
+	public GridField(List<T> rows, boolean draggable) {
+		super(new ArrayList<T>(rows));
 		grid = new Grid<>();
-		grid.addColumn(String::toString);
+		createColumns();
 
 		grid.setAllRowsVisible(true);
 		grid.setSizeUndefined();
-		grid.setRowsDraggable(true);
+		grid.setRowsDraggable(draggable);
 		
         grid.addDragStartListener(
             event -> {
@@ -63,14 +64,14 @@ public class StringGridField extends CustomField<List<String>> {
 
         grid.addDropListener(
             event -> {
-                String dropOverItem = event.getDropTargetItem().get();
+                T dropOverItem = event.getDropTargetItem().get();
                 if (!dropOverItem.equals(draggedItem)) {
                     // reorder dragged item the backing gridItems container
                     presentationStrings.remove(draggedItem);
                     // calculate drop index based on the dropOverItem
                     int droppedOverIndex = presentationStrings.indexOf(dropOverItem);
 					int dropIndex =  droppedOverIndex + (event.getDropLocation() == GridDropLocation.BELOW ? 1 : 0);
-                    presentationStrings.add(dropIndex, (String) draggedItem);
+                    presentationStrings.add(dropIndex, (T) draggedItem);
                     grid.getDataProvider().refreshAll();
                 }
             }
@@ -83,12 +84,16 @@ public class StringGridField extends CustomField<List<String>> {
 
 	}
 
-	public StringGridField() {
-		this(new ArrayList<String>());
+	protected void createColumns() {
+		grid.addColumn(T::toString);
+	}
+
+	public GridField(boolean b) {
+		this(new ArrayList<T>(), b);
 	}
 
 	@Override
-	public List<String> getValue() {
+	public List<T> getValue() {
 		return presentationStrings;
 	}
 
@@ -98,7 +103,7 @@ public class StringGridField extends CustomField<List<String>> {
 	}
 
 	@Override
-	protected List<String> generateModelValue() {
+	protected List<T> generateModelValue() {
 		// the presentation objects are already model values and no conversion is
 		// necessary
 		// the business model can use them as is; the model ignores the categories with
@@ -109,7 +114,7 @@ public class StringGridField extends CustomField<List<String>> {
 	}
 
 	@Override
-	protected void setPresentationValue(List<String> iCategories) {
+	protected void setPresentationValue(List<T> iCategories) {
 		presentationStrings = iCategories;
 		updatePresentation();
 	}

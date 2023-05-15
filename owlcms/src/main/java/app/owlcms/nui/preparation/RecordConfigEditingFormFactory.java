@@ -3,6 +3,7 @@ package app.owlcms.nui.preparation;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.vaadin.crudui.crud.CrudOperation;
 
@@ -11,6 +12,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition;
 import com.vaadin.flow.component.html.H4;
@@ -18,18 +20,52 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.Binder.Binding;
 
-import app.owlcms.components.fields.StringGridField;
+import app.owlcms.components.fields.GridField;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.records.RecordConfig;
+import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 
 @SuppressWarnings("serial")
 public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<RecordConfig> {
+	
+	private class LoadedRecordsField extends GridField<RecordEvent> {
 
-	private StringGridField orderingField;
+		private Runnable callback;
+
+		public LoadedRecordsField(Runnable callback) {
+			super(false);
+			this.callback = callback;
+		}
+		
+		@Override
+		protected void createColumns() {
+			grid.addColumn(RecordEvent::getRecordName);
+			grid.addColumn(RecordEvent::getAgeGrp);
+			grid.addColumn(RecordEvent::getRecordFederation);
+			grid.addColumn(RecordEvent::getFileName);
+			grid.addComponentColumn(re -> createClearButton(re));
+		}
+		
+		private Button createClearButton(RecordEvent re) {
+			Button button = new Button("Clear");
+			button.addClickListener(e -> {
+				RecordRepository.clearByExample(re);
+				this.setPresentationValue(RecordConfig.getCurrent().getLoadedFiles());
+				callback.run();
+			});
+			return button;
+		}
+		
+	}
+
+	private GridField<String> orderingField;
+	private LoadedRecordsField loadedField;
+	private Binding<RecordConfig, List<String>> ofBinding;
 
 	public RecordConfigEditingFormFactory(Class<RecordConfig> domainType) {
 		super(domainType);
@@ -102,20 +138,34 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		
 		FormLayout recordsAvailableLayout = createLayout();
 		Component title = createTitle("Records.ClearAndLoadSection");
+		
+		loadedField = new LoadedRecordsField(() -> {
+			RecordConfig current = RecordConfig.getCurrent();
+			current.addMissing(RecordRepository.findAllRecordNames());
+			ofBinding.read(current);
+		});
+		loadedField.setWidthFull();
+		binder.forField(loadedField).bind(RecordConfig::getLoadedFiles, RecordConfig::setLoadedFiles);
+		
 		recordsAvailableLayout.add(title);
 		recordsAvailableLayout.setColspan(title, 2);
-		recordsAvailableLayout.addFormItem(clearNewRecords, Translator.translate("Preparation.ClearNewRecords"));
+		FormItem cni = recordsAvailableLayout.addFormItem(clearNewRecords, Translator.translate("Preparation.ClearNewRecords"));
+		recordsAvailableLayout.setColspan(cni, 2);
+		FormItem lfi = recordsAvailableLayout.addFormItem(loadedField, Translator.translate("*** Loaded Files ***"));
+		recordsAvailableLayout.setColspan(lfi, 2);
 		return recordsAvailableLayout;
 	}
 
 	private FormLayout recordOrderForm() {
-		orderingField = new StringGridField();
-		orderingField.setWidthFull();
-		binder.forField(orderingField).bind(RecordConfig::getRecordOrder, RecordConfig::setRecordOrder);
 		FormLayout recordsOrderLayout = createLayout();
 		Component title = createTitle("Records.OrderingSection");
 		recordsOrderLayout.add(title);
 		recordsOrderLayout.setColspan(title, 2);
+		
+		orderingField = new GridField<String>(true);
+		orderingField.setWidthFull();
+		ofBinding = binder.forField(orderingField).bind(RecordConfig::getRecordOrder, RecordConfig::setRecordOrder);
+		
 		recordsOrderLayout.addFormItem(orderingField, Translator.translate("Records.OrderingField"));
 		return recordsOrderLayout;
 	}

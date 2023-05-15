@@ -248,4 +248,41 @@ public class RecordRepository {
 		return names;
 	}
 
+	public static List<RecordEvent> findAllLoadedRecords() {
+		ArrayList<RecordEvent> recordEventStubs = new ArrayList<>();
+		JPAService.runInTransaction(em -> {
+			Query q = em.createNativeQuery(
+			        "SELECT DISTINCT a.fileName, a.recordFederation, a.recordName, a.ageGrp FROM RecordEvent a");
+			@SuppressWarnings("unchecked")
+			List<Object[]> records = q.getResultList();
+
+			for (Object[] a : records) {
+				RecordEvent e = new RecordEvent();
+				e.setFileName((String) a[0]);
+				e.setRecordFederation((String) a[1]);
+				e.setRecordName((String) a[2]);
+				e.setAgeGrp((String) a[3]);
+				recordEventStubs.add(e);
+			}
+			return null;
+		});
+		return recordEventStubs;
+	}
+
+	public static void clearByExample(RecordEvent re) {
+		JPAService.runInTransaction(em -> {
+			Query q = em.createQuery("DELETE FROM RecordEvent a WHERE "
+			        + "a.fileName = :fn "
+			        + "AND a.recordFederation = :rf "
+			        + "AND a.recordName = :rn "
+			        + "AND a.ageGrp = :ag ");
+			q.setParameter("fn", re.getFileName());
+			q.setParameter("rf", re.getRecordFederation());
+			q.setParameter("rn", re.getRecordName());
+			q.setParameter("ag", re.getAgeGrp());
+			q.executeUpdate();
+			return null;
+		});
+	}
+
 }

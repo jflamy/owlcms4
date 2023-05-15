@@ -59,7 +59,7 @@ import ch.qos.logback.classic.Logger;
 public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         implements CrudFormFactory<T>, CrudListener<T> {
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsCrudFormFactory.class);
+	protected final static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsCrudFormFactory.class);
 	static {
 		logger.setLevel(Level.INFO);
 	}
