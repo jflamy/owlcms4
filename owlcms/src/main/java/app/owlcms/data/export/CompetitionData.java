@@ -225,6 +225,12 @@ public class CompetitionData {
 						em.merge(p);
 					}
 				}
+				
+				if (updated.getRecordConfig() != null) {
+					{
+						em.merge(updated.getRecordConfig());
+					}
+				}
 
 				em.merge(competition);
 				em.flush();

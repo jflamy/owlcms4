@@ -39,7 +39,7 @@
 
 		<!-- Library versions -->
 		<java.release>11</java.release>
-		<vaadin.version>23.3.6</vaadin.version>
+		<vaadin.version>23.3.12</vaadin.version>
 		<logback.version>1.2.9</logback.version>
 		<slf4j.version>1.7.26</slf4j.version>
 		<hibernate.version>5.6.10.Final</hibernate.version>
@@ -93,12 +93,6 @@
 				<version>${vaadin.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
-				<exclusions>
-					<exclusion>
-						<groupId>com.vaadin</groupId>
-						<artifactId>flow-dnd</artifactId>
-					</exclusion>
-				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>

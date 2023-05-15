@@ -49,7 +49,7 @@ public class RecordsContent extends Composite<VerticalLayout>
 		initLoggers();
 		factory = createFormFactory();
 		RecordConfig current = RecordConfig.getCurrent();
-		current.setRecordOrder(RecordRepository.findAllRecordNames());
+		current.addMissing(RecordRepository.findAllRecordNames());
 		Component form = factory.buildNewForm(CrudOperation.UPDATE, current, false, null, event -> {
 		});
 		fillH(form, getContent());

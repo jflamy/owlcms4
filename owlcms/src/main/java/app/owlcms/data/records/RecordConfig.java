@@ -8,11 +8,19 @@ import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.annotation.JsonSetter;
+
 import app.owlcms.apputils.JpaJsonConverter;
 import app.owlcms.data.jpa.JPAService;
+import ch.qos.logback.classic.Logger;
 
 @Entity
 public class RecordConfig {
+
+	Logger logger = (Logger) LoggerFactory.getLogger(RecordConfig.class);
+
 	public RecordConfig() {
 		this.recordOrder = new ArrayList<String>();
 	}
@@ -34,6 +42,7 @@ public class RecordConfig {
 	private ArrayList<String> recordOrder;
 
 	public ArrayList<String> getRecordOrder() {
+		logger.warn("record order {}", recordOrder);
 		return recordOrder;
 	}
 
@@ -41,12 +50,25 @@ public class RecordConfig {
 		this.recordOrder = recordOrder;
 	}
 
+	@JsonSetter
 	public void setRecordOrder(List<String> asList) {
+		logger.warn("unmarshal record order {}", recordOrder);
 		this.recordOrder = new ArrayList<String>(asList);
 	}
 
 	public static RecordConfig getCurrent() {
 		return JPAService.runInTransaction(em -> em.find(RecordConfig.class, 1l));
+	}
+
+	public void addMissing(List<String> findAllRecordNames) {
+		// get rid of items in list but not in database
+		ArrayList<String> extras = new ArrayList<>(recordOrder);
+		extras.removeAll(findAllRecordNames);
+		recordOrder.removeAll(extras);
+		
+		// new items in database but not in list, add them at the end to preserve current sort order
+		findAllRecordNames.removeAll(recordOrder);
+		recordOrder.addAll(findAllRecordNames);
 	}
 
 }
