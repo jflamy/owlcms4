@@ -304,4 +304,15 @@ public class RecordRepository {
 		});
 	}
 
+	public static void clearRecordsOriginallyFromFile(String fileName) {
+		JPAService.runInTransaction(em -> {
+			Query q = em.createQuery("DELETE FROM RecordEvent a WHERE "
+			        + "a.fileName = :fn "
+					+ "AND a.groupNameString IS NULL");
+			q.setParameter("fn", fileName);
+			q.executeUpdate();
+			return null;
+		});
+	}
+
 }

@@ -251,7 +251,7 @@ public class Main {
 
 				PlatformRepository.checkPlatforms();
 			}
-			RecordDefinitionReader.resetRecords();
+			RecordDefinitionReader.loadRecords();
 		} finally {
 			Translator.setForcedLocale(locale);
 		}

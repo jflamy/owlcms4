@@ -49,6 +49,7 @@ public class RecordDefinitionReader {
 	private final static Logger startupLogger = Main.getStartupLogger();
 
 	public static int createRecords(Workbook workbook, String name, String baseName) {
+		cleanUp(baseName);
 
 		return JPAService.runInTransaction(em -> {
 			int iRecord = 0;
@@ -245,30 +246,42 @@ public class RecordDefinitionReader {
 		Files.walk(recordsPath).filter(f -> f.toString().endsWith(".xls") || f.toString().endsWith(".xlsx"))
 		        .forEach(f -> {
 			        InputStream is;
-			        try {
+			        String fileName = f.getFileName().toString();
+					try {
 				        is = Files.newInputStream(f);
-				        try (Workbook workbook = WorkbookFactory.create(is)) {
-					        logger.info("loading record definition file {} {}", f.toString(),
-					                FilenameUtils.removeExtension(f.getFileName().toString()));
-					        startupLogger.info("loading record definition file {}", f.toString());
-					        createRecords(workbook, f.toString(),
-					                FilenameUtils.removeExtension(f.getFileName().toString()));
-				        } catch (Exception e) {
-					        logger.error("could not process record definition file {}\n{}", f.toString(),
-					                LoggerUtils./**/stackTrace(e));
-					        startupLogger.error(
-					                "could not process record definition file {}. See log files for details.",
-					                f.toString());
-				        }
+				        readInputStream(is, fileName);
 			        } catch (IOException e1) {
-				        logger.error("could not open record definition file {}\n{}", f.toString(),
+				        logger.error("could not open record definition file {}\n{}", fileName,
 				                LoggerUtils./**/stackTrace(e1));
 				        startupLogger.error("could not open record definition file {}.  See log files for details.",
-				                f.toString());
+				                fileName);
 			        }
 
 		        });
 
+	}
+
+	public static void readInputStream(InputStream is, String fileName) {
+		try (Workbook workbook = WorkbookFactory.create(is)) {
+		    logger.info("loading record definition file {} {}", fileName,
+		            FilenameUtils.removeExtension(fileName));
+		    startupLogger.info("loading record definition file {}", fileName);
+		    
+		    createRecords(workbook, fileName,
+		            FilenameUtils.removeExtension(fileName.toString()));
+		} catch (Exception e) {
+		    logger.error("could not process record definition file {}\n{}", fileName,
+		            LoggerUtils./**/stackTrace(e));
+		    startupLogger.error(
+		            "could not process record definition file {}. See log files for details.",
+		            fileName);
+		}
+	}
+
+	private static void cleanUp(String fileName) {
+		logger.info("removing records originally from {}",fileName);
+		RecordRepository.clearRecordsOriginallyFromFile(fileName);
+		
 	}
 
 	public static void readZip(InputStream source) throws IOException {
@@ -285,9 +298,10 @@ public class RecordDefinitionReader {
 				startupLogger.info("unzipping {}", name);
 				// read the current zip entry
 				try (Workbook workbook = WorkbookFactory.create(zipStream)) {
-					logger.info("loading record definition file {} {}", name, FilenameUtils.removeExtension(name));
+					String fileName = FilenameUtils.removeExtension(name);
+					logger.info("loading record definition file {} {}", name, fileName);
 					startupLogger.info("loading record definition file {}", name);
-					createRecords(workbook, name, FilenameUtils.removeExtension(name));
+					createRecords(workbook, name, fileName);
 				} catch (Exception e) {
 					logger.error("could not process record definition file {}\n{}", name,
 					        LoggerUtils./**/stackTrace(e));
@@ -305,6 +319,24 @@ public class RecordDefinitionReader {
 			recordsPath = ResourceWalker.getFileOrResourcePath("/records");
 			try {
 				RecordRepository.clearLoadedRecords();
+				if (recordsPath != null && Files.exists(recordsPath)) {
+					RecordDefinitionReader.readFolder(recordsPath);
+				} else {
+					logger.info("no record definition files in local/records");
+				}
+			} catch (IOException e) {
+				logger.error("cannot process records {}");
+			}
+		} catch (FileNotFoundException e1) {
+			logger.error("cannot find records {}", LoggerUtils.stackTrace(e1));
+		}
+	}
+	
+	public static void loadRecords() {
+		Path recordsPath;
+		try {
+			recordsPath = ResourceWalker.getFileOrResourcePath("/records");
+			try {
 				if (recordsPath != null && Files.exists(recordsPath)) {
 					RecordDefinitionReader.readFolder(recordsPath);
 				} else {

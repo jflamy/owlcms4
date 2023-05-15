@@ -17,18 +17,22 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Binder.Binding;
 
 import app.owlcms.components.fields.GridField;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.records.RecordConfig;
+import app.owlcms.data.records.RecordDefinitionReader;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordRepository;
 import app.owlcms.i18n.Translator;
@@ -51,10 +55,10 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		@Override
 		protected void createColumns() {
 			grid.addColumn(RecordEvent::getRecordName);
-			grid.addColumn(RecordEvent::getAgeGrp);
-			grid.addColumn(RecordEvent::getRecordFederation);
-			grid.addColumn(RecordEvent::getFileName);
-			grid.addComponentColumn(re -> createClearButton(re));
+			grid.addColumn(RecordEvent::getAgeGrp).setTextAlign(ColumnTextAlign.CENTER);
+			grid.addColumn(RecordEvent::getRecordFederation).setTextAlign(ColumnTextAlign.CENTER);
+			grid.addColumn(RecordEvent::getFileName).setAutoWidth(true);
+			grid.addComponentColumn(re -> createClearButton(re)).setTextAlign(ColumnTextAlign.CENTER);
 		}
 
 		private Button createClearButton(RecordEvent re) {
@@ -110,10 +114,6 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		FormLayout provisionalLayout = provisionalForm();
 		FormLayout officialLayout = officialForm();
 
-//		Component footer = this.buildFooter(operation, recordConfig, cancelButtonClickListener,
-//		        c -> {
-//			        this.update(recordConfig);
-//		        }, deleteButtonClickListener, false);
 
 		TabSheet ts = new TabSheet();
 		ts.setWidthFull();
@@ -121,12 +121,13 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		        new VerticalLayout(
 		                recordsOrderLayout,
 		                separator(),
-		                provisionalLayout,
-		                separator(),
 		                officialLayout));
+		ts.add(Translator.translate("Records.ProvisionalSection"),
+		        new VerticalLayout(
+		                provisionalLayout));
+		
 
 		VerticalLayout mainLayout = new VerticalLayout(
-//		        footer,
 		        ts);
 		mainLayout.setMargin(false);
 		mainLayout.setPadding(false);
@@ -169,6 +170,12 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 				        throw new RuntimeException(e);
 			        }
 		        });
+		MemoryBuffer receiver = new MemoryBuffer();
+		Upload uploadRecords = new Upload(receiver);
+		uploadRecords.addSucceededListener(e -> {
+			RecordDefinitionReader.readInputStream(receiver.getInputStream(), receiver.getFileName());
+			UI.getCurrent().getPage().reload();
+		});
 
 		FormLayout recordsAvailableLayout = createLayout();
 		Component title = createTitle("Records.OfficialSection");
@@ -183,9 +190,15 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 
 		recordsAvailableLayout.add(title);
 		recordsAvailableLayout.setColspan(title, 2);
+		
+		FormItem ur = recordsAvailableLayout.addFormItem(uploadRecords,
+		        Translator.translate("Records.UploadOfficialFile"));
+		recordsAvailableLayout.setColspan(ur, 1);
 		FormItem cni = recordsAvailableLayout.addFormItem(clearNewRecords,
 		        Translator.translate("Records.ClearOfficialRecordsExplanation"));
-		recordsAvailableLayout.setColspan(cni, 2);
+		recordsAvailableLayout.setColspan(cni, 1);
+
+		
 		FormItem lfi = recordsAvailableLayout.addFormItem(loadedField,
 		        Translator.translate("Records.LoadedOfficialFiles"));
 		recordsAvailableLayout.setColspan(lfi, 2);
