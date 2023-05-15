@@ -1,5 +1,6 @@
 package app.owlcms.nui.preparation;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -21,12 +22,13 @@ import com.vaadin.flow.data.binder.Binder;
 import app.owlcms.components.fields.StringGridField;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.records.RecordConfig;
+import app.owlcms.data.records.RecordRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 
 @SuppressWarnings("serial")
 public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<RecordConfig> {
-	
+
 	private StringGridField orderingField;
 
 	public RecordConfigEditingFormFactory(Class<RecordConfig> domainType) {
@@ -61,7 +63,7 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		setBinder(buildBinder(operation, comp));
 
 		FormLayout recordsOrderLayout = recordOrderForm();
-		//FormLayout recordsAvailableLayout = recordAvailableForm();
+		FormLayout recordsAvailableLayout = recordAvailableForm();
 
 		Component footer = this.buildFooter(operation, comp, cancelButtonClickListener,
 		        c -> {
@@ -72,10 +74,9 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		ts.setWidthFull();
 		ts.add(Translator.translate("Records.ConfigurationTab"),
 		        new VerticalLayout(
-		        		recordsOrderLayout,
-		        		separator()
-		        		//,recordsAvailableLayout
-		        		));
+		                recordsOrderLayout,
+		                separator(),
+		                recordsAvailableLayout));
 
 		VerticalLayout mainLayout = new VerticalLayout(
 		        footer,
@@ -85,6 +86,26 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 
 		binder.readBean(comp);
 		return mainLayout;
+	}
+
+	private FormLayout recordAvailableForm() {
+		Button clearNewRecords = new Button(Translator.translate("Preparation.ClearNewRecords"),
+		        buttonClickEvent -> {
+			        try {
+				        RecordRepository.clearNewRecords();
+			        } catch (IOException e) {
+				        throw new RuntimeException(e);
+			        }
+		        });
+		clearNewRecords.getElement().setProperty("title",
+		        Translator.translate("Preparation.ClearNewRecordsExplanation"));
+		
+		FormLayout recordsAvailableLayout = createLayout();
+		Component title = createTitle("Records.ClearAndLoadSection");
+		recordsAvailableLayout.add(title);
+		recordsAvailableLayout.setColspan(title, 2);
+		recordsAvailableLayout.addFormItem(clearNewRecords, Translator.translate("Preparation.ClearNewRecords"));
+		return recordsAvailableLayout;
 	}
 
 	private FormLayout recordOrderForm() {
@@ -98,7 +119,7 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		recordsOrderLayout.addFormItem(orderingField, Translator.translate("Records.OrderingField"));
 		return recordsOrderLayout;
 	}
-	
+
 	private Component createTitle(String string) {
 		H4 title = new H4(Translator.translate(string));
 		title.getStyle().set("margin-top", "0");
@@ -113,6 +134,7 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		        new ResponsiveStep("800px", 2, LabelsPosition.TOP));
 		return layout;
 	}
+
 	private void setBinder(Binder<RecordConfig> buildBinder) {
 		binder = buildBinder;
 	}

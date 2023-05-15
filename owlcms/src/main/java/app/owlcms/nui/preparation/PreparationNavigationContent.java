@@ -7,7 +7,6 @@
 
 package app.owlcms.nui.preparation;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -34,8 +33,6 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
-import app.owlcms.data.records.RecordRepository;
-import app.owlcms.i18n.Translator;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.DownloadButtonFactory;

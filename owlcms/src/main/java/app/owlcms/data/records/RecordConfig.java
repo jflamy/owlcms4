@@ -42,7 +42,6 @@ public class RecordConfig {
 	private ArrayList<String> recordOrder;
 
 	public ArrayList<String> getRecordOrder() {
-		logger.warn("record order {}", recordOrder);
 		return recordOrder;
 	}
 
@@ -52,7 +51,6 @@ public class RecordConfig {
 
 	@JsonSetter
 	public void setRecordOrder(List<String> asList) {
-		logger.warn("unmarshal record order {}", recordOrder);
 		this.recordOrder = new ArrayList<String>(asList);
 	}
 

@@ -175,8 +175,7 @@ public class RecordFilter {
 	}
 
 	private static String getRowOrder(String recordName, String fileName) {
-		// FIXME change to something from record config.
-		return fileName;
+		return Integer.toString(RecordConfig.getCurrent().getRecordOrder().indexOf(recordName));
 	}
 
 	public static List<RecordEvent> computeChallengedRecords(List<RecordEvent> eligibleRecords, Integer snatchRequest,

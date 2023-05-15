@@ -245,7 +245,6 @@ public class RecordRepository {
 			}
 			return null;
 		});
-		logger.warn("record names {}", names);
 		return names;
 	}
 

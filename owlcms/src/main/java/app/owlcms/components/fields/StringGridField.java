@@ -69,7 +69,6 @@ public class StringGridField extends CustomField<List<String>> {
                     presentationStrings.remove(draggedItem);
                     // calculate drop index based on the dropOverItem
                     int droppedOverIndex = presentationStrings.indexOf(dropOverItem);
-                    logger.warn("{} {}", dropOverItem, droppedOverIndex);
 					int dropIndex =  droppedOverIndex + (event.getDropLocation() == GridDropLocation.BELOW ? 1 : 0);
                     presentationStrings.add(dropIndex, (String) draggedItem);
                     grid.getDataProvider().refreshAll();
@@ -95,7 +94,6 @@ public class StringGridField extends CustomField<List<String>> {
 
 	private void updatePresentation() {
 		grid.setItems(presentationStrings);
-		logger.warn("grid items {}",presentationStrings);
 		grid.setSizeUndefined();
 	}
 
