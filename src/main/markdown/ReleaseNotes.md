@@ -1,5 +1,6 @@
 39. 0 Records Management
 
+- 39.0.0-alpha01: fix for records management page not showing up when updating an existing database
 - 39.0 Changes
   - 39.0.0:  A new Records Management page has been added
     - Record definition files can be uploaded interactively 
