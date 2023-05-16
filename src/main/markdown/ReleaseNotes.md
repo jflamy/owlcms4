@@ -1,7 +1,10 @@
 39. 0 Records Management
 
+- 39.0.0-alpha02: restored ability to download documents (problem reported to the user interface toolkit)
+- 39.0.0-alpha02: translations/formatting on the records management page
 - 39.0.0-alpha01: fix for records management page not showing up when updating an existing database
 - 39.0 Changes
+  - 39.0.0: The lifting order screen would occasionally show a stretched athlete line instead of blank space
   - 39.0.0:  A new Records Management page has been added
     - Record definition files can be uploaded interactively 
       - Uploading a file again replaces the previous upload of the same file.

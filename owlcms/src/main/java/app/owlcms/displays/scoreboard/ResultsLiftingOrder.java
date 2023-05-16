@@ -27,7 +27,7 @@ public class ResultsLiftingOrder extends Results {
 	@Override
 	protected int countSubsets(List<Athlete> athlete) {
 		boolean snatchPresent = (athlete.get(0).getActuallyAttemptedLifts() < 3);
-		boolean cjPresent = (athlete.get(athlete.size() - 1).getActuallyAttemptedLifts() >= 3);
+		boolean cjPresent = (athlete.get(athlete.size() - 1).getAttemptsDone() >= 3);
 		return (snatchPresent ? 1 : 0) + (cjPresent ? 1 : 0) + 1;
 	}
 
@@ -42,8 +42,8 @@ public class ResultsLiftingOrder extends Results {
 	@Override
 	protected BiPredicate<Athlete, Athlete> getSeparatorPredicate() {
 		BiPredicate<Athlete, Athlete> separator = (cur, prev) -> (prev == null) ||
-		        cur.getActuallyAttemptedLifts() >= 3
-		                && (prev.getActuallyAttemptedLifts() < 3);
+		        cur.getAttemptsDone() >= 3
+		                && (prev.getAttemptsDone() < 3);
 		return separator;
 	}
 
