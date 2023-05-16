@@ -55,11 +55,11 @@ public class ProdData {
 	}
 
 	protected static Competition createDefaultCompetition() {
-		RecordConfig rc = new RecordConfig(Arrays.asList());
-		JPAService.runInTransaction(em -> {		
-			em.persist(rc);
-			return null;
-		});
+//		RecordConfig rc = new RecordConfig(Arrays.asList());
+//		JPAService.runInTransaction(em -> {		
+//			em.persist(rc);
+//			return null;
+//		});
 		
 		Competition competition = new Competition();
 

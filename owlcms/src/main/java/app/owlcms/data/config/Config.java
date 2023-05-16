@@ -30,6 +30,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import app.owlcms.apputils.AccessUtils;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.LocaleAttributeConverter;
+import app.owlcms.data.records.RecordConfig;
 import app.owlcms.servlet.FileServlet;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
@@ -73,6 +74,15 @@ public class Config {
 				Config config = new Config();
 				config.setMqttInternal(true);
 				Config.setCurrent(config);
+			}
+			return null;
+		});
+		
+		JPAService.runInTransaction(em -> {
+			RecordConfig f = em.find(RecordConfig.class, 1l);
+			if (f == null) {
+				RecordConfig rc = new RecordConfig(Arrays.asList());
+				em.persist(rc);
 			}
 			return null;
 		});

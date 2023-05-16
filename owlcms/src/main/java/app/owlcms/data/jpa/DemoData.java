@@ -185,11 +185,11 @@ public class DemoData {
 	}
 
 	protected static Competition createDefaultCompetition(EnumSet<AgeDivision> ageDivisions) {
-		RecordConfig rc = new RecordConfig(Arrays.asList());
-		JPAService.runInTransaction(em -> {		
-			em.persist(rc);
-			return null;
-		});
+//		RecordConfig rc = new RecordConfig(Arrays.asList());
+//		JPAService.runInTransaction(em -> {		
+//			em.persist(rc);
+//			return null;
+//		});
 		
 		Competition competition = new Competition();
 
