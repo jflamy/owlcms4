@@ -4,6 +4,7 @@
 - 39.0.0-alpha02: translations/formatting on the records management page
 - 39.0.0-alpha01: fix for records management page not showing up when updating an existing database
 - 39.0 Changes
+  - 39.0.0-alpha03: fixed the simulation backdoor parsing to work with the forwarded addresses as provided by fly.io
   - 39.0.0: The lifting order screen would occasionally show a stretched athlete line instead of blank space
   - 39.0.0:  A new Records Management page has been added
     - Record definition files can be uploaded interactively 
