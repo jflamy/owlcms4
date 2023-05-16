@@ -175,7 +175,8 @@ public class RecordFilter {
 	}
 
 	private static String getRowOrder(String recordName, String fileName) {
-		return Integer.toString(RecordConfig.getCurrent().getRecordOrder().indexOf(recordName));
+		ArrayList<String> recordOrder = RecordConfig.getCurrent().getRecordOrder();
+		return Integer.toString(recordOrder.indexOf(recordName));
 	}
 
 	public static List<RecordEvent> computeChallengedRecords(List<RecordEvent> eligibleRecords, Integer snatchRequest,

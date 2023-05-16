@@ -62,7 +62,7 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		}
 
 		private Button createClearButton(RecordEvent re) {
-			Button button = new Button("Clear");
+			Button button = new Button(Translator.translate("Clear"));
 			button.addClickListener(e -> {
 				RecordRepository.clearByExample(re);
 				this.setPresentationValue(RecordConfig.getCurrent().getLoadedFiles());
@@ -216,10 +216,12 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		recordsOrderLayout.setColspan(title, 2);
 
 		orderingField = new GridField<String>(true);
-		orderingField.setWidthFull();
+		orderingField.setWidth("50%");
+		orderingField.setMinWidth("15em");
 		ofBinding = binder.forField(orderingField).bind(RecordConfig::getRecordOrder, RecordConfig::setRecordOrder);
 		
 		HorizontalLayout ordering = new HorizontalLayout(orderingField, update);
+		ordering.setSizeUndefined();
 
 		recordsOrderLayout.addFormItem(ordering, Translator.translate("Records.OrderingField"));
 		return recordsOrderLayout;
