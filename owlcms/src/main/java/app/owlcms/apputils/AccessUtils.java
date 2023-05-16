@@ -45,7 +45,13 @@ public class AccessUtils {
 
 	public static boolean checkBackdoor(String clientIp) {
 		String backdoorList = Config.getCurrent().getParamBackdoorList();
-		return checkListMembership(clientIp, backdoorList, false);
+		String[] clientIps = clientIp.split("[ ,]+");
+		for (String cip : clientIps) {
+			if (checkListMembership(cip, backdoorList, false)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public static boolean checkDisplayAuthenticated(String password) {
