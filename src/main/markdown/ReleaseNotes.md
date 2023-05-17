@@ -5,7 +5,7 @@
   - A new Records Management page has been added, reachable from the preparation page.
     - Record definition files can be uploaded interactively 
       - Loading a file replaces the previous information from the same file.  We suggest you change the file names when you update the records, and that you clear previous versions explicitly using the buttons provided.
-      - If record definition files are found in `local/records`, they are  loaded on startup, and replace what was there under the same name.
+      - If record definition files are found in `local/records`, they are  loaded on startup. Beware that each file will replace what was previously loaded or uploaded under that same file name.
     - The ordering of the records on the scoreboard is no longer dependent on the file names, and is edited interactively.
 
   - Fix: Now able run simulations on fly.io (adjusted the parsing of the forwarding information)
