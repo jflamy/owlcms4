@@ -2,14 +2,16 @@
 
 - 39.0 Changes
 
+  - 39.0.0-beta01: Danish, Portuguese, Hungarian, Romanian, Russian translation updates.
+    
   - A new Records Management page has been added, reachable from the preparation page.
     - Record definition files can be uploaded interactively 
       - Loading a file replaces the previous information from the same file.  We suggest you change the file names when you update the records, and that you clear previous versions explicitly using the buttons provided.
-      - If record definition files are found in `local/records`, they are  loaded on startup, and replace what was there under the same name.
+      - If record definition files are found in `local/records`, they are  loaded on startup. Beware that each file will replace what was previously loaded or uploaded under that same file name.
     - The ordering of the records on the scoreboard is no longer dependent on the file names, and is edited interactively.
 
   - Fix: Now able run simulations on fly.io (adjusted the parsing of the forwarding information)
-
+  
   - Fix: The lifting order screen would occasionally show a stretched athlete line instead of blank space
 
 ##### Highlights from recent stable releases
@@ -23,11 +25,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_39.0.0-beta00.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_39.0.0-beta01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_39.0.0-beta00.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_39.0.0-beta01.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
