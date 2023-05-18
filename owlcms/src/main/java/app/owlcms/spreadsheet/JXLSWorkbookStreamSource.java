@@ -343,6 +343,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 		jxlsExportRecords.setGroup(getGroup());
 		try {
 			jxlsExportRecords.getSortedAthletes();
+			// Must be called immediately after getSortedAthletes
 			List<RecordEvent> records = jxlsExportRecords.getRecords(getCategory());
 			getReportingBeans().put("records", records);
 		} catch (Exception e) {

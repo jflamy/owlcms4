@@ -9,12 +9,10 @@ package app.owlcms.spreadsheet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +36,8 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(JXLSExportRecords.class);
 	Group group;
-	private List<RecordEvent> bestRecords;
+	private List<RecordEvent> records;
+	//private List<RecordEvent> bestRecords;
 
 	public JXLSExportRecords(Group group, boolean excludeNotWeighed, UI ui) {
 		super();
@@ -92,35 +91,40 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 		}
 
 		String groupName = group != null ? group.getName() : null;
-		List<RecordEvent> records = RecordRepository.findFiltered(null, null, null, groupName, true);
+		records = RecordRepository.findFiltered(null, null, null, groupName, true);
 		records.sort(sortRecords());
 
-		// keep best record if beaten several times
-		RecordEvent[] best = records.toArray(new RecordEvent[0]);
-		RecordEvent prev = null;
-		for (int i = best.length - 1; i >= 0; i--) {
-			if (best[i].sameRecordAs(prev)) {
-				prev = best[i];
-				best[i] = null;
-			} else {
-				prev = best[i];
-			}
-		}
-
-		bestRecords = Arrays.stream(best).filter(re -> re != null).collect(Collectors.toList());
-
-		if (!bestRecords.isEmpty()) {
-			reportingBeans.put("records", bestRecords);
-		}
+//		// keep best record if beaten several times
+//		RecordEvent[] best = records.toArray(new RecordEvent[0]);
+//		RecordEvent prev = null;
+//		for (int i = best.length - 1; i >= 0; i--) {
+//			if (best[i].sameRecordAs(prev)) {
+//				prev = best[i];
+//				best[i] = null;
+//			} else {
+//				prev = best[i];
+//			}
+//		}
+//		bestRecords = Arrays.stream(best).filter(re -> re != null).collect(Collectors.toList());
+//		if (!bestRecords.isEmpty()) {
+//			reportingBeans.put("records", bestRecords);
+//		}
+		reportingBeans.put("records", records);
 		return athletes;
 	}
 
+	/**
+	 * Must be called immediately after getSortedAthletes due to reliance on "records" variable side-effect.
+	 * 
+	 * @param cat
+	 * @return
+	 */
 	public List<RecordEvent> getRecords(Category cat) {
 		if (cat == null) {
-			return bestRecords.isEmpty() ? null : bestRecords;
+			return records.isEmpty() ? null : records;
 		}
 		List<RecordEvent> catRecords = new ArrayList<>();
-		for (RecordEvent record : bestRecords) {
+		for (RecordEvent record : records) {
 			Integer athleteAge = record.getAthleteAge();
 			Double athleteBW = record.getAthleteBW();
 			if (record.getGender() == cat.getGender()
