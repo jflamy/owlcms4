@@ -2,6 +2,8 @@
 
 - 39.0 Changes
 
+  - 39.0.0-beta01: Danish, Portuguese, Hungarian, Romanian, Russian translation updates.
+    
   - A new Records Management page has been added, reachable from the preparation page.
     - Record definition files can be uploaded interactively 
       - Loading a file replaces the previous information from the same file.  We suggest you change the file names when you update the records, and that you clear previous versions explicitly using the buttons provided.
@@ -9,7 +11,7 @@
     - The ordering of the records on the scoreboard is no longer dependent on the file names, and is edited interactively.
 
   - Fix: Now able run simulations on fly.io (adjusted the parsing of the forwarding information)
-
+  
   - Fix: The lifting order screen would occasionally show a stretched athlete line instead of blank space
 
 ##### Highlights from recent stable releases
