@@ -48,7 +48,9 @@ public class RecordFilter {
 		TreeMap<String, String> rowOrder = new TreeMap<>();
 		for (RecordEvent re : displayedRecords) {
 			// rows are ordered according to configuration
+			
 			String order = getRowOrder(re.getRecordName(), re.getFileName());
+			
 			rowOrder.put(order , re.getRecordName());
 			// synthetic key to arrange records in correct column.
 			recordsByAgeWeight.put((re.getGender().ordinal() * 100000000) + re.getAgeGrpLower() * 1000000
@@ -205,7 +207,27 @@ public class RecordFilter {
 	}
 
 	public static List<RecordEvent> computeEligibleRecordsForAthlete(Athlete curAthlete) {
+		Collection<RecordEvent> candidateRecords = computeDisplayableRecordsForAthlete(curAthlete);
+		return filterEligibleRecordsForAthlete(curAthlete, candidateRecords);
+	}
 
+	public static List<RecordEvent> filterEligibleRecordsForAthlete(Athlete curAthlete,
+	        Collection<RecordEvent> candidateRecords) {
+		List<RecordEvent> records;
+		//logger.debug("candidate records {}", candidateRecords);
+		String federationCodes = curAthlete.getFederationCodes();
+		Set<String> athleteFederations = (federationCodes == null || federationCodes.isBlank())
+		        ? Set.of()
+		        : new HashSet<>(Arrays.asList(federationCodes.split("[,;]")));
+		//logger.debug(" *** athlete {} agegroups {} federations {}", curAthlete.getShortName(), curAthlete.getEligibleCategories(), athleteFederations);
+		records = candidateRecords.stream()
+		        .filter(c -> athleteFederations.isEmpty() ? true : athleteFederations.contains(c.getRecordFederation()))
+		        .collect(Collectors.toList());
+		//logger.debug("retained records {}", records);
+		return records;
+	}
+
+	public static List<RecordEvent> computeDisplayableRecordsForAthlete(Athlete curAthlete) {
 		List<RecordEvent> records = RecordRepository.findFiltered(curAthlete.getGender(), curAthlete.getAge(),
 		        curAthlete.getBodyWeight(), null, null);
 		//logger.debug("records size {} {} {} {}", curAthlete.getGender(), curAthlete.getAge(), curAthlete.getBodyWeight(),records);
@@ -221,19 +243,7 @@ public class RecordFilter {
 				//logger.debug("DISCARDING {} {}", r.getKey(), r.getRecordValue());
 			}
 		}
-
-		Collection<RecordEvent> candidateRecords = cleanMap.values();
-		//logger.debug("candidate records {}", candidateRecords);
-		String federationCodes = curAthlete.getFederationCodes();
-		Set<String> athleteFederations = (federationCodes == null || federationCodes.isBlank())
-		        ? Set.of()
-		        : new HashSet<>(Arrays.asList(federationCodes.split("[,;]")));
-		//logger.debug(" *** athlete {} agegroups {} federations {}", curAthlete.getShortName(), curAthlete.getEligibleCategories(), athleteFederations);
-		records = candidateRecords.stream()
-		        .filter(c -> athleteFederations.isEmpty() ? true : athleteFederations.contains(c.getRecordFederation()))
-		        .collect(Collectors.toList());
-		//logger.debug("retained records {}", records);
-		return records;
+		return new ArrayList<RecordEvent>(cleanMap.values());
 	}
 
 }

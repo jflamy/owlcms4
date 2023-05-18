@@ -16,12 +16,13 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 import app.owlcms.apputils.JpaJsonConverter;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 @Entity
 public class RecordConfig {
 
-	Logger logger = (Logger) LoggerFactory.getLogger(RecordConfig.class);
+	static Logger logger = (Logger) LoggerFactory.getLogger(RecordConfig.class);
 
 	public RecordConfig() {
 		this.recordOrder = new ArrayList<String>();
@@ -57,7 +58,8 @@ public class RecordConfig {
 	}
 
 	public static RecordConfig getCurrent() {
-		return JPAService.runInTransaction(em -> em.find(RecordConfig.class, 1l));
+		RecordConfig current = JPAService.runInTransaction(em -> em.find(RecordConfig.class, 1l));
+		return current;
 	}
 
 	public void addMissing(List<String> findAllRecordNames) {

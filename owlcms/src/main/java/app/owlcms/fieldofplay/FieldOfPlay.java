@@ -220,11 +220,13 @@ public class FieldOfPlay {
 
 	private Athlete athleteUnderReview;
 
-	Map<Athlete, List<RecordEvent>> recordsByAthlete = new HashMap<>();
+	Map<Athlete, List<RecordEvent>> displayableRecordsByAthlete = new HashMap<>();
+	Map<Athlete, List<RecordEvent>> eligibleRecordsByAthlete = new HashMap<>();
 
 	Set<RecordEvent> groupRecords = new HashSet<>();
 
 	private boolean showAllGroupRecords;
+	private boolean showInformationalRecords;
 
 	private boolean clockStoppedDecisionsAllowed;
 
@@ -272,6 +274,11 @@ public class FieldOfPlay {
 	public boolean computeShowAllGroupRecords() {
 		boolean forced = Config.getCurrent().featureSwitch("forceAllGroupRecords");
 		return forced || showAllGroupRecords;
+	}
+
+	public boolean computeShowInformationalRecords() {
+		boolean forced = Config.getCurrent().featureSwitch("forceInformationalRecords");
+		return forced || showInformationalRecords;
 	}
 
 	/**
@@ -674,7 +681,7 @@ public class FieldOfPlay {
 			if (Objects.equals(oldGroup, newGroup)) {
 				loadGroup(newGroup, this, true);
 //				if (inBreak) {
-					pushOutSwitchGroup(e.getOrigin());
+				pushOutSwitchGroup(e.getOrigin());
 //				} else {
 //					// start lifting.
 //					transitionToLifting(e, newGroup, inBreak);
@@ -1005,6 +1012,10 @@ public class FieldOfPlay {
 		return showAllGroupRecords;
 	}
 
+	public boolean isShowInformationalRecords() {
+		return showInformationalRecords;
+	}
+
 	public boolean isTestingMode() {
 		return testingMode;
 	}
@@ -1115,11 +1126,9 @@ public class FieldOfPlay {
 		Integer totalRequest = attemptsDone >= 3 && bestSnatch != null && bestSnatch > 0 ? (bestSnatch + request)
 		        : null;
 
-		List<RecordEvent> eligibleRecords = recordsByAthlete.get(curAthlete);
-//        logger.debug("============== groupRecords {}", groupRecords.size());
-//        for (RecordEvent rec : groupRecords) {
-//            logger.debug("group record {}", rec);
-//        }
+		List<RecordEvent> eligibleRecords = eligibleRecordsByAthlete.get(curAthlete);
+		List<RecordEvent> displayableRecords = displayableRecordsByAthlete.get(curAthlete);
+		boolean computeShowInformationalRecords = computeShowInformationalRecords(eligibleRecords, displayableRecords);
 		List<RecordEvent> challengedRecords = RecordFilter.computeChallengedRecords(
 		        eligibleRecords,
 		        snatchRequest,
@@ -1127,7 +1136,8 @@ public class FieldOfPlay {
 		        totalRequest);
 
 		JsonValue recordsJson = RecordFilter.buildRecordJson(
-		        computeShowAllGroupRecords() ? new ArrayList<>(groupRecords) : eligibleRecords,
+		        computeShowAllGroupRecords() ? new ArrayList<>(groupRecords)
+		                : (computeShowInformationalRecords ? displayableRecords : eligibleRecords),
 		        new HashSet<>(challengedRecords), snatchRequest, cjRequest,
 		        totalRequest, curAthlete);
 		setRecordsJson(recordsJson);
@@ -1251,6 +1261,10 @@ public class FieldOfPlay {
 		this.showAllGroupRecords = showAllGroupRecords;
 	}
 
+	public void setShowInformationalRecords(boolean showInformationalRecords) {
+		this.showInformationalRecords = showInformationalRecords;
+	}
+
 	/**
 	 * @param testingMode true if we don't want wait delays during testing.
 	 */
@@ -1355,6 +1369,25 @@ public class FieldOfPlay {
 			wakeUpRef.interrupt();
 		}
 		wakeUpRef = null;
+	}
+
+	private boolean computeShowInformationalRecords(List<RecordEvent> eligibleRecords,
+	        List<RecordEvent> displayableRecords) {
+		boolean computeShowInformationalRecords = computeShowInformationalRecords();
+//		if (computeShowInformationalRecords) {
+//			logger.debug(" ---- displayableRecords {} {}", computeShowInformationalRecords,
+//			        displayableRecords.size());
+//			for (RecordEvent rec : displayableRecords) {
+//				logger.debug("displayableRecord {}", rec);
+//			}
+//		} else {
+//			logger.debug(" ---- eligibleRecords {} {}", computeShowInformationalRecords,
+//					eligibleRecords.size());
+//			for (RecordEvent rec : eligibleRecords) {
+//				logger.debug("eligibleRecord {}", rec);
+//			}
+//		}
+		return computeShowInformationalRecords;
 	}
 
 	private void createNewRecordEvent(Athlete a, List<RecordEvent> newRecords, RecordEvent rec, Double value) {
@@ -1888,12 +1921,12 @@ public class FieldOfPlay {
 				int r = a.getSnatchRank();
 				return r <= 3 && r > 0;
 			}).collect(Collectors.toList());
-			//logger.debug("snatch medalists {}", snatchMedalists);
+			// logger.debug("snatch medalists {}", snatchMedalists);
 			List<Athlete> totalMedalists = medalists.stream().filter(a -> {
 				int r = a.getTotalRank();
 				return r <= 3 && r > 0;
 			}).collect(Collectors.toList());
-			//logger.debug("total medalists {}", totalMedalists);
+			// logger.debug("total medalists {}", totalMedalists);
 
 			if (!isCjStarted()) {
 				setLeaders(snatchMedalists);
@@ -2016,12 +2049,15 @@ public class FieldOfPlay {
 	}
 
 	private void recomputeRecordsMap(List<Athlete> athletes) {
-		//logger.debug("recompute record map");
+		// logger.debug("recompute record map");
 		groupRecords.clear();
 		for (Athlete a : athletes) {
-			List<RecordEvent> eligibleRecords = RecordFilter.computeEligibleRecordsForAthlete(a);
-			//logger.debug("athlete {} {}",a, eligibleRecords);
-			recordsByAthlete.put(a, eligibleRecords);
+			List<RecordEvent> displayableRecords = RecordFilter.computeDisplayableRecordsForAthlete(a);
+			displayableRecordsByAthlete.put(a, displayableRecords);
+
+			List<RecordEvent> eligibleRecords = RecordFilter.filterEligibleRecordsForAthlete(a, displayableRecords);
+			// logger.debug("athlete {} {}",a, eligibleRecords);
+			eligibleRecordsByAthlete.put(a, eligibleRecords);
 			groupRecords.addAll(eligibleRecords);
 		}
 	}
