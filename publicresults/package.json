@@ -355,12 +355,12 @@
     "@vaadin/vaadin-virtual-list": "$@vaadin/vaadin-virtual-list",
     "@vaadin/vertical-layout": "$@vaadin/vertical-layout",
     "@vaadin/virtual-list": "$@vaadin/virtual-list",
-    "@polymer/iron-icons": "$@polymer/iron-icons",
-    "@polymer/iron-media-query": "$@polymer/iron-media-query",
-    "@polymer/polymer": "$@polymer/polymer",
-    "construct-style-sheets-polyfill": "$construct-style-sheets-polyfill",
     "@vaadin/common-frontend": "$@vaadin/common-frontend",
+    "construct-style-sheets-polyfill": "$construct-style-sheets-polyfill",
     "lit": "$lit",
-    "date-fns": "$date-fns"
+    "@polymer/polymer": "$@polymer/polymer",
+    "@polymer/iron-icons": "$@polymer/iron-icons",
+    "date-fns": "$date-fns",
+    "@polymer/iron-media-query": "$@polymer/iron-media-query"
   }
 }
