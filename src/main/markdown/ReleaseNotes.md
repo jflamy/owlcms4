@@ -2,16 +2,18 @@
 
 - 39.0 Changes
 
-  - 39.0.0-beta01: Danish, Portuguese, Hungarian, Romanian, Russian translation updates.
+  - The records listing included on the Excel reports now shows when a record has been broken multiple times (as opposed to only the last record set)
     
   - A new Records Management page has been added, reachable from the preparation page.
     - Record definition files can be uploaded interactively 
       - Loading a file replaces the previous information from the same file.  We suggest you change the file names when you update the records, and that you clear previous versions explicitly using the buttons provided.
       - If record definition files are found in `local/records`, they are  loaded on startup. Beware that each file will replace what was previously loaded or uploaded under that same file name.
     - The ordering of the records on the scoreboard is no longer dependent on the file names, and is edited interactively.
-
-  - Fix: Now able run simulations on fly.io (adjusted the parsing of the forwarding information)
-  
+    - Options have been added to
+      - show all the records for all age groups/categories in the session
+      - show all the records for all the federations, whether eligible to be broken or not. In a National championship, one could load IWF records and indicate the national federation for all athletes. In this way, the IWF records could be visible, but not improved.
+    - Fix: Now able run simulations on fly.io (adjusted the parsing of the forwarding information)
+    
   - Fix: The lifting order screen would occasionally show a stretched athlete line instead of blank space
 
 ##### Highlights from recent stable releases
