@@ -31,6 +31,10 @@ public class RecordConfig {
 
 	public static RecordConfig getCurrent() {
 		current = JPAService.runInTransaction(em -> em.find(RecordConfig.class, 1L));
+		if (current == null) {
+			current = new RecordConfig();
+			setCurrent(current);
+		}
 		if (current.getShowAllCategoryRecords() == null) {
 			current.setShowAllCategoryRecords(false);
 		}

@@ -54,6 +54,7 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.data.records.RecordConfig;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordFilter;
 import app.owlcms.fieldofplay.FOPEvent.BarbellOrPlatesChanged;
@@ -270,14 +271,12 @@ public class FieldOfPlay {
 
 	public boolean computeShowAllGroupRecords() {
 		boolean forced = Config.getCurrent().featureSwitch("forceAllGroupRecords");
-		return forced;
-				//|| Boolean.TRUE.equals(RecordConfig.getCurrent().isShowAllCategoryRecords());
+		return forced || Boolean.TRUE.equals(RecordConfig.getCurrent().getShowAllCategoryRecords());
 	}
 
 	public boolean computeShowInformationalRecords() {
 		boolean forced = Config.getCurrent().featureSwitch("forceAllFederationRecords");
-		return forced;
-		//|| Boolean.TRUE.equals(RecordConfig.getCurrent().isShowAllFederations());
+		return forced || Boolean.TRUE.equals(RecordConfig.getCurrent().getShowAllFederations());
 	}
 
 	/**
