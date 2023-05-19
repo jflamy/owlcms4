@@ -9,10 +9,10 @@
       - Loading a file replaces the previous information from the same file.  We suggest you change the file names when you update the records, and that you clear previous versions explicitly using the buttons provided.
       - If record definition files are found in `local/records`, they are  loaded on startup. Beware that each file will replace what was previously loaded or uploaded under that same file name.
     - The ordering of the records on the scoreboard is no longer dependent on the file names, and is edited interactively.
-    - Options have been added to
-      - show all the records for all age groups/categories in the session
-      - show all the records for all the federations, whether eligible to be broken or not. In a National championship, one could load IWF records and indicate the national federation for all athletes. In this way, the IWF records could be visible, but not improved.
-    - Fix: Now able run simulations on fly.io (adjusted the parsing of the forwarding information)
+    - Checkbox options have been added to
+      - show the records for all age groups/categories in the session instead of the current athlete only
+      - show the record rows for all records, whether eligible to be broken by the current athlete or not.  By putting the correct federation tags on athletes, additional records (IWF, Continental) can be shown for information but only the eligible ones will be broken.
+    - Fix: Now able to run simulations on fly.io (adjusted the parsing of the forwarding information)
     
   - Fix: The lifting order screen would occasionally show a stretched athlete line instead of blank space
   
