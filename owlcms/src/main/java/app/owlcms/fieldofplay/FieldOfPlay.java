@@ -225,9 +225,6 @@ public class FieldOfPlay {
 
 	Set<RecordEvent> groupRecords = new HashSet<>();
 
-	private boolean showAllGroupRecords;
-	private boolean showInformationalRecords;
-
 	private boolean clockStoppedDecisionsAllowed;
 
 	private Group videoGroup;
@@ -273,12 +270,14 @@ public class FieldOfPlay {
 
 	public boolean computeShowAllGroupRecords() {
 		boolean forced = Config.getCurrent().featureSwitch("forceAllGroupRecords");
-		return forced || showAllGroupRecords;
+		return forced;
+				//|| Boolean.TRUE.equals(RecordConfig.getCurrent().isShowAllCategoryRecords());
 	}
 
 	public boolean computeShowInformationalRecords() {
-		boolean forced = Config.getCurrent().featureSwitch("forceInformationalRecords");
-		return forced || showInformationalRecords;
+		boolean forced = Config.getCurrent().featureSwitch("forceAllFederationRecords");
+		return forced;
+		//|| Boolean.TRUE.equals(RecordConfig.getCurrent().isShowAllFederations());
 	}
 
 	/**
@@ -1005,17 +1004,6 @@ public class FieldOfPlay {
 		return refereeForcedDecision;
 	}
 
-	/**
-	 * @return the showAllGroupRecords
-	 */
-	public boolean isShowAllGroupRecords() {
-		return showAllGroupRecords;
-	}
-
-	public boolean isShowInformationalRecords() {
-		return showInformationalRecords;
-	}
-
 	public boolean isTestingMode() {
 		return testingMode;
 	}
@@ -1255,14 +1243,6 @@ public class FieldOfPlay {
 
 	public void setRefereeTime(Long[] refereeTime) {
 		this.refereeTime = refereeTime;
-	}
-
-	public void setShowAllGroupRecords(boolean showAllGroupRecords) {
-		this.showAllGroupRecords = showAllGroupRecords;
-	}
-
-	public void setShowInformationalRecords(boolean showInformationalRecords) {
-		this.showInformationalRecords = showInformationalRecords;
 	}
 
 	/**

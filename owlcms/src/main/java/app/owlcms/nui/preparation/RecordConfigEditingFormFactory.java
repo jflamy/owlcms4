@@ -13,6 +13,7 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
@@ -21,6 +22,9 @@ import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
@@ -28,9 +32,9 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Binder.Binding;
+import com.vaadin.flow.data.binder.ValidationException;
 
 import app.owlcms.components.fields.GridField;
-import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.records.RecordConfig;
 import app.owlcms.data.records.RecordDefinitionReader;
 import app.owlcms.data.records.RecordEvent;
@@ -48,7 +52,7 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		private Runnable callback;
 
 		public LoadedRecordsField(Runnable callback) {
-			super(false);
+			super(false, Translator.translate("Records.NoFiles", Translator.translate("Records.UploadButton")));
 			this.callback = callback;
 		}
 
@@ -94,7 +98,13 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 
 	@Override
 	public RecordConfig update(RecordConfig domainObjectToUpdate) {
-		return JPAService.runInTransaction(em -> em.merge(domainObjectToUpdate));
+		try {
+			binder.writeBean(domainObjectToUpdate);
+		} catch (ValidationException e) {
+			throw new RuntimeException("Cannot update RecordConfig {}",e);
+		}
+		recordConfig = RecordConfig.setCurrent(domainObjectToUpdate);
+		return recordConfig;
 	}
 
 	@Override
@@ -171,7 +181,12 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 			        }
 		        });
 		MemoryBuffer receiver = new MemoryBuffer();
+		
+		Button uploadButton = new Button(Translator.translate("Records.UploadButton"));
+		uploadButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		Upload uploadRecords = new Upload(receiver);
+		uploadRecords.setUploadButton(uploadButton);
+		uploadRecords.setDropLabel(new Label(Translator.translate("Records.UploadDropZone")));
 		uploadRecords.addSucceededListener(e -> {
 			RecordDefinitionReader.readInputStream(receiver.getInputStream(), receiver.getFileName());
 			UI.getCurrent().getPage().reload();
@@ -206,24 +221,37 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 	}
 
 	private FormLayout recordOrderForm() {
-		Button update = new Button(Translator.translate("Update"));
+		Button update = new Button(Translator.translate("Records.UpdateDisplayOptions"));
 		update.addClickListener((e) -> this.update(recordConfig));
 		update.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		VerticalLayout updateContainer = new VerticalLayout(update);
+		updateContainer.setAlignSelf(Alignment.END, update);
+		
 		
 		FormLayout recordsOrderLayout = createLayout();
-		Component title = createTitle("Records.OrderingSection");
+		Component title = createTitle("Records.DisplayOptions");
 		recordsOrderLayout.add(title);
-		recordsOrderLayout.setColspan(title, 2);
+		recordsOrderLayout.setColspan(title, 1);
+		
+		recordsOrderLayout.add(updateContainer);
 
-		orderingField = new GridField<String>(true);
-		orderingField.setWidth("50%");
-		orderingField.setMinWidth("15em");
+		orderingField = new GridField<String>(true, Translator.translate("Records.NoRecords", Translator.translate("Records.UploadButton")));
 		ofBinding = binder.forField(orderingField).bind(RecordConfig::getRecordOrder, RecordConfig::setRecordOrder);
 		
-		HorizontalLayout ordering = new HorizontalLayout(orderingField, update);
+		HorizontalLayout ordering = new HorizontalLayout(orderingField);
 		ordering.setSizeUndefined();
-
 		recordsOrderLayout.addFormItem(ordering, Translator.translate("Records.OrderingField"));
+		
+		recordsOrderLayout.add(new Paragraph());
+		
+		Checkbox showAllCategoriesField = new Checkbox();
+		binder.forField(showAllCategoriesField).bind(RecordConfig::getShowAllCategoryRecords, RecordConfig::setShowAllCategoryRecords);
+		recordsOrderLayout.addFormItem(showAllCategoriesField, Translator.translate("Records.AllCategories"));
+		
+		Checkbox showAllFederationsField = new Checkbox();
+		binder.forField(showAllFederationsField).bind(RecordConfig::getShowAllFederations, RecordConfig::setShowAllFederations);
+		recordsOrderLayout.addFormItem(showAllFederationsField, Translator.translate("Records.AllFederations"));
+		
 		return recordsOrderLayout;
 	}
 

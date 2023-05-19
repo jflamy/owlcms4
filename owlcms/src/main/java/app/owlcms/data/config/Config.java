@@ -79,10 +79,10 @@ public class Config {
 		});
 		
 		JPAService.runInTransaction(em -> {
-			RecordConfig f = em.find(RecordConfig.class, 1l);
+			RecordConfig f = RecordConfig.getCurrent();
 			if (f == null) {
-				RecordConfig rc = new RecordConfig(Arrays.asList());
-				em.persist(rc);
+				RecordConfig rc = new RecordConfig();
+				RecordConfig.setCurrent(rc);
 			}
 			return null;
 		});

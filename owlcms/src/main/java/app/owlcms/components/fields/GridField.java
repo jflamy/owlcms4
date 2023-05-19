@@ -16,10 +16,14 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.dnd.GridDropLocation;
 import com.vaadin.flow.component.grid.dnd.GridDropMode;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 
+import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -30,14 +34,22 @@ public class GridField<T> extends CustomField<List<T>> {
 	Logger logger = (Logger) LoggerFactory.getLogger(GridField.class);
 
 	protected Grid<T> grid;
+	protected Label message;
 
 	private List<T> presentationStrings = new ArrayList<>();
 
 	private Object draggedItem;
 
 	@SuppressWarnings("unchecked")
-	public GridField(List<T> rows, boolean draggable) {
+	public GridField(List<T> rows, boolean draggable, String messageString) {
 		super(new ArrayList<T>(rows));
+		
+		message = new Label();
+		message.setText(messageString);
+		//message.getStyle().set("background-color", "var(--lumo-error-color-10pct)");
+		message.getStyle().set("color", "red");
+		message.getStyle().set("margin-left", "1em");
+		
 		grid = new Grid<>();
 		createColumns();
 
@@ -80,7 +92,7 @@ public class GridField<T> extends CustomField<List<T>> {
 		this.setWidth("50em");
 
 		updatePresentation();
-		add(grid);
+		add(message,grid);
 
 	}
 
@@ -88,8 +100,8 @@ public class GridField<T> extends CustomField<List<T>> {
 		grid.addColumn(T::toString);
 	}
 
-	public GridField(boolean b) {
-		this(new ArrayList<T>(), b);
+	public GridField(boolean b, String messageString) {
+		this(new ArrayList<T>(), b, messageString);
 	}
 
 	@Override
@@ -98,8 +110,16 @@ public class GridField<T> extends CustomField<List<T>> {
 	}
 
 	private void updatePresentation() {
-		grid.setItems(presentationStrings);
-		grid.setSizeUndefined();
+		if (presentationStrings != null && presentationStrings.size() > 0) {
+			message.getStyle().set("display", "none");
+			grid.getStyle().set("display", "block");
+			grid.setItems(presentationStrings);
+			grid.setSizeUndefined();
+		} else {
+			message.getStyle().set("display", "block");
+			grid.getStyle().set("display", "none");
+		}
+
 	}
 
 	@Override
