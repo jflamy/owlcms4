@@ -15,10 +15,12 @@
     - Fix: Now able run simulations on fly.io (adjusted the parsing of the forwarding information)
     
   - Fix: The lifting order screen would occasionally show a stretched athlete line instead of blank space
+  
+  - Fix: The jury sheet had a hardcoded value instead of the session name.
 
 ##### Highlights from recent stable releases
 
-- Athlete challenge is now displayed and supported by the MQTT jury device.
+- The "Athlete Challenge" situation is now displayed and supported by the MQTT messages and the jury device.
 - We now recommend using [fly.io](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Fly) as the cloud installation is straightforward and owlcms can be run for free. Heroku is now deprecated as they have broken the easy install method and are no longer free.
 - The editing page used for athlete registration and weigh-in has been redone to be more readable and better organized.
 - The jury members can now vote again during a deliberation break. The decision lights are reset when deliberation starts so the post-video vote is a secret vote. 
