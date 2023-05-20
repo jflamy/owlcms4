@@ -2,6 +2,10 @@
 
 - 39.0 Changes
 
+  - 39.0.0-beta04: German, Danish, Romanian, Hungarian, Portuguese translations
+    
+  - 39.0.0-beta04: Added documentation for Records Management, moved to the Prepare Competition section.
+    
   - 39.0.0-beta03: When updating from a previous version the records row order information could be null, causing page errors
     
   - The records listing included on the Excel reports now shows when a record has been broken multiple times (as opposed to only the last record set)
