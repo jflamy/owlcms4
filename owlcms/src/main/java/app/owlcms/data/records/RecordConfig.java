@@ -35,6 +35,9 @@ public class RecordConfig {
 			current = new RecordConfig();
 			setCurrent(current);
 		}
+		if (current.getRecordOrder() == null) {
+			current.setRecordOrder(new ArrayList<String>());
+		}
 		if (current.getShowAllCategoryRecords() == null) {
 			current.setShowAllCategoryRecords(false);
 		}
