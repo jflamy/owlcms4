@@ -659,6 +659,17 @@ public class Group implements Comparable<Group> {
 		return AthleteRepository.findAllByGroupAndWeighIn(this, null).size();
 	}
 
+	public String fullDump() {
+		return "Group [name=" + name + ", platform=" + platform + ", description=" + description + ", weighInTime="
+		        + weighInTime + ", competitionTime=" + competitionTime + ", done=" + done + ", announcer=" + announcer
+		        + ", marshall=" + marshall + ", marshal2=" + marshal2 + ", referee1=" + referee1 + ", referee2="
+		        + referee2 + ", referee3=" + referee3 + ", weighIn1=" + weighIn1 + ", weighIn2=" + weighIn2
+		        + ", timeKeeper=" + timeKeeper + ", technicalController=" + technicalController
+		        + ", technicalController2=" + technicalController2 + ", jury1=" + jury1 + ", jury2=" + jury2
+		        + ", jury3=" + jury3 + ", jury4=" + jury4 + ", jury5=" + jury5 + ", logger=" + logger + ", reserve="
+		        + reserve + ", id=" + id + "]";
+	}
+
 	@Override
 	public String toString() {
 		return getName();
