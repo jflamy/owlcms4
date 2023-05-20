@@ -2,6 +2,10 @@
 
 - 39.0 Changes
 
+  - 39.0.0-beta04: German, Danish, Romanian, Hungarian, Portuguese translations
+    
+  - 39.0.0-beta04: Added documentation for Records Management, moved to the Prepare Competition section.
+    
   - 39.0.0-beta03: When updating from a previous version the records row order information could be null, causing page errors
     
   - The records listing included on the Excel reports now shows when a record has been broken multiple times (as opposed to only the last record set)
@@ -31,11 +35,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_39.0.0-beta03.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_39.0.0-beta04.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_39.0.0-beta03.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_39.0.0-beta04.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
