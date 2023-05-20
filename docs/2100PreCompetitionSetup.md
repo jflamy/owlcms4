@@ -82,9 +82,3 @@ However, in certain circumstances, this may not work (for example, some computer
 Notes:
 
 - if you need to produce sound from the main laptop for more than one platform, you will need one audio output per source.  The easiest way to add more (in addition to the audio headset jack) is to use an [*analog* USB converter](https://www.amazon.com/UGREEN-External-Headphone-Microphone-Desktops/dp/B01N905VOY/ref=lp_3015427011_1_5?s=pc&ie=UTF8&qid=1564421688&sr=1-5) -- do not use digital or wireless connections, they introduce perceptible lags and are needlessly expensive.  The various adapters available will appear in the list, you need to assign each platform with an adapter.
-
-## Clear Provisional Records
-
-During a meet, if new records are established, owlcms keeps a list so that it is easier for the competition secretary to perform updates after the meet.  Because it is always possible that owlcms is restarted (for example, due to a power outage) the records are kept in the database.
-
-When starting a new competition, you probably want to update the official record files, and clear records from previous meets.

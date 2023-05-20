@@ -9,6 +9,7 @@
   * [Registration](2200Registration)
   * [Edit Athlete Entries](2300EditAthleteEntries)
   * [Pre-competition Documents](2400PreCompetitionDocuments)
+  * [Records Management](2500RecordsManagement)
 * Running a Competition
   * [Weigh-in and Start Numbers](WeighIn)
   * [Announcing, Marshaling and Timekeeping](Announcing)
@@ -16,7 +17,6 @@
   * [Refereeing](Refereeing)
   * [Jury](Jury)
   * [Breaks and Ceremonies](Breaks)
-  * [Records](Records)
   * [Result Documents](Documents)
   * [Optional Modified Competition Rules](ModifiedRules)
 * Video Streaming
