@@ -145,6 +145,7 @@ public class RecordEvent {
 		        && Objects.equals(recordDate, other.recordDate)
 		        && Objects.equals(recordFederation, other.recordFederation) && recordLift == other.recordLift
 		        && Objects.equals(recordName, other.recordName) && Objects.equals(recordValue, other.recordValue)
+		        && Objects.equals(fileName, other.fileName)
 		        && recordYear == other.recordYear;
 	}
 
@@ -303,7 +304,7 @@ public class RecordEvent {
 	public int hashCode() {
 		return Objects.hash(ageGrp, ageGrpLower, ageGrpUpper, athleteName, birthDate, birthYear, bwCatLower,
 		        bwCatString, bwCatUpper, categoryString, event, eventLocation, gender, groupNameString, id, nation,
-		        recordDate, recordFederation, recordLift, recordName, recordValue, recordYear);
+		        recordDate, recordFederation, recordLift, recordName, recordValue, fileName, recordYear);
 	}
 
 	/**
