@@ -32,22 +32,35 @@ If there is a "use the Web CLI" button, click it, otherwise type https://fly.io/
 
    - Organization:  use the default `Personal` organization.
 
-   - Postgres Database: **IMPORTANT**, answer **y (YES)**  when asked if you want a Postgres database.  This is required for owlcms to store its data.
-
-   - Configuration of the Postgres database : Choose the default option  `Development`
-
+   - Postgres Database: 
+     - **IMPORTANT**, answer **y (YES)**  when asked if you want a Postgres database.  This is required for owlcms to store its data.
+   
+     - Configuration of the Postgres database : Choose the default option  `Development`
+   
+     - Stop after 1 hour:  Answer **n (No)**
+   
    - Upstash Redis : Answer **n (No)**
-
+   
    - Deploy immediately: Answer **y (Yes)** 
 
 
-3. We now request more memory for the machine. Click the grey box below to copy the command and paste it to the command line (use right-click on Windows, or ctrl-click on macOS, or the browser Edit menu)
-
+3. owlcms only works with one machine, but the launch command creates and associates two.  So we ***must*** remove one.
+   *Click the grey box below to copy the command and paste it to the command line (use right-click on Windows, or ctrl-click on macOS, or the browser Edit menu)*
+   
+   ```bash
+   fly machine destroy $(fly m list -q -a $APP | head -1)
    ```
-   fly machine update $(fly m list -a $APP -q) --memory 512 --app $APP --yes
+   
+3. We now request more CPU and more memory for the machine.  This remains under the minimal pricing for one month where you wont get billed. *Copy and paste the following command, as before*
+
+   ```bash
+   fly machine update -s shared-cpu-2x $(fly m list -q -a $APP) --yes
    ```
 
-   You are now done and can use https://myclub.fly.dev
+
+**You are now done and can use https://myclub.fly.dev**
+
+
 
 ### Updating for new releases
 

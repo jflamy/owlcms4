@@ -2,6 +2,10 @@
 
 - 39.0 Changes
 
+  - 39.9.0-beta05: css files and image files (such as flags) will be cached only for the duration of an application run. Restarting the application will cause the updated files to be fetched again, allowing updates without having to clear all the browser caches.
+    
+  - 39.0.0-beta05: Updated the fly.io documentation
+    
   - 39.0.0-beta04: German, Danish, Romanian, Hungarian, Portuguese translations
     
   - 39.0.0-beta04: Added documentation for Records Management, moved to the Prepare Competition section.
