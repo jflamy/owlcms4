@@ -552,11 +552,11 @@ public class FOPEvent {
 
 	static public class SummonReferee extends FOPEvent {
 
-		public int refNumber;
+		private int refNumber;
 
 		public SummonReferee(Object origin, int refNumber) {
 			super(origin);
-			this.refNumber = refNumber;
+			this.setRefNumber(refNumber);
 		}
 
 		@Override
@@ -568,15 +568,23 @@ public class FOPEvent {
 				return false;
 			}
 			SummonReferee other = (SummonReferee) obj;
-			return refNumber == other.refNumber;
+			return getRefNumber() == other.getRefNumber();
 		}
 
 		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = super.hashCode();
-			result = prime * result + Objects.hash(refNumber);
+			result = prime * result + Objects.hash(getRefNumber());
 			return result;
+		}
+
+		public int getRefNumber() {
+			return refNumber;
+		}
+
+		public void setRefNumber(int refNumber) {
+			this.refNumber = refNumber;
 		}
 
 	}

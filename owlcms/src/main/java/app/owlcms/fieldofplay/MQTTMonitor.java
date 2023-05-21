@@ -195,7 +195,7 @@ public class MQTTMonitor {
 				}
 				// do the actual summoning
 				if (fop != null) {
-					if (fop.getState() != FOPState.BREAK) {
+					if (fop.getState() != FOPState.BREAK && refIndex != 4) {
 						fop.fopEventPost(
 						        new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true,
 						                this));

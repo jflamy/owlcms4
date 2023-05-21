@@ -616,6 +616,7 @@ public class FieldOfPlay {
 
 		// it is always possible to explicitly interrupt competition (break between the
 		// two lifts, technical incident, etc.). Even switching break type is allowed.
+		
 		if (e instanceof FOPEvent.BreakStarted) {
 			// exception: wait until a decision has been registered to process jury
 			// deliberation.
@@ -627,16 +628,20 @@ public class FieldOfPlay {
 			}
 			return;
 		} else if (e instanceof SummonReferee) {
-			// Summoning a referee must trigger a break if not already done
-			if (state != DECISION_VISIBLE && state != DOWN_SIGNAL_VISIBLE) {
+			SummonReferee e2 = (SummonReferee) e;
+			if (e2.getRefNumber() == 4) {
+				// summoning TC does not trigger a break
+				doSummonReferee(e2);
+				return;
+			} else if (state != DECISION_VISIBLE && state != DOWN_SIGNAL_VISIBLE) {
+				// Summoning a referee must trigger a break if not already done
 				if (getBreakType() != null) {
-					// logger.debug("summoning");
-					doSummonReferee((SummonReferee) e);
+					doSummonReferee(e2);
 				} else {
 					transitionToBreak(
 					        new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, null, null, true,
 					                e.getOrigin()));
-					doSummonReferee((SummonReferee) e);
+					doSummonReferee(e2);
 				}
 				return;
 			}
@@ -760,7 +765,7 @@ public class FieldOfPlay {
 			} else if (e instanceof JuryDecision) {
 				doJuryDecision((JuryDecision) e);
 			} else if (e instanceof SummonReferee) {
-				doSummonReferee((SummonReferee) e);
+				doSummonReferee((SummonReferee)e);
 			} else if (e instanceof DecisionReset) {
 				doDecisionReset(e);
 			} else {
@@ -1486,7 +1491,7 @@ public class FieldOfPlay {
 	}
 
 	private void doSummonReferee(SummonReferee e) {
-		if (e.refNumber >= 4) {
+		if (e.getRefNumber() >= 4) {
 			JuryNotification event = new UIEvent.JuryNotification(null, e.getOrigin(),
 			        JuryDeliberationEventType.CALL_TECHNICAL_CONTROLLER, null, null);
 			getUiEventBus().post(event);
@@ -1495,7 +1500,7 @@ public class FieldOfPlay {
 			        null, null);
 			getUiEventBus().post(event);
 		}
-		getUiEventBus().post(new UIEvent.SummonRef(e.refNumber, true, this));
+		getUiEventBus().post(new UIEvent.SummonRef(e.getRefNumber(), true, this));
 	}
 
 	private void doTONotifications(BreakType newBreak) {
@@ -2382,6 +2387,7 @@ public class FieldOfPlay {
 		boolean indefinite = breakTimer.isIndefinite();
 		this.ceremonyType = null;
 
+		logger.warn("transitionToBreak {}",LoggerUtils.stackTrace());
 		doTONotifications(newBreak);
 
 		if (state == BREAK) {
