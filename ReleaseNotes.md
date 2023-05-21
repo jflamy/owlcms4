@@ -2,18 +2,14 @@
 
 - 39.0 Changes
 
-  - 39.9.0-beta05: css files and image files (such as flags) will be cached only for the duration of an application run. Restarting the application will cause the updated files to be fetched again, allowing updates without having to clear all the browser caches.
-    
-  - 39.0.0-beta05: Updated the fly.io documentation
-    
-  - 39.0.0-beta04: German, Danish, Romanian, Hungarian, Portuguese translations
-    
-  - 39.0.0-beta04: Added documentation for Records Management, moved to the Prepare Competition section.
-    
-  - 39.0.0-beta03: When updating from a previous version the records row order information could be null, causing page errors
-    
-  - The records listing included on the Excel reports now shows when a record has been broken multiple times (as opposed to only the last record set)
-    
+  - 39.9.0-beta06: Jury summoning the technical controller can be done at any time and no longer automatically starts a break
+  
+  - 39.9.0-beta06: updated [Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly) cloud installation instructions to track their recent changes
+  
+    ------
+  
+  - css files and image files (such as flags and pictures) will be cached only for the duration of a single application run. Restarting the application will cause the updated files to be fetched again. This will allow changing style sheets and images without having to clear all the browser caches.
+  
   - A new Records Management page has been added, reachable from the preparation page.
     - Record definition files can be uploaded interactively 
       - Loading a file replaces the previous information from the same file.  We suggest you change the file names when you update the records, and that you clear previous versions explicitly using the buttons provided.
@@ -23,7 +19,9 @@
       - show the records for all age groups/categories in the session instead of the current athlete only
       - show the record rows for all records, whether eligible to be broken by the current athlete or not.  By putting the correct federation tags on athletes, additional records (IWF, Continental) can be shown for information but only the eligible ones will be broken.
     - Fix: Now able to run simulations on fly.io (adjusted the parsing of the forwarding information)
-    
+  
+  - Fix: The records listed on the Excel reports now shows when a record has been broken multiple times (as opposed to only the last record set)
+  
   - Fix: The lifting order screen would occasionally show a stretched athlete line instead of blank space
   
   - Fix: The jury sheet had a hardcoded value instead of the session name.
@@ -39,11 +37,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_39.0.0-beta05.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_39.0.0-beta06.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_39.0.0-beta05.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_39.0.0-beta06.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
