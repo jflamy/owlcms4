@@ -33,6 +33,8 @@ public class StartupUtils {
     private static String buildTimestamp;
     private static String version;
 
+    static long firstAccess = 0;
+    
     public static void disableWarning() {
     }
 
@@ -124,7 +126,7 @@ public class StartupUtils {
     }
 
     public static String getAutoVersion() {
-        return "_" + getVersion();
+        return "_" + firstAccess; //getVersion();
     }
 
     public static boolean isDebugSetting() {
@@ -138,6 +140,7 @@ public class StartupUtils {
     }
 
     public static void logStart(String appName, Integer serverPort) throws IOException, ParseException {
+        firstAccess = System.currentTimeMillis();
         InputStream in = StartupUtils.class.getResourceAsStream("/build.properties");
         Properties props = new Properties();
         props.load(in);
