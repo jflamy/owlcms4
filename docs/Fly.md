@@ -1,4 +1,4 @@
-# Installation on fly.io
+## Installation on fly.io
 
 Fly.io is a cloud service that is, in effect, free. The charges incurred for a single owlcms application and the matching remote scoreboard are about 1US$ per month, cheaper than the minimal amount for which they emit a bill.
 
@@ -24,43 +24,41 @@ If there is a "use the Web CLI" button, click it, otherwise type https://fly.io/
    export APP=myclub
    ```
 
-2. Click on the grey box below to copy the command.  Paste it to the command line interface (use right-click on Windows, or ctrl-click on macOS, or the browser Edit menu)
-
+2. Create the application.
+   *Click on the grey box below to copy the command.  Paste it to the command line interface (use right-click on Windows, or ctrl-click on macOS, or the browser Edit menu)*
+   
    ```
-   fly launch --name $APP -i owlcms/owlcms:stable --force-machines
+   fly app create --name $APP 
+   ```
+   
+   - Organization:  use the default `Personal` organization.
+
+
+3. Create the database that will store the competition information (*click on the box to copy, right-click to paste*)
+
+   ```bash
+   fly postgres create --name $APP-db
    ```
 
    - Organization:  use the default `Personal` organization.
 
-   - Postgres Database: 
-     - **IMPORTANT**, answer **y (YES)**  when asked if you want a Postgres database.  This is required for owlcms to store its data.
-   
-     - Configuration of the Postgres database : Choose the default option  `Development`
-   
-     - Stop after 1 hour:  Answer **n (No)**
-   
-   - Upstash Redis : Answer **n (No)**
-   
-   - Deploy immediately: Answer **y (Yes)** 
+   - Configuration of the Postgres database : Choose the default option  `Development`
 
+   - Stop after 1 hour:  Answer **n (No)** 
 
-3. owlcms only works with one machine, but the launch command creates and associates two.  So we ***must*** remove one.
-   *Click the grey box below to copy the command and paste it to the command line (use right-click on Windows, or ctrl-click on macOS, or the browser Edit menu)*
-   
-   ```bash
-   fly machine destroy $(fly m list -q -a $APP | head -1)
-   ```
-   
-3. We now request more CPU and more memory for the machine.  This remains under the minimal pricing for one month where you wont get billed. *Copy and paste the following command, as before*
+3. Link the database to the application
 
    ```bash
-   fly machine update -s shared-cpu-2x $(fly m list -q -a $APP) --yes
+   fly postgres attach $APP-db --app $APP
    ```
 
+5. Start the application with the proper size
+
+   ```bash
+   fly deploy --ha=false --vm-size shared-cpu-2x --app $APP
+   ```
 
 **You are now done and can use https://myclub.fly.dev**
-
-
 
 ### Updating for new releases
 
@@ -72,7 +70,7 @@ To update to the latest stable version, log in again to https://fly.io/terminal 
 fly deploy -i owlcms/owlcms:stable -a myclub
 ```
 
-### Advanced topics
+## Advanced topics
 
 #### (Optional) Install the public results scoreboard
 
@@ -83,12 +81,13 @@ This is not required, but since there is no extra cost associated, you might as 
 1. Install public results.
 
    - Choose a meaningful application name.  In our example we use `myclub-results` with the name you want for your remote scoreboard application
-   - **Answer `n` (NO)** when asked if you want a Postgres database.  publicresults does not need a database.
+   - If asked, do NOT copy  existing TOML files
+   - Use the default personal environment when asked
 
    ```
-   fly launch -i owlcms/publicresults:stable --name myclub-results
+   fly app create --name $APP-results
    ```
-
+   
 2. The two applications (owlcms and publicresults) need to trust one another. So we create a secret phrase and configure both applications to use it. See [this page](PublicResults) for an overview of how owlcms and publicresults work together.
 
    > OWLCMS_UPDATEKEY is the setting name for the secret, and `MaryHadALittleLamb` is the secret phrase.  **Please use your own secret!** 
@@ -97,17 +96,28 @@ This is not required, but since there is no extra cost associated, you might as 
    >
 
     ```
-    fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app myclub-results
-    fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app myclub
+    fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app $APP-results
+    fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app $APP
     ```
 
-3. The last step is to tell owlcms where the results publishing application resides so it can feed it with results.
+3. owlcms also needs to know where public results is in order to send it updates.  Use the correct name for your publicresults app.
 
-      > Replace `myclub` and `myclub-results` with your own names
+   ```
+   fly secrets set OWLCMS_REMOTE=https://$APP-results.fly.dev --app $APP
+   ```
+      
+4. Start public results with a correct dimensioning.
 
-    ```
-    fly secrets set OWLCMS_REMOTE=https://myclub-results.fly.dev --app myclub-results
-    ```
+      - If asked, do NOT copy an existing TOML file
+      - Use the personal environment when asked
+      
+      ```
+      fly deploy --ha=false --vm-size shared-cpu-2x --app $APP-results
+      ```
+
+**You are now done and can use https://myclub-results.fly.dev**
+
+
 
 ### Updating publicresults for new releases
 
@@ -129,31 +139,4 @@ Note that if you own your own domain, you can add names under your own domain to
 
 ### Scale-up and Scale-down of owlcms
 
-If you run a very large competition, you may wish to increase the memory for the duration of the competition. You would use the same commands as above (`fly machine update`) to set the memory to `1024` and after the competition you would set it back to `512`.
-
-### Attach to Postgres DB manually
-
-If for some reason if your application is not attached to Postgres DB, the internal H2 database will be used and data will be lost when server is restarted. 
-
-You can follow the below steps to attach your application to the postgres DB:
-
-1. If you have data in the H2 database and need to keep it, export the database from the "Prepare Competition" page
-2. Create a postgres DB if you didn't create it before
-
-```
-fly postgres create myclub-db
-```
-
-3. Attach the application to the database
-
-```
-fly postgres attach myclub-db --app myclub --database-name myclub-db --database-user owlcms
-```
-
-4. Restart the application
-
-```
-fly deploy --app myclub
-```
-
-5. Reload the database export, if you created one at step 1.
+If you run a very large competition, you may wish to increase the memory to 1024 or to use a dedicated CPU.
