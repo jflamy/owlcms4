@@ -2,6 +2,8 @@
 
 - 39.0 Changes
 
+  - 39.9.0-beta07: Improved error checking for age boundaries when loading registration data files.
+  
   - 39.9.0-beta06: Jury summoning the technical controller can be done at any time and no longer automatically starts a break
   
   - 39.9.0-beta06: updated [Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly) cloud installation instructions to track their recent changes
@@ -37,11 +39,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_39.0.0-beta06.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_39.0.0-beta07.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_39.0.0-beta06.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_39.0.0-beta07.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
