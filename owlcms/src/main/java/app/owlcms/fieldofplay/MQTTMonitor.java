@@ -424,11 +424,11 @@ public class MQTTMonitor {
 
 	private void doConnect() throws MqttSecurityException, MqttException {
 		if (Config.getCurrent().getParamMqttServer() != null && !Config.getCurrent().getParamMqttServer().isBlank()) {
-			logger.info("Connecting to external MQTT server");
+			logger.info("{}Connecting to external MQTT server", fop.getLoggingName());
 			userName = Config.getCurrent().getParamMqttUserName();
 			password = Config.getCurrent().getParamMqttPassword();
 		} else if (Config.getCurrent().getParamMqttInternal()) {
-			logger.info("Connecting to embedded MQTT server");
+			logger.info("{}Connecting to embedded MQTT server", fop.getLoggingName());
 			userName = Config.getCurrent().getMqttUserName();
 			password = Main.mqttStartup;
 		} 
