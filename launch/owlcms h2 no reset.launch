@@ -12,7 +12,7 @@
         <mapEntry key="OWLCMS_H2SERVERPORT" value="9092"/>
         <mapEntry key="OWLCMS_PORT" value="8080"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="maryhadalittlelamb"/>
-        <mapEntry key="OWLCMS_USECOMPETITIONDATE" value="true"/>
+        <mapEntry key="OWLCMS_USECOMPETITIONDATE" value="false"/>
         <mapEntry key="_JDBC_DATABASE_URL" value="jdbc:h2:file:./database/scolaire.mv.db"/>
         <mapEntry key="_OWLCMS_ENABLEEMBEDDEDMQTT" value="false"/>
         <mapEntry key="_OWLCMS_LOCALE" value="en_CA"/>
