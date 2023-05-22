@@ -86,6 +86,9 @@ public class RAthlete {
 			// no category, infer from age and body weight
 			a.computeMainAndEligibleCategories();
 			a.getParticipations().stream().forEach(p -> p.setTeamMember(true));
+			if (a.getCategory() == null) {
+				throw new Exception(Translator.translate("Upload.CannotDetermineRegistrationCategory"));
+			}
 			return;
 		}
 
@@ -253,14 +256,23 @@ public class RAthlete {
 		a.setTeam(club);
 	}
 
-	private void addIfEligible(Set<Category> eligibleCategories, Set<Category> teams, Integer athleteQTotal,
+	private boolean addIfEligible(Set<Category> eligibleCategories, Set<Category> teams, Integer athleteQTotal, Integer athleteAge,
 	        boolean teamMember, Category c2) {
-		if (athleteQTotal != null && athleteQTotal >= c2.getQualifyingTotal()) {
+		boolean added = false;
+		Integer minAge = c2.getAgeGroup().getMinAge();
+		Integer maxAge = c2.getAgeGroup().getMaxAge();
+		logger.warn("{} athleteAge {} min {} max {}", athleteAge, minAge, maxAge);
+		if (	((athleteQTotal != null && athleteQTotal >= c2.getQualifyingTotal()) || ((athleteQTotal == null || athleteQTotal == 0) && c2.getQualifyingTotal() == 0))
+				&& athleteAge >= minAge 
+				&& athleteAge <= maxAge 
+				) {
 			eligibleCategories.add(c2);
+			added = true;
 			if (teamMember) {
 				teams.add(c2);
 			}
 		}
+		return added;
 	}
 
 	private Category findByAgeBW(Matcher legacyResult, double searchBodyWeight, int age, int qualifyingTotal)
@@ -305,8 +317,12 @@ public class RAthlete {
 		Set<Category> eligibleCategories = new LinkedHashSet<>();
 		Set<Category> teams = new LinkedHashSet<>();
 		Integer athleteQTotal = this.getAthlete().getQualifyingTotal();
+		Integer athleteAge = this.getAthlete().getAge();
 
-		addIfEligible(eligibleCategories, teams, athleteQTotal, mainCategoryTeamMember, c);
+		boolean addedToMainCat = addIfEligible(eligibleCategories, teams, athleteQTotal, athleteAge, mainCategoryTeamMember, c);
+		if (!addedToMainCat) {
+			throw new Exception(Translator.translate("Upload.AthleteRegistrationCategoryProblem"));
+		}
 
 		// process the other participations. They are ; separated.
 		if (parts.length > 1) {
@@ -319,7 +335,7 @@ public class RAthlete {
 				}
 				Category c2;
 				if ((c2 = RCompetition.getActiveCategories().get(eligibleName.trim())) != null) {
-					addIfEligible(eligibleCategories, teams, athleteQTotal, teamMember, c2);
+					addIfEligible(eligibleCategories, teams, athleteQTotal, athleteAge, teamMember, c2);
 				} else {
 					throw new Exception(
 					        Translator.translate("Upload.CategoryNotFoundByName", eligibleName.trim()));
