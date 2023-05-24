@@ -307,21 +307,6 @@ public class RecordEvent {
 		return (athleteName != null ? athleteName.replaceAll(",", "") : "");
 	}
 
-	@Transient
-	@JsonIgnore
-	public String getResRecordLift() {
-		switch (recordLift) {
-		case CLEANJERK:
-			return Translator.translate("Results.Clean_and_Jerk");
-		case SNATCH:
-			return Translator.translate("Results.Snatch");
-		case TOTAL:
-			return Translator.translate("Results.Total");
-		default:
-			return recordLift.toString();
-		}
-	}
-
 	@Override
 	public int hashCode() {
 		return Objects.hash(ageGrp, ageGrpLower, ageGrpUpper, athleteName, birthDate, birthYear, bwCatLower,
@@ -615,6 +600,21 @@ public class RecordEvent {
 				// leave alone
 			}
 
+		}
+	}
+
+	@Transient
+	@JsonIgnore
+	public String getResRecordLift() {
+		switch (recordLift) {
+		case CLEANJERK:
+			return Translator.translate("Results.Clean_and_Jerk");
+		case SNATCH:
+			return Translator.translate("Results.Snatch");
+		case TOTAL:
+			return Translator.translate("Results.Total");
+		default:
+			return recordLift.toString();
 		}
 	}
 
