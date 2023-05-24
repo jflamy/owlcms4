@@ -2,11 +2,7 @@
 
 - 39.0 Changes
 
-  - 39.9.0-beta07: Improved error checking for age boundaries when loading registration data files.
-  
-  - 39.9.0-beta06: Jury summoning the technical controller can be done at any time and no longer automatically starts a break
-  
-  - 39.9.0-beta06: updated [Fly.io](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#Fly) cloud installation instructions to track their recent changes
+  - 39.0.0-rc01: The kind of record is now translated in the record summary included on protocol sheet and in the final package.
   
     ------
   
