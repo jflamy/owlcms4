@@ -121,7 +121,7 @@ public class RecordEvent {
 	private String bwCatString;
 	private String groupNameString;
 	private String categoryString;
-	
+
 	@Transient
 	@JsonIgnore
 	private DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -200,12 +200,6 @@ public class RecordEvent {
 		return athleteName;
 	}
 
-	@Transient
-	@JsonIgnore
-	private String getResAthleteName() {
-		return (athleteName != null ? athleteName.replaceAll(",", "") : "");
-	}
-	
 	public String getBirth() {
 		return (birthDate != null ? dateFormat.format(birthDate)
 		        : (birthYear != null ? Integer.toString(birthYear) : null));
@@ -294,22 +288,6 @@ public class RecordEvent {
 	public Ranking getRecordLift() {
 		return recordLift;
 	}
-	
-	
-	@Transient
-	@JsonIgnore
-	private String getResRecordLift() {
-		switch (recordLift) {
-		case CLEANJERK:
-			return Translator.translate("Results.Clean_and_Jerk");
-		case SNATCH:
-			return Translator.translate("Results.Snatch");
-		case TOTAL:
-			return Translator.translate("Results.Total");
-		default:
-			return recordLift.toString();
-		}
-	}
 
 	public String getRecordName() {
 		return recordName;
@@ -321,6 +299,27 @@ public class RecordEvent {
 
 	public int getRecordYear() {
 		return recordYear;
+	}
+
+	@Transient
+	@JsonIgnore
+	public String getResAthleteName() {
+		return (athleteName != null ? athleteName.replaceAll(",", "") : "");
+	}
+
+	@Transient
+	@JsonIgnore
+	public String getResRecordLift() {
+		switch (recordLift) {
+		case CLEANJERK:
+			return Translator.translate("Results.Clean_and_Jerk");
+		case SNATCH:
+			return Translator.translate("Results.Snatch");
+		case TOTAL:
+			return Translator.translate("Results.Total");
+		default:
+			return recordLift.toString();
+		}
 	}
 
 	@Override
@@ -565,8 +564,8 @@ public class RecordEvent {
 				}
 				break;
 			default:
-				//throw new UnknownIWFBodyWeightCategory();
-				//leave alone
+				// throw new UnknownIWFBodyWeightCategory();
+				// leave alone
 			}
 		} else {
 			switch (bwCatUpper) {
@@ -612,8 +611,8 @@ public class RecordEvent {
 				}
 				break;
 			default:
-				//throw new UnknownIWFBodyWeightCategory();
-				//leave alone
+				// throw new UnknownIWFBodyWeightCategory();
+				// leave alone
 			}
 
 		}
