@@ -32,6 +32,7 @@ import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 @Entity
@@ -199,6 +200,12 @@ public class RecordEvent {
 		return athleteName;
 	}
 
+	@Transient
+	@JsonIgnore
+	private String getResAthleteName() {
+		return (athleteName != null ? athleteName.replaceAll(",", "") : "");
+	}
+	
 	public String getBirth() {
 		return (birthDate != null ? dateFormat.format(birthDate)
 		        : (birthYear != null ? Integer.toString(birthYear) : null));
@@ -286,6 +293,22 @@ public class RecordEvent {
 
 	public Ranking getRecordLift() {
 		return recordLift;
+	}
+	
+	
+	@Transient
+	@JsonIgnore
+	private String getResRecordLift() {
+		switch (recordLift) {
+		case CLEANJERK:
+			return Translator.translate("Results.Clean_and_Jerk");
+		case SNATCH:
+			return Translator.translate("Results.Snatch");
+		case TOTAL:
+			return Translator.translate("Results.Total");
+		default:
+			return recordLift.toString();
+		}
 	}
 
 	public String getRecordName() {
