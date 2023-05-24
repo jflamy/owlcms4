@@ -86,6 +86,18 @@ public class ResultsLeadersRanks extends Results {
 		return ranks;
 	}
 
+	protected String formatRank(Integer total) {
+		if (total == null) {
+			return "&nbsp;";
+		} else if (total == 0) {
+			return "&ndash;";
+		} else if (total == -1) {
+			return "inv.";// invited lifter, not eligible.
+		} else {
+			return total.toString();
+		}
+	}
+
 	private void setCurrentAthleteParticipations(Athlete a) {
 		OwlcmsSession.withFop(fop -> {
 			ageGroupMap = new LinkedHashMap<>(fop.getAgeGroupMap());
