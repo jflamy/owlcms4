@@ -2,6 +2,8 @@
 
 - 39.0 Changes
 
+  - 39.0.0-rc02: The Top Teams Sinclair scoreboard now updates on every lift.
+  
   - 39.0.0-rc01: a dash is shown on the multiple ranks scoreboard when an athlete is competing in an age group but has not lifted yet, so the public can see the age groups in which the athlete is competing.
   
   - 39.0.0-rc01: The kind of record is now translated in the record summary included on protocol sheet and in the final package.
@@ -37,11 +39,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_39.0.0-rc01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_39.0.0-rc02.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_39.0.0-rc01.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_39.0.0-rc02.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
