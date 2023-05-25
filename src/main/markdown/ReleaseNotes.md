@@ -2,6 +2,8 @@
 
 - 39.0 Changes
 
+  - 39.0.0-rc02: The Top Teams Sinclair scoreboard now updates on every lift.
+  
   - 39.0.0-rc01: a dash is shown on the multiple ranks scoreboard when an athlete is competing in an age group but has not lifted yet, so the public can see the age groups in which the athlete is competing.
   
   - 39.0.0-rc01: The kind of record is now translated in the record summary included on protocol sheet and in the final package.
