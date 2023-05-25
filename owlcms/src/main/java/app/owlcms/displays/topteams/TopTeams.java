@@ -180,7 +180,7 @@ public class TopTeams extends PolymerTemplate<TemplateModel> implements DisplayP
 		this.getElement().callJsFunction("reset");
 
 		TeamTreeData teamTreeData = new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(), (Gender) null,
-		        Ranking.SNATCH_CJ_TOTAL);
+		        Ranking.SNATCH_CJ_TOTAL, false);
 		Map<Gender, List<TeamTreeItem>> teamsByGender = teamTreeData.getTeamItemsByGender();
 
 		mensTeams = teamsByGender.get(Gender.M);

@@ -201,7 +201,7 @@ public class TopTeamsSinclair extends PolymerTemplate<TemplateModel>
 		this.getElement().callJsFunction("reset");
 
 		TeamTreeData teamTreeData = new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(), (Gender) null,
-		        Ranking.BW_SINCLAIR);
+		        Ranking.BW_SINCLAIR, true);
 		Map<Gender, List<TeamTreeItem>> teamsByGender = teamTreeData.getTeamItemsByGender();
 
 		mensTeams = teamsByGender.get(Gender.M);

@@ -46,10 +46,10 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
 
 	private Ranking ranking;
 
-	public TeamTreeData(String ageGroupPrefix, AgeDivision ageDivision, Gender gender, Ranking ranking) {
+	public TeamTreeData(String ageGroupPrefix, AgeDivision ageDivision, Gender gender, Ranking ranking, boolean includeNotDone) {
 		genderFilterValue = gender;
 		this.setRanking(ranking);
-		init(ageGroupPrefix, ageDivision);
+		init(ageGroupPrefix, ageDivision, includeNotDone);
 	}
 
 	public Ranking getRanking() {
@@ -64,8 +64,12 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
 		this.ranking = ranking;
 	}
 
-	private void buildTeamItemTree(HashMap<String, Object> reportingBeans2, String ageGroupPrefix,
-	        AgeDivision ageDivision) {
+	private void buildTeamItemTree(
+			HashMap<String, Object> reportingBeans2, 
+			String ageGroupPrefix,
+	        AgeDivision ageDivision, 
+	        boolean includeNotDone
+	        ) {
 		doneGroups = null; // force recompute.
 		if (ageDivision == null) {
 			return;
@@ -131,7 +135,7 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
 //                                curTeam.getCounted(), groupIsDone, b, c);
 //                    }
 
-					if (groupIsDone && b && c) {
+					if ((includeNotDone || groupIsDone) && b && c) {
 						curTeam.setPoints(curTeam.getPoints() + Math.round(curPoints));
 					}
 					if (b) {
@@ -231,13 +235,13 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
 		return doneGroups.contains(a.getGroup());
 	}
 
-	private void init(String ageGroupPrefix, AgeDivision ageDivision) {
+	private void init(String ageGroupPrefix, AgeDivision ageDivision, boolean includeNotDone) {
 		if (debug) {
 			logger.setLevel(Level.DEBUG);
 		}
 		// logger.debug("init tree {} {}", ageGroupPrefix, ageDivision);
 		reportingBeans = Competition.getCurrent().computeReportingInfo(ageGroupPrefix, ageDivision);
-		buildTeamItemTree(reportingBeans, ageGroupPrefix, ageDivision);
+		buildTeamItemTree(reportingBeans, ageGroupPrefix, ageDivision, includeNotDone);
 		if (debug) {
 			dumpTeams();
 		}

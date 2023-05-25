@@ -191,7 +191,7 @@ public class TeamResultsContent extends VerticalLayout
 		List<TeamTreeItem> allTeams = new ArrayList<>();
 
 		TeamTreeData teamTreeData = new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(),
-		        getGenderFilter().getValue(), Ranking.SNATCH_CJ_TOTAL);
+		        getGenderFilter().getValue(), Ranking.SNATCH_CJ_TOTAL, false);
 		Map<Gender, List<TeamTreeItem>> teamsByGender = teamTreeData.getTeamItemsByGender();
 
 		List<TeamTreeItem> mensTeams = teamsByGender.get(Gender.M);
@@ -348,7 +348,7 @@ public class TeamResultsContent extends VerticalLayout
 			public DataProvider<TeamTreeItem, ?> getDataProvider() {
 				return new TreeDataProvider<>(
 				        new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(), getGenderFilter().getValue(),
-				                Ranking.SNATCH_CJ_TOTAL));
+				                Ranking.SNATCH_CJ_TOTAL, false));
 			}
 
 			@Override
@@ -490,7 +490,7 @@ public class TeamResultsContent extends VerticalLayout
 				// getAgeDivision(),
 				// genderFilter.getValue());
 				TeamTreeData teamTreeData = new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(),
-				        genderFilter.getValue(), Ranking.SNATCH_CJ_TOTAL);
+				        genderFilter.getValue(), Ranking.SNATCH_CJ_TOTAL, false);
 				grid.setDataProvider(new TreeDataProvider<>(teamTreeData));
 			}
 
