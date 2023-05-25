@@ -2,14 +2,6 @@
 
 - 39.0 Changes
 
-  - 39.0.0-rc02: The Top Teams Sinclair scoreboard now updates on every lift.
-  
-  - 39.0.0-rc01: a dash is shown on the multiple ranks scoreboard when an athlete is competing in an age group but has not lifted yet, so the public can see the age groups in which the athlete is competing.
-  
-  - 39.0.0-rc01: The kind of record is now translated in the record summary included on protocol sheet and in the final package.
-  
-    ------
-  
   - css files and image files (such as flags and pictures) will be cached only for the duration of a single application run. Restarting the application will cause the updated files to be fetched again. This will allow changing style sheets and images without having to clear all the browser caches.
   
   - A new Records Management page has been added, reachable from the preparation page.
@@ -21,6 +13,12 @@
       - show the records for all age groups/categories in the session instead of the current athlete only
       - show the record rows for all records, whether eligible to be broken by the current athlete or not.  By putting the correct federation tags on athletes, additional records (IWF, Continental) can be shown for information but only the eligible ones will be broken.
     - Fix: Now able to run simulations on fly.io (adjusted the parsing of the forwarding information)
+  
+  - A dash is shown on the multiple ranks scoreboard when an athlete is competing in an age group but has not lifted yet, so the public can see the age groups in which the athlete is competing.
+  
+  - The Top Teams Sinclair scoreboard now updates on every lift.
+  
+  - The kind of record is now translated in the record summary included on protocol sheet and in the final package.
   
   - Fix: The records listed on the Excel reports now shows when a record has been broken multiple times (as opposed to only the last record set)
   
