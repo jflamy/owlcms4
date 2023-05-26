@@ -2,6 +2,10 @@
 
 - 39.0 Changes
 
+  - 39.0.1: File name caching logic ("autoversioning") was inconsistent, could lead to displays not being shown.
+  
+    ------
+  
   - css files and image files (such as flags and pictures) will be cached only for the duration of a single application run. Restarting the application will cause the updated files to be fetched again. This will allow changing style sheets and images without having to clear all the browser caches.
   
   - A new Records Management page has been added, reachable from the preparation page.
