@@ -13,7 +13,7 @@ class ResultsMedals extends PolymerElement {
 
     static get template() {
         return html`
-<link rel="stylesheet" type="text/css" href="local/styles/[[video]]results_[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/styles/[[video]]results[[autoversion]].css">
 
 <div class$="wrapper medals [[teamWidthClass]] [[inactiveClass]]" style$="[[sizeOverride]];">
     <div style$="[[inactiveBlockStyle]]">
@@ -36,6 +36,11 @@ class ResultsMedals extends PolymerElement {
                 <tr class="head" style$="[[leadersDisplay]]">
                     <td style="grid-column: 1 / -1; justify-content: left; font-weight: bold"
                         inner-h-t-m-l="[[mc.categoryName]]">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="headerSpacer" style="grid-column: 1 / -1; justify-content: left;"
+                        inner-h-t-m-l="&nbsp;">
                     </td>
                 </tr>
                 <tr class="head">
@@ -62,8 +67,8 @@ class ResultsMedals extends PolymerElement {
                     <th class="sinclairRank" inner-h-t-m-l="[[t.Rank]]"></th>
                 </tr>
                 <tr>
-                    <td class="spacer" style="grid-column: 1 / -1; justify-content: left;"
-                        inner-h-t-m-l="[[t.Leaders]] [[categoryName]]">
+                    <td class="headerSpacer" style="grid-column: 1 / -1; justify-content: left;"
+                        inner-h-t-m-l="&nbsp;">
                     </td>
                 </tr>
                 <template is="dom-repeat" id="result-table" items="[[mc.leaders]]" as="l">
