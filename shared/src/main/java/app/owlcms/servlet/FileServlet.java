@@ -306,7 +306,7 @@ public class FileServlet extends HttpServlet {
             
             String target = "_[0-9]{12,14}([.][a-z]{1,4})$";
             String unversionedName = relativeFileName.replaceFirst(target, "$1");
-            logger.warn("relativeFileName = {} fixed = {} regex={}", relativeFileName, unversionedName, target);
+            //logger.debug("relativeFileName = {} fixed = {} regex={}", relativeFileName, unversionedName, target);
             
             return getPathForResource(response, "/" + unversionedName);
         } catch (IllegalArgumentException e) {
