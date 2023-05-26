@@ -1066,7 +1066,8 @@ public class Results extends PolymerTemplate<TemplateModel>
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
 			init();
-
+			checkVideo("styles/video/results.css", routeParameter, this);
+			
 			// get the global category rankings (attached to each athlete)
 			displayOrder = getOrder(fop);
 
@@ -1082,10 +1083,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 			getElement().setProperty("noLiftRanks", "noranks nosinclair");
 		} else {
 			getElement().setProperty("noLiftRanks", "nosinclair");
-		}
-
-		checkVideo("styles/video/results.css", routeParameter, this);
-		
+		}		
 		SoundUtils.enableAudioContextNotification(this.getElement());
 		storeReturnURL();
 	}

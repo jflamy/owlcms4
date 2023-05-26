@@ -779,6 +779,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		OwlcmsSession.withFop(fop -> {
 			logger.debug("{}onAttach {}", fop.getLoggingName(), fop.getState());
 			init();
+			checkVideo("styles/video/attemptboard.css", routeParameter, this);
 			ThemeList themeList = UI.getCurrent().getElement().getThemeList();
 			themeList.remove(Lumo.LIGHT);
 			themeList.add(Lumo.DARK);
@@ -788,8 +789,6 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 			syncWithFOP(fop);
 			// we send on fopEventBus, listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
-
-			checkVideo("styles/video/attemptboard.css", routeParameter, this);
 		});
 	}
 

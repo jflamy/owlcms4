@@ -529,6 +529,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
 			init();
+			checkVideo("styles/video/results.css", routeParameter, this);
 			if (this.getCategory() == null) {
 				if (this.getGroup() != null) {
 					medals = Competition.getCurrent().getMedals(this.getGroup(), false);
@@ -555,12 +556,11 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		}
 		SoundUtils.enableAudioContextNotification(this.getElement());
 		
-		checkVideo("styles/video/results.css", routeParameter, this);
-
 		this.getElement().setProperty("displayTitle", Translator.translate("CeremonyType.MEDALS"));
 	}
 
 	public void setVideo(boolean video) {
+		logger.warn("setVideo {} {}",video, LoggerUtils.stackTrace());
 		this.video = video;
 	}
 
@@ -798,6 +798,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	}
 
 	public boolean isVideo() {
+		logger.warn("isVideo {} {}", video, LoggerUtils.stackTrace());
 		return video;
 	}
 

@@ -750,6 +750,7 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
 			init();
+			checkVideo("styles/video/currentathlete.css", routeParameter, this);
 
 			// get the global category rankings attached to each athlete
 			order = fop.getDisplayOrder();
@@ -760,9 +761,6 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 			uiEventBus = uiEventBusRegister(this, fop);
 		});
 		switchLightingMode(this, isDarkMode(), true);
-		
-		checkVideo("styles/video/currentathlete.css", routeParameter, this);
-
 	}
 
 	protected void setTranslationMap() {
