@@ -46,6 +46,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.displays.VideoOverride;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -80,7 +81,7 @@ import elemental.json.JsonValue;
 
 public class ResultsMedals extends PolymerTemplate<TemplateModel>
         implements ContextFreeDisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
-        HasDynamicTitle,
+        HasDynamicTitle, VideoOverride,
         RequireDisplayLogin {
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsMedals.class);
@@ -106,6 +107,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 
 	private Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private boolean snatchCJTotalMedals;
+	private boolean video;
 
 	/**
 	 * Instantiates a new results board.
@@ -552,9 +554,14 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 			getElement().setProperty("noLiftRanks", "noranks");
 		}
 		SoundUtils.enableAudioContextNotification(this.getElement());
-		this.getElement().setProperty("video", routeParameter != null ? routeParameter + "/" : "");
+		
+		checkVideo("styles/video/results.css", routeParameter, this);
 
 		this.getElement().setProperty("displayTitle", Translator.translate("CeremonyType.MEDALS"));
+	}
+
+	public void setVideo(boolean video) {
+		this.video = video;
 	}
 
 	protected void setTranslationMap() {
@@ -790,8 +797,8 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		return false;
 	}
 
-	private boolean isVideo() {
-		return routeParameter != null && routeParameter.contentEquals("video");
+	public boolean isVideo() {
+		return video;
 	}
 
 	private void retrieveFromSessionStorage(String key, SerializableConsumer<String> resultHandler) {

@@ -9,7 +9,7 @@
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
         <mapEntry key="OWLCMS_BACKDOOR" value="10.0.0.221,127.0.0.1,[0:0:0:0:0:0:0:1]"/>
-        <mapEntry key="OWLCMS_CSSEDIT" value="true"/>
+        <mapEntry key="OWLCMS_CSSEDIT" value="false"/>
         <mapEntry key="OWLCMS_H2SERVERPORT" value="9092"/>
         <mapEntry key="OWLCMS_PORT" value="8080"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="maryhadalittlelamb"/>

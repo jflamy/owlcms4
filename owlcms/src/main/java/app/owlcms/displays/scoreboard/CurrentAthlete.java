@@ -43,6 +43,7 @@ import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.displays.VideoOverride;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -78,7 +79,7 @@ import elemental.json.JsonValue;
 
 public class CurrentAthlete extends PolymerTemplate<TemplateModel>
         implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
-        RequireDisplayLogin {
+        RequireDisplayLogin, VideoOverride {
 
 	/**
 	 * ScoreboardModel
@@ -124,6 +125,7 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 	private String routeParameter;
 
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	private boolean video;
 
 	/**
 	 * Instantiates a new results board.
@@ -758,7 +760,9 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 			uiEventBus = uiEventBusRegister(this, fop);
 		});
 		switchLightingMode(this, isDarkMode(), true);
-		this.getElement().setProperty("video", routeParameter != null ? routeParameter + "/" : "");
+		
+		checkVideo("styles/video/currentathlete.css", routeParameter, this);
+
 	}
 
 	protected void setTranslationMap() {
@@ -771,5 +775,15 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 			}
 		}
 		this.getElement().setPropertyJson("t", translations);
+	}
+
+	@Override
+	public void setVideo(boolean b) {
+		this.video = b;
+	}
+
+	@Override
+	public boolean isVideo() {
+		return video;
 	}
 }
