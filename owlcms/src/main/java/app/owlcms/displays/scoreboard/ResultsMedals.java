@@ -478,7 +478,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		} else {
 			logger.error("main rankings null for {}", a);
 		}
-		ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
+		ja.put("group", a.getSubCategory());
 		Double double1 = a.getAttemptsDone() <= 3 ? a.getSinclairForDelta()
 		        : a.getSinclair();
 		ja.put("sinclair", double1 > 0.001 ? String.format("%.3f", double1) : "-");

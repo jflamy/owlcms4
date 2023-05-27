@@ -68,6 +68,7 @@ import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import elemental.json.JsonValue;
 
 /**
  * This class stores all the information related to a particular athlete.
@@ -5153,6 +5154,14 @@ public class Athlete {
 	public String getAgeGroupDisplayName() {
 		AgeGroup ag = getAgeGroup();
 		return ag != null ? ag.getDisplayName() : "";
+	}
+
+	public String getSubCategory() {
+		if (Config.getCurrent().featureSwitch("UseCustom2AsSubCategory")) {
+			return this.getCustom2() != null ? this.getCustom2() : "A";
+		} else {
+			return this.getGroup() != null ? this.getGroup().getName() : "";
+		}
 	}
 
 }
