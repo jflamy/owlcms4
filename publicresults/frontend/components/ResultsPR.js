@@ -13,6 +13,8 @@ class Results extends PolymerElement {
 
     static get template() {
         return html`
+<link rel="stylesheet" type="text/css" href="local/styles/colors[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/styles/resultsCustomization[[autoversion]].css">
 <link rel="stylesheet" type="text/css" href="local/styles/results[[autoversion]].css">
 
 <div class$="wrapper [[teamWidthClass]] [[inactiveClass]]" style$="[[sizeOverride]];">
