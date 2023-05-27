@@ -1,17 +1,31 @@
-The colors and formatting of the scoreboard and attempt board are controlled by Web-standard style sheets ("CSS style sheets").  Colors are defined in a file called `local/styles/colors.css` and the rest of the formatting of the scoreboards is inside `local/styles/results.css`.
+The colors and formatting of the scoreboard and attempt board are controlled by Web-standard style sheets ("CSS style sheets").  Colors are defined in a file called `local/styles/colors.css` . The formatting of the scoreboards is inside `local/styles/resultsCustomization.css` for most of the settings you are likely to change, and in `local/styles/results.css` for the rest.
 
-> This topic is indeed advanced.  But there are many learning resources for CSS style sheets, and several persons with no Web development background have succeeded in customizing their scoreboards.
+> This topic is <u>advanced</u>.  But there are many learning resources for CSS style sheets, and several persons with no Web development background have succeeded in customizing their scoreboards.
 
 Note that `results.css` is much more likely to change significantly than `colors.css` (where the most likely thing will be new colors being added).  You are therefore encouraged to change your colors in colors.css.  Should you find a color or scoreboard area that was omitted, please report it so it can be made configurable like the rest.
 
-### Using the browser Developer Mode
+### Working with Browser Caches
+
+One of the challenges in editing style sheets is the fact that browsers keep a copy to avoid fetching it over and over.
+
+By default, owlcms arranges for the css and image files to be fetched again, once, after each server restart.  It does this by adding a time-based suffix to the file name that fools the browser into thinking it needs a new copy.  That suffix is understood and processed correctly by the owlcms server.  This technique is known as "autoversioning"
+
+However, when we are editing the files using the browser developer mode, we want the files to be named exactly as they are on the disk. This is done by using a configuration variable.  To turn off autoversioning and use the developer mode features:
+
+- If running on Windows, use Notepad to add `-DcssEdit=true` on a line at the top  the `owlcms.l4j.ini` file in the installation directory (you may see the file named as `owlcms.l4j` depending on your Windows settings.)
+- On Linux or MacOS, use `java -DcssEdit=true -jar owlcms.jar` to launch the program.
+
+After fixing your css files, you should undo your changes and put the value back to false, and restart the server.  This will ensure you get the recent copy for you normal tests.  When the variable is missing or false, the css files are refreshed after each server restart.
+
+### Using the Browser Developer Mode
 
 The recommended way to edit the CSS files is to use the developer mode in your browser.  This allows you to immediately see the impact of your changes.  The examples below use Edge but the process is the same with Chrome.
 
 1. First, open the scoreboard you want to edit.  The color scheme is shared across scoreboards, so we usually use the "scoreboard + leaders".  
 2. Use Ctrl-F5 to reload the page clearing the previous caches. 
-3. Then start the Developer mode for your browser.  You can do this in several ways.  The most common is to use F12 or Control-Shift-I on Windows. 
-4. Tell the developer mode to synchronize with your files, 
+3. Then start the Developer mode for your browser.  You can do this in several ways.  The most common is to use F12 or Control-Shift-I on Windows.
+4. **Important**: Make sure that on the "Network" tab the option to `Disable Cache` is **selected**.  We do NOT want the cache to be active.
+5. Tell the developer mode to synchronize with your files, 
    1. Go to the Source section
    2. Select Filesystem
    3. Locate the folder where your style files are found (inside your installation directory).  If editing the video files, make sure to select the `styles/video` folder and not the parent styles folder.
