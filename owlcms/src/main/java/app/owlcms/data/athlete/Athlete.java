@@ -68,7 +68,6 @@ import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import elemental.json.JsonValue;
 
 /**
  * This class stores all the information related to a particular athlete.
