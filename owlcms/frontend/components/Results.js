@@ -168,7 +168,7 @@ class Results extends PolymerElement {
                     </td>
                 </tr>
                 <tr>
-                    <td class="spacer" style$="grid-column: 1 / -1; justify-content: left; [[leadersVisibility]];"
+                    <td class="headerSpacer" style$="grid-column: 1 / -1; justify-content: left; [[leadersVisibility]];"
                         inner-h-t-m-l="&nbsp;">
                     </td>
                 </tr>
