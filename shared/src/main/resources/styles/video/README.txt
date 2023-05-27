@@ -1,9 +1,4 @@
-If you want to customize css files for video, copy them here.
-By default, the following files in local/styles are used.
+If you want to customize css files for video, copy ALL the files from the /local/styles folder here
+and then change what you want.
 
-attemptboard.css
-colors.css
-currentathlete.css
-decisionboard.css
-results.css
-resultsCustomization.css
+Even if you only change one file.
