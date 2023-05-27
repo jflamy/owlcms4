@@ -13,6 +13,7 @@ class CurrentAthlete extends PolymerElement {
 
 	static get template() {
 		return html`
+<link rel="stylesheet" type="text/css" href="local/styles/[[video]]colors[[autoversion]].css">
 <link rel="stylesheet" type="text/css" href="local/styles/[[video]]currentathlete[[autoversion]].css">
 <div class$="wrapper [[teamWidthClass]] [[inactiveClass]]">
 

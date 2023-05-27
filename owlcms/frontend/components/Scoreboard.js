@@ -13,6 +13,7 @@ class Scoreboard extends PolymerElement {
 
 	static get template() {
 		return html`
+	<link rel="stylesheet" type="text/css" href="local/styles/[[video]]colors[[autoversion]].css">
 	<link rel="stylesheet" type="text/css" href="local/styles/scoreboard[[autoversion]].css">
 	<div class$="wrapper [[teamWidthClass]] [[inactiveClass]]">
 		<div style$="[[inactiveStyle]]">

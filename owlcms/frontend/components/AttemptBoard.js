@@ -13,6 +13,8 @@ class CurrentAttempt extends PolymerElement {
 
 	static get template() {
 		return html`
+<link rel="stylesheet" type="text/css" href="local/styles/[[video]]colors[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/styles/[[video]]resultsCustomization[[autoversion]].css">
 <link rel="stylesheet" type="text/css" href="local/styles/[[video]]attemptboard[[autoversion]].css">
 <div class$="wrapper [[inactiveClass]]">
 	<div style$="[[inactiveBlockStyle]]">
