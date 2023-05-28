@@ -1,15 +1,15 @@
-40.0 Video Streaming Scoreboards
+40.0 Scoreboards
 
 - 40.0 Changes
 
-  - Added scoreboard to show athletes in ranking order, to be used for public display or video streaming
+  - 40.0.0-alpha00 Added scoreboard to show athletes in the ranking order for their registration category (instead of start number). This is meant to be used for public display or video streaming.
   - CSS Styling
     - The use of @import has been removed from the css files.  The page templates now do the inclusions explicitly.
   
-    - The scoreboards will no longer show a scrollbar.  This enables using more of the page when there are large groups, or if bigger fonts are wanted.
-    - Added an option to disable the autoversioning suffixes added to static files. This allows browser development tools to edit the css files.  See the [Styling](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Styling) documentation for details.
+    - The scoreboards will no longer show a scrollbar. This allows a bit more flexibility when zooming in or enlarging the fonts.
+    - Added an option to disable the "autoversioning" suffixes added when fetching static files like css and images. This is necessary when using browser development tools to edit the css files.  See the [Styling](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Styling) documentation for details.
   - Fix: Before start of Clean and Jerk, order of snatch leaders shown at bottom of scoreboard was random.
-  - Fix: missing 2nd marshal and 2nd technical controller on protocol sheets.
+  - Fix: Added 2nd marshal and 2nd technical controller on protocol sheets.
   
 
 ##### Highlights from recent stable releases
