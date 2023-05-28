@@ -35,6 +35,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.AsyncEventBus;
@@ -231,6 +232,8 @@ public class FieldOfPlay {
 	private Group videoGroup;
 
 	private Category videoCategory;
+
+	private AgeGroup videoAgeGroup;
 
 	/**
 	 * Instantiates a new field of play state. When using this constructor
@@ -556,6 +559,10 @@ public class FieldOfPlay {
 		return uiEventBus;
 	}
 
+	public AgeGroup getVideoAgeGroup() {
+		return this.videoAgeGroup;
+	}
+
 	public Category getVideoCategory() {
 		return videoCategory;
 	}
@@ -616,7 +623,7 @@ public class FieldOfPlay {
 
 		// it is always possible to explicitly interrupt competition (break between the
 		// two lifts, technical incident, etc.). Even switching break type is allowed.
-		
+
 		if (e instanceof FOPEvent.BreakStarted) {
 			// exception: wait until a decision has been registered to process jury
 			// deliberation.
@@ -765,7 +772,7 @@ public class FieldOfPlay {
 			} else if (e instanceof JuryDecision) {
 				doJuryDecision((JuryDecision) e);
 			} else if (e instanceof SummonReferee) {
-				doSummonReferee((SummonReferee)e);
+				doSummonReferee((SummonReferee) e);
 			} else if (e instanceof DecisionReset) {
 				doDecisionReset(e);
 			} else {
@@ -1254,6 +1261,10 @@ public class FieldOfPlay {
 	 */
 	public void setTestingMode(boolean testingMode) {
 		this.testingMode = testingMode;
+	}
+
+	public void setVideoAgeGroup(AgeGroup videoAgeGroup) {
+		this.videoAgeGroup = videoAgeGroup;
 	}
 
 	public void setVideoCategory(Category c) {
@@ -1904,7 +1915,7 @@ public class FieldOfPlay {
 			List<Athlete> snatchMedalists = medalists.stream().filter(a -> {
 				int r = a.getSnatchRank();
 				return r <= 3 && r > 0;
-			}).collect(Collectors.toList());
+			}).sorted((a, b) -> ObjectUtils.compare(a.getSnatchRank(), b.getSnatchRank())).collect(Collectors.toList());
 			// logger.debug("snatch medalists {}", snatchMedalists);
 			List<Athlete> totalMedalists = medalists.stream().filter(a -> {
 				int r = a.getTotalRank();
@@ -2387,7 +2398,7 @@ public class FieldOfPlay {
 		boolean indefinite = breakTimer.isIndefinite();
 		this.ceremonyType = null;
 
-		logger.warn("transitionToBreak {}",LoggerUtils.stackTrace());
+		logger.warn("transitionToBreak {}", LoggerUtils.stackTrace());
 		doTONotifications(newBreak);
 
 		if (state == BREAK) {
