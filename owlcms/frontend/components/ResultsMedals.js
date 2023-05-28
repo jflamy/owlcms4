@@ -22,7 +22,7 @@ class ResultsMedals extends PolymerElement {
         <div class="competitionName">[[competitionName]]</div><br>
         <div class="nextGroup">[[t.WaitingNextGroup]]</div>
     </div>
-    <div class="attemptBar" style$="[[normalHeaderDisplay]];">
+    <div class="attemptBar" style$="[[normalHeaderDisplay]]; margin-bottom:1em;">
         <div class="athleteInfo" id="athleteInfoDiv">
             <div class="fullName ellipsis" id="fullNameDiv" inner-h-t-m-l="[[displayTitle]]"></div>
         </div>
@@ -45,7 +45,7 @@ class ResultsMedals extends PolymerElement {
                         inner-h-t-m-l="&nbsp;">
                     </td>
                 </tr>
-                <tr class="head">
+                <tr class="head" style="[[mc.showCatHeader]]">
                     <!-- [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
                     <th class="groupCol" inner-h-t-m-l="[[t.Group]]"></th>
                     <th class="name" inner-h-t-m-l="[[t.Name]]"></th>
