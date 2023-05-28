@@ -68,11 +68,11 @@ class ResultsMedals extends PolymerElement {
                     <th class="sinclair" inner-h-t-m-l="[[t.Sinclair]]"></th>
                     <th class="sinclairRank" inner-h-t-m-l="[[t.Rank]]"></th>
                 </tr>
-                <tr>
+                <!-- tr>
                     <td class="headerSpacer" style="grid-column: 1 / -1; justify-content: left;"
                         inner-h-t-m-l="&nbsp;">
                     </td>
-                </tr>
+                </tr -->
                 <template is="dom-repeat" id="result-table" items="[[mc.leaders]]" as="l">
                     <tr class="athlete" style$="[[leadersDisplay]]">
                         <td class="groupCol">
