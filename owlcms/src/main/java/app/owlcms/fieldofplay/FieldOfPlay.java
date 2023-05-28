@@ -48,6 +48,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.LiftDefinition;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
@@ -234,6 +235,8 @@ public class FieldOfPlay {
 	private Category videoCategory;
 
 	private AgeGroup videoAgeGroup;
+
+	private List<Athlete> resultsOrder;
 
 	/**
 	 * Instantiates a new field of play state. When using this constructor
@@ -2019,6 +2022,8 @@ public class FieldOfPlay {
 
 			setDisplayOrder(currentGroupAthletes);
 			setLiftingOrder(AthleteSorter.liftingOrderCopy(currentGroupAthletes));
+			setResultsOrder(AthleteSorter.resultsOrderCopy(currentGroupAthletes,
+			        isCjStarted() ? Ranking.TOTAL : Ranking.SNATCH));
 			endDisplayOrder = System.nanoTime();
 
 			List<Athlete> liftingOrder2 = getLiftingOrder();
@@ -2041,6 +2046,14 @@ public class FieldOfPlay {
 			        (endLeaders - endDisplayOrder) / 1000000.0);
 		}
 
+	}
+
+	private void setResultsOrder(List<Athlete> resultsOrderCopy) {
+		this.resultsOrder = resultsOrderCopy;
+	}
+
+	public List<Athlete> getResultsOrder() {
+		return resultsOrder;
 	}
 
 	private void recomputeRecordsMap(List<Athlete> athletes) {

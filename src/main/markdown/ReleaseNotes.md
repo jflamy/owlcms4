@@ -2,15 +2,15 @@
 
 - 40.0 Changes
 
-  - The use of @import has been removed from the css files.  The page templates now do the inclusions explicitly.
+  - Added scoreboard to show athletes in ranking order, to be used for public display or video streaming
+  - CSS Styling
+    - The use of @import has been removed from the css files.  The page templates now do the inclusions explicitly.
   
-  - The scoreboards will no longer show a scrollbar.  This enables using more of the page when there are large groups, or if bigger fonts are wanted.
+    - The scoreboards will no longer show a scrollbar.  This enables using more of the page when there are large groups, or if bigger fonts are wanted.
+    - Added an option to disable the autoversioning suffixes added to static files. This allows browser development tools to edit the css files.  See the [Styling](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Styling) documentation for details.
+  - Fix: Before start of Clean and Jerk, order of snatch leaders shown at bottom of scoreboard was random.
+  - Fix: missing 2nd marshal and 2nd technical controller on protocol sheets.
   
-  - -DcssEdit=true turns off autoversioning to allow using browser development tools to edit css files.  See the [Styling](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Styling) documentation for details.
-  
-    ------
-  
-  - 39.0: autoversioning. css files and image files (such as flags and pictures) will be cached only for the duration of a single application run. Restarting the application will cause the updated files to be fetched again. This will allow changing style sheets and images without having to clear all the browser caches.
 
 ##### Highlights from recent stable releases
 
