@@ -633,6 +633,11 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 				if (medalists != null && !medalists.isEmpty()) {
 					jMC.put("categoryName", medalCat.getKey().getTranslatedName());
 					jMC.put("leaders", getAthletesJson(new ArrayList<>(medalists), fop));
+					if (mcX == 0) {
+						jMC.put("showCatHeader","");
+					} else {
+						jMC.put("showCatHeader","display:none;");
+					}
 					// logger.debug("medalCategory: {}", jMC.toJson());
 					jsonMCArray.set(mcX, jMC);
 					mcX++;
