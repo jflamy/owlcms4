@@ -350,6 +350,7 @@ public interface DisplayParameters extends ContentParameters {
 	public default void switchLightingMode(Component target, boolean dark, boolean updateURL) {
 		target.getElement().getClassList().set(DARK, dark);
 		target.getElement().getClassList().set(LIGHT, !dark);
+		UI.getCurrent().getElement().getStyle().set("overflow", "hidden");
 		// logger.debug("switching lighting");
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), DARK, dark ? null : "false");

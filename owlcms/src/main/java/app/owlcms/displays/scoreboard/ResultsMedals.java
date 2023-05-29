@@ -38,6 +38,7 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.ContextFreeDisplayParameters;
+import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
@@ -46,6 +47,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.displays.VideoOverride;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -80,7 +82,7 @@ import elemental.json.JsonValue;
 
 public class ResultsMedals extends PolymerTemplate<TemplateModel>
         implements ContextFreeDisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
-        HasDynamicTitle,
+        HasDynamicTitle, VideoOverride,
         RequireDisplayLogin {
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsMedals.class);
@@ -106,6 +108,8 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 
 	private Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private boolean snatchCJTotalMedals;
+	private boolean video;
+	private AgeGroup ageGroup;
 
 	/**
 	 * Instantiates a new results board.
@@ -167,6 +171,10 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 			updateBottom(computeLiftType(fop.getCurAthlete()), fop);
 			this.getElement().callJsFunction("doBreak");
 		}));
+	}
+
+	public AgeGroup getAgeGroup() {
+		return ageGroup;
 	}
 
 	public Category getCategory() {
@@ -255,6 +263,17 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	}
 
 	@Override
+	public boolean isVideo() {
+		logger.warn("isVideo {} {}", video, LoggerUtils.stackTrace());
+		return video;
+	}
+
+	@Override
+	public void setAgeGroup(AgeGroup ag) {
+		this.ageGroup = ag;
+	}
+
+	@Override
 	public void setCategory(Category cat) {
 		this.category = cat;
 	}
@@ -304,7 +323,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	public void setRouteParameter(String routeParameter) {
 		this.routeParameter = routeParameter;
 	}
-	
+
 	/**
 	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
 	 */
@@ -320,6 +339,12 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	@Override
 	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
 		this.urlParameterMap = newParameterMap;
+	}
+
+	@Override
+	public void setVideo(boolean video) {
+		logger.warn("setVideo {} {}", video, LoggerUtils.stackTrace());
+		this.video = video;
 	}
 
 	@Subscribe
@@ -366,6 +391,12 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	}
 
 	@Subscribe
+	public void slaveDecision(UIEvent.DecisionReset e) {
+		uiLog(e);
+		doRefresh(e);
+	}
+
+	@Subscribe
 	public void slaveGroupDone(UIEvent.GroupDone e) {
 		uiLog(e);
 		doRefresh(e);
@@ -373,12 +404,6 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 
 	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-		uiLog(e);
-		doRefresh(e);
-	}
-
-	@Subscribe
-	public void slaveDecision(UIEvent.DecisionReset e) {
 		uiLog(e);
 		doRefresh(e);
 	}
@@ -476,7 +501,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		} else {
 			logger.error("main rankings null for {}", a);
 		}
-		ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
+		ja.put("group", a.getSubCategory());
 		Double double1 = a.getAttemptsDone() <= 3 ? a.getSinclairForDelta()
 		        : a.getSinclair();
 		ja.put("sinclair", double1 > 0.001 ? String.format("%.3f", double1) : "-");
@@ -527,6 +552,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
 			init();
+			checkVideo("styles/video/results.css", routeParameter, this);
 			if (this.getCategory() == null) {
 				if (this.getGroup() != null) {
 					medals = Competition.getCurrent().getMedals(this.getGroup(), false);
@@ -552,7 +578,6 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 			getElement().setProperty("noLiftRanks", "noranks");
 		}
 		SoundUtils.enableAudioContextNotification(this.getElement());
-		this.getElement().setProperty("video", routeParameter != null ? routeParameter + "/" : "");
 
 		this.getElement().setProperty("displayTitle", Translator.translate("CeremonyType.MEDALS"));
 	}
@@ -608,6 +633,11 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 				if (medalists != null && !medalists.isEmpty()) {
 					jMC.put("categoryName", medalCat.getKey().getTranslatedName());
 					jMC.put("leaders", getAthletesJson(new ArrayList<>(medalists), fop));
+					if (mcX == 0) {
+						jMC.put("showCatHeader","");
+					} else {
+						jMC.put("showCatHeader","display:none;");
+					}
 					// logger.debug("medalCategory: {}", jMC.toJson());
 					jsonMCArray.set(mcX, jMC);
 					mcX++;
@@ -788,10 +818,6 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 			return true;
 		}
 		return false;
-	}
-
-	private boolean isVideo() {
-		return routeParameter != null && routeParameter.contentEquals("video");
 	}
 
 	private void retrieveFromSessionStorage(String key, SerializableConsumer<String> resultHandler) {

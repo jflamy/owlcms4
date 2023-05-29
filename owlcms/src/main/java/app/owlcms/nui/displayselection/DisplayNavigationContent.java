@@ -33,6 +33,7 @@ import app.owlcms.displays.scoreboard.ResultsLeadersRanks;
 import app.owlcms.displays.scoreboard.ResultsLiftingOrder;
 import app.owlcms.displays.scoreboard.ResultsMedals;
 import app.owlcms.displays.scoreboard.ResultsNoLeaders;
+import app.owlcms.displays.scoreboard.ResultsRankingOrder;
 import app.owlcms.displays.topathletes.TopSinclair;
 import app.owlcms.displays.topteams.TopTeams;
 import app.owlcms.displays.topteams.TopTeamsSinclair;
@@ -78,9 +79,9 @@ public class DisplayNavigationContent extends BaseNavigationContent
 		Button scoreboard;
 		Button scoreboardWLeaders;
 		Button scoreboardMultiRanks;
-//        Button currentAthlete;
 		Button medals;
-
+		Button scoreboardRankings;
+		
 		scoreboard = openInNewTab(ResultsNoLeaders.class, getTranslation("Scoreboard"));
 		scoreboardWLeaders = openInNewTab(Results.class, getTranslation("ScoreboardWLeadersButton"));
 		scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
@@ -88,6 +89,8 @@ public class DisplayNavigationContent extends BaseNavigationContent
 		        getTranslation("ScoreboardMultiRanksButton"));
 		medals = openInNewTab(ResultsMedals.class, getTranslation("CeremonyType.MEDALS"));
 //        currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"));
+		scoreboardRankings = openInNewTab(ResultsRankingOrder.class,
+		        getTranslation("Scoreboard.RankingOrderButton"));
 
 		// Button liftingOrder = openInNewTab(LiftingOrder.class,
 		// getTranslation("Scoreboard.LiftingOrder"));
@@ -104,7 +107,8 @@ public class DisplayNavigationContent extends BaseNavigationContent
 		VerticalLayout intro1 = new VerticalLayout();
 		addP(intro1, getTranslation("darkModeSelect"));
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders,
-		        scoreboardMultiRanks, liftingOrder,
+		        scoreboardMultiRanks, 
+		        scoreboardRankings, liftingOrder,
 		        topSinclair, topTeams, topTeamsSinclair, medals);
 		doGroup(getTranslation("Scoreboards"), intro1, grid1, this);
 

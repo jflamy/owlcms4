@@ -51,6 +51,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.displays.VideoOverride;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -87,7 +88,7 @@ import elemental.json.JsonValue;
 
 public class Results extends PolymerTemplate<TemplateModel>
         implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
-        RequireDisplayLogin {
+        RequireDisplayLogin, VideoOverride {
 
 	protected JsonArray cattempts;
 	protected Group curGroup;
@@ -130,6 +131,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 	private boolean downSilenced;
+	private boolean video;
 
 	/**
 	 * Instantiates a new results board.
@@ -636,10 +638,6 @@ public class Results extends PolymerTemplate<TemplateModel>
 		displayOrder = ImmutableList.of();
 	}
 
-	private boolean isVideo() {
-		return routeParameter != null && routeParameter.contentEquals("video");
-	}
-
 	private void setDisplay(boolean hidden) {
 		this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
 		this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
@@ -894,7 +892,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 		} else {
 			logger.error("main rankings null for {}", a);
 		}
-		ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
+		ja.put("group", a.getSubCategory());
 		Double double1 = a.getAttemptsDone() <= 3 ? a.getSinclairForDelta()
 		        : a.getSinclair();
 		ja.put("sinclair", double1 > 0.001 ? String.format("%.3f", double1) : "-");
@@ -1068,7 +1066,8 @@ public class Results extends PolymerTemplate<TemplateModel>
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
 			init();
-
+			checkVideo("styles/video/results.css", routeParameter, this);
+			
 			// get the global category rankings (attached to each athlete)
 			displayOrder = getOrder(fop);
 
@@ -1084,8 +1083,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 			getElement().setProperty("noLiftRanks", "noranks nosinclair");
 		} else {
 			getElement().setProperty("noLiftRanks", "nosinclair");
-		}
-		this.getElement().setProperty("video", routeParameter != null ? routeParameter + "/" : "");
+		}		
 		SoundUtils.enableAudioContextNotification(this.getElement());
 		storeReturnURL();
 	}
@@ -1149,5 +1147,15 @@ public class Results extends PolymerTemplate<TemplateModel>
 		if (!showCurrent(fop)) {
 			this.getElement().callJsFunction("groupDone");
 		}
+	}
+
+	@Override
+	public void setVideo(boolean b) {
+		this.video=b;
+	}
+
+	@Override
+	public boolean isVideo() {
+		return video;
 	}
 }

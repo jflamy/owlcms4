@@ -30,10 +30,10 @@ public class ResultsRankings extends ResultsMedals {
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsMedals.class);
 
-	protected JsonValue getAthletesJson(List<Athlete> displayOrder, final FieldOfPlay _unused) {
+	protected JsonValue getAthletesJson(List<Athlete> rankingOrder, final FieldOfPlay _unused) {
 		JsonArray jath = Json.createArray();
 		AtomicInteger athx = new AtomicInteger(0);
-		List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
+		List<Athlete> athletes = rankingOrder != null ? Collections.unmodifiableList(rankingOrder)
 		        : Collections.emptyList();
 
 		athletes.stream()
@@ -49,7 +49,8 @@ public class ResultsRankings extends ResultsMedals {
 				        return Integer.compare(aTotalRank, bTotalRank);
 			        }
 		        })
-		        .limit(15).forEach(a -> {
+		        .limit(15)
+		        .forEach(a -> {
 			        JsonObject ja = Json.createObject();
 			        Category curCat = a.getCategory();
 			        // no blinking = 0

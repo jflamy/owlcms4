@@ -10,6 +10,8 @@ import javax.annotation.Nonnull;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.router.Location;
 
+import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
@@ -22,6 +24,8 @@ import app.owlcms.utils.URLUtils;
 
 public interface ContextFreeDisplayParameters extends DisplayParameters {
 
+	final static String AGEGROUP = "ag";
+
 	@Override
 	public default HashMap<String, List<String>> readParams(Location location,
 	        Map<String, List<String>> parametersMap) {
@@ -33,7 +37,7 @@ public interface ContextFreeDisplayParameters extends DisplayParameters {
 		FieldOfPlay fop = null;
 
 		@Nonnull
-		List<String> fopNames = parametersMap.get("fop");
+		List<String> fopNames = parametersMap.get(FOP);
 		boolean fopFound = fopNames != null && fopNames.get(0) != null;
 		if (!fopFound) {
 			r.setShowInitialDialog(true);
@@ -51,36 +55,36 @@ public interface ContextFreeDisplayParameters extends DisplayParameters {
 				FOPParameters.logger.trace("OwlcmsFactory.getDefaultFOP() {}", OwlcmsFactory.getDefaultFOP());
 				fop = OwlcmsFactory.getDefaultFOP();
 			}
-			newParameterMap.put("fop", Arrays.asList(URLUtils.urlEncode(fop.getName())));
+			newParameterMap.put(FOP, Arrays.asList(URLUtils.urlEncode(fop.getName())));
 			this.setFop(fop);
 		} else {
-			newParameterMap.remove("fop");
+			newParameterMap.remove(FOP);
 		}
 
 		// get the group from query parameters
 		Group group = null;
 		if (!r.isIgnoreGroupFromURL()) {
-			List<String> groupNames = parametersMap.get("group");
+			List<String> groupNames = parametersMap.get(GROUP);
 			if (groupNames != null && groupNames.get(0) != null) {
 				group = GroupRepository.findByName(groupNames.get(0));
 			} else if (fop != null && isVideo(location) && fop.getVideoGroup() != null) {
 				group = fop.getVideoGroup();
 			}
 			if (group != null) {
-				newParameterMap.put("group", Arrays.asList(URLUtils.urlEncode(group.getName())));
+				newParameterMap.put(GROUP, Arrays.asList(URLUtils.urlEncode(group.getName())));
 			}
 			this.setGroup(group);
 		} else if (fop != null && isVideo(location) && fop.getVideoGroup() != null) {
 			group = fop.getVideoGroup();
-			newParameterMap.put("group", Arrays.asList(URLUtils.urlEncode(group.getName())));
+			newParameterMap.put(GROUP, Arrays.asList(URLUtils.urlEncode(group.getName())));
 		} else {
-			newParameterMap.remove("group");
+			newParameterMap.remove(GROUP);
 		}
 
 		// get the category from query parameters
 		Category cat = null;
 		if (!r.isIgnoreGroupFromURL()) {
-			List<String> catCodes = parametersMap.get("cat");
+			List<String> catCodes = parametersMap.get(CATEGORY);
 			if (catCodes != null && catCodes.get(0) != null) {
 				cat = CategoryRepository.findByCode(catCodes.get(0));
 			} else if (fop != null && isVideo(location) && fop.getVideoCategory() != null) {
@@ -88,14 +92,36 @@ public interface ContextFreeDisplayParameters extends DisplayParameters {
 			}
 			// logger.trace("cat = {}", cat);
 			if (cat != null) {
-				newParameterMap.put("cat", Arrays.asList(URLUtils.urlEncode(cat.getName())));
+				newParameterMap.put(CATEGORY, Arrays.asList(URLUtils.urlEncode(cat.getName())));
 			}
 			this.setCategory(cat);
 		} else if (fop != null && isVideo(location) && fop.getVideoCategory() != null) {
 			cat = fop.getVideoCategory();
-			newParameterMap.put("cat", Arrays.asList(URLUtils.urlEncode(cat.getName())));
+			newParameterMap.put(CATEGORY, Arrays.asList(URLUtils.urlEncode(cat.getName())));
 		} else {
-			newParameterMap.remove("cat");
+			newParameterMap.remove(CATEGORY);
+		}
+		
+		// get the age group from query parameters
+		AgeGroup ageGroup = null;
+		if (!r.isIgnoreGroupFromURL()) {
+			List<String> ageGroupNames = parametersMap.get(AGEGROUP);
+			if (ageGroupNames != null && ageGroupNames.get(0) != null) {
+				//FIXME urldecode the agegroup ?
+				ageGroup = AgeGroupRepository.findByName(ageGroupNames.get(0));
+			} else if (fop != null && isVideo(location) && fop.getVideoAgeGroup() != null) {
+				ageGroup = fop.getVideoAgeGroup();
+			}
+			// logger.trace("ageGroup = {}", ageGroup);
+			if (ageGroup != null) {
+				newParameterMap.put(AGEGROUP, Arrays.asList(URLUtils.urlEncode(ageGroup.getName())));
+			}
+			this.setAgeGroup(ageGroup);
+		} else if (fop != null && isVideo(location) && fop.getVideoAgeGroup() != null) {
+			ageGroup = fop.getVideoAgeGroup();
+			newParameterMap.put(AGEGROUP, Arrays.asList(URLUtils.urlEncode(ageGroup.getName())));
+		} else {
+			newParameterMap.remove(AGEGROUP);
 		}
 
 		logger.debug("URL parsing - {} OwlcmsSession: fop={} cat={}", LoggerUtils.whereFrom(),
@@ -155,6 +181,8 @@ public interface ContextFreeDisplayParameters extends DisplayParameters {
 		setUrlParameterMap(params);
 		return params;
 	}
+
+	public void setAgeGroup(AgeGroup ag);
 
 	public default boolean isVideo(Location location) {
 		return location.getPath().endsWith("video");

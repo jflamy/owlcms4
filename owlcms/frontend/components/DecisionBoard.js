@@ -12,7 +12,8 @@ class DecisionBoard extends PolymerElement {
 
 	static get template() {
 		return html`
-<link rel="stylesheet" type="text/css" href="local/styles/[[video]]decisionboard_[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/styles/[[video]]colors[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/styles/[[video]]decisionboard[[autoversion]].css">
 <div class$="wrapper [[inactiveClass]]">
 	<div style$="[[inactiveBlockStyle]]" >
 		<div class="competitionName">[[competitionName]]</div><br>

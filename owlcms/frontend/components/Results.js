@@ -13,7 +13,9 @@ class Results extends PolymerElement {
 
     static get template() {
         return html`
-<link rel="stylesheet" type="text/css" href="local/styles/[[video]]results_[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/styles/[[video]]colors[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/styles/[[video]]resultsCustomization[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/styles/[[video]]results[[autoversion]].css">
 
 <div class$="wrapper [[teamWidthClass]] [[inactiveClass]]" style$="[[sizeOverride]];">
     <div style$="[[inactiveBlockStyle]]">
@@ -166,7 +168,7 @@ class Results extends PolymerElement {
                     </td>
                 </tr>
                 <tr>
-                    <td class="spacer" style$="grid-column: 1 / -1; justify-content: left; [[leadersVisibility]];"
+                    <td class="headerSpacer" style$="grid-column: 1 / -1; justify-content: left; [[leadersVisibility]];"
                         inner-h-t-m-l="&nbsp;">
                     </td>
                 </tr>

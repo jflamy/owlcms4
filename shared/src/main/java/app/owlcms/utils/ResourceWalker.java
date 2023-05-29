@@ -167,16 +167,16 @@ public class ResourceWalker {
             target = localDirPath2.resolve(relativeName);
         }
         if (target != null && Files.exists(target)) {
-            logger.trace("found overridden resource {} at {} {}", name, target.toAbsolutePath(),
+            logger.warn("found overridden resource {} at {} {}", name, target.toAbsolutePath(),
                     LoggerUtils.whereFrom(1));
             return target;
         } else {
             String resName = "/" + relativeName;
             target = getResourcePath(resName);
             if (target != null) {
-                logger.trace("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
+                logger.warn("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
             } else {
-                logger.trace("not found {} {}", target, resName);
+                logger.warn("not found {} {}", target, resName);
                 throw new FileNotFoundException(name);
             }
 

@@ -23,8 +23,8 @@
     - change hidden to visible
     - set the width to value like 8ch 
     */
-    --birthWidth: 0;
-    --birthVisibility: hidden;
+    --birthWidth: 6ch;
+    --birthVisibility: visible;
     --custom1Width: 0;
     --custom1Visibility: hidden;
     --custom2Width: 0;
@@ -33,8 +33,8 @@
     --rankWidth: var(--liftResultWidth);
     --rankVisibility: visible;
 
-    --bestWidth: var(--liftResultWidth);
-    --bestVisibility: visible;
+    --bestWidth: 0;
+    --bestVisibility: hidden;
 
     /* top part: current attempt information */
     --topRowFontSize: 3vh;
@@ -46,9 +46,7 @@
 
     /* leaders section control grid lines visibility */
     --leaderLineHeight: min-content;
-}
 
-* {
     box-sizing: border-box;
     --nbRanks: 1;
 }

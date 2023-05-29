@@ -49,6 +49,7 @@ import app.owlcms.components.elements.Plates;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.displays.VideoOverride;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -82,7 +83,7 @@ import elemental.json.JsonObject;
 @Route("displays/attemptBoard")
 
 public class AttemptBoard extends PolymerTemplate<TemplateModel> implements DisplayParameters,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin {
+        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin, VideoOverride {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -124,6 +125,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private boolean downSilenced;
+	private boolean video;
 
 	/**
 	 * Instantiates a new attempt board.
@@ -287,6 +289,11 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		return true;
 	}
 
+	@Override
+	public boolean isVideo() {
+		return video;
+	}
+
 	/**
 	 * replace illegal characters in a filename with "_" illegal characters : : \ /
 	 * * ? | < >
@@ -374,6 +381,11 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 	@Override
 	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
 		this.urlParameterMap = newParameterMap;
+	}
+
+	@Override
+	public void setVideo(boolean b) {
+		this.video = b;
 	}
 
 	@Subscribe
@@ -767,6 +779,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		OwlcmsSession.withFop(fop -> {
 			logger.debug("{}onAttach {}", fop.getLoggingName(), fop.getState());
 			init();
+			checkVideo("styles/video/attemptboard.css", routeParameter, this);
 			ThemeList themeList = UI.getCurrent().getElement().getThemeList();
 			themeList.remove(Lumo.LIGHT);
 			themeList.add(Lumo.DARK);
@@ -776,7 +789,6 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 			syncWithFOP(fop);
 			// we send on fopEventBus, listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
-			this.getElement().setProperty("video", routeParameter != null ? routeParameter + "/" : "");
 		});
 	}
 
