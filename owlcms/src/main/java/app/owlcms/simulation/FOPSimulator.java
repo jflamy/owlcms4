@@ -247,7 +247,7 @@ public class FOPSimulator {
 	}
 
 	private boolean startNextGroup(List<Group> curGs) {
-		if (curGs.size() > 0) {
+		if (curGs != null && curGs.size() > 0) {
 			Group g = curGs.get(0);
 			logger.info("########## waiting to start group {} of {}", g, curGs);
 			try {
