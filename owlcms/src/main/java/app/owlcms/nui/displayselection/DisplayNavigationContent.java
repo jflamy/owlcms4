@@ -81,7 +81,7 @@ public class DisplayNavigationContent extends BaseNavigationContent
 		Button scoreboardMultiRanks;
 		Button medals;
 		Button scoreboardRankings;
-		
+
 		scoreboard = openInNewTab(ResultsNoLeaders.class, getTranslation("Scoreboard"));
 		scoreboardWLeaders = openInNewTab(Results.class, getTranslation("ScoreboardWLeadersButton"));
 		scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
@@ -107,8 +107,7 @@ public class DisplayNavigationContent extends BaseNavigationContent
 		VerticalLayout intro1 = new VerticalLayout();
 		addP(intro1, getTranslation("darkModeSelect"));
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders,
-		        scoreboardMultiRanks, 
-		        scoreboardRankings, liftingOrder,
+		        scoreboardRankings, scoreboardMultiRanks, liftingOrder,
 		        topSinclair, topTeams, topTeamsSinclair, medals);
 		doGroup(getTranslation("Scoreboards"), intro1, grid1, this);
 

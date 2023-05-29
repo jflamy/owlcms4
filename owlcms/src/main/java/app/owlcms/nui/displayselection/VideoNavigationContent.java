@@ -42,6 +42,7 @@ import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.displays.scoreboard.ResultsLeadersRanks;
 import app.owlcms.displays.scoreboard.ResultsMedals;
 import app.owlcms.displays.scoreboard.ResultsNoLeaders;
+import app.owlcms.displays.scoreboard.ResultsRankingOrder;
 import app.owlcms.displays.scoreboard.ResultsRankings;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -95,11 +96,14 @@ public class VideoNavigationContent extends BaseNavigationContent
 		Button scoreboard;
 		Button scoreboardWLeaders;
 		Button scoreboardMultiRanks;
+		Button scoreboardRankings;
 		scoreboard = openInNewTab(ResultsNoLeaders.class, getTranslation("Scoreboard"), "video");
 		scoreboardWLeaders = openInNewTab(Results.class, getTranslation("ScoreboardWLeadersButton"), "video");
 		scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
 		scoreboardMultiRanks = openInNewTab(ResultsLeadersRanks.class,
 		        getTranslation("ScoreboardMultiRanksButton"), "video");
+		scoreboardRankings = openInNewTab(ResultsRankingOrder.class,
+		        getTranslation("Scoreboard.RankingOrderButton"));
 
 		List<Group> groups = GroupRepository.findAll();
 		groups.sort(new NaturalOrderComparator<Group>());
@@ -131,7 +135,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 
 		VerticalLayout intro1 = new VerticalLayout();
 		// addP(intro1, getTranslation("darkModeSelect"));
-		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders,
+		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders, scoreboardRankings,
 		        scoreboardMultiRanks);
 		doGroup(getTranslation("Scoreboards"), intro1, grid1, this);
 

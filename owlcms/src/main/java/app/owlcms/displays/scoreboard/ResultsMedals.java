@@ -264,7 +264,6 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 
 	@Override
 	public boolean isVideo() {
-		logger.warn("isVideo {} {}", video, LoggerUtils.stackTrace());
 		return video;
 	}
 
