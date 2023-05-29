@@ -1,5 +1,7 @@
 40.0 Scoreboards
 
+*Alpha version. Initial testing of new features that can change without warning.*
+
 - 40.0 Changes
 
   - 40.0.0-alpha00 Added scoreboard to show athletes in the ranking order for their registration category (instead of start number). This is meant to be used for public display or video streaming.
