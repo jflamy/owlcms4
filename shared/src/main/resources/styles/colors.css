@@ -1,6 +1,11 @@
+/* old style dark mode with borders */
 * {
     --pageBackgroundColor: black;
     --pageTextColor: white;
+
+    /* video header (same as page if no transparency) */
+    --videoHeaderBackgroundColor: var(--pageBackgroundColor);
+    --videoHeaderTextColor: var(--pageTextColor);
 
     /* control record notification on scoreboard and attempt board.
        Set to 10 to show notifications, set to -10 if notifications not wanted */
@@ -167,8 +172,4 @@
     --darkRecordHighlightText: white;
     --darkAttemptHighlightText: white;
     --darkAttemptHighlightBackground: purple;
-
-    /* video header */
-    --videoHeaderBackgroundColor: var(--pageBackgroundColor);
-    --videoHeaderTextColor: var(--pageTextColor);
 }
