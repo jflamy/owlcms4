@@ -261,7 +261,7 @@ public class RAthlete {
 		boolean added = false;
 		Integer minAge = c2.getAgeGroup().getMinAge();
 		Integer maxAge = c2.getAgeGroup().getMaxAge();
-		logger.warn("{} athleteAge {} min {} max {}", athleteAge, minAge, maxAge);
+		//logger.debug("{} athleteAge {} min {} max {}", athleteAge, minAge, maxAge);
 		if (	((athleteQTotal != null && athleteQTotal >= c2.getQualifyingTotal()) || ((athleteQTotal == null || athleteQTotal == 0) && c2.getQualifyingTotal() == 0))
 				&& athleteAge >= minAge 
 				&& athleteAge <= maxAge 

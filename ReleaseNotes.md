@@ -49,4 +49,4 @@
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
-  - For self-hosted **Docker**, see [Docker](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For self-hosted **Docker**, see [Docker](https://owlcms.github.io/owlcms4-prerelease/#/Docker)

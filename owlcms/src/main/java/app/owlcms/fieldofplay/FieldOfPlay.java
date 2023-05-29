@@ -2411,7 +2411,7 @@ public class FieldOfPlay {
 		boolean indefinite = breakTimer.isIndefinite();
 		this.ceremonyType = null;
 
-		logger.warn("transitionToBreak {}", LoggerUtils.stackTrace());
+		//logger.debug("transitionToBreak {}", LoggerUtils.stackTrace());
 		doTONotifications(newBreak);
 
 		if (state == BREAK) {
