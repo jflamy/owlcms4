@@ -4,6 +4,7 @@
 
 - 40.0 Changes
 
+  - 40.0.0-alpha01 Fix: Missing Marshal #2 on Officials Schedule pre-competition document, fixed the name of exported file.
   - 40.0.0-alpha00 Added scoreboard to show athletes in the ranking order for their registration category (instead of start number). This is meant to be used for public display or video streaming.
   - CSS Styling
     - The use of @import has been removed from the css files.  The page templates now do the inclusions explicitly.
