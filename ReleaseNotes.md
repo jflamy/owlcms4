@@ -4,13 +4,14 @@
 
 - 40.0 Changes
 
+  - 40.0.0-alpha02: Fix: The attempt board would sometimes display the next athlete's team when previous decision was still visible (would happen more often when announcer entered decisions, or when forcing decisions during a simulation)
+  - 40.0.0-alpha02: Various clean-up in scoreboard stylesheets to make it easier to create video-oriented scoreboards
   - 40.0.0-alpha01 Fix: Missing Marshal #2 on Officials Schedule pre-competition document, fixed the name of exported file.
-  - 40.0.0-alpha00 Added scoreboard to show athletes in the ranking order for their registration category (instead of start number). This is meant to be used for public display or video streaming.
+  - 40.0.0-alpha00 Added scoreboard to show athletes in their live  registration category ranking order (instead of start number). This is meant to be used for public display or video streaming.
   - CSS Styling
-    - The use of @import has been removed from the css files.  The page templates now do the inclusions explicitly.
-  
+    - The use of @import has been removed from the css files. An "autoversioning" suffix is used to force the browsers to refresh the colors and other shared files after a program restart.
+    - Added an option to disable the "autoversioning" suffix when using browser development tools to edit the css files.  See the [Styling](https://owlcms.github.io/owlcms4-prerelease/#/Styling) documentation for details.
     - The scoreboards will no longer show a scrollbar. This allows a bit more flexibility when zooming in or enlarging the fonts.
-    - Added an option to disable the "autoversioning" suffixes added when fetching static files like css and images. This is necessary when using browser development tools to edit the css files.  See the [Styling](https://owlcms.github.io/owlcms4-prerelease/#/Styling) documentation for details.
   - Fix: Before start of Clean and Jerk, order of snatch leaders shown at bottom of scoreboard was random.
   - Fix: Added 2nd marshal and 2nd technical controller on protocol sheets.
   
@@ -29,11 +30,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_40.0.0-alpha01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_40.0.0-alpha02.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_40.0.0-alpha01.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_40.0.0-alpha02.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
