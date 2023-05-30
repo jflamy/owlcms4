@@ -14,8 +14,8 @@ class ResultsMedals extends PolymerElement {
     static get template() {
         return html`
 <link rel="stylesheet" type="text/css" href="local/styles/[[video]]colors[[autoversion]].css">
-<link rel="stylesheet" type="text/css" href="local/styles/[[video]]resultsCustomization[[autoversion]].css">
 <link rel="stylesheet" type="text/css" href="local/styles/[[video]]results[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/styles/[[video]]resultsMedalsCustomization[[autoversion]].css">
 
 <div class$="wrapper medals [[teamWidthClass]] [[inactiveClass]]" style$="[[sizeOverride]];">
     <div style$="[[inactiveBlockStyle]]">
@@ -78,7 +78,7 @@ class ResultsMedals extends PolymerElement {
                         <td class="groupCol">
                             <div>[[l.group]]</div>
                         </td>
-                        <td class$="name [[l.classname]]">
+                        <td class$="name [[l.classname]] [[l.flagClass]]">
                             <div class="ellipsis">[[l.fullName]]</div>
                         </td>
                         <td class="category">
@@ -93,8 +93,9 @@ class ResultsMedals extends PolymerElement {
                         <td class="custom2">
                             <div>[[l.custom2]]</div>
                         </td>
-                        <td class="club">
-                            <div class="ellipsis">[[l.teamName]]</div>
+                        <td class$="club [[l.flagClass]]">
+                            <div inner-h-t-m-l="[[l.flagURL]]"></div>
+                            <div class="ellipsis" >[[l.teamName]]</div>
                         </td>
                         <td class="vspacer"></td>
                         <template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">

@@ -6,7 +6,6 @@
  *******************************************************************************/
 package app.owlcms.displays.attemptboard;
 
-import java.io.FileNotFoundException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -62,7 +61,6 @@ import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
-import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -292,17 +290,6 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 	@Override
 	public boolean isVideo() {
 		return video;
-	}
-
-	/**
-	 * replace illegal characters in a filename with "_" illegal characters : : \ /
-	 * * ? | < >
-	 *
-	 * @param name
-	 * @return
-	 */
-	public String sanitizeFilename(String name) {
-		return name.replaceAll("[:\\\\/*?|<>]", "_");
 	}
 
 	/**
@@ -638,21 +625,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		setLocation(location2);
 	}
 
-	protected void checkImages() {
-		try {
-			ResourceWalker.getFileOrResourcePath("pictures");
-			athletePictures = true;
-		} catch (FileNotFoundException e) {
-			athletePictures = false;
-		}
 
-		try {
-			ResourceWalker.getFileOrResourcePath("flags");
-			teamFlags = true;
-		} catch (FileNotFoundException e) {
-			teamFlags = false;
-		}
-	}
 
 	protected void doAthleteUpdate(Athlete a) {
 		FieldOfPlay fop = OwlcmsSession.getFop();
@@ -684,14 +657,14 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		}
 		this.getElement().setProperty("teamName", team);
 		this.getElement().setProperty("teamFlagImg", "");
-		String teamFileName = sanitizeFilename(team);
+		String teamFileName = URLUtils.sanitizeFilename(team);
 		if (teamFlags && !team.isBlank()) {
 			boolean done;
-			done = setImgProp("teamFlagImg", "flags/", teamFileName, ".svg");
+			done = URLUtils.setImgProp("teamFlagImg", "flags/", teamFileName, ".svg", this);
 			if (!done) {
-				done = setImgProp("teamFlagImg", "flags/", teamFileName, ".png");
+				done = URLUtils.setImgProp("teamFlagImg", "flags/", teamFileName, ".png", this);
 				if (!done) {
-					done = setImgProp("teamFlagImg", "flags/", teamFileName, ".jpg");
+					done = URLUtils.setImgProp("teamFlagImg", "flags/", teamFileName, ".jpg", this);
 				}
 			}
 		}
@@ -700,9 +673,9 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		this.getElement().setProperty("athleteImg", "");
 		if (athletePictures && membership != null) {
 			boolean done;
-			done = setImgProp("athleteImg", "pictures/", membership, ".jpg");
+			done = URLUtils.setImgProp("athleteImg", "pictures/", membership, ".jpg", this);
 			if (!done) {
-				done = setImgProp("athleteImg", "pictures/", membership, ".jpeg");
+				done = URLUtils.setImgProp("athleteImg", "pictures/", membership, ".jpeg", this);
 			}
 			this.getElement().setProperty("WithPicture", done ? "WithPicture" : "");
 		}
@@ -919,6 +892,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		setTranslationMap();
 	}
 
+	@SuppressWarnings("unused")
 	private boolean isDone() {
 		return this.groupDone;
 	}
@@ -931,21 +905,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		this.groupDone = b;
 	}
 
-	private boolean setImgProp(String propertyName, String prefix, String name, String suffix) {
-		boolean found;
-		try {
-			ResourceWalker.getFileOrResourcePath(prefix + name + suffix);
-			found = true;
-		} catch (FileNotFoundException e) {
-			found = false;
-		}
-		if (found) {
-			this.getElement().setProperty(propertyName, "<img src='local/" + prefix + name + suffix + "'></img>");
-		} else {
-			this.getElement().setProperty(propertyName, "");
-		}
-		return found;
-	}
+
 
 	private void showPlates() {
 		AttemptBoard attemptBoard = this;
@@ -1015,5 +975,10 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 				athleteTimer.syncWithFop();
 			}
 		}
+	}
+
+	protected void checkImages() {
+		teamFlags = URLUtils.checkFlags();
+		athletePictures = URLUtils.checkPictures();
 	}
 }

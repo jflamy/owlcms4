@@ -62,6 +62,7 @@ import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -110,6 +111,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	private boolean snatchCJTotalMedals;
 	private boolean video;
 	private AgeGroup ageGroup;
+	private boolean teamFlags;
 
 	/**
 	 * Instantiates a new results board.
@@ -506,6 +508,28 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
 		ja.put("sinclairRank", a.getSinclairRank() != null ? "" + a.getSinclairRank() : "-");
+		
+		// only show flags when medals are for a single category
+		String prop = null;
+		if (getCategory() != null) { 
+			String team = a.getTeam();
+			String teamFileName = URLUtils.sanitizeFilename(team);
+
+			if (teamFlags && !team.isBlank()) {
+				prop = URLUtils.getImgTag("flags/", teamFileName, ".svg", this);
+				if (prop == null) {
+					prop = URLUtils.getImgTag("flags/", teamFileName, ".png", this);
+					if (prop == null) {
+						prop = URLUtils.getImgTag("flags/", teamFileName, ".jpg", this);
+					}
+				}
+			}
+			logger.warn("medals flag {} {} {}", teamFlags, team, prop);
+			ja.put("flagURL", prop != null ? prop : "");
+			ja.put("flagClass", "flags");
+		} else {
+			ja.put("flagURL", prop != null ? prop : "");
+		}
 
 		String highlight = "";
 		ja.put("classname", highlight);
@@ -541,6 +565,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		return jath;
 	}
 
+
 	/*
 	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
 	 * AttachEvent)
@@ -551,6 +576,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		OwlcmsSession.withFop(fop -> {
 			init();
 			checkVideo("styles/video/results.css", routeParameter, this);
+			teamFlags = URLUtils.checkFlags();
 			if (this.getCategory() == null) {
 				if (this.getGroup() != null) {
 					medals = Competition.getCurrent().getMedals(this.getGroup(), false);
@@ -576,6 +602,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 			getElement().setProperty("noLiftRanks", "noranks");
 		}
 		SoundUtils.enableAudioContextNotification(this.getElement());
+
 
 		this.getElement().setProperty("displayTitle", Translator.translate("CeremonyType.MEDALS"));
 	}
