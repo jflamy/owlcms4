@@ -33,11 +33,14 @@ import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.ContextFreeDisplayParameters;
+import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
@@ -158,20 +161,13 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 
 	@Override
 	public void doCeremony(UIEvent.CeremonyStarted e) {
+		//logger.debug("+++++++ ceremony event = {} {}", e, e.getTrace());
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			Group ceremonyGroup = e.getCeremonyGroup();
 			setGroup(ceremonyGroup);
 			Category ceremonyCategory = e.getCeremonyCategory();
 			setCategory(ceremonyCategory);
-
-			this.getElement().setProperty("fullName",
-			        inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
-			this.getElement().setProperty("teamName", "");
-			this.getElement().setProperty("attempt", "");
-			setDisplay(false);
-
-			updateBottom(computeLiftType(fop.getCurAthlete()), fop);
-			this.getElement().callJsFunction("doBreak");
+			doMedalsDisplay();
 		}));
 	}
 
@@ -524,7 +520,6 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 					}
 				}
 			}
-			logger.warn("medals flag {} {} {}", teamFlags, team, prop);
 			ja.put("flagURL", prop != null ? prop : "");
 			ja.put("flagClass", "flags");
 		} else {
@@ -572,6 +567,16 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
+		doMedalsDisplay();
+		
+		switchLightingMode(this, isDarkMode(), true);
+		SoundUtils.enableAudioContextNotification(this.getElement());
+
+
+
+	}
+
+	private void doMedalsDisplay() {
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
 			init();
@@ -597,13 +602,10 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 			// we listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
 		});
-		switchLightingMode(this, isDarkMode(), true);
+
 		if (!Competition.getCurrent().isSnatchCJTotalMedals()) {
 			getElement().setProperty("noLiftRanks", "noranks");
 		}
-		SoundUtils.enableAudioContextNotification(this.getElement());
-
-
 		this.getElement().setProperty("displayTitle", Translator.translate("CeremonyType.MEDALS"));
 	}
 

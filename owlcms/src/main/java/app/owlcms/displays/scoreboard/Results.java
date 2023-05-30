@@ -178,7 +178,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 	public void doCeremony(UIEvent.CeremonyStarted e) {
 		ceremonyGroup = e.getCeremonyGroup();
 		ceremonyCategory = e.getCeremonyCategory();
-		// logger.trace("------ ceremony event = {} {}", e, e.getTrace());
+		//logger.debug("------ ceremony event = {} {}", e, e.getTrace());
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			if (e.getCeremonyType() == CeremonyType.MEDALS && this.isSwitchableDisplay() && ceremonyGroup != null) {
 				Map<String, String> map = new HashMap<>(Map.of(
@@ -190,19 +190,22 @@ public class Results extends PolymerTemplate<TemplateModel>
 				} else {
 					// logger.trace("no ceremonyCategory");
 				}
-				UI.getCurrent().navigate("displays/resultsMedals", QueryParameters.simple(map));
+				QueryParameters simple = QueryParameters.simple(map);
+				//logger.debug("========== parameters {}",simple);
+				UI.getCurrent().navigate("displays/resultsMedals", simple);
+			} else {
+				//logger.debug("========== NOT {} {} {}",e.getCeremonyType(), this.isSwitchableDisplay(), ceremonyGroup);
+				String title = inferGroupName() + " &ndash; "
+				        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), this.isSwitchableDisplay());
+				this.getElement().setProperty("fullName", title);
+				this.getElement().setProperty("teamName", "");
+				this.getElement().setProperty("groupName", "");
+				breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
+				setDisplay(false);
+
+				updateBottom(computeLiftType(fop.getCurAthlete()), fop);
+				this.getElement().callJsFunction("doBreak");
 			}
-
-			String title = inferGroupName() + " &ndash; "
-			        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), this.isSwitchableDisplay());
-			this.getElement().setProperty("fullName", title);
-			this.getElement().setProperty("teamName", "");
-			this.getElement().setProperty("groupName", "");
-			breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
-			setDisplay(false);
-
-			updateBottom(computeLiftType(fop.getCurAthlete()), fop);
-			this.getElement().callJsFunction("doBreak");
 		}));
 	}
 
@@ -293,19 +296,17 @@ public class Results extends PolymerTemplate<TemplateModel>
 	public boolean isSilenced() {
 		return silenced;
 	}
-	
+
 	@Override
 	public boolean isDownSilenced() {
 		return downSilenced;
 	}
-	
 
 	@Override
 	public void setDownSilenced(boolean silenced) {
 		this.decisions.setSilenced(silenced);
 		this.downSilenced = silenced;
 	}
-
 
 	/**
 	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#isSwitchableDisplay()
@@ -1067,7 +1068,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 		OwlcmsSession.withFop(fop -> {
 			init();
 			checkVideo("styles/video/results.css", routeParameter, this);
-			
+
 			// get the global category rankings (attached to each athlete)
 			displayOrder = getOrder(fop);
 
@@ -1083,9 +1084,8 @@ public class Results extends PolymerTemplate<TemplateModel>
 			getElement().setProperty("noLiftRanks", "noranks nosinclair");
 		} else {
 			getElement().setProperty("noLiftRanks", "nosinclair");
-		}		
+		}
 		SoundUtils.enableAudioContextNotification(this.getElement());
-		storeReturnURL();
 	}
 
 	protected void setTranslationMap() {
@@ -1151,7 +1151,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 
 	@Override
 	public void setVideo(boolean b) {
-		this.video=b;
+		this.video = b;
 	}
 
 	@Override

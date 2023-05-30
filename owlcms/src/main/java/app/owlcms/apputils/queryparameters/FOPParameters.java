@@ -139,15 +139,17 @@ public interface FOPParameters extends HasUrlParameter<String> {
 	 */
 	@Override
 	public default void setParameter(BeforeEvent event, @OptionalParameter String unused) {
-		logger.setLevel(Level.INFO);
+		//logger.setLevel(Level.INFO);
 		Location location = event.getLocation();
 		QueryParameters queryParameters = location.getQueryParameters();
 		Map<String, List<String>> parametersMap = queryParameters.getParameters();
 		HashMap<String, List<String>> params = readParams(location, parametersMap);
 
 		// change the URL to reflect the updated parameters
+		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params)));
 		event.getUI().getPage().getHistory().replaceState(null,
-		        new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
+		        location2);
+		storeReturnURL(location2);
 	}
 
 	/**
@@ -164,7 +166,7 @@ public interface FOPParameters extends HasUrlParameter<String> {
 		UI.getCurrent().getElement().executeJs("window.sessionStorage.setItem($0, $1);", key, value);
 	}
 
-	public default void storeReturnURL() {
+	public default void storeReturnURL(Location location2) {
 	}
 
 	public default void updateParam(Map<String, List<String>> cleanParams, String parameter, String value) {
@@ -195,7 +197,8 @@ public interface FOPParameters extends HasUrlParameter<String> {
 		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(queryParameterMap)));
 		ui.getPage().getHistory().replaceState(null, location2);
 		setLocation(location2);
-		storeReturnURL();
+		logger.debug("updatingLocation {} {}",location2.getPathWithQueryParameters(), this.getClass().getSimpleName());
+		storeReturnURL(location2);
 	}
 
 	Map<String, List<String>> getUrlParameterMap();
