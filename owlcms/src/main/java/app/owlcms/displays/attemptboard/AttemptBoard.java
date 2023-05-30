@@ -410,7 +410,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 	@Subscribe
 	public void slaveDecision(UIEvent.Decision e) {
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			spotlightRecords(OwlcmsSession.getFop());
+			spotlightRecords(OwlcmsSession.getFop(), e.getAthlete());
 		});
 	}
 
@@ -418,13 +418,14 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			if (isDone()) {
-				doDone(e.getAthlete().getGroup());
-			} else {
-				this.getElement().callJsFunction("reset");
-			}
-		});
+		UIEventProcessor.uiAccess(athleteTimer, uiEventBus, () -> syncWithFOP(OwlcmsSession.getFop()));
+//		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+//			if (isDone()) {
+//				doDone(e.getAthlete().getGroup());
+//			} else {
+//				this.getElement().callJsFunction("reset");
+//			}
+//		});
 	}
 
 	/**
@@ -502,7 +503,9 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 			FOPState state = fop.getState();
 			uiEventLogger.debug("### {} {} isDisplayToggle={}", state, this.getClass().getSimpleName(),
 			        e.isDisplayToggle());
-			if (state == FOPState.BREAK) {
+			if (state == FOPState.DECISION_VISIBLE) {
+				// ignore -- decision reset will resync.
+			} else if (state == FOPState.BREAK) {
 				if (e.isDisplayToggle()) {
 					Athlete a = e.getAthlete();
 					doAthleteUpdate(a);
@@ -704,7 +707,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 			this.getElement().setProperty("WithPicture", done ? "WithPicture" : "");
 		}
 
-		spotlightRecords(fop);
+		spotlightRecords(fop, a);
 
 		this.getElement().setProperty("startNumber", a.getStartNumber());
 		String formattedAttempt = formatAttempt(a);
@@ -902,9 +905,9 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		plates = null;
 	}
 
-	private void hideRecordInfo(FieldOfPlay fop) {
+	private void hideRecordInfo(FieldOfPlay fop, Athlete a) {
 		this.getElement().setProperty("recordKind", "recordNotification none");
-		this.getElement().setProperty("teamName", fop.getCurAthlete().getTeam());
+		this.getElement().setProperty("teamName", a.getTeam());
 		this.getElement().setProperty("hideBecauseRecord", "");
 	}
 
@@ -979,15 +982,15 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		this.getElement().setProperty("hideBecauseRecord", "hideBecauseRecord");
 	}
 
-	private void spotlightRecords(FieldOfPlay fop) {
+	private void spotlightRecords(FieldOfPlay fop, Athlete a) {
 		if (fop.getState() == FOPState.INACTIVE || fop.getState() == FOPState.BREAK) {
-			hideRecordInfo(fop);
+			hideRecordInfo(fop, a);
 		} else if (fop.getNewRecords() != null && !fop.getNewRecords().isEmpty()) {
 			spotlightNewRecord();
 		} else if (fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty()) {
 			spotlightRecordAttempt();
 		} else {
-			hideRecordInfo(fop);
+			hideRecordInfo(fop, a);
 		}
 	}
 
