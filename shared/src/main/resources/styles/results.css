@@ -96,6 +96,7 @@ table.results.sinclair {
 /* default cell colors, backgrounds and borders */
 :host(.dark) table.results tr td,
 :host(.dark) table.results tr th {
+    align-items: center;
     background-color: var(--darkBackgroundColor);
     color: var(--darkTextColor);
     border-width: 1px;

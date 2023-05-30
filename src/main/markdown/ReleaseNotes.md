@@ -4,6 +4,7 @@
 
 - 40.0 Changes
 
+  - 40.0.0-alpha03: Flags are shown next to the medal name when a single category is selected during the medal ceremony.
   - 40.0.0-alpha02: Fix: The attempt board would sometimes display the next athlete's team when previous decision was still visible (would happen more often when announcer entered decisions, or when forcing decisions during a simulation)
   - 40.0.0-alpha02: Various clean-up in scoreboard stylesheets to make it easier to create video-oriented scoreboards
   - 40.0.0-alpha01 Fix: Missing Marshal #2 on Officials Schedule pre-competition document, fixed the name of exported file.

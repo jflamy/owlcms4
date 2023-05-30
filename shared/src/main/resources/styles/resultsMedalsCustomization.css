@@ -1,0 +1,72 @@
+* {
+    /*************************
+     * Customization section
+     *************************/
+
+    /* variable-size columns. fr = free space after other columns have been allocated.
+       for ease of understanding, sum of all fr columns should be 1.00.
+    */
+    --nameWidth: 0.60fr;
+    --clubWidth: 0.40fr;
+
+    /* left column width: adjust depending on how you name groups */
+    --startWidth: 4em;
+    
+    /* spacers */
+    --spacerWidth: 1vh;
+
+    /* normally these do not need to change */
+    --categoryWidth: 10ch;
+    --liftResultWidth: 6ch;
+
+    /* to show these columns 
+    - change hidden to visible
+    - set the width to value like 8ch 
+    */
+    --birthWidth: 6ch;
+    --birthVisibility: visible;
+    --custom1Width: 0;
+    --custom1Visibility: hidden;
+    --custom2Width: 0;
+    --custom2Visibility: hidden;
+
+    --rankWidth: var(--liftResultWidth);
+    --rankVisibility: visible;
+    
+    --bestWidth: var(--liftResultWidth);
+    --bestVisibility: visible;
+
+    /* top part: current attempt information */
+    --topRowFontSize: 3vh;
+    --athleteNameFontSize: 4vh;
+    --groupInfoFontSize: 2.5vh;
+
+    /* records */
+    --recordValueCellWidth: 4rem;
+
+    /* leaders section control grid lines visibility */
+    --leaderLineHeight: min-content;
+
+    box-sizing: border-box;
+    --nbRanks: 1;
+}
+
+:host(.light) table.results {
+    --spacerWidth: 0vh;
+    --rowSmallSpacerHeight: 0;
+}
+:host(.dark) table.results {
+    --spacerWidth: 1vh;
+    --rowSmallSpacerHeight: 0.25vh;
+}
+
+td.flags img {
+    height: 5vh;
+    margin: 1vh;
+    align-self: center;
+}
+td.flags div {
+    height: 7vh;
+    line-height: 7vh;
+    align-self: center;
+}
