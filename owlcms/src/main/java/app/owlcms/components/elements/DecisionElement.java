@@ -178,7 +178,7 @@ public class DecisionElement extends PolymerTemplate<TemplateModel>
 	}
 
 	public void setSilenced(boolean b) {
-		logger.warn("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.whereFrom(1));
+		//logger.debug("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.whereFrom(1));
 		getElement().setProperty("silent", b);
 		silenced = b;
 	}

@@ -121,7 +121,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	
 	@Subscribe
 	public void slaveDownSignal(UIEvent.DownSignal e) {
-		logger.warn("jury slaveDownSignal {} {} {} {}", this, this.getOrigin(), e.getOrigin(), isSilenced());
+		//logger.debug("jury slaveDownSignal {} {} {} {}", this, this.getOrigin(), e.getOrigin(), isSilenced());
 		if (isSilenced() 
 				//&& (isJuryMode() || (this.getOrigin() == e.getOrigin()))
 				) {
