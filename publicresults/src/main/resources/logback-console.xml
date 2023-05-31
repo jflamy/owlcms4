@@ -27,5 +27,8 @@ Also used for certain cloud services (e.g. Heroku)
 	<root level="WARN">
 		<appender-ref ref="CONSOLE" />
 	</root>
+	
+    <!-- additional tracing/debugging (set level to DEBUG or TRACE) -->
+    <logger name="app.owlcms.utils.ResourceWalker" level="WARN" />
 
 </configuration>
