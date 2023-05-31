@@ -1964,6 +1964,7 @@ public class FieldOfPlay {
 		long endDisplayOrder = 0;
 		long endLeaders = 0;
 
+		//logger.debug("recompute ranks {} [{}]",recomputeRanks,LoggerUtils.whereFrom());
 		if (recomputeRanks) {
 			// we update the ranks of affected athletes in the database
 			athletes = JPAService.runInTransaction(em -> {
@@ -2003,7 +2004,6 @@ public class FieldOfPlay {
 			setCurAthlete(null);
 			recomputeRecords(null);
 		} else {
-
 			if (recomputeRanks) {
 				setMedals(Competition.getCurrent().computeMedals(g, athletes));
 			}
