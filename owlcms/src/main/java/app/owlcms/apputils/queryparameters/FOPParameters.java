@@ -30,7 +30,6 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public interface FOPParameters extends HasUrlParameter<String> {

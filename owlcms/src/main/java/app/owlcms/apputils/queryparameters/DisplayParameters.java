@@ -36,7 +36,6 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.i18n.Translator;
-import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
 
 /**

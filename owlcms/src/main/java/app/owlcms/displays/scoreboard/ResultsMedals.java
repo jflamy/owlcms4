@@ -33,14 +33,11 @@ import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
-import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.ContextFreeDisplayParameters;
-import app.owlcms.apputils.queryparameters.DisplayParameters;
-import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
