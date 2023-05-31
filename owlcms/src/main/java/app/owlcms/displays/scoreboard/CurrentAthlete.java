@@ -284,9 +284,13 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 		this.initializationNeeded = true;
 	}
 
+	/**
+	 * @see app.owlcms.apputils.queryparameters.ContentParameters#setSilenced(boolean)
+	 */
 	@Override
 	public void setSilenced(boolean silent) {
-		// no op, silenced by definition
+		this.timer.setSilenced(true);
+		this.breakTimer.setSilenced(true);
 	}
 
 	@Override
@@ -350,6 +354,11 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			setHidden(false);
+			this.getElement().setProperty("hideBlock", "visibility:hidden");
+			this.getElement().setProperty("noneBlock", "display:none");
+			this.getElement().setProperty("hideInherited", "visibility:hidden");
+			this.getElement().setProperty("hideTableCell", "visibility:hidden");
+			this.getElement().callJsFunction("refereeDecision");
 			this.getElement().callJsFunction("down");
 		});
 	}
