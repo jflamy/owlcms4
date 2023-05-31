@@ -23,6 +23,7 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -177,8 +178,7 @@ public class DecisionElement extends PolymerTemplate<TemplateModel>
 	}
 
 	public void setSilenced(boolean b) {
-		// logger.trace("{} silenced = {} from {}", this.getClass().getSimpleName(), b,
-		// LoggerUtils.whereFrom(1));
+		logger.warn("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.whereFrom(1));
 		getElement().setProperty("silent", b);
 		silenced = b;
 	}
@@ -273,7 +273,7 @@ public class DecisionElement extends PolymerTemplate<TemplateModel>
 		});
 	}
 
-	private boolean isJuryMode() {
+	protected boolean isJuryMode() {
 		return juryMode;
 	}
 
