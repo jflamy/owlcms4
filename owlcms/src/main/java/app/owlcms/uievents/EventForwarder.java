@@ -833,7 +833,7 @@ public class EventForwarder implements BreakDisplay {
 		if (a.getSinclairRank() != null) {
 			ja.put("sinclairRank", formatInt(a.getSinclairRank()));
 		}
-		ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
+		ja.put("group", a.getSubCategory());
 		boolean notDone = a.getAttemptsDone() < 6;
 		String blink = (notDone ? " blink" : "");
 		if (notDone) {
