@@ -199,7 +199,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 				        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), this.isSwitchableDisplay());
 				this.getElement().setProperty("fullName", title);
 				this.getElement().setProperty("teamName", "");
-				this.getElement().setProperty("groupName", "");
+				setGroupNameProperty("");
 				breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
 				setDisplay(false);
 
@@ -833,7 +833,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 					this.getElement().setProperty("attempt", formattedAttempt);
 					this.getElement().setProperty("weight", a.getNextAttemptRequestedWeight());
 				} else {
-					logger.debug("group done {} {}", group, System.identityHashCode(group));
+					//logger.debug("group done {} {}", group, System.identityHashCode(group));
 					doBreak(e);
 				}
 			}
@@ -1111,27 +1111,34 @@ public class Results extends PolymerTemplate<TemplateModel>
 		spotlightRecords(fop);
 
 		doChangeEmSize();
-		if (liftType != null && curGroup != null) {
+		if (liftType != null && curGroup != null && !curGroup.isDone()) {
 			this.getElement().setProperty("displayType", getDisplayType());
 		}
-		if (liftType != null) {
-			this.getElement().setProperty("groupName",
-			        curGroup != null
-			                ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
-			                : "");
+		if (curGroup.isDone()) {
+			//logger.debug("case 2 {}", isSwitchableDisplay());
+			setGroupNameProperty(groupDescription != null ? groupDescription : "\u00a0");
+			setLiftsDoneProperty("");
+		} else if (liftType != null) {
+			//logger.debug("case 3 {}", isSwitchableDisplay());
+			String name = groupDescription != null ? groupDescription : curGroup.getName();
+			String value =  groupDescription == null ?
+					Translator.translate("Scoreboard.GroupLiftType", name, liftType)
+					: Translator.translate("Scoreboard.DescriptionLiftTypeFormat", groupDescription, liftType);
+			setGroupNameProperty(value);
 			liftsDone = AthleteSorter.countLiftsDone(displayOrder);
-			if ((isSwitchableDisplay() || isVideo()) && groupDescription != null) {
-				this.getElement().setProperty("liftsDone", groupDescription);
+			if ((isSwitchableDisplay() || isVideo())) {
+				setLiftsDoneProperty("");
 			} else {
-				this.getElement().setProperty("liftsDone", Translator.translate("Scoreboard.AttemptsDone", liftsDone));
+				setLiftsDoneProperty(" \u2013 " + Translator.translate("Scoreboard.AttemptsDone", liftsDone));
 			}
 		} else {
+			//logger.debug("case 4 {}", isSwitchableDisplay());
 			if ((isSwitchableDisplay() || isVideo()) && groupDescription != null) {
-				this.getElement().setProperty("liftsDone", groupDescription);
-				this.getElement().setProperty("groupName", "");
+				setLiftsDoneProperty(groupDescription);
+				setGroupDescriptionProperty("");
 				this.getElement().callJsFunction("groupDone");
 			}
-			this.getElement().setProperty("groupName", "");
+			setGroupNameProperty("");
 			this.getElement().callJsFunction("groupDone");
 		}
 		this.getElement().setPropertyJson("ageGroups", getAgeGroupNamesJson(fop.getAgeGroupMap()));
@@ -1147,6 +1154,18 @@ public class Results extends PolymerTemplate<TemplateModel>
 		if (!showCurrent(fop)) {
 			this.getElement().callJsFunction("groupDone");
 		}
+	}
+
+	private void setLiftsDoneProperty(String value) {
+		this.getElement().setProperty("liftsDone", value);
+	}
+
+	private void setGroupNameProperty(String value) {
+		this.getElement().setProperty("groupName", value);
+	}
+
+	private void setGroupDescriptionProperty(String groupDescription) {
+		this.getElement().setProperty("groupDescription", groupDescription);
 	}
 
 	@Override

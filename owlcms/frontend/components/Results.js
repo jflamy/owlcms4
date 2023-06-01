@@ -49,7 +49,7 @@ class Results extends PolymerElement {
     </div>
     <div class="group" style$="[[normalHeaderDisplay]];">
         <div id="groupDiv">
-            <span class="groupName">[[displayType]][[groupName]]</span> &ndash; [[liftsDone]]
+            <span class="groupName">[[displayType]][[groupName]]</span>[[liftsDone]]
         </div>
     </div>
     <div class="video" style$="[[videoHeaderDisplay]]">
