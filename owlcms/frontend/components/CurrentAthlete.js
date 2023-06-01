@@ -158,9 +158,6 @@ class CurrentAthlete extends PolymerElement {
 		this.$.breakTimerDiv.style.display = "grid";
 		this.$.decisionDiv.style.display = "none";
 		this.$.resultsDiv.style.visibility = "hidden";
-		// this.$.totalNameTd.style.display = "block";
-		// this.$.totalCellTd.style.display = "block";
-		// this.$.totalRankTd.style.display = "block";
 	}
 
 	groupDone() {
