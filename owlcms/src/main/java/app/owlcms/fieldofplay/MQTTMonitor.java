@@ -318,6 +318,11 @@ public class MQTTMonitor {
 				publishMqttJuryDeliberation();
 			} catch (MqttException e1) {
 			}
+		} else if (e.getBreakType() == BreakType.CHALLENGE) {
+			try {
+				publishMqttChallenge();
+			} catch (MqttException e1) {
+			}
 		}
 	}
 
@@ -483,6 +488,11 @@ public class MQTTMonitor {
 
 	private void publishMqttJuryDeliberation() throws MqttPersistenceException, MqttException {
 		String topic = "owlcms/fop/juryDeliberation/" + fop.getName();
+		client.publish(topic, new MqttMessage());
+	}
+	
+	private void publishMqttChallenge() throws MqttPersistenceException, MqttException {
+		String topic = "owlcms/fop/challenge/" + fop.getName();
 		client.publish(topic, new MqttMessage());
 	}
 

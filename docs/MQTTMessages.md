@@ -40,6 +40,10 @@
 
 - `fop/juryDeliberation/A`: 
   Jury deliberation has been started (the application is in BreakType.JURY mode.)  There is no argument. The device should clear the jury member decision lights in order to allow a secret vote to be taken on a video replay.
+  
+- `fop/challenge/A`: 
+  A challenge has been issued (the application is in BreakType.CHALLENGE mode.)  There is no argument. The device should clear the jury member decision lights in order to allow a secret vote to be taken on a video replay.
+  
 
 #### Subscribed by the referee device:
 
