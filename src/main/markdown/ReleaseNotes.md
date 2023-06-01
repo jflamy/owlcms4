@@ -3,6 +3,9 @@
 *Beta Release for testing and translation.  Test very thoroughly before using.*
 
 - 40.0 Changes
+  - 40.0.0-beta03: Changed the shortcut key for resetting to 1 minute on the announcer console. The shortcut is now the numeric keypad `+` .    `Shift=` is also understood (this combination is a `+` sign on most keyboards).  The previous shortcut key was interfering with data entry of failed lifts.
+  - 40.0.0-beta03: added a new MQTT message so devices know to reset their display of jury member decisions on the beginning of a challenge
+  - 40.0.0-beta03: Jury member decision resets made more robust when using MQTT devices.
   - 40.0.0-beta02: Fix: leader section was no longer showing up during Snatch for Total-only competitions
   - 40.0.0-beta02: Fix: The announcer settings menu (⚙️) now correctly handles the down sound independently of the other settings.
   - Flags are shown next to the team name when a single category is selected during the medal ceremony.
