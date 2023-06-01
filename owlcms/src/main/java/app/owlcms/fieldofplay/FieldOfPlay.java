@@ -1539,6 +1539,7 @@ public class FieldOfPlay {
 		} else {
 			switch (newBreak) {
 			case JURY:
+				resetJuryDecisions();
 				getUiEventBus().post(new UIEvent.JuryNotification(athleteUnderReview, this,
 				        JuryDeliberationEventType.START_DELIBERATION, null, null));
 				break;
@@ -1551,6 +1552,7 @@ public class FieldOfPlay {
 				        JuryDeliberationEventType.TECHNICAL_PAUSE, null, null));
 				break;
 			case CHALLENGE:
+				resetJuryDecisions();
 				getUiEventBus().post(new UIEvent.JuryNotification(null, this,
 				        JuryDeliberationEventType.CHALLENGE, null, null));
 				break;
@@ -2076,11 +2078,15 @@ public class FieldOfPlay {
 	private void resetDecisions() {
 		logger.debug("{}**** resetting all decisions on new clock", getLoggingName());
 		setRefereeDecision(new Boolean[3]);
-		setJuryMemberDecision(new Boolean[5]);
+		resetJuryDecisions();
 		setRefereeTime(new Long[3]);
-		juryMemberTime = new Integer[5];
 		setRefereeForcedDecision(false);
 		getUiEventBus().post(new UIEvent.ResetOnNewClock(clockOwner, this));
+	}
+
+	public void resetJuryDecisions() {
+		setJuryMemberDecision(new Boolean[5]);
+		juryMemberTime = new Integer[5];
 	}
 
 	private void resetEmittedFlags() {
