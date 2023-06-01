@@ -149,15 +149,24 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 	@Override
 	public void doBreak(UIEvent e) {
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			getElement().setProperty("fullName",
-			        inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
-			getElement().setProperty("teamName", "");
-			getElement().setProperty("attempt", "");
-			setHidden(false);
-
-			updateBottom(computeLiftType(fop.getCurAthlete()), fop);
-			uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
-			this.getElement().callJsFunction("doBreak");
+			if (fop.getGroup() != null && fop.getGroup().isDone()) {
+				updateBottom(null, fop);
+				getElement().setProperty("fullName", getTranslation("Group_number_done", fop.getGroup().toString()));
+				getElement().setProperty("teamName", "");
+				getElement().setProperty("attempt", "");
+				setHidden(false);
+				this.getElement().callJsFunction("doBreak");
+			} else {
+				getElement().setProperty("fullName",
+				        inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
+				getElement().setProperty("teamName", "");
+				getElement().setProperty("attempt", "");
+				setHidden(false);
+	
+				updateBottom(computeLiftType(fop.getCurAthlete()), fop);
+				uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
+				this.getElement().callJsFunction("doBreak");
+			}
 		}));
 	}
 
@@ -375,6 +384,12 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			setHidden(false);
 //          Group g = e.getGroup();
+			
+			this.getElement().setProperty("hideBlock", "visibility:hidden");
+			this.getElement().setProperty("noneBlock", "display:none");
+			this.getElement().setProperty("hideInherited", "visibility:hidden");
+			this.getElement().setProperty("hideTableCell", "visibility:hidden");
+			
 			setDone(true);
 		});
 	}
