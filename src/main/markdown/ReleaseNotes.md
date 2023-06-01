@@ -1,15 +1,12 @@
-40.0 Scoreboard improvement and fixes to small report issues
+40.0 Scoreboard improvements and fixes, fixes to small report issues, MQTT fixes.
 
-*Beta Release for testing and translation.  Test very thoroughly before using.*
+*Release Candidate.  Test thoroughly before using.*
 
 - 40.0 Changes
-  - 40.0.0-beta03: Changed the shortcut key for resetting to 1 minute on the announcer console. The shortcut is now the numeric keypad `+` .    `Shift=` is also understood (this combination is a `+` sign on most keyboards).  The previous shortcut key was interfering with data entry of failed lifts.
-  - 40.0.0-beta03: added a new MQTT message so devices know to reset their display of jury member decisions on the beginning of a challenge
-  - 40.0.0-beta03: Jury member decision resets made more robust when using MQTT devices.
-  - 40.0.0-beta02: Fix: leader section was no longer showing up during Snatch for Total-only competitions
-  - 40.0.0-beta02: Fix: The announcer settings menu (⚙️) now correctly handles the down sound independently of the other settings.
+  - 40.0.0-rc01: At the top of the scoreboards, use the session description (when available) in the second line that shows session progress.
+  - Incompatible Change: Changed the shortcut key for resetting to 1 minute on the announcer/timekeeper console. The shortcut is now the numeric keypad `+` .    `Shift=` is also understood (this combination is a `+` sign on most keyboards).
+  - Added a new scoreboard to show athletes in their registration category ranking order (instead of start number). This is meant to be used for public display or video streaming.
   - Flags are shown next to the team name when a single category is selected during the medal ceremony.
-  - Added scoreboard to show athletes in their live registration category ranking order (instead of start number). This is meant to be used for public display or video streaming.
   - CSS Styling
     - The use of @import has been removed from the CSS files. An "autoversioning" suffix is used to force the browsers to refresh the colors and other shared files after a program restart.
     - Added an option to disable the "autoversioning" suffix when using browser development tools to edit the CSS files.  See the [Styling](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Styling) documentation for details.
@@ -20,6 +17,9 @@
   - Fix: Added 2nd marshal and 2nd technical controller on protocol sheets.
   - Fix: Missing Marshal #2 on Officials Schedule pre-competition document, fixed the name of exported file.
   - Fix: The attempt board would sometimes display the next athlete's team when the previous decision was still visible (would happen more often when the announcer entered decisions, or when forcing decisions during a simulation)
+  -  Fix: Category leader section at the bottom of scoreboard was no longer showing up during Snatch for Total-only competitions
+  -  Fix: The announcer settings menu (⚙️) now correctly handles the down sound independently of the other settings.
+  - MQTT: added a new MQTT message so devices know to reset their display of jury member decisions at the beginning of a challenge, fixed missing cases for jury member decision resets.
   
 
 ##### Highlights from recent stable releases
