@@ -103,7 +103,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 		scoreboardMultiRanks = openInNewTab(ResultsLeadersRanks.class,
 		        getTranslation("ScoreboardMultiRanksButton"), "video");
 		scoreboardRankings = openInNewTab(ResultsRankingOrder.class,
-		        getTranslation("Scoreboard.RankingOrderButton"));
+		        getTranslation("Scoreboard.RankingOrderButton"), "video");
 
 		List<Group> groups = GroupRepository.findAll();
 		groups.sort(new NaturalOrderComparator<Group>());
