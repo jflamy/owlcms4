@@ -1,26 +1,11 @@
 40.0 Scoreboard improvements and fixes, fixes to small report issues, MQTT fixes.
 
-- 40.0 Changes
-  - Added a new scoreboard to show athletes in ranking order (instead of start number). This is meant to be used for public display or video streaming.  The ranking is for the registration category (where the athlete has to lift.)
-  - Flags are shown next to the team name when a single category is selected during the medal ceremony.
-  - CSS Styling
-    - The use of @import has been removed from the CSS files. An "autoversioning" suffix is used to force the browsers to refresh the colors and other shared files after a program restart.
-    - The "autoversioning" suffix needs to be disabled when using browser development tools to edit the CSS files. See the  [Styling](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Styling) documentation for details.
-    - The scoreboards no longer show a scrollbar. This allows a bit more flexibility when zooming in or enlarging the fonts.
-    - Various clean-up in scoreboard stylesheets to make it easier to create video-oriented scoreboards
-  - At the top of the scoreboards, use the session description (when available) in the second line that shows session progress.
-  - **Timekeeper keyboard mapping change**: Changed the shortcut key for resetting to 1 minute on the announcer/timekeeper console. The shortcut is now the numeric keypad `+` .    `Shift=` is also understood (this combination is a `+` sign on most keyboards).  See the [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Announcing#starting-the-clock) for the keyboard mappings.
-  - Fix: Category switches by the announcer during the medal ceremony are correctly reflected on the main and medal displays.
-  - Fix: Before the start of Clean and Jerk, the order of snatch leaders shown at the bottom of the scoreboard was random.
-  - Fix: Added 2nd marshal and 2nd technical controller on protocol sheets.
-  - Fix: Missing Marshal #2 on Officials Schedule pre-competition document, fixed the name of exported file.
-  - Fix: The attempt board would sometimes display the next athlete's team when the previous decision was still visible (would happen more often when the announcer entered decisions, or when forcing decisions during a simulation)
-  - Fix: Category leader section at the bottom of scoreboard was no longer showing up during Snatch for Total-only competitions
-  - Fix: The announcer settings menu (⚙️) now correctly handles the down sound independently of the other settings.
-  - MQTT: added a new MQTT message so devices know to reset their display of jury member decisions at the beginning of a challenge, fixed missing cases for jury member decision resets.
+- 40.1 Changes
+  - A new `competition/export` endpoint to obtain a JSON export of the database.  The requesting party must be listed in the backdoor access list.
 
 ##### Highlights from recent stable releases
 
+- New session scoreboard for current rankings
 - A new Records Management page has been added, reachable from the preparation page.
   - Record definition files can be uploaded interactively 
   - The ordering of the records on the scoreboard is no longer dependent on the file names, and is edited interactively.
