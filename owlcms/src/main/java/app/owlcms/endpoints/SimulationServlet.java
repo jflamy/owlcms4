@@ -18,7 +18,7 @@
 //  You should have received a copy of the GNU Lesser General Public License along with this library.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-package app.owlcms.simulation;
+package app.owlcms.endpoints;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.apputils.AccessUtils;
+import app.owlcms.simulation.CompetitionSimulator;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ProxyUtils;
 import ch.qos.logback.classic.Logger;
