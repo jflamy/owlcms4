@@ -252,7 +252,7 @@ public class Config {
 	 * @throws SQLException
 	 */
 	public byte[] getLocalZipBlob() {
-		logger.warn("getLocalZipBlob skip={} localOverride={}",skipReading, localOverride);
+		//logger.debug("getLocalZipBlob skip={} localOverride={}",skipReading, localOverride);
 		if (localOverride == null || skipReading) {
 			return null;
 		}
