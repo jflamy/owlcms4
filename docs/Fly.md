@@ -21,14 +21,14 @@ If there is a "use the Web CLI" button, click it, otherwise type https://fly.io/
    Type the following command in the black command line area, replacing `myclub` with the name you want.
 
    ```
-   export APP=myclub
+   export FLY_APP=myclub
    ```
 
 2. Create the application.
    *Click on the grey box below to copy the command.  Paste it to the command line interface (use right-click on Windows, or ctrl-click on macOS, or the browser Edit menu)*
    
    ```
-   fly app create --name $APP 
+   fly app create
    ```
    
    - Organization:  use the default `Personal` organization.
@@ -37,7 +37,7 @@ If there is a "use the Web CLI" button, click it, otherwise type https://fly.io/
 3. Create the database that will store the competition information (*click on the box to copy, right-click to paste*)
 
    ```bash
-   fly postgres create --name $APP-db
+   fly postgres create --name $FLY_APP-db
    ```
 
    - Organization:  use the default `Personal` organization.
@@ -49,13 +49,13 @@ If there is a "use the Web CLI" button, click it, otherwise type https://fly.io/
 3. Link the database to the application
 
    ```bash
-   fly postgres attach $APP-db --app $APP
+   fly postgres attach $FLY_APP-db
    ```
 
 5. Start the application with the proper size
 
    ```bash
-   fly deploy --ha=false --vm-size shared-cpu-2x --app $APP
+   fly deploy --ha=false --vm-size shared-cpu-2x --image owlcms/owlcms:stable
    ```
 
 **You are now done and can use https://myclub.fly.dev**
@@ -85,7 +85,7 @@ This is not required, but since there is no extra cost associated, you might as 
    - Use the default personal environment when asked
 
    ```
-   fly app create --name $APP-results
+   fly app create --name $FLY_APP-results
    ```
    
 2. The two applications (owlcms and publicresults) need to trust one another. So we create a secret phrase and configure both applications to use it. See [this page](PublicResults) for an overview of how owlcms and publicresults work together.
@@ -96,23 +96,23 @@ This is not required, but since there is no extra cost associated, you might as 
    >
 
     ```
-    fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app $APP-results
-    fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app $APP
+    fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app $FLY_APP-results
+    fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app $FLY_APP
     ```
 
 3. owlcms also needs to know where public results is in order to send it updates.  Use the correct name for your publicresults app.
 
    ```
-   fly secrets set OWLCMS_REMOTE=https://$APP-results.fly.dev --app $APP
+   fly secrets set OWLCMS_REMOTE=https://$APP-results.fly.dev --app $FLY_APP
    ```
-      
+   
 4. Start public results with a correct dimensioning.
 
       - If asked, do NOT copy an existing TOML file
       - Use the personal environment when asked
       
       ```
-      fly deploy --ha=false --vm-size shared-cpu-2x --app $APP-results
+      fly deploy --ha=false --vm-size shared-cpu-2x --app $APP-results --image owlcms/publicresults:stable
       ```
 
 **You are now done and can use https://myclub-results.fly.dev**
