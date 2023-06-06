@@ -1,7 +1,7 @@
 40.0 Scoreboard improvements and fixes, fixes to small report issues, MQTT fixes.
 
 - 40.1 Changes
-  - A new `competition/export` endpoint to obtain a JSON export of the database.  The requesting party must be listed in the backdoor access list.
+  - Added a  `competition/export` endpoint to obtain a JSON export of the database.  The requesting party must be listed in the backdoor access list on the "Language and System Settings/Access Control" page.
 
 ##### Highlights from recent stable releases
 
