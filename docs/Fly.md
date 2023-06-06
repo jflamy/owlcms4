@@ -10,7 +10,7 @@ Go to the site https://fly.io
 
 If you do not have an account, create one.  Running owlcms requires an account, but you will not actually get billed because the fees are lower than their minimum
 
-If there is a "use the Web CLI" button, click it, otherwise type https://fly.io/terminal in your browser address bar yourself.
+If there is a "use the Web CLI" button, click it, otherwise type https://fly.io/terminal in your browser address bar yourself.   Advanced users may prefer to install the `flyctl` command on their own machine. If so see, the [Notes](#advanced-user-notes) at the bottom of this page.
 
 ### Install owlcms
 
@@ -26,11 +26,11 @@ If there is a "use the Web CLI" button, click it, otherwise type https://fly.io/
 
 2. Create the application.
    *Click on the grey box below to copy the command.  Paste it to the command line interface (use right-click on Windows, or ctrl-click on macOS, or the browser Edit menu)*
-   
+
    ```
    fly app create
    ```
-   
+
    - Organization:  use the default `Personal` organization.
 
 
@@ -64,7 +64,7 @@ If there is a "use the Web CLI" button, click it, otherwise type https://fly.io/
 
 The `fly deploy` command fetches the newest version available and restarts the application (owlcms stores the versions in the public hub.docker.com repository)
 
-To update to the latest stable version, log in again to https://fly.io/terminal and type the following command (replacing `myclub` with your own site name)
+To update to the latest stable version, log in again to https://fly.io/terminal and type the following command (replacing `myclub` with your own site name) (if you have set FLY_APP, you can omit the `-a applicationName` part).
 
 ```
 fly deploy -i owlcms/owlcms:stable -a myclub
@@ -97,13 +97,13 @@ This is not required, but since there is no extra cost associated, you might as 
 
     ```
     fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app $FLY_APP-results
-    fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app $FLY_APP
+    fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb
     ```
 
 3. owlcms also needs to know where public results is in order to send it updates.  Use the correct name for your publicresults app.
 
    ```
-   fly secrets set OWLCMS_REMOTE=https://$APP-results.fly.dev --app $FLY_APP
+   fly secrets set OWLCMS_REMOTE=https://$APP-results.fly.dev
    ```
    
 4. Start public results with a correct dimensioning.
@@ -126,7 +126,7 @@ The `fly deploy` command fetches the newest version available from the public hu
 To update to the latest stable version
 
 ```
-fly deploy --image owlcms/publicresults:stable --app myclub-results
+fly deploy --image owlcms/publicresults:stable --app $FLY_APP-results
 ```
 
 ### Control access to the owlcms application
@@ -140,3 +140,12 @@ Note that if you own your own domain, you can add names under your own domain to
 ### Scale-up and Scale-down of owlcms
 
 If you run a very large competition, you may wish to increase the memory to 1024 or to use a dedicated CPU.
+
+### Advanced User Notes
+
+If you used the [flyctl installation instructions](https://fly.io/docs/hands-on/install-flyctl/) on the `fly.io` site, you are running the flyctl command locally. If you are using Linux or MacOS, the `export` command is used to set the `FLY_APP` variable used in the instructions.  If you are running on Windows, the command to use is `set`, making sure there are **no** spaces around the `=` sign. 
+
+```
+set FLY_APP=myclub
+```
+
