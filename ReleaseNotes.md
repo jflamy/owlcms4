@@ -1,17 +1,15 @@
 40.0 Scoreboard improvements and fixes, fixes to small report issues, MQTT fixes.
 
-*Release Candidate.  Test thoroughly before using.*
-
 - 40.0 Changes
   - Added a new scoreboard to show athletes in ranking order (instead of start number). This is meant to be used for public display or video streaming.  The ranking is for the registration category (where the athlete has to lift.)
   - Flags are shown next to the team name when a single category is selected during the medal ceremony.
   - CSS Styling
     - The use of @import has been removed from the CSS files. An "autoversioning" suffix is used to force the browsers to refresh the colors and other shared files after a program restart.
-    - Added an option to disable the "autoversioning" suffix when using browser development tools to edit the CSS files.  See the [Styling](https://owlcms.github.io/owlcms4-prerelease/#/Styling) documentation for details.
-    - The scoreboards will no longer show a scrollbar. This allows a bit more flexibility when zooming in or enlarging the fonts.
+    - The "autoversioning" suffix needs to be disabled when using browser development tools to edit the CSS files. See the  [Styling](https://owlcms.github.io/owlcms4-prerelease/#/Styling) documentation for details.
+    - The scoreboards no longer show a scrollbar. This allows a bit more flexibility when zooming in or enlarging the fonts.
     - Various clean-up in scoreboard stylesheets to make it easier to create video-oriented scoreboards
   - At the top of the scoreboards, use the session description (when available) in the second line that shows session progress.
-  - **Keyboard mapping change**: Changed the shortcut key for resetting to 1 minute on the announcer/timekeeper console. The shortcut is now the numeric keypad `+` .    `Shift=` is also understood (this combination is a `+` sign on most keyboards).
+  - **Timekeeper keyboard mapping change**: Changed the shortcut key for resetting to 1 minute on the announcer/timekeeper console. The shortcut is now the numeric keypad `+` .    `Shift=` is also understood (this combination is a `+` sign on most keyboards).  See the [documentation](https://owlcms.github.io/owlcms4-prerelease/#/Announcing#starting-the-clock) for the keyboard mappings.
   - Fix: Category switches by the announcer during the medal ceremony are correctly reflected on the main and medal displays.
   - Fix: Before the start of Clean and Jerk, the order of snatch leaders shown at the bottom of the scoreboard was random.
   - Fix: Added 2nd marshal and 2nd technical controller on protocol sheets.
@@ -35,11 +33,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_40.0.0-rc02.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_40.0.0-rc03.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_40.0.0-rc02.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_40.0.0-rc03.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
