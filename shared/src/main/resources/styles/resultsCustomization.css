@@ -33,6 +33,10 @@
     --rankWidth: var(--liftResultWidth);
     --rankVisibility: visible;
 
+    /* 
+    --bestWidth: var(--liftResultWidth);
+    --bestVisibility: visible;
+    */
     --bestWidth: 0;
     --bestVisibility: hidden;
 

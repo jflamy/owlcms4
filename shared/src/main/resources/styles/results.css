@@ -254,7 +254,7 @@ table.results.sinclair {
     color: var(--darkStartTextColor);
 }
 
-/* custom fields */
+/* year of birth */
 :host(.dark) table.results tr td.yob,
 :host(.dark) table.results tr th.yob {
     background-color: var(--darkBackgroundColor);
