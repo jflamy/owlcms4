@@ -1,7 +1,9 @@
 40.0 Scoreboard improvements and fixes, fixes to small report issues, MQTT fixes.
 
 - 40.1 Changes
-  - Added a  `competition/export` endpoint to obtain a JSON export of the database.  The requesting party must be listed in the backdoor access list on the "Language and System Settings/Access Control" page.
+  - Video status / External monitoring / Snapshots
+    - Added a  `competition/export` HTTP endpoint to obtain a JSON export of the database.  The requesting party must be listed in the backdoor access list on the "Language and System Settings/Access Control" page.
+    - Added new [MQTT Messages](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/MQTTMessages#subscribed-by-external-observers) for field of play events: ` liftingOrderUpdated`, `startLifting`, `break`, and `ceremony`.  Together with the already existing `fop` messages, these enable an external observer to determine when to grab a JSON export (as opposed to polling blindly).
 
 ##### Highlights from recent stable releases
 

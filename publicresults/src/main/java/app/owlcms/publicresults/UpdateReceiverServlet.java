@@ -96,13 +96,13 @@ public class UpdateReceiverServlet extends HttpServlet {
 
             try {
                 //FIXME: this uses the standard classpath styles without override (412 is never returned)
-                //FIXME: relies on owlcms correctly packaging a zip when there is no blob
+                //FIXME: owlcms must correctly package a zip and send it if there is no blob
 //                if (ResourceWalker.getLocalDirPath() == null) {
 //                    String message = "Local override directory not present: requesting remote configuration files.";
-//                    logger.warn("message");
+//                    logger.debug("message");
 //                    throw new Exception(message);
 //                }
-//                logger.warn("retrieving results.css");
+//                logger.debug("retrieving results.css");
 //                // should not get here normally
                 ResourceWalker.getFileOrResource("styles/results.css");
             } catch (Exception e) {
