@@ -10,7 +10,11 @@ Go to the site https://fly.io
 
 If you do not have an account, create one.  Running owlcms requires an account, but you will not actually get billed because the fees are lower than their minimum
 
-If there is a "use the Web CLI" button, click it, otherwise type https://fly.io/terminal in your browser address bar yourself.   Advanced users may prefer to install the `flyctl` command on their own machine. If so see, the [Notes](#advanced-user-notes) at the bottom of this page.
+### Start the command line interface
+
+If you see "use the Web CLI" button, click it, otherwise type https://fly.io/terminal in your browser address bar yourself.   Advanced users may prefer to install the `flyctl` command on their own machine. If so see, the [Notes](#advanced-user-notes) at the bottom of this page.
+
+> NOTE: there is currently an issue with the Web CLI.  If the `fly deploy` step further below gives you an error message, you will need to install the flyctl command and proceed as explained in the [Notes](#advanced-user-notes) at the bottom of this page.
 
 ### Install owlcms
 
@@ -28,7 +32,7 @@ If there is a "use the Web CLI" button, click it, otherwise type https://fly.io/
    *Click on the grey box below to copy the command.  Paste it to the command line interface (use right-click on Windows, or ctrl-click on macOS, or the browser Edit menu)*
 
    ```
-   fly app create
+   fly app create --name $FLY_APP
    ```
 
    - Organization:  use the default `Personal` organization.
@@ -43,6 +47,8 @@ If there is a "use the Web CLI" button, click it, otherwise type https://fly.io/
    - Organization:  use the default `Personal` organization.
 
    - Configuration of the Postgres database : Choose the default option  `Development`
+
+   - Region: pick the one closest to you
 
    - Stop after 1 hour:  Answer **n (No)** 
 
@@ -64,10 +70,10 @@ If there is a "use the Web CLI" button, click it, otherwise type https://fly.io/
 
 The `fly deploy` command fetches the newest version available and restarts the application (owlcms stores the versions in the public hub.docker.com repository)
 
-To update to the latest stable version, log in again to https://fly.io/terminal and type the following command (replacing `myclub` with your own site name) (if you have set FLY_APP, you can omit the `-a applicationName` part).
+To update to the latest stable version, go back to the command line interface and use the following command (redo the `export` command or replace `$FLY_APP` with your site name, as you wish). 
 
 ```
-fly deploy -i owlcms/owlcms:stable -a myclub
+fly deploy --image owlcms/owlcms:stable --app $FLY_APP
 ```
 
 ## Advanced topics
@@ -87,30 +93,31 @@ This is not required, but since there is no extra cost associated, you might as 
    ```
    fly app create --name $FLY_APP-results
    ```
-   
+
 2. The two applications (owlcms and publicresults) need to trust one another. So we create a secret phrase and configure both applications to use it. See [this page](PublicResults) for an overview of how owlcms and publicresults work together.
 
    > OWLCMS_UPDATEKEY is the setting name for the secret, and `MaryHadALittleLamb` is the secret phrase.  **Please use your own secret!** 
    >
-   > Replace `myclub` and `myclub-results` with your own names
-   >
+   > If you are using publicresults to publish from a competition site laptop, only do the first command.  You can configure the owlcms laptop using the Settings and Language page.
 
     ```
     fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app $FLY_APP-results
-    fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb
+    fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app $FLY_APP
     ```
 
 3. owlcms also needs to know where public results is in order to send it updates.  Use the correct name for your publicresults app.
 
+   > if you are using a laptop at the competition site, this configuration is done using the Settings and Language page.
+
    ```
-   fly secrets set OWLCMS_REMOTE=https://$APP-results.fly.dev
+   fly secrets set OWLCMS_REMOTE=https://$FLY_APP-results.fly.dev
    ```
-   
+
 4. Start public results with a correct dimensioning.
 
       - If asked, do NOT copy an existing TOML file
       - Use the personal environment when asked
-      
+
       ```
       fly deploy --ha=false --vm-size shared-cpu-2x --app $APP-results --image owlcms/publicresults:stable
       ```
