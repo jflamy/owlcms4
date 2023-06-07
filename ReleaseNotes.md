@@ -1,7 +1,9 @@
 40.0 Scoreboard improvements and fixes, fixes to small report issues, MQTT fixes.
 
 - 40.1 Changes
-  - Added a  `competition/export` endpoint to obtain a JSON export of the database.  The requesting party must be listed in the backdoor access list on the "Language and System Settings/Access Control" page.
+  - Database Snapshot on-demand
+    - Added a  `competition/export` HTTP endpoint to obtain a JSON export of the database.  The requesting party must be listed in the backdoor access list on the "Language and System Settings/Access Control" page.
+    - Added new [MQTT Messages](https://owlcms.github.io/owlcms4-prerelease/#/MQTTMessages#subscribed-by-external-observers) for field of play events: ` liftingOrderUpdated`, `startLifting`, `break`, and `ceremony`.  Together with the already existing `fop` messages, these enable an external observer to determine when to grab a JSON export (as opposed to polling blindly).
 
 ##### Highlights from recent stable releases
 
@@ -18,11 +20,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_40.1.0-alpha00.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_40.1.0-beta00.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_40.1.0-alpha00.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_40.1.0-beta00.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
