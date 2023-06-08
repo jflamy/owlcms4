@@ -422,6 +422,11 @@ public class JPAService {
 		props.put(JPA_JDBC_URL, url);
 		props.put(JPA_JDBC_USER, userName != null ? userName : "owlcms");
 		props.put(JPA_JDBC_PASSWORD, password != null ? password : "db_owlcms");
+		
+		if (dbUrl != null) {
+			// running in the cloud, fly.io or Heroku
+			props.put("hibernate.hikari.idleTimeout", "60000"); // 1 minute
+		}
 
 		props.put(JPA_JDBC_DRIVER, org.postgresql.Driver.class.getName());
 		props.put(DIALECT, org.hibernate.dialect.PostgreSQL95Dialect.class.getName());
