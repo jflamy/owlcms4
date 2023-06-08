@@ -8,6 +8,7 @@
         <listEntry value="1"/>
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
+        <mapEntry key="OWLCMS_BACKDOOR" value="10.0.0.221,127.0.0.1,[0:0:0:0:0:0:0:1]"/>
         <mapEntry key="OWLCMS_INITIALDATA" value="LARGEGROUP_DEMO"/>
         <mapEntry key="OWLCMS_LOCALE" value="en"/>
         <mapEntry key="OWLCMS_MEMORYMODE" value="true"/>
@@ -17,7 +18,6 @@
         <mapEntry key="OWLCMS_REMOTE" value="http://localhost:8082/update"/>
         <mapEntry key="OWLCMS_RESETMODE" value="true"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="maryhadalittlelamb"/>
-        <mapEntry key="_OWLCMS_BACKDOOR" value="10.0.0.221,127.0.0.1,[0:0:0:0:0:0:0:1]"/>
         <mapEntry key="_OWLCMS_DEBUG" value="false"/>
         <mapEntry key="_OWLCMS_DISPLAYPIN" value="dis"/>
         <mapEntry key="_OWLCMS_ENABLEEMBEDDEDMQTT" value="true"/>

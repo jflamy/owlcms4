@@ -119,7 +119,6 @@ public class CompetitionExport extends HttpServlet {
 
 			response.setStatus(200);
 			response.flushBuffer();
-			new CompetitionSimulator().runSimulation();
 		} catch (Throwable t) {
 			logger.error("{}", LoggerUtils.stackTrace(t));
 			response.setStatus(500);
