@@ -1,10 +1,11 @@
 40.0 Scoreboard improvements and fixes, fixes to small report issues, MQTT fixes.
 
 - 40.1 Changes
-  - fly.io cloud installation notes adjusted to include installing the control interface locally; there are intermittent issues with their beta web-based interface.
   - Database Snapshot on-demand
     - Added a  `competition/export` HTTP endpoint to obtain a JSON export of the database.  The requesting party must be listed in the backdoor access list on the "Language and System Settings/Access Control" page.
     - Added new [MQTT Messages](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/MQTTMessages#subscribed-by-external-observers) for field of play events: ` liftingOrderUpdated`, `startLifting`, `break`, and `ceremony`.  Together with the already existing `fop` messages, these enable an external observer to determine when to grab a JSON export (as opposed to polling blindly).
+  - fly.io cloud installation notes were adjusted to include installing the control interface locally; there are intermittent issues with their beta web-based interface.
+  - The database idle connection timeout for fly.io is set to 60s to match their recommended settings
 
 ##### Highlights from recent stable releases
 
