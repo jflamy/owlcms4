@@ -423,8 +423,8 @@ public class JPAService {
 		props.put(JPA_JDBC_USER, userName != null ? userName : "owlcms");
 		props.put(JPA_JDBC_PASSWORD, password != null ? password : "db_owlcms");
 		
-		if (dbUrl != null) {
-			// running in the cloud, fly.io or Heroku
+		if (dbUrl == null) {
+			// fly.io format was parsed in parsePostgresUrl
 			props.put("hibernate.hikari.idleTimeout", "60000"); // 1 minute
 		}
 
