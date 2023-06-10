@@ -311,6 +311,9 @@ public class Translator implements I18NProvider {
                     }
                     final URL[] urls = { bundleDir.toUri().toURL() };
                     i18nloader = new URLClassLoader(urls);
+                    
+                    // reload the files
+                    ResourceBundle.clearCache();
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -325,8 +328,6 @@ public class Translator implements I18NProvider {
 
             }
 
-            // reload the files
-            ResourceBundle.clearCache();
             ResourceBundle bundle = ResourceBundle.getBundle(baseName, locale, i18nloader);
             return bundle;
         } catch (IOException e) {
