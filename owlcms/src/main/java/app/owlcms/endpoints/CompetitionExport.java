@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.apputils.AccessUtils;
 import app.owlcms.data.export.CompetitionData;
-import app.owlcms.simulation.CompetitionSimulator;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ProxyUtils;
 import ch.qos.logback.classic.Logger;
