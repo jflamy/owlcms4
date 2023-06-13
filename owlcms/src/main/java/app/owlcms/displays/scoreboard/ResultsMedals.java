@@ -587,12 +587,14 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 					uiEventBus = uiEventBusRegister(this, fop);
 					medals = Competition.getCurrent().getMedals(OwlcmsSession.getFop().getGroup(), false);
 				}
+				this.getElement().setProperty("fillerDisplay","");
 			} else {
 				TreeSet<Athlete> catMedals = Competition.getCurrent().computeMedalsForCategory(this.getCategory());
 				// logger.debug("group {} category {} catMedals {}", getGroup(), getCategory(),
 				// catMedals);
 				medals = new TreeMap<>();
 				medals.put(this.getCategory(), catMedals);
+				this.getElement().setProperty("fillerDisplay","display: none;");
 			}
 			setDisplay(false);
 			computeMedalsJson(medals);

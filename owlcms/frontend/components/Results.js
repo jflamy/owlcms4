@@ -19,7 +19,7 @@ class Results extends PolymerElement {
 
 <div class$="wrapper [[teamWidthClass]] [[inactiveClass]]" style$="[[sizeOverride]];">
     <div class="blockPositioningWrapper">
-        <div style$="[[inactiveBlockStyle]]">
+        <div class="waiting" style$="[[inactiveBlockStyle]]">
             <div class="competitionName">[[competitionName]]</div><br>
             <div class="nextGroup">[[t.WaitingNextGroup]]</div>
         </div>
@@ -55,7 +55,7 @@ class Results extends PolymerElement {
         </div>
         <div class="video" style$="[[videoHeaderDisplay]]">
             <div class="eventlogo"></div>
-            <div class="videoheader"><span class="groupName">[[competitionName]][[groupDescription]]</span></div>
+            <div class="videoheader"><div class="groupName">[[competitionName]]</div><div>[[groupDescription]]</div></div>
             <div class="federationlogo"></div>
         </div>
 

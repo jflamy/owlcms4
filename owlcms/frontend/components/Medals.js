@@ -16,7 +16,7 @@ class Medals extends PolymerElement {
     <link rel="stylesheet" type="text/css" href="local/styles/[[video]]colors[[autoversion]].css">
     <link rel="stylesheet" type="text/css" href="local/styles/scoreboard[[autoversion]].css">
     <div class$="wrapper [[teamWidthClass]] [[inactiveClass]]">
-        <div style$="[[inactiveStyle]]">
+        <div class="waiting" style$="[[inactiveStyle]]">
             <div class="competitionName">[[competitionName]]</div><br>
             <div class="nextGroup">[[t.WaitingNextGroup]]</div>
         </div>

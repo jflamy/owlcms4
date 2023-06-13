@@ -363,7 +363,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 		this.showLeaders = showLeaders;
 		if (showLeaders) {
 			this.getElement().setProperty("leadersVisibility", "");
-			this.getElement().setProperty("leadersLineHeight", "min-content");
+			//this.getElement().setProperty("leadersLineHeight", "min-content");
 		} 
 		else if (isVideo()) {
 			this.getElement().setProperty("leadersVisibility", "display:none");
@@ -666,7 +666,9 @@ public class Results extends PolymerTemplate<TemplateModel>
 					description = Translator.translate("Group_number", group.getName());
 				}
 			}
-			this.getElement().setProperty("groupDescription", description != null ? " \u2013 " + description : "");
+			this.getElement().setProperty("groupDescription", description != null ? 
+					//" \u2013 " +
+					description : "");
 		});
 	}
 

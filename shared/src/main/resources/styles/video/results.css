@@ -19,6 +19,12 @@
     line-height: unset;
 }
 
+.blockPositioningWrapper {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
 .video {
     font-size: 1.6rem;
     font-weight: bold;
