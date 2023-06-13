@@ -66,6 +66,7 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -178,7 +179,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 	public void doCeremony(UIEvent.CeremonyStarted e) {
 		ceremonyGroup = e.getCeremonyGroup();
 		ceremonyCategory = e.getCeremonyCategory();
-		//logger.debug("------ ceremony event = {} {}", e, e.getTrace());
+		// logger.debug("------ ceremony event = {} {}", e, e.getTrace());
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			if (e.getCeremonyType() == CeremonyType.MEDALS && this.isSwitchableDisplay() && ceremonyGroup != null) {
 				Map<String, String> map = new HashMap<>(Map.of(
@@ -191,10 +192,11 @@ public class Results extends PolymerTemplate<TemplateModel>
 					// logger.trace("no ceremonyCategory");
 				}
 				QueryParameters simple = QueryParameters.simple(map);
-				//logger.debug("========== parameters {}",simple);
+				// logger.debug("========== parameters {}",simple);
 				UI.getCurrent().navigate("displays/resultsMedals", simple);
 			} else {
-				//logger.debug("========== NOT {} {} {}",e.getCeremonyType(), this.isSwitchableDisplay(), ceremonyGroup);
+				// logger.debug("========== NOT {} {} {}",e.getCeremonyType(),
+				// this.isSwitchableDisplay(), ceremonyGroup);
 				String title = inferGroupName() + " &ndash; "
 				        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), this.isSwitchableDisplay());
 				this.getElement().setProperty("fullName", title);
@@ -356,11 +358,19 @@ public class Results extends PolymerTemplate<TemplateModel>
 
 	@Override
 	public void setLeadersDisplay(boolean showLeaders) {
+		checkVideo("styles/video/results.css", routeParameter, this);
+		logger.warn("setLeadersDisplay {} {}",showLeaders, isVideo());
 		this.showLeaders = showLeaders;
 		if (showLeaders) {
 			this.getElement().setProperty("leadersVisibility", "");
 			this.getElement().setProperty("leadersLineHeight", "min-content");
-		} else {
+		} 
+		else if (isVideo()) {
+			this.getElement().setProperty("leadersVisibility", "display:none");
+			this.getElement().setProperty("fillerVisibility", "display:none");
+			this.getElement().setProperty("leadersLineHeight", "0px");
+		} 
+		else {
 			this.getElement().setProperty("leadersVisibility", "visibility: hidden;");
 			this.getElement().setProperty("leadersLineHeight", "0px");
 		}
@@ -833,7 +843,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 					this.getElement().setProperty("attempt", formattedAttempt);
 					this.getElement().setProperty("weight", a.getNextAttemptRequestedWeight());
 				} else {
-					//logger.debug("group done {} {}", group, System.identityHashCode(group));
+					// logger.debug("group done {} {}", group, System.identityHashCode(group));
 					doBreak(e);
 				}
 			}
@@ -1067,7 +1077,6 @@ public class Results extends PolymerTemplate<TemplateModel>
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
 			init();
-			checkVideo("styles/video/results.css", routeParameter, this);
 
 			// get the global category rankings (attached to each athlete)
 			displayOrder = getOrder(fop);
@@ -1115,15 +1124,14 @@ public class Results extends PolymerTemplate<TemplateModel>
 			this.getElement().setProperty("displayType", getDisplayType());
 		}
 		if (curGroup.isDone()) {
-			//logger.debug("case 2 {}", isSwitchableDisplay());
+			// logger.debug("case 2 {}", isSwitchableDisplay());
 			setGroupNameProperty(groupDescription != null ? groupDescription : "\u00a0");
 			setLiftsDoneProperty("");
 		} else if (liftType != null) {
-			//logger.debug("case 3 {}", isSwitchableDisplay());
+			// logger.debug("case 3 {}", isSwitchableDisplay());
 			String name = groupDescription != null ? groupDescription : curGroup.getName();
-			String value =  groupDescription == null ?
-					Translator.translate("Scoreboard.GroupLiftType", name, liftType)
-					: Translator.translate("Scoreboard.DescriptionLiftTypeFormat", groupDescription, liftType);
+			String value = groupDescription == null ? Translator.translate("Scoreboard.GroupLiftType", name, liftType)
+			        : Translator.translate("Scoreboard.DescriptionLiftTypeFormat", groupDescription, liftType);
 			setGroupNameProperty(value);
 			liftsDone = AthleteSorter.countLiftsDone(displayOrder);
 			if ((isSwitchableDisplay() || isVideo())) {
@@ -1132,7 +1140,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 				setLiftsDoneProperty(" \u2013 " + Translator.translate("Scoreboard.AttemptsDone", liftsDone));
 			}
 		} else {
-			//logger.debug("case 4 {}", isSwitchableDisplay());
+			// logger.debug("case 4 {}", isSwitchableDisplay());
 			if ((isSwitchableDisplay() || isVideo()) && groupDescription != null) {
 				setLiftsDoneProperty(groupDescription);
 				setGroupDescriptionProperty("");
@@ -1170,6 +1178,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 
 	@Override
 	public void setVideo(boolean b) {
+		logger.warn("setting video {} {}", b, LoggerUtils.whereFrom());
 		this.video = b;
 	}
 

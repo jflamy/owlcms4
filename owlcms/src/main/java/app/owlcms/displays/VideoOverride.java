@@ -15,7 +15,8 @@ public interface VideoOverride {
 	
 	public default void checkVideo(String cssPath, String routeParameter, Component component) {
 		try {
-			setVideo(routeParameter != null);
+			System.err.println("routeParameter  "+routeParameter);
+			setVideo(routeParameter != null && routeParameter.contentEquals("video"));
 			// use video override if /video is in the URL and the override stylesheet exists.
 			ResourceWalker.getFileOrResourcePath(cssPath);
 			Element element = component.getElement();
@@ -23,5 +24,4 @@ public interface VideoOverride {
 		} catch (FileNotFoundException e) {
 		}
 	}
-
 }
