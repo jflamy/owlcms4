@@ -45,11 +45,4 @@ public class ResultsNoLeaders extends Results {
 		return getTranslation("Scoreboard") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
-//    @Override
-//    protected void computeLeaders(boolean done) {
-//        UI.getCurrent().access(() -> {
-//            this.getElement().setPropertyJson("leaders", Json.createNull());
-//            this.getElement().setProperty("leaderLines", 1); // must be > 0
-//        });
-//    }
 }
