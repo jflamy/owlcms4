@@ -19,7 +19,7 @@ In order to install an application you will need to log in to their site and the
 
 - In this example, we will use `myclub` as the site name. The URL would then be `https://myclub.fly.dev`.  *You will of course replace `myclub` with your own site name everywhere in the commands given.*
 
-- Click on the grey box below to copy the command.  Paste it to the command line interface (*when using the Web interface use the browser Edit menu* -- control-C and control-V don't work)*.   Replace `myclub` with your own value.
+- Click on the grey box below to copy the command.  Paste it to the command line interface (*when using the Web interface use the browser Edit menu* -- control-C and control-V don't work).   *Replace `myclub` with your own value.*
 
    ```bash
    fly launch --ha=false --vm-size shared-cpu-2x --image owlcms/owlcms:stable --name myclub
