@@ -50,6 +50,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.VideoOverride;
 import app.owlcms.displays.options.DisplayOptions;
@@ -133,6 +134,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 	private boolean downSilenced;
 	private boolean video;
+	private boolean abbreviateNames;
 
 	/**
 	 * Instantiates a new results board.
@@ -148,6 +150,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 		// js files add the build number to file names in order to prevent cache
 		// collisions
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
+		setAbbreviateNames(Config.getCurrent().featureSwitch("shortScoreboardNames"));
 	}
 
 	/**
@@ -359,7 +362,6 @@ public class Results extends PolymerTemplate<TemplateModel>
 	@Override
 	public void setLeadersDisplay(boolean showLeaders) {
 		checkVideo("styles/video/results.css", routeParameter, this);
-		logger.warn("setLeadersDisplay {} {}",showLeaders, isVideo());
 		this.showLeaders = showLeaders;
 		if (showLeaders) {
 			this.getElement().setProperty("leadersVisibility", "");
@@ -885,7 +887,11 @@ public class Results extends PolymerTemplate<TemplateModel>
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 		String category;
 		category = curCat != null ? curCat.getTranslatedName() : "";
-		ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
+		if (isAbbreviateNames()) {
+			ja.put("fullName", a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
+		} else {
+			ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
+		}
 		ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
 		ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
 		Integer startNumber = a.getStartNumber();
@@ -1180,12 +1186,19 @@ public class Results extends PolymerTemplate<TemplateModel>
 
 	@Override
 	public void setVideo(boolean b) {
-		logger.warn("setting video {} {}", b, LoggerUtils.whereFrom());
 		this.video = b;
 	}
 
 	@Override
 	public boolean isVideo() {
 		return video;
+	}
+
+	protected boolean isAbbreviateNames() {
+		return abbreviateNames;
+	}
+
+	protected void setAbbreviateNames(boolean abbreviateNames) {
+		this.abbreviateNames = abbreviateNames;
 	}
 }

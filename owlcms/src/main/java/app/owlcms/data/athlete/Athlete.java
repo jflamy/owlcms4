@@ -5163,4 +5163,24 @@ public class Athlete {
 		}
 	}
 
+	public String getAbbreviatedName() {
+		String upperCase = this.getLastName() != null ? this.getLastName().toUpperCase() : "";
+		String firstName2 = this.getFirstName() != null ? this.getFirstName() : "";
+		String[] hyphenatedParts = firstName2.split("-");
+		String abbreviated = Arrays.stream(hyphenatedParts).map(hpart -> {
+			return Arrays.stream(hpart.split("[ .]+")).map(word -> (word.substring(0, 1)+".")).collect(Collectors.joining(" "));
+		}).collect(Collectors.joining("-"));
+		
+		
+		if (!upperCase.isBlank() && !abbreviated.isBlank()) {
+			return upperCase + ", " + abbreviated;
+		} else if (!upperCase.isBlank()) {
+			return upperCase;
+		} else if (!firstName2.isBlank()) {
+			return firstName2;
+		} else {
+			return "?";
+		}
+	}
+
 }
