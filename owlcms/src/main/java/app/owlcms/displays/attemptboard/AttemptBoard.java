@@ -46,6 +46,7 @@ import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
 import app.owlcms.components.elements.Plates;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.VideoOverride;
@@ -971,7 +972,9 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 					doBreak(fop);
 				}
 			} else {
-				doAthleteUpdate(curAthlete);
+				// by the time we get called, possible that connection has been closed.
+				Athlete nAthlete = AthleteRepository.findById(curAthlete.getId());
+				doAthleteUpdate(nAthlete);
 				athleteTimer.syncWithFop();
 			}
 		}
