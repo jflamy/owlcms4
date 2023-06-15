@@ -19,7 +19,7 @@ In order to install an application you will need to log in to their site and the
 
    > Obviously you will replace `myclub` with your own site name everywhere in the commands given.
 
-- Click on the grey box below to copy the command.  Paste it to the command line interface (if using the Web interface use the browser Edit menu)*. 
+- Click on the grey box below to copy the command.  Paste it to the command line interface (*when using the Web interface use the browser Edit menu* -- control-C and control-V don't work)*.   Replace `myclub` with your own value.
 
    ```bash
    fly launch --ha=false --vm-size shared-cpu-2x --image owlcms/owlcms:stable --name myclub
