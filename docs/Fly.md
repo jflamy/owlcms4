@@ -4,85 +4,46 @@ Fly.io is a cloud service that is, in effect, free. The charges incurred for a s
 
 In order to install an application you will need to log in to their site and then copy-paste a few commands given on this page.
 
-### Log in
+#### Log in
 
-Go to the site https://fly.io
-
-If you do not have an account, create one.  Running owlcms requires an account, but you will not actually get billed because the fees are lower than their minimum
+- Go to the site https://fly.io and create an account if you don't have one, or login if you already do
 
 
+- Go to https://fly.io/terminal page in your browser address bar.  This will allow you to copy-paste the commands given on this page.
 
-### Start the Command-Line Interface (CLI)
+  Note: You can also install the `fly` command on your own machine. See the [flyctl installation instructions](https://fly.io/docs/hands-on/install-flyctl/) if so.
 
-Installing the application requires copy-pasting a few commands to a command-line interface.  There are two ways to do this.
+#### Install owlcms
 
-1. **Web CLI Interface**.  This is the faster, and therefore preferred, approach, but it is a new feature and occasionally there are issues.  So try this first, and if something fails, use the second approach.
+- The application names in fly.io are global.  If the name you want is already taken, you will be told. In this example we will use `myclub` as the site name. The URL would be `https://myclub.fly.dev`
 
-   Go the https://fly.io    If you see a "use the Web CLI" button, click it, otherwise type https://fly.io/terminal in your browser address bar yourself.   
+   > Obviously you will replace `myclub` with your own site name everywhere in the commands given.
 
-2. **Local CLI Install** You may prefer to install the `fly` command on your own machine. See the [flyctl installation instructions](https://fly.io/docs/hands-on/install-flyctl/) for your kind of setup (Windows, Mac or Linux)
-
-
-
-### Install owlcms
-
-Even if you intend to run your competition on a laptop, it is convenient to have a cloud-based version. You can then share the work of setting up the competition with others, and when done, simply export the database and import it on your laptop.
-
-1. **Choose an application name.**
-
-   The application names in fly.io are global.  If the name you want is already taken, you will be told.  If your club is named `myclub`,  you might pick `myclub` as the name, and the URL will be `https://myclub.fly.dev`
-
-   - If you are running on the Web CLI, on a Mac, or on Linux, type this command (replace `myclub` with what you want)
-
-      ```
-      export FLY_APP=myclub
-      ```
-
-   - If you are running on Windows, type this command (replace `myclub` with what you want).  *There must be no spaces around the `=`* *sign*.
-
-      ```
-      set FLY_APP=myclub
-      ```
-
-3. **Create the owlcms application.**
-   *Click on the grey box below to copy the command.  Paste it to the command line interface (if using the Web interface use the browser Edit menu)*
+- Click on the grey box below to copy the command.  Paste it to the command line interface (if using the Web interface use the browser Edit menu)*. 
 
    ```bash
-   fly app create --name $FLY_APP
+   fly launch --ha=false --vm-size shared-cpu-2x --image owlcms/owlcms:stable --name myclub
    ```
+
+   You will be asked a few questions:
 
    - Organization:  use the default `Personal` organization.
 
+   - Pick the region closest to you if asked
 
-3. **Create the database** that will store the competition information (*click on the box to copy*)
+   - Important: say **y** (yes) when asked if you want a Postgres database
 
-   ```bash
-   fly postgres create --name $FLY_APP-db
-   ```
+   - Hit enter to pick the default (**Development**) for the Postgres database
 
-   - Organization:  use the default `Personal` organization.
+   - **n** (no) when asked if you want Postgres to stop after 1h of inactivity
 
-   - Configuration of the Postgres database: Choose the default option  `Development`
+   - **n** (no) when asked if you want an Upstash Redit
 
-   - Region: pick the one closest to you if asked
+   - **y** (yes) when asked if you want to deploy
 
-   - Stop after 1 hour:  Answer **n (No)** 
+​	**You are now done and can use https://myclub.fly.dev**
 
-3. **Link the database** to the application
-
-   ```bash
-   fly postgres attach $FLY_APP-db --app $FLY_APP
-   ```
-
-5. **Start the application** with the proper size
-
-   ```bash
-   fly deploy --ha=false --vm-size shared-cpu-2x --image owlcms/owlcms:stable --app $FLY_APP
-   ```
-
-
-
-**You are now done and can use https://myclub.fly.dev**
+- If you male a mistake and want to start over again, just issue the following commands `fly destroy --app myclub` and `fly destroy --app myclub-db`
 
 
 
@@ -90,13 +51,15 @@ Even if you intend to run your competition on a laptop, it is convenient to have
 
 The `fly deploy` command fetches the newest version available and restarts the application (owlcms stores the versions in the public hub.docker.com repository)
 
-To update to the latest stable version, go back to the command line interface and use the following command (redo the `export` command or replace `$FLY_APP` with your site name, as you wish).   
+To update to the latest stable version, go back to the command line interface and use the following command (replace `myclub` with your application name).   
 
 ```bash
-fly deploy --image owlcms/owlcms:stable --app $FLY_APP
+fly deploy --image owlcms/owlcms:stable --app myclub
 ```
 
 If you want to try a prerelease, use "owlcms/owlcms:prerelease" instead -- you can switch between stable and prerelease as you wish.
+
+
 
 ## Advanced topics
 
@@ -104,50 +67,37 @@ If you want to try a prerelease, use "owlcms/owlcms:prerelease" instead -- you c
 
 This second site will allow anyone in the world to watch the scoreboard, including the audience (useful if the scoreboard is missing, small or faint).   Something like `myclub-results` makes sense as a name, and people would then use `myclub-results.fly.dev` to reach the scoreboard from their phone.
 
-> In our example we use `$FLY_APP-results`  as the name, so if you defined `FLY_APP` to be `myclub` the results site would be named `myclub-results`. If you want something else, systematically replace `$FLY_APP-results` with what you want in the commands below.
-
-1. Install public results.
+1. Install public results.  This is the same as for owlcms except we do *NOT* need a database.
 
    - Choose a meaningful application name.
    - If asked, do NOT copy  existing TOML files
+   - Select a region close to you if you are asked
    - Use the default personal environment when asked
+   - **Important**: Do **NOT** ask for a postgres database: answer **n**
+   - Do NOT ask for an Upstash Redis database: answer **n**
+   - Answer **y** (yes)
+
+   > Replace `myclub-results` with what you want as your public results name
 
    ```bash
-   fly app create --name $FLY_APP-results
+   fly launch --ha=false --vm-size shared-cpu-2x --image owlcms/owlcms:stable --name myclub-results
    ```
 
 2. The two applications (owlcms and publicresults) need to trust one another. So we will create a secret phrase and configure both applications to use it. See [this page](PublicResults) for an overview of how owlcms and publicresults work together.  First we configure publicresults.
 
    > OWLCMS_UPDATEKEY is the setting name for the secret, and `MaryHadALittleLamb` is the secret phrase.  **Please use your own secret!** Do not put spaces around the `=` sign.
    >
-   
+   > Replace `myclub-results` with what you want as your public results name
+
     ```
-    fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app $FLY_APP-results
+    fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app $myclub-results
     ```
-   
+
 3. owlcms needs to know where public results is located in order to send it updates, and it needs to use the correct secret. 
 
-   - If you are re using a laptop at the competition site, go to the `Prepare Competition` section, on the `Settings and Language page`. Provide the publicresults location (something like `https://myclub-results.fly.dev`) and the secret you configured above.
+   - Go to to the `Prepare Competition` section, on the `Settings and Language page`. Provide the public results location (in our example `https://myclub-results.fly.dev`) and the secret you configured above.
 
-   - If you are connecting your cloud owlcms to the cloud publicresults, then issue the following commands. 
-
-      ```
-      fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app $FLY_APP
-      fly secrets set OWLCMS_REMOTE=https://$FLY_APP-results.fly.dev
-      ```
-
-4. Start public results with a correct dimensioning.
-
-   - If asked, do **NOT** copy an existing TOML file
-   - Use the personal environment if asked
-     ```
-     fly deploy --ha=false --vm-size shared-cpu-2x --app $APP-results --image owlcms/publicresults:stable
-     ```
-     
-
-
-
-**You are now done and can use https://myclub-results.fly.dev**
+   **You are now done and can use https://myclub-results.fly.dev**
 
 
 
@@ -158,7 +108,7 @@ The `fly deploy` command fetches the newest version available from the public hu
 To update to the latest stable version
 
 ```
-fly deploy --image owlcms/publicresults:stable --app $FLY_APP-results
+fly deploy --image owlcms/publicresults:stable --app myclub-results
 ```
 
 ### Controlling access to the owlcms application
