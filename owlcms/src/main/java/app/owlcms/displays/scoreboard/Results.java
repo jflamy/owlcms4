@@ -67,7 +67,6 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
-import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
