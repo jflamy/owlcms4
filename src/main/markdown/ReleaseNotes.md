@@ -1,6 +1,7 @@
 40.x Scoreboard improvements and fixes, fixes to small report issues, MQTT fixes.
 
 - 40.2 Changes
+  - (40.2.1) Updated fly.io instructions
   - Fix to a database error that could take place when the attempt board was resetting decisions (delay just long enough for the database connection to have been closed).
 
 - 40.1 Changes
