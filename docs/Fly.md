@@ -17,7 +17,7 @@ In order to install an application you will need to log in to their site and the
 
 - The application names in fly.io are global.  If the name you want is already taken, you will be told.
 
-- In this example we will use `myclub` as the site name. The URL would then be `https://myclub.fly.dev`.  *You will of course replace `myclub` with your own site name everywhere in the commands given.*
+- In this example, we will use `myclub` as the site name. The URL would then be `https://myclub.fly.dev`.  *You will of course replace `myclub` with your own site name everywhere in the commands given.*
 
 - Click on the grey box below to copy the command.  Paste it to the command line interface (*when using the Web interface use the browser Edit menu* -- control-C and control-V don't work)*.   Replace `myclub` with your own value.
 
@@ -77,20 +77,20 @@ This second site will allow anyone in the world to watch the scoreboard, includi
    - Do NOT ask for an Upstash Redis database: answer **n**
    - Answer **y** (yes)
 
-   > Replace `myclub-results` with what you want as your public results name
+   *Replace `myclub-results` with what you want as your public results name*
 
    ```bash
    fly launch --ha=false --vm-size shared-cpu-2x --image owlcms/owlcms:stable --name myclub-results
    ```
 
-2. The two applications (owlcms and publicresults) need to trust one another. So we will create a secret phrase and configure both applications to use it. See [this page](PublicResults) for an overview of how owlcms and publicresults work together.  First we configure publicresults.
+2. The two applications (owlcms and publicresults) need to trust one another. So we will create a secret phrase and configure both applications to use it. See [this page](PublicResults) for an overview of how owlcms and publicresults work together.  First we configure publicresults.  
 
-   > OWLCMS_UPDATEKEY is the setting name for the secret, and `MaryHadALittleLamb` is the secret phrase.  **Please use your own secret!** Do not put spaces around the `=` sign.
-   >
-   > Replace `myclub-results` with what you want as your public results name
+   *Replace `myclub-results` with what you used as your public results name*
+
+   > OWLCMS_UPDATEKEY is the setting name for the secret, and `MaryHadALittleLamb` is the secret phrase.  **Please use your own secret!** Do not put spaces around the `=` sign. 
 
     ```
-    fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app $myclub-results
+    fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app myclub-results
     ```
 
 3. owlcms needs to know where public results is located in order to send it updates, and it needs to use the correct secret. 
