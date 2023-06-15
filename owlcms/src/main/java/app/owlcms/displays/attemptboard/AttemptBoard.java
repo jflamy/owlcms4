@@ -6,7 +6,6 @@
  *******************************************************************************/
 package app.owlcms.displays.attemptboard;
 
-import java.io.FileNotFoundException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +49,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.displays.VideoOverride;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -62,7 +62,6 @@ import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
-import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -83,7 +82,7 @@ import elemental.json.JsonObject;
 @Route("displays/attemptBoard")
 
 public class AttemptBoard extends PolymerTemplate<TemplateModel> implements DisplayParameters,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin {
+        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin, VideoOverride {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -125,6 +124,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private boolean downSilenced;
+	private boolean video;
 
 	/**
 	 * Instantiates a new attempt board.
@@ -288,15 +288,9 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		return true;
 	}
 
-	/**
-	 * replace illegal characters in a filename with "_" illegal characters : : \ /
-	 * * ? | < >
-	 *
-	 * @param name
-	 * @return
-	 */
-	public String sanitizeFilename(String name) {
-		return name.replaceAll("[:\\\\/*?|<>]", "_");
+	@Override
+	public boolean isVideo() {
+		return video;
 	}
 
 	/**
@@ -377,6 +371,11 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		this.urlParameterMap = newParameterMap;
 	}
 
+	@Override
+	public void setVideo(boolean b) {
+		this.video = b;
+	}
+
 	@Subscribe
 	public void slaveBarbellOrPlatesChanged(UIEvent.BarbellOrPlatesChanged e) {
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> showPlates());
@@ -399,7 +398,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 	@Subscribe
 	public void slaveDecision(UIEvent.Decision e) {
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			spotlightRecords(OwlcmsSession.getFop());
+			spotlightRecords(OwlcmsSession.getFop(), e.getAthlete());
 		});
 	}
 
@@ -407,13 +406,14 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			if (isDone()) {
-				doDone(e.getAthlete().getGroup());
-			} else {
-				this.getElement().callJsFunction("reset");
-			}
-		});
+		UIEventProcessor.uiAccess(athleteTimer, uiEventBus, () -> syncWithFOP(OwlcmsSession.getFop()));
+//		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+//			if (isDone()) {
+//				doDone(e.getAthlete().getGroup());
+//			} else {
+//				this.getElement().callJsFunction("reset");
+//			}
+//		});
 	}
 
 	/**
@@ -491,7 +491,9 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 			FOPState state = fop.getState();
 			uiEventLogger.debug("### {} {} isDisplayToggle={}", state, this.getClass().getSimpleName(),
 			        e.isDisplayToggle());
-			if (state == FOPState.BREAK) {
+			if (state == FOPState.DECISION_VISIBLE) {
+				// ignore -- decision reset will resync.
+			} else if (state == FOPState.BREAK) {
 				if (e.isDisplayToggle()) {
 					Athlete a = e.getAthlete();
 					doAthleteUpdate(a);
@@ -624,21 +626,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		setLocation(location2);
 	}
 
-	protected void checkImages() {
-		try {
-			ResourceWalker.getFileOrResourcePath("pictures");
-			athletePictures = true;
-		} catch (FileNotFoundException e) {
-			athletePictures = false;
-		}
 
-		try {
-			ResourceWalker.getFileOrResourcePath("flags");
-			teamFlags = true;
-		} catch (FileNotFoundException e) {
-			teamFlags = false;
-		}
-	}
 
 	protected void doAthleteUpdate(Athlete a) {
 		FieldOfPlay fop = OwlcmsSession.getFop();
@@ -670,14 +658,14 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		}
 		this.getElement().setProperty("teamName", team);
 		this.getElement().setProperty("teamFlagImg", "");
-		String teamFileName = sanitizeFilename(team);
+		String teamFileName = URLUtils.sanitizeFilename(team);
 		if (teamFlags && !team.isBlank()) {
 			boolean done;
-			done = setImgProp("teamFlagImg", "flags/", teamFileName, ".svg");
+			done = URLUtils.setImgProp("teamFlagImg", "flags/", teamFileName, ".svg", this);
 			if (!done) {
-				done = setImgProp("teamFlagImg", "flags/", teamFileName, ".png");
+				done = URLUtils.setImgProp("teamFlagImg", "flags/", teamFileName, ".png", this);
 				if (!done) {
-					done = setImgProp("teamFlagImg", "flags/", teamFileName, ".jpg");
+					done = URLUtils.setImgProp("teamFlagImg", "flags/", teamFileName, ".jpg", this);
 				}
 			}
 		}
@@ -686,14 +674,14 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		this.getElement().setProperty("athleteImg", "");
 		if (athletePictures && membership != null) {
 			boolean done;
-			done = setImgProp("athleteImg", "pictures/", membership, ".jpg");
+			done = URLUtils.setImgProp("athleteImg", "pictures/", membership, ".jpg", this);
 			if (!done) {
-				done = setImgProp("athleteImg", "pictures/", membership, ".jpeg");
+				done = URLUtils.setImgProp("athleteImg", "pictures/", membership, ".jpeg", this);
 			}
 			this.getElement().setProperty("WithPicture", done ? "WithPicture" : "");
 		}
 
-		spotlightRecords(fop);
+		spotlightRecords(fop, a);
 
 		this.getElement().setProperty("startNumber", a.getStartNumber());
 		String formattedAttempt = formatAttempt(a);
@@ -768,6 +756,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		OwlcmsSession.withFop(fop -> {
 			logger.debug("{}onAttach {}", fop.getLoggingName(), fop.getState());
 			init();
+			checkVideo("styles/video/attemptboard.css", routeParameter, this);
 			ThemeList themeList = UI.getCurrent().getElement().getThemeList();
 			themeList.remove(Lumo.LIGHT);
 			themeList.add(Lumo.DARK);
@@ -777,7 +766,6 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 			syncWithFOP(fop);
 			// we send on fopEventBus, listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
-			this.getElement().setProperty("video", routeParameter != null ? routeParameter + "/" : "");
 		});
 	}
 
@@ -891,9 +879,9 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		plates = null;
 	}
 
-	private void hideRecordInfo(FieldOfPlay fop) {
+	private void hideRecordInfo(FieldOfPlay fop, Athlete a) {
 		this.getElement().setProperty("recordKind", "recordNotification none");
-		this.getElement().setProperty("teamName", fop.getCurAthlete().getTeam());
+		this.getElement().setProperty("teamName", a.getTeam());
 		this.getElement().setProperty("hideBecauseRecord", "");
 	}
 
@@ -905,6 +893,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		setTranslationMap();
 	}
 
+	@SuppressWarnings("unused")
 	private boolean isDone() {
 		return this.groupDone;
 	}
@@ -917,21 +906,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		this.groupDone = b;
 	}
 
-	private boolean setImgProp(String propertyName, String prefix, String name, String suffix) {
-		boolean found;
-		try {
-			ResourceWalker.getFileOrResourcePath(prefix + name + suffix);
-			found = true;
-		} catch (FileNotFoundException e) {
-			found = false;
-		}
-		if (found) {
-			this.getElement().setProperty(propertyName, "<img src='local/" + prefix + name + suffix + "'></img>");
-		} else {
-			this.getElement().setProperty(propertyName, "");
-		}
-		return found;
-	}
+
 
 	private void showPlates() {
 		AttemptBoard attemptBoard = this;
@@ -968,15 +943,15 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		this.getElement().setProperty("hideBecauseRecord", "hideBecauseRecord");
 	}
 
-	private void spotlightRecords(FieldOfPlay fop) {
+	private void spotlightRecords(FieldOfPlay fop, Athlete a) {
 		if (fop.getState() == FOPState.INACTIVE || fop.getState() == FOPState.BREAK) {
-			hideRecordInfo(fop);
+			hideRecordInfo(fop, a);
 		} else if (fop.getNewRecords() != null && !fop.getNewRecords().isEmpty()) {
 			spotlightNewRecord();
 		} else if (fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty()) {
 			spotlightRecordAttempt();
 		} else {
-			hideRecordInfo(fop);
+			hideRecordInfo(fop, a);
 		}
 	}
 
@@ -1003,5 +978,10 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 				athleteTimer.syncWithFop();
 			}
 		}
+	}
+
+	protected void checkImages() {
+		teamFlags = URLUtils.checkFlags();
+		athletePictures = URLUtils.checkPictures();
 	}
 }

@@ -13,14 +13,16 @@ class ResultsMedals extends PolymerElement {
 
     static get template() {
         return html`
-<link rel="stylesheet" type="text/css" href="local/styles/[[video]]results_[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/styles/[[video]]colors[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/styles/[[video]]results[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/styles/[[video]]resultsMedalsCustomization[[autoversion]].css">
 
 <div class$="wrapper medals [[teamWidthClass]] [[inactiveClass]]" style$="[[sizeOverride]];">
     <div style$="[[inactiveBlockStyle]]">
         <div class="competitionName">[[competitionName]]</div><br>
         <div class="nextGroup">[[t.WaitingNextGroup]]</div>
     </div>
-    <div class="attemptBar" style$="[[normalHeaderDisplay]];">
+    <div class="attemptBar" style$="[[normalHeaderDisplay]]; margin-bottom:1em;">
         <div class="athleteInfo" id="athleteInfoDiv">
             <div class="fullName ellipsis" id="fullNameDiv" inner-h-t-m-l="[[displayTitle]]"></div>
         </div>
@@ -31,14 +33,19 @@ class ResultsMedals extends PolymerElement {
         <div class="federationlogo"></div>
     </div>
     <template is="dom-if" if="[[medalCategories]]">
-        <table class$="results medals [[noLiftRanks]]" style$="[[hiddenGridStyle]]; padding-top: 1em;">
+        <table class$="results medals [[noLiftRanks]]" style$="[[hiddenGridStyle]]; padding-top: 0.5em;">
             <template is="dom-repeat" id="result-table" items="[[medalCategories]]" as="mc">
                 <tr class="head" style$="[[leadersDisplay]]">
                     <td style="grid-column: 1 / -1; justify-content: left; font-weight: bold"
                         inner-h-t-m-l="[[mc.categoryName]]">
                     </td>
                 </tr>
-                <tr class="head">
+                <tr>
+                    <td class="headerSpacer" style="grid-column: 1 / -1; justify-content: left;"
+                        inner-h-t-m-l="&nbsp;">
+                    </td>
+                </tr>
+                <tr class="head" style="[[mc.showCatHeader]]">
                     <!-- [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
                     <th class="groupCol" inner-h-t-m-l="[[t.Group]]"></th>
                     <th class="name" inner-h-t-m-l="[[t.Name]]"></th>
@@ -61,17 +68,17 @@ class ResultsMedals extends PolymerElement {
                     <th class="sinclair" inner-h-t-m-l="[[t.Sinclair]]"></th>
                     <th class="sinclairRank" inner-h-t-m-l="[[t.Rank]]"></th>
                 </tr>
-                <tr>
-                    <td class="spacer" style="grid-column: 1 / -1; justify-content: left;"
-                        inner-h-t-m-l="[[t.Leaders]] [[categoryName]]">
+                <!-- tr>
+                    <td class="headerSpacer" style="grid-column: 1 / -1; justify-content: left;"
+                        inner-h-t-m-l="&nbsp;">
                     </td>
-                </tr>
+                </tr -->
                 <template is="dom-repeat" id="result-table" items="[[mc.leaders]]" as="l">
                     <tr class="athlete" style$="[[leadersDisplay]]">
                         <td class="groupCol">
                             <div>[[l.group]]</div>
                         </td>
-                        <td class$="name [[l.classname]]">
+                        <td class$="name [[l.classname]] [[l.flagClass]]">
                             <div class="ellipsis">[[l.fullName]]</div>
                         </td>
                         <td class="category">
@@ -86,8 +93,9 @@ class ResultsMedals extends PolymerElement {
                         <td class="custom2">
                             <div>[[l.custom2]]</div>
                         </td>
-                        <td class="club">
-                            <div class="ellipsis">[[l.teamName]]</div>
+                        <td class$="club [[l.flagClass]]">
+                            <div inner-h-t-m-l="[[l.flagURL]]"></div>
+                            <div class="ellipsis" >[[l.teamName]]</div>
                         </td>
                         <td class="vspacer"></td>
                         <template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">

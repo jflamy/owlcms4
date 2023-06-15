@@ -13,7 +13,8 @@ class CurrentAthlete extends PolymerElement {
 
 	static get template() {
 		return html`
-<link rel="stylesheet" type="text/css" href="local/styles/[[video]]currentathlete_[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/styles/[[video]]colors[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/styles/[[video]]currentathlete[[autoversion]].css">
 <div class$="wrapper [[teamWidthClass]] [[inactiveClass]]">
 
 	<!-- this div is SHOWN when the platform is inactive -->
@@ -157,9 +158,6 @@ class CurrentAthlete extends PolymerElement {
 		this.$.breakTimerDiv.style.display = "grid";
 		this.$.decisionDiv.style.display = "none";
 		this.$.resultsDiv.style.visibility = "hidden";
-		// this.$.totalNameTd.style.display = "block";
-		// this.$.totalCellTd.style.display = "block";
-		// this.$.totalRankTd.style.display = "block";
 	}
 
 	groupDone() {

@@ -2,7 +2,7 @@
 
 ### Conventions
 
-- All topics are under `owlcms`
+- All topics are under `owlcms`.  The full topic would be `owlcms/fop/config`
 - _In all example messages, `A` is the name of the current platform._
 - The topics end with the platform name.  In the examples below, the message content is what follows the space
 - Parameters to the message are shown in the form `:parameter` ; the actual messages do not include the `:` this is just a convention to identify what information will be substituted.
@@ -15,7 +15,7 @@
     - `status` is `on` or `off`
     - Turns the LEDs on (or off) on external devices to confirm connectivity.
     - DEPRECATED : the following message legacy message is equivalent : `led/A :status`
-- `fop/config`  this message published in response to a `config` request from the device.
+- `fop/config`  this message published in response to a `config` request from the device.  Note that there can be multiple answers - one per platform.  The answers are all identical, all but the first one can be ignored.
     - returns a JSON map of the form `{"platforms":["A","B"],"version":"38.0.0-alpha00"}` 
     - the `platforms` entry contains the list of configured platforms.
 
@@ -40,6 +40,10 @@
 
 - `fop/juryDeliberation/A`: 
   Jury deliberation has been started (the application is in BreakType.JURY mode.)  There is no argument. The device should clear the jury member decision lights in order to allow a secret vote to be taken on a video replay.
+  
+- `fop/challenge/A`: 
+  A challenge has been issued (the application is in BreakType.CHALLENGE mode.)  There is no argument. The device should clear the jury member decision lights in order to allow a secret vote to be taken on a video replay.
+  
 
 #### Subscribed by the referee device:
 
@@ -61,6 +65,40 @@ These messages are used by a signal tower with a white light and a buzzer.
     - device must turn itself off.
 - `fop/timeRemaining/A :seconds`
     - `seconds` are remaining for the athlete.  Values are 90 (timeout for declarations on a 2:00 clock), 30 (final warning), 0 seconds (time is over).
+
+#### Subscribed by external observers
+
+These messages are used by observers such as video production software (in conjunction with others such as the `decision` and `resetDecisions` messages).
+
+In general, an external observer should listen to all `fop` events to decide what is going on.
+
+- `fop/liftingOrderUpdated/A` Data entry has taken place (possibly changing requested weight or lifting order) or decision has been given.
+
+- `fop/ceremony/A :name :status`  A ceremony has started or stopped
+
+  - `name` is one of
+
+    ```
+    INTRODUCTION
+    OFFICIALS_INTRODUCTION
+    MEDALS
+    ```
+
+  - `status` is `start` or `stop`
+
+- `fop/break/A :breakType` A break has started.  There are no end break event.  THe `fop/startlifting/A` message will indicate that competition has resumed. or a `ceremony` message will take place.  Not that JURY and CHALLENGE breaks are not be issued, they are issued as separate `juryDeliberation` events.
+
+  - breakType is one of 
+
+    	BEFORE_INTRODUCTION
+    	FIRST_SNATCH
+    	FIRST_CJ
+    	GROUP_DONE
+    	TECHNICAL
+    	MARSHAL
+
+
+- `fop/startLifting/A`   Lifting has started on the platform.  This is the normal way to end a break.
 
 ### Messages published by all devices
 

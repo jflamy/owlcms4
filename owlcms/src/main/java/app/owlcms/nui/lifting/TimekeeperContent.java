@@ -234,7 +234,8 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		stopReg = UI.getCurrent().addShortcutListener(() -> doStopTime(), Key.PERIOD);
 		toggleReg = UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.DIGIT_8, KeyModifier.SHIFT);
 		toggleReg2 = UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.NUMPAD_MULTIPLY);
-		_1minReg = UI.getCurrent().addShortcutListener(() -> do1Minute(), Key.MINUS);
+		_1minReg = UI.getCurrent().addShortcutListener(() -> do1Minute(), Key.NUMPAD_ADD);
+		_1minReg = UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.EQUAL, KeyModifier.SHIFT);
 		_2minReg = UI.getCurrent().addShortcutListener(() -> do2Minutes(), Key.EQUAL);
 
 	}

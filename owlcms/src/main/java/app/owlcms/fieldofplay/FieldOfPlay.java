@@ -35,6 +35,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.AsyncEventBus;
@@ -47,6 +48,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.LiftDefinition;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
@@ -231,6 +233,10 @@ public class FieldOfPlay {
 	private Group videoGroup;
 
 	private Category videoCategory;
+
+	private AgeGroup videoAgeGroup;
+
+	private List<Athlete> resultsOrder;
 
 	/**
 	 * Instantiates a new field of play state. When using this constructor
@@ -556,6 +562,10 @@ public class FieldOfPlay {
 		return uiEventBus;
 	}
 
+	public AgeGroup getVideoAgeGroup() {
+		return this.videoAgeGroup;
+	}
+
 	public Category getVideoCategory() {
 		return videoCategory;
 	}
@@ -616,7 +626,7 @@ public class FieldOfPlay {
 
 		// it is always possible to explicitly interrupt competition (break between the
 		// two lifts, technical incident, etc.). Even switching break type is allowed.
-		
+
 		if (e instanceof FOPEvent.BreakStarted) {
 			// exception: wait until a decision has been registered to process jury
 			// deliberation.
@@ -765,7 +775,7 @@ public class FieldOfPlay {
 			} else if (e instanceof JuryDecision) {
 				doJuryDecision((JuryDecision) e);
 			} else if (e instanceof SummonReferee) {
-				doSummonReferee((SummonReferee)e);
+				doSummonReferee((SummonReferee) e);
 			} else if (e instanceof DecisionReset) {
 				doDecisionReset(e);
 			} else {
@@ -1256,6 +1266,10 @@ public class FieldOfPlay {
 		this.testingMode = testingMode;
 	}
 
+	public void setVideoAgeGroup(AgeGroup videoAgeGroup) {
+		this.videoAgeGroup = videoAgeGroup;
+	}
+
 	public void setVideoCategory(Category c) {
 		this.videoCategory = c;
 	}
@@ -1525,6 +1539,7 @@ public class FieldOfPlay {
 		} else {
 			switch (newBreak) {
 			case JURY:
+				resetJuryDecisions();
 				getUiEventBus().post(new UIEvent.JuryNotification(athleteUnderReview, this,
 				        JuryDeliberationEventType.START_DELIBERATION, null, null));
 				break;
@@ -1537,6 +1552,7 @@ public class FieldOfPlay {
 				        JuryDeliberationEventType.TECHNICAL_PAUSE, null, null));
 				break;
 			case CHALLENGE:
+				resetJuryDecisions();
 				getUiEventBus().post(new UIEvent.JuryNotification(null, this,
 				        JuryDeliberationEventType.CHALLENGE, null, null));
 				break;
@@ -1904,7 +1920,7 @@ public class FieldOfPlay {
 			List<Athlete> snatchMedalists = medalists.stream().filter(a -> {
 				int r = a.getSnatchRank();
 				return r <= 3 && r > 0;
-			}).collect(Collectors.toList());
+			}).sorted((a, b) -> ObjectUtils.compare(a.getSnatchRank(), b.getSnatchRank())).collect(Collectors.toList());
 			// logger.debug("snatch medalists {}", snatchMedalists);
 			List<Athlete> totalMedalists = medalists.stream().filter(a -> {
 				int r = a.getTotalRank();
@@ -1950,6 +1966,7 @@ public class FieldOfPlay {
 		long endDisplayOrder = 0;
 		long endLeaders = 0;
 
+		//logger.debug("recompute ranks {} [{}]",recomputeRanks,LoggerUtils.whereFrom());
 		if (recomputeRanks) {
 			// we update the ranks of affected athletes in the database
 			athletes = JPAService.runInTransaction(em -> {
@@ -1989,7 +2006,6 @@ public class FieldOfPlay {
 			setCurAthlete(null);
 			recomputeRecords(null);
 		} else {
-
 			if (recomputeRanks) {
 				setMedals(Competition.getCurrent().computeMedals(g, athletes));
 			}
@@ -2008,6 +2024,8 @@ public class FieldOfPlay {
 
 			setDisplayOrder(currentGroupAthletes);
 			setLiftingOrder(AthleteSorter.liftingOrderCopy(currentGroupAthletes));
+			setResultsOrder(AthleteSorter.resultsOrderCopy(currentGroupAthletes,
+			        isCjStarted() ? Ranking.TOTAL : Ranking.SNATCH));
 			endDisplayOrder = System.nanoTime();
 
 			List<Athlete> liftingOrder2 = getLiftingOrder();
@@ -2032,6 +2050,14 @@ public class FieldOfPlay {
 
 	}
 
+	private void setResultsOrder(List<Athlete> resultsOrderCopy) {
+		this.resultsOrder = resultsOrderCopy;
+	}
+
+	public List<Athlete> getResultsOrder() {
+		return resultsOrder;
+	}
+
 	private void recomputeRecordsMap(List<Athlete> athletes) {
 		// logger.debug("recompute record map");
 		groupRecords.clear();
@@ -2052,11 +2078,15 @@ public class FieldOfPlay {
 	private void resetDecisions() {
 		logger.debug("{}**** resetting all decisions on new clock", getLoggingName());
 		setRefereeDecision(new Boolean[3]);
-		setJuryMemberDecision(new Boolean[5]);
+		resetJuryDecisions();
 		setRefereeTime(new Long[3]);
-		juryMemberTime = new Integer[5];
 		setRefereeForcedDecision(false);
 		getUiEventBus().post(new UIEvent.ResetOnNewClock(clockOwner, this));
+	}
+
+	public void resetJuryDecisions() {
+		setJuryMemberDecision(new Boolean[5]);
+		juryMemberTime = new Integer[5];
 	}
 
 	private void resetEmittedFlags() {
@@ -2387,7 +2417,7 @@ public class FieldOfPlay {
 		boolean indefinite = breakTimer.isIndefinite();
 		this.ceremonyType = null;
 
-		logger.warn("transitionToBreak {}",LoggerUtils.stackTrace());
+		//logger.debug("transitionToBreak {}", LoggerUtils.stackTrace());
 		doTONotifications(newBreak);
 
 		if (state == BREAK) {

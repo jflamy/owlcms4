@@ -1,6 +1,3 @@
-@import 'colors.css';
-@import 'resultsCustomization.css';
-
 /* default for page */
 .wrapper {
     /* results table font size */
@@ -99,6 +96,7 @@ table.results.sinclair {
 /* default cell colors, backgrounds and borders */
 :host(.dark) table.results tr td,
 :host(.dark) table.results tr th {
+    align-items: center;
     background-color: var(--darkBackgroundColor);
     color: var(--darkTextColor);
     border-width: 1px;
@@ -256,7 +254,7 @@ table.results.sinclair {
     color: var(--darkStartTextColor);
 }
 
-/* custom fields */
+/* year of birth */
 :host(.dark) table.results tr td.yob,
 :host(.dark) table.results tr th.yob {
     background-color: var(--darkBackgroundColor);
@@ -359,6 +357,23 @@ table.results.sinclair {
     visibility: var(--totalVisibility);
     font-weight: bold;
 }
+
+/* spacer line above first leader/medalist */
+:host(.dark) table.results tr td.headerSpacer {
+    background-color: var(--darkSpacerBackgroundColor);
+    padding: 0.2vh 0;
+    border-right: 0;
+    border: none;
+    max-height: 2px;
+}
+
+:host(.light) table.results tr td.headerSpacer {
+    background-color: var(--lightSpacerBackgroundColor);
+    padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
+    border: none;
+    max-height: 2px;
+}
+
 
 /* spacer line between categories */
 :host(.dark) table.results tr td.spacer {

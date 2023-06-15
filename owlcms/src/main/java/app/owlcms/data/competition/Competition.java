@@ -347,14 +347,14 @@ public class Competition {
 			// all rankings are from a PAthlete, i.e., for the current medal category
 			List<Athlete> snatchLeaders = null;
 			List<Athlete> cjLeaders = null;
-			if (isSnatchCJTotalMedals()) {
+			//if (isSnatchCJTotalMedals()) {
 				snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
 				        .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
 				        .collect(Collectors.toList());
 				cjLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.CLEANJERK)
 				        .stream().filter(a -> a.getBestCleanJerk() > 0 && a.isEligibleForIndividualRanking())
 				        .collect(Collectors.toList());
-			}
+			//}
 			List<Athlete> totalLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.TOTAL)
 			        .stream().filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
 			        .collect(Collectors.toList());
@@ -363,10 +363,10 @@ public class Competition {
 			// add them
 			TreeSet<Athlete> medalists = new TreeSet<>(new WinningOrderComparator(Ranking.TOTAL, false));
 			medalists.addAll(totalLeaders);
-			if (isSnatchCJTotalMedals()) {
+			//if (isSnatchCJTotalMedals()) {
 				medalists.addAll(cjLeaders);
 				medalists.addAll(snatchLeaders);
-			}
+			//}
 			medals.put(category, medalists);
 
 //            logger.debug("medalists for {}", category);

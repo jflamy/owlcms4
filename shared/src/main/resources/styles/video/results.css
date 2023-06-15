@@ -1,8 +1,3 @@
-@import 'colors.css';
-@import 'resultsCustomization.css';
-
-
-
 /* default for page */
 .wrapper {
     /* results table font size */
@@ -361,6 +356,23 @@ table.results.sinclair {
     visibility: var(--totalVisibility);
     font-weight: bold;
 }
+
+/* spacer line above first leader/medalist */
+:host(.dark) table.results tr td.headerSpacer {
+    background-color: var(--darkSpacerBackgroundColor);
+    padding: 0.2vh 0;
+    border-right: 0;
+    border: none;
+    max-height: 2px;
+}
+
+:host(.light) table.results tr td.headerSpacer {
+    background-color: var(--lightSpacerBackgroundColor);
+    padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
+    border: none;
+    max-height: 2px;
+}
+
 
 /* spacer line between categories */
 :host(.dark) table.results tr td.spacer {

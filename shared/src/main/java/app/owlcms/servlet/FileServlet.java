@@ -304,7 +304,7 @@ public class FileServlet extends HttpServlet {
             // logger.debug("requestedFile {}", requestedFile);
             String relativeFileName = URLDecoder.decode(requestedFile, "UTF-8");
             
-            String target = "__[-.a-z0-9]+([.][a-z]{1,4})$";
+            String target = "_[0-9]{12,14}([.][a-z]{1,4})$";
             String unversionedName = relativeFileName.replaceFirst(target, "$1");
             //logger.debug("relativeFileName = {} fixed = {} regex={}", relativeFileName, unversionedName, target);
             

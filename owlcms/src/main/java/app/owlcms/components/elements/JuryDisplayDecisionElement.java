@@ -118,5 +118,23 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	private void setAutomaticReset(boolean automaticReset) {
 		this.automaticReset = automaticReset;
 	}
+	
+	@Subscribe
+	public void slaveDownSignal(UIEvent.DownSignal e) {
+		//logger.debug("jury slaveDownSignal {} {} {} {}", this, this.getOrigin(), e.getOrigin(), isSilenced());
+		if (isSilenced() 
+				//&& (isJuryMode() || (this.getOrigin() == e.getOrigin()))
+				) {
+			// we emitted the down signal, don't do it again.
+			// logger.trace("skipping down, {} is origin",this.getOrigin());
+			return;
+		}
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			uiEventLogger.debug("!!! {} down ({})", this.getOrigin(),
+			        this.getParent().get().getClass().getSimpleName());
+			this.getElement().callJsFunction("showDown", false,
+			        isSilenced() || OwlcmsSession.getFop().isEmitSoundsOnServer());
+		});
+	}
 
 }

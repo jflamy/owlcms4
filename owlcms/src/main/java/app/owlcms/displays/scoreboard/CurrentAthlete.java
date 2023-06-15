@@ -43,6 +43,7 @@ import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.displays.VideoOverride;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -78,7 +79,7 @@ import elemental.json.JsonValue;
 
 public class CurrentAthlete extends PolymerTemplate<TemplateModel>
         implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
-        RequireDisplayLogin {
+        RequireDisplayLogin, VideoOverride {
 
 	/**
 	 * ScoreboardModel
@@ -124,6 +125,7 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 	private String routeParameter;
 
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	private boolean video;
 
 	/**
 	 * Instantiates a new results board.
@@ -147,15 +149,24 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 	@Override
 	public void doBreak(UIEvent e) {
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			getElement().setProperty("fullName",
-			        inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
-			getElement().setProperty("teamName", "");
-			getElement().setProperty("attempt", "");
-			setHidden(false);
-
-			updateBottom(computeLiftType(fop.getCurAthlete()), fop);
-			uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
-			this.getElement().callJsFunction("doBreak");
+			if (fop.getGroup() != null && fop.getGroup().isDone()) {
+				updateBottom(null, fop);
+				getElement().setProperty("fullName", getTranslation("Group_number_done", fop.getGroup().toString()));
+				getElement().setProperty("teamName", "");
+				getElement().setProperty("attempt", "");
+				setHidden(false);
+				this.getElement().callJsFunction("doBreak");
+			} else {
+				getElement().setProperty("fullName",
+				        inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
+				getElement().setProperty("teamName", "");
+				getElement().setProperty("attempt", "");
+				setHidden(false);
+	
+				updateBottom(computeLiftType(fop.getCurAthlete()), fop);
+				uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
+				this.getElement().callJsFunction("doBreak");
+			}
 		}));
 	}
 
@@ -282,9 +293,13 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 		this.initializationNeeded = true;
 	}
 
+	/**
+	 * @see app.owlcms.apputils.queryparameters.ContentParameters#setSilenced(boolean)
+	 */
 	@Override
 	public void setSilenced(boolean silent) {
-		// no op, silenced by definition
+		this.timer.setSilenced(true);
+		this.breakTimer.setSilenced(true);
 	}
 
 	@Override
@@ -348,6 +363,11 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			setHidden(false);
+			this.getElement().setProperty("hideBlock", "visibility:hidden");
+			this.getElement().setProperty("noneBlock", "display:none");
+			this.getElement().setProperty("hideInherited", "visibility:hidden");
+			this.getElement().setProperty("hideTableCell", "visibility:hidden");
+			this.getElement().callJsFunction("refereeDecision");
 			this.getElement().callJsFunction("down");
 		});
 	}
@@ -364,6 +384,12 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			setHidden(false);
 //          Group g = e.getGroup();
+			
+			this.getElement().setProperty("hideBlock", "visibility:hidden");
+			this.getElement().setProperty("noneBlock", "display:none");
+			this.getElement().setProperty("hideInherited", "visibility:hidden");
+			this.getElement().setProperty("hideTableCell", "visibility:hidden");
+			
 			setDone(true);
 		});
 	}
@@ -748,6 +774,7 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
 			init();
+			checkVideo("styles/video/currentathlete.css", routeParameter, this);
 
 			// get the global category rankings attached to each athlete
 			order = fop.getDisplayOrder();
@@ -758,7 +785,6 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 			uiEventBus = uiEventBusRegister(this, fop);
 		});
 		switchLightingMode(this, isDarkMode(), true);
-		this.getElement().setProperty("video", routeParameter != null ? routeParameter + "/" : "");
 	}
 
 	protected void setTranslationMap() {
@@ -771,5 +797,15 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 			}
 		}
 		this.getElement().setPropertyJson("t", translations);
+	}
+
+	@Override
+	public void setVideo(boolean b) {
+		this.video = b;
+	}
+
+	@Override
+	public boolean isVideo() {
+		return video;
 	}
 }

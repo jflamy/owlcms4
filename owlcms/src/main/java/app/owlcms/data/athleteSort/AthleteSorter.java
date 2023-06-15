@@ -55,10 +55,10 @@ public class AthleteSorter implements Serializable {
 		List<Athlete> impactedAthletes;
 		if (g != null) {
 			impactedAthletes = AthleteRepository.findAthletesForGlobalRanking(em, g);
-//            logger.debug("all athletes in group's categories {}", impactedAthletes);
+            //logger.debug"all athletes in group's categories {}", impactedAthletes);
 		} else {
 			impactedAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, null, true, null);
-			// logger.debug("all athletes in all groups {}", impactedAthletes);
+			//logger.debug("all athletes in all groups {}", impactedAthletes);
 		}
 
 		List<Athlete> sortedAthletes;
@@ -71,11 +71,9 @@ public class AthleteSorter implements Serializable {
 		sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.CUSTOM, true);
 		AthleteSorter.assignEligibleCategoryRanks(sortedAthletes, Ranking.CUSTOM);
 
-//        if (logger.isEnabledFor(Level.DEBUG)) {
-//            for (Athlete a : impactedAthletes) {
-//                Participation p = a.getMainRankings();
-//                if (p != null) logger.debug("** {} {}", a, p.long_dump());
-//            }
+//        for (Athlete a : impactedAthletes) {
+//            Participation p = a.getMainRankings();
+//            if (p != null) logger.debug("** {} {}", a, p.long_dump());
 //        }
 		return impactedAthletes;
 	}

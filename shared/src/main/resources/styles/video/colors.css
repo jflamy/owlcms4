@@ -1,6 +1,10 @@
 * {
     --pageBackgroundColor: black;
     --pageTextColor: white;
+    
+    /* video header */
+    --videoHeaderBackgroundColor: var(--pageBackgroundColor);
+    --videoHeaderTextColor: var(--pageTextColor);
 
     /* control record notification on scoreboard and attempt board.
        Set to 10 to show notifications, set to -10 if notifications not wanted */
@@ -168,7 +172,5 @@
     --darkAttemptHighlightText: white;
     --darkAttemptHighlightBackground: purple;
 
-    /* video header */
-    --videoHeaderBackgroundColor: var(--pageBackgroundColor);
-    --videoHeaderTextColor: var(--pageTextColor);
+
 }

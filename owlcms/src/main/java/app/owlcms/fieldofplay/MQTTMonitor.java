@@ -1,5 +1,6 @@
 package app.owlcms.fieldofplay;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +30,10 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.uievents.UIEvent.BreakStarted;
+import app.owlcms.uievents.UIEvent.GroupDone;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
@@ -318,6 +322,43 @@ public class MQTTMonitor {
 				publishMqttJuryDeliberation();
 			} catch (MqttException e1) {
 			}
+		} else if (e.getBreakType() == BreakType.CHALLENGE) {
+			try {
+				publishMqttChallenge();
+			} catch (MqttException e1) {
+			}
+		} else {
+			try {
+				publishMqttBreak(e);
+			} catch (MqttException e1) {
+			}
+		}
+	}
+	
+	@Subscribe
+	public void slaveGroupDone(UIEvent.GroupDone e) {
+		try {
+			publishMqttGroupDone(e);
+		} catch (MqttException e1) {
+			logger.error(e1.toString());
+		}
+	}
+
+	@Subscribe
+	public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
+		try {
+			publishMqttCeremony(e, false);
+		} catch (MqttException e1) {
+			logger.error(e1.toString());
+		}
+	}
+
+	@Subscribe
+	public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
+		try {
+			publishMqttCeremony(e, true);
+		} catch (MqttException e1) {
+			logger.error(e1.toString());
 		}
 	}
 
@@ -358,6 +399,14 @@ public class MQTTMonitor {
 	}
 
 	@Subscribe
+	public void slaveLiftingOrderUpdated(UIEvent.LiftingOrderUpdated e) {
+		try {
+			publishMqttLiftingOrderUpdated();
+		} catch (MqttException e1) {
+		}
+	}
+
+	@Subscribe
 	public void slaveRefereeDecision(UIEvent.Decision e) {
 		// the deliberation is about the last athlete judged, not on the current
 		// athlete.
@@ -379,6 +428,14 @@ public class MQTTMonitor {
 	}
 
 	@Subscribe
+	public void slaveStartLifting(UIEvent.StartLifting e) {
+		try {
+			publishMqttStartLifting();
+		} catch (MqttException e1) {
+		}
+	}
+
+	@Subscribe
 	public void slaveSummonRef(UIEvent.SummonRef e) {
 		// e.ref is 0..2
 		// 3 is all
@@ -386,6 +443,12 @@ public class MQTTMonitor {
 		int ref = e.ref;
 
 		publishMqttSummonRef(ref);
+	}
+
+	@Subscribe
+	public void slaveTimeRemaining(UIEvent.TimeRemaining e) {
+		int tr = e.getTimeRemaining();
+		publishMqttTimeRemaining(tr);
 	}
 
 	@Subscribe
@@ -398,12 +461,6 @@ public class MQTTMonitor {
 		// logger.debug("slaveWakeUp {}", e.on);
 		int ref = e.ref;
 		publishMqttWakeUpRef(ref, e.on);
-	}
-	
-	@Subscribe
-	public void slaveTimeRemaining(UIEvent.TimeRemaining e) {
-		int tr = e.getTimeRemaining();
-		publishMqttTimeRemaining(tr);
 	}
 
 	private void connectionLoop(MqttAsyncClient mqttAsyncClient) {
@@ -431,7 +488,7 @@ public class MQTTMonitor {
 			logger.info("{}Connecting to embedded MQTT server", fop.getLoggingName());
 			userName = Config.getCurrent().getMqttUserName();
 			password = Main.mqttStartup;
-		} 
+		}
 		MqttConnectOptions connOpts = setupMQTTClient(userName, password);
 		client.connect(connOpts).waitForCompletion();
 
@@ -476,6 +533,39 @@ public class MQTTMonitor {
 		client.publish(deprecatedTopic, new MqttMessage(("on").getBytes(StandardCharsets.UTF_8)));
 	}
 
+	private void publishMqttBreak(BreakStarted e) throws MqttPersistenceException, MqttException {
+		client.publish("owlcms/fop/break/" + fop.getName(),
+		        new MqttMessage(e.getBreakType().name().getBytes(StandardCharsets.UTF_8)));
+	}
+	
+	private void publishMqttGroupDone(GroupDone e) throws MqttPersistenceException, MqttException {
+		client.publish("owlcms/fop/break/" + fop.getName(),
+		        new MqttMessage(BreakType.GROUP_DONE.name().getBytes(StandardCharsets.UTF_8)));
+	}
+
+	private void publishMqttCeremony(UIEvent e, boolean b) throws MqttPersistenceException, MqttException {
+		String topic = "owlcms/fop/ceremony/" + fop.getName();
+		try {
+			CeremonyType ceremonyType;
+			if (e instanceof UIEvent.CeremonyStarted) {
+				ceremonyType = ((UIEvent.CeremonyStarted) e).getCeremonyType();
+			} else {
+				ceremonyType = ((UIEvent.CeremonyDone) e).getCeremonyType();
+			}
+			client.publish(
+			        topic,
+			        new MqttMessage(
+			                (ceremonyType.name() + " " + (e instanceof UIEvent.CeremonyStarted ? "start" : "stop"))
+			                        .getBytes("UTF-8")));
+		} catch (UnsupportedEncodingException e1) {
+		}
+	}
+
+	private void publishMqttChallenge() throws MqttPersistenceException, MqttException {
+		String topic = "owlcms/fop/challenge/" + fop.getName();
+		client.publish(topic, new MqttMessage());
+	}
+
 	private void publishMqttDownSignal() throws MqttException, MqttPersistenceException {
 		String topic = "owlcms/fop/down/" + fop.getName();
 		client.publish(topic, new MqttMessage());
@@ -515,6 +605,11 @@ public class MQTTMonitor {
 		sleep(1000);
 		client.publish(topic, new MqttMessage("off".getBytes(StandardCharsets.UTF_8)));
 		client.publish(deprecatedTopic, new MqttMessage("off".getBytes(StandardCharsets.UTF_8)));
+	}
+
+	private void publishMqttLiftingOrderUpdated() throws MqttPersistenceException, MqttException {
+		String topic = "owlcms/fop/liftingOrderUpdated/" + fop.getName();
+		client.publish(topic, new MqttMessage());
 	}
 
 	private void publishMqttRefereeUpdates(Boolean ref1, Boolean ref2, Boolean ref3, Long ref1Time, Long ref2Time,
@@ -562,6 +657,11 @@ public class MQTTMonitor {
 		}
 	}
 
+	private void publishMqttStartLifting() throws MqttPersistenceException, MqttException {
+		String topic = "owlcms/fop/startLifting/" + fop.getName();
+		client.publish(topic, new MqttMessage());
+	}
+
 	private void publishMqttSummonRef(int ref) {
 		logger.debug("{}MQTT summon {}", fop.getLoggingName(), ref);
 		try {
@@ -577,7 +677,7 @@ public class MQTTMonitor {
 			logger.error("could not publish summon {}", e1.getCause());
 		}
 	}
-	
+
 	private void publishMqttTimeRemaining(int tr) {
 		logger.debug("{}MQTT timeRemaining {}", fop.getLoggingName(), tr);
 		try {

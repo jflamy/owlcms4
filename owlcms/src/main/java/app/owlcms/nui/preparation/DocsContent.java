@@ -493,7 +493,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 	private Button createCategoriesListButton() {
 		String resourceDirectoryLocation = "/templates/categories";
 		String title = Translator.translate("StartingList.Categories");
-		String downloadedFilePrefix = "startingList";
+		String downloadedFilePrefix = "categories";
 
 		DownloadDialog startingListFactory = new DownloadDialog(
 		        () -> {
@@ -516,7 +516,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 	private Button createOfficalsButton() {
 		String resourceDirectoryLocation = "/templates/officials";
 		String title = Translator.translate("StartingList.Officials");
-		String downloadedFilePrefix = "startingList";
+		String downloadedFilePrefix = "officials";
 
 		DownloadDialog startingListFactory = new DownloadDialog(
 		        () -> {
@@ -591,7 +591,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 	private Button createTeamsListButton() {
 		String resourceDirectoryLocation = "/templates/teams";
 		String title = Translator.translate("StartingList.Teams");
-		String downloadedFilePrefix = "startingList";
+		String downloadedFilePrefix = "teams";
 
 		DownloadDialog startingListFactory = new DownloadDialog(
 		        () -> {

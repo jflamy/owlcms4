@@ -18,9 +18,10 @@
 //  You should have received a copy of the GNU Lesser General Public License along with this library.
 //  If not, see <http://www.gnu.org/licenses/>.
 
-package app.owlcms.simulation;
+package app.owlcms.endpoints;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
@@ -34,6 +35,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.apputils.AccessUtils;
+import app.owlcms.data.export.CompetitionData;
+import app.owlcms.simulation.CompetitionSimulator;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ProxyUtils;
 import ch.qos.logback.classic.Logger;
@@ -55,13 +58,13 @@ import ch.qos.logback.classic.Logger;
  * @author Jean-François Lamy
  *
  */
-@WebServlet("/simulation/*")
-public class SimulationServlet extends HttpServlet {
+@WebServlet("/competition/export")
+public class CompetitionExport extends HttpServlet {
 
 	// Helpers (can be refactored to public utility class)
 	// ----------------------------------------
 
-	private static Logger logger = (Logger) LoggerFactory.getLogger(SimulationServlet.class);
+	private static Logger logger = (Logger) LoggerFactory.getLogger(CompetitionExport.class);
 //    { logger.setLevel(Level.DEBUG); }
 
 	// Inner classes
@@ -78,22 +81,18 @@ public class SimulationServlet extends HttpServlet {
 	 */
 	private void processRequest(HttpServletRequest request, HttpServletResponse response, boolean content)
 	        throws IOException {
-		logger.info("processing simulation request");
+		logger.info("processing competition state request");
 		// use proxyutils because this is a plain servlet, not a Vaadin servlet
 		String host = ProxyUtils.getClientIp(request);
 		boolean bd = AccessUtils.checkBackdoor(host);
 		if (!bd) {
-			logger.error("{} not in backdoor list, denied simulation", host);
+			logger.error("{} not in backdoor list, denied full state access", host);
 			response.setStatus(403);
 			response.flushBuffer();
 			return;
 		} else {
-			logger.info("{} authorized simulation", host);
+			logger.info("{} authorized full state access", host);
 		}
-
-		// Get requested file by path info.
-		String requestedFileName = request.getPathInfo();
-		logger.debug("requested file = {}", requestedFileName);
 
 		// Prepare and initialize response
 		// --------------------------------------------------------
@@ -102,24 +101,36 @@ public class SimulationServlet extends HttpServlet {
 		response.reset();
 
 		// Prepare streams.
+		InputStream inputStream = null;
 		OutputStream output = null;
+		PrintWriter printWriter = null;
 
 		try {
 			// Open streams.
 			output = response.getOutputStream();
-			PrintWriter pw = new PrintWriter(output, true, StandardCharsets.UTF_8);
-			pw.write("Starting simulation");
-			pw.flush();
+			printWriter = new PrintWriter(output, true, StandardCharsets.UTF_8);
+			response.setContentType("application/json");
+			response.setCharacterEncoding("UTF-8");
+			
+			inputStream = new CompetitionData().exportData();
+			inputStream.transferTo(output);
 			output.flush();
+			printWriter.flush();
+
 			response.setStatus(200);
 			response.flushBuffer();
-			new CompetitionSimulator().runSimulation();
 		} catch (Throwable t) {
 			logger.error("{}", LoggerUtils.stackTrace(t));
 			response.setStatus(500);
 		} finally {
 			if (output != null) {
 				output.close();
+			}
+			if (printWriter != null) {
+				printWriter.close();
+			}
+			if (inputStream != null) {
+				inputStream.close();
 			}
 		}
 	}

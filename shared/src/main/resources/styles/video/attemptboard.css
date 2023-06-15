@@ -1,13 +1,11 @@
-@import 'colors.css';
-
 * {
 	box-sizing: border-box;
 }
 
 .wrapper {
 	font: Arial;
-	color: var(--videoTextColor);
-	background-color: var(--videoHeaderBackgroundColor);
+	color: var(--pageTextColor);
+	background-color: var(--pageBackgroundColor);
 	height: 100vh;
 	width: 100vw;
 }
@@ -22,7 +20,7 @@
   weight-end barbell-start down-start decision-start] 4fr [barbell-end
   timer-start attempt-start] 2fr [timer-end name-end down-end decision-end attempt-end];
 	grid-template-rows: [lastName-start] 1fr [lastName-end firstName-start] 1fr [firstName-end
-		teamName-start down-start] 2fr [teamName-end decision-start] 1fr [startNumber-start
+		teamName-start down-start] 2fr [teamName-end  decision-start] 1fr [startNumber-start
 		attempt-start barbell-start] 1fr [startNumber-end
 		attempt-end weight-start timer-start] 5fr [weight-end barbell-end timer-end down-end
 		decision-end];
@@ -116,7 +114,6 @@
     width: 90%;
     max-width: 90%;
 }
-
 
 .attemptBoard .flagWithPicture {
 	justify-self: center;

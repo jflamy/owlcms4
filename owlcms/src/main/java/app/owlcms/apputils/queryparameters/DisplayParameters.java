@@ -6,6 +6,9 @@
  *******************************************************************************/
 package app.owlcms.apputils.queryparameters;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -297,8 +300,10 @@ public interface DisplayParameters extends ContentParameters {
 		Map<String, List<String>> parametersMap = queryParameters.getParameters();
 		HashMap<String, List<String>> params = readParams(location, parametersMap);
 
+		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params)));
 		event.getUI().getPage().getHistory().replaceState(null,
-		        new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
+		        location2);
+		storeReturnURL(location2);
 	}
 
 	public default void setRecordsDisplay(boolean showRecords) {
@@ -320,11 +325,19 @@ public interface DisplayParameters extends ContentParameters {
 	 *      Location, String, String)
 	 */
 	@Override
-	public default void storeReturnURL() {
+	public default void storeReturnURL(Location location) {
 		if (isSwitchableDisplay()) {
-			// logger.trace("storing pageURL before\n{}",LoggerUtils.stackTrace());
+			//String trace = LoggerUtils.stackTrace();
 			UI.getCurrent().getPage().fetchCurrentURL(url -> {
-				// logger.trace("storing pageURL after {}",url.toExternalForm());
+				String urlNonRelative = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort() + "/";
+				String arg1 = urlNonRelative + location.getPathWithQueryParameters();
+				if (arg1.contains("%")) {
+					try {
+						arg1 = URLDecoder.decode(arg1, StandardCharsets.UTF_8.name());
+					} catch (UnsupportedEncodingException e) {
+					}
+				}
+				//logger.debug("storing pageURL {} {}", arg1, trace);
 				storeInSessionStorage("pageURL", url.toExternalForm());
 			});
 		}
@@ -350,6 +363,7 @@ public interface DisplayParameters extends ContentParameters {
 	public default void switchLightingMode(Component target, boolean dark, boolean updateURL) {
 		target.getElement().getClassList().set(DARK, dark);
 		target.getElement().getClassList().set(LIGHT, !dark);
+		UI.getCurrent().getElement().getStyle().set("overflow", "hidden");
 		// logger.debug("switching lighting");
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), DARK, dark ? null : "false");

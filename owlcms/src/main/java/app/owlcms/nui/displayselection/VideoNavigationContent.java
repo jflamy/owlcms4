@@ -29,6 +29,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.components.GroupCategorySelectionMenu;
+import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
@@ -41,6 +42,7 @@ import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.displays.scoreboard.ResultsLeadersRanks;
 import app.owlcms.displays.scoreboard.ResultsMedals;
 import app.owlcms.displays.scoreboard.ResultsNoLeaders;
+import app.owlcms.displays.scoreboard.ResultsRankingOrder;
 import app.owlcms.displays.scoreboard.ResultsRankings;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -71,6 +73,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 	private Category medalCategory;
 	private Group medalGroup;
+	private AgeGroup medalAgeGroup;
 
 	/**
 	 * Instantiates a new display navigation content.
@@ -93,11 +96,14 @@ public class VideoNavigationContent extends BaseNavigationContent
 		Button scoreboard;
 		Button scoreboardWLeaders;
 		Button scoreboardMultiRanks;
+		Button scoreboardRankings;
 		scoreboard = openInNewTab(ResultsNoLeaders.class, getTranslation("Scoreboard"), "video");
 		scoreboardWLeaders = openInNewTab(Results.class, getTranslation("ScoreboardWLeadersButton"), "video");
 		scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
 		scoreboardMultiRanks = openInNewTab(ResultsLeadersRanks.class,
 		        getTranslation("ScoreboardMultiRanksButton"), "video");
+		scoreboardRankings = openInNewTab(ResultsRankingOrder.class,
+		        getTranslation("Scoreboard.RankingOrderButton"), "video");
 
 		List<Group> groups = GroupRepository.findAll();
 		groups.sort(new NaturalOrderComparator<Group>());
@@ -129,7 +135,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 
 		VerticalLayout intro1 = new VerticalLayout();
 		// addP(intro1, getTranslation("darkModeSelect"));
-		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders,
+		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders, scoreboardRankings,
 		        scoreboardMultiRanks);
 		doGroup(getTranslation("Scoreboards"), intro1, grid1, this);
 
@@ -171,6 +177,21 @@ public class VideoNavigationContent extends BaseNavigationContent
 		setMedalCategory(c);
 		logger.info("switching to {} {}", g.getName(), c != null ? c.getTranslatedName() : "");
 		fop.getUiEventBus().post(new UIEvent.VideoRefresh(this, g, c));
+	}
+
+	private void selectVideoContext(AgeGroup ag,Group g,  Category c, FieldOfPlay fop) {
+		Competition.getCurrent().computeMedals(g);
+		fop.setVideoAgeGroup(ag);
+		fop.setVideoGroup(g);
+		fop.setVideoCategory(c);
+		setMedalAgeGroup(ag);
+		setMedalCategory(c);
+		logger.info("switching to {} {} {}", ag.getName(), g.getName(), c != null ? c.getTranslatedName() : "");
+		fop.getUiEventBus().post(new UIEvent.VideoRefresh(this, g, c));
+	}
+
+	private void setMedalAgeGroup(AgeGroup ag) {
+		this.medalAgeGroup = ag;
 	}
 
 	private void setMedalCategory(Category c) {

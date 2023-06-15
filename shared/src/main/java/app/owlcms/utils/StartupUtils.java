@@ -126,7 +126,7 @@ public class StartupUtils {
     }
 
     public static String getAutoVersion() {
-        return "_" + firstAccess; //getVersion();
+        return getBooleanParam("cssEdit") ? "" : "_" + firstAccess; //getVersion();
     }
 
     public static boolean isDebugSetting() {

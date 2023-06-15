@@ -25,8 +25,8 @@ The display shifts to the lifting order and announcing mode.  The next athlete t
 Following the IWF rules, the announcer should then proceed as follows
 
 1. The announcer says: "**Loaders, please load 62kg on the ba**r"
-2. Once the platform is clear, the announcer says, in the local language then in English: "**The bar is now loaded with 62kg for the first attempt of Larry BROWN**"
-3. When pronouncing the **family name of the athlete in English**, [start the clock](#starting-the-clock) -- see the next section -- by using the `Play` (triangle) button.
+2. Once the platform is clear, the announcer says, in the local language then in English: "**The bar is now loaded with 62kg for the first attempt of Larry BROWN**, representing Country"
+3. At the end of the English announcement, [start the clock](#starting-the-clock) -- see the next section -- by using the `Play` (triangle) button.
 
 ## Starting the clock
 
@@ -34,9 +34,9 @@ Either the announcer or the timekeeper can start the clock.
 
 ![014_StartClock](nimg/3200Lifting/050.png)
 
-The clock can also be started by using the `,` or `/`keys on the keyboard.  The `*` key on the numeric keypad acts as a toggle (start if stopped, stop if started).
+The clock can also be started by using the `,`  (comma) or `/`keys on the keyboard.  The `*` key on the numeric keypad acts as a toggle (start if stopped, stop if started).  The regular `*` key works if it is located above the `8` key on the keyboard layout.
 
-The clock can be reset to 1:00 or 2:00 using the buttons, or by using the `-` and `=` keys respectively.
+The clock can be reset to 1:00 or 2:00 using the buttons, or by using the `+` on the numeric keypad and `=` keys respectively. The regular `+` key will work if it is located above the `=` key on the keyboard layout.
 
 ## Stopping/Restarting the clock
 

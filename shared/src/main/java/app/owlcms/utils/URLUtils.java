@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.utils;
 
+import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -168,5 +169,68 @@ public class URLUtils {
     public static Map<String, List<String>> cleanParams(Map<String, List<String>> params) {
         return params.entrySet().stream().filter(e -> !e.getKey().isBlank()).collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     }
+    
+    /**
+     * replace illegal characters in a filename with "_" illegal characters : : \ /
+     * * ? | < >
+     *
+     * @param name
+     * @return
+     */
+    public static String sanitizeFilename(String name) {
+        return name.replaceAll("[:\\\\/*?|<>]", "_");
+    }
 
+    public static boolean checkPictures() {
+        boolean athletePictures;
+        try {
+            ResourceWalker.getFileOrResourcePath("pictures");
+            athletePictures = true;
+        } catch (FileNotFoundException e) {
+            athletePictures = false;
+        }
+        return athletePictures;
+    }
+    
+    public static boolean checkFlags() {
+        boolean teamFlags;
+        try {
+            ResourceWalker.getFileOrResourcePath("flags");
+            teamFlags = true;
+        } catch (FileNotFoundException e) {
+            teamFlags = false;
+        }
+        return teamFlags;
+    }
+    
+    public static boolean setImgProp(String propertyName, String prefix, String name, String suffix, Component component) {
+        boolean found;
+        try {
+            ResourceWalker.getFileOrResourcePath(prefix + name + suffix);
+            found = true;
+        } catch (FileNotFoundException e) {
+            found = false;
+        }
+        if (found) {
+            component.getElement().setProperty(propertyName, "<img src='local/" + prefix + name + suffix + "'></img>");
+        } else {
+            component.getElement().setProperty(propertyName, "");
+        }
+        return found;
+    }
+    
+    public static String getImgTag(String prefix, String name, String suffix, Component component) {
+        boolean found;
+        try {
+            ResourceWalker.getFileOrResourcePath(prefix + name + suffix);
+            found = true;
+        } catch (FileNotFoundException e) {
+            found = false;
+        }
+        if (found) {
+            return "<img src='local/" + prefix + name + suffix + "'></img>";
+        } else {
+            return null;
+        }
+    }
 }
