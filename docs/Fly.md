@@ -43,7 +43,7 @@ In order to install an application you will need to log in to their site and the
 
 ​	**You are now done and can use https://myclub.fly.dev**
 
-- If you male a mistake and want to start over again, just issue the following commands `fly destroy --app myclub` and `fly destroy --app myclub-db`
+- If you make a mistake and want to start over again, just issue the following commands `fly destroy --app myclub` and `fly destroy --app myclub-db`
 
 
 
@@ -117,7 +117,7 @@ In a gym setting, people can read the web addresses on the screens.  Because the
 
 ### Using your own site name
 
-Note that if you own your own domain, you can add names under your own domain to reach the fly.io applications.  This is done from the fly.io dashboard, under the `Certificates` section.
+If you own your own domain, you can add names under your own domain to reach the fly.io applications.  This is done from [http://fly.io/dashboard](http://fly.io/dashboard).  Select your application, then go under the `Certificates` section to provide the required information.
 
 ### Scale-up and Scale-down of owlcms
 
