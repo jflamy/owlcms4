@@ -908,6 +908,10 @@ public class EventForwarder implements BreakDisplay {
 	private void getAttemptsJson(Athlete a, int liftOrderRank) {
 		sattempts = Json.createArray();
 		cattempts = Json.createArray();
+		for (int i = 0; i < 3; i++) {
+			sattempts.set(i, Json.createNull());
+			cattempts.set(i, Json.createNull());
+		}
 		XAthlete x = new XAthlete(a);
 		Integer curLift = x.getAttemptsDone();
 		int ix = 0;
