@@ -29,7 +29,6 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.components.GroupCategorySelectionMenu;
-import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
@@ -73,7 +72,6 @@ public class VideoNavigationContent extends BaseNavigationContent
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 	private Category medalCategory;
 	private Group medalGroup;
-	private AgeGroup medalAgeGroup;
 
 	/**
 	 * Instantiates a new display navigation content.
@@ -179,20 +177,20 @@ public class VideoNavigationContent extends BaseNavigationContent
 		fop.getUiEventBus().post(new UIEvent.VideoRefresh(this, g, c));
 	}
 
-	private void selectVideoContext(AgeGroup ag,Group g,  Category c, FieldOfPlay fop) {
-		Competition.getCurrent().computeMedals(g);
-		fop.setVideoAgeGroup(ag);
-		fop.setVideoGroup(g);
-		fop.setVideoCategory(c);
-		setMedalAgeGroup(ag);
-		setMedalCategory(c);
-		logger.info("switching to {} {} {}", ag.getName(), g.getName(), c != null ? c.getTranslatedName() : "");
-		fop.getUiEventBus().post(new UIEvent.VideoRefresh(this, g, c));
-	}
-
-	private void setMedalAgeGroup(AgeGroup ag) {
-		this.medalAgeGroup = ag;
-	}
+//	private void selectVideoContext(AgeGroup ag,Group g,  Category c, FieldOfPlay fop) {
+//		Competition.getCurrent().computeMedals(g);
+//		fop.setVideoAgeGroup(ag);
+//		fop.setVideoGroup(g);
+//		fop.setVideoCategory(c);
+//		setMedalAgeGroup(ag);
+//		setMedalCategory(c);
+//		logger.info("switching to {} {} {}", ag.getName(), g.getName(), c != null ? c.getTranslatedName() : "");
+//		fop.getUiEventBus().post(new UIEvent.VideoRefresh(this, g, c));
+//	}
+//
+//	private void setMedalAgeGroup(AgeGroup ag) {
+//		this.medalAgeGroup = ag;
+//	}
 
 	private void setMedalCategory(Category c) {
 		this.medalCategory = c;
