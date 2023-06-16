@@ -12,8 +12,8 @@ class Scoreboard extends PolymerElement {
        
 	static get template() {
 		return html`
-<link rel="stylesheet" type="text/css" href="local/styles/[[video]]colors[[autoversion]].css">
-<link rel="stylesheet" type="text/css" href="local/styles/liftingorder[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/[[stylesDir]]/[[video]]colors[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/[[stylesDir]]/liftingorder[[autoversion]].css">
 <div class="wrapper" width="100%">
 <div class="attemptBar" style$="[[_computeHidden(hidden)]]">
 	<div class="athleteInfo" id="athleteInfoDiv" style$="[[_computeHidden(hidden)]]">

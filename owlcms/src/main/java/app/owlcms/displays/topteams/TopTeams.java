@@ -43,9 +43,11 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.team.Team;
 import app.owlcms.data.team.TeamTreeData;
 import app.owlcms.data.team.TeamTreeItem;
+import app.owlcms.displays.VideoOverride;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -79,7 +81,7 @@ import elemental.json.JsonValue;
 @Route("displays/topteams")
 
 public class TopTeams extends PolymerTemplate<TemplateModel> implements DisplayParameters,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin {
+        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin, VideoOverride {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TopTeams.class);
 	private static final int SHOWN_ON_BOARD = 5;
@@ -105,6 +107,15 @@ public class TopTeams extends PolymerTemplate<TemplateModel> implements DisplayP
 	private EventBus uiEventBus;
 	private List<TeamTreeItem> womensTeams;
 	private Timer dialogTimer;
+	private boolean video;
+
+	public boolean isVideo() {
+		return video;
+	}
+
+	public void setVideo(boolean video) {
+		this.video = video;
+	}
 
 	private String routeParameter;
 
@@ -586,6 +597,7 @@ public class TopTeams extends PolymerTemplate<TemplateModel> implements DisplayP
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
+		checkVideo(Config.getCurrent().getStylesDirectory()+"/video/top.css", routeParameter, this);
 		switchLightingMode(this, isDarkMode(), true);
 		setWide(false);
 		setTranslationMap();

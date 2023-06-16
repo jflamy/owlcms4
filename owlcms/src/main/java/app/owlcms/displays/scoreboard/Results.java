@@ -360,7 +360,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 
 	@Override
 	public void setLeadersDisplay(boolean showLeaders) {
-		checkVideo("styles/video/results.css", routeParameter, this);
+		checkVideo(Config.getCurrent().getStylesDirectory()+"/video/results.css", routeParameter, this);
 		this.showLeaders = showLeaders;
 		if (showLeaders) {
 			this.getElement().setProperty("leadersVisibility", "");

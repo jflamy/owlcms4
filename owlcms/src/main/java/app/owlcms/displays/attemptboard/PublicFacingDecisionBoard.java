@@ -11,6 +11,7 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.data.config.Config;
 import app.owlcms.init.OwlcmsSession;
 
 @SuppressWarnings("serial")
@@ -54,7 +55,7 @@ public class PublicFacingDecisionBoard extends AttemptBoard {
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
-		checkVideo("styles/video/decisionboard.css", routeParameter, this);
+		checkVideo(Config.getCurrent().getStylesDirectory()+"/video/decisionboard.css", routeParameter, this);
 		decisions.setPublicFacing(true);
 		setPublicFacing(true);
 		setShowBarbell(false);

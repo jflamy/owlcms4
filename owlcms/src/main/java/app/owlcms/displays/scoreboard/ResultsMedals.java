@@ -46,6 +46,7 @@ import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.VideoOverride;
 import app.owlcms.displays.options.DisplayOptions;
@@ -577,7 +578,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
 			init();
-			checkVideo("styles/video/results.css", routeParameter, this);
+			checkVideo(Config.getCurrent().getStylesDirectory()+"/video/results.css", routeParameter, this);
 			teamFlags = URLUtils.checkFlags();
 			if (this.getCategory() == null) {
 				if (this.getGroup() != null) {

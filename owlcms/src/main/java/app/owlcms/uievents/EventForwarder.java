@@ -1039,15 +1039,16 @@ public class EventForwarder implements BreakDisplay {
 				InputStream inputStream;
 				if (blob == null) {
 					logger.info("creating blob");
+					String styles = Config.getCurrent().getStylesDirectory();
 					try {
-						inputStream = ResourceWalker.getFileOrResource("/styles/results.css");
+						inputStream = ResourceWalker.getFileOrResource("/"+styles+"/results.css");
 					} catch (FileNotFoundException e) {
 						throw new RuntimeException(e);
 					}
 					builder.addBinaryBody("results", inputStream, ContentType.create("text/css"), "results.css");
 
 					try {
-						inputStream = ResourceWalker.getFileOrResource("/styles/colors.css");
+						inputStream = ResourceWalker.getFileOrResource("/"+styles+"/colors.css");
 					} catch (FileNotFoundException e) {
 						throw new RuntimeException(e);
 					}

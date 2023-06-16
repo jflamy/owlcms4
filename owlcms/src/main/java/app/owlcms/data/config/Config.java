@@ -458,6 +458,17 @@ public class Config {
 		String param = StartupUtils.getStringParam("mqttServer");
 		return param;
 	}
+	
+	@Transient
+	@JsonIgnore
+	public String getParamStylesDir() {
+		String param = StartupUtils.getStringParam("stylesDir");
+		if (param == null || param.isBlank()) {
+			return "styles";
+		} else {
+			return param;
+		}
+	}
 
 	/**
 	 * @return the current mqtt server.
@@ -794,6 +805,13 @@ public class Config {
 	private void setSalt(String salt) {
 		this.salt = salt;
 		logger.debug("setting salt to {}", this.salt);
+	}
+
+	@JsonIgnore
+	@Transient
+	//FIXME store in database
+	public String getStylesDirectory() {
+		return getParamStylesDir();
 	}
 
 }

@@ -43,9 +43,11 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.team.Team;
 import app.owlcms.data.team.TeamTreeData;
 import app.owlcms.data.team.TeamTreeItem;
+import app.owlcms.displays.VideoOverride;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -80,7 +82,7 @@ import elemental.json.JsonValue;
 
 public class TopTeamsSinclair extends PolymerTemplate<TemplateModel>
         implements DisplayParameters,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin {
+        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin, VideoOverride {
 
 	/**
 	 * Vaadin Flow propagates these variables to the corresponding Polymer template
@@ -126,6 +128,15 @@ public class TopTeamsSinclair extends PolymerTemplate<TemplateModel>
 	private EventBus uiEventBus;
 	private List<TeamTreeItem> womensTeams;
 	private Timer dialogTimer;
+	private boolean video;
+
+	public boolean isVideo() {
+		return video;
+	}
+
+	public void setVideo(boolean video) {
+		this.video = video;
+	}
 
 	private String routeParameter;
 
@@ -619,6 +630,7 @@ public class TopTeamsSinclair extends PolymerTemplate<TemplateModel>
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
+		checkVideo(Config.getCurrent().getStylesDirectory()+"/video/top.css", routeParameter, this);
 		switchLightingMode(this, isDarkMode(), true);
 		setWide(false);
 		setTranslationMap();

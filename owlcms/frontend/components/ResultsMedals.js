@@ -13,9 +13,9 @@ class ResultsMedals extends PolymerElement {
 
     static get template() {
         return html`
-<link rel="stylesheet" type="text/css" href="local/styles/[[video]]colors[[autoversion]].css">
-<link rel="stylesheet" type="text/css" href="local/styles/[[video]]results[[autoversion]].css">
-<link rel="stylesheet" type="text/css" href="local/styles/[[video]]resultsMedalsCustomization[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/[[stylesDir]]/[[video]]colors[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/[[stylesDir]]/[[video]]results[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/[[stylesDir]]/[[video]]resultsMedalsCustomization[[autoversion]].css">
 
 <div class$="wrapper medals [[teamWidthClass]] [[inactiveClass]]" style$="[[sizeOverride]];">
     <div class="blockPositioningWrapper">

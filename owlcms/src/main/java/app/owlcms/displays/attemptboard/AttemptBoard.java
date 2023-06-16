@@ -48,6 +48,7 @@ import app.owlcms.components.elements.Plates;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.VideoOverride;
 import app.owlcms.displays.options.DisplayOptions;
@@ -756,7 +757,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		OwlcmsSession.withFop(fop -> {
 			logger.debug("{}onAttach {}", fop.getLoggingName(), fop.getState());
 			init();
-			checkVideo("styles/video/attemptboard.css", routeParameter, this);
+			checkVideo(Config.getCurrent().getStylesDirectory()+"/video/attemptboard.css", routeParameter, this);
 			ThemeList themeList = UI.getCurrent().getElement().getThemeList();
 			themeList.remove(Lumo.LIGHT);
 			themeList.add(Lumo.DARK);

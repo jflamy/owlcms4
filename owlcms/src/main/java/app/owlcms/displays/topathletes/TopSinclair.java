@@ -39,6 +39,8 @@ import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
+import app.owlcms.displays.VideoOverride;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -70,7 +72,7 @@ import elemental.json.JsonValue;
 @Route("displays/topsinclair")
 
 public class TopSinclair extends PolymerTemplate<TemplateModel> implements DisplayParameters,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin {
+        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin, VideoOverride {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TopSinclair.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -94,6 +96,15 @@ public class TopSinclair extends PolymerTemplate<TemplateModel> implements Displ
 	private double topWomanSinclair;
 	private EventBus uiEventBus;
 	private Timer dialogTimer;
+	private boolean video;
+
+	public boolean isVideo() {
+		return video;
+	}
+
+	public void setVideo(boolean video) {
+		this.video = video;
+	}
 
 	private String routeParameter;
 
@@ -525,6 +536,7 @@ public class TopSinclair extends PolymerTemplate<TemplateModel> implements Displ
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		logger.debug("onAttach start");
+		checkVideo(Config.getCurrent().getStylesDirectory()+"/video/top.css", routeParameter, this);
 		switchLightingMode(this, isDarkMode(), true);
 		setWide(false);
 		setTranslationMap();

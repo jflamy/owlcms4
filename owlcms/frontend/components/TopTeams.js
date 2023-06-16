@@ -12,8 +12,8 @@ class TopTeams extends PolymerElement {
 
 	static get template() {
 		return html`
-<link rel="stylesheet" type="text/css" href="local/styles/[[video]]colors[[autoversion]].css">
-<link rel="stylesheet" type="text/css" href="local/styles/top[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/[[stylesDir]]/[[video]]colors[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/[[stylesDir]]/top[[autoversion]].css">
 <div class$="wrapper [[_computeTeamWidth(wideTeamNames)]]" id="resultBoardDiv">
 	<template is="dom-if" if="[[topTeamsWomen]]">
 		<h2 class="fullName" id="fullNameDiv" inner-h-t-m-l="[[topTeamsWomen]]"></h2>

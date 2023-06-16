@@ -13,8 +13,8 @@ class Medals extends PolymerElement {
 
     static get template() {
         return html`
-    <link rel="stylesheet" type="text/css" href="local/styles/[[video]]colors[[autoversion]].css">
-    <link rel="stylesheet" type="text/css" href="local/styles/scoreboard[[autoversion]].css">
+    <link rel="stylesheet" type="text/css" href="local/[[stylesDir]]/[[video]]colors[[autoversion]].css">
+    <link rel="stylesheet" type="text/css" href="local/[[stylesDir]]/scoreboard[[autoversion]].css">
     <div class$="wrapper [[teamWidthClass]] [[inactiveClass]]">
         <div class="waiting" style$="[[inactiveStyle]]">
             <div class="competitionName">[[competitionName]]</div><br>
