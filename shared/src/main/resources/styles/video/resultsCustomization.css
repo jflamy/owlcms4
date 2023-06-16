@@ -11,6 +11,7 @@
 
     /* left column width: adjust depending on how you name groups */
     --startWidth: 4em;
+    --startVisibility: visible;
 
     /* spacers */
     --spacerWidth: 1vh;
@@ -32,7 +33,12 @@
 
     --rankWidth: var(--liftResultWidth);
     --rankVisibility: visible;
+    --totalRankWidth: var(--liftResultWidth);
 
+    /* 
+    --bestWidth: var(--liftResultWidth);
+    --bestVisibility: visible;
+    */
     --bestWidth: 0;
     --bestVisibility: hidden;
 

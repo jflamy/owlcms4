@@ -13,7 +13,7 @@
     padding: 1vmin 2vmin 2vmin 2vmin;
     overflow: hidden;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     flex-wrap: no-wrap;
     justify-content: flex-start;
     line-height: unset;
@@ -63,7 +63,7 @@
 table.results {
     border-collapse: collapse;
     font-size: var(--tableFontSize);
-    --totalRankWidth: var(--liftResultWidth);
+    --totalRankWidth: var(--rankWidth);
     --totalRankVisibility: visible;
     --totalWidth: var(--liftResultWidth);
     --totalVisibility: visible;
@@ -102,6 +102,7 @@ table.results.sinclair {
 /* default cell colors, backgrounds and borders */
 :host(.dark) table.results tr td,
 :host(.dark) table.results tr th {
+    align-items: center;
     background-color: var(--darkBackgroundColor);
     color: var(--darkTextColor);
     border-width: 1px;
@@ -127,11 +128,13 @@ table.results.sinclair {
 :host(.light) table.results tr td.start {
     background-color: var(--lightStartBackgroundColor);
     color: var(--lightStartTextColor);
+    visibility: var(--startVisibility);
 }
 
 :host(.dark) table.results tr td.start {
     background-color: var(--darkStartBackgroundColor);
     color: var(--darkStartTextColor);
+    visibility: var(--startVisibility);
 }
 
 /* name */
@@ -252,14 +255,16 @@ table.results.sinclair {
 :host(.light) table.results tr td.groupCol {
     background-color: var(--lightStartBackgroundColor);
     color: var(--lightStartTextColor);
+    visibility: var(--startVisibility);
 }
 
 :host(.dark) table.results tr td.groupCol {
     background-color: var(--darkStartBackgroundColor);
     color: var(--darkStartTextColor);
+    visibility: var(--startVisibility);
 }
 
-/* custom fields */
+/* year of birth */
 :host(.dark) table.results tr td.yob,
 :host(.dark) table.results tr th.yob {
     background-color: var(--darkBackgroundColor);

@@ -13,7 +13,7 @@
     padding: 1vmin 2vmin 2vmin 2vmin;
     overflow: hidden;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     flex-wrap: no-wrap;
     justify-content: flex-start;
     line-height: unset;
@@ -128,11 +128,13 @@ table.results.sinclair {
 :host(.light) table.results tr td.start {
     background-color: var(--lightStartBackgroundColor);
     color: var(--lightStartTextColor);
+    visibility: var(--startVisibility);
 }
 
 :host(.dark) table.results tr td.start {
     background-color: var(--darkStartBackgroundColor);
     color: var(--darkStartTextColor);
+    visibility: var(--startVisibility);
 }
 
 /* name */
@@ -253,11 +255,13 @@ table.results.sinclair {
 :host(.light) table.results tr td.groupCol {
     background-color: var(--lightStartBackgroundColor);
     color: var(--lightStartTextColor);
+    visibility: var(--startVisibility);
 }
 
 :host(.dark) table.results tr td.groupCol {
     background-color: var(--darkStartBackgroundColor);
     color: var(--darkStartTextColor);
+    visibility: var(--startVisibility);
 }
 
 /* year of birth */

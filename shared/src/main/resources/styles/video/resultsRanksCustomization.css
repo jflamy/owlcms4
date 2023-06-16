@@ -8,9 +8,10 @@
     */
     --nameWidth: 0.60fr;
     --clubWidth: 0.40fr;
-
+    
     /* left column width: adjust depending on how you name groups */
-    --startWidth: 4em;
+    --startWidth: 0em;
+    --startVisibility: hidden;
 
     /* spacers */
     --spacerWidth: 1vh;
