@@ -28,6 +28,7 @@ import app.owlcms.apputils.DebugUtils;
 import app.owlcms.displays.attemptboard.AthleteFacingAttemptBoard;
 import app.owlcms.displays.attemptboard.AthleteFacingDecisionBoard;
 import app.owlcms.displays.attemptboard.AttemptBoard;
+import app.owlcms.displays.scoreboard.CurrentAthlete;
 import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.displays.scoreboard.ResultsLeadersRanks;
 import app.owlcms.displays.scoreboard.ResultsLiftingOrder;
@@ -71,58 +72,48 @@ public class DisplayNavigationContent extends BaseNavigationContent
 		addP(intro, getTranslation("Dropdown_Select_Platform"));
 		addP(intro, getTranslation("Button_Open_Display"));
 		intro.getStyle().set("margin-bottom", "0");
-
-		Button attempt = openInNewTab(AttemptBoard.class, getTranslation("AttemptBoard"));
-		Button athleteFacingAttempt = openInNewTab(AthleteFacingAttemptBoard.class, getTranslation("Athlete_Attempt"));
-		Button decisions = openInNewTab(AthleteFacingDecisionBoard.class, getTranslation("Athlete_Decisions"));
-
-		Button scoreboard;
-		Button scoreboardWLeaders;
-		Button scoreboardMultiRanks;
-		Button medals;
-		Button scoreboardRankings;
-
-		scoreboard = openInNewTab(ResultsNoLeaders.class, getTranslation("Scoreboard"));
-		scoreboardWLeaders = openInNewTab(Results.class, getTranslation("ScoreboardWLeadersButton"));
-		scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
-		scoreboardMultiRanks = openInNewTab(ResultsLeadersRanks.class,
-		        getTranslation("ScoreboardMultiRanksButton"));
-		medals = openInNewTab(ResultsMedals.class, getTranslation("CeremonyType.MEDALS"));
-//        currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"));
-		scoreboardRankings = openInNewTab(ResultsRankingOrder.class,
-		        getTranslation("Scoreboard.RankingOrderButton"));
-
-		// Button liftingOrder = openInNewTab(LiftingOrder.class,
-		// getTranslation("Scoreboard.LiftingOrder"));
-		Button liftingOrder = openInNewTab(ResultsLiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
-		Button topSinclair = openInNewTab(TopSinclair.class, getTranslation("Scoreboard.TopSinclair"));
-		Button topTeams = openInNewTab(TopTeams.class, getTranslation("Scoreboard.TopTeams"));
-		Button topTeamsSinclair = openInNewTab(TopTeamsSinclair.class, getTranslation("Scoreboard.TopTeamsSinclair"));
-
-//        Button obsMonitor = openInNewTab(OBSMonitor.class, getTranslation("OBS.MonitoringButton"));
-//        Button publicDecisions = openInNewTab(PublicFacingDecisionBoard.class, getTranslation("RefereeDecisions"));
-
 		fillH(intro, this);
+		
+		Button attempt = openInNewTab(AttemptBoard.class, getTranslation("AttemptBoard"));
+        Button currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"));
+		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(attempt, currentAthlete);
+		doGroup(getTranslation("AttemptBoard"), grid3, this);
+		
 
+		Button decisions = openInNewTab(AthleteFacingDecisionBoard.class, getTranslation("Athlete_Decisions"));
+		Button athleteFacingAttempt = openInNewTab(AthleteFacingAttemptBoard.class, getTranslation("Athlete_Attempt"));
+		VerticalLayout intro2 = new VerticalLayout();
+		addP(intro2, getTranslation("refereeingDevices"));
+		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(decisions, athleteFacingAttempt);
+		doGroup(getTranslation("Refereeing_Displays"), intro2, grid2, this);
+
+
+
+		Button scoreboard = openInNewTab(ResultsNoLeaders.class, getTranslation("Scoreboard"));
+		Button scoreboardWLeaders = openInNewTab(Results.class, getTranslation("ScoreboardWLeadersButton"));
+		scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
+		Button scoreboardMultiRanks = openInNewTab(ResultsLeadersRanks.class,
+		        getTranslation("ScoreboardMultiRanksButton"));
+		Button scoreboardRankings = openInNewTab(ResultsRankingOrder.class,
+		        getTranslation("Scoreboard.RankingOrderButton"));
+		Button liftingOrder = openInNewTab(ResultsLiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
 		VerticalLayout intro1 = new VerticalLayout();
 		addP(intro1, getTranslation("darkModeSelect"));
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders,
-		        scoreboardRankings, scoreboardMultiRanks, liftingOrder,
+		        scoreboardRankings, scoreboardMultiRanks, liftingOrder);
+		doGroup(getTranslation("Scoreboards"), intro1, grid1, this);	
+
+
+		Button medals = openInNewTab(ResultsMedals.class, getTranslation("CeremonyType.MEDALS"));
+		Button topSinclair = openInNewTab(TopSinclair.class, getTranslation("Scoreboard.TopSinclair"));
+		Button topTeams = openInNewTab(TopTeams.class, getTranslation("Scoreboard.TopTeams"));
+		Button topTeamsSinclair = openInNewTab(TopTeamsSinclair.class, getTranslation("Scoreboard.TopTeamsSinclair"));
+		VerticalLayout intro11 = new VerticalLayout();
+		FlexibleGridLayout grid11 = HomeNavigationContent.navigationGrid(
 		        topSinclair, topTeams, topTeamsSinclair, medals);
-		doGroup(getTranslation("Scoreboards"), intro1, grid1, this);
+		doGroup(getTranslation("Scoreboard.RANKINGS"), intro11, grid11, this);
 
-		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(attempt, athleteFacingAttempt);
-		doGroup(getTranslation("AttemptBoard"), grid3, this);
 
-		VerticalLayout intro2 = new VerticalLayout();
-		addP(intro2, getTranslation("refereeingDevices"));
-		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(decisions);
-		doGroup(getTranslation("Refereeing_Displays"), intro2, grid2, this);
-
-//        VerticalLayout intro4 = new VerticalLayout();
-//        addP(intro4, getTranslation("OBS.MonitoringExplanation"));
-//        FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(obsMonitor, currentAthlete, publicDecisions);
-//        doGroup(getTranslation("OBS.MonitoringTitle"), intro4, grid4, this);
 
 		DebugUtils.gc();
 	}

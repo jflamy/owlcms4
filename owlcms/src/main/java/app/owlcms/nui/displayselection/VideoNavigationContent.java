@@ -82,25 +82,27 @@ public class VideoNavigationContent extends BaseNavigationContent
 		addP(intro, getTranslation("VideoStreaming.Intro"));
 		addP(intro, getTranslation("Button_Open_Display"));
 		intro.getStyle().set("margin-bottom", "0");
+		fillH(intro, this);
+		
+		
 		Button currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"), "video");
 		Button attempt = openInNewTab(AttemptBoard.class, getTranslation("AttemptBoard"), "video");
+		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(attempt, currentAthlete);
+		doGroup(getTranslation("AttemptBoard"), grid3, this);
+		
+		
 		Button publicDecisions = openInNewTab(PublicFacingDecisionBoard.class, getTranslation("RefereeDecisions"),
 		        "video");
+		FlexibleGridLayout grid31 = HomeNavigationContent.navigationGrid(publicDecisions);
+		doGroup(getTranslation("RefereeDecisions"), grid31, this);
 
-		fillH(intro, this);
-		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(attempt, currentAthlete, publicDecisions);
-		doGroup(getTranslation("AttemptBoard"), grid3, this);
-
-		Button scoreboard;
-		Button scoreboardWLeaders;
-		Button scoreboardMultiRanks;
-		Button scoreboardRankings;
-		scoreboard = openInNewTab(ResultsNoLeaders.class, getTranslation("Scoreboard"), "video");
-		scoreboardWLeaders = openInNewTab(Results.class, getTranslation("ScoreboardWLeadersButton"), "video");
+		
+		Button scoreboard = openInNewTab(ResultsNoLeaders.class, getTranslation("Scoreboard"), "video");
+		Button scoreboardWLeaders = openInNewTab(Results.class, getTranslation("ScoreboardWLeadersButton"), "video");
 		scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
-		scoreboardMultiRanks = openInNewTab(ResultsLeadersRanks.class,
+		Button scoreboardMultiRanks = openInNewTab(ResultsLeadersRanks.class,
 		        getTranslation("ScoreboardMultiRanksButton"), "video");
-		scoreboardRankings = openInNewTab(ResultsRankingOrder.class,
+		Button scoreboardRankings = openInNewTab(ResultsRankingOrder.class,
 		        getTranslation("Scoreboard.RankingOrderButton"), "video");
 
 		List<Group> groups = GroupRepository.findAll();
@@ -119,29 +121,29 @@ public class VideoNavigationContent extends BaseNavigationContent
 		includeNotCompleted.setLabel(Translator.translate("Video.includeNotCompleted"));
 		HorizontalLayout hl = new HorizontalLayout();
 		hl.add(groupCategorySelectionMenu, includeNotCompleted);
-
-		Button medals = new Button(getTranslation("CeremonyType.MEDALS"));
-		medals.addClickListener((e) -> {
-			Class<ResultsMedals> class1 = ResultsMedals.class;
-	        openClass(class1);
-		});
-		Button rankings = new Button(getTranslation("Scoreboard.RANKING"));
-		rankings.addClickListener((e) -> {
-			Class<ResultsRankings> class1 = ResultsRankings.class;
-	        openClass(class1);
-		});
-
 		VerticalLayout intro1 = new VerticalLayout();
 		// addP(intro1, getTranslation("darkModeSelect"));
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders, scoreboardRankings,
 		        scoreboardMultiRanks);
 		doGroup(getTranslation("Scoreboards"), intro1, grid1, this);
 
+		
+		Button medals = new Button(getTranslation("CeremonyType.MEDALS"));
+		Button rankings = new Button(getTranslation("Scoreboard.RANKING"));
+		medals.addClickListener((e) -> {
+			Class<ResultsMedals> class1 = ResultsMedals.class;
+	        openClass(class1);
+		});
+		rankings.addClickListener((e) -> {
+			Class<ResultsRankings> class1 = ResultsRankings.class;
+	        openClass(class1);
+		});
 		VerticalLayout intro1a = new VerticalLayout();
 		// addP(intro1, getTranslation("darkModeSelect"));
 		intro1a.add(hl);
 		FlexibleGridLayout grid1a = HomeNavigationContent.navigationGrid(medals, rankings);
 		doGroup(getTranslation("Scoreboard.RANKINGS"), intro1a, grid1a, this);
+		
 
 		Button obsMonitor = openInNewTab(OBSMonitor.class, getTranslation("OBS.MonitoringButton"));
 		VerticalLayout intro4 = new VerticalLayout();
