@@ -38,18 +38,26 @@
     justify-items: center;
 }
 
+.video .videoheader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+}
+
 .video .eventlogo {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-grow: 0;
-}
-
-.video .videoheader {
-    display: flex;
-    align-self: center;
-    justify-content: center;
-    flex-grow: 1;
+    background-image: url('../../logos/owlcms.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-color:white;
+    width: 70px;
+    height: 75px;
+    background-position: center;
 }
 
 .video .federationlogo {
@@ -57,6 +65,14 @@
     align-items: center;
     justify-content: center;
     flex-grow: 0;
+    background-image: url('../../logos/owlcms.png');
+    background-color:white;
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 70px;
+    height: 70px;
+    margin-right:5px;
+    background-position: center;
 }
 
 /* table general parameters */
