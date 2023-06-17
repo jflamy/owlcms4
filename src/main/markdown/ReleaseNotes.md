@@ -1,11 +1,12 @@
-41.x Scoreboard improvements and fixes, fixes to small report issues, MQTT fixes.
+41.x Scoreboard Styling Improvements, User interface improvements.
 
-- 41.0.0-alpha00: adjusted the page structure for the scoreboards to allow video layouts that do not fill the page
+- 41.0.0-alpha00: improved the page structure for the scoreboards to support more advanced formatting.
   
-- 41.0.0-alpha00: reorganized the button groups on the display and video selection pages to be more similar and logical
+- 41.0.0-alpha00: reorganized the button groups on the display and video selection pages to be more logical
   
-- 41.0.0-alpha00: Experimental: the variable OWLCMS_STYLESDIR indicates what directory contains the style sheets.  Default value is "styles". This should allow shipping several themes (default green-red, IWF-style blue-red, etc.)
+- 41.0.0-alpha00: redid the CSS styling for the current athlete bottom banner.  It no longer restricts the length of the words in the bottom row.
   
+- 41.0.0-alpha00: the variable OWLCMS_STYLESDIR indicates what directory contains the style sheets.  The default value is "styles". This makes it easier to create and test alternate visual styles.
 
 ##### Highlights from recent stable releases
 
