@@ -1,4 +1,3 @@
-/* default for page */
 .wrapper {
     /* results table font size */
     --tableFontSize: 1.25rem;
@@ -54,7 +53,7 @@
     background-image: url('../../logos/left.png');
     background-size: contain;
     background-repeat: no-repeat;
-    background-color:white;
+    /* background-color:white; */
     width: 70px;
     height: 75px;
     background-position: center;
@@ -66,7 +65,7 @@
     justify-content: center;
     flex-grow: 0;
     background-image: url('../../logos/right.png');
-    background-color:white;
+    /* background-color:white; */
     background-size: contain;
     background-repeat: no-repeat;
     width: 70px;
@@ -197,6 +196,10 @@ table.results.sinclair {
 :host(.light) table.results tr td.club {
     background-color: var(--lightTeamBackgroundColor);
     color: var(--lightTeamTextColor);
+}
+
+table.results tr td.club div.ellipsis {
+    width: var(--teamNameShortLength);
 }
 
 /* good/bad cells */

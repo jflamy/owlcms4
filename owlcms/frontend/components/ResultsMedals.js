@@ -95,7 +95,7 @@ class ResultsMedals extends PolymerElement {
                                 <div>[[l.custom2]]</div>
                             </td>
                             <td class$="club [[l.flagClass]]">
-                                <div inner-h-t-m-l="[[l.flagURL]]"></div>
+                                <div class$="[[l.flagClass]]" inner-h-t-m-l="[[l.flagURL]]"></div>
                                 <div class="ellipsis" >[[l.teamName]]</div>
                             </td>
                             <td class="vspacer"></td>

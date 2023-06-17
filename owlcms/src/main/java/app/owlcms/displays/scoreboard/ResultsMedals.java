@@ -475,7 +475,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
 		String category;
 		category = curCat != null ? curCat.getTranslatedName() : "";
-		ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
+		ja.put("fullName", a.getAbbreviatedName());
 		ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
 		ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
 		Integer startNumber = a.getStartNumber();
@@ -489,9 +489,17 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		ja.put("total", formatInt(a.getTotal()));
 		Participation mainRankings = a.getMainRankings();
 		if (mainRankings != null) {
-			ja.put("snatchRank", formatRank(mainRankings.getSnatchRank()));
-			ja.put("cleanJerkRank", formatRank(mainRankings.getCleanJerkRank()));
-			ja.put("totalRank", formatRank(mainRankings.getTotalRank()));
+			int snatchRank = mainRankings.getSnatchRank();
+			ja.put("snatchRank", formatRank(snatchRank));
+			ja.put("snatchMedal", snatchRank <= 3 ? "medal"+snatchRank : "");
+			
+			int cleanJerkRank = mainRankings.getCleanJerkRank();
+			ja.put("cleanJerkRank", formatRank(cleanJerkRank));
+			ja.put("cleanJerkMedal", cleanJerkRank <= 3 ? "medal"+cleanJerkRank : "");
+			
+			int totalRank = mainRankings.getTotalRank();
+			ja.put("totalRank", formatRank(totalRank));
+			ja.put("totalMedal", cleanJerkRank <= 3 ? "medal"+totalRank : "");
 		} else {
 			logger.error("main rankings null for {}", a);
 		}

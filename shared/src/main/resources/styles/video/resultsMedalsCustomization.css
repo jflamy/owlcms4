@@ -8,6 +8,9 @@
     */
     --nameWidth: 0.60fr;
     --clubWidth: 0.40fr;
+    /* define this if you use acronyms and want flags to line up
+    --teamNameShortLength: 4ch;
+     */
 
       /* left column width: adjust depending on how you name groups */
       --startWidth: 0em;
