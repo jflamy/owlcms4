@@ -51,6 +51,7 @@ class CurrentAthlete extends PolymerElement {
 							<td class="category">
 								<div>[[l.category]]</div>
 							</td>
+							<td class="spacer">&nbsp;</td>
 							<td class="liftName">
 								<div inner-h-t-m-l="[[t.Snatch]]"></div>
 							</td>
@@ -62,6 +63,7 @@ class CurrentAthlete extends PolymerElement {
 							<td class="showRank">
 								<div>[[t.Rank]] <b>[[l.snatchRank]]</b></div>
 							</td>
+							<td class="spacer">&nbsp;</td>
 							<td class="liftName">
 								<div inner-h-t-m-l="[[t.Clean_and_Jerk]]"></div>
 							</td>
@@ -73,6 +75,7 @@ class CurrentAthlete extends PolymerElement {
 							<td class="showRank">
 								<div>[[t.Rank]] <b>[[l.cleanJerkRank]]</b></div>
 							</td>
+							<td class="spacer">&nbsp;</td>
 							<td class="liftName">
 								<div id="totalNameTd" style$="[[hideInherited]]" inner-h-t-m-l="[[t.Total]]"></div>
 							</td>

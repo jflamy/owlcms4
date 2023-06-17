@@ -1,15 +1,11 @@
-40.x Scoreboard improvements and fixes, fixes to small report issues, MQTT fixes.
+41.x Scoreboard improvements and fixes, fixes to small report issues, MQTT fixes.
 
-- 40.2 Changes
-  - (40.2.1) Updated fly.io instructions
-  - (40.2.0) Fix to a database error that could take place when the attempt board was resetting decisions (delay just long enough for the database connection to have been closed).
-
-- 40.1 Changes
-  - Database Snapshot on-demand
-    - Added a  `competition/export` HTTP endpoint to obtain a JSON export of the database.  The requesting party must be listed in the backdoor access list on the "Language and System Settings/Access Control" page.
-    - Added new [MQTT Messages](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/MQTTMessages#subscribed-by-external-observers) for field of play events: ` liftingOrderUpdated`, `startLifting`, `break`, and `ceremony`.  Together with the already existing `fop` messages, these enable an external observer to determine when to grab a JSON export (as opposed to polling blindly).
-  - fly.io cloud installation notes were adjusted to include installing the control interface locally; there are intermittent issues with their beta web-based interface.
-  - The database idle connection timeout for fly.io is set to 60s to match their recommended settings
+- 41.0.0-alpha00: adjusted the page structure for the scoreboards to allow video layouts that do not fill the page
+  
+- 41.0.0-alpha00: reorganized the button groups on the display and video selection pages to be more similar and logical
+  
+- 41.0.0-alpha00: Experimental: the variable OWLCMS_STYLESDIR indicates what directory contains the style sheets.  Default value is "styles". This should allow shipping several themes (default green-red, IWF-style blue-red, etc.)
+  
 
 ##### Highlights from recent stable releases
 
