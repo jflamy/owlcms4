@@ -1,12 +1,11 @@
 41.x Scoreboard Styling Improvements, User interface improvements.
 
-- 41.0.0-alpha00: improved the page structure for the scoreboards to support more advanced formatting.
-  
-- 41.0.0-alpha00: reorganized the button groups on the display and video selection pages to be more logical
-  
-- 41.0.0-alpha00: redid the CSS styling for the current athlete bottom banner.  It no longer restricts the length of the words in the bottom row.
-  
+*Alpha release. For experimentation and feedback only. Features may change without notice.*
+
+- 41.0.0-alpha00: Enhanced the HTML page structure for the scoreboards to support more advanced formatting.
+- 41.0.0-alpha00: Redid the CSS styling for the current athlete bottom banner.  It no longer restricts the length of the words in the bottom row.
 - 41.0.0-alpha00: the variable OWLCMS_STYLESDIR indicates what directory contains the style sheets.  The default value is "styles". This makes it easier to create and test alternate visual styles.
+- 41.0.0-alpha00: Reorganized the buttons on the Display Selection and Video Streaming pages to be more logical
 
 ##### Highlights from recent stable releases
 
