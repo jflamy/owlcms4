@@ -1,8 +1,8 @@
-41.x Scoreboard Styling Improvements, User interface improvements.
+41.0 Styling Improvements.
 
 *Alpha release. For experimentation and feedback only. Features may change without notice.*
 
-- 41.0.0-alpha02: 
+- 41.0.0-alpha01: 
   - In a 3-medal competition, the classification-order scoreboard now shows the clean & Jerk ranking when snatch is over. It switches to the total when the group is done.  For a one-medal competition, the order switches to total as soon as C&J starts.
   - Fixed the layout of the video streaming header for the classification and medals page to be on two lines
 
