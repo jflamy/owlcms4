@@ -17,6 +17,7 @@
                 <include>templates**/**</include>
                 <include>flags**/**</include>
                 <include>pictures**/**</include>
+                <include>logos**/**</include>
                 <include>logback.xml</include>
             </includes>
         </fileSet>
