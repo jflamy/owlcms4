@@ -501,6 +501,10 @@ public class FieldOfPlay {
 		return refereeTime;
 	}
 
+	public List<Athlete> getResultsOrder() {
+		return resultsOrder;
+	}
+
 	/**
 	 * @return the current state
 	 */
@@ -1149,6 +1153,11 @@ public class FieldOfPlay {
 		}
 	}
 
+	public void resetJuryDecisions() {
+		setJuryMemberDecision(new Boolean[5]);
+		juryMemberTime = new Integer[5];
+	}
+
 	/**
 	 * @param announcerDecisionImmediate the announcerDecisionImmediate to set
 	 */
@@ -1367,6 +1376,16 @@ public class FieldOfPlay {
 			wakeUpRef.interrupt();
 		}
 		wakeUpRef = null;
+	}
+
+	private Ranking computeResultOrderRanking(boolean groupDone) {
+		if (groupDone || !Competition.getCurrent().isSnatchCJTotalMedals()) {
+			return Ranking.TOTAL;
+		} else if (isCjStarted()) {
+			return Ranking.CLEANJERK;
+		} else {
+			return Ranking.SNATCH;
+		}
 	}
 
 	private boolean computeShowInformationalRecords(List<RecordEvent> eligibleRecords,
@@ -1966,7 +1985,8 @@ public class FieldOfPlay {
 		long endDisplayOrder = 0;
 		long endLeaders = 0;
 
-		//logger.debug("recompute ranks {} [{}]",recomputeRanks,LoggerUtils.whereFrom());
+		// logger.debug("recompute ranks {}
+		// [{}]",recomputeRanks,LoggerUtils.whereFrom());
 		if (recomputeRanks) {
 			// we update the ranks of affected athletes in the database
 			athletes = JPAService.runInTransaction(em -> {
@@ -2024,8 +2044,10 @@ public class FieldOfPlay {
 
 			setDisplayOrder(currentGroupAthletes);
 			setLiftingOrder(AthleteSorter.liftingOrderCopy(currentGroupAthletes));
+			boolean groupDone = curAthlete != null && curAthlete.getAttemptsDone() >= 6;
+			logger.warn("group Done ? {}", groupDone);
 			setResultsOrder(AthleteSorter.resultsOrderCopy(currentGroupAthletes,
-			        isCjStarted() ? Ranking.TOTAL : Ranking.SNATCH));
+			        computeResultOrderRanking(groupDone)));
 			endDisplayOrder = System.nanoTime();
 
 			List<Athlete> liftingOrder2 = getLiftingOrder();
@@ -2048,14 +2070,6 @@ public class FieldOfPlay {
 			        (endLeaders - endDisplayOrder) / 1000000.0);
 		}
 
-	}
-
-	private void setResultsOrder(List<Athlete> resultsOrderCopy) {
-		this.resultsOrder = resultsOrderCopy;
-	}
-
-	public List<Athlete> getResultsOrder() {
-		return resultsOrder;
 	}
 
 	private void recomputeRecordsMap(List<Athlete> athletes) {
@@ -2082,11 +2096,6 @@ public class FieldOfPlay {
 		setRefereeTime(new Long[3]);
 		setRefereeForcedDecision(false);
 		getUiEventBus().post(new UIEvent.ResetOnNewClock(clockOwner, this));
-	}
-
-	public void resetJuryDecisions() {
-		setJuryMemberDecision(new Boolean[5]);
-		juryMemberTime = new Integer[5];
 	}
 
 	private void resetEmittedFlags() {
@@ -2239,6 +2248,10 @@ public class FieldOfPlay {
 
 	private void setPrevWeight(int prevWeight) {
 		this.prevWeight = prevWeight;
+	}
+
+	private void setResultsOrder(List<Athlete> resultsOrderCopy) {
+		this.resultsOrder = resultsOrderCopy;
 	}
 
 	/**
@@ -2417,7 +2430,7 @@ public class FieldOfPlay {
 		boolean indefinite = breakTimer.isIndefinite();
 		this.ceremonyType = null;
 
-		//logger.debug("transitionToBreak {}", LoggerUtils.stackTrace());
+		// logger.debug("transitionToBreak {}", LoggerUtils.stackTrace());
 		doTONotifications(newBreak);
 
 		if (state == BREAK) {

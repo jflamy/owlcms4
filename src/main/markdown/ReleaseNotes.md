@@ -2,8 +2,9 @@
 
 *Alpha release. For experimentation and feedback only. Features may change without notice.*
 
-- 41.0.0-alpha00: Enhanced the HTML page structure for the scoreboards to support more advanced formatting.
-- 41.0.0-alpha00: Redid the CSS styling for the current athlete bottom banner.  It no longer restricts the length of the words in the bottom row.
+- 41.0.0-alpha01: In a 3-medal competition, the classification-order scoreboard now shows the clean & Jerk ranking when snatch is over. It switches to the total when the group is done.  For a one-medal competition, the order switches to total as soon as C&J starts.
+- 41.0.0-alpha00: Enhanced the HTML page structure for the scoreboards to give more CSS formatting flexibility.
+- 41.0.0-alpha00: The CSS styling for the current athlete bottom banner no longer restricts the length of the translated words.
 - 41.0.0-alpha00: the variable OWLCMS_STYLESDIR indicates what directory contains the style sheets.  The default value is "styles". This makes it easier to create and test alternate visual styles.
 - 41.0.0-alpha00: Reorganized the buttons on the Display Selection and Video Streaming pages to be more logical
 
