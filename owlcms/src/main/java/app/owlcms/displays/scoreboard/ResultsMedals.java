@@ -491,6 +491,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		if (mainRankings != null) {
 			int snatchRank = mainRankings.getSnatchRank();
 			ja.put("snatchRank", formatRank(snatchRank));
+			logger.warn("snatchRank {}",snatchRank);
 			ja.put("snatchMedal", snatchRank <= 3 ? "medal"+snatchRank : "");
 			
 			int cleanJerkRank = mainRankings.getCleanJerkRank();

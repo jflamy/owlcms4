@@ -107,7 +107,7 @@ class ResultsMedals extends PolymerElement {
                             <td class="best">
                                 <div inner-h-t-m-l="[[l.bestSnatch]]"></div>
                             </td>
-                            <td class="rank">
+                            <td class$="rank [[l.snatchMedal]]">
                                 <div inner-h-t-m-l="[[l.snatchRank]]"></div>
                             </td>
                             <td class="vspacer"></td>
@@ -119,14 +119,14 @@ class ResultsMedals extends PolymerElement {
                             <td class="best">
                                 <div inner-h-t-m-l="[[l.bestCleanJerk]]"></div>
                             </td>
-                            <td class="rank">
+                            <td class$="rank [[l.cleanJerkMedal]]">
                                 <div inner-h-t-m-l="[[l.cleanJerkRank]]"></div>
                             </td>
                             <td class="vspacer"></td>
                             <td class="total">
                                 <div>[[l.total]]</div>
                             </td>
-                            <td class="totalRank">
+                            <td class$="totalRank [[l.totalMedal]]">
                                 <div inner-h-t-m-l="[[l.totalRank]]"></div>
                             </td>
                             <td class="sinclair">
