@@ -130,6 +130,7 @@ table.results.sinclair {
 
 :host(.light) table.results tr td,
 :host(.light) table.results tr th {
+    align-items: center;
     background-color: var(--lightBackgroundColor);
     color: var(--lightTextColor);
     border-width: 1px;
