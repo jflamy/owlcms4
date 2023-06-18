@@ -677,6 +677,26 @@ public class Athlete {
 		}
 	}
 
+	public String getAbbreviatedName() {
+		String upperCase = this.getLastName() != null ? this.getLastName().toUpperCase() : "";
+		String firstName2 = this.getFirstName() != null ? this.getFirstName() : "";
+		String[] hyphenatedParts = firstName2.split("-");
+		String abbreviated = Arrays.stream(hyphenatedParts).map(hpart -> {
+			return Arrays.stream(hpart.split("[ .]+")).map(word -> (word.substring(0, 1) + "."))
+			        .collect(Collectors.joining(" "));
+		}).collect(Collectors.joining("-"));
+
+		if (!upperCase.isBlank() && !abbreviated.isBlank()) {
+			return upperCase + ", " + abbreviated;
+		} else if (!upperCase.isBlank()) {
+			return upperCase;
+		} else if (!firstName2.isBlank()) {
+			return firstName2;
+		} else {
+			return "?";
+		}
+	}
+
 	@Transient
 	@JsonIgnore
 	public Integer getActualLift(int liftNo) {
@@ -740,7 +760,7 @@ public class Athlete {
 		LocalDate date = null;
 		if (Config.getCurrent().isUseCompetitionDate()) {
 			date = Competition.getCurrent().getCompetitionDate();
-			//logger.debug("competition date {}", date);
+			// logger.debug("competition date {}", date);
 		}
 		if (date == null) {
 			date = LocalDate.now();
@@ -763,6 +783,11 @@ public class Athlete {
 	public AgeGroup getAgeGroup() {
 		Category cat = getCategory();
 		return (cat != null ? cat.getAgeGroup() : null);
+	}
+
+	public String getAgeGroupDisplayName() {
+		AgeGroup ag = getAgeGroup();
+		return ag != null ? ag.getDisplayName() : "";
 	}
 
 	@Transient
@@ -790,7 +815,7 @@ public class Athlete {
 			return mainCategory + "|" + eligiblesAsString;
 		}
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public String getAllTranslatedCategoriesAsString() {
@@ -1478,6 +1503,18 @@ public class Athlete {
 		return getLongCategory();
 	}
 
+	@JsonIgnore
+	@Transient
+	public DisplayGroup getDisplayGroup() {
+		return group != null ? new DisplayGroup(
+		        group.getName(),
+		        group.getDescription(),
+		        group.getPlatform(),
+		        group.getWeighInShortDateTime(),
+		        group.getCompetitionShortDateTime())
+		        : Group.getEmptyDisplayGroup();
+	}
+
 	@Transient
 	@JsonIgnore
 	public Set<Category> getEligibleCategories() {
@@ -1611,18 +1648,6 @@ public class Athlete {
 	@JsonIdentityReference(alwaysAsId = true)
 	public Group getGroup() {
 		return group;
-	}
-	
-	@JsonIgnore
-	@Transient
-	public DisplayGroup getDisplayGroup() {
-		return group != null ? new DisplayGroup(
-				group.getName(),
-				group.getDescription(),
-				group.getPlatform(),
-				group.getWeighInShortDateTime(),
-				group.getCompetitionShortDateTime())
-				: Group.getEmptyDisplayGroup();
 	}
 
 	/**
@@ -2472,6 +2497,14 @@ public class Athlete {
 		return startNumber != null ? startNumber : 0;
 	}
 
+	public String getSubCategory() {
+		if (Config.getCurrent().featureSwitch("UseCustom2AsSubCategory")) {
+			return (this.getCustom2() != null && !this.getCustom2().isBlank()) ? this.getCustom2() : "A";
+		} else {
+			return this.getGroup() != null ? this.getGroup().getName() : "";
+		}
+	}
+
 	/**
 	 * Gets the team.
 	 *
@@ -2824,11 +2857,6 @@ public class Athlete {
 				        categoryEqual);
 			}
 		}
-	}
-
-	private boolean sameCategory(Category category1, Category category2) {
-		boolean categoryEqual = category2 != null && category2.getCode().contentEquals(category1.getCode());
-		return categoryEqual;
 	}
 
 	/**
@@ -3319,6 +3347,13 @@ public class Athlete {
 		this.eligibleForTeamRanking = eligibleForTeamRanking;
 	}
 
+	/*
+	 * General event framework: we implement the com.vaadin.event.MethodEventSource
+	 * interface which defines how a notifier can call a method on a listener to
+	 * signal that an event has occurred, and how the listener can
+	 * register/unregister itself.
+	 */
+
 	public void setEntryTotal(Integer entryTotal) {
 		// intentional, legacy name in database
 		setQualifyingTotal(entryTotal);
@@ -3327,13 +3362,6 @@ public class Athlete {
 	public void setFederationCodes(String federationCodes) {
 		this.federationCodes = federationCodes;
 	}
-
-	/*
-	 * General event framework: we implement the com.vaadin.event.MethodEventSource
-	 * interface which defines how a notifier can call a method on a listener to
-	 * signal that an event has occurred, and how the listener can
-	 * register/unregister itself.
-	 */
 
 	/**
 	 * Sets the first name.
@@ -3640,6 +3668,27 @@ public class Athlete {
 //        }
 	}
 
+//    /**
+//     * Sets the snatch rank.
+//     *
+//     * @param snatchRank the new snatch rank
+//     */
+//    public void setSnatchRank(Integer snatchRank) {
+//        this.snatchRank = snatchRank;
+//    }
+//
+//    public void setSnatchRankJr(Integer snatchRankJr) {
+//        this.snatchRankJr = snatchRankJr;
+//    }
+//
+//    public void setSnatchRankSr(Integer snatchRankSr) {
+//        this.snatchRankSr = snatchRankSr;
+//    }
+//
+//    public void setSnatchRankYth(Integer snatchRankYth) {
+//        this.snatchRankYth = snatchRankYth;
+//    }
+
 	/**
 	 * Sets the snatch 2 automatic progression.
 	 *
@@ -3668,27 +3717,6 @@ public class Athlete {
 		getLogger().info("{}{} snatch2Change1={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
 		        snatch2Change1);
 	}
-
-//    /**
-//     * Sets the snatch rank.
-//     *
-//     * @param snatchRank the new snatch rank
-//     */
-//    public void setSnatchRank(Integer snatchRank) {
-//        this.snatchRank = snatchRank;
-//    }
-//
-//    public void setSnatchRankJr(Integer snatchRankJr) {
-//        this.snatchRankJr = snatchRankJr;
-//    }
-//
-//    public void setSnatchRankSr(Integer snatchRankSr) {
-//        this.snatchRankSr = snatchRankSr;
-//    }
-//
-//    public void setSnatchRankYth(Integer snatchRankYth) {
-//        this.snatchRankYth = snatchRankYth;
-//    }
 
 	/**
 	 * Sets the snatch 2 change 2.
@@ -4292,6 +4320,27 @@ public class Athlete {
 		return validateStartingTotalsRule(snatch1Request, cleanJerk1Request, entryTotal);
 	}
 
+//    @SuppressWarnings("unused")
+//    private Long getCopyId() {
+//        return copyId;
+//    }
+
+//    @SuppressWarnings("unused")
+//    private Integer getDeclaredAndActuallyAttempted(Integer... items) {
+//        int lastIndex = items.length - 1;
+//        if (items.length == 0) {
+//            return 0;
+//        }
+//        while (lastIndex >= 0) {
+//            if (items[lastIndex] > 0) {
+//                // if went down from declared weight, then return lower weight
+//                return (items[lastIndex] < items[0] ? items[lastIndex] : items[0]);
+//            }
+//            lastIndex--;
+//        }
+//        return 0;
+//    }
+
 	/**
 	 * Withdraw.
 	 */
@@ -4340,27 +4389,6 @@ public class Athlete {
 		}
 	}
 
-//    @SuppressWarnings("unused")
-//    private Long getCopyId() {
-//        return copyId;
-//    }
-
-//    @SuppressWarnings("unused")
-//    private Integer getDeclaredAndActuallyAttempted(Integer... items) {
-//        int lastIndex = items.length - 1;
-//        if (items.length == 0) {
-//            return 0;
-//        }
-//        while (lastIndex >= 0) {
-//            if (items[lastIndex] > 0) {
-//                // if went down from declared weight, then return lower weight
-//                return (items[lastIndex] < items[0] ? items[lastIndex] : items[0]);
-//            }
-//            lastIndex--;
-//        }
-//        return 0;
-//    }
-
 	/**
 	 * As integer.
 	 *
@@ -4377,6 +4405,17 @@ public class Athlete {
 			return null;
 		}
 	}
+
+//    /**
+//     * Null-safe comparison for longs.
+//     *
+//     * @param o1
+//     * @param o2
+//     * @return
+//     */
+//    private boolean LongEquals(Long o1, Long o2) {
+//        return o1 == o2 || o1 != null && o2 != null && o1.longValue() == (o2.longValue());
+//    }
 
 	private Category bestMatch(List<Category> allEligible2) {
 		return allEligible2 != null ? (allEligible2.size() > 0 ? allEligible2.get(0) : null) : null;
@@ -4426,17 +4465,6 @@ public class Athlete {
 		}
 		timingLogger.info("    checkAttemptVsLiftOrderReference {}", System.currentTimeMillis() - start);
 	}
-
-//    /**
-//     * Null-safe comparison for longs.
-//     *
-//     * @param o1
-//     * @param o2
-//     * @return
-//     */
-//    private boolean LongEquals(Long o1, Long o2) {
-//        return o1 == o2 || o1 != null && o2 != null && o1.longValue() == (o2.longValue());
-//    }
 
 	/**
 	 * Check that the change does not allow lifter to lift out of order
@@ -4989,6 +5017,11 @@ public class Athlete {
 		}
 	}
 
+	private boolean sameCategory(Category category1, Category category2) {
+		boolean categoryEqual = category2 != null && category2.getCode().contentEquals(category1.getCode());
+		return categoryEqual;
+	}
+
 	private void setCopyId(Long id2) {
 		this.copyId = id2;
 	}
@@ -5148,39 +5181,6 @@ public class Athlete {
 		}
 		timingLogger.info("validateDeclaration {}ms {} {}", System.currentTimeMillis() - start, curLift,
 		        LoggerUtils.whereFrom());
-	}
-
-	public String getAgeGroupDisplayName() {
-		AgeGroup ag = getAgeGroup();
-		return ag != null ? ag.getDisplayName() : "";
-	}
-
-	public String getSubCategory() {
-		if (Config.getCurrent().featureSwitch("UseCustom2AsSubCategory")) {
-			return (this.getCustom2() != null && !this.getCustom2().isBlank()) ? this.getCustom2() : "A";
-		} else {
-			return this.getGroup() != null ? this.getGroup().getName() : "";
-		}
-	}
-
-	public String getAbbreviatedName() {
-		String upperCase = this.getLastName() != null ? this.getLastName().toUpperCase() : "";
-		String firstName2 = this.getFirstName() != null ? this.getFirstName() : "";
-		String[] hyphenatedParts = firstName2.split("-");
-		String abbreviated = Arrays.stream(hyphenatedParts).map(hpart -> {
-			return Arrays.stream(hpart.split("[ .]+")).map(word -> (word.substring(0, 1)+".")).collect(Collectors.joining(" "));
-		}).collect(Collectors.joining("-"));
-		
-		
-		if (!upperCase.isBlank() && !abbreviated.isBlank()) {
-			return upperCase + ", " + abbreviated;
-		} else if (!upperCase.isBlank()) {
-			return upperCase;
-		} else if (!firstName2.isBlank()) {
-			return firstName2;
-		} else {
-			return "?";
-		}
 	}
 
 }

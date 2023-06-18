@@ -113,6 +113,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	private boolean video;
 	private AgeGroup ageGroup;
 	private boolean teamFlags;
+	private boolean abbreviateNames;
 
 	/**
 	 * Instantiates a new results board.
@@ -475,7 +476,11 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
 		String category;
 		category = curCat != null ? curCat.getTranslatedName() : "";
-		ja.put("fullName", a.getAbbreviatedName());
+		if (isAbbreviateNames()) {
+			ja.put("fullName", a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
+		} else {
+			ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
+		}
 		ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
 		ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
 		Integer startNumber = a.getStartNumber();
@@ -901,5 +906,13 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		this.getElement().setProperty("groupName", "");
 		this.getElement().setProperty("liftDone", "-");
 		computeMedalsJson(medals);
+	}
+	
+	protected boolean isAbbreviateNames() {
+		return abbreviateNames;
+	}
+
+	protected void setAbbreviateNames(boolean abbreviateNames) {
+		this.abbreviateNames = abbreviateNames;
 	}
 }

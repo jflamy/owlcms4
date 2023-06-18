@@ -7,7 +7,7 @@
        for ease of understanding, sum of all fr columns should be 1.00.
     */
     --nameWidth: 0.60fr;
-    --clubWidth: 0.40fr;
+    --clubWidth: 15%;
     /* define this if you use acronyms and want flags to line up
     --teamNameShortLength: 4ch;
      */
@@ -61,17 +61,17 @@
 }
 :host(.dark) table.results {
     --spacerWidth: 1vh;
-    --rowSmallSpacerHeight: 0.25vh;
+    --rowSmallSpacerHeight: 0;
 }
 
-td.flags img {
+td.flags div.flags img {
     height: 5vh;
     margin: 1vh;
     align-self: center;
     border: 1px;
     border-style: solid;
 }
-td.flags div {
+td.flags div.flags {
     height: 6vh;
     line-height: 6vh;
     align-self: center;
@@ -109,7 +109,6 @@ host(.dark) .wrapper table.results tr td.rank {
     background-color: #CD7F32;
     color: black;
 }
-
 
 :host(.light) .wrapper table.results tr td.rank {
     border-color: var(--lightTableBorders);
@@ -156,4 +155,47 @@ host(.dark) .wrapper table.results tr td.rank {
     border-color: var(--lightTableBorders);
     border-width: 0.6em;
     border-style: solid;
+}
+
+
+/* grid layout */
+table.medals {
+    /* do not use all available vertical space */
+    flex: 0;
+    display: grid;
+    border-collapse: collapse;
+    grid-template-columns:
+        /* group */
+        var(--startWidth)
+        /* name */
+        minmax(20ch, 25%)
+        /* category */
+        var(--categoryWidth)
+        /* birth */
+        var(--birthWidth)
+        /* custom fields */
+        var(--custom1Width) var(--custom2Width)
+        /* team name */
+        minmax(auto,15%)
+        /* snatch results */
+        var(--spacerWidth)
+        repeat(3, var(--liftResultWidth))
+        var(--bestWidth)
+        /* one snatch rank per category */
+        repeat(var(--nbRanks), var(--rankWidth))
+        /* clean&jerk */
+        var(--spacerWidth)
+        repeat(3, var(--liftResultWidth))
+        var(--bestWidth)
+        /* one snatch rank per category */
+        repeat(var(--nbRanks), var(--rankWidth))
+        /* total */
+        var(--spacerWidth)
+        repeat(1, var(--liftResultWidth))
+        /* one total rank per category */
+        repeat(var(--nbRanks), var(--totalRankWidth))
+        /* sinclair result */
+        var(--sinclairWidth)
+        /* sinclair ranks */
+        var(--sinclairRankWidth);
 }

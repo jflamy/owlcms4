@@ -79,7 +79,7 @@ class ResultsMedals extends PolymerElement {
                             <td class="groupCol">
                                 <div>[[l.group]]</div>
                             </td>
-                            <td class$="name [[l.classname]] [[l.flagClass]]">
+                            <td class$="name [[l.classname]]">
                                 <div class="ellipsis">[[l.fullName]]</div>
                             </td>
                             <td class="category">

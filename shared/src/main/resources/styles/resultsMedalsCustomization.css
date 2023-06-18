@@ -64,7 +64,7 @@
     --rowSmallSpacerHeight: 0.25vh;
 }
 
-td.flags img {
+td.flags div img {
     height: 5vh;
     margin: 1vh;
     align-self: center;
