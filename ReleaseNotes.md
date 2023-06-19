@@ -2,10 +2,14 @@
 
 *Alpha release. For experimentation and feedback only. Features may change without notice.*
 
+- 41.0.0-alpha02:
+  - Medal colors are highlighted on the Medal displays.
+  - Show flags on scoreboard
+  - (experimental) Automatic team name sizing on scoreboard, uses "auto" or "minmax" CSS grid column sizes.
+  
 - 41.0.0-alpha01: 
   - In a 3-medal competition, the classification-order scoreboard now shows the clean & Jerk ranking when snatch is over. It switches to the total when the group is done.  For a one-medal competition, the order switches to total as soon as C&J starts.
   - Fixed the layout of the video streaming header for the classification and medals page to be on two lines
-
 - Small addition to the scoreboard HTML page structure to get more CSS formatting flexibility.
 - The CSS styling for the "Current Athlete" bottom banner no longer restricts the length of the translated words.
 - The variable OWLCMS_STYLESDIR indicates what directory contains the style sheets.  The default value is "styles". This makes it easier to create and test alternate visual styles.
@@ -26,11 +30,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_41.0.0-alpha01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_41.0.0-alpha02.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_41.0.0-alpha01.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_41.0.0-alpha02.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
