@@ -113,8 +113,9 @@ class Results extends PolymerElement {
                             <td class="custom2">
                                 <div>[[l.custom2]]</div>
                             </td>
-                            <td class="club">
-                                <div class="ellipsis">[[l.teamName]]</div>
+                            <td class$="club [[l.flagClass]]">
+                                <div class$="[[l.flagClass]]" inner-h-t-m-l="[[l.flagURL]]"></div>
+                                <div class="ellipsis" style$="width: [[l.teamLength]];" >[[l.teamName]]</div>
                             </td>
                             <td class="vspacer"></td>
                             <template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
@@ -176,10 +177,10 @@ class Results extends PolymerElement {
                     <template is="dom-repeat" id="result-table" items="[[leaders]]" as="l">
                         <template is="dom-if" if="[[!l.isSpacer]]">
                             <tr class="athlete">
-                                <td class="groupCol">
+                                <td class="groupCol" style$="[[leadersVisibility]]">
                                     <div>[[l.group]]</div>
                                 </td>
-                                <td class$="name [[l.classname]]">
+                                <td class$="name [[l.classname]]" style$="[[leadersVisibility]]">
                                     <div class="ellipsis">[[l.fullName]]</div>
                                 </td>
                                 <td class="category" style$="[[leadersVisibility]]">
@@ -194,8 +195,9 @@ class Results extends PolymerElement {
                                 <td class="custom2" style$="[[leadersVisibility]]">
                                     <div>[[l.custom2]]</div>
                                 </td>
-                                <td class="club">
-                                    <div class="ellipsis">[[l.teamName]]</div>
+                                <td class$="club [[l.flagClass]]">
+                                    <div class$="[[l.flagClass]]" inner-h-t-m-l="[[l.flagURL]]"></div>
+                                    <div class="ellipsis" style$="width: [[l.teamLength]];" >[[l.teamName]]</div>
                                 </td>
                                 <td class="vspacer"></td>
                                 <template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">

@@ -61,3 +61,17 @@
     --spacerWidth: 1vh;
     --rowSmallSpacerHeight: 0.25vh;
 }
+
+td.flags div img {
+    height: calc(var(--athleteNameFontSize)*0.8);
+    margin: 1vh;
+    align-self: center;
+    border: 1px;
+    border-style: solid;
+}
+td.flags div {
+    height: calc(var(--athleteNameFontSize)*0.8);
+    line-height:  var(--athleteNameFontSize);
+    align-self: center;
+    display: flex;
+}

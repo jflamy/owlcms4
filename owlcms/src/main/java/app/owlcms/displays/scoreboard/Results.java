@@ -68,6 +68,7 @@ import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.StartupUtils;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -134,6 +135,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 	private boolean downSilenced;
 	private boolean video;
 	private boolean abbreviateNames;
+	private boolean teamFlags;
 
 	/**
 	 * Instantiates a new results board.
@@ -769,6 +771,26 @@ public class Results extends PolymerTemplate<TemplateModel>
 		}
 		// logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
 		ja.put("classname", highlight);
+		
+		setTeamFlag(a, ja);
+	}
+
+	public void setTeamFlag(Athlete a, JsonObject ja) {
+		String team = a.getTeam();
+		String teamFileName = URLUtils.sanitizeFilename(team);
+		String prop = null;
+		if (teamFlags && !team.isBlank()) {
+			prop = URLUtils.getImgTag("flags/", teamFileName, ".svg", this);
+			if (prop == null) {
+				prop = URLUtils.getImgTag("flags/", teamFileName, ".png", this);
+				if (prop == null) {
+					prop = URLUtils.getImgTag("flags/", teamFileName, ".jpg", this);
+				}
+			}
+		}
+		ja.put("teamLength", team.isBlank() ? "" : (team.length()+2)+"ch");
+		ja.put("flagURL", prop != null ? prop : "");
+		ja.put("flagClass", "flags");
 	}
 
 	/**
@@ -922,6 +944,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
 			init();
+			teamFlags = URLUtils.checkFlags();
 
 			// get the global category rankings (attached to each athlete)
 			displayOrder = getOrder(fop);

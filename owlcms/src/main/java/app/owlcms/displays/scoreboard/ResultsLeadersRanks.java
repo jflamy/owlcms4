@@ -184,5 +184,7 @@ public class ResultsLeadersRanks extends Results {
 		}
 		// logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
 		ja.put("classname", highlight);
+		
+		setTeamFlag(a, ja);
 	}
 }

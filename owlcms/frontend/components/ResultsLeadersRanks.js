@@ -153,8 +153,9 @@ class ResultsFull extends PolymerElement {
                             <td class="custom2">
                                 <div>[[l.custom2]]</div>
                             </td>
-                            <td class="club">
-                                <div class="ellipsis">[[l.teamName]]</div>
+                            <td class$="club [[l.flagClass]]">
+                                <div class$="[[l.flagClass]]" inner-h-t-m-l="[[l.flagURL]]"></div>
+                                <div class="ellipsis" style$="width: [[l.teamLength]];" >[[l.teamName]]</div>
                             </td>
                             <td class="vspacer"></td>
                             <template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
@@ -239,8 +240,9 @@ class ResultsFull extends PolymerElement {
                                 <td class="custom2" style$="[[leadersVisibility]]">
                                     <div>[[l.custom2]]</div>
                                 </td>
-                                <td class="club">
-                                    <div class="ellipsis">[[l.teamName]]</div>
+                                <td class$="club [[l.flagClass]]">
+                                    <div class$="[[l.flagClass]]" inner-h-t-m-l="[[l.flagURL]]"></div>
+                                    <div class="ellipsis" style$="width: [[l.teamLength]];" >[[l.teamName]]</div>
                                 </td>
                                 <td class="vspacer"></td>
                                 <template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">

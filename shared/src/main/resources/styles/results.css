@@ -272,13 +272,16 @@ table.results tr td.club div.ellipsis {
 }
 
 /* group */
-:host(.light) table.results tr td.groupCol {
+:host(.light) table.results tr td.groupCol,
+:host(.light) table.results th td.groupCol  {
     background-color: var(--lightStartBackgroundColor);
     color: var(--lightStartTextColor);
     visibility: var(--startVisibility);
 }
 
-:host(.dark) table.results tr td.groupCol {
+:host(.dark) table.results tr td.groupCol,
+:host(.dark) table.results th td.groupCol
+ {
     background-color: var(--darkStartBackgroundColor);
     color: var(--darkStartTextColor);
     visibility: var(--startVisibility);
