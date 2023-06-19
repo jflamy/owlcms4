@@ -19,9 +19,11 @@ class ResultsFull extends PolymerElement {
 
 <div class$="wrapper [[teamWidthClass]] [[inactiveClass]]" style$="[[sizeOverride]];">
     <div class="blockPositioningWrapper">
-        <div class="waiting" style$="[[inactiveBlockStyle]]">
-            <div class="competitionName">[[competitionName]]</div><br>
-            <div class="nextGroup">[[t.WaitingNextGroup]]</div>
+        <div class="waiting" style$="[[inactiveFlexStyle]]">
+            <div>
+                <div class="competitionName">[[competitionName]]</div><br>
+                <div class="nextGroup">[[t.WaitingNextGroup]]</div>
+            </div>
         </div>
         <div class="attemptBar" style$="[[normalHeaderDisplay]];">
             <div class="athleteInfo" id="athleteInfoDiv">
@@ -208,7 +210,7 @@ class ResultsFull extends PolymerElement {
                 <td class="filler" style="grid-column: 1 / -1;[[fillerVisibility]]">&nbsp;</td>
             </tr>
             <template is="dom-if" if="[[leaders]]">
-                <tbody class="leaders" style$="[[leadersVisibility]]">
+                <tbody class="leaders" style$="[[leadersTopVisibility]]">
                     <tr class="head">
                         <td style="grid-column: 1 / -1; justify-content: left;"
                             inner-h-t-m-l="[[t.Leaders]] [[categoryName]]">

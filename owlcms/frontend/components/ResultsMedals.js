@@ -19,9 +19,11 @@ class ResultsMedals extends PolymerElement {
 
 <div class$="wrapper medals [[teamWidthClass]] [[inactiveClass]]" style$="[[sizeOverride]];">
     <div class="blockPositioningWrapper">
-        <div class="waiting" style$="[[inactiveBlockStyle]]">
-            <div class="competitionName">[[competitionName]]</div><br>
-            <div class="nextGroup">[[t.WaitingNextGroup]]</div>
+        <div class="waiting" style$="[[inactiveFlexStyle]]">
+            <div>
+                <div class="competitionName">[[competitionName]]</div><br>
+                <div class="nextGroup">[[t.WaitingNextGroup]]</div>
+            </div>
         </div>
         <div class="attemptBar" style$="[[normalHeaderDisplay]]; margin-bottom:1em;">
             <div class="athleteInfo" id="athleteInfoDiv">

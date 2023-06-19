@@ -78,7 +78,7 @@
     padding: 0.1rem;
     overflow: hidden;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     flex-wrap: no-wrap;
     justify-content: space-around;
     line-height: unset;
@@ -86,7 +86,7 @@
 
 .blockPositioningWrapper {
     background-color: var(--blockBackgroundColor);
-    width: fit-content;
+    /* width: fit-content;*/ /* fit-content is used for video block */
     padding-right: 1em;
     padding-left: 0.5em;
 }

@@ -866,10 +866,15 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	}
 
 	private void setDisplay(boolean hidden) {
+	
 		this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
-		this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
 		this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" : "display:grid"));
+		this.getElement().setProperty("hiddenFlexStyle", (hidden ? "display:none" : "display:flex"));
+		
+		this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
 		this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" : "display:none"));
+		this.getElement().setProperty("inactiveFlexStyle", (hidden ? "display:flex" : "display:none"));
+		
 		this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
 		this.getElement().setProperty("videoHeaderDisplay", (hidden || !isVideo() ? "display:none" : "display:flex"));
 		this.getElement().setProperty("normalHeaderDisplay", (hidden || isVideo() ? "display:none" : "display:block"));
