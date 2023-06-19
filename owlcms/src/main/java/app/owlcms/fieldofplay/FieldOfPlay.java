@@ -2045,7 +2045,6 @@ public class FieldOfPlay {
 			setDisplayOrder(currentGroupAthletes);
 			setLiftingOrder(AthleteSorter.liftingOrderCopy(currentGroupAthletes));
 			boolean groupDone = curAthlete != null && curAthlete.getAttemptsDone() >= 6;
-			logger.warn("group Done ? {}", groupDone);
 			setResultsOrder(AthleteSorter.resultsOrderCopy(currentGroupAthletes,
 			        computeResultOrderRanking(groupDone)));
 			endDisplayOrder = System.nanoTime();

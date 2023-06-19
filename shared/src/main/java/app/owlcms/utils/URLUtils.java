@@ -195,12 +195,9 @@ public class URLUtils {
     public static boolean checkFlags() {
         boolean teamFlags;
         try {
-        	logger.warn("checking flags");
             ResourceWalker.getFileOrResourcePath("flags");
             teamFlags = true;
-            logger.warn("flags found");
         } catch (FileNotFoundException e) {
-        	logger.warn("flags NOT found");
             teamFlags = false;
         }
         return teamFlags;
