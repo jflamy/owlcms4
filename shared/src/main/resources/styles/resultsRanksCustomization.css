@@ -2,6 +2,8 @@
     /*************************
      * Customization section
      *************************/
+    --pageBackgroundColor: black;
+    --pageTextColor: white;
 
     /* variable-size columns. fr = free space after other columns have been allocated.
        for ease of understanding, sum of all fr columns should be 1.00.
@@ -60,6 +62,38 @@
 :host(.dark) table.results {
     --spacerWidth: 1vh;
     --rowSmallSpacerHeight: 0.25vh;
+}
+/* default for page */
+.wrapper {
+    /* results table font size */
+    --tableFontSize: 1.25rem;
+    --recordValueCellHeight: calc(var(--tableFontSize)*1.5);
+    --recordsFontRatio: 0.9;
+
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--pageTextColor);
+    background-color: var(--pageBackgroundColor);
+    margin: 0;
+
+    padding: 0.1rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: no-wrap;
+    justify-content: space-around;
+    line-height: unset;
+}
+
+.blockPositioningWrapper {
+    background-color: var(--blockBackgroundColor);
+    width: fit-content;
+    padding-right: 1em;
+    padding-left: 0.5em;
+}
+
+.filler {
+    background-color: var(--blockBackgroundColor);
+    min-height: 1.5em;
 }
 
 td.flags div img {
