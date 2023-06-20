@@ -2,15 +2,15 @@
 
 *Alpha release. For experimentation and feedback only. Features may change without notice.*
 
-- 41.0.0-alpha02:
-  - Medal colors are highlighted on the Medal displays.
-  - Show flags on scoreboard
-  - (experimental) Automatic team name sizing on scoreboard, uses "auto" or "minmax" CSS grid column sizes.
-  
-- 41.0.0-alpha01: 
-  - In a 3-medal competition, the classification-order scoreboard now shows the clean & Jerk ranking when snatch is over. It switches to the total when the group is done.  For a one-medal competition, the order switches to total as soon as C&J starts.
-  - Fixed the layout of the video streaming header for the classification and medals page to be on two lines
-- Small addition to the scoreboard HTML page structure to get more CSS formatting flexibility.
+- 41.0.0-alpha03:
+  - Many small fixes to CSS style sheets.
+
+  - When the leaders are hidden, the space freed can again be correctly used for additional athletes on the main scoreboard.
+
+- Medal colors are highlighted on the Medal displays.
+- Show team flags on scoreboard
+- Automatic team name sizing on scoreboard, allows the use "auto" or "minmax" CSS grid column sizes.
+- In a 3-medal competition, the classification-order scoreboard now shows the clean & Jerk ranking when snatch is over. It switches to the total when the group is done.  For a one-medal competition, the order switches to total as soon as C&J starts.
 - The CSS styling for the "Current Athlete" bottom banner no longer restricts the length of the translated words.
 - The variable OWLCMS_STYLESDIR indicates what directory contains the style sheets.  The default value is "styles". This makes it easier to create and test alternate visual styles.
 - Reorganized the buttons on the Display Selection and Video Streaming pages to be more logical
