@@ -2,6 +2,13 @@
 
 *Alpha release. For experimentation and feedback only. Features may change without notice.*
 
+- 41.0.0-alpha04:
+  - Medals highlighting for Total fixed.
+
+  - Removed unneeded field from JSON database export.
+
+  - Removed non-printable control characters when reading Excel registration data.
+  
 - 41.0.0-alpha03:
   - Many small fixes to CSS style sheets.
 
@@ -30,11 +37,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_41.0.0-alpha03.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_41.0.0-alpha04.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_41.0.0-alpha03.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_41.0.0-alpha04.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
