@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.CharMatcher;
+
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
@@ -91,7 +93,7 @@ public class RAthlete {
 			}
 			return;
 		}
-
+		categoryName = CharMatcher.javaIsoControl().removeFrom(categoryName);
 		String[] parts = categoryName.split("\\|");
 		if (parts.length >= 1) {
 			String catName = parts[0].trim();
@@ -121,6 +123,7 @@ public class RAthlete {
 	 * @param cleanJerk1Declaration
 	 */
 	public void setCleanJerk1Declaration(String cleanJerk1Declaration) {
+		cleanJerk1Declaration = CharMatcher.javaIsoControl().removeFrom(cleanJerk1Declaration);
 		a.setCleanJerk1Declaration(cleanJerk1Declaration);
 	}
 
@@ -137,6 +140,7 @@ public class RAthlete {
 	}
 
 	public void setFederationCodes(String federationCodes) {
+		federationCodes = CharMatcher.javaIsoControl().removeFrom(federationCodes);
 		a.setFederationCodes(federationCodes);
 	}
 
@@ -145,6 +149,7 @@ public class RAthlete {
 	 * @see app.owlcms.data.athlete.Athlete#setFirstName(java.lang.String)
 	 */
 	public void setFirstName(String firstName) {
+		firstName = CharMatcher.javaIsoControl().removeFrom(firstName);
 		a.setFirstName(firstName);
 	}
 
@@ -157,6 +162,7 @@ public class RAthlete {
 	 * @see app.owlcms.data.athlete.Athlete#setCategory(app.owlcms.data.category.Category)
 	 */
 	public void setFullBirthDate(String content) throws Exception {
+		content = CharMatcher.javaIsoControl().removeFrom(content);
 		try {
 			long l = Long.parseLong(content);
 			if (l < 3000) {
@@ -182,6 +188,7 @@ public class RAthlete {
 	 * @see app.owlcms.data.athlete.Athlete#setLastName(java.lang.String)
 	 */
 	public void setGender(String gender) {
+		gender = CharMatcher.javaIsoControl().removeFrom(gender);
 		logger.trace("setting gender {} for athlete {}", gender, a.getLastName());
 		if (gender == null) {
 			return;
@@ -195,6 +202,7 @@ public class RAthlete {
 	 * @see app.owlcms.data.athlete.Athlete#setGroupName(app.owlcms.data.category.Group)
 	 */
 	public void setGroup(String groupName) throws Exception {
+		groupName = CharMatcher.javaIsoControl().removeFrom(groupName);
 		if (groupName == null) {
 			return;
 		}
@@ -211,6 +219,7 @@ public class RAthlete {
 	 * @see app.owlcms.data.athlete.Athlete#setLastName(java.lang.String)
 	 */
 	public void setLastName(String lastName) {
+		lastName = CharMatcher.javaIsoControl().removeFrom(lastName);
 		a.setLastName(lastName);
 	}
 
@@ -219,6 +228,7 @@ public class RAthlete {
 	 * @see app.owlcms.data.athlete.Athlete#setLotNumber(java.lang.Integer)
 	 */
 	public void setLotNumber(String lotNumber) {
+		lotNumber = CharMatcher.javaIsoControl().removeFrom(lotNumber);
 		if (lotNumber == null) {
 			return;
 		}
@@ -230,7 +240,29 @@ public class RAthlete {
 	 * @see app.owlcms.data.athlete.Athlete#setMembership(java.lang.String)
 	 */
 	public void setMembership(String membership) {
+		membership = CharMatcher.javaIsoControl().removeFrom(membership);
 		a.setMembership(membership);
+	}
+
+	public void setPersonalBestCleanJerk(String s) {
+		s = CharMatcher.javaIsoControl().removeFrom(s);
+		if (s != null && !s.isEmpty()) {
+			a.setPersonalBestCleanJerk(Integer.parseInt(s));
+		}
+	}
+
+	public void setPersonalBestSnatch(String s) {
+		s = CharMatcher.javaIsoControl().removeFrom(s);
+		if (s != null && !s.isEmpty()) {
+			a.setPersonalBestSnatch(Integer.parseInt(s));
+		}
+	}
+
+	public void setPersonalBestTotal(String s) {
+		s = CharMatcher.javaIsoControl().removeFrom(s);
+		if (s != null && !s.isEmpty()) {
+			a.setPersonalBestTotal(Integer.parseInt(s));
+		}
 	}
 
 	/**
@@ -245,6 +277,7 @@ public class RAthlete {
 	 * @param snatch1Declaration
 	 */
 	public void setSnatch1Declaration(String snatch1Declaration) {
+		snatch1Declaration = CharMatcher.javaIsoControl().removeFrom(snatch1Declaration);
 		a.setSnatch1Declaration(snatch1Declaration);
 	}
 
@@ -253,19 +286,21 @@ public class RAthlete {
 	 * @see app.owlcms.data.athlete.Athlete#setTeam(java.lang.String)
 	 */
 	public void setTeam(String club) {
+		club = CharMatcher.javaIsoControl().removeFrom(club);
 		a.setTeam(club);
 	}
 
-	private boolean addIfEligible(Set<Category> eligibleCategories, Set<Category> teams, Integer athleteQTotal, Integer athleteAge,
+	private boolean addIfEligible(Set<Category> eligibleCategories, Set<Category> teams, Integer athleteQTotal,
+	        Integer athleteAge,
 	        boolean teamMember, Category c2) {
 		boolean added = false;
 		Integer minAge = c2.getAgeGroup().getMinAge();
 		Integer maxAge = c2.getAgeGroup().getMaxAge();
-		//logger.debug("{} athleteAge {} min {} max {}", athleteAge, minAge, maxAge);
-		if (	((athleteQTotal != null && athleteQTotal >= c2.getQualifyingTotal()) || ((athleteQTotal == null || athleteQTotal == 0) && c2.getQualifyingTotal() == 0))
-				&& athleteAge >= minAge 
-				&& athleteAge <= maxAge 
-				) {
+		// logger.debug("{} athleteAge {} min {} max {}", athleteAge, minAge, maxAge);
+		if (((athleteQTotal != null && athleteQTotal >= c2.getQualifyingTotal())
+		        || ((athleteQTotal == null || athleteQTotal == 0) && c2.getQualifyingTotal() == 0))
+		        && athleteAge >= minAge
+		        && athleteAge <= maxAge) {
 			eligibleCategories.add(c2);
 			added = true;
 			if (teamMember) {
@@ -312,6 +347,14 @@ public class RAthlete {
 		}
 	}
 
+	private Pattern getLegacyPattern() {
+		if (legacyPattern == null) {
+			setLegacyPattern(Pattern
+			        .compile("([mMfF]?) *([>" + Pattern.quote("+") + "]?) *(\\d+) *(" + Pattern.quote("+") + "?)$"));
+		}
+		return legacyPattern;
+	}
+
 	private void processEligibilityAndTeams(String[] parts, Category c, boolean mainCategoryTeamMember)
 	        throws Exception {
 		Set<Category> eligibleCategories = new LinkedHashSet<>();
@@ -319,7 +362,8 @@ public class RAthlete {
 		Integer athleteQTotal = this.getAthlete().getQualifyingTotal();
 		Integer athleteAge = this.getAthlete().getAge();
 
-		boolean addedToMainCat = addIfEligible(eligibleCategories, teams, athleteQTotal, athleteAge, mainCategoryTeamMember, c);
+		boolean addedToMainCat = addIfEligible(eligibleCategories, teams, athleteQTotal, athleteAge,
+		        mainCategoryTeamMember, c);
 		if (!addedToMainCat) {
 			throw new Exception(Translator.translate("Upload.AthleteRegistrationCategoryProblem"));
 		}
@@ -392,34 +436,8 @@ public class RAthlete {
 		// logger.debug("setting category to {} athlete {}",category.longDump(),
 		// a.longDump());
 	}
-	
-	Pattern getLegacyPattern() {
-		if (legacyPattern == null) {
-			setLegacyPattern(Pattern
-			        .compile("([mMfF]?) *([>" + Pattern.quote("+") + "]?) *(\\d+) *(" + Pattern.quote("+") + "?)$"));
-		}
-		return legacyPattern;
-	}
 
-	void setLegacyPattern(Pattern legacyPattern) {
+	private void setLegacyPattern(Pattern legacyPattern) {
 		this.legacyPattern = legacyPattern;
-	}
-
-	public void setPersonalBestSnatch(String s) {
-		if (s != null && !s.isEmpty()) {
-			a.setPersonalBestSnatch(Integer.parseInt(s));
-		}
-	}
-	
-	public void setPersonalBestCleanJerk(String s) {
-		if (s != null && !s.isEmpty()) {
-			a.setPersonalBestCleanJerk(Integer.parseInt(s));
-		}
-	}
-	
-	public void setPersonalBestTotal(String s) {
-		if (s != null && !s.isEmpty()) {
-			a.setPersonalBestTotal(Integer.parseInt(s));
-		}
 	}
 }
