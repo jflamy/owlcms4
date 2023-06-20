@@ -677,6 +677,8 @@ public class Athlete {
 		}
 	}
 
+	@Transient
+	@JsonIgnore
 	public String getAbbreviatedName() {
 		String upperCase = this.getLastName() != null ? this.getLastName().toUpperCase() : "";
 		String firstName2 = this.getFirstName() != null ? this.getFirstName() : "";
