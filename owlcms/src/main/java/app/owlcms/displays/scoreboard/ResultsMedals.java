@@ -504,7 +504,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 			
 			int totalRank = mainRankings.getTotalRank();
 			ja.put("totalRank", formatRank(totalRank));
-			ja.put("totalMedal", cleanJerkRank <= 3 ? "medal"+totalRank : "");
+			ja.put("totalMedal", totalRank <= 3 ? "medal"+totalRank : "");
 		} else {
 			logger.error("main rankings null for {}", a);
 		}
