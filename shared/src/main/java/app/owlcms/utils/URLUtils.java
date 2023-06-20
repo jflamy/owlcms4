@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.CharMatcher;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.QueryParameters;
@@ -178,7 +179,8 @@ public class URLUtils {
      * @return
      */
     public static String sanitizeFilename(String name) {
-        return name.replaceAll("[:\\\\/*?|<>]", "_");
+        String replaceAll = name.replaceAll("[:\\\\/*?|<>]", "_");
+		return CharMatcher.javaIsoControl().removeFrom(replaceAll);
     }
 
     public static boolean checkPictures() {
