@@ -12,10 +12,15 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.Year;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.zip.ZipEntry;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -50,6 +55,9 @@ public class RecordDefinitionReader {
 
 	public static int createRecords(Workbook workbook, String name, String baseName) {
 		cleanUp(baseName);
+		DateTimeFormatter ymdFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		DateTimeFormatter ymFormatter = DateTimeFormatter.ofPattern("yyyy-MM");
+		DateTimeFormatter yFormatter = DateTimeFormatter.ofPattern("yyyy");
 
 		return JPAService.runInTransaction(em -> {
 			int iRecord = 0;
@@ -129,7 +137,8 @@ public class RecordDefinitionReader {
 									rec.setBwCatString(cellValue);
 									try {
 										rec.setBwCatUpper(
-										        (cellValue.startsWith(">") || cellValue.startsWith("+")) ? 999 : Integer.parseInt(cellValue));
+										        (cellValue.startsWith(">") || cellValue.startsWith("+")) ? 999
+										                : Integer.parseInt(cellValue));
 									} catch (NumberFormatException e) {
 										if (cellValue != null && !cellValue.isBlank()) {
 											startupLogger
@@ -165,15 +174,36 @@ public class RecordDefinitionReader {
 							}
 
 							case 11: { // L
-								long cellValue = Math.round(cell.getNumericCellValue());
-								int intExact = Math.toIntExact(cellValue);
-								if (cellValue < 3000) {
-									rec.setRecordYear(intExact);
-								} else {
-									LocalDate epoch = LocalDate.of(1900, 1, 1);
-									LocalDate plusDays = epoch.plusDays(intExact - 2);
-									// Excel quirks: 1 is 1900-01-01 and mistakenly assumes 1900-02-29 existed
-									rec.setBirthDate(plusDays);
+								if (cell.getCellType() == CellType.NUMERIC) {
+									long cellValue = Math.round(cell.getNumericCellValue());
+									int intExact = Math.toIntExact(cellValue);
+									if (cellValue < 3000) {
+										rec.setBirthYear(intExact);
+									} else {
+										LocalDate epoch = LocalDate.of(1900, 1, 1);
+										LocalDate plusDays = epoch.plusDays(intExact - 2);
+										// Excel oddity: 1 is 1900-01-01 and mistakenly assumes 1900-02-29 existed
+										rec.setBirthDate(plusDays);
+									}
+								} else if (cell.getCellType() == CellType.STRING) {
+									String cellValue = cell.getStringCellValue();
+									try {
+										LocalDate date = LocalDate.parse(cellValue, ymdFormatter);
+										rec.setBirthDate(date);
+									} catch (DateTimeParseException e) {
+										try {
+											YearMonth date = YearMonth.parse(cellValue, ymFormatter);
+											rec.setBirthYear(date.getYear());
+										} catch (DateTimeParseException e2) {
+											try {
+												Year date = Year.parse(cellValue, yFormatter);
+												rec.setBirthYear(date.getValue());
+											} catch (DateTimeParseException e3) {
+												throw new Exception(cellValue
+												        + " not in yyyy-MM-dd or yyyy-MM or yyyy date format");
+											}
+										}
+									}
 								}
 								break;
 							}
@@ -186,15 +216,37 @@ public class RecordDefinitionReader {
 							}
 
 							case 13: { // N
-								long cellValue = Math.round(cell.getNumericCellValue());
-								int intExact = Math.toIntExact(cellValue);
-								if (cellValue < 3000) {
-									rec.setRecordYear(intExact);
-								} else {
-									LocalDate epoch = LocalDate.of(1900, 1, 1);
-									LocalDate plusDays = epoch.plusDays(intExact - 2);
-									// Excel quirks: 1 is 1900-01-01 and mistakenly assumes 1900-02-29 existed
-									rec.setRecordDate(plusDays);
+								if (cell.getCellType() == CellType.NUMERIC) {
+									long cellValue = Math.round(cell.getNumericCellValue());
+									int intExact = Math.toIntExact(cellValue);
+									if (cellValue < 3000) {
+										rec.setRecordYear(intExact);
+									} else {
+										LocalDate epoch = LocalDate.of(1900, 1, 1);
+										LocalDate plusDays = epoch.plusDays(intExact - 2);
+										// Excel quirks: 1 is 1900-01-01 and mistakenly assumes 1900-02-29 existed
+										rec.setRecordDate(plusDays);
+									}
+								} else if (cell.getCellType() == CellType.STRING) {
+									String cellValue = cell.getStringCellValue();
+									try {
+										LocalDate date = LocalDate.parse(cellValue, ymdFormatter);
+										rec.setRecordDate(date);
+									} catch (DateTimeParseException e) {
+										try {
+											YearMonth date = YearMonth.parse(cellValue, ymFormatter);
+											rec.setRecordYear(date.getYear());
+										} catch (DateTimeParseException e2) {
+											try {
+												Year date = Year.parse(cellValue, yFormatter);
+												rec.setRecordYear(date.getValue());
+											} catch (DateTimeParseException e3) {
+												throw new Exception(cellValue
+												        + " not in yyyy-MM-dd or yyyy-MM or yyyy date format");
+											}
+										}
+									}
+
 								}
 								break;
 							}
@@ -247,7 +299,7 @@ public class RecordDefinitionReader {
 		        .forEach(f -> {
 			        InputStream is;
 			        String fileName = f.getFileName().toString();
-					try {
+			        try {
 				        is = Files.newInputStream(f);
 				        readInputStream(is, fileName);
 			        } catch (IOException e1) {
@@ -263,25 +315,25 @@ public class RecordDefinitionReader {
 
 	public static void readInputStream(InputStream is, String fileName) {
 		try (Workbook workbook = WorkbookFactory.create(is)) {
-		    logger.info("loading record definition file {} {}", fileName,
-		            FilenameUtils.removeExtension(fileName));
-		    startupLogger.info("loading record definition file {}", fileName);
-		    
-		    createRecords(workbook, fileName,
-		            FilenameUtils.removeExtension(fileName.toString()));
+			logger.info("loading record definition file {} {}", fileName,
+			        FilenameUtils.removeExtension(fileName));
+			startupLogger.info("loading record definition file {}", fileName);
+
+			createRecords(workbook, fileName,
+			        FilenameUtils.removeExtension(fileName.toString()));
 		} catch (Exception e) {
-		    logger.error("could not process record definition file {}\n{}", fileName,
-		            LoggerUtils./**/stackTrace(e));
-		    startupLogger.error(
-		            "could not process record definition file {}. See log files for details.",
-		            fileName);
+			logger.error("could not process record definition file {}\n{}", fileName,
+			        LoggerUtils./**/stackTrace(e));
+			startupLogger.error(
+			        "could not process record definition file {}. See log files for details.",
+			        fileName);
 		}
 	}
 
 	private static void cleanUp(String fileName) {
-		logger.info("removing records originally from {}",fileName);
+		logger.info("removing records originally from {}", fileName);
 		RecordRepository.clearRecordsOriginallyFromFile(fileName);
-		
+
 	}
 
 	public static void readZip(InputStream source) throws IOException {
@@ -331,7 +383,7 @@ public class RecordDefinitionReader {
 			logger.error("cannot find records {}", LoggerUtils.stackTrace(e1));
 		}
 	}
-	
+
 	public static void loadRecords() {
 		Path recordsPath;
 		try {

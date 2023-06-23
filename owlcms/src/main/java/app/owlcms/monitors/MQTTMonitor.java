@@ -1,4 +1,4 @@
-package app.owlcms.fieldofplay;
+package app.owlcms.monitors;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -29,6 +29,10 @@ import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.platform.PlatformRepository;
+import app.owlcms.fieldofplay.CountdownType;
+import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FOPState;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
@@ -288,7 +292,7 @@ public class MQTTMonitor {
 
 	private Long prevRefereeTimeStamp = 0L;
 
-	MQTTMonitor(FieldOfPlay fop) {
+	public MQTTMonitor(FieldOfPlay fop) {
 		logger.setLevel(Level.DEBUG);
 		this.setFop(fop);
 		fop.getUiEventBus().register(this);

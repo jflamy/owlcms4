@@ -21,16 +21,21 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.dom.Element;
+import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
 import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.data.athlete.LiftDefinition;
 import app.owlcms.data.athlete.LiftDefinition.Stage;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.records.RecordEvent;
+import app.owlcms.displays.VideoOverride;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
@@ -42,24 +47,18 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Class OBSMonitor
+ * Class NotificationMonitor
  *
  * Show athlete lifting order
  *
  */
 @SuppressWarnings({ "serial", "deprecation" })
-@Tag("monitor-template")
-@JsModule("./components/OBSMonitor.js")
-@Route("displays/monitor")
+@Tag("notifications-template")
+@JsModule("./components/NotificationMonitor.js")
+@Route("displays/notifications")
 
-public class OBSMonitor extends PolymerTemplate<TemplateModel> implements FOPParameters,
-        SafeEventBusRegistration, UIEventProcessor {
-
-	/**
-	 * unused
-	 */
-	public interface MonitorModel extends TemplateModel {
-	}
+public class NotificationMonitor extends PolymerTemplate<TemplateModel> implements FOPParameters,
+        SafeEventBusRegistration, UIEventProcessor, VideoOverride {
 
 	class Status {
 		BreakType breakType;
@@ -98,12 +97,12 @@ public class OBSMonitor extends PolymerTemplate<TemplateModel> implements FOPPar
 	final static int HISTORY_SIZE = 3;
 
 	final private static Logger uiEventLogger = (Logger) LoggerFactory
-	        .getLogger("UI" + OBSMonitor.class.getSimpleName());
+	        .getLogger("UI" + NotificationMonitor.class.getSimpleName());
 
 	static {
 		uiEventLogger.setLevel(Level.INFO);
 	}
-	final private Logger logger = (Logger) LoggerFactory.getLogger(OBSMonitor.class);
+	final private Logger logger = (Logger) LoggerFactory.getLogger(NotificationMonitor.class);
 
 	List<Status> history = new LinkedList<>();
 
@@ -134,10 +133,16 @@ public class OBSMonitor extends PolymerTemplate<TemplateModel> implements FOPPar
 
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
+	private String routeParameter;
+
+	private boolean video;
+
+	private boolean showLonger;
+
 	/**
 	 * Instantiates a new results board.
 	 */
-	public OBSMonitor() {
+	public NotificationMonitor() {
 		OwlcmsFactory.waitDBInitialized();
 		this.getElement().getStyle().set("width", "100%");
 		// we need two items on the stack (current + previous)
@@ -215,7 +220,8 @@ public class OBSMonitor extends PolymerTemplate<TemplateModel> implements FOPPar
 
 	@Override
 	public String toString() {
-		return "OBSMonitor [history=" + history + ", currentBreakType=" + currentBreakType + ", currentCeremony="
+		return "NotificationMonitor [history=" + history + ", currentBreakType=" + currentBreakType
+		        + ", currentCeremony="
 		        + currentCeremony + ", currentDecision=" + currentDecision + ", currentChallengedRecords="
 		        + currentChallengedRecords + ", currentFOP=" + currentFOP + ", currentState=" + currentState
 		        + ", previousBreakType=" + previousBreakType + ", previousCeremony=" + previousCeremony
@@ -228,13 +234,6 @@ public class OBSMonitor extends PolymerTemplate<TemplateModel> implements FOPPar
 		StringBuilder pageTitle = new StringBuilder();
 		computeValues();
 
-//        if (h0 != null && h0.state == FOPState.CURRENT_ATHLETE_DISPLAYED
-//                && h1 != null && h1.state == FOPState.DECISION_VISIBLE
-//                && h2 != null && h2.state == FOPState.BREAK && h2.breakType == BreakType.JURY) {
-//            logger.debug("!! fixing display after jury {} {} {}", h0, h1, h2);
-//            history.remove(1);
-//            computeValues();
-//        } else
 		{
 			logger.debug("-- normal {} {} {}", h0, h1, h2);
 		}
@@ -346,28 +345,64 @@ public class OBSMonitor extends PolymerTemplate<TemplateModel> implements FOPPar
 						        @Override
 						        public void run() {
 							        ui.access(() -> {
-								        element.setProperty("title", title);
-								        element.callJsFunction("setTitle", title);
+								        updateBar(element, title);
 								        logger.info("#### DELAYED monitor {}", title);
 							        });
 						        }
 					        },
 					        waitBeforeChangingStatus);
 				} else {
-					this.getElement().setProperty("title", title);
-					this.getElement().callJsFunction("setTitle", title);
+					updateBar(element, title);
 					logger.info("#### DECISION monitor {}", title);
 				}
 			} else {
-				this.getElement().setProperty("title", title);
-				this.getElement().callJsFunction("setTitle", title);
-				logger.info("#### monitor {}", title);
+				updateBar(element, title);
+				logger.info("#### notification monitor {}", title);
 			}
 			prevTitle = title;
 		}
 		if (same) {
 			logger.debug("---- monitor duplicate {}", title);
 		}
+	}
+
+	private void updateBar(Element element, String title) {
+		if (showLonger) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+			}
+			showLonger = false;
+		}
+		logger.warn("UpdateBar");
+		element.setProperty("title", title);
+		element.setProperty("txtColor", "white");
+		element.setProperty("bgColor", "gray");
+		element.callJsFunction("setTitle", title);
+
+		if (title.contains(".NEW_RECORD")) {
+			element.setProperty("title", Translator.translate("NewRecord"));
+			showLonger = true;
+		} else if (title.contains(".RECORD_ATTEMPT")) {
+			element.setProperty("title", Translator.translate("RecordAttempt"));
+		} else if (title.contains("JURY") && title.contains("GOOD")) {
+			element.setProperty("title", Translator.translate("VideoNotification.JuryGoodLift"));
+		} else if (title.contains("JURY") && title.contains("BAD")) {
+			element.setProperty("title", Translator.translate("VideoNotification.JuryNoLift"));
+		} else if (title.contains("BREAK.JURY")) {
+			element.setProperty("title", Translator.translate("VideoNotification.JuryBreak"));
+		} else if (title.contains("BREAK.CHALLENGE")) {
+			element.setProperty("title", Translator.translate("VideoNotification.Challenge"));
+		} else if (title.contains("BREAK.TECHNICAL")) {
+			element.setProperty("title", Translator.translate("VideoNotification.TechnicalIssue"));
+		} else if (title.contains("BREAK.MARSHAL")) {
+			element.setProperty("title", Translator.translate("VideoNotification.MarshalIssue"));
+		} else {
+			element.setProperty("title", "");
+			element.setProperty("bgColor", "#00ff00");
+			return;
+		}
+
 	}
 
 	private long getExpiryBeforeChangingStatus() {
@@ -380,7 +415,7 @@ public class OBSMonitor extends PolymerTemplate<TemplateModel> implements FOPPar
 
 	private void init() {
 		OwlcmsSession.withFop(fop -> {
-			logger.trace("{}Starting monitoring", fop.getLoggingName());
+			logger.trace("{}Starting notification monitor", fop.getLoggingName());
 			setId("scoreboard-" + fop.getName());
 		});
 	}
@@ -403,7 +438,7 @@ public class OBSMonitor extends PolymerTemplate<TemplateModel> implements FOPPar
 
 			boolean stateChanged = fop.getState() != history.get(0).state;
 			boolean recordsChanged = fopChallengedRecords != curChallengedRecords;
-			logger.debug(">>>>>>OBSMonitor event {} fop {} history {} recordsChanged {}",
+			logger.debug(">>>>>>NotificationMonitor event {} fop {} history {} recordsChanged {}",
 			        e != null ? e.getClass().getSimpleName() : null, fop.getState(), history.get(0).state,
 			        recordsChanged);
 			if (e != null && e instanceof UIEvent.DecisionReset) {
@@ -412,7 +447,7 @@ public class OBSMonitor extends PolymerTemplate<TemplateModel> implements FOPPar
 				// asynchronous events
 				// there is a possibility that it comes late and out of order. So we ignore it
 				// explicitly.
-				logger.debug(">>>>>>OBSMonitor DecisionReset ignored");
+				logger.debug(">>>>>>NotificationMonitor DecisionReset ignored");
 				significant[0] = false;
 			} else if (stateChanged || recordsChanged) {
 				doPush(new Status(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), fop.getGoodLift(),
@@ -425,14 +460,15 @@ public class OBSMonitor extends PolymerTemplate<TemplateModel> implements FOPPar
 					        isNotEmpty(fop.getChallengedRecords()), null));
 					significant[0] = true;
 				} else {
-					// logger.trace("*** OBSMonitor ignored duplicate {} {}", fop.getBreakType(),
+					// logger.trace("*** NotificationMonitor ignored duplicate {} {}",
+					// fop.getBreakType(),
 					// fop.getCeremonyType());
 				}
 			} else {
-				// logger.trace("*** OBSMonitor non break {}", fop.getState());
+				// logger.trace("*** NotificationMonitor non break {}", fop.getState());
 			}
 		});
-		logger.debug(">>>>>>OBSMonitor sync significant {}", significant[0]);
+		logger.debug(">>>>>>NotificationMonitor sync significant {}", significant[0]);
 		return significant[0];
 	}
 
@@ -449,6 +485,7 @@ public class OBSMonitor extends PolymerTemplate<TemplateModel> implements FOPPar
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
 			init();
+			checkVideo(Config.getCurrent().getStylesDirectory() + "/video/currentathlete.css", routeParameter, this);
 			// sync with current status of FOP
 			syncWithFOP(null);
 			// we listen on uiEventBus.
@@ -461,4 +498,25 @@ public class OBSMonitor extends PolymerTemplate<TemplateModel> implements FOPPar
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
 	}
+
+	@Override
+	public void setShowInitialDialog(boolean b) {
+	}
+
+	@Override
+	public void setVideo(boolean b) {
+		this.video = b;
+	}
+
+	@Override
+	public boolean isVideo() {
+		return this.video;
+	}
+
+	@Override
+	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		FOPParameters.super.setParameter(event, parameter);
+		this.routeParameter = parameter;
+	}
+
 }

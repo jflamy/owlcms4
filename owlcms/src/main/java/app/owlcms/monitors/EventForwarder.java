@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.uievents;
+package app.owlcms.monitors;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -52,6 +52,11 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IBreakTimer;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.uievents.BreakDisplay;
+import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.CeremonyType;
+import app.owlcms.uievents.DecisionEventType;
+import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.BreakDone;
 import app.owlcms.uievents.UIEvent.BreakPaused;
 import app.owlcms.uievents.UIEvent.BreakSetTime;
@@ -905,7 +910,7 @@ public class EventForwarder implements BreakDisplay {
 	 * @param liftOrderRank2
 	 * @return json string with nested attempts values
 	 */
-	private void getAttemptsJson(Athlete a, int liftOrderRank) {
+	private synchronized void getAttemptsJson(Athlete a, int liftOrderRank) {
 		sattempts = Json.createArray();
 		cattempts = Json.createArray();
 		for (int i = 0; i < 3; i++) {
@@ -1038,21 +1043,31 @@ public class EventForwarder implements BreakDisplay {
 				builder.addPart("updateKey", new StringBody(updateKey, ContentType.TEXT_PLAIN));
 				InputStream inputStream;
 				if (blob == null) {
-					logger.info("creating blob");
+					logger.info("creating blob");					
 					String styles = Config.getCurrent().getStylesDirectory();
-					try {
-						inputStream = ResourceWalker.getFileOrResource("/"+styles+"/results.css");
-					} catch (FileNotFoundException e) {
-						throw new RuntimeException(e);
-					}
-					builder.addBinaryBody("results", inputStream, ContentType.create("text/css"), "results.css");
-
+					
 					try {
 						inputStream = ResourceWalker.getFileOrResource("/"+styles+"/colors.css");
 					} catch (FileNotFoundException e) {
 						throw new RuntimeException(e);
 					}
 					builder.addBinaryBody("colors", inputStream, ContentType.create("text/css"), "colors.css");
+					
+					try {
+						inputStream = ResourceWalker.getFileOrResource("/"+styles+"/results.css");
+					} catch (FileNotFoundException e) {
+						throw new RuntimeException(e);
+					}
+					builder.addBinaryBody("results", inputStream, ContentType.create("text/css"), "results.css");
+					
+					try {
+						inputStream = ResourceWalker.getFileOrResource("/"+styles+"/resultsCustomization.css");
+					} catch (FileNotFoundException e) {
+						throw new RuntimeException(e);
+					}
+					builder.addBinaryBody("resultsCustomization", inputStream, ContentType.create("text/css"), "resultsCustomization.css");
+
+
 				} else {
 					builder.addBinaryBody("local", blob, ContentType.create("application/zip"), "local.zip");
 				}
