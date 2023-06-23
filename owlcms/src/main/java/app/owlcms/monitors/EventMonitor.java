@@ -47,17 +47,17 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Class NotificationMonitor
+ * Class EventMonitor
  *
  * Show athlete lifting order
  *
  */
 @SuppressWarnings({ "serial", "deprecation" })
-@Tag("notifications-template")
-@JsModule("./components/NotificationMonitor.js")
+@Tag("eventmonitor-template")
+@JsModule("./components/EventMonitor.js")
 @Route("displays/notifications")
 
-public class NotificationMonitor extends PolymerTemplate<TemplateModel> implements FOPParameters,
+public class EventMonitor extends PolymerTemplate<TemplateModel> implements FOPParameters,
         SafeEventBusRegistration, UIEventProcessor, VideoOverride {
 
 	class Status {
@@ -70,7 +70,6 @@ public class NotificationMonitor extends PolymerTemplate<TemplateModel> implemen
 
 		public Status(FOPState state, BreakType breakType, CeremonyType ceremonyType, Boolean decision,
 		        boolean challengedRecords, LiftDefinition.Stage liftType) {
-			logger.setLevel(Level.DEBUG);
 			this.state = state;
 			this.breakType = breakType;
 			this.ceremonyType = ceremonyType;
@@ -97,12 +96,12 @@ public class NotificationMonitor extends PolymerTemplate<TemplateModel> implemen
 	final static int HISTORY_SIZE = 3;
 
 	final private static Logger uiEventLogger = (Logger) LoggerFactory
-	        .getLogger("UI" + NotificationMonitor.class.getSimpleName());
+	        .getLogger("UI" + EventMonitor.class.getSimpleName());
 
 	static {
-		uiEventLogger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.WARN);
 	}
-	final private Logger logger = (Logger) LoggerFactory.getLogger(NotificationMonitor.class);
+	final private Logger logger = (Logger) LoggerFactory.getLogger(EventMonitor.class);
 
 	List<Status> history = new LinkedList<>();
 
@@ -142,7 +141,7 @@ public class NotificationMonitor extends PolymerTemplate<TemplateModel> implemen
 	/**
 	 * Instantiates a new results board.
 	 */
-	public NotificationMonitor() {
+	public EventMonitor() {
 		OwlcmsFactory.waitDBInitialized();
 		this.getElement().getStyle().set("width", "100%");
 		// we need two items on the stack (current + previous)
@@ -220,7 +219,7 @@ public class NotificationMonitor extends PolymerTemplate<TemplateModel> implemen
 
 	@Override
 	public String toString() {
-		return "NotificationMonitor [history=" + history + ", currentBreakType=" + currentBreakType
+		return "EventMonitor [history=" + history + ", currentBreakType=" + currentBreakType
 		        + ", currentCeremony="
 		        + currentCeremony + ", currentDecision=" + currentDecision + ", currentChallengedRecords="
 		        + currentChallengedRecords + ", currentFOP=" + currentFOP + ", currentState=" + currentState
@@ -374,32 +373,43 @@ public class NotificationMonitor extends PolymerTemplate<TemplateModel> implemen
 			}
 			showLonger = false;
 		}
-		logger.warn("UpdateBar");
+		logger.warn("UpdateBar {}",title);
 		element.setProperty("title", title);
-		element.setProperty("txtColor", "white");
-		element.setProperty("bgColor", "gray");
+		element.setProperty("notificationClass", "neutralNotification");
 		element.callJsFunction("setTitle", title);
 
 		if (title.contains(".NEW_RECORD")) {
 			element.setProperty("title", Translator.translate("NewRecord"));
 			showLonger = true;
 		} else if (title.contains(".RECORD_ATTEMPT")) {
-			element.setProperty("title", Translator.translate("RecordAttempt"));
+			element.setProperty("notificationClass", "attemptNotification");
+			element.setProperty("title", Translator.translate("VideoNotification.RecordAttempt"));
+		} else if (title.contains("GOOD_LIFT.NEW_RECORD")) {
+			element.setProperty("notificationClass", "successNotification");
+			element.setProperty("title", Translator.translate("VideoNotification.NewRecord"));
 		} else if (title.contains("JURY") && title.contains("GOOD")) {
+			element.setProperty("notificationClass", "successNotification");
+			element.setProperty("title", Translator.translate("VideoNotification.JuryGoodLift"));
+		} else if (title.contains("CHALLENGE") && title.contains("GOOD_LIFT")) {
+			element.setProperty("notificationClass", "successNotification");
 			element.setProperty("title", Translator.translate("VideoNotification.JuryGoodLift"));
 		} else if (title.contains("JURY") && title.contains("BAD")) {
+			element.setProperty("notificationClass", "failNotification");
 			element.setProperty("title", Translator.translate("VideoNotification.JuryNoLift"));
-		} else if (title.contains("BREAK.JURY")) {
+		} else if (title.contains("CHALLENGE") && title.contains("BAD_LIFT")) {
+			element.setProperty("notificationClass", "failNotification");
+			element.setProperty("title", Translator.translate("VideoNotification.JuryNoLift"));
+		} else if (title.startsWith("state=BREAK.JURY")) {
 			element.setProperty("title", Translator.translate("VideoNotification.JuryBreak"));
-		} else if (title.contains("BREAK.CHALLENGE")) {
+		} else if (title.startsWith("state=BREAK.CHALLENGE")) {
 			element.setProperty("title", Translator.translate("VideoNotification.Challenge"));
-		} else if (title.contains("BREAK.TECHNICAL")) {
+		} else if (title.startsWith("state=BREAK.TECHNICAL")) {
 			element.setProperty("title", Translator.translate("VideoNotification.TechnicalIssue"));
-		} else if (title.contains("BREAK.MARSHAL")) {
+		} else if (title.startsWith("state=BREAK.MARSHAL")) {
 			element.setProperty("title", Translator.translate("VideoNotification.MarshalIssue"));
 		} else {
 			element.setProperty("title", "");
-			element.setProperty("bgColor", "#00ff00");
+			element.setProperty("notificationClass", "invisibleNotification");
 			return;
 		}
 
@@ -438,7 +448,7 @@ public class NotificationMonitor extends PolymerTemplate<TemplateModel> implemen
 
 			boolean stateChanged = fop.getState() != history.get(0).state;
 			boolean recordsChanged = fopChallengedRecords != curChallengedRecords;
-			logger.debug(">>>>>>NotificationMonitor event {} fop {} history {} recordsChanged {}",
+			logger.debug(">>>>>>EventMonitor event {} fop {} history {} recordsChanged {}",
 			        e != null ? e.getClass().getSimpleName() : null, fop.getState(), history.get(0).state,
 			        recordsChanged);
 			if (e != null && e instanceof UIEvent.DecisionReset) {
@@ -447,7 +457,7 @@ public class NotificationMonitor extends PolymerTemplate<TemplateModel> implemen
 				// asynchronous events
 				// there is a possibility that it comes late and out of order. So we ignore it
 				// explicitly.
-				logger.debug(">>>>>>NotificationMonitor DecisionReset ignored");
+				logger.debug(">>>>>>EventMonitor DecisionReset ignored");
 				significant[0] = false;
 			} else if (stateChanged || recordsChanged) {
 				doPush(new Status(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), fop.getGoodLift(),
@@ -460,15 +470,15 @@ public class NotificationMonitor extends PolymerTemplate<TemplateModel> implemen
 					        isNotEmpty(fop.getChallengedRecords()), null));
 					significant[0] = true;
 				} else {
-					// logger.trace("*** NotificationMonitor ignored duplicate {} {}",
+					// logger.trace("*** EventMonitor ignored duplicate {} {}",
 					// fop.getBreakType(),
 					// fop.getCeremonyType());
 				}
 			} else {
-				// logger.trace("*** NotificationMonitor non break {}", fop.getState());
+				// logger.trace("*** EventMonitor non break {}", fop.getState());
 			}
 		});
-		logger.debug(">>>>>>NotificationMonitor sync significant {}", significant[0]);
+		logger.debug(">>>>>>EventMonitor sync significant {}", significant[0]);
 		return significant[0];
 	}
 

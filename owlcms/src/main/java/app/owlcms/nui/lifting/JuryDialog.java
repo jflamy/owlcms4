@@ -187,7 +187,7 @@ public class JuryDialog extends Dialog {
 		}
 		fop.fopEventPost(new FOPEvent.JuryDecision(athleteUnderReview, this, false));
 		UI.getCurrent().access(() -> {
-			if (origin != null) {
+			if (origin != null && ((JuryContent) origin).decisionNotification != null) {
 				((JuryContent) origin).decisionNotification.close();
 			}
 		});
