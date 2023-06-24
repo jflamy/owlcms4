@@ -1,6 +1,6 @@
 ## Windows Installation
 
-- **Windows Installer** : Get the current [`owlcms_setup.exe_${revision}`](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/download/${revision}/owlcms_setup_${revision}.exe) file (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/latest) ).
+- **Windows Installer** : Get the current [`owlcms_setup_${revision}.exe`](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/download/${revision}/owlcms_setup_${revision}.exe) file (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/latest) ).
 
 ![zip](img\LocalInstall\010_setupexe.png)
 
