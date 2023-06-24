@@ -83,8 +83,11 @@ public class RAthlete {
 	 * @throws Exception
 	 * @see app.owlcms.data.athlete.Athlete#setCategory(app.owlcms.data.category.Category)
 	 */
-	public void setCategory(String categoryName) throws Exception {
-		if (categoryName == null || categoryName.isBlank()) {
+	public void setCategory(String s) throws Exception {
+		if (s != null) {
+			s = CharMatcher.javaIsoControl().removeFrom(s);
+		}
+		if (s == null || s.isBlank()) {
 			// no category, infer from age and body weight
 			a.computeMainAndEligibleCategories();
 			a.getParticipations().stream().forEach(p -> p.setTeamMember(true));
@@ -93,15 +96,15 @@ public class RAthlete {
 			}
 			return;
 		}
-		categoryName = CharMatcher.javaIsoControl().removeFrom(categoryName);
-		String[] parts = categoryName.split("\\|");
+		s = CharMatcher.javaIsoControl().removeFrom(s);
+		String[] parts = s.split("\\|");
 		if (parts.length >= 1) {
 			String catName = parts[0].trim();
 
 			// check for team exclusion marker.
 			boolean teamMember = true;
 			if (catName.endsWith(NoTeamMarker)) {
-				catName = catName.substring(0, categoryName.length() - NoTeamMarker.length());
+				catName = catName.substring(0, s.length() - NoTeamMarker.length());
 				teamMember = false;
 			}
 
@@ -111,7 +114,7 @@ public class RAthlete {
 				processEligibilityAndTeams(parts, c, teamMember);
 			} else {
 				// we have a short form category. infer from age and category limit
-				setCategoryHeuristics(categoryName);
+				setCategoryHeuristics(s);
 				a.getParticipations().stream().forEach(p -> p.setTeamMember(true));
 			}
 		}
@@ -120,37 +123,52 @@ public class RAthlete {
 	}
 
 	/**
-	 * @param cleanJerk1Declaration
+	 * @param s
 	 */
-	public void setCleanJerk1Declaration(String cleanJerk1Declaration) {
-		cleanJerk1Declaration = CharMatcher.javaIsoControl().removeFrom(cleanJerk1Declaration);
-		a.setCleanJerk1Declaration(cleanJerk1Declaration);
+	public void setCleanJerk1Declaration(String s) {
+		if (s != null) {
+			s = CharMatcher.javaIsoControl().removeFrom(s);
+		}
+		a.setCleanJerk1Declaration(s);
 	}
 
-	public void setCoach(String coach) {
-		a.setCoach(coach);
+	public void setCoach(String s) {
+		if (s != null) {
+			s = CharMatcher.javaIsoControl().removeFrom(s);
+		}
+		a.setCoach(s);
 	}
 
-	public void setCustom1(String v) {
-		a.setCustom1(v);
+	public void setCustom1(String s) {
+		if (s != null) {
+			s = CharMatcher.javaIsoControl().removeFrom(s);
+		}
+		a.setCustom1(s);
 	}
 
-	public void setCustom2(String v) {
-		a.setCustom2(v);
+	public void setCustom2(String s) {
+		if (s != null) {
+			s = CharMatcher.javaIsoControl().removeFrom(s);
+		}
+		a.setCustom2(s);
 	}
 
-	public void setFederationCodes(String federationCodes) {
-		federationCodes = CharMatcher.javaIsoControl().removeFrom(federationCodes);
-		a.setFederationCodes(federationCodes);
+	public void setFederationCodes(String s) {
+		if (s != null) {
+			s = CharMatcher.javaIsoControl().removeFrom(s);
+		}
+		a.setFederationCodes(s);
 	}
 
 	/**
-	 * @param firstName
+	 * @param s
 	 * @see app.owlcms.data.athlete.Athlete#setFirstName(java.lang.String)
 	 */
-	public void setFirstName(String firstName) {
-		firstName = CharMatcher.javaIsoControl().removeFrom(firstName);
-		a.setFirstName(firstName);
+	public void setFirstName(String s) {
+		if (s != null) {
+			s = CharMatcher.javaIsoControl().removeFrom(s);
+		}
+		a.setFirstName(s);
 	}
 
 	/**
@@ -161,10 +179,13 @@ public class RAthlete {
 	 * @throws Exception
 	 * @see app.owlcms.data.athlete.Athlete#setCategory(app.owlcms.data.category.Category)
 	 */
-	public void setFullBirthDate(String content) throws Exception {
-		content = CharMatcher.javaIsoControl().removeFrom(content);
+	public void setFullBirthDate(String s) throws Exception {
+		if (s != null) {
+			s = CharMatcher.javaIsoControl().removeFrom(s);
+		}
+		s = CharMatcher.javaIsoControl().removeFrom(s);
 		try {
-			long l = Long.parseLong(content);
+			long l = Long.parseLong(s);
 			if (l < 3000) {
 				a.setYearOfBirth((int) l);
 				// logger.debug("short " + l);
@@ -178,7 +199,7 @@ public class RAthlete {
 			return;
 		} catch (NumberFormatException e) {
 			// logger.debug("localized");
-			LocalDate parse = DateTimeUtils.parseLocalizedOrISO8601Date(content, OwlcmsSession.getLocale());
+			LocalDate parse = DateTimeUtils.parseLocalizedOrISO8601Date(s, OwlcmsSession.getLocale());
 			a.setFullBirthDate(parse);
 		}
 	}
@@ -187,13 +208,15 @@ public class RAthlete {
 	 * @param lastName
 	 * @see app.owlcms.data.athlete.Athlete#setLastName(java.lang.String)
 	 */
-	public void setGender(String gender) {
-		gender = CharMatcher.javaIsoControl().removeFrom(gender);
-		logger.trace("setting gender {} for athlete {}", gender, a.getLastName());
-		if (gender == null) {
+	public void setGender(String s) {
+		if (s != null) {
+			s = CharMatcher.javaIsoControl().removeFrom(s);
+		}
+		logger.trace("setting gender {} for athlete {}", s, a.getLastName());
+		if (s == null) {
 			return;
 		}
-		a.setGender(Gender.valueOf(gender.toUpperCase()));
+		a.setGender(Gender.valueOf(s.toUpperCase()));
 	}
 
 	/**
@@ -201,65 +224,79 @@ public class RAthlete {
 	 * @throws Exception
 	 * @see app.owlcms.data.athlete.Athlete#setGroupName(app.owlcms.data.category.Group)
 	 */
-	public void setGroup(String groupName) throws Exception {
-		groupName = CharMatcher.javaIsoControl().removeFrom(groupName);
-		if (groupName == null) {
+	public void setGroup(String s) throws Exception {
+		if (s != null) {
+			s = CharMatcher.javaIsoControl().removeFrom(s);
+		}
+		if (s == null) {
 			return;
 		}
 		Group g;
-		if ((g = RCompetition.getActiveGroups().get(groupName)) != null) {
+		if ((g = RCompetition.getActiveGroups().get(s)) != null) {
 			a.setGroup(g);
 		} else {
-			throw new Exception(Translator.translate("Upload.GroupNotDefined", groupName));
+			throw new Exception(Translator.translate("Upload.GroupNotDefined", s));
 		}
 	}
 
 	/**
-	 * @param lastName
+	 * @param s
 	 * @see app.owlcms.data.athlete.Athlete#setLastName(java.lang.String)
 	 */
-	public void setLastName(String lastName) {
-		lastName = CharMatcher.javaIsoControl().removeFrom(lastName);
-		a.setLastName(lastName);
+	public void setLastName(String s) {
+		if (s != null) {
+			s = CharMatcher.javaIsoControl().removeFrom(s);
+		}
+		a.setLastName(s);
 	}
 
 	/**
-	 * @param lotNumber
+	 * @param s
 	 * @see app.owlcms.data.athlete.Athlete#setLotNumber(java.lang.Integer)
 	 */
-	public void setLotNumber(String lotNumber) {
-		lotNumber = CharMatcher.javaIsoControl().removeFrom(lotNumber);
-		if (lotNumber == null) {
+	public void setLotNumber(String s) {
+		if (s != null) {
+			s = CharMatcher.javaIsoControl().removeFrom(s);
+		}
+		if (s == null) {
 			return;
 		}
-		a.setLotNumber(Integer.parseInt(lotNumber));
+		a.setLotNumber(Integer.parseInt(s));
 	}
 
 	/**
-	 * @param membership
+	 * @param s
 	 * @see app.owlcms.data.athlete.Athlete#setMembership(java.lang.String)
 	 */
-	public void setMembership(String membership) {
-		membership = CharMatcher.javaIsoControl().removeFrom(membership);
-		a.setMembership(membership);
+	public void setMembership(String s) {
+		if (s != null) {
+			s = CharMatcher.javaIsoControl().removeFrom(s);
+		}
+		a.setMembership(s);
 	}
 
 	public void setPersonalBestCleanJerk(String s) {
-		s = CharMatcher.javaIsoControl().removeFrom(s);
+		if (s != null) {
+			s = CharMatcher.javaIsoControl().removeFrom(s);
+		}
 		if (s != null && !s.isEmpty()) {
 			a.setPersonalBestCleanJerk(Integer.parseInt(s));
 		}
 	}
 
 	public void setPersonalBestSnatch(String s) {
-		s = CharMatcher.javaIsoControl().removeFrom(s);
+		if (s != null) {
+			s = CharMatcher.javaIsoControl().removeFrom(s);
+		}
 		if (s != null && !s.isEmpty()) {
 			a.setPersonalBestSnatch(Integer.parseInt(s));
 		}
 	}
 
 	public void setPersonalBestTotal(String s) {
-		s = CharMatcher.javaIsoControl().removeFrom(s);
+		if (s != null) {
+			s = CharMatcher.javaIsoControl().removeFrom(s);
+		}
 		if (s != null && !s.isEmpty()) {
 			a.setPersonalBestTotal(Integer.parseInt(s));
 		}
@@ -274,20 +311,24 @@ public class RAthlete {
 	}
 
 	/**
-	 * @param snatch1Declaration
+	 * @param s
 	 */
-	public void setSnatch1Declaration(String snatch1Declaration) {
-		snatch1Declaration = CharMatcher.javaIsoControl().removeFrom(snatch1Declaration);
-		a.setSnatch1Declaration(snatch1Declaration);
+	public void setSnatch1Declaration(String s) {
+		if (s != null) {
+			s = CharMatcher.javaIsoControl().removeFrom(s);
+		}
+		a.setSnatch1Declaration(s);
 	}
 
 	/**
-	 * @param club
+	 * @param s
 	 * @see app.owlcms.data.athlete.Athlete#setTeam(java.lang.String)
 	 */
-	public void setTeam(String club) {
-		club = CharMatcher.javaIsoControl().removeFrom(club);
-		a.setTeam(club);
+	public void setTeam(String s) {
+		if (s != null) {
+			s = CharMatcher.javaIsoControl().removeFrom(s);
+		}
+		a.setTeam(s);
 	}
 
 	private boolean addIfEligible(Set<Category> eligibleCategories, Set<Category> teams, Integer athleteQTotal,
