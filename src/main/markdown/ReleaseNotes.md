@@ -2,13 +2,16 @@
 
 *Alpha release. For experimentation and feedback only. Features may change without notice.*
 
+- 41.0.0-alpha05:
+  - Fixed error in the processing of non-printable characters in Excel registration data
+
 - 41.0.0-alpha04:
   - Medals highlighting for Total fixed.
 
   - Removed unneeded field from JSON database export.
 
   - Removed non-printable control characters when reading Excel registration data.
-  
+
 - 41.0.0-alpha03:
   - Many small fixes to CSS style sheets.
 
