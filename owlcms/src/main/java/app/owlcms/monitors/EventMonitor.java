@@ -22,6 +22,7 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
@@ -58,7 +59,7 @@ import ch.qos.logback.classic.Logger;
 @Route("displays/notifications")
 
 public class EventMonitor extends PolymerTemplate<TemplateModel> implements FOPParameters,
-        SafeEventBusRegistration, UIEventProcessor, VideoOverride {
+        SafeEventBusRegistration, UIEventProcessor, VideoOverride, HasDynamicTitle {
 
 	class Status {
 		BreakType breakType;
@@ -376,7 +377,7 @@ public class EventMonitor extends PolymerTemplate<TemplateModel> implements FOPP
 		logger.warn("UpdateBar {}",title);
 		element.setProperty("title", title);
 		element.setProperty("notificationClass", "neutralNotification");
-		element.callJsFunction("setTitle", title);
+		//element.callJsFunction("setTitle", title);
 
 		if (title.contains(".NEW_RECORD")) {
 			element.setProperty("title", Translator.translate("NewRecord"));
@@ -527,6 +528,11 @@ public class EventMonitor extends PolymerTemplate<TemplateModel> implements FOPP
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 		FOPParameters.super.setParameter(event, parameter);
 		this.routeParameter = parameter;
+	}
+
+	@Override
+	public String getPageTitle() {
+        return getTranslation("Video.EventMonitoringButton") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
 }
