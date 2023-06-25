@@ -44,6 +44,7 @@ import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -144,6 +145,7 @@ public class EventMonitor extends PolymerTemplate<TemplateModel> implements FOPP
 	 */
 	public EventMonitor() {
 		OwlcmsFactory.waitDBInitialized();
+		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
 		this.getElement().getStyle().set("width", "100%");
 		// we need two items on the stack (current + previous)
 		doPush(new Status(FOPState.INACTIVE, null, null, null, false, null));
@@ -496,6 +498,7 @@ public class EventMonitor extends PolymerTemplate<TemplateModel> implements FOPP
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
 			init();
+			
 			checkVideo(Config.getCurrent().getStylesDirectory() + "/video/currentathlete.css", routeParameter, this);
 			// sync with current status of FOP
 			syncWithFOP(null);
