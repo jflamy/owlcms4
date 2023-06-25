@@ -400,13 +400,13 @@ public class EventMonitor extends PolymerTemplate<TemplateModel> implements FOPP
 		} else if (title.contains("CHALLENGE") && title.contains("BAD_LIFT")) {
 			element.setProperty("notificationClass", "failNotification");
 			element.setProperty("title", Translator.translate("VideoNotification.JuryNoLift"));
-		} else if (title.startsWith("state=BREAK.JURY")) {
+		} else if (title.startsWith("break=BREAK.JURY")) {
 			element.setProperty("title", Translator.translate("VideoNotification.JuryBreak"));
-		} else if (title.startsWith("state=BREAK.CHALLENGE")) {
+		} else if (title.startsWith("break=BREAK.CHALLENGE")) {
 			element.setProperty("title", Translator.translate("VideoNotification.Challenge"));
-		} else if (title.startsWith("state=BREAK.TECHNICAL")) {
+		} else if (title.startsWith("break=BREAK.TECHNICAL")) {
 			element.setProperty("title", Translator.translate("VideoNotification.TechnicalIssue"));
-		} else if (title.startsWith("state=BREAK.MARSHAL")) {
+		} else if (title.startsWith("break=BREAK.MARSHAL")) {
 			element.setProperty("title", Translator.translate("VideoNotification.MarshalIssue"));
 		} else {
 			element.setProperty("title", "");
