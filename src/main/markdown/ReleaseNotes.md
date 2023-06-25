@@ -1,16 +1,16 @@
 41.0 Styling and Video streaming improvements.
 
-*Alpha release. For experimentation and feedback only. Features may change without notice.*
+*Beta release. For testing and translation. Test thoroughly if you intend to use.*
 
-- 41.0.0-beta01:
+- 41.0.0-beta02:
   - For video streaming, added a Video Overlay feature to display competition events such as Jury decisions, Challenges, Records, Technical breaks, on top of the video feed.  The Overlay is drawn on a green background so that the video software can make the page transparent.
   - Added an extra column on the registration data export to show the athlete's weight class. This allows sorting athletes by weight class and entry total more easily when allocating athletes to groups.
 
-- In a 3-medal competition, the classification-order scoreboard now shows the clean & Jerk ranking when snatch is over. It switches to the total when the group is done.  For a one-medal competition, the order switches to total as soon as C&J starts.
+- In a 3-medal competition, the classification-order scoreboard now shows the clean & Jerk ranking when the snatch is over. It switches to the total when the group is done.  For a one-medal competition, the order switches to total as soon as C&J starts.
 - Several changes to CSS Styling
   - Medal colors are highlighted on the Medal displays.
-  - Team flags are shown on scoreboard
-  - Automatic team name sizing on scoreboard, allows the use "auto" or "minmax" CSS grid column sizes.
+  - Team flags are shown on the scoreboard
+  - Automatic team name sizing on the scoreboard allows the use "auto" or "minmax" CSS grid column sizes.
   - When the leaders are hidden, the space freed can again be correctly used for additional athletes on the main scoreboard.
   - The CSS styling for the "Current Athlete" bottom banner no longer restricts the length of the translated words.
   - The variable OWLCMS_STYLESDIR indicates what directory contains the style sheets.  The default value is "styles". This makes it easier to create and test alternate visual styles.
@@ -20,6 +20,7 @@
 
 ##### Highlights from recent stable releases
 
+- Flags are shown on the medals display when a single category is shown.
 - New session scoreboard for current rankings
 - A new Records Management page has been added, reachable from the preparation page.
   - Record definition files can be uploaded interactively 
