@@ -1,11 +1,14 @@
 41.0 Styling and Video streaming improvements.
 
-*Beta release. For testing and translation. Test thoroughly if you intend to use.*
+*Beta release. For testing and translation. Test thoroughly if you intend to use it in a competition.*
 
+- 41.0.0-beta03:
+  - Video Overlay now larger and centered.
+    For video streaming, added a Video Overlay feature to display competition events such as Jury decisions, Challenges, Records, Technical Breaks, etc. on top of the video feed.  The Overlay is green background so that the video software can make the page transparent.  It is centered by default but you can move or crop the overlay to position it where you want.
+    Colors and styles are controlled by `video/eventmonitor.css`
+  
 - 41.0.0-beta02:
-  - For video streaming, added a Video Overlay feature to display competition events such as Jury decisions, Challenges, Records, Technical breaks, on top of the video feed.  The Overlay is drawn on a green background so that the video software can make the page transparent.
   - Added an extra column on the registration data export to show the athlete's weight class. This allows sorting athletes by weight class and entry total more easily when allocating athletes to groups.
-
 - In a 3-medal competition, the classification-order scoreboard now shows the clean & Jerk ranking when the snatch is over. It switches to the total when the group is done.  For a one-medal competition, the order switches to total as soon as C&J starts.
 - Several changes to CSS Styling
   - Medal colors are highlighted on the Medal displays.
@@ -34,11 +37,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_41.0.0-beta02.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_41.0.0-beta03.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_41.0.0-beta02.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_41.0.0-beta03.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
