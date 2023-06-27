@@ -4,8 +4,8 @@
 
 .wrapper {
 	font: Arial;
-	color: var(--pageTextColor);
-	background-color: var(--pageBackgroundColor);
+	color: var(--videoTextColor);
+	background-color: var(--videoHeaderBackgroundColor);
 	height: 100vh;
 	width: 100vw;
 }
@@ -19,11 +19,13 @@
   startNumber-start weight-start] 1fr [startNumber-end] 2fr [
   weight-end barbell-start down-start decision-start] 4fr [barbell-end
   timer-start attempt-start] 2fr [timer-end name-end down-end decision-end attempt-end];
-	grid-template-rows: [lastName-start] 1fr [lastName-end firstName-start] 1fr [firstName-end
-		teamName-start down-start] 2fr [teamName-end  decision-start] 1fr [startNumber-start
-		attempt-start barbell-start] 1fr [startNumber-end
-		attempt-end weight-start timer-start] 5fr [weight-end barbell-end timer-end down-end
-		decision-end];
+	grid-template-rows: [lastName-start] 
+		15vh [lastName-end firstName-start]
+		15vh [firstName-end teamName-start down-start] 
+		10vh [teamName-end] 
+		8vh [startNumber-start attempt-start barbell-start decision-start]
+		20vh [startNumber-end attempt-end weight-start timer-start]
+		32vh [weight-end barbell-end timer-end down-end decision-end];
 	justify-content: center;
 	align-content: center;
 	align-items: stretch;
@@ -32,6 +34,7 @@
 }
 
 .attemptBoard .lastName {
+	align-self: end;
 	justify-self: left;
 	font-size: 12vh;
 	line-height: 12vh;
@@ -39,6 +42,7 @@
 }
 
 .attemptBoard .lastNameWithPicture {
+	align-self: end;
 	justify-self: left;
 	font-size: 9vh;
 	line-height: 10vh;
@@ -63,6 +67,8 @@
 }
 
 .attemptBoard .firstName {
+	padding: 0;
+	line-height: 12vh;
 	justify-self: left;
 	font-size: 10vh;
 	grid-area: firstName-start/firstName-start/firstName-end/firstName-end;
@@ -110,9 +116,9 @@
     justify-self: center;
     align-self: center;
     object-fit: contain;
-    max-height: 90%;
-    width: 90%;
-    max-width: 90%;
+    max-height: 25vh;
+    width: 100%;
+    /* max-width: 90%; */
 }
 
 .attemptBoard .flagWithPicture {
@@ -123,20 +129,24 @@
 	z-index: 0;
 }
 .attemptBoard .flagWithPicture > img {
-	height: 14vh;
+	height: 18vh;
 	align-self: start;
 }
 
 .attemptBoard .picture {
+	display: flex;
 	justify-self: center;
 	justify-content: center;
-	align-self: start;
+	align-self: center;
 	grid-area: lastName-start/timer-start/startNumber-start/timer-end;
 	z-index: 0;
+	flex-direction: column;
 }
+
 .attemptBoard .picture > img {
-	height: 40vh;
-	/* align-self: end; */
+	max-height: 45vh;
+	max-width: 100%;
+	align-self: center;
 }
 
 .attemptBoard .recordNotification {
@@ -305,10 +315,7 @@
 	grid-area: down-start/down-start/down-end/down-end;
 	align-self: stretch;
 	justify-self: stretch;
-	--iron-icon-height: 120%;
-	--iron-icon-width: 120%;
-	font-weight: normal;
-	color: var(--downColor);
+	color: purple;
 	display: none;
 	overflow: hidden;
 }
@@ -316,6 +323,8 @@
 .attemptBoard .decision {
 	grid-area: decision-start/decision-start/decision-end/decision-end;
 	font-size: 30vh;
+	height: 40vh;
+	justify-self: stretch;
 }
 
 .v-system-error {
