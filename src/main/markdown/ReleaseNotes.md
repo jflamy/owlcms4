@@ -3,9 +3,11 @@
 *Beta release. For testing and translation. Test thoroughly if you intend to use it in a competition.*
 
 - 41.0.0-beta04:
+  - Styling adjustments to the attempt board to prevent items from moving slightly when records are attempted/improved.
+  
   - Made the Protocol template use the overall Rank for the Total, same as the Snatch-CJ-Total template (instead of the current session ignoring the previous ones).
   
-  - Small fix to prevent the Decision scoreboard from randomly requiring a refresh.
+  - Small fix to prevent the countdown/decision display from randomly (and rarely) requiring a refresh.
   
 - 41.0.0-beta03:
   - The video overlay for highlighting events is now larger and centered.
