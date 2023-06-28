@@ -1135,16 +1135,30 @@ public class FieldOfPlay {
 
 		List<RecordEvent> eligibleRecords = eligibleRecordsByAthlete.get(curAthlete);
 		List<RecordEvent> displayableRecords = displayableRecordsByAthlete.get(curAthlete);
-		boolean computeShowInformationalRecords = computeShowInformationalRecords(eligibleRecords, displayableRecords);
+		boolean showAllFederationRecords = computeShowInformationalRecords(eligibleRecords, displayableRecords);
+		boolean showAllCategoryRecords = computeShowAllGroupRecords();
 		List<RecordEvent> challengedRecords = RecordFilter.computeChallengedRecords(
 		        eligibleRecords,
 		        snatchRequest,
 		        cjRequest,
 		        totalRequest);
-
+		
+//		for (RecordEvent gr : groupRecords) {
+//			logger.debug("gr: {} {} {}", gr.getAgeGrp(), gr.getRecordName(), gr.getRecordFederation());
+//		}
+		List<RecordEvent> jsonRecords;
+		if (showAllFederationRecords && showAllCategoryRecords) {
+			jsonRecords = new ArrayList<>(groupRecords);
+		} else if (showAllCategoryRecords) {
+			jsonRecords = RecordFilter.filterEligibleRecordsForAthlete(curAthlete, groupRecords);
+		} else if (showAllFederationRecords) {
+			jsonRecords = displayableRecords;
+		} else {
+			jsonRecords = eligibleRecords;
+		}
+		 
 		JsonValue recordsJson = RecordFilter.buildRecordJson(
-		        computeShowAllGroupRecords() ? new ArrayList<>(groupRecords)
-		                : (computeShowInformationalRecords ? displayableRecords : eligibleRecords),
+				jsonRecords,
 		        new HashSet<>(challengedRecords), snatchRequest, cjRequest,
 		        totalRequest, curAthlete);
 		setRecordsJson(recordsJson);
@@ -2082,7 +2096,8 @@ public class FieldOfPlay {
 			List<RecordEvent> eligibleRecords = RecordFilter.filterEligibleRecordsForAthlete(a, displayableRecords);
 			// logger.debug("athlete {} {}",a, eligibleRecords);
 			eligibleRecordsByAthlete.put(a, eligibleRecords);
-			groupRecords.addAll(eligibleRecords);
+			
+			groupRecords.addAll(displayableRecords);
 		}
 	}
 

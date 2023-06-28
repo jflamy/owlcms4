@@ -221,6 +221,7 @@ public class RecordFilter {
 		        : new HashSet<>(Arrays.asList(federationCodes.split("[,;]")));
 		//logger.debug(" *** athlete {} agegroups {} federations {}", curAthlete.getShortName(), curAthlete.getEligibleCategories(), athleteFederations);
 		records = candidateRecords.stream()
+				//.peek(c -> logger.debug("{} {}",c.getAgeGrp(), c.getRecordFederation()))
 		        .filter(c -> athleteFederations.isEmpty() ? true : athleteFederations.contains(c.getRecordFederation()))
 		        .collect(Collectors.toList());
 		//logger.debug("retained records {}", records);
@@ -230,17 +231,17 @@ public class RecordFilter {
 	public static List<RecordEvent> computeDisplayableRecordsForAthlete(Athlete curAthlete) {
 		List<RecordEvent> records = RecordRepository.findFiltered(curAthlete.getGender(), curAthlete.getAge(),
 		        curAthlete.getBodyWeight(), null, null);
-		//logger.debug("records size {} {} {} {}", curAthlete.getGender(), curAthlete.getAge(), curAthlete.getBodyWeight(),records);
+		//logger.debug("records size {} {} {} {}", curAthlete.getGender(), curAthlete.getAge(), curAthlete.getBodyWeight(), records);
 
 		// remove duplicates for each kind of record, keep largest
 		Map<String, RecordEvent> cleanMap = new HashMap<>();
 		for (RecordEvent r : records) {
 			RecordEvent curMax = cleanMap.get(r.getKey());
 			if (curMax == null || r.getRecordValue() > curMax.getRecordValue()) {
-				//logger.debug("updating {} {}", r.getKey(), r.getRecordValue());
+				//if (curAthlete.getStartNumber() == 5) logger.debug("updating {} {}", r.getKey(), r.getRecordValue());
 				cleanMap.put(r.getKey(), r);
 			} else {
-				//logger.debug("DISCARDING {} {}", r.getKey(), r.getRecordValue());
+				//if (curAthlete.getStartNumber() == 5) logger.debug("DISCARDING {} {}", r.getKey(), r.getRecordValue());
 			}
 		}
 		return new ArrayList<RecordEvent>(cleanMap.values());
