@@ -376,7 +376,7 @@ public class EventMonitor extends PolymerTemplate<TemplateModel> implements FOPP
 			}
 			showLonger = false;
 		}
-		logger.warn("UpdateBar {}",title);
+		//logger.debug("UpdateBar {}",title);
 		element.setProperty("title", title);
 		element.setProperty("notificationClass", "neutralNotification");
 		//element.callJsFunction("setTitle", title);
