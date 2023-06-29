@@ -67,7 +67,6 @@ public class ResourceWalker {
 		if (Files.exists(curDir)) {
 			logger.info("local override directory = {}", curDir.toAbsolutePath());
 			ResourceWalker.setLocalDirPath(curDir);
-			//FIXME: localZipBlobProvider should be zipping the local directory
 		} else {
 			logger.info("no override directory {}", curDir.toAbsolutePath());
 			ResourceWalker.setLocalDirPath(null);
@@ -379,6 +378,7 @@ public class ResourceWalker {
 				checkForLocalOverrideDirectory();
 			}
 		} else {
+			logger.debug("checking for override.");
 			checkForLocalOverrideDirectory();
 		}
 	}

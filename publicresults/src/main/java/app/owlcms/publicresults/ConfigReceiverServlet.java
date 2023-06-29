@@ -69,7 +69,6 @@ public class ConfigReceiverServlet extends HttpServlet {
     public void handleUploads(HttpServletRequest req, HttpServletResponse resp)
             throws FileUploadException, IOException {
 
-
         // Create a factory for disk-based file items
         DiskFileItemFactory factory = new DiskFileItemFactory();
         factory.setRepository(new File(System.getProperty("java.io.tmpdir")));
@@ -95,7 +94,7 @@ public class ConfigReceiverServlet extends HttpServlet {
                     deny(req, resp, null);
                     return;
                 }
-                logger.debug("{} {}",item, item.getContentType());
+                logger.info("receiving {} {}",item, item.getContentType());
                 if (!item.getContentType().contains("zip")) {
                     copyFile(item);
                 } else {
@@ -118,7 +117,7 @@ public class ConfigReceiverServlet extends HttpServlet {
         Files.createDirectories(name.getParent());
         try (InputStream uploadedStream = item.getInputStream();
                 OutputStream out = Files.newOutputStream(name)) {
-            //logger.debug("copying to abs {}",name.toAbsolutePath());
+            logger.debug("copying to {}",name.toAbsolutePath());
             IOUtils.copy(uploadedStream, out);
             out.close();
         }

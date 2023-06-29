@@ -93,22 +93,19 @@ public class UpdateReceiverServlet extends HttpServlet {
                 resp.sendError(401, "Denied, wrong credentials");
                 return;
             }
-
-            try {
-                //FIXME: this uses the standard classpath styles without override (412 is never returned)
-                //FIXME: owlcms must correctly package a zip and send it if there is no blob
-//                if (ResourceWalker.getLocalDirPath() == null) {
-//                    String message = "Local override directory not present: requesting remote configuration files.";
-//                    logger.debug("message");
-//                    throw new Exception(message);
-//                }
-//                logger.debug("retrieving results.css");
-//                // should not get here normally
-                ResourceWalker.getFileOrResource("styles/results.css");
-            } catch (Exception e) {
+            
+            if (ResourceWalker.getLocalDirPath() == null) {
+                String message = "Local override directory not present: requesting remote configuration files.";
+                logger.info(message);
                 logger.info("requesting customization");
                 resp.sendError(412, "Missing configuration files.");
                 return;
+            }
+
+            try {
+                ResourceWalker.getFileOrResource("styles/results.css");
+            } catch (Exception e) {
+                logger.error("styles directory not found");
             }
 
             if (StartupUtils.isDebugSetting()) {

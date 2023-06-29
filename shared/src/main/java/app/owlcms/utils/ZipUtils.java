@@ -59,7 +59,7 @@ public class ZipUtils {
                     Path outputfilePath = target.resolve(name);
                     Files.createDirectories(outputfilePath.getParent());
                     Files.createFile(outputfilePath);
-                    logger.trace("writing {}",outputfilePath);
+                    logger.debug("writing {}",outputfilePath);
                     // write file
                     try (OutputStream targetStream = Files.newOutputStream(outputfilePath)) {
                         IOUtils.copy(archiveInputStream, targetStream);

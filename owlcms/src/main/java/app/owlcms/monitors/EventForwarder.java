@@ -1030,10 +1030,13 @@ public class EventForwarder implements BreakDisplay {
 				Supplier<byte[]> localZipBlobSupplier = ResourceWalker.getLocalZipBlobSupplier();
 				byte[] blob = null;
 				if (localZipBlobSupplier != null) {
-					logger.info("sending database blob");
+					logger.info("retrieving database config zip");
 					blob = localZipBlobSupplier.get();
-					if (blob.length == 0) {
+					if (blob != null && blob.length == 0) {
 						blob = null;
+						logger.info("zip blob empty");
+					} else {
+						logger.info("zip blob found");
 					}
 				}
 

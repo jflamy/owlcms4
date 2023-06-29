@@ -1143,9 +1143,9 @@ public class FieldOfPlay {
 		        cjRequest,
 		        totalRequest);
 		
-//		for (RecordEvent gr : groupRecords) {
-//			logger.debug("gr: {} {} {}", gr.getAgeGrp(), gr.getRecordName(), gr.getRecordFederation());
-//		}
+		for (RecordEvent gr : groupRecords) {
+			logger.debug("gr: {} {} {}", gr.getAgeGrp(), gr.getRecordName(), gr.getRecordFederation());
+		}
 		List<RecordEvent> jsonRecords;
 		if (showAllFederationRecords && showAllCategoryRecords) {
 			jsonRecords = new ArrayList<>(groupRecords);
