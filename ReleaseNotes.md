@@ -2,14 +2,15 @@
 
 *Beta release. For testing and translation. Test thoroughly if you intend to use it in a competition.*
 
-- 41.0.0-beta05:
-  - Partial fix for "show records for all categories in session" and "show records from all federations, eligible or not"
+- 41.0.0-beta06:
+  - Style sheets for results are again transmitted to publicresults. Note that currently flags and pictures are only usable when a `zip` file is used to package the local directory, and the zip file is included in the database.
 
+- 41.0.0-beta05:
+  - Fix for "show records for all categories in session" and "show records from all federations, eligible or not"
 - 41.0.0-beta04:
   - Styling adjustments to the attempt board to prevent items from moving slightly when records are attempted/improved.
   - Made the Protocol template use the overall Rank for the Total, same as the Snatch-CJ-Total template (instead of the current session ignoring the previous ones).
   - Small fix to prevent the countdown/decision display from randomly (and rarely) requiring a refresh.
-
 - 41.0.0-beta03:
   - The video overlay for highlighting events is now larger and centered.
     For video streaming, added a Video Overlay feature to display competition events such as Jury decisions, Challenges, Records, Technical Breaks, etc. on top of the video feed.  The Overlay is green background so that the video software can make the page transparent.  It is centered by default but you can move or crop the overlay to position it where you want.
@@ -43,11 +44,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_41.0.0-beta05.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_41.0.0-beta06.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_41.0.0-beta05.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_41.0.0-beta06.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
