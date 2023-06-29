@@ -18,7 +18,7 @@
         <mapEntry key="OWLCMS_PORT" value="8081"/>
         <mapEntry key="OWLCMS_REMOTE" value="http://localhost:8082/update"/>
         <mapEntry key="OWLCMS_RESETMODE" value="true"/>
-        <mapEntry key="OWLCMS_STYLESDIR" value="styles"/>
+        <mapEntry key="OWLCMS_STYLESDIR" value="simple"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="maryhadalittlelamb"/>
         <mapEntry key="_OWLCMS_DEBUG" value="false"/>
         <mapEntry key="_OWLCMS_DISPLAYPIN" value="dis"/>
