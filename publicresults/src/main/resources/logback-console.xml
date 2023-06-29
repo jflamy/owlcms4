@@ -29,6 +29,6 @@ Also used for certain cloud services (e.g. Heroku)
 	</root>
 	
     <!-- additional tracing/debugging (set level to DEBUG or TRACE) -->
-    <logger name="app.owlcms.utils.ResourceWalker" level="WARN" />
+    <logger name="app.owlcms.utils.ResourceWalker" level="DEBUG" />
 
 </configuration>
