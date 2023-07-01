@@ -844,6 +844,8 @@ public class EventForwarder implements BreakDisplay {
 		if (notDone) {
 			ja.put("classname", (liftOrderRank == 1 ? "current" + blink : (liftOrderRank == 2) ? "next" : ""));
 		}
+		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
+		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
 	}
 
 	/**
