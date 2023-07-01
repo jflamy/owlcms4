@@ -842,6 +842,32 @@ public class Athlete {
 			return mainCategory + "|" + eligiblesAsString;
 		}
 	}
+	
+	@Transient
+	@JsonIgnore
+	public String getEligibleCategoriesAsString() {
+		Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
+		String mainCategory = mrCat != null ? mrCat.getTranslatedName() : "";
+
+		String mainCategoryString = mainCategory;
+		if (mrCat != null && !getMainRankings().getTeamMember()) {
+			mainCategoryString = mainCategory + RAthlete.NoTeamMarker;
+		}
+
+		String eligiblesAsString = this.getParticipations().stream()
+		        .filter(p -> (p.getCategory() != mrCat))
+		        .sorted((a,b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
+		        .map(p -> {
+			        String catName = p.getCategory().getTranslatedName();
+			        return catName;
+		        })
+		        .collect(Collectors.joining(";"));
+		if (eligiblesAsString.isBlank()) {
+			return mainCategoryString;
+		} else {
+			return mainCategory + ";" + eligiblesAsString;
+		}
+	}
 
 	/**
 	 * Number of attempt 1..3, relative to current lift

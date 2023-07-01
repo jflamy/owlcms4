@@ -2,6 +2,9 @@
 
 *Release Candidate. Test thoroughly if you intend to use it in a competition.*
 
+- 41.0.0-rc02:
+  - Added a Start List templates that lists the eligible age groups, for multiple age group competitions.
+  
 - 41.0.0-rc01:
   - Style sheets for results are again transmitted to publicresults. 
   - Custom athlete information fields (custom1 and custom2) are now sent to the publicresults scoreboard
