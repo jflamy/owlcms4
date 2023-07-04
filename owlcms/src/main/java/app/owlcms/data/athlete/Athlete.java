@@ -806,6 +806,7 @@ public class Athlete {
 
 		String eligiblesAsString = this.getParticipations().stream()
 		        .filter(p -> (p.getCategory() != mrCat))
+		        .sorted((a,b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
 		        .map(p -> {
 			        String catName = p.getCategory().getComputedName();
 			        return catName + (!p.getTeamMember() ? RAthlete.NoTeamMarker : "");
@@ -831,6 +832,7 @@ public class Athlete {
 
 		String eligiblesAsString = this.getParticipations().stream()
 		        .filter(p -> (p.getCategory() != mrCat))
+		        .sorted((a,b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
 		        .map(p -> {
 			        String catName = p.getCategory().getTranslatedName();
 			        return catName + (!p.getTeamMember() ? RAthlete.NoTeamMarker : "");
@@ -1934,6 +1936,8 @@ public class Athlete {
 		return this.personalBestTotal;
 	}
 
+	@Transient
+	@JsonIgnore
 	public Double getPresumedBodyWeight() {
 		Double bodyWeight2 = getBodyWeight();
 		if (bodyWeight2 != null && bodyWeight2 >= 0) {
@@ -1943,6 +1947,16 @@ public class Athlete {
 			return category.getMaximumWeight();
 		}
 		return presumedBodyWeight;
+	}
+
+	@Transient
+	@JsonIgnore
+	public String getPresumedOpenCategory() {
+		Double bw = getPresumedBodyWeight();
+		if (bw != null && gender != null) {
+			return gender.asPublicGenderCode() + " " + Math.round(bw);
+		}
+		return "";
 	}
 
 	/**
@@ -2553,10 +2567,6 @@ public class Athlete {
 				s.add(p.getCategory().getAgeGroup());
 			}
 		}
-		// logger.trace("{}{} getEligibleCategories {} from {}",
-		// OwlcmsSession.getFopLoggingName(), this.getShortName(),
-		// s.toString(),
-		// LoggerUtils.whereFrom());
 		return s;
 	}
 
