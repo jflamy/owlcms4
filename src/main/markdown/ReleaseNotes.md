@@ -2,14 +2,9 @@
 
 *Release Candidate. Test thoroughly if you intend to use it in a competition.*
 
-- 41.0.0-rc02:
-  - Added a Start List templates that lists the eligible age groups, for multiple age group competitions.
-  
-- 41.0.0-rc01:
-  - Style sheets for results are again transmitted to publicresults. 
-  - Custom athlete information fields (custom1 and custom2) are now sent to the publicresults scoreboard
-  - Note that flags are not shown on the remote scoreboard.
-
+- Start lists
+  - Added a Start List template that lists the eligible age groups, for use multiple age group competitions.
+  - Added a Start List template that lists the athletes according to their bodyweight class.  This is used in multi-age competitions where athletes of a same weight class compete together and are not separated by age group.
 - For video streaming, added a Video Overlay feature to display competition events such as Jury decisions, Challenges, Records, Technical Breaks, etc. on top of the video feed.  The Overlay is green background so that the video software can make the page transparent.  It is centered by default but you can move or crop the overlay to position it where you want.
   Colors and styles are controlled by `video/eventmonitor.css`
 - In a 3-medal competition, the classification-order scoreboard now shows the clean & Jerk ranking when the snatch is over. It switches to the total when the group is done.  For a one-medal competition, the order switches to total as soon as C&J starts.
