@@ -683,7 +683,11 @@ public class Results extends PolymerTemplate<TemplateModel>
 				if (group != null && !group.isDone()) {
 					// logger.debug("updating top {} {} {}", a.getFullName(), group,
 					// System.identityHashCode(group));
-					this.getElement().setProperty("fullName", a.getFullName());
+					if (isAbbreviateNames() && (Config.getCurrent().featureSwitch("PanAm") ? isRecordsDisplay() : true)) {
+						this.getElement().setProperty("fullName", a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
+					} else {
+						this.getElement().setProperty("fullName", a.getFullName() != null ? a.getFullName() : "");
+					}
 					this.getElement().setProperty("teamName", a.getTeam());
 					this.getElement().setProperty("startNumber", a.getStartNumber());
 					String formattedAttempt = formatAttempt(a.getAttemptsDone());
@@ -730,7 +734,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 		String category;
 		category = curCat != null ? curCat.getTranslatedName() : "";
-		if (isAbbreviateNames()) {
+		if (isAbbreviateNames() && (Config.getCurrent().featureSwitch("PanAm") ? isRecordsDisplay() : true)) {
 			ja.put("fullName", a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
 		} else {
 			ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
