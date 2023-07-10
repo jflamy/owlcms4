@@ -2,6 +2,7 @@
 
 *Release Candidate. Test thoroughly if you intend to use it in a competition.*
 
+- Team membership: added a count column to the table, to help with checking if the number of athletes complies with competition rule.  Athletes not in team are sorted at the bottom.
 - Start lists
   - Added a Start List template that lists the eligible age groups, for use multiple age group competitions.
   - Added a Start List template that lists the athletes according to their bodyweight class.  This is used in multi-age competitions where athletes of a same weight class compete together and are not separated by age group.
