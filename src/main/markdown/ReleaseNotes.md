@@ -1,7 +1,5 @@
 41.0 Styling and Video streaming improvements.
 
-*Release Candidate. Test thoroughly if you intend to use it in a competition.*
-
 - Team membership: added a count column to the table, to help with checking if the number of athletes complies with competition rule.  Athletes not in team are sorted at the bottom.
 - Start lists
   - Added a Start List template that lists the eligible age groups, for use multiple age group competitions.
