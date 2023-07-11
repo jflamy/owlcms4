@@ -1,4 +1,8 @@
-41.0 Styling and Video streaming improvements.
+41.0.1	Team Competition bug fix
+
+- In the final package, if several age groups competed in the same session, the rank used for *total* points the total was the rank in the session and not the rank in the age group.
+
+41.0.0	Styling, Streaming and Miscellaneous improvements
 
 - Team membership: added a count column to the table, to help with checking if the number of athletes complies with competition rule.  Athletes not in team are sorted at the bottom.
 - Start lists
