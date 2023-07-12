@@ -12,7 +12,7 @@
         <mapEntry key="OWLCMS_CSSEDIT" value="false"/>
         <mapEntry key="OWLCMS_PORT" value="8080"/>
         <mapEntry key="OWLCMS_REMOTE" value="http://127.0.0.1:8082/update"/>
-        <mapEntry key="OWLCMS_STYLESDIR" value="transparent"/>
+        <mapEntry key="OWLCMS_STYLESDIR" value="simple"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="maryhadalittlelamb"/>
         <mapEntry key="OWLCMS_USECOMPETITIONDATE" value="true"/>
         <mapEntry key="_JDBC_DATABASE_URL" value="jdbc:h2:file:./database/scolaire.mv.db"/>
