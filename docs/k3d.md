@@ -109,7 +109,7 @@ In order to update the application, repeat the installation step, but
 - The latest release can always be reached using this format (note that the download part is inverted relative to the revision name for some unfathomable reason)
 
   ```bash
-  curl -sfL https://github.com/owlcms/owlcms4-prerelease/releases/latest/download/k3d_setup.yaml | envsubst | kubectl apply -f - 
+  curl -sfL https://github.com/owlcms/owlcms4/releases/latest/download/k3d_setup.yaml | envsubst | kubectl apply -f - 
   ```
 
 ## Install Lens as Kubernetes Management Tool
