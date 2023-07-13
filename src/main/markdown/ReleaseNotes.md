@@ -1,3 +1,8 @@
+41.0.2
+
+- Streaming-oriented scoreboards did not display the flags. Missing entries added to the style sheets.
+- The session information is reloaded systematically from the database before producing a report. This is a brute force attempt to fix an issue (non-reproducible by the author)  whereby referees added to a session don't appear on the starting weights or result sheets.
+
 41.0.1	Team Competition bug fix
 
 - In the final package, if several age groups competed in the same session, the rank used for *total* points the total was the rank in the session and not the rank in the age group.
