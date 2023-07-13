@@ -1,7 +1,8 @@
 41.0.2
 
-- Streaming-oriented scoreboards did not display the flags. Missing entries added to the style sheets.
-- The session information is reloaded systematically from the database before producing a report. This is a brute force attempt to fix an issue (non-reproducible by the author)  whereby referees added to a session don't appear on the starting weights or result sheets.
+- Streaming-oriented scoreboards did not display the flags. Missing entries were added to the style sheets.
+- The session information is reloaded systematically from the database before producing a report. This is a brute-force fix for an issue (not reproduced by the author)  whereby it is reported that referees added to a session don't appear on the starting weights or result sheets.
+- The timekeeper was not shown on the Official's schedule (Pre-Competition Documents)
 
 41.0.1	Team Competition bug fix
 
