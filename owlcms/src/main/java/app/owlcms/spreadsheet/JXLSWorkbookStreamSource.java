@@ -157,7 +157,12 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 	}
 
 	public Group getGroup() {
-		return group;
+		if (group != null) {
+			Group nGroup = GroupRepository.getById(group.getId());
+			return nGroup;
+		} else {
+			return null;
+		}
 	}
 
 	public HashMap<String, Object> getReportingBeans() {
@@ -337,7 +342,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 		getReportingBeans().put("competition", competition);
 		getReportingBeans().put("session", getGroup()); // legacy
 		getReportingBeans().put("group", getGroup());
-		
+
 		// reuse existing logic for processing records
 		JXLSExportRecords jxlsExportRecords = new JXLSExportRecords(null);
 		jxlsExportRecords.setGroup(getGroup());
@@ -349,7 +354,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 		} catch (Exception e) {
 			// no records
 		}
-		
+
 		getReportingBeans().put("masters", Competition.getCurrent().isMasters());
 		getReportingBeans().put("groups", GroupRepository.findAll().stream().sorted((a, b) -> {
 			int compare = ObjectUtils.compare(a.getWeighInTime(), b.getWeighInTime(), true);
