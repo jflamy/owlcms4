@@ -1,40 +1,19 @@
-41.0.2
+42.0.0
 
-- Streaming-oriented scoreboards did not display the flags. Missing entries were added to the style sheets.
-- The session information is reloaded systematically from the database before producing a report. This is a brute-force fix for an issue (not reproduced by the author)  whereby it is reported that referees added to a session don't appear on the starting weights or result sheets.
-- The timekeeper was not shown on the Official's schedule (Pre-Competition Documents)
-
-41.0.1	Team Competition bug fix
-
-- In the final package, if several age groups competed in the same session, the rank used for *total* points the total was the rank in the session and not the rank in the age group.
-
-41.0.0	Styling, Streaming and Miscellaneous improvements
-
-- Team membership: added a count column to the table, to help with checking if the number of athletes complies with competition rule.  Athletes not in team are sorted at the bottom.
-- Start lists
-  - Added a Start List template that lists the eligible age groups, for use multiple age group competitions.
-  - Added a Start List template that lists the athletes according to their bodyweight class.  This is used in multi-age competitions where athletes of a same weight class compete together and are not separated by age group.
-- For video streaming, added a Video Overlay feature to display competition events such as Jury decisions, Challenges, Records, Technical Breaks, etc. on top of the video feed.  The Overlay is green background so that the video software can make the page transparent.  It is centered by default but you can move or crop the overlay to position it where you want.
-  Colors and styles are controlled by `video/eventmonitor.css`
-- In a 3-medal competition, the classification-order scoreboard now shows the clean & Jerk ranking when the snatch is over. It switches to the total when the group is done.  For a one-medal competition, the order switches to total as soon as C&J starts.
-- Several changes to CSS Styling
-  - Medal colors are highlighted on the Medal displays.
-  - Team flags are shown on the scoreboard
-  - Automatic team name sizing on the scoreboard allows the use "auto" or "minmax" CSS grid column sizes.
-  - When the leaders are hidden, the space can be used for additional athletes on the main scoreboard.
-  - Styling adjustments to the attempt board to prevent items from moving slightly when records are attempted/improved.
-  - The CSS styling for the "Current Athlete" bottom banner allows long names for the lifts and the rank.
-  - When running locally, the variable OWLCMS_STYLESDIR indicates what directory contains the style sheets.  The default value is "styles". This makes it easier to create and test alternate visual styles.
-- Records display: The "show records for all categories in session" and "show records from all federations, eligible or not" checkboxes now do what they should.
-- Made the Protocol template use the overall Rank for the Total, same as the Snatch-CJ-Total template (instead of the current session ignoring the previous ones).
-- Small fix to prevent the countdown/decision display from randomly (and rarely) requiring a refresh.
-- Added an extra column on the registration data export to show the athlete's weight class. This allows sorting athletes by weight class and entry total more easily when allocating athletes to groups.
-- Reorganized the buttons on the Display Selection and Video Streaming pages to be more logical
-- Special Characters (such as Alt-Enter) are removed when reading Excel registration data
+- Correct processing when Alt-Enter is used to create line breaks in Excel registration data for the custom1 and custom2 fields.
 
 ##### Highlights from recent stable releases
 
-- Flags are shown on the medals display when a single category is shown.
+- Start lists
+  - Added a Start List template that lists the eligible age groups, for use multiple age group competitions.
+  - Added a Start List template that lists the athletes according to their bodyweight class.  This is used in multi-age competitions where athletes of a same weight class compete together and are not separated by age group.
+- Improved styling
+  - Medal colors are highlighted on the Medal displays.
+  - Team flags are shown on the scoreboard
+  - Flags are shown on the medals display when a single category is shown
+
+- For video streaming, added a Video Overlay feature to display competition events such as Jury decisions, Challenges, Records, Technical Breaks, etc. on top of the video feed.
+
 - New session scoreboard for current rankings
 - A new Records Management page has been added, reachable from the preparation page.
   - Record definition files can be uploaded interactively 
