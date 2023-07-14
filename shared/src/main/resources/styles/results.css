@@ -60,7 +60,6 @@
     /* background-color:white; */
     background-size: contain;
     background-repeat: no-repeat;
-
     width: 70px;
     height: 75px;
     background-position: center;
@@ -338,6 +337,15 @@ table.results tr td.club div.ellipsis {
     visibility: var(--custom2Visibility);
 }
 
+td.custom1 div {
+    white-space: pre-wrap;
+    text-align: center;
+}
+td.custom2 div {
+    white-space: pre-wrap;
+    text-align: center;
+}
+
 :host(.dark) table.results tr td.sinclair,
 :host(.dark) table.results tr th.sinclair {
     background-color: var(--darkBackgroundColor);
@@ -557,47 +565,6 @@ table {
         var(--sinclairRankWidth);
 }
 
-/* grid layout */
-table.medals {
-    /* do not use all available vertical space */
-    flex: 0;
-    display: grid;
-    border-collapse: collapse;
-    grid-template-columns:
-        /* group */
-        var(--startWidth)
-        /* name */
-        minmax(50px, var(--nameWidth))
-        /* category */
-        var(--categoryWidth)
-        /* birth */
-        var(--birthWidth)
-        /* custom fields */
-        var(--custom1Width) var(--custom2Width)
-        /* team name */
-        minmax(50px, var(--clubWidth))
-        /* snatch results */
-        var(--spacerWidth)
-        repeat(3, var(--liftResultWidth))
-        var(--bestWidth)
-        /* one snatch rank per category */
-        repeat(var(--nbRanks), var(--rankWidth))
-        /* clean&jerk */
-        var(--spacerWidth)
-        repeat(3, var(--liftResultWidth))
-        var(--bestWidth)
-        /* one snatch rank per category */
-        repeat(var(--nbRanks), var(--rankWidth))
-        /* total */
-        var(--spacerWidth)
-        repeat(1, var(--liftResultWidth))
-        /* one total rank per category */
-        repeat(var(--nbRanks), var(--totalRankWidth))
-        /* sinclair result */
-        var(--sinclairWidth)
-        /* sinclair ranks */
-        var(--sinclairRankWidth);
-}
 
 thead,
 tbody,
@@ -1045,3 +1012,4 @@ div.ellipsis {
 .recordNotification.none {
     z-index: -10;
 }
+

@@ -57,9 +57,9 @@
     justify-content: center;
     flex-grow: 0;
     background-image: url('../../logos/left.png');
+    /* background-color:white; */
     background-size: contain;
     background-repeat: no-repeat;
-    /* background-color:white; */
     width: 70px;
     height: 75px;
     background-position: center;
@@ -278,13 +278,16 @@ table.results tr td.club div.ellipsis {
 }
 
 /* group */
-:host(.light) table.results tr td.groupCol {
+:host(.light) table.results tr td.groupCol,
+:host(.light) table.results th td.groupCol  {
     background-color: var(--lightStartBackgroundColor);
     color: var(--lightStartTextColor);
     visibility: var(--startVisibility);
 }
 
-:host(.dark) table.results tr td.groupCol {
+:host(.dark) table.results tr td.groupCol,
+:host(.dark) table.results th td.groupCol
+ {
     background-color: var(--darkStartBackgroundColor);
     color: var(--darkStartTextColor);
     visibility: var(--startVisibility);
@@ -332,6 +335,15 @@ table.results tr td.club div.ellipsis {
     background-color: var(--lightBackgroundColor);
     color: var(--lightTextColor);
     visibility: var(--custom2Visibility);
+}
+
+td.custom1 div {
+    white-space: pre-wrap;
+    text-align: center;
+}
+td.custom2 div {
+    white-space: pre-wrap;
+    text-align: center;
 }
 
 :host(.dark) table.results tr td.sinclair,

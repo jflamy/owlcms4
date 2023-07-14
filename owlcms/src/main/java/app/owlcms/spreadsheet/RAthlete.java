@@ -140,16 +140,16 @@ public class RAthlete {
 	}
 
 	public void setCustom1(String s) {
-		if (s != null) {
-			s = CharMatcher.javaIsoControl().removeFrom(s);
-		}
+//		if (s != null) {
+//			s = CharMatcher.javaIsoControl().removeFrom(s);
+//		}
 		a.setCustom1(s);
 	}
 
 	public void setCustom2(String s) {
-		if (s != null) {
-			s = CharMatcher.javaIsoControl().removeFrom(s);
-		}
+//		if (s != null) {
+//			s = CharMatcher.javaIsoControl().removeFrom(s);
+//		}
 		a.setCustom2(s);
 	}
 
