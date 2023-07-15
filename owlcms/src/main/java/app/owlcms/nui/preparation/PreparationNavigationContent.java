@@ -19,6 +19,7 @@ import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -95,6 +96,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		doGroup(getTranslation("Registration"), grid2, this);
 
 		Button athletes = openInNewTabNoParam(RegistrationContent.class, getTranslation("EditAthletes"));
+		athletes.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
 		Button teams = openInNewTabNoParam(TeamSelectionContent.class, getTranslation(TeamSelectionContent.TITLE));
 		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes, teams, exportDiv);
 		doGroup(getTranslation("EditAthletes_Groups"), grid3, this);
