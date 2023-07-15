@@ -1,6 +1,7 @@
 42.0.0
 
-- Correct processing when Alt-Enter is used to create line breaks in Excel registration data for the custom1 and custom2 fields.
+- Changed the English, French and Spanish translations. The English word "Session" is used to designate the period of time where athletes lift.  The word "Group" designates A/B/C subsets of a category, for example "Women SR 64B" is a group -- a session can have one or more groups. Took into account that European French and Continental Spanish use different words than their America counterparts.
+- Accept and display line breaks in the custom1 and custom2 fields.  Currently the only way to create line breaks is to use Alt-Enter in Excel.
 
 ##### Highlights from recent stable releases
 
