@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.displays.attemptboard;
 
+import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -16,6 +17,9 @@ import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.lifting.UIEventProcessor;
+import app.owlcms.uievents.UIEvent;
+import app.owlcms.uievents.UIEvent.DecisionReset;
 
 @SuppressWarnings("serial")
 @Tag("decision-board-template")
@@ -62,6 +66,7 @@ public class PublicFacingDecisionBoard extends AttemptBoard {
 		decisions.setPublicFacing(true);
 		setPublicFacing(true);
 		setShowBarbell(false);
+		decisions.setDontReset(true);
 		setSilenced(isSilencedByDefault());
 	}
 	
@@ -74,5 +79,34 @@ public class PublicFacingDecisionBoard extends AttemptBoard {
 		this.getElement().setProperty("inactiveClass", (inactive ? "bigTitle" : ""));
 		this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
 	}
+	
+	@Subscribe
+	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> syncWithFOP(OwlcmsSession.getFop()));
+	}
+	
+	@Subscribe
+	@Override
+	public void slaveDecisionReset(DecisionReset e) {
+		// do nothing.  Wait for new clock.
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+		        this.getOrigin(), e.getOrigin());
+		this.getElement().setProperty("hideBecauseDecision", "hideBecauseDecision");
+	}
 
+	@Subscribe
+	@Override
+	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
+		// do nothing.  Wait for new clock.
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+		        this.getOrigin(), e.getOrigin());
+		this.getElement().setProperty("hideBecauseDecision", "hideBecauseDecision");
+	}
+	
+	@Subscribe
+	public void slaveEvent(UIEvent e) {
+		// do nothing.  Wait for new clock.
+		uiEventLogger.debug("*** {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+		        this.getOrigin(), e.getOrigin());
+	}
 }

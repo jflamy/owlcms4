@@ -85,8 +85,8 @@ import elemental.json.JsonObject;
 public class AttemptBoard extends PolymerTemplate<TemplateModel> implements DisplayParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin, VideoOverride {
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	protected final static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
+	protected final static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
 	static {
 		logger.setLevel(Level.INFO);
@@ -114,7 +114,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 	private UI locationUI;
 	private Plates plates;
 	private boolean silenced = true;
-	private EventBus uiEventBus;
+	protected EventBus uiEventBus;
 	private Timer dialogTimer;
 	private boolean publicFacing;
 	private boolean showBarbell;
@@ -398,6 +398,8 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 
 	@Subscribe
 	public void slaveDecision(UIEvent.Decision e) {
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+		        this.getOrigin(), e.getOrigin());
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			spotlightRecords(OwlcmsSession.getFop(), e.getAthlete());
 		});
@@ -408,13 +410,6 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
 		UIEventProcessor.uiAccess(athleteTimer, uiEventBus, () -> syncWithFOP(OwlcmsSession.getFop()));
-//		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-//			if (isDone()) {
-//				doDone(e.getAthlete().getGroup());
-//			} else {
-//				this.getElement().callJsFunction("reset");
-//			}
-//		});
 	}
 
 	/**
@@ -488,6 +483,8 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 
 	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+		        this.getOrigin(), e.getOrigin());
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
 			FOPState state = fop.getState();
 			uiEventLogger.debug("### {} {} isDisplayToggle={}", state, this.getClass().getSimpleName(),
@@ -865,7 +862,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		return translation;
 	}
 
-	private Object getOrigin() {
+	protected Object getOrigin() {
 		return this;
 	}
 
@@ -956,7 +953,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		}
 	}
 
-	private void syncWithFOP(FieldOfPlay fop) {
+	protected void syncWithFOP(FieldOfPlay fop) {
 		// sync with current status of FOP
 		if (fop.getState() == FOPState.INACTIVE && fop.getCeremonyType() == null) {
 			doEmpty();

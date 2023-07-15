@@ -46,40 +46,11 @@ public class DecisionElement extends PolymerTemplate<TemplateModel>
 	protected EventBus fopEventBus;
 	protected EventBus uiEventBus;
 	private boolean silenced;
-//    private Boolean prevRef1;
-//    private Boolean prevRef2;
-//    private Boolean prevRef3;
-//    private MqttAsyncClient client;
 	private boolean juryMode;
+	private boolean dontReset;
 
 	public DecisionElement() {
-//        if (isMqttDecisions()) {
-//            try {
-//                client = MQTTMonitor.createMQTTClient(OwlcmsSession.getFop());
-//                String userName = StartupUtils.getStringParam("mqttUserName");
-//                String password = StartupUtils.getStringParam("mqttPassword");
-//                MqttConnectOptions connOpts = setUpConnectionOptions(userName != null ? userName : "",
-//                        password != null ? password : "");
-//                ;
-//                client.connect(connOpts).waitForCompletion();
-//            } catch (MqttException e) {
-//            }
-//        }
 	}
-
-//    private MqttConnectOptions setUpConnectionOptions(String username, String password) {
-//        MqttConnectOptions connOpts = new MqttConnectOptions();
-//        connOpts.setCleanSession(true);
-//        if (username != null) {
-//            connOpts.setUserName(username);
-//        }
-//        if (password != null) {
-//            connOpts.setPassword(password.toCharArray());
-//        }
-//        connOpts.setCleanSession(true);
-//        // connOpts.setAutomaticReconnect(true);
-//        return connOpts;
-//    }
 
 	/**
 	 * @return the silenced
@@ -108,46 +79,13 @@ public class DecisionElement extends PolymerTemplate<TemplateModel>
 			if (!fopName.contentEquals(fop.getName())) {
 				return;
 			}
-			// logger.debug("master referee update {} ({} {} {})", fop.getCurAthlete(),
-			// ref1, ref2, ref3, ref1Time,
-			// ref2Time, ref3Time);
-//            if (isMqttDecisions()) {
-//                if (ref1 != null && prevRef1 != ref1) {
-//                    // logger.debug("update 1 {}", ref1);
-//                    mqttPublish("owlcms/decision/A", "1 " + (ref1 ? "good" : "bad"));
-//                    prevRef1 = ref1;
-//                }
-//                if (ref2 != null && prevRef2 != ref2) {
-//                    // logger.debug("update 2 {}", ref2);
-//                    mqttPublish("owlcms/decision/A", "2 " + (ref2 ? "good" : "bad"));
-//                    prevRef2 = ref2;
-//                }
-//                if (ref3 != null && prevRef3 != ref3) {
-//                    // logger.debug("update 3 {}", ref3);
-//                    mqttPublish("owlcms/decision/A", "3 " + (ref3 ? "good" : "bad"));
-//                    prevRef3 = ref3;
-//                }
-//            } else {
 			fop.fopEventPost(
 			        new FOPEvent.DecisionFullUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3,
 			                Long.valueOf(ref1Time),
 			                Long.valueOf(ref2Time), Long.valueOf(ref3Time), false));
-//            }
 		});
 
 	}
-
-//    private void mqttPublish(String topic, String message) {
-//        try {
-//            client.publish(topic, new MqttMessage(message.getBytes(StandardCharsets.UTF_8)));
-//        } catch (MqttException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-
-//    private boolean isMqttDecisions() {
-//        return Config.getCurrent().featureSwitch("mqttDecisions");
-//    }
 
 	@ClientCallable
 	/**
@@ -161,9 +99,6 @@ public class DecisionElement extends PolymerTemplate<TemplateModel>
 	 */
 	public void masterShowDown(String fopName, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
 		Object origin = this.getOrigin();
-		// logger.debug("=== master {} down: decision={} ({} {} {})", origin,
-		// decision.getClass().getSimpleName(), ref1,
-		// ref2, ref3);
 		OwlcmsSession.getFop().fopEventPost(new FOPEvent.DownSignal(origin));
 	}
 
@@ -181,6 +116,14 @@ public class DecisionElement extends PolymerTemplate<TemplateModel>
 		getElement().setProperty("silent", b);
 		silenced = b;
 	}
+	
+	public boolean isDontReset() {
+		return dontReset;
+	}
+
+	public void setDontReset(boolean dontReset) {
+		this.dontReset = dontReset;
+	}
 
 	@Subscribe
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
@@ -192,11 +135,11 @@ public class DecisionElement extends PolymerTemplate<TemplateModel>
 
 	@Subscribe
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
+		if (isDontReset()) {
+			return;
+		}
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
 			getElement().callJsFunction("reset", false);
-//            prevRef1 = null;
-//            prevRef2 = null;
-//            prevRef3 = null;
 		});
 	}
 
@@ -221,9 +164,6 @@ public class DecisionElement extends PolymerTemplate<TemplateModel>
 	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
 			getElement().callJsFunction("reset", false);
-//            prevRef1 = null;
-//            prevRef2 = null;
-//            prevRef3 = null;
 		});
 	}
 
