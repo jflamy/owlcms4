@@ -121,7 +121,7 @@ public class Competition {
 			}
 		}
 	}
-	
+
 	public static void splitPTeamMembersByGender(List<Athlete> athletes, List<Athlete> men, List<Athlete> women) {
 		for (Athlete l : athletes) {
 			if (!l.isTeamMember()) {
@@ -223,15 +223,11 @@ public class Competition {
 
 	/**
 	 * Idiosyncratic rule in Québec federation computes best lifter using Sinclair
-	 * at bodyweight boundary.
+	 * at body weight boundary.
 	 */
 	@Column(columnDefinition = "boolean default false")
 	private boolean useCategorySinclair = false;
 
-	/**
-	 * Idiosyncratic rule in Québec federation computes best lifter using Sinclair
-	 * at bodyweight boundary.
-	 */
 	@Column(columnDefinition = "integer default 2024")
 	private int sinclairYear = 2024;
 
@@ -253,8 +249,27 @@ public class Competition {
 
 	@Column(columnDefinition = "boolean default false")
 	private boolean sinclairMeet;
+
 	@Column(columnDefinition = "integer default 3")
 	private Integer jurySize = 3;
+
+	@Column(columnDefinition = "integer default 6")
+	private Integer longerBreakMax = 6;
+
+	@Column(columnDefinition = "integer default 10")
+	private Integer longerBreakDuration = 10;
+
+	@Column(columnDefinition = "integer default 9")
+	private Integer shorterBreakMin = 10;
+
+	@Column(columnDefinition = "integer default 10")
+	private Integer shorterBreakDuration = 10;
+	
+	@Column(columnDefinition = "integer default 2")
+	private Integer sameTeamPerCategory = 2;
+	
+	@Column(columnDefinition = "integer default 10")
+	private Integer teamSize = 10;
 
 	@Transient
 	@JsonIgnore
@@ -263,7 +278,9 @@ public class Competition {
 	private String categoriesListTemplateFileName;
 
 	private String officialsListTemplateFileName;
+
 	private String teamsListTemplateFileName;
+
 	private String recordOrder;
 
 	public Competition() {
@@ -280,14 +297,6 @@ public class Competition {
 		return computeMedals(g, rankedAthletes);
 	}
 
-	public TreeSet<Athlete> computeMedalsForCategory(Category category) {
-		// brute force - reuse what works
-		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(null);
-		TreeSet<Athlete> treeSet = computeMedalsByCategory(rankedAthletes).get(category);
-		//logger.debug("computeMedalsForCategory {}",treeSet);
-		return treeSet;
-	}
-
 	/**
 	 * @param g
 	 * @param rankedAthletes athletes participating in the group, plus athletes in
@@ -296,8 +305,8 @@ public class Competition {
 	 *         and total.
 	 */
 	public TreeMap<Category, TreeSet<Athlete>> computeMedals(Group g, List<Athlete> rankedAthletes
-			//,	        boolean onlyFinished
-	        ) {
+	// , boolean onlyFinished
+	) {
 		if (g == null) {
 			return new TreeMap<>();
 		}
@@ -317,15 +326,15 @@ public class Competition {
 	}
 
 	public TreeMap<Category, TreeSet<Athlete>> computeMedalsByCategory(List<Athlete> rankedAthletes
-			//,	        boolean onlyFinished
-	        ) {
+	// , boolean onlyFinished
+	) {
 		// extract all categories
 		Set<Category> medalCategories = rankedAthletes.stream()
 		        .map(a -> a.getEligibleCategories())
 		        .flatMap(Collection::stream)
 		        .collect(Collectors.toSet());
 
-		//onlyFinishedCategories(rankedAthletes, onlyFinished, medalCategories);
+		// onlyFinishedCategories(rankedAthletes, onlyFinished, medalCategories);
 
 		TreeMap<Category, TreeSet<Athlete>> medals = new TreeMap<>();
 
@@ -347,14 +356,14 @@ public class Competition {
 			// all rankings are from a PAthlete, i.e., for the current medal category
 			List<Athlete> snatchLeaders = null;
 			List<Athlete> cjLeaders = null;
-			//if (isSnatchCJTotalMedals()) {
-				snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
-				        .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
-				        .collect(Collectors.toList());
-				cjLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.CLEANJERK)
-				        .stream().filter(a -> a.getBestCleanJerk() > 0 && a.isEligibleForIndividualRanking())
-				        .collect(Collectors.toList());
-			//}
+			// if (isSnatchCJTotalMedals()) {
+			snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
+			        .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
+			        .collect(Collectors.toList());
+			cjLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.CLEANJERK)
+			        .stream().filter(a -> a.getBestCleanJerk() > 0 && a.isEligibleForIndividualRanking())
+			        .collect(Collectors.toList());
+			// }
 			List<Athlete> totalLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.TOTAL)
 			        .stream().filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
 			        .collect(Collectors.toList());
@@ -363,10 +372,10 @@ public class Competition {
 			// add them
 			TreeSet<Athlete> medalists = new TreeSet<>(new WinningOrderComparator(Ranking.TOTAL, false));
 			medalists.addAll(totalLeaders);
-			//if (isSnatchCJTotalMedals()) {
-				medalists.addAll(cjLeaders);
-				medalists.addAll(snatchLeaders);
-			//}
+			// if (isSnatchCJTotalMedals()) {
+			medalists.addAll(cjLeaders);
+			medalists.addAll(snatchLeaders);
+			// }
 			medals.put(category, medalists);
 
 //            logger.debug("medalists for {}", category);
@@ -376,6 +385,14 @@ public class Competition {
 //            }
 		}
 		return medals;
+	}
+
+	public TreeSet<Athlete> computeMedalsForCategory(Category category) {
+		// brute force - reuse what works
+		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(null);
+		TreeSet<Athlete> treeSet = computeMedalsByCategory(rankedAthletes).get(category);
+		// logger.debug("computeMedalsForCategory {}",treeSet);
+		return treeSet;
 	}
 
 	synchronized public HashMap<String, Object> computeReportingInfo() {
@@ -513,10 +530,6 @@ public class Competition {
 		return categoriesListTemplateFileName;
 	}
 
-//    synchronized public List<Athlete> getGlobalTotalRanking(Gender gender) {
-//        return getListOrElseRecompute(gender == Gender.F ? "wTot" : "mTot");
-//    }
-
 	/**
 	 * Gets the result template file name.
 	 *
@@ -607,6 +620,10 @@ public class Competition {
 		}
 		return teamsListTemplateFileName;
 	}
+
+//    synchronized public List<Athlete> getGlobalTotalRanking(Gender gender) {
+//        return getListOrElseRecompute(gender == Gender.F ? "wTot" : "mTot");
+//    }
 
 	/**
 	 * Gets the federation.
@@ -732,6 +749,14 @@ public class Competition {
 		}
 	}
 
+	public Integer getLongerBreakDuration() {
+		return longerBreakDuration;
+	}
+
+	public Integer getLongerBreakMax() {
+		return longerBreakMax;
+	}
+
 	/**
 	 * Gets the masters.C
 	 *
@@ -752,18 +777,19 @@ public class Competition {
 			        .filter(k -> {
 				        TreeSet<Athlete> athletes = m.get(k);
 				        if (athletes.isEmpty()) {
-				        	return true; // remove from list.
+					        return true; // remove from list.
 				        }
-				        //logger.debug("athletes {} {}",k, athletes);
-				        // category includes an athlete that has not finished, mark it as "to be removed"
+				        // logger.debug("athletes {} {}",k, athletes);
+				        // category includes an athlete that has not finished, mark it as "to be
+				        // removed"
 				        boolean anyMatch = athletes.stream()
 				                .anyMatch(a -> a.getSnatch3AsInteger() == null || a.getCleanJerk3AsInteger() == null);
-				        //logger.debug("category {} has finished {}", k, !anyMatch);
-						return anyMatch;
+				        // logger.debug("category {} has finished {}", k, !anyMatch);
+				        return anyMatch;
 			        })
 			        .collect(Collectors.toList());
-			//logger.debug("notFinished {}",toRemove);
-			for (Category notFinished: toRemove) {
+			// logger.debug("notFinished {}",toRemove);
+			for (Category notFinished : toRemove) {
 				m.remove(notFinished);
 			}
 		}
@@ -792,6 +818,10 @@ public class Competition {
 		return protocolTemplateFileName;
 	}
 
+	public String getRecordOrder() {
+		return recordOrder;
+	}
+
 	public int getRefereeWakeUpDelay() {
 		return refereeWakeUpDelay;
 	}
@@ -800,6 +830,14 @@ public class Competition {
 	@JsonIgnore
 	public HashMap<String, Object> getReportingBeans() {
 		return reportingBeans;
+	}
+
+	public Integer getShorterBreakDuration() {
+		return shorterBreakDuration;
+	}
+
+	public Integer getShorterBreakMin() {
+		return shorterBreakMin;
 	}
 
 	public int getSinclairYear() {
@@ -871,6 +909,10 @@ public class Competition {
 			setFixedOrder(true);
 		}
 		return fixedOrder;
+	}
+
+	public boolean isGenderInclusive() {
+		return Config.getCurrent().featureSwitch("genderInclusive");
 	}
 
 	public boolean isGenderOrder() {
@@ -1072,34 +1114,6 @@ public class Competition {
 		this.finalPackageTemplateFileName = finalPackageTemplateFileName;
 	}
 
-//    private String doFindFinalPackageTemplateFileName(String absoluteRoot) {
-//        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
-//                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
-//        for (Resource r : resourceList) {
-//            logger.trace("checking {}", r.getFilePath());
-//            if (this.isMasters() && r.getFileName().startsWith("Masters")) {
-//                return r.getFileName();
-//            } else if (r.getFileName().startsWith("Total")) {
-//                return r.getFileName();
-//            }
-//        }
-//        throw new RuntimeException("final package templates not found under " + absoluteRoot);
-//    }
-
-//    private String doFindProtocolFileName(String absoluteRoot) {
-//        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
-//                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
-//        for (Resource r : resourceList) {
-//            logger.trace("checking {}", r.getFilePath());
-//            if (this.isMasters() && r.getFileName().startsWith("Masters")) {
-//                return r.getFileName();
-//            } else if (r.getFileName().startsWith("Protocol")) {
-//                return r.getFileName();
-//            }
-//        }
-//        throw new RuntimeException("result templates not found under " + absoluteRoot);
-//    }
-
 	public void setFixedOrder(boolean fixedOrder) {
 		this.fixedOrder = fixedOrder;
 	}
@@ -1125,6 +1139,14 @@ public class Competition {
 	}
 
 	public void setLocalizedCompetitionDate(String ignored) {
+	}
+
+	public void setLongerBreakDuration(Integer longerBreakDuration) {
+		this.longerBreakDuration = longerBreakDuration;
+	}
+
+	public void setLongerBreakMax(Integer longerBreakMax) {
+		this.longerBreakMax = longerBreakMax;
 	}
 
 	public void setMasters(boolean masters) {
@@ -1160,12 +1182,24 @@ public class Competition {
 		this.rankingsInvalid = invalid;
 	}
 
+	public void setRecordOrder(String recordOrder) {
+		this.recordOrder = recordOrder;
+	}
+
 	public void setRefereeWakeUpDelay(int refereeWakeUpDelay) {
 		this.refereeWakeUpDelay = refereeWakeUpDelay;
 	}
 
 	public void setRoundRobinOrder(boolean roundRobinOrder) {
 		this.roundRobinOrder = roundRobinOrder;
+	}
+
+	public void setShorterBreakDuration(Integer shorterBreakDuration) {
+		this.shorterBreakDuration = shorterBreakDuration;
+	}
+
+	public void setShorterBreakMin(Integer shorterBreakMin) {
+		this.shorterBreakMin = shorterBreakMin;
 	}
 
 	public void setSimulation(boolean b) {
@@ -1482,8 +1516,9 @@ public class Competition {
 		reportingBeans.put("nbMen", sortedMen.size());
 		reportingBeans.put("nbWomen", sortedWomen.size());
 		reportingBeans.put("nbAthletes", sortedAthletes.size());
-		logger.debug("sortedMen {} sortedWomen {} sortedCombined {}",sortedMen.size(), sortedWomen.size(), sortedAthletes.size());
-		
+		logger.debug("sortedMen {} sortedWomen {} sortedCombined {}", sortedMen.size(), sortedWomen.size(),
+		        sortedAthletes.size());
+
 		// extract club lists
 		TreeSet<String> teams = new TreeSet<>();
 		for (Athlete curAthlete : sortedAthletes) {
@@ -1621,18 +1656,6 @@ public class Competition {
 		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.SMM);
 
 		reportSMF(sortedMen, sortedWomen);
-	}
-
-	public boolean isGenderInclusive() {
-		return Config.getCurrent().featureSwitch("genderInclusive");
-	}
-
-	public String getRecordOrder() {
-		return recordOrder;
-	}
-
-	public void setRecordOrder(String recordOrder) {
-		this.recordOrder = recordOrder;
 	}
 
 }

@@ -389,11 +389,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 		ce.add(label("PublicMsg.Medals"), groupCategorySelectionMenu);
 		ce.add(medalButtons);
 
-//        Hr hr = new Hr();
-//        hr.getElement().setAttribute("style", "margin-top: 2ex");
-//        Label label = label("DisplayType.Title");
-//        ce.add(hr, label);
-//        ce.add(dt);
 		return ce;
 	}
 
@@ -453,31 +448,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
 		return cd;
 	}
-
-//    private void createAttemptBoardInfoSelection() {
-//        dt = new HorizontalLayout();
-//        athleteButton = new Button(
-//                getTranslation("DisplayType.LIFT_INFO"), (e) -> {
-//                    OwlcmsSession.withFop(fop -> {
-//                        fop.recomputeLiftingOrder(true, false);
-//                        fop.uiDisplayCurrentAthleteAndTime(false, new FOPEvent(null, this), true);
-//                    });
-//                });
-//        athleteButton.setTabIndex(-1);
-//        countdownButton = new Button(
-//                getTranslation("DisplayType.COUNTDOWN_INFO"), (e) -> {
-//                    OwlcmsSession.withFop(fop -> {
-//                        fop.recomputeLiftingOrder(true, false);
-//                        OwlcmsSession.getFop().getUiEventBus()
-//                                .post(new UIEvent.BreakStarted(0, this.getOrigin(), true, countdownRadios.getValue(),
-//                                        durationRadios.getValue(), LoggerUtils.stackTrace(), false));
-//                    });
-//                });
-//        countdownButton.setTabIndex(-1);
-//        athleteButton.getThemeNames().add("secondary contrast");
-//        countdownButton.getThemeNames().add("secondary contrast");
-//        dt.add(countdownButton, athleteButton);
-//    }
 
 	private void createTimerDisplay() {
 		breakTimerElement = getBreakTimerElement();

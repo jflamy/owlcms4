@@ -87,6 +87,7 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.uievents.UIEvent.BreakStarted;
 import app.owlcms.uievents.UIEvent.JuryNotification;
 import app.owlcms.utils.DelayTimer;
 import app.owlcms.utils.LoggerUtils;
@@ -238,6 +239,8 @@ public class FieldOfPlay {
 	private AgeGroup videoAgeGroup;
 
 	private List<Athlete> resultsOrder;
+
+	private boolean cjBreakDisplayed;
 
 	/**
 	 * Instantiates a new field of play state. When using this constructor
@@ -698,12 +701,8 @@ public class FieldOfPlay {
 			boolean inBreak = state == BREAK || state == INACTIVE;
 			if (Objects.equals(oldGroup, newGroup)) {
 				loadGroup(newGroup, this, true);
-//				if (inBreak) {
 				pushOutSwitchGroup(e.getOrigin());
-//				} else {
-//					// start lifting.
-//					transitionToLifting(e, newGroup, inBreak);
-//				}
+				uiDisplayCurrentAthleteAndTime(true, e, false);
 			} else {
 				if (!inBreak) {
 					setState(INACTIVE);
@@ -1051,6 +1050,7 @@ public class FieldOfPlay {
 		}
 		this.setGroup(group);
 		this.setCjStarted(false);
+		cjBreakDisplayed = false;
 		resetDecisions();
 
 		if (group != null) {
@@ -1142,7 +1142,7 @@ public class FieldOfPlay {
 		        snatchRequest,
 		        cjRequest,
 		        totalRequest);
-		
+
 		for (RecordEvent gr : groupRecords) {
 			logger.debug("gr: {} {} {}", gr.getAgeGrp(), gr.getRecordName(), gr.getRecordFederation());
 		}
@@ -1156,9 +1156,9 @@ public class FieldOfPlay {
 		} else {
 			jsonRecords = eligibleRecords;
 		}
-		 
+
 		JsonValue recordsJson = RecordFilter.buildRecordJson(
-				jsonRecords,
+		        jsonRecords,
 		        new HashSet<>(challengedRecords), snatchRequest, cjRequest,
 		        totalRequest, curAthlete);
 		setRecordsJson(recordsJson);
@@ -1916,6 +1916,23 @@ public class FieldOfPlay {
 		pushOutUIEvent(event);
 	}
 
+	private void pushOutSnatchDone() {
+		logger.debug("{}group {} snatch done", getLoggingName(), getGroup());
+		int millisRemaining = 10 * 60 * 1000;
+		BreakStarted event = new UIEvent.BreakStarted(millisRemaining, this, false, BreakType.FIRST_CJ, CountdownType.DURATION, LoggerUtils.stackTrace(), false);
+
+		// make sure the publicresults update carries the right state.
+		int timeRemaining = millisRemaining;
+		this.getBreakTimer().setTimeRemaining(timeRemaining, false);
+		this.getBreakTimer().setBreakDuration(timeRemaining);
+		this.getBreakTimer().setEnd(null);
+		this.getBreakTimer().start();
+
+		this.setBreakType(BreakType.FIRST_CJ);
+		this.setState(BREAK);
+		pushOutUIEvent(event);
+	}
+
 	private void pushOutStartLifting(Group group2, Object origin) {
 		pushOutUIEvent(new UIEvent.StartLifting(group2, origin));
 	}
@@ -2096,7 +2113,7 @@ public class FieldOfPlay {
 			List<RecordEvent> eligibleRecords = RecordFilter.filterEligibleRecordsForAthlete(a, displayableRecords);
 			// logger.debug("athlete {} {}",a, eligibleRecords);
 			eligibleRecordsByAthlete.put(a, eligibleRecords);
-			
+
 			groupRecords.addAll(displayableRecords);
 		}
 	}
@@ -2613,6 +2630,7 @@ public class FieldOfPlay {
 			warnMissingKg();
 		}
 		recomputeLeadersAndRecords(displayOrder);
+
 		// logger.debug("&&&& previous {} current {} change {} from[{}]",
 		// getPrevWeight(), curWeight, newWeight,
 		// LoggerUtils.whereFrom());
@@ -2633,8 +2651,24 @@ public class FieldOfPlay {
 
 		notifyRecords(getChallengedRecords(), false);
 
+		Athlete athleteUnderReview2 = getAthleteUnderReview();
 		if (attempts >= 6) {
 			pushOutDone();
+		}
+
+		logger.debug("{}cjBreakDisplayed {} athleteUnderReview2 {} getCurAthlete {}",
+				this.getLoggingName(),
+		        cjBreakDisplayed,
+		        athleteUnderReview2 == null ? null : athleteUnderReview2.getAttemptsDone(),
+		        getCurAthlete().getAttemptsDone());
+
+		if (!cjBreakDisplayed && (athleteUnderReview2 == null || athleteUnderReview2.getAttemptsDone() == 3)
+		        && getCurAthlete().getAttemptsDone() >= 3) {
+			logger.debug("{}push out snatch done", this.getLoggingName());
+			pushOutSnatchDone();
+			cjBreakDisplayed = true;
+		} else if (state == BREAK && getBreakTimer().getBreakType() == BreakType.FIRST_CJ) {
+			fopEventPost(new FOPEvent.StartLifting(this));
 		}
 	}
 
