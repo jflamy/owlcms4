@@ -2618,8 +2618,9 @@ public class FieldOfPlay {
 		Integer clock = getAthleteTimer().getTimeRemaining();
 
 		curWeight = 0;
-		if (getCurAthlete() != null) {
-			curWeight = getCurAthlete().getNextAttemptRequestedWeight();
+		Athlete curAthlete2 = getCurAthlete();
+		if (curAthlete2 != null) {
+			curWeight = curAthlete2.getNextAttemptRequestedWeight();
 		}
 		// if only one athlete, no next athlete
 		Athlete nextAthlete = getLiftingOrder().size() > 1 ? getLiftingOrder().get(1) : null;
@@ -2637,7 +2638,7 @@ public class FieldOfPlay {
 		// nextAthlete, currentDisplayAffected);
 		Integer newWeight = getPrevWeight() != curWeight ? curWeight : null;
 
-		if (getCurAthlete() != null && getCurAthlete().getActuallyAttemptedLifts() == 3) {
+		if (curAthlete2 != null && curAthlete2.getActuallyAttemptedLifts() == 3) {
 			// athlete has until before first CJ to comply with starting weights rule
 			// if the snatch was lowered.
 			warnMissingKg();
@@ -2647,16 +2648,16 @@ public class FieldOfPlay {
 		// logger.debug("&&&& previous {} current {} change {} from[{}]",
 		// getPrevWeight(), curWeight, newWeight,
 		// LoggerUtils.whereFrom());
-		pushOutUIEvent(new UIEvent.LiftingOrderUpdated(getCurAthlete(), nextAthlete, getPreviousAthlete(),
+		pushOutUIEvent(new UIEvent.LiftingOrderUpdated(curAthlete2, nextAthlete, getPreviousAthlete(),
 		        changingAthlete,
 		        getLiftingOrder(), getDisplayOrder(), clock, currentDisplayAffected, displayToggle, e.getOrigin(),
 		        inBreak, newWeight));
 		setPrevWeight(curWeight);
 
 		// cur athlete can be null during some tests.
-		int attempts = getCurAthlete() == null ? 0 : getCurAthlete().getAttemptsDone();
+		int attempts = curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone();
 
-		String shortName = getCurAthlete() == null ? "" : getCurAthlete().getShortName();
+		String shortName = curAthlete2 == null ? "" : curAthlete2.getShortName();
 		logger.info("{}current athlete = {} attempt = {}, requested = {}, clock={} initialTime={}",
 		        getLoggingName(), shortName, attempts + 1, curWeight,
 		        clock,
@@ -2673,10 +2674,10 @@ public class FieldOfPlay {
 				this.getLoggingName(),
 		        cjBreakDisplayed,
 		        athleteUnderReview2 == null ? null : athleteUnderReview2.getAttemptsDone(),
-		        getCurAthlete().getAttemptsDone());
+		        curAthlete2 != null ? curAthlete2.getAttemptsDone() : null);
 
 		if (!cjBreakDisplayed && (athleteUnderReview2 == null || athleteUnderReview2.getAttemptsDone() == 3)
-		        && getCurAthlete().getAttemptsDone() >= 3) {
+		       && curAthlete2 != null && curAthlete2.getAttemptsDone() >= 3) {
 			logger.debug("{}push out snatch done", this.getLoggingName());
 			pushOutSnatchDone();
 			cjBreakDisplayed = true;
