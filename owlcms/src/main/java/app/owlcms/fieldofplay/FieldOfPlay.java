@@ -1918,7 +1918,13 @@ public class FieldOfPlay {
 
 	private void pushOutSnatchDone() {
 		logger.debug("{}group {} snatch done", getLoggingName(), getGroup());
+		Competition cCur = Competition.getCurrent();
 		int millisRemaining = 10 * 60 * 1000;
+		if (cCur.getShorterBreakMin() != null && getGroup().size() > cCur.getShorterBreakMin()) {
+			millisRemaining = (cCur.getShorterBreakDuration() != null ? cCur.getShorterBreakDuration() : 10) * 60 * 1000;
+		} else if (cCur.getLongerBreakMax() != null && getGroup().size() < cCur.getLongerBreakMax()) {
+			millisRemaining = (cCur.getLongerBreakDuration() != null ? cCur.getLongerBreakDuration() : 10) * 60 * 1000;
+		} 
 		BreakStarted event = new UIEvent.BreakStarted(millisRemaining, this, false, BreakType.FIRST_CJ, CountdownType.DURATION, LoggerUtils.stackTrace(), false);
 
 		// make sure the publicresults update carries the right state.

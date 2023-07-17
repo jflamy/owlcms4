@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
@@ -189,7 +190,9 @@ public class Competition {
 
 	private String medalsTemplateFileName;
 
-	@Column(columnDefinition = "integer default 10")
+	/* this is really "keep best n results", backward compatibility with database exports */
+	@Column(name = "mensTeamSize", columnDefinition = "integer default 10")
+	@JsonProperty("mensTeamSize")
 	private Integer mensTeamSize = 10;
 
 	private String protocolTemplateFileName;
@@ -242,9 +245,12 @@ public class Competition {
 	 * Obsolete. We no longer infer categories.
 	 */
 	@Column(columnDefinition = "boolean default false")
+	@Deprecated
 	private boolean useRegistrationCategory = false;
 
-	@Column(columnDefinition = "integer default 10")
+	/* this is really "keep best n results", backward compatibility with database exports */
+	@Column(name = "womensTeamSize", columnDefinition = "integer default 10")
+	@JsonProperty("womensTeamSize")
 	private Integer womensTeamSize = 10;
 
 	@Column(columnDefinition = "boolean default false")
@@ -256,8 +262,8 @@ public class Competition {
 	@Column(columnDefinition = "integer default 6")
 	private Integer longerBreakMax = 6;
 
-	@Column(columnDefinition = "integer default 10")
-	private Integer longerBreakDuration = 10;
+	@Column(columnDefinition = "integer default 9")
+	private Integer longerBreakDuration = 9;
 
 	@Column(columnDefinition = "integer default 9")
 	private Integer shorterBreakMin = 10;

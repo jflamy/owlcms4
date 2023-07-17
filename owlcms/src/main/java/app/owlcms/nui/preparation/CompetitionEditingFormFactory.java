@@ -25,6 +25,7 @@ import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosi
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -39,6 +40,7 @@ import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
+import app.owlcms.components.fields.LocalizedIntegerField;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.i18n.Translator;
@@ -119,6 +121,7 @@ public class CompetitionEditingFormFactory
 		FormLayout competitionLayout = competitionForm();
 		FormLayout federationLayout = federationForm();
 		FormLayout rulesLayout = rulesForm();
+		FormLayout breakDurationLayout = breakDurationForm();
 		FormLayout specialLayout = specialRulesForm();
 
 		Component footer = this.buildFooter(operation, comp, cancelButtonClickListener,
@@ -134,6 +137,10 @@ public class CompetitionEditingFormFactory
 		ts.add(Translator.translate("Competition.RulesTab"),
 				 new VerticalLayout(
 					        rulesLayout, separator(),
+					        breakDurationLayout
+					    ));
+		ts.add(Translator.translate("Competition.specialRulesTitle"),
+				 new VerticalLayout(
 					        specialLayout));
 				
 
@@ -315,14 +322,43 @@ public class CompetitionEditingFormFactory
 		binder.forField(sinclairYear)
 		        .bind(Competition::getSinclairYear, Competition::setSinclairYear);
 
-		IntegerField wakeUpDelayField = new IntegerField();
-		layout.addFormItem(wakeUpDelayField, Translator.translate("Competition.decisionRequestDelayLabel"));
-		binder.forField(wakeUpDelayField).bind(Competition::getRefereeWakeUpDelay, Competition::setRefereeWakeUpDelay);
-
 		Checkbox mastersField = new Checkbox();
-		layout.addFormItem(mastersField, Translator.translate("Competition.masters"));
+		layout.addFormItem(mastersField, Translator.translate("Competition.mastersStartOrder"));
 		binder.forField(mastersField)
 		        .bind(Competition::isMasters, Competition::setMasters);
+
+		return layout;
+	}
+	
+	private FormLayout breakDurationForm() {
+		FormLayout layout = createLayout();
+		Component title = createTitle("Competition.breakParametersTitle");
+		layout.add(title);
+		layout.setColspan(title, 2);
+
+		Paragraph explain = new Paragraph(Translator.translate("Competition.breakParametersExplanation"));
+		layout.add(explain);
+		layout.setColspan(explain, 2);
+		
+		LocalizedIntegerField ifLongerThreshold = new LocalizedIntegerField();
+		layout.addFormItem(ifLongerThreshold, Translator.translate("Competition.longerBreakThreshold"));
+		binder.forField(ifLongerThreshold)
+			.bind(Competition::getLongerBreakMax, Competition::setLongerBreakMax);
+		
+		LocalizedIntegerField ifLongerDuration = new LocalizedIntegerField();
+		layout.addFormItem(ifLongerDuration, Translator.translate("Competition.longerBreakDuration"));
+		binder.forField(ifLongerDuration)
+			.bind(Competition::getLongerBreakDuration, Competition::setLongerBreakDuration);
+		
+		LocalizedIntegerField ifShorterThreshold = new LocalizedIntegerField();
+		layout.addFormItem(ifShorterThreshold, Translator.translate("Competition.shorterBreakThreshold"));
+		binder.forField(ifShorterThreshold)
+			.bind(Competition::getShorterBreakMin, Competition::setShorterBreakMin);
+		
+		LocalizedIntegerField ifShorterDuration = new LocalizedIntegerField();
+		layout.addFormItem(ifShorterDuration, Translator.translate("Competition.shorterBreakDuration"));
+		binder.forField(ifShorterDuration)
+			.bind(Competition::getShorterBreakDuration, Competition::setShorterBreakDuration);
 
 		return layout;
 	}
@@ -395,6 +431,10 @@ public class CompetitionEditingFormFactory
 		        labelWithHelp("Competition.customScore", "Competition.customScoreExplanation"));
 		binder.forField(customScoreField)
 		        .bind(Competition::isCustomScore, Competition::setCustomScore);
+		
+		IntegerField wakeUpDelayField = new IntegerField();
+		layout.addFormItem(wakeUpDelayField, Translator.translate("Competition.decisionRequestDelayLabel"));
+		binder.forField(wakeUpDelayField).bind(Competition::getRefereeWakeUpDelay, Competition::setRefereeWakeUpDelay);
 
 		return layout;
 	}
