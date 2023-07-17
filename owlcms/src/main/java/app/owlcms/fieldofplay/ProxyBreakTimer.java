@@ -318,7 +318,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 		        : getTimeRemaining());
 	}
 
-	private void setBreakType(BreakType breakType) {
+	public void setBreakType(BreakType breakType) {
 		// logger.trace("breakTimer setBreakType {} from {}", breakType,
 		// LoggerUtils.whereFrom(1));
 		this.breakType = breakType;

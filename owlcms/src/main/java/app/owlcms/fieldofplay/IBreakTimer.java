@@ -15,6 +15,8 @@ public interface IBreakTimer extends IProxyTimer {
 	Integer getBreakDuration();
 
 	BreakType getBreakType();
+	
+	void setBreakType(BreakType bt);
 
 	boolean isIndefinite();
 
