@@ -1,8 +1,8 @@
 42.0.0
 
-- The clean & Jerk break now automatically starts at the end of snatch.  The duration can now be parameterized in the competition rules (longer breaks when very few athletes, shorter or no break if large session)
+- The Clean & Jerk break now automatically starts at the end of snatch.  The duration can now be parameterized in the competition rules (longer breaks when very few athletes, shorter or no break if large session). 
 - Changed the English, French and Spanish translations. The English word "Session" is used to designate the period of time where athletes lift.  The word "Group" designates A/B/C subsets of a category, for example "Women SR 64B" is a group -- a session can have one or more groups.
-- Accept and display line breaks in the custom1 and custom2 fields.  Currently the only way to create line breaks is to use Alt-Enter in Excel.
+- Accept and display line breaks in the coach, custom1 and custom2 fields.  Currently the only way to create such line breaks is to use Alt-Enter in Excel.
 
 ##### Highlights from recent stable releases
 

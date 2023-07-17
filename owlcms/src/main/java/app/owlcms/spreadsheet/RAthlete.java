@@ -133,9 +133,9 @@ public class RAthlete {
 	}
 
 	public void setCoach(String s) {
-		if (s != null) {
-			s = CharMatcher.javaIsoControl().removeFrom(s);
-		}
+//		if (s != null) {
+//			s = CharMatcher.javaIsoControl().removeFrom(s);
+//		}
 		a.setCoach(s);
 	}
 

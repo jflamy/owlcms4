@@ -336,8 +336,10 @@ public class CompetitionEditingFormFactory
 		layout.add(title);
 		layout.setColspan(title, 2);
 
-		Paragraph explain = new Paragraph(Translator.translate("Competition.breakParametersExplanation"));
+		Paragraph explain = new Paragraph(Translator.translate("Competition.breakParametersLonger"));
 		layout.add(explain);
+		explain.getStyle().set("margin-top", "2ex");
+		explain.getStyle().set("margin-bottom", "0ex");
 		layout.setColspan(explain, 2);
 		
 		LocalizedIntegerField ifLongerThreshold = new LocalizedIntegerField();
@@ -349,6 +351,12 @@ public class CompetitionEditingFormFactory
 		layout.addFormItem(ifLongerDuration, Translator.translate("Competition.longerBreakDuration"));
 		binder.forField(ifLongerDuration)
 			.bind(Competition::getLongerBreakDuration, Competition::setLongerBreakDuration);
+		
+		Paragraph explain1 = new Paragraph(Translator.translate("Competition.breakParametersShorter"));
+		layout.add(explain1);
+		explain1.getStyle().set("margin-top", "2ex");
+		explain1.getStyle().set("margin-bottom", "0ex");
+		layout.setColspan(explain1, 2);
 		
 		LocalizedIntegerField ifShorterThreshold = new LocalizedIntegerField();
 		layout.addFormItem(ifShorterThreshold, Translator.translate("Competition.shorterBreakThreshold"));
