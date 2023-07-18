@@ -218,11 +218,27 @@ public class Competition {
 	private String startingWeightsSheetTemplateFileName;
 
 	private String startListTemplateFileName;
+	
 	/**
 	 * Do not require month and day for birth.
 	 */
 	@Column(columnDefinition = "boolean default false")
 	private boolean useBirthYear = false;
+	
+	/**
+	 * Do not require month and day for birth.
+	 */
+	@Column(columnDefinition = "boolean default true")
+	private boolean automaticCJBreak = true;
+
+
+	public boolean isAutomaticCJBreak() {
+		return automaticCJBreak;
+	}
+
+	public void setAutomaticCJBreak(boolean automaticCJBreak) {
+		this.automaticCJBreak = automaticCJBreak;
+	}
 
 	/**
 	 * Idiosyncratic rule in Québec federation computes best lifter using Sinclair

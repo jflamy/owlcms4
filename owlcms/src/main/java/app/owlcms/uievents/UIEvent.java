@@ -505,6 +505,31 @@ public class UIEvent {
 			this.group = group;
 		}
 	}
+	
+	static public class SnatchDone extends UIEvent {
+
+		private Group group;
+
+		/**
+		 * Instantiates a new athlete announced.
+		 *
+		 * @param athlete the athlete
+		 * @param ui      the ui
+		 */
+		public SnatchDone(Group group, UI ui, String stackTrace) {
+			super(ui);
+			this.setGroup(group);
+			this.setTrace(stackTrace);
+		}
+
+		public Group getGroup() {
+			return group;
+		}
+
+		public void setGroup(Group group) {
+			this.group = group;
+		}
+	}
 
 	static public class JuryNotification extends UIEvent {
 

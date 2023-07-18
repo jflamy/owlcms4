@@ -335,6 +335,10 @@ public class CompetitionEditingFormFactory
 		Component title = createTitle("Competition.breakParametersTitle");
 		layout.add(title);
 		layout.setColspan(title, 2);
+		
+		Checkbox toggle = new Checkbox();
+		binder.forField(toggle).bind(Competition::isAutomaticCJBreak, Competition::setAutomaticCJBreak);
+		layout.addFormItem(toggle,Translator.translate("Competition.automaticCJBreakQ"));
 
 		Paragraph explain = new Paragraph(Translator.translate("Competition.breakParametersLonger"));
 		layout.add(explain);

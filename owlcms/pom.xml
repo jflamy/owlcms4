@@ -308,7 +308,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<!-- color picker for video header 
 		<dependency>
 			<groupId>org.vaadin.addons.tatu</groupId>

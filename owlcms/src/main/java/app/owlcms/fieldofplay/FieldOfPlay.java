@@ -1917,9 +1917,19 @@ public class FieldOfPlay {
 	}
 
 	private void pushOutSnatchDone() {
-
 		Competition cCur = Competition.getCurrent();
+		logger.warn("pushOutSnatchDone {}",cCur.isAutomaticCJBreak());
+		
 		int millisRemaining = 10 * 60 * 1000;
+		if (!cCur.isAutomaticCJBreak()) {
+//			UIEvent.SnatchDone event = new UIEvent.SnatchDone(this.getGroup(), null, LoggerUtils.whereFrom());
+//			this.setBreakType(BreakType.SNATCH_DONE);
+//			this.getBreakTimer().setIndefinite();
+//			this.getBreakTimer().setBreakType(BreakType.SNATCH_DONE);
+//			this.setState(BREAK);
+//			pushOutUIEvent(event);
+			return;
+		}
 		if (cCur.getShorterBreakMin() != null && liftingOrder.size() > cCur.getShorterBreakMin()) {
 			millisRemaining = (cCur.getShorterBreakDuration() != null ? cCur.getShorterBreakDuration() : 10) * 60 * 1000;
 		} else if (cCur.getLongerBreakMax() != null && liftingOrder.size() < cCur.getLongerBreakMax()) {

@@ -104,6 +104,7 @@ public enum BreakType {
 
 	BEFORE_INTRODUCTION(true, false),
 	FIRST_SNATCH(true, false),
+	SNATCH_DONE(false, false),
 	FIRST_CJ(true, false),
 	GROUP_DONE(false, false),
 
