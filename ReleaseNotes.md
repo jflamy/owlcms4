@@ -1,6 +1,8 @@
 42.0.0
 
-- Correct processing when Alt-Enter is used to create line breaks in Excel registration data for the custom1 and custom2 fields.
+- The Clean & Jerk break now automatically starts at the end of snatch.  The duration can now be parameterized in the competition rules (longer breaks when very few athletes, shorter or no break if large session). 
+- Changed the English, French and Spanish translations. The English word "Session" is used to designate the period of time where athletes lift.  The word "Group" designates A/B/C subsets of a category, for example "Women SR 64B" is a group -- a session can have one or more groups.
+- Accept and display line breaks in the coach, custom1 and custom2 fields.  Currently the only way to create such line breaks is to use Alt-Enter in Excel.
 
 ##### Highlights from recent stable releases
 
@@ -27,11 +29,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_42.0.0-alpha00.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_42.0.0-alpha01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_42.0.0-alpha00.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_42.0.0-alpha01.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
