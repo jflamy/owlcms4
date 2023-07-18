@@ -2687,7 +2687,7 @@ public class FieldOfPlay {
 		        curAthlete2 != null ? curAthlete2.getAttemptsDone() : null);
 
 		if (!cjBreakDisplayed && (athleteUnderReview2 == null || athleteUnderReview2.getAttemptsDone() == 3)
-		       && curAthlete2 != null && curAthlete2.getAttemptsDone() >= 3) {
+		       && curAthlete2 != null && curAthlete2.getAttemptsDone() == 3) {
 			logger.debug("{}push out snatch done", this.getLoggingName());
 			pushOutSnatchDone();
 			cjBreakDisplayed = true;
