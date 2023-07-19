@@ -2675,25 +2675,30 @@ public class FieldOfPlay {
 
 		notifyRecords(getChallengedRecords(), false);
 
-		Athlete athleteUnderReview2 = getAthleteUnderReview();
 		if (attempts >= 6) {
 			pushOutDone();
 		}
 
-		logger.debug("{}cjBreakDisplayed {} athleteUnderReview2 {} getCurAthlete {}",
-				this.getLoggingName(),
-		        cjBreakDisplayed,
-		        athleteUnderReview2 == null ? null : athleteUnderReview2.getAttemptsDone(),
-		        curAthlete2 != null ? curAthlete2.getAttemptsDone() : null);
-
-		if (!cjBreakDisplayed && (athleteUnderReview2 == null || athleteUnderReview2.getAttemptsDone() == 3)
-		       && curAthlete2 != null && curAthlete2.getAttemptsDone() == 3) {
+		if (!cjBreakDisplayed && allFirstCJ()) {
 			logger.debug("{}push out snatch done", this.getLoggingName());
 			pushOutSnatchDone();
 			cjBreakDisplayed = true;
 		} else if (state == BREAK && getBreakTimer().getBreakType() == BreakType.FIRST_CJ) {
 			fopEventPost(new FOPEvent.StartLifting(this));
 		}
+	}
+
+	private boolean allFirstCJ() {
+		// check that all athletes are at first CJ
+		boolean firstCJ = true;
+		for (Athlete a: liftingOrder) {
+			logger.debug("{}{} {}",this.getLoggingName(), a.getShortName(),a.getAttemptsDone());
+			if (a.getAttemptsDone() != 3) {
+				firstCJ = false;
+				break;
+			}
+		}
+		return firstCJ;
 	}
 
 	private synchronized void uiShowDownSignalOnSlaveDisplays(Object origin2) {
