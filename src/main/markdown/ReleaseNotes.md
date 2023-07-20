@@ -1,5 +1,6 @@
 42.0.0-alpha02
 
+- Team membership page redone; now shows all eligible athletes for a category.  Warns if there are more athletes than permitted in a team (normally the limit is 10) and if there are too many athletes in a single category (normally 2).  The limits are set on the competition rules.
 - Fixed alpha01 bug in which CJ Break would start again at end of group.
 
 42.0.0
