@@ -587,7 +587,7 @@ public class TeamResultsContent extends VerticalLayout
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		OwlcmsCrudFormFactory<TeamTreeItem> crudFormFactory = new TeamItemFormFactory(TeamTreeItem.class, this);
+		OwlcmsCrudFormFactory<TeamTreeItem> crudFormFactory = new TeamItemResultsFormFactory(TeamTreeItem.class, this);
 		crudGrid = createCrudGrid(crudFormFactory);
 		fillHW(crudGrid, this);
 		AgeDivision value = (adItems != null && adItems.size() > 0) ? adItems.get(0) : null;

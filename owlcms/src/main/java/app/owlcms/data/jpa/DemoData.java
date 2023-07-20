@@ -205,8 +205,8 @@ public class DemoData {
 		competition.setMasters(ageDivisions != null && ageDivisions.contains(MASTERS));
 		competition.setUseBirthYear(false);
 		competition.setAnnouncerLiveDecisions(true);
-		competition.setMensTeamSize(null);
-		competition.setWomensTeamSize(null);
+		competition.setMensBestN(null);
+		competition.setWomensBestN(null);
 
 		return competition;
 	}

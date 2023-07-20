@@ -100,8 +100,8 @@ public class ProdData {
 		competition.setUseBirthYear(false);
 		competition.setEnforce20kgRule(true);
 		competition.setAnnouncerLiveDecisions(true);
-		competition.setMensTeamSize(null);
-		competition.setWomensTeamSize(null);
+		competition.setMensBestN(null);
+		competition.setWomensBestN(null);
 
 		return competition;
 	}

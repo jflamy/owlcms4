@@ -67,6 +67,8 @@ public class TeamTreeItem {
 
 	private Label membershipLabel;
 
+	private boolean warning;
+
 	public TeamTreeItem(String curTeamName, Gender gender, Athlete teamMember, boolean done) {
 		this.athlete = teamMember;
 		this.setDone(done);
@@ -230,7 +232,6 @@ public class TeamTreeItem {
 	}
 
 	public void setTeamMember(boolean b) {
-		logger.warn("{} {}", athlete, athlete.getClass());
 		if (athlete != null) {
 			athlete.setTeamMember(b);
 		}
@@ -242,6 +243,14 @@ public class TeamTreeItem {
 	
 	public Label getMembershipLabel() {
 		return this.membershipLabel;
+	}
+
+	public void setWarning(boolean contains) {
+		this.warning = contains;
+	}
+
+	public boolean isWarning() {
+		return warning;
 	}
 
 }

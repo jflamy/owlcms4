@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.nui.results;
+package app.owlcms.nui.preparation;
 
 import java.util.Collection;
 
@@ -22,22 +22,22 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.team.TeamTreeItem;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.nui.lifting.AthleteCardFormFactory;
 import app.owlcms.nui.shared.CustomFormFactory;
 import app.owlcms.nui.shared.IAthleteEditing;
+import app.owlcms.nui.shared.NAthleteRegistrationFormFactory;
 import app.owlcms.spreadsheet.PAthlete;
 
 @SuppressWarnings("serial")
 
-public class TeamItemFormFactory
+public class TeamItemSelectionFormFactory
         extends OwlcmsCrudFormFactory<TeamTreeItem>
         implements CustomFormFactory<TeamTreeItem> {
 
-	private AthleteCardFormFactory acff;
+	private NAthleteRegistrationFormFactory acff;
 
-	public TeamItemFormFactory(Class<TeamTreeItem> domainType, IAthleteEditing origin) {
+	public TeamItemSelectionFormFactory(Class<TeamTreeItem> domainType, IAthleteEditing origin) {
 		super(domainType);
-		acff = new AthleteCardFormFactory(Athlete.class, origin);
+		acff = new NAthleteRegistrationFormFactory(Athlete.class, null);
 	}
 
 	@Override

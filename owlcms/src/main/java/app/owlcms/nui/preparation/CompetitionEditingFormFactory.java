@@ -120,6 +120,7 @@ public class CompetitionEditingFormFactory
 
 		FormLayout competitionLayout = competitionForm();
 		FormLayout federationLayout = federationForm();
+		FormLayout teamsLayout = teamsForm();
 		FormLayout rulesLayout = rulesForm();
 		FormLayout breakDurationLayout = breakDurationForm();
 		FormLayout specialLayout = specialRulesForm();
@@ -136,6 +137,7 @@ public class CompetitionEditingFormFactory
 					        federationLayout));
 		ts.add(Translator.translate("Competition.RulesTab"),
 				 new VerticalLayout(
+					        teamsLayout, separator(),
 					        rulesLayout, separator(),
 					        breakDurationLayout
 					    ));
@@ -330,6 +332,25 @@ public class CompetitionEditingFormFactory
 		return layout;
 	}
 	
+	private FormLayout teamsForm() {
+		FormLayout layout = createLayout();
+		Component title = createTitle("Competition.teamRules");
+		layout.add(title);
+		layout.setColspan(title, 2);
+
+		LocalizedIntegerField maxTeamSize = new LocalizedIntegerField();
+		layout.addFormItem(maxTeamSize, Translator.translate("Competition.AthletesPerTeam"));
+		binder.forField(maxTeamSize)
+			.bind(Competition::getMaxTeamSize, Competition::setMaxTeamSize);
+		
+		LocalizedIntegerField maxPerCategory = new LocalizedIntegerField();
+		layout.addFormItem(maxPerCategory, Translator.translate("Competition.maxAthletesPerCategory"));
+		binder.forField(maxPerCategory)
+			.bind(Competition::getMaxPerCategory, Competition::setMaxPerCategory);
+
+		return layout;
+	}
+	
 	private FormLayout breakDurationForm() {
 		FormLayout layout = createLayout();
 		Component title = createTitle("Competition.breakParametersTitle");
@@ -403,7 +424,7 @@ public class CompetitionEditingFormFactory
 		        .withNullRepresentation("")
 		        .withConverter(new StringToIntegerConverter(message))
 		        .withValidator(new IntegerRangeValidator(message, 0, 99))
-		        .bind(Competition::getMensTeamSize, Competition::setMensTeamSize);
+		        .bind(Competition::getMensBestN, Competition::setMensBestN);
 
 		TextField womensTeamSizeField = new TextField();
 		layout.addFormItem(womensTeamSizeField,
@@ -412,7 +433,7 @@ public class CompetitionEditingFormFactory
 		        .withNullRepresentation("")
 		        .withConverter(new StringToIntegerConverter(message))
 		        .withValidator(new IntegerRangeValidator(message, 0, 99))
-		        .bind(Competition::getWomensTeamSize, Competition::setWomensTeamSize);
+		        .bind(Competition::getWomensBestN, Competition::setWomensBestN);
 
 		Checkbox roundRobinOrderField = new Checkbox();
 		layout.addFormItem(roundRobinOrderField,

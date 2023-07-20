@@ -54,6 +54,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Participation;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
@@ -64,7 +65,6 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
-import app.owlcms.nui.results.TeamItemFormFactory;
 import app.owlcms.nui.shared.IAthleteEditing;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
@@ -368,17 +368,6 @@ public class TeamSelectionContent extends VerticalLayout
 		});
 	}
 
-//	private String formatDouble(double d, int decimals) {
-//		if (floatFormat == null) {
-//			floatFormat = new DecimalFormat();
-//			floatFormat.setMinimumIntegerDigits(1);
-//			floatFormat.setMaximumFractionDigits(decimals);
-//			floatFormat.setMinimumFractionDigits(decimals);
-//			floatFormat.setGroupingUsed(false);
-//		}
-//		return floatFormat.format(d);
-//	}
-
 	private void setAgeDivisionSelectionListener() {
 		topBarAgeDivisionSelect.addValueChangeListener(e -> {
 			// the name of the resulting file is set as an attribute on the <a href tag that
@@ -462,14 +451,25 @@ public class TeamSelectionContent extends VerticalLayout
 	 */
 	protected OwlcmsCrudGrid<TeamTreeItem> createCrudGrid(OwlcmsCrudFormFactory<TeamTreeItem> crudFormFactory) {
 		TreeGrid<TeamTreeItem> grid = new TreeGrid<>();
-		grid.setWidth("50%");
 		grid.addHierarchyColumn(TeamTreeItem::formatName).setHeader(Translator.translate("Name")).setWidth("32ch");
 		grid.addColumn(TeamTreeItem::getCategory).setHeader(Translator.translate("Category"))
 		        .setTextAlign(ColumnTextAlign.CENTER);
+
+		ComponentRenderer<Component, TeamTreeItem> warningRenderer = new ComponentRenderer<>(p -> {
+			if (p.isWarning()) {
+				Label label = new Label("\u26a0");
+				return label;
+			} else {
+				return new Label();
+			}
+		});
+		grid.addColumn(warningRenderer).setHeader(Translator.translate("Competition.TooManyPerCat"))
+		        .setTextAlign(ColumnTextAlign.CENTER);
+
 		ComponentRenderer<Component, TeamTreeItem> membershipRenderer = new ComponentRenderer<>(p -> {
 			if (p.getAthlete() == null) {
-				Label label = new Label("" + p.getTeamMembers().stream().filter(pa -> pa.isTeamMember()).count());
-				logger.warn("{} {} {}",p.getTeam().getName(), label.getText(),System.identityHashCode(label));
+				long nb = p.getTeamMembers().stream().filter(pa -> pa.isTeamMember()).count();
+				Label label = new Label(nb > Competition.getCurrent().getMaxTeamSize() ? nb + "\u26a0" : nb + "");
 				p.setMembershipLabel(label);
 				return label;
 			} else {
@@ -482,8 +482,6 @@ public class TeamSelectionContent extends VerticalLayout
 					Boolean value = click.getValue();
 					activeBox.setValue(value);
 					JPAService.runInTransaction(em -> toggleTeamMember(p, value, em));
-					// crudGrid.getGrid().getDataProvider().refreshItem(p);
-					// crudGrid.refreshGrid();
 				});
 				return activeBox;
 			}
@@ -544,7 +542,7 @@ public class TeamSelectionContent extends VerticalLayout
 		defineFilters(crudGrid);
 		defineContent(crudGrid);
 		crudGrid.setClickRowToUpdate(true);
-		crudGrid.setWidth("80ch");
+		crudGrid.setWidth("100ch");
 		return crudGrid;
 	}
 
@@ -558,7 +556,7 @@ public class TeamSelectionContent extends VerticalLayout
 		em.merge(_getOriginalParticipation);
 		TeamTreeItem parent = tti.getParent();
 		List<TeamTreeItem> teamMembers = tti.getParent().getTeamMembers();
-		parent.getMembershipLabel().setText(""+(teamMembers != null ? countTeamMembers(teamMembers) : 0));
+		parent.getMembershipLabel().setText("" + (teamMembers != null ? countTeamMembers(teamMembers) : 0));
 		return null;
 	}
 
@@ -598,18 +596,6 @@ public class TeamSelectionContent extends VerticalLayout
 			genderFilter.setWidth("10em");
 		}
 		crudGrid2.getCrudLayout().addFilterComponent(genderFilter);
-
-//        if (categoryFilter == null) {
-//            categoryFilter = new ComboBox<>();
-//            categoryFilter.setClearButtonVisible(true);
-//            categoryFilter.setPlaceholder(getTranslation("Category"));
-//            categoryFilter.setClearButtonVisible(true);
-//            categoryFilter.addValueChangeListener(e -> {
-//                crudGrid2.refreshGrid();
-//            });
-//            categoryFilter.setWidth("10em");
-//        }
-//        crudGrid2.getCrudLayout().addFilterComponent(categoryFilter);
 	}
 
 	/**
@@ -620,7 +606,8 @@ public class TeamSelectionContent extends VerticalLayout
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		OwlcmsCrudFormFactory<TeamTreeItem> crudFormFactory = new TeamItemFormFactory(TeamTreeItem.class, this);
+		OwlcmsCrudFormFactory<TeamTreeItem> crudFormFactory = new TeamItemSelectionFormFactory(TeamTreeItem.class,
+		        this);
 		crudGrid = createCrudGrid(crudFormFactory);
 		fillHW(crudGrid, this);
 		AgeDivision value = (adItems != null && adItems.size() > 0) ? adItems.get(0) : null;

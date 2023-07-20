@@ -193,7 +193,29 @@ public class Competition {
 	/* this is really "keep best n results", backward compatibility with database exports */
 	@Column(name = "mensTeamSize", columnDefinition = "integer default 10")
 	@JsonProperty("mensTeamSize")
-	private Integer mensTeamSize = 10;
+	private Integer mensBestN = 10;
+	
+	@Column(columnDefinition = "integer default 10")
+	private Integer maxTeamSize = 10;
+	
+	@Column(columnDefinition = "integer default 2")
+	private Integer maxPerCategory = 2;
+
+	public Integer getMaxTeamSize() {
+		return maxTeamSize;
+	}
+
+	public void setMaxTeamSize(Integer maxTeamSize) {
+		this.maxTeamSize = maxTeamSize;
+	}
+
+	public Integer getMaxPerCategory() {
+		return maxPerCategory;
+	}
+
+	public void setMaxPerCategory(Integer maxPerCategory) {
+		this.maxPerCategory = maxPerCategory;
+	}
 
 	private String protocolTemplateFileName;
 
@@ -267,7 +289,7 @@ public class Competition {
 	/* this is really "keep best n results", backward compatibility with database exports */
 	@Column(name = "womensTeamSize", columnDefinition = "integer default 10")
 	@JsonProperty("womensTeamSize")
-	private Integer womensTeamSize = 10;
+	private Integer womensBestN = 10;
 
 	@Column(columnDefinition = "boolean default false")
 	private boolean sinclairMeet;
@@ -286,12 +308,6 @@ public class Competition {
 
 	@Column(columnDefinition = "integer default 10")
 	private Integer shorterBreakDuration = 10;
-	
-	@Column(columnDefinition = "integer default 2")
-	private Integer sameTeamPerCategory = 2;
-	
-	@Column(columnDefinition = "integer default 10")
-	private Integer teamSize = 10;
 
 	@Transient
 	@JsonIgnore
@@ -821,12 +837,12 @@ public class Competition {
 
 	@Transient
 	@JsonIgnore
-	public Integer getMenPerTeamElseDefault() {
-		return mensTeamSize != null ? mensTeamSize : 10;
+	public Integer getMenBestNElseDefault() {
+		return mensBestN != null ? mensBestN : 10;
 	}
 
-	public Integer getMensTeamSize() {
-		return mensTeamSize;
+	public Integer getMensBestN() {
+		return mensBestN;
 	}
 
 	public String getOfficialsListTemplateFileName() {
@@ -886,12 +902,12 @@ public class Competition {
 
 	@Transient
 	@JsonIgnore
-	public Integer getWomenPerTeamElseDefault() {
-		return womensTeamSize != null ? womensTeamSize : 10;
+	public Integer getWomenBestNElseDefault() {
+		return womensBestN != null ? womensBestN : 10;
 	}
 
-	public Integer getWomensTeamSize() {
-		return womensTeamSize;
+	public Integer getWomensBestN() {
+		return womensBestN;
 	}
 
 	public void globalRankings() {
@@ -1183,8 +1199,8 @@ public class Competition {
 		this.medalsTemplateFileName = medalsTemplateFileName;
 	}
 
-	public void setMensTeamSize(Integer mensTeamSize) {
-		this.mensTeamSize = mensTeamSize;
+	public void setMensBestN(Integer mensTeamSize) {
+		this.mensBestN = mensTeamSize;
 	}
 
 	public void setOfficialsListTemplateFileName(String officialsListTemplateFileName) {
@@ -1274,8 +1290,8 @@ public class Competition {
 		this.useRegistrationCategory = false;
 	}
 
-	public void setWomensTeamSize(Integer womensTeamSize) {
-		this.womensTeamSize = womensTeamSize;
+	public void setWomensBestN(Integer womensTeamSize) {
+		this.womensBestN = womensTeamSize;
 	}
 
 	@Override
@@ -1287,8 +1303,8 @@ public class Competition {
 		        + federationWebSite + ", protocolTemplateFileName=" + getProtocolTemplateFileName()
 		        + ", finalPackageTemplateFileName=" + finalPackageTemplateFileName
 		        + ", ageGroupsFileName=" + ageGroupsFileName + ", enforce20kgRule="
-		        + enforce20kgRule + ", masters=" + masters + ", mensTeamSize=" + mensTeamSize + ", womensTeamSize="
-		        + womensTeamSize + ", customScore=" + customScore + ", mastersGenderEquality=" + mastersGenderEquality
+		        + enforce20kgRule + ", masters=" + masters + ", mensTeamSize=" + mensBestN + ", womensTeamSize="
+		        + womensBestN + ", customScore=" + customScore + ", mastersGenderEquality=" + mastersGenderEquality
 		        + ", useBirthYear=" + isUseBirthYear() + ", useCategorySinclair=" + useCategorySinclair
 		        + ", useOldBodyWeightTieBreak=" + useOldBodyWeightTieBreak + ", useRegistrationCategory="
 		        + useRegistrationCategory + ", reportingBeans=" + reportingBeans + "]";

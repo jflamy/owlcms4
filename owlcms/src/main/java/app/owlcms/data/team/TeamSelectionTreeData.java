@@ -9,6 +9,7 @@ package app.owlcms.data.team;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,13 +24,13 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.data.provider.hierarchy.TreeData;
 
 import app.owlcms.data.agegroup.AgeGroupRepository;
-import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.utils.LoggerUtils;
@@ -70,7 +71,7 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 	public TeamSelectionTreeData(String ageGroupPrefix, AgeDivision ageDivision, Gender gender, Ranking ranking,
 	        boolean includeNotDone) {
 		this.setRanking(ranking);
-		init(ageGroupPrefix, ageDivision, includeNotDone);
+		init(ageGroupPrefix, ageDivision, gender, includeNotDone);
 	}
 
 	public Ranking getRanking() {
@@ -91,13 +92,13 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 	        AgeDivision ageDivision,
 	        boolean includeNotDone) {
 
-		logger.warn("buildTeamItemTree {}", LoggerUtils.stackTrace());
-//		if (ageDivision == null) {
-//			return;
-//		}
+		if (ageDivision == null) {
+			return;
+		}
 		for (Gender gender : Gender.mfValues()) {
 			Collection<Participation> gParticipations;
 			TeamTreeItem curTeamItem = null;
+
 			if (participations == null) {
 				return;
 			} else {
@@ -113,14 +114,11 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 				        	return compare;
 				        })
 				        .collect(Collectors.toList());
-				logger.warn("participations size {}", participations.size());
 			}
 
 			if (gParticipations.size() > 0) {
 				for (Participation p : gParticipations) {
-					Athlete a = p.getAthlete();
 					String curTeamName = p.getAthlete().getTeam();
-//					logger.warn("a={} curTeam = {}", a, a.getTeam());
 					curTeamItem = findCurTeamItem(
 					        gender,
 					        curTeamName != null ? curTeamName : "-");
@@ -129,21 +127,38 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 						teams.add(curTeamItem);
 					}
 
-					Team curTeam = curTeamItem.getTeam();
-					logger.warn("---- Athlete {} {} {}", curTeamItem.getTeam().getName(), a, a.getGender());
-
-					if (p.getTeamMember()) {
-					}
-
 					Group group = p.getAthlete().getGroup();
 					curTeamItem.addTreeItemChild(this, new PAthlete(p), group != null ? group.isDone() : false);
-					logger.warn("curTeamItem {} {}", curTeamItem.getTeam().getName(),
-					        curTeamItem.getTeamMembers().size());
-					curTeam.setSize(curTeam.getSize() + 1);
 				}
 			}
 		}
+		for (TeamTreeItem t : teams) {
+			t.getTeam().setSize(checkCounts(t.getTeamMembers()));
+		}
 		dumpTeams();
+	}
+
+	private long checkCounts(List<TeamTreeItem> teamMembers) {
+		HashMap<String,Integer> nbPerCat = new HashMap<>();
+		List<String> illegalCounts = new ArrayList<>();
+		int nbMembers = 0;
+		for (TeamTreeItem t : teamMembers) {
+			Integer countPerCat = nbPerCat.get(t.getCategory());
+			countPerCat = countPerCat == null ? 1 : countPerCat + 1;
+			nbPerCat.put(t.getCategory(), countPerCat);
+			if (countPerCat > Competition.getCurrent().getMaxPerCategory()) {
+				illegalCounts.add(t.getCategory());
+			}
+			if (t.isTeamMember()) {
+				nbMembers++;
+			}
+		}
+		if (!illegalCounts.isEmpty()) {
+			for (TeamTreeItem t : teamMembers) {
+				t.setWarning(illegalCounts.contains(t.getCategory()));
+			}
+		}
+		return nbMembers;
 	}
 
 	private void dumpTeams() {
@@ -174,7 +189,6 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 			}
 		}
 		if (found != null) {
-			logger.warn("found {} {} {}",curTeamName, gender, found.getGender());
 			curTeamItem = found;
 		} else {
 			curTeamItem = new TeamTreeItem(curTeamName, gender, null, false);
@@ -184,12 +198,11 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 		return curTeamItem;
 	}
 
-	private void init(String ageGroupPrefix, AgeDivision ageDivision, boolean includeNotDone) {
+	private void init(String ageGroupPrefix, AgeDivision ageDivision, Gender gender, boolean includeNotDone) {
 		if (debug) {
 			logger.setLevel(Level.DEBUG);
 		}
-		// logger.debug("init tree {} {}", ageGroupPrefix, ageDivision);
-		Collection<Participation> athletes = findAll(ageGroupPrefix, ageDivision, null, null, null);
+		Collection<Participation> athletes = findAll(ageGroupPrefix, ageDivision, gender, null, null);
 		buildTeamItemTree(athletes, ageGroupPrefix, ageDivision, includeNotDone);
 		if (debug) {
 			dumpTeams();
@@ -225,6 +238,9 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 			        teamNames.add(athleteTeamName);
 
 			        Gender athleteGender = p.getAthlete().getGender();
+			        if (genderFilterValue != null && genderFilterValue != athleteGender) {
+			        	return false;
+			        }
 			        List<TeamTreeItem> teams = teamsByName.get(athleteTeamName);
 			        TeamTreeItem genderTeam = null;
 			        if (teams != null) {
@@ -245,8 +261,6 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 			        boolean catOk = (catFilterValue == null || athleteCatCode.contentEquals(catCode))
 			                && (genderFilterValue == null || genderFilterValue == athleteGender)
 			                && (teamFilterValue == null || teamFilterValue.contentEquals(athleteTeamName));
-			        // logger.debug("{} {} {} {} {} {}", catFilterValue, genderFilterValue,
-			        // teamFilterValue, catOk, p.getAthlete().getShortName(), athleteTeamName);
 			        return catOk;
 		        })
 		        .sorted((a, b) -> {
@@ -282,7 +296,6 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 
 			        return 0;
 		        })
-		// .peek(p -> logger.warn("findAll {}", p.long_dump()))
 		;
 		return stream.collect(Collectors.toList());
 	}

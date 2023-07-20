@@ -358,7 +358,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 	 *      java.lang.Object, com.vaadin.flow.component.ComponentEventListener)
 	 */
 	@Override
-	protected Button buildOperationButton(CrudOperation operation, T domainObject,
+	public Button buildOperationButton(CrudOperation operation, T domainObject,
 	        ComponentEventListener<ClickEvent<Button>> gridCallBackAction) {
 		if (gridCallBackAction == null) {
 			return null;
@@ -393,7 +393,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 	 *
 	 * @param gridLayout
 	 */
-	protected TextField defineOperationTrigger(CrudOperation operation, T domainObject,
+	public TextField defineOperationTrigger(CrudOperation operation, T domainObject,
 	        ComponentEventListener<ClickEvent<Button>> action) {
 		TextField updateTrigger = new TextField();
 		updateTrigger.setReadOnly(true);
@@ -444,7 +444,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 	 * @param showErrorOnFields if true, vaadin displays the errors
 	 * @return
 	 */
-	protected boolean setErrorLabel(BinderValidationStatus<?> validationStatus, boolean showErrorOnFields) {
+	public boolean setErrorLabel(BinderValidationStatus<?> validationStatus, boolean showErrorOnFields) {
 		logger.debug("{} validations", this.getClass().getSimpleName());
 		boolean hasErrors = validationStatus.getFieldValidationErrors().size() > 0;
 		boolean showInLabel = !showErrorOnFields;

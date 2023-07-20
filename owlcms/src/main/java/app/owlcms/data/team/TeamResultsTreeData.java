@@ -216,10 +216,10 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 
 		switch (gender) {
 		case M:
-			maxCount = comp.getMensTeamSize() != null ? comp.getMensTeamSize() : Integer.MAX_VALUE;
+			maxCount = comp.getMensBestN() != null ? comp.getMensBestN() : Integer.MAX_VALUE;
 			break;
 		case F:
-			maxCount = comp.getWomensTeamSize() != null ? comp.getWomensTeamSize() : Integer.MAX_VALUE;
+			maxCount = comp.getWomensBestN() != null ? comp.getWomensBestN() : Integer.MAX_VALUE;
 			break;
 		case I:
 			return 0;
