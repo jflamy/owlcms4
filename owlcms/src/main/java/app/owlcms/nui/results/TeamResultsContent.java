@@ -50,7 +50,7 @@ import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
-import app.owlcms.data.team.TeamTreeData;
+import app.owlcms.data.team.TeamResultsTreeData;
 import app.owlcms.data.team.TeamTreeItem;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
@@ -190,9 +190,9 @@ public class TeamResultsContent extends VerticalLayout
 	public Collection<TeamTreeItem> findAll() {
 		List<TeamTreeItem> allTeams = new ArrayList<>();
 
-		TeamTreeData teamTreeData = new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(),
+		TeamResultsTreeData teamResultsTreeData = new TeamResultsTreeData(getAgeGroupPrefix(), getAgeDivision(),
 		        getGenderFilter().getValue(), Ranking.SNATCH_CJ_TOTAL, false);
-		Map<Gender, List<TeamTreeItem>> teamsByGender = teamTreeData.getTeamItemsByGender();
+		Map<Gender, List<TeamTreeItem>> teamsByGender = teamResultsTreeData.getTeamItemsByGender();
 
 		List<TeamTreeItem> mensTeams = teamsByGender.get(Gender.M);
 		if (mensTeams != null) {
@@ -347,7 +347,7 @@ public class TeamResultsContent extends VerticalLayout
 			@Override
 			public DataProvider<TeamTreeItem, ?> getDataProvider() {
 				return new TreeDataProvider<>(
-				        new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(), getGenderFilter().getValue(),
+				        new TeamResultsTreeData(getAgeGroupPrefix(), getAgeDivision(), getGenderFilter().getValue(),
 				                Ranking.SNATCH_CJ_TOTAL, false));
 			}
 
@@ -489,9 +489,9 @@ public class TeamResultsContent extends VerticalLayout
 				// logger.debug("refreshing grid {} {} {}",getAgeGroupPrefix(),
 				// getAgeDivision(),
 				// genderFilter.getValue());
-				TeamTreeData teamTreeData = new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(),
+				TeamResultsTreeData teamResultsTreeData = new TeamResultsTreeData(getAgeGroupPrefix(), getAgeDivision(),
 				        genderFilter.getValue(), Ranking.SNATCH_CJ_TOTAL, false);
-				grid.setDataProvider(new TreeDataProvider<>(teamTreeData));
+				grid.setDataProvider(new TreeDataProvider<>(teamResultsTreeData));
 			}
 
 			@Override

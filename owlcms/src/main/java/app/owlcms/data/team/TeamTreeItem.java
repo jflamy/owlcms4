@@ -14,6 +14,8 @@ import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.html.Label;
+
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.competition.Competition;
@@ -63,13 +65,15 @@ public class TeamTreeItem {
 
 	private boolean combinedPoints;
 
+	private Label membershipLabel;
+
 	public TeamTreeItem(String curTeamName, Gender gender, Athlete teamMember, boolean done) {
 		this.athlete = teamMember;
 		this.setDone(done);
 		if (this.athlete == null) {
 			// this node is a team
 			this.setTeam(new Team(curTeamName, gender));
-			this.teamMembers = new ArrayList<>();
+			this.setTeamMembers(new ArrayList<>());
 		}
 		this.combinedPoints = Competition.getCurrent().isSnatchCJTotalMedals();
 	}
@@ -77,7 +81,14 @@ public class TeamTreeItem {
 	public void addTreeItemChild(Athlete a, boolean done) {
 		TeamTreeItem child = new TeamTreeItem(null, a.getGender(), a, done);
 		child.setParent(this);
-		teamMembers.add(child);
+		getTeamMembers().add(child);
+	}
+	
+	public void addTreeItemChild(TeamSelectionTreeData teamSelectionTreeData, Athlete a, boolean done) {
+		TeamTreeItem child = new TeamTreeItem(null, a.getGender(), a, done);
+		child.setParent(this);
+		getTeamMembers().add(child);
+		teamSelectionTreeData.addItem(this, child);
 	}
 
 	public String formatName() {
@@ -168,11 +179,11 @@ public class TeamTreeItem {
 	}
 
 	public List<TeamTreeItem> getSortedTeamMembers() {
-		if (teamMembers == null) {
+		if (getTeamMembers() == null) {
 			return Collections.emptyList();
 		}
-		teamMembers.sort(Comparator.comparing(TeamTreeItem::getPoints, (a, b) -> ObjectUtils.compare(a, b, true)));
-		return teamMembers;
+		getTeamMembers().sort(Comparator.comparing(TeamTreeItem::getPoints, (a, b) -> ObjectUtils.compare(a, b, true)));
+		return getTeamMembers();
 	}
 
 	public Team getTeam() {
@@ -213,4 +224,24 @@ public class TeamTreeItem {
 	private void setTeam(Team team) {
 		this.team = team;
 	}
+
+	public Boolean isTeamMember() {
+		return (athlete != null ? athlete.isTeamMember() : null);
+	}
+
+	public void setTeamMember(boolean b) {
+		logger.warn("{} {}", athlete, athlete.getClass());
+		if (athlete != null) {
+			athlete.setTeamMember(b);
+		}
+	}
+
+	public void setMembershipLabel(Label label) {
+		this.membershipLabel = label;
+	}
+	
+	public Label getMembershipLabel() {
+		return this.membershipLabel;
+	}
+
 }

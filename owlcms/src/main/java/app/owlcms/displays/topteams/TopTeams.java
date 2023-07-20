@@ -45,7 +45,7 @@ import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.team.Team;
-import app.owlcms.data.team.TeamTreeData;
+import app.owlcms.data.team.TeamResultsTreeData;
 import app.owlcms.data.team.TeamTreeItem;
 import app.owlcms.displays.VideoOverride;
 import app.owlcms.displays.options.DisplayOptions;
@@ -190,9 +190,9 @@ public class TopTeams extends PolymerTemplate<TemplateModel> implements DisplayP
 	public void doUpdate(Competition competition) {
 		this.getElement().callJsFunction("reset");
 
-		TeamTreeData teamTreeData = new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(), (Gender) null,
+		TeamResultsTreeData teamResultsTreeData = new TeamResultsTreeData(getAgeGroupPrefix(), getAgeDivision(), (Gender) null,
 		        Ranking.SNATCH_CJ_TOTAL, false);
-		Map<Gender, List<TeamTreeItem>> teamsByGender = teamTreeData.getTeamItemsByGender();
+		Map<Gender, List<TeamTreeItem>> teamsByGender = teamResultsTreeData.getTeamItemsByGender();
 
 		mensTeams = teamsByGender.get(Gender.M);
 		if (mensTeams != null) {
