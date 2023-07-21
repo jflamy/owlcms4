@@ -546,45 +546,36 @@ public class Athlete {
 		Double weight = this.getBodyWeight();
 		Integer age = this.getAge();
 		if (weight == null || weight < 0.01) {
-//            logger.trace("no weight {}", this.getShortName());
 			Double presumedBodyWeight = this.getPresumedBodyWeight();
-//            logger.trace("presumed weight {} {} {}",this.getShortName(), presumedBodyWeight, this.getCategory());
 			if (presumedBodyWeight != null) {
 				weight = presumedBodyWeight - 0.01D;
 				if (age == null || age == 0) {
-
 					// try to set category to match sheet, with coherent eligibles
 					if (this.category != null) {
 						age = category.getAgeGroup().getMaxAge();
 					}
 				}
-
-				List<Category> categories = CategoryRepository.findByGenderAgeBW(
-				        this.getGender(), age, weight);
-
-				categories = categories.stream()
-				        .filter(c -> this.getQualifyingTotal() >= c.getQualifyingTotal()).collect(Collectors.toList());
-//                logger.trace("{} presumed weight {} age {} {} {}",this.getShortName(), presumedBodyWeight, age, this.getCategory(), categories);
+//				List<Category> categories = CategoryRepository.findByGenderAgeBW(
+//				        this.getGender(), age, weight);
+//				categories = categories.stream()
+//				        .filter(c -> this.getQualifyingTotal() >= c.getQualifyingTotal()).collect(Collectors.toList());
+				List<Category> categories = CategoryRepository.doFindEligibleCategories(this, gender, age, weight, qualifyingTotal);
 				setEligibles(this, categories);
+				logger.warn("&&&&1 {} {} {}",this.getShortName(), weight, categories);
 				this.setCategory(bestMatch(categories));
-
-//                logger.trace("{} {} gender {} age {} weight {} category *{}* categories {}", this.getId(), this.getShortName(), this.getGender(), this.getAge(), weight, this.getCategory(), categories);
-
 			}
 		} else {
-//            logger.trace("weight {}", this.getShortName());
-			List<Category> categories = CategoryRepository.findByGenderAgeBW(
-			        this.getGender(), age, weight);
-			categories = categories.stream()
-//                    .peek((c) -> {
-//                        logger.trace("a {} aq {} cq {}", this.getShortName(), this.getQualifyingTotal(),
-//                                c.getQualifyingTotal());
-//                    })
-			        .filter(c -> this.getQualifyingTotal() >= c.getQualifyingTotal()).collect(Collectors.toList());
+//			List<Category> categories = CategoryRepository.findByGenderAgeBW(
+//			        this.getGender(), age, weight);
+//			categories = categories.stream()
+//			        .filter(c -> this.getQualifyingTotal() >= c.getQualifyingTotal()).collect(Collectors.toList());
+			List<Category> categories = CategoryRepository.doFindEligibleCategories(this, gender, age, weight, qualifyingTotal);
 			setEligibles(this, categories);
+			logger.warn("&&&&2 {} {} {}",this.getShortName(), weight, categories);
 			this.setCategory(bestMatch(categories));
 		}
 	}
+
 
 	/**
 	 * used for jury overrides and for testing
@@ -3353,13 +3344,16 @@ public class Athlete {
 	}
 
 	public void setEligibleCategories(Set<Category> newEligibles) {
+		
+		
 		List<Participation> participations2 = getParticipations();
+		
 		Set<String> membershipCategories = participations2.stream().filter(p -> p.getTeamMember())
 		        .map(p -> p.getCategory().getCode()).collect(Collectors.toSet());
-		logger.trace("athlete memberships {}", membershipCategories);
+		logger.warn("athlete memberships {}", membershipCategories);
 
 		Set<Category> oldEligibles = getEligibleCategories();
-		logger.trace("setting eligible before:{} target:{}", oldEligibles, newEligibles);
+		logger.warn("setting eligible before:{} target:{}", oldEligibles, newEligibles);
 		if (oldEligibles != null) {
 			for (Category cat : oldEligibles) {
 				removeEligibleCategory(cat);
@@ -3504,6 +3498,7 @@ public class Athlete {
 	}
 
 	public void setParticipations(List<Participation> participations) {
+		logger.warn("setParticipations {}",LoggerUtils.stackTrace());
 		this.participations = participations;
 	}
 

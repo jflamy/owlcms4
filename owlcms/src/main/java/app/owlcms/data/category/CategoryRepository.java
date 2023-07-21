@@ -7,8 +7,10 @@
 package app.owlcms.data.category;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -16,8 +18,10 @@ import javax.persistence.Query;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -171,6 +175,7 @@ public class CategoryRepository {
 		// also before SR (MASTERS, then
 		// U, then IWF/other)
 		findFiltered.sort(new RegistrationPreferenceComparator());
+		logger.warn("calling findByGenderAgeBW from {}",LoggerUtils.whereFrom());
 		return findFiltered;
 	}
 
@@ -358,4 +363,28 @@ public class CategoryRepository {
 		}
 	}
 
+	public static List<Category> doFindEligibleCategories(Athlete a, Gender gender, Integer ageFromFields, Double bw,
+	        int qualifyingTotal) {
+		List<Category> allEligible = CategoryRepository.findByGenderAgeBW(gender, ageFromFields, bw);
+
+		// if youth F >81, athlete may be jr87 or jr>87
+		if ((bw == null || bw > 998) && !allEligible.isEmpty()) {
+			double bodyWeight = allEligible.get(0).getMinimumWeight() + 1;
+			List<Category> otherEligibles = CategoryRepository.findByGenderAgeBW(gender, ageFromFields, bodyWeight);
+			HashSet<Category> allEligibleSet = new HashSet<Category>(allEligible);
+			for (Category otherEligible : otherEligibles) {
+				if (!otherEligible.sameAsAny(allEligibleSet)) {
+					allEligible.add(otherEligible);
+				}
+			}
+			allEligible.sort(new RegistrationPreferenceComparator());
+		}
+		logger.warn("****A {} bw={} {}", a, bw, allEligible);
+		allEligible = allEligible.stream()
+		        .filter(c -> (qualifyingTotal >= c.getQualifyingTotal())
+		                || bw == null || (bw > c.getMinimumWeight() && bw <= c.getMaximumWeight()))
+		        .collect(Collectors.toList());
+		logger.warn("****B {} bw={} {}", a, bw, allEligible);
+		return allEligible;
+	}
 }

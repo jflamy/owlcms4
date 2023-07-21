@@ -7,6 +7,7 @@
 package app.owlcms.spreadsheet;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,6 +23,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.data.category.RegistrationPreferenceComparator;
 import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -353,13 +355,14 @@ public class RAthlete {
 
 	private Category findByAgeBW(Matcher legacyResult, double searchBodyWeight, int age, int qualifyingTotal)
 	        throws Exception {
-		List<Category> found = CategoryRepository.findByGenderAgeBW(a.getGender(), age, searchBodyWeight);
-		Set<Category> eligibles = new LinkedHashSet<>();
-		eligibles = found.stream().filter(c -> qualifyingTotal >= c.getQualifyingTotal())
-		        .collect(Collectors.toSet());
-		a.setEligibleCategories(eligibles);
+//		List<Category> found = CategoryRepository.findByGenderAgeBW(a.getGender(), age, searchBodyWeight);
+//		Set<Category> eligibles = new LinkedHashSet<>();
+//		eligibles = found.stream().filter(c -> qualifyingTotal >= c.getQualifyingTotal())
+//		        .collect(Collectors.toSet());
+		List<Category> eligibles = doFindEligibleCategories(a.getGender(), age, searchBodyWeight, qualifyingTotal);
+		a.setEligibleCategories(new HashSet<>(eligibles));
 
-		Category category = found.size() > 0 ? found.get(0) : null;
+		Category category = eligibles.size() > 0 ? eligibles.get(0) : null;
 		if (category == null) {
 			throw new Exception(
 			        Translator.translate(
@@ -369,6 +372,34 @@ public class RAthlete {
 		return category;
 	}
 
+	private List<Category> doFindEligibleCategories(Gender gender, Integer ageFromFields, Double bw,
+	        int qualifyingTotal) {
+		List<Category> allEligible = CategoryRepository.findByGenderAgeBW(gender, ageFromFields, bw);
+
+		// if youth F >81, athlete may be jr87 or jr>87
+		if ((bw == null || bw > 998) && !allEligible.isEmpty()) {
+			double bodyWeight = allEligible.get(0).getMinimumWeight() + 1;
+			List<Category> otherEligibles = CategoryRepository.findByGenderAgeBW(gender, ageFromFields, bodyWeight);
+			HashSet<Category> allEligibleSet = new HashSet<Category>(allEligible);
+			for (Category otherEligible : otherEligibles) {
+				if (!otherEligible.sameAsAny(allEligibleSet)) {
+					allEligible.add(otherEligible);
+				}
+			}
+			allEligible.sort(new RegistrationPreferenceComparator());
+		}
+		dumpCategories(this, bw, allEligible);
+		allEligible = allEligible.stream()
+		        .filter(c -> (qualifyingTotal >= c.getQualifyingTotal())
+		                && (bw == null || bw > c.getMinimumWeight() && bw <= c.getMaximumWeight()))
+		        .collect(Collectors.toList());
+		return allEligible;
+	}
+
+	private void dumpCategories(RAthlete editedAthlete2, Double bw, List<Category> allEligible2) {
+		logger.warn("**** {} bw={} {}", editedAthlete2, bw, allEligible2);
+	}
+	
 	private void fixLegacyGender(Matcher result) throws Exception {
 		String genderLetter = result.group(1);
 		if (a.getGender() == null) {
