@@ -28,6 +28,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.RuleViolationException;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -331,10 +332,14 @@ public class MovingDownTest {
         Athlete simpsonR = groupAthletes.get(1);
         Athlete allisonR = groupAthletes.get(2);
         // dummy snatch
+
         doSnatch(fopState, schneiderF, simpsonR, allisonR);
 
         // get updated allAthletes as they are in database
         groupAthletes = fopState.getDisplayOrder();
+        for (Athlete a : groupAthletes) {
+        	System.err.println(a.getShortName());
+        }
         schneiderF = groupAthletes.get(0);
         simpsonR = groupAthletes.get(1);
         allisonR = groupAthletes.get(2);
@@ -389,6 +394,7 @@ public class MovingDownTest {
     @Before
     public void setupTest() {
         TestData.insertInitialData(5, true);
+        Competition.getCurrent().setAutomaticCJBreak(false);
         JPAService.runInTransaction((em) -> {
             gA = GroupRepository.doFindByName("A", em);
             gB = GroupRepository.doFindByName("B", em);

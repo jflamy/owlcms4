@@ -2679,7 +2679,8 @@ public class FieldOfPlay {
 			pushOutDone();
 		}
 
-		if (!cjBreakDisplayed && allFirstCJ()) {
+		boolean automaticCJBreak = Competition.getCurrent().isAutomaticCJBreak();
+		if (automaticCJBreak && !cjBreakDisplayed && allFirstCJ()) {
 			logger.debug("{}push out snatch done", this.getLoggingName());
 			pushOutSnatchDone();
 			cjBreakDisplayed = true;
