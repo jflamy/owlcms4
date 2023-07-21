@@ -169,9 +169,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 			return false;
 		}
 		AgeGroup other = (AgeGroup) obj;
-		// logger./**/warn("categories {} .equals(other.categories {}) = {}",
-		// categories, other.categories,
-		// Objects.equals(categories, other.categories));
+		if (other.getId() == this.getId()) return true;
 		return active == other.active && ageDivision == other.ageDivision
 		        && Objects.equals(categories, other.categories) && Objects.equals(code, other.code)
 		        && gender == other.gender && Objects.equals(id, other.id) && Objects.equals(maxAge, other.maxAge)
@@ -290,7 +288,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(active, ageDivision, categories, code, gender, id, maxAge, minAge);
+		return getId().hashCode();
 	}
 
 	public boolean isActive() {

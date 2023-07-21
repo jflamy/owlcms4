@@ -555,23 +555,13 @@ public class Athlete {
 						age = category.getAgeGroup().getMaxAge();
 					}
 				}
-//				List<Category> categories = CategoryRepository.findByGenderAgeBW(
-//				        this.getGender(), age, weight);
-//				categories = categories.stream()
-//				        .filter(c -> this.getQualifyingTotal() >= c.getQualifyingTotal()).collect(Collectors.toList());
 				List<Category> categories = CategoryRepository.doFindEligibleCategories(this, gender, age, weight, qualifyingTotal);
 				setEligibles(this, categories);
-				logger.warn("&&&&1 {} {} {}",this.getShortName(), weight, categories);
 				this.setCategory(bestMatch(categories));
 			}
 		} else {
-//			List<Category> categories = CategoryRepository.findByGenderAgeBW(
-//			        this.getGender(), age, weight);
-//			categories = categories.stream()
-//			        .filter(c -> this.getQualifyingTotal() >= c.getQualifyingTotal()).collect(Collectors.toList());
 			List<Category> categories = CategoryRepository.doFindEligibleCategories(this, gender, age, weight, qualifyingTotal);
 			setEligibles(this, categories);
-			logger.warn("&&&&2 {} {} {}",this.getShortName(), weight, categories);
 			this.setCategory(bestMatch(categories));
 		}
 	}
@@ -1546,10 +1536,6 @@ public class Athlete {
 			Category category2 = p.getCategory();
 			s.add(category2);
 		}
-		// logger.trace("{}{} getEligibleCategories {} from {}",
-		// OwlcmsSession.getFopLoggingName(), this.getShortName(),
-		// s.toString(),
-		// LoggerUtils.whereFrom());
 		return s;
 	}
 
@@ -2549,22 +2535,44 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
-	public Set<AgeGroup> getTeamAgeGroups() {
+	public Set<String> getPossibleAgeGroupTeams() {
 		// brain dead version, cannot get query version to work.
-		Set<AgeGroup> s = new LinkedHashSet<>();
+		Set<String> s = new LinkedHashSet<>();
+		List<Participation> participations2 = getParticipations();
+		for (Participation p : participations2) {
+			s.add(p.getCategory().getAgeGroup().getDisplayName());
+		}
+		return s;
+	}
+	
+	@Transient
+	@JsonIgnore
+	public Set<String> getAgeGroupTeams() {
+		// brain dead version, cannot get query version to work.
+		Set<String> s = new LinkedHashSet<>();
 		List<Participation> participations2 = getParticipations();
 		for (Participation p : participations2) {
 			if (p.getTeamMember()) {
-				s.add(p.getCategory().getAgeGroup());
+				s.add(p.getCategory().getAgeGroup().getDisplayName());
 			}
 		}
 		return s;
+	}
+	
+	@Transient
+	@JsonIgnore
+	public void setAgeGroupTeams(Set<String> s) {
+		List<Participation> participations2 = getParticipations();
+		for (Participation p : participations2) {
+			p.setTeamMember(s.contains(p.getCategory().getAgeGroup().getDisplayName()));
+		}
+		return ;
 	}
 
 	@Transient
 	@JsonIgnore
 	public String getTeamAgeGroupsAsString() {
-		Set<AgeGroup> tag = getTeamAgeGroups();
+		Set<String> tag = getAgeGroupTeams();
 		if (tag == null || tag.isEmpty()) {
 			return "";
 		} else {
@@ -3345,15 +3353,14 @@ public class Athlete {
 
 	public void setEligibleCategories(Set<Category> newEligibles) {
 		
-		
 		List<Participation> participations2 = getParticipations();
 		
 		Set<String> membershipCategories = participations2.stream().filter(p -> p.getTeamMember())
 		        .map(p -> p.getCategory().getCode()).collect(Collectors.toSet());
-		logger.warn("athlete memberships {}", membershipCategories);
+		logger.debug("athlete memberships {}", membershipCategories);
 
 		Set<Category> oldEligibles = getEligibleCategories();
-		logger.warn("setting eligible before:{} target:{}", oldEligibles, newEligibles);
+		logger.debug("setting eligible before:{} target:{}", oldEligibles, newEligibles);
 		if (oldEligibles != null) {
 			for (Category cat : oldEligibles) {
 				removeEligibleCategory(cat);
@@ -3366,9 +3373,6 @@ public class Athlete {
 				addEligibleCategory(cat, membership); // creates new join table entry, links from category as well.
 			}
 		}
-		// logger.trace("{}{} {} after set eligible {}",
-		// OwlcmsSession.getFopLoggingName(),
-		// System.identityHashCode(this), getShortName(),getEligibleCategories());
 	}
 
 	public void setEligibleForIndividualRanking(boolean eligibleForIndividualRanking) {
@@ -3498,7 +3502,6 @@ public class Athlete {
 	}
 
 	public void setParticipations(List<Participation> participations) {
-		logger.warn("setParticipations {}",LoggerUtils.stackTrace());
 		this.participations = participations;
 	}
 

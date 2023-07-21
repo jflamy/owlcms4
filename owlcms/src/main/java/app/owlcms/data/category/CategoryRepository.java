@@ -21,7 +21,6 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.jpa.JPAService;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -175,7 +174,6 @@ public class CategoryRepository {
 		// also before SR (MASTERS, then
 		// U, then IWF/other)
 		findFiltered.sort(new RegistrationPreferenceComparator());
-		logger.warn("calling findByGenderAgeBW from {}",LoggerUtils.whereFrom());
 		return findFiltered;
 	}
 
@@ -379,12 +377,10 @@ public class CategoryRepository {
 			}
 			allEligible.sort(new RegistrationPreferenceComparator());
 		}
-		logger.warn("****A {} bw={} {}", a, bw, allEligible);
 		allEligible = allEligible.stream()
 		        .filter(c -> (qualifyingTotal >= c.getQualifyingTotal())
 		                || bw == null || (bw > c.getMinimumWeight() && bw <= c.getMaximumWeight()))
 		        .collect(Collectors.toList());
-		logger.warn("****B {} bw={} {}", a, bw, allEligible);
 		return allEligible;
 	}
 }
