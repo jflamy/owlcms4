@@ -1918,7 +1918,7 @@ public class FieldOfPlay {
 
 	private void pushOutSnatchDone() {
 		Competition cCur = Competition.getCurrent();
-		logger.warn("pushOutSnatchDone {}",cCur.isAutomaticCJBreak());
+		logger.debug("Snatch Done {}",cCur.isAutomaticCJBreak());
 		
 		int millisRemaining = 10 * 60 * 1000;
 		if (!cCur.isAutomaticCJBreak()) {
@@ -2679,8 +2679,7 @@ public class FieldOfPlay {
 			pushOutDone();
 		}
 
-		boolean automaticCJBreak = Competition.getCurrent().isAutomaticCJBreak();
-		if (automaticCJBreak && !cjBreakDisplayed && allFirstCJ()) {
+		if (!cjBreakDisplayed && allFirstCJ()) {
 			logger.debug("{}push out snatch done", this.getLoggingName());
 			pushOutSnatchDone();
 			cjBreakDisplayed = true;
