@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +22,6 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
-import app.owlcms.data.category.RegistrationPreferenceComparator;
 import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -359,7 +357,7 @@ public class RAthlete {
 //		Set<Category> eligibles = new LinkedHashSet<>();
 //		eligibles = found.stream().filter(c -> qualifyingTotal >= c.getQualifyingTotal())
 //		        .collect(Collectors.toSet());
-		List<Category> eligibles = doFindEligibleCategories(a.getGender(), age, searchBodyWeight, qualifyingTotal);
+		List<Category> eligibles = CategoryRepository.doFindEligibleCategories(a, a.getGender(), age, searchBodyWeight, qualifyingTotal);
 		a.setEligibleCategories(new HashSet<>(eligibles));
 
 		Category category = eligibles.size() > 0 ? eligibles.get(0) : null;
@@ -370,34 +368,6 @@ public class RAthlete {
 			                legacyResult.group(2) + legacyResult.group(3)));
 		}
 		return category;
-	}
-
-	private List<Category> doFindEligibleCategories(Gender gender, Integer ageFromFields, Double bw,
-	        int qualifyingTotal) {
-		List<Category> allEligible = CategoryRepository.findByGenderAgeBW(gender, ageFromFields, bw);
-
-		// if youth F >81, athlete may be jr87 or jr>87
-		if ((bw == null || bw > 998) && !allEligible.isEmpty()) {
-			double bodyWeight = allEligible.get(0).getMinimumWeight() + 1;
-			List<Category> otherEligibles = CategoryRepository.findByGenderAgeBW(gender, ageFromFields, bodyWeight);
-			HashSet<Category> allEligibleSet = new HashSet<Category>(allEligible);
-			for (Category otherEligible : otherEligibles) {
-				if (!otherEligible.sameAsAny(allEligibleSet)) {
-					allEligible.add(otherEligible);
-				}
-			}
-			allEligible.sort(new RegistrationPreferenceComparator());
-		}
-		dumpCategories(this, bw, allEligible);
-		allEligible = allEligible.stream()
-		        .filter(c -> (qualifyingTotal >= c.getQualifyingTotal())
-		                && (bw == null || bw > c.getMinimumWeight() && bw <= c.getMaximumWeight()))
-		        .collect(Collectors.toList());
-		return allEligible;
-	}
-
-	private void dumpCategories(RAthlete editedAthlete2, Double bw, List<Category> allEligible2) {
-		logger.warn("**** {} bw={} {}", editedAthlete2, bw, allEligible2);
 	}
 	
 	private void fixLegacyGender(Matcher result) throws Exception {
