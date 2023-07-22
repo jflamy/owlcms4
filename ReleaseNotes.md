@@ -1,21 +1,22 @@
-42.0.0-alpha02
+42.0.0-alpha03
 
-- Team membership page redone; now shows all eligible athletes for a category.  Warns if there are more athletes than permitted in a team (normally the limit is 10) and if there are too many athletes in a single category (normally 2).  The limits are set on the competition rules.
-- Fixed alpha01 bug in which CJ Break would start again at end of group.
+- The athlete registration/weigh-in form now shows both the eligible categories and the age group teams in which the athlete is entered.  In continental/world competitions, there are no extras.  An athlete can meet the eligibility criteria for an age group category, but not be allowed to lift because they are not a member of the team for that age group (due to size limits)
 
 42.0.0
 
-- The Clean & Jerk break now automatically starts at the end of snatch.  
+- The team membership page has been redone; it now shows all eligible athletes for a category.  
+  - A warning is shown if there are more athletes than permitted in a team and if there are too many athletes in a single category.  The limits are set on the competition rules (default are IWF rules - 10 per team, 2 max per category).
+- The Clean & Jerk break now automatically starts at the end of the snatch.  
   - The duration can now be parameterized in the competition rules (longer breaks when very few athletes, shorter or no break if large session).
   - This can be disabled if some special event takes place during the break.
-- Changed the English, French and Spanish translations. The English word "Session" is used to designate the period of time where athletes lift.  The word "Group" designates A/B/C subsets of a category, for example "Women SR 64B" is a group -- a session can have one or more groups.
-- Accept and display line breaks in the coach, custom1 and custom2 fields.  Currently the only way to create such line breaks is to use Alt-Enter in Excel.
+- Changed the English, French and Spanish translations. The English word "Session" is used to designate the period of time when athletes lift.  The word "Group" designates A/B/C subsets of a category, for example, "Women SR 64B" is a group -- a session can have one or more groups.
+- Accept and display line breaks in the coach, custom1, and custom2 fields.  Currently, the only way to create such line breaks is to use Alt-Enter in Excel.
 
 ##### Highlights from recent stable releases
 
 - Start lists
-  - Added a Start List template that lists the eligible age groups, for use multiple age group competitions.
-  - Added a Start List template that lists the athletes according to their bodyweight class.  This is used in multi-age competitions where athletes of a same weight class compete together and are not separated by age group.
+  - Added a Start List template that lists the eligible age groups, for use in multiple age group competitions.
+  - Added a Start List template that lists the athletes according to their bodyweight class.  This is used in multi-age competitions where athletes of the same weight class compete together and are not separated by age group.
 - Improved styling
   - Medal colors are highlighted on the Medal displays.
   - Team flags are shown on the scoreboard
@@ -36,11 +37,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_42.0.0-alpha02.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_42.0.0-alpha03.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_42.0.0-alpha02.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_42.0.0-alpha03.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
