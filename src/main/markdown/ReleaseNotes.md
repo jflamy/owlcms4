@@ -1,6 +1,6 @@
 42.0.0-alpha03
 
-- The athlete registration/weigh-in form now shows the teams in which the athlete is competing.  In continental/world competitions, you must be part of the designated team to be allowed to lift in a category -- there are no "extras". This makes it easier to check that the two match.
+- The athlete registration/weigh-in form now shows both the eligible categories and the age group teams in which the athlete is entered.  In continental/world competitions, there are no extras.  An athlete can meet the eligibility criteria for an age group category, but not be allowed to lift because they are not a member of the team for that age group (due to size limits)
 
 42.0.0
 
