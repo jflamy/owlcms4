@@ -688,12 +688,13 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		FormItem fi1 = layoutAddFormItem(layout, eligibleField, Translator.translate("Weighin.EligibleCategories"));
 		layout.setColspan(fi1, NB_COLUMNS - 1);
 		
-		ageGroupTeamField = new CheckboxGroup<>(getEditedAthlete().getTeamAgeGroupsAsString(),getEditedAthlete().getPossibleAgeGroupTeams());
+		layoutAddFormItem(layout, new Label(), "");
+		
+		ageGroupTeamField = new CheckboxGroup<>(null,getEditedAthlete().getPossibleAgeGroupTeams());
 		bindField(binder.forField(ageGroupTeamField), ageGroupTeamField, Athlete::getAgeGroupTeams,
 		        Athlete::setAgeGroupTeams);
 		ageGroupTeamField.setValue(getEditedAthlete().getPossibleAgeGroupTeams());
-
-		FormItem fi4 = layoutAddFormItem(layout, ageGroupTeamField, Translator.translate("Weighin.Teams"));
+		FormItem fi4 = layoutAddFormItem(layout, ageGroupTeamField, Translator.translate("TeamMembership.Title"));
 		layout.setColspan(fi4, NB_COLUMNS - 1);
 
 		groupField = new ComboBox<>();
@@ -984,7 +985,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 	@SuppressWarnings("unused")
 	private void dumpCategories(Athlete editedAthlete2, Double bw, List<Category> allEligible2) {
-		logger.warn("{} bw={} {}", editedAthlete2, bw, allEligible2);
+		logger.debug("{} bw={} {}", editedAthlete2, bw, allEligible2);
 	}
 
 	@SuppressWarnings({ "unchecked" })

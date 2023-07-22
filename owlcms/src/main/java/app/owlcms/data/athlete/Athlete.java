@@ -51,6 +51,7 @@ import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.category.Participation;
+import app.owlcms.data.category.RegistrationPreferenceComparator;
 import app.owlcms.data.category.RobiCategories;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
@@ -2536,11 +2537,13 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Set<String> getPossibleAgeGroupTeams() {
-		// brain dead version, cannot get query version to work.
+		// we use strings because I can't figure out why AgeGroups don't behave properly in a checkbox group
 		Set<String> s = new LinkedHashSet<>();
 		List<Participation> participations2 = getParticipations();
-		for (Participation p : participations2) {
-			s.add(p.getCategory().getAgeGroup().getDisplayName());
+		List<Category> pcats = participations2.stream().map(p -> p.getCategory()).collect(Collectors.toList());
+		pcats.sort(new RegistrationPreferenceComparator());
+		for (Category p : pcats) {
+			s.add(p.getAgeGroup().getDisplayName());
 		}
 		return s;
 	}
@@ -2548,7 +2551,7 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Set<String> getAgeGroupTeams() {
-		// brain dead version, cannot get query version to work.
+		// we use strings because I can't figure out why AgeGroups don't behave properly in a checkbox group
 		Set<String> s = new LinkedHashSet<>();
 		List<Participation> participations2 = getParticipations();
 		for (Participation p : participations2) {
@@ -2562,6 +2565,7 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public void setAgeGroupTeams(Set<String> s) {
+		// we use strings because I can't figure out why AgeGroups don't behave properly in a checkbox group
 		List<Participation> participations2 = getParticipations();
 		for (Participation p : participations2) {
 			p.setTeamMember(s.contains(p.getCategory().getAgeGroup().getDisplayName()));
