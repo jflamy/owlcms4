@@ -43,7 +43,7 @@ public class JXLSRegistrationEmptyExport extends JXLSRegistrationExport {
 	}
 
 	@Override
-	protected List<Athlete> getSortedAthletes() {
+	public List<Athlete> getSortedAthletes() {
 		// no athletes - create an empty so the reporting works
 		return List.of();
 	}

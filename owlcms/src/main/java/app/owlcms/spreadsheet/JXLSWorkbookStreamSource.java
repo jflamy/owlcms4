@@ -303,7 +303,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 		throw new IOException("no template found for : " + templateName + extension + " tried with suffix " + tryList);
 	}
 
-	protected List<Athlete> getSortedAthletes() {
+	public List<Athlete> getSortedAthletes() {
 		return sortedAthletes;
 	}
 

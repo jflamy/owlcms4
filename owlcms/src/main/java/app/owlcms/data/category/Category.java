@@ -597,4 +597,12 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		return getComputedName();
 	}
 
+	public String getUpperBound() {
+		if (getMaximumWeight() > 998) {
+			return ">"+Math.round(getMinimumWeight());
+		} else {
+			return ""+Math.round(getMaximumWeight());
+		}
+	}
+
 }

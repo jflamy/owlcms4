@@ -171,6 +171,19 @@ public class AbstractLifterComparator {
 		Category lifter2Value = lifter2.getCategory();
 		return ObjectUtils.compare(lifter1Value, lifter2Value, true);
 	}
+	
+	/**
+	 * Compare category.
+	 *
+	 * @param lifter1 the lifter 1
+	 * @param lifter2 the lifter 2
+	 * @return the int
+	 */
+	int comparePresumedCategory(Athlete lifter1, Athlete lifter2) {
+		String lifter1Value = lifter1.getPresumedOpenCategoryString();
+		String lifter2Value = lifter2.getPresumedOpenCategoryString();
+		return ObjectUtils.compare(lifter1Value, lifter2Value, true);
+	}
 
 	/**
 	 * Compare category sinclair.

@@ -49,6 +49,7 @@ import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
@@ -180,19 +181,22 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 		topBar = new FlexLayout();
 
 		Button cardsButton = createCardsButton();
-		Button weighInButton = createWeighInButton();
-		Button startingListButton = createStartingListButton();
+		Button weighInSummaryButton = createWeighInSummaryButton();
+		Button sessionsButton = createSessionsButton();
 		Button categoriesListButton = createCategoriesListButton();
 		Button teamsListButton = createTeamsListButton();
 		Button officialSchedule = createOfficalsButton();
+		Button bwButton = createBWButton();
 
 		createTopBarGroupSelect();
 
-		HorizontalLayout buttons = new HorizontalLayout(startingListButton, categoriesListButton, teamsListButton,
-		        officialSchedule, cardsButton, weighInButton);
-		buttons.setPadding(false);
-		buttons.setMargin(false);
-		buttons.setSpacing(true);
+		FlexLayout buttons = new FlexLayout(sessionsButton, bwButton, categoriesListButton, teamsListButton,
+		        officialSchedule, cardsButton, weighInSummaryButton);
+		buttons.getStyle().set("flex-wrap", "wrap");
+		buttons.getStyle().set("gap", "1ex");
+//		buttons.setPadding(false);
+//		buttons.setMargin(false);
+//		buttons.setSpacing(true);
 		buttons.getStyle().set("margin-left", "5em");
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
@@ -565,7 +569,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 		return grid;
 	}
 
-	private Button createStartingListButton() {
+	private Button createSessionsButton() {
 		String resourceDirectoryLocation = "/templates/start";
 		String title = Translator.translate("StartingList");
 		String downloadedFilePrefix = "startingList";
@@ -577,6 +581,8 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 			                getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
 			        // get current version of athletes.
 			        findAll();
+			        List<Athlete> sortedAthletes = startingXlsWriter.getSortedAthletes();
+			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(sortedAthletes));
 			        return startingXlsWriter;
 		        },
 		        resourceDirectoryLocation,
@@ -587,6 +593,33 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 		        downloadedFilePrefix, Translator.translate("Download"));
 		return startingListFactory.createTopBarDownloadButton();
 	}
+	
+	private Button createBWButton() {
+		String resourceDirectoryLocation = "/templates/start";
+		String title = Translator.translate("BodyWeightCategories");
+		String downloadedFilePrefix = "startingList";
+
+		DownloadDialog startingListFactory = new DownloadDialog(
+		        () -> {
+			        // group may have been edited since the page was loaded
+			        startingXlsWriter.setGroup(
+			                getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
+			        // get current version of athletes.
+			        findAll();
+			        List<Athlete> sortedAthletes = startingXlsWriter.getSortedAthletes();
+			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationBWCopy(sortedAthletes));
+			        startingXlsWriter.createAgeGroupColumns();
+			        return startingXlsWriter;
+		        },
+		        resourceDirectoryLocation,
+		        null,
+		        Competition::getComputedStartListTemplateFileName,
+		        Competition::setStartListTemplateFileName,
+		        title,
+		        downloadedFilePrefix, Translator.translate("Download"));
+		return startingListFactory.createTopBarDownloadButton();
+	}
+	
 
 	private Button createTeamsListButton() {
 		String resourceDirectoryLocation = "/templates/teams";
@@ -611,7 +644,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 		return startingListFactory.createTopBarDownloadButton();
 	}
 
-	private Button createWeighInButton() {
+	private Button createWeighInSummaryButton() {
 		String resourceDirectoryLocation = "/templates/weighin";
 		String title = Translator.translate("WeighinForm");
 		String downloadedFilePrefix = "weighIn";

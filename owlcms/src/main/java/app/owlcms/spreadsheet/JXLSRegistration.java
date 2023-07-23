@@ -46,7 +46,7 @@ public class JXLSRegistration extends JXLSWorkbookStreamSource {
 	}
 
 	@Override
-	protected List<Athlete> getSortedAthletes() {
+	public List<Athlete> getSortedAthletes() {
 		getReportingBeans();
 		return ImmutableList.of(new Athlete());
 	}

@@ -556,17 +556,18 @@ public class Athlete {
 						age = category.getAgeGroup().getMaxAge();
 					}
 				}
-				List<Category> categories = CategoryRepository.doFindEligibleCategories(this, gender, age, weight, qualifyingTotal);
+				List<Category> categories = CategoryRepository.doFindEligibleCategories(this, gender, age, weight,
+				        qualifyingTotal);
 				setEligibles(this, categories);
 				this.setCategory(bestMatch(categories));
 			}
 		} else {
-			List<Category> categories = CategoryRepository.doFindEligibleCategories(this, gender, age, weight, qualifyingTotal);
+			List<Category> categories = CategoryRepository.doFindEligibleCategories(this, gender, age, weight,
+			        qualifyingTotal);
 			setEligibles(this, categories);
 			this.setCategory(bestMatch(categories));
 		}
 	}
-
 
 	/**
 	 * used for jury overrides and for testing
@@ -788,7 +789,7 @@ public class Athlete {
 
 		String eligiblesAsString = this.getParticipations().stream()
 		        .filter(p -> (p.getCategory() != mrCat))
-		        .sorted((a,b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
+		        .sorted((a, b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
 		        .map(p -> {
 			        String catName = p.getCategory().getComputedName();
 			        return catName + (!p.getTeamMember() ? RAthlete.NoTeamMarker : "");
@@ -814,7 +815,7 @@ public class Athlete {
 
 		String eligiblesAsString = this.getParticipations().stream()
 		        .filter(p -> (p.getCategory() != mrCat))
-		        .sorted((a,b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
+		        .sorted((a, b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
 		        .map(p -> {
 			        String catName = p.getCategory().getTranslatedName();
 			        return catName + (!p.getTeamMember() ? RAthlete.NoTeamMarker : "");
@@ -826,7 +827,7 @@ public class Athlete {
 			return mainCategory + "|" + eligiblesAsString;
 		}
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public String getEligibleCategoriesAsString() {
@@ -840,7 +841,7 @@ public class Athlete {
 
 		String eligiblesAsString = this.getParticipations().stream()
 		        .filter(p -> (p.getCategory() != mrCat))
-		        .sorted((a,b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
+		        .sorted((a, b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
 		        .map(p -> {
 			        String catName = p.getCategory().getTranslatedName();
 			        return catName;
@@ -1929,7 +1930,26 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
-	public String getPresumedOpenCategory() {
+	public String getPresumedBodyWeightString() {
+		Double bodyWeight2 = getBodyWeight();
+		if (category != null) {
+			if (category.getMaximumWeight() > 998) {
+				return gender+String.format("%04d", Math.round(category.getMinimumWeight() + 1));
+			}
+			return gender+String.format("%04d", Math.round(category.getMaximumWeight()));
+		} else if (bodyWeight2 != null && bodyWeight2 >= 0) {
+			return gender+String.format("%04d", Math.round(bodyWeight2));
+		} else {
+			return gender+"9999";
+		}
+	}
+
+	@Transient
+	@JsonIgnore
+	public String getPresumedOpenCategoryString() {
+		if (category != null) {
+			return gender.asPublicGenderCode() + " " + category.getUpperBound();
+		}
 		Double bw = getPresumedBodyWeight();
 		if (bw != null && gender != null) {
 			return gender.asPublicGenderCode() + " " + Math.round(bw);
@@ -2537,7 +2557,8 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Set<String> getPossibleAgeGroupTeams() {
-		// we use strings because I can't figure out why AgeGroups don't behave properly in a checkbox group
+		// we use strings because I can't figure out why AgeGroups don't behave properly
+		// in a checkbox group
 		Set<String> s = new LinkedHashSet<>();
 		List<Participation> participations2 = getParticipations();
 		List<Category> pcats = participations2.stream().map(p -> p.getCategory()).collect(Collectors.toList());
@@ -2547,11 +2568,12 @@ public class Athlete {
 		}
 		return s;
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public Set<String> getAgeGroupTeams() {
-		// we use strings because I can't figure out why AgeGroups don't behave properly in a checkbox group
+		// we use strings because I can't figure out why AgeGroups don't behave properly
+		// in a checkbox group
 		Set<String> s = new LinkedHashSet<>();
 		List<Participation> participations2 = getParticipations();
 		for (Participation p : participations2) {
@@ -2561,16 +2583,17 @@ public class Athlete {
 		}
 		return s;
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public void setAgeGroupTeams(Set<String> s) {
-		// we use strings because I can't figure out why AgeGroups don't behave properly in a checkbox group
+		// we use strings because I can't figure out why AgeGroups don't behave properly
+		// in a checkbox group
 		List<Participation> participations2 = getParticipations();
 		for (Participation p : participations2) {
 			p.setTeamMember(s.contains(p.getCategory().getAgeGroup().getDisplayName()));
 		}
-		return ;
+		return;
 	}
 
 	@Transient
@@ -3356,9 +3379,9 @@ public class Athlete {
 	}
 
 	public void setEligibleCategories(Set<Category> newEligibles) {
-		
+
 		List<Participation> participations2 = getParticipations();
-		
+
 		Set<String> membershipCategories = participations2.stream().filter(p -> p.getTeamMember())
 		        .map(p -> p.getCategory().getCode()).collect(Collectors.toSet());
 		logger.debug("athlete memberships {}", membershipCategories);

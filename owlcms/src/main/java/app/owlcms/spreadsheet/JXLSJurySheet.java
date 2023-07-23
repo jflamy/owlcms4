@@ -42,7 +42,7 @@ public class JXLSJurySheet extends JXLSWorkbookStreamSource {
 	}
 
 	@Override
-	protected List<Athlete> getSortedAthletes() {
+	public List<Athlete> getSortedAthletes() {
 		return AthleteSorter
 		        .displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getGroup(), isExcludeNotWeighed()));
 	}

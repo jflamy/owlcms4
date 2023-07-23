@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -281,7 +282,12 @@ public class AgeGroupRepository {
 	 */
 	public static List<AgeGroup> findAgeGroups(Group g) {
 		if (g == null) {
-			return new ArrayList<>();
+			return JPAService.runInTransaction((em) -> {
+				TypedQuery<AgeGroup> q = em.createQuery(
+				        "select distinct ag from Athlete a join a.group g join a.participations p join p.category c join c.ageGroup ag order by ag.minAge, ag.maxAge",
+				        AgeGroup.class);
+				return q.getResultList();
+			});
 		} else {
 			return JPAService.runInTransaction((em) -> {
 				TypedQuery<AgeGroup> q = em.createQuery(
@@ -291,6 +297,21 @@ public class AgeGroupRepository {
 				return q.getResultList();
 			});
 		}
+	}
+
+	/**
+	 * Fetch all age groups present in the current group
+	 *
+	 * @param g
+	 * @return
+	 */
+	public static List<String> findAgeGroupPrefixes(Group g) {
+		List<AgeGroup> l = findAgeGroups(g);
+		LinkedHashSet<String> lhss = new LinkedHashSet<>();
+		for (AgeGroup ag : l) {
+			lhss.add(ag.getCode());
+		}
+		return new ArrayList<String>(lhss);
 	}
 
 	/**

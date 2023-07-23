@@ -40,7 +40,7 @@ public class JXLSWeighInSheet extends JXLSWorkbookStreamSource {
 	}
 
 	@Override
-	protected List<Athlete> getSortedAthletes() {
+	public List<Athlete> getSortedAthletes() {
 		final Group currentGroup = getGroup();
 		String computedStartingWeightsSheetTemplateFileName = Competition.getCurrent()
 		        .getComputedStartingWeightsSheetTemplateFileName();

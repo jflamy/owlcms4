@@ -202,7 +202,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 	}
 
 	@Override
-	protected List<Athlete> getSortedAthletes() {
+	public List<Athlete> getSortedAthletes() {
 		HashMap<String, Object> reportingBeans = getReportingBeans();
 
 		List<Athlete> athletes = AthleteSorter

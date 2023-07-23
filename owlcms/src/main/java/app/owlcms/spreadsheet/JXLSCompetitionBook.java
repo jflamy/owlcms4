@@ -151,7 +151,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 	}
 
 	@Override
-	protected List<Athlete> getSortedAthletes() {
+	public List<Athlete> getSortedAthletes() {
 		// not used (setReportingInfo does all the work)
 		return null;
 	}

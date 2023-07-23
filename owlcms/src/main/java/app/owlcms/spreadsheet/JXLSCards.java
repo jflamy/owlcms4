@@ -41,7 +41,7 @@ public class JXLSCards extends JXLSWorkbookStreamSource {
 	}
 
 	@Override
-	protected List<Athlete> getSortedAthletes() {
+	public List<Athlete> getSortedAthletes() {
 		if (getGroup() != null) {
 			List<Athlete> registrationOrderCopy = AthleteSorter
 			        .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getGroup(), null));

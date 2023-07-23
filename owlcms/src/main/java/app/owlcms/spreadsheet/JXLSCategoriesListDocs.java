@@ -38,7 +38,7 @@ public class JXLSCategoriesListDocs extends JXLSWorkbookStreamSource {
 	}
 
 	@Override
-	protected List<Athlete> getSortedAthletes() {
+	public List<Athlete> getSortedAthletes() {
 		List<Athlete> displayOrderCopy = AthleteSorter.displayOrderCopy(sortedAthletes);
 		return displayOrderCopy;
 	}

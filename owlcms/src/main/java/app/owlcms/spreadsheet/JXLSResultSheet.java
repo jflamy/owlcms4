@@ -51,7 +51,7 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 	}
 
 	@Override
-	protected List<Athlete> getSortedAthletes() {
+	public List<Athlete> getSortedAthletes() {
 		if (sortedAthletes != null) {
 			return sortedAthletes;
 		}

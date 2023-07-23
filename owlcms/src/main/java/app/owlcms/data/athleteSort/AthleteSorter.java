@@ -453,6 +453,23 @@ public class AthleteSorter implements Serializable {
 		registrationOrder(sorted);
 		return sorted;
 	}
+	
+	/**
+	 * Sort athletes according to official rules (in place) for the technical
+	 * meeting <tableToolbar>
+	 * <li>by registration category</li>
+	 * <li>by lot number</li> </tableToolbar>.
+	 *
+	 * @param toBeSorted the to be sorted
+	 */
+	static public void registrationBWOrder(List<Athlete> toBeSorted) {
+		Collections.sort(toBeSorted, new RegistrationBWComparator());
+	}
+	static public List<Athlete> registrationBWCopy(List<Athlete> toBeSorted) {
+		List<Athlete> sorted = new ArrayList<>(toBeSorted);
+		registrationBWOrder(sorted);
+		return sorted;
+	}
 
 	/**
 	 * Sort athletes according to winning order.
