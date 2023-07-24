@@ -59,8 +59,6 @@ public class Group implements Comparable<Group> {
 	private final static DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder().parseLenient()
 	        .appendPattern(DATE_FORMAT).toFormatter();
 
-	private static DisplayGroup displayGroup;
-
 	/** The platform. */
 	@ManyToOne(cascade = { CascadeType.MERGE }, optional = true, fetch = FetchType.EAGER)
 	@JsonIdentityReference(alwaysAsId = true)

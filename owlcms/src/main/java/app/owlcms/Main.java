@@ -236,7 +236,7 @@ public class Main {
 				}
 
 				int nbParts = CategoryRepository.countParticipations();
-				if (nbParts == 0 && AthleteRepository.countFiltered(null, null, null, null, null, null, null) > 0) {
+				if (nbParts == 0 && AthleteRepository.countFiltered(null, null, null, null, null, null, null, null) > 0) {
 					// database has athletes, but no participations. 4.22 and earlier.
 					// need to create Participation entries for the Athletes.
 					logger.info("updating database: computing athlete eligibility to age groups and categories.");

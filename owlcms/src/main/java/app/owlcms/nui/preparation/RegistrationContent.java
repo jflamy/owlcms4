@@ -94,6 +94,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 	protected OwlcmsCrudGrid<Athlete> crudGrid;
 	private Group group;
 	protected ComboBox<Gender> genderFilter = new ComboBox<>();
+	protected ComboBox<String> teamFilter = new ComboBox<>();
 	private ComboBox<Group> groupFilter = new ComboBox<>();
 	protected TextField lastNameFilter = new TextField();
 	private Location location;
@@ -116,6 +117,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 	private String lastName;
 	private AgeGroup ageGroup;
 	private Boolean weighedIn;
+	private String team;
 
 	/**
 	 * Instantiates the athlete crudGrid
@@ -137,36 +139,36 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 	public FlexLayout createMenuArea() {
 		createTopBarGroupSelect();
 
-		Button drawLots = new Button(getTranslation("DrawLotNumbers"), (e) -> {
+		Button drawLots = new Button(Translator.translate("DrawLotNumbers"), (e) -> {
 			drawLots();
 		});
 
-		Button deleteAthletes = new Button(getTranslation("DeleteAthletes"), (e) -> {
-			new ConfirmationDialog(getTranslation("DeleteAthletes"), getTranslation("Warning_DeleteAthletes"),
-			        getTranslation("Done_period"), () -> {
+		Button deleteAthletes = new Button(Translator.translate("DeleteAthletes"), (e) -> {
+			new ConfirmationDialog(Translator.translate("DeleteAthletes"), Translator.translate("Warning_DeleteAthletes"),
+			        Translator.translate("Done_period"), () -> {
 				        deleteAthletes();
 			        }).open();
 
 		});
-		deleteAthletes.getElement().setAttribute("title", getTranslation("DeleteAthletes_forListed"));
+		deleteAthletes.getElement().setAttribute("title", Translator.translate("DeleteAthletes_forListed"));
 
-		Button clearLifts = new Button(getTranslation("ClearLifts"), (e) -> {
-			new ConfirmationDialog(getTranslation("ClearLifts"), getTranslation("Warning_ClearAthleteLifts"),
-			        getTranslation("LiftsCleared"), () -> {
+		Button clearLifts = new Button(Translator.translate("ClearLifts"), (e) -> {
+			new ConfirmationDialog(Translator.translate("ClearLifts"), Translator.translate("Warning_ClearAthleteLifts"),
+			        Translator.translate("LiftsCleared"), () -> {
 				        clearLifts();
 			        }).open();
 		});
-		deleteAthletes.getElement().setAttribute("title", getTranslation("ClearLifts_forListed"));
+		deleteAthletes.getElement().setAttribute("title", Translator.translate("ClearLifts_forListed"));
 
-		Button resetCats = new Button(getTranslation("ResetCategories.ResetAthletes"), (e) -> {
+		Button resetCats = new Button(Translator.translate("ResetCategories.ResetAthletes"), (e) -> {
 			new ConfirmationDialog(
-			        getTranslation("ResetCategories.ResetCategories"),
-			        getTranslation("ResetCategories.Warning_ResetCategories"),
-			        getTranslation("ResetCategories.CategoriesReset"), () -> {
+			        Translator.translate("ResetCategories.ResetCategories"),
+			        Translator.translate("ResetCategories.Warning_ResetCategories"),
+			        Translator.translate("ResetCategories.CategoriesReset"), () -> {
 				        resetCategories();
 			        }).open();
 		});
-		resetCats.getElement().setAttribute("title", getTranslation("ResetCategories.ResetCategoriesMouseOver"));
+		resetCats.getElement().setAttribute("title", Translator.translate("ResetCategories.ResetCategoriesMouseOver"));
 
 		HorizontalLayout buttons;
 		buttons = new HorizontalLayout(drawLots, deleteAthletes, clearLifts,
@@ -203,7 +205,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 	public Collection<Athlete> findAll() {
 		List<Athlete> findFiltered = AthleteRepository.findFiltered(getLastName(), getGroup(),
 		        getCategory(), getAgeGroup(), getAgeDivision(),
-		        getGender(), getWeighedIn(), -1, -1);
+		        getGender(), getWeighedIn(), getTeam(), -1, -1);
 		AthleteSorter.registrationOrder(findFiltered);
 		updateURLLocations();
 		return findFiltered;
@@ -240,7 +242,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("EditRegisteredAthletes");
+		return Translator.translate("EditRegisteredAthletes");
 	}
 
 	@Override
@@ -365,29 +367,29 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 
 		grid.getThemeNames().add("row-stripes");
 		grid.getThemeNames().add("compact");
-		grid.addColumn("lotNumber").setHeader(getTranslation("Lot")).setAutoWidth(true)
+		grid.addColumn("lotNumber").setHeader(Translator.translate("Lot")).setAutoWidth(true)
 		        .setTextAlign(ColumnTextAlign.CENTER);
-		grid.addColumn("lastName").setHeader(getTranslation("LastName")).setWidth("20ch");
-		grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
-		grid.addColumn("team").setHeader(getTranslation("Team")).setAutoWidth(true);
-		grid.addColumn("yearOfBirth").setHeader(getTranslation("BirthDate")).setAutoWidth(true)
+		grid.addColumn("lastName").setHeader(Translator.translate("LastName")).setWidth("20ch");
+		grid.addColumn("firstName").setHeader(Translator.translate("FirstName"));
+		grid.addColumn("team").setHeader(Translator.translate("Team")).setAutoWidth(true);
+		grid.addColumn("yearOfBirth").setHeader(Translator.translate("BirthDate")).setAutoWidth(true)
 		        .setTextAlign(ColumnTextAlign.CENTER);
-		grid.addColumn("gender").setHeader(getTranslation("Gender")).setAutoWidth(true)
+		grid.addColumn("gender").setHeader(Translator.translate("Gender")).setAutoWidth(true)
 		        .setTextAlign(ColumnTextAlign.CENTER);
-		grid.addColumn("ageGroup").setHeader(getTranslation("AgeGroup")).setAutoWidth(true)
+		grid.addColumn("ageGroup").setHeader(Translator.translate("AgeGroup")).setAutoWidth(true)
 		        .setTextAlign(ColumnTextAlign.CENTER);
-		grid.addColumn("category").setHeader(getTranslation("Category")).setAutoWidth(true)
+		grid.addColumn("category").setHeader(Translator.translate("Category")).setAutoWidth(true)
 		        .setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))
 		        .setSortProperty("bodyWeight")
-		        .setHeader(getTranslation("BodyWeight")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
-		grid.addColumn("group").setHeader(getTranslation("Group")).setAutoWidth(true)
+		        .setHeader(Translator.translate("BodyWeight")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
+		grid.addColumn("group").setHeader(Translator.translate("Group")).setAutoWidth(true)
 		        .setTextAlign(ColumnTextAlign.CENTER);
-		grid.addColumn("eligibleCategories").setHeader(getTranslation("Registration.EligibleCategories"))
+		grid.addColumn("eligibleCategories").setHeader(Translator.translate("Registration.EligibleCategories"))
 		        .setAutoWidth(true);
-		grid.addColumn("entryTotal").setHeader(getTranslation("EntryTotal")).setAutoWidth(true)
+		grid.addColumn("entryTotal").setHeader(Translator.translate("EntryTotal")).setAutoWidth(true)
 		        .setTextAlign(ColumnTextAlign.CENTER);
-		grid.addColumn("federationCodes").setHeader(getTranslation("Registration.FederationCodesShort"))
+		grid.addColumn("federationCodes").setHeader(Translator.translate("Registration.FederationCodesShort"))
 		        .setAutoWidth(true);
 
 		OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class) {
@@ -449,7 +451,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 	 */
 
 	protected void defineFilters(OwlcmsCrudGrid<Athlete> crudGrid) {
-		lastNameFilter.setPlaceholder(getTranslation("LastName"));
+		lastNameFilter.setPlaceholder(Translator.translate("LastName"));
 		lastNameFilter.setClearButtonVisible(true);
 		lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
 		lastNameFilter.addValueChangeListener(e -> {
@@ -458,10 +460,19 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		});
 		lastNameFilter.setWidth("10em");
 		crudGrid.getCrudLayout().addFilterComponent(lastNameFilter);
+		
+		teamFilter.setPlaceholder(Translator.translate("Team"));
+		teamFilter.setItems(AthleteRepository.findAllTeams());
+		teamFilter.setClearButtonVisible(true);
+		teamFilter.addValueChangeListener(e -> {
+			setTeam(e.getValue());
+			crudGrid.refreshGrid();
+		});
+		crudGrid.getCrudLayout().addFilterComponent(teamFilter);
 
-		ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
+		ageDivisionFilter.setPlaceholder(Translator.translate("AgeDivision"));
 		ageDivisionFilter.setItems(AgeDivision.findAll());
-		ageDivisionFilter.setItemLabelGenerator((ad) -> getTranslation("Division." + ad.name()));
+		ageDivisionFilter.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
 		ageDivisionFilter.setClearButtonVisible(true);
 		ageDivisionFilter.addValueChangeListener(e -> {
 			setAgeDivision(e.getValue());
@@ -470,7 +481,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		ageDivisionFilter.setWidth("10em");
 		crudGrid.getCrudLayout().addFilterComponent(ageDivisionFilter);
 
-		ageGroupFilter.setPlaceholder(getTranslation("AgeGroup"));
+		ageGroupFilter.setPlaceholder(Translator.translate("AgeGroup"));
 		ageGroupFilter.setItems(AgeGroupRepository.findAll());
 		// ageGroupFilter.setItemLabelGenerator(AgeDivision::name);
 		ageGroupFilter.setClearButtonVisible(true);
@@ -481,7 +492,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		ageGroupFilter.setWidth("10em");
 		crudGrid.getCrudLayout().addFilterComponent(ageGroupFilter);
 
-		categoryFilter.setPlaceholder(getTranslation("Category"));
+		categoryFilter.setPlaceholder(Translator.translate("Category"));
 		categoryFilter.setItems(CategoryRepository.findActive());
 		categoryFilter.setItemLabelGenerator(Category::getTranslatedName);
 		categoryFilter.setClearButtonVisible(true);
@@ -492,7 +503,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		categoryFilter.setWidth("10em");
 		crudGrid.getCrudLayout().addFilterComponent(categoryFilter);
 
-		groupFilter.setPlaceholder(getTranslation("Group"));
+		groupFilter.setPlaceholder(Translator.translate("Group"));
 		List<Group> groups = GroupRepository.findAll();
 		groups.sort(new NaturalOrderComparator<Group>());
 		groupFilter.setItems(groups);
@@ -506,10 +517,10 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		crudGrid.getCrudLayout().addFilterComponent(groupFilter);
 		groupFilter.getStyle().set("display", "none");
 
-		weighedInFilter.setPlaceholder(getTranslation("Weighed_in_p"));
+		weighedInFilter.setPlaceholder(Translator.translate("Weighed_in_p"));
 		weighedInFilter.setItems(Boolean.TRUE, Boolean.FALSE);
 		weighedInFilter.setItemLabelGenerator((i) -> {
-			return i ? getTranslation("Weighed") : getTranslation("Not_weighed");
+			return i ? Translator.translate("Weighed") : Translator.translate("Not_weighed");
 		});
 		weighedInFilter.setClearButtonVisible(true);
 		weighedInFilter.addValueChangeListener(e -> {
@@ -519,10 +530,10 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		weighedInFilter.setWidth("10em");
 		crudGrid.getCrudLayout().addFilterComponent(weighedInFilter);
 
-		genderFilter.setPlaceholder(getTranslation("Gender"));
+		genderFilter.setPlaceholder(Translator.translate("Gender"));
 		genderFilter.setItems(Gender.M, Gender.F);
 		genderFilter.setItemLabelGenerator((i) -> {
-			return i == Gender.M ? getTranslation("Gender.Men") : getTranslation("Gender.Women");
+			return i == Gender.M ? Translator.translate("Gender.Men") : Translator.translate("Gender.Women");
 		});
 		genderFilter.setClearButtonVisible(true);
 		genderFilter.addValueChangeListener(e -> {
@@ -546,10 +557,14 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		crudGrid.getCrudLayout().addFilterComponent(clearFilters);
 	}
 
+	protected void setTeam(String value) {
+		team = value;
+	}
+
 	protected void errorNotification() {
-		Label content = new Label(getTranslation("Select_group_first"));
+		Label content = new Label(Translator.translate("Select_group_first"));
 		content.getElement().setAttribute("theme", "error");
-		Button buttonInside = new Button(getTranslation("GotIt"));
+		Button buttonInside = new Button(Translator.translate("GotIt"));
 		buttonInside.getElement().setAttribute("theme", "error primary");
 		VerticalLayout verticalLayout = new VerticalLayout(content, buttonInside);
 		verticalLayout.setAlignItems(Alignment.CENTER);
@@ -707,9 +722,9 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 	}
 
 	private Collection<Athlete> doFindAll(EntityManager em) {
-		List<Athlete> all = AthleteRepository.doFindFiltered(em, lastNameFilter.getValue(), groupFilter.getValue(),
-		        categoryFilter.getValue(), ageGroupFilter.getValue(), ageDivisionFilter.getValue(),
-		        genderFilter.getValue(), weighedInFilter.getValue(), -1, -1);
+		List<Athlete> all = AthleteRepository.doFindFiltered(em, getLastName(), getGroup(),
+		        getCategory(), getAgeGroup(), getAgeDivision(),
+		        getGender(), getWeighedIn(), getTeam(), -1, -1);
 		return all;
 	}
 
@@ -762,6 +777,10 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		}
 		ui.getPage().getHistory().replaceState(null,
 		        new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
+	}
+
+	protected String getTeam() {
+		return team;
 	}
 
 }

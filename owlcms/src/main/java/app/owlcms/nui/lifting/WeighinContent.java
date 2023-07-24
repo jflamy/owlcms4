@@ -197,7 +197,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 		List<Athlete> findFiltered = AthleteRepository.findFiltered(lastNameFilter.getValue(),
 		        getGroupFilter().getValue(),
 		        categoryFilter.getValue(), ageGroupFilter.getValue(), ageDivisionFilter.getValue(),
-		        genderFilter.getValue(), weighedInFilter.getValue(), -1, -1);
+		        genderFilter.getValue(), weighedInFilter.getValue(), (String) null, -1, -1);
 		AthleteSorter.registrationOrder(findFiltered);
 		return findFiltered;
 	}
