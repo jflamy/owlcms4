@@ -595,9 +595,9 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 	}
 	
 	private Button createBWButton() {
-		String resourceDirectoryLocation = "/templates/start";
+		String resourceDirectoryLocation = "/templates/bwStart";
 		String title = Translator.translate("BodyWeightCategories");
-		String downloadedFilePrefix = "startingList";
+		String downloadedFilePrefix = "bwStartingList";
 
 		DownloadDialog startingListFactory = new DownloadDialog(
 		        () -> {

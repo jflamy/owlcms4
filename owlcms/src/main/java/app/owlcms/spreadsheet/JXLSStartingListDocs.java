@@ -15,6 +15,7 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.AgeGroupRepository;
@@ -74,19 +75,20 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 			Sheet sheet = w.getSheetAt(0);
 			int emptyCells = 0;
 
-			Row titleRow = sheet.getRow(5);
-			int width = sheet.getColumnWidth(6);
-			CellStyle style = titleRow.getCell(6).getCellStyle();
+			Row headerRow = sheet.getRow(5);
+			int categoryWidth = sheet.getColumnWidth(6);
+			CellStyle style = headerRow.getCell(6).getCellStyle();
 
 			int offset = 0;
 			for (String pr : prefixes) {
-				sheet.setColumnWidth(QUAL_CATS_COLUMN + offset, width);
-				titleRow.createCell(QUAL_CATS_COLUMN + offset);
-				titleRow.getCell(QUAL_CATS_COLUMN + offset).setCellValue(pr);
-				titleRow.getCell(QUAL_CATS_COLUMN + offset).setCellStyle(style);
+				sheet.setColumnWidth(QUAL_CATS_COLUMN + offset, categoryWidth);
+				headerRow.createCell(QUAL_CATS_COLUMN + offset);
+				headerRow.getCell(QUAL_CATS_COLUMN + offset).setCellValue(pr);
+				headerRow.getCell(QUAL_CATS_COLUMN + offset).setCellStyle(style);
 				offset++;
 			}
 
+			int lastLine = 0;
 			for (Row r : sheet) {
 				if (r.getRowNum() < 7) {
 					continue;
@@ -98,6 +100,7 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 					emptyCells = 0;
 				}
 				if (emptyCells == 2) {
+					lastLine = r.getRowNum();
 					break;
 				}
 
@@ -129,6 +132,9 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 				}
 			}
 			sheet.setColumnHidden(QUAL_CATS_COLUMN-1, true);
+			
+			sheet.addMergedRegion(new CellRangeAddress(4,4,0,QUAL_CATS_COLUMN-1+prefixes.size()));
+			w.setPrintArea(0, 0, QUAL_CATS_COLUMN-1+prefixes.size(), 0, lastLine);
 		});
 	}
 
