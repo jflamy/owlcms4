@@ -1,10 +1,11 @@
-42.0.0-alpha04
+42.0.0-alpha05
 
-- The final results package for total and snatch/clean&jerk/total competitions now includes a summary of medals on the team points page.
+- In the pre-competition documents, an entry list that show the athletes according to their body weight category along with their eligible categories is now available. This is used as a preliminary start list in multi-age group championships where sessions are organized by bodyweight.
 
 42.0.0
 
 - The athlete registration/weigh-in form now shows the eligible categories and also the age group teams in which the athlete is entered.
+- The final results package for total and snatch/clean&jerk/total competitions now includes a summary of medals on the team points page.
 - The team membership page has been redone; it now shows warnings if there are more athletes than permitted in a team and if there are too many athletes in a single category.  The limits are set on the competition rules (default are IWF rules - 10 per team, 2 max per category). If the IWF rules don't apply you can either ignore the warnings or change the limits.
 - The Clean & Jerk break now automatically starts at the end of the snatch.  
   - The duration can now be parameterized in the competition rules (longer breaks when very few athletes, or a shorter or no break for large sessions).
