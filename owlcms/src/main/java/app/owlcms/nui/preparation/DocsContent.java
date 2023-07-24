@@ -42,6 +42,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.components.DownloadDialog;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.AgeDivision;
@@ -165,7 +166,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		Category catFilterValue = getCategoryValue();
 		Stream<Athlete> stream = athletes.stream()
 		        .filter(a -> {
-			        Platform platformFilterValue = platformFilter != null ? platformFilter.getValue() : null;
+			        Platform platformFilterValue = getPlatform();
 			        if (platformFilterValue == null) {
 				        return true;
 			        }
@@ -176,7 +177,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		        })
 		        .filter(a -> a.getCategory() != null)
 		        .filter(a -> {
-			        Gender genderFilterValue = genderFilter != null ? genderFilter.getValue() : null;
+			        Gender genderFilterValue = getGender();
 			        Gender athleteGender = a.getGender();
 			        boolean catOk = (catFilterValue == null
 			                || catFilterValue.toString().equals(a.getCategory().toString()))
@@ -184,6 +185,8 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 			        return catOk;
 		        })
 		        .filter(a -> getGroup() != null ? getGroup().equals(a.getGroup())
+		                : true)
+		        .filter(a -> getTeam() != null ? getTeam().contentEquals(a.getTeam())
 		                : true)
 		        .map(a -> {
 			        if (a.getTeam() == null) {
@@ -392,6 +395,16 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 	 */
 	@Override
 	protected void defineFilters(OwlcmsCrudGrid<Athlete> crudGrid) {
+		
+		teamFilter.setPlaceholder(Translator.translate("Team"));
+		teamFilter.setItems(AthleteRepository.findAllTeams());
+		teamFilter.setClearButtonVisible(true);
+		teamFilter.addValueChangeListener(e -> {
+			setTeam(e.getValue());
+			crudGrid.refreshGrid();
+		});
+		crudGrid.getCrudLayout().addFilterComponent(teamFilter);
+		
 		getGroupFilter().setPlaceholder(Translator.translate("Group"));
 		List<Group> groups = GroupRepository.findAll();
 		groups.sort(new NaturalOrderComparator<Group>());
