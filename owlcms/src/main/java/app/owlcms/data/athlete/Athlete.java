@@ -2599,11 +2599,19 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public String getTeamAgeGroupsAsString() {
-		Set<String> tag = getAgeGroupTeams();
-		if (tag == null || tag.isEmpty()) {
+		Set<String> s = new LinkedHashSet<>();
+		List<Participation> participations2 = getParticipations();
+		for (Participation p : participations2) {
+			if (p.getTeamMember()) {
+				s.add(p.getCategory().getTranslatedName());
+			}
+		}
+
+		if (s == null || s.isEmpty()) {
 			return "";
 		} else {
-			return tag.toString();
+			String collect = s.stream().collect(Collectors.joining(";"));
+			return collect;
 		}
 	}
 
