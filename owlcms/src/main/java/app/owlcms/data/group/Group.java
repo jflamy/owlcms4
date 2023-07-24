@@ -680,10 +680,7 @@ public class Group implements Comparable<Group> {
 	}
 
 	public static DisplayGroup getEmptyDisplayGroup() {
-		if (displayGroup == null) {
-			displayGroup = new DisplayGroup("?", "", null, "", "");
-		}
-		return displayGroup;
+		return new DisplayGroup("?", "", null, "", "");
 	}
 
 }
