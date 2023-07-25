@@ -62,6 +62,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -193,7 +194,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		resetCats.getElement().setAttribute("title", Translator.translate("ResetCategories.ResetCategoriesMouseOver"));
 
 		Hr hr = new Hr();
-		hr.setWidthFull();
+		hr.setWidth("100%");
 		hr.getStyle().set("margin", "0");
 		hr.getStyle().set("padding", "0");
 		FlexLayout buttons = new FlexLayout(
@@ -204,7 +205,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		        bwButton, categoriesListButton, teamsListButton);
 		buttons.getStyle().set("flex-wrap", "wrap");
 		buttons.getStyle().set("gap", "1ex");
-		buttons.getStyle().set("margin-left", "5em");
+		buttons.getStyle().set("margin-left", "3em");
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
 		topBar = new FlexLayout();
@@ -570,6 +571,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		teamFilter.setPlaceholder(Translator.translate("Team"));
 		teamFilter.setItems(AthleteRepository.findAllTeams());
 		teamFilter.setClearButtonVisible(true);
+		teamFilter.setWidth("10em");
 		teamFilter.addValueChangeListener(e -> {
 			setTeam(e.getValue());
 			crudGrid.refreshGrid();
@@ -935,8 +937,14 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 			if (compare != 0) {
 				return compare;
 			}
-			compare = ObjectUtils.compare(a1.getCategory(), a2.getCategory(), true);
-			return compare;
+			Participation mainRankings1 = a1.getMainRankings() != null ? a1.getMainRankings() : null;
+			Participation mainRankings2 = a2.getMainRankings() != null ? a2.getMainRankings() : null;
+			compare = ObjectUtils.compare(mainRankings1.getCategory(), mainRankings2.getCategory(), true);
+			if (compare != 0) {
+				return compare;
+			}
+			compare = ObjectUtils.compare(a1.getEntryTotal(),a2.getEntryTotal());
+			return -compare;
 		};
 		List<Athlete> found = stream.sorted(
 		        groupCategoryComparator)
