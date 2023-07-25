@@ -9,17 +9,11 @@ package app.owlcms.nui.preparation;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.AttachEvent;
@@ -46,7 +40,6 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.AgeDivision;
-import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
@@ -56,11 +49,7 @@ import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.shared.OwlcmsLayout;
-import app.owlcms.spreadsheet.JXLSCardsDocs;
-import app.owlcms.spreadsheet.JXLSCategoriesListDocs;
-import app.owlcms.spreadsheet.JXLSStartingListDocs;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
-import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -87,9 +76,6 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 	private ComboBox<String> ageGroupFilter;
 	private ComboBox<Platform> platformFilter;
 
-	private JXLSStartingListDocs startingXlsWriter;
-	private JXLSCategoriesListDocs categoriesXlsWriter;
-	private JXLSCardsDocs cardsXlsWriter;
 	private String groupName;
 
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
@@ -99,9 +85,6 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 	 * {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
 	 */
 	public DocsContent() {
-		cardsXlsWriter = new JXLSCardsDocs();
-		startingXlsWriter = new JXLSStartingListDocs();
-		categoriesXlsWriter = new JXLSCategoriesListDocs();
 	}
 
 	/**
@@ -118,13 +101,14 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 	public FlexLayout createMenuArea() {
 		topBar = new FlexLayout();
 
+		Button bwButton = createBWButton();
+		Button categoriesListButton = createCategoriesListButton();
+		Button teamsListButton = createTeamsListButton();
+
 		Button cardsButton = createCardsButton();
 		Button weighInSummaryButton = createWeighInSummaryButton();
 		Button sessionsButton = createSessionsButton();
-		Button categoriesListButton = createCategoriesListButton();
-		Button teamsListButton = createTeamsListButton();
 		Button officialSchedule = createOfficalsButton();
-		Button bwButton = createBWButton();
 
 		createTopBarGroupSelect();
 
@@ -138,9 +122,6 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		        sessionsButton, officialSchedule, cardsButton, weighInSummaryButton);
 		buttons.getStyle().set("flex-wrap", "wrap");
 		buttons.getStyle().set("gap", "1ex");
-//		buttons.setPadding(false);
-//		buttons.setMargin(false);
-//		buttons.setSpacing(true);
 		buttons.getStyle().set("margin-left", "5em");
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
@@ -159,69 +140,10 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 	 */
 
 	@Override
-	public List<Athlete> findAll() {
-		List<Athlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(getAgeGroupPrefix(),
-		        getAgeDivision());
-
-		Category catFilterValue = getCategoryValue();
-		Stream<Athlete> stream = athletes.stream()
-		        .filter(a -> {
-			        Platform platformFilterValue = getPlatform();
-			        if (platformFilterValue == null) {
-				        return true;
-			        }
-			        Platform athletePlaform = a.getGroup() != null
-			                ? (a.getGroup().getPlatform() != null ? a.getGroup().getPlatform() : null)
-			                : null;
-			        return platformFilterValue.equals(athletePlaform);
-		        })
-		        .filter(a -> a.getCategory() != null)
-		        .filter(a -> {
-			        Gender genderFilterValue = getGender();
-			        Gender athleteGender = a.getGender();
-			        boolean catOk = (catFilterValue == null
-			                || catFilterValue.toString().equals(a.getCategory().toString()))
-			                && (genderFilterValue == null || genderFilterValue == athleteGender);
-			        return catOk;
-		        })
-		        .filter(a -> getGroup() != null ? getGroup().equals(a.getGroup())
-		                : true)
-		        .filter(a -> getTeam() != null ? getTeam().contentEquals(a.getTeam())
-		                : true)
-		        .map(a -> {
-			        if (a.getTeam() == null) {
-				        a.setTeam("-");
-			        }
-			        return a;
-		        });
-
-		// for categories listing we want all the participation categories
-		Comparator<? super Athlete> groupCategoryComparator = (a1, a2) -> {
-			int compare;
-			compare = ObjectUtils.compare(a1.getGroup(), a2.getGroup(), true);
-			if (compare != 0) {
-				return compare;
-			}
-			compare = ObjectUtils.compare(a1.getCategory(), a2.getCategory(), true);
-			return compare;
-		};
-		List<Athlete> found = stream.sorted(
-		        groupCategoryComparator)
-		        .collect(Collectors.toList());
-		categoriesXlsWriter.setSortedAthletes(found);
-
-		// cards and starting we only want the actual athlete, without duplicates
-		Set<Athlete> regCatAthletes = found.stream().map(pa -> ((PAthlete) pa)._getAthlete())
-		        .collect(Collectors.toSet());
-		List<Athlete> regCatAthletesList = new ArrayList<>(regCatAthletes);
-		regCatAthletesList.sort(groupCategoryComparator);
-
-		cardsXlsWriter.setSortedAthletes(regCatAthletesList);
-		startingXlsWriter.setSortedAthletes(regCatAthletesList);
-
-		updateURLLocations();
-		return regCatAthletesList;
+	public List<Athlete> findAll(){
+		return participationFindAll();
 	}
+	
 
 
 	@Override
@@ -282,7 +204,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		ageGroupFilter.setValue(ageGroupPrefix);
 		String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
 		updateParam(params1, "ag", value2);
-		
+
 		List<String> groupParams = params1.get("group");
 		// no age group is the default
 		String groupString = (groupParams != null && !groupParams.isEmpty() ? groupParams.get(0) : null);
@@ -389,13 +311,130 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		        new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
 	}
 
+	protected Button createCardsButton() {
+		String resourceDirectoryLocation = "/templates/cards";
+		String title = Translator.translate("AthleteCards");
+		String downloadedFilePrefix = "cards";
+		DownloadDialog cardsButtonFactory = new DownloadDialog(
+		        () -> {
+			        // group may have been edited since the page was loaded
+			        cardsXlsWriter.setGroup(
+			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
+			        // get current version of athletes.
+			        findAll();
+			        return cardsXlsWriter;
+		        },
+		        resourceDirectoryLocation,
+		        null,
+		        Competition::getComputedCardsTemplateFileName,
+		        Competition::setCardsTemplateFileName,
+		        title,
+		        downloadedFilePrefix, Translator.translate("Download"));
+		return cardsButtonFactory.createTopBarDownloadButton();
+	}
+
+	protected Button createOfficalsButton() {
+		String resourceDirectoryLocation = "/templates/officials";
+		String title = Translator.translate("StartingList.Officials");
+		String downloadedFilePrefix = "officials";
+
+		DownloadDialog startingListFactory = new DownloadDialog(
+		        () -> {
+			        // group may have been edited since the page was loaded
+			        startingXlsWriter.setGroup(
+			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
+			        return startingXlsWriter;
+		        },
+		        resourceDirectoryLocation,
+		        null,
+		        Competition::getComputedOfficialsListTemplateFileName,
+		        Competition::setOfficialsListTemplateFileName,
+		        title,
+		        downloadedFilePrefix, Translator.translate("Download"));
+		return startingListFactory.createTopBarDownloadButton();
+	}
+
+	protected Button createSessionsButton() {
+		String resourceDirectoryLocation = "/templates/start";
+		String title = Translator.translate("StartingList");
+		String downloadedFilePrefix = "startingList";
+
+		DownloadDialog startingListFactory = new DownloadDialog(
+		        () -> {
+			        // group may have been edited since the page was loaded
+			        startingXlsWriter.setGroup(
+			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
+			        // get current version of athletes.
+			        findAll();
+			        List<Athlete> sortedAthletes = startingXlsWriter.getSortedAthletes();
+			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(sortedAthletes));
+			        return startingXlsWriter;
+		        },
+		        resourceDirectoryLocation,
+		        null,
+		        Competition::getComputedStartListTemplateFileName,
+		        Competition::setStartListTemplateFileName,
+		        title,
+		        downloadedFilePrefix, Translator.translate("Download"));
+		return startingListFactory.createTopBarDownloadButton();
+	}
+
+	@Override
+	protected Button createTeamsListButton() {
+		String resourceDirectoryLocation = "/templates/teams";
+		String title = Translator.translate("StartingList.Teams");
+		String downloadedFilePrefix = "teams";
+
+		DownloadDialog startingListFactory = new DownloadDialog(
+		        () -> {
+			        // group may have been edited since the page was loaded
+			        startingXlsWriter.setGroup(
+			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
+			        // get current version of athletes.
+			        findAll();
+			        // List<Athlete> sortedAthletes = startingXlsWriter.getSortedAthletes();
+			        // startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(sortedAthletes));
+			        startingXlsWriter.createTeamColumns(9, 6);
+			        return startingXlsWriter;
+		        },
+		        resourceDirectoryLocation,
+		        null,
+		        Competition::getComputedTeamsListTemplateFileName,
+		        Competition::setTeamsListTemplateFileName,
+		        title,
+		        downloadedFilePrefix, Translator.translate("Download"));
+		return startingListFactory.createTopBarDownloadButton();
+	}
+
+	protected Button createWeighInSummaryButton() {
+		String resourceDirectoryLocation = "/templates/weighin";
+		String title = Translator.translate("WeighinForm");
+		String downloadedFilePrefix = "weighIn";
+
+		DownloadDialog startingWeightsButton = new DownloadDialog(
+		        () -> {
+			        JXLSWeighInSheet rs = new JXLSWeighInSheet();
+			        // group may have been edited since the page was loaded
+			        Group curGroup = getGroupFilter().getValue();
+			        rs.setGroup(curGroup != null ? GroupRepository.getById(curGroup.getId()) : null);
+			        return rs;
+		        },
+		        resourceDirectoryLocation,
+		        null,
+		        Competition::getComputedStartingWeightsSheetTemplateFileName,
+		        Competition::setStartingWeightsSheetTemplateFileName,
+		        title,
+		        downloadedFilePrefix, Translator.translate("Download"));
+		return startingWeightsButton.createTopBarDownloadButton();
+	}
+
 	/**
 	 *
 	 * @param crudGrid the crudGrid that will be filtered.
 	 */
 	@Override
 	protected void defineFilters(OwlcmsCrudGrid<Athlete> crudGrid) {
-		
+
 		teamFilter.setPlaceholder(Translator.translate("Team"));
 		teamFilter.setItems(AthleteRepository.findAllTeams());
 		teamFilter.setClearButtonVisible(true);
@@ -404,7 +443,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 			crudGrid.refreshGrid();
 		});
 		crudGrid.getCrudLayout().addFilterComponent(teamFilter);
-		
+
 		getGroupFilter().setPlaceholder(Translator.translate("Group"));
 		List<Group> groups = GroupRepository.findAll();
 		groups.sort(new NaturalOrderComparator<Group>());
@@ -417,7 +456,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 			Group currentGroup = value != null ? (value.getName().contentEquals("*") ? null : value) : null;
 			setGroup(currentGroup);
 			crudGrid.refreshGrid();
-			//updateURLLocation(getLocationUI(), getLocation(), getCurrentGroup());
+			// updateURLLocation(getLocationUI(), getLocation(), getCurrentGroup());
 		});
 		crudGrid.getCrudLayout().addFilterComponent(getGroupFilter());
 
@@ -506,173 +545,6 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-	}
-
-
-
-	private Button createBWButton() {
-		String resourceDirectoryLocation = "/templates/bwStart";
-		String title = Translator.translate("BodyWeightCategories");
-		String downloadedFilePrefix = "bwStartingList";
-
-		DownloadDialog startingListFactory = new DownloadDialog(
-		        () -> {
-			        // group may have been edited since the page was loaded
-			        startingXlsWriter.setGroup(
-			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
-			        // get current version of athletes.
-			        findAll();
-			        List<Athlete> sortedAthletes = startingXlsWriter.getSortedAthletes();
-			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationBWCopy(sortedAthletes));
-			        startingXlsWriter.createAgeGroupColumns(10, 7);
-			        return startingXlsWriter;
-		        },
-		        resourceDirectoryLocation,
-		        null,
-		        Competition::getComputedStartListTemplateFileName,
-		        Competition::setStartListTemplateFileName,
-		        title,
-		        downloadedFilePrefix, Translator.translate("Download"));
-		return startingListFactory.createTopBarDownloadButton();
-	}
-
-	private Button createCardsButton() {
-		String resourceDirectoryLocation = "/templates/cards";
-		String title = Translator.translate("AthleteCards");
-		String downloadedFilePrefix = "cards";
-		DownloadDialog cardsButtonFactory = new DownloadDialog(
-		        () -> {
-			        // group may have been edited since the page was loaded
-			        cardsXlsWriter.setGroup(
-			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
-			        // get current version of athletes.
-			        findAll();
-			        return cardsXlsWriter;
-		        },
-		        resourceDirectoryLocation,
-		        null,
-		        Competition::getComputedCardsTemplateFileName,
-		        Competition::setCardsTemplateFileName,
-		        title,
-		        downloadedFilePrefix, Translator.translate("Download"));
-		return cardsButtonFactory.createTopBarDownloadButton();
-	}
-
-	private Button createCategoriesListButton() {
-		String resourceDirectoryLocation = "/templates/categories";
-		String title = Translator.translate("StartingList.Categories");
-		String downloadedFilePrefix = "categories";
-
-		DownloadDialog startingListFactory = new DownloadDialog(
-		        () -> {
-			        // group may have been edited since the page was loaded
-			        categoriesXlsWriter.setGroup(
-			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
-			        // get current version of athletes.
-			        findAll();
-			        return categoriesXlsWriter;
-		        },
-		        resourceDirectoryLocation,
-		        null,
-		        Competition::getComputedCategoriesListTemplateFileName,
-		        Competition::setCategoriesListTemplateFileName,
-		        title,
-		        downloadedFilePrefix, Translator.translate("Download"));
-		return startingListFactory.createTopBarDownloadButton();
-	}
-
-	private Button createOfficalsButton() {
-		String resourceDirectoryLocation = "/templates/officials";
-		String title = Translator.translate("StartingList.Officials");
-		String downloadedFilePrefix = "officials";
-
-		DownloadDialog startingListFactory = new DownloadDialog(
-		        () -> {
-			        // group may have been edited since the page was loaded
-			        startingXlsWriter.setGroup(
-			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
-			        return startingXlsWriter;
-		        },
-		        resourceDirectoryLocation,
-		        null,
-		        Competition::getComputedOfficialsListTemplateFileName,
-		        Competition::setOfficialsListTemplateFileName,
-		        title,
-		        downloadedFilePrefix, Translator.translate("Download"));
-		return startingListFactory.createTopBarDownloadButton();
-	}
-
-	private Button createSessionsButton() {
-		String resourceDirectoryLocation = "/templates/start";
-		String title = Translator.translate("StartingList");
-		String downloadedFilePrefix = "startingList";
-
-		DownloadDialog startingListFactory = new DownloadDialog(
-		        () -> {
-			        // group may have been edited since the page was loaded
-			        startingXlsWriter.setGroup(
-			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
-			        // get current version of athletes.
-			        findAll();
-			        List<Athlete> sortedAthletes = startingXlsWriter.getSortedAthletes();
-			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(sortedAthletes));
-			        return startingXlsWriter;
-		        },
-		        resourceDirectoryLocation,
-		        null,
-		        Competition::getComputedStartListTemplateFileName,
-		        Competition::setStartListTemplateFileName,
-		        title,
-		        downloadedFilePrefix, Translator.translate("Download"));
-		return startingListFactory.createTopBarDownloadButton();
-	}
-
-	private Button createTeamsListButton() {
-		String resourceDirectoryLocation = "/templates/teams";
-		String title = Translator.translate("StartingList.Teams");
-		String downloadedFilePrefix = "teams";
-
-		DownloadDialog startingListFactory = new DownloadDialog(
-		        () -> {
-			        // group may have been edited since the page was loaded
-			        startingXlsWriter.setGroup(
-			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
-			        // get current version of athletes.
-			        findAll();
-			        // List<Athlete> sortedAthletes = startingXlsWriter.getSortedAthletes();
-			        // startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(sortedAthletes));
-			        startingXlsWriter.createTeamColumns(9, 6);
-			        return startingXlsWriter;
-		        },
-		        resourceDirectoryLocation,
-		        null,
-		        Competition::getComputedTeamsListTemplateFileName,
-		        Competition::setTeamsListTemplateFileName,
-		        title,
-		        downloadedFilePrefix, Translator.translate("Download"));
-		return startingListFactory.createTopBarDownloadButton();
-	}
-
-	private Button createWeighInSummaryButton() {
-		String resourceDirectoryLocation = "/templates/weighin";
-		String title = Translator.translate("WeighinForm");
-		String downloadedFilePrefix = "weighIn";
-
-		DownloadDialog startingWeightsButton = new DownloadDialog(
-		        () -> {
-			        JXLSWeighInSheet rs = new JXLSWeighInSheet();
-			        // group may have been edited since the page was loaded
-			        Group curGroup = getGroupFilter().getValue();
-			        rs.setGroup(curGroup != null ? GroupRepository.getById(curGroup.getId()) : null);
-			        return rs;
-		        },
-		        resourceDirectoryLocation,
-		        null,
-		        Competition::getComputedStartingWeightsSheetTemplateFileName,
-		        Competition::setStartingWeightsSheetTemplateFileName,
-		        title,
-		        downloadedFilePrefix, Translator.translate("Download"));
-		return startingWeightsButton.createTopBarDownloadButton();
 	}
 
 }

@@ -8,14 +8,20 @@ package app.owlcms.nui.preparation;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.EntityManager;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 
@@ -26,13 +32,13 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.NumberRenderer;
@@ -45,6 +51,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.components.ConfirmationDialog;
+import app.owlcms.components.DownloadDialog;
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
@@ -55,6 +62,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
@@ -67,6 +75,10 @@ import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.NAthleteRegistrationFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
+import app.owlcms.spreadsheet.JXLSCardsDocs;
+import app.owlcms.spreadsheet.JXLSCategoriesListDocs;
+import app.owlcms.spreadsheet.JXLSStartingListDocs;
+import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -100,6 +112,10 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 	private Location location;
 	private UI locationUI;
 	private OwlcmsLayout routerLayout;
+
+	protected JXLSStartingListDocs startingXlsWriter;
+	protected JXLSCategoriesListDocs categoriesXlsWriter;
+	protected JXLSCardsDocs cardsXlsWriter;
 
 	private ComboBox<Boolean> weighedInFilter = new ComboBox<>();
 //    private Group group;
@@ -139,12 +155,17 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 	public FlexLayout createMenuArea() {
 		createTopBarGroupSelect();
 
+		Button bwButton = createBWButton();
+		Button categoriesListButton = createCategoriesListButton();
+		Button teamsListButton = createTeamsListButton();
+
 		Button drawLots = new Button(Translator.translate("DrawLotNumbers"), (e) -> {
 			drawLots();
 		});
 
 		Button deleteAthletes = new Button(Translator.translate("DeleteAthletes"), (e) -> {
-			new ConfirmationDialog(Translator.translate("DeleteAthletes"), Translator.translate("Warning_DeleteAthletes"),
+			new ConfirmationDialog(Translator.translate("DeleteAthletes"),
+			        Translator.translate("Warning_DeleteAthletes"),
 			        Translator.translate("Done_period"), () -> {
 				        deleteAthletes();
 			        }).open();
@@ -153,7 +174,8 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		deleteAthletes.getElement().setAttribute("title", Translator.translate("DeleteAthletes_forListed"));
 
 		Button clearLifts = new Button(Translator.translate("ClearLifts"), (e) -> {
-			new ConfirmationDialog(Translator.translate("ClearLifts"), Translator.translate("Warning_ClearAthleteLifts"),
+			new ConfirmationDialog(Translator.translate("ClearLifts"),
+			        Translator.translate("Warning_ClearAthleteLifts"),
 			        Translator.translate("LiftsCleared"), () -> {
 				        clearLifts();
 			        }).open();
@@ -170,13 +192,19 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		});
 		resetCats.getElement().setAttribute("title", Translator.translate("ResetCategories.ResetCategoriesMouseOver"));
 
-		HorizontalLayout buttons;
-		buttons = new HorizontalLayout(drawLots, deleteAthletes, clearLifts,
-		        resetCats);
-
-		buttons.setPadding(false);
-		buttons.setMargin(false);
-		buttons.setSpacing(true);
+		Hr hr = new Hr();
+		hr.setWidthFull();
+		hr.getStyle().set("margin", "0");
+		hr.getStyle().set("padding", "0");
+		FlexLayout buttons = new FlexLayout(
+				new Label(Translator.translate("Preparation")),
+				drawLots, deleteAthletes, clearLifts,
+		        resetCats, hr, 
+		        new Label(Translator.translate("Entries")),
+		        bwButton, categoriesListButton, teamsListButton);
+		buttons.getStyle().set("flex-wrap", "wrap");
+		buttons.getStyle().set("gap", "1ex");
+		buttons.getStyle().set("margin-left", "5em");
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
 		topBar = new FlexLayout();
@@ -207,6 +235,9 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		        getCategory(), getAgeGroup(), getAgeDivision(),
 		        getGender(), getWeighedIn(), getTeam(), -1, -1);
 		AthleteSorter.registrationOrder(findFiltered);
+		startingXlsWriter.setSortedAthletes(findFiltered);
+		List<Athlete> c = AthleteSorter.displayOrderCopy(findFiltered);
+		categoriesXlsWriter.setSortedAthletes(c);
 		updateURLLocations();
 		return findFiltered;
 	}
@@ -356,6 +387,55 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		return a;
 	}
 
+	protected Button createBWButton() {
+		String resourceDirectoryLocation = "/templates/bwStart";
+		String title = Translator.translate("BodyWeightCategories");
+		String downloadedFilePrefix = "bwStartingList";
+
+		DownloadDialog startingListFactory = new DownloadDialog(
+		        () -> {
+			        // group may have been edited since the page was loaded
+			        startingXlsWriter.setGroup(
+			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
+			        // get current version of athletes.
+			        findAll();
+			        List<Athlete> sortedAthletes = startingXlsWriter.getSortedAthletes();
+			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationBWCopy(sortedAthletes));
+			        startingXlsWriter.createAgeGroupColumns(10, 7);
+			        return startingXlsWriter;
+		        },
+		        resourceDirectoryLocation,
+		        null,
+		        Competition::getComputedStartListTemplateFileName,
+		        Competition::setStartListTemplateFileName,
+		        title,
+		        downloadedFilePrefix, Translator.translate("Download"));
+		return startingListFactory.createTopBarDownloadButton();
+	}
+
+	protected Button createCategoriesListButton() {
+		String resourceDirectoryLocation = "/templates/categories";
+		String title = Translator.translate("StartingList.Categories");
+		String downloadedFilePrefix = "categories";
+
+		DownloadDialog startingListFactory = new DownloadDialog(
+		        () -> {
+			        // group may have been edited since the page was loaded
+			        categoriesXlsWriter.setGroup(
+			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
+			        // get current version of athletes.
+			        participationFindAll();
+			        return categoriesXlsWriter;
+		        },
+		        resourceDirectoryLocation,
+		        null,
+		        Competition::getComputedCategoriesListTemplateFileName,
+		        Competition::setCategoriesListTemplateFileName,
+		        title,
+		        downloadedFilePrefix, Translator.translate("Download"));
+		return startingListFactory.createTopBarDownloadButton();
+	}
+
 	/**
 	 * The columns of the crudGrid
 	 *
@@ -422,6 +502,32 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		return athleteEditingFormFactory;
 	}
 
+	protected Button createTeamsListButton() {
+		String resourceDirectoryLocation = "/templates/teams";
+		String title = Translator.translate("StartingList.Teams");
+		String downloadedFilePrefix = "teams";
+
+		DownloadDialog startingListFactory = new DownloadDialog(
+		        () -> {
+			        // group may have been edited since the page was loaded
+			        startingXlsWriter.setGroup(
+			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
+			        // get current version of athletes.
+			        findAll();
+			        // List<Athlete> sortedAthletes = startingXlsWriter.getSortedAthletes();
+			        // startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(sortedAthletes));
+			        startingXlsWriter.createTeamColumns(9, 6);
+			        return startingXlsWriter;
+		        },
+		        resourceDirectoryLocation,
+		        null,
+		        Competition::getComputedTeamsListTemplateFileName,
+		        Competition::setTeamsListTemplateFileName,
+		        title,
+		        downloadedFilePrefix, Translator.translate("Download"));
+		return startingListFactory.createTopBarDownloadButton();
+	}
+
 	protected void createTopBarGroupSelect() {
 		// there is already all the SQL filtering logic for the group attached
 		// hidden field in the crudGrid part of the page so we just set that
@@ -460,7 +566,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		});
 		lastNameFilter.setWidth("10em");
 		crudGrid.getCrudLayout().addFilterComponent(lastNameFilter);
-		
+
 		teamFilter.setPlaceholder(Translator.translate("Team"));
 		teamFilter.setItems(AthleteRepository.findAllTeams());
 		teamFilter.setClearButtonVisible(true);
@@ -557,10 +663,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		crudGrid.getCrudLayout().addFilterComponent(clearFilters);
 	}
 
-	protected void setTeam(String value) {
-		team = value;
-	}
-
 	protected void errorNotification() {
 		Label content = new Label(Translator.translate("Select_group_first"));
 		content.getElement().setAttribute("theme", "error");
@@ -601,12 +703,12 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		return getCategory();
 	}
 
-	protected Group getGroup() {
-		return group;
-	}
-
 	protected Gender getGender() {
 		return gender;
+	}
+
+	protected Group getGroup() {
+		return group;
 	}
 
 	protected String getLastName() {
@@ -617,11 +719,18 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		return platform;
 	}
 
+	protected String getTeam() {
+		return team;
+	}
+
 	protected Boolean getWeighedIn() {
 		return weighedIn;
 	}
 
 	protected void init() {
+		cardsXlsWriter = new JXLSCardsDocs();
+		startingXlsWriter = new JXLSStartingListDocs();
+		categoriesXlsWriter = new JXLSCategoriesListDocs();
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
 		crudGrid = createCrudGrid(crudFormFactory);
 		defineFilters(crudGrid);
@@ -649,12 +758,12 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		this.category = category;
 	}
 
-	protected void setGroup(Group currentGroup) {
-		this.group = currentGroup;
-	}
-
 	protected void setGender(Gender value) {
 		this.gender = value;
+	}
+
+	protected void setGroup(Group currentGroup) {
+		this.group = currentGroup;
 	}
 
 	/**
@@ -671,6 +780,10 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 
 	protected void setPlatform(Platform platformValue) {
 		this.platform = platformValue;
+	}
+
+	protected void setTeam(String value) {
+		team = value;
 	}
 
 	protected void updateURLLocations() {
@@ -778,9 +891,68 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		ui.getPage().getHistory().replaceState(null,
 		        new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
 	}
+	
+	protected List<Athlete> participationFindAll() {
+		List<Athlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(getAgeGroupPrefix(),
+		        getAgeDivision());
 
-	protected String getTeam() {
-		return team;
+		Category catFilterValue = getCategoryValue();
+		Stream<Athlete> stream = athletes.stream()
+		        .filter(a -> {
+			        Platform platformFilterValue = getPlatform();
+			        if (platformFilterValue == null) {
+				        return true;
+			        }
+			        Platform athletePlaform = a.getGroup() != null
+			                ? (a.getGroup().getPlatform() != null ? a.getGroup().getPlatform() : null)
+			                : null;
+			        return platformFilterValue.equals(athletePlaform);
+		        })
+		        .filter(a -> a.getCategory() != null)
+		        .filter(a -> {
+			        Gender genderFilterValue = getGender();
+			        Gender athleteGender = a.getGender();
+			        boolean catOk = (catFilterValue == null
+			                || catFilterValue.toString().equals(a.getCategory().toString()))
+			                && (genderFilterValue == null || genderFilterValue == athleteGender);
+			        return catOk;
+		        })
+		        .filter(a -> getGroup() != null ? getGroup().equals(a.getGroup())
+		                : true)
+		        .filter(a -> getTeam() != null ? getTeam().contentEquals(a.getTeam())
+		                : true)
+		        .map(a -> {
+			        if (a.getTeam() == null) {
+				        a.setTeam("-");
+			        }
+			        return a;
+		        });
+
+		// for categories listing we want all the participation categories
+		Comparator<? super Athlete> groupCategoryComparator = (a1, a2) -> {
+			int compare;
+			compare = ObjectUtils.compare(a1.getGroup(), a2.getGroup(), true);
+			if (compare != 0) {
+				return compare;
+			}
+			compare = ObjectUtils.compare(a1.getCategory(), a2.getCategory(), true);
+			return compare;
+		};
+		List<Athlete> found = stream.sorted(
+		        groupCategoryComparator)
+		        .collect(Collectors.toList());
+		categoriesXlsWriter.setSortedAthletes(found);
+
+		// cards and starting we only want the actual athlete, without duplicates
+		Set<Athlete> regCatAthletes = found.stream().map(pa -> ((PAthlete) pa)._getAthlete())
+		        .collect(Collectors.toSet());
+		List<Athlete> regCatAthletesList = new ArrayList<>(regCatAthletes);
+		regCatAthletesList.sort(groupCategoryComparator);
+
+		cardsXlsWriter.setSortedAthletes(regCatAthletesList);
+		startingXlsWriter.setSortedAthletes(regCatAthletesList);
+
+		updateURLLocations();
+		return regCatAthletesList;
 	}
-
 }
