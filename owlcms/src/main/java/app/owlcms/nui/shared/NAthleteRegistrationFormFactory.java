@@ -749,7 +749,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			BindingBuilder<Athlete, LocalDate> bb = binder.forField(fullBirthDateField);
 			validateFullBirthDate(bb);
 			bindField(bb, fullBirthDateField, Athlete::getFullBirthDate, Athlete::setFullBirthDate);
-			layoutAddFormItem(layout, fullBirthDateField, Translator.translate("BirthDate_yyyy"));
+			layoutAddFormItem(layout, fullBirthDateField, Translator.translate("BirthDate"));
 		}
 
 		genderField = new ComboBox<>();
@@ -903,7 +903,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	private Component createTitle(String string) {
 		H4 title = new H4(Translator.translate(string));
 		title.getStyle().set("margin-top", "0");
-		// title.getStyle().set("margin-bottom", "0");
+		title.getStyle().set("margin-bottom", "0.5ex");
 		return title;
 	}
 
@@ -980,6 +980,8 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		FormItem fi = layout.addFormItem(field, label);
 		fi.getStyle().set("align-items", "center");
 		fi.getStyle().set("align-self", "center");
+		fi.getStyle().set("margin-bottom", "-0.5em");
+		fi.getStyle().set("padding-bottom", "0");
 		return fi;
 	}
 
@@ -1222,8 +1224,8 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 	private Hr separator() {
 		Hr hr = new Hr();
-		hr.getStyle().set("margin-top", "0.5em");
-		hr.getStyle().set("margin-bottom", "1.0em");
+		hr.getStyle().set("margin-top", "0.4em");
+		hr.getStyle().set("margin-bottom", "0.4em");
 		hr.getStyle().set("background-color", "var(--lumo-contrast-30pct)");
 		hr.getStyle().set("height", "2px");
 		return hr;
