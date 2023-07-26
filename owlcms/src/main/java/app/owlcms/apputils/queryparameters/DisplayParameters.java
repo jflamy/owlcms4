@@ -52,6 +52,8 @@ public interface DisplayParameters extends ContentParameters {
 	public static final String SOUND = "sound";
 	public static final String RECORDS = "records";
 	public static final String LEADERS = "leaders";
+	public static final String TEAMWIDTH = "tw";
+	public static final String ABBREVIATED = "abb";
 
 	public void addDialogContent(Component target, VerticalLayout vl);
 
@@ -95,6 +97,7 @@ public interface DisplayParameters extends ContentParameters {
 		// workaround for compilation glitch
 		@SuppressWarnings("rawtypes")
 		ComponentEventListener listener = e -> {
+			buildDialog(target);
 			// logger.debug("opening dialog");
 			openDialog(dialog);
 			setShowInitialDialog(false);
@@ -248,12 +251,38 @@ public interface DisplayParameters extends ContentParameters {
 				setEmFontSize(null);
 				updateParam(params, FONTSIZE, null);
 			}
-			buildDialog((Component) this);
 		} catch (NumberFormatException e) {
 			emSize = 0.0D;
 			setEmFontSize(null);
 			updateParam(params, FONTSIZE, null);
 		}
+
+		List<String> twParams = params.get(TEAMWIDTH);
+		Double tWidth;
+		try {
+			tWidth = (twParams != null && !twParams.isEmpty() ? Double.parseDouble(twParams.get(0)) : 0.0D);
+			if (tWidth > 0.0D) {
+				setTeamWidth(tWidth);
+				updateParam(params, FONTSIZE, tWidth.toString());
+			} else {
+				setTeamWidth(null);
+				updateParam(params, FONTSIZE, null);
+			}
+			buildDialog((Component) this);
+		} catch (NumberFormatException e) {
+			tWidth = 10.0D;
+			setEmFontSize(null);
+			updateParam(params, FONTSIZE, null);
+		}
+
+		List<String> abbParams = params.get(ABBREVIATED);
+		boolean abb;
+		abb = (abbParams != null && !abbParams.isEmpty() ? Boolean.valueOf(abbParams.get(0)) : false);
+		setAbbreviatedName(abb);
+		updateParam(params, ABBREVIATED, abb ? "true" : null);
+		
+//		buildDialog((Component) this);
+
 		setUrlParameterMap(params);
 		return params;
 	}
@@ -271,6 +300,16 @@ public interface DisplayParameters extends ContentParameters {
 	public void setDialogTimer(Timer timer);
 
 	public default void setEmFontSize(Double emFontSize) {
+	}
+
+	public default void setTeamWidth(Double tw) {
+	}
+
+	public default void setAbbreviatedName(boolean b) {
+	}
+
+	public default boolean isAbbreviatedName() {
+		return false;
 	}
 
 	public default void setLeadersDisplay(boolean showLeaders) {
@@ -327,7 +366,7 @@ public interface DisplayParameters extends ContentParameters {
 	@Override
 	public default void storeReturnURL(Location location) {
 		if (isSwitchableDisplay()) {
-			//String trace = LoggerUtils.stackTrace();
+			// String trace = LoggerUtils.stackTrace();
 			UI.getCurrent().getPage().fetchCurrentURL(url -> {
 				String urlNonRelative = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort() + "/";
 				String arg1 = urlNonRelative + location.getPathWithQueryParameters();
@@ -337,7 +376,7 @@ public interface DisplayParameters extends ContentParameters {
 					} catch (UnsupportedEncodingException e) {
 					}
 				}
-				//logger.debug("storing pageURL {} {}", arg1, trace);
+				// logger.debug("storing pageURL {} {}", arg1, trace);
 				storeInSessionStorage("pageURL", url.toExternalForm());
 			});
 		}
@@ -349,7 +388,8 @@ public interface DisplayParameters extends ContentParameters {
 			updateURLLocation(getLocationUI(), getLocation(), FONTSIZE,
 			        emFontSize != null ? emFontSize.toString() : null);
 		}
-		buildDialog(target);
+		logger.warn("before Building {}",getEmFontSize());
+		//buildDialog(target);
 	}
 
 	public default void switchLeaders(Component target, boolean showLeaders, boolean updateURL) {
@@ -372,7 +412,7 @@ public interface DisplayParameters extends ContentParameters {
 		// after updateURL so that this method is usable to store the location if it
 		// needs it.
 		setDarkMode(dark);
-		buildDialog(target);
+		//buildDialog(target);
 	}
 
 	public default void switchRecords(Component target, boolean showRecords, boolean updateURL) {
@@ -388,7 +428,7 @@ public interface DisplayParameters extends ContentParameters {
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), PUBLIC, switchable ? "true" : "false");
 		}
-		buildDialog(target);
+		//buildDialog(target);
 	}
 
 	Timer getDialogTimer();

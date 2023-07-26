@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.displays.scoreboard;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -24,6 +25,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -87,6 +89,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
         HasDynamicTitle, VideoOverride,
         RequireDisplayLogin {
 
+	private static final long DEBOUNCE = 50;
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsMedals.class);
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
@@ -113,7 +116,12 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	private boolean video;
 	private AgeGroup ageGroup;
 	private boolean teamFlags;
-	private boolean abbreviateNames;
+	private long now;
+	private long lastShortcut;
+	private Double teamWidth;
+
+	DecimalFormat df = new DecimalFormat("0.000");
+	private boolean abbreviatedName;
 
 	/**
 	 * Instantiates a new results board.
@@ -136,6 +144,35 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		DisplayOptions.addLightingEntries(vl, target, this);
 		DisplayOptions.addRule(vl);
 		DisplayOptions.addSizingEntries(vl, target, this);
+
+		UI.getCurrent().addShortcutListener(() -> {
+			now = System.currentTimeMillis();
+			if (now - lastShortcut > DEBOUNCE) {
+				setEmFontSize(getEmFontSize() + 0.005);
+			}
+			lastShortcut = now;
+		}, Key.ARROW_UP);
+		UI.getCurrent().addShortcutListener(() -> {
+			now = System.currentTimeMillis();
+			if (now - lastShortcut > DEBOUNCE) {
+				setEmFontSize(getEmFontSize() - 0.005);
+			}
+			lastShortcut = now;
+		}, Key.ARROW_DOWN);
+		UI.getCurrent().addShortcutListener(() -> {
+			now = System.currentTimeMillis();
+			if (now - lastShortcut > DEBOUNCE) {
+				setTeamWidth(getTeamWidth() + 0.5);
+			}
+			lastShortcut = now;
+		}, Key.ARROW_RIGHT);
+		UI.getCurrent().addShortcutListener(() -> {
+			now = System.currentTimeMillis();
+			if (now - lastShortcut > DEBOUNCE) {
+				setTeamWidth(getTeamWidth() - 0.5);
+			}
+			lastShortcut = now;
+		}, Key.ARROW_LEFT);
 	}
 
 	@Override
@@ -160,7 +197,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 
 	@Override
 	public void doCeremony(UIEvent.CeremonyStarted e) {
-		//logger.debug("+++++++ ceremony event = {} {}", e, e.getTrace());
+		// logger.debug("+++++++ ceremony event = {} {}", e, e.getTrace());
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			Group ceremonyGroup = e.getCeremonyGroup();
 			setGroup(ceremonyGroup);
@@ -224,6 +261,13 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	@Override
 	public String getRouteParameter() {
 		return this.routeParameter;
+	}
+
+	public Double getTeamWidth() {
+		if (teamWidth == null) {
+			return 12.0D;
+		}
+		return teamWidth;
 	}
 
 	@Override
@@ -330,6 +374,15 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 
 	@Override
 	public void setSilenced(boolean silent) {
+	}
+
+	/**
+	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setTeamWidth(java.lang.Double)
+	 */
+	@Override
+	public void setTeamWidth(Double teamWidth) {
+		this.teamWidth = teamWidth;
+		doChangeTeamWidth();
 	}
 
 	@Override
@@ -447,6 +500,17 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		doRefresh(e);
 	}
 
+	protected void doChangeTeamWidth() {
+		String formattedTW = null;
+
+		if (teamWidth != null) {
+			formattedTW = df.format(teamWidth);
+			this.getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
+		}
+		updateURLLocation(getLocationUI(), getLocation(), TEAMWIDTH,
+		        teamWidth != null ? formattedTW : null);
+	}
+
 	protected void doEmpty() {
 		// no need to hide, text is self evident.
 		// this.setHidden(true);
@@ -476,7 +540,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
 		String category;
 		category = curCat != null ? curCat.getTranslatedName() : "";
-		if (isAbbreviateNames()) {
+		if (isAbbreviatedName()) {
 			ja.put("fullName", a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
 		} else {
 			ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
@@ -496,15 +560,15 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		if (mainRankings != null) {
 			int snatchRank = mainRankings.getSnatchRank();
 			ja.put("snatchRank", formatRank(snatchRank));
-			ja.put("snatchMedal", snatchRank <= 3 ? "medal"+snatchRank : "");
-			
+			ja.put("snatchMedal", snatchRank <= 3 ? "medal" + snatchRank : "");
+
 			int cleanJerkRank = mainRankings.getCleanJerkRank();
 			ja.put("cleanJerkRank", formatRank(cleanJerkRank));
-			ja.put("cleanJerkMedal", cleanJerkRank <= 3 ? "medal"+cleanJerkRank : "");
-			
+			ja.put("cleanJerkMedal", cleanJerkRank <= 3 ? "medal" + cleanJerkRank : "");
+
 			int totalRank = mainRankings.getTotalRank();
 			ja.put("totalRank", formatRank(totalRank));
-			ja.put("totalMedal", totalRank <= 3 ? "medal"+totalRank : "");
+			ja.put("totalMedal", totalRank <= 3 ? "medal" + totalRank : "");
 		} else {
 			logger.error("main rankings null for {}", a);
 		}
@@ -515,10 +579,10 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
 		ja.put("sinclairRank", a.getSinclairRank() != null ? "" + a.getSinclairRank() : "-");
-		
+
 		// only show flags when medals are for a single category
 		String prop = null;
-		if (getCategory() != null) { 
+		if (getCategory() != null) {
 			String team = a.getTeam();
 			String teamFileName = URLUtils.sanitizeFilename(team);
 
@@ -571,7 +635,6 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		return jath;
 	}
 
-
 	/*
 	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
 	 * AttachEvent)
@@ -579,47 +642,10 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		doMedalsDisplay();
-		
+
 		switchLightingMode(this, isDarkMode(), true);
 		SoundUtils.enableAudioContextNotification(this.getElement());
 
-
-
-	}
-
-	private void doMedalsDisplay() {
-		// fop obtained via FOPParameters interface default methods.
-		OwlcmsSession.withFop(fop -> {
-			init();
-			checkVideo(Config.getCurrent().getStylesDirectory()+"/video/results.css", routeParameter, this);
-			teamFlags = URLUtils.checkFlags();
-			if (this.getCategory() == null) {
-				if (this.getGroup() != null) {
-					medals = Competition.getCurrent().getMedals(this.getGroup(), false);
-				} else {
-					// we listen on uiEventBus.
-					uiEventBus = uiEventBusRegister(this, fop);
-					medals = Competition.getCurrent().getMedals(OwlcmsSession.getFop().getGroup(), false);
-				}
-				this.getElement().setProperty("fillerDisplay","");
-			} else {
-				TreeSet<Athlete> catMedals = Competition.getCurrent().computeMedalsForCategory(this.getCategory());
-				// logger.debug("group {} category {} catMedals {}", getGroup(), getCategory(),
-				// catMedals);
-				medals = new TreeMap<>();
-				medals.put(this.getCategory(), catMedals);
-				this.getElement().setProperty("fillerDisplay","display: none;");
-			}
-			setDisplay(false);
-			computeMedalsJson(medals);
-			// we listen on uiEventBus.
-			uiEventBus = uiEventBusRegister(this, fop);
-		});
-
-		if (!Competition.getCurrent().isSnatchCJTotalMedals()) {
-			getElement().setProperty("noLiftRanks", "noranks");
-		}
-		this.getElement().setProperty("displayTitle", Translator.translate("CeremonyType.MEDALS"));
 	}
 
 	protected void setTranslationMap() {
@@ -674,9 +700,9 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 					jMC.put("categoryName", medalCat.getKey().getTranslatedName());
 					jMC.put("leaders", getAthletesJson(new ArrayList<>(medalists), fop));
 					if (mcX == 0) {
-						jMC.put("showCatHeader","");
+						jMC.put("showCatHeader", "");
 					} else {
-						jMC.put("showCatHeader","display:none;");
+						jMC.put("showCatHeader", "display:none;");
 					}
 					// logger.debug("medalCategory: {}", jMC.toJson());
 					jsonMCArray.set(mcX, jMC);
@@ -709,9 +735,49 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	}
 
 	private void doChangeEmSize() {
-		if (getEmFontSize() != null) {
-			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + getEmFontSize() + "rem;");
+		String formattedEm = null;
+
+		if (emFontSize != null) {
+			formattedEm = df.format(emFontSize);
+			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "rem;");
 		}
+		updateURLLocation(getLocationUI(), getLocation(), FONTSIZE,
+		        emFontSize != null ? formattedEm : null);
+	}
+
+	private void doMedalsDisplay() {
+		// fop obtained via FOPParameters interface default methods.
+		OwlcmsSession.withFop(fop -> {
+			init();
+			checkVideo(Config.getCurrent().getStylesDirectory() + "/video/results.css", routeParameter, this);
+			teamFlags = URLUtils.checkFlags();
+			if (this.getCategory() == null) {
+				if (this.getGroup() != null) {
+					medals = Competition.getCurrent().getMedals(this.getGroup(), false);
+				} else {
+					// we listen on uiEventBus.
+					uiEventBus = uiEventBusRegister(this, fop);
+					medals = Competition.getCurrent().getMedals(OwlcmsSession.getFop().getGroup(), false);
+				}
+				this.getElement().setProperty("fillerDisplay", "");
+			} else {
+				TreeSet<Athlete> catMedals = Competition.getCurrent().computeMedalsForCategory(this.getCategory());
+				// logger.debug("group {} category {} catMedals {}", getGroup(), getCategory(),
+				// catMedals);
+				medals = new TreeMap<>();
+				medals.put(this.getCategory(), catMedals);
+				this.getElement().setProperty("fillerDisplay", "display: none;");
+			}
+			setDisplay(false);
+			computeMedalsJson(medals);
+			// we listen on uiEventBus.
+			uiEventBus = uiEventBusRegister(this, fop);
+		});
+
+		if (!Competition.getCurrent().isSnatchCJTotalMedals()) {
+			getElement().setProperty("noLiftRanks", "noranks");
+		}
+		this.getElement().setProperty("displayTitle", Translator.translate("CeremonyType.MEDALS"));
 	}
 
 	private void doRefresh(UIEvent e) {
@@ -866,15 +932,15 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	}
 
 	private void setDisplay(boolean hidden) {
-	
+
 		this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
 		this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" : "display:grid"));
 		this.getElement().setProperty("hiddenFlexStyle", (hidden ? "display:none" : "display:flex"));
-		
+
 		this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
 		this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" : "display:none"));
 		this.getElement().setProperty("inactiveFlexStyle", (hidden ? "display:flex" : "display:none"));
-		
+
 		this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
 		this.getElement().setProperty("videoHeaderDisplay", (hidden || !isVideo() ? "display:none" : "display:flex"));
 		this.getElement().setProperty("normalHeaderDisplay", (hidden || isVideo() ? "display:none" : "display:block"));
@@ -911,12 +977,14 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		this.getElement().setProperty("liftDone", "-");
 		computeMedalsJson(medals);
 	}
-	
-	protected boolean isAbbreviateNames() {
-		return abbreviateNames;
+
+	@Override
+	public void setAbbreviatedName(boolean b) {
+		this.abbreviatedName = b;
 	}
 
-	protected void setAbbreviateNames(boolean abbreviateNames) {
-		this.abbreviateNames = abbreviateNames;
+	@Override
+	public boolean isAbbreviatedName() {
+		return this.abbreviatedName;
 	}
 }

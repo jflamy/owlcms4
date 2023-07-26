@@ -104,7 +104,7 @@ public class DisplayOptions {
 	public static void addSizingEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
 		Label label = new Label(Translator.translate("DisplayParameters.FontSizeLabel"));
 
-		LocalizedDecimalField fontSizeField = new LocalizedDecimalField();
+		LocalizedDecimalField fontSizeField = new LocalizedDecimalField(3);
 		TextField wrappedTextField = fontSizeField.getWrappedTextField();
 		wrappedTextField.setLabel(null);
 		wrappedTextField.setValueChangeMode(ValueChangeMode.ON_CHANGE);

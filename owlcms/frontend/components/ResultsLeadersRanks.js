@@ -62,7 +62,7 @@ class ResultsFull extends PolymerElement {
         </div>
 
         <table class="results"
-            style$="[[hiddenGridStyle]]; --top: calc([[resultLines]] + 1); --bottom: [[leaderLines]]; --nbRanks: [[nbRanks]]; [[leadersLineHeight]];">
+            style$="[[hiddenGridStyle]]; --top: calc([[resultLines]] + 1); --bottom: [[leaderLines]]; --nbRanks: [[nbRanks]]; [[leadersLineHeight]]; [[twOverride]]">
             <template is="dom-if" if="[[athletes]]">
                 <tr class="head">
                     <!-- first row is all the row spans and the top cells -->

@@ -20,7 +20,6 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
-import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
@@ -52,7 +51,6 @@ public class ResultsLeadersRanks extends Results {
 		OwlcmsFactory.waitDBInitialized();
 		timer.setOrigin(this);
 		setDarkMode(true);
-		setAbbreviateNames(!Config.getCurrent().featureSwitch("fullScoreboardNames"));
 	}
 
 	@Override
@@ -139,7 +137,7 @@ public class ResultsLeadersRanks extends Results {
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 		String category;
 		category = curCat != null ? curCat.getTranslatedName() : "";
-		if (isAbbreviateNames()) {
+		if (isAbbreviatedName()) {
 			ja.put("fullName", a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
 		} else {
 			ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");

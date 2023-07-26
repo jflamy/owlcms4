@@ -63,7 +63,7 @@ class Results extends PolymerElement {
 
 
         <table class$="results [[noLiftRanks]] [[noBest]]"
-            style$="[[hiddenGridStyle]]; --top: [[resultLines]]; --bottom: [[leaderLines]]; [[leadersLineHeight]];">
+            style$="[[hiddenGridStyle]]; --top: [[resultLines]]; --bottom: [[leaderLines]]; [[leadersLineHeight]]; [[twOverride]]">
             <template is="dom-if" if="[[athletes]]">
                 <tr class="head">
                     <!-- [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->

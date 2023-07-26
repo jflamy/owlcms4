@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.displays.scoreboard;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -23,6 +24,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -92,6 +94,7 @@ public class Results extends PolymerTemplate<TemplateModel>
         implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
         RequireDisplayLogin, VideoOverride {
 
+	private static final int DEBOUNCE = 50;
 	protected JsonArray cattempts;
 	protected Group curGroup;
 	protected Dialog dialog;
@@ -134,8 +137,13 @@ public class Results extends PolymerTemplate<TemplateModel>
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private boolean downSilenced;
 	private boolean video;
-	private boolean abbreviateNames;
+	private Boolean abbreviatedName;
 	private boolean teamFlags;
+	private Double teamWidth;
+
+	DecimalFormat df = new DecimalFormat("0.000");
+	private long now;
+	private long lastShortcut;
 
 	/**
 	 * Instantiates a new results board.
@@ -151,7 +159,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 		// js files add the build number to file names in order to prevent cache
 		// collisions
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
-		setAbbreviateNames(Config.getCurrent().featureSwitch("shortScoreboardNames"));
+		setAbbreviatedName(Config.getCurrent().featureSwitch("shortScoreboardNames"));
 	}
 
 	/**
@@ -169,6 +177,36 @@ public class Results extends PolymerTemplate<TemplateModel>
 		DisplayOptions.addSectionEntries(vl, target, this);
 		DisplayOptions.addRule(vl);
 		DisplayOptions.addSizingEntries(vl, target, this);
+
+		UI.getCurrent().addShortcutListener(() -> {
+			now = System.currentTimeMillis();
+			if (now - lastShortcut > DEBOUNCE) {
+				setEmFontSize(getEmFontSize() + 0.005);
+			}
+			lastShortcut = now;
+		}, Key.ARROW_UP);
+		UI.getCurrent().addShortcutListener(() -> {
+			now = System.currentTimeMillis();
+			if (now - lastShortcut > DEBOUNCE) {
+				setEmFontSize(getEmFontSize() - 0.005);
+			}
+			lastShortcut = now;
+		}, Key.ARROW_DOWN);
+		UI.getCurrent().addShortcutListener(() -> {
+			now = System.currentTimeMillis();
+			if (now - lastShortcut > DEBOUNCE) {
+				setTeamWidth(getTeamWidth() + 0.5);
+			}
+			lastShortcut = now;
+		}, Key.ARROW_RIGHT);
+		UI.getCurrent().addShortcutListener(() -> {
+			now = System.currentTimeMillis();
+			if (now - lastShortcut > DEBOUNCE) {
+
+				setTeamWidth(getTeamWidth() - 0.5);
+			}
+			lastShortcut = now;
+		}, Key.ARROW_LEFT);
 	}
 
 	/**
@@ -232,6 +270,9 @@ public class Results extends PolymerTemplate<TemplateModel>
 
 	@Override
 	public Double getEmFontSize() {
+		if (emFontSize == null) {
+			return 1.2;
+		}
 		return emFontSize;
 	}
 
@@ -255,9 +296,21 @@ public class Results extends PolymerTemplate<TemplateModel>
 		return this.routeParameter;
 	}
 
+	public Double getTeamWidth() {
+		if (teamWidth == null) {
+			return 12.0D;
+		}
+		return teamWidth;
+	}
+
 	@Override
 	public Map<String, List<String>> getUrlParameterMap() {
 		return urlParameterMap;
+	}
+
+	@Override
+	public boolean isAbbreviatedName() {
+		return this.abbreviatedName;
 	}
 
 	@Override
@@ -329,6 +382,11 @@ public class Results extends PolymerTemplate<TemplateModel>
 	}
 
 	@Override
+	public void setAbbreviatedName(boolean b) {
+		this.abbreviatedName = b;
+	}
+
+	@Override
 	public void setDarkMode(boolean dark) {
 		this.darkMode = dark;
 	}
@@ -386,8 +444,8 @@ public class Results extends PolymerTemplate<TemplateModel>
 			this.getElement().setProperty("leadersTopVisibility", "display:none");
 			this.getElement().setProperty("leadersVisibility", "display:none");
 			this.getElement().setProperty("fillerVisibility", "display:none");
-			//this.getElement().setProperty("leadersLineHeight", "0px");
-		} 
+			// this.getElement().setProperty("leadersLineHeight", "0px");
+		}
 	}
 
 	@Override
@@ -410,6 +468,9 @@ public class Results extends PolymerTemplate<TemplateModel>
 		}
 	}
 
+	/**
+	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setRouteParameter(java.lang.String)
+	 */
 	@Override
 	public void setRouteParameter(String routeParameter) {
 		this.routeParameter = routeParameter;
@@ -423,6 +484,9 @@ public class Results extends PolymerTemplate<TemplateModel>
 		this.initializationNeeded = true;
 	}
 
+	/**
+	 * @see app.owlcms.apputils.queryparameters.ContentParameters#setSilenced(boolean)
+	 */
 	@Override
 	public void setSilenced(boolean silenced) {
 		this.timer.setSilenced(silenced);
@@ -430,16 +494,56 @@ public class Results extends PolymerTemplate<TemplateModel>
 		this.silenced = silenced;
 	}
 
+	/**
+	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setSwitchableDisplay(boolean)
+	 */
 	@Override
 	public void setSwitchableDisplay(boolean warmUpDisplay) {
 		this.switchableDisplay = warmUpDisplay;
 	}
 
+	/**
+	 * @param a
+	 * @param ja
+	 */
+	public void setTeamFlag(Athlete a, JsonObject ja) {
+		String team = a.getTeam();
+		String teamFileName = URLUtils.sanitizeFilename(team);
+		String prop = null;
+		if (teamFlags && !team.isBlank()) {
+			prop = URLUtils.getImgTag("flags/", teamFileName, ".svg", this);
+			if (prop == null) {
+				prop = URLUtils.getImgTag("flags/", teamFileName, ".png", this);
+				if (prop == null) {
+					prop = URLUtils.getImgTag("flags/", teamFileName, ".jpg", this);
+				}
+			}
+		}
+		ja.put("teamLength", team.isBlank() ? "" : (team.length() + 2) + "ch");
+		ja.put("flagURL", prop != null ? prop : "");
+		ja.put("flagClass", "flags");
+	}
+
+	/**
+	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setTeamWidth(java.lang.Double)
+	 */
+	@Override
+	public void setTeamWidth(Double teamWidth) {
+		this.teamWidth = teamWidth;
+		doChangeTeamWidth();
+	}
+
+	/**
+	 * @see app.owlcms.apputils.queryparameters.FOPParameters#setUrlParameterMap(java.util.Map)
+	 */
 	@Override
 	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
 		this.urlParameterMap = newParameterMap;
 	}
 
+	/**
+	 * @see app.owlcms.displays.VideoOverride#setVideo(boolean)
+	 */
 	@Override
 	public void setVideo(boolean b) {
 		this.video = b;
@@ -584,6 +688,12 @@ public class Results extends PolymerTemplate<TemplateModel>
 		});
 	}
 
+	@Override
+	public void switchEmFontSize(Component target, Double emFontSize, boolean updateURL) {
+		setEmFontSize(emFontSize);
+		doChangeEmSize();
+	}
+
 	protected void computeLeaders(boolean done) {
 		OwlcmsSession.withFop(fop -> {
 			Athlete curAthlete = fop.getCurAthlete();
@@ -656,6 +766,35 @@ public class Results extends PolymerTemplate<TemplateModel>
 		return countCategories(order) + 1;
 	}
 
+	protected void doChangeAbbreviated() {
+		if (isAbbreviatedName()) {
+			updateURLLocation(getLocationUI(), getLocation(), ABBREVIATED, "true");
+		} else {
+			updateURLLocation(getLocationUI(), getLocation(), ABBREVIATED, null);
+		}
+	}
+
+	protected void doChangeEmSize() {
+		String formattedEm = null;
+		if (emFontSize != null) {
+			formattedEm = df.format(emFontSize);
+			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "rem;");
+		}
+		updateURLLocation(getLocationUI(), getLocation(), FONTSIZE,
+		        emFontSize != null ? formattedEm : null);
+	}
+
+	protected void doChangeTeamWidth() {
+		String formattedTW = null;
+
+		if (teamWidth != null) {
+			formattedTW = df.format(teamWidth);
+			this.getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
+		}
+		updateURLLocation(getLocationUI(), getLocation(), TEAMWIDTH,
+		        teamWidth != null ? formattedTW : null);
+	}
+
 	protected void doEmpty() {
 		this.setDisplay(true);
 	}
@@ -681,10 +820,9 @@ public class Results extends PolymerTemplate<TemplateModel>
 			if (a != null) {
 				Group group = fop.getGroup();
 				if (group != null && !group.isDone()) {
-					// logger.debug("updating top {} {} {}", a.getFullName(), group,
-					// System.identityHashCode(group));
-					if (isAbbreviateNames() && (Config.getCurrent().featureSwitch("PanAm") ? isRecordsDisplay() : true)) {
-						this.getElement().setProperty("fullName", a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
+					if (isAbbreviatedName()) {
+						this.getElement().setProperty("fullName",
+						        a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
 					} else {
 						this.getElement().setProperty("fullName", a.getFullName() != null ? a.getFullName() : "");
 					}
@@ -734,7 +872,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 		String category;
 		category = curCat != null ? curCat.getTranslatedName() : "";
-		if (isAbbreviateNames() && (Config.getCurrent().featureSwitch("PanAm") ? isRecordsDisplay() : true)) {
+		if (isAbbreviatedName()) {
 			ja.put("fullName", a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
 		} else {
 			ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
@@ -783,26 +921,8 @@ public class Results extends PolymerTemplate<TemplateModel>
 		}
 		// logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
 		ja.put("classname", highlight);
-		
-		setTeamFlag(a, ja);
-	}
 
-	public void setTeamFlag(Athlete a, JsonObject ja) {
-		String team = a.getTeam();
-		String teamFileName = URLUtils.sanitizeFilename(team);
-		String prop = null;
-		if (teamFlags && !team.isBlank()) {
-			prop = URLUtils.getImgTag("flags/", teamFileName, ".svg", this);
-			if (prop == null) {
-				prop = URLUtils.getImgTag("flags/", teamFileName, ".png", this);
-				if (prop == null) {
-					prop = URLUtils.getImgTag("flags/", teamFileName, ".jpg", this);
-				}
-			}
-		}
-		ja.put("teamLength", team.isBlank() ? "" : (team.length()+2)+"ch");
-		ja.put("flagURL", prop != null ? prop : "");
-		ja.put("flagClass", "flags");
+		setTeamFlag(a, ja);
 	}
 
 	/**
@@ -943,10 +1063,6 @@ public class Results extends PolymerTemplate<TemplateModel>
 		return separator;
 	}
 
-	protected boolean isAbbreviateNames() {
-		return abbreviateNames;
-	}
-
 	/*
 	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
 	 * AttachEvent)
@@ -977,8 +1093,8 @@ public class Results extends PolymerTemplate<TemplateModel>
 		SoundUtils.enableAudioContextNotification(this.getElement());
 	}
 
-	protected void setAbbreviateNames(boolean abbreviateNames) {
-		this.abbreviateNames = abbreviateNames;
+	protected void setAbbreviateName(boolean abbreviateNames) {
+		this.abbreviatedName = abbreviateNames;
 	}
 
 	protected void setTranslationMap() {
@@ -1057,12 +1173,6 @@ public class Results extends PolymerTemplate<TemplateModel>
 		return liftType;
 	}
 
-	private void doChangeEmSize() {
-		if (getEmFontSize() != null) {
-			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + getEmFontSize() + "rem;");
-		}
-	}
-
 	private void doDone(Group g) {
 		logger.debug("doDone {}", g == null ? null : g.getName());
 		if (g == null) {
@@ -1136,11 +1246,11 @@ public class Results extends PolymerTemplate<TemplateModel>
 		this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
 		this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" : "display:grid"));
 		this.getElement().setProperty("hiddenFlexStyle", (hidden ? "display:none" : "display:flex"));
-		
+
 		this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
 		this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" : "display:none"));
 		this.getElement().setProperty("inactiveFlexStyle", (hidden ? "display:flex" : "display:none"));
-		
+
 		this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
 		this.getElement().setProperty("videoHeaderDisplay", (hidden || !isVideo() ? "display:none" : "display:flex"));
 		this.getElement().setProperty("normalHeaderDisplay", (hidden || isVideo() ? "display:none" : "display:block"));

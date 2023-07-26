@@ -178,6 +178,31 @@ public interface ContextFreeDisplayParameters extends DisplayParameters {
 			updateParam(params, FONTSIZE, null);
 		}
 		
+		List<String> twParams = params.get(TEAMWIDTH);
+		Double tWidth;
+		try {
+			tWidth = (twParams != null && !twParams.isEmpty() ? Double.parseDouble(twParams.get(0)) : 0.0D);
+			if (tWidth > 0.0D) {
+				setTeamWidth(tWidth);
+				updateParam(params, FONTSIZE, tWidth.toString());
+			} else {
+				setTeamWidth(null);
+				updateParam(params, FONTSIZE, null);
+			}
+			buildDialog((Component) this);
+		} catch (NumberFormatException e) {
+			tWidth = 10.0D;
+			setEmFontSize(null);
+			updateParam(params, FONTSIZE, null);
+		}
+
+		List<String> abbParams = params.get(ABBREVIATED);
+		boolean abb;
+		abb = (abbParams != null && !abbParams.isEmpty() ? Boolean.valueOf(abbParams.get(0)) : false);
+		setAbbreviatedName(abb);
+		updateParam(params, ABBREVIATED, abb ? "true" : null);
+		buildDialog((Component) this);
+		
 		setUrlParameterMap(params);
 		return params;
 	}

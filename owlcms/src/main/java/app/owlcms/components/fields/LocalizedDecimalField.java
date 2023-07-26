@@ -32,6 +32,16 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 public class LocalizedDecimalField extends WrappedTextField<Double> {
+	
+	private static int precision;
+	
+	public LocalizedDecimalField() {
+		this(2);
+	}
+
+	public LocalizedDecimalField(int precision) {
+		LocalizedDecimalField.precision = precision;
+	}
 
 	public static <SOURCE> Renderer<SOURCE> getRenderer(ValueProvider<SOURCE, Number> v, Locale locale) {
 		return new NumberRenderer<>(v, getFormatter(locale));
@@ -39,8 +49,8 @@ public class LocalizedDecimalField extends WrappedTextField<Double> {
 
 	private static NumberFormat getFormatter(Locale locale) {
 		NumberFormat formatter = new DecimalFormat("0.00");
-		formatter.setMaximumFractionDigits(2);
-		formatter.setMinimumFractionDigits(2);
+		formatter.setMaximumFractionDigits(precision);
+		formatter.setMinimumFractionDigits(precision);
 		formatter.setGroupingUsed(false);
 		return formatter;
 	}
