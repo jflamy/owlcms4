@@ -1,4 +1,4 @@
-42.0.0-beta00
+42.0.0-beta01
 
 *Feature freeze for release 42 - normally only fixes from this point onward*
 
@@ -7,14 +7,12 @@
 - Interactive scoreboard layout changes
   - On the result scoreboards, you can change the width of the Team column using ⇦ and ⇨ (giving more space for the name) and you can change the font size using ⇧ and ⇩ .
   - If names are very long, you can get an abbreviated first name by adding abb=true to the URL parameters
-  
+  - (beta01) the team width and the name abbreviation settings can be set from the options dialog.
 - Reorganized the menus for the registration page and for the pre-competition documents.  The registration reports are now available in both locations, and it is now possible to edit athletes on either one.
-  
 - New pre-competition documents
   - Entry list by bodyweight category, showing the age groups in which the athlete is eligible
   - Team entry list, showing the age group teams in which the athlete is registered
   - Categories entry list, showing the competitor in each age group+body weight category
-
 - The athlete editing form now shows, next to one another, the eligible categories and age group teams in which the athlete is entered.
 - The final results package for total and snatch/clean&jerk/total competitions now includes a summary of medals on the team points page.
 - The team membership page has been redone; it now shows warnings if there are more athletes than permitted in a team and if there are too many athletes in a single category.  The limits are set on the competition rules (default are IWF rules - 10 per team, 2 max per category). If the IWF rules don't apply you can either ignore the warnings or change the limits.
