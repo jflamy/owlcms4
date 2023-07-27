@@ -210,10 +210,10 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 		} else if (countdownType == CountdownType.TARGET) {
 			// recompute duration, in case there was a pause.
 			setBreakTimerFromFields(CountdownType.TARGET);
-			tr = timeRemaining.intValue();
+			tr = timeRemaining != null ? timeRemaining.intValue() : null;
 		} else {
 			setBreakTimerFromFields(CountdownType.DURATION);
-			tr = timeRemaining.intValue();
+			tr = timeRemaining != null ? timeRemaining.intValue() : null;
 		}
 		return tr;
 	}
