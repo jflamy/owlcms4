@@ -27,6 +27,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -164,11 +165,19 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 			clearStartNumbers();
 		});
 
-		HorizontalLayout buttons = new HorizontalLayout(start, clear, weighInButton, cardsButton, startingWeightsButton,
-		        juryButton);
-		buttons.setPadding(false);
-		buttons.setSpacing(true);
-		buttons.setMargin(false);
+		Hr hr = new Hr();
+		hr.setWidth("100%");
+		hr.getStyle().set("margin", "0");
+		hr.getStyle().set("padding", "0");
+		FlexLayout buttons = new FlexLayout(
+				new Label(Translator.translate("WeighIn_StartNumbers")),
+				start, clear,
+				hr, 
+		        new Label(Translator.translate("WeighIn_SessionDocuments")),
+		        weighInButton, cardsButton, startingWeightsButton,  juryButton);
+		buttons.getStyle().set("flex-wrap", "wrap");
+		buttons.getStyle().set("gap", "1ex");
+		buttons.getStyle().set("margin-left", "3em");
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
 		FlexLayout topBar = new FlexLayout();

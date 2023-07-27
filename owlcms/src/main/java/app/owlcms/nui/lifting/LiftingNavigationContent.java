@@ -57,10 +57,10 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 	public LiftingNavigationContent() {
 		logger.trace("LiftingNavigationContent constructor start");
 
-		Button weighIn = openInNewTabNoParam(WeighinContent.class, getTranslation("WeighIn_StartNumbers"));
+		Button weighIn = openInNewTabNoParam(WeighinContent.class, getTranslation("WeighIn_Title"));
 		// weighIn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(weighIn);
-		doGroup(getTranslation("WeighIn"), grid3, this);
+		doGroup(getTranslation("WeighIn_Title"), grid3, this);
 
 		Button announcer = openInNewTab(AnnouncerContent.class, getTranslation("Announcer"));
 		announcer.setIcon(new Icon(VaadinIcon.MICROPHONE));
