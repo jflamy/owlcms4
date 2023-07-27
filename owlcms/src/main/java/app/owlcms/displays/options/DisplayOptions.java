@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.AvIcons;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Hr;
@@ -20,6 +21,7 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.Location;
 
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
@@ -89,12 +91,25 @@ public class DisplayOptions {
 				dp.switchLeaders(target, e.getValue(), true);
 			}
 		});
+		
+		boolean abbreviated = dp.isAbbreviatedName();
+		Checkbox abbreviatedCheckbox = new Checkbox(Translator.translate("DisplayParameters.Abbreviated"));//
+		abbreviatedCheckbox.setValue(abbreviated);
+		abbreviatedCheckbox.addValueChangeListener(e -> {
+			logger.warn("abbreviated = {} new = {}",abbreviated,e.getValue());
+			if (e.isFromClient() && e.getSource() == abbreviatedCheckbox) {
+				dp.switchAbbreviated(target, e.getValue(), true);
+			}
+			Location location = dp.getLocation();
+			UI.getCurrent().getPage().open(location.getPathWithQueryParameters());
+		});
 
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.add(leadersDisplayCheckbox);
 		if (recordsDisplayCheckbox != null) {
 			horizontalLayout.add(recordsDisplayCheckbox);
 		}
+		horizontalLayout.add(abbreviatedCheckbox);
 
 		layout.add(label);
 		layout.add(horizontalLayout);
@@ -102,11 +117,10 @@ public class DisplayOptions {
 	}
 
 	public static void addSizingEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
-		Label label = new Label(Translator.translate("DisplayParameters.FontSizeLabel"));
 
 		LocalizedDecimalField fontSizeField = new LocalizedDecimalField(3);
 		TextField wrappedTextField = fontSizeField.getWrappedTextField();
-		wrappedTextField.setLabel(null);
+
 		wrappedTextField.setValueChangeMode(ValueChangeMode.ON_CHANGE);
 		wrappedTextField.addFocusListener(f -> {
 			dp.getDialogTimer().cancel();
@@ -115,13 +129,34 @@ public class DisplayOptions {
 		fontSizeField.setValue(dp.getEmFontSize());
 		fontSizeField.addValueChangeListener(e -> {
 			dp.getDialogTimer().cancel();
-
 			Double emSize = e.getValue();
-			dp.switchEmFontSize(target, emSize, true);
+			dp.switchEmFontSize(target, emSize, false);
+		});
+		
+		LocalizedDecimalField twField = new LocalizedDecimalField(3);
+		TextField twTextField = fontSizeField.getWrappedTextField();
+		twTextField.setLabel(null);
+		twTextField.setValueChangeMode(ValueChangeMode.ON_CHANGE);
+		twTextField.addFocusListener(f -> {
+			dp.getDialogTimer().cancel();
+			dp.getDialogTimer().purge();
+		});
+		twField.setValue(dp.getTeamWidth());
+		twField.addValueChangeListener(e -> {
+			dp.getDialogTimer().cancel();
+			Double emSize = e.getValue();
+			dp.switchTeamWidth(target, emSize, false);
 		});
 
-		layout.add(label);
-		layout.add(fontSizeField);
+		HorizontalLayout fx = new HorizontalLayout();
+		fx.setSizeFull();
+		HorizontalLayout p1 = new HorizontalLayout(new Label(Translator.translate("DisplayParameters.FontSizeLabel")), wrappedTextField);
+		fx.add(p1);
+		p1.setSizeFull();
+		HorizontalLayout p2 = new HorizontalLayout(new Label(Translator.translate("DisplayParameters.TeamSizeLabel")),twField);
+		fx.add(p2);
+		p2.setSizeFull();
+		layout.add(fx);
 	}
 
 	public static void addSoundEntries(VerticalLayout layout, Component target, DisplayParameters dp) {

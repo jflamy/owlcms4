@@ -36,6 +36,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.i18n.Translator;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
 
 /**
@@ -64,6 +65,7 @@ public interface DisplayParameters extends ContentParameters {
 		if (dialog == null) {
 			return;
 		}
+		logger.warn("building dialog \n{}", LoggerUtils.whereFrom());
 		dialog.removeAll();
 
 		dialog.setCloseOnOutsideClick(true);
@@ -73,6 +75,7 @@ public interface DisplayParameters extends ContentParameters {
 			// logger.debug("closeActionListener {}", getDialog());
 			getDialog().close();
 		});
+		dialog.setWidth("75%");
 
 		VerticalLayout vl = new VerticalLayout();
 		dialog.add(vl);
@@ -97,10 +100,14 @@ public interface DisplayParameters extends ContentParameters {
 		// workaround for compilation glitch
 		@SuppressWarnings("rawtypes")
 		ComponentEventListener listener = e -> {
-			buildDialog(target);
-			// logger.debug("opening dialog");
-			openDialog(dialog);
-			setShowInitialDialog(false);
+			long now = System.currentTimeMillis();
+			if (now - getLastDialogClick() > 50) {
+				buildDialog(target);
+				// logger.debug("opening dialog");
+				openDialog(dialog);
+				setShowInitialDialog(false);
+			}
+			setLastDialogClick(now);
 		};
 
 		if (isShowInitialDialog()) {
@@ -141,7 +148,19 @@ public interface DisplayParameters extends ContentParameters {
 		return 1.0D;
 	}
 
+	public default long getLastDialogClick() {
+		return 0;
+	}
+
 	public String getRouteParameter();
+
+	public default Double getTeamWidth() {
+		return 0.0D;
+	}
+
+	public default boolean isAbbreviatedName() {
+		return false;
+	}
 
 	public boolean isDarkMode();
 
@@ -280,11 +299,12 @@ public interface DisplayParameters extends ContentParameters {
 		abb = (abbParams != null && !abbParams.isEmpty() ? Boolean.valueOf(abbParams.get(0)) : false);
 		setAbbreviatedName(abb);
 		updateParam(params, ABBREVIATED, abb ? "true" : null);
-		
-//		buildDialog((Component) this);
 
 		setUrlParameterMap(params);
 		return params;
+	}
+
+	public default void setAbbreviatedName(boolean b) {
 	}
 
 	public void setDarkMode(boolean dark);
@@ -302,14 +322,7 @@ public interface DisplayParameters extends ContentParameters {
 	public default void setEmFontSize(Double emFontSize) {
 	}
 
-	public default void setTeamWidth(Double tw) {
-	}
-
-	public default void setAbbreviatedName(boolean b) {
-	}
-
-	public default boolean isAbbreviatedName() {
-		return false;
+	public default void setLastDialogClick(long now) {
 	}
 
 	public default void setLeadersDisplay(boolean showLeaders) {
@@ -356,6 +369,9 @@ public interface DisplayParameters extends ContentParameters {
 	public default void setSwitchableDisplay(boolean switchable) {
 	}
 
+	public default void setTeamWidth(Double tw) {
+	}
+
 	/**
 	 * called by updateURLLocation
 	 *
@@ -382,14 +398,20 @@ public interface DisplayParameters extends ContentParameters {
 		}
 	}
 
+	public default void switchAbbreviated(Component target, boolean abbreviated, boolean updateURL) {
+		logger.warn("switchAbbreviated {} update={}",abbreviated, updateURL);
+		setAbbreviatedName(abbreviated);
+		if (updateURL) {
+			updateURLLocation(getLocationUI(), getLocation(), ABBREVIATED, abbreviated ? "true" : "false");
+		}
+	}
+
 	public default void switchEmFontSize(Component target, Double emFontSize, boolean updateURL) {
 		setEmFontSize(emFontSize);
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), FONTSIZE,
 			        emFontSize != null ? emFontSize.toString() : null);
 		}
-		logger.warn("before Building {}",getEmFontSize());
-		//buildDialog(target);
 	}
 
 	public default void switchLeaders(Component target, boolean showLeaders, boolean updateURL) {
@@ -397,7 +419,7 @@ public interface DisplayParameters extends ContentParameters {
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), LEADERS, showLeaders ? "true" : "false");
 		}
-//        buildDialog(target);
+
 	}
 
 	public default void switchLightingMode(Component target, boolean dark, boolean updateURL) {
@@ -412,7 +434,6 @@ public interface DisplayParameters extends ContentParameters {
 		// after updateURL so that this method is usable to store the location if it
 		// needs it.
 		setDarkMode(dark);
-		//buildDialog(target);
 	}
 
 	public default void switchRecords(Component target, boolean showRecords, boolean updateURL) {
@@ -420,7 +441,6 @@ public interface DisplayParameters extends ContentParameters {
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), RECORDS, showRecords ? "true" : "false");
 		}
-//        buildDialog(target);
 	}
 
 	public default void switchSwitchable(Component target, boolean switchable, boolean updateURL) {
@@ -428,7 +448,15 @@ public interface DisplayParameters extends ContentParameters {
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), PUBLIC, switchable ? "true" : "false");
 		}
-		//buildDialog(target);
+	}
+
+	public default void switchTeamWidth(Component target, Double teamWidth, boolean updateURL) {
+		setTeamWidth(teamWidth);
+		if (updateURL) {
+			updateURLLocation(getLocationUI(), getLocation(), TEAMWIDTH,
+			        teamWidth != null ? teamWidth.toString() : null);
+		}
+
 	}
 
 	Timer getDialogTimer();

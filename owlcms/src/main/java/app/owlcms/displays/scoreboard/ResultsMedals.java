@@ -122,6 +122,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 
 	DecimalFormat df = new DecimalFormat("0.000");
 	private boolean abbreviatedName;
+	private long lastDialogClick;
 
 	/**
 	 * Instantiates a new results board.
@@ -244,6 +245,11 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	}
 
 	@Override
+	public long getLastDialogClick() {
+		return lastDialogClick;
+	}
+
+	@Override
 	public Location getLocation() {
 		return this.location;
 	}
@@ -263,6 +269,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		return this.routeParameter;
 	}
 
+	@Override
 	public Double getTeamWidth() {
 		if (teamWidth == null) {
 			return 12.0D;
@@ -273,6 +280,11 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	@Override
 	public Map<String, List<String>> getUrlParameterMap() {
 		return urlParameterMap;
+	}
+
+	@Override
+	public boolean isAbbreviatedName() {
+		return this.abbreviatedName;
 	}
 
 	@Override
@@ -306,6 +318,11 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	@Override
 	public boolean isVideo() {
 		return video;
+	}
+
+	@Override
+	public void setAbbreviatedName(boolean b) {
+		this.abbreviatedName = b;
 	}
 
 	@Override
@@ -347,6 +364,11 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 	@Override
 	public void setGroup(Group group) {
 		this.group = group;
+	}
+
+	@Override
+	public void setLastDialogClick(long now) {
+		lastDialogClick = now;
 	}
 
 	@Override
@@ -976,15 +998,5 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		this.getElement().setProperty("groupName", "");
 		this.getElement().setProperty("liftDone", "-");
 		computeMedalsJson(medals);
-	}
-
-	@Override
-	public void setAbbreviatedName(boolean b) {
-		this.abbreviatedName = b;
-	}
-
-	@Override
-	public boolean isAbbreviatedName() {
-		return this.abbreviatedName;
 	}
 }

@@ -129,7 +129,6 @@ public interface ContentParameters extends FOPParameters {
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? "true" : "false");
 		}
-		buildDialog(target);
 	}
 	
 	public default void switchDownMode(Component target, boolean silent, boolean updateURL) {
@@ -139,7 +138,6 @@ public interface ContentParameters extends FOPParameters {
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), DOWNSILENT, silent ? "true" : "false");
 		}
-		buildDialog(target);
 	}
 	
 }

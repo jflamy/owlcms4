@@ -144,6 +144,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 	DecimalFormat df = new DecimalFormat("0.000");
 	private long now;
 	private long lastShortcut;
+	private long lastDialogClick;
 
 	/**
 	 * Instantiates a new results board.
@@ -277,6 +278,11 @@ public class Results extends PolymerTemplate<TemplateModel>
 	}
 
 	@Override
+	public long getLastDialogClick() {
+		return lastDialogClick;
+	}
+
+	@Override
 	public Location getLocation() {
 		return this.location;
 	}
@@ -296,6 +302,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 		return this.routeParameter;
 	}
 
+	@Override
 	public Double getTeamWidth() {
 		if (teamWidth == null) {
 			return 12.0D;
@@ -424,6 +431,11 @@ public class Results extends PolymerTemplate<TemplateModel>
 	}
 
 	@Override
+	public void setLastDialogClick(long now) {
+		lastDialogClick = now;
+	}
+
+	@Override
 	public void setLeadersDisplay(boolean showLeaders) {
 		checkVideo(Config.getCurrent().getStylesDirectory() + "/video/results.css", routeParameter, this);
 		this.showLeaders = showLeaders;
@@ -529,6 +541,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 	 */
 	@Override
 	public void setTeamWidth(Double teamWidth) {
+		logger.warn("setTeamWidth");
 		this.teamWidth = teamWidth;
 		doChangeTeamWidth();
 	}
@@ -791,8 +804,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 			formattedTW = df.format(teamWidth);
 			this.getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
 		}
-		updateURLLocation(getLocationUI(), getLocation(), TEAMWIDTH,
-		        teamWidth != null ? formattedTW : null);
+		updateURLLocation(getLocationUI(), getLocation(), TEAMWIDTH, teamWidth != null ? formattedTW : null);
 	}
 
 	protected void doEmpty() {
