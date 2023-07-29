@@ -36,7 +36,6 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.i18n.Translator;
-import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
 
 /**
@@ -65,7 +64,6 @@ public interface DisplayParameters extends ContentParameters {
 		if (dialog == null) {
 			return;
 		}
-		logger.warn("building dialog \n{}", LoggerUtils.whereFrom());
 		dialog.removeAll();
 
 		dialog.setCloseOnOutsideClick(true);
@@ -399,7 +397,6 @@ public interface DisplayParameters extends ContentParameters {
 	}
 
 	public default void switchAbbreviated(Component target, boolean abbreviated, boolean updateURL) {
-		logger.warn("switchAbbreviated {} update={}",abbreviated, updateURL);
 		setAbbreviatedName(abbreviated);
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), ABBREVIATED, abbreviated ? "true" : "false");

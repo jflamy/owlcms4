@@ -11,7 +11,7 @@
         <mapEntry key="OWLCMS_BACKDOOR" value="10.0.0.221,127.0.0.1,[0:0:0:0:0:0:0:1]"/>
         <mapEntry key="OWLCMS_CSSEDIT" value="false"/>
         <mapEntry key="OWLCMS_PORT" value="8080"/>
-        <mapEntry key="OWLCMS_STYLESDIR" value="styles"/>
+        <mapEntry key="OWLCMS_STYLESDIR" value="transparent"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="maryhadalittlelamb"/>
         <mapEntry key="OWLCMS_USECOMPETITIONDATE" value="true"/>
         <mapEntry key="_JDBC_DATABASE_URL" value="jdbc:h2:file:./database/scolaire.mv.db"/>
@@ -41,5 +41,5 @@
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="owlcms"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="owlcms"/>
     <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dlogback.configurationFile=logback-console.xml -Dvaadin.devmode.devTools.enabled=true"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dlogback.configurationFile=logback-console.xml -Dvaadin.devmode.devTools.enabled=false"/>
 </launchConfiguration>

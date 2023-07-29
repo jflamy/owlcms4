@@ -21,6 +21,7 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -363,10 +364,11 @@ public class CategoryRepository {
 
 	public static List<Category> doFindEligibleCategories(Athlete a, Gender gender, Integer ageFromFields, Double bw,
 	        int qualifyingTotal) {
-		List<Category> allEligible = CategoryRepository.findByGenderAgeBW(gender, ageFromFields, bw);
+		List<Category> allEligible = CategoryRepository.findByGenderAgeBW(gender, ageFromFields, null);
+		logger.debug/*edit*/("allEligible bw={} {} -- {}", bw, allEligible.size(), LoggerUtils.whereFrom());
 
 		// if youth F >81, athlete may be jr87 or jr>87
-		if ((bw == null || bw > 998) && !allEligible.isEmpty()) {
+		if ((bw != null && bw > 998) && !allEligible.isEmpty()) {
 			double bodyWeight = allEligible.get(0).getMinimumWeight() + 1;
 			List<Category> otherEligibles = CategoryRepository.findByGenderAgeBW(gender, ageFromFields, bodyWeight);
 			HashSet<Category> allEligibleSet = new HashSet<Category>(allEligible);
@@ -377,9 +379,13 @@ public class CategoryRepository {
 			}
 			allEligible.sort(new RegistrationPreferenceComparator());
 		}
+
 		allEligible = allEligible.stream()
-		        .filter(c -> (qualifyingTotal >= c.getQualifyingTotal())
-		                || bw == null || (bw > c.getMinimumWeight() && bw <= c.getMaximumWeight()))
+		        .filter(c -> (qualifyingTotal >= c.getQualifyingTotal()))
+		        .peek(c -> logger.debug/*edit*/("bw {}  c.getMinimumWeight {} c.getMaximumWeight {} ---> {}",
+		                bw, c.getMinimumWeight(), c.getMaximumWeight(),
+		                (bw == null || (bw > c.getMinimumWeight() && bw <= c.getMaximumWeight()))))
+		        .filter(c -> (bw == null || (bw > c.getMinimumWeight() && bw <= c.getMaximumWeight())))
 		        .collect(Collectors.toList());
 		return allEligible;
 	}

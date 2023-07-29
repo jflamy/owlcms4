@@ -1,14 +1,18 @@
-42.0.0-beta02
+42.0.0-beta03
 
 *Feature freeze for release 42 - normally only translations and fixes from this point onward*
+*Do not use a beta release in a competition unless you have had enough time beforehand to test it.*
 
 42.0.0
+
+- Fix to the registration form behavior (beta03) 
+  - If there was no body weight, and the selected registration category was unselected from the dropdown, the checkboxes showing the possible eligibility categories based on age and qualifying total were not shown.
 
 - Interactive scoreboard layout changes
   - On the result scoreboards, you can change the width of the Team column using ⇦ and ⇨ (giving more space for the name) and you can change the font size using ⇧ and ⇩ .
   - If names are very long, you can get an abbreviated first name by adding abb=true to the URL parameters
   - (beta01) the team width and the name abbreviation settings can be set from the options dialog.
-- Reorganized the menus for the weigh-in, registration, and the pre-competition documents page.  The registration reports are now available in both locations, and it is now possible to edit athletes on either one.
+- Reorganized the menus for the weigh-in page, the registration page, and the pre-competition documents page.  The registration reports are now available in both the registration and pre-competition locations. It is now possible to edit athletes on all 3 pages.
 - New pre-competition documents
   - Entry list by bodyweight category, showing the age groups in which the athlete is eligible
   - Team entry list, showing the age group teams in which the athlete is registered

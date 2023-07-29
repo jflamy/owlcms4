@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.layout.FlexibleGridLayout;
@@ -107,7 +108,13 @@ public class VideoNavigationContent extends BaseNavigationContent
 		        getTranslation("Scoreboard.RankingOrderButton"), "video");
 
 		List<Group> groups = GroupRepository.findAll();
-		groups.sort(new NaturalOrderComparator<Group>());
+		// more recent group first, else reverse order.
+		groups.sort((g1,g2) -> {
+			int compare = -ObjectUtils.compare(g1.getCompetitionTime(), g2.getCompetitionTime(), true);
+			if (compare != 0) return compare;
+			compare = -(new NaturalOrderComparator<Group>().compare(g1,g2));
+			return compare;
+		});
 		FieldOfPlay curFop = OwlcmsSession.getFop();
 		GroupCategorySelectionMenu groupCategorySelectionMenu = new GroupCategorySelectionMenu(groups, curFop,
 		        // group has been selected

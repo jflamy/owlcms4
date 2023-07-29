@@ -541,7 +541,6 @@ public class Results extends PolymerTemplate<TemplateModel>
 	 */
 	@Override
 	public void setTeamWidth(Double teamWidth) {
-		logger.warn("setTeamWidth");
 		this.teamWidth = teamWidth;
 		doChangeTeamWidth();
 	}

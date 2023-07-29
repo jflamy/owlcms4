@@ -96,7 +96,6 @@ public class DisplayOptions {
 		Checkbox abbreviatedCheckbox = new Checkbox(Translator.translate("DisplayParameters.Abbreviated"));//
 		abbreviatedCheckbox.setValue(abbreviated);
 		abbreviatedCheckbox.addValueChangeListener(e -> {
-			logger.warn("abbreviated = {} new = {}",abbreviated,e.getValue());
 			if (e.isFromClient() && e.getSource() == abbreviatedCheckbox) {
 				dp.switchAbbreviated(target, e.getValue(), true);
 			}
