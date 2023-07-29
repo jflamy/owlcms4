@@ -380,10 +380,19 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 			        OwlcmsSession.withFop(fop -> {
 				        inactive = fop.getState() == INACTIVE;
 				        startBreakIfNeeded(fop);
-				        fop.fopEventPost(
-				                new FOPEvent.CeremonyStarted(CeremonyType.MEDALS, getMedalGroup(), getMedalCategory(),
+				        Group g = getMedalGroup();
+						Category c = getMedalCategory();
+						fop.fopEventPost(
+				                new FOPEvent.CeremonyStarted(CeremonyType.MEDALS, g, c,
 				                        this));
+			    		fop.setVideoGroup(g);
+			    		fop.setVideoCategory(c);
+			    		setMedalGroup(g);
+			    		setMedalCategory(c);
+			    		logger.info("switching to {} {}", g.getName(), c != null ? c.getTranslatedName() : "");
+			    		fop.getUiEventBus().post(new UIEvent.VideoRefresh(this, g, c));
 			        });
+
 		        });
 		startMedalCeremony.setTabIndex(-1);
 		endMedalCeremony = new Button(
