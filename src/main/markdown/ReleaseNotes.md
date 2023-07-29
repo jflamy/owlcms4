@@ -1,13 +1,19 @@
-42.0.0-beta03
+42.0.0-beta
 
-*Feature freeze for release 42 - normally only translations and fixes from this point onward*
-*Do not use a beta release in a competition unless you have had enough time beforehand to test it.*
+> *Feature freeze for release 42 - normally only translations and fixes from this point onward*
+> *Do not use a beta release in a competition unless you have had enough time beforehand to test it.*
+
+42.0.0-beta04
+
+- Video Streaming Adjustments
+  - (beta04) The video streaming display for medals now correctly follows when the announcer switches to another medal category.
+  - (beta04) The order of medal ceremonies in the drop-down menu for the announcer is now more recent session first
+- Announcer Button Label: added a textual label to the "Pause" button to facilitate understanding, moved it to the right.
 
 42.0.0
 
-- Fix to the registration form behavior (beta03) 
+- Fix for the registration form behavior
   - If there was no body weight, and the selected registration category was unselected from the dropdown, the checkboxes showing the possible eligibility categories based on age and qualifying total were not shown.
-
 - Interactive scoreboard layout changes
   - On the result scoreboards, you can change the width of the Team column using ⇦ and ⇨ (giving more space for the name) and you can change the font size using ⇧ and ⇩ .
   - If names are very long, you can get an abbreviated first name by adding abb=true to the URL parameters

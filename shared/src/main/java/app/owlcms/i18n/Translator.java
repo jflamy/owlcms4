@@ -204,6 +204,16 @@ public class Translator implements I18NProvider {
     public static String translateOrElseNull(String string, Locale locale) {
         return helper.getTranslationOrElseNull(string, locale);
     }
+    
+    public static String translateOrElseEmpty(String string, Locale locale) {
+        String translationOrElseNull = helper.getTranslationOrElseNull(string, locale);
+		return translationOrElseNull != null ? translationOrElseNull : "";
+    }
+    
+    public static String translateOrElseEmpty(String string) {
+        String translationOrElseNull = helper.getTranslationOrElseNull(string, getLocaleSupplier().get());
+		return translationOrElseNull != null ? translationOrElseNull : "";
+    }
 
     /**
      * Return a resource bundle created by reading a CSV files. This creates properties files, and uses the standard

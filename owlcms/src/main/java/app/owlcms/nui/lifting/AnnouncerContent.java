@@ -452,11 +452,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         if (buttons != null) {
             topBar.add(buttons);
         }
-        if (breaks != null) {
-            topBar.add(breaks);
-        }
         if (decisions != null) {
             topBar.add(decisions);
+        }
+        if (breaks != null) {
+            topBar.add(breaks);
         }
 
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);

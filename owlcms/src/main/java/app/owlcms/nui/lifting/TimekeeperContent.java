@@ -43,6 +43,7 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.shared.AthleteGridContent;
 import app.owlcms.nui.shared.BreakDialog;
@@ -520,7 +521,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 						return;
 					}
 					breakButton.setText("");
-					quietBreakButton(null);
+					quietBreakButton(Translator.translateOrElseEmpty("Pause"));
 				}
 				breakButton.setEnabled(true);
 

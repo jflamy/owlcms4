@@ -966,8 +966,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 	 * @see app.owlcms.nui.shared.AthleteGridContent#breakButtons(com.vaadin.flow.component.orderedlayout.FlexLayout)
 	 */
 	protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
-
-		breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
+		breakButton = new Button(Translator.translateOrElseEmpty("Pause"),AvIcons.AV_TIMER.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				Athlete curAthlete = fop.getCurAthlete();
 				List<Athlete> order = fop.getLiftingOrder();
@@ -1581,10 +1580,9 @@ public abstract class AthleteGridContent extends VerticalLayout
 						logger.debug("breakButton is null\n{}", LoggerUtils.stackTrace());
 					}
 					if (breakButton != null) {
-						breakButton.setText("");
 						// quietBreakButton();
 						quietBreakButton(
-						        this instanceof MarshallContent ? Translator.translate("BreakType.MARSHAL") : null);
+						        this instanceof MarshallContent ? Translator.translate("BreakType.MARSHAL") : Translator.translateOrElseEmpty("Pause"));
 					}
 				}
 				if (breakButton != null) {
