@@ -134,7 +134,6 @@ public class VideoNavigationContent extends BaseNavigationContent
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders, scoreboardRankings,
 		        scoreboardMultiRanks);
 		doGroup(getTranslation("Scoreboards"), intro1, grid1, this);
-
 		
 		Button medals = new Button(getTranslation("CeremonyType.MEDALS"));
 		Button rankings = new Button(getTranslation("Scoreboard.RANKING"));

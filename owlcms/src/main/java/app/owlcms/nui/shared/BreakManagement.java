@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
@@ -350,14 +352,27 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 		HorizontalLayout medalButtons = new HorizontalLayout();
 
 		List<Group> groups = GroupRepository.findAll();
-		groups.sort(new NaturalOrderComparator<Group>());
+		groups.sort((g1,g2) -> {
+			int compare = -ObjectUtils.compare(g1.getCompetitionTime(), g2.getCompetitionTime(), true);
+			if (compare != 0) return compare;
+			compare = -(new NaturalOrderComparator<Group>().compare(g1,g2));
+			return compare;
+		});
 		FieldOfPlay fop2 = OwlcmsSession.getFop();
 		GroupCategorySelectionMenu groupCategorySelectionMenu = new GroupCategorySelectionMenu(groups, fop2,
 		        // group has been selected
 		        (g1, c1, fop1) -> selectCeremonyCategory(g1, c1, fop1),
 		        // no group
 		        (g1, c1, fop1) -> selectCeremonyCategory(null, c1, fop1));
-
+		Checkbox includeNotCompleted = new Checkbox();
+		includeNotCompleted.addValueChangeListener(e -> {
+			groupCategorySelectionMenu.setIncludeNotCompleted(e.getValue());
+			groupCategorySelectionMenu.recompute();
+		});
+		includeNotCompleted.setLabel(Translator.translate("Video.includeNotCompleted"));
+		HorizontalLayout hl = new HorizontalLayout();
+		hl.add(groupCategorySelectionMenu, includeNotCompleted);
+		
 		startMedalCeremony = new Button(
 		        getTranslation("BreakMgmt.startMedals"), (e) -> {
 			        startMedalCeremony.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -386,7 +401,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 		endMedalCeremony.getThemeNames().add("secondary contrast");
 		medalButtons.add(startMedalCeremony, endMedalCeremony);
 
-		ce.add(label("PublicMsg.Medals"), groupCategorySelectionMenu);
+		ce.add(label("PublicMsg.Medals"), hl);
 		ce.add(medalButtons);
 
 		return ce;
