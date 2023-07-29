@@ -1144,7 +1144,7 @@ public class FieldOfPlay {
 		        totalRequest);
 
 		for (RecordEvent gr : groupRecords) {
-			logger.debug("gr: {} {} {}", gr.getAgeGrp(), gr.getRecordName(), gr.getRecordFederation());
+			logger.trace("gr: {} {} {}", gr.getAgeGrp(), gr.getRecordName(), gr.getRecordFederation());
 		}
 		List<RecordEvent> jsonRecords;
 		if (showAllFederationRecords && showAllCategoryRecords) {
@@ -1990,7 +1990,7 @@ public class FieldOfPlay {
 			Category category = getCurAthlete().getCategory();
 
 			TreeSet<Athlete> medalists = getMedals().get(category);
-			logger.debug("medals {}", medalists);
+			//logger.debug("medals {}", medalists);
 			List<Athlete> snatchMedalists = medalists.stream().filter(a -> {
 				int r = a.getSnatchRank();
 				return r <= 3 && r > 0;
