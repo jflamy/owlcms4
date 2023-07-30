@@ -1,13 +1,19 @@
-42.0.0-beta03
+42.0.0-beta
 
-*Feature freeze for release 42 - normally only translations and fixes from this point onward*
-*Do not use a beta release in a competition unless you have had enough time beforehand to test it.*
+> *Feature freeze for release 42 - normally only translations and fixes from this point onward*
+> *Do not use a beta release in a competition unless you have had enough time beforehand to test it.*
+
+42.0.0-beta04
+
+- Medal Ceremonies
+  - The order of medal ceremonies in the drop-down menu for the announcer is now more recent session first
+  - The video streaming display for medals now correctly follows when the announcer switches to another medal category.
+- Announcer Button Label: added a textual label to the "Pause" button to facilitate understanding, and moved it to the right.
 
 42.0.0
 
-- Fix to the registration form behavior (beta03) 
+- Fix for the registration form behavior
   - If there was no body weight, and the selected registration category was unselected from the dropdown, the checkboxes showing the possible eligibility categories based on age and qualifying total were not shown.
-
 - Interactive scoreboard layout changes
   - On the result scoreboards, you can change the width of the Team column using ⇦ and ⇨ (giving more space for the name) and you can change the font size using ⇧ and ⇩ .
   - If names are very long, you can get an abbreviated first name by adding abb=true to the URL parameters
@@ -50,11 +56,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_42.0.0-beta03.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_42.0.0-beta04.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_42.0.0-beta03.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_42.0.0-beta04.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
