@@ -156,5 +156,5 @@ The following list is a sampling of the many features available.  <u>*Click on t
 ## Support
 
 - [Discussion list](https://groups.google.com/forum/#!forum/owlcms)  If you wish to discuss the program or ask questions, please add yourself to this discussion [group](https://groups.google.com/forum/#!forum/owlcms).  You can withdraw at any time.
-- [Issues and Feature Requests](https://github.com/jflamy/owlcms4/projects/1)  Use the "Issues" icon at the top of the page.
-- [Project board](https://github.com/jflamy/owlcms4/projects/1) This shows what we are working on, and our work priorities.  Check here first, we may actually already be working on it
+- [Issues and Feature Requests](https://github.com/jflamy/owlcms4/issues)  See the Project Board below to see what we are working on.
+- [Project board](https://github.com/users/jflamy/projects/4/views/1) This shows what we are working on, and our work priorities.  Check here first, we may actually already be working on it

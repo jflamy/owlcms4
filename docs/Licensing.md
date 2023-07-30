@@ -6,7 +6,7 @@ If you wish to provide or host the software as a service to others (whether you 
 
 For the current work status, see the following links
 
-- [Project board](https://github.com/jflamy/owlcms4/projects/1) This shows what we are working on, and our work priorities.  Check here first, we may actually already be working on it...
+- [Project board](https://github.com/users/jflamy/projects/4/views/1) This shows what we are working on, and our work priorities.  Check here first, we may actually already be working on it...
 
 - [Issues and enhancement requests](https://github.com/jflamy/owlcms4/issues) This is the complete log of requests and planned enhancements. Use this page to report problems or suggest enhancements.
 
