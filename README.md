@@ -18,7 +18,7 @@ Yet it is simple enough to setup that you can use it to run a club or regional c
 ### Help, Issues, Feature Requests
 
 - [Discussion list](https://groups.google.com/forum/#!forum/owlcms)  If you wish to discuss the program or ask questions, please add yourself to this discussion [group](https://groups.google.com/forum/#!forum/owlcms).  You can withdraw at any time.
-- [Issues and Feature Requests](https://github.com/jflamy/owlcms4/issues) To open an issue or make a request, use that link.
+- [Issues and Feature Requests](https://github.com/jflamy/owlcms4/issues)  See the Project Board below to see what we are working on.
 - [Work in Progress and Priorities](https://github.com/users/jflamy/projects/2/views/7) Shows what we are working on and what is currently planned.
 
 ### Licensing and Notes
