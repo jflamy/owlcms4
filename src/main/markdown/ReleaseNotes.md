@@ -5,10 +5,10 @@
 
 42.0.0-beta04
 
-- Video Streaming Adjustments
-  - (beta04) The video streaming display for medals now correctly follows when the announcer switches to another medal category.
-  - (beta04) The order of medal ceremonies in the drop-down menu for the announcer is now more recent session first
-- Announcer Button Label: added a textual label to the "Pause" button to facilitate understanding, moved it to the right.
+- Medal Ceremonies
+  - The order of medal ceremonies in the drop-down menu for the announcer is now more recent session first
+  - The video streaming display for medals now correctly follows when the announcer switches to another medal category.
+- Announcer Button Label: added a textual label to the "Pause" button to facilitate understanding, and moved it to the right.
 
 42.0.0
 
