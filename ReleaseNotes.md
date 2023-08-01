@@ -1,9 +1,12 @@
-42.0.0-rc01
+42.0.0-rc02
 
 > *Feature freeze for release 42 - normally only fixes from this point onward*
 > *Candidate for official release.  Like any version, you should still test with your own data before using in a meet.*
 
 42.0.0
+
+- Additional fix for 2 minute clock when announcer enters decisions
+  - When using flags, unwarranted two minute clocks could be awarded due to the previous athlete being erroneously set. 
 
 - Fix for the registration form behavior
   - If there was no body weight, and the selected registration category was unselected from the dropdown, the checkboxes showing the possible eligibility categories based on age and qualifying total were not shown.
@@ -53,11 +56,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_42.0.0-rc01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_42.0.0-rc02.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_42.0.0-rc01.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_42.0.0-rc02.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
