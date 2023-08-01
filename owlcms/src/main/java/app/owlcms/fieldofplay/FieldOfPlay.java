@@ -2297,7 +2297,6 @@ public class FieldOfPlay {
 	}
 
 	private void setPreviousAthlete(Athlete athlete) {
-		// logger.trace("setting previousAthlete to {}", getCurAthlete());
 		this.previousAthlete = athlete;
 	}
 
@@ -2456,8 +2455,9 @@ public class FieldOfPlay {
 		setRefereeForcedDecision(true);
 		updateRefereeDecisions(ne);
 		uiShowUpdateOnJuryScreen(ed);
-		// needed to make sure 2min rule is triggered
-		this.setPreviousAthlete(getCurAthlete());
+		// needed to make sure 2min rule is triggered. The athlete we have just decided is the previous athlete.
+		logger.debug("{}simulateDecision setting previousAthlete to {} -- {}", getLoggingName(), ed.getAthlete());
+		this.setPreviousAthlete(ed.getAthlete());
 		this.setClockOwnerInitialTimeAllowed(0);
 	}
 
