@@ -1,9 +1,12 @@
-42.0.0-rc01
+42.0.0-rc02
 
 > *Feature freeze for release 42 - normally only fixes from this point onward*
 > *Candidate for official release.  Like any version, you should still test with your own data before using in a meet.*
 
 42.0.0
+
+- Additional fix for 2 minute clock when announcer enters decisions
+  - When using flags, unwarranted two minute clocks could be awarded due to the previous athlete being erroneously set. 
 
 - Fix for the registration form behavior
   - If there was no body weight, and the selected registration category was unselected from the dropdown, the checkboxes showing the possible eligibility categories based on age and qualifying total were not shown.
