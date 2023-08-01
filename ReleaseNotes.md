@@ -1,14 +1,7 @@
-42.0.0-beta
+42.0.0-rc01
 
-> *Feature freeze for release 42 - normally only translations and fixes from this point onward*
-> *Do not use a beta release in a competition unless you have had enough time beforehand to test it.*
-
-42.0.0-beta04
-
-- Medal Ceremonies
-  - The order of medal ceremonies in the drop-down menu for the announcer is now more recent session first
-  - The video streaming display for medals now correctly follows when the announcer switches to another medal category.
-- Announcer Button Label: added a textual label to the "Pause" button to facilitate understanding, and moved it to the right.
+> *Feature freeze for release 42 - normally only fixes from this point onward*
+> *Candidate for official release.  Like any version, you should still test with your own data before using in a meet.*
 
 42.0.0
 
@@ -29,6 +22,10 @@
 - The Clean & Jerk break now automatically starts at the end of the snatch.  
   - The duration can now be parameterized in the competition rules (longer breaks when very few athletes, or a shorter or no break for large sessions).
   - This can be disabled if some special event takes place during the break.
+- Medal Ceremonies
+  - The order of medal ceremonies in the drop-down menu for the announcer is now more recent session first
+  - The video streaming display for medals now correctly follows when the announcer switches to another medal category.
+- Announcer Button Label: added a textual label to the "Pause" button to facilitate understanding, and moved it to the right.
 - Accept and display line breaks in the coach, custom1, and custom2 fields.  Currently, the only way to create such line breaks is to use Alt-Enter in Excel.
 
 ##### Highlights from recent stable releases
@@ -56,11 +53,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_42.0.0-beta04.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_42.0.0-rc01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_42.0.0-beta04.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_42.0.0-rc01.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
