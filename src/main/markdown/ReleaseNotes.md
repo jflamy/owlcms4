@@ -1,18 +1,5 @@
-42.0.0-rc03
-
-> *Feature freeze for release 42 - normally only fixes from this point onward*
-> *Candidate for official release.  Like any version, you should still test with your own data before using in a meet.*
-
 42.0.0
 
-- Fix for Records on Category Results sheet
-  - Records broken for the selected category were not retrieved correctly due to slightly different information between new and older records.
-
-- Additional fix for 2 minute clock when announcer enters decisions
-  - When using flags, unwarranted two minute clocks could be awarded due to the previous athlete being erroneously set. 
-
-- Fix for the registration form behavior
-  - If there was no body weight, and the selected registration category was unselected from the dropdown, the checkboxes showing the possible eligibility categories based on age and qualifying total were not shown.
 - Interactive scoreboard layout changes
   - On the result scoreboards, you can change the width of the Team column using ⇦ and ⇨ (giving more space for the name) and you can change the font size using ⇧ and ⇩ .
   - If names are very long, you can get an abbreviated first name by adding abb=true to the URL parameters
@@ -31,6 +18,13 @@
 - Medal Ceremonies
   - The order of medal ceremonies in the drop-down menu for the announcer is now more recent session first
   - The video streaming display for medals now correctly follows when the announcer switches to another medal category.
+- Fix for Records on Category Results sheet
+  - Records broken for the selected category were not retrieved correctly due to slightly different information between new and older records.
+- Additional fix for 2 minute clock when announcer enters decisions
+  - When using flags, unwarranted two minute clocks could be awarded due to the previous athlete being erroneously set. 
+
+- Fix for the registration form behavior
+  - If there was no body weight, and the selected registration category was unselected from the dropdown, the checkboxes showing the possible eligibility categories based on age and qualifying total were not shown.
 - Announcer Button Label: added a textual label to the "Pause" button to facilitate understanding, and moved it to the right.
 - Accept and display line breaks in the coach, custom1, and custom2 fields.  Currently, the only way to create such line breaks is to use Alt-Enter in Excel.
 
