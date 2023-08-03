@@ -123,16 +123,27 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 		if (cat == null) {
 			return records.isEmpty() ? null : records;
 		}
+		logger.debug("category {} age >= {} <= {}  bw > {} <= {}", 
+				cat.getGender(), 
+				cat.getAgeGroup().getMinAge(), 
+				cat.getAgeGroup().getMaxAge(),
+				cat.getMinimumWeight(),
+				cat.getMaximumWeight()
+				);
 		List<RecordEvent> catRecords = new ArrayList<>();
 		for (RecordEvent record : records) {
 			Integer athleteAge = record.getAthleteAge();
 			Double athleteBW = record.getAthleteBW();
+			try {
 			if (record.getGender() == cat.getGender()
 					&& athleteAge >= cat.getAgeGroup().getMinAge()
 					&& athleteAge <= cat.getAgeGroup().getMaxAge()
 					&& athleteBW > cat.getMinimumWeight()
 					&& athleteBW <= cat.getMaximumWeight()) {
 				catRecords.add(record);
+			}
+			} catch (Exception e) {
+				logger.error("faulty record {}", record);
 			}
 		}
 		return catRecords.isEmpty() ? null : catRecords;

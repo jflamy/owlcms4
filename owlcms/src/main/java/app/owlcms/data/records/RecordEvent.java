@@ -7,6 +7,7 @@
 package app.owlcms.data.records;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
@@ -189,11 +190,33 @@ public class RecordEvent {
 	}
 
 	public Integer getAthleteAge() {
+		if (athleteAge == null) {
+			return computeAthleteAge();
+		}
 		return athleteAge;
 	}
 
+	private Integer computeAthleteAge() {
+		if (recordDate == null) {
+			logger.error("missing record date {} {}",athleteName,categoryString);
+		}
+		if (birthDate != null) {
+			return Period.between(birthDate, recordDate).getYears();
+		} else if (birthYear != null) {
+			return Period.between(LocalDate.of(birthYear, 01, 01), recordDate).getYears();
+		}
+		return null;
+	}
+
 	public Double getAthleteBW() {
+		if (athleteAge == null) {
+			return computeAthleteBW();
+		}
 		return athleteBW;
+	}
+
+	private Double computeAthleteBW() {
+		return (double)bwCatUpper - 0.001D;
 	}
 
 	public String getAthleteName() {

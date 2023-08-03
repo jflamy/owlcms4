@@ -1,9 +1,12 @@
-42.0.0-rc02
+42.0.0-rc03
 
 > *Feature freeze for release 42 - normally only fixes from this point onward*
 > *Candidate for official release.  Like any version, you should still test with your own data before using in a meet.*
 
 42.0.0
+
+- Fix for Records on Category Results sheet
+  - Records broken for the selected category were not retrieved correctly due to slightly different information between new and older records.
 
 - Additional fix for 2 minute clock when announcer enters decisions
   - When using flags, unwarranted two minute clocks could be awarded due to the previous athlete being erroneously set. 
