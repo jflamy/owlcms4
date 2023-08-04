@@ -794,18 +794,22 @@ public class FieldOfPlay {
 				doWeightChange((WeightChange) e);
 			} else if (e instanceof ForceTime) {
 				doForceTime((ForceTime) e);
-			} else if (e instanceof DecisionFullUpdate && isClockStoppedDecisionsAllowed()) {
-				// after a break from jury, decisions can be entered even though the clock is
-				// not running
-				updateRefereeDecisions((DecisionFullUpdate) e);
-				uiShowUpdateOnJuryScreen(e);
-			} else if (e instanceof DecisionUpdate && isClockStoppedDecisionsAllowed()) {
-				// after a break from jury, decisions can be entered even though the clock is
-				// not running
-				updateRefereeDecisions((DecisionUpdate) e);
-				uiShowUpdateOnJuryScreen(e);
-			} else {
-				unexpectedEventInState(e, CURRENT_ATHLETE_DISPLAYED);
+			}
+//			else if (e instanceof DecisionFullUpdate && isClockStoppedDecisionsAllowed()) {
+//				// after a break from jury, decisions can be entered even though the clock is
+//				// not running
+//				updateRefereeDecisions((DecisionFullUpdate) e);
+//				uiShowUpdateOnJuryScreen(e);
+//			} else if (e instanceof DecisionUpdate && isClockStoppedDecisionsAllowed()) {
+//				// after a break from jury, decisions can be entered even though the clock is
+//				// not running
+//				updateRefereeDecisions((DecisionUpdate) e);
+//				uiShowUpdateOnJuryScreen(e);
+//			} 
+			else {
+				pushOutUIEvent(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, state,
+				        UIEvent.Notification.Level.ERROR));
+				// unexpectedEventInState(e, CURRENT_ATHLETE_DISPLAYED);
 			}
 			break;
 
@@ -922,12 +926,13 @@ public class FieldOfPlay {
 				simulateDecision((ExplicitDecision) e);
 				// showExplicitDecision(((ExplicitDecision) e), e.origin);
 			} else if (e instanceof DecisionFullUpdate) {
-				// decision coming from decision display or attempt board
-				updateRefereeDecisions((DecisionFullUpdate) e);
-				uiShowUpdateOnJuryScreen(e);
+				// late update
+				pushOutUIEvent(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, state,
+				        UIEvent.Notification.Level.ERROR));
 			} else if (e instanceof DecisionUpdate) {
-				updateRefereeDecisions((DecisionUpdate) e);
-				uiShowUpdateOnJuryScreen(e);
+				// late update
+				pushOutUIEvent(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, state,
+				        UIEvent.Notification.Level.ERROR));
 			} else if (e instanceof WeightChange) {
 				recomputeLiftingOrder(true, ((WeightChange) e).isResultChange()); // &&&&&&&&&&&&&&&&&&&&&
 				// weightChangeDoNotDisturb((WeightChange) e);
@@ -1918,8 +1923,8 @@ public class FieldOfPlay {
 
 	private void pushOutSnatchDone() {
 		Competition cCur = Competition.getCurrent();
-		logger.debug("Snatch Done {}",cCur.isAutomaticCJBreak());
-		
+		logger.debug("Snatch Done {}", cCur.isAutomaticCJBreak());
+
 		int millisRemaining = 10 * 60 * 1000;
 		if (!cCur.isAutomaticCJBreak()) {
 //			UIEvent.SnatchDone event = new UIEvent.SnatchDone(this.getGroup(), null, LoggerUtils.whereFrom());
@@ -1934,7 +1939,7 @@ public class FieldOfPlay {
 			millisRemaining = (cCur.getShorterBreakDuration() != null ? cCur.getShorterBreakDuration() : 10) * 60 * 1000;
 		} else if (cCur.getLongerBreakMax() != null && liftingOrder.size() < cCur.getLongerBreakMax()) {
 			millisRemaining = (cCur.getLongerBreakDuration() != null ? cCur.getLongerBreakDuration() : 10) * 60 * 1000;
-		} 
+		}
 		if (millisRemaining <= 0) {
 			return;
 		}
@@ -1990,7 +1995,7 @@ public class FieldOfPlay {
 			Category category = getCurAthlete().getCategory();
 
 			TreeSet<Athlete> medalists = getMedals().get(category);
-			//logger.debug("medals {}", medalists);
+			// logger.debug("medals {}", medalists);
 			List<Athlete> snatchMedalists = medalists.stream().filter(a -> {
 				int r = a.getSnatchRank();
 				return r <= 3 && r > 0;
@@ -2691,8 +2696,8 @@ public class FieldOfPlay {
 	private boolean allFirstCJ() {
 		// check that all athletes are at first CJ
 		boolean firstCJ = true;
-		for (Athlete a: liftingOrder) {
-			logger.debug("{}{} {}",this.getLoggingName(), a.getShortName(),a.getAttemptsDone());
+		for (Athlete a : liftingOrder) {
+			logger.debug("{}{} {}", this.getLoggingName(), a.getShortName(), a.getAttemptsDone());
 			if (a.getAttemptsDone() != 3) {
 				firstCJ = false;
 				break;
