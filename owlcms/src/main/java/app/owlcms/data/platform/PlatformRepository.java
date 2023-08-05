@@ -20,6 +20,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.spreadsheet.RGroup;
 import ch.qos.logback.classic.Logger;
 
@@ -57,6 +58,7 @@ public class PlatformRepository {
 				}
 			}
 		}
+		
 	}
 
 	public static void createMissingPlatforms(List<RGroup> groups) {
@@ -93,6 +95,8 @@ public class PlatformRepository {
 	 * @param Platform
 	 */
 	public static void delete(Platform platform) {
+		FieldOfPlay fop = OwlcmsFactory.getFOPByName(platform.getName());
+		MQTTMonitor mm = fop.getMqttMonitor();
 		JPAService.runInTransaction(em -> {
 			// this is the only case where platform needs to know its groups, so we do a
 			// query instead of adding a relationship.
@@ -107,9 +111,11 @@ public class PlatformRepository {
 				g.setPlatform(null);
 			}
 			em.remove(em.contains(platform) ? platform : em.merge(platform));
-			OwlcmsFactory.unregisterFOP(platform);
 			return null;
 		});
+		if (mm != null) {
+			mm.publishMqttConfig();
+		}
 		OwlcmsFactory.setFirstFOPAsDefault();
 	}
 
@@ -124,6 +130,21 @@ public class PlatformRepository {
 				logger.info("removing platform {}", pl.getName());
 				PlatformRepository.delete(pl);
 			} else {
+			}
+		}
+	}
+	
+	public static void syncFOPs() {
+		Set<String> preCheckPlatforms = PlatformRepository.findAll().stream().map(p -> p.getName())
+		        .collect(Collectors.toSet());
+		Set<String> fops = OwlcmsFactory.getFOPs().stream().map(f -> f.getName()).collect(Collectors.toSet());
+
+		// delete all unused FOPs
+		for (String fopName : fops) {
+			if (!preCheckPlatforms.contains(fopName)) {
+				FieldOfPlay fop = OwlcmsFactory.getFopByName().get(fopName);
+				fop.getFopEventBus().unregister(fop);
+				OwlcmsFactory.getFopByName().remove(fopName);
 			}
 		}
 	}
@@ -180,13 +201,18 @@ public class PlatformRepository {
 	public static Platform save(Platform platform) {
 		Platform nPlatform = JPAService.runInTransaction(em -> em.merge(platform));
 		String name = nPlatform.getName();
+		FieldOfPlay fop = null;
 		if (name != null) {
-			FieldOfPlay fop = OwlcmsFactory.getFOPByName(name);
+			fop = OwlcmsFactory.getFOPByName(name);
 			if (fop != null) {
 				fop.setPlatform(nPlatform);
 			} else {
-				OwlcmsFactory.registerEmptyFOP(nPlatform);
+				fop = OwlcmsFactory.registerEmptyFOP(nPlatform);
 			}
+		}
+		MQTTMonitor mm = fop.getMqttMonitor();
+		if (mm != null) {
+			mm.publishMqttConfig();
 		}
 		return nPlatform;
 	}

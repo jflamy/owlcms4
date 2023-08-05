@@ -27,6 +27,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.ProxyAthleteTimer;
 import app.owlcms.fieldofplay.ProxyBreakTimer;
 import app.owlcms.i18n.Translator;
+import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
@@ -120,7 +121,10 @@ public class OwlcmsFactory {
 		        LoggerUtils.stackTrace());
 		initFOPByName();
 		setFirstFOPAsDefault();
-		return getDefaultFOP();
+		FieldOfPlay fop = getDefaultFOP();
+		MQTTMonitor mm = fop.getMqttMonitor();
+		if (mm != null) mm.publishMqttConfig();
+		return fop;
 	}
 
 	public static synchronized void initFOPByName() {
@@ -178,21 +182,24 @@ public class OwlcmsFactory {
 
 	}
 
-	public static void unregisterFOP(Platform platform) {
+	public static FieldOfPlay unregisterFOP(Platform platform) {
 		if (getFopByName() == null) {
-			return;
+			return null;
 		}
+		FieldOfPlay fop = null;
 		String name = platform.getName();
 		if (name == null) {
 			throw new RuntimeException("can't happen, platform with no name");
 		}
 		try {
-			FieldOfPlay fop = getFopByName().get(name);
-			fop.getFopEventBus().unregister(fop);
+			fop = getFopByName().get(name);
+			if (fop != null)
+				fop.getFopEventBus().unregister(fop);
 		} catch (IllegalArgumentException e) {
 		}
 		logger.trace("unregistering and unmapping fop {}", name);
 		getFopByName().remove(name);
+		return fop;
 	}
 
 	public static void waitDBInitialized() {
@@ -202,19 +209,19 @@ public class OwlcmsFactory {
 		}
 	}
 
-	/**
-	 * @param defaultFOP the defaultFOP to set
-	 */
-	private static void setDefaultFOP(FieldOfPlay defaultFOP) {
-		OwlcmsFactory.defaultFOP = defaultFOP;
-	}
-
-	static Map<String, FieldOfPlay> getFopByName() {
+	public static Map<String, FieldOfPlay> getFopByName() {
 		return fopByName;
 	}
 
 	static void setFopByName(Map<String, FieldOfPlay> fopByName) {
 		OwlcmsFactory.fopByName = fopByName;
+	}
+
+	/**
+	 * @param defaultFOP the defaultFOP to set
+	 */
+	private static void setDefaultFOP(FieldOfPlay defaultFOP) {
+		OwlcmsFactory.defaultFOP = defaultFOP;
 	}
 
 }

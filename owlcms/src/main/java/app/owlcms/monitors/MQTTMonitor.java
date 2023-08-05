@@ -3,6 +3,7 @@ package app.owlcms.monitors;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -33,6 +34,7 @@ import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
@@ -53,7 +55,7 @@ import ch.qos.logback.classic.Logger;
  *
  * @author Jean-François Lamy
  */
-public class MQTTMonitor {
+public class MQTTMonitor extends Thread {
 
 	/**
 	 * This inner class contains the routines executed when an MQTT message is
@@ -251,19 +253,6 @@ public class MQTTMonitor {
 				        fop.getLoggingName(), topic, messageStr);
 			}
 		}
-
-		private void publishMqttConfig(String topic) {
-			Map<String, Object> payload = new TreeMap<>();
-			List<String> platforms = PlatformRepository.findAll().stream().map(p -> p.getName())
-			        .collect(Collectors.toList());
-			payload.put("platforms", platforms);
-			payload.put("version", StartupUtils.getVersion());
-			try {
-				String json = new ObjectMapper().writeValueAsString(payload);
-				client.publish(topic, new MqttMessage(json.getBytes(StandardCharsets.UTF_8)));
-			} catch (JsonProcessingException | MqttException e) {
-			}
-		}
 	}
 
 	private static Logger logger = (Logger) LoggerFactory.getLogger(MQTTMonitor.class);
@@ -293,6 +282,10 @@ public class MQTTMonitor {
 	private Long prevRefereeTimeStamp = 0L;
 
 	public MQTTMonitor(FieldOfPlay fop) {
+		this.fop = fop;
+	}
+
+	public void start() {
 		logger.setLevel(Level.DEBUG);
 		this.setFop(fop);
 		fop.getUiEventBus().register(this);
@@ -313,6 +306,11 @@ public class MQTTMonitor {
 
 	public FieldOfPlay getFop() {
 		return fop;
+	}
+
+	public void publishMqttConfig() {
+		PlatformRepository.syncFOPs();
+		publishMqttConfig("owlcms/fop/config");
 	}
 
 	public void setFop(FieldOfPlay fop) {
@@ -336,15 +334,6 @@ public class MQTTMonitor {
 				publishMqttBreak(e);
 			} catch (MqttException e1) {
 			}
-		}
-	}
-	
-	@Subscribe
-	public void slaveGroupDone(UIEvent.GroupDone e) {
-		try {
-			publishMqttGroupDone(e);
-		} catch (MqttException e1) {
-			logger.error(e1.toString());
 		}
 	}
 
@@ -377,6 +366,15 @@ public class MQTTMonitor {
 		try {
 			publishMqttDownSignal();
 		} catch (MqttException e) {
+		}
+	}
+
+	@Subscribe
+	public void slaveGroupDone(UIEvent.GroupDone e) {
+		try {
+			publishMqttGroupDone(e);
+		} catch (MqttException e1) {
+			logger.error(e1.toString());
 		}
 	}
 
@@ -541,11 +539,6 @@ public class MQTTMonitor {
 		client.publish("owlcms/fop/break/" + fop.getName(),
 		        new MqttMessage(e.getBreakType().name().getBytes(StandardCharsets.UTF_8)));
 	}
-	
-	private void publishMqttGroupDone(GroupDone e) throws MqttPersistenceException, MqttException {
-		client.publish("owlcms/fop/break/" + fop.getName(),
-		        new MqttMessage(BreakType.GROUP_DONE.name().getBytes(StandardCharsets.UTF_8)));
-	}
 
 	private void publishMqttCeremony(UIEvent e, boolean b) throws MqttPersistenceException, MqttException {
 		String topic = "owlcms/fop/ceremony/" + fop.getName();
@@ -570,9 +563,29 @@ public class MQTTMonitor {
 		client.publish(topic, new MqttMessage());
 	}
 
+	private void publishMqttConfig(String topic) {
+		Map<String, Object> payload = new TreeMap<>();
+		Collection<FieldOfPlay> fops = OwlcmsFactory.getFOPs();
+		List<String> platforms = fops.stream().map(p -> p.getPlatform().getName())
+		        .collect(Collectors.toList());
+		payload.put("platforms", platforms);
+		payload.put("version", StartupUtils.getVersion());
+		try {
+			String json = new ObjectMapper().writeValueAsString(payload);
+			logger.info("{}MQTT Config: {}",fop.getLoggingName(),json);
+			client.publish(topic, new MqttMessage(json.getBytes(StandardCharsets.UTF_8)));
+		} catch (JsonProcessingException | MqttException e) {
+		}
+	}
+
 	private void publishMqttDownSignal() throws MqttException, MqttPersistenceException {
 		String topic = "owlcms/fop/down/" + fop.getName();
 		client.publish(topic, new MqttMessage());
+	}
+
+	private void publishMqttGroupDone(GroupDone e) throws MqttPersistenceException, MqttException {
+		client.publish("owlcms/fop/break/" + fop.getName(),
+		        new MqttMessage(BreakType.GROUP_DONE.name().getBytes(StandardCharsets.UTF_8)));
 	}
 
 	private void publishMqttJuryDeliberation() throws MqttPersistenceException, MqttException {
@@ -752,5 +765,4 @@ public class MQTTMonitor {
 		} catch (InterruptedException e) {
 		}
 	}
-
 }

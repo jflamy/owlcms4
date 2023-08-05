@@ -241,6 +241,8 @@ public class FieldOfPlay {
 	private List<Athlete> resultsOrder;
 
 	private boolean cjBreakDisplayed;
+	
+	private MQTTMonitor mqttMonitor = null;
 
 	/**
 	 * Instantiates a new field of play state. When using this constructor
@@ -258,8 +260,11 @@ public class FieldOfPlay {
 		// check if refereeing devices connected via MQTT are in use
 		String paramMqttServer = Config.getCurrent().getParamMqttServer();
 		boolean mqttInternal = Config.getCurrent().getParamMqttInternal();
+
 		if (mqttInternal || paramMqttServer != null) {
-			new Thread(() -> new MQTTMonitor(this)).start();
+	        MQTTMonitor mm = new MQTTMonitor(this);
+	        setMqttMonitor(mm);
+			mm.start();
 		}
 
 		this.athleteTimer = null;
@@ -267,12 +272,11 @@ public class FieldOfPlay {
 		this.setPlatform(platform2);
 
 		this.fopEventBus.register(this);
-		// logger.debug("|||| fop {} {}", System.identityHashCode(this),
-		// this.getName());
 		new EventForwarder(this);
 	}
 
-	private FieldOfPlay() {
+	public FieldOfPlay() {
+		// TODO Auto-generated constructor stub
 	}
 
 	public void broadcast(String string) {
@@ -2885,6 +2889,14 @@ public class FieldOfPlay {
 	private void weightChangeDoNotDisturb(WeightChange e) {
 		recomputeOrderAndRanks(e.isResultChange());
 		uiDisplayCurrentAthleteAndTime(false, e, false);
+	}
+
+	public MQTTMonitor getMqttMonitor() {
+		return mqttMonitor;
+	}
+
+	public void setMqttMonitor(MQTTMonitor mqttMonitor) {
+		this.mqttMonitor = mqttMonitor;
 	}
 
 }
