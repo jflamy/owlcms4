@@ -2,8 +2,9 @@
 
 > *Alpha releases are for initial feedback.  Features can be incomplete, subject to change, or broken.*
 
-- alpha01: Prevent countdown interruptions.  In order to switch from a countdown to a different type of break, it is now necessary to explicitly stop the break using the "Pause" dialog.   Jury buttons for technical breaks are therefore ignored. Ceremonies (Introduction, Medals) are fine since they do not interrupt the countdown.
-- alpha01: Referee decision updates are ignored once the decision has been shown.  Referees must use flags after 3 seconds. In this way, what the jury sees matches what was seen by the public.
+- alpha01: A MQTT `fop/config` message is published on startup and when platforms are edited or deleted.  Device management applications can listen to this message to display the available platforms.
+- alpha00: Prevent countdown interruptions.  In order to switch from a countdown to a different type of break, it is now necessary to explicitly stop the break using the "Pause" dialog.   Jury buttons for technical breaks are therefore ignored. Ceremonies (Introduction, Medals) are fine since they do not interrupt the countdown.
+- alpha00: Referee decision updates are ignored once the decision has been shown.  Referees must use flags after 3 seconds. In this way, what the jury sees matches what was seen by the public.
 
 #####  Highlights from recent stable releases
 
@@ -34,11 +35,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_43.0.0-alpha00.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_43.0.0-alpha01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_43.0.0-alpha00.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_43.0.0-alpha01.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
