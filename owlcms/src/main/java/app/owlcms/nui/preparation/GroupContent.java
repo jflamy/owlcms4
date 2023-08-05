@@ -114,30 +114,6 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
 		this.routerLayout = routerLayout;
 	}
 
-//    /**
-//     * The content and ordering of the editing form.
-//     *
-//     * @param crudFormFactory the factory that will create the form using this information
-//     */
-//    protected void createFormLayout(OwlcmsCrudFormFactory<Group> crudFormFactory) {
-//        crudFormFactory.setVisibleProperties("name", "description", "platform", "weighInTime", "competitionTime", "weighIn1",
-//                "weighIn2", "announcer",
-//                "marshall", "technicalController", "timeKeeper", "referee1", "referee2", "referee3", "jury1", "jury2",
-//                "jury3", "jury4", "jury5");
-//        crudFormFactory.setFieldCaptions(getTranslation("Name"), getTranslation("Group.Description"), getTranslation("Platform"),
-//                getTranslation("WeighInTime"), getTranslation("StartTime"),
-//                getTranslation("Weighin1"), getTranslation("Weighin2"),
-//                getTranslation("Announcer"),
-//                getTranslation("Marshall"), getTranslation("TechnicalController"), getTranslation("Timekeeper"),
-//                getTranslation("Referee1"), getTranslation("Referee2"), getTranslation("Referee3"),
-//                getTranslation("Jury1"), getTranslation("Jury2"), getTranslation("Jury3"), getTranslation("Jury4"),
-//                getTranslation("Jury5"));
-//        crudFormFactory.setFieldProvider("platform",
-//                new OwlcmsComboBoxProvider<>(getTranslation("Platform"), PlatformRepository.findAll(), new TextRenderer<>(Platform::getName), Platform::getName));
-//        crudFormFactory.setFieldType("weighInTime", LocalDateTimePicker.class);
-//        crudFormFactory.setFieldType("competitionTime", LocalDateTimePicker.class);
-//    }
-
 	@Override
 	public Group update(Group domainObjectToUpdate) {
 		return editingFormFactory.update(domainObjectToUpdate);
@@ -165,6 +141,8 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
 	 */
 	protected GridCrud<Group> createGrid(OwlcmsCrudFormFactory<Group> crudFormFactory) {
 		Grid<Group> grid = new Grid<>(Group.class, false);
+		GridCrud<Group> crud = new OwlcmsCrudGrid<>(Group.class, new OwlcmsGridLayout(Group.class),
+		        crudFormFactory, grid);
 		grid.getThemeNames().add("row-stripes");
 		grid.addColumn(Group::getName).setHeader(getTranslation("Name")).setComparator(Group::compareTo);
 		grid.addColumn(Group::getDescription).setHeader(getTranslation("Group.Description"));
@@ -182,8 +160,7 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
 			return technical;
 		})).setHeader("").setWidth(tSize + "ch");
 
-		GridCrud<Group> crud = new OwlcmsCrudGrid<>(Group.class, new OwlcmsGridLayout(Group.class),
-		        crudFormFactory, grid);
+
 		crud.setCrudListener(this);
 		crud.setClickRowToUpdate(true);
 		return crud;
