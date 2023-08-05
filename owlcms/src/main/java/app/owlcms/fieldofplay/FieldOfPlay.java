@@ -1951,9 +1951,9 @@ public class FieldOfPlay {
 		this.getBreakTimer().setTimeRemaining(timeRemaining, false);
 		this.getBreakTimer().setBreakDuration(timeRemaining);
 		this.getBreakTimer().setBreakType(BreakType.FIRST_CJ);
+		this.setBreakType(BreakType.FIRST_CJ);
 		this.getBreakTimer().setEnd(null);
 		this.getBreakTimer().start();
-		this.setBreakType(BreakType.FIRST_CJ);
 		this.setState(BREAK);
 
 		// the event forces the other UIs to take notice. The arguments are not actually relevant.
@@ -2491,6 +2491,16 @@ public class FieldOfPlay {
 		this.ceremonyType = null;
 
 		// logger.debug("transitionToBreak {}", LoggerUtils.stackTrace());
+		if (state == BREAK && (getBreakType() == FIRST_CJ) && ! (newBreak == BreakType.JURY || newBreak == BreakType.CHALLENGE)) {
+			// no interruption other than jury during CJ countdown.  Otherwise must stop break.
+			return;
+		}
+		
+		if (state == BREAK && (getBreakType().isCountdown()) && (newBreak == BreakType.JURY || newBreak == BreakType.CHALLENGE)) {
+			// ignore jury break during intro and snatch breaks
+			return;
+		}
+
 		doTONotifications(newBreak);
 
 		if (state == BREAK) {
@@ -2499,6 +2509,7 @@ public class FieldOfPlay {
 				logger.debug("{}forced break from breakmgmt", getLoggingName());
 				setBreakType(newBreak);
 				getBreakTimer().start();
+
 				pushOutUIEvent(new UIEvent.BreakStarted(breakTimer.liveTimeRemaining(), this, false, newBreak,
 				        CountdownType.DURATION, e.getStackTrace(), getBreakTimer().isIndefinite()));
 				return;
@@ -2521,8 +2532,8 @@ public class FieldOfPlay {
 					// break timer pushes out the BreakStarted event.
 					breakTimer.start();
 					return;
-				} else if (breakTimer.getBreakType().isCountdown()) {
-					logger.debug("{}switching to countdown {}");
+				} else if (newBreak.isCountdown()) {
+					logger.debug("{}switching to countdown {}", getLoggingName(), newBreak, breakTimer.liveTimeRemaining());
 					setBreakType(newBreak);
 					getBreakTimer().start();
 					pushOutUIEvent(new UIEvent.BreakStarted(breakTimer.liveTimeRemaining(), this, false, newBreak,

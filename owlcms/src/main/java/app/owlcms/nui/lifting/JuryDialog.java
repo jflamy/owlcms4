@@ -13,10 +13,12 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
@@ -65,6 +67,12 @@ public class JuryDialog extends Dialog {
 		        OwlcmsSession.getFop().getLoggingName(), deliberation, athleteUnderReview);
 		this.setReviewedAthlete(athleteUnderReview);
 		this.setWidth("50em");
+		FieldOfPlay fop;
+		fop = OwlcmsSession.getFop();
+		if (fop != null && fop.getState() == FOPState.BREAK && fop.getBreakType().isCountdown()) {
+			errorDialog();
+			return;
+		}
 		switch (deliberation) {
 		case CALL_REFEREES:
 			doSummonReferees(origin);
@@ -92,6 +100,17 @@ public class JuryDialog extends Dialog {
 		}
 
 		doEnd();
+	}
+
+	private void errorDialog() {
+		this.setHeaderTitle(Translator.translate("Jury.NoInterruption"));
+		Paragraph paragraph = new Paragraph();
+		paragraph.setText(Translator.translate("Jury.NoInterruptionDuringCountdown"));
+		this.add(paragraph);
+		this.getFooter().removeAll();
+		Button button = new Button(Translator.translate("OK"), (e) -> this.close());
+		button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		this.getFooter().add(button);
 	}
 
 	public void doClose(boolean noAction) {
@@ -225,7 +244,8 @@ public class JuryDialog extends Dialog {
 		}
 		if (!(fop.getState() != FOPState.BREAK && fop.getBreakType() == BreakType.CHALLENGE)) {
 			// not already in a jury break, force one.
-			fop.fopEventPost(new FOPEvent.BreakStarted(BreakType.CHALLENGE, CountdownType.INDEFINITE, 0, null, true, this));
+			fop.fopEventPost(
+			        new FOPEvent.BreakStarted(BreakType.CHALLENGE, CountdownType.INDEFINITE, 0, null, true, this));
 		}
 		this.setDraggable(true);
 
