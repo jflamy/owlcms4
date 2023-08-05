@@ -389,7 +389,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 			    		fop.setVideoCategory(c);
 			    		setMedalGroup(g);
 			    		setMedalCategory(c);
-			    		logger.info("switching to {} {}", g.getName(), c != null ? c.getTranslatedName() : "");
+			    		logger.info("switching to {} {}", g.getName() != null ? g.getName() :"-", c != null ? c.getTranslatedName() : "");
 			    		fop.getUiEventBus().post(new UIEvent.VideoRefresh(this, g, c));
 			        });
 
