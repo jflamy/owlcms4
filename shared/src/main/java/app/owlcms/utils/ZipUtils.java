@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.utils;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -63,14 +64,17 @@ public class ZipUtils {
 					Path outputfilePath = target.resolve(name);
 					Files.createDirectories(outputfilePath.getParent());
 					Files.createFile(outputfilePath);
-					logger.debug("writing {}", outputfilePath);
+					logger.trace("writing {}", outputfilePath);
 					// write file
 					try (OutputStream targetStream = Files.newOutputStream(outputfilePath)) {
 						IOUtils.copy(archiveInputStream, targetStream);
 					}
+					logger.trace("written {}", outputfilePath);
 				}
 			}
-		} catch (ArchiveException e) {
+		} catch (EOFException e) {
+			// ignore
+		}catch (ArchiveException e) {
 			throw new IOException(e);
 		}
 	}
@@ -109,7 +113,13 @@ public class ZipUtils {
 		fis.close();
 	}
 	
-	public static void zipStream(InputStream streamToZip, String fileName, ZipOutputStream zipOut) throws IOException {
+	public static void zipStream(InputStream streamToZip, String fileName, boolean createDir, ZipOutputStream zipOut) throws IOException {
+		if (createDir) {
+			// pretend that a new directory is entered
+			String dirName = new File(fileName).getParent();
+			zipOut.putNextEntry(new ZipEntry(dirName + (dirName.endsWith("/") ? "" : "/")));
+			zipOut.closeEntry();
+		}
 		ZipEntry zipEntry = new ZipEntry(fileName);
 		zipOut.putNextEntry(zipEntry);
 		byte[] bytes = new byte[1024];
@@ -117,6 +127,8 @@ public class ZipUtils {
 		while ((length = streamToZip.read(bytes)) >= 0) {
 			zipOut.write(bytes, 0, length);
 		}
+		zipOut.closeEntry();
+		zipOut.flush();
 		streamToZip.close();
 	}
 

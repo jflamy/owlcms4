@@ -7,10 +7,11 @@
 package app.owlcms.utils;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -350,7 +351,6 @@ public class ResourceWalker {
 			// this will either return a file or a jar URI, depending on
 			// expanded classpath (development) or jar classpath (production)
 			resourcesURI = resourceURL.toURI();
-			logger.warn(resourcesURI.toString());
 		} catch (URISyntaxException e1) {
 			logger.error(e1.getReason());
 			throw new RuntimeException(e1);
@@ -392,22 +392,19 @@ public class ResourceWalker {
 			logger.debug("checking for override.");
 			checkForLocalOverrideDirectory();
 		}
-		
-		zipPublicResultsConfig();
 	}
 
-	public static void zipPublicResultsConfig() {
+	public static void zipPublicResultsConfig(OutputStream os) throws IOException {
 		Map<String, Resource> testMap = new ResourceWalker().getPRResourceMap(Locale.ENGLISH);
-		try {
-			ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream("test.zip"));
-			for (String n : testMap.keySet()) {
-
-					InputStream str = ResourceWalker.getResourceAsStream(n);
-					ZipUtils.zipStream(str, n, zipOut);
-			}
-			zipOut.close();
-		} catch (Exception e1) {
-			e1.printStackTrace();
+		ZipOutputStream zipOut = new ZipOutputStream(os);
+		String prevDirName = "";
+		for (String n : testMap.keySet()) {
+			String curDirName = new File(n).getParent();
+			InputStream str = ResourceWalker.getResourceAsStream(n);
+			boolean createDir = !curDirName.contentEquals(prevDirName);
+			logger.trace("zipping {} {}",n, createDir);
+			ZipUtils.zipStream(str, n, createDir, zipOut);
+			prevDirName = curDirName;
 		}
 	}
 

@@ -6,8 +6,8 @@
  *******************************************************************************/
 package app.owlcms.monitors;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -17,7 +17,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -875,9 +874,9 @@ public class EventForwarder implements BreakDisplay {
 					athx++;
 				}
 			} else {
-				if (prevAth != null 
-						&& a.getActuallyAttemptedLifts() >= 3 
-						&& prevAth.getActuallyAttemptedLifts() < 3) {
+				if (prevAth != null
+				        && a.getActuallyAttemptedLifts() >= 3
+				        && prevAth.getActuallyAttemptedLifts() < 3) {
 					// changing categories, put marker before athlete
 					ja.put("isSpacer", true);
 					jath.set(athx, ja);
@@ -1028,53 +1027,26 @@ public class EventForwarder implements BreakDisplay {
 		synchronized (Config.getCurrent()) {
 			try {
 				logger.info("{}sending config", getFop().getLoggingName());
-
-				Supplier<byte[]> localZipBlobSupplier = ResourceWalker.getLocalZipBlobSupplier();
-				byte[] blob = null;
-				if (localZipBlobSupplier != null) {
-					logger.info("retrieving database config zip");
-					blob = localZipBlobSupplier.get();
-					if (blob != null && blob.length == 0) {
-						blob = null;
-						logger.info("zip blob empty");
-					} else {
-						logger.info("zip blob found");
-					}
-				}
-
 				HttpPost post = new HttpPost(destination);
 
 				MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 				builder.addPart("updateKey", new StringBody(updateKey, ContentType.TEXT_PLAIN));
-				InputStream inputStream;
-				if (blob == null) {
-					logger.info("creating blob");					
-					String styles = Config.getCurrent().getStylesDirectory();
-					
-					try {
-						inputStream = ResourceWalker.getFileOrResource("/"+styles+"/colors.css");
-					} catch (FileNotFoundException e) {
-						throw new RuntimeException(e);
-					}
-					builder.addBinaryBody("colors", inputStream, ContentType.create("text/css"), "colors.css");
-					
-					try {
-						inputStream = ResourceWalker.getFileOrResource("/"+styles+"/results.css");
-					} catch (FileNotFoundException e) {
-						throw new RuntimeException(e);
-					}
-					builder.addBinaryBody("results", inputStream, ContentType.create("text/css"), "results.css");
-					
-					try {
-						inputStream = ResourceWalker.getFileOrResource("/"+styles+"/resultsCustomization.css");
-					} catch (FileNotFoundException e) {
-						throw new RuntimeException(e);
-					}
-					builder.addBinaryBody("resultsCustomization", inputStream, ContentType.create("text/css"), "resultsCustomization.css");
 
-
-				} else {
-					builder.addBinaryBody("local", blob, ContentType.create("application/zip"), "local.zip");
+				try {
+					PipedOutputStream out = new PipedOutputStream();
+					PipedInputStream in = new PipedInputStream(out);
+					new Thread(() -> {
+						try {
+							ResourceWalker.zipPublicResultsConfig(out);
+							out.flush();
+							out.close();
+						} catch (Throwable e) {
+							throw new RuntimeException(e);
+						}
+					}).start();
+					builder.addBinaryBody("local", in, ContentType.create("application/zip"), "local.zip");
+				} catch (Exception e) {
+					throw new RuntimeException(e);
 				}
 
 				HttpEntity entity = builder.build();
@@ -1130,7 +1102,7 @@ public class EventForwarder implements BreakDisplay {
 	private void setGroupAthletes(JsonValue athletesJson) {
 		this.groupAthletes = athletesJson;
 	}
-	
+
 	private void setLiftingOrderAthletes(JsonValue athletesJson) {
 		this.liftingOrderAthletes = athletesJson;
 	}
