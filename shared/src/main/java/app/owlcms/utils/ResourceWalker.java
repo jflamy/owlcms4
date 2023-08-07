@@ -613,7 +613,7 @@ public class ResourceWalker {
 //		        .stream()
 //		        .collect(Collectors.toMap(Resource::normalizedName, Function.identity())));
 
-		// during maven development, we don't necessarily override styles and i18n
+		// during maven development, get default i18n and styles in case they are not in local.
 		addToResourceMap(resourceMap, ResourceWalker::relativeName, startsWith, locale,
 		        Paths.get("..", "shared", "src", "main", "resources", "i18n"), "i18n");
 		addToResourceMap(resourceMap, ResourceWalker::relativeName, startsWith, locale,
