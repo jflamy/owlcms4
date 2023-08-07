@@ -276,7 +276,6 @@ public class FieldOfPlay {
 	}
 
 	public FieldOfPlay() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public void broadcast(String string) {
