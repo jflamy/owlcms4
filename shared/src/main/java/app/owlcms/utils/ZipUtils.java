@@ -108,5 +108,16 @@ public class ZipUtils {
 		}
 		fis.close();
 	}
+	
+	public static void zipStream(InputStream streamToZip, String fileName, ZipOutputStream zipOut) throws IOException {
+		ZipEntry zipEntry = new ZipEntry(fileName);
+		zipOut.putNextEntry(zipEntry);
+		byte[] bytes = new byte[1024];
+		int length;
+		while ((length = streamToZip.read(bytes)) >= 0) {
+			zipOut.write(bytes, 0, length);
+		}
+		streamToZip.close();
+	}
 
 }

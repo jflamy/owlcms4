@@ -8,6 +8,7 @@ package app.owlcms.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -41,6 +42,7 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.zip.ZipOutputStream;
 
 import org.slf4j.LoggerFactory;
 
@@ -390,6 +392,23 @@ public class ResourceWalker {
 			logger.debug("checking for override.");
 			checkForLocalOverrideDirectory();
 		}
+		
+		zipPublicResultsConfig();
+	}
+
+	public static void zipPublicResultsConfig() {
+		Map<String, Resource> testMap = new ResourceWalker().getPRResourceMap(Locale.ENGLISH);
+		try {
+			ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream("test.zip"));
+			for (String n : testMap.keySet()) {
+
+					InputStream str = ResourceWalker.getResourceAsStream(n);
+					ZipUtils.zipStream(str, n, zipOut);
+			}
+			zipOut.close();
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
 	}
 
 	public static boolean isInitializedLocalDir() {
@@ -604,34 +623,23 @@ public class ResourceWalker {
 		Map<String, Resource> resourceMap = new TreeMap<>();
 		Predicate<String> startsWith = (s) -> true;
 
-//		resourceMap.putAll(getResourceListFromPath(ResourceWalker::relativeName,
-//		        (s) -> {
-//			        logger.warn("checking {}", s);
-//			        return !s.endsWith(".class");
-//		        },
-//		        getResourcePath("/"), locale)
-//		        .stream()
-//		        .collect(Collectors.toMap(Resource::normalizedName, Function.identity())));
-
-		// during maven development, get default i18n and styles in case they are not in local.
+		// during maven development, get default i18n and styles in case they are not in
+		// local.
 		try {
 			addToResourceMap(resourceMap, ResourceWalker::relativeName, startsWith, locale,
 			        Paths.get("..", "shared", "src", "main", "resources", "i18n"), "i18n");
 			addToResourceMap(resourceMap, ResourceWalker::relativeName, startsWith, locale,
 			        Paths.get("..", "shared", "src", "main", "resources", "styles"), "styles");
 		} catch (Exception e) {
-			//ignore in production
+			// ignore in production
 		}
-		
-		//FIXME: resource override directory.
+
 		try {
 			addToResourceMap(resourceMap, ResourceWalker::relativeName, startsWith, locale,
-			        getLocalDirPath() , null);
+			        getLocalDirPath(), null);
 		} catch (Exception e) {
 			// ignore in cloud mode.
 		}
-		
-
 
 		for (Entry<String, Resource> n : resourceMap.entrySet()) {
 			System.err.println(n.getKey() + " " + n.getValue().getFilePath().normalize().toAbsolutePath());
