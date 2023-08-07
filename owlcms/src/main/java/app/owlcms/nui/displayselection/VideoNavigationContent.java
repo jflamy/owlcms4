@@ -43,10 +43,10 @@ import app.owlcms.displays.scoreboard.ResultsMedals;
 import app.owlcms.displays.scoreboard.ResultsNoLeaders;
 import app.owlcms.displays.scoreboard.ResultsRankingOrder;
 import app.owlcms.displays.scoreboard.ResultsRankings;
+import app.owlcms.displays.video.StreamingEventMonitor;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.monitors.EventMonitor;
 import app.owlcms.monitors.OBSMonitor;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
@@ -153,7 +153,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 		
 
 		Button obsMonitor = openInNewTab(OBSMonitor.class, getTranslation("OBS.MonitoringButton"));
-		Button eventMonitor = openInNewTab(EventMonitor.class, getTranslation("Video.EventMonitoringButton"), "video");
+		Button eventMonitor = openInNewTab(StreamingEventMonitor.class, getTranslation("Video.EventMonitoringButton"), "video");
 		VerticalLayout intro4 = new VerticalLayout();
 		addP(intro4, getTranslation("Video.EventMonitoringExplanation", getTranslation("Video.EventMonitoringButton")));
 		addP(intro4, getTranslation("OBS.MonitoringExplanation", getTranslation("OBS.MonitoringButton")));

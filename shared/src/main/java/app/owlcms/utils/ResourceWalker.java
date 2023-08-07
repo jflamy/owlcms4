@@ -17,6 +17,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
+import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,10 +26,13 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -44,7 +48,8 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Get resource paths recursively from jar or classpath and assign them a short display name for selection by user.
+ * Get resource paths recursively from jar or classpath and assign them a short
+ * display name for selection by user.
  *
  * @author owlcms
  *
@@ -102,8 +107,8 @@ public class ResourceWalker {
 	}
 
 	/**
-	 * Fetch a named file content. First looking in a local override directory structure, and if not found, as a
-	 * resource on the classpath.
+	 * Fetch a named file content. First looking in a local override directory
+	 * structure, and if not found, as a resource on the classpath.
 	 *
 	 * @param name
 	 * @return an input stream with the requested content, null if not found.
@@ -126,7 +131,7 @@ public class ResourceWalker {
 			try {
 				if (logger.isEnabledFor(Level.DEBUG)) {
 					logger.debug("found overridden resource {} at {} {}", name, target.toAbsolutePath(),
-							LoggerUtils.whereFrom(1));
+					        LoggerUtils.whereFrom(1));
 				}
 				return Files.newInputStream(target);
 			} catch (IOException e) {
@@ -138,7 +143,7 @@ public class ResourceWalker {
 				}
 			}
 		} else {
-			is = ResourceWalker.class.getResourceAsStream(name.startsWith("/") ? name : "/"+name);
+			is = ResourceWalker.class.getResourceAsStream(name.startsWith("/") ? name : "/" + name);
 			if (is != null) {
 				if (logger.isEnabledFor(Level.DEBUG)) {
 					logger.debug("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
@@ -154,8 +159,8 @@ public class ResourceWalker {
 	}
 
 	/**
-	 * Fetch a named file content. First looking in a local override directory structure, and if not found, as a
-	 * resource on the classpath.
+	 * Fetch a named file content. First looking in a local override directory
+	 * structure, and if not found, as a resource on the classpath.
 	 *
 	 * @param name
 	 * @return an input stream with the requested content, null if not found.
@@ -175,7 +180,8 @@ public class ResourceWalker {
 		}
 		if (target != null && Files.exists(target)) {
 			if (logger.isEnabledFor(Level.DEBUG)) {
-				logger.debug("found overridden resource {} at {} {}", name, target.toAbsolutePath(),LoggerUtils.whereFrom(1));
+				logger.debug("found overridden resource {} at {} {}", name, target.toAbsolutePath(),
+				        LoggerUtils.whereFrom(1));
 			}
 			return target;
 		} else {
@@ -342,6 +348,7 @@ public class ResourceWalker {
 			// this will either return a file or a jar URI, depending on
 			// expanded classpath (development) or jar classpath (production)
 			resourcesURI = resourceURL.toURI();
+			logger.warn(resourcesURI.toString());
 		} catch (URISyntaxException e1) {
 			logger.error(e1.getReason());
 			throw new RuntimeException(e1);
@@ -350,10 +357,12 @@ public class ResourceWalker {
 			resourcePath = Paths.get(resourcesURI);
 		} catch (FileSystemNotFoundException e) {
 			// the normal classpath uses the default file system, which is always found.
-			// if the file was in a jar, normally Vaadin has already loaded the zip file system
+			// if the file was in a jar, normally Vaadin has already loaded the zip file
+			// system
 			// so we should not get a not found either.
 
-			// so the only way to get here is if the file is in a jar, and somehow Vaadin has
+			// so the only way to get here is if the file is in a jar, and somehow Vaadin
+			// has
 			// not opened it yet. So we use a file that should be in the jar, and expect the
 			// URI to be of the "jar" type.
 
@@ -388,7 +397,17 @@ public class ResourceWalker {
 	}
 
 	public static String relativeName(Path filePath, Path rootPath) {
-		return filePath.toString().substring(rootPath.toString().length() + 1);
+		String substring;
+		if (filePath.equals(rootPath)) {
+			substring = filePath.getFileName().toString();
+		} else {
+			substring = filePath.toString().substring(rootPath.toString().length() + 1);
+		}
+		return substring;
+	}
+
+	public static String straightName(Path filePath, Path rootPath) {
+		return filePath.toString();
 	}
 
 	public static void setLocalDirPath(Path curDir) {
@@ -437,8 +456,9 @@ public class ResourceWalker {
 	/**
 	 * Register an additional file system for the resources
 	 *
-	 * We use the classloader to return the URI where it found a resource. This will be either a jar (in production) or
-	 * a regular file system (in development). If a jar, then we register a file system for the Jar's URI.
+	 * We use the classloader to return the URI where it found a resource. This will
+	 * be either a jar (in production) or a regular file system (in development). If
+	 * a jar, then we register a file system for the Jar's URI.
 	 *
 	 * @param absoluteRootPath
 	 * @return an open file system (intentionnaly not closed)
@@ -448,11 +468,11 @@ public class ResourceWalker {
 		try {
 			URI resourcesURI = resources.toURI();
 			FileSystem fileSystem = (resourcesURI.getScheme().equals("jar")
-					? FileSystems.newFileSystem(resourcesURI, Collections.<String, Object>emptyMap())
-							: null);
+			        ? FileSystems.newFileSystem(resourcesURI, Collections.<String, Object>emptyMap())
+			        : null);
 			if (logger.isEnabledFor(Level.DEBUG)) {
 				logger.debug("resources for URI {} found in {}", resourcesURI,
-						(fileSystem != null ? "jar" : "classpath folders"));
+				        (fileSystem != null ? "jar" : "classpath folders"));
 			}
 			return fileSystem;
 		} catch (FileSystemAlreadyExistsException fe) {
@@ -474,32 +494,41 @@ public class ResourceWalker {
 	}
 
 	/**
-	 * Walk a local file system resource tree and return the entries. Used for overriding the classpath resources. When
-	 * developing or running on a laptop the override directory will typically be ./local When running on the cloud, the
-	 * override files are stored in a blob in the database and extracted to a temporary directory.
+	 * Walk a local file system resource tree and return the entries. Used for
+	 * overriding the classpath resources. When developing or running on a laptop
+	 * the override directory will typically be ./local When running on the cloud,
+	 * the override files are stored in a blob in the database and extracted to a
+	 * temporary directory.
 	 *
-	 * @param root          a starting point (if start with / will removed and made relative)
-	 * @param nameGenerator a function that takes the current path and the starting path and returns a (unique) display
-	 *                      name.
+	 * @param root          a starting point (if start with / will removed and made
+	 *                      relative)
+	 * @param nameGenerator a function that takes the current path and the starting
+	 *                      path and returns a (unique) display name.
 	 * @return a list of <display name, file path> entries
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
 	// Path rootPath = null;
 	public List<Resource> getLocalOverrideResourceList(String root,
-			BiFunction<Path, Path, String> nameGenerator,
-			Predicate<String> predicate, Locale locale) {
+	        BiFunction<Path, Path, String> nameGenerator,
+	        Predicate<String> predicate, Locale locale) {
 		if (root.startsWith("/")) {
 			root = root.substring(1);
 		}
 		Path basePath = ResourceWalker.getLocalDirPath();
+		List<Resource> list = doFetchFromDir(root, nameGenerator, predicate, locale, basePath);
+		return list;
+	}
+
+	private List<Resource> doFetchFromDir(String root, BiFunction<Path, Path, String> nameGenerator,
+	        Predicate<String> predicate, Locale locale, Path basePath) {
 		if (basePath != null) {
 			basePath = basePath.normalize().toAbsolutePath();
 			basePath = basePath.resolve(root);
 			// what is in the path does not necessarily have an override
 			if (Files.exists(basePath)) {
 				List<Resource> resourceListFromPath = getResourceListFromPath(nameGenerator, predicate, basePath,
-						locale);
+				        locale);
 				if (logger.isEnabledFor(Level.DEBUG)) {
 					logger.debug("local override resources {}", resourceListFromPath);
 				}
@@ -513,20 +542,24 @@ public class ResourceWalker {
 	}
 
 	public List<Resource> getResourceList(String absoluteRoot, BiFunction<Path, Path, String> nameGenerator,
-			Predicate<String> startsWith, Locale locale) {
+	        Predicate<String> startsWith, Locale locale) {
 		return getResourceList(absoluteRoot, nameGenerator, startsWith, locale, false);
 	}
 
 	/**
-	 * Find all available files that start with a given prefix, either in a local file structure or on the classpath.
+	 * Find all available files that start with a given prefix, either in a local
+	 * file structure or on the classpath.
 	 *
-	 * For each file a display name suitable for a menu is returned. The file retrieval function will use the same logic
-	 * (look in the local files, then on the classpath).
+	 * For each file a display name suitable for a menu is returned. The file
+	 * retrieval function will use the same logic (look in the local files, then on
+	 * the classpath).
 	 *
-	 * @param absoluteRoot  a starting point (absolute resource name starts with a /)
-	 * @param nameGenerator a function that takes the current file path and the starting path and returns a (unique)
-	 *                      display name.
-	 * @param overridesOnly if true, do not include classpath resources - use only explicitly provided files
+	 * @param absoluteRoot  a starting point (absolute resource name starts with a
+	 *                      /)
+	 * @param nameGenerator a function that takes the current file path and the
+	 *                      starting path and returns a (unique) display name.
+	 * @param overridesOnly if true, do not include classpath resources - use only
+	 *                      explicitly provided files
 	 * @param locale2
 	 * @return a list of <display name, file path> entries
 	 * @throws IOException
@@ -534,25 +567,27 @@ public class ResourceWalker {
 	 */
 	// Path rootPath = null;
 	public List<Resource> getResourceList(String absoluteRoot, BiFunction<Path, Path, String> nameGenerator,
-			Predicate<String> startsWith, Locale locale, boolean overridesOnly) {
+	        Predicate<String> startsWith, Locale locale, boolean overridesOnly) {
 
 		Map<String, Resource> classPathResourcesMap = overridesOnly ? Map.of()
-				: getResourceListFromPath(nameGenerator, startsWith,
-						getResourcePath(absoluteRoot), locale)
-				.stream()
-				.collect(Collectors.toMap(Resource::normalizedName, Function.identity()));
-		Map<String, Resource> overrideResourcesMap = getLocalOverrideResourceList(absoluteRoot, nameGenerator,
-				startsWith, locale)
-				.stream()
-				.collect(Collectors.toMap(Resource::normalizedName, Function.identity()));
+		        : getResourceListFromPath(nameGenerator, startsWith,
+		                getResourcePath(absoluteRoot), locale)
+		                .stream()
+		                .collect(Collectors.toMap(Resource::normalizedName, Function.identity()));
 
-		// we want all the resource names from both lists. If a resource with a given name is found in both lists,
+		Map<String, Resource> overrideResourcesMap = getLocalOverrideResourceList(absoluteRoot, nameGenerator,
+		        startsWith, locale)
+		        .stream()
+		        .collect(Collectors.toMap(Resource::normalizedName, Function.identity()));
+
+		// we want all the resource names from both lists. If a resource with a given
+		// name is found in both lists,
 		// we want the resource from the override list.
 
 		Set<String> classPathResourceNames = classPathResourcesMap.keySet();
 		Set<String> overrideResourceNames = overrideResourcesMap.keySet();
-		//logger.debug("classpath resources {}", classPathResourceNames);
-		//logger.debug("override resources {}", overrideResourceNames);
+		// logger.debug("classpath resources {}", classPathResourceNames);
+		// logger.debug("override resources {}", overrideResourceNames);
 		TreeSet<String> allResourceNames = new TreeSet<>();
 		allResourceNames.addAll(classPathResourceNames);
 		allResourceNames.addAll(overrideResourceNames);
@@ -561,8 +596,51 @@ public class ResourceWalker {
 			Resource r = overrideResourcesMap.get(rn);
 			return r != null ? r : classPathResourcesMap.get(rn);
 		}).collect(Collectors.toList());
-		//logger.trace("merged list {}", resourceList);
+		// logger.trace("merged list {}", resourceList);
 		return resourceList;
+	}
+
+	public Map<String, Resource> getPRResourceMap(Locale locale) {
+		Map<String, Resource> resourceMap = new TreeMap<>();
+		Predicate<String> startsWith = (s) -> true;
+
+//		resourceMap.putAll(getResourceListFromPath(ResourceWalker::relativeName,
+//		        (s) -> {
+//			        logger.warn("checking {}", s);
+//			        return !s.endsWith(".class");
+//		        },
+//		        getResourcePath("/"), locale)
+//		        .stream()
+//		        .collect(Collectors.toMap(Resource::normalizedName, Function.identity())));
+
+		// during maven development, we don't necessarily override styles and i18n
+		addToResourceMap(resourceMap, ResourceWalker::relativeName, startsWith, locale,
+		        Paths.get("..", "shared", "src", "main", "resources", "i18n"), "i18n");
+		addToResourceMap(resourceMap, ResourceWalker::relativeName, startsWith, locale,
+		        Paths.get("..", "shared", "src", "main", "resources", "styles"), "styles");
+		
+		addToResourceMap(resourceMap, ResourceWalker::relativeName, startsWith, locale,
+		        Paths.get("local"), null);
+
+		for (Entry<String, Resource> n : resourceMap.entrySet()) {
+			System.err.println(n.getKey() + " " + n.getValue().getFilePath().normalize().toAbsolutePath());
+		}
+		return resourceMap;
+	}
+
+	private void addToResourceMap(Map<String, Resource> classPathResourcesMap,
+	        BiFunction<Path, Path, String> nameGenerator, Predicate<String> startsWith,
+	        Locale locale, Path resourcePath, String prefix) {
+		Map<String, Resource> classPathResourcesMap2 = getResourceListFromPath(
+		        ResourceWalker::relativeName,
+		        startsWith,
+		        resourcePath,
+		        locale)
+		        .stream()
+		        .collect(Collectors.toMap(Resource::normalizedName, Function.identity()));
+		for (Entry<String, Resource> e : classPathResourcesMap2.entrySet()) {
+			classPathResourcesMap.put((prefix != null ? (prefix + "/") : "") + e.getKey(), e.getValue());
+		}
 	}
 
 	/**
@@ -578,8 +656,9 @@ public class ResourceWalker {
 	 *
 	 * - Protocol_en_CA.xls returned only if locale has country = CA
 	 *
-	 * As a consequence, for Spanish, if the generic spanish is chosen as locale, and the machine is running in Mexico,
-	 * the locale will be es_MX and the SV, EC and ES specific templates will be ignored if present
+	 * As a consequence, for Spanish, if the generic spanish is chosen as locale,
+	 * and the machine is running in Mexico, the locale will be es_MX and the SV, EC
+	 * and ES specific templates will be ignored if present
 	 *
 	 *
 	 * @param resourceName
@@ -588,7 +667,7 @@ public class ResourceWalker {
 	 */
 	public boolean matchesLocale(String resourceName, Locale locale) {
 		int extensionPos = resourceName.lastIndexOf('.');
-		String noExtension = resourceName.substring(0, extensionPos);
+		String noExtension = extensionPos == -1 ? resourceName : resourceName.substring(0, extensionPos);
 		String resourceSuffix = null;
 
 		if (locale == null) {
@@ -655,59 +734,61 @@ public class ResourceWalker {
 	}
 
 	/**
-	 * Walk down a file system, gathering resources that match a locale. The file system is either be a real file
-	 * system, or a ZipFileSystem built from a jar.
+	 * Walk down a file system, gathering resources that match a locale. The file
+	 * system is either be a real file system, or a ZipFileSystem built from a jar.
 	 *
 	 * @param nameGenerator
 	 * @param startsWith
 	 * @param rootPath
-	 * @param locale        if null return files with no locale suffix, else return files that match the locale
+	 * @param locale        if null return files with no locale suffix, else return
+	 *                      files that match the locale
 	 * @return
 	 */
-	private List<Resource> getResourceListFromPath(BiFunction<Path, Path, String> nameGenerator, Predicate<String> predicate,
-			Path rootPath, Locale locale) {
+	private List<Resource> getResourceListFromPath(BiFunction<Path, Path, String> nameGenerator,
+	        Predicate<String> predicate,
+	        Path rootPath, Locale locale) {
 		try {
 			List<Resource> localeNames = new ArrayList<>();
 			List<Resource> englishNames = new ArrayList<>();
 			List<Resource> otherNames = new ArrayList<>();
 
-			Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
-				@Override
-				public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
-					String generatedName = nameGenerator.apply(filePath, rootPath);
-					String baseName = filePath.getFileName().toString();
-					logger.trace("visiting {} {}", filePath, locale);
-					if (predicate != null) {
-						if (!predicate.test(baseName)) {
-							logger.trace("ignored {}", filePath);
-							return FileVisitResult.CONTINUE;
-						}
-					}
+			Files.walkFileTree(rootPath, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
+			        new SimpleFileVisitor<Path>() {
+				        @Override
+				        public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
+					        String generatedName = nameGenerator.apply(filePath, rootPath);
+					        String baseName = filePath.getFileName().toString();
+					        logger.trace("visiting {} {}", filePath, locale);
+					        if (predicate != null) {
+						        if (!predicate.test(baseName)) {
+							        logger.trace("ignored {}", filePath);
+							        return FileVisitResult.CONTINUE;
+						        }
+					        }
 
-					if (matchesLocale(baseName, locale)) {
-						if (logger.isEnabledFor(Level.TRACE)) {
-							logger.trace("kept {}, baseName={}, locale {}", filePath, baseName, locale);
-						}
-						localeNames.add(new Resource(generatedName, filePath));
-					} else if (matchesLocale(baseName, null)) {
-						if (logger.isEnabledFor(Level.TRACE)) {
-							logger.trace("kept_default {}, baseName={}, locale {}", filePath, baseName, locale);
-						}
-						englishNames.add(new Resource(generatedName, filePath));
-					} else {
-						if (logger.isEnabledFor(Level.TRACE)) {
-							logger.trace("ignored {}, baseName={}, wrong locale {}", filePath, baseName, locale);
-						}
-						otherNames.add(new Resource(generatedName, filePath));
-					}
-					return FileVisitResult.CONTINUE;
-				}
-			});
+					        if (matchesLocale(baseName, locale)) {
+						        if (logger.isEnabledFor(Level.TRACE)) {
+							        logger.trace("kept {}, baseName={}, locale {}", filePath, baseName, locale);
+						        }
+						        localeNames.add(new Resource(generatedName, filePath));
+					        } else if (matchesLocale(baseName, null)) {
+						        if (logger.isEnabledFor(Level.TRACE)) {
+							        logger.trace("kept_default {}, baseName={}, locale {}", filePath, baseName, locale);
+						        }
+						        englishNames.add(new Resource(generatedName, filePath));
+					        } else {
+						        if (logger.isEnabledFor(Level.TRACE)) {
+							        logger.trace("ignored {}, baseName={}, wrong locale {}", filePath, baseName,
+							                locale);
+						        }
+						        otherNames.add(new Resource(generatedName, filePath));
+					        }
+					        return FileVisitResult.CONTINUE;
+				        }
+			        });
 			localeNames.addAll(englishNames);
-			if (logger.isEnabledFor(Level.TRACE))
-			{
+			if (logger.isEnabledFor(Level.TRACE)) {
 				logger.trace("resources: {}", localeNames);
-				// localeNames.addAll(otherNames);
 			}
 
 			return localeNames;

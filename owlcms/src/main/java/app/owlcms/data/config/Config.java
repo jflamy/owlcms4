@@ -254,6 +254,7 @@ public class Config {
 	public byte[] getLocalZipBlob() {
 		logger.debug("getLocalZipBlob skip={} localOverride={}",skipReading, localOverride);
 		if (localOverride == null || skipReading) {
+			//FIXME: create a zip from ./local
 			return null;
 		}
 

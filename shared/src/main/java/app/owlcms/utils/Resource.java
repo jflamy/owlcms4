@@ -13,11 +13,15 @@ import java.nio.file.Path;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Logger;
 
 public class Resource implements Comparable<Resource> {
 
     String fileName;
     Path filePath;
+	Logger logger = (Logger) LoggerFactory.getLogger(Resource.class);
 
     public Resource(String fileName, Path filePath) {
         this.fileName = fileName;
@@ -51,6 +55,7 @@ public class Resource implements Comparable<Resource> {
     }
     
     public String normalizedName() {
-        return fileName != null ? fileName.replace('\\', '/') : null;
+        String string = fileName != null ? fileName.replace('\\', '/') : null;
+		return string;
     }
 }

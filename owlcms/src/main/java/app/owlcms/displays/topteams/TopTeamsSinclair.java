@@ -47,8 +47,8 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.team.Team;
 import app.owlcms.data.team.TeamResultsTreeData;
 import app.owlcms.data.team.TeamTreeItem;
-import app.owlcms.displays.VideoOverride;
 import app.owlcms.displays.options.DisplayOptions;
+import app.owlcms.displays.video.VideoCSSOverride;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
@@ -82,7 +82,7 @@ import elemental.json.JsonValue;
 
 public class TopTeamsSinclair extends PolymerTemplate<TemplateModel>
         implements DisplayParameters,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin, VideoOverride {
+        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin, VideoCSSOverride {
 
 	/**
 	 * Vaadin Flow propagates these variables to the corresponding Polymer template

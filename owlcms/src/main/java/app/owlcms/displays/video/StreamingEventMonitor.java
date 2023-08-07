@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.monitors;
+package app.owlcms.displays.video;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -33,7 +33,6 @@ import app.owlcms.data.athlete.LiftDefinition;
 import app.owlcms.data.athlete.LiftDefinition.Stage;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.records.RecordEvent;
-import app.owlcms.displays.VideoOverride;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -49,18 +48,20 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Class EventMonitor
+ * Class StreamingEventMonitor
  *
- * Show athlete lifting order
+ * This shows an overlay when competition events such as a record attempt or jury deliberation take place.
  *
  */
+//FIXME: show record attempt and new record for a limited duration.
+
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("eventmonitor-template")
 @JsModule("./components/EventMonitor.js")
 @Route("displays/notifications")
 
-public class EventMonitor extends PolymerTemplate<TemplateModel> implements FOPParameters,
-        SafeEventBusRegistration, UIEventProcessor, VideoOverride, HasDynamicTitle {
+public class StreamingEventMonitor extends PolymerTemplate<TemplateModel> implements FOPParameters,
+        SafeEventBusRegistration, UIEventProcessor, VideoCSSOverride, HasDynamicTitle {
 
 	class Status {
 		BreakType breakType;
@@ -98,12 +99,12 @@ public class EventMonitor extends PolymerTemplate<TemplateModel> implements FOPP
 	final static int HISTORY_SIZE = 3;
 
 	final private static Logger uiEventLogger = (Logger) LoggerFactory
-	        .getLogger("UI" + EventMonitor.class.getSimpleName());
+	        .getLogger("UI" + StreamingEventMonitor.class.getSimpleName());
 
 	static {
 		uiEventLogger.setLevel(Level.WARN);
 	}
-	final private Logger logger = (Logger) LoggerFactory.getLogger(EventMonitor.class);
+	final private Logger logger = (Logger) LoggerFactory.getLogger(StreamingEventMonitor.class);
 
 	List<Status> history = new LinkedList<>();
 
@@ -143,7 +144,7 @@ public class EventMonitor extends PolymerTemplate<TemplateModel> implements FOPP
 	/**
 	 * Instantiates a new results board.
 	 */
-	public EventMonitor() {
+	public StreamingEventMonitor() {
 		OwlcmsFactory.waitDBInitialized();
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
 		this.getElement().getStyle().set("width", "100%");

@@ -50,8 +50,8 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
-import app.owlcms.displays.VideoOverride;
 import app.owlcms.displays.options.DisplayOptions;
+import app.owlcms.displays.video.VideoCSSOverride;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
@@ -86,7 +86,7 @@ import elemental.json.JsonValue;
 
 public class ResultsMedals extends PolymerTemplate<TemplateModel>
         implements ContextFreeDisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
-        HasDynamicTitle, VideoOverride,
+        HasDynamicTitle, VideoCSSOverride,
         RequireDisplayLogin {
 
 	private static final long DEBOUNCE = 50;

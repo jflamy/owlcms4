@@ -44,8 +44,8 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
-import app.owlcms.displays.VideoOverride;
 import app.owlcms.displays.options.DisplayOptions;
+import app.owlcms.displays.video.VideoCSSOverride;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -80,7 +80,7 @@ import elemental.json.JsonValue;
 
 public class CurrentAthlete extends PolymerTemplate<TemplateModel>
         implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
-        RequireDisplayLogin, VideoOverride {
+        RequireDisplayLogin, VideoCSSOverride {
 
 	/**
 	 * ScoreboardModel

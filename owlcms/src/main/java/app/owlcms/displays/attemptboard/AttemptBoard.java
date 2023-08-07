@@ -50,8 +50,8 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
-import app.owlcms.displays.VideoOverride;
 import app.owlcms.displays.options.DisplayOptions;
+import app.owlcms.displays.video.VideoCSSOverride;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -83,7 +83,7 @@ import elemental.json.JsonObject;
 @Route("displays/attemptBoard")
 
 public class AttemptBoard extends PolymerTemplate<TemplateModel> implements DisplayParameters,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin, VideoOverride {
+        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin, VideoCSSOverride {
 
 	protected final static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
 	protected final static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());

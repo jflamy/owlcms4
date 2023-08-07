@@ -155,6 +155,7 @@ public class Main {
 	 * @throws Exception the exception
 	 */
 	public static void main(String... args) throws Exception {
+		new ResourceWalker().getPRResourceMap(Locale.ENGLISH);
 		// there is no config read so far.
 		demoResetDelay = StartupUtils.getIntegerParam("publicDemo", null);
 		if (demoResetDelay != null) {

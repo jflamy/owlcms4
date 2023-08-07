@@ -1,4 +1,4 @@
-package app.owlcms.displays;
+package app.owlcms.displays.video;
 
 import java.io.FileNotFoundException;
 
@@ -8,7 +8,7 @@ import com.vaadin.flow.dom.Element;
 import app.owlcms.data.config.Config;
 import app.owlcms.utils.ResourceWalker;
 
-public interface VideoOverride {
+public interface VideoCSSOverride {
 	
 	public void setVideo(boolean b);
 	
