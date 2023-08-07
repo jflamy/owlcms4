@@ -614,13 +614,24 @@ public class ResourceWalker {
 //		        .collect(Collectors.toMap(Resource::normalizedName, Function.identity())));
 
 		// during maven development, get default i18n and styles in case they are not in local.
-		addToResourceMap(resourceMap, ResourceWalker::relativeName, startsWith, locale,
-		        Paths.get("..", "shared", "src", "main", "resources", "i18n"), "i18n");
-		addToResourceMap(resourceMap, ResourceWalker::relativeName, startsWith, locale,
-		        Paths.get("..", "shared", "src", "main", "resources", "styles"), "styles");
+		try {
+			addToResourceMap(resourceMap, ResourceWalker::relativeName, startsWith, locale,
+			        Paths.get("..", "shared", "src", "main", "resources", "i18n"), "i18n");
+			addToResourceMap(resourceMap, ResourceWalker::relativeName, startsWith, locale,
+			        Paths.get("..", "shared", "src", "main", "resources", "styles"), "styles");
+		} catch (Exception e) {
+			//ignore in production
+		}
 		
-		addToResourceMap(resourceMap, ResourceWalker::relativeName, startsWith, locale,
-		        Paths.get("local"), null);
+		//FIXME: resource override directory.
+		try {
+			addToResourceMap(resourceMap, ResourceWalker::relativeName, startsWith, locale,
+			        getLocalDirPath() , null);
+		} catch (Exception e) {
+			// ignore in cloud mode.
+		}
+		
+
 
 		for (Entry<String, Resource> n : resourceMap.entrySet()) {
 			System.err.println(n.getKey() + " " + n.getValue().getFilePath().normalize().toAbsolutePath());
