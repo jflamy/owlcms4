@@ -37,6 +37,7 @@ public class UpdateEvent {
     private String translationMap;
     private Integer weight;
     private boolean wideTeamNames;
+    private String stylesDir;
 
     public UpdateEvent() {
         setLeaders(leaders);
@@ -62,6 +63,7 @@ public class UpdateEvent {
                 && Objects.equals(startNumber, other.startNumber) && Objects.equals(teamName, other.teamName)
                 && Objects.equals(timeAllowed, other.timeAllowed)
                 && Objects.equals(translationMap, other.translationMap) && Objects.equals(weight, other.weight)
+                && Objects.equals(stylesDir, other.stylesDir)
                 && wideTeamNames == other.wideTeamNames;
     }
 
@@ -165,7 +167,7 @@ public class UpdateEvent {
     public int hashCode() {
         return Objects.hash(athletes, attempt, breakRemaining, breakType, categoryName, competitionName, fopName,
                 fopState, fullName, groupName, hidden, indefinite, isBreak, leaders, liftsDone, startNumber, teamName,
-                timeAllowed, translationMap, weight, wideTeamNames);
+                timeAllowed, translationMap, weight, wideTeamNames, stylesDir);
     }
 
     public Boolean isBreak() {
@@ -293,6 +295,14 @@ public class UpdateEvent {
         return "UpdateEvent [groupName=" + groupName + ", timeAllowed=" + timeAllowed + ", fopName=" + fopName
                 + ", fopState=" + fopState + ", isBreak=" + isBreak + ", breakType=" + breakType + ", breakRemaining="
                 + breakRemaining + "]";
+    }
+
+    public String getStylesDir() {
+        return stylesDir;
+    }
+
+    public void setStylesDir(String stylesDir) {
+        this.stylesDir = stylesDir;
     }
 
 }

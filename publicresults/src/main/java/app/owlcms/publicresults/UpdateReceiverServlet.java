@@ -124,6 +124,7 @@ public class UpdateReceiverServlet extends HttpServlet {
             updateEvent.setCompetitionName(req.getParameter("competitionName"));
             updateEvent.setFopName(req.getParameter("fop"));
             updateEvent.setFopState(req.getParameter("fopState"));
+            updateEvent.setStylesDir(req.getParameter("stylesDir"));
 
             updateEvent.setAttempt(req.getParameter("attempt"));
             updateEvent.setCategoryName(req.getParameter("categoryName"));

@@ -605,6 +605,8 @@ public class EventForwarder implements BreakDisplay {
 	private Map<String, String> createUpdate() {
 		Map<String, String> sb = new HashMap<>();
 		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
+		String paramStylesDir = Config.getCurrent().getParamStylesDir();
+		mapPut(sb, "stylesDir", paramStylesDir);
 
 		if (translatorResetTimeStamp != Translator.getResetTimeStamp()) {
 			// translation map has been updated (reload or language change)
@@ -704,7 +706,8 @@ public class EventForwarder implements BreakDisplay {
 
 		boolean done = false;
 		int nbTries = 0;
-		// send post. if missing config, we send it back, and try again one more time
+		// send post. if the local configuration files are missing, we are sent back a 412 code.
+		// we send the configuration files as well.
 		while (!done && nbTries <= 1) {
 			try {
 				post.setEntity(new UrlEncodedFormEntity(urlParameters, "UTF-8"));

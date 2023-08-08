@@ -353,8 +353,10 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
         }
         String fopState = e.getFopState();
         BreakType breakType = e.getBreakType();
+        String stylesDir = e.getStylesDir();
 
         ui.access(() -> {
+            this.getElement().setProperty("stylesDir", stylesDir);
             String athletes = e.getAthletes();
             //String liftingOrder = e.getLiftingOrderAthletes();
             String leaders = e.getLeaders();
