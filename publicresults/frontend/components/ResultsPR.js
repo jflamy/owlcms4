@@ -15,7 +15,7 @@ class Results extends PolymerElement {
         return html`
 <link rel="stylesheet" type="text/css" href="local/[[stylesDir]]/[[video]]colors[[autoversion]].css">
 <link rel="stylesheet" type="text/css" href="local/[[stylesDir]]/[[video]]results[[autoversion]].css">
-<link rel="stylesheet" type="text/css" href="local/[[stylesDir]]/[[video]]resultsCustomization[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/[[stylesDir]]/[[video]]publicresultsCustomization[[autoversion]].css">
 
 <div class$="wrapper [[teamWidthClass]] [[inactiveClass]]" style$="[[sizeOverride]];">
     <div class="blockPositioningWrapper">

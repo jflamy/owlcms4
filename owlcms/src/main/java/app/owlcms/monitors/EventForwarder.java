@@ -66,6 +66,7 @@ import app.owlcms.uievents.UIEvent.StartTime;
 import app.owlcms.uievents.UIEvent.StopTime;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -114,6 +115,7 @@ public class EventForwarder implements BreakDisplay {
 	private boolean wideTeamNames;
 	private String noLiftRanks;
 	private JsonValue records;
+	private Boolean teamFlags;
 
 	public EventForwarder(FieldOfPlay emittingFop) {
 		this.setFop(emittingFop);
@@ -893,7 +895,35 @@ public class EventForwarder implements BreakDisplay {
 		}
 		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
+		setTeamFlag(a, ja);
 	}
+	
+	/**
+	 * @param a
+	 * @param ja
+	 */
+	public void setTeamFlag(Athlete a, JsonObject ja) {
+		String team = a.getTeam();
+		String teamFileName = URLUtils.sanitizeFilename(team);
+		String prop = null;
+		if (teamFlags == null) {
+			teamFlags = URLUtils.checkFlags();
+		}
+		
+		if (teamFlags && !team.isBlank()) {
+			prop = URLUtils.getImgTag("flags/", teamFileName, ".svg");
+			if (prop == null) {
+				prop = URLUtils.getImgTag("flags/", teamFileName, ".png");
+				if (prop == null) {
+					prop = URLUtils.getImgTag("flags/", teamFileName, ".jpg");
+				}
+			}
+		}
+		ja.put("teamLength", team.isBlank() ? "" : (team.length() + 2) + "ch");
+		ja.put("flagURL", prop != null ? prop : "");
+		ja.put("flagClass", "flags");
+	}
+
 
 	/**
 	 * @param startOrder     use starting order or lifting order ?

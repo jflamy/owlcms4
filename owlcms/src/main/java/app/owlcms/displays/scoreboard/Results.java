@@ -523,11 +523,11 @@ public class Results extends PolymerTemplate<TemplateModel>
 		String teamFileName = URLUtils.sanitizeFilename(team);
 		String prop = null;
 		if (teamFlags && !team.isBlank()) {
-			prop = URLUtils.getImgTag("flags/", teamFileName, ".svg", this);
+			prop = URLUtils.getImgTag("flags/", teamFileName, ".svg");
 			if (prop == null) {
-				prop = URLUtils.getImgTag("flags/", teamFileName, ".png", this);
+				prop = URLUtils.getImgTag("flags/", teamFileName, ".png");
 				if (prop == null) {
-					prop = URLUtils.getImgTag("flags/", teamFileName, ".jpg", this);
+					prop = URLUtils.getImgTag("flags/", teamFileName, ".jpg");
 				}
 			}
 		}

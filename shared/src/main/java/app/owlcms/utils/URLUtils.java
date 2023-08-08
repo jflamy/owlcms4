@@ -221,7 +221,7 @@ public class URLUtils {
         return found;
     }
     
-    public static String getImgTag(String prefix, String name, String suffix, Component component) {
+    public static String getImgTag(String prefix, String name, String suffix) {
         boolean found;
         try {
             ResourceWalker.getFileOrResourcePath(prefix + name + suffix);

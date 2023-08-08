@@ -80,8 +80,6 @@ public interface FOPParameters extends HasUrlParameter<String> {
 				fop = OwlcmsSession.getFop();
 			}
 			if (fop == null) {
-				// logger.trace("OwlcmsFactory.getDefaultFOP() {}",
-				// OwlcmsFactory.getDefaultFOP());
 				fop = OwlcmsFactory.getDefaultFOP();
 			}
 			newParameterMap.put(FOP, Arrays.asList(URLUtils.urlEncode(fop.getName())));
