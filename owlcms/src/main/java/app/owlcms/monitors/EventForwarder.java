@@ -447,6 +447,50 @@ public class EventForwarder implements BreakDisplay {
 		pushUpdate();
 	}
 
+	protected void setTranslationMap() {
+		JsonObject translations = Json.createObject();
+		Enumeration<String> keys = Translator.getKeys();
+		while (keys.hasMoreElements()) {
+			String curKey = keys.nextElement();
+			if (curKey.startsWith("Scoreboard.")) {
+				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
+			}
+		}
+		setTranslationMap(translations);
+	}
+
+	void setAttempt(String formattedAttempt) {
+		this.attempt = formattedAttempt;
+	}
+
+	void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
+	void setGroupName(String name) {
+		this.groupName = name;
+	}
+
+	void setHidden(boolean b) {
+		this.hidden = b;
+	}
+
+	void setLiftsDone(String formattedDone) {
+		this.liftsDone = formattedDone;
+	}
+
+	void setStartNumber(Integer integer) {
+		this.startNumber = integer;
+	}
+
+	void setTeamName(String teamName) {
+		this.teamName = teamName;
+	}
+
+	void setWeight(Integer weight) {
+		this.weight = weight;
+	}
+
 	private void computeCurrentGroup(Group g) {
 		Group group = getFop().getGroup();
 		List<Athlete> displayOrder = getFop().getDisplayOrder();
@@ -454,8 +498,8 @@ public class EventForwarder implements BreakDisplay {
 		setGroupName(computeSecondLine(getFop().getCurAthlete(), group != null ? group.getName() : null));
 		setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
 		if (displayOrder != null && displayOrder.size() > 0) {
-			setGroupAthletes(getAthletesJson(displayOrder, getFop().getDisplayOrder(), true));
-			setLiftingOrderAthletes(getAthletesJson(displayOrder, getFop().getLiftingOrder(), false));
+			setGroupAthletes(getAthletesJson(displayOrder, getFop().getLiftingOrder(), true));
+			setLiftingOrderAthletes(getAthletesJson(getFop().getLiftingOrder(), getFop().getLiftingOrder(), false));
 		} else {
 			setGroupAthletes(null);
 			setLiftingOrderAthletes(null);
@@ -651,7 +695,7 @@ public class EventForwarder implements BreakDisplay {
 			mapPut(sb, "groupAthletes", groupAthletes.toJson());
 		}
 		if (liftingOrderAthletes != null) {
-			mapPut(sb, "groupAthletes", liftingOrderAthletes.toJson());
+			mapPut(sb, "liftingOrderAthletes", liftingOrderAthletes.toJson());
 		}
 		if (leaders != null) {
 			mapPut(sb, "leaders", leaders.toJson());
@@ -706,7 +750,8 @@ public class EventForwarder implements BreakDisplay {
 
 		boolean done = false;
 		int nbTries = 0;
-		// send post. if the local configuration files are missing, we are sent back a 412 code.
+		// send post. if the local configuration files are missing, we are sent back a
+		// 412 code.
 		// we send the configuration files as well.
 		while (!done && nbTries <= 1) {
 			try {
@@ -869,7 +914,7 @@ public class EventForwarder implements BreakDisplay {
 			Category curCat = a.getCategory();
 			if (startOrder) {
 				if (curCat != null && !curCat.sameAs(prevCat)) {
-					// changing categories, put marker before athlete
+					// changing categories, put spacer before athlete
 					ja.put("isSpacer", true);
 					jath.set(athx, ja);
 					ja = Json.createObject();
@@ -877,10 +922,10 @@ public class EventForwarder implements BreakDisplay {
 					athx++;
 				}
 			} else {
-				if (prevAth != null
-				        && a.getActuallyAttemptedLifts() >= 3
-				        && prevAth.getActuallyAttemptedLifts() < 3) {
-					// changing categories, put marker before athlete
+				if (prevAth == null ||
+				        (a.getActuallyAttemptedLifts() >= 3
+				                && prevAth.getActuallyAttemptedLifts() < 3)) {
+					// lifting order, put spacer before snatch done
 					ja.put("isSpacer", true);
 					jath.set(athx, ja);
 					ja = Json.createObject();
@@ -1106,12 +1151,12 @@ public class EventForwarder implements BreakDisplay {
 		this.groupAthletes = athletesJson;
 	}
 
-	private void setLiftingOrderAthletes(JsonValue athletesJson) {
-		this.liftingOrderAthletes = athletesJson;
-	}
-
 	private void setLeaders(JsonValue athletesJson) {
 		this.leaders = athletesJson;
+	}
+
+	private void setLiftingOrderAthletes(JsonValue athletesJson) {
+		this.liftingOrderAthletes = athletesJson;
 	}
 
 	private void setNoLiftRanks(String string) {
@@ -1137,50 +1182,6 @@ public class EventForwarder implements BreakDisplay {
 	private void uiLog(UIEvent e) {
 		uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        null, e.getOrigin(), LoggerUtils.whereFrom());
-	}
-
-	protected void setTranslationMap() {
-		JsonObject translations = Json.createObject();
-		Enumeration<String> keys = Translator.getKeys();
-		while (keys.hasMoreElements()) {
-			String curKey = keys.nextElement();
-			if (curKey.startsWith("Scoreboard.")) {
-				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
-			}
-		}
-		setTranslationMap(translations);
-	}
-
-	void setAttempt(String formattedAttempt) {
-		this.attempt = formattedAttempt;
-	}
-
-	void setFullName(String fullName) {
-		this.fullName = fullName;
-	}
-
-	void setGroupName(String name) {
-		this.groupName = name;
-	}
-
-	void setHidden(boolean b) {
-		this.hidden = b;
-	}
-
-	void setLiftsDone(String formattedDone) {
-		this.liftsDone = formattedDone;
-	}
-
-	void setStartNumber(Integer integer) {
-		this.startNumber = integer;
-	}
-
-	void setTeamName(String teamName) {
-		this.teamName = teamName;
-	}
-
-	void setWeight(Integer weight) {
-		this.weight = weight;
 	}
 
 }

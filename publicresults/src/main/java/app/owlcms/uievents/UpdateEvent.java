@@ -143,6 +143,10 @@ public class UpdateEvent {
         return startNumber;
     }
 
+    public String getStylesDir() {
+        return stylesDir;
+    }
+
     public String getTeamName() {
         return teamName;
     }
@@ -270,6 +274,10 @@ public class UpdateEvent {
         this.startNumber = parameter;
     }
 
+    public void setStylesDir(String stylesDir) {
+        this.stylesDir = stylesDir;
+    }
+
     public void setTeamName(String parameter) {
         this.teamName = parameter;
     }
@@ -295,14 +303,6 @@ public class UpdateEvent {
         return "UpdateEvent [groupName=" + groupName + ", timeAllowed=" + timeAllowed + ", fopName=" + fopName
                 + ", fopState=" + fopState + ", isBreak=" + isBreak + ", breakType=" + breakType + ", breakRemaining="
                 + breakRemaining + "]";
-    }
-
-    public String getStylesDir() {
-        return stylesDir;
-    }
-
-    public void setStylesDir(String stylesDir) {
-        this.stylesDir = stylesDir;
     }
 
 }

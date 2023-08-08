@@ -13,16 +13,19 @@ class Results extends PolymerElement {
 
     static get template() {
         return html`
-<link rel="stylesheet" type="text/css" href="local/[[stylesDir]]/colors[[autoversion]].css">
-<link rel="stylesheet" type="text/css" href="local/[[stylesDir]]/resultsCustomization[[autoversion]].css">
-<link rel="stylesheet" type="text/css" href="local/[[stylesDir]]/results[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/[[stylesDir]]/[[video]]colors[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/[[stylesDir]]/[[video]]results[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/[[stylesDir]]/[[video]]resultsCustomization[[autoversion]].css">
 
 <div class$="wrapper [[teamWidthClass]] [[inactiveClass]]" style$="[[sizeOverride]];">
-    <div style$="[[inactiveBlockStyle]]">
+    <div class="blockPositioningWrapper">
+        <div class="waiting" style$="[[inactiveFlexStyle]]">
+            <div>
         <div class="competitionName">[[competitionName]]</div><br>
         <div class="nextGroup">[[t.WaitingNextGroup]]</div>
     </div>
-    <div class="attemptBar" style$="[[hiddenBlockStyle]]">
+        </div>
+        <div class="attemptBar" style$="[[normalHeaderDisplay]];">
         <div class="athleteInfo" id="athleteInfoDiv">
             <div class="startNumber" id="startNumberDiv">
                 <span>[[startNumber]]</span>
@@ -47,14 +50,20 @@ class Results extends PolymerElement {
             </div>
         </div>
     </div>
-    <div class="group" style$="[[hiddenBlockStyle]]">
+        <div class="group" style$="[[normalHeaderDisplay]];">
         <div id="groupDiv">
-            <span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]
+            <span class="groupName">[[displayType]][[groupName]]</span>[[liftsDone]]
         </div>
     </div>
+        <div class="video" style$="[[videoHeaderDisplay]]">
+            <div class="eventlogo"></div>
+            <div class="videoheader"><div class="groupName">[[competitionName]]</div><div>[[groupDescription]]</div></div>
+            <div class="federationlogo"></div>
+        </div>
+
 
     <table class$="results [[noLiftRanks]] [[noBest]]"
-        style$="[[hiddenGridStyle]]; --top: [[resultLines]]; --bottom: [[leaderLines]]; [[leadersLineHeight]];">
+            style$="[[hiddenGridStyle]]; --top: [[resultLines]]; --bottom: [[leaderLines]]; [[leadersLineHeight]]; [[twOverride]]">
         <template is="dom-if" if="[[athletes]]">
             <tr class="head">
                 <!-- [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
@@ -106,8 +115,9 @@ class Results extends PolymerElement {
                         <td class="custom2">
                             <div>[[l.custom2]]</div>
                         </td>
-                        <td class="club">
-                            <div class="ellipsis">[[l.teamName]]</div>
+                        <td class$="club [[l.flagClass]]">
+                            <div class$="[[l.flagClass]]" inner-h-t-m-l="[[l.flagURL]]"></div>
+                            <div class="ellipsis" style$="width: [[l.teamLength]];" >[[l.teamName]]</div>
                         </td>
                         <td class="vspacer"></td>
                         <template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
@@ -153,26 +163,26 @@ class Results extends PolymerElement {
             </template>
         </template>
         <tr>
-            <td class="filler" style="grid-column: 1 / -1">&nbsp;</td>
+            <td class="filler" style="grid-column: 1 / -1; [[fillerVisibility]]">&nbsp;</td>
         </tr>
         <template is="dom-if" if="[[leaders]]">
-            <tbody class="leaders" style$="[[leadersVisibility]]">
+                <tbody class="leaders" style$="[[leadersTopVisibility]]">
             <tr class="head">
                 <td class="leaderTitle" inner-h-t-m-l="[[t.Leaders]] [[categoryName]]">
                 </td>
             </tr>
             <tr>
-                    <td class="spacer" style$="grid-column: 1 / -1; justify-content: left; [[leadersVisibility]];"
-                        inner-h-t-m-l="&nbsp;">
+                <td class="headerSpacer" style$="grid-column: 1 / -1; justify-content: left; [[leadersVisibility]];"
+                    inner-h-t-m-l="&nbsp;">
                 </td>
             </tr>
             <template is="dom-repeat" id="result-table" items="[[leaders]]" as="l">
                 <template is="dom-if" if="[[!l.isSpacer]]">
                     <tr class="athlete">
-                        <td class="groupCol">
+                        <td class="groupCol" style$="[[leadersVisibility]]">
                             <div>[[l.group]]</div>
                         </td>
-                        <td class$="name [[l.classname]]">
+                         <td class$="name [[l.classname]]" style$="[[leadersVisibility]]">
                             <div class="ellipsis">[[l.fullName]]</div>
                         </td>
                         <td class="category" style$="[[leadersVisibility]]">
@@ -187,8 +197,9 @@ class Results extends PolymerElement {
                             <td class="custom2" style$="[[leadersVisibility]]">
                             <div>[[l.custom2]]</div>
                         </td>
-                        <td class="club">
-                            <div class="ellipsis">[[l.teamName]]</div>
+                                <td class$="club [[l.flagClass]]">
+                                    <div class$="[[l.flagClass]]" inner-h-t-m-l="[[l.flagURL]]"></div>
+                                    <div class="ellipsis" style$="width: [[l.teamLength]];" >[[l.teamName]]</div>
                         </td>
                         <td class="vspacer"></td>
                         <template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
@@ -248,7 +259,7 @@ class Results extends PolymerElement {
                 </div>
 
                 <template is="dom-repeat" id="result-table" items="[[records.recordTable]]" as="c">
-                    <div class="recordBox">
+                        <div class$="[[c.recordClass]]">
                         <div class="recordCat" inner-h-t-m-l="[[c.cat]]"></div>
                         <div>
                             <div class="recordLiftType">[[t.recordS]]</div>
@@ -269,6 +280,7 @@ class Results extends PolymerElement {
             </div>
         </div>
     </template>
+    </div>
 </div>`;
     }
 
@@ -276,7 +288,7 @@ class Results extends PolymerElement {
         console.debug("ready");
         super.ready();
         document.body.setAttribute("theme","dark");
-        this.$.groupDiv.style.visibility = "visible";
+        //this.$.groupDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.display = "flex";
         this.$.startNumberDiv.style.display = "flex";
@@ -296,7 +308,7 @@ class Results extends PolymerElement {
         console.debug("reset");
         //this.marqueeIfTooBig();
         this.$.timer.reset(this.$.timer);
-        this.$.groupDiv.style.visibility = "visible";
+        //this.$.groupDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.display = "flex";
         this.$.startNumberDiv.style.display = "flex";
@@ -310,7 +322,7 @@ class Results extends PolymerElement {
 
     down() {
         console.debug("down");
-        this.$.groupDiv.style.visibility = "visible";
+        //this.$.groupDiv.style.visibility = "visible";
         this.$.startNumberDiv.style.display = "flex";
         this.$.teamNameDiv.style.display = "flex";
         this.$.attemptDiv.style.display = "flex";
@@ -322,7 +334,7 @@ class Results extends PolymerElement {
 
     doBreak(showWeights) {
         console.debug("break");
-        this.$.groupDiv.style.visibility = "hidden";
+        //this.$.groupDiv.style.visibility = "hidden";
         this.$.fullNameDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.display = "flex";
         this.$.startNumberDiv.style.display = "none";
@@ -343,7 +355,7 @@ class Results extends PolymerElement {
 
     groupDone() {
         console.debug("done");
-        this.$.groupDiv.style.visibility = "hidden";
+        //this.$.groupDiv.style.visibility = "hidden";
         this.$.fullNameDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.display = "flex";
         this.$.startNumberDiv.style.display = "none";
@@ -357,7 +369,7 @@ class Results extends PolymerElement {
 
     refereeDecision() {
         console.debug("refereeDecision");
-        this.$.groupDiv.style.visibility = "visible";
+        //this.$.groupDiv.style.visibility = "visible";
         this.$.decisionDiv.style.display = "flex";
         this.$.weightDiv.style.display = "flex";
         this.$.timerDiv.style.display = "flex";

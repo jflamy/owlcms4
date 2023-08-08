@@ -65,7 +65,7 @@ import elemental.json.impl.JreJsonFactory;
 
 
 public class ResultsPR extends PolymerTemplate<TemplateModel>
-        implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
+implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsPR.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -101,6 +101,7 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
     private boolean leadersDisplay;
     private boolean defaultRecordsDisplay;
     private boolean defaultLeadersDisplay;
+    private boolean liftingOrder;
 
     /**
      * Instantiates a new results board.
@@ -109,6 +110,7 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
         setDarkMode(true);
         setDefaultLeadersDisplay(true);
         setDefaultRecordsDisplay(true);
+        setDefaultLiftingOrderDisplay(false);
         this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
     }
 
@@ -117,12 +119,12 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
         DisplayOptions.addLightingEntries(vl, target, this);
         DisplayOptions.addRule(vl);
         DisplayOptions.addSoundEntries(vl, target, this);
-//        DisplayOptions.addRule(vl);
-//        DisplayOptions.addSwitchableEntries(vl, target, this);
+        //        DisplayOptions.addRule(vl);
+        //        DisplayOptions.addSwitchableEntries(vl, target, this);
         DisplayOptions.addRule(vl);
         DisplayOptions.addSectionEntries(vl, target, this);
-//        DisplayOptions.addRule(vl);
-//        DisplayOptions.addSizingEntries(vl, target, this);
+        //        DisplayOptions.addRule(vl);
+        //        DisplayOptions.addSizingEntries(vl, target, this);
     }
 
     @Override
@@ -186,6 +188,11 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
     }
 
     @Override
+    public boolean isLiftingOrder() {
+        return liftingOrder;
+    }
+
+    @Override
     public boolean isRecordsDisplay() {
         return recordsDisplay;
     }
@@ -207,12 +214,17 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
 
     @Override
     public void setDefaultLeadersDisplay(boolean b) {
-        this.defaultLeadersDisplay = true;
+        this.defaultLeadersDisplay = b;
+    }
+
+    @Override
+    public void setDefaultLiftingOrderDisplay(boolean b) {
+        this.defaultLeadersDisplay = b;
     }
 
     @Override
     public void setDefaultRecordsDisplay(boolean b) {
-        this.defaultRecordsDisplay = true;
+        this.defaultRecordsDisplay = b;
     }
 
     @Override
@@ -245,6 +257,11 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
             this.getElement().setProperty("leadersVisibility", "visibility: hidden;");
             this.getElement().setProperty("leadersLineHeight", "0px");
         }
+    }
+
+    @Override
+    public void setLiftingOrder(boolean liftingOrder) {
+        this.liftingOrder = liftingOrder;
     }
 
     @Override
@@ -304,40 +321,40 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
         // e.getRecordMessage());
         DecisionEventType eventType = e.getEventType();
         switch (eventType) {
-        case DOWN_SIGNAL:
-            this.decisionVisible = true;
-            if (ui == null || ui.isClosing()) {
-                return;
-            }
-            ui.access(() -> {
-                setHidden(false);
-                this.getElement().callJsFunction("down");
-            });
-            break;
-        case RESET:
-            this.decisionVisible = false;
-            if (ui == null || ui.isClosing()) {
-                return;
-            }
-            ui.access(() -> {
-                setHidden(false);
-                this.getElement().callJsFunction("reset");
-            });
-            break;
-        case FULL_DECISION:
-            this.decisionVisible = true;
-            if (ui == null || ui.isClosing()) {
-                return;
-            }
-            ui.access(() -> {
-                setHidden(false);
-                this.getElement().callJsFunction("refereeDecision");
-                this.getElement().setProperty("recordKind", e.getRecordKind());
-                this.getElement().setProperty("recordMessage", e.getRecordMessage());
-            });
-            break;
-        default:
-            break;
+            case DOWN_SIGNAL:
+                this.decisionVisible = true;
+                if (ui == null || ui.isClosing()) {
+                    return;
+                }
+                ui.access(() -> {
+                    setHidden(false);
+                    this.getElement().callJsFunction("down");
+                });
+                break;
+            case RESET:
+                this.decisionVisible = false;
+                if (ui == null || ui.isClosing()) {
+                    return;
+                }
+                ui.access(() -> {
+                    setHidden(false);
+                    this.getElement().callJsFunction("reset");
+                });
+                break;
+            case FULL_DECISION:
+                this.decisionVisible = true;
+                if (ui == null || ui.isClosing()) {
+                    return;
+                }
+                ui.access(() -> {
+                    setHidden(false);
+                    this.getElement().callJsFunction("refereeDecision");
+                    this.getElement().setProperty("recordKind", e.getRecordKind());
+                    this.getElement().setProperty("recordMessage", e.getRecordMessage());
+                });
+                break;
+            default:
+                break;
         }
     }
 
@@ -358,7 +375,10 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
         ui.access(() -> {
             this.getElement().setProperty("stylesDir", stylesDir);
             String athletes = e.getAthletes();
-            //String liftingOrder = e.getLiftingOrderAthletes();
+            if (isLiftingOrder()) {
+                athletes = e.getLiftingOrderAthletes();
+            }
+
             String leaders = e.getLeaders();
             String records = e.getRecords();
             String translationMap = e.getTranslationMap();
@@ -503,22 +523,22 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
             return Translator.translate("PublicMsg.CompetitionPaused");
         }
         switch (bt) {
-        case FIRST_CJ:
-            return Translator.translate("PublicMsg.TimeBeforeCJ");
-        case FIRST_SNATCH:
-            return Translator.translate("PublicMsg.TimeBeforeSnatch");
-        case BEFORE_INTRODUCTION:
-            return Translator.translate("PublicMsg.BeforeIntroduction");
-        case DURING_INTRODUCTION:
-            return Translator.translate("PublicMsg.DuringIntroduction");
-        case TECHNICAL:
-            return Translator.translate("PublicMsg.CompetitionPaused");
-        case JURY:
-            return Translator.translate("PublicMsg.JuryDeliberation");
-        case GROUP_DONE:
-            return Translator.translate("PublicMsg.GroupDone");
-        default:
-            return "";
+            case FIRST_CJ:
+                return Translator.translate("PublicMsg.TimeBeforeCJ");
+            case FIRST_SNATCH:
+                return Translator.translate("PublicMsg.TimeBeforeSnatch");
+            case BEFORE_INTRODUCTION:
+                return Translator.translate("PublicMsg.BeforeIntroduction");
+            case DURING_INTRODUCTION:
+                return Translator.translate("PublicMsg.DuringIntroduction");
+            case TECHNICAL:
+                return Translator.translate("PublicMsg.CompetitionPaused");
+            case JURY:
+                return Translator.translate("PublicMsg.JuryDeliberation");
+            case GROUP_DONE:
+                return Translator.translate("PublicMsg.GroupDone");
+            default:
+                return "";
         }
     }
 

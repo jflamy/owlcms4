@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.AvIcons;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Hr;
@@ -150,9 +151,19 @@ public class DisplayOptions {
                 dp.switchLeaders(target, e.getValue(), true);
             }
             //UI.getCurrent().getPage().reload();
-        });       
+        });
+        
+        boolean liftingOrder = dp.isLiftingOrder();
+        Checkbox liftingOrderCheckbox = new Checkbox(Translator.translate("DisplayParameters.LiftingOrder"));//
+        liftingOrderCheckbox.setValue(liftingOrder);
+        liftingOrderCheckbox.addValueChangeListener(e -> {
+            if (e.isFromClient() && e.getSource() == liftingOrderCheckbox) {
+                dp.switchLiftingOrder(target, e.getValue(), true);
+            }
+            UI.getCurrent().getPage().reload();
+        });    
 
-        HorizontalLayout horizontalLayout = new HorizontalLayout(recordsDisplayCheckbox, leadersDisplayCheckbox);
+        HorizontalLayout horizontalLayout = new HorizontalLayout(liftingOrderCheckbox, recordsDisplayCheckbox, leadersDisplayCheckbox);
         layout.add(label);
         layout.add(horizontalLayout);
         
