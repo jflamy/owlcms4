@@ -1,6 +1,6 @@
 ## Windows Installation
 
-- **Windows Installer** : Get the current [`owlcms_setup_43.0.0-alpha01.exe`](https://github.com/owlcms/owlcms4-prerelease/releases/download/43.0.0-alpha01/owlcms_setup_43.0.0-alpha01.exe) file (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4-prerelease/releases/latest) ).
+- **Windows Installer** : Get the current [`owlcms_setup_43.0.0-alpha02.exe`](https://github.com/owlcms/owlcms4-prerelease/releases/download/43.0.0-alpha02/owlcms_setup_43.0.0-alpha02.exe) file (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4-prerelease/releases/latest) ).
 
 ![zip](img\LocalInstall\010_setupexe.png)
 
