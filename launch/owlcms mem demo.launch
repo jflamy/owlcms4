@@ -9,7 +9,7 @@
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
         <mapEntry key="OWLCMS_BACKDOOR" value="10.0.0.221,127.0.0.1,[0:0:0:0:0:0:0:1]"/>
-        <mapEntry key="OWLCMS_ENABLEEMBEDDEDMQTT" value="false"/>
+        <mapEntry key="OWLCMS_ENABLEEMBEDDEDMQTT" value="true"/>
         <mapEntry key="OWLCMS_INITIALDATA" value="LARGEGROUP_DEMO"/>
         <mapEntry key="OWLCMS_LOCALE" value="en"/>
         <mapEntry key="OWLCMS_MEMORYMODE" value="true"/>

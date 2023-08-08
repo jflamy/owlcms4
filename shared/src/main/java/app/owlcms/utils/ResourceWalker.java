@@ -637,10 +637,10 @@ public class ResourceWalker {
 		} catch (Exception e) {
 			// ignore in cloud mode.
 		}
-
-		for (Entry<String, Resource> n : resourceMap.entrySet()) {
-			System.err.println(n.getKey() + " " + n.getValue().getFilePath().normalize().toAbsolutePath());
-		}
+//
+//		for (Entry<String, Resource> n : resourceMap.entrySet()) {
+//			System.err.println(n.getKey() + " " + n.getValue().getFilePath().normalize().toAbsolutePath());
+//		}
 		return resourceMap;
 	}
 
