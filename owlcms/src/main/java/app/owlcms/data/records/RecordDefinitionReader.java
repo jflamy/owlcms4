@@ -11,11 +11,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.ZipEntry;
 
 import org.apache.commons.io.FilenameUtils;
@@ -53,7 +56,7 @@ public class RecordDefinitionReader {
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(RecordDefinitionReader.class);
 	private final static Logger startupLogger = Main.getStartupLogger();
 
-	public static int createRecords(Workbook workbook, String name, String baseName) {
+	public static List<String> createRecords(Workbook workbook, String name, String baseName) {
 		cleanUp(baseName);
 		DateTimeFormatter ymdFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		DateTimeFormatter ymFormatter = DateTimeFormatter.ofPattern("yyyy-MM");
@@ -61,6 +64,7 @@ public class RecordDefinitionReader {
 
 		return JPAService.runInTransaction(em -> {
 			int iRecord = 0;
+			List<String> errors = new ArrayList<>();
 
 			for (Sheet sheet : workbook) {
 				processSheet: for (Row row : sheet) {
@@ -122,6 +126,11 @@ public class RecordDefinitionReader {
 							case 5: { // F
 								long cellValue = Math.round(cell.getNumericCellValue());
 								rec.setAgeGrpUpper(Math.toIntExact(cellValue));
+								if (rec.getAgeGrpUpper() < rec.getAgeGrpLower()) {
+									throw new Exception(cellValue
+									        + " upper limit on age category should be >= to "+rec.getAgeGrpLower());
+									
+								}
 								break;
 							}
 
@@ -136,9 +145,13 @@ public class RecordDefinitionReader {
 									String cellValue = cell.getStringCellValue();
 									rec.setBwCatString(cellValue);
 									try {
-										rec.setBwCatUpper(
-										        (cellValue.startsWith(">") || cellValue.startsWith("+")) ? 999
-										                : Integer.parseInt(cellValue));
+										if (cellValue.startsWith(">") || cellValue.startsWith("+")) {
+											rec.setBwCatUpper(999);
+											rec.setBwCatString(">"+rec.getBwCatLower());
+										} else {
+											rec.setBwCatUpper(Integer.parseInt(cellValue));
+										}
+										
 									} catch (NumberFormatException e) {
 										if (cellValue != null && !cellValue.isBlank()) {
 											startupLogger
@@ -146,10 +159,21 @@ public class RecordDefinitionReader {
 											logger.error("[" + sheet.getSheetName() + "," + cell.getAddress() + "]");
 										}
 									}
+									logger.warn("normal {} {} {}", iRecord, rec.getBwCatUpper(), rec.getBwCatLower());
+									if (rec.getBwCatUpper() < rec.getBwCatLower()) {
+										throw new Exception(cellValue
+										        + " upper limit on bodyweight category should be >= to "+rec.getAgeGrpLower());
+										
+									}
 								} catch (IllegalStateException e) {
 									long cellValue = Math.round(cell.getNumericCellValue());
 									rec.setBwCatString(Long.toString(cellValue));
 									rec.setBwCatUpper(Math.toIntExact(cellValue));
+									logger.warn("illegalstate {} {} {}", iRecord, rec.getBwCatUpper(), rec.getBwCatLower());
+									if (rec.getBwCatUpper() <= rec.getBwCatLower()) {
+										throw new Exception(cellValue
+										        + " upper limit on bodyweight category should be > to "+rec.getBwCatLower());
+									}
 								}
 								break;
 							}
@@ -179,26 +203,34 @@ public class RecordDefinitionReader {
 									int intExact = Math.toIntExact(cellValue);
 									if (cellValue < 3000) {
 										rec.setBirthYear(intExact);
+										logger.warn("number {}", intExact);
 									} else {
 										LocalDate epoch = LocalDate.of(1900, 1, 1);
 										LocalDate plusDays = epoch.plusDays(intExact - 2);
-										// Excel oddity: 1 is 1900-01-01 and mistakenly assumes 1900-02-29 existed
+										// Excel quirks: 1 is 1900-01-01 and mistakenly assumes 1900-02-29 existed
 										rec.setBirthDate(plusDays);
+										logger.warn("plusDays {}", rec.getRecordDateAsString());
 									}
 								} else if (cell.getCellType() == CellType.STRING) {
 									String cellValue = cell.getStringCellValue();
+									logger.warn("string value = '{}'", cellValue);
 									try {
 										LocalDate date = LocalDate.parse(cellValue, ymdFormatter);
 										rec.setBirthDate(date);
+										logger.warn("date {}", date);
 									} catch (DateTimeParseException e) {
 										try {
 											YearMonth date = YearMonth.parse(cellValue, ymFormatter);
 											rec.setBirthYear(date.getYear());
+											logger.warn("datemonth {}", date.getYear());
 										} catch (DateTimeParseException e2) {
 											try {
 												Year date = Year.parse(cellValue, yFormatter);
 												rec.setBirthYear(date.getValue());
+												logger.warn("year {}", date.getValue());
 											} catch (DateTimeParseException e3) {
+												logger.error(cellValue
+												        + " not in yyyy-MM-dd or yyyy-MM or yyyy date format");
 												throw new Exception(cellValue
 												        + " not in yyyy-MM-dd or yyyy-MM or yyyy date format");
 											}
@@ -221,26 +253,34 @@ public class RecordDefinitionReader {
 									int intExact = Math.toIntExact(cellValue);
 									if (cellValue < 3000) {
 										rec.setRecordYear(intExact);
+										logger.warn("number {}", intExact);
 									} else {
 										LocalDate epoch = LocalDate.of(1900, 1, 1);
 										LocalDate plusDays = epoch.plusDays(intExact - 2);
 										// Excel quirks: 1 is 1900-01-01 and mistakenly assumes 1900-02-29 existed
 										rec.setRecordDate(plusDays);
+										logger.warn("plusDays {}", rec.getRecordDateAsString());
 									}
 								} else if (cell.getCellType() == CellType.STRING) {
 									String cellValue = cell.getStringCellValue();
+									logger.warn("string value = '{}'", cellValue);
 									try {
 										LocalDate date = LocalDate.parse(cellValue, ymdFormatter);
 										rec.setRecordDate(date);
+										logger.warn("date {}", date);
 									} catch (DateTimeParseException e) {
 										try {
 											YearMonth date = YearMonth.parse(cellValue, ymFormatter);
 											rec.setRecordYear(date.getYear());
+											logger.warn("datemonth {}", date.getYear());
 										} catch (DateTimeParseException e2) {
 											try {
 												Year date = Year.parse(cellValue, yFormatter);
 												rec.setRecordYear(date.getValue());
+												logger.warn("year {}", date.getValue());
 											} catch (DateTimeParseException e3) {
+												logger.error(cellValue
+												        + " not in yyyy-MM-dd or yyyy-MM or yyyy date format");
 												throw new Exception(cellValue
 												        + " not in yyyy-MM-dd or yyyy-MM or yyyy date format");
 											}
@@ -260,6 +300,8 @@ public class RecordDefinitionReader {
 								startupLogger.error("{}[{}] {} ", sheet.getSheetName(), cell.getAddress(),
 								        e.getMessage());
 								logger.error("{}[{}] {} ", sheet.getSheetName(), cell.getAddress(), e.getMessage());
+								errors.add(MessageFormat.format("{0}[{1}] {2} ", sheet.getSheetName(),
+								        cell.getAddress(), e.getMessage()));
 								error = true;
 							}
 						}
@@ -287,7 +329,8 @@ public class RecordDefinitionReader {
 			comp2.setAgeGroupsFileName(name);
 			startupLogger.info("inserted {} record entries.", iRecord);
 			logger.info("inserted {} record entries.", iRecord);
-			return iRecord;
+			errors.add(Integer.toString(iRecord));
+			return errors;
 		});
 	}
 

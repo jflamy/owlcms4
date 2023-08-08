@@ -1,0 +1,8 @@
+Absolutos Masc.[F2] 12 upper limit on age category should be >= to 13 
+Absolutos Masc.[D9] No enum constant app.owlcms.data.athlete.Gender.Z 
+Absolutos Masc.[N9] 12/02/2022 not in yyyy-MM-dd or yyyy-MM or yyyy date format 
+Absolutos Masc.[N10] 12/02/2022 not in yyyy-MM-dd or yyyy-MM or yyyy date format 
+Absolutos Masc.[N11] 02.12.1961 not in yyyy-MM-dd or yyyy-MM or yyyy date format 
+Absolutos Masc.[H12] 66 upper limit on bodyweight category should be > to 67 
+Absolutos Masc.[J13] Cannot get a NUMERIC value from a STRING cell 
+9

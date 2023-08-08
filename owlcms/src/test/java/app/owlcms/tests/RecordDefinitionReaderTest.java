@@ -6,8 +6,8 @@
  *******************************************************************************/
 package app.owlcms.tests;
 
-import static app.owlcms.tests.AllTests.assertEqualsToReferenceFile;
 import static org.junit.Assert.assertEquals;
+import static app.owlcms.tests.AllTests.assertEqualsToReferenceFile;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -95,8 +95,8 @@ public class RecordDefinitionReaderTest {
             Workbook wb = null;
             try {
                 wb = WorkbookFactory.create(xmlInputStream);
-                int i = RecordDefinitionReader.createRecords(wb, streamURI, null);
-                assertEquals(180, i);
+                List<String> s = RecordDefinitionReader.createRecords(wb, streamURI, null);
+                assertEquals("180", s.get(s.size()-1));
             } finally {
                 if (wb != null) {
                     wb.close();
@@ -182,6 +182,35 @@ public class RecordDefinitionReaderTest {
                 }
             }
         }
+    }
+    
+    @Test
+    public void _10_testMessages() throws IOException {
+        String streamURI = "/testData/records/test.xlsx";
+        final String resName = "/records/errorCheck.txt";
+        final String recName = "/records/recordsCheck.txt";
         
+        try (InputStream xmlInputStream = this.getClass().getResourceAsStream(streamURI)) {
+            Workbook wb = null;
+            try {
+                wb = WorkbookFactory.create(xmlInputStream);
+                List<String> errors = RecordDefinitionReader.createRecords(wb, streamURI, null);
+                
+                List<RecordEvent> records = RecordRepository.findFiltered(null, null, null, null, null);
+                records.sort(new JXLSExportRecords(null).sortRecords());
+                
+                String results = records.stream().map(RecordEvent::toString).collect(
+                        Collectors.joining(System.lineSeparator(),"",System.lineSeparator()));
+                assertEqualsToReferenceFile(recName, results);
+                
+                String errorString = errors.stream().collect(
+                        Collectors.joining(System.lineSeparator(),"",System.lineSeparator()));
+                assertEqualsToReferenceFile(resName, errorString);
+            } finally {
+                if (wb != null) {
+                    wb.close();
+                }
+            }
+        }
     }
 }
