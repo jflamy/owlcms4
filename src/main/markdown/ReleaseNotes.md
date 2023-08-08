@@ -2,10 +2,16 @@
 
 > *Alpha releases are for initial feedback.  Features can be incomplete, subject to change, or broken.*
 
+- alpha02: Public Results 
+  - It is now possible to choose the lifting order instead of the start number order on the remote scoreboard (click on the scoreboard to see the options)
+  - Flags are shown on the remote scoreboard if present in the main owlcms `local/flags`
+  - All the styles sheets under `local` are sent to the remote server. The `OWLCMS_STYLESDIR` setting on the main owlcms is transferred to the remote, so an alternate look can be used.  The remote results page uses the same style names as the local one.
+  - A distinct `publicresultsCustomization.css` file is used instead  of `resultsCustomization.css` to allow for different column visibility.  By default they are the same.
+
 - alpha02: The session editing form now uses tabs for better visual organization.
 - alpha01: A MQTT `fop/config` message is published on startup and when platforms are edited or deleted.  Device management applications can listen to this message to display the available platforms.
 - alpha00: Prevent countdown interruptions.  In order to switch from a countdown to a different type of break, it is now necessary to explicitly stop the break using the "Pause" dialog.   Jury buttons for technical breaks are therefore ignored. Ceremonies (Introduction, Medals) are fine since they do not interrupt the countdown.
-- alpha00: Referee decision updates are ignored once the decision has been shown.  Referees must use flags after 3 seconds. In this way, what the jury sees matches what was seen by the public.
+- alpha00: Referee decision updates are ignored once the decision has been shown.  Referees must use flags after 3 seconds. In this way, what the jury sees matches what the public saw.
 
 #####  Highlights from recent stable releases
 
