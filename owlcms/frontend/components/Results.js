@@ -305,7 +305,7 @@ class Results extends PolymerElement {
     }
 
     reset() {
-        console.warn("reset");
+        console.debug("reset");
         //this.marqueeIfTooBig();
         this.$.timer.reset(this.$.timer);
         //this.$.groupDiv.style.visibility = "visible";
@@ -321,7 +321,7 @@ class Results extends PolymerElement {
     }
 
     down() {
-        console.warn("refereeDecision");
+        console.debug("down");
         //this.$.groupDiv.style.visibility = "visible";
         this.$.startNumberDiv.style.display = "flex";
         this.$.teamNameDiv.style.display = "flex";
@@ -333,7 +333,7 @@ class Results extends PolymerElement {
     }
 
     doBreak(showWeights) {
-        console.warn("break");
+        console.debug("break");
         //this.$.groupDiv.style.visibility = "hidden";
         this.$.fullNameDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.display = "flex";
@@ -354,7 +354,7 @@ class Results extends PolymerElement {
     }
 
     groupDone() {
-        console.warn("done");
+        console.debug("done");
         //this.$.groupDiv.style.visibility = "hidden";
         this.$.fullNameDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.display = "flex";
@@ -368,7 +368,7 @@ class Results extends PolymerElement {
     }
 
     refereeDecision() {
-        console.warn("refereeDecision");
+        console.debug("refereeDecision");
         //this.$.groupDiv.style.visibility = "visible";
         this.$.decisionDiv.style.display = "flex";
         this.$.weightDiv.style.display = "flex";
