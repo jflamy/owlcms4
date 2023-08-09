@@ -37,6 +37,7 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.records.RecordEvent.MissingAgeGroup;
 import app.owlcms.data.records.RecordEvent.MissingGender;
 import app.owlcms.data.records.RecordEvent.UnknownIWFBodyWeightCategory;
+import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.ZipUtils;
@@ -159,7 +160,7 @@ public class RecordDefinitionReader {
 											logger.error("[" + sheet.getSheetName() + "," + cell.getAddress() + "]");
 										}
 									}
-									logger.warn("normal {} {} {}", iRecord, rec.getBwCatUpper(), rec.getBwCatLower());
+									logger.debug("normal {} {} {}", iRecord, rec.getBwCatUpper(), rec.getBwCatLower());
 									if (rec.getBwCatUpper() < rec.getBwCatLower()) {
 										throw new Exception(cellValue
 										        + " upper limit on bodyweight category should be >= to "+rec.getAgeGrpLower());
@@ -169,7 +170,7 @@ public class RecordDefinitionReader {
 									long cellValue = Math.round(cell.getNumericCellValue());
 									rec.setBwCatString(Long.toString(cellValue));
 									rec.setBwCatUpper(Math.toIntExact(cellValue));
-									logger.warn("illegalstate {} {} {}", iRecord, rec.getBwCatUpper(), rec.getBwCatLower());
+									logger.debug("illegalstate {} {} {}", iRecord, rec.getBwCatUpper(), rec.getBwCatLower());
 									if (rec.getBwCatUpper() <= rec.getBwCatLower()) {
 										throw new Exception(cellValue
 										        + " upper limit on bodyweight category should be > to "+rec.getBwCatLower());
@@ -203,34 +204,32 @@ public class RecordDefinitionReader {
 									int intExact = Math.toIntExact(cellValue);
 									if (cellValue < 3000) {
 										rec.setBirthYear(intExact);
-										logger.warn("number {}", intExact);
+										logger.debug("number {}", intExact);
 									} else {
 										LocalDate epoch = LocalDate.of(1900, 1, 1);
 										LocalDate plusDays = epoch.plusDays(intExact - 2);
 										// Excel quirks: 1 is 1900-01-01 and mistakenly assumes 1900-02-29 existed
 										rec.setBirthDate(plusDays);
-										logger.warn("plusDays {}", rec.getRecordDateAsString());
+										logger.debug("plusDays {}", rec.getRecordDateAsString());
 									}
 								} else if (cell.getCellType() == CellType.STRING) {
 									String cellValue = cell.getStringCellValue();
-									logger.warn("string value = '{}'", cellValue);
+									logger.debug("string value = '{}'", cellValue);
 									try {
 										LocalDate date = LocalDate.parse(cellValue, ymdFormatter);
 										rec.setBirthDate(date);
-										logger.warn("date {}", date);
+										logger.debug("date {}", date);
 									} catch (DateTimeParseException e) {
 										try {
 											YearMonth date = YearMonth.parse(cellValue, ymFormatter);
 											rec.setBirthYear(date.getYear());
-											logger.warn("datemonth {}", date.getYear());
+											logger.debug("datemonth {}", date.getYear());
 										} catch (DateTimeParseException e2) {
 											try {
 												Year date = Year.parse(cellValue, yFormatter);
 												rec.setBirthYear(date.getValue());
-												logger.warn("year {}", date.getValue());
+												logger.debug("year {}", date.getValue());
 											} catch (DateTimeParseException e3) {
-												logger.error(cellValue
-												        + " not in yyyy-MM-dd or yyyy-MM or yyyy date format");
 												throw new Exception(cellValue
 												        + " not in yyyy-MM-dd or yyyy-MM or yyyy date format");
 											}
@@ -253,34 +252,32 @@ public class RecordDefinitionReader {
 									int intExact = Math.toIntExact(cellValue);
 									if (cellValue < 3000) {
 										rec.setRecordYear(intExact);
-										logger.warn("number {}", intExact);
+										logger.debug("number {}", intExact);
 									} else {
 										LocalDate epoch = LocalDate.of(1900, 1, 1);
 										LocalDate plusDays = epoch.plusDays(intExact - 2);
 										// Excel quirks: 1 is 1900-01-01 and mistakenly assumes 1900-02-29 existed
 										rec.setRecordDate(plusDays);
-										logger.warn("plusDays {}", rec.getRecordDateAsString());
+										logger.debug("plusDays {}", rec.getRecordDateAsString());
 									}
 								} else if (cell.getCellType() == CellType.STRING) {
 									String cellValue = cell.getStringCellValue();
-									logger.warn("string value = '{}'", cellValue);
+									logger.debug("string value = '{}'", cellValue);
 									try {
 										LocalDate date = LocalDate.parse(cellValue, ymdFormatter);
 										rec.setRecordDate(date);
-										logger.warn("date {}", date);
+										logger.debug("date {}", date);
 									} catch (DateTimeParseException e) {
 										try {
 											YearMonth date = YearMonth.parse(cellValue, ymFormatter);
 											rec.setRecordYear(date.getYear());
-											logger.warn("datemonth {}", date.getYear());
+											logger.debug("datemonth {}", date.getYear());
 										} catch (DateTimeParseException e2) {
 											try {
 												Year date = Year.parse(cellValue, yFormatter);
 												rec.setRecordYear(date.getValue());
-												logger.warn("year {}", date.getValue());
+												logger.debug("year {}", date.getValue());
 											} catch (DateTimeParseException e3) {
-												logger.error(cellValue
-												        + " not in yyyy-MM-dd or yyyy-MM or yyyy date format");
 												throw new Exception(cellValue
 												        + " not in yyyy-MM-dd or yyyy-MM or yyyy date format");
 											}
@@ -329,7 +326,7 @@ public class RecordDefinitionReader {
 			comp2.setAgeGroupsFileName(name);
 			startupLogger.info("inserted {} record entries.", iRecord);
 			logger.info("inserted {} record entries.", iRecord);
-			errors.add(Integer.toString(iRecord));
+			errors.add(Translator.translate("Records.Inserted",iRecord));
 			return errors;
 		});
 	}
@@ -356,20 +353,24 @@ public class RecordDefinitionReader {
 
 	}
 
-	public static void readInputStream(InputStream is, String fileName) {
+	public static List<String> readInputStream(InputStream is, String fileName) {
+		List<String> errors = new ArrayList<>();
 		try (Workbook workbook = WorkbookFactory.create(is)) {
 			logger.info("loading record definition file {} {}", fileName,
 			        FilenameUtils.removeExtension(fileName));
 			startupLogger.info("loading record definition file {}", fileName);
 
-			createRecords(workbook, fileName,
+			errors = createRecords(workbook, fileName,
 			        FilenameUtils.removeExtension(fileName.toString()));
+			return errors;
 		} catch (Exception e) {
 			logger.error("could not process record definition file {}\n{}", fileName,
 			        LoggerUtils./**/stackTrace(e));
 			startupLogger.error(
 			        "could not process record definition file {}. See log files for details.",
 			        fileName);
+			errors.add(Translator.translate("Records.couldNotProcess",fileName));
+			return errors;
 		}
 	}
 

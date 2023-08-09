@@ -107,7 +107,7 @@ public interface ContextFreeDisplayParameters extends DisplayParameters {
 		if (!r.isIgnoreGroupFromURL()) {
 			List<String> ageGroupNames = parametersMap.get(AGEGROUP);
 			if (ageGroupNames != null && ageGroupNames.get(0) != null) {
-				//TODO urldecode the agegroup ?
+				//CHECK urldecode the agegroup ?
 				ageGroup = AgeGroupRepository.findByName(ageGroupNames.get(0));
 			} else if (fop != null && isVideo(location) && fop.getVideoAgeGroup() != null) {
 				ageGroup = fop.getVideoAgeGroup();

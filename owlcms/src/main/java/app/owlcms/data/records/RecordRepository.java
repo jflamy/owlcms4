@@ -226,7 +226,7 @@ public class RecordRepository {
 		if (groupName != null) {
 			whereList.add("(groupNameString = :groupName)");
 		}
-		if (newRecords != null) {
+		if (newRecords != null && newRecords) {
 			whereList.add("(groupNameString is not null)");
 		}
 		if (whereList.size() == 0) {

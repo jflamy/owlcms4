@@ -2,6 +2,11 @@
 
 > *Alpha releases are for initial feedback.  Features can be incomplete, subject to change, or broken.*
 
+- alpha03: Records
+  - Improved error messages when reading the records file are now visible in the user interface
+  
+  - Now possible to export all records. The output is in a single Excel however.
+  
 - alpha02: Public Results 
   - It is now possible to choose the lifting order instead of the start number order on the remote scoreboard (click on the scoreboard to see the options)
   - Flags are shown on the remote scoreboard if present in the main owlcms `local/flags`

@@ -38,13 +38,15 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 	Group group;
 	private List<RecordEvent> records;
 	//private List<RecordEvent> bestRecords;
+	private boolean allRecords;
 
 	public JXLSExportRecords(Group group, boolean excludeNotWeighed, UI ui) {
 		super();
 	}
 
-	public JXLSExportRecords(UI ui) {
+	public JXLSExportRecords(UI ui, boolean allRecords) {
 		super();
+		this.allRecords = allRecords;
 	}
 
 	@Override
@@ -91,7 +93,7 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 		}
 
 		String groupName = group != null ? group.getName() : null;
-		records = RecordRepository.findFiltered(null, null, null, groupName, true);
+		records = RecordRepository.findFiltered(null, null, null, groupName, !allRecords);
 		records.sort(sortRecords());
 
 //		// keep best record if beaten several times

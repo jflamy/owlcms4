@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.vaadin.crudui.crud.CrudOperation;
 
@@ -14,6 +15,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
@@ -24,6 +26,7 @@ import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Pre;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -123,6 +126,7 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		FormLayout recordsOrderLayout = recordOrderForm();
 		FormLayout provisionalLayout = provisionalForm();
 		FormLayout officialLayout = officialForm();
+		FormLayout exportLayout = exportAllForm();
 
 
 		TabSheet ts = new TabSheet();
@@ -132,9 +136,9 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		                recordsOrderLayout,
 		                separator(),
 		                officialLayout));
-		ts.add(Translator.translate("Records.ProvisionalSection"),
+		ts.add(Translator.translate("Records.manageNewRecords"),
 		        new VerticalLayout(
-		                provisionalLayout));
+		                provisionalLayout, separator(), exportLayout));
 		
 
 		VerticalLayout mainLayout = new VerticalLayout(
@@ -162,7 +166,7 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		recordsAvailableLayout.add(title);
 		recordsAvailableLayout.setColspan(title, 2);
 		Div newRecords = DownloadButtonFactory.createDynamicXLSDownloadButton("records",
-		        Translator.translate("Results.NewRecords"), new JXLSExportRecords(UI.getCurrent()));
+		        Translator.translate("Results.NewRecords"), new JXLSExportRecords(UI.getCurrent(),false));
 		recordsAvailableLayout.addFormItem(newRecords, Translator.translate("Results.NewRecords"));
 		recordsAvailableLayout.addFormItem(clearNewRecords,
 		        Translator.translate("Preparation.ClearNewRecordsExplanation"));
@@ -170,6 +174,19 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		return recordsAvailableLayout;
 	}
 
+	private FormLayout exportAllForm() {
+		FormLayout recordsAvailableLayout = createLayout();
+		Component title = createTitle("Records.exportAllRecordsTitle");
+
+		recordsAvailableLayout.add(title);
+		recordsAvailableLayout.setColspan(title, 2);
+		Div newRecords = DownloadButtonFactory.createDynamicXLSDownloadButton("records",
+		        Translator.translate("Records.exportAllRecordsTitle"), new JXLSExportRecords(UI.getCurrent(),true));
+		recordsAvailableLayout.addFormItem(newRecords, Translator.translate("Records.exportAllRecordsLabel"));
+
+		return recordsAvailableLayout;
+	}
+	
 	private FormLayout officialForm() {
 		Button clearNewRecords = new Button(Translator.translate("Records.ClearOfficialRecords"),
 		        buttonClickEvent -> {
@@ -188,8 +205,22 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		uploadRecords.setUploadButton(uploadButton);
 		uploadRecords.setDropLabel(new Label(Translator.translate("Records.UploadDropZone")));
 		uploadRecords.addSucceededListener(e -> {
-			RecordDefinitionReader.readInputStream(receiver.getInputStream(), receiver.getFileName());
-			UI.getCurrent().getPage().reload();
+			List<String> errors = RecordDefinitionReader.readInputStream(receiver.getInputStream(), receiver.getFileName());
+			if (errors.isEmpty()) {
+				UI.getCurrent().getPage().reload();
+			} else {
+				Pre errorsComponent = new Pre();
+				errorsComponent.add(errors.stream().collect(Collectors.joining(System.lineSeparator())));
+				Dialog d = new Dialog();
+				Button okButton = new Button(Translator.translate("OK"),
+						x -> {
+							d.close();
+							UI.getCurrent().getPage().reload();
+						});
+				d.add(errorsComponent);
+				d.getFooter().add(okButton);
+				d.open();
+			}			
 		});
 
 		FormLayout recordsAvailableLayout = createLayout();

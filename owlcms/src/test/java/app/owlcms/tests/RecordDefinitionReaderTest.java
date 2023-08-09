@@ -171,7 +171,7 @@ public class RecordDefinitionReaderTest {
                 RecordDefinitionReader.createRecords(wb, streamURI, null);
                 
                 List<RecordEvent> records = RecordRepository.findFiltered(null, null, null, null, null);
-                records.sort(new JXLSExportRecords(null).sortRecords());
+                records.sort(new JXLSExportRecords(null,false).sortRecords());
                 
                 String results = records.stream().map(RecordEvent::toString).collect(
                         Collectors.joining(System.lineSeparator(),"",System.lineSeparator()));
@@ -197,7 +197,7 @@ public class RecordDefinitionReaderTest {
                 List<String> errors = RecordDefinitionReader.createRecords(wb, streamURI, null);
                 
                 List<RecordEvent> records = RecordRepository.findFiltered(null, null, null, null, null);
-                records.sort(new JXLSExportRecords(null).sortRecords());
+                records.sort(new JXLSExportRecords(null,true).sortRecords());
                 
                 String results = records.stream().map(RecordEvent::toString).collect(
                         Collectors.joining(System.lineSeparator(),"",System.lineSeparator()));

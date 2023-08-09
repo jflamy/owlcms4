@@ -64,7 +64,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 		        getTranslation("TimingStatistics"), new JXLSTimingStats(UI.getCurrent()));
 		((Button) timingStats.getComponentAt(0)).setWidth("100%");
 		Div newRecords = DownloadButtonFactory.createDynamicXLSDownloadButton("records",
-		        getTranslation("Results.NewRecords"), new JXLSExportRecords(UI.getCurrent()));
+		        getTranslation("Results.NewRecords"), new JXLSExportRecords(UI.getCurrent(),false));
 		((Button) newRecords.getComponentAt(0)).setWidth("100%");
 
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(groupResults);
