@@ -2,6 +2,11 @@
 
 > *Alpha releases are for initial feedback.  Features can be incomplete, subject to change, or broken.*
 
+- alpha03: Records
+  - Improved error messages when reading the records file are now visible in the user interface
+  
+  - Now possible to export all records. The output is in a single Excel however.
+  
 - alpha02: Public Results 
   - It is now possible to choose the lifting order instead of the start number order on the remote scoreboard (click on the scoreboard to see the options)
   - Flags are shown on the remote scoreboard if present in the main owlcms `local/flags`
@@ -42,11 +47,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_43.0.0-alpha02.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_43.0.0-alpha03.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_43.0.0-alpha02.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_43.0.0-alpha03.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
