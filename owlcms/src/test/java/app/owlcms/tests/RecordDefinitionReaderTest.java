@@ -96,7 +96,7 @@ public class RecordDefinitionReaderTest {
             try {
                 wb = WorkbookFactory.create(xmlInputStream);
                 List<String> s = RecordDefinitionReader.createRecords(wb, streamURI, null);
-                assertEquals("180", s.get(s.size()-1));
+                assertEquals("180 records inserted.", s.get(s.size()-1));
             } finally {
                 if (wb != null) {
                     wb.close();
