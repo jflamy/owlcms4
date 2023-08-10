@@ -21,6 +21,8 @@ jobs:
     variables:
       - name: JAVA_HOME_17_X64
         value: /usr/local/openjdk-17
+      - name: JAVA_HOME
+        value: /usr/local/openjdk-17
     steps:
       # Node.js tool installer
       # Finds or downloads and caches the specified version spec of Node.js and adds it to the PATH
