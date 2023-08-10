@@ -22,14 +22,14 @@
         <dependency>
             <groupId>app.owlcms</groupId>
             <artifactId>installtools</artifactId>
-            <version>1.1.0</version>
+            <version>1.17.0</version>
             <type>zip</type>
             <classifier>jre</classifier>
         </dependency>
         <dependency>
             <groupId>app.owlcms</groupId>
             <artifactId>installtools</artifactId>
-            <version>1.1.0</version>
+            <version>1.17.0</version>
             <type>zip</type>
             <classifier>innosetup</classifier>
         </dependency>
