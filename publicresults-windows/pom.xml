@@ -127,7 +127,7 @@
                             </classPath>
                             <icon>src/main/install/owlcms.ico</icon>
                             <jre>
-                                <minVersion>1.11.0</minVersion>
+                                <minVersion>1.17.0</minVersion>
                                 <path>jre</path>
                                 <bundledJreAsFallback>false</bundledJreAsFallback>
                             </jre>
@@ -170,7 +170,7 @@
                             </classPath>
                             <icon>src/main/install/owlcms.ico</icon>
                             <jre>
-                                <minVersion>1.11.0</minVersion>
+                                <minVersion>1.17.0</minVersion>
                                 <path>jre</path>
                                 <bundledJreAsFallback>false</bundledJreAsFallback>
                             </jre>

@@ -17,10 +17,10 @@ jobs:
   - job: ${{ parameters.jobName }}
     pool:
       vmImage: ubuntu-latest
-    container: maven:3.8.1-openjdk-11-slim
-    variables:
-      - name: JAVA_HOME_11_X64
-        value: /usr/local/openjdk-11
+    container: maven:3.9.3-eclipse-temurin-17
+ #   variables:
+ #     - name: JAVA_HOME_11_X64
+ #       value: /usr/local/openjdk-11
     steps:
       # Node.js tool installer
       # Finds or downloads and caches the specified version spec of Node.js and adds it to the PATH
@@ -37,7 +37,7 @@ jobs:
           mavenPomFile: pom.xml
           mavenOptions: -Xmx3072m $(MavenOpts)
           javaHomeSelection: 'path'
-          jdkDirectory: '/usr/local/openjdk-11'
+          jdkDirectory: '/opt/java/openjdk'
           publishJUnitResults: true
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
           effectivePomSkip: true

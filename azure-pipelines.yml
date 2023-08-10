@@ -4,7 +4,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 43.0.0-beta01
+    default: 44.0.0-alpha00
   - name: SkipTests
     type: string
     default: 'false'
@@ -17,7 +17,7 @@ variables:
   # if BuildGoal = 'deploy', the uberjars will be published on the maven repository.  'package' does not deploy
   # to maven repository, so Revision can be kept for several runs when debugging the installers.
   - name: BuildGoal
-    value: deploy
+    value: package
   # ReleaseRepoCredentials contains github users and tokens
   - group: ReleaseRepoCredentials
   - template: src/main/azure-pipelines/variables-releaseRepoCredentials.yml
@@ -89,7 +89,7 @@ jobs:
           mavenPomFile: owlcms-docker/pom.xml
           mavenOptions: -Xmx3072m $(MavenOpts)
           javaHomeOption: JDKVersion
-          jdkVersionOption: '1.11'
+          jdkVersionOption: '1.17'
           jdkArchitectureOption: x64
           publishJUnitResults: false
           goals: deploy $(MavenOpts)
@@ -104,7 +104,7 @@ jobs:
           mavenPomFile: pom.xml
           mavenOptions: -Xmx3072m $(MavenOpts)
           javaHomeOption: JDKVersion
-          jdkVersionOption: '1.11'
+          jdkVersionOption: '1.17'
           jdkArchitectureOption: x64
           publishJUnitResults: false
           goals: package $(MavenOpts) --non-recursive -Dmaven.test.skip=true
