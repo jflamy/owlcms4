@@ -24,9 +24,9 @@ jobs:
     steps:
       - task: JavaToolInstaller@0
         inputs:
-        versionSpec: '17'
-        jdkArchitectureOption: 'x64'
-        jdkSourceOption: 'PreInstalled'
+          versionSpec: '17'
+          jdkArchitectureOption: 'x64'
+          jdkSourceOption: 'PreInstalled'
       # Node.js tool installer
       # Finds or downloads and caches the specified version spec of Node.js and adds it to the PATH
       - task: NodeTool@0
