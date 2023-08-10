@@ -1,22 +1,30 @@
-43.0.0-alpha
+43.0.0-beta
 
-> *Alpha releases are for initial feedback.  Features can be incomplete, subject to change, or broken.*
+> *Beta releases are meant for translations and fixes*
+> *Test thoroughly if you intend to use a beta release, especially if using a new feature.*
 
-- alpha03: Records
-  - Improved error messages when reading the records file are now visible in the user interface
-  
-  - Now possible to export all records. The output is in a single Excel however.
-  
-- alpha02: Public Results 
+- Referee decision updates are ignored once the decision has been shown. 
+  - Referees must use flags or cards after 3 seconds. In this way, what the jury sees matches what the public saw.
+
+- Prevention of accidental countdown interruptions.  
+  - When a countdown is running it is now necessary to use the "Pause" dialog in order to switch to a different kind of break.
+  - Therefore, accidentally pressing the jury control button for a technical break (or other) will be ignored during the countdowns to the introductions, the first snatch, or the first clean & jerk.
+  - Ceremonies (Introduction, Medals) work like before since they do not interrupt the countdown.
+
+- Records
+  - Error messages are now visible directly in the user interface, and have also been improved to catch more types of errors.
+
+  - It is now possible to export all records as a single Excel to check what has been loaded or to reload in a later competition.
+- CSS Styling:  
+  - An alternate directory to use for styling files can now be given on the "System Settings - Personalization" page.  The directory name given is looked up in the "local" subdirectory of the installation (the default is "styles").  If given, the `OWLCMS_STYLESDIR` variable takes precedence over the database setting.
+  - It is now easier to hide the body weight category column to promote inclusivity in local competitions: In `local/styles/resultsCustomization.css`, set `--categoryVisibility=hidden` and `--categoryWidth=0` to hide the body weight category column on the scoreboard.
+- Public Results 
   - It is now possible to choose the lifting order instead of the start number order on the remote scoreboard (click on the scoreboard to see the options)
   - Flags are shown on the remote scoreboard if present in the main owlcms `local/flags`
-  - All the styles sheets under `local` are sent to the remote server. The `OWLCMS_STYLESDIR` setting on the main owlcms is transferred to the remote, so an alternate look can be used.  The remote results page uses the same style names as the local one.
-  - A distinct `publicresultsCustomization.css` file is used instead  of `resultsCustomization.css` to allow for different column visibility.  By default they are the same.
-
-- alpha02: The session editing form now uses tabs for better visual organization.
-- alpha01: A MQTT `fop/config` message is published on startup and when platforms are edited or deleted.  Device management applications can listen to this message to display the available platforms.
-- alpha00: Prevent countdown interruptions.  In order to switch from a countdown to a different type of break, it is now necessary to explicitly stop the break using the "Pause" dialog.   Jury buttons for technical breaks are therefore ignored. Ceremonies (Introduction, Medals) are fine since they do not interrupt the countdown.
-- alpha00: Referee decision updates are ignored once the decision has been shown.  Referees must use flags after 3 seconds. In this way, what the jury sees matches what the public saw.
+  - All the styles sheets under `local` are sent to the remote server.  The styles directory specified in the owlcms configuration is used by publicresults also, so the "look and feel" is the same on both ends. 
+  - However, on publicresults, the `publicresultsCustomization.css` file is used instead of `resultsCustomization.css`.  By default, these two files are the same, but editing `publicresultsCustomization.css` allows for different column visibility on the remote scoreboard.
+- The Session editing form now uses tabs for better visual organization.
+- An MQTT `fop/config` message is published on startup and when platforms are edited or deleted.  Device management applications can listen to this message to display the available platforms.
 
 #####  Highlights from recent stable releases
 
@@ -47,11 +55,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_43.0.0-alpha03.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_43.0.0-beta01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_43.0.0-alpha03.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_43.0.0-beta01.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
