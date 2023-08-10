@@ -22,6 +22,11 @@ jobs:
         name: JAVA_HOME_11_X64
         value: /usr/local/openjdk-17
     steps:
+      - task: JavaToolInstaller@0
+        inputs:
+        versionSpec: '11'
+        jdkArchitectureOption: 'x64'
+        jdkSourceOption: 'PreInstalled'
       # Node.js tool installer
       # Finds or downloads and caches the specified version spec of Node.js and adds it to the PATH
       - task: NodeTool@0
