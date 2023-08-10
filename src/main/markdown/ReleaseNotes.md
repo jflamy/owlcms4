@@ -1,33 +1,23 @@
-43.0.0-beta
+44.0.0-alpha
 
-> *Beta releases are meant for translations and fixes*
-> *Test thoroughly if you intend to use a beta release, especially if using a new feature.*
+> RELEASE 44 is a technical transition release to a new version of the user interface software.
+>
+> **DO NOT USE release 44**
 
-- Referee decision updates are ignored once the decision has been shown. 
-  - Referees must use flags or cards after 3 seconds. In this way, what the jury sees matches what the public saw.
+#####  Highlights from recent stable releases
 
-- Prevention of accidental countdown interruptions.  
-  - When a countdown is running it is now necessary to use the "Pause" dialog in order to switch to a different kind of break.
-  - Therefore, accidentally pressing the jury control button for a technical break (or other) will be ignored during the countdowns to the introductions, the first snatch, or the first clean & jerk.
-  - Ceremonies (Introduction, Medals) work like before since they do not interrupt the countdown.
-
+- Referee decision updates are ignored once the decision has been shown.  Referees must use flags or cards after 3 seconds. In this way, what the jury sees matches what the public saw.
+- Prevention of accidental countdown interruptions.  When a countdown is running it is now necessary to use the "Pause" dialog in order to switch to a different kind of break.
 - Records
   - Error messages are now visible directly in the user interface, and have also been improved to catch more types of errors.
 
   - It is now possible to export all records as a single Excel to check what has been loaded or to reload in a later competition.
 - CSS Styling:  
   - An alternate directory to use for styling files can now be given on the "System Settings - Personalization" page.  The directory name given is looked up in the "local" subdirectory of the installation (the default is "styles").  If given, the `OWLCMS_STYLESDIR` variable takes precedence over the database setting.
-  - It is now easier to hide the body weight category column to promote inclusivity in local competitions: In `local/styles/resultsCustomization.css`, set `--categoryVisibility=hidden` and `--categoryWidth=0` to hide the body weight category column on the scoreboard.
 - Public Results 
   - It is now possible to choose the lifting order instead of the start number order on the remote scoreboard (click on the scoreboard to see the options)
   - Flags are shown on the remote scoreboard if present in the main owlcms `local/flags`
-  - All the styles sheets under `local` are sent to the remote server.  The styles directory specified in the owlcms configuration is used by publicresults also, so the "look and feel" is the same on both ends. 
-  - However, on publicresults, the `publicresultsCustomization.css` file is used instead of `resultsCustomization.css`.  By default, these two files are the same, but editing `publicresultsCustomization.css` allows for different column visibility on the remote scoreboard.
-- The Session editing form now uses tabs for better visual organization.
-- An MQTT `fop/config` message is published on startup and when platforms are edited or deleted.  Device management applications can listen to this message to display the available platforms.
-
-#####  Highlights from recent stable releases
-
+  - All the styles sheets under `local` are sent to the remote server.  The styles directory specified in the owlcms configuration is used by publicresults also, so the "look and feel" is the same on both ends. However, on publicresults, the `publicresultsCustomization.css` file is used instead of `resultsCustomization.css`. 
 - Interactive scoreboard layout changes
   - On the result scoreboards, you can change the width of the Team column using ⇦ and ⇨ (giving more space for the name) and you can change the font size using ⇧ and ⇩ .
   - If names are very long, you can get an abbreviated first name by adding abb=true to the URL parameters
