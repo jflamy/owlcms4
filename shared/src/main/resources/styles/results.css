@@ -176,11 +176,13 @@ table.results.sinclair {
 :host(.dark) table.results tr td.category {
     background-color: var(--darkCategoryBackgroundColor);
     color: var(--darkCategoryTextColor);
+    visibility: var(--categoryVisibility);
 }
 
 :host(.light) table.results tr td.category {
     background-color: var(--lightCategoryBackgroundColor);
     color: var(--lightCategoryTextColor);
+    visibility: var(--categoryVisibility);
 }
 
 /* birth */

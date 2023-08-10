@@ -18,6 +18,8 @@
 
     /* normally these do not need to change */
     --categoryWidth: 10ch;
+    --categoryVisibility: visible;
+
     --liftResultWidth: 6ch;
 
     /* to show these columns 
