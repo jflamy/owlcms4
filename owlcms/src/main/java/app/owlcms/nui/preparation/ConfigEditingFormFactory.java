@@ -299,7 +299,6 @@ public class ConfigEditingFormFactory
 		TextField stylesField = new TextField();
 		stylesField.setWidthFull();
 		FormItem fi = layout.addFormItem(stylesField, Translator.translate("Config.stylesLabel"));
-		layout.setColspan(fi, 2);
 		binder.forField(stylesField)
 		        .withNullRepresentation("")
 		        .bind(Config::getParamStylesDir, Config::setStylesDirectory);
