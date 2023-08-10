@@ -37,7 +37,7 @@ jobs:
           mavenPomFile: pom.xml
           mavenOptions: -Xmx3072m $(MavenOpts)
           javaHomeSelection: 'path'
-          jdkDirectory: '/usr/local/openjdk-17'
+          jdkDirectory: '/opt/java/openjdk'
           publishJUnitResults: true
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
           effectivePomSkip: true
