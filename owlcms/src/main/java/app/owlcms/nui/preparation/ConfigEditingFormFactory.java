@@ -119,6 +119,7 @@ public class ConfigEditingFormFactory
 		FormLayout localOverrideLayout = localOverrideForm();
 		FormLayout translationLayout = translationForm();
 		FormLayout featuresLayout = featuresForm();
+		FormLayout stylesLayout = stylesForm();
 		FormLayout mqttLayout = mqttForm();
 
 		Component footer = this.buildFooter(operation, config, cancelButtonClickListener,
@@ -145,6 +146,7 @@ public class ConfigEditingFormFactory
 		                new Div(), accessLayout));
 		ts.add(Translator.translate("Config.CustomizationTab"),
 		        new VerticalLayout(new Div(), localOverrideLayout, separator(),
+		                stylesLayout, separator(),
 		                featuresLayout));
 
 		VerticalLayout mainLayout = new VerticalLayout(
@@ -284,6 +286,23 @@ public class ConfigEditingFormFactory
 		binder.forField(featureSwitchesField)
 		        .withNullRepresentation("")
 		        .bind(Config::getFeatureSwitches, Config::setFeatureSwitches);
+
+		return layout;
+	}
+	
+	private FormLayout stylesForm() {
+		FormLayout layout = createLayout();
+		Component title = createTitle("Config.stylesTitle");
+		layout.add(title);
+		layout.setColspan(title, 2);
+
+		TextField stylesField = new TextField();
+		stylesField.setWidthFull();
+		FormItem fi = layout.addFormItem(stylesField, Translator.translate("Config.stylesLabel"));
+		layout.setColspan(fi, 2);
+		binder.forField(stylesField)
+		        .withNullRepresentation("")
+		        .bind(Config::getParamStylesDir, Config::setStylesDirectory);
 
 		return layout;
 	}

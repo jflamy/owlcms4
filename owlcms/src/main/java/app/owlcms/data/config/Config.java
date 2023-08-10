@@ -77,7 +77,7 @@ public class Config {
 			}
 			return null;
 		});
-		
+
 		JPAService.runInTransaction(em -> {
 			RecordConfig f = RecordConfig.getCurrent();
 			if (f == null) {
@@ -108,7 +108,6 @@ public class Config {
 	private String ipDisplayList;
 	private String ipBackdoorList;
 
-	private String mqttServer;
 	private String mqttPort;
 	private String mqttUserName;
 	private String mqttPassword;
@@ -146,10 +145,14 @@ public class Config {
 
 	@Column(columnDefinition = "boolean default true")
 	private Boolean mqttInternal = true;
+	
+	@Column(columnDefinition = "varchar(255) default 'styles'")
+	private String stylesDirectory;
 
 	@Transient
 	@JsonIgnore
 	private IConfig mqttConfig;
+	
 
 	public String computeSalt() {
 		this.setSalt(null);
@@ -252,7 +255,7 @@ public class Config {
 	 * @throws SQLException
 	 */
 	public byte[] getLocalZipBlob() {
-		logger.debug("getLocalZipBlob skip={} localOverride={}",skipReading, localOverride);
+		logger.debug("getLocalZipBlob skip={} localOverride={}", skipReading, localOverride);
 		if (localOverride == null || skipReading) {
 			return null;
 		}
@@ -295,10 +298,6 @@ public class Config {
 
 	public String getMqttPort() {
 		return mqttPort;
-	}
-
-	public String getMqttServer() {
-		return mqttServer;
 	}
 
 	public String getMqttUserName() {
@@ -458,17 +457,6 @@ public class Config {
 		String param = StartupUtils.getStringParam("mqttServer");
 		return param;
 	}
-	
-	@Transient
-	@JsonIgnore
-	public String getParamStylesDir() {
-		String param = StartupUtils.getStringParam("stylesDir");
-		if (param == null || param.isBlank()) {
-			return "styles";
-		} else {
-			return param;
-		}
-	}
 
 	/**
 	 * @return the current mqtt server.
@@ -542,6 +530,20 @@ public class Config {
 				return uURL;
 			}
 		}
+	}
+
+	@Transient
+	@JsonIgnore
+	public String getParamStylesDir() {
+		String param = StartupUtils.getStringParam("stylesDir");
+		if (param == null || param.isBlank()) {
+			// get from database
+			param = Config.getCurrent().getStylesDirectory();
+			if (param == null || param.isBlank()) {
+				param = "styles";
+			}
+		}
+		return param;
 	}
 
 	@Transient
@@ -750,10 +752,6 @@ public class Config {
 		this.mqttPort = mqttPort;
 	}
 
-	public void setMqttServer(String mqttServer) {
-		this.mqttServer = mqttServer;
-	}
-
 	public void setMqttUserName(String mqttUserName) {
 		// anonymous allowed iff mqttUserName is empty or null.
 		// we cannot override Moquette login to directly invoke our authenticator...
@@ -807,11 +805,12 @@ public class Config {
 		logger.debug("setting salt to {}", this.salt);
 	}
 
-	@JsonIgnore
-	@Transient
-	//FIXME store in database
 	public String getStylesDirectory() {
-		return getParamStylesDir();
+		return stylesDirectory;
+	}
+
+	public void setStylesDirectory(String stylesDirectory) {
+		this.stylesDirectory = stylesDirectory;
 	}
 
 }

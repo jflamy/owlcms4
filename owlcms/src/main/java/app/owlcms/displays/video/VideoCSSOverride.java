@@ -20,7 +20,7 @@ public interface VideoCSSOverride {
 			// use video override if /video is in the URL and the override stylesheet exists.
 			ResourceWalker.getFileOrResourcePath(cssPath);
 			Element element = component.getElement();
-			element.setProperty("stylesDir", Config.getCurrent().getStylesDirectory());
+			element.setProperty("stylesDir", Config.getCurrent().getParamStylesDir());
 			element.setProperty("video", routeParameter != null ? routeParameter + "/" : "");	
 		} catch (FileNotFoundException e) {
 		}

@@ -771,7 +771,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
 			init();
-			checkVideo(Config.getCurrent().getStylesDirectory() + "/video/results.css", routeParameter, this);
+			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/results.css", routeParameter, this);
 			teamFlags = URLUtils.checkFlags();
 			if (this.getCategory() == null) {
 				if (this.getGroup() != null) {

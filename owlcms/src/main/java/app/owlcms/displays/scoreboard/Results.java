@@ -437,7 +437,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 
 	@Override
 	public void setLeadersDisplay(boolean showLeaders) {
-		checkVideo(Config.getCurrent().getStylesDirectory() + "/video/results.css", routeParameter, this);
+		checkVideo(Config.getCurrent().getParamStylesDir() + "/video/results.css", routeParameter, this);
 		this.showLeaders = showLeaders;
 		if (showLeaders) {
 			this.getElement().setProperty("leadersTopVisibility", "display:content");

@@ -62,7 +62,7 @@ public class PublicFacingDecisionBoard extends AttemptBoard {
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
-		checkVideo(Config.getCurrent().getStylesDirectory()+"/video/decisionboard.css", routeParameter, this);
+		checkVideo(Config.getCurrent().getParamStylesDir()+"/video/decisionboard.css", routeParameter, this);
 		decisions.setPublicFacing(true);
 		setPublicFacing(true);
 		setShowBarbell(false);

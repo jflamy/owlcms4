@@ -536,7 +536,7 @@ public class TopSinclair extends PolymerTemplate<TemplateModel> implements Displ
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		logger.debug("onAttach start");
-		checkVideo(Config.getCurrent().getStylesDirectory()+"/video/top.css", routeParameter, this);
+		checkVideo(Config.getCurrent().getParamStylesDir()+"/video/top.css", routeParameter, this);
 		switchLightingMode(this, isDarkMode(), true);
 		setWide(false);
 		setTranslationMap();

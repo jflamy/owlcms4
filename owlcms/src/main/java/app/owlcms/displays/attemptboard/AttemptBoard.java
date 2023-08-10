@@ -754,7 +754,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 		OwlcmsSession.withFop(fop -> {
 			logger.debug("{}onAttach {}", fop.getLoggingName(), fop.getState());
 			init();
-			checkVideo(Config.getCurrent().getStylesDirectory()+"/video/attemptboard.css", routeParameter, this);
+			checkVideo(Config.getCurrent().getParamStylesDir()+"/video/attemptboard.css", routeParameter, this);
 			ThemeList themeList = UI.getCurrent().getElement().getThemeList();
 			themeList.remove(Lumo.LIGHT);
 			themeList.add(Lumo.DARK);

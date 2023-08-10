@@ -597,7 +597,7 @@ public class TopTeams extends PolymerTemplate<TemplateModel> implements DisplayP
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		checkVideo(Config.getCurrent().getStylesDirectory()+"/video/top.css", routeParameter, this);
+		checkVideo(Config.getCurrent().getParamStylesDir()+"/video/top.css", routeParameter, this);
 		switchLightingMode(this, isDarkMode(), true);
 		setWide(false);
 		setTranslationMap();

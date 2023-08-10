@@ -779,7 +779,7 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
 			init();
-			checkVideo(Config.getCurrent().getStylesDirectory()+"/video/currentathlete.css", routeParameter, this);
+			checkVideo(Config.getCurrent().getParamStylesDir()+"/video/currentathlete.css", routeParameter, this);
 
 			// get the global category rankings attached to each athlete
 			order = fop.getDisplayOrder();

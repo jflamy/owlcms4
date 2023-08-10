@@ -500,7 +500,7 @@ public class StreamingEventMonitor extends PolymerTemplate<TemplateModel> implem
 		OwlcmsSession.withFop(fop -> {
 			init();
 			
-			checkVideo(Config.getCurrent().getStylesDirectory() + "/video/currentathlete.css", routeParameter, this);
+			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/currentathlete.css", routeParameter, this);
 			// sync with current status of FOP
 			syncWithFOP(null);
 			// we listen on uiEventBus.
