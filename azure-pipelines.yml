@@ -1,3 +1,7 @@
+# ubuntu-latest image includes Java 11.
+# this is why there are references to Java 11 for all the tasks other than the actual
+# compiling and assembly that is done inside a container with a Java 17 image.
+
 trigger:
   - none
   
@@ -89,7 +93,7 @@ jobs:
           mavenPomFile: owlcms-docker/pom.xml
           mavenOptions: -Xmx3072m $(MavenOpts)
           javaHomeOption: JDKVersion
-          jdkVersionOption: '1.17'
+          jdkVersionOption: '1.11'
           jdkArchitectureOption: x64
           publishJUnitResults: false
           goals: deploy $(MavenOpts)
@@ -104,7 +108,7 @@ jobs:
           mavenPomFile: pom.xml
           mavenOptions: -Xmx3072m $(MavenOpts)
           javaHomeOption: JDKVersion
-          jdkVersionOption: '1.17'
+          jdkVersionOption: '1.11'
           jdkArchitectureOption: x64
           publishJUnitResults: false
           goals: package $(MavenOpts) --non-recursive -Dmaven.test.skip=true
