@@ -20,7 +20,7 @@ jobs:
     container: maven:3.8.1-openjdk-17-slim
     variables:
         name: JAVA_HOME_11_X64
-        value: /usr/local/openjdk-17
+        value: /usr/local/openjdk-11
     steps:
       # Node.js tool installer
       # Finds or downloads and caches the specified version spec of Node.js and adds it to the PATH
