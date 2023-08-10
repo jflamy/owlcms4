@@ -17,7 +17,7 @@ jobs:
   - job: ${{ parameters.jobName }}
     pool:
       vmImage: ubuntu-latest
-    container: maven:3.9.3-eclipse-temurin-17
+    container: maven:3.8.1-openjdk-17-slim
     variables:
         name: JAVA_HOME_11_X64
         value: /usr/local/openjdk-17
