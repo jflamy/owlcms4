@@ -24,7 +24,7 @@ jobs:
     steps:
       - task: JavaToolInstaller@0
         inputs:
-          versionSpec: '17'
+          versionSpec: '11'
           jdkArchitectureOption: 'x64'
           jdkSourceOption: 'PreInstalled'
       # Node.js tool installer
