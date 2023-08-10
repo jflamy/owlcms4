@@ -17,7 +17,7 @@ variables:
   # if BuildGoal = 'deploy', the uberjars will be published on the maven repository.  'package' does not deploy
   # to maven repository, so Revision can be kept for several runs when debugging the installers.
   - name: BuildGoal
-    value: package
+    value: deploy
   # ReleaseRepoCredentials contains github users and tokens
   - group: ReleaseRepoCredentials
   - template: src/main/azure-pipelines/variables-releaseRepoCredentials.yml

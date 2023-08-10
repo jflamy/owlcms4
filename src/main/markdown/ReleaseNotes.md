@@ -1,8 +1,9 @@
 44.0.0-alpha
 
+> **Technical migration release: DO NOT USE release 44 until an explicit note that it has been stabilized.**
+>
 > RELEASE 44 is a technical transition release to a new version of the user interface software.
 >
-> **DO NOT USE release 44**
 
 #####  Highlights from recent stable releases
 
