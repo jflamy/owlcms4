@@ -1,6 +1,8 @@
 # ubuntu-latest image includes Java 11.
-# this is why there are references to Java 11 for all the tasks other than the actual
+# this is why there are references to Java 11 for tasks other than the actual
 # compiling and assembly that is done inside a container with a Java 17 image.
+# Shared templates that run both inside and outside the container need the
+# JAVA_HOME_11_X64 to be defined
 
 trigger:
   - none
