@@ -33,7 +33,7 @@ steps:
     mavenPomFile: pom.xml
     mavenOptions: -Xmx3072m $(MavenOpts)
     javaHomeOption: JDKVersion
-    jdkVersionOption: "1.17"
+    jdkVersionOption: "1.11"
     jdkArchitectureOption: x64
     publishJUnitResults: false
     goals: -N $(MavenOpts) -Dmaven.test.skip=true -Dproperty=revision -DnewVersion=$(Revision) versions:set-property 

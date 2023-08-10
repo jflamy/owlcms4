@@ -19,9 +19,7 @@ jobs:
       vmImage: ubuntu-latest
     container: maven:3.9.3-eclipse-temurin-17
     variables:
-      - name: JAVA_HOME_17_X64
-        value: /usr/local/openjdk-17
-      - name: JAVA_HOME
+        name: JAVA_HOME_11_X64
         value: /opt/java/openjdk
     steps:
       # Node.js tool installer
