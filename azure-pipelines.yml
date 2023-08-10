@@ -1,4 +1,4 @@
-# ubuntu-latest image includes Java 11.
+# Note: ubuntu-latest image includes Java 11.
 # this is why there are references to Java 11 for tasks other than the actual
 # compiling and assembly that is done inside a container with a Java 17 image.
 # Shared templates that run both inside and outside the container need the
