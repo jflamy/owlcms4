@@ -1,7 +1,5 @@
 package app.owlcms;
 
-import javax.servlet.http.HttpServletResponse;
-
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.LoadingIndicatorConfiguration;
 import com.vaadin.flow.component.page.Push;
@@ -15,6 +13,7 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.init.OwlcmsSession;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Use the @PWA annotation make the application installable on phones, tablets

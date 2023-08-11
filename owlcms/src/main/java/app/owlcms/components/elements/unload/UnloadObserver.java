@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2023 Jean-François Lamy
+ * Copyright (c) 2009-2023 Jean-Fran�ois Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -13,9 +13,8 @@ import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
+import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.shared.Registration;
-import com.vaadin.flow.templatemodel.TemplateModel;
 
 /**
  * Server-side component that listens to {@code beforeunload} events. Based on
@@ -43,7 +42,7 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 @SuppressWarnings({ "serial", "deprecation" })
 @JsModule("./unload/unload-observer.js")
 @Tag("unload-observer")
-public final class UnloadObserver extends PolymerTemplate<TemplateModel> {
+public final class UnloadObserver extends LitTemplate {
 
 	private static final String UNLOAD_OBSERVER = "owlcms_unload_observer";
 

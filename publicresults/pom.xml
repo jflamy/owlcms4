@@ -127,7 +127,23 @@
             <artifactId>commons-text</artifactId>
             <version>1.9</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload -->
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-fileupload2</artifactId>
+    <version>2.0.0-M1</version>
+    <type>pom</type>
+</dependency>
 
+		
+		<!-- https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api -->
+		<dependency>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
+			<version>6.0.0</version> <!--$NO-MVN-MAN-VER$-->
+			<scope>provided</scope>
+		</dependency>
+		
         <dependency>
             <groupId>app.owlcms</groupId>
             <artifactId>shared</artifactId>

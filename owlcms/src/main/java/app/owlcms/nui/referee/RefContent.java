@@ -23,7 +23,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
@@ -354,7 +354,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 		warningRow.setMargin(false);
 		warningRow.setVisible(false);
 
-		Label refLabel = new Label(getTranslation("Referee"));
+		NativeLabel refLabel = new NativeLabel(getTranslation("Referee"));
 		H3 labelWrapper = new H3(refLabel);
 		labelWrapper.getStyle().set("margin-top", "0");
 		labelWrapper.getStyle().set("margin-bottom", "0");

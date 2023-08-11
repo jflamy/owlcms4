@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2023 Jean-François Lamy
+ * Copyright (c) 2009-2023 Jean-Fran�ois Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -16,10 +16,9 @@ import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
+import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.server.VaadinSession;
-import com.vaadin.flow.templatemodel.TemplateModel;
 
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.init.OwlcmsSession;
@@ -35,7 +34,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("timer-element")
 @JsModule("./components/TimerElement.js")
-public abstract class TimerElement extends PolymerTemplate<TemplateModel>
+public abstract class TimerElement extends LitTemplate
         implements SafeEventBusRegistration {
 
 	public long lastStartMillis;

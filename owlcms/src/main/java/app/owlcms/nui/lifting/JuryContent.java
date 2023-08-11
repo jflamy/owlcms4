@@ -14,8 +14,6 @@ import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
-import com.flowingcode.vaadin.addons.ironicons.AvIcons;
-import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
@@ -27,7 +25,7 @@ import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
@@ -79,7 +77,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	private JuryDisplayDecisionElement decisions;
 	private JuryDialog juryDialog;
 	private Icon[] juryIcons;
-	private Label juryLabel;
+	private NativeLabel juryLabel;
 	private Boolean[] juryVotes;
 	private HorizontalLayout juryVotingButtons;
 	private VerticalLayout juryVotingCenterHorizontally;
@@ -287,10 +285,10 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	private void buildJuryBox(VerticalLayout juryContainer) {
 		// logger.trace("buildJuryBox {}", LoggerUtils.whereFrom());
 		HorizontalLayout topRow = new HorizontalLayout();
-		juryLabel = new Label(getTranslation("JuryDecisions"));
+		juryLabel = new NativeLabel(getTranslation("JuryDecisions"));
 		H3 labelWrapper = new H3(juryLabel);
 		labelWrapper.setWidth("15em");
-		Label spacer = new Label();
+		NativeLabel spacer = new NativeLabel();
 		spacer.setWidth("3em");
 		topRow.add(labelWrapper, juryDeliberationButtons(),
 		        juryDecisionButtons());
@@ -450,13 +448,17 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	}
 
 	private HorizontalLayout juryDeliberationButtons() {
-		Button juryDeliberationButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
+		Button juryDeliberationButton = new Button(
+				new Icon(VaadinIcon.TIMER),//FIXME new Icon(VaadinIcon.TIMER), 
+				(e) -> {
 			openJuryDialog(JuryDeliberationEventType.START_DELIBERATION);
 		});
 		juryDeliberationButton.getElement().setAttribute("theme", "primary");
 		juryDeliberationButton.setText(getTranslation("BreakButton.JuryDeliberation"));
 		
-		Button challengeButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
+		Button challengeButton = new Button(
+				new Icon(VaadinIcon.TIMER),//FIXME new Icon(VaadinIcon.TIMER), 
+				(e) -> {
 			openJuryDialog(JuryDeliberationEventType.CHALLENGE);
 		});
 		challengeButton.getElement().setAttribute("theme", "primary");
@@ -464,7 +466,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		// juryDeliberationButton.getElement().setAttribute("title",
 		// getTranslation("BreakButton.JuryDeliberation"));
 
-		Button technicalPauseButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
+		Button technicalPauseButton = new Button(
+				new Icon(VaadinIcon.TIMER),//FIXME new Icon(VaadinIcon.TIMER), 
+				(e) -> {
 			openJuryDialog(JuryDeliberationEventType.TECHNICAL_PAUSE);
 		});
 		technicalPauseButton.getElement().setAttribute("theme", "primary");
@@ -473,7 +477,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		HorizontalLayout buttons = new HorizontalLayout(juryDeliberationButton, challengeButton, technicalPauseButton);
 
 		if (summonEnabled) {
-			Button summonRefereesButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
+			Button summonRefereesButton = new Button(
+					new Icon(VaadinIcon.TIMER),//FIXME new Icon(VaadinIcon.TIMER), 
+					(e) -> {
 				openJuryDialog(JuryDeliberationEventType.CALL_REFEREES);
 			});
 			summonRefereesButton.getElement().setAttribute("theme", "primary");
@@ -654,7 +660,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	protected void createTopBarSettingsMenu() {
 		topBarSettings = new MenuBar();
 		topBarSettings.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_TERTIARY_INLINE);
-		MenuItem item2 = topBarSettings.addItem(IronIcons.SETTINGS.create());
+		MenuItem item2 = topBarSettings.addItem(
+				new Icon(VaadinIcon.COG)//IronIcons.SETTINGS.create()
+				);
 		SubMenu subMenu2 = item2.getSubMenu();
 		subMenu2.addItem(
 		        this.isSilenced() ? Translator.translate("Settings.TurnOnSound")

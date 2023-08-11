@@ -38,15 +38,15 @@
 		<failOnMissingWebXml>false</failOnMissingWebXml>
 
 		<!-- Library versions -->
-		<java.release>11</java.release>
-		<vaadin.version>23.3.6</vaadin.version>
+		<java.release>17</java.release>
+		<vaadin.version>24.1.4</vaadin.version>
 		<logback.version>1.2.9</logback.version>
 		<slf4j.version>1.7.26</slf4j.version>
 		<hibernate.version>5.6.10.Final</hibernate.version>
 		<guava.version>32.0.0-jre</guava.version>
 
 		<!-- Plugins -->
-		<jetty.version>9.4.49.v20220914</jetty.version>
+		<jetty.version>12.0.0</jetty.version>
 
 		<rootOutputDir>${project.build.directory}</rootOutputDir>
 	</properties>
@@ -131,8 +131,8 @@
 				<version>${slf4j.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>javax.servlet</groupId>
-				<artifactId>javax.servlet-api</artifactId>
+				<groupId>jakarta.servlet</groupId>
+				<artifactId>jakarta.servlet-api</artifactId>
 				<version>3.1.0</version>
 			</dependency>
 			<dependency>
@@ -155,6 +155,13 @@
 				<artifactId>mobile-drag-drop</artifactId>
 				<version>2.3.0-rc.1</version>
 			</dependency>
+			<!-- https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api -->
+			<dependency>
+				<groupId>jakarta.servlet</groupId>
+				<artifactId>jakarta.servlet-api</artifactId>
+				<version>6.0.0</version> <!--$NO-MVN-MAN-VER$-->
+				<scope>provided</scope>
+			</dependency>
 		</dependencies>
 
 	</dependencyManagement>
@@ -170,8 +177,8 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>

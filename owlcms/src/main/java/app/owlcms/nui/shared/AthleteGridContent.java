@@ -18,8 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
-import com.flowingcode.vaadin.addons.ironicons.AvIcons;
-import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -39,7 +37,7 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -656,7 +654,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 			close.getStyle().set("margin-left", "2em");
 			close.setSize("4em");
 			Notification notification = new Notification();
-			Label label = new Label();
+			NativeLabel label = new NativeLabel();
 			label.getElement().setProperty("innerHTML", getTranslation(e.getMessage()));
 			HorizontalLayout content = new HorizontalLayout(label, close);
 			notification.add(content);
@@ -966,7 +964,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 	 * @see app.owlcms.nui.shared.AthleteGridContent#breakButtons(com.vaadin.flow.component.orderedlayout.FlexLayout)
 	 */
 	protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
-		breakButton = new Button(Translator.translateOrElseEmpty("Pause"),AvIcons.AV_TIMER.create(), (e) -> {
+		breakButton = new Button(Translator.translateOrElseEmpty("Pause"),new Icon(VaadinIcon.TIMER), (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				Athlete curAthlete = fop.getCurAthlete();
 				List<Athlete> order = fop.getLiftingOrder();
@@ -1122,13 +1120,13 @@ public abstract class AthleteGridContent extends VerticalLayout
 	}
 
 	protected void createStartTimeButton() {
-		startTimeButton = new Button(AvIcons.PLAY_ARROW.create());
+		startTimeButton = new Button(new Icon(VaadinIcon.PLAY));
 		startTimeButton.addClickListener(e -> doStartTime());
 		startTimeButton.getElement().setAttribute("theme", "primary success icon");
 	}
 
 	protected void createStopTimeButton() {
-		stopTimeButton = new Button(AvIcons.PAUSE.create());
+		stopTimeButton = new Button(new Icon(VaadinIcon.PAUSE));
 		stopTimeButton.addClickListener(e -> doStopTime());
 		stopTimeButton.getElement().setAttribute("theme", "secondary icon");
 	}
@@ -1254,7 +1252,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 	protected void createTopBarSettingsMenu() {
 		topBarSettings = new MenuBar();
 		topBarSettings.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_TERTIARY_INLINE);
-		MenuItem item2 = topBarSettings.addItem(IronIcons.SETTINGS.create());
+		MenuItem item2 = topBarSettings.addItem(new Icon(VaadinIcon.COG));
 		SubMenu subMenu2 = item2.getSubMenu();
 		MenuItem subItemSoundOn = subMenu2.addItem(
 		        Translator.translate("Settings.TurnOnSound"),

@@ -31,7 +31,7 @@ import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosi
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.UnorderedList;
@@ -349,7 +349,7 @@ public class ConfigEditingFormFactory
 	private FormLayout mqttForm() {
 		FormLayout layout = createLayout();
 		Component title = createTitle("Config.MQTTSectionTitle");
-		Label label = new Label(Translator.translate("Config.MQTTExplain"));
+		NativeLabel label = new NativeLabel(Translator.translate("Config.MQTTExplain"));
 		layout.add(title, label);
 		layout.setColspan(title, 2);
 		layout.setColspan(label, 2);

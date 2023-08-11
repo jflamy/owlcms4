@@ -8,7 +8,6 @@ package app.owlcms.nui.lifting;
 
 import org.slf4j.LoggerFactory;
 
-import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.UI;
@@ -17,8 +16,10 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
@@ -189,7 +190,7 @@ public class JuryDialog extends Dialog {
 		selection.setWidth("30em");
 		selection.setAlignContent(ContentAlignment.STRETCH);
 
-		Label lab = new Label(Translator.translate("JuryDialog.SummonRefereesLabel"));
+		NativeLabel lab = new NativeLabel(Translator.translate("JuryDialog.SummonRefereesLabel"));
 		HorizontalLayout label = new HorizontalLayout(lab);
 		label.setPadding(false);
 		label.setMargin(false);
@@ -253,11 +254,13 @@ public class JuryDialog extends Dialog {
 	}
 
 	private void doDebate(Athlete athleteUnderReview) {
-		Button goodLift = new Button(IronIcons.DONE.create(),
+		Button goodLift = new Button(
+				new Icon(VaadinIcon.CLOSE),//IronIcons.DONE.create(),
 		        (e) -> doGoodLift(athleteUnderReview, OwlcmsSession.getFop()));
 		Shortcuts.addShortcutListener(this, () -> doGoodLift(athleteUnderReview, OwlcmsSession.getFop()), Key.KEY_G);
 
-		Button badLift = new Button(IronIcons.CLOSE.create(),
+		Button badLift = new Button(
+				new Icon(VaadinIcon.CLOSE),
 		        (e) -> doBadLift(athleteUnderReview, OwlcmsSession.getFop()));
 		Shortcuts.addShortcutListener(this, () -> doBadLift(athleteUnderReview, OwlcmsSession.getFop()), Key.KEY_B);
 
@@ -272,10 +275,10 @@ public class JuryDialog extends Dialog {
 		FormLayout layoutRed = new FormLayout();
 		FormItem red, green;
 
-		Label redLabel = new Label(Translator.translate("JuryDialog.BadLiftLabel"));
+		NativeLabel redLabel = new NativeLabel(Translator.translate("JuryDialog.BadLiftLabel"));
 		red = layoutGreen.addFormItem(badLift, redLabel);
 		fixItemFormat(layoutGreen, red);
-		Label greenLabel = new Label(Translator.translate("JuryDialog.GoodLiftLabel"));
+		NativeLabel greenLabel = new NativeLabel(Translator.translate("JuryDialog.GoodLiftLabel"));
 		green = layoutRed.addFormItem(goodLift, greenLabel);
 		fixItemFormat(layoutRed, green);
 

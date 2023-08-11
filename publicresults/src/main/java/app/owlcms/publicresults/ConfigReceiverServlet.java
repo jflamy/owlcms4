@@ -15,24 +15,25 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+//import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
-import org.eclipse.jetty.util.Utf8Appendable.NotUtf8Exception;
+//import org.eclipse.jetty.util.Utf8Appendable.NotUtf8Exception;
 import org.slf4j.LoggerFactory;
+
+import com.vaadin.external.apache.commons.fileupload2.FileItem;
+import com.vaadin.external.apache.commons.fileupload2.FileUploadException;
+import com.vaadin.external.apache.commons.fileupload2.disk.DiskFileItemFactory;
+import com.vaadin.external.apache.commons.fileupload2.jaksrvlt.JakSrvltFileUpload;
 
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet("/config")
 public class ConfigReceiverServlet extends HttpServlet {
@@ -42,26 +43,27 @@ public class ConfigReceiverServlet extends HttpServlet {
     private String secret = StartupUtils.getStringParam("updateKey");
 
     /**
-     * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest,
-     *      javax.servlet.http.HttpServletResponse)
+     * @see jakarta.servlet.http.HttpServlet#doGet(jakarta.servlet.http.HttpServletRequest,
+     *      jakarta.servlet.http.HttpServletResponse)
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        // get makes no sense on this URL. Standard says there shouldn't be a 405 on a get,
+        // get makes no sense on this URL. Standard says there shouldn't be a 405 on a
+        // get,
         // but "disallowed" is what makes most sense as a return code.
         resp.sendError(405);
     }
 
     /**
-     * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest,
-     *      javax.servlet.http.HttpServletResponse)
+     * @see jakarta.servlet.http.HttpServlet#doPost(jakarta.servlet.http.HttpServletRequest,
+     *      jakarta.servlet.http.HttpServletResponse)
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             handleUploads(req, resp);
-        } catch (NumberFormatException | NotUtf8Exception | FileUploadException e) {
+        } catch (NumberFormatException | FileUploadException e) {
             logger.error(LoggerUtils.stackTrace(e));
         }
     }
@@ -76,7 +78,7 @@ public class ConfigReceiverServlet extends HttpServlet {
         factory.setFileCleaningTracker(null);
 
         // Configure a repository (to ensure a secure temp location is used)
-        ServletFileUpload upload = new ServletFileUpload(factory);
+        JakSrvltFileUpload upload = new JakSrvltFileUpload(factory);
         boolean authenticated = false;
         // Parse the request
         List<FileItem> items = upload.parseRequest(req);
@@ -94,7 +96,7 @@ public class ConfigReceiverServlet extends HttpServlet {
                     deny(req, resp, null);
                     return;
                 }
-                logger.info("receiving {} {}",item, item.getContentType());
+                logger.info("receiving {} {}", item, item.getContentType());
                 if (!item.getContentType().contains("zip")) {
                     copyFile(item);
                 } else {
@@ -113,11 +115,11 @@ public class ConfigReceiverServlet extends HttpServlet {
         if (localDirPath == null) {
             localDirPath = ResourceWalker.createLocalDir();
         }
-        Path name = localDirPath.resolve("styles/"+item.getName());
+        Path name = localDirPath.resolve("styles/" + item.getName());
         Files.createDirectories(name.getParent());
         try (InputStream uploadedStream = item.getInputStream();
                 OutputStream out = Files.newOutputStream(name)) {
-            logger.debug("copying to {}",name.toAbsolutePath());
+            logger.debug("copying to {}", name.toAbsolutePath());
             IOUtils.copy(uploadedStream, out);
             out.close();
         }

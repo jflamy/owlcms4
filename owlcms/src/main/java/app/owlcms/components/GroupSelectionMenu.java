@@ -5,12 +5,12 @@ import java.util.function.Consumer;
 
 import org.slf4j.LoggerFactory;
 
-import com.flowingcode.vaadin.addons.ironicons.IronIcons;
-import com.flowingcode.vaadin.addons.ironicons.IronIcons.Icon;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
@@ -27,7 +27,7 @@ public class GroupSelectionMenu extends MenuBar {
 	static Icon xIcon;
 	Logger logger = (Logger) LoggerFactory.getLogger(GroupSelectionMenu.class);
 	{
-		xIcon = IronIcons.CLEAR.create();
+		xIcon = new Icon(VaadinIcon.CLOSE);
 		xIcon.getElement().setAttribute("style", "margin: 0px; padding: 0px");
 	}
 
@@ -84,7 +84,7 @@ public class GroupSelectionMenu extends MenuBar {
 		if (unselectedIcon != null) {
 			hl.add(unselectedIcon);
 		}
-		hl.add(new Label(unselectedLabel));
+		hl.add(new NativeLabel(unselectedLabel));
 
 		hl.setPadding(false);
 		hl.setMargin(false);

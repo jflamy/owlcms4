@@ -27,7 +27,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
@@ -64,7 +64,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 		logger.setLevel(Level.INFO);
 	}
 
-	protected Label errorLabel;
+	protected NativeLabel errorLabel;
 	protected TextField operationTrigger;
 	protected ClickEvent<Button> operationTriggerEvent;
 	protected ResponsiveStep[] responsiveSteps;
@@ -138,7 +138,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 		Component footerLayout = this.buildFooter(operation, domainObject, cancelButtonClickListener,
 		        operationButtonClickListener, deleteButtonClickListener, true, buttons);
 
-		errorLabel = new Label();
+		errorLabel = new NativeLabel();
 		HorizontalLayout labelWrapper = new HorizontalLayout(errorLabel);
 		labelWrapper.addClassName("errorMessage");
 		labelWrapper.setWidthFull();
@@ -325,7 +325,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 			footerLayout.add(deleteButton);
 		}
 
-		Label spacer = new Label();
+		NativeLabel spacer = new NativeLabel();
 
 		footerLayout.add(spacer, operationTrigger);
 

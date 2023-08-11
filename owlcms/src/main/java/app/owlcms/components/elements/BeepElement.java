@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2023 Jean-François Lamy
+ * Copyright (c) 2009-2023 Jean-Fran�ois Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -9,8 +9,7 @@ package app.owlcms.components.elements;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
-import com.vaadin.flow.templatemodel.TemplateModel;
+import com.vaadin.flow.component.littemplate.LitTemplate;
 
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 
@@ -20,7 +19,7 @@ import app.owlcms.nui.shared.SafeEventBusRegistration;
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("beep-element")
 @JsModule("./components/BeepElement.js")
-public class BeepElement extends PolymerTemplate<TemplateModel>
+public class BeepElement extends LitTemplate
         implements SafeEventBusRegistration {
 
 	public void beep() {

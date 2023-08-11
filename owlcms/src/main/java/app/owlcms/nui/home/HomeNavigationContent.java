@@ -25,7 +25,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
@@ -183,16 +183,16 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 			ul.add(new ListItem(new Anchor(url, url)));
 		}
 		for (String url : urlFinder.getWired()) {
-			ul.add(new ListItem(new Anchor(url, url), new Label(getTranslation("Wired"))));
+			ul.add(new ListItem(new Anchor(url, url), new NativeLabel(getTranslation("Wired"))));
 		}
 		for (String url : urlFinder.getWireless()) {
-			ul.add(new ListItem(new Anchor(url, url), new Label(getTranslation("Wireless"))));
+			ul.add(new ListItem(new Anchor(url, url), new NativeLabel(getTranslation("Wireless"))));
 		}
 		for (String url : urlFinder.getNetworking()) {
-			ul.add(new ListItem(new Anchor(url, url), new Label("")));
+			ul.add(new ListItem(new Anchor(url, url), new NativeLabel("")));
 		}
 		for (String url : urlFinder.getLocalUrl()) {
-			ul.add(new ListItem(new Anchor(url, url), new Label(getTranslation("LocalComputer"))));
+			ul.add(new ListItem(new Anchor(url, url), new NativeLabel(getTranslation("LocalComputer"))));
 		}
 		intro.add(ul);
 		Div div = new Div();

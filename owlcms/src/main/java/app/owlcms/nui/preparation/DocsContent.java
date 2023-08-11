@@ -22,7 +22,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
@@ -116,9 +116,9 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		hr.setWidthFull();
 		hr.getStyle().set("margin", "0");
 		hr.getStyle().set("padding", "0");
-		FlexLayout buttons = new FlexLayout(new Label(Translator.translate("Entries")),
+		FlexLayout buttons = new FlexLayout(new NativeLabel(Translator.translate("Entries")),
 		        bwButton, categoriesListButton, teamsListButton, hr,
-		        new Label(Translator.translate("Preparation_Groups")),
+		        new NativeLabel(Translator.translate("Preparation_Groups")),
 		        sessionsButton, officialSchedule, cardsButton, weighInSummaryButton);
 		buttons.getStyle().set("flex-wrap", "wrap");
 		buttons.getStyle().set("gap", "1ex");

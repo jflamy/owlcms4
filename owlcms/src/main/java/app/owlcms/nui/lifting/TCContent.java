@@ -20,7 +20,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -277,7 +277,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 
 		FlexLayout platesEdit = new FlexLayout(
 		        new H3(getTranslation("BumperPlates")),
-		        new Label(getTranslation("PlatesPerSide")),
+		        new NativeLabel(getTranslation("PlatesPerSide")),
 		        largePlates,
 		        new H3(getTranslation("MetalPlates")), smallPlates,
 		        new H3(getTranslation("Collar")), collar,

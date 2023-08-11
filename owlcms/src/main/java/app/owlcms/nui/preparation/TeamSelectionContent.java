@@ -30,7 +30,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -457,10 +457,10 @@ public class TeamSelectionContent extends VerticalLayout
 
 		ComponentRenderer<Component, TeamTreeItem> warningRenderer = new ComponentRenderer<>(p -> {
 			if (p.isWarning()) {
-				Label label = new Label("\u26a0");
+				NativeLabel label = new NativeLabel("\u26a0");
 				return label;
 			} else {
-				return new Label();
+				return new NativeLabel();
 			}
 		});
 		grid.addColumn(warningRenderer).setHeader(Translator.translate("Competition.TooManyPerCat"))
@@ -469,7 +469,7 @@ public class TeamSelectionContent extends VerticalLayout
 		ComponentRenderer<Component, TeamTreeItem> membershipRenderer = new ComponentRenderer<>(p -> {
 			if (p.getAthlete() == null) {
 				long nb = p.getTeamMembers().stream().filter(pa -> pa.isTeamMember()).count();
-				Label label = new Label(nb > Competition.getCurrent().getMaxTeamSize() ? nb + "\u26a0" : nb + "");
+				NativeLabel label = new NativeLabel(nb > Competition.getCurrent().getMaxTeamSize() ? nb + "\u26a0" : nb + "");
 				p.setMembershipLabel(label);
 				return label;
 			} else {

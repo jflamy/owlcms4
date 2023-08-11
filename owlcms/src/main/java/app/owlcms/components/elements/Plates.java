@@ -8,7 +8,7 @@ package app.owlcms.components.elements;
 
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 
 import app.owlcms.data.athlete.Athlete;
@@ -54,7 +54,7 @@ public class Plates extends FlexLayout {
 	private int addPlates(Integer availablePlates, String style, double plateWeight) {
 		int subtractedWeight = 0;
 		while (availablePlates > 0 && weight >= plateWeight) {
-			Label plate = new Label();
+			NativeLabel plate = new NativeLabel();
 			plate.setSizeUndefined();
 			plate.getElement().getClassList().add(style);
 			if (!style.startsWith("bar") && !style.startsWith("C")) {

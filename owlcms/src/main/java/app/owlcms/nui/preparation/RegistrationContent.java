@@ -33,7 +33,7 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
@@ -198,10 +198,10 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		hr.getStyle().set("margin", "0");
 		hr.getStyle().set("padding", "0");
 		FlexLayout buttons = new FlexLayout(
-				new Label(Translator.translate("Preparation")),
+				new NativeLabel(Translator.translate("Preparation")),
 				drawLots, deleteAthletes, clearLifts,
 		        resetCats, hr, 
-		        new Label(Translator.translate("Entries")),
+		        new NativeLabel(Translator.translate("Entries")),
 		        bwButton, categoriesListButton, teamsListButton);
 		buttons.getStyle().set("flex-wrap", "wrap");
 		buttons.getStyle().set("gap", "1ex");
@@ -666,7 +666,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 	}
 
 	protected void errorNotification() {
-		Label content = new Label(Translator.translate("Select_group_first"));
+		NativeLabel content = new NativeLabel(Translator.translate("Select_group_first"));
 		content.getElement().setAttribute("theme", "error");
 		Button buttonInside = new Button(Translator.translate("GotIt"));
 		buttonInside.getElement().setAttribute("theme", "error primary");

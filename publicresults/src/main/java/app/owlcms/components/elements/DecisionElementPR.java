@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2023 Jean-François Lamy
+ * Copyright (c) 2009-2023 Jean-Fran�ois Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -15,8 +15,7 @@ import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
-import com.vaadin.flow.templatemodel.TemplateModel;
+import com.vaadin.flow.component.littemplate.LitTemplate;
 
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.prutils.SafeEventBusRegistrationPR;
@@ -32,29 +31,10 @@ import ch.qos.logback.classic.Logger;
 /**
  * ExplicitDecision display element.
  */
-@SuppressWarnings("deprecation")
 @Tag("decision-element-pr")
 @JsModule("./components/DecisionElementPR.js")
-public class DecisionElementPR extends PolymerTemplate<TemplateModel>
+public class DecisionElementPR extends LitTemplate
         implements IFopName, SafeEventBusRegistrationPR {
-
-    /**
-     * The Interface DecisionModel.
-     */
-    public interface DecisionModel extends TemplateModel {
-
-        boolean isEnabled();
-
-        boolean isJury();
-
-        boolean isPublicFacing();
-
-        void setEnabled(boolean b);
-
-        void setJury(boolean juryMode);
-
-        void setPublicFacing(boolean publicFacing);
-    }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElementPR.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());

@@ -8,7 +8,7 @@ package app.owlcms.apputils;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -25,7 +25,7 @@ public class NotificationUtils {
 			error.close();
 		});
 		button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		Label label = new Label(labelText);
+		NativeLabel label = new NativeLabel(labelText);
 		HorizontalLayout layout = new HorizontalLayout(label, button);
 		layout.setSpacing(true);
 		error.add(layout);

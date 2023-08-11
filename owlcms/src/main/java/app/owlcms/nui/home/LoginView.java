@@ -14,7 +14,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -122,7 +122,7 @@ public class LoginView extends Composite<VerticalLayout>
 
 	@Override
 	public void setHeaderContent() {
-		Label label = new Label(getMenuTitle());
+		NativeLabel label = new NativeLabel(getMenuTitle());
 		label.getStyle().set("font-size", "var(--lumo-font-size-xl");
 		Image image = new Image("icons/owlcms.png", "owlcms icon");
 		image.getStyle().set("height", "7ex");

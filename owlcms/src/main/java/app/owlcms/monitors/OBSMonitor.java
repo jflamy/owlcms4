@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2023 Jean-François Lamy
+ * Copyright (c) 2009-2023 Jean-Fran�ois Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -19,11 +19,10 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
+import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.templatemodel.TemplateModel;
 
 import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.data.athlete.LiftDefinition;
@@ -52,14 +51,8 @@ import ch.qos.logback.classic.Logger;
 @JsModule("./components/OBSMonitor.js")
 @Route("displays/monitor")
 
-public class OBSMonitor extends PolymerTemplate<TemplateModel> implements FOPParameters,
+public class OBSMonitor extends LitTemplate implements FOPParameters,
         SafeEventBusRegistration, UIEventProcessor {
-
-	/**
-	 * unused
-	 */
-	public interface MonitorModel extends TemplateModel {
-	}
 
 	class Status {
 		BreakType breakType;

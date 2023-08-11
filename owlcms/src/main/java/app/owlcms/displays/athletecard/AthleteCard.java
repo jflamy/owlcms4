@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2023 Jean-François Lamy
+ * Copyright (c) 2009-2023 Jean-Fran�ois Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -19,14 +19,13 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.templatemodel.TemplateModel;
 
 import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.data.agegroup.AgeGroup;
@@ -52,7 +51,7 @@ import elemental.json.JsonObject;
 @CssImport(value = "./styles/shared-styles.css")
 @Route("weighin/AthleteCard")
 
-public class AthleteCard extends PolymerTemplate<TemplateModel>
+public class AthleteCard extends LitTemplate
         implements FOPParameters, SafeEventBusRegistration, HasDynamicTitle, RequireLogin {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteCard.class);

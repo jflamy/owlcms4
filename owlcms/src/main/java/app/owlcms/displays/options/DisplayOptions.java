@@ -8,13 +8,12 @@ package app.owlcms.displays.options;
 
 import org.slf4j.LoggerFactory;
 
-import com.flowingcode.vaadin.addons.ironicons.AvIcons;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -35,7 +34,7 @@ public class DisplayOptions {
 	final static Logger logger = (Logger) LoggerFactory.getLogger(DisplayOptions.class);
 
 	public static void addLightingEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
-		Label label = new Label(Translator.translate("DisplayParameters.VisualSettings"));
+		NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.VisualSettings"));
 
 		boolean darkMode = dp.isDarkMode();
 		Button darkButton = new Button(Translator.translate(DisplayParameters.DARK));
@@ -69,7 +68,7 @@ public class DisplayOptions {
 	}
 
 	public static void addSectionEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
-		Label label = new Label(Translator.translate("DisplayParameters.Content"));
+		NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.Content"));
 
 		Checkbox recordsDisplayCheckbox = null;
 		//if (!RecordRepository.findAll().isEmpty()) {
@@ -149,21 +148,21 @@ public class DisplayOptions {
 
 		HorizontalLayout fx = new HorizontalLayout();
 		fx.setSizeFull();
-		HorizontalLayout p1 = new HorizontalLayout(new Label(Translator.translate("DisplayParameters.FontSizeLabel")), wrappedTextField);
+		HorizontalLayout p1 = new HorizontalLayout(new NativeLabel(Translator.translate("DisplayParameters.FontSizeLabel")), wrappedTextField);
 		fx.add(p1);
 		p1.setSizeFull();
-		HorizontalLayout p2 = new HorizontalLayout(new Label(Translator.translate("DisplayParameters.TeamSizeLabel")),twField);
+		HorizontalLayout p2 = new HorizontalLayout(new NativeLabel(Translator.translate("DisplayParameters.TeamSizeLabel")),twField);
 		fx.add(p2);
 		p2.setSizeFull();
 		layout.add(fx);
 	}
 
 	public static void addSoundEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
-		Label label = new Label(Translator.translate("DisplayParameters.SoundSettings"));
+		NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.SoundSettings"));
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		if (fop != null) {
 			if (fop.isEmitSoundsOnServer()) {
-				label = new Label(Translator.translate("DisplayParameters.SoundsOnServer"));
+				label = new NativeLabel(Translator.translate("DisplayParameters.SoundsOnServer"));
 				label.setWidth("25em");
 				layout.add(label);
 				return;
@@ -171,8 +170,8 @@ public class DisplayOptions {
 		}
 
 		boolean silentMode = dp.isSilenced();
-		Button silentButton = new Button(Translator.translate("DisplayParameters.ClockSoundOff", AvIcons.VOLUME_OFF.create()));
-		Button soundButton = new Button(Translator.translate("DisplayParameters.ClockSoundOn", AvIcons.VOLUME_UP.create()));
+		Button silentButton = new Button(Translator.translate("DisplayParameters.ClockSoundOff"));//FIXME, AvIcons.VOLUME_OFF.create()));
+		Button soundButton = new Button(Translator.translate("DisplayParameters.ClockSoundOn"));//FIXME, AvIcons.VOLUME_UP.create()));
 
 		RadioButtonGroup<Boolean> rbgroup = new RadioButtonGroup<>();
 		rbgroup.setRequired(true);
@@ -189,8 +188,8 @@ public class DisplayOptions {
 		});
 		
 		boolean downSilentMode = dp.isDownSilenced();
-		Button downSilencedButton = new Button(Translator.translate("DisplayParameters.DownSoundOff", AvIcons.VOLUME_OFF.create()));
-		Button downSoundButton = new Button(Translator.translate("DisplayParameters.DownSoundOn", AvIcons.VOLUME_UP.create()));
+		Button downSilencedButton = new Button(Translator.translate("DisplayParameters.DownSoundOff"));//FIXME, AvIcons.VOLUME_OFF.create()));
+		Button downSoundButton = new Button(Translator.translate("DisplayParameters.DownSoundOn"));//FIXME, AvIcons.VOLUME_UP.create()));
 
 		RadioButtonGroup<Boolean> rb2group = new RadioButtonGroup<>();
 		rb2group.setRequired(true);
@@ -212,7 +211,7 @@ public class DisplayOptions {
 	}
 
 	public static void addSwitchableEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
-		Label label = new Label(Translator.translate("DisplayParameters.SwitchableSettings"));
+		NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.SwitchableSettings"));
 
 		boolean switchable = dp.isSwitchableDisplay();
 		Button publicDisplay = new Button(Translator.translate("DisplayParameters.PublicDisplay"));

@@ -7,12 +7,11 @@ import java.util.TreeSet;
 
 import org.slf4j.LoggerFactory;
 
-import com.flowingcode.vaadin.addons.ironicons.IronIcons;
-import com.flowingcode.vaadin.addons.ironicons.IronIcons.Icon;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
@@ -104,9 +103,10 @@ public class GroupCategorySelectionMenu extends MenuBar {
 		MenuItem separator = subMenu.addItem(ruler);
 		separator.getElement().setAttribute("style",
 		        "margin-top: -1em; margin-bottom: -1.5em; margin-left: -1.5em; padding: 0px; padding-left: -1em;");
-		Icon icon = IronIcons.CLEAR.create();
+		Icon icon = new Icon("ironicons","clear");// IronIcons.CLEAR.create();
+		//FIXME IronIcon
 		icon.getElement().setAttribute("style", "margin: 0px; padding: 0px");
-		HorizontalLayout component = new HorizontalLayout(icon, new Label(Translator.translate("NoGroup")));
+		HorizontalLayout component = new HorizontalLayout(icon, new NativeLabel(Translator.translate("NoGroup")));
 		component.setPadding(false);
 		component.setMargin(false);
 		component.getElement().setAttribute("style", "margin: 0; padding: 0");

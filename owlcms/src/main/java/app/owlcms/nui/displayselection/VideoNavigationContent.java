@@ -19,7 +19,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -265,7 +265,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 	 */
 	@Override
 	protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {
-		Label fopLabel = new Label(label);
+		NativeLabel fopLabel = new NativeLabel(label);
 		formatLabel(fopLabel);
 
 		ComboBox<FieldOfPlay> fopSelect = createFopSelect(placeHolder);

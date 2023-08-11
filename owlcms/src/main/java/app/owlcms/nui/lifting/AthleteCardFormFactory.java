@@ -13,7 +13,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
 
-import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.github.appreciated.css.grid.GridLayoutComponent.ColumnAlign;
 import com.github.appreciated.css.grid.GridLayoutComponent.RowAlign;
 import com.github.appreciated.css.grid.sizes.Flex;
@@ -29,7 +28,9 @@ import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -204,7 +205,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			footerLayout.add(vl);
 		}
 
-		Label spacer = new Label();
+		NativeLabel spacer = new NativeLabel();
 
 		footerLayout.add(spacer, operationTrigger);
 
@@ -246,7 +247,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		setUpdatingResults(origin instanceof AnnouncerContent);
 
 		gridLayout = setupGrid();
-		errorLabel = new Label();
+		errorLabel = new NativeLabel();
 		HorizontalLayout labelWrapper = new HorizontalLayout(errorLabel);
 		labelWrapper.addClassName("errorMessage");
 		labelWrapper.setWidthFull();
@@ -279,7 +280,11 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		Component footerLayout = this.buildFooter(operation, getEditedAthlete(), cancelButtonClickListener,
 		        updateButtonClickListener, deleteButtonClickListener, true);
 
-		VerticalLayout mainLayout = new VerticalLayout(formLayout, gridLayout, errorLabel, footerLayout);
+		VerticalLayout mainLayout = new VerticalLayout();
+		mainLayout.add(formLayout);
+		mainLayout.add(gridLayout);
+		mainLayout.add(errorLabel);
+		mainLayout.add(footerLayout);
 		gridLayout.setSizeFull();
 		mainLayout.setFlexGrow(1, gridLayout);
 		mainLayout.setHorizontalComponentAlignment(Alignment.END, footerLayout);
@@ -798,7 +803,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		VerticalLayout vl = new VerticalLayout();
 
 		Button snatchWithdrawalButton = new Button(Translator.translate("SnatchWithdrawal"),
-		        IronIcons.EXIT_TO_APP.create(),
+				new Icon(VaadinIcon.SIGN_OUT),
 		        (e) -> {
 			        Athlete.conditionalCopy(originalAthlete, getEditedAthlete(), true);
 			        originalAthlete.withdrawFromSnatch();
@@ -810,7 +815,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		        });
 		snatchWithdrawalButton.getElement().setAttribute("theme", "error");
 
-		Button withdrawalButton = new Button(Translator.translate("Withdrawal"), IronIcons.EXIT_TO_APP.create(),
+		Button withdrawalButton = new Button(Translator.translate("Withdrawal"), 
+				new Icon(VaadinIcon.SIGN_OUT),
 		        (e) -> {
 			        Athlete.conditionalCopy(originalAthlete, getEditedAthlete(), true);
 			        originalAthlete.withdraw();
@@ -1055,32 +1061,32 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		gridLayout.setGap(new Length("0.8ex"), new Length("1.2ex"));
 
 		// column headers
-		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Snatch1")), HEADER, SNATCH1, RowAlign.CENTER,
+		atRowAndColumn(gridLayout, new NativeLabel(Translator.translate("Snatch1")), HEADER, SNATCH1, RowAlign.CENTER,
 		        ColumnAlign.CENTER);
-		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Snatch2")), HEADER, SNATCH2, RowAlign.CENTER,
+		atRowAndColumn(gridLayout, new NativeLabel(Translator.translate("Snatch2")), HEADER, SNATCH2, RowAlign.CENTER,
 		        ColumnAlign.CENTER);
-		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Snatch3")), HEADER, SNATCH3, RowAlign.CENTER,
+		atRowAndColumn(gridLayout, new NativeLabel(Translator.translate("Snatch3")), HEADER, SNATCH3, RowAlign.CENTER,
 		        ColumnAlign.CENTER);
-		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("C_and_J_1")), HEADER, CJ1, RowAlign.CENTER,
+		atRowAndColumn(gridLayout, new NativeLabel(Translator.translate("C_and_J_1")), HEADER, CJ1, RowAlign.CENTER,
 		        ColumnAlign.CENTER);
-		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("C_and_J_2")), HEADER, CJ2, RowAlign.CENTER,
+		atRowAndColumn(gridLayout, new NativeLabel(Translator.translate("C_and_J_2")), HEADER, CJ2, RowAlign.CENTER,
 		        ColumnAlign.CENTER);
-		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("C_and_J_3")), HEADER, CJ3, RowAlign.CENTER,
+		atRowAndColumn(gridLayout, new NativeLabel(Translator.translate("C_and_J_3")), HEADER, CJ3, RowAlign.CENTER,
 		        ColumnAlign.CENTER);
 
 		// row headings
-		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("AutomaticProgression")), AUTOMATIC, LEFT,
+		atRowAndColumn(gridLayout, new NativeLabel(Translator.translate("AutomaticProgression")), AUTOMATIC, LEFT,
 		        RowAlign.CENTER, ColumnAlign.END);
-		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Declaration")), DECLARATION, LEFT,
+		atRowAndColumn(gridLayout, new NativeLabel(Translator.translate("Declaration")), DECLARATION, LEFT,
 		        RowAlign.CENTER, ColumnAlign.END);
-		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Change_1")), CHANGE1, LEFT, RowAlign.CENTER,
+		atRowAndColumn(gridLayout, new NativeLabel(Translator.translate("Change_1")), CHANGE1, LEFT, RowAlign.CENTER,
 		        ColumnAlign.END);
-		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Change_2")), CHANGE2, LEFT, RowAlign.CENTER,
+		atRowAndColumn(gridLayout, new NativeLabel(Translator.translate("Change_2")), CHANGE2, LEFT, RowAlign.CENTER,
 		        ColumnAlign.END);
-		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("WeightLifted")), ACTUAL, LEFT, RowAlign.CENTER,
+		atRowAndColumn(gridLayout, new NativeLabel(Translator.translate("WeightLifted")), ACTUAL, LEFT, RowAlign.CENTER,
 		        ColumnAlign.END);
 		if (Competition.getCurrent().isCustomScore()) {
-			atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Score")), SCORE, LEFT, RowAlign.CENTER,
+			atRowAndColumn(gridLayout, new NativeLabel(Translator.translate("Score")), SCORE, LEFT, RowAlign.CENTER,
 			        ColumnAlign.END);
 		}
 

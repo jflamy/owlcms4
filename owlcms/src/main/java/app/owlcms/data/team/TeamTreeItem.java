@@ -14,7 +14,7 @@ import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
@@ -65,7 +65,7 @@ public class TeamTreeItem {
 
 	private boolean combinedPoints;
 
-	private Label membershipLabel;
+	private NativeLabel membershipLabel;
 
 	private boolean warning;
 
@@ -237,11 +237,11 @@ public class TeamTreeItem {
 		}
 	}
 
-	public void setMembershipLabel(Label label) {
+	public void setMembershipLabel(NativeLabel label) {
 		this.membershipLabel = label;
 	}
 	
-	public Label getMembershipLabel() {
+	public NativeLabel getMembershipLabel() {
 		return this.membershipLabel;
 	}
 

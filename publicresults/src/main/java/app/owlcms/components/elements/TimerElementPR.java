@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2023 Jean-François Lamy
+ * Copyright (c) 2009-2023 Jean-Fran�ois Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -14,9 +14,8 @@ import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
+import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.dom.Element;
-import com.vaadin.flow.templatemodel.TemplateModel;
 
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.prutils.DebugUtils;
@@ -31,10 +30,9 @@ import ch.qos.logback.classic.Logger;
 /**
  * Countdown timer element.
  */
-@SuppressWarnings("deprecation")
 @Tag("timer-element")
 @JsModule("./components/TimerElement.js")
-public abstract class TimerElementPR extends PolymerTemplate<TemplateModel>
+public abstract class TimerElementPR extends LitTemplate
         implements IFopName, SafeEventBusRegistrationPR {
 
     private String fopName;

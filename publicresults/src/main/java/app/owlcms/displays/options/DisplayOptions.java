@@ -8,13 +8,12 @@ package app.owlcms.displays.options;
 
 import org.slf4j.LoggerFactory;
 
-import com.flowingcode.vaadin.addons.ironicons.AvIcons;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -32,7 +31,7 @@ public class DisplayOptions {
     final static Logger logger = (Logger) LoggerFactory.getLogger(DisplayOptions.class);
 
     public static void addLightingEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
-        Label label = new Label(Translator.translate("DisplayParameters.VisualSettings"));
+        NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.VisualSettings"));
         
         boolean darkMode = dp.isDarkMode();
         Button darkButton = new Button(Translator.translate(DisplayParameters.DARK));
@@ -59,10 +58,10 @@ public class DisplayOptions {
     }
 
     public static void addSoundEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
-        Label label = new Label(Translator.translate("DisplayParameters.SoundSettings"));
+        NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.SoundSettings"));
         boolean silentMode = dp.isSilenced();
-        Button silentButton = new Button(Translator.translate("DisplayParameters.Silent", AvIcons.VOLUME_OFF.create()));
-        Button soundButton = new Button(Translator.translate("DisplayParameters.SoundOn", AvIcons.VOLUME_UP.create()));
+        Button silentButton = new Button(Translator.translate("DisplayParameters.Silent"));//AvIcons.VOLUME_OFF.create()));
+        Button soundButton = new Button(Translator.translate("DisplayParameters.SoundOn"));//, AvIcons.VOLUME_UP.create()));
 
         RadioButtonGroup<Boolean> rbgroup = new RadioButtonGroup<>();
         rbgroup.setRequired(true);
@@ -84,7 +83,7 @@ public class DisplayOptions {
     }
 
     public static void addSwitchableEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
-        Label label = new Label(Translator.translate("DisplayParameters.SwitchableSettings"));
+        NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.SwitchableSettings"));
 
         boolean switchable = dp.isSwitchableDisplay();
         Button publicDisplay = new Button(Translator.translate("DisplayParameters.PublicDisplay"));
@@ -107,7 +106,7 @@ public class DisplayOptions {
     }
 
     public static void addSizingEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
-        Label label = new Label(Translator.translate("DisplayParameters.FontSizeLabel"));
+        NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.FontSizeLabel"));
         
         LocalizedDecimalField fontSizeField = new LocalizedDecimalField();
         TextField wrappedTextField = fontSizeField.getWrappedTextField();
@@ -131,7 +130,7 @@ public class DisplayOptions {
     }
 
     public static void addSectionEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
-        Label label = new Label(Translator.translate("DisplayParameters.Content"));
+        NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.Content"));
         
         boolean showRecords = dp.isRecordsDisplay();
         Checkbox recordsDisplayCheckbox = new Checkbox(Translator.translate("DisplayParameters.ShowRecords"));//

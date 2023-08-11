@@ -12,13 +12,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.Executors;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.eclipse.jetty.util.Utf8Appendable.NotUtf8Exception;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.AsyncEventBus;
@@ -30,6 +23,11 @@ import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ProxyUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet("/timer")
 public class TimerReceiverServlet extends HttpServlet {
@@ -47,8 +45,8 @@ public class TimerReceiverServlet extends HttpServlet {
     private String secret = StartupUtils.getStringParam("updateKey");
 
     /**
-     * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest,
-     *      javax.servlet.http.HttpServletResponse)
+     * @see jakarta.servlet.http.HttpServlet#doGet(jakarta.servlet.http.HttpServletRequest,
+     *      jakarta.servlet.http.HttpServletResponse)
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -59,8 +57,8 @@ public class TimerReceiverServlet extends HttpServlet {
     }
 
     /**
-     * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest,
-     *      javax.servlet.http.HttpServletResponse)
+     * @see jakarta.servlet.http.HttpServlet#doPost(jakarta.servlet.http.HttpServletRequest,
+     *      jakarta.servlet.http.HttpServletResponse)
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -127,7 +125,7 @@ public class TimerReceiverServlet extends HttpServlet {
             if (defaultFopName == null) {
                 defaultFopName = fopName;
             }
-        } catch (NumberFormatException | IOException | NotUtf8Exception e) {
+        } catch (NumberFormatException | IOException e) {
             logger.error(LoggerUtils.stackTrace(e));
         }
     }

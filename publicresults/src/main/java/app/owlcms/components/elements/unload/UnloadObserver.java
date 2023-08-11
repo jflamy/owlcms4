@@ -13,9 +13,8 @@ import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
+import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.shared.Registration;
-import com.vaadin.flow.templatemodel.TemplateModel;
 
 /**
  * Server-side component that listens to {@code beforeunload} events. Based on
@@ -34,10 +33,9 @@ import com.vaadin.flow.templatemodel.TemplateModel;
  * @author Kaspar Scherrer, Stuart Robinson; adapted to web-component by miki@vaadin.com ; UI-scope by jf@jflamy.dev
  * @since 2020-04-29
  */
-@SuppressWarnings("deprecation")
 @JsModule("./unload/unload-observer.js")
 @Tag("unload-observer")
-public final class UnloadObserver extends PolymerTemplate<TemplateModel> {
+public final class UnloadObserver extends LitTemplate {
 
     private static final String UNLOAD_OBSERVER = "owlcms_unload_observer";
 

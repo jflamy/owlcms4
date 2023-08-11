@@ -24,7 +24,7 @@ import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -290,7 +290,7 @@ public class CompetitionEditingFormFactory
 		help.getStyle().set("height", "1.2em");
 		help.getStyle().set("vertical-align", "top");
 		help.getStyle().set("font-weight", "bold");
-		Label label = new Label(Translator.translate(string));
+		NativeLabel label = new NativeLabel(Translator.translate(string));
 		Span span = new Span();
 		span.setTitle(Translator.translate(explanation));
 		span.add(label, help);

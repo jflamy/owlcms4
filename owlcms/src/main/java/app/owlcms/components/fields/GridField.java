@@ -19,7 +19,7 @@ import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.dnd.GridDropLocation;
 import com.vaadin.flow.component.grid.dnd.GridDropMode;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 
 import ch.qos.logback.classic.Logger;
 
@@ -31,7 +31,7 @@ public class GridField<T> extends CustomField<List<T>> {
 	Logger logger = (Logger) LoggerFactory.getLogger(GridField.class);
 
 	protected Grid<T> grid;
-	protected Label message;
+	protected NativeLabel message;
 
 	private List<T> presentationStrings = new ArrayList<>();
 
@@ -41,7 +41,7 @@ public class GridField<T> extends CustomField<List<T>> {
 	public GridField(List<T> rows, boolean draggable, String messageString) {
 		super(new ArrayList<T>(rows));
 		
-		message = new Label();
+		message = new NativeLabel();
 		message.setText(messageString);
 		//message.getStyle().set("background-color", "var(--lumo-error-color-10pct)");
 		message.getStyle().set("color", "red");

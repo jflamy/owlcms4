@@ -57,7 +57,7 @@
 		<dependency>
 			<groupId>com.github.appreciated</groupId>
 			<artifactId>vaadin-css-grid</artifactId>
-			<version>2.0.0</version>
+			<version>3.0.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.vaadin</groupId>
@@ -80,13 +80,6 @@
 			<groupId>com.vaadin.componentfactory</groupId>
 			<artifactId>enhanced-dialog</artifactId>
 			<version>1.0.4</version>
-		</dependency>
-
-		<!-- iron-icons -->
-		<dependency>
-			<groupId>com.flowingcode.addons</groupId>
-			<artifactId>iron-icons</artifactId>
-			<version>2.0.1</version>
 		</dependency>
 
 		<!-- database -->
@@ -258,37 +251,6 @@
 			<version>1.2.5</version>
 		</dependency>
 
-		<!-- web server -->
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-plus</artifactId>
-			<version>${jetty.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-continuation</artifactId>
-			<version>${jetty.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-server</artifactId>
-			<version>${jetty.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty.websocket</groupId>
-			<artifactId>websocket-server</artifactId>
-			<version>${jetty.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty.websocket</groupId>
-			<artifactId>javax-websocket-server-impl</artifactId>
-			<version>${jetty.version}</version>
-		</dependency>
-
 		<!-- temporary files -->
 		<dependency>
 			<groupId>com.google.jimfs</groupId>
@@ -307,6 +269,14 @@
 					<artifactId>slf4j-reload4j</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api -->
+		<dependency>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
+			<version>6.0.0</version> <!--$NO-MVN-MAN-VER$-->
+			<scope>provided</scope>
 		</dependency>
 
 		<!-- color picker for video header 

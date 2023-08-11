@@ -68,7 +68,7 @@ public class LoggerUtils {
      * @return
      */
     public static String stackTrace(Throwable t) {
-        // IDEA: skip from "at javax.servlet.http.HttpServlet.service" to line starting
+        // IDEA: skip from "at jakarta.servlet.http.HttpServlet.service" to line starting
         // with "Caused by"
         StringWriter sw = new StringWriter();
         t.printStackTrace(new PrintWriter(sw));

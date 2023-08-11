@@ -14,8 +14,6 @@ import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
-import com.flowingcode.vaadin.addons.ironicons.AvIcons;
-import com.flowingcode.vaadin.addons.ironicons.PlacesIcons;
 import com.google.common.collect.ImmutableList;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.KeyModifier;
@@ -27,6 +25,8 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -231,7 +231,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 
 	private void registerShortcuts() {
 		startReg = UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.COMMA);
-		startReg2 =UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.SLASH);
+		startReg2 = UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.SLASH);
 		stopReg = UI.getCurrent().addShortcutListener(() -> doStopTime(), Key.PERIOD);
 		toggleReg = UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.DIGIT_8, KeyModifier.SHIFT);
 		toggleReg2 = UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.NUMPAD_MULTIPLY);
@@ -303,16 +303,15 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		createTopBarGroupSelect();
 		createTopBarLeft();
 
-		introCountdownButton = new Button(getTranslation("introCountdown"), AvIcons.AV_TIMER.create(),
-		        (e) -> {
-			        OwlcmsSession.withFop(fop -> {
-				        BreakDialog dialog = new BreakDialog(this, BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET);
-				        dialog.open();
-			        });
-		        });
+		introCountdownButton = new Button(getTranslation("introCountdown"), new Icon(VaadinIcon.TIMER), (e) -> {
+			OwlcmsSession.withFop(fop -> {
+				BreakDialog dialog = new BreakDialog(this, BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET);
+				dialog.open();
+			});
+		});
 		introCountdownButton.getElement().setAttribute("theme", "primary contrast");
 
-		startLiftingButton = new Button(getTranslation("startLifting"), PlacesIcons.FITNESS_CENTER.create(), (e) -> {
+		startLiftingButton = new Button(getTranslation("startLifting"), new Icon(VaadinIcon.MICROPHONE), (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				UI.getCurrent().access(() -> createTopBar());
 				fop.fopEventPost(new FOPEvent.StartLifting(this));
@@ -320,7 +319,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		});
 		startLiftingButton.getThemeNames().add("success primary");
 
-		showResultsButton = new Button(getTranslation("ShowResults"), PlacesIcons.FITNESS_CENTER.create(), (e) -> {
+		showResultsButton = new Button(getTranslation("ShowResults"), new Icon(VaadinIcon.MEDAL), (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				UI.getCurrent().access(() -> createTopBar());
 				fop.fopEventPost(

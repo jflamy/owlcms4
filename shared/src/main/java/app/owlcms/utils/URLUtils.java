@@ -17,8 +17,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CharMatcher;
@@ -29,6 +27,7 @@ import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.server.VaadinServletRequest;
 
 import ch.qos.logback.classic.Logger;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Utilities to deal with reverse proxies/balancers/forwarders when reconstructing URLs

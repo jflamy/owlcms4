@@ -7,12 +7,6 @@ import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
-import com.flowingcode.vaadin.addons.ironicons.AvIcons;
-import com.flowingcode.vaadin.addons.ironicons.HardwareIcons;
-import com.flowingcode.vaadin.addons.ironicons.IronIcons;
-import com.flowingcode.vaadin.addons.ironicons.MapsIcons;
-import com.flowingcode.vaadin.addons.ironicons.PlacesIcons;
-import com.flowingcode.vaadin.addons.ironicons.SocialIcons;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
@@ -21,9 +15,10 @@ import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.IronIcon;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
@@ -136,10 +131,10 @@ public class OwlcmsLayout extends AppLayout {
 	}
 
 	public void setMenuTitle(String topBarTitle) {
-		if (getViewTitle() instanceof Label) {
-			((Label) getViewTitle()).setText(topBarTitle);
+		if (getViewTitle() instanceof NativeLabel) {
+			((NativeLabel) getViewTitle()).setText(topBarTitle);
 		} else {
-			setMenuTitle(new Label("topBarTitle"));
+			setMenuTitle(new NativeLabel("topBarTitle"));
 		}
 	}
 
@@ -216,7 +211,7 @@ public class OwlcmsLayout extends AppLayout {
 	}
 
 	@SuppressWarnings("deprecation")
-	private Tab createTab(IronIcon viewIcon, String viewName, Class<? extends Component> viewClass) {
+	private Tab createTab(Icon viewIcon, String viewName, Class<? extends Component> viewClass) {
 		viewIcon.getStyle().set("box-sizing", "border-box")
 		        .set("margin-inline-end", "var(--lumo-space-m)")
 		        .set("padding", "var(--lumo-space-xs)");
@@ -230,7 +225,7 @@ public class OwlcmsLayout extends AppLayout {
 	}
 
 	@SuppressWarnings("deprecation")
-	private Tab createTab(IronIcon viewIcon, String viewName,
+	private Tab createTab(Icon viewIcon, String viewName,
 	        String docOpener) {
 		Anchor a = new Anchor();
 		a.setHref(docOpener);
@@ -254,32 +249,32 @@ public class OwlcmsLayout extends AppLayout {
 		String docOpener = "javascript:window.open('https://jflamy.github.io/owlcms4/#/index','_blank')";
 //        boolean tv = new OwlcmsLicense().isFeatureAllowed("tv");
 		tabs.add(
-		        createTab(IronIcons.HOME.create(),
+		        createTab(new Icon(VaadinIcon.HOME),
 		                Translator.translate("Home"),
 		                HomeNavigationContent.class),
-		        createTab(SocialIcons.GROUP_ADD.create(),
+		        createTab(new Icon(VaadinIcon.GROUP),
 		                Translator.translate("PrepareCompetition"),
 		                PreparationNavigationContent.class),
-		        createTab(PlacesIcons.FITNESS_CENTER.create(),
+		        createTab(new Icon(VaadinIcon.MICROPHONE),
 		                Translator.translate("RunLiftingGroup"),
 		                LiftingNavigationContent.class),
-		        createTab(HardwareIcons.DESKTOP_WINDOWS.create(),
+		        createTab(new Icon(VaadinIcon.DESKTOP),
 		                Translator.translate("StartDisplays"),
 		                DisplayNavigationContent.class));
 //        if (tv) {
 		tabs.add(
-		        createTab(AvIcons.VIDEOCAM.create(),
+		        createTab(new Icon(VaadinIcon.MOVIE),
 		                Translator.translate("VideoStreaming"),
 		                VideoNavigationContent.class));
 //        }
 		tabs.add(
-		        createTab(MapsIcons.LOCAL_PRINTSHOP.create(),
+		        createTab(new Icon(VaadinIcon.PRINT),
 		                Translator.translate("Results"),
 		                ResultsNavigationContent.class),
-		        createTab(IronIcons.HELP.create(),
+		        createTab(new Icon(VaadinIcon.QUESTION_CIRCLE),
 		                Translator.translate("Documentation_Menu"),
 		                docOpener),
-		        createTab(IronIcons.INFO_OUTLINE.create(),
+		        createTab(new Icon(VaadinIcon.INFO_CIRCLE_O),
 		                Translator.translate("About"),
 		                InfoNavigationContent.class));
 
@@ -331,7 +326,7 @@ public class OwlcmsLayout extends AppLayout {
 		getDrawerToggle().getElement().setAttribute("aria-label", "Menu drawerToggle");
 		getDrawerToggle().setSizeUndefined();
 
-		setViewTitle(new Label());
+		setViewTitle(new NativeLabel());
 		Style style = getViewTitle().getElement().getStyle();
 		style.set("font-size", "large");
 		style.set("padding-right", "1em");

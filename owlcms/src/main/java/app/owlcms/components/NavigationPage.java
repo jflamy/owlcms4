@@ -10,7 +10,7 @@ import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.UnorderedList;
@@ -61,7 +61,7 @@ public interface NavigationPage extends OwlcmsContent {
 
 	public default void doGroup(String label, FlexibleGridLayout grid1, VerticalLayout wrapper) {
 		VerticalLayout content1 = new VerticalLayout();
-		Label label2 = new Label(label);
+		NativeLabel label2 = new NativeLabel(label);
 		label2.getStyle().set("font-weight", "bold");
 		content1.add(label2);
 		content1.getStyle().set("margin-bottom", "-2ex");
@@ -71,7 +71,7 @@ public interface NavigationPage extends OwlcmsContent {
 
 	public default void doGroup(String label, VerticalLayout intro, FlexibleGridLayout grid1, VerticalLayout wrapper) {
 		VerticalLayout content1 = new VerticalLayout();
-		Label label2 = new Label(label);
+		NativeLabel label2 = new NativeLabel(label);
 		label2.getStyle().set("font-weight", "bold");
 		content1.add(label2);
 		content1.add(intro);

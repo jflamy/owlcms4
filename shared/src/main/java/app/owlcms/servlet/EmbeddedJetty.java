@@ -14,29 +14,26 @@ import java.net.URL;
 import java.util.EnumSet;
 import java.util.concurrent.CountDownLatch;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.eclipse.jetty.annotations.AnnotationConfiguration;
-import org.eclipse.jetty.plus.webapp.EnvConfiguration;
-import org.eclipse.jetty.plus.webapp.PlusConfiguration;
+import org.eclipse.jetty.ee10.annotations.AnnotationConfiguration;
+import org.eclipse.jetty.ee10.plus.webapp.EnvConfiguration;
+import org.eclipse.jetty.ee10.plus.webapp.PlusConfiguration;
+import org.eclipse.jetty.ee10.servlet.ErrorPageErrorHandler;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.webapp.Configuration;
+import org.eclipse.jetty.ee10.webapp.FragmentConfiguration;
+import org.eclipse.jetty.ee10.webapp.JettyWebXmlConfiguration;
+import org.eclipse.jetty.ee10.webapp.MetaInfConfiguration;
+import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.ee10.webapp.WebAppContext.ServletApiContext;
+import org.eclipse.jetty.ee10.webapp.WebInfConfiguration;
+import org.eclipse.jetty.ee10.webapp.WebXmlConfiguration;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.ContextHandler.Context;
-import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
-import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.webapp.Configuration;
-import org.eclipse.jetty.webapp.FragmentConfiguration;
-import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
-import org.eclipse.jetty.webapp.MetaInfConfiguration;
-import org.eclipse.jetty.webapp.WebAppContext;
-import org.eclipse.jetty.webapp.WebInfConfiguration;
-import org.eclipse.jetty.webapp.WebXmlConfiguration;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.server.startup.ServletContextListeners;
@@ -44,6 +41,9 @@ import com.vaadin.flow.server.startup.ServletContextListeners;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * jetty web server
@@ -56,7 +56,8 @@ public class EmbeddedJetty {
      * by this code.
      */
     static class ErrorHandler extends ErrorPageErrorHandler {
-        @Override
+    	//FIXME does not override
+        //@Override
         public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
                 throws IOException {
             response.getWriter()
@@ -99,7 +100,10 @@ public class EmbeddedJetty {
         URI webRootUri = webRootLocation.toURI();
 
         WebAppContext context = new WebAppContext();
-        context.setBaseResource(Resource.newResource(webRootUri));
+        ResourceFactory resourceFactory = ResourceFactory.of(context);
+        Resource resource = resourceFactory.newResource(webRootUri);
+        //context.setBaseResource(Resource.newResource(webRootUri));
+        context.setBaseResource(resource);
         context.setContextPath(contextPath);
         context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", ".*");
         context.setConfigurationDiscovered(true);
@@ -115,7 +119,7 @@ public class EmbeddedJetty {
         });
         context.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
         context.setErrorHandler(new ErrorHandler());
-        Context servletContext = context.getServletContext();
+        ServletApiContext servletContext = (ServletApiContext) context.getServletContext();
         servletContext.setExtendedListenerTypes(true);
         context.addEventListener(new ServletContextListeners());
 

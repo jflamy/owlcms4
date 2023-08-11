@@ -24,7 +24,7 @@ import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Pre;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
@@ -203,7 +203,7 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		uploadButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		Upload uploadRecords = new Upload(receiver);
 		uploadRecords.setUploadButton(uploadButton);
-		uploadRecords.setDropLabel(new Label(Translator.translate("Records.UploadDropZone")));
+		uploadRecords.setDropLabel(new NativeLabel(Translator.translate("Records.UploadDropZone")));
 		uploadRecords.addSucceededListener(e -> {
 			List<String> errors = RecordDefinitionReader.readInputStream(receiver.getInputStream(), receiver.getFileName());
 			if (errors.isEmpty()) {

@@ -19,7 +19,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -124,7 +124,7 @@ public abstract class BaseNavigationContent extends VerticalLayout
 
 	@Override
 	public void setHeaderContent() {
-		Label label = new Label(getMenuTitle());
+		NativeLabel label = new NativeLabel(getMenuTitle());
 		label.getStyle().set("font-size", "var(--lumo-font-size-xl");
 		Image image = new Image("icons/owlcms.png", "owlcms icon");
 		image.getStyle().set("height", "7ex");
@@ -188,7 +188,7 @@ public abstract class BaseNavigationContent extends VerticalLayout
 	}
 
 	protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {
-		Label fopLabel = new Label(label);
+		NativeLabel fopLabel = new NativeLabel(label);
 		formatLabel(fopLabel);
 
 		ComboBox<FieldOfPlay> fopSelect = createFopSelect(placeHolder);
@@ -207,7 +207,7 @@ public abstract class BaseNavigationContent extends VerticalLayout
 		return fopField;
 	}
 
-	protected void formatLabel(Label label) {
+	protected void formatLabel(NativeLabel label) {
 		label.getStyle().set("font-size", "small");
 		label.getStyle().set("text-align", "right");
 		label.getStyle().set("width", "12em");

@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.form.CrudFormConfiguration;
 
-import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -43,7 +42,9 @@ import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosi
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
@@ -248,7 +249,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			footerLayout.add(deleteButton);
 		}
 
-		Label spacer = new Label();
+		NativeLabel spacer = new NativeLabel();
 		footerLayout.add(spacer, operationTrigger);
 		VerticalLayout vl = new VerticalLayout();
 		vl.setSizeUndefined();
@@ -689,7 +690,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		FormItem fi1 = layoutAddFormItem(layout, eligibleField, Translator.translate("Weighin.EligibleCategories"));
 		layout.setColspan(fi1, NB_COLUMNS - 1);
 
-		layoutAddFormItem(layout, new Label(), "");
+		layoutAddFormItem(layout, new NativeLabel(), "");
 
 		ageGroupTeamField = new CheckboxGroup<>(null, getEditedAthlete().getPossibleAgeGroupTeams());
 		bindField(binder.forField(ageGroupTeamField), ageGroupTeamField, Athlete::getAgeGroupTeams,
@@ -807,7 +808,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	}
 
 	private void createPrintButton() {
-		printButton = new Button(Translator.translate("AthleteCard"), IronIcons.PRINT.create());
+		printButton = new Button(Translator.translate("AthleteCard"), new Icon(VaadinIcon.PRINT));
 		enablePrint(getEditedAthlete());
 		printButton.setThemeName("secondary success");
 

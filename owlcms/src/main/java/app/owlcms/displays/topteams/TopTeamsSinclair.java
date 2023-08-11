@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2023 Jean-François Lamy
+ * Copyright (c) 2009-2023 Jean-Fran�ois Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -27,14 +27,13 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.templatemodel.TemplateModel;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.data.agegroup.AgeGroupRepository;
@@ -72,7 +71,7 @@ import elemental.json.JsonValue;
  *
  * Show best sinclair team scores
  *
- * @author Jean-François Lamu
+ * @author Jean-Fran�ois Lamu
  *
  */
 @SuppressWarnings({ "serial", "deprecation" })
@@ -80,7 +79,7 @@ import elemental.json.JsonValue;
 @JsModule("./components/TopTeamsSinclair.js")
 @Route("displays/topteamsinclair")
 
-public class TopTeamsSinclair extends PolymerTemplate<TemplateModel>
+public class TopTeamsSinclair extends LitTemplate
         implements DisplayParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin, VideoCSSOverride {
 
@@ -191,7 +190,7 @@ public class TopTeamsSinclair extends PolymerTemplate<TemplateModel>
 		ageGroupPrefixComboBox.setValue(getAgeGroupPrefix());
 		ageDivisionComboBox.setValue(getAgeDivision());
 
-		vl.add(new Label(getTranslation("SelectAgeGroup")),
+		vl.add(new NativeLabel(getTranslation("SelectAgeGroup")),
 		        new HorizontalLayout(ageDivisionComboBox, ageGroupPrefixComboBox));
 	}
 

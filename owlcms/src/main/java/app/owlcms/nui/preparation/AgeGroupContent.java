@@ -21,7 +21,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
@@ -347,7 +347,7 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
 			crud.refreshGrid();
 		});
 		crud.getCrudLayout().addFilterComponent(ageDivisionFilter);
-		crud.getCrudLayout().addToolbarComponent(new Label(""));
+		crud.getCrudLayout().addToolbarComponent(new NativeLabel(""));
 
 		activeFilter.addValueChangeListener(e -> {
 			crud.refreshGrid();
