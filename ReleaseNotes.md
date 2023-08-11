@@ -1,33 +1,24 @@
-43.0.0-beta
+44.0.0-alpha
 
-> *Beta releases are meant for translations and fixes*
-> *Test thoroughly if you intend to use a beta release, especially if using a new feature.*
+> **Technical migration release: DO NOT USE release 44 until an explicit note that it has been stabilized.**
+>
+> RELEASE 44 is a technical transition release to a new version of the user interface software.
+>
 
-- Referee decision updates are ignored once the decision has been shown. 
-  - Referees must use flags or cards after 3 seconds. In this way, what the jury sees matches what the public saw.
+#####  Highlights from recent stable releases
 
-- Prevention of accidental countdown interruptions.  
-  - When a countdown is running it is now necessary to use the "Pause" dialog in order to switch to a different kind of break.
-  - Therefore, accidentally pressing the jury control button for a technical break (or other) will be ignored during the countdowns to the introductions, the first snatch, or the first clean & jerk.
-  - Ceremonies (Introduction, Medals) work like before since they do not interrupt the countdown.
-
+- Referee decision updates are ignored once the decision has been shown.  Referees must use flags or cards after 3 seconds. In this way, what the jury sees matches what the public saw.
+- Prevention of accidental countdown interruptions.  When a countdown is running it is now necessary to use the "Pause" dialog in order to switch to a different kind of break.
 - Records
   - Error messages are now visible directly in the user interface, and have also been improved to catch more types of errors.
 
   - It is now possible to export all records as a single Excel to check what has been loaded or to reload in a later competition.
 - CSS Styling:  
   - An alternate directory to use for styling files can now be given on the "System Settings - Personalization" page.  The directory name given is looked up in the "local" subdirectory of the installation (the default is "styles").  If given, the `OWLCMS_STYLESDIR` variable takes precedence over the database setting.
-  - It is now easier to hide the body weight category column to promote inclusivity in local competitions: In `local/styles/resultsCustomization.css`, set `--categoryVisibility=hidden` and `--categoryWidth=0` to hide the body weight category column on the scoreboard.
 - Public Results 
   - It is now possible to choose the lifting order instead of the start number order on the remote scoreboard (click on the scoreboard to see the options)
   - Flags are shown on the remote scoreboard if present in the main owlcms `local/flags`
-  - All the styles sheets under `local` are sent to the remote server.  The styles directory specified in the owlcms configuration is used by publicresults also, so the "look and feel" is the same on both ends. 
-  - However, on publicresults, the `publicresultsCustomization.css` file is used instead of `resultsCustomization.css`.  By default, these two files are the same, but editing `publicresultsCustomization.css` allows for different column visibility on the remote scoreboard.
-- The Session editing form now uses tabs for better visual organization.
-- An MQTT `fop/config` message is published on startup and when platforms are edited or deleted.  Device management applications can listen to this message to display the available platforms.
-
-#####  Highlights from recent stable releases
-
+  - All the styles sheets under `local` are sent to the remote server.  The styles directory specified in the owlcms configuration is used by publicresults also, so the "look and feel" is the same on both ends. However, on publicresults, the `publicresultsCustomization.css` file is used instead of `resultsCustomization.css`. 
 - Interactive scoreboard layout changes
   - On the result scoreboards, you can change the width of the Team column using ⇦ and ⇨ (giving more space for the name) and you can change the font size using ⇧ and ⇩ .
   - If names are very long, you can get an abbreviated first name by adding abb=true to the URL parameters
@@ -47,20 +38,20 @@
   - Record definition files can be uploaded interactively 
   - The ordering of the records on the scoreboard is no longer dependent on the file names, and is edited interactively.
 - The "Athlete Challenge" situation is now displayed and supported by the MQTT messages and the jury device.
-- We now recommend using [fly.io](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Fly) as the cloud installation is straightforward and owlcms can be run for free. Heroku is now deprecated as they have broken the easy install method and are no longer free.
+- We now recommend using [fly.io](https://owlcms.github.io/owlcms4-prerelease/#/Fly) as the cloud installation is straightforward and owlcms can be run for free. Heroku is now deprecated as they have broken the easy install method and are no longer free.
 - The editing page used for athlete registration and weigh-in has been redone to be more readable and better organized.
 - The jury members can now vote again during a deliberation break. The decision lights are reset when deliberation starts so the post-video vote is a secret vote. 
-- A new site section has been added to start the displays used for video streaming (see the [streaming documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/OBS?id=_2-setup-owlcms-with-some-data)). The video-oriented scoreboards have a different header with the event name and group description, and show different columns (by default, the same as used by IWF).
+- A new site section has been added to start the displays used for video streaming (see the [streaming documentation](https://owlcms.github.io/owlcms4-prerelease/#/OBS?id=_2-setup-owlcms-with-some-data)). The video-oriented scoreboards have a different header with the event name and group description, and show different columns (by default, the same as used by IWF).
 
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_43.0.0-beta01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_44.0.0-alpha00.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_43.0.0-beta01.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_44.0.0-alpha00.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
-  - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#Fly)** installation instructions.
+  - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
-  - For self-hosted **Docker**, see [Docker](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/LocalWindowsSetup)
+  - For self-hosted **Docker**, see [Docker](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
