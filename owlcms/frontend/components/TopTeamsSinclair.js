@@ -1,112 +1,149 @@
+import { html, LitElement, css } from "lit";
 /*******************************************************************************
  * Copyright (c) 2009-2023 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-import {PolymerElement, html} from '@polymer/polymer/polymer-element.js';
-class TopTeamsSinclair extends PolymerElement {
-	static get is() {
-		return 'topteamsinclair-template'
-	}
 
-	static get template() {
-		return html`
-<link rel="stylesheet" type="text/css" href="local/[[stylesDir]]/[[video]]colors[[autoversion]].css">
-<link rel="stylesheet" type="text/css" href="local/[[stylesDir]]/top[[autoversion]].css">
-<div class$="wrapper [[_computeTeamWidth(wideTeamNames)]]" id="resultBoardDiv">
-	<template is="dom-if" if="[[topTeamsWomen]]">
-		<h2 class="fullName" id="fullNameDiv" inner-h-t-m-l="[[topTeamsWomen]]"></h2>
-		<table class="results" id="orderDiv" style$="">
-			<thead>
-				<tr>
-					<th class="club" inner-h-t-m-l="[[t.Team]]"></th>
-					<!-- th class="medium" inner-h-t-m-l="[[t.Done]]"></th -->
-					<!-- th class="medium" inner-h-t-m-l="[[t.TeamSize]]"></th -->
-					<th class="medium"  inner-h-t-m-l="[[t.Sinclair]]"></th>
-				</tr>
-			</thead>
-			<template is="dom-repeat" id="result-table" items="[[womensTeams]]" as="l">
-				<tr>
-					<td class="club"><div>[[l.team]]</div></td>
-					<!-- td class="medium"><div>[[l.counted]]</div></td -->	
-					<!-- td class="medium"><div>[[l.size]]</div></td -->
-					<td class="medium"><div>[[l.score]]</div></td>
-				</tr>
-			</template>
-		</table>
-		<h2>&nbsp;</h2>
-	</template>
-	<template is="dom-if" if="[[topTeamsMen]]">
-		<h2 class="fullName" id="fullNameDiv" inner-h-t-m-l="[[topTeamsMen]]"></h2>
-		<table class="results" id="orderDiv" style$="">
-			<thead>
-				<tr>
-					<th class="club" inner-h-t-m-l="[[t.Team]]"></th>
-					<!-- th class="medium" inner-h-t-m-l="[[t.Done]]"></th -->
-					<!-- th class="medium" inner-h-t-m-l="[[t.TeamSize]]"></th -->
-					<th class="medium"  inner-h-t-m-l="[[t.Sinclair]]"></th>
-				</tr>
-			</thead>
-			<template is="dom-repeat" id="result-table" items="[[mensTeams]]" as="l">
-				<tr>
-					<td class="club"><div>[[l.team]]</div></td>
-					<!-- td class="medium"><div>[[l.counted]]</div></td -->		
-					<!-- td class="medium"><div>[[l.size]]</div></td -->
-					<td class="medium"><div>[[l.score]]</div></td>
-				</tr>
-			</template>
-		</table>
-		<h2>&nbsp;</h2>
-	</template>
-</div>`;
-	}
+class TopTeamsSinclair extends LitElement {
+  static get is() {
+    return "topteamsinclair-template";
+  }
 
-	ready() {
-		super.ready();
-		document.body.setAttribute("theme","dark");
-		this.$.resultBoardDiv.style.display="block";
-	}
+  render() {
+    return html` <link
+        rel="stylesheet"
+        type="text/css"
+        .href="${"local/" +
+        (this.stylesDir ?? "") +
+        "/" +
+        (this.video ?? "") +
+        "colors" +
+        (this.autoversion ?? "")}"
+      />
+      <link
+        rel="stylesheet"
+        type="text/css"
+        .href="${"local/" +
+        (this.stylesDir ?? "") +
+        "/top" +
+        (this.autoversion ?? "")}"
+      />
+      <div
+        id="resultBoardDiv"
+        class="${"wrapper " +
+        (this._computeTeamWidth ?? "")(this.wideTeamNames ?? "")}"
+      >
+        ${this.topTeamsWomen
+          ? html`
+              <h2
+                class="fullName"
+                id="fullNameDiv"
+                .inner-h-t-m-l="${this.topTeamsWomen}"
+              ></h2>
+              <table class="results" id="orderDiv" style$="">
+                <thead>
+                  <tr>
+                    <th class="club" .inner-h-t-m-l="${this.t?.Team}"></th>
 
-	start() {
-		this.$.resultBoardDiv.style.display="block";
-	}
+                    <th
+                      class="medium"
+                      .inner-h-t-m-l="${this.t?.Sinclair}"
+                    ></th>
+                  </tr>
+                </thead>
+                ${(this.womensTeams ?? []).map(
+                  (item, index) => html`
+                    <tr>
+                      <td class="club"><div>${this.l?.team}</div></td>
 
-	reset() {
-		console.debug("reset");
-		this.$.resultBoardDiv.style.display="block";
-	}
+                      <td class="medium"><div>${this.l?.score}</div></td>
+                    </tr>
+                  `
+                )}
+              </table>
+              <h2>&nbsp;</h2>
+            `
+          : html``}
+        ${this.topTeamsMen
+          ? html`
+              <h2
+                class="fullName"
+                id="fullNameDiv"
+                .inner-h-t-m-l="${this.topTeamsMen}"
+              ></h2>
+              <table class="results" id="orderDiv" style$="">
+                <thead>
+                  <tr>
+                    <th class="club" .inner-h-t-m-l="${this.t?.Team}"></th>
 
-	down() {
-		console.debug("down");
-	}
+                    <th
+                      class="medium"
+                      .inner-h-t-m-l="${this.t?.Sinclair}"
+                    ></th>
+                  </tr>
+                </thead>
+                ${(this.mensTeams ?? []).map(
+                  (item, index) => html`
+                    <tr>
+                      <td class="club"><div>${this.l?.team}</div></td>
 
-	doBreak() {
-		console.debug("break");
-		this.$.resultBoardDiv.style.display="block";
-	}
+                      <td class="medium"><div>${this.l?.score}</div></td>
+                    </tr>
+                  `
+                )}
+              </table>
+              <h2>&nbsp;</h2>
+            `
+          : html``}
+      </div>`;
+  }
 
-	groupDone() {
-		console.debug("done");
-		this.$.resultBoardDiv.style.display="block";
-	}
+  firstUpdated(_changedProperties) {
+    super.firstUpdated(_changedProperties);
+    document.body.setAttribute("theme", "dark");
+    this.renderRoot.querySelector("#resultBoardDiv").style.display = "block";
+  }
 
-	refereeDecision() {
-		console.debug("refereeDecision");
-	}
+  start() {
+    this.renderRoot.querySelector("#resultBoardDiv").style.display = "block";
+  }
 
-	_isEqualTo(title, string) {
-		return title == string;
-	}
+  reset() {
+    console.debug("reset");
+    this.renderRoot.querySelector("#resultBoardDiv").style.display = "block";
+  }
 
-	clear() {
-		this.$.resultBoardDiv.style.display="none";
-	}
+  down() {
+    console.debug("down");
+  }
 
-	_computeTeamWidth(w) {
-		return w ? 'wideTeams' : 'narrowTeams';
-	}
+  doBreak() {
+    console.debug("break");
+    this.renderRoot.querySelector("#resultBoardDiv").style.display = "block";
+  }
 
+  groupDone() {
+    console.debug("done");
+    this.renderRoot.querySelector("#resultBoardDiv").style.display = "block";
+  }
+
+  refereeDecision() {
+    console.debug("refereeDecision");
+  }
+
+  _isEqualTo(title, string) {
+    return title == string;
+  }
+
+  clear() {
+    this.renderRoot.querySelector("#resultBoardDiv").style.display = "none";
+  }
+
+  _computeTeamWidth(w) {
+    return w ? "wideTeams" : "narrowTeams";
+  }
 }
 
 customElements.define(TopTeamsSinclair.is, TopTeamsSinclair);

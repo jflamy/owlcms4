@@ -1,31 +1,29 @@
+import { html, LitElement, css } from "lit";
 /*******************************************************************************
  * Copyright (c) 2009-2023 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
 
-class Monitor extends PolymerElement {
-	static get is() {
-		return 'monitor-template'
-	}
+class Monitor extends LitElement {
+  static get is() {
+    return "monitor-template";
+  }
 
-	static get template() {
-		return html`
-	[[title]]
-	`;
-	}
+  render() {
+    return html` ${this.title} `;
+  }
 
-	ready() {
-		//console.debug("monitor is ready");
-		super.ready();
-	}
+  firstUpdated(_changedProperties) {
+    //console.debug("monitor is ready");
+    super.firstUpdated(_changedProperties);
+  }
 
-	setTitle(title) {
-		//console.log("title = "+title);
-		document.title = title;
-	}
+  setTitle(title) {
+    //console.log("title = "+title);
+    document.title = title;
+  }
 }
 
 customElements.define(Monitor.is, Monitor);
