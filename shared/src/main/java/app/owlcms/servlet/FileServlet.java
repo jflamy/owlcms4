@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletOutputStream;
@@ -111,7 +112,7 @@ public class FileServlet extends HttpServlet {
 	private static boolean ignoreCaching = false;
 
 	private static Logger logger = (Logger) LoggerFactory.getLogger(FileServlet.class);
-//    { logger.setLevel(Level.DEBUG); }
+    { logger.setLevel(Level.DEBUG); }
 
 	/**
 	 * @return the ignoreCaching
@@ -369,7 +370,7 @@ public class FileServlet extends HttpServlet {
 
 		// Get requested file by path info.
 		String requestedFileName = request.getPathInfo();
-		logger.debug("requested file = {}", requestedFileName);
+		logger.warn("requested file = {}", requestedFileName);
 
 		Path file = getFileFromPathInfo(response, requestedFileName);
 		if (file == null) {

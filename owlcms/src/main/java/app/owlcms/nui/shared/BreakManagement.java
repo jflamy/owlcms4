@@ -9,7 +9,6 @@ package app.owlcms.nui.shared;
 import static app.owlcms.fieldofplay.FOPState.INACTIVE;
 import static app.owlcms.uievents.BreakType.BEFORE_INTRODUCTION;
 import static app.owlcms.uievents.BreakType.FIRST_SNATCH;
-import static app.owlcms.uievents.BreakType.TECHNICAL;
 import static java.time.temporal.ChronoUnit.MILLIS;
 
 import java.time.Duration;
@@ -39,7 +38,6 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.NativeLabel;
-import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -429,28 +427,28 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 		// kludgey way to split the radio buttons in two sections
 		Div div = new Div(label("BreakType.Title"));
 		div.getElement().setAttribute("style", "margin-bottom: 1ex");
-		countdownRadios.prependComponents(TECHNICAL, div);
+		//FIXME countdownRadios.prependComponents(TECHNICAL, div);
 
 		Hr hr = new Hr();
 		hr.getElement().setAttribute("style", "margin-top: 1ex");
 		Div div1 = new Div(label("CountdownType.Title"));
 		div1.getElement().setAttribute("style", "margin-top: 2ex; margin-bottom: 1ex");
-		countdownRadios.prependComponents(BEFORE_INTRODUCTION, hr, div1);
+		//FIXME countdownRadios.prependComponents(BEFORE_INTRODUCTION, hr, div1);
 
 		durationRadios = new RadioButtonGroup<>();
 		durationRadios.setItems(CountdownType.values());
 		durationRadios.setRenderer(new TextRenderer<CountdownType>(
 		        (item) -> getTranslation(CountdownType.class.getSimpleName() + "." + item.name())));
-		durationRadios.prependComponents(CountdownType.INDEFINITE, new Paragraph(""));
-		durationRadios.prependComponents(CountdownType.TARGET, new Paragraph(""));
+		//FIXME durationRadios.prependComponents(CountdownType.INDEFINITE, new Paragraph(""));
+		//DIXME durationRadios.prependComponents(CountdownType.TARGET, new Paragraph(""));
 
 		Locale locale = new Locale("en", "SE"); // ISO 8601 style dates and time
 		timePicker.setLocale(locale);
 		datePicker.setLocale(locale);
 		minutes = new NativeLabel(Translator.translate("minutes"));
 
-		durationRadios.addComponents(CountdownType.DURATION, durationField, new NativeLabel(" "), minutes, new Div());
-		durationRadios.addComponents(CountdownType.TARGET, datePicker, new NativeLabel(" "), timePicker);
+		//DIXME durationRadios.addComponents(CountdownType.DURATION, durationField, new NativeLabel(" "), minutes, new Div());
+		//FIXME durationRadios.addComponents(CountdownType.TARGET, datePicker, new NativeLabel(" "), timePicker);
 
 		createTimerDisplay();
 		Component timerButtons = createBreakTimerButtons();
