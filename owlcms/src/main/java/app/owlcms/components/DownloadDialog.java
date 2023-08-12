@@ -17,9 +17,10 @@ import java.util.function.Supplier;
 
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.componentfactory.EnhancedDialog;
+//import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -88,16 +89,16 @@ public class DownloadDialog {
 	public Button createTopBarDownloadButton() {
 		Button dialogOpen = new Button(dialogTitle, new Icon(VaadinIcon.DOWNLOAD_ALT),
 		        e -> {
-			        EnhancedDialog dialog = createDialog();
+			        Dialog dialog = createDialog();
 			        dialog.open();
 		        });
 		return dialogOpen;
 	}
 
-	private EnhancedDialog createDialog() {
+	private Dialog createDialog() {
 //        Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
-		EnhancedDialog dialog = new EnhancedDialog();
-		dialog.setHeader(new H3(dialogTitle));
+		Dialog dialog = new Dialog();
+		dialog.setHeaderTitle(dialogTitle);
 		ComboBox<Resource> templateSelect = new ComboBox<>();
 
 		templateSelect.setPlaceholder(Translator.translate("AvailableTemplates"));

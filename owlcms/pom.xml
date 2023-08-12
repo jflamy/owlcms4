@@ -55,17 +55,6 @@
 
 		<!-- user interface -->
 		<dependency>
-			<groupId>com.github.appreciated</groupId>
-			<artifactId>vaadin-css-grid</artifactId>
-			<version>3.0.0</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.vaadin</groupId>
-					<artifactId>vaadin-accordion-flow</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
 			<groupId>org.vaadin.crudui</groupId>
 			<artifactId>crudui</artifactId>
 			<version>6.2.0</version>
@@ -77,10 +66,10 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>com.vaadin.componentfactory</groupId>
-			<artifactId>enhanced-dialog</artifactId>
-			<version>1.0.4</version>
-		</dependency>
+            <groupId>org.vaddon</groupId>
+            <artifactId>mediaquery</artifactId>
+            <version>5.0.3</version>
+        </dependency>
 
 		<!-- database -->
 		<dependency>

@@ -365,7 +365,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 		refField.setMin(1);
 		refField.setValue(getRef13ix() == null ? null : getRef13ix().intValue());
 		refField.setPlaceholder(getTranslation("Number"));
-		refField.setHasControls(true);
+		//DIXME refField.setHasControls(true);
 		refField.addValueChangeListener((e) -> {
 			setRef13ix(e.getValue());
 			setUrl(getRef13ix() != null ? getRef13ix().toString() : null);

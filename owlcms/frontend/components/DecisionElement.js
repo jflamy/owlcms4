@@ -6,9 +6,6 @@ import { html, LitElement, css } from "lit";
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
 
-import "@polymer/iron-icon/iron-icon.js";
-import "@polymer/iron-icons/iron-icons.js";
-
 class DecisionElement extends LitElement {
   static get is() {
     return "decision-element";
@@ -55,8 +52,6 @@ class DecisionElement extends LitElement {
           display: flex;
           align-items: center;
           justify-content: space-evenly;
-          --iron-icon-height: 35%;
-          --iron-icon-width: 35%;
           font-weight: normal;
           color: lime;
           display: block;
@@ -66,9 +61,7 @@ class DecisionElement extends LitElement {
   }
   render() {
     return html` <div class="decisionWrapper">
-      <div class="down" id="downDiv">
-        <iron-icon id="down-arrow" icon="icons:file-download"></iron-icon>
-      </div>
+      <div class="down" id="downDiv">&#x2B73;</div>
       <div class="decisions" id="decisionsDiv">
         <span class="decision" id="ref1span"></span>&nbsp;
         <span class="decision" id="ref2span"></span>&nbsp;
@@ -82,45 +75,32 @@ class DecisionElement extends LitElement {
       ref1: {
         type: Boolean,
         reflect: true,
-        notify: true,
       },
       ref2: {
         type: Boolean,
         reflect: true,
-        notify: true,
       },
       ref3: {
         type: Boolean,
-        reflect: true,
-        notify: true,
       },
       ref1Time: {
         type: Number,
-
-        notify: false,
       },
       ref2Time: {
         type: Number,
-
-        notify: false,
       },
       ref3Time: {
         type: Number,
-
-        notify: false,
       },
       decision: {
         type: Boolean,
-        notify: true,
       },
       publicFacing: {
         type: Boolean,
-        notify: true,
         reflect: true,
       },
       jury: {
         type: Boolean,
-        notify: true,
         reflect: true,
       },
       audio: {
@@ -133,11 +113,6 @@ class DecisionElement extends LitElement {
         type: String,
         notify: true,
       },
-      /**
-       * Set to true to have no sound on down signal
-       *
-       * @default false
-       */
       silent: {
         type: Boolean,
       },
@@ -151,19 +126,22 @@ class DecisionElement extends LitElement {
       document.body.addEventListener("keydown", (e) => this._readRef(e));
     }
     this._init();
+    this.$server.onReady();
   }
 
   _init() {
+    console.warn("_init");
     this.renderRoot.querySelector("#decisionsDiv").style.display = "none";
     this.renderRoot.querySelector("#downDiv").style.display = "none";
+    console.warn("downDiv " + this.renderRoot.querySelector("#downDiv").style.display);
     this.downShown = false;
 
     this.renderRoot.querySelector("#ref1span").className = "decision none";
     this.renderRoot.querySelector("#ref2span").className = "decision none";
     this.renderRoot.querySelector("#ref3span").className = "decision none";
-    this.set("ref1", null);
-    this.set("ref2", null);
-    this.set("ref3", null);
+    this.ref1 = null;
+    this.ref2 = null;
+    this.ref3 = null;
     this._setupAudio();
   }
 
@@ -180,33 +158,33 @@ class DecisionElement extends LitElement {
     console.warn("de key " + key);
     switch (e.key) {
       case "1":
-        this.set("ref1", true);
-        this.set("ref1Time", Date.now());
+        this.ref1 = true;
+        this.ref1Time = Date.now();
         this._majority(this.ref1, this.ref2, this.ref3);
         break;
       case "2":
-        this.set("ref1", false);
-        this.set("ref1Time", Date.now());
+        this.ref1 = false;
+        this.ref1Time = Date.now();
         this._majority(this.ref1, this.ref2, this.ref3);
         break;
       case "3":
-        this.set("ref2", true);
-        this.set("ref2Time", Date.now());
+        this.ref2 = true;
+        this.ref2Time = Date.now();
         this._majority(this.ref1, this.ref2, this.ref3);
         break;
       case "4":
-        this.set("ref2", false);
-        this.set("ref2Time", Date.now());
+        this.ref2 = false;
+        this.ref2Time = Date.now();
         this._majority(this.ref1, this.ref2, this.ref3);
         break;
       case "5":
-        this.set("ref3", true);
-        this.set("ref3Time", Date.now());
+        this.ref3 = true;
+        this.ref3Time = Date.now();
         this._majority(this.ref1, this.ref2, this.ref3);
         break;
       case "6":
-        this.set("ref3", false);
-        this.set("ref3Time", Date.now());
+        this.ref3 = false;
+        this.ref3Time = Date.now();
         this._majority(this.ref1, this.ref2, this.ref3);
         break;
       default:
@@ -219,7 +197,7 @@ class DecisionElement extends LitElement {
   }
 
   /* this is called based on browser input.
-		 immediate feedback is given if majority has been reached */
+     immediate feedback is given if majority has been reached */
   _majority(ref1, ref2, ref3) {
     var countWhite = 0;
     var countRed = 0;
@@ -256,9 +234,9 @@ class DecisionElement extends LitElement {
   }
 
   /* the individual values are set in the this.refN properties. this tells the server that the
-		 values are are available; the server will call back the slaves operating in jury display
-		 mode to update their displays immediately.  the slaves not operating in jury display mode
-		 (e.g. the attempt board) will be updated after 3 seconds */
+     values are are available; the server will call back the slaves operating in jury display
+     mode to update their displays immediately.  the slaves not operating in jury display mode
+     (e.g. the attempt board) will be updated after 3 seconds */
   masterRefereeUpdate(ref1, ref2, ref3) {
     this.$server.masterRefereeUpdate(
       this.fopName,
@@ -276,45 +254,45 @@ class DecisionElement extends LitElement {
     var whiteStyle = "decision white";
     if (this.publicFacing) {
       if (ref1 === true) {
-        parent.$.ref1span.className = whiteStyle;
+        this.renderRoot.querySelector("#ref1span").className = whiteStyle;
       } else if (ref1 === false) {
-        parent.$.ref1span.className = redStyle;
+        this.renderRoot.querySelector("#ref1span").className = redStyle;
       }
       if (ref2 === true) {
-        parent.$.ref2span.className = whiteStyle;
+        this.renderRoot.querySelector("#ref2span").className = whiteStyle;
       } else if (ref2 === false) {
-        parent.$.ref2span.className = redStyle;
+        this.renderRoot.querySelector("#ref2span").className = redStyle;
       }
       if (ref3 === true) {
-        parent.$.ref3span.className = whiteStyle;
+        this.renderRoot.querySelector("#ref3span").className = whiteStyle;
       } else if (ref3 === false) {
-        parent.$.ref3span.className = redStyle;
+        this.renderRoot.querySelector("#ref3span").className = redStyle;
       }
     } else {
       // athlete facing, go the other way, right to left
       if (ref1 === true) {
-        parent.$.ref3span.className = whiteStyle;
+        pthis.renderRoot.querySelector("#ref3span").className = whiteStyle;
       } else if (ref1 === false) {
-        parent.$.ref3span.className = redStyle;
+        this.renderRoot.querySelector("#ref3span").className = redStyle;
       }
       if (ref2 === true) {
-        parent.$.ref2span.className = whiteStyle;
+        his.renderRoot.querySelector("#ref2span").className = whiteStyle;
       } else if (ref2 === false) {
-        parent.$.ref2span.className = redStyle;
+        his.renderRoot.querySelector("#ref2span").className = redStyle;
       }
       if (ref3 === true) {
-        parent.$.ref1span.className = whiteStyle;
+        this.renderRoot.querySelector("#ref1span").className = whiteStyle;
       } else if (ref3 === false) {
-        parent.$.ref1span.className = redStyle;
+        this.renderRoot.querySelector("#ref1span").className = redStyle;
       }
     }
   }
 
   /*
-	This is called from the browser side when the decision is taken locally (majority vote from keypads).
-	It can also be called from the server side when the decision is taken elsewhere.
-	The server side is responsible for not calling this again if the event took place in this element.
-	*/
+  This is called from the browser side when the decision is taken locally (majority vote from keypads).
+  It can also be called from the server side when the decision is taken elsewhere.
+  The server side is responsible for not calling this again if the event took place in this element.
+  */
   showDown(isMaster, silent) {
     console.warn("de showDown -- " + !this.silent + " " + !silent);
     if (!this.silent && !silent) {
@@ -397,6 +375,7 @@ class DecisionElement extends LitElement {
           console.error("could not decode " + e.err);
         }
       );
+      
       return newBuffer;
     }
   }
