@@ -300,11 +300,11 @@ public class Competition {
 	@Column(columnDefinition = "integer default 6")
 	private Integer longerBreakMax = 6;
 
-	@Column(columnDefinition = "integer default 9")
-	private Integer longerBreakDuration = 9;
+	@Column(columnDefinition = "integer default 10")
+	private Integer longerBreakDuration = 10;
 
 	@Column(columnDefinition = "integer default 9")
-	private Integer shorterBreakMin = 10;
+	private Integer shorterBreakMin = 9;
 
 	@Column(columnDefinition = "integer default 10")
 	private Integer shorterBreakDuration = 10;
