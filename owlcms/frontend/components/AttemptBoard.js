@@ -20,7 +20,8 @@ class CurrentAttempt extends LitElement {
         "/" +
         (this.video ?? "") +
         "colors" +
-        (this.autoversion ?? "")}"
+        (this.autoversion ?? "")
+        +".css"}"
       />
       <link
         rel="stylesheet"
@@ -30,7 +31,8 @@ class CurrentAttempt extends LitElement {
         "/" +
         (this.video ?? "") +
         "resultsCustomization" +
-        (this.autoversion ?? "")}"
+        (this.autoversion ?? "")
+        +".css"}"
       />
       <link
         rel="stylesheet"
@@ -40,7 +42,8 @@ class CurrentAttempt extends LitElement {
         "/" +
         (this.video ?? "") +
         "attemptboard" +
-        (this.autoversion ?? "")}"
+        (this.autoversion ?? "")
+        +".css"}"
       />
       <div class="${"wrapper " + (this.inactiveClass ?? "")}">
         <div style="${this.inactiveBlockStyle}">
@@ -165,9 +168,6 @@ class CurrentAttempt extends LitElement {
     console.warn("attemptBoard reset " + this.javaComponentId);
     //this.renderRoot.querySelector("#attemptBoardDiv").style.display = "grid";
     //this.renderRoot.querySelector("#attemptBoardDiv").style.color = "white";
-    this.renderRoot
-      .querySelector("#athleteTimer")
-      .reset(this.renderRoot.querySelector("#athleteTimer"));
     this.renderRoot.querySelector("#athleteTimerDiv").style.display = "grid";
     this.renderRoot.querySelector("#firstNameDiv").style.display = "grid";
     this.renderRoot.querySelector("#teamNameDiv").style.display = "grid";

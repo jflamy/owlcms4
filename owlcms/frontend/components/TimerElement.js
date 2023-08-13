@@ -12,7 +12,7 @@ class TimerElement extends LitElement {
   }
 
   render() {
-    return html` <div .inner-h-t-m-l="${this._formattedTime}"></div>`;
+    return html`<div .innerHTML="${this._formattedTime}"></div>`;
   }
 
   static get properties() {
@@ -178,16 +178,11 @@ class TimerElement extends LitElement {
     this.running = false;
     console.warn("display " + indefinite + " " + seconds);
     if (indefinite) {
-      this.set("currentTime", seconds);
+      this.currentTime = seconds;
       this._indefinite();
-    }
-    // else if (this.countUp) {
-    // 	this.set('currentTime', 0);
-    // 	this.set('_formattedTime', '0:00');
-    // }
-    else {
-      this.set("currentTime", seconds);
-      this.set("_formattedTime", this._formatTime(seconds));
+    } else {
+      this.currentTime = seconds;
+      this._formattedTime = this._formatTime(seconds);
     }
     this._initialWarningGiven = false;
     this._finalWarningGiven = false;
@@ -195,9 +190,6 @@ class TimerElement extends LitElement {
   }
 
   reset(element) {
-    //		console.warn("timer reset");
-    //		this.pause(this.startTime, false, true, element);
-    //		this._init();
   }
 
   isIOS() {
@@ -208,7 +200,7 @@ class TimerElement extends LitElement {
         "iPod Simulator",
         "iPad",
         "iPhone",
-        "iPod",
+        // "iPod",
       ].includes(navigator.platform) ||
       // iPad on iOS 13 detection
       (navigator.userAgent.includes("Mac") && "ontouchend" in document)
@@ -216,22 +208,23 @@ class TimerElement extends LitElement {
   }
 
   _indefinite() {
-    this.set("_formattedTime", "&nbsp;");
+    this._formattedTime = "&nbsp;";
   }
 
   _init() {
     this.running = false;
     console.warn("init timer " + this.indefinite);
     if (this.indefinite) {
-      this.set("currentTime", this.startTime);
+      this.currentTime = this.startTime;
       this._indefinite();
-    } else if (this.countUp) {
-      this.set("currentTime", 0);
-      this.set("_formattedTime", "0:00");
-    } else {
-      this.set("currentTime", this.startTime);
-      this.set("_formattedTime", this._formatTime(this.startTime));
-    }
+    } 
+    // else if (this.countUp) {
+    //   this.currentTime = 0;
+    //   this._formattedTime = "0:00";
+    // } else {
+    //   this.currentTime = this.startTime;
+    //   this._formattedTime = this._formatTime(this.startTime);
+    // }
     this._initialWarningGiven = false;
     this._finalWarningGiven = false;
     this._timeOverWarningGiven = false;
@@ -448,14 +441,6 @@ class TimerElement extends LitElement {
   set startTime(newValue) {
     const oldValue = this.startTime;
     this._startTime = newValue;
-    if (oldValue !== newValue) {
-      this._init(newValue, oldValue);
-      this.requestUpdateInternal(
-        "startTime",
-        oldValue,
-        this.constructor.properties.startTime
-      );
-    }
   }
   get startTime() {
     return this._startTime;

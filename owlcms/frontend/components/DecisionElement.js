@@ -61,11 +61,11 @@ class DecisionElement extends LitElement {
   }
   render() {
     return html` <div class="decisionWrapper">
-      <div class="down" id="downDiv">&#x2B73;</div>
+      <div class="down" id="downDiv" style="font-weight: 900">&#x2B73;</div>
       <div class="decisions" id="decisionsDiv">
-        <span class="decision" id="ref1span"></span>&nbsp;
-        <span class="decision" id="ref2span"></span>&nbsp;
-        <span class="decision" id="ref3span"></span>&nbsp;
+        <span class="decision" id="ref1span">&nbsp;</span>
+        <span class="decision" id="ref2span">&nbsp;</span>
+        <span class="decision" id="ref3span">&nbsp;</span>
       </div>
     </div>`;
   }
@@ -126,7 +126,7 @@ class DecisionElement extends LitElement {
       document.body.addEventListener("keydown", (e) => this._readRef(e));
     }
     this._init();
-    this.$server.onReady();
+    //this.$server.onReady();
   }
 
   _init() {

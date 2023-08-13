@@ -146,6 +146,7 @@ public abstract class TimerElement extends LitTemplate
 
 	private void setDisplay(Integer milliseconds, Boolean indefinite, Boolean silent) {
 		Element timerElement2 = getTimerElement();
+		// logger.debug("setDisplay {} {}",milliseconds, timerElement2);
 		if (timerElement2 != null) {
 			double seconds = indefinite ? 0.0D : milliseconds / 1000.0D;
 			timerElement2.callJsFunction("display", seconds, indefinite, silent, timerElement2);
@@ -153,6 +154,7 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	private void setMsRemaining(Integer milliseconds) {
+		// logger.debug("setMsRemaining {}",milliseconds);
 		msRemaining = milliseconds;
 	}
 
@@ -161,6 +163,7 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	private void start(Integer milliseconds, Boolean indefinite, Boolean silent, String from) {
+		// logger.debug("start {}",milliseconds);
 		Element timerElement2 = getTimerElement();
 		if (timerElement2 != null) {
 			double seconds = indefinite ? 0.0D : milliseconds / 1000.0D;
@@ -179,6 +182,7 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	protected final void doSetTimer(Integer milliseconds) {
+		// logger.debug("doSetTimer {}",milliseconds);
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
 			stop(getMsRemaining(), isIndefinite(), isSilenced(), parent);
@@ -187,6 +191,7 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	protected void doStartTimer(Integer milliseconds, boolean serverSound) {
+		// logger.debug("doStartTimer {}",milliseconds);
 		setServerSound(serverSound);
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			setIndefinite(milliseconds == null);
@@ -223,6 +228,7 @@ public abstract class TimerElement extends LitTemplate
 		if (UI.getCurrent() == null) {
 			return;
 		}
+		// logger.debug("init 0");
 		UI.getCurrent().access(() -> {
 			getElement().setProperty("startTime", 0.0D);
 			getElement().setProperty("currentTime", seconds);

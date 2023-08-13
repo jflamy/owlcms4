@@ -370,7 +370,7 @@ public class FileServlet extends HttpServlet {
 
 		// Get requested file by path info.
 		String requestedFileName = request.getPathInfo();
-		logger.warn("requested file = {}", requestedFileName);
+		logger.debug("requested file = {}", requestedFileName);
 
 		Path file = getFileFromPathInfo(response, requestedFileName);
 		if (file == null) {
