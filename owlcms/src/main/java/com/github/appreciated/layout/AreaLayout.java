@@ -11,6 +11,7 @@ import java.util.Arrays;
 /**
  * A Layout which makes it easy for the user to create area based grids.
  */
+@SuppressWarnings("serial")
 public class AreaLayout extends Composite<GridLayout> implements FluentGridLayoutComponent<AreaLayout> {
 
     /**

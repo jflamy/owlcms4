@@ -13,6 +13,7 @@ import com.github.appreciated.css.grid.sizes.TemplateAreas;
 import com.vaadin.flow.component.Component;
 import org.vaddon.css.query.MediaQuery;
 
+@SuppressWarnings("serial")
 public class FluentGridLayout extends GridLayout implements FluentGridLayoutComponent<FluentGridLayout>, HasOverflow<FluentGridLayout> {
 
     /**

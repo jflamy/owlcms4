@@ -12,6 +12,7 @@ import com.vaadin.flow.component.Composite;
 /**
  * A Layout which makes it easy for the user to create flexible grids.
  */
+@SuppressWarnings("serial")
 public class FlexibleGridLayout extends Composite<GridLayout> implements FluentGridLayoutComponent<FlexibleGridLayout>, HasOverflow<FlexibleGridLayout> {
     public FlexibleGridLayout() {
 

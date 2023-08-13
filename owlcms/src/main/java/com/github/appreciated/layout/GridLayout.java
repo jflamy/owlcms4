@@ -28,6 +28,7 @@ import java.util.Objects;
  * by the components inside it, or can be set by using the <a href="https://developer.mozilla.org/de/docs/Web/CSS/CSS_Grid_Layout">css grid api</a>
  * Different to the {@link com.vaadin.flow.component.orderedlayout.VerticalLayout} and {@link com.vaadin.flow.component.orderedlayout.HorizontalLayout} a {@link GridLayout} can span its elements over multiple rows.
  */
+@SuppressWarnings("serial")
 @Tag("grid-layout")
 @JsModule("./com/github/appreciated/grid-layout/grid-layout.js")
 public class GridLayout extends LitTemplate implements GridLayoutComponent {
