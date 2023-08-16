@@ -8,6 +8,7 @@ package app.owlcms.components.elements;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 
@@ -17,15 +18,16 @@ import app.owlcms.data.platform.Platform;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import ch.qos.logback.classic.Logger;
 
-public class Plates extends FlexLayout {
+@Tag("plates-element")
+public class PlatesElement extends FlexLayout {
 
 	@SuppressWarnings("unused")
-	private static final Logger logger = (Logger) LoggerFactory.getLogger(Plates.class);
+	private static final Logger logger = (Logger) LoggerFactory.getLogger(PlatesElement.class);
 	private static final long serialVersionUID = 8340222363211435843L;
 
 	private int weight;
 
-	public Plates() {
+	public PlatesElement() {
 		this.getClassNames().add("loadChart");
 	}
 

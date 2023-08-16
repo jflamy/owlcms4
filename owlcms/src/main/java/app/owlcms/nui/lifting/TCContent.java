@@ -36,7 +36,7 @@ import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.components.elements.Plates;
+import app.owlcms.components.elements.PlatesElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
@@ -67,7 +67,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 	}
 
 	private OwlcmsCrudFormFactory<Athlete> crudFormFactory;
-	private Plates plates;
+	private PlatesElement plates;
 	private Platform platform;
 
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
@@ -159,7 +159,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 	protected void init() {
 		setCrudFormFactory(createFormFactory());
 
-		plates = new Plates();
+		plates = new PlatesElement();
 		plates.setId("loadchart");
 		OwlcmsSession.withFop((fop) -> {
 			plates.computeImageArea(fop, false);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2023 Jean-François Lamy
+ * Copyright (c) 2009-2023 Jean-FranÃ§ois Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -25,9 +25,11 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.template.Id;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -41,7 +43,7 @@ import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
-import app.owlcms.components.elements.Plates;
+import app.owlcms.components.elements.PlatesElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.competition.Competition;
@@ -66,8 +68,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonObject;
-import com.vaadin.flow.component.littemplate.LitTemplate;
-import com.vaadin.flow.component.template.Id;
 
 /**
  * Attempt board.
@@ -77,19 +77,31 @@ import com.vaadin.flow.component.template.Id;
 @Tag("attempt-board-template")
 @JsModule("./components/AttemptBoard.js")
 @JsModule("./components/AudioContext.js")
+@JsModule("./components/TimerElement.js")
+@JsModule("./components/DecisionElement.js")
 @CssImport(value = "./styles/shared-styles.css")
 @CssImport(value = "./styles/plates.css")
 @Route("displays/attemptBoard")
 
 public class AttemptBoard extends LitTemplate implements DisplayParameters,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin, VideoCSSOverride {
+        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin,
+        VideoCSSOverride {
 
 	protected final static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
 	protected final static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
+	enum BoardMode {
+		WAIT,
+		INTRO_COUNTDOWN,
+		LIFT_COUNTDOWN,
+		CURRENT_ATHLETE,
+		INTERRUPTION,
+		SESSION_DONE
+	}
+
 	static {
 		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.DEBUG);
 	}
 
 	public static void doNotification(AttemptBoard attemptBoard, String text, String recordText, String theme,
@@ -100,10 +112,10 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	@Id("athleteTimer")
 	protected AthleteTimerElement athleteTimer; // created by Flow during template instantiation
 
-	@Id("breakTimer")
+//	@Id("breakTimer")
 	protected BreakTimerElement breakTimer; // created by Flow during template instantiation
 
-	@Id("decisions")
+//	@Id("decisions")
 	protected DecisionElement decisions; // created by Flow during template instantiation
 
 	private Dialog dialog;
@@ -111,7 +123,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	private boolean initializationNeeded;
 	private Location location;
 	private UI locationUI;
-	private Plates plates;
+	private PlatesElement plates;
 	private boolean silenced = true;
 	protected EventBus uiEventBus;
 	private Timer dialogTimer;
@@ -131,10 +143,13 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	 */
 	public AttemptBoard() {
 		OwlcmsFactory.waitDBInitialized();
+		athleteTimer = new AthleteTimerElement();
+		breakTimer = new BreakTimerElement();
+		decisions = new DecisionElement();
 		// logger.debug("*** AttemptBoard new {}", LoggerUtils.whereFrom());
-		athleteTimer.setOrigin(this);
+		// athleteTimer.setOrigin(this);
 		this.getElement().setProperty("kgSymbol", getTranslation("KgSymbol"));
-		breakTimer.setParent("attemptBoard");
+		// breakTimer.setParent("attemptBoard");
 		checkImages();
 		// js files add the build number to file names in order to prevent cache
 		// collisions
@@ -154,6 +169,9 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	public void doBreak(UIEvent e) {
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			BreakType breakType = fop.getBreakType();
+
+			setBoardMode(fop.getState(), breakType);
+
 			// logger.trace("doBreak({}) bt={} a={}}", e, breakType, fop.getCurAthlete());
 			if (breakType == BreakType.GROUP_DONE) {
 				doGroupDoneBreak(fop);
@@ -171,25 +189,43 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 
 			Athlete a = fop.getCurAthlete();
 			if (a != null) {
-
 				this.getElement().setProperty("category", a.getCategory().getTranslatedName());
 				String formattedAttempt = formatAttempt(a);
-				this.getElement().setProperty("attempt - ", formattedAttempt);
+				this.getElement().setProperty("attempt", formattedAttempt);
 				Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
 				setDisplayedWeight(nextAttemptRequestedWeight > 0 ? nextAttemptRequestedWeight.toString() : "");
 				showPlates();
-				// logger.trace("showingPlates {}",a.getNextAttemptRequestedWeight());
 			} else {
 				this.getElement().setProperty("attempt", "");
 				setDisplayedWeight("");
 			}
 
-			breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
-
 			uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
 			// logger.trace("attemptBoard showWeights ? {}", fop.getCeremonyType());
-			this.getElement().callJsFunction("doBreak", fop.getCeremonyType() == null);
 		}));
+	}
+
+	private void setBoardMode(FOPState fopState, BreakType breakType) {
+		BoardMode bm = BoardMode.WAIT;
+		if (fopState == FOPState.BREAK && breakType == BreakType.BEFORE_INTRODUCTION) {
+			bm = BoardMode.INTRO_COUNTDOWN;
+		} else if (fopState == FOPState.BREAK
+		        && (breakType == BreakType.FIRST_CJ || breakType == BreakType.FIRST_SNATCH)) {
+			bm = BoardMode.LIFT_COUNTDOWN;
+		} else if (fopState == FOPState.BREAK && (breakType == BreakType.GROUP_DONE)) {
+			bm = BoardMode.SESSION_DONE;
+		} else if (fopState == FOPState.BREAK &&
+		        (breakType == BreakType.JURY
+		                || breakType == BreakType.CHALLENGE
+		                || breakType == BreakType.MARSHAL
+		                || breakType == BreakType.TECHNICAL)) {
+			bm = BoardMode.INTERRUPTION;
+		} else if (fopState != FOPState.INACTIVE && fopState != FOPState.BREAK) {
+			bm = BoardMode.CURRENT_ATHLETE;
+		} else if (fopState == FOPState.INACTIVE) {
+			bm = BoardMode.WAIT;
+		}
+		this.getElement().setProperty("mode", bm.name());
 	}
 
 	@Override
@@ -551,9 +587,9 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			this.getElement().setProperty("hideBecauseDecision", "");
-			this.getElement().setProperty("hideBecauseRecord", "");
-			this.getElement().callJsFunction("reset");
+			this.getElement().setProperty("decisionVisible", false);
+			this.getElement().setProperty("recordName", "");
+			this.getElement().setProperty("mode", BoardMode.CURRENT_ATHLETE.name());
 		});
 	}
 
@@ -586,13 +622,12 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 			OwlcmsSession.withFop(fop -> {
 				switch (fop.getState()) {
 				case INACTIVE:
-					doEmpty();
+					doInactive(fop, fop.getState());
 					break;
 				case BREAK:
 					if (e.getGroup() == null) {
-						doEmpty();
+						doInactive(fop, fop.getState());
 					} else {
-						doNotEmpty();
 						doBreak(e);
 					}
 					break;
@@ -604,6 +639,12 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 			// uiEventLogger./**/warn("#### reloading {}", this.getElement().getClass());
 			// this.getElement().callJsFunction("reload");
 		});
+	}
+
+	private void doInactive(FieldOfPlay fop, FOPState fopState) {
+		setBoardMode(fopState, fopState == FOPState.BREAK ? fop.getBreakType() : null);
+		this.getElement().setProperty("lastName", inferGroupName(fop.getCeremonyType()));
+		this.getElement().setProperty("firstName", inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
 	}
 
 	/**
@@ -622,8 +663,6 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		ui.getPage().getHistory().replaceState(null, location2);
 		setLocation(location2);
 	}
-
-
 
 	protected void doAthleteUpdate(Athlete a) {
 		FieldOfPlay fop = OwlcmsSession.getFop();
@@ -644,9 +683,11 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		}
 
 		String lastName = a.getLastName();
+		logger.warn("setting lastName");
+		;
 		this.getElement().setProperty("lastName", lastName.toUpperCase());
 		this.getElement().setProperty("firstName", a.getFirstName());
-		this.getElement().setProperty("hideBecauseDecision", "");
+		this.getElement().setProperty("decisionVisible", false);
 		this.getElement().setProperty("category", a.getCategory().getTranslatedName());
 
 		String team = a.getTeam();
@@ -686,7 +727,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
 		setDisplayedWeight(nextAttemptRequestedWeight > 0 ? nextAttemptRequestedWeight.toString() : "");
 		showPlates();
-		this.getElement().callJsFunction("reset");
+		this.getElement().setProperty("mode", BoardMode.CURRENT_ATHLETE.name());
 
 		setDone(false);
 	}
@@ -713,33 +754,48 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 			showPlates();
 		}
 
-		boolean showWeights = fop.getCeremonyType() == null && fop.getGroup() != null;
-		// logger.trace("*** doBreak {} {} {}", showWeights, fop.getCeremonyType(),
-		// LoggerUtils.whereFrom());
-		this.getElement().callJsFunction("doBreak", showWeights);
+		switch (fop.getBreakType()) {
+		case BEFORE_INTRODUCTION:
+			this.getElement().setProperty("introCountdownMode", "true");
+			break;
+		case CHALLENGE:
+		case JURY:
+		case TECHNICAL:
+		case MARSHAL:
+			this.getElement().setProperty("waitMode", "true");
+			break;
+		case FIRST_CJ:
+		case FIRST_SNATCH:
+			this.getElement().setProperty("liftCountdownMode", "true");
+			break;
+		case GROUP_DONE:
+			this.getElement().setProperty("doneMode", "true");
+			break;
+		default:
+			break;
+		}
 		uiEventLogger.debug("$$$ attemptBoard doBreak(fop)");
 	}
 
 	protected void doEmpty() {
-		hidePlates();
+		logger.warn("****doEmpty");
 		FieldOfPlay fop2 = OwlcmsSession.getFop();
 		if (fop2.getGroup() == null) {
 			setDisplayedWeight("");
 		}
-		boolean inactive = fop2 == null || fop2.getState() == FOPState.INACTIVE;
-		// this.getElement().callJsFunction("clear");
-		this.getElement().setProperty("inactiveBlockStyle", (inactive ? "display:grid" : "display:none"));
-		this.getElement().setProperty("activeGridStyle", (inactive ? "display:none" : "display:grid"));
-		this.getElement().setProperty("inactiveClass", (inactive ? "bigTitle" : ""));
 		this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			setBoardMode(fop2.getState(), fop2.getBreakType());
+		});
 	}
 
 	protected void doNotEmpty() {
+		logger.warn("****doNotEmpty");
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			boolean inactive = false;
-			this.getElement().setProperty("inactiveBlockStyle", (inactive ? "display:grid" : "display:none"));
-			this.getElement().setProperty("activeGridStyle", (inactive ? "display:none" : "display:grid"));
-			this.getElement().setProperty("inactiveClass", (inactive ? "bigTitle" : ""));
+			FieldOfPlay fop2 = OwlcmsSession.getFop();
+			UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+				setBoardMode(fop2.getState(), fop2.getBreakType());
+			});
 		});
 	}
 
@@ -753,7 +809,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		OwlcmsSession.withFop(fop -> {
 			logger.debug("{}onAttach {}", fop.getLoggingName(), fop.getState());
 			init();
-			checkVideo(Config.getCurrent().getParamStylesDir()+"/video/attemptboard.css", routeParameter, this);
+			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/attemptboard.css", routeParameter, this);
 			ThemeList themeList = UI.getCurrent().getElement().getThemeList();
 			themeList.remove(Lumo.LIGHT);
 			themeList.add(Lumo.DARK);
@@ -786,11 +842,10 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 				this.getElement().setProperty("lastName", "");
 			}
 			// erase record notification if any
-			this.getElement().setProperty("recordKind", "recordNotification none");
+			this.getElement().setProperty("recordName", "");
 			this.getElement().setProperty("teamName", "");
 			this.getElement().setProperty("firstName", "");
 			setDisplayedWeight("");
-			this.getElement().callJsFunction("groupDone");
 			hidePlates();
 		});
 	}
@@ -801,22 +856,21 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		if (a != null && a.getAttemptsDone() < 6) {
 			// the announcer has switched groups, but not started the introduction
 			// countdown.
-			doEmpty();
+			doInactive(fop, fop.getState());
 		} else {
-			doNotEmpty();
 			doDone(group);
 		}
 	}
 
 	private void doJuryBreak(FieldOfPlay fop, BreakType breakType) {
+		// break mode properties are already set.
 		this.getElement().setProperty("lastName", inferGroupName());
 		this.getElement().setProperty("firstName", inferMessage(breakType, fop.getCeremonyType(), true));
 		this.getElement().setProperty("teamName", "");
-		// hide the weight and plates.
-		this.getElement().callJsFunction("doBreak", false);
 	}
 
 	private void doNotification(String text, String recordText, String theme, int duration) {
+		// FIXME: LitElement
 		Notification n = new Notification();
 		// Notification theme styling is done in
 		// META-INF/resources/frontend/styles/shared-styles.html
@@ -866,6 +920,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	}
 
 	private void hidePlates() {
+		// FIXME: LitElement - use conditional rendering
 		if (plates != null) {
 			try {
 				this.getElement().removeChild(plates.getElement());
@@ -877,7 +932,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	}
 
 	private void hideRecordInfo(FieldOfPlay fop, Athlete a) {
-		this.getElement().setProperty("recordKind", "recordNotification none");
+		this.getElement().setProperty("recordName", "");
 		this.getElement().setProperty("teamName", a.getTeam());
 		this.getElement().setProperty("hideBecauseRecord", "");
 	}
@@ -903,17 +958,16 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		this.groupDone = b;
 	}
 
-
-
 	private void showPlates() {
 		AttemptBoard attemptBoard = this;
 		OwlcmsSession.withFop((fop) -> {
 			UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+				// FIXME Use LitElement rendering
 				try {
 					if (plates != null) {
 						attemptBoard.getElement().removeChild(plates.getElement());
 					}
-					plates = new Plates();
+					plates = new PlatesElement();
 					plates.computeImageArea(fop, false);
 					Element platesElement = plates.getElement();
 					// tell polymer that the plates belong in the slot named barbell of the template
@@ -929,15 +983,13 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	}
 
 	private void spotlightNewRecord() {
-		this.getElement().setProperty("recordKind", "recordNotification new");
+		this.getElement().setProperty("recordBroken", "true");
 		this.getElement().setProperty("recordMessage", Translator.translate("Scoreboard.NewRecord"));
-		this.getElement().setProperty("hideBecauseRecord", "hideBecauseRecord");
 	}
 
 	private void spotlightRecordAttempt() {
-		this.getElement().setProperty("recordKind", "recordNotification attempt");
+		this.getElement().setProperty("recordAttempt", "true");
 		this.getElement().setProperty("recordMessage", Translator.translate("Scoreboard.RecordAttempt"));
-		this.getElement().setProperty("hideBecauseRecord", "hideBecauseRecord");
 	}
 
 	private void spotlightRecords(FieldOfPlay fop, Athlete a) {

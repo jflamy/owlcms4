@@ -358,15 +358,15 @@ class Results extends LitElement {
     //this.marqueeIfTooBig();
     //this.renderRoot.querySelector("#groupDiv").style.visibility = "visible";
     var s;
-    s = this.renderRoot.querySelector("#fullNameDiv") && (s.style.visibility = "visible");
-    s = this.renderRoot.querySelector("#fullNameDiv") && (style.display = "flex");
-    s = this.renderRoot.querySelector("#startNumberDiv") && (style.display = "flex");
-    s = this.renderRoot.querySelector("#teamNameDiv") && (style.display = "flex");
-    s = this.renderRoot.querySelector("#attemptDiv") && (style.display = "flex");
-    s = this.renderRoot.querySelector("#weightDiv") && (style.display = "flex");
-    s = this.renderRoot.querySelector("#timerDiv") && (style.display = "flex");
-    s = this.renderRoot.querySelector("#breakTimerDiv") && (style.display = "none");
-    s = this.renderRoot.querySelector("#decisionDiv") && (style.display = "none");
+    (s = this.renderRoot.querySelector("#fullNameDiv")) && (s.style.visibility = "visible");
+    (s = this.renderRoot.querySelector("#fullNameDiv")) && (s.style.display = "flex");
+    (s = this.renderRoot.querySelector("#startNumberDiv")) && (s.style.display = "flex");
+    (s = this.renderRoot.querySelector("#teamNameDiv")) && (s.style.display = "flex");
+    (s = this.renderRoot.querySelector("#attemptDiv")) && (s.style.display = "flex");
+    (s = this.renderRoot.querySelector("#weightDiv")) && (s.style.display = "flex");
+    (s = this.renderRoot.querySelector("#timerDiv")) && (s.style.display = "flex");
+    (s = this.renderRoot.querySelector("#breakTimerDiv")) && (s.style.display = "none");
+    (s = this.renderRoot.querySelector("#decisionDiv")) && (s.style.display = "none");
   }
 
   down() {

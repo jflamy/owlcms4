@@ -112,7 +112,7 @@ public class FileServlet extends HttpServlet {
 	private static boolean ignoreCaching = false;
 
 	private static Logger logger = (Logger) LoggerFactory.getLogger(FileServlet.class);
-    { logger.setLevel(Level.DEBUG); }
+    { logger.setLevel(Level.INFO); }
 
 	/**
 	 * @return the ignoreCaching

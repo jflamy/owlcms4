@@ -1133,11 +1133,11 @@ public class Results extends LitTemplate
 		if (liftType != null && curGroup != null && !curGroup.isDone()) {
 			this.getElement().setProperty("displayType", getDisplayType());
 		}
-		if (curGroup.isDone()) {
+		if (curGroup != null && curGroup.isDone()) {
 			// logger.debug("case 2 {}", isSwitchableDisplay());
 			setGroupNameProperty(groupDescription != null ? groupDescription : "\u00a0");
 			setLiftsDoneProperty("");
-		} else if (liftType != null) {
+		} else if (curGroup != null && liftType != null) {
 			// logger.debug("case 3 {}", isSwitchableDisplay());
 			String name = groupDescription != null ? groupDescription : curGroup.getName();
 			String value = groupDescription == null ? Translator.translate("Scoreboard.GroupLiftType", name, liftType)

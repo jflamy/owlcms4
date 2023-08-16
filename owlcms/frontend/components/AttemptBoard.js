@@ -1,4 +1,7 @@
 import { html, LitElement, css } from "lit";
+import {styleMap} from 'lit/directives/style-map.js';
+import {classMap} from 'lit/directives/class-map.js';
+
 /*******************************************************************************
  * Copyright (c) 2009-2023 Jean-François Lamy
  *
@@ -10,254 +13,218 @@ class CurrentAttempt extends LitElement {
   static get is() {
     return "attempt-board-template";
   }
-
+    
   render() {
-    return html` <link
-        rel="stylesheet"
-        type="text/css"
-        .href="${"local/" +
-        (this.stylesDir ?? "") +
-        "/" +
-        (this.video ?? "") +
-        "colors" +
-        (this.autoversion ?? "")
-        +".css"}"
-      />
-      <link
-        rel="stylesheet"
-        type="text/css"
-        .href="${"local/" +
-        (this.stylesDir ?? "") +
-        "/" +
-        (this.video ?? "") +
-        "resultsCustomization" +
-        (this.autoversion ?? "")
-        +".css"}"
-      />
-      <link
-        rel="stylesheet"
-        type="text/css"
-        .href="${"local/" +
-        (this.stylesDir ?? "") +
-        "/" +
-        (this.video ?? "") +
-        "attemptboard" +
-        (this.autoversion ?? "")
-        +".css"}"
-      />
-      <div class="${"wrapper " + (this.inactiveClass ?? "")}">
-        <div style="${this.inactiveBlockStyle}">
-          <div class="competitionName">${this.competitionName}</div>
-          <br />
-          <div class="nextGroup">${this.t?.WaitingNextGroup}</div>
+    return html` 
+    <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "") + ".css"}"/>
+    <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "resultsCustomization" + (this.autoversion ?? "") + ".css"}"/>
+    <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "attemptboard" + (this.autoversion ?? "") + ".css"}"/>
+
+    <div class="wrapper">
+      <div class="wrapper bigTitle" style="${this.waitingStyles()}">
+        <div class="competitionName">${this.competitionName}</div>
+        <br />
+        <div class="nextGroup">${this.t?.WaitingNextGroup}</div>
+      </div>
+      <div class="attemptBoard" style="${this.activeStyles()}">
+        <div id="lastNameDiv" class=${this.lastNameClasses()} style=${this.lastNameStyles()}>
+          <div>${this.lastName}</div>
         </div>
-        <div
-          class="attemptBoard"
-          id="attemptBoardDiv"
-          style="${this.activeGridStyle}"
-        >
-          <div
-            id="lastNameDiv"
-            class="${"lastName" + (this.WithPicture ?? "")}"
-          >
-            <div>${this.lastName}</div>
-          </div>
-          <div
-            id="firstNameDiv"
-            class="${"firstName" + (this.WithPicture ?? "")}"
-          >
-            <div>${this.firstName}</div>
-          </div>
-          <div class="teamName" id="teamNameDiv">${this.teamName}</div>
-          <div
-            id="flagDiv"
-            class="${"flag" +
-            (this.WithPicture ?? "") +
-            " " +
-            (this.hideBecauseRecord ?? "") +
-            " " +
-            (this.hideBecauseDecision ?? "")}"
-            .inner-h-t-m-l="${this.teamFlagImg}"
-          ></div>
-          <div
-            id="pictureDiv"
-            class="${"picture " +
-            (this.hideBecauseRecord ?? "") +
-            " " +
-            (this.hideBecauseDecision ?? "")}"
-            .inner-h-t-m-l="${this.athleteImg}"
-          ></div>
-          <div id="recordDiv" class="${this.recordKind}">
-            ${this.recordMessage}
-          </div>
-          <div class="startNumber" id="startNumberDiv">
-            <span>${this.startNumber}</span>
-          </div>
-          <div class="category" id="categoryDiv">
-            <span style="white-space: nowrap;">${this.category}</span>
-          </div>
-          <div class="attempt" id="attemptDiv">
-            <span .inner-h-t-m-l="${this.attempt}"></span
-            ><!-- kludge to have preformatted html -->
-          </div>
-          <div class="weight" id="weightDiv">
-            <span style="white-space: nowrap;"
-              >${this.weight}<span style="font-size: 75%"
-                >${this.kgSymbol}</span
-              ></span
-            >
-          </div>
-          <div class="barbell" id="barbellDiv">
-            <slot name="barbell"></slot>
-          </div>
-          <div class="timer athleteTimer" id="athleteTimerDiv">
-            <timer-element id="athleteTimer"></timer-element>
-          </div>
-          <div class="timer breakTime" id="breakTimerDiv">
-            <timer-element id="breakTimer"></timer-element>
-          </div>
-          <div
-            class="decision"
-            id="decisionDiv"
-            @down="${this.down}"
-            @hideX="${this.reset}"
-          >
-            <decision-element id="decisions"></decision-element>
-          </div>
+        <div class="${this.firstNameClasses()}" style="${this.firstNameStyles()}">
+          <div>${this.firstName}</div>
         </div>
-      </div>`;
+        <div class="teamName" style="${this.teamNameStyles()}">
+          ${this.teamName}
+        </div>
+        <div class="${this.teamFlagImgClasses()}" style="${this.teamFlagImgStyles()}" .innerHTML="${this.teamFlagImg}"></div>
+        <div class="${this.athleteImgClasses()}" style="${this.athleteImgStyles()}" .innerHTML="${this.athleteImg}"></div>
+        <div class="${this.recordMessageClasses()}" style="${this.recordMessageStyles()}">
+          ${this.recordMessage}
+        </div>
+        <div class="startNumber" style="${this.startNumberStyles()}">
+          <span>${this.startNumber}</span>
+        </div>
+        <div class="category" style="${this.attemptStyles()}">
+          <span style="white-space: nowrap;">${this.category}</span>
+        </div>
+        <div class="attempt" style="${this.attemptStyles()}">
+          <span .innerHTML="${this.attempt}"></span>
+        </div>
+        <div class="weight" style="${this.weightStyles()}">
+          <span style="white-space: nowrap;">${this.weight}<span style="font-size: 75%">${this.kgSymbol}</span></span>
+        </div>
+        <div class="barbell" style="${this.barbellStyles()}">
+          <slot></slot>
+        </div>
+        <div class="timer athleteTimer" style="${this.athleteTimerStyles()}">
+          <timer-element id="athleteTimer"></timer-element>
+        </div>
+        <div class="timer breakTime" style="${this.breakTimerStyles()}">
+          <timer-element id="breakTimer"></timer-element>
+        </div>
+        <div class="decision" id="decisionDiv" style="${this.decisionStyles()}">
+          <decision-element id="decisions"></decision-element>
+        </div>
+      </div>
+    </div>`;
   }
 
   static get properties() {
     return {
-      javaComponentId: {
-        type: String,
-      },
-      lastName: {
-        type: String,
-      },
-      firstName: {
-        type: String,
-      },
-      teamName: {
-        type: String,
-      },
-      startNumber: {
-        type: Number,
-      },
-      attempt: {
-        type: String,
-      },
-      weight: {
-        type: Number,
-      },
+      // shared
+      lastName: {},
+      firstName: {},
+      weight: {},
+      competitionName: {},
+
+      // mode (mutually exclusive, one of:
+      // WAIT INTRO_COUNTDOWN LIFT_COUNTDOWN CURRENT_ATHLETE INTERRUPTION SESSION_DONE
+      mode: {},
+
+      // during lifting
+      attempt: {},
+      athleteImg: {},
+      teamName: {},
+      teamFlagImg: {},
+      startNumber: {},
+      decisionVisible: { type: Boolean },
+      recordAttempt: {},
+      recordBroken: {},
+
+      // style sheets & misc.
+      javaComponentId: {},
+      stylesDir: {},
+      autoVersion: {},
+      video: {},
+
+      // translation map
+      t: { type: Object }
     };
   }
 
   firstUpdated(_changedProperties) {
     super.firstUpdated(_changedProperties);
-    this.doBreak();
-    this.renderRoot.querySelector("#athleteTimerDiv").style.display = "none";
   }
 
-  start() {
-    this.renderRoot.querySelector("#timer").start();
+  isBreak() {
+    return this.mode === "INTERRUPTION" || this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "SESSION_DONE"
   }
 
-  reset() {
-    console.warn("attemptBoard reset " + this.javaComponentId);
-    //this.renderRoot.querySelector("#attemptBoardDiv").style.display = "grid";
-    //this.renderRoot.querySelector("#attemptBoardDiv").style.color = "white";
-    this.renderRoot.querySelector("#athleteTimerDiv").style.display = "grid";
-    this.renderRoot.querySelector("#firstNameDiv").style.display = "grid";
-    this.renderRoot.querySelector("#teamNameDiv").style.display = "grid";
-    this.renderRoot.querySelector("#attemptDiv").style.display = "grid";
-    this.renderRoot.querySelector("#categoryDiv").style.display = "grid";
-    this.renderRoot.querySelector("#breakTimerDiv").style.display = "none";
-    this.renderRoot.querySelector("#weightDiv").style.display = "grid";
-    this.renderRoot.querySelector("#startNumberDiv").style.display = "block";
-    this.renderRoot.querySelector("#barbellDiv").style.display = "grid";
-    this.renderRoot.querySelector("#decisionDiv").style.display = "none";
-    console.debug("end of attemptBoard reset " + this.javaComponentId);
+  isCountdown() {
+    return  this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN"
   }
 
-  down() {
-    console.debug("attemptBoard down " + this.javaComponentId);
-    this.renderRoot.querySelector("#athleteTimerDiv").style.display = "none";
-    this.renderRoot.querySelector("#breakTimerDiv").style.display = "none";
-    this.renderRoot.querySelector("#barbellDiv").style.display = "none";
-    this.renderRoot.querySelector("#attemptDiv").style.display = "none";
-    this.renderRoot.querySelector("#decisionDiv").style.display = "grid";
-    console.debug("end of attemptBoard dome " + this.javaComponentId);
+  athleteImgClasses() {
+    var mainClass = "picture";
+    return mainClass + 
+      (this.decisionVisible ?  " hideBecauseDecision" : "") +
+      ((this.recordAttempt || this.recordBroken) ? " hideBecauseRecord" : "");
+  }
+  teamFlagImgClasses() {
+    var mainClass = this.athleteImg ? "flagWithPicture" : "flag";
+    return mainClass + 
+      (this.decisionVisible ?  " hideBecauseDecision" : "") +
+      ((this.recordAttempt || this.recordBroken) ? " hideBecauseRecord" : "");
   }
 
-  doBreak(showWeight) {
-    console.debug(
-      "attemptBoard doBreak " +
-        this.javaComponentId +
-        " showWeight = " +
-        showWeight
-    );
-    //this.renderRoot.querySelector("#attemptBoardDiv").style.display = "grid";
-    //this.renderRoot.querySelector("#attemptBoardDiv").style.color = "white";
-    this.renderRoot.querySelector("#athleteTimerDiv").style.display = "none";
-    this.renderRoot.querySelector("#breakTimerDiv").style.display = "grid";
-    this.renderRoot.querySelector("#firstNameDiv").style.display = "grid";
-    this.renderRoot.querySelector("#teamNameDiv").style.display = "none";
-    this.renderRoot.querySelector("#attemptDiv").style.display = "none";
-    this.renderRoot.querySelector("#categoryDiv").style.display = "none";
-    this.renderRoot.querySelector("#startNumberDiv").style.display = "none";
-    if (showWeight) {
-      this.renderRoot.querySelector("#weightDiv").style.display = "grid";
-      this.renderRoot.querySelector("#barbellDiv").style.display = "grid";
-      this.renderRoot.querySelector("#decisionDiv").style.display = "grid";
-      //this.renderRoot.querySelector("#breakTimerDiv").style.display = "grid";
-    } else {
-      this.renderRoot.querySelector("#weightDiv").style.display = "none";
-      this.renderRoot.querySelector("#barbellDiv").style.display = "none";
-      this.renderRoot.querySelector("#decisionDiv").style.display = "none";
-      this.renderRoot.querySelector("#breakTimerDiv").style.display = "none";
-    }
-    console.debug("attemptBoard end doBreak " + this.javaComponentId);
+  waitingStyles() {
+    return "display: " + (this.mode === "WAIT" ? "block" : "none");
   }
 
-  groupDone() {
-    console.debug("attemptBoard groupDone " + this.javaComponentId);
-    //this.renderRoot.querySelector("#attemptBoardDiv").style.display = "grid";
-    //this.renderRoot.querySelector("#attemptBoardDiv").style.color = "white";
-    // this.renderRoot.querySelector("#breakTimer").reset();
-    this.renderRoot.querySelector("#athleteTimerDiv").style.display = "none";
-    this.renderRoot.querySelector("#firstNameDiv").style.display = "none";
-    this.renderRoot.querySelector("#teamNameDiv").style.display = "none";
-    this.renderRoot.querySelector("#attemptDiv").style.display = "none";
-    this.renderRoot.querySelector("#categoryDiv").style.display = "none";
-    this.renderRoot.querySelector("#breakTimerDiv").style.display = "none";
-    this.renderRoot.querySelector("#weightDiv").style.display = "none";
-    this.renderRoot.querySelector("#startNumberDiv").style.display = "none";
-    this.renderRoot.querySelector("#barbellDiv").style.display = "none";
-    this.renderRoot.querySelector("#decisionDiv").style.display = "none";
-    console.debug("attemptBoard end groupDone " + this.javaComponentId);
+  activeStyles() {
+    return "display: " + (this.mode !== "WAIT" ? "grid" : "none");
   }
 
-  clear() {
-    console.debug("attemptBoard clear " + this.javaComponentId);
-    this.renderRoot.querySelector("#attemptBoardDiv").style.display = "none";
-    console.debug("attemptBoard end clear " + this.javaComponentId);
+  lastNameClasses() {
+    return (this.athleteImg ? "lastNameWithPicture" : "lastName");
+  }
+  lastNameStyles() {
+    return "display: grid";
   }
 
-  reload() {
-    console.log("reloading");
-    window.location.reload();
+  firstNameClasses() {
+    return "display: " + (this.athleteImg ? "firstNameWithPicture" : "firstName");
   }
+  firstNameStyles() {
+    return "display: grid";
+  }
+
+  teamNameStyles() {
+    return "display: " + ((this.recordAttempt || this.recordBroken || this.isBreak()) ? "none" : "grid");
+  }
+
+  teamFlagImgStyles() {
+    return "display: " + (this.isBreak() ? "none" : ( this.mode === "CURRENT_ATHLETE" ? "grid" : "none"));
+  }
+
+
+  athleteImgStyles() {
+    return "display: " + ((this.mode === "CURRENT_ATHLETE" && (this.recordAttempt || this.recordBroken)) ? "grid" : "none");
+  }
+
+  recordMessageClasses() {
+    var mainClass = "recordNotification";
+    return mainClass +
+      (this.recordAttempt ? " attempt" : "") +
+      (this.recordBroken ? " new" : "") + 
+      (!this.recordAttempt && !this.recordBroken ? " none" : "");
+  }
+
+  recordMessageStyles() {
+    return "display: " + ((this.mode === "CURRENT_ATHLETE" && (this.recordAttempt || this.recordBroken)) ? "grid" : "none");
+  }
+
+  attemptStyles() {
+    return "display: " + (this.isBreak() ? "none" : "grid");
+  }
+
+  startNumberStyles() {
+    return "display: " + (this.isBreak() ? "none" : "block");
+  }
+
+  weightStyles() {
+    // weights are visible during countdown
+    return "display: " + ((this.isBreak() && ! this.isCountdown()) ? "none" : "grid");
+  }
+
+  athleteTimerStyles() {
+    return "display:" + ((this.mode === "CURRENT_ATHLETE" && !this.decisionVisible) ? "grid" : "none");
+  }
+
+  breakTimerStyles() {
+    return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN") ? "grid" : "none");
+  }
+
+  barbellStyles() {
+    return "display: " + ((this.mode === "LIFT_COUNTDOWN" || (this.mode === "CURRENT_ATHLETE" && !this.decisionVisible)) ? "grid" : "none");
+  }
+
+  decisionStyles() {
+    return "display: " + ((this.mode === "CURRENT_ATHLETE" && this.decisionVisible) ? "grid" : "none");
+  }
+
   constructor() {
     super();
     this.javaComponentId = "";
     this.lastName = "";
     this.firstName = "";
-    this.teamName = "";
-    this.startNumber = 0;
-    this.attempt = "";
     this.weight = 0;
+    this.competitionName = "";
+
+    this.mode == "WAIT";
+
+    this.attempt = "";
+    this.athleteImg = "";
+    this.teamName = "";
+    this.teamFlagImg = "";
+    this.startNumber = 0;
+    this.decisionVisible = false;
+    this.recordAttempt = false;
+    this.recordBroken = false;
+
+    this.stylesDir = "";
+    this.autoVersion = 0;
+    this.video = "";
   }
 }
 

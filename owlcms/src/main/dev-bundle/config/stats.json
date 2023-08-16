@@ -1,7 +1,6 @@
 {
  "packageJsonDependencies": {
   "@polymer/polymer": "3.5.1",
-  "@vaadin-component-factory/vcf-enhanced-dialog": "1.0.7",
   "@vaadin/a11y-base": "24.1.4",
   "@vaadin/accordion": "24.1.4",
   "@vaadin/app-layout": "24.1.4",
@@ -74,9 +73,7 @@
  "npmModules": {
   "@lit/reactive-element": "1.6.3",
   "@open-wc/dedupe-mixin": "1.3.1",
-  "@polymer/iron-resizable-behavior": "3.0.1",
   "@polymer/polymer": "3.5.1",
-  "@vaadin-component-factory/vcf-enhanced-dialog": "1.0.7",
   "@vaadin/a11y-base": "24.1.4",
   "@vaadin/accordion": "24.1.4",
   "@vaadin/app-layout": "24.1.4",
@@ -132,13 +129,11 @@
   "@vaadin/tooltip": "24.1.4",
   "@vaadin/upload": "24.1.4",
   "@vaadin/vaadin-development-mode-detector": "2.0.6",
-  "@vaadin/vaadin-element-mixin": "2.4.2",
   "@vaadin/vaadin-lumo-styles": "24.1.4",
   "@vaadin/vaadin-themable-mixin": "24.1.4",
   "@vaadin/vaadin-usage-statistics": "2.1.2",
   "@vaadin/vertical-layout": "24.1.4",
   "@vaadin/virtual-list": "24.1.4",
-  "@webcomponents/shadycss": "1.11.2",
   "construct-style-sheets-polyfill": "3.1.0",
   "date-fns": "2.29.3",
   "element-match-media": "0.0.3",
@@ -150,7 +145,6 @@
   "tslib": "2.5.0"
  },
  "bundleImports": [
-  "@vaadin-component-factory/vcf-enhanced-dialog",
   "@vaadin/accordion/theme/lumo/vaadin-accordion-panel.js",
   "@vaadin/accordion/theme/lumo/vaadin-accordion.js",
   "@vaadin/app-layout/theme/lumo/vaadin-app-layout.js",
@@ -272,16 +266,16 @@
   "styles/athlete-grid.css": "60121edc6c6a51aa54132fff4a82c74b5a34d96a608fb45753ad7d59a6af1613",
   "styles/notification-theme.css": "41d7d74e2837012bbaeab4d733a0ae7574accac1f6945e43c871f4973001a5f7",
   "styles/text-field-theme.css": "764a761c1479b3a376b02dc59487d1fcc7491c68abe205aa9fbf5d4d3dc53533",
-  "components/TimerElement.js": "93c05e6f71602bdf847e6ed8d983d8c5e054ec78ad5296f3175462ab71eb450d",
+  "components/TimerElement.js": "989b3bcebaafa0cad597ee2edf792f049e9398552b2e4ee0218802a6e45378fe",
   "components/BeepElement.js": "19151e58fa563c7266e0d39685079697692aae3262fb234e7d24aea493142820",
-  "components/DecisionElement.js": "0ef241dfa0d88caa26df1156dc4e821ff89788e42a447d98627addc633bb0b64",
+  "components/DecisionElement.js": "786772c4ea41098100b056caae0d754f33b5c41b8578968336d2042aad7aa6dc",
   "unload/unload-observer.js": "3a7724722fe8db2c94d1e11ca2904bfac0069f49d6a747243db08991841d2a0a",
   "components/AthleteCard.js": "a5583a66bc1142958f191052c92765f3be0d75c2812b6cf57a32d211b275dd8f",
-  "components/AttemptBoard.js": "19e66c9fc22d300527666820363bb0b161ea2a350f6f613a13908409cfec1977",
+  "components/AttemptBoard.js": "1d0dde09bd0880f4857475bab41128170931fce8fba60267a2a72b7a4905c4de",
   "components/AudioContext.js": "37f8d884ff90f1c1fd7aced8dfba719eecbc13c77e66c4d832310a6e1eaa6e76",
   "components/DecisionBoard.js": "fee9fe23a5a7d8d86c651e1635fca95e6dc45b2ecfeaa39baba2fd3aa0a84f16",
   "components/CurrentAthlete.js": "8f1d5b2b702b58de8ee0be90d151104aca944be79eacc8a634beb17129291c8f",
-  "components/Results.js": "24a65334492bf532cf551b147001d359becc56ea53238aa573e402e4487f20a2",
+  "components/Results.js": "f134193881c75bd9ab2244810989b03b39de2448aae2b6230323b7e9904a07d9",
   "components/ResultsLeadersRanks.js": "0c2e9125cf6cdadc87313509cc6aaad41f17f12f216b88a832595c42a6af9d2d",
   "components/ResultsMedals.js": "7dcdf34bd4d367eb2ea82278a6ab8ac552eec7269d885fe6ee69cf3cbf0a9511",
   "components/TopSinclair.js": "54b814e82aaf27d11e1d4ec7bc3459f35803bef650894f0c4aa7ceaf73bdb579",
@@ -314,12 +308,12 @@
  },
  "themeJsonContents": {},
  "entryScripts": [
-  "VAADIN/build/indexhtml-40377a68.js"
+  "VAADIN/build/indexhtml-72699d77.js"
  ],
  "webComponents": [],
  "cvdlModules": {},
- "packageJsonHash": "4685d44ddd1535b34f264f29eab85cbeaffb27ea57fc8a7d95f27887bb201ee5",
+ "packageJsonHash": "cc2f59824e26d78fcf4754acc79ecd7febcb7aea7c198fddc933055f90a61519",
  "indexHtmlGenerated": [
-  "  <script type=\"module\" crossorigin src=\"./VAADIN/build/indexhtml-40377a68.js\"></script>"
+  "  <script type=\"module\" crossorigin src=\"./VAADIN/build/indexhtml-72699d77.js\"></script>"
  ]
 }

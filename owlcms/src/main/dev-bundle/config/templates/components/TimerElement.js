@@ -12,7 +12,7 @@ class TimerElement extends LitElement {
   }
 
   render() {
-    return html` <div .inner-h-t-m-l="${this._formattedTime}"></div>`;
+    return html`<div .innerHTML="${this._formattedTime}"></div>`;
   }
 
   static get properties() {
@@ -94,13 +94,13 @@ class TimerElement extends LitElement {
 
   firstUpdated(_changedProperties) {
     super.firstUpdated(_changedProperties);
-    console.warn("timer ready");
+    console.debug("timer ready");
     this._init();
   }
 
   start(seconds, indefinite, silent, element, serverMillis, from) {
     if (indefinite) {
-      console.warn("timer indefinite " + seconds);
+      console.debug("timer indefinite " + seconds);
       this._indefinite();
       return;
     }
@@ -115,7 +115,7 @@ class TimerElement extends LitElement {
         lateMillis = 0;
       }
     }
-    console.warn("timer start " + seconds + " late = " + lateMillis + "ms");
+    console.debug("timer start " + seconds + " late = " + lateMillis + "ms");
     this.$server.clientTimerStarting(
       this.fopName,
       seconds,
@@ -165,10 +165,10 @@ class TimerElement extends LitElement {
       (this.isIOS() ? "iPad" : "browser") + " " + from
     );
     // } else {
-    // 	console.warn("no server$");
+    // 	console.debug("no server$");
     // }
 
-    console.warn("timer pause " + seconds);
+    console.debug("timer pause " + seconds);
 
     this.currentTime = seconds;
     this._formattedTime = this._formatTime(this.currentTime);
@@ -176,18 +176,13 @@ class TimerElement extends LitElement {
 
   display(seconds, indefinite, silent, element) {
     this.running = false;
-    console.warn("display " + indefinite + " " + seconds);
+    console.debug("display " + indefinite + " " + seconds);
     if (indefinite) {
-      this.set("currentTime", seconds);
+      this.currentTime = seconds;
       this._indefinite();
-    }
-    // else if (this.countUp) {
-    // 	this.set('currentTime', 0);
-    // 	this.set('_formattedTime', '0:00');
-    // }
-    else {
-      this.set("currentTime", seconds);
-      this.set("_formattedTime", this._formatTime(seconds));
+    } else {
+      this.currentTime = seconds;
+      this._formattedTime = this._formatTime(seconds);
     }
     this._initialWarningGiven = false;
     this._finalWarningGiven = false;
@@ -195,9 +190,6 @@ class TimerElement extends LitElement {
   }
 
   reset(element) {
-    //		console.warn("timer reset");
-    //		this.pause(this.startTime, false, true, element);
-    //		this._init();
   }
 
   isIOS() {
@@ -208,7 +200,7 @@ class TimerElement extends LitElement {
         "iPod Simulator",
         "iPad",
         "iPhone",
-        "iPod",
+        // "iPod",
       ].includes(navigator.platform) ||
       // iPad on iOS 13 detection
       (navigator.userAgent.includes("Mac") && "ontouchend" in document)
@@ -216,29 +208,30 @@ class TimerElement extends LitElement {
   }
 
   _indefinite() {
-    this.set("_formattedTime", "&nbsp;");
+    this._formattedTime = "&nbsp;";
   }
 
   _init() {
     this.running = false;
-    console.warn("init timer " + this.indefinite);
+    console.debug("init timer " + this.indefinite);
     if (this.indefinite) {
-      this.set("currentTime", this.startTime);
+      this.currentTime = this.startTime;
       this._indefinite();
-    } else if (this.countUp) {
-      this.set("currentTime", 0);
-      this.set("_formattedTime", "0:00");
-    } else {
-      this.set("currentTime", this.startTime);
-      this.set("_formattedTime", this._formatTime(this.startTime));
-    }
+    } 
+    // else if (this.countUp) {
+    //   this.currentTime = 0;
+    //   this._formattedTime = "0:00";
+    // } else {
+    //   this.currentTime = this.startTime;
+    //   this._formattedTime = this._formatTime(this.startTime);
+    // }
     this._initialWarningGiven = false;
     this._finalWarningGiven = false;
     this._timeOverWarningGiven = false;
   }
 
   async _prepareAudio() {
-    console.warn("window.isIOS=", window.isIOS);
+    console.debug("window.isIOS=", window.isIOS);
     if (window.isIOS) {
       // prefetched buffers are not available later for some unexplained reason.
       // so we don't attempt fetching.
@@ -253,10 +246,10 @@ class TimerElement extends LitElement {
         0
       );
       window.finalWarning = finalWarning;
-      console.warn("loaded finalWarning = " + window.finalWarning);
+      console.debug("loaded finalWarning = " + window.finalWarning);
     } else {
-      console.warn("skipping load");
-      console.warn("existing finalWarning = " + window.finalWarning);
+      console.debug("skipping load");
+      console.debug("existing finalWarning = " + window.finalWarning);
     }
 
     if (!window.initialWarning /* && ! this.loadingInitialWarning */) {
@@ -268,10 +261,10 @@ class TimerElement extends LitElement {
         0
       );
       window.initialWarning = initialWarning;
-      console.warn("loaded initialWarning = " + window.initialWarning);
+      console.debug("loaded initialWarning = " + window.initialWarning);
     } else {
-      console.warn("skipping load");
-      console.warn("existing initialWarning = " + window.initialWarning);
+      console.debug("skipping load");
+      console.debug("existing initialWarning = " + window.initialWarning);
     }
 
     if (!window.timeOver /* && ! this.loadingTimeOver */) {
@@ -283,10 +276,10 @@ class TimerElement extends LitElement {
         0
       );
       window.timeOver = timeOver;
-      console.warn("loaded timeOver = " + window.timeOver);
+      console.debug("loaded timeOver = " + window.timeOver);
     } else {
-      console.warn("skipping load");
-      console.warn("existing timeOver duration= " + window.timeOver);
+      console.debug("skipping load");
+      console.debug("existing timeOver duration= " + window.timeOver);
     }
   }
 
@@ -361,9 +354,9 @@ class TimerElement extends LitElement {
 
     // we anticipate to use the more precise audio context timer
     if (this.currentTime <= 0.05 && !this._timeOverWarningGiven) {
-      console.warn("calling play " + this.currentTime);
+      console.debug("calling play " + this.currentTime);
       if (!this.silent) {
-        console.warn("about to play time over " + window.timeOver);
+        console.debug("about to play time over " + window.timeOver);
         this._playTrack(
           "../sounds/timeOver.mp3",
           window.timeOver,
@@ -376,7 +369,7 @@ class TimerElement extends LitElement {
       this._timeOverWarningGiven = true;
     }
     if (this.currentTime <= 30.05 && !this._finalWarningGiven) {
-      console.warn(
+      console.debug(
         "final warning " +
           this.currentTime +
           " " +
@@ -386,7 +379,7 @@ class TimerElement extends LitElement {
       );
       if (!this.silent) {
         //this.renderRoot.querySelector("#finalWarning").play();
-        console.warn("about to play final warning " + window.finalWarning);
+        console.debug("about to play final warning " + window.finalWarning);
         this._playTrack(
           "../sounds/finalWarning.mp3",
           window.finalWarning,
@@ -401,7 +394,7 @@ class TimerElement extends LitElement {
     if (this.currentTime <= 90.05 && !this._initialWarningGiven) {
       if (!this.silent) {
         //this.renderRoot.querySelector("#initialWarning").play();
-        console.warn("about to play initial warning " + window.initialWarning);
+        console.debug("about to play initial warning " + window.initialWarning);
         this._playTrack(
           "../sounds/initialWarning.mp3",
           window.initialWarning,
@@ -422,7 +415,7 @@ class TimerElement extends LitElement {
       (this.currentTime < -0.1 && !this.countUp) ||
       (this.currentTime >= this.startTime && this.countUp)
     ) {
-      console.warn("time over stop running " + this.$server);
+      console.debug("time over stop running " + this.$server);
       // timer is over; tell server to emit sound if server-side sounds
       if (this.$server != null) this.$server.clientTimeOver(this.fopName);
       this.running = false;
@@ -448,14 +441,6 @@ class TimerElement extends LitElement {
   set startTime(newValue) {
     const oldValue = this.startTime;
     this._startTime = newValue;
-    if (oldValue !== newValue) {
-      this._init(newValue, oldValue);
-      this.requestUpdateInternal(
-        "startTime",
-        oldValue,
-        this.constructor.properties.startTime
-      );
-    }
   }
   get startTime() {
     return this._startTime;

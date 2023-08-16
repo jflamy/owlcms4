@@ -697,12 +697,14 @@ public class FieldOfPlay {
 			uiShowPlates((BarbellOrPlatesChanged) e);
 			return;
 		} else if (e instanceof SwitchGroup) {
+			logger.warn("{}*** switching group",getLoggingName());
 			Group oldGroup = this.getGroup();
 			SwitchGroup switchGroup = (SwitchGroup) e;
 			Group newGroup = switchGroup.getGroup();
 
 			boolean inBreak = state == BREAK || state == INACTIVE;
 			if (Objects.equals(oldGroup, newGroup)) {
+				logger.debug("{}**** reloading",getLoggingName());
 				loadGroup(newGroup, this, true);
 				pushOutSwitchGroup(e.getOrigin());
 				uiDisplayCurrentAthleteAndTime(true, e, false);
@@ -716,6 +718,8 @@ public class FieldOfPlay {
 					setState(state);
 				}
 				loadGroup(newGroup, this, true);
+				
+				uiDisplayCurrentAthleteAndTime(true, e, false); //****
 			}
 			return;
 		} else if (e instanceof JuryMemberDecisionUpdate) {
@@ -1070,8 +1074,8 @@ public class FieldOfPlay {
 				return;
 			}
 
-			if (logger.isTraceEnabled()) {
-				logger.trace("{}loading data for group {} [already={} forced={} from={}]",
+			if (logger.isDebugEnabled()) {//FIXME trace
+				logger.debug("{}**** loading data for group {} [already={} forced={} from={}]",
 				        getLoggingName(),
 				        loadGroupName,
 				        alreadyLoaded,
@@ -2711,7 +2715,7 @@ public class FieldOfPlay {
 		// check that all athletes are at first CJ
 		boolean firstCJ = true;
 		for (Athlete a : liftingOrder) {
-			logger.debug("{}{} {}", this.getLoggingName(), a.getShortName(), a.getAttemptsDone());
+			logger.warn("!!!! {}{} {}", this.getLoggingName(), a.getShortName(), a.getAttemptsDone());
 			if (a.getAttemptsDone() != 3) {
 				firstCJ = false;
 				break;

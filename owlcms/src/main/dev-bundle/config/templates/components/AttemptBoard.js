@@ -20,7 +20,8 @@ class CurrentAttempt extends LitElement {
         "/" +
         (this.video ?? "") +
         "colors" +
-        (this.autoversion ?? "")}"
+        (this.autoversion ?? "")
+        +".css"}"
       />
       <link
         rel="stylesheet"
@@ -30,7 +31,8 @@ class CurrentAttempt extends LitElement {
         "/" +
         (this.video ?? "") +
         "resultsCustomization" +
-        (this.autoversion ?? "")}"
+        (this.autoversion ?? "")
+        +".css"}"
       />
       <link
         rel="stylesheet"
@@ -40,7 +42,8 @@ class CurrentAttempt extends LitElement {
         "/" +
         (this.video ?? "") +
         "attemptboard" +
-        (this.autoversion ?? "")}"
+        (this.autoversion ?? "")
+        +".css"}"
       />
       <div class="${"wrapper " + (this.inactiveClass ?? "")}">
         <div style="${this.inactiveBlockStyle}">
@@ -162,22 +165,20 @@ class CurrentAttempt extends LitElement {
   }
 
   reset() {
-    console.warn("attemptBoard reset " + this.javaComponentId);
-    //this.renderRoot.querySelector("#attemptBoardDiv").style.display = "grid";
-    //this.renderRoot.querySelector("#attemptBoardDiv").style.color = "white";
-    this.renderRoot
-      .querySelector("#athleteTimer")
-      .reset(this.renderRoot.querySelector("#athleteTimer"));
-    this.renderRoot.querySelector("#athleteTimerDiv").style.display = "grid";
-    this.renderRoot.querySelector("#firstNameDiv").style.display = "grid";
-    this.renderRoot.querySelector("#teamNameDiv").style.display = "grid";
-    this.renderRoot.querySelector("#attemptDiv").style.display = "grid";
-    this.renderRoot.querySelector("#categoryDiv").style.display = "grid";
-    this.renderRoot.querySelector("#breakTimerDiv").style.display = "none";
-    this.renderRoot.querySelector("#weightDiv").style.display = "grid";
-    this.renderRoot.querySelector("#startNumberDiv").style.display = "block";
-    this.renderRoot.querySelector("#barbellDiv").style.display = "grid";
-    this.renderRoot.querySelector("#decisionDiv").style.display = "none";
+     console.warn("attemptBoard reset " + this.javaComponentId);
+    //(s = this.renderRoot.querySelector("#attemptBoardDiv")) && (s.style.display = "grid");
+    //(s = this.renderRoot.querySelector("#attemptBoardDiv")) && (s.style.color = "white");
+    var s;
+    (s = this.renderRoot.querySelector("#athleteTimerDiv")) && (s.style.display = "grid");
+    (s = this.renderRoot.querySelector("#firstNameDiv")) && (s.style.display = "grid");
+    (s = this.renderRoot.querySelector("#teamNameDiv")) && (s.style.display = "grid");
+    (s = this.renderRoot.querySelector("#attemptDiv")) && (s.style.display = "grid");
+    (s = this.renderRoot.querySelector("#categoryDiv")) && (s.style.display = "grid");
+    (s = this.renderRoot.querySelector("#breakTimerDiv")) && (s.style.display = "none");
+    (s = this.renderRoot.querySelector("#weightDiv")) && (s.style.display = "grid");
+    (s = this.renderRoot.querySelector("#startNumberDiv")) && (s.style.display = "block");
+    (s = this.renderRoot.querySelector("#barbellDiv")) && (s.style.display = "grid");
+    (s = this.renderRoot.querySelector("#decisionDiv")) && (s.style.display = "none");
     console.debug("end of attemptBoard reset " + this.javaComponentId);
   }
 
@@ -241,7 +242,8 @@ class CurrentAttempt extends LitElement {
 
   clear() {
     console.debug("attemptBoard clear " + this.javaComponentId);
-    this.renderRoot.querySelector("#attemptBoardDiv").style.display = "none";
+    var s;
+    (s = this.renderRoot.querySelector("#attemptBoardDiv")) && (s.style.display = "none");
     console.debug("attemptBoard end clear " + this.javaComponentId);
   }
 
