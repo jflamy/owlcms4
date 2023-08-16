@@ -28,6 +28,7 @@ import com.google.common.eventbus.Subscribe;
 
 import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.fieldofplay.CountdownType;
@@ -570,6 +571,7 @@ public class MQTTMonitor extends Thread {
 		        .collect(Collectors.toList());
 		payload.put("platforms", platforms);
 		payload.put("version", StartupUtils.getVersion());
+		payload.put("jurySize", Competition.getCurrent().getJurySize());
 		try {
 			String json = new ObjectMapper().writeValueAsString(payload);
 			logger.info("{}MQTT Config: {}",fop.getLoggingName(),json);
