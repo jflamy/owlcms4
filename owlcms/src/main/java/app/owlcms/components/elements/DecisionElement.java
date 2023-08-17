@@ -14,6 +14,8 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dependency.Uses;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 
 import app.owlcms.fieldofplay.FOPEvent;
@@ -30,6 +32,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("decision-element")
 @JsModule("./components/DecisionElement.js")
+@Uses(Icon.class)
 public class DecisionElement extends LitTemplate
         implements SafeEventBusRegistration {
 
@@ -80,7 +83,8 @@ public class DecisionElement extends LitTemplate
 			fop.fopEventPost(
 			        new FOPEvent.DecisionFullUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3,
 			                Long.valueOf(ref1Time),
-			                Long.valueOf(ref2Time), Long.valueOf(ref3Time), false));
+			                Long.valueOf(ref2Time), 
+			                Long.valueOf(ref3Time), false));
 		});
 
 	}
@@ -153,6 +157,7 @@ public class DecisionElement extends LitTemplate
 			uiEventLogger.debug("!!! {} down ({})", this.getOrigin(), this.getParent().get().getClass().getSimpleName());
 			this.getElement().callJsFunction("showDown", false,
 			        isSilenced() || OwlcmsSession.getFop().isEmitSoundsOnServer());
+			//FIXME hide down signal in 1 second.
 		});
 	}
 
@@ -167,7 +172,6 @@ public class DecisionElement extends LitTemplate
 	public void slaveShowDecision(UIEvent.Decision e) {
 		uiEventLogger.debug("!!! {} majority decision ({})", this.getOrigin(), this.getParent().get().getClass().getSimpleName());
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
-			uiEventLogger.debug("!!! {} majority decision DOING SOMETHING ({})", this.getOrigin(), this.getParent().get().getClass().getSimpleName());
 			this.getElement().callJsFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
 			this.getElement().callJsFunction("setEnabled", false);
 		});
@@ -176,7 +180,7 @@ public class DecisionElement extends LitTemplate
 	@Subscribe
 	public void slaveStartTimer(UIEvent.StartTime e) {
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			uiEventLogger.warn("!!! slaveStartTimer enable");
+			uiEventLogger.debug("!!! slaveStartTimer enable");
 			this.getElement().callJsFunction("setEnabled", true);
 		});
 	}
@@ -184,7 +188,7 @@ public class DecisionElement extends LitTemplate
 	@Subscribe
 	public void slaveStopTimer(UIEvent.StopTime e) {
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			uiEventLogger.warn("!!! slaveStopTimer enable");
+			uiEventLogger.debug("!!! slaveStopTimer enable");
 			this.getElement().callJsFunction("setEnabled", true);
 		});
 	}

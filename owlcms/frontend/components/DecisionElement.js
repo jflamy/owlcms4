@@ -1,5 +1,6 @@
 import { html, LitElement, css } from "lit";
-/*******************************************************************************
+
+/*********************************************
  * Copyright (c) 2009-2023 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
@@ -64,7 +65,7 @@ class DecisionElement extends LitElement {
   render() {
     return html` 
     <div class="decisionWrapper" style="${this.decisionWrapperStyle()}" >
-      <div class="down" style="font-weight: 900; ${this.downStyles()}">&#x2B73;</div>
+      <div class="down" style="font-weight: 900; ${this.downStyles()}"><vaadin-icon icon="vaadin:arrow-circle-down"></vaadin-icon></div>
       <div class="decisions" style="${this.decisionsStyles()}">
         <span class="${this.decisionClasses(1)}">&nbsp;</span>
         <span class="${this.decisionClasses(2)}">&nbsp;</span>
