@@ -16,6 +16,10 @@
         <mapEntry key="OWLCMS_MQTTPASSWORD" value="test"/>
         <mapEntry key="OWLCMS_MQTTUSERNAME" value="test"/>
         <mapEntry key="OWLCMS_PORT" value="8080"/>
+<<<<<<< HEAD
+=======
+        <mapEntry key="OWLCMS_REMOTE" value="http://localhost:8082/update"/>
+>>>>>>> refs/heads/develop
         <mapEntry key="OWLCMS_RESETMODE" value="true"/>
         <mapEntry key="OWLCMS_STYLESDIR" value="styles"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="maryhadalittlelamb"/>
