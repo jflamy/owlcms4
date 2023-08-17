@@ -915,7 +915,6 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	}
 
 	private void hidePlates() {
-		// FIXME: LitElement - use conditional rendering
 		if (plates != null) {
 			try {
 				this.getElement().removeChild(plates.getElement());

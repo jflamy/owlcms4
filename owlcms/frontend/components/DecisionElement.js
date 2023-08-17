@@ -17,6 +17,7 @@ class DecisionElement extends LitElement {
         .decisionWrapper {
           width: 100%;
           height: 100%;
+          text-align: center;
         }
 
         .decisions {
@@ -55,6 +56,7 @@ class DecisionElement extends LitElement {
           font-weight: normal;
           color: lime;
           display: block;
+          font-family: 'Arial Black', Arial, Helvetica, sans-serif;
         }
       `,
     ];
@@ -125,8 +127,9 @@ class DecisionElement extends LitElement {
         type: Boolean,
         state: true,
       },
-      showDownOrDecision: {
+      _showDecision: {
         type: Boolean,
+        state: true,
       }
     };
   }
@@ -146,6 +149,8 @@ class DecisionElement extends LitElement {
     this.silent = false;
     // important - the handler must be bound to this object so "this" is the DecisionElement instance.
     this._readRef = this._readRef.bind(this)
+    this._downShown = false;
+    this._showDecision = false;
   }
   
   _init() {
@@ -231,6 +236,7 @@ class DecisionElement extends LitElement {
     var countWhite = 0;
     var countRed = 0;
     var maj = false;
+    this._showDecision = false;
 
     if (ref1 === true) {
       countWhite++;
@@ -280,6 +286,10 @@ class DecisionElement extends LitElement {
 
   decisionClasses(position) {
     var mainClass = "decision ";
+    if (!this._showDecision) {
+      return mainClass + "none";
+    }
+
     if (this.publicFacing) {
       if (position == 1) {
         return mainClass + (this.ref1 ? "white" : (this.ref1 === false) ? "red" : "none");
@@ -310,7 +320,7 @@ class DecisionElement extends LitElement {
   }
 
   decisionWrapperStyle() {
-    return "display: flex";
+    return "display: grid";
   }
 
   /*
@@ -341,7 +351,8 @@ class DecisionElement extends LitElement {
     this.ref2 = ref2;
     this.ref3 = ref3;
     this.hideDown();
-    console.debug("de colorsShown");
+    this._showDecision = true;
+    console.debug("de showDecisions");
   }
 
   showDecisionsForJury(ref1, ref2, ref3, ref1Time, ref2Time, ref3Time) {
@@ -353,6 +364,7 @@ class DecisionElement extends LitElement {
     this.ref2Time = ref2Time;
     this.ref3Time = ref3Time;
     this.hideDown();
+    this._showDecision = true;
     console.debug("de jury colorsShown");
   }
 
