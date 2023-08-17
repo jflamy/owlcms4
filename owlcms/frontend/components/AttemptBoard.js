@@ -175,7 +175,7 @@ class CurrentAttempt extends LitElement {
   }
 
   attemptStyles() {
-    return "display: " + (this.isBreak() ? "none" : "grid");
+    return "display: " + ((this.isBreak() || this.decisionVisible) ? "none" : "grid");
   }
 
   startNumberStyles() {
@@ -183,8 +183,8 @@ class CurrentAttempt extends LitElement {
   }
 
   weightStyles() {
-    // weights are visible during countdown
-    return "display: " + ((this.isBreak() && ! this.isCountdown()) ? "none" : "grid");
+    // weights are visible during lift countdowns
+    return "display: " + ((this.mode === "LIFT_COUNTDOWN" || (this.mode === "CURRENT_ATHLETE")) ? "grid" : "none");
   }
 
   athleteTimerStyles() {

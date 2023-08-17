@@ -2533,7 +2533,8 @@ public class FieldOfPlay {
 			return;
 		}
 
-		if (state == BREAK && (getBreakType().isCountdown())
+		if (state == BREAK && (getBreakType() != null && getBreakType().isCountdown())
+				//FIXME set state to BREAK should alway set breakType
 		        && (newBreak == BreakType.JURY || newBreak == BreakType.CHALLENGE)) {
 			// ignore jury break during intro and snatch breaks
 			return;

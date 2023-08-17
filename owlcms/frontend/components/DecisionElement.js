@@ -102,13 +102,17 @@ class DecisionElement extends LitElement {
       },
       jury: {
         type: Boolean,
-        reflect: true,
+        state: true,
       },
       audio: {
         type: Boolean,
       },
       enabled: {
         type: Boolean,
+        state: true,
+        hasChanged(newVal, oldVal) {
+          console.warn("enabled changed from "+oldVal+" to "+newVal);
+         }
       },
       fopName: {
         type: String,
@@ -140,6 +144,8 @@ class DecisionElement extends LitElement {
     this.audio = true;
     this.enabled = false;
     this.silent = false;
+    // important - the handler must be bound to this object so "this" is the DecisionElement instance.
+    this._readRef = this._readRef.bind(this)
   }
   
   _init() {
@@ -148,27 +154,28 @@ class DecisionElement extends LitElement {
     this.ref1 = null;
     this.ref2 = null;
     this.ref3 = null;
-    this.enabled = false;
     this._setupAudio();
   }
 
   firstUpdated(_changedProperties) {
     super.firstUpdated(_changedProperties);
     console.debug("de decision ready");
-    if (!this.jury) {
-      document.body.addEventListener("keydown", (e) => this._readRef(e));
-    }
     this._init();
   }
 
-  _setupAudio() {
-    window.AudioContext = window.AudioContext || window.webkitAudioContext;
-    this.audioContext = new AudioContext();
-    this._prepareAudio();
+  connectedCallback() {
+    console.warn("connected");
+    super.connectedCallback();
+    document.body.addEventListener('keydown', this._readRef);
+  }
+  disconnectedCallback() {
+    document.body.removeEventListener('keydown', this._readRef);
+    super.disconnectedCallback();
   }
 
   _readRef(e) {
-    //if (!this.enabled) return;
+    console.warn("_readRef enabled="+this.enabled+" jury="+this.jury);
+    if (!this.enabled || this.jury) return;
 
     var key = e.key;
     console.debug("de key " + key);
@@ -208,6 +215,12 @@ class DecisionElement extends LitElement {
     }
   }
 
+  _setupAudio() {
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    this.audioContext = new AudioContext();
+    this._prepareAudio();
+  }
+
   _registerVote(code) {
     console.debug("de vote " + key);
   }
@@ -237,7 +250,7 @@ class DecisionElement extends LitElement {
     var count = countWhite + countRed;
     if (!this._downShown && (countWhite == 2 || countRed == 2)) {
       this.decision = countWhite >= 2;
-      if (!this.jury) this.downShown(true);
+      if (!this.jury) this.showDown(true);
     }
     if (countWhite + countRed >= 3) {
       this.decision = countWhite >= 2;
@@ -397,8 +410,8 @@ class DecisionElement extends LitElement {
   }
 
   setEnabled(isEnabled) {
-    console.debug("setEnabled " + isEnabled + " " + this.audioContext);
     this.enabled = isEnabled;
+    console.warn("setEnabled " + this.enabled + " " + this.audioContext);
     if (isEnabled) {
       this.trackSource = this.audioContext.createBufferSource();
       this.trackSource.buffer = window.downSignal;
