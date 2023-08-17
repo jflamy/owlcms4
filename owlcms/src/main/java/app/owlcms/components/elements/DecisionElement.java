@@ -144,14 +144,14 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveDownSignal(UIEvent.DownSignal e) {
-		logger.warn("!!! slaveDownSignal {} {} {}", this, this.getOrigin(), e.getOrigin());
+		logger.debug("!!! slaveDownSignal {} {} {}", this, this.getOrigin(), e.getOrigin());
 		if (isJuryMode() || (this.getOrigin() == e.getOrigin())) {
 			// we emitted the down signal, don't do it again.
 			// logger.trace("skipping down, {} is origin",this.getOrigin());
 			return;
 		}
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			uiEventLogger.warn("!!! {} down ({})", this.getOrigin(), this.getParent().get().getClass().getSimpleName());
+			uiEventLogger.debug("!!! {} down ({})", this.getOrigin(), this.getParent().get().getClass().getSimpleName());
 			this.getElement().callJsFunction("showDown", false,
 			        isSilenced() || OwlcmsSession.getFop().isEmitSoundsOnServer());
 		});
@@ -166,9 +166,9 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveShowDecision(UIEvent.Decision e) {
-		uiEventLogger.warn("!!! {} majority decision ({})", this.getOrigin(), this.getParent().get().getClass().getSimpleName());
+		uiEventLogger.debug("!!! {} majority decision ({})", this.getOrigin(), this.getParent().get().getClass().getSimpleName());
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
-			uiEventLogger.warn("!!! {} majority decision DOING SOMETHING ({})", this.getOrigin(), this.getParent().get().getClass().getSimpleName());
+			uiEventLogger.debug("!!! {} majority decision DOING SOMETHING ({})", this.getOrigin(), this.getParent().get().getClass().getSimpleName());
 			this.getElement().callJsFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
 			this.getElement().callJsFunction("setEnabled", false);
 		});
@@ -177,7 +177,7 @@ public class DecisionElement extends LitTemplate
 	@Subscribe
 	public void slaveStartTimer(UIEvent.StartTime e) {
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			uiEventLogger.warn("!!! slaveStartTimer enable");
+			uiEventLogger.debug("!!! slaveStartTimer enable");
 			this.getElement().callJsFunction("setEnabled", true);
 		});
 	}
@@ -185,7 +185,7 @@ public class DecisionElement extends LitTemplate
 	@Subscribe
 	public void slaveStopTimer(UIEvent.StopTime e) {
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			uiEventLogger.warn("!!! slaveStopTimer enable");
+			uiEventLogger.debug("!!! slaveStopTimer enable");
 			this.getElement().callJsFunction("setEnabled", true);
 		});
 	}

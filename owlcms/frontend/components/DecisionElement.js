@@ -143,7 +143,7 @@ class DecisionElement extends LitElement {
   }
   
   _init() {
-    console.warn("_init");
+    console.debug("_init");
     this.downShown = false;
     this.ref1 = null;
     this.ref2 = null;
@@ -154,7 +154,7 @@ class DecisionElement extends LitElement {
 
   firstUpdated(_changedProperties) {
     super.firstUpdated(_changedProperties);
-    console.warn("de decision ready");
+    console.debug("de decision ready");
     if (!this.jury) {
       document.body.addEventListener("keydown", (e) => this._readRef(e));
     }
@@ -168,10 +168,10 @@ class DecisionElement extends LitElement {
   }
 
   _readRef(e) {
-    if (!this.enabled) return;
+    //if (!this.enabled) return;
 
     var key = e.key;
-    console.warn("de key " + key);
+    console.debug("de key " + key);
     switch (e.key) {
       case "1":
         this.ref1 = true;
@@ -209,7 +209,7 @@ class DecisionElement extends LitElement {
   }
 
   _registerVote(code) {
-    console.warn("de vote " + key);
+    console.debug("de vote " + key);
   }
 
   /* this is called based on browser input.
@@ -306,7 +306,7 @@ class DecisionElement extends LitElement {
   The server side is responsible for not calling this again if the event took place in this element.
   */
   showDown(isMaster, silent) {
-    console.warn("de showDown -- " + !this.silent + " " + !silent);
+    console.debug("de showDown -- " + !this.silent + " " + !silent);
     if (!this.silent && !silent) {
       this._playTrack("../local/sounds/down.mp3", window.downSignal, true, 0);
     }
@@ -323,16 +323,16 @@ class DecisionElement extends LitElement {
   }
 
   showDecisions(isMaster, ref1, ref2, ref3) {
-    console.warn("de showDecision: " + ref1 + " " + ref2 + " " + ref3);
+    console.debug("de showDecision: " + ref1 + " " + ref2 + " " + ref3);
     this.ref1 = ref1;
     this.ref2 = ref2;
     this.ref3 = ref3;
     this.hideDown();
-    console.warn("de colorsShown");
+    console.debug("de colorsShown");
   }
 
   showDecisionsForJury(ref1, ref2, ref3, ref1Time, ref2Time, ref3Time) {
-    console.warn("de showDecisionForJury: " + ref1 + " " + ref2 + " " + ref3);
+    console.debug("de showDecisionForJury: " + ref1 + " " + ref2 + " " + ref3);
     this.ref1 = ref1;
     this.ref2 = ref2;
     this.ref3 = ref3;
@@ -340,11 +340,11 @@ class DecisionElement extends LitElement {
     this.ref2Time = ref2Time;
     this.ref3Time = ref3Time;
     this.hideDown();
-    console.warn("de jury colorsShown");
+    console.debug("de jury colorsShown");
   }
 
   reset(isMaster) {
-    console.warn("de reset " + isMaster);
+    console.debug("de reset " + isMaster);
     this.hideDecisions();
     this._init();
   }
@@ -358,15 +358,15 @@ class DecisionElement extends LitElement {
 
   async _playTrack(filepath, previousBuffer, play, when) {
     if (previousBuffer) {
-      console.warn("de reuse track source");
+      console.debug("de reuse track source");
       if (play) {
         // play previously fetched buffer
         await this._playAudioBuffer(previousBuffer, when);
-        console.warn("de sound done");
+        console.debug("de sound done");
       }
       return previousBuffer;
     } else {
-      console.warn("de no previous buffer");
+      console.debug("de no previous buffer");
       // Safari somehow manages to lose the AudioBuffer.
       // Massive workaround.
       const response = await fetch(filepath);
@@ -397,18 +397,18 @@ class DecisionElement extends LitElement {
   }
 
   setEnabled(isEnabled) {
-    console.warn("setEnabled " + isEnabled + " " + this.audioContext);
+    console.debug("setEnabled " + isEnabled + " " + this.audioContext);
     this.enabled = isEnabled;
     if (isEnabled) {
       this.trackSource = this.audioContext.createBufferSource();
       this.trackSource.buffer = window.downSignal;
       this.trackSource.connect(this.audioContext.destination);
-      console.warn("connected tracksource");
+      console.debug("connected tracksource");
     }
   }
 
   _playAudioBuffer(audioBuffer, when) {
-    console.warn("when " + when);
+    console.debug("when " + when);
     if (when <= 0) {
       this.trackSource.start();
     } else {
@@ -433,10 +433,10 @@ class DecisionElement extends LitElement {
         0
       );
       window.downSignal = downSignal;
-      console.warn("loaded downSignal = " + window.downSignal);
+      console.debug("loaded downSignal = " + window.downSignal);
     } else {
-      console.warn("skipping downSignal load");
-      console.warn("existing downSignal = " + window.downSignal);
+      console.debug("skipping downSignal load");
+      console.debug("existing downSignal = " + window.downSignal);
     }
   }
 

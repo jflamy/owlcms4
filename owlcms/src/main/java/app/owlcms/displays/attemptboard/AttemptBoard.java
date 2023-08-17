@@ -678,7 +678,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		}
 
 		String lastName = a.getLastName();
-		logger.warn("setting lastName");
+		//logger.debug("setting lastName");
 		;
 		this.getElement().setProperty("lastName", lastName.toUpperCase());
 		this.getElement().setProperty("firstName", a.getFirstName());
@@ -773,7 +773,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	}
 
 	protected void doEmpty() {
-		logger.warn("****doEmpty");
+		//logger.debug("****doEmpty");
 		FieldOfPlay fop2 = OwlcmsSession.getFop();
 		if (fop2.getGroup() == null) {
 			setDisplayedWeight("");
@@ -785,7 +785,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	}
 
 	protected void doNotEmpty() {
-		logger.warn("****doNotEmpty");
+		//logger.debug("****doNotEmpty");
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			FieldOfPlay fop2 = OwlcmsSession.getFop();
 			UIEventProcessor.uiAccess(this, uiEventBus, () -> {

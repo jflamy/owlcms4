@@ -241,8 +241,11 @@ public class FieldOfPlay {
 	private List<Athlete> resultsOrder;
 
 	private boolean cjBreakDisplayed;
-	
+
 	private MQTTMonitor mqttMonitor = null;
+
+	public FieldOfPlay() {
+	}
 
 	/**
 	 * Instantiates a new field of play state. When using this constructor
@@ -262,8 +265,8 @@ public class FieldOfPlay {
 		boolean mqttInternal = Config.getCurrent().getParamMqttInternal();
 
 		if (mqttInternal || paramMqttServer != null) {
-	        MQTTMonitor mm = new MQTTMonitor(this);
-	        setMqttMonitor(mm);
+			MQTTMonitor mm = new MQTTMonitor(this);
+			setMqttMonitor(mm);
 			mm.start();
 		}
 
@@ -273,9 +276,6 @@ public class FieldOfPlay {
 
 		this.fopEventBus.register(this);
 		new EventForwarder(this);
-	}
-
-	public FieldOfPlay() {
 	}
 
 	public void broadcast(String string) {
@@ -462,6 +462,10 @@ public class FieldOfPlay {
 
 	public TreeMap<Category, TreeSet<Athlete>> getMedals() {
 		return medals;
+	}
+
+	public MQTTMonitor getMqttMonitor() {
+		return mqttMonitor;
 	}
 
 	/**
@@ -697,14 +701,14 @@ public class FieldOfPlay {
 			uiShowPlates((BarbellOrPlatesChanged) e);
 			return;
 		} else if (e instanceof SwitchGroup) {
-			logger.warn("{}*** switching group",getLoggingName());
+			logger.debug("{}*** switching group", getLoggingName());
 			Group oldGroup = this.getGroup();
 			SwitchGroup switchGroup = (SwitchGroup) e;
 			Group newGroup = switchGroup.getGroup();
 
 			boolean inBreak = state == BREAK || state == INACTIVE;
 			if (Objects.equals(oldGroup, newGroup)) {
-				logger.debug("{}**** reloading",getLoggingName());
+				logger.debug("{}**** reloading", getLoggingName());
 				loadGroup(newGroup, this, true);
 				pushOutSwitchGroup(e.getOrigin());
 				uiDisplayCurrentAthleteAndTime(true, e, false);
@@ -718,8 +722,8 @@ public class FieldOfPlay {
 					setState(state);
 				}
 				loadGroup(newGroup, this, true);
-				
-				uiDisplayCurrentAthleteAndTime(true, e, false); //****
+
+				uiDisplayCurrentAthleteAndTime(true, e, false); // ****
 			}
 			return;
 		} else if (e instanceof JuryMemberDecisionUpdate) {
@@ -812,7 +816,7 @@ public class FieldOfPlay {
 //				// not running
 //				updateRefereeDecisions((DecisionUpdate) e);
 //				uiShowUpdateOnJuryScreen(e);
-//			} 
+//			}
 			else {
 				pushOutUIEvent(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, state,
 				        UIEvent.Notification.Level.ERROR));
@@ -1074,7 +1078,7 @@ public class FieldOfPlay {
 				return;
 			}
 
-			if (logger.isDebugEnabled()) {//FIXME trace
+			if (logger.isDebugEnabled()) {// FIXME trace
 				logger.debug("{}**** loading data for group {} [already={} forced={} from={}]",
 				        getLoggingName(),
 				        loadGroupName,
@@ -1254,6 +1258,10 @@ public class FieldOfPlay {
 		this.medals = medals;
 	}
 
+	public void setMqttMonitor(MQTTMonitor mqttMonitor) {
+		this.mqttMonitor = mqttMonitor;
+	}
+
 	/**
 	 * Sets the name.
 	 *
@@ -1396,6 +1404,22 @@ public class FieldOfPlay {
 	void setState(FOPState state, String whereFrom) {
 		logger.info("{}entering {} {}", getLoggingName(), stateName(state), whereFrom);
 		doSetState(state);
+	}
+
+	private boolean allFirstCJ() {
+		if (liftingOrder == null || liftingOrder.isEmpty()) {
+			return false;
+		}
+		// check that all athletes are at first CJ
+		boolean firstCJ = true;
+		for (Athlete a : liftingOrder) {
+			//logger.debug("!!!! {}{} {}", this.getLoggingName(), a.getShortName(), a.getAttemptsDone());
+			if (a.getAttemptsDone() != 3) {
+				firstCJ = false;
+				break;
+			}
+		}
+		return firstCJ;
 	}
 
 	private void cancelWakeUpRef() {
@@ -1943,15 +1967,16 @@ public class FieldOfPlay {
 			return;
 		}
 		if (cCur.getShorterBreakMin() != null && liftingOrder.size() > cCur.getShorterBreakMin()) {
-			millisRemaining = (cCur.getShorterBreakDuration() != null ? cCur.getShorterBreakDuration() : 10) * 60 * 1000;
+			millisRemaining = (cCur.getShorterBreakDuration() != null ? cCur.getShorterBreakDuration() : 10) * 60
+			        * 1000;
 		} else if (cCur.getLongerBreakMax() != null && liftingOrder.size() < cCur.getLongerBreakMax()) {
 			millisRemaining = (cCur.getLongerBreakDuration() != null ? cCur.getLongerBreakDuration() : 10) * 60 * 1000;
 		}
 		if (millisRemaining <= 0) {
 			return;
 		}
-		logger.debug("{}group {} snatch done, break duration {}s", getLoggingName(), getGroup(), millisRemaining/1000);
-
+		logger.debug("{}group {} snatch done, break duration {}s", getLoggingName(), getGroup(),
+		        millisRemaining / 1000);
 
 		// this actually starts the break.
 		int timeRemaining = millisRemaining;
@@ -1963,8 +1988,10 @@ public class FieldOfPlay {
 		this.getBreakTimer().start();
 		this.setState(BREAK);
 
-		// the event forces the other UIs to take notice. The arguments are not actually relevant.
-		BreakStarted event = new UIEvent.BreakStarted(millisRemaining, this, false, BreakType.FIRST_CJ, CountdownType.DURATION, LoggerUtils.stackTrace(), false);
+		// the event forces the other UIs to take notice. The arguments are not actually
+		// relevant.
+		BreakStarted event = new UIEvent.BreakStarted(millisRemaining, this, false, BreakType.FIRST_CJ,
+		        CountdownType.DURATION, LoggerUtils.stackTrace(), false);
 		pushOutUIEvent(event);
 	}
 
@@ -2467,7 +2494,8 @@ public class FieldOfPlay {
 		setRefereeForcedDecision(true);
 		updateRefereeDecisions(ne);
 		uiShowUpdateOnJuryScreen(ed);
-		// needed to make sure 2min rule is triggered. The athlete we have just decided is the previous athlete.
+		// needed to make sure 2min rule is triggered. The athlete we have just decided
+		// is the previous athlete.
 		logger.debug("{}simulateDecision setting previousAthlete to {} -- {}", getLoggingName(), ed.getAthlete());
 		this.setPreviousAthlete(ed.getAthlete());
 		this.setClockOwnerInitialTimeAllowed(0);
@@ -2498,12 +2526,15 @@ public class FieldOfPlay {
 		this.ceremonyType = null;
 
 		// logger.debug("transitionToBreak {}", LoggerUtils.stackTrace());
-		if (state == BREAK && (getBreakType() == FIRST_CJ) && ! (newBreak == BreakType.JURY || newBreak == BreakType.CHALLENGE)) {
-			// no interruption other than jury during CJ countdown.  Otherwise must stop break.
+		if (state == BREAK && (getBreakType() == FIRST_CJ)
+		        && !(newBreak == BreakType.JURY || newBreak == BreakType.CHALLENGE)) {
+			// no interruption other than jury during CJ countdown. Otherwise must stop
+			// break.
 			return;
 		}
-		
-		if (state == BREAK && (getBreakType().isCountdown()) && (newBreak == BreakType.JURY || newBreak == BreakType.CHALLENGE)) {
+
+		if (state == BREAK && (getBreakType().isCountdown())
+		        && (newBreak == BreakType.JURY || newBreak == BreakType.CHALLENGE)) {
 			// ignore jury break during intro and snatch breaks
 			return;
 		}
@@ -2540,7 +2571,8 @@ public class FieldOfPlay {
 					breakTimer.start();
 					return;
 				} else if (newBreak.isCountdown()) {
-					logger.debug("{}switching to countdown {}", getLoggingName(), newBreak, breakTimer.liveTimeRemaining());
+					logger.debug("{}switching to countdown {}", getLoggingName(), newBreak,
+					        breakTimer.liveTimeRemaining());
 					setBreakType(newBreak);
 					getBreakTimer().start();
 					pushOutUIEvent(new UIEvent.BreakStarted(breakTimer.liveTimeRemaining(), this, false, newBreak,
@@ -2711,19 +2743,6 @@ public class FieldOfPlay {
 		}
 	}
 
-	private boolean allFirstCJ() {
-		// check that all athletes are at first CJ
-		boolean firstCJ = true;
-		for (Athlete a : liftingOrder) {
-			logger.warn("!!!! {}{} {}", this.getLoggingName(), a.getShortName(), a.getAttemptsDone());
-			if (a.getAttemptsDone() != 3) {
-				firstCJ = false;
-				break;
-			}
-		}
-		return firstCJ;
-	}
-
 	private synchronized void uiShowDownSignalOnSlaveDisplays(Object origin2) {
 		boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
 		boolean downEmitted2 = isDownEmitted();
@@ -2892,14 +2911,6 @@ public class FieldOfPlay {
 	private void weightChangeDoNotDisturb(WeightChange e) {
 		recomputeOrderAndRanks(e.isResultChange());
 		uiDisplayCurrentAthleteAndTime(false, e, false);
-	}
-
-	public MQTTMonitor getMqttMonitor() {
-		return mqttMonitor;
-	}
-
-	public void setMqttMonitor(MQTTMonitor mqttMonitor) {
-		this.mqttMonitor = mqttMonitor;
 	}
 
 }

@@ -54,7 +54,7 @@ class CurrentAttempt extends LitElement {
           <span style="white-space: nowrap;">${this.weight}<span style="font-size: 75%">${this.kgSymbol}</span></span>
         </div>
         <div class="barbell" style="${this.barbellStyles()}">
-          <slot></slot>
+          <slot name="barbell"></slot>
         </div>
         <div class="timer athleteTimer" style="${this.athleteTimerStyles()}">
           <timer-element id="athleteTimer"></timer-element>

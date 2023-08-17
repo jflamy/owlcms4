@@ -16,10 +16,7 @@
         <mapEntry key="OWLCMS_MQTTPASSWORD" value="test"/>
         <mapEntry key="OWLCMS_MQTTUSERNAME" value="test"/>
         <mapEntry key="OWLCMS_PORT" value="8080"/>
-<<<<<<< HEAD
-=======
         <mapEntry key="OWLCMS_REMOTE" value="http://localhost:8082/update"/>
->>>>>>> refs/heads/develop
         <mapEntry key="OWLCMS_RESETMODE" value="true"/>
         <mapEntry key="OWLCMS_STYLESDIR" value="styles"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="maryhadalittlelamb"/>
@@ -30,7 +27,6 @@
         <mapEntry key="_OWLCMS_MQTTSERVER" value="44341a3e47cc48d2b260b8064120f2df.s2.eu.hivemq.cloud"/>
         <mapEntry key="_OWLCMS_PIN" value="test"/>
         <mapEntry key="_OWLCMS_PUBLICDEMO" value="60"/>
-        <mapEntry key="_OWLCMS_REMOTE" value="http://localhost:8082/update"/>
         <mapEntry key="__OWLCMS_MQTTSERVER" value="127.0.0.1"/>
     </mapAttribute>
     <mapAttribute key="org.eclipse.debug.core.preferred_launchers">
