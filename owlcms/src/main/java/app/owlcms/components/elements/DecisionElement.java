@@ -39,7 +39,7 @@ public class DecisionElement extends LitTemplate
 
 	static {
 		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.DEBUG);
 	}
 
 	protected EventBus fopEventBus;
@@ -144,16 +144,14 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveDownSignal(UIEvent.DownSignal e) {
-		// logger.trace("slaveDownSignal {} {} {}", this, this.getOrigin(),
-		// e.getOrigin());
+		logger.warn("!!! slaveDownSignal {} {} {}", this, this.getOrigin(), e.getOrigin());
 		if (isJuryMode() || (this.getOrigin() == e.getOrigin())) {
 			// we emitted the down signal, don't do it again.
 			// logger.trace("skipping down, {} is origin",this.getOrigin());
 			return;
 		}
-		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
-			uiEventLogger.debug("!!! {} down ({})", this.getOrigin(),
-			        this.getParent().get().getClass().getSimpleName());
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			uiEventLogger.warn("!!! {} down ({})", this.getOrigin(), this.getParent().get().getClass().getSimpleName());
 			this.getElement().callJsFunction("showDown", false,
 			        isSilenced() || OwlcmsSession.getFop().isEmitSoundsOnServer());
 		});
@@ -168,9 +166,9 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveShowDecision(UIEvent.Decision e) {
+		uiEventLogger.warn("!!! {} majority decision ({})", this.getOrigin(), this.getParent().get().getClass().getSimpleName());
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
-			uiEventLogger.debug("*** {} majority decision ({})", this.getOrigin(),
-			        this.getParent().get().getClass().getSimpleName());
+			uiEventLogger.warn("!!! {} majority decision DOING SOMETHING ({})", this.getOrigin(), this.getParent().get().getClass().getSimpleName());
 			this.getElement().callJsFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
 			this.getElement().callJsFunction("setEnabled", false);
 		});
@@ -179,7 +177,7 @@ public class DecisionElement extends LitTemplate
 	@Subscribe
 	public void slaveStartTimer(UIEvent.StartTime e) {
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			logger.debug("slaveStartTimer enable");
+			uiEventLogger.warn("!!! slaveStartTimer enable");
 			this.getElement().callJsFunction("setEnabled", true);
 		});
 	}
@@ -187,7 +185,7 @@ public class DecisionElement extends LitTemplate
 	@Subscribe
 	public void slaveStopTimer(UIEvent.StopTime e) {
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			logger.debug("slaveStopTimer enable");
+			uiEventLogger.warn("!!! slaveStopTimer enable");
 			this.getElement().callJsFunction("setEnabled", true);
 		});
 	}
@@ -195,20 +193,6 @@ public class DecisionElement extends LitTemplate
 	private void init(String fopName) {
 		getElement().setProperty("publicFacing", true);
 		getElement().setProperty("fopName", fopName);
-
-		Element elem = this.getElement();
-		elem.addPropertyChangeListener("ref1", "ref1-changed", (e) -> {
-			uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
-		});
-		elem.addPropertyChangeListener("ref2", "ref2-changed", (e) -> {
-			uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
-		});
-		elem.addPropertyChangeListener("ref3", "ref3-changed", (e) -> {
-			uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
-		});
-		elem.addPropertyChangeListener("decision", "decision-changed", (e) -> {
-			uiEventLogger.debug(e.getPropertyName() + " changed to " + e.getValue());
-		});
 	}
 
 	protected boolean isJuryMode() {

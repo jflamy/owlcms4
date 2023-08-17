@@ -9,7 +9,6 @@ public class EmbeddedJetty extends VaadinBoot {
     private static Logger startLogger;
 	private Runnable initConfig;
 	private Runnable initData;
-	private int serverPort;
     private CountDownLatch latch;
 
 	public EmbeddedJetty(CountDownLatch countDownLatch) {
@@ -41,7 +40,7 @@ public class EmbeddedJetty extends VaadinBoot {
 	@Override
 	protected void onStarted() {
         getLatch().countDown();
-		startLogger.info("started on port {}", serverPort);
+		startLogger.info("started on port {}", this.port);
 	}
 
 	public CountDownLatch getLatch() {

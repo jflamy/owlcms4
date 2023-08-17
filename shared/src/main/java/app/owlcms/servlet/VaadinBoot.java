@@ -52,7 +52,7 @@ public class VaadinBoot {
 	/**
 	 * The port where Jetty will listen for http:// traffic.
 	 */
-	int port = DEFAULT_PORT;
+	protected int port = DEFAULT_PORT;
 
 	/**
 	 * The VaadinServlet.

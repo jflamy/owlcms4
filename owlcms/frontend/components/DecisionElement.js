@@ -60,12 +60,13 @@ class DecisionElement extends LitElement {
     ];
   }
   render() {
-    return html` <div class="decisionWrapper">
-      <div class="down" id="downDiv" style="font-weight: 900">&#x2B73;</div>
-      <div class="decisions" id="decisionsDiv">
-        <span class="decision" id="ref1span">&nbsp;</span>
-        <span class="decision" id="ref2span">&nbsp;</span>
-        <span class="decision" id="ref3span">&nbsp;</span>
+    return html` 
+    <div class="decisionWrapper" style="${this.decisionWrapperStyle()}" >
+      <div class="down" style="font-weight: 900; ${this.downStyles()}">&#x2B73;</div>
+      <div class="decisions" style="${this.decisionsStyles()}">
+        <span class="${this.decisionClasses(1)}">&nbsp;</span>
+        <span class="${this.decisionClasses(2)}">&nbsp;</span>
+        <span class="${this.decisionClasses(3)}">&nbsp;</span>
       </div>
     </div>`;
   }
@@ -116,33 +117,48 @@ class DecisionElement extends LitElement {
       silent: {
         type: Boolean,
       },
+      _downShown: {
+        type: Boolean,
+        state: true,
+      },
+      showDownOrDecision: {
+        type: Boolean,
+      }
     };
+  }
+  
+  constructor() {
+    super();
+    this.ref1 = null;
+    this.ref2 = null;
+    this.ref3 = null;
+    this.ref1Time = 0;
+    this.ref2Time = 0;
+    this.ref3Time = 0;
+    this.publicFacing = true;
+    this.jury = false;
+    this.audio = true;
+    this.enabled = false;
+    this.silent = false;
+  }
+  
+  _init() {
+    console.warn("_init");
+    this.downShown = false;
+    this.ref1 = null;
+    this.ref2 = null;
+    this.ref3 = null;
+    this.enabled = false;
+    this._setupAudio();
   }
 
   firstUpdated(_changedProperties) {
     super.firstUpdated(_changedProperties);
-    console.debug("de decision ready");
+    console.warn("de decision ready");
     if (!this.jury) {
       document.body.addEventListener("keydown", (e) => this._readRef(e));
     }
     this._init();
-    //this.$server.onReady();
-  }
-
-  _init() {
-    console.debug("_init");
-    this.renderRoot.querySelector("#decisionsDiv").style.display = "none";
-    this.renderRoot.querySelector("#downDiv").style.display = "none";
-    console.debug("downDiv " + this.renderRoot.querySelector("#downDiv").style.display);
-    this.downShown = false;
-
-    this.renderRoot.querySelector("#ref1span").className = "decision none";
-    this.renderRoot.querySelector("#ref2span").className = "decision none";
-    this.renderRoot.querySelector("#ref3span").className = "decision none";
-    this.ref1 = null;
-    this.ref2 = null;
-    this.ref3 = null;
-    this._setupAudio();
   }
 
   _setupAudio() {
@@ -155,7 +171,7 @@ class DecisionElement extends LitElement {
     if (!this.enabled) return;
 
     var key = e.key;
-    console.debug("de key " + key);
+    console.warn("de key " + key);
     switch (e.key) {
       case "1":
         this.ref1 = true;
@@ -193,7 +209,7 @@ class DecisionElement extends LitElement {
   }
 
   _registerVote(code) {
-    console.debug("de vote " + key);
+    console.warn("de vote " + key);
   }
 
   /* this is called based on browser input.
@@ -219,9 +235,9 @@ class DecisionElement extends LitElement {
       countRed++;
     }
     var count = countWhite + countRed;
-    if (!this.downShown && (countWhite == 2 || countRed == 2)) {
+    if (!this._downShown && (countWhite == 2 || countRed == 2)) {
       this.decision = countWhite >= 2;
-      if (!this.jury) this.showDown(true);
+      if (!this.jury) this.downShown(true);
     }
     if (countWhite + countRed >= 3) {
       this.decision = countWhite >= 2;
@@ -249,43 +265,39 @@ class DecisionElement extends LitElement {
     );
   }
 
-  setColors(parent, ref1, ref2, ref3) {
-    var redStyle = "decision red";
-    var whiteStyle = "decision white";
+  decisionClasses(position) {
+    var mainClass = "decision ";
     if (this.publicFacing) {
-      if (ref1 === true) {
-        this.renderRoot.querySelector("#ref1span").className = whiteStyle;
-      } else if (ref1 === false) {
-        this.renderRoot.querySelector("#ref1span").className = redStyle;
-      }
-      if (ref2 === true) {
-        this.renderRoot.querySelector("#ref2span").className = whiteStyle;
-      } else if (ref2 === false) {
-        this.renderRoot.querySelector("#ref2span").className = redStyle;
-      }
-      if (ref3 === true) {
-        this.renderRoot.querySelector("#ref3span").className = whiteStyle;
-      } else if (ref3 === false) {
-        this.renderRoot.querySelector("#ref3span").className = redStyle;
+      if (position == 1) {
+        return mainClass + (this.ref1 ? "white" : (this.ref1 === false) ? "red" : "none");
+      } else if (position == 2) {
+        return mainClass + (this.ref2 ? "white" : (this.ref2 === false) ? "red" : "none");
+      } else if (position == 3) {
+        return mainClass + (this.ref3 ? "white" : (this.ref3 === false) ? "red" : "none");
       }
     } else {
       // athlete facing, go the other way, right to left
-      if (ref1 === true) {
-        pthis.renderRoot.querySelector("#ref3span").className = whiteStyle;
-      } else if (ref1 === false) {
-        this.renderRoot.querySelector("#ref3span").className = redStyle;
-      }
-      if (ref2 === true) {
-        his.renderRoot.querySelector("#ref2span").className = whiteStyle;
-      } else if (ref2 === false) {
-        his.renderRoot.querySelector("#ref2span").className = redStyle;
-      }
-      if (ref3 === true) {
-        this.renderRoot.querySelector("#ref1span").className = whiteStyle;
-      } else if (ref3 === false) {
-        this.renderRoot.querySelector("#ref1span").className = redStyle;
+      if (position == 1) {
+        return mainClass + (this.ref3 ? "white" : (this.ref3 === false) ? "red" : "none");
+      } else if (position == 2) {
+        return mainClass + (this.ref2 ? "white" : (this.ref2 === false) ? "red" : "none");
+      } else if (position == 3) {
+        return mainClass + (this.ref1 ? "white" : (this.ref1 === false) ? "red" : "none");
       }
     }
+    return mainClass;
+  }
+
+  downStyles() {
+    return "display: " + (this._downShown ? "flex" : "none");
+  }
+
+  decisionsStyles() {
+    return "display: " + (this._downShown ? "none" : "flex");
+  }
+
+  decisionWrapperStyle() {
+    return "display: flex";
   }
 
   /*
@@ -294,13 +306,11 @@ class DecisionElement extends LitElement {
   The server side is responsible for not calling this again if the event took place in this element.
   */
   showDown(isMaster, silent) {
-    console.debug("de showDown -- " + !this.silent + " " + !silent);
+    console.warn("de showDown -- " + !this.silent + " " + !silent);
     if (!this.silent && !silent) {
       this._playTrack("../local/sounds/down.mp3", window.downSignal, true, 0);
     }
-    this.downShown = true;
-    this.renderRoot.querySelector("#downDiv").style.display = "flex";
-    this.renderRoot.querySelector("#decisionsDiv").style.display = "none";
+    this._downShown = true;
 
     // hide the down arrow after 2 seconds -- the decisions will show when available
     // (there will be no decision lights for at least one second, more if last referee
@@ -309,26 +319,32 @@ class DecisionElement extends LitElement {
   }
 
   hideDown() {
-    this.renderRoot.querySelector("#downDiv").style.display = "none";
-    this.renderRoot.querySelector("#decisionsDiv").style.display = "flex";
+    this._downShown = false;
   }
 
   showDecisions(isMaster, ref1, ref2, ref3) {
+    console.warn("de showDecision: " + ref1 + " " + ref2 + " " + ref3);
+    this.ref1 = ref1;
+    this.ref2 = ref2;
+    this.ref3 = ref3;
     this.hideDown();
-    console.debug("de showDecision: " + ref1 + " " + ref2 + " " + ref3);
-    this.setColors(this, ref1, ref2, ref3);
-    console.debug("de colorsShown");
+    console.warn("de colorsShown");
   }
 
   showDecisionsForJury(ref1, ref2, ref3, ref1Time, ref2Time, ref3Time) {
+    console.warn("de showDecisionForJury: " + ref1 + " " + ref2 + " " + ref3);
+    this.ref1 = ref1;
+    this.ref2 = ref2;
+    this.ref3 = ref3;
+    this.ref1Time = ref1Time;
+    this.ref2Time = ref2Time;
+    this.ref3Time = ref3Time;
     this.hideDown();
-    console.debug("de showDecisionForJury: " + ref1 + " " + ref2 + " " + ref3);
-    this.setColors(this, ref1, ref2, ref3);
-    console.debug("de jury colorsShown");
+    console.warn("de jury colorsShown");
   }
 
   reset(isMaster) {
-    console.debug("de reset " + isMaster);
+    console.warn("de reset " + isMaster);
     this.hideDecisions();
     this._init();
   }
@@ -342,15 +358,15 @@ class DecisionElement extends LitElement {
 
   async _playTrack(filepath, previousBuffer, play, when) {
     if (previousBuffer) {
-      console.debug("de reuse track source");
+      console.warn("de reuse track source");
       if (play) {
         // play previously fetched buffer
         await this._playAudioBuffer(previousBuffer, when);
-        console.debug("de sound done");
+        console.warn("de sound done");
       }
       return previousBuffer;
     } else {
-      console.debug("de no previous buffer");
+      console.warn("de no previous buffer");
       // Safari somehow manages to lose the AudioBuffer.
       // Massive workaround.
       const response = await fetch(filepath);
@@ -381,18 +397,18 @@ class DecisionElement extends LitElement {
   }
 
   setEnabled(isEnabled) {
-    console.debug("setEnabled " + isEnabled + " " + this.audioContext);
+    console.warn("setEnabled " + isEnabled + " " + this.audioContext);
     this.enabled = isEnabled;
     if (isEnabled) {
       this.trackSource = this.audioContext.createBufferSource();
       this.trackSource.buffer = window.downSignal;
       this.trackSource.connect(this.audioContext.destination);
-      console.debug("connected tracksource");
+      console.warn("connected tracksource");
     }
   }
 
   _playAudioBuffer(audioBuffer, when) {
-    console.debug("when " + when);
+    console.warn("when " + when);
     if (when <= 0) {
       this.trackSource.start();
     } else {
@@ -417,26 +433,13 @@ class DecisionElement extends LitElement {
         0
       );
       window.downSignal = downSignal;
-      console.debug("loaded downSignal = " + window.downSignal);
+      console.warn("loaded downSignal = " + window.downSignal);
     } else {
-      console.debug("skipping downSignal load");
-      console.debug("existing downSignal = " + window.downSignal);
+      console.warn("skipping downSignal load");
+      console.warn("existing downSignal = " + window.downSignal);
     }
   }
-  constructor() {
-    super();
-    this.ref1 = null;
-    this.ref2 = null;
-    this.ref3 = null;
-    this.ref1Time = 0;
-    this.ref2Time = 0;
-    this.ref3Time = 0;
-    this.publicFacing = true;
-    this.jury = false;
-    this.audio = true;
-    this.enabled = false;
-    this.silent = false;
-  }
+
 }
 
 customElements.define(DecisionElement.is, DecisionElement);

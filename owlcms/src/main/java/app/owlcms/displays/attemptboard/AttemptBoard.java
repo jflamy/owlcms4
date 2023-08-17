@@ -112,10 +112,10 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	@Id("athleteTimer")
 	protected AthleteTimerElement athleteTimer; // created by Flow during template instantiation
 
-//	@Id("breakTimer")
+	@Id("breakTimer")
 	protected BreakTimerElement breakTimer; // created by Flow during template instantiation
 
-//	@Id("decisions")
+	@Id("decisions")
 	protected DecisionElement decisions; // created by Flow during template instantiation
 
 	private Dialog dialog;
@@ -143,9 +143,6 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	 */
 	public AttemptBoard() {
 		OwlcmsFactory.waitDBInitialized();
-		athleteTimer = new AthleteTimerElement();
-		breakTimer = new BreakTimerElement();
-		decisions = new DecisionElement();
 		// logger.debug("*** AttemptBoard new {}", LoggerUtils.whereFrom());
 		// athleteTimer.setOrigin(this);
 		this.getElement().setProperty("kgSymbol", getTranslation("KgSymbol"));
@@ -444,7 +441,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
-		UIEventProcessor.uiAccess(athleteTimer, uiEventBus, () -> syncWithFOP(OwlcmsSession.getFop()));
+		//UIEventProcessor.uiAccess(athleteTimer, uiEventBus, () -> syncWithFOP(OwlcmsSession.getFop()));
 	}
 
 	/**
@@ -461,8 +458,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		// don't block others
 		new Thread(() -> {
 			UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-				this.getElement().setProperty("hideBecauseDecision", "hideBecauseDecision");
-				this.getElement().callJsFunction("down");
+				this.getElement().setProperty("decisionVisible", true);
 			});
 		}).start();
 	}
@@ -561,8 +557,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		// this does not actually display the down signal, it makes it so the decision
 		// element can show the down or decision.
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
-			this.getElement().setProperty("hideBecauseDecision", "hideBecauseDecision");
-			this.getElement().callJsFunction("down");
+			this.getElement().setProperty("decisionVisible", true);
 		});
 	}
 

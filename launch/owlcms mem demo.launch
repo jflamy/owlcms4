@@ -15,7 +15,7 @@
         <mapEntry key="OWLCMS_MEMORYMODE" value="true"/>
         <mapEntry key="OWLCMS_MQTTPASSWORD" value="test"/>
         <mapEntry key="OWLCMS_MQTTUSERNAME" value="test"/>
-        <mapEntry key="OWLCMS_PORT" value="8081"/>
+        <mapEntry key="OWLCMS_PORT" value="8080"/>
         <mapEntry key="OWLCMS_RESETMODE" value="true"/>
         <mapEntry key="OWLCMS_STYLESDIR" value="styles"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="maryhadalittlelamb"/>
