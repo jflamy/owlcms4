@@ -1,9 +1,12 @@
-44.0.0-alpha
+> **Version 44 is a Technical migration release: DO NOT USE release 44 until an explicit note that it has been stabilized.**
+>
+> The user interface toolkit has a new major version (v24) and some features used in owlcms have reached end-of-life. This will complete the interim migration started in version 37 with version v23.
 
-> **Technical migration release: DO NOT USE release 44 until an explicit note that it has been stabilized.**
->
-> RELEASE 44 is a technical transition release to a new version of the user interface software.
->
+44.0.0-alpha01: Snapshot release.
+
+- Conversion of build to Java 17, Vaadin 24.1.4 and Node.js 18.17.1
+- Initial migration of Web components from Polymer to LitElement, required by Vaadin 24.
+  - AttemptBoard, Decisions, Timer have been migrated and updated to work in the new paradigm.
 
 #####  Highlights from recent stable releases
 
