@@ -208,6 +208,11 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		_1min.setWidthFull();
 		_2min.setHeight("15vh");
 		_2min.setWidthFull();
+		// required by Vaadin v24.
+		startTimeButton.getStyle().set("flex-shrink", "1");
+		stopTimeButton.getStyle().set("flex-shrink", "1");
+		_1min.getStyle().set("flex-shrink", "1");
+		_2min.getStyle().set("flex-shrink", "1");
 
 		VerticalLayout resets = new VerticalLayout(_1min, _2min);
 		resets.setWidthFull();
@@ -287,6 +292,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		create2MinButton();
 
 		HorizontalLayout buttons = new HorizontalLayout(startTimeButton, stopTimeButton, _1min, _2min);
+		buttons.getStyle().set("background-color", "pink");
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 		return buttons;
 	}
