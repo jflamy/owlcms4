@@ -50,24 +50,6 @@
         </dependency>
 
         <!-- user interface -->
-        <dependency>
-            <groupId>com.github.appreciated</groupId>
-            <artifactId>vaadin-css-grid</artifactId>
-            <version>2.0.0.beta3</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.vaadin</groupId>
-                    <artifactId>vaadin-accordion-flow</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <!-- iron-icons -->
-        <dependency>
-            <groupId>com.flowingcode.addons</groupId>
-            <artifactId>iron-icons</artifactId>
-            <version>2.0.1</version>
-        </dependency>
 
         <!-- event bus -->
         <dependency>

@@ -6,8 +6,6 @@ import { html, LitElement, css } from "lit";
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
 
-import "@polymer/iron-icon/iron-icon.js";
-import "@polymer/iron-icons/iron-icons.js";
 
 class DecisionElementPR extends LitElement {
   static get is() {
@@ -67,7 +65,7 @@ class DecisionElementPR extends LitElement {
   render() {
     return html` <div class="decisionWrapper">
       <div class="down" id="downDiv">
-        <iron-icon id="down-arrow" icon="icons:file-download"></iron-icon>
+        DOWN
       </div>
       <div class="decisions" id="decisionsDiv">
         <span class="decision" id="ref1span"></span>&nbsp;
