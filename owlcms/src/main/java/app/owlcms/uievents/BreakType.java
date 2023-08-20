@@ -102,21 +102,21 @@ package app.owlcms.uievents;
  */
 public enum BreakType {
 
-	BEFORE_INTRODUCTION(true, false),
-	FIRST_SNATCH(true, false),
+	BEFORE_INTRODUCTION(false, true),
+	FIRST_SNATCH(false, true),
 	SNATCH_DONE(false, false),
-	FIRST_CJ(true, false),
+	FIRST_CJ(false, true),
 	GROUP_DONE(false, false),
 
-	TECHNICAL(false, true),
-	MARSHAL(false, true),
-	JURY(false, true),
-	CHALLENGE(false,true);
+	TECHNICAL(true, false),
+	MARSHAL(true, false),
+	JURY(true, false),
+	CHALLENGE(true,false);
 
 	private boolean countdown;
 	private boolean interruption;
 
-	BreakType(boolean countdown, boolean interruption) {
+	BreakType(boolean interruption, boolean countdown) {
 		this.countdown = countdown;
 		this.interruption = interruption;
 	}
