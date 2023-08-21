@@ -255,7 +255,7 @@ public class JuryDialog extends Dialog {
 
 	private void doDebate(Athlete athleteUnderReview) {
 		Button goodLift = new Button(
-				new Icon(VaadinIcon.CLOSE),//IronIcons.DONE.create(),
+				new Icon(VaadinIcon.CHECK),//IronIcons.DONE.create(),
 		        (e) -> doGoodLift(athleteUnderReview, OwlcmsSession.getFop()));
 		Shortcuts.addShortcutListener(this, () -> doGoodLift(athleteUnderReview, OwlcmsSession.getFop()), Key.KEY_G);
 
