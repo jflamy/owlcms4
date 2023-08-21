@@ -988,7 +988,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
 				}
 				// logger.debug("requesting breaktype {}", bt);
-				breakDialog = new BreakDialog(this, bt, ct);
+				breakDialog = new BreakDialog(bt, ct, null, this);
 				breakDialog.open();
 			});
 		});

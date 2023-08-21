@@ -115,7 +115,7 @@ public class FOPEvent {
 				return false;
 			}
 			BreakStarted other = (BreakStarted) obj;
-			return breakType == other.breakType && countdownType == other.countdownType
+			return getBreakType() == other.getBreakType() && countdownType == other.countdownType
 			        && Objects.equals(targetTime, other.targetTime)
 			        && Objects.equals(timeRemaining, other.timeRemaining) && Objects.equals(wait, other.wait);
 		}
@@ -144,7 +144,7 @@ public class FOPEvent {
 		public int hashCode() {
 			final int prime = 31;
 			int result = super.hashCode();
-			result = prime * result + Objects.hash(breakType, countdownType, targetTime, timeRemaining, wait);
+			result = prime * result + Objects.hash(getBreakType(), countdownType, targetTime, timeRemaining, wait);
 			return result;
 		}
 
@@ -152,10 +152,10 @@ public class FOPEvent {
 			if (countdownType != null) {
 				return countdownType == CountdownType.INDEFINITE;
 			} else {
-				return breakType == BreakType.JURY
-						|| breakType == BreakType.CHALLENGE
-						|| breakType == BreakType.TECHNICAL
-				        || breakType == BreakType.GROUP_DONE;
+				return getBreakType() == BreakType.JURY
+						|| getBreakType() == BreakType.CHALLENGE
+						|| getBreakType() == BreakType.TECHNICAL
+				        || getBreakType() == BreakType.GROUP_DONE;
 			}
 		}
 
@@ -181,7 +181,7 @@ public class FOPEvent {
 
 		@Override
 		public String toString() {
-			return "BreakStarted [breakType=" + breakType + ", countdownType=" + countdownType + ", timeRemaining="
+			return "BreakStarted [breakType=" + getBreakType() + ", countdownType=" + countdownType + ", timeRemaining="
 			        + timeRemaining + ", targetTime=" + targetTime + ", wait=" + wait + "]";
 		}
 

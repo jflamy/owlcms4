@@ -32,7 +32,6 @@ import ch.qos.logback.classic.Logger;
 public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 
 	private Integer breakDuration;
-	private BreakType breakType;
 
 	private LocalDateTime end;
 	private FieldOfPlay fop;
@@ -70,11 +69,6 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	@Override
 	public Integer getBreakDuration() {
 		return breakDuration;
-	}
-
-	@Override
-	public BreakType getBreakType() {
-		return breakType;
 	}
 
 	public LocalDateTime getEnd() {
@@ -184,14 +178,12 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	 */
 	@Override
 	public void setIndefinite() {
-		BreakType breakType = getFop().getBreakType();
 		CeremonyType ceremonyType = getFop().getCeremonyType();
 		if (ceremonyType != null) {
 			// we never start a timer for a ceremony
 			return;
 		}
 		indefinite = true;
-		this.setBreakType(breakType);
 		// logger.debug("setting breaktimer indefinite = {} [{}]", indefinite,
 		// LoggerUtils.whereFrom());
 		this.setTimeRemaining(0, false);
@@ -228,9 +220,12 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	@Override
 	public void start() {
 		BreakType breakType = getFop().getBreakType();
+		logger.warn("****** starting break with breakType = {}",breakType);
+		if (breakType == null) {
+			logger.error("null breaktype {}",LoggerUtils.stackTrace());
+		}
 		// CeremonyType ceremonyType = getFop().getCeremonyType();
 		startMillis = System.currentTimeMillis();
-		this.setBreakType(breakType);
 
 		Integer millisRemaining = getMillis();
 		// logger.trace("ProxyBreakTimer starting break millisRemaining {} paused {}
@@ -318,12 +313,6 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 		        : getTimeRemaining());
 	}
 
-	public void setBreakType(BreakType breakType) {
-		// logger.trace("breakTimer setBreakType {} from {}", breakType,
-		// LoggerUtils.whereFrom(1));
-		this.breakType = breakType;
-	}
-
 	private void setRunning(boolean running) {
 		this.running = running;
 	}
@@ -332,6 +321,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	 * @return the fop
 	 */
 	FieldOfPlay getFop() {
+		logger.warn("fop {} {}", System.identityHashCode(this.fop), fop.getBreakType());
 		return fop;
 	}
 }

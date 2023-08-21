@@ -138,11 +138,6 @@ public class FieldOfPlay {
 		return mFop;
 	}
 
-	/**
-	 *
-	 */
-	final ThreadLocal<Boolean> preventMultiThreadingRecursion = new InheritableThreadLocal<>();
-
 	private LinkedHashMap<String, Participation> ageGroupMap = new LinkedHashMap<>();
 	private IProxyTimer athleteTimer;
 	private IProxyTimer breakTimer;
@@ -327,6 +322,9 @@ public class FieldOfPlay {
 	}
 
 	public BreakType getBreakType() {
+		if (state != BREAK) {
+			return null;
+		}
 		return breakType;
 	}
 
@@ -1206,8 +1204,7 @@ public class FieldOfPlay {
 	}
 
 	public void setBreakType(BreakType breakType) {
-		// logger.trace("FOP setBreakType {} from {}", breakType,
-		// LoggerUtils.whereFrom());
+		logger.warn("****** FOP {} setBreakType {} from {}", System.identityHashCode(this), breakType, LoggerUtils.whereFrom());
 		this.breakType = breakType;
 	}
 
@@ -1980,10 +1977,9 @@ public class FieldOfPlay {
 
 		// this actually starts the break.
 		int timeRemaining = millisRemaining;
+		this.setBreakType(BreakType.FIRST_CJ);
 		this.getBreakTimer().setTimeRemaining(timeRemaining, false);
 		this.getBreakTimer().setBreakDuration(timeRemaining);
-		this.getBreakTimer().setBreakType(BreakType.FIRST_CJ);
-		this.setBreakType(BreakType.FIRST_CJ);
 		this.getBreakTimer().setEnd(null);
 		this.getBreakTimer().start();
 		this.setState(BREAK);
@@ -2255,7 +2251,7 @@ public class FieldOfPlay {
 			breakTimer2.setTimeRemaining(0, false);
 			breakTimer2.setEnd(e.getTargetTime());
 		}
-		logger.trace("breakTimer2 {} isIndefinite={}", countdownType2, breakTimer2.isIndefinite());
+		logger.warn("******* breakTimer2 {} {} isIndefinite={}", breakType2, countdownType2, breakTimer2.isIndefinite());
 	}
 
 	private void setClockOwner(Athlete athlete) {
@@ -2580,7 +2576,7 @@ public class FieldOfPlay {
 					        CountdownType.DURATION, LoggerUtils.stackTrace(), getBreakTimer().isIndefinite()));
 					return;
 				} else {
-					logger.debug("{}break switch: from {} to {} {}", getLoggingName(), getBreakType(), newBreak,
+					logger.warn("{}****** break switch: from {} to {} {}", getLoggingName(), getBreakType(), newBreak,
 					        newCountdownType);
 					breakTimer.stop();
 					setBreakParams(e, breakTimer, newBreak, newCountdownType);
@@ -2590,9 +2586,7 @@ public class FieldOfPlay {
 				}
 			} else {
 				// we are in a break, resume if needed
-				// logger.debug("{}resuming break : current {} new {}", getLoggingName(),
-				// getBreakType(),
-				// e.getBreakType());
+				logger.warn("{}******* resuming break : current {} new {}", getLoggingName(), getBreakType(), e.getBreakType());
 				if (!breakTimer.isIndefinite()) {
 					breakTimer.setOrigin(e.getOrigin());
 					breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), false);
@@ -2609,13 +2603,15 @@ public class FieldOfPlay {
 			return;
 		} else {
 			setBreakParams(e, breakTimer, newBreak, newCountdownType);
-			logger.debug("stopping {} {} {}", newBreak, newCountdownType, indefinite);
+			logger.debug("stopping bt={} ct={} indefinite={}", newBreak, newCountdownType, newBreak.isInterruption() ? true : e.isIndefinite());
 			breakTimer.stop(); // so we restart in the new type
 		}
 
 		// this will broadcast to all slave break timers
 		if (!breakTimer.isRunning()) {
 			breakTimer.setOrigin(e.getOrigin());
+			setBreakType(newBreak);
+			if (indefinite) breakTimer.setIndefinite();
 			breakTimer.start();
 		}
 	}
@@ -2739,7 +2735,7 @@ public class FieldOfPlay {
 			logger.debug("{}push out snatch done", this.getLoggingName());
 			pushOutSnatchDone();
 			cjBreakDisplayed = true;
-		} else if (state == BREAK && getBreakTimer().getBreakType() == BreakType.FIRST_CJ) {
+		} else if (state == BREAK && this.getBreakType() == BreakType.FIRST_CJ) {
 			fopEventPost(new FOPEvent.StartLifting(this));
 		}
 	}

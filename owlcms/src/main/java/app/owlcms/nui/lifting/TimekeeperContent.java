@@ -311,7 +311,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 
 		introCountdownButton = new Button(getTranslation("introCountdown"), new Icon(VaadinIcon.TIMER), (e) -> {
 			OwlcmsSession.withFop(fop -> {
-				BreakDialog dialog = new BreakDialog(this, BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET);
+				BreakDialog dialog = new BreakDialog(BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET, null, this);
 				dialog.open();
 			});
 		});

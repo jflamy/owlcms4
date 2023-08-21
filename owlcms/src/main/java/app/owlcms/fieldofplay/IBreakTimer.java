@@ -8,15 +8,9 @@ package app.owlcms.fieldofplay;
 
 import java.time.LocalDateTime;
 
-import app.owlcms.uievents.BreakType;
-
 public interface IBreakTimer extends IProxyTimer {
 
 	Integer getBreakDuration();
-
-	BreakType getBreakType();
-	
-	void setBreakType(BreakType bt);
 
 	boolean isIndefinite();
 

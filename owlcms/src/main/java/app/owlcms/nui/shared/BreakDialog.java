@@ -32,7 +32,7 @@ public class BreakDialog extends Dialog {
 	 * @param origin the origin
 	 */
 	public BreakDialog(Object origin) {
-		content = new BreakManagement(origin, this);
+		content = new BreakManagement(OwlcmsSession.getFop(), this, origin);
 		this.add(content);
 
 		this.addDialogCloseActionListener((e) -> {
@@ -58,13 +58,13 @@ public class BreakDialog extends Dialog {
 	}
 
 	/**
-	 * @param origin
 	 * @param brt
 	 * @param cdt
+	 * @param origin
 	 */
-	public BreakDialog(Object origin, BreakType brt, CountdownType cdt) {
+	public BreakDialog(BreakType brt, CountdownType cdt, Integer secondsRemaining, Object origin) {
 		// logger.debug("BreakDialog brt = {}", brt);
-		content = new BreakManagement(origin, brt, cdt, this);
+		content = new BreakManagement(OwlcmsSession.getFop(), brt, cdt, secondsRemaining, this, origin);
 		this.add(content);
 
 		this.addDialogCloseActionListener((e) -> {
