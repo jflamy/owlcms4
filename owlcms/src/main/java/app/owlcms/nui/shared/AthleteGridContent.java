@@ -889,12 +889,6 @@ public abstract class AthleteGridContent extends VerticalLayout
 	}
 
 	private BreakTimerElement getBreakTimerElement() {
-		if (this.breakTimerElement == null) {
-			this.breakTimerElement = new BreakTimerElement("AthleteGridContent");
-			this.breakTimerElement.addAttachListener(e -> {
-				this.breakTimerElement.syncWithFopBreakTimer();
-			});
-		}
 		return this.breakTimerElement;
 	}
 
@@ -964,6 +958,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 	 * @see app.owlcms.nui.shared.AthleteGridContent#breakButtons(com.vaadin.flow.component.orderedlayout.FlexLayout)
 	 */
 	protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
+		breakTimerElement = new BreakTimerElement();
 		breakButton = new Button(Translator.translateOrElseEmpty("Pause"),new Icon(VaadinIcon.TIMER), (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				Athlete curAthlete = fop.getCurAthlete();
@@ -1487,7 +1482,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 		breakButton.getStyle().set("background-color", "var(--lumo-error-color-10pct)");
 		breakButton.getElement().setAttribute("title", getTranslation("BreakButton.Caption"));
 
-		HorizontalLayout buttons = new HorizontalLayout(breakButton);
+		HorizontalLayout buttons = new HorizontalLayout(breakButton, breakTimerElement);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 		return buttons;
 	}

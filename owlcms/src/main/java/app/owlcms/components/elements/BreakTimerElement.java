@@ -16,8 +16,10 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 
+import app.owlcms.apputils.DebugUtils;
 import app.owlcms.fieldofplay.IBreakTimer;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.IdUtils;
@@ -187,7 +189,7 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
 			IBreakTimer breakTimer = fop.getBreakTimer();
 			if (breakTimer != null) {
 				if (!parentName.startsWith("BreakManagement")) {
-					uiEventLogger.trace("&&& breakTimerElement sync running {} indefinite {}", breakTimer.isRunning(),
+					uiEventLogger.warn("&&& breakTimerElement sync running {} indefinite {}", breakTimer.isRunning(),
 					        breakTimer.isIndefinite());
 				}
 				if (breakTimer.isRunning()) {
@@ -197,11 +199,12 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
 						doStartTimer(breakTimer.liveTimeRemaining(), isSilenced() || fop.isEmitSoundsOnServer());
 					}
 				} else {
-					if (breakTimer.isIndefinite()) {
-						doSetTimer(null);
-					} else {
-						doSetTimer(breakTimer.getTimeRemainingAtLastStop());
-					}
+					doSetTimer(null);
+//					if (breakTimer.isIndefinite()) {
+//						doSetTimer(null);
+//					} else {
+//						doSetTimer(breakTimer.getTimeRemainingAtLastStop());
+//					}
 				}
 			}
 		});
@@ -226,6 +229,20 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
 			uiEventBusRegister(this, fop);
 		});
 		syncWithFopBreakTimer();
+	}
+	
+	protected void doStartTimer(Integer milliseconds, boolean serverSound) {
+		logger.warn("doStartTimer {}",milliseconds);
+		setServerSound(serverSound);
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			setIndefinite(milliseconds == null);
+			setMsRemaining(milliseconds);
+			String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
+			lastStartMillis = System.currentTimeMillis();
+			logger.warn("server starting timer {} : {}, {}, {}", parentName, parent, milliseconds, System.identityHashCode(this));
+			getElement().setProperty("silent", isSilent());
+			start(milliseconds, isIndefinite(), isSilent(), parent);
+		});
 	}
 
 }

@@ -49,7 +49,7 @@ public abstract class TimerElement extends LitTemplate
 	private boolean serverSound;
 	private boolean silenced = true;
 	private Element timerElement;
-	private EventBus uiEventBus;
+	protected EventBus uiEventBus;
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	{
 		logger.setLevel(Level.INFO);
@@ -140,7 +140,7 @@ public abstract class TimerElement extends LitTemplate
 	 *
 	 * @return
 	 */
-	private boolean isSilent() {
+	protected boolean isSilent() {
 		return isServerSound() || (!isServerSound() && isSilenced());
 	}
 
@@ -153,20 +153,20 @@ public abstract class TimerElement extends LitTemplate
 		}
 	}
 
-	private void setMsRemaining(Integer milliseconds) {
+	protected void setMsRemaining(Integer milliseconds) {
 		// logger.debug("setMsRemaining {}",milliseconds);
 		msRemaining = milliseconds;
 	}
 
-	private void setServerSound(boolean serverSound) {
+	protected void setServerSound(boolean serverSound) {
 		this.serverSound = serverSound;
 	}
 
-	private void start(Integer milliseconds, Boolean indefinite, Boolean silent, String from) {
-		// logger.debug("start {}",milliseconds);
+	protected void start(Integer milliseconds, Boolean indefinite, Boolean silent, String from) {
 		Element timerElement2 = getTimerElement();
 		if (timerElement2 != null) {
 			double seconds = indefinite ? 0.0D : milliseconds / 1000.0D;
+			logger.warn("start {}s",seconds);
 			timerElement2.callJsFunction("start", seconds, indefinite, silent, timerElement2,
 			        Long.toString(System.currentTimeMillis()), from);
 		}
@@ -191,14 +191,14 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	protected void doStartTimer(Integer milliseconds, boolean serverSound) {
-		// logger.debug("doStartTimer {}",milliseconds);
+		logger.warn("doStartTimer {}",milliseconds);
 		setServerSound(serverSound);
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			setIndefinite(milliseconds == null);
 			setMsRemaining(milliseconds);
 			String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
 			lastStartMillis = System.currentTimeMillis();
-			logger.trace("server starting timer {}, {}, {}", parent, milliseconds, lastStartMillis);
+			logger.warn("server starting timer {}, {}, {}", parent, milliseconds, lastStartMillis);
 			getElement().setProperty("silent", isSilent());
 			start(milliseconds, isIndefinite(), isSilent(), parent);
 		});

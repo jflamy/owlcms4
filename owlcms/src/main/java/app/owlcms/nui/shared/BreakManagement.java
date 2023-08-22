@@ -268,7 +268,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
 	private void assembleDialog(VerticalLayout dialogLayout) {
 		createTimerDisplay();
-		dialogLayout.add(timer);
+		//dialogLayout.add(timer);
 
 		VerticalLayout cd = createBreakColumn();
 		VerticalLayout ce = createCeremoniesColumn();
