@@ -1,4 +1,4 @@
-import{C as sp,c as b,u as Ua,D as kc,n as wt,P as Ic,a as Oc,d as Pc,r as Yt,s as op,L as ce,h as x,_ as np,b as _n,p as gn,e as Dc}from"./indexhtml-72699d77.js";const{toString:lp}=Object.prototype;function hp(r){return lp.call(r)==="[object RegExp]"}function dp(r,{preserve:t=!0,whitespace:e=!0,all:i}={}){if(i)throw new Error("The `all` option is no longer supported. Use the `preserve` option instead.");let a=t,s;typeof t=="function"?(a=!1,s=t):hp(t)&&(a=!1,s=d=>t.test(d));let o=!1,n="",l="",h="";for(let d=0;d<r.length;d++){if(n=r[d],r[d-1]!=="\\"&&(n==='"'||n==="'")&&(o===n?o=!1:o||(o=n)),!o&&n==="/"&&r[d+1]==="*"){const c=r[d+2]==="!";let u=d+2;for(;u<r.length;u++){if(r[u]==="*"&&r[u+1]==="/"){a&&c||s&&s(l)?h+=`/*${l}*/`:e||(r[u+2]===`
+import{C as sp,c as b,u as Ua,D as kc,n as wt,P as Ic,a as Oc,d as Pc,r as Yt,s as op,L as ce,h as x,_ as np,b as _n,p as gn,e as Dc}from"./indexhtml-d29692e7.js";const{toString:lp}=Object.prototype;function hp(r){return lp.call(r)==="[object RegExp]"}function dp(r,{preserve:t=!0,whitespace:e=!0,all:i}={}){if(i)throw new Error("The `all` option is no longer supported. Use the `preserve` option instead.");let a=t,s;typeof t=="function"?(a=!1,s=t):hp(t)&&(a=!1,s=d=>t.test(d));let o=!1,n="",l="",h="";for(let d=0;d<r.length;d++){if(n=r[d],r[d-1]!=="\\"&&(n==='"'||n==="'")&&(o===n?o=!1:o||(o=n)),!o&&n==="/"&&r[d+1]==="*"){const c=r[d+2]==="!";let u=d+2;for(;u<r.length;u++){if(r[u]==="*"&&r[u+1]==="/"){a&&c||s&&s(l)?h+=`/*${l}*/`:e||(r[u+2]===`
 `?u++:r[u+2]+r[u+3]===`\r
 `&&(u+=2)),l="";break}l+=r[u]}d=u+1;continue}h+=n}return h}const cp=CSSStyleSheet.toString().includes("document.createElement"),up=(r,t)=>{const e=/(?:@media\s(.+?))?(?:\s{)?\@import\s*(?:url\(\s*['"]?(.+?)['"]?\s*\)|(["'])((?:\\.|[^\\])*?)\3)([^;]*);(?:})?/g;/\/\*(.|[\r\n])*?\*\//gm.exec(r)!=null&&(r=dp(r));for(var i,a=r;(i=e.exec(r))!==null;){a=a.replace(i[0],"");const s=document.createElement("link");s.rel="stylesheet",s.href=i[2]||i[4];const o=i[1]||i[5];o&&(s.media=o),t===document?document.head.appendChild(s):t.appendChild(s)}return a},pp=(r,t,e)=>(e?t.adoptedStyleSheets=[r,...t.adoptedStyleSheets]:t.adoptedStyleSheets=[...t.adoptedStyleSheets,r],()=>{t.adoptedStyleSheets=t.adoptedStyleSheets.filter(i=>i!==r)}),vp=(r,t,e)=>{const i=new CSSStyleSheet;return i.replaceSync(r),cp?pp(i,t,e):(e?t.adoptedStyleSheets.splice(0,0,i):t.adoptedStyleSheets.push(i),()=>{t.adoptedStyleSheets.splice(t.adoptedStyleSheets.indexOf(i),1)})},fp=(r,t)=>{const e=document.createElement("style");e.type="text/css",e.textContent=r;let i;if(t){const s=Array.from(document.head.childNodes).filter(o=>o.nodeType===Node.COMMENT_NODE).find(o=>o.data.trim()===t);s&&(i=s)}return document.head.insertBefore(e,i),()=>{e.remove()}},bn=(r,t,e,i)=>{if(e===document){const s=mp(r);if(window.Vaadin.theme.injectedGlobalCss.indexOf(s)!==-1)return;window.Vaadin.theme.injectedGlobalCss.push(s)}const a=up(r,e);return e===document?fp(a,t):vp(a,e,i)};window.Vaadin=window.Vaadin||{};window.Vaadin.theme=window.Vaadin.theme||{};window.Vaadin.theme.injectedGlobalCss=[];function dl(r){let t,e,i=2166136261;for(t=0,e=r.length;t<e;t++)i^=r.charCodeAt(t),i+=(i<<1)+(i<<4)+(i<<7)+(i<<8)+(i<<24);return("0000000"+(i>>>0).toString(16)).substr(-8)}function mp(r){let t=dl(r);return t+dl(t+r)}/**
  * @license
@@ -2935,6 +2935,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         .decisionWrapper {
           width: 100%;
           height: 100%;
+          text-align: center;
         }
 
         .decisions {
@@ -2973,15 +2974,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           font-weight: normal;
           color: lime;
           display: block;
+          font-family: 'Arial Black', Arial, Helvetica, sans-serif;
         }
-      `]}render(){return x` <div class="decisionWrapper">
-      <div class="down" id="downDiv" style="font-weight: 900">&#x2B73;</div>
-      <div class="decisions" id="decisionsDiv">
-        <span class="decision" id="ref1span">&nbsp;</span>
-        <span class="decision" id="ref2span">&nbsp;</span>
-        <span class="decision" id="ref3span">&nbsp;</span>
+      `]}render(){return x` 
+    <div class="decisionWrapper" style="${this.decisionWrapperStyle()}" >
+      <div class="down" style="font-weight: 900; ${this.downStyles()}"><vaadin-icon icon="vaadin:arrow-circle-down"></vaadin-icon></div>
+      <div class="decisions" style="${this.decisionsStyles()}">
+        <span class="${this.decisionClasses(1)}">&nbsp;</span>
+        <span class="${this.decisionClasses(2)}">&nbsp;</span>
+        <span class="${this.decisionClasses(3)}">&nbsp;</span>
       </div>
-    </div>`}static get properties(){return{ref1:{type:Boolean,reflect:!0},ref2:{type:Boolean,reflect:!0},ref3:{type:Boolean},ref1Time:{type:Number},ref2Time:{type:Number},ref3Time:{type:Number},decision:{type:Boolean},publicFacing:{type:Boolean,reflect:!0},jury:{type:Boolean,reflect:!0},audio:{type:Boolean},enabled:{type:Boolean},fopName:{type:String,notify:!0},silent:{type:Boolean}}}firstUpdated(t){super.firstUpdated(t),console.debug("de decision ready"),this.jury||document.body.addEventListener("keydown",e=>this._readRef(e)),this._init()}_init(){console.debug("_init"),this.renderRoot.querySelector("#decisionsDiv").style.display="none",this.renderRoot.querySelector("#downDiv").style.display="none",console.debug("downDiv "+this.renderRoot.querySelector("#downDiv").style.display),this.downShown=!1,this.renderRoot.querySelector("#ref1span").className="decision none",this.renderRoot.querySelector("#ref2span").className="decision none",this.renderRoot.querySelector("#ref3span").className="decision none",this.ref1=null,this.ref2=null,this.ref3=null,this._setupAudio()}_setupAudio(){window.AudioContext=window.AudioContext||window.webkitAudioContext,this.audioContext=new AudioContext,this._prepareAudio()}_readRef(t){if(this.enabled){var e=t.key;switch(console.debug("de key "+e),t.key){case"1":this.ref1=!0,this.ref1Time=Date.now(),this._majority(this.ref1,this.ref2,this.ref3);break;case"2":this.ref1=!1,this.ref1Time=Date.now(),this._majority(this.ref1,this.ref2,this.ref3);break;case"3":this.ref2=!0,this.ref2Time=Date.now(),this._majority(this.ref1,this.ref2,this.ref3);break;case"4":this.ref2=!1,this.ref2Time=Date.now(),this._majority(this.ref1,this.ref2,this.ref3);break;case"5":this.ref3=!0,this.ref3Time=Date.now(),this._majority(this.ref1,this.ref2,this.ref3);break;case"6":this.ref3=!1,this.ref3Time=Date.now(),this._majority(this.ref1,this.ref2,this.ref3);break}}}_registerVote(t){console.debug("de vote "+key)}_majority(t,e,i){var a=0,s=0,o=!1;return t===!0?a++:t===!1&&s++,e===!0?a++:e===!1&&s++,i===!0?a++:i===!1&&s++,!this.downShown&&(a==2||s==2)&&(this.decision=a>=2,this.jury||this.showDown(!0)),a+s>=3?(this.decision=a>=2,o=a>=2):o=void 0,this.masterRefereeUpdate(t,e,i),o}masterRefereeUpdate(t,e,i){this.$server.masterRefereeUpdate(this.fopName,t,e,i,this.ref1Time,this.ref2Time,this.ref3Time)}setColors(t,e,i,a){var s="decision red",o="decision white";this.publicFacing?(e===!0?this.renderRoot.querySelector("#ref1span").className=o:e===!1&&(this.renderRoot.querySelector("#ref1span").className=s),i===!0?this.renderRoot.querySelector("#ref2span").className=o:i===!1&&(this.renderRoot.querySelector("#ref2span").className=s),a===!0?this.renderRoot.querySelector("#ref3span").className=o:a===!1&&(this.renderRoot.querySelector("#ref3span").className=s)):(e===!0?pthis.renderRoot.querySelector("#ref3span").className=o:e===!1&&(this.renderRoot.querySelector("#ref3span").className=s),i===!0?his.renderRoot.querySelector("#ref2span").className=o:i===!1&&(his.renderRoot.querySelector("#ref2span").className=s),a===!0?this.renderRoot.querySelector("#ref1span").className=o:a===!1&&(this.renderRoot.querySelector("#ref1span").className=s))}showDown(t,e){console.debug("de showDown -- "+!this.silent+" "+!e),!this.silent&&!e&&this._playTrack("../local/sounds/down.mp3",window.downSignal,!0,0),this.downShown=!0,this.renderRoot.querySelector("#downDiv").style.display="flex",this.renderRoot.querySelector("#decisionsDiv").style.display="none",this.jury||setTimeout(this.hideDown.bind(this),2e3)}hideDown(){this.renderRoot.querySelector("#downDiv").style.display="none",this.renderRoot.querySelector("#decisionsDiv").style.display="flex"}showDecisions(t,e,i,a){this.hideDown(),console.debug("de showDecision: "+e+" "+i+" "+a),this.setColors(this,e,i,a),console.debug("de colorsShown")}showDecisionsForJury(t,e,i,a,s,o){this.hideDown(),console.debug("de showDecisionForJury: "+t+" "+e+" "+i),this.setColors(this,t,e,i),console.debug("de jury colorsShown")}reset(t){console.debug("de reset "+t),this.hideDecisions(),this._init()}hideDecisions(){this.dispatchEvent(new CustomEvent("hide",{bubbles:!0,composed:!0}))}async _playTrack(t,e,i,a){if(e)return console.debug("de reuse track source"),i&&(await this._playAudioBuffer(e,a),console.debug("de sound done")),e;{console.debug("de no previous buffer");const o=await(await fetch(t)).arrayBuffer();return await window.audioCtx.decodeAudioData(o,async function(l){if(i){const h=await window.audioCtx.createBufferSource();h.buffer=l,h.connect(window.audioCtx.destination),a<=0?h.start():h.start(a,0)}},l=>{console.error("could not decode "+l.err)})}}setEnabled(t){console.debug("setEnabled "+t+" "+this.audioContext),this.enabled=t,t&&(this.trackSource=this.audioContext.createBufferSource(),this.trackSource.buffer=window.downSignal,this.trackSource.connect(this.audioContext.destination),console.debug("connected tracksource"))}_playAudioBuffer(t,e){return console.debug("when "+e),e<=0?this.trackSource.start():this.trackSource.start(e,0),this.trackSource}async _prepareAudio(){if(!window.isIOS)if(window.downSignal)console.debug("skipping downSignal load"),console.debug("existing downSignal = "+window.downSignal);else{this.loadingDownSignal=!0;const t=await this._playTrack("../local/sounds/down.mp3",null,!1,0);window.downSignal=t,console.debug("loaded downSignal = "+window.downSignal)}}constructor(){super(),this.ref1=null,this.ref2=null,this.ref3=null,this.ref1Time=0,this.ref2Time=0,this.ref3Time=0,this.publicFacing=!0,this.jury=!1,this.audio=!0,this.enabled=!1,this.silent=!1}}customElements.define(oh.is,oh);function Hm({currentTarget:r}){r.disabled=r.hasAttribute("disableOnClick")}window.Vaadin.Flow.button={initDisableOnClick:r=>{r.__hasDisableOnClickListener||(r.addEventListener("click",Hm),r.__hasDisableOnClickListener=!0)}};class nh extends ce{render(){return x``}static get is(){return"unload-observer"}initObserver(){const t=this;window.Vaadin.unloadObserver===void 0&&(window.Vaadin.unloadObserver={attemptHandler:void 0}),window.Vaadin.unloadObserver.attemptHandler!==void 0&&window.removeEventListener("beforeunload",window.Vaadin.unloadObserver.attemptHandler),window.Vaadin.unloadObserver.attemptHandler=e=>t.unloadAttempted(t,e),window.addEventListener("beforeunload",window.Vaadin.unloadObserver.attemptHandler)}unloadAttempted(t,e){window.Vaadin.unloadObserver.query?(console.log("UO: responding to unload attempt..."),e.preventDefault(),e.returnValue="",t.$server&&t.$server.unloadAttempted()):t.$server.unloadHappened()}queryOnUnload(t){t?window.Vaadin.unloadObserver.query="true":delete window.Vaadin.unloadObserver.query}static get properties(){return{}}}customElements.define(nh.is,nh);/**
+    </div>`}static get properties(){return{ref1:{type:Boolean,reflect:!0},ref2:{type:Boolean,reflect:!0},ref3:{type:Boolean},ref1Time:{type:Number},ref2Time:{type:Number},ref3Time:{type:Number},decision:{type:Boolean},publicFacing:{type:Boolean,reflect:!0},jury:{type:Boolean,state:!0},audio:{type:Boolean},enabled:{type:Boolean,state:!0,hasChanged(t,e){console.warn("enabled changed from "+e+" to "+t)}},fopName:{type:String,notify:!0},silent:{type:Boolean},_downShown:{type:Boolean,state:!0},_showDecision:{type:Boolean,state:!0}}}constructor(){super(),this.ref1=null,this.ref2=null,this.ref3=null,this.ref1Time=0,this.ref2Time=0,this.ref3Time=0,this.publicFacing=!0,this.jury=!1,this.audio=!0,this.enabled=!1,this.silent=!1,this._readRef=this._readRef.bind(this),this._downShown=!1,this._showDecision=!1}_init(){console.debug("_init"),this.downShown=!1,this.ref1=null,this.ref2=null,this.ref3=null,this._setupAudio()}firstUpdated(t){super.firstUpdated(t),console.debug("de decision ready"),this._init()}connectedCallback(){console.warn("connected"),super.connectedCallback(),document.body.addEventListener("keydown",this._readRef)}disconnectedCallback(){document.body.removeEventListener("keydown",this._readRef),super.disconnectedCallback()}_readRef(t){if(console.warn("_readRef enabled="+this.enabled+" jury="+this.jury),!(!this.enabled||this.jury)){var e=t.key;switch(console.debug("de key "+e),t.key){case"1":this.ref1=!0,this.ref1Time=Date.now(),this._majority(this.ref1,this.ref2,this.ref3);break;case"2":this.ref1=!1,this.ref1Time=Date.now(),this._majority(this.ref1,this.ref2,this.ref3);break;case"3":this.ref2=!0,this.ref2Time=Date.now(),this._majority(this.ref1,this.ref2,this.ref3);break;case"4":this.ref2=!1,this.ref2Time=Date.now(),this._majority(this.ref1,this.ref2,this.ref3);break;case"5":this.ref3=!0,this.ref3Time=Date.now(),this._majority(this.ref1,this.ref2,this.ref3);break;case"6":this.ref3=!1,this.ref3Time=Date.now(),this._majority(this.ref1,this.ref2,this.ref3);break}}}_setupAudio(){window.AudioContext=window.AudioContext||window.webkitAudioContext,this.audioContext=new AudioContext,this._prepareAudio()}_registerVote(t){console.debug("de vote "+key)}_majority(t,e,i){var a=0,s=0,o=!1;return this._showDecision=!1,t===!0?a++:t===!1&&s++,e===!0?a++:e===!1&&s++,i===!0?a++:i===!1&&s++,!this._downShown&&(a==2||s==2)&&(this.decision=a>=2,this.jury||this.showDown(!0)),a+s>=3?(this.decision=a>=2,o=a>=2):o=void 0,this.masterRefereeUpdate(t,e,i),o}masterRefereeUpdate(t,e,i){this.$server.masterRefereeUpdate(this.fopName,t,e,i,this.ref1Time,this.ref2Time,this.ref3Time)}decisionClasses(t){var e="decision ";if(!this._showDecision)return e+"none";if(this.publicFacing){if(t==1)return e+(this.ref1?"white":this.ref1===!1?"red":"none");if(t==2)return e+(this.ref2?"white":this.ref2===!1?"red":"none");if(t==3)return e+(this.ref3?"white":this.ref3===!1?"red":"none")}else{if(t==1)return e+(this.ref3?"white":this.ref3===!1?"red":"none");if(t==2)return e+(this.ref2?"white":this.ref2===!1?"red":"none");if(t==3)return e+(this.ref1?"white":this.ref1===!1?"red":"none")}return e}downStyles(){return"display: "+(this._downShown?"flex":"none")}decisionsStyles(){return"display: "+(this._downShown?"none":"flex")}decisionWrapperStyle(){return"display: grid"}showDown(t,e){console.debug("de showDown -- "+!this.silent+" "+!e),!this.silent&&!e&&this._playTrack("../local/sounds/down.mp3",window.downSignal,!0,0),this._downShown=!0,this.jury||setTimeout(this.hideDown.bind(this),2e3)}hideDown(){this._downShown=!1}showDecisions(t,e,i,a){console.debug("de showDecision: "+e+" "+i+" "+a),this.ref1=e,this.ref2=i,this.ref3=a,this.hideDown(),this._showDecision=!0,console.debug("de showDecisions")}showDecisionsForJury(t,e,i,a,s,o){console.debug("de showDecisionForJury: "+t+" "+e+" "+i),this.ref1=t,this.ref2=e,this.ref3=i,this.ref1Time=a,this.ref2Time=s,this.ref3Time=o,this.hideDown(),this._showDecision=!0,console.debug("de jury colorsShown")}reset(t){console.debug("de reset "+t),this.hideDecisions(),this._init()}hideDecisions(){this.dispatchEvent(new CustomEvent("hide",{bubbles:!0,composed:!0}))}async _playTrack(t,e,i,a){if(e)return console.debug("de reuse track source"),i&&(await this._playAudioBuffer(e,a),console.debug("de sound done")),e;{console.debug("de no previous buffer");const o=await(await fetch(t)).arrayBuffer();return await window.audioCtx.decodeAudioData(o,async function(l){if(i){const h=await window.audioCtx.createBufferSource();h.buffer=l,h.connect(window.audioCtx.destination),a<=0?h.start():h.start(a,0)}},l=>{console.error("could not decode "+l.err)})}}setEnabled(t){this.enabled=t,console.warn("setEnabled "+this.enabled+" "+this.audioContext),t&&(this.trackSource=this.audioContext.createBufferSource(),this.trackSource.buffer=window.downSignal,this.trackSource.connect(this.audioContext.destination),console.debug("connected tracksource"))}_playAudioBuffer(t,e){return console.debug("when "+e),e<=0?this.trackSource.start():this.trackSource.start(e,0),this.trackSource}async _prepareAudio(){if(!window.isIOS)if(window.downSignal)console.debug("skipping downSignal load"),console.debug("existing downSignal = "+window.downSignal);else{this.loadingDownSignal=!0;const t=await this._playTrack("../local/sounds/down.mp3",null,!1,0);window.downSignal=t,console.debug("loaded downSignal = "+window.downSignal)}}}customElements.define(oh.is,oh);function Hm({currentTarget:r}){r.disabled=r.hasAttribute("disableOnClick")}window.Vaadin.Flow.button={initDisableOnClick:r=>{r.__hasDisableOnClickListener||(r.addEventListener("click",Hm),r.__hasDisableOnClickListener=!0)}};class nh extends ce{render(){return x``}static get is(){return"unload-observer"}initObserver(){const t=this;window.Vaadin.unloadObserver===void 0&&(window.Vaadin.unloadObserver={attemptHandler:void 0}),window.Vaadin.unloadObserver.attemptHandler!==void 0&&window.removeEventListener("beforeunload",window.Vaadin.unloadObserver.attemptHandler),window.Vaadin.unloadObserver.attemptHandler=e=>t.unloadAttempted(t,e),window.addEventListener("beforeunload",window.Vaadin.unloadObserver.attemptHandler)}unloadAttempted(t,e){window.Vaadin.unloadObserver.query?(console.log("UO: responding to unload attempt..."),e.preventDefault(),e.returnValue="",t.$server&&t.$server.unloadAttempted()):t.$server.unloadHappened()}queryOnUnload(t){t?window.Vaadin.unloadObserver.query="true":delete window.Vaadin.unloadObserver.query}static get properties(){return{}}}customElements.define(nh.is,nh);/**
  * @license
  * Copyright (c) 2017 - 2023 Vaadin Ltd.
  * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
@@ -4326,94 +4329,58 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <td class="xl92">&nbsp;</td>
         </tr>
       </table>
-    </div>`}static get properties(){return{lastName:{type:String},firstName:{type:String},teamName:{type:String},startNumber:{type:Number},lotNumber:{type:Number},attempt:{type:String},bodyWeight:{type:String},ageDivision:{type:String},category:{type:String},startSnatch:{type:String},startCJ:{type:String},entryTotal:{type:String}}}firstUpdated(t){super.firstUpdated(t)}constructor(){super(),this.lastName="",this.firstName="",this.teamName="",this.startNumber=0,this.lotNumber=0,this.attempt="",this.bodyWeight="",this.ageDivision="",this.category="",this.startSnatch="",this.startCJ="",this.entryTotal=""}}customElements.define(hh.is,hh);class dh extends ce{static get is(){return"attempt-board-template"}render(){var t;return x` <link
-        rel="stylesheet"
-        type="text/css"
-        .href="${"local/"+(this.stylesDir??"")+"/"+(this.video??"")+"colors"+(this.autoversion??"")+".css"}"
-      />
-      <link
-        rel="stylesheet"
-        type="text/css"
-        .href="${"local/"+(this.stylesDir??"")+"/"+(this.video??"")+"resultsCustomization"+(this.autoversion??"")+".css"}"
-      />
-      <link
-        rel="stylesheet"
-        type="text/css"
-        .href="${"local/"+(this.stylesDir??"")+"/"+(this.video??"")+"attemptboard"+(this.autoversion??"")+".css"}"
-      />
-      <div class="${"wrapper "+(this.inactiveClass??"")}">
-        <div style="${this.inactiveBlockStyle}">
-          <div class="competitionName">${this.competitionName}</div>
-          <br />
-          <div class="nextGroup">${(t=this.t)==null?void 0:t.WaitingNextGroup}</div>
+    </div>`}static get properties(){return{lastName:{type:String},firstName:{type:String},teamName:{type:String},startNumber:{type:Number},lotNumber:{type:Number},attempt:{type:String},bodyWeight:{type:String},ageDivision:{type:String},category:{type:String},startSnatch:{type:String},startCJ:{type:String},entryTotal:{type:String}}}firstUpdated(t){super.firstUpdated(t)}constructor(){super(),this.lastName="",this.firstName="",this.teamName="",this.startNumber=0,this.lotNumber=0,this.attempt="",this.bodyWeight="",this.ageDivision="",this.category="",this.startSnatch="",this.startCJ="",this.entryTotal=""}}customElements.define(hh.is,hh);class dh extends ce{static get is(){return"attempt-board-template"}render(){var t;return x` 
+    <link rel="stylesheet" type="text/css" .href="${"local/"+(this.stylesDir??"")+"/"+(this.video??"")+"colors"+(this.autoversion??"")+".css"}"/>
+    <link rel="stylesheet" type="text/css" .href="${"local/"+(this.stylesDir??"")+"/"+(this.video??"")+"resultsCustomization"+(this.autoversion??"")+".css"}"/>
+    <link rel="stylesheet" type="text/css" .href="${"local/"+(this.stylesDir??"")+"/"+(this.video??"")+"attemptboard"+(this.autoversion??"")+".css"}"/>
+
+    <div class="wrapper">
+      <div class="wrapper bigTitle" style="${this.waitingStyles()}">
+        <div class="competitionName">${this.competitionName}</div>
+        <br />
+        <div class="nextGroup">${(t=this.t)==null?void 0:t.WaitingNextGroup}</div>
+      </div>
+      <div class="attemptBoard" style="${this.activeStyles()}">
+        <div id="lastNameDiv" class=${this.lastNameClasses()} style=${this.lastNameStyles()}>
+          <div>${this.lastName}</div>
         </div>
-        <div
-          class="attemptBoard"
-          id="attemptBoardDiv"
-          style="${this.activeGridStyle}"
-        >
-          <div
-            id="lastNameDiv"
-            class="${"lastName"+(this.WithPicture??"")}"
-          >
-            <div>${this.lastName}</div>
-          </div>
-          <div
-            id="firstNameDiv"
-            class="${"firstName"+(this.WithPicture??"")}"
-          >
-            <div>${this.firstName}</div>
-          </div>
-          <div class="teamName" id="teamNameDiv">${this.teamName}</div>
-          <div
-            id="flagDiv"
-            class="${"flag"+(this.WithPicture??"")+" "+(this.hideBecauseRecord??"")+" "+(this.hideBecauseDecision??"")}"
-            .inner-h-t-m-l="${this.teamFlagImg}"
-          ></div>
-          <div
-            id="pictureDiv"
-            class="${"picture "+(this.hideBecauseRecord??"")+" "+(this.hideBecauseDecision??"")}"
-            .inner-h-t-m-l="${this.athleteImg}"
-          ></div>
-          <div id="recordDiv" class="${this.recordKind}">
-            ${this.recordMessage}
-          </div>
-          <div class="startNumber" id="startNumberDiv">
-            <span>${this.startNumber}</span>
-          </div>
-          <div class="category" id="categoryDiv">
-            <span style="white-space: nowrap;">${this.category}</span>
-          </div>
-          <div class="attempt" id="attemptDiv">
-            <span .inner-h-t-m-l="${this.attempt}"></span
-            ><!-- kludge to have preformatted html -->
-          </div>
-          <div class="weight" id="weightDiv">
-            <span style="white-space: nowrap;"
-              >${this.weight}<span style="font-size: 75%"
-                >${this.kgSymbol}</span
-              ></span
-            >
-          </div>
-          <div class="barbell" id="barbellDiv">
-            <slot name="barbell"></slot>
-          </div>
-          <div class="timer athleteTimer" id="athleteTimerDiv">
-            <timer-element id="athleteTimer"></timer-element>
-          </div>
-          <div class="timer breakTime" id="breakTimerDiv">
-            <timer-element id="breakTimer"></timer-element>
-          </div>
-          <div
-            class="decision"
-            id="decisionDiv"
-            @down="${this.down}"
-            @hideX="${this.reset}"
-          >
-            <decision-element id="decisions"></decision-element>
-          </div>
+        <div class="${this.firstNameClasses()}" style="${this.firstNameStyles()}">
+          <div>${this.firstName}</div>
         </div>
-      </div>`}static get properties(){return{javaComponentId:{type:String},lastName:{type:String},firstName:{type:String},teamName:{type:String},startNumber:{type:Number},attempt:{type:String},weight:{type:Number}}}firstUpdated(t){super.firstUpdated(t),this.doBreak(),this.renderRoot.querySelector("#athleteTimerDiv").style.display="none"}start(){this.renderRoot.querySelector("#timer").start()}reset(){console.warn("attemptBoard reset "+this.javaComponentId);var t;(t=this.renderRoot.querySelector("#athleteTimerDiv"))&&(t.style.display="grid"),(t=this.renderRoot.querySelector("#firstNameDiv"))&&(t.style.display="grid"),(t=this.renderRoot.querySelector("#teamNameDiv"))&&(t.style.display="grid"),(t=this.renderRoot.querySelector("#attemptDiv"))&&(t.style.display="grid"),(t=this.renderRoot.querySelector("#categoryDiv"))&&(t.style.display="grid"),(t=this.renderRoot.querySelector("#breakTimerDiv"))&&(t.style.display="none"),(t=this.renderRoot.querySelector("#weightDiv"))&&(t.style.display="grid"),(t=this.renderRoot.querySelector("#startNumberDiv"))&&(t.style.display="block"),(t=this.renderRoot.querySelector("#barbellDiv"))&&(t.style.display="grid"),(t=this.renderRoot.querySelector("#decisionDiv"))&&(t.style.display="none"),console.debug("end of attemptBoard reset "+this.javaComponentId)}down(){console.debug("attemptBoard down "+this.javaComponentId),this.renderRoot.querySelector("#athleteTimerDiv").style.display="none",this.renderRoot.querySelector("#breakTimerDiv").style.display="none",this.renderRoot.querySelector("#barbellDiv").style.display="none",this.renderRoot.querySelector("#attemptDiv").style.display="none",this.renderRoot.querySelector("#decisionDiv").style.display="grid",console.debug("end of attemptBoard dome "+this.javaComponentId)}doBreak(t){console.debug("attemptBoard doBreak "+this.javaComponentId+" showWeight = "+t),this.renderRoot.querySelector("#athleteTimerDiv").style.display="none",this.renderRoot.querySelector("#breakTimerDiv").style.display="grid",this.renderRoot.querySelector("#firstNameDiv").style.display="grid",this.renderRoot.querySelector("#teamNameDiv").style.display="none",this.renderRoot.querySelector("#attemptDiv").style.display="none",this.renderRoot.querySelector("#categoryDiv").style.display="none",this.renderRoot.querySelector("#startNumberDiv").style.display="none",t?(this.renderRoot.querySelector("#weightDiv").style.display="grid",this.renderRoot.querySelector("#barbellDiv").style.display="grid",this.renderRoot.querySelector("#decisionDiv").style.display="grid"):(this.renderRoot.querySelector("#weightDiv").style.display="none",this.renderRoot.querySelector("#barbellDiv").style.display="none",this.renderRoot.querySelector("#decisionDiv").style.display="none",this.renderRoot.querySelector("#breakTimerDiv").style.display="none"),console.debug("attemptBoard end doBreak "+this.javaComponentId)}groupDone(){console.debug("attemptBoard groupDone "+this.javaComponentId),this.renderRoot.querySelector("#athleteTimerDiv").style.display="none",this.renderRoot.querySelector("#firstNameDiv").style.display="none",this.renderRoot.querySelector("#teamNameDiv").style.display="none",this.renderRoot.querySelector("#attemptDiv").style.display="none",this.renderRoot.querySelector("#categoryDiv").style.display="none",this.renderRoot.querySelector("#breakTimerDiv").style.display="none",this.renderRoot.querySelector("#weightDiv").style.display="none",this.renderRoot.querySelector("#startNumberDiv").style.display="none",this.renderRoot.querySelector("#barbellDiv").style.display="none",this.renderRoot.querySelector("#decisionDiv").style.display="none",console.debug("attemptBoard end groupDone "+this.javaComponentId)}clear(){console.debug("attemptBoard clear "+this.javaComponentId);var t;(t=this.renderRoot.querySelector("#attemptBoardDiv"))&&(t.style.display="none"),console.debug("attemptBoard end clear "+this.javaComponentId)}reload(){console.log("reloading"),window.location.reload()}constructor(){super(),this.javaComponentId="",this.lastName="",this.firstName="",this.teamName="",this.startNumber=0,this.attempt="",this.weight=0}}customElements.define(dh.is,dh);window.audioCtx=new(window.AudioContext||window.webkitAudioContext);window.isIOS=r2();function r2(){return["iPad Simulator","iPhone Simulator","iPod Simulator","iPad","iPhone","iPod"].includes(navigator.platform)||navigator.userAgent.includes("Mac")&&"ontouchend"in document}class ch extends ce{static get is(){return"decision-board-template"}render(){var t;return x` <link
+        <div class="teamName" style="${this.teamNameStyles()}">
+          ${this.teamName}
+        </div>
+        <div class="${this.teamFlagImgClasses()}" style="${this.teamFlagImgStyles()}" .innerHTML="${this.teamFlagImg}"></div>
+        <div class="${this.athleteImgClasses()}" style="${this.athleteImgStyles()}" .innerHTML="${this.athleteImg}"></div>
+        <div class="${this.recordMessageClasses()}" style="${this.recordMessageStyles()}">
+          ${this.recordMessage}
+        </div>
+        <div class="startNumber" style="${this.startNumberStyles()}">
+          <span>${this.startNumber}</span>
+        </div>
+        <div class="category" style="${this.attemptStyles()}">
+          <span style="white-space: nowrap;">${this.category}</span>
+        </div>
+        <div class="attempt" style="${this.attemptStyles()}">
+          <span .innerHTML="${this.attempt}"></span>
+        </div>
+        <div class="weight" style="${this.weightStyles()}">
+          <span style="white-space: nowrap;">${this.weight}<span style="font-size: 75%">${this.kgSymbol}</span></span>
+        </div>
+        <div class="barbell" style="${this.barbellStyles()}">
+          <slot name="barbell"></slot>
+        </div>
+        <div class="timer athleteTimer" style="${this.athleteTimerStyles()}">
+          <timer-element id="athleteTimer"></timer-element>
+        </div>
+        <div class="timer breakTime" style="${this.breakTimerStyles()}">
+          <timer-element id="breakTimer"></timer-element>
+        </div>
+        <div class="decision" id="decisionDiv" style="${this.decisionStyles()}">
+          <decision-element id="decisions"></decision-element>
+        </div>
+      </div>
+    </div>`}static get properties(){return{lastName:{},firstName:{},weight:{},competitionName:{},mode:{},attempt:{},athleteImg:{},teamName:{},teamFlagImg:{},startNumber:{},decisionVisible:{type:Boolean},recordAttempt:{},recordBroken:{},javaComponentId:{},stylesDir:{},autoVersion:{},video:{},t:{type:Object}}}firstUpdated(t){super.firstUpdated(t)}isBreak(){return this.mode==="INTERRUPTION"||this.mode==="INTRO_COUNTDOWN"||this.mode==="LIFT_COUNTDOWN"||this.mode==="SESSION_DONE"}isCountdown(){return this.mode==="INTRO_COUNTDOWN"||this.mode==="LIFT_COUNTDOWN"}athleteImgClasses(){var t="picture";return t+(this.decisionVisible?" hideBecauseDecision":"")+(this.recordAttempt||this.recordBroken?" hideBecauseRecord":"")}teamFlagImgClasses(){var t=this.athleteImg?"flagWithPicture":"flag";return t+(this.decisionVisible?" hideBecauseDecision":"")+(this.recordAttempt||this.recordBroken?" hideBecauseRecord":"")}waitingStyles(){return"display: "+(this.mode==="WAIT"?"block":"none")}activeStyles(){return"display: "+(this.mode!=="WAIT"?"grid":"none")}lastNameClasses(){return this.athleteImg?"lastNameWithPicture":"lastName"}lastNameStyles(){return"display: grid"}firstNameClasses(){return"display: "+(this.athleteImg?"firstNameWithPicture":"firstName")}firstNameStyles(){return"display: grid"}teamNameStyles(){return"display: "+(this.recordAttempt||this.recordBroken||this.isBreak()?"none":"grid")}teamFlagImgStyles(){return"display: "+(this.isBreak()?"none":this.mode==="CURRENT_ATHLETE"?"grid":"none")}athleteImgStyles(){return"display: "+(this.mode==="CURRENT_ATHLETE"&&(this.recordAttempt||this.recordBroken)?"grid":"none")}recordMessageClasses(){var t="recordNotification";return t+(this.recordAttempt?" attempt":"")+(this.recordBroken?" new":"")+(!this.recordAttempt&&!this.recordBroken?" none":"")}recordMessageStyles(){return"display: "+(this.mode==="CURRENT_ATHLETE"&&(this.recordAttempt||this.recordBroken)?"grid":"none")}attemptStyles(){return"display: "+(this.isBreak()||this.decisionVisible?"none":"grid")}startNumberStyles(){return"display: "+(this.isBreak()?"none":"block")}weightStyles(){return"display: "+(this.mode==="LIFT_COUNTDOWN"||this.mode==="CURRENT_ATHLETE"?"grid":"none")}athleteTimerStyles(){return"display:"+(this.mode==="CURRENT_ATHLETE"&&!this.decisionVisible?"grid":"none")}breakTimerStyles(){return"display:"+(this.mode==="INTRO_COUNTDOWN"||this.mode==="LIFT_COUNTDOWN"?"grid":"none")}barbellStyles(){return"display: "+(this.mode==="LIFT_COUNTDOWN"||this.mode==="CURRENT_ATHLETE"&&!this.decisionVisible?"grid":"none")}decisionStyles(){return"display: "+(this.mode==="CURRENT_ATHLETE"&&this.decisionVisible?"grid":"none")}constructor(){super(),this.javaComponentId="",this.lastName="",this.firstName="",this.weight=0,this.competitionName="",this.mode=="WAIT",this.attempt="",this.athleteImg="",this.teamName="",this.teamFlagImg="",this.startNumber=0,this.decisionVisible=!1,this.recordAttempt=!1,this.recordBroken=!1,this.stylesDir="",this.autoVersion=0,this.video=""}}customElements.define(dh.is,dh);window.audioCtx=new(window.AudioContext||window.webkitAudioContext);window.isIOS=r2();function r2(){return["iPad Simulator","iPhone Simulator","iPod Simulator","iPad","iPhone","iPod"].includes(navigator.platform)||navigator.userAgent.includes("Mac")&&"ontouchend"in document}class ch extends ce{static get is(){return"decision-board-template"}render(){var t;return x` <link
         rel="stylesheet"
         type="text/css"
         .href="${"local/"+(this.stylesDir??"")+"/"+(this.video??"")+"colors"+(this.autoversion??"")}"
