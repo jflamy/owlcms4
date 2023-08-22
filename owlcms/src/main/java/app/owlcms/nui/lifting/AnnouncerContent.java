@@ -282,7 +282,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		createTopBarGroupSelect();
 		createTopBarLeft();
 
-		introCountdownButton = new Button(getTranslation("introCountdown"), // FIXME new Icon(VaadinIcon.TIMER),
+		introCountdownButton = new Button(getTranslation("introCountdown"), new Icon(VaadinIcon.TIMER),
 		        (e) -> {
 			        OwlcmsSession.withFop(fop -> {
 				        BreakDialog dialog = new BreakDialog(BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET, null, this);
@@ -291,7 +291,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		        });
 		introCountdownButton.getElement().setAttribute("theme", "primary contrast");
 
-		startLiftingButton = new Button(getTranslation("startLifting"), // FIXME PlacesIcons.FITNESS_CENTER.create(),
+		startLiftingButton = new Button(getTranslation("startLifting"), new Icon(VaadinIcon.MICROPHONE),
 		        (e) -> {
 			        OwlcmsSession.withFop(fop -> {
 				        UI.getCurrent().access(() -> getRouterLayout().setMenuArea(createTopBar()));
@@ -300,7 +300,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		        });
 		startLiftingButton.getThemeNames().add("success primary");
 
-		showResultsButton = new Button(getTranslation("ShowResults"), // FIXME PlacesIcons.FITNESS_CENTER.create(),
+		showResultsButton = new Button(getTranslation("ShowResults"), new Icon(VaadinIcon.MEDAL),
 		        (e) -> {
 			        OwlcmsSession.withFop(fop -> {
 				        UI.getCurrent().access(() -> getRouterLayout().setMenuArea(createTopBar()));
@@ -338,7 +338,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	 */
 	@Override
 	protected Component createReset() {
-		reset = new Button(getTranslation("Announcer.ReloadGroup"), // FIXME IronIcons.REFRESH.create(),
+		reset = new Button(getTranslation("Announcer.ReloadGroup"), new Icon(VaadinIcon.REFRESH),
 		        (e) -> OwlcmsSession.withFop((fop) -> {
 			        Group group = fop.getGroup();
 			        logger.info("resetting {} from database", group);
@@ -502,7 +502,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	protected void createTopBarSettingsMenu() {
 		topBarSettings = new MenuBar();
 		topBarSettings.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_TERTIARY_INLINE);
-		MenuItem item2 = topBarSettings.addItem(new Icon(VaadinIcon.COG));// FIXME IronIcons.SETTINGS.create());
+		MenuItem item2 = topBarSettings.addItem(new Icon(VaadinIcon.COG));
 		SubMenu subMenu2 = item2.getSubMenu();
 
 		FieldOfPlay fop = OwlcmsSession.getFop();

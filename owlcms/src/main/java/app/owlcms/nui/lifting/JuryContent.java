@@ -449,7 +449,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
 	private HorizontalLayout juryDeliberationButtons() {
 		Button juryDeliberationButton = new Button(
-				new Icon(VaadinIcon.TIMER),//FIXME new Icon(VaadinIcon.TIMER), 
+				new Icon(VaadinIcon.TIMER),
 				(e) -> {
 			openJuryDialog(JuryDeliberationEventType.START_DELIBERATION);
 		});
@@ -457,7 +457,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		juryDeliberationButton.setText(getTranslation("BreakButton.JuryDeliberation"));
 		
 		Button challengeButton = new Button(
-				new Icon(VaadinIcon.TIMER),//FIXME new Icon(VaadinIcon.TIMER), 
+				new Icon(VaadinIcon.TIMER),
 				(e) -> {
 			openJuryDialog(JuryDeliberationEventType.CHALLENGE);
 		});
@@ -467,7 +467,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		// getTranslation("BreakButton.JuryDeliberation"));
 
 		Button technicalPauseButton = new Button(
-				new Icon(VaadinIcon.TIMER),//FIXME new Icon(VaadinIcon.TIMER), 
+				new Icon(VaadinIcon.TIMER),
 				(e) -> {
 			openJuryDialog(JuryDeliberationEventType.TECHNICAL_PAUSE);
 		});
@@ -478,7 +478,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
 		if (summonEnabled) {
 			Button summonRefereesButton = new Button(
-					new Icon(VaadinIcon.TIMER),//FIXME new Icon(VaadinIcon.TIMER), 
+					new Icon(VaadinIcon.TIMER), 
 					(e) -> {
 				openJuryDialog(JuryDeliberationEventType.CALL_REFEREES);
 			});

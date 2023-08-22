@@ -1578,9 +1578,8 @@ public abstract class AthleteGridContent extends VerticalLayout
 						logger.debug("breakButton is null\n{}", LoggerUtils.stackTrace());
 					}
 					if (breakButton != null) {
-						// quietBreakButton();
 						quietBreakButton(
-						        this instanceof MarshallContent ? Translator.translate("BreakType.MARSHAL") : Translator.translateOrElseEmpty("Pause"));
+						        this instanceof MarshallContent ? Translator.translate("StopCompetition") : Translator.translateOrElseEmpty("Pause"));
 					}
 				}
 				if (breakButton != null) {

@@ -12,6 +12,7 @@ import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
@@ -103,8 +104,7 @@ public class GroupCategorySelectionMenu extends MenuBar {
 		MenuItem separator = subMenu.addItem(ruler);
 		separator.getElement().setAttribute("style",
 		        "margin-top: -1em; margin-bottom: -1.5em; margin-left: -1.5em; padding: 0px; padding-left: -1em;");
-		Icon icon = new Icon("ironicons","clear");// IronIcons.CLEAR.create();
-		//FIXME IronIcon
+		Icon icon = new Icon(VaadinIcon.CLOSE_SMALL);
 		icon.getElement().setAttribute("style", "margin: 0px; padding: 0px");
 		HorizontalLayout component = new HorizontalLayout(icon, new NativeLabel(Translator.translate("NoGroup")));
 		component.setPadding(false);

@@ -1076,8 +1076,8 @@ public class FieldOfPlay {
 				return;
 			}
 
-			if (logger.isDebugEnabled()) {// FIXME trace
-				logger.debug("{}**** loading data for group {} [already={} forced={} from={}]",
+			if (logger.isTraceEnabled()) {
+				logger.trace("{}**** loading data for group {} [already={} forced={} from={}]",
 				        getLoggingName(),
 				        loadGroupName,
 				        alreadyLoaded,
@@ -2530,7 +2530,6 @@ public class FieldOfPlay {
 		}
 
 		if (state == BREAK && (getBreakType() != null && getBreakType().isCountdown())
-				//FIXME set state to BREAK should alway set breakType
 		        && (newBreak == BreakType.JURY || newBreak == BreakType.CHALLENGE)) {
 			// ignore jury break during intro and snatch breaks
 			return;

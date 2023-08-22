@@ -865,7 +865,6 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	}
 
 	private void doNotification(String text, String recordText, String theme, int duration) {
-		// FIXME: LitElement
 		Notification n = new Notification();
 		// Notification theme styling is done in
 		// META-INF/resources/frontend/styles/shared-styles.html
@@ -956,7 +955,6 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		AttemptBoard attemptBoard = this;
 		OwlcmsSession.withFop((fop) -> {
 			UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-				// FIXME Use LitElement rendering
 				try {
 					if (plates != null) {
 						attemptBoard.getElement().removeChild(plates.getElement());

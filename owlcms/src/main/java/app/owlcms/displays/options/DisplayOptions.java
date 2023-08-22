@@ -14,6 +14,8 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -170,8 +172,8 @@ public class DisplayOptions {
 		}
 
 		boolean silentMode = dp.isSilenced();
-		Button silentButton = new Button(Translator.translate("DisplayParameters.ClockSoundOff"));//FIXME, AvIcons.VOLUME_OFF.create()));
-		Button soundButton = new Button(Translator.translate("DisplayParameters.ClockSoundOn"));//FIXME, AvIcons.VOLUME_UP.create()));
+		Button silentButton = new Button(Translator.translate("DisplayParameters.ClockSoundOff"), new Icon(VaadinIcon.BELL_SLASH));
+		Button soundButton = new Button(Translator.translate("DisplayParameters.ClockSoundOn"), new Icon(VaadinIcon.BELL));
 
 		RadioButtonGroup<Boolean> rbgroup = new RadioButtonGroup<>();
 		rbgroup.setRequired(true);
@@ -188,8 +190,8 @@ public class DisplayOptions {
 		});
 		
 		boolean downSilentMode = dp.isDownSilenced();
-		Button downSilencedButton = new Button(Translator.translate("DisplayParameters.DownSoundOff"));//FIXME, AvIcons.VOLUME_OFF.create()));
-		Button downSoundButton = new Button(Translator.translate("DisplayParameters.DownSoundOn"));//FIXME, AvIcons.VOLUME_UP.create()));
+		Button downSilencedButton = new Button(Translator.translate("DisplayParameters.DownSoundOff"), new Icon(VaadinIcon.BELL_SLASH));
+		Button downSoundButton = new Button(Translator.translate("DisplayParameters.DownSoundOn"), new Icon(VaadinIcon.BELL));
 
 		RadioButtonGroup<Boolean> rb2group = new RadioButtonGroup<>();
 		rb2group.setRequired(true);
