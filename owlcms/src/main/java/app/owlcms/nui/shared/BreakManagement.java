@@ -95,9 +95,9 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 	private Button endOfficials;
 	private Long id;
 
-	private boolean ignoreBreakTypeValueChange = false;
-	private boolean ignoreDurationValueChange = false;
-	private boolean ignoreListeners = false;
+//	private boolean ignoreBreakTypeValueChange = false;
+//	private boolean ignoreDurationValueChange = false;
+//	private boolean ignoreListeners = false;
 	private boolean ignoreNextDisable;
 	private boolean inactive = false;
 	final private Logger logger = (Logger) LoggerFactory.getLogger(BreakManagement.class);
@@ -218,15 +218,14 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 			if (!event.isFromClient()) {
 				return;
 			}
-			logger.debug("bt new value {} {} {} {}", event.getValue(), ignoreBreakTypeValueChange, ignoreListeners,
-			        LoggerUtils.whereFrom());
+			logger.debug("bt new value {} {}", event.getValue(), LoggerUtils.whereFrom());
 
 			BreakType bType = event.getValue();
 			if (bType == BEFORE_INTRODUCTION || bType == BreakType.CEREMONY) {
 				computeDefaultTimeValues();
 			}
 			CountdownType mapBreakTypeToCountdownType = mapBreakTypeToDurationValue(bType);
-			logger.debug("setting countdown {} ignored={}", mapBreakTypeToCountdownType, ignoreListeners);
+			logger.debug("setting countdown {} ignored={}", mapBreakTypeToCountdownType);
 			setCountdownTypeValue(mapBreakTypeToCountdownType);
 			setBreakValue(bType);
 			setBreakType(bType);
@@ -619,7 +618,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 		stopCompetition.getElement().setAttribute("theme", "primary error");
 		stopCompetition.getElement().setAttribute("title", getTranslation("StopCompetition"));
 		if (interruptionRadios2.getValue() != null) {
-			stopCompetition.setEnabled(ignoreBreakTypeValueChange);
+			stopCompetition.setEnabled(true);
 		}
 
 //		breakPause = new Button(new Icon(VaadinIcon.PAUSE), (e) -> masterPauseBreak(null));
@@ -739,7 +738,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 	private void initState(Object origin, BreakType brt, CountdownType cdt, Integer countdownSecondsRemaining) {
 		logger.warn("initState brt={} cdt={} from {}", brt, cdt, LoggerUtils.whereFrom());
 		this.id = IdUtils.getTimeBasedId();
-		ignoreBreakTypeValueChange = false;
 		this.setOrigin(origin);
 		this.setBreakType(brt);
 		this.setCountdownType(cdt);
@@ -817,12 +815,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 	}
 
 	private void safeSetBT(BreakType breakType) {
-		try {
-			ignoreBreakTypeValueChange = true;
 			setBreakValue(breakType);
-		} finally {
-			ignoreBreakTypeValueChange = false;
-		}
 	}
 
 	private void selectCeremonyCategory(Group g, Category c, FieldOfPlay fop) {
