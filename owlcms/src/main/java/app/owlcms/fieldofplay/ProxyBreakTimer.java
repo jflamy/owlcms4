@@ -191,7 +191,6 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 		getFop().pushOutUIEvent(
 		        new UIEvent.BreakSetTime(getFop().getBreakType(), getFop().getCountdownType(), getTimeRemaining(), null,
 		                true, this, LoggerUtils.stackTrace()));
-		setRunning(false);
 		indefinite = true;
 	}
 
@@ -211,7 +210,6 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 		// indefinite, LoggerUtils.whereFrom());
 		this.indefinite = indefinite;
 		this.timeRemaining = timeRemaining2;
-		setRunning(false);
 	}
 
 	/**
@@ -273,8 +271,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	 */
 	@Override
 	public void timeOver(Object origin) {
-		// logger.debug("break {} {} timeover = {} [{}]", isRunning(), isIndefinite(),
-		// getTimeRemaining(), LoggerUtils.stackTrace());
+		logger.warn("break {} {} timeover = {} [{}]", isRunning(), isIndefinite(), getTimeRemaining(), LoggerUtils.stackTrace());
 		if (isRunning() && !isIndefinite()) {
 			long now = System.currentTimeMillis();
 			if (now - lastStop > 1000) {
@@ -285,7 +282,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 				return;
 			}
 			// should emit sound at end of break
-			logger.debug("timeOver \n{}", LoggerUtils.stackTrace());
+			logger.warn("******* timeOver \n{}", LoggerUtils.stackTrace());
 			getFop().pushOutUIEvent(new UIEvent.BreakDone(origin, getFop().getBreakType()));
 			getFop().fopEventPost(new FOPEvent.BreakDone(getFop().getBreakType(), origin));
 		} else {

@@ -99,7 +99,7 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
 			}
 //            logger.debug("clientTimeOver", fopName);
 			IBreakTimer breakTimer = fop.getBreakTimer();
-//            logger.debug("{} {} break time over {}", fopName, fop.getName(), breakTimer.isIndefinite());
+            logger.warn("{} {} break time over {}", fopName, fop.getName(), breakTimer.isIndefinite());
 			if (!breakTimer.isIndefinite()) {
 				fop.getBreakTimer().timeOver(this);
 			}
