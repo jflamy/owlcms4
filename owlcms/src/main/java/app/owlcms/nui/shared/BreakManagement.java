@@ -73,6 +73,7 @@ import jakarta.annotation.Nonnull;
 
 @SuppressWarnings("serial")
 public class BreakManagement extends VerticalLayout implements SafeEventBusRegistration {
+
 	private static final Duration DEFAULT_DURATION = Duration.ofMinutes(10L);
 	private Button breakEnd = null;
 	private Button breakStart = null;
@@ -96,29 +97,17 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 	final private Logger logger = (Logger) LoggerFactory.getLogger(BreakManagement.class);
 	private Category medalCategory;
 	private Group medalGroup;
-
 	private NativeLabel minutes;
-
 	private Paragraph noCountdown = new Paragraph(Translator.translate("No countdown selected."));
-
 	private Object origin;
-
 	private Dialog parentDialog;
-
 	private Button resumeCompetition = null;
-
 	private Button startIntroButton;
-
 	private Button startMedalCeremony;
-
 	private Button startOfficials;
-
 	private Button stopCompetition = null;
-
 	private TimePicker timePicker = new TimePicker();
-
 	private HorizontalLayout timer;
-
 	private Long timeRemaining = null;
 	private EventBus uiEventBus;
 	private Paragraph waitText = new Paragraph(Translator.translate("Wait.Text"));
@@ -268,7 +257,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
 	private void assembleDialog(VerticalLayout dialogLayout) {
 		createTimerDisplay();
-		//dialogLayout.add(timer);
+		// dialogLayout.add(timer);
 
 		VerticalLayout cd = createBreakColumn();
 		VerticalLayout ce = createCeremoniesColumn();
@@ -1094,7 +1083,8 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 			int fopLiveTimeRemaining = fopBreakTimer.liveTimeRemaining();
 			Integer fopBreakDuration = fopBreakTimer.getBreakDuration();
 
-			// logger.debug("syncWithFop {} {} {}", fopState, fop.getBreakTimer().liveTimeRemaining(), fop.getBreakTimer().isRunning());
+			// logger.debug("syncWithFop {} {} {}", fopState,
+			// fop.getBreakTimer().liveTimeRemaining(), fop.getBreakTimer().isRunning());
 
 			running[0] = false;
 

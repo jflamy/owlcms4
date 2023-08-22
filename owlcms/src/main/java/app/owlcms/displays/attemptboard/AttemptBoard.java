@@ -101,7 +101,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 
 	static {
 		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.DEBUG);
+		uiEventLogger.setLevel(Level.INFO);
 	}
 
 	public static void doNotification(AttemptBoard attemptBoard, String text, String recordText, String theme,

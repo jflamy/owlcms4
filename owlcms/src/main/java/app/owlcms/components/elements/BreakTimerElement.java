@@ -16,10 +16,8 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 
-import app.owlcms.apputils.DebugUtils;
 import app.owlcms.fieldofplay.IBreakTimer;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.IdUtils;
@@ -189,8 +187,7 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
 			IBreakTimer breakTimer = fop.getBreakTimer();
 			if (breakTimer != null) {
 				if (!parentName.startsWith("BreakManagement")) {
-					uiEventLogger.warn("&&& breakTimerElement sync running {} indefinite {}", breakTimer.isRunning(),
-					        breakTimer.isIndefinite());
+					//uiEventLogger.debug("&&& breakTimerElement sync running {} indefinite {}", breakTimer.isRunning(), breakTimer.isIndefinite());
 				}
 				if (breakTimer.isRunning()) {
 					if (breakTimer.isIndefinite()) {
