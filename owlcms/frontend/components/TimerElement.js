@@ -100,7 +100,7 @@ class TimerElement extends LitElement {
 
   start(seconds, indefinite, silent, element, serverMillis, from) {
     if (indefinite) {
-      console.warn("timer indefinite " + seconds);
+      console.debug("timer indefinite " + seconds);
       this._indefinite();
       return;
     }
@@ -115,7 +115,7 @@ class TimerElement extends LitElement {
         lateMillis = 0;
       }
     }
-    console.warn("timer start " + seconds + " late = " + lateMillis + "ms");
+    console.debug("timer start " + seconds + " late = " + lateMillis + "ms");
     this.$server.clientTimerStarting(
       this.fopName,
       seconds,
@@ -142,7 +142,7 @@ class TimerElement extends LitElement {
 
     this._elapsed = performance.now() / 1000;
     this.running = true;
-    console.warn("timer running " + this.currentTime);
+    console.debug("timer running " + this.currentTime);
     window.requestAnimationFrame(this._decreaseTimer);
   }
 
@@ -158,7 +158,7 @@ class TimerElement extends LitElement {
     // 	lateMillis = 0;
     // }
     this.running = false;
-    console.warn("paused"+" running=false");
+    console.debug("paused"+" running=false");
     // if (this.$server != null) {
     this.$server.clientTimerStopped(
       this.fopName,
@@ -177,7 +177,7 @@ class TimerElement extends LitElement {
 
   display(seconds, indefinite, silent, element) {
     this.running = false;
-    console.warn("display " + indefinite + " " + seconds+" running=false");
+    console.debug("display " + indefinite + " " + seconds+" running=false");
     if (indefinite) {
       this.currentTime = seconds;
       this._indefinite();
@@ -213,7 +213,7 @@ class TimerElement extends LitElement {
   }
 
   _init() {
-    console.warn("init timer " + this.indefinite+" running="+this.running);
+    console.debug("init timer " + this.indefinite+" running="+this.running);
     if (this.indefinite) {
       this.currentTime = this.startTime;
       this._indefinite();
@@ -335,7 +335,7 @@ class TimerElement extends LitElement {
   }
 
   _decreaseTimer(timestamp) {
-    //console.warn(timestamp + " " + this.running);
+    //console.debug(timestamp + " " + this.running);
     if (!this.running) {
       return;
     }
@@ -403,7 +403,7 @@ class TimerElement extends LitElement {
     }
 
     this._formattedTime = this._formatTime(this.currentTime);
-    console.warn(this._formattedTime);
+    console.debug(this._formattedTime);
     this._elapsed = now;
     window.requestAnimationFrame(this._decreaseTimer);
 
@@ -411,7 +411,7 @@ class TimerElement extends LitElement {
       (this.currentTime < -0.1 && !this.countUp) ||
       (this.currentTime >= this.startTime && this.countUp)
     ) {
-      console.warn("time over stop running " + this.$server+" running=false");
+      console.debug("time over stop running " + this.$server+" running=false");
       // timer is over; tell server to emit sound if server-side sounds
       if (this.$server != null) this.$server.clientTimeOver(this.fopName);
       this.running = false;
@@ -446,7 +446,7 @@ class TimerElement extends LitElement {
     this._decreaseTimer = this._decreaseTimer.bind(this);
     this.startTime = 60;
     this.running = false;
-    console.warn("constructor"+" running=false");
+    console.debug("constructor"+" running=false");
     this.countUp = false;
     this.silent = false;
     this.indefinite = false;

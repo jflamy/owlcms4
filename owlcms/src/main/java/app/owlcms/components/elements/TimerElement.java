@@ -166,7 +166,7 @@ public abstract class TimerElement extends LitTemplate
 		Element timerElement2 = getTimerElement();
 		if (timerElement2 != null) {
 			double seconds = indefinite ? 0.0D : milliseconds / 1000.0D;
-			logger.warn("start {}s",seconds);
+			logger.debug("start {}s",seconds);
 			timerElement2.callJsFunction("start", seconds, indefinite, silent, timerElement2,
 			        Long.toString(System.currentTimeMillis()), from);
 		}
@@ -191,14 +191,14 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	protected void doStartTimer(Integer milliseconds, boolean serverSound) {
-		logger.warn("doStartTimer {}",milliseconds);
+		logger.debug("doStartTimer {}",milliseconds);
 		setServerSound(serverSound);
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			setIndefinite(milliseconds == null);
 			setMsRemaining(milliseconds);
 			String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
 			lastStartMillis = System.currentTimeMillis();
-			logger.warn("server starting timer {}, {}, {}", parent, milliseconds, lastStartMillis);
+			//logger.debug("server starting timer {}, {}, {}", parent, milliseconds, lastStartMillis);
 			getElement().setProperty("silent", isSilent());
 			start(milliseconds, isIndefinite(), isSilent(), parent);
 		});

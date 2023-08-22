@@ -108,7 +108,7 @@ public class AthleteTimerElement extends TimerElement {
 			if (fopName != null && !fopName.contentEquals(fop.getName())) {
 				return;
 			}
-			logger.warn("Received time over.");
+			logger.debug("Received time over.");
 			fop.getAthleteTimer().timeOver(this);
 		});
 	}

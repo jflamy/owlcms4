@@ -231,18 +231,6 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
 		syncWithFopBreakTimer();
 	}
 	
-	protected void doStartTimer(Integer milliseconds, boolean serverSound) {
-		logger.warn("doStartTimer {}",milliseconds);
-		setServerSound(serverSound);
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			setIndefinite(milliseconds == null);
-			setMsRemaining(milliseconds);
-			String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
-			lastStartMillis = System.currentTimeMillis();
-			logger.warn("server starting timer {} : {}, {}, {}", parentName, parent, milliseconds, System.identityHashCode(this));
-			getElement().setProperty("silent", isSilent());
-			start(milliseconds, isIndefinite(), isSilent(), parent);
-		});
-	}
+
 
 }

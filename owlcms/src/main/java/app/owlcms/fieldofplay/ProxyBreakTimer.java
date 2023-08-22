@@ -271,7 +271,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	 */
 	@Override
 	public void timeOver(Object origin) {
-		logger.warn("break {} {} timeover = {} [{}]", isRunning(), isIndefinite(), getTimeRemaining(), LoggerUtils.stackTrace());
+		logger.warn("****** break {} {} timeover = {} [{}]", isRunning(), isIndefinite(), getTimeRemaining(), LoggerUtils.stackTrace());
 		if (isRunning() && !isIndefinite()) {
 			long now = System.currentTimeMillis();
 			if (now - lastStop > 1000) {
@@ -318,7 +318,6 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	 * @return the fop
 	 */
 	FieldOfPlay getFop() {
-		logger.warn("fop {} {}", System.identityHashCode(this.fop), fop.getBreakType());
 		return fop;
 	}
 }

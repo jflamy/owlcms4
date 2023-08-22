@@ -2251,7 +2251,7 @@ public class FieldOfPlay {
 			breakTimer2.setTimeRemaining(0, false);
 			breakTimer2.setEnd(e.getTargetTime());
 		}
-		logger.warn("******* breakTimer2 {} {} isIndefinite={}", breakType2, countdownType2, breakTimer2.isIndefinite());
+		logger.warn("******* setBreakParams {} {} isIndefinite={}", breakType2, countdownType2, breakTimer2.isIndefinite());
 	}
 
 	private void setClockOwner(Athlete athlete) {
