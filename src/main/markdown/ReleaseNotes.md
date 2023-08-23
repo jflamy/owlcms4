@@ -1,14 +1,17 @@
 > **Version 44 is a Technical migration release: DO NOT USE release 44 until an explicit note that it has been stabilized.**
 >
-> Version 44 uses the most current Vaadin 24, which has several major changes.  Vaadin has switched to a newer and much cleaner JavaScript toolkit (LitElement) so the major challenge is that all the scoreboards, timers and decision displays have to be redone accordingly.
+> Version 44 uses the most current Vaadin 24, which has several major changes.  Vaadin has switched to a newer and much cleaner JavaScript toolkit (LitElement) so the major challenge is that all the scoreboards, timers and decision displays have to be migrated - essentially rewritten.
 
 44.0.0-alpha02: Snapshot release.
 
 - Conversion of build to Java 17, Vaadin 24.1.4 and Node.js 18.17.1
 - Initial migration of Web components from Polymer to LitElement, as required by Vaadin 24.
-  - AttemptBoard, Decisions, Timer have been migrated and updated to work in the new paradigm.
-  - NOTE: scoreboards are not finished yet -- they do not update automatically when lifts are made.
-- Rewrite of the break management dialog (not final)
+  - Attempt Board, Decisions, Timer have been migrated and updated to work in the new paradigm.
+- Rewrite of the break management dialog. Further improvement to come.
+- BROKEN/MISSING
+  - scoreboards are not finished yet -- they do not update automatically when lifts are made.
+  - publicresults does not work - will be done once scoreboard are fixed.
+
 
 #####  Highlights from recent stable releases
 
