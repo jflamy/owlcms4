@@ -1,12 +1,14 @@
 > **Version 44 is a Technical migration release: DO NOT USE release 44 until an explicit note that it has been stabilized.**
 >
-> The user interface toolkit has a new major version (v24) and some features used in owlcms have reached end-of-life. This will complete the interim migration started in version 37 with version v23.
+> Version 44 uses the most current Vaadin 24, which has several major changes.  Vaadin has switched to a newer and much cleaner JavaScript toolkit (LitElement) so the major challenge is that all the scoreboards, timers and decision displays have to be redone accordingly.
 
-44.0.0-alpha01: Snapshot release.
+44.0.0-alpha02: Snapshot release.
 
 - Conversion of build to Java 17, Vaadin 24.1.4 and Node.js 18.17.1
-- Initial migration of Web components from Polymer to LitElement, required by Vaadin 24.
+- Initial migration of Web components from Polymer to LitElement, as required by Vaadin 24.
   - AttemptBoard, Decisions, Timer have been migrated and updated to work in the new paradigm.
+  - NOTE: scoreboards are not finished yet -- they do not update automatically when lifts are made.
+- Rewrite of the break management dialog (not final)
 
 #####  Highlights from recent stable releases
 
