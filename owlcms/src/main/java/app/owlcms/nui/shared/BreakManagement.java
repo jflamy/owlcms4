@@ -98,7 +98,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 	private Category medalCategory;
 	private Group medalGroup;
 	private NativeLabel minutes;
-	private Paragraph noCountdown = new Paragraph(Translator.translate("No countdown selected."));
+	private Paragraph noCountdown = new Paragraph();
 	private Object origin;
 	private Dialog parentDialog;
 	private Button resumeCompetition = null;
@@ -331,7 +331,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 		countdownRadios.setItems(countdowns);
 		countdownRadios.setRenderer(new TextRenderer<>(
 		        (item) -> {
-			        String s = getTranslation(BreakType.class.getSimpleName() + "." + item.name());
+			        String s = getTranslation(BreakType.class.getSimpleName() + ".Label_" + item.name());
 			        return s;
 		        }));
 
@@ -351,8 +351,9 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 		VerticalLayout cd = new VerticalLayout();
 
 		Div title1 = new Div(label("InterruptionType.Title"));
-		Div title2 = new Div(label("CountdownType.Title"));
+		Div title2 = new Div(label("BreakType.Title"));
 		title2.getElement().setAttribute("style", "margin-top: 1ex");
+		noCountdown.getElement().setProperty("innerHTML", "&nbsp;");
 
 		cd.add(title1);
 		cd.add(interruptionRadios);
@@ -388,8 +389,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 						startOfficials.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
 						endOfficials.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-				        // we are in a running break such as before snatch already scheduled and want to
-				        // switch to intro
 				        masterStartCeremony(fop, CeremonyType.INTRODUCTION);
 
 				        // close so we can read the list of participants
@@ -407,10 +406,9 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 				        if (fop.getCeremonyType() != CeremonyType.INTRODUCTION) {
 					        return;
 				        }
-				        boolean switchToSnatch = true; // (fop.getBreakTimer().getBreakType() == DURING_INTRODUCTION);
-				        // logger.warn("switch to snatch {} {}", fop.getBreakTimer().getBreakType() ,
-				        // switchToSnatch);
 				        masterEndCeremony(fop, CeremonyType.INTRODUCTION);
+				        
+				        boolean switchToSnatch = true;
 				        if (switchToSnatch) {
 					        durationField.setValue(DEFAULT_DURATION);
 					        setBreakValue(FIRST_SNATCH);
@@ -423,6 +421,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 		endIntroButton.setTabIndex(-1);
 		startIntroButton.getThemeNames().add("secondary contrast");
 		endIntroButton.getThemeNames().add("secondary contrast");
+		
 		introButtons.add(startIntroButton, endIntroButton);
 
 		ce.add(label("BreakMgmt.IntroductionOfAthletes"));
