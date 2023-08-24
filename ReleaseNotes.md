@@ -4,12 +4,9 @@
 
 44.0.0-alpha02: Snapshot release.
 
-- Conversion of build to Java 17, Vaadin 24.1.4 and Node.js 18.17.1
-- Initial migration of Web components from Polymer to LitElement, as required by Vaadin 24.
-  - Attempt Board, Decisions, Timer have been migrated and updated to work in the new paradigm.
-- Rewrite of the break management dialog. Further improvement to come.
+- Fixes to the of the break management dialog when acting as solo referee with no displays.
 - BROKEN/MISSING
-  - scoreboards are not finished yet -- they do not update automatically when lifts are made.
+  - scoreboards are not migrated yet.
   - publicresults does not work - will be done once scoreboard are fixed.
 
 
@@ -54,11 +51,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_44.0.0-alpha02.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_44.0.0-alpha03.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_44.0.0-alpha02.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_44.0.0-alpha03.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
