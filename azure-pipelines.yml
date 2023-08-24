@@ -10,7 +10,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 44.0.0-alpha02
+    default: 44.0.0-alpha03
   - name: SkipTests
     type: string
     default: 'false'
@@ -163,7 +163,7 @@ jobs:
           ${{ if eq(variables['Build.SourceBranchName'], 'v24') }}:
             gitHubConnection: github.com_jflamy-dev
             repositoryName: $(RELEASE_USER)/owlcms4$(RELEASE_SUFFIX)
-            isPreRelease: false
+            isPreRelease: true
           action: "create" # Options: create, edit, delete
           target: master # all our releases are on the master branch of the release repos.
           tagSource: "manual"

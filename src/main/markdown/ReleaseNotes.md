@@ -4,12 +4,9 @@
 
 44.0.0-alpha02: Snapshot release.
 
-- Conversion of build to Java 17, Vaadin 24.1.4 and Node.js 18.17.1
-- Initial migration of Web components from Polymer to LitElement, as required by Vaadin 24.
-  - Attempt Board, Decisions, Timer have been migrated and updated to work in the new paradigm.
-- Rewrite of the break management dialog. Further improvement to come.
+- Fixes to the of the break management dialog when acting as solo referee with no displays.
 - BROKEN/MISSING
-  - scoreboards are not finished yet -- they do not update automatically when lifts are made.
+  - scoreboards are not migrated yet.
   - publicresults does not work - will be done once scoreboard are fixed.
 
 
