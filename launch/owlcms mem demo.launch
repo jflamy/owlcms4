@@ -16,9 +16,12 @@
         <mapEntry key="OWLCMS_MQTTPASSWORD" value="test"/>
         <mapEntry key="OWLCMS_MQTTUSERNAME" value="test"/>
         <mapEntry key="OWLCMS_PORT" value="8080"/>
+<<<<<<< HEAD
+=======
+        <mapEntry key="OWLCMS_REMOTE" value="https://fhq-results.fly.dev"/>
+>>>>>>> refs/remotes/origin/develop
         <mapEntry key="OWLCMS_RESETMODE" value="true"/>
-        <mapEntry key="OWLCMS_STYLESDIR" value="styles"/>
-        <mapEntry key="OWLCMS_UPDATEKEY" value="maryhadalittlelamb"/>
+        <mapEntry key="OWLCMS_UPDATEKEY" value="MaryHadALittleLamb"/>
         <mapEntry key="_OWLCMS_DEBUG" value="false"/>
         <mapEntry key="_OWLCMS_DISPLAYPIN" value="dis"/>
         <mapEntry key="_OWLCMS_MASTERS" value="false"/>
@@ -26,7 +29,11 @@
         <mapEntry key="_OWLCMS_MQTTSERVER" value="44341a3e47cc48d2b260b8064120f2df.s2.eu.hivemq.cloud"/>
         <mapEntry key="_OWLCMS_PIN" value="test"/>
         <mapEntry key="_OWLCMS_PUBLICDEMO" value="60"/>
+<<<<<<< HEAD
         <mapEntry key="_OWLCMS_REMOTE" value="http://localhost:8082/update"/>
+=======
+        <mapEntry key="_OWLCMS_STYLESDIR" value="styles"/>
+>>>>>>> refs/remotes/origin/develop
         <mapEntry key="__OWLCMS_MQTTSERVER" value="127.0.0.1"/>
     </mapAttribute>
     <mapAttribute key="org.eclipse.debug.core.preferred_launchers">
