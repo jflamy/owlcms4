@@ -108,9 +108,9 @@ public class AthleteTimerElement extends TimerElement {
 			if (fopName != null && !fopName.contentEquals(fop.getName())) {
 				return;
 			}
-			logger.warn("{}Received time over.", fop.getLoggingName());
+			//logger.debug("{}Received time over.", fop.getLoggingName());
 			IProxyTimer fopTimer = getFopTimer(fop);
-			logger.warn("{} ============= {} break time over {}", fopName, fop.getName(), fopTimer.isIndefinite());
+			//logger.debug("{} ============= {} break time over {}", fopName, fop.getName(), fopTimer.isIndefinite());
 			if (!fopTimer.isIndefinite()) {
 				getFopTimer(fop).timeOver(this);
 			}
@@ -125,8 +125,7 @@ public class AthleteTimerElement extends TimerElement {
 	@Override
 	@ClientCallable
 	public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from) {
-		logger.warn("timer {} starting on client: remaining = {}, late={}, roundtrip={}", from, remainingTime,
-		        lateMillis, delta(lastStartMillis));
+		//logger.debug("timer {} starting on client: remaining = {}, late={}, roundtrip={}", from, remainingTime, lateMillis, delta(lastStartMillis));
 	}
 
 	/**
@@ -137,8 +136,7 @@ public class AthleteTimerElement extends TimerElement {
 	@Override
 	@ClientCallable
 	public void clientTimerStopped(String fopName, double remainingTime, String from) {
-		logger.warn("{} timer {} stopped on client: remaining = {}, roundtrip={}", fopName, from, remainingTime,
-		        delta(lastStopMillis));
+		//logger.debug("{} timer {} stopped on client: remaining = {}, roundtrip={}", fopName, from, remainingTime, delta(lastStopMillis));
 
 		// do not stop the server-side timer, this is getting called as a result of the
 		// server-side timer issuing a command. Otherwise we create an infinite loop.

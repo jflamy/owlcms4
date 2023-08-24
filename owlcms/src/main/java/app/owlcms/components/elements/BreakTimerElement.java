@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
+import com.vaadin.flow.component.internal.AllowInert;
 
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IProxyTimer;
@@ -71,6 +72,7 @@ public class BreakTimerElement extends AthleteTimerElement {
 	 * Set the remaining time when the timer element has been hidden for a long time.
 	 */
 	@Override
+	@AllowInert
 	@ClientCallable
 	public void clientSyncTime(String fopName) {
 		OwlcmsSession.withFop(fop -> {
@@ -90,15 +92,16 @@ public class BreakTimerElement extends AthleteTimerElement {
 	 * @param remaining Time the remaining time
 	 */
 	@Override
+	@AllowInert
 	@ClientCallable
 	public void clientTimeOver(String fopName) {
 		OwlcmsSession.withFop(fop -> {
 			if (fopName != null && !fopName.contentEquals(fop.getName())) {
 				return;
 			}
-			logger.warn("{}Received time over.", fop.getLoggingName());
+			//logger.debug("{}Received time over.", fop.getLoggingName());
 			IProxyTimer fopTimer = getFopTimer(fop);
-			logger.warn("{} ============= {} break time over {}", fopName, fop.getName(), fopTimer.isIndefinite());
+			//logger.debug("{} ============= {} break time over {}", fopName, fop.getName(), fopTimer.isIndefinite());
 			if (!fopTimer.isIndefinite()) {
 				getFopTimer(fop).timeOver(this);
 			}
@@ -111,10 +114,10 @@ public class BreakTimerElement extends AthleteTimerElement {
 	 * @see app.owlcms.displays.attemptboard.TimerElement#clientTimerStopped(double)
 	 */
 	@Override
+	@AllowInert
 	@ClientCallable
 	public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from) {
-		logger.warn("timer {} starting on client: remaining = {}, late={}, roundtrip={}", from, remainingTime,
-		        lateMillis, delta(lastStartMillis));
+		//logger.debug("timer {} starting on client: remaining = {}, late={}, roundtrip={}", from, remainingTime, lateMillis, delta(lastStartMillis));
 	}
 
 	/**
@@ -123,10 +126,10 @@ public class BreakTimerElement extends AthleteTimerElement {
 	 * @param remaining Time the remaining time
 	 */
 	@Override
+	@AllowInert
 	@ClientCallable
 	public void clientTimerStopped(String fopName, double remainingTime, String from) {
-		logger.warn("{} timer {} stopped on client: remaining = {}, roundtrip={}", fopName, from, remainingTime,
-		        delta(lastStopMillis));
+		//logger.debug("{} timer {} stopped on client: remaining = {}, roundtrip={}", fopName, from, remainingTime, delta(lastStopMillis));
 		// do not stop the server-side timer, this is getting called as a result of the
 		// server-side timer issuing a command. Otherwise we create an infinite loop.
 	}

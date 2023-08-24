@@ -1204,7 +1204,7 @@ public class FieldOfPlay {
 	}
 
 	public void setBreakType(BreakType breakType) {
-		logger.warn("****** FOP {} setBreakType {} from {}", System.identityHashCode(this), breakType, LoggerUtils.whereFrom());
+		//logger.debug("****** FOP {} setBreakType {} from {}", System.identityHashCode(this), breakType, LoggerUtils.whereFrom());
 		this.breakType = breakType;
 	}
 
@@ -2251,7 +2251,7 @@ public class FieldOfPlay {
 			breakTimer2.setTimeRemaining(0, false);
 			breakTimer2.setEnd(e.getTargetTime());
 		}
-		logger.warn("******* setBreakParams {} {} isIndefinite={}", breakType2, countdownType2, breakTimer2.isIndefinite());
+		//logger.debug("******* setBreakParams {} {} isIndefinite={}", breakType2, countdownType2, breakTimer2.isIndefinite());
 	}
 
 	private void setClockOwner(Athlete athlete) {
@@ -2575,8 +2575,7 @@ public class FieldOfPlay {
 					        CountdownType.DURATION, LoggerUtils.stackTrace(), getBreakTimer().isIndefinite()));
 					return;
 				} else {
-					logger.warn("{}****** break switch: from {} to {} {}", getLoggingName(), getBreakType(), newBreak,
-					        newCountdownType);
+					//logger.debug("{}****** break switch: from {} to {} {}", getLoggingName(), getBreakType(), newBreak, newCountdownType);
 					breakTimer.stop();
 					setBreakParams(e, breakTimer, newBreak, newCountdownType);
 					breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), newBreak.isInterruption());
@@ -2585,7 +2584,7 @@ public class FieldOfPlay {
 				}
 			} else {
 				// we are in a break, resume if needed
-				logger.warn("{}******* resuming break : current {} new {}", getLoggingName(), getBreakType(), e.getBreakType());
+				//logger.debug("{}******* resuming break : current {} new {}", getLoggingName(), getBreakType(), e.getBreakType());
 				if (!breakTimer.isIndefinite()) {
 					breakTimer.setOrigin(e.getOrigin());
 					breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), false);

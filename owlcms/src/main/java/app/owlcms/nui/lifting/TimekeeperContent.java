@@ -37,7 +37,6 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.elements.AthleteTimerElement;
-import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -170,7 +169,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	private void createBottom() {
 		this.removeAll();
 		if (timer == null) {
-			timer = new BreakTimerElement("");
+			timer = new AthleteTimerElement("");
 		}
 		VerticalLayout time = new VerticalLayout();
 		time.setWidth("50%");
@@ -412,7 +411,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		weight = new H2();
 		weight.setText("");
 		if (timer == null) {
-			timer = new BreakTimerElement("");
+			timer = new AthleteTimerElement("");
 		}
 		timer.setSilenced(this.isSilenced());
 		H1 time = new H1(timer);

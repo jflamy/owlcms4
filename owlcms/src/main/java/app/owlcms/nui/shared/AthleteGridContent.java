@@ -80,7 +80,6 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
-import app.owlcms.nui.lifting.AnnouncerContent;
 import app.owlcms.nui.lifting.AthleteCardFormFactory;
 import app.owlcms.nui.lifting.MarshallContent;
 import app.owlcms.nui.lifting.UIEventProcessor;
@@ -642,10 +641,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 				return;
 			}
 
-			if (this instanceof AnnouncerContent) {
-				// logger.trace("%%%%%%%%%%%%%% starting break {}",
-				// LoggerUtils./**/stackTrace());
-			}
+			//logger.debug("%%%%%%% starting break {}", LoggerUtils./**/stackTrace());
 			syncWithFOP(true);
 		});
 	}

@@ -100,7 +100,7 @@ public class BreakTimerElement2 extends TimerElement implements SafeEventBusRegi
 			}
 //            logger.debug("clientTimeOver", fopName);
 			IBreakTimer breakTimer = fop.getBreakTimer();
-			logger.warn("{} ============= {} break time over {}", fopName, fop.getName(), breakTimer.isIndefinite());
+			//logger.debug("{} ============= {} break time over {}", fopName, fop.getName(), breakTimer.isIndefinite());
 			if (!breakTimer.isIndefinite()) {
 				fop.getBreakTimer().timeOver(this);
 			}
@@ -115,7 +115,7 @@ public class BreakTimerElement2 extends TimerElement implements SafeEventBusRegi
 	@Override
 	@ClientCallable
 	public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from) {
-		logger.warn("======== break timer {} starting on client: remaining = {}", from, remainingTime);
+		//logger.debug("======== break timer {} starting on client: remaining = {}", from, remainingTime);
 	}
 
 	/**
@@ -126,7 +126,7 @@ public class BreakTimerElement2 extends TimerElement implements SafeEventBusRegi
 	@Override
 	@ClientCallable
 	public void clientTimerStopped(String fopName, double remainingTime, String from) {
-		logger.warn("break timer {} stopped on client: remaining = {}", from, remainingTime);
+		//logger.debug("break timer {} stopped on client: remaining = {}", from, remainingTime);
 	}
 
 	public void setParent(String s) {
