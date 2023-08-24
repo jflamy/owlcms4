@@ -115,7 +115,7 @@ class TimerElement extends LitElement {
         lateMillis = 0;
       }
     }
-    console.debug("timer start " + seconds + " late = " + lateMillis + "ms");
+    console.warn("timer start " + seconds + " late = " + lateMillis + "ms");
     this.$server.clientTimerStarting(
       this.fopName,
       seconds,
@@ -177,7 +177,7 @@ class TimerElement extends LitElement {
 
   display(seconds, indefinite, silent, element) {
     this.running = false;
-    console.debug("display " + indefinite + " " + seconds+" running=false");
+    console.warn("display " + indefinite + " " + seconds+" running=false");
     if (indefinite) {
       this.currentTime = seconds;
       this._indefinite();
@@ -360,6 +360,7 @@ class TimerElement extends LitElement {
         );
       }
       // tell server to emit sound if server-side sounds
+      console.warn("timeOver "+this.fopName+" "+this.$server);
       if (this.$server != null) this.$server.clientTimeOver(this.fopName);
       this._timeOverWarningGiven = true;
     }

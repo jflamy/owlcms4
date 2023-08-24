@@ -64,6 +64,7 @@ import app.owlcms.apputils.queryparameters.ContentParameters;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
+import app.owlcms.components.elements.TimerElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -198,6 +199,8 @@ public abstract class AthleteGridContent extends VerticalLayout
 		        .withProperty("name", a -> a.getLastName().toUpperCase());
 	}
 
+	protected TimerElement breakTimerElement;
+	
 	protected Button _1min;
 	protected Button _2min;
 	protected H2 attempt;
@@ -230,7 +233,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 	protected Span startNumber;
 	protected Button startTimeButton;
 	protected Button stopTimeButton;
-	protected AthleteTimerElement timer;
+	protected TimerElement timer;
 	/**
 	 * Top part content
 	 */
@@ -245,7 +248,6 @@ public abstract class AthleteGridContent extends VerticalLayout
 
 	protected H2 weight;
 	private AthleteCardFormFactory athleteEditingFormFactory;
-	private BreakTimerElement breakTimerElement;
 	private Athlete displayedAthlete;
 	private H3 firstNameWrapper;
 	/**
@@ -287,6 +289,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 	 */
 	public AthleteGridContent() {
 		init();
+		breakTimerElement = new BreakTimerElement();
 	}
 
 	/**
@@ -309,8 +312,8 @@ public abstract class AthleteGridContent extends VerticalLayout
 		OwlcmsSession.withFop(fop -> {
 			IBreakTimer breakTimer = fop.getBreakTimer();
 			if (!breakTimer.isIndefinite()) {
-				BreakTimerElement bte = getBreakTimerElement();
-				bte.syncWithFopBreakTimer();
+				BreakTimerElement bte = (BreakTimerElement) getBreakTimerElement();
+				bte.syncWithFopTimer();
 				bte.setParent(this.getClass().getSimpleName() + "_" + id);
 				breakButton.setIcon(bte);
 				breakButton.setIconAfterText(true);
@@ -888,7 +891,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 		return athleteEditingFormFactory;
 	}
 
-	private BreakTimerElement getBreakTimerElement() {
+	private TimerElement getBreakTimerElement() {
 		return this.breakTimerElement;
 	}
 
@@ -958,7 +961,6 @@ public abstract class AthleteGridContent extends VerticalLayout
 	 * @see app.owlcms.nui.shared.AthleteGridContent#breakButtons(com.vaadin.flow.component.orderedlayout.FlexLayout)
 	 */
 	protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
-		breakTimerElement = new BreakTimerElement();
 		breakButton = new Button(Translator.translateOrElseEmpty("Pause"),new Icon(VaadinIcon.TIMER), (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				Athlete curAthlete = fop.getCurAthlete();
@@ -1482,7 +1484,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 		breakButton.getStyle().set("background-color", "var(--lumo-error-color-10pct)");
 		breakButton.getElement().setAttribute("title", getTranslation("BreakButton.Caption"));
 
-		HorizontalLayout buttons = new HorizontalLayout(breakButton, breakTimerElement);
+		HorizontalLayout buttons = new HorizontalLayout(breakButton);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 		return buttons;
 	}

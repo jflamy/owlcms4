@@ -842,6 +842,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 			this.getElement().setProperty("firstName", "");
 			setDisplayedWeight("");
 			hidePlates();
+			setBoardMode(FOPState.BREAK, BreakType.GROUP_DONE);
 		});
 	}
 

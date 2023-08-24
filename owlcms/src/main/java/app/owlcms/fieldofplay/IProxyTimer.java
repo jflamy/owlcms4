@@ -63,5 +63,7 @@ public interface IProxyTimer {
 	 * Stop with no time left.
 	 */
 	void timeOver(Object origin);
+	
+	boolean isIndefinite();
 
 }

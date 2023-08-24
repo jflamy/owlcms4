@@ -203,4 +203,9 @@ public class ProxyAthleteTimer implements IProxyTimer {
 		return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds)
 		        : (milliseconds != null ? milliseconds.toString() : "-");
 	}
+	
+	@Override
+	public boolean isIndefinite() {
+		return false;
+	}
 }

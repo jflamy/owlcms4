@@ -12,6 +12,7 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IProxyTimer;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.uievents.UIEvent;
@@ -59,7 +60,7 @@ public class AthleteTimerElement extends TimerElement {
 				return;
 			}
 			logger.trace("{} Received final warning.", fop.getName());
-			fop.getAthleteTimer().finalWarning(this);
+			getFopTimer(fop).finalWarning(this);
 		});
 	}
 
@@ -74,14 +75,12 @@ public class AthleteTimerElement extends TimerElement {
 				return;
 			}
 			logger.trace("Received initial warning.");
-			fop.getAthleteTimer().initialWarning(this);
+			getFopTimer(fop).initialWarning(this);
 		});
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see app.owlcms.displays.attemptboard.TimerElement#clientSyncTime()
+	/**
+	 * Set the remaining time when the timer element has been hidden for a long time.
 	 */
 	@Override
 	@ClientCallable
@@ -90,16 +89,17 @@ public class AthleteTimerElement extends TimerElement {
 			if (!fopName.contentEquals(fop.getName())) {
 				return;
 			}
-			int timeRemaining = fop.getAthleteTimer().getTimeRemaining();
-			// logger./**/warn("Fetched time = {} for {}", timeRemaining,
-			// fop.getCurAthlete());
-			doSetTimer(timeRemaining);
+			logger.debug("{}{} fetching time", getClass().getSimpleName(), fop.getLoggingName());
+			IProxyTimer fopTimer = getFopTimer(fop);
+			doSetTimer(fopTimer.isIndefinite() ? null : fopTimer.liveTimeRemaining());
 		});
 		return;
 	}
 
 	/**
-	 * @see app.owlcms.components.elements.TimerElement#clientTimeOver()
+	 * Timer stopped
+	 *
+	 * @param remaining Time the remaining time
 	 */
 	@Override
 	@ClientCallable
@@ -108,8 +108,12 @@ public class AthleteTimerElement extends TimerElement {
 			if (fopName != null && !fopName.contentEquals(fop.getName())) {
 				return;
 			}
-			logger.debug("Received time over.");
-			fop.getAthleteTimer().timeOver(this);
+			logger.warn("{}Received time over.", fop.getLoggingName());
+			IProxyTimer fopTimer = getFopTimer(fop);
+			logger.warn("{} ============= {} break time over {}", fopName, fop.getName(), fopTimer.isIndefinite());
+			if (!fopTimer.isIndefinite()) {
+				getFopTimer(fop).timeOver(this);
+			}
 		});
 	}
 
@@ -121,20 +125,20 @@ public class AthleteTimerElement extends TimerElement {
 	@Override
 	@ClientCallable
 	public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from) {
-//        logger.debug("timer {} starting on client: remaining = {}, late={}, roundtrip={}", from, remainingTime,
-//                lateMillis, delta(lastStartMillis));
+		logger.warn("timer {} starting on client: remaining = {}, late={}, roundtrip={}", from, remainingTime,
+		        lateMillis, delta(lastStartMillis));
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Timer stopped
 	 *
-	 * @see app.owlcms.displays.attemptboard.TimerElement#clientTimerStopped(double)
+	 * @param remaining Time the remaining time
 	 */
 	@Override
 	@ClientCallable
 	public void clientTimerStopped(String fopName, double remainingTime, String from) {
-//        logger.debug("{} timer {} stopped on client: remaining = {}, roundtrip={}", fopName, from, remainingTime,
-//                delta(lastStopMillis));
+		logger.warn("{} timer {} stopped on client: remaining = {}, roundtrip={}", fopName, from, remainingTime,
+		        delta(lastStopMillis));
 
 		// do not stop the server-side timer, this is getting called as a result of the
 		// server-side timer issuing a command. Otherwise we create an infinite loop.
@@ -203,7 +207,7 @@ public class AthleteTimerElement extends TimerElement {
 		OwlcmsSession.withFop(fop -> {
 			init(fop.getName());
 			// sync with current status of FOP
-			IProxyTimer athleteTimer = fop.getAthleteTimer();
+			IProxyTimer athleteTimer = getFopTimer(fop);
 			if (athleteTimer != null) {
 				if (athleteTimer.isRunning()) {
 					doStartTimer(athleteTimer.liveTimeRemaining(), isSilenced() || fop.isEmitSoundsOnServer());
@@ -214,34 +218,34 @@ public class AthleteTimerElement extends TimerElement {
 		});
 	}
 
-	@SuppressWarnings("unused")
-	private long delta(long lastMillis) {
-		if (lastMillis == 0) {
-			return 0;
-		} else {
-			return System.currentTimeMillis() - lastMillis;
-		}
+	@Override
+	public void syncWithFopTimer() {
+		// TODO Auto-generated method stub
+	}
+
+
+	@Override
+	protected IProxyTimer getFopTimer(FieldOfPlay fop) {
+		return fop.getAthleteTimer();
 	}
 
 	/*
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-	 * AttachEvent)
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
 	 */
 	/*
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-	 * AttachEvent)
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		OwlcmsSession.withFop(fop -> {
 			init(fop.getName());
 			// sync with current status of FOP
-			IProxyTimer athleteTimer = fop.getAthleteTimer();
-			if (athleteTimer != null) {
-				if (athleteTimer.isRunning()) {
-					doStartTimer(athleteTimer.liveTimeRemaining(), isSilenced() || fop.isEmitSoundsOnServer());
+			IProxyTimer fopTimer = getFopTimer(fop);
+			if (fopTimer != null) {
+				if (fopTimer.isRunning()) {
+					doStartTimer(fopTimer.liveTimeRemaining(), isSilenced() || fop.isEmitSoundsOnServer());
 				} else {
-					doSetTimer(athleteTimer.getTimeRemaining());
+					doSetTimer(fopTimer.getTimeRemaining());
 				}
 			}
 			// we listen on uiEventBus.

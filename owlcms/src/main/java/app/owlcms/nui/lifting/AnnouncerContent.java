@@ -461,6 +461,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		if (breaks != null) {
 			topBar.add(breaks);
 		}
+		topBar.add(breakTimerElement);
 
 		topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);
 		topBar.setAlignItems(FlexComponent.Alignment.CENTER);

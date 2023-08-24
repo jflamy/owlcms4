@@ -16,9 +16,9 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 
-import app.owlcms.fieldofplay.IBreakTimer;
+import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.IProxyTimer;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
@@ -29,7 +29,7 @@ import ch.qos.logback.classic.Logger;
  * Countdown timer element.
  */
 @SuppressWarnings("serial")
-public class BreakTimerElement extends TimerElement implements SafeEventBusRegistration {
+public class BreakTimerElement extends AthleteTimerElement {
 
 	public Long id;
 	final private Logger logger = (Logger) LoggerFactory.getLogger(BreakTimerElement.class);
@@ -68,8 +68,7 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
 	}
 
 	/**
-	 * Set the remaining time when the timer element has been hidden for a long
-	 * time.
+	 * Set the remaining time when the timer element has been hidden for a long time.
 	 */
 	@Override
 	@ClientCallable
@@ -78,9 +77,9 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
 			if (!fopName.contentEquals(fop.getName())) {
 				return;
 			}
-			logger.debug("break timer element fetching time");
-			IBreakTimer breakTimer = fop.getBreakTimer();
-			doSetTimer(breakTimer.isIndefinite() ? null : breakTimer.liveTimeRemaining());
+			logger.debug("{}{} fetching time", getClass().getSimpleName(), fop.getLoggingName());
+			IProxyTimer fopTimer = getFopTimer(fop);
+			doSetTimer(fopTimer.isIndefinite() ? null : fopTimer.liveTimeRemaining());
 		});
 		return;
 	}
@@ -94,14 +93,14 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
 	@ClientCallable
 	public void clientTimeOver(String fopName) {
 		OwlcmsSession.withFop(fop -> {
-			if (!fopName.contentEquals(fop.getName())) {
+			if (fopName != null && !fopName.contentEquals(fop.getName())) {
 				return;
 			}
-//            logger.debug("clientTimeOver", fopName);
-			IBreakTimer breakTimer = fop.getBreakTimer();
-            logger.warn("{} {} break time over {}", fopName, fop.getName(), breakTimer.isIndefinite());
-			if (!breakTimer.isIndefinite()) {
-				fop.getBreakTimer().timeOver(this);
+			logger.warn("{}Received time over.", fop.getLoggingName());
+			IProxyTimer fopTimer = getFopTimer(fop);
+			logger.warn("{} ============= {} break time over {}", fopName, fop.getName(), fopTimer.isIndefinite());
+			if (!fopTimer.isIndefinite()) {
+				getFopTimer(fop).timeOver(this);
 			}
 		});
 	}
@@ -114,7 +113,8 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
 	@Override
 	@ClientCallable
 	public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from) {
-		logger.trace("break timer {} starting on client: remaining = {}", from, remainingTime);
+		logger.warn("timer {} starting on client: remaining = {}, late={}, roundtrip={}", from, remainingTime,
+		        lateMillis, delta(lastStartMillis));
 	}
 
 	/**
@@ -125,7 +125,10 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
 	@Override
 	@ClientCallable
 	public void clientTimerStopped(String fopName, double remainingTime, String from) {
-		logger.trace("break timer {} stopped on client: remaining = {}", from, remainingTime);
+		logger.warn("{} timer {} stopped on client: remaining = {}, roundtrip={}", fopName, from, remainingTime,
+		        delta(lastStopMillis));
+		// do not stop the server-side timer, this is getting called as a result of the
+		// server-side timer issuing a command. Otherwise we create an infinite loop.
 	}
 
 	public void setParent(String s) {
@@ -180,14 +183,16 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
 		}
 	}
 
-	public void syncWithFopBreakTimer() {
+	@Override
+	public void syncWithFopTimer() {
 		OwlcmsSession.withFop(fop -> {
 			init(fop.getName());
 			// sync with current status of FOP
-			IBreakTimer breakTimer = fop.getBreakTimer();
+			IProxyTimer breakTimer = getFopTimer(fop);
 			if (breakTimer != null) {
 				if (!parentName.startsWith("BreakManagement")) {
-					//uiEventLogger.debug("&&& breakTimerElement sync running {} indefinite {}", breakTimer.isRunning(), breakTimer.isIndefinite());
+					// uiEventLogger.debug("&&& breakTimerElement sync running {} indefinite {}",
+					// breakTimer.isRunning(), breakTimer.isIndefinite());
 				}
 				if (breakTimer.isRunning()) {
 					if (breakTimer.isIndefinite()) {
@@ -207,14 +212,13 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
 		});
 	}
 
-	private String formatDuration(Integer milliseconds) {
-		return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds)
-		        : (milliseconds != null ? milliseconds.toString() : "-");
+	@Override
+	protected IProxyTimer getFopTimer(FieldOfPlay fop) {
+		return fop.getBreakTimer();
 	}
 
 	/*
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-	 * AttachEvent)
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
@@ -225,9 +229,11 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
 			}
 			uiEventBusRegister(this, fop);
 		});
-		syncWithFopBreakTimer();
+		syncWithFopTimer();
 	}
-	
 
-
+	private String formatDuration(Integer milliseconds) {
+		return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds)
+		        : (milliseconds != null ? milliseconds.toString() : "-");
+	}
 }

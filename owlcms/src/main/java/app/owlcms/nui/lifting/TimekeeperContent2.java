@@ -37,7 +37,6 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.elements.AthleteTimerElement;
-import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -59,10 +58,10 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "lifting/timekeeper", layout = OwlcmsLayout.class)
-public class TimekeeperContent extends AthleteGridContent implements HasDynamicTitle {
+@Route(value = "lifting/timekeeper2", layout = OwlcmsLayout.class)
+public class TimekeeperContent2 extends AthleteGridContent implements HasDynamicTitle {
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(TimekeeperContent.class);
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(TimekeeperContent2.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	static {
 		logger.setLevel(Level.INFO);
@@ -79,7 +78,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	private ShortcutRegistration toggleReg;
 	private ShortcutRegistration toggleReg2;
 
-	public TimekeeperContent() {
+	public TimekeeperContent2() {
 		super();
 	}
 
@@ -170,7 +169,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	private void createBottom() {
 		this.removeAll();
 		if (timer == null) {
-			timer = new BreakTimerElement("");
+			timer = new AthleteTimerElement(this);
 		}
 		VerticalLayout time = new VerticalLayout();
 		time.setWidth("50%");
@@ -412,7 +411,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		weight = new H2();
 		weight.setText("");
 		if (timer == null) {
-			timer = new BreakTimerElement("");
+			timer = new AthleteTimerElement(this);
 		}
 		timer.setSilenced(this.isSilenced());
 		H1 time = new H1(timer);

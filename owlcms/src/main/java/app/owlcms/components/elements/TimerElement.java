@@ -21,6 +21,8 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.apputils.DebugUtils;
+import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.IProxyTimer;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
@@ -121,15 +123,10 @@ public abstract class TimerElement extends LitTemplate
 
 		if (!isIndefinite()) {
 			if (this instanceof BreakTimerElement) {
-				// logger.trace("not indefinite {}", formatDuration(milliseconds));
-
-//                this.getElement()
-//                        .setVisible(OwlcmsSession.getFop().getBreakType() == BreakType.GROUP_DONE && milliseconds <= 0);
 			}
 			setDisplay(milliseconds, isIndefinite(), isSilenced());
 		} else {
 			if (this instanceof BreakTimerElement) {
-				// logger.trace("indefinite");
 			}
 			setDisplay(milliseconds, true, true);
 		}
@@ -277,6 +274,18 @@ public abstract class TimerElement extends LitTemplate
 
 	protected void setTimerElement(Element timerElement) {
 		this.timerElement = timerElement;
+	}
+	
+	protected abstract IProxyTimer getFopTimer(FieldOfPlay fop);
+
+	public abstract void syncWithFopTimer();
+
+	final protected long delta(long lastMillis) {
+		if (lastMillis == 0) {
+			return 0;
+		} else {
+			return System.currentTimeMillis() - lastMillis;
+		}
 	}
 
 }
