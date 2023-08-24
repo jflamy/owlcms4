@@ -3,6 +3,8 @@
 > *Beta releases are meant for translations and fixes*
 > *Test thoroughly if you intend to use a beta release, especially if using a new feature.*
 
+- 43.0.0-beta02: synchronization between owlcms and publicresults
+  
 - Referee decision updates are ignored once the decision has been shown. 
   - Referees must use flags or cards after 3 seconds. In this way, what the jury sees matches what the public saw.
 
@@ -16,7 +18,7 @@
 
   - It is now possible to export all records as a single Excel to check what has been loaded or to reload in a later competition.
 - CSS Styling:  
-  - An alternate directory to use for styling files can now be given on the "System Settings - Personalization" page.  The directory name given is looked up in the "local" subdirectory of the installation (the default is "styles").  If given, the `OWLCMS_STYLESDIR` variable takes precedence over the database setting.
+  - An alternate directory to use for styling files can now be given on the "System Settings - Personalization" page.  The directory name given is looked up in the "local" subdirectory of the installation (the default is "styles").  BEWARE: if given, the `OWLCMS_STYLESDIR` variable takes precedence over the database setting.
   - It is now easier to hide the body weight category column to promote inclusivity in local competitions: In `local/styles/resultsCustomization.css`, set `--categoryVisibility=hidden` and `--categoryWidth=0` to hide the body weight category column on the scoreboard.
 - Public Results 
   - It is now possible to choose the lifting order instead of the start number order on the remote scoreboard (click on the scoreboard to see the options)
