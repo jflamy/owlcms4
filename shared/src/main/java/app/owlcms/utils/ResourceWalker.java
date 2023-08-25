@@ -12,6 +12,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -401,11 +403,40 @@ public class ResourceWalker {
 		for (String n : testMap.keySet()) {
 			String curDirName = new File(n).getParent();
 			InputStream str = ResourceWalker.getResourceAsStream(n);
-			boolean createDir = !curDirName.contentEquals(prevDirName);
-			logger.trace("zipping {} {}",n, createDir);
+			boolean createDir = !isSameDir(curDirName, prevDirName) && !isSubDir(curDirName, prevDirName);
+			logger.warn("zipping {} {}", n, createDir);
 			ZipUtils.zipStream(str, n, createDir, zipOut);
 			prevDirName = curDirName;
 		}
+	}
+
+	public static InputStream zipPublicResultsConfig() throws IOException {
+		PipedOutputStream out = new PipedOutputStream();
+		PipedInputStream in = new PipedInputStream(out);
+		new Thread(() -> {
+			try {
+				zipPublicResultsConfig(out);
+				out.flush();
+				out.close();
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
+		}).start();
+		return in;
+	}
+
+	private static boolean isSameDir(String nameA, String nameB) {
+		String separator = FileSystems.getDefault().getSeparator();
+		nameA = nameA + separator;
+		nameB = nameB + separator;
+		return nameA.contentEquals(nameB);
+	}
+
+	private static boolean isSubDir(String parent, String child) {
+		String separator = FileSystems.getDefault().getSeparator();
+		parent = parent + separator;
+		child = child + separator;
+		return child.startsWith(parent);
 	}
 
 	public static boolean isInitializedLocalDir() {
@@ -774,27 +805,27 @@ public class ResourceWalker {
 				        public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
 					        String generatedName = nameGenerator.apply(filePath, rootPath);
 					        String baseName = filePath.getFileName().toString();
-					        logger.trace("visiting {} {}", filePath, locale);
+					        logger.warn("visiting {} {}", filePath, locale);
 					        if (predicate != null) {
 						        if (!predicate.test(baseName)) {
-							        logger.trace("ignored {}", filePath);
+							        logger.warn("ignored {}", filePath);
 							        return FileVisitResult.CONTINUE;
 						        }
 					        }
 
 					        if (matchesLocale(baseName, locale)) {
 						        if (logger.isEnabledFor(Level.TRACE)) {
-							        logger.trace("kept {}, baseName={}, locale {}", filePath, baseName, locale);
+							        logger.warn("kept {}, baseName={}, locale {}", filePath, baseName, locale);
 						        }
 						        localeNames.add(new Resource(generatedName, filePath));
 					        } else if (matchesLocale(baseName, null)) {
 						        if (logger.isEnabledFor(Level.TRACE)) {
-							        logger.trace("kept_default {}, baseName={}, locale {}", filePath, baseName, locale);
+							        logger.warn("kept_default {}, baseName={}, locale {}", filePath, baseName, locale);
 						        }
 						        englishNames.add(new Resource(generatedName, filePath));
 					        } else {
 						        if (logger.isEnabledFor(Level.TRACE)) {
-							        logger.trace("ignored {}, baseName={}, wrong locale {}", filePath, baseName,
+							        logger.warn("ignored {}, baseName={}, wrong locale {}", filePath, baseName,
 							                locale);
 						        }
 						        otherNames.add(new Resource(generatedName, filePath));
@@ -804,7 +835,7 @@ public class ResourceWalker {
 			        });
 			localeNames.addAll(englishNames);
 			if (logger.isEnabledFor(Level.TRACE)) {
-				logger.trace("resources: {}", localeNames);
+				logger.warn("resources: {}", localeNames);
 			}
 
 			return localeNames;

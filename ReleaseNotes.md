@@ -9,7 +9,6 @@
   - scoreboards are not migrated yet.
   - publicresults does not work - will be done once scoreboard are fixed.
 
-
 #####  Highlights from recent stable releases
 
 - Referee decision updates are ignored once the decision has been shown.  Referees must use flags or cards after 3 seconds. In this way, what the jury sees matches what the public saw.
@@ -51,11 +50,19 @@
 
 ### **Installation Instructions**
 
+<<<<<<< HEAD
   - For **Windows**, download `owlcms_setup_44.0.0-alpha03.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+=======
+  - For **Windows**, download `owlcms_setup_43.0.0-beta03.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+>>>>>>> refs/remotes/origin/develop
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
+<<<<<<< HEAD
   - For **Linux** and **Mac OS**, download the `owlcms_44.0.0-alpha03.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+=======
+  - For **Linux** and **Mac OS**, download the `owlcms_43.0.0-beta03.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+>>>>>>> refs/remotes/origin/develop
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 

@@ -319,11 +319,22 @@ public class ConfigEditingFormFactory
 		        .bind(Config::getLocalZipBlob, Config::setLocalZipBlob);
 
 		byte[] localOverride = Config.getCurrent().getLocalZipBlob();
+		Div downloadDiv = null;
 		if (localOverride == null) {
 			localOverride = new byte[0];
+			//TODO create zip from local directory.
+//			try {
+//				downloadDiv = DownloadButtonFactory.createDynamicZipDownloadButton("resourcesOverride",
+//				        Translator.translate("Config.Download"), () -> ResourceWalker.zipPublicResultsConfig());
+//			} catch (IOException e) {
+//				downloadDiv = new Div();
+//				downloadDiv.add(new Text("Not available"));
+//			}
+//
+//		} else {
+			downloadDiv = DownloadButtonFactory.createDynamicZipDownloadButton("resourcesOverride",
+			        Translator.translate("Config.Download"), localOverride);
 		}
-		Div downloadDiv = DownloadButtonFactory.createDynamicZipDownloadButton("resourcesOverride",
-		        Translator.translate("Config.Download"), localOverride);
 		downloadDiv.setWidthFull();
 		Optional<Component> downloadButton = downloadDiv.getChildren().findFirst();
 		if (localOverride.length == 0) {

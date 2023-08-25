@@ -9,7 +9,6 @@
   - scoreboards are not migrated yet.
   - publicresults does not work - will be done once scoreboard are fixed.
 
-
 #####  Highlights from recent stable releases
 
 - Referee decision updates are ignored once the decision has been shown.  Referees must use flags or cards after 3 seconds. In this way, what the jury sees matches what the public saw.
