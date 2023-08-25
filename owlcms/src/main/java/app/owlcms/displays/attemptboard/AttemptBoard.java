@@ -61,6 +61,7 @@ import app.owlcms.nui.shared.RequireDisplayLogin;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.StartupUtils;
 import app.owlcms.utils.URLUtils;
@@ -93,6 +94,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	enum BoardMode {
 		WAIT,
 		INTRO_COUNTDOWN,
+		CEREMONY,
 		LIFT_COUNTDOWN,
 		CURRENT_ATHLETE,
 		INTERRUPTION,
@@ -167,7 +169,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			BreakType breakType = fop.getBreakType();
 
-			setBoardMode(fop.getState(), breakType);
+			setBoardMode(fop.getState(), breakType, fop.getCeremonyType());
 
 			// logger.trace("doBreak({}) bt={} a={}}", e, breakType, fop.getCurAthlete());
 			if (breakType == BreakType.GROUP_DONE) {
@@ -202,9 +204,11 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		}));
 	}
 
-	private void setBoardMode(FOPState fopState, BreakType breakType) {
+	private void setBoardMode(FOPState fopState, BreakType breakType, CeremonyType ceremonyType) {
 		BoardMode bm = BoardMode.WAIT;
-		if (fopState == FOPState.BREAK && breakType == BreakType.BEFORE_INTRODUCTION) {
+		if (fopState == FOPState.BREAK && ceremonyType != null) {
+			bm = BoardMode.CEREMONY;
+		} else if (fopState == FOPState.BREAK && breakType == BreakType.BEFORE_INTRODUCTION) {
 			bm = BoardMode.INTRO_COUNTDOWN;
 		} else if (fopState == FOPState.BREAK
 		        && (breakType == BreakType.FIRST_CJ || breakType == BreakType.FIRST_SNATCH)) {
@@ -637,7 +641,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	}
 
 	private void doInactive(FieldOfPlay fop, FOPState fopState) {
-		setBoardMode(fopState, fopState == FOPState.BREAK ? fop.getBreakType() : null);
+		setBoardMode(fopState, fopState == FOPState.BREAK ? fop.getBreakType() : null, fop.getCeremonyType());
 		this.getElement().setProperty("lastName", inferGroupName(fop.getCeremonyType()));
 		this.getElement().setProperty("firstName", inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
 	}
@@ -780,7 +784,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		}
 		this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			setBoardMode(fop2.getState(), fop2.getBreakType());
+			setBoardMode(fop2.getState(), fop2.getBreakType(), fop2.getCeremonyType());
 		});
 	}
 
@@ -789,7 +793,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			FieldOfPlay fop2 = OwlcmsSession.getFop();
 			UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-				setBoardMode(fop2.getState(), fop2.getBreakType());
+				setBoardMode(fop2.getState(), fop2.getBreakType(), fop2.getCeremonyType());
 			});
 		});
 	}
@@ -842,7 +846,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 			this.getElement().setProperty("firstName", "");
 			setDisplayedWeight("");
 			hidePlates();
-			setBoardMode(FOPState.BREAK, BreakType.GROUP_DONE);
+			setBoardMode(FOPState.BREAK, BreakType.GROUP_DONE, null);
 		});
 	}
 
