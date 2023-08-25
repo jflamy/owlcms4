@@ -3,7 +3,7 @@
 > *Beta releases are meant for translations and fixes*
 > *Test thoroughly if you intend to use a beta release, especially if using a new feature.*
 
-- 43.0.0-beta02: synchronization between owlcms and publicresults
+- 43.0.0-beta03: publicresults - fix error in the owlcms packaging of the customization files sent to publicresults
   
 - Referee decision updates are ignored once the decision has been shown. 
   - Referees must use flags or cards after 3 seconds. In this way, what the jury sees matches what the public saw.
@@ -57,11 +57,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_43.0.0-beta02.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_43.0.0-beta03.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_43.0.0-beta02.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_43.0.0-beta03.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
