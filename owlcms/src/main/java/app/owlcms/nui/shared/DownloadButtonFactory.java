@@ -7,6 +7,7 @@
 package app.owlcms.nui.shared;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -81,6 +82,23 @@ public class DownloadButtonFactory {
 		        },
 		        () -> {
 			        return new ByteArrayInputStream(content);
+		        });
+
+		return new Div(downloadButton);
+	}
+
+	public static Div createDynamicZipDownloadButton(String prefix, String translate, InputStream localOverrideStream) {
+		final LazyDownloadButton downloadButton = new LazyDownloadButton(
+				translate,
+		        new Icon(VaadinIcon.DOWNLOAD_ALT),
+		        () -> {
+			        LocalDateTime now = LocalDateTime.now().withNano(0);
+			        return prefix
+			                + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm"))
+			                + ".zip";
+		        },
+		        () -> {
+			        return localOverrideStream;
 		        });
 
 		return new Div(downloadButton);
