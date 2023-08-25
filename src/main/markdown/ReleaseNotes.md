@@ -1,17 +1,23 @@
 > **Version 44 is a Technical migration release: DO NOT USE release 44 until an explicit note that it has been stabilized.**
 >
-> Version 44 uses the most current Vaadin 24, which has several major changes.  Vaadin has switched to a newer and much cleaner JavaScript toolkit (LitElement) so the major challenge is that all the scoreboards, timers and decision displays have to be migrated - essentially rewritten.
+> Version 44 uses the most current Vaadin 24, which has several major changes.  Vaadin has switched to a newer and much cleaner JavaScript toolkit (LitElement) so the major difference is that all the scoreboards, timers and decision displays have to be migrated.
 
 44.0.0-alpha02: Snapshot release.
 
-- Fixes to the of the break management dialog when acting as solo referee with no displays.
+- Fixes to the break management dialog when acting as a solo referee with no displays.
 - BROKEN/MISSING
-  - scoreboards are not migrated yet.
-  - publicresults does not work - will be done once scoreboard are fixed.
+  - scoreboards have not been migrated yet.
+  - publicresults does not work (requires scoreboard migration)
+
+44.0.0
+
+- Migration of timers and decision displays to a different JavaScript toolkit
+- Migration of the application to Vaadin v24
+- The break management dialog for pauses and countdowns has been redesigned.
 
 #####  Highlights from recent stable releases
 
-- Referee decision updates are ignored once the decision has been shown.  Referees must use flags or cards after 3 seconds. In this way, what the jury sees matches what the public saw.
+- Referee decision updates are ignored once the decision has been shown.  Referees must use flags or cards after 3 seconds. In this way, what the jury sees matches what the public sees.
 - Prevention of accidental countdown interruptions.  When a countdown is running it is now necessary to use the "Pause" dialog in order to switch to a different kind of break.
 - Records
   - Error messages are now visible directly in the user interface, and have also been improved to catch more types of errors.
