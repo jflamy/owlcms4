@@ -128,7 +128,7 @@ class CurrentAttempt extends LitElement {
   }
 
   waitingStyles() {
-    return "display: " + (this.mode === "WAIT" ? "block" : "none");
+    return "display: " + (this.mode === "WAIT" ? "grid" : "none");
   }
 
   activeStyles() {
