@@ -80,7 +80,7 @@ This second site will allow anyone in the world to watch the scoreboard, includi
    *Replace `myclub-results` with what you want as your public results name*
 
    ```bash
-   fly launch --ha=false --vm-size shared-cpu-2x --image owlcms/publicresults:stable --name myclub-results
+   fly launch --ha=false --vm-size shared-cpu-2x --image owlcms/owlcms:stable --name myclub-results
    ```
 
 2. The two applications (owlcms and publicresults) need to trust one another. So we will create a secret phrase and configure both applications to use it. See [this page](PublicResults) for an overview of how owlcms and publicresults work together.  First we configure publicresults.  
