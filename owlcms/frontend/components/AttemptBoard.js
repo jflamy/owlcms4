@@ -71,23 +71,27 @@ class CurrentAttempt extends LitElement {
 
   static get properties() {
     return {
-      // shared
-      lastName: {},
-      firstName: {},
+      // top
+      fullName: {},
       weight: {},
+      attempt: {},
+      teamName: {},
+      startNumber: {},
+      decisionVisible: { type: Boolean },
       competitionName: {},
+      groupName: {},
+      liftsDone: {},
+    
+      athletes: {type: Object},
+      leaders: {type: Object},
+      records: {type: Object},
 
       // mode (mutually exclusive, one of:
-      // WAIT INTRO_COUNTDOWN LIFT_COUNTDOWN CURRENT_ATHLETE INTERRUPTION SESSION_DONE
+      // WAIT INTRO_COUNTDOWN LIFT_COUNTDOWN CURRENT_ATHLETE INTERRUPTION SESSION_DONE CEREMONY
       mode: {},
 
       // during lifting
-      attempt: {},
-      athleteImg: {},
-      teamName: {},
-      teamFlagImg: {},
-      startNumber: {},
-      decisionVisible: { type: Boolean },
+  
       recordAttempt: {},
       recordBroken: {},
 

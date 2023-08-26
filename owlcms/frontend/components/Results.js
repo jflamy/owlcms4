@@ -13,41 +13,11 @@ class Results extends LitElement {
 
   render() {
     return html`
-      <link
-        rel="stylesheet"
-        type="text/css"
-        .href="${"local/" +
-      (this.stylesDir ?? "") +
-      "/" +
-      (this.video ?? "") +
-      "colors" +
-      (this.autoversion ?? "")
-      + ".css"}"
-      />
-      <link
-        rel="stylesheet"
-        type="text/css"
-        .href="${"local/" +
-      (this.stylesDir ?? "") +
-      "/" +
-      (this.video ?? "") +
-      "results" +
-      (this.autoversion ?? "")
-      + ".css"}"
-      />
-      <link
-        rel="stylesheet"
-        type="text/css"
-        .href="${"local/" +
-      (this.stylesDir ?? "") +
-      "/" +
-      (this.video ?? "") +
-      "resultsCustomization" +
-      (this.autoversion ?? "")
-      + ".css"}"
-      />
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "") + ".css"}" />
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "results" + (this.autoversion ?? "") + ".css"}" />
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "resultsCustomization" + (this.autoversion ?? "") + ".css"}" />
 
-      <div class="${"wrapper " +  (this.teamWidthClass ?? "") + " " + (this.inactiveClass ?? "")}"  style="${this.sizeOverride}"      >
+      <div class="${"wrapper " +  (this.teamWidthClass ?? "") + " " + (this.inactiveClass ?? "")}"  style="${this.sizeOverride}">
         <div class="blockPositioningWrapper">
           <div class="waiting" style="${this.inactiveFlexStyle}">
             <div>
@@ -88,43 +58,38 @@ class Results extends LitElement {
             <div class="federationlogo"></div>
           </div>
 
-          <table
-            class="${"results " +  (this.noLiftRanks ?? "") + " " + (this.noBest ?? "")}"  
-            style="${(this.hiddenGridStyle ?? "") + "; --top: " +  (this.resultLines ?? "") + "; --bottom: " + (this.leaderLines ?? "") + "; " + (this.leadersLineHeight ?? "") + "; " + (this.twOverride ?? "")}">
-            ${this.athletes ? html`
-                  <tr class="head">
-                    <th class="groupCol" .innerHTML="${this.t?.Start}"></th>
-                    <th class="name" .innerHTML="${this.t?.Name}"></th>
-                    <th class="category" .innerHTML="${this.t?.Category}"></th>
-                    <th class="yob" .innerHTML="${this.t?.Birth}"></th>
-                    <th class="custom1" .innerHTML="${this.t?.Custom1}"></th>
-                    <th class="custom2" .innerHTML="${this.t?.Custom2}"></th>
-                    <th class="club" .innerHTML="${this.t?.Team}"></th>
-                    <th class="vspacer"></th>
-                    <th style="grid-column: span 3;" .innerHTML="${this.t?.Snatch}"></th>
-                    <th class="best" .innerHTML="${this.t?.Best}"></th>
-                    <th class="rank" .innerHTML="${this.t?.Rank}"></th>
-                    <th class="vspacer"></th>
-                    <th style="grid-column: span 3;" .innerHTML="${this.t?.Clean_and_Jerk}"></th>
-                    <th class="best" .innerHTML="${this.t?.Best}"></th>
-                    <th class="rank" .innerHTML="${this.t?.Rank}"></th>
-                    <th class="vspacer"></th>
-                    <th class="total" .innerHTML="${this.t?.Total}"></th>
-                    <th class="totalRank" .innerHTML="${this.t?.Rank}"></th>
-                    <th class="sinclair"  .innerHTML="${this.t?.Sinclair}"></th>
-                    <th class="sinclairRank" .innerHTML="${this.t?.Rank}"></th>
-                  </tr>
-                  ${(this.athletes ?? []).map(
-                      (item, index) => html`
-                        ${item?.isSpacer? 
-                          html`
+          <table class="${"results " +  (this.noLiftRanks ?? "") + " " + (this.noBest ?? "")}" style="${(this.hiddenGridStyle ?? "") + "; --top: " +  (this.resultLines ?? "") + "; --bottom: " + (this.leaderLines ?? "") + "; " + (this.leadersLineHeight ?? "") + "; " + (this.twOverride ?? "")}">
+            ${this.athletes 
+              ? html`
+                <tr class="head">
+                  <th class="groupCol" .innerHTML="${this.t?.Start}"></th>
+                  <th class="name" .innerHTML="${this.t?.Name}"></th>
+                  <th class="category" .innerHTML="${this.t?.Category}"></th>
+                  <th class="yob" .innerHTML="${this.t?.Birth}"></th>
+                  <th class="custom1" .innerHTML="${this.t?.Custom1}"></th>
+                  <th class="custom2" .innerHTML="${this.t?.Custom2}"></th>
+                  <th class="club" .innerHTML="${this.t?.Team}"></th>
+                  <th class="vspacer"></th>
+                  <th style="grid-column: span 3;" .innerHTML="${this.t?.Snatch}"></th>
+                  <th class="best" .innerHTML="${this.t?.Best}"></th>
+                  <th class="rank" .innerHTML="${this.t?.Rank}"></th>
+                  <th class="vspacer"></th>
+                  <th style="grid-column: span 3;" .innerHTML="${this.t?.Clean_and_Jerk}"></th>
+                  <th class="best" .innerHTML="${this.t?.Best}"></th>
+                  <th class="rank" .innerHTML="${this.t?.Rank}"></th>
+                  <th class="vspacer"></th>
+                  <th class="total" .innerHTML="${this.t?.Total}"></th>
+                  <th class="totalRank" .innerHTML="${this.t?.Rank}"></th>
+                  <th class="sinclair"  .innerHTML="${this.t?.Sinclair}"></th>
+                  <th class="sinclairRank" .innerHTML="${this.t?.Rank}"></th>
+                </tr>
+                ${(this.athletes ?? []).map(
+                    (item, index) => 
+                      html`
+                        ${item?.isSpacer 
+                          ? html`
                             <tr>
-                              <td
-                                class="spacer"
-                                style="grid-column: 1 / -1; justify-content: left;"
-                                innerHTML="-"
-                              ></td>
-                            </tr>
+                              <td class="spacer" style="grid-column: 1 / -1; justify-content: left;" innerHTML="-" ></td> </tr>
                           `
                           : html`
                             <tr class="athlete">
@@ -153,12 +118,12 @@ class Results extends LitElement {
                               </td>
                               <td class="vspacer"></td>
                               ${(item?.sattempts ?? []).map(
-                                (attempt, index) => html`
-                                  <td class="${(attempt?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}">   
-                                    <div class="${(attempt?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}">${attempt?.stringValue}</div>
-                                  </td>
-                                  `
-                                )}
+                                (attempt, index) => 
+                                  html`
+                                    <td class="${(attempt?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}">   
+                                      <div class="${(attempt?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}">${attempt?.stringValue}</div>
+                                    </td>
+                                  `)}
                               <td class="best">
                                 <div .innerHTML="${item?.bestSnatch} "></div>
                               </td>
@@ -167,23 +132,24 @@ class Results extends LitElement {
                               </td>
                               <td class="vspacer"></td>
                               ${(item?.cattempts ?? []).map(
-                                  (attempt, index) => html`
-                                    <td class="${(attempt?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}" >
-                                      <div     class="${(attempt?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}">${attempt?.stringValue}</div> 
-                                    </td>                                                    `
-                              )}
+                                (attempt, index) => 
+                                  html`
+                                    <td class="${(attempt?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}">
+                                      <div class="${(attempt?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}">${attempt?.stringValue}</div> 
+                                    </td>
+                                  `)}
                               <td class="best">
-                                <div .innerHTML="${item?.bestCleanJerk} "></div>
+                                <div .innerHTML="${item?.bestCleanJerk}"></div>
                               </td>
                               <td class="rank">
-                                <div .innerHTML="${item?.cleanJerkRank} "></div>
+                                <div .innerHTML="${item?.cleanJerkRank}"></div>
                               </td>
                               <td class="vspacer"></td>
                               <td class="total">
                                 <div>${item?.total}</div>
                               </td>
                               <td class="totalRank">
-                                <div .innerHTML="${item?.totalRank} "></div>
+                                <div .innerHTML="${item?.totalRank}"></div>
                               </td>
                               <td class="sinclair">
                                 <div>${item?.sinclair}</div>
@@ -193,114 +159,86 @@ class Results extends LitElement {
                               </td>
                             </tr>
                           `}
-                    `
-                  )}
-                `
-        : html``}
+                  `)}
+              `
+              : html``}
             <tr>
-              <td
-                class="filler"
-                .style="${"grid-column: 1 / -1; " +
-      (this.fillerVisibility ?? "")}"
-              >
-                &nbsp;
-              </td>
+              <td class="filler" .style="${"grid-column: 1 / -1; " + (this.fillerVisibility ?? "")}"> &nbsp; </td>
             </tr>
             ${this.leaders
-        ? html`
-                  <tbody class="leaders" style="${this.leadersTopVisibility}">
-                    <tr class="head">
-                      <td
-                        class="leaderTitle"
-                        .innerHTML="${(this.t?.Leaders ?? "") +
-          " " +
-          (this.categoryName ?? "")}"
-                      ></td>
-                    </tr>
-                    <tr>
-                      <td
-                        class="headerSpacer"
-                        innerHTML="&nbsp;"
-                        style="${"grid-column: 1 / -1; justify-content: left; " +
-          (this.leadersVisibility ?? "")}"
-                      ></td>
-                    </tr>
-                    ${(this.leaders ?? []).map(
-            (item, index) => html`
-                        ${!item?.isSpacer
-                ? html`
+              ? html`
+                <tbody class="leaders" style="${this.leadersTopVisibility}">
+                  <tr class="head">
+                    <td class="leaderTitle" .innerHTML="${(this.t?.Leaders ?? "") + " " + (this.categoryName ?? "")}"></td>
+                  </tr>
+                  <tr>
+                    <td class="headerSpacer" innerHTML="&nbsp;" style="${"grid-column: 1 / -1; justify-content: left; " + (this.leadersVisibility ?? "")}"></td>
+                  </tr>
+                  ${(this.leaders ?? []).map(
+                    (item, index) => 
+                      html`
+                        ${!item?.isSpacer 
+                          ? html`
                               <tr class="athlete">
-                                <td class="groupCol" style="${this.leadersVisibility} "> <div>${item?.group}</div>
-                                </td>
-                                <td class="${"name " + (item?.classname ?? "")}" style="${this.leadersVisibility} "> <div class="ellipsis">   ${item?.fullName} </div>
-                                </td>
-                                <td class="category" style="${this.leadersVisibility} "> <div>${item?.category}</div>
-                                </td>
-                                <td class="yob" style="${this.leadersVisibility} "> <div>${item?.yearOfBirth}</div>
-                                </td>
-                                <td class="custom1" style="${this.leadersVisibility} "> <div>${item?.custom1}</div>
-                                </td>
-                                <td class="custom2" style="${this.leadersVisibility} "> <div>${item?.custom2}</div>
-                                </td>
-                                <td class="${"club " + (item?.flagClass ?? "")} "> <div   class="${item?.flagClass}"   .innerHTML="${item?.flagURL}" ></div> <div   class="ellipsis"   style="${"width: " +
-                  (item?.teamLength ?? "")}" >   ${item?.teamName} </div>
+                                <td class="groupCol" style="${this.leadersVisibility} "> <div>${item?.group}</div></td>
+                                <td class="${"name " + (item?.classname ?? "")}" style="${this.leadersVisibility} "> <div class="ellipsis">   ${item?.fullName} </div></td>
+                                <td class="category" style="${this.leadersVisibility} "> <div>${item?.category}</div></td>
+                                <td class="yob" style="${this.leadersVisibility} "> <div>${item?.yearOfBirth}</div></td>
+                                <td class="custom1" style="${this.leadersVisibility} "> <div>${item?.custom1}</div></td>
+                                <td class="custom2" style="${this.leadersVisibility} "> <div>${item?.custom2}</div></td>
+                                <td class="${"club " + (item?.flagClass ?? "")} ">
+                                  <div class="${item?.flagClass}" .innerHTML="${item?.flagURL}"></div>
+                                  <div class="ellipsis"   style="${"width: " + (item?.teamLength ?? "")}">   ${item?.teamName} </div>
                                 </td>
                                 <td class="vspacer"></td>
                                 ${(item?.sattempts ?? []).map(
-                    (attempt, index) => html`   <td     class="${(attempt
-                      ?.goodBadClassName ?? "") +
-                      " " +
-                      (attempt?.className ?? "")}"   >     <div>${attempt?.stringValue}</div>   </td> `
-                  )}
-                                <td class="best" style="${this.leadersVisibility} "> <div   .innerHTML="${item?.bestSnatch}" ></div>
-                                </td>
-                                <td class="rank" style="${this.leadersVisibility} "> <div   .innerHTML="${item?.snatchRank}" ></div>
-                                </td>
+                                  (attempt, index) => 
+                                    html`
+                                      <td class="${(attempt ?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}"><div>${attempt?.stringValue}</div></td>
+                                    `)}
+                                <td class="best" style="${this.leadersVisibility} "> <div .innerHTML="${item?.bestSnatch}"></div></td>
+                                <td class="rank" style="${this.leadersVisibility} "> <div .innerHTML="${item?.snatchRank}"></div></td>
                                 <td class="vspacer" style="${this.leadersVisibility} "></td>
                                 ${(item?.cattempts ?? []).map(
-                    (attempt, index) => html`   <td     class="${(attempt
-                      ?.goodBadClassName ?? "") +
-                      " " +
-                      (attempt?.className ?? "")}"   >     <div>${attempt?.stringValue}</div>   </td> `
-                  )}
-                                <td class="best" style="${this.leadersVisibility} "> <div   .innerHTML="${item?.bestCleanJerk}" ></div>
-                                </td>
-                                <td class="rank" style="${this.leadersVisibility} "> <div   .innerHTML="${item?.cleanJerkRank}" ></div>
-                                </td>
+                                  (attempt, index) => 
+                                    html`
+                                      <td class="${(attempt ?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}"><div>${attempt?.stringValue}</div></td>
+                                    `)}
+                                <td class="best" style="${this.leadersVisibility} "> <div .innerHTML="${item?.bestCleanJerk}"></div></td>
+                                <td class="rank" style="${this.leadersVisibility} "> <div .innerHTML="${item?.cleanJerkRank}"></div></td>
                                 <td class="vspacer"></td>
-                                <td class="total" style="${this.leadersVisibility} "> <div>${item?.total}</div>
-                                </td>
-                                <td class="totalRank" style="${this.leadersVisibility} "> <div   .innerHTML="${item?.totalRank}" ></div>
-                                </td>
-                                <td class="sinclair" style="${this.leadersVisibility} "> <div>${item?.sinclair}</div>
-                                </td>
-                                <td class="sinclairRank" style="${this.leadersVisibility} "> <div>${item?.sinclairRank}</div>
-                                </td>
+                                <td class="total" style="${this.leadersVisibility} "> <div>${item?.total}</div></td>
+                                <td class="totalRank" style="${this.leadersVisibility} "> <div .innerHTML="${item?.totalRank}"></div></td>
+                                <td class="sinclair" style="${this.leadersVisibility} "> <div>${item?.sinclair}</div></td>
+                                <td class="sinclairRank" style="${this.leadersVisibility} "> <div>${item?.sinclairRank}</div></td>
                               </tr>
-                            `
-                : html``}
+                          `
+                          : html``}
                       `
-          )}
-                  </tbody>
-                `
-        : html``}
+                    )}
+                </tbody>
+              `
+              : html``}
           </table>
-          ${this.records ? html`
-                <div
-                  style="${"font-size: calc(var(--tableFontSize) * var(--recordsFontRatio)); " +  (this.hiddenBlockStyle ?? "") + "; " + (this.recordsDisplay ?? "")}">
-                  <div class="recordsFiller">&nbsp;</div>
-                  <div class="recordRow" style="${(this.hiddenGridStyle ?? "") + "; --nbRecords: " + (this.records?.nbRecords ?? "")}">
-                    <div>
-                      <div class="recordName recordTitle">${this.t?.records}
-                      </div>
-                      <div class="recordLiftTypeSpacer">&nbsp;</div>
-                      ${(this.records?.recordNames ?? []).map((n, index) => html`
-                          <div class="recordName">${n}</div>
-                        `
-          )}
+          ${this.records  
+            ? html`
+              <div style="${"font-size: calc(var(--tableFontSize) * var(--recordsFontRatio)); " +  (this.hiddenBlockStyle ?? "") + "; " + (this.recordsDisplay ?? "")}">
+                <div class="recordsFiller">&nbsp;</div>
+                <div class="recordRow" style="${(this.hiddenGridStyle ?? "") + "; --nbRecords: " + (this.records?.nbRecords ?? "")}">
+                  <div>
+                    <div class="recordName recordTitle">${this.t?.records}
                     </div>
+                    <div class="recordLiftTypeSpacer">&nbsp;</div>
+                    ${(this.records?.recordNames ?? []).map(
+                      (n, index) => 
+                        html`
+                          <div class="recordName">${n}</div>
+                        `)}
+                  </div>
 
-                    ${(this.records?.recordTable ?? []).map((c, index) => html`
+                  ${(this.records?.recordTable ?? []).map(
+                    (c, index) => 
+                      html`
                         <div class="${c?.recordClass}">
                           <div class="recordCat" .innerHTML="${c?.cat}"></div>
                           <div>
@@ -308,30 +246,61 @@ class Results extends LitElement {
                             <div class="recordLiftType">${this.t?.recordCJ}</div>
                             <div class="recordLiftType">${this.t?.recordT}</div>
                           </div>
-                          ${(c?.records ?? []).map((r, index) => html`
-                              <div>
-                                <div class="${"recordCell " + (r?.snatchHighlight ?? "")} ">${r?.SNATCH}</div>
-                                <div class="${"recordCell " + (r?.cjHighlight ?? "")} ">${r?.CLEANJERK}</div>
-                                <div class="${"recordCell " + (r?.totalHighlight ?? "")} ">${r?.TOTAL}</div>
-                              </div>
-                            `
-            )}
+                          ${(c?.records ?? []).map(
+                            (r, index) => 
+                              html`
+                                <div>
+                                  <div class="${"recordCell " + (r?.snatchHighlight ?? "")} ">${r?.SNATCH}</div>
+                                  <div class="${"recordCell " + (r?.cjHighlight ?? "")} ">${r?.CLEANJERK}</div>
+                                  <div class="${"recordCell " + (r?.totalHighlight ?? "")} ">${r?.TOTAL}</div>
+                                </div>
+                            `)}
                         </div>
-                      `
-          )}
-
-                    <div
-                      class="${"recordNotification " + (this.recordKind ?? "")}"
-                    >
-                      ${this.recordMessage}
-                    </div>
-                  </div>
+                      `)}
+                  <div class="${"recordNotification " + (this.recordKind ?? "")}"> ${this.recordMessage} </div>
                 </div>
-              `
-        : html``}
+              </div>
+            `
+            : html``}
         </div>
-      </div>`;
+      </div>
+    `;
   }
+
+  static get properties() {
+    return {
+      competitionName: {},
+      // shared
+      startNumber: {},
+      fullName: {},
+      teamName: {},
+      attempt: {},
+      weight: {},
+      decisionVisible: { type: Boolean },
+      displayType: {},
+      groupName: {},
+      groupDescription: {},
+      
+      // during lifting
+      athletes: { type: Object },
+      leaders: { type: Object },
+      records: { type: Object },
+
+      // mode (mutually exclusive, one of:
+      // WAIT INTRO_COUNTDOWN LIFT_COUNTDOWN CURRENT_ATHLETE INTERRUPTION SESSION_DONE CEREMONY
+      mode: {},
+
+      // style sheets & misc.
+      javaComponentId: {},
+      stylesDir: {},
+      autoVersion: {},
+      video: {},
+
+      // translation map
+      t: { type: Object }
+    };
+  }
+
 
   firstUpdated(_changedProperties) {
     console.debug("ready");

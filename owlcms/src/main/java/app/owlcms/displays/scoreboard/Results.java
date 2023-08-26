@@ -61,6 +61,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
+import app.owlcms.nui.shared.HasBoardMode;
 import app.owlcms.nui.shared.RequireDisplayLogin;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
@@ -91,7 +92,7 @@ import elemental.json.JsonValue;
 
 public class Results extends LitTemplate
         implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
-        RequireDisplayLogin, VideoCSSOverride {
+        RequireDisplayLogin, VideoCSSOverride, HasBoardMode {
 
 	private static final int DEBOUNCE = 50;
 	protected JsonArray cattempts;
@@ -438,24 +439,15 @@ public class Results extends LitTemplate
 	public void setLeadersDisplay(boolean showLeaders) {
 		checkVideo(Config.getCurrent().getParamStylesDir() + "/video/results.css", routeParameter, this);
 		this.showLeaders = showLeaders;
+		//FIXME: LitElement
 		if (showLeaders) {
 			this.getElement().setProperty("leadersTopVisibility", "display:content");
 			this.getElement().setProperty("leadersVisibility", "");
 			this.getElement().setProperty("fillerVisibility", "display:flex");
-//			this.getElement().setProperty("leadersLineHeight", "min-content");
-//		} else if (isVideo()) {
-//			this.getElement().setProperty("leadersVisibility", "display:none");
-//			this.getElement().setProperty("fillerVisibility", "display:none");
-//			this.getElement().setProperty("leadersLineHeight", "0px");
-//		} else {
-//			this.getElement().setProperty("leadersVisibility", "visibility: hidden;");
-//			this.getElement().setProperty("leadersLineHeight", "0px");
-//		}
 		} else {
 			this.getElement().setProperty("leadersTopVisibility", "display:none");
 			this.getElement().setProperty("leadersVisibility", "display:none");
 			this.getElement().setProperty("fillerVisibility", "display:none");
-			// this.getElement().setProperty("leadersLineHeight", "0px");
 		}
 	}
 
@@ -471,6 +463,7 @@ public class Results extends LitTemplate
 
 	@Override
 	public void setRecordsDisplay(boolean showRecords) {
+		//FIXME: LitElement
 		this.showRecords = showRecords;
 		if (showRecords) {
 			this.getElement().setProperty("recordsDisplay", "display: block");
@@ -1197,6 +1190,8 @@ public class Results extends LitTemplate
 
 	private void doFopBreak() {
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
+			
 			String title = inferGroupName() + " &ndash; "
 			        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), this.isSwitchableDisplay());
 			this.getElement().setProperty("fullName", title);
@@ -1216,11 +1211,10 @@ public class Results extends LitTemplate
 				this.getElement().setProperty("weight", nextAttemptRequestedWeight);
 				showWeight = true;
 			}
-			breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
+			breakTimer.setVisible(!fop.getBreakTimer().isIndefinite()); //FIXME: LitElement
 			setDisplay(false);
 			updateBottom(computeLiftType(a), fop);
-			// logger.trace("doBreak results {} {} {}", fop.getCeremonyType(), a,
-			// showWeight);
+			// logger.trace("doBreak results {} {} {}", fop.getCeremonyType(), a, showWeight);
 			this.getElement().callJsFunction("doBreak", showWeight);
 		}));
 	}
@@ -1253,6 +1247,8 @@ public class Results extends LitTemplate
 	}
 
 	private void setDisplay(boolean hidden) {
+
+		//FIXME: LitElement
 		this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
 		this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" : "display:grid"));
 		this.getElement().setProperty("hiddenFlexStyle", (hidden ? "display:none" : "display:flex"));
@@ -1264,7 +1260,9 @@ public class Results extends LitTemplate
 		this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
 		this.getElement().setProperty("videoHeaderDisplay", (hidden || !isVideo() ? "display:none" : "display:flex"));
 		this.getElement().setProperty("normalHeaderDisplay", (hidden || isVideo() ? "display:none" : "display:block"));
+		
 		OwlcmsSession.withFop(fop -> {
+			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
 			Group group = fop.getGroup();
 			String description = null;
 			if (group != null) {
