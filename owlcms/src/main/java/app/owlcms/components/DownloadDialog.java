@@ -21,11 +21,12 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.StreamResourceWriter;
 
-import app.owlcms.components.elements.LazyDownloadButton;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
@@ -49,20 +50,17 @@ public class DownloadDialog {
 	private String resourceDirectoryLocation;
 	private Supplier<JXLSWorkbookStreamSource> streamSourceSupplier;
 	private JXLSWorkbookStreamSource xlsWriter;
-	private LazyDownloadButton downloadButton;
+	// private LazyDownloadButton downloadButton;
 
 	/**
-	 * @param streamSourceSupplier lambda that creates a JXLSWorkbookStreamSource
-	 *                             and sets its filters
+	 * @param streamSourceSupplier lambda that creates a JXLSWorkbookStreamSource and sets its filters
 	 * @param resourceDirectory    Location where to look for templates
 	 * @param namePredicate        filtering on base name
 	 * @param templateNameGetter   get last file name stored in Competition
 	 * @param templateNameSetter   set last file name in Competition
 	 * @param dialogTitle
-	 * @param outputFileName       first part of the downloaded file name (not
-	 *                             dependent on template).
-	 * @param buttonLabel
-	 * @param buttonLabel          label used in top bar
+	 * @param outputFileName       first part of the downloaded file name (not dependent on template).
+	 * @param buttonLabel          label used dialog button
 	 * @return
 	 */
 	public DownloadDialog(
@@ -97,6 +95,7 @@ public class DownloadDialog {
 	private Dialog createDialog() {
 //        Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
 		Dialog dialog = new Dialog();
+		dialog.setCloseOnEsc(true);
 		dialog.setHeaderTitle(dialogTitle);
 		ComboBox<Resource> templateSelect = new ComboBox<>();
 
@@ -110,21 +109,17 @@ public class DownloadDialog {
 		templateSelect.setWidth("15em");
 		// templateSelect.getStyle().set("margin-left", "1em");
 		templateSelect.getStyle().set("margin-right", "0.8em");
-//        innerButton.setEnabled(false);
 
-		downloadButton = new LazyDownloadButton(
-		        buttonLabel,
-		        new Icon(VaadinIcon.DOWNLOAD_ALT),
-		        null,
-		        (StreamResourceWriter) null);
+		StreamResource resource = null;
+
 		try {
 			// Competition.getTemplateFileName()
 			// the getter should return a default if not set.
 			String curTemplateName = templateNameGetter.apply(Competition.getCurrent());
-			logger.trace("(1) curTemplateName {}", curTemplateName);
+			logger.debug("(1) curTemplateName {}", curTemplateName);
 			// searchMatch should always return something unless the directory is empty.
 			Resource found = searchMatch(resourceList, curTemplateName);
-			logger.trace("(1) template found {}", found != null ? found.getFilePath() : null);
+			logger.debug("(1) template found {}", found != null ? found.getFilePath() : null);
 
 			templateSelect.addValueChangeListener(e -> {
 				try {
@@ -152,34 +147,41 @@ public class DownloadDialog {
 
 					InputStream is = res.getStream();
 					xlsWriter.setInputStream(is);
-					logger.debug("(2) filter present = {} {} {}", xlsWriter.getGroup(), xlsWriter.getCategory(), xlsWriter.getAgeDivision());
+					logger.debug("(2) filter present = {} {} {}", xlsWriter.getGroup(), xlsWriter.getCategory(),
+					        xlsWriter.getAgeDivision());
 
 					String targetFileName = getTargetFileName();
 					logger.debug("(2) targetFileName final = {}", targetFileName);
 
 					Supplier<String> supplier = () -> getTargetFileName();
 
-					downloadButton.setFileNameCallback(supplier);
-					downloadButton.setStreamResourceWriter(xlsWriter);
-					downloadButton.addDownloadStartsListener(ds -> dialog.close());
+					Anchor link = createDownloadButton(resource, xlsWriter, supplier.get());
+					dialog.add(link);
+
+//					downloadButton.setFileNameCallback(supplier);
+//					downloadButton.setInputStreamCallback(() -> xlsWriter.createInputStream());
+//					downloadButton.addDownloadStartsListener(ds -> dialog.close());
 				} catch (Throwable e1) {
 					logger.error("{}", LoggerUtils.stackTrace(e1));
 				}
 			});
+			dialog.add(templateSelect);
 			templateSelect.setValue(found);
-
 		} catch (Exception e1) {
 			throw new RuntimeException(e1);
 		}
 
-//        wrappedButton.getStyle().set("margin-left", "1em");
-//
-//        logger.debug("adding dialog button {}", wrappedButton.getHref());
-//        wrappedButton.add(innerButton);
-//        innerButton.addClickListener(e -> dialog.close());
-
-		dialog.add(templateSelect, downloadButton);
 		return dialog;
+	}
+
+	private Anchor createDownloadButton(StreamResource resource, StreamResourceWriter writer, String fileName) {
+		resource = new StreamResource(fileName, (StreamResourceWriter) writer);
+
+		Anchor link = new Anchor(resource, "");
+		link.getElement().setAttribute("download", true);
+		Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
+		link.add(innerButton);
+		return link;
 	}
 
 	private String getTargetFileName() {
