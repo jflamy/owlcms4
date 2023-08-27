@@ -150,7 +150,7 @@ public class TeamSelectionContent extends VerticalLayout
 	public FlexLayout createMenuArea() {
 		topBar = new FlexLayout();
 		xlsWriter = new JXLSCompetitionBook(true, UI.getCurrent());
-		StreamResource href = new StreamResource(TITLE + "Report" + ".xls", xlsWriter);
+		StreamResource href = new StreamResource(TITLE + "Report" + ".xls", () -> xlsWriter.createInputStream());
 		finalPackage = new Anchor(href, "");
 		finalPackage.getStyle().set("margin-left", "1em");
 		download = new Button(getTranslation(TITLE + ".Report"), new Icon(VaadinIcon.DOWNLOAD_ALT));

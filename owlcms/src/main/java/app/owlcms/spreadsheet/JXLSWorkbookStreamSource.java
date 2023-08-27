@@ -10,6 +10,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,6 +32,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.server.InputStreamFactory;
 import com.vaadin.flow.server.StreamResourceWriter;
 import com.vaadin.flow.server.VaadinSession;
 
@@ -49,12 +52,11 @@ import ch.qos.logback.classic.Logger;
 import net.sf.jxls.transformer.XLSTransformer;
 
 /**
- * Encapsulate a spreadsheet as a StreamSource so that it can be used as a
- * source of data when the user clicks on a link. This class converts the output
- * stream to an input stream that the vaadin framework can consume.
+ * Encapsulate a spreadsheet as a StreamSource so that it can be used as a source of data when the user clicks on a
+ * link. This class converts the output stream to an input stream that the vaadin framework can consume.
  */
 @SuppressWarnings("serial")
-public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
+public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, InputStreamFactory {
 
 	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSWorkbookStreamSource.class);
@@ -95,46 +97,79 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 	public void accept(OutputStream stream, VaadinSession session) throws IOException {
 		try {
 			session.lock();
-			Locale locale = OwlcmsSession.getLocale();
-			XLSTransformer transformer = new XLSTransformer();
-			configureTransformer(transformer);
-			Workbook workbook = null;
-			try {
-				// logger.debug("wsss setReportingInfo");
-				setReportingInfo();
-				HashMap<String, Object> reportingInfo = getReportingBeans();
-				List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
-				if (athletes != null && (athletes.size() > 0 || isEmptyOk())) {
-					workbook = transformer.transformXLS(getTemplate(locale), reportingInfo);
-					if (workbook != null) {
-						postProcess(workbook);
-					}
-				} else {
-					String noAthletes = Translator.translate("NoAthletes");
-					logger./**/warn("no athletes: empty report.");
-					ui.access(() -> {
-						Notification notif = new Notification();
-						notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
-						notif.setPosition(Position.TOP_STRETCH);
-						notif.setDuration(3000);
-						notif.setText(noAthletes);
-						notif.open();
-					});
-					workbook = new HSSFWorkbook();
-					workbook.createSheet().createRow(1).createCell(1).setCellValue(noAthletes);
-				}
-			} catch (Exception e) {
-				LoggerUtils.logError(logger, e);
-			}
-			if (workbook != null) {
-				workbook.write(stream);
-			}
+			writeStream(stream);
 		} catch (IOException e) {
 			// ignore
 		} catch (Throwable t) {
 			logger.error(LoggerUtils./**/stackTrace(t));
 		} finally {
 			session.unlock();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void writeStream(OutputStream stream) throws IOException {
+		Locale locale = OwlcmsSession.getLocale();
+		XLSTransformer transformer = new XLSTransformer();
+		configureTransformer(transformer);
+		Workbook workbook = null;
+		try {
+			logger.debug("setReportingInfo");
+			setReportingInfo();
+			HashMap<String, Object> reportingInfo = getReportingBeans();
+			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
+			if (athletes != null && (athletes.size() > 0 || isEmptyOk())) {
+				workbook = transformer.transformXLS(getTemplate(locale), reportingInfo);
+				if (workbook != null) {
+					postProcess(workbook);
+				}
+			} else {
+				String noAthletes = Translator.translate("NoAthletes");
+				logger./**/warn("no athletes: empty report.");
+				ui.access(() -> {
+					Notification notif = new Notification();
+					notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
+					notif.setPosition(Position.TOP_STRETCH);
+					notif.setDuration(3000);
+					notif.setText(noAthletes);
+					notif.open();
+				});
+				workbook = new HSSFWorkbook();
+				workbook.createSheet().createRow(1).createCell(1).setCellValue(noAthletes);
+			}
+		} catch (Exception e) {
+			LoggerUtils.logError(logger, e);
+		}
+		if (workbook != null) {
+			logger.debug("writing stream");
+			try {
+				workbook.write(stream);
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
+			logger.debug("wrote stream");
+		}
+	}
+
+	public InputStream createInputStream() {
+		try {
+			PipedInputStream in = new PipedInputStream();
+			PipedOutputStream out = new PipedOutputStream(in);
+			logger.debug("created pipes");
+			new Thread(
+			        new Runnable() {
+				        public void run() {
+					        try {
+						        writeStream(out);
+						        out.close();
+					        } catch (IOException e) {
+						        throw new RuntimeException(e);
+					        }
+				        }
+			        }).start();
+			return in;
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -265,9 +300,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 	}
 
 	/**
-	 * Try the possible variations of a template based on locale. For
-	 * "/templates/start/startList", ".xls", and a locale of fr_CA, the following
-	 * names will be tried /templates/start/startList_fr_CA.xls
+	 * Try the possible variations of a template based on locale. For "/templates/start/startList", ".xls", and a locale
+	 * of fr_CA, the following names will be tried /templates/start/startList_fr_CA.xls
 	 * /templates/start/startList_fr.xls /templates/start/startList_en.xls
 	 *
 	 * @param templateName
@@ -344,14 +378,14 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 		getReportingBeans().put("group", getGroup());
 
 		// reuse existing logic for processing records
-		JXLSExportRecords jxlsExportRecords = new JXLSExportRecords(null,false);
+		JXLSExportRecords jxlsExportRecords = new JXLSExportRecords(null, false);
 		jxlsExportRecords.setGroup(getGroup());
 		logger.debug("fetching records for session {} category {}", getGroup(), getCategory());
 		try {
 			jxlsExportRecords.getSortedAthletes();
 			// Must be called immediately after getSortedAthletes
 			List<RecordEvent> records = jxlsExportRecords.getRecords(getCategory());
-			logger.debug("{} records found",records.size());
+			logger.debug("{} records found", records.size());
 			getReportingBeans().put("records", records);
 		} catch (Exception e) {
 			// no records
