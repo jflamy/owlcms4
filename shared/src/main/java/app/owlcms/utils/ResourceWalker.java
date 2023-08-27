@@ -404,7 +404,7 @@ public class ResourceWalker {
 			String curDirName = new File(n).getParent();
 			InputStream str = ResourceWalker.getResourceAsStream(n);
 			boolean createDir = !isSameDir(curDirName, prevDirName) && !isSubDir(curDirName, prevDirName);
-			logger.warn("zipping {} {}", n, createDir);
+			//logger.debug("zipping {} {}", n, createDir);
 			ZipUtils.zipStream(str, n, createDir, zipOut);
 			prevDirName = curDirName;
 		}
@@ -801,32 +801,37 @@ public class ResourceWalker {
 
 			Files.walkFileTree(rootPath, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
 			        new SimpleFileVisitor<Path>() {
+				        /**
+				         * @param filePath
+				         * @param attrs
+				         * @return
+				         * @throws IOException
+				         */
 				        @Override
 				        public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
 					        String generatedName = nameGenerator.apply(filePath, rootPath);
 					        String baseName = filePath.getFileName().toString();
-					        logger.warn("visiting {} {}", filePath, locale);
+					        //logger.debug("visiting {} {}", filePath, locale);
 					        if (predicate != null) {
 						        if (!predicate.test(baseName)) {
-							        logger.warn("ignored {}", filePath);
+							        //logger.debug("ignored {}", filePath);
 							        return FileVisitResult.CONTINUE;
 						        }
 					        }
 
 					        if (matchesLocale(baseName, locale)) {
 						        if (logger.isEnabledFor(Level.TRACE)) {
-							        logger.warn("kept {}, baseName={}, locale {}", filePath, baseName, locale);
+							        //logger.debug("kept {}, baseName={}, locale {}", filePath, baseName, locale);
 						        }
 						        localeNames.add(new Resource(generatedName, filePath));
 					        } else if (matchesLocale(baseName, null)) {
 						        if (logger.isEnabledFor(Level.TRACE)) {
-							        logger.warn("kept_default {}, baseName={}, locale {}", filePath, baseName, locale);
+							        //logger.debug("kept_default {}, baseName={}, locale {}", filePath, baseName, locale);
 						        }
 						        englishNames.add(new Resource(generatedName, filePath));
 					        } else {
 						        if (logger.isEnabledFor(Level.TRACE)) {
-							        logger.warn("ignored {}, baseName={}, wrong locale {}", filePath, baseName,
-							                locale);
+							        //logger.debug("ignored {}, baseName={}, wrong locale {}", filePath, baseName, locale);
 						        }
 						        otherNames.add(new Resource(generatedName, filePath));
 					        }
@@ -835,7 +840,7 @@ public class ResourceWalker {
 			        });
 			localeNames.addAll(englishNames);
 			if (logger.isEnabledFor(Level.TRACE)) {
-				logger.warn("resources: {}", localeNames);
+				//logger.debug("resources: {}", localeNames);
 			}
 
 			return localeNames;
