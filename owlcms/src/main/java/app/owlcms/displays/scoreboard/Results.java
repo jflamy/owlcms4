@@ -439,16 +439,7 @@ public class Results extends LitTemplate
 	public void setLeadersDisplay(boolean showLeaders) {
 		checkVideo(Config.getCurrent().getParamStylesDir() + "/video/results.css", routeParameter, this);
 		this.showLeaders = showLeaders;
-		//FIXME: LitElement
-		if (showLeaders) {
-			this.getElement().setProperty("leadersTopVisibility", "display:content");
-			this.getElement().setProperty("leadersVisibility", "");
-			this.getElement().setProperty("fillerVisibility", "display:flex");
-		} else {
-			this.getElement().setProperty("leadersTopVisibility", "display:none");
-			this.getElement().setProperty("leadersVisibility", "display:none");
-			this.getElement().setProperty("fillerVisibility", "display:none");
-		}
+		this.getElement().setProperty("showLeaders", showLeaders);
 	}
 
 	@Override
@@ -463,13 +454,8 @@ public class Results extends LitTemplate
 
 	@Override
 	public void setRecordsDisplay(boolean showRecords) {
-		//FIXME: LitElement
 		this.showRecords = showRecords;
-		if (showRecords) {
-			this.getElement().setProperty("recordsDisplay", "display: block");
-		} else {
-			this.getElement().setProperty("recordsDisplay", "display: none");
-		}
+		this.getElement().setProperty("showRecords", showRecords);
 	}
 
 	/**
@@ -1086,13 +1072,8 @@ public class Results extends LitTemplate
 			uiEventBus = uiEventBusRegister(this, fop);
 		});
 
-		if (Competition.getCurrent().isSinclair()) {
-			getElement().setProperty("noLiftRanks", "noranks sinclair");
-		} else if (!Competition.getCurrent().isSnatchCJTotalMedals()) {
-			getElement().setProperty("noLiftRanks", "noranks nosinclair");
-		} else {
-			getElement().setProperty("noLiftRanks", "nosinclair");
-		}
+		getElement().setProperty("showSinclair", Competition.getCurrent().isSinclair());
+		getElement().setProperty("showLiftRanks",Competition.getCurrent().isSnatchCJTotalMedals() && !Competition.getCurrent().isSinclair());
 		SoundUtils.enableAudioContextNotification(this.getElement());
 	}
 
@@ -1247,20 +1228,6 @@ public class Results extends LitTemplate
 	}
 
 	private void setDisplay(boolean hidden) {
-
-		//FIXME: LitElement
-		this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
-		this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" : "display:grid"));
-		this.getElement().setProperty("hiddenFlexStyle", (hidden ? "display:none" : "display:flex"));
-
-		this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
-		this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" : "display:none"));
-		this.getElement().setProperty("inactiveFlexStyle", (hidden ? "display:flex" : "display:none"));
-
-		this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
-		this.getElement().setProperty("videoHeaderDisplay", (hidden || !isVideo() ? "display:none" : "display:flex"));
-		this.getElement().setProperty("normalHeaderDisplay", (hidden || isVideo() ? "display:none" : "display:block"));
-		
 		OwlcmsSession.withFop(fop -> {
 			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
 			Group group = fop.getGroup();

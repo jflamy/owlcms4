@@ -28,7 +28,6 @@ import com.vaadin.flow.server.InputStreamFactory;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.shared.Registration;
 
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
