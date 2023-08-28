@@ -17,16 +17,16 @@ class Results extends LitElement {
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "results" + (this.autoversion ?? "") + ".css"}" />
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "resultsCustomization" + (this.autoversion ?? "") + ".css"}" />
 
-      <div class="${"wrapper " +  (this.teamWidthClass ?? "") + " " + (this.inactiveClass ?? "")}"  style="${this.sizeOverride}">
+      <div class="${this.wrapperClasses()}"  style="${this.sizeOverride}">
         <div class="blockPositioningWrapper">
-          <div class="waiting" style="${this.inactiveFlexStyle}">
+          <div class="waiting" style="${this.waitingStyles()}">
             <div>
               <div class="competitionName">${this.competitionName}</div>
               <br />
               <div class="nextGroup">${this.t?.WaitingNextGroup}</div>
             </div>
           </div>
-          <div class="attemptBar" style="${this.normalHeaderDisplay}">
+          <div class="attemptBar" style="${this.attemptStyles()}">
             <div class="athleteInfo" id="athleteInfoDiv">
               <div class="startNumber" id="startNumberDiv"><span>${this.startNumber}</span></div>
               <div class="fullName ellipsis" id="fullNameDiv" .innerHTML="${this.fullName}"></div>
@@ -44,12 +44,12 @@ class Results extends LitElement {
               </div>
             </div>
           </div>
-          <div class="group" style="${this.normalHeaderDisplay}">
+          <div class="group" style="${this.attemptStyles()}">
             <div id="groupDiv">
               <span class="groupName">${this.displayType}${this.groupName}</span>${this.liftsDone}
             </div>
           </div>
-          <div class="video" style="${this.videoHeaderDisplay}">
+          <div class="video" style="${this.videoHeaderStyles()}">
             <div class="eventlogo"></div>
             <div class="videoheader">
               <div class="groupName">${this.competitionName}</div>
@@ -58,7 +58,7 @@ class Results extends LitElement {
             <div class="federationlogo"></div>
           </div>
 
-          <table class="${"results " +  (this.noLiftRanks ?? "") + " " + (this.noBest ?? "")}" style="${(this.hiddenGridStyle ?? "") + "; --top: " +  (this.resultLines ?? "") + "; --bottom: " + (this.leaderLines ?? "") + "; " + (this.leadersLineHeight ?? "") + "; " + (this.twOverride ?? "")}">
+          <table class="${this.athleteClasses()}" style="${this.athleteStyles()}">
             ${this.athletes 
               ? html`
                 <tr class="head">
@@ -89,7 +89,8 @@ class Results extends LitElement {
                         ${item?.isSpacer 
                           ? html`
                             <tr>
-                              <td class="spacer" style="grid-column: 1 / -1; justify-content: left;" innerHTML="-" ></td> </tr>
+                              <td class="spacer" style="grid-column: 1 / -1; justify-content: left;" innerHTML="-" ></td>
+                            </tr>
                           `
                           : html`
                             <tr class="athlete">
@@ -163,16 +164,16 @@ class Results extends LitElement {
               `
               : html``}
             <tr>
-              <td class="filler" .style="${"grid-column: 1 / -1; " + (this.fillerVisibility ?? "")}"> &nbsp; </td>
+              <td class="filler" .style="grid-column: 1 / -1; ${this.fillerStyles()}"> &nbsp; </td>
             </tr>
             ${this.leaders
               ? html`
-                <tbody class="leaders" style="${this.leadersTopVisibility}">
+                <tbody class="leaders" style="${this.leadersStyles()}">
                   <tr class="head">
                     <td class="leaderTitle" .innerHTML="${(this.t?.Leaders ?? "") + " " + (this.categoryName ?? "")}"></td>
                   </tr>
                   <tr>
-                    <td class="headerSpacer" innerHTML="&nbsp;" style="${"grid-column: 1 / -1; justify-content: left; " + (this.leadersVisibility ?? "")}"></td>
+                    <td class="headerSpacer" innerHTML="&nbsp;" style="${"grid-column: 1 / -1; justify-content: left; " + this.leadingAthleteStyles()}"></td>
                   </tr>
                   ${(this.leaders ?? []).map(
                     (item, index) => 
@@ -180,12 +181,12 @@ class Results extends LitElement {
                         ${!item?.isSpacer 
                           ? html`
                               <tr class="athlete">
-                                <td class="groupCol" style="${this.leadersVisibility} "> <div>${item?.group}</div></td>
-                                <td class="${"name " + (item?.classname ?? "")}" style="${this.leadersVisibility} "> <div class="ellipsis">   ${item?.fullName} </div></td>
-                                <td class="category" style="${this.leadersVisibility} "> <div>${item?.category}</div></td>
-                                <td class="yob" style="${this.leadersVisibility} "> <div>${item?.yearOfBirth}</div></td>
-                                <td class="custom1" style="${this.leadersVisibility} "> <div>${item?.custom1}</div></td>
-                                <td class="custom2" style="${this.leadersVisibility} "> <div>${item?.custom2}</div></td>
+                                <td class="groupCol" style="${this.leadingAthleteStyles()} "> <div>${item?.group}</div></td>
+                                <td class="${"name " + (item?.classname ?? "")}" style="${this.leadingAthleteStyles()} "> <div class="ellipsis">   ${item?.fullName} </div></td>
+                                <td class="category" style="${this.leadingAthleteStyles()} "> <div>${item?.category}</div></td>
+                                <td class="yob" style="${this.leadingAthleteStyles()} "> <div>${item?.yearOfBirth}</div></td>
+                                <td class="custom1" style="${this.leadingAthleteStyles()} "> <div>${item?.custom1}</div></td>
+                                <td class="custom2" style="${this.leadingAthleteStyles()} "> <div>${item?.custom2}</div></td>
                                 <td class="${"club " + (item?.flagClass ?? "")} ">
                                   <div class="${item?.flagClass}" .innerHTML="${item?.flagURL}"></div>
                                   <div class="ellipsis"   style="${"width: " + (item?.teamLength ?? "")}">   ${item?.teamName} </div>
@@ -196,33 +197,32 @@ class Results extends LitElement {
                                     html`
                                       <td class="${(attempt ?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}"><div>${attempt?.stringValue}</div></td>
                                     `)}
-                                <td class="best" style="${this.leadersVisibility} "> <div .innerHTML="${item?.bestSnatch}"></div></td>
-                                <td class="rank" style="${this.leadersVisibility} "> <div .innerHTML="${item?.snatchRank}"></div></td>
-                                <td class="vspacer" style="${this.leadersVisibility} "></td>
+                                <td class="best" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.bestSnatch}"></div></td>
+                                <td class="rank" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.snatchRank}"></div></td>
+                                <td class="vspacer" style="${this.leadingAthleteStyles()} "></td>
                                 ${(item?.cattempts ?? []).map(
                                   (attempt, index) => 
                                     html`
                                       <td class="${(attempt ?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}"><div>${attempt?.stringValue}</div></td>
                                     `)}
-                                <td class="best" style="${this.leadersVisibility} "> <div .innerHTML="${item?.bestCleanJerk}"></div></td>
-                                <td class="rank" style="${this.leadersVisibility} "> <div .innerHTML="${item?.cleanJerkRank}"></div></td>
+                                <td class="best" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.bestCleanJerk}"></div></td>
+                                <td class="rank" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.cleanJerkRank}"></div></td>
                                 <td class="vspacer"></td>
-                                <td class="total" style="${this.leadersVisibility} "> <div>${item?.total}</div></td>
-                                <td class="totalRank" style="${this.leadersVisibility} "> <div .innerHTML="${item?.totalRank}"></div></td>
-                                <td class="sinclair" style="${this.leadersVisibility} "> <div>${item?.sinclair}</div></td>
-                                <td class="sinclairRank" style="${this.leadersVisibility} "> <div>${item?.sinclairRank}</div></td>
+                                <td class="total" style="${this.leadingAthleteStyles()} "> <div>${item?.total}</div></td>
+                                <td class="totalRank" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.totalRank}"></div></td>
+                                <td class="sinclair" style="${this.leadingAthleteStyles()} "> <div>${item?.sinclair}</div></td>
+                                <td class="sinclairRank" style="${this.leadingAthleteStyles()} "> <div>${item?.sinclairRank}</div></td>
                               </tr>
                           `
                           : html``}
-                      `
-                    )}
+                      `)}
                 </tbody>
               `
               : html``}
           </table>
           ${this.records  
             ? html`
-              <div style="${"font-size: calc(var(--tableFontSize) * var(--recordsFontRatio)); " +  (this.hiddenBlockStyle ?? "") + "; " + (this.recordsDisplay ?? "")}">
+              <div style="${this.recordsStyles()}">
                 <div class="recordsFiller">&nbsp;</div>
                 <div class="recordRow" style="${(this.hiddenGridStyle ?? "") + "; --nbRecords: " + (this.records?.nbRecords ?? "")}">
                   <div>
@@ -294,10 +294,20 @@ class Results extends LitElement {
       javaComponentId: {},
       stylesDir: {},
       autoVersion: {},
-      video: {},
 
       // translation map
-      t: { type: Object }
+      t: { type: Object },
+
+      // dynamic styling
+      teamWidthClass: {},
+      sizeOverride: {},
+      twOverride: {},
+      video: {},
+      showLiftRanks: {type: Boolean},
+      showBest: {type: Boolean},
+      showSinclair: {type: Boolean},
+      showLeaders: {type: Boolean},
+      showRecords: {type: Boolean},
     };
   }
 
@@ -420,6 +430,59 @@ class Results extends LitElement {
     if (this.isElementOverflowing(element)) {
       this.wrapContentsInMarquee(element);
     }
+  }
+
+  wrapperClasses() {
+    var classes = "wrapper";
+    classes = classes + (this.teamWidthClass ? " " + this.teamWidthClass : "");
+    classes = classes + (this.mode === "WAIT" ? " bigTitle" : "");
+    return classes;
+  }
+
+  waitingStyles() { /* originally flex */
+    return "display: " + (this.mode === "WAIT" ? "grid" : "none");
+  }
+
+  attemptStyles() {
+    return "display: " + ((this.mode !== "WAIT" && !this.video)? "block" : "none");
+  }
+
+  videoHeaderStyles() {
+    return "display: " + ((this.mode !== "WAIT" && this.video)? "block" : "none");
+  }
+
+  athleteClasses() {
+    //return "results " +  (this.noLiftRanks ?? "") + " " + (this.noBest ?? "")
+    return "results " 
+      + (this.showLiftRanks ? "" : " noranks") 
+      + (this.showBest ? "" : " nobest")
+      + (this.showSinclair ? " sinclair" : " nosinclair");
+  }
+
+  athleteStyles() {
+    return (this.mode === "WAIT" ? "display: none" : "") + 
+      "; --top: " +  (this.resultLines ?? "") + 
+      "; --bottom: " + (this.leaderLines ?? "") + 
+      "; " + (this.leadersLineHeight ?? "") + 
+      "; " + (this.twOverride ?? "");
+  }
+
+  leadersStyles() {
+    return this.showLeaders ?  " display:content" : " display:none";
+  }
+
+  leadingAthleteStyles() {
+    return this.showLeaders ? "" : " display:none";
+  }
+
+  fillerStyles() { // was display:flex
+    return this.showLeaders && this.mode !== "WAIT" ? " display:grid" : " display:none";
+  }
+
+  recordsStyles() {
+    return (!this.showRecords || this.mode !== "CURRENT_ATHLETE") 
+      ? "display:none" 
+      : "font-size: calc(var(--tableFontSize) * var(--recordsFontRatio)); display: block" ;
   }
 }
 
