@@ -3,7 +3,7 @@
 > *Beta releases are meant for translations and fixes*
 > *Test thoroughly if you intend to use a beta release, especially if using a new feature.*
 
-- 43.0.0-beta03: publicresults - fix error in the owlcms packaging of the customization files sent to publicresults
+- 43.0.0-beta04: fix error in the settings page
   
 - Referee decision updates are ignored once the decision has been shown. 
   - Referees must use flags or cards after 3 seconds. In this way, what the jury sees matches what the public saw.
