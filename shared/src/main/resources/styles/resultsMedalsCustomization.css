@@ -156,3 +156,16 @@ host(.dark) .wrapper table.results tr td.rank {
     border-width: 0.6em;
     border-style: solid;
 }
+
+div > div > div.attemptBar {
+    height: revert;
+}
+
+.athleteInfo .fullName {
+    font-weight: bold;
+    flex: revert;
+    text-align: left;
+    flex-grow: revert;
+    color: var(--athleteNameColor);
+    font-size: var(--athleteNameFontSize)
+}
