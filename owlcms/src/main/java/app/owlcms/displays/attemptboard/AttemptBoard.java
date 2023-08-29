@@ -101,6 +101,8 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		attemptBoard.doNotification(text, recordText, theme, duration);
 	}
 
+	protected boolean athletePictures;
+
 	@Id("athleteTimer")
 	protected AthleteTimerElement athleteTimer; // created by Flow during template instantiation
 
@@ -109,25 +111,23 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 
 	@Id("decisions")
 	protected DecisionElement decisions; // created by Flow during template instantiation
-
+	protected String routeParameter;
+	protected boolean teamFlags;
+	protected EventBus uiEventBus;
+	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private Dialog dialog;
+	private Timer dialogTimer;
+	private boolean downSilenced;
 	private boolean groupDone;
 	private boolean initializationNeeded;
 	private Location location;
 	private UI locationUI;
 	private PlatesElement plates;
-	private boolean silenced = true;
-	protected EventBus uiEventBus;
-	private Timer dialogTimer;
+
 	private boolean publicFacing;
+
 	private boolean showBarbell;
-	protected boolean teamFlags;
-	protected boolean athletePictures;
-
-	protected String routeParameter;
-
-	Map<String, List<String>> urlParameterMap = new HashMap<>();
-	private boolean downSilenced;
+	private boolean silenced = true;
 	private boolean video;
 
 	/**
@@ -605,12 +605,6 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		});
 	}
 
-	private void doInactive(FieldOfPlay fop, FOPState fopState) {
-		setBoardMode(fopState, fopState == FOPState.BREAK ? fop.getBreakType() : null, fop.getCeremonyType(), this.getElement());
-		this.getElement().setProperty("lastName", inferGroupName(fop.getCeremonyType()));
-		this.getElement().setProperty("firstName", inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
-	}
-
 	/**
 	 * @see app.owlcms.apputils.queryparameters.FOPParameters#updateURLLocation(com.vaadin.flow.component.UI,
 	 *      com.vaadin.flow.router.Location, java.lang.String, java.lang.String)
@@ -626,6 +620,11 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(parametersMap)));
 		ui.getPage().getHistory().replaceState(null, location2);
 		setLocation(location2);
+	}
+
+	protected void checkImages() {
+		teamFlags = URLUtils.checkFlags();
+		athletePictures = URLUtils.checkPictures();
 	}
 
 	protected void doAthleteUpdate(Athlete a) {
@@ -763,6 +762,10 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		});
 	}
 
+	protected Object getOrigin() {
+		return this;
+	}
+
 	/*
 	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
 	 * AttachEvent)
@@ -798,6 +801,31 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		this.getElement().setPropertyJson("t", translations);
 	}
 
+	protected void syncWithFOP(FieldOfPlay fop) {
+		// sync with current status of FOP
+		if (fop.getState() == FOPState.INACTIVE && fop.getCeremonyType() == null) {
+			doEmpty();
+		} else {
+			doNotEmpty();
+			Athlete curAthlete = fop.getCurAthlete();
+			if (fop.getState() == FOPState.BREAK || fop.getState() == FOPState.INACTIVE) {
+				// logger.debug("syncwithfop {} {}",fop.getBreakType(), fop.getCeremonyType());
+				if (fop.getCeremonyType() != null) {
+					doBreak(fop);
+				} else if (curAthlete != null && curAthlete.getAttemptsDone() >= 6) {
+					doDone(fop.getGroup());
+				} else {
+					doBreak(fop);
+				}
+			} else {
+				// by the time we get called, possible that connection has been closed.
+				Athlete nAthlete = AthleteRepository.findById(curAthlete.getId());
+				doAthleteUpdate(nAthlete);
+				athleteTimer.syncWithFop();
+			}
+		}
+	}
+
 	private void doDone(Group g) {
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			if (g != null) {
@@ -825,6 +853,12 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		} else {
 			doDone(group);
 		}
+	}
+
+	private void doInactive(FieldOfPlay fop, FOPState fopState) {
+		setBoardMode(fopState, fopState == FOPState.BREAK ? fop.getBreakType() : null, fop.getCeremonyType(), this.getElement());
+		this.getElement().setProperty("lastName", inferGroupName(fop.getCeremonyType()));
+		this.getElement().setProperty("firstName", inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
 	}
 
 	private void doJuryBreak(FieldOfPlay fop, BreakType breakType) {
@@ -877,10 +911,6 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 			translation = Translator.translate("AttemptBoard_attempt_number", ((attemptsDone % 3) + 1));
 		}
 		return translation;
-	}
-
-	protected Object getOrigin() {
-		return this;
 	}
 
 	private void hidePlates() {
@@ -964,35 +994,5 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		} else {
 			hideRecordInfo(fop, a);
 		}
-	}
-
-	protected void syncWithFOP(FieldOfPlay fop) {
-		// sync with current status of FOP
-		if (fop.getState() == FOPState.INACTIVE && fop.getCeremonyType() == null) {
-			doEmpty();
-		} else {
-			doNotEmpty();
-			Athlete curAthlete = fop.getCurAthlete();
-			if (fop.getState() == FOPState.BREAK || fop.getState() == FOPState.INACTIVE) {
-				// logger.debug("syncwithfop {} {}",fop.getBreakType(), fop.getCeremonyType());
-				if (fop.getCeremonyType() != null) {
-					doBreak(fop);
-				} else if (curAthlete != null && curAthlete.getAttemptsDone() >= 6) {
-					doDone(fop.getGroup());
-				} else {
-					doBreak(fop);
-				}
-			} else {
-				// by the time we get called, possible that connection has been closed.
-				Athlete nAthlete = AthleteRepository.findById(curAthlete.getId());
-				doAthleteUpdate(nAthlete);
-				athleteTimer.syncWithFop();
-			}
-		}
-	}
-
-	protected void checkImages() {
-		teamFlags = URLUtils.checkFlags();
-		athletePictures = URLUtils.checkPictures();
 	}
 }

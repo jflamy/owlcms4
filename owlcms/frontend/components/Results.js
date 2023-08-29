@@ -26,25 +26,25 @@ class Results extends LitElement {
               <div class="nextGroup">${this.t?.WaitingNextGroup}</div>
             </div>
           </div>
-          <div class="attemptBar" style="${this.attemptStyles()}">
-            <div class="athleteInfo" id="athleteInfoDiv">
-              <div class="startNumber" id="startNumberDiv"><span>${this.startNumber}</span></div>
-              <div class="fullName ellipsis" id="fullNameDiv" .innerHTML="${this.fullName}"></div>
-              <div class="clubName ellipsis" id="teamNameDiv">${this.teamName}</div>
-              <div class="attempt" id="attemptDiv"><span .innerHTML="${this.attempt}"></span></div>
-              <div class="weight" id="weightDiv">${this.weight}<span style="font-size: 75%">&hairsp;${this.t?.KgSymbol}</span></div>
-              <div class="timer athleteTimer" id="timerDiv">
+          <div class="attemptBar" style="${this.attemptBarStyles()}">
+            <div class="athleteInfo" style="${this.athleteInfoStyles()}">
+              <div class="startNumber" style="${this.startNumberStyles()}"><span>${this.startNumber}</span></div>
+              <div class="fullName ellipsis" style="${this.fullNameStyles()}" .innerHTML="${this.fullName}"></div>
+              <div class="clubName ellipsis" style="${this.teamNameStyles()}">${this.teamName}</div>
+              <div class="attempt" style="${this.attemptStyles()}"><span .innerHTML="${this.attempt}"></span></div>
+              <div class="weight" style="${this.weightStyles()}">${this.weight}<span style="font-size: 75%">&hairsp;${this.t?.KgSymbol}</span></div>
+              <div class="timer athleteTimer" style="${this.athleteTimerStyles()}">
                 <timer-element id="timer"></timer-element>
               </div>
-              <div class="timer breakTime" id="breakTimerDiv">
+              <div class="timer breakTime" style="${this.breakTimerStyles()}">
                 <timer-element id="breakTimer"></timer-element>
               </div>
-              <div class="decisionBox" id="decisionDiv">
+              <div class="decisionBox" style="${this.decisionStyles()}">
                 <decision-element style="width: 100%" id="decisions"></decision-element>
               </div>
             </div>
           </div>
-          <div class="group" style="${this.attemptStyles()}">
+          <div class="group" style="${this.fullNameStyles()}">
             <div id="groupDiv">
               <span class="groupName">${this.displayType}${this.groupName}</span>${this.liftsDone}
             </div>
@@ -226,8 +226,7 @@ class Results extends LitElement {
                 <div class="recordsFiller">&nbsp;</div>
                 <div class="recordRow" style="${(this.hiddenGridStyle ?? "") + "; --nbRecords: " + (this.records?.nbRecords ?? "")}">
                   <div>
-                    <div class="recordName recordTitle">${this.t?.records}
-                    </div>
+                    <div class="recordName recordTitle">${this.t?.records}</div>
                     <div class="recordLiftTypeSpacer">&nbsp;</div>
                     ${(this.records?.recordNames ?? []).map(
                       (n, index) => 
@@ -276,7 +275,6 @@ class Results extends LitElement {
       teamName: {},
       attempt: {},
       weight: {},
-      decisionVisible: { type: Boolean },
       displayType: {},
       groupName: {},
       groupDescription: {},
@@ -289,14 +287,7 @@ class Results extends LitElement {
       // mode (mutually exclusive, one of:
       // WAIT INTRO_COUNTDOWN LIFT_COUNTDOWN CURRENT_ATHLETE INTERRUPTION SESSION_DONE CEREMONY
       mode: {},
-
-      // style sheets & misc.
-      javaComponentId: {},
-      stylesDir: {},
-      autoVersion: {},
-
-      // translation map
-      t: { type: Object },
+      decisionVisible: { type: Boolean }, // sub-mode of CURRENT_ATHLETE
 
       // dynamic styling
       teamWidthClass: {},
@@ -308,100 +299,25 @@ class Results extends LitElement {
       showSinclair: {type: Boolean},
       showLeaders: {type: Boolean},
       showRecords: {type: Boolean},
-    };
-  }
 
+      // translation map
+      t: { type: Object },
+
+      // style sheets & misc.
+      javaComponentId: {},
+      stylesDir: {},
+      autoVersion: {},
+};
+  }
 
   firstUpdated(_changedProperties) {
     console.debug("ready");
     super.firstUpdated(_changedProperties);
     document.body.setAttribute("theme", "dark");
-    //this.renderRoot.querySelector("#groupDiv").style.visibility = "visible";
-    this.renderRoot.querySelector("#fullNameDiv").style.visibility = "visible";
-    this.renderRoot.querySelector("#fullNameDiv").style.display = "flex";
-    this.renderRoot.querySelector("#startNumberDiv").style.display = "flex";
-    this.renderRoot.querySelector("#teamNameDiv").style.display = "flex";
-    this.renderRoot.querySelector("#attemptDiv").style.display = "flex";
-    this.renderRoot.querySelector("#weightDiv").style.display = "flex";
-    this.renderRoot.querySelector("#timerDiv").style.display = "flex";
-    this.renderRoot.querySelector("#breakTimerDiv").style.display = "none";
-    this.renderRoot.querySelector("#decisionDiv").style.display = "none";
   }
 
   start() {
     this.renderRoot.querySelector("#timer").start();
-  }
-
-  reset() {
-    console.debug("reset");
-    //this.marqueeIfTooBig();
-    //this.renderRoot.querySelector("#groupDiv").style.visibility = "visible";
-    var s;
-    (s = this.renderRoot.querySelector("#fullNameDiv")) && (s.style.visibility = "visible");
-    (s = this.renderRoot.querySelector("#fullNameDiv")) && (s.style.display = "flex");
-    (s = this.renderRoot.querySelector("#startNumberDiv")) && (s.style.display = "flex");
-    (s = this.renderRoot.querySelector("#teamNameDiv")) && (s.style.display = "flex");
-    (s = this.renderRoot.querySelector("#attemptDiv")) && (s.style.display = "flex");
-    (s = this.renderRoot.querySelector("#weightDiv")) && (s.style.display = "flex");
-    (s = this.renderRoot.querySelector("#timerDiv")) && (s.style.display = "flex");
-    (s = this.renderRoot.querySelector("#breakTimerDiv")) && (s.style.display = "none");
-    (s = this.renderRoot.querySelector("#decisionDiv")) && (s.style.display = "none");
-  }
-
-  down() {
-    console.debug("down");
-    //this.renderRoot.querySelector("#groupDiv").style.visibility = "visible";
-    this.renderRoot.querySelector("#startNumberDiv").style.display = "flex";
-    this.renderRoot.querySelector("#teamNameDiv").style.display = "flex";
-    this.renderRoot.querySelector("#attemptDiv").style.display = "flex";
-    this.renderRoot.querySelector("#weightDiv").style.display = "flex";
-    this.renderRoot.querySelector("#timerDiv").style.display = "flex";
-    this.renderRoot.querySelector("#breakTimerDiv").style.display = "none";
-    this.renderRoot.querySelector("#decisionDiv").style.display = "flex";
-  }
-
-  doBreak(showWeights) {
-    console.debug("break");
-    //this.renderRoot.querySelector("#groupDiv").style.visibility = "hidden";
-    this.renderRoot.querySelector("#fullNameDiv").style.visibility = "visible";
-    this.renderRoot.querySelector("#fullNameDiv").style.display = "flex";
-    this.renderRoot.querySelector("#startNumberDiv").style.display = "none";
-    this.renderRoot.querySelector("#teamNameDiv").style.display = "none";
-    this.renderRoot.querySelector("#attemptDiv").style.display = "none";
-    if (showWeights) {
-      this.renderRoot.querySelector("#weightDiv").style.display = "block";
-      this.renderRoot.querySelector("#breakTimerDiv").style.display = "flex";
-    } else {
-      this.renderRoot.querySelector("#weightDiv").style.display = "none";
-      this.renderRoot.querySelector("#breakTimerDiv").style.display = "none";
-    }
-
-    this.renderRoot.querySelector("#timerDiv").style.display = "none";
-    this.renderRoot.querySelector("#breakTimerDiv").style.display = "flex";
-    this.renderRoot.querySelector("#decisionDiv").style.display = "none";
-  }
-
-  groupDone() {
-    console.debug("done");
-    //this.renderRoot.querySelector("#groupDiv").style.visibility = "hidden";
-    this.renderRoot.querySelector("#fullNameDiv").style.visibility = "visible";
-    this.renderRoot.querySelector("#fullNameDiv").style.display = "flex";
-    this.renderRoot.querySelector("#startNumberDiv").style.display = "none";
-    this.renderRoot.querySelector("#teamNameDiv").style.display = "none";
-    this.renderRoot.querySelector("#attemptDiv").style.display = "none";
-    this.renderRoot.querySelector("#weightDiv").style.display = "none";
-    this.renderRoot.querySelector("#timerDiv").style.display = "none";
-    this.renderRoot.querySelector("#breakTimerDiv").style.display = "none";
-    this.renderRoot.querySelector("#decisionDiv").style.display = "none";
-  }
-
-  refereeDecision() {
-    console.debug("refereeDecision");
-    //this.renderRoot.querySelector("#groupDiv").style.visibility = "visible";
-    this.renderRoot.querySelector("#decisionDiv").style.display = "flex";
-    this.renderRoot.querySelector("#weightDiv").style.display = "flex";
-    this.renderRoot.querySelector("#timerDiv").style.display = "flex";
-    this.renderRoot.querySelector("#breakTimerDiv").style.display = "none";
   }
 
   _isEqualTo(title, string) {
@@ -443,8 +359,46 @@ class Results extends LitElement {
     return "display: " + (this.mode === "WAIT" ? "grid" : "none");
   }
 
+  attemptBarStyles() {
+    return "display: " + (this.mode === "WAIT" ? "none" : "block");
+  }
+
+  athleteInfoStyles() {
+    return "display: " + (this.mode === "WAIT" ? "none" : "flex");
+  }
+
+  fullNameStyles() {
+    return  "display: " + (this.mode === "WAIT" ? "none" : "flex");
+  }
+
+  teamNameStyles() {
+    return "display: " + ((this.isBreak()) ? "none" : "flex");
+  }
+
   attemptStyles() {
-    return "display: " + ((this.mode !== "WAIT" && !this.video)? "block" : "none");
+    return "display: " + ((this.isBreak()) ? "none" : "flex");
+  }
+
+  startNumberStyles() {
+    return "display: " + (this.isBreak() ? "none" : "flex");
+  }
+
+  weightStyles() {
+    // weights are visible during lift countdowns
+    return "display: " + ((this.mode === "LIFT_COUNTDOWN" || (this.mode === "CURRENT_ATHLETE")) ? "flex" : "none");
+  }
+
+  athleteTimerStyles() {
+   //return "display:" + ((this.mode === "CURRENT_ATHLETE" && !this.decisionVisible) ? "flex" : "none");
+   return "display: " + (this.isBreak() ? "none" : "flex");
+  }
+
+  breakTimerStyles() {
+    return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN") ? "flex" : "none");
+  }
+
+  decisionStyles() {
+    return "display: " + ((this.mode === "CURRENT_ATHLETE" && this.decisionVisible) ? "flex" : "none");
   }
 
   videoHeaderStyles() {
@@ -460,7 +414,7 @@ class Results extends LitElement {
   }
 
   athleteStyles() {
-    return (this.mode === "WAIT" ? "display: none" : "") + 
+    return (this.mode === "WAIT" ? "display: none" : "display:grid") + 
       "; --top: " +  (this.resultLines ?? "") + 
       "; --bottom: " + (this.leaderLines ?? "") + 
       "; " + (this.leadersLineHeight ?? "") + 
@@ -484,6 +438,19 @@ class Results extends LitElement {
       ? "display:none" 
       : "font-size: calc(var(--tableFontSize) * var(--recordsFontRatio)); display: block" ;
   }
-}
+
+  isBreak() {
+    return this.mode === "INTERRUPTION" || this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "SESSION_DONE" || this.mode === "CEREMONY"
+  }
+
+  isCountdown() {
+    return  this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN"
+  }
+
+  constructor() {
+    super();
+    this.mode = "WAIT";
+  }
+ }
 
 customElements.define(Results.is, Results);
