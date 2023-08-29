@@ -12,62 +12,25 @@ class ResultsMedals extends LitElement {
   }
 
   render() {
-    return html` <link
-        rel="stylesheet"
-        type="text/css"
-        .href="${"local/" +
-        (this.stylesDir ?? "") +
-        "/" +
-        (this.video ?? "") +
-        "colors" +
-        (this.autoversion ?? "")}"
-      />
-      <link
-        rel="stylesheet"
-        type="text/css"
-        .href="${"local/" +
-        (this.stylesDir ?? "") +
-        "/" +
-        (this.video ?? "") +
-        "results" +
-        (this.autoversion ?? "")}"
-      />
-      <link
-        rel="stylesheet"
-        type="text/css"
-        .href="${"local/" +
-        (this.stylesDir ?? "") +
-        "/" +
-        (this.video ?? "") +
-        "resultsMedalsCustomization" +
-        (this.autoversion ?? "")}"
-      />
-
-      <div
-        class="${"wrapper medals " +
-        (this.teamWidthClass ?? "") +
-        " " +
-        (this.inactiveClass ?? "")}"
-        style="${this.sizeOverride}"
-      >
-        <div class="blockPositioningWrapper">
-          <div class="waiting" style="${this.inactiveFlexStyle}">
+    return html` 
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "" ) + ".css"}" />
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "results" + (this.autoversion ?? "") + ".css"}" />
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "resultsMedalsCustomization" + (this.autoversion ?? "") + ".css"}" />
+      <div class="${this.wrapperClasses()}"  style="${this.sizeOverride}">
+      <div class="blockPositioningWrapper">
+          <div class="waiting" style="${this.waitingStyles()}">
             <div>
               <div class="competitionName">${this.competitionName}</div>
               <br />
               <div class="nextGroup">${this.t?.WaitingNextGroup}</div>
             </div>
           </div>
-          <div class="attemptBar" style="${this.normalHeaderDisplay}">
-            <div class="athleteInfo" id="athleteInfoDiv">
-              <div
-                class="fullName ellipsis"
-                id="fullNameDiv"
-                .inner-h-t-m-l="${this.displayTitle}"
-              ></div>
+          <div class="attemptBar" style="${this.attemptBarStyles()}">
+            <div class="athleteInfo" style="${this.athleteInfoStyles()}">
+              <div class="fullName ellipsis" style="${this.fullNameStyles()}" .innerHTML="${this.displayTitle}"></div>
             </div>
           </div>
-          <div class="video" style="${this.videoHeaderDisplay}">
+          <div class="video" style="${this.videoHeaderStyles()}">
             <div class="eventlogo"></div>
             <div class="videoheader">
               <div class="groupName">${this.competitionName}</div>
@@ -75,6 +38,7 @@ class ResultsMedals extends LitElement {
             </div>
             <div class="federationlogo"></div>
           </div>
+
           ${this.medalCategories
             ? html`
                 <table
@@ -84,178 +48,107 @@ class ResultsMedals extends LitElement {
                   (this.twOverride ?? "")}"
                 >
                   ${(this.medalCategories ?? []).map(
-                    (item, index) => html`
+                    (mc) => html`
                       <tr class="head" style="${this.leadersDisplay}">
-                        <td
-                          style="grid-column: 1 / -1; justify-content: left; font-weight: bold; font-size: 120%"
-                          .inner-h-t-m-l="${this.mc?.categoryName}"
-                        ></td>
+                        <td style="grid-column: 1 / -1; justify-content: left; font-weight: bold; font-size: 120%" .innerHTML="${mc.categoryName}" ></td>
                       </tr>
                       <tr>
-                        <td
-                          class="headerSpacer"
-                          style="grid-column: 1 / -1; justify-content: left;"
-                          inner-h-t-m-l="&nbsp;"
-                        ></td>
+                        <td class="headerSpacer" style="grid-column: 1 / -1; justify-content: left;" inner-h-t-m-l="&nbsp;" ></td>
                       </tr>
-                      <tr class="head" .style="${this.mc?.showCatHeader}">
-                        <th
-                          class="groupCol"
-                          .inner-h-t-m-l="${this.t?.Group}"
-                        ></th>
-                        <th class="name" .inner-h-t-m-l="${this.t?.Name}"></th>
-                        <th
-                          class="category"
-                          .inner-h-t-m-l="${this.t?.Category}"
-                        ></th>
-                        <th class="yob" .inner-h-t-m-l="${this.t?.Birth}"></th>
-                        <th
-                          class="custom1"
-                          .inner-h-t-m-l="${this.t?.Custom1}"
-                        ></th>
-                        <th
-                          class="custom2"
-                          .inner-h-t-m-l="${this.t?.Custom2}"
-                        ></th>
-                        <th class="club" .inner-h-t-m-l="${this.t?.Team}"></th>
+                      <tr class="head">
+                        <th class="groupCol" .innerHTML="${this.t?.Start}"></th>
+                        <th class="name" .innerHTML="${this.t?.Name}"></th>
+                        <th class="category" .innerHTML="${this.t?.Category}"></th>
+                        <th class="yob" .innerHTML="${this.t?.Birth}"></th>
+                        <th class="custom1" .innerHTML="${this.t?.Custom1}"></th>
+                        <th class="custom2" .innerHTML="${this.t?.Custom2}"></th>
+                        <th class="club" .innerHTML="${this.t?.Team}"></th>
                         <th class="vspacer"></th>
-                        <th
-                          style="grid-column: span 3;"
-                          .inner-h-t-m-l="${this.t?.Snatch}"
-                        ></th>
-                        <th class="best" .inner-h-t-m-l="${this.t?.Best}"></th>
-                        <th class="rank" .inner-h-t-m-l="${this.t?.Rank}"></th>
+                        <th style="grid-column: span 3;" .innerHTML="${this.t?.Snatch}"></th>
+                        <th class="best" .innerHTML="${this.t?.Best}"></th>
+                        <th class="rank" .innerHTML="${this.t?.Rank}"></th>
                         <th class="vspacer"></th>
-                        <th
-                          style="grid-column: span 3;"
-                          .inner-h-t-m-l="${this.t?.Clean_and_Jerk}"
-                        ></th>
-                        <th class="best" .inner-h-t-m-l="${this.t?.Best}"></th>
-                        <th class="rank" .inner-h-t-m-l="${this.t?.Rank}"></th>
+                        <th style="grid-column: span 3;" .innerHTML="${this.t?.Clean_and_Jerk}"></th>
+                        <th class="best" .innerHTML="${this.t?.Best}"></th>
+                        <th class="rank" .innerHTML="${this.t?.Rank}"></th>
                         <th class="vspacer"></th>
-                        <th
-                          class="total"
-                          .inner-h-t-m-l="${this.t?.Total}"
-                        ></th>
-                        <th
-                          class="totalRank"
-                          .inner-h-t-m-l="${this.t?.Rank}"
-                        ></th>
-                        <th
-                          class="sinclair"
-                          .inner-h-t-m-l="${this.t?.Sinclair}"
-                        ></th>
-                        <th
-                          class="sinclairRank"
-                          .inner-h-t-m-l="${this.t?.Rank}"
-                        ></th>
+                        <th class="total" .innerHTML="${this.t?.Total}"></th>
+                        <th class="totalRank" .innerHTML="${this.t?.Rank}"></th>
+                        <th class="sinclair"  .innerHTML="${this.t?.Sinclair}"></th>
+                        <th class="sinclairRank" .innerHTML="${this.t?.Rank}"></th>
                       </tr>
 
-                      ${(this.mc?.leaders ?? []).map(
-                        (item, index) => html`
+                      ${(mc.leaders ?? []).map(
+                        (leader) => html`
                           <tr class="athlete" style="${this.leadersDisplay}">
                             <td class="groupCol">
-                              <div>${this.l?.group}</div>
+                              <div>${leader.group}</div>
                             </td>
-                            <td class="${"name " + (this.l?.classname ?? "")}">
-                              <div class="ellipsis">${this.l?.fullName}</div>
+                            <td class="${"name " + (leader.classname ?? "")}">
+                              <div class="ellipsis">${leader.fullName}</div>
                             </td>
                             <td class="category">
-                              <div>${this.l?.category}</div>
+                              <div>${leader.category}</div>
                             </td>
                             <td class="yob">
-                              <div>${this.l?.yearOfBirth}</div>
+                              <div>${leader.yearOfBirth}</div>
                             </td>
                             <td class="custom1">
-                              <div>${this.l?.custom1}</div>
+                              <div>${leader.custom1}</div>
                             </td>
                             <td class="custom2">
-                              <div>${this.l?.custom2}</div>
+                              <div>${leader.custom2}</div>
                             </td>
-                            <td class="${"club " + (this.l?.flagClass ?? "")}">
-                              <div
-                                class="${this.l?.flagClass}"
-                                .inner-h-t-m-l="${this.l?.flagURL}"
-                              ></div>
-                              <div class="ellipsis">${this.l?.teamName}</div>
+                            <td class="${"club " + (leader.flagClass ?? "")}">
+                              <div class="${leader.flagClass}" .innerHTML="${leader.flagURL}"></div>
+                              <div class="ellipsis">${leader.teamName}</div>
                             </td>
                             <td class="vspacer"></td>
-                            ${(this.l?.sattempts ?? []).map(
-                              (item, index) => html`
-                                <td
-                                  class="${(this.attempt?.goodBadClassName ??
-                                    "") +
-                                  " " +
-                                  (this.attempt?.className ?? "")}"
-                                >
-                                  <div>${this.attempt?.stringValue}</div>
+                            ${(leader.sattempts ?? []).map(
+                              (attempt) => html`
+                                <td class="${(attempt.goodBadClassName ?? "") + " " + (attempt.className ?? "")}" >
+                                  <div>${attempt.stringValue}</div>
                                 </td>
-                              `
-                            )}
+                              `)}
                             <td class="best">
-                              <div .inner-h-t-m-l="${this.l?.bestSnatch}"></div>
+                              <div .innerHTML="${leader.bestSnatch}"></div>
                             </td>
-                            <td
-                              class="${"rank " + (this.l?.snatchMedal ?? "")}"
-                            >
-                              <div .inner-h-t-m-l="${this.l?.snatchRank}"></div>
+                            <td class="${"rank " + (leader.snatchMedal ?? "")}">
+                              <div .innerHTML="${leader.snatchRank}"></div>
                             </td>
                             <td class="vspacer"></td>
-                            ${(this.l?.cattempts ?? []).map(
-                              (item, index) => html`
-                                <td
-                                  class="${(this.attempt?.goodBadClassName ??
-                                    "") +
-                                  " " +
-                                  (this.attempt?.className ?? "")}"
-                                >
-                                  <div>${this.attempt?.stringValue}</div>
+                            ${(leader.cattempts ?? []).map(
+                              (attempt) => html`
+                                <td class="${(attempt.goodBadClassName ?? "") + " " + (attempt.className ?? "")}" >
+                                  <div>${attempt.stringValue}</div>
                                 </td>
-                              `
-                            )}
+                              `)}
                             <td class="best">
-                              <div
-                                .inner-h-t-m-l="${this.l?.bestCleanJerk}"
-                              ></div>
+                              <div .innerHTML="${leader.bestCleanJerk}" ></div>
                             </td>
-                            <td
-                              class="${"rank " +
-                              (this.l?.cleanJerkMedal ?? "")}"
-                            >
-                              <div
-                                .inner-h-t-m-l="${this.l?.cleanJerkRank}"
-                              ></div>
+                            <td class="${"rank " + (leader.cleanJerkMedal ?? "")}">
+                              <div .innerHTML="${leader.cleanJerkRank}"></div>
                             </td>
                             <td class="vspacer"></td>
                             <td class="total">
-                              <div>${this.l?.total}</div>
+                              <div>${leader.total}</div>
                             </td>
-                            <td
-                              class="${"totalRank " +
-                              (this.l?.totalMedal ?? "")}"
-                            >
-                              <div .inner-h-t-m-l="${this.l?.totalRank}"></div>
+                            <td class="${"totalRank " + (leader.totalMedal ?? "")}">
+                              <div .innerHTML="${leader.totalRank}"></div>
                             </td>
                             <td class="sinclair">
-                              <div>${this.l?.sinclair}</div>
+                              <div>${leader.sinclair}</div>
                             </td>
                             <td class="sinclairRank">
-                              <div>${this.l?.sinclairRank}</div>
+                              <div>${leader.sinclairRank}</div>
                             </td>
                           </tr>
                         `
                       )}
                       <tr>
-                        <td
-                          class="filler"
-                          style="${"grid-column: 1 / -1; line-height:100%;" +
-                          (this.fillerDisplay ?? "")}"
-                        >
-                          &nbsp;
-                        </td>
+                        <td class="filler" style="${"grid-column: 1 / -1; line-height:100%;" + (this.fillerDisplay ?? "")}">&nbsp;</td>
                       </tr>
-                    `
-                  )}
+                    `)}
                 </table>
               `
             : html``}
@@ -263,75 +156,142 @@ class ResultsMedals extends LitElement {
       </div>`;
   }
 
+  static get properties() {
+    return {
+      competitionName: {},
+      // shared
+      startNumber: {},
+      fullName: {},
+      teamName: {},
+      attempt: {},
+      weight: {},
+      displayType: {},
+      groupName: {},
+      groupDescription: {},
+      nbRanks: {},
+      ageGroups: {},
+      
+      // during lifting
+      athletes: { type: Object },
+      leaders: { type: Object },
+      records: { type: Object },
+
+      // mode (mutually exclusive, one of:
+      // WAIT INTRO_COUNTDOWN LIFT_COUNTDOWN CURRENT_ATHLETE INTERRUPTION SESSION_DONE CEREMONY
+      mode: {},
+      decisionVisible: { type: Boolean }, // sub-mode of CURRENT_ATHLETE
+
+      // dynamic styling
+      teamWidthClass: {},
+      sizeOverride: {},
+      twOverride: {},
+      video: {},
+      showLiftRanks: {type: Boolean},
+      showBest: {type: Boolean},
+      showSinclair: {type: Boolean},
+      showLeaders: {type: Boolean},
+      showRecords: {type: Boolean},
+
+      // translation map
+      t: { type: Object },
+
+      // style sheets & misc.
+      javaComponentId: {},
+      stylesDir: {},
+      autoVersion: {},
+};
+  }
+
   firstUpdated(_changedProperties) {
     console.debug("ready");
     super.firstUpdated(_changedProperties);
     document.body.setAttribute("theme", "dark");
-    this.renderRoot.querySelector("#fullNameDiv").style.visibility = "visible";
-    this.renderRoot.querySelector("#fullNameDiv").style.display = "flex";
   }
 
   start() {
     this.renderRoot.querySelector("#timer").start();
   }
 
-  reset() {
-    console.debug("reset");
-    this.renderRoot.querySelector("#fullNameDiv").style.visibility = "visible";
-    this.renderRoot.querySelector("#fullNameDiv").style.display = "flex";
-  }
-
-  down() {
-    console.debug("refereeDecision");
-  }
-
-  doBreak() {
-    console.debug("break");
-    this.renderRoot.querySelector("#fullNameDiv").style.visibility = "visible";
-    this.renderRoot.querySelector("#fullNameDiv").style.display = "flex";
-  }
-
-  groupDone() {
-    console.debug("done");
-    this.renderRoot.querySelector("#fullNameDiv").style.visibility = "visible";
-    this.renderRoot.querySelector("#fullNameDiv").style.display = "flex";
-  }
-
-  refereeDecision() {
-    console.debug("refereeDecision");
-    //this.renderRoot.querySelector("#groupDiv").style.visibility = "visible";
-    this.renderRoot.querySelector("#decisionDiv").style.display = "flex";
-    this.renderRoot.querySelector("#weightDiv").style.display = "flex";
-    this.renderRoot.querySelector("#timerDiv").style.display = "flex";
-    this.renderRoot.querySelector("#breakTimerDiv").style.display = "none";
-  }
-
   _isEqualTo(title, string) {
     return title == string;
   }
 
-  isElementOverflowing(element) {
-    var overflowX = element.offsetWidth < element.scrollWidth,
-      overflowY = element.offsetHeight < element.scrollHeight;
-    console.warn("overflowX " + overflowX);
-    return overflowX || overflowY;
+  wrapperClasses() {
+    var classes = "wrapper medals";
+    classes = classes + (this.teamWidthClass ? " " + this.teamWidthClass : "");
+    classes = classes + (this.mode === "WAIT" ? " bigTitle" : "");
+    return classes;
   }
 
-  wrapContentsInMarquee(element) {
-    var marquee = document.createElement("marquee"),
-      contents = element.innerText;
-
-    marquee.innerText = contents;
-    element.innerHTML = "";
-    element.appendChild(marquee);
+  waitingStyles() { /* originally flex */
+    return "display: " + "none";//(this.mode === "WAIT" ? "grid" : "none");
   }
 
-  marqueeIfTooBig() {
-    var element = this.renderRoot.querySelector("#records");
+  attemptBarStyles() {
+    return  "display: " + (!this.video ? "grid" : "none");
+  }
 
-    if (this.isElementOverflowing(element)) {
-      this.wrapContentsInMarquee(element);
-    }
+  athleteInfoStyles() {
+    return "display: " + "flex";//(this.mode === "WAIT" ? "none" : "flex");
+  }
+
+  fullNameStyles() {
+    return  "display: " + "flex"; (this.mode === "WAIT" ? "none" : "flex");
+  }
+
+  fullNameStyles() {
+    return  "display: " + "flex"; (this.mode === "WAIT" ? "none" : "flex");
+  }
+  
+
+  attemptStyles() {
+    return "display: " + ((this.isBreak()) ? "none" : "flex");
+  }
+
+  videoHeaderStyles() {
+    return "display: " + ((this.video)? "flex" : "none");
+  }
+
+  athleteClasses() {
+    //return "results " +  (this.noLiftRanks ?? "") + " " + (this.noBest ?? "")
+    return "results " 
+      + (this.showLiftRanks ? "" : " noranks") 
+      + (this.showBest ? "" : " nobest")
+      + (this.showSinclair ? " sinclair" : " nosinclair");
+  }
+
+  athleteStyles() {
+    return (this.mode === "WAIT" ? "display: none" : "display:grid") 
+    + "; --top: calc(" + (this.resultLines ?? "") + " + 1)"
+    + "; --bottom: " + (this.leaderLines ?? "")
+    + "; --nbRanks: " + (this.nbRanks ?? "")
+    + "; " + (this.leadersLineHeight ?? "")
+    + "; " + (this.twOverride ?? "");
+  }
+
+  leadersStyles() {
+    return this.showLeaders ?  " display:content" : " display:none";
+  }
+
+  leadingAthleteStyles() {
+    return this.showLeaders ? "" : " display:none";
+  }
+
+  fillerStyles() { // was display:flex
+    return this.showLeaders && this.mode !== "WAIT" ? " display:grid" : " display:none";
+  }
+
+  isBreak() {
+    return this.mode === "INTERRUPTION" || this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "SESSION_DONE" || this.mode === "CEREMONY"
+  }
+
+  isCountdown() {
+    return  this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN"
+  }
+
+  constructor() {
+    super();
+    this.mode = "WAIT";
   }
 }
 

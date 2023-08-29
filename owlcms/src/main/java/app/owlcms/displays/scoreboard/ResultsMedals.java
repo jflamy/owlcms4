@@ -56,6 +56,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
+import app.owlcms.nui.shared.HasBoardMode;
 import app.owlcms.nui.shared.RequireDisplayLogin;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
@@ -85,7 +86,7 @@ import elemental.json.JsonValue;
 
 public class ResultsMedals extends LitTemplate
         implements ContextFreeDisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
-        HasDynamicTitle, VideoCSSOverride,
+        HasDynamicTitle, VideoCSSOverride, HasBoardMode,
         RequireDisplayLogin {
 
 	private static final long DEBOUNCE = 50;
@@ -191,7 +192,6 @@ public class ResultsMedals extends LitTemplate
 			setDisplay(false);
 
 			updateBottom(computeLiftType(fop.getCurAthlete()), fop);
-			this.getElement().callJsFunction("doBreak");
 		}));
 	}
 
@@ -657,8 +657,7 @@ public class ResultsMedals extends LitTemplate
 	}
 
 	/*
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-	 * AttachEvent)
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
@@ -857,8 +856,7 @@ public class ResultsMedals extends LitTemplate
 	/**
 	 * Compute Json string ready to be used by web component template
 	 *
-	 * CSS classes are pre-computed and passed along with the values; weights are
-	 * formatted.
+	 * CSS classes are pre-computed and passed along with the values; weights are formatted.
 	 *
 	 * @param a
 	 * @param fop
@@ -953,18 +951,18 @@ public class ResultsMedals extends LitTemplate
 	}
 
 	private void setDisplay(boolean hidden) {
-
-		this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
-		this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" : "display:grid"));
-		this.getElement().setProperty("hiddenFlexStyle", (hidden ? "display:none" : "display:flex"));
-
-		this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
-		this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" : "display:none"));
-		this.getElement().setProperty("inactiveFlexStyle", (hidden ? "display:flex" : "display:none"));
-
-		this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
-		this.getElement().setProperty("videoHeaderDisplay", (hidden || !isVideo() ? "display:none" : "display:flex"));
-		this.getElement().setProperty("normalHeaderDisplay", (hidden || isVideo() ? "display:none" : "display:block"));
+		OwlcmsSession.withFop(fop -> {
+			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
+			Group group = fop.getGroup();
+			String description = null;
+			if (group != null) {
+				description = group.getDescription();
+				if (description == null) {
+					description = Translator.translate("Group_number", group.getName());
+				}
+			}
+			this.getElement().setProperty("groupDescription", description != null ? description : "");
+		});
 	}
 
 	private void syncWithFOP(UIEvent.SwitchGroup e) {

@@ -84,7 +84,7 @@ class Results extends LitElement {
                   <th class="sinclairRank" .innerHTML="${this.t?.Rank}"></th>
                 </tr>
                 ${(this.athletes ?? []).map(
-                    (item, index) => 
+                    (item) => 
                       html`
                         ${item?.isSpacer 
                           ? html`
