@@ -44,7 +44,7 @@ class Results extends LitElement {
               </div>
             </div>
           </div>
-          <div class="group" style="${this.fullNameStyles()}">
+          <div class="group" style="${this.attemptBarStyles()}">
             <div id="groupDiv">
               <span class="groupName">${this.displayType}${this.groupName}</span>${this.liftsDone}
             </div>
@@ -360,7 +360,7 @@ class Results extends LitElement {
   }
 
   attemptBarStyles() {
-    return "display: " + (this.mode === "WAIT" ? "none" : "block");
+    return "display: " + (this.mode === "WAIT" || this.video ? "none" : "block");
   }
 
   athleteInfoStyles() {
@@ -402,7 +402,7 @@ class Results extends LitElement {
   }
 
   videoHeaderStyles() {
-    return "display: " + ((this.mode !== "WAIT" && this.video)? "block" : "none");
+    return "display: " + ((this.mode !== "WAIT" && this.video)? "flex" : "none");
   }
 
   athleteClasses() {
