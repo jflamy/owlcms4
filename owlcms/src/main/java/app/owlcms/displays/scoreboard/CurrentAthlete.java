@@ -51,6 +51,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
+import app.owlcms.nui.shared.HasBoardMode;
 import app.owlcms.nui.shared.RequireDisplayLogin;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
@@ -79,7 +80,7 @@ import elemental.json.JsonValue;
 
 public class CurrentAthlete extends LitTemplate
         implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
-        RequireDisplayLogin, VideoCSSOverride {
+        RequireDisplayLogin, VideoCSSOverride, HasBoardMode {
 
 	/**
 	 * ScoreboardModel
@@ -154,18 +155,16 @@ public class CurrentAthlete extends LitTemplate
 				getElement().setProperty("fullName", getTranslation("Group_number_done", fop.getGroup().toString()));
 				getElement().setProperty("teamName", "");
 				getElement().setProperty("attempt", "");
-				setHidden(false);
-				this.getElement().callJsFunction("doBreak");
+				setDisplay();
 			} else {
 				getElement().setProperty("fullName",
 				        inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
 				getElement().setProperty("teamName", "");
 				getElement().setProperty("attempt", "");
-				setHidden(false);
+				setDisplay();
 	
 				updateBottom(computeLiftType(fop.getCurAthlete()), fop);
 				uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
-				this.getElement().callJsFunction("doBreak");
 			}
 		}));
 	}
@@ -177,11 +176,10 @@ public class CurrentAthlete extends LitTemplate
 			        inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
 			getElement().setProperty("teamName", "");
 			getElement().setProperty("attempt", "");
-			setHidden(false);
+			setDisplay();
 
 			updateBottom(computeLiftType(fop.getCurAthlete()), fop);
 			uiEventLogger.debug("$$$ attemptBoard calling doCeremony()");
-			this.getElement().callJsFunction("doBreak");
 		}));
 	}
 
@@ -312,7 +310,7 @@ public class CurrentAthlete extends LitTemplate
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
 			Athlete a = e.getAthlete();
-			setHidden(false);
+			setDisplay();
 			if (a == null) {
 				order = fop.getLiftingOrder();
 				a = order.size() > 0 ? order.get(0) : null;
@@ -329,14 +327,8 @@ public class CurrentAthlete extends LitTemplate
 	public void slaveDecision(UIEvent.Decision e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			setHidden(false);
-			// do not update the bottom part until decision has been shown
-			// doUpdateBottomPart(e);
-			this.getElement().setProperty("hideBlock", "visibility:hidden");
-			this.getElement().setProperty("noneBlock", "display:none");
-			this.getElement().setProperty("hideInherited", "visibility:hidden");
-			this.getElement().setProperty("hideTableCell", "visibility:hidden");
-			this.getElement().callJsFunction("refereeDecision");
+			setDisplay();
+			this.getElement().setProperty("decisionVisible", true);
 		});
 	}
 
@@ -344,16 +336,12 @@ public class CurrentAthlete extends LitTemplate
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			setHidden(false);
+			setDisplay();
+			this.getElement().setProperty("decisionVisible", false);
 			if (isDone()) {
 				doDone(e.getAthlete().getGroup());
 			} else {
 				doUpdate(e.getAthlete(), e);
-				this.getElement().setProperty("hideBlock", "visibility:visible");
-				this.getElement().setProperty("noneBlock", "display:block");
-				this.getElement().setProperty("hideInherited", "visibility:visible");
-				this.getElement().setProperty("hideTableCell", "visibility:visible");
-				this.getElement().callJsFunction("reset");
 			}
 		});
 	}
@@ -362,13 +350,8 @@ public class CurrentAthlete extends LitTemplate
 	public void slaveDownSignal(UIEvent.DownSignal e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			setHidden(false);
-			this.getElement().setProperty("hideBlock", "visibility:hidden");
-			this.getElement().setProperty("noneBlock", "display:none");
-			this.getElement().setProperty("hideInherited", "visibility:hidden");
-			this.getElement().setProperty("hideTableCell", "visibility:hidden");
-			this.getElement().callJsFunction("refereeDecision");
-			this.getElement().callJsFunction("down");
+			setDisplay();
+			this.getElement().setProperty("decisionVisible", true);
 		});
 	}
 
@@ -382,14 +365,7 @@ public class CurrentAthlete extends LitTemplate
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			setHidden(false);
-//          Group g = e.getGroup();
-			
-			this.getElement().setProperty("hideBlock", "visibility:hidden");
-			this.getElement().setProperty("noneBlock", "display:none");
-			this.getElement().setProperty("hideInherited", "visibility:hidden");
-			this.getElement().setProperty("hideTableCell", "visibility:hidden");
-			
+			setDisplay();
 			setDone(true);
 		});
 	}
@@ -416,7 +392,7 @@ public class CurrentAthlete extends LitTemplate
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			setHidden(false);
+			setDisplay();
 			doBreak(e);
 		});
 	}
@@ -425,8 +401,7 @@ public class CurrentAthlete extends LitTemplate
 	public void slaveStartLifting(UIEvent.StartLifting e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			setHidden(false);
-			this.getElement().callJsFunction("reset");
+			setDisplay();
 		});
 	}
 
@@ -435,9 +410,8 @@ public class CurrentAthlete extends LitTemplate
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			setHidden(false);
+			setDisplay();
 			Athlete a = e.getAthlete();
-			this.getElement().callJsFunction("reset");
 			doUpdate(a, e);
 		});
 	}
@@ -456,11 +430,6 @@ public class CurrentAthlete extends LitTemplate
 		        this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
 	}
 
-//    private void doUpdateBottomPart(UIEvent e) {
-//        Athlete a = e.getAthlete();
-//        updateBottom(computeLiftType(a), OwlcmsSession.getFop());
-//    }
-
 	private String computeLiftType(Athlete a) {
 		if (a == null || a.getAttemptsDone() > 6) {
 			return null;
@@ -478,7 +447,6 @@ public class CurrentAthlete extends LitTemplate
 			OwlcmsSession.withFop(fop -> {
 				updateBottom(null, fop);
 				getElement().setProperty("fullName", getTranslation("Group_number_done", g.toString()));
-				this.getElement().callJsFunction("groupDone");
 			});
 		}
 	}
@@ -668,16 +636,19 @@ public class CurrentAthlete extends LitTemplate
 		this.groupDone = b;
 	}
 
-	private void setHidden(boolean hidden) {
-		this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
-		this.getElement().setProperty("hiddenFlexStyle", (hidden ? "display:none" : "display:flex"));
-		this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" : "display:grid"));
-		
-		this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
-		this.getElement().setProperty("inactiveFlexStyle", (hidden ? "display:flex" : "display:none"));
-		this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" : "display:none"));
-		
-		this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
+	private void setDisplay() {
+		OwlcmsSession.withFop(fop -> {
+			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
+			Group group = fop.getGroup();
+			String description = null;
+			if (group != null) {
+				description = group.getDescription();
+				if (description == null) {
+					description = Translator.translate("Group_number", group.getName());
+				}
+			}
+			this.getElement().setProperty("groupDescription", description != null ? description : "");
+		});
 	}
 
 	private void setWideTeamNames(boolean wide) {
@@ -698,7 +669,7 @@ public class CurrentAthlete extends LitTemplate
 			}
 			break;
 		default:
-			setHidden(false);
+			setDisplay();
 			doUpdate(e.getAthlete(), e);
 		}
 	}
@@ -711,14 +682,13 @@ public class CurrentAthlete extends LitTemplate
 		} else {
 			getElement().setProperty("groupName", "X");
 			getElement().setProperty("liftsDone", "Y");
-			this.getElement().callJsFunction("groupDone");
 		}
 		this.getElement().setPropertyJson("athletes",
 		        getAthletesJson(order, fop.getLiftingOrder(), fop));
 	}
 
 	protected void doEmpty() {
-		this.setHidden(true);
+		this.setDisplay();
 	}
 
 	protected void doUpdate(Athlete a, UIEvent e) {
@@ -751,7 +721,6 @@ public class CurrentAthlete extends LitTemplate
 					doBreak(e);
 				}
 			}
-			this.getElement().callJsFunction("reset");
 
 			// current athlete bottom should only change when top does
 			if (fop.getState() != FOPState.DECISION_VISIBLE) {

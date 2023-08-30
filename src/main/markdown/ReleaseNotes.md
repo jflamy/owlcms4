@@ -4,12 +4,12 @@
 >
 > STATUS
 >
-> - owlcms:  A standard competition could be held.  Multi-championship and video-oriented scoreboards not yet available.
+> - owlcms:  A standard competition can be held.  Missing the current athlete video scoreboard, and the team competition scoreboards.
 > - publicresults: will be done after owlcms, requires scoreboard migration.
 
-44.0.0-alpha06: Snapshot release.
+44.0.0-alpha07: Snapshot release.
 
-- Basic scoreboards (without multiple age groups) now updating correctly. 
+- Added multiple age group and medal ceremony scoreboards.
 
 44.0.0
 

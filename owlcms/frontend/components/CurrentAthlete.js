@@ -12,255 +12,205 @@ class CurrentAthlete extends LitElement {
   }
 
   render() {
-    return html` <link
-        rel="stylesheet"
-        type="text/css"
-        .href="${"local/" +
-        (this.stylesDir ?? "") +
-        "/" +
-        (this.video ?? "") +
-        "colors" +
-        (this.autoversion ?? "")}"
-      />
-      <link
-        rel="stylesheet"
-        type="text/css"
-        .href="${"local/" +
-        (this.stylesDir ?? "") +
-        "/" +
-        (this.video ?? "") +
-        "currentathlete" +
-        (this.autoversion ?? "")}"
-      />
-      <div
-        class="${"wrapper " +
-        (this.teamWidthClass ?? "") +
-        " " +
-        (this.inactiveClass ?? "")}"
-      >
-        <!-- this div is SHOWN when the platform is inactive -->
-        <div style="${this.inactiveGridStyle}">
+    return html` 
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "")}.css"/>
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "currentathlete" + (this.autoversion ?? "")}.css"/>
+     
+      <div class="${this.wrapperClasses()}">
+        <div class="waiting" style="${this.waitingStyles()}">
           <!-- div class="competitionName">[[competitionName]]</div><br -->
           <div class="nextGroup">${this.t?.WaitingNextGroup}</div>
         </div>
 
-        <!-- this div is HIDDEN when the platform is inactive -->
-        <div class="attemptBar" style="${this.hiddenGridStyle}">
-          <div class="startNumber" id="startNumberDiv">
-            <span>${this.startNumber}</span>
+        <div class="attemptBar" style="${this.attemptBarStyles()}">
+          <div class="startNumber" style="${this.startNumberStyles()}"><span>${this.startNumber}</span> </div>
+          <div class="fullName ellipsis" style="${this.fullNameStyles()}" .innerHTML="${this.fullName}"></div>
+          <div class="clubName ellipsis" style="${this.teamNameStyles()}"><div class="clubNameEllipsis">${this.teamName}</div></div>
+          <div class="attempt" style="${this.attemptStyles()}"><span .innerHTML="${this.attempt}"></span></div>
+          <div class="weight" style="${this.weightStyles()}">
+            <span >${this.weight}<span style="font-size: 75%" >&nbsp;${this.t?.KgSymbol}</span></span>
           </div>
-          <div
-            class="fullName ellipsis"
-            id="fullNameDiv"
-            .inner-h-t-m-l="${this.fullName}"
-          >
-            ${this.fullName}
-          </div>
-          <div class="clubName ellipsis" id="teamNameDiv">
-            <div class="clubNameEllipsis">${this.teamName}</div>
-          </div>
-          <div class="attempt" id="attemptDiv">
-            <span .inner-h-t-m-l="${this.attempt}"></span>
-          </div>
-          <div class="weight" id="weightDiv">
-            <span
-              >${this.weight}<span style="font-size: 75%"
-                >&nbsp;${this.t?.KgSymbol}</span
-              ></span
-            >
-          </div>
-          <div class="timer athleteTimer" id="timerDiv">
+          <div class="timer athleteTimer" style="${this.athleteTimerStyles()}">
             <timer-element id="timer"></timer-element>
           </div>
-          <div class="timer breakTime" id="breakTimerDiv">
+          <div class="timer breakTime" style="${this.breakTimerStyles()}">
             <timer-element id="breakTimer"></timer-element>
           </div>
-          <div class="decisionBox" id="decisionDiv">
+          <div class="decisionBox" style="${this.decisionStyles()}">
             <decision-element id="decisions"></decision-element>
           </div>
           <div class="attempts">
             <table class="results" id="resultsDiv" style="${this.hiddenStyle}">
               ${(this.athletes ?? []).map(
-                (item, index) => html`
-                  ${!this.l?.isSpacer
+                (item) => html`
+                  ${!item.isSpacer
                     ? html`
                         <tr>
                           <td class="category">
-                            <div>${this.l?.category}</div>
+                            <div>${item.category}</div>
                           </td>
                           <td class="spacer">&nbsp;</td>
                           <td class="liftName">
-                            <div .inner-h-t-m-l="${this.t?.Snatch}"></div>
+                            <div .innerHTML="${this.t?.Snatch}"></div>
                           </td>
-                          ${(this.l?.sattempts ?? []).map(
-                            (item, index) => html`
-                              <td
-                                class="${(this.attempt?.goodBadClassName ??
-                                  "") +
-                                " " +
-                                (this.attempt?.className ?? "")}"
-                              >
-                                <div>${this.attempt?.stringValue}</div>
+                          ${(item.sattempts ?? []).map(
+                            (attempt) => html`
+                              <td class="${(attempt.goodBadClassName ?? "") + " " + (attempt.className ?? "")}" >
+                                <div>${attempt.stringValue}</div>
                               </td>
-                            `
-                          )}
+                            `)}
                           <td class="showRank">
                             <div>
-                              ${this.t?.Rank} <b>${this.l?.snatchRank}</b>
+                              ${this.t?.Rank} <b>${item.snatchRank}</b>
                             </div>
                           </td>
                           <td class="spacer">&nbsp;</td>
                           <td class="liftName">
                             <div
-                              .inner-h-t-m-l="${this.t?.Clean_and_Jerk}"
+                              .innerHTML="${this.t?.Clean_and_Jerk}"
                             ></div>
                           </td>
-                          ${(this.l?.cattempts ?? []).map(
-                            (item, index) => html`
-                              <td
-                                class="${(this.attempt?.goodBadClassName ??
-                                  "") +
-                                " " +
-                                (this.attempt?.className ?? "")}"
-                              >
-                                <div>${this.attempt?.stringValue}</div>
+                          ${(item.cattempts ?? []).map(
+                            (attempt) => html`
+                              <td class="${(attempt.goodBadClassName ?? "") + " " + (attempt.className ?? "")}">
+                                <div>${attempt.stringValue}</div>
                               </td>
-                            `
-                          )}
+                            `)}
                           <td class="showRank">
                             <div>
-                              ${this.t?.Rank} <b>${this.l?.cleanJerkRank}</b>
+                              ${this.t?.Rank} <b>${item.cleanJerkRank}</b>
                             </div>
                           </td>
                           <td class="spacer">&nbsp;</td>
                           <td class="liftName">
-                            <div
-                              id="totalNameTd"
-                              style="${this.hideInherited}"
-                              .inner-h-t-m-l="${this.t?.Total}"
-                            ></div>
+                            <div id="totalNameTd" style="${this.decisionHiddenStyles()}" .innerHTML="${this.t?.Total}"></div>
                           </td>
-                          <td class="total" style="${this.hideTableCell}">
-                            <div
-                              id="totalCellTd"
-                              style="${(this.noneBlock ?? "") +
-                              ";" +
-                              (this.hideInherited ?? "")}"
-                            >
-                              ${this.l?.total}
-                            </div>
+                          <td class="total">
+                            <div id="totalCellTd" style="${this.decisionHiddenStyles()}">${item.total}</div>
                           </td>
                           <td class="totalRank">
-                            <div
-                              id="totalRankTd"
-                              style="${(this.hideBlock ?? "") +
-                              ";" +
-                              (this.hideInherited ?? "")}"
-                            >
-                              ${this.t?.Rank} <b>${this.l?.totalRank}</b>
-                            </div>
+                            <div id="totalRankTd" style="${this.decisionHiddenStyles()}">${this.t?.Rank} <b>${item.totalRank}</b> </div>
                           </td>
                         </tr>
                       `
                     : html``}
-                `
-              )}
+                `)}
             </table>
           </div>
         </div>
       </div>`;
   }
 
+  static get properties() {
+    return {
+      competitionName: {},
+      // shared
+      startNumber: {},
+      fullName: {},
+      teamName: {},
+      attempt: {},
+      weight: {},
+      displayType: {},
+      groupName: {},
+      groupDescription: {},
+
+      // mode (mutually exclusive, one of:
+      // WAIT INTRO_COUNTDOWN LIFT_COUNTDOWN CURRENT_ATHLETE INTERRUPTION SESSION_DONE CEREMONY
+      mode: {},
+      decisionVisible: { type: Boolean }, // sub-mode of CURRENT_ATHLETE
+
+      // translation map
+      t: { type: Object },
+
+      // style sheets & misc.
+      javaComponentId: {},
+      stylesDir: {},
+      autoVersion: {},
+    };
+  }
+
   firstUpdated(_changedProperties) {
     console.debug("ready");
     super.firstUpdated(_changedProperties);
     document.body.setAttribute("theme", "dark");
-    this.renderRoot.querySelector("#fullNameDiv").style.visibility = "visible";
-    this.renderRoot.querySelector("#fullNameDiv").style.display = "grid";
-    this.renderRoot.querySelector("#startNumberDiv").style.display = "grid";
-    this.renderRoot.querySelector("#teamNameDiv").style.display = "grid";
-    this.renderRoot.querySelector("#attemptDiv").style.display = "grid";
-    this.renderRoot.querySelector("#weightDiv").style.display = "grid";
-    this.renderRoot.querySelector("#timerDiv").style.display = "grid";
-    this.renderRoot.querySelector("#breakTimerDiv").style.display = "none";
-    this.renderRoot.querySelector("#decisionDiv").style.display = "none";
-    this.renderRoot.querySelector("#resultsDiv").style.visibility = "visible";
-    // this.renderRoot.querySelector("#totalNameTd").style.display = "block";
-    // this.renderRoot.querySelector("#totalCellTd").style.display = "block";
-    // this.renderRoot.querySelector("#totalRankTd").style.display = "block";
   }
 
   start() {
     this.renderRoot.querySelector("#timer").start();
   }
 
-  reset() {
-    console.debug("reset");
-    this.renderRoot
-      .querySelector("#timer")
-      .reset(this.renderRoot.querySelector("#timer"));
-    this.renderRoot.querySelector("#fullNameDiv").style.visibility = "visible";
-    this.renderRoot.querySelector("#fullNameDiv").style.display = "grid";
-    this.renderRoot.querySelector("#startNumberDiv").style.display = "grid";
-    this.renderRoot.querySelector("#teamNameDiv").style.display = "grid";
-    this.renderRoot.querySelector("#attemptDiv").style.display = "grid";
-    this.renderRoot.querySelector("#weightDiv").style.display = "grid";
-    this.renderRoot.querySelector("#timerDiv").style.display = "grid";
-    this.renderRoot.querySelector("#breakTimerDiv").style.display = "none";
-    this.renderRoot.querySelector("#decisionDiv").style.display = "none";
-    this.renderRoot.querySelector("#resultsDiv").style.visibility = "visible";
-    // this.renderRoot.querySelector("#totalNameTd").style.display = "block";
-    // this.renderRoot.querySelector("#totalCellTd").style.display = "block";
-    // this.renderRoot.querySelector("#totalRankTd").style.display = "block";
+  wrapperClasses() {
+    var classes = "wrapper";
+    classes = classes + (this.teamWidthClass ? " " + this.teamWidthClass : "");
+    classes = classes + (this.mode === "WAIT" ? " bigTitle" : "");
+    return classes;
   }
 
-  down() {
-    console.debug("refereeDecision");
-    this.renderRoot.querySelector("#startNumberDiv").style.display = "grid";
-    this.renderRoot.querySelector("#teamNameDiv").style.display = "grid";
-    this.renderRoot.querySelector("#attemptDiv").style.display = "grid";
-    this.renderRoot.querySelector("#weightDiv").style.display = "grid";
-    this.renderRoot.querySelector("#timerDiv").style.display = "grid";
-    this.renderRoot.querySelector("#breakTimerDiv").style.display = "none";
-    this.renderRoot.querySelector("#decisionDiv").style.display = "grid";
-    // this.renderRoot.querySelector("#totalNameTd").style.display = "none";
-    // this.renderRoot.querySelector("#totalCellTd").style.display = "none";
-    // this.renderRoot.querySelector("#totalRankTd").style.display = "none";
+  waitingStyles() { /* originally flex */
+    return "display: " + (this.mode === "WAIT" ? "grid" : "none");
   }
 
-  doBreak() {
-    console.debug("break");
-    this.renderRoot.querySelector("#fullNameDiv").style.visibility = "visible";
-    this.renderRoot.querySelector("#fullNameDiv").style.display = "grid";
-    this.renderRoot.querySelector("#startNumberDiv").style.display = "none";
-    this.renderRoot.querySelector("#teamNameDiv").style.display = "none";
-    this.renderRoot.querySelector("#attemptDiv").style.display = "none";
-    this.renderRoot.querySelector("#weightDiv").style.display = "none";
-    this.renderRoot.querySelector("#timerDiv").style.display = "none";
-    this.renderRoot.querySelector("#breakTimerDiv").style.display = "grid";
-    this.renderRoot.querySelector("#decisionDiv").style.display = "none";
-    this.renderRoot.querySelector("#resultsDiv").style.visibility = "hidden";
+  attemptBarStyles() {
+    return "display: " + (this.mode === "WAIT" ? "none" : "grid");
   }
 
-  groupDone() {
-    console.debug("done");
-    this.doBreak();
+  fullNameStyles() {
+    return  "display: " + (this.mode === "WAIT" ? "none" : "grid");
   }
 
-  refereeDecision() {
-    console.debug("refereeDecision");
-    this.renderRoot.querySelector("#decisionDiv").style.display = "grid";
-    this.renderRoot.querySelector("#weightDiv").style.display = "grid";
-    this.renderRoot.querySelector("#timerDiv").style.display = "grid";
-    this.renderRoot.querySelector("#breakTimerDiv").style.display = "none";
-    // this.renderRoot.querySelector("#totalNameTd").style.display = "none";
-    // this.renderRoot.querySelector("#totalCellTd").style.display = "none";
-    // this.renderRoot.querySelector("#totalRankTd").style.display = "none";
+  teamNameStyles() {
+    return "display: " + ((this.isBreak()) ? "none" : "grid");
   }
 
-  _isEqualTo(title, string) {
-    return title == string;
+  attemptStyles() {
+    return "display: " + ((this.isBreak()) ? "none" : "grid");
   }
+
+  startNumberStyles() {
+    return "display: " + (this.isBreak() ? "none" : "grid");
+  }
+
+  weightStyles() {
+    // weights are visible during lift countdowns
+    return "display: " + ((this.mode === "LIFT_COUNTDOWN" || (this.mode === "CURRENT_ATHLETE")) ? "grid" : "none");
+  }
+
+  athleteTimerStyles() {
+   //return "display:" + ((this.mode === "CURRENT_ATHLETE" && !this.decisionVisible) ? "flex" : "none");
+   return "display: " + (this.isBreak() ? "none" : "grid");
+  }
+
+  breakTimerStyles() {
+    return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN") ? "grid" : "none");
+  }
+
+  decisionStyles() {
+    return "display: " + ((this.mode === "CURRENT_ATHLETE" && this.decisionVisible) ? "grid" : "none");
+  }
+
+  decisionHiddenStyles() {
+    return "visibility: " + ((this.mode === "CURRENT_ATHLETE" && this.decisionVisible) ? "hidden" : "");
+  }
+
+  isBreak() {
+    return this.mode === "INTERRUPTION" || this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "SESSION_DONE" || this.mode === "CEREMONY"
+  }
+
+  isCountdown() {
+    return  this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN"
+  }
+
+  constructor() {
+    super();
+    this.mode = "WAIT";
+  }
+
+  firstUpdated(_changedProperties) {
+    console.debug("ready");
+    super.firstUpdated(_changedProperties);
+    document.body.setAttribute("theme", "dark");
+  }
+
 }
 
 customElements.define(CurrentAthlete.is, CurrentAthlete);

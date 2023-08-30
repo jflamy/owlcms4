@@ -307,7 +307,7 @@ class Results extends LitElement {
       javaComponentId: {},
       stylesDir: {},
       autoVersion: {},
-};
+    };
   }
 
   firstUpdated(_changedProperties) {
@@ -322,30 +322,6 @@ class Results extends LitElement {
 
   _isEqualTo(title, string) {
     return title == string;
-  }
-
-  isElementOverflowing(element) {
-    var overflowX = element.offsetWidth < element.scrollWidth,
-      overflowY = element.offsetHeight < element.scrollHeight;
-    console.warn("overflowX " + overflowX);
-    return overflowX || overflowY;
-  }
-
-  wrapContentsInMarquee(element) {
-    var marquee = document.createElement("marquee"),
-      contents = element.innerText;
-
-    marquee.innerText = contents;
-    element.innerHTML = "";
-    element.appendChild(marquee);
-  }
-
-  marqueeIfTooBig() {
-    var element = this.renderRoot.querySelector("#records");
-
-    if (this.isElementOverflowing(element)) {
-      this.wrapContentsInMarquee(element);
-    }
   }
 
   wrapperClasses() {
