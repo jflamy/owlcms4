@@ -196,6 +196,13 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 
 	@Override
 	public void doCeremony(UIEvent.CeremonyStarted e) {
+		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			BreakType breakType = fop.getBreakType();
+			setBoardMode(fop.getState(), breakType, fop.getCeremonyType(), this.getElement());
+			this.getElement().setProperty("lastName", inferGroupName());
+			this.getElement().setProperty("firstName", inferMessage(breakType, fop.getCeremonyType(), true));
+			this.getElement().setProperty("teamName", "");
+		}));
 	}
 
 	/**

@@ -85,11 +85,9 @@ public class CurrentAthlete extends LitTemplate
 	/**
 	 * ScoreboardModel
 	 *
-	 * Vaadin Flow propagates these variables to the corresponding Polymer template
-	 * JavaScript properties. When the JS properties are changed, a
-	 * "propname-changed" event is triggered.
-	 * {@link Element.#addPropertyChangeListener(String, String,
-	 * com.vaadin.flow.dom.PropertyChangeListener)}
+	 * Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript properties. When the JS
+	 * properties are changed, a "propname-changed" event is triggered.
+	 * {@link Element.#addPropertyChangeListener(String, String, com.vaadin.flow.dom.PropertyChangeListener)}
 	 *
 	 */
 
@@ -125,7 +123,7 @@ public class CurrentAthlete extends LitTemplate
 
 	private String routeParameter;
 
-	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private boolean video;
 
 	/**
@@ -150,19 +148,19 @@ public class CurrentAthlete extends LitTemplate
 	@Override
 	public void doBreak(UIEvent e) {
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			uiEventLogger.debug("$$$ currentAthlete calling doBreak()");
 			if (fop.getGroup() != null && fop.getGroup().isDone()) {
-				updateBottom(null, fop);
+				setDisplay();
 				getElement().setProperty("fullName", getTranslation("Group_number_done", fop.getGroup().toString()));
 				getElement().setProperty("teamName", "");
 				getElement().setProperty("attempt", "");
-				setDisplay();
 			} else {
 				getElement().setProperty("fullName",
 				        inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
 				getElement().setProperty("teamName", "");
 				getElement().setProperty("attempt", "");
 				setDisplay();
-	
+
 				updateBottom(computeLiftType(fop.getCurAthlete()), fop);
 				uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
 			}
@@ -171,6 +169,7 @@ public class CurrentAthlete extends LitTemplate
 
 	@Override
 	public void doCeremony(UIEvent.CeremonyStarted e) {
+		uiEventLogger.debug("$$$ currentAthlete calling doCeremony()");
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			getElement().setProperty("fullName",
 			        inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
@@ -179,7 +178,7 @@ public class CurrentAthlete extends LitTemplate
 			setDisplay();
 
 			updateBottom(computeLiftType(fop.getCurAthlete()), fop);
-			uiEventLogger.debug("$$$ attemptBoard calling doCeremony()");
+			
 		}));
 	}
 
@@ -246,6 +245,11 @@ public class CurrentAthlete extends LitTemplate
 		return true;
 	}
 
+	@Override
+	public boolean isVideo() {
+		return video;
+	}
+
 	/**
 	 * Reset.
 	 */
@@ -305,6 +309,11 @@ public class CurrentAthlete extends LitTemplate
 		this.urlParameterMap = newParameterMap;
 	}
 
+	@Override
+	public void setVideo(boolean b) {
+		this.video = b;
+	}
+
 	@Subscribe
 	public void slaveBreakDone(UIEvent.BreakDone e) {
 		uiLog(e);
@@ -321,6 +330,27 @@ public class CurrentAthlete extends LitTemplate
 				doUpdate(a, e);
 			}
 		}));
+	}
+
+	@Subscribe
+	public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
+		// logger.trace"------- slaveCeremonyDone {}", e.getCeremonyType());
+		uiLog(e);
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			setDisplay();
+			// revert to current break
+			doBreak(null);
+		});
+	}
+
+	@Subscribe
+	public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
+		// logger.trace"------- slaveCeremonyStarted {}", e.getCeremonyType());
+		uiLog(e);
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			setDisplay();
+			doCeremony(e);
+		});
 	}
 
 	@Subscribe
@@ -362,11 +392,12 @@ public class CurrentAthlete extends LitTemplate
 
 	@Subscribe
 	public void slaveGroupDone(UIEvent.GroupDone e) {
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+		logger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			setDisplay();
 			setDone(true);
+			doBreak(e);
 		});
 	}
 
@@ -389,8 +420,7 @@ public class CurrentAthlete extends LitTemplate
 
 	@Subscribe
 	public void slaveStartBreak(UIEvent.BreakStarted e) {
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-		        this.getOrigin(), e.getOrigin());
+		//logger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			setDisplay();
 			doBreak(e);
@@ -426,8 +456,94 @@ public class CurrentAthlete extends LitTemplate
 	}
 
 	public void uiLog(UIEvent e) {
-		uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-		        this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
+		if (uiEventLogger.isDebugEnabled()) {
+			uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+			        this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
+		}
+	}
+
+	protected void doEmpty() {
+		this.setDisplay();
+	}
+
+	protected void doUpdate(Athlete a, UIEvent e) {
+//        logger.debug("doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() : "no event", a,
+//                a != null ? a.getAttemptsDone() : null);
+		boolean leaveTopAlone = false;
+		if (e instanceof UIEvent.LiftingOrderUpdated) {
+			LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
+			if (e2.isInBreak()) {
+				leaveTopAlone = !e2.isDisplayToggle();
+			} else {
+				leaveTopAlone = !e2.isCurrentDisplayAffected();
+			}
+		}
+
+		FieldOfPlay fop = OwlcmsSession.getFop();
+		if (!leaveTopAlone) {
+			if (a != null) {
+				Group group = fop.getGroup();
+				if (!group.isDone()) {
+					logger.debug("updating top {} {} {}", a.getFullName(), group, System.identityHashCode(group));
+					getElement().setProperty("fullName", a.getFullName());
+					getElement().setProperty("teamName", a.getTeam());
+					getElement().setProperty("startNumber", a.getStartNumber());
+					String formattedAttempt = formatAttempt(a.getAttemptsDone());
+					getElement().setProperty("attempt", formattedAttempt);
+					getElement().setProperty("weight", a.getNextAttemptRequestedWeight());
+				} else {
+					logger.debug("group done {} {}", group, System.identityHashCode(group));
+					doBreak(e);
+				}
+			}
+
+			// current athlete bottom should only change when top does
+			if (fop.getState() != FOPState.DECISION_VISIBLE) {
+				// logger.debug("updating bottom {}", fop.getState());
+				updateBottom(computeLiftType(a), fop);
+			} else {
+				// logger.debug("not updating bottom {}", fop.getState());
+			}
+
+		}
+		// logger.debug("leave top alone {} {}", leaveTopAlone, fop.getState());
+		if (leaveTopAlone && fop.getState() == FOPState.CURRENT_ATHLETE_DISPLAYED) {
+			updateBottom(computeLiftType(a), fop);
+		}
+
+	}
+
+	/*
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
+	 */
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		// fop obtained via FOPParameters interface default methods.
+		OwlcmsSession.withFop(fop -> {
+			init();
+			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/currentathlete.css", routeParameter, this);
+
+			// get the global category rankings attached to each athlete
+			order = fop.getDisplayOrder();
+
+			// liftsDone = AthleteSorter.countLiftsDone(order);
+			syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this));
+			// we listen on uiEventBus.
+			uiEventBus = uiEventBusRegister(this, fop);
+		});
+		switchLightingMode(this, isDarkMode(), true);
+	}
+
+	protected void setTranslationMap() {
+		JsonObject translations = Json.createObject();
+		Enumeration<String> keys = Translator.getKeys();
+		while (keys.hasMoreElements()) {
+			String curKey = keys.nextElement();
+			if (curKey.startsWith("Scoreboard.")) {
+				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
+			}
+		}
+		this.getElement().setPropertyJson("t", translations);
 	}
 
 	private String computeLiftType(Athlete a) {
@@ -538,8 +654,7 @@ public class CurrentAthlete extends LitTemplate
 	/**
 	 * Compute Json string ready to be used by web component template
 	 *
-	 * CSS classes are pre-computed and passed along with the values; weights are
-	 * formatted.
+	 * CSS classes are pre-computed and passed along with the values; weights are formatted.
 	 *
 	 * @param a
 	 * @param liftOrderRank2
@@ -632,10 +747,6 @@ public class CurrentAthlete extends LitTemplate
 		return this.groupDone;
 	}
 
-	private void setDone(boolean b) {
-		this.groupDone = b;
-	}
-
 	private void setDisplay() {
 		OwlcmsSession.withFop(fop -> {
 			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
@@ -649,6 +760,10 @@ public class CurrentAthlete extends LitTemplate
 			}
 			this.getElement().setProperty("groupDescription", description != null ? description : "");
 		});
+	}
+
+	private void setDone(boolean b) {
+		this.groupDone = b;
 	}
 
 	private void setWideTeamNames(boolean wide) {
@@ -685,100 +800,5 @@ public class CurrentAthlete extends LitTemplate
 		}
 		this.getElement().setPropertyJson("athletes",
 		        getAthletesJson(order, fop.getLiftingOrder(), fop));
-	}
-
-	protected void doEmpty() {
-		this.setDisplay();
-	}
-
-	protected void doUpdate(Athlete a, UIEvent e) {
-//        logger.debug("doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() : "no event", a,
-//                a != null ? a.getAttemptsDone() : null);
-		boolean leaveTopAlone = false;
-		if (e instanceof UIEvent.LiftingOrderUpdated) {
-			LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
-			if (e2.isInBreak()) {
-				leaveTopAlone = !e2.isDisplayToggle();
-			} else {
-				leaveTopAlone = !e2.isCurrentDisplayAffected();
-			}
-		}
-
-		FieldOfPlay fop = OwlcmsSession.getFop();
-		if (!leaveTopAlone) {
-			if (a != null) {
-				Group group = fop.getGroup();
-				if (!group.isDone()) {
-					logger.debug("updating top {} {} {}", a.getFullName(), group, System.identityHashCode(group));
-					getElement().setProperty("fullName", a.getFullName());
-					getElement().setProperty("teamName", a.getTeam());
-					getElement().setProperty("startNumber", a.getStartNumber());
-					String formattedAttempt = formatAttempt(a.getAttemptsDone());
-					getElement().setProperty("attempt", formattedAttempt);
-					getElement().setProperty("weight", a.getNextAttemptRequestedWeight());
-				} else {
-					logger.debug("group done {} {}", group, System.identityHashCode(group));
-					doBreak(e);
-				}
-			}
-
-			// current athlete bottom should only change when top does
-			if (fop.getState() != FOPState.DECISION_VISIBLE) {
-				// logger.debug("updating bottom {}", fop.getState());
-				updateBottom(computeLiftType(a), fop);
-			} else {
-				// logger.debug("not updating bottom {}", fop.getState());
-			}
-
-		}
-		// logger.debug("leave top alone {} {}", leaveTopAlone, fop.getState());
-		if (leaveTopAlone && fop.getState() == FOPState.CURRENT_ATHLETE_DISPLAYED) {
-			updateBottom(computeLiftType(a), fop);
-		}
-
-	}
-
-	/*
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-	 * AttachEvent)
-	 */
-	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		// fop obtained via FOPParameters interface default methods.
-		OwlcmsSession.withFop(fop -> {
-			init();
-			checkVideo(Config.getCurrent().getParamStylesDir()+"/video/currentathlete.css", routeParameter, this);
-
-			// get the global category rankings attached to each athlete
-			order = fop.getDisplayOrder();
-
-			// liftsDone = AthleteSorter.countLiftsDone(order);
-			syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this));
-			// we listen on uiEventBus.
-			uiEventBus = uiEventBusRegister(this, fop);
-		});
-		switchLightingMode(this, isDarkMode(), true);
-	}
-
-	protected void setTranslationMap() {
-		JsonObject translations = Json.createObject();
-		Enumeration<String> keys = Translator.getKeys();
-		while (keys.hasMoreElements()) {
-			String curKey = keys.nextElement();
-			if (curKey.startsWith("Scoreboard.")) {
-				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
-			}
-		}
-		this.getElement().setPropertyJson("t", translations);
-	}
-
-	@Override
-	public void setVideo(boolean b) {
-		this.video = b;
-	}
-
-	@Override
-	public boolean isVideo() {
-		return video;
 	}
 }

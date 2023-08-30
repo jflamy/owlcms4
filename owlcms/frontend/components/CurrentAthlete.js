@@ -39,8 +39,8 @@ class CurrentAthlete extends LitElement {
           <div class="decisionBox" style="${this.decisionStyles()}">
             <decision-element id="decisions"></decision-element>
           </div>
-          <div class="attempts">
-            <table class="results" id="resultsDiv" style="${this.hiddenStyle}">
+          <div class="attempts" style="${this.attemptStyles()}">
+            <table class="results" id="resultsDiv">
               ${(this.athletes ?? []).map(
                 (item) => html`
                   ${!item.isSpacer
@@ -142,20 +142,20 @@ class CurrentAthlete extends LitElement {
   wrapperClasses() {
     var classes = "wrapper";
     classes = classes + (this.teamWidthClass ? " " + this.teamWidthClass : "");
-    classes = classes + (this.mode === "WAIT" ? " bigTitle" : "");
+    classes = classes + ((this.mode === "WAIT") ? " bigTitle" : "");
     return classes;
   }
 
   waitingStyles() { /* originally flex */
-    return "display: " + (this.mode === "WAIT" ? "grid" : "none");
+    return "display: " + ((this.mode === "WAIT")  ? "grid" : "none");
   }
 
   attemptBarStyles() {
-    return "display: " + (this.mode === "WAIT" ? "none" : "grid");
+    return "display: " + ((this.mode === "WAIT") ? "none" : "grid");
   }
 
   fullNameStyles() {
-    return  "display: " + (this.mode === "WAIT" ? "none" : "grid");
+    return  "display: " + ((this.mode === "WAIT") ? "none" : "grid");
   }
 
   teamNameStyles() {
@@ -163,7 +163,7 @@ class CurrentAthlete extends LitElement {
   }
 
   attemptStyles() {
-    return "display: " + ((this.isBreak()) ? "none" : "grid");
+    return "display: grid; visibility: " + ((this.isBreak()) ? "; visibility: hidden" : "");
   }
 
   startNumberStyles() {
@@ -193,7 +193,7 @@ class CurrentAthlete extends LitElement {
   }
 
   isBreak() {
-    return this.mode === "INTERRUPTION" || this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "SESSION_DONE" || this.mode === "CEREMONY"
+    return this.mode === "INTERRUPTION" || this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "CEREMONY" || this.mode === "SESSION_DONE"
   }
 
   isCountdown() {
