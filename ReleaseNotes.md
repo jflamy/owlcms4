@@ -4,12 +4,12 @@
 >
 > STATUS
 >
-> - owlcms:  A standard competition could be held.  Multi-championship and video-oriented scoreboards not yet available.
-> - publicresults: will be done after owlcms, requires scoreboard migration.
+> - owlcms:  All scoreboards converted.
+> - publicresults: Not converted. Will be done once owlcms stabilized.
 
-44.0.0-alpha06: Snapshot release.
+44.0.0-alpha07: Snapshot release.
 
-- Basic scoreboards (without multiple age groups) now updating correctly. 
+- Migrated video scoreboards and Sinclair/team scoreboards.
 
 44.0.0
 
