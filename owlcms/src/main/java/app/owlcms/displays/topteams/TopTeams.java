@@ -92,9 +92,6 @@ public class TopTeams extends LitTemplate implements DisplayParameters,
 		uiEventLogger.setLevel(Level.INFO);
 	}
 
-	JsonArray cattempts;
-
-	JsonArray sattempts;
 	private AgeDivision ageDivision = null;
 	private String ageGroupPrefix = null;
 	private boolean darkMode;

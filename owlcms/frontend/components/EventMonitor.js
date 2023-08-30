@@ -13,26 +13,8 @@ class Monitor extends LitElement {
 
   render() {
     return html`
-      <link
-        rel="stylesheet"
-        type="text/css"
-        .href="${"local/" +
-        (this.stylesDir ?? "") +
-        "/" +
-        (this.video ?? "") +
-        "colors" +
-        (this.autoversion ?? "")}"
-      />
-      <link
-        rel="stylesheet"
-        type="text/css"
-        .href="${"local/" +
-        (this.stylesDir ?? "") +
-        "/" +
-        (this.video ?? "") +
-        "eventmonitor" +
-        (this.autoversion ?? "")}"
-      />
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "")}" />
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "eventmonitor" + (this.autoversion ?? "")}" />
       <div class="wrapper">
         <div class="${"notification " + (this.notificationClass ?? "")}">
           ${this.title}
@@ -49,6 +31,13 @@ class Monitor extends LitElement {
   setTitle(title) {
     //console.log("title = "+title);
     document.title = title;
+  }
+
+  static get properties() {
+    return {
+      title: {},
+      notificationClass: {},
+    };
   }
 }
 

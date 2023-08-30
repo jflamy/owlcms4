@@ -1,4 +1,4 @@
-import { html, LitElement, css } from "lit";
+import { html, LitElement } from "lit";
 /*******************************************************************************
  * Copyright (c) 2009-2023 Jean-François Lamy
  *
@@ -12,53 +12,25 @@ class TopTeamsSinclair extends LitElement {
   }
 
   render() {
-    return html` <link
-        rel="stylesheet"
-        type="text/css"
-        .href="${"local/" +
-        (this.stylesDir ?? "") +
-        "/" +
-        (this.video ?? "") +
-        "colors" +
-        (this.autoversion ?? "")}"
-      />
-      <link
-        rel="stylesheet"
-        type="text/css"
-        .href="${"local/" +
-        (this.stylesDir ?? "") +
-        "/top" +
-        (this.autoversion ?? "")}"
-      />
-      <div
-        id="resultBoardDiv"
-        class="${"wrapper " +
-        (this._computeTeamWidth ?? "")(this.wideTeamNames ?? "")}"
-      >
+    return html`
+     <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "")}.css" />
+     <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/top" + (this.autoversion ?? "")}.css" />
+     <div id="resultBoardDiv" class="${this.activeClasses()}" >
         ${this.topTeamsWomen
           ? html`
-              <h2
-                class="fullName"
-                id="fullNameDiv"
-                .inner-h-t-m-l="${this.topTeamsWomen}"
-              ></h2>
+              <h2 class="fullName" id="fullNameDiv" .innerHTML="${this.topTeamsWomen}" ></h2>
               <table class="results" id="orderDiv" style$="">
                 <thead>
                   <tr>
-                    <th class="club" .inner-h-t-m-l="${this.t?.Team}"></th>
-
-                    <th
-                      class="medium"
-                      .inner-h-t-m-l="${this.t?.Sinclair}"
-                    ></th>
+                    <th class="club" .innerHTML="${this.t?.Team}"></th>
+                    <th class="medium" .innerHTML="${this.t?.Sinclair}" ></th>
                   </tr>
                 </thead>
                 ${(this.womensTeams ?? []).map(
-                  (item, index) => html`
+                  (item) => html`
                     <tr>
-                      <td class="club"><div>${this.l?.team}</div></td>
-
-                      <td class="medium"><div>${this.l?.score}</div></td>
+                      <td class="club"><div>${item.team}</div></td>
+                      <td class="medium"><div>${item.score}</div></td>
                     </tr>
                   `
                 )}
@@ -66,30 +38,21 @@ class TopTeamsSinclair extends LitElement {
               <h2>&nbsp;</h2>
             `
           : html``}
-        ${this.topTeamsMen
-          ? html`
-              <h2
-                class="fullName"
-                id="fullNameDiv"
-                .inner-h-t-m-l="${this.topTeamsMen}"
-              ></h2>
+        ${this.topTeamsMen 
+          ? html` 
+              <h2 class="fullName" id="fullNameDiv" .innerHTML="${this.topTeamsMen}"></h2>
               <table class="results" id="orderDiv" style$="">
                 <thead>
                   <tr>
-                    <th class="club" .inner-h-t-m-l="${this.t?.Team}"></th>
-
-                    <th
-                      class="medium"
-                      .inner-h-t-m-l="${this.t?.Sinclair}"
-                    ></th>
+                    <th class="club" .innerHTML="${this.t?.Team}"></th>
+                    <th class="medium" .innerHTML="${this.t?.Sinclair}"></th>
                   </tr>
                 </thead>
                 ${(this.mensTeams ?? []).map(
-                  (item, index) => html`
+                  (item) => html`
                     <tr>
-                      <td class="club"><div>${this.l?.team}</div></td>
-
-                      <td class="medium"><div>${this.l?.score}</div></td>
+                      <td class="club"><div>${item.team}</div></td>
+                      <td class="medium"><div>${item.score}</div></td>
                     </tr>
                   `
                 )}
@@ -100,50 +63,31 @@ class TopTeamsSinclair extends LitElement {
       </div>`;
   }
 
+  static get properties() {
+    return {
+      title: {},
+      topTeamsMen: {},
+      topTeamsWomen: {},
+      mensTeams: {type: Object},
+      womensTeams: {type: Object},
+      // style sheets & misc.
+      javaComponentId: {},
+      stylesDir: {},
+      autoVersion: {},
+      video: {},
+      t: {type: Object},
+    };
+  }
+
   firstUpdated(_changedProperties) {
     super.firstUpdated(_changedProperties);
     document.body.setAttribute("theme", "dark");
-    this.renderRoot.querySelector("#resultBoardDiv").style.display = "block";
   }
 
-  start() {
-    this.renderRoot.querySelector("#resultBoardDiv").style.display = "block";
+  activeClasses() {
+    return "wrapper ";
   }
 
-  reset() {
-    console.debug("reset");
-    this.renderRoot.querySelector("#resultBoardDiv").style.display = "block";
-  }
-
-  down() {
-    console.debug("down");
-  }
-
-  doBreak() {
-    console.debug("break");
-    this.renderRoot.querySelector("#resultBoardDiv").style.display = "block";
-  }
-
-  groupDone() {
-    console.debug("done");
-    this.renderRoot.querySelector("#resultBoardDiv").style.display = "block";
-  }
-
-  refereeDecision() {
-    console.debug("refereeDecision");
-  }
-
-  _isEqualTo(title, string) {
-    return title == string;
-  }
-
-  clear() {
-    this.renderRoot.querySelector("#resultBoardDiv").style.display = "none";
-  }
-
-  _computeTeamWidth(w) {
-    return w ? "wideTeams" : "narrowTeams";
-  }
 }
 
 customElements.define(TopTeamsSinclair.is, TopTeamsSinclair);
