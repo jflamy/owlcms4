@@ -13,7 +13,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
@@ -46,8 +48,10 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
+import app.owlcms.nui.shared.HasBoardMode;
 import app.owlcms.nui.shared.RequireDisplayLogin;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
+import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
@@ -71,7 +75,7 @@ import elemental.json.JsonValue;
 @Route("displays/topsinclair")
 
 public class TopSinclair extends LitTemplate implements DisplayParameters,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin, VideoCSSOverride {
+        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin, VideoCSSOverride, HasBoardMode {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TopSinclair.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -82,8 +86,8 @@ public class TopSinclair extends LitTemplate implements DisplayParameters,
 	}
 
 	JsonArray cattempts;
-
 	JsonArray sattempts;
+	
 	private boolean darkMode;
 	private Dialog dialog;
 	private boolean initializationNeeded;
@@ -109,22 +113,12 @@ public class TopSinclair extends LitTemplate implements DisplayParameters,
 
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
-//    @Override
-//    public void configurePage(InitialPageSettings settings) {
-//        settings.addMetaTag("mobile-web-app-capable", "yes");
-//        settings.addMetaTag("apple-mobile-web-app-capable", "yes");
-//        settings.addLink("shortcut icon", "frontend/images/owlcms.ico");
-//        settings.addFavIcon("icon", "frontend/images/logo.png", "96x96");
-//        settings.setViewport("width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes");
-//    }
-
 	/**
 	 * Instantiates a new results board.
 	 */
 	public TopSinclair() {
 		OwlcmsFactory.waitDBInitialized();
-		// js files add the build number to file names in order to prevent cache
-		// collisions
+		// js files add the build number to file names in order to prevent cache collisions
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
 	}
 
@@ -151,17 +145,18 @@ public class TopSinclair extends LitTemplate implements DisplayParameters,
 	}
 
 	public void doUpdate(Competition competition) {
-		this.getElement().callJsFunction("reset");
+		FieldOfPlay fop = OwlcmsSession.getFop();
+		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 
 		// create copies because we want to change the list
 		AthleteSorter.TopSinclair topSinclair;
 		List<Athlete> sortedMen2 = new ArrayList<>(competition.getGlobalSinclairRanking(Gender.M));
-		topSinclair = (AthleteSorter.topSinclair(sortedMen2, 5));
+		topSinclair = (AthleteSorter.topSinclair(sortedMen2, 25));
 		setSortedMen(topSinclair.topAthletes);
 		topManSinclair = topSinclair.best;
 
 		List<Athlete> sortedWomen2 = new ArrayList<>(competition.getGlobalSinclairRanking(Gender.F));
-		topSinclair = (AthleteSorter.topSinclair(sortedWomen2, 5));
+		topSinclair = (AthleteSorter.topSinclair(sortedWomen2, 25));
 		setSortedWomen(topSinclair.topAthletes);
 		topWomanSinclair = topSinclair.best;
 
@@ -334,9 +329,9 @@ public class TopSinclair extends LitTemplate implements DisplayParameters,
 	@Subscribe
 	public void slaveStartLifting(UIEvent.StartLifting e) {
 		uiLog(e);
+		Competition competition = Competition.getCurrent();
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			getElement().setProperty("hidden", false);
-			this.getElement().callJsFunction("reset");
+			doUpdate(competition);
 		});
 	}
 
@@ -439,16 +434,30 @@ public class TopSinclair extends LitTemplate implements DisplayParameters,
 	private void updateBottom() {
 		getElement().setProperty("fullName", getTranslation("Scoreboard.TopSinclair"));
 		List<Athlete> sortedMen2 = getSortedMen();
+		sortedMen2 = nodups(sortedMen2);
 		this.getElement().setProperty("topSinclairMen",
 		        sortedMen2 != null && sortedMen2.size() > 0 ? getTranslation("Scoreboard.TopSinclairMen") : "");
 		this.getElement().setPropertyJson("sortedMen", getAthletesJson(sortedMen2, true));
 
 		List<Athlete> sortedWomen2 = getSortedWomen();
+		sortedWomen2 = nodups(sortedWomen2);
 		this.getElement().setProperty("topSinclairWomen",
 		        sortedWomen2 != null && sortedWomen2.size() > 0 ? getTranslation("Scoreboard.TopSinclairWomen") : "");
 		this.getElement().setPropertyJson("sortedWomen", getAthletesJson(sortedWomen2, false));
 
 		logger.debug("updateBottom {} {}", sortedWomen2, sortedMen2);
+	}
+
+	private List<Athlete> nodups(List<Athlete> athletes) {
+		//massive kludge because we have same athlete in multiple age groups
+		athletes = athletes.stream()
+				.map((p) -> ((PAthlete)p)._getAthlete())
+				.collect(Collectors.toSet())
+				.stream()
+				.sorted((a,b) -> ObjectUtils.compare(b.getSinclair(), a.getSinclair()))
+				.limit(5)
+				.collect(Collectors.toList());
+		return athletes;
 	}
 
 	protected void doEmpty() {
