@@ -53,6 +53,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
+import app.owlcms.nui.shared.HasBoardMode;
 import app.owlcms.nui.shared.RequireDisplayLogin;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
@@ -80,7 +81,7 @@ import elemental.json.JsonValue;
 @Route("displays/topteams")
 
 public class TopTeams extends LitTemplate implements DisplayParameters,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin, VideoCSSOverride {
+        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin, VideoCSSOverride, HasBoardMode {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TopTeams.class);
 	private static final int SHOWN_ON_BOARD = 5;
@@ -177,6 +178,7 @@ public class TopTeams extends LitTemplate implements DisplayParameters,
 	public void doBreak(UIEvent e) {
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			// just update the display
+			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 			doUpdate(fop.getCurAthlete(), null);
 		}));
 	}
@@ -187,7 +189,8 @@ public class TopTeams extends LitTemplate implements DisplayParameters,
 	}
 
 	public void doUpdate(Competition competition) {
-		this.getElement().callJsFunction("reset");
+		FieldOfPlay fop = OwlcmsSession.getFop();
+		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 
 		TeamResultsTreeData teamResultsTreeData = new TeamResultsTreeData(getAgeGroupPrefix(), getAgeDivision(), (Gender) null,
 		        Ranking.SNATCH_CJ_TOTAL, false);
@@ -294,6 +297,9 @@ public class TopTeams extends LitTemplate implements DisplayParameters,
 		return true;
 	}
 
+	/**
+	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location, java.util.Map)
+	 */
 	@Override
 	public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
 		HashMap<String, List<String>> params1 = new HashMap<>(parametersMap);
@@ -419,8 +425,6 @@ public class TopTeams extends LitTemplate implements DisplayParameters,
 		Competition competition = Competition.getCurrent();
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			doUpdate(competition);
-			getElement().setProperty("hidden", false);
-			this.getElement().callJsFunction("reset");
 		});
 	}
 
@@ -538,7 +542,7 @@ public class TopTeams extends LitTemplate implements DisplayParameters,
 	}
 
 	private void setWide(boolean b) {
-		getElement().setProperty("wideTeamNames", b);
+		this.getElement().setProperty("wideTeamNames", b);
 	}
 
 	private List<TeamTreeItem> topN(List<TeamTreeItem> list) {
@@ -578,7 +582,8 @@ public class TopTeams extends LitTemplate implements DisplayParameters,
 
 	protected void doEmpty() {
 		logger.trace("doEmpty");
-		getElement().setProperty("hidden", true);
+		FieldOfPlay fop = OwlcmsSession.getFop();
+		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 	}
 
 	protected void doUpdate(Athlete a, UIEvent e) {

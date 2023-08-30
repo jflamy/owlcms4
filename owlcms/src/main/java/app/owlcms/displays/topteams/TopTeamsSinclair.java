@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2023 Jean-Fran�ois Lamy
+ * Copyright (c) 2009-2023 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -53,6 +53,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
+import app.owlcms.nui.shared.HasBoardMode;
 import app.owlcms.nui.shared.RequireDisplayLogin;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
@@ -71,7 +72,7 @@ import elemental.json.JsonValue;
  *
  * Show best sinclair team scores
  *
- * @author Jean-Fran�ois Lamu
+ * @author Jean-François Lamu
  *
  */
 @SuppressWarnings({ "serial", "deprecation" })
@@ -81,30 +82,7 @@ import elemental.json.JsonValue;
 
 public class TopTeamsSinclair extends LitTemplate
         implements DisplayParameters,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin, VideoCSSOverride {
-
-	/**
-	 * Vaadin Flow propagates these variables to the corresponding Polymer template
-	 * JavaScript properties. When the JS properties are changed, a
-	 * "propname-changed" event is triggered.
-	 * {@link Element.#addPropertyChangeListener(String, String,
-	 * com.vaadin.flow.dom.PropertyChangeListener)}
-	 *
-	 */
-//    public interface TopTeamsSinclairModel extends TemplateModel {
-//
-//        String getFullName();
-//
-//        Boolean isHidden();
-//
-//        Boolean isWideTeamNames();
-//
-//        void setFullName(String lastName); // misnomer, is actually the title
-//
-//        void setHidden(boolean b);
-//
-//        void setWideTeamNames(boolean b);
-//    }
+        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin, VideoCSSOverride, HasBoardMode {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TopTeamsSinclair.class);
 	private static final int SHOWN_ON_BOARD = 5;
@@ -198,6 +176,7 @@ public class TopTeamsSinclair extends LitTemplate
 	public void doBreak(UIEvent e) {
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			// just update the display
+			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 			doUpdate(fop.getCurAthlete(), null);
 		}));
 	}
@@ -208,7 +187,8 @@ public class TopTeamsSinclair extends LitTemplate
 	}
 
 	public void doUpdate(Competition competition) {
-		this.getElement().callJsFunction("reset");
+		FieldOfPlay fop = OwlcmsSession.getFop();
+		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 
 		TeamResultsTreeData teamResultsTreeData = new TeamResultsTreeData(getAgeGroupPrefix(), getAgeDivision(), (Gender) null,
 		        Ranking.BW_SINCLAIR, true);
@@ -316,8 +296,7 @@ public class TopTeamsSinclair extends LitTemplate
 	}
 
 	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
-	 *      java.util.Map)
+	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location, java.util.Map)
 	 */
 	@Override
 	public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
@@ -359,6 +338,8 @@ public class TopTeamsSinclair extends LitTemplate
 
 		switchLightingMode(this, darkMode, false);
 		updateURLLocations();
+		setShowInitialDialog(
+		        darkParams == null && ageDivisionParams == null && ageGroupParams == null && silentParams == null);
 
 		if (getDialog() == null) {
 			buildDialog(this);
@@ -452,8 +433,6 @@ public class TopTeamsSinclair extends LitTemplate
 		Competition competition = Competition.getCurrent();
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			doUpdate(competition);
-			this.getElement().setProperty("hidden", false);
-			this.getElement().callJsFunction("reset");
 		});
 	}
 
@@ -611,7 +590,8 @@ public class TopTeamsSinclair extends LitTemplate
 
 	protected void doEmpty() {
 		logger.trace("doEmpty");
-		this.getElement().setProperty("hidden", true);
+		FieldOfPlay fop = OwlcmsSession.getFop();
+		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 	}
 
 	protected void doUpdate(Athlete a, UIEvent e) {

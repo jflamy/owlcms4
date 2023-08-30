@@ -9,7 +9,8 @@
 
 44.0.0-alpha07: Snapshot release.
 
-- Added multiple age group and medal ceremony scoreboards.
+- Migrated multiple age group, medal ceremony scoreboards.
+- Migrated current athlete and OBS video streaming displays
 
 44.0.0
 
