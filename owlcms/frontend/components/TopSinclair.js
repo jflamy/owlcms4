@@ -12,105 +12,54 @@ class TopSinclair extends LitElement {
   }
 
   render() {
-    return html` <link
-        rel="stylesheet"
-        type="text/css"
-        .href="${"local/" +
-        (this.stylesDir ?? "") +
-        "/" +
-        (this.video ?? "") +
-        "colors" +
-        (this.autoversion ?? "")}"
-      />
-      <link
-        rel="stylesheet"
-        type="text/css"
-        .href="${"local/" +
-        (this.stylesDir ?? "") +
-        "/top" +
-        (this.autoversion ?? "")}"
-      />
-      <div
-        id="resultBoardDiv"
-        class="${"wrapper " +
-        (this._computeTeamWidth ?? "")(this.wideTeamNames ?? "")}"
-      >
+    return html` 
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "")}.css" />
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/top" + (this.autoversion ?? "")}.css" /> 
+      <div id="resultBoardDiv" class="${this.activeClasses()}">
         ${this.topSinclairWomen
           ? html`
-              <h2
-                class="fullName"
-                id="fullNameDiv"
-                .inner-h-t-m-l="${this.topSinclairWomen}"
-              ></h2>
-              <table class="results" id="orderDiv" style$="">
+              <h2 class="fullName" id="fullNameDiv" .innerHTML="${this.topSinclairWomen}"></h2>
+              <table class="results" id="orderDiv">
                 <thead>
                   <tr>
-                    <th class="name" .inner-h-t-m-l="${this.t?.Name}"></th>
-                    <th
-                      class="category"
-                      .inner-h-t-m-l="${this.t?.Category}"
-                    ></th>
-                    <th
-                      class="veryNarrow"
-                      .inner-h-t-m-l="${this.t?.Birth}"
-                    ></th>
-                    <th class="club" .inner-h-t-m-l="${this.t?.Team}"></th>
-                    <th colspan="3" .inner-h-t-m-l="${this.t?.Snatch}"></th>
-                    <th
-                      colspan="3"
-                      .inner-h-t-m-l="${this.t?.Clean_and_Jerk}"
-                    ></th>
-                    <th class="narrow" .inner-h-t-m-l="${this.t?.Total}"></th>
-                    <th
-                      class="medium"
-                      .inner-h-t-m-l="${this.t?.BodyWeight}"
-                    ></th>
-                    <th
-                      class="medium sinclair"
-                      .inner-h-t-m-l="${this.t?.Sinclair}"
-                    ></th>
-                    <th class="needed" .inner-h-t-m-l="${this.t?.Needed}"></th>
+                    <th class="name" .innerHTML="${this.t?.Name}"></th>
+                    <th class="category" .innerHTML="${this.t?.Category}"></th>
+                    <th class="veryNarrow" .innerHTML="${this.t?.Birth}"></th>
+                    <th class="club" .innerHTML="${this.t?.Team}"></th>
+                    <th colspan="3" .innerHTML="${this.t?.Snatch}"></th>
+                    <th colspan="3" .innerHTML="${this.t?.Clean_and_Jerk}"></th>
+                    <th class="narrow" .innerHTML="${this.t?.Total}"></th>
+                    <th class="medium" .innerHTML="${this.t?.BodyWeight}"></th>
+                    <th class="medium sinclair" .innerHTML="${this.t?.Sinclair}"></th>
+                    <th class="needed" .innerHTML="${this.t?.Needed}"></th>
                   </tr>
                 </thead>
                 ${(this.sortedWomen ?? []).map(
-                  (item, index) => html`
+                  (item) => html`
                     <tr>
-                      <td class="${"name " + (this.l?.classname ?? "")}">
-                        <div>${this.l?.fullName}</div>
+                      <td class="name"> <div>${item.fullName}</div>
                       </td>
-                      <td class="category">${this.l?.category}</td>
-                      <td class="veryNarrow">
-                        <div>${this.l?.yearOfBirth}</div>
-                      </td>
-                      <td class="club"><div>${this.l?.teamName}</div></td>
-                      ${(this.l?.sattempts ?? []).map(
-                        (item, index) => html`
-                          <td
-                            class="${(this.attempt?.goodBadClassName ?? "") +
-                            " " +
-                            (this.attempt?.className ?? "")}"
-                          >
-                            <div>${this.attempt?.stringValue}</div>
+                      <td class="category">${item.category}</td>
+                      <td class="veryNarrow"><div>${item.yearOfBirth}</div></td>
+                      <td class="club"><div>${item.teamName}</div></td>
+                      ${(item.sattempts ?? []).map(
+                        (attempt) => html`
+                          <td class="${(attempt.goodBadClassName ?? "") + " " + (attempt.className ?? "")}">
+                            <div>${attempt.stringValue}</div>
                           </td>
                         `
                       )}
-                      ${(this.l?.cattempts ?? []).map(
-                        (item, index) => html`
-                          <td
-                            class="${(this.attempt?.goodBadClassName ?? "") +
-                            " " +
-                            (this.attempt?.className ?? "")}"
-                          >
-                            <div>${this.attempt?.stringValue}</div>
+                      ${(item.cattempts ?? []).map(
+                        (attempt) => html`
+                          <td class="${(attempt.goodBadClassName ?? "") + " " + (attempt.className ?? "")}">
+                            <div>${attempt.stringValue}</div>
                           </td>
                         `
                       )}
-                      <td class="narrow"><div>${this.l?.total}</div></td>
-                      <td class="medium"><div>${this.l?.bw}</div></td>
-                      <td class="medium sinclair">
-                        <div>${this.l?.sinclair}</div>
-                      </td>
-                      <td class="needed"><div>${this.l?.needed}</div></td>
+                      <td class="narrow"><div>${item.total}</div></td>
+                      <td class="medium"><div>${item.bw}</div></td>
+                      <td class="medium sinclair"><div>${item.sinclair}</div></td>
+                      <td class="needed"><div>${item.needed}</div></td>
                     </tr>
                   `
                 )}
@@ -120,80 +69,47 @@ class TopSinclair extends LitElement {
           : html``}
         ${this.topSinclairMen
           ? html`
-              <h2
-                class="fullName"
-                id="fullNameDiv"
-                .inner-h-t-m-l="${this.topSinclairMen}"
-              ></h2>
-              <table class="results" id="orderDiv" style$="">
+              <h2 class="fullName" id="fullNameDiv" .innerHTML="${this.topSinclairMen}"></h2>
+              <table class="results" id="orderDiv">
                 <thead>
                   <tr>
-                    <th class="name" .inner-h-t-m-l="${this.t?.Name}"></th>
-                    <th
-                      class="category"
-                      .inner-h-t-m-l="${this.t?.Category}"
-                    ></th>
-                    <th
-                      class="veryNarrow"
-                      .inner-h-t-m-l="${this.t?.Birth}"
-                    ></th>
-                    <th class="club" .inner-h-t-m-l="${this.t?.Team}"></th>
-                    <th colspan="3" .inner-h-t-m-l="${this.t?.Snatch}"></th>
-                    <th
-                      colspan="3"
-                      .inner-h-t-m-l="${this.t?.Clean_and_Jerk}"
-                    ></th>
-                    <th class="narrow" .inner-h-t-m-l="${this.t?.Total}"></th>
-                    <th
-                      class="medium"
-                      .inner-h-t-m-l="${this.t?.BodyWeight}"
-                    ></th>
-                    <th
-                      class="medium sinclair"
-                      .inner-h-t-m-l="${this.t?.Sinclair}"
-                    ></th>
-                    <th class="needed" .inner-h-t-m-l="${this.t?.Needed}"></th>
+                    <th class="name" .innerHTML="${this.t?.Name}"></th>
+                    <th class="category" .innerHTML="${this.t?.Category}"></th>
+                    <th class="veryNarrow" .innerHTML="${this.t?.Birth}"></th>
+                    <th class="club" .innerHTML="${this.t?.Team}"></th>
+                    <th colspan="3" .innerHTML="${this.t?.Snatch}"></th>
+                    <th colspan="3" .innerHTML="${this.t?.Clean_and_Jerk}"></th>
+                    <th class="narrow" .innerHTML="${this.t?.Total}"></th>
+                    <th class="medium" .innerHTML="${this.t?.BodyWeight}"></th>
+                    <th class="medium sinclair" .innerHTML="${this.t?.Sinclair}"></th>
+                    <th class="needed" .innerHTML="${this.t?.Needed}"></th>
                   </tr>
                 </thead>
                 ${(this.sortedMen ?? []).map(
-                  (item, index) => html`
+                  (item) => html`
                     <tr>
-                      <td class="${"name " + (this.l?.classname ?? "")}">
-                        <div>${this.l?.fullName}</div>
-                      </td>
-                      <td class="category">${this.l?.category}</td>
-                      <td class="veryNarrow">
-                        <div>${this.l?.yearOfBirth}</div>
-                      </td>
-                      <td class="club"><div>${this.l?.teamName}</div></td>
-                      ${(this.l?.sattempts ?? []).map(
-                        (item, index) => html`
-                          <td
-                            class="${(this.attempt?.goodBadClassName ?? "") +
-                            " " +
-                            (this.attempt?.className ?? "")}"
-                          >
-                            <div>${this.attempt?.stringValue}</div>
+                      <td class="name"><div class="name">${item.fullName}</div></td>
+                      <td class="category">${item.category}</td>
+                      <td class="veryNarrow"><div>${item.yearOfBirth}</div></td>
+                      <td class="club"><div>${item.teamName}</div></td>
+                      ${(item.sattempts ?? []).map(
+                        (attempt) => html`
+                          <td class="${(attempt.goodBadClassName ?? "") + " " + (attempt.className ?? "")}">
+                           <div>${attempt.stringValue}</div>
                           </td>
                         `
                       )}
-                      ${(this.l?.cattempts ?? []).map(
-                        (item, index) => html`
-                          <td
-                            class="${(this.attempt?.goodBadClassName ?? "") +
-                            " " +
-                            (this.attempt?.className ?? "")}"
-                          >
-                            <div>${this.attempt?.stringValue}</div>
+                      ${(item.cattempts ?? []).map(
+                        (attempt) => html`
+                          <td class="${(attempt.goodBadClassName ?? "") + " " + (attempt.className ?? "")}">
+                            <div>${attempt.stringValue}</div>
                           </td>
                         `
                       )}
-                      <td class="narrow"><div>${this.l?.total}</div></td>
-                      <td class="medium"><div>${this.l?.bw}</div></td>
-                      <td class="medium sinclair">
-                        <div>${this.l?.sinclair}</div>
-                      </td>
-                      <td class="needed"><div>${this.l?.needed}</div></td>
+                      <td class="narrow"><div>${item.total}</div></td>
+                      <td class="medium"><div>${item.bw}</div></td>
+                      <td class="medium sinclair"><div>${item.sinclair}</div></td>
+                      <td class="needed"><div>${item.needed}</div></td>
                     </tr>
                   `
                 )}
@@ -206,46 +122,32 @@ class TopSinclair extends LitElement {
   firstUpdated(_changedProperties) {
     super.firstUpdated(_changedProperties);
     document.body.setAttribute("theme", "dark");
-    this.renderRoot.querySelector("#resultBoardDiv").style.display = "block";
   }
 
-  start() {
-    this.renderRoot.querySelector("#resultBoardDiv").style.display = "block";
+  static get properties() {
+    return {
+      title: {},
+      topSinclairMen: {},
+      topSinclairWomen: {},
+      sortedMen: {type: Object},
+      sortedWomen: {type: Object},
+      // style sheets & misc.
+      javaComponentId: {},
+      stylesDir: {},
+      autoVersion: {},
+      video: {},
+      t: {type: Object},
+      wideTeamNames: {},
+    };
   }
 
-  reset() {
-    console.debug("reset");
-    this.renderRoot.querySelector("#resultBoardDiv").style.display = "block";
+  firstUpdated(_changedProperties) {
+    super.firstUpdated(_changedProperties);
+    document.body.setAttribute("theme", "dark");
   }
 
-  down() {
-    console.debug("down");
-  }
-
-  doBreak() {
-    console.debug("break");
-    this.renderRoot.querySelector("#resultBoardDiv").style.display = "block";
-  }
-
-  groupDone() {
-    console.debug("done");
-    this.renderRoot.querySelector("#resultBoardDiv").style.display = "block";
-  }
-
-  refereeDecision() {
-    console.debug("refereeDecision");
-  }
-
-  _isEqualTo(title, string) {
-    return title == string;
-  }
-
-  clear() {
-    this.renderRoot.querySelector("#resultBoardDiv").style.display = "none";
-  }
-
-  _computeTeamWidth(w) {
-    return w ? "wideTeams" : "narrowTeams";
+  activeClasses() {
+    return "wrapper "+ (this.wideTeamNames ? "wideTeams" : "narrowTeams" );
   }
 }
 
