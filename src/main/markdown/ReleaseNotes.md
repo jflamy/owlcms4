@@ -4,13 +4,12 @@
 >
 > STATUS
 >
-> - owlcms:  A standard competition can be held.  Missing the current athlete video scoreboard, and the team competition scoreboards.
-> - publicresults: will be done after owlcms, requires scoreboard migration.
+> - owlcms:  All scoreboards converted.
+> - publicresults: Not converted. Will be done once owlcms stabilized.
 
 44.0.0-alpha07: Snapshot release.
 
-- Migrated multiple age group, medal ceremony scoreboards.
-- Migrated current athlete and OBS video streaming displays
+- Migrated video scoreboards and Sinclair/team scoreboards.
 
 44.0.0
 
