@@ -24,6 +24,12 @@ class Monitor extends LitElement {
     //console.log("title = "+title);
     document.title = title;
   }
+
+  static get properties() {
+    return {
+      title: {},
+    };
+  }
 }
 
 customElements.define(Monitor.is, Monitor);
