@@ -127,6 +127,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 		// We do not use a selection listener; instead we handle clicks explicitely.
 		// grid.addSelectionListener(e -> gridSelectionChanged());
 		grid.addItemClickListener((e) -> {
+			logger.warn("clicked!!!");
 			if (!this.isClickable()) {
 				return;
 			}
@@ -138,6 +139,9 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 			clicked = System.currentTimeMillis();
 		});
 		grid.addItemDoubleClickListener((e) -> {
+		});
+		grid.addCellFocusListener(e -> {
+			logger.warn("cell focus {} {}", e.isFromClient(), e.getItem());
 		});
 
 		for (Column<T> c : grid.getColumns()) {

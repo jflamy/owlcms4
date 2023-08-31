@@ -207,7 +207,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 
 		NativeLabel spacer = new NativeLabel();
 
-		footerLayout.add(spacer, operationTrigger);
+		footerLayout.add(spacer);//, operationTrigger);
 
 		if (cancelButton != null) {
 			footerLayout.add(cancelButton);
@@ -306,16 +306,19 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			return null;
 		}
 		Button button = doBuildButton(operation);
-		operationTrigger = defineOperationTrigger(operation, domainObject, callBack);
-
-		ComponentEventListener<ClickEvent<Button>> listener = event -> {
-			// force value to be written to underlying bean. Crude Workaround for keyboard
-			// shortcut
-			// which does not process last field input when ENTER key is used.
-			operationTrigger.focus();
-		};
-
-		button.addClickListener(listener);
+//		operationTrigger = defineOperationTrigger(operation, domainObject, callBack);
+//
+//		ComponentEventListener<ClickEvent<Button>> listener = event -> {
+//			// force value to be written to underlying bean. Crude Workaround for keyboard
+//			// shortcut
+//			// which does not process last field input when ENTER key is used.
+//			//operationTrigger.focus();
+//		};
+//
+//		button.addClickListener(listener);
+		button.addClickListener((f) -> {
+			performOperationAndCallback(operation, domainObject, callBack);
+		});
 		return button;
 	}
 
@@ -330,18 +333,18 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		TextField operationTrigger = new TextField();
 		operationTrigger.setReadOnly(true);
 		operationTrigger.setTabIndex(-1);
-		operationTrigger.addFocusListener((f) -> {
-			boolean valid = isValid();
-			boolean ignoreErrors = isIgnoreErrors();
-			if (valid || ignoreErrors) {
-				// logger.debug("updating {} {}", valid, ignoreErrors);
-				doUpdate();
-			} else {
-				// logger.debug("not updating {} {}", valid, ignoreErrors);
-			}
-		});
-		// field must visible and added to the layout for focus() to work, so we hide it
-		// brutally. operationTrigger is placed in the footer.
+//		operationTrigger.addFocusListener((f) -> {
+//			boolean valid = isValid();
+//			boolean ignoreErrors = isIgnoreErrors();
+//			if (valid || ignoreErrors) {
+//				// logger.debug("updating {} {}", valid, ignoreErrors);
+//				doUpdate();
+//			} else {
+//				// logger.debug("not updating {} {}", valid, ignoreErrors);
+//			}
+//		});
+//		// field must visible and added to the layout for focus() to work, so we hide it
+//		// brutally. operationTrigger is placed in the footer.
 
 		operationTrigger.getStyle().set("z-index", "-10");
 		operationTrigger.setWidth("1px");

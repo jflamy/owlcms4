@@ -250,7 +250,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		}
 
 		NativeLabel spacer = new NativeLabel();
-		footerLayout.add(spacer, operationTrigger);
+		footerLayout.add(spacer);//, operationTrigger);
 		VerticalLayout vl = new VerticalLayout();
 		vl.setSizeUndefined();
 		vl.setPadding(false);

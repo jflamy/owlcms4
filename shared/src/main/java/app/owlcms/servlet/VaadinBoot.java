@@ -220,7 +220,7 @@ public class VaadinBoot {
 
 		// this gets called both when CTRL+C is pressed, and when main() terminates.
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> stop("Shutdown hook called, shutting down")));
-		System.out.println("Press ENTER or CTRL+C to shutdown");
+		System.out.println("Press CTRL+C to shutdown");
 
 //        if (openBrowserInDevMode && !isProductionMode()) {
 		Open.open(getServerURL());
@@ -233,7 +233,7 @@ public class VaadinBoot {
 			System.out.println("Running from Gradle, press CTRL+C to shutdown");
 			server.join(); // blocks endlessly
 		} else {
-			stop("TimingTest: Shutting down");
+			stop("Shutting down");
 		}
 	}
 

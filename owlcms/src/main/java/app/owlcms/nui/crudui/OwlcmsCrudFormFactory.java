@@ -327,7 +327,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 
 		NativeLabel spacer = new NativeLabel();
 
-		footerLayout.add(spacer, operationTrigger);
+		footerLayout.add(spacer); //, operationTrigger);
 
 		if (buttons != null) {
 			for (Button b : buttons) {
@@ -363,17 +363,55 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 		if (gridCallBackAction == null) {
 			return null;
 		}
+		
+		
+		Button button = doBuildButton(operation);
+//		TextField updateTrigger = new TextField();
+//		updateTrigger.setReadOnly(true);
+//		updateTrigger.setTabIndex(-1);
+//		updateTrigger.addFocusListener((f) -> {
+//			performOperationAndCallback(operation, domainObject, gridCallBackAction);
+//		});
+//		// field must visible and added to the layout for focus() to work, so we hide it
+//		// brutally
+//		updateTrigger.getStyle().set("z-index", "-10");
+//		updateTrigger.getStyle().set("width", "0");
+//
+//		// workaround for keyboard shortcut bug; the add/update takes place in the
+//		// trigger callback. The trigger then calls the gridCallBackAction
+//		operationTrigger = updateTrigger;
+//		ComponentEventListener<ClickEvent<Button>> listener = event -> {
+//			logger.debug("{} clicked", operation);
+//			operationTriggerEvent = event;
+//			operationTrigger.focus();
+//		};
+		button.addClickListener((f) -> {
+			performOperationAndCallback(operation, domainObject, gridCallBackAction);
+		});
+
+		return button;
+	}
+	
+	public Button buildOperationButton_orig(CrudOperation operation, T domainObject,
+	        ComponentEventListener<ClickEvent<Button>> gridCallBackAction) {
+		if (gridCallBackAction == null) {
+			return null;
+		}
 		Button button = doBuildButton(operation);
 
-		// workaround for keyboard shortcut bug; the add/update takes place in the
-		// trigger callback. The trigger then calls the gridCallBackAction
-		operationTrigger = defineOperationTrigger(operation, domainObject, gridCallBackAction);
-		ComponentEventListener<ClickEvent<Button>> listener = event -> {
-			logger.debug("{} clicked", operation);
-			operationTriggerEvent = event;
-			operationTrigger.focus();
-		};
-		button.addClickListener(listener);
+//		// workaround for keyboard shortcut bug; the add/update takes place in the
+//		// trigger callback. The trigger then calls the gridCallBackAction
+//		operationTrigger = defineOperationTrigger(operation, domainObject, gridCallBackAction);
+//		ComponentEventListener<ClickEvent<Button>> listener = event -> {
+//			logger.debug("{} clicked", operation);
+//			operationTriggerEvent = event;
+//			operationTrigger.focus();
+//		};
+//		button.addClickListener(listener);
+		
+		button.addClickListener((f) -> {
+			performOperationAndCallback(operation, domainObject, gridCallBackAction);
+		});
 
 		return button;
 	}
