@@ -27,3 +27,11 @@
 	background-color: var(--lumo-error-color-10pct);
 	color: black;
 }
+
+:host(.current) [part="input-field"] {
+	background-color: #fff89a;
+	color: black;
+}
+:host(.current) {
+	--vaadin-input-field-border-width : 1px;
+}

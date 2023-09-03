@@ -13,9 +13,11 @@ import com.google.common.eventbus.EventBus;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.DetachEvent;
+import com.vaadin.flow.component.Focusable;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.server.VaadinSession;
@@ -37,7 +39,7 @@ import ch.qos.logback.classic.Logger;
 @Tag("timer-element")
 @JsModule("./components/TimerElement.js")
 public abstract class TimerElement extends LitTemplate
-        implements SafeEventBusRegistration {
+        implements SafeEventBusRegistration, Focusable<Div> {
 
 	public long lastStartMillis;
 	public long lastStopMillis;
@@ -288,4 +290,5 @@ public abstract class TimerElement extends LitTemplate
 		}
 	}
 
+	public void focus() {};
 }

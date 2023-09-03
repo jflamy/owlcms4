@@ -72,6 +72,7 @@ import app.owlcms.components.fields.ValidationUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athlete.RuleViolationException;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
@@ -1356,7 +1357,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 	private boolean validateStartingTotals(
 	        LocalizedIntegerField snatch1DeclarationField2, LocalizedIntegerField cleanJerk1DeclarationField2,
-	        LocalizedIntegerField qualifyingTotalField2) {
+	        LocalizedIntegerField qualifyingTotalField2) throws RuleViolationException.Rule15_20Violated {
 		if (isIgnoreErrors()) {
 			return true;
 		}

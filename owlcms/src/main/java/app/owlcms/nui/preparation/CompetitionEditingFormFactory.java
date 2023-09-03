@@ -93,7 +93,7 @@ public class CompetitionEditingFormFactory
 	        ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, boolean shortcutEnter,
 	        Button... buttons) {
 		return super.buildFooter(operation, domainObject, cancelButtonClickListener, postOperationCallBack,
-		        deleteButtonClickListener, false, buttons);
+		        deleteButtonClickListener, true, buttons);
 	}
 
 	@Override

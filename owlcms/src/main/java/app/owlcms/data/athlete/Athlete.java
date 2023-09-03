@@ -73,32 +73,25 @@ import ch.qos.logback.classic.Logger;
 /**
  * This class stores all the information related to a particular athlete.
  * <p>
- * This class is an example of what not to do. This was designed prior reaching
- * a proper understanding of Hibernate/JPA and of proper separation between
- * Vaadin Containers and persistence frameworks. Live and Learn.
+ * This class is an example of what not to do. This was designed prior reaching a proper understanding of Hibernate/JPA
+ * and of proper separation between Vaadin Containers and persistence frameworks. Live and Learn.
  * <p>
- * All persistent properties are managed by Java Persistance annotations.
- * "Field" access mode is used, meaning that it is the values of the fields that
- * are stored, and not the values returned by the getters. Note that it is often
- * necessary to know when a value has been captured or not -- this is why values
- * are stored as Integers or Doubles, so that we can use null to indicate that a
- * value has not been captured.
+ * All persistent properties are managed by Java Persistance annotations. "Field" access mode is used, meaning that it
+ * is the values of the fields that are stored, and not the values returned by the getters. Note that it is often
+ * necessary to know when a value has been captured or not -- this is why values are stored as Integers or Doubles, so
+ * that we can use null to indicate that a value has not been captured.
  * </p>
  * <p>
- * This allows us to use the getters to return the values as they will be
- * displayed by the application
+ * This allows us to use the getters to return the values as they will be displayed by the application
  * </p>
  * <p>
- * Computed fields are defined as final transient properties and marked
- * as @Transient; the only reason for this is so the JavaBeans introspection
- * mechanisms find them.
+ * Computed fields are defined as final transient properties and marked as @Transient; the only reason for this is so
+ * the JavaBeans introspection mechanisms find them.
  * </p>
  * <p>
- * This class uses events to notify interested user interface components that
- * fields or computed values have changed. In this way the user interface does
- * not have to know that the category field on the screen is dependent on the
- * bodyweight and the gender -- all the dependency logic is kept at the business
- * object level.
+ * This class uses events to notify interested user interface components that fields or computed values have changed. In
+ * this way the user interface does not have to know that the category field on the screen is dependent on the
+ * bodyweight and the gender -- all the dependency logic is kept at the business object level.
  * </p>
  */
 
@@ -272,8 +265,7 @@ public class Athlete {
 	}
 
 	/**
-	 * We cannot always rely on the session to be present and give us a valid Fop.
-	 * LoadGroup should set the Fop.
+	 * We cannot always rely on the session to be present and give us a valid Fop. LoadGroup should set the Fop.
 	 */
 	@Transient
 	@JsonIgnore
@@ -286,8 +278,7 @@ public class Athlete {
 	DecimalFormat df = null;
 
 	/*
-	 * Non-persistent properties. These properties will be lost as soon as the
-	 * athlete is saved.
+	 * Non-persistent properties. These properties will be lost as soon as the athlete is saved.
 	 */
 	@Transient
 	Integer liftOrderRank = 0;
@@ -295,8 +286,7 @@ public class Athlete {
 	private Double bodyWeight = null;
 
 	/*
-	 * eager does not hurt for us.
-	 * https://vladmihalcea.com/the-best-way-to-map-a-onetomany-association-with-jpa
+	 * eager does not hurt for us. https://vladmihalcea.com/the-best-way-to-map-a-onetomany-association-with-jpa
 	 * -and-hibernate/
 	 */
 	@ManyToOne(cascade = { CascadeType.MERGE,
@@ -384,13 +374,11 @@ public class Athlete {
 	private String snatch1Change1;
 	private String snatch1Change2;
 	/**
-	 * Using separate fields is brute force, but having embedded classes does not
-	 * bring much and we don't want joins or other such logic for the Athlete card.
-	 * Since the Athlete card is 6 x 4 items, we take the simple route.
+	 * Using separate fields is brute force, but having embedded classes does not bring much and we don't want joins or
+	 * other such logic for the Athlete card. Since the Athlete card is 6 x 4 items, we take the simple route.
 	 *
-	 * The use of Strings is historical. It was extremely cumbersome to handle
-	 * conversions to/from Integer in Vaadin 6 circa 2009, and migration of
-	 * databases would be annoying to users.
+	 * The use of Strings is historical. It was extremely cumbersome to handle conversions to/from Integer in Vaadin 6
+	 * circa 2009, and migration of databases would be annoying to users.
 	 */
 	private String snatch1Declaration;
 	private LocalDateTime snatch1LiftTime;
@@ -436,6 +424,10 @@ public class Athlete {
 	private Integer personalBestCleanJerk;
 
 	private Integer personalBestTotal;
+
+	@Transient
+	@JsonIgnore
+	private boolean startingTotalViolation = false;
 
 	/**
 	 * Instantiates a new athlete.
@@ -760,8 +752,8 @@ public class Athlete {
 	/**
 	 * Gets the age group.
 	 *
-	 * @return the ageGroup. M80 if male missing birth date, F70 if female missing
-	 *         birth date or missing both gender and birth.
+	 * @return the ageGroup. M80 if male missing birth date, F70 if female missing birth date or missing both gender and
+	 *         birth.
 	 */
 	@Transient
 	@JsonIgnore
@@ -773,6 +765,21 @@ public class Athlete {
 	public String getAgeGroupDisplayName() {
 		AgeGroup ag = getAgeGroup();
 		return ag != null ? ag.getDisplayName() : "";
+	}
+
+	@Transient
+	@JsonIgnore
+	public Set<String> getAgeGroupTeams() {
+		// we use strings because I can't figure out why AgeGroups don't behave properly
+		// in a checkbox group
+		Set<String> s = new LinkedHashSet<>();
+		List<Participation> participations2 = getParticipations();
+		for (Participation p : participations2) {
+			if (p.getTeamMember()) {
+				s.add(p.getCategory().getAgeGroup().getDisplayName());
+			}
+		}
+		return s;
 	}
 
 	@Transient
@@ -825,32 +832,6 @@ public class Athlete {
 			return mainCategoryString;
 		} else {
 			return mainCategory + "|" + eligiblesAsString;
-		}
-	}
-
-	@Transient
-	@JsonIgnore
-	public String getEligibleCategoriesAsString() {
-		Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
-		String mainCategory = mrCat != null ? mrCat.getTranslatedName() : "";
-
-		String mainCategoryString = mainCategory;
-		if (mrCat != null && !getMainRankings().getTeamMember()) {
-			mainCategoryString = mainCategory + RAthlete.NoTeamMarker;
-		}
-
-		String eligiblesAsString = this.getParticipations().stream()
-		        .filter(p -> (p.getCategory() != mrCat))
-		        .sorted((a, b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
-		        .map(p -> {
-			        String catName = p.getCategory().getTranslatedName();
-			        return catName;
-		        })
-		        .collect(Collectors.joining(";"));
-		if (eligiblesAsString.isBlank()) {
-			return mainCategoryString;
-		} else {
-			return mainCategory + ";" + eligiblesAsString;
 		}
 	}
 
@@ -1043,10 +1024,9 @@ public class Athlete {
 	}
 
 	/**
-	 * Compute the body weight at the maximum weight of the Athlete's category.
-	 * Note: for the purpose of this computation, only "official" categories are
-	 * used as the purpose is to totalRank athletes according to their competition
-	 * potential.
+	 * Compute the body weight at the maximum weight of the Athlete's category. Note: for the purpose of this
+	 * computation, only "official" categories are used as the purpose is to totalRank athletes according to their
+	 * competition potential.
 	 *
 	 * @return the category sinclair
 	 */
@@ -1541,6 +1521,32 @@ public class Athlete {
 		return s;
 	}
 
+	@Transient
+	@JsonIgnore
+	public String getEligibleCategoriesAsString() {
+		Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
+		String mainCategory = mrCat != null ? mrCat.getTranslatedName() : "";
+
+		String mainCategoryString = mainCategory;
+		if (mrCat != null && !getMainRankings().getTeamMember()) {
+			mainCategoryString = mainCategory + RAthlete.NoTeamMarker;
+		}
+
+		String eligiblesAsString = this.getParticipations().stream()
+		        .filter(p -> (p.getCategory() != mrCat))
+		        .sorted((a, b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
+		        .map(p -> {
+			        String catName = p.getCategory().getTranslatedName();
+			        return catName;
+		        })
+		        .collect(Collectors.joining(";"));
+		if (eligiblesAsString.isBlank()) {
+			return mainCategoryString;
+		} else {
+			return mainCategory + ";" + eligiblesAsString;
+		}
+	}
+
 	public Integer getEntryTotal() {
 		// intentional, this is the legacy name of the column in the database
 		return getQualifyingTotal();
@@ -1917,6 +1923,21 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
+	public Set<String> getPossibleAgeGroupTeams() {
+		// we use strings because I can't figure out why AgeGroups don't behave properly
+		// in a checkbox group
+		Set<String> s = new LinkedHashSet<>();
+		List<Participation> participations2 = getParticipations();
+		List<Category> pcats = participations2.stream().map(p -> p.getCategory()).collect(Collectors.toList());
+		pcats.sort(new RegistrationPreferenceComparator());
+		for (Category p : pcats) {
+			s.add(p.getAgeGroup().getDisplayName());
+		}
+		return s;
+	}
+
+	@Transient
+	@JsonIgnore
 	public Double getPresumedBodyWeight() {
 		Double bodyWeight2 = getBodyWeight();
 		if (bodyWeight2 != null && bodyWeight2 >= 0) {
@@ -1934,13 +1955,13 @@ public class Athlete {
 		Double bodyWeight2 = getBodyWeight();
 		if (category != null) {
 			if (category.getMaximumWeight() > 998) {
-				return gender+String.format("%04d", Math.round(category.getMinimumWeight() + 1));
+				return gender + String.format("%04d", Math.round(category.getMinimumWeight() + 1));
 			}
-			return gender+String.format("%04d", Math.round(category.getMaximumWeight()));
+			return gender + String.format("%04d", Math.round(category.getMaximumWeight()));
 		} else if (bodyWeight2 != null && bodyWeight2 >= 0) {
-			return gender+String.format("%04d", Math.round(bodyWeight2));
+			return gender + String.format("%04d", Math.round(bodyWeight2));
 		} else {
-			return gender+"9999";
+			return gender + "9999";
 		}
 	}
 
@@ -1958,9 +1979,8 @@ public class Athlete {
 	}
 
 	/**
-	 * Compute the time of last lift for Athlete. Times are only compared within the
-	 * same lift type (if a Athlete is at the first attempt of clean and jerk, then
-	 * the last lift occurred forever ago.)
+	 * Compute the time of last lift for Athlete. Times are only compared within the same lift type (if a Athlete is at
+	 * the first attempt of clean and jerk, then the last lift occurred forever ago.)
 	 *
 	 * @return null if Athlete has not lifted
 	 */
@@ -2080,8 +2100,8 @@ public class Athlete {
 	}
 
 	/**
-	 * Gets the robi. In a multiple age group competition, the Robi shown in the
-	 * final package will depend on the age group
+	 * Gets the robi. In a multiple age group competition, the Robi shown in the final package will depend on the age
+	 * group
 	 *
 	 * @return the robi
 	 */
@@ -2153,9 +2173,8 @@ public class Athlete {
 	}
 
 	/**
-	 * Compute the Sinclair total for the Athlete, that is, the total multiplied by
-	 * a value that depends on the Athlete's body weight. This value extrapolates
-	 * what the Athlete would have lifted if he/she had the bodymass of a
+	 * Compute the Sinclair total for the Athlete, that is, the total multiplied by a value that depends on the
+	 * Athlete's body weight. This value extrapolates what the Athlete would have lifted if he/she had the bodymass of a
 	 * maximum-weight Athlete.
 	 *
 	 * @return the sinclair-adjusted value for the Athlete
@@ -2556,48 +2575,6 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
-	public Set<String> getPossibleAgeGroupTeams() {
-		// we use strings because I can't figure out why AgeGroups don't behave properly
-		// in a checkbox group
-		Set<String> s = new LinkedHashSet<>();
-		List<Participation> participations2 = getParticipations();
-		List<Category> pcats = participations2.stream().map(p -> p.getCategory()).collect(Collectors.toList());
-		pcats.sort(new RegistrationPreferenceComparator());
-		for (Category p : pcats) {
-			s.add(p.getAgeGroup().getDisplayName());
-		}
-		return s;
-	}
-
-	@Transient
-	@JsonIgnore
-	public Set<String> getAgeGroupTeams() {
-		// we use strings because I can't figure out why AgeGroups don't behave properly
-		// in a checkbox group
-		Set<String> s = new LinkedHashSet<>();
-		List<Participation> participations2 = getParticipations();
-		for (Participation p : participations2) {
-			if (p.getTeamMember()) {
-				s.add(p.getCategory().getAgeGroup().getDisplayName());
-			}
-		}
-		return s;
-	}
-
-	@Transient
-	@JsonIgnore
-	public void setAgeGroupTeams(Set<String> s) {
-		// we use strings because I can't figure out why AgeGroups don't behave properly
-		// in a checkbox group
-		List<Participation> participations2 = getParticipations();
-		for (Participation p : participations2) {
-			p.setTeamMember(s.contains(p.getCategory().getAgeGroup().getDisplayName()));
-		}
-		return;
-	}
-
-	@Transient
-	@JsonIgnore
 	public String getTeamAgeGroupsAsString() {
 		Set<String> s = new LinkedHashSet<>();
 		List<Participation> participations2 = getParticipations();
@@ -2684,9 +2661,8 @@ public class Athlete {
 	}
 
 	/**
-	 * Total is zero if all three snatches or all three clean&jerks are failed.
-	 * Failed lifts are indicated as negative amounts. Total is the sum of all good
-	 * lifts otherwise. Null entries indicate that no data has been captured, and
+	 * Total is zero if all three snatches or all three clean&jerks are failed. Failed lifts are indicated as negative
+	 * amounts. Total is the sum of all good lifts otherwise. Null entries indicate that no data has been captured, and
 	 * are counted as zero.
 	 *
 	 * @return the total
@@ -2936,6 +2912,18 @@ public class Athlete {
 	 */
 	public void resetForcedAsCurrent() {
 		setForcedAsCurrent(false);
+	}
+
+	@Transient
+	@JsonIgnore
+	public void setAgeGroupTeams(Set<String> s) {
+		// we use strings because I can't figure out why AgeGroups don't behave properly
+		// in a checkbox group
+		List<Participation> participations2 = getParticipations();
+		for (Participation p : participations2) {
+			p.setTeamMember(s.contains(p.getCategory().getAgeGroup().getDisplayName()));
+		}
+		return;
 	}
 
 	/**
@@ -3419,9 +3407,8 @@ public class Athlete {
 	}
 
 	/*
-	 * General event framework: we implement the com.vaadin.event.MethodEventSource
-	 * interface which defines how a notifier can call a method on a listener to
-	 * signal that an event has occurred, and how the listener can
+	 * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a
+	 * notifier can call a method on a listener to signal that an event has occurred, and how the listener can
 	 * register/unregister itself.
 	 */
 
@@ -3557,13 +3544,11 @@ public class Athlete {
 	}
 
 	/**
-	 * When adding/deleting categories without knowing the actual bodyweight, we
-	 * need to keep the last bodyweight we were factually told about by a human
-	 * (either by explicitly setting the category, or through a registration file)
+	 * When adding/deleting categories without knowing the actual bodyweight, we need to keep the last bodyweight we
+	 * were factually told about by a human (either by explicitly setting the category, or through a registration file)
 	 *
-	 * if cat 59kg is deleted, the presumed category will become 64kg, but the
-	 * presumed bodyweight remains 59 -- the switch to 64 is not from factual
-	 * information about the lifter, it is something we made up. If we reinstate 59,
+	 * if cat 59kg is deleted, the presumed category will become 64kg, but the presumed bodyweight remains 59 -- the
+	 * switch to 64 is not from factual information about the lifter, it is something we made up. If we reinstate 59,
 	 * the lifter will be again assumed to be 59.
 	 *
 	 * @param category
@@ -3625,6 +3610,7 @@ public class Athlete {
 	 * @param snatch1ActualLift the new snatch 1 actual lift
 	 */
 	public void setSnatch1ActualLift(String snatch1ActualLift) {
+		logger.warn("============== snatch1ActualLift {}", isValidation());
 		if (isValidation()) {
 			validateSnatch1ActualLift(snatch1ActualLift);
 		}
@@ -3956,6 +3942,10 @@ public class Athlete {
 		// ignored. computed property. setter needed for beans introspection.
 	}
 
+	public void setStartingTotalViolation(boolean startingTotalViolation) {
+		this.startingTotalViolation = startingTotalViolation;
+	}
+
 	/**
 	 * Sets the start number.
 	 *
@@ -4067,6 +4057,7 @@ public class Athlete {
 	}
 
 	public void setValidation(boolean validation) {
+		logger.warn("setting validation {} from {}", validation, LoggerUtils.whereFrom());
 		this.validation = validation;
 	}
 
@@ -4143,10 +4134,9 @@ public class Athlete {
 	 */
 	public void validateActualLift(int curLift, String automaticProgression, String declaration, String change1,
 	        String change2, String actualLift) {
-		if (actualLift == null || actualLift.trim().length() == 0) {
-			return; // allow reset of field.
+		if (actualLift == null || actualLift.trim().length() == 0 || !isValidation()) {
+			return;
 		}
-
 		int lastChange = last(zeroIfInvalid(automaticProgression), zeroIfInvalid(declaration),
 		        zeroIfInvalid(change1), zeroIfInvalid(change2));
 		final int iAutomaticProgression = zeroIfInvalid(automaticProgression);
@@ -4187,23 +4177,27 @@ public class Athlete {
 	public boolean validateCleanJerk1Change1(String cleanJerk1Change1) throws RuleViolationException {
 		validateChange1(3, getCleanJerk1AutomaticProgression(), cleanJerk1Declaration, cleanJerk1Change1,
 		        cleanJerk1Change2, cleanJerk1ActualLift, false);
-		validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
-		        cleanJerk1Change1, cleanJerk1Change2);
+//		validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration, cleanJerk1Change1, cleanJerk1Change2);
 		return true;
 	}
 
+	/**
+	 * @param cleanJerk1Change2
+	 * @return
+	 * @throws RuleViolationException
+	 */
 	public boolean validateCleanJerk1Change2(String cleanJerk1Change2) throws RuleViolationException {
 		validateChange2(3, getCleanJerk1AutomaticProgression(), cleanJerk1Declaration, cleanJerk1Change1,
 		        cleanJerk1Change2, cleanJerk1ActualLift, false);
-		validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
-		        cleanJerk1Change1, cleanJerk1Change2);
+//		validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration, cleanJerk1Change1, cleanJerk1Change2);
 		return true;
 	}
 
 	public boolean validateCleanJerk1Declaration(String cleanJerk1Declaration) throws RuleViolationException {
 		// always true
-		return validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
-		        cleanJerk1Change1, cleanJerk1Change2);
+		// return validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
+		// cleanJerk1Change1, cleanJerk1Change2);
+		return true;
 	}
 
 	public boolean validateCleanJerk2ActualLift(String cleanJerk2ActualLift) throws RuleViolationException {
@@ -4264,23 +4258,24 @@ public class Athlete {
 	public boolean validateSnatch1Change1(String snatch1Change1) throws RuleViolationException {
 		validateChange1(0, getSnatch1AutomaticProgression(), snatch1Declaration, snatch1Change1, snatch1Change2,
 		        snatch1ActualLift, true);
-		validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
-		        cleanJerk1Change1, cleanJerk1Change2);
+		// validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
+		// cleanJerk1Change1, cleanJerk1Change2);
 		return true;
 	}
 
 	public boolean validateSnatch1Change2(String snatch1Change2) throws RuleViolationException {
 		validateChange2(0, getSnatch1AutomaticProgression(), snatch1Declaration, snatch1Change1, snatch1Change2,
 		        snatch1ActualLift, true);
-		validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
-		        cleanJerk1Change1, cleanJerk1Change2);
+		// validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
+		// cleanJerk1Change1, cleanJerk1Change2);
 		return true;
 	}
 
 	public boolean validateSnatch1Declaration(String snatch1Declaration) throws RuleViolationException {
 		// always true
-		return validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
-		        cleanJerk1Change1, cleanJerk1Change2);
+		// return validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
+		// cleanJerk1Change1, cleanJerk1Change2);
+		return true;
 	}
 
 	public boolean validateSnatch2ActualLift(String snatch2ActualLift) throws RuleViolationException {
@@ -4336,59 +4331,56 @@ public class Athlete {
 		return true;
 	}
 
+	public boolean validateStartingTotalsRule() throws RuleViolationException {
+		try {
+			if (!isValidation()) {
+				return true;
+			}
+			boolean b = validateStartingTotalsRule(
+			        snatch1Declaration,
+			        snatch1Change1,
+			        snatch1Change2,
+			        cleanJerk1Declaration,
+			        cleanJerk1Change1,
+			        cleanJerk1Change2);
+			logger.warn("athlete validated total {}", qualifyingTotal);
+			return b;
+		} catch (RuleViolationException e) {
+			logger.warn("athlete total violation {}", e.getMessage());
+			throw e;
+		}
+	}
+
 	/**
 	 * @param snatchDeclaration
 	 * @param cleanJerkDeclaration
 	 * @param entryTotal
 	 * @return true if ok, exception if not
-	 * @throws RuleViolationException if rule violated, exception contails details.
+	 * @throws RuleViolationException if rule violated, exception contains details.
 	 */
 	public boolean validateStartingTotalsRule(Integer snatch1Request, Integer cleanJerk1Request,
-	        int qualTotal) {
+	        int qualTotal) throws RuleViolationException.Rule15_20Violated {
 		boolean enforce20kg = Competition.getCurrent().isEnforce20kgRule();
-		if (!enforce20kg) {
+		logger.warn("validateStartingTotalsRule {} {} {} {}", LoggerUtils.whereFrom(), System.identityHashCode(this),
+		        isValidation(), this.isStartingTotalViolation());
+		if (!enforce20kg || !isValidation()) {
+			// don't complain again if exception already raised.
 			return true;
 		}
-		RuleViolationException rule15_20Violated;
 		int missing = startingTotalDelta(snatch1Request, cleanJerk1Request, qualTotal);
 		if (missing > 0) {
-			// logger.trace("FAIL missing {}",missing);
+			this.setStartingTotalViolation(true);
+			logger.warn("FAIL missing {}", missing);
 			Integer startNumber2 = this.getStartNumber();
-			rule15_20Violated = new RuleViolationException.Rule15_20Violated(this, this.getLastName(),
+			throw new RuleViolationException.Rule15_20Violated(this, this.getLastName(),
 			        this.getFirstName(),
 			        (startNumber2 != null ? startNumber2.toString() : "-"),
 			        snatch1Request, cleanJerk1Request, missing, qualTotal);
-			throw rule15_20Violated;
 		} else {
-			getLogger().trace("OK margin={}", -(missing));
+			this.setStartingTotalViolation(true);
+			getLogger().warn("OK margin={}", -(missing));
 			return true;
 		}
-	}
-
-	/**
-	 * @param entryTotal
-	 * @return true if ok, exception if not
-	 * @throws RuleViolationException if rule violated, exception contails details.
-	 */
-	public boolean validateStartingTotalsRule(String snatch1Declaration, String snatch1Change1, String snatch1Change2,
-	        String cleanJerk1Declaration, String cleanJerk1Change1, String cleanJerk1Change2) {
-		boolean enforce20kg = Competition.getCurrent().isEnforce20kgRule();
-		int entryTotal = getEntryTotal();
-		getLogger().trace("enforcing 20kg rule {} {}", enforce20kg, entryTotal);
-		if (!enforce20kg || (entryTotal == 0)) {
-			return true;
-		}
-		int sn1Decl = zeroIfInvalid(snatch1Declaration);
-		int cj1Decl = zeroIfInvalid(cleanJerk1Declaration);
-		getLogger().trace("prior to checking {} {}", sn1Decl, cj1Decl);
-		if (sn1Decl == 0 && cj1Decl == 0) {
-			return true; // do not complain on registration form or empty weigh-in form.
-		}
-
-		Integer snatch1Request = last(sn1Decl, zeroIfInvalid(snatch1Change1), zeroIfInvalid(snatch1Change2));
-
-		Integer cleanJerk1Request = last(cj1Decl, zeroIfInvalid(cleanJerk1Change1), zeroIfInvalid(cleanJerk1Change2));
-		return validateStartingTotalsRule(snatch1Request, cleanJerk1Request, entryTotal);
 	}
 
 //    @SuppressWarnings("unused")
@@ -4411,6 +4403,32 @@ public class Athlete {
 //        }
 //        return 0;
 //    }
+
+	/**
+	 * @param entryTotal
+	 * @return true if ok, exception if not
+	 * @throws RuleViolationException if rule violated, exception contains details.
+	 */
+	public boolean validateStartingTotalsRule(String snatch1Declaration, String snatch1Change1, String snatch1Change2,
+	        String cleanJerk1Declaration, String cleanJerk1Change1, String cleanJerk1Change2) {
+		boolean enforce20kg = Competition.getCurrent().isEnforce20kgRule();
+		int entryTotal = getEntryTotal();
+		if (!isValidation() || !enforce20kg || (entryTotal == 0)) {
+			return true;
+		}
+		getLogger().warn("enforcing 20kg rule {} {} {}", LoggerUtils.whereFrom(), enforce20kg, entryTotal);
+		int sn1Decl = zeroIfInvalid(snatch1Declaration);
+		int cj1Decl = zeroIfInvalid(cleanJerk1Declaration);
+		getLogger().trace("prior to checking {} {}", sn1Decl, cj1Decl);
+		if (sn1Decl == 0 && cj1Decl == 0) {
+			return true; // do not complain on registration form or empty weigh-in form.
+		}
+
+		Integer snatch1Request = last(sn1Decl, zeroIfInvalid(snatch1Change1), zeroIfInvalid(snatch1Change2));
+
+		Integer cleanJerk1Request = last(cj1Decl, zeroIfInvalid(cleanJerk1Change1), zeroIfInvalid(cleanJerk1Change2));
+		return validateStartingTotalsRule(snatch1Request, cleanJerk1Request, entryTotal);
+	}
 
 	/**
 	 * Withdraw.
@@ -4460,6 +4478,17 @@ public class Athlete {
 		}
 	}
 
+//    /**
+//     * Null-safe comparison for longs.
+//     *
+//     * @param o1
+//     * @param o2
+//     * @return
+//     */
+//    private boolean LongEquals(Long o1, Long o2) {
+//        return o1 == o2 || o1 != null && o2 != null && o1.longValue() == (o2.longValue());
+//    }
+
 	/**
 	 * As integer.
 	 *
@@ -4476,17 +4505,6 @@ public class Athlete {
 			return null;
 		}
 	}
-
-//    /**
-//     * Null-safe comparison for longs.
-//     *
-//     * @param o1
-//     * @param o2
-//     * @return
-//     */
-//    private boolean LongEquals(Long o1, Long o2) {
-//        return o1 == o2 || o1 != null && o2 != null && o1.longValue() == (o2.longValue());
-//    }
 
 	private Category bestMatch(List<Category> allEligible2) {
 		return allEligible2 != null ? (allEligible2.size() > 0 ? allEligible2.get(0) : null) : null;
@@ -4991,8 +5009,7 @@ public class Athlete {
 	 *
 	 * @param cat
 	 * @param entryTotal
-	 * @return the allowed gap (inclusive) between sum of initial declarations and
-	 *         entry total.
+	 * @return the allowed gap (inclusive) between sum of initial declarations and entry total.
 	 */
 	@Transient
 	@JsonIgnore
@@ -5036,6 +5053,10 @@ public class Athlete {
 
 	}
 
+	private boolean isStartingTotalViolation() {
+		return startingTotalViolation;
+	}
+
 	private Integer max(Integer... items) {
 		List<Integer> itemList = Arrays.asList(items);
 		final Integer max = Collections.max(itemList);
@@ -5054,8 +5075,8 @@ public class Athlete {
 	}
 
 	/**
-	 * Prevent JPA conflict between two versions of the same object. Likely not
-	 * needed anymore now that we allocate an Id to the Athlete in the constructor.
+	 * Prevent JPA conflict between two versions of the same object. Likely not needed anymore now that we allocate an
+	 * Id to the Athlete in the constructor.
 	 *
 	 * @param category
 	 * @param participations
@@ -5086,6 +5107,11 @@ public class Athlete {
 				}
 			}
 		}
+	}
+
+	private void rethrow(RuleViolationException e) throws RuleViolationException {
+		logger.warn("rethrowing {} at {}", e, LoggerUtils.whereFrom());
+		throw e;
 	}
 
 	private boolean sameCategory(Category category1, Category category2) {
@@ -5186,10 +5212,11 @@ public class Athlete {
 			checkDeclarationWasMade(curLift, declaration);
 			checkChangeVsLiftOrder(curLift, newVal);
 		} catch (RuleViolationException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+			rethrow(e);
 		}
+//		catch (Exception e) {
+//			throw new RuntimeException(e);
+//		}
 		timingLogger.info("validateChange1 {}ms {} {}", System.currentTimeMillis() - start, curLift,
 		        LoggerUtils.whereFrom());
 	}
@@ -5217,7 +5244,7 @@ public class Athlete {
 			checkDeclarationWasMade(curLift, declaration);
 			checkChangeVsLiftOrder(curLift, newVal);
 		} catch (RuleViolationException e) {
-			throw e;
+			rethrow(e);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -5246,7 +5273,7 @@ public class Athlete {
 			checkChangeVsTimer(curLift, declaration, change1, change2);
 			checkChangeVsLiftOrder(curLift, newVal);
 		} catch (RuleViolationException e) {
-			throw e;
+			rethrow(e);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

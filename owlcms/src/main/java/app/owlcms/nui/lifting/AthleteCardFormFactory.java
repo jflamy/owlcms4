@@ -8,6 +8,7 @@
 package app.owlcms.nui.lifting;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.LoggerFactory;
@@ -23,12 +24,14 @@ import com.github.appreciated.layout.GridLayout;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
@@ -47,7 +50,6 @@ import com.vaadin.flow.dom.ClassList;
 import app.owlcms.components.fields.ValidationUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
-import app.owlcms.data.athlete.RuleViolationException.Rule15_20Violated;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.i18n.Translator;
@@ -56,6 +58,7 @@ import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.CustomFormFactory;
 import app.owlcms.nui.shared.IAthleteEditing;
 import app.owlcms.spreadsheet.PAthlete;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -80,12 +83,12 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	private static final int CJ1 = SNATCH3 + 1;
 	private static final int CJ2 = CJ1 + 1;
 	private static final int CJ3 = CJ2 + 1;
+
 	private TextField cj2AutomaticProgression;
 	private TextField cj3AutomaticProgression;
 	private TextField cj1ActualLift;
 	private TextField cj2ActualLift;
 	private TextField cj3ActualLift;
-
 	private TextField snatch2AutomaticProgression;
 	private TextField snatch3AutomaticProgression;
 	private TextField snatch1ActualLift;
@@ -109,6 +112,46 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	private Checkbox ignoreErrorsCheckbox;
 
 	private Boolean liftResultChanged;
+
+	private Button operationButton;
+
+	private BinderValidationStatus<Athlete> initialValidationStatus;
+
+	private TextField snatch1Declaration;
+
+	private TextField snatch1Change1;
+
+	private TextField snatch1Change2;
+
+	private TextField snatch2Declaration;
+
+	private TextField snatch2Change1;
+
+	private TextField snatch2Change2;
+
+	private TextField snatch3Declaration;
+
+	private TextField snatch3Change1;
+
+	private TextField snatch3Change2;
+
+	private TextField cj1Declaration;
+
+	private TextField cj1Change1;
+
+	private TextField cj1Change2;
+
+	private TextField cj2Declaration;
+
+	private TextField cj2Change1;
+
+	private TextField cj2Change2;
+
+	private TextField cj3Declaration;
+
+	private TextField cj3Change1;
+
+	private TextField cj3Change2;
 
 	public AthleteCardFormFactory(Class<Athlete> domainType, IAthleteEditing origin) {
 		super(domainType);
@@ -140,7 +183,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		Athlete editedAthlete2 = getEditedAthlete();
 		binder = super.buildBinder(operation, editedAthlete2);
 		logger.trace("athlete from grid={} edited={}", doNotUse, editedAthlete2);
-		setValidationStatusHandler(true);
 		return binder;
 
 	}
@@ -151,7 +193,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	 */
 	@Override
 	public String buildCaption(CrudOperation operation, final Athlete aFromDb) {
-		// If getFullId() is null, caller will build a defaut caption, so this is safe
+		// If getFullId() is null, caller will build a default caption, so this is safe
 		Integer startNumber = aFromDb.getStartNumber();
 		return (startNumber != null ? "[" + startNumber + "] " : "") + aFromDb.getFullId();
 	}
@@ -159,8 +201,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	/**
 	 * @see app.owlcms.nui.crudui.OwlcmsCrudFormFactory#buildFooter(org.vaadin.crudui.crud.CrudOperation,
 	 *      java.lang.Object, com.vaadin.flow.component.ComponentEventListener,
-	 *      com.vaadin.flow.component.ComponentEventListener,
-	 *      com.vaadin.flow.component.ComponentEventListener)
+	 *      com.vaadin.flow.component.ComponentEventListener, com.vaadin.flow.component.ComponentEventListener)
 	 */
 	@Override
 	public Component buildFooter(CrudOperation operation, Athlete unused,
@@ -170,13 +211,14 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	        Button... buttons) {
 		ComponentEventListener<ClickEvent<Button>> postOperationCallBack = (e) -> {
 		};
-		Button operationButton = null;
+		operationButton = null;
+		// FIXME: was originalAthlete.
 		if (operation == CrudOperation.UPDATE) {
-			operationButton = buildOperationButton(CrudOperation.UPDATE, originalAthlete, postOperationCallBack);
+			operationButton = buildOperationButton(CrudOperation.UPDATE, getEditedAthlete(), postOperationCallBack);
 		} else if (operation == CrudOperation.ADD) {
-			operationButton = buildOperationButton(CrudOperation.ADD, originalAthlete, postOperationCallBack);
+			operationButton = buildOperationButton(CrudOperation.ADD, getEditedAthlete(), postOperationCallBack);
 		}
-		Button deleteButton = buildDeleteButton(CrudOperation.DELETE, originalAthlete, null);
+		Button deleteButton = buildDeleteButton(CrudOperation.DELETE, getEditedAthlete(), null);
 		Component withdrawButtons = buildWithdrawButtons();
 		Checkbox forcedCurrentCheckbox = buildForcedCurrentCheckbox();
 		Checkbox validateEntries = buildIgnoreErrorsCheckbox();
@@ -207,7 +249,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 
 		NativeLabel spacer = new NativeLabel();
 
-		footerLayout.add(spacer);//, operationTrigger);
+		footerLayout.add(spacer);// , operationTrigger);
 
 		if (cancelButton != null) {
 			footerLayout.add(cancelButton);
@@ -226,10 +268,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 
 	/**
 	 * @see app.owlcms.nui.shared.CustomFormFactory#buildNewForm(org.vaadin.crudui.crud.CrudOperation,
-	 *      app.owlcms.data.athlete.Athlete, boolean,
-	 *      com.vaadin.flow.component.ComponentEventListener,
-	 *      com.vaadin.flow.component.ComponentEventListener,
-	 *      com.vaadin.flow.component.ComponentEventListener,
+	 *      app.owlcms.data.athlete.Athlete, boolean, com.vaadin.flow.component.ComponentEventListener,
+	 *      com.vaadin.flow.component.ComponentEventListener, com.vaadin.flow.component.ComponentEventListener,
 	 *      com.vaadin.flow.component.button.Button)
 	 */
 	@Override
@@ -247,7 +287,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		setUpdatingResults(origin instanceof AnnouncerContent);
 
 		gridLayout = setupGrid();
-		errorLabel = new NativeLabel();
+		errorLabel = new Paragraph("initial");
 		HorizontalLayout labelWrapper = new HorizontalLayout(errorLabel);
 		labelWrapper.addClassName("errorMessage");
 		labelWrapper.setWidthFull();
@@ -268,14 +308,18 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		}
 		Athlete aFromDb = AthleteRepository.findById(aFromList.getId());
 		Athlete.conditionalCopy(getEditedAthlete(), aFromDb, true);
+
 		getEditedAthlete().setValidation(false); // turn off validation in the Athlete setters; binder will call
 		                                         // the validation routines explicitly
 
 		logger.trace("aFromDb = {} {}", System.identityHashCode(aFromList), aFromList);
-		logger.trace("originalAthlete = {} {}", System.identityHashCode(originalAthlete), originalAthlete);
-		logger.trace("editedAthlete = {} {}", System.identityHashCode(getEditedAthlete()), getEditedAthlete());
+		logger.warn("originalAthlete = {} {}", System.identityHashCode(originalAthlete),
+		        originalAthlete.isValidation());
+		logger.warn("editedAthlete = {} {}", System.identityHashCode(getEditedAthlete()),
+		        getEditedAthlete().isValidation());
 
 		bindGridFields(operation);
+		logger.warn("after bindGridFields");
 
 		Component footerLayout = this.buildFooter(operation, getEditedAthlete(), cancelButtonClickListener,
 		        updateButtonClickListener, deleteButtonClickListener, true);
@@ -283,13 +327,26 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		VerticalLayout mainLayout = new VerticalLayout();
 		mainLayout.add(formLayout);
 		mainLayout.add(gridLayout);
-		mainLayout.add(errorLabel);
+		mainLayout.add(labelWrapper);
 		mainLayout.add(footerLayout);
 		gridLayout.setSizeFull();
 		mainLayout.setFlexGrow(1, gridLayout);
 		mainLayout.setHorizontalComponentAlignment(Alignment.END, footerLayout);
 		mainLayout.setMargin(false);
 		mainLayout.setPadding(false);
+
+		getEditedAthlete().setValidation(true);
+		getEditedAthlete().setStartingTotalViolation(false);
+
+		initialValidationStatus = binder.validate();
+		setErrorLabel(initialValidationStatus, false);
+		StringBuilder sb = getErrors(initialValidationStatus);
+		logger.warn("***** initial validation done field errors={} bean errors={}\n{}",
+		        initialValidationStatus.getFieldValidationErrors().size(),
+		        initialValidationStatus.getBeanValidationErrors().size(),
+		        sb);
+		
+		setFocus(getEditedAthlete());
 		return mainLayout;
 	}
 
@@ -317,15 +374,14 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 //
 //		button.addClickListener(listener);
 		button.addClickListener((f) -> {
-			performOperationAndCallback(operation, domainObject, callBack);
+			performOperationAndCallback(operation, domainObject, callBack, isIgnoreErrors());
 		});
 		return button;
 	}
 
 	/**
 	 * @see app.owlcms.nui.shared.CustomFormFactory#defineOperationTrigger(org.vaadin.crudui.crud.CrudOperation,
-	 *      app.owlcms.data.athlete.Athlete,
-	 *      com.vaadin.flow.component.ComponentEventListener)
+	 *      app.owlcms.data.athlete.Athlete, com.vaadin.flow.component.ComponentEventListener)
 	 */
 	@Override
 	public TextField defineOperationTrigger(CrudOperation operation, Athlete domainObject,
@@ -375,16 +431,38 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	 */
 	@Override
 	public boolean setErrorLabel(BinderValidationStatus<?> validationStatus, boolean updateFieldStatus) {
-		String simpleName = this.getClass().getSimpleName();
-		logger.debug("{} validations", simpleName);
-		StringBuilder sb = new StringBuilder();
+		errorLabel.setVisible(true);
+		if (initialValidationStatus != null) {
+			validationStatus = initialValidationStatus;
+		}
 
-		boolean hasErrors = validationStatus.getFieldValidationErrors().size() > 0;
+		String simpleName = this.getClass().getSimpleName();
+
+		int nberrors = validationStatus.getFieldValidationErrors().size();
+		boolean hasErrors = nberrors > 0;
+
 		validationStatus.getBinder().getFields().forEach(f -> {
 			ClassList fieldClasses = ((Component) f).getElement().getClassList();
 			fieldClasses.set("error", false);
 			f.setReadOnly(hasErrors);
 		});
+		StringBuilder sb = new StringBuilder();
+		TextField field = getErrors(validationStatus, sb);
+		logger.warn(">>>>> from {} {} field errors {} bean errors -- details {}",
+		        LoggerUtils.whereFrom(),
+		        validationStatus.getFieldValidationErrors().size(),
+		        validationStatus.getBeanValidationErrors().size(), sb.toString());
+
+		doSetErrorLabel(simpleName, sb);
+		if (!hasErrors) {
+			resetReadOnlyFields();
+		} else if (field != null) {
+			field.focus();
+		}
+		return hasErrors;
+	}
+
+	private TextField getErrors(BinderValidationStatus<?> validationStatus, StringBuilder sb) {
 		TextField field = null;
 		for (BindingValidationStatus<?> ve : validationStatus.getFieldValidationErrors()) {
 			field = (TextField) ve.getField();
@@ -398,6 +476,29 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 				sb.append("; ");
 			}
 			String message = ve.getMessage().orElse(field.getTranslation("Error"));
+			logger.warn("field message: {}", message);
+			sb.append(message);
+		}
+		for (ValidationResult ve : validationStatus.getBeanValidationErrors()) {
+			if (sb.length() > 0) {
+				sb.append("; ");
+			}
+			String message = ve.getErrorMessage();
+			logger.warn("bean message: {}", message);
+			sb.append(message);
+		}
+		return field;
+	}
+
+	private StringBuilder getErrors(BinderValidationStatus<?> validationStatus) {
+
+		StringBuilder sb = new StringBuilder();
+		for (BindingValidationStatus<?> ve : validationStatus.getFieldValidationErrors()) {
+			;
+			if (sb.length() > 0) {
+				sb.append("; ");
+			}
+			String message = ve.getMessage().orElse(("Error"));
 			sb.append(message);
 		}
 		for (ValidationResult ve : validationStatus.getBeanValidationErrors()) {
@@ -408,13 +509,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			// logger.debug("bean message: {}",message);
 			sb.append(message);
 		}
-		doSetErrorLabel(simpleName, sb);
-		if (!hasErrors) {
-			resetReadOnlyFields();
-		} else if (field != null) {
-			field.focus();
-		}
-		return hasErrors;
+		logger.warn("getErrors from {} '{}'", LoggerUtils.whereFrom(), sb);
+		return sb;
 	}
 
 	/**
@@ -427,18 +523,19 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	}
 
 	private void adjustResultsFields(boolean readOnly) {
-		setLiftResultStyle(snatch1ActualLift);
-		setLiftResultStyle(snatch2ActualLift);
-		setLiftResultStyle(snatch3ActualLift);
-		setLiftResultStyle(cj1ActualLift);
-		setLiftResultStyle(cj2ActualLift);
-		setLiftResultStyle(cj3ActualLift);
+		setLiftResultClass(snatch1ActualLift);
+		setLiftResultClass(snatch2ActualLift);
+		setLiftResultClass(snatch3ActualLift);
+		setLiftResultClass(cj1ActualLift);
+		setLiftResultClass(cj2ActualLift);
+		setLiftResultClass(cj3ActualLift);
 	}
 
 	private void atRowAndColumn(GridLayout gridLayout, Component component, int row, int column) {
 		atRowAndColumn(gridLayout, component, row, column, RowAlign.CENTER, ColumnAlign.CENTER);
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void atRowAndColumn(GridLayout gridLayout, Component component, int row, int column, RowAlign ra,
 	        ColumnAlign ca) {
 		gridLayout.add(component);
@@ -450,7 +547,17 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			TextField textField = (TextField) component;
 			textfields[row - 1][column - 1] = textField;
 		}
-
+//		if (component instanceof Focusable) {
+//			((Focusable<?>)component).setTabIndex(-1);
+//		}
+		if (component instanceof HasValue) {
+			component.setId((row - 1) + "_" + (column - 1));
+			((HasValue) component).addValueChangeListener((e) -> {
+				if (!e.isFromClient())
+					return;
+				logger.warn("setting {} to {}", component.getId().get(), e.getValue());
+			});
+		}
 	}
 
 	/**
@@ -458,34 +565,38 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	 * @param operation
 	 * @param gridLayout
 	 */
-	private void bindGridFields(CrudOperation operation) {
+	private Binder<Athlete> bindGridFields(CrudOperation operation) {
 		binder = buildBinder(null, getEditedAthlete());
+		binder.setValidatorsDisabled(true);
 
-		TextField snatch1Declaration = createPositiveWeightField(DECLARATION, SNATCH1);
+		snatch1Declaration = createPositiveWeightField(DECLARATION, SNATCH1);
 		binder.forField(snatch1Declaration)
 		        .withValidator(
 		                ValidationUtils.checkUsingException(
-		                        v -> isIgnoreErrors() || getEditedAthlete().validateSnatch1Declaration(v)))
+		                        v -> isIgnoreErrors() || getEditedAthlete().validateSnatch1Declaration(v),
+		                        (s) -> doSetErrorLabel(s,snatch1Declaration)))
 		        .withValidationStatusHandler(status -> {
 			        checkWithdrawal(status, snatch1Declaration, snatch1ActualLift);
 		        })
 		        .bind(Athlete::getSnatch1Declaration, Athlete::setSnatch1Declaration);
 		atRowAndColumn(gridLayout, snatch1Declaration, DECLARATION, SNATCH1);
 
-		TextField snatch1Change1 = createPositiveWeightField(CHANGE1, SNATCH1);
+		snatch1Change1 = createPositiveWeightField(CHANGE1, SNATCH1);
 		binder.forField(snatch1Change1)
 		        .withValidator(ValidationUtils
-		                .checkUsingException(v -> isIgnoreErrors() || getEditedAthlete().validateSnatch1Change1(v)))
+		                .checkUsingException(v -> isIgnoreErrors() || getEditedAthlete().validateSnatch1Change1(v),
+		                        (s) -> doSetErrorLabel(s, snatch1Change1)))
 		        .withValidationStatusHandler(status -> {
 			        checkWithdrawal(status, snatch1Change1, snatch1ActualLift);
 		        })
 		        .bind(Athlete::getSnatch1Change1, Athlete::setSnatch1Change1);
 		atRowAndColumn(gridLayout, snatch1Change1, CHANGE1, SNATCH1);
 
-		TextField snatch1Change2 = createPositiveWeightField(CHANGE2, SNATCH1);
+		snatch1Change2 = createPositiveWeightField(CHANGE2, SNATCH1);
 		binder.forField(snatch1Change2)
 		        .withValidator(ValidationUtils
-		                .checkUsingException(v -> isIgnoreErrors() || getEditedAthlete().validateSnatch1Change2(v)))
+		                .checkUsingException(v -> isIgnoreErrors() || getEditedAthlete().validateSnatch1Change2(v),
+		                        (s) -> doSetErrorLabel(s, snatch1Change2)))
 		        .withValidationStatusHandler(status -> {
 			        checkWithdrawal(status, snatch1Change2, snatch1ActualLift);
 		        })
@@ -496,9 +607,10 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		binder.forField(snatch1ActualLift)
 		        .withValidator(
 		                ValidationUtils.checkUsingException(
-		                        v -> isIgnoreErrors() || getEditedAthlete().validateSnatch1ActualLift(v)))
+		                        v -> isIgnoreErrors() || getEditedAthlete().validateSnatch1ActualLift(v),
+		                        (s) -> doSetErrorLabel(s, snatch1ActualLift)))
 		        .withValidator(ValidationUtils.checkUsingException(v -> setAutomaticProgressions(getEditedAthlete())))
-		        .withValidationStatusHandler(status -> setActualLiftStyle(status))
+		        .withValidationStatusHandler(status -> setActualLiftClass(status))
 		        .bind(Athlete::getSnatch1ActualLift, Athlete::setSnatch1ActualLift);
 		atRowAndColumn(gridLayout, snatch1ActualLift, ACTUAL, SNATCH1);
 
@@ -509,31 +621,34 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		        Athlete::setSnatch2AutomaticProgression);
 		atRowAndColumn(gridLayout, snatch2AutomaticProgression, AUTOMATIC, SNATCH2);
 
-		TextField snatch2Declaration = createPositiveWeightField(DECLARATION, SNATCH2);
+		snatch2Declaration = createPositiveWeightField(DECLARATION, SNATCH2);
 		binder.forField(snatch2Declaration)
 		        .withValidator(
 		                ValidationUtils.checkUsingException(
-		                        v -> isIgnoreErrors() || getEditedAthlete().validateSnatch2Declaration(v)))
+		                        v -> isIgnoreErrors() || getEditedAthlete().validateSnatch2Declaration(v),
+		                        (s) -> doSetErrorLabel(s, snatch2Declaration)))
 		        .withValidationStatusHandler(status -> {
 			        checkWithdrawal(status, snatch2Declaration, snatch2ActualLift);
 		        })
 		        .bind(Athlete::getSnatch2Declaration, Athlete::setSnatch2Declaration);
 		atRowAndColumn(gridLayout, snatch2Declaration, DECLARATION, SNATCH2);
 
-		TextField snatch2Change1 = createPositiveWeightField(CHANGE1, SNATCH2);
+		snatch2Change1 = createPositiveWeightField(CHANGE1, SNATCH2);
 		binder.forField(snatch2Change1)
 		        .withValidator(ValidationUtils
-		                .checkUsingException(v -> isIgnoreErrors() || getEditedAthlete().validateSnatch2Change1(v)))
+		                .checkUsingException(v -> isIgnoreErrors() || getEditedAthlete().validateSnatch2Change1(v),
+		                        (s) -> doSetErrorLabel(s, snatch2Change1)))
 		        .withValidationStatusHandler(status -> {
 			        checkWithdrawal(status, snatch2Change1, snatch2ActualLift);
 		        })
 		        .bind(Athlete::getSnatch2Change1, Athlete::setSnatch2Change1);
 		atRowAndColumn(gridLayout, snatch2Change1, CHANGE1, SNATCH2);
 
-		TextField snatch2Change2 = createPositiveWeightField(CHANGE2, SNATCH2);
+		snatch2Change2 = createPositiveWeightField(CHANGE2, SNATCH2);
 		binder.forField(snatch2Change2)
 		        .withValidator(ValidationUtils
-		                .checkUsingException(v -> isIgnoreErrors() || getEditedAthlete().validateSnatch2Change2(v)))
+		                .checkUsingException(v -> isIgnoreErrors() || getEditedAthlete().validateSnatch2Change2(v),
+		                        (s) -> doSetErrorLabel(s, snatch2Change2)))
 		        .withValidationStatusHandler(status -> {
 			        checkWithdrawal(status, snatch2Change2, snatch2ActualLift);
 		        })
@@ -544,9 +659,10 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		binder.forField(snatch2ActualLift)
 		        .withValidator(
 		                ValidationUtils.checkUsingException(
-		                        v -> isIgnoreErrors() || getEditedAthlete().validateSnatch2ActualLift(v)))
+		                        v -> isIgnoreErrors() || getEditedAthlete().validateSnatch2ActualLift(v),
+		                        (s) -> doSetErrorLabel(s, snatch2ActualLift)))
 		        .withValidator(ValidationUtils.checkUsingException(v -> setAutomaticProgressions(getEditedAthlete())))
-		        .withValidationStatusHandler(status -> setActualLiftStyle(status))
+		        .withValidationStatusHandler(status -> setActualLiftClass(status))
 		        .bind(Athlete::getSnatch2ActualLift, Athlete::setSnatch2ActualLift);
 		atRowAndColumn(gridLayout, snatch2ActualLift, ACTUAL, SNATCH2);
 
@@ -557,29 +673,32 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		        Athlete::setSnatch3AutomaticProgression);
 		atRowAndColumn(gridLayout, snatch3AutomaticProgression, AUTOMATIC, SNATCH3);
 
-		TextField snatch3Declaration = createPositiveWeightField(DECLARATION, SNATCH3);
+		snatch3Declaration = createPositiveWeightField(DECLARATION, SNATCH3);
 		binder.forField(snatch3Declaration)
 		        .withValidator(
 		                ValidationUtils.checkUsingException(
-		                        v -> isIgnoreErrors() || getEditedAthlete().validateSnatch3Declaration(v)))
+		                        v -> isIgnoreErrors() || getEditedAthlete().validateSnatch3Declaration(v),
+		                        (s) -> doSetErrorLabel(s, snatch3Declaration)))
 		        .withValidationStatusHandler(status -> {
 			        checkWithdrawal(status, snatch3Declaration, snatch3ActualLift);
 		        }).bind(Athlete::getSnatch3Declaration, Athlete::setSnatch3Declaration);
 		atRowAndColumn(gridLayout, snatch3Declaration, DECLARATION, SNATCH3);
 
-		TextField snatch3Change1 = createPositiveWeightField(CHANGE1, SNATCH3);
+		snatch3Change1 = createPositiveWeightField(CHANGE1, SNATCH3);
 		binder.forField(snatch3Change1)
 		        .withValidator(ValidationUtils
-		                .checkUsingException(v -> isIgnoreErrors() || getEditedAthlete().validateSnatch3Change1(v)))
+		                .checkUsingException(v -> isIgnoreErrors() || getEditedAthlete().validateSnatch3Change1(v),
+		                        (s) -> doSetErrorLabel(s,snatch3Change1)))
 		        .withValidationStatusHandler(status -> {
 			        checkWithdrawal(status, snatch3Change1, snatch3ActualLift);
 		        }).bind(Athlete::getSnatch3Change1, Athlete::setSnatch3Change1);
 		atRowAndColumn(gridLayout, snatch3Change1, CHANGE1, SNATCH3);
 
-		TextField snatch3Change2 = createPositiveWeightField(CHANGE2, SNATCH3);
+		snatch3Change2 = createPositiveWeightField(CHANGE2, SNATCH3);
 		binder.forField(snatch3Change2)
 		        .withValidator(ValidationUtils
-		                .checkUsingException(v -> isIgnoreErrors() || getEditedAthlete().validateSnatch3Change2(v)))
+		                .checkUsingException(v -> isIgnoreErrors() || getEditedAthlete().validateSnatch3Change2(v),
+		                        (s) -> doSetErrorLabel(s, snatch3Change2)))
 		        .withValidationStatusHandler(status -> {
 			        checkWithdrawal(status, snatch3Change2, snatch3ActualLift);
 		        })
@@ -590,37 +709,41 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		binder.forField(snatch3ActualLift)
 		        .withValidator(
 		                ValidationUtils.checkUsingException(
-		                        v -> isIgnoreErrors() || getEditedAthlete().validateSnatch3ActualLift(v)))
-		        .withValidationStatusHandler(status -> setActualLiftStyle(status))
+		                        v -> isIgnoreErrors() || getEditedAthlete().validateSnatch3ActualLift(v),
+		                        (s) -> doSetErrorLabel(s, snatch3ActualLift)))
+		        .withValidationStatusHandler(status -> setActualLiftClass(status))
 		        .bind(Athlete::getSnatch3ActualLift, Athlete::setSnatch3ActualLift);
 		atRowAndColumn(gridLayout, snatch3ActualLift, ACTUAL, SNATCH3);
 
-		TextField cj1Declaration = createPositiveWeightField(DECLARATION, CJ1);
+		cj1Declaration = createPositiveWeightField(DECLARATION, CJ1);
 		binder.forField(cj1Declaration)
 		        .withValidator(
 		                ValidationUtils.checkUsingException(
-		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk1Declaration(v)))
+		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk1Declaration(v),
+		                        (s) -> doSetErrorLabel(s, cj1Declaration)))
 		        .withValidationStatusHandler(status -> {
 			        checkWithdrawal(status, cj1Declaration, cj1ActualLift);
 		        })
 		        .bind(Athlete::getCleanJerk1Declaration, Athlete::setCleanJerk1Declaration);
 		atRowAndColumn(gridLayout, cj1Declaration, DECLARATION, CJ1);
 
-		TextField cj1Change1 = createPositiveWeightField(CHANGE1, CJ1);
+		cj1Change1 = createPositiveWeightField(CHANGE1, CJ1);
 		binder.forField(cj1Change1)
 		        .withValidator(
 		                ValidationUtils.checkUsingException(
-		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk1Change1(v)))
+		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk1Change1(v),
+		                        (s) -> doSetErrorLabel(s, cj1Change1)))
 		        .withValidationStatusHandler(status -> {
 			        checkWithdrawal(status, cj1Change1, cj1ActualLift);
 		        }).bind(Athlete::getCleanJerk1Change1, Athlete::setCleanJerk1Change1);
 		atRowAndColumn(gridLayout, cj1Change1, CHANGE1, CJ1);
 
-		TextField cj1Change2 = createPositiveWeightField(CHANGE2, CJ1);
+		cj1Change2 = createPositiveWeightField(CHANGE2, CJ1);
 		binder.forField(cj1Change2)
 		        .withValidator(
 		                ValidationUtils.checkUsingException(
-		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk1Change2(v)))
+		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk1Change2(v),
+		                        (s) -> doSetErrorLabel(s, cj1Change2)))
 		        .withValidationStatusHandler(status -> {
 			        checkWithdrawal(status, cj1Change2, cj1ActualLift);
 		        }).bind(Athlete::getCleanJerk1Change2, Athlete::setCleanJerk1Change2);
@@ -630,9 +753,10 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		binder.forField(cj1ActualLift)
 		        .withValidator(
 		                ValidationUtils.checkUsingException(
-		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk1ActualLift(v)))
+		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk1ActualLift(v),
+		                        (s) -> doSetErrorLabel(s, cj1ActualLift)))
 		        .withValidator(ValidationUtils.checkUsingException(v -> setAutomaticProgressions(getEditedAthlete())))
-		        .withValidationStatusHandler(status -> setActualLiftStyle(status))
+		        .withValidationStatusHandler(status -> setActualLiftClass(status))
 		        .bind(Athlete::getCleanJerk1ActualLift, Athlete::setCleanJerk1ActualLift);
 		atRowAndColumn(gridLayout, cj1ActualLift, ACTUAL, CJ1);
 
@@ -643,31 +767,34 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		        Athlete::setCleanJerk2AutomaticProgression);
 		atRowAndColumn(gridLayout, cj2AutomaticProgression, AUTOMATIC, CJ2);
 
-		TextField cj2Declaration = createPositiveWeightField(DECLARATION, CJ2);
+		cj2Declaration = createPositiveWeightField(DECLARATION, CJ2);
 		binder.forField(cj2Declaration)
 		        .withValidator(
 		                ValidationUtils.checkUsingException(
-		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk2Declaration(v)))
+		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk2Declaration(v),
+		                        (s) -> doSetErrorLabel(s, cj2Declaration)))
 		        .withValidationStatusHandler(status -> {
 			        checkWithdrawal(status, cj2Declaration, cj2ActualLift);
 		        }).bind(Athlete::getCleanJerk2Declaration, Athlete::setCleanJerk2Declaration);
 		atRowAndColumn(gridLayout, cj2Declaration, DECLARATION, CJ2);
 
-		TextField cj2Change1 = createPositiveWeightField(CHANGE1, CJ2);
+		cj2Change1 = createPositiveWeightField(CHANGE1, CJ2);
 		binder.forField(cj2Change1)
 		        .withValidator(
 		                ValidationUtils.checkUsingException(
-		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk2Change1(v)))
+		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk2Change1(v),
+		                        (s) -> doSetErrorLabel(s, cj2Change1)))
 		        .withValidationStatusHandler(status -> {
 			        checkWithdrawal(status, cj2Change1, cj2ActualLift);
 		        }).bind(Athlete::getCleanJerk2Change1, Athlete::setCleanJerk2Change1);
 		atRowAndColumn(gridLayout, cj2Change1, CHANGE1, CJ2);
 
-		TextField cj2Change2 = createPositiveWeightField(CHANGE2, CJ2);
+		cj2Change2 = createPositiveWeightField(CHANGE2, CJ2);
 		binder.forField(cj2Change2)
 		        .withValidator(
 		                ValidationUtils.checkUsingException(
-		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk2Change2(v)))
+		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk2Change2(v),
+		                        (s) -> doSetErrorLabel(s, cj2Change2)))
 		        .withValidationStatusHandler(status -> {
 			        checkWithdrawal(status, cj2Change2, cj2ActualLift);
 		        }).bind(Athlete::getCleanJerk2Change2, Athlete::setCleanJerk2Change2);
@@ -677,9 +804,10 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		binder.forField(cj2ActualLift)
 		        .withValidator(
 		                ValidationUtils.checkUsingException(
-		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk2ActualLift(v)))
+		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk2ActualLift(v),
+		                        (s) -> doSetErrorLabel(s, cj2ActualLift)))
 		        .withValidator(ValidationUtils.checkUsingException(v -> setAutomaticProgressions(getEditedAthlete())))
-		        .withValidationStatusHandler(status -> setActualLiftStyle(status))
+		        .withValidationStatusHandler(status -> setActualLiftClass(status))
 		        .bind(Athlete::getCleanJerk2ActualLift, Athlete::setCleanJerk2ActualLift);
 		atRowAndColumn(gridLayout, cj2ActualLift, ACTUAL, CJ2);
 
@@ -690,33 +818,36 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		        Athlete::setCleanJerk3AutomaticProgression);
 		atRowAndColumn(gridLayout, cj3AutomaticProgression, AUTOMATIC, CJ3);
 
-		TextField cj3Declaration = createPositiveWeightField(DECLARATION, CJ3);
+		cj3Declaration = createPositiveWeightField(DECLARATION, CJ3);
 		binder.forField(cj3Declaration)
 		        .withValidator(
 		                ValidationUtils.checkUsingException(
-		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk3Declaration(v)))
+		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk3Declaration(v),
+		                        (s) -> doSetErrorLabel(s, cj3Declaration)))
 		        .withValidationStatusHandler(status -> {
 			        checkWithdrawal(status, cj3Declaration, cj3ActualLift);
 		        })
 		        .bind(Athlete::getCleanJerk3Declaration, Athlete::setCleanJerk3Declaration);
 		atRowAndColumn(gridLayout, cj3Declaration, DECLARATION, CJ3);
 
-		TextField cj3Change1 = createPositiveWeightField(CHANGE1, CJ3);
+		cj3Change1 = createPositiveWeightField(CHANGE1, CJ3);
 		binder.forField(cj3Change1)
 		        .withValidator(
 		                ValidationUtils.checkUsingException(
-		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk3Change1(v)))
+		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk3Change1(v),
+		                        (s) -> doSetErrorLabel(s, cj3Change1)))
 		        .withValidationStatusHandler(status -> {
 			        checkWithdrawal(status, cj3Change1, cj3ActualLift);
 		        })
 		        .bind(Athlete::getCleanJerk3Change1, Athlete::setCleanJerk3Change1);
 		atRowAndColumn(gridLayout, cj3Change1, CHANGE1, CJ3);
 
-		TextField cj3Change2 = createPositiveWeightField(CHANGE2, CJ3);
+		cj3Change2 = createPositiveWeightField(CHANGE2, CJ3);
 		binder.forField(cj3Change2)
 		        .withValidator(
 		                ValidationUtils.checkUsingException(
-		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk3Change2(v)))
+		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk3Change2(v),
+		                        (s) -> doSetErrorLabel(s, cj3Change2)))
 		        .withValidationStatusHandler(status -> {
 			        checkWithdrawal(status, cj3Change2, cj3ActualLift);
 		        })
@@ -727,8 +858,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		binder.forField(cj3ActualLift)
 		        .withValidator(
 		                ValidationUtils.checkUsingException(
-		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk3ActualLift(v)))
-		        .withValidationStatusHandler(status -> setActualLiftStyle(status))
+		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk3ActualLift(v),
+		                        (s) -> doSetErrorLabel(s, cj3ActualLift)))
+		        .withValidationStatusHandler(status -> setActualLiftClass(status))
 		        .bind(Athlete::getCleanJerk3ActualLift, Athlete::setCleanJerk3ActualLift);
 		atRowAndColumn(gridLayout, cj3ActualLift, ACTUAL, CJ3);
 
@@ -740,6 +872,20 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			atRowAndColumn(gridLayout, custom, SCORE, CJ3);
 		}
 
+		binder.withValidator((a, v) -> {
+			logger.warn("binder-level validation starting!!!!!");
+			ValidationResult vr = ValidationUtils
+			        .checkUsingException(u -> getEditedAthlete().validateStartingTotalsRule()).apply(a, v);
+			logger.warn("binder-level validation!!!!! error={} {}", vr.isError(),
+			        vr.isError() ? vr.getErrorMessage() : "");
+			if (vr.isError()) {
+				doSetErrorLabel("binder-level", new StringBuilder(vr.getErrorMessage()));
+			} else {
+				doSetErrorLabel("binder-level", (StringBuilder)null);
+			}
+			return vr;
+		});
+
 		// use setBean so that changes are immediately reflected to the working copy
 		// otherwise the changes are only visible in the fields, and the validation
 		// routines in the
@@ -750,24 +896,12 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			textfields[ACTUAL - 1][i - 1].addValueChangeListener(e -> setLiftResultChanged(true));
 		}
 
-		try {
-			getEditedAthlete().validateStartingTotalsRule(
-			        snatch1Declaration.getValue(),
-			        snatch1Change1.getValue(),
-			        snatch1Change2.getValue(),
-			        cj1Declaration.getValue(),
-			        cj1Change1.getValue(),
-			        cj1Change2.getValue());
-		} catch (Rule15_20Violated rv) {
-			doSetErrorLabel("", new StringBuilder(rv.getLocalizedMessage()));
-			// allow changing all cj values
-			resetReadOnlyFields();
-		}
-
 		if (!isUpdatingResults()) {
 			adjustResultsFields(true);
 		}
 		setFocus(getEditedAthlete());
+		binder.setValidatorsDisabled(false);
+		return binder;
 	}
 
 	private Checkbox buildAllowResultsEditingCheckbox() {
@@ -792,8 +926,15 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			if (BooleanUtils.isTrue(isIgnoreErrors())) {
 				logger./**/warn/**/("{}!Errors ignored - checkbox override for athlete {}",
 				        OwlcmsSession.getFop().getLoggingName(), this.getEditedAthlete().getShortName());
-				binder.validate();
-				binder.writeBeanAsDraft(editedAthlete, true);
+				// binder.validate();
+				boolean validationReset = editedAthlete.isValidation();
+				try {
+					editedAthlete.setValidation(false);
+					binder.writeBeanAsDraft(editedAthlete, true);
+				} finally {
+					editedAthlete.setValidation(validationReset);
+				}
+
 			}
 
 		});
@@ -806,7 +947,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		VerticalLayout vl = new VerticalLayout();
 
 		Button snatchWithdrawalButton = new Button(Translator.translate("SnatchWithdrawal"),
-				new Icon(VaadinIcon.SIGN_OUT),
+		        new Icon(VaadinIcon.SIGN_OUT),
 		        (e) -> {
 			        Athlete.conditionalCopy(originalAthlete, getEditedAthlete(), true);
 			        originalAthlete.withdrawFromSnatch();
@@ -818,8 +959,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		        });
 		snatchWithdrawalButton.getElement().setAttribute("theme", "error");
 
-		Button withdrawalButton = new Button(Translator.translate("Withdrawal"), 
-				new Icon(VaadinIcon.SIGN_OUT),
+		Button withdrawalButton = new Button(Translator.translate("Withdrawal"),
+		        new Icon(VaadinIcon.SIGN_OUT),
 		        (e) -> {
 			        Athlete.conditionalCopy(originalAthlete, getEditedAthlete(), true);
 			        originalAthlete.withdraw();
@@ -843,10 +984,22 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 
 	private void checkWithdrawal(BindingValidationStatus<?> status, TextField change,
 	        TextField lift) {
+		getErrors(change, status);
 		if (!status.isError()) {
 			if (change.getValue() != null && change.getValue().contentEquals("0")) {
 				lift.setValue("0");
 				setFocus(getEditedAthlete());
+			}
+		}
+	}
+
+	private void getErrors(TextField change, BindingValidationStatus<?> status) {
+		List<ValidationResult> r = status.getValidationResults();
+		for (ValidationResult vr : r) {
+			if (vr.isError()) {
+				logger.warn("field {} : error {}", change.getId().get(), vr.getErrorMessage());
+			} else {
+				logger.warn("field {}: no error", change.getId().get());
 			}
 		}
 	}
@@ -859,7 +1012,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		TextField tf = new TextField();
 		tf.setPattern("^[-]{0,1}\\d*$");
 		tf.setAllowedCharPattern("[0-9-]");
-		tf.setValueChangeMode(ValueChangeMode.ON_BLUR);
+		tf.setValueChangeMode(ValueChangeMode.LAZY);
 		return tf;
 	}
 
@@ -867,31 +1020,54 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		TextField tf = new TextField();
 		tf.setPattern("^\\d*$");
 		tf.setAllowedCharPattern("[0-9]");
-		tf.setValueChangeMode(ValueChangeMode.ON_BLUR);
+		tf.setValueChangeMode(ValueChangeMode.LAZY);
+//		tf.setValueChangeTimeout(5000);
 		return tf;
 	}
 
 	private void doSetErrorLabel(String simpleName, StringBuilder sb) {
-		if (sb.length() > 0) {
+		if (sb != null && sb.length() > 0) {
 			String message = sb.toString();
-			logger.debug("{} setting message {}", simpleName, message);
+			logger.warn("{} setting message {}", simpleName, message);
 			errorLabel.setVisible(true);
 			errorLabel.getElement().setProperty("innerHTML", message);
 			errorLabel.getClassNames().set("errorMessage", true);
 		} else {
-			logger.debug("{} setting EMPTY", simpleName);
+			logger.warn("{} setting EMPTY", simpleName);
 			errorLabel.setVisible(true);
 			errorLabel.getElement().setProperty("innerHTML", "&nbsp;");
 			errorLabel.getClassNames().clear();
 		}
 	}
 
+	private void doSetErrorLabel(String message, TextField field) {
+		if (message != null && !message.isBlank()) {
+			logger.warn("{} setting message {}", message);
+			errorLabel.setVisible(true);
+			errorLabel.getElement().setProperty("innerHTML", message);
+			errorLabel.getClassNames().set("errorMessage", true);
+			field.setInvalid(true);
+		} else {
+			logger.warn("{} setting EMPTY");
+			errorLabel.setVisible(true);
+			errorLabel.getElement().setProperty("innerHTML", "&nbsp;");
+			errorLabel.getClassNames().clear();
+			field.setInvalid(false);
+		}
+		resetReadOnlyFields();
+	}
+
 	/**
 	 * Update the original athlete so that the lifting order picks up the change.
 	 */
 	private void doUpdate() {
+		BinderValidationStatus<Athlete> val = binder.validate();
+		if (!val.isOk())
+			return;
 		// do not overwrite results if acting as Marshal
 		// marshall has the ability to edit, but must click explicitly
+		logger.warn("doUpdate() {} {}", originalAthlete.getCleanJerk2Change2(),
+		        getEditedAthlete().getCleanJerk2Change2());
 		Athlete.conditionalCopy(originalAthlete, getEditedAthlete(), true);
 		AthleteRepository.save(originalAthlete);
 		OwlcmsSession.withFop((fop) -> {
@@ -927,6 +1103,30 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		cj2AutomaticProgression.setReadOnly(true);
 		cj3AutomaticProgression.setReadOnly(true);
 
+		snatch1Declaration.setReadOnly(false);
+		snatch1Change1.setReadOnly(false);
+		snatch1Change2.setReadOnly(false);
+
+		snatch2Declaration.setReadOnly(false);
+		snatch2Change1.setReadOnly(false);
+		snatch2Change2.setReadOnly(false);
+
+		snatch3Declaration.setReadOnly(false);
+		snatch3Change1.setReadOnly(false);
+		snatch3Change2.setReadOnly(false);
+
+		cj1Declaration.setReadOnly(false);
+		cj1Change1.setReadOnly(false);
+		cj1Change2.setReadOnly(false);
+
+		cj2Declaration.setReadOnly(false);
+		cj2Change1.setReadOnly(false);
+		cj2Change2.setReadOnly(false);
+
+		cj3Declaration.setReadOnly(false);
+		cj3Change1.setReadOnly(false);
+		cj3Change2.setReadOnly(false);
+
 		snatch1ActualLift.setReadOnly(!isUpdatingResults());
 		snatch2ActualLift.setReadOnly(!isUpdatingResults());
 		snatch3ActualLift.setReadOnly(!isUpdatingResults());
@@ -935,22 +1135,22 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		cj3ActualLift.setReadOnly(!isUpdatingResults());
 	}
 
-	private void setActualLiftStyle(BindingValidationStatus<?> status) throws NumberFormatException {
+	private void setActualLiftClass(BindingValidationStatus<?> status) throws NumberFormatException {
 		TextField field = (TextField) status.getField();
 		if (status.isError()) {
 			field.getElement().getClassList().set("error", true);
 			field.getElement().getClassList().set("good", false);
 			field.getElement().getClassList().set("bad", false);
 			field.focus();
+			field.setAutofocus(true);
 		} else {
-			setLiftResultStyle(field);
+			setLiftResultClass(field);
 		}
 	}
 
 	/**
-	 * set the automatic progressions. This is invoked as a validator because we
-	 * don't want to be called if the entered value is invalid. Only the side-effect
-	 * is interesting, so we return true.
+	 * set the automatic progressions. This is invoked as a validator because we don't want to be called if the entered
+	 * value is invalid. Only the side-effect is interesting, so we return true.
 	 *
 	 * @param athlete
 	 * @return true always
@@ -1012,6 +1212,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			textfields[targetRow][targetCol].setAutofocus(true);
 			textfields[targetRow][targetCol].setAutoselect(true);
 			textfields[targetRow][targetCol].focus();
+			textfields[targetRow][targetCol].addClassName("current");
 		}
 	}
 
@@ -1020,7 +1221,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		this.liftResultChanged = liftResultChanged;
 	}
 
-	private void setLiftResultStyle(TextField field) {
+	private void setLiftResultClass(TextField field) {
 		String value = field.getValue();
 		boolean empty = value == null || value.trim().isEmpty();
 		if (empty) {
