@@ -22,6 +22,7 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.Icon;
@@ -104,6 +105,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 	private EventBus uiEventBus;
 	private HashMap<String, List<String>> urlParams;
 	private HorizontalLayout warningRow;
+	private HorizontalLayout juryRow;
 
 	private boolean whiteTouched;
 
@@ -282,27 +284,18 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 			return;
 		}
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			warningRow.removeAll();
-			warningRow.setVisible(true);
-			warningRow.setWidth("100%");
-			warningRow.setPadding(false);
-			warningRow.setMargin(false);
-			H3 h3 = new H3(Translator.translate("JuryNotification.PleaseSeeJury"));
-			h3.getElement().setAttribute("style",
-			        "background-color: red; width: 100%; color: white; text-align: center; padding: 0; margin-top:0.5em");
-			h3.getClassNames().add("blink");
-			h3.setWidth("100%");
-			warningRow.add(h3);
-			warningRow.getElement().setAttribute("style", "background-color: red; width: 100%;");
-			topRow.setVisible(false);
-			beeper.beep();
+			topRow.getStyle().set("display", "none");
+			warningRow.getStyle().set("display", "none");
+			juryRow.getStyle().set("display", "flex");
 			UI currentUI = UI.getCurrent();
-			new DelayTimer().schedule(() -> currentUI.access(() -> {
+			new DelayTimer().schedule(() -> currentUI.access(() -> {	
 				beeper.beep();
 			}), 1000);
 			new DelayTimer().schedule(() -> currentUI.access(() -> {
-				warningRow.setVisible(false);
-				topRow.setVisible(true);
+				beeper.reset();
+				topRow.getStyle().set("display", "flex");
+				warningRow.getStyle().set("display", "none");
+				juryRow.getStyle().set("display", "none");
 			}), 9000);
 		});
 	}
@@ -321,20 +314,14 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 		}
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			if (e.on) {
-				warningRow.removeAll();
-				warningRow.setVisible(true);
-				H3 h3 = new H3(Translator.translate("JuryNotification.PleaseEnterDecision"));
-				h3.getElement().setAttribute("style",
-				        "background-color: yellow; width: 100%; color: black; text-align: center; padding: 0; margin-top:0.5em");
-				h3.getClassNames().add("blink");
-				h3.setWidth("100%");
-				warningRow.add(h3);
-				warningRow.getElement().setAttribute("style", "background-color: yellow; width: 100%;");
-				topRow.setVisible(false);
 				beeper.beep();
+				topRow.getStyle().set("display", "none");
+				warningRow.getStyle().set("display", "flex");
+				juryRow.getStyle().set("display", "none");
 			} else {
-				warningRow.setVisible(false);
-				topRow.setVisible(true);
+				topRow.getStyle().set("display", "flex");
+				warningRow.getStyle().set("display", "none");
+				juryRow.getStyle().set("display", "none");
 			}
 		});
 	}
@@ -347,15 +334,35 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 	}
 
 	private void createContent(VerticalLayout refContainer) {
-		topRow = new HorizontalLayout();
-		topRow.add(beeper);
+
+		var w = new H2(Translator.translate("JuryNotification.PleaseEnterDecision"));
+		w.getElement().setAttribute("style",
+		        "background-color: yellow; width: 100%; color: black; text-align: center; padding: 0; line-height: initial");
+		w.getClassNames().add("blink");
+		w.setWidth("100%");
 		warningRow = new HorizontalLayout();
+		warningRow.add(w);
 		warningRow.setPadding(false);
 		warningRow.setMargin(false);
-		warningRow.setVisible(false);
+		warningRow.setWidthFull();
+		warningRow.getStyle().set("background-color", "yellow");
+		warningRow.getStyle().set("display", "none");
+		
+		var j = new H2(Translator.translate("JuryNotification.PleaseSeeJury"));
+		j.getElement().setAttribute("style",
+		        "background-color: red; width: 100%; color: white; text-align: center; padding: 0; line-height: initial");
+		j.getClassNames().add("blink");
+		j.setWidth("100%");
+		juryRow = new HorizontalLayout();
+		juryRow.add(j);
+		juryRow.setWidthFull();
+		juryRow.setPadding(false);
+		juryRow.setMargin(false);
+		juryRow.getStyle().set("background-color", "red");
+		juryRow.getStyle().set("display", "none");
 
 		NativeLabel refLabel = new NativeLabel(getTranslation("Referee"));
-		H3 labelWrapper = new H3(refLabel);
+		var labelWrapper = new H2(refLabel);
 		labelWrapper.getStyle().set("margin-top", "0");
 		labelWrapper.getStyle().set("margin-bottom", "0");
 
@@ -365,7 +372,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 		refField.setMin(1);
 		refField.setValue(getRef13ix() == null ? null : getRef13ix().intValue());
 		refField.setPlaceholder(getTranslation("Number"));
-		//DIXME refField.setHasControls(true);
+		refField.setStepButtonsVisible(true);
 		refField.addValueChangeListener((e) -> {
 			setRef13ix(e.getValue());
 			setUrl(getRef13ix() != null ? getRef13ix().toString() : null);
@@ -377,17 +384,26 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 			OwlcmsSession.setFop(e.getValue());
 		});
 
+		topRow = new HorizontalLayout();
+		topRow.add(beeper);
 		topRow.add(labelWrapper, fopSelect, refField);
 		topRow.setMargin(false);
+		topRow.setSpacing(true);
 		topRow.setAlignItems(Alignment.BASELINE);
 
 		createRefVoting();
 		resetRefVote();
+		
+		HorizontalLayout topWrapper = new HorizontalLayout();
+		topWrapper.setHeight("2em");
+		topWrapper.setWidthFull();
+		topWrapper.getStyle().set("line-height", "2em");
+		topWrapper.add(topRow, warningRow, juryRow);
 
 		refContainer.setBoxSizing(BoxSizing.BORDER_BOX);
 		refContainer.setMargin(false);
 		refContainer.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
-		refContainer.add(topRow, warningRow);
+		refContainer.add(topWrapper);
 		refContainer.setAlignSelf(Alignment.START, topRow);
 		refContainer.add(refVotingCenterHorizontally);
 
@@ -473,8 +489,10 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 		bad.getElement().addEventListener("touchstart", (e) -> redTouched(e));
 		bad.getElement().addEventListener("click", (e) -> redClicked(e));
 		refVotingButtons.add(bad, good);
-		topRow.setVisible(true);
-		warningRow.setVisible(false);
+		topRow.getStyle().set("display", "flex");
+		warningRow.getStyle().set("display", "none");
+		juryRow.getStyle().set("display", "none");
+		beeper.reset();
 	}
 
 	private void setRef13ix(Integer ref13ix) {

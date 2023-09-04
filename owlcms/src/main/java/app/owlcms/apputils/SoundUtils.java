@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.internal.AllowInert;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -26,11 +27,11 @@ public class SoundUtils {
 
 	public static void doEnableAudioContext(Element element) {
 		// this.getElement().executeJs("window.audioCtx.suspend()");
-		PendingJavaScriptResult result = element.executeJs("return (window.isIOS ? window.audioCtx.state : 'running')");
+		PendingJavaScriptResult result = element.executeJs("console.warn('setting audio status'); return (window.isIOS ? window.audioCtx.state : 'running')");
 		result.then(String.class, r -> {
-			logger.debug("audio state {}", r);
+			logger.warn("audio state {}", r);
 			if (!r.equals("running")) {
-				element.executeJs("window.audioCtx.resume()");
+				element.executeJs("console.warn('setting audio status'); window.audioCtx.resume()");
 			} else {
 				// Notification.show("Audio enabled");
 			}
@@ -39,12 +40,14 @@ public class SoundUtils {
 
 	public static void enableAudioContextNotification(Element element) {
 		// this.getElement().executeJs("window.audioCtx.suspend()");
-		PendingJavaScriptResult result = element.executeJs("return (window.isIOS ? window.audioCtx.state : 'running')");
+		logger.warn("enabling");
+		PendingJavaScriptResult result = element.executeJs("console.warn('checking audio status'); return (window.isIOS ? window.audioCtx.state : 'running')");
 		// PendingJavaScriptResult result = element.executeJs("return
 		// window.audioCtx.state");
 		audioStatusCallback(element, result);
 	}
 
+	@AllowInert
 	public static void enableAudioContextNotification(Element element, boolean useState) {
 		PendingJavaScriptResult result = element
 		        .executeJs("return (window.isIOS ||" + useState + " ? window.audioCtx.state : 'running')");
@@ -53,6 +56,8 @@ public class SoundUtils {
 		audioStatusCallback(element, result);
 	}
 
+	
+	@AllowInert
 	private static void audioStatusCallback(Element element, PendingJavaScriptResult result) {
 		result.then(String.class, r -> {
 			// logger.debug("audio state {}", r);
@@ -65,6 +70,7 @@ public class SoundUtils {
 				content.setText(Translator.translate("ClickOrTapToEnableSound"));
 				content.addClickListener(c -> {
 					element.executeJs("window.audioCtx.resume()");
+					element.executeJs("this.beep");
 					Component component = element.getComponent().get();
 					if (component instanceof DisplayParameters) {
 						((DisplayParameters) component).setSilenced(false);

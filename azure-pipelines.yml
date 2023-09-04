@@ -1,8 +1,8 @@
-# Note: ubuntu-latest image includes Java 11.
-# this is why there are references to Java 11 for tasks other than the actual
-# compiling and assembly that is done inside a container with a Java 17 image.
-# Shared templates that run both inside and outside the container need the
-# JAVA_HOME_11_X64 to be defined
+# Note: the azure build runs under the ubuntu-latest image
+
+# That image only includes Java 11. The Java 17 compilation is done in a container, but other steps
+# run directly in the image.  Some steps run in both settings, and this is why JAVA_HOME_11_X64 
+# must be defined
 
 trigger:
   - none
@@ -10,7 +10,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 44.0.0-alpha08
+    default: 44.0.0-alpha09
   - name: SkipTests
     type: string
     default: 'false'

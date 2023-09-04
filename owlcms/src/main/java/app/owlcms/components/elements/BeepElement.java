@@ -23,7 +23,15 @@ public class BeepElement extends LitTemplate
         implements SafeEventBusRegistration {
 
 	public void beep() {
-		this.getElement().callJsFunction("beep");
+		logger.warn("calling beep");
+		getElement().setProperty("silent", false);
+		getElement().setProperty("doBeep", true);
+	}
+	
+	public void reset() {
+		logger.warn("calling beep");
+		getElement().setProperty("silent", false);
+		getElement().setProperty("doBeep", false);
 	}
 
 	/*
@@ -33,6 +41,5 @@ public class BeepElement extends LitTemplate
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
-		getElement().setProperty("silent", false);
 	}
 }

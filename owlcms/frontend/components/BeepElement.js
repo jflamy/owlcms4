@@ -12,7 +12,7 @@ class BeepElement extends LitElement {
   }
 
   render() {
-    return html`<div></div>`;
+    return html`<div>${this.doBeep}${( this.doBeep )? this.beep() : ""}</div>`;
   }
 
   static get properties() {
@@ -25,6 +25,9 @@ class BeepElement extends LitElement {
       silent: {
         type: Boolean,
       },
+      doBeep: {
+        type: Boolean,
+      }
     };
   }
 
@@ -50,7 +53,6 @@ class BeepElement extends LitElement {
   }
 
   _init() {
-    this.running = false;
     this._prepareAudio();
   }
 
@@ -126,12 +128,15 @@ class BeepElement extends LitElement {
   }
 
   beep() {
+    console.warn("beep called");
     this._playTrack("../local/sounds/beepBeep.mp3", window.beepBeep, true, 0);
+    this.doBeep = false; // will be reset from server side.
   }
 
   constructor() {
     super();
     this.silent = false;
+    this.doBeep = true;
   }
 }
 
