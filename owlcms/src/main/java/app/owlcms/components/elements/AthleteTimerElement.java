@@ -218,7 +218,7 @@ public class AthleteTimerElement extends TimerElement {
 
 	@Override
 	public void syncWithFopTimer() {
-		// TODO Auto-generated method stub
+		// only used by break timer
 	}
 
 

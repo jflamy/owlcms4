@@ -212,7 +212,7 @@ public class BreakTimerElement2 extends TimerElement implements SafeEventBusRegi
 
 	@Override
 	protected IProxyTimer getFopTimer(FieldOfPlay fop) {
-		// TODO Auto-generated method stub
+		// not used in break timer
 		return null;
 	}
 

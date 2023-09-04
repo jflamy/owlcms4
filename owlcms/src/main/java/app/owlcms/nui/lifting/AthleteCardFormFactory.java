@@ -34,6 +34,7 @@ import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -80,47 +81,49 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	private static final int CJ1 = SNATCH3 + 1;
 	private static final int CJ2 = CJ1 + 1;
 	private static final int CJ3 = CJ2 + 1;
-	private TextField cj2AutomaticProgression;
-	private TextField cj3AutomaticProgression;
-	private TextField cj1ActualLift;
-	private TextField cj2ActualLift;
-	private TextField cj3ActualLift;
-	private TextField snatch2AutomaticProgression;
-	private TextField snatch3AutomaticProgression;
-	private TextField snatch1ActualLift;
-	private TextField snatch2ActualLift;
-	private TextField snatch3ActualLift;
+	
 	/**
 	 * text field array to facilitate setting focus when form is opened
 	 */
-	TextField[][] textfields = new TextField[SCORE][CJ3];
-	private Athlete editedAthlete;
-	private Athlete originalAthlete;
-	private IAthleteEditing origin;
-	private GridLayout gridLayout;
-	private Boolean updatingResults;
-	private Checkbox ignoreErrorsCheckbox;
-	private Boolean liftResultChanged;
-	private Button operationButton;
-	private BinderValidationStatus<Athlete> initialValidationStatus;
-	private TextField snatch1Declaration;
-	private TextField snatch1Change1;
-	private TextField snatch1Change2;
-	private TextField snatch2Declaration;
-	private TextField snatch2Change1;
-	private TextField snatch2Change2;
-	private TextField snatch3Declaration;
-	private TextField snatch3Change1;
-	private TextField snatch3Change2;
-	private TextField cj1Declaration;
+	private TextField[][] textfields = new TextField[SCORE][CJ3];
+	private TextField cj1ActualLift;
 	private TextField cj1Change1;
 	private TextField cj1Change2;
-	private TextField cj2Declaration;
+	private TextField cj1Declaration;
+	private TextField cj2ActualLift;
+	private TextField cj2AutomaticProgression;
 	private TextField cj2Change1;
 	private TextField cj2Change2;
-	private TextField cj3Declaration;
+	private TextField cj2Declaration;
+	private TextField cj3ActualLift;
+	private TextField cj3AutomaticProgression;
 	private TextField cj3Change1;
 	private TextField cj3Change2;
+	private TextField cj3Declaration;
+	private Athlete editedAthlete;
+	private GridLayout gridLayout;
+	private Checkbox ignoreErrorsCheckbox;
+	private BinderValidationStatus<Athlete> initialValidationStatus;
+	private Boolean liftResultChanged;
+	private Button operationButton;
+	private IAthleteEditing origin;
+	private Athlete originalAthlete;
+	private TextField snatch1ActualLift;
+	private TextField snatch1Change1;
+	private TextField snatch1Change2;
+	private TextField snatch1Declaration;
+	private TextField snatch2ActualLift;
+	private TextField snatch2AutomaticProgression;
+	private TextField snatch2Change1;
+	private TextField snatch2Change2;
+	private TextField snatch2Declaration;
+	private TextField snatch3ActualLift;
+	private TextField snatch3AutomaticProgression;
+	private TextField snatch3Change1;
+	private TextField snatch3Change2;
+	private TextField snatch3Declaration;
+	private BinderValidationStatus<Athlete> status;
+	private Boolean updatingResults;
 
 	public AthleteCardFormFactory(Class<Athlete> domainType, IAthleteEditing origin) {
 		super(domainType);
@@ -181,7 +184,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		ComponentEventListener<ClickEvent<Button>> postOperationCallBack = (e) -> {
 		};
 		operationButton = null;
-		// FIXME: was originalAthlete.
 		if (operation == CrudOperation.UPDATE) {
 			operationButton = buildOperationButton(CrudOperation.UPDATE, getEditedAthlete(), postOperationCallBack);
 		} else if (operation == CrudOperation.ADD) {
@@ -440,6 +442,56 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		return originalAthlete;
 	}
 
+	@Override
+	protected void performOperationAndCallback(CrudOperation operation, Athlete domainObject,
+	        ComponentEventListener<ClickEvent<Button>> gridCallback, boolean ignoreErrors) {
+		if (ignoreErrors) {
+			domainObject.setValidation(false);
+			binder.setFieldsValidationStatusChangeListenerEnabled(false);
+			binder.setValidatorsDisabled(true);
+			binder.writeBeanAsDraft(domainObject, true);
+		} else {
+			boolean validObject = false;
+			try {
+				validObject = binder.writeBeanIfValid(domainObject);
+				setValid(validObject);
+			} catch (Throwable e) {
+				// panic mode to write the object.
+				setValid(false);
+				status = binder.validate();
+				if (!status.hasErrors()) {
+					domainObject.setValidation(false);
+					binder.setFieldsValidationStatusChangeListenerEnabled(false);
+					binder.setValidatorsDisabled(true);
+					binder.writeBeanAsDraft(domainObject, true);
+					logger.error("missing user interface validation: {}", e.getMessage());
+				} else {
+					logger.error("uncaught errors {}", dumpErrors(status));
+				}
+			}
+		}
+		if (ignoreErrors || isValid()) {
+			if (operation == CrudOperation.ADD) {
+				logger.debug("adding {} {}", System.identityHashCode(domainObject), domainObject);
+				this.add(domainObject);
+				gridCallback.onComponentEvent(operationTriggerEvent);
+			} else if (operation == CrudOperation.UPDATE) {
+				logger.debug("updating 	{}", domainObject);
+				this.update(domainObject);
+				notif.setPosition(Position.TOP_END);
+				notif.setDuration(2500);
+				notif.open();
+				gridCallback.onComponentEvent(operationTriggerEvent);
+			} else if (operation == CrudOperation.DELETE) {
+				logger.debug("deleting 	{}", domainObject);
+				this.delete(domainObject);
+				gridCallback.onComponentEvent(operationTriggerEvent);
+			}
+		} else {
+			logger.debug("not valid {}", domainObject);
+		}
+	}
+
 	private void adjustResultsFields(boolean readOnly) {
 		setLiftResultClass(snatch1ActualLift);
 		setLiftResultClass(snatch2ActualLift);
@@ -637,7 +689,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		cj1Declaration = createPositiveWeightField(DECLARATION, CJ1);
 		binder.forField(cj1Declaration)
 		        .withValidator(
-		                ValidationUtils.checkUsingException(
+		                ValidationUtils.checkUsingException2(
 		                        v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk1Declaration(v),
 		                        (s) -> doSetErrorLabel(s, cj1Declaration)))
 		        .withValidationStatusHandler(status -> {
@@ -905,7 +957,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		getFieldErrors(field, status);
 		if (!status.isError()) {
 			if (field.getValue() != null) {
-				//logger.debug("field {} = {}", field.getId().get(), field.getValue());
+				// logger.debug("field {} = {}", field.getId().get(), field.getValue());
 				if (field.getValue().contentEquals("0")) {
 					lift.setValue("0");
 					setFocus(getEditedAthlete());
@@ -923,7 +975,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		tf.setPattern("^[-]{0,1}\\d*$");
 		tf.setAllowedCharPattern("[0-9-]");
 		tf.setValueChangeMode(ValueChangeMode.ON_CHANGE);
-		
+
 		tf.addValueChangeListener(e -> {
 			if (e.isFromClient()) {
 				setFocus(getEditedAthlete());
@@ -940,6 +992,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		tf.addValueChangeListener(e -> {
 			if (e.isFromClient()) {
 				setFocus(getEditedAthlete());
+				tf.focus();
 			}
 		});
 		return tf;
@@ -1159,6 +1212,13 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		int targetRow = ACTUAL + 1;
 		int targetCol = CJ3 + 1;
 
+		// reset current marker -- can be anywhere
+		for (int col = CJ3; col >= SNATCH1; col--) {
+			for (int row = ACTUAL; row > AUTOMATIC; row--) {
+				textfields[row - 1][col - 1].removeClassName("current");
+			}
+		}
+
 		// figure out whether we are searching for snatch or CJ
 		int rightCol;
 		int leftCol;
@@ -1171,9 +1231,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			leftCol = SNATCH1;
 		}
 
+		// set current marker to first empty cell after last lift.
 		for (int col = rightCol; col >= leftCol; col--) {
 			for (int row = ACTUAL; row > AUTOMATIC; row--) {
-				textfields[row - 1][col - 1].removeClassName("current");
 				boolean empty = textfields[row - 1][col - 1].getValue().isBlank();
 				if (empty) {
 					targetRow = row - 1;

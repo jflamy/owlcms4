@@ -3632,11 +3632,9 @@ public class Athlete {
 		getLogger().info("{}{} snatch1Change2={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
 		        snatch1Change2);
 		if (isValidation()) {
-			logger.warn("**** {}", isValidation());
 			try {
 				validateSnatch1Change2(snatch1Change2);
 			} catch (Exception e) {
-				logger.warn("**** {}", e.getMessage());
 				throw e;
 			}
 		}
@@ -4160,9 +4158,9 @@ public class Athlete {
 	}
 
 	public boolean validateCleanJerk1Declaration(String cleanJerk1Declaration) throws RuleViolationException {
-		// always true
-		// return validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
-		// cleanJerk1Change1, cleanJerk1Change2);
+		// not always true.  Can violate moving down rules
+		validateDeclaration(3, "0", cleanJerk1Declaration, cleanJerk1Change1,
+		        cleanJerk1Change1, cleanJerk2ActualLift);
 		return true;
 	}
 
@@ -4236,9 +4234,9 @@ public class Athlete {
 	}
 
 	public boolean validateSnatch1Declaration(String snatch1Declaration) throws RuleViolationException {
-		// always true
-		// return validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
-		// cleanJerk1Change1, cleanJerk1Change2);
+		// can violate movingdown rules if changed inadequately by marshal.
+		validateDeclaration(0, "0", snatch1Declaration, snatch1Change1, snatch1Change2,
+		        snatch1ActualLift);
 		return true;
 	}
 
@@ -4489,15 +4487,15 @@ public class Athlete {
 			logger.trace("checking lift {} {}", checkedLift, currentLiftNo);
 		}
 		
-		//FIXME: reversed order of test, used curLift because is the one we are checking
-		if (referenceAttemptNo <= 3 && curLift == 4) {
+		// check: zero-based numbers, not referencing curLift, wrong sequence.
+		if (referenceAttemptNo < 3 && curLift == 3) {
 			getLogger().warn("{}start of CJ {}", OwlcmsSession.getFopLoggingName(), curLift);
 			// first attempt for C&J, no check
 			return;
 		}
 
 		if (requestedWeight > referenceWeight) {
-			getLogger().trace("{}{} attempt {}: requested {} > previous {}", OwlcmsSession.getFopLoggingName(), this,
+			getLogger().trace("{}{} attempt {}: requested {} > previous {}", OwlcmsSession.getFopLoggingName( ), this,
 			        currentLiftNo,
 			        requestedWeight,
 			        referenceWeight);

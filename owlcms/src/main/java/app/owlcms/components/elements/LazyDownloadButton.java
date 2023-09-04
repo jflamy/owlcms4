@@ -168,8 +168,6 @@ public class LazyDownloadButton extends Button {
 							try {
 								Thread.sleep(1000);
 							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
 							}
 							anchor.getElement().callJsFunction("click");
 						}));

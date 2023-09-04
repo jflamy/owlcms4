@@ -70,5 +70,26 @@ public class ValidationUtils {
 			}
 		};
 	}
+	
+	public static <T> Validator<T> checkUsingException2(SerializablePredicate<T> guard, Consumer<String> messageSetter, String... errorMessage) {
+		Objects.requireNonNull(guard, "guard cannot be null");
+		return (value, context) -> {
+			try {
+				if (guard.test(value)) {
+					logger.error("ok checkUsingException {}", LoggerUtils.stackTrace());
+					return ValidationResult.ok();
+				} else {
+					logger.error("missing message {}", LoggerUtils.stackTrace());
+					String msg = errorMessage.length > 0 ? errorMessage[0] : "Validation Error";
+					messageSetter.accept(msg);
+					return ValidationResult.error(msg);
+				}
+			} catch (Exception e) {
+				logger.error("check Using Exception {}",e.getLocalizedMessage());
+				messageSetter.accept(e.getLocalizedMessage());
+				return ValidationResult.error(e.getLocalizedMessage());
+			}
+		};
+	}
 
 }

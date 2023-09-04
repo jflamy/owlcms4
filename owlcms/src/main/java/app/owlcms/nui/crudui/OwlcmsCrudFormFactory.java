@@ -70,8 +70,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 	protected ResponsiveStep[] responsiveSteps;
 	private boolean valid = false;
 
-	Notification notif = new Notification("Saved.");
-	private BinderValidationStatus<T> status;
+	protected Notification notif = new Notification("Saved.");
 
 	/**
 	 * Instantiates a new Form Factory
@@ -451,18 +450,9 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 			}
 			binder.writeBeanAsDraft(domainObject, true);
 		} else {
-			try {
-				status = binder.validate();
-				if (!status.hasErrors()) {
-					binder.writeBeanAsDraft(domainObject, true);
-				} else {
-					logger.error("uncaught errors {}",dumpErrors(status));
+			boolean writeBeanIfValid = binder.writeBeanIfValid(domainObject);
+			setValid(writeBeanIfValid);
 				}
-				setValid(!status.hasErrors());
-			} catch (Throwable e) {
-				setValid(false);
-			}
-		}
 		if (ignoreErrors || isValid()) {
 			if (operation == CrudOperation.ADD) {
 				logger.debug("adding {} {}", System.identityHashCode(domainObject), domainObject);
@@ -485,7 +475,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 		}
 	}
 	
-	private StringBuilder dumpErrors(BinderValidationStatus<?> validationStatus) {
+	protected StringBuilder dumpErrors(BinderValidationStatus<?> validationStatus) {
 		StringBuilder sb = new StringBuilder();
 		for (BindingValidationStatus<?> ve : validationStatus.getFieldValidationErrors()) {
 

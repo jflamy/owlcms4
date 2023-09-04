@@ -230,7 +230,6 @@ public class Results extends LitTemplate
 			        && nextAttemptRequestedWeight > 0) {
 				this.getElement().setProperty("weight", nextAttemptRequestedWeight);
 			}
-			//breakTimer.setVisible(!fop.getBreakTimer().isIndefinite()); // FIXME: LitElement
 			setDisplay();
 			updateBottom(computeLiftType(a), fop);
 		}));
