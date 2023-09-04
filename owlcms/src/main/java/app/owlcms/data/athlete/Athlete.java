@@ -104,15 +104,11 @@ import ch.qos.logback.classic.Logger;
 public class Athlete {
 	@Transient
 	protected final static Logger logger = (Logger) LoggerFactory.getLogger(Athlete.class);
-
 	static private boolean skipValidationsDuringImport = false;
-
 	private static final int YEAR = LocalDateTime.now().getYear();
-
 	@Transient
 	@JsonIgnore
 	private static SinclairCoefficients sinclairProperties2020 = new SinclairCoefficients(2020);
-
 	@Transient
 	@JsonIgnore
 	private static SinclairCoefficients sinclairProperties2024 = new SinclairCoefficients(2024);
@@ -270,10 +266,8 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public FieldOfPlay fop;
-
 	@Transient
 	protected final Logger timingLogger = (Logger) LoggerFactory.getLogger("TimingLogger");
-
 	@Transient
 	DecimalFormat df = null;
 
@@ -282,7 +276,6 @@ public class Athlete {
 	 */
 	@Transient
 	Integer liftOrderRank = 0;
-
 	private Double bodyWeight = null;
 
 	/*
@@ -295,36 +288,26 @@ public class Athlete {
 	@JsonProperty(index = 300)
 	@JsonIdentityReference(alwaysAsId = true)
 	private Category category = null;
-
 	@Column(columnDefinition = "integer default 0")
 	private int catSinclairRank;
-
 	private String cleanJerk1ActualLift;
-
 	private String cleanJerk1Change1;
-
 	private String cleanJerk1Change2;
-
 	private String cleanJerk1Declaration;
-
 	private LocalDateTime cleanJerk1LiftTime;
-
 	private String cleanJerk2ActualLift;
-
 	private String cleanJerk2Change1;
 	private String cleanJerk2Change2;
 	private String cleanJerk2Declaration;
 	private LocalDateTime cleanJerk2LiftTime;
 	private String cleanJerk3ActualLift;
 	private String cleanJerk3Change1;
-
 	private String cleanJerk3Change2;
 	private String cleanJerk3Declaration;
 	private LocalDateTime cleanJerk3LiftTime;
 	private String coach;
 	@Column(columnDefinition = "integer default 0")
 	private int combinedRank;
-
 	@Transient
 	private Long copyId = null;
 	private String custom1;
@@ -332,18 +315,14 @@ public class Athlete {
 	private Double customScore;
 	@Column(columnDefinition = "boolean default true")
 	private boolean eligibleForIndividualRanking = true;
-
 	private boolean eligibleForTeamRanking = true;
-
 	private String firstName = "";
-
 	/** The forced as current. */
 	@Column(columnDefinition = "boolean default false")
 	private boolean forcedAsCurrent = false;
 	@Convert(converter = LocalDateAttributeConverter.class)
 	private LocalDate fullBirthDate = null;
 	private Gender gender = null; // $NON-NLS-1$
-
 	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
 	        CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
 	@JoinColumn(name = "fk_group", nullable = true)
@@ -354,7 +333,6 @@ public class Athlete {
 	private String lastName = "";
 	private Integer lotNumber = null;
 	private String membership = "";
-
 	@Transient
 	private final Level NORMAL_LEVEL = Level.INFO;
 	@OneToMany(mappedBy = "athlete", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -366,7 +344,6 @@ public class Athlete {
 	private Double presumedBodyWeight;
 	private Integer qualifyingTotal = 0;
 	private Integer robiRank;
-
 	private Integer sinclairRank;
 	@Column(columnDefinition = "integer default 0")
 	private int smmRank;
@@ -384,7 +361,6 @@ public class Athlete {
 	private LocalDateTime snatch1LiftTime;
 	private String snatch2ActualLift;
 	private String snatch2Change1;
-
 	private String snatch2Change2;
 	private String snatch2Declaration;
 	private LocalDateTime snatch2LiftTime;
@@ -394,37 +370,24 @@ public class Athlete {
 	private String snatch3Declaration;
 	private LocalDateTime snatch3LiftTime;
 	private Integer startNumber = null;
-
 	private String team = "";
 	private Integer teamCleanJerkRank;
 	private Integer teamCombinedRank;
-
 	private Integer teamCustomRank;
-
 	private Integer teamRobiRank;
-
 	private Integer teamSinclairRank;
-
 	private Integer teamSnatchRank;
-
 	private Integer teamTotalRank;
-
 	@Transient
 	@JsonIgnore
 	private boolean validation = true;
-
 	@Transient
 	@JsonIgnore
 	private SinclairCoefficients sinclairProperties;
-
 	private String federationCodes;
-
 	private Integer personalBestSnatch;
-
 	private Integer personalBestCleanJerk;
-
 	private Integer personalBestTotal;
-
 	@Transient
 	@JsonIgnore
 	private boolean startingTotalViolation = false;
@@ -3669,10 +3632,15 @@ public class Athlete {
 		getLogger().info("{}{} snatch1Change2={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
 		        snatch1Change2);
 		if (isValidation()) {
-			validateSnatch1Change2(snatch1Change2);
+			logger.warn("**** {}", isValidation());
+			try {
+				validateSnatch1Change2(snatch1Change2);
+			} catch (Exception e) {
+				logger.warn("**** {}", e.getMessage());
+				throw e;
+			}
 		}
 		this.snatch1Change2 = snatch1Change2;
-		// validateStartingTotalsRule();
 
 	}
 
@@ -4264,8 +4232,6 @@ public class Athlete {
 	public boolean validateSnatch1Change2(String snatch1Change2) throws RuleViolationException {
 		validateChange2(0, getSnatch1AutomaticProgression(), snatch1Declaration, snatch1Change1, snatch1Change2,
 		        snatch1ActualLift, true);
-		// validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
-		// cleanJerk1Change1, cleanJerk1Change2);
 		return true;
 	}
 
@@ -4357,7 +4323,8 @@ public class Athlete {
 	public boolean validateStartingTotalsRule(Integer snatch1Request, Integer cleanJerk1Request,
 	        int qualTotal) throws RuleViolationException.Rule15_20Violated {
 		boolean enforce20kg = Competition.getCurrent().isEnforce20kgRule();
-		//logger.debug("validateStartingTotalsRule {} {} {} {}", LoggerUtils.whereFrom(), System.identityHashCode(this), isValidation(), this.isStartingTotalViolation());
+		// logger.debug("validateStartingTotalsRule {} {} {} {}", LoggerUtils.whereFrom(),
+		// System.identityHashCode(this), isValidation(), this.isStartingTotalViolation());
 		if (!enforce20kg || !isValidation()) {
 			// don't complain again if exception already raised.
 			return true;
@@ -4365,7 +4332,7 @@ public class Athlete {
 		int missing = startingTotalDelta(snatch1Request, cleanJerk1Request, qualTotal);
 		if (missing > 0) {
 			this.setStartingTotalViolation(true);
-			//logger.debug("FAIL missing {}", missing);
+			// logger.debug("FAIL missing {}", missing);
 			Integer startNumber2 = this.getStartNumber();
 			throw new RuleViolationException.Rule15_20Violated(this, this.getLastName(),
 			        this.getFirstName(),
@@ -4373,7 +4340,7 @@ public class Athlete {
 			        snatch1Request, cleanJerk1Request, missing, qualTotal);
 		} else {
 			this.setStartingTotalViolation(true);
-			//logger.debug("OK margin={}", -(missing));
+			// logger.debug("OK margin={}", -(missing));
 			return true;
 		}
 	}
@@ -4510,7 +4477,8 @@ public class Athlete {
 		Integer requestedWeight = newVal;
 		int referenceWeight = reference.getWeight();
 		int referenceAttemptNo = reference.getAttemptNo();// this is the lift that was attempted by previous lifter
-		int currentLiftNo = getAttemptsDone() + 1; // check
+		
+		int currentLiftNo = getAttemptsDone() + 1; 
 		int checkedLift = curLift + 1;
 		if (checkedLift < currentLiftNo) {
 			// we are checking an earlier attempt of the athlete (e.g. when loading the
@@ -4519,6 +4487,13 @@ public class Athlete {
 			return;
 		} else {
 			logger.trace("checking lift {} {}", checkedLift, currentLiftNo);
+		}
+		
+		//FIXME: reversed order of test, used curLift because is the one we are checking
+		if (referenceAttemptNo <= 3 && curLift == 4) {
+			getLogger().warn("{}start of CJ {}", OwlcmsSession.getFopLoggingName(), curLift);
+			// first attempt for C&J, no check
+			return;
 		}
 
 		if (requestedWeight > referenceWeight) {
@@ -4529,11 +4504,7 @@ public class Athlete {
 			// lifting order is respected
 			return;
 		}
-		if (referenceAttemptNo == 3 && currentLiftNo == 4) {
-			getLogger().trace("{}start of CJ", OwlcmsSession.getFopLoggingName());
-			// first attempt for C&J, no check
-			return;
-		}
+
 
 		if (requestedWeight < referenceWeight) {
 			getLogger().trace("{}requestedWeight {} < referenceWeight {}", OwlcmsSession.getFopLoggingName(),
@@ -5106,7 +5077,7 @@ public class Athlete {
 	}
 
 	private void rethrow(RuleViolationException e) throws RuleViolationException {
-		//logger.debug("rethrowing {} at {}", e, LoggerUtils.whereFrom());
+		// logger.debug("rethrowing {} at {}", e, LoggerUtils.whereFrom());
 		throw e;
 	}
 
@@ -5242,6 +5213,7 @@ public class Athlete {
 		} catch (RuleViolationException e) {
 			rethrow(e);
 		} catch (Exception e) {
+			logger.error("{}",LoggerUtils.exceptionMessage(e));
 			throw new RuntimeException(e);
 		}
 		timingLogger.info("validateChange2 {}ms {} {}", System.currentTimeMillis() - start, curLift,

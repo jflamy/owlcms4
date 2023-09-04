@@ -71,6 +71,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 	private boolean valid = false;
 
 	Notification notif = new Notification("Saved.");
+	private BinderValidationStatus<T> status;
 
 	/**
 	 * Instantiates a new Form Factory
@@ -450,8 +451,17 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 			}
 			binder.writeBeanAsDraft(domainObject, true);
 		} else {
-			boolean writeBeanIfValid = binder.writeBeanIfValid(domainObject);
-			setValid(writeBeanIfValid);
+			try {
+				status = binder.validate();
+				if (!status.hasErrors()) {
+					binder.writeBeanAsDraft(domainObject, true);
+				} else {
+					logger.error("uncaught errors {}",dumpErrors(status));
+				}
+				setValid(!status.hasErrors());
+			} catch (Throwable e) {
+				setValid(false);
+			}
 		}
 		if (ignoreErrors || isValid()) {
 			if (operation == CrudOperation.ADD) {
@@ -473,6 +483,27 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 		} else {
 			logger.debug("not valid {}", domainObject);
 		}
+	}
+	
+	private StringBuilder dumpErrors(BinderValidationStatus<?> validationStatus) {
+		StringBuilder sb = new StringBuilder();
+		for (BindingValidationStatus<?> ve : validationStatus.getFieldValidationErrors()) {
+
+			if (sb.length() > 0) {
+				sb.append("; ");
+			}
+			String message = ve.getMessage().orElse(("Error"));
+			sb.append(message);
+		}
+		for (ValidationResult ve : validationStatus.getBeanValidationErrors()) {
+			if (sb.length() > 0) {
+				sb.append("; ");
+			}
+			String message = ve.getErrorMessage();
+			// logger.debug("bean message: {}",message);
+			sb.append(message);
+		}
+		return sb;
 	}
 
 	/**
