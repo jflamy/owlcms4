@@ -40,6 +40,9 @@ html {
 .errorMessage {
 	color: red;
 	font-weight: bold;
+}
+
+.errorBackground {
 	background-color: var(--lumo-error-color-10pct);
 }
 

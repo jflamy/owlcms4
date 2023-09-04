@@ -3610,7 +3610,6 @@ public class Athlete {
 	 * @param snatch1ActualLift the new snatch 1 actual lift
 	 */
 	public void setSnatch1ActualLift(String snatch1ActualLift) {
-		logger.warn("============== snatch1ActualLift {}", isValidation());
 		if (isValidation()) {
 			validateSnatch1ActualLift(snatch1ActualLift);
 		}
@@ -4057,7 +4056,6 @@ public class Athlete {
 	}
 
 	public void setValidation(boolean validation) {
-		logger.warn("setting validation {} from {}", validation, LoggerUtils.whereFrom());
 		this.validation = validation;
 	}
 
@@ -4343,10 +4341,8 @@ public class Athlete {
 			        cleanJerk1Declaration,
 			        cleanJerk1Change1,
 			        cleanJerk1Change2);
-			logger.warn("athlete validated total {}", qualifyingTotal);
 			return b;
 		} catch (RuleViolationException e) {
-			logger.warn("athlete total violation {}", e.getMessage());
 			throw e;
 		}
 	}
@@ -4361,8 +4357,7 @@ public class Athlete {
 	public boolean validateStartingTotalsRule(Integer snatch1Request, Integer cleanJerk1Request,
 	        int qualTotal) throws RuleViolationException.Rule15_20Violated {
 		boolean enforce20kg = Competition.getCurrent().isEnforce20kgRule();
-		logger.warn("validateStartingTotalsRule {} {} {} {}", LoggerUtils.whereFrom(), System.identityHashCode(this),
-		        isValidation(), this.isStartingTotalViolation());
+		//logger.debug("validateStartingTotalsRule {} {} {} {}", LoggerUtils.whereFrom(), System.identityHashCode(this), isValidation(), this.isStartingTotalViolation());
 		if (!enforce20kg || !isValidation()) {
 			// don't complain again if exception already raised.
 			return true;
@@ -4370,7 +4365,7 @@ public class Athlete {
 		int missing = startingTotalDelta(snatch1Request, cleanJerk1Request, qualTotal);
 		if (missing > 0) {
 			this.setStartingTotalViolation(true);
-			logger.warn("FAIL missing {}", missing);
+			//logger.debug("FAIL missing {}", missing);
 			Integer startNumber2 = this.getStartNumber();
 			throw new RuleViolationException.Rule15_20Violated(this, this.getLastName(),
 			        this.getFirstName(),
@@ -4378,7 +4373,7 @@ public class Athlete {
 			        snatch1Request, cleanJerk1Request, missing, qualTotal);
 		} else {
 			this.setStartingTotalViolation(true);
-			getLogger().warn("OK margin={}", -(missing));
+			//logger.debug("OK margin={}", -(missing));
 			return true;
 		}
 	}
@@ -5053,6 +5048,7 @@ public class Athlete {
 
 	}
 
+	@SuppressWarnings("unused")
 	private boolean isStartingTotalViolation() {
 		return startingTotalViolation;
 	}
@@ -5110,7 +5106,7 @@ public class Athlete {
 	}
 
 	private void rethrow(RuleViolationException e) throws RuleViolationException {
-		logger.warn("rethrowing {} at {}", e, LoggerUtils.whereFrom());
+		//logger.debug("rethrowing {} at {}", e, LoggerUtils.whereFrom());
 		throw e;
 	}
 

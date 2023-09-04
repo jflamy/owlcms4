@@ -21,7 +21,6 @@ import com.vaadin.flow.component.Focusable;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.HasValueAndElement;
 import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -140,7 +139,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 
 		errorLabel = new Paragraph();
 		HorizontalLayout labelWrapper = new HorizontalLayout(errorLabel);
-		labelWrapper.addClassName("errorMessage");
+		errorLabel.addClassName("errorMessage");
 		labelWrapper.setWidthFull();
 		labelWrapper.setJustifyContentMode(JustifyContentMode.CENTER);
 
@@ -181,7 +180,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 	}
 
 	public void setValidationStatusHandler(boolean showErrorsOnFields) {
-		logger.warn("?????? setValidationStatusHandler from {}",LoggerUtils.whereFrom() );
+
 		binder.setValidationStatusHandler((s) -> {
 			setValid(!s.hasErrors());
 			if (showErrorsOnFields) {
@@ -340,7 +339,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 		if (operationButton != null) {
 			footerLayout.add(operationButton);
 			if (operation == CrudOperation.UPDATE && shortcutEnter) {
-				ShortcutRegistration reg = operationButton.addClickShortcut(Key.ENTER);
+				operationButton.addClickShortcut(Key.ENTER);
 			}
 		}
 		footerLayout.setFlexGrow(1.0, spacer);
@@ -447,13 +446,11 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 	        ComponentEventListener<ClickEvent<Button>> gridCallback, boolean ignoreErrors) {
 		if (ignoreErrors) {
 			if (domainObject instanceof Athlete) {
-				logger.warn("ignoring errors");
 				((Athlete) domainObject).setValidation(!ignoreErrors);
 			}
 			binder.writeBeanAsDraft(domainObject, true);
 		} else {
 			boolean writeBeanIfValid = binder.writeBeanIfValid(domainObject);
-			logger.warn("binder called {}", writeBeanIfValid);
 			setValid(writeBeanIfValid);
 		}
 		if (ignoreErrors || isValid()) {
@@ -486,7 +483,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 	 * @return
 	 */
 	public boolean setErrorLabel(BinderValidationStatus<?> validationStatus, boolean showErrorOnFields) {
-		logger.warn("{} setErrorLabel {} bean errors, {} field error", validationStatus.getBeanValidationErrors().size(), validationStatus.getFieldValidationErrors().size());
+		//logger.debug("{} setErrorLabel {} bean errors, {} field error", validationStatus.getBeanValidationErrors().size(), validationStatus.getFieldValidationErrors().size());
 		boolean hasErrors = validationStatus.getFieldValidationErrors().size() > 0;
 		boolean showInLabel = !showErrorOnFields;
 
