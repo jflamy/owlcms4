@@ -7,9 +7,9 @@
 > - owlcms:  All scoreboards converted.
 > - publicresults: Not converted. Will be done once owlcms stabilized.
 
-44.0.0-alpha07: Snapshot release.
+44.0.0-alpha08: Snapshot release.
 
-- Migrated video scoreboards and Sinclair/team scoreboards.
+- Reworked the athlete card validation logic, removed legacy workarounds.
 
 44.0.0
 
