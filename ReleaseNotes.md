@@ -1,33 +1,21 @@
-43.0.0-rc
+43.0.0
 
-> *Release Candidates* are the final testing releases
-> *Do test thouroughly before using in a a competition.*
+- Prevention of accidental mistakes from officials
+  - Referee decision updates are ignored once the decision has been shown.  Referees must use flags or cards after 3 seconds. Previously the jury console could show decision changes that the public did not see.
+  - Pressing the jury control buttons to start a break is ignored during a break -- switching to a different break or stopping the competition requires using the Pause dialog explicitly to first stop the ongoing break.
+- Records Management
+  - Errors in the input file are now shown directly in the user interface in addition to the logs, and have also been improved to catch more types of errors.
 
-- 43.0.0-rc01:
-  - Merge latest translations.
-  
-- Referee decision updates are ignored once the decision has been shown. 
-  - Referees must use flags or cards after 3 seconds. In this way, what the jury sees matches what the public saw.
-
-- Prevention of accidental countdown interruptions.  
-  - When a countdown is running it is now necessary to use the "Pause" dialog in order to switch to a different kind of break.
-  - Therefore, accidentally pressing the jury control button for a technical break (or other) will be ignored during the countdowns to the introductions, the first snatch, or the first clean & jerk.
-  - Ceremonies (Introduction, Medals) work like before since they do not interrupt the countdown.
-
-- Records
-  - Error messages are now visible directly in the user interface, and have also been improved to catch more types of errors.
-
-  - It is now possible to export all records as a single Excel to check what has been loaded or to reload in a later competition.
+  - It is now possible to export all records as a single Excel, to check what has been loaded or to reload in a later competition.
 - CSS Styling:  
-  - An alternate directory to use for styling files can now be given on the "System Settings - Personalization" page.  The directory name given is looked up in the "local" subdirectory of the installation (the default is "styles").  BEWARE: if given, the `OWLCMS_STYLESDIR` variable takes precedence over the database setting.
-  - It is now easier to hide the body weight category column to promote inclusivity in local competitions: In `local/styles/resultsCustomization.css`, set `--categoryVisibility=hidden` and `--categoryWidth=0` to hide the body weight category column on the scoreboard.
+  - An alternate directory to use for styling files can now be given on the "System Settings - Personalization" page.  The directory name given is looked up in the "local" subdirectory of the installation (the default is "styles").  You can also use the `OWLCMS_STYLESDIR` environment variable or the `-DstylesDIR` Java option to override this value at run time.
+  - It is now possible to hide the body weight category column on the scoreboard. In `local/styles/resultsCustomization.css`, set `--categoryVisibility=hidden` and `--categoryWidth=0`
 - Public Results 
-  - It is now possible to choose the lifting order instead of the start number order on the remote scoreboard (click on the scoreboard to see the options)
+  - On the remote scoreboard, it is now possible to see the lifting order instead of the start number order.  The option is selected in the dialog that is shown when clicking on the scoreboard.
   - Flags are shown on the remote scoreboard if present in the main owlcms `local/flags`
-  - All the styles sheets under `local` are sent to the remote server.  The styles directory specified in the owlcms configuration is used by publicresults also, so the "look and feel" is the same on both ends. 
-  - However, on publicresults, the `publicresultsCustomization.css` file is used instead of `resultsCustomization.css`.  By default, these two files are the same, but editing `publicresultsCustomization.css` allows for different column visibility on the remote scoreboard.
-- The Session editing form now uses tabs for better visual organization.
-- An MQTT `fop/config` message is published on startup and when platforms are edited or deleted.  Device management applications can listen to this message to display the available platforms.
+  - The styling of the local scoreboard is respected on the remote scoreboard (the local style sheets are sent to the remote)
+    - However, for publicresults, the `publicresultsCustomization.css` file is used instead of `resultsCustomization.css`.  This allows for different columns or font sizes to be used on the remote.
+- The Session editing form has been cleaned up.
 
 #####  Highlights from recent stable releases
 
@@ -50,20 +38,20 @@
   - Record definition files can be uploaded interactively 
   - The ordering of the records on the scoreboard is no longer dependent on the file names, and is edited interactively.
 - The "Athlete Challenge" situation is now displayed and supported by the MQTT messages and the jury device.
-- We now recommend using [fly.io](https://owlcms.github.io/owlcms4-prerelease/#/Fly) as the cloud installation is straightforward and owlcms can be run for free. Heroku is now deprecated as they have broken the easy install method and are no longer free.
+- We now recommend using [fly.io](https://owlcms.github.io/owlcms4/#/Fly) as the cloud installation is straightforward and owlcms can be run for free. Heroku is now deprecated as they have broken the easy install method and are no longer free.
 - The editing page used for athlete registration and weigh-in has been redone to be more readable and better organized.
 - The jury members can now vote again during a deliberation break. The decision lights are reset when deliberation starts so the post-video vote is a secret vote. 
-- A new site section has been added to start the displays used for video streaming (see the [streaming documentation](https://owlcms.github.io/owlcms4-prerelease/#/OBS?id=_2-setup-owlcms-with-some-data)). The video-oriented scoreboards have a different header with the event name and group description, and show different columns (by default, the same as used by IWF).
+- A new site section has been added to start the displays used for video streaming (see the [streaming documentation](https://owlcms.github.io/owlcms4/#/OBS?id=_2-setup-owlcms-with-some-data)). The video-oriented scoreboards have a different header with the event name and group description, and show different columns (by default, the same as used by IWF).
 
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_43.0.0-rc01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_43.0.0.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_43.0.0-rc01.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_43.0.0.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalLinuxMacSetup)
 
-  - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
+  - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4/#Fly)** installation instructions.
 
-  - For self-hosted **Docker**, see [Docker](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For self-hosted **Docker**, see [Docker](https://owlcms.github.io/owlcms4/#/LocalWindowsSetup)
