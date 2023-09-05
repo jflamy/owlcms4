@@ -61,22 +61,22 @@ jobs:
         displayName: Push to repositories
       - task: GitHubRelease@0
         inputs:
-          ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
-            gitHubConnection: github.com_jflamy-dev
-            repositoryName: $(RELEASE_USER)/${{ parameters.moduleName }}-heroku$(RELEASE_SUFFIX)
-            isPreRelease: true
-          ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
-            gitHubConnection: github.com_jflamy-dev
-            repositoryName: $(RELEASE_USER)/${{ parameters.moduleName }}-heroku$(RELEASE_SUFFIX)
-            isPreRelease: false
           ${{ if eq(variables['Build.SourceBranchName'], 'v23') }}:
             gitHubConnection: github.com_jflamy-dev
             repositoryName: $(RELEASE_USER)/${{ parameters.moduleName }}-heroku$(RELEASE_SUFFIX)
-            isPreRelease: false
-          ${{ if eq(variables['Build.SourceBranchName'], 'v23_38_1b03') }}:
+            isPreRelease: true
+          ${{ if eq(variables['Build.SourceBranchName'], 'v23master') }}:
             gitHubConnection: github.com_jflamy-dev
             repositoryName: $(RELEASE_USER)/${{ parameters.moduleName }}-heroku$(RELEASE_SUFFIX)
-            isPreRelease: true
+            isPreRelease: false
+          ${{ if eq(variables['Build.SourceBranchName'], 'v24') }}:
+            gitHubConnection: github.com_jflamy-dev
+            repositoryName: $(RELEASE_USER)/${{ parameters.moduleName }}-heroku$(RELEASE_SUFFIX)
+            isPreRelease: false
+          ${{ if eq(variables['Build.SourceBranchName'], 'v24master') }}:
+            gitHubConnection: github.com_jflamy-dev
+            repositoryName: $(RELEASE_USER)/${{ parameters.moduleName }}-heroku$(RELEASE_SUFFIX)
+            isPreRelease: false
           action: create # Options: create, edit, delete
           target: master # branch on which we are tagging, mandatory if not releasing in the build repo
           tagSource: manual

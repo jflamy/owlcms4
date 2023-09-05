@@ -147,15 +147,11 @@ jobs:
       - task: GitHubRelease@0
         displayName: Release on Github
         inputs:
-          ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
-            gitHubConnection: github.com_jflamy-dev
-            repositoryName: $(RELEASE_USER)/owlcms4$(RELEASE_SUFFIX)
-            isPreRelease: false
-          ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
-            gitHubConnection: github.com_jflamy-dev
-            repositoryName: $(RELEASE_USER)/owlcms4$(RELEASE_SUFFIX)
-            isPreRelease: false
           ${{ if eq(variables['Build.SourceBranchName'], 'v23') }}:
+            gitHubConnection: github.com_jflamy-dev
+            repositoryName: $(RELEASE_USER)/owlcms4$(RELEASE_SUFFIX)
+            isPreRelease: false
+          ${{ if eq(variables['Build.SourceBranchName'], 'v23master') }}:
             gitHubConnection: github.com_jflamy-dev
             repositoryName: $(RELEASE_USER)/owlcms4$(RELEASE_SUFFIX)
             isPreRelease: false
@@ -163,6 +159,10 @@ jobs:
             gitHubConnection: github.com_jflamy-dev
             repositoryName: $(RELEASE_USER)/owlcms4$(RELEASE_SUFFIX)
             isPreRelease: true
+          ${{ if eq(variables['Build.SourceBranchName'], 'v24master') }}:
+            gitHubConnection: github.com_jflamy-dev
+            repositoryName: $(RELEASE_USER)/owlcms4$(RELEASE_SUFFIX)
+            isPreRelease: false
           action: "create" # Options: create, edit, delete
           target: master # all our releases are on the master branch of the release repos.
           tagSource: "manual"
