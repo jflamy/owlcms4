@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -66,11 +67,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		jexlLogger.setLevel(Level.ERROR);
 		tagLogger.setLevel(Level.ERROR);
 	}
-
 	protected List<Athlete> sortedAthletes;
-
 	private AgeDivision ageDivision;
-
 	private String ageGroupPrefix;
 	private Category category;
 	private boolean excludeNotWeighed;
@@ -79,6 +77,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	private HashMap<String, Object> reportingBeans;
 	private String templateFileName;
 	private UI ui;
+	private Consumer<String> doneCallback;
 
 	public JXLSWorkbookStreamSource() {
 		this.ui = UI.getCurrent();
@@ -107,50 +106,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	private void writeStream(OutputStream stream) throws IOException {
-		Locale locale = OwlcmsSession.getLocale();
-		XLSTransformer transformer = new XLSTransformer();
-		configureTransformer(transformer);
-		Workbook workbook = null;
-		try {
-			logger.debug("setReportingInfo");
-			setReportingInfo();
-			HashMap<String, Object> reportingInfo = getReportingBeans();
-			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
-			if (athletes != null && (athletes.size() > 0 || isEmptyOk())) {
-				workbook = transformer.transformXLS(getTemplate(locale), reportingInfo);
-				if (workbook != null) {
-					postProcess(workbook);
-				}
-			} else {
-				String noAthletes = Translator.translate("NoAthletes");
-				logger./**/warn("no athletes: empty report.");
-				ui.access(() -> {
-					Notification notif = new Notification();
-					notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
-					notif.setPosition(Position.TOP_STRETCH);
-					notif.setDuration(3000);
-					notif.setText(noAthletes);
-					notif.open();
-				});
-				workbook = new HSSFWorkbook();
-				workbook.createSheet().createRow(1).createCell(1).setCellValue(noAthletes);
-			}
-		} catch (Exception e) {
-			LoggerUtils.logError(logger, e);
-		}
-		if (workbook != null) {
-			logger.debug("writing stream");
-			try {
-				workbook.write(stream);
-			} catch (Throwable e) {
-				e.printStackTrace();
-			}
-			logger.debug("wrote stream");
-		}
-	}
-
+	@Override
 	public InputStream createInputStream() {
 		try {
 			PipedInputStream in = new PipedInputStream();
@@ -158,6 +114,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			logger.debug("created pipes");
 			new Thread(
 			        new Runnable() {
+				        @Override
 				        public void run() {
 					        try {
 						        writeStream(out);
@@ -191,6 +148,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		return category;
 	}
 
+	public Consumer<String> getDoneCallback() {
+		return doneCallback;
+	}
+
 	public Group getGroup() {
 		if (group != null) {
 			Group nGroup = GroupRepository.getById(group.getId());
@@ -202,6 +163,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 
 	public HashMap<String, Object> getReportingBeans() {
 		return reportingBeans;
+	}
+
+	public List<Athlete> getSortedAthletes() {
+		return sortedAthletes;
 	}
 
 	public List<String> getSuffixes(Locale locale) {
@@ -244,6 +209,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 
 	public void setCategory(Category category) {
 		this.category = category;
+	}
+
+	public void setDoneCallback(Consumer<String> action) {
+		this.doneCallback = action;
 	}
 
 	public void setExcludeNotWeighed(boolean excludeNotWeighed) {
@@ -337,10 +306,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		throw new IOException("no template found for : " + templateName + extension + " tried with suffix " + tryList);
 	}
 
-	public List<Athlete> getSortedAthletes() {
-		return sortedAthletes;
-	}
-
 	protected InputStream getTemplate(Locale locale) throws IOException, Exception {
 		if (inputStream != null) {
 			logger.debug("explicitly set template {}", inputStream);
@@ -400,4 +365,52 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			return compare = ObjectUtils.compare(a.getPlatform(), b.getPlatform(), true);
 		}).collect(Collectors.toList()));
 	}
+
+	@SuppressWarnings("unchecked")
+	private void writeStream(OutputStream stream) throws IOException {
+		Locale locale = OwlcmsSession.getLocale();
+		XLSTransformer transformer = new XLSTransformer();
+		configureTransformer(transformer);
+		Workbook workbook = null;
+		try {
+			logger.debug("setReportingInfo");
+			setReportingInfo();
+			HashMap<String, Object> reportingInfo = getReportingBeans();
+			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
+			if (athletes != null && (athletes.size() > 0 || isEmptyOk())) {
+				workbook = transformer.transformXLS(getTemplate(locale), reportingInfo);
+				if (workbook != null) {
+					postProcess(workbook);
+				}
+			} else {
+				String noAthletes = Translator.translate("NoAthletes");
+				logger./**/warn("no athletes: empty report.");
+				ui.access(() -> {
+					Notification notif = new Notification();
+					notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
+					notif.setPosition(Position.TOP_STRETCH);
+					notif.setDuration(3000);
+					notif.setText(noAthletes);
+					notif.open();
+				});
+				workbook = new HSSFWorkbook();
+				workbook.createSheet().createRow(1).createCell(1).setCellValue(noAthletes);
+			}
+		} catch (Exception e) {
+			LoggerUtils.logError(logger, e);
+		}
+		if (workbook != null) {
+			logger.debug("writing stream");
+			try {
+				workbook.write(stream);
+				doneCallback.accept(null);
+			} catch (Throwable e) {
+				LoggerUtils.logError(logger, e);
+			}
+			logger.debug("wrote stream");
+		}
+		
+		
+	}
+
 }

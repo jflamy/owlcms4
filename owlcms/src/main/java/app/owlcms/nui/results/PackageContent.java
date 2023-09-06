@@ -432,6 +432,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		        Competition::getComputedFinalPackageTemplateFileName,
 		        Competition::setFinalPackageTemplateFileName,
 		        Translator.translate("FinalResultsPackage"), "finalPackage", Translator.translate("Download"));
+		downloadDialog.setProcessingMessage(Translator.translate("LongProcessing"));
 		Button resultsButton = downloadDialog.createTopBarDownloadButton();
 		return resultsButton;
 	}

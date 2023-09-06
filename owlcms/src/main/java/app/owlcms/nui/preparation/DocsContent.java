@@ -330,6 +330,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		        Competition::setCardsTemplateFileName,
 		        title,
 		        downloadedFilePrefix, Translator.translate("Download"));
+		cardsButtonFactory.setProcessingMessage(Translator.translate("LongProcessing"));
 		return cardsButtonFactory.createTopBarDownloadButton();
 	}
 
@@ -365,6 +366,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 			        startingXlsWriter.setGroup(
 			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
 			        // get current version of athletes.
+			        startingXlsWriter.setPostProcessor(null);
 			        findAll();
 			        List<Athlete> sortedAthletes = startingXlsWriter.getSortedAthletes();
 			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(sortedAthletes));
