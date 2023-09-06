@@ -69,7 +69,6 @@ import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.NaturalOrderComparator;
 import ch.qos.logback.classic.Logger;
-import jakarta.annotation.Nonnull;
 
 @SuppressWarnings("serial")
 public class BreakManagement extends VerticalLayout implements SafeEventBusRegistration {
@@ -133,7 +132,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 	 * @param parentDialog
 	 * @param origin
 	 */
-	BreakManagement(@Nonnull FieldOfPlay fop, BreakType requestedBreak, CountdownType requestedCountdownType,
+	BreakManagement(FieldOfPlay fop, BreakType requestedBreak, CountdownType requestedCountdownType,
 	        Integer countdownSecondsRemaining, Dialog parentDialog, Object origin) {
 		setPadding(false);
 		setMargin(false);
