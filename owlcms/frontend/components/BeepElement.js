@@ -12,7 +12,7 @@ class BeepElement extends LitElement {
   }
 
   render() {
-    return html`<div>${this.doBeep}${( this.doBeep )? this.beep() : ""}</div>`;
+    return html`<div>${( this.doBeep )? this.beep() : ""}</div>`;
   }
 
   static get properties() {
