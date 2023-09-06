@@ -23,13 +23,13 @@ public class BeepElement extends LitTemplate
         implements SafeEventBusRegistration {
 
 	public void beep() {
-		logger.warn("calling beep");
+		logger.debug("calling beep");
 		getElement().setProperty("silent", false);
 		getElement().setProperty("doBeep", true);
 	}
 	
 	public void reset() {
-		logger.warn("calling beep");
+		logger.debug("calling reset");
 		getElement().setProperty("silent", false);
 		getElement().setProperty("doBeep", false);
 	}

@@ -22,8 +22,10 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.StreamResourceWriter;
 
@@ -50,7 +52,11 @@ public class DownloadDialog {
 	private String resourceDirectoryLocation;
 	private Supplier<JXLSWorkbookStreamSource> streamSourceSupplier;
 	private JXLSWorkbookStreamSource xlsWriter;
+	private Anchor downloadAnchor;
+	private Dialog dialog;
 	// private LazyDownloadButton downloadButton;
+	private ComboBox<Resource> templateSelect;
+	private String processingMessage;
 
 	/**
 	 * @param streamSourceSupplier lambda that creates a JXLSWorkbookStreamSource and sets its filters
@@ -94,10 +100,13 @@ public class DownloadDialog {
 
 	private Dialog createDialog() {
 //        Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
-		Dialog dialog = new Dialog();
+		dialog = new Dialog();
 		dialog.setCloseOnEsc(true);
 		dialog.setHeaderTitle(dialogTitle);
-		ComboBox<Resource> templateSelect = new ComboBox<>();
+		templateSelect = new ComboBox<Resource>();
+
+		HorizontalLayout templateSelection = new HorizontalLayout();
+		templateSelection.setSpacing(false);
 
 		templateSelect.setPlaceholder(Translator.translate("AvailableTemplates"));
 		templateSelect.setHelperText(Translator.translate("SelectTemplate"));
@@ -155,8 +164,12 @@ public class DownloadDialog {
 
 					Supplier<String> supplier = () -> getTargetFileName();
 
-					Anchor link = createDownloadButton(resource, xlsWriter, supplier.get());
-					dialog.add(link);
+					Anchor nDownloadAnchor = createDownloadButton(resource, xlsWriter, supplier.get());
+					// if downloadAnchor is null, same as add nDownloadAnchor
+					templateSelection.replace(downloadAnchor, nDownloadAnchor);
+					downloadAnchor = nDownloadAnchor;
+
+					xlsWriter.setDoneCallback((message) -> dialog.close());
 
 //					downloadButton.setFileNameCallback(supplier);
 //					downloadButton.setInputStreamCallback(() -> xlsWriter.createInputStream());
@@ -165,7 +178,8 @@ public class DownloadDialog {
 					logger.error("{}", LoggerUtils.stackTrace(e1));
 				}
 			});
-			dialog.add(templateSelect);
+			templateSelection.add(templateSelect);
+			dialog.add(templateSelection);
 			templateSelect.setValue(found);
 		} catch (Exception e1) {
 			throw new RuntimeException(e1);
@@ -176,12 +190,20 @@ public class DownloadDialog {
 
 	private Anchor createDownloadButton(StreamResource resource, StreamResourceWriter writer, String fileName) {
 		resource = new StreamResource(fileName, (StreamResourceWriter) writer);
-
 		Anchor link = new Anchor(resource, "");
 		link.getElement().setAttribute("download", true);
 		Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
 		link.add(innerButton);
+		innerButton.setDisableOnClick(true);
+		innerButton.addClickListener((c) -> {
+			templateSelect.setEnabled(false);
+			dialog.add(new Paragraph(getProcessingMessage()));
+		});
 		return link;
+	}
+
+	private String getProcessingMessage() {
+		return processingMessage == null ? Translator.translate("Processing") : processingMessage;
 	}
 
 	private String getTargetFileName() {
@@ -226,6 +248,10 @@ public class DownloadDialog {
 			}
 		}
 		return found;
+	}
+
+	public void setProcessingMessage(String processingMessage) {
+		this.processingMessage = processingMessage;
 	}
 
 }

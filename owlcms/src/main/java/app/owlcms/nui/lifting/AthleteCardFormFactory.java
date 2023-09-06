@@ -967,6 +967,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	}
 
 	private int computeAutomaticProgression(int value) {
+		//FIXME: do not duplicate the logic from the domain object
 		return value <= 0 ? Math.abs(value) : value + 1;
 	}
 

@@ -29,7 +29,7 @@ public class SoundUtils {
 		// this.getElement().executeJs("window.audioCtx.suspend()");
 		PendingJavaScriptResult result = element.executeJs("console.warn('setting audio status'); return (window.isIOS ? window.audioCtx.state : 'running')");
 		result.then(String.class, r -> {
-			logger.warn("audio state {}", r);
+			logger.debug("audio state {}", r);
 			if (!r.equals("running")) {
 				element.executeJs("console.warn('setting audio status'); window.audioCtx.resume()");
 			} else {
@@ -40,7 +40,7 @@ public class SoundUtils {
 
 	public static void enableAudioContextNotification(Element element) {
 		// this.getElement().executeJs("window.audioCtx.suspend()");
-		logger.warn("enabling");
+		logger.debug("enabling");
 		PendingJavaScriptResult result = element.executeJs("console.warn('checking audio status'); return (window.isIOS ? window.audioCtx.state : 'running')");
 		// PendingJavaScriptResult result = element.executeJs("return
 		// window.audioCtx.state");
