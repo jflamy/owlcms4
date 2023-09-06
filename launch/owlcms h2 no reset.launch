@@ -9,11 +9,11 @@
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
         <mapEntry key="OWLCMS_BACKDOOR" value="10.0.0.221,127.0.0.1,[0:0:0:0:0:0:0:1]"/>
-        <mapEntry key="OWLCMS_CSSEDIT" value="false"/>
         <mapEntry key="OWLCMS_PORT" value="8080"/>
-        <mapEntry key="OWLCMS_UPDATEKEY" value="maryhadalittlelamb"/>
+        <mapEntry key="OWLCMS_UPDATEKEY" value="mapetitevacheamalauxpattes"/>
         <mapEntry key="OWLCMS_USECOMPETITIONDATE" value="true"/>
         <mapEntry key="_JDBC_DATABASE_URL" value="jdbc:h2:file:./database/scolaire.mv.db"/>
+        <mapEntry key="_OWLCMS_CSSEDIT" value="false"/>
         <mapEntry key="_OWLCMS_ENABLEEMBEDDEDMQTT" value="false"/>
         <mapEntry key="_OWLCMS_H2SERVERPORT" value="9092"/>
         <mapEntry key="_OWLCMS_LOCALE" value="en_CA"/>
@@ -41,5 +41,5 @@
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="owlcms"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="owlcms"/>
     <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dvaadin.frontend.hotdeploy=true -Dlogback.configurationFile=logback-console.xml -Dvaadin.devmode.devTools.enabled=true"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dvaadin.frontend.hotdeploy=false -Dlogback.configurationFile=logback-console.xml -Dvaadin.devmode.devTools.enabled=true"/>
 </launchConfiguration>
