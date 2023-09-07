@@ -12,15 +12,20 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
-import app.owlcms.fieldofplay.FOPState;
-import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.DecisionReset;
 
+/**
+ * This version is typically used for streaming.
+ * The referee order is as seen from the jury table, 1 is on the left.
+ * The decision lights stay on instead of resetting.
+ * 
+ * @author jflamy
+ *
+ */
 @SuppressWarnings("serial")
 @Tag("decision-board-template")
 @JsModule("./components/DecisionBoard.js")
@@ -47,6 +52,28 @@ public class PublicFacingDecisionBoard extends AttemptBoard {
 		return true;
 	}
 
+	@Subscribe
+	@Override
+	public void slaveDecisionReset(DecisionReset e) {
+		// do nothing. Wait for new clock.
+	}
+
+	@Subscribe
+	public void slaveEvent(UIEvent e) {
+		// do nothing. Wait for new clock.
+	}
+
+	@Subscribe
+	@Override
+	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
+		// do nothing. Wait for new clock.
+	}
+
+	@Subscribe
+	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> syncWithFOP(OwlcmsSession.getFop()));
+	}
+
 	@Override
 	protected void checkImages() {
 		athletePictures = false;
@@ -56,57 +83,16 @@ public class PublicFacingDecisionBoard extends AttemptBoard {
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see app.owlcms.displays.attemptboard.AttemptBoard#onAttach(com.vaadin.flow.
-	 * component.AttachEvent)
+	 * @see app.owlcms.displays.attemptboard.AttemptBoard#onAttach(com.vaadin.flow. component.AttachEvent)
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
-		checkVideo(Config.getCurrent().getParamStylesDir()+"/video/decisionboard.css", routeParameter, this);
+		checkVideo(Config.getCurrent().getParamStylesDir() + "/video/decisionboard.css", routeParameter, this);
 		decisions.setPublicFacing(true);
 		setPublicFacing(true);
 		setShowBarbell(false);
 		decisions.setDontReset(true);
 		setSilenced(isSilencedByDefault());
-	}
-	
-	protected void doEmpty() {
-		FieldOfPlay fop2 = OwlcmsSession.getFop();
-		boolean inactive = fop2 == null || fop2.getState() == FOPState.INACTIVE;
-		this.getElement().callJsFunction("clear");
-		this.getElement().setProperty("inactiveBlockStyle", (inactive ? "display:grid" : "display:none"));
-		this.getElement().setProperty("activeGridStyle", (inactive ? "display:none" : "display:grid"));
-		this.getElement().setProperty("inactiveClass", (inactive ? "bigTitle" : ""));
-		this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
-	}
-	
-	@Subscribe
-	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> syncWithFOP(OwlcmsSession.getFop()));
-	}
-	
-	@Subscribe
-	@Override
-	public void slaveDecisionReset(DecisionReset e) {
-		// do nothing.  Wait for new clock.
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-		        this.getOrigin(), e.getOrigin());
-		this.getElement().setProperty("hideBecauseDecision", "hideBecauseDecision");
-	}
-
-	@Subscribe
-	@Override
-	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-		// do nothing.  Wait for new clock.
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-		        this.getOrigin(), e.getOrigin());
-		this.getElement().setProperty("hideBecauseDecision", "hideBecauseDecision");
-	}
-	
-	@Subscribe
-	public void slaveEvent(UIEvent e) {
-		// do nothing.  Wait for new clock.
-		uiEventLogger.debug("*** {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-		        this.getOrigin(), e.getOrigin());
 	}
 }

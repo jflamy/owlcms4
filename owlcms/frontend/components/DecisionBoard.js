@@ -12,119 +12,197 @@ class DecisionBoard extends LitElement {
   }
 
   render() {
-    return html` <link
-        rel="stylesheet"
-        type="text/css"
-        .href="${"local/" +
-        (this.stylesDir ?? "") +
-        "/" +
-        (this.video ?? "") +
-        "colors" +
-        (this.autoversion ?? "")}"
-      />
-      <link
-        rel="stylesheet"
-        type="text/css"
-        .href="${"local/" +
-        (this.stylesDir ?? "") +
-        "/" +
-        (this.video ?? "") +
-        "decisionboard" +
-        (this.autoversion ?? "")}"
-      />
-      <div class="${"wrapper " + (this.inactiveClass ?? "")}">
-        <div style="${this.inactiveBlockStyle}">
+    return html` 
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "")}.css"/>
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "decisionboard" + (this.autoversion ?? "")}.css"/>
+      
+      <div class="wrapper">
+        <div class="wrapper bigTitle" style="${this.waitingStyles()}">
           <div class="competitionName">${this.competitionName}</div>
           <br />
           <div class="nextGroup">${this.t?.WaitingNextGroup}</div>
         </div>
-        <div
-          class="decisionBoard"
-          id="decisionBoardDiv"
-          style="${this.activeGridStyle}"
-        >
-          <div class="barbell" id="barbellDiv">
+        <div class="decisionBoard" style="${this.activeStyles()}">
+          <div class="barbell" style="${this.barbellStyles()}">
             <slot name="barbell"></slot>
           </div>
-          <div class="timer athleteTimer" id="athleteTimerDiv">
+          <div class="barbell" style="${this.barbellStyles()}">
+            <slot name="barbell"></slot>
+          </div>
+          <div class="timer athleteTimer" style="${this.athleteTimerStyles()}">
             <timer-element id="athleteTimer"></timer-element>
           </div>
-          <div class="timer breakTime" id="breakTimerDiv">
+          <div class="timer breakTime" style="${this.breakTimerStyles()}">
             <timer-element id="breakTimer"></timer-element>
           </div>
-          <div class="decision" id="decisionDiv" @down="${this.down}">
+          <div class="decision" id="decisionDiv" style="${this.decisionStyles()}">
             <decision-element id="decisions"></decision-element>
           </div>
         </div>
       </div>`;
   }
 
+  /* what follows is integrally copied from attempt board */
+
   static get properties() {
     return {
-      weight: {
-        type: Number,
-      },
+      // top
+      fullName: {},
+      weight: {},
+      attempt: {},
+      teamName: {},
+      startNumber: {},
+      decisionVisible: { type: Boolean },
+      competitionName: {},
+      groupName: {},
+      liftsDone: {},
+    
+      athletes: {type: Object},
+      leaders: {type: Object},
+      records: {type: Object},
+
+      // mode (mutually exclusive, one of:
+      // WAIT INTRO_COUNTDOWN LIFT_COUNTDOWN CURRENT_ATHLETE INTERRUPTION SESSION_DONE CEREMONY
+      mode: {},
+
+      // during lifting
+      recordAttempt: {},
+      recordBroken: {},
+
+      // style sheets & misc.
+      javaComponentId: {},
+      stylesDir: {},
+      autoVersion: {},
+      video: {},
+
+      // translation map
+      t: { type: Object }
     };
   }
 
   firstUpdated(_changedProperties) {
     super.firstUpdated(_changedProperties);
-    console.log("decision board ready.");
-    this.doBreak();
-    this.renderRoot.querySelector("#athleteTimerDiv").style.display = "none";
-    this.renderRoot.querySelector("#barbellDiv").style.display = "none";
   }
 
-  start() {
-    this.renderRoot.querySelector("#timer").start();
+  isBreak() {
+    return this.mode === "INTERRUPTION" || this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "SESSION_DONE" || this.mode === "CEREMONY"
   }
 
-  reset() {
-    this.renderRoot.querySelector("#decisionBoardDiv").style.display = "grid";
-    //this.renderRoot.querySelector("#decisionBoardDiv").style.color="white";
-    this.renderRoot
-      .querySelector("#athleteTimer")
-      .reset(this.renderRoot.querySelector("#athleteTimer"));
-    this.renderRoot.querySelector("#athleteTimerDiv").style.display = "block";
-    this.renderRoot.querySelector("#breakTimerDiv").style.display = "none";
-    this.renderRoot.querySelector("#barbellDiv").style.display = "none";
-    this.renderRoot.querySelector("#decisionDiv").style.display = "none";
+  isCountdown() {
+    return  this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN"
   }
 
-  down() {
-    this.renderRoot.querySelector("#decisionBoardDiv").style.display = "grid";
-    this.renderRoot.querySelector("#athleteTimerDiv").style.display = "none";
-    this.renderRoot.querySelector("#breakTimerDiv").style.display = "none";
-    this.renderRoot.querySelector("#barbellDiv").style.display = "none";
-    this.renderRoot.querySelector("#decisionDiv").style.display = "block";
+  athleteImgClasses() {
+    var mainClass = "picture";
+    return mainClass + 
+      (this.decisionVisible ?  " hideBecauseDecision" : "") +
+      ((this.recordAttempt || this.recordBroken) ? " hideBecauseRecord" : "");
+  }
+  teamFlagImgClasses() {
+    var mainClass = this.athleteImg ? "flagWithPicture" : "flag";
+    return mainClass + 
+      (this.decisionVisible ?  " hideBecauseDecision" : "") +
+      ((this.recordAttempt || this.recordBroken) ? " hideBecauseRecord" : "");
   }
 
-  doBreak() {
-    //console.debug("decisionBoard doBreak");
-    this.renderRoot.querySelector("#decisionBoardDiv").style.display = "grid";
-    //this.renderRoot.querySelector("#decisionBoardDiv").style.color="white";
-    this.renderRoot.querySelector("#breakTimer").style.display = "block";
-    this.renderRoot.querySelector("#athleteTimerDiv").style.display = "none";
-    this.renderRoot.querySelector("#breakTimerDiv").style.display = "block";
-    this.renderRoot.querySelector("#barbellDiv").style.display = "none";
-    this.renderRoot.querySelector("#decisionDiv").style.display = "none";
+  waitingStyles() {
+    return "display: " + (this.mode === "WAIT" ? "grid" : "none");
   }
 
-  groupDone() {
-    this.clear();
+  activeStyles() {
+    return "display: " + (this.mode !== "WAIT" ? "grid" : "none");
   }
 
-  clear() {
-    this.renderRoot.querySelector("#decisionBoardDiv").style.display = "none";
+  lastNameClasses() {
+    return (this.athleteImg ? "lastNameWithPicture" : "lastName");
+  }
+  lastNameStyles() {
+    return "display: grid";
   }
 
-  reload() {
-    console.log("reloading");
-    window.location.reload();
+  firstNameClasses() {
+    return "display: " + (this.athleteImg ? "firstNameWithPicture" : "firstName");
   }
+  firstNameStyles() {
+    return "display: grid";
+  }
+
+  teamNameStyles() {
+    return "display: " + ((this.recordAttempt || this.recordBroken || this.isBreak()) ? "none" : "grid");
+  }
+
+  teamFlagImgStyles() {
+    return "display: " + (this.isBreak() ? "none" : ( this.mode === "CURRENT_ATHLETE" ? "grid" : "none"));
+  }
+
+
+  athleteImgStyles() {
+    return "display: " + ((this.mode === "CURRENT_ATHLETE" && (this.recordAttempt || this.recordBroken)) ? "grid" : "none");
+  }
+
+  recordMessageClasses() {
+    var mainClass = "recordNotification";
+    return mainClass +
+      (this.recordAttempt ? " attempt" : "") +
+      (this.recordBroken ? " new" : "") + 
+      (!this.recordAttempt && !this.recordBroken ? " none" : "");
+  }
+
+  recordMessageStyles() {
+    return "display: " + ((this.mode === "CURRENT_ATHLETE" && (this.recordAttempt || this.recordBroken)) ? "grid" : "none");
+  }
+
+  attemptStyles() {
+    return "display: " + ((this.isBreak() || this.decisionVisible) ? "none" : "grid");
+  }
+
+  startNumberStyles() {
+    return "display: " + (this.isBreak() ? "none" : "block");
+  }
+
+  weightStyles() {
+    // weights are visible during lift countdowns
+    return "display: " + ((this.mode === "LIFT_COUNTDOWN" || (this.mode === "CURRENT_ATHLETE")) ? "grid" : "none");
+  }
+
+  athleteTimerStyles() {
+    return "display:" + ((this.mode === "CURRENT_ATHLETE" && !this.decisionVisible) ? "grid" : "none");
+  }
+
+  breakTimerStyles() {
+    return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN") ? "grid" : "none");
+  }
+
+  barbellStyles() {
+    return "display: none";
+  }
+
+  decisionStyles() {
+    return "display: " + ((this.mode === "CURRENT_ATHLETE" && this.decisionVisible) ? "grid" : "none");
+  }
+
   constructor() {
     super();
+    this.javaComponentId = "";
+    this.lastName = "";
+    this.firstName = "";
     this.weight = 0;
+    this.competitionName = "";
+
+    this.mode == "WAIT";
+
+    this.attempt = "";
+    this.athleteImg = "";
+    this.teamName = "";
+    this.teamFlagImg = "";
+    this.startNumber = 0;
+    this.decisionVisible = false;
+    this.recordAttempt = false;
+    this.recordBroken = false;
+
+    this.stylesDir = "";
+    this.autoVersion = 0;
+    this.video = "";
   }
 }
 

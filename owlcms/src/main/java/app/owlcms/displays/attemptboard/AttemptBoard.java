@@ -367,9 +367,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 
 	@Override
 	public void setSilenced(boolean silenced) {
-		// logger.debug("{} setSilenced = {} from {}", this.getClass().getSimpleName(),
-		// silenced,
-		// LoggerUtils.whereFrom());
+		// logger.debug("{} setSilenced = {} from {}", this.getClass().getSimpleName(), silenced, LoggerUtils.whereFrom());
 		this.athleteTimer.setSilenced(silenced);
 		this.breakTimer.setSilenced(silenced);
 		this.silenced = silenced;
@@ -417,7 +415,6 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
-		//UIEventProcessor.uiAccess(athleteTimer, uiEventBus, () -> syncWithFOP(OwlcmsSession.getFop()));
 	}
 
 	/**

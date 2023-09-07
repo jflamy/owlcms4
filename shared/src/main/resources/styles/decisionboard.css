@@ -12,9 +12,9 @@
 
 .decisionBoard {
 	font-family: "Arial", "Helvetica", sans-serif;
+	display: grid;
 	color: var(--pageTextColor);
 	background-color: var(--pageBackgroundColor);
-	display: grid;
 	width: 100vw;
 	height: 100vh;
 	grid-template-columns:
@@ -49,7 +49,6 @@
 }
 
 .breakTime {
-	/* color: #99CCFF; */
 	color: var(--breakTimerColor);
 }
 
@@ -84,13 +83,16 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-	display: flex;
 }
 
 .competitionName {
+	grid-area: 1/down-start/down-end/down-end;
+	align-self: end;
     font-size: 8vh;
 }
 
 .nextGroup {
+	grid-area: decision-start/decision-start/decision-end/decision-end;
+	align-self: start;
     font-size: 4vh;
 }
