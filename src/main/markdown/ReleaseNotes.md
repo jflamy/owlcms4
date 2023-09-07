@@ -4,14 +4,14 @@
 >
 > STATUS
 >
-> - owlcms:  migration almost complete.
->   - Missing: countdown/decision screen not fully converted, use athlete-facing attempt board instead.
+> - owlcms:  Migration complete. All features required for a competition are present. No systematic tests yet.
 > - publicresults: Not converted yet.
 
-44.0.0-alpha10:
+44.0.0-alpha11:
 
-- Added a Verification of Final Entry template under the Teams pre-competition documents. This is to allow Team leads to sign off team memberships, categories, and entry totals, thereby expediting the VFE meeting.
-- Fixed formatting issues on the Plates/collar/barbell screen
+- Migrated athlete- and public-facing decision displays to LitElement.
+- Simplified BeepElement for mobile device refereeing interface
+- Athlete card now uses automatic progression calculations from the domain object.
 
 44.0.0
 

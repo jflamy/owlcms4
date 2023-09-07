@@ -966,11 +966,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		}
 	}
 
-	private int computeAutomaticProgression(int value) {
-		//FIXME: do not duplicate the logic from the domain object
-		return value <= 0 ? Math.abs(value) : value + 1;
-	}
-
 	private TextField createActualWeightField(int row, int col) {
 		TextField tf = new TextField();
 		tf.setPattern("^[-]{0,1}\\d*$");
@@ -1182,25 +1177,21 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 
 	/**
 	 * set the automatic progressions. This is invoked as a validator because we don't want to be called if the entered
-	 * value is invalid. Only the side-effect is interesting, so we return true.
+	 * value is invalid. Only the side-effects are interesting, so we return true.
 	 *
 	 * @param athlete
 	 * @return true always
 	 */
 	private boolean setAutomaticProgressions(Athlete athlete) {
-		int value = Athlete.zeroIfInvalid(snatch1ActualLift.getValue());
-		int autoVal = computeAutomaticProgression(value);
-		snatch2AutomaticProgression.setValue(Integer.toString(autoVal));
-		value = Athlete.zeroIfInvalid(snatch2ActualLift.getValue());
-		autoVal = computeAutomaticProgression(value);
-		snatch3AutomaticProgression.setValue(Integer.toString(autoVal));
+		String autoVal = athlete.getSnatch2AutomaticProgression(); // computeAutomaticProgression(value);
+		snatch2AutomaticProgression.setValue(autoVal);
+		autoVal = athlete.getSnatch3AutomaticProgression();
+		snatch3AutomaticProgression.setValue(autoVal);
 
-		value = Athlete.zeroIfInvalid(cj1ActualLift.getValue());
-		autoVal = computeAutomaticProgression(value);
-		cj2AutomaticProgression.setValue(Integer.toString(autoVal));
-		value = Athlete.zeroIfInvalid(cj2ActualLift.getValue());
-		autoVal = computeAutomaticProgression(value);
-		cj3AutomaticProgression.setValue(Integer.toString(autoVal));
+		autoVal = athlete.getCleanJerk2AutomaticProgression();
+		cj2AutomaticProgression.setValue(autoVal);
+		autoVal = athlete.getCleanJerk3AutomaticProgression();
+		cj3AutomaticProgression.setValue(autoVal);
 
 		return true;
 	}

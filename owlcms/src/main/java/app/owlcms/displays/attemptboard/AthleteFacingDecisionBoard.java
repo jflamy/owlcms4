@@ -11,9 +11,6 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.data.competition.Competition;
-import app.owlcms.fieldofplay.FOPState;
-import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 
 @SuppressWarnings("serial")
