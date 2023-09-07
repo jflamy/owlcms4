@@ -65,7 +65,6 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 	}
 
 	protected Paragraph errorLabel;
-	protected TextField operationTrigger;
 	protected ClickEvent<Button> operationTriggerEvent;
 	protected ResponsiveStep[] responsiveSteps;
 	private boolean valid = false;
@@ -324,7 +323,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 
 		NativeLabel spacer = new NativeLabel();
 
-		footerLayout.add(spacer); // , operationTrigger);
+		footerLayout.add(spacer);
 
 		if (buttons != null) {
 			for (Button b : buttons) {
@@ -360,25 +359,6 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 		}
 
 		Button button = doBuildButton(operation);
-//		TextField updateTrigger = new TextField();
-//		updateTrigger.setReadOnly(true);
-//		updateTrigger.setTabIndex(-1);
-//		updateTrigger.addFocusListener((f) -> {
-//			performOperationAndCallback(operation, domainObject, gridCallBackAction);
-//		});
-//		// field must visible and added to the layout for focus() to work, so we hide it
-//		// brutally
-//		updateTrigger.getStyle().set("z-index", "-10");
-//		updateTrigger.getStyle().set("width", "0");
-//
-//		// workaround for keyboard shortcut bug; the add/update takes place in the
-//		// trigger callback. The trigger then calls the gridCallBackAction
-//		operationTrigger = updateTrigger;
-//		ComponentEventListener<ClickEvent<Button>> listener = event -> {
-//			logger.debug("{} clicked", operation);
-//			operationTriggerEvent = event;
-//			operationTrigger.focus();
-//		};
 		button.addClickListener((f) -> {
 			performOperationAndCallback(operation, domainObject, gridCallBackAction, false);
 		});
@@ -393,16 +373,6 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 		}
 		Button button = doBuildButton(operation);
 
-//		// workaround for keyboard shortcut bug; the add/update takes place in the
-//		// trigger callback. The trigger then calls the gridCallBackAction
-//		operationTrigger = defineOperationTrigger(operation, domainObject, gridCallBackAction);
-//		ComponentEventListener<ClickEvent<Button>> listener = event -> {
-//			logger.debug("{} clicked", operation);
-//			operationTriggerEvent = event;
-//			operationTrigger.focus();
-//		};
-//		button.addClickListener(listener);
-
 		button.addClickListener((f) -> {
 			performOperationAndCallback(operation, domainObject, gridCallBackAction, false);
 		});
@@ -410,33 +380,33 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 		return button;
 	}
 
-	/**
-	 * Workaround for the fact that ENTER as keyboard shortcut prevents the value being typed from being set in the
-	 * underlying object.
-	 *
-	 * i.e. Typing TAB followed by ENTER works (because tab causes ON_BLUR), but ENTER alone doesn't.
-	 *
-	 * So we cause ENTER to move focus, which forces an ON_BLUR, and we do the processing in the focus handler.
-	 *
-	 * @param operation
-	 * @param action
-	 *
-	 * @param gridLayout
-	 */
-	public TextField defineOperationTrigger(CrudOperation operation, T domainObject,
-	        ComponentEventListener<ClickEvent<Button>> action) {
-		TextField updateTrigger = new TextField();
-		updateTrigger.setReadOnly(true);
-		updateTrigger.setTabIndex(-1);
-		updateTrigger.addFocusListener((f) -> {
-			performOperationAndCallback(operation, domainObject, action, false);
-		});
-		// field must visible and added to the layout for focus() to work, so we hide it
-		// brutally
-		updateTrigger.getStyle().set("z-index", "-10");
-		updateTrigger.getStyle().set("width", "0");
-		return updateTrigger;
-	}
+//	/**
+//	 * Workaround for the fact that ENTER as keyboard shortcut prevents the value being typed from being set in the
+//	 * underlying object.
+//	 *
+//	 * i.e. Typing TAB followed by ENTER works (because tab causes ON_BLUR), but ENTER alone doesn't.
+//	 *
+//	 * So we cause ENTER to move focus, which forces an ON_BLUR, and we do the processing in the focus handler.
+//	 *
+//	 * @param operation
+//	 * @param action
+//	 *
+//	 * @param gridLayout
+//	 */
+//	public TextField defineOperationTrigger(CrudOperation operation, T domainObject,
+//	        ComponentEventListener<ClickEvent<Button>> action) {
+//		TextField updateTrigger = new TextField();
+//		updateTrigger.setReadOnly(true);
+//		updateTrigger.setTabIndex(-1);
+//		updateTrigger.addFocusListener((f) -> {
+//			performOperationAndCallback(operation, domainObject, action, false);
+//		});
+//		// field must visible and added to the layout for focus() to work, so we hide it
+//		// brutally
+//		updateTrigger.getStyle().set("z-index", "-10");
+//		updateTrigger.getStyle().set("width", "0");
+//		return updateTrigger;
+//	}
 
 	protected boolean isValid() {
 		return valid;

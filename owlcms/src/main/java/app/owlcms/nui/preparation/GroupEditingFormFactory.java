@@ -313,11 +313,11 @@ public class GroupEditingFormFactory
 		return super.buildOperationButton(operation, domainObject, gridCallBackAction);
 	}
 
-	@Override
-	public TextField defineOperationTrigger(CrudOperation operation, Group domainObject,
-	        ComponentEventListener<ClickEvent<Button>> action) {
-		return super.defineOperationTrigger(operation, domainObject, action);
-	}
+//	@Override
+//	public TextField defineOperationTrigger(CrudOperation operation, Group domainObject,
+//	        ComponentEventListener<ClickEvent<Button>> action) {
+//		return super.defineOperationTrigger(operation, domainObject, action);
+//	}
 
 	@Override
 	public void delete(Group ageGroup) {

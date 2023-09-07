@@ -349,33 +349,33 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		return button;
 	}
 
-	/**
-	 * @see app.owlcms.nui.shared.CustomFormFactory#defineOperationTrigger(org.vaadin.crudui.crud.CrudOperation,
-	 *      app.owlcms.data.athlete.Athlete, com.vaadin.flow.component.ComponentEventListener)
-	 */
-	@Override
-	public TextField defineOperationTrigger(CrudOperation operation, Athlete domainObject,
-	        ComponentEventListener<ClickEvent<Button>> action) {
-		TextField operationTrigger = new TextField();
-		operationTrigger.setReadOnly(true);
-		operationTrigger.setTabIndex(-1);
-//		operationTrigger.addFocusListener((f) -> {
-//			boolean valid = isValid();
-//			boolean ignoreErrors = isIgnoreErrors();
-//			if (valid || ignoreErrors) {
-//				// logger.debug("updating {} {}", valid, ignoreErrors);
-//				doUpdate();
-//			} else {
-//				// logger.debug("not updating {} {}", valid, ignoreErrors);
-//			}
-//		});
-//		// field must visible and added to the layout for focus() to work, so we hide it
-//		// brutally. operationTrigger is placed in the footer.
-
-		operationTrigger.getStyle().set("z-index", "-10");
-		operationTrigger.setWidth("1px");
-		return operationTrigger;
-	}
+//	/**
+//	 * @see app.owlcms.nui.shared.CustomFormFactory#defineOperationTrigger(org.vaadin.crudui.crud.CrudOperation,
+//	 *      app.owlcms.data.athlete.Athlete, com.vaadin.flow.component.ComponentEventListener)
+//	 */
+//	@Override
+//	public TextField defineOperationTrigger(CrudOperation operation, Athlete domainObject,
+//	        ComponentEventListener<ClickEvent<Button>> action) {
+//		TextField operationTrigger = new TextField();
+//		operationTrigger.setReadOnly(true);
+//		operationTrigger.setTabIndex(-1);
+////		operationTrigger.addFocusListener((f) -> {
+////			boolean valid = isValid();
+////			boolean ignoreErrors = isIgnoreErrors();
+////			if (valid || ignoreErrors) {
+////				// logger.debug("updating {} {}", valid, ignoreErrors);
+////				doUpdate();
+////			} else {
+////				// logger.debug("not updating {} {}", valid, ignoreErrors);
+////			}
+////		});
+////		// field must visible and added to the layout for focus() to work, so we hide it
+////		// brutally. operationTrigger is placed in the footer.
+//
+//		operationTrigger.getStyle().set("z-index", "-10");
+//		operationTrigger.setWidth("1px");
+//		return operationTrigger;
+//	}
 
 	/**
 	 * @see app.owlcms.nui.shared.CustomFormFactory#delete(app.owlcms.data.athlete.Athlete)

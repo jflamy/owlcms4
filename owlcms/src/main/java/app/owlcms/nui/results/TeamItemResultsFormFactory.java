@@ -14,7 +14,6 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
 
@@ -85,11 +84,11 @@ public class TeamItemResultsFormFactory
 		return acff.buildOperationButton(operation, domainObject.getAthlete(), callBack);
 	}
 
-	@Override
-	public TextField defineOperationTrigger(CrudOperation operation, TeamTreeItem domainObject,
-	        ComponentEventListener<ClickEvent<Button>> action) {
-		return acff.defineOperationTrigger(operation, domainObject.getAthlete(), action);
-	}
+//	@Override
+//	public TextField defineOperationTrigger(CrudOperation operation, TeamTreeItem domainObject,
+//	        ComponentEventListener<ClickEvent<Button>> action) {
+//		return acff.defineOperationTrigger(operation, domainObject.getAthlete(), action);
+//	}
 
 	@Override
 	public void delete(TeamTreeItem notUsed) {

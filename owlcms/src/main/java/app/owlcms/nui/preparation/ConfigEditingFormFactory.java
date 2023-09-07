@@ -167,11 +167,11 @@ public class ConfigEditingFormFactory
 		return super.buildOperationButton(operation, domainObject, gridCallBackAction);
 	}
 
-	@Override
-	public TextField defineOperationTrigger(CrudOperation operation, Config domainObject,
-	        ComponentEventListener<ClickEvent<Button>> action) {
-		return super.defineOperationTrigger(operation, domainObject, action);
-	}
+//	@Override
+//	public TextField defineOperationTrigger(CrudOperation operation, Config domainObject,
+//	        ComponentEventListener<ClickEvent<Button>> action) {
+//		return super.defineOperationTrigger(operation, domainObject, action);
+//	}
 
 	@Override
 	public void delete(Config config) {

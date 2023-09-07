@@ -14,7 +14,6 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
 
@@ -60,24 +59,24 @@ public interface CustomFormFactory<T> {
 	Button buildOperationButton(CrudOperation operation, T domainObject,
 	        ComponentEventListener<ClickEvent<Button>> callBack);
 
-	/**
-	 * Workaround for the fact that ENTER as keyboard shortcut prevents the value
-	 * being typed from being set in the underlying object.
-	 *
-	 * i.e. Typing TAB followed by ENTER works (because tab causes ON_BLUR), but
-	 * ENTER alone doesn't. We work around this issue by causing focus to move, and
-	 * reacting to the focus being set.
-	 *
-	 * @param operation
-	 *
-	 * @param operation
-	 * @param gridLayout
-	 *
-	 * @see app.owlcms.nui.crudui.OwlcmsCrudFormFactory#defineUpdateTrigger(org.vaadin.crudui.crud.CrudOperation,
-	 *      com.github.appreciated.layout.GridLayout)
-	 */
-	TextField defineOperationTrigger(CrudOperation operation, T domainObject,
-	        ComponentEventListener<ClickEvent<Button>> action);
+//	/**
+//	 * Workaround for the fact that ENTER as keyboard shortcut prevents the value
+//	 * being typed from being set in the underlying object.
+//	 *
+//	 * i.e. Typing TAB followed by ENTER works (because tab causes ON_BLUR), but
+//	 * ENTER alone doesn't. We work around this issue by causing focus to move, and
+//	 * reacting to the focus being set.
+//	 *
+//	 * @param operation
+//	 *
+//	 * @param operation
+//	 * @param gridLayout
+//	 *
+//	 * @see app.owlcms.nui.crudui.OwlcmsCrudFormFactory#defineUpdateTrigger(org.vaadin.crudui.crud.CrudOperation,
+//	 *      com.github.appreciated.layout.GridLayout)
+//	 */
+//	TextField defineOperationTrigger(CrudOperation operation, T domainObject,
+//	        ComponentEventListener<ClickEvent<Button>> action);
 
 	/**
 	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
