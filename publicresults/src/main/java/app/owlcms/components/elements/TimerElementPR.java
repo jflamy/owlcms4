@@ -30,8 +30,8 @@ import ch.qos.logback.classic.Logger;
 /**
  * Countdown timer element.
  */
-@Tag("timer-element")
-@JsModule("./components/TimerElement.js")
+@Tag("timer-element-pr")
+@JsModule("./components/TimerElementPR.js")
 public abstract class TimerElementPR extends LitTemplate
         implements IFopName, SafeEventBusRegistrationPR {
 

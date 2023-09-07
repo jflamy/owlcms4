@@ -1,11 +1,11 @@
 import { html, LitElement, css } from "lit";
-/*******************************************************************************
+
+/*********************************************
  * Copyright (c) 2009-2023 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-
 
 class DecisionElementPR extends LitElement {
   static get is() {
@@ -18,6 +18,7 @@ class DecisionElementPR extends LitElement {
         .decisionWrapper {
           width: 100%;
           height: 100%;
+          text-align: center;
         }
 
         .decisions {
@@ -53,24 +54,22 @@ class DecisionElementPR extends LitElement {
           display: flex;
           align-items: center;
           justify-content: space-evenly;
-          --iron-icon-height: 35%;
-          --iron-icon-width: 35%;
           font-weight: normal;
           color: lime;
           display: block;
+          font-family: 'Arial Black', Arial, Helvetica, sans-serif;
         }
       `,
     ];
   }
   render() {
-    return html` <div class="decisionWrapper">
-      <div class="down" id="downDiv">
-        DOWN
-      </div>
-      <div class="decisions" id="decisionsDiv">
-        <span class="decision" id="ref1span"></span>&nbsp;
-        <span class="decision" id="ref2span"></span>&nbsp;
-        <span class="decision" id="ref3span"></span>&nbsp;
+    return html` 
+    <div class="decisionWrapper" style="${this.decisionWrapperStyle()}" >
+      <div class="down" style="font-weight: 900; ${this.downStyles()}"><vaadin-icon icon="vaadin:arrow-circle-down"></vaadin-icon></div>
+      <div class="decisions" style="${this.decisionsStyles()}">
+        <span class="${this.decisionClasses(1)}">&nbsp;</span>
+        <span class="${this.decisionClasses(2)}">&nbsp;</span>
+        <span class="${this.decisionClasses(3)}">&nbsp;</span>
       </div>
     </div>`;
   }
@@ -80,89 +79,146 @@ class DecisionElementPR extends LitElement {
       ref1: {
         type: Boolean,
         reflect: true,
-        notify: true,
       },
       ref2: {
         type: Boolean,
         reflect: true,
-        notify: true,
       },
       ref3: {
         type: Boolean,
-        reflect: true,
-        notify: true,
       },
       ref1Time: {
         type: Number,
-
-        notify: false,
       },
       ref2Time: {
         type: Number,
-
-        notify: false,
       },
       ref3Time: {
         type: Number,
-
-        notify: false,
       },
       decision: {
         type: Boolean,
-        notify: true,
       },
       publicFacing: {
         type: Boolean,
-        notify: true,
         reflect: true,
       },
       jury: {
         type: Boolean,
-        notify: true,
-        reflect: true,
+        state: true,
       },
       audio: {
         type: Boolean,
       },
       enabled: {
         type: Boolean,
+        state: true,
+        hasChanged(newVal, oldVal) {
+          console.warn("enabled changed from "+oldVal+" to "+newVal);
+         }
       },
       fopName: {
         type: String,
         notify: true,
       },
-      /**
-       * Set to true to have no sound on down signal
-       *
-       * @default false
-       */
       silent: {
         type: Boolean,
       },
+      _downShown: {
+        type: Boolean,
+        state: true,
+      },
+      _showDecision: {
+        type: Boolean,
+        state: true,
+      }
     };
+  }
+  
+  constructor() {
+    super();
+    this.ref1 = null;
+    this.ref2 = null;
+    this.ref3 = null;
+    this.ref1Time = 0;
+    this.ref2Time = 0;
+    this.ref3Time = 0;
+    this.publicFacing = true;
+    this.jury = false;
+    this.audio = true;
+    this.enabled = false;
+    this.silent = false;
+    // important - the handler must be bound to this object so "this" is the DecisionElement instance.
+    this._readRef = this._readRef.bind(this)
+    this._downShown = false;
+    this._showDecision = false;
+  }
+  
+  _init() {
+    console.debug("_init");
+    this.downShown = false;
+    this.ref1 = null;
+    this.ref2 = null;
+    this.ref3 = null;
+    this._setupAudio();
   }
 
   firstUpdated(_changedProperties) {
     super.firstUpdated(_changedProperties);
-    console.warn("de decision ready");
-    if (!this.jury) {
-      document.body.addEventListener("keydown", (e) => this._readRef(e));
-    }
+    console.debug("de decision ready");
     this._init();
   }
 
-  _init() {
-    this.renderRoot.querySelector("#decisionsDiv").style.display = "none";
-    this.renderRoot.querySelector("#downDiv").style.display = "none";
-    this.downShown = false;
+  connectedCallback() {
+    console.warn("connected");
+    super.connectedCallback();
+    document.body.addEventListener('keydown', this._readRef);
+  }
+  disconnectedCallback() {
+    document.body.removeEventListener('keydown', this._readRef);
+    super.disconnectedCallback();
+  }
 
-    this.renderRoot.querySelector("#ref1span").className = "decision none";
-    this.renderRoot.querySelector("#ref2span").className = "decision none";
-    this.renderRoot.querySelector("#ref3span").className = "decision none";
-    this.set("ref1", null);
-    this.set("ref2", null);
-    this.set("ref3", null);
-    this._setupAudio();
+  _readRef(e) {
+    console.warn("_readRef enabled="+this.enabled+" jury="+this.jury);
+    if (!this.enabled || this.jury) return;
+
+    var key = e.key;
+    console.debug("de key " + key);
+    switch (e.key) {
+      case "1":
+        this.ref1 = true;
+        this.ref1Time = Date.now();
+        this._majority(this.ref1, this.ref2, this.ref3);
+        break;
+      case "2":
+        this.ref1 = false;
+        this.ref1Time = Date.now();
+        this._majority(this.ref1, this.ref2, this.ref3);
+        break;
+      case "3":
+        this.ref2 = true;
+        this.ref2Time = Date.now();
+        this._majority(this.ref1, this.ref2, this.ref3);
+        break;
+      case "4":
+        this.ref2 = false;
+        this.ref2Time = Date.now();
+        this._majority(this.ref1, this.ref2, this.ref3);
+        break;
+      case "5":
+        this.ref3 = true;
+        this.ref3Time = Date.now();
+        this._majority(this.ref1, this.ref2, this.ref3);
+        break;
+      case "6":
+        this.ref3 = false;
+        this.ref3Time = Date.now();
+        this._majority(this.ref1, this.ref2, this.ref3);
+        break;
+      default:
+        break;
+    }
   }
 
   _setupAudio() {
@@ -171,57 +227,17 @@ class DecisionElementPR extends LitElement {
     this._prepareAudio();
   }
 
-  _readRef(e) {
-    if (!this.enabled) return;
-
-    var key = e.key;
-    console.warn("de key " + key);
-    switch (e.key) {
-      case "1":
-        this.set("ref1", true);
-        this.set("ref1Time", Date.now());
-        this._majority(this.ref1, this.ref2, this.ref3);
-        break;
-      case "2":
-        this.set("ref1", false);
-        this.set("ref1Time", Date.now());
-        this._majority(this.ref1, this.ref2, this.ref3);
-        break;
-      case "3":
-        this.set("ref2", true);
-        this.set("ref2Time", Date.now());
-        this._majority(this.ref1, this.ref2, this.ref3);
-        break;
-      case "4":
-        this.set("ref2", false);
-        this.set("ref2Time", Date.now());
-        this._majority(this.ref1, this.ref2, this.ref3);
-        break;
-      case "5":
-        this.set("ref3", true);
-        this.set("ref3Time", Date.now());
-        this._majority(this.ref1, this.ref2, this.ref3);
-        break;
-      case "6":
-        this.set("ref3", false);
-        this.set("ref3Time", Date.now());
-        this._majority(this.ref1, this.ref2, this.ref3);
-        break;
-      default:
-        break;
-    }
-  }
-
   _registerVote(code) {
-    console.warn("de vote " + key);
+    console.debug("de vote " + key);
   }
 
-  /* this is called from the client side to signal that a decision has been made
-         immediate feedback is given if majority has been reached */
+  /* this is called based on browser input.
+     immediate feedback is given if majority has been reached */
   _majority(ref1, ref2, ref3) {
     var countWhite = 0;
     var countRed = 0;
     var maj = false;
+    this._showDecision = false;
 
     if (ref1 === true) {
       countWhite++;
@@ -239,9 +255,9 @@ class DecisionElementPR extends LitElement {
       countRed++;
     }
     var count = countWhite + countRed;
-    if (!this.downShown && (countWhite == 2 || countRed == 2)) {
+    if (!this._downShown && (countWhite == 2 || countRed == 2)) {
       this.decision = countWhite >= 2;
-      //if (!this.jury) this.showDown(true);
+      if (!this.jury) this.showDown(true);
     }
     if (countWhite + countRed >= 3) {
       this.decision = countWhite >= 2;
@@ -249,14 +265,14 @@ class DecisionElementPR extends LitElement {
     } else {
       maj = undefined;
     }
-    //this.masterRefereeUpdate(ref1, ref2, ref3);
+    this.masterRefereeUpdate(ref1, ref2, ref3);
     return maj;
   }
 
   /* the individual values are set in the this.refN properties. this tells the server that the
-         values are are available; the server will call back the slaves operating in jury display
-         mode to update their displays immediately.  the slaves not operating in jury display mode
-         (e.g. the attempt board) will be updated after 3 seconds */
+     values are are available; the server will call back the slaves operating in jury display
+     mode to update their displays immediately.  the slaves not operating in jury display mode
+     (e.g. the attempt board) will be updated after 3 seconds */
   masterRefereeUpdate(ref1, ref2, ref3) {
     this.$server.masterRefereeUpdate(
       this.fopName,
@@ -269,58 +285,56 @@ class DecisionElementPR extends LitElement {
     );
   }
 
-  setColors(parent, ref1, ref2, ref3) {
-    var redStyle = "decision red";
-    var whiteStyle = "decision white";
+  decisionClasses(position) {
+    var mainClass = "decision ";
+    if (!this._showDecision) {
+      return mainClass + "none";
+    }
+
     if (this.publicFacing) {
-      if (ref1 === true) {
-        parent.$.ref1span.className = whiteStyle;
-      } else if (ref1 === false) {
-        parent.$.ref1span.className = redStyle;
-      }
-      if (ref2 === true) {
-        parent.$.ref2span.className = whiteStyle;
-      } else if (ref2 === false) {
-        parent.$.ref2span.className = redStyle;
-      }
-      if (ref3 === true) {
-        parent.$.ref3span.className = whiteStyle;
-      } else if (ref3 === false) {
-        parent.$.ref3span.className = redStyle;
+      if (position == 1) {
+        return mainClass + (this.ref1 ? "white" : (this.ref1 === false) ? "red" : "none");
+      } else if (position == 2) {
+        return mainClass + (this.ref2 ? "white" : (this.ref2 === false) ? "red" : "none");
+      } else if (position == 3) {
+        return mainClass + (this.ref3 ? "white" : (this.ref3 === false) ? "red" : "none");
       }
     } else {
       // athlete facing, go the other way, right to left
-      if (ref1 === true) {
-        parent.$.ref3span.className = whiteStyle;
-      } else if (ref1 === false) {
-        parent.$.ref3span.className = redStyle;
-      }
-      if (ref2 === true) {
-        parent.$.ref2span.className = whiteStyle;
-      } else if (ref2 === false) {
-        parent.$.ref2span.className = redStyle;
-      }
-      if (ref3 === true) {
-        parent.$.ref1span.className = whiteStyle;
-      } else if (ref3 === false) {
-        parent.$.ref1span.className = redStyle;
+      if (position == 1) {
+        return mainClass + (this.ref3 ? "white" : (this.ref3 === false) ? "red" : "none");
+      } else if (position == 2) {
+        return mainClass + (this.ref2 ? "white" : (this.ref2 === false) ? "red" : "none");
+      } else if (position == 3) {
+        return mainClass + (this.ref1 ? "white" : (this.ref1 === false) ? "red" : "none");
       }
     }
+    return mainClass;
+  }
+
+  downStyles() {
+    return "display: " + (this._downShown ? "flex" : "none");
+  }
+
+  decisionsStyles() {
+    return "display: " + (this._downShown ? "none" : "flex");
+  }
+
+  decisionWrapperStyle() {
+    return "display: grid";
   }
 
   /*
-	This is called from the browser side when the decision is taken locally (majority vote from keypads).
-	It can also be called from the server side when the decision is taken elsewhere.
-	The server side is responsible for not calling this again if the event took place in this element.
-	*/
+  This is called from the browser side when the decision is taken locally (majority vote from keypads).
+  It can also be called from the server side when the decision is taken elsewhere.
+  The server side is responsible for not calling this again if the event took place in this element.
+  */
   showDown(isMaster, silent) {
-    console.warn("de showDown " + silent);
+    console.debug("de showDown -- " + !this.silent + " " + !silent);
     if (!this.silent && !silent) {
       this._playTrack("../local/sounds/down.mp3", window.downSignal, true, 0);
     }
-    this.downShown = true;
-    this.renderRoot.querySelector("#downDiv").style.display = "flex";
-    this.renderRoot.querySelector("#decisionsDiv").style.display = "none";
+    this._downShown = true;
 
     // hide the down arrow after 2 seconds -- the decisions will show when available
     // (there will be no decision lights for at least one second, more if last referee
@@ -329,26 +343,34 @@ class DecisionElementPR extends LitElement {
   }
 
   hideDown() {
-    this.renderRoot.querySelector("#downDiv").style.display = "none";
-    this.renderRoot.querySelector("#decisionsDiv").style.display = "flex";
+    this._downShown = false;
   }
 
   showDecisions(isMaster, ref1, ref2, ref3) {
+    console.debug("de showDecision: " + ref1 + " " + ref2 + " " + ref3);
+    this.ref1 = ref1;
+    this.ref2 = ref2;
+    this.ref3 = ref3;
     this.hideDown();
-    console.warn("de showDecision: " + ref1 + " " + ref2 + " " + ref3);
-    this.setColors(this, ref1, ref2, ref3);
-    console.warn("de colorsShown");
+    this._showDecision = true;
+    console.debug("de showDecisions");
   }
 
   showDecisionsForJury(ref1, ref2, ref3, ref1Time, ref2Time, ref3Time) {
+    console.debug("de showDecisionForJury: " + ref1 + " " + ref2 + " " + ref3);
+    this.ref1 = ref1;
+    this.ref2 = ref2;
+    this.ref3 = ref3;
+    this.ref1Time = ref1Time;
+    this.ref2Time = ref2Time;
+    this.ref3Time = ref3Time;
     this.hideDown();
-    console.warn("de showDecisionForJury: " + ref1 + " " + ref2 + " " + ref3);
-    this.setColors(this, ref1, ref2, ref3);
-    console.warn("de jury colorsShown");
+    this._showDecision = true;
+    console.debug("de jury colorsShown");
   }
 
   reset(isMaster) {
-    console.warn("de reset " + isMaster);
+    console.debug("de reset " + isMaster);
     this.hideDecisions();
     this._init();
   }
@@ -362,15 +384,15 @@ class DecisionElementPR extends LitElement {
 
   async _playTrack(filepath, previousBuffer, play, when) {
     if (previousBuffer) {
-      console.warn("de reuse track source");
+      console.debug("de reuse track source");
       if (play) {
         // play previously fetched buffer
         await this._playAudioBuffer(previousBuffer, when);
-        console.warn("de sound done");
+        console.debug("de sound done");
       }
       return previousBuffer;
     } else {
-      console.warn("de no previous buffer");
+      console.debug("de no previous buffer");
       // Safari somehow manages to lose the AudioBuffer.
       // Massive workaround.
       const response = await fetch(filepath);
@@ -395,23 +417,24 @@ class DecisionElementPR extends LitElement {
           console.error("could not decode " + e.err);
         }
       );
+      
       return newBuffer;
     }
   }
 
   setEnabled(isEnabled) {
-    console.warn("setEnabled " + isEnabled + " " + this.audioContext);
     this.enabled = isEnabled;
+    console.warn("setEnabled " + this.enabled + " " + this.audioContext);
     if (isEnabled) {
       this.trackSource = this.audioContext.createBufferSource();
       this.trackSource.buffer = window.downSignal;
       this.trackSource.connect(this.audioContext.destination);
-      console.warn("connected tracksource");
+      console.debug("connected tracksource");
     }
   }
 
   _playAudioBuffer(audioBuffer, when) {
-    console.warn("when " + when);
+    console.debug("when " + when);
     if (when <= 0) {
       this.trackSource.start();
     } else {
@@ -436,26 +459,13 @@ class DecisionElementPR extends LitElement {
         0
       );
       window.downSignal = downSignal;
-      console.warn("loaded downSignal = " + window.downSignal);
+      console.debug("loaded downSignal = " + window.downSignal);
     } else {
-      console.warn("skipping downSignal load");
-      console.warn("existing downSignal = " + window.downSignal);
+      console.debug("skipping downSignal load");
+      console.debug("existing downSignal = " + window.downSignal);
     }
   }
-  constructor() {
-    super();
-    this.ref1 = null;
-    this.ref2 = null;
-    this.ref3 = null;
-    this.ref1Time = 0;
-    this.ref2Time = 0;
-    this.ref3Time = 0;
-    this.publicFacing = true;
-    this.jury = false;
-    this.audio = true;
-    this.enabled = false;
-    this.silent = false;
-  }
+
 }
 
 customElements.define(DecisionElementPR.is, DecisionElementPR);

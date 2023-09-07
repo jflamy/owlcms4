@@ -14,12 +14,14 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
+import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.template.Id;
+import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
@@ -38,6 +40,7 @@ import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.uievents.BreakTimerEvent;
 import app.owlcms.uievents.BreakTimerEvent.BreakStart;
 import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.DecisionEvent;
 import app.owlcms.uievents.DecisionEventType;
 import app.owlcms.uievents.UpdateEvent;
@@ -55,6 +58,7 @@ import elemental.json.impl.JreJsonFactory;
  * Show athlete 6-attempt results
  *
  */
+@Tag("results-template-pr")
 @JsModule("./components/ResultsPR.js")
 @JsModule("./components/AudioContext.js")
 @Route("results")
@@ -71,13 +75,13 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
         uiEventLogger.setLevel(Level.INFO);
     }
 
-    @Id("timer")
+    @Id("timer-pr")
     private AthleteTimerElementPR timer; // Flow creates it
 
-    @Id("breakTimer")
+    @Id("breaktimer-pr")
     private BreakTimerElementPR breakTimer; // Flow creates it
 
-    @Id("decisions")
+    @Id("decisions-pr")
     private DecisionElementPR decisions; // Flow creates it
 
     private boolean darkMode;
@@ -94,10 +98,12 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
     private boolean silenced;
     private String fopName;
     private boolean recordsDisplay;
-    private boolean leadersDisplay;
+    private boolean showLeaders;
     private boolean defaultRecordsDisplay;
     private boolean defaultLeadersDisplay;
     private boolean liftingOrder;
+    private String fopState;
+    private BreakType breakType;
 
     /**
      * Instantiates a new results board.
@@ -115,12 +121,8 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
         DisplayOptions.addLightingEntries(vl, target, this);
         DisplayOptions.addRule(vl);
         DisplayOptions.addSoundEntries(vl, target, this);
-        //        DisplayOptions.addRule(vl);
-        //        DisplayOptions.addSwitchableEntries(vl, target, this);
         DisplayOptions.addRule(vl);
         DisplayOptions.addSectionEntries(vl, target, this);
-        //        DisplayOptions.addRule(vl);
-        //        DisplayOptions.addSizingEntries(vl, target, this);
     }
 
     @Override
@@ -179,8 +181,8 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
     }
 
     @Override
-    public boolean isLeadersDisplay() {
-        return leadersDisplay;
+    public boolean isShowLeaders() {
+        return showLeaders;
     }
 
     @Override
@@ -244,27 +246,9 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
     }
 
     @Override
-    public void setLeadersDisplay(boolean showLeaders) {
-        this.leadersDisplay = showLeaders;
-        if (showLeaders) {
-            this.getElement().setProperty("leadersTopVisibility", "display:content");
-            this.getElement().setProperty("leadersVisibility", "");
-            this.getElement().setProperty("fillerVisibility", "display:flex");
-//          this.getElement().setProperty("leadersLineHeight", "min-content");
-//      } else if (isVideo()) {
-//          this.getElement().setProperty("leadersVisibility", "display:none");
-//          this.getElement().setProperty("fillerVisibility", "display:none");
-//          this.getElement().setProperty("leadersLineHeight", "0px");
-//      } else {
-//          this.getElement().setProperty("leadersVisibility", "visibility: hidden;");
-//          this.getElement().setProperty("leadersLineHeight", "0px");
-//      }
-        } else {
-            this.getElement().setProperty("leadersTopVisibility", "display:none");
-            this.getElement().setProperty("leadersVisibility", "display:none");
-            this.getElement().setProperty("fillerVisibility", "display:none");
-            // this.getElement().setProperty("leadersLineHeight", "0px");
-        }
+    public void setShowLeaders(boolean showLeaders) {
+        this.showLeaders = showLeaders;
+        this.getElement().setProperty("showLeaders", showLeaders);
     }
 
     @Override
@@ -285,11 +269,7 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
     @Override
     public void setRecordsDisplay(boolean showRecords) {
         this.recordsDisplay = showRecords;
-        if (showRecords) {
-            this.getElement().setProperty("recordsDisplay", "display: block");
-        } else {
-            this.getElement().setProperty("recordsDisplay", "display: none");
-        }
+        this.getElement().setProperty("showRecords", showRecords);
     }
 
     /**
@@ -335,8 +315,8 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
                     return;
                 }
                 ui.access(() -> {
-                    setHidden(false);
-                    this.getElement().callJsFunction("down");
+                    this.getElement().setProperty("decisionVisible", true);
+                    setCurrentAthleteDisplay();
                 });
                 break;
             case RESET:
@@ -345,8 +325,8 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
                     return;
                 }
                 ui.access(() -> {
-                    setHidden(false);
-                    this.getElement().callJsFunction("reset");
+                    setCurrentAthleteDisplay();
+                    this.getElement().setProperty("decisionVisible", false);
                 });
                 break;
             case FULL_DECISION:
@@ -355,8 +335,8 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
                     return;
                 }
                 ui.access(() -> {
-                    setHidden(false);
-                    this.getElement().callJsFunction("refereeDecision");
+                    this.getElement().setProperty("decisionVisible", true);
+                    setCurrentAthleteDisplay();
                     this.getElement().setProperty("recordKind", e.getRecordKind());
                     this.getElement().setProperty("recordMessage", e.getRecordMessage());
                 });
@@ -376,12 +356,24 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
             // event is not for us
             return;
         }
-        String fopState = e.getFopState();
-        BreakType breakType = e.getBreakType();
+        fopState = e.getFopState();
+        breakType = e.getBreakType();
         String stylesDir = e.getStylesDir();
 
         ui.access(() -> {
             this.getElement().setProperty("stylesDir", stylesDir);
+
+            setBoardMode(e.getFopState(), e.getBreakType(), e.getCeremonyType(), this.getElement());
+            String group = e.getGroupName();
+            String description = null;
+            if (group != null) {
+                description = e.getGroupDescription();
+                if (description == null) {
+                    description = Translator.translate("Group_number", group);
+                }
+            }
+            this.getElement().setProperty("groupDescription", description != null ? description : "");
+
             String athletes = e.getAthletes();
             if (isLiftingOrder()) {
                 athletes = e.getLiftingOrderAthletes();
@@ -432,7 +424,6 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
             getElement().setProperty("fullName", e.getFullName());
             String groupName = e.getGroupName();
             getElement().setProperty("groupName", groupName);
-            setHidden(e.getHidden());
             getElement().setProperty("startNumber", e.getStartNumber());
             getElement().setProperty("teamName", e.getTeamName());
             getElement().setProperty("weight", e.getWeight() != null ? e.getWeight() : 0);
@@ -472,7 +463,7 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
     }
 
     protected void doEmpty() {
-        setHidden(true);
+        setBoardMode("BREAK", null, null, this.getElement());
     }
 
     /** @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
@@ -537,8 +528,6 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
                 return Translator.translate("PublicMsg.TimeBeforeSnatch");
             case BEFORE_INTRODUCTION:
                 return Translator.translate("PublicMsg.BeforeIntroduction");
-            case DURING_INTRODUCTION:
-                return Translator.translate("PublicMsg.DuringIntroduction");
             case TECHNICAL:
                 return Translator.translate("PublicMsg.CompetitionPaused");
             case JURY:
@@ -550,23 +539,33 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
         }
     }
 
-    private void setHidden(boolean hidden) {
-        this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
-        this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" : "display:grid"));
-        this.getElement().setProperty("hiddenFlexStyle", (hidden ? "display:none" : "display:flex"));
-
-        this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
-        this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" : "display:none"));
-        this.getElement().setProperty("inactiveFlexStyle", (hidden ? "display:flex" : "display:none"));
-
-        this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
-        this.getElement().setProperty("videoHeaderDisplay", (hidden || !isVideo() ? "display:none" : "display:flex"));
-        this.getElement().setProperty("normalHeaderDisplay", (hidden || isVideo() ? "display:none" : "display:block"));
-    }
-
-    private boolean isVideo() {
+    protected boolean isVideo() {
         return false;
     }
+
+    private void setBoardMode(String fopState2, BreakType breakType2, CeremonyType ceremonyType, Element element) {
+        // TODO Auto-generated method stub
+
+    }
+
+    private void setCurrentAthleteDisplay() {
+        // TODO Auto-generated method stub
+
+    }
+
+    //    private void setHidden(boolean hidden) {
+    //        this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
+    //        this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" : "display:grid"));
+    //        this.getElement().setProperty("hiddenFlexStyle", (hidden ? "display:none" : "display:flex"));
+    //
+    //        this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
+    //        this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" : "display:none"));
+    //        this.getElement().setProperty("inactiveFlexStyle", (hidden ? "display:flex" : "display:none"));
+    //
+    //        this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
+    //        this.getElement().setProperty("videoHeaderDisplay", (hidden || !isVideo() ? "display:none" : "display:flex"));
+    //        this.getElement().setProperty("normalHeaderDisplay", (hidden || isVideo() ? "display:none" : "display:block"));
+    //    }
 
     private void setWideTeamNames(boolean wide) {
         this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));

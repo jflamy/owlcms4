@@ -38,6 +38,8 @@ public class UpdateEvent {
     private Integer weight;
     private boolean wideTeamNames;
     private String stylesDir;
+    private String groupDescription;
+    private CeremonyType ceremonyType;
 
     public UpdateEvent() {
         setLeaders(leaders);
@@ -45,25 +47,29 @@ public class UpdateEvent {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-        if ((obj == null) || (getClass() != obj.getClass())) {
+        if (obj == null)
             return false;
-        }
+        if (getClass() != obj.getClass())
+            return false;
         UpdateEvent other = (UpdateEvent) obj;
         return Objects.equals(athletes, other.athletes) && Objects.equals(attempt, other.attempt)
                 && Objects.equals(breakRemaining, other.breakRemaining) && breakType == other.breakType
-                && Objects.equals(categoryName, other.categoryName)
+                && Objects.equals(categoryName, other.categoryName) && ceremonyType == other.ceremonyType
                 && Objects.equals(competitionName, other.competitionName) && Objects.equals(fopName, other.fopName)
                 && Objects.equals(fopState, other.fopState) && Objects.equals(fullName, other.fullName)
+                && Objects.equals(groupDescription, other.groupDescription)
                 && Objects.equals(groupName, other.groupName) && hidden == other.hidden
                 && indefinite == other.indefinite && Objects.equals(isBreak, other.isBreak)
-                && Objects.equals(leaders, other.leaders) && Objects.equals(liftsDone, other.liftsDone)
-                && Objects.equals(startNumber, other.startNumber) && Objects.equals(teamName, other.teamName)
-                && Objects.equals(timeAllowed, other.timeAllowed)
+                && Objects.equals(leaders, other.leaders)
+                && Objects.equals(liftingOrderAthletes, other.liftingOrderAthletes)
+                && Objects.equals(liftsDone, other.liftsDone) && Objects.equals(noLiftRanks, other.noLiftRanks)
+                && Objects.equals(recordKind, other.recordKind) && Objects.equals(recordMessage, other.recordMessage)
+                && Objects.equals(records, other.records) && sinclairMeet == other.sinclairMeet
+                && Objects.equals(startNumber, other.startNumber) && Objects.equals(stylesDir, other.stylesDir)
+                && Objects.equals(teamName, other.teamName) && Objects.equals(timeAllowed, other.timeAllowed)
                 && Objects.equals(translationMap, other.translationMap) && Objects.equals(weight, other.weight)
-                && Objects.equals(stylesDir, other.stylesDir)
                 && wideTeamNames == other.wideTeamNames;
     }
 
@@ -169,9 +175,10 @@ public class UpdateEvent {
 
     @Override
     public int hashCode() {
-        return Objects.hash(athletes, attempt, breakRemaining, breakType, categoryName, competitionName, fopName,
-                fopState, fullName, groupName, hidden, indefinite, isBreak, leaders, liftsDone, startNumber, teamName,
-                timeAllowed, translationMap, weight, wideTeamNames, stylesDir);
+        return Objects.hash(athletes, attempt, breakRemaining, breakType, categoryName, ceremonyType, competitionName,
+                fopName, fopState, fullName, groupDescription, groupName, hidden, indefinite, isBreak, leaders,
+                liftingOrderAthletes, liftsDone, noLiftRanks, recordKind, recordMessage, records, sinclairMeet,
+                startNumber, stylesDir, teamName, timeAllowed, translationMap, weight, wideTeamNames);
     }
 
     public Boolean isBreak() {
@@ -303,6 +310,22 @@ public class UpdateEvent {
         return "UpdateEvent [groupName=" + groupName + ", timeAllowed=" + timeAllowed + ", fopName=" + fopName
                 + ", fopState=" + fopState + ", isBreak=" + isBreak + ", breakType=" + breakType + ", breakRemaining="
                 + breakRemaining + "]";
+    }
+
+    public String getGroupDescription() {
+        return groupDescription;
+    }
+
+    public void setGroupDescription(String groupDescription) {
+        this.groupDescription = groupDescription;
+    }
+
+    public CeremonyType getCeremonyType() {
+        return ceremonyType;
+    }
+
+    public void setCeremonyType(CeremonyType ceremonyType) {
+        this.ceremonyType = ceremonyType;
     }
 
 }

@@ -150,7 +150,7 @@ public interface DisplayParameters extends ContentParameters {
         return false;
     }
 
-    public default boolean isLeadersDisplay() {
+    public default boolean isShowLeaders() {
         return false;
     }
 
@@ -236,10 +236,10 @@ public interface DisplayParameters extends ContentParameters {
         } else {
             showLeaders = leaders != null && !leaders.isEmpty() && "true".contentEquals(leaders.get(0));
         }
-        setLeadersDisplay(showLeaders);
+        setShowLeaders(showLeaders);
         switchLeaders((Component) this, showLeaders, false);
         updateParam(params, LEADERS,
-                isLeadersDisplay() != isDefaultLeadersDisplay() ? Boolean.toString(isLeadersDisplay()) : null);
+                isShowLeaders() != isDefaultLeadersDisplay() ? Boolean.toString(isShowLeaders()) : null);
 
         List<String> liftingOrder = params.get(LIFTING_ORDER);
         boolean useLiftingOrder = isDefaultLiftingOrderDisplay();
@@ -287,7 +287,7 @@ public interface DisplayParameters extends ContentParameters {
     public default void setEmFontSize(Double emFontSize) {
     }
 
-    public default void setLeadersDisplay(boolean showLeaders) {
+    public default void setShowLeaders(boolean showLeaders) {
     }
 
     public default void setLiftingOrder(boolean showLeaders) {
@@ -359,7 +359,7 @@ public interface DisplayParameters extends ContentParameters {
     }
 
     public default void switchLeaders(Component target, boolean showLeaders, boolean updateURL) {
-        setLeadersDisplay(showLeaders);
+        setShowLeaders(showLeaders);
         if (updateURL) {
             updateURLLocation(getLocationUI(), getLocation(), LEADERS, showLeaders ? "true" : "false");
         }

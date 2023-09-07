@@ -142,7 +142,7 @@ public class DisplayOptions {
             // UI.getCurrent().getPage().reload();
         });
 
-        boolean showLeaders = dp.isLeadersDisplay();
+        boolean showLeaders = dp.isShowLeaders();
         Checkbox leadersDisplayCheckbox = new Checkbox(Translator.translate("DisplayParameters.ShowLeaders"));//
         leadersDisplayCheckbox.setValue(showLeaders);
         leadersDisplayCheckbox.addValueChangeListener(e -> {

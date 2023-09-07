@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2023 Jean-Fran�ois Lamy
+ * Copyright (c) 2009-2023 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -101,14 +101,12 @@ public class Results extends LitTemplate
 	protected JsonArray sattempts;
 	protected List<Athlete> displayOrder;
 	protected int liftsDone;
-
 	@Id("timer")
 	protected AthleteTimerElement timer; // WebComponent, injected by Vaadin
 	@Id("breakTimer")
 	private BreakTimerElement breakTimer; // WebComponent, injected by Vaadin
 	@Id("decisions")
 	private DecisionElement decisions; // WebComponent, injected by Vaadin
-
 	private Category ceremonyCategory;
 	private Group ceremonyGroup = null;
 	private boolean darkMode = true;
@@ -121,21 +119,18 @@ public class Results extends LitTemplate
 	private boolean showRecords = true;
 	protected EventBus uiEventBus;
 	private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-
 	protected Double emFontSize = null;
 	private Timer dialogTimer;
 	private boolean showLeaders;
 	private boolean defaultLeadersDisplay;
 	private boolean defaultRecordsDisplay;
 	private String routeParameter;
-
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private boolean downSilenced;
 	private boolean video;
 	private Boolean abbreviatedName;
 	private boolean teamFlags;
 	private Double teamWidth;
-
 	DecimalFormat df = new DecimalFormat("0.000");
 	private long now;
 	private long lastShortcut;
@@ -1108,8 +1103,9 @@ public class Results extends LitTemplate
 
 	protected void uiLog(UIEvent e) {
 		if (uiEventLogger.isDebugEnabled()) {
-			uiEventLogger.debug("### {} {} {} {}", 
-					this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getOrigin(), LoggerUtils.whereFrom());
+			uiEventLogger.debug("### {} {} {} {}",
+			        this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getOrigin(),
+			        LoggerUtils.whereFrom());
 		}
 	}
 
