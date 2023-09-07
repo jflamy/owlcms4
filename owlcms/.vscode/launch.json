@@ -17,7 +17,10 @@
             "name": "Launch Main",
             "request": "launch",
             "mainClass": "app.owlcms.Main",
-            "projectName": "owlcms"
+            "projectName": "owlcms",
+            "vmArgs": "-Dvaadin.frontend.hotdeploy=true",
+            "env": {"OWLCMS_INITIALDATA":"LARGEGROUP_DEMO", "OWLCMS_RESETMODE": "true"},
+            "shortenCommandLine": "none"
         },
         {
             "type": "java",
