@@ -5,17 +5,16 @@
 > STATUS
 >
 > - owlcms:  Migration complete. All features required for a competition are present. No systematic tests yet.
-> - publicresults: Not converted yet.
+> - publicresults: Initial migration.
 
-44.0.0-alpha11:
+44.0.0-alpha12:
 
-- Migrated athlete- and public-facing decision displays to LitElement.
-- Simplified BeepElement for mobile device refereeing interface
-- Athlete card now uses automatic progression calculations from the domain object.
+- Initial migration of publicresults remote scoreboard
 
 44.0.0
 
 - Scoreboards, timers and decision displays migrated to a new template mechanism.
 - The break management dialog for pauses and countdowns has been redesigned.
 - The download button for documents has been redone for robustness.
+- New Team report for VFE signoff by team leader (changes to category, entry total, and team membership in multi-age group championships)
 - The application has been migrated to the most current Vaadin version 24.
