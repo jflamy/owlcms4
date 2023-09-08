@@ -15,7 +15,7 @@
 				<include>i18n**/**</include>
 				<include>templates**/**</include>
                 <include>config**/**</include>
-                <include>styles**/**</include>
+                <include>css**/**</include>
 			</includes>
 		</fileSet>
 	</fileSets>

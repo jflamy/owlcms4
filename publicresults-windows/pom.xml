@@ -109,7 +109,7 @@
                                     <groupId>app.owlcms</groupId>
                                     <artifactId>publicresults</artifactId>
                                     <outputDirectory>${project.build.directory}/publicresults-win32/local</outputDirectory>
-                                    <includes>i18n**/**,templates**/**,config**/**,styles**/**</includes>
+                                    <includes>i18n**/**,templates**/**,config**/**,css**/**</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
