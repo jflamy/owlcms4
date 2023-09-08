@@ -89,7 +89,7 @@
 							<artifactItems>
 								<artifactItem>
 									<groupId>app.owlcms</groupId>
-									<artifactId>publicresultsl</artifactId>
+									<artifactId>publicresults</artifactId>
 									<outputDirectory>${project.build.directory}/publicresults-win32</outputDirectory>
 									<destFileName>publicresults.jar</destFileName>
 								</artifactItem>
