@@ -4,17 +4,21 @@
 >
 > STATUS
 >
-> - owlcms:  Migration complete. All features required for a competition are present. No systematic tests yet.
-> - publicresults: Initial migration.
+> - owlcms:  Migration complete. No systematic tests yet.
+> - publicresults: Migration complete.
 
-44.0.0-alpha12:
+44.0.0-alpha13:
 
-- Initial migration of publicresults remote scoreboard
+- The default styling directory is now `css/nogrid` to give a more modern look. 
+  - The old "styles" directory has moved to `css/grid`. 
+  - Am alternate styling directory can specified in the Preparation - Settings - Customization page.  For example, to get the old look back, the value would be `css/grid`  .
+  - Local variations to styling should be copied to a subdirectory of `css`.  If you have customized `styles`, move it to `css/myfederation` (or whatever name you choose), and define it in the Customization page.
+
 
 44.0.0
 
 - Scoreboards, timers and decision displays migrated to a new template mechanism.
 - The break management dialog for pauses and countdowns has been redesigned.
-- The download button for documents has been redone for robustness.
-- New Team report for VFE signoff by team leader (changes to category, entry total, and team membership in multi-age group championships)
+- The download dialog for documents has been redone for robustness.
+- A new Team report is available to simplify VFE.  The document allows signing off changes to category, entry total, as well as team memberships.
 - The application has been migrated to the most current Vaadin version 24.
