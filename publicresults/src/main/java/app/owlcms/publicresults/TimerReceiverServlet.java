@@ -119,6 +119,8 @@ public class TimerReceiverServlet extends HttpServlet {
             }
             if (breakTimerEvent != null) {
                 breakTimerEvent.setFopName(fopName);
+                String mode = req.getParameter("mode");
+                breakTimerEvent.setMode(mode);
                 eventBus.post(breakTimerEvent);
             }
 

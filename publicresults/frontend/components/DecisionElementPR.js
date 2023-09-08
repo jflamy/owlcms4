@@ -62,6 +62,7 @@ class DecisionElementPR extends LitElement {
       `,
     ];
   }
+
   render() {
     return html` 
     <div class="decisionWrapper" style="${this.decisionWrapperStyle()}" >

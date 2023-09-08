@@ -100,6 +100,7 @@ public class BreakTimerEvent {
     private String fopName;
     private BreakType breakType;
     private String groupName;
+    private String mode;
 
     public BreakTimerEvent() {
     }
@@ -116,6 +117,10 @@ public class BreakTimerEvent {
         return groupName;
     }
 
+    public String getMode() {
+        return this.mode;
+    }
+
     public void setBreakType(BreakType breakType) {
         this.breakType = breakType;
     }
@@ -124,8 +129,13 @@ public class BreakTimerEvent {
         this.fopName = fopName;
     }
 
+
     public void setGroupName(String groupName) {
         this.groupName = groupName;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
     }
 
 }

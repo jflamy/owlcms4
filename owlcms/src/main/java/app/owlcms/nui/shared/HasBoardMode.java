@@ -7,7 +7,7 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 
 public interface HasBoardMode {
-	
+
 	public enum BoardMode {
 		WAIT,
 		INTRO_COUNTDOWN,
@@ -17,8 +17,18 @@ public interface HasBoardMode {
 		INTERRUPTION,
 		SESSION_DONE
 	}
-	
-	public default void setBoardMode(FOPState fopState, BreakType breakType, CeremonyType ceremonyType, Element element) {
+
+	public default void setBoardMode(FOPState fopState, BreakType breakType, CeremonyType ceremonyType,
+	        Element element) {
+		element.setProperty("mode", computeBoardModeName(fopState, breakType, ceremonyType));
+	}
+
+	public default String computeBoardModeName(FOPState fopState, BreakType breakType, CeremonyType ceremonyType) {
+		BoardMode bm = computeBoardMode(fopState, breakType, ceremonyType);
+		return bm.name();
+	}
+
+	public default BoardMode computeBoardMode(FOPState fopState, BreakType breakType, CeremonyType ceremonyType) {
 		BoardMode bm = BoardMode.WAIT;
 		if (fopState == FOPState.BREAK && ceremonyType != null) {
 			bm = BoardMode.CEREMONY;
@@ -40,7 +50,7 @@ public interface HasBoardMode {
 		} else if (fopState == FOPState.INACTIVE) {
 			bm = BoardMode.WAIT;
 		}
-		element.setProperty("mode", bm.name());
+		return bm;
 	}
 
 }

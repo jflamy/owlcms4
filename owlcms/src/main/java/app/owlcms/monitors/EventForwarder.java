@@ -51,6 +51,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IBreakTimer;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.shared.HasBoardMode;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
@@ -73,7 +74,7 @@ import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
-public class EventForwarder implements BreakDisplay {
+public class EventForwarder implements BreakDisplay, HasBoardMode {
 
 //    private static HashMap<String, EventForwarder> registeredFop = new HashMap<>();
 
@@ -116,6 +117,7 @@ public class EventForwarder implements BreakDisplay {
 	private String noLiftRanks;
 	private JsonValue records;
 	private Boolean teamFlags;
+	private String boardMode;
 
 	public EventForwarder(FieldOfPlay emittingFop) {
 		this.setFop(emittingFop);
@@ -580,6 +582,7 @@ public class EventForwarder implements BreakDisplay {
 		mapPut(sb, "d3", getDecisionLight3() != null ? getDecisionLight3().toString() : null);
 		mapPut(sb, "decisionsVisible", Boolean.toString(isDecisionLightsVisible()));
 		mapPut(sb, "down", Boolean.toString(isDown()));
+		mapPut(sb, "mode", getBoardMode());
 
 		createRecord(sb);
 
@@ -644,6 +647,7 @@ public class EventForwarder implements BreakDisplay {
 		                ? getFop().getBreakType().toString()
 		                : null);
 		mapPut(sb, "indefiniteBreak", Boolean.toString(indefiniteBreak));
+		mapPut(sb, "mode", getBoardMode());
 
 		return sb;
 	}
@@ -709,6 +713,7 @@ public class EventForwarder implements BreakDisplay {
 		mapPut(sb, "hidden", String.valueOf(hidden));
 		mapPut(sb, "wideTeamNames", String.valueOf(wideTeamNames));
 		mapPut(sb, "sinclairMeet", Boolean.toString(Competition.getCurrent().isSinclair()));
+		mapPut(sb, "mode", getBoardMode());
 
 		return sb;
 	}
@@ -1072,6 +1077,7 @@ public class EventForwarder implements BreakDisplay {
 	}
 
 	private void pushDecision(DecisionEventType det) {
+		setBoardMode(computeBoardModeName(fop.getState(), fop.getBreakType(), fop.getCeremonyType()));
 		String decisionUrl = Config.getCurrent().getParamDecisionUrl();
 		if (decisionUrl == null) {
 			return;
@@ -1081,6 +1087,7 @@ public class EventForwarder implements BreakDisplay {
 	}
 
 	private void pushTimer(UIEvent e) {
+		setBoardMode(computeBoardModeName(fop.getState(), fop.getBreakType(), fop.getCeremonyType()));
 		String timerUrl = Config.getCurrent().getParamTimerUrl();
 		if (timerUrl == null) {
 			return;
@@ -1089,6 +1096,7 @@ public class EventForwarder implements BreakDisplay {
 	}
 
 	private void pushUpdate() {
+		setBoardMode(computeBoardModeName(fop.getState(), fop.getBreakType(), fop.getCeremonyType()));
 		logger.debug("### pushing update");
 		String updateUrl = Config.getCurrent().getParamUpdateUrl();
 		if (updateUrl == null) {
@@ -1212,6 +1220,22 @@ public class EventForwarder implements BreakDisplay {
 	private void uiLog(UIEvent e) {
 		uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        null, e.getOrigin(), LoggerUtils.whereFrom());
+	}
+
+	public Boolean getTeamFlags() {
+		return teamFlags;
+	}
+
+	public void setTeamFlags(Boolean teamFlags) {
+		this.teamFlags = teamFlags;
+	}
+
+	public String getBoardMode() {
+		return boardMode;
+	}
+
+	public void setBoardMode(String boardMode) {
+		this.boardMode = boardMode;
 	}
 
 }

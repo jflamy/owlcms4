@@ -20,6 +20,7 @@ public class DecisionEvent {
     private String groupName;
     private String recordKind;
     private String recordMessage;
+    private String mode;
 
     public DecisionEvent() {
     }
@@ -46,6 +47,10 @@ public class DecisionEvent {
 
     public String getGroupName() {
         return groupName;
+    }
+
+    public String getMode() {
+        return this.mode;
     }
 
     public String getRecordKind() {
@@ -110,6 +115,10 @@ public class DecisionEvent {
 
     public void setGroupName(String groupName) {
         this.groupName = groupName;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
     }
 
     public void setRecordKind(String recordKind) {

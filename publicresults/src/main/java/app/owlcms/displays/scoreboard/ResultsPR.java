@@ -21,7 +21,6 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.template.Id;
-import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
@@ -40,7 +39,6 @@ import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.uievents.BreakTimerEvent;
 import app.owlcms.uievents.BreakTimerEvent.BreakStart;
 import app.owlcms.uievents.BreakType;
-import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.DecisionEvent;
 import app.owlcms.uievents.DecisionEventType;
 import app.owlcms.uievents.UpdateEvent;
@@ -63,9 +61,8 @@ import elemental.json.impl.JreJsonFactory;
 @JsModule("./components/AudioContext.js")
 @Route("results")
 
-
 public class ResultsPR extends LitTemplate
-implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
+        implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsPR.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -102,8 +99,6 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
     private boolean defaultRecordsDisplay;
     private boolean defaultLeadersDisplay;
     private boolean liftingOrder;
-    private String fopState;
-    private BreakType breakType;
 
     /**
      * Instantiates a new results board.
@@ -290,12 +285,14 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
 
     @Subscribe
     public void slaveBreakDone(BreakTimerEvent.BreakDone e) {
+        ui.access(() -> {
+            setBoardMode(e.getMode());
+        });
         if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
             // event is not for us
             return;
         }
         logger.debug("### received BreakDone {}");
-        this.getElement().callJsFunction("reset");
         needReset = false;
     }
 
@@ -305,7 +302,8 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
             // event is not for us
             return;
         }
-        // logger.debug("### Results received DecisionEvent {} {} {}", e.getEventType(), e.getRecordKind(),
+        // logger.debug("### Results received DecisionEvent {} {} {}", e.getEventType(),
+        // e.getRecordKind(),
         // e.getRecordMessage());
         DecisionEventType eventType = e.getEventType();
         switch (eventType) {
@@ -315,8 +313,8 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
                     return;
                 }
                 ui.access(() -> {
+                    setBoardMode(e.getMode());
                     this.getElement().setProperty("decisionVisible", true);
-                    setCurrentAthleteDisplay();
                 });
                 break;
             case RESET:
@@ -325,7 +323,7 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
                     return;
                 }
                 ui.access(() -> {
-                    setCurrentAthleteDisplay();
+                    setBoardMode(e.getMode());
                     this.getElement().setProperty("decisionVisible", false);
                 });
                 break;
@@ -335,8 +333,8 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
                     return;
                 }
                 ui.access(() -> {
+                    setBoardMode(e.getMode());
                     this.getElement().setProperty("decisionVisible", true);
-                    setCurrentAthleteDisplay();
                     this.getElement().setProperty("recordKind", e.getRecordKind());
                     this.getElement().setProperty("recordMessage", e.getRecordMessage());
                 });
@@ -356,14 +354,14 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
             // event is not for us
             return;
         }
-        fopState = e.getFopState();
-        breakType = e.getBreakType();
+        String fopState = e.getFopState();
+        BreakType breakType = e.getBreakType();
         String stylesDir = e.getStylesDir();
 
         ui.access(() -> {
             this.getElement().setProperty("stylesDir", stylesDir);
 
-            setBoardMode(e.getFopState(), e.getBreakType(), e.getCeremonyType(), this.getElement());
+            setBoardMode(e.getMode());
             String group = e.getGroupName();
             String description = null;
             if (group != null) {
@@ -456,17 +454,19 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
                 // logger.debug("no reset");
             } else {
                 logger.debug("### resetting becase of ranking update");
-                this.getElement().callJsFunction("reset");
+                //this.getElement().callJsFunction("reset");
                 needReset = false;
             }
         });
     }
 
-    protected void doEmpty() {
-        setBoardMode("BREAK", null, null, this.getElement());
-    }
+//    protected void doEmpty() {
+//        setBoardMode("BREAK", null, null, this.getElement());
+//    }
 
-    /** @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
+    /**
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
+     */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         SoundUtils.enableAudioContextNotification(this.getElement());
@@ -485,11 +485,12 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
         } else {
             getElement().setProperty("fulName", Translator.translate("WaitingForSite"));
             getElement().setProperty("groupName", "");
-            getElement().callJsFunction("groupDone");
         }
     }
 
-    /** @see com.vaadin.flow.component.Component#onDetach(com.vaadin.flow.component.DetachEvent) */
+    /**
+     * @see com.vaadin.flow.component.Component#onDetach(com.vaadin.flow.component.DetachEvent)
+     */
     @Override
     protected void onDetach(DetachEvent detachEvent) {
         super.onDetach(detachEvent);
@@ -508,12 +509,7 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
     }
 
     private void doDone(String str) {
-        if (str == null) {
-            doEmpty();
-        } else {
-            getElement().setProperty("fullName", str);
-            this.getElement().callJsFunction("groupDone");
-        }
+        getElement().setProperty("fullName", str);
     }
 
     @SuppressWarnings("unused")
@@ -543,29 +539,32 @@ implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
         return false;
     }
 
-    private void setBoardMode(String fopState2, BreakType breakType2, CeremonyType ceremonyType, Element element) {
-        // TODO Auto-generated method stub
-
+    private void setBoardMode(String mode) {
+        this.getElement().setProperty("mode", mode);
     }
 
-    private void setCurrentAthleteDisplay() {
-        // TODO Auto-generated method stub
 
-    }
-
-    //    private void setHidden(boolean hidden) {
-    //        this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
-    //        this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" : "display:grid"));
-    //        this.getElement().setProperty("hiddenFlexStyle", (hidden ? "display:none" : "display:flex"));
+    // private void setHidden(boolean hidden) {
+    // this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" :
+    // "display:block"));
+    // this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" :
+    // "display:grid"));
+    // this.getElement().setProperty("hiddenFlexStyle", (hidden ? "display:none" :
+    // "display:flex"));
     //
-    //        this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
-    //        this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" : "display:none"));
-    //        this.getElement().setProperty("inactiveFlexStyle", (hidden ? "display:flex" : "display:none"));
+    // this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block"
+    // : "display:none"));
+    // this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" :
+    // "display:none"));
+    // this.getElement().setProperty("inactiveFlexStyle", (hidden ? "display:flex" :
+    // "display:none"));
     //
-    //        this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
-    //        this.getElement().setProperty("videoHeaderDisplay", (hidden || !isVideo() ? "display:none" : "display:flex"));
-    //        this.getElement().setProperty("normalHeaderDisplay", (hidden || isVideo() ? "display:none" : "display:block"));
-    //    }
+    // this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
+    // this.getElement().setProperty("videoHeaderDisplay", (hidden || !isVideo() ?
+    // "display:none" : "display:flex"));
+    // this.getElement().setProperty("normalHeaderDisplay", (hidden || isVideo() ?
+    // "display:none" : "display:block"));
+    // }
 
     private void setWideTeamNames(boolean wide) {
         this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));

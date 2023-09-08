@@ -40,6 +40,7 @@ public class UpdateEvent {
     private String stylesDir;
     private String groupDescription;
     private CeremonyType ceremonyType;
+    private String mode;
 
     public UpdateEvent() {
         setLeaders(leaders);
@@ -47,12 +48,12 @@ public class UpdateEvent {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if ((obj == null) || (getClass() != obj.getClass())) {
             return false;
-        if (getClass() != obj.getClass())
-            return false;
+        }
         UpdateEvent other = (UpdateEvent) obj;
         return Objects.equals(athletes, other.athletes) && Objects.equals(attempt, other.attempt)
                 && Objects.equals(breakRemaining, other.breakRemaining) && breakType == other.breakType
@@ -93,6 +94,10 @@ public class UpdateEvent {
         return this.categoryName;
     }
 
+    public CeremonyType getCeremonyType() {
+        return ceremonyType;
+    }
+
     public String getCompetitionName() {
         return this.competitionName;
     }
@@ -107,6 +112,10 @@ public class UpdateEvent {
 
     public String getFullName() {
         return fullName;
+    }
+
+    public String getGroupDescription() {
+        return groupDescription;
     }
 
     public String getGroupName() {
@@ -127,6 +136,10 @@ public class UpdateEvent {
 
     public String getLiftsDone() {
         return this.liftsDone;
+    }
+
+    public String getMode() {
+        return this.mode;
     }
 
     public String getNoLiftRanks() {
@@ -217,6 +230,10 @@ public class UpdateEvent {
         this.categoryName = categoryName;
     }
 
+    public void setCeremonyType(CeremonyType ceremonyType) {
+        this.ceremonyType = ceremonyType;
+    }
+
     public void setCompetitionName(String competitionName) {
         this.competitionName = competitionName;
     }
@@ -231,6 +248,10 @@ public class UpdateEvent {
 
     public void setFullName(String parameter) {
         this.fullName = parameter;
+    }
+
+    public void setGroupDescription(String groupDescription) {
+        this.groupDescription = groupDescription;
     }
 
     public void setGroupName(String parameter) {
@@ -255,6 +276,10 @@ public class UpdateEvent {
 
     public void setLiftsDone(String liftsDone) {
         this.liftsDone = liftsDone;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
     }
 
     public void setNoLiftRanks(String parameter) {
@@ -310,22 +335,6 @@ public class UpdateEvent {
         return "UpdateEvent [groupName=" + groupName + ", timeAllowed=" + timeAllowed + ", fopName=" + fopName
                 + ", fopState=" + fopState + ", isBreak=" + isBreak + ", breakType=" + breakType + ", breakRemaining="
                 + breakRemaining + "]";
-    }
-
-    public String getGroupDescription() {
-        return groupDescription;
-    }
-
-    public void setGroupDescription(String groupDescription) {
-        this.groupDescription = groupDescription;
-    }
-
-    public CeremonyType getCeremonyType() {
-        return ceremonyType;
-    }
-
-    public void setCeremonyType(CeremonyType ceremonyType) {
-        this.ceremonyType = ceremonyType;
     }
 
 }
