@@ -56,7 +56,7 @@
     align-items: center;
     justify-content: center;
     flex-grow: 0;
-    background-image: url('../../logos/left.png');
+    background-image: url('../../../logos/left.png');
     /* background-color:white; */
     background-size: contain;
     background-repeat: no-repeat;
@@ -70,7 +70,7 @@
     align-items: center;
     justify-content: center;
     flex-grow: 0;
-    background-image: url('../../logos/right.png');
+    background-image: url('../../../logos/right.png');
     /* background-color:white; */
     background-size: contain;
     background-repeat: no-repeat;
