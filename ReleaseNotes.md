@@ -7,11 +7,12 @@
 > - owlcms:  Migration complete. No systematic tests yet.
 > - publicresults: Migration complete.
 
-44.0.0-alpha13:
+44.0.0-alpha14:
 
+- Fixed scoreboards that would not show up in the installed version due to differences in LitElement bundling.
 - The default styling directory is now `css/nogrid` to give a more modern look. 
   - The old "styles" directory has moved to `css/grid`. 
-  - Am alternate styling directory can specified in the Preparation - Settings - Customization page.  For example, to get the old look back, the value would be `css/grid`  .
+  - An alternate styling directory can specified in the Preparation - Settings - Customization page.  For example, to get the old look back, the value would be `css/grid`  .
   - Local variations to styling should be copied to a subdirectory of `css`.  If you have customized `styles`, move it to `css/myfederation` (or whatever name you choose), and define it in the Customization page.
 
 
