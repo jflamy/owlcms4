@@ -9,7 +9,7 @@
 
 44.0.0-alpha15:
 
-- Fixed display dialogs that would not show up correctly in the production build.
+- Fixed display parameter dialogs not showing up in the production build, replaced events with callbacks.
 - Fixed scoreboards that would not show up in the installed version due to differences in LitElement bundling.
 - The default styling directory is now `css/nogrid` to give a more modern look. 
   - The old "styles" directory has moved to `css/grid`. 
