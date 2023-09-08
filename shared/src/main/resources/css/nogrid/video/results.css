@@ -1,0 +1,1062 @@
+/* default for page */
+.wrapper {
+    /* results table font size */
+    --tableFontSize: 1.25rem;
+    --recordValueCellHeight: calc(var(--tableFontSize)*1.5);
+    --recordsFontRatio: 0.9;
+
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--pageTextColor);
+    background-color: var(--pageBackgroundColor);
+
+    min-height: 100vh;
+    padding: 1vmin 2vmin 2vmin 2vmin;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: no-wrap;
+    justify-content: flex-start;
+    line-height: unset;
+}
+
+.blockPositioningWrapper {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.waiting {
+    display: flex;
+    flex-grow: 1;
+    align-items: center;
+    text-align: center;
+}
+
+.video {
+    font-size: 2rem;
+    font-weight: bold;
+    background-color: var(--videoHeaderBackgroundColor);
+    color: var(--videoHeaderTextColor);
+    margin-bottom: 1.2rem;
+    padding: 0.25em;
+    padding-left: 0.5em;
+    display: flex;
+    align-items: center;
+    justify-items: center;
+}
+
+.video .videoheader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+.video .eventlogo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 0;
+    background-image: url('../../logos/left.png');
+    /* background-color:white; */
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 70px;
+    height: 75px;
+    background-position: center;
+}
+
+.video .federationlogo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 0;
+    background-image: url('../../logos/right.png');
+    /* background-color:white; */
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 70px;
+    height: 70px;
+    margin-right:5px;
+    background-position: center;
+}
+
+/* table general parameters */
+table.results {
+    border-collapse: collapse;
+    font-size: var(--tableFontSize);
+    --totalRankWidth: var(--rankWidth);
+    --totalRankVisibility: visible;
+    --totalWidth: var(--liftResultWidth);
+    --totalVisibility: visible;
+    --sinclairWidth: 0;
+    --sinclairVisibility: hidden;
+    --sinclairRankWidth: 0;
+    --sinclairRankVisibility: hidden;
+}
+
+table.results.noranks {
+    --rankWidth: 0;
+    --rankVisibility: hidden;
+    --totalRankWidth: var(--liftResultWidth);
+    --totalRankVisibility: visible;
+    --totalWidth: var(--liftResultWidth);
+    --totalVisibility: visible;
+    --sinclairWidth: 0;
+    --sinclairVisibility: hidden;
+    --sinclairRankWidth: 0;
+    --sinclairRankVisibility: hidden;
+}
+
+table.results.sinclair {
+    --rankWidth: 0;
+    --rankVisibility: hidden;
+    --totalRankWidth: 0;
+    --totalRankVisibility: hidden;
+    --sinclairWidth: 8ch;
+    --sinclairVisibility: visible;
+    --sinclairRankWidth: 8ch;
+    --sinclairRankVisibility: visible;
+    --totalWidth: var(--liftResultWidth);
+    --totalVisibility: visible;
+}
+
+/* default cell colors, backgrounds and borders */
+:host(.dark) table.results tr td, 
+:host(.dark) table.results tr th {
+    align-items: center;
+    background-color: var(--darkBackgroundColor);
+    color: var(--darkTextColor);
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--darkTableBorders);
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: var(--rowSmallSpacerHeight);
+}
+
+:host(.light) table.results tr td,
+:host(.light) table.results tr th {
+    align-items: center;
+    background-color: var(--lightBackgroundColor);
+    color: var(--lightTextColor);
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--lightTableBorders);
+    justify-content: center;
+    font-weight: bold;
+}
+
+/* start */
+:host(.light) table.results tr td.start {
+    background-color: var(--lightStartBackgroundColor);
+    color: var(--lightStartTextColor);
+    visibility: var(--startVisibility);
+}
+
+:host(.dark) table.results tr td.start {
+    background-color: var(--darkStartBackgroundColor);
+    color: var(--darkStartTextColor);
+    visibility: var(--startVisibility);
+}
+
+/* name */
+:host(.light) table.results tr td.name {
+    background-color: var(--lightNameBackgroundColor);
+    color: var(--lightNameTextColor);
+    justify-content: left;
+}
+
+:host(.dark) table.results tr td.name {
+    background-color: var(--darkNameBackgroundColor);
+    color: var(--darkNameTextColor);
+    justify-content: left;
+}
+
+/* category */
+:host(.dark) table.results tr td.category {
+    background-color: var(--darkCategoryBackgroundColor);
+    color: var(--darkCategoryTextColor);
+    visibility: var(--categoryVisibility);
+}
+
+:host(.light) table.results tr td.category {
+    background-color: var(--lightCategoryBackgroundColor);
+    color: var(--lightCategoryTextColor);
+    visibility: var(--categoryVisibility);
+}
+
+/* birth */
+:host(.dark) table.results tr td.yob {
+    background-color: var(--darkBirthBackgroundColor);
+    color: var(--darkBirthTextColor);
+}
+
+:host(.light) table.results tr td.yob {
+    background-color: var(--lightBirthBackgroundColor);
+    color: var(--lightBirthTextColor);
+}
+
+/* team */
+:host(.dark) table.results tr td.club {
+    background-color: var(--darkTeamBackgroundColor);
+    color: var(--darkTeamTextColor);
+}
+
+:host(.light) table.results tr td.club {
+    background-color: var(--lightTeamBackgroundColor);
+    color: var(--lightTeamTextColor);
+}
+
+table.results tr td.club div.ellipsis {
+    width: var(--teamNameShortLength);
+}
+
+/* good/bad cells */
+:host(.dark) table.results tr td.good {
+    background-color: var(--darkGoodBackgroundColor);
+    color: var(--darkGoodTextColor);
+    font-weight: bold;
+}
+
+:host(.light) table.results tr td.good {
+    background-color: var(--lightGoodBackgroundColor);
+    color: var(--lightGoodTextColor);
+}
+
+:host(.dark) table.results tr td.fail {
+    background-color: var(--darkFailBackgroundColor);
+    color: var(--darkFailTextColor);
+    font-weight: bold;
+}
+
+:host(.light) table.results tr td.fail {
+    background-color: var(--lightFailBackgroundColor);
+    color: var(--lightFailTextColor);
+}
+
+/* snatch and c&j ranks */
+:host(.dark) table.results tr td.rank {
+    background-color: var(--darkRankBackgroundColor);
+    color: var(--darkRankTextColor);
+    visibility: var(--rankVisibility);
+    display: flex;
+}
+
+:host(.light) table.results tr td.rank {
+    background-color: var(--lightRankBackgroundColor);
+    color: var(--lightRankTextColor);
+    visibility: var(--rankVisibility);
+    display: flex;
+}
+
+/* snatch and c&j best */
+:host(.dark) table.results tr td.best,
+:host(.dark) table.results tr th.best {
+    background-color: var(--darkTotalBackgroundColor);
+    color: var(--darkTotalTextColor);
+    visibility: var(--bestVisibility);
+}
+
+:host(.light) table.results tr td.best,
+:host(.light) table.results th td.best {
+    background-color: var(--lightTotalBackgroundColor);
+    color: var(--lightTotalTextColor);
+    visibility: var(--bestVisibility);
+}
+
+/* total rank */
+:host(.dark) table.results tr td.totalRank,
+:host(.dark) table.results tr th.totalRank {
+    background-color: var(--darkTotalRankBackgroundColor);
+    color: var(--darkTotalRankTextColor);
+    visibility: var(--totalRankVisibility);
+}
+
+:host(.light) table.results tr td.totalRank,
+:host(.light) table.results th td.totalRank {
+    background-color: var(--lightTotalRankBackgroundColor);
+    color: var(--lightTotalRankTextColor);
+    visibility: var(--totalRankVisibility);
+}
+
+/* group */
+:host(.light) table.results tr td.groupCol,
+:host(.light) table.results th td.groupCol  {
+    background-color: var(--lightStartBackgroundColor);
+    color: var(--lightStartTextColor);
+    visibility: var(--startVisibility);
+}
+
+:host(.dark) table.results tr td.groupCol,
+:host(.dark) table.results th td.groupCol
+ {
+    background-color: var(--darkStartBackgroundColor);
+    color: var(--darkStartTextColor);
+    visibility: var(--startVisibility);
+}
+
+/* year of birth */
+:host(.dark) table.results tr td.yob,
+:host(.dark) table.results tr th.yob {
+    background-color: var(--darkBackgroundColor);
+    color: var(--darkTextColor);
+    visibility: var(--birthVisibility);
+}
+
+:host(.light) table.results tr td.yob,
+:host(.light) table.results tr th.yob {
+    background-color: var(--lightBackgroundColor);
+    color: var(--lightTextColor);
+    visibility: var(--birthVisibility);
+}
+
+/* custom fields */
+:host(.dark) table.results tr td.custom1,
+:host(.dark) table.results tr th.custom1 {
+    background-color: var(--darkBackgroundColor);
+    color: var(--darkTextColor);
+    visibility: var(--custom1Visibility);
+}
+
+:host(.light) table.results tr td.custom1,
+:host(.light) table.results tr th.custom1 {
+    background-color: var(--lightBackgroundColor);
+    color: var(--lightTextColor);
+    visibility: var(--custom1Visibility);
+}
+
+:host(.dark) table.results tr td.custom2,
+:host(.dark) table.results tr th.custom2 {
+    background-color: var(--darkBackgroundColor);
+    color: var(--darkTextColor);
+    visibility: var(--custom2Visibility);
+}
+
+:host(.light) table.results tr td.custom2,
+:host(.light) table.results tr th.custom2 {
+    background-color: var(--lightBackgroundColor);
+    color: var(--lightTextColor);
+    visibility: var(--custom2Visibility);
+}
+
+td.custom1 div {
+    white-space: pre-wrap;
+    text-align: center;
+}
+td.custom2 div {
+    white-space: pre-wrap;
+    text-align: center;
+}
+
+:host(.dark) table.results tr td.sinclair,
+:host(.dark) table.results tr th.sinclair {
+    background-color: var(--darkBackgroundColor);
+    color: var(--darkTextColor);
+    visibility: var(--sinclairVisibility);
+}
+:host(.dark) table.results .nosinclair tr td.sinclair,
+:host(.dark) table.results .nosinclair tr th.sinclair {
+    visibility: hidden;
+}
+
+:host(.light) table.results tr td.sinclair,
+:host(.light) table.results tr th.sinclair {
+    background-color: var(--lightBackgroundColor);
+    color: var(--lightTextColor);
+    visibility: var(--sinclairVisibility);
+}
+:host(.light) table.results .nosinclair tr td.sinclair,
+:host(.light) table.results .nosinclair tr th.sinclair {
+    visibility: hidden;
+}
+
+/* sinclair rank */
+:host(.dark) table.results tr td.sinclairRank,
+:host(.dark) table.results tr th.sinclairRank {
+    background-color: var(--darkRankBackgroundColor);
+    color: var(--darkRankTextColor);
+    visibility: var(--sinclairRankVisibility);
+}
+:host(.dark) table.results .nosinclair tr td.sinclairRank,
+:host(.dark) table.results .nosinclair tr th.sinclairRank {
+    visibility: hidden;
+}
+
+:host(.light) table.results tr td.sinclairRank,
+:host(.light) table.results tr th.sinclairRank {
+    background-color: var(--lightRankBackgroundColor);
+    color: var(--lightRankTextColor);
+    visibility: var(--sinclairRankVisibility);
+}
+
+:host(.dark) table.results tr td.total,
+:host(.dark) table.results tr th.total {
+    background-color: var(--darkTotalBackgroundColor);
+    color: var(--darkTotalTextColor);
+    visibility: var(--totalVisibility);
+    font-weight: bold;
+}
+
+:host(.light) table.results tr td.total,
+:host(.light) table.results tr th.total {
+    background-color: var(--lightTotalBackgroundColor);
+    color: var(--lightTotalTextColor);
+    visibility: var(--totalVisibility);
+    font-weight: bold;
+}
+
+/* spacer line above first leader/medalist */
+:host(.dark) table.results tr td.headerSpacer {
+    background-color: var(--darkSpacerBackgroundColor);
+    /* padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin; */
+    margin-bottom: 0.01vh;
+    border-right: 0;
+    border: none;
+    max-height: 2px;
+}
+
+:host(.light) table.results tr td.headerSpacer {
+    background-color: var(--lightSpacerBackgroundColor);
+    padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
+    border: none;
+    max-height: 2px;
+}
+
+/* spacer line between categories */
+:host(.dark) table.results tr td.spacer {
+    background-color: var(--darkSpacerBackgroundColor);
+    padding: 0.2vmin 0.2vmin 0.2vmin 0.2vmin;
+    border-right: 0;
+    border: none;
+    max-height: 2px;
+}
+
+:host(.light) table.results tr td.spacer {
+    background-color: var(--lightSpacerBackgroundColor);
+    padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
+    border: none;
+    max-height: 2px;
+}
+
+/* filler space above leaders */
+:host(.dark) table.results tr td.filler {
+    background-color: var(--blockBackgroundColor);
+    grid-column: 1 / -1;
+    align-content: stretch;
+    border: none;
+    margin: 0;
+    padding: 0;
+    line-height: 90%;
+}
+
+:host(.light) table.results tr td.filler {
+    background-color: var(--blockBackgroundColor);
+    grid-column: 1 / -1;
+    align-content: stretch;
+    border: none;
+    margin: 0;
+    padding: 0;
+    line-height: 90%;
+}
+
+/* requested weight column */
+:host(.dark) table.results tr td.request {
+    background-color: var(--darkRequestBackgroundColor);
+    color: var(--darkRequestTextColor);
+    font-style: italic;
+}
+:host(.light) table.results tr td.request {
+    background-color: var(--lightRequestBackgroundColor);
+    color: var(--lightRequestTextColor);
+    font-style: italic;
+}
+
+/* current athlete colors and blinks */
+:host(.dark) table.results tr td.current {
+    color: var(--darkCurrentTextColor);
+    background-color: var(--darkCurrentBackgroundColor);
+    font-weight: bold;
+}
+
+:host(.light) table.results tr td.current {
+    color: var(--lightCurrentTextColor);
+    background-color: var(--lightCurrentBackgroundColor);
+    font-weight: bold;
+}
+
+/* blinking text is done with a div animation */
+:host(.dark) table.results div.blink {
+    animation: blink 1.5s step-start 0s infinite;
+}
+
+/* blinking a background is done with the changeColor animation defined below */
+:host(.light) table.results td.blink {
+    animation: changeColor 1.5s step-start 0s infinite;
+}
+
+/* next athlete colors */
+:host(.dark) table.results tr td.next {
+    color: var(--darkNextTextColor);
+    background-color: var(--darkNextBackgroundColor);
+    font-weight: bold;
+}
+
+:host(.light) table.results tr td.next {
+    color: var(--lightNextTextColor);
+    background-color: var(--lightNextBackgroundColor);
+    font-weight: bold;
+}
+
+/* empty cells */
+:host(.dark) table.results tr td.empty {
+    color: var(--darkEmptyTextColor);
+    background-color: var(--darkEmptyBackgroundColor);
+    font-style: italic;
+}
+
+:host(.light) table.results tr td.empty {
+    color: var(--lightEmptyTextColor);
+    background-color: var(--lightEmptyBackgroundColor);
+    font-style: italic;
+}
+
+/* grid layout */
+table {
+    /* use all available vertical space */
+    flex: 1;
+    display: grid;
+    border-collapse: collapse;
+    grid-template-rows:
+        repeat(var(--top), min-content) 1fr repeat(var(--bottom), var(--leaderLineHeight));
+    grid-template-columns:
+        /* start */
+        var(--startWidth)
+        /* name */
+        minmax(50px, var(--nameWidth))
+        /* category */
+        var(--categoryWidth)
+        /* birth */
+        var(--birthWidth)
+        /* custom fields */
+        var(--custom1Width) var(--custom2Width)
+        /* team name */
+        auto
+        /* snatch results */
+        var(--spacerWidth)
+        repeat(3, var(--liftResultWidth))
+        var(--bestWidth)
+        /* one snatch rank per category */
+        repeat(var(--nbRanks), var(--rankWidth))
+        /* clean&jerk */
+        var(--spacerWidth)
+        repeat(3, var(--liftResultWidth))
+        var(--bestWidth)
+        /* one snatch rank per category */
+        repeat(var(--nbRanks), var(--rankWidth))
+        /* total */
+        var(--spacerWidth)
+        repeat(1, var(--liftResultWidth))
+        /* one total rank per category */
+        repeat(var(--nbRanks), var(--totalRankWidth))
+        /* sinclair result */
+        var(--sinclairWidth)
+        /* sinclair ranks */
+        var(--sinclairRankWidth);
+}
+
+/* grid layout */
+table.medals {
+    /* do not use all available vertical space */
+    flex: 0;
+    display: grid;
+    border-collapse: collapse;
+    grid-template-columns:
+        /* group */
+        var(--startWidth)
+        /* name */
+        minmax(50px, var(--nameWidth))
+        /* category */
+        var(--categoryWidth)
+        /* birth */
+        var(--birthWidth)
+        /* custom fields */
+        var(--custom1Width) var(--custom2Width)
+        /* team name */
+        minmax(50px, var(--clubWidth))
+        /* snatch results */
+        var(--spacerWidth)
+        repeat(3, var(--liftResultWidth))
+        var(--bestWidth)
+        /* one snatch rank per category */
+        repeat(var(--nbRanks), var(--rankWidth))
+        /* clean&jerk */
+        var(--spacerWidth)
+        repeat(3, var(--liftResultWidth))
+        var(--bestWidth)
+        /* one snatch rank per category */
+        repeat(var(--nbRanks), var(--rankWidth))
+        /* total */
+        var(--spacerWidth)
+        repeat(1, var(--liftResultWidth))
+        /* one total rank per category */
+        repeat(var(--nbRanks), var(--totalRankWidth))
+        /* sinclair result */
+        var(--sinclairWidth)
+        /* sinclair ranks */
+        var(--sinclairRankWidth);
+}
+
+thead,
+tbody,
+tr {
+    display: contents;
+}
+
+th,
+td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: flex;
+    align-content: stretch;
+    padding-left: 0.2em;
+    padding-right: 2px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    margin: 0;
+}
+
+:host(.dark) table.results tr.head th.vspacer,
+:host(.dark) table.results tr.head td.vspacer {
+    width: var(--spacerWidth);
+    background-color: var(--blockBackgroundColor);
+    border: none;
+}
+
+:host(.dark) table.results tr th.vspacer,
+:host(.dark) table.results tr td.vspacer {
+    width: var(--spacerWidth);
+    background-color: var(--blockBackgroundColor);
+    border: none;
+}
+
+:host(.dark) table.results tr.head td,
+:host(.dark) table.results tr.head th {
+    /* position: sticky; */
+    justify-content: center;
+    align-content: center;
+    font-weight: normal;
+    /* font-size: var(--tableFontSize); */
+    position: relative;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border: 1px solid;
+    background: var(--darkTitleBackgroundColor);
+    color: var(--darkTitleTextColor);
+    border-color: var(--darkTableBorders);
+}
+
+:host(.light) table.results tr.head td,
+:host(.light) table.results tr.head th {
+    position: sticky;
+    justify-content: center;
+    align-content: center;
+    font-weight: normal;
+    /* font-size: var(--tableFontSize); */
+    position: relative;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border: 1px solid;
+    background: var(--lightTitleBackgroundColor);
+    color: var(--lightTitleTextColor);
+    border-color: var(--lightTableBorders);
+}
+
+:host table.results tr.head td.leaderTitle {
+    grid-column: 1 / -1;
+    justify-content: left;
+    font-weight: bold;
+}
+
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+@keyframes changeColor {
+    0% {
+        background-color: var(--lightCurrentBackgroundColor);
+    }
+
+    49.9% {
+        background-color: var(--lightCurrentBackgroundColor);
+    }
+
+    50% {
+        background-color: var(--lightBackgroundColor);
+    }
+
+    100% {
+        background-color: var(--lightBackgroundColor);
+    }
+}
+
+/* top part formatting */
+.attemptBar {
+    display: flex;
+    font-size: var(--topRowFontSize);
+    justify-content: space-between;
+    width: 100%;
+    height: 4vmin;
+}
+
+.attemptBar .startNumber {
+    align-self: center;
+}
+
+.attemptBar .startNumber span {
+    font-size: 70%;
+    font-weight: bold;
+    border-width: 0.2ex;
+    border-style: solid;
+    border-color: var(--startNumberBoxColor);
+    width: 1.5em;
+    display: flex;
+    justify-content: center;
+    align-self: center;
+}
+
+.attemptBar .athleteInfo {
+    display: flex;
+    font-size: 3.4vh;
+    justify-content: space-between;
+    align-items: baseline;
+    width: 100%;
+}
+
+.athleteInfo .fullName {
+    font-weight: bold;
+    flex: 0 0 35%;
+    text-align: left;
+    flex-grow: 0.5;
+    color: var(--athleteNameColor);
+    font-size: var(--athleteNameFontSize)
+}
+
+.athleteInfo .clubName {
+    color: var(--athleteTeamColor);
+}
+
+.athleteInfo .attempt {
+    color: var(--athleteAttemptColor);
+}
+
+.athleteInfo .weight {
+    color: var(--athleteAttemptWeightColor);
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+}
+
+.athleteInfo .timer {
+    flex: 0 0 15%;
+    text-align: right;
+    font-weight: bold;
+    width: 10vw;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.athleteInfo .decisionBox {
+    position: fixed;
+    top: 1vmin;
+    right: 1vmin;
+    width: 15vw;
+    height: 10vh;
+    background-color: var(--pageBackgroundColor);
+    display: none;
+}
+
+.group {
+    color: var(--groupInfoColor);
+    font-size: var(--groupInfoFontSize);
+    margin-top: 1vh;
+    margin-bottom: 2vh;
+}
+
+.breakTime {
+    /* color: #99CCFF; */
+    color: var(--breakTimerColor);
+}
+
+.athleteTimer {
+    color: var(--athleteTimerColor);
+}
+
+.hiddenTitle {
+    display: none;
+}
+
+.bigTitle {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.competitionName {
+    font-size: 4em;
+}
+
+.nextGroup {
+    font-size: 2em;
+}
+
+.english {
+    font-size: 85%;
+}
+
+div.ellipsis {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* table sizes: 1024 projector */
+@media screen and (max-width: 1025px) and (max-height: 769px) {
+    .wrapper {
+        --tableFontSize: 0.8rem;
+    }
+
+    /*
+    table.results {
+        --rankWidth: 0;
+        --rankVisibility: hidden;
+
+    }
+    */
+}
+
+/* records light theme */
+:host(.light) .recordCell {
+    float: left;
+    width: var(--recordValueCellWidth);
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+    text-align: center;
+    background-color: var(--lightRecordValueBackground);
+    color: var(--lightRecordValueText);
+    border: 1px solid var(--lightRecordCellBorderColor);
+}
+
+:host(.light) .recordLiftType {
+    float: left;
+    width: var(--recordValueCellWidth);
+    height: var(--recordTypeCellHeight);
+    text-align: center;
+    background-color: var(--lightRecordLiftTypeBackground);
+    color: var(--lightRecordLiftTypeText);
+    border: 1px solid var(--lightRecordLiftTypeBorder);
+    font-weight: normal;
+    font-size: small;
+}
+
+:host(.light) .recordLiftTypeSpacer {
+    width: var(--recordValueCellWidth);
+    text-align: center;
+    background-color: var(--lightRecordLiftTypeBackground);
+    color: var(--lightRecordLiftTypeText);
+    font-weight: normal;
+    font-size: small;
+}
+
+:host(.light) .recordsFiller {
+    text-align: right;
+    height: calc(var(--recordValueCellHeight)*1.2);
+}
+
+:host(.light) .recordCat {
+    text-align: center;
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+    background-color: var(--lightRecordBoxBackground);
+    color: var(--lightRecordBoxText);
+    border: 1px solid var(--darkRecordLiftTypeBorder);
+}
+
+:host(.light) .recordName {
+    text-align: right;
+    background-color: var(--lightRecordNameBackground);
+    color: var(--lightRecordNameText);
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+}
+
+:host(.light) .recordTitle {
+    text-align: right;
+    float: left;
+    background-color: var(--lightRecordNameBackground);
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+    color: var(--lightRecordNameText);
+}
+
+:host(.light) .recordBox {
+    float: left;
+    border: 1px solid var(--lightRecordBoxBorder);
+    background-color: var(--lightRecordBoxBackground);
+    color: var(--lightRecordBoxText);
+}
+
+:host(.light) .recordBoxPersonal {
+    float: left;
+    background-color: var(--lightRecordBoxBackground);
+    color: var(--darkRecordBoxText);
+}
+
+:host(.light) .recordBoxPersonal .recordCat {
+    border: 1px solid var(--lightRecordBoxBorder);
+    background-color: var(--pageBackgroundColor);
+    color: var(--darkRecordBoxText);
+}
+
+:host(.light) .highlight {
+    background-color: var(--lightAttemptHighlightBackground) !important;
+    color: var(--lightRecordValueText) !important;
+}
+
+/* records dark theme */
+:host(.dark) .recordCell {
+    float: left;
+    width: var(--recordValueCellWidth);
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+    text-align: center;
+    background-color: var(--darkRecordValueBackground);
+    color: var(--darkRecordValueText);
+    border: 1px solid var(--darkRecordCellBorderColor);
+}
+
+:host(.dark) .recordLiftType {
+    float: left;
+    width: var(--recordValueCellWidth);
+    text-align: center;
+    background-color: var(--darkRecordLiftTypeBackground);
+    color: var(--darkRecordLiftTypeText);
+    border: 1px solid var(--darkRecordLiftTypeBorder);
+    font-weight: normal;
+    font-size: small;
+}
+
+:host(.dark) .recordLiftTypeSpacer {
+    width: var(--recordValueCellWidth);
+    text-align: center;
+    background-color: var(--darkRecordNameBackground);
+    color: var(--darkRecordLiftTypeText);
+    font-weight: normal;
+    font-size: small;
+}
+
+:host(.dark) .recordsFiller {
+    text-align: right;
+    height: calc(var(--recordValueCellHeight)*1.2);
+}
+
+:host(.dark) .recordCat {
+    text-align: center;
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+    background-color: var(--darkRecordBoxBackground);
+    color: var(--darkRecordBoxText);
+}
+
+:host(.dark) .recordName {
+    text-align: right;
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+    background-color: var(--darkRecordNameBackground);
+    color: var(--darkRecordNameText);
+    font-weight: bold;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+
+:host(.dark) .recordTitle {
+    text-align: right;
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+    background-color: var(--darkRecordNameBackground);
+    color: var(--darkRecordNameText);
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+
+:host(.dark) .recordBox {
+    float: left;
+    border: 1px solid var(--darkRecordBoxBorder);
+    color: var(--darkRecordBoxText);
+}
+
+:host(.dark) .recordBoxPersonal {
+    float: left;
+    background-color: var(--pageBackgroundColor);
+    color: var(--darkRecordBoxText);
+}
+
+:host(.dark) .recordBoxPersonal .recordCat {
+    border: 1px solid var(--darkRecordBoxBorder);
+    background-color: var(--darkRecordBoxBackground);
+    color: var(--darkRecordBoxText);
+}
+
+:host(.dark) .highlight {
+    background-color: var(--darkAttemptHighlightBackground) !important;
+    color: var(--darkRecordValueText) !important;
+}
+
+.recordRow {
+    grid-template-columns: repeat(var(--nbRecords), max-content) 1fr;
+    grid-column-gap: 1em;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-rows: max-content;
+}
+
+.recordNotification {
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    height: 100%;
+    font-size: var(--athleteNameFontSize);
+}
+
+:host(.dark) .recordNotification.new {
+    background-color: var(--darkRecordHighlightBackground);
+    color: var(--darkRecordHighlightText);
+    z-index: var(--zIndexRecordNotifications);
+    font-weight: bold;
+}
+
+:host(.dark) .recordNotification.attempt {
+    background-color: var(--darkAttemptHighlightBackground);
+    color: var(--darkAttemptHighlightText);
+    z-index: var(--zIndexRecordNotifications);
+    font-weight: bold;
+}
+
+:host(.light) .recordNotification.new {
+    background-color: var(--lightRecordHighlightBackground);
+    color: var(--lightRecordHighlightText);
+    z-index: var(--zIndexRecordNotifications);
+}
+
+:host(.light) .recordNotification.attempt {
+    background-color: var(--lightAttemptHighlightBackground);
+    color: var(--lightAttemptHighlightText);
+    z-index: var(--zIndexRecordNotifications);
+}
+
+.recordNotification.none {
+    z-index: -10;
+}

@@ -540,7 +540,7 @@ public class Config {
 			// get from database
 			param = Config.getCurrent().getStylesDirectory();
 			if (param == null || param.isBlank()) {
-				param = "styles";
+				param = "css/nogrid";
 			}
 		}
 		return param;

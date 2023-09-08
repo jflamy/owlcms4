@@ -43,7 +43,7 @@
 
     <!-- additional tracing/debugging (set level to DEBUG or TRACE) -->
     <logger name="app.owlcms.data.config.Config" level="INFO" />
-    <logger name="app.owlcms.utils.ResourceWalker" level="INFO" />
+    <logger name="app.owlcms.utils.ResourceWalker" level="TRACE" />
     <logger name="app.owlcms.displays.monitor.OBSMonitor" level="WARN" />
     <logger name="org.hibernate.SQL" level="WARN" />
 </configuration>
