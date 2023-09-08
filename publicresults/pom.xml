@@ -193,7 +193,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>app.owlcms.Main</mainClass>
+                            <mainClass>app.owlcms.publicresults.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
