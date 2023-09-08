@@ -230,7 +230,7 @@ public class VaadinBoot {
 		// immediately with -1
 		if (System.in.read() == -1) {
 			// running from Gradle
-			System.out.println("Running from Gradle, press CTRL+C to shutdown");
+			System.out.println("Press CTRL+C to shutdown");
 			server.join(); // blocks endlessly
 		} else {
 			stop("Shutting down");
