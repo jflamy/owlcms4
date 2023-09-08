@@ -7,8 +7,9 @@
 > - owlcms:  Migration complete. No systematic tests yet.
 > - publicresults: Migration complete.
 
-44.0.0-alpha14:
+44.0.0-alpha15:
 
+- Fixed display parameter dialogs not showing up in the production build, replaced events with callbacks.
 - Fixed scoreboards that would not show up in the installed version due to differences in LitElement bundling.
 - The default styling directory is now `css/nogrid` to give a more modern look. 
   - The old "styles" directory has moved to `css/grid`. 
