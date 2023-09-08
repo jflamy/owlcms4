@@ -15,7 +15,7 @@ class TopTeamsSinclair extends LitElement {
     return html`
      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "")}.css" />
      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/top" + (this.autoversion ?? "")}.css" />
-     <div id="resultBoardDiv" class="${this.activeClasses()}" >
+     <div id="resultBoardDiv" class="${this.activeClasses()}" @click="${this._handleClick}">
         ${this.topTeamsWomen
           ? html`
               <h2 class="fullName" id="fullNameDiv" .innerHTML="${this.topTeamsWomen}" ></h2>
@@ -86,6 +86,10 @@ class TopTeamsSinclair extends LitElement {
 
   activeClasses() {
     return "wrapper ";
+  }
+
+  _handleClick() {
+    this.$server.openDialog();
   }
 
 }

@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
@@ -98,18 +99,13 @@ public class CurrentAthlete extends LitTemplate
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
-
 	JsonArray cattempts;
-
 	JsonArray sattempts;
-
 	@Id("breakTimer")
 	private BreakTimerElement breakTimer; // Flow creates it
-
 	private boolean darkMode;
 	@Id("decisions")
 	private DecisionElement decisions; // Flow creates it
-
 	private Dialog dialog;
 	private boolean groupDone;
 	private boolean initializationNeeded;
@@ -120,9 +116,7 @@ public class CurrentAthlete extends LitTemplate
 	private AthleteTimerElement timer; // Flow creates it
 	private EventBus uiEventBus;
 	private Timer dialogTimer;
-
 	private String routeParameter;
-
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private boolean video;
 
@@ -178,7 +172,7 @@ public class CurrentAthlete extends LitTemplate
 			setDisplay();
 
 			updateBottom(computeLiftType(fop.getCurAthlete()), fop);
-			
+
 		}));
 	}
 
@@ -248,6 +242,12 @@ public class CurrentAthlete extends LitTemplate
 	@Override
 	public boolean isVideo() {
 		return video;
+	}
+
+	@ClientCallable
+	@Override
+	public void openDialog() {
+		DisplayParameters.super.openDialog(getDialog());
 	}
 
 	/**
@@ -420,7 +420,8 @@ public class CurrentAthlete extends LitTemplate
 
 	@Subscribe
 	public void slaveStartBreak(UIEvent.BreakStarted e) {
-		//logger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
+		// logger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+		// this.getOrigin(), e.getOrigin());
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			setDisplay();
 			doBreak(e);

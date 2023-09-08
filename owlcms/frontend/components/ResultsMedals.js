@@ -16,7 +16,7 @@ class ResultsMedals extends LitElement {
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "" ) + ".css"}" />
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "results" + (this.autoversion ?? "") + ".css"}" />
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "resultsMedalsCustomization" + (this.autoversion ?? "") + ".css"}" />
-      <div class="${this.wrapperClasses()}"  style="${this.sizeOverride}">
+      <div class="${this.wrapperClasses()}" style="${this.sizeOverride}"  @click="${this._handleClick}">
       <div class="blockPositioningWrapper">
           <div class="waiting" style="${this.waitingStyles()}">
             <div>
@@ -287,6 +287,11 @@ class ResultsMedals extends LitElement {
 
   isCountdown() {
     return  this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN"
+  }
+
+  
+  _handleClick() {
+    this.$server.openDialog();
   }
 
   constructor() {

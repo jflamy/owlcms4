@@ -15,7 +15,7 @@ class TopSinclair extends LitElement {
     return html` 
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "")}.css" />
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/top" + (this.autoversion ?? "")}.css" /> 
-      <div id="resultBoardDiv" class="${this.activeClasses()}">
+      <div id="resultBoardDiv" class="${this.activeClasses()}" @click="${this._handleClick}">
         ${this.topSinclairWomen
           ? html`
               <h2 class="fullName" id="fullNameDiv" .innerHTML="${this.topSinclairWomen}"></h2>
@@ -147,7 +147,12 @@ class TopSinclair extends LitElement {
   }
 
   activeClasses() {
-    return "wrapper "+ (this.wideTeamNames ? "wideTeams" : "narrowTeams" );
+    return  "wrapper "+ (this.wideTeamNames ? "wideTeams" : "narrowTeams" );
+  }
+  
+  _handleClick() {
+    console.warn("topSinclair openclick")
+    this.$server.openDialog();
   }
 }
 

@@ -15,10 +15,9 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.vaadin.flow.component.ClickEvent;
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -36,13 +35,17 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.i18n.Translator;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
+import ch.qos.logback.classic.Logger;
 
 /**
  * @author owlcms
  *
  */
 public interface DisplayParameters extends ContentParameters {
+	
+	final Logger logger = (Logger) LoggerFactory.getLogger(DisplayParameters.class);
 
 	public static final String CATEGORY = "cat";
 	public static final String DARK = "dark";
@@ -93,26 +96,7 @@ public interface DisplayParameters extends ContentParameters {
 		vl.setAlignSelf(Alignment.END, buttons);
 
 		vl.add(new Div());
-		vl.add(buttons);
-
-		// workaround for compilation glitch
-		@SuppressWarnings("rawtypes")
-		ComponentEventListener listener = e -> {
-			long now = System.currentTimeMillis();
-			if (now - getLastDialogClick() > 50) {
-				buildDialog(target);
-				// logger.debug("opening dialog");
-				openDialog(dialog);
-				setShowInitialDialog(false);
-			}
-			setLastDialogClick(now);
-		};
-
-		if (isShowInitialDialog()) {
-			openDialog(dialog);
-			setShowInitialDialog(false);
-		}
-		ComponentUtil.addListener(target, ClickEvent.class, listener);
+		vl.add(buttons);		
 	}
 
 	public default void doNotification(boolean dark) {
@@ -457,5 +441,7 @@ public interface DisplayParameters extends ContentParameters {
 	}
 
 	Timer getDialogTimer();
+
+	void openDialog();
 
 }

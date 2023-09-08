@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
@@ -75,7 +76,8 @@ import elemental.json.JsonValue;
 @Route("displays/topsinclair")
 
 public class TopSinclair extends LitTemplate implements DisplayParameters,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin, VideoCSSOverride, HasBoardMode {
+        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin,
+        VideoCSSOverride, HasBoardMode {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TopSinclair.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -84,10 +86,8 @@ public class TopSinclair extends LitTemplate implements DisplayParameters,
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
-
 	JsonArray cattempts;
 	JsonArray sattempts;
-	
 	private boolean darkMode;
 	private Dialog dialog;
 	private boolean initializationNeeded;
@@ -100,18 +100,8 @@ public class TopSinclair extends LitTemplate implements DisplayParameters,
 	private EventBus uiEventBus;
 	private Timer dialogTimer;
 	private boolean video;
-
-	public boolean isVideo() {
-		return video;
-	}
-
-	public void setVideo(boolean video) {
-		this.video = video;
-	}
-
 	private String routeParameter;
-
-	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	/**
 	 * Instantiates a new results board.
@@ -251,6 +241,17 @@ public class TopSinclair extends LitTemplate implements DisplayParameters,
 	}
 
 	@Override
+	public boolean isVideo() {
+		return video;
+	}
+
+	@ClientCallable
+	@Override
+	public void openDialog() {
+		DisplayParameters.super.openDialog(getDialog());
+	}
+
+	@Override
 	public void setDarkMode(boolean dark) {
 		this.darkMode = dark;
 	}
@@ -301,6 +302,11 @@ public class TopSinclair extends LitTemplate implements DisplayParameters,
 		this.urlParameterMap = newParameterMap;
 	}
 
+	@Override
+	public void setVideo(boolean video) {
+		this.video = video;
+	}
+
 	@Subscribe
 	public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
 		computeTop(e);
@@ -342,6 +348,113 @@ public class TopSinclair extends LitTemplate implements DisplayParameters,
 			uiEventLogger.debug("### {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 			        LoggerUtils.whereFrom());
 		}
+	}
+
+	protected void doEmpty() {
+		logger.trace("doEmpty");
+		getElement().setProperty("hidden", true);
+	}
+
+	protected void doUpdate(Athlete a, UIEvent e) {
+		logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			if (a != null) {
+				getElement().setProperty("fullName", getTranslation("Scoreboard.TopSinclair"));
+				updateBottom();
+			}
+		});
+	}
+
+	/**
+	 * Compute Json string ready to be used by web component template
+	 *
+	 * CSS classes are pre-computed and passed along with the values; weights are formatted.
+	 *
+	 * @param a
+	 * @return json string with nested attempts values
+	 */
+	protected void getAttemptsJson(Athlete a) {
+		sattempts = Json.createArray();
+		cattempts = Json.createArray();
+		XAthlete x = new XAthlete(a);
+		Integer liftOrderRank = x.getLiftOrderRank();
+		Integer curLift = x.getAttemptsDone();
+		int ix = 0;
+		for (LiftInfo i : x.getRequestInfoArray()) {
+			JsonObject jri = Json.createObject();
+			String stringValue = i.getStringValue();
+			boolean notDone = x.getAttemptsDone() < 6;
+			String blink = (notDone ? " blink" : "");
+
+			jri.put("goodBadClassName", "veryNarrow empty");
+			jri.put("stringValue", "");
+			if (i.getChangeNo() >= 0) {
+				String trim = stringValue != null ? stringValue.trim() : "";
+				switch (Changes.values()[i.getChangeNo()]) {
+				case ACTUAL:
+					if (!trim.isEmpty()) {
+						if (trim.contentEquals("-") || trim.contentEquals("0")) {
+							jri.put("goodBadClassName", "veryNarrow fail");
+							jri.put("stringValue", "-");
+						} else {
+							boolean failed = stringValue != null && stringValue.startsWith("-");
+							jri.put("goodBadClassName", failed ? "veryNarrow fail" : "veryNarrow good");
+							jri.put("stringValue", formatKg(stringValue));
+						}
+					}
+					break;
+				default:
+					if (stringValue != null && !trim.isEmpty()) {
+						String highlight = i.getLiftNo() == curLift && liftOrderRank == 1 ? (" current" + blink)
+						        : (i.getLiftNo() == curLift && liftOrderRank == 2) ? " next" : "";
+						jri.put("goodBadClassName", "veryNarrow request");
+						if (notDone) {
+							jri.put("className", highlight);
+						}
+						jri.put("stringValue", stringValue);
+					}
+					break;
+				}
+			}
+
+			if (ix < 3) {
+				sattempts.set(ix, jri);
+			} else {
+				cattempts.set(ix % 3, jri);
+			}
+			ix++;
+		}
+	}
+
+	/*
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
+	 */
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		logger.debug("onAttach start");
+		checkVideo(Config.getCurrent().getParamStylesDir() + "/video/top.css", routeParameter, this);
+		switchLightingMode(this, isDarkMode(), true);
+		setWide(false);
+		setTranslationMap();
+		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
+			// we listen on all the uiEventBus.
+			uiEventBus = uiEventBusRegister(this, fop);
+		}
+		Competition competition = Competition.getCurrent();
+		doUpdate(competition);
+		openDialog();
+	}
+
+	protected void setTranslationMap() {
+		JsonObject translations = Json.createObject();
+		Enumeration<String> keys = Translator.getKeys();
+		while (keys.hasMoreElements()) {
+			String curKey = keys.nextElement();
+			if (curKey.startsWith("Scoreboard.")) {
+				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
+			}
+		}
+		this.getElement().setPropertyJson("t", translations);
 	}
 
 	private void computeTop(UIEvent e) {
@@ -417,6 +530,18 @@ public class TopSinclair extends LitTemplate implements DisplayParameters,
 		return this.sortedWomen;
 	}
 
+	private List<Athlete> nodups(List<Athlete> athletes) {
+		// massive kludge because we have same athlete in multiple age groups
+		athletes = athletes.stream()
+		        .map((p) -> ((PAthlete) p)._getAthlete())
+		        .collect(Collectors.toSet())
+		        .stream()
+		        .sorted((a, b) -> ObjectUtils.compare(b.getSinclair(), a.getSinclair()))
+		        .limit(5)
+		        .collect(Collectors.toList());
+		return athletes;
+	}
+
 	private void setSortedMen(List<Athlete> sortedMen) {
 		this.sortedMen = sortedMen;
 		logger.debug("sortedMen = {} -- {}", getSortedMen(), LoggerUtils.whereFrom());
@@ -448,124 +573,4 @@ public class TopSinclair extends LitTemplate implements DisplayParameters,
 		logger.debug("updateBottom {} {}", sortedWomen2, sortedMen2);
 	}
 
-	private List<Athlete> nodups(List<Athlete> athletes) {
-		//massive kludge because we have same athlete in multiple age groups
-		athletes = athletes.stream()
-				.map((p) -> ((PAthlete)p)._getAthlete())
-				.collect(Collectors.toSet())
-				.stream()
-				.sorted((a,b) -> ObjectUtils.compare(b.getSinclair(), a.getSinclair()))
-				.limit(5)
-				.collect(Collectors.toList());
-		return athletes;
-	}
-
-	protected void doEmpty() {
-		logger.trace("doEmpty");
-		getElement().setProperty("hidden", true);
-	}
-
-	protected void doUpdate(Athlete a, UIEvent e) {
-		logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			if (a != null) {
-				getElement().setProperty("fullName", getTranslation("Scoreboard.TopSinclair"));
-				updateBottom();
-			}
-		});
-	}
-
-	/**
-	 * Compute Json string ready to be used by web component template
-	 *
-	 * CSS classes are pre-computed and passed along with the values; weights are
-	 * formatted.
-	 *
-	 * @param a
-	 * @return json string with nested attempts values
-	 */
-	protected void getAttemptsJson(Athlete a) {
-		sattempts = Json.createArray();
-		cattempts = Json.createArray();
-		XAthlete x = new XAthlete(a);
-		Integer liftOrderRank = x.getLiftOrderRank();
-		Integer curLift = x.getAttemptsDone();
-		int ix = 0;
-		for (LiftInfo i : x.getRequestInfoArray()) {
-			JsonObject jri = Json.createObject();
-			String stringValue = i.getStringValue();
-			boolean notDone = x.getAttemptsDone() < 6;
-			String blink = (notDone ? " blink" : "");
-
-			jri.put("goodBadClassName", "veryNarrow empty");
-			jri.put("stringValue", "");
-			if (i.getChangeNo() >= 0) {
-				String trim = stringValue != null ? stringValue.trim() : "";
-				switch (Changes.values()[i.getChangeNo()]) {
-				case ACTUAL:
-					if (!trim.isEmpty()) {
-						if (trim.contentEquals("-") || trim.contentEquals("0")) {
-							jri.put("goodBadClassName", "veryNarrow fail");
-							jri.put("stringValue", "-");
-						} else {
-							boolean failed = stringValue != null && stringValue.startsWith("-");
-							jri.put("goodBadClassName", failed ? "veryNarrow fail" : "veryNarrow good");
-							jri.put("stringValue", formatKg(stringValue));
-						}
-					}
-					break;
-				default:
-					if (stringValue != null && !trim.isEmpty()) {
-						String highlight = i.getLiftNo() == curLift && liftOrderRank == 1 ? (" current" + blink)
-						        : (i.getLiftNo() == curLift && liftOrderRank == 2) ? " next" : "";
-						jri.put("goodBadClassName", "veryNarrow request");
-						if (notDone) {
-							jri.put("className", highlight);
-						}
-						jri.put("stringValue", stringValue);
-					}
-					break;
-				}
-			}
-
-			if (ix < 3) {
-				sattempts.set(ix, jri);
-			} else {
-				cattempts.set(ix % 3, jri);
-			}
-			ix++;
-		}
-	}
-
-	/*
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-	 * AttachEvent)
-	 */
-	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		logger.debug("onAttach start");
-		checkVideo(Config.getCurrent().getParamStylesDir()+"/video/top.css", routeParameter, this);
-		switchLightingMode(this, isDarkMode(), true);
-		setWide(false);
-		setTranslationMap();
-		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
-			// we listen on all the uiEventBus.
-			uiEventBus = uiEventBusRegister(this, fop);
-		}
-		Competition competition = Competition.getCurrent();
-		doUpdate(competition);
-		logger.debug("onAttach end");
-	}
-
-	protected void setTranslationMap() {
-		JsonObject translations = Json.createObject();
-		Enumeration<String> keys = Translator.getKeys();
-		while (keys.hasMoreElements()) {
-			String curKey = keys.nextElement();
-			if (curKey.startsWith("Scoreboard.")) {
-				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
-			}
-		}
-		this.getElement().setPropertyJson("t", translations);
-	}
 }

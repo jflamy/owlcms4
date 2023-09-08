@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Tag;
@@ -390,6 +391,12 @@ public class Results extends LitTemplate
 	@Override
 	public boolean isVideo() {
 		return video;
+	}
+
+	@ClientCallable
+	@Override
+	public void openDialog() {
+		DisplayParameters.super.openDialog(getDialog());
 	}
 
 	/**
@@ -1083,6 +1090,7 @@ public class Results extends LitTemplate
 		getElement().setProperty("showLiftRanks",
 		        Competition.getCurrent().isSnatchCJTotalMedals() && !Competition.getCurrent().isSinclair());
 		SoundUtils.enableAudioContextNotification(this.getElement());
+		openDialog();
 	}
 
 	protected void setAbbreviateName(boolean abbreviateNames) {

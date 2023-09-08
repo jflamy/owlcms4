@@ -7,6 +7,8 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.router.Location;
 
@@ -21,8 +23,11 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
+import ch.qos.logback.classic.Logger;
 
 public interface ContextFreeDisplayParameters extends DisplayParameters {
+	
+	final Logger logger = (Logger) LoggerFactory.getLogger(ContextFreeDisplayParameters.class);
 
 	final static String AGEGROUP = "ag";
 

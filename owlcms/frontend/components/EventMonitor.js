@@ -13,8 +13,8 @@ class Monitor extends LitElement {
 
   render() {
     return html`
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "")}" />
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "eventmonitor" + (this.autoversion ?? "")}" />
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "")}.css" />
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "eventmonitor" + (this.autoversion ?? "")}.css" />
       <div class="wrapper">
         <div class="${"notification " + (this.notificationClass ?? "")}">
           ${this.title}

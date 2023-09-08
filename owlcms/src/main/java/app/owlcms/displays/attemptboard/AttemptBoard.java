@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
@@ -102,13 +103,10 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	}
 
 	protected boolean athletePictures;
-
 	@Id("athleteTimer")
 	protected AthleteTimerElement athleteTimer; // created by Flow during template instantiation
-
 	@Id("breakTimer")
 	protected BreakTimerElement breakTimer; // created by Flow during template instantiation
-
 	@Id("decisions")
 	protected DecisionElement decisions; // created by Flow during template instantiation
 	protected String routeParameter;
@@ -123,9 +121,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	private Location location;
 	private UI locationUI;
 	private PlatesElement plates;
-
 	private boolean publicFacing;
-
 	private boolean showBarbell;
 	private boolean silenced = true;
 	private boolean video;
@@ -302,6 +298,12 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		return video;
 	}
 
+	@ClientCallable
+	@Override
+	public void openDialog() {
+		DisplayParameters.super.openDialog(getDialog());
+	}
+
 	/**
 	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setDarkMode(boolean)
 	 */
@@ -367,7 +369,8 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 
 	@Override
 	public void setSilenced(boolean silenced) {
-		// logger.debug("{} setSilenced = {} from {}", this.getClass().getSimpleName(), silenced, LoggerUtils.whereFrom());
+		// logger.debug("{} setSilenced = {} from {}", this.getClass().getSimpleName(), silenced,
+		// LoggerUtils.whereFrom());
 		this.athleteTimer.setSilenced(silenced);
 		this.breakTimer.setSilenced(silenced);
 		this.silenced = silenced;
@@ -418,9 +421,8 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	}
 
 	/**
-	 * Multiple attempt boards and athlete-facing boards can co-exist. We need to
-	 * show down on the slave devices -- the master device is the one where
-	 * refereeing buttons are attached.
+	 * Multiple attempt boards and athlete-facing boards can co-exist. We need to show down on the slave devices -- the
+	 * master device is the one where refereeing buttons are attached.
 	 *
 	 * @param e
 	 */
@@ -516,9 +518,8 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	}
 
 	/**
-	 * Multiple attempt boards and athlete-facing boards can co-exist. We need to
-	 * show decisions on the slave devices -- the master device is the one where
-	 * refereeing buttons are attached.
+	 * Multiple attempt boards and athlete-facing boards can co-exist. We need to show decisions on the slave devices --
+	 * the master device is the one where refereeing buttons are attached.
 	 *
 	 * @param e
 	 */
@@ -650,8 +651,8 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		}
 
 		String lastName = a.getLastName();
-		//logger.debug("setting lastName");
-		;
+		// logger.debug("setting lastName");
+
 		this.getElement().setProperty("lastName", lastName.toUpperCase());
 		this.getElement().setProperty("firstName", a.getFirstName());
 		this.getElement().setProperty("decisionVisible", false);
@@ -700,8 +701,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	}
 
 	/**
-	 * Restoring the attempt board during a break. The information about how/why the
-	 * break was started is unavailable.
+	 * Restoring the attempt board during a break. The information about how/why the break was started is unavailable.
 	 *
 	 * @param fop
 	 */
@@ -745,7 +745,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	}
 
 	protected void doEmpty() {
-		//logger.debug("****doEmpty");
+		// logger.debug("****doEmpty");
 		FieldOfPlay fop2 = OwlcmsSession.getFop();
 		if (fop2.getGroup() == null) {
 			setDisplayedWeight("");
@@ -757,7 +757,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	}
 
 	protected void doNotEmpty() {
-		//logger.debug("****doNotEmpty");
+		// logger.debug("****doNotEmpty");
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			FieldOfPlay fop2 = OwlcmsSession.getFop();
 			UIEventProcessor.uiAccess(this, uiEventBus, () -> {
@@ -771,8 +771,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	}
 
 	/*
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-	 * AttachEvent)
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
@@ -790,6 +789,7 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 			syncWithFOP(fop);
 			// we send on fopEventBus, listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
+			openDialog();
 		});
 	}
 
@@ -860,7 +860,8 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 	}
 
 	private void doInactive(FieldOfPlay fop, FOPState fopState) {
-		setBoardMode(fopState, fopState == FOPState.BREAK ? fop.getBreakType() : null, fop.getCeremonyType(), this.getElement());
+		setBoardMode(fopState, fopState == FOPState.BREAK ? fop.getBreakType() : null, fop.getCeremonyType(),
+		        this.getElement());
 		this.getElement().setProperty("lastName", inferGroupName(fop.getCeremonyType()));
 		this.getElement().setProperty("firstName", inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
 	}

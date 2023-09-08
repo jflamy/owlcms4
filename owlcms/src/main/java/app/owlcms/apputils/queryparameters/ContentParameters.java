@@ -4,13 +4,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.router.Location;
 
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
+import ch.qos.logback.classic.Logger;
 
 public interface ContentParameters extends FOPParameters {
+	
+	final Logger logger = (Logger) LoggerFactory.getLogger(ContentParameters.class);
 
 	public static final String SILENT = "silent";
 	public static final String SINGLEREF = "singleRef";

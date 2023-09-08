@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
@@ -82,7 +83,8 @@ import elemental.json.JsonValue;
 
 public class TopTeamsSinclair extends LitTemplate
         implements DisplayParameters,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin, VideoCSSOverride, HasBoardMode {
+        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin,
+        VideoCSSOverride, HasBoardMode {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TopTeamsSinclair.class);
 	private static final int SHOWN_ON_BOARD = 5;
@@ -92,7 +94,6 @@ public class TopTeamsSinclair extends LitTemplate
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
-
 	private AgeDivision ageDivision = null;
 	private String ageGroupPrefix = null;
 	private boolean darkMode;
@@ -106,18 +107,8 @@ public class TopTeamsSinclair extends LitTemplate
 	private List<TeamTreeItem> womensTeams;
 	private Timer dialogTimer;
 	private boolean video;
-
-	public boolean isVideo() {
-		return video;
-	}
-
-	public void setVideo(boolean video) {
-		this.video = video;
-	}
-
 	private String routeParameter;
-
-	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	/**
 	 * Instantiates a new results board.
@@ -190,7 +181,8 @@ public class TopTeamsSinclair extends LitTemplate
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 
-		TeamResultsTreeData teamResultsTreeData = new TeamResultsTreeData(getAgeGroupPrefix(), getAgeDivision(), (Gender) null,
+		TeamResultsTreeData teamResultsTreeData = new TeamResultsTreeData(getAgeGroupPrefix(), getAgeDivision(),
+		        (Gender) null,
 		        Ranking.BW_SINCLAIR, true);
 		Map<Gender, List<TeamTreeItem>> teamsByGender = teamResultsTreeData.getTeamItemsByGender();
 
@@ -295,8 +287,20 @@ public class TopTeamsSinclair extends LitTemplate
 		return true;
 	}
 
+	@Override
+	public boolean isVideo() {
+		return video;
+	}
+
+	@ClientCallable
+	@Override
+	public void openDialog() {
+		DisplayParameters.super.openDialog(getDialog());
+	}
+
 	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location, java.util.Map)
+	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
+	 *      java.util.Map)
 	 */
 	@Override
 	public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
@@ -407,6 +411,11 @@ public class TopTeamsSinclair extends LitTemplate
 		this.urlParameterMap = newParameterMap;
 	}
 
+	@Override
+	public void setVideo(boolean video) {
+		this.video = video;
+	}
+
 	@Subscribe
 	public void slaveGroupDone(UIEvent.GroupDone e) {
 		uiLog(e);
@@ -461,6 +470,51 @@ public class TopTeamsSinclair extends LitTemplate
 			uiEventLogger.debug("### {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 			        LoggerUtils.whereFrom());
 		}
+	}
+
+	protected void doEmpty() {
+		logger.trace("doEmpty");
+		FieldOfPlay fop = OwlcmsSession.getFop();
+		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
+	}
+
+	protected void doUpdate(Athlete a, UIEvent e) {
+		logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			if (a != null) {
+				updateBottom();
+			}
+		});
+	}
+
+	/*
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
+	 */
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		checkVideo(Config.getCurrent().getParamStylesDir() + "/video/top.css", routeParameter, this);
+		switchLightingMode(this, isDarkMode(), true);
+		setWide(false);
+		setTranslationMap();
+		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
+			// we listen on all the uiEventBus.
+			uiEventBus = uiEventBusRegister(this, fop);
+		}
+		Competition competition = Competition.getCurrent();
+		doUpdate(competition);
+		openDialog();
+	}
+
+	protected void setTranslationMap() {
+		JsonObject translations = Json.createObject();
+		Enumeration<String> keys = Translator.getKeys();
+		while (keys.hasMoreElements()) {
+			String curKey = keys.nextElement();
+			if (curKey.startsWith("Scoreboard.")) {
+				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
+			}
+		}
+		this.getElement().setPropertyJson("t", translations);
 	}
 
 	private String computeAgeGroupSuffix() {
@@ -588,48 +642,4 @@ public class TopTeamsSinclair extends LitTemplate
 		        getAgeDivision() != null ? getAgeDivision().name() : null);
 	}
 
-	protected void doEmpty() {
-		logger.trace("doEmpty");
-		FieldOfPlay fop = OwlcmsSession.getFop();
-		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
-	}
-
-	protected void doUpdate(Athlete a, UIEvent e) {
-		logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			if (a != null) {
-				updateBottom();
-			}
-		});
-	}
-
-	/*
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-	 * AttachEvent)
-	 */
-	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		checkVideo(Config.getCurrent().getParamStylesDir()+"/video/top.css", routeParameter, this);
-		switchLightingMode(this, isDarkMode(), true);
-		setWide(false);
-		setTranslationMap();
-		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
-			// we listen on all the uiEventBus.
-			uiEventBus = uiEventBusRegister(this, fop);
-		}
-		Competition competition = Competition.getCurrent();
-		doUpdate(competition);
-	}
-
-	protected void setTranslationMap() {
-		JsonObject translations = Json.createObject();
-		Enumeration<String> keys = Translator.getKeys();
-		while (keys.hasMoreElements()) {
-			String curKey = keys.nextElement();
-			if (curKey.startsWith("Scoreboard.")) {
-				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
-			}
-		}
-		this.getElement().setPropertyJson("t", translations);
-	}
 }

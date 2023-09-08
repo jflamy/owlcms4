@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Tag;
@@ -92,7 +93,6 @@ public class ResultsMedals extends LitTemplate
 	private static final long DEBOUNCE = 50;
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsMedals.class);
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-
 	private Category category;
 	private JsonArray cattempts;
 	private boolean darkMode = true;
@@ -104,13 +104,11 @@ public class ResultsMedals extends LitTemplate
 	private boolean initializationNeeded;
 	private Location location;
 	private UI locationUI;
-
 	private TreeMap<Category, TreeSet<Athlete>> medals;
 	private String routeParameter;
 	private JsonArray sattempts;
 	private boolean silenced = true;
 	private EventBus uiEventBus;
-
 	private Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private boolean snatchCJTotalMedals;
 	private boolean video;
@@ -119,7 +117,6 @@ public class ResultsMedals extends LitTemplate
 	private long now;
 	private long lastShortcut;
 	private Double teamWidth;
-
 	DecimalFormat df = new DecimalFormat("0.000");
 	private boolean abbreviatedName;
 	private long lastDialogClick;
@@ -317,6 +314,12 @@ public class ResultsMedals extends LitTemplate
 	@Override
 	public boolean isVideo() {
 		return video;
+	}
+
+	@ClientCallable
+	@Override
+	public void openDialog() {
+		ContextFreeDisplayParameters.super.openDialog(getDialog());
 	}
 
 	@Override
@@ -996,4 +999,5 @@ public class ResultsMedals extends LitTemplate
 		this.getElement().setProperty("liftDone", "-");
 		computeMedalsJson(medals);
 	}
+
 }
