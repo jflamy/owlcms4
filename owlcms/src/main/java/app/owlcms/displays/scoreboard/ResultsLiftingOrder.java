@@ -3,6 +3,8 @@ package app.owlcms.displays.scoreboard;
 import java.util.List;
 import java.util.function.BiPredicate;
 
+import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.athlete.Athlete;
@@ -10,8 +12,13 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "deprecation" })
 @Route("displays/resultsLiftingOrder")
+
+@Tag("results-template")
+@JsModule("./components/Results.js")
+@JsModule("./components/AudioContext.js")
+
 public class ResultsLiftingOrder extends Results {
 
 	@Override
