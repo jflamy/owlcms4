@@ -7,9 +7,12 @@
 > - owlcms:  Migration complete. No systematic tests yet.
 > - publicresults: Migration complete.
 
-44.0.0-alpha16:
+44.0.0-alpha17:
 
-- Wrong main class in publicresults jar causing issue in installer.
+- Installer issues
+  - Wrong main class named in publicresults manifest
+  - Wrong version of Java JRE included in publicresults installer
+
 - Fixed display parameter dialogs not showing up in the production build, replaced events with callbacks.
 - Fixed scoreboards that would not show up in the installed version due to differences in LitElement bundling.
 - The default styling directory is now `css/nogrid` to give a more modern look. 
