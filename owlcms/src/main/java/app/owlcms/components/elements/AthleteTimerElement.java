@@ -91,9 +91,14 @@ public class AthleteTimerElement extends TimerElement {
 			}
 			logger.debug("{}{} fetching time", getClass().getSimpleName(), fop.getLoggingName());
 			IProxyTimer fopTimer = getFopTimer(fop);
-			doSetTimer(fopTimer.isIndefinite() ? null : fopTimer.liveTimeRemaining());
+			doSetTimer(/*fopTimer.isIndefinite() ? null : */fopTimer.liveTimeRemaining());
 		});
 		return;
+	}
+	
+	@Override
+	protected boolean isIndefinite() {
+		return false;
 	}
 
 	/**

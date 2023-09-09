@@ -64,6 +64,7 @@ class DecisionElement extends LitElement {
   }
   render() {
     return html` 
+    <audio preload="auto" id="down" src="../local/sounds/down.mp3"></audio>
     <div class="decisionWrapper" style="${this.decisionWrapperStyle()}" >
       <div class="down" style="font-weight: 900; ${this.downStyles()}"><vaadin-icon icon="vaadin:arrow-circle-down"></vaadin-icon></div>
       <div class="decisions" style="${this.decisionsStyles()}">
@@ -73,6 +74,12 @@ class DecisionElement extends LitElement {
       </div>
     </div>`;
   }
+
+  doDown() {
+    console.warn("down called");
+    this.renderRoot?.querySelector('#down').play();
+  }
+
 
   static get properties() {
     return {
@@ -160,7 +167,7 @@ class DecisionElement extends LitElement {
     this.ref1 = null;
     this.ref2 = null;
     this.ref3 = null;
-    this._setupAudio();
+    // this._setupAudio();
   }
 
   firstUpdated(_changedProperties) {
@@ -170,10 +177,10 @@ class DecisionElement extends LitElement {
   }
 
   connectedCallback() {
-    console.warn("connected");
     super.connectedCallback();
     document.body.addEventListener('keydown', this._readRef);
   }
+
   disconnectedCallback() {
     document.body.removeEventListener('keydown', this._readRef);
     super.disconnectedCallback();
@@ -219,12 +226,6 @@ class DecisionElement extends LitElement {
       default:
         break;
     }
-  }
-
-  _setupAudio() {
-    window.AudioContext = window.AudioContext || window.webkitAudioContext;
-    this.audioContext = new AudioContext();
-    this._prepareAudio();
   }
 
   _registerVote(code) {
@@ -332,7 +333,8 @@ class DecisionElement extends LitElement {
   showDown(isMaster, silent) {
     console.debug("de showDown -- " + !this.silent + " " + !silent);
     if (!this.silent && !silent) {
-      this._playTrack("../local/sounds/down.mp3", window.downSignal, true, 0);
+      this.doDown();
+      // this._playTrack("../local/sounds/down.mp3", window.downSignal, true, 0);
     }
     this._downShown = true;
 
@@ -382,89 +384,11 @@ class DecisionElement extends LitElement {
     );
   }
 
-  async _playTrack(filepath, previousBuffer, play, when) {
-    if (previousBuffer) {
-      console.debug("de reuse track source");
-      if (play) {
-        // play previously fetched buffer
-        await this._playAudioBuffer(previousBuffer, when);
-        console.debug("de sound done");
-      }
-      return previousBuffer;
-    } else {
-      console.debug("de no previous buffer");
-      // Safari somehow manages to lose the AudioBuffer.
-      // Massive workaround.
-      const response = await fetch(filepath);
-      const arrayBuffer = await response.arrayBuffer();
-      const newBuffer = await window.audioCtx.decodeAudioData(
-        arrayBuffer,
-        async function (audioBuffer) {
-          if (play) {
-            // duplicated code from _playAudioBuffer
-            // can't figure out how to invoke it with JavaScript "this" semantics.
-            const trackSource = await window.audioCtx.createBufferSource();
-            trackSource.buffer = audioBuffer;
-            trackSource.connect(window.audioCtx.destination);
-            if (when <= 0) {
-              trackSource.start();
-            } else {
-              trackSource.start(when, 0);
-            }
-          }
-        },
-        (e) => {
-          console.error("could not decode " + e.err);
-        }
-      );
-      
-      return newBuffer;
-    }
-  }
-
+  
   setEnabled(isEnabled) {
     this.enabled = isEnabled;
-    console.warn("setEnabled " + this.enabled + " " + this.audioContext);
-    if (isEnabled) {
-      this.trackSource = this.audioContext.createBufferSource();
-      this.trackSource.buffer = window.downSignal;
-      this.trackSource.connect(this.audioContext.destination);
-      console.debug("connected tracksource");
-    }
   }
 
-  _playAudioBuffer(audioBuffer, when) {
-    console.debug("when " + when);
-    if (when <= 0) {
-      this.trackSource.start();
-    } else {
-      this.trackSource.start(when, 0);
-    }
-
-    return this.trackSource;
-  }
-
-  async _prepareAudio() {
-    if (window.isIOS) {
-      // prefetched buffers are not available later for some unexplained reason.
-      // so we don't attempt fetching.
-      return;
-    }
-    if (!window.downSignal /* && ! this.loadingDownSignal */) {
-      this.loadingDownSignal = true;
-      const downSignal = await this._playTrack(
-        "../local/sounds/down.mp3",
-        null,
-        false,
-        0
-      );
-      window.downSignal = downSignal;
-      console.debug("loaded downSignal = " + window.downSignal);
-    } else {
-      console.debug("skipping downSignal load");
-      console.debug("existing downSignal = " + window.downSignal);
-    }
-  }
 
 }
 

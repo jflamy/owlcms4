@@ -12,7 +12,26 @@ class TimerElement extends LitElement {
   }
 
   render() {
-    return html`<div .innerHTML="${this._formattedTime}"></div>`;
+    return html`
+      <audio preload="auto" id="finalWarning" src="../local/sounds/finalWarning.mp3"></audio>
+      <audio preload="auto" id="initialWarning" src="../local/sounds/initialWarning.mp3"></audio>
+      <audio preload="auto" id="timeOver" src="../local/sounds/timeOver.mp3"></audio>
+      <div id="timer" .innerHTML="${this._formattedTime}"></div>`;
+  }
+
+  doInitialWarning() {
+    console.warn("initialWarning called");
+    this.renderRoot?.querySelector('#initialWarning').play();
+  }
+
+  doFinalWarning() {
+    console.warn("finalWarning called");
+    this.renderRoot?.querySelector('#finalWarning').play();
+  }
+
+  doTimeOver() {
+    console.warn("timeOver called");
+    this.renderRoot?.querySelector('#timeOver').play();
   }
 
   static get properties() {
@@ -74,7 +93,6 @@ class TimerElement extends LitElement {
       },
       _formattedTime: {
         type: String,
-        state: true,
       },
       _initialWarningGiven: {
         type: Boolean,
@@ -94,13 +112,13 @@ class TimerElement extends LitElement {
 
   firstUpdated(_changedProperties) {
     super.firstUpdated(_changedProperties);
-    console.debug("timer ready");
+    console.warn("timer ready");
     this._init();
   }
 
   start(seconds, indefinite, silent, element, serverMillis, from) {
     if (indefinite) {
-      console.debug("timer indefinite " + seconds);
+      console.warn("timer indefinite " + seconds);
       this._indefinite();
       return;
     }
@@ -123,7 +141,7 @@ class TimerElement extends LitElement {
       (this.isIOS() ? "iPad" : "browser") + " " + from
     );
 
-    this._prepareAudio();
+    // this._prepareAudio();
 
     this.currentTime = seconds - lateMillis / 1000;
     this.audioStartTime = window.audioCtx.currentTime;
@@ -142,7 +160,7 @@ class TimerElement extends LitElement {
 
     this._elapsed = performance.now() / 1000;
     this.running = true;
-    console.debug("timer running " + this.currentTime);
+    console.warn("timer running " + this.currentTime);
     window.requestAnimationFrame(this._decreaseTimer);
   }
 
@@ -152,27 +170,21 @@ class TimerElement extends LitElement {
       return;
     }
 
-    // var localMillis = Date.now();
-    // var lateMillis = (localMillis - parseInt(serverMillis,10));
-    // if (lateMillis < 0) {
-    // 	lateMillis = 0;
-    // }
     this.running = false;
-    console.debug("paused"+" running=false");
+    console.warn("paused"+" running=false");
     // if (this.$server != null) {
     this.$server.clientTimerStopped(
       this.fopName,
       this.currentTime,
       (this.isIOS() ? "iPad" : "browser") + " " + from
     );
-    // } else {
-    // 	console.debug("no server$");
-    // }
 
-    console.debug("timer pause " + seconds);
 
+    console.warn("timer pause " + seconds);
     this.currentTime = seconds;
-    this._formattedTime = this._formatTime(this.currentTime);
+
+    // this._formattedTime = this._formatTime(this.currentTime);
+    var s; (s = this.renderRoot.querySelector('#timer')) && (s.innerHTML=this._formatTime(this.currentTime));
   }
 
   display(seconds, indefinite, silent, element) {
@@ -183,7 +195,9 @@ class TimerElement extends LitElement {
       this._indefinite();
     } else {
       this.currentTime = seconds;
-      this._formattedTime = this._formatTime(seconds);
+
+      // this._formattedTime = this._formatTime(seconds);
+      var s; (s = this.renderRoot.querySelector('#timer')) && (s.innerHTML=this._formatTime(this.currentTime));
     }
     this._initialWarningGiven = false;
     this._finalWarningGiven = false;
@@ -209,133 +223,28 @@ class TimerElement extends LitElement {
   }
 
   _indefinite() {
-    this._formattedTime = "&nbsp;";
+    // this._formattedTime = "&nbsp;";
+    var s; (s = this.renderRoot.querySelector('#timer')) && (s.innerHTML="&nbsp;");
   }
 
   _init() {
-    console.debug("init timer " + this.indefinite+" running="+this.running);
+    console.warn("init timer " + this.indefinite+" running="+this.running);
     if (this.indefinite) {
       this.currentTime = this.startTime;
       this._indefinite();
     }
-
+    var s; (s = this.renderRoot.querySelector('#timer')) && (s.innerHTML=this._formatTime(this.currentTime));
     this._initialWarningGiven = false;
     this._finalWarningGiven = false;
     this._timeOverWarningGiven = false;
-  }
-
-  async _prepareAudio() {
-    console.debug("window.isIOS=", window.isIOS);
-    if (window.isIOS) {
-      // prefetched buffers are not available later for some unexplained reason.
-      // so we don't attempt fetching.
-      return;
-    }
-    if (!window.finalWarning /* && ! this.loadingFinalWarning */) {
-      this.loadingFinalWarning = true;
-      const finalWarning = await this._playTrack(
-        "../local/sounds/finalWarning.mp3",
-        null,
-        false,
-        0
-      );
-      window.finalWarning = finalWarning;
-      console.debug("loaded finalWarning = " + window.finalWarning);
-    } else {
-      console.debug("skipping load");
-      console.debug("existing finalWarning = " + window.finalWarning);
-    }
-
-    if (!window.initialWarning /* && ! this.loadingInitialWarning */) {
-      this.loadingInitialWarning = true;
-      const initialWarning = await this._playTrack(
-        "../local/sounds/initialWarning.mp3",
-        null,
-        false,
-        0
-      );
-      window.initialWarning = initialWarning;
-      console.debug("loaded initialWarning = " + window.initialWarning);
-    } else {
-      console.debug("skipping load");
-      console.debug("existing initialWarning = " + window.initialWarning);
-    }
-
-    if (!window.timeOver /* && ! this.loadingTimeOver */) {
-      this.loadingTimeOver = true;
-      const timeOver = await this._playTrack(
-        "../local/sounds/timeOver.mp3",
-        null,
-        false,
-        0
-      );
-      window.timeOver = timeOver;
-      console.debug("loaded timeOver = " + window.timeOver);
-    } else {
-      console.debug("skipping load");
-      console.debug("existing timeOver duration= " + window.timeOver);
-    }
   }
 
   typeOf(obj) {
     return {}.toString.call(obj).split(" ")[1].slice(0, -1).toLowerCase();
   }
 
-  async _playTrack(filepath, previousBuffer, play, when) {
-    if (previousBuffer) {
-      if (play) {
-        // play previously fetched buffer
-        await this._playAudioBuffer(previousBuffer, when);
-      }
-      return previousBuffer;
-    } else {
-      // Safari somehow manages to lose the AudioBuffer.
-      // Massive workaround.
-      const response = await fetch(filepath);
-      const arrayBuffer = await response.arrayBuffer();
-      const newBuffer = await window.audioCtx.decodeAudioData(
-        arrayBuffer,
-        async function (audioBuffer) {
-          if (play) {
-            // duplicated code from _playAudioBuffer
-            // can't figure out how to invoke it with JavaScript "this" semantics.
-            if (window.audioCtx) {
-              const trackSource = await window.audioCtx.createBufferSource();
-              if (trackSource) {
-                trackSource.buffer = audioBuffer;
-                trackSource.connect(window.audioCtx.destination);
-                if (when <= 0) {
-                  trackSource.start();
-                } else {
-                  trackSource.start(when, 0);
-                }
-              }
-            }
-          }
-        },
-        (e) => {
-          console.error("could not decode sound");
-        }
-      );
-      return newBuffer;
-    }
-  }
-
-  async _playAudioBuffer(audioBuffer, when) {
-    const trackSource = await window.audioCtx.createBufferSource();
-    trackSource.buffer = audioBuffer;
-    trackSource.connect(audioCtx.destination);
-    if (when <= 0) {
-      trackSource.start();
-    } else {
-      trackSource.start(when, 0);
-    }
-
-    return trackSource;
-  }
-
   _decreaseTimer(timestamp) {
-    //console.debug(timestamp + " " + this.running);
+    //console.warn(timestamp + " " + this.running);
     if (!this.running) {
       return;
     }
@@ -347,41 +256,23 @@ class TimerElement extends LitElement {
       ? this.currentTime + progress
       : this.currentTime - progress;
 
-    // we anticipate to use the more precise audio context timer
     if (this.currentTime <= 0.05 && !this._timeOverWarningGiven) {
-      console.debug("calling play " + this.currentTime);
+      console.warn("calling play " + this.currentTime);
       if (!this.silent) {
-        console.debug("about to play time over " + window.timeOver);
-        this._playTrack(
-          "../sounds/timeOver.mp3",
-          window.timeOver,
-          true,
-          this.currentTime
-        );
+        console.warn("about to play time over " + window.timeOver);
+        this.doTimeOver();
       }
+
       // tell server to emit sound if server-side sounds
       console.warn("timeOver "+this.fopName+" "+this.$server);
       if (this.$server != null) this.$server.clientTimeOver(this.fopName);
       this._timeOverWarningGiven = true;
     }
     if (this.currentTime <= 30.05 && !this._finalWarningGiven) {
-      console.debug(
-        "final warning " +
-        this.currentTime +
-        " " +
-        this.silent +
-        " " +
-        this.$server
-      );
+      console.warn( "final warning " + this.currentTime + " " + this.silent + " " + this.$server );
       if (!this.silent) {
-        //this.renderRoot.querySelector("#finalWarning").play();
-        console.debug("about to play final warning " + window.finalWarning);
-        this._playTrack(
-          "../sounds/finalWarning.mp3",
-          window.finalWarning,
-          true,
-          this.currentTime - 30
-        );
+        console.warn("about to play final warning " + window.finalWarning);
+        this.doFinalWarning();
       }
       // tell server to emit sound if server-side sounds
       if (this.$server != null) this.$server.clientFinalWarning(this.fopName);
@@ -389,36 +280,27 @@ class TimerElement extends LitElement {
     }
     if (this.currentTime <= 90.05 && !this._initialWarningGiven) {
       if (!this.silent) {
-        //this.renderRoot.querySelector("#initialWarning").play();
-        console.debug("about to play initial warning " + window.initialWarning);
-        this._playTrack(
-          "../sounds/initialWarning.mp3",
-          window.initialWarning,
-          true,
-          this.currentTime - 90
-        );
+        this.doInitialWarning();
       }
       // tell server to emit sound if server-side sounds
       if (this.$server != null) this.$server.clientInitialWarning(this.fopName);
       this._initialWarningGiven = true;
     }
 
-    this._formattedTime = this._formatTime(this.currentTime);
-    console.debug(this._formattedTime);
+    //this._formattedTime = this._formatTime(this.currentTime);
+    var s; (s = this.renderRoot.querySelector('#timer')) && (s.innerHTML=this._formatTime(this.currentTime));
+
+    // console.warn(this._formattedTime);
     this._elapsed = now;
     window.requestAnimationFrame(this._decreaseTimer);
 
-    if (
-      (this.currentTime < -0.1 && !this.countUp) ||
-      (this.currentTime >= this.startTime && this.countUp)
-    ) {
-      console.debug("time over stop running " + this.$server+" running=false");
+    if ((this.currentTime < -0.1 && !this.countUp) || (this.currentTime >= this.startTime && this.countUp)) {
+      console.warn("time over stop running " + this.$server+" running=false");
+
       // timer is over; tell server to emit sound if server-side sounds
       if (this.$server != null) this.$server.clientTimeOver(this.fopName);
       this.running = false;
       this.formatted_time = this._formatTime(0);
-      // this.dispatchEvent(new CustomEvent('timer-element-end', {bubbles:
-      // true, composed: true}))
       this.currentTime = this.countUp ? this.startTime : 0;
     }
   }
@@ -439,15 +321,17 @@ class TimerElement extends LitElement {
     const oldValue = this.startTime;
     this._startTime = newValue;
   }
+
   get startTime() {
     return this._startTime;
   }
+
   constructor() {
     super();
     this._decreaseTimer = this._decreaseTimer.bind(this);
     this.startTime = 60;
     this.running = false;
-    console.debug("constructor"+" running=false");
+    console.warn("constructor"+" running=false");
     this.countUp = false;
     this.silent = false;
     this.indefinite = false;

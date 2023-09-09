@@ -126,6 +126,7 @@ public abstract class TimerElement extends LitTemplate
 		if (!isIndefinite()) {
 			if (this instanceof BreakTimerElement) {
 			}
+			
 			setDisplay(milliseconds, isIndefinite(), isSilenced());
 		} else {
 			if (this instanceof BreakTimerElement) {
@@ -147,7 +148,7 @@ public abstract class TimerElement extends LitTemplate
 		Element timerElement2 = getTimerElement();
 		// logger.debug("setDisplay {} {}",milliseconds, timerElement2);
 		if (timerElement2 != null) {
-			double seconds = indefinite ? 0.0D : milliseconds / 1000.0D;
+			double seconds = indefinite ? 0.0D : (milliseconds != null ? milliseconds / 1000.0D : 0D);
 			timerElement2.callJsFunction("display", seconds, indefinite, silent, timerElement2);
 		}
 	}
@@ -181,7 +182,7 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	protected final void doSetTimer(Integer milliseconds) {
-		// logger.debug("doSetTimer {}",milliseconds);
+		logger.warn("doSetTimer {} {}",milliseconds, LoggerUtils.stackTrace());
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
 			stop(getMsRemaining(), isIndefinite(), isSilenced(), parent);
