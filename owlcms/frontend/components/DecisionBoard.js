@@ -16,8 +16,8 @@ class DecisionBoard extends LitElement {
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "")}.css"/>
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "decisionboard" + (this.autoversion ?? "")}.css"/>
       
-      <div class="wrapper">
-        <div class="wrapper bigTitle" style="${this.waitingStyles()}" @click="${this._handleClick}">
+      <div class="wrapper" @click="${this._handleClick}">
+        <div class="wrapper bigTitle" style="${this.waitingStyles()}">
           <div class="competitionName">${this.competitionName}</div>
           <br />
           <div class="nextGroup">${this.t?.WaitingNextGroup}</div>

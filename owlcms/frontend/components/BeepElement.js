@@ -12,7 +12,7 @@ class BeepElement extends LitElement {
   }
 
   render() {
-    return html`<audio preload="auto" src="../local/sounds/beepBeep.mp3"></audio>`;
+    return html`<audio preload="auto" id="beeper" src="../local/sounds/beepBeep.mp3"></audio>`;
   }
 
   static get properties() {
@@ -39,7 +39,7 @@ class BeepElement extends LitElement {
 
   beep() {
     console.warn("beep called");
-    this.renderRoot?.querySelector('audio').play();
+    this.renderRoot?.querySelector('#beeper').play();
     this.doBeep = false; // will be reset from server side.
   }
 

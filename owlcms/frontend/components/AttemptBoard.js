@@ -20,13 +20,13 @@ class CurrentAttempt extends LitElement {
     <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "resultsCustomization" + (this.autoversion ?? "") + ".css"}"/>
     <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "attemptboard" + (this.autoversion ?? "") + ".css"}"/>
 
-    <div class="wrapper">
-      <div class="wrapper bigTitle" style="${this.waitingStyles()}" @click="${this._handleClick}">
+    <div class="wrapper" @click="${this._handleClick}">
+      <div class="wrapper bigTitle" style="${this.waitingStyles()}">
         <div class="competitionName">${this.competitionName}</div>
         <br />
         <div class="nextGroup">${this.t?.WaitingNextGroup}</div>
       </div>
-      <div class="attemptBoard" style="${this.activeStyles()}">
+      <div class="attemptBoard" style="${this.activeStyles()}">X
         <div id="lastNameDiv" class=${this.lastNameClasses()} style=${this.lastNameStyles()}>
           <div>${this.lastName}</div>
         </div>
@@ -208,6 +208,7 @@ class CurrentAttempt extends LitElement {
   }
 
   _handleClick() {
+    console.warn("opening dialog");
     this.$server.openDialog();
   }
 
