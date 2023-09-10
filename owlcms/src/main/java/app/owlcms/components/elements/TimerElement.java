@@ -18,6 +18,7 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.internal.AllowInert;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.server.VaadinSession;
@@ -66,9 +67,11 @@ public abstract class TimerElement extends LitTemplate
 	public TimerElement() {
 	}
 
+	@AllowInert
 	@ClientCallable
 	abstract public void clientFinalWarning(String fopName);
 
+	@AllowInert
 	@ClientCallable
 	abstract public void clientInitialWarning(String fopName);
 
@@ -76,15 +79,18 @@ public abstract class TimerElement extends LitTemplate
 	 * Client requests that the server send back the remaining time. Intended to be
 	 * used after client has been hidden and is made visible again.
 	 */
+	@AllowInert
 	@ClientCallable
 	abstract public void clientSyncTime(String fopName);
 
 	/**
 	 * Timer ran down to zero.
 	 */
+	@AllowInert
 	@ClientCallable
 	abstract public void clientTimeOver(String fopName);
 
+	@AllowInert
 	@ClientCallable
 	abstract public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from);
 
@@ -93,6 +99,7 @@ public abstract class TimerElement extends LitTemplate
 	 *
 	 * @param remainingTime
 	 */
+	@AllowInert
 	@ClientCallable
 	abstract public void clientTimerStopped(String fopName, double remainingTime, String from);
 
@@ -146,7 +153,7 @@ public abstract class TimerElement extends LitTemplate
 
 	private void setDisplay(Integer milliseconds, Boolean indefinite, Boolean silent) {
 		Element timerElement2 = getTimerElement();
-		// logger.debug("setDisplay {} {}",milliseconds, timerElement2);
+		logger.debug("setDisplay {} {}",milliseconds, timerElement2);
 		if (timerElement2 != null) {
 			double seconds = indefinite ? 0.0D : (milliseconds != null ? milliseconds / 1000.0D : 0D);
 			timerElement2.callJsFunction("display", seconds, indefinite, silent, timerElement2);
@@ -182,7 +189,7 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	protected final void doSetTimer(Integer milliseconds) {
-		logger.warn("doSetTimer {} {}",milliseconds, LoggerUtils.stackTrace());
+		logger.debug("doSetTimer {} {}",milliseconds, LoggerUtils.stackTrace());
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
 			stop(getMsRemaining(), isIndefinite(), isSilenced(), parent);

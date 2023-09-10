@@ -26,7 +26,7 @@ class CurrentAttempt extends LitElement {
         <br />
         <div class="nextGroup">${this.t?.WaitingNextGroup}</div>
       </div>
-      <div class="attemptBoard" style="${this.activeStyles()}">X
+      <div class="attemptBoard" style="${this.activeStyles()}">
         <div id="lastNameDiv" class=${this.lastNameClasses()} style=${this.lastNameStyles()}>
           <div>${this.lastName}</div>
         </div>
