@@ -510,6 +510,7 @@ public class ResultsPR extends LitTemplate
 
     private void doDone(String str) {
         getElement().setProperty("fullName", str);
+        getElement().setProperty("liftsDone", "\u00a0");
     }
 
     @SuppressWarnings("unused")
