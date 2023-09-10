@@ -301,7 +301,7 @@ public class ConfigEditingFormFactory
 		layout.addFormItem(stylesField, Translator.translate("Config.stylesLabel"));
 		binder.forField(stylesField)
 		        .withNullRepresentation("")
-		        .bind(Config::getParamStylesDir, Config::setStylesDirectory);
+		        .bind(Config::getStylesDirBase, Config::setStylesDirectory);
 
 		return layout;
 	}

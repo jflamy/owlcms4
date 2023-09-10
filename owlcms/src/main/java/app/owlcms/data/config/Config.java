@@ -6,6 +6,8 @@
  *******************************************************************************/
 package app.owlcms.data.config;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -32,6 +34,7 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.LocaleAttributeConverter;
 import app.owlcms.data.records.RecordConfig;
 import app.owlcms.servlet.FileServlet;
+import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 import io.moquette.BrokerConstants;
@@ -48,11 +51,8 @@ import io.moquette.broker.config.IConfig;
 public class Config {
 
 	public static final String FAKE_PIN = "\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF";
-
 	public static final int SHORT_TEAM_LENGTH = 6;
-
 	private static Config current;
-
 	@Transient
 	final static private Logger logger = (Logger) LoggerFactory.getLogger(Config.class);
 
@@ -95,64 +95,45 @@ public class Config {
 
 	@Id
 	Long id = 1L; // is a singleton. if we ever create a new one it should merge.
-
 	@Column(columnDefinition = "boolean default false")
 	private boolean clearZip;
-
 	@Convert(converter = LocaleAttributeConverter.class)
 	private Locale defaultLocale = null;
-
 	private String pin;
 	private String displayPin;
 	private String ipAccessList;
 	private String ipDisplayList;
 	private String ipBackdoorList;
-
 	private String mqttPort;
 	private String mqttUserName;
 	private String mqttPassword;
-
 	/**
-	 * Local Override: a zip file that is used to override resources, stored as a
-	 * blob
+	 * Local Override: a zip file that is used to override resources, stored as a blob
 	 */
 	@Lob
 	@Column(name = "localcontent", nullable = true)
 	private Blob localOverride;
-
 	private String publicResultsURL;
-
 	private String salt;
-
 	private String timeZoneId;
-
 	private Boolean traceMemory;
-
 	private String updatekey;
-
 	@Transient
 	@JsonIgnore
 	private boolean skipReading;
-
 	private String featureSwitches;
-
 	@Column(columnDefinition = "boolean default false")
 	private boolean localTemplatesOnly;
-
 	@Transient
 	@JsonIgnore
 	private Boolean useCompetitionDate;
-
 	@Column(columnDefinition = "boolean default true")
 	private Boolean mqttInternal = true;
-	
-	@Column(columnDefinition = "varchar(255) default 'styles'")
+	@Column(columnDefinition = "varchar(255) default 'css/nogrid'")
 	private String stylesDirectory;
-
 	@Transient
 	@JsonIgnore
 	private IConfig mqttConfig;
-	
 
 	public String computeSalt() {
 		this.setSalt(null);
@@ -511,8 +492,7 @@ public class Config {
 	}
 
 	/**
-	 * @return the public results url stored in the database, except if overridden
-	 *         by system property or envariable.
+	 * @return the public results url stored in the database, except if overridden by system property or envariable.
 	 */
 	public String getParamPublicResultsURL() {
 		String uURL = StartupUtils.getStringParam("remote");
@@ -543,7 +523,40 @@ public class Config {
 				param = "css/nogrid";
 			}
 		}
+		// to keep they old styles, users must move them to css/ and update the stylesDir setting.
+		Path ldpd = ResourceWalker.getLocalDirPath();
+		Path ldp = ldpd.resolve("styles");
+		boolean legacyStyles = Files.exists(ldp);
+		
+		if (param.contentEquals("styles") && legacyStyles) {
+			logger.info("Legacy styles found, forcing css/nogrid");
+			// if using the legacy styles, we want to force the conversion
+			// but moving to css/styles should still work.
+			param = "css/nogrid";
+		} else {
+			if (param.startsWith("css/")) {
+				param = param.substring("css/".length());
+			}
+			ldp = ldpd.resolve("css/"+param);
+			if (!Files.exists(ldp) && !param.endsWith("grid")) {
+				logger.info("{} does not exist, using default css/nogrid as default", ldp.toAbsolutePath());
+				param = "css/nogrid";
+			}
+		}
+		if (!param.startsWith("css/")) {
+			param = "css/" + param;
+		}
 		return param;
+	}
+
+	@Transient
+	@JsonIgnore
+	public String getStylesDirBase() {
+		String bd = getParamStylesDir();
+		if (bd.startsWith("css/")) {
+			return bd.substring("css/".length());
+		}
+		return bd;
 	}
 
 	@Transient
@@ -554,8 +567,7 @@ public class Config {
 	}
 
 	/**
-	 * @return the updateKey stored in the database, except if overridden by system
-	 *         property or envariable.
+	 * @return the updateKey stored in the database, except if overridden by system property or envariable.
 	 */
 	@Transient
 	@JsonIgnore
@@ -598,6 +610,10 @@ public class Config {
 
 	public String getSalt() {
 		return this.salt;
+	}
+
+	public String getStylesDirectory() {
+		return stylesDirectory;
 	}
 
 	public TimeZone getTimeZone() {
@@ -784,6 +800,16 @@ public class Config {
 		this.skipReading = b;
 	}
 
+	public void setStylesDirectory(String stylesDirectory) {
+		// styles directory is stored with a leading "css/"
+		if (!stylesDirectory.startsWith("css/")) {
+			this.stylesDirectory = "css/" + stylesDirectory;
+		} else {
+			this.stylesDirectory = stylesDirectory;
+		}
+		logger.info("setting styles directory to {}",stylesDirectory);
+	}
+
 	public void setTimeZone(TimeZone timeZone) {
 		if (timeZone == null) {
 			this.timeZoneId = null;
@@ -803,14 +829,6 @@ public class Config {
 	private void setSalt(String salt) {
 		this.salt = salt;
 		logger.debug("setting salt to {}", this.salt);
-	}
-
-	public String getStylesDirectory() {
-		return stylesDirectory;
-	}
-
-	public void setStylesDirectory(String stylesDirectory) {
-		this.stylesDirectory = stylesDirectory;
 	}
 
 }

@@ -101,12 +101,6 @@ public class UpdateReceiverServlet extends HttpServlet {
                 return;
             }
 
-            try {
-                ResourceWalker.getFileOrResource("styles/results.css");
-            } catch (Exception e) {
-                logger.error("styles directory not found");
-            }
-
             if (StartupUtils.isDebugSetting()) {
                 logger.setLevel(Level.DEBUG);
                 Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
