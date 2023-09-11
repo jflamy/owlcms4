@@ -189,6 +189,11 @@ public class VaadinBoot {
 	 */
 
 	public String getServerURL() {
+		// // Vaadin is confused by multiple applications running on same host, different ports.
+		// // Fake a host number if running locally
+		// int hostNum = (port >= 8080 ? port+16 : port) % 253 + 1;
+		// return "http://127.0.0." + hostNum + ":" + port + contextRoot;
+
 		return "http://localhost:" + port + contextRoot;
 	}
 
@@ -247,13 +252,13 @@ public class VaadinBoot {
 		// detect&enable production mode
 		if (isProductionMode()) {
 			// fixes https://github.com/mvysny/vaadin14-embedded-jetty/issues/1
-//            System.out.println("Production mode detected, enforcing");
 			System.setProperty("vaadin.productionMode", "true");
 		}
 
 		fixClasspath();
 
 		final WebAppContext context = createWebAppContext();
+		context.getSessionHandler().setSessionCookie("V"+System.currentTimeMillis());
 
 		if (hostName != null) {
 			server = new Server(new InetSocketAddress(hostName, port));
@@ -261,13 +266,7 @@ public class VaadinBoot {
 			server = new Server(port);
 		}
 		server.setHandler(context);
-		server.start();
-
-//        System.out.println("\n\n=================================================\n" +
-//                "Started in " + startupDuration + ". Please open " + getServerURL() + " in your browser.\n" +
-//                "If you see the 'Unable to determine mode of operation' exception, just kill me and run `./gradlew vaadinPrepareFrontend`\n" +
-//                "=================================================\n");
-		
+		server.start();		
 		onStarted();
 	}
 
