@@ -129,7 +129,7 @@ public class Results extends LitTemplate
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private boolean downSilenced;
 	private boolean video;
-	private Boolean abbreviatedName;
+	private boolean abbreviatedName;
 	private boolean teamFlags;
 	private Double teamWidth;
 	DecimalFormat df = new DecimalFormat("0.000");
@@ -329,6 +329,7 @@ public class Results extends LitTemplate
 
 	@Override
 	public boolean isAbbreviatedName() {
+		logger.warn("isAbbreviated {} {}", this.abbreviatedName, LoggerUtils.stackTrace());
 		return this.abbreviatedName;
 	}
 
@@ -1094,7 +1095,7 @@ public class Results extends LitTemplate
 	}
 
 	protected void setAbbreviateName(boolean abbreviateNames) {
-		this.abbreviatedName = abbreviateNames;
+		this.setAbbreviatedName(abbreviateNames);
 	}
 
 	protected void setTranslationMap() {
@@ -1288,4 +1289,5 @@ public class Results extends LitTemplate
 			doUpdate(e.getAthlete(), e);
 		}
 	}
+
 }
