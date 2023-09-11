@@ -12,7 +12,6 @@ import com.google.common.eventbus.EventBus;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 
-import app.owlcms.components.elements.unload.UnloadObserver;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
@@ -60,23 +59,23 @@ public interface SafeEventBusRegistration {
 		uiEventBus.register(c);
 	    logger.trace("registering {} on bus {} {}",c, uiEventBus.identifier(), LoggerUtils.whereFrom());
 
-        UnloadObserver unloadObserver = UnloadObserver.get(false);
-        unloadObserver.addUnloadListener((e) -> {
-            logger.trace("closing: unregister {} from {}", c, uiEventBus.identifier());
-            unregister(c, uiEventBus);
-            UnloadObserver.remove();
-        });
-        if (ui == null) {
-            return uiEventBus;
-        }
-        ui.add(unloadObserver);
+//        UnloadObserver unloadObserver = UnloadObserver.get(false);
+//        unloadObserver.addUnloadListener((e) -> {
+//            logger.trace("closing: unregister {} from {}", c, uiEventBus.identifier());
+//            unregister(c, uiEventBus);
+//            UnloadObserver.remove();
+//        });
+//        if (ui == null) {
+//            return uiEventBus;
+//        }
+//        ui.add(unloadObserver);
 
 		ui.addBeforeLeaveListener((e) -> {
 			logger.trace("leaving: unregister {} from {}", c, uiEventBus.identifier());
 			unregister(c, uiEventBus);
 		});
 		ui.addDetachListener((e) -> {
-			logger.debug("detaching: unregister {} from {}", c, uiEventBus.identifier());
+			logger.trace("detaching: unregister {} from {}", c, uiEventBus.identifier());
 			unregister(c, uiEventBus);
 		});
 		return uiEventBus;
