@@ -329,7 +329,6 @@ public class Results extends LitTemplate
 
 	@Override
 	public boolean isAbbreviatedName() {
-		logger.warn("isAbbreviated {} {}", this.abbreviatedName, LoggerUtils.stackTrace());
 		return this.abbreviatedName;
 	}
 
