@@ -173,9 +173,14 @@ public interface DisplayParameters extends ContentParameters {
 
 	public default void openDialog(Dialog dialog) {
 		// logger.debug("openDialog {} {}", dialog, dialog.isOpened());
-		if (!dialog.isOpened()) {
-			dialog.open();
-			setDialog(dialog);
+		if (dialog == null) {
+			buildDialog((Component)this);
+			dialog = this.getDialog();
+		}
+		final Dialog nDialog = dialog;
+		if (!nDialog.isOpened()) {
+			nDialog.open();
+			setDialog(nDialog);
 			UI ui = UI.getCurrent();
 			Timer timer = new Timer();
 			timer.schedule(
@@ -185,7 +190,7 @@ public interface DisplayParameters extends ContentParameters {
 					        try {
 						        ui.access(() -> {
 							        // logger.debug("timer closing {}", dialog);
-							        dialog.close();
+							        nDialog.close();
 						        });
 					        } catch (Throwable e) {
 						        // ignore.
@@ -268,7 +273,6 @@ public interface DisplayParameters extends ContentParameters {
 				setTeamWidth(null);
 				updateParam(params, FONTSIZE, null);
 			}
-			buildDialog((Component) this);
 		} catch (NumberFormatException e) {
 			tWidth = 10.0D;
 			setEmFontSize(null);

@@ -101,7 +101,7 @@ public class DisplayOptions {
 				dp.switchAbbreviated(target, e.getValue(), true);
 			}
 			Location location = dp.getLocation();
-			UI.getCurrent().getPage().open(location.getPathWithQueryParameters());
+			UI.getCurrent().getPage().setLocation(location.getPathWithQueryParameters());
 		});
 
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
