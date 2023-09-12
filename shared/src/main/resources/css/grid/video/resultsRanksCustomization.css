@@ -61,7 +61,7 @@
 
 :host(.dark) table.results {
     --spacerWidth: 1vh;
-    --rowSmallSpacerHeight: 0.25vh;
+    --rowSmallSpacerHeight: 0;
 }
 /* default for page */
 .wrapper {
