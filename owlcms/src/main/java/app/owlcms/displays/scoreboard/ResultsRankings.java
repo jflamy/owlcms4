@@ -11,6 +11,7 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.apputils.queryparameters.ContextFreeDisplayParameters;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
@@ -26,7 +27,7 @@ import elemental.json.JsonValue;
 @JsModule("./components/ResultsMedals.js")
 @Route("displays/resultsRankings")
 
-public class ResultsRankings extends ResultsMedals {
+public class ResultsRankings extends ResultsMedals implements ContextFreeDisplayParameters {
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsMedals.class);
 
