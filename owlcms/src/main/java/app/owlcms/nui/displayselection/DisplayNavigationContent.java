@@ -27,7 +27,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.displays.attemptboard.AthleteFacingAttemptBoard;
 import app.owlcms.displays.attemptboard.AthleteFacingDecisionBoard;
-import app.owlcms.displays.attemptboard.AttemptBoard;
+import app.owlcms.displays.attemptboard.PublicFacingAttemptBoard;
 import app.owlcms.displays.scoreboard.CurrentAthlete;
 import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.displays.scoreboard.ResultsLeadersRanks;
@@ -74,7 +74,7 @@ public class DisplayNavigationContent extends BaseNavigationContent
 		intro.getStyle().set("margin-bottom", "0");
 		fillH(intro, this);
 		
-		Button attempt = openInNewTab(AttemptBoard.class, getTranslation("AttemptBoard"));
+		Button attempt = openInNewTab(PublicFacingAttemptBoard.class, getTranslation("AttemptBoard"));
         Button currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"));
 		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(attempt, currentAthlete);
 		doGroup(getTranslation("AttemptBoard"), grid3, this);

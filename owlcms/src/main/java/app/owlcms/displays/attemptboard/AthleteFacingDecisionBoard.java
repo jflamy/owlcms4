@@ -9,6 +9,7 @@ package app.owlcms.displays.attemptboard;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.internal.AllowInert;
 import com.vaadin.flow.router.Route;
@@ -17,8 +18,12 @@ import app.owlcms.init.OwlcmsSession;
 
 @SuppressWarnings("serial")
 @Tag("decision-board-template")
-@JsModule("./components/DecisionBoard.js")
+@JsModule("./components/AttemptBoard.js")
 @JsModule("./components/AudioContext.js")
+@JsModule("./components/TimerElement.js")
+@JsModule("./components/DecisionElement.js")
+@CssImport(value = "./styles/shared-styles.css")
+@CssImport(value = "./styles/plates.css")
 @Route("displays/athleteFacingDecision")
 
 public class AthleteFacingDecisionBoard extends AttemptBoard {

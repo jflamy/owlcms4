@@ -20,10 +20,7 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.internal.AllowInert;
@@ -37,7 +34,6 @@ import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.apputils.SoundUtils;
@@ -77,16 +73,16 @@ import elemental.json.JsonObject;
  */
 
 @SuppressWarnings({ "serial", "deprecation" })
-@Tag("attempt-board-template")
-@JsModule("./components/AttemptBoard.js")
-@JsModule("./components/AudioContext.js")
-@JsModule("./components/TimerElement.js")
-@JsModule("./components/DecisionElement.js")
-@CssImport(value = "./styles/shared-styles.css")
-@CssImport(value = "./styles/plates.css")
-@Route("displays/attemptBoard")
+//@Tag("attempt-board-template")
+//@JsModule("./components/AttemptBoard.js")
+//@JsModule("./components/AudioContext.js")
+//@JsModule("./components/TimerElement.js")
+//@JsModule("./components/DecisionElement.js")
+//@CssImport(value = "./styles/shared-styles.css")
+//@CssImport(value = "./styles/plates.css")
+//@Route("displays/attemptBoard")
 
-public class AttemptBoard extends LitTemplate implements DisplayParameters,
+abstract class AttemptBoard extends LitTemplate implements DisplayParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin,
         VideoCSSOverride, HasBoardMode {
 
