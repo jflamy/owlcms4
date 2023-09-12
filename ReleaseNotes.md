@@ -6,8 +6,10 @@
 > Version 44 is mostly a technical migration release. It updates the user interface to use the most current [Vaadin 24 framework](https://vaadin.com/).
 >
 
-44.0.0-beta03
+44.0.0-beta04
 
+- Small fix to the "grid" styling for row spacing on the multiple age groups scoreboard.
+  
 - It is no longer necessary to start different browsers to run owlcms, publicresults and owlcms-firmata.  They now register different session tracking names and no longer interfere with one another.
   - It is still required to use different browsers when testing several platforms on the same computer
 
