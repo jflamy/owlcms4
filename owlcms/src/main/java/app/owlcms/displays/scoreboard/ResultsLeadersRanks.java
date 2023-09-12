@@ -11,8 +11,10 @@ import java.util.Map.Entry;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.internal.AllowInert;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.agegroup.AgeGroup;
@@ -58,34 +60,14 @@ public class ResultsLeadersRanks extends Results {
 		return getTranslation("ScoreboardMultiRanksTitle") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
-	private JsonValue getRanksJson(Athlete a, Ranking r, LinkedHashMap<String, Participation> ageGroupMap2) {
-		JsonArray ranks = Json.createArray();
-		int i = 0;
-		for (Entry<String, Participation> e : ageGroupMap.entrySet()) {
-			Participation p = e.getValue();
-			// logger,debug("a {} k {} v {}", a.getShortName(), e.getKey(), p);
-			if (p == null) {
-				ranks.set(i, formatRank(null));
-			} else {
-				switch (r) {
-				case CLEANJERK:
-					ranks.set(i, formatRank(p.getCleanJerkRank()));
-					break;
-				case SNATCH:
-					ranks.set(i, formatRank(p.getSnatchRank()));
-					break;
-				case TOTAL:
-					ranks.set(i, formatRank(p.getTotalRank()));
-					break;
-				default:
-					break;
-				}
-			}
-			i++;
-		}
-		return ranks;
+	@AllowInert
+	@ClientCallable
+	@Override
+	public void openDialog() {
+		super.openDialog(getDialog());
 	}
 
+	@Override
 	protected String formatRank(Integer total) {
 		if (total == null) {
 			return "&nbsp;";
@@ -96,29 +78,6 @@ public class ResultsLeadersRanks extends Results {
 		} else {
 			return total.toString();
 		}
-	}
-
-	private void setCurrentAthleteParticipations(Athlete a) {
-		OwlcmsSession.withFop(fop -> {
-			ageGroupMap = new LinkedHashMap<>(fop.getAgeGroupMap());
-			for (Entry<String, Participation> cape : ageGroupMap.entrySet()) {
-				cape.setValue(null);
-			}
-			if (a != null) {
-				// logger,debug(">>>setCurrentAthleteParticipations begin");
-				// logger,debug("setting {}", a.getShortName());
-				for (Participation p : a.getParticipations()) {
-					AgeGroup ag = p.getCategory() != null ? p.getCategory().getAgeGroup() : null;
-					if (ag != null) {
-						// logger,debug("athlete {} curRankings {} {}", a, ag.getCode(), p);
-						ageGroupMap.put(ag.getCode(), p);
-					}
-				}
-				// logger,debug("<<<setCurrentAthleteParticipations end");
-			} else {
-				// logger,debug("+++ cleared");
-			}
-		});
 	}
 
 	@Override
@@ -182,7 +141,58 @@ public class ResultsLeadersRanks extends Results {
 		}
 		// logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
 		ja.put("classname", highlight);
-		
+
 		setTeamFlag(a, ja);
+	}
+
+	private JsonValue getRanksJson(Athlete a, Ranking r, LinkedHashMap<String, Participation> ageGroupMap2) {
+		JsonArray ranks = Json.createArray();
+		int i = 0;
+		for (Entry<String, Participation> e : ageGroupMap.entrySet()) {
+			Participation p = e.getValue();
+			// logger,debug("a {} k {} v {}", a.getShortName(), e.getKey(), p);
+			if (p == null) {
+				ranks.set(i, formatRank(null));
+			} else {
+				switch (r) {
+				case CLEANJERK:
+					ranks.set(i, formatRank(p.getCleanJerkRank()));
+					break;
+				case SNATCH:
+					ranks.set(i, formatRank(p.getSnatchRank()));
+					break;
+				case TOTAL:
+					ranks.set(i, formatRank(p.getTotalRank()));
+					break;
+				default:
+					break;
+				}
+			}
+			i++;
+		}
+		return ranks;
+	}
+
+	private void setCurrentAthleteParticipations(Athlete a) {
+		OwlcmsSession.withFop(fop -> {
+			ageGroupMap = new LinkedHashMap<>(fop.getAgeGroupMap());
+			for (Entry<String, Participation> cape : ageGroupMap.entrySet()) {
+				cape.setValue(null);
+			}
+			if (a != null) {
+				// logger,debug(">>>setCurrentAthleteParticipations begin");
+				// logger,debug("setting {}", a.getShortName());
+				for (Participation p : a.getParticipations()) {
+					AgeGroup ag = p.getCategory() != null ? p.getCategory().getAgeGroup() : null;
+					if (ag != null) {
+						// logger,debug("athlete {} curRankings {} {}", a, ag.getCode(), p);
+						ageGroupMap.put(ag.getCode(), p);
+					}
+				}
+				// logger,debug("<<<setCurrentAthleteParticipations end");
+			} else {
+				// logger,debug("+++ cleared");
+			}
+		});
 	}
 }

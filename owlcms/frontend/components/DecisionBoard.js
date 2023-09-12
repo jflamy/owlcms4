@@ -82,6 +82,7 @@ class DecisionBoard extends LitElement {
 
   firstUpdated(_changedProperties) {
     super.firstUpdated(_changedProperties);
+    this.$server.openDialog();
   }
 
   isBreak() {

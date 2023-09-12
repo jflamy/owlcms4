@@ -7,8 +7,10 @@
 package app.owlcms.displays.attemptboard;
 
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.internal.AllowInert;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.init.OwlcmsSession;
@@ -58,5 +60,12 @@ public class AthleteFacingDecisionBoard extends AttemptBoard {
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
 		decisions.setPublicFacing(false);
+	}
+	
+	@AllowInert
+	@ClientCallable
+	@Override
+	public void openDialog() {
+		super.openDialog(getDialog());
 	}
 }

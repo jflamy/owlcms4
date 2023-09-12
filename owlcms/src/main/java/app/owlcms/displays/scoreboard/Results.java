@@ -1090,7 +1090,6 @@ public class Results extends LitTemplate
 		getElement().setProperty("showLiftRanks",
 		        Competition.getCurrent().isSnatchCJTotalMedals() && !Competition.getCurrent().isSinclair());
 		SoundUtils.enableAudioContextNotification(this.getElement());
-		openDialog();
 	}
 
 	protected void setAbbreviateName(boolean abbreviateNames) {

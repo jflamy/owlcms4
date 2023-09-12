@@ -134,6 +134,7 @@ class TimerElement extends LitElement {
 
   updateTime(time) {
     var newTime = this._formatTime(time);
+    if (newTime == "NaN:NaN") return;
     if (newTime != this.lastTime) {
       var s = this.renderRoot.querySelector('#timer');
       if (s) {

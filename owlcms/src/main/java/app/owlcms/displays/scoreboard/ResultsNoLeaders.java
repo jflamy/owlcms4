@@ -12,8 +12,10 @@ import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.internal.AllowInert;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 
@@ -34,7 +36,7 @@ import ch.qos.logback.classic.Logger;
 @Route("displays/results")
 
 public class ResultsNoLeaders extends Results {
-	
+
 	Logger logger = (Logger) LoggerFactory.getLogger(ResultsNoLeaders.class);
 
 	/**
@@ -54,9 +56,17 @@ public class ResultsNoLeaders extends Results {
 	public String getPageTitle() {
 		return getTranslation("Scoreboard") + OwlcmsSession.getFopNameIfMultiple();
 	}
-	
+
+	@AllowInert
+	@ClientCallable
+	@Override
+	public void openDialog() {
+		super.openDialog(getDialog());
+	}
+
 	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location, java.util.Map)
+	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
+	 *      java.util.Map)
 	 */
 	@Override
 	public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {

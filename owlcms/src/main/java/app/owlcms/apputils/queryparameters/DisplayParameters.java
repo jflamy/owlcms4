@@ -172,7 +172,7 @@ public interface DisplayParameters extends ContentParameters {
 	}
 
 	public default void openDialog(Dialog dialog) {
-		// logger.debug("openDialog {} {}", dialog, dialog.isOpened());
+		logger.warn("openDialog {} {}", dialog, (dialog != null ? dialog.isOpened() : "-"));
 		if (dialog == null) {
 			buildDialog((Component)this);
 			dialog = this.getDialog();

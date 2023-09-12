@@ -380,6 +380,7 @@ class ResultsFull extends LitElement {
     console.debug("ready");
     super.firstUpdated(_changedProperties);
     document.body.setAttribute("theme", "dark");
+    this.$server.openDialog();
   }
 
   start() {

@@ -105,10 +105,8 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 	private HashMap<String, List<String>> urlParams;
 	private HorizontalLayout warningRow;
 	private HorizontalLayout juryRow;
-
 	private boolean whiteTouched;
-
-	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	public RefContent() {
 		OwlcmsFactory.waitDBInitialized();
@@ -158,12 +156,11 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 	/**
 	 * Parse the http query parameters
 	 *
-	 * Note: because we have the @Route, the parameters are parsed *before* our
-	 * parent layout is created.
+	 * Note: because we have the @Route, the parameters are parsed *before* our parent layout is created.
 	 *
 	 * @param event     Vaadin navigation event
-	 * @param parameter null in this case -- we don't want a vaadin "/" parameter.
-	 *                  This allows us to add query parameters instead.
+	 * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
+	 *                  parameters instead.
 	 *
 	 * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
 	 *      java.lang.String)
@@ -209,9 +206,8 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 	}
 
 	/**
-	 * This must come from a timer on FieldOfPlay, because if we are using mobile
-	 * devices there will not be a master decision reset coming from the
-	 * keypad-hosting device
+	 * This must come from a timer on FieldOfPlay, because if we are using mobile devices there will not be a master
+	 * decision reset coming from the keypad-hosting device
 	 *
 	 * @param e
 	 */
@@ -287,7 +283,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 			warningRow.getStyle().set("display", "none");
 			juryRow.getStyle().set("display", "flex");
 			UI currentUI = UI.getCurrent();
-			new DelayTimer().schedule(() -> currentUI.access(() -> {	
+			new DelayTimer().schedule(() -> currentUI.access(() -> {
 				beeper.beep();
 			}), 1000);
 			new DelayTimer().schedule(() -> currentUI.access(() -> {
@@ -325,6 +321,38 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 		});
 	}
 
+	protected ComboBox<FieldOfPlay> createFopSelect() {
+		ComboBox<FieldOfPlay> fopSelect = new ComboBox<>();
+		fopSelect.setPlaceholder(getTranslation("SelectPlatform"));
+		fopSelect.setItems(OwlcmsFactory.getFOPs());
+		fopSelect.setItemLabelGenerator(FieldOfPlay::getName);
+		fopSelect.setWidth("10rem");
+		return fopSelect;
+	}
+
+	protected void init() {
+		this.setBoxSizing(BoxSizing.BORDER_BOX);
+		this.setSizeFull();
+		beeper = new BeepElement();
+		createContent(this);
+	}
+
+	/**
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
+	 */
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		// crude workaround -- randomly getting light or dark due to multiple themes
+		// detected in app.
+		getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
+
+		SoundUtils.enableAudioContextNotification(this.getElement(), true);
+		OwlcmsSession.withFop(fop -> {
+			// we listen on uiEventBus.
+			uiEventBus = uiEventBusRegister(this, fop);
+		});
+	}
+
 	private Icon bigIcon(VaadinIcon iconDef, String color) {
 		Icon icon = iconDef.create();
 		icon.setSize("100%");
@@ -346,7 +374,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 		warningRow.setWidthFull();
 		warningRow.getStyle().set("background-color", "yellow");
 		warningRow.getStyle().set("display", "none");
-		
+
 		var j = new H2(Translator.translate("JuryNotification.PleaseSeeJury"));
 		j.getElement().setAttribute("style",
 		        "background-color: red; width: 100%; color: white; text-align: center; padding: 0; line-height: initial");
@@ -392,7 +420,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 
 		createRefVoting();
 		resetRefVote();
-		
+
 		HorizontalLayout topWrapper = new HorizontalLayout();
 		topWrapper.setHeight("2em");
 		topWrapper.setWidthFull();
@@ -435,6 +463,9 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 
 	private void doRed() {
 		OwlcmsSession.withFop(fop -> {
+			if (getRef13ix() == null) {
+				return;
+			}
 			fop.fopEventPost(new FOPEvent.DecisionUpdate(getOrigin(), getRef13ix() - 1, false));
 		});
 		doRedColor();
@@ -448,6 +479,9 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 
 	private void doWhite() {
 		OwlcmsSession.withFop(fop -> {
+			if (getRef13ix() == null) {
+				return;
+			}
 			fop.fopEventPost(new FOPEvent.DecisionUpdate(getOrigin(), getRef13ix() - 1, true));
 		});
 		doWhiteColor();
@@ -525,37 +559,5 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 	private void whiteTouched(DomEvent e) {
 		whiteTouched = true;
 		doWhite();
-	}
-
-	protected ComboBox<FieldOfPlay> createFopSelect() {
-		ComboBox<FieldOfPlay> fopSelect = new ComboBox<>();
-		fopSelect.setPlaceholder(getTranslation("SelectPlatform"));
-		fopSelect.setItems(OwlcmsFactory.getFOPs());
-		fopSelect.setItemLabelGenerator(FieldOfPlay::getName);
-		fopSelect.setWidth("10rem");
-		return fopSelect;
-	}
-
-	protected void init() {
-		this.setBoxSizing(BoxSizing.BORDER_BOX);
-		this.setSizeFull();
-		beeper = new BeepElement();
-		createContent(this);
-	}
-
-	/**
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
-	 */
-	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		// crude workaround -- randomly getting light or dark due to multiple themes
-		// detected in app.
-		getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
-
-		SoundUtils.enableAudioContextNotification(this.getElement(), true);
-		OwlcmsSession.withFop(fop -> {
-			// we listen on uiEventBus.
-			uiEventBus = uiEventBusRegister(this, fop);
-		});
 	}
 }

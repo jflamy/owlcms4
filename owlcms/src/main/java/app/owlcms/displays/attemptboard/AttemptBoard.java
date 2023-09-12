@@ -26,6 +26,7 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.internal.AllowInert;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
@@ -298,9 +299,11 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 		return video;
 	}
 
+	@AllowInert
 	@ClientCallable
 	@Override
 	public void openDialog() {
+		logger.warn("openDialog called");
 		DisplayParameters.super.openDialog(getDialog());
 	}
 
@@ -789,7 +792,6 @@ public class AttemptBoard extends LitTemplate implements DisplayParameters,
 			syncWithFOP(fop);
 			// we send on fopEventBus, listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
-			openDialog();
 		});
 	}
 

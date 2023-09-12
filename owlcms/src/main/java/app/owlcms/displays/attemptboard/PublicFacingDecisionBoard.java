@@ -8,8 +8,10 @@ package app.owlcms.displays.attemptboard;
 
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.internal.AllowInert;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.config.Config;
@@ -94,5 +96,13 @@ public class PublicFacingDecisionBoard extends AttemptBoard {
 		setShowBarbell(false);
 		decisions.setDontReset(true);
 		setSilenced(isSilencedByDefault());
+	}
+	
+
+	@AllowInert
+	@ClientCallable
+	@Override
+	public void openDialog() {
+		super.openDialog(getDialog());
 	}
 }
