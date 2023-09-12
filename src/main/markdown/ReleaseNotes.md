@@ -1,22 +1,21 @@
-> **Version 44 is now an early beta release.**
+> **Version 44 beta release.**
 >
-> - Beta releases are meant for translations and testing.
+> - Beta releases are meant for translation and for testing by people other than the developers.
 > - Please perform exhaustive tests with your own data if you intend to use it in a competition, and report any issues.
 >
 > Version 44 is mostly a technical migration release. It updates the user interface to use the most current [Vaadin 24 framework](https://vaadin.com/).
 >
 
-44.0.0-beta04
+44.0.0-beta05
+
+- Small fix to prevent useless error message from timer in the logs.
 
 - Small fix to the "grid" styling for row spacing on the multiple age groups scoreboard.
-  
-- It is no longer necessary to start different browsers to run owlcms, publicresults and owlcms-firmata.  They now register different session tracking names and no longer interfere with one another.
-  - It is still required to use different browsers when testing several platforms on the same computer
-
-- The "abbreviated names" flag is correctly managed on the results scoreboards  
 
 44.0 Changes
 
+- It is no longer necessary to start different browsers to run owlcms, publicresults and owlcms-firmata on the same machine  They no longer interfere with one another.
+  - However different browsers are still needed when testing several platforms on the same computer
 - The visual styling has been changed for a more modern look. 
   - The new default is `nogrid`
   - The old "styles" has been renamed to `grid`. 
