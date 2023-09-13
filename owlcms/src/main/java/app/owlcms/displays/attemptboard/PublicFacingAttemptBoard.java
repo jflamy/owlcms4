@@ -13,9 +13,9 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.nui.displayselection.AttemptBoardPage;
-import app.owlcms.nui.displayselection.PublicFacingAttemptBoardPage;
-import app.owlcms.nui.displayselection.SoundEntries;
+import app.owlcms.nui.displays.AttemptBoardPage;
+import app.owlcms.nui.displays.PublicFacingAttemptBoardPage;
+import app.owlcms.nui.displays.SoundEntries;
 
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("attempt-board-template")

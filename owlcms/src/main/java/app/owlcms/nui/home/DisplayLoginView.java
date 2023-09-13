@@ -5,7 +5,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.AccessUtils;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.nui.displayselection.DisplayNavigationContent;
+import app.owlcms.nui.displays.DisplayNavigationContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 
 @SuppressWarnings("serial")

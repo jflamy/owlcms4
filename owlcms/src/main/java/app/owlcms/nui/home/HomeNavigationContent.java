@@ -37,8 +37,8 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.i18n.Translator;
-import app.owlcms.nui.displayselection.DisplayNavigationContent;
-import app.owlcms.nui.displayselection.VideoNavigationContent;
+import app.owlcms.nui.displays.DisplayNavigationContent;
+import app.owlcms.nui.displays.VideoNavigationContent;
 import app.owlcms.nui.lifting.LiftingNavigationContent;
 import app.owlcms.nui.preparation.PreparationNavigationContent;
 import app.owlcms.nui.results.ResultsNavigationContent;

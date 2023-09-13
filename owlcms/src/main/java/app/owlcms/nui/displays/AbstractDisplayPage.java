@@ -1,4 +1,4 @@
-package app.owlcms.nui.displayselection;
+package app.owlcms.nui.displays;
 
 import java.util.List;
 import java.util.Map;
@@ -13,7 +13,7 @@ import com.vaadin.flow.router.Location;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 
 @SuppressWarnings("serial")
-public abstract class AbstractDisplayWrapper extends VerticalLayout implements DisplayParameters {
+public abstract class AbstractDisplayPage extends VerticalLayout implements DisplayParameters {
 
 	private boolean darkMode;
 	private Dialog dialog;
@@ -25,7 +25,7 @@ public abstract class AbstractDisplayWrapper extends VerticalLayout implements D
 	private Map<String, List<String>> urlParameterMap;
 	private boolean silenced;
 
-	public AbstractDisplayWrapper() {
+	public AbstractDisplayPage() {
 		this.addClickListener(c -> getDialog().open());
 		this.setSizeFull();
 		this.setMargin(false);

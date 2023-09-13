@@ -1,4 +1,4 @@
-package app.owlcms.nui.displayselection;
+package app.owlcms.nui.displays;
 
 import java.util.List;
 import java.util.TreeMap;
@@ -22,7 +22,7 @@ import app.owlcms.utils.URLUtils;
  */
 @SuppressWarnings("serial")
 @Route("displays/athleteFacingDecision")
-public abstract class AttemptBoardPage extends AbstractDisplayWrapper implements SoundEntries {
+public abstract class AttemptBoardPage extends AbstractDisplayPage implements SoundEntries {
 
 	@Override
 	public void addDialogContent(Component unused, VerticalLayout vl) {

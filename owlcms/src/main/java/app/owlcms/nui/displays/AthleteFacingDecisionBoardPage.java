@@ -1,4 +1,4 @@
-package app.owlcms.nui.displayselection;
+package app.owlcms.nui.displays;
 
 import com.vaadin.flow.router.Route;
 

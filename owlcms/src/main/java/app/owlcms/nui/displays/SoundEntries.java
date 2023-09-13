@@ -1,4 +1,4 @@
-package app.owlcms.nui.displayselection;
+package app.owlcms.nui.displays;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -21,7 +21,7 @@ public interface SoundEntries {
 		return getWrapper().isSilenced();
 	}
 	
-	public AbstractDisplayWrapper getWrapper();
+	public AbstractDisplayPage getWrapper();
 
 	public default boolean isDownSilenced() {
 		return getWrapper().isSilenced();

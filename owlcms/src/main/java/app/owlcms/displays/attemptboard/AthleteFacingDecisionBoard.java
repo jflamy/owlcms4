@@ -12,9 +12,9 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.nui.displayselection.AthleteFacingDecisionBoardPage;
-import app.owlcms.nui.displayselection.AttemptBoardPage;
-import app.owlcms.nui.displayselection.SoundEntries;
+import app.owlcms.nui.displays.AthleteFacingDecisionBoardPage;
+import app.owlcms.nui.displays.AttemptBoardPage;
+import app.owlcms.nui.displays.SoundEntries;
 
 /**
  * Java API for LitElement display for countdown and decisions

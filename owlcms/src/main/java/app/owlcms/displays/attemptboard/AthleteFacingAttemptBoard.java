@@ -12,9 +12,9 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.nui.displayselection.AthleteFacingAttemptBoardPage;
-import app.owlcms.nui.displayselection.AttemptBoardPage;
-import app.owlcms.nui.displayselection.SoundEntries;
+import app.owlcms.nui.displays.AthleteFacingAttemptBoardPage;
+import app.owlcms.nui.displays.AttemptBoardPage;
+import app.owlcms.nui.displays.SoundEntries;
 
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("attempt-board-template")

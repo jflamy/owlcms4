@@ -14,10 +14,10 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.config.Config;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.nui.displayselection.AbstractDisplayWrapper;
-import app.owlcms.nui.displayselection.AttemptBoardPage;
-import app.owlcms.nui.displayselection.PublicFacingDecisionBoardPage;
-import app.owlcms.nui.displayselection.SoundEntries;
+import app.owlcms.nui.displays.AbstractDisplayPage;
+import app.owlcms.nui.displays.AttemptBoardPage;
+import app.owlcms.nui.displays.PublicFacingDecisionBoardPage;
+import app.owlcms.nui.displays.SoundEntries;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.DecisionReset;
@@ -98,7 +98,7 @@ public class PublicFacingDecisionBoard extends AttemptBoard implements SoundEntr
 	
 
 	@Override
-	public AbstractDisplayWrapper getWrapper() {
+	public AbstractDisplayPage getWrapper() {
 		return wrapper;
 	}
 }
