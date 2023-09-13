@@ -8,14 +8,16 @@ package app.owlcms.displays.attemptboard;
 
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.internal.AllowInert;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.config.Config;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.displayselection.AbstractDisplayWrapper;
+import app.owlcms.nui.displayselection.AttemptBoardPage;
+import app.owlcms.nui.displayselection.PublicFacingDecisionBoardPage;
+import app.owlcms.nui.displayselection.SoundEntries;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.DecisionReset;
@@ -34,25 +36,20 @@ import app.owlcms.uievents.UIEvent.DecisionReset;
 @JsModule("./components/AudioContext.js")
 @Route("displays/publicFacingDecision")
 
-public class PublicFacingDecisionBoard extends AttemptBoard {
+public class PublicFacingDecisionBoard extends AttemptBoard implements SoundEntries {
 
-	public PublicFacingDecisionBoard() {
-		super();
-		setPublicFacing(true);
-		setShowBarbell(false);
-		setSilenced(isSilencedByDefault());
-		breakTimer.setParent("DecisionBoard");
+	private AttemptBoardPage wrapper;
+	
+	public PublicFacingDecisionBoard(PublicFacingDecisionBoardPage publicFacingDecisionBoardWrapper) {
+		this.wrapper = publicFacingDecisionBoardWrapper;
 	}
+
 
 	@Override
 	public String getPageTitle() {
 		return getTranslation("Decision_PF_") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
-	@Override
-	public boolean isSilencedByDefault() {
-		return true;
-	}
 
 	@Subscribe
 	@Override
@@ -95,14 +92,13 @@ public class PublicFacingDecisionBoard extends AttemptBoard {
 		setPublicFacing(true);
 		setShowBarbell(false);
 		decisions.setDontReset(true);
-		setSilenced(isSilencedByDefault());
+		decisions.setSilenced(wrapper.isSilencedByDefault());
+		athleteTimer.setSilenced(wrapper.isSilencedByDefault());
 	}
 	
 
-	@AllowInert
-	@ClientCallable
 	@Override
-	public void openDialog() {
-		super.openDialog(getDialog());
+	public AbstractDisplayWrapper getWrapper() {
+		return wrapper;
 	}
 }

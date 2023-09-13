@@ -668,7 +668,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		        this.isSilenced() ? Translator.translate("Settings.TurnOnSound")
 		                : Translator.translate("Settings.TurnOffSound"),
 		        e -> {
-			        switchSoundMode(this, !this.isSilenced(), true);
+			        switchSoundMode(!this.isSilenced(), true);
 			        e.getSource().setText(this.isSilenced() ? Translator.translate("Settings.TurnOnSound")
 			                : Translator.translate("Settings.TurnOffSound"));
 			        if (decisionDisplay != null) {

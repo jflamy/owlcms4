@@ -436,8 +436,16 @@ public class TopTeams extends LitTemplate implements DisplayParameters,
 		}
 	}
 
+	/**
+	 * @deprecated Use {@link #switchSoundMode(boolean,boolean)} instead
+	 */
 	@Override
 	public void switchSoundMode(Component target, boolean silent, boolean updateURL) {
+		switchSoundMode(silent, updateURL);
+	}
+
+	@Override
+	public void switchSoundMode(boolean silent, boolean updateURL) {
 		setSilenced(silent);
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? null : "false");

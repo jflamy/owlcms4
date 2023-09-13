@@ -72,7 +72,7 @@ public class DisplayOptions {
         rbgroup.setRenderer(new ComponentRenderer<Button, Boolean>((mn) -> mn ? silentButton : soundButton));
         rbgroup.addValueChangeListener(e -> {
             Boolean silenced = e.getValue();
-            dp.switchSoundMode(target, silenced, true);
+            dp.switchSoundMode(silenced, true);
             if (!silenced) {
                 SoundUtils.doEnableAudioContext(target.getElement());
             }

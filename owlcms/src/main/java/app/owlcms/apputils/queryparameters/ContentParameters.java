@@ -56,7 +56,7 @@ public interface ContentParameters extends FOPParameters {
 			silentMode = silentParams != null && !silentParams.isEmpty()
 			        && silentParams.get(0).toLowerCase().equals("true");
 		}
-		switchSoundMode((Component) this, silentMode, false);
+		switchSoundMode(silentMode, false);
 		updateParam(params, SILENT, !isSilenced() ? "false" : "true");
 		
 		List<String> downSilentParams = params.get(DOWNSILENT);
@@ -68,7 +68,7 @@ public interface ContentParameters extends FOPParameters {
 			downSilentMode = downSilentParams != null && !downSilentParams.isEmpty()
 			        && downSilentParams.get(0).toLowerCase().equals("true");
 		}
-		switchDownMode((Component) this, downSilentMode, false);
+		switchDownMode(downSilentMode, false);
 		updateParam(params, DOWNSILENT, !isDownSilenced() ? "false" : "true");
 
 		List<String> refParams = params.get(SINGLEREF);
@@ -127,7 +127,14 @@ public interface ContentParameters extends FOPParameters {
 		}
 	}
 
+	/**
+	 * @deprecated Use {@link #switchSoundMode(boolean,boolean)} instead
+	 */
 	public default void switchSoundMode(Component target, boolean silent, boolean updateURL) {
+		switchSoundMode(silent, updateURL);
+	}
+
+	public default void switchSoundMode(boolean silent, boolean updateURL) {
 		setSilenced(silent);
 		// logger.debug("switching sound");
 
@@ -136,7 +143,14 @@ public interface ContentParameters extends FOPParameters {
 		}
 	}
 	
+	/**
+	 * @deprecated Use {@link #switchDownMode(boolean,boolean)} instead
+	 */
 	public default void switchDownMode(Component target, boolean silent, boolean updateURL) {
+		switchDownMode(silent, updateURL);
+	}
+
+	public default void switchDownMode(boolean silent, boolean updateURL) {
 		setDownSilenced(silent);
 		// logger.debug("switching down");
 

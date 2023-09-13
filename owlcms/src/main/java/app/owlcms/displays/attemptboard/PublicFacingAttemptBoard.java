@@ -13,6 +13,9 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.displayselection.AttemptBoardPage;
+import app.owlcms.nui.displayselection.PublicFacingAttemptBoardPage;
+import app.owlcms.nui.displayselection.SoundEntries;
 
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("attempt-board-template")
@@ -24,21 +27,20 @@ import app.owlcms.init.OwlcmsSession;
 @CssImport(value = "./styles/plates.css")
 @Route("displays/attemptBoard")
 
-public class PublicFacingAttemptBoard extends AttemptBoard {
+public class PublicFacingAttemptBoard extends AttemptBoard implements SoundEntries {
 
-	public PublicFacingAttemptBoard() {
+	private AttemptBoardPage wrapper;
+
+
+	public PublicFacingAttemptBoard(PublicFacingAttemptBoardPage publicFacingAttemptBoardWrapper) {
 		super();
 		setPublicFacing(true);
+		this.wrapper = publicFacingAttemptBoardWrapper;
 	}
 
 	@Override
 	public String getPageTitle() {
 		return getTranslation("Attempt") + OwlcmsSession.getFopNameIfMultiple();
-	}
-
-	@Override
-	public boolean isSilencedByDefault() {
-		return true;
 	}
 
 	/*
@@ -51,5 +53,10 @@ public class PublicFacingAttemptBoard extends AttemptBoard {
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
 		decisions.setPublicFacing(true);
+	}
+
+	@Override
+	public AttemptBoardPage getWrapper() {
+		return wrapper;
 	}
 }

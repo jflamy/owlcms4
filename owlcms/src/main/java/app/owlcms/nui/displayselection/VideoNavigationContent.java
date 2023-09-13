@@ -34,8 +34,6 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
-import app.owlcms.displays.attemptboard.PublicFacingAttemptBoard;
-import app.owlcms.displays.attemptboard.PublicFacingDecisionBoard;
 import app.owlcms.displays.scoreboard.CurrentAthlete;
 import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.displays.scoreboard.ResultsLeadersRanks;
@@ -88,12 +86,12 @@ public class VideoNavigationContent extends BaseNavigationContent
 		
 		
 		Button currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"), "video");
-		Button attempt = openInNewTab(PublicFacingAttemptBoard.class, getTranslation("AttemptBoard"), "video");
+		Button attempt = openInNewTab(PublicFacingAttemptBoardPage.class, getTranslation("AttemptBoard"), "video");
 		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(attempt, currentAthlete);
 		doGroup(getTranslation("AttemptBoard"), grid3, this);
 		
 		
-		Button publicDecisions = openInNewTab(PublicFacingDecisionBoard.class, getTranslation("RefereeDecisions"),
+		Button publicDecisions = openInNewTab(PublicFacingDecisionBoardPage.class, getTranslation("RefereeDecisions"),
 		        "video");
 		FlexibleGridLayout grid31 = HomeNavigationContent.navigationGrid(publicDecisions);
 		doGroup(getTranslation("RefereeDecisions"), grid31, this);

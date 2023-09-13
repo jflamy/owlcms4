@@ -149,7 +149,7 @@ public interface ContextFreeDisplayParameters extends DisplayParameters {
 			silentMode = silentParams != null && !silentParams.isEmpty()
 			        && silentParams.get(0).toLowerCase().equals("true");
 		}
-		switchSoundMode((Component) this, silentMode, false);
+		switchSoundMode(silentMode, false);
 		updateParam(params, SILENT, !isSilenced() ? "false" : "true");
 		
 		List<String> downSilentParams = params.get(DOWNSILENT);
@@ -161,7 +161,7 @@ public interface ContextFreeDisplayParameters extends DisplayParameters {
 			downSilentMode = downSilentParams != null && !downSilentParams.isEmpty()
 			        && downSilentParams.get(0).toLowerCase().equals("true");
 		}
-		switchDownMode((Component) this, downSilentMode, false);
+		switchDownMode(downSilentMode, false);
 		updateParam(params, DOWNSILENT, !isDownSilenced() ? "false" : "true");
 		
 

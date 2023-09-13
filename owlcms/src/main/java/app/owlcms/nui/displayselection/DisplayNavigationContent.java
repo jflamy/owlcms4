@@ -25,9 +25,6 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
-import app.owlcms.displays.attemptboard.AthleteFacingAttemptBoard;
-import app.owlcms.displays.attemptboard.AthleteFacingDecisionBoard;
-import app.owlcms.displays.attemptboard.PublicFacingAttemptBoard;
 import app.owlcms.displays.scoreboard.CurrentAthlete;
 import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.displays.scoreboard.ResultsLeadersRanks;
@@ -60,62 +57,63 @@ public class DisplayNavigationContent extends BaseNavigationContent
 	static {
 		logger.setLevel(Level.INFO);
 	}
-
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	/**
 	 * Instantiates a new display navigation content.
 	 */
 	public DisplayNavigationContent() {
-		VerticalLayout intro = new VerticalLayout();
-		intro.setSpacing(false);
-		addP(intro, getTranslation("Dropdown_Select_Platform"));
-		addP(intro, getTranslation("Button_Open_Display"));
-		intro.getStyle().set("margin-bottom", "0");
-		fillH(intro, this);
-		
-		Button attempt = openInNewTab(PublicFacingAttemptBoard.class, getTranslation("AttemptBoard"));
-        Button currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"));
-		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(attempt, currentAthlete);
-		doGroup(getTranslation("AttemptBoard"), grid3, this);
-		
+		try {
+			VerticalLayout intro = new VerticalLayout();
+			intro.setSpacing(false);
+			addP(intro, getTranslation("Dropdown_Select_Platform"));
+			addP(intro, getTranslation("Button_Open_Display"));
+			intro.getStyle().set("margin-bottom", "0");
+			fillH(intro, this);
 
-		Button decisions = openInNewTab(AthleteFacingDecisionBoard.class, getTranslation("Athlete_Decisions"));
-		Button athleteFacingAttempt = openInNewTab(AthleteFacingAttemptBoard.class, getTranslation("Athlete_Attempt"));
-		VerticalLayout intro2 = new VerticalLayout();
-		addP(intro2, getTranslation("refereeingDevices"));
-		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(decisions, athleteFacingAttempt);
-		doGroup(getTranslation("Refereeing_Displays"), intro2, grid2, this);
+			Button attempt = openInNewTab(PublicFacingAttemptBoardPage.class, getTranslation("AttemptBoard"));
+			Button currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"));
+			FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(attempt, currentAthlete);
+			doGroup(getTranslation("AttemptBoard"), grid3, this);
 
+			// Button decisions = openInNewTab(AthleteFacingDecisionBoard.class, getTranslation("Athlete_Decisions"));
+			Button decisions = openInNewTabNoParam(AthleteFacingDecisionBoardPage.class,
+			        getTranslation("Athlete_Decisions"));
+			Button athleteFacingAttempt = openInNewTab(AthleteFacingAttemptBoardPage.class,
+			        getTranslation("Athlete_Attempt"));
+			VerticalLayout intro2 = new VerticalLayout();
+			addP(intro2, getTranslation("refereeingDevices"));
+			FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(decisions, athleteFacingAttempt);
+			doGroup(getTranslation("Refereeing_Displays"), intro2, grid2, this);
 
+			Button scoreboard = openInNewTab(ResultsNoLeaders.class, getTranslation("Scoreboard"));
+			Button scoreboardWLeaders = openInNewTab(Results.class, getTranslation("ScoreboardWLeadersButton"));
+			scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
+			Button scoreboardMultiRanks = openInNewTab(ResultsLeadersRanks.class,
+			        getTranslation("ScoreboardMultiRanksButton"));
+			Button scoreboardRankings = openInNewTab(ResultsRankingOrder.class,
+			        getTranslation("Scoreboard.RankingOrderButton"));
+			Button liftingOrder = openInNewTab(ResultsLiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
+			VerticalLayout intro1 = new VerticalLayout();
+			addP(intro1, getTranslation("darkModeSelect"));
+			FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders,
+			        scoreboardRankings, scoreboardMultiRanks, liftingOrder);
+			doGroup(getTranslation("Scoreboards"), intro1, grid1, this);
 
-		Button scoreboard = openInNewTab(ResultsNoLeaders.class, getTranslation("Scoreboard"));
-		Button scoreboardWLeaders = openInNewTab(Results.class, getTranslation("ScoreboardWLeadersButton"));
-		scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
-		Button scoreboardMultiRanks = openInNewTab(ResultsLeadersRanks.class,
-		        getTranslation("ScoreboardMultiRanksButton"));
-		Button scoreboardRankings = openInNewTab(ResultsRankingOrder.class,
-		        getTranslation("Scoreboard.RankingOrderButton"));
-		Button liftingOrder = openInNewTab(ResultsLiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
-		VerticalLayout intro1 = new VerticalLayout();
-		addP(intro1, getTranslation("darkModeSelect"));
-		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders,
-		        scoreboardRankings, scoreboardMultiRanks, liftingOrder);
-		doGroup(getTranslation("Scoreboards"), intro1, grid1, this);	
+			Button medals = openInNewTab(ResultsMedals.class, getTranslation("CeremonyType.MEDALS"));
+			Button topSinclair = openInNewTab(TopSinclair.class, getTranslation("Scoreboard.TopSinclair"));
+			Button topTeams = openInNewTab(TopTeams.class, getTranslation("Scoreboard.TopTeams"));
+			Button topTeamsSinclair = openInNewTab(TopTeamsSinclair.class,
+			        getTranslation("Scoreboard.TopTeamsSinclair"));
+			VerticalLayout intro11 = new VerticalLayout();
+			FlexibleGridLayout grid11 = HomeNavigationContent.navigationGrid(
+			        topSinclair, topTeams, topTeamsSinclair, medals);
+			doGroup(getTranslation("Scoreboard.RANKINGS"), intro11, grid11, this);
 
-
-		Button medals = openInNewTab(ResultsMedals.class, getTranslation("CeremonyType.MEDALS"));
-		Button topSinclair = openInNewTab(TopSinclair.class, getTranslation("Scoreboard.TopSinclair"));
-		Button topTeams = openInNewTab(TopTeams.class, getTranslation("Scoreboard.TopTeams"));
-		Button topTeamsSinclair = openInNewTab(TopTeamsSinclair.class, getTranslation("Scoreboard.TopTeamsSinclair"));
-		VerticalLayout intro11 = new VerticalLayout();
-		FlexibleGridLayout grid11 = HomeNavigationContent.navigationGrid(
-		        topSinclair, topTeams, topTeamsSinclair, medals);
-		doGroup(getTranslation("Scoreboard.RANKINGS"), intro11, grid11, this);
-
-
-
-		DebugUtils.gc();
+			DebugUtils.gc();
+		} catch (Throwable x) {
+			x.printStackTrace();
+		}
 	}
 
 	@Override
@@ -166,9 +164,7 @@ public class DisplayNavigationContent extends BaseNavigationContent
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see
-	 * app.owlcms.nui.home.BaseNavigationContent#createTopBarFopField(java.lang.
-	 * String, java.lang.String)
+	 * @see app.owlcms.nui.home.BaseNavigationContent#createTopBarFopField(java.lang. String, java.lang.String)
 	 */
 	@Override
 	protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {

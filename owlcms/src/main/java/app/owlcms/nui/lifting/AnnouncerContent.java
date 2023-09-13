@@ -509,7 +509,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		MenuItem subItemSoundOn = subMenu2.addItem(
 		        Translator.translate("DisplayParameters.ClockSoundOn"),
 		        e -> {
-			        switchSoundMode(this, !this.isSilenced(), true);
+			        switchSoundMode(!this.isSilenced(), true);
 			        e.getSource().setChecked(!this.isSilenced());
 			        if (timer != null) {
 				        timer.setSilenced(this.isSilenced());
@@ -521,7 +521,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		MenuItem subItemDownOn = subMenu2.addItem(
 		        Translator.translate("DisplayParameters.DownSoundOn"),
 		        e -> {
-			        switchDownMode(this, !this.isDownSilenced(), true);
+			        switchDownMode(!this.isDownSilenced(), true);
 			        e.getSource().setChecked(!this.isDownSilenced());
 			        if (decisionDisplay != null) {
 				        decisionDisplay.setSilenced(this.isDownSilenced());

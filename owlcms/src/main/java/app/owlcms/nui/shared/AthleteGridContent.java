@@ -567,7 +567,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 		// silent is the default. silent=false will cause sound
 		boolean silentMode = silentParams == null || silentParams.isEmpty()
 		        || silentParams.get(0).toLowerCase().equals("true");
-		switchSoundMode(this, silentMode, false);
+		switchSoundMode(silentMode, false);
 		updateParam(params, SILENT, !isSilenced() ? "false" : null);
 		setUrlParameterMap(params);
 		return params;
@@ -1250,7 +1250,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 		MenuItem subItemSoundOn = subMenu2.addItem(
 		        Translator.translate("Settings.TurnOnSound"),
 		        e -> {
-			        switchSoundMode(this, !this.isSilenced(), true);
+			        switchSoundMode(!this.isSilenced(), true);
 			        e.getSource().setChecked(!this.isSilenced());
 			        if (decisionDisplay != null) {
 				        decisionDisplay.setSilenced(this.isSilenced());

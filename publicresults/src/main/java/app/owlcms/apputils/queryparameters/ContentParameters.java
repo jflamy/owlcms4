@@ -20,14 +20,21 @@ public interface ContentParameters extends FOPParameters {
 
     public void setSilenced(boolean silent);
 
+    /**
+     * @deprecated Use {@link #switchSoundMode(boolean,boolean)} instead
+     */
     public default void switchSoundMode(Component target, boolean silent, boolean updateURL) {
+        switchSoundMode(silent, updateURL);
+    }
+
+    public default void switchSoundMode(boolean silent, boolean updateURL) {
+        //FIXME: builddialog make lazy
         setSilenced(silent);
         // logger.debug("switching sound");
 
         if (updateURL) {
             updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? "true" : "false");
         }
-        buildDialog(target);
     }
 
     public default void buildDialog(Component target) {
@@ -62,7 +69,7 @@ public interface ContentParameters extends FOPParameters {
             silentMode = silentParams != null && !silentParams.isEmpty()
                     && silentParams.get(0).toLowerCase().equals("true");
         }
-        switchSoundMode((Component) this, silentMode, false);
+        switchSoundMode(silentMode, false);
         updateParam(params, SILENT, !isSilenced() ? "false" : "true");
 
         List<String> refParams = params.get(SINGLEREF);

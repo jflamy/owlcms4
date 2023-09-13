@@ -10,34 +10,24 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TreeMap;
 
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.ClientCallable;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.internal.AllowInert;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.template.Id;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.HasDynamicTitle;
-import com.vaadin.flow.router.Location;
-import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.apputils.SoundUtils;
-import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
@@ -47,7 +37,6 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
-import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.displays.video.VideoCSSOverride;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -82,7 +71,7 @@ import elemental.json.JsonObject;
 //@CssImport(value = "./styles/plates.css")
 //@Route("displays/attemptBoard")
 
-abstract class AttemptBoard extends LitTemplate implements DisplayParameters,
+public abstract class AttemptBoard extends LitTemplate implements
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin,
         VideoCSSOverride, HasBoardMode {
 
@@ -110,17 +99,11 @@ abstract class AttemptBoard extends LitTemplate implements DisplayParameters,
 	protected boolean teamFlags;
 	protected EventBus uiEventBus;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
-	private Dialog dialog;
-	private Timer dialogTimer;
 	private boolean downSilenced;
 	private boolean groupDone;
-	private boolean initializationNeeded;
-	private Location location;
-	private UI locationUI;
 	private PlatesElement plates;
 	private boolean publicFacing;
 	private boolean showBarbell;
-	private boolean silenced = true;
 	private boolean video;
 
 	/**
@@ -136,15 +119,6 @@ abstract class AttemptBoard extends LitTemplate implements DisplayParameters,
 		// js files add the build number to file names in order to prevent cache
 		// collisions
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
-	 *      com.vaadin.flow.component.orderedlayout.VerticalLayout)
-	 */
-	@Override
-	public void addDialogContent(Component target, VerticalLayout dialog) {
-		DisplayOptions.addSoundEntries(dialog, target, this);
 	}
 
 	@Override
@@ -198,64 +172,17 @@ abstract class AttemptBoard extends LitTemplate implements DisplayParameters,
 		}));
 	}
 
-	/**
-	 * return dialog, but only on first call.
-	 *
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#getDialog()
-	 */
-	@Override
-	public Dialog getDialog() {
-		return dialog;
-	}
-
-	@Override
-	public Timer getDialogTimer() {
-		return dialogTimer;
-	}
-
-	@Override
-	public Location getLocation() {
-		return this.location;
-	}
-
-	@Override
-	public UI getLocationUI() {
-		return this.locationUI;
-	}
-
 	@Override
 	public String getPageTitle() {
 		return getTranslation("Attempt") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
-	@Override
-	public String getRouteParameter() {
-		return this.routeParameter;
-	}
-
-	@Override
-	public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
-	}
-
-	@Override
 	public boolean isDarkMode() {
 		return true;
 	}
 
-	@Override
 	public boolean isDownSilenced() {
 		return downSilenced;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see app.owlcms.ui.shared.QueryParameterReader#isIgnoreGroupFromURL()
-	 */
-	@Override
-	public boolean isIgnoreGroupFromURL() {
-		return true;
 	}
 
 	/**
@@ -272,69 +199,9 @@ abstract class AttemptBoard extends LitTemplate implements DisplayParameters,
 		return showBarbell;
 	}
 
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#isShowInitialDialog()
-	 */
-	@Override
-	public boolean isShowInitialDialog() {
-		return this.initializationNeeded;
-	}
-
-	@Override
-	public boolean isSilenced() {
-		return silenced;
-	}
-
-	@Override
-	public boolean isSilencedByDefault() {
-		return true;
-	}
-
 	@Override
 	public boolean isVideo() {
 		return video;
-	}
-
-	@AllowInert
-	@ClientCallable
-	@Override
-	public void openDialog() {
-		logger.warn("openDialog called");
-		DisplayParameters.super.openDialog(getDialog());
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setDarkMode(boolean)
-	 */
-	@Override
-	public void setDarkMode(boolean dark) {
-		// noop
-	}
-
-	@Override
-	public void setDialog(Dialog dialog) {
-		this.dialog = dialog;
-	}
-
-	@Override
-	public void setDialogTimer(Timer dialogTimer) {
-		this.dialogTimer = dialogTimer;
-	}
-
-	@Override
-	public void setDownSilenced(boolean silenced) {
-		this.decisions.setSilenced(silenced);
-		this.downSilenced = silenced;
-	}
-
-	@Override
-	public void setLocation(Location location) {
-		this.location = location;
-	}
-
-	@Override
-	public void setLocationUI(UI locationUI) {
-		this.locationUI = locationUI;
 	}
 
 	/**
@@ -345,11 +212,6 @@ abstract class AttemptBoard extends LitTemplate implements DisplayParameters,
 		this.publicFacing = publicFacing;
 	}
 
-	@Override
-	public void setRouteParameter(String routeParameter) {
-		this.routeParameter = routeParameter;
-	}
-
 	/**
 	 * @param showBarbell the showBarbell to set
 	 */
@@ -358,27 +220,6 @@ abstract class AttemptBoard extends LitTemplate implements DisplayParameters,
 		this.showBarbell = showBarbell;
 	}
 
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
-	 */
-	@Override
-	public void setShowInitialDialog(boolean b) {
-		this.initializationNeeded = true;
-	}
-
-	@Override
-	public void setSilenced(boolean silenced) {
-		// logger.debug("{} setSilenced = {} from {}", this.getClass().getSimpleName(), silenced,
-		// LoggerUtils.whereFrom());
-		this.athleteTimer.setSilenced(silenced);
-		this.breakTimer.setSilenced(silenced);
-		this.silenced = silenced;
-	}
-
-	@Override
-	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
-	}
 
 	@Override
 	public void setVideo(boolean b) {
@@ -607,23 +448,6 @@ abstract class AttemptBoard extends LitTemplate implements DisplayParameters,
 			// uiEventLogger./**/warn("#### reloading {}", this.getElement().getClass());
 			// this.getElement().callJsFunction("reload");
 		});
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.FOPParameters#updateURLLocation(com.vaadin.flow.component.UI,
-	 *      com.vaadin.flow.router.Location, java.lang.String, java.lang.String)
-	 */
-	@Override
-	public void updateURLLocation(UI ui, Location location, String parameter, String mode) {
-		TreeMap<String, List<String>> parametersMap = new TreeMap<>(location.getQueryParameters().getParameters());
-		updateParam(parametersMap, DARK, null);
-		updateParam(parametersMap, parameter, mode);
-		FieldOfPlay fop = OwlcmsSession.getFop();
-		updateParam(parametersMap, "fop", fop != null ? fop.getName() : null);
-		setUrlParameterMap(parametersMap);
-		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(parametersMap)));
-		ui.getPage().getHistory().replaceState(null, location2);
-		setLocation(location2);
 	}
 
 	protected void checkImages() {

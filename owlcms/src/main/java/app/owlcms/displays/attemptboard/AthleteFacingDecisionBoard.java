@@ -7,15 +7,21 @@
 package app.owlcms.displays.attemptboard;
 
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.internal.AllowInert;
-import com.vaadin.flow.router.Route;
 
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.displayselection.AthleteFacingDecisionBoardPage;
+import app.owlcms.nui.displayselection.AttemptBoardPage;
+import app.owlcms.nui.displayselection.SoundEntries;
 
+/**
+ * Java API for LitElement display for countdown and decisions
+ * 
+ * @author jflamy
+ *
+ */
 @SuppressWarnings("serial")
 @Tag("decision-board-template")
 @JsModule("./components/AttemptBoard.js")
@@ -24,15 +30,17 @@ import app.owlcms.init.OwlcmsSession;
 @JsModule("./components/DecisionElement.js")
 @CssImport(value = "./styles/shared-styles.css")
 @CssImport(value = "./styles/plates.css")
-@Route("displays/athleteFacingDecision")
 
-public class AthleteFacingDecisionBoard extends AttemptBoard {
+public class AthleteFacingDecisionBoard extends AttemptBoard implements SoundEntries {
 
-	public AthleteFacingDecisionBoard() {
+	private AttemptBoardPage wrapper;
+
+	public AthleteFacingDecisionBoard(AthleteFacingDecisionBoardPage athleteFacingDecisionBoardWrapper) {
 		super();
 		setPublicFacing(false);
 		setShowBarbell(false);
 		breakTimer.setParent("DecisionBoard");
+		this.setWrapper(athleteFacingDecisionBoardWrapper);
 	}
 
 	@Override
@@ -41,13 +49,17 @@ public class AthleteFacingDecisionBoard extends AttemptBoard {
 	}
 
 	@Override
+	public AttemptBoardPage getWrapper() {
+		return this.wrapper;
+	}
+
+	@Override
 	public boolean isPublicFacing() {
 		return isPublicFacing();
 	}
 
-	@Override
-	public boolean isSilencedByDefault() {
-		return false;
+	public void setWrapper(AttemptBoardPage wrapper) {
+		this.wrapper = wrapper;
 	}
 
 	@Override
@@ -56,21 +68,10 @@ public class AthleteFacingDecisionBoard extends AttemptBoard {
 		teamFlags = false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see app.owlcms.displays.attemptboard.AttemptBoard#onAttach(com.vaadin.flow. component.AttachEvent)
-	 */
+
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
 		decisions.setPublicFacing(false);
-	}
-	
-	@AllowInert
-	@ClientCallable
-	@Override
-	public void openDialog() {
-		super.openDialog(getDialog());
 	}
 }
