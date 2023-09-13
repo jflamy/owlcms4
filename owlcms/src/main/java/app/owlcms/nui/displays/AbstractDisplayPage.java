@@ -4,16 +4,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
+import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public abstract class AbstractDisplayPage extends VerticalLayout implements DisplayParameters {
+	
+	Logger logger = (Logger) LoggerFactory.getLogger(AbstractDisplayPage.class);
 
 	private boolean darkMode;
 	private Dialog dialog;
@@ -22,11 +28,14 @@ public abstract class AbstractDisplayPage extends VerticalLayout implements Disp
 	private UI locationUI;
 	private String routeParameter;
 	private boolean showInitialDialog;
-	private Map<String, List<String>> urlParameterMap;
 	private boolean silenced;
+	private Map<String, List<String>> urlParameterMap;
+	private boolean video;
+	private boolean downSilenced;
+	private QueryParameters defaultParameters;
 
 	public AbstractDisplayPage() {
-		this.addClickListener(c -> getDialog().open());
+		this.addClickListener(c -> openDialog(getDialog()));
 		this.setSizeFull();
 		this.setMargin(false);
 		this.setPadding(false);
@@ -38,6 +47,11 @@ public abstract class AbstractDisplayPage extends VerticalLayout implements Disp
 
 	@Override
 	public abstract void addDialogContent(Component target, VerticalLayout vl);
+
+	@Override
+	public QueryParameters getDefaultParameters() {
+		return defaultParameters;
+	}
 
 	@Override
 	public Dialog getDialog() {
@@ -75,24 +89,35 @@ public abstract class AbstractDisplayPage extends VerticalLayout implements Disp
 	}
 
 	@Override
+	public boolean isDownSilenced() {
+		logger.warn("AbstractDisplayPage down silent={}",silenced);
+		return downSilenced;
+	}
+
+	@Override
 	public boolean isShowInitialDialog() {
 		return showInitialDialog;
 	}
 
 	@Override
 	public boolean isSilenced() {
+		logger.warn("AbstractDisplayPage timer silent={}",silenced);
 		return silenced;
 	}
 
 	@Override
-	public void openDialog() {
-		// TODO Auto-generated method stub
-
+	public boolean isVideo() {
+		return video;
 	}
 
 	@Override
 	public void setDarkMode(boolean darkMode) {
 		this.darkMode = darkMode;
+	}
+
+	@Override
+	public void setDefaultParameters(QueryParameters defaultParameters) {
+		this.defaultParameters = defaultParameters;
 	}
 
 	@Override
@@ -103,6 +128,12 @@ public abstract class AbstractDisplayPage extends VerticalLayout implements Disp
 	@Override
 	public void setDialogTimer(Timer dialogTimer) {
 		this.dialogTimer = dialogTimer;
+	}
+
+	@Override
+	public void setDownSilenced(boolean silent) {
+		logger.warn("setting AbstractDisplayPage down silent={}",silent);
+		this.downSilenced = silent;
 	}
 
 	@Override
@@ -127,12 +158,18 @@ public abstract class AbstractDisplayPage extends VerticalLayout implements Disp
 
 	@Override
 	public void setSilenced(boolean silent) {
+		logger.warn("setting AbstractDisplayPage timer silent={}",silent);
 		this.silenced = silent;
 	}
 
 	@Override
 	public void setUrlParameterMap(Map<String, List<String>> urlParameterMap) {
 		this.urlParameterMap = urlParameterMap;
+	}
+
+	@Override
+	public void setVideo(boolean video) {
+		this.video = video;
 	}
 
 }

@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Tag;
@@ -391,12 +390,6 @@ public class Results extends LitTemplate
 	@Override
 	public boolean isVideo() {
 		return video;
-	}
-
-	@ClientCallable
-	@Override
-	public void openDialog() {
-		DisplayParameters.super.openDialog(getDialog());
 	}
 
 	/**

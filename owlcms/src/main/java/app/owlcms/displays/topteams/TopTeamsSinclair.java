@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
@@ -292,12 +291,6 @@ public class TopTeamsSinclair extends LitTemplate
 		return video;
 	}
 
-	@ClientCallable
-	@Override
-	public void openDialog() {
-		DisplayParameters.super.openDialog(getDialog());
-	}
-
 	/**
 	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
 	 *      java.util.Map)
@@ -510,7 +503,7 @@ public class TopTeamsSinclair extends LitTemplate
 		}
 		Competition competition = Competition.getCurrent();
 		doUpdate(competition);
-		openDialog();
+		openDialog(getDialog());
 	}
 
 	protected void setTranslationMap() {

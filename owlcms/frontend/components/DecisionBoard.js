@@ -16,7 +16,7 @@ class DecisionBoard extends LitElement {
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "")}.css"/>
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "decisionboard" + (this.autoversion ?? "")}.css"/>
       
-      <div class="wrapper" @click="${this._handleClick}">
+      <div class="wrapper">
         <div class="wrapper bigTitle" style="${this.waitingStyles()}">
           <div class="competitionName">${this.competitionName}</div>
           <br />
@@ -82,7 +82,6 @@ class DecisionBoard extends LitElement {
 
   firstUpdated(_changedProperties) {
     super.firstUpdated(_changedProperties);
-    this.$server.openDialog();
   }
 
   isBreak() {
@@ -180,10 +179,6 @@ class DecisionBoard extends LitElement {
 
   decisionStyles() {
     return "display: " + ((this.mode === "CURRENT_ATHLETE" && this.decisionVisible) ? "grid" : "none");
-  }
-
-  _handleClick() {
-    this.$server.openDialog();
   }
 
   constructor() {

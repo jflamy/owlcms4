@@ -10,12 +10,10 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.router.Route;
 
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.nui.displays.AttemptBoardPage;
-import app.owlcms.nui.displays.PublicFacingAttemptBoardPage;
-import app.owlcms.nui.displays.SoundEntries;
+import app.owlcms.nui.displays.attemptboards.AbstractAttemptBoardPage;
+import app.owlcms.nui.displays.attemptboards.PublicFacingAttemptBoardPage;
 
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("attempt-board-template")
@@ -25,17 +23,17 @@ import app.owlcms.nui.displays.SoundEntries;
 @JsModule("./components/DecisionElement.js")
 @CssImport(value = "./styles/shared-styles.css")
 @CssImport(value = "./styles/plates.css")
-@Route("displays/attemptBoard")
 
-public class PublicFacingAttemptBoard extends AttemptBoard implements SoundEntries {
+public class PublicFacingAttemptBoard extends AbstractAttemptBoard {
 
-	private AttemptBoardPage wrapper;
+	private AbstractAttemptBoardPage wrapper;
 
 
 	public PublicFacingAttemptBoard(PublicFacingAttemptBoardPage publicFacingAttemptBoardWrapper) {
 		super();
 		setPublicFacing(true);
 		this.wrapper = publicFacingAttemptBoardWrapper;
+		this.wrapper.setBoard(this);
 	}
 
 	@Override
@@ -56,7 +54,7 @@ public class PublicFacingAttemptBoard extends AttemptBoard implements SoundEntri
 	}
 
 	@Override
-	public AttemptBoardPage getWrapper() {
+	public AbstractAttemptBoardPage getWrapper() {
 		return wrapper;
 	}
 }

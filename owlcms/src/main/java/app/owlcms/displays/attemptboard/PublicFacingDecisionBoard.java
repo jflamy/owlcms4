@@ -10,14 +10,12 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.config.Config;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.displays.AbstractDisplayPage;
-import app.owlcms.nui.displays.AttemptBoardPage;
-import app.owlcms.nui.displays.PublicFacingDecisionBoardPage;
-import app.owlcms.nui.displays.SoundEntries;
+import app.owlcms.nui.displays.attemptboards.AbstractAttemptBoardPage;
+import app.owlcms.nui.displays.attemptboards.PublicFacingDecisionBoardPage;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.DecisionReset;
@@ -34,14 +32,15 @@ import app.owlcms.uievents.UIEvent.DecisionReset;
 @Tag("decision-board-template")
 @JsModule("./components/DecisionBoard.js")
 @JsModule("./components/AudioContext.js")
-@Route("displays/publicFacingDecision")
 
-public class PublicFacingDecisionBoard extends AttemptBoard implements SoundEntries {
+public class PublicFacingDecisionBoard extends AbstractAttemptBoard {
 
-	private AttemptBoardPage wrapper;
+	private AbstractAttemptBoardPage wrapper;
 	
 	public PublicFacingDecisionBoard(PublicFacingDecisionBoardPage publicFacingDecisionBoardWrapper) {
+		super();
 		this.wrapper = publicFacingDecisionBoardWrapper;
+		this.wrapper.setBoard(this);
 	}
 
 
@@ -92,8 +91,6 @@ public class PublicFacingDecisionBoard extends AttemptBoard implements SoundEntr
 		setPublicFacing(true);
 		setShowBarbell(false);
 		decisions.setDontReset(true);
-		decisions.setSilenced(wrapper.isSilencedByDefault());
-		athleteTimer.setSilenced(wrapper.isSilencedByDefault());
 	}
 	
 

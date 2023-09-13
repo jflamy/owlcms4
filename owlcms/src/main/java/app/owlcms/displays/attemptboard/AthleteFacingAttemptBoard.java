@@ -12,9 +12,8 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.nui.displays.AthleteFacingAttemptBoardPage;
-import app.owlcms.nui.displays.AttemptBoardPage;
-import app.owlcms.nui.displays.SoundEntries;
+import app.owlcms.nui.displays.attemptboards.AbstractAttemptBoardPage;
+import app.owlcms.nui.displays.attemptboards.AthleteFacingAttemptBoardPage;
 
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("attempt-board-template")
@@ -25,14 +24,15 @@ import app.owlcms.nui.displays.SoundEntries;
 @CssImport(value = "./styles/shared-styles.css")
 @CssImport(value = "./styles/plates.css")
 
-public class AthleteFacingAttemptBoard extends AttemptBoard implements SoundEntries {
+public class AthleteFacingAttemptBoard extends AbstractAttemptBoard {
 
-	private AttemptBoardPage wrapper;
+	private AbstractAttemptBoardPage wrapper;
 
 	public AthleteFacingAttemptBoard(AthleteFacingAttemptBoardPage athleteFacingAttemptBoardWrapper) {
 		super();
 		setPublicFacing(false);
 		this.wrapper = athleteFacingAttemptBoardWrapper;
+		wrapper.setBoard(this);
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class AthleteFacingAttemptBoard extends AttemptBoard implements SoundEntr
 	}
 
 	@Override
-	public AttemptBoardPage getWrapper() {
+	public AbstractAttemptBoardPage getWrapper() {
 		return wrapper;
 	}
 

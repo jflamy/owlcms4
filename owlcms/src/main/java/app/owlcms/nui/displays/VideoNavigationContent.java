@@ -46,6 +46,8 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.monitors.OBSMonitor;
+import app.owlcms.nui.displays.attemptboards.PublicFacingAttemptBoardPage;
+import app.owlcms.nui.displays.attemptboards.PublicFacingDecisionBoardPage;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.NavigationPage;

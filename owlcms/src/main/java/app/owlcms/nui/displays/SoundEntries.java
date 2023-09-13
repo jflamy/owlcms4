@@ -17,17 +17,15 @@ import app.owlcms.init.OwlcmsSession;
 
 public interface SoundEntries {
 	
-	public default boolean isSilenced() {
-		return getWrapper().isSilenced();
-	}
+	public abstract boolean isSilenced();
+	public abstract void setSilenced(boolean silent);
 	
 	public AbstractDisplayPage getWrapper();
 
-	public default boolean isDownSilenced() {
-		return getWrapper().isSilenced();
-	}
+	public abstract boolean isDownSilenced();
+	public abstract void setDownSilenced(boolean silent);
 	
-	public default void addSoundEntries(VerticalLayout layout, Component _this, DisplayParameters dp) {
+	public default void addSoundEntries(VerticalLayout layout, Component audioComponent, DisplayParameters parentPage) {
 		NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.SoundSettings"));
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		if (fop != null) {
@@ -39,7 +37,7 @@ public interface SoundEntries {
 			}
 		}
 
-		boolean silentMode = dp.isSilenced();
+		boolean silentMode = parentPage.isSilenced();
 		Button silentButton = new Button(Translator.translate("DisplayParameters.ClockSoundOff"), new Icon(VaadinIcon.BELL_SLASH));
 		Button soundButton = new Button(Translator.translate("DisplayParameters.ClockSoundOn"), new Icon(VaadinIcon.BELL));
 
@@ -51,13 +49,13 @@ public interface SoundEntries {
 		rbgroup.setRenderer(new ComponentRenderer<Button, Boolean>((mn) -> mn ? silentButton : soundButton));
 		rbgroup.addValueChangeListener(e -> {
 			Boolean silenced = e.getValue();
-			dp.switchSoundMode(silenced, true);
+			parentPage.switchSoundMode(silenced, true);
 			if (!silenced) {
-				SoundUtils.doEnableAudioContext(_this.getElement());
+				SoundUtils.doEnableAudioContext(audioComponent.getElement());
 			}
 		});
 		
-		boolean downSilentMode = dp.isDownSilenced();
+		boolean downSilentMode = parentPage.isDownSilenced();
 		Button downSilencedButton = new Button(Translator.translate("DisplayParameters.DownSoundOff"), new Icon(VaadinIcon.BELL_SLASH));
 		Button downSoundButton = new Button(Translator.translate("DisplayParameters.DownSoundOn"), new Icon(VaadinIcon.BELL));
 
@@ -69,9 +67,9 @@ public interface SoundEntries {
 		rb2group.setRenderer(new ComponentRenderer<Button, Boolean>((mn) -> mn ? downSilencedButton : downSoundButton));
 		rb2group.addValueChangeListener(e -> {
 			Boolean downSilenced = e.getValue();
-			dp.switchDownMode(downSilenced, true);
+			parentPage.switchDownMode(downSilenced, true);
 			if (!downSilenced) {
-				SoundUtils.doEnableAudioContext(_this.getElement());
+				SoundUtils.doEnableAudioContext(audioComponent.getElement());
 			}
 		});
 		rb2group.setHelperText(Translator.translate("DisplayParameters.SoundHelper"));

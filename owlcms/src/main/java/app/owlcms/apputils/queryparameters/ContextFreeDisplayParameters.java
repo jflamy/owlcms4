@@ -112,7 +112,6 @@ public interface ContextFreeDisplayParameters extends DisplayParameters {
 		if (!r.isIgnoreGroupFromURL()) {
 			List<String> ageGroupNames = parametersMap.get(AGEGROUP);
 			if (ageGroupNames != null && ageGroupNames.get(0) != null) {
-				//CHECK urldecode the agegroup ?
 				ageGroup = AgeGroupRepository.findByName(ageGroupNames.get(0));
 			} else if (fop != null && isVideo(location) && fop.getVideoAgeGroup() != null) {
 				ageGroup = fop.getVideoAgeGroup();
@@ -144,11 +143,6 @@ public interface ContextFreeDisplayParameters extends DisplayParameters {
 		// silent is the default. silent=false will cause sound
 		boolean silentMode = silentParams == null || silentParams.isEmpty()
 		        || silentParams.get(0).toLowerCase().equals("true");
-		if (!isSilencedByDefault()) {
-			// for referee board, default is noise
-			silentMode = silentParams != null && !silentParams.isEmpty()
-			        && silentParams.get(0).toLowerCase().equals("true");
-		}
 		switchSoundMode(silentMode, false);
 		updateParam(params, SILENT, !isSilenced() ? "false" : "true");
 		
@@ -156,11 +150,6 @@ public interface ContextFreeDisplayParameters extends DisplayParameters {
 		// silent is the default. silent=false will cause sound
 		boolean downSilentMode = downSilentParams == null || downSilentParams.isEmpty()
 		        || downSilentParams.get(0).toLowerCase().equals("true");
-		if (!isSilencedByDefault()) {
-			// for referee board, default is noise
-			downSilentMode = downSilentParams != null && !downSilentParams.isEmpty()
-			        && downSilentParams.get(0).toLowerCase().equals("true");
-		}
 		switchDownMode(downSilentMode, false);
 		updateParam(params, DOWNSILENT, !isDownSilenced() ? "false" : "true");
 		

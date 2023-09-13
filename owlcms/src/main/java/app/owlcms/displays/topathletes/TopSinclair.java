@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
@@ -245,12 +244,6 @@ public class TopSinclair extends LitTemplate implements DisplayParameters,
 		return video;
 	}
 
-	@ClientCallable
-	@Override
-	public void openDialog() {
-		DisplayParameters.super.openDialog(getDialog());
-	}
-
 	@Override
 	public void setDarkMode(boolean dark) {
 		this.darkMode = dark;
@@ -442,7 +435,7 @@ public class TopSinclair extends LitTemplate implements DisplayParameters,
 		}
 		Competition competition = Competition.getCurrent();
 		doUpdate(competition);
-		openDialog();
+		openDialog(getDialog());
 	}
 
 	protected void setTranslationMap() {

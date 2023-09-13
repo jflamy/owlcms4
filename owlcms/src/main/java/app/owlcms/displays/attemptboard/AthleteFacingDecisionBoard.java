@@ -12,9 +12,8 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.nui.displays.AthleteFacingDecisionBoardPage;
-import app.owlcms.nui.displays.AttemptBoardPage;
-import app.owlcms.nui.displays.SoundEntries;
+import app.owlcms.nui.displays.attemptboards.AbstractAttemptBoardPage;
+import app.owlcms.nui.displays.attemptboards.AthleteFacingDecisionBoardPage;
 
 /**
  * Java API for LitElement display for countdown and decisions
@@ -31,16 +30,19 @@ import app.owlcms.nui.displays.SoundEntries;
 @CssImport(value = "./styles/shared-styles.css")
 @CssImport(value = "./styles/plates.css")
 
-public class AthleteFacingDecisionBoard extends AttemptBoard implements SoundEntries {
+public class AthleteFacingDecisionBoard extends AbstractAttemptBoard {
 
-	private AttemptBoardPage wrapper;
+	private AbstractAttemptBoardPage wrapper;
 
 	public AthleteFacingDecisionBoard(AthleteFacingDecisionBoardPage athleteFacingDecisionBoardWrapper) {
 		super();
 		setPublicFacing(false);
 		setShowBarbell(false);
+		setSilenced(false);
+		setDownSilenced(false);
 		breakTimer.setParent("DecisionBoard");
 		this.setWrapper(athleteFacingDecisionBoardWrapper);
+		wrapper.setBoard(this);
 	}
 
 	@Override
@@ -49,7 +51,7 @@ public class AthleteFacingDecisionBoard extends AttemptBoard implements SoundEnt
 	}
 
 	@Override
-	public AttemptBoardPage getWrapper() {
+	public AbstractAttemptBoardPage getWrapper() {
 		return this.wrapper;
 	}
 
@@ -58,7 +60,7 @@ public class AthleteFacingDecisionBoard extends AttemptBoard implements SoundEnt
 		return isPublicFacing();
 	}
 
-	public void setWrapper(AttemptBoardPage wrapper) {
+	public void setWrapper(AbstractAttemptBoardPage wrapper) {
 		this.wrapper = wrapper;
 	}
 

@@ -39,13 +39,18 @@ import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
- * @author owlcms
+ * Navigating to a component that implements this interface will trigger the setParameter method. The setParameter
+ * method will invoke readParams method to actually process the query parameter.
+ * 
+ * Display pages extend an abstract class that stores all the options.
+ * 
+ * @author jflamy
  *
  */
 public interface DisplayParameters extends ContentParameters {
-	
-	final Logger logger = (Logger) LoggerFactory.getLogger(DisplayParameters.class);
 
+	final Logger logger = (Logger) LoggerFactory.getLogger(DisplayParameters.class);
+	
 	public static final String CATEGORY = "cat";
 	public static final String DARK = "dark";
 	public static final String FONTSIZE = "em";
@@ -56,12 +61,13 @@ public interface DisplayParameters extends ContentParameters {
 	public static final String LEADERS = "leaders";
 	public static final String TEAMWIDTH = "tw";
 	public static final String ABBREVIATED = "abb";
+	public static final String VIDEO = "video";
 
-	public void addDialogContent(Component target, VerticalLayout vl);
+	public void addDialogContent(Component page, VerticalLayout vl);
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public default void buildDialog(Component target) {
+	public default void buildDialog(Component page) {
 		Dialog dialog = getDialogCreateIfMissing();
 		if (dialog == null) {
 			return;
@@ -80,7 +86,7 @@ public interface DisplayParameters extends ContentParameters {
 		VerticalLayout vl = new VerticalLayout();
 		dialog.add(vl);
 
-		addDialogContent(target, vl);
+		addDialogContent(page, vl);
 
 		Button button = new Button(Translator.translate("Close"), e -> {
 			// logger.debug("close button {}", getDialog());
@@ -95,7 +101,7 @@ public interface DisplayParameters extends ContentParameters {
 		vl.setAlignSelf(Alignment.END, buttons);
 
 		vl.add(new Div());
-		vl.add(buttons);		
+		vl.add(buttons);
 	}
 
 	public default void doNotification(boolean dark) {
@@ -143,6 +149,8 @@ public interface DisplayParameters extends ContentParameters {
 		return false;
 	}
 
+	public boolean isVideo();
+
 	public boolean isDarkMode();
 
 	public default boolean isDefaultLeadersDisplay() {
@@ -174,7 +182,7 @@ public interface DisplayParameters extends ContentParameters {
 	public default void openDialog(Dialog dialog) {
 		logger.warn("openDialog {} {}", dialog, (dialog != null ? dialog.isOpened() : "-"));
 		if (dialog == null) {
-			buildDialog((Component)this);
+			buildDialog((Component) this);
 			dialog = this.getDialog();
 		}
 		final Dialog nDialog = dialog;
@@ -285,8 +293,17 @@ public interface DisplayParameters extends ContentParameters {
 		setAbbreviatedName(abb);
 		updateParam(params, ABBREVIATED, abb ? "true" : null);
 
+		List<String> videoParams = params.get(ABBREVIATED);
+		boolean video;
+		video = (videoParams != null && !videoParams.isEmpty() ? Boolean.valueOf(videoParams.get(0)) : false);
+		setVideo(video);
+		updateParam(params, VIDEO, abb ? "video" : null);
+
 		setUrlParameterMap(params);
 		return params;
+	}
+
+	public default void setVideo(boolean video2) {
 	}
 
 	public default void setAbbreviatedName(boolean b) {
@@ -316,12 +333,11 @@ public interface DisplayParameters extends ContentParameters {
 	/*
 	 * Process query parameters
 	 *
-	 * Note: what Vaadin calls a parameter is in the REST style, actually part of
-	 * the URL path. We use the old-style Query parameters for our purposes.
+	 * Note: what Vaadin calls a parameter is in the REST style, actually part of the URL path. We use the old-style
+	 * Query parameters for our purposes.
 	 *
-	 * @see
-	 * app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.
-	 * flow.router.BeforeEvent, java.lang.String)
+	 * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin. flow.router.BeforeEvent,
+	 * java.lang.String)
 	 */
 	@Override
 	public default void setParameter(BeforeEvent event, @OptionalParameter String routeParameter) {
@@ -335,6 +351,11 @@ public interface DisplayParameters extends ContentParameters {
 		// we use the ? query parameters instead.
 		QueryParameters queryParameters = location.getQueryParameters();
 		Map<String, List<String>> parametersMap = queryParameters.getParameters();
+
+		// we inject the video route parameter as a normal query parameter to simplify processing.
+		if (routeParameter != null && routeParameter.contentEquals("video")) {
+			parametersMap.put("video", List.of("true"));
+		}
 		HashMap<String, List<String>> params = readParams(location, parametersMap);
 
 		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params)));
@@ -361,8 +382,7 @@ public interface DisplayParameters extends ContentParameters {
 	 * called by updateURLLocation
 	 *
 	 * @see app.owlcms.apputils.queryparameters.FOPParameters#storeReturnURL()
-	 * @see app.owlcms.apputils.queryparameters.FOPParameters#updateURLLocation(UI,
-	 *      Location, String, String)
+	 * @see app.owlcms.apputils.queryparameters.FOPParameters#updateURLLocation(UI, Location, String, String)
 	 */
 	@Override
 	public default void storeReturnURL(Location location) {
@@ -444,7 +464,5 @@ public interface DisplayParameters extends ContentParameters {
 	}
 
 	Timer getDialogTimer();
-
-	void openDialog();
 
 }

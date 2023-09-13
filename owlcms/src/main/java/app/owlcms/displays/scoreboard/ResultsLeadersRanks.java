@@ -11,10 +11,8 @@ import java.util.Map.Entry;
 
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.internal.AllowInert;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.agegroup.AgeGroup;
@@ -59,14 +57,7 @@ public class ResultsLeadersRanks extends Results {
 	public String getPageTitle() {
 		return getTranslation("ScoreboardMultiRanksTitle") + OwlcmsSession.getFopNameIfMultiple();
 	}
-
-	@AllowInert
-	@ClientCallable
-	@Override
-	public void openDialog() {
-		super.openDialog(getDialog());
-	}
-
+	
 	@Override
 	protected String formatRank(Integer total) {
 		if (total == null) {

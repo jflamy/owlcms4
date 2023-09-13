@@ -3,20 +3,21 @@ package app.owlcms.apputils.queryparameters;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 public interface ContentParameters extends FOPParameters {
-	
-	final Logger logger = (Logger) LoggerFactory.getLogger(ContentParameters.class);
 
+	final Logger logger = (Logger) LoggerFactory.getLogger(ContentParameters.class);
 	public static final String SILENT = "silent";
 	public static final String SINGLEREF = "singleRef";
 	public static final String IMMEDIATE = "immediate";
@@ -28,17 +29,20 @@ public interface ContentParameters extends FOPParameters {
 	public default boolean isSilenced() {
 		return true;
 	}
-	
-	public default boolean isDownSilenced() {
-		return true;
-	}
 
-	public default boolean isSilencedByDefault() {
+	public default boolean isDownSilenced() {
 		return true;
 	}
 
 	public default boolean isSingleReferee() {
 		return false;
+	}
+
+	public default void setDefaultParameters(QueryParameters qp) {
+	}
+
+	public default QueryParameters getDefaultParameters() {
+		return null;
 	}
 
 	@Override
@@ -47,36 +51,9 @@ public interface ContentParameters extends FOPParameters {
 		// handle FOP and Group by calling superclass
 		HashMap<String, List<String>> params = FOPParameters.super.readParams(location, parametersMap);
 
-		List<String> silentParams = params.get(SILENT);
-		// silent is the default. silent=false will cause sound
-		boolean silentMode = silentParams == null || silentParams.isEmpty()
-		        || silentParams.get(0).toLowerCase().equals("true");
-		if (!isSilencedByDefault()) {
-			// for referee board, default is noise
-			silentMode = silentParams != null && !silentParams.isEmpty()
-			        && silentParams.get(0).toLowerCase().equals("true");
-		}
-		switchSoundMode(silentMode, false);
-		updateParam(params, SILENT, !isSilenced() ? "false" : "true");
-		
-		List<String> downSilentParams = params.get(DOWNSILENT);
-		// down silent is the default. downSilent=false will cause sound
-		boolean downSilentMode = downSilentParams == null || downSilentParams.isEmpty()
-		        || downSilentParams.get(0).toLowerCase().equals("true");
-		if (!isSilencedByDefault()) {
-			// for referee board, default is noise
-			downSilentMode = downSilentParams != null && !downSilentParams.isEmpty()
-			        && downSilentParams.get(0).toLowerCase().equals("true");
-		}
-		switchDownMode(downSilentMode, false);
-		updateParam(params, DOWNSILENT, !isDownSilenced() ? "false" : "true");
-
-		List<String> refParams = params.get(SINGLEREF);
-		boolean sr = refParams != null && !refParams.isEmpty()
-		        && refParams.get(0).toLowerCase().equals("true");
-		setSingleReferee(sr);
-		switchSingleRefereeMode((Component) this, sr, false);
-		updateParam(params, SINGLEREF, isSingleReferee() ? "true" : null);
+		processBooleanParam(params, SILENT, (v) -> switchSoundMode(v, false));
+		processBooleanParam(params, DOWNSILENT, (v) -> switchDownMode(v, false));
+		processBooleanParam(params, SINGLEREF, (v) -> switchSingleRefereeMode((Component) this, v, false));
 
 		// immediate is true by default, except if single ref.
 		List<String> immParams = params.get(IMMEDIATE);
@@ -87,7 +64,7 @@ public interface ContentParameters extends FOPParameters {
 			} else if (immParams.get(0).toLowerCase().equalsIgnoreCase("true")) {
 				imm = true;
 			}
-		} else if (sr) {
+		} else if (isSingleReferee()) {
 			imm = false;
 		}
 		FieldOfPlay fop = OwlcmsSession.getFop();
@@ -100,10 +77,32 @@ public interface ContentParameters extends FOPParameters {
 		return params;
 	}
 
+	public default void processBooleanParam(HashMap<String, List<String>> params, String paramName,
+	        Consumer<Boolean> doer) {
+		List<String> paramValues = params.get(paramName);
+		logger.warn("param {} values={}", paramName, paramValues);
+		boolean value = false;
+		if (paramValues == null || paramValues.isEmpty()) {
+			QueryParameters dp = getDefaultParameters();
+			if (dp != null) {
+				List<String> defaultValues = dp.getParameters().get(paramName);
+				if (defaultValues != null) {
+					logger.warn("param {} DEFAULT values={}", paramName, defaultValues);
+					String defaultVal = defaultValues.get(0);
+					value = defaultVal.toLowerCase().equals("true");
+				}
+			}
+		} else {
+			value = paramValues.get(0).toLowerCase().equals("true");
+		}
+		doer.accept(value);
+		updateParam(params, paramName, value ? "true" : "false");
+		logger.warn("updated values for {} {}", paramName, params.get(paramName));
+	}
+
 	public void setSilenced(boolean silent);
-	
+
 	public default void setDownSilenced(boolean silent) {
-		// ignored
 	}
 
 	public default void setSingleReferee(boolean b) {
@@ -130,19 +129,19 @@ public interface ContentParameters extends FOPParameters {
 	/**
 	 * @deprecated Use {@link #switchSoundMode(boolean,boolean)} instead
 	 */
+	@Deprecated
 	public default void switchSoundMode(Component target, boolean silent, boolean updateURL) {
 		switchSoundMode(silent, updateURL);
 	}
 
 	public default void switchSoundMode(boolean silent, boolean updateURL) {
+		logger.warn("switching timer sound {}", silent);
 		setSilenced(silent);
-		// logger.debug("switching sound");
-
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? "true" : "false");
 		}
 	}
-	
+
 	/**
 	 * @deprecated Use {@link #switchDownMode(boolean,boolean)} instead
 	 */
@@ -151,12 +150,12 @@ public interface ContentParameters extends FOPParameters {
 	}
 
 	public default void switchDownMode(boolean silent, boolean updateURL) {
+		logger.warn("switching down sound {}", silent);
 		setDownSilenced(silent);
-		// logger.debug("switching down");
 
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), DOWNSILENT, silent ? "true" : "false");
 		}
 	}
-	
+
 }

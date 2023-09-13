@@ -12,10 +12,8 @@ import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.internal.AllowInert;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 
@@ -55,13 +53,6 @@ public class ResultsNoLeaders extends Results {
 	@Override
 	public String getPageTitle() {
 		return getTranslation("Scoreboard") + OwlcmsSession.getFopNameIfMultiple();
-	}
-
-	@AllowInert
-	@ClientCallable
-	@Override
-	public void openDialog() {
-		super.openDialog(getDialog());
 	}
 
 	/**

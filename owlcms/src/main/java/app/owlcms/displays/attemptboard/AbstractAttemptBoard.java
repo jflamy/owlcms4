@@ -43,6 +43,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.displays.SoundEntries;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.HasBoardMode;
 import app.owlcms.nui.shared.RequireDisplayLogin;
@@ -69,13 +70,12 @@ import elemental.json.JsonObject;
 //@JsModule("./components/DecisionElement.js")
 //@CssImport(value = "./styles/shared-styles.css")
 //@CssImport(value = "./styles/plates.css")
-//@Route("displays/attemptBoard")
 
-public abstract class AttemptBoard extends LitTemplate implements
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin,
+public abstract class AbstractAttemptBoard extends LitTemplate implements
+        SoundEntries, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin,
         VideoCSSOverride, HasBoardMode {
 
-	protected final static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
+	protected final static Logger logger = (Logger) LoggerFactory.getLogger(AbstractAttemptBoard.class);
 	protected final static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
 	static {
@@ -83,7 +83,7 @@ public abstract class AttemptBoard extends LitTemplate implements
 		uiEventLogger.setLevel(Level.INFO);
 	}
 
-	public static void doNotification(AttemptBoard attemptBoard, String text, String recordText, String theme,
+	public static void doNotification(AbstractAttemptBoard attemptBoard, String text, String recordText, String theme,
 	        int duration) {
 		attemptBoard.doNotification(text, recordText, theme, duration);
 	}
@@ -99,6 +99,7 @@ public abstract class AttemptBoard extends LitTemplate implements
 	protected boolean teamFlags;
 	protected EventBus uiEventBus;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
+	private boolean silenced;
 	private boolean downSilenced;
 	private boolean groupDone;
 	private PlatesElement plates;
@@ -109,7 +110,7 @@ public abstract class AttemptBoard extends LitTemplate implements
 	/**
 	 * Instantiates a new attempt board.
 	 */
-	public AttemptBoard() {
+	public AbstractAttemptBoard() {
 		OwlcmsFactory.waitDBInitialized();
 		// logger.debug("*** AttemptBoard new {}", LoggerUtils.whereFrom());
 		// athleteTimer.setOrigin(this);
@@ -779,7 +780,7 @@ public abstract class AttemptBoard extends LitTemplate implements
 	}
 
 	private void showPlates() {
-		AttemptBoard attemptBoard = this;
+		AbstractAttemptBoard attemptBoard = this;
 		OwlcmsSession.withFop((fop) -> {
 			UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 				try {
@@ -821,5 +822,19 @@ public abstract class AttemptBoard extends LitTemplate implements
 		} else {
 			hideRecordInfo(fop, a);
 		}
+	}
+
+	public void setDownSilenced(boolean downSilenced) {
+		this.decisions.setSilenced(downSilenced);
+		this.downSilenced = downSilenced;
+	}
+
+	public boolean isSilenced() {
+		return silenced;
+	}
+
+	public void setSilenced(boolean silenced) {
+		this.athleteTimer.setSilenced(silenced);
+		this.silenced = silenced;
 	}
 }

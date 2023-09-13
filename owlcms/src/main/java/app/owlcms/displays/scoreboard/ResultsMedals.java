@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Tag;
@@ -314,12 +313,6 @@ public class ResultsMedals extends LitTemplate
 	@Override
 	public boolean isVideo() {
 		return video;
-	}
-
-	@ClientCallable
-	@Override
-	public void openDialog() {
-		ContextFreeDisplayParameters.super.openDialog(getDialog());
 	}
 
 	@Override

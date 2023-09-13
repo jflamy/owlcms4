@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
@@ -242,12 +241,6 @@ public class CurrentAthlete extends LitTemplate
 	@Override
 	public boolean isVideo() {
 		return video;
-	}
-
-	@ClientCallable
-	@Override
-	public void openDialog() {
-		DisplayParameters.super.openDialog(getDialog());
 	}
 
 	/**
