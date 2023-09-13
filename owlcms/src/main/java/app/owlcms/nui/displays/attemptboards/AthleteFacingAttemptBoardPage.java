@@ -19,11 +19,11 @@ public class AthleteFacingAttemptBoardPage extends AbstractAttemptBoardPage {
 	Logger logger = (Logger) LoggerFactory.getLogger(AthleteFacingAttemptBoardPage.class);
 	
 	public AthleteFacingAttemptBoardPage() {
+		var board = new AthleteFacingAttemptBoard(this);
+		this.addComponent(board);
 		setDefaultParameters(QueryParameters.simple(Map.of(
 				ContentParameters.SILENT, "false",
 				ContentParameters.DOWNSILENT, "false")));
-		var board = new AthleteFacingAttemptBoard(this);
-		this.addComponent(board);
 	}
 	
 }

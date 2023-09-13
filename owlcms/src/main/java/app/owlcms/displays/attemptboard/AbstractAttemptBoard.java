@@ -88,13 +88,18 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		attemptBoard.doNotification(text, recordText, theme, duration);
 	}
 
-	protected boolean athletePictures;
+	/*
+	 * The following 3 items need to be injected in the LitTemplate.
+	 * Vaadin will create the slots and perform the injection based on the @Id annotation.
+	 */
 	@Id("athleteTimer")
 	protected AthleteTimerElement athleteTimer; // created by Flow during template instantiation
 	@Id("breakTimer")
 	protected BreakTimerElement breakTimer; // created by Flow during template instantiation
 	@Id("decisions")
 	protected DecisionElement decisions; // created by Flow during template instantiation
+	
+	protected boolean athletePictures;
 	protected String routeParameter;
 	protected boolean teamFlags;
 	protected EventBus uiEventBus;
@@ -761,7 +766,6 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	private void init() {
 		OwlcmsSession.withFop(fop -> {
 			logger.trace("{}Starting attempt board", fop.getLoggingName());
-			setId("attempt-board-template");
 		});
 		setTranslationMap();
 	}

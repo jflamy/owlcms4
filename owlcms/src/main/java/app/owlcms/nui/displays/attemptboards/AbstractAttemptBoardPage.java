@@ -35,7 +35,7 @@ public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage imple
 	
 	Logger logger = (Logger) LoggerFactory.getLogger(AbstractAttemptBoardPage.class);
 
-	private AbstractAttemptBoard board;
+	protected AbstractAttemptBoard board;
 
 	@Override
 	public void addDialogContent(Component page, VerticalLayout vl) {

@@ -13,17 +13,18 @@ import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 @Route("displays/athleteFacingDecision")
+
 public class AthleteFacingDecisionBoardPage extends AbstractAttemptBoardPage {
 	
 	Logger logger = (Logger) LoggerFactory.getLogger(AthleteFacingDecisionBoardPage.class);
 	
 	public AthleteFacingDecisionBoardPage() {
-		logger.warn("decision board constructor");
+		logger.warn("af decision board constructor");
+		var board = new AthleteFacingDecisionBoard(this);
+		this.addComponent(board);
 		setDefaultParameters(QueryParameters.simple(Map.of(
 				ContentParameters.SILENT, "false",
 				ContentParameters.DOWNSILENT, "false")));
-		var board = new AthleteFacingDecisionBoard(this);
-		this.addComponent(board);
-	}	
-
+	}
+	
 }

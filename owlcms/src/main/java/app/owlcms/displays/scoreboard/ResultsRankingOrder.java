@@ -2,10 +2,8 @@ package app.owlcms.displays.scoreboard;
 
 import java.util.List;
 
-import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.internal.AllowInert;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
@@ -31,12 +29,6 @@ public class ResultsRankingOrder extends Results implements DisplayParameters {
 	@Override
 	public String getPageTitle() {
 		return getTranslation("Scoreboard.RankingOrder") + OwlcmsSession.getFopNameIfMultiple();
-	}
-
-	@AllowInert
-	@ClientCallable
-	public void openDialog() {
-		DisplayParameters.super.openDialog(getDialog());
 	}
 
 	@Override

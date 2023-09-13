@@ -7,15 +7,12 @@
 package app.owlcms.displays.attemptboard;
 
 import com.google.common.eventbus.Subscribe;
-import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 
-import app.owlcms.data.config.Config;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.displays.AbstractDisplayPage;
 import app.owlcms.nui.displays.attemptboards.AbstractAttemptBoardPage;
-import app.owlcms.nui.displays.attemptboards.PublicFacingDecisionBoardPage;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.DecisionReset;
@@ -37,8 +34,14 @@ public class PublicFacingDecisionBoard extends AbstractAttemptBoard {
 
 	private AbstractAttemptBoardPage wrapper;
 	
-	public PublicFacingDecisionBoard(PublicFacingDecisionBoardPage publicFacingDecisionBoardWrapper) {
+	public PublicFacingDecisionBoard(AbstractAttemptBoardPage publicFacingDecisionBoardWrapper) {
 		super();
+		decisions.setPublicFacing(true);
+		setPublicFacing(true);
+		setShowBarbell(false);
+		decisions.setDontReset(true);
+		setSilenced(true);
+		setDownSilenced(true);
 		this.wrapper = publicFacingDecisionBoardWrapper;
 		this.wrapper.setBoard(this);
 	}
@@ -76,21 +79,6 @@ public class PublicFacingDecisionBoard extends AbstractAttemptBoard {
 	protected void checkImages() {
 		athletePictures = false;
 		teamFlags = false;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see app.owlcms.displays.attemptboard.AttemptBoard#onAttach(com.vaadin.flow. component.AttachEvent)
-	 */
-	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		super.onAttach(attachEvent);
-		checkVideo(Config.getCurrent().getParamStylesDir() + "/video/decisionboard.css", routeParameter, this);
-		decisions.setPublicFacing(true);
-		setPublicFacing(true);
-		setShowBarbell(false);
-		decisions.setDontReset(true);
 	}
 	
 

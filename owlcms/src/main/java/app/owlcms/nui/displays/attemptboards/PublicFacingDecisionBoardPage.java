@@ -13,17 +13,18 @@ import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 @Route("displays/publicFacingDecision")
+
 public class PublicFacingDecisionBoardPage extends AbstractAttemptBoardPage {
 	
 	Logger logger = (Logger) LoggerFactory.getLogger(PublicFacingDecisionBoardPage.class);
 	
 	public PublicFacingDecisionBoardPage() {
+		logger.warn("pf decision board constructor");
+		var board = new PublicFacingDecisionBoard(this);
+		this.addComponent(board);
 		setDefaultParameters(QueryParameters.simple(Map.of(
 				ContentParameters.SILENT, "true",
 				ContentParameters.DOWNSILENT, "true")));
-		var board = new PublicFacingDecisionBoard(this);
-		this.addComponent(board);
-
 	}
 
 }

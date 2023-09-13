@@ -23,12 +23,6 @@ class DecisionBoard extends LitElement {
           <div class="nextGroup">${this.t?.WaitingNextGroup}</div>
         </div>
         <div class="decisionBoard" style="${this.activeStyles()}">
-          <div class="barbell" style="${this.barbellStyles()}">
-            <slot name="barbell"></slot>
-          </div>
-          <div class="barbell" style="${this.barbellStyles()}">
-            <slot name="barbell"></slot>
-          </div>
           <div class="timer athleteTimer" style="${this.athleteTimerStyles()}">
             <timer-element id="athleteTimer"></timer-element>
           </div>

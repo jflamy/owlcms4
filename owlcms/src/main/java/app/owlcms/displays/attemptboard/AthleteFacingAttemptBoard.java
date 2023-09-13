@@ -42,9 +42,9 @@ public class AthleteFacingAttemptBoard extends AbstractAttemptBoard {
 
 	@Override
 	public AbstractAttemptBoardPage getWrapper() {
-		return wrapper;
+		return this.wrapper;
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 *

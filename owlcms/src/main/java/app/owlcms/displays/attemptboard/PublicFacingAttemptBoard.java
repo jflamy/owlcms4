@@ -28,7 +28,6 @@ public class PublicFacingAttemptBoard extends AbstractAttemptBoard {
 
 	private AbstractAttemptBoardPage wrapper;
 
-
 	public PublicFacingAttemptBoard(PublicFacingAttemptBoardPage publicFacingAttemptBoardWrapper) {
 		super();
 		setPublicFacing(true);
