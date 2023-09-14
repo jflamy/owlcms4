@@ -8,7 +8,8 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.ContentParameters;
-import app.owlcms.displays.attemptboard.AthleteFacingAttemptBoard;
+import app.owlcms.displays.attemptboard.AttemptBoard;
+import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -19,11 +20,21 @@ public class AthleteFacingAttemptBoardPage extends AbstractAttemptBoardPage {
 	Logger logger = (Logger) LoggerFactory.getLogger(AthleteFacingAttemptBoardPage.class);
 	
 	public AthleteFacingAttemptBoardPage() {
-		var board = new AthleteFacingAttemptBoard(this);
-		this.addComponent(board);
 		setDefaultParameters(QueryParameters.simple(Map.of(
 				ContentParameters.SILENT, "false",
 				ContentParameters.DOWNSILENT, "false")));
+		
+		var board = new AttemptBoard(this);
+		board.setPublicFacing(false);
+		this.addComponent(board);
+
+		logger.warn("**** athlete attempt pf={} {}",board.isPublicFacing(), board.getDecisions().isPublicFacing());
 	}
+	
+	@Override
+	public String getPageTitle() {
+		return getTranslation("AttemptAF") + OwlcmsSession.getFopNameIfMultiple();
+	}
+
 	
 }

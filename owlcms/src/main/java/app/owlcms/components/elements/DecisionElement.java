@@ -44,14 +44,22 @@ public class DecisionElement extends LitTemplate
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.DEBUG);
 	}
-
 	protected EventBus fopEventBus;
 	protected EventBus uiEventBus;
 	private boolean silenced;
 	private boolean juryMode;
 	private boolean dontReset;
+	private boolean publicFacing;
 
 	public DecisionElement() {
+	}
+
+	public boolean isDontReset() {
+		return dontReset;
+	}
+
+	public boolean isPublicFacing() {
+		return publicFacing;
 	}
 
 	/**
@@ -63,8 +71,7 @@ public class DecisionElement extends LitTemplate
 
 	@ClientCallable
 	/**
-	 * client side only sends after timer has been started until decision reset or
-	 * break
+	 * client side only sends after timer has been started until decision reset or break
 	 *
 	 * @param ref1
 	 * @param ref2
@@ -84,7 +91,7 @@ public class DecisionElement extends LitTemplate
 			fop.fopEventPost(
 			        new FOPEvent.DecisionFullUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3,
 			                Long.valueOf(ref1Time),
-			                Long.valueOf(ref2Time), 
+			                Long.valueOf(ref2Time),
 			                Long.valueOf(ref3Time), false));
 		});
 
@@ -92,8 +99,7 @@ public class DecisionElement extends LitTemplate
 
 	@ClientCallable
 	/**
-	 * client side only sends after timer has been started until decision reset or
-	 * break
+	 * client side only sends after timer has been started until decision reset or break
 	 *
 	 * @param decision
 	 * @param ref1
@@ -105,12 +111,17 @@ public class DecisionElement extends LitTemplate
 		OwlcmsSession.getFop().fopEventPost(new FOPEvent.DownSignal(origin));
 	}
 
+	public void setDontReset(boolean dontReset) {
+		this.dontReset = dontReset;
+	}
+
 	public void setJury(boolean juryMode) {
 		this.setJuryMode(juryMode);
 		getElement().setProperty("jury", juryMode);
 	}
 
 	public void setPublicFacing(boolean publicFacing) {
+		this.publicFacing = publicFacing;
 		getElement().setProperty("publicFacing", publicFacing);
 	}
 
@@ -118,14 +129,6 @@ public class DecisionElement extends LitTemplate
 		logger.warn("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.whereFrom(1));
 		getElement().setProperty("silent", b);
 		silenced = b;
-	}
-	
-	public boolean isDontReset() {
-		return dontReset;
-	}
-
-	public void setDontReset(boolean dontReset) {
-		this.dontReset = dontReset;
 	}
 
 	@Subscribe
@@ -155,10 +158,11 @@ public class DecisionElement extends LitTemplate
 			return;
 		}
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			uiEventLogger.debug("!!! {} down ({})", this.getOrigin(), this.getParent().get().getClass().getSimpleName());
+			uiEventLogger.debug("!!! {} down ({})", this.getOrigin(),
+			        this.getParent().get().getClass().getSimpleName());
 			this.getElement().callJsFunction("showDown", false,
 			        isSilenced() || OwlcmsSession.getFop().isEmitSoundsOnServer());
-			//FIXME hide down signal in 1 second.
+			// FIXME hide down signal in 1 second.
 		});
 	}
 
@@ -171,7 +175,8 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveShowDecision(UIEvent.Decision e) {
-		uiEventLogger.debug("!!! {} majority decision ({})", this.getOrigin(), this.getParent().get().getClass().getSimpleName());
+		uiEventLogger.debug("!!! {} majority decision ({})", this.getOrigin(),
+		        this.getParent().get().getClass().getSimpleName());
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
 			this.getElement().callJsFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
 			this.getElement().callJsFunction("setEnabled", false);
@@ -194,19 +199,6 @@ public class DecisionElement extends LitTemplate
 		});
 	}
 
-	private void init(String fopName) {
-		getElement().setProperty("publicFacing", true);
-		getElement().setProperty("fopName", fopName);
-	}
-
-	protected boolean isJuryMode() {
-		return juryMode;
-	}
-
-	private void setJuryMode(boolean juryMode) {
-		this.juryMode = juryMode;
-	}
-
 	protected Object getOrigin() {
 		// we use the identity of our parent AttemptBoard or AthleteFacingAttemptBoard
 		// to identify
@@ -214,9 +206,12 @@ public class DecisionElement extends LitTemplate
 		return this.getParent().get();
 	}
 
+	protected boolean isJuryMode() {
+		return juryMode;
+	}
+
 	/*
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-	 * AttachEvent)
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
@@ -227,5 +222,13 @@ public class DecisionElement extends LitTemplate
 			fopEventBus = fop.getFopEventBus();
 			uiEventBus = uiEventBusRegister(this, fop);
 		});
+	}
+
+	private void init(String fopName) {
+		getElement().setProperty("fopName", fopName);
+	}
+
+	private void setJuryMode(boolean juryMode) {
+		this.juryMode = juryMode;
 	}
 }

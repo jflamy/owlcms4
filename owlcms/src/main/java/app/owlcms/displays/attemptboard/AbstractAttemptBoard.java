@@ -215,6 +215,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	 */
 	public void setPublicFacing(boolean publicFacing) {
 		this.getElement().setProperty("publicFacing", true);
+		decisions.setPublicFacing(publicFacing);
 		this.publicFacing = publicFacing;
 	}
 
@@ -840,5 +841,9 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	public void setSilenced(boolean silenced) {
 		this.athleteTimer.setSilenced(silenced);
 		this.silenced = silenced;
+	}
+
+	public DecisionElement getDecisions() {
+		return decisions;
 	}
 }

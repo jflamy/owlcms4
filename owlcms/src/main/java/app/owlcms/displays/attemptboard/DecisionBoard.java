@@ -9,35 +9,22 @@ package app.owlcms.displays.attemptboard;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.displays.AbstractDisplayPage;
 import app.owlcms.nui.displays.attemptboards.AbstractAttemptBoardPage;
-import app.owlcms.nui.displays.attemptboards.AthleteFacingDecisionBoardPage;
 
 @SuppressWarnings("serial")
 @Tag("decision-board-template")
 @JsModule("./components/DecisionBoard.js")
 @JsModule("./components/AudioContext.js")
 
-public class AthleteFacingDecisionBoard extends AbstractAttemptBoard {
+public class DecisionBoard extends AbstractAttemptBoard {
 
 	private AbstractAttemptBoardPage wrapper;
 
-	public AthleteFacingDecisionBoard(AthleteFacingDecisionBoardPage page) {
+	public DecisionBoard(AbstractAttemptBoardPage page) {
 		super();
-		decisions.setPublicFacing(false);
-		setPublicFacing(false);
-		setShowBarbell(false);
-		decisions.setDontReset(false);
-		setSilenced(false);
-		setDownSilenced(false);
 		this.wrapper = page;
 		this.wrapper.setBoard(this);
-	}
-
-	@Override
-	public String getPageTitle() {
-		return getTranslation("Decision_AF_") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
 	@Override
@@ -50,7 +37,4 @@ public class AthleteFacingDecisionBoard extends AbstractAttemptBoard {
 	public AbstractDisplayPage getWrapper() {
 		return wrapper;
 	}
-
-
-
 }

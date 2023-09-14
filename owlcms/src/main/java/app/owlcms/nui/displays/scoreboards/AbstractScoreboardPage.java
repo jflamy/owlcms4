@@ -1,4 +1,4 @@
-package app.owlcms.nui.displays.attemptboards;
+package app.owlcms.nui.displays.scoreboards;
 
 import java.util.List;
 import java.util.TreeMap;
@@ -14,7 +14,7 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
-import app.owlcms.displays.attemptboard.AbstractAttemptBoard;
+import app.owlcms.displays.scoreboard.AbstractResults;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.displays.AbstractDisplayPage;
@@ -30,23 +30,24 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
-public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage implements SoundEntries, HasDynamicTitle {
-	
-	Logger logger = (Logger) LoggerFactory.getLogger(AbstractAttemptBoardPage.class);
 
-	protected AbstractAttemptBoard board;
+public abstract class AbstractScoreboardPage extends AbstractDisplayPage implements SoundEntries, HasDynamicTitle {
+	
+	Logger logger = (Logger) LoggerFactory.getLogger(AbstractScoreboardPage.class);
+
+	protected AbstractResults board;
 
 	@Override
 	public void addDialogContent(Component page, VerticalLayout vl) {
 		addSoundEntries(vl, page, (DisplayParameters) page);
 	}
 
-	public AbstractAttemptBoard getBoard() {
+	public AbstractResults getBoard() {
 		return board;
 	}
 
 	@Override
-	public AbstractAttemptBoardPage getWrapper() {
+	public AbstractScoreboardPage getWrapper() {
 		return this;
 	}
 
@@ -65,8 +66,8 @@ public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage imple
 		return super.isVideo();
 	}
 
-	public void setBoard(AbstractAttemptBoard board) {
-		this.board = board;
+	public void setBoard(AbstractResults abstractResults) {
+		this.board = abstractResults;
 	}
 
 	@Override

@@ -117,6 +117,7 @@ public abstract class AbstractDisplayPage extends VerticalLayout implements Disp
 
 	@Override
 	public void setDefaultParameters(QueryParameters defaultParameters) {
+		logger.warn("setting defaults");
 		this.defaultParameters = defaultParameters;
 	}
 
