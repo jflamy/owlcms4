@@ -6,7 +6,6 @@
  *******************************************************************************/
 package app.owlcms.displays.scoreboard;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -14,7 +13,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
 import java.util.function.BiPredicate;
 
 import org.slf4j.LoggerFactory;
@@ -23,19 +21,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.littemplate.LitTemplate;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.template.Id;
-import com.vaadin.flow.router.HasDynamicTitle;
-import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
-import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
@@ -53,13 +44,13 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
-import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.displays.video.VideoCSSOverride;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.displays.AbstractDisplayPage;
+import app.owlcms.nui.displays.scoreboards.AbstractResultsDisplayPage;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.HasBoardMode;
 import app.owlcms.nui.shared.RequireDisplayLogin;
@@ -70,7 +61,6 @@ import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.StartupUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -88,116 +78,57 @@ import elemental.json.JsonValue;
 @Tag("results-template")
 @JsModule("./components/Results.js")
 @JsModule("./components/AudioContext.js")
-@Route("displays/resultsLeaders")
 
 public class Results extends LitTemplate
-        implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
-        RequireDisplayLogin, VideoCSSOverride, HasBoardMode {
-
-	private static final int DEBOUNCE = 50;
-	protected JsonArray cattempts;
-	protected Group curGroup;
-	protected Dialog dialog;
-	protected JsonArray sattempts;
-	protected List<Athlete> displayOrder;
-	protected int liftsDone;
+        implements SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
+        RequireDisplayLogin, HasBoardMode, VideoCSSOverride {
+	
 	@Id("timer")
-	protected AthleteTimerElement timer; // WebComponent, injected by Vaadin
+	private AthleteTimerElement timer; // WebComponent, injected by Vaadin
 	@Id("breakTimer")
 	private BreakTimerElement breakTimer; // WebComponent, injected by Vaadin
 	@Id("decisions")
 	private DecisionElement decisions; // WebComponent, injected by Vaadin
+
+	private JsonArray cattempts;
+	private Group curGroup;
+	private JsonArray sattempts;
+	private List<Athlete> displayOrder;
+	private int liftsDone;
+
 	private Category ceremonyCategory;
 	private Group ceremonyGroup = null;
 	private boolean darkMode = true;
-	private boolean initializationNeeded;
-	private Location location;
-	private UI locationUI;
 	private final Logger logger = (Logger) LoggerFactory.getLogger(Results.class);
-	private boolean silenced = true;
-	private boolean switchableDisplay = true;
-	private boolean showRecords = true;
 	protected EventBus uiEventBus;
 	private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	protected Double emFontSize = null;
-	private Timer dialogTimer;
-	private boolean showLeaders;
-	private boolean defaultLeadersDisplay;
-	private boolean defaultRecordsDisplay;
-	private String routeParameter;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
-	private boolean downSilenced;
-	private boolean video;
-	private boolean abbreviatedName;
 	private boolean teamFlags;
-	private Double teamWidth;
-	DecimalFormat df = new DecimalFormat("0.000");
-	private long now;
-	private long lastShortcut;
-	private long lastDialogClick;
+
+	private AbstractResultsDisplayPage wrapper;
 
 	/**
 	 * Instantiates a new results board.
 	 */
 	public Results() {
-		OwlcmsFactory.waitDBInitialized();
-		timer.setOrigin(this);
-		setDarkMode(true);
-		setDefaultLeadersDisplay(true);
-		setDefaultRecordsDisplay(true);
-		setLeadersDisplay(isDefaultLeadersDisplay());
-		setRecordsDisplay(isDefaultRecordsDisplay());
-		// js files add the build number to file names in order to prevent cache
-		// collisions
-		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
-		setAbbreviatedName(Config.getCurrent().featureSwitch("shortScoreboardNames"));
+//		OwlcmsFactory.waitDBInitialized();
+//		timer.setOrigin(this);
+//		setDarkMode(true);
+//		setDefaultLeadersDisplay(true);
+//		setDefaultRecordsDisplay(true);
+//		setLeadersDisplay(isDefaultLeadersDisplay());
+//		setRecordsDisplay(isDefaultRecordsDisplay());
+//		// js files add the build number to file names in order to prevent cache
+//		// collisions
+//		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
+//		setAbbreviatedName(Config.getCurrent().featureSwitch("shortScoreboardNames"));
 	}
 
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
-	 *      com.vaadin.flow.component.orderedlayout.VerticalLayout)
-	 */
-	@Override
-	public void addDialogContent(Component target, VerticalLayout vl) {
-		DisplayOptions.addLightingEntries(vl, target, this);
-		DisplayOptions.addRule(vl);
-		DisplayOptions.addSoundEntries(vl, target, this);
-		DisplayOptions.addRule(vl);
-		DisplayOptions.addSwitchableEntries(vl, target, this);
-		DisplayOptions.addRule(vl);
-		DisplayOptions.addSectionEntries(vl, target, this);
-		DisplayOptions.addRule(vl);
-		DisplayOptions.addSizingEntries(vl, target, this);
-
-		UI.getCurrent().addShortcutListener(() -> {
-			now = System.currentTimeMillis();
-			if (now - lastShortcut > DEBOUNCE) {
-				setEmFontSize(getEmFontSize() + 0.005);
-			}
-			lastShortcut = now;
-		}, Key.ARROW_UP);
-		UI.getCurrent().addShortcutListener(() -> {
-			now = System.currentTimeMillis();
-			if (now - lastShortcut > DEBOUNCE) {
-				setEmFontSize(getEmFontSize() - 0.005);
-			}
-			lastShortcut = now;
-		}, Key.ARROW_DOWN);
-		UI.getCurrent().addShortcutListener(() -> {
-			now = System.currentTimeMillis();
-			if (now - lastShortcut > DEBOUNCE) {
-				setTeamWidth(getTeamWidth() + 0.5);
-			}
-			lastShortcut = now;
-		}, Key.ARROW_RIGHT);
-		UI.getCurrent().addShortcutListener(() -> {
-			now = System.currentTimeMillis();
-			if (now - lastShortcut > DEBOUNCE) {
-
-				setTeamWidth(getTeamWidth() - 0.5);
-			}
-			lastShortcut = now;
-		}, Key.ARROW_LEFT);
+	public Results(AbstractResultsDisplayPage resultsBoardPage) {
+		this();
+		this.wrapper = resultsBoardPage;
+		wrapper.setBoard(this);
 	}
 
 	/**
@@ -209,7 +140,7 @@ public class Results extends LitTemplate
 			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
 
 			String title = inferGroupName() + " &ndash; "
-			        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), this.isSwitchableDisplay());
+			        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), wrapper.isSwitchableDisplay());
 			this.getElement().setProperty("fullName", title);
 			this.getElement().setProperty("teamName", "");
 			this.getElement().setProperty("attempt", "");
@@ -236,7 +167,7 @@ public class Results extends LitTemplate
 		ceremonyCategory = e.getCeremonyCategory();
 		// logger.debug("------ ceremony event = {} {}", e, e.getTrace());
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			if (e.getCeremonyType() == CeremonyType.MEDALS && this.isSwitchableDisplay() && ceremonyGroup != null) {
+			if (e.getCeremonyType() == CeremonyType.MEDALS && wrapper.isSwitchableDisplay() && ceremonyGroup != null) {
 				Map<String, String> map = new HashMap<>(Map.of(
 				        FOPParameters.FOP, fop.getName(),
 				        FOPParameters.GROUP, ceremonyGroup.getName(),
@@ -253,11 +184,11 @@ public class Results extends LitTemplate
 				// logger.debug("========== NOT {} {} {}",e.getCeremonyType(),
 				// this.isSwitchableDisplay(), ceremonyGroup);
 				String title = inferGroupName() + " &ndash; "
-				        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), this.isSwitchableDisplay());
+				        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), wrapper.isSwitchableDisplay());
 				this.getElement().setProperty("fullName", title);
 				this.getElement().setProperty("teamName", "");
 				setGroupNameProperty("");
-				breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
+				getBreakTimer().setVisible(!fop.getBreakTimer().isIndefinite());
 				setDisplay();
 
 				updateBottom(computeLiftType(fop.getCurAthlete()), fop);
@@ -265,132 +196,6 @@ public class Results extends LitTemplate
 		}));
 	}
 
-	/**
-	 * return dialog, but only on first call.
-	 *
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#getDialog()
-	 */
-	@Override
-	public Dialog getDialog() {
-		return dialog;
-	}
-
-	@Override
-	public Timer getDialogTimer() {
-		return this.dialogTimer;
-	}
-
-	@Override
-	public Double getEmFontSize() {
-		if (emFontSize == null) {
-			return 1.2;
-		}
-		return emFontSize;
-	}
-
-	@Override
-	public long getLastDialogClick() {
-		return lastDialogClick;
-	}
-
-	@Override
-	public Location getLocation() {
-		return this.location;
-	}
-
-	@Override
-	public UI getLocationUI() {
-		return this.locationUI;
-	}
-
-	@Override
-	public String getPageTitle() {
-		return getTranslation("ScoreboardWLeadersTitle") + OwlcmsSession.getFopNameIfMultiple();
-	}
-
-	@Override
-	public String getRouteParameter() {
-		return this.routeParameter;
-	}
-
-	@Override
-	public Double getTeamWidth() {
-		if (teamWidth == null) {
-			return 12.0D;
-		}
-		return teamWidth;
-	}
-
-	@Override
-	public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
-	}
-
-	@Override
-	public boolean isAbbreviatedName() {
-		return this.abbreviatedName;
-	}
-
-	@Override
-	public boolean isDarkMode() {
-		return darkMode;
-	}
-
-	@Override
-	public boolean isDefaultLeadersDisplay() {
-		return defaultLeadersDisplay;
-	}
-
-	@Override
-	public boolean isDefaultRecordsDisplay() {
-		return defaultRecordsDisplay;
-	}
-
-	@Override
-	public boolean isDownSilenced() {
-		return downSilenced;
-	}
-
-	@Override
-	public boolean isIgnoreGroupFromURL() {
-		return true;
-	}
-
-	@Override
-	public boolean isLeadersDisplay() {
-		return showLeaders;
-	}
-
-	@Override
-	public boolean isRecordsDisplay() {
-		return showRecords;
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#isShowInitialDialog()
-	 */
-	@Override
-	public boolean isShowInitialDialog() {
-		return this.initializationNeeded;
-	}
-
-	@Override
-	public boolean isSilenced() {
-		return silenced;
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#isSwitchableDisplay()
-	 */
-	@Override
-	public boolean isSwitchableDisplay() {
-		return switchableDisplay;
-	}
-
-	@Override
-	public boolean isVideo() {
-		return video;
-	}
 
 	/**
 	 * Reset.
@@ -399,109 +204,6 @@ public class Results extends LitTemplate
 		displayOrder = ImmutableList.of();
 	}
 
-	@Override
-	public void setAbbreviatedName(boolean b) {
-		this.abbreviatedName = b;
-	}
-
-	@Override
-	public void setDarkMode(boolean dark) {
-		this.darkMode = dark;
-	}
-
-	@Override
-	public void setDefaultLeadersDisplay(boolean b) {
-		this.defaultLeadersDisplay = b;
-	}
-
-	@Override
-	public void setDefaultRecordsDisplay(boolean b) {
-		this.defaultRecordsDisplay = b;
-	}
-
-	@Override
-	public void setDialog(Dialog dialog) {
-		this.dialog = dialog;
-	}
-
-	@Override
-	public void setDialogTimer(Timer timer) {
-		this.dialogTimer = timer;
-	}
-
-	@Override
-	public void setDownSilenced(boolean silenced) {
-		this.decisions.setSilenced(silenced);
-		this.downSilenced = silenced;
-	}
-
-	@Override
-	public void setEmFontSize(Double emFontSize) {
-		this.emFontSize = emFontSize;
-		doChangeEmSize();
-	}
-
-	@Override
-	public void setLastDialogClick(long now) {
-		lastDialogClick = now;
-	}
-
-	@Override
-	public void setLeadersDisplay(boolean showLeaders) {
-		checkVideo(Config.getCurrent().getParamStylesDir() + "/video/results.css", routeParameter, this);
-		this.showLeaders = showLeaders;
-		this.getElement().setProperty("showLeaders", showLeaders);
-	}
-
-	@Override
-	public void setLocation(Location location) {
-		this.location = location;
-	}
-
-	@Override
-	public void setLocationUI(UI locationUI) {
-		this.locationUI = locationUI;
-	}
-
-	@Override
-	public void setRecordsDisplay(boolean showRecords) {
-		this.showRecords = showRecords;
-		this.getElement().setProperty("showRecords", showRecords);
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setRouteParameter(java.lang.String)
-	 */
-	@Override
-	public void setRouteParameter(String routeParameter) {
-		this.routeParameter = routeParameter;
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
-	 */
-	@Override
-	public void setShowInitialDialog(boolean b) {
-		this.initializationNeeded = true;
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.ContentParameters#setSilenced(boolean)
-	 */
-	@Override
-	public void setSilenced(boolean silenced) {
-		this.timer.setSilenced(silenced);
-		this.breakTimer.setSilenced(silenced);
-		this.silenced = silenced;
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setSwitchableDisplay(boolean)
-	 */
-	@Override
-	public void setSwitchableDisplay(boolean warmUpDisplay) {
-		this.switchableDisplay = warmUpDisplay;
-	}
 
 	/**
 	 * @param a
@@ -525,29 +227,8 @@ public class Results extends LitTemplate
 		ja.put("flagClass", "flags");
 	}
 
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setTeamWidth(java.lang.Double)
-	 */
-	@Override
-	public void setTeamWidth(Double teamWidth) {
-		this.teamWidth = teamWidth;
-		doChangeTeamWidth();
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.FOPParameters#setUrlParameterMap(java.util.Map)
-	 */
-	@Override
-	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
-	}
-
-	/**
-	 * @see app.owlcms.displays.video.VideoCSSOverride#setVideo(boolean)
-	 */
-	@Override
-	public void setVideo(boolean b) {
-		this.video = b;
+	public void setWrapper(AbstractResultsDisplayPage wrapper) {
+		this.wrapper = wrapper;
 	}
 
 	@Subscribe
@@ -688,11 +369,6 @@ public class Results extends LitTemplate
 		});
 	}
 
-	@Override
-	public void switchEmFontSize(Component target, Double emFontSize, boolean updateURL) {
-		setEmFontSize(emFontSize);
-		doChangeEmSize();
-	}
 
 	protected void computeLeaders(boolean done) {
 		OwlcmsSession.withFop(fop -> {
@@ -766,33 +442,7 @@ public class Results extends LitTemplate
 		return countCategories(order) + 1;
 	}
 
-	protected void doChangeAbbreviated() {
-		if (isAbbreviatedName()) {
-			updateURLLocation(getLocationUI(), getLocation(), ABBREVIATED, "true");
-		} else {
-			updateURLLocation(getLocationUI(), getLocation(), ABBREVIATED, null);
-		}
-	}
 
-	protected void doChangeEmSize() {
-		String formattedEm = null;
-		if (emFontSize != null) {
-			formattedEm = df.format(emFontSize);
-			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "rem;");
-		}
-		updateURLLocation(getLocationUI(), getLocation(), FONTSIZE,
-		        emFontSize != null ? formattedEm : null);
-	}
-
-	protected void doChangeTeamWidth() {
-		String formattedTW = null;
-
-		if (teamWidth != null) {
-			formattedTW = df.format(teamWidth);
-			this.getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
-		}
-		updateURLLocation(getLocationUI(), getLocation(), TEAMWIDTH, teamWidth != null ? formattedTW : null);
-	}
 
 	protected void doEmpty() {
 		this.setDisplay();
@@ -819,7 +469,7 @@ public class Results extends LitTemplate
 			if (a != null) {
 				Group group = fop.getGroup();
 				if (group != null && !group.isDone()) {
-					if (isAbbreviatedName()) {
+					if (wrapper.isAbbreviatedName()) {
 						this.getElement().setProperty("fullName",
 						        a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
 					} else {
@@ -870,7 +520,7 @@ public class Results extends LitTemplate
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 		String category;
 		category = curCat != null ? curCat.getTranslatedName() : "";
-		if (isAbbreviatedName()) {
+		if (wrapper.isAbbreviatedName()) {
 			ja.put("fullName", a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
 		} else {
 			ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
@@ -881,9 +531,9 @@ public class Results extends LitTemplate
 		ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
 		ja.put("category", category != null ? category : "");
 		getAttemptsJson(a, liftOrderRank, fop);
-		ja.put("sattempts", sattempts);
+		ja.put("sattempts", getSattempts());
 		ja.put("bestSnatch", formatInt(a.getBestSnatch()));
-		ja.put("cattempts", cattempts);
+		ja.put("cattempts", getCattempts());
 		ja.put("bestCleanJerk", formatInt(a.getBestCleanJerk()));
 		ja.put("total", formatInt(a.getTotal()));
 		Participation mainRankings = a.getMainRankings();
@@ -973,8 +623,8 @@ public class Results extends LitTemplate
 	 * @return json string with nested attempts values
 	 */
 	protected void getAttemptsJson(Athlete a, int liftOrderRank, FieldOfPlay fop) {
-		sattempts = Json.createArray();
-		cattempts = Json.createArray();
+		setSattempts(Json.createArray());
+		setCattempts(Json.createArray());
 		XAthlete x = new XAthlete(a);
 		Integer curLift = x.getAttemptsDone();
 		int ix = 0;
@@ -1034,9 +684,9 @@ public class Results extends LitTemplate
 			}
 
 			if (ix < 3) {
-				sattempts.set(ix, jri);
+				getSattempts().set(ix, jri);
 			} else {
-				cattempts.set(ix % 3, jri);
+				getCattempts().set(ix % 3, jri);
 			}
 			ix++;
 		}
@@ -1068,6 +718,7 @@ public class Results extends LitTemplate
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
 			init();
+			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/attemptboard.css", wrapper.getRouteParameter(), this);
 			teamFlags = URLUtils.checkFlags();
 
 			// get the global category rankings (attached to each athlete)
@@ -1083,10 +734,6 @@ public class Results extends LitTemplate
 		getElement().setProperty("showLiftRanks",
 		        Competition.getCurrent().isSnatchCJTotalMedals() && !Competition.getCurrent().isSinclair());
 		SoundUtils.enableAudioContextNotification(this.getElement());
-	}
-
-	protected void setAbbreviateName(boolean abbreviateNames) {
-		this.setAbbreviatedName(abbreviateNames);
 	}
 
 	protected void setTranslationMap() {
@@ -1115,7 +762,7 @@ public class Results extends LitTemplate
 		displayOrder = getOrder(fop);
 		spotlightRecords(fop);
 
-		doChangeEmSize();
+		wrapper.doChangeEmSize();
 		if (liftType != null && curGroup != null && !curGroup.isDone()) {
 			this.getElement().setProperty("displayType", getDisplayType());
 		}
@@ -1130,14 +777,14 @@ public class Results extends LitTemplate
 			        : Translator.translate("Scoreboard.DescriptionLiftTypeFormat", groupDescription, liftType);
 			setGroupNameProperty(value);
 			liftsDone = AthleteSorter.countLiftsDone(displayOrder);
-			if ((isSwitchableDisplay() || isVideo())) {
+			if ((wrapper.isSwitchableDisplay() || wrapper.isVideo())) {
 				setLiftsDoneProperty("");
 			} else {
 				setLiftsDoneProperty(" \u2013 " + Translator.translate("Scoreboard.AttemptsDone", liftsDone));
 			}
 		} else {
 			// logger.debug("case 4 {}", isSwitchableDisplay());
-			if ((isSwitchableDisplay() || isVideo()) && groupDescription != null) {
+			if ((wrapper.isSwitchableDisplay() || wrapper.isVideo()) && groupDescription != null) {
 				setLiftsDoneProperty(groupDescription);
 				setGroupDescriptionProperty("");
 			}
@@ -1229,7 +876,7 @@ public class Results extends LitTemplate
 	}
 
 	private boolean showCurrent(FieldOfPlay fop) {
-		if (isSwitchableDisplay() && fop.getState() == FOPState.BREAK && fop.getCeremonyType() != null) {
+		if (wrapper.isSwitchableDisplay() && fop.getState() == FOPState.BREAK && fop.getCeremonyType() != null) {
 			return false;
 		}
 		return true;
@@ -1279,6 +926,68 @@ public class Results extends LitTemplate
 			setDisplay();
 			doUpdate(e.getAthlete(), e);
 		}
+	}
+
+	public final AbstractDisplayPage getWrapper() {
+		return wrapper;
+	}
+
+	public void setLeadersDisplay(boolean b) {
+		wrapper.setShowLeaders(b);
+	}
+
+	public void setRecordsDisplay(boolean b) {
+		wrapper.setRecordsDisplay(b);
+	}
+
+	public AthleteTimerElement getTimer() {
+		return timer;
+	}
+
+	public void setTimer(AthleteTimerElement timer) {
+		this.timer = timer;
+	}
+
+	public BreakTimerElement getBreakTimer() {
+		return breakTimer;
+	}
+
+	public void setBreakTimer(BreakTimerElement breakTimer) {
+		this.breakTimer = breakTimer;
+	}
+
+	public DecisionElement getDecisions() {
+		return decisions;
+	}
+
+	public void setDecisions(DecisionElement decisions) {
+		this.decisions = decisions;
+	}
+
+	public JsonArray getSattempts() {
+		return sattempts;
+	}
+
+	public void setSattempts(JsonArray sattempts) {
+		this.sattempts = sattempts;
+	}
+
+	public JsonArray getCattempts() {
+		return cattempts;
+	}
+
+	public void setCattempts(JsonArray cattempts) {
+		this.cattempts = cattempts;
+	}
+
+	@Override
+	public void setVideo(boolean b) {
+		wrapper.setVideo(b);
+	}
+
+	@Override
+	public boolean isVideo() {
+		return wrapper.isVideo();
 	}
 
 }

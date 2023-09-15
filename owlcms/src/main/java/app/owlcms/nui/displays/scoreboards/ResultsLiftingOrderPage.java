@@ -10,14 +10,14 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.queryparameters.ContentParameters;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.data.config.Config;
-import app.owlcms.displays.scoreboard.Results;
+import app.owlcms.displays.scoreboard.ResultsLiftingOrder;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 @Route("displays/resultsLiftingOrder")
 
-public class ResultsLiftingOrderPage extends AbstractScoreboardPage {
+public class ResultsLiftingOrderPage extends AbstractResultsDisplayPage {
 	
 	Logger logger = (Logger) LoggerFactory.getLogger(ResultsLiftingOrderPage.class);
 	
@@ -31,7 +31,7 @@ public class ResultsLiftingOrderPage extends AbstractScoreboardPage {
 				DisplayParameters.ABBREVIATED, Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames"))
 				)));
 		
-		var board = new Results(this);
+		var board = new ResultsLiftingOrder(this);
 		board.setLeadersDisplay(true);
 		board.setRecordsDisplay(true);
 		this.addComponent(board);

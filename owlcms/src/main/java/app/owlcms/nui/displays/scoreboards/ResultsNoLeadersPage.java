@@ -9,14 +9,14 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.ContentParameters;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
-import app.owlcms.displays.scoreboard.Results;
+import app.owlcms.displays.scoreboard.ResultsNoLeaders;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 @Route("displays/results")
 
-public class ResultsNoLeadersPage extends AbstractScoreboardPage {
+public class ResultsNoLeadersPage extends AbstractResultsDisplayPage {
 	
 	Logger logger = (Logger) LoggerFactory.getLogger(ResultsNoLeadersPage.class);
 	
@@ -29,7 +29,7 @@ public class ResultsNoLeadersPage extends AbstractScoreboardPage {
 				DisplayParameters.RECORDS, "false"
 				)));
 		
-		var board = new Results(this);
+		var board = new ResultsNoLeaders(this);
 		board.setLeadersDisplay(false);
 		board.setRecordsDisplay(false);
 		this.addComponent(board);

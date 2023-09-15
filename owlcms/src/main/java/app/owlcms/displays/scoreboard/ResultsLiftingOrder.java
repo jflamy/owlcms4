@@ -5,15 +5,13 @@ import java.util.function.BiPredicate;
 
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.displays.scoreboards.ResultsLiftingOrderPage;
 
 @SuppressWarnings({ "serial", "deprecation" })
-@Route("displays/resultsLiftingOrder")
 
 @Tag("results-template")
 @JsModule("./components/Results.js")
@@ -21,14 +19,15 @@ import app.owlcms.init.OwlcmsSession;
 
 public class ResultsLiftingOrder extends Results {
 
-	@Override
-	public String getDisplayType() {
-		return Translator.translate("Scoreboard.LiftingOrder") + ": ";
+	public ResultsLiftingOrder(ResultsLiftingOrderPage page) {
+		super();
+		this.setWrapper(page);
+		getWrapper().setBoard(this);
 	}
 
 	@Override
-	public String getPageTitle() {
-		return getTranslation("Scoreboard.LiftingOrder") + OwlcmsSession.getFopNameIfMultiple();
+	public String getDisplayType() {
+		return Translator.translate("Scoreboard.LiftingOrder") + ": ";
 	}
 
 	@Override

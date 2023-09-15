@@ -35,7 +35,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
-import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.ContextFreeDisplayParameters;
@@ -55,6 +54,8 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.displays.AbstractDisplayPage;
+import app.owlcms.nui.displays.scoreboards.ResultsMedalsPage;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.HasBoardMode;
 import app.owlcms.nui.shared.RequireDisplayLogin;
@@ -82,7 +83,6 @@ import elemental.json.JsonValue;
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("resultsmedals-template")
 @JsModule("./components/ResultsMedals.js")
-@Route("displays/resultsMedals")
 
 public class ResultsMedals extends LitTemplate
         implements ContextFreeDisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
@@ -119,6 +119,7 @@ public class ResultsMedals extends LitTemplate
 	DecimalFormat df = new DecimalFormat("0.000");
 	private boolean abbreviatedName;
 	private long lastDialogClick;
+	private AbstractDisplayPage wrapper;
 
 	/**
 	 * Instantiates a new results board.
@@ -130,6 +131,12 @@ public class ResultsMedals extends LitTemplate
 		// js files add the build number to file names in order to prevent cache
 		// collisions
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
+	}
+
+	public ResultsMedals(ResultsMedalsPage page) {
+		this();
+		this.setWrapper(page);
+		getWrapper().setBoard(this);
 	}
 
 	/**
@@ -277,6 +284,10 @@ public class ResultsMedals extends LitTemplate
 		return urlParameterMap;
 	}
 
+	public AbstractDisplayPage getWrapper() {
+		return wrapper;
+	}
+
 	@Override
 	public boolean isAbbreviatedName() {
 		return this.abbreviatedName;
@@ -410,6 +421,10 @@ public class ResultsMedals extends LitTemplate
 	@Override
 	public void setVideo(boolean video) {
 		this.video = video;
+	}
+
+	public final void setWrapper(AbstractDisplayPage wrapper) {
+		this.wrapper = wrapper;
 	}
 
 	@Subscribe

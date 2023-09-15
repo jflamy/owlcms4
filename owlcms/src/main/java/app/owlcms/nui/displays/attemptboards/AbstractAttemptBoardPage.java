@@ -14,7 +14,6 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
-import app.owlcms.displays.attemptboard.AbstractAttemptBoard;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.displays.AbstractDisplayPage;
@@ -30,19 +29,13 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
-public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage implements SoundEntries, HasDynamicTitle {
+public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage implements SoundEntries, DisplayParameters, HasDynamicTitle {
 	
 	Logger logger = (Logger) LoggerFactory.getLogger(AbstractAttemptBoardPage.class);
-
-	protected AbstractAttemptBoard board;
 
 	@Override
 	public void addDialogContent(Component page, VerticalLayout vl) {
 		addSoundEntries(vl, page, (DisplayParameters) page);
-	}
-
-	public AbstractAttemptBoard getBoard() {
-		return board;
 	}
 
 	@Override
@@ -65,20 +58,16 @@ public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage imple
 		return super.isVideo();
 	}
 
-	public void setBoard(AbstractAttemptBoard board) {
-		this.board = board;
-	}
-
 	@Override
 	public void setDownSilenced(boolean silent) {
 		super.setDownSilenced(silent);
-		getBoard().setDownSilenced(silent);
+		((SoundEntries) getBoard()).setDownSilenced(silent);
 	}
 
 	@Override
 	public void setSilenced(boolean silent) {
 		super.setSilenced(silent);
-		getBoard().setSilenced(silent);
+		((SoundEntries) getBoard()).setSilenced(silent);
 	}
 
 	/**

@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
@@ -17,36 +18,40 @@ import app.owlcms.apputils.queryparameters.DisplayParameters;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-public abstract class AbstractDisplayPage extends VerticalLayout implements DisplayParameters {
+public abstract class AbstractDisplayPage extends Div implements DisplayParameters {
 	
-	Logger logger = (Logger) LoggerFactory.getLogger(AbstractDisplayPage.class);
-
+	protected boolean downSilenced;
+	protected String routeParameter;
+	protected boolean silenced;
+	
+	private Logger logger = (Logger) LoggerFactory.getLogger(AbstractDisplayPage.class);
+	
+	private Component board = null;
 	private boolean darkMode;
+	private QueryParameters defaultParameters;
 	private Dialog dialog;
 	private Timer dialogTimer;
 	private Location location;
 	private UI locationUI;
-	private String routeParameter;
 	private boolean showInitialDialog;
-	private boolean silenced;
 	private Map<String, List<String>> urlParameterMap;
 	private boolean video;
-	private boolean downSilenced;
-	private QueryParameters defaultParameters;
 
 	public AbstractDisplayPage() {
 		this.addClickListener(c -> openDialog(getDialog()));
-		this.setSizeFull();
-		this.setMargin(false);
-		this.setPadding(false);
 	}
 
 	public void addComponent(Component display) {
+		display.addClassName(darkMode ? DisplayParameters.DARK : DisplayParameters.LIGHT);
 		this.add(display);
 	}
 
 	@Override
 	public abstract void addDialogContent(Component target, VerticalLayout vl);
+
+	public Component getBoard() {
+		return board;
+	}
 
 	@Override
 	public QueryParameters getDefaultParameters() {
@@ -83,6 +88,10 @@ public abstract class AbstractDisplayPage extends VerticalLayout implements Disp
 		return urlParameterMap;
 	}
 
+	public AbstractDisplayPage getWrapper() {
+		return this;
+	}
+
 	@Override
 	public boolean isDarkMode() {
 		return darkMode;
@@ -105,9 +114,18 @@ public abstract class AbstractDisplayPage extends VerticalLayout implements Disp
 		return silenced;
 	}
 
+	public boolean isSwitchableDisplay() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 	@Override
 	public boolean isVideo() {
 		return video;
+	}
+
+	public void setBoard(Component board) {
+		this.board = board;
 	}
 
 	@Override
@@ -151,7 +169,7 @@ public abstract class AbstractDisplayPage extends VerticalLayout implements Disp
 	public void setRouteParameter(String routeParameter) {
 		this.routeParameter = routeParameter;
 	}
-
+	
 	@Override
 	public void setShowInitialDialog(boolean showInitialDialog) {
 		this.showInitialDialog = showInitialDialog;

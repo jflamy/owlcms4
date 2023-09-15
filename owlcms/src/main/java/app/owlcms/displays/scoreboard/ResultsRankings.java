@@ -9,13 +9,13 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.ContextFreeDisplayParameters;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.nui.displays.scoreboards.ResultsRankingsPage;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -25,11 +25,16 @@ import elemental.json.JsonValue;
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("resultsmedals-template")
 @JsModule("./components/ResultsMedals.js")
-@Route("displays/resultsRankings")
 
 public class ResultsRankings extends ResultsMedals implements ContextFreeDisplayParameters {
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsMedals.class);
+	
+	public ResultsRankings(ResultsRankingsPage page) {
+		super();
+		this.setWrapper(page);
+		getWrapper().setBoard(this);
+	}
 
 	protected JsonValue getAthletesJson(List<Athlete> rankingOrder, final FieldOfPlay _unused) {
 		JsonArray jath = Json.createArray();

@@ -17,7 +17,7 @@ class Results extends LitElement {
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "results" + (this.autoversion ?? "") + ".css"}" />
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "resultsCustomization" + (this.autoversion ?? "") + ".css"}" />
 
-      <div class="${this.wrapperClasses()}"  style="${this.sizeOverride}" @click="${this._handleClick}">
+      <div class="${this.wrapperClasses()}"  style="${this.sizeOverride}">
         <div class="blockPositioningWrapper">
           <div class="waiting" style="${this.waitingStyles()}">
             <div>
@@ -314,7 +314,6 @@ class Results extends LitElement {
     console.debug("ready");
     super.firstUpdated(_changedProperties);
     document.body.setAttribute("theme", "dark");
-    this.$server.openDialog();
   }
 
   start() {
@@ -422,10 +421,6 @@ class Results extends LitElement {
 
   isCountdown() {
     return  this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN"
-  }
-
-  _handleClick() {
-    this.$server.openDialog();
   }
 
   constructor() {

@@ -9,7 +9,6 @@ package app.owlcms.displays.attemptboard;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 
-import app.owlcms.nui.displays.AbstractDisplayPage;
 import app.owlcms.nui.displays.attemptboards.AbstractAttemptBoardPage;
 
 @SuppressWarnings("serial")
@@ -34,7 +33,7 @@ public class DecisionBoard extends AbstractAttemptBoard {
 	}
 	
 	@Override
-	public AbstractDisplayPage getWrapper() {
+	public AbstractAttemptBoardPage getWrapper() {
 		return wrapper;
 	}
 }

@@ -6,19 +6,13 @@
  *******************************************************************************/
 package app.owlcms.displays.scoreboard;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.router.Location;
-import com.vaadin.flow.router.Route;
 
 import app.owlcms.init.OwlcmsFactory;
-import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.displays.scoreboards.ResultsNoLeadersPage;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -31,7 +25,7 @@ import ch.qos.logback.classic.Logger;
 @Tag("results-template")
 @JsModule("./components/Results.js")
 @JsModule("./components/AudioContext.js")
-@Route("displays/results")
+
 
 public class ResultsNoLeaders extends Results {
 
@@ -42,32 +36,14 @@ public class ResultsNoLeaders extends Results {
 	 */
 	public ResultsNoLeaders() {
 		OwlcmsFactory.waitDBInitialized();
-		timer.setOrigin(this);
-		setDarkMode(true);
-		setDefaultLeadersDisplay(false);
-		setDefaultRecordsDisplay(false);
-		setLeadersDisplay(isDefaultLeadersDisplay());
-		setRecordsDisplay(isDefaultRecordsDisplay());
+		getTimer().setOrigin(this);
+		getWrapper().setDarkMode(true);
 	}
-
-	@Override
-	public String getPageTitle() {
-		return getTranslation("Scoreboard") + OwlcmsSession.getFopNameIfMultiple();
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
-	 *      java.util.Map)
-	 */
-	@Override
-	public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
-		HashMap<String, List<String>> params1 = super.readParams(location, parametersMap);
-
-		if (getDialog() == null) {
-			buildDialog(this);
-		}
-		setUrlParameterMap(params1);
-		return params1;
+	
+	public ResultsNoLeaders(ResultsNoLeadersPage page) {
+		this();
+		this.setWrapper(page);
+		getWrapper().setBoard(this);
 	}
 
 }

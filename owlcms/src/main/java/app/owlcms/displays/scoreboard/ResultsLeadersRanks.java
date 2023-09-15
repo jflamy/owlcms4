@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
@@ -24,6 +23,7 @@ import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.displays.scoreboards.ResultsLeadersRanksPage;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -37,7 +37,7 @@ import elemental.json.JsonValue;
 @Tag("resultsfull-template")
 @JsModule("./components/ResultsLeadersRanks.js")
 @JsModule("./components/AudioContext.js")
-@Route("displays/resultsLeadersRanks")
+
 
 public class ResultsLeadersRanks extends Results {
 
@@ -49,13 +49,14 @@ public class ResultsLeadersRanks extends Results {
 	 */
 	public ResultsLeadersRanks() {
 		OwlcmsFactory.waitDBInitialized();
-		timer.setOrigin(this);
-		setDarkMode(true);
+		getTimer().setOrigin(this);
+		getWrapper().setDarkMode(true);
 	}
 
-	@Override
-	public String getPageTitle() {
-		return getTranslation("ScoreboardMultiRanksTitle") + OwlcmsSession.getFopNameIfMultiple();
+	public ResultsLeadersRanks(ResultsLeadersRanksPage page) {
+		this();
+		this.setWrapper(page);
+		getWrapper().setBoard(this);
 	}
 	
 	@Override
@@ -87,7 +88,7 @@ public class ResultsLeadersRanks extends Results {
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 		String category;
 		category = curCat != null ? curCat.getTranslatedName() : "";
-		if (isAbbreviatedName()) {
+		if (getWrapper().isAbbreviatedName()) {
 			ja.put("fullName", a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
 		} else {
 			ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
@@ -99,9 +100,9 @@ public class ResultsLeadersRanks extends Results {
 		ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
 		ja.put("category", category != null ? category : "");
 		getAttemptsJson(a, liftOrderRank, fop);
-		ja.put("sattempts", sattempts);
+		ja.put("sattempts", getSattempts());
 		ja.put("bestSnatch", formatInt(a.getBestSnatch()));
-		ja.put("cattempts", cattempts);
+		ja.put("cattempts", getCattempts());
 		ja.put("bestCleanJerk", formatInt(a.getBestCleanJerk()));
 		ja.put("total", formatInt(a.getTotal()));
 		setCurrentAthleteParticipations(a);

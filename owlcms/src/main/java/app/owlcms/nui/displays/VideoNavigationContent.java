@@ -35,11 +35,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.displays.scoreboard.CurrentAthlete;
-import app.owlcms.displays.scoreboard.Results;
-import app.owlcms.displays.scoreboard.ResultsLeadersRanks;
 import app.owlcms.displays.scoreboard.ResultsMedals;
-import app.owlcms.displays.scoreboard.ResultsNoLeaders;
-import app.owlcms.displays.scoreboard.ResultsRankingOrder;
 import app.owlcms.displays.scoreboard.ResultsRankings;
 import app.owlcms.displays.video.StreamingEventMonitor;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -48,6 +44,10 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.monitors.OBSMonitor;
 import app.owlcms.nui.displays.attemptboards.PublicFacingAttemptBoardPage;
 import app.owlcms.nui.displays.attemptboards.PublicFacingDecisionBoardPage;
+import app.owlcms.nui.displays.scoreboards.ResultsBoardPage;
+import app.owlcms.nui.displays.scoreboards.ResultsLeadersRanksPage;
+import app.owlcms.nui.displays.scoreboards.ResultsNoLeadersPage;
+import app.owlcms.nui.displays.scoreboards.ResultsRankingOrderPage;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.NavigationPage;
@@ -99,12 +99,12 @@ public class VideoNavigationContent extends BaseNavigationContent
 		doGroup(getTranslation("RefereeDecisions"), grid31, this);
 
 		
-		Button scoreboard = openInNewTab(ResultsNoLeaders.class, getTranslation("Scoreboard"), "video");
-		Button scoreboardWLeaders = openInNewTab(Results.class, getTranslation("ScoreboardWLeadersButton"), "video");
+		Button scoreboard = openInNewTab(ResultsNoLeadersPage.class, getTranslation("Scoreboard"), "video");
+		Button scoreboardWLeaders = openInNewTab(ResultsBoardPage.class, getTranslation("ScoreboardWLeadersButton"), "video");
 		scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
-		Button scoreboardMultiRanks = openInNewTab(ResultsLeadersRanks.class,
+		Button scoreboardMultiRanks = openInNewTab(ResultsLeadersRanksPage.class,
 		        getTranslation("ScoreboardMultiRanksButton"), "video");
-		Button scoreboardRankings = openInNewTab(ResultsRankingOrder.class,
+		Button scoreboardRankings = openInNewTab(ResultsRankingOrderPage.class,
 		        getTranslation("Scoreboard.RankingOrderButton"), "video");
 
 		List<Group> groups = GroupRepository.findAll();
