@@ -25,8 +25,6 @@ import app.owlcms.nui.displays.SoundEntries;
 public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
         implements SoundEntries, DisplayParameters, HasDynamicTitle {
 
-	private Results board;
-
 	// FIXME: normalize where the parameter values from the dialog are stored
 	private Double emFontSize;
 	private boolean showLeaders;
@@ -52,7 +50,7 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 		String formattedEm = null;
 		if (emFontSize != null) {
 			formattedEm = df.format(emFontSize);
-			board.getElement().setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "rem;");
+			getBoard().getElement().setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "rem;");
 		}
 		updateURLLocation(getLocationUI(), getLocation(), FONTSIZE,
 		        emFontSize != null ? formattedEm : null);
@@ -63,7 +61,7 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 
 		if (teamWidth != null) {
 			formattedTW = df.format(teamWidth);
-			board.getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
+			getBoard().getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
 		}
 		updateURLLocation(getLocationUI(), getLocation(), TEAMWIDTH, teamWidth != null ? formattedTW : null);
 	}
@@ -92,13 +90,9 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 		return showRecords;
 	}
 
-	public final void setBoard(Results board) {
-		this.board = board;
-	}
-
 	@Override
 	public void setDownSilenced(boolean silenced) {
-		board.getDecisions().setSilenced(silenced);
+		((Results) getBoard()).getDecisions().setSilenced(silenced);
 		this.downSilenced = silenced;
 	}
 
@@ -134,6 +128,7 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 	 */
 	@Override
 	public void setSilenced(boolean silenced) {
+		Results board = (Results) getBoard();
 		board.getTimer().setSilenced(silenced);
 		board.getBreakTimer().setSilenced(silenced);
 		this.silenced = silenced;

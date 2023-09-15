@@ -44,19 +44,12 @@ public class ResultsLeadersRanks extends Results {
 	protected Logger logger = (Logger) LoggerFactory.getLogger(ResultsLeadersRanks.class);
 	private LinkedHashMap<String, Participation> ageGroupMap;
 
-	/**
-	 * Instantiates a new results board.
-	 */
-	public ResultsLeadersRanks() {
-		OwlcmsFactory.waitDBInitialized();
-		getTimer().setOrigin(this);
-		getWrapper().setDarkMode(true);
-	}
-
 	public ResultsLeadersRanks(ResultsLeadersRanksPage page) {
-		this();
+		OwlcmsFactory.waitDBInitialized();
 		this.setWrapper(page);
 		getWrapper().setBoard(this);
+		getTimer().setOrigin(this);
+		getWrapper().setDarkMode(true);
 	}
 	
 	@Override

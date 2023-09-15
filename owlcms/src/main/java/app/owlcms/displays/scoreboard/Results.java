@@ -227,7 +227,7 @@ public class Results extends LitTemplate
 		ja.put("flagClass", "flags");
 	}
 
-	public void setWrapper(AbstractResultsDisplayPage wrapper) {
+	final public void setWrapper(AbstractResultsDisplayPage wrapper) {
 		this.wrapper = wrapper;
 	}
 
