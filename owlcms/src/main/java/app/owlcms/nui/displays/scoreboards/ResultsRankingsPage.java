@@ -21,6 +21,12 @@ public class ResultsRankingsPage extends ResultsMedalsPage {
 	Logger logger = (Logger) LoggerFactory.getLogger(ResultsRankingsPage.class);
 
 	public ResultsRankingsPage() {
+		var board = new ResultsRankings(this);
+		this.setBoard(board);
+		board.setLeadersDisplay(true);
+		board.setRecordsDisplay(true);
+		this.addComponent(board);
+		
 		setDefaultParameters(QueryParameters.simple(Map.of(
 		        ContentParameters.SILENT, "true",
 		        ContentParameters.DOWNSILENT, "true",
@@ -29,11 +35,6 @@ public class ResultsRankingsPage extends ResultsMedalsPage {
 		        DisplayParameters.RECORDS, "true",
 		        DisplayParameters.ABBREVIATED,
 		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
-
-		var board = new ResultsRankings(this);
-		board.setLeadersDisplay(true);
-		board.setRecordsDisplay(true);
-		this.addComponent(board);
 	}
 
 	@Override

@@ -21,17 +21,18 @@ public class ResultsNoLeadersPage extends ResultsBoardPage {
 	Logger logger = (Logger) LoggerFactory.getLogger(ResultsNoLeadersPage.class);
 
 	public ResultsNoLeadersPage() {
+		var board = new ResultsNoLeaders(this);
+		this.setBoard(board);
+		board.setLeadersDisplay(false);
+		board.setRecordsDisplay(false);
+		this.addComponent(board);
+		
 		setDefaultParameters(QueryParameters.simple(Map.of(
 		        ContentParameters.SILENT, "true",
 		        ContentParameters.DOWNSILENT, "true",
 		        DisplayParameters.DARK, "true",
 		        DisplayParameters.LEADERS, "false",
 		        DisplayParameters.RECORDS, "false")));
-
-		var board = new ResultsNoLeaders(this);
-		board.setLeadersDisplay(false);
-		board.setRecordsDisplay(false);
-		this.addComponent(board);
 	}
 
 	@Override

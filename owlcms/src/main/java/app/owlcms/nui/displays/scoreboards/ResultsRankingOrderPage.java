@@ -22,6 +22,12 @@ public class ResultsRankingOrderPage extends AbstractResultsDisplayPage {
 	Logger logger = (Logger) LoggerFactory.getLogger(ResultsRankingOrderPage.class);
 
 	public ResultsRankingOrderPage() {
+		var board = new ResultsRankingOrder(this);
+		this.setBoard(board);
+		board.setLeadersDisplay(true);
+		board.setRecordsDisplay(true);
+		this.addComponent(board);
+		
 		setDefaultParameters(QueryParameters.simple(Map.of(
 		        ContentParameters.SILENT, "true",
 		        ContentParameters.DOWNSILENT, "true",
@@ -30,11 +36,6 @@ public class ResultsRankingOrderPage extends AbstractResultsDisplayPage {
 		        DisplayParameters.RECORDS, "true",
 		        DisplayParameters.ABBREVIATED,
 		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
-
-		var board = new ResultsRankingOrder(this);
-		board.setLeadersDisplay(true);
-		board.setRecordsDisplay(true);
-		this.addComponent(board);
 	}
 
 	@Override

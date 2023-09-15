@@ -35,6 +35,7 @@ public class ResultsBoardPage extends AbstractResultsDisplayPage {
 
 	public ResultsBoardPage() {
 		var board = new Results(this);
+		this.setBoard(board);
 		board.setLeadersDisplay(true);
 		board.setRecordsDisplay(true);
 		this.addComponent(board);

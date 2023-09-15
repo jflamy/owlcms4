@@ -30,6 +30,7 @@ public class CurrentAthletePage extends AbstractResultsDisplayPage {
 
 	public CurrentAthletePage() {
 		var board = new CurrentAthlete(this);
+		this.setBoard(board);
 		board.setLeadersDisplay(true);
 		board.setRecordsDisplay(true);
 		this.addComponent(board);
