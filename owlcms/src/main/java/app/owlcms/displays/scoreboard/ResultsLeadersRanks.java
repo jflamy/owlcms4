@@ -45,9 +45,8 @@ public class ResultsLeadersRanks extends Results {
 	private LinkedHashMap<String, Participation> ageGroupMap;
 
 	public ResultsLeadersRanks(ResultsLeadersRanksPage page) {
+		super(page);
 		OwlcmsFactory.waitDBInitialized();
-		this.setWrapper(page);
-		getWrapper().setBoard(this);
 		getTimer().setOrigin(this);
 		getWrapper().setDarkMode(true);
 	}

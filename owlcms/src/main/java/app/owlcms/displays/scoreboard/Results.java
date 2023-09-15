@@ -108,25 +108,7 @@ public class Results extends LitTemplate
 
 	private AbstractResultsDisplayPage wrapper;
 
-	/**
-	 * Instantiates a new results board.
-	 */
-	public Results() {
-//		OwlcmsFactory.waitDBInitialized();
-//		timer.setOrigin(this);
-//		setDarkMode(true);
-//		setDefaultLeadersDisplay(true);
-//		setDefaultRecordsDisplay(true);
-//		setLeadersDisplay(isDefaultLeadersDisplay());
-//		setRecordsDisplay(isDefaultRecordsDisplay());
-//		// js files add the build number to file names in order to prevent cache
-//		// collisions
-//		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
-//		setAbbreviatedName(Config.getCurrent().featureSwitch("shortScoreboardNames"));
-	}
-
 	public Results(AbstractResultsDisplayPage resultsBoardPage) {
-		this();
 		this.wrapper = resultsBoardPage;
 		wrapper.setBoard(this);
 	}

@@ -11,7 +11,7 @@
         <mapEntry key="OWLCMS_INITIALDATA" value="LARGEGROUP_DEMO"/>
         <mapEntry key="OWLCMS_LOCALE" value="en"/>
         <mapEntry key="OWLCMS_MEMORYMODE" value="true"/>
-        <mapEntry key="OWLCMS_PORT" value="8080"/>
+        <mapEntry key="OWLCMS_PORT" value="8081"/>
         <mapEntry key="OWLCMS_RESETMODE" value="true"/>
     </mapAttribute>
     <mapAttribute key="org.eclipse.debug.core.preferred_launchers">

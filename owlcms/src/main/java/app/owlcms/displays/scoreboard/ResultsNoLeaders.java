@@ -30,14 +30,8 @@ public class ResultsNoLeaders extends Results {
 	Logger logger = (Logger) LoggerFactory.getLogger(ResultsNoLeaders.class);
 	
 	public ResultsNoLeaders(ResultsNoLeadersPage page) {
-		this.setWrapper(page);
-		logger.warn("-----1 {} {}",page,getWrapper());
-		getWrapper().setBoard(this);
-		logger.warn("-----2 {} {}",this, getWrapper().getBoard());
+		super(page);
 		getWrapper().setDarkMode(true);
-		logger.warn("-----3 {} {}",page.isDarkMode(), getWrapper().isDarkMode());
-		getTimer().setOrigin(this);
-
 	}
 
 }
