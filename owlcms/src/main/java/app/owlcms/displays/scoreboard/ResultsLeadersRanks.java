@@ -45,10 +45,9 @@ public class ResultsLeadersRanks extends Results {
 	private LinkedHashMap<String, Participation> ageGroupMap;
 
 	public ResultsLeadersRanks(ResultsLeadersRanksPage page) {
-		super(page);
+		super();
 		OwlcmsFactory.waitDBInitialized();
 		getTimer().setOrigin(this);
-		getWrapper().setDarkMode(true);
 	}
 	
 	@Override
@@ -80,7 +79,7 @@ public class ResultsLeadersRanks extends Results {
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 		String category;
 		category = curCat != null ? curCat.getTranslatedName() : "";
-		if (getWrapper().isAbbreviatedName()) {
+		if (isAbbreviatedName()) {
 			ja.put("fullName", a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
 		} else {
 			ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");

@@ -34,7 +34,7 @@ public class ResultsBoardPage extends AbstractResultsDisplayPage {
 	private long lastShortcut;
 
 	public ResultsBoardPage() {
-		var board = new Results(this);
+		var board = new Results();
 		this.setBoard(board);
 		board.setLeadersDisplay(true);
 		board.setRecordsDisplay(true);

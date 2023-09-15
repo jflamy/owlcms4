@@ -52,7 +52,6 @@ import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.nui.displays.AbstractDisplayPage;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.HasBoardMode;
 import app.owlcms.nui.shared.RequireDisplayLogin;
@@ -104,7 +103,6 @@ public class Results extends LitTemplate
 	private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private boolean teamFlags;
-	private AbstractDisplayPage wrapper;
 	private FieldOfPlay fop;
 	private Group group;
 	private Location location;
@@ -120,8 +118,7 @@ public class Results extends LitTemplate
 	private final DecimalFormat df = new DecimalFormat("0.000");
 	private boolean video;
 
-	public Results(AbstractDisplayPage resultsBoardPage) {
-		this.wrapper = resultsBoardPage;
+	public Results() {
 	}
 
 	public void doChangeEmSize() {
@@ -150,7 +147,7 @@ public class Results extends LitTemplate
 			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
 
 			String title = inferGroupName() + " &ndash; "
-			        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), wrapper.isPublicDisplay());
+			        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), isPublicDisplay());
 			this.getElement().setProperty("fullName", title);
 			this.getElement().setProperty("teamName", "");
 			this.getElement().setProperty("attempt", "");
@@ -177,7 +174,7 @@ public class Results extends LitTemplate
 		ceremonyCategory = e.getCeremonyCategory();
 		// logger.debug("------ ceremony event = {} {}", e, e.getTrace());
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			if (e.getCeremonyType() == CeremonyType.MEDALS && wrapper.isPublicDisplay() && ceremonyGroup != null) {
+			if (e.getCeremonyType() == CeremonyType.MEDALS && isPublicDisplay() && ceremonyGroup != null) {
 				Map<String, String> map = new HashMap<>(Map.of(
 				        FOPParameters.FOP, fop.getName(),
 				        FOPParameters.GROUP, ceremonyGroup.getName(),
@@ -194,7 +191,7 @@ public class Results extends LitTemplate
 				// logger.debug("========== NOT {} {} {}",e.getCeremonyType(),
 				// this.isSwitchableDisplay(), ceremonyGroup);
 				String title = inferGroupName() + " &ndash; "
-				        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), wrapper.isPublicDisplay());
+				        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), isPublicDisplay());
 				this.getElement().setProperty("fullName", title);
 				this.getElement().setProperty("teamName", "");
 				setGroupNameProperty("");
@@ -248,10 +245,6 @@ public class Results extends LitTemplate
 		return urlParameterMap;
 	}
 
-	public final AbstractDisplayPage getWrapper() {
-		return wrapper;
-	}
-
 	public final boolean isShowInitialDialog() {
 		return false;
 	}
@@ -293,6 +286,7 @@ public class Results extends LitTemplate
 	@Override
 	public void setLeadersDisplay(boolean b) {
 		this.leadersDisplay = b;
+		this.getElement().setProperty("showLeaders", b);
 	}
 
 	final public void setLocation(Location location) {
@@ -307,6 +301,7 @@ public class Results extends LitTemplate
 	@Override
 	public void setRecordsDisplay(boolean b) {
 		this.recordsDisplay = b;
+		this.getElement().setProperty("showRecords", b);
 	}
 
 	public void setSattempts(JsonArray sattempts) {
@@ -345,11 +340,7 @@ public class Results extends LitTemplate
 
 	@Override
 	public void setVideo(boolean b) {
-		wrapper.setVideo(b);
-	}
-
-	final public void setWrapper(AbstractDisplayPage wrapper) {
-		this.wrapper = wrapper;
+		this.video = b;
 	}
 
 	@Subscribe
@@ -592,7 +583,7 @@ public class Results extends LitTemplate
 			if (a != null) {
 				Group group = fop.getGroup();
 				if (group != null && !group.isDone()) {
-					if (wrapper.isAbbreviatedName()) {
+					if (isAbbreviatedName()) {
 						this.getElement().setProperty("fullName",
 						        a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
 					} else {
@@ -643,7 +634,7 @@ public class Results extends LitTemplate
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 		String category;
 		category = curCat != null ? curCat.getTranslatedName() : "";
-		if (wrapper.isAbbreviatedName()) {
+		if (isAbbreviatedName()) {
 			ja.put("fullName", a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
 		} else {
 			ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
@@ -841,7 +832,7 @@ public class Results extends LitTemplate
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
 			init();
-			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/attemptboard.css", wrapper.getRouteParameter(),
+			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/attemptboard.css", getRouteParameter(),
 			        this);
 			teamFlags = URLUtils.checkFlags();
 
@@ -901,14 +892,14 @@ public class Results extends LitTemplate
 			        : Translator.translate("Scoreboard.DescriptionLiftTypeFormat", groupDescription, liftType);
 			setGroupNameProperty(value);
 			liftsDone = AthleteSorter.countLiftsDone(displayOrder);
-			if ((wrapper.isPublicDisplay() || wrapper.isVideo())) {
+			if ((isPublicDisplay() || isVideo())) {
 				setLiftsDoneProperty("");
 			} else {
 				setLiftsDoneProperty(" \u2013 " + Translator.translate("Scoreboard.AttemptsDone", liftsDone));
 			}
 		} else {
 			// logger.debug("case 4 {}", isSwitchableDisplay());
-			if ((wrapper.isPublicDisplay() || wrapper.isVideo()) && groupDescription != null) {
+			if ((isPublicDisplay() || isVideo()) && groupDescription != null) {
 				setLiftsDoneProperty(groupDescription);
 				setGroupDescriptionProperty("");
 			}
@@ -1000,7 +991,7 @@ public class Results extends LitTemplate
 	}
 
 	private boolean showCurrent(FieldOfPlay fop) {
-		if (wrapper.isPublicDisplay() && fop.getState() == FOPState.BREAK && fop.getCeremonyType() != null) {
+		if (isPublicDisplay() && fop.getState() == FOPState.BREAK && fop.getCeremonyType() != null) {
 			return false;
 		}
 		return true;

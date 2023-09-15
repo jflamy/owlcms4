@@ -290,6 +290,7 @@ class Results extends LitElement {
       decisionVisible: { type: Boolean }, // sub-mode of CURRENT_ATHLETE
 
       // dynamic styling
+      darkMode: {},
       teamWidthClass: {},
       sizeOverride: {},
       twOverride: {},
@@ -326,6 +327,7 @@ class Results extends LitElement {
 
   wrapperClasses() {
     var classes = "wrapper";
+    classes = classes + (this.darkMode ? " " + this.darkMode : "");
     classes = classes + (this.teamWidthClass ? " " + this.teamWidthClass : "");
     classes = classes + (this.mode === "WAIT" ? " bigTitle" : "");
     return classes;

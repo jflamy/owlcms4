@@ -79,7 +79,7 @@ public class TopSinclair extends Results {
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	public TopSinclair(AbstractDisplayPage page) {
-		super(page);
+		super();
 		uiEventLogger.setLevel(Level.INFO);
 		OwlcmsFactory.waitDBInitialized();
 		setDarkMode(true);

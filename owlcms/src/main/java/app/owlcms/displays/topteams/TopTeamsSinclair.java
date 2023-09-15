@@ -84,7 +84,7 @@ public class TopTeamsSinclair extends Results {
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	public TopTeamsSinclair(AbstractDisplayPage page) {
-		super(page);
+		super();
 		uiEventLogger.setLevel(Level.INFO);
 		OwlcmsFactory.waitDBInitialized();
 		setDarkMode(true);

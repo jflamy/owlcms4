@@ -81,7 +81,7 @@ public class TopTeams extends Results {
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	public TopTeams(AbstractDisplayPage page) {
-		super(page);
+		super();
 		uiEventLogger.setLevel(Level.INFO);
 		OwlcmsFactory.waitDBInitialized();
 		setDarkMode(true);

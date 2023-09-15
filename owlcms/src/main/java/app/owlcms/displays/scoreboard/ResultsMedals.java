@@ -83,7 +83,7 @@ public class ResultsMedals extends Results implements ContextFreeDisplayParamete
 	DecimalFormat df = new DecimalFormat("0.000");
 	
 	public ResultsMedals(ResultsMedalsPage page) {
-		super(page);
+		super();
 		uiEventLogger.setLevel(Level.INFO);
 		OwlcmsFactory.waitDBInitialized();
 		setDarkMode(true);

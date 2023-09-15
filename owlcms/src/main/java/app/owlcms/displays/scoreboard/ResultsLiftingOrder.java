@@ -20,7 +20,7 @@ import app.owlcms.nui.displays.scoreboards.ResultsLiftingOrderPage;
 public class ResultsLiftingOrder extends Results {
 
 	public ResultsLiftingOrder(ResultsLiftingOrderPage page) {
-		super(page);
+		super();
 	}
 
 	@Override
