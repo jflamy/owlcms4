@@ -1072,8 +1072,9 @@ public class Results extends LitTemplate
 	@Override
 	public final void setDarkMode(boolean dark) {
 		this.darkMode = dark;
-		// FIXME: is this the expected value
-		getElement().setProperty("dark", dark ? DisplayParameters.DARK : DisplayParameters.LIGHT);
+		logger.warn("getElement {}", getElement().getTag());
+		getElement().getClassList().set(DisplayParameters.DARK, dark);
+		getElement().getClassList().set(DisplayParameters.LIGHT, !dark);
 	}
 
 	@Override
