@@ -5,9 +5,10 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.router.QueryParameters;
 
+import app.owlcms.nui.displays.SoundEntries;
 import ch.qos.logback.classic.Logger;
 
-public interface ContentParameters extends FOPParameters {
+public interface ContentParameters extends FOPParameters, SoundEntries {
 
 	final Logger logger = (Logger) LoggerFactory.getLogger(ContentParameters.class);
 	public static final String SILENT = "silent";

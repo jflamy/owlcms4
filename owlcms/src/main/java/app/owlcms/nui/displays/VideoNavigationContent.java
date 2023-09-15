@@ -32,7 +32,6 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
-import app.owlcms.displays.scoreboard.CurrentAthlete;
 import app.owlcms.displays.scoreboard.ResultsMedals;
 import app.owlcms.displays.scoreboard.ResultsRankings;
 import app.owlcms.displays.video.StreamingEventMonitor;
@@ -42,6 +41,7 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.monitors.OBSMonitor;
 import app.owlcms.nui.displays.attemptboards.PublicFacingAttemptBoardPage;
 import app.owlcms.nui.displays.attemptboards.PublicFacingDecisionBoardPage;
+import app.owlcms.nui.displays.scoreboards.CurrentAthletePage;
 import app.owlcms.nui.displays.scoreboards.ResultsBoardPage;
 import app.owlcms.nui.displays.scoreboards.ResultsLeadersRanksPage;
 import app.owlcms.nui.displays.scoreboards.ResultsNoLeadersPage;
@@ -68,7 +68,6 @@ public class VideoNavigationContent extends BaseNavigationContent
 	static {
 		logger.setLevel(Level.INFO);
 	}
-
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 	private Category medalCategory;
 	private Group medalGroup;
@@ -83,22 +82,22 @@ public class VideoNavigationContent extends BaseNavigationContent
 		addP(intro, getTranslation("Button_Open_Display"));
 		intro.getStyle().set("margin-bottom", "0");
 		fillH(intro, this);
-		
-		
-		Button currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"), "video");
-		Button attempt = openInNewTab(PublicFacingAttemptBoardPage.class, getTranslation("AttemptBoard"), "video");
+
+		Button currentAthlete = openInNewTab(CurrentAthletePage.class, 
+				getTranslation("CurrentAthleteTitle"), "video");
+		Button attempt = openInNewTab(PublicFacingAttemptBoardPage.class, 
+				getTranslation("AttemptBoard"), "video");
 		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(attempt, currentAthlete);
 		doGroup(getTranslation("AttemptBoard"), grid3, this);
-		
-		
-		Button publicDecisions = openInNewTab(PublicFacingDecisionBoardPage.class, getTranslation("RefereeDecisions"),
-		        "video");
+
+		Button publicDecisions = openInNewTab(PublicFacingDecisionBoardPage.class, 
+				getTranslation("RefereeDecisions"), "video");
 		FlexibleGridLayout grid31 = HomeNavigationContent.navigationGrid(publicDecisions);
 		doGroup(getTranslation("RefereeDecisions"), grid31, this);
 
-		
 		Button scoreboard = openInNewTab(ResultsNoLeadersPage.class, getTranslation("Scoreboard"), "video");
-		Button scoreboardWLeaders = openInNewTab(ResultsBoardPage.class, getTranslation("ScoreboardWLeadersButton"), "video");
+		Button scoreboardWLeaders = openInNewTab(ResultsBoardPage.class, 
+				getTranslation("ScoreboardWLeadersButton"), "video");
 		scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
 		Button scoreboardMultiRanks = openInNewTab(ResultsLeadersRanksPage.class,
 		        getTranslation("ScoreboardMultiRanksButton"), "video");
@@ -107,10 +106,11 @@ public class VideoNavigationContent extends BaseNavigationContent
 
 		List<Group> groups = GroupRepository.findAll();
 		// more recent group first, else reverse order.
-		groups.sort((g1,g2) -> {
+		groups.sort((g1, g2) -> {
 			int compare = -ObjectUtils.compare(g1.getCompetitionTime(), g2.getCompetitionTime(), true);
-			if (compare != 0) return compare;
-			compare = -(new NaturalOrderComparator<Group>().compare(g1,g2));
+			if (compare != 0)
+				return compare;
+			compare = -(new NaturalOrderComparator<Group>().compare(g1, g2));
 			return compare;
 		});
 		FieldOfPlay curFop = OwlcmsSession.getFop();
@@ -129,29 +129,30 @@ public class VideoNavigationContent extends BaseNavigationContent
 		hl.add(groupCategorySelectionMenu, includeNotCompleted);
 		VerticalLayout intro1 = new VerticalLayout();
 		// addP(intro1, getTranslation("darkModeSelect"));
-		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders, scoreboardRankings,
+		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders,
+		        scoreboardRankings,
 		        scoreboardMultiRanks);
 		doGroup(getTranslation("Scoreboards"), intro1, grid1, this);
-		
+
 		Button medals = new Button(getTranslation("CeremonyType.MEDALS"));
 		Button rankings = new Button(getTranslation("Scoreboard.RANKING"));
 		medals.addClickListener((e) -> {
 			Class<ResultsMedals> class1 = ResultsMedals.class;
-	        openClass(class1);
+			openClass(class1);
 		});
 		rankings.addClickListener((e) -> {
 			Class<ResultsRankings> class1 = ResultsRankings.class;
-	        openClass(class1);
+			openClass(class1);
 		});
 		VerticalLayout intro1a = new VerticalLayout();
 		// addP(intro1, getTranslation("darkModeSelect"));
 		intro1a.add(hl);
 		FlexibleGridLayout grid1a = HomeNavigationContent.navigationGrid(medals, rankings);
 		doGroup(getTranslation("Scoreboard.RANKINGS"), intro1a, grid1a, this);
-		
 
 		Button obsMonitor = openInNewTab(OBSMonitor.class, getTranslation("OBS.MonitoringButton"));
-		Button eventMonitor = openInNewTab(StreamingEventMonitor.class, getTranslation("Video.EventMonitoringButton"), "video");
+		Button eventMonitor = openInNewTab(StreamingEventMonitor.class, getTranslation("Video.EventMonitoringButton"),
+		        "video");
 		VerticalLayout intro4 = new VerticalLayout();
 		addP(intro4, getTranslation("Video.EventMonitoringExplanation", getTranslation("Video.EventMonitoringButton")));
 		addP(intro4, getTranslation("OBS.MonitoringExplanation", getTranslation("OBS.MonitoringButton")));
@@ -165,9 +166,9 @@ public class VideoNavigationContent extends BaseNavigationContent
 		Map<String, String> params = new TreeMap<>();
 		Category medalCategory2 = getMedalCategory();
 		if (medalCategory2 != null) {
-		    params.put("cat", medalCategory2.getCode().toString());
+			params.put("cat", medalCategory2.getCode().toString());
 		} else if (getMedalGroup() != null) {
-		    params.put("group", getMedalGroup().toString());
+			params.put("group", getMedalGroup().toString());
 		}
 		QueryParameters qp = QueryParameters.simple(params);
 		doOpenInNewTab(class1,
@@ -227,9 +228,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see
-	 * app.owlcms.nui.home.BaseNavigationContent#createTopBarFopField(java.lang.
-	 * String, java.lang.String)
+	 * @see app.owlcms.nui.home.BaseNavigationContent#createTopBarFopField(java.lang. String, java.lang.String)
 	 */
 	@Override
 	protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {

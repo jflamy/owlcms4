@@ -28,6 +28,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.apputils.SoundUtils;
+import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
@@ -43,7 +44,6 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.nui.displays.SoundEntries;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.HasBoardMode;
 import app.owlcms.nui.shared.RequireDisplayLogin;
@@ -72,7 +72,8 @@ import elemental.json.JsonObject;
 //@CssImport(value = "./styles/plates.css")
 
 public abstract class AbstractAttemptBoard extends LitTemplate implements
-        SoundEntries, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin,
+        DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
+        RequireDisplayLogin,
         VideoCSSOverride, HasBoardMode {
 
 	protected final static Logger logger = (Logger) LoggerFactory.getLogger(AbstractAttemptBoard.class);
@@ -89,8 +90,8 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	}
 
 	/*
-	 * The following 3 items need to be injected in the LitTemplate.
-	 * Vaadin will create the slots and perform the injection based on the @Id annotation.
+	 * The following 3 items need to be injected in the LitTemplate. Vaadin will create the slots and perform the
+	 * injection based on the @Id annotation.
 	 */
 	@Id("athleteTimer")
 	protected AthleteTimerElement athleteTimer; // created by Flow during template instantiation
@@ -98,7 +99,6 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	protected BreakTimerElement breakTimer; // created by Flow during template instantiation
 	@Id("decisions")
 	protected DecisionElement decisions; // created by Flow during template instantiation
-	
 	protected boolean athletePictures;
 	protected String routeParameter;
 	protected boolean teamFlags;
@@ -111,6 +111,9 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	private boolean publicFacing;
 	private boolean showBarbell;
 	private boolean video;
+	private FieldOfPlay fop;
+	private Group group;
+	private boolean abbreviatedName;
 
 	/**
 	 * Instantiates a new attempt board.
@@ -178,15 +181,41 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		}));
 	}
 
+	public DecisionElement getDecisions() {
+		return decisions;
+	}
+
+	@Override
+	final public FieldOfPlay getFop() {
+		return fop;
+	}
+
+	@Override
+	final public Group getGroup() {
+		return group;
+	}
+
 	@Override
 	public String getPageTitle() {
 		return getTranslation("Attempt") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
+	@Override
+	final public String getRouteParameter() {
+		return this.routeParameter;
+	}
+
+	@Override
+	public final boolean isAbbreviatedName() {
+		return abbreviatedName;
+	}
+
+	@Override
 	public boolean isDarkMode() {
 		return true;
 	}
 
+	@Override
 	public boolean isDownSilenced() {
 		return downSilenced;
 	}
@@ -206,8 +235,52 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	}
 
 	@Override
+	public boolean isSilenced() {
+		return silenced;
+	}
+
+	@Override
 	public boolean isVideo() {
 		return video;
+	}
+
+	@Override
+	final public void setAbbreviatedName(boolean b) {
+		this.abbreviatedName = b;
+	}
+
+	@Override
+	final public void setDarkMode(boolean dark) {
+		// always dark, see #isDarkMode
+	}
+
+	@Override
+	public void setDownSilenced(boolean downSilenced) {
+		this.decisions.setSilenced(downSilenced);
+		this.downSilenced = downSilenced;
+	}
+
+	@Override
+	public void setEmFontSize(Double emFontSize) {
+	}
+
+	@Override
+	final public void setFop(FieldOfPlay fop) {
+		this.fop = fop;
+	}
+
+	@Override
+	public void setGroup(Group group) {
+		this.group = group;
+
+	}
+
+	@Override
+	public void setLeadersDisplay(boolean showLeaders) {
+	}
+
+	@Override
+	public void setPublicDisplay(boolean publicDisplay) {
 	}
 
 	/**
@@ -219,6 +292,15 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		this.publicFacing = publicFacing;
 	}
 
+	@Override
+	public void setRecordsDisplay(boolean showRecords) {
+	}
+
+	@Override
+	public void setRouteParameter(String routeParameter) {
+		this.routeParameter = routeParameter;
+	}
+
 	/**
 	 * @param showBarbell the showBarbell to set
 	 */
@@ -227,6 +309,15 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		this.showBarbell = showBarbell;
 	}
 
+	@Override
+	public void setSilenced(boolean silenced) {
+		this.athleteTimer.setSilenced(silenced);
+		this.silenced = silenced;
+	}
+
+	@Override
+	public void setTeamWidth(Double tw) {
+	}
 
 	@Override
 	public void setVideo(boolean b) {
@@ -758,7 +849,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		plates = null;
 	}
 
-	private void hideRecordInfo(FieldOfPlay fop, Athlete a) {
+	private void hideRecordInfo(Athlete a) {
 		this.getElement().setProperty("recordName", "");
 		this.getElement().setProperty("teamName", a.getTeam());
 		this.getElement().setProperty("hideBecauseRecord", "");
@@ -819,31 +910,13 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 	private void spotlightRecords(FieldOfPlay fop, Athlete a) {
 		if (fop.getState() == FOPState.INACTIVE || fop.getState() == FOPState.BREAK) {
-			hideRecordInfo(fop, a);
+			hideRecordInfo(a);
 		} else if (fop.getNewRecords() != null && !fop.getNewRecords().isEmpty()) {
 			spotlightNewRecord();
 		} else if (fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty()) {
 			spotlightRecordAttempt();
 		} else {
-			hideRecordInfo(fop, a);
+			hideRecordInfo(a);
 		}
-	}
-
-	public void setDownSilenced(boolean downSilenced) {
-		this.decisions.setSilenced(downSilenced);
-		this.downSilenced = downSilenced;
-	}
-
-	public boolean isSilenced() {
-		return silenced;
-	}
-
-	public void setSilenced(boolean silenced) {
-		this.athleteTimer.setSilenced(silenced);
-		this.silenced = silenced;
-	}
-
-	public DecisionElement getDecisions() {
-		return decisions;
 	}
 }

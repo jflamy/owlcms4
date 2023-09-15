@@ -8,6 +8,7 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.ContentParameters;
+import app.owlcms.displays.attemptboard.AbstractAttemptBoard;
 import app.owlcms.displays.attemptboard.DecisionBoard;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
@@ -25,7 +26,9 @@ public class PublicFacingDecisionBoardPage extends AbstractAttemptBoardPage {
 		        ContentParameters.SILENT, "true",
 		        ContentParameters.DOWNSILENT, "true")));
 
-		var board = new DecisionBoard(this);
+		setBoard(new DecisionBoard(this));
+		
+		AbstractAttemptBoard board = (AbstractAttemptBoard) getBoard();
 		board.getDecisions().setDontReset(true);
 		board.setPublicFacing(true);
 		board.setShowBarbell(false);

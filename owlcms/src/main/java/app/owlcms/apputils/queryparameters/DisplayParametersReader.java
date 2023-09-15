@@ -94,7 +94,7 @@ public interface DisplayParametersReader extends ContentParametersReader, Displa
 	public default HashMap<String, List<String>> readParams(Location location,
 	        Map<String, List<String>> parametersMap) {
 		// handle FOP and Group by calling superclass
-		HashMap<String, List<String>> params = readParams(location, parametersMap);
+		HashMap<String, List<String>> params = ContentParametersReader.super.readParams(location, parametersMap);
 
 		List<String> darkParams = params.get(DARK);
 		// dark is the default. dark=false or dark=no or ... will turn off dark mode.
@@ -106,9 +106,9 @@ public interface DisplayParametersReader extends ContentParametersReader, Displa
 		List<String> switchableParams = params.get(PUBLIC);
 		boolean switchable = switchableParams != null && !switchableParams.isEmpty()
 		        && switchableParams.get(0).toLowerCase().equals("true");
-		setSwitchableDisplay(switchable);
+		setPublicDisplay(switchable);
 		switchSwitchable((Component) this, switchable, false);
-		updateParam(params, PUBLIC, isSwitchableDisplay() ? "true" : null);
+		updateParam(params, PUBLIC, isPublicDisplay() ? "true" : null);
 
 		List<String> records = params.get(RECORDS);
 		boolean showRecords = isDefaultRecordsDisplay();
@@ -226,7 +226,7 @@ public interface DisplayParametersReader extends ContentParametersReader, Displa
 	 */
 	@Override
 	public default void storeReturnURL(Location location) {
-		if (isSwitchableDisplay()) {
+		if (isPublicDisplay()) {
 			// String trace = LoggerUtils.stackTrace();
 			UI.getCurrent().getPage().fetchCurrentURL(url -> {
 				String urlNonRelative = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort() + "/";
@@ -297,7 +297,7 @@ public interface DisplayParametersReader extends ContentParametersReader, Displa
 	}
 
 	public default void switchSwitchable(Component target, boolean switchable, boolean updateURL) {
-		setSwitchableDisplay(switchable);
+		setPublicDisplay(switchable);
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), PUBLIC, switchable ? "true" : "false");
 		}

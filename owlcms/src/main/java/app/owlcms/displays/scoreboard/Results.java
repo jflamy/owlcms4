@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.displays.scoreboard;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -21,6 +22,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -51,7 +53,6 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.displays.AbstractDisplayPage;
-import app.owlcms.nui.displays.scoreboards.AbstractResultsDisplayPage;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.HasBoardMode;
 import app.owlcms.nui.shared.RequireDisplayLogin;
@@ -103,15 +104,41 @@ public class Results extends LitTemplate
 	private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private boolean teamFlags;
-	private AbstractResultsDisplayPage wrapper;
+	private AbstractDisplayPage wrapper;
 	private FieldOfPlay fop;
 	private Group group;
 	private Location location;
 	private UI locationUI;
 	private String routeParameter;
-	public Results(AbstractResultsDisplayPage resultsBoardPage) {
+	private boolean silenced;
+	private boolean abbreviatedName;
+	private Double emFontSize;
+	private boolean publicDisplay;
+	private Double teamWidth;
+	private boolean leadersDisplay;
+	private boolean recordsDisplay;
+	private final DecimalFormat df = new DecimalFormat("0.000");
+	private boolean video;
+
+	public Results(AbstractDisplayPage resultsBoardPage) {
 		this.wrapper = resultsBoardPage;
-		wrapper.setBoard(this);
+	}
+
+	public void doChangeEmSize() {
+		String formattedEm = null;
+		if (emFontSize != null) {
+			formattedEm = df.format(emFontSize);
+			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "rem;");
+		}
+	}
+
+	public void doChangeTeamWidth() {
+		String formattedTW = null;
+
+		if (teamWidth != null) {
+			formattedTW = df.format(teamWidth);
+			this.getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
+		}
 	}
 
 	/**
@@ -123,7 +150,7 @@ public class Results extends LitTemplate
 			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
 
 			String title = inferGroupName() + " &ndash; "
-			        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), wrapper.isSwitchableDisplay());
+			        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), wrapper.isPublicDisplay());
 			this.getElement().setProperty("fullName", title);
 			this.getElement().setProperty("teamName", "");
 			this.getElement().setProperty("attempt", "");
@@ -150,7 +177,7 @@ public class Results extends LitTemplate
 		ceremonyCategory = e.getCeremonyCategory();
 		// logger.debug("------ ceremony event = {} {}", e, e.getTrace());
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			if (e.getCeremonyType() == CeremonyType.MEDALS && wrapper.isSwitchableDisplay() && ceremonyGroup != null) {
+			if (e.getCeremonyType() == CeremonyType.MEDALS && wrapper.isPublicDisplay() && ceremonyGroup != null) {
 				Map<String, String> map = new HashMap<>(Map.of(
 				        FOPParameters.FOP, fop.getName(),
 				        FOPParameters.GROUP, ceremonyGroup.getName(),
@@ -167,7 +194,7 @@ public class Results extends LitTemplate
 				// logger.debug("========== NOT {} {} {}",e.getCeremonyType(),
 				// this.isSwitchableDisplay(), ceremonyGroup);
 				String title = inferGroupName() + " &ndash; "
-				        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), wrapper.isSwitchableDisplay());
+				        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), wrapper.isPublicDisplay());
 				this.getElement().setProperty("fullName", title);
 				this.getElement().setProperty("teamName", "");
 				setGroupNameProperty("");
@@ -209,7 +236,7 @@ public class Results extends LitTemplate
 		return locationUI;
 	}
 
-	public JsonArray getSattempts() {
+	final public JsonArray getSattempts() {
 		return sattempts;
 	}
 
@@ -225,13 +252,13 @@ public class Results extends LitTemplate
 		return wrapper;
 	}
 
-	public boolean isShowInitialDialog() {
+	public final boolean isShowInitialDialog() {
 		return false;
 	}
 
 	@Override
-	public boolean isVideo() {
-		return wrapper.isVideo();
+	public final boolean isVideo() {
+		return video;
 	}
 
 	/**
@@ -265,7 +292,7 @@ public class Results extends LitTemplate
 
 	@Override
 	public void setLeadersDisplay(boolean b) {
-		wrapper.setShowLeaders(b);
+		this.leadersDisplay = b;
 	}
 
 	final public void setLocation(Location location) {
@@ -279,7 +306,7 @@ public class Results extends LitTemplate
 
 	@Override
 	public void setRecordsDisplay(boolean b) {
-		wrapper.setRecordsDisplay(b);
+		this.recordsDisplay = b;
 	}
 
 	public void setSattempts(JsonArray sattempts) {
@@ -321,7 +348,7 @@ public class Results extends LitTemplate
 		wrapper.setVideo(b);
 	}
 
-	final public void setWrapper(AbstractResultsDisplayPage wrapper) {
+	final public void setWrapper(AbstractDisplayPage wrapper) {
 		this.wrapper = wrapper;
 	}
 
@@ -353,6 +380,11 @@ public class Results extends LitTemplate
 			// revert to current break
 			doBreak(null);
 		});
+	}
+
+	public void switchEmFontSize(Component target, Double emFontSize, boolean updateURL) {
+		setEmFontSize(emFontSize);
+		doChangeEmSize();
 	}
 
 	@Subscribe
@@ -854,7 +886,7 @@ public class Results extends LitTemplate
 		displayOrder = getOrder(fop);
 		spotlightRecords(fop);
 
-		wrapper.doChangeEmSize();
+		doChangeEmSize();
 		if (liftType != null && curGroup != null && !curGroup.isDone()) {
 			this.getElement().setProperty("displayType", getDisplayType());
 		}
@@ -869,14 +901,14 @@ public class Results extends LitTemplate
 			        : Translator.translate("Scoreboard.DescriptionLiftTypeFormat", groupDescription, liftType);
 			setGroupNameProperty(value);
 			liftsDone = AthleteSorter.countLiftsDone(displayOrder);
-			if ((wrapper.isSwitchableDisplay() || wrapper.isVideo())) {
+			if ((wrapper.isPublicDisplay() || wrapper.isVideo())) {
 				setLiftsDoneProperty("");
 			} else {
 				setLiftsDoneProperty(" \u2013 " + Translator.translate("Scoreboard.AttemptsDone", liftsDone));
 			}
 		} else {
 			// logger.debug("case 4 {}", isSwitchableDisplay());
-			if ((wrapper.isSwitchableDisplay() || wrapper.isVideo()) && groupDescription != null) {
+			if ((wrapper.isPublicDisplay() || wrapper.isVideo()) && groupDescription != null) {
 				setLiftsDoneProperty(groupDescription);
 				setGroupDescriptionProperty("");
 			}
@@ -968,7 +1000,7 @@ public class Results extends LitTemplate
 	}
 
 	private boolean showCurrent(FieldOfPlay fop) {
-		if (wrapper.isSwitchableDisplay() && fop.getState() == FOPState.BREAK && fop.getCeremonyType() != null) {
+		if (wrapper.isPublicDisplay() && fop.getState() == FOPState.BREAK && fop.getCeremonyType() != null) {
 			return false;
 		}
 		return true;
@@ -1022,28 +1054,80 @@ public class Results extends LitTemplate
 
 	@Override
 	public void setSilenced(boolean silent) {
+		this.silenced = silent;
+		this.getTimer().setSilenced(silenced);
+		this.getBreakTimer().setSilenced(silenced);
 	}
 
 	@Override
-	public String getRouteParameter() {
+	public final String getRouteParameter() {
 		return this.routeParameter;
 	}
 
 	@Override
-	public boolean isDarkMode() {
+	public final boolean isDarkMode() {
 		return this.darkMode;
 	}
 
 	@Override
-	public void setDarkMode(boolean dark) {
+	public final void setDarkMode(boolean dark) {
 		this.darkMode = dark;
-		//FIXME: is this the expected value
+		// FIXME: is this the expected value
 		getElement().setProperty("dark", dark ? DisplayParameters.DARK : DisplayParameters.LIGHT);
 	}
 
 	@Override
-	public void setRouteParameter(String routeParameter) {
+	public final void setRouteParameter(String routeParameter) {
 		this.routeParameter = routeParameter;
+	}
+
+	@Override
+	public final void setAbbreviatedName(boolean b) {
+		this.abbreviatedName = b;
+	}
+
+	@Override
+	public final void setEmFontSize(Double emFontSize) {
+		this.emFontSize = emFontSize;
+
+	}
+
+	@Override
+	public void setPublicDisplay(boolean publicDisplay) {
+		this.publicDisplay = publicDisplay;
+	}
+
+	@Override
+	public void setTeamWidth(Double tw) {
+		this.teamWidth = tw;
+	}
+
+	public final boolean isSilenced() {
+		return silenced;
+	}
+
+	public final boolean isAbbreviatedName() {
+		return abbreviatedName;
+	}
+
+	public final Double getEmFontSize() {
+		return emFontSize;
+	}
+
+	public final boolean isPublicDisplay() {
+		return publicDisplay;
+	}
+
+	public final Double getTeamWidth() {
+		return teamWidth;
+	}
+
+	public final boolean isLeadersDisplay() {
+		return leadersDisplay;
+	}
+
+	public final boolean isRecordsDisplay() {
+		return recordsDisplay;
 	}
 
 }

@@ -18,22 +18,13 @@ import app.owlcms.nui.displays.attemptboards.AbstractAttemptBoardPage;
 
 public class DecisionBoard extends AbstractAttemptBoard {
 
-	private AbstractAttemptBoardPage wrapper;
-
 	public DecisionBoard(AbstractAttemptBoardPage page) {
 		super();
-		this.wrapper = page;
-		this.wrapper.setBoard(this);
 	}
 
 	@Override
 	protected void checkImages() {
 		athletePictures = false;
 		teamFlags = false;
-	}
-	
-	@Override
-	public AbstractAttemptBoardPage getWrapper() {
-		return wrapper;
 	}
 }

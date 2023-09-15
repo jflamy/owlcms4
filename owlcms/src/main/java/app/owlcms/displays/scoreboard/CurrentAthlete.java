@@ -11,7 +11,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
 
 import org.slf4j.LoggerFactory;
 
@@ -19,19 +18,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.littemplate.LitTemplate;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.template.Id;
-import com.vaadin.flow.router.HasDynamicTitle;
-import com.vaadin.flow.router.Location;
-import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
@@ -43,18 +33,13 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
-import app.owlcms.displays.options.DisplayOptions;
-import app.owlcms.displays.video.VideoCSSOverride;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.displays.AbstractDisplayPage;
 import app.owlcms.nui.lifting.UIEventProcessor;
-import app.owlcms.nui.shared.HasBoardMode;
-import app.owlcms.nui.shared.RequireDisplayLogin;
-import app.owlcms.nui.shared.SafeEventBusRegistration;
-import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.LoggerUtils;
@@ -76,12 +61,7 @@ import elemental.json.JsonValue;
 @Tag("currentathlete-template")
 @JsModule("./components/CurrentAthlete.js")
 
-@Route("displays/currentathlete")
-
-//FIXME: follow same pattern as other results
-public class CurrentAthlete extends LitTemplate
-        implements DisplayParametersReader, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
-        RequireDisplayLogin, VideoCSSOverride, HasBoardMode {
+public class CurrentAthlete extends Results {
 
 	/**
 	 * ScoreboardModel
@@ -103,42 +83,24 @@ public class CurrentAthlete extends LitTemplate
 	JsonArray sattempts;
 	@Id("breakTimer")
 	private BreakTimerElement breakTimer; // Flow creates it
-	private boolean darkMode;
 	@Id("decisions")
 	private DecisionElement decisions; // Flow creates it
-	private Dialog dialog;
 	private boolean groupDone;
-	private boolean initializationNeeded;
-	private Location location;
-	private UI locationUI;
 	private List<Athlete> order;
 	@Id("timer")
 	private AthleteTimerElement timer; // Flow creates it
 	private EventBus uiEventBus;
-	private Timer dialogTimer;
 	private String routeParameter;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
-	private boolean video;
-	private FieldOfPlay fop;
-	private Group group;
 
-	/**
-	 * Instantiates a new results board.
-	 */
-	public CurrentAthlete() {
+	public CurrentAthlete(AbstractDisplayPage page) {
+		super(page);
+		uiEventLogger.setLevel(Level.INFO);
 		OwlcmsFactory.waitDBInitialized();
-		timer.setOrigin(this);
 		setDarkMode(true);
 		// js files add the build number to file names in order to prevent cache
 		// collisions
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
-	}
-
-	@Override
-	public void addDialogContent(Component target, VerticalLayout vl) {
-		DisplayOptions.addLightingEntries(vl, target, this);
-		DisplayOptions.addRule(vl);
-		DisplayOptions.addSoundEntries(vl, target, this);
 	}
 
 	@Override
@@ -179,155 +141,10 @@ public class CurrentAthlete extends LitTemplate
 	}
 
 	/**
-	 * return dialog, but only on first call.
-	 *
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#getDialog()
-	 */
-	@Override
-	public Dialog getDialog() {
-		return dialog;
-	}
-
-	@Override
-	public Timer getDialogTimer() {
-		return this.dialogTimer;
-	}
-
-	@Override
-	public FieldOfPlay getFop() {
-		return fop;
-	}
-
-	@Override
-	public Group getGroup() {
-		return group;
-	}
-
-	@Override
-	public Location getLocation() {
-		return this.location;
-	}
-
-	@Override
-	public UI getLocationUI() {
-		return this.locationUI;
-	}
-
-	@Override
-	public String getPageTitle() {
-		return getTranslation("CurrentAthleteTitle") + OwlcmsSession.getFopNameIfMultiple();
-	}
-
-	@Override
-	public String getRouteParameter() {
-		return this.routeParameter;
-	}
-
-	@Override
-	public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
-	}
-
-	@Override
-	public boolean isDarkMode() {
-		return darkMode;
-	}
-
-	@Override
-	public boolean isIgnoreGroupFromURL() {
-		return true;
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#isShowInitialDialog()
-	 */
-	@Override
-	public boolean isShowInitialDialog() {
-		return this.initializationNeeded;
-	}
-
-	@Override
-	public boolean isSilenced() {
-		return true;
-	}
-
-	@Override
-	public boolean isVideo() {
-		return video;
-	}
-
-	/**
 	 * Reset.
 	 */
 	public void reset() {
 		order = ImmutableList.of();
-	}
-
-	@Override
-	public void setDarkMode(boolean dark) {
-		this.darkMode = dark;
-	}
-
-	@Override
-	public void setDialog(Dialog dialog) {
-		this.dialog = dialog;
-	}
-
-	@Override
-	public void setDialogTimer(Timer timer) {
-		this.dialogTimer = timer;
-	}
-
-	@Override
-	public void setFop(FieldOfPlay fop) {
-		this.fop = fop;
-	}
-
-	@Override
-	public void setGroup(Group group) {
-		this.group = group;
-	}
-
-	@Override
-	public void setLocation(Location location) {
-		this.location = location;
-	}
-
-	@Override
-	public void setLocationUI(UI locationUI) {
-		this.locationUI = locationUI;
-	}
-
-	@Override
-	public void setRouteParameter(String routeParameter) {
-		this.routeParameter = routeParameter;
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
-	 */
-	@Override
-	public void setShowInitialDialog(boolean b) {
-		this.initializationNeeded = true;
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.ContentParameters#setSilenced(boolean)
-	 */
-	@Override
-	public void setSilenced(boolean silent) {
-		this.timer.setSilenced(true);
-		this.breakTimer.setSilenced(true);
-	}
-
-	@Override
-	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
-	}
-
-	@Override
-	public void setVideo(boolean b) {
-		this.video = b;
 	}
 
 	@Subscribe
@@ -548,7 +365,6 @@ public class CurrentAthlete extends LitTemplate
 			// we listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
 		});
-		switchLightingMode(this, isDarkMode(), true);
 	}
 
 	protected void setTranslationMap() {
@@ -589,24 +405,12 @@ public class CurrentAthlete extends LitTemplate
 		return translate;
 	}
 
-	private String formatInt(Integer total) {
-		if (total == null || total == 0) {
-			return "-";
-		} else if (total == -1) {
-			return "inv.";// invited lifter, not eligible.
-		} else if (total < 0) {
-			return "(" + Math.abs(total) + ")";
-		} else {
-			return total.toString();
-		}
-	}
-
 	private String formatKg(String total) {
 		return (total == null || total.trim().isEmpty()) ? "-"
 		        : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
 	}
 
-	private void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
+	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 		String category;
 		category = curCat != null ? curCat.getTranslatedName() : "";
 		ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
@@ -635,7 +439,7 @@ public class CurrentAthlete extends LitTemplate
 	 * @param groupAthletes, List<Athlete> liftOrder
 	 * @return
 	 */
-	private JsonValue getAthletesJson(List<Athlete> groupAthletes, List<Athlete> liftOrder, FieldOfPlay fop) {
+	protected JsonValue getAthletesJson(List<Athlete> groupAthletes, List<Athlete> liftOrder, FieldOfPlay fop) {
 		JsonArray jath = Json.createArray();
 		int athx = 0;
 
@@ -677,7 +481,7 @@ public class CurrentAthlete extends LitTemplate
 	 * @param liftOrderRank2
 	 * @return json string with nested attempts values
 	 */
-	private void getAttemptsJson(Athlete a, int liftOrderRank, FieldOfPlay fop) {
+	protected void getAttemptsJson(Athlete a, int liftOrderRank, FieldOfPlay fop) {
 		sattempts = Json.createArray();
 		cattempts = Json.createArray();
 		XAthlete x = new XAthlete(a);
@@ -806,7 +610,7 @@ public class CurrentAthlete extends LitTemplate
 		}
 	}
 
-	private void updateBottom(String liftType, FieldOfPlay fop) {
+	protected void updateBottom(String liftType, FieldOfPlay fop) {
 		// logger.debug("updateBottom {}",LoggerUtils.stackTrace());
 		if (liftType != null) {
 			getElement().setProperty("groupName", "");

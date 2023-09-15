@@ -10,11 +10,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Timer;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,20 +21,13 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.littemplate.LitTemplate;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.function.SerializableConsumer;
-import com.vaadin.flow.router.HasDynamicTitle;
-import com.vaadin.flow.router.Location;
 
 import app.owlcms.apputils.SoundUtils;
-import app.owlcms.apputils.queryparameters.ContextFreeParametersReader;
+import app.owlcms.apputils.queryparameters.ContextFreeDisplayParameters;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
@@ -48,23 +38,15 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
-import app.owlcms.displays.options.DisplayOptions;
-import app.owlcms.displays.video.VideoCSSOverride;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.nui.displays.AbstractDisplayPage;
 import app.owlcms.nui.displays.scoreboards.ResultsMedalsPage;
 import app.owlcms.nui.lifting.UIEventProcessor;
-import app.owlcms.nui.shared.HasBoardMode;
-import app.owlcms.nui.shared.RequireDisplayLogin;
-import app.owlcms.nui.shared.SafeEventBusRegistration;
-import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
-import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -84,97 +66,31 @@ import elemental.json.JsonValue;
 @Tag("resultsmedals-template")
 @JsModule("./components/ResultsMedals.js")
 
-//FIXME: same pattern as other results
-public class ResultsMedals extends LitTemplate
-        implements ContextFreeParametersReader, SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
-        HasDynamicTitle, VideoCSSOverride, HasBoardMode,
-        RequireDisplayLogin {
+public class ResultsMedals extends Results implements ContextFreeDisplayParameters {
 
-	private static final long DEBOUNCE = 50;
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsMedals.class);
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	private Category category;
 	private JsonArray cattempts;
-	private boolean darkMode = true;
-	private Dialog dialog;
-	private Timer dialogTimer;
-	private Double emFontSize;
 	private FieldOfPlay fop;
-	private Group group;
-	private boolean initializationNeeded;
-	private Location location;
-	private UI locationUI;
 	private TreeMap<Category, TreeSet<Athlete>> medals;
 	private String routeParameter;
 	private JsonArray sattempts;
-	private boolean silenced = true;
 	private EventBus uiEventBus;
-	private Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private boolean snatchCJTotalMedals;
-	private boolean video;
 	private AgeGroup ageGroup;
 	private boolean teamFlags;
-	private long now;
-	private long lastShortcut;
-	private Double teamWidth;
 	DecimalFormat df = new DecimalFormat("0.000");
-	private boolean abbreviatedName;
-	private AbstractDisplayPage wrapper;
-
-	public ResultsMedals() {
+	
+	public ResultsMedals(ResultsMedalsPage page) {
+		super(page);
 		uiEventLogger.setLevel(Level.INFO);
 		OwlcmsFactory.waitDBInitialized();
 		setDarkMode(true);
 		// js files add the build number to file names in order to prevent cache
 		// collisions
-		//FIXME: should be everywhere by inheritance
+		// FIXME: should be everywhere by inheritance
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
-	}
-
-	public ResultsMedals(ResultsMedalsPage page) {
-		this();
-		this.setWrapper(page);
-		getWrapper().setBoard(this);
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
-	 *      com.vaadin.flow.component.orderedlayout.VerticalLayout)
-	 */
-	@Override
-	public void addDialogContent(Component target, VerticalLayout vl) {
-		DisplayOptions.addLightingEntries(vl, target, this);
-		DisplayOptions.addRule(vl);
-		DisplayOptions.addSizingEntries(vl, target, this);
-
-		UI.getCurrent().addShortcutListener(() -> {
-			now = System.currentTimeMillis();
-			if (now - lastShortcut > DEBOUNCE) {
-				setEmFontSize(getEmFontSize() + 0.005);
-			}
-			lastShortcut = now;
-		}, Key.ARROW_UP);
-		UI.getCurrent().addShortcutListener(() -> {
-			now = System.currentTimeMillis();
-			if (now - lastShortcut > DEBOUNCE) {
-				setEmFontSize(getEmFontSize() - 0.005);
-			}
-			lastShortcut = now;
-		}, Key.ARROW_DOWN);
-		UI.getCurrent().addShortcutListener(() -> {
-			now = System.currentTimeMillis();
-			if (now - lastShortcut > DEBOUNCE) {
-				setTeamWidth(getTeamWidth() + 0.5);
-			}
-			lastShortcut = now;
-		}, Key.ARROW_RIGHT);
-		UI.getCurrent().addShortcutListener(() -> {
-			now = System.currentTimeMillis();
-			if (now - lastShortcut > DEBOUNCE) {
-				setTeamWidth(getTeamWidth() - 0.5);
-			}
-			lastShortcut = now;
-		}, Key.ARROW_LEFT);
 	}
 
 	@Override
@@ -190,7 +106,7 @@ public class ResultsMedals extends LitTemplate
 			        inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
 			this.getElement().setProperty("teamName", "");
 			this.getElement().setProperty("attempt", "");
-			setDisplay(false);
+			setDisplay();
 
 			updateBottom(computeLiftType(fop.getCurAthlete()), fop);
 		}));
@@ -216,180 +132,6 @@ public class ResultsMedals extends LitTemplate
 		return category;
 	}
 
-	/**
-	 * return dialog, but only on first call.
-	 *
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#getDialog()
-	 */
-	@Override
-	public Dialog getDialog() {
-		return dialog;
-	}
-
-	@Override
-	public Timer getDialogTimer() {
-		return this.dialogTimer;
-	}
-
-	@Override
-	public Double getEmFontSize() {
-		return emFontSize;
-	}
-
-	@Override
-	public FieldOfPlay getFop() {
-		return fop;
-	}
-
-	@Override
-	public Group getGroup() {
-		return group;
-	}
-
-	@Override
-	public Location getLocation() {
-		return this.location;
-	}
-
-	@Override
-	public UI getLocationUI() {
-		return this.locationUI;
-	}
-
-	@Override
-	public String getPageTitle() {
-		return getTranslation("CeremonyType.MEDALS") + OwlcmsSession.getFopNameIfMultiple();
-	}
-
-	@Override
-	public String getRouteParameter() {
-		return this.routeParameter;
-	}
-
-	@Override
-	public Double getTeamWidth() {
-		if (teamWidth == null) {
-			return 12.0D;
-		}
-		return teamWidth;
-	}
-
-	@Override
-	public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
-	}
-
-	public AbstractDisplayPage getWrapper() {
-		return wrapper;
-	}
-
-	@Override
-	public boolean isAbbreviatedName() {
-		return this.abbreviatedName;
-	}
-
-	@Override
-	public boolean isDarkMode() {
-		return darkMode;
-	}
-
-	@Override
-	public boolean isIgnoreFopFromURL() {
-		return false;
-	}
-
-	@Override
-	public boolean isIgnoreGroupFromURL() {
-		return false;
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#isShowInitialDialog()
-	 */
-	@Override
-	public boolean isShowInitialDialog() {
-		return this.initializationNeeded;
-	}
-
-	@Override
-	public boolean isSilenced() {
-		return silenced;
-	}
-
-	@Override
-	public boolean isVideo() {
-		return video;
-	}
-
-	@Override
-	public void setAbbreviatedName(boolean b) {
-		this.abbreviatedName = b;
-	}
-
-	@Override
-	public void setAgeGroup(AgeGroup ag) {
-		this.ageGroup = ag;
-	}
-
-	@Override
-	public void setCategory(Category cat) {
-		this.category = cat;
-	}
-
-	@Override
-	public void setDarkMode(boolean dark) {
-		this.darkMode = dark;
-	}
-
-	@Override
-	public void setDialog(Dialog dialog) {
-		this.dialog = dialog;
-	}
-
-	@Override
-	public void setDialogTimer(Timer timer) {
-		this.dialogTimer = timer;
-	}
-
-	@Override
-	public void setEmFontSize(Double emFontSize) {
-		this.emFontSize = emFontSize;
-		doChangeEmSize();
-	}
-
-	@Override
-	public void setFop(FieldOfPlay fop) {
-		this.fop = fop;
-	}
-
-	@Override
-	public void setGroup(Group group) {
-		this.group = group;
-	}
-
-	@Override
-	public void setLocation(Location location) {
-		this.location = location;
-	}
-
-	@Override
-	public void setLocationUI(UI locationUI) {
-		this.locationUI = locationUI;
-	}
-
-	@Override
-	public void setRouteParameter(String routeParameter) {
-		this.routeParameter = routeParameter;
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
-	 */
-	@Override
-	public void setShowInitialDialog(boolean b) {
-		this.initializationNeeded = true;
-	}
-
 	@Override
 	public void setSilenced(boolean silent) {
 	}
@@ -399,22 +141,11 @@ public class ResultsMedals extends LitTemplate
 	 */
 	@Override
 	public void setTeamWidth(Double teamWidth) {
-		this.teamWidth = teamWidth;
 		doChangeTeamWidth();
 	}
 
 	@Override
-	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
-	}
-
-	@Override
 	public void setVideo(boolean video) {
-		this.video = video;
-	}
-
-	public final void setWrapper(AbstractDisplayPage wrapper) {
-		this.wrapper = wrapper;
 	}
 
 	@Subscribe
@@ -427,7 +158,7 @@ public class ResultsMedals extends LitTemplate
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
 			// logger.trace("------- slaveBreakDone {}", e.getBreakType());
-			setDisplay(false);
+			setDisplay();
 			doUpdate(e);
 		}));
 	}
@@ -455,7 +186,7 @@ public class ResultsMedals extends LitTemplate
 		// logger.trace("------- slaveCeremonyStarted {}", e.getCeremonyType());
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			setDisplay(false);
+			setDisplay();
 			doCeremony(e);
 		});
 	}
@@ -482,7 +213,7 @@ public class ResultsMedals extends LitTemplate
 	public void slaveStartBreak(UIEvent.BreakStarted e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			setDisplay(false);
+			setDisplay();
 			doBreak(e);
 		});
 	}
@@ -492,7 +223,7 @@ public class ResultsMedals extends LitTemplate
 		// logger.trace("****** slaveStartLifting ");
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			setDisplay(false);
+			setDisplay();
 			// If this page was opened in replacement of a display, go back to the display.
 			unregister(this, uiEventBus);
 			retrieveFromSessionStorage("pageURL", result -> {
@@ -520,17 +251,6 @@ public class ResultsMedals extends LitTemplate
 		// logger.info("videoRefresh {} {}", getGroup() != null ? getGroup().getName() :
 		// null , getCategory() != null ? getCategory().getName() : null);
 		doRefresh(e);
-	}
-
-	protected void doChangeTeamWidth() {
-		String formattedTW = null;
-
-		if (teamWidth != null) {
-			formattedTW = df.format(teamWidth);
-			this.getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
-		}
-		updateURLLocation(getLocationUI(), getLocation(), TEAMWIDTH,
-		        teamWidth != null ? formattedTW : null);
 	}
 
 	protected void doEmpty() {
@@ -572,7 +292,7 @@ public class ResultsMedals extends LitTemplate
 		Integer startNumber = a.getStartNumber();
 		ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
 		ja.put("category", category != null ? category : "");
-		getAttemptsJson(a, liftOrderRank);
+		getAttemptsJson(a);
 		ja.put("sattempts", sattempts);
 		ja.put("bestSnatch", formatInt(a.getBestSnatch()));
 		ja.put("cattempts", cattempts);
@@ -663,8 +383,6 @@ public class ResultsMedals extends LitTemplate
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		doMedalsDisplay();
-
-		switchLightingMode(this, isDarkMode(), true);
 		SoundUtils.enableAudioContextNotification(this.getElement());
 
 	}
@@ -755,17 +473,6 @@ public class ResultsMedals extends LitTemplate
 		}
 	}
 
-	private void doChangeEmSize() {
-		String formattedEm = null;
-
-		if (emFontSize != null) {
-			formattedEm = df.format(emFontSize);
-			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "rem;");
-		}
-		updateURLLocation(getLocationUI(), getLocation(), FONTSIZE,
-		        emFontSize != null ? formattedEm : null);
-	}
-
 	private void doMedalsDisplay() {
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
@@ -789,7 +496,7 @@ public class ResultsMedals extends LitTemplate
 				medals.put(this.getCategory(), catMedals);
 				this.getElement().setProperty("fillerDisplay", "display: none;");
 			}
-			setDisplay(false);
+			setDisplay();
 			computeMedalsJson(medals);
 			// we listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
@@ -818,7 +525,7 @@ public class ResultsMedals extends LitTemplate
 					medals = new TreeMap<>();
 					medals.put(this.getCategory(), catMedals);
 				}
-				setDisplay(false);
+				setDisplay();
 				computeMedalsJson(medals);
 			});
 		});
@@ -827,31 +534,9 @@ public class ResultsMedals extends LitTemplate
 		t1.start();
 	}
 
-	private String formatInt(Integer total) {
-		if (total == null || total == 0) {
-			return "-";
-		} else if (total == -1) {
-			return "inv.";// invited lifter, not eligible.
-		} else if (total < 0) {
-			return "(" + Math.abs(total) + ")";
-		} else {
-			return total.toString();
-		}
-	}
-
 	private String formatKg(String total) {
 		return (total == null || total.trim().isEmpty()) ? "-"
 		        : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
-	}
-
-	private String formatRank(Integer total) {
-		if (total == null || total == 0) {
-			return "";
-		} else if (total == -1) {
-			return "inv.";// invited lifter, not eligible.
-		} else {
-			return total.toString();
-		}
 	}
 
 	/**
@@ -863,7 +548,7 @@ public class ResultsMedals extends LitTemplate
 	 * @param fop
 	 * @return json string with nested attempts values
 	 */
-	private void getAttemptsJson(Athlete a, int liftOrderRank) {
+	private void getAttemptsJson(Athlete a) {
 		sattempts = Json.createArray();
 		cattempts = Json.createArray();
 		XAthlete x = new XAthlete(a);
@@ -914,10 +599,6 @@ public class ResultsMedals extends LitTemplate
 		}
 	}
 
-	private Object getOrigin() {
-		return this;
-	}
-
 	private void init() {
 		OwlcmsSession.withFop(fop -> {
 			logger.trace("{}Starting result board on FOP {}", fop.getLoggingName());
@@ -951,7 +632,7 @@ public class ResultsMedals extends LitTemplate
 		        .then(String.class, resultHandler);
 	}
 
-	private void setDisplay(boolean hidden) {
+	private void setDisplay() {
 		OwlcmsSession.withFop(fop -> {
 			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
 			Group group = fop.getGroup();
@@ -981,21 +662,26 @@ public class ResultsMedals extends LitTemplate
 			}
 			break;
 		default:
-			setDisplay(false);
+			setDisplay();
 			doUpdate(e);
 		}
 	}
 
-	private void uiLog(UIEvent e) {
-		uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-		        this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
-	}
-
-	private void updateBottom(String liftType, FieldOfPlay fop) {
+	protected void updateBottom(String liftType, FieldOfPlay fop) {
 		// logger.debug("updateBottom");
 		this.getElement().setProperty("groupName", "");
 		this.getElement().setProperty("liftDone", "-");
 		computeMedalsJson(medals);
+	}
+
+	@Override
+	public void setAgeGroup(AgeGroup ag) {
+		this.ageGroup = ag;
+	}
+
+	@Override
+	public void setCategory(Category cat) {
+		this.category = cat;
 	}
 
 }

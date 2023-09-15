@@ -23,18 +23,9 @@ import app.owlcms.nui.displays.attemptboards.AbstractAttemptBoardPage;
 
 public class AttemptBoard extends AbstractAttemptBoard {
 
-	private AbstractAttemptBoardPage wrapper;
-
 	public AttemptBoard(AbstractAttemptBoardPage page) {
 		super();
-		this.wrapper = page;
-		wrapper.setBoard(this);
+		page.setBoard(this);
 	}
-
-	@Override
-	public AbstractAttemptBoardPage getWrapper() {
-		return this.wrapper;
-	}
-
 	
 }

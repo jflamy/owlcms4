@@ -13,7 +13,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
@@ -21,21 +20,10 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.NativeLabel;
-import com.vaadin.flow.component.littemplate.LitTemplate;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.HasDynamicTitle;
-import com.vaadin.flow.router.Location;
-import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
@@ -43,21 +31,16 @@ import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
-import app.owlcms.data.group.Group;
 import app.owlcms.data.team.Team;
 import app.owlcms.data.team.TeamResultsTreeData;
 import app.owlcms.data.team.TeamTreeItem;
-import app.owlcms.displays.options.DisplayOptions;
-import app.owlcms.displays.video.VideoCSSOverride;
+import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.displays.AbstractDisplayPage;
 import app.owlcms.nui.lifting.UIEventProcessor;
-import app.owlcms.nui.shared.HasBoardMode;
-import app.owlcms.nui.shared.RequireDisplayLogin;
-import app.owlcms.nui.shared.SafeEventBusRegistration;
-import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
@@ -79,13 +62,9 @@ import elemental.json.JsonValue;
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("topteamsinclair-template")
 @JsModule("./components/TopTeamsSinclair.js")
-@Route("displays/topteamsinclair")
 
-//FIXME: same pattern as other results
-public class TopTeamsSinclair extends LitTemplate
-        implements DisplayParametersReader,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin,
-        VideoCSSOverride, HasBoardMode {
+
+public class TopTeamsSinclair extends Results {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TopTeamsSinclair.class);
 	private static final int SHOWN_ON_BOARD = 5;
@@ -97,73 +76,22 @@ public class TopTeamsSinclair extends LitTemplate
 	}
 	private AgeDivision ageDivision = null;
 	private String ageGroupPrefix = null;
-	private boolean darkMode;
-	private Dialog dialog;
 	private DecimalFormat floatFormat;
-	private boolean initializationNeeded;
-	private Location location;
-	private UI locationUI;
 	private List<TeamTreeItem> mensTeams;
 	private EventBus uiEventBus;
 	private List<TeamTreeItem> womensTeams;
-	private Timer dialogTimer;
-	private boolean video;
 	private String routeParameter;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
-	private FieldOfPlay fop;
-	private Group group;
 
-	/**
-	 * Instantiates a new results board.
-	 */
-	public TopTeamsSinclair() {
+	public TopTeamsSinclair(AbstractDisplayPage page) {
+		super(page);
+		uiEventLogger.setLevel(Level.INFO);
 		OwlcmsFactory.waitDBInitialized();
+		setDarkMode(true);
 		// js files add the build number to file names in order to prevent cache
 		// collisions
+		// FIXME: should be everywhere by inheritance
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
-	 *      com.vaadin.flow.component.orderedlayout.VerticalLayout)
-	 */
-	@Override
-	public void addDialogContent(Component target, VerticalLayout vl) {
-		// logger.debug("addDialogContent ad={} ag={} darkMode={}", getAgeDivision(),
-		// getAgeGroupPrefix(),
-		// isDarkMode());
-
-		DisplayOptions.addLightingEntries(vl, target, this);
-		ComboBox<AgeDivision> ageDivisionComboBox = new ComboBox<>();
-		ComboBox<String> ageGroupPrefixComboBox = new ComboBox<>();
-		List<AgeDivision> ageDivisions = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
-		ageDivisionComboBox.setItems(ageDivisions);
-		ageDivisionComboBox.setPlaceholder(getTranslation("AgeDivision"));
-		ageDivisionComboBox.setClearButtonVisible(true);
-		ageDivisionComboBox.addValueChangeListener(e -> {
-			AgeDivision ageDivision = e.getValue();
-			setAgeDivision(ageDivision);
-			String existingAgeGroupPrefix = getAgeGroupPrefix();
-			List<String> activeAgeGroups = setAgeGroupPrefixItems(ageGroupPrefixComboBox, ageDivision);
-			if (existingAgeGroupPrefix != null) {
-				ageGroupPrefixComboBox.setValue(existingAgeGroupPrefix);
-			} else if (activeAgeGroups != null && !activeAgeGroups.isEmpty() && ageDivision != AgeDivision.MASTERS) {
-				ageGroupPrefixComboBox.setValue(activeAgeGroups.get(0));
-			}
-		});
-		ageGroupPrefixComboBox.setPlaceholder(getTranslation("AgeGroup"));
-		ageGroupPrefixComboBox.setClearButtonVisible(true);
-		ageGroupPrefixComboBox.addValueChangeListener(e -> {
-			setAgeGroupPrefix(e.getValue());
-			updateURLLocations();
-			doUpdate(Competition.getCurrent());
-		});
-		setAgeGroupPrefixItems(ageGroupPrefixComboBox, getAgeDivision());
-		ageGroupPrefixComboBox.setValue(getAgeGroupPrefix());
-		ageDivisionComboBox.setValue(getAgeDivision());
-
-		vl.add(new NativeLabel(getTranslation("SelectAgeGroup")),
-		        new HorizontalLayout(ageDivisionComboBox, ageGroupPrefixComboBox));
 	}
 
 	@Override
@@ -204,151 +132,6 @@ public class TopTeamsSinclair extends LitTemplate
 		updateBottom();
 	}
 
-	/**
-	 * return dialog, but only on first call.
-	 *
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#getDialog()
-	 */
-	@Override
-	public Dialog getDialog() {
-		return dialog;
-	}
-
-	@Override
-	public Timer getDialogTimer() {
-		return this.dialogTimer;
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.FOPParameters#getLocation()
-	 */
-	@Override
-	public Location getLocation() {
-		return this.location;
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.FOPParameters#getLocationUI()
-	 */
-	@Override
-	public UI getLocationUI() {
-		return this.locationUI;
-	}
-
-	/**
-	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-	 */
-	@Override
-	public String getPageTitle() {
-		return getTranslation("Scoreboard.TopTeamsSinclair");
-	}
-
-	@Override
-	public String getRouteParameter() {
-		return this.routeParameter;
-	}
-
-	@Override
-	public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#isDarkMode()
-	 */
-	@Override
-	public boolean isDarkMode() {
-		return this.darkMode;
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.FOPParameters#isIgnoreFopFromURL()
-	 */
-	@Override
-	public boolean isIgnoreFopFromURL() {
-		return true;
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.FOPParameters#isIgnoreGroupFromURL()
-	 */
-	@Override
-	public boolean isIgnoreGroupFromURL() {
-		return true;
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#isShowInitialDialog()
-	 */
-	@Override
-	public boolean isShowInitialDialog() {
-		return this.initializationNeeded;
-	}
-
-	@Override
-	public boolean isSilenced() {
-		return true;
-	}
-
-	@Override
-	public boolean isVideo() {
-		return video;
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
-	 *      java.util.Map)
-	 */
-	@Override
-	public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
-		HashMap<String, List<String>> params1 = new HashMap<>(parametersMap);
-
-		List<String> darkParams = params1.get(DARK);
-		// dark is the default. dark=false or dark=no or ... will turn off dark mode.
-		boolean darkMode = darkParams == null || darkParams.isEmpty() || darkParams.get(0).toLowerCase().equals("true");
-		setDarkMode(darkMode);
-		updateParam(params1, DARK, !isDarkMode() ? "false" : null);
-
-		List<String> silentParams = params1.get(SILENT);
-		// dark is the default. dark=false or dark=no or ... will turn off dark mode.
-		boolean silentMode = silentParams == null || silentParams.isEmpty()
-		        || silentParams.get(0).toLowerCase().equals("true");
-		setSilenced(silentMode);
-		updateParam(params1, SILENT, !isSilenced() ? "false" : null);
-
-		List<String> ageDivisionParams = params1.get("ad");
-		// no age division
-		String ageDivisionName = (ageDivisionParams != null && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0)
-		        : null);
-		try {
-			setAgeDivision(AgeDivision.valueOf(ageDivisionName));
-		} catch (Exception e) {
-			List<AgeDivision> ageDivisions = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
-			setAgeDivision((ageDivisions != null && !ageDivisions.isEmpty()) ? ageDivisions.get(0) : null);
-		}
-		// remove if now null
-		String value = getAgeDivision() != null ? getAgeDivision().name() : null;
-		updateParam(params1, "ad", value);
-
-		List<String> ageGroupParams = params1.get("ag");
-		// no age group is the default
-		String ageGroupPrefix = (ageGroupParams != null && !ageGroupParams.isEmpty() ? ageGroupParams.get(0) : null);
-		setAgeGroupPrefix(ageGroupPrefix);
-		String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
-		updateParam(params1, "ag", value2);
-
-		switchLightingMode(this, darkMode, false);
-		updateURLLocations();
-		setShowInitialDialog(
-		        darkParams == null && ageDivisionParams == null && ageGroupParams == null && silentParams == null);
-
-		if (getDialog() == null) {
-			buildDialog(this);
-		}
-		setUrlParameterMap(params1);
-		return params1;
-	}
-
 	public void setAgeDivision(AgeDivision ageDivision) {
 		this.ageDivision = ageDivision;
 	}
@@ -358,59 +141,7 @@ public class TopTeamsSinclair extends LitTemplate
 	}
 
 	@Override
-	public void setDarkMode(boolean dark) {
-		this.darkMode = dark;
-	}
-
-	@Override
-	public void setDialog(Dialog dialog) {
-		this.dialog = dialog;
-	}
-
-	@Override
-	public void setDialogTimer(Timer timer) {
-		this.dialogTimer = timer;
-	}
-
-	@Override
-	public void setLocation(Location location) {
-		this.location = location;
-	}
-
-	@Override
-	public void setLocationUI(UI locationUI) {
-		this.locationUI = locationUI;
-	}
-
-	@Override
-	public void setRouteParameter(String routeParameter) {
-		this.routeParameter = routeParameter;
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
-	 */
-	@Override
-	public void setShowInitialDialog(boolean b) {
-		this.initializationNeeded = true;
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setSilenced(boolean)
-	 */
-	@Override
-	public void setSilenced(boolean silent) {
-		// no-op, silenced by definition
-	}
-
-	@Override
-	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
-	}
-
-	@Override
 	public void setVideo(boolean video) {
-		this.video = video;
 	}
 
 	@Subscribe
@@ -440,32 +171,6 @@ public class TopTeamsSinclair extends LitTemplate
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			doUpdate(competition);
 		});
-	}
-
-	@Override
-	public void switchLightingMode(Component target, boolean dark, boolean updateURL) {
-		target.getElement().getClassList().set(DARK, dark);
-		target.getElement().getClassList().set(LIGHT, !dark);
-		setDarkMode(dark);
-		if (updateURL) {
-			updateURLLocation(getLocationUI(), getLocation(), DARK, dark ? null : "false");
-		}
-	}
-
-	/**
-	 * @deprecated Use {@link #switchSoundMode(boolean,boolean)} instead
-	 */
-	@Override
-	public void switchSoundMode(Component target, boolean silent, boolean updateURL) {
-		switchSoundMode(silent, updateURL);
-	}
-
-	@Override
-	public void switchSoundMode(boolean silent, boolean updateURL) {
-		setSilenced(silent);
-		if (updateURL) {
-			updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? null : "false");
-		}
 	}
 
 	public void uiLog(UIEvent e) {
@@ -498,7 +203,6 @@ public class TopTeamsSinclair extends LitTemplate
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		checkVideo(Config.getCurrent().getParamStylesDir() + "/video/top.css", routeParameter, this);
-		switchLightingMode(this, isDarkMode(), true);
 		setWide(false);
 		setTranslationMap();
 		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
@@ -507,7 +211,6 @@ public class TopTeamsSinclair extends LitTemplate
 		}
 		Competition competition = Competition.getCurrent();
 		doUpdate(competition);
-		openDialog(getDialog());
 	}
 
 	protected void setTranslationMap() {
@@ -541,18 +244,6 @@ public class TopTeamsSinclair extends LitTemplate
 		return floatFormat.format(d);
 	}
 
-	private String formatInt(Integer total) {
-		if (total == null || total == 0) {
-			return "-";
-		} else if (total == -1) {
-			return "inv.";// invited lifter, not eligible.
-		} else if (total < 0) {
-			return "(" + Math.abs(total) + ")";
-		} else {
-			return total.toString();
-		}
-	}
-
 	private AgeDivision getAgeDivision() {
 		return ageDivision;
 	}
@@ -566,7 +257,7 @@ public class TopTeamsSinclair extends LitTemplate
 		return this;
 	}
 
-	private void getTeamJson(Team t, JsonObject ja, Gender g) {
+	private void getTeamJson(Team t, JsonObject ja) {
 		ja.put("team", t.getName());
 		ja.put("counted", formatInt(t.getCounted()));
 		ja.put("size", formatInt((int) t.getSize()));
@@ -589,8 +280,8 @@ public class TopTeamsSinclair extends LitTemplate
 
 		for (Team t : list3) {
 			JsonObject ja = Json.createObject();
-			Gender curGender = t.getGender();
-			getTeamJson(t, ja, curGender);
+			t.getGender();
+			getTeamJson(t, ja);
 			String teamName = t.getName();
 			if (teamName != null && teamName.length() > Competition.SHORT_TEAM_LENGTH) {
 				setWide(true);
@@ -601,6 +292,8 @@ public class TopTeamsSinclair extends LitTemplate
 		return jath;
 	}
 
+	// FIXME not used
+	@SuppressWarnings("unused")
 	private List<String> setAgeGroupPrefixItems(ComboBox<String> ageGroupPrefixComboBox,
 	        AgeDivision ageDivision2) {
 		List<String> activeAgeGroups = AgeGroupRepository.findActiveAndUsed(ageDivision2);
@@ -636,35 +329,6 @@ public class TopTeamsSinclair extends LitTemplate
 		                ? getTranslation("Scoreboard.TopTeamsSinclairWomen") + computeAgeGroupSuffix()
 		                : "");
 		this.getElement().setPropertyJson("womensTeams", getTeamsJson(womensTeams, false));
-	}
-
-	private void updateURLLocations() {
-		updateURLLocation(UI.getCurrent(), getLocation(), DARK,
-		        !isDarkMode() ? Boolean.TRUE.toString() : null);
-		updateURLLocation(UI.getCurrent(), getLocation(), "ag",
-		        getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null);
-		updateURLLocation(UI.getCurrent(), getLocation(), "ad",
-		        getAgeDivision() != null ? getAgeDivision().name() : null);
-	}
-
-	@Override
-	public FieldOfPlay getFop() {
-		return fop;
-	}
-
-	@Override
-	public Group getGroup() {
-		return group;
-	}
-
-	@Override
-	public void setFop(FieldOfPlay fop) {
-		this.fop = fop;
-	}
-
-	@Override
-	public void setGroup(Group group) {
-		this.group = group;
 	}
 
 }

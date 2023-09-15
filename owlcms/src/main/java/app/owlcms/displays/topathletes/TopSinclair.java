@@ -12,7 +12,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -21,18 +20,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.littemplate.LitTemplate;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.HasDynamicTitle;
-import com.vaadin.flow.router.Location;
-import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
@@ -41,19 +31,14 @@ import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
-import app.owlcms.data.group.Group;
-import app.owlcms.displays.options.DisplayOptions;
-import app.owlcms.displays.video.VideoCSSOverride;
+import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.displays.AbstractDisplayPage;
 import app.owlcms.nui.lifting.UIEventProcessor;
-import app.owlcms.nui.shared.HasBoardMode;
-import app.owlcms.nui.shared.RequireDisplayLogin;
-import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.spreadsheet.PAthlete;
-import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
@@ -73,12 +58,8 @@ import elemental.json.JsonValue;
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("topsinclair-template")
 @JsModule("./components/TopSinclair.js")
-@Route("displays/topsinclair")
 
-//FIXME: same pattern as other results
-public class TopSinclair extends LitTemplate implements DisplayParametersReader,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin,
-        VideoCSSOverride, HasBoardMode {
+public class TopSinclair extends Results {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TopSinclair.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -89,39 +70,23 @@ public class TopSinclair extends LitTemplate implements DisplayParametersReader,
 	}
 	JsonArray cattempts;
 	JsonArray sattempts;
-	private boolean darkMode;
-	private Dialog dialog;
-	private boolean initializationNeeded;
-	private Location location;
-	private UI locationUI;
 	private List<Athlete> sortedMen;
 	private List<Athlete> sortedWomen;
 	private double topManSinclair;
 	private double topWomanSinclair;
 	private EventBus uiEventBus;
-	private Timer dialogTimer;
-	private boolean video;
 	private String routeParameter;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
-	private FieldOfPlay fop;
-	private Group group;
 
-	/**
-	 * Instantiates a new results board.
-	 */
-	public TopSinclair() {
+	public TopSinclair(AbstractDisplayPage page) {
+		super(page);
+		uiEventLogger.setLevel(Level.INFO);
 		OwlcmsFactory.waitDBInitialized();
-		// js files add the build number to file names in order to prevent cache collisions
+		setDarkMode(true);
+		// js files add the build number to file names in order to prevent cache
+		// collisions
+		// FIXME: should be everywhere by inheritance
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
-	 *      com.vaadin.flow.component.orderedlayout.VerticalLayout)
-	 */
-	@Override
-	public void addDialogContent(Component target, VerticalLayout vl) {
-		DisplayOptions.addLightingEntries(vl, target, this);
 	}
 
 	@Override
@@ -176,117 +141,6 @@ public class TopSinclair extends LitTemplate implements DisplayParametersReader,
 	}
 
 	/**
-	 * return dialog, but only on first call.
-	 *
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#getDialog()
-	 */
-	@Override
-	public Dialog getDialog() {
-		return dialog;
-	}
-
-	@Override
-	public Timer getDialogTimer() {
-		return this.dialogTimer;
-	}
-
-	@Override
-	public Location getLocation() {
-		return this.location;
-	}
-
-	@Override
-	public UI getLocationUI() {
-		return this.locationUI;
-	}
-
-	@Override
-	public String getPageTitle() {
-		return getTranslation("Scoreboard.TopSinclair");
-	}
-
-	@Override
-	public String getRouteParameter() {
-		return this.routeParameter;
-	}
-
-	@Override
-	public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
-	}
-
-	@Override
-	public boolean isDarkMode() {
-		return this.darkMode;
-	}
-
-	@Override
-	public boolean isIgnoreFopFromURL() {
-		return true;
-	}
-
-	@Override
-	public boolean isIgnoreGroupFromURL() {
-		return true;
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#isShowInitialDialog()
-	 */
-	@Override
-	public boolean isShowInitialDialog() {
-		return this.initializationNeeded;
-	}
-
-	@Override
-	public boolean isSilenced() {
-		return true;
-	}
-
-	@Override
-	public boolean isVideo() {
-		return video;
-	}
-
-	@Override
-	public void setDarkMode(boolean dark) {
-		this.darkMode = dark;
-	}
-
-	@Override
-	public void setDialog(Dialog dialog) {
-		this.dialog = dialog;
-	}
-
-	@Override
-	public void setDialogTimer(Timer timer) {
-		this.dialogTimer = timer;
-	}
-
-	@Override
-	public void setLocation(Location location) {
-		this.location = location;
-	}
-
-	@Override
-	public void setLocationUI(UI locationUI) {
-		this.locationUI = locationUI;
-	}
-
-	@Override
-	public void setRouteParameter(String routeParameter) {
-		this.routeParameter = routeParameter;
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
-	 */
-	@Override
-	public void setShowInitialDialog(boolean b) {
-		this.initializationNeeded = true;
-	}
-
-	/**
 	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setSilenced(boolean)
 	 */
 	@Override
@@ -295,13 +149,7 @@ public class TopSinclair extends LitTemplate implements DisplayParametersReader,
 	}
 
 	@Override
-	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
-	}
-
-	@Override
 	public void setVideo(boolean video) {
-		this.video = video;
 	}
 
 	@Subscribe
@@ -309,6 +157,7 @@ public class TopSinclair extends LitTemplate implements DisplayParametersReader,
 		computeTop(e);
 	}
 
+	@Override
 	@Subscribe
 	public void slaveGroupDone(UIEvent.GroupDone e) {
 		uiLog(e);
@@ -319,6 +168,7 @@ public class TopSinclair extends LitTemplate implements DisplayParametersReader,
 		});
 	}
 
+	@Override
 	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
 		uiLog(e);
@@ -329,6 +179,7 @@ public class TopSinclair extends LitTemplate implements DisplayParametersReader,
 		});
 	}
 
+	@Override
 	@Subscribe
 	public void slaveStartLifting(UIEvent.StartLifting e) {
 		uiLog(e);
@@ -338,6 +189,7 @@ public class TopSinclair extends LitTemplate implements DisplayParametersReader,
 		});
 	}
 
+	@Override
 	public void uiLog(UIEvent e) {
 		if (e == null) {
 			uiEventLogger.debug("### {} {}", this.getClass().getSimpleName(), LoggerUtils.whereFrom());
@@ -347,11 +199,13 @@ public class TopSinclair extends LitTemplate implements DisplayParametersReader,
 		}
 	}
 
+	@Override
 	protected void doEmpty() {
 		logger.trace("doEmpty");
 		getElement().setProperty("hidden", true);
 	}
 
+	@Override
 	protected void doUpdate(Athlete a, UIEvent e) {
 		logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
@@ -430,7 +284,6 @@ public class TopSinclair extends LitTemplate implements DisplayParametersReader,
 	protected void onAttach(AttachEvent attachEvent) {
 		logger.debug("onAttach start");
 		checkVideo(Config.getCurrent().getParamStylesDir() + "/video/top.css", routeParameter, this);
-		switchLightingMode(this, isDarkMode(), true);
 		setWide(false);
 		setTranslationMap();
 		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
@@ -439,9 +292,9 @@ public class TopSinclair extends LitTemplate implements DisplayParametersReader,
 		}
 		Competition competition = Competition.getCurrent();
 		doUpdate(competition);
-		openDialog(getDialog());
 	}
 
+	@Override
 	protected void setTranslationMap() {
 		JsonObject translations = Json.createObject();
 		Enumeration<String> keys = Translator.getKeys();
@@ -461,18 +314,6 @@ public class TopSinclair extends LitTemplate implements DisplayParametersReader,
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			doUpdate(competition);
 		});
-	}
-
-	private String formatInt(Integer total) {
-		if (total == null || total == 0) {
-			return "-";
-		} else if (total == -1) {
-			return "inv.";// invited lifter, not eligible.
-		} else if (total < 0) {
-			return "(" + Math.abs(total) + ")";
-		} else {
-			return total.toString();
-		}
 	}
 
 	private String formatKg(String total) {
@@ -568,26 +409,6 @@ public class TopSinclair extends LitTemplate implements DisplayParametersReader,
 		this.getElement().setPropertyJson("sortedWomen", getAthletesJson(sortedWomen2, false));
 
 		logger.debug("updateBottom {} {}", sortedWomen2, sortedMen2);
-	}
-
-	@Override
-	public FieldOfPlay getFop() {
-		return fop;
-	}
-
-	@Override
-	public Group getGroup() {
-		return group;
-	}
-
-	@Override
-	public void setFop(FieldOfPlay fop) {
-		this.fop = fop;
-	}
-
-	@Override
-	public void setGroup(Group group) {
-		this.group = group;
 	}
 
 }

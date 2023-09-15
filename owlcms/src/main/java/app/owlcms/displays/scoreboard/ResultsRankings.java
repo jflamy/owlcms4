@@ -29,11 +29,10 @@ import elemental.json.JsonValue;
 public class ResultsRankings extends ResultsMedals implements ContextFreeDisplayParameters {
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsMedals.class);
-	
+
 	public ResultsRankings(ResultsRankingsPage page) {
-		super();
-		this.setWrapper(page);
-		getWrapper().setBoard(this);
+		super(page);
+
 	}
 
 	protected JsonValue getAthletesJson(List<Athlete> rankingOrder, final FieldOfPlay _unused) {
@@ -70,12 +69,6 @@ public class ResultsRankings extends ResultsMedals implements ContextFreeDisplay
 		        });
 
 		return jath;
-	}
-
-	@Override
-	public String getPageTitle() {
-		String translation = getTranslation("Scoreboard.RANKING");
-		return translation;
 	}
 
 	@Override

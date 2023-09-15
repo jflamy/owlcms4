@@ -16,7 +16,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route("displays/resultsRankings")
 
-public class ResultsRankingsPage extends AbstractResultsDisplayPage {
+public class ResultsRankingsPage extends ResultsMedalsPage {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(ResultsRankingsPage.class);
 

@@ -34,6 +34,12 @@ public interface DisplayParameters extends ContentParameters {
 	public static final String ABBREVIATED = "abb";
 	public static final String VIDEO = "video";
 
+	public default void doChangeEmSize() {
+	}
+
+	public default void doChangeTeamWidth() {
+	}
+
 	public default Double getEmFontSize() {
 		return 1.0D;
 	}
@@ -62,45 +68,33 @@ public interface DisplayParameters extends ContentParameters {
 		return false;
 	}
 
-	public default boolean isRecordsDisplay() {
-		return false;
-	}
-
 	/**
 	 * @return true if the display can switch during breaks (for example, to medals)
 	 */
-	public default boolean isSwitchableDisplay() {
+	public default boolean isPublicDisplay() {
+		return false;
+	}
+
+	public default boolean isRecordsDisplay() {
 		return false;
 	}
 
 	public boolean isVideo();
 
-	public default void setAbbreviatedName(boolean b) {
-	}
+	public void setAbbreviatedName(boolean b);
 
 	public void setDarkMode(boolean dark);
 
-	public default void setDefaultLeadersDisplay(boolean b) {
-	}
+	public void setEmFontSize(Double emFontSize);
 
-	public default void setDefaultRecordsDisplay(boolean b) {
-	}
+	public void setLeadersDisplay(boolean showLeaders);
 
-	public default void setEmFontSize(Double emFontSize) {
-	}
+	public void setPublicDisplay(boolean publicDisplay);
 
-	public default void setLeadersDisplay(boolean showLeaders) {
-	}
-
-	public default void setRecordsDisplay(boolean showRecords) {
-	}
+	public void setRecordsDisplay(boolean showRecords);
 
 	public void setRouteParameter(String routeParameter);
 
-	public default void setSwitchableDisplay(boolean switchable) {
-	}
-
-	public default void setTeamWidth(Double tw) {
-	}
+	public void setTeamWidth(Double tw);
 
 }

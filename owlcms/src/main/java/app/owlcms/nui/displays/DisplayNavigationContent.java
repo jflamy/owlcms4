@@ -23,21 +23,21 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
-import app.owlcms.displays.scoreboard.CurrentAthlete;
-import app.owlcms.displays.topathletes.TopSinclair;
-import app.owlcms.displays.topteams.TopTeams;
-import app.owlcms.displays.topteams.TopTeamsSinclair;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.displays.attemptboards.AthleteFacingAttemptBoardPage;
 import app.owlcms.nui.displays.attemptboards.AthleteFacingDecisionBoardPage;
 import app.owlcms.nui.displays.attemptboards.PublicFacingAttemptBoardPage;
+import app.owlcms.nui.displays.scoreboards.CurrentAthletePage;
 import app.owlcms.nui.displays.scoreboards.ResultsBoardPage;
 import app.owlcms.nui.displays.scoreboards.ResultsLeadersRanksPage;
 import app.owlcms.nui.displays.scoreboards.ResultsLiftingOrderPage;
 import app.owlcms.nui.displays.scoreboards.ResultsMedalsPage;
 import app.owlcms.nui.displays.scoreboards.ResultsNoLeadersPage;
 import app.owlcms.nui.displays.scoreboards.ResultsRankingOrderPage;
+import app.owlcms.nui.displays.topathletes.TopSinclairPage;
+import app.owlcms.nui.displays.topteams.TopTeamsPage;
+import app.owlcms.nui.displays.topteams.TopTeamsSinclairPage;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.NavigationPage;
@@ -73,7 +73,7 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			fillH(intro, this);
 
 			Button attempt = openInNewTab(PublicFacingAttemptBoardPage.class, getTranslation("AttemptBoard"));
-			Button currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"));
+			Button currentAthlete = openInNewTab(CurrentAthletePage.class, getTranslation("CurrentAthleteTitle"));
 			FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(attempt, currentAthlete);
 			doGroup(getTranslation("AttemptBoard"), grid3, this);
 
@@ -102,9 +102,9 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			doGroup(getTranslation("Scoreboards"), intro1, grid1, this);
 
 			Button medals = openInNewTab(ResultsMedalsPage.class, getTranslation("CeremonyType.MEDALS"));
-			Button topSinclair = openInNewTab(TopSinclair.class, getTranslation("Scoreboard.TopSinclair"));
-			Button topTeams = openInNewTab(TopTeams.class, getTranslation("Scoreboard.TopTeams"));
-			Button topTeamsSinclair = openInNewTab(TopTeamsSinclair.class,
+			Button topSinclair = openInNewTab(TopSinclairPage.class, getTranslation("Scoreboard.TopSinclair"));
+			Button topTeams = openInNewTab(TopTeamsPage.class, getTranslation("Scoreboard.TopTeams"));
+			Button topTeamsSinclair = openInNewTab(TopTeamsSinclairPage.class,
 			        getTranslation("Scoreboard.TopTeamsSinclair"));
 			VerticalLayout intro11 = new VerticalLayout();
 			FlexibleGridLayout grid11 = HomeNavigationContent.navigationGrid(

@@ -216,7 +216,7 @@ public class DisplayOptions {
 	public static void addSwitchableEntries(VerticalLayout layout, Component target, DisplayParametersReader dp) {
 		NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.SwitchableSettings"));
 
-		boolean switchable = dp.isSwitchableDisplay();
+		boolean switchable = dp.isPublicDisplay();
 		Button publicDisplay = new Button(Translator.translate("DisplayParameters.PublicDisplay"));
 		Button warmupDisplay = new Button(Translator.translate("DisplayParameters.WarmupDisplay"));
 
