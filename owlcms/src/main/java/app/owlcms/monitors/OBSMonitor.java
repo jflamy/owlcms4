@@ -24,9 +24,10 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.FOPParameters;
+import app.owlcms.apputils.queryparameters.FOPParametersReader;
 import app.owlcms.data.athlete.LiftDefinition;
 import app.owlcms.data.athlete.LiftDefinition.Stage;
+import app.owlcms.data.group.Group;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -51,7 +52,7 @@ import ch.qos.logback.classic.Logger;
 @JsModule("./components/OBSMonitor.js")
 @Route("displays/monitor")
 
-public class OBSMonitor extends LitTemplate implements FOPParameters,
+public class OBSMonitor extends LitTemplate implements FOPParametersReader,
         SafeEventBusRegistration, UIEventProcessor {
 
 	class Status {
@@ -126,6 +127,10 @@ public class OBSMonitor extends LitTemplate implements FOPParameters,
 	private long expiryBeforeChangingStatus;
 
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+
+	private FieldOfPlay fop;
+
+	private Group group;
 
 	/**
 	 * Instantiates a new results board.
@@ -453,5 +458,25 @@ public class OBSMonitor extends LitTemplate implements FOPParameters,
 	void uiLog(UIEvent e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
+	}
+
+	@Override
+	public FieldOfPlay getFop() {
+		return this.fop;
+	}
+
+	@Override
+	public Group getGroup() {
+		return this.group;
+	}
+
+	@Override
+	public void setFop(FieldOfPlay fop) {
+		this.fop = fop;
+	}
+
+	@Override
+	public void setGroup(Group group) {
+		this.group = group;
 	}
 }

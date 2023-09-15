@@ -17,25 +17,25 @@ import ch.qos.logback.classic.Logger;
 @Route("displays/resultsRankings")
 
 public class ResultsRankingsPage extends AbstractResultsDisplayPage {
-	
+
 	Logger logger = (Logger) LoggerFactory.getLogger(ResultsRankingsPage.class);
-	
+
 	public ResultsRankingsPage() {
 		setDefaultParameters(QueryParameters.simple(Map.of(
-				ContentParameters.SILENT, "true",
-				ContentParameters.DOWNSILENT, "true",
-				DisplayParameters.DARK, "true",
-				DisplayParameters.LEADERS, "true",
-				DisplayParameters.RECORDS, "true",
-				DisplayParameters.ABBREVIATED, Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames"))
-				)));
-		
+		        ContentParameters.SILENT, "true",
+		        ContentParameters.DOWNSILENT, "true",
+		        DisplayParameters.DARK, "true",
+		        DisplayParameters.LEADERS, "true",
+		        DisplayParameters.RECORDS, "true",
+		        DisplayParameters.ABBREVIATED,
+		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
+
 		var board = new ResultsRankings(this);
 		board.setLeadersDisplay(true);
 		board.setRecordsDisplay(true);
 		this.addComponent(board);
 	}
-	
+
 	@Override
 	public String getPageTitle() {
 		String translation = getTranslation("Scoreboard.RANKING");

@@ -18,7 +18,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
-import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
@@ -80,16 +79,6 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 	}
 
 	@Override
-	public Location getLocation() {
-		return this.location;
-	}
-
-	@Override
-	public UI getLocationUI() {
-		return this.locationUI;
-	}
-
-	@Override
 	public String getMenuTitle() {
 		return getTranslation("ShortTitle.Results");
 	}
@@ -97,26 +86,6 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 	@Override
 	public String getPageTitle() {
 		return getTranslation("ShortTitle.Results");
-	}
-
-	@Override
-	public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
-	}
-
-	@Override
-	public void setLocation(Location location) {
-		this.location = location;
-	}
-
-	@Override
-	public void setLocationUI(UI locationUI) {
-		this.locationUI = locationUI;
-	}
-
-	@Override
-	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
 	}
 
 	@Override

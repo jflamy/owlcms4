@@ -45,7 +45,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.FOPParameters;
+import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.DownloadDialog;
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.fields.LocalDateField;
@@ -92,7 +92,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/weighin", layout = OwlcmsLayout.class)
 @CssImport(value = "./styles/shared-styles.css")
-public class WeighinContent extends VerticalLayout implements CrudListener<Athlete>, OwlcmsContent, FOPParameters {
+public class WeighinContent extends BaseContent implements CrudListener<Athlete>, OwlcmsContent {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(WeighinContent.class);
 	static {
@@ -107,8 +107,6 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 	private ComboBox<Gender> genderFilter = new ComboBox<>();
 	private ComboBox<Group> groupFilter = new ComboBox<>();
 	private TextField lastNameFilter = new TextField();
-	private Location location;
-	private UI locationUI;
 	private OwlcmsLayout routerLayout;
 	private ComboBox<Boolean> weighedInFilter = new ComboBox<>();
 
@@ -150,12 +148,10 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 	public FlexLayout createMenuArea() {
 		createTopBarGroupSelect();
 
-		JXLSCards cardsWriter = new JXLSCards();
-		JXLSJurySheet juryWriter = new JXLSJurySheet();
-		cardsButton = createCardsButton(cardsWriter);
+		cardsButton = createCardsButton();
 		startingWeightsButton = createStartingWeightsButton();
 		weighInButton = createWeighInButton();
-		juryButton = createJuryButton(juryWriter);
+		juryButton = createJuryButton();
 
 		Button start = new Button(getTranslation("GenerateStartNumbers"), (e) -> {
 			generateStartNumbers();
@@ -222,16 +218,6 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 	}
 
 	@Override
-	public Location getLocation() {
-		return this.location;
-	}
-
-	@Override
-	public UI getLocationUI() {
-		return this.locationUI;
-	}
-
-	@Override
 	public String getMenuTitle() {
 		return getPageTitle();
 	}
@@ -247,11 +233,6 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 	@Override
 	public OwlcmsLayout getRouterLayout() {
 		return routerLayout;
-	}
-
-	@Override
-	public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
 	}
 
 	@Override
@@ -282,16 +263,6 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 		routerLayout.showLocaleDropdown(false);
 		routerLayout.setDrawerOpened(false);
 		routerLayout.updateHeader(true);
-	}
-
-	@Override
-	public void setLocation(Location location) {
-		this.location = location;
-	}
-
-	@Override
-	public void setLocationUI(UI locationUI) {
-		this.locationUI = locationUI;
 	}
 
 	/**
@@ -346,11 +317,6 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 	}
 
 	@Override
-	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
-	}
-
-	@Override
 	public Athlete update(Athlete athlete) {
 		OwlcmsSession.setAttribute("weighIn", athlete);
 		Athlete a = ((OwlcmsCrudFormFactory<Athlete>) crudGrid.getCrudFormFactory()).update(athlete);
@@ -377,7 +343,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 		refresh();
 	}
 
-	private Button createCardsButton(JXLSCards cardsWriter) {
+	private Button createCardsButton() {
 		String resourceDirectoryLocation = "/templates/cards";
 		String title = Translator.translate("AthleteCards");
 		String downloadedFilePrefix = "cards";
@@ -497,7 +463,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 		});
 	}
 
-	private Button createJuryButton(JXLSJurySheet juryWriter) {
+	private Button createJuryButton() {
 		String resourceDirectoryLocation = "/templates/jury";
 		String title = Translator.translate("Jury");
 		String downloadedFilePrefix = "jury";

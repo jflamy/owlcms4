@@ -26,7 +26,6 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
@@ -34,6 +33,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.NotificationUtils;
+import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
@@ -62,13 +62,12 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation/agegroup", layout = OwlcmsLayout.class)
-public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeGroup>, OwlcmsContent, RequireLogin {
+public class AgeGroupContent extends BaseContent implements CrudListener<AgeGroup>, OwlcmsContent, RequireLogin {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupContent.class);
 	static {
 		logger.setLevel(Level.INFO);
 	}
-
 	private Checkbox activeFilter = new Checkbox();
 	private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
 	private ComboBox<Resource> ageGroupDefinitionSelect;
@@ -98,8 +97,7 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
 	}
 
 	/**
-	 * @see #showRouterLayoutContent(HasElement) for how to content to layout and
-	 *      vice-versa
+	 * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
 	 */
 	@Override
 	public FlexLayout createMenuArea() {
@@ -235,47 +233,6 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
 		return ageGroup;
 	}
 
-	private OwlcmsCrudFormFactory<AgeGroup> getAgeGroupEditingFormFactory() {
-		return ageGroupEditingFormFactory;
-	}
-
-	private void resetCategories() {
-		AthleteRepository.resetParticipations();
-		crud.refreshGrid();
-		unHighlightResetButton();
-	}
-
-	private Resource searchMatch(List<Resource> resourceList, String curTemplateName) {
-		Resource found = null;
-		for (Resource curResource : resourceList) {
-			String fileName = curResource.getFileName();
-			if (fileName.equals(curTemplateName)) {
-				found = curResource;
-				break;
-			}
-		}
-		return found;
-	}
-
-	private void setAgeGroupEditingFormFactory(OwlcmsCrudFormFactory<AgeGroup> ageGroupEditingFormFactory) {
-		this.ageGroupEditingFormFactory = ageGroupEditingFormFactory;
-	}
-
-	private void setAgeGroupsSelectionListener(List<Resource> resourceList) {
-		String curTemplateName = Competition.getCurrent().getAgeGroupsFileName();
-		Resource found = searchMatch(resourceList, curTemplateName);
-		ageGroupDefinitionSelect.addValueChangeListener((e) -> {
-			logger.debug("setTemplateSelectionListener {}", found);
-			Competition.getCurrent().setAgeGroupsFileName(e.getValue().getFileName());
-			CompetitionRepository.save(Competition.getCurrent());
-		});
-		ageGroupDefinitionSelect.setValue(found);
-	}
-
-	private void unHighlightResetButton() {
-		resetCats.setThemeName("");
-	}
-
 	/**
 	 * The columns of the crudGrid
 	 *
@@ -312,7 +269,7 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
 		        item -> {
 			        return item.getGender().asGenderName();
 		        }))
-				.setHeader(getTranslation("Gender"));
+		        .setHeader(getTranslation("Gender"));
 		grid.addColumn(AgeGroup::getMinAge).setHeader(getTranslation("MinimumAge"));
 		grid.addColumn(AgeGroup::getMaxAge).setHeader(getTranslation("MaximumAge"));
 		grid.addColumn(AgeGroup::getCategoriesAsString).setAutoWidth(true)
@@ -366,8 +323,7 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
 	}
 
 	/**
-	 * We do not connect to the event bus, and we do not track a field of play
-	 * (non-Javadoc)
+	 * We do not connect to the event bus, and we do not track a field of play (non-Javadoc)
 	 *
 	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
 	 */
@@ -378,6 +334,47 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
 	void closeDialog() {
 		crud.getCrudLayout().hideForm();
 		crud.getGrid().asSingleSelect().clear();
+	}
+
+	private OwlcmsCrudFormFactory<AgeGroup> getAgeGroupEditingFormFactory() {
+		return ageGroupEditingFormFactory;
+	}
+
+	private void resetCategories() {
+		AthleteRepository.resetParticipations();
+		crud.refreshGrid();
+		unHighlightResetButton();
+	}
+
+	private Resource searchMatch(List<Resource> resourceList, String curTemplateName) {
+		Resource found = null;
+		for (Resource curResource : resourceList) {
+			String fileName = curResource.getFileName();
+			if (fileName.equals(curTemplateName)) {
+				found = curResource;
+				break;
+			}
+		}
+		return found;
+	}
+
+	private void setAgeGroupEditingFormFactory(OwlcmsCrudFormFactory<AgeGroup> ageGroupEditingFormFactory) {
+		this.ageGroupEditingFormFactory = ageGroupEditingFormFactory;
+	}
+
+	private void setAgeGroupsSelectionListener(List<Resource> resourceList) {
+		String curTemplateName = Competition.getCurrent().getAgeGroupsFileName();
+		Resource found = searchMatch(resourceList, curTemplateName);
+		ageGroupDefinitionSelect.addValueChangeListener((e) -> {
+			logger.debug("setTemplateSelectionListener {}", found);
+			Competition.getCurrent().setAgeGroupsFileName(e.getValue().getFileName());
+			CompetitionRepository.save(Competition.getCurrent());
+		});
+		ageGroupDefinitionSelect.setValue(found);
+	}
+
+	private void unHighlightResetButton() {
+		resetCats.setThemeName("");
 	}
 
 }

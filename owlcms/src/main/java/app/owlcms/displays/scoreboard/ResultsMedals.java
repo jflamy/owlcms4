@@ -37,7 +37,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 
 import app.owlcms.apputils.SoundUtils;
-import app.owlcms.apputils.queryparameters.ContextFreeDisplayParameters;
+import app.owlcms.apputils.queryparameters.ContextFreeParametersReader;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
@@ -84,8 +84,9 @@ import elemental.json.JsonValue;
 @Tag("resultsmedals-template")
 @JsModule("./components/ResultsMedals.js")
 
+//FIXME: same pattern as other results
 public class ResultsMedals extends LitTemplate
-        implements ContextFreeDisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
+        implements ContextFreeParametersReader, SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
         HasDynamicTitle, VideoCSSOverride, HasBoardMode,
         RequireDisplayLogin {
 
@@ -118,18 +119,15 @@ public class ResultsMedals extends LitTemplate
 	private Double teamWidth;
 	DecimalFormat df = new DecimalFormat("0.000");
 	private boolean abbreviatedName;
-	private long lastDialogClick;
 	private AbstractDisplayPage wrapper;
 
-	/**
-	 * Instantiates a new results board.
-	 */
 	public ResultsMedals() {
 		uiEventLogger.setLevel(Level.INFO);
 		OwlcmsFactory.waitDBInitialized();
 		setDarkMode(true);
 		// js files add the build number to file names in order to prevent cache
 		// collisions
+		//FIXME: should be everywhere by inheritance
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
 	}
 
@@ -238,17 +236,14 @@ public class ResultsMedals extends LitTemplate
 		return emFontSize;
 	}
 
+	@Override
 	public FieldOfPlay getFop() {
 		return fop;
 	}
 
+	@Override
 	public Group getGroup() {
 		return group;
-	}
-
-	@Override
-	public long getLastDialogClick() {
-		return lastDialogClick;
 	}
 
 	@Override
@@ -370,11 +365,6 @@ public class ResultsMedals extends LitTemplate
 	@Override
 	public void setGroup(Group group) {
 		this.group = group;
-	}
-
-	@Override
-	public void setLastDialogClick(long now) {
-		lastDialogClick = now;
 	}
 
 	@Override

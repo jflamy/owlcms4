@@ -15,7 +15,6 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.layout.FlexibleGridLayout;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -24,7 +23,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
-import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
@@ -217,16 +215,6 @@ public class VideoNavigationContent extends BaseNavigationContent
 	}
 
 	@Override
-	public Location getLocation() {
-		return this.location;
-	}
-
-	@Override
-	public UI getLocationUI() {
-		return this.locationUI;
-	}
-
-	@Override
 	public String getMenuTitle() {
 		return getTranslation("VideoStreaming");
 	}
@@ -234,26 +222,6 @@ public class VideoNavigationContent extends BaseNavigationContent
 	@Override
 	public String getPageTitle() {
 		return getTranslation("VideoStreaming") + OwlcmsSession.getFopNameIfMultiple();
-	}
-
-	@Override
-	public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
-	}
-
-	@Override
-	public void setLocation(Location location) {
-		this.location = location;
-	}
-
-	@Override
-	public void setLocationUI(UI locationUI) {
-		this.locationUI = locationUI;
-	}
-
-	@Override
-	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
 	}
 
 	/*

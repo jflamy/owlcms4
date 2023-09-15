@@ -71,13 +71,10 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		logger.setLevel(Level.INFO);
 		jexlLogger.setLevel(Level.ERROR);
 	}
-
 	private ComboBox<AgeDivision> ageDivisionFilter;
 	private ComboBox<String> ageGroupFilter;
 	private ComboBox<Platform> platformFilter;
-
 	private String groupName;
-
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	/**
@@ -92,8 +89,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 	 *
 	 * Note: the top bar is created before the content.
 	 *
-	 * @see #showRouterLayoutContent(HasElement) for how to content to layout and
-	 *      vice-versa
+	 * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
 	 *
 	 * @param topBar
 	 */
@@ -140,11 +136,9 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 	 */
 
 	@Override
-	public List<Athlete> findAll(){
+	public List<Athlete> findAll() {
 		return participationFindAll();
 	}
-	
-
 
 	@Override
 	public String getMenuTitle() {
@@ -157,11 +151,6 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 	@Override
 	public String getPageTitle() {
 		return getTranslation("Preparation.PrecompDocsTitle");
-	}
-
-	@Override
-	public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
 	}
 
 	@Override
@@ -262,12 +251,11 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 	/**
 	 * Parse the http query parameters
 	 *
-	 * Note: because we have the @Route, the parameters are parsed *before* our
-	 * parent layout is created.
+	 * Note: because we have the @Route, the parameters are parsed *before* our parent layout is created.
 	 *
 	 * @param event     Vaadin navigation event
-	 * @param parameter null in this case -- we don't want a vaadin "/" parameter.
-	 *                  This allows us to add query parameters instead.
+	 * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
+	 *                  parameters instead.
 	 *
 	 * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
 	 *      java.lang.String)
@@ -290,11 +278,6 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 
 		event.getUI().getPage().getHistory().replaceState(null,
 		        new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
-	}
-
-	@Override
-	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
 	}
 
 	public void updateURLLocation(UI ui, Location location, Group newGroup) {
@@ -540,8 +523,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 	}
 
 	/**
-	 * We do not connect to the event bus, and we do not track a field of play
-	 * (non-Javadoc)
+	 * We do not connect to the event bus, and we do not track a field of play (non-Javadoc)
 	 *
 	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
 	 */

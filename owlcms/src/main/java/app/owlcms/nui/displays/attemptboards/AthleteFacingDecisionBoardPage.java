@@ -16,15 +16,15 @@ import ch.qos.logback.classic.Logger;
 @Route("displays/athleteFacingDecision")
 
 public class AthleteFacingDecisionBoardPage extends AbstractAttemptBoardPage {
-	
+
 	Logger logger = (Logger) LoggerFactory.getLogger(AthleteFacingDecisionBoardPage.class);
-	
+
 	public AthleteFacingDecisionBoardPage() {
 		logger.warn("af decision board constructor");
 		setDefaultParameters(QueryParameters.simple(Map.of(
-				ContentParameters.SILENT, "false",
-				ContentParameters.DOWNSILENT, "false")));
-		
+		        ContentParameters.SILENT, "false",
+		        ContentParameters.DOWNSILENT, "false")));
+
 		var board = new DecisionBoard(this);
 		board.getDecisions().setDontReset(false);
 		board.setPublicFacing(false);
@@ -32,13 +32,13 @@ public class AthleteFacingDecisionBoardPage extends AbstractAttemptBoardPage {
 		setSilenced(false);
 		setDownSilenced(false);
 		this.addComponent(board);
-		
-		logger.warn("***** af decision pf={} {}",board.isPublicFacing(), board.getDecisions().isPublicFacing());
+
+		logger.warn("***** af decision pf={} {}", board.isPublicFacing(), board.getDecisions().isPublicFacing());
 	}
-	
+
 	@Override
 	public String getPageTitle() {
 		return getTranslation("Decision_AF_") + OwlcmsSession.getFopNameIfMultiple();
 	}
-	
+
 }

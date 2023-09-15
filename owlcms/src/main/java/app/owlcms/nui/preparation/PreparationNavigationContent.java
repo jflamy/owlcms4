@@ -56,10 +56,8 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 	static {
 		logger.setLevel(Level.INFO);
 	}
-
 	private Group currentGroup;
-
-	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	/**
 	 * Instantiates a new preparation navigation content.
@@ -71,7 +69,8 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		Button ageGroups = openInNewTabNoParam(AgeGroupContent.class, getTranslation("DefineAgeGroups"));
 		Button groups = openInNewTabNoParam(GroupContent.class, getTranslation("DefineGroups"));
 		Button platforms = openInNewTabNoParam(PlatformContent.class, getTranslation("DefineFOP"));
-		Button configureRecords = openInNewTabNoParam(RecordsContent.class, getTranslation("Records.RecordsManagementTitle"));
+		Button configureRecords = openInNewTabNoParam(RecordsContent.class,
+		        getTranslation("Records.RecordsManagementTitle"));
 
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, platforms,
 		        configureRecords);
@@ -125,16 +124,6 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 	}
 
 	@Override
-	public Location getLocation() {
-		return this.location;
-	}
-
-	@Override
-	public UI getLocationUI() {
-		return this.locationUI;
-	}
-
-	@Override
 	public String getMenuTitle() {
 		return getTranslation("PrepareCompetition");
 	}
@@ -142,11 +131,6 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 	@Override
 	public String getPageTitle() {
 		return getTranslation("ShortTitle.Preparation");
-	}
-
-	@Override
-	public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
 	}
 
 	/*
@@ -159,25 +143,14 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		return true;
 	}
 
-	@Override
-	public void setLocation(Location location) {
-		this.location = location;
-	}
-
-	@Override
-	public void setLocationUI(UI locationUI) {
-		this.locationUI = locationUI;
-	}
-
 	/**
 	 * Parse the http query parameters
 	 *
-	 * Note: because we have the @Route, the parameters are parsed *before* our
-	 * parent layout is created.
+	 * Note: because we have the @Route, the parameters are parsed *before* our parent layout is created.
 	 *
 	 * @param event     Vaadin navigation event
-	 * @param parameter null in this case -- we don't want a vaadin "/" parameter.
-	 *                  This allows us to add query parameters instead.
+	 * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
+	 *                  parameters instead.
 	 *
 	 * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
 	 *      java.lang.String)
@@ -208,11 +181,6 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		// change the URL to reflect group
 		event.getUI().getPage().getHistory().replaceState(null,
 		        new Location(getLocation().getPath(), new QueryParameters(URLUtils.cleanParams(params))));
-	}
-
-	@Override
-	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
 	}
 
 	@Override

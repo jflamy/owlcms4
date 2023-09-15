@@ -35,7 +35,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
@@ -43,6 +43,7 @@ import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.group.Group;
 import app.owlcms.data.team.Team;
 import app.owlcms.data.team.TeamResultsTreeData;
 import app.owlcms.data.team.TeamTreeItem;
@@ -80,7 +81,8 @@ import elemental.json.JsonValue;
 @JsModule("./components/TopTeams.js")
 @Route("displays/topteams")
 
-public class TopTeams extends LitTemplate implements DisplayParameters,
+//FIXME: same pattern as other results
+public class TopTeams extends LitTemplate implements DisplayParametersReader,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin, VideoCSSOverride, HasBoardMode {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TopTeams.class);
@@ -117,6 +119,8 @@ public class TopTeams extends LitTemplate implements DisplayParameters,
 	private String routeParameter;
 
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	private FieldOfPlay fop;
+	private Group group;
 
 	/**
 	 * Instantiates a new results board.
@@ -632,4 +636,25 @@ public class TopTeams extends LitTemplate implements DisplayParameters,
 		}
 		this.getElement().setPropertyJson("t", translations);
 	}
+
+	@Override
+	public FieldOfPlay getFop() {
+		return fop;
+	}
+
+	@Override
+	public Group getGroup() {
+		return group;
+	}
+
+	@Override
+	public void setFop(FieldOfPlay fop) {
+		this.fop = fop;
+	}
+
+	@Override
+	public void setGroup(Group group) {
+		this.group = group;
+	}
 }
+

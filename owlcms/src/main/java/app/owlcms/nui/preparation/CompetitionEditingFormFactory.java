@@ -56,7 +56,6 @@ public class CompetitionEditingFormFactory
 	String browserZoneId;
 	@SuppressWarnings("unused")
 	private Logger logger = (Logger) LoggerFactory.getLogger(CompetitionEditingFormFactory.class);
-
 	@SuppressWarnings("unused")
 	private CompetitionContent origin;
 
@@ -129,22 +128,20 @@ public class CompetitionEditingFormFactory
 		        c -> {
 			        this.update(comp);
 		        }, deleteButtonClickListener, false);
-		
+
 		TabSheet ts = new TabSheet();
 		ts.add(Translator.translate("Competition.InformationTab"),
-				 new VerticalLayout(
-					        competitionLayout, separator(),
-					        federationLayout));
+		        new VerticalLayout(
+		                competitionLayout, separator(),
+		                federationLayout));
 		ts.add(Translator.translate("Competition.RulesTab"),
-				 new VerticalLayout(
-					        teamsLayout, separator(),
-					        rulesLayout, separator(),
-					        breakDurationLayout
-					    ));
+		        new VerticalLayout(
+		                teamsLayout, separator(),
+		                rulesLayout, separator(),
+		                breakDurationLayout));
 		ts.add(Translator.translate("Competition.specialRulesTitle"),
-				 new VerticalLayout(
-					        specialLayout));
-				
+		        new VerticalLayout(
+		                specialLayout));
 
 		VerticalLayout mainLayout = new VerticalLayout(
 		        footer,
@@ -188,6 +185,58 @@ public class CompetitionEditingFormFactory
 	public Competition update(Competition competition) {
 		Competition saved = CompetitionRepository.save(competition);
 		return saved;
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	protected void bindField(HasValue field, String property, Class<?> propertyType, CrudFormConfiguration c) {
+		binder.forField(field);
+		super.bindField(field, property, propertyType, c);
+	}
+
+	private FormLayout breakDurationForm() {
+		FormLayout layout = createLayout();
+		Component title = createTitle("Competition.breakParametersTitle");
+		layout.add(title);
+		layout.setColspan(title, 2);
+
+		Checkbox toggle = new Checkbox();
+		binder.forField(toggle).bind(Competition::isAutomaticCJBreak, Competition::setAutomaticCJBreak);
+		layout.addFormItem(toggle, Translator.translate("Competition.automaticCJBreakQ"));
+
+		Paragraph explain = new Paragraph(Translator.translate("Competition.breakParametersLonger"));
+		layout.add(explain);
+		explain.getStyle().set("margin-top", "2ex");
+		explain.getStyle().set("margin-bottom", "0ex");
+		layout.setColspan(explain, 2);
+
+		LocalizedIntegerField ifLongerThreshold = new LocalizedIntegerField();
+		layout.addFormItem(ifLongerThreshold, Translator.translate("Competition.longerBreakThreshold"));
+		binder.forField(ifLongerThreshold)
+		        .bind(Competition::getLongerBreakMax, Competition::setLongerBreakMax);
+
+		LocalizedIntegerField ifLongerDuration = new LocalizedIntegerField();
+		layout.addFormItem(ifLongerDuration, Translator.translate("Competition.longerBreakDuration"));
+		binder.forField(ifLongerDuration)
+		        .bind(Competition::getLongerBreakDuration, Competition::setLongerBreakDuration);
+
+		Paragraph explain1 = new Paragraph(Translator.translate("Competition.breakParametersShorter"));
+		layout.add(explain1);
+		explain1.getStyle().set("margin-top", "2ex");
+		explain1.getStyle().set("margin-bottom", "0ex");
+		layout.setColspan(explain1, 2);
+
+		LocalizedIntegerField ifShorterThreshold = new LocalizedIntegerField();
+		layout.addFormItem(ifShorterThreshold, Translator.translate("Competition.shorterBreakThreshold"));
+		binder.forField(ifShorterThreshold)
+		        .bind(Competition::getShorterBreakMin, Competition::setShorterBreakMin);
+
+		LocalizedIntegerField ifShorterDuration = new LocalizedIntegerField();
+		layout.addFormItem(ifShorterDuration, Translator.translate("Competition.shorterBreakDuration"));
+		binder.forField(ifShorterDuration)
+		        .bind(Competition::getShorterBreakDuration, Competition::setShorterBreakDuration);
+
+		return layout;
 	}
 
 	private FormLayout competitionForm() {
@@ -331,70 +380,6 @@ public class CompetitionEditingFormFactory
 
 		return layout;
 	}
-	
-	private FormLayout teamsForm() {
-		FormLayout layout = createLayout();
-		Component title = createTitle("Competition.teamRules");
-		layout.add(title);
-		layout.setColspan(title, 2);
-
-		LocalizedIntegerField maxTeamSize = new LocalizedIntegerField();
-		layout.addFormItem(maxTeamSize, Translator.translate("Competition.AthletesPerTeam"));
-		binder.forField(maxTeamSize)
-			.bind(Competition::getMaxTeamSize, Competition::setMaxTeamSize);
-		
-		LocalizedIntegerField maxPerCategory = new LocalizedIntegerField();
-		layout.addFormItem(maxPerCategory, Translator.translate("Competition.maxAthletesPerCategory"));
-		binder.forField(maxPerCategory)
-			.bind(Competition::getMaxPerCategory, Competition::setMaxPerCategory);
-
-		return layout;
-	}
-	
-	private FormLayout breakDurationForm() {
-		FormLayout layout = createLayout();
-		Component title = createTitle("Competition.breakParametersTitle");
-		layout.add(title);
-		layout.setColspan(title, 2);
-		
-		Checkbox toggle = new Checkbox();
-		binder.forField(toggle).bind(Competition::isAutomaticCJBreak, Competition::setAutomaticCJBreak);
-		layout.addFormItem(toggle,Translator.translate("Competition.automaticCJBreakQ"));
-
-		Paragraph explain = new Paragraph(Translator.translate("Competition.breakParametersLonger"));
-		layout.add(explain);
-		explain.getStyle().set("margin-top", "2ex");
-		explain.getStyle().set("margin-bottom", "0ex");
-		layout.setColspan(explain, 2);
-		
-		LocalizedIntegerField ifLongerThreshold = new LocalizedIntegerField();
-		layout.addFormItem(ifLongerThreshold, Translator.translate("Competition.longerBreakThreshold"));
-		binder.forField(ifLongerThreshold)
-			.bind(Competition::getLongerBreakMax, Competition::setLongerBreakMax);
-		
-		LocalizedIntegerField ifLongerDuration = new LocalizedIntegerField();
-		layout.addFormItem(ifLongerDuration, Translator.translate("Competition.longerBreakDuration"));
-		binder.forField(ifLongerDuration)
-			.bind(Competition::getLongerBreakDuration, Competition::setLongerBreakDuration);
-		
-		Paragraph explain1 = new Paragraph(Translator.translate("Competition.breakParametersShorter"));
-		layout.add(explain1);
-		explain1.getStyle().set("margin-top", "2ex");
-		explain1.getStyle().set("margin-bottom", "0ex");
-		layout.setColspan(explain1, 2);
-		
-		LocalizedIntegerField ifShorterThreshold = new LocalizedIntegerField();
-		layout.addFormItem(ifShorterThreshold, Translator.translate("Competition.shorterBreakThreshold"));
-		binder.forField(ifShorterThreshold)
-			.bind(Competition::getShorterBreakMin, Competition::setShorterBreakMin);
-		
-		LocalizedIntegerField ifShorterDuration = new LocalizedIntegerField();
-		layout.addFormItem(ifShorterDuration, Translator.translate("Competition.shorterBreakDuration"));
-		binder.forField(ifShorterDuration)
-			.bind(Competition::getShorterBreakDuration, Competition::setShorterBreakDuration);
-
-		return layout;
-	}
 
 	private Hr separator() {
 		Hr hr = new Hr();
@@ -464,7 +449,7 @@ public class CompetitionEditingFormFactory
 		        labelWithHelp("Competition.customScore", "Competition.customScoreExplanation"));
 		binder.forField(customScoreField)
 		        .bind(Competition::isCustomScore, Competition::setCustomScore);
-		
+
 		IntegerField wakeUpDelayField = new IntegerField();
 		layout.addFormItem(wakeUpDelayField, Translator.translate("Competition.decisionRequestDelayLabel"));
 		binder.forField(wakeUpDelayField).bind(Competition::getRefereeWakeUpDelay, Competition::setRefereeWakeUpDelay);
@@ -472,11 +457,23 @@ public class CompetitionEditingFormFactory
 		return layout;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@Override
-	protected void bindField(HasValue field, String property, Class<?> propertyType, CrudFormConfiguration c) {
-		binder.forField(field);
-		super.bindField(field, property, propertyType, c);
+	private FormLayout teamsForm() {
+		FormLayout layout = createLayout();
+		Component title = createTitle("Competition.teamRules");
+		layout.add(title);
+		layout.setColspan(title, 2);
+
+		LocalizedIntegerField maxTeamSize = new LocalizedIntegerField();
+		layout.addFormItem(maxTeamSize, Translator.translate("Competition.AthletesPerTeam"));
+		binder.forField(maxTeamSize)
+		        .bind(Competition::getMaxTeamSize, Competition::setMaxTeamSize);
+
+		LocalizedIntegerField maxPerCategory = new LocalizedIntegerField();
+		layout.addFormItem(maxPerCategory, Translator.translate("Competition.maxAthletesPerCategory"));
+		binder.forField(maxPerCategory)
+		        .bind(Competition::getMaxPerCategory, Competition::setMaxPerCategory);
+
+		return layout;
 	}
 
 }

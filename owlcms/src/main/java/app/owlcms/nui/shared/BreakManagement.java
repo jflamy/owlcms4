@@ -8,7 +8,6 @@ package app.owlcms.nui.shared;
 
 import static app.owlcms.fieldofplay.FOPState.INACTIVE;
 import static app.owlcms.uievents.BreakType.BEFORE_INTRODUCTION;
-import static app.owlcms.uievents.BreakType.FIRST_SNATCH;
 import static java.time.temporal.ChronoUnit.MILLIS;
 
 import java.time.Duration;
@@ -49,6 +48,7 @@ import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.data.renderer.TextRenderer;
 
+import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.GroupCategorySelectionMenu;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.fields.DurationField;
@@ -71,7 +71,7 @@ import app.owlcms.utils.NaturalOrderComparator;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-public class BreakManagement extends VerticalLayout implements SafeEventBusRegistration {
+public class BreakManagement extends BaseContent implements SafeEventBusRegistration {
 
 	private Button endIntroButton;
 	private Button endMedalCeremony;
@@ -464,7 +464,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 				        boolean switchToSnatch = true;
 				        if (switchToSnatch) {
 					        durationField.setValue(DEFAULT_DURATION);
-					        setBreakValue(FIRST_SNATCH);
+					        setBreakValue(BreakType.FIRST_SNATCH);
 					        countdownTypeRadios.setValue(CountdownType.DURATION);
 					        setEnablement();
 					        countdownStart.setEnabled(true);

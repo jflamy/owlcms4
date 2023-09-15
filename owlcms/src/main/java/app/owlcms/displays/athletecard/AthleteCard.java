@@ -22,17 +22,16 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.FOPParameters;
+import app.owlcms.apputils.queryparameters.FOPParametersReader;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.nui.shared.RequireLogin;
@@ -52,7 +51,7 @@ import elemental.json.JsonObject;
 @Route("weighin/AthleteCard")
 
 public class AthleteCard extends LitTemplate
-        implements FOPParameters, SafeEventBusRegistration, HasDynamicTitle, RequireLogin {
+        implements FOPParametersReader, SafeEventBusRegistration, HasDynamicTitle, RequireLogin {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteCard.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -61,12 +60,12 @@ public class AthleteCard extends LitTemplate
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
-
 	private Athlete athlete;
 	private Location location;
 	private UI locationUI;
-
-	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	Map<String, List<String>> urlParameterMap = new HashMap<>();
+	private FieldOfPlay fop;
+	private Group group;
 
 	/**
 	 * Instantiates a new attempt board.
@@ -76,13 +75,23 @@ public class AthleteCard extends LitTemplate
 	}
 
 	@Override
-	public Location getLocation() {
-		return this.location;
+	final public FieldOfPlay getFop() {
+		return this.fop;
 	}
 
 	@Override
-	public UI getLocationUI() {
-		return this.locationUI;
+	final public Group getGroup() {
+		return this.group;
+	}
+
+	@Override
+	final public Location getLocation() {
+		return location;
+	}
+
+	@Override
+	final public UI getLocationUI() {
+		return locationUI;
 	}
 
 	@Override
@@ -91,33 +100,39 @@ public class AthleteCard extends LitTemplate
 	}
 
 	@Override
-	public Map<String, List<String>> getUrlParameterMap() {
+	final public Map<String, List<String>> getUrlParameterMap() {
 		return urlParameterMap;
 	}
 
 	@Override
-	public void setLocation(Location location) {
-		this.location = location;
+	public boolean isShowInitialDialog() {
+		return false;
 	}
 
 	@Override
-	public void setLocationUI(UI locationUI) {
+	final public void setFop(FieldOfPlay fop) {
+		this.fop = fop;
+	}
+
+	@Override
+	final public void setGroup(Group group) {
+		this.group = group;
+	}
+
+	@Override
+	final public void setLocation(Location location) {
+		this.location = location;
+
+	}
+
+	@Override
+	final public void setLocationUI(UI locationUI) {
 		this.locationUI = locationUI;
 	}
 
-	/**
-	 * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
-	 *      java.lang.String)
-	 */
 	@Override
-	public void setParameter(BeforeEvent event, String parameter) {
-		long id = Long.parseLong(parameter);
-		this.athlete = AthleteRepository.findById(id);
-	}
-
-	@Override
-	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
+	final public void setUrlParameterMap(Map<String, List<String>> parametersMap) {
+		this.urlParameterMap = parametersMap;
 	}
 
 	public int zeroIfInvalid(String v) {
@@ -128,23 +143,8 @@ public class AthleteCard extends LitTemplate
 		}
 	}
 
-	private void init() {
-		getElement().executeJs("document.querySelector('html').setAttribute('theme', 'light');");
-		setTranslationMap();
-
-		Button button = new Button(getTranslation("Print"));
-		button.setThemeName("primary success");
-		button.getElement().setAttribute("onClick", "window.print()");
-		HorizontalLayout banner = new HorizontalLayout(button);
-		banner.setJustifyContentMode(JustifyContentMode.END);
-		banner.setPadding(true);
-		banner.setClassName("printing");
-		getElement().getParent().appendChild(banner.getElement());
-	}
-
 	/*
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-	 * AttachEvent)
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
@@ -217,5 +217,19 @@ public class AthleteCard extends LitTemplate
 			}
 		}
 		this.getElement().setPropertyJson("t", translations);
+	}
+
+	private void init() {
+		getElement().executeJs("document.querySelector('html').setAttribute('theme', 'light');");
+		setTranslationMap();
+
+		Button button = new Button(getTranslation("Print"));
+		button.setThemeName("primary success");
+		button.getElement().setAttribute("onClick", "window.print()");
+		HorizontalLayout banner = new HorizontalLayout(button);
+		banner.setJustifyContentMode(JustifyContentMode.END);
+		banner.setPadding(true);
+		banner.setClassName("printing");
+		getElement().getParent().appendChild(banner.getElement());
 	}
 }

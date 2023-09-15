@@ -32,7 +32,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
@@ -41,6 +41,7 @@ import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.group.Group;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.displays.video.VideoCSSOverride;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -74,7 +75,8 @@ import elemental.json.JsonValue;
 @JsModule("./components/TopSinclair.js")
 @Route("displays/topsinclair")
 
-public class TopSinclair extends LitTemplate implements DisplayParameters,
+//FIXME: same pattern as other results
+public class TopSinclair extends LitTemplate implements DisplayParametersReader,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin,
         VideoCSSOverride, HasBoardMode {
 
@@ -101,6 +103,8 @@ public class TopSinclair extends LitTemplate implements DisplayParameters,
 	private boolean video;
 	private String routeParameter;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
+	private FieldOfPlay fop;
+	private Group group;
 
 	/**
 	 * Instantiates a new results board.
@@ -564,6 +568,26 @@ public class TopSinclair extends LitTemplate implements DisplayParameters,
 		this.getElement().setPropertyJson("sortedWomen", getAthletesJson(sortedWomen2, false));
 
 		logger.debug("updateBottom {} {}", sortedWomen2, sortedMen2);
+	}
+
+	@Override
+	public FieldOfPlay getFop() {
+		return fop;
+	}
+
+	@Override
+	public Group getGroup() {
+		return group;
+	}
+
+	@Override
+	public void setFop(FieldOfPlay fop) {
+		this.fop = fop;
+	}
+
+	@Override
+	public void setGroup(Group group) {
+		this.group = group;
 	}
 
 }

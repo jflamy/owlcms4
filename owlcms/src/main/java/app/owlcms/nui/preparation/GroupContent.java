@@ -21,10 +21,10 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.fields.LocalDateTimeField;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -44,7 +44,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation/groups", layout = OwlcmsLayout.class)
-public class GroupContent extends VerticalLayout implements CrudListener<Group>, OwlcmsContent {
+public class GroupContent extends BaseContent implements CrudListener<Group>, OwlcmsContent {
 
 	final static Logger logger = (Logger) LoggerFactory.getLogger(GroupContent.class);
 	static {
@@ -119,20 +119,6 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
 		return editingFormFactory.update(domainObjectToUpdate);
 	}
 
-	private <T extends Component> String getWindowOpenerFromClass(Class<T> targetClass,
-	        String parameter) {
-		return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "?group="
-		        + URLEncoder.encode(parameter, StandardCharsets.UTF_8)
-		        + "','" + targetClass.getSimpleName() + "')";
-	}
-
-	private <T extends Component> Button openInNewTab(Class<T> targetClass,
-	        String label, String parameter) {
-		Button button = new Button(label);
-		button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
-		return button;
-	}
-
 	/**
 	 * The columns of the crudGrid
 	 *
@@ -160,10 +146,23 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
 			return technical;
 		})).setHeader("").setWidth(tSize + "ch");
 
-
 		crud.setCrudListener(this);
 		crud.setClickRowToUpdate(true);
 		return crud;
+	}
+
+	private <T extends Component> String getWindowOpenerFromClass(Class<T> targetClass,
+	        String parameter) {
+		return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "?group="
+		        + URLEncoder.encode(parameter, StandardCharsets.UTF_8)
+		        + "','" + targetClass.getSimpleName() + "')";
+	}
+
+	private <T extends Component> Button openInNewTab(Class<T> targetClass,
+	        String label, String parameter) {
+		Button button = new Button(label);
+		button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
+		return button;
 	}
 
 }

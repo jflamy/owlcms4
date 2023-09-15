@@ -206,22 +206,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		return getGroupFilter().getValue();
 	}
 
-	/**
-	 * @see app.owlcms.apputils.queryparameters.FOPParameters#getLocation()
-	 */
-	@Override
-	public Location getLocation() {
-		return this.location;
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.FOPParameters#getLocationUI()
-	 */
-	@Override
-	public UI getLocationUI() {
-		return this.locationUI;
-	}
-
 	@Override
 	public String getMenuTitle() {
 		return getPageTitle();
@@ -233,11 +217,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	@Override
 	public String getPageTitle() {
 		return getTranslation(TITLE);
-	}
-
-	@Override
-	public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
 	}
 
 	@Override
@@ -304,16 +283,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		this.categoryValue = category;
 	}
 
-	@Override
-	public void setLocation(Location location) {
-		this.location = location;
-	}
-
-	@Override
-	public void setLocationUI(UI locationUI) {
-		this.locationUI = locationUI;
-	}
-
 	/*
 	 * Process query parameters
 	 *
@@ -344,11 +313,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	@Override
 	public void setShowInitialDialog(boolean b) {
 		return;
-	}
-
-	@Override
-	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
 	}
 
 	@Override

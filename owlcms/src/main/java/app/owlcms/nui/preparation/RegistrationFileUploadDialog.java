@@ -60,7 +60,6 @@ public class RegistrationFileUploadDialog extends Dialog {
 
 	final static Logger jxlsLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.reader.SimpleBlockReaderImpl");
 	final static Logger logger = (Logger) LoggerFactory.getLogger(RegistrationFileUploadDialog.class);
-
 	private static final String GROUPS_READER_SPEC = "/templates/registration/GroupsReader.xml";
 	private static final String REGISTRATION_READER_SPEC = "/templates/registration/RegistrationReader.xml";
 	static {

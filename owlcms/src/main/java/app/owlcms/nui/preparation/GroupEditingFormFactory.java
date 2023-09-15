@@ -52,6 +52,7 @@ public class GroupEditingFormFactory
 	@SuppressWarnings("unused")
 	private Logger logger = (Logger) LoggerFactory.getLogger(GroupEditingFormFactory.class);
 	private GroupContent origin;
+	ComboBox<Platform> platformField;
 
 	GroupEditingFormFactory(Class<Group> domainType, GroupContent origin) {
 		super(domainType);
@@ -89,8 +90,6 @@ public class GroupEditingFormFactory
 		        deleteButtonClickListener, false, buttons);
 	}
 
-	ComboBox<Platform> platformField;
-
 	@Override
 	public Component buildNewForm(CrudOperation operation, Group aFromDb, boolean readOnly,
 	        ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
@@ -111,7 +110,96 @@ public class GroupEditingFormFactory
 		binder.readBean(aFromDb);
 
 		platformField.setValue(platform);
-		
+
+		return mainLayout;
+	}
+
+	@Override
+	public Button buildOperationButton(CrudOperation operation, Group domainObject,
+	        ComponentEventListener<ClickEvent<Button>> gridCallBackAction) {
+		return super.buildOperationButton(operation, domainObject, gridCallBackAction);
+	}
+
+	@Override
+	public void delete(Group ageGroup) {
+		GroupRepository.delete(ageGroup);
+	}
+
+	@Override
+	public Collection<Group> findAll() {
+		// will not be called, handled by the grid.
+		return null;
+	}
+
+	@Override
+	public boolean setErrorLabel(BinderValidationStatus<?> validationStatus, boolean showErrorOnFields) {
+		return super.setErrorLabel(validationStatus, showErrorOnFields);
+	}
+
+	/**
+	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
+	 */
+	@Override
+	public Group update(Group ageGroup) {
+		Group saved = GroupRepository.save(ageGroup);
+		// logger.trace("saved {}", saved.getCategories().get(0).longDump());
+		origin.closeDialog();
+//        origin.highlightResetButton();
+		return saved;
+	}
+
+//	@Override
+//	public TextField defineOperationTrigger(CrudOperation operation, Group domainObject,
+//	        ComponentEventListener<ClickEvent<Button>> action) {
+//		return super.defineOperationTrigger(operation, domainObject, action);
+//	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	protected void bindField(HasValue field, String property, Class<?> propertyType, CrudFormConfiguration c) {
+		binder.forField(field);
+		super.bindField(field, property, propertyType, c);
+	}
+
+	private void addRuler(FormLayout formLayout) {
+		Paragraph hr11 = new Paragraph();
+		hr11.add("\u0020");
+		hr11.add(new Hr());
+		formLayout.add(hr11);
+		formLayout.setColspan(hr11, 2);
+	}
+
+	private FlexLayout createTabSheets(Component footer, List<Platform> allPlatforms) {
+		TabSheet ts = new TabSheet();
+
+		FormLayout groupLayout = groupLayout(allPlatforms);
+		FormLayout officialsLayout = officialsLayout();
+		FormLayout juryLayout = juryLayout();
+
+		VerticalLayout content = new VerticalLayout(new Div(),
+		        groupLayout);
+		content.setHeight(HEIGHT);
+		ts.add(Translator.translate("Group"),
+		        content);
+
+		VerticalLayout content2 = new VerticalLayout(new Div(),
+		        officialsLayout);
+		content2.setHeight(HEIGHT);
+		ts.add(Translator.translate("Officials"),
+		        content2);
+
+		VerticalLayout content3 = new VerticalLayout(new Div(),
+		        juryLayout);
+		content3.setHeight(HEIGHT);
+		ts.add(Translator.translate("Jury"),
+		        content3);
+
+		FlexLayout mainLayout = new FlexLayout(ts, footer);
+		mainLayout.setFlexDirection(FlexDirection.COLUMN);
+		mainLayout.setWidth("60rem");
+
+		mainLayout.setFlexGrow(1.0D, ts);
+
 		return mainLayout;
 	}
 
@@ -159,6 +247,40 @@ public class GroupEditingFormFactory
 		        .bind(Group::getCompetitionTime, Group::setCompetitionTime);
 
 		return formLayout;
+	}
+
+	private FormLayout juryLayout() {
+		FormLayout juryLayout = new FormLayout();
+		TextField jury1 = new TextField(Translator.translate("JuryPresident"));
+		juryLayout.add(jury1);
+		binder.forField(jury1)
+		        .withNullRepresentation("")
+		        .bind(Group::getJury1, Group::setJury1);
+
+		TextField jury2 = new TextField(Translator.translate("Jury2"));
+		juryLayout.add(jury2);
+		binder.forField(jury2)
+		        .withNullRepresentation("")
+		        .bind(Group::getJury2, Group::setJury2);
+
+		TextField jury3 = new TextField(Translator.translate("Jury3"));
+		juryLayout.add(jury3);
+		binder.forField(jury3)
+		        .withNullRepresentation("")
+		        .bind(Group::getJury3, Group::setJury3);
+
+		TextField jury4 = new TextField(Translator.translate("Jury4"));
+		juryLayout.add(jury4);
+		binder.forField(jury4)
+		        .withNullRepresentation("")
+		        .bind(Group::getJury4, Group::setJury4);
+
+		TextField jury5 = new TextField(Translator.translate("Jury5"));
+		juryLayout.add(jury5);
+		binder.forField(jury5)
+		        .withNullRepresentation("")
+		        .bind(Group::getJury5, Group::setJury5);
+		return juryLayout;
 	}
 
 	private FormLayout officialsLayout() {
@@ -237,129 +359,6 @@ public class GroupEditingFormFactory
 		addRuler(officialsLayout);
 		return officialsLayout;
 
-	}
-
-	private FormLayout juryLayout() {
-		FormLayout juryLayout = new FormLayout();
-		TextField jury1 = new TextField(Translator.translate("JuryPresident"));
-		juryLayout.add(jury1);
-		binder.forField(jury1)
-		        .withNullRepresentation("")
-		        .bind(Group::getJury1, Group::setJury1);
-
-		TextField jury2 = new TextField(Translator.translate("Jury2"));
-		juryLayout.add(jury2);
-		binder.forField(jury2)
-		        .withNullRepresentation("")
-		        .bind(Group::getJury2, Group::setJury2);
-
-		TextField jury3 = new TextField(Translator.translate("Jury3"));
-		juryLayout.add(jury3);
-		binder.forField(jury3)
-		        .withNullRepresentation("")
-		        .bind(Group::getJury3, Group::setJury3);
-
-		TextField jury4 = new TextField(Translator.translate("Jury4"));
-		juryLayout.add(jury4);
-		binder.forField(jury4)
-		        .withNullRepresentation("")
-		        .bind(Group::getJury4, Group::setJury4);
-
-		TextField jury5 = new TextField(Translator.translate("Jury5"));
-		juryLayout.add(jury5);
-		binder.forField(jury5)
-		        .withNullRepresentation("")
-		        .bind(Group::getJury5, Group::setJury5);
-		return juryLayout;
-	}
-
-	private FlexLayout createTabSheets(Component footer, List<Platform> allPlatforms) {
-		TabSheet ts = new TabSheet();
-
-		FormLayout groupLayout = groupLayout(allPlatforms);
-		FormLayout officialsLayout = officialsLayout();
-		FormLayout juryLayout = juryLayout();
-
-		VerticalLayout content = new VerticalLayout(new Div(),
-		        groupLayout);
-		content.setHeight(HEIGHT);
-		ts.add(Translator.translate("Group"),
-		        content);
-
-		VerticalLayout content2 = new VerticalLayout(new Div(),
-				officialsLayout);
-		content2.setHeight(HEIGHT);
-		ts.add(Translator.translate("Officials"),
-		        content2);
-		
-		VerticalLayout content3 = new VerticalLayout(new Div(),
-				juryLayout);
-		content3.setHeight(HEIGHT);
-		ts.add(Translator.translate("Jury"),
-		        content3);
-
-		FlexLayout mainLayout = new FlexLayout(ts, footer);
-		mainLayout.setFlexDirection(FlexDirection.COLUMN);
-		mainLayout.setWidth("60rem");
-
-		mainLayout.setFlexGrow(1.0D, ts);
-
-		return mainLayout;
-	}
-
-	@Override
-	public Button buildOperationButton(CrudOperation operation, Group domainObject,
-	        ComponentEventListener<ClickEvent<Button>> gridCallBackAction) {
-		return super.buildOperationButton(operation, domainObject, gridCallBackAction);
-	}
-
-//	@Override
-//	public TextField defineOperationTrigger(CrudOperation operation, Group domainObject,
-//	        ComponentEventListener<ClickEvent<Button>> action) {
-//		return super.defineOperationTrigger(operation, domainObject, action);
-//	}
-
-	@Override
-	public void delete(Group ageGroup) {
-		GroupRepository.delete(ageGroup);
-	}
-
-	@Override
-	public Collection<Group> findAll() {
-		// will not be called, handled by the grid.
-		return null;
-	}
-
-	@Override
-	public boolean setErrorLabel(BinderValidationStatus<?> validationStatus, boolean showErrorOnFields) {
-		return super.setErrorLabel(validationStatus, showErrorOnFields);
-	}
-
-	/**
-	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
-	 */
-	@Override
-	public Group update(Group ageGroup) {
-		Group saved = GroupRepository.save(ageGroup);
-		// logger.trace("saved {}", saved.getCategories().get(0).longDump());
-		origin.closeDialog();
-//        origin.highlightResetButton();
-		return saved;
-	}
-
-	private void addRuler(FormLayout formLayout) {
-		Paragraph hr11 = new Paragraph();
-		hr11.add("\u0020");
-		hr11.add(new Hr());
-		formLayout.add(hr11);
-		formLayout.setColspan(hr11, 2);
-	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@Override
-	protected void bindField(HasValue field, String property, Class<?> propertyType, CrudFormConfiguration c) {
-		binder.forField(field);
-		super.bindField(field, property, propertyType, c);
 	}
 
 }

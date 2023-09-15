@@ -10,23 +10,21 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-public abstract class AbstractDisplayPage extends Div implements DisplayParameters {
-	
+public abstract class AbstractDisplayPage extends Div implements DisplayParametersReader {
+
 	protected boolean downSilenced;
 	protected String routeParameter;
 	protected boolean silenced;
-	
 	private Logger logger = (Logger) LoggerFactory.getLogger(AbstractDisplayPage.class);
-	
-	private Component board = null;
+	private DisplayParameters board = null;
 	private boolean darkMode;
 	private QueryParameters defaultParameters;
 	private Dialog dialog;
@@ -46,10 +44,7 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 		this.add(display);
 	}
 
-	@Override
-	public abstract void addDialogContent(Component target, VerticalLayout vl);
-
-	public Component getBoard() {
+	public DisplayParameters getBoard() {
 		return board;
 	}
 
@@ -99,7 +94,7 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	@Override
 	public boolean isDownSilenced() {
-		logger.warn("AbstractDisplayPage down silent={}",silenced);
+		logger.warn("AbstractDisplayPage down silent={}", silenced);
 		return downSilenced;
 	}
 
@@ -110,12 +105,12 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	@Override
 	public boolean isSilenced() {
-		logger.warn("AbstractDisplayPage timer silent={}",silenced);
+		logger.warn("AbstractDisplayPage timer silent={}", silenced);
 		return silenced;
 	}
 
+	@Override
 	public boolean isSwitchableDisplay() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -125,11 +120,12 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	}
 
 	public void setBoard(Component board) {
-		this.board = board;
+		this.board = (DisplayParameters) board;
 	}
 
 	@Override
 	public void setDarkMode(boolean darkMode) {
+		this.board.setDarkMode(darkMode);
 		this.darkMode = darkMode;
 	}
 
@@ -151,7 +147,8 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	@Override
 	public void setDownSilenced(boolean silent) {
-		logger.warn("setting AbstractDisplayPage down silent={}",silent);
+		logger.warn("setting AbstractDisplayPage down silent={}", silent);
+		this.board.setDownSilenced(silent);
 		this.downSilenced = silent;
 	}
 
@@ -167,9 +164,10 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	@Override
 	public void setRouteParameter(String routeParameter) {
+		this.board.setRouteParameter(routeParameter);
 		this.routeParameter = routeParameter;
 	}
-	
+
 	@Override
 	public void setShowInitialDialog(boolean showInitialDialog) {
 		this.showInitialDialog = showInitialDialog;
@@ -177,7 +175,7 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	@Override
 	public void setSilenced(boolean silent) {
-		logger.warn("setting AbstractDisplayPage timer silent={}",silent);
+		logger.warn("setting AbstractDisplayPage timer silent={}", silent);
 		this.silenced = silent;
 	}
 
@@ -185,10 +183,4 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	public void setUrlParameterMap(Map<String, List<String>> urlParameterMap) {
 		this.urlParameterMap = urlParameterMap;
 	}
-
-	@Override
-	public void setVideo(boolean video) {
-		this.video = video;
-	}
-
 }

@@ -26,6 +26,7 @@ import com.vaadin.flow.router.Location;
 
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.components.fields.LocalizedDecimalField;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -35,7 +36,7 @@ import ch.qos.logback.classic.Logger;
 public class DisplayOptions {
 	final static Logger logger = (Logger) LoggerFactory.getLogger(DisplayOptions.class);
 
-	public static void addLightingEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
+	public static void addLightingEntries(VerticalLayout layout, Component target, DisplayParametersReader dp) {
 		NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.VisualSettings"));
 
 		boolean darkMode = dp.isDarkMode();
@@ -69,7 +70,7 @@ public class DisplayOptions {
 		vl.add(hr);
 	}
 
-	public static void addSectionEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
+	public static void addSectionEntries(VerticalLayout layout, Component target, DisplayParametersReader dp) {
 		NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.Content"));
 
 		Checkbox recordsDisplayCheckbox = null;
@@ -116,7 +117,7 @@ public class DisplayOptions {
 
 	}
 
-	public static void addSizingEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
+	public static void addSizingEntries(VerticalLayout layout, Component target, DisplayParametersReader dp) {
 
 		LocalizedDecimalField fontSizeField = new LocalizedDecimalField(3);
 		TextField wrappedTextField = fontSizeField.getWrappedTextField();
@@ -159,7 +160,7 @@ public class DisplayOptions {
 		layout.add(fx);
 	}
 
-	public static void addSoundEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
+	public static void addSoundEntries(VerticalLayout layout, Component target, DisplayParametersReader dp) {
 		NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.SoundSettings"));
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		if (fop != null) {
@@ -212,7 +213,7 @@ public class DisplayOptions {
 		layout.add(rbgroup, rb2group);
 	}
 
-	public static void addSwitchableEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
+	public static void addSwitchableEntries(VerticalLayout layout, Component target, DisplayParametersReader dp) {
 		NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.SwitchableSettings"));
 
 		boolean switchable = dp.isSwitchableDisplay();

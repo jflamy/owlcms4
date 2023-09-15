@@ -18,28 +18,28 @@ import ch.qos.logback.classic.Logger;
 @Route("displays/resultsLeadersRanks")
 
 public class ResultsLeadersRanksPage extends AbstractResultsDisplayPage {
-	
+
 	Logger logger = (Logger) LoggerFactory.getLogger(ResultsLeadersRanksPage.class);
-	
+
 	public ResultsLeadersRanksPage() {
 		setDefaultParameters(QueryParameters.simple(Map.of(
-				ContentParameters.SILENT, "true",
-				ContentParameters.DOWNSILENT, "true",
-				DisplayParameters.DARK, "true",
-				DisplayParameters.LEADERS, "true",
-				DisplayParameters.RECORDS, "true",
-				DisplayParameters.ABBREVIATED, Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames"))
-				)));
-		
+		        ContentParameters.SILENT, "true",
+		        ContentParameters.DOWNSILENT, "true",
+		        DisplayParameters.DARK, "true",
+		        DisplayParameters.LEADERS, "true",
+		        DisplayParameters.RECORDS, "true",
+		        DisplayParameters.ABBREVIATED,
+		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
+
 		var board = new ResultsLeadersRanks(this);
 		board.setLeadersDisplay(true);
 		board.setRecordsDisplay(true);
 		this.addComponent(board);
 	}
-	
+
 	@Override
 	public String getPageTitle() {
 		return getTranslation("ScoreboardMultiRanksTitle") + OwlcmsSession.getFopNameIfMultiple();
 	}
-	
+
 }

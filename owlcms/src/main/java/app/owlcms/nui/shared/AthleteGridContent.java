@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
@@ -60,7 +62,8 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
-import app.owlcms.apputils.queryparameters.ContentParameters;
+import app.owlcms.apputils.queryparameters.BaseContent;
+import app.owlcms.apputils.queryparameters.ContentParametersReader;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
@@ -97,14 +100,14 @@ import ch.qos.logback.classic.Logger;
 /**
  * Class AthleteGridContent.
  *
- * Initialization order is - content class is created - wrapping app layout is
- * created if not present - this content is inserted in the app layout slot
+ * Initialization order is - content class is created - wrapping app layout is created if not present - this content is
+ * inserted in the app layout slot
  *
  */
 @SuppressWarnings("serial")
 @CssImport(value = "./styles/athlete-grid.css")
-public abstract class AthleteGridContent extends VerticalLayout
-        implements CrudListener<Athlete>, OwlcmsContent, ContentParameters, UIEventProcessor, IAthleteEditing,
+public abstract class AthleteGridContent extends BaseContent
+        implements CrudListener<Athlete>, OwlcmsContent, ContentParametersReader, UIEventProcessor, IAthleteEditing,
         BreakDisplay {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridContent.class);
@@ -199,7 +202,6 @@ public abstract class AthleteGridContent extends VerticalLayout
 	}
 
 	protected TimerElement breakTimerElement;
-	
 	protected Button _1min;
 	protected Button _2min;
 	protected H2 attempt;
@@ -212,20 +214,16 @@ public abstract class AthleteGridContent extends VerticalLayout
 	protected JuryDisplayDecisionElement decisionDisplay;
 	protected HorizontalLayout decisions;
 	protected Span firstName;
-
 	protected ComboBox<Gender> genderFilter = new ComboBox<>();
 	protected boolean initialBar;
 	/*
 	 * Initial Bar
 	 */
 	protected Button introCountdownButton;
-
 	protected H2 lastName;
 	protected TextField lastNameFilter = new TextField();
 	protected Location location;
-
 	protected UI locationUI;
-
 	protected Component reset;
 	protected Button showResultsButton;
 	protected Button startLiftingButton;
@@ -242,20 +240,17 @@ public abstract class AthleteGridContent extends VerticalLayout
 	protected MenuBar topBarSettings;
 	// protected ComboBox<Group> this;
 	protected EventBus uiEventBus;
-
 	protected H3 warning;
-
 	protected H2 weight;
 	private AthleteCardFormFactory athleteEditingFormFactory;
 	private Athlete displayedAthlete;
 	private H3 firstNameWrapper;
 	/**
-	 * groupFilter points to a hidden field on the crudGrid filtering row, which is
-	 * slave to the group selection process. this allows us to use the filtering
-	 * logic used everywhere else to change what is shown in the crudGrid.
+	 * groupFilter points to a hidden field on the crudGrid filtering row, which is slave to the group selection
+	 * process. this allows us to use the filtering logic used everywhere else to change what is shown in the crudGrid.
 	 *
-	 * In the current implementation groupSelect is readOnly. If it is made
-	 * editable, it needs to set the value on groupFilter.
+	 * In the current implementation groupSelect is readOnly. If it is made editable, it needs to set the value on
+	 * groupFilter.
 	 */
 	private ComboBox<Group> groupFilter = new ComboBox<>();
 	private Long id;
@@ -268,23 +263,17 @@ public abstract class AthleteGridContent extends VerticalLayout
 	 */
 	private OwlcmsLayout routerLayout;
 	private boolean silenced = true;
-
 	private HorizontalLayout topBarLeft;
-
 	private String topBarTitle;
-
 	private HorizontalLayout attempts;
-
 	private Integer prevWeight;
-
 	private boolean summonNotificationSent;
-
 	private boolean deliberationNotificationSent;
 	private long previousToggleMillis;
 
 	/**
-	 * Instantiates a new announcer content. Content is created in
-	 * {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
+	 * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL
+	 * parameters are parsed.
 	 */
 	public AthleteGridContent() {
 		init();
@@ -347,8 +336,8 @@ public abstract class AthleteGridContent extends VerticalLayout
 	}
 
 	/**
-	 * Used by the TimeKeeper and TechnicalController classes that abusively inherit
-	 * from this class (they don't actually have a grid)
+	 * Used by the TimeKeeper and TechnicalController classes that abusively inherit from this class (they don't
+	 * actually have a grid)
 	 *
 	 * @see app.owlcms.nui.shared.AthleteGridContent#createTopBar()
 	 */
@@ -502,16 +491,6 @@ public abstract class AthleteGridContent extends VerticalLayout
 	}
 
 	@Override
-	public Location getLocation() {
-		return location;
-	}
-
-	@Override
-	public UI getLocationUI() {
-		return locationUI;
-	}
-
-	@Override
 	public OwlcmsLayout getRouterLayout() {
 		return routerLayout;
 	}
@@ -561,7 +540,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 	public HashMap<String, List<String>> readParams(Location location,
 	        Map<String, List<String>> parametersMap) {
 		// handle FOP and Group by calling superclass
-		HashMap<String, List<String>> params = ContentParameters.super.readParams(location, parametersMap);
+		HashMap<String, List<String>> params = ContentParametersReader.super.readParams(location, parametersMap);
 
 		List<String> silentParams = params.get(SILENT);
 		// silent is the default. silent=false will cause sound
@@ -581,16 +560,6 @@ public abstract class AthleteGridContent extends VerticalLayout
 		ignoreSwitchGroup = b;
 	}
 
-	@Override
-	public void setLocation(Location location) {
-		this.location = location;
-	}
-
-	@Override
-	public void setLocationUI(UI locationUI) {
-		this.locationUI = locationUI;
-	}
-
 	/**
 	 * Process URL parameters, including query parameters
 	 *
@@ -600,7 +569,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 		logger.debug("AthleteGridContent parsing URL");
-		ContentParameters.super.setParameter(event, parameter);
+		ContentParametersReader.super.setParameter(event, parameter);
 		setLocation(event.getLocation());
 		setLocationUI(event.getUI());
 	}
@@ -641,7 +610,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 				return;
 			}
 
-			//logger.debug("%%%%%%% starting break {}", LoggerUtils./**/stackTrace());
+			// logger.debug("%%%%%%% starting break {}", LoggerUtils./**/stackTrace());
 			syncWithFOP(true);
 		});
 	}
@@ -856,8 +825,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see app.owlcms.nui.group.UIEventProcessor#updateGrid(app.owlcms.fieldofplay.
-	 * UIEvent.LiftingOrderUpdated)
+	 * @see app.owlcms.nui.group.UIEventProcessor#updateGrid(app.owlcms.fieldofplay. UIEvent.LiftingOrderUpdated)
 	 */
 	@Subscribe
 	public void slaveUpdateGrid(UIEvent.LiftingOrderUpdated e) {
@@ -918,8 +886,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 	}
 
 	/**
-	 * display a warning to other Technical Officials that marshall has changed
-	 * weight for current athlete
+	 * display a warning to other Technical Officials that marshall has changed weight for current athlete
 	 *
 	 * @param e
 	 * @param athlete
@@ -957,7 +924,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 	 * @see app.owlcms.nui.shared.AthleteGridContent#breakButtons(com.vaadin.flow.component.orderedlayout.FlexLayout)
 	 */
 	protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
-		breakButton = new Button(Translator.translateOrElseEmpty("Pause"),new Icon(VaadinIcon.TIMER), (e) -> {
+		breakButton = new Button(Translator.translateOrElseEmpty("Pause"), new Icon(VaadinIcon.TIMER), (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				Athlete curAthlete = fop.getCurAthlete();
 				List<Athlete> order = fop.getLiftingOrder();
@@ -1488,8 +1455,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-	 * AttachEvent)
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
@@ -1572,7 +1538,8 @@ public abstract class AthleteGridContent extends VerticalLayout
 					}
 					if (breakButton != null) {
 						quietBreakButton(
-						        this instanceof MarshallContent ? Translator.translate("StopCompetition") : Translator.translateOrElseEmpty("Pause"));
+						        this instanceof MarshallContent ? Translator.translate("StopCompetition")
+						                : Translator.translateOrElseEmpty("Pause"));
 					}
 				}
 				if (breakButton != null) {
@@ -1646,6 +1613,32 @@ public abstract class AthleteGridContent extends VerticalLayout
 		}
 		ui.getPage().getHistory().replaceState(null,
 		        new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
+	}
+
+	@Override
+	public void addDialogContent(Component page, VerticalLayout vl) {
+	}
+
+	@Override
+	public Dialog getDialog() {
+		return null;
+	}
+
+	@Override
+	public void setDialog(Dialog nDialog) {
+	}
+
+	@Override
+	public void setDialogTimer(Timer timer) {
+	}
+
+	@Override
+	public void setVideo(boolean b) {
+	}
+
+	@Override
+	public boolean isVideo() {
+		return false;
 	}
 
 }

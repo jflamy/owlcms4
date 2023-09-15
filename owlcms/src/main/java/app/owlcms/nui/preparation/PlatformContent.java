@@ -17,11 +17,11 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
@@ -44,13 +44,12 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation/platforms", layout = OwlcmsLayout.class)
-public class PlatformContent extends VerticalLayout implements CrudListener<Platform>, OwlcmsContent {
+public class PlatformContent extends BaseContent implements CrudListener<Platform>, OwlcmsContent {
 
 	final static Logger logger = (Logger) LoggerFactory.getLogger(PlatformContent.class);
 	static {
 		logger.setLevel(Level.INFO);
 	}
-
 	private OwlcmsCrudFormFactory<Platform> editingFormFactory;
 	private OwlcmsLayout routerLayout;
 
@@ -118,47 +117,9 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
 	}
 
 	/**
-	 * Define the form used to edit a given Platform.
-	 *
-	 * @return the form factory that will create the actual form on demand
-	 */
-	private OwlcmsCrudFormFactory<Platform> createFormFactory() {
-		editingFormFactory = createPlatformEditingFactory();
-		createFormLayout(editingFormFactory);
-		return editingFormFactory;
-	}
-
-	/**
-	 * Create the actual form generator with all the conversions and validations
-	 * required
-	 *
-	 * {@link RegistrationContent#createAthleteEditingFormFactory} for example of
-	 * redefinition of bindField
-	 *
-	 * @return the actual factory, with the additional mechanisms to do validation
-	 */
-	private OwlcmsCrudFormFactory<Platform> createPlatformEditingFactory() {
-		return new PlatformEditingFormFactory(Platform.class);
-	}
-
-	private <T extends Component & HasUrlParameter<String>> String getWindowOpenerFromClass(Class<T> targetClass,
-	        String parameter) {
-		return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "?fop=" + parameter
-		        + "','" + targetClass.getSimpleName() + "')";
-	}
-
-	private <T extends Component & HasUrlParameter<String>> Button openInNewTab(Class<T> targetClass,
-	        String label, String parameter) {
-		Button button = new Button(label);
-		button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
-		return button;
-	}
-
-	/**
 	 * The content and ordering of the editing form.
 	 *
-	 * @param crudFormFactory the factory that will create the form using this
-	 *                        information
+	 * @param crudFormFactory the factory that will create the form using this information
 	 */
 	protected void createFormLayout(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
 		crudFormFactory.setVisibleProperties("name", "soundMixerName");
@@ -189,5 +150,40 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
 		crud.setCrudListener(this);
 		crud.setClickRowToUpdate(true);
 		return crud;
+	}
+
+	/**
+	 * Define the form used to edit a given Platform.
+	 *
+	 * @return the form factory that will create the actual form on demand
+	 */
+	private OwlcmsCrudFormFactory<Platform> createFormFactory() {
+		editingFormFactory = createPlatformEditingFactory();
+		createFormLayout(editingFormFactory);
+		return editingFormFactory;
+	}
+
+	/**
+	 * Create the actual form generator with all the conversions and validations required
+	 *
+	 * {@link RegistrationContent#createAthleteEditingFormFactory} for example of redefinition of bindField
+	 *
+	 * @return the actual factory, with the additional mechanisms to do validation
+	 */
+	private OwlcmsCrudFormFactory<Platform> createPlatformEditingFactory() {
+		return new PlatformEditingFormFactory(Platform.class);
+	}
+
+	private <T extends Component & HasUrlParameter<String>> String getWindowOpenerFromClass(Class<T> targetClass,
+	        String parameter) {
+		return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "?fop=" + parameter
+		        + "','" + targetClass.getSimpleName() + "')";
+	}
+
+	private <T extends Component & HasUrlParameter<String>> Button openInNewTab(Class<T> targetClass,
+	        String label, String parameter) {
+		Button button = new Button(label);
+		button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
+		return button;
 	}
 }

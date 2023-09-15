@@ -27,10 +27,11 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.FOPParameters;
+import app.owlcms.apputils.queryparameters.FOPParametersReader;
 import app.owlcms.data.athlete.LiftDefinition;
 import app.owlcms.data.athlete.LiftDefinition.Stage;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.group.Group;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -59,7 +60,7 @@ import ch.qos.logback.classic.Logger;
 @JsModule("./components/EventMonitor.js")
 @Route("displays/notifications")
 
-public class StreamingEventMonitor extends LitTemplate implements FOPParameters,
+public class StreamingEventMonitor extends LitTemplate implements FOPParametersReader,
         SafeEventBusRegistration, UIEventProcessor, VideoCSSOverride, HasDynamicTitle {
 
 	class Status {
@@ -96,7 +97,6 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParameters,
 	}
 
 	final static int HISTORY_SIZE = 3;
-
 	final private static Logger uiEventLogger = (Logger) LoggerFactory
 	        .getLogger("UI" + StreamingEventMonitor.class.getSimpleName());
 
@@ -104,9 +104,7 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParameters,
 		uiEventLogger.setLevel(Level.WARN);
 	}
 	final private Logger logger = (Logger) LoggerFactory.getLogger(StreamingEventMonitor.class);
-
 	List<Status> history = new LinkedList<>();
-
 	private BreakType currentBreakType;
 	private CeremonyType currentCeremony;
 	private Boolean currentDecision;
@@ -126,19 +124,15 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParameters,
 	private String prevTitle;
 	private String title;
 	private EventBus uiEventBus;
-
 	private Object currentLiftType;
 	private Object previousLiftType;
-
 	private long expiryBeforeChangingStatus;
-
-	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
-
+	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private String routeParameter;
-
 	private boolean video;
-
 	private boolean showLonger;
+	private FieldOfPlay fop;
+	private Group group;
 
 	/**
 	 * Instantiates a new results board.
@@ -153,6 +147,16 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParameters,
 	}
 
 	@Override
+	final public FieldOfPlay getFop() {
+		return this.fop;
+	}
+
+	@Override
+	final public Group getGroup() {
+		return this.group;
+	}
+
+	@Override
 	public Location getLocation() {
 		return this.location;
 	}
@@ -160,6 +164,11 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParameters,
 	@Override
 	public UI getLocationUI() {
 		return this.locationUI;
+	}
+
+	@Override
+	public String getPageTitle() {
+		return getTranslation("Video.EventMonitoringButton") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
 	@Override
@@ -181,6 +190,21 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParameters,
 	}
 
 	@Override
+	public boolean isVideo() {
+		return this.video;
+	}
+
+	@Override
+	final public void setFop(FieldOfPlay fop) {
+		this.fop = fop;
+	}
+
+	@Override
+	final public void setGroup(Group group) {
+		this.group = group;
+	}
+
+	@Override
 	public void setLocation(Location location) {
 		this.location = location;
 	}
@@ -191,8 +215,23 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParameters,
 	}
 
 	@Override
+	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		FOPParametersReader.super.setParameter(event, parameter);
+		this.routeParameter = parameter;
+	}
+
+	@Override
+	public void setShowInitialDialog(boolean b) {
+	}
+
+	@Override
 	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
 		this.urlParameterMap = newParameterMap;
+	}
+
+	@Override
+	public void setVideo(boolean b) {
+		this.video = b;
 	}
 
 	@Subscribe
@@ -230,6 +269,29 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParameters,
 		        + ", previousDecision=" + previousDecision + ", previousChallengedRecords=" + previousChallengedRecords
 		        + ", previousState=" + previousState + ", prevTitle=" + prevTitle + ", title=" + title + ", uiEventBus="
 		        + uiEventBus + ", currentLiftType=" + currentLiftType + ", previousLiftType=" + previousLiftType + "]";
+	}
+
+	/*
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
+	 */
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		// fop obtained via FOPParameters interface default methods.
+		OwlcmsSession.withFop(fop -> {
+			init();
+
+			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/currentathlete.css", routeParameter, this);
+			// sync with current status of FOP
+			syncWithFOP(null);
+			// we listen on uiEventBus.
+			uiEventBus = uiEventBusRegister(this, fop);
+		});
+		doUpdate();
+	}
+
+	void uiLog(UIEvent e) {
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+		        this.getOrigin(), e.getOrigin());
 	}
 
 	private String computePageTitle() {
@@ -368,56 +430,6 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParameters,
 		}
 	}
 
-	private void updateBar(Element element, String title) {
-		if (showLonger) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-			}
-			showLonger = false;
-		}
-		//logger.debug("UpdateBar {}",title);
-		element.setProperty("title", title);
-		element.setProperty("notificationClass", "neutralNotification");
-		//element.callJsFunction("setTitle", title);
-
-		if (title.contains(".NEW_RECORD")) {
-			element.setProperty("title", Translator.translate("NewRecord"));
-			showLonger = true;
-		} else if (title.contains(".RECORD_ATTEMPT")) {
-			element.setProperty("notificationClass", "attemptNotification");
-			element.setProperty("title", Translator.translate("VideoNotification.RecordAttempt"));
-		} else if (title.contains("GOOD_LIFT.NEW_RECORD")) {
-			element.setProperty("notificationClass", "successNotification");
-			element.setProperty("title", Translator.translate("VideoNotification.NewRecord"));
-		} else if (title.contains("JURY") && title.contains("GOOD")) {
-			element.setProperty("notificationClass", "successNotification");
-			element.setProperty("title", Translator.translate("VideoNotification.JuryGoodLift"));
-		} else if (title.contains("CHALLENGE") && title.contains("GOOD_LIFT")) {
-			element.setProperty("notificationClass", "successNotification");
-			element.setProperty("title", Translator.translate("VideoNotification.JuryGoodLift"));
-		} else if (title.contains("JURY") && title.contains("BAD")) {
-			element.setProperty("notificationClass", "failNotification");
-			element.setProperty("title", Translator.translate("VideoNotification.JuryNoLift"));
-		} else if (title.contains("CHALLENGE") && title.contains("BAD_LIFT")) {
-			element.setProperty("notificationClass", "failNotification");
-			element.setProperty("title", Translator.translate("VideoNotification.JuryNoLift"));
-		} else if (title.startsWith("break=BREAK.JURY")) {
-			element.setProperty("title", Translator.translate("VideoNotification.JuryBreak"));
-		} else if (title.startsWith("break=BREAK.CHALLENGE")) {
-			element.setProperty("title", Translator.translate("VideoNotification.Challenge"));
-		} else if (title.startsWith("break=BREAK.TECHNICAL")) {
-			element.setProperty("title", Translator.translate("VideoNotification.TechnicalIssue"));
-		} else if (title.startsWith("break=BREAK.MARSHAL")) {
-			element.setProperty("title", Translator.translate("VideoNotification.MarshalIssue"));
-		} else {
-			element.setProperty("title", "");
-			element.setProperty("notificationClass", "invisibleNotification");
-			return;
-		}
-
-	}
-
 	private long getExpiryBeforeChangingStatus() {
 		return expiryBeforeChangingStatus;
 	}
@@ -485,57 +497,58 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParameters,
 		return significant[0];
 	}
 
+	private void updateBar(Element element, String title) {
+		if (showLonger) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+			}
+			showLonger = false;
+		}
+		// logger.debug("UpdateBar {}",title);
+		element.setProperty("title", title);
+		element.setProperty("notificationClass", "neutralNotification");
+		// element.callJsFunction("setTitle", title);
+
+		if (title.contains(".NEW_RECORD")) {
+			element.setProperty("title", Translator.translate("NewRecord"));
+			showLonger = true;
+		} else if (title.contains(".RECORD_ATTEMPT")) {
+			element.setProperty("notificationClass", "attemptNotification");
+			element.setProperty("title", Translator.translate("VideoNotification.RecordAttempt"));
+		} else if (title.contains("GOOD_LIFT.NEW_RECORD")) {
+			element.setProperty("notificationClass", "successNotification");
+			element.setProperty("title", Translator.translate("VideoNotification.NewRecord"));
+		} else if (title.contains("JURY") && title.contains("GOOD")) {
+			element.setProperty("notificationClass", "successNotification");
+			element.setProperty("title", Translator.translate("VideoNotification.JuryGoodLift"));
+		} else if (title.contains("CHALLENGE") && title.contains("GOOD_LIFT")) {
+			element.setProperty("notificationClass", "successNotification");
+			element.setProperty("title", Translator.translate("VideoNotification.JuryGoodLift"));
+		} else if (title.contains("JURY") && title.contains("BAD")) {
+			element.setProperty("notificationClass", "failNotification");
+			element.setProperty("title", Translator.translate("VideoNotification.JuryNoLift"));
+		} else if (title.contains("CHALLENGE") && title.contains("BAD_LIFT")) {
+			element.setProperty("notificationClass", "failNotification");
+			element.setProperty("title", Translator.translate("VideoNotification.JuryNoLift"));
+		} else if (title.startsWith("break=BREAK.JURY")) {
+			element.setProperty("title", Translator.translate("VideoNotification.JuryBreak"));
+		} else if (title.startsWith("break=BREAK.CHALLENGE")) {
+			element.setProperty("title", Translator.translate("VideoNotification.Challenge"));
+		} else if (title.startsWith("break=BREAK.TECHNICAL")) {
+			element.setProperty("title", Translator.translate("VideoNotification.TechnicalIssue"));
+		} else if (title.startsWith("break=BREAK.MARSHAL")) {
+			element.setProperty("title", Translator.translate("VideoNotification.MarshalIssue"));
+		} else {
+			element.setProperty("title", "");
+			element.setProperty("notificationClass", "invisibleNotification");
+			return;
+		}
+
+	}
+
 	private long waitBeforeChangingStatus() {
 		return getExpiryBeforeChangingStatus() - System.currentTimeMillis();
-	}
-
-	/*
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-	 * AttachEvent)
-	 */
-	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		// fop obtained via FOPParameters interface default methods.
-		OwlcmsSession.withFop(fop -> {
-			init();
-			
-			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/currentathlete.css", routeParameter, this);
-			// sync with current status of FOP
-			syncWithFOP(null);
-			// we listen on uiEventBus.
-			uiEventBus = uiEventBusRegister(this, fop);
-		});
-		doUpdate();
-	}
-
-	void uiLog(UIEvent e) {
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-		        this.getOrigin(), e.getOrigin());
-	}
-
-	@Override
-	public void setShowInitialDialog(boolean b) {
-	}
-
-	@Override
-	public void setVideo(boolean b) {
-		this.video = b;
-	}
-
-	@Override
-	public boolean isVideo() {
-		return this.video;
-	}
-
-	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-		FOPParameters.super.setParameter(event, parameter);
-		this.routeParameter = parameter;
-	}
-
-	@Override
-	public String getPageTitle() {
-        return getTranslation("Video.EventMonitoringButton") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
 }

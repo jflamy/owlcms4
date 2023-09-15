@@ -135,16 +135,6 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		return getTranslation("Jury") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
-	@Override
-	public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
-	}
-
-	@Override
-	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
-	}
-
 	@Subscribe
 	public void slaveDown(UIEvent.DownSignal e) {
 		// Ignore down signal

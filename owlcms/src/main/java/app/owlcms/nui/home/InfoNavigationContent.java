@@ -25,13 +25,11 @@ import com.github.appreciated.css.grid.sizes.MinMax;
 import com.github.appreciated.css.grid.sizes.Repeat;
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
-import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
@@ -90,16 +88,6 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 		DebugUtils.gc();
 	}
 
-	@Override
-	public Location getLocation() {
-		return this.location;
-	}
-
-	@Override
-	public UI getLocationUI() {
-		return this.locationUI;
-	}
-
 	/**
 	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
 	 */
@@ -116,10 +104,6 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 		return getTranslation("ShortTitle.Info");
 	}
 
-	@Override
-	public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
-	}
 
 	/**
 	 * @see app.owlcms.apputils.queryparameters.FOPParameters#isIgnoreFopFromURL()
@@ -127,21 +111,6 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 	@Override
 	public boolean isIgnoreFopFromURL() {
 		return true;
-	}
-
-	@Override
-	public void setLocation(Location location) {
-		this.location = location;
-	}
-
-	@Override
-	public void setLocationUI(UI locationUI) {
-		this.locationUI = locationUI;
-	}
-
-	@Override
-	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
 	}
 
 	private VerticalLayout buildLicense() {

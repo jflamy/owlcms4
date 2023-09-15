@@ -18,19 +18,19 @@ import ch.qos.logback.classic.Logger;
 @Route("displays/resultsRankingOrder")
 
 public class ResultsRankingOrderPage extends AbstractResultsDisplayPage {
-	
+
 	Logger logger = (Logger) LoggerFactory.getLogger(ResultsRankingOrderPage.class);
-	
+
 	public ResultsRankingOrderPage() {
 		setDefaultParameters(QueryParameters.simple(Map.of(
-				ContentParameters.SILENT, "true",
-				ContentParameters.DOWNSILENT, "true",
-				DisplayParameters.DARK, "true",
-				DisplayParameters.LEADERS, "true",
-				DisplayParameters.RECORDS, "true",
-				DisplayParameters.ABBREVIATED, Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames"))
-				)));
-		
+		        ContentParameters.SILENT, "true",
+		        ContentParameters.DOWNSILENT, "true",
+		        DisplayParameters.DARK, "true",
+		        DisplayParameters.LEADERS, "true",
+		        DisplayParameters.RECORDS, "true",
+		        DisplayParameters.ABBREVIATED,
+		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
+
 		var board = new ResultsRankingOrder(this);
 		board.setLeadersDisplay(true);
 		board.setRecordsDisplay(true);

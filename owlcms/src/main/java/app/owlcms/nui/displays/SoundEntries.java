@@ -10,7 +10,7 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 
 import app.owlcms.apputils.SoundUtils;
-import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -25,7 +25,7 @@ public interface SoundEntries {
 	public abstract boolean isDownSilenced();
 	public abstract void setDownSilenced(boolean silent);
 	
-	public default void addSoundEntries(VerticalLayout layout, Component audioComponent, DisplayParameters parentPage) {
+	public default void addSoundEntries(VerticalLayout layout, Component audioComponent, DisplayParametersReader parentPage) {
 		NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.SoundSettings"));
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		if (fop != null) {

@@ -14,6 +14,8 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.DisplayParametersReader;
+import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.displays.AbstractDisplayPage;
@@ -29,13 +31,25 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
-public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage implements SoundEntries, DisplayParameters, HasDynamicTitle {
-	
-	Logger logger = (Logger) LoggerFactory.getLogger(AbstractAttemptBoardPage.class);
+public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage
+        implements SoundEntries, DisplayParameters, HasDynamicTitle {
 
+	Logger logger = (Logger) LoggerFactory.getLogger(AbstractAttemptBoardPage.class);
+	private FieldOfPlay fop;
+	private Group group;
 	@Override
 	public void addDialogContent(Component page, VerticalLayout vl) {
-		addSoundEntries(vl, page, (DisplayParameters) page);
+		addSoundEntries(vl, page, (DisplayParametersReader) page);
+	}
+
+	@Override
+	public FieldOfPlay getFop() {
+		return fop;
+	}
+
+	@Override
+	public Group getGroup() {
+		return group;
 	}
 
 	@Override
@@ -65,9 +79,23 @@ public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage imple
 	}
 
 	@Override
+	public void setFop(FieldOfPlay fop) {
+		this.fop = fop;
+	}
+
+	@Override
+	public void setGroup(Group group) {
+		this.group = group;
+	}
+
+	@Override
 	public void setSilenced(boolean silent) {
 		super.setSilenced(silent);
 		((SoundEntries) getBoard()).setSilenced(silent);
+	}
+
+	@Override
+	public void setVideo(boolean b) {
 	}
 
 	/**

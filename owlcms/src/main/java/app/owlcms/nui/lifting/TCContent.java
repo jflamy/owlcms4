@@ -116,18 +116,8 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		return getTranslation("PlatesCollarBarbell") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
-	@Override
-	public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
-	}
-
 	public void setCrudFormFactory(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
 		this.crudFormFactory = crudFormFactory;
-	}
-
-	@Override
-	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
 	}
 
 	@Override

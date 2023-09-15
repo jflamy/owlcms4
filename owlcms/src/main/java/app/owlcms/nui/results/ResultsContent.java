@@ -283,11 +283,6 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	@Override
-	public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
-	}
-
-	@Override
 	public boolean isIgnoreGroupFromURL() {
 		return false;
 	}
@@ -355,11 +350,6 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		// change the URL to reflect group
 		event.getUI().getPage().getHistory().replaceState(null,
 		        new Location(getLocation().getPath(), new QueryParameters(URLUtils.cleanParams(params))));
-	}
-
-	@Override
-	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
 	}
 
 	@Override

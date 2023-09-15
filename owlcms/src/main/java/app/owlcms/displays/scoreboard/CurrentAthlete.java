@@ -31,7 +31,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
@@ -78,8 +78,9 @@ import elemental.json.JsonValue;
 
 @Route("displays/currentathlete")
 
+//FIXME: follow same pattern as other results
 public class CurrentAthlete extends LitTemplate
-        implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
+        implements DisplayParametersReader, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
         RequireDisplayLogin, VideoCSSOverride, HasBoardMode {
 
 	/**
@@ -118,6 +119,8 @@ public class CurrentAthlete extends LitTemplate
 	private String routeParameter;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private boolean video;
+	private FieldOfPlay fop;
+	private Group group;
 
 	/**
 	 * Instantiates a new results board.
@@ -188,6 +191,16 @@ public class CurrentAthlete extends LitTemplate
 	@Override
 	public Timer getDialogTimer() {
 		return this.dialogTimer;
+	}
+
+	@Override
+	public FieldOfPlay getFop() {
+		return fop;
+	}
+
+	@Override
+	public Group getGroup() {
+		return group;
 	}
 
 	@Override
@@ -263,6 +276,16 @@ public class CurrentAthlete extends LitTemplate
 	@Override
 	public void setDialogTimer(Timer timer) {
 		this.dialogTimer = timer;
+	}
+
+	@Override
+	public void setFop(FieldOfPlay fop) {
+		this.fop = fop;
+	}
+
+	@Override
+	public void setGroup(Group group) {
+		this.group = group;
 	}
 
 	@Override

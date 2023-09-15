@@ -149,11 +149,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		return getTranslation("Announcer") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
-	@Override
-	public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
-	}
-
 	/**
 	 * The URL contains the group, contrary to other screens.
 	 *
@@ -185,11 +180,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	@Override
 	public void setSingleReferee(boolean b) {
 		this.singleReferee = b;
-	}
-
-	@Override
-	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
 	}
 
 	@Override

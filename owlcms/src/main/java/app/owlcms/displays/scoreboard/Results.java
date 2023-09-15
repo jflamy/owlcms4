@@ -26,6 +26,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.component.template.Id;
+import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.apputils.SoundUtils;
@@ -80,34 +81,34 @@ import elemental.json.JsonValue;
 @JsModule("./components/AudioContext.js")
 
 public class Results extends LitTemplate
-        implements SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
+        implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
         RequireDisplayLogin, HasBoardMode, VideoCSSOverride {
-	
+
 	@Id("timer")
 	private AthleteTimerElement timer; // WebComponent, injected by Vaadin
 	@Id("breakTimer")
 	private BreakTimerElement breakTimer; // WebComponent, injected by Vaadin
 	@Id("decisions")
 	private DecisionElement decisions; // WebComponent, injected by Vaadin
-
 	private JsonArray cattempts;
 	private Group curGroup;
 	private JsonArray sattempts;
 	private List<Athlete> displayOrder;
 	private int liftsDone;
-
 	private Category ceremonyCategory;
 	private Group ceremonyGroup = null;
 	private boolean darkMode = true;
 	private final Logger logger = (Logger) LoggerFactory.getLogger(Results.class);
 	protected EventBus uiEventBus;
 	private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-	protected Double emFontSize = null;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private boolean teamFlags;
-
 	private AbstractResultsDisplayPage wrapper;
-
+	private FieldOfPlay fop;
+	private Group group;
+	private Location location;
+	private UI locationUI;
+	private String routeParameter;
 	public Results(AbstractResultsDisplayPage resultsBoardPage) {
 		this.wrapper = resultsBoardPage;
 		wrapper.setBoard(this);
@@ -178,6 +179,60 @@ public class Results extends LitTemplate
 		}));
 	}
 
+	public BreakTimerElement getBreakTimer() {
+		return breakTimer;
+	}
+
+	public JsonArray getCattempts() {
+		return cattempts;
+	}
+
+	public DecisionElement getDecisions() {
+		return decisions;
+	}
+
+	@Override
+	final public FieldOfPlay getFop() {
+		return this.fop;
+	}
+
+	@Override
+	final public Group getGroup() {
+		return this.group;
+	}
+
+	final public Location getLocation() {
+		return location;
+	}
+
+	final public UI getLocationUI() {
+		return locationUI;
+	}
+
+	public JsonArray getSattempts() {
+		return sattempts;
+	}
+
+	public AthleteTimerElement getTimer() {
+		return timer;
+	}
+
+	final public Map<String, List<String>> getUrlParameterMap() {
+		return urlParameterMap;
+	}
+
+	public final AbstractDisplayPage getWrapper() {
+		return wrapper;
+	}
+
+	public boolean isShowInitialDialog() {
+		return false;
+	}
+
+	@Override
+	public boolean isVideo() {
+		return wrapper.isVideo();
+	}
 
 	/**
 	 * Reset.
@@ -186,6 +241,50 @@ public class Results extends LitTemplate
 		displayOrder = ImmutableList.of();
 	}
 
+	public void setBreakTimer(BreakTimerElement breakTimer) {
+		this.breakTimer = breakTimer;
+	}
+
+	public void setCattempts(JsonArray cattempts) {
+		this.cattempts = cattempts;
+	}
+
+	public void setDecisions(DecisionElement decisions) {
+		this.decisions = decisions;
+	}
+
+	@Override
+	final public void setFop(FieldOfPlay fop) {
+		this.fop = fop;
+	}
+
+	@Override
+	final public void setGroup(Group group) {
+		this.group = group;
+	}
+
+	@Override
+	public void setLeadersDisplay(boolean b) {
+		wrapper.setShowLeaders(b);
+	}
+
+	final public void setLocation(Location location) {
+		this.location = location;
+
+	}
+
+	final public void setLocationUI(UI locationUI) {
+		this.locationUI = locationUI;
+	}
+
+	@Override
+	public void setRecordsDisplay(boolean b) {
+		wrapper.setRecordsDisplay(b);
+	}
+
+	public void setSattempts(JsonArray sattempts) {
+		this.sattempts = sattempts;
+	}
 
 	/**
 	 * @param a
@@ -207,6 +306,19 @@ public class Results extends LitTemplate
 		ja.put("teamLength", team.isBlank() ? "" : (team.length() + 2) + "ch");
 		ja.put("flagURL", prop != null ? prop : "");
 		ja.put("flagClass", "flags");
+	}
+
+	public void setTimer(AthleteTimerElement timer) {
+		this.timer = timer;
+	}
+
+	final public void setUrlParameterMap(Map<String, List<String>> parametersMap) {
+		this.urlParameterMap = parametersMap;
+	}
+
+	@Override
+	public void setVideo(boolean b) {
+		wrapper.setVideo(b);
 	}
 
 	final public void setWrapper(AbstractResultsDisplayPage wrapper) {
@@ -351,7 +463,6 @@ public class Results extends LitTemplate
 		});
 	}
 
-
 	protected void computeLeaders(boolean done) {
 		OwlcmsSession.withFop(fop -> {
 			Athlete curAthlete = fop.getCurAthlete();
@@ -423,8 +534,6 @@ public class Results extends LitTemplate
 	protected int countSubsets(List<Athlete> order) {
 		return countCategories(order) + 1;
 	}
-
-
 
 	protected void doEmpty() {
 		this.setDisplay();
@@ -700,7 +809,8 @@ public class Results extends LitTemplate
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
 			init();
-			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/attemptboard.css", wrapper.getRouteParameter(), this);
+			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/attemptboard.css", wrapper.getRouteParameter(),
+			        this);
 			teamFlags = URLUtils.checkFlags();
 
 			// get the global category rankings (attached to each athlete)
@@ -910,66 +1020,30 @@ public class Results extends LitTemplate
 		}
 	}
 
-	public final AbstractDisplayPage getWrapper() {
-		return wrapper;
-	}
-
-	public void setLeadersDisplay(boolean b) {
-		wrapper.setShowLeaders(b);
-	}
-
-	public void setRecordsDisplay(boolean b) {
-		wrapper.setRecordsDisplay(b);
-	}
-
-	public AthleteTimerElement getTimer() {
-		return timer;
-	}
-
-	public void setTimer(AthleteTimerElement timer) {
-		this.timer = timer;
-	}
-
-	public BreakTimerElement getBreakTimer() {
-		return breakTimer;
-	}
-
-	public void setBreakTimer(BreakTimerElement breakTimer) {
-		this.breakTimer = breakTimer;
-	}
-
-	public DecisionElement getDecisions() {
-		return decisions;
-	}
-
-	public void setDecisions(DecisionElement decisions) {
-		this.decisions = decisions;
-	}
-
-	public JsonArray getSattempts() {
-		return sattempts;
-	}
-
-	public void setSattempts(JsonArray sattempts) {
-		this.sattempts = sattempts;
-	}
-
-	public JsonArray getCattempts() {
-		return cattempts;
-	}
-
-	public void setCattempts(JsonArray cattempts) {
-		this.cattempts = cattempts;
+	@Override
+	public void setSilenced(boolean silent) {
 	}
 
 	@Override
-	public void setVideo(boolean b) {
-		wrapper.setVideo(b);
+	public String getRouteParameter() {
+		return this.routeParameter;
 	}
 
 	@Override
-	public boolean isVideo() {
-		return wrapper.isVideo();
+	public boolean isDarkMode() {
+		return this.darkMode;
+	}
+
+	@Override
+	public void setDarkMode(boolean dark) {
+		this.darkMode = dark;
+		//FIXME: is this the expected value
+		getElement().setProperty("dark", dark ? DisplayParameters.DARK : DisplayParameters.LIGHT);
+	}
+
+	@Override
+	public void setRouteParameter(String routeParameter) {
+		this.routeParameter = routeParameter;
 	}
 
 }

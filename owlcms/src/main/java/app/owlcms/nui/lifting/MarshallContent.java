@@ -98,16 +98,6 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 		return getTranslation("Marshall") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
-	@Override
-	public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
-	}
-
-	@Override
-	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
-	}
-
 	@Subscribe
 	public void slaveRefereeDecision(UIEvent.Decision e) {
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
@@ -182,4 +172,5 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 			getTopBarLeft().add(decisionLights);
 		}
 	}
+
 }

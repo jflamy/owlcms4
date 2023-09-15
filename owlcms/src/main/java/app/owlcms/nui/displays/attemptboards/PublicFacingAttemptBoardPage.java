@@ -16,25 +16,24 @@ import ch.qos.logback.classic.Logger;
 @Route("displays/attemptBoard")
 
 public class PublicFacingAttemptBoardPage extends AbstractAttemptBoardPage {
-	
+
 	Logger logger = (Logger) LoggerFactory.getLogger(PublicFacingAttemptBoardPage.class);
-	
+
 	public PublicFacingAttemptBoardPage() {
 		setDefaultParameters(QueryParameters.simple(Map.of(
-				ContentParameters.SILENT, "true",
-				ContentParameters.DOWNSILENT, "true")));
-		
+		        ContentParameters.SILENT, "true",
+		        ContentParameters.DOWNSILENT, "true")));
+
 		var board = new AttemptBoard(this);
 		board.setPublicFacing(true);
 		this.addComponent(board);
-		
-		logger.warn("***** public attempt pf={} {}",board.isPublicFacing(), board.getDecisions().isPublicFacing());
+
+		logger.warn("***** public attempt pf={} {}", board.isPublicFacing(), board.getDecisions().isPublicFacing());
 	}
-	
+
 	@Override
 	public String getPageTitle() {
 		return getTranslation("AttemptBoard") + OwlcmsSession.getFopNameIfMultiple();
 	}
-
 
 }

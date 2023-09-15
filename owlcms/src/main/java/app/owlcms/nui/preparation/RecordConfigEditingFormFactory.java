@@ -90,31 +90,11 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 	}
 
 	@Override
-	public Collection<RecordConfig> findAll() {
-		return Arrays.asList(RecordConfig.getCurrent());
-	}
-
-	@Override
 	public RecordConfig add(RecordConfig domainObjectToAdd) {
 		throw new UnsupportedOperationException("RecordConfig is a Singleton, cannot add");
 	}
 
 	@Override
-	public RecordConfig update(RecordConfig domainObjectToUpdate) {
-		try {
-			binder.writeBean(domainObjectToUpdate);
-		} catch (ValidationException e) {
-			throw new RuntimeException("Cannot update RecordConfig {}",e);
-		}
-		recordConfig = RecordConfig.setCurrent(domainObjectToUpdate);
-		return recordConfig;
-	}
-
-	@Override
-	public void delete(RecordConfig domainObjectToDelete) {
-		throw new UnsupportedOperationException("RecordConfig is a Singleton, cannot delete");
-	}
-
 	public Component buildNewForm(CrudOperation operation, RecordConfig comp, boolean readOnly,
 	        ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
 	        ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
@@ -128,7 +108,6 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		FormLayout officialLayout = officialForm();
 		FormLayout exportLayout = exportAllForm();
 
-
 		TabSheet ts = new TabSheet();
 		ts.setWidthFull();
 		ts.add(Translator.translate("Records.ConfigurationTab"),
@@ -139,7 +118,6 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		ts.add(Translator.translate("Records.manageNewRecords"),
 		        new VerticalLayout(
 		                provisionalLayout, separator(), exportLayout));
-		
 
 		VerticalLayout mainLayout = new VerticalLayout(
 		        ts);
@@ -148,6 +126,119 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 
 		binder.readBean(comp);
 		return mainLayout;
+	}
+
+	@Override
+	public void delete(RecordConfig domainObjectToDelete) {
+		throw new UnsupportedOperationException("RecordConfig is a Singleton, cannot delete");
+	}
+
+	@Override
+	public Collection<RecordConfig> findAll() {
+		return Arrays.asList(RecordConfig.getCurrent());
+	}
+
+	@Override
+	public RecordConfig update(RecordConfig domainObjectToUpdate) {
+		try {
+			binder.writeBean(domainObjectToUpdate);
+		} catch (ValidationException e) {
+			throw new RuntimeException("Cannot update RecordConfig {}", e);
+		}
+		recordConfig = RecordConfig.setCurrent(domainObjectToUpdate);
+		return recordConfig;
+	}
+
+	private FormLayout createLayout() {
+		FormLayout layout = new FormLayout();
+//        layout.setWidth("1024px");
+		layout.setResponsiveSteps(new ResponsiveStep("0", 1, LabelsPosition.TOP),
+		        new ResponsiveStep("800px", 2, LabelsPosition.TOP));
+		return layout;
+	}
+
+	private Component createTitle(String string) {
+		H4 title = new H4(Translator.translate(string));
+		title.getStyle().set("margin-top", "0");
+		title.getStyle().set("margin-bottom", "0");
+		return title;
+	}
+
+	private FormLayout exportAllForm() {
+		FormLayout recordsAvailableLayout = createLayout();
+		Component title = createTitle("Records.exportAllRecordsTitle");
+
+		recordsAvailableLayout.add(title);
+		recordsAvailableLayout.setColspan(title, 2);
+		Div newRecords = DownloadButtonFactory.createDynamicXLSDownloadButton("records",
+		        Translator.translate("Records.exportAllRecordsTitle"), new JXLSExportRecords(UI.getCurrent(), true));
+		recordsAvailableLayout.addFormItem(newRecords, Translator.translate("Records.exportAllRecordsLabel"));
+
+		return recordsAvailableLayout;
+	}
+
+	private FormLayout officialForm() {
+		Button clearNewRecords = new Button(Translator.translate("Records.ClearOfficialRecords"),
+		        buttonClickEvent -> {
+			        try {
+				        RecordRepository.clearOfficialRecords();
+				        UI.getCurrent().getPage().reload();
+			        } catch (IOException e) {
+				        throw new RuntimeException(e);
+			        }
+		        });
+		MemoryBuffer receiver = new MemoryBuffer();
+
+		Button uploadButton = new Button(Translator.translate("Records.UploadButton"));
+		uploadButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		Upload uploadRecords = new Upload(receiver);
+		uploadRecords.setUploadButton(uploadButton);
+		uploadRecords.setDropLabel(new NativeLabel(Translator.translate("Records.UploadDropZone")));
+		uploadRecords.addSucceededListener(e -> {
+			List<String> errors = RecordDefinitionReader.readInputStream(receiver.getInputStream(),
+			        receiver.getFileName());
+			if (errors.isEmpty()) {
+				UI.getCurrent().getPage().reload();
+			} else {
+				Pre errorsComponent = new Pre();
+				errorsComponent.add(errors.stream().collect(Collectors.joining(System.lineSeparator())));
+				Dialog d = new Dialog();
+				Button okButton = new Button(Translator.translate("OK"),
+				        x -> {
+					        d.close();
+					        UI.getCurrent().getPage().reload();
+				        });
+				d.add(errorsComponent);
+				d.getFooter().add(okButton);
+				d.open();
+			}
+		});
+
+		FormLayout recordsAvailableLayout = createLayout();
+		Component title = createTitle("Records.OfficialSection");
+
+		loadedField = new LoadedRecordsField(() -> {
+			RecordConfig current = RecordConfig.getCurrent();
+			current.addMissing(RecordRepository.findAllRecordNames());
+			ofBinding.read(current);
+		});
+		loadedField.setWidthFull();
+		binder.forField(loadedField).bind(RecordConfig::getLoadedFiles, RecordConfig::setLoadedFiles);
+
+		recordsAvailableLayout.add(title);
+		recordsAvailableLayout.setColspan(title, 2);
+
+		FormItem ur = recordsAvailableLayout.addFormItem(uploadRecords,
+		        Translator.translate("Records.UploadOfficialFile"));
+		recordsAvailableLayout.setColspan(ur, 1);
+		FormItem cni = recordsAvailableLayout.addFormItem(clearNewRecords,
+		        Translator.translate("Records.ClearOfficialRecordsExplanation"));
+		recordsAvailableLayout.setColspan(cni, 1);
+
+		FormItem lfi = recordsAvailableLayout.addFormItem(loadedField,
+		        Translator.translate("Records.LoadedOfficialFiles"));
+		recordsAvailableLayout.setColspan(lfi, 2);
+		return recordsAvailableLayout;
 	}
 
 	private FormLayout provisionalForm() {
@@ -166,88 +257,11 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		recordsAvailableLayout.add(title);
 		recordsAvailableLayout.setColspan(title, 2);
 		Div newRecords = DownloadButtonFactory.createDynamicXLSDownloadButton("records",
-		        Translator.translate("Results.NewRecords"), new JXLSExportRecords(UI.getCurrent(),false));
+		        Translator.translate("Results.NewRecords"), new JXLSExportRecords(UI.getCurrent(), false));
 		recordsAvailableLayout.addFormItem(newRecords, Translator.translate("Results.NewRecords"));
 		recordsAvailableLayout.addFormItem(clearNewRecords,
 		        Translator.translate("Preparation.ClearNewRecordsExplanation"));
 
-		return recordsAvailableLayout;
-	}
-
-	private FormLayout exportAllForm() {
-		FormLayout recordsAvailableLayout = createLayout();
-		Component title = createTitle("Records.exportAllRecordsTitle");
-
-		recordsAvailableLayout.add(title);
-		recordsAvailableLayout.setColspan(title, 2);
-		Div newRecords = DownloadButtonFactory.createDynamicXLSDownloadButton("records",
-		        Translator.translate("Records.exportAllRecordsTitle"), new JXLSExportRecords(UI.getCurrent(),true));
-		recordsAvailableLayout.addFormItem(newRecords, Translator.translate("Records.exportAllRecordsLabel"));
-
-		return recordsAvailableLayout;
-	}
-	
-	private FormLayout officialForm() {
-		Button clearNewRecords = new Button(Translator.translate("Records.ClearOfficialRecords"),
-		        buttonClickEvent -> {
-			        try {
-				        RecordRepository.clearOfficialRecords();
-				        UI.getCurrent().getPage().reload();
-			        } catch (IOException e) {
-				        throw new RuntimeException(e);
-			        }
-		        });
-		MemoryBuffer receiver = new MemoryBuffer();
-		
-		Button uploadButton = new Button(Translator.translate("Records.UploadButton"));
-		uploadButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		Upload uploadRecords = new Upload(receiver);
-		uploadRecords.setUploadButton(uploadButton);
-		uploadRecords.setDropLabel(new NativeLabel(Translator.translate("Records.UploadDropZone")));
-		uploadRecords.addSucceededListener(e -> {
-			List<String> errors = RecordDefinitionReader.readInputStream(receiver.getInputStream(), receiver.getFileName());
-			if (errors.isEmpty()) {
-				UI.getCurrent().getPage().reload();
-			} else {
-				Pre errorsComponent = new Pre();
-				errorsComponent.add(errors.stream().collect(Collectors.joining(System.lineSeparator())));
-				Dialog d = new Dialog();
-				Button okButton = new Button(Translator.translate("OK"),
-						x -> {
-							d.close();
-							UI.getCurrent().getPage().reload();
-						});
-				d.add(errorsComponent);
-				d.getFooter().add(okButton);
-				d.open();
-			}			
-		});
-
-		FormLayout recordsAvailableLayout = createLayout();
-		Component title = createTitle("Records.OfficialSection");
-
-		loadedField = new LoadedRecordsField(() -> {
-			RecordConfig current = RecordConfig.getCurrent();
-			current.addMissing(RecordRepository.findAllRecordNames());
-			ofBinding.read(current);
-		});
-		loadedField.setWidthFull();
-		binder.forField(loadedField).bind(RecordConfig::getLoadedFiles, RecordConfig::setLoadedFiles);
-
-		recordsAvailableLayout.add(title);
-		recordsAvailableLayout.setColspan(title, 2);
-		
-		FormItem ur = recordsAvailableLayout.addFormItem(uploadRecords,
-		        Translator.translate("Records.UploadOfficialFile"));
-		recordsAvailableLayout.setColspan(ur, 1);
-		FormItem cni = recordsAvailableLayout.addFormItem(clearNewRecords,
-		        Translator.translate("Records.ClearOfficialRecordsExplanation"));
-		recordsAvailableLayout.setColspan(cni, 1);
-
-		
-		FormItem lfi = recordsAvailableLayout.addFormItem(loadedField,
-		        Translator.translate("Records.LoadedOfficialFiles"));
-		recordsAvailableLayout.setColspan(lfi, 2);
 		return recordsAvailableLayout;
 	}
 
@@ -257,52 +271,35 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		update.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		VerticalLayout updateContainer = new VerticalLayout(update);
 		updateContainer.setAlignSelf(Alignment.END, update);
-		
-		
+
 		FormLayout recordsOrderLayout = createLayout();
 		Component title = createTitle("Records.DisplayOptions");
 		recordsOrderLayout.add(title);
 		recordsOrderLayout.setColspan(title, 1);
-		
+
 		recordsOrderLayout.add(updateContainer);
 
-		orderingField = new GridField<String>(true, Translator.translate("Records.NoRecords", Translator.translate("Records.UploadButton")));
+		orderingField = new GridField<>(true,
+		        Translator.translate("Records.NoRecords", Translator.translate("Records.UploadButton")));
 		ofBinding = binder.forField(orderingField).bind(RecordConfig::getRecordOrder, RecordConfig::setRecordOrder);
-		
+
 		HorizontalLayout ordering = new HorizontalLayout(orderingField);
 		ordering.setSizeUndefined();
 		recordsOrderLayout.addFormItem(ordering, Translator.translate("Records.OrderingField"));
-		
+
 		recordsOrderLayout.add(new Paragraph());
-		
+
 		Checkbox showAllCategoriesField = new Checkbox();
-		binder.forField(showAllCategoriesField).bind(RecordConfig::getShowAllCategoryRecords, RecordConfig::setShowAllCategoryRecords);
+		binder.forField(showAllCategoriesField).bind(RecordConfig::getShowAllCategoryRecords,
+		        RecordConfig::setShowAllCategoryRecords);
 		recordsOrderLayout.addFormItem(showAllCategoriesField, Translator.translate("Records.AllCategories"));
-		
+
 		Checkbox showAllFederationsField = new Checkbox();
-		binder.forField(showAllFederationsField).bind(RecordConfig::getShowAllFederations, RecordConfig::setShowAllFederations);
+		binder.forField(showAllFederationsField).bind(RecordConfig::getShowAllFederations,
+		        RecordConfig::setShowAllFederations);
 		recordsOrderLayout.addFormItem(showAllFederationsField, Translator.translate("Records.AllFederations"));
-		
+
 		return recordsOrderLayout;
-	}
-
-	private Component createTitle(String string) {
-		H4 title = new H4(Translator.translate(string));
-		title.getStyle().set("margin-top", "0");
-		title.getStyle().set("margin-bottom", "0");
-		return title;
-	}
-
-	private FormLayout createLayout() {
-		FormLayout layout = new FormLayout();
-//        layout.setWidth("1024px");
-		layout.setResponsiveSteps(new ResponsiveStep("0", 1, LabelsPosition.TOP),
-		        new ResponsiveStep("800px", 2, LabelsPosition.TOP));
-		return layout;
-	}
-
-	private void setBinder(Binder<RecordConfig> buildBinder) {
-		binder = buildBinder;
 	}
 
 	private Hr separator() {
@@ -312,5 +309,9 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		hr.getStyle().set("background-color", "var(--lumo-contrast-30pct)");
 		hr.getStyle().set("height", "2px");
 		return hr;
+	}
+
+	private void setBinder(Binder<RecordConfig> buildBinder) {
+		binder = buildBinder;
 	}
 }

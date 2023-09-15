@@ -2,16 +2,22 @@ package app.owlcms.nui.displays.scoreboards;
 
 import java.text.DecimalFormat;
 
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.group.Group;
 import app.owlcms.displays.scoreboard.Results;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.nui.displays.AbstractDisplayPage;
 import app.owlcms.nui.displays.SoundEntries;
+import ch.qos.logback.classic.Logger;
 
 /**
  * Wrapper class to wrap a board as navigable page, to store the board display options, and to present an option editing
@@ -23,19 +29,20 @@ import app.owlcms.nui.displays.SoundEntries;
 @SuppressWarnings("serial")
 
 public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
-        implements SoundEntries, DisplayParameters, HasDynamicTitle {
+        implements SoundEntries, DisplayParametersReader, HasDynamicTitle {
 
-	// FIXME: normalize where the parameter values from the dialog are stored
+	Logger logger = (Logger) LoggerFactory.getLogger(AbstractResultsDisplayPage.class);
 	private Double emFontSize;
 	private boolean showLeaders;
 	private boolean showRecords;
 	private Double teamWidth;
-	
+	private FieldOfPlay fop;
+	private Group group;
 	final private DecimalFormat df = new DecimalFormat("0.000");
 
 	@Override
 	public void addDialogContent(Component page, VerticalLayout vl) {
-		addSoundEntries(vl, page, (DisplayParameters) page);
+		addSoundEntries(vl, page, (DisplayParametersReader) page);
 	}
 
 	public void doChangeAbbreviated() {
@@ -75,6 +82,16 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 	}
 
 	@Override
+	public FieldOfPlay getFop() {
+		return fop;
+	}
+
+	@Override
+	public Group getGroup() {
+		return this.group;
+	}
+
+	@Override
 	public Double getTeamWidth() {
 		if (teamWidth == null) {
 			return 12.0D;
@@ -100,6 +117,16 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 	public void setEmFontSize(Double emFontSize) {
 		this.emFontSize = emFontSize;
 		doChangeEmSize();
+	}
+
+	@Override
+	public void setFop(FieldOfPlay fop) {
+		this.fop = fop;
+	}
+
+	@Override
+	public void setGroup(Group group) {
+		this.group = group;
 	}
 
 	@Override
@@ -132,6 +159,10 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 		board.getTimer().setSilenced(silenced);
 		board.getBreakTimer().setSilenced(silenced);
 		this.silenced = silenced;
+	}
+
+	@Override
+	public void setVideo(boolean b) {
 	}
 
 	@Override

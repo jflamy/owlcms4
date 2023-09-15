@@ -32,7 +32,6 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.hierarchy.TreeDataProvider;
@@ -43,6 +42,7 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 
+import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -73,7 +73,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "results/teamresults", layout = OwlcmsLayout.class)
-public class TeamResultsContent extends VerticalLayout
+public class TeamResultsContent extends BaseContent
         implements OwlcmsContent, RequireLogin, IAthleteEditing {
 
 	static final String TITLE = "TeamResults.Title";
@@ -84,28 +84,19 @@ public class TeamResultsContent extends VerticalLayout
 		logger.setLevel(Level.INFO);
 		jexlLogger.setLevel(Level.ERROR);
 	}
-
 	protected FlexLayout topBar;
-
 	protected ComboBox<Group> topBarGroupSelect;
 	// private boolean teamFilterRecusion;
 	private List<AgeDivision> adItems;
-
 	private AgeDivision ageDivision;
-
 	private String ageGroupPrefix;
 	private OwlcmsCrudGrid<TeamTreeItem> crudGrid;
 	private Group currentGroup;
 	private Button download;
-
 	private Anchor finalPackage;
-
 	private DecimalFormat floatFormat;
 	// private ComboBox<Category> categoryFilter;
 	private ComboBox<Gender> genderFilter;
-	private Location location;
-
-	private UI locationUI;
 	private OwlcmsLayout routerLayout;
 	private ComboBox<AgeDivision> topBarAgeDivisionSelect;
 	// private ComboBox<String> teamFilter;
@@ -132,8 +123,7 @@ public class TeamResultsContent extends VerticalLayout
 	 *
 	 * Note: the top bar is created before the content.
 	 *
-	 * @see #showRouterLayoutContent(HasElement) for how to content to layout and
-	 *      vice-versa
+	 * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
 	 *
 	 * @param topBar
 	 */
@@ -180,9 +170,8 @@ public class TeamResultsContent extends VerticalLayout
 	}
 
 	/**
-	 * Get the content of the crudGrid. Invoked by refreshGrid. Not currently used
-	 * because we are using instead a TreeGrid and a
-	 * LazyCrudListener<TeamTreeItem>()
+	 * Get the content of the crudGrid. Invoked by refreshGrid. Not currently used because we are using instead a
+	 * TreeGrid and a LazyCrudListener<TeamTreeItem>()
 	 *
 	 * @see TreeDataProvider
 	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
@@ -223,14 +212,6 @@ public class TeamResultsContent extends VerticalLayout
 		return genderFilter;
 	}
 
-	public Location getLocation() {
-		return location;
-	}
-
-	public UI getLocationUI() {
-		return locationUI;
-	}
-
 	@Override
 	public String getMenuTitle() {
 		return getPageTitle();
@@ -249,6 +230,7 @@ public class TeamResultsContent extends VerticalLayout
 		return routerLayout;
 	}
 
+	@Override
 	public boolean isIgnoreGroupFromURL() {
 		return false;
 	}
@@ -265,27 +247,19 @@ public class TeamResultsContent extends VerticalLayout
 		this.ageGroupPrefix = ageGroupPrefix;
 	}
 
-	public void setLocation(Location location) {
-		this.location = location;
-	}
-
-	public void setLocationUI(UI locationUI) {
-		this.locationUI = locationUI;
-	}
-
 	/**
 	 * Parse the http query parameters
 	 *
-	 * Note: because we have the @Route, the parameters are parsed *before* our
-	 * parent layout is created.
+	 * Note: because we have the @Route, the parameters are parsed *before* our parent layout is created.
 	 *
 	 * @param event     Vaadin navigation event
-	 * @param parameter null in this case -- we don't want a vaadin "/" parameter.
-	 *                  This allows us to add query parameters instead.
+	 * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
+	 *                  parameters instead.
 	 *
 	 * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
 	 *      java.lang.String)
 	 */
+	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 		setLocation(event.getLocation());
 		setLocationUI(event.getUI());
@@ -329,123 +303,6 @@ public class TeamResultsContent extends VerticalLayout
 		}
 		ui.getPage().getHistory().replaceState(null,
 		        new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
-	}
-
-	private void defineContent(OwlcmsCrudGrid<TeamTreeItem> crudGrid) {
-		crudGrid.setCrudListener(new LazyCrudListener<TeamTreeItem>() {
-			@Override
-			public TeamTreeItem add(TeamTreeItem user) {
-				AthleteRepository.save(user.getAthlete());
-				return user;
-			}
-
-			@Override
-			public void delete(TeamTreeItem user) {
-				AthleteRepository.delete(user.getAthlete());
-			}
-
-			@Override
-			public DataProvider<TeamTreeItem, ?> getDataProvider() {
-				return new TreeDataProvider<>(
-				        new TeamResultsTreeData(getAgeGroupPrefix(), getAgeDivision(), getGenderFilter().getValue(),
-				                Ranking.SNATCH_CJ_TOTAL, false));
-			}
-
-			@Override
-			public TeamTreeItem update(TeamTreeItem user) {
-				AthleteRepository.save(user.getAthlete());
-				return user;
-			}
-		});
-	}
-
-	private String formatDouble(double d, int decimals) {
-		if (floatFormat == null) {
-			floatFormat = new DecimalFormat();
-			floatFormat.setMinimumIntegerDigits(1);
-			floatFormat.setMaximumFractionDigits(decimals);
-			floatFormat.setMinimumFractionDigits(decimals);
-			floatFormat.setGroupingUsed(false);
-		}
-		return floatFormat.format(d);
-	}
-
-	private void setAgeDivisionSelectionListener() {
-		topBarAgeDivisionSelect.addValueChangeListener(e -> {
-			// the name of the resulting file is set as an attribute on the <a href tag that
-			// surrounds the download button.
-			AgeDivision ageDivisionValue = e.getValue();
-			setAgeDivision(ageDivisionValue);
-			// logger.debug("ageDivisionSelectionListener {}",ageDivisionValue);
-			if (ageDivisionValue == null) {
-				topBarAgeGroupPrefixSelect.setValue(null);
-				topBarAgeGroupPrefixSelect.setItems(new ArrayList<String>());
-				topBarAgeGroupPrefixSelect.setEnabled(false);
-				topBarAgeGroupPrefixSelect.setValue(null);
-				crudGrid.refreshGrid();
-				return;
-			}
-
-			List<String> ageDivisionAgeGroupPrefixes;
-			ageDivisionAgeGroupPrefixes = AgeGroupRepository.findActiveAndUsed(ageDivisionValue);
-
-			topBarAgeGroupPrefixSelect.setItems(ageDivisionAgeGroupPrefixes);
-			boolean notEmpty = ageDivisionAgeGroupPrefixes.size() > 0;
-			topBarAgeGroupPrefixSelect.setEnabled(notEmpty);
-			String first = (notEmpty && ageDivisionValue == AgeDivision.IWF) ? ageDivisionAgeGroupPrefixes.get(0)
-			        : null;
-			// logger.debug("ad {} ag {} first {} select {}", ageDivisionValue,
-			// ageDivisionAgeGroupPrefixes, first,
-			// topBarAgeGroupPrefixSelect);
-
-			xlsWriter.setAgeDivision(ageDivisionValue);
-			finalPackage.getElement().setAttribute("download",
-			        "results" + (getAgeDivision() != null ? "_" + getAgeDivision().name()
-			                : (ageGroupPrefix != null ? "_" + ageGroupPrefix : "_all")) + ".xls");
-
-			String value = notEmpty ? first : null;
-			// logger.debug("setting prefix to {}", value);
-			topBarAgeGroupPrefixSelect.setValue(value);
-			updateFilters(ageDivisionValue, first);
-
-			if (crudGrid != null && value == null) {
-				// if prefix is already null, does not refresh. Force it.
-				crudGrid.refreshGrid();
-			}
-
-		});
-	}
-
-	private void setAgeGroupPrefixSelectionListener() {
-		topBarAgeGroupPrefixSelect.addValueChangeListener(e -> {
-			// the name of the resulting file is set as an attribute on the <a href tag that
-			// surrounds the download button.
-			String prefix = e.getValue();
-			setAgeGroupPrefix(prefix);
-
-			// logger.debug("ageGroupPrefixSelectionListener {}",prefix);
-			// updateFilters(getAgeDivision(), getAgeGroupPrefix());
-			xlsWriter.setAgeGroupPrefix(ageGroupPrefix);
-			finalPackage.getElement().setAttribute("download",
-			        "results" + (getAgeDivision() != null ? "_" + getAgeDivision().name()
-			                : (ageGroupPrefix != null ? "_" + ageGroupPrefix : "_all")) + ".xls");
-
-			if (crudGrid != null) {
-				crudGrid.refreshGrid();
-			}
-
-		});
-	}
-
-	private void updateFilters(AgeDivision ageDivision2, String ageGroupPrefix2) {
-//        List<Category> categories = CategoryRepository.findByGenderDivisionAgeBW(genderFilter.getValue(),
-//                getAgeDivision(), null, null);
-//        if (getAgeGroupPrefix() != null && !getAgeGroupPrefix().isBlank()) {
-//            categories = categories.stream().filter((c) -> c.getAgeGroup().getCode().equals(getAgeGroupPrefix()))
-//                    .collect(Collectors.toList());
-//        }
-//         logger.trace("updateFilters {}, {}, {}", ageDivision2, ageGroupPrefix2, categories);
-//        categoryFilter.setItems(categories);
 	}
 
 	protected HorizontalLayout announcerButtons(FlexLayout topBar2) {
@@ -580,8 +437,7 @@ public class TeamResultsContent extends VerticalLayout
 	}
 
 	/**
-	 * We do not connect to the event bus, and we do not track a field of play
-	 * (non-Javadoc)
+	 * We do not connect to the event bus, and we do not track a field of play (non-Javadoc)
 	 *
 	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
 	 */
@@ -593,6 +449,123 @@ public class TeamResultsContent extends VerticalLayout
 		AgeDivision value = (adItems != null && adItems.size() > 0) ? adItems.get(0) : null;
 		setAgeDivision(value);
 		topBarAgeDivisionSelect.setValue(value);
+	}
+
+	private void defineContent(OwlcmsCrudGrid<TeamTreeItem> crudGrid) {
+		crudGrid.setCrudListener(new LazyCrudListener<TeamTreeItem>() {
+			@Override
+			public TeamTreeItem add(TeamTreeItem user) {
+				AthleteRepository.save(user.getAthlete());
+				return user;
+			}
+
+			@Override
+			public void delete(TeamTreeItem user) {
+				AthleteRepository.delete(user.getAthlete());
+			}
+
+			@Override
+			public DataProvider<TeamTreeItem, ?> getDataProvider() {
+				return new TreeDataProvider<>(
+				        new TeamResultsTreeData(getAgeGroupPrefix(), getAgeDivision(), getGenderFilter().getValue(),
+				                Ranking.SNATCH_CJ_TOTAL, false));
+			}
+
+			@Override
+			public TeamTreeItem update(TeamTreeItem user) {
+				AthleteRepository.save(user.getAthlete());
+				return user;
+			}
+		});
+	}
+
+	private String formatDouble(double d, int decimals) {
+		if (floatFormat == null) {
+			floatFormat = new DecimalFormat();
+			floatFormat.setMinimumIntegerDigits(1);
+			floatFormat.setMaximumFractionDigits(decimals);
+			floatFormat.setMinimumFractionDigits(decimals);
+			floatFormat.setGroupingUsed(false);
+		}
+		return floatFormat.format(d);
+	}
+
+	private void setAgeDivisionSelectionListener() {
+		topBarAgeDivisionSelect.addValueChangeListener(e -> {
+			// the name of the resulting file is set as an attribute on the <a href tag that
+			// surrounds the download button.
+			AgeDivision ageDivisionValue = e.getValue();
+			setAgeDivision(ageDivisionValue);
+			// logger.debug("ageDivisionSelectionListener {}",ageDivisionValue);
+			if (ageDivisionValue == null) {
+				topBarAgeGroupPrefixSelect.setValue(null);
+				topBarAgeGroupPrefixSelect.setItems(new ArrayList<String>());
+				topBarAgeGroupPrefixSelect.setEnabled(false);
+				topBarAgeGroupPrefixSelect.setValue(null);
+				crudGrid.refreshGrid();
+				return;
+			}
+
+			List<String> ageDivisionAgeGroupPrefixes;
+			ageDivisionAgeGroupPrefixes = AgeGroupRepository.findActiveAndUsed(ageDivisionValue);
+
+			topBarAgeGroupPrefixSelect.setItems(ageDivisionAgeGroupPrefixes);
+			boolean notEmpty = ageDivisionAgeGroupPrefixes.size() > 0;
+			topBarAgeGroupPrefixSelect.setEnabled(notEmpty);
+			String first = (notEmpty && ageDivisionValue == AgeDivision.IWF) ? ageDivisionAgeGroupPrefixes.get(0)
+			        : null;
+			// logger.debug("ad {} ag {} first {} select {}", ageDivisionValue,
+			// ageDivisionAgeGroupPrefixes, first,
+			// topBarAgeGroupPrefixSelect);
+
+			xlsWriter.setAgeDivision(ageDivisionValue);
+			finalPackage.getElement().setAttribute("download",
+			        "results" + (getAgeDivision() != null ? "_" + getAgeDivision().name()
+			                : (ageGroupPrefix != null ? "_" + ageGroupPrefix : "_all")) + ".xls");
+
+			String value = notEmpty ? first : null;
+			// logger.debug("setting prefix to {}", value);
+			topBarAgeGroupPrefixSelect.setValue(value);
+			updateFilters();
+
+			if (crudGrid != null && value == null) {
+				// if prefix is already null, does not refresh. Force it.
+				crudGrid.refreshGrid();
+			}
+
+		});
+	}
+
+	private void setAgeGroupPrefixSelectionListener() {
+		topBarAgeGroupPrefixSelect.addValueChangeListener(e -> {
+			// the name of the resulting file is set as an attribute on the <a href tag that
+			// surrounds the download button.
+			String prefix = e.getValue();
+			setAgeGroupPrefix(prefix);
+
+			// logger.debug("ageGroupPrefixSelectionListener {}",prefix);
+			// updateFilters(getAgeDivision(), getAgeGroupPrefix());
+			xlsWriter.setAgeGroupPrefix(ageGroupPrefix);
+			finalPackage.getElement().setAttribute("download",
+			        "results" + (getAgeDivision() != null ? "_" + getAgeDivision().name()
+			                : (ageGroupPrefix != null ? "_" + ageGroupPrefix : "_all")) + ".xls");
+
+			if (crudGrid != null) {
+				crudGrid.refreshGrid();
+			}
+
+		});
+	}
+
+	private void updateFilters() {
+//        List<Category> categories = CategoryRepository.findByGenderDivisionAgeBW(genderFilter.getValue(),
+//                getAgeDivision(), null, null);
+//        if (getAgeGroupPrefix() != null && !getAgeGroupPrefix().isBlank()) {
+//            categories = categories.stream().filter((c) -> c.getAgeGroup().getCode().equals(getAgeGroupPrefix()))
+//                    .collect(Collectors.toList());
+//        }
+//         logger.trace("updateFilters {}, {}, {}", ageDivision2, ageGroupPrefix2, categories);
+//        categoryFilter.setItems(categories);
 	}
 
 }

@@ -23,13 +23,12 @@ import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
-import app.owlcms.apputils.queryparameters.FOPParameters;
+import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -46,10 +45,9 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
-public abstract class BaseNavigationContent extends VerticalLayout
-        implements OwlcmsContent, FOPParameters, SafeEventBusRegistration, UIEventProcessor {
+public abstract class BaseNavigationContent extends BaseContent
+        implements OwlcmsContent, SafeEventBusRegistration, UIEventProcessor {
 
-	// @SuppressWarnings("unused")
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(BaseNavigationContent.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	static {
@@ -57,19 +55,17 @@ public abstract class BaseNavigationContent extends VerticalLayout
 		uiEventLogger.setLevel(Level.INFO);
 	}
 
-	protected Location location;
-	protected UI locationUI;
 	protected OwlcmsLayout routerLayout;
-
 	protected EventBus uiEventBus;
 	/**
 	 * Top part content
 	 */
 	private ComboBox<Group> groupSelect;
+	private String pageTitle;
 
 	/**
-	 * Instantiates a new announcer content. Content is created in
-	 * {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
+	 * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL
+	 * parameters are parsed.
 	 */
 	public BaseNavigationContent() {
 	}
@@ -86,12 +82,10 @@ public abstract class BaseNavigationContent extends VerticalLayout
 	}
 
 	/**
-	 * The top bar is logically is the master part of a master-detail In the current
-	 * implementation, the most convenient place to put it is in the top bar which
-	 * is managed by the layout, but this could change. So we change the surrounding
-	 * layout from this class. In this way, only one class (the content) listens for
-	 * events. Doing it the other way around would require multiple layouts, which
-	 * breaks the idea of a single page app.
+	 * The top bar is logically is the master part of a master-detail In the current implementation, the most convenient
+	 * place to put it is in the top bar which is managed by the layout, but this could change. So we change the
+	 * surrounding layout from this class. In this way, only one class (the content) listens for events. Doing it the
+	 * other way around would require multiple layouts, which breaks the idea of a single page app.
 	 *
 	 * @return
 	 */
@@ -115,6 +109,11 @@ public abstract class BaseNavigationContent extends VerticalLayout
 		fl.add(menu);
 		fl.setFlexGrow(1.0, menu);
 		return fl;
+	}
+
+	@Override
+	public String getPageTitle() {
+		return pageTitle;
 	}
 
 	@Override
@@ -146,9 +145,9 @@ public abstract class BaseNavigationContent extends VerticalLayout
 	 */
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-		FOPParameters.super.setParameter(event, parameter);
-		location = event.getLocation();
-		locationUI = event.getUI();
+		super.setParameter(event, parameter);
+		setLocation(event.getLocation());
+		setLocationUI(event.getUI());
 	}
 
 	@Override
@@ -158,8 +157,7 @@ public abstract class BaseNavigationContent extends VerticalLayout
 	}
 
 	/**
-	 * Update URL location. This method is called when we set the group explicitly
-	 * via a dropdown.
+	 * Update URL location. This method is called when we set the group explicitly via a dropdown.
 	 *
 	 * @param ui       the ui
 	 * @param location the location
@@ -220,8 +218,7 @@ public abstract class BaseNavigationContent extends VerticalLayout
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-	 * AttachEvent)
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {

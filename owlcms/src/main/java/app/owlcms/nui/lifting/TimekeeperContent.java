@@ -132,11 +132,6 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	}
 
 	@Override
-	public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
-	}
-
-	@Override
 	public boolean isIgnoreGroupFromURL() {
 		return false;
 	}
@@ -148,11 +143,6 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		getRouterLayout().showLocaleDropdown(false);
 		getRouterLayout().setDrawerOpened(false);
 		getRouterLayout().updateHeader(true);
-	}
-
-	@Override
-	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
 	}
 
 	/*

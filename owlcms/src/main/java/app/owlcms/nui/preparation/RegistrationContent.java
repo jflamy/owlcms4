@@ -49,7 +49,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.FOPParameters;
+import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.components.DownloadDialog;
 import app.owlcms.components.GroupSelectionMenu;
@@ -94,13 +94,12 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/athletes", layout = OwlcmsLayout.class)
 @CssImport(value = "./styles/shared-styles.css")
-public class RegistrationContent extends VerticalLayout implements CrudListener<Athlete>, OwlcmsContent, FOPParameters {
+public class RegistrationContent extends BaseContent implements CrudListener<Athlete>, OwlcmsContent {
 
 	final static Logger logger = (Logger) LoggerFactory.getLogger(RegistrationContent.class);
 	static {
 		logger.setLevel(Level.INFO);
 	}
-
 	private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
 	private ComboBox<AgeGroup> ageGroupFilter = new ComboBox<>();
 	private ComboBox<Category> categoryFilter = new ComboBox<>();
@@ -110,21 +109,15 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 	protected ComboBox<String> teamFilter = new ComboBox<>();
 	private ComboBox<Group> groupFilter = new ComboBox<>();
 	protected TextField lastNameFilter = new TextField();
-	private Location location;
-	private UI locationUI;
 	private OwlcmsLayout routerLayout;
-
 	protected JXLSStartingListDocs startingXlsWriter;
 	protected JXLSCategoriesListDocs categoriesXlsWriter;
 	protected JXLSCardsDocs cardsXlsWriter;
-
 	private ComboBox<Boolean> weighedInFilter = new ComboBox<>();
 //    private Group group;
 	private ComboBox<Group> groupSelect;
 	protected GroupSelectionMenu topBarMenu;
-
 	protected FlexLayout topBar;
-
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private Category category;
 	private Gender gender;
@@ -198,9 +191,9 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		hr.getStyle().set("margin", "0");
 		hr.getStyle().set("padding", "0");
 		FlexLayout buttons = new FlexLayout(
-				new NativeLabel(Translator.translate("Preparation")),
-				drawLots, deleteAthletes, clearLifts,
-		        resetCats, hr, 
+		        new NativeLabel(Translator.translate("Preparation")),
+		        drawLots, deleteAthletes, clearLifts,
+		        resetCats, hr,
 		        new NativeLabel(Translator.translate("Entries")),
 		        bwButton, categoriesListButton, teamsListButton);
 		buttons.getStyle().set("flex-wrap", "wrap");
@@ -225,8 +218,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 	}
 
 	/**
-	 * The refresh button on the toolbar; also called by refreshGrid when the group
-	 * is changed.
+	 * The refresh button on the toolbar; also called by refreshGrid when the group is changed.
 	 *
 	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
 	 */
@@ -255,16 +247,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 	}
 
 	@Override
-	public Location getLocation() {
-		return this.location;
-	}
-
-	@Override
-	public UI getLocationUI() {
-		return this.locationUI;
-	}
-
-	@Override
 	public String getMenuTitle() {
 		return getPageTitle();
 	}
@@ -280,11 +262,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 	@Override
 	public OwlcmsLayout getRouterLayout() {
 		return routerLayout;
-	}
-
-	@Override
-	public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
 	}
 
 	@Override
@@ -314,25 +291,14 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		routerLayout.updateHeader(true);
 	}
 
-	@Override
-	public void setLocation(Location location) {
-		this.location = location;
-	}
-
-	@Override
-	public void setLocationUI(UI locationUI) {
-		this.locationUI = locationUI;
-	}
-
 	/**
 	 * Parse the http query parameters
 	 *
-	 * Note: because we have the @Route, the parameters are parsed *before* our
-	 * parent layout is created.
+	 * Note: because we have the @Route, the parameters are parsed *before* our parent layout is created.
 	 *
 	 * @param event     Vaadin navigation event
-	 * @param parameter null in this case -- we don't want a vaadin "/" parameter.
-	 *                  This allows us to add query parameters instead.
+	 * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
+	 *                  parameters instead.
 	 *
 	 * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
 	 *      java.lang.String)
@@ -373,11 +339,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 	@Override
 	public void setRouterLayout(OwlcmsLayout routerLayout) {
 		this.routerLayout = routerLayout;
-	}
-
-	@Override
-	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
 	}
 
 	@Override
@@ -709,10 +670,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		return gender;
 	}
 
-	protected Group getGroup() {
-		return group;
-	}
-
 	protected String getLastName() {
 		return lastName;
 	}
@@ -743,6 +700,76 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 	protected void onAttach(AttachEvent attachEvent) {
 	}
 
+	protected List<Athlete> participationFindAll() {
+		List<Athlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(getAgeGroupPrefix(),
+		        getAgeDivision());
+
+		Category catFilterValue = getCategoryValue();
+		Stream<Athlete> stream = athletes.stream()
+		        .filter(a -> {
+			        Platform platformFilterValue = getPlatform();
+			        if (platformFilterValue == null) {
+				        return true;
+			        }
+			        Platform athletePlaform = a.getGroup() != null
+			                ? (a.getGroup().getPlatform() != null ? a.getGroup().getPlatform() : null)
+			                : null;
+			        return platformFilterValue.equals(athletePlaform);
+		        })
+		        .filter(a -> a.getCategory() != null)
+		        .filter(a -> {
+			        Gender genderFilterValue = getGender();
+			        Gender athleteGender = a.getGender();
+			        boolean catOk = (catFilterValue == null
+			                || catFilterValue.toString().equals(a.getCategory().toString()))
+			                && (genderFilterValue == null || genderFilterValue == athleteGender);
+			        return catOk;
+		        })
+		        .filter(a -> getGroup() != null ? getGroup().equals(a.getGroup())
+		                : true)
+		        .filter(a -> getTeam() != null ? getTeam().contentEquals(a.getTeam())
+		                : true)
+		        .map(a -> {
+			        if (a.getTeam() == null) {
+				        a.setTeam("-");
+			        }
+			        return a;
+		        });
+
+		// for categories listing we want all the participation categories
+		Comparator<? super Athlete> groupCategoryComparator = (a1, a2) -> {
+			int compare;
+			compare = ObjectUtils.compare(a1.getGroup(), a2.getGroup(), true);
+			if (compare != 0) {
+				return compare;
+			}
+			Participation mainRankings1 = a1.getMainRankings() != null ? a1.getMainRankings() : null;
+			Participation mainRankings2 = a2.getMainRankings() != null ? a2.getMainRankings() : null;
+			compare = ObjectUtils.compare(mainRankings1.getCategory(), mainRankings2.getCategory(), true);
+			if (compare != 0) {
+				return compare;
+			}
+			compare = ObjectUtils.compare(a1.getEntryTotal(), a2.getEntryTotal());
+			return -compare;
+		};
+		List<Athlete> found = stream.sorted(
+		        groupCategoryComparator)
+		        .collect(Collectors.toList());
+		categoriesXlsWriter.setSortedAthletes(found);
+
+		// cards and starting we only want the actual athlete, without duplicates
+		Set<Athlete> regCatAthletes = found.stream().map(pa -> ((PAthlete) pa)._getAthlete())
+		        .collect(Collectors.toSet());
+		List<Athlete> regCatAthletesList = new ArrayList<>(regCatAthletes);
+		regCatAthletesList.sort(groupCategoryComparator);
+
+		cardsXlsWriter.setSortedAthletes(regCatAthletesList);
+		startingXlsWriter.setSortedAthletes(regCatAthletesList);
+
+		updateURLLocations();
+		return regCatAthletesList;
+	}
+
 	protected void setAgeDivision(AgeDivision ageDivision) {
 		this.ageDivision = ageDivision;
 	}
@@ -762,10 +789,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 
 	protected void setGender(Gender value) {
 		this.gender = value;
-	}
-
-	protected void setGroup(Group currentGroup) {
-		this.group = currentGroup;
 	}
 
 	/**
@@ -893,74 +916,5 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 		ui.getPage().getHistory().replaceState(null,
 		        new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
 	}
-	
-	protected List<Athlete> participationFindAll() {
-		List<Athlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(getAgeGroupPrefix(),
-		        getAgeDivision());
 
-		Category catFilterValue = getCategoryValue();
-		Stream<Athlete> stream = athletes.stream()
-		        .filter(a -> {
-			        Platform platformFilterValue = getPlatform();
-			        if (platformFilterValue == null) {
-				        return true;
-			        }
-			        Platform athletePlaform = a.getGroup() != null
-			                ? (a.getGroup().getPlatform() != null ? a.getGroup().getPlatform() : null)
-			                : null;
-			        return platformFilterValue.equals(athletePlaform);
-		        })
-		        .filter(a -> a.getCategory() != null)
-		        .filter(a -> {
-			        Gender genderFilterValue = getGender();
-			        Gender athleteGender = a.getGender();
-			        boolean catOk = (catFilterValue == null
-			                || catFilterValue.toString().equals(a.getCategory().toString()))
-			                && (genderFilterValue == null || genderFilterValue == athleteGender);
-			        return catOk;
-		        })
-		        .filter(a -> getGroup() != null ? getGroup().equals(a.getGroup())
-		                : true)
-		        .filter(a -> getTeam() != null ? getTeam().contentEquals(a.getTeam())
-		                : true)
-		        .map(a -> {
-			        if (a.getTeam() == null) {
-				        a.setTeam("-");
-			        }
-			        return a;
-		        });
-
-		// for categories listing we want all the participation categories
-		Comparator<? super Athlete> groupCategoryComparator = (a1, a2) -> {
-			int compare;
-			compare = ObjectUtils.compare(a1.getGroup(), a2.getGroup(), true);
-			if (compare != 0) {
-				return compare;
-			}
-			Participation mainRankings1 = a1.getMainRankings() != null ? a1.getMainRankings() : null;
-			Participation mainRankings2 = a2.getMainRankings() != null ? a2.getMainRankings() : null;
-			compare = ObjectUtils.compare(mainRankings1.getCategory(), mainRankings2.getCategory(), true);
-			if (compare != 0) {
-				return compare;
-			}
-			compare = ObjectUtils.compare(a1.getEntryTotal(),a2.getEntryTotal());
-			return -compare;
-		};
-		List<Athlete> found = stream.sorted(
-		        groupCategoryComparator)
-		        .collect(Collectors.toList());
-		categoriesXlsWriter.setSortedAthletes(found);
-
-		// cards and starting we only want the actual athlete, without duplicates
-		Set<Athlete> regCatAthletes = found.stream().map(pa -> ((PAthlete) pa)._getAthlete())
-		        .collect(Collectors.toSet());
-		List<Athlete> regCatAthletesList = new ArrayList<>(regCatAthletes);
-		regCatAthletesList.sort(groupCategoryComparator);
-
-		cardsXlsWriter.setSortedAthletes(regCatAthletesList);
-		startingXlsWriter.setSortedAthletes(regCatAthletesList);
-
-		updateURLLocations();
-		return regCatAthletesList;
-	}
 }

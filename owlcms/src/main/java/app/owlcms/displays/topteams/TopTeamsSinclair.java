@@ -35,7 +35,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
@@ -43,6 +43,7 @@ import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.group.Group;
 import app.owlcms.data.team.Team;
 import app.owlcms.data.team.TeamResultsTreeData;
 import app.owlcms.data.team.TeamTreeItem;
@@ -80,8 +81,9 @@ import elemental.json.JsonValue;
 @JsModule("./components/TopTeamsSinclair.js")
 @Route("displays/topteamsinclair")
 
+//FIXME: same pattern as other results
 public class TopTeamsSinclair extends LitTemplate
-        implements DisplayParameters,
+        implements DisplayParametersReader,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin,
         VideoCSSOverride, HasBoardMode {
 
@@ -108,6 +110,8 @@ public class TopTeamsSinclair extends LitTemplate
 	private boolean video;
 	private String routeParameter;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
+	private FieldOfPlay fop;
+	private Group group;
 
 	/**
 	 * Instantiates a new results board.
@@ -641,6 +645,26 @@ public class TopTeamsSinclair extends LitTemplate
 		        getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null);
 		updateURLLocation(UI.getCurrent(), getLocation(), "ad",
 		        getAgeDivision() != null ? getAgeDivision().name() : null);
+	}
+
+	@Override
+	public FieldOfPlay getFop() {
+		return fop;
+	}
+
+	@Override
+	public Group getGroup() {
+		return group;
+	}
+
+	@Override
+	public void setFop(FieldOfPlay fop) {
+		this.fop = fop;
+	}
+
+	@Override
+	public void setGroup(Group group) {
+		this.group = group;
 	}
 
 }

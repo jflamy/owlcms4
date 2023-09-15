@@ -41,7 +41,8 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.SoundUtils;
-import app.owlcms.apputils.queryparameters.FOPParameters;
+import app.owlcms.apputils.queryparameters.BaseContent;
+import app.owlcms.apputils.queryparameters.FOPParametersReader;
 import app.owlcms.components.elements.BeepElement;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FOPEvent;
@@ -64,7 +65,7 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "ref")
 @CssImport(value = "./styles/shared-styles.css")
 
-public class RefContent extends VerticalLayout implements FOPParameters, SafeEventBusRegistration,
+public class RefContent extends BaseContent implements FOPParametersReader, SafeEventBusRegistration,
         UIEventProcessor, HasDynamicTitle, RequireLogin, BeforeEnterListener {
 
 	private class DelayTimer {
@@ -90,6 +91,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
+
 	private Icon bad;
 	private BeepElement beeper;
 	private Icon good;
@@ -119,16 +121,6 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 		UI.getCurrent().getPage().setTitle(getPageTitle());
 	}
 
-	@Override
-	public Location getLocation() {
-		return this.location;
-	}
-
-	@Override
-	public UI getLocationUI() {
-		return this.locationUI;
-	}
-
 	/**
 	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
 	 */
@@ -136,21 +128,6 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 	public String getPageTitle() {
 		return Translator.translate("Referee") + OwlcmsSession.getFopNameIfMultiple()
 		        + (getRef13ix() != null ? (" " + getRef13ix()) : "");
-	}
-
-	@Override
-	public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
-	}
-
-	@Override
-	public void setLocation(Location location) {
-		this.location = location;
-	}
-
-	@Override
-	public void setLocationUI(UI locationUI) {
-		this.locationUI = locationUI;
 	}
 
 	/**
@@ -190,11 +167,6 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 			}
 		}
 
-	}
-
-	@Override
-	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
 	}
 
 	@Subscribe
@@ -560,4 +532,5 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 		whiteTouched = true;
 		doWhite();
 	}
+
 }

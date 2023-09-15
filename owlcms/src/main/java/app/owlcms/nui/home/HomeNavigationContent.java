@@ -25,14 +25,13 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.ListItem;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
-import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
@@ -121,16 +120,6 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	}
 
 	@Override
-	public Location getLocation() {
-		return this.location;
-	}
-
-	@Override
-	public UI getLocationUI() {
-		return this.locationUI;
-	}
-
-	@Override
 	public String getMenuTitle() {
 		return getTranslation("OWLCMS_Top");
 	}
@@ -143,32 +132,12 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		return getTranslation("OWLCMS_Top");
 	}
 
-	@Override
-	public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
-	}
-
 	/**
 	 * @see app.owlcms.apputils.queryparameters.FOPParameters#isIgnoreFopFromURL()
 	 */
 	@Override
 	public boolean isIgnoreFopFromURL() {
 		return true;
-	}
-
-	@Override
-	public void setLocation(Location location) {
-		this.location = location;
-	}
-
-	@Override
-	public void setLocationUI(UI locationUI) {
-		this.locationUI = locationUI;
-	}
-
-	@Override
-	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
 	}
 
 	private VerticalLayout buildIntro() {

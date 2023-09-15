@@ -31,8 +31,8 @@ import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosi
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.ListItem;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -60,7 +60,6 @@ public class ConfigEditingFormFactory
         implements CustomFormFactory<Config> {
 
 	private String browserZoneId;
-
 	private Logger logger = (Logger) LoggerFactory.getLogger(ConfigRepository.class);
 	@SuppressWarnings("unused")
 	private ConfigContent origin;
@@ -210,6 +209,13 @@ public class ConfigEditingFormFactory
 		}
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	protected void bindField(HasValue field, String property, Class<?> propertyType, CrudFormConfiguration c) {
+		binder.forField(field);
+		super.bindField(field, property, propertyType, c);
+	}
+
 	private FormLayout accessForm() {
 		FormLayout configLayout = createLayout();
 		Component title = createTitle("Config.AccessControlTitle");
@@ -286,22 +292,6 @@ public class ConfigEditingFormFactory
 		binder.forField(featureSwitchesField)
 		        .withNullRepresentation("")
 		        .bind(Config::getFeatureSwitches, Config::setFeatureSwitches);
-
-		return layout;
-	}
-	
-	private FormLayout stylesForm() {
-		FormLayout layout = createLayout();
-		Component title = createTitle("Config.stylesTitle");
-		layout.add(title);
-		layout.setColspan(title, 2);
-
-		TextField stylesField = new TextField();
-		stylesField.setWidthFull();
-		layout.addFormItem(stylesField, Translator.translate("Config.stylesLabel"));
-		binder.forField(stylesField)
-		        .withNullRepresentation("")
-		        .bind(Config::getStylesDirBase, Config::setStylesDirectory);
 
 		return layout;
 	}
@@ -457,6 +447,22 @@ public class ConfigEditingFormFactory
 		return hr;
 	}
 
+	private FormLayout stylesForm() {
+		FormLayout layout = createLayout();
+		Component title = createTitle("Config.stylesTitle");
+		layout.add(title);
+		layout.setColspan(title, 2);
+
+		TextField stylesField = new TextField();
+		stylesField.setWidthFull();
+		layout.addFormItem(stylesField, Translator.translate("Config.stylesLabel"));
+		binder.forField(stylesField)
+		        .withNullRepresentation("")
+		        .bind(Config::getStylesDirBase, Config::setStylesDirectory);
+
+		return layout;
+	}
+
 	private FormLayout translationForm() {
 		FormLayout layout = createLayout();
 		Component title = createTitle("Translation");
@@ -522,13 +528,6 @@ public class ConfigEditingFormFactory
 		});
 
 		return layout;
-	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@Override
-	protected void bindField(HasValue field, String property, Class<?> propertyType, CrudFormConfiguration c) {
-		binder.forField(field);
-		super.bindField(field, property, propertyType, c);
 	}
 
 }

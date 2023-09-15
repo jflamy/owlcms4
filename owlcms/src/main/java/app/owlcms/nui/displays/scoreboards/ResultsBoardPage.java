@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
-import com.google.common.eventbus.EventBus;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
@@ -27,20 +26,21 @@ import ch.qos.logback.classic.Logger;
 
 public class ResultsBoardPage extends AbstractResultsDisplayPage {
 
+	private static final int DEBOUNCE = 50;
 	Logger logger = (Logger) LoggerFactory.getLogger(ResultsBoardPage.class);
 	Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-	
-	private static final int DEBOUNCE = 50;
-	protected int liftsDone;
-
-	protected EventBus uiEventBus;
-	protected Double emFontSize = null;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
-
 	private long now;
 	private long lastShortcut;
 
 	public ResultsBoardPage() {
+		var board = new Results(this);
+		board.setLeadersDisplay(true);
+		board.setRecordsDisplay(true);
+		this.addComponent(board);
+
+		// when navigating to the page, Vaadin will call setParameter+readParameters
+		// these parameters will be applied.
 		setDefaultParameters(QueryParameters.simple(Map.of(
 		        ContentParameters.SILENT, "true",
 		        ContentParameters.DOWNSILENT, "true",
@@ -49,16 +49,6 @@ public class ResultsBoardPage extends AbstractResultsDisplayPage {
 		        DisplayParameters.RECORDS, "true",
 		        DisplayParameters.ABBREVIATED,
 		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
-
-		var board = new Results(this);
-		board.setLeadersDisplay(true);
-		board.setRecordsDisplay(true);
-		this.addComponent(board);
-	}
-
-	@Override
-	public String getPageTitle() {
-		return getTranslation("ScoreboardWLeadersTitle") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
 	/**
@@ -106,6 +96,11 @@ public class ResultsBoardPage extends AbstractResultsDisplayPage {
 			}
 			lastShortcut = now;
 		}, Key.ARROW_LEFT);
+	}
+
+	@Override
+	public String getPageTitle() {
+		return getTranslation("ScoreboardWLeadersTitle") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
 }
