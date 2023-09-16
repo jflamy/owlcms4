@@ -22,6 +22,7 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.FOPParametersReader;
@@ -131,6 +132,10 @@ public class OBSMonitor extends LitTemplate implements FOPParametersReader,
 	private FieldOfPlay fop;
 
 	private Group group;
+
+	private QueryParameters defaultParameters;
+
+	private String routeParameter;
 
 	/**
 	 * Instantiates a new results board.
@@ -478,5 +483,25 @@ public class OBSMonitor extends LitTemplate implements FOPParametersReader,
 	@Override
 	public void setGroup(Group group) {
 		this.group = group;
+	}
+	
+	@Override
+	public void setDefaultParameters(QueryParameters qp) {
+		this.defaultParameters = qp;
+	}
+	
+	@Override
+	public QueryParameters getDefaultParameters() {
+		return this.defaultParameters;
+	}
+
+	@Override
+	public void setRouteParameter(String routeParameter) {
+		this.routeParameter = routeParameter;
+	}
+
+	@Override
+	public String getRouteParameter() {
+		return this.routeParameter;
 	}
 }

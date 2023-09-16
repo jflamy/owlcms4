@@ -41,7 +41,6 @@ import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -83,10 +82,6 @@ public class TopSinclair extends Results {
 		uiEventLogger.setLevel(Level.INFO);
 		OwlcmsFactory.waitDBInitialized();
 		setDarkMode(true);
-		// js files add the build number to file names in order to prevent cache
-		// collisions
-		// FIXME: should be everywhere by inheritance
-		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
 	}
 
 	@Override

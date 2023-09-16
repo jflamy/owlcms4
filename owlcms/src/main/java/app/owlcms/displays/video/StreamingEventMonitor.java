@@ -25,6 +25,7 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.FOPParametersReader;
@@ -133,6 +134,7 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 	private boolean showLonger;
 	private FieldOfPlay fop;
 	private Group group;
+	private QueryParameters defaultParameters;
 
 	/**
 	 * Instantiates a new results board.
@@ -550,5 +552,24 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 	private long waitBeforeChangingStatus() {
 		return getExpiryBeforeChangingStatus() - System.currentTimeMillis();
 	}
+	
+	@Override
+	public void setDefaultParameters(QueryParameters qp) {
+		this.defaultParameters = qp;
+	}
+	
+	@Override
+	public QueryParameters getDefaultParameters() {
+		return this.defaultParameters;
+	}
 
+	@Override
+	public void setRouteParameter(String routeParameter) {
+		this.routeParameter = routeParameter;
+	}
+
+	@Override
+	public String getRouteParameter() {
+		return this.routeParameter;
+	}
 }

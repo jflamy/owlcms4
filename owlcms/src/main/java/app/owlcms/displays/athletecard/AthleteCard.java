@@ -24,6 +24,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.FOPParametersReader;
@@ -66,6 +67,8 @@ public class AthleteCard extends LitTemplate
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private FieldOfPlay fop;
 	private Group group;
+	private QueryParameters defaultParameters;
+	private String routeParameter;
 
 	/**
 	 * Instantiates a new attempt board.
@@ -232,4 +235,26 @@ public class AthleteCard extends LitTemplate
 		banner.setClassName("printing");
 		getElement().getParent().appendChild(banner.getElement());
 	}
+	
+	
+	@Override
+	public void setDefaultParameters(QueryParameters qp) {
+		this.defaultParameters = qp;
+	}
+	
+	@Override
+	public QueryParameters getDefaultParameters() {
+		return this.defaultParameters;
+	}
+
+	@Override
+	public void setRouteParameter(String routeParameter) {
+		this.routeParameter = routeParameter;
+	}
+
+	@Override
+	public String getRouteParameter() {
+		return this.routeParameter;
+	}
+
 }

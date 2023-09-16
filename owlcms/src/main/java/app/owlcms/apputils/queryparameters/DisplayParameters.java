@@ -93,8 +93,6 @@ public interface DisplayParameters extends ContentParameters {
 
 	public void setRecordsDisplay(boolean showRecords);
 
-	public void setRouteParameter(String routeParameter);
-
 	public void setTeamWidth(Double tw);
 
 }

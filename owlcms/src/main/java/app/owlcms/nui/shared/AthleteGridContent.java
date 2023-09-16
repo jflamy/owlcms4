@@ -537,10 +537,10 @@ public abstract class AthleteGridContent extends BaseContent
 	 *      java.util.Map)
 	 */
 	@Override
-	public HashMap<String, List<String>> readParams(Location location,
+	public Map<String, List<String>> readParams(Location location,
 	        Map<String, List<String>> parametersMap) {
 		// handle FOP and Group by calling superclass
-		HashMap<String, List<String>> params = ContentParametersReader.super.readParams(location, parametersMap);
+		Map<String, List<String>> params = ContentParametersReader.super.readParams(location, parametersMap);
 
 		List<String> silentParams = params.get(SILENT);
 		// silent is the default. silent=false will cause sound

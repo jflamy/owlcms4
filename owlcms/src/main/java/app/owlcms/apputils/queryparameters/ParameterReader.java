@@ -1,8 +1,10 @@
 package app.owlcms.apputils.queryparameters;
 
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.function.Consumer;
 
 import org.slf4j.LoggerFactory;
@@ -11,8 +13,10 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 public interface ParameterReader extends HasUrlParameter<String> {
@@ -29,28 +33,12 @@ public interface ParameterReader extends HasUrlParameter<String> {
 
 	boolean isShowInitialDialog();
 
-	HashMap<String, List<String>> readParams(Location location,
-	        Map<String, List<String>> parametersMap);
+	Map<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap);
 
 	void setLocation(Location location);
 
 	void setLocationUI(UI locationUI);
 
-	/*
-	 * Retrieve parameter(s) from URL and update according to current settings.
-	 *
-	 * The values are stored in the URL in order to allow bookmarking and easy reloading.
-	 *
-	 * Note: what Vaadin calls a parameter is in the REST style, actually part of the URL path. We use the old-style
-	 * Query parameters for our purposes.
-	 *
-	 * @see com.vaadin.flow.router.HasUrlParameter#setParameter(com.vaadin.flow.router. BeforeEvent, java.lang.Object)
-	 */
-	/**
-	 * @see com.vaadin.flow.router.HasUrlParameter#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.Object)
-	 */
-	@Override
-	void setParameter(BeforeEvent event, String unused);
 
 	/**
 	 * By default, there is no initial dialog. Classes that need one must override.
@@ -69,7 +57,7 @@ public interface ParameterReader extends HasUrlParameter<String> {
 
 	void updateURLLocation(UI ui, Location location, String parameter, String value);
 	
-	public default void processBooleanParam(HashMap<String, List<String>> params, String paramName,
+	public default void processBooleanParam(Map<String, List<String>> params, String paramName,
 	        Consumer<Boolean> doer) {
 		List<String> paramValues = params.get(paramName);
 		logger.warn("param {} values={}", paramName, paramValues);
@@ -98,8 +86,61 @@ public interface ParameterReader extends HasUrlParameter<String> {
 		return value;
 	}
 	
-	public default QueryParameters getDefaultParameters() {
-		return null;
+	public void setDefaultParameters(QueryParameters qp);
+	
+	public QueryParameters getDefaultParameters();
+	
+	/*
+	 * Retrieve parameter(s) from URL and update according to current settings.
+	 *
+	 * The values are stored in the URL in order to allow bookmarking and easy reloading.
+	 *
+	 * Note: what Vaadin calls a parameter is in the REST style, actually part of the URL path. We use the old-style
+	 * Query parameters for our purposes.
+	 *
+	 * @see com.vaadin.flow.router.HasUrlParameter#setParameter(com.vaadin.flow.router. BeforeEvent, java.lang.Object)
+	 */
+	/**
+	 * @see app.owlcms.apputils.queryparameters.ParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent,
+	 *      java.lang.String)
+	 */
+	@Override
+	public default void setParameter(BeforeEvent event, @OptionalParameter String routeParameter) {
+		// logger.setLevel(Level.INFO);
+		Location location = event.getLocation();
+		setLocation(location);
+		setLocationUI(event.getUI());
+
+		QueryParameters queryParameters = location.getQueryParameters();
+		Map<String, List<String>> parametersMap = queryParameters.getParameters();
+		Map<String, List<String>> params = readParams(location, parametersMap);
+		removeDefaultValues(parametersMap);
+		setUrlParameterMap(parametersMap);
+		doUpdateUrlLocation(getLocationUI(), location, params);
+	}
+
+	public default Map<String, List<String>> removeDefaultValues(Map<String, List<String>> parametersMap) {
+		QueryParameters defaultParameters = getDefaultParameters();
+		if (defaultParameters == null) {
+			logger.warn("===== NO cleanup");
+			return parametersMap;
+		}
+		Map<String, List<String>> defaults = defaultParameters.getParameters();
+		var qp = new QueryParameters(parametersMap);
+		logger.warn("===== default values {}\n{}", qp.getQueryString(), LoggerUtils.whereFrom());
+		
+		Iterator<Entry<String, List<String>>> paramsIterator = parametersMap.entrySet().iterator();
+		var newParams = new TreeMap<String, List<String>>();
+		while (paramsIterator.hasNext()) {
+			var entry = paramsIterator.next();
+			var defaultVal = defaults.get(entry.getKey());
+			if (defaultVal == null || (defaultVal.get(0).compareTo(entry.getValue().get(0)) != 0)) {
+				newParams.put(entry.getKey(), entry.getValue());
+			}
+		}
+		
+		logger.warn("===== after cleanup {}\n{}", new QueryParameters(newParams).getQueryString());
+		return newParams;
 	}
 
 }

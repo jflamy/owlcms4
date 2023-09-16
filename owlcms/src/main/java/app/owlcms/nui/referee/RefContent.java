@@ -104,7 +104,7 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 	private VerticalLayout refVotingCenterHorizontally;
 	private HorizontalLayout topRow;
 	private EventBus uiEventBus;
-	private HashMap<String, List<String>> urlParams;
+	private Map<String, List<String>> urlParams;
 	private HorizontalLayout warningRow;
 	private HorizontalLayout juryRow;
 	private boolean whiteTouched;

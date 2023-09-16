@@ -10,10 +10,8 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.slf4j.LoggerFactory;
@@ -63,89 +61,7 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 	public default boolean isIgnoreGroupFromURL() {
 		return true;
 	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.ParameterReader#readParams(com.vaadin.flow.router.Location,
-	 *      java.util.Map)
-	 */
-	@Override
-	@SuppressWarnings("null")
-	public default HashMap<String, List<String>> readParams(Location location,
-	        Map<String, List<String>> parametersMap) {
-
-		HashMap<String, List<String>> newParameterMap = new HashMap<>(parametersMap);
-
-		// get the fop from the query parameters, set to the default FOP if not provided
-		FieldOfPlay fop = null;
-
-		List<String> fopNames = parametersMap.get(FOP);
-		boolean fopFound = fopNames != null && fopNames.get(0) != null;
-		if (!fopFound) {
-			setShowInitialDialog(true);
-		}
-
-		if (!isIgnoreFopFromURL()) {
-			if (fopFound) {
-				// logger.trace("fopNames {}", fopNames);
-				String decoded = URLDecoder.decode(fopNames.get(0), StandardCharsets.UTF_8);
-				// logger.trace("URL fop = {} decoded = {}",fopNames.get(0), decoded);
-				fop = OwlcmsFactory.getFOPByName(decoded);
-			} else if (OwlcmsSession.getFop() != null) {
-				// logger.trace("OwlcmsSession.getFop() {}", OwlcmsSession.getFop());
-				fop = OwlcmsSession.getFop();
-			}
-			if (fop == null) {
-				fop = OwlcmsFactory.getDefaultFOP();
-			}
-			newParameterMap.put(FOP, Arrays.asList(URLUtils.urlEncode(fop.getName())));
-			OwlcmsSession.setFop(fop);
-		} else {
-			newParameterMap.remove(FOP);
-		}
-
-		// get the group from query parameters
-		Group group = null;
-		if (!isIgnoreGroupFromURL()) {
-			List<String> groupNames = parametersMap.get(GROUP);
-			if (groupNames != null && groupNames.get(0) != null) {
-				String decoded = URLDecoder.decode(groupNames.get(0), StandardCharsets.UTF_8);
-				// logger.trace("URL group = {} decoded = {}",groupNames.get(0), decoded);
-				group = GroupRepository.findByName(decoded);
-				fop.loadGroup(group, this, true);
-			} else {
-				group = (fop != null ? fop.getGroup() : null);
-			}
-			if (group != null) {
-				newParameterMap.put(GROUP, Arrays.asList(URLUtils.urlEncode(group.getName())));
-			}
-		} else {
-			newParameterMap.remove(GROUP);
-		}
-
-		logger.debug("URL parsing: {} OwlcmsSession: fop={} group={}", LoggerUtils.whereFrom(),
-		        (fop != null ? fop.getName() : null), (group != null ? group.getName() : null));
-		setUrlParameterMap(newParameterMap);
-		return newParameterMap;
-	}
-
-	public default Map<String, List<String>> removeDefaultValues(Map<String, List<String>> parametersMap) {
-		QueryParameters defaultParameters = getDefaultParameters();
-		if (defaultParameters == null) {
-			return parametersMap;
-		}
-		Map<String, List<String>> defaults = defaultParameters.getParameters();
-		Iterator<Entry<String, List<String>>> paramsIterator = parametersMap.entrySet().iterator();
-		var newParams = new TreeMap<String, List<String>>();
-		while (paramsIterator.hasNext()) {
-			var entry = paramsIterator.next();
-			var defaultVal = defaults.get(entry.getKey());
-			if (defaultVal == null || (defaultVal.get(0).compareTo(entry.getValue().get(0)) != 0)) {
-				newParams.put(entry.getKey(), entry.getValue());
-			}
-		}
-		return newParams;
-	}
-
+	
 	/*
 	 * Retrieve parameter(s) from URL and update according to current settings.
 	 *
@@ -161,23 +77,86 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 	 *      java.lang.String)
 	 */
 	@Override
-	public default void setParameter(BeforeEvent event, @OptionalParameter String unused) {
-		// logger.setLevel(Level.INFO);
-		Location location = event.getLocation();
-		setLocation(location);
-		setLocationUI(event.getUI());
-
-		QueryParameters queryParameters = location.getQueryParameters();
-		Map<String, List<String>> parametersMap = queryParameters.getParameters();
-		HashMap<String, List<String>> params = readParams(location, parametersMap);
-
-//		// change the URL to reflect the updated parameters
-//		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params)));
-//		event.getUI().getPage().getHistory().replaceState(null, location2);
-//		logger.warn("C updatingLocation {} {}", location2.getPathWithQueryParameters(), LoggerUtils.whereFrom());
-//		storeReturnURL(location2);
-		doUpdateUrlLocation(getLocationUI(), location, params);
+	public default void setParameter(BeforeEvent event, @OptionalParameter String routeParameter) {
+		ParameterReader.super.setParameter(event, routeParameter);
+		if (routeParameter != null) {
+			setRouteParameter(routeParameter);
+		}
 	}
+
+	/**
+	 * @see app.owlcms.apputils.queryparameters.ParameterReader#readParams(com.vaadin.flow.router.Location,
+	 *      java.util.Map)
+	 */
+	@Override
+	@SuppressWarnings("null")
+	public default Map<String, List<String>> readParams(Location location,
+	        Map<String, List<String>> parametersMap) {
+		try {
+			logger.warn(">>>> FOPParameter readParams");
+			HashMap<String, List<String>> newParameterMap = new HashMap<>(parametersMap);
+
+			// get the fop from the query parameters, set to the default FOP if not provided
+			FieldOfPlay fop = null;
+
+			List<String> fopNames = parametersMap.get(FOP);
+			boolean fopFound = fopNames != null && fopNames.get(0) != null;
+			if (!fopFound) {
+				setShowInitialDialog(true);
+			}
+
+			if (!isIgnoreFopFromURL()) {
+				if (fopFound) {
+					// logger.trace("fopNames {}", fopNames);
+					String decoded = URLDecoder.decode(fopNames.get(0), StandardCharsets.UTF_8);
+					// logger.trace("URL fop = {} decoded = {}",fopNames.get(0), decoded);
+					fop = OwlcmsFactory.getFOPByName(decoded);
+				} else if (OwlcmsSession.getFop() != null) {
+					// logger.trace("OwlcmsSession.getFop() {}", OwlcmsSession.getFop());
+					fop = OwlcmsSession.getFop();
+				}
+				if (fop == null) {
+					fop = OwlcmsFactory.getDefaultFOP();
+				}
+				newParameterMap.put(FOP, Arrays.asList(URLUtils.urlEncode(fop.getName())));
+				OwlcmsSession.setFop(fop);
+			} else {
+				newParameterMap.remove(FOP);
+			}
+
+			// get the group from query parameters
+			Group group = null;
+			if (!isIgnoreGroupFromURL()) {
+				List<String> groupNames = parametersMap.get(GROUP);
+				if (groupNames != null && groupNames.get(0) != null) {
+					String decoded = URLDecoder.decode(groupNames.get(0), StandardCharsets.UTF_8);
+					// logger.trace("URL group = {} decoded = {}",groupNames.get(0), decoded);
+					group = GroupRepository.findByName(decoded);
+					fop.loadGroup(group, this, true);
+				} else {
+					group = (fop != null ? fop.getGroup() : null);
+				}
+				if (group != null) {
+					newParameterMap.put(GROUP, Arrays.asList(URLUtils.urlEncode(group.getName())));
+				}
+			} else {
+				newParameterMap.remove(GROUP);
+			}
+
+			logger.debug("URL parsing: {} OwlcmsSession: fop={} group={}", LoggerUtils.whereFrom(),
+			        (fop != null ? fop.getName() : null), (group != null ? group.getName() : null));
+			
+			
+			setUrlParameterMap(removeDefaultValues(newParameterMap));
+			logger.warn("<<<< FOPParameter readParams");
+		} catch (Throwable e) {
+			logger.warn("<<<< !!!! {}",e);
+			e.printStackTrace();
+		}
+		return getUrlParameterMap();
+	}
+
+
 
 	/**
 	 * @see app.owlcms.apputils.queryparameters.ParameterReader#setShowInitialDialog(boolean)

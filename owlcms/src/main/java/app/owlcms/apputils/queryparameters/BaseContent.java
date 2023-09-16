@@ -6,6 +6,7 @@ import java.util.Map;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -18,6 +19,8 @@ public class BaseContent extends VerticalLayout implements FOPParametersReader {
 	private Location location;
 	private UI locationUI;
 	private Map<String, List<String>> urlParameterMap;
+	private QueryParameters defaultParameters;
+	private String routeParameter;
 
 	@Override
 	final public FieldOfPlay getFop() {
@@ -73,6 +76,26 @@ public class BaseContent extends VerticalLayout implements FOPParametersReader {
 	@Override
 	public boolean isShowInitialDialog() {
 		return false;
+	}
+
+	@Override
+	public final void setDefaultParameters(QueryParameters qp) {
+		this.defaultParameters = qp;
+	}
+
+	@Override
+	public final QueryParameters getDefaultParameters() {
+		return this.defaultParameters;
+	}
+
+	@Override
+	public void setRouteParameter(String routeParameter) {
+		this.routeParameter = routeParameter;
+	}
+
+	@Override
+	public final String getRouteParameter() {
+		return routeParameter;
 	}
 
 }

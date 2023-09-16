@@ -3,7 +3,6 @@ package app.owlcms.apputils.queryparameters;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -89,10 +88,10 @@ public interface DisplayParametersReader extends ContentParametersReader, Displa
 	}
 
 	@Override
-	public default HashMap<String, List<String>> readParams(Location location,
+	public default Map<String, List<String>> readParams(Location location,
 	        Map<String, List<String>> parametersMap) {
 		// handle FOP and Group by calling superclass
-		HashMap<String, List<String>> params = ContentParametersReader.super.readParams(location, parametersMap);
+		Map<String, List<String>> params = ContentParametersReader.super.readParams(location, parametersMap);
 		
 		logger.warn("**** whoami {}",this);
 		

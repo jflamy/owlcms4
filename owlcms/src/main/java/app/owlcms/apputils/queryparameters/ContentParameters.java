@@ -3,7 +3,6 @@ package app.owlcms.apputils.queryparameters;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.nui.displays.SoundEntries;
 import ch.qos.logback.classic.Logger;
@@ -29,9 +28,6 @@ public interface ContentParameters extends FOPParameters, SoundEntries {
 
 	public default boolean isSingleReferee() {
 		return false;
-	}
-
-	public default void setDefaultParameters(QueryParameters qp) {
 	}
 
 	public default void setDownSilenced(boolean silent) {

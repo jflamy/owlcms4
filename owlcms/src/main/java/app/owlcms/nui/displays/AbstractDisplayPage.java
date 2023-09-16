@@ -82,6 +82,9 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	 */
 	@Override
 	final public QueryParameters getDefaultParameters() {
+		if (defaultParameters == null) {
+			return QueryParameters.fromString("abb=false&singleRef=false&public=false&records=false&fop=A&dark=false&leaders=false&video=false");
+		}
 		return defaultParameters;
 	}
 

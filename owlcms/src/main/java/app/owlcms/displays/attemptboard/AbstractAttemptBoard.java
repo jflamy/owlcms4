@@ -919,4 +919,5 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			hideRecordInfo(a);
 		}
 	}
+
 }

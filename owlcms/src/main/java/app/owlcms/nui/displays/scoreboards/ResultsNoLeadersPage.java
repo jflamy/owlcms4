@@ -9,6 +9,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.ContentParameters;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.data.config.Config;
 import app.owlcms.displays.scoreboard.ResultsNoLeaders;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
@@ -27,12 +28,19 @@ public class ResultsNoLeadersPage extends ResultsBoardPage {
 		board.setRecordsDisplay(false);
 		this.addComponent(board);
 		
+		// when navigating to the page, Vaadin will call setParameter+readParameters
+		// these parameters will be applied.
 		setDefaultParameters(QueryParameters.simple(Map.of(
 		        ContentParameters.SILENT, "true",
 		        ContentParameters.DOWNSILENT, "true",
 		        DisplayParameters.DARK, "true",
 		        DisplayParameters.LEADERS, "false",
-		        DisplayParameters.RECORDS, "false")));
+		        DisplayParameters.RECORDS, "false",
+		        DisplayParameters.VIDEO, "false",
+		        DisplayParameters.PUBLIC, "false",
+		        DisplayParameters.SINGLEREF, "false",
+		        DisplayParameters.ABBREVIATED,
+		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
 	}
 
 	@Override

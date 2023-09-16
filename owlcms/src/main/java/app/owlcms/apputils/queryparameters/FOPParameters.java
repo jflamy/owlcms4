@@ -28,4 +28,8 @@ public interface FOPParameters extends HasStyle {
 
 	public void setGroup(Group group);
 
+	public void setRouteParameter(String routeParameter);
+
+	String getRouteParameter();
+
 }
