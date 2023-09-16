@@ -47,7 +47,7 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 		Map<String, List<String>> nq = removeDefaultValues(queryParameterMap);
 		String after = new QueryParameters(queryParameterMap).getQueryString();
 		logger.warn("========= after cleanup {}", after);
-		
+
 		setUrlParameterMap(nq);
 		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(nq)));
 		ui.getPage().getHistory().replaceState(null, location2.getPathWithQueryParameters());
@@ -128,6 +128,24 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 		return newParameterMap;
 	}
 
+	public default Map<String, List<String>> removeDefaultValues(Map<String, List<String>> parametersMap) {
+		QueryParameters defaultParameters = getDefaultParameters();
+		if (defaultParameters == null) {
+			return parametersMap;
+		}
+		Map<String, List<String>> defaults = defaultParameters.getParameters();
+		Iterator<Entry<String, List<String>>> paramsIterator = parametersMap.entrySet().iterator();
+		var newParams = new TreeMap<String, List<String>>();
+		while (paramsIterator.hasNext()) {
+			var entry = paramsIterator.next();
+			var defaultVal = defaults.get(entry.getKey());
+			if (defaultVal == null || (defaultVal.get(0).compareTo(entry.getValue().get(0)) != 0)) {
+				newParams.put(entry.getKey(), entry.getValue());
+			}
+		}
+		return newParams;
+	}
+
 	/*
 	 * Retrieve parameter(s) from URL and update according to current settings.
 	 *
@@ -148,7 +166,7 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 		Location location = event.getLocation();
 		setLocation(location);
 		setLocationUI(event.getUI());
-		
+
 		QueryParameters queryParameters = location.getQueryParameters();
 		Map<String, List<String>> parametersMap = queryParameters.getParameters();
 		HashMap<String, List<String>> params = readParams(location, parametersMap);
@@ -158,7 +176,7 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 //		event.getUI().getPage().getHistory().replaceState(null, location2);
 //		logger.warn("C updatingLocation {} {}", location2.getPathWithQueryParameters(), LoggerUtils.whereFrom());
 //		storeReturnURL(location2);
-		doUpdateUrlLocation(getLocationUI(), location, parametersMap);
+		doUpdateUrlLocation(getLocationUI(), location, params);
 	}
 
 	/**
@@ -216,20 +234,6 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 		// override with the update
 		updateParam(parametersMap, parameter, value);
 		doUpdateUrlLocation(ui, location, parametersMap);
-	}
-
-	public default Map<String, List<String>> removeDefaultValues(Map<String, List<String>> parametersMap) {
-		Map<String, List<String>> defaults = getDefaultParameters().getParameters();
-		Iterator<Entry<String, List<String>>> paramsIterator = parametersMap.entrySet().iterator();
-		var newParams = new TreeMap<String, List<String>>();
-		while (paramsIterator.hasNext()) {
-			var entry = paramsIterator.next();
-			var defaultVal = defaults.get(entry.getKey());
-			if (defaultVal == null || (defaultVal.get(0).compareTo(entry.getValue().get(0)) != 0)) {
-				newParams.put(entry.getKey(), entry.getValue());
-			}
-		}
-		return newParams;
 	}
 
 }
