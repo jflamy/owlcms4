@@ -41,8 +41,10 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.HasDynamicTitle;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.apputils.queryparameters.ContentParameters;
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
@@ -82,19 +84,24 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
-
 	private HorizontalLayout decisionLights;
 	private long previousBadMillis = 0L;
-
 	private long previousGoodMillis = 0L;
 	private HorizontalLayout timerButtons;
 	private boolean singleReferee;
-
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 	private boolean downSilenced;
 
 	public AnnouncerContent() {
 		super();
+
+		// when navigating to the page, Vaadin will call setParameter+readParameters
+		// these parameters will be applied.
+		setDefaultParameters(QueryParameters.simple(Map.of(
+		        ContentParameters.SILENT, "true",
+		        ContentParameters.DOWNSILENT, "true",
+		        ContentParameters.IMMEDIATE, "true",
+		        ContentParameters.SINGLEREF, "false")));
 		createTopBarGroupSelect();
 		defineFilters(crudGrid);
 	}
@@ -152,9 +159,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	/**
 	 * The URL contains the group, contrary to other screens.
 	 *
-	 * Normally there is only one announcer. If we have to restart the program the
-	 * announcer screen will have the URL correctly set. if there is no current
-	 * group in the FOP, the announcer will (exceptionally set it)
+	 * Normally there is only one announcer. If we have to restart the program the announcer screen will have the URL
+	 * correctly set. if there is no current group in the FOP, the announcer will (exceptionally set it)
 	 *
 	 * @see app.owlcms.nui.shared.AthleteGridContent#isIgnoreGroupFromURL()
 	 */
@@ -275,7 +281,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		introCountdownButton = new Button(getTranslation("introCountdown"), new Icon(VaadinIcon.TIMER),
 		        (e) -> {
 			        OwlcmsSession.withFop(fop -> {
-				        BreakDialog dialog = new BreakDialog(BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET, null, this);
+				        BreakDialog dialog = new BreakDialog(BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET, null,
+				                this);
 				        dialog.open();
 			        });
 		        });
