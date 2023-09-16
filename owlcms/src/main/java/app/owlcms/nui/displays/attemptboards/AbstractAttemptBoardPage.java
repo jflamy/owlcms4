@@ -1,25 +1,16 @@
 package app.owlcms.nui.displays.attemptboards;
 
-import java.util.List;
-import java.util.TreeMap;
-
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
-import com.vaadin.flow.router.Location;
-import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.apputils.queryparameters.DisplayParametersReader;
-import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.displays.AbstractDisplayPage;
 import app.owlcms.nui.displays.SoundEntries;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
-import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 
 /**

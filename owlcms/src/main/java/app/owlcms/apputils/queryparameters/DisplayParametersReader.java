@@ -25,11 +25,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
-import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.i18n.Translator;
-import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 
 public interface DisplayParametersReader extends ContentParametersReader, DisplayParameters {

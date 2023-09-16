@@ -165,7 +165,7 @@ public interface FOPParameters extends HasUrlParameter<String> {
     public default void storeReturnURL() {
     }
 
-    public default void updateParam(Map<String, List<String>> cleanParams, String parameter, String value) {
+    public default void updateParam(Map<String, String[]> cleanParams, String parameter, String value) {
         if (value != null) {
             cleanParams.put(parameter, Arrays.asList(value));
         } else {
