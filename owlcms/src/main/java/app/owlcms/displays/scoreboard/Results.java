@@ -193,12 +193,12 @@ public class Results extends LitTemplate
 	}
 
 	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#doChangeEmSize()
+	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#pushEmSize()
 	 */
 	@Override
-	public void doChangeEmSize() {
+	public void pushEmSize() {
 		String formattedEm = null;
-		logger.warn("changing em size");
+		logger.warn("***** board changing em size={} from {}",emFontSize,LoggerUtils.whereFrom());
 		if (emFontSize != null) {
 			formattedEm = df.format(emFontSize);
 			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "rem;");
@@ -206,9 +206,8 @@ public class Results extends LitTemplate
 	}
 
 	@Override
-	public void doChangeTeamWidth() {
+	public void pushTeamWidth() {
 		String formattedTW = null;
-
 		if (teamWidth != null) {
 			formattedTW = df.format(teamWidth);
 			this.getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
@@ -349,7 +348,7 @@ public class Results extends LitTemplate
 		logger.warn("setEmFontSize {}", emFontSize);
 		this.emFontSize = emFontSize;
 		logger.warn("setEmFontSize {} {}", emFontSize, getEmFontSize());
-		doChangeEmSize();
+		pushEmSize();
 	}
 
 	@Override
@@ -429,7 +428,7 @@ public class Results extends LitTemplate
 	@Override
 	public void setTeamWidth(Double tw) {
 		this.teamWidth = tw;
-		doChangeTeamWidth();
+		pushTeamWidth();
 	}
 
 	public void setTimer(AthleteTimerElement timer) {
@@ -973,8 +972,6 @@ public class Results extends LitTemplate
 		String groupDescription = curGroup != null ? curGroup.getDescription() : null;
 		displayOrder = getOrder(fop);
 		spotlightRecords(fop);
-
-		doChangeEmSize();
 		if (liftType != null && curGroup != null && !curGroup.isDone()) {
 			this.getElement().setProperty("displayType", getDisplayType());
 		}

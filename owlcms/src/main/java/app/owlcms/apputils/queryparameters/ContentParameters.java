@@ -19,10 +19,6 @@ public interface ContentParameters extends FOPParameters, SoundEntries {
 	public default void buildDialog(Component target) {
 	}
 
-	public default QueryParameters getDefaultParameters() {
-		return null;
-	}
-
 	public default boolean isDownSilenced() {
 		return true;
 	}

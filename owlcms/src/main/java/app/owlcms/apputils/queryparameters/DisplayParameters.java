@@ -34,10 +34,10 @@ public interface DisplayParameters extends ContentParameters {
 	public static final String ABBREVIATED = "abb";
 	public static final String VIDEO = "video";
 
-	public default void doChangeEmSize() {
+	public default void pushEmSize() {
 	}
 
-	public default void doChangeTeamWidth() {
+	public default void pushTeamWidth() {
 	}
 
 	public default Double getEmFontSize() {

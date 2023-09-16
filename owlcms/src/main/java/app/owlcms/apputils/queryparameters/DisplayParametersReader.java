@@ -28,6 +28,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.i18n.Translator;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -95,62 +96,33 @@ public interface DisplayParametersReader extends ContentParametersReader, Displa
 	        Map<String, List<String>> parametersMap) {
 		// handle FOP and Group by calling superclass
 		HashMap<String, List<String>> params = ContentParametersReader.super.readParams(location, parametersMap);
-
-//		List<String> darkParams = params.get(DARK);
-//		// dark is the default. dark=false or dark=no or ... will turn off dark mode.
-//		boolean darkMode = darkParams == null || darkParams.isEmpty() || darkParams.get(0).toLowerCase().equals("true");
-//		setDarkMode(darkMode);
-//		switchLightingMode((Component) this, darkMode, false);
-//		updateParam(params, DARK, !isDarkMode() ? "false" : null);
+		
+		logger.warn("**** whoami {}",this);
 		
 		processBooleanParam(params, DARK, (v) -> switchLightingMode(v, false));
-
-		List<String> switchableParams = params.get(PUBLIC);
-		boolean switchable = switchableParams != null && !switchableParams.isEmpty()
-		        && switchableParams.get(0).toLowerCase().equals("true");
-		setPublicDisplay(switchable);
-		switchSwitchable((Component) this, switchable, false);
-		updateParam(params, PUBLIC, isPublicDisplay() ? "true" : null);
-
-		List<String> records = params.get(RECORDS);
-		boolean showRecords = isDefaultRecordsDisplay();
-		if (isDefaultRecordsDisplay()) {
-			showRecords = records == null || records.isEmpty() || !"false".contentEquals(records.get(0));
-		} else {
-			showRecords = records != null && !records.isEmpty() && "true".contentEquals(records.get(0));
-		}
-		setRecordsDisplay(showRecords);
-		switchRecords((Component) this, showRecords, false);
-		updateParam(params, RECORDS,
-		        isRecordsDisplay() != isDefaultRecordsDisplay() ? Boolean.toString(isRecordsDisplay()) : null);
-
-		List<String> leaders = params.get(LEADERS);
-		boolean showLeaders = isDefaultLeadersDisplay();
-		if (isDefaultLeadersDisplay()) {
-			showLeaders = leaders == null || leaders.isEmpty() || !"false".contentEquals(leaders.get(0));
-		} else {
-			showLeaders = leaders != null && !leaders.isEmpty() && "true".contentEquals(leaders.get(0));
-		}
-		setLeadersDisplay(showLeaders);
-		switchLeaders((Component) this, showLeaders, false);
-		updateParam(params, LEADERS,
-		        isLeadersDisplay() != isDefaultLeadersDisplay() ? Boolean.toString(isLeadersDisplay()) : null);
+		processBooleanParam(params, PUBLIC, (v) -> switchSwitchable(v, false));
+		processBooleanParam(params, RECORDS, (v) -> switchRecords(v, false));
+		processBooleanParam(params, LEADERS, (v) -> switchLeaders(v, false));
+		processBooleanParam(params, ABBREVIATED, (v) -> switchAbbreviated(v, true));
+		processBooleanParam(params, VIDEO, (v) -> switchVideo(v, true));
 
 		List<String> sizeParams = params.get(FONTSIZE);
 		Double emSize;
 		try {
 			emSize = (sizeParams != null && !sizeParams.isEmpty() ? Double.parseDouble(sizeParams.get(0)) : 0.0D);
 			if (emSize > 0.0D) {
-				setEmFontSize(emSize);
-				updateParam(params, FONTSIZE, emSize.toString());
+//				setEmFontSize(emSize);
+//				updateParam(params, FONTSIZE, emSize.toString());
+				switchEmFontSize(emSize, false);
 			} else {
-				setEmFontSize(null);
-				updateParam(params, FONTSIZE, null);
+//				setEmFontSize(null);
+//				updateParam(params, FONTSIZE, null);
+				switchEmFontSize(null, true);
 			}
 		} catch (NumberFormatException e) {
-			emSize = 0.0D;
-			setEmFontSize(null);
-			updateParam(params, FONTSIZE, null);
+//			emSize = 0.0D;
+//			setEmFontSize(null);
+			switchEmFontSize(null, true);
 		}
 
 		List<String> twParams = params.get(TEAMWIDTH);
@@ -158,34 +130,59 @@ public interface DisplayParametersReader extends ContentParametersReader, Displa
 		try {
 			tWidth = (twParams != null && !twParams.isEmpty() ? Double.parseDouble(twParams.get(0)) : 0.0D);
 			if (tWidth > 0.0D) {
-				setTeamWidth(tWidth);
-				updateParam(params, FONTSIZE, tWidth.toString());
+//				setTeamWidth(tWidth);
+//				updateParam(params, TEAMWIDTH, tWidth.toString());
+				switchTeamWidth(tWidth, false);
 			} else {
-				setTeamWidth(null);
-				updateParam(params, FONTSIZE, null);
+//				setTeamWidth(null);
+//				updateParam(params, TEAMWIDTH, null);
+				switchTeamWidth(null, true);
 			}
 		} catch (NumberFormatException e) {
-			tWidth = 10.0D;
-			setEmFontSize(null);
-			updateParam(params, FONTSIZE, null);
+//			tWidth = 10.0D;
+//			setEmFontSize(null);
+//			updateParam(params, TEAMWIDTH, null);
+			switchTeamWidth(null, true);
 		}
-
-		List<String> abbParams = params.get(ABBREVIATED);
-		boolean abb;
-		abb = (abbParams != null && !abbParams.isEmpty() ? Boolean.valueOf(abbParams.get(0)) : false);
-		setAbbreviatedName(abb);
-		updateParam(params, ABBREVIATED, abb ? "true" : null);
-
-		List<String> videoParams = params.get(ABBREVIATED);
-		boolean video;
-		video = (videoParams != null && !videoParams.isEmpty() ? Boolean.valueOf(videoParams.get(0)) : false);
-		setVideo(video);
-		updateParam(params, VIDEO, abb ? "video" : null);
 
 		setUrlParameterMap(params);
 		return params;
 	}
 
+//	/*
+//	 * Process query parameters
+//	 *
+//	 * Note: what Vaadin calls a parameter is in the REST style, actually part of the URL path. We use the old-style
+//	 * Query parameters for our purposes.
+//	 *
+//	 * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin. flow.router.BeforeEvent,
+//	 * java.lang.String)
+//	 */
+//	@Override
+//	public default void setParameter(BeforeEvent event, @OptionalParameter String routeParameter) {
+//		Location location = event.getLocation();
+//		setLocation(location);
+//		setLocationUI(event.getUI());
+//		setRouteParameter(routeParameter);
+//
+//		// the OptionalParameter string is the part of the URL path that can be
+//		// interpreted as REST arguments
+//		// we use the ? query parameters instead.
+//		QueryParameters queryParameters = location.getQueryParameters();
+//		Map<String, List<String>> parametersMap = queryParameters.getParameters();
+//
+//		// we inject the video route parameter as a normal query parameter to simplify processing.
+//		if (routeParameter != null && routeParameter.contentEquals("video")) {
+//			parametersMap.put("video", List.of("true"));
+//		}
+//		HashMap<String, List<String>> params = readParams(location, parametersMap);
+//
+//		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params)));
+//		event.getUI().getPage().getHistory().replaceState(null, location2);
+//		logger.warn("A updatingLocation {} {}", location2.getPathWithQueryParameters(), LoggerUtils.whereFrom());
+//		storeReturnURL(location2);
+//	}
+	
 	/*
 	 * Process query parameters
 	 *
@@ -201,23 +198,7 @@ public interface DisplayParametersReader extends ContentParametersReader, Displa
 		setLocation(location);
 		setLocationUI(event.getUI());
 		setRouteParameter(routeParameter);
-
-		// the OptionalParameter string is the part of the URL path that can be
-		// interpreted as REST arguments
-		// we use the ? query parameters instead.
-		QueryParameters queryParameters = location.getQueryParameters();
-		Map<String, List<String>> parametersMap = queryParameters.getParameters();
-
-		// we inject the video route parameter as a normal query parameter to simplify processing.
-		if (routeParameter != null && routeParameter.contentEquals("video")) {
-			parametersMap.put("video", List.of("true"));
-		}
-		HashMap<String, List<String>> params = readParams(location, parametersMap);
-
-		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params)));
-		event.getUI().getPage().getHistory().replaceState(null,
-		        location2);
-		storeReturnURL(location2);
+		ContentParametersReader.super.setParameter(event, routeParameter);
 	}
 
 	/**
@@ -254,27 +235,26 @@ public interface DisplayParametersReader extends ContentParametersReader, Displa
 		return getDialog();
 	}
 	
-	public default void switchAbbreviated(Component target, boolean abbreviated, boolean updateURL) {
-		setAbbreviatedName(abbreviated);
+	public default void switchAbbreviated(boolean abbreviated, boolean updateURL) {
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), ABBREVIATED, abbreviated ? "true" : "false");
 		}
+		setAbbreviatedName(abbreviated);
 	}
 
-	public default void switchEmFontSize(Component target, Double emFontSize, boolean updateURL) {
-		setEmFontSize(emFontSize);
+	public default void switchEmFontSize(Double emFontSize, boolean updateURL) {
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), FONTSIZE,
 			        emFontSize != null ? emFontSize.toString() : null);
 		}
+		setEmFontSize(emFontSize);
 	}
 
-	public default void switchLeaders(Component target, boolean showLeaders, boolean updateURL) {
-		setLeadersDisplay(showLeaders);
+	public default void switchLeaders(boolean showLeaders, boolean updateURL) {
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), LEADERS, showLeaders ? "true" : "false");
 		}
-
+		setLeadersDisplay(showLeaders);
 	}
 
 	public default void switchLightingMode(boolean dark, boolean updateURL) {
@@ -285,26 +265,33 @@ public interface DisplayParametersReader extends ContentParametersReader, Displa
 		setDarkMode(dark);
 	}
 
-	public default void switchRecords(Component target, boolean showRecords, boolean updateURL) {
+	public default void switchRecords(boolean showRecords, boolean updateURL) {
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), RECORDS, showRecords ? "true" : "false");
 		}
 		setRecordsDisplay(showRecords);
 	}
 
-	public default void switchSwitchable(Component target, boolean switchable, boolean updateURL) {
+	public default void switchSwitchable(boolean switchable, boolean updateURL) {
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), PUBLIC, switchable ? "true" : "false");
 		}
 		setPublicDisplay(switchable);
 	}
 
-	public default void switchTeamWidth(Component target, Double teamWidth, boolean updateURL) {
+	public default void switchTeamWidth(Double teamWidth, boolean updateURL) {
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), TEAMWIDTH,
 			        teamWidth != null ? teamWidth.toString() : null);
 		}
 		setTeamWidth(teamWidth);
+	}
+	
+	public default void switchVideo(boolean video, boolean updateURL) {
+		if (updateURL) {
+			updateURLLocation(getLocationUI(), getLocation(), VIDEO, video ? "true" : "false");
+		}
+		setAbbreviatedName(video);
 	}
 
 	Timer getDialogTimer();

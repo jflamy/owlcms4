@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.function.Consumer;
 
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +13,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Location;
-import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.displays.video.VideoCSSOverride;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -59,28 +57,7 @@ public interface ContentParametersReader extends ContentParameters, FOPParameter
 		}
 	}
 
-	public default void processBooleanParam(HashMap<String, List<String>> params, String paramName,
-	        Consumer<Boolean> doer) {
-		List<String> paramValues = params.get(paramName);
-		logger.warn("param {} values={}", paramName, paramValues);
-		boolean value = false;
-		if (paramValues == null || paramValues.isEmpty()) {
-			QueryParameters dp = getDefaultParameters();
-			if (dp != null) {
-				List<String> defaultValues = dp.getParameters().get(paramName);
-				if (defaultValues != null) {
-					logger.warn("param {} DEFAULT values={}", paramName, defaultValues);
-					String defaultVal = defaultValues.get(0);
-					value = defaultVal.toLowerCase().equals("true");
-				}
-			}
-		} else {
-			value = paramValues.get(0).toLowerCase().equals("true");
-		}
-		doer.accept(value);
-		updateParam(params, paramName, value ? "true" : "false");
-		logger.warn("updated values for {} {}", paramName, params.get(paramName));
-	}
+
 
 	@Override
 	public default HashMap<String, List<String>> readParams(Location location,

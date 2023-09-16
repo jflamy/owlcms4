@@ -40,16 +40,13 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.displays.scoreboards.ResultsMedalsPage;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
-import app.owlcms.utils.StartupUtils;
 import app.owlcms.utils.URLUtils;
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -69,7 +66,9 @@ import elemental.json.JsonValue;
 public class ResultsMedals extends Results implements ContextFreeDisplayParameters {
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsMedals.class);
+	@SuppressWarnings("unused")
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	
 	private Category category;
 	private JsonArray cattempts;
 	private FieldOfPlay fop;
@@ -134,7 +133,7 @@ public class ResultsMedals extends Results implements ContextFreeDisplayParamete
 	 */
 	@Override
 	public void setTeamWidth(Double teamWidth) {
-		doChangeTeamWidth();
+		pushTeamWidth();
 	}
 
 	@Override

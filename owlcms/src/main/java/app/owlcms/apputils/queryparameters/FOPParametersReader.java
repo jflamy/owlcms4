@@ -10,8 +10,10 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.slf4j.LoggerFactory;
@@ -41,12 +43,16 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 	 */
 	@Override
 	public default void doUpdateUrlLocation(UI ui, Location location, Map<String, List<String>> queryParameterMap) {
-		setUrlParameterMap(queryParameterMap);
-		Location location2 = new Location(location.getPath(),
-		        new QueryParameters(URLUtils.cleanParams(queryParameterMap)));
-		ui.getPage().getHistory().replaceState(null, location2);
+
+		Map<String, List<String>> nq = removeDefaultValues(queryParameterMap);
+		String after = new QueryParameters(queryParameterMap).getQueryString();
+		logger.warn("========= after cleanup {}", after);
+		
+		setUrlParameterMap(nq);
+		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(nq)));
+		ui.getPage().getHistory().replaceState(null, location2.getPathWithQueryParameters());
 		setLocation(location2);
-		logger.warn("updatingLocation {} {}", location2.getPathWithQueryParameters(), this.getClass().getSimpleName());
+		logger.warn("B updatingLocation {} {}", location2.getPathWithQueryParameters(), LoggerUtils.whereFrom());
 		storeReturnURL(location2);
 	}
 
@@ -140,15 +146,19 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 	public default void setParameter(BeforeEvent event, @OptionalParameter String unused) {
 		// logger.setLevel(Level.INFO);
 		Location location = event.getLocation();
+		setLocation(location);
+		setLocationUI(event.getUI());
+		
 		QueryParameters queryParameters = location.getQueryParameters();
 		Map<String, List<String>> parametersMap = queryParameters.getParameters();
 		HashMap<String, List<String>> params = readParams(location, parametersMap);
 
-		// change the URL to reflect the updated parameters
-		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params)));
-		event.getUI().getPage().getHistory().replaceState(null,
-		        location2);
-		storeReturnURL(location2);
+//		// change the URL to reflect the updated parameters
+//		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params)));
+//		event.getUI().getPage().getHistory().replaceState(null, location2);
+//		logger.warn("C updatingLocation {} {}", location2.getPathWithQueryParameters(), LoggerUtils.whereFrom());
+//		storeReturnURL(location2);
+		doUpdateUrlLocation(getLocationUI(), location, parametersMap);
 	}
 
 	/**
@@ -179,11 +189,11 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 	 *      java.lang.String)
 	 */
 	@Override
-	public default void updateParam(Map<String, List<String>> cleanParams, String parameter, String value) {
+	public default void updateParam(Map<String, List<String>> parameters, String parameter, String value) {
 		if (value != null) {
-			cleanParams.put(parameter, Arrays.asList(value));
+			parameters.put(parameter, Arrays.asList(value));
 		} else {
-			cleanParams.remove(parameter);
+			parameters.remove(parameter);
 		}
 	}
 
@@ -194,6 +204,7 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 	@Override
 	public default void updateURLLocation(UI ui, Location location, String parameter, String value) {
 		Map<String, List<String>> parametersMap = new TreeMap<>(location.getQueryParameters().getParameters());
+
 		// get current values
 		if (!this.isIgnoreFopFromURL()) {
 			FieldOfPlay fop = OwlcmsSession.getFop();
@@ -205,6 +216,20 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 		// override with the update
 		updateParam(parametersMap, parameter, value);
 		doUpdateUrlLocation(ui, location, parametersMap);
+	}
+
+	public default Map<String, List<String>> removeDefaultValues(Map<String, List<String>> parametersMap) {
+		Map<String, List<String>> defaults = getDefaultParameters().getParameters();
+		Iterator<Entry<String, List<String>>> paramsIterator = parametersMap.entrySet().iterator();
+		var newParams = new TreeMap<String, List<String>>();
+		while (paramsIterator.hasNext()) {
+			var entry = paramsIterator.next();
+			var defaultVal = defaults.get(entry.getKey());
+			if (defaultVal == null || (defaultVal.get(0).compareTo(entry.getValue().get(0)) != 0)) {
+				newParams.put(entry.getKey(), entry.getValue());
+			}
+		}
+		return newParams;
 	}
 
 }

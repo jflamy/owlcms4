@@ -80,7 +80,7 @@ public class DisplayOptions {
 			recordsDisplayCheckbox.setValue(showRecords);
 			recordsDisplayCheckbox.addValueChangeListener(e -> {
 				if (e.isFromClient()) {
-					dp.switchRecords(target, e.getValue(), true);
+					dp.switchRecords(e.getValue(), true);
 				}
 			});
 		//}
@@ -90,7 +90,7 @@ public class DisplayOptions {
 		leadersDisplayCheckbox.setValue(showLeaders);
 		leadersDisplayCheckbox.addValueChangeListener(e -> {
 			if (e.isFromClient() && e.getSource() == leadersDisplayCheckbox) {
-				dp.switchLeaders(target, e.getValue(), true);
+				dp.switchLeaders(e.getValue(), true);
 			}
 		});
 		
@@ -99,7 +99,7 @@ public class DisplayOptions {
 		abbreviatedCheckbox.setValue(abbreviated);
 		abbreviatedCheckbox.addValueChangeListener(e -> {
 			if (e.isFromClient() && e.getSource() == abbreviatedCheckbox) {
-				dp.switchAbbreviated(target, e.getValue(), true);
+				dp.switchAbbreviated(e.getValue(), true);
 			}
 			Location location = dp.getLocation();
 			UI.getCurrent().getPage().setLocation(location.getPathWithQueryParameters());
@@ -131,7 +131,7 @@ public class DisplayOptions {
 		fontSizeField.addValueChangeListener(e -> {
 			dp.getDialogTimer().cancel();
 			Double emSize = e.getValue();
-			dp.switchEmFontSize(target, emSize, false);
+			dp.switchEmFontSize(emSize, true);
 		});
 		
 		LocalizedDecimalField twField = new LocalizedDecimalField(3);
@@ -146,7 +146,7 @@ public class DisplayOptions {
 		twField.addValueChangeListener(e -> {
 			dp.getDialogTimer().cancel();
 			Double emSize = e.getValue();
-			dp.switchTeamWidth(target, emSize, false);
+			dp.switchTeamWidth(emSize, true);
 		});
 
 		HorizontalLayout fx = new HorizontalLayout();
@@ -229,7 +229,7 @@ public class DisplayOptions {
 		rbgroup.setRenderer(new ComponentRenderer<Button, Boolean>((mn) -> mn ? publicDisplay : warmupDisplay));
 		rbgroup.addValueChangeListener(e -> {
 			Boolean silenced = e.getValue();
-			dp.switchSwitchable(target, silenced, true);
+			dp.switchSwitchable(silenced, true);
 		});
 
 		layout.add(label);

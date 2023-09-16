@@ -68,15 +68,18 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	}
 
 	@Override
-	public void doChangeEmSize() {
+	public void pushEmSize() {
 		// update the dialog
 	}
 
 	@Override
-	public void doChangeTeamWidth() {
+	public void pushTeamWidth() {
 		// update the dialog
 	}
 
+	/**
+	 * @see app.owlcms.apputils.queryparameters.ContentParameters#getDefaultParameters()
+	 */
 	@Override
 	final public QueryParameters getDefaultParameters() {
 		return defaultParameters;
@@ -225,10 +228,10 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	@Override
 	final public void setEmFontSize(Double emFontSize) {
-		logger.warn("setEmFontSize={}", emFontSize);
+		logger.warn("**** setEmFontSize={}", emFontSize);
 		this.emFontSize = emFontSize;
 		((DisplayParameters) this.board).setEmFontSize(emFontSize);
-		doChangeEmSize();
+		pushEmSize();
 	}
 
 	@Override
@@ -293,6 +296,9 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 		this.teamWidth = tw;
 	}
 
+	/**
+	 * @see app.owlcms.apputils.queryparameters.ParameterReader#setUrlParameterMap(java.util.Map)
+	 */
 	@Override
 	final public void setUrlParameterMap(Map<String, List<String>> urlParameterMap) {
 		this.urlParameterMap = urlParameterMap;

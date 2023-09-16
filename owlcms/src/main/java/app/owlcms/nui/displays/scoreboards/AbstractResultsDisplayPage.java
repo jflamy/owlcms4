@@ -38,6 +38,15 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 	}
 
 	@Override
+	public void pushTeamWidth() {
+		String formattedTW = null;
+		if (getTeamWidth() != null) {
+			formattedTW = df.format(getTeamWidth());
+			getBoard().getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
+		}
+	}
+
+	@Override
 	public Double getEmFontSize() {
 		if (super.getEmFontSize() == null) {
 			return 1.2;
@@ -54,14 +63,7 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 	}
 
 	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		logger.warn("AbstractAttemptBoardPage onAttach");
-		super.onAttach(attachEvent);
-		openDialog(getDialog());
-	}
-	
-	@Override
-	public void doChangeEmSize() {
+	public void pushEmSize() {
 		String formattedEm = null;
 		if (getEmFontSize() != null) {
 			formattedEm = df.format(getEmFontSize());
@@ -69,13 +71,11 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 		}
 	}
 
-	public void doChangeTeamWidth() {
-		String formattedTW = null;
-		if (getTeamWidth() != null) {
-			formattedTW = df.format(getTeamWidth());
-			getBoard().getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
-		}
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		logger.warn("AbstractAttemptBoardPage onAttach");
+		super.onAttach(attachEvent);
+		openDialog(getDialog());
 	}
-	
 
 }
