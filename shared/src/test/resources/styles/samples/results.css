@@ -64,18 +64,18 @@ table.results.noranks {
 }
 
 /* default cell colors, backgrounds and borders */
-:host(.dark) table.results tr td {
+:host .dark table.results tr td {
     border: 1px solid;
     border-color: #ffffff
 }
 
-:host(.dark) td.narrow {
+:host .dark td.narrow {
      color: #ffffff;
      background-color: #480073;
      font-weight: bold;
 }
 
-:host(.dark) td.groupCol {
+:host .dark td.groupCol {
      background-color: #7b0000;
      color: #ffffff;
     font-weight: bold;
@@ -89,7 +89,7 @@ table.results.noranks {
 }
 
 /* name is not centered */
-:host(.dark) td.name,
+:host .dark td.name,
 :host(.light) td.name {
     background-color: #000000;
     color: #ffdb00;
@@ -98,8 +98,8 @@ table.results.noranks {
 }
 
 /* other items are centered */
-:host(.dark) th,
-:host(.dark) td {
+:host .dark th,
+:host .dark td {
     font-weight: normal;
     justify-content: center;
 }
@@ -111,7 +111,7 @@ table.results.noranks {
 }
 
 /* category */
-:host(.dark) table.results tr td.category {
+:host .dark table.results tr td.category {
     font-weight: bold;
     background-color: var(--darkCategoryBackgroundColor);
     color: var(--darkCategoryTextColor);
@@ -123,7 +123,7 @@ table.results.noranks {
 }
 
 /* birth */
-:host(.dark) table.results tr td.yob {
+:host .dark table.results tr td.yob {
     font-weight: bold;
     background-color: var(--darkBirthBackgroundColor);
     color: var(--darkBirthTextColor);
@@ -135,7 +135,7 @@ table.results.noranks {
 }
 
 /* team */
-:host(.dark) table.results tr td.club {
+:host .dark table.results tr td.club {
     font-weight: bold;
     background-color: var(--darkTeamBackgroundColor);
     color: var(--darkTeamTextColor);
@@ -147,7 +147,7 @@ table.results.noranks {
 }
 
 /* good/bad cells */
-:host(.dark) table.results tr td.good {
+:host .dark table.results tr td.good {
     background-color: var(--darkGoodBackgroundColor);
     color: var(--lightGoodTextColor);
     font-weight: bold;
@@ -158,7 +158,7 @@ table.results.noranks {
     color: var(--lightGoodTextColor);
 }
 
-:host(.dark) table.results tr td.fail {
+:host .dark table.results tr td.fail {
     background-color: var(--darkFailBackgroundColor);
     color: var(--darkFailTextColor);
     font-weight: bold;
@@ -170,7 +170,7 @@ table.results.noranks {
 }
 
 /* snatch and c&j ranks */
-:host(.dark) table.results tr td.rank {
+:host .dark table.results tr td.rank {
     background-color: #ffb300;
     color: #000000;
     visibility: var(--rankVisibility);
@@ -188,7 +188,7 @@ table.results.noranks {
 }
 
 /* total rank */
-:host(.dark) table.results tr td.totalRank {
+:host .dark table.results tr td.totalRank {
     background-color: #7b0000;
     color: white;
     font-weight: bold;
@@ -200,7 +200,7 @@ table.results.noranks {
 }
 
 /* spacer line between categories */
-:host(.dark) table.results tr td.spacer {
+:host .dark table.results tr td.spacer {
     background-color: var(--darkSpacerBackgroundColor);
     color:#00053c;
     padding: 0.4vmin 0.4vmin 0.4vmin 0.vmin;
@@ -219,7 +219,7 @@ table.results.noranks {
 }
 
 /* filler space above leaders */
-:host(.dark) table.results tr td.filler {
+:host .dark table.results tr td.filler {
     background-color: var(--pageBackgroundColor);
     grid-column: 1 / -1;
     align-content: stretch;
@@ -240,7 +240,7 @@ table.results.noranks {
 }
 
 /* requested weight column */
-:host(.dark) td.narrow.request {
+:host .dark td.narrow.request {
     font-style: italic;
     font-weight: bold;
     background-color: #000000;
@@ -252,7 +252,7 @@ table.results.noranks {
 }
 
 /* current athlete colors and blinks */
-:host(.dark) table.results tr td.current {
+:host .dark table.results tr td.current {
     color: black;
     background-color: #3dff00;
     font-weight: bold;
@@ -265,22 +265,22 @@ table.results.noranks {
 }
 
 /* blinking text is done with a div animation */
-:host(.dark) table.results td.blink {
+:host .dark table.results td.blink {
     animation: blink 1.5s step-start 0s infinite;
 }
 
 /* blinking a background is done with the changeColor animation defined below */
-:host(.dark) table.results td.blink {
+:host .dark table.results td.blink {
     animation: changeColor 1.5s step-start 0s infinite;
 }
 
 /* next athlete colors */
-:host(.dark) table.results tr td.next {
+:host .dark table.results tr td.next {
     color: var(--darkNextTextColor);
     background-color: var(--darkNextBackgroundColor);
     font-weight: bold;
 }
-:host(.dark) td.next {
+:host .dark td.next {
     color: var(--darkNextTextColor);
     background-color: var(--darkNextBackgroundColor);
     font-weight: bold;
@@ -293,7 +293,7 @@ table.results.noranks {
 }
 
 /* empty cells */
-:host(.dark) td.empty {
+:host .dark td.empty {
     color: var(--darkTextColor);
     background-color: #a5a5a5;
     font-style: italic;
@@ -369,8 +369,8 @@ td {
     margin: 0;
 }
 
-:host(.dark) table.results tr.head td,
-:host(.dark) table.results tr.head th {
+:host .dark table.results tr.head td,
+:host .dark table.results tr.head th {
     position: sticky;
     justify-content: center;
     align-content: center;
@@ -660,7 +660,7 @@ div.ellipsis {
 }
 
 /* records dark theme */
-:host(.dark) .recordCell {
+:host .dark .recordCell {
     border: 1px solid white;
     float: left;
     width: var(--recordValueCellWidth);
@@ -671,7 +671,7 @@ div.ellipsis {
     color: var(--darkRecordValueText);
 }
 
-:host(.dark) .recordLiftType {
+:host .dark .recordLiftType {
     border: 1px solid white;
     float: left;
     width: var(--recordValueCellWidth);
@@ -682,7 +682,7 @@ div.ellipsis {
     font-size: small;
 }
 
-:host(.dark) .recordLiftTypeSpacer {
+:host .dark .recordLiftTypeSpacer {
     width: var(--recordValueCellWidth);
     text-align: center;
     background-color: var(--darkRecordLiftTypeBackground);
@@ -691,12 +691,12 @@ div.ellipsis {
     font-size: 0em;
 }
 
-:host(.dark) .recordsFiller {
+:host .dark .recordsFiller {
     text-align: right;
     height: calc(var(--recordValueCellHeight)*1.2);
 }
 
-:host(.dark) .recordCat {
+:host .dark .recordCat {
     border-bottom: 1px solid black;
     text-align: center;
     font-weight: bold;
@@ -706,7 +706,7 @@ div.ellipsis {
     color: black;
 }
 
-:host(.dark) .recordName {
+:host .dark .recordName {
     font-size: 1.1em;
     font-weight: bold;
     text-align: right;
@@ -716,7 +716,7 @@ div.ellipsis {
     color: #00ff00;
 }
 
-:host(.dark) .recordTitle {
+:host .dark .recordTitle {
     font-size: 2em;
     text-align: right;
     height: var(--recordValueCellHeight);
@@ -725,14 +725,14 @@ div.ellipsis {
     color: #02ffff;
 }
 
-:host(.dark) .recordBox {
+:host .dark .recordBox {
     float: left;
     border: 2px solid;
     background-color: var(--darkRecordBoxBackground);
     color: var(--darkRecordBoxText);
 }
 
-:host(.dark) .highlight {
+:host .dark .highlight {
     font-weight: bold;
     background-color: yellow !important;
     color: black !important;

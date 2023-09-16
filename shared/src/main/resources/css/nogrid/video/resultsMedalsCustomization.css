@@ -60,11 +60,11 @@
     --lightTotalTextColor: var(--lightNameTextColor); */
 }
 
-:host(.light) table.results {
+:host .light table.results {
     --spacerWidth: 0vh;
     --rowSmallSpacerHeight: 0;
 }
-:host(.dark) table.results {
+:host .dark table.results {
     --spacerWidth: 1vh;
     --rowSmallSpacerHeight: 0.25vh;
 }
@@ -123,46 +123,46 @@ td.flags div.flags {
     min-height: 1.5em;
 }
 
-:host(.dark) .wrapper table.results tr td.rank {
+:host .dark .wrapper table.results tr td.rank {
     border-color: var(--darkEmptyBackgroundColor);
     color: white;
     border-width: 0.6em;
     border-style: solid;
 }
-:host(.dark) .wrapper table.results tr td.rank.medal1 {
+:host .dark .wrapper table.results tr td.rank.medal1 {
     background-color: gold;
     color: black;
 }
-:host(.dark) .wrapper table.results tr td.rank.medal2 {
+:host .dark .wrapper table.results tr td.rank.medal2 {
     background-color: silver;
     color: black;
 }
-:host(.dark) .wrapper table.results tr td.rank.medal3 {
+:host .dark .wrapper table.results tr td.rank.medal3 {
     background-color: #CD7F32;
     color: black;
 }
 
-:host(.dark) .wrapper table.results tr td.totalRrank {
+:host .dark .wrapper table.results tr td.totalRrank {
     border-color: var(--darkEmptyBackgroundColor);
     color: white;
     border-width: 0.6em;
     border-style: solid;
 }
-:host(.dark) .wrapper table.results tr td.totalRank.medal1 {
+:host .dark .wrapper table.results tr td.totalRank.medal1 {
     background-color: gold;
     color: black;
     border-color: var(--darkEmptyBackgroundColor);
     border-width: 0.6em;
     border-style: solid;
 }
-:host(.dark) .wrapper table.results tr td.totalRank.medal2 {
+:host .dark .wrapper table.results tr td.totalRank.medal2 {
     background-color: silver;
     color: black;
     border-color: var(--darkEmptyBackgroundColor);
     border-width: 0.6em;
     border-style: solid;
 }
-:host(.dark) .wrapper table.results tr td.totalRank.medal3 {
+:host .dark .wrapper table.results tr td.totalRank.medal3 {
     background-color: #CD7F32;
     color: black;
     border-color: var(--darkEmptyBackgroundColor);
@@ -170,46 +170,46 @@ td.flags div.flags {
     border-style: solid;
 }
 
-:host(.light) .wrapper table.results tr td.rank {
+:host .light .wrapper table.results tr td.rank {
     border-color: var(--lightTableBorders);
     color: white;
     border-width: 0.6em;
     border-style: solid;
 }
-:host(.light) .wrapper table.results tr td.rank.medal1 {
+:host .light .wrapper table.results tr td.rank.medal1 {
     background-color: gold;
     color: black;
 }
-:host(.light) .wrapper table.results tr td.rank.medal2 {
+:host .light .wrapper table.results tr td.rank.medal2 {
     background-color: silver;
     color: black;
 }
-:host(.light) .wrapper table.results tr td.rank.medal3 {
+:host .light .wrapper table.results tr td.rank.medal3 {
     background-color: #CD7F32;
     color: black;
 }
 
-:host(.light) .wrapper table.results tr td.totalRrank {
+:host .light .wrapper table.results tr td.totalRrank {
     border-color: var(--lightTableBorders);
     color: white;
     border-width: 0.6em;
     border-style: solid;
 }
-:host(.light) .wrapper table.results tr td.totalRank.medal1 {
+:host .light .wrapper table.results tr td.totalRank.medal1 {
     background-color: gold;
     color: black;
     border-color: var(--lightTableBorders);
     border-width: 0.6em;
     border-style: solid;
 }
-:host(.light) .wrapper table.results tr td.totalRank.medal2 {
+:host .light .wrapper table.results tr td.totalRank.medal2 {
     background-color: silver;
     color: black;
     border-color: var(--lightTableBorders);
     border-width: 0.6em;
     border-style: solid;
 }
-:host(.light) .wrapper table.results tr td.totalRank.medal3 {
+:host .light .wrapper table.results tr td.totalRank.medal3 {
     background-color: #CD7F32;
     color: black;
     border-color: var(--lightTableBorders);

@@ -195,6 +195,7 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	@Override
 	final public void setDarkMode(boolean darkMode) {
+		logger.warn("setting board to dark={}",darkMode);
 		((DisplayParameters) this.board).setDarkMode(darkMode);
 		this.darkMode = darkMode;
 	}

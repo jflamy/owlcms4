@@ -304,12 +304,12 @@ table.results {
     /*margin-bottom: 2vmin;*/
 }
 
-:host(.dark) table.results tr {
+:host .dark table.results tr {
     background-color: var(--darkBackgroundColor);
     color: var(--darkTextColor);
 }
 
-:host(.light) table.results tr {
+:host .light table.results tr {
     background-color: var(--lightBackgroundColor);
     color: var(--lightTextColor);
 }
@@ -321,11 +321,11 @@ th, td {
     font-size: var(--fontSizeRows-height);
 }
 
-:host(.dark) th, td {
+:host .dark th, td {
     font-weight: normal;
 }
 
-:host(.light) th, td {
+:host .light th, td {
     font-weight: bold;
 }
 
@@ -448,35 +448,35 @@ th, td {
     display: inline-block;
 }
 
-:host(.dark) .good {
+:host .dark .good {
     background-color: var(--darkGoodBackgroundColor);
     font-weight: bold;
     color: var(--darkGoodTextColor);
 }
 
-:host(.light) .good {
+:host .light .good {
     background-color: var(--lightGoodBackgroundColor);
     font-weight: bold;
     color: var(--lightGoodTextColor);
 }
 
-:host(.dark) .fail {
+:host .dark .fail {
     background-color: var(--darkFailBackgroundColor);
     font-weight: bold;
     color: var(--darkFailTextColor);
 }
 
-:host(.light) .fail {
+:host .light .fail {
     background-color: var(--lightFailBackgroundColor);
     font-weight: bold;
     color: var(--lightFailTextColor);
 }
 
-:host(.dark) .spacer {
+:host .dark .spacer {
     background-color: var(--darkSpacerBackgroundColor);
 }
 
-:host(.light) .spacer {
+:host .light .spacer {
     background-color:var(--lightSpacerBackgroundColor);
 }
 
@@ -484,22 +484,22 @@ th, td {
     font-size: 85%;
 }
 
-:host(.dark) .request {
+:host .dark .request {
     background-color: var(--darkBackgroundColor);
     font-style: italic;
 }
 
-:host(.light) .request {
+:host .light .request {
     background-color: var(--lightBackgroundColor);
     font-style: italic;
 }
 
-:host(.dark) .current {
+:host .dark .current {
     color: var(--darkCurrentTextColor);
     font-weight: bold;
 }
 
-:host(.light) .current {
+:host .light .current {
     background-color: var(--lightCurrentBackgroundColor);
     color: var(--lightCurrentTextColor);
     font-weight: bold;
@@ -522,24 +522,24 @@ th, td {
     }
 }
 
-:host(.dark) .next {
+:host .dark .next {
     color: var(--darkNextTextColor);
     font-weight: bold;
 }
 
-:host(.light) .next {
+:host .light .next {
     background-color: var(--lightNextBackgroundColor);
     color: var(--lightNextTextColor);
     font-weight: bold;
 }
 
-:host(.dark) .empty {
+:host .dark .empty {
     background-color: var(--darkBackgroundColor);
     color: var(--darkTextColor);
     font-style: italic;
 }
 
-:host(.light) .empty {
+:host .light .empty {
     background-color: var(--lightBackgroundColor);
     color: var(--lightTextColor);
     font-style: italic;

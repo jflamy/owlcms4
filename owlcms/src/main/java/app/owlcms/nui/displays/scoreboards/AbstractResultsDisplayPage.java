@@ -13,6 +13,7 @@ import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.nui.displays.AbstractDisplayPage;
 import app.owlcms.nui.displays.SoundEntries;
+import app.owlcms.nui.shared.SafeEventBusRegistration;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -25,7 +26,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 
 public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
-        implements SoundEntries, DisplayParametersReader, HasDynamicTitle {
+        implements SoundEntries, DisplayParametersReader, HasDynamicTitle, SafeEventBusRegistration {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(AbstractResultsDisplayPage.class);
 	private final DecimalFormat df = new DecimalFormat("0.000");
@@ -75,5 +76,6 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 			getBoard().getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
 		}
 	}
+	
 
 }

@@ -133,7 +133,7 @@ public interface ContextFreeParametersReader extends ContextFreeDisplayParameter
 		// dark is the default. dark=false or dark=no or ... will turn off dark mode.
 		boolean darkMode = darkParams == null || darkParams.isEmpty() || darkParams.get(0).toLowerCase().equals("true");
 		setDarkMode(darkMode);
-		switchLightingMode((Component) this, darkMode, false);
+		switchLightingMode(darkMode, false);
 		updateParam(params, DARK, !isDarkMode() ? "false" : null);
 
 		List<String> silentParams = params.get(SILENT);

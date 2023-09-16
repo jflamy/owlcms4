@@ -50,6 +50,7 @@ import app.owlcms.displays.video.VideoCSSOverride;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.HasBoardMode;
@@ -61,7 +62,9 @@ import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.StartupUtils;
 import app.owlcms.utils.URLUtils;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -82,10 +85,9 @@ import elemental.json.JsonValue;
 public class Results extends LitTemplate
         implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
         RequireDisplayLogin, HasBoardMode, VideoCSSOverride {
-	
+
 	private final Logger logger = (Logger) LoggerFactory.getLogger(Results.class);
 	private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-
 	@Id("timer")
 	private AthleteTimerElement timer; // WebComponent, injected by Vaadin
 	@Id("breakTimer")
@@ -100,7 +102,6 @@ public class Results extends LitTemplate
 	private Category ceremonyCategory;
 	private Group ceremonyGroup = null;
 	private boolean darkMode = true;
-
 	protected EventBus uiEventBus;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private boolean teamFlags;
@@ -120,6 +121,10 @@ public class Results extends LitTemplate
 	private boolean video;
 
 	public Results() {
+		uiEventLogger.setLevel(Level.INFO);
+		OwlcmsFactory.waitDBInitialized();
+		setDarkMode(true);
+		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
 	}
 
 	/**
@@ -329,9 +334,10 @@ public class Results extends LitTemplate
 	@Override
 	public final void setDarkMode(boolean dark) {
 		this.darkMode = dark;
-		logger.warn("getElement {}", getElement().getTag());
+		logger.warn("getElement {} dark={}", getElement().getTag(), dark);
 		getElement().getClassList().set(DisplayParameters.DARK, dark);
 		getElement().getClassList().set(DisplayParameters.LIGHT, !dark);
+		getElement().setProperty("darkMode", darkMode ? DisplayParameters.DARK : DisplayParameters.LIGHT);
 	}
 
 	public void setDecisions(DecisionElement decisions) {

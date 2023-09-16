@@ -55,7 +55,7 @@ public class DisplayOptions {
 		rbgroup.setValue(Boolean.valueOf(darkMode));
 		rbgroup.setRenderer(new ComponentRenderer<Button, Boolean>((mn) -> mn ? darkButton : lightButton));
 		rbgroup.addValueChangeListener(e -> {
-			dp.switchLightingMode(target, e.getValue(), true);
+			dp.switchLightingMode(e.getValue(), true);
 		});
 		rbgroup.getStyle().set("margin-top", "0px");
 

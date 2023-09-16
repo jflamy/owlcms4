@@ -55,12 +55,12 @@
     --nbRanks: 1;
 }
 
-:host(.light) table.results {
+:host .light table.results {
     --spacerWidth: 0vh;
     --rowSmallSpacerHeight: 0;
 }
 
-:host(.dark) table.results {
+:host .dark table.results {
     --spacerWidth: 1vh;
     --rowSmallSpacerHeight: 0; /* set to 0.25vh if transparent background */
 }

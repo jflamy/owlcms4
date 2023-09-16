@@ -22,31 +22,6 @@ public interface SafeEventBusRegistration {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(SafeEventBusRegistration.class);
 
-
-//	public default EventBus fopEventBusRegister(Component c, FieldOfPlay fop) {
-//
-//		{logger.setLevel(Level.INFO);}
-//
-//		UI ui = c.getUI().get();
-//		EventBus fopEventBus = fop.getFopEventBus();
-//		fopEventBus.register(c);
-//
-//        UnloadObserver unloadObserver = UnloadObserver.get(false);
-//        unloadObserver.addUnloadListener((e) -> {
-//            logger.debug("closing {}: unregister {} from {}", e.getSource(), c, fopEventBus.identifier());
-//            try {fopEventBus.unregister(c);} catch (Exception ex) {}
-//          });
-//		ui.addBeforeLeaveListener((e) -> {
-//			logger.debug("leaving {}: unregister {} from {}", e.getSource(), c, fopEventBus.identifier());
-//			try {fopEventBus.unregister(c);} catch (Exception ex) {}
-//		});
-//		ui.addDetachListener((e) -> {
-//			logger.debug("{} detaching: unregister {} from {}", e, c, fopEventBus.identifier());
-//			try {fopEventBus.unregister(c);} catch (Exception ex) {}
-//		});
-//		return fopEventBus;
-//	}
-
 	public default EventBus uiEventBusRegister(Component c, FieldOfPlay fop) {
 
 		{logger.setLevel(Level.INFO);}

@@ -189,7 +189,7 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
 		updateParam(params1, "ag", value2);
 
-		switchLightingMode(this, darkMode, false);
+		switchLightingMode(darkMode, false);
 		updateURLLocations();
 		setShowInitialDialog(
 		        darkParams == null && ageDivisionParams == null && ageGroupParams == null && silentParams == null);

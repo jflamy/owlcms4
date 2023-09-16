@@ -84,13 +84,6 @@ public class ResultsMedals extends Results implements ContextFreeDisplayParamete
 	
 	public ResultsMedals(ResultsMedalsPage page) {
 		super();
-		uiEventLogger.setLevel(Level.INFO);
-		OwlcmsFactory.waitDBInitialized();
-		setDarkMode(true);
-		// js files add the build number to file names in order to prevent cache
-		// collisions
-		// FIXME: should be everywhere by inheritance
-		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
 	}
 
 	@Override

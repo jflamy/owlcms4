@@ -96,12 +96,14 @@ public interface DisplayParametersReader extends ContentParametersReader, Displa
 		// handle FOP and Group by calling superclass
 		HashMap<String, List<String>> params = ContentParametersReader.super.readParams(location, parametersMap);
 
-		List<String> darkParams = params.get(DARK);
-		// dark is the default. dark=false or dark=no or ... will turn off dark mode.
-		boolean darkMode = darkParams == null || darkParams.isEmpty() || darkParams.get(0).toLowerCase().equals("true");
-		setDarkMode(darkMode);
-		switchLightingMode((Component) this, darkMode, false);
-		updateParam(params, DARK, !isDarkMode() ? "false" : null);
+//		List<String> darkParams = params.get(DARK);
+//		// dark is the default. dark=false or dark=no or ... will turn off dark mode.
+//		boolean darkMode = darkParams == null || darkParams.isEmpty() || darkParams.get(0).toLowerCase().equals("true");
+//		setDarkMode(darkMode);
+//		switchLightingMode((Component) this, darkMode, false);
+//		updateParam(params, DARK, !isDarkMode() ? "false" : null);
+		
+		processBooleanParam(params, DARK, (v) -> switchLightingMode(v, false));
 
 		List<String> switchableParams = params.get(PUBLIC);
 		boolean switchable = switchableParams != null && !switchableParams.isEmpty()
@@ -275,41 +277,34 @@ public interface DisplayParametersReader extends ContentParametersReader, Displa
 
 	}
 
-	public default void switchLightingMode(Component target, boolean dark, boolean updateURL) {
-		target.getElement().getClassList().set(DARK, dark);
-		target.getElement().getClassList().set(LIGHT, !dark);
-		UI.getCurrent().getElement().getStyle().set("overflow", "hidden");
-		// logger.debug("switching lighting");
+	public default void switchLightingMode(boolean dark, boolean updateURL) {
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), DARK, dark ? null : "false");
 		}
-
-		// after updateURL so that this method is usable to store the location if it
-		// needs it.
+		// updateURLLocation might need the previous value, so we wait.
 		setDarkMode(dark);
 	}
 
 	public default void switchRecords(Component target, boolean showRecords, boolean updateURL) {
-		setRecordsDisplay(showRecords);
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), RECORDS, showRecords ? "true" : "false");
 		}
+		setRecordsDisplay(showRecords);
 	}
 
 	public default void switchSwitchable(Component target, boolean switchable, boolean updateURL) {
-		setPublicDisplay(switchable);
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), PUBLIC, switchable ? "true" : "false");
 		}
+		setPublicDisplay(switchable);
 	}
 
 	public default void switchTeamWidth(Component target, Double teamWidth, boolean updateURL) {
-		setTeamWidth(teamWidth);
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), TEAMWIDTH,
 			        teamWidth != null ? teamWidth.toString() : null);
 		}
-
+		setTeamWidth(teamWidth);
 	}
 
 	Timer getDialogTimer();
