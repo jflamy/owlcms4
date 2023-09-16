@@ -22,7 +22,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -83,6 +82,9 @@ import elemental.json.JsonValue;
 public class Results extends LitTemplate
         implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
         RequireDisplayLogin, HasBoardMode, VideoCSSOverride {
+	
+	private final Logger logger = (Logger) LoggerFactory.getLogger(Results.class);
+	private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
 	@Id("timer")
 	private AthleteTimerElement timer; // WebComponent, injected by Vaadin
@@ -98,9 +100,8 @@ public class Results extends LitTemplate
 	private Category ceremonyCategory;
 	private Group ceremonyGroup = null;
 	private boolean darkMode = true;
-	private final Logger logger = (Logger) LoggerFactory.getLogger(Results.class);
+
 	protected EventBus uiEventBus;
-	private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private boolean teamFlags;
 	private FieldOfPlay fop;
@@ -119,23 +120,6 @@ public class Results extends LitTemplate
 	private boolean video;
 
 	public Results() {
-	}
-
-	public void doChangeEmSize() {
-		String formattedEm = null;
-		if (emFontSize != null) {
-			formattedEm = df.format(emFontSize);
-			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "rem;");
-		}
-	}
-
-	public void doChangeTeamWidth() {
-		String formattedTW = null;
-
-		if (teamWidth != null) {
-			formattedTW = df.format(teamWidth);
-			this.getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
-		}
 	}
 
 	/**
@@ -203,6 +187,29 @@ public class Results extends LitTemplate
 		}));
 	}
 
+	/**
+	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#doChangeEmSize()
+	 */
+	@Override
+	public void doChangeEmSize() {
+		String formattedEm = null;
+		logger.warn("changing em size");
+		if (emFontSize != null) {
+			formattedEm = df.format(emFontSize);
+			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "rem;");
+		}
+	}
+
+	@Override
+	public void doChangeTeamWidth() {
+		String formattedTW = null;
+
+		if (teamWidth != null) {
+			formattedTW = df.format(teamWidth);
+			this.getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
+		}
+	}
+
 	public BreakTimerElement getBreakTimer() {
 		return breakTimer;
 	}
@@ -213,6 +220,11 @@ public class Results extends LitTemplate
 
 	public DecisionElement getDecisions() {
 		return decisions;
+	}
+
+	@Override
+	public final Double getEmFontSize() {
+		return emFontSize;
 	}
 
 	@Override
@@ -233,8 +245,18 @@ public class Results extends LitTemplate
 		return locationUI;
 	}
 
+	@Override
+	public final String getRouteParameter() {
+		return this.routeParameter;
+	}
+
 	final public JsonArray getSattempts() {
 		return sattempts;
+	}
+
+	@Override
+	public final Double getTeamWidth() {
+		return teamWidth;
 	}
 
 	public AthleteTimerElement getTimer() {
@@ -245,8 +267,38 @@ public class Results extends LitTemplate
 		return urlParameterMap;
 	}
 
+	@Override
+	public final boolean isAbbreviatedName() {
+		return abbreviatedName;
+	}
+
+	@Override
+	public final boolean isDarkMode() {
+		return this.darkMode;
+	}
+
+	@Override
+	public final boolean isLeadersDisplay() {
+		return leadersDisplay;
+	}
+
+	@Override
+	public final boolean isPublicDisplay() {
+		return publicDisplay;
+	}
+
+	@Override
+	public final boolean isRecordsDisplay() {
+		return recordsDisplay;
+	}
+
 	public final boolean isShowInitialDialog() {
 		return false;
+	}
+
+	@Override
+	public final boolean isSilenced() {
+		return silenced;
 	}
 
 	@Override
@@ -261,6 +313,11 @@ public class Results extends LitTemplate
 		displayOrder = ImmutableList.of();
 	}
 
+	@Override
+	public final void setAbbreviatedName(boolean b) {
+		this.abbreviatedName = b;
+	}
+
 	public void setBreakTimer(BreakTimerElement breakTimer) {
 		this.breakTimer = breakTimer;
 	}
@@ -269,8 +326,24 @@ public class Results extends LitTemplate
 		this.cattempts = cattempts;
 	}
 
+	@Override
+	public final void setDarkMode(boolean dark) {
+		this.darkMode = dark;
+		logger.warn("getElement {}", getElement().getTag());
+		getElement().getClassList().set(DisplayParameters.DARK, dark);
+		getElement().getClassList().set(DisplayParameters.LIGHT, !dark);
+	}
+
 	public void setDecisions(DecisionElement decisions) {
 		this.decisions = decisions;
+	}
+
+	@Override
+	public final void setEmFontSize(Double emFontSize) {
+		logger.warn("setEmFontSize {}", emFontSize);
+		this.emFontSize = emFontSize;
+		logger.warn("setEmFontSize {} {}", emFontSize, getEmFontSize());
+		doChangeEmSize();
 	}
 
 	@Override
@@ -299,13 +372,30 @@ public class Results extends LitTemplate
 	}
 
 	@Override
+	public void setPublicDisplay(boolean publicDisplay) {
+		this.publicDisplay = publicDisplay;
+	}
+
+	@Override
 	public void setRecordsDisplay(boolean b) {
 		this.recordsDisplay = b;
 		this.getElement().setProperty("showRecords", b);
 	}
 
+	@Override
+	public final void setRouteParameter(String routeParameter) {
+		this.routeParameter = routeParameter;
+	}
+
 	public void setSattempts(JsonArray sattempts) {
 		this.sattempts = sattempts;
+	}
+
+	@Override
+	public void setSilenced(boolean silent) {
+		this.silenced = silent;
+		this.getTimer().setSilenced(silenced);
+		this.getBreakTimer().setSilenced(silenced);
 	}
 
 	/**
@@ -328,6 +418,12 @@ public class Results extends LitTemplate
 		ja.put("teamLength", team.isBlank() ? "" : (team.length() + 2) + "ch");
 		ja.put("flagURL", prop != null ? prop : "");
 		ja.put("flagClass", "flags");
+	}
+
+	@Override
+	public void setTeamWidth(Double tw) {
+		this.teamWidth = tw;
+		doChangeTeamWidth();
 	}
 
 	public void setTimer(AthleteTimerElement timer) {
@@ -371,11 +467,6 @@ public class Results extends LitTemplate
 			// revert to current break
 			doBreak(null);
 		});
-	}
-
-	public void switchEmFontSize(Component target, Double emFontSize, boolean updateURL) {
-		setEmFontSize(emFontSize);
-		doChangeEmSize();
 	}
 
 	@Subscribe
@@ -1041,85 +1132,6 @@ public class Results extends LitTemplate
 			setDisplay();
 			doUpdate(e.getAthlete(), e);
 		}
-	}
-
-	@Override
-	public void setSilenced(boolean silent) {
-		this.silenced = silent;
-		this.getTimer().setSilenced(silenced);
-		this.getBreakTimer().setSilenced(silenced);
-	}
-
-	@Override
-	public final String getRouteParameter() {
-		return this.routeParameter;
-	}
-
-	@Override
-	public final boolean isDarkMode() {
-		return this.darkMode;
-	}
-
-	@Override
-	public final void setDarkMode(boolean dark) {
-		this.darkMode = dark;
-		logger.warn("getElement {}", getElement().getTag());
-		getElement().getClassList().set(DisplayParameters.DARK, dark);
-		getElement().getClassList().set(DisplayParameters.LIGHT, !dark);
-	}
-
-	@Override
-	public final void setRouteParameter(String routeParameter) {
-		this.routeParameter = routeParameter;
-	}
-
-	@Override
-	public final void setAbbreviatedName(boolean b) {
-		this.abbreviatedName = b;
-	}
-
-	@Override
-	public final void setEmFontSize(Double emFontSize) {
-		this.emFontSize = emFontSize;
-
-	}
-
-	@Override
-	public void setPublicDisplay(boolean publicDisplay) {
-		this.publicDisplay = publicDisplay;
-	}
-
-	@Override
-	public void setTeamWidth(Double tw) {
-		this.teamWidth = tw;
-	}
-
-	public final boolean isSilenced() {
-		return silenced;
-	}
-
-	public final boolean isAbbreviatedName() {
-		return abbreviatedName;
-	}
-
-	public final Double getEmFontSize() {
-		return emFontSize;
-	}
-
-	public final boolean isPublicDisplay() {
-		return publicDisplay;
-	}
-
-	public final Double getTeamWidth() {
-		return teamWidth;
-	}
-
-	public final boolean isLeadersDisplay() {
-		return leadersDisplay;
-	}
-
-	public final boolean isRecordsDisplay() {
-		return recordsDisplay;
 	}
 
 }

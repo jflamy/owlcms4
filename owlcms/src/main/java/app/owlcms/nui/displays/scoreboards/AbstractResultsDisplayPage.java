@@ -28,8 +28,6 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
         implements SoundEntries, DisplayParametersReader, HasDynamicTitle {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(AbstractResultsDisplayPage.class);
-	public Double emFontSize;
-	public Double teamWidth;
 	private final DecimalFormat df = new DecimalFormat("0.000");
 	protected DisplayParameters board;
 
@@ -40,18 +38,18 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 
 	@Override
 	public Double getEmFontSize() {
-		if (emFontSize == null) {
+		if (super.getEmFontSize() == null) {
 			return 1.2;
 		}
-		return emFontSize;
+		return super.getEmFontSize();
 	}
 
 	@Override
 	public Double getTeamWidth() {
-		if (teamWidth == null) {
+		if (super.getTeamWidth() == null) {
 			return 12.0D;
 		}
-		return teamWidth;
+		return super.getTeamWidth();
 	}
 
 	@Override
@@ -64,16 +62,16 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 	@Override
 	public void doChangeEmSize() {
 		String formattedEm = null;
-		if (emFontSize != null) {
-			formattedEm = df.format(emFontSize);
+		if (getEmFontSize() != null) {
+			formattedEm = df.format(getEmFontSize());
 			getBoard().getElement().setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "rem;");
 		}
 	}
 
 	public void doChangeTeamWidth() {
 		String formattedTW = null;
-		if (teamWidth != null) {
-			formattedTW = df.format(teamWidth);
+		if (getTeamWidth() != null) {
+			formattedTW = df.format(getTeamWidth());
 			getBoard().getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
 		}
 	}

@@ -92,7 +92,6 @@ public class ResultsBoardPage extends AbstractResultsDisplayPage {
 		UI.getCurrent().addShortcutListener(() -> {
 			now = System.currentTimeMillis();
 			if (now - lastShortcut > DEBOUNCE) {
-
 				setTeamWidth(getTeamWidth() - 0.5);
 			}
 			lastShortcut = now;

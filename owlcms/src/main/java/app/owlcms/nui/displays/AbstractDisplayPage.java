@@ -69,14 +69,12 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	@Override
 	public void doChangeEmSize() {
-		((DisplayParameters) getBoard()).setEmFontSize(emFontSize);
-		((DisplayParameters) getBoard()).doChangeEmSize();
+		// update the dialog
 	}
 
 	@Override
 	public void doChangeTeamWidth() {
-		((DisplayParameters) getBoard()).setTeamWidth(teamWidth);
-		((DisplayParameters) getBoard()).doChangeTeamWidth();
+		// update the dialog
 	}
 
 	@Override
@@ -226,8 +224,9 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	@Override
 	final public void setEmFontSize(Double emFontSize) {
-		((DisplayParameters) this.board).setEmFontSize(emFontSize);
+		logger.warn("setEmFontSize={}", emFontSize);
 		this.emFontSize = emFontSize;
+		((DisplayParameters) this.board).setEmFontSize(emFontSize);
 		doChangeEmSize();
 	}
 
