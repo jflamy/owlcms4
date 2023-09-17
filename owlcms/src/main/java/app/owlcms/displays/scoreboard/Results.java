@@ -192,28 +192,6 @@ public class Results extends LitTemplate
 		}));
 	}
 
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#pushEmSize()
-	 */
-	@Override
-	public void pushEmSize() {
-		String formattedEm = null;
-		if (emFontSize != null) {
-			formattedEm = df.format(emFontSize);
-			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "rem;");
-			//logger.trace("%%%%% board changing em size={} from {}",emFontSize,LoggerUtils.whereFrom());
-		}
-	}
-
-	@Override
-	public void pushTeamWidth() {
-		String formattedTW = null;
-		if (teamWidth != null) {
-			formattedTW = df.format(teamWidth);
-			this.getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
-		}
-	}
-
 	public BreakTimerElement getBreakTimer() {
 		return breakTimer;
 	}
@@ -282,6 +260,11 @@ public class Results extends LitTemplate
 	}
 
 	@Override
+	public final boolean isDownSilenced() {
+		return downSilenced;
+	}
+
+	@Override
 	public final boolean isLeadersDisplay() {
 		return leadersDisplay;
 	}
@@ -308,6 +291,28 @@ public class Results extends LitTemplate
 	@Override
 	public final boolean isVideo() {
 		return video;
+	}
+
+	/**
+	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#pushEmSize()
+	 */
+	@Override
+	public void pushEmSize() {
+		String formattedEm = null;
+		if (emFontSize != null) {
+			formattedEm = df.format(emFontSize);
+			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "rem;");
+			// logger.trace("%%%%% board changing em size={} from {}",emFontSize,LoggerUtils.whereFrom());
+		}
+	}
+
+	@Override
+	public void pushTeamWidth() {
+		String formattedTW = null;
+		if (teamWidth != null) {
+			formattedTW = df.format(teamWidth);
+			this.getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
+		}
 	}
 
 	/**
@@ -343,8 +348,14 @@ public class Results extends LitTemplate
 	}
 
 	@Override
+	public void setDownSilenced(boolean silent) {
+		this.downSilenced = silent;
+		this.getDecisions().setSilenced(silent);
+	}
+
+	@Override
 	public final void setEmFontSize(Double emFontSize) {
-		//logger.trace("%%%%% setEmFontSize {}", emFontSize);
+		// logger.trace("%%%%% setEmFontSize {}", emFontSize);
 		this.emFontSize = emFontSize;
 		pushEmSize();
 	}
@@ -399,12 +410,6 @@ public class Results extends LitTemplate
 		this.silenced = silent;
 		this.getTimer().setSilenced(silenced);
 		this.getBreakTimer().setSilenced(silenced);
-	}
-	
-	@Override
-	public void setDownSilenced(boolean silent) {
-		this.downSilenced=silent;
-		this.getDecisions().setSilenced(silent);
 	}
 
 	/**
