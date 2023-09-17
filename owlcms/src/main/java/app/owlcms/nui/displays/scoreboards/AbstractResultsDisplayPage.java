@@ -4,7 +4,6 @@ import java.text.DecimalFormat;
 
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;

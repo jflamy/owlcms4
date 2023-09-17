@@ -28,7 +28,7 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	protected boolean downSilenced;
 	protected String routeParameter;
 	protected boolean silenced;
-	private Logger logger = (Logger) LoggerFactory.getLogger(AbstractDisplayPage.class);
+	private static Logger logger = (Logger) LoggerFactory.getLogger(AbstractDisplayPage.class);
 	private boolean darkMode;
 	private QueryParameters defaultParameters;
 	private Dialog dialog;
@@ -320,5 +320,13 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
 		openDialog(getDialog());
+	}
+
+	public static Logger getLogger() {
+		return logger;
+	}
+
+	public static void setLogger(Logger logger) {
+		AbstractDisplayPage.logger = logger;
 	}
 }
