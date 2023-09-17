@@ -43,36 +43,7 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 	private AgeGroup ageGroup;
 
 	public TopTeamsSinclairPage() {
-		var board = new TopTeams(this);
-		board.setLeadersDisplay(true);
-		board.setRecordsDisplay(true);
-		this.addComponent(board);
-
-		// when navigating to the page, Vaadin will call setParameter+readParameters
-		// these parameters will be applied.
-		setDefaultParameters(QueryParameters.simple(Map.of(
-		        ContentParameters.SILENT, "true",
-		        ContentParameters.DOWNSILENT, "true",
-		        DisplayParameters.DARK, "true",
-		        DisplayParameters.LEADERS, "false",
-		        DisplayParameters.RECORDS, "false",
-		        DisplayParameters.ABBREVIATED,
-		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
-	}
-
-	public void setAgeDivision(AgeDivision ageDivision) {
-		this.ageDivision = ageDivision;
-	}
-
-	public void setAgeGroupPrefix(String ageGroupPrefix) {
-		this.ageGroupPrefix = ageGroupPrefix;
-	}
-
-	private List<String> setAgeGroupPrefixItems(ComboBox<String> ageGroupPrefixComboBox,
-	        AgeDivision ageDivision2) {
-		List<String> activeAgeGroups = AgeGroupRepository.findActiveAndUsed(ageDivision2);
-		ageGroupPrefixComboBox.setItems(activeAgeGroups);
-		return activeAgeGroups;
+		// intentionally empty. superclass will call init() as required.
 	}
 
 	/**
@@ -120,31 +91,28 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		        new HorizontalLayout(ageDivisionComboBox, ageGroupPrefixComboBox));
 	}
 
+	public final AgeDivision getAgeDivision() {
+		return ageDivision;
+	}
+
+	public final AgeGroup getAgeGroup() {
+		return ageGroup;
+	}
+
+	public final String getAgeGroupPrefix() {
+		return ageGroupPrefix;
+	}
+
+	public final Category getCategory() {
+		return category;
+	}
+
 	/**
 	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
 	 */
 	@Override
 	public String getPageTitle() {
 		return getTranslation("Scoreboard.TopTeams");
-	}
-
-	private void updateURLLocations() {
-		updateURLLocation(UI.getCurrent(), getLocation(), DARK,
-		        !isDarkMode() ? Boolean.TRUE.toString() : null);
-		updateURLLocation(UI.getCurrent(), getLocation(), "ag",
-		        getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null);
-		updateURLLocation(UI.getCurrent(), getLocation(), "ad",
-		        getAgeDivision() != null ? getAgeDivision().name() : null);
-	}
-
-	@Override
-	public void setAgeGroup(AgeGroup ag) {
-		this.ageGroup = ag;
-	}
-
-	@Override
-	public void setCategory(Category cat) {
-		this.category = cat;
 	}
 
 	/**
@@ -201,20 +169,57 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		return params1;
 	}
 
-	public final AgeDivision getAgeDivision() {
-		return ageDivision;
+	public void setAgeDivision(AgeDivision ageDivision) {
+		this.ageDivision = ageDivision;
 	}
 
-	public final String getAgeGroupPrefix() {
-		return ageGroupPrefix;
+	@Override
+	public void setAgeGroup(AgeGroup ag) {
+		this.ageGroup = ag;
 	}
 
-	public final Category getCategory() {
-		return category;
+	public void setAgeGroupPrefix(String ageGroupPrefix) {
+		this.ageGroupPrefix = ageGroupPrefix;
 	}
 
-	public final AgeGroup getAgeGroup() {
-		return ageGroup;
+	@Override
+	public void setCategory(Category cat) {
+		this.category = cat;
+	}
+
+	@Override
+	protected void init() {
+		var board = new TopTeams(this);
+		board.setLeadersDisplay(true);
+		board.setRecordsDisplay(true);
+		this.addComponent(board);
+
+		// when navigating to the page, Vaadin will call setParameter+readParameters
+		// these parameters will be applied.
+		setDefaultParameters(QueryParameters.simple(Map.of(
+		        ContentParameters.SILENT, "true",
+		        ContentParameters.DOWNSILENT, "true",
+		        DisplayParameters.DARK, "true",
+		        DisplayParameters.LEADERS, "false",
+		        DisplayParameters.RECORDS, "false",
+		        DisplayParameters.ABBREVIATED,
+		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
+	}
+
+	private List<String> setAgeGroupPrefixItems(ComboBox<String> ageGroupPrefixComboBox,
+	        AgeDivision ageDivision2) {
+		List<String> activeAgeGroups = AgeGroupRepository.findActiveAndUsed(ageDivision2);
+		ageGroupPrefixComboBox.setItems(activeAgeGroups);
+		return activeAgeGroups;
+	}
+
+	private void updateURLLocations() {
+		updateURLLocation(UI.getCurrent(), getLocation(), DARK,
+		        !isDarkMode() ? Boolean.TRUE.toString() : null);
+		updateURLLocation(UI.getCurrent(), getLocation(), "ag",
+		        getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null);
+		updateURLLocation(UI.getCurrent(), getLocation(), "ad",
+		        getAgeDivision() != null ? getAgeDivision().name() : null);
 	}
 
 }

@@ -21,12 +21,22 @@ public class AthleteFacingDecisionBoardPage extends AbstractAttemptBoardPage {
 	Logger logger = (Logger) LoggerFactory.getLogger(AthleteFacingDecisionBoardPage.class);
 
 	public AthleteFacingDecisionBoardPage() {
+		// intentionally empty; superclass will invoke init() as required.
+	}
+
+	@Override
+	public String getPageTitle() {
+		return getTranslation("Decision_AF_") + OwlcmsSession.getFopNameIfMultiple();
+	}
+
+	@Override
+	protected void init() {
 		setDefaultParameters(QueryParameters.simple(Map.of(
 		        ContentParameters.SILENT, "false",
 		        ContentParameters.DOWNSILENT, "false")));
 
 		setBoard(new DecisionBoard(this));
-		
+
 		AbstractAttemptBoard board = (AbstractAttemptBoard) getBoard();
 		board.getDecisions().setDontReset(false);
 		board.setPublicFacing(false);
@@ -34,12 +44,6 @@ public class AthleteFacingDecisionBoardPage extends AbstractAttemptBoardPage {
 		setSilenced(false);
 		setDownSilenced(false);
 		this.addComponent(board);
-
-	}
-
-	@Override
-	public String getPageTitle() {
-		return getTranslation("Decision_AF_") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
 }

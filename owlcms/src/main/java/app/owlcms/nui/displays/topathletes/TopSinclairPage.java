@@ -29,6 +29,25 @@ public class TopSinclairPage extends AbstractResultsDisplayPage {
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	public TopSinclairPage() {
+		// intentionally empty. superclass will call init() as required.
+	}
+
+	@Override
+	public String getPageTitle() {
+		return getTranslation("Scoreboard.TopSinclair");
+	}
+
+	/**
+	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
+	 *      com.vaadin.flow.component.orderedlayout.VerticalLayout)
+	 */
+	@Override
+	public void addDialogContent(Component target, VerticalLayout vl) {
+		DisplayOptions.addLightingEntries(vl, target, this);
+	}
+
+	@Override
+	protected void init() {
 		var board = new TopSinclair(this);
 		board.setLeadersDisplay(true);
 		board.setRecordsDisplay(true);
@@ -42,22 +61,8 @@ public class TopSinclairPage extends AbstractResultsDisplayPage {
 		        DisplayParameters.DARK, "true",
 		        DisplayParameters.LEADERS, "false",
 		        DisplayParameters.RECORDS, "false",
-		        DisplayParameters.ABBREVIATED, Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
+		        DisplayParameters.ABBREVIATED,
+		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
 	}
-
-	@Override
-	public String getPageTitle() {
-		return getTranslation("Scoreboard.TopSinclair");
-	}
-	
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
-	 *      com.vaadin.flow.component.orderedlayout.VerticalLayout)
-	 */
-	@Override
-	public void addDialogContent(Component target, VerticalLayout vl) {
-		DisplayOptions.addLightingEntries(vl, target, this);
-	}
-
 
 }

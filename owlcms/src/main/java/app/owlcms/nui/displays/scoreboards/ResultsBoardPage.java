@@ -34,23 +34,7 @@ public class ResultsBoardPage extends AbstractResultsDisplayPage {
 	private long lastShortcut;
 
 	public ResultsBoardPage() {
-		var board = new Results();
-		this.setBoard(board);
-		this.addComponent(board);
-
-		// when navigating to the page, Vaadin will call setParameter+readParameters
-		// these parameters will be applied.
-		setDefaultParameters(QueryParameters.simple(Map.of(
-		        ContentParameters.SILENT, "true",
-		        ContentParameters.DOWNSILENT, "true",
-		        DisplayParameters.DARK, "true",
-		        DisplayParameters.LEADERS, "true",
-		        DisplayParameters.RECORDS, "true",
-		        DisplayParameters.VIDEO, "false",
-		        DisplayParameters.PUBLIC, "false",
-		        DisplayParameters.SINGLEREF, "false",
-		        DisplayParameters.ABBREVIATED,
-		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
+		// intentionally empty. superclass will call init() as required.
 	}
 
 	/**
@@ -102,6 +86,29 @@ public class ResultsBoardPage extends AbstractResultsDisplayPage {
 	@Override
 	public String getPageTitle() {
 		return getTranslation("ScoreboardWLeadersTitle") + OwlcmsSession.getFopNameIfMultiple();
+	}
+
+	@Override
+	protected void init() {
+		// each superclass must this routine.
+		// otherwise we end up with multiple instances of the Results board.
+		var board = new Results();
+		this.setBoard(board);
+		this.addComponent(board);
+
+		// when navigating to the page, Vaadin will call setParameter+readParameters
+		// these parameters will be applied.
+		setDefaultParameters(QueryParameters.simple(Map.of(
+		        ContentParameters.SILENT, "true",
+		        ContentParameters.DOWNSILENT, "true",
+		        DisplayParameters.DARK, "true",
+		        DisplayParameters.LEADERS, "true",
+		        DisplayParameters.RECORDS, "true",
+		        DisplayParameters.VIDEO, "false",
+		        DisplayParameters.PUBLIC, "false",
+		        ContentParameters.SINGLEREF, "false",
+		        DisplayParameters.ABBREVIATED,
+		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
 	}
 
 }

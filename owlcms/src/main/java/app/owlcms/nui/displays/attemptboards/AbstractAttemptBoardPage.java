@@ -31,10 +31,6 @@ public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage
 		addSoundEntries(vl, page, (DisplayParametersReader) page);
 	}
 
-	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		super.onAttach(attachEvent);
-		openDialog(getDialog());
-	}
+	protected abstract void init();
 
 }

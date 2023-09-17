@@ -21,20 +21,25 @@ public class PublicFacingAttemptBoardPage extends AbstractAttemptBoardPage {
 	Logger logger = (Logger) LoggerFactory.getLogger(PublicFacingAttemptBoardPage.class);
 
 	public PublicFacingAttemptBoardPage() {
-		setDefaultParameters(QueryParameters.simple(Map.of(
-		        ContentParameters.SILENT, "true",
-		        ContentParameters.DOWNSILENT, "true")));
-
-		setBoard(new AttemptBoard(this));
-		
-		AbstractAttemptBoard board = (AbstractAttemptBoard) getBoard();
-		board.setPublicFacing(true);
-		this.addComponent(board);
+		// intentionally empty; superclass will invoke init() as required.
 	}
 
 	@Override
 	public String getPageTitle() {
 		return getTranslation("AttemptBoard") + OwlcmsSession.getFopNameIfMultiple();
+	}
+
+	@Override
+	protected void init() {
+		setBoard(new AttemptBoard(this));
+		
+		setDefaultParameters(QueryParameters.simple(Map.of(
+		        ContentParameters.SILENT, "true",
+		        ContentParameters.DOWNSILENT, "true")));
+
+		AbstractAttemptBoard board = (AbstractAttemptBoard) getBoard();
+		board.setPublicFacing(true);
+		this.addComponent(board);
 	}
 
 }

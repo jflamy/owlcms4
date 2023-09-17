@@ -28,7 +28,20 @@ public class CurrentAthletePage extends AbstractResultsDisplayPage {
 	Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
-	public CurrentAthletePage() {
+	@Override
+	public void addDialogContent(Component target, VerticalLayout vl) {
+		DisplayOptions.addLightingEntries(vl, target, this);
+		DisplayOptions.addRule(vl);
+		DisplayOptions.addSoundEntries(vl, target, this);
+	}
+
+	@Override
+	public String getPageTitle() {
+		return getTranslation("CurrentAthleteTitle") + OwlcmsSession.getFopNameIfMultiple();
+	}
+
+	@Override
+	protected void init() {
 		var board = new CurrentAthlete(this);
 		this.setBoard(board);
 		board.setLeadersDisplay(true);
@@ -43,19 +56,8 @@ public class CurrentAthletePage extends AbstractResultsDisplayPage {
 		        DisplayParameters.DARK, "true",
 		        DisplayParameters.LEADERS, "false",
 		        DisplayParameters.RECORDS, "false",
-		        DisplayParameters.ABBREVIATED, Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
-	}
-
-	@Override
-	public void addDialogContent(Component target, VerticalLayout vl) {
-		DisplayOptions.addLightingEntries(vl, target, this);
-		DisplayOptions.addRule(vl);
-		DisplayOptions.addSoundEntries(vl, target, this);
-	}
-
-	@Override
-	public String getPageTitle() {
-		return getTranslation("CurrentAthleteTitle") + OwlcmsSession.getFopNameIfMultiple();
+		        DisplayParameters.ABBREVIATED,
+		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
 	}
 
 }

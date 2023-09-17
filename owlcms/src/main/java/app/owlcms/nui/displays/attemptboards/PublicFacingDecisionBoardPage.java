@@ -21,12 +21,22 @@ public class PublicFacingDecisionBoardPage extends AbstractAttemptBoardPage {
 	Logger logger = (Logger) LoggerFactory.getLogger(PublicFacingDecisionBoardPage.class);
 
 	public PublicFacingDecisionBoardPage() {
+		// intentionally empty; superclass will invoke init() as required.
+	}
+
+	@Override
+	public String getPageTitle() {
+		return getTranslation("RefereeDecisions") + OwlcmsSession.getFopNameIfMultiple();
+	}
+
+	@Override
+	protected void init() {
 		setDefaultParameters(QueryParameters.simple(Map.of(
 		        ContentParameters.SILENT, "true",
 		        ContentParameters.DOWNSILENT, "true")));
 
 		setBoard(new DecisionBoard(this));
-		
+
 		AbstractAttemptBoard board = (AbstractAttemptBoard) getBoard();
 		board.getDecisions().setDontReset(true);
 		board.setPublicFacing(true);
@@ -34,11 +44,6 @@ public class PublicFacingDecisionBoardPage extends AbstractAttemptBoardPage {
 		setSilenced(true);
 		setDownSilenced(true);
 		this.addComponent(board);
-	}
-
-	@Override
-	public String getPageTitle() {
-		return getTranslation("RefereeDecisions") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
 }

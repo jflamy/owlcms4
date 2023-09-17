@@ -121,6 +121,7 @@ public class Results extends LitTemplate
 	private boolean video;
 
 	public Results() {
+		logger.warn("results constructor {} {}",System.currentTimeMillis(), LoggerUtils.stackTrace());
 		uiEventLogger.setLevel(Level.INFO);
 		OwlcmsFactory.waitDBInitialized();
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());

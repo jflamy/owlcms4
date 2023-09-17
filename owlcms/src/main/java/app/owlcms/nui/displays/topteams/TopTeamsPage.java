@@ -43,21 +43,7 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements ContextF
 	private Category category;
 
 	public TopTeamsPage() {
-		var board = new TopTeams(this);
-		board.setLeadersDisplay(true);
-		board.setRecordsDisplay(true);
-		this.addComponent(board);
-
-		// when navigating to the page, Vaadin will call setParameter+readParameters
-		// these parameters will be applied.
-		setDefaultParameters(QueryParameters.simple(Map.of(
-		        ContentParameters.SILENT, "true",
-		        ContentParameters.DOWNSILENT, "true",
-		        DisplayParameters.DARK, "true",
-		        DisplayParameters.LEADERS, "false",
-		        DisplayParameters.RECORDS, "false",
-		        DisplayParameters.ABBREVIATED,
-		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
+		// intentionally empty. superclass will call init() as required.
 	}
 
 	/**
@@ -109,8 +95,16 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements ContextF
 		return ageDivision;
 	}
 
+	public final AgeGroup getAgeGroup() {
+		return ageGroup;
+	}
+
 	public final String getAgeGroupPrefix() {
 		return ageGroupPrefix;
+	}
+
+	public final Category getCategory() {
+		return category;
 	}
 
 	/**
@@ -193,6 +187,25 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements ContextF
 		this.category = cat;
 	}
 
+	@Override
+	protected void init() {
+		var board = new TopTeams(this);
+		board.setLeadersDisplay(true);
+		board.setRecordsDisplay(true);
+		this.addComponent(board);
+
+		// when navigating to the page, Vaadin will call setParameter+readParameters
+		// these parameters will be applied.
+		setDefaultParameters(QueryParameters.simple(Map.of(
+		        ContentParameters.SILENT, "true",
+		        ContentParameters.DOWNSILENT, "true",
+		        DisplayParameters.DARK, "true",
+		        DisplayParameters.LEADERS, "false",
+		        DisplayParameters.RECORDS, "false",
+		        DisplayParameters.ABBREVIATED,
+		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
+	}
+
 	private List<String> setAgeGroupPrefixItems(ComboBox<String> ageGroupPrefixComboBox,
 	        AgeDivision ageDivision2) {
 		List<String> activeAgeGroups = AgeGroupRepository.findActiveAndUsed(ageDivision2);
@@ -207,14 +220,6 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements ContextF
 		        getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null);
 		updateURLLocation(UI.getCurrent(), getLocation(), "ad",
 		        getAgeDivision() != null ? getAgeDivision().name() : null);
-	}
-
-	public final AgeGroup getAgeGroup() {
-		return ageGroup;
-	}
-
-	public final Category getCategory() {
-		return category;
 	}
 
 }

@@ -15,18 +15,28 @@ import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-@Route("displays/results")
+@Route("displays/resultsSimple")
 
 public class ResultsNoLeadersPage extends ResultsBoardPage {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(ResultsNoLeadersPage.class);
 
 	public ResultsNoLeadersPage() {
+		// intentionally empty. superclass will call init() as required.
+	}
+
+	@Override
+	public String getPageTitle() {
+		return getTranslation("Scoreboard") + OwlcmsSession.getFopNameIfMultiple();
+	}
+
+	@Override
+	protected void init() {
 		// only difference is the default values
 		var board = new Results();
 		this.setBoard(board);
 		this.addComponent(board);
-		
+
 		// when navigating to the page, Vaadin will call setParameter+readParameters
 		// these parameters will be applied.
 		setDefaultParameters(QueryParameters.simple(Map.of(
@@ -37,13 +47,8 @@ public class ResultsNoLeadersPage extends ResultsBoardPage {
 		        DisplayParameters.RECORDS, "false",
 		        DisplayParameters.VIDEO, "false",
 		        DisplayParameters.PUBLIC, "false",
-		        DisplayParameters.SINGLEREF, "false",
+		        ContentParameters.SINGLEREF, "false",
 		        DisplayParameters.ABBREVIATED,
 		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
-	}
-
-	@Override
-	public String getPageTitle() {
-		return getTranslation("Scoreboard") + OwlcmsSession.getFopNameIfMultiple();
 	}
 }

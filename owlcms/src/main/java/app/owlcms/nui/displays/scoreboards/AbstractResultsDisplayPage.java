@@ -32,18 +32,13 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 	private final DecimalFormat df = new DecimalFormat("0.000");
 	protected DisplayParameters board;
 
-	@Override
-	public void addDialogContent(Component page, VerticalLayout vl) {
-		addSoundEntries(vl, page, (DisplayParametersReader) page);
+	protected AbstractResultsDisplayPage() {
+		init();
 	}
 
 	@Override
-	public void pushTeamWidth() {
-		String formattedTW = null;
-		if (getTeamWidth() != null) {
-			formattedTW = df.format(getTeamWidth());
-			getBoard().getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
-		}
+	public void addDialogContent(Component page, VerticalLayout vl) {
+		addSoundEntries(vl, page, (DisplayParametersReader) page);
 	}
 
 	@Override
@@ -72,9 +67,14 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 	}
 
 	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		super.onAttach(attachEvent);
-		openDialog(getDialog());
+	public void pushTeamWidth() {
+		String formattedTW = null;
+		if (getTeamWidth() != null) {
+			formattedTW = df.format(getTeamWidth());
+			getBoard().getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
+		}
 	}
+
+	protected abstract void init();
 
 }

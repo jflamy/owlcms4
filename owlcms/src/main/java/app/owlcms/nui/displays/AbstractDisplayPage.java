@@ -6,6 +6,7 @@ import java.util.Timer;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -54,6 +55,12 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	final public void addComponent(Component display) {
 		display.addClassName(darkMode ? DisplayParameters.DARK : DisplayParameters.LIGHT);
 		this.add(display);
+	}
+	
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		super.onAttach(attachEvent);
+		openDialog(getDialog());
 	}
 
 	@Override

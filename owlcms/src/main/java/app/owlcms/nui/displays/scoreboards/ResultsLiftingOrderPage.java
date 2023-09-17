@@ -22,12 +22,22 @@ public class ResultsLiftingOrderPage extends AbstractResultsDisplayPage {
 	Logger logger = (Logger) LoggerFactory.getLogger(ResultsLiftingOrderPage.class);
 
 	public ResultsLiftingOrderPage() {
+		// intentionally empty. superclass will call init as required.
+	}
+
+	@Override
+	public String getPageTitle() {
+		return getTranslation("Scoreboard.LiftingOrder") + OwlcmsSession.getFopNameIfMultiple();
+	}
+
+	@Override
+	protected void init() {
 		var board = new ResultsLiftingOrder(this);
 		this.setBoard(board);
 		board.setLeadersDisplay(true);
 		board.setRecordsDisplay(true);
 		this.addComponent(board);
-		
+
 		setDefaultParameters(QueryParameters.simple(Map.of(
 		        ContentParameters.SILENT, "true",
 		        ContentParameters.DOWNSILENT, "true",
@@ -36,12 +46,6 @@ public class ResultsLiftingOrderPage extends AbstractResultsDisplayPage {
 		        DisplayParameters.RECORDS, "true",
 		        DisplayParameters.ABBREVIATED,
 		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
-
-	}
-
-	@Override
-	public String getPageTitle() {
-		return getTranslation("Scoreboard.LiftingOrder") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
 }
