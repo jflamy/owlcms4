@@ -1,18 +1,23 @@
-> **Version 44 beta release.**
+> **Version 44 beta release**
 >
 > - Beta releases are meant for translation and for testing by people other than the developers.
-> - Please perform exhaustive tests with your own data if you intend to use it in a competition, and report any issues.
+> - **The current beta06 version is NOT suitable for use in a competition** (unless maybe if none of the known issues below affect you, and you have tested thoroughly with your data)
 >
-> Version 44 is mostly a technical migration release. It updates the user interface to use the most current [Vaadin 24 framework](https://vaadin.com/).
+> Version 44 is a technical migration and clean-up release.  It updates the code to the current version of the user interface framework ([Vaadin 24](http://vaadin.com)). This update requires changes in the code that provide an opportunity to clean and simplify the programming.
 >
 
-44.0.0-beta05
+**44.0.0-beta06**
 
-- Small fix to prevent useless error message from timer in the logs.
+- Internal clean-up: The problem with scoreboard configuration dialogs present in beta05 revealed a wrong assumption made in migrating the scoreboards.  The approach for the scoreboard pop-up dialogs had to be redone differently, for all scoreboards/attempt boards/decision boards.  The new approach is much cleaner and much more robust.
+- Style sheet simplification.
+  - If you have customized the scoreboards,  you need to edit the `results.css` files. All instances of `:host(.dark)` must be changed to `.host .dark`  and all instances of `:host(.dark)` must be changed to `.host .dark`  
 
-- Small fix to the "grid" styling for row spacing on the multiple age groups scoreboard.
+- Known issues:
+  - The Public scoreboard mechanism and the Medals display don't work yet.
+  - The Sinclair and Teams Scoreboards don't work yet.
+  - See also this [list of known small issues](https://github.com/jflamy/owlcms4/issues/734)
 
-44.0 Changes
+**44.0 Changes**
 
 - It is no longer necessary to start different browsers to run owlcms, publicresults and owlcms-firmata on the same machine  They no longer interfere with one another.
   - However different browsers are still needed when testing several platforms on the same computer
