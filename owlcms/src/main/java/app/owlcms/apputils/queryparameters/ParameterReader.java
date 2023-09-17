@@ -102,7 +102,6 @@ public interface ParameterReader extends HasUrlParameter<String> {
 	 */
 	@Override
 	public default void setParameter(BeforeEvent event, @OptionalParameter String routeParameter) {
-		logger.warn("ParameterReader setParameter {}",event);
 		Location location = event.getLocation();
 		setLocation(location);
 		setLocationUI(event.getUI());

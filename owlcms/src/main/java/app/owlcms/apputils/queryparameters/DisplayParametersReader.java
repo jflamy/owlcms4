@@ -93,8 +93,6 @@ public interface DisplayParametersReader extends ContentParametersReader, Displa
 		// handle FOP and Group by calling superclass
 		Map<String, List<String>> params = ContentParametersReader.super.readParams(location, parametersMap);
 		
-		logger.warn("**** whoami {}",this);
-		
 		processBooleanParam(params, DARK, (v) -> switchLightingMode(v, false));
 		processBooleanParam(params, PUBLIC, (v) -> switchSwitchable(v, false));
 		processBooleanParam(params, RECORDS, (v) -> switchRecords(v, false));

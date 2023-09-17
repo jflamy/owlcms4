@@ -49,18 +49,13 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	private Component board;
 
 	public AbstractDisplayPage() {
+		init();
 		this.addClickListener(c -> openDialog(getDialog()));
 	}
 
 	final public void addComponent(Component display) {
 		display.addClassName(darkMode ? DisplayParameters.DARK : DisplayParameters.LIGHT);
 		this.add(display);
-	}
-	
-	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		super.onAttach(attachEvent);
-		openDialog(getDialog());
 	}
 
 	@Override
@@ -74,23 +69,14 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 		}
 	}
 
-	@Override
-	public void pushEmSize() {
-		// update the dialog
-	}
-
-	@Override
-	public void pushTeamWidth() {
-		// update the dialog
-	}
-
 	/**
 	 * @see app.owlcms.apputils.queryparameters.ContentParameters#getDefaultParameters()
 	 */
 	@Override
 	final public QueryParameters getDefaultParameters() {
 		if (defaultParameters == null) {
-			return QueryParameters.fromString("abb=false&singleRef=false&public=false&records=false&fop=A&dark=false&leaders=false&video=false");
+			return QueryParameters.fromString(
+			        "abb=false&singleRef=false&public=false&records=false&fop=A&dark=false&leaders=false&video=false");
 		}
 		return defaultParameters;
 	}
@@ -195,6 +181,16 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	}
 
 	@Override
+	public void pushEmSize() {
+		// update the dialog
+	}
+
+	@Override
+	public void pushTeamWidth() {
+		// update the dialog
+	}
+
+	@Override
 	final public void setAbbreviatedName(boolean b) {
 		((DisplayParameters) this.board).setAbbreviatedName(b);
 		this.abbreviatedName = b;
@@ -233,7 +229,7 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	@Override
 	final public void setEmFontSize(Double emFontSize) {
-		logger.warn("**** setEmFontSize={}", emFontSize);
+		//logger.trace("**** setEmFontSize={}", emFontSize);
 		this.emFontSize = emFontSize;
 		((DisplayParameters) this.board).setEmFontSize(emFontSize);
 		pushEmSize();
@@ -318,4 +314,11 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 		return this.board;
 	}
 
+	protected abstract void init();
+
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		super.onAttach(attachEvent);
+		openDialog(getDialog());
+	}
 }

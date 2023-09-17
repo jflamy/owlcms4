@@ -32,10 +32,10 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 	private final DecimalFormat df = new DecimalFormat("0.000");
 	protected DisplayParameters board;
 
-	protected AbstractResultsDisplayPage() {
-		init();
+	public AbstractResultsDisplayPage() {
+		// intentionally empty; superclass will invoke init() as required.
 	}
-
+	
 	@Override
 	public void addDialogContent(Component page, VerticalLayout vl) {
 		addSoundEntries(vl, page, (DisplayParametersReader) page);

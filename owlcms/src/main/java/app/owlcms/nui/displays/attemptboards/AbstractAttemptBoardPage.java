@@ -2,7 +2,6 @@ package app.owlcms.nui.displays.attemptboards;
 
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -25,12 +24,14 @@ public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage
         implements SoundEntries, DisplayParametersReader, HasDynamicTitle, SafeEventBusRegistration {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(AbstractAttemptBoardPage.class);
+	
+	public AbstractAttemptBoardPage() {
+		// intentionally empty; superclass will invoke init() as required.
+	}
 
 	@Override
 	public void addDialogContent(Component page, VerticalLayout vl) {
 		addSoundEntries(vl, page, (DisplayParametersReader) page);
 	}
-
-	protected abstract void init();
 
 }

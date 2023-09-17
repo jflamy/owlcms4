@@ -31,6 +31,10 @@ public interface ContentParametersReader extends ContentParameters, FOPParameter
 			buildDialog((Component) this);
 			dialog = this.getDialog();
 		}
+		if (dialog == null) {
+			return;
+		}
+
 		final Dialog nDialog = dialog;
 		if (!nDialog.isOpened()) {
 			nDialog.open();
@@ -54,8 +58,6 @@ public interface ContentParametersReader extends ContentParameters, FOPParameter
 			setDialogTimer(timer);
 		}
 	}
-
-
 
 	@Override
 	public default Map<String, List<String>> readParams(Location location,

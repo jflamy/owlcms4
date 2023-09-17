@@ -121,7 +121,6 @@ public class Results extends LitTemplate
 	private boolean video;
 
 	public Results() {
-		logger.warn("results constructor {} {}",System.currentTimeMillis(), LoggerUtils.stackTrace());
 		uiEventLogger.setLevel(Level.INFO);
 		OwlcmsFactory.waitDBInitialized();
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
@@ -201,7 +200,7 @@ public class Results extends LitTemplate
 		if (emFontSize != null) {
 			formattedEm = df.format(emFontSize);
 			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "rem;");
-			logger.warn("%%%%% board changing em size={} from {}",emFontSize,LoggerUtils.whereFrom());
+			//logger.trace("%%%%% board changing em size={} from {}",emFontSize,LoggerUtils.whereFrom());
 		}
 	}
 
@@ -344,7 +343,7 @@ public class Results extends LitTemplate
 
 	@Override
 	public final void setEmFontSize(Double emFontSize) {
-		logger.warn("%%%%% setEmFontSize {}", emFontSize);
+		//logger.trace("%%%%% setEmFontSize {}", emFontSize);
 		this.emFontSize = emFontSize;
 		pushEmSize();
 	}
