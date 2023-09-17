@@ -1,9 +1,10 @@
 package app.owlcms.apputils;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 
 import javax.persistence.AttributeConverter;
-import java.io.IOException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JpaJsonConverter implements AttributeConverter<Object, String> {
     private static final ObjectMapper om = new ObjectMapper();

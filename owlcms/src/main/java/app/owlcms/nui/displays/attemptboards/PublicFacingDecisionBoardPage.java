@@ -21,7 +21,6 @@ public class PublicFacingDecisionBoardPage extends AbstractAttemptBoardPage {
 	Logger logger = (Logger) LoggerFactory.getLogger(PublicFacingDecisionBoardPage.class);
 
 	public PublicFacingDecisionBoardPage() {
-		logger.warn("pf decision board constructor");
 		setDefaultParameters(QueryParameters.simple(Map.of(
 		        ContentParameters.SILENT, "true",
 		        ContentParameters.DOWNSILENT, "true")));
@@ -35,8 +34,6 @@ public class PublicFacingDecisionBoardPage extends AbstractAttemptBoardPage {
 		setSilenced(true);
 		setDownSilenced(true);
 		this.addComponent(board);
-
-		logger.warn("***** pf decision pf={} {}", board.isPublicFacing(), board.getDecisions().isPublicFacing());
 	}
 
 	@Override

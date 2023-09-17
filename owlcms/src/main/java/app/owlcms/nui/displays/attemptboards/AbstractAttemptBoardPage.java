@@ -31,27 +31,8 @@ public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage
 		addSoundEntries(vl, page, (DisplayParametersReader) page);
 	}
 
-//	/**
-//	 * @see app.owlcms.apputils.queryparameters.FOPParameters#updateURLLocation(com.vaadin.flow.component.UI,
-//	 *      com.vaadin.flow.router.Location, java.lang.String, java.lang.String)
-//	 */
-//	@Override
-//	public void updateURLLocation(UI ui, Location location, String parameter, String mode) {
-//		logger.warn("AttemptBoardPage updateURLLocation");
-//		TreeMap<String, List<String>> parametersMap = new TreeMap<>(location.getQueryParameters().getParameters());
-//		updateParam(parametersMap, DARK, null);
-//		updateParam(parametersMap, parameter, mode);
-//		FieldOfPlay fop = OwlcmsSession.getFop();
-//		updateParam(parametersMap, "fop", fop != null ? fop.getName() : null);
-//		setUrlParameterMap(parametersMap);
-//		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(parametersMap)));
-//		ui.getPage().getHistory().replaceState(null, location2);
-//		setLocation(location2);
-//	}
-
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		logger.warn("AbstractAttemptBoardPage onAttach");
 		super.onAttach(attachEvent);
 		openDialog(getDialog());
 	}

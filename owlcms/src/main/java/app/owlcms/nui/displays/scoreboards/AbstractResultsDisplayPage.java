@@ -73,7 +73,6 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		logger.warn("AbstractAttemptBoardPage onAttach");
 		super.onAttach(attachEvent);
 		openDialog(getDialog());
 	}

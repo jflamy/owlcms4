@@ -21,7 +21,6 @@ public class AthleteFacingDecisionBoardPage extends AbstractAttemptBoardPage {
 	Logger logger = (Logger) LoggerFactory.getLogger(AthleteFacingDecisionBoardPage.class);
 
 	public AthleteFacingDecisionBoardPage() {
-		logger.warn("af decision board constructor");
 		setDefaultParameters(QueryParameters.simple(Map.of(
 		        ContentParameters.SILENT, "false",
 		        ContentParameters.DOWNSILENT, "false")));
@@ -36,7 +35,6 @@ public class AthleteFacingDecisionBoardPage extends AbstractAttemptBoardPage {
 		setDownSilenced(false);
 		this.addComponent(board);
 
-		logger.warn("***** af decision pf={} {}", board.isPublicFacing(), board.getDecisions().isPublicFacing());
 	}
 
 	@Override

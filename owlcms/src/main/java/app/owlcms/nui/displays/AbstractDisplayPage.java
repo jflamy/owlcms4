@@ -154,7 +154,6 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	@Override
 	final public boolean isDownSilenced() {
-		logger.warn("AbstractDisplayPage down silent={}", silenced);
 		return downSilenced;
 	}
 
@@ -180,7 +179,6 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	@Override
 	final public boolean isSilenced() {
-		logger.warn("AbstractDisplayPage timer silent={}", silenced);
 		return silenced;
 	}
 
@@ -201,14 +199,12 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	@Override
 	final public void setDarkMode(boolean darkMode) {
-		logger.warn("setting board to dark={}",darkMode);
 		((DisplayParameters) this.board).setDarkMode(darkMode);
 		this.darkMode = darkMode;
 	}
 
 	@Override
 	final public void setDefaultParameters(QueryParameters defaultParameters) {
-		logger.warn("setting defaults");
 		this.defaultParameters = defaultParameters;
 	}
 
@@ -224,7 +220,6 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	@Override
 	final public void setDownSilenced(boolean silent) {
-		logger.warn("setting AbstractDisplayPage down silent={}", silent);
 		((ContentParameters) this.board).setDownSilenced(silent);
 		this.downSilenced = silent;
 	}
@@ -288,7 +283,6 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	@Override
 	final public void setSilenced(boolean silent) {
-		logger.warn("setting AbstractDisplayPage timer silent={}", silent);
 		((ContentParameters) this.board).setSilenced(silent);
 		this.silenced = silent;
 	}

@@ -129,7 +129,6 @@ public interface ContentParametersReader extends ContentParameters, FOPParameter
 	 * @see app.owlcms.apputils.queryparameters.ContentParametersReader#switchSoundMode(boolean, boolean)
 	 */
 	public default void switchSoundMode(boolean silent, boolean updateURL) {
-		logger.warn("switching timer sound {}", silent);
 		setSilenced(silent);
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? "true" : "false");

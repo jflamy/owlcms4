@@ -144,40 +144,6 @@ public interface DisplayParametersReader extends ContentParametersReader, Displa
 		setUrlParameterMap(params);
 		return params;
 	}
-
-//	/*
-//	 * Process query parameters
-//	 *
-//	 * Note: what Vaadin calls a parameter is in the REST style, actually part of the URL path. We use the old-style
-//	 * Query parameters for our purposes.
-//	 *
-//	 * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin. flow.router.BeforeEvent,
-//	 * java.lang.String)
-//	 */
-//	@Override
-//	public default void setParameter(BeforeEvent event, @OptionalParameter String routeParameter) {
-//		Location location = event.getLocation();
-//		setLocation(location);
-//		setLocationUI(event.getUI());
-//		setRouteParameter(routeParameter);
-//
-//		// the OptionalParameter string is the part of the URL path that can be
-//		// interpreted as REST arguments
-//		// we use the ? query parameters instead.
-//		QueryParameters queryParameters = location.getQueryParameters();
-//		Map<String, List<String>> parametersMap = queryParameters.getParameters();
-//
-//		// we inject the video route parameter as a normal query parameter to simplify processing.
-//		if (routeParameter != null && routeParameter.contentEquals("video")) {
-//			parametersMap.put("video", List.of("true"));
-//		}
-//		HashMap<String, List<String>> params = readParams(location, parametersMap);
-//
-//		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params)));
-//		event.getUI().getPage().getHistory().replaceState(null, location2);
-//		logger.warn("A updatingLocation {} {}", location2.getPathWithQueryParameters(), LoggerUtils.whereFrom());
-//		storeReturnURL(location2);
-//	}
 	
 	/*
 	 * Process query parameters

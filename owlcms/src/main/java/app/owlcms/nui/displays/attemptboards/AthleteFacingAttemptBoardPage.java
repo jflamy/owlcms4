@@ -30,7 +30,6 @@ public class AthleteFacingAttemptBoardPage extends AbstractAttemptBoardPage {
 		AbstractAttemptBoard board = (AbstractAttemptBoard) getBoard();
 		board.setPublicFacing(false);
 		this.addComponent(board);
-		logger.warn("**** athlete attempt pf={} {}", board .isPublicFacing(), board.getDecisions().isPublicFacing());
 	}
 
 	@Override

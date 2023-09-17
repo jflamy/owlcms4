@@ -23,7 +23,6 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -126,7 +125,6 @@ public class DecisionElement extends LitTemplate
 	}
 
 	public void setSilenced(boolean b) {
-		logger.warn("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.whereFrom(1));
 		getElement().setProperty("silent", b);
 		silenced = b;
 	}

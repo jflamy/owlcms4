@@ -3,8 +3,8 @@ package app.owlcms.apputils.queryparameters;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 
 import org.slf4j.LoggerFactory;
@@ -16,7 +16,6 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 public interface ParameterReader extends HasUrlParameter<String> {
@@ -60,7 +59,6 @@ public interface ParameterReader extends HasUrlParameter<String> {
 	public default void processBooleanParam(Map<String, List<String>> params, String paramName,
 	        Consumer<Boolean> doer) {
 		List<String> paramValues = params.get(paramName);
-		logger.warn("param {} values={}", paramName, paramValues);
 		boolean value = false;
 		if (paramValues == null || paramValues.isEmpty()) {
 			value = getDefaultParamValue(paramName);
@@ -69,7 +67,6 @@ public interface ParameterReader extends HasUrlParameter<String> {
 		}
 		doer.accept(value);
 		updateParam(params, paramName, value ? "true" : "false");
-		logger.warn("updated values for {} {}", paramName, params.get(paramName));
 	}
 
 	public default boolean getDefaultParamValue(String paramName) {
@@ -78,7 +75,6 @@ public interface ParameterReader extends HasUrlParameter<String> {
 		if (dp != null) {
 			List<String> defaultValues = dp.getParameters().get(paramName);
 			if (defaultValues != null) {
-				logger.warn("param {} DEFAULT values={}", paramName, defaultValues);
 				String defaultVal = defaultValues.get(0);
 				value = defaultVal.toLowerCase().equals("true");
 			}
@@ -122,12 +118,9 @@ public interface ParameterReader extends HasUrlParameter<String> {
 	public default Map<String, List<String>> removeDefaultValues(Map<String, List<String>> parametersMap) {
 		QueryParameters defaultParameters = getDefaultParameters();
 		if (defaultParameters == null) {
-			logger.warn("===== NO cleanup");
 			return parametersMap;
 		}
 		Map<String, List<String>> defaults = defaultParameters.getParameters();
-		var qp = new QueryParameters(parametersMap);
-		logger.warn("===== default values {}\n{}", qp.getQueryString(), LoggerUtils.whereFrom());
 		
 		Iterator<Entry<String, List<String>>> paramsIterator = parametersMap.entrySet().iterator();
 		var newParams = new TreeMap<String, List<String>>();
@@ -138,8 +131,6 @@ public interface ParameterReader extends HasUrlParameter<String> {
 				newParams.put(entry.getKey(), entry.getValue());
 			}
 		}
-		
-		logger.warn("===== after cleanup {}\n{}", new QueryParameters(newParams).getQueryString());
 		return newParams;
 	}
 

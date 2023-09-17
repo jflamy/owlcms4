@@ -10,8 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.slf4j.LoggerFactory;
 
 import com.google.common.hash.Hashing;
@@ -22,6 +20,7 @@ import app.owlcms.data.config.Config;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class AccessUtils {
 	static Logger logger = (Logger) LoggerFactory.getLogger(AccessUtils.class);
