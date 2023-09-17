@@ -76,7 +76,6 @@ public class ValidationUtils {
 		return (value, context) -> {
 			try {
 				if (guard.test(value)) {
-					logger.error("ok checkUsingException {}", LoggerUtils.stackTrace());
 					return ValidationResult.ok();
 				} else {
 					logger.error("missing message {}", LoggerUtils.stackTrace());
