@@ -36,8 +36,6 @@ public class ResultsBoardPage extends AbstractResultsDisplayPage {
 	public ResultsBoardPage() {
 		var board = new Results();
 		this.setBoard(board);
-		board.setLeadersDisplay(true);
-		board.setRecordsDisplay(true);
 		this.addComponent(board);
 
 		// when navigating to the page, Vaadin will call setParameter+readParameters

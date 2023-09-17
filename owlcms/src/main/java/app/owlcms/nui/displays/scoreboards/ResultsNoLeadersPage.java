@@ -10,7 +10,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.queryparameters.ContentParameters;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.data.config.Config;
-import app.owlcms.displays.scoreboard.ResultsNoLeaders;
+import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
@@ -22,10 +22,9 @@ public class ResultsNoLeadersPage extends ResultsBoardPage {
 	Logger logger = (Logger) LoggerFactory.getLogger(ResultsNoLeadersPage.class);
 
 	public ResultsNoLeadersPage() {
-		var board = new ResultsNoLeaders(this);
+		// only difference is the default values
+		var board = new Results();
 		this.setBoard(board);
-		board.setLeadersDisplay(false);
-		board.setRecordsDisplay(false);
 		this.addComponent(board);
 		
 		// when navigating to the page, Vaadin will call setParameter+readParameters

@@ -123,7 +123,6 @@ public class Results extends LitTemplate
 	public Results() {
 		uiEventLogger.setLevel(Level.INFO);
 		OwlcmsFactory.waitDBInitialized();
-		setDarkMode(true);
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
 	}
 
@@ -198,10 +197,10 @@ public class Results extends LitTemplate
 	@Override
 	public void pushEmSize() {
 		String formattedEm = null;
-		logger.warn("***** board changing em size={} from {}",emFontSize,LoggerUtils.whereFrom());
 		if (emFontSize != null) {
 			formattedEm = df.format(emFontSize);
 			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "rem;");
+			logger.warn("%%%%% board changing em size={} from {}",emFontSize,LoggerUtils.whereFrom());
 		}
 	}
 
@@ -345,9 +344,8 @@ public class Results extends LitTemplate
 
 	@Override
 	public final void setEmFontSize(Double emFontSize) {
-		logger.warn("setEmFontSize {}", emFontSize);
+		logger.warn("%%%%% setEmFontSize {}", emFontSize);
 		this.emFontSize = emFontSize;
-		logger.warn("setEmFontSize {} {}", emFontSize, getEmFontSize());
 		pushEmSize();
 	}
 
