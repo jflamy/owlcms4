@@ -17,7 +17,7 @@ class ResultsFull extends LitElement {
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "results" + (this.autoversion ?? "") + ".css"}" />
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "resultsRanksCustomization" + (this.autoversion ?? "") + ".css"}" />
 
-      <div class="${this.wrapperClasses()}"  style="${this.sizeOverride}">
+      <div class="${this.wrapperClasses()}" style="${this.sizeOverride}">
         <div class="blockPositioningWrapper">
           <div class="waiting" style="${this.waitingStyles()}">
             <div>
@@ -392,6 +392,7 @@ class ResultsFull extends LitElement {
 
   wrapperClasses() {
     var classes = "wrapper";
+    classes = classes + (this.darkMode ? " " + this.darkMode : "");
     classes = classes + (this.teamWidthClass ? " " + this.teamWidthClass : "");
     classes = classes + (this.mode === "WAIT" ? " bigTitle" : "");
     return classes;
