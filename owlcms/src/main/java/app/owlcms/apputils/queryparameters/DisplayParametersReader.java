@@ -105,17 +105,11 @@ public interface DisplayParametersReader extends ContentParametersReader, Displa
 		try {
 			emSize = (sizeParams != null && !sizeParams.isEmpty() ? Double.parseDouble(sizeParams.get(0)) : 0.0D);
 			if (emSize > 0.0D) {
-//				setEmFontSize(emSize);
-//				updateParam(params, FONTSIZE, emSize.toString());
 				switchEmFontSize(emSize, false);
 			} else {
-//				setEmFontSize(null);
-//				updateParam(params, FONTSIZE, null);
 				switchEmFontSize(null, true);
 			}
 		} catch (NumberFormatException e) {
-//			emSize = 0.0D;
-//			setEmFontSize(null);
 			switchEmFontSize(null, true);
 		}
 
@@ -123,19 +117,12 @@ public interface DisplayParametersReader extends ContentParametersReader, Displa
 		Double tWidth;
 		try {
 			tWidth = (twParams != null && !twParams.isEmpty() ? Double.parseDouble(twParams.get(0)) : 0.0D);
-			if (tWidth > 0.0D) {
-//				setTeamWidth(tWidth);
-//				updateParam(params, TEAMWIDTH, tWidth.toString());
+			if (tWidth > 0.0D) {;
 				switchTeamWidth(tWidth, false);
 			} else {
-//				setTeamWidth(null);
-//				updateParam(params, TEAMWIDTH, null);
 				switchTeamWidth(null, true);
 			}
 		} catch (NumberFormatException e) {
-//			tWidth = 10.0D;
-//			setEmFontSize(null);
-//			updateParam(params, TEAMWIDTH, null);
 			switchTeamWidth(null, true);
 		}
 
@@ -197,7 +184,7 @@ public interface DisplayParametersReader extends ContentParametersReader, Displa
 	
 	public default void switchAbbreviated(boolean abbreviated, boolean updateURL) {
 		if (updateURL) {
-			updateURLLocation(getLocationUI(), getLocation(), ABBREVIATED, abbreviated ? "true" : "false");
+			updateURLLocation(getLocationUI(), getLocation(), ABBREVIATED, Boolean.toString(abbreviated));
 		}
 		setAbbreviatedName(abbreviated);
 	}
@@ -212,14 +199,14 @@ public interface DisplayParametersReader extends ContentParametersReader, Displa
 
 	public default void switchLeaders(boolean showLeaders, boolean updateURL) {
 		if (updateURL) {
-			updateURLLocation(getLocationUI(), getLocation(), LEADERS, showLeaders ? "true" : "false");
+			updateURLLocation(getLocationUI(), getLocation(), LEADERS, Boolean.toString(showLeaders));
 		}
 		setLeadersDisplay(showLeaders);
 	}
 
 	public default void switchLightingMode(boolean dark, boolean updateURL) {
 		if (updateURL) {
-			updateURLLocation(getLocationUI(), getLocation(), DARK, dark ? null : "false");
+			updateURLLocation(getLocationUI(), getLocation(), DARK, Boolean.toString(dark));
 		}
 		// updateURLLocation might need the previous value, so we wait.
 		setDarkMode(dark);
@@ -227,14 +214,14 @@ public interface DisplayParametersReader extends ContentParametersReader, Displa
 
 	public default void switchRecords(boolean showRecords, boolean updateURL) {
 		if (updateURL) {
-			updateURLLocation(getLocationUI(), getLocation(), RECORDS, showRecords ? "true" : "false");
+			updateURLLocation(getLocationUI(), getLocation(), RECORDS, Boolean.toString(showRecords));
 		}
 		setRecordsDisplay(showRecords);
 	}
 
 	public default void switchSwitchable(boolean switchable, boolean updateURL) {
 		if (updateURL) {
-			updateURLLocation(getLocationUI(), getLocation(), PUBLIC, switchable ? "true" : "false");
+			updateURLLocation(getLocationUI(), getLocation(), PUBLIC, Boolean.toString(switchable));
 		}
 		setPublicDisplay(switchable);
 	}
@@ -249,9 +236,9 @@ public interface DisplayParametersReader extends ContentParametersReader, Displa
 	
 	public default void switchVideo(boolean video, boolean updateURL) {
 		if (updateURL) {
-			updateURLLocation(getLocationUI(), getLocation(), VIDEO, video ? "true" : "false");
+			updateURLLocation(getLocationUI(), getLocation(), VIDEO, Boolean.toString(video));
 		}
-		setAbbreviatedName(video);
+		setVideo(video);
 	}
 
 	Timer getDialogTimer();

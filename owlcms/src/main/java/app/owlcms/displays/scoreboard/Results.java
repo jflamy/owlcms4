@@ -324,6 +324,7 @@ public class Results extends LitTemplate
 
 	@Override
 	public final void setAbbreviatedName(boolean b) {
+		logger.warn("===== setting abbreviated {}",b);
 		this.abbreviatedName = b;
 	}
 

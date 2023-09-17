@@ -5,11 +5,14 @@ import java.text.DecimalFormat;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.DisplayParametersReader;
+import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.nui.displays.AbstractDisplayPage;
 import app.owlcms.nui.displays.SoundEntries;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
@@ -30,14 +33,58 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 	Logger logger = (Logger) LoggerFactory.getLogger(AbstractResultsDisplayPage.class);
 	private final DecimalFormat df = new DecimalFormat("0.000");
 	protected DisplayParameters board;
+	private static final int DEBOUNCE = 50;
+	private long now;
+	private long lastShortcut;
 
 	public AbstractResultsDisplayPage() {
 		// intentionally empty; superclass will invoke init() as required.
 	}
-	
+
+	/**
+	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
+	 *      com.vaadin.flow.component.orderedlayout.VerticalLayout)
+	 */
 	@Override
-	public void addDialogContent(Component page, VerticalLayout vl) {
-		addSoundEntries(vl, page, (DisplayParametersReader) page);
+	public void addDialogContent(Component target, VerticalLayout vl) {
+		DisplayOptions.addLightingEntries(vl, target, this);
+		DisplayOptions.addRule(vl);
+		DisplayOptions.addSoundEntries(vl, target, this);
+		DisplayOptions.addRule(vl);
+		DisplayOptions.addSwitchableEntries(vl, target, this);
+		DisplayOptions.addRule(vl);
+		DisplayOptions.addSectionEntries(vl, target, this);
+		DisplayOptions.addRule(vl);
+		DisplayOptions.addSizingEntries(vl, target, this);
+
+		UI.getCurrent().addShortcutListener(() -> {
+			now = System.currentTimeMillis();
+			if (now - lastShortcut > DEBOUNCE) {
+				setEmFontSize(getEmFontSize() + 0.005);
+			}
+			lastShortcut = now;
+		}, Key.ARROW_UP);
+		UI.getCurrent().addShortcutListener(() -> {
+			now = System.currentTimeMillis();
+			if (now - lastShortcut > DEBOUNCE) {
+				setEmFontSize(getEmFontSize() - 0.005);
+			}
+			lastShortcut = now;
+		}, Key.ARROW_DOWN);
+		UI.getCurrent().addShortcutListener(() -> {
+			now = System.currentTimeMillis();
+			if (now - lastShortcut > DEBOUNCE) {
+				setTeamWidth(getTeamWidth() + 0.5);
+			}
+			lastShortcut = now;
+		}, Key.ARROW_RIGHT);
+		UI.getCurrent().addShortcutListener(() -> {
+			now = System.currentTimeMillis();
+			if (now - lastShortcut > DEBOUNCE) {
+				setTeamWidth(getTeamWidth() - 0.5);
+			}
+			lastShortcut = now;
+		}, Key.ARROW_LEFT);
 	}
 
 	@Override
@@ -74,6 +121,7 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 		}
 	}
 
+	@Override
 	protected abstract void init();
 
 }

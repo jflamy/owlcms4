@@ -187,6 +187,7 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 	 */
 	@Override
 	public default void updateURLLocation(UI ui, Location location, String parameter, String value) {
+		logger.warn("**** updating {} to {} from {}",parameter, value, LoggerUtils.whereFrom());
 		Map<String, List<String>> parametersMap = new TreeMap<>(location.getQueryParameters().getParameters());
 
 		// get current values

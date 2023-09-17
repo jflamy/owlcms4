@@ -29,13 +29,6 @@ public class CurrentAthletePage extends AbstractResultsDisplayPage {
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	@Override
-	public void addDialogContent(Component target, VerticalLayout vl) {
-		DisplayOptions.addLightingEntries(vl, target, this);
-		DisplayOptions.addRule(vl);
-		DisplayOptions.addSoundEntries(vl, target, this);
-	}
-
-	@Override
 	public String getPageTitle() {
 		return getTranslation("CurrentAthleteTitle") + OwlcmsSession.getFopNameIfMultiple();
 	}
@@ -58,6 +51,13 @@ public class CurrentAthletePage extends AbstractResultsDisplayPage {
 		        DisplayParameters.RECORDS, "false",
 		        DisplayParameters.ABBREVIATED,
 		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
+	}
+	
+	@Override
+	public void addDialogContent(Component target, VerticalLayout vl) {
+		DisplayOptions.addLightingEntries(vl, target, this);
+		DisplayOptions.addRule(vl);
+		DisplayOptions.addSoundEntries(vl, target, this);
 	}
 
 }
