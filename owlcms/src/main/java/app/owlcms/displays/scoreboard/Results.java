@@ -119,6 +119,7 @@ public class Results extends LitTemplate
 	private boolean recordsDisplay;
 	private final DecimalFormat df = new DecimalFormat("0.000");
 	private boolean video;
+	private boolean downSilenced;
 
 	public Results() {
 		uiEventLogger.setLevel(Level.INFO);
@@ -398,6 +399,12 @@ public class Results extends LitTemplate
 		this.silenced = silent;
 		this.getTimer().setSilenced(silenced);
 		this.getBreakTimer().setSilenced(silenced);
+	}
+	
+	@Override
+	public void setDownSilenced(boolean silent) {
+		this.downSilenced=silent;
+		this.getDecisions().setSilenced(silent);
 	}
 
 	/**
