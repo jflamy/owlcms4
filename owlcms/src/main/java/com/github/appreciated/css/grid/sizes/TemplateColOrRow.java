@@ -1,8 +1,8 @@
 package com.github.appreciated.css.grid.sizes;
 
-import com.github.appreciated.css.grid.interfaces.TemplateRowsAndColsUnit;
-
 import java.util.Objects;
+
+import com.github.appreciated.css.grid.interfaces.TemplateRowsAndColsUnit;
 
 public class TemplateColOrRow implements TemplateRowsAndColsUnit {
 

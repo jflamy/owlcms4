@@ -1,9 +1,9 @@
 package com.github.appreciated.css.grid.sizes;
 
+import java.util.Arrays;
+
 import com.github.appreciated.css.grid.interfaces.TemplateRowsAndColsUnit;
 import com.github.appreciated.css.interfaces.CssUnit;
-
-import java.util.Arrays;
 
 public class Repeat implements TemplateRowsAndColsUnit {
 

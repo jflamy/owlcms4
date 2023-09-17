@@ -1,9 +1,13 @@
 package com.github.appreciated.css.grid;
 
-import com.vaadin.flow.component.*;
-import com.vaadin.flow.component.orderedlayout.ThemableLayout;
-
 import java.util.Arrays;
+
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasElement;
+import com.vaadin.flow.component.HasOrderedComponents;
+import com.vaadin.flow.component.HasSize;
+import com.vaadin.flow.component.HasStyle;
+import com.vaadin.flow.component.orderedlayout.ThemableLayout;
 
 public interface GridLayoutComponent extends HasElement, ThemableLayout, HasSize, HasStyle, HasOrderedComponents {
 

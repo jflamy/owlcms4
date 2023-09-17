@@ -1,12 +1,12 @@
 package com.github.appreciated.layout;
 
+import java.util.Arrays;
+
 import com.github.appreciated.css.grid.FluentGridLayoutComponent;
 import com.github.appreciated.css.grid.sizes.TemplateArea;
 import com.github.appreciated.css.grid.sizes.TemplateAreas;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
-
-import java.util.Arrays;
 
 /**
  * A Layout which makes it easy for the user to create area based grids.

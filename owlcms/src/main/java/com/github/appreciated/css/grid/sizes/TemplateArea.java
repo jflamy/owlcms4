@@ -1,8 +1,8 @@
 package com.github.appreciated.css.grid.sizes;
 
-import com.github.appreciated.css.grid.interfaces.TemplateAreaUnit;
-
 import java.util.Objects;
+
+import com.github.appreciated.css.grid.interfaces.TemplateAreaUnit;
 
 public class TemplateArea implements TemplateAreaUnit {
 

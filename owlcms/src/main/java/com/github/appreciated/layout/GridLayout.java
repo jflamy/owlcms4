@@ -1,5 +1,11 @@
 package com.github.appreciated.layout;
 
+import java.util.Arrays;
+import java.util.Objects;
+
+import org.vaddon.ClientMediaQuery;
+import org.vaddon.css.query.MediaQuery;
+
 import com.github.appreciated.css.grid.GridLayoutComponent;
 import com.github.appreciated.css.grid.entities.GridTemplates;
 import com.github.appreciated.css.grid.interfaces.RowOrColUnit;
@@ -16,11 +22,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.component.template.Id;
 import com.vaadin.flow.dom.Style;
-import org.vaddon.ClientMediaQuery;
-import org.vaddon.css.query.MediaQuery;
-
-import java.util.Arrays;
-import java.util.Objects;
 
 /**
  * GridLayout is a component container, which shows the subcomponents in

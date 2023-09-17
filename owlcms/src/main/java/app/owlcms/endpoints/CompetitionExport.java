@@ -26,12 +26,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.apputils.AccessUtils;
@@ -39,6 +33,11 @@ import app.owlcms.data.export.CompetitionData;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ProxyUtils;
 import ch.qos.logback.classic.Logger;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * A file servlet supporting resume of downloads and client-side caching and

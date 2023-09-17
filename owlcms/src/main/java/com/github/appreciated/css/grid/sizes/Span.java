@@ -1,10 +1,10 @@
 package com.github.appreciated.css.grid.sizes;
 
+import java.util.Objects;
+
 import com.github.appreciated.css.grid.exception.NegativeOrZeroValueException;
 import com.github.appreciated.css.grid.interfaces.RowOrColUnit;
 import com.github.appreciated.css.grid.interfaces.TemplateAreaUnit;
-
-import java.util.Objects;
 
 public class Span implements RowOrColUnit, TemplateAreaUnit {
 

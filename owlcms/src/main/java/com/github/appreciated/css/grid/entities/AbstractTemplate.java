@@ -1,9 +1,9 @@
 package com.github.appreciated.css.grid.entities;
 
+import java.util.Arrays;
+
 import com.github.appreciated.css.grid.interfaces.TemplateRowsAndColsUnit;
 import com.github.appreciated.css.interfaces.CssUnit;
-
-import java.util.Arrays;
 
 public abstract class AbstractTemplate implements CssUnit {
     private final TemplateRowsAndColsUnit[] units;
