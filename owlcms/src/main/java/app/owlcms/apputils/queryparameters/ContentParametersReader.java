@@ -27,7 +27,6 @@ public interface ContentParametersReader extends ContentParameters, FOPParameter
 	public Dialog getDialog();
 
 	public default void openDialog(Dialog dialog) {
-		logger.warn("openDialog {} {}", dialog, (dialog != null ? dialog.isOpened() : "-"));
 		if (dialog == null) {
 			buildDialog((Component) this);
 			dialog = this.getDialog();
@@ -98,9 +97,7 @@ public interface ContentParametersReader extends ContentParameters, FOPParameter
 	public void setShowInitialDialog(boolean b);
 
 	public default void switchDownMode(boolean silent, boolean updateURL) {
-		logger.warn("switching down sound {}", silent);
 		setDownSilenced(silent);
-
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), DOWNSILENT, silent ? "true" : "false");
 		}
