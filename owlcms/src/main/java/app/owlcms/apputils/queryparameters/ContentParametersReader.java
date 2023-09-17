@@ -28,7 +28,6 @@ public interface ContentParametersReader extends ContentParameters, FOPParameter
 
 	public default void openDialog(Dialog dialog) {
 		if (dialog == null) {
-			logger.warn("building dialog");
 			buildDialog((Component) this);
 			dialog = this.getDialog();
 		}

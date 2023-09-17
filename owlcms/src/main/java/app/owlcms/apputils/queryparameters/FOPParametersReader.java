@@ -48,7 +48,10 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(nq)));
 		ui.getPage().getHistory().replaceState(null, location2.getPathWithQueryParameters());
 		setLocation(location2);
-		logger.warn("**** updatingLocation {} {}", location2.getPathWithQueryParameters(), LoggerUtils.whereFrom());
+		if (logger.isDebugEnabled()) {
+			logger.debug("**** updatingLocation {} {}", location2.getPathWithQueryParameters(),
+			        LoggerUtils.whereFrom());
+		}
 		storeReturnURL(location2);
 	}
 
@@ -58,28 +61,6 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 
 	public default boolean isIgnoreGroupFromURL() {
 		return true;
-	}
-
-	/*
-	 * Retrieve parameter(s) from URL and update according to current settings.
-	 *
-	 * The values are stored in the URL in order to allow bookmarking and easy reloading.
-	 *
-	 * Note: what Vaadin calls a parameter is in the REST style, actually part of the URL path. We use the old-style
-	 * Query parameters for our purposes.
-	 *
-	 * @see com.vaadin.flow.router.HasUrlParameter#setParameter(com.vaadin.flow.router. BeforeEvent, java.lang.Object)
-	 */
-	/**
-	 * @see app.owlcms.apputils.queryparameters.ParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent,
-	 *      java.lang.String)
-	 */
-	@Override
-	public default void setParameter(BeforeEvent event, @OptionalParameter String routeParameter) {
-		ParameterReader.super.setParameter(event, routeParameter);
-		if (routeParameter != null) {
-			setRouteParameter(routeParameter);
-		}
 	}
 
 	/**
@@ -145,6 +126,28 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 		return getUrlParameterMap();
 	}
 
+	/*
+	 * Retrieve parameter(s) from URL and update according to current settings.
+	 *
+	 * The values are stored in the URL in order to allow bookmarking and easy reloading.
+	 *
+	 * Note: what Vaadin calls a parameter is in the REST style, actually part of the URL path. We use the old-style
+	 * Query parameters for our purposes.
+	 *
+	 * @see com.vaadin.flow.router.HasUrlParameter#setParameter(com.vaadin.flow.router. BeforeEvent, java.lang.Object)
+	 */
+	/**
+	 * @see app.owlcms.apputils.queryparameters.ParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent,
+	 *      java.lang.String)
+	 */
+	@Override
+	public default void setParameter(BeforeEvent event, @OptionalParameter String routeParameter) {
+		ParameterReader.super.setParameter(event, routeParameter);
+		if (routeParameter != null) {
+			setRouteParameter(routeParameter);
+		}
+	}
+
 	/**
 	 * @see app.owlcms.apputils.queryparameters.ParameterReader#setShowInitialDialog(boolean)
 	 */
@@ -187,7 +190,9 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 	 */
 	@Override
 	public default void updateURLLocation(UI ui, Location location, String parameter, String value) {
-		logger.warn("**** updating {} to {} from {}",parameter, value, LoggerUtils.whereFrom());
+		if (logger.isDebugEnabled()) {
+			logger.debug("**** updating {} to {} from {}", parameter, value, LoggerUtils.whereFrom());
+		}
 		Map<String, List<String>> parametersMap = new TreeMap<>(location.getQueryParameters().getParameters());
 
 		// get current values
