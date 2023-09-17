@@ -25,7 +25,7 @@ import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.config.Config;
 import app.owlcms.displays.options.DisplayOptions;
-import app.owlcms.displays.topteams.TopTeams;
+import app.owlcms.displays.topteams.TopTeamsSinclair;
 import app.owlcms.nui.displays.scoreboards.AbstractResultsDisplayPage;
 import ch.qos.logback.classic.Logger;
 
@@ -189,7 +189,8 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 
 	@Override
 	protected void init() {
-		var board = new TopTeams(this);
+		var board = new TopTeamsSinclair();
+		this.setBoard(board);
 		board.setLeadersDisplay(true);
 		board.setRecordsDisplay(true);
 		this.addComponent(board);

@@ -48,7 +48,8 @@ public class TopSinclairPage extends AbstractResultsDisplayPage {
 
 	@Override
 	protected void init() {
-		var board = new TopSinclair(this);
+		var board = new TopSinclair();
+		this.setBoard(board);
 		board.setLeadersDisplay(true);
 		board.setRecordsDisplay(true);
 		this.addComponent(board);

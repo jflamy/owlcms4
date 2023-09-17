@@ -36,7 +36,6 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.nui.displays.AbstractDisplayPage;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.uievents.UIEvent;
@@ -77,7 +76,7 @@ public class TopSinclair extends Results {
 	private String routeParameter;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
-	public TopSinclair(AbstractDisplayPage page) {
+	public TopSinclair() {
 		super();
 		uiEventLogger.setLevel(Level.INFO);
 		OwlcmsFactory.waitDBInitialized();

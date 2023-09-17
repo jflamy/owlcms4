@@ -189,7 +189,8 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements ContextF
 
 	@Override
 	protected void init() {
-		var board = new TopTeams(this);
+		var board = new TopTeams();
+		this.setBoard(board);
 		board.setLeadersDisplay(true);
 		board.setRecordsDisplay(true);
 		this.addComponent(board);

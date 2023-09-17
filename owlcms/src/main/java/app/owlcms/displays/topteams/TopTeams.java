@@ -37,7 +37,6 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.nui.displays.AbstractDisplayPage;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
@@ -79,7 +78,7 @@ public class TopTeams extends Results {
 	private String routeParameter;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
-	public TopTeams(AbstractDisplayPage page) {
+	public TopTeams() {
 		super();
 		uiEventLogger.setLevel(Level.INFO);
 		OwlcmsFactory.waitDBInitialized();

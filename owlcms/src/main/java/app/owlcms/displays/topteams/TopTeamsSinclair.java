@@ -39,7 +39,6 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.nui.displays.AbstractDisplayPage;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
@@ -82,7 +81,7 @@ public class TopTeamsSinclair extends Results {
 	private String routeParameter;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
-	public TopTeamsSinclair(AbstractDisplayPage page) {
+	public TopTeamsSinclair() {
 		super();
 		uiEventLogger.setLevel(Level.INFO);
 		OwlcmsFactory.waitDBInitialized();
@@ -139,6 +138,7 @@ public class TopTeamsSinclair extends Results {
 	public void setVideo(boolean video) {
 	}
 
+	@Override
 	@Subscribe
 	public void slaveGroupDone(UIEvent.GroupDone e) {
 		uiLog(e);
@@ -149,6 +149,7 @@ public class TopTeamsSinclair extends Results {
 		});
 	}
 
+	@Override
 	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
 		uiLog(e);
@@ -159,6 +160,7 @@ public class TopTeamsSinclair extends Results {
 		});
 	}
 
+	@Override
 	@Subscribe
 	public void slaveStartLifting(UIEvent.StartLifting e) {
 		uiLog(e);
@@ -168,6 +170,7 @@ public class TopTeamsSinclair extends Results {
 		});
 	}
 
+	@Override
 	public void uiLog(UIEvent e) {
 		if (e == null) {
 			uiEventLogger.debug("### {} {}", this.getClass().getSimpleName(), LoggerUtils.whereFrom());
@@ -177,12 +180,14 @@ public class TopTeamsSinclair extends Results {
 		}
 	}
 
+	@Override
 	protected void doEmpty() {
 		logger.trace("doEmpty");
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 	}
 
+	@Override
 	protected void doUpdate(Athlete a, UIEvent e) {
 		logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
@@ -208,6 +213,7 @@ public class TopTeamsSinclair extends Results {
 		doUpdate(competition);
 	}
 
+	@Override
 	protected void setTranslationMap() {
 		JsonObject translations = Json.createObject();
 		Enumeration<String> keys = Translator.getKeys();
