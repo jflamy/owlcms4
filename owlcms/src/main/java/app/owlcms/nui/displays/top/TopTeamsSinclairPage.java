@@ -16,13 +16,14 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.SoundParameters;
-import app.owlcms.apputils.queryparameters.ResultsParametersReader;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.ResultsParametersReader;
+import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.displays.top.TopTeamsSinclair;
@@ -91,6 +92,7 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		        new HorizontalLayout(ageDivisionComboBox, ageGroupPrefixComboBox));
 	}
 
+	@Override
 	public final AgeDivision getAgeDivision() {
 		return ageDivision;
 	}
@@ -100,6 +102,7 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		return ageGroup;
 	}
 
+	@Override
 	public final String getAgeGroupPrefix() {
 		return ageGroupPrefix;
 	}
@@ -171,22 +174,32 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		return params1;
 	}
 
+	@Override
 	public void setAgeDivision(AgeDivision ageDivision) {
 		this.ageDivision = ageDivision;
+		((TopTeamsSinclair) this.getBoard()).setAgeDivision(ageDivision);
+		((TopTeamsSinclair) this.getBoard()).doUpdate(Competition.getCurrent());
 	}
 
 	@Override
-	public void setAgeGroup(AgeGroup ag) {
+	public final void setAgeGroup(AgeGroup ag) {
 		this.ageGroup = ag;
+		((TopTeamsSinclair) this.getBoard()).setAgeGroup(ag);
+		((TopTeamsSinclair) this.getBoard()).doUpdate(Competition.getCurrent());
 	}
 
+	@Override
 	public void setAgeGroupPrefix(String ageGroupPrefix) {
 		this.ageGroupPrefix = ageGroupPrefix;
+		((TopTeamsSinclair) this.getBoard()).setAgeGroupPrefix(ageGroupPrefix);
+		((TopTeamsSinclair) this.getBoard()).doUpdate(Competition.getCurrent());
 	}
 
 	@Override
-	public void setCategory(Category cat) {
+	public final void setCategory(Category cat) {
 		this.category = cat;
+		((TopTeamsSinclair) this.getBoard()).setCategory(cat);
+		((TopTeamsSinclair) this.getBoard()).doUpdate(Competition.getCurrent());
 	}
 
 	@Override
