@@ -80,9 +80,6 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		ageGroupPrefixComboBox.addValueChangeListener(e -> {
 			setAgeGroupPrefix(e.getValue());
 			updateURLLocations();
-
-			// FIXME: is doUpdate needed after updating the locations
-			// doUpdate(Competition.getCurrent());
 		});
 		setAgeGroupPrefixItems(ageGroupPrefixComboBox, getAgeDivision());
 		ageGroupPrefixComboBox.setValue(getAgeGroupPrefix());

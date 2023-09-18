@@ -90,16 +90,11 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	private AgeDivision ageDivision;
 	private String ageGroupPrefix;
 
-//    private Button catDownloadButton;
-
 	private ComboBox<Category> categoryFilter;
 	private Category categoryValue;
-//    private Anchor catResultsAnchor;
 
-//    private JXLSCatResults catXlsWriter = new JXLSCatResults(UI.getCurrent());
 	private Group currentGroup;
 	private DownloadDialog downloadDialog;
-//    private JXLSCompetitionBook xlsWriter;
 	private List<AgeDivision> adItems;
 
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
@@ -650,7 +645,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
 	@Override
 	public void setCategory(Category cat) {
-		//FIXME check vs categoryValue
 		this.category=cat;
 	}
 

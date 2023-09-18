@@ -75,8 +75,6 @@ public class TopTeamsPage extends AbstractResultsDisplayPage {
 		ageGroupPrefixComboBox.addValueChangeListener(e -> {
 			setAgeGroupPrefix(e.getValue());
 			updateURLLocations();
-//			// FIXME: url reload should perform update
-//			doUpdate(Competition.getCurrent());
 		});
 		setAgeGroupPrefixItems(ageGroupPrefixComboBox, getAgeDivision());
 		ageGroupPrefixComboBox.setValue(getAgeGroupPrefix());

@@ -21,14 +21,11 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.JsModule;
 
-import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.team.Team;
@@ -271,15 +268,6 @@ public class TopTeamsSinclair extends AbstractTop {
 			athx++;
 		}
 		return jath;
-	}
-
-	// FIXME not used
-	@SuppressWarnings("unused")
-	private List<String> setAgeGroupPrefixItems(ComboBox<String> ageGroupPrefixComboBox,
-	        AgeDivision ageDivision2) {
-		List<String> activeAgeGroups = AgeGroupRepository.findActiveAndUsed(ageDivision2);
-		ageGroupPrefixComboBox.setItems(activeAgeGroups);
-		return activeAgeGroups;
 	}
 
 	private void setWide(boolean b) {

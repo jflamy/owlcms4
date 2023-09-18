@@ -454,7 +454,6 @@ public class Results extends LitTemplate
 	}
 
 	@Subscribe
-	// FIXME Unused?
 	public void slaveBreakDone(UIEvent.BreakDone e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {

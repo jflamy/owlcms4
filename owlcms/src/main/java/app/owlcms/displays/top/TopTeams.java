@@ -26,7 +26,6 @@ import com.vaadin.flow.component.dependency.JsModule;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.team.Team;
@@ -68,8 +67,6 @@ public class TopTeams extends AbstractTop {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
-	private AgeDivision ageDivision = null;
-	private String ageGroupPrefix = null;
 	private DecimalFormat floatFormat;
 	private List<TeamTreeItem> mensTeams;
 	private EventBus uiEventBus;
@@ -99,7 +96,7 @@ public class TopTeams extends AbstractTop {
 	}
 
 	public void doUpdate(Competition competition) {
-		//logger.debug("doUpdate ag={} ad={}", ageGroupPrefix, ageDivision);
+		// logger.debug("doUpdate ag={} ad={}", ageGroupPrefix, ageDivision);
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 
@@ -175,7 +172,7 @@ public class TopTeams extends AbstractTop {
 
 	@Override
 	protected void doUpdate(Athlete a, UIEvent e) {
-		//logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
+		// logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			if (a != null) {
 				updateBottom();
@@ -297,7 +294,7 @@ public class TopTeams extends AbstractTop {
 		        : "";
 		JsonValue womenJson = getTeamsJson(womensTeams, false);
 
-		//logger.debug("updateBottomX {} {}", mensTeams, womensTeams);
+		// logger.debug("updateBottomX {} {}", mensTeams, womensTeams);
 		this.getElement().setProperty("topTeamsMen", menTitle);
 		this.getElement().setPropertyJson("mensTeams", menJson);
 		this.getElement().setProperty("topTeamsWomen", womenTitle);

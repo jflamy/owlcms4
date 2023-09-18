@@ -363,7 +363,7 @@ public class TopSinclair extends AbstractTop {
 
 	private List<Athlete> nodups(List<Athlete> athletes) {
 		// massive kludge because we have same athlete in multiple age groups
-		// FIXME: top sinclair can be absolute or by age group
+		// TODO: top sinclair can be absolute or by age group
 		athletes = athletes.stream()
 		        .map((p) -> p instanceof PAthlete ? ((PAthlete) p)._getAthlete() : p)
 		        .collect(Collectors.toSet())
