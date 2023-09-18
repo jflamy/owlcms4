@@ -8,9 +8,9 @@
 
 **44.0.0-beta07**
 
-- Internal clean-up: continuation of the cleanup done in beta06
+- Restructuring of the display configuration dialogs and URL processing done.
 - Known issues:
-  - The Public scoreboard mechanism and the Medals display don't work yet.
+  - The automatic switching of the public scoreboard during medal ceremonies does not work yet.
   - See also this [list of known small issues](https://github.com/jflamy/owlcms4/issues/734)
 
 **44.0 Changes**
