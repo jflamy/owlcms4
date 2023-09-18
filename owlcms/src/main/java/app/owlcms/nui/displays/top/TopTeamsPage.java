@@ -16,12 +16,13 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.displays.top.TopTeams;
@@ -167,21 +168,25 @@ public class TopTeamsPage extends AbstractResultsDisplayPage {
 	public void setAgeDivision(AgeDivision ageDivision) {
 		this.ageDivision = ageDivision;
 		((TopTeams) this.getBoard()).setAgeDivision(ageDivision);
+		((TopTeams) this.getBoard()).doUpdate(Competition.getCurrent());
 	}
 
 	public final void setAgeGroup(AgeGroup ag) {
 		this.ageGroup = ag;
 		((TopTeams) this.getBoard()).setAgeGroup(ag);
+		((TopTeams) this.getBoard()).doUpdate(Competition.getCurrent());
 	}
 
 	public void setAgeGroupPrefix(String ageGroupPrefix) {
 		this.ageGroupPrefix = ageGroupPrefix;
 		((TopTeams) this.getBoard()).setAgeGroupPrefix(ageGroupPrefix);
+		((TopTeams) this.getBoard()).doUpdate(Competition.getCurrent());
 	}
 
 	public final void setCategory(Category cat) {
 		this.category = cat;
 		((TopTeams) this.getBoard()).setCategory(cat);
+		((TopTeams) this.getBoard()).doUpdate(Competition.getCurrent());
 	}
 
 	@Override
