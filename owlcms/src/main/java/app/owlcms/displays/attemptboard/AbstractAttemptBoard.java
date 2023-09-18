@@ -578,6 +578,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		this.getElement().setProperty("firstName", a.getFirstName());
 		this.getElement().setProperty("decisionVisible", false);
 		this.getElement().setProperty("category", a.getCategory().getTranslatedName());
+		this.getElement().setProperty("athletePictures", athletePictures);
 
 		String team = a.getTeam();
 		if (team == null) {

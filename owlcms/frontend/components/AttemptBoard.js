@@ -1,6 +1,6 @@
 import { html, LitElement, css } from "lit";
-import {styleMap} from 'lit/directives/style-map.js';
-import {classMap} from 'lit/directives/class-map.js';
+import { styleMap } from 'lit/directives/style-map.js';
+import { classMap } from 'lit/directives/class-map.js';
 
 /*******************************************************************************
  * Copyright (c) 2009-2023 Jean-François Lamy
@@ -13,7 +13,7 @@ class CurrentAttempt extends LitElement {
   static get is() {
     return "attempt-board-template";
   }
-    
+
   render() {
     return html` 
     <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "") + ".css"}"/>
@@ -81,17 +81,17 @@ class CurrentAttempt extends LitElement {
       competitionName: {},
       groupName: {},
       liftsDone: {},
-    
-      athletes: {type: Object},
-      leaders: {type: Object},
-      records: {type: Object},
+
+      athletes: { type: Object },
+      leaders: { type: Object },
+      records: { type: Object },
 
       // mode (mutually exclusive, one of:
       // WAIT INTRO_COUNTDOWN LIFT_COUNTDOWN CURRENT_ATHLETE INTERRUPTION SESSION_DONE CEREMONY
       mode: {},
 
       // during lifting
-  
+
       recordAttempt: {},
       recordBroken: {},
 
@@ -100,6 +100,7 @@ class CurrentAttempt extends LitElement {
       stylesDir: {},
       autoVersion: {},
       video: {},
+      athletePictures: { type: Boolean },
 
       // translation map
       t: { type: Object }
@@ -115,19 +116,19 @@ class CurrentAttempt extends LitElement {
   }
 
   isCountdown() {
-    return  this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN"
+    return this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN"
   }
 
   athleteImgClasses() {
     var mainClass = "picture";
-    return mainClass + 
-      (this.decisionVisible ?  " hideBecauseDecision" : "") +
+    return mainClass +
+      (this.decisionVisible ? " hideBecauseDecision" : "") +
       ((this.recordAttempt || this.recordBroken) ? " hideBecauseRecord" : "");
   }
   teamFlagImgClasses() {
-    var mainClass = this.athleteImg ? "flagWithPicture" : "flag";
-    return mainClass + 
-      (this.decisionVisible ?  " hideBecauseDecision" : "") +
+    var mainClass = this.athleteImg || this.athletePictures ? "flagWithPicture" : "flag";
+    return mainClass +
+      (this.decisionVisible ? " hideBecauseDecision" : "") +
       ((this.recordAttempt || this.recordBroken) ? " hideBecauseRecord" : "");
   }
 
@@ -158,19 +159,19 @@ class CurrentAttempt extends LitElement {
   }
 
   teamFlagImgStyles() {
-    return "display: " + (this.isBreak() ? "none" : ( this.mode === "CURRENT_ATHLETE" ? "grid" : "none"));
+    return "display: " + (this.isBreak() ? "none" : (this.mode === "CURRENT_ATHLETE" ? "grid" : "none"));
   }
 
 
   athleteImgStyles() {
-    return "display: " + ((this.mode === "CURRENT_ATHLETE" && (this.recordAttempt || this.recordBroken)) ? "grid" : "none");
+    return "display: " + ((this.mode === "CURRENT_ATHLETE" && !(this.recordAttempt || this.recordBroken)) ? "grid" : "none");
   }
 
   recordMessageClasses() {
     var mainClass = "recordNotification";
     return mainClass +
       (this.recordAttempt ? " attempt" : "") +
-      (this.recordBroken ? " new" : "") + 
+      (this.recordBroken ? " new" : "") +
       (!this.recordAttempt && !this.recordBroken ? " none" : "");
   }
 
