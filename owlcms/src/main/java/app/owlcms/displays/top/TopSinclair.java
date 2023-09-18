@@ -31,7 +31,6 @@ import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
-import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
@@ -57,7 +56,7 @@ import elemental.json.JsonValue;
 @Tag("topsinclair-template")
 @JsModule("./components/TopSinclair.js")
 
-public class TopSinclair extends Results {
+public class TopSinclair extends AbstractTop {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TopSinclair.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -364,8 +363,9 @@ public class TopSinclair extends Results {
 
 	private List<Athlete> nodups(List<Athlete> athletes) {
 		// massive kludge because we have same athlete in multiple age groups
+		// FIXME: top sinclair can be absolute or by age group
 		athletes = athletes.stream()
-		        .map((p) -> ((PAthlete) p)._getAthlete())
+		        .map((p) -> p instanceof PAthlete ? ((PAthlete) p)._getAthlete() : p)
 		        .collect(Collectors.toSet())
 		        .stream()
 		        .sorted((a, b) -> ObjectUtils.compare(b.getSinclair(), a.getSinclair()))

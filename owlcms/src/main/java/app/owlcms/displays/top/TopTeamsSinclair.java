@@ -34,7 +34,6 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.team.Team;
 import app.owlcms.data.team.TeamResultsTreeData;
 import app.owlcms.data.team.TeamTreeItem;
-import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
@@ -61,7 +60,7 @@ import elemental.json.JsonValue;
 @Tag("topteamsinclair-template")
 @JsModule("./components/TopTeamsSinclair.js")
 
-public class TopTeamsSinclair extends Results {
+public class TopTeamsSinclair extends AbstractTop {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TopTeamsSinclair.class);
 	private static final int SHOWN_ON_BOARD = 5;
@@ -71,8 +70,6 @@ public class TopTeamsSinclair extends Results {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
-	private AgeDivision ageDivision = null;
-	private String ageGroupPrefix = null;
 	private DecimalFormat floatFormat;
 	private List<TeamTreeItem> mensTeams;
 	private EventBus uiEventBus;
@@ -123,14 +120,6 @@ public class TopTeamsSinclair extends Results {
 		womensTeams = topN(womensTeams);
 
 		updateBottom();
-	}
-
-	public void setAgeDivision(AgeDivision ageDivision) {
-		this.ageDivision = ageDivision;
-	}
-
-	public void setAgeGroupPrefix(String ageGroupPrefix) {
-		this.ageGroupPrefix = ageGroupPrefix;
 	}
 
 	@Override
@@ -242,14 +231,6 @@ public class TopTeamsSinclair extends Results {
 			floatFormat.setGroupingUsed(false);
 		}
 		return floatFormat.format(d);
-	}
-
-	private AgeDivision getAgeDivision() {
-		return ageDivision;
-	}
-
-	private String getAgeGroupPrefix() {
-		return ageGroupPrefix;
 	}
 
 	@SuppressWarnings("unused")

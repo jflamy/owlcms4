@@ -18,6 +18,11 @@ import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 
 public interface ResultsParametersReader extends ResultsParameters, FOPParametersReader {
+	
+	public static final String CATEGORY = "cat";
+	public static final String AGEGROUP_PREFIX = "agp";
+	public static final String AGEDIVISION = "ad";
+	public static final String AGEGROUP = "ag";
 
 	@Override
 	public default Map<String, List<String>> readParams(Location location,
@@ -28,6 +33,8 @@ public interface ResultsParametersReader extends ResultsParameters, FOPParameter
 		logger.warn("ContextFreeParametersReader readParam");
 		// handle previous parameters by calling superclass
 		Map<String, List<String>> newParameterMap = FOPParametersReader.super.readParams(location, parametersMap);
+		
+		setVideo(isVideo(location));
 
 		// get the age group from query parameters
 		AgeGroup ageGroup = null;
@@ -50,7 +57,7 @@ public interface ResultsParametersReader extends ResultsParameters, FOPParameter
 			newParameterMap.remove(AGEGROUP);
 		}
 		
-		List<String> ageDivisionParams = newParameterMap.get("ad");
+		List<String> ageDivisionParams = newParameterMap.get(AGEDIVISION);
 		try {
 			String ageDivisionName = (ageDivisionParams != null
 			        && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0) : null);
@@ -61,23 +68,27 @@ public interface ResultsParametersReader extends ResultsParameters, FOPParameter
 		}
 		// remove if now null
 		String value = getAgeDivision() != null ? getAgeDivision().name() : null;
-		updateParam(newParameterMap, "ad", value);
+		updateParam(newParameterMap, AGEDIVISION, value);
 
-		List<String> ageGroupParams = newParameterMap.get("ag");
+		List<String> ageGroupParams = newParameterMap.get(AGEGROUP_PREFIX);
 		// no age group is the default
 		String ageGroupPrefix = (ageGroupParams != null && !ageGroupParams.isEmpty() ? ageGroupParams.get(0) : null);
 		setAgeGroupPrefix(ageGroupPrefix);
 		String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
-		updateParam(newParameterMap, "ag", value2);
+		updateParam(newParameterMap, AGEGROUP_PREFIX, value2);
 
-		List<String> catParams = newParameterMap.get("cat");
+		List<String> catParams = newParameterMap.get(CATEGORY);
 		String catParam = (catParams != null && !catParams.isEmpty() ? catParams.get(0) : null);
 		catParam = catParam != null ? URLDecoder.decode(catParam, StandardCharsets.UTF_8) : null;
 		setCategory(CategoryRepository.findByCode(catParam));
 		String catValue = getCategory() != null ? getCategory().toString() : null;
-		updateParam(newParameterMap, "cat", catValue);
+		updateParam(newParameterMap, CATEGORY, catValue);
 
 		setUrlParameterMap(removeDefaultValues(newParameterMap));
 		return getUrlParameterMap();
+	}
+
+	private boolean isVideo(Location location) {
+		return location.getPath().endsWith(DisplayParameters.VIDEO);
 	}
 }

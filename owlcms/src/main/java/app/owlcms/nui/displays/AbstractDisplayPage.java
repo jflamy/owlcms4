@@ -15,9 +15,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 
-import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.DisplayParametersReader;
+import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import ch.qos.logback.classic.Logger;
@@ -306,7 +306,7 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	@Override
 	final public void setVideo(boolean b) {
-		// FIXME this.board.setVideo(b);
+		((DisplayParameters) this.board).setVideo(b);
 		this.video = b;
 	}
 

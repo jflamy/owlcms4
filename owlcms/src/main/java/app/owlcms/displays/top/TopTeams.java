@@ -23,19 +23,15 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 
-import app.owlcms.apputils.queryparameters.ResultsParameters;
-import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.AgeDivision;
-import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.team.Team;
 import app.owlcms.data.team.TeamResultsTreeData;
 import app.owlcms.data.team.TeamTreeItem;
-import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
@@ -62,7 +58,7 @@ import elemental.json.JsonValue;
 @Tag("topteams-template")
 @JsModule("./components/TopTeams.js")
 
-public class TopTeams extends Results implements ResultsParameters {
+public class TopTeams extends AbstractTop {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TopTeams.class);
 	private static final int SHOWN_ON_BOARD = 5;
@@ -80,8 +76,6 @@ public class TopTeams extends Results implements ResultsParameters {
 	private List<TeamTreeItem> womensTeams;
 	private String routeParameter;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
-	private Category category;
-	private AgeGroup ageGroup;
 
 	public TopTeams() {
 		super();
@@ -127,46 +121,6 @@ public class TopTeams extends Results implements ResultsParameters {
 		womensTeams = topN(womensTeams);
 
 		updateBottom();
-	}
-
-	@Override
-	public AgeDivision getAgeDivision() {
-		return ageDivision;
-	}
-
-	@Override
-	public AgeGroup getAgeGroup() {
-		return this.ageGroup;
-	}
-
-	@Override
-	public String getAgeGroupPrefix() {
-		return ageGroupPrefix;
-	}
-
-	@Override
-	public Category getCategory() {
-		return this.category;
-	}
-
-	@Override
-	public void setAgeDivision(AgeDivision ageDivision) {
-		this.ageDivision = ageDivision;
-	}
-
-	@Override
-	public void setAgeGroup(AgeGroup ag) {
-		this.ageGroup = ag;
-	}
-
-	@Override
-	public void setAgeGroupPrefix(String ageGroupPrefix) {
-		this.ageGroupPrefix = ageGroupPrefix;
-	}
-
-	@Override
-	public void setCategory(Category cat) {
-		this.category = cat;
 	}
 
 	/**

@@ -44,6 +44,7 @@ public interface DisplayParameters extends SoundParameters {
 		return 1.0D;
 	}
 
+	@Override
 	public String getRouteParameter();
 
 	public default Double getTeamWidth() {
@@ -80,6 +81,8 @@ public interface DisplayParameters extends SoundParameters {
 	}
 
 	public boolean isVideo();
+	
+	public void setVideo(boolean b);
 
 	public void setAbbreviatedName(boolean b);
 

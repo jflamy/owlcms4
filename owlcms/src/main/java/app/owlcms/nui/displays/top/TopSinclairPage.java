@@ -8,13 +8,12 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.SoundParameters;
-import app.owlcms.apputils.queryparameters.ResultsParametersReader;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.SoundParameters;
+import app.owlcms.apputils.queryparameters.TopParametersReader;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
@@ -27,7 +26,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route("displays/topsinclair")
 
-public class TopSinclairPage extends AbstractResultsDisplayPage implements ResultsParametersReader {
+public class TopSinclairPage extends AbstractResultsDisplayPage implements TopParametersReader {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(TopSinclairPage.class);
 	Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -115,11 +114,6 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements Resul
 		        SoundParameters.SINGLEREF, "false",
 		        DisplayParameters.ABBREVIATED,
 		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
-	}
-
-	@Override
-	public Map<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
-		return ResultsParametersReader.super.readParams(location, parametersMap);
 	}
 
 }
