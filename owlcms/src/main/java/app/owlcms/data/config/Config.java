@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import app.owlcms.Main;
 import app.owlcms.apputils.AccessUtils;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.LocaleAttributeConverter;
@@ -525,22 +526,29 @@ public class Config {
 		}
 		// to keep they old styles, users must move them to css/ and update the stylesDir setting.
 		Path ldpd = ResourceWalker.getLocalDirPath();
-		Path ldp = ldpd.resolve("styles");
-		boolean legacyStyles = Files.exists(ldp);
-		
+		boolean legacyStyles = false;
+		if (ldpd != null) {
+			Path ldp = ldpd.resolve("styles");
+			legacyStyles = Files.exists(ldp);
+		}
+
 		if (param.contentEquals("styles") && legacyStyles) {
-			logger.info("Legacy styles found, forcing css/nogrid");
 			// if using the legacy styles, we want to force the conversion
-			// but moving to css/styles should still work.
+			Main.getStartupLogger().error("Legacy styles found, forcing css/nogrid; must move folder to css folder");
+			logger.error("Legacy styles found, forcing css/nogrid; must move folder to css folder");
 			param = "css/nogrid";
 		} else {
 			if (param.startsWith("css/")) {
 				param = param.substring("css/".length());
 			}
-			ldp = ldpd.resolve("css/"+param);
-			if (!Files.exists(ldp) && !param.endsWith("grid")) {
-				logger.info("{} does not exist, using default css/nogrid as default", ldp.toAbsolutePath());
-				param = "css/nogrid";
+			if (ldpd != null) {
+				Path ldp = ldpd.resolve("css/" + param);
+				boolean predefinedStyleName = param.contentEquals("grid") || param.contentEquals("nogrid");
+				if (!Files.exists(ldp) && !predefinedStyleName) {
+					Main.getStartupLogger().error("{} does not exist, using default css/nogrid as default", ldp.toAbsolutePath());
+					logger./**/error("{} does not exist, using default css/nogrid as default", ldp.toAbsolutePath());
+					param = "css/nogrid";
+				}
 			}
 		}
 		if (!param.startsWith("css/")) {
@@ -807,7 +815,7 @@ public class Config {
 		} else {
 			this.stylesDirectory = stylesDirectory;
 		}
-		logger.info("setting styles directory to {}",stylesDirectory);
+		logger.info("setting styles directory to {}", stylesDirectory);
 	}
 
 	public void setTimeZone(TimeZone timeZone) {

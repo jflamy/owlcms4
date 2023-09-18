@@ -56,58 +56,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.3.0</version>
-                <executions>
-<!--                     <execution> -->
-<!--                         <id>docker-tag</id> -->
-<!--                         <phase>package</phase> -->
-<!--                         <goals> -->
-<!--                             <goal>single</goal> -->
-<!--                         </goals> -->
-<!--                         <configuration> -->
-<!--                             <finalName>docker-tag</finalName> -->
-<!--                             <appendAssemblyId>false</appendAssemblyId> -->
-<!--                             <descriptors> -->
-<!--                                 <descriptor>src/main/assembly/docker-tag.xml</descriptor> -->
-<!--                             </descriptors> -->
-<!--                             <attach>false</attach> -->
-<!--                         </configuration> -->
-<!--                     </execution> -->
-                    <execution>
-                        <id>k8s</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <finalName>k8s</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <descriptors>
-                                <descriptor>src/main/assembly/k8s.xml</descriptor>
-                            </descriptors>
-                            <attach>false</attach>
-<!--                             <filters>target/docker-tag/docker-tag.properties</filters> -->
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>zip</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <finalName>k8s</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <descriptors>
-                                <descriptor>src/main/assembly/zip.xml</descriptor>
-                            </descriptors>
-                            <attach>false</attach>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
                 <version>0.42.1</version>

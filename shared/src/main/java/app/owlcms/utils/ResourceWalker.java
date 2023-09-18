@@ -203,7 +203,7 @@ public class ResourceWalker {
 	}
 
 	public static Path getLocalDirPath() {
-		if (!initializedLocalDir) {
+		if (!initializedLocalDir || localDirPath == null) {
 			initLocalDir();
 		}
 		return localDirPath;
