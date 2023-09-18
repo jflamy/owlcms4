@@ -28,7 +28,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
-public interface DisplayParametersReader extends ContentParametersReader, DisplayParameters {
+public interface DisplayParametersReader extends SoundParametersReader, DisplayParameters {
 
 	final Logger logger = (Logger) LoggerFactory.getLogger(DisplayParametersReader.class);
 
@@ -90,8 +90,9 @@ public interface DisplayParametersReader extends ContentParametersReader, Displa
 	@Override
 	public default Map<String, List<String>> readParams(Location location,
 	        Map<String, List<String>> parametersMap) {
-		// handle FOP and Group by calling superclass
-		Map<String, List<String>> params = ContentParametersReader.super.readParams(location, parametersMap);
+		logger.warn("DisplayParameters readParams");
+		// handle previous parameters by calling superclass
+		Map<String, List<String>> params = SoundParametersReader.super.readParams(location, parametersMap);
 		
 		processBooleanParam(params, DARK, (v) -> switchLightingMode(v, false));
 		processBooleanParam(params, PUBLIC, (v) -> switchSwitchable(v, false));
@@ -145,7 +146,7 @@ public interface DisplayParametersReader extends ContentParametersReader, Displa
 		setLocation(location);
 		setLocationUI(event.getUI());
 		setRouteParameter(routeParameter);
-		ContentParametersReader.super.setParameter(event, routeParameter);
+		SoundParametersReader.super.setParameter(event, routeParameter);
 	}
 
 	/**

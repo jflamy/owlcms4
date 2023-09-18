@@ -28,7 +28,7 @@ import ch.qos.logback.classic.Logger;
 public class ResultsNoLeaders extends Results {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(ResultsNoLeaders.class);
-	
+
 	public ResultsNoLeaders(ResultsNoLeadersPage page) {
 		super();
 	}

@@ -38,7 +38,6 @@ import elemental.json.JsonValue;
 @JsModule("./components/ResultsLeadersRanks.js")
 @JsModule("./components/AudioContext.js")
 
-
 public class ResultsLeadersRanks extends Results {
 
 	protected Logger logger = (Logger) LoggerFactory.getLogger(ResultsLeadersRanks.class);
@@ -49,7 +48,7 @@ public class ResultsLeadersRanks extends Results {
 		OwlcmsFactory.waitDBInitialized();
 		getTimer().setOrigin(this);
 	}
-	
+
 	@Override
 	protected String formatRank(Integer total) {
 		if (total == null) {

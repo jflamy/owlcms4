@@ -228,7 +228,7 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 
 	@Override
 	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
+		this.urlParameterMap = removeDefaultValues(newParameterMap);
 	}
 
 	@Override

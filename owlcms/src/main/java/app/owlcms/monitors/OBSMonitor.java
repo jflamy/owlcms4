@@ -188,7 +188,7 @@ public class OBSMonitor extends LitTemplate implements FOPParametersReader,
 
 	@Override
 	public void setUrlParameterMap(Map<String, List<String>> newParameterMap) {
-		this.urlParameterMap = newParameterMap;
+		this.urlParameterMap = removeDefaultValues(newParameterMap);
 	}
 
 	@Subscribe

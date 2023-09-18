@@ -70,7 +70,7 @@ public class BaseContent extends VerticalLayout implements FOPParametersReader {
 
 	@Override
 	final public void setUrlParameterMap(Map<String, List<String>> parametersMap) {
-		this.urlParameterMap = parametersMap;
+		this.urlParameterMap = removeDefaultValues(parametersMap);
 	}
 
 	@Override

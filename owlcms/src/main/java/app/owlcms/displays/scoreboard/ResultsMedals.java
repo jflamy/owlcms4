@@ -27,12 +27,13 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.function.SerializableConsumer;
 
 import app.owlcms.apputils.SoundUtils;
-import app.owlcms.apputils.queryparameters.ContextFreeDisplayParameters;
+import app.owlcms.apputils.queryparameters.ResultsParameters;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
+import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
@@ -63,12 +64,11 @@ import elemental.json.JsonValue;
 @Tag("resultsmedals-template")
 @JsModule("./components/ResultsMedals.js")
 
-public class ResultsMedals extends Results implements ContextFreeDisplayParameters {
+public class ResultsMedals extends Results implements ResultsParameters {
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsMedals.class);
 	@SuppressWarnings("unused")
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-	
 	private Category category;
 	private JsonArray cattempts;
 	private FieldOfPlay fop;
@@ -80,7 +80,9 @@ public class ResultsMedals extends Results implements ContextFreeDisplayParamete
 	private AgeGroup ageGroup;
 	private boolean teamFlags;
 	DecimalFormat df = new DecimalFormat("0.000");
-	
+	private AgeDivision ageDivision;
+	private String ageGroupPrefix;
+
 	public ResultsMedals(ResultsMedalsPage page) {
 		super();
 	}
@@ -116,12 +118,44 @@ public class ResultsMedals extends Results implements ContextFreeDisplayParamete
 		}));
 	}
 
+	@Override
+	public AgeDivision getAgeDivision() {
+		return ageDivision;
+	}
+
+	@Override
 	public AgeGroup getAgeGroup() {
 		return ageGroup;
 	}
 
+	@Override
+	public String getAgeGroupPrefix() {
+		return ageGroupPrefix;
+	}
+
+	@Override
 	public Category getCategory() {
 		return category;
+	}
+
+	@Override
+	public void setAgeDivision(AgeDivision ageDivision) {
+		this.ageDivision = ageDivision;
+	}
+
+	@Override
+	public void setAgeGroup(AgeGroup ageGroup) {
+		this.ageGroup = ageGroup;
+	}
+
+	@Override
+	public void setAgeGroupPrefix(String ageGroupPrefix) {
+		this.ageGroupPrefix = ageGroupPrefix;
+	}
+
+	@Override
+	public void setCategory(Category category) {
+		this.category = category;
 	}
 
 	@Override
@@ -145,6 +179,7 @@ public class ResultsMedals extends Results implements ContextFreeDisplayParamete
 		// logger.trace("*** {}", e);
 	}
 
+	@Override
 	@Subscribe
 	public void slaveBreakDone(UIEvent.BreakDone e) {
 		uiLog(e);
@@ -155,6 +190,7 @@ public class ResultsMedals extends Results implements ContextFreeDisplayParamete
 		}));
 	}
 
+	@Override
 	@Subscribe
 	public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
 		uiLog(e);
@@ -173,6 +209,7 @@ public class ResultsMedals extends Results implements ContextFreeDisplayParamete
 		}));
 	}
 
+	@Override
 	@Subscribe
 	public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
 		// logger.trace("------- slaveCeremonyStarted {}", e.getCeremonyType());
@@ -189,18 +226,21 @@ public class ResultsMedals extends Results implements ContextFreeDisplayParamete
 		doRefresh(e);
 	}
 
+	@Override
 	@Subscribe
 	public void slaveGroupDone(UIEvent.GroupDone e) {
 		uiLog(e);
 		doRefresh(e);
 	}
 
+	@Override
 	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
 		uiLog(e);
 		doRefresh(e);
 	}
 
+	@Override
 	@Subscribe
 	public void slaveStartBreak(UIEvent.BreakStarted e) {
 		uiLog(e);
@@ -210,6 +250,7 @@ public class ResultsMedals extends Results implements ContextFreeDisplayParamete
 		});
 	}
 
+	@Override
 	@Subscribe
 	public void slaveStartLifting(UIEvent.StartLifting e) {
 		// logger.trace("****** slaveStartLifting ");
@@ -228,6 +269,7 @@ public class ResultsMedals extends Results implements ContextFreeDisplayParamete
 		});
 	}
 
+	@Override
 	@Subscribe
 	public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
 		uiLog(e);
@@ -245,6 +287,7 @@ public class ResultsMedals extends Results implements ContextFreeDisplayParamete
 		doRefresh(e);
 	}
 
+	@Override
 	protected void doEmpty() {
 		// no need to hide, text is self evident.
 		// this.setHidden(true);
@@ -379,6 +422,7 @@ public class ResultsMedals extends Results implements ContextFreeDisplayParamete
 
 	}
 
+	@Override
 	protected void setTranslationMap() {
 		JsonObject translations = Json.createObject();
 		Enumeration<String> keys = Translator.getKeys();
@@ -393,6 +437,14 @@ public class ResultsMedals extends Results implements ContextFreeDisplayParamete
 
 	protected void setWideTeamNames(boolean wide) {
 		this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
+	}
+
+	@Override
+	protected void updateBottom(String liftType, FieldOfPlay fop) {
+		// logger.debug("updateBottom");
+		this.getElement().setProperty("groupName", "");
+		this.getElement().setProperty("liftDone", "-");
+		computeMedalsJson(medals);
 	}
 
 	private void computeCategoryMedalsJson(TreeMap<Category, TreeSet<Athlete>> medals2) {
@@ -657,23 +709,6 @@ public class ResultsMedals extends Results implements ContextFreeDisplayParamete
 			setDisplay();
 			doUpdate(e);
 		}
-	}
-
-	protected void updateBottom(String liftType, FieldOfPlay fop) {
-		// logger.debug("updateBottom");
-		this.getElement().setProperty("groupName", "");
-		this.getElement().setProperty("liftDone", "-");
-		computeMedalsJson(medals);
-	}
-
-	@Override
-	public void setAgeGroup(AgeGroup ag) {
-		this.ageGroup = ag;
-	}
-
-	@Override
-	public void setCategory(Category cat) {
-		this.category = cat;
 	}
 
 }

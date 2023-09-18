@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.displays.topteams;
+package app.owlcms.displays.top;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -23,10 +23,13 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 
+import app.owlcms.apputils.queryparameters.ResultsParameters;
+import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.AgeDivision;
+import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.team.Team;
@@ -59,7 +62,7 @@ import elemental.json.JsonValue;
 @Tag("topteams-template")
 @JsModule("./components/TopTeams.js")
 
-public class TopTeams extends Results {
+public class TopTeams extends Results implements ResultsParameters {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TopTeams.class);
 	private static final int SHOWN_ON_BOARD = 5;
@@ -77,6 +80,8 @@ public class TopTeams extends Results {
 	private List<TeamTreeItem> womensTeams;
 	private String routeParameter;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
+	private Category category;
+	private AgeGroup ageGroup;
 
 	public TopTeams() {
 		super();
@@ -100,6 +105,7 @@ public class TopTeams extends Results {
 	}
 
 	public void doUpdate(Competition competition) {
+		logger.warn("doUpdate ag={} ad={}", ageGroupPrefix, ageDivision);
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 
@@ -121,6 +127,46 @@ public class TopTeams extends Results {
 		womensTeams = topN(womensTeams);
 
 		updateBottom();
+	}
+
+	@Override
+	public AgeDivision getAgeDivision() {
+		return ageDivision;
+	}
+
+	@Override
+	public AgeGroup getAgeGroup() {
+		return this.ageGroup;
+	}
+
+	@Override
+	public String getAgeGroupPrefix() {
+		return ageGroupPrefix;
+	}
+
+	@Override
+	public Category getCategory() {
+		return this.category;
+	}
+
+	@Override
+	public void setAgeDivision(AgeDivision ageDivision) {
+		this.ageDivision = ageDivision;
+	}
+
+	@Override
+	public void setAgeGroup(AgeGroup ag) {
+		this.ageGroup = ag;
+	}
+
+	@Override
+	public void setAgeGroupPrefix(String ageGroupPrefix) {
+		this.ageGroupPrefix = ageGroupPrefix;
+	}
+
+	@Override
+	public void setCategory(Category cat) {
+		this.category = cat;
 	}
 
 	/**
@@ -175,7 +221,7 @@ public class TopTeams extends Results {
 
 	@Override
 	protected void doUpdate(Athlete a, UIEvent e) {
-		logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
+		logger.warn("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			if (a != null) {
 				updateBottom();
@@ -197,8 +243,6 @@ public class TopTeams extends Results {
 		}
 		Competition competition = Competition.getCurrent();
 		doUpdate(competition);
-
-		buildDialog(this);
 	}
 
 	@Override
@@ -230,14 +274,6 @@ public class TopTeams extends Results {
 			floatFormat.setGroupingUsed(false);
 		}
 		return floatFormat.format(d);
-	}
-
-	private AgeDivision getAgeDivision() {
-		return ageDivision;
-	}
-
-	private String getAgeGroupPrefix() {
-		return ageGroupPrefix;
 	}
 
 	@SuppressWarnings("unused")
@@ -298,16 +334,20 @@ public class TopTeams extends Results {
 	}
 
 	private void updateBottom() {
-		this.getElement().setProperty("topTeamsMen",
-		        mensTeams != null && mensTeams.size() > 0
-		                ? getTranslation("Scoreboard.TopTeamsMen") + computeAgeGroupSuffix()
-		                : "");
-		this.getElement().setPropertyJson("mensTeams", getTeamsJson(mensTeams, true));
+		String menTitle = mensTeams != null && mensTeams.size() > 0
+		        ? getTranslation("Scoreboard.TopTeamsMen") + computeAgeGroupSuffix()
+		        : "";
+		JsonValue menJson = getTeamsJson(mensTeams, true);
+		String womenTitle = womensTeams != null && womensTeams.size() > 0
+		        ? getTranslation("Scoreboard.TopTeamsWomen") + computeAgeGroupSuffix()
+		        : "";
+		JsonValue womenJson = getTeamsJson(womensTeams, false);
 
-		this.getElement().setProperty("topTeamsWomen",
-		        womensTeams != null && womensTeams.size() > 0
-		                ? getTranslation("Scoreboard.TopTeamsWomen") + computeAgeGroupSuffix()
-		                : "");
-		this.getElement().setPropertyJson("womensTeams", getTeamsJson(womensTeams, false));
+		logger.warn("updateBottomX {} {}", mensTeams, womensTeams);
+		this.getElement().setProperty("topTeamsMen", menTitle);
+		this.getElement().setPropertyJson("mensTeams", menJson);
+		this.getElement().setProperty("topTeamsWomen", womenTitle);
+		this.getElement().setPropertyJson("womensTeams", womenJson);
 	}
+
 }

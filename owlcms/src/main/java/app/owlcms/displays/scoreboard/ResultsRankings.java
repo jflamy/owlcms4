@@ -10,7 +10,7 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 
-import app.owlcms.apputils.queryparameters.ContextFreeDisplayParameters;
+import app.owlcms.apputils.queryparameters.ResultsParameters;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
@@ -26,7 +26,7 @@ import elemental.json.JsonValue;
 @Tag("resultsmedals-template")
 @JsModule("./components/ResultsMedals.js")
 
-public class ResultsRankings extends ResultsMedals implements ContextFreeDisplayParameters {
+public class ResultsRankings extends ResultsMedals implements ResultsParameters {
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsMedals.class);
 
@@ -35,6 +35,7 @@ public class ResultsRankings extends ResultsMedals implements ContextFreeDisplay
 
 	}
 
+	@Override
 	protected JsonValue getAthletesJson(List<Athlete> rankingOrder, final FieldOfPlay _unused) {
 		JsonArray jath = Json.createArray();
 		AtomicInteger athx = new AtomicInteger(0);

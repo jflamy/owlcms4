@@ -7,9 +7,9 @@ import com.vaadin.flow.component.Component;
 import app.owlcms.nui.displays.SoundEntries;
 import ch.qos.logback.classic.Logger;
 
-public interface ContentParameters extends FOPParameters, SoundEntries {
+public interface SoundParameters extends FOPParameters, SoundEntries {
 
-	final Logger logger = (Logger) LoggerFactory.getLogger(ContentParameters.class);
+	final Logger logger = (Logger) LoggerFactory.getLogger(SoundParameters.class);
 	public static final String SILENT = "silent";
 	public static final String SINGLEREF = "singleRef";
 	public static final String IMMEDIATE = "immediate";

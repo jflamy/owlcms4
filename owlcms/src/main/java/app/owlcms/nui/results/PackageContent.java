@@ -7,8 +7,6 @@
 
 package app.owlcms.nui.results;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,11 +37,12 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
-import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.apputils.queryparameters.ResultsParameters;
 import app.owlcms.components.DownloadDialog;
+import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -76,7 +75,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "results/finalpackage", layout = OwlcmsLayout.class)
-public class PackageContent extends AthleteGridContent implements HasDynamicTitle {
+public class PackageContent extends AthleteGridContent implements HasDynamicTitle, ResultsParameters {
 
 	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(PackageContent.class);
@@ -105,6 +104,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 	private List<String> ageDivisionAgeGroupPrefixes;
+	private AgeGroup ageGroup;
+	private Category category;
 
 	/**
 	 * Instantiates a new announcer content. Does nothing. Content is created in
@@ -234,46 +235,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		return false;
 	}
 
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
-	 *      java.util.Map)
-	 */
-	@Override
-	public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
-		HashMap<String, List<String>> params1 = new HashMap<>(parametersMap);
-
-		List<String> ageDivisionParams = params1.get("ad");
-
-		try {
-			String ageDivisionName = (ageDivisionParams != null
-			        && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0) : null);
-			AgeDivision valueOf = AgeDivision.valueOf(ageDivisionName);
-			setAgeDivision(valueOf);
-		} catch (Exception e) {
-			setAgeDivision(null);
-		}
-		// remove if now null
-		String value = getAgeDivision() != null ? getAgeDivision().name() : null;
-		updateParam(params1, "ad", value);
-
-		List<String> ageGroupParams = params1.get("ag");
-		// no age group is the default
-		String ageGroupPrefix = (ageGroupParams != null && !ageGroupParams.isEmpty() ? ageGroupParams.get(0) : null);
-		setAgeGroupPrefix(ageGroupPrefix);
-		String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
-		updateParam(params1, "ag", value2);
-
-		List<String> catParams = params1.get("cat");
-		String catParam = (catParams != null && !catParams.isEmpty() ? catParams.get(0) : null);
-		catParam = catParam != null ? URLDecoder.decode(catParam, StandardCharsets.UTF_8) : null;
-		setCategoryValue(CategoryRepository.findByCode(catParam));
-		String catValue = getCategoryValue() != null ? getCategoryValue().toString() : null;
-		updateParam(params1, "cat", catValue);
-
-
-		setUrlParameterMap(params1);
-		return params1;
-	}
 
 	public void refresh() {
 		crudGrid.refreshGrid();
@@ -281,33 +242,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
 	public void setCategoryValue(Category category) {
 		this.categoryValue = category;
-	}
-
-	/*
-	 * Process query parameters
-	 *
-	 * Note: what Vaadin calls a parameter is in the REST style, actually part of
-	 * the URL path. We use the old-style Query parameters for our purposes.
-	 *
-	 * @see
-	 * app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.
-	 * flow.router.BeforeEvent, java.lang.String)
-	 */
-	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String unused) {
-		Location location = event.getLocation();
-		setLocation(location);
-		setLocationUI(event.getUI());
-
-		// the OptionalParameter string is the part of the URL path that can be
-		// interpreted as REST arguments
-		// we use the ? query parameters instead.
-		QueryParameters queryParameters = location.getQueryParameters();
-		Map<String, List<String>> parametersMap = queryParameters.getParameters();
-		HashMap<String, List<String>> params = readParams(location, parametersMap);
-
-		event.getUI().getPage().getHistory().replaceState(null,
-		        new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
 	}
 
 	@Override
@@ -431,11 +365,13 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		}
 	}
 
-	private AgeDivision getAgeDivision() {
+	@Override
+	public AgeDivision getAgeDivision() {
 		return ageDivision;
 	}
 
-	private String getAgeGroupPrefix() {
+	@Override
+	public String getAgeGroupPrefix() {
 		return ageGroupPrefix;
 	}
 
@@ -443,13 +379,15 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		return categoryValue;
 	}
 
-	private void setAgeDivision(AgeDivision ageDivision) {
+	@Override
+	public void setAgeDivision(AgeDivision ageDivision) {
 		// logger.debug("setAgeDivision to {} from {}",ageDivision,
 		// LoggerUtils.whereFrom());
 		this.ageDivision = ageDivision;
 	}
 
-	private void setAgeGroupPrefix(String value) {
+	@Override
+	public void setAgeGroupPrefix(String value) {
 		this.ageGroupPrefix = value;
 	}
 
@@ -698,5 +636,26 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		updateURLLocation(UI.getCurrent(), getLocation(), "cat",
 		        cat);
 		// logger.debug("update URL {} {} {}",ag,ad,cat);
+	}
+
+	@Override
+	public void setAgeGroup(AgeGroup ag) {
+		this.ageGroup=ag;
+	}
+
+	@Override
+	public AgeGroup getAgeGroup() {
+		return this.ageGroup;
+	}
+
+	@Override
+	public void setCategory(Category cat) {
+		//FIXME check vs categoryValue
+		this.category=cat;
+	}
+
+	@Override
+	public Category getCategory() {
+		return this.category;
 	}
 }

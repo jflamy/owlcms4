@@ -1,4 +1,4 @@
-package app.owlcms.nui.displays.topteams;
+package app.owlcms.nui.displays.top;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,8 +16,7 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.ContentParameters;
-import app.owlcms.apputils.queryparameters.ContextFreeParametersReader;
+import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
@@ -25,24 +24,24 @@ import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.config.Config;
 import app.owlcms.displays.options.DisplayOptions;
-import app.owlcms.displays.topteams.TopTeamsSinclair;
+import app.owlcms.displays.top.TopTeams;
 import app.owlcms.nui.displays.scoreboards.AbstractResultsDisplayPage;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-@Route("displays/topteamsinclair")
+@Route("displays/topteams")
 
-public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements ContextFreeParametersReader {
+public class TopTeamsPage extends AbstractResultsDisplayPage {
 
-	Logger logger = (Logger) LoggerFactory.getLogger(TopTeamsSinclairPage.class);
+	Logger logger;
 	Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private AgeDivision ageDivision;
 	private String ageGroupPrefix;
-	private Category category;
 	private AgeGroup ageGroup;
+	private Category category;
 
-	public TopTeamsSinclairPage() {
+	public TopTeamsPage() {
 		// intentionally empty. superclass will call init() as required.
 	}
 
@@ -52,10 +51,6 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 	 */
 	@Override
 	public void addDialogContent(Component target, VerticalLayout vl) {
-		// logger.debug("addDialogContent ad={} ag={} darkMode={}", getAgeDivision(),
-		// getAgeGroupPrefix(),
-		// isDarkMode());
-
 		DisplayOptions.addLightingEntries(vl, target, this);
 		ComboBox<AgeDivision> ageDivisionComboBox = new ComboBox<>();
 		ComboBox<String> ageGroupPrefixComboBox = new ComboBox<>();
@@ -79,9 +74,8 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		ageGroupPrefixComboBox.addValueChangeListener(e -> {
 			setAgeGroupPrefix(e.getValue());
 			updateURLLocations();
-
-			// FIXME: is doUpdate needed after updating the locations
-			// doUpdate(Competition.getCurrent());
+//			// FIXME: url reload should perform update
+//			doUpdate(Competition.getCurrent());
 		});
 		setAgeGroupPrefixItems(ageGroupPrefixComboBox, getAgeDivision());
 		ageGroupPrefixComboBox.setValue(getAgeGroupPrefix());
@@ -115,13 +109,14 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		return getTranslation("Scoreboard.TopTeams");
 	}
 
+
 	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
-	 *      java.util.Map)
+	 * @see app.owlcms.apputils.queryparameters.DisplayParametersReader#readParams(com.vaadin.flow.router.Location, java.util.Map)
 	 */
 	@Override
 	public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
 		HashMap<String, List<String>> params1 = new HashMap<>(parametersMap);
+		logger.warn("TopTeamsPage readParams");
 
 		List<String> darkParams = params1.get(DARK);
 		// dark is the default. dark=false or dark=no or ... will turn off dark mode.
@@ -171,41 +166,48 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 
 	public void setAgeDivision(AgeDivision ageDivision) {
 		this.ageDivision = ageDivision;
+		((TopTeams) this.getBoard()).setAgeDivision(ageDivision);
 	}
 
-	@Override
-	public void setAgeGroup(AgeGroup ag) {
+	public final void setAgeGroup(AgeGroup ag) {
 		this.ageGroup = ag;
+		((TopTeams) this.getBoard()).setAgeGroup(ag);
 	}
 
 	public void setAgeGroupPrefix(String ageGroupPrefix) {
 		this.ageGroupPrefix = ageGroupPrefix;
+		((TopTeams) this.getBoard()).setAgeGroupPrefix(ageGroupPrefix);
 	}
 
-	@Override
-	public void setCategory(Category cat) {
+	public final void setCategory(Category cat) {
 		this.category = cat;
+		((TopTeams) this.getBoard()).setCategory(cat);
 	}
 
 	@Override
 	protected void init() {
-		var board = new TopTeamsSinclair();
+		logger = (Logger) LoggerFactory.getLogger(TopTeamsPage.class);
+		logger.warn("TopTeamsPage init");
+		var board = new TopTeams();
 		this.setBoard(board);
-		board.setLeadersDisplay(true);
-		board.setRecordsDisplay(true);
-		this.addComponent(board);
+		logger.warn("TopTeamsPage board {}", this.getBoard());
 
 		// when navigating to the page, Vaadin will call setParameter+readParameters
 		// these parameters will be applied.
 		setDefaultParameters(QueryParameters.simple(Map.of(
-		        ContentParameters.SILENT, "true",
-		        ContentParameters.DOWNSILENT, "true",
+		        SoundParameters.SILENT, "true",
+		        SoundParameters.DOWNSILENT, "true",
 		        DisplayParameters.DARK, "true",
 		        DisplayParameters.LEADERS, "false",
 		        DisplayParameters.RECORDS, "false",
+		        DisplayParameters.VIDEO, "false",
+		        DisplayParameters.PUBLIC, "false",
+		        SoundParameters.SINGLEREF, "false",
 		        DisplayParameters.ABBREVIATED,
 		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
+		this.addComponent(board);
 	}
+	
 
 	private List<String> setAgeGroupPrefixItems(ComboBox<String> ageGroupPrefixComboBox,
 	        AgeDivision ageDivision2) {

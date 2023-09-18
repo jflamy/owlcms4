@@ -44,7 +44,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.ContentParameters;
+import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
@@ -98,10 +98,10 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		// when navigating to the page, Vaadin will call setParameter+readParameters
 		// these parameters will be applied.
 		setDefaultParameters(QueryParameters.simple(Map.of(
-		        ContentParameters.SILENT, "true",
-		        ContentParameters.DOWNSILENT, "true",
-		        ContentParameters.IMMEDIATE, "true",
-		        ContentParameters.SINGLEREF, "false")));
+		        SoundParameters.SILENT, "true",
+		        SoundParameters.DOWNSILENT, "true",
+		        SoundParameters.IMMEDIATE, "true",
+		        SoundParameters.SINGLEREF, "false")));
 		createTopBarGroupSelect();
 		defineFilters(crudGrid);
 	}

@@ -11,7 +11,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.ContentParameters;
+import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.data.config.Config;
 import app.owlcms.displays.options.DisplayOptions;
@@ -44,8 +44,8 @@ public class CurrentAthletePage extends AbstractResultsDisplayPage {
 		// when navigating to the page, Vaadin will call setParameter+readParameters
 		// these parameters will be applied.
 		setDefaultParameters(QueryParameters.simple(Map.of(
-		        ContentParameters.SILENT, "true",
-		        ContentParameters.DOWNSILENT, "true",
+		        SoundParameters.SILENT, "true",
+		        SoundParameters.DOWNSILENT, "true",
 		        DisplayParameters.DARK, "true",
 		        DisplayParameters.LEADERS, "false",
 		        DisplayParameters.RECORDS, "false",

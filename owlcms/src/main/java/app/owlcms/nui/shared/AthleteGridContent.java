@@ -63,7 +63,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
-import app.owlcms.apputils.queryparameters.ContentParametersReader;
+import app.owlcms.apputils.queryparameters.SoundParametersReader;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
@@ -107,7 +107,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @CssImport(value = "./styles/athlete-grid.css")
 public abstract class AthleteGridContent extends BaseContent
-        implements CrudListener<Athlete>, OwlcmsContent, ContentParametersReader, UIEventProcessor, IAthleteEditing,
+        implements CrudListener<Athlete>, OwlcmsContent, SoundParametersReader, UIEventProcessor, IAthleteEditing,
         BreakDisplay {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridContent.class);
@@ -540,7 +540,7 @@ public abstract class AthleteGridContent extends BaseContent
 	public Map<String, List<String>> readParams(Location location,
 	        Map<String, List<String>> parametersMap) {
 		// handle FOP and Group by calling superclass
-		Map<String, List<String>> params = ContentParametersReader.super.readParams(location, parametersMap);
+		Map<String, List<String>> params = SoundParametersReader.super.readParams(location, parametersMap);
 
 		List<String> silentParams = params.get(SILENT);
 		// silent is the default. silent=false will cause sound
@@ -569,7 +569,7 @@ public abstract class AthleteGridContent extends BaseContent
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 		logger.debug("AthleteGridContent parsing URL");
-		ContentParametersReader.super.setParameter(event, parameter);
+		SoundParametersReader.super.setParameter(event, parameter);
 		setLocation(event.getLocation());
 		setLocationUI(event.getUI());
 	}

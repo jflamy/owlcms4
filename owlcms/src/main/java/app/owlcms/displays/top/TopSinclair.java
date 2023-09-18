@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.displays.topathletes;
+package app.owlcms.displays.top;
 
 import java.util.ArrayList;
 import java.util.Collections;

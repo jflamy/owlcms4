@@ -15,7 +15,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 
-import app.owlcms.apputils.queryparameters.ContentParameters;
+import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.data.group.Group;
@@ -70,7 +70,7 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	}
 
 	/**
-	 * @see app.owlcms.apputils.queryparameters.ContentParameters#getDefaultParameters()
+	 * @see app.owlcms.apputils.queryparameters.SoundParameters#getDefaultParameters()
 	 */
 	@Override
 	final public QueryParameters getDefaultParameters() {
@@ -223,7 +223,7 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	@Override
 	final public void setDownSilenced(boolean silent) {
-		((ContentParameters) this.board).setDownSilenced(silent);
+		((SoundParameters) this.board).setDownSilenced(silent);
 		this.downSilenced = silent;
 	}
 
@@ -286,7 +286,7 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	@Override
 	final public void setSilenced(boolean silent) {
-		((ContentParameters) this.board).setSilenced(silent);
+		((SoundParameters) this.board).setSilenced(silent);
 		this.silenced = silent;
 	}
 
@@ -301,7 +301,7 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	 */
 	@Override
 	final public void setUrlParameterMap(Map<String, List<String>> urlParameterMap) {
-		this.urlParameterMap = urlParameterMap;
+		this.urlParameterMap = removeDefaultValues(urlParameterMap);
 	}
 
 	@Override

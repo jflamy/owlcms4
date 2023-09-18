@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.displays.topteams;
+package app.owlcms.displays.top;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -60,7 +60,6 @@ import elemental.json.JsonValue;
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("topteamsinclair-template")
 @JsModule("./components/TopTeamsSinclair.js")
-
 
 public class TopTeamsSinclair extends Results {
 

@@ -18,9 +18,9 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
-public interface ContentParametersReader extends ContentParameters, FOPParametersReader, VideoCSSOverride {
+public interface SoundParametersReader extends SoundParameters, FOPParametersReader, VideoCSSOverride {
 
-	final Logger logger = (Logger) LoggerFactory.getLogger(ContentParametersReader.class);
+	final Logger logger = (Logger) LoggerFactory.getLogger(SoundParametersReader.class);
 
 	public void addDialogContent(Component page, VerticalLayout vl);
 
@@ -87,7 +87,7 @@ public interface ContentParametersReader extends ContentParameters, FOPParameter
 			switchImmediateDecisionMode((Component) this, imm, false);
 			updateParam(params, IMMEDIATE, imm ? null : "false");
 		}
-		setUrlParameterMap(params);
+		setUrlParameterMap(removeDefaultValues(params));
 		return params;
 	}
 
@@ -128,7 +128,7 @@ public interface ContentParametersReader extends ContentParameters, FOPParameter
 	}
 
 	/**
-	 * @see app.owlcms.apputils.queryparameters.ContentParametersReader#switchSoundMode(boolean, boolean)
+	 * @see app.owlcms.apputils.queryparameters.SoundParametersReader#switchSoundMode(boolean, boolean)
 	 */
 	public default void switchSoundMode(boolean silent, boolean updateURL) {
 		setSilenced(silent);

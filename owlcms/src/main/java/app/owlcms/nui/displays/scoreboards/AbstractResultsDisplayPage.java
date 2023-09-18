@@ -10,7 +10,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 
-import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.nui.displays.AbstractDisplayPage;
@@ -32,7 +31,6 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 
 	Logger logger = (Logger) LoggerFactory.getLogger(AbstractResultsDisplayPage.class);
 	private final DecimalFormat df = new DecimalFormat("0.000");
-	protected DisplayParameters board;
 	private static final int DEBOUNCE = 50;
 	private long now;
 	private long lastShortcut;

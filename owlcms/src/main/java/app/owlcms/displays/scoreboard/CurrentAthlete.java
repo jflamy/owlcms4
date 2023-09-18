@@ -143,10 +143,12 @@ public class CurrentAthlete extends Results {
 	/**
 	 * Reset.
 	 */
+	@Override
 	public void reset() {
 		order = ImmutableList.of();
 	}
 
+	@Override
 	@Subscribe
 	public void slaveBreakDone(UIEvent.BreakDone e) {
 		uiLog(e);
@@ -165,6 +167,7 @@ public class CurrentAthlete extends Results {
 		}));
 	}
 
+	@Override
 	@Subscribe
 	public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
 		// logger.trace"------- slaveCeremonyDone {}", e.getCeremonyType());
@@ -176,6 +179,7 @@ public class CurrentAthlete extends Results {
 		});
 	}
 
+	@Override
 	@Subscribe
 	public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
 		// logger.trace"------- slaveCeremonyStarted {}", e.getCeremonyType());
@@ -186,6 +190,7 @@ public class CurrentAthlete extends Results {
 		});
 	}
 
+	@Override
 	@Subscribe
 	public void slaveDecision(UIEvent.Decision e) {
 		uiLog(e);
@@ -195,6 +200,7 @@ public class CurrentAthlete extends Results {
 		});
 	}
 
+	@Override
 	@Subscribe
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
 		uiLog(e);
@@ -209,6 +215,7 @@ public class CurrentAthlete extends Results {
 		});
 	}
 
+	@Override
 	@Subscribe
 	public void slaveDownSignal(UIEvent.DownSignal e) {
 		uiLog(e);
@@ -223,6 +230,7 @@ public class CurrentAthlete extends Results {
 		uiLog(e);
 	}
 
+	@Override
 	@Subscribe
 	public void slaveGroupDone(UIEvent.GroupDone e) {
 		logger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
@@ -234,6 +242,7 @@ public class CurrentAthlete extends Results {
 		});
 	}
 
+	@Override
 	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
 		// uiLog(e);
@@ -251,6 +260,7 @@ public class CurrentAthlete extends Results {
 		});
 	}
 
+	@Override
 	@Subscribe
 	public void slaveStartBreak(UIEvent.BreakStarted e) {
 		// logger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
@@ -261,6 +271,7 @@ public class CurrentAthlete extends Results {
 		});
 	}
 
+	@Override
 	@Subscribe
 	public void slaveStartLifting(UIEvent.StartLifting e) {
 		uiLog(e);
@@ -269,6 +280,7 @@ public class CurrentAthlete extends Results {
 		});
 	}
 
+	@Override
 	@Subscribe
 	public void slaveStopBreak(UIEvent.BreakDone e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
@@ -280,6 +292,7 @@ public class CurrentAthlete extends Results {
 		});
 	}
 
+	@Override
 	@Subscribe
 	public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
@@ -289,6 +302,7 @@ public class CurrentAthlete extends Results {
 		});
 	}
 
+	@Override
 	public void uiLog(UIEvent e) {
 		if (uiEventLogger.isDebugEnabled()) {
 			uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
@@ -296,10 +310,12 @@ public class CurrentAthlete extends Results {
 		}
 	}
 
+	@Override
 	protected void doEmpty() {
 		this.setDisplay();
 	}
 
+	@Override
 	protected void doUpdate(Athlete a, UIEvent e) {
 //        logger.debug("doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() : "no event", a,
 //                a != null ? a.getAttemptsDone() : null);
@@ -347,69 +363,7 @@ public class CurrentAthlete extends Results {
 
 	}
 
-	/*
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
-	 */
 	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		// fop obtained via FOPParameters interface default methods.
-		OwlcmsSession.withFop(fop -> {
-			init();
-			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/currentathlete.css", routeParameter, this);
-
-			// get the global category rankings attached to each athlete
-			order = fop.getDisplayOrder();
-
-			// liftsDone = AthleteSorter.countLiftsDone(order);
-			syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this));
-			// we listen on uiEventBus.
-			uiEventBus = uiEventBusRegister(this, fop);
-		});
-	}
-
-	protected void setTranslationMap() {
-		JsonObject translations = Json.createObject();
-		Enumeration<String> keys = Translator.getKeys();
-		while (keys.hasMoreElements()) {
-			String curKey = keys.nextElement();
-			if (curKey.startsWith("Scoreboard.")) {
-				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
-			}
-		}
-		this.getElement().setPropertyJson("t", translations);
-	}
-
-	private String computeLiftType(Athlete a) {
-		if (a == null || a.getAttemptsDone() > 6) {
-			return null;
-		}
-		String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
-		        : Translator.translate("Snatch");
-		return liftType;
-	}
-
-	private void doDone(Group g) {
-		logger.debug("doDone {}", g == null ? null : g.getName());
-		if (g == null) {
-			doEmpty();
-		} else {
-			OwlcmsSession.withFop(fop -> {
-				updateBottom(null, fop);
-				getElement().setProperty("fullName", getTranslation("Group_number_done", g.toString()));
-			});
-		}
-	}
-
-	private String formatAttempt(Integer attemptNo) {
-		String translate = Translator.translate("AttemptBoard_attempt_number", (attemptNo % 3) + 1);
-		return translate;
-	}
-
-	private String formatKg(String total) {
-		return (total == null || total.trim().isEmpty()) ? "-"
-		        : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
-	}
-
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 		String category;
 		category = curCat != null ? curCat.getTranslatedName() : "";
@@ -439,6 +393,7 @@ public class CurrentAthlete extends Results {
 	 * @param groupAthletes, List<Athlete> liftOrder
 	 * @return
 	 */
+	@Override
 	protected JsonValue getAthletesJson(List<Athlete> groupAthletes, List<Athlete> liftOrder, FieldOfPlay fop) {
 		JsonArray jath = Json.createArray();
 		int athx = 0;
@@ -481,6 +436,7 @@ public class CurrentAthlete extends Results {
 	 * @param liftOrderRank2
 	 * @return json string with nested attempts values
 	 */
+	@Override
 	protected void getAttemptsJson(Athlete a, int liftOrderRank, FieldOfPlay fop) {
 		sattempts = Json.createArray();
 		cattempts = Json.createArray();
@@ -549,6 +505,84 @@ public class CurrentAthlete extends Results {
 		}
 	}
 
+	/*
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
+	 */
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		// fop obtained via FOPParameters interface default methods.
+		OwlcmsSession.withFop(fop -> {
+			init();
+			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/currentathlete.css", routeParameter, this);
+
+			// get the global category rankings attached to each athlete
+			order = fop.getDisplayOrder();
+
+			// liftsDone = AthleteSorter.countLiftsDone(order);
+			syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this));
+			// we listen on uiEventBus.
+			uiEventBus = uiEventBusRegister(this, fop);
+		});
+	}
+
+	@Override
+	protected void setTranslationMap() {
+		JsonObject translations = Json.createObject();
+		Enumeration<String> keys = Translator.getKeys();
+		while (keys.hasMoreElements()) {
+			String curKey = keys.nextElement();
+			if (curKey.startsWith("Scoreboard.")) {
+				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
+			}
+		}
+		this.getElement().setPropertyJson("t", translations);
+	}
+
+	@Override
+	protected void updateBottom(String liftType, FieldOfPlay fop) {
+		// logger.debug("updateBottom {}",LoggerUtils.stackTrace());
+		if (liftType != null) {
+			getElement().setProperty("groupName", "");
+			getElement().setProperty("liftsDone", "");
+		} else {
+			getElement().setProperty("groupName", "X");
+			getElement().setProperty("liftsDone", "Y");
+		}
+		this.getElement().setPropertyJson("athletes",
+		        getAthletesJson(order, fop.getLiftingOrder(), fop));
+	}
+
+	private String computeLiftType(Athlete a) {
+		if (a == null || a.getAttemptsDone() > 6) {
+			return null;
+		}
+		String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
+		        : Translator.translate("Snatch");
+		return liftType;
+	}
+
+	private void doDone(Group g) {
+		logger.debug("doDone {}", g == null ? null : g.getName());
+		if (g == null) {
+			doEmpty();
+		} else {
+			OwlcmsSession.withFop(fop -> {
+				updateBottom(null, fop);
+				getElement().setProperty("fullName", getTranslation("Group_number_done", g.toString()));
+			});
+		}
+	}
+
+	private String formatAttempt(Integer attemptNo) {
+		String translate = Translator.translate("AttemptBoard_attempt_number", (attemptNo % 3) + 1);
+		return translate;
+	}
+
+	private String formatKg(String total) {
+		return (total == null || total.trim().isEmpty()) ? "-"
+		        : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
+	}
+
 	private Object getOrigin() {
 		return this;
 	}
@@ -608,18 +642,5 @@ public class CurrentAthlete extends Results {
 			setDisplay();
 			doUpdate(e.getAthlete(), e);
 		}
-	}
-
-	protected void updateBottom(String liftType, FieldOfPlay fop) {
-		// logger.debug("updateBottom {}",LoggerUtils.stackTrace());
-		if (liftType != null) {
-			getElement().setProperty("groupName", "");
-			getElement().setProperty("liftsDone", "");
-		} else {
-			getElement().setProperty("groupName", "X");
-			getElement().setProperty("liftsDone", "Y");
-		}
-		this.getElement().setPropertyJson("athletes",
-		        getAthletesJson(order, fop.getLiftingOrder(), fop));
 	}
 }

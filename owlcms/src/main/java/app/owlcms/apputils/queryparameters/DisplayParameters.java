@@ -19,7 +19,7 @@ import ch.qos.logback.classic.Logger;
  * @author jflamy
  *
  */
-public interface DisplayParameters extends ContentParameters {
+public interface DisplayParameters extends SoundParameters {
 
 	final Logger logger = (Logger) LoggerFactory.getLogger(DisplayParameters.class);
 	public static final String CATEGORY = "cat";

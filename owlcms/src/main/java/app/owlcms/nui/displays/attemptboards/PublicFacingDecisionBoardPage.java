@@ -7,7 +7,9 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.ContentParameters;
+import app.owlcms.apputils.queryparameters.SoundParameters;
+import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.data.config.Config;
 import app.owlcms.displays.attemptboard.AbstractAttemptBoard;
 import app.owlcms.displays.attemptboard.DecisionBoard;
 import app.owlcms.init.OwlcmsSession;
@@ -31,11 +33,20 @@ public class PublicFacingDecisionBoardPage extends AbstractAttemptBoardPage {
 
 	@Override
 	protected void init() {
-		setDefaultParameters(QueryParameters.simple(Map.of(
-		        ContentParameters.SILENT, "true",
-		        ContentParameters.DOWNSILENT, "true")));
 
 		setBoard(new DecisionBoard(this));
+
+		setDefaultParameters(QueryParameters.simple(Map.of(
+		        SoundParameters.SILENT, "true",
+		        SoundParameters.DOWNSILENT, "true",
+		        DisplayParameters.DARK, "true",
+		        DisplayParameters.LEADERS, "false",
+		        DisplayParameters.RECORDS, "false",
+		        DisplayParameters.VIDEO, "false",
+		        DisplayParameters.PUBLIC, "false",
+		        SoundParameters.SINGLEREF, "false",
+		        DisplayParameters.ABBREVIATED,
+		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
 
 		AbstractAttemptBoard board = (AbstractAttemptBoard) getBoard();
 		board.getDecisions().setDontReset(true);

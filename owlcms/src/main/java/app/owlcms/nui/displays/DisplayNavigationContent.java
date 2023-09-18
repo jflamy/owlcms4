@@ -32,12 +32,9 @@ import app.owlcms.nui.displays.scoreboards.CurrentAthletePage;
 import app.owlcms.nui.displays.scoreboards.ResultsBoardPage;
 import app.owlcms.nui.displays.scoreboards.ResultsLeadersRanksPage;
 import app.owlcms.nui.displays.scoreboards.ResultsLiftingOrderPage;
-import app.owlcms.nui.displays.scoreboards.ResultsMedalsPage;
 import app.owlcms.nui.displays.scoreboards.ResultsNoLeadersPage;
 import app.owlcms.nui.displays.scoreboards.ResultsRankingOrderPage;
-import app.owlcms.nui.displays.topathletes.TopSinclairPage;
-import app.owlcms.nui.displays.topteams.TopTeamsPage;
-import app.owlcms.nui.displays.topteams.TopTeamsSinclairPage;
+import app.owlcms.nui.displays.top.TopTeamsPage;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.NavigationPage;
@@ -101,14 +98,18 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			        scoreboardRankings, scoreboardMultiRanks, liftingOrder);
 			doGroup(getTranslation("Scoreboards"), intro1, grid1, this);
 
-			Button medals = openInNewTab(ResultsMedalsPage.class, getTranslation("CeremonyType.MEDALS"));
-			Button topSinclair = openInNewTab(TopSinclairPage.class, getTranslation("Scoreboard.TopSinclair"));
+//			Button medals = openInNewTab(ResultsMedalsPage.class, getTranslation("CeremonyType.MEDALS"));
+//			Button topSinclair = openInNewTab(TopSinclairPage.class, getTranslation("Scoreboard.TopSinclair"));
 			Button topTeams = openInNewTab(TopTeamsPage.class, getTranslation("Scoreboard.TopTeams"));
-			Button topTeamsSinclair = openInNewTab(TopTeamsSinclairPage.class,
-			        getTranslation("Scoreboard.TopTeamsSinclair"));
+//			Button topTeamsSinclair = openInNewTab(TopTeamsSinclairPage.class,
+//			        getTranslation("Scoreboard.TopTeamsSinclair"));
 			VerticalLayout intro11 = new VerticalLayout();
 			FlexibleGridLayout grid11 = HomeNavigationContent.navigationGrid(
-			        topSinclair, topTeams, topTeamsSinclair, medals);
+//			        topSinclair,
+			        topTeams 
+//			        topTeamsSinclair, 
+//			        medals
+			        );
 			doGroup(getTranslation("Scoreboard.RANKINGS"), intro11, grid11, this);
 
 			DebugUtils.gc();

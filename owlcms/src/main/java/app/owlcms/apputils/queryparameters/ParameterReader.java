@@ -38,7 +38,6 @@ public interface ParameterReader extends HasUrlParameter<String> {
 
 	void setLocationUI(UI locationUI);
 
-
 	/**
 	 * By default, there is no initial dialog. Classes that need one must override.
 	 *
@@ -55,7 +54,7 @@ public interface ParameterReader extends HasUrlParameter<String> {
 	void updateParam(Map<String, List<String>> cleanParams, String parameter, String value);
 
 	void updateURLLocation(UI ui, Location location, String parameter, String value);
-	
+
 	public default void processBooleanParam(Map<String, List<String>> params, String paramName,
 	        Consumer<Boolean> doer) {
 		List<String> paramValues = params.get(paramName);
@@ -81,11 +80,11 @@ public interface ParameterReader extends HasUrlParameter<String> {
 		}
 		return value;
 	}
-	
+
 	public void setDefaultParameters(QueryParameters qp);
-	
+
 	public QueryParameters getDefaultParameters();
-	
+
 	/*
 	 * Retrieve parameter(s) from URL and update according to current settings.
 	 *
@@ -109,7 +108,6 @@ public interface ParameterReader extends HasUrlParameter<String> {
 		QueryParameters queryParameters = location.getQueryParameters();
 		Map<String, List<String>> parametersMap = queryParameters.getParameters();
 		Map<String, List<String>> params = readParams(location, parametersMap);
-		removeDefaultValues(parametersMap);
 		setUrlParameterMap(parametersMap);
 		doUpdateUrlLocation(getLocationUI(), location, params);
 	}
@@ -120,7 +118,7 @@ public interface ParameterReader extends HasUrlParameter<String> {
 			return parametersMap;
 		}
 		Map<String, List<String>> defaults = defaultParameters.getParameters();
-		
+
 		Iterator<Entry<String, List<String>>> paramsIterator = parametersMap.entrySet().iterator();
 		var newParams = new TreeMap<String, List<String>>();
 		while (paramsIterator.hasNext()) {

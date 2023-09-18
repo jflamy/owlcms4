@@ -1,4 +1,4 @@
-package app.owlcms.nui.displays.topteams;
+package app.owlcms.nui.displays.top;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,8 +16,8 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.ContentParameters;
-import app.owlcms.apputils.queryparameters.ContextFreeParametersReader;
+import app.owlcms.apputils.queryparameters.SoundParameters;
+import app.owlcms.apputils.queryparameters.ResultsParametersReader;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
@@ -25,24 +25,24 @@ import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.config.Config;
 import app.owlcms.displays.options.DisplayOptions;
-import app.owlcms.displays.topteams.TopTeams;
+import app.owlcms.displays.top.TopTeamsSinclair;
 import app.owlcms.nui.displays.scoreboards.AbstractResultsDisplayPage;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-@Route("displays/topteams")
+@Route("displays/topteamsinclair")
 
-public class TopTeamsPage extends AbstractResultsDisplayPage implements ContextFreeParametersReader {
+public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements ResultsParametersReader {
 
-	Logger logger = (Logger) LoggerFactory.getLogger(TopTeamsPage.class);
+	Logger logger = (Logger) LoggerFactory.getLogger(TopTeamsSinclairPage.class);
 	Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private AgeDivision ageDivision;
 	private String ageGroupPrefix;
-	private AgeGroup ageGroup;
 	private Category category;
+	private AgeGroup ageGroup;
 
-	public TopTeamsPage() {
+	public TopTeamsSinclairPage() {
 		// intentionally empty. superclass will call init() as required.
 	}
 
@@ -95,6 +95,7 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements ContextF
 		return ageDivision;
 	}
 
+	@Override
 	public final AgeGroup getAgeGroup() {
 		return ageGroup;
 	}
@@ -103,6 +104,7 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements ContextF
 		return ageGroupPrefix;
 	}
 
+	@Override
 	public final Category getCategory() {
 		return category;
 	}
@@ -189,20 +191,21 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements ContextF
 
 	@Override
 	protected void init() {
-		var board = new TopTeams();
+		var board = new TopTeamsSinclair();
 		this.setBoard(board);
-		board.setLeadersDisplay(true);
-		board.setRecordsDisplay(true);
 		this.addComponent(board);
 
 		// when navigating to the page, Vaadin will call setParameter+readParameters
 		// these parameters will be applied.
 		setDefaultParameters(QueryParameters.simple(Map.of(
-		        ContentParameters.SILENT, "true",
-		        ContentParameters.DOWNSILENT, "true",
+		        SoundParameters.SILENT, "true",
+		        SoundParameters.DOWNSILENT, "true",
 		        DisplayParameters.DARK, "true",
 		        DisplayParameters.LEADERS, "false",
 		        DisplayParameters.RECORDS, "false",
+		        DisplayParameters.VIDEO, "false",
+		        DisplayParameters.PUBLIC, "false",
+		        SoundParameters.SINGLEREF, "false",
 		        DisplayParameters.ABBREVIATED,
 		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
 	}

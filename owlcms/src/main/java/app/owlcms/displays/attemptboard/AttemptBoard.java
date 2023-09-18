@@ -10,8 +10,6 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 
-import app.owlcms.nui.displays.attemptboards.AbstractAttemptBoardPage;
-
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("attempt-board-template")
 @JsModule("./components/AttemptBoard.js")
@@ -23,9 +21,7 @@ import app.owlcms.nui.displays.attemptboards.AbstractAttemptBoardPage;
 
 public class AttemptBoard extends AbstractAttemptBoard {
 
-	public AttemptBoard(AbstractAttemptBoardPage page) {
+	public AttemptBoard() {
 		super();
-		page.setBoard(this);
 	}
-	
 }
