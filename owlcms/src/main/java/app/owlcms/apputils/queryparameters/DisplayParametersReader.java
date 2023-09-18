@@ -90,7 +90,7 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 	@Override
 	public default Map<String, List<String>> readParams(Location location,
 	        Map<String, List<String>> parametersMap) {
-		logger.warn("DisplayParameters readParams");
+		//logger.debug("DisplayParameters readParams");
 		// handle previous parameters by calling superclass
 		Map<String, List<String>> params = SoundParametersReader.super.readParams(location, parametersMap);
 		

@@ -117,7 +117,7 @@ public class TopTeamsPage extends AbstractResultsDisplayPage {
 	@Override
 	public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
 		HashMap<String, List<String>> params1 = new HashMap<>(parametersMap);
-		logger.warn("TopTeamsPage readParams");
+		//logger.debug("TopTeamsPage readParams");
 
 		List<String> darkParams = params1.get(DARK);
 		// dark is the default. dark=false or dark=no or ... will turn off dark mode.
@@ -192,10 +192,10 @@ public class TopTeamsPage extends AbstractResultsDisplayPage {
 	@Override
 	protected void init() {
 		logger = (Logger) LoggerFactory.getLogger(TopTeamsPage.class);
-		logger.warn("TopTeamsPage init");
+		//logger.debug("TopTeamsPage init");
 		var board = new TopTeams();
 		this.setBoard(board);
-		logger.warn("TopTeamsPage board {}", this.getBoard());
+		//logger.debug("TopTeamsPage board {}", this.getBoard());
 
 		// when navigating to the page, Vaadin will call setParameter+readParameters
 		// these parameters will be applied.

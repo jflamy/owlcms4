@@ -99,7 +99,7 @@ public class TopTeams extends AbstractTop {
 	}
 
 	public void doUpdate(Competition competition) {
-		logger.warn("doUpdate ag={} ad={}", ageGroupPrefix, ageDivision);
+		//logger.debug("doUpdate ag={} ad={}", ageGroupPrefix, ageDivision);
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 
@@ -175,7 +175,7 @@ public class TopTeams extends AbstractTop {
 
 	@Override
 	protected void doUpdate(Athlete a, UIEvent e) {
-		logger.warn("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
+		//logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			if (a != null) {
 				updateBottom();
@@ -297,7 +297,7 @@ public class TopTeams extends AbstractTop {
 		        : "";
 		JsonValue womenJson = getTeamsJson(womensTeams, false);
 
-		logger.warn("updateBottomX {} {}", mensTeams, womensTeams);
+		//logger.debug("updateBottomX {} {}", mensTeams, womensTeams);
 		this.getElement().setProperty("topTeamsMen", menTitle);
 		this.getElement().setPropertyJson("mensTeams", menJson);
 		this.getElement().setProperty("topTeamsWomen", womenTitle);
