@@ -82,15 +82,16 @@ import elemental.json.JsonValue;
 public class Results extends LitTemplate
         implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
         RequireDisplayLogin, HasBoardMode, VideoCSSOverride {
-
-	private final Logger logger = (Logger) LoggerFactory.getLogger(Results.class);
-	private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	
 	@Id("timer")
 	private AthleteTimerElement timer; // WebComponent, injected by Vaadin
 	@Id("breakTimer")
 	private BreakTimerElement breakTimer; // WebComponent, injected by Vaadin
 	@Id("decisions")
 	private DecisionElement decisions; // WebComponent, injected by Vaadin
+
+	private final Logger logger = (Logger) LoggerFactory.getLogger(Results.class);
+	private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	private JsonArray cattempts;
 	private Group curGroup;
 	private JsonArray sattempts;

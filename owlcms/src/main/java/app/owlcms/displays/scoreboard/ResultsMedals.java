@@ -83,6 +83,9 @@ public class ResultsMedals extends Results implements ResultsParameters {
 
 	public ResultsMedals() {
 		super();
+		getTimer().setSilenced(true);
+		getBreakTimer().setSilenced(true);
+		getDecisions().setSilenced(true);
 	}
 
 	@Override
