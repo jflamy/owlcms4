@@ -1955,12 +1955,6 @@ public class FieldOfPlay {
 
 		int millisRemaining = 10 * 60 * 1000;
 		if (!cCur.isAutomaticCJBreak()) {
-//			UIEvent.SnatchDone event = new UIEvent.SnatchDone(this.getGroup(), null, LoggerUtils.whereFrom());
-//			this.setBreakType(BreakType.SNATCH_DONE);
-//			this.getBreakTimer().setIndefinite();
-//			this.getBreakTimer().setBreakType(BreakType.SNATCH_DONE);
-//			this.setState(BREAK);
-//			pushOutUIEvent(event);
 			return;
 		}
 		if (cCur.getShorterBreakMin() != null && liftingOrder.size() > cCur.getShorterBreakMin()) {
@@ -1975,19 +1969,21 @@ public class FieldOfPlay {
 		logger.debug("{}group {} snatch done, break duration {}s", getLoggingName(), getGroup(),
 		        millisRemaining / 1000);
 
-		// this actually starts the break.
+
 		int timeRemaining = millisRemaining;
 		this.setBreakType(BreakType.FIRST_CJ);
 		this.getBreakTimer().setTimeRemaining(timeRemaining, false);
 		this.getBreakTimer().setBreakDuration(timeRemaining);
 		this.getBreakTimer().setEnd(null);
+		
+		// this actually starts the break.
+		this.setState(BREAK); // break must be set before start
 		this.getBreakTimer().start();
-		this.setState(BREAK);
 
-		// the event forces the other UIs to take notice. The arguments are not actually
-		// relevant.
+		// the event forces the other UIs to take notice.
 		BreakStarted event = new UIEvent.BreakStarted(millisRemaining, this, false, BreakType.FIRST_CJ,
 		        CountdownType.DURATION, LoggerUtils.stackTrace(), false);
+		//logger.debug("BreakStarted UI {} ",event, event.getBreakType());
 		pushOutUIEvent(event);
 	}
 

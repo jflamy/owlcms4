@@ -217,7 +217,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     @Override
     public void start() {
         BreakType breakType = getFop().getBreakType();
-        //logger.debug("****** starting break with breakType = {}", breakType);
+        //logger.debug("****** starting break with breakType = {} fop={}", breakType, System.identityHashCode(getFop()));
         if (breakType == null) {
             logger.error("null breaktype {}", LoggerUtils.stackTrace());
         }
@@ -225,9 +225,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
         startMillis = System.currentTimeMillis();
 
         Integer millisRemaining = getMillis();
-        // logger.trace("ProxyBreakTimer starting break millisRemaining {} paused {}
-        // from {}", millisRemaining,
-        // this.indefinite, LoggerUtils.whereFrom());
+ 
         UIEvent.BreakStarted event = new UIEvent.BreakStarted(
                 millisRemaining, getOrigin(), false,
                 breakType,

@@ -236,7 +236,7 @@ public class UIEvent {
 			super(origin);
 			this.timeRemaining = millisRemaining;
 			this.indefinite = (ct != null && ct == CountdownType.INDEFINITE) || (millisRemaining == null);
-			this.breakType = bt;
+			setBreakType(bt);
 			this.countdownType = ct;
 			this.setDisplayToggle(displayToggle);
 			this.setPaused(paused);
@@ -244,6 +244,7 @@ public class UIEvent {
 		}
 
 		public BreakType getBreakType() {
+			//logger.debug("BreakStarted getBreakType {}",breakType);
 			return breakType;
 		}
 
@@ -290,6 +291,11 @@ public class UIEvent {
 			return "UIEvent.BreakStarted [displayToggle=" + displayToggle + ", timeRemaining=" + timeRemaining
 			        + ", indefinite=" + indefinite + ", end=" + end + ", breakType=" + breakType + ", countdownType="
 			        + countdownType + "]";
+		}
+
+		public final void setBreakType(BreakType breakType) {
+			//logger.debug("BreakStarted getBreakType {}",breakType);
+			this.breakType = breakType;
 		}
 
 	}

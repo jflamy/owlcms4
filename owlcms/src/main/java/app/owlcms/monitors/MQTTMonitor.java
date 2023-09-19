@@ -286,6 +286,7 @@ public class MQTTMonitor extends Thread {
 		this.fop = fop;
 	}
 
+	@Override
 	public void start() {
 		logger.setLevel(Level.DEBUG);
 		this.setFop(fop);
@@ -320,6 +321,7 @@ public class MQTTMonitor extends Thread {
 
 	@Subscribe
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
+		//logger.debug("mqtt slaveBreakStart {} {}",e, e.getBreakType());
 		if (e.getBreakType() == BreakType.JURY) {
 			try {
 				publishMqttJuryDeliberation();
@@ -537,8 +539,12 @@ public class MQTTMonitor extends Thread {
 	}
 
 	private void publishMqttBreak(BreakStarted e) throws MqttPersistenceException, MqttException {
-		client.publish("owlcms/fop/break/" + fop.getName(),
-		        new MqttMessage(e.getBreakType().name().getBytes(StandardCharsets.UTF_8)));
+		try {
+			client.publish("owlcms/fop/break/" + fop.getName(),
+			        new MqttMessage(e.getBreakType().name().getBytes(StandardCharsets.UTF_8)));
+		} catch (Exception e1) {
+			logger.error("mqttBreak event error - {}",e.getTrace());
+		}
 	}
 
 	private void publishMqttCeremony(UIEvent e, boolean b) throws MqttPersistenceException, MqttException {
