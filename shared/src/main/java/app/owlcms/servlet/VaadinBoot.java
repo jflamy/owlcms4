@@ -381,11 +381,11 @@ public class VaadinBoot {
 		logger.info("Started in {} ms", startupDuration);
 	}
 
-	protected void setAppName(String arg) {
+	public void setAppName(String arg) {
 		this.appName = arg;
 	}
 
-	private String getAppName() {
+	public String getAppName() {
 		return appName;
 	}
 }
