@@ -454,6 +454,9 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		good.getStyle().set("color", "DarkSlateGrey");
 		good.getStyle().set("outline-color", "white");
 		bad.getStyle().set("color", "red");
+		topWrapper.removeAll();
+		topWrapper.add(topRow);
+		beeper.reset();
 	}
 
 	private void doWhite() {
@@ -470,6 +473,9 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		bad.getStyle().set("color", "DarkSlateGrey");
 		bad.getStyle().set("outline-color", "white");
 		good.getStyle().set("color", "white");
+		topWrapper.removeAll();
+		topWrapper.add(topRow);
+		beeper.reset();
 	}
 
 	private Object getOrigin() {

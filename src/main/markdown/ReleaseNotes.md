@@ -1,14 +1,16 @@
 > **Version 44 beta release**
 >
 > - Beta releases are meant for translation and for testing by people other than the developers.
-> - Beta07 should be tested very thoroughly before being used.
+> - *This release should be tested very thoroughly before being used.*
 >
-> Version 44 is a technical migration and clean-up release.  It updates the code to the current version of the user interface framework ([Vaadin 24](http://vaadin.com)). This update requires changes in the code that provide an opportunity to clean and simplify the programming.
+> Version 44 is a technical migration release.  It updates the code to the current version of the user interface framework ([Vaadin 24](http://vaadin.com)). A clean-up of the code was performed at the same time, and several small annoyances were fixed as a result.
 >
 
-**44.0.0-beta07**
+**44.0.0-beta08**
 
-- Restructuring of the display configuration dialogs and URL processing done.
+- owlcms now starts correctly on the cloud and from a Docker container.
+- Athlete pictures are now shown on the attempt board, the flag location does not change if some athletes don't have a picture.
+- The mobile device page for referees was adjusted to correctly show decision reminders and jury summons.
 - Known issues:
   - The automatic switching of the public scoreboard during medal ceremonies does not work yet.
   - See also this [list of known small issues](https://github.com/jflamy/owlcms4/issues/734)
