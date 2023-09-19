@@ -20,10 +20,12 @@ import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.shared.SafeEventBusRegistration;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-public abstract class AbstractDisplayPage extends Div implements DisplayParametersReader {
+public abstract class AbstractDisplayPage extends Div implements DisplayParametersReader, SafeEventBusRegistration {
 
 	protected boolean downSilenced;
 	protected String routeParameter;
@@ -319,7 +321,10 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
-		openDialog(getDialog());
+		uiEventBusRegister(this,OwlcmsSession.getFop());
+		if (isShowInitialDialog()) {
+			openDialog(getDialog());
+		}
 	}
 
 	public static Logger getLogger() {

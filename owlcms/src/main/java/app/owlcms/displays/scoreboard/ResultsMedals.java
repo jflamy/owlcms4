@@ -42,7 +42,6 @@ import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.nui.displays.scoreboards.ResultsMedalsPage;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
@@ -71,7 +70,6 @@ public class ResultsMedals extends Results implements ResultsParameters {
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	private Category category;
 	private JsonArray cattempts;
-	private FieldOfPlay fop;
 	private TreeMap<Category, TreeSet<Athlete>> medals;
 	private String routeParameter;
 	private JsonArray sattempts;
@@ -83,7 +81,7 @@ public class ResultsMedals extends Results implements ResultsParameters {
 	private AgeDivision ageDivision;
 	private String ageGroupPrefix;
 
-	public ResultsMedals(ResultsMedalsPage page) {
+	public ResultsMedals() {
 		super();
 	}
 
@@ -198,13 +196,7 @@ public class ResultsMedals extends Results implements ResultsParameters {
 			// logger.trace("------- slaveCeremonyDone {}", e.getCeremonyType());
 			if (e.getCeremonyType() == CeremonyType.MEDALS) {
 				// end of medals break.
-				// If this page was opened in replacement of a display, go back to the display.
-				unregister(this, uiEventBus);
-				retrieveFromSessionStorage("pageURL", result -> {
-					if (result != null && !result.isBlank()) {
-						UI.getCurrent().getPage().setLocation(result);
-					}
-				});
+				// do Nothing.
 			}
 		}));
 	}
@@ -280,6 +272,7 @@ public class ResultsMedals extends Results implements ResultsParameters {
 
 	@Subscribe
 	public void slaveVideoRefresh(UIEvent.VideoRefresh e) {
+		var fop = OwlcmsSession.getFop();
 		this.setGroup(fop.getVideoGroup());
 		this.setCategory(fop.getVideoCategory());
 		// logger.info("videoRefresh {} {}", getGroup() != null ? getGroup().getName() :
@@ -520,7 +513,7 @@ public class ResultsMedals extends Results implements ResultsParameters {
 	private void doMedalsDisplay() {
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
-			init();
+			medalsInit();
 			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/results.css", routeParameter, this);
 			teamFlags = URLUtils.checkFlags();
 			if (this.getCategory() == null) {
@@ -643,12 +636,14 @@ public class ResultsMedals extends Results implements ResultsParameters {
 		}
 	}
 
-	private void init() {
+	private void medalsInit() {
 		OwlcmsSession.withFop(fop -> {
 			logger.trace("{}Starting result board on FOP {}", fop.getLoggingName());
 			setId("scoreboard-" + fop.getName());
 			setWideTeamNames(false);
 			this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
+			this.setGroup(fop.getVideoGroup());
+			this.setCategory(fop.getVideoCategory());
 		});
 		setTranslationMap();
 	}

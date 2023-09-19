@@ -28,11 +28,9 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.component.template.Id;
 import com.vaadin.flow.router.Location;
-import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
-import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
@@ -58,7 +56,6 @@ import app.owlcms.nui.shared.RequireDisplayLogin;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
-import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.LoggerUtils;
@@ -99,8 +96,6 @@ public class Results extends LitTemplate
 	private JsonArray sattempts;
 	private List<Athlete> displayOrder;
 	private int liftsDone;
-	private Category ceremonyCategory;
-	private Group ceremonyGroup = null;
 	private boolean darkMode = true;
 	protected EventBus uiEventBus;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
@@ -159,37 +154,37 @@ public class Results extends LitTemplate
 
 	@Override
 	public void doCeremony(UIEvent.CeremonyStarted e) {
-		ceremonyGroup = e.getCeremonyGroup();
-		ceremonyCategory = e.getCeremonyCategory();
-		// logger.debug("------ ceremony event = {} {}", e, e.getTrace());
-		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			if (e.getCeremonyType() == CeremonyType.MEDALS && isPublicDisplay() && ceremonyGroup != null) {
-				Map<String, String> map = new HashMap<>(Map.of(
-				        FOPParameters.FOP, fop.getName(),
-				        FOPParameters.GROUP, ceremonyGroup.getName(),
-				        DisplayParameters.DARK, Boolean.toString(darkMode)));
-				if (ceremonyCategory != null) {
-					map.put(DisplayParameters.CATEGORY, ceremonyCategory.getCode());
-				} else {
-					// logger.trace("no ceremonyCategory");
-				}
-				QueryParameters simple = QueryParameters.simple(map);
-				// logger.debug("========== parameters {}",simple);
-				UI.getCurrent().navigate("displays/resultsMedals", simple);
-			} else {
-				// logger.debug("========== NOT {} {} {}",e.getCeremonyType(),
-				// this.isSwitchableDisplay(), ceremonyGroup);
-				String title = inferGroupName() + " &ndash; "
-				        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), isPublicDisplay());
-				this.getElement().setProperty("fullName", title);
-				this.getElement().setProperty("teamName", "");
-				setGroupNameProperty("");
-				getBreakTimer().setVisible(!fop.getBreakTimer().isIndefinite());
-				setDisplay();
-
-				updateBottom(computeLiftType(fop.getCurAthlete()), fop);
-			}
-		}));
+//		ceremonyGroup = e.getCeremonyGroup();
+//		ceremonyCategory = e.getCeremonyCategory();
+//		// logger.debug("------ ceremony event = {} {}", e, e.getTrace());
+//		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+//			if (e.getCeremonyType() == CeremonyType.MEDALS && isPublicDisplay() && ceremonyGroup != null) {
+//				Map<String, String> map = new HashMap<>(Map.of(
+//				        FOPParameters.FOP, fop.getName(),
+//				        FOPParameters.GROUP, ceremonyGroup.getName(),
+//				        DisplayParameters.DARK, Boolean.toString(darkMode)));
+//				if (ceremonyCategory != null) {
+//					map.put(DisplayParameters.CATEGORY, ceremonyCategory.getCode());
+//				} else {
+//					// logger.trace("no ceremonyCategory");
+//				}
+//				QueryParameters simple = QueryParameters.simple(map);
+//				// logger.debug("========== parameters {}",simple);
+//				UI.getCurrent().navigate("displays/resultsMedals", simple);
+//			} else {
+//				// logger.debug("========== NOT {} {} {}",e.getCeremonyType(),
+//				// this.isSwitchableDisplay(), ceremonyGroup);
+//				String title = inferGroupName() + " &ndash; "
+//				        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), isPublicDisplay());
+//				this.getElement().setProperty("fullName", title);
+//				this.getElement().setProperty("teamName", "");
+//				setGroupNameProperty("");
+//				getBreakTimer().setVisible(!fop.getBreakTimer().isIndefinite());
+//				setDisplay();
+//
+//				updateBottom(computeLiftType(fop.getCurAthlete()), fop);
+//			}
+//		}));
 	}
 
 	public BreakTimerElement getBreakTimer() {

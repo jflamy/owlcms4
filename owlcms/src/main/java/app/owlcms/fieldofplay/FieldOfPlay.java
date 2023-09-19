@@ -98,28 +98,23 @@ import elemental.json.JsonValue;
 /**
  * This class describes one field of play at runtime.
  *
- * It encapsulates the in-memory data structures used to describe the state of
- * the competition and links them to the database descriptions of the group and
- * platform.
+ * It encapsulates the in-memory data structures used to describe the state of the competition and links them to the
+ * database descriptions of the group and platform.
  *
- * The main method is {@link #handleFOPEvent(FOPEvent)} which implements a state
- * automaton and processes events received on the event bus.
+ * The main method is {@link #handleFOPEvent(FOPEvent)} which implements a state automaton and processes events received
+ * on the event bus.
  *
  * @author owlcms
  */
 public class FieldOfPlay {
 
 	public static final long DECISION_VISIBLE_DURATION = 3500;
-
 	public static final int REVERSAL_DELAY = 3000;
-
 	private static final int DEFAULT_BREAK_DURATION = 10 * 60 * 1000;
-
 	private static final int WAKEUP_DURATION_MS = 20000;
 
 	/**
-	 * Instantiates a new field of play state. This constructor is only used for
-	 * testing using mock timers.
+	 * Instantiates a new field of play state. This constructor is only used for testing using mock timers.
 	 *
 	 * @param athletes the athletes
 	 * @param timer1   the athleteTimer
@@ -144,7 +139,6 @@ public class FieldOfPlay {
 	private BreakType breakType;
 	private CeremonyType ceremonyType;
 	private boolean cjStarted;
-
 	/**
 	 * the clock owner is the last athlete for whom the clock has actually started.
 	 */
@@ -168,87 +162,54 @@ public class FieldOfPlay {
 	private long lastGroupLoaded;
 	private List<Athlete> leaders;
 	private List<Athlete> liftingOrder;
-
 	private int liftsDoneAtLastStart;
-
 	final private Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlay.class);
 	private TreeMap<Category, TreeSet<Athlete>> medals;
-
 	private String name;
-
 	private Platform platform = null;
-
 	private EventBus postBus = null;
-
 	private Integer prevHash;
-
 	private Athlete previousAthlete;
-
 	private Boolean[] refereeDecision;
-
 	private boolean refereeForcedDecision;
-
 	private Long[] refereeTime;
-
 	private FOPState state;
-
 	private boolean testingMode;
-
 	private boolean timeoutEmitted;
 	final private Logger timingLogger = (Logger) LoggerFactory.getLogger(logger.getName() + "_Timing");
 	private EventBus uiEventBus = null;
-
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger(logger.getName() + "_UI");
-
 	private Thread wakeUpRef;
-
 	private Integer weightAtLastStart;
-
 	private int prevWeight;
-
 	private JsonValue recordsJson;
-
 	private List<RecordEvent> challengedRecords;
 	private List<RecordEvent> newRecords;
 	private List<RecordEvent> lastChallengedRecords;
 	private List<RecordEvent> lastNewRecords;
-
 	private boolean announcerDecisionImmediate = true;
-
 	private Boolean[] juryMemberDecision;
 	private Integer[] juryMemberTime;
-
 	private Athlete athleteUnderReview;
-
 	Map<Athlete, List<RecordEvent>> displayableRecordsByAthlete = new HashMap<>();
 	Map<Athlete, List<RecordEvent>> eligibleRecordsByAthlete = new HashMap<>();
-
 	Set<RecordEvent> groupRecords = new HashSet<>();
-
 	private boolean clockStoppedDecisionsAllowed;
-
 	private Group videoGroup;
-
 	private Category videoCategory;
-
 	private AgeGroup videoAgeGroup;
-
 	private List<Athlete> resultsOrder;
-
 	private boolean cjBreakDisplayed;
-
 	private MQTTMonitor mqttMonitor = null;
 
 	public FieldOfPlay() {
 	}
 
 	/**
-	 * Instantiates a new field of play state. When using this constructor
-	 * {@link #init(List, IProxyTimer)} must later be used to provide the athletes
-	 * and set the athleteTimer
+	 * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later
+	 * be used to provide the athletes and set the athleteTimer
 	 *
-	 * @param group     the group (to get details such as name, and to reload
-	 *                  athletes)
+	 * @param group     the group (to get details such as name, and to reload athletes)
 	 * @param platform2 the platform (to get details such as name)
 	 */
 	public FieldOfPlay(Group group, Platform platform2) {
@@ -341,8 +302,7 @@ public class FieldOfPlay {
 	}
 
 	/**
-	 * @return 0 if clock has not been started, 120000 or 60000 depending on time
-	 *         allowed when clock is started
+	 * @return 0 if clock has not been started, 120000 or 60000 depending on time allowed when clock is started
 	 */
 	public int getClockOwnerInitialTimeAllowed() {
 		return clockOwnerInitialTimeAllowed;
@@ -594,24 +554,19 @@ public class FieldOfPlay {
 	/**
 	 * Handle field of play events.
 	 *
-	 * FOP (Field of Play) events inform us of what is happening (e.g. athleteTimer
-	 * started by timekeeper, decision given by official, etc.) The current state
-	 * determines what we do with the event. Typically, we update the state of the
-	 * field of play (e.g. time is now running) and we issue commands to the
-	 * listening user interfaces (e.g. start or stop time being displayed, show the
-	 * decision, etc.)
+	 * FOP (Field of Play) events inform us of what is happening (e.g. athleteTimer started by timekeeper, decision
+	 * given by official, etc.) The current state determines what we do with the event. Typically, we update the state
+	 * of the field of play (e.g. time is now running) and we issue commands to the listening user interfaces (e.g.
+	 * start or stop time being displayed, show the decision, etc.)
 	 *
-	 * A given user interface will issue a FOP event. This method reacts to the
-	 * event by updating state, and we issue the resulting user interface commands
-	 * on the @link uiEventBus.
+	 * A given user interface will issue a FOP event. This method reacts to the event by updating state, and we issue
+	 * the resulting user interface commands on the @link uiEventBus.
 	 *
 	 * All UIEvents are normally sent by this class, with two exceptions:
 	 *
-	 * - Timer events are sent by separate Timer objets that implement IProxyTimer.
-	 * These classes remember the time and broadcast to all listening timers. - Some
-	 * UI Classes send UIEvents to themselves, or sub-components, as a way to
-	 * propagate UI State changes (for example, propagating the reset of decision
-	 * lights).
+	 * - Timer events are sent by separate Timer objets that implement IProxyTimer. These classes remember the time and
+	 * broadcast to all listening timers. - Some UI Classes send UIEvents to themselves, or sub-components, as a way to
+	 * propagate UI State changes (for example, propagating the reset of decision lights).
 	 *
 	 * @param e the event
 	 */
@@ -1204,7 +1159,8 @@ public class FieldOfPlay {
 	}
 
 	public void setBreakType(BreakType breakType) {
-		//logger.debug("****** FOP {} setBreakType {} from {}", System.identityHashCode(this), breakType, LoggerUtils.whereFrom());
+		// logger.debug("****** FOP {} setBreakType {} from {}", System.identityHashCode(this), breakType,
+		// LoggerUtils.whereFrom());
 		this.breakType = breakType;
 	}
 
@@ -1410,7 +1366,7 @@ public class FieldOfPlay {
 		// check that all athletes are at first CJ
 		boolean firstCJ = true;
 		for (Athlete a : liftingOrder) {
-			//logger.debug("!!!! {}{} {}", this.getLoggingName(), a.getShortName(), a.getAttemptsDone());
+			// logger.debug("!!!! {}{} {}", this.getLoggingName(), a.getShortName(), a.getAttemptsDone());
 			if (a.getAttemptsDone() != 3) {
 				firstCJ = false;
 				break;
@@ -1567,6 +1523,8 @@ public class FieldOfPlay {
 
 	private void doStartCeremony(CeremonyStarted e) {
 		setCeremonyType(e.getCeremony());
+        setVideoGroup(e.getCeremonyGroup());
+        setVideoCategory(e.getCeremonyCategory());
 		getUiEventBus().post(new UIEvent.CeremonyStarted(e.getCeremony(), e.getCeremonyGroup(), e.getCeremonyCategory(),
 		        e.getStackTrace(), e.getOrigin()));
 	}
@@ -1632,9 +1590,8 @@ public class FieldOfPlay {
 	/**
 	 * Perform weight change and adjust state.
 	 *
-	 * If the clock was started and we come back to the clock owner, we set the
-	 * state to TIME_STARTED If in a break, we are careful not to update, unless the
-	 * change causes an exit from the break (e.g. jury overrule on last lift)
+	 * If the clock was started and we come back to the clock owner, we set the state to TIME_STARTED If in a break, we
+	 * are careful not to update, unless the change causes an exit from the break (e.g. jury overrule on last lift)
 	 * Otherwise we update the displays.
 	 *
 	 * @param wc
@@ -1818,8 +1775,7 @@ public class FieldOfPlay {
 	}
 
 	/**
-	 * events resulting from decisions received so far (down signal, stopping timer,
-	 * all decisions entered, etc.)
+	 * events resulting from decisions received so far (down signal, stopping timer, all decisions entered, etc.)
 	 *
 	 * @param refIndex
 	 */
@@ -1858,8 +1814,7 @@ public class FieldOfPlay {
 	}
 
 	/**
-	 * events resulting from decisions received so far (down signal, stopping timer,
-	 * all decisions entered, etc.)
+	 * events resulting from decisions received so far (down signal, stopping timer, all decisions entered, etc.)
 	 */
 	private void processRefereeDecisions(FOPEvent e) {
 		// logger.debug("*** process referee decisions");
@@ -1969,13 +1924,12 @@ public class FieldOfPlay {
 		logger.debug("{}group {} snatch done, break duration {}s", getLoggingName(), getGroup(),
 		        millisRemaining / 1000);
 
-
 		int timeRemaining = millisRemaining;
 		this.setBreakType(BreakType.FIRST_CJ);
 		this.getBreakTimer().setTimeRemaining(timeRemaining, false);
 		this.getBreakTimer().setBreakDuration(timeRemaining);
 		this.getBreakTimer().setEnd(null);
-		
+
 		// this actually starts the break.
 		this.setState(BREAK); // break must be set before start
 		this.getBreakTimer().start();
@@ -1983,7 +1937,7 @@ public class FieldOfPlay {
 		// the event forces the other UIs to take notice.
 		BreakStarted event = new UIEvent.BreakStarted(millisRemaining, this, false, BreakType.FIRST_CJ,
 		        CountdownType.DURATION, LoggerUtils.stackTrace(), false);
-		//logger.debug("BreakStarted UI {} ",event, event.getBreakType());
+		// logger.debug("BreakStarted UI {} ",event, event.getBreakType());
 		pushOutUIEvent(event);
 	}
 
@@ -2001,13 +1955,12 @@ public class FieldOfPlay {
 	 *
 	 * Assume 16-year old Youth Lifter Y is eligible for Youth, Junior, Senior
 	 *
-	 * If she is lifting, we show youth lifter rankings, and include her if in the
-	 * top 3 youth. If a Junior is lifting, Y needs to be ranked as a junior, and
-	 * include her if in top 3 juniors If a Senior is lifting, Y needs to be ranked
-	 * as a senior, and include her if in top 3 seniors
+	 * If she is lifting, we show youth lifter rankings, and include her if in the top 3 youth. If a Junior is lifting,
+	 * Y needs to be ranked as a junior, and include her if in top 3 juniors If a Senior is lifting, Y needs to be
+	 * ranked as a senior, and include her if in top 3 seniors
 	 *
-	 * So we need to fetch the PAthlete that reflects each athlete's participation
-	 * in the current lifter's registration category. Ouch.
+	 * So we need to fetch the PAthlete that reflects each athlete's participation in the current lifter's registration
+	 * category. Ouch.
 	 *
 	 * @param rankedAthletes
 	 */
@@ -2054,12 +2007,10 @@ public class FieldOfPlay {
 	}
 
 	/**
-	 * Recompute lifting order, category ranks, and leaders for current category.
-	 * Sets rankings including previous lifters for all categories in the current
-	 * group.
+	 * Recompute lifting order, category ranks, and leaders for current category. Sets rankings including previous
+	 * lifters for all categories in the current group.
 	 *
-	 * @param recomputeRanks true if a result has changed and ranks need to be
-	 *                       recomputed
+	 * @param recomputeRanks true if a result has changed and ranks need to be recomputed
 	 */
 	private void recomputeOrderAndRanks(boolean recomputeRanks) {
 		Group g = getGroup();
@@ -2247,7 +2198,8 @@ public class FieldOfPlay {
 			breakTimer2.setTimeRemaining(0, false);
 			breakTimer2.setEnd(e.getTargetTime());
 		}
-		//logger.debug("******* setBreakParams {} {} isIndefinite={}", breakType2, countdownType2, breakTimer2.isIndefinite());
+		// logger.debug("******* setBreakParams {} {} isIndefinite={}", breakType2, countdownType2,
+		// breakTimer2.isIndefinite());
 	}
 
 	private void setClockOwner(Athlete athlete) {
@@ -2340,8 +2292,7 @@ public class FieldOfPlay {
 	}
 
 	/**
-	 * Don't interrupt break if official-induced break. Interrupt break if it is
-	 * simply "group done".
+	 * Don't interrupt break if official-induced break. Interrupt break if it is simply "group done".
 	 *
 	 * @param newState the state we want to go to if there is no break
 	 */
@@ -2394,9 +2345,8 @@ public class FieldOfPlay {
 	}
 
 	/**
-	 * The decision is confirmed as official after the 3 second delay following
-	 * majority. After this delay, manual announcer intervention is required to
-	 * change and announce.
+	 * The decision is confirmed as official after the 3 second delay following majority. After this delay, manual
+	 * announcer intervention is required to change and announce.
 	 */
 	private void showDecisionNow(Object origin) {
 		// logger.debug("*** Show decision now - enter");
@@ -2571,7 +2521,8 @@ public class FieldOfPlay {
 					        CountdownType.DURATION, LoggerUtils.stackTrace(), getBreakTimer().isIndefinite()));
 					return;
 				} else {
-					//logger.debug("{}****** break switch: from {} to {} {}", getLoggingName(), getBreakType(), newBreak, newCountdownType);
+					// logger.debug("{}****** break switch: from {} to {} {}", getLoggingName(), getBreakType(),
+					// newBreak, newCountdownType);
 					breakTimer.stop();
 					setBreakParams(e, breakTimer, newBreak, newCountdownType);
 					breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), newBreak.isInterruption());
@@ -2580,7 +2531,8 @@ public class FieldOfPlay {
 				}
 			} else {
 				// we are in a break, resume if needed
-				//logger.debug("{}******* resuming break : current {} new {}", getLoggingName(), getBreakType(), e.getBreakType());
+				// logger.debug("{}******* resuming break : current {} new {}", getLoggingName(), getBreakType(),
+				// e.getBreakType());
 				if (!breakTimer.isIndefinite()) {
 					breakTimer.setOrigin(e.getOrigin());
 					breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), false);
@@ -2597,7 +2549,8 @@ public class FieldOfPlay {
 			return;
 		} else {
 			setBreakParams(e, breakTimer, newBreak, newCountdownType);
-			logger.debug("stopping bt={} ct={} indefinite={}", newBreak, newCountdownType, newBreak.isInterruption() ? true : e.isIndefinite());
+			logger.debug("stopping bt={} ct={} indefinite={}", newBreak, newCountdownType,
+			        newBreak.isInterruption() ? true : e.isIndefinite());
 			breakTimer.stop(); // so we restart in the new type
 		}
 
@@ -2605,7 +2558,8 @@ public class FieldOfPlay {
 		if (!breakTimer.isRunning()) {
 			breakTimer.setOrigin(e.getOrigin());
 			setBreakType(newBreak);
-			if (indefinite) breakTimer.setIndefinite();
+			if (indefinite)
+				breakTimer.setIndefinite();
 			breakTimer.start();
 		}
 	}

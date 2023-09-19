@@ -38,6 +38,16 @@ class ResultsMedals extends LitElement {
             </div>
             <div class="federationlogo"></div>
           </div>
+          <!-- the elements are required because we subclass the results page -->
+          <div class="timer athleteTimer" style="display:none">
+            <timer-element id="timer"></timer-element>
+          </div>
+          <div class="timer breakTime" style="display:none">
+            <timer-element id="breakTimer"></timer-element>
+          </div>
+          <div class="decisionBox" style="display:none">
+            <decision-element style="width: 100%" id="decisions"></decision-element>
+          </div>
 
           ${this.medalCategories
             ? html`

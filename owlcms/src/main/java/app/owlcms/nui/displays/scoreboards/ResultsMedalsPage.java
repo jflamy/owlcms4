@@ -32,7 +32,7 @@ public class ResultsMedalsPage extends AbstractResultsDisplayPage {
 
 	@Override
 	protected void init() {
-		var board = new ResultsMedals(this);
+		var board = new ResultsMedals();
 		this.setBoard(board);
 		board.setLeadersDisplay(true);
 		board.setRecordsDisplay(true);

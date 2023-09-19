@@ -31,7 +31,7 @@ public class ResultsRankings extends ResultsMedals implements ResultsParameters 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsMedals.class);
 
 	public ResultsRankings(ResultsRankingsPage page) {
-		super(page);
+		super();
 
 	}
 

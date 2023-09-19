@@ -555,16 +555,16 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 				        startBreakIfNeeded(fop);
 				        Group g = getMedalGroup();
 				        Category c = getMedalCategory();
-				        fop.fopEventPost(
-				                new FOPEvent.CeremonyStarted(CeremonyType.MEDALS, g, c,
-				                        this));
-				        fop.setVideoGroup(g);
-				        fop.setVideoCategory(c);
-				        setMedalGroup(g);
-				        setMedalCategory(c);
-				        logger.info("switching to {} {}", g.getName() != null ? g.getName() : "-",
-				                c != null ? c.getTranslatedName() : "");
-				        fop.getUiEventBus().post(new UIEvent.VideoRefresh(this, g, c));
+				        if (g != null) {
+					        fop.fopEventPost(
+					                new FOPEvent.CeremonyStarted(CeremonyType.MEDALS, g, c,
+					                        this));
+					        setMedalGroup(g);
+					        setMedalCategory(c);
+					        logger.info("switching to {} {}", g.getName() != null ? g.getName() : "-",
+					                c != null ? c.getTranslatedName() : "");
+					        fop.getUiEventBus().post(new UIEvent.VideoRefresh(this, g, c));
+				        }
 			        });
 
 		        });
