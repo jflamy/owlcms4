@@ -356,6 +356,7 @@ class ResultsFull extends LitElement {
       decisionVisible: { type: Boolean }, // sub-mode of CURRENT_ATHLETE
 
       // dynamic styling
+      darkMode: {},
       teamWidthClass: {},
       sizeOverride: {},
       twOverride: {},

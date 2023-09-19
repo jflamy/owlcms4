@@ -49,8 +49,8 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 		DisplayOptions.addRule(vl);
 		DisplayOptions.addSoundEntries(vl, target, this);
 		DisplayOptions.addRule(vl);
-		DisplayOptions.addSwitchableEntries(vl, target, this);
-		DisplayOptions.addRule(vl);
+//		DisplayOptions.addSwitchableEntries(vl, target, this);
+//		DisplayOptions.addRule(vl);
 		DisplayOptions.addSectionEntries(vl, target, this);
 		DisplayOptions.addRule(vl);
 		DisplayOptions.addSizingEntries(vl, target, this);

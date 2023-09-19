@@ -23,7 +23,6 @@ import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.nui.displays.scoreboards.ResultsLeadersRanksPage;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -38,12 +37,12 @@ import elemental.json.JsonValue;
 @JsModule("./components/ResultsLeadersRanks.js")
 @JsModule("./components/AudioContext.js")
 
-public class ResultsLeadersRanks extends Results {
+public class ResultsMultiRanks extends Results {
 
-	protected Logger logger = (Logger) LoggerFactory.getLogger(ResultsLeadersRanks.class);
+	protected Logger logger = (Logger) LoggerFactory.getLogger(ResultsMultiRanks.class);
 	private LinkedHashMap<String, Participation> ageGroupMap;
 
-	public ResultsLeadersRanks(ResultsLeadersRanksPage page) {
+	public ResultsMultiRanks() {
 		super();
 		OwlcmsFactory.waitDBInitialized();
 		getTimer().setOrigin(this);

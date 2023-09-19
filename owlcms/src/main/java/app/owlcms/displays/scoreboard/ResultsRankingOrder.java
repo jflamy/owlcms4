@@ -8,7 +8,6 @@ import com.vaadin.flow.component.dependency.JsModule;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
-import app.owlcms.nui.displays.scoreboards.ResultsRankingOrderPage;
 
 @SuppressWarnings("serial")
 
@@ -18,7 +17,7 @@ import app.owlcms.nui.displays.scoreboards.ResultsRankingOrderPage;
 
 public class ResultsRankingOrder extends Results {
 
-	public ResultsRankingOrder(ResultsRankingOrderPage page) {
+	public ResultsRankingOrder() {
 		super();
 	}
 

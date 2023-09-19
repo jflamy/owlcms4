@@ -1,7 +1,5 @@
 package app.owlcms.nui.displays.scoreboards;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.LoggerFactory;
@@ -14,31 +12,54 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.config.Config;
-import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.displays.scoreboard.ResultsMedals;
+import app.owlcms.displays.scoreboard.ResultsMultiRanks;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.uievents.UIEvent;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-@Route("displays/publicResults")
+@Route("displays/publicMultiRanks")
 
-public class PublicBoardPage extends AbstractResultsDisplayPage {
+public class PublicMultiRanksPage extends AbstractResultsDisplayPage {
 
 	Logger logger;
 	Logger uiEventLogger;
-	Map<String, List<String>> urlParameterMap = new HashMap<>();
-	private Results resultsBoard;
-	protected UI ui;
+	
+	private ResultsMultiRanks resultsBoard;
 	private ResultsMedals medalsBoard;
-
-	public PublicBoardPage() {
-		// intentionally empty. superclass will call init() as required.
-	}
+	protected UI ui;
 
 	@Override
 	public String getPageTitle() {
-		return getTranslation("DisplayParameters.PublicDisplay") + OwlcmsSession.getFopNameIfMultiple();
+		return getTranslation("ScoreboardMultiRanksTitle") + OwlcmsSession.getFopNameIfMultiple();
+	}
+
+	@Override
+	protected void init() {
+		logger = (Logger) LoggerFactory.getLogger(PublicBoardPage.class);
+		uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
+
+		// each superclass must this routine.
+		// otherwise we end up with multiple instances of the Results board.
+		var board = new ResultsMultiRanks();
+		var medalsBoard = new ResultsMedals();
+		this.setBoard(board);
+		this.setResultsBoard(board);
+		this.setMedalsBoard(medalsBoard);
+		this.addComponent(board);
+		this.addComponent(medalsBoard);
+		medalsBoard.setVisible(false);
+		this.ui = UI.getCurrent();
+
+		setDefaultParameters(QueryParameters.simple(Map.of(
+		        SoundParameters.SILENT, "true",
+		        SoundParameters.DOWNSILENT, "true",
+		        DisplayParameters.DARK, "true",
+		        DisplayParameters.LEADERS, "true",
+		        DisplayParameters.RECORDS, "true",
+		        DisplayParameters.ABBREVIATED,
+		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
 	}
 
 	@Subscribe
@@ -47,6 +68,22 @@ public class PublicBoardPage extends AbstractResultsDisplayPage {
 			getMedalsBoard().setVisible(false);
 			getResultsBoard().setVisible(true);
 		});
+	}
+	
+	private void setMedalsBoard(ResultsMedals medalsBoard) {
+		this.medalsBoard = medalsBoard;
+	}
+
+	private void setResultsBoard(ResultsMultiRanks board) {
+		this.resultsBoard = board;
+	}
+
+	public final ResultsMultiRanks getResultsBoard() {
+		return resultsBoard;
+	}
+
+	private final ResultsMedals getMedalsBoard() {
+		return medalsBoard;
 	}
 
 	@Subscribe
@@ -58,54 +95,6 @@ public class PublicBoardPage extends AbstractResultsDisplayPage {
 			getMedalsBoard().setVisible(true);
 			getResultsBoard().setVisible(false);
 		});
-	}
-
-	@Override
-	protected void init() {
-		logger = (Logger) LoggerFactory.getLogger(PublicBoardPage.class);
-		uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
-
-		// each superclass must this routine.
-		// otherwise we end up with multiple instances of the Results board.
-		var board = new Results();
-		var medalsBoard = new ResultsMedals();
-		this.setBoard(board);
-		this.setResultsBoard(board);
-		this.setMedalsBoard(medalsBoard);
-		this.addComponent(board);
-		this.addComponent(medalsBoard);
-		medalsBoard.setVisible(false);
-		this.ui = UI.getCurrent();
-
-		// when navigating to the page, Vaadin will call setParameter+readParameters
-		// these parameters will be applied.
-		setDefaultParameters(QueryParameters.simple(Map.of(
-		        SoundParameters.SILENT, "true",
-		        SoundParameters.DOWNSILENT, "true",
-		        DisplayParameters.DARK, "true",
-		        DisplayParameters.LEADERS, "true",
-		        DisplayParameters.RECORDS, "true",
-		        DisplayParameters.VIDEO, "false",
-		        DisplayParameters.PUBLIC, "true",
-		        SoundParameters.SINGLEREF, "false",
-		        DisplayParameters.ABBREVIATED,
-		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
-	}
-
-	private void setMedalsBoard(ResultsMedals medalsBoard) {
-		this.medalsBoard = medalsBoard;
-	}
-
-	private void setResultsBoard(Results board) {
-		this.resultsBoard = board;
-	}
-
-	public final Results getResultsBoard() {
-		return resultsBoard;
-	}
-
-	private final ResultsMedals getMedalsBoard() {
-		return medalsBoard;
 	}
 
 }

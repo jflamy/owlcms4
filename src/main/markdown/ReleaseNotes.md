@@ -6,17 +6,17 @@
 > Version 44 is a technical migration release.  It updates the code to the current version of the user interface framework ([Vaadin 24](http://vaadin.com)). A clean-up of the code was performed at the same time, and several small annoyances were fixed as a result.
 >
 
-**44.0.0-beta08**
+**44.0.0-beta09**
 
-- owlcms now starts correctly on the cloud and from a Docker container.
-- Athlete pictures are now shown on the attempt board, the flag location does not change if some athletes don't have a picture.
-- The mobile device page for referees was adjusted to correctly show decision reminders and jury summons.
+- Public displays now switch to medals during ceremonies;
 - Known issues:
-  - The automatic switching of the public scoreboard during medal ceremonies does not work yet.
+  - Video-oriented displays have not been fully migrated yet.
   - See also this [list of known small issues](https://github.com/jflamy/owlcms4/issues/734)
+
 
 **44.0 Changes**
 
+- The display selection page has been changed.  The public scoreboards are now separate from the warmup scoreboards - many people were unaware of the public scoreboard feature that switches the display during medal ceremonies.
 - It is no longer necessary to start different browsers to run owlcms, publicresults and owlcms-firmata on the same machine  They no longer interfere with one another.
   - However different browsers are still needed when testing several platforms on the same computer
 - The visual styling has been changed for a more modern look. 

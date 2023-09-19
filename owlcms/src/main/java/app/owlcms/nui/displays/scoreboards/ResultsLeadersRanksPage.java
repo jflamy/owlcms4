@@ -10,7 +10,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.data.config.Config;
-import app.owlcms.displays.scoreboard.ResultsLeadersRanks;
+import app.owlcms.displays.scoreboard.ResultsMultiRanks;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
@@ -28,7 +28,7 @@ public class ResultsLeadersRanksPage extends AbstractResultsDisplayPage {
 
 	@Override
 	protected void init() {
-		var board = new ResultsLeadersRanks(this);
+		var board = new ResultsMultiRanks();
 		this.setBoard(board);
 		board.setLeadersDisplay(true);
 		board.setRecordsDisplay(true);

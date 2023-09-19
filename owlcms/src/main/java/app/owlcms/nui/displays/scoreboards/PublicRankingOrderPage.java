@@ -4,24 +4,25 @@ import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.config.Config;
 import app.owlcms.displays.scoreboard.ResultsRankingOrder;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-@Route("displays/resultsRankingOrder")
+@Route("displays/publicRankingOrder")
 
-public class ResultsRankingOrderPage extends AbstractResultsDisplayPage {
+public class PublicRankingOrderPage extends PublicBoardPage {
 
-	Logger logger = (Logger) LoggerFactory.getLogger(ResultsRankingOrderPage.class);
+	Logger logger = (Logger) LoggerFactory.getLogger(PublicRankingOrderPage.class);
 
-	public ResultsRankingOrderPage() {
+	public PublicRankingOrderPage() {
 		// intentionally empty. superclass will call init() as required.
 	}
 
@@ -37,6 +38,7 @@ public class ResultsRankingOrderPage extends AbstractResultsDisplayPage {
 		board.setLeadersDisplay(true);
 		board.setRecordsDisplay(true);
 		this.addComponent(board);
+		this.ui = UI.getCurrent();
 
 		setDefaultParameters(QueryParameters.simple(Map.of(
 		        SoundParameters.SILENT, "true",
