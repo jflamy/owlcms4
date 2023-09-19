@@ -168,7 +168,7 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	}
 
 	@Override
-	final public boolean isShowInitialDialog() {
+	public boolean isShowInitialDialog() {
 		return showInitialDialog;
 	}
 

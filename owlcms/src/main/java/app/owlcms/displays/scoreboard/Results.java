@@ -275,7 +275,7 @@ public class Results extends LitTemplate
 		return recordsDisplay;
 	}
 
-	public final boolean isShowInitialDialog() {
+	public boolean isShowInitialDialog() {
 		return false;
 	}
 
@@ -924,8 +924,9 @@ public class Results extends LitTemplate
 		return separator;
 	}
 
-	/*
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
+
+	/**
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {

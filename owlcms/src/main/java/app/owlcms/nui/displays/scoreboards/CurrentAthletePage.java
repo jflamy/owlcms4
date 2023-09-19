@@ -11,8 +11,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.config.Config;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.displays.scoreboard.CurrentAthlete;
@@ -59,5 +59,11 @@ public class CurrentAthletePage extends AbstractResultsDisplayPage {
 		DisplayOptions.addRule(vl);
 		DisplayOptions.addSoundEntries(vl, target, this);
 	}
+	
+	@Override
+	public boolean isShowInitialDialog() {
+		return false;
+	}
+	
 
 }
