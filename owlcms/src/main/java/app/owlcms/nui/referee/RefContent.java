@@ -19,9 +19,11 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.Icon;
@@ -109,6 +111,7 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 	private HorizontalLayout juryRow;
 	private boolean whiteTouched;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
+	private HorizontalLayout topWrapper;
 
 	public RefContent() {
 		OwlcmsFactory.waitDBInitialized();
@@ -251,18 +254,17 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 			return;
 		}
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			topRow.getStyle().set("display", "none");
-			warningRow.getStyle().set("display", "none");
-			juryRow.getStyle().set("display", "flex");
+			topWrapper.removeAll();
+			topWrapper.add(juryRow);
+
 			UI currentUI = UI.getCurrent();
 			new DelayTimer().schedule(() -> currentUI.access(() -> {
 				beeper.beep();
 			}), 1000);
 			new DelayTimer().schedule(() -> currentUI.access(() -> {
 				beeper.reset();
-				topRow.getStyle().set("display", "flex");
-				warningRow.getStyle().set("display", "none");
-				juryRow.getStyle().set("display", "none");
+				topWrapper.removeAll();
+				topWrapper.add(topRow);
 			}), 9000);
 		});
 	}
@@ -281,15 +283,11 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		}
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			if (e.on) {
-				beeper.beep();
-				topRow.getStyle().set("display", "none");
-				warningRow.getStyle().set("display", "flex");
-				juryRow.getStyle().set("display", "none");
-			} else {
-				topRow.getStyle().set("display", "flex");
-				warningRow.getStyle().set("display", "none");
-				juryRow.getStyle().set("display", "none");
-			}
+				topWrapper.removeAll();
+				topWrapper.add(warningRow);
+			} /*
+			   * else { topWrapper.removeAll(); topWrapper.add(topRow); }
+			   */
 		});
 	}
 
@@ -327,16 +325,20 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 
 	private Icon bigIcon(VaadinIcon iconDef, String color) {
 		Icon icon = iconDef.create();
-		icon.setSize("100%");
+		icon.setSize("70%");
 		icon.getStyle().set("color", color);
 		return icon;
 	}
 
 	private void createContent(VerticalLayout refContainer) {
-
-		var w = new H2(Translator.translate("JuryNotification.PleaseEnterDecision"));
-		w.getElement().setAttribute("style",
-		        "background-color: yellow; width: 100%; color: black; text-align: center; padding: 0; line-height: initial");
+		var w = new Div();
+		w.add(new Text(Translator.translate("JuryNotification.PleaseEnterDecision")));
+		w.getStyle()
+			.set("background-color", "yellow")
+			.set("color", "black")
+			.set("text-align", "center")
+			.set("font-size", "larger")
+			.set("font-weight", "bold");
 		w.getClassNames().add("blink");
 		w.setWidth("100%");
 		warningRow = new HorizontalLayout();
@@ -345,11 +347,14 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		warningRow.setMargin(false);
 		warningRow.setWidthFull();
 		warningRow.getStyle().set("background-color", "yellow");
-		warningRow.getStyle().set("display", "none");
 
 		var j = new H2(Translator.translate("JuryNotification.PleaseSeeJury"));
-		j.getElement().setAttribute("style",
-		        "background-color: red; width: 100%; color: white; text-align: center; padding: 0; line-height: initial");
+		j.getStyle()
+			.set("background-color", "red")
+			.set("color", "white")
+			.set("text-align", "center")
+			.set("font-size", "larger")
+			.set("font-weight", "bold");
 		j.getClassNames().add("blink");
 		j.setWidth("100%");
 		juryRow = new HorizontalLayout();
@@ -358,7 +363,6 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		juryRow.setPadding(false);
 		juryRow.setMargin(false);
 		juryRow.getStyle().set("background-color", "red");
-		juryRow.getStyle().set("display", "none");
 
 		NativeLabel refLabel = new NativeLabel(getTranslation("Referee"));
 		var labelWrapper = new H2(refLabel);
@@ -390,22 +394,25 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		topRow.setSpacing(true);
 		topRow.setAlignItems(Alignment.BASELINE);
 
-		createRefVoting();
-		resetRefVote();
-
-		HorizontalLayout topWrapper = new HorizontalLayout();
+		topWrapper = new HorizontalLayout();
 		topWrapper.setHeight("2em");
 		topWrapper.setWidthFull();
 		topWrapper.getStyle().set("line-height", "2em");
-		topWrapper.add(topRow, warningRow, juryRow);
+		
+		createRefVoting();
+		resetRefVote();
 
+		refContainer.setId("refContainer");
 		refContainer.setBoxSizing(BoxSizing.BORDER_BOX);
 		refContainer.setMargin(false);
+		refContainer.getClassNames().add("dark");
+		refContainer.setHeight("100%");
 		refContainer.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
 		refContainer.add(topWrapper);
 		refContainer.setAlignSelf(Alignment.START, topRow);
+		refVotingCenterHorizontally.setId("refVotingCenterHorizontally");
+		this.setId("top");
 		refContainer.add(refVotingCenterHorizontally);
-
 	}
 
 	private void createRefVoting() {
@@ -414,21 +421,21 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		refVotingButtons.setBoxSizing(BoxSizing.BORDER_BOX);
 		refVotingButtons.setJustifyContentMode(JustifyContentMode.EVENLY);
 		refVotingButtons.setDefaultVerticalComponentAlignment(Alignment.CENTER);
-		refVotingButtons.setHeight("60vh");
-		refVotingButtons.setWidth("90%");
+		refVotingButtons.setHeight("100%");
+		refVotingButtons.setWidth("100%");
 		refVotingButtons.getStyle().set("background-color", "black");
 		refVotingButtons.setPadding(false);
 		refVotingButtons.setMargin(false);
+		refVotingButtons.setSpacing(true);
 
 		// center the button cluster within page width
 		refVotingCenterHorizontally = new VerticalLayout();
-		refVotingCenterHorizontally.setWidthFull();
+		refVotingCenterHorizontally.setSizeFull();
 		refVotingCenterHorizontally.setBoxSizing(BoxSizing.BORDER_BOX);
 		refVotingCenterHorizontally.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
 		refVotingCenterHorizontally.setPadding(true);
 		refVotingCenterHorizontally.setMargin(true);
-		refVotingCenterHorizontally.getStyle().set("background-color", "black");
-
+		
 		refVotingCenterHorizontally.add(refVotingButtons);
 		return;
 	}
@@ -494,9 +501,8 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		bad.getElement().addEventListener("touchstart", (e) -> redTouched(e));
 		bad.getElement().addEventListener("click", (e) -> redClicked(e));
 		refVotingButtons.add(bad, good);
-		topRow.getStyle().set("display", "flex");
-		warningRow.getStyle().set("display", "none");
-		juryRow.getStyle().set("display", "none");
+		topWrapper.removeAll();
+		topWrapper.add(topRow);
 		beeper.reset();
 	}
 
