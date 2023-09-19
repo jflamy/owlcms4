@@ -32,8 +32,6 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
-import app.owlcms.displays.scoreboard.ResultsMedals;
-import app.owlcms.displays.scoreboard.ResultsRankings;
 import app.owlcms.displays.video.StreamingEventMonitor;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -44,8 +42,10 @@ import app.owlcms.nui.displays.attemptboards.PublicFacingDecisionBoardPage;
 import app.owlcms.nui.displays.scoreboards.CurrentAthletePage;
 import app.owlcms.nui.displays.scoreboards.ResultsBoardPage;
 import app.owlcms.nui.displays.scoreboards.ResultsLeadersRanksPage;
+import app.owlcms.nui.displays.scoreboards.ResultsMedalsPage;
 import app.owlcms.nui.displays.scoreboards.ResultsNoLeadersPage;
 import app.owlcms.nui.displays.scoreboards.ResultsRankingOrderPage;
+import app.owlcms.nui.displays.scoreboards.ResultsRankingsPage;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.NavigationPage;
@@ -137,11 +137,11 @@ public class VideoNavigationContent extends BaseNavigationContent
 		Button medals = new Button(getTranslation("CeremonyType.MEDALS"));
 		Button rankings = new Button(getTranslation("Scoreboard.RANKING"));
 		medals.addClickListener((e) -> {
-			Class<ResultsMedals> class1 = ResultsMedals.class;
+			Class<ResultsMedalsPage> class1 = ResultsMedalsPage.class;
 			openClass(class1);
 		});
 		rankings.addClickListener((e) -> {
-			Class<ResultsRankings> class1 = ResultsRankings.class;
+			Class<ResultsRankingsPage> class1 = ResultsRankingsPage.class;
 			openClass(class1);
 		});
 		VerticalLayout intro1a = new VerticalLayout();
