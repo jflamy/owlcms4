@@ -8,10 +8,9 @@
 
 **44.0.0-beta09**
 
-- Public displays now switch to medals during ceremonies;
-- Known issues:
-  - Video-oriented displays have not been fully migrated yet.
-  - See also this [list of known small issues](https://github.com/jflamy/owlcms4/issues/734)
+- Public displays now switch to medals during ceremonies
+- Video displays are operational.
+- Known issues: see this [list of known small issues](https://github.com/jflamy/owlcms4/issues/734)
 
 
 **44.0 Changes**
