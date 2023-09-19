@@ -44,7 +44,7 @@ public class Main {
 
         try {
             init();
-            new EmbeddedJetty(new CountDownLatch(0))
+            new EmbeddedJetty(new CountDownLatch(0), "publicresults")
                     .setStartLogger(logger)
                     .setInitConfig(Runnables::doNothing)
                     .setInitData(Runnables::doNothing)

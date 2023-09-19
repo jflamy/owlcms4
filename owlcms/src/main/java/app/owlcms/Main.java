@@ -166,7 +166,7 @@ public class Main {
 
 		// restart automatically forever if running as public demo
 		while (true) {
-			EmbeddedJetty embeddedJetty = new EmbeddedJetty(latch)
+			EmbeddedJetty embeddedJetty = new EmbeddedJetty(latch, "owlcms")
 			        .setStartLogger(logger)
 			        .setInitConfig(Main::initConfig)
 			        .setInitData(Main::initData);
