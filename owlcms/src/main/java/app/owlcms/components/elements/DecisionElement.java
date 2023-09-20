@@ -184,7 +184,7 @@ public class DecisionElement extends LitTemplate
 	@Subscribe
 	public void slaveStartTimer(UIEvent.StartTime e) {
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			uiEventLogger.debug("!!! slaveStartTimer enable");
+			//uiEventLogger.debug("!!! slaveStartTimer enable");
 			this.getElement().callJsFunction("setEnabled", true);
 		});
 	}
@@ -192,7 +192,7 @@ public class DecisionElement extends LitTemplate
 	@Subscribe
 	public void slaveStopTimer(UIEvent.StopTime e) {
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			uiEventLogger.debug("!!! slaveStopTimer enable");
+			//uiEventLogger.debug("!!! slaveStopTimer enable");
 			this.getElement().callJsFunction("setEnabled", true);
 		});
 	}
