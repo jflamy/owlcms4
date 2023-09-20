@@ -641,7 +641,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	private void configure20kgWeightField(LocalizedIntegerField field) {
 		TextField textField = field.getWrappedTextField();
 		textField.setAutoselect(true);
-		textField.setValueChangeMode(ValueChangeMode.ON_BLUR);
+		textField.setValueChangeMode(ValueChangeMode.ON_CHANGE);
 		textField.setPattern("^(-?\\d+)|()$"); // optional minus and at least one digit, or empty.
 		textField.setAllowedCharPattern("[0-9-]");
 		textField.addValueChangeListener((e) -> {
@@ -749,7 +749,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		} else {
 			fullBirthDateField = new LocalDateField();
 			fullBirthDateField.getWrappedTextField().setPlaceholder("yyyy-mm-dd");
-			fullBirthDateField.getWrappedTextField().setValueChangeMode(ValueChangeMode.ON_BLUR);
+			fullBirthDateField.getWrappedTextField().setValueChangeMode(ValueChangeMode.ON_CHANGE);
 			BindingBuilder<Athlete, LocalDate> bb = binder.forField(fullBirthDateField);
 			validateFullBirthDate(bb);
 			bindField(bb, fullBirthDateField, Athlete::getFullBirthDate, Athlete::setFullBirthDate);
@@ -1052,7 +1052,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			fullBirthDateField.addValueChangeListener(listener);
 		}
 		wrappedBWTextField = bodyWeightField.getWrappedTextField();
-		wrappedBWTextField.setValueChangeMode(ValueChangeMode.ON_BLUR);
+		wrappedBWTextField.setValueChangeMode(ValueChangeMode.ON_CHANGE);
 		wrappedBWTextField.setAutoselect(true);
 		wrappedBWTextField.addValueChangeListener((vc) -> {
 			// logger.debug("wrappedBWTextField listenersEnabled={} invalid={}",
