@@ -29,7 +29,7 @@ public interface ResultsParametersReader extends ResultsParameters, FOPParameter
 	public default Map<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
 
 		Logger logger = (Logger) LoggerFactory.getLogger(ResultsParametersReader.class);
-		logger.warn("ResultsParameterReader readParams");
+		//logger.debug("ResultsParameterReader readParams");
 		
 		var fop = getFop();
 

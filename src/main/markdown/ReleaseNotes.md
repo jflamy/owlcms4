@@ -9,6 +9,7 @@
 **44.0.0-beta12**
 
 - Fix: The enter key shortcut now works for all fields on the athlete weigh-in/registration page.
+- Fix: formatting of the video ranking and medals page
 - Fix: in countries where the decimal separator is the comma, the scoreboards are no longer garbled when editing the team width or font size (injecting numbers with commas broke the style sheet).
 - Known issues: see this [list of known small issues](https://github.com/jflamy/owlcms4/issues/734)
 

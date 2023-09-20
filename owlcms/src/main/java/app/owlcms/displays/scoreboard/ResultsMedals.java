@@ -26,6 +26,7 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.function.SerializableConsumer;
 
 import app.owlcms.apputils.SoundUtils;
+import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.ResultsParameters;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
@@ -62,7 +63,7 @@ import elemental.json.JsonValue;
 @Tag("resultsmedals-template")
 @JsModule("./components/ResultsMedals.js")
 
-public class ResultsMedals extends Results implements ResultsParameters {
+public class ResultsMedals extends Results implements ResultsParameters, DisplayParameters {
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsMedals.class);
 	@SuppressWarnings("unused")
@@ -85,7 +86,7 @@ public class ResultsMedals extends Results implements ResultsParameters {
 		getBreakTimer().setSilenced(true);
 		getDecisions().setSilenced(true);
 	}
-
+	
 	@Override
 	public void doBreak(UIEvent event) {
 		if (!(event instanceof UIEvent.BreakStarted)) {
@@ -707,4 +708,8 @@ public class ResultsMedals extends Results implements ResultsParameters {
 		}
 	}
 
+	@Override
+	public boolean isShowInitialDialog() {
+		return false;
+	}
 }

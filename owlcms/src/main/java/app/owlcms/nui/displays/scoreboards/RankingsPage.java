@@ -14,13 +14,24 @@ import app.owlcms.displays.scoreboard.ResultsRankings;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-@Route("displays/resultsRankings")
+@Route("displays/rankings")
 
 public class RankingsPage extends MedalsPage {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(RankingsPage.class);
 
 	public RankingsPage() {
+		// intentionally empty. superclass will call init() as required.
+	}
+
+	@Override
+	public String getPageTitle() {
+		String translation = getTranslation("Scoreboard.RANKING");
+		return translation;
+	}
+	
+	@Override
+	protected void init() {
 		var board = new ResultsRankings();
 		this.setBoard(board);
 		this.addComponent(board);
@@ -33,11 +44,5 @@ public class RankingsPage extends MedalsPage {
 		        DisplayParameters.RECORDS, "true",
 		        DisplayParameters.ABBREVIATED,
 		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
-	}
-
-	@Override
-	public String getPageTitle() {
-		String translation = getTranslation("Scoreboard.RANKING");
-		return translation;
 	}
 }

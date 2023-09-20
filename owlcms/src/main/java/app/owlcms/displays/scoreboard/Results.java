@@ -336,7 +336,9 @@ public class Results extends LitTemplate
 		this.darkMode = dark;
 		getElement().getClassList().set(DisplayParameters.DARK, dark);
 		getElement().getClassList().set(DisplayParameters.LIGHT, !dark);
-		getElement().setProperty("darkMode", darkMode ? DisplayParameters.DARK : DisplayParameters.LIGHT);
+
+		String value = darkMode ? DisplayParameters.DARK : DisplayParameters.LIGHT;
+		getElement().setProperty("darkMode", value);
 	}
 
 	public void setDecisions(DecisionElement decisions) {
