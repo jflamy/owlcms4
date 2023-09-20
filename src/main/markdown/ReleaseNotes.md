@@ -1,10 +1,10 @@
-43.0.0-rc
+43.0.1
 
 > *Release Candidates* are the final testing releases
 > *Do test thouroughly before using in a a competition.*
 
-- 43.0.0-rc02:
-  - Fix: Starting the snatch countdown after the end of introduction works again
+- 43.0.1:
+  - Fix: Starting the snatch countdown after the end of introduction no longer requires ending the break.
   - Fix: Exporting a database that included records with no record date and no athlete age could fail.
   
 - Referee decision updates are ignored once the decision has been shown. 
