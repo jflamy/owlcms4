@@ -1959,6 +1959,7 @@ public class FieldOfPlay {
 		this.getBreakTimer().start();
 		this.setState(BREAK);
 
+
 		// the event forces the other UIs to take notice. The arguments are not actually relevant.
 		BreakStarted event = new UIEvent.BreakStarted(millisRemaining, this, false, BreakType.FIRST_CJ, CountdownType.DURATION, LoggerUtils.stackTrace(), false);
 		pushOutUIEvent(event);
@@ -2494,12 +2495,13 @@ public class FieldOfPlay {
 		this.ceremonyType = null;
 
 		// logger.debug("transitionToBreak {}", LoggerUtils.stackTrace());
-		if (state == BREAK && (getBreakType() == FIRST_CJ) && ! (newBreak == BreakType.JURY || newBreak == BreakType.CHALLENGE)) {
+		BreakType curBreakType = getBreakType();
+		if (state == BREAK && (curBreakType == FIRST_CJ) && ! (newBreak == BreakType.JURY || newBreak == BreakType.CHALLENGE)) {
 			// no interruption other than jury during CJ countdown.  Otherwise must stop break.
 			return;
 		}
 		
-		if (state == BREAK && (getBreakType().isCountdown()) && (newBreak == BreakType.JURY || newBreak == BreakType.CHALLENGE)) {
+		if (state == BREAK && (curBreakType != null && curBreakType.isCountdown()) && (newBreak == BreakType.JURY || newBreak == BreakType.CHALLENGE)) {
 			// ignore jury break during intro and snatch breaks
 			return;
 		}
@@ -2507,7 +2509,7 @@ public class FieldOfPlay {
 		doTONotifications(newBreak);
 
 		if (state == BREAK) {
-			if (getBreakType() == null) {
+			if (curBreakType == null) {
 				// don't care about what was going on, force new break. Used by BreakManagement.
 				logger.debug("{}forced break from breakmgmt", getLoggingName());
 				setBreakType(newBreak);
@@ -2516,12 +2518,12 @@ public class FieldOfPlay {
 				pushOutUIEvent(new UIEvent.BreakStarted(breakTimer.liveTimeRemaining(), this, false, newBreak,
 				        CountdownType.DURATION, e.getStackTrace(), getBreakTimer().isIndefinite()));
 				return;
-			} else if ((newBreak != getBreakType() || newCountdownType != getCountdownType())) {
+			} else if ((newBreak != curBreakType || newCountdownType != getCountdownType())) {
 				// changing the kind of break
 				logger.debug("{}switching break type while in break : current {} new {} remaining {}", getLoggingName(),
-				        getBreakType(), newBreak, breakTimer.liveTimeRemaining());
+				        curBreakType, newBreak, breakTimer.liveTimeRemaining());
 				if (newBreak == BreakType.FIRST_SNATCH) {
-					BreakType oldBreakType = getBreakType();
+					BreakType oldBreakType = curBreakType;
 					setBreakType(newBreak);
 					// logger.trace("???? oldbreaktype = {} indefinite = {}", oldBreakType,
 					// indefinite);
@@ -2543,7 +2545,7 @@ public class FieldOfPlay {
 					        CountdownType.DURATION, LoggerUtils.stackTrace(), getBreakTimer().isIndefinite()));
 					return;
 				} else {
-					logger.debug("{}break switch: from {} to {} {}", getLoggingName(), getBreakType(), newBreak,
+					logger.debug("{}break switch: from {} to {} {}", getLoggingName(), curBreakType, newBreak,
 					        newCountdownType);
 					breakTimer.stop();
 					setBreakParams(e, breakTimer, newBreak, newCountdownType);
