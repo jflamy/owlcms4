@@ -18,24 +18,25 @@ import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 
 public interface ResultsParametersReader extends ResultsParameters, FOPParametersReader {
-	
+
 	public static final String CATEGORY = "cat";
 	public static final String AGEGROUP_PREFIX = "agp";
 	public static final String AGEDIVISION = "ad";
 	public static final String AGEGROUP = "ag";
 
+
 	@Override
-	public default Map<String, List<String>> readParams(Location location,
-	        Map<String, List<String>> parametersMap) {
-		
-		@SuppressWarnings("unused")
+	public default Map<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
+
 		Logger logger = (Logger) LoggerFactory.getLogger(ResultsParametersReader.class);
+		logger.warn("ResultsParameterReader readParams");
+		
 		var fop = getFop();
 
-		//logger.debug("ContextFreeParametersReader readParam");
+		// logger.debug("ContextFreeParametersReader readParam");
 		// handle previous parameters by calling superclass
 		Map<String, List<String>> newParameterMap = FOPParametersReader.super.readParams(location, parametersMap);
-		
+
 		setVideo(isVideo(location));
 
 		// get the age group from query parameters
@@ -58,7 +59,7 @@ public interface ResultsParametersReader extends ResultsParameters, FOPParameter
 		} else {
 			newParameterMap.remove(AGEGROUP);
 		}
-		
+
 		List<String> ageDivisionParams = newParameterMap.get(AGEDIVISION);
 		try {
 			String ageDivisionName = (ageDivisionParams != null

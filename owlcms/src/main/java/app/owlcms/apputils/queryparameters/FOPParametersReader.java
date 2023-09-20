@@ -70,6 +70,7 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 	@Override
 	@SuppressWarnings("null")
 	public default Map<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
+		logger.warn("FopParameter readParams");
 		HashMap<String, List<String>> newParameterMap = new HashMap<>(parametersMap);
 
 		// get the fop from the query parameters, set to the default FOP if not provided
@@ -142,6 +143,7 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 	 */
 	@Override
 	public default void setParameter(BeforeEvent event, @OptionalParameter String routeParameter) {
+		logger.warn("FOPParameter setParameter");
 		ParameterReader.super.setParameter(event, routeParameter);
 		if (routeParameter != null) {
 			setRouteParameter(routeParameter);
