@@ -3,8 +3,9 @@
 > *Release Candidates* are the final testing releases
 > *Do test thouroughly before using in a a competition.*
 
-- 43.0.0-rc01:
-  - Merge latest translations.
+- 43.0.0-rc02:
+  - Fix: Starting the snatch countdown after the end of introduction works again
+  - Fix: Exporting a database that included records with no record date and no athlete age could fail.
   
 - Referee decision updates are ignored once the decision has been shown. 
   - Referees must use flags or cards after 3 seconds. In this way, what the jury sees matches what the public saw.
