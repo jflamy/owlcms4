@@ -18,7 +18,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route("displays/publicResultsSimple")
 
-public class PublicNoLeadersPage extends PublicBoardPage {
+public class PublicNoLeadersPage extends PublicScoreboardPage {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(PublicNoLeadersPage.class);
 

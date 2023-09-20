@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 
-import app.owlcms.nui.displays.scoreboards.ResultsNoLeadersPage;
+import app.owlcms.nui.displays.scoreboards.WarmupNoLeadersPage;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -29,7 +29,7 @@ public class ResultsNoLeaders extends Results {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(ResultsNoLeaders.class);
 
-	public ResultsNoLeaders(ResultsNoLeadersPage page) {
+	public ResultsNoLeaders(WarmupNoLeadersPage page) {
 		super();
 	}
 

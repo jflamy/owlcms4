@@ -9,7 +9,7 @@ import com.vaadin.flow.component.dependency.JsModule;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
-import app.owlcms.nui.displays.scoreboards.ResultsLiftingOrderPage;
+import app.owlcms.nui.displays.scoreboards.WarmupLiftingOrderPage;
 
 @SuppressWarnings({ "serial", "deprecation" })
 
@@ -19,7 +19,7 @@ import app.owlcms.nui.displays.scoreboards.ResultsLiftingOrderPage;
 
 public class ResultsLiftingOrder extends Results {
 
-	public ResultsLiftingOrder(ResultsLiftingOrderPage page) {
+	public ResultsLiftingOrder(WarmupLiftingOrderPage page) {
 		super();
 	}
 

@@ -37,7 +37,7 @@ public class PublicMultiRanksPage extends AbstractResultsDisplayPage {
 
 	@Override
 	protected void init() {
-		logger = (Logger) LoggerFactory.getLogger(PublicBoardPage.class);
+		logger = (Logger) LoggerFactory.getLogger(PublicScoreboardPage.class);
 		uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 
 		// each superclass must this routine.

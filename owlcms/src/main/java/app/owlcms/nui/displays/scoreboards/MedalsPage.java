@@ -17,11 +17,11 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route("displays/resultsMedals")
 
-public class ResultsMedalsPage extends AbstractResultsDisplayPage {
+public class MedalsPage extends AbstractResultsDisplayPage {
 
-	Logger logger = (Logger) LoggerFactory.getLogger(ResultsMedalsPage.class);
+	Logger logger = (Logger) LoggerFactory.getLogger(MedalsPage.class);
 
-	public ResultsMedalsPage() {
+	public MedalsPage() {
 		// intentionally empty. superclass will call init() as required.
 	}
 

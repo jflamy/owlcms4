@@ -7,32 +7,28 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.config.Config;
-import app.owlcms.displays.scoreboard.ResultsLiftingOrder;
+import app.owlcms.displays.scoreboard.ResultsMultiRanks;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-@Route("displays/resultsLiftingOrder")
+@Route("displays/resultsLeadersRanks")
 
-public class ResultsLiftingOrderPage extends AbstractResultsDisplayPage {
+public class WarmupMultiRanksPage extends AbstractResultsDisplayPage {
 
-	Logger logger = (Logger) LoggerFactory.getLogger(ResultsLiftingOrderPage.class);
-
-	public ResultsLiftingOrderPage() {
-		// intentionally empty. superclass will call init as required.
-	}
+	Logger logger = (Logger) LoggerFactory.getLogger(WarmupMultiRanksPage.class);
 
 	@Override
 	public String getPageTitle() {
-		return getTranslation("Scoreboard.LiftingOrder") + OwlcmsSession.getFopNameIfMultiple();
+		return getTranslation("ScoreboardMultiRanksTitle") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
 	@Override
 	protected void init() {
-		var board = new ResultsLiftingOrder(this);
+		var board = new ResultsMultiRanks();
 		this.setBoard(board);
 		board.setLeadersDisplay(true);
 		board.setRecordsDisplay(true);

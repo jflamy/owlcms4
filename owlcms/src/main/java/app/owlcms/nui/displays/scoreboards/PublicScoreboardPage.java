@@ -23,7 +23,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route("displays/publicResults")
 
-public class PublicBoardPage extends AbstractResultsDisplayPage {
+public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 
 	Logger logger;
 	Logger uiEventLogger;
@@ -32,7 +32,7 @@ public class PublicBoardPage extends AbstractResultsDisplayPage {
 	protected UI ui;
 	private ResultsMedals medalsBoard;
 
-	public PublicBoardPage() {
+	public PublicScoreboardPage() {
 		// intentionally empty. superclass will call init() as required.
 	}
 
@@ -62,7 +62,7 @@ public class PublicBoardPage extends AbstractResultsDisplayPage {
 
 	@Override
 	protected void init() {
-		logger = (Logger) LoggerFactory.getLogger(PublicBoardPage.class);
+		logger = (Logger) LoggerFactory.getLogger(PublicScoreboardPage.class);
 		uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 
 		// each superclass must this routine.

@@ -16,11 +16,11 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route("displays/resultsRankings")
 
-public class ResultsRankingsPage extends ResultsMedalsPage {
+public class RankingsPage extends MedalsPage {
 
-	Logger logger = (Logger) LoggerFactory.getLogger(ResultsRankingsPage.class);
+	Logger logger = (Logger) LoggerFactory.getLogger(RankingsPage.class);
 
-	public ResultsRankingsPage() {
+	public RankingsPage() {
 		var board = new ResultsRankings();
 		this.setBoard(board);
 		this.addComponent(board);

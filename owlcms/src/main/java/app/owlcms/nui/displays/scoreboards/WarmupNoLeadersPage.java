@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.config.Config;
 import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.init.OwlcmsSession;
@@ -17,11 +17,11 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route("displays/resultsSimple")
 
-public class ResultsNoLeadersPage extends ResultsBoardPage {
+public class WarmupNoLeadersPage extends WarmupScoreboardPage {
 
-	Logger logger = (Logger) LoggerFactory.getLogger(ResultsNoLeadersPage.class);
+	Logger logger = (Logger) LoggerFactory.getLogger(WarmupNoLeadersPage.class);
 
-	public ResultsNoLeadersPage() {
+	public WarmupNoLeadersPage() {
 		// intentionally empty. superclass will call init() as required.
 	}
 

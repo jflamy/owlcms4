@@ -40,12 +40,12 @@ import app.owlcms.monitors.OBSMonitor;
 import app.owlcms.nui.displays.attemptboards.PublicFacingAttemptBoardPage;
 import app.owlcms.nui.displays.attemptboards.PublicFacingDecisionBoardPage;
 import app.owlcms.nui.displays.scoreboards.CurrentAthletePage;
-import app.owlcms.nui.displays.scoreboards.ResultsBoardPage;
-import app.owlcms.nui.displays.scoreboards.ResultsLeadersRanksPage;
-import app.owlcms.nui.displays.scoreboards.ResultsMedalsPage;
-import app.owlcms.nui.displays.scoreboards.ResultsNoLeadersPage;
-import app.owlcms.nui.displays.scoreboards.ResultsRankingOrderPage;
-import app.owlcms.nui.displays.scoreboards.ResultsRankingsPage;
+import app.owlcms.nui.displays.scoreboards.MedalsPage;
+import app.owlcms.nui.displays.scoreboards.RankingsPage;
+import app.owlcms.nui.displays.scoreboards.WarmupScoreboardPage;
+import app.owlcms.nui.displays.scoreboards.WarmupMultiRanksPage;
+import app.owlcms.nui.displays.scoreboards.WarmupNoLeadersPage;
+import app.owlcms.nui.displays.scoreboards.WarmupRankingOrderPage;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.NavigationPage;
@@ -95,13 +95,13 @@ public class VideoNavigationContent extends BaseNavigationContent
 		FlexibleGridLayout grid31 = HomeNavigationContent.navigationGrid(publicDecisions);
 		doGroup(getTranslation("RefereeDecisions"), grid31, this);
 
-		Button scoreboard = openInNewTab(ResultsNoLeadersPage.class, getTranslation("Scoreboard"), "video");
-		Button scoreboardWLeaders = openInNewTab(ResultsBoardPage.class, 
+		Button scoreboard = openInNewTab(WarmupNoLeadersPage.class, getTranslation("Scoreboard"), "video");
+		Button scoreboardWLeaders = openInNewTab(WarmupScoreboardPage.class, 
 				getTranslation("ScoreboardWLeadersButton"), "video");
 		scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
-		Button scoreboardMultiRanks = openInNewTab(ResultsLeadersRanksPage.class,
+		Button scoreboardMultiRanks = openInNewTab(WarmupMultiRanksPage.class,
 		        getTranslation("ScoreboardMultiRanksButton"), "video");
-		Button scoreboardRankings = openInNewTab(ResultsRankingOrderPage.class,
+		Button scoreboardRankings = openInNewTab(WarmupRankingOrderPage.class,
 		        getTranslation("Scoreboard.RankingOrderButton"), "video");
 
 		List<Group> groups = GroupRepository.findAll();
@@ -137,11 +137,11 @@ public class VideoNavigationContent extends BaseNavigationContent
 		Button medals = new Button(getTranslation("CeremonyType.MEDALS"));
 		Button rankings = new Button(getTranslation("Scoreboard.RANKING"));
 		medals.addClickListener((e) -> {
-			Class<ResultsMedalsPage> class1 = ResultsMedalsPage.class;
+			Class<MedalsPage> class1 = MedalsPage.class;
 			openClass(class1);
 		});
 		rankings.addClickListener((e) -> {
-			Class<ResultsRankingsPage> class1 = ResultsRankingsPage.class;
+			Class<RankingsPage> class1 = RankingsPage.class;
 			openClass(class1);
 		});
 		VerticalLayout intro1a = new VerticalLayout();
