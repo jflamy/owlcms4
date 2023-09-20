@@ -326,6 +326,7 @@ class ResultsPR extends LitElement {
 
   wrapperClasses() {
     var classes = "wrapper";
+    classes = classes + (this.darkMode ? " " + this.darkMode : "");
     classes = classes + (this.teamWidthClass ? " " + this.teamWidthClass : "");
     classes = classes + (this.mode === "WAIT" ? " bigTitle" : "");
     return classes;
