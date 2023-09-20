@@ -55,6 +55,11 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 		DisplayOptions.addRule(vl);
 		DisplayOptions.addSizingEntries(vl, target, this);
 
+		addKeyboardShortcuts();
+	}
+
+	@Override
+	public void addKeyboardShortcuts() {
 		UI.getCurrent().addShortcutListener(() -> {
 			now = System.currentTimeMillis();
 			if (now - lastShortcut > DEBOUNCE) {

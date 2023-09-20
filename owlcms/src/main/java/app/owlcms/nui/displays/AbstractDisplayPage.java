@@ -325,6 +325,7 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 		if (isShowInitialDialog()) {
 			openDialog(getDialog());
 		}
+		addKeyboardShortcuts();
 	}
 
 	public static Logger getLogger() {
@@ -333,5 +334,8 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	public static void setLogger(Logger logger) {
 		AbstractDisplayPage.logger = logger;
+	}
+
+	public void addKeyboardShortcuts() {
 	}
 }
