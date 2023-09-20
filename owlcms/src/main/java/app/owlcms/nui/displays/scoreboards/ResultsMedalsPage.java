@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.config.Config;
 import app.owlcms.displays.scoreboard.ResultsMedals;
 import app.owlcms.init.OwlcmsSession;
@@ -34,8 +34,6 @@ public class ResultsMedalsPage extends AbstractResultsDisplayPage {
 	protected void init() {
 		var board = new ResultsMedals();
 		this.setBoard(board);
-		board.setLeadersDisplay(true);
-		board.setRecordsDisplay(true);
 		this.addComponent(board);
 
 		setDefaultParameters(QueryParameters.simple(Map.of(

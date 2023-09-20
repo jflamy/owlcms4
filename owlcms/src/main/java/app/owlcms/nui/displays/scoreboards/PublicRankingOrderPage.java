@@ -35,8 +35,6 @@ public class PublicRankingOrderPage extends PublicBoardPage {
 	protected void init() {
 		var board = new ResultsRankingOrder();
 		this.setBoard(board);
-		board.setLeadersDisplay(true);
-		board.setRecordsDisplay(true);
 		this.addComponent(board);
 		this.ui = UI.getCurrent();
 

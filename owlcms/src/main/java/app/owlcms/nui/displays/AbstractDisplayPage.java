@@ -231,7 +231,10 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	@Override
 	final public void setEmFontSize(Double emFontSize) {
-		//logger.trace("**** setEmFontSize={}", emFontSize);
+		// clamp the value to something still visible
+		if (emFontSize != null && emFontSize <= 0.1) {
+			emFontSize = 0.1D;
+		}
 		this.emFontSize = emFontSize;
 		((DisplayParameters) this.board).setEmFontSize(emFontSize);
 		pushEmSize();
@@ -294,6 +297,9 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	@Override
 	final public void setTeamWidth(Double tw) {
+		if (tw != null && tw <= 0.0) {
+			tw = 0.0D;
+		}
 		((DisplayParameters) this.board).setTeamWidth(tw);
 		this.teamWidth = tw;
 	}

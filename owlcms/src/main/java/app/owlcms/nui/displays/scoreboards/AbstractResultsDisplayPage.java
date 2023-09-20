@@ -1,7 +1,5 @@
 package app.owlcms.nui.displays.scoreboards;
 
-import java.text.DecimalFormat;
-
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Component;
@@ -11,6 +9,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 
 import app.owlcms.apputils.queryparameters.DisplayParametersReader;
+import app.owlcms.apputils.queryparameters.ResultsParameters;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.nui.displays.AbstractDisplayPage;
 import app.owlcms.nui.displays.SoundEntries;
@@ -30,7 +29,7 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
         implements SoundEntries, DisplayParametersReader, HasDynamicTitle, SafeEventBusRegistration {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(AbstractResultsDisplayPage.class);
-	private final DecimalFormat df = new DecimalFormat("0.000");
+	
 	private static final int DEBOUNCE = 50;
 	private long now;
 	private long lastShortcut;
@@ -109,8 +108,10 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 	@Override
 	public void pushEmSize() {
 		String formattedEm = null;
-		if (getEmFontSize() != null) {
-			formattedEm = df.format(getEmFontSize());
+		Double emFontSize = getEmFontSize();
+		if (emFontSize != null) {
+			emFontSize = emFontSize <= 0.0 ? 0.0 : emFontSize;
+			formattedEm = ResultsParameters.formatEN_US.format(emFontSize);
 			getBoard().getElement().setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "rem;");
 		}
 	}
@@ -118,8 +119,10 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 	@Override
 	public void pushTeamWidth() {
 		String formattedTW = null;
-		if (getTeamWidth() != null) {
-			formattedTW = df.format(getTeamWidth());
+		Double teamWidth2 = getTeamWidth();
+		if (teamWidth2 != null) {
+			teamWidth2 = teamWidth2 <= 0.0 ? 0.0 : teamWidth2;
+			formattedTW = ResultsParameters.formatEN_US.format(teamWidth2);
 			getBoard().getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
 		}
 	}

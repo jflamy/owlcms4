@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.config.Config;
 import app.owlcms.displays.scoreboard.ResultsRankings;
 import ch.qos.logback.classic.Logger;
@@ -21,10 +21,8 @@ public class ResultsRankingsPage extends ResultsMedalsPage {
 	Logger logger = (Logger) LoggerFactory.getLogger(ResultsRankingsPage.class);
 
 	public ResultsRankingsPage() {
-		var board = new ResultsRankings(this);
+		var board = new ResultsRankings();
 		this.setBoard(board);
-		board.setLeadersDisplay(true);
-		board.setRecordsDisplay(true);
 		this.addComponent(board);
 
 		setDefaultParameters(QueryParameters.simple(Map.of(

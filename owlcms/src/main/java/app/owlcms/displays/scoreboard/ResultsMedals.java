@@ -6,7 +6,6 @@
  *******************************************************************************/
 package app.owlcms.displays.scoreboard;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -77,7 +76,6 @@ public class ResultsMedals extends Results implements ResultsParameters {
 	private boolean snatchCJTotalMedals;
 	private AgeGroup ageGroup;
 	private boolean teamFlags;
-	DecimalFormat df = new DecimalFormat("0.000");
 	private AgeDivision ageDivision;
 	private String ageGroupPrefix;
 

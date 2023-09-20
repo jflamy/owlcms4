@@ -6,7 +6,6 @@
  *******************************************************************************/
 package app.owlcms.displays.scoreboard;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -31,6 +30,7 @@ import com.vaadin.flow.router.Location;
 
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.ResultsParameters;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
@@ -113,7 +113,7 @@ public class Results extends LitTemplate
 	private Double teamWidth;
 	private boolean leadersDisplay;
 	private boolean recordsDisplay;
-	private final DecimalFormat df = new DecimalFormat("0.000");
+
 	private boolean video;
 	private boolean downSilenced;
 
@@ -296,7 +296,7 @@ public class Results extends LitTemplate
 	public void pushEmSize() {
 		String formattedEm = null;
 		if (emFontSize != null) {
-			formattedEm = df.format(emFontSize);
+			formattedEm = ResultsParameters.formatEN_US.format(emFontSize);
 			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "rem;");
 			// logger.trace("%%%%% board changing em size={} from {}",emFontSize,LoggerUtils.whereFrom());
 		}
@@ -306,7 +306,7 @@ public class Results extends LitTemplate
 	public void pushTeamWidth() {
 		String formattedTW = null;
 		if (teamWidth != null) {
-			formattedTW = df.format(teamWidth);
+			formattedTW = ResultsParameters.formatEN_US.format(teamWidth);
 			this.getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
 		}
 	}

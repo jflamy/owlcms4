@@ -15,7 +15,6 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.nui.displays.scoreboards.ResultsRankingsPage;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -30,7 +29,7 @@ public class ResultsRankings extends ResultsMedals implements ResultsParameters 
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsMedals.class);
 
-	public ResultsRankings(ResultsRankingsPage page) {
+	public ResultsRankings() {
 		super();
 
 	}

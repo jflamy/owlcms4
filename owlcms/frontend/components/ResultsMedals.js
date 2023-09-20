@@ -190,6 +190,7 @@ class ResultsMedals extends LitElement {
       // WAIT INTRO_COUNTDOWN LIFT_COUNTDOWN CURRENT_ATHLETE INTERRUPTION SESSION_DONE CEREMONY
       mode: {},
       decisionVisible: { type: Boolean }, // sub-mode of CURRENT_ATHLETE
+      darkMode: {},
 
       // dynamic styling
       teamWidthClass: {},
