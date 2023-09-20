@@ -89,6 +89,7 @@ class CurrentAttempt extends LitElement {
       // mode (mutually exclusive, one of:
       // WAIT INTRO_COUNTDOWN LIFT_COUNTDOWN CURRENT_ATHLETE INTERRUPTION SESSION_DONE CEREMONY
       mode: {},
+      breakType: {},
 
       // during lifting
 
@@ -189,7 +190,7 @@ class CurrentAttempt extends LitElement {
 
   weightStyles() {
     // weights are visible during lift countdowns
-    return "display: " + ((this.mode === "LIFT_COUNTDOWN" || (this.mode === "CURRENT_ATHLETE")) ? "grid" : "none");
+    return "display: " + ((this.mode === "LIFT_COUNTDOWN" || (this.mode === "CURRENT_ATHLETE") || (this.mode === "INTERRUPTION" && this.breakType === "TECHNICAL")) ? "grid" : "none");
   }
 
   athleteTimerStyles() {
@@ -201,7 +202,7 @@ class CurrentAttempt extends LitElement {
   }
 
   barbellStyles() {
-    return "display: " + ((this.mode === "LIFT_COUNTDOWN" || (this.mode === "CURRENT_ATHLETE" && !this.decisionVisible)) ? "grid" : "none");
+    return "display: " + ((this.mode === "LIFT_COUNTDOWN" || (this.mode === "CURRENT_ATHLETE" && !this.decisionVisible) || (this.mode === "INTERRUPTION" && this.breakType === "TECHNICAL")) ? "grid" : "none");
   }
 
   decisionStyles() {
