@@ -632,6 +632,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 	private void masterStartBreak(FieldOfPlay fop, boolean force) {
 		BreakType breakType = countdownRadios.getValue();
 		CountdownType countdownType = durationRadios.getValue();
+		logger.warn("**** countdownRadios value {}",breakType);
 		masterStartBreak(fop, breakType, countdownType, force);
 	}
 

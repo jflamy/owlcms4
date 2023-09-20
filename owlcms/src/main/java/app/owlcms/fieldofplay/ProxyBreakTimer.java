@@ -236,6 +236,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 		// logger.trace("ProxyBreakTimer starting break millisRemaining {} paused {}
 		// from {}", millisRemaining,
 		// this.indefinite, LoggerUtils.whereFrom());
+		logger.warn("breaktype when starting = {}",breakType);
 		UIEvent.BreakStarted event = new UIEvent.BreakStarted(
 		        millisRemaining, getOrigin(), false,
 		        breakType,
@@ -318,6 +319,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 		        : getTimeRemaining());
 	}
 
+	@Override
 	public void setBreakType(BreakType breakType) {
 		// logger.trace("breakTimer setBreakType {} from {}", breakType,
 		// LoggerUtils.whereFrom(1));
