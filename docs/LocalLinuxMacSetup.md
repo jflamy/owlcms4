@@ -1,6 +1,6 @@
 ## macOS or Linux Installation
 
-- **Get the installation zip archive**: Get the current  [`owlcms_43.0.4.zip`](https://github.com/owlcms/owlcms4/releases/latest/download/owlcms_43.0.4.zip) file  (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4/releases/latest) .
+- **Get the installation zip archive**: Get the current  [`owlcms_43.0.5.zip`](https://github.com/owlcms/owlcms4/releases/latest/download/owlcms_43.0.5.zip) file  (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4/releases/latest) .
 
 - Double-click on the downloaded zip file, and extract the files to a directory. 
 

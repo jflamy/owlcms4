@@ -3,7 +3,7 @@
 > *Release Candidates* are the final testing releases
 > *Do test thouroughly before using in a a competition.*
 
-- 43.0.4:
+- 43.0.5:
   - Fix: Starting the snatch countdown after the end of introduction no longer requires ending the break.
   - Fix: Exporting a database that included records with no record date and no athlete age could fail.
   
@@ -59,11 +59,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_43.0.4.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_43.0.5.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_43.0.4.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_43.0.5.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Fly.io](https://owlcms.github.io/owlcms4/#Fly)** installation instructions.
 
