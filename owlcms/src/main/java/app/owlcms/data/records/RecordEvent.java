@@ -182,8 +182,6 @@ public class RecordEvent {
 		return this.ageGrpUpper;
 	}
 
-	@Transient
-	@JsonIgnore
 	public Integer getAthleteAge() {
 		if (this.athleteAge == null) {
 			return computeAthleteAgeAtTimeOfRecord();
