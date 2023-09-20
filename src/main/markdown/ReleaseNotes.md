@@ -1,9 +1,9 @@
-43.0.1
+43.0.2
 
 > *Release Candidates* are the final testing releases
 > *Do test thouroughly before using in a a competition.*
 
-- 43.0.1:
+- 43.0.2:
   - Fix: Starting the snatch countdown after the end of introduction no longer requires ending the break.
   - Fix: Exporting a database that included records with no record date and no athlete age could fail.
   
