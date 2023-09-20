@@ -6,10 +6,10 @@
 > Version 44 is a technical migration release.  It updates the code to the current version of the user interface framework ([Vaadin 24](http://vaadin.com)). A clean-up of the code was performed at the same time, and several small annoyances were fixed as a result.
 >
 
-**44.0.0-beta09**
+**44.0.0-beta10**
 
 - Public displays now switch to medals during ceremonies
-- Video displays are operational.
+- Video displays are operational.  Issue with video medals in beta09 fixed.
 - Known issues: see this [list of known small issues](https://github.com/jflamy/owlcms4/issues/734)
 
 
