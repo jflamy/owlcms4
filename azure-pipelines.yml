@@ -4,7 +4,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 43.0.5
+    default: 43.0.6
   - name: SkipTests
     type: string
     default: 'false'
@@ -154,7 +154,7 @@ jobs:
             gitHubConnection: github.com_jflamy-dev
             repositoryName: $(RELEASE_USER)/owlcms4$(RELEASE_SUFFIX)
             isPreRelease: false
-          ${{ if eq(variables['Build.SourceBranchName'], 'v23_38_1b03') }}:
+          ${{ if eq(variables['Build.SourceBranchName'], 'v23master') }}:
             gitHubConnection: github.com_jflamy-dev
             repositoryName: $(RELEASE_USER)/owlcms4$(RELEASE_SUFFIX)
             isPreRelease: false
