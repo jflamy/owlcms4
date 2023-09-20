@@ -182,8 +182,6 @@ public class RecordEvent {
 		return this.ageGrpUpper;
 	}
 
-	@Transient
-	@JsonIgnore
 	public Integer getAthleteAge() {
 		if (this.athleteAge == null) {
 			return computeAthleteAgeAtTimeOfRecord();
@@ -536,9 +534,9 @@ public class RecordEvent {
 		if (this.recordDate == null) {
 			logger.error("missing record date {} {}", this.athleteName, this.categoryString);
 			return null;
-		} else if (this.birthDate != null) {
+		} else if (this.birthDate != null && this.recordDate != null) {
 			return Period.between(this.birthDate, this.recordDate).getYears();
-		} else if (this.birthYear != null) {
+		} else if (this.birthYear != null && this.recordDate != null) {
 			return Period.between(LocalDate.of(this.birthYear, 01, 01), this.recordDate).getYears();
 		}
 		return null;
