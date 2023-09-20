@@ -82,7 +82,7 @@
     /* min-height: min-content; */
     padding: 1vmin 2vmin 2vmin 2vmin;
     overflow: hidden;
-    display: grid;
+    /*display: grid;*/ /* not needed for medals/rankings */
     justify-content: center;
     line-height: unset;
 }

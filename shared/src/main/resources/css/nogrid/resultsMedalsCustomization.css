@@ -68,19 +68,7 @@
     --rowSmallSpacerHeight: 0.25vh;
 }
 
-td.flags img {
-    height: 5vh;
-    margin: 1vh;
-    align-self: center;
-    border: 1px;
-    border-style: solid;
-}
-td.flags div {
-    height: 6vh;
-    line-height: 6vh;
-    align-self: center;
-    display: flex;
-}
+
 
 /* default for page */
 .wrapper {
@@ -95,13 +83,27 @@ td.flags div {
     /* min-height: min-content; */
     padding: 1vmin 2vmin 2vmin 2vmin;
     overflow: hidden;
-    display: grid;
+    /*display: grid;*/ /* not needed for medals/rankings */
     justify-content: center;
     line-height: unset;
 }
 
 td.name.flags {
     font-size: 120%;
+}
+
+td.flags img {
+    height: 5vh;
+    margin: 1vh;
+    align-self: center;
+    border: 1px;
+    border-style: solid;
+}
+td.flags div {
+    height: 6vh;
+    line-height: 6vh;
+    align-self: center;
+    display: flex;
 }
 
 td.flags div {
@@ -213,6 +215,48 @@ td.flags div {
     border-color: var(--lightTableBorders);
     border-width: 0.6em;
     border-style: solid;
+}
+
+/* grid layout */
+table.medals {
+    /* do not use all available vertical space */
+    flex: 0;
+    display: grid;
+    border-collapse: collapse;
+    grid-template-columns:
+        /* group */
+        var(--startWidth)
+        /* name */
+        minmax(20ch, 25%)
+        /* category */
+        var(--categoryWidth)
+        /* birth */
+        var(--birthWidth)
+        /* custom fields */
+        var(--custom1Width) var(--custom2Width)
+        /* team name */
+        minmax(min-content, 25%)
+        /* snatch results */
+        var(--spacerWidth)
+        repeat(3, var(--liftResultWidth))
+        var(--bestWidth)
+        /* one snatch rank per category */
+        repeat(var(--nbRanks), var(--rankWidth))
+        /* clean&jerk */
+        var(--spacerWidth)
+        repeat(3, var(--liftResultWidth))
+        var(--bestWidth)
+        /* one snatch rank per category */
+        repeat(var(--nbRanks), var(--rankWidth))
+        /* total */
+        var(--spacerWidth)
+        repeat(1, var(--liftResultWidth))
+        /* one total rank per category */
+        repeat(var(--nbRanks), var(--totalRankWidth))
+        /* sinclair result */
+        var(--sinclairWidth)
+        /* sinclair ranks */
+        var(--sinclairRankWidth);
 }
 
 div > div > div.attemptBar {
