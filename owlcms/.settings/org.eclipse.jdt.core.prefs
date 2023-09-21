@@ -288,7 +288,7 @@ org.eclipse.jdt.core.formatter.continuation_indentation_for_array_initializer=2
 org.eclipse.jdt.core.formatter.disabling_tag=@formatter\:off
 org.eclipse.jdt.core.formatter.enabling_tag=@formatter\:on
 org.eclipse.jdt.core.formatter.format_guardian_clause_on_one_line=false
-org.eclipse.jdt.core.formatter.format_line_comment_starting_on_first_column=false
+org.eclipse.jdt.core.formatter.format_line_comment_starting_on_first_column=true
 org.eclipse.jdt.core.formatter.indent_body_declarations_compare_to_annotation_declaration_header=true
 org.eclipse.jdt.core.formatter.indent_body_declarations_compare_to_enum_constant_header=true
 org.eclipse.jdt.core.formatter.indent_body_declarations_compare_to_enum_declaration_header=true
@@ -506,7 +506,7 @@ org.eclipse.jdt.core.formatter.insert_space_between_empty_parens_in_constructor_
 org.eclipse.jdt.core.formatter.insert_space_between_empty_parens_in_enum_constant=do not insert
 org.eclipse.jdt.core.formatter.insert_space_between_empty_parens_in_method_declaration=do not insert
 org.eclipse.jdt.core.formatter.insert_space_between_empty_parens_in_method_invocation=do not insert
-org.eclipse.jdt.core.formatter.join_lines_in_comments=true
+org.eclipse.jdt.core.formatter.join_lines_in_comments=false
 org.eclipse.jdt.core.formatter.join_wrapped_lines=false
 org.eclipse.jdt.core.formatter.keep_annotation_declaration_on_one_line=one_line_never
 org.eclipse.jdt.core.formatter.keep_anonymous_type_declaration_on_one_line=one_line_never
