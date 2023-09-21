@@ -47,7 +47,6 @@ import com.vaadin.flow.data.renderer.TextRenderer;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.GroupCategorySelectionMenu;
-import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.fields.DurationField;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
@@ -82,7 +81,6 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 	private Button stopCompetition = null;
 	private Button endCountdown = null;
 	private Button startCountdown = null;
-	private BreakTimerElement breakTimerElement;
 	private BreakType breakType;
 	private RadioButtonGroup<BreakType> countdownRadios;
 	private List<BreakType> countdowns;
@@ -195,25 +193,6 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		});
 
 		addListeners();
-	}
-
-	void cleanup() {
-		// logger.debug("removing {}", breakTimerElement);
-		OwlcmsSession.withFop(fop -> {
-			try {
-				fop.getUiEventBus().unregister(this.breakTimerElement);
-			} catch (Exception e) {
-			}
-			try {
-				fop.getFopEventBus().unregister(this.breakTimerElement);
-			} catch (Exception e) {
-			}
-			this.breakTimerElement = null;
-		});
-	}
-
-	BreakTimerElement getBreakTimer() {
-		return this.breakTimerElement;
 	}
 
 	private void addListeners() {
@@ -1218,8 +1197,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 			int fopLiveTimeRemaining = fopBreakTimer.liveTimeRemaining();
 			Integer fopBreakDuration = fopBreakTimer.getBreakDuration();
 
-			// logger.debug("syncWithFop {} {} {}", fopState,
-			// fop.getBreakTimer().liveTimeRemaining(),fop.getBreakTimer().isRunning());
+			// logger.debug("syncWithFop {} {} {}", fopState, fop.getBreakTimer().liveTimeRemaining(),fop.getBreakTimer().isRunning());
 
 			running[0] = false;
 
@@ -1251,7 +1229,6 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 				if (ct != null) {
 					setCountdownTypeValue(ct);
 				} else {
-					// logger.debug("setting to ***** {}", breakType);
 					setCountdownTypeValue(mapBreakTypeToDurationValue(this.getBreakType()));
 				}
 

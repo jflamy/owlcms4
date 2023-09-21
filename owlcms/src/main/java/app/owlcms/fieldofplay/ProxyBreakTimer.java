@@ -217,7 +217,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     @Override
     public void start() {
         BreakType breakType = getFop().getBreakType();
-        //logger.debug("****** starting break with breakType = {} fop={}", breakType, System.identityHashCode(getFop()));
+        // logger.debug("****** starting break with breakType = {} fop={}", breakType, System.identityHashCode(getFop()));
         if (breakType == null) {
             logger.error("null breaktype {}", LoggerUtils.stackTrace());
         }
@@ -230,7 +230,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
                 millisRemaining, getOrigin(), false,
                 breakType,
                 getFop().getCountdownType(), LoggerUtils.stackTrace(), this.indefinite);
-        logger.debug("posting {}", event);
+        // logger.debug("posting {}", event);
         getFop().pushOutUIEvent(event);
         setRunning(true);
     }
@@ -253,8 +253,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
         // logger.debug("*** stopping Break -- timeRemaining = {} [{}]",
         // getTimeRemaining(), LoggerUtils.whereFrom());
         timeRemainingAtLastStop = getTimeRemaining();
-        // logger.debug("break stop = {} [{}]", liveTimeRemaining(),
-        // LoggerUtils.whereFrom());
+        // logger.debug("break stop = {} [{}]", liveTimeRemaining(), LoggerUtils.whereFrom());
         UIEvent.BreakPaused event = new UIEvent.BreakPaused(isIndefinite() ? null : getTimeRemaining(), getOrigin(),
                 false,
                 getFop().getBreakType(), getFop().getCountdownType());

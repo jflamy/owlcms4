@@ -1340,6 +1340,7 @@ public class FieldOfPlay {
 	}
 
 	void pushOutUIEvent(UIEvent event) {
+		// logger.debug("!!!! {}",event);
 		getUiEventBus().post(event);
 		getPostEventBus().post(event);
 	}
@@ -2500,7 +2501,7 @@ public class FieldOfPlay {
 				if (newBreak == BreakType.FIRST_SNATCH) {
 					BreakType oldBreakType = getBreakType();
 					setBreakType(newBreak);
-					logger.warn("switching oldbreaktype = {} indefinite = {}", oldBreakType, indefinite);
+					// logger.debug("switching oldbreaktype = {} indefinite = {}", oldBreakType, indefinite);
 					if (oldBreakType == BEFORE_INTRODUCTION) {
 						breakTimer.stop();
 						breakTimer.setTimeRemaining(DEFAULT_BREAK_DURATION, true);

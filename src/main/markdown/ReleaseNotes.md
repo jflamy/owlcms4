@@ -8,7 +8,7 @@
 
 **44.0.0-beta13**
 
-- The break management dialog at the end of a group now correctly offers the time to introduction as default.
+- The break management dialog at the end of a group now correctly offers the countdown introduction as default.  Other miscellaneous adjustments made.
 - Known issues: see this [list of known small issues](https://github.com/jflamy/owlcms4/issues/734)
 
 

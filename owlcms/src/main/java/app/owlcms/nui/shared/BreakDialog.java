@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.dialog.Dialog;
 
-import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.uievents.BreakType;
@@ -42,16 +41,13 @@ public class BreakDialog extends Dialog {
 			// defensive, should have been unregistered already
 			try {
 				OwlcmsSession.getFop().getUiEventBus().unregister(content);
-				OwlcmsSession.getFop().getUiEventBus().unregister(content.getBreakTimer());
 			} catch (Exception e1) {
 			}
 
 			try {
 				OwlcmsSession.getFop().getFopEventBus().unregister(content);
-				OwlcmsSession.getFop().getFopEventBus().unregister(content.getBreakTimer());
 			} catch (Exception e1) {
 			}
-			content.cleanup();
 			content = null;
 
 		});
@@ -70,19 +66,15 @@ public class BreakDialog extends Dialog {
 		this.addDialogCloseActionListener((e) -> {
 
 			// defensive, should have been unregistered already
-			BreakTimerElement breakTimer = content.getBreakTimer();
 			try {
 				OwlcmsSession.getFop().getUiEventBus().unregister(content);
-				OwlcmsSession.getFop().getUiEventBus().unregister(breakTimer);
 				// logger.debug("++++++ unregistered {}", breakTimer.id);
 			} catch (Exception e1) {
 			}
 			try {
 				OwlcmsSession.getFop().getFopEventBus().unregister(content);
-				OwlcmsSession.getFop().getFopEventBus().unregister(breakTimer);
 			} catch (Exception e1) {
 			}
-			content.cleanup();
 			content = null;
 			this.removeAll();
 			this.close();

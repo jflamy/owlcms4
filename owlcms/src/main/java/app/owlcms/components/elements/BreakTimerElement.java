@@ -33,20 +33,18 @@ import ch.qos.logback.classic.Logger;
 public class BreakTimerElement extends AthleteTimerElement {
 
 	public Long id;
-	final private Logger logger = (Logger) LoggerFactory.getLogger(BreakTimerElement.class);
-
 	private String parentName = "";
-	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	final private Logger logger = (Logger) LoggerFactory.getLogger(BreakTimerElement.class);
+	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 
 	{
-		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
+		this.logger.setLevel(Level.INFO);
+		this.uiEventLogger.setLevel(Level.INFO);
 	}
 
 	public BreakTimerElement() {
 		super();
-		id = IdUtils.getTimeBasedId();
-		// logger./**/warn(LoggerUtils./**/stackTrace());
+		this.id = IdUtils.getTimeBasedId();
 	}
 
 	/**
@@ -54,8 +52,7 @@ public class BreakTimerElement extends AthleteTimerElement {
 	 */
 	public BreakTimerElement(String parentName) {
 		super();
-		id = IdUtils.getTimeBasedId();
-		// logger./**/warn(LoggerUtils./**/stackTrace());
+		this.id = IdUtils.getTimeBasedId();
 	}
 
 	@Override
@@ -79,7 +76,7 @@ public class BreakTimerElement extends AthleteTimerElement {
 			if (!fopName.contentEquals(fop.getName())) {
 				return;
 			}
-			logger.debug("{}{} fetching time", getClass().getSimpleName(), fop.getLoggingName());
+			this.logger.debug("{}{} fetching time", getClass().getSimpleName(), fop.getLoggingName());
 			IProxyTimer fopTimer = getFopTimer(fop);
 			doSetTimer(fopTimer.isIndefinite() ? null : fopTimer.liveTimeRemaining());
 		});
@@ -99,9 +96,9 @@ public class BreakTimerElement extends AthleteTimerElement {
 			if (fopName != null && !fopName.contentEquals(fop.getName())) {
 				return;
 			}
-			//logger.debug("{}Received time over.", fop.getLoggingName());
+			// logger.debug("{}Received time over.", fop.getLoggingName());
 			IProxyTimer fopTimer = getFopTimer(fop);
-			//logger.debug("{} ============= {} break time over {}", fopName, fop.getName(), fopTimer.isIndefinite());
+			// logger.debug("{} ============= {} break time over {}", fopName, fop.getName(), fopTimer.isIndefinite());
 			if (!fopTimer.isIndefinite()) {
 				getFopTimer(fop).timeOver(this);
 			}
@@ -117,7 +114,8 @@ public class BreakTimerElement extends AthleteTimerElement {
 	@AllowInert
 	@ClientCallable
 	public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from) {
-		//logger.debug("timer {} starting on client: remaining = {}, late={}, roundtrip={}", from, remainingTime, lateMillis, delta(lastStartMillis));
+		// logger.debug("timer {} starting on client: remaining = {}, late={}, roundtrip={}", from, remainingTime,
+		// lateMillis, delta(lastStartMillis));
 	}
 
 	/**
@@ -129,27 +127,25 @@ public class BreakTimerElement extends AthleteTimerElement {
 	@AllowInert
 	@ClientCallable
 	public void clientTimerStopped(String fopName, double remainingTime, String from) {
-		//logger.debug("{} timer {} stopped on client: remaining = {}, roundtrip={}", fopName, from, remainingTime, delta(lastStopMillis));
-		// do not stop the server-side timer, this is getting called as a result of the
-		// server-side timer issuing a command. Otherwise we create an infinite loop.
+		// do not stop the server-side timer, otherwise we create an infinite loop.
 	}
 
 	public void setParent(String s) {
-		parentName = s;
+		this.parentName = s;
 	}
 
 	@Subscribe
 	public void slaveBreakDone(UIEvent.BreakDone e) {
-		if (!parentName.startsWith("BreakManagement")) {
-			uiEventLogger.trace("&&& break done {} {}", parentName, e.getOrigin());
+		if (this.uiEventLogger.isDebugEnabled()) {
+			this.uiEventLogger.debug("&&& break done {} {}", this.parentName, e.getOrigin());
 		}
 		doStopTimer(0);
 	}
 
 	@Subscribe
 	public void slaveBreakPause(UIEvent.BreakPaused e) {
-		if (!parentName.startsWith("BreakManagement")) {
-			uiEventLogger.trace("&&& breakTimerElement pause {} {}", parentName, e.getMillis());
+		if (this.uiEventLogger.isDebugEnabled()) {
+			this.uiEventLogger.debug("&&& breakTimerElement pause {} {}", this.parentName, e.getMillis());
 		}
 		doStopTimer(e.getMillis());
 	}
@@ -161,10 +157,11 @@ public class BreakTimerElement extends AthleteTimerElement {
 			milliseconds = (int) LocalDateTime.now().until(e.getEnd(), ChronoUnit.MILLIS);
 		} else {
 			milliseconds = e.isIndefinite() ? null : e.getTimeRemaining();
-			if (!parentName.startsWith("BreakManagement")) {
-				uiEventLogger.trace("&&& breakTimerElement set {} {} {} {} {}", parentName,
-				        formatDuration(milliseconds), e.isIndefinite(), id, LoggerUtils.stackTrace());
+			if (this.uiEventLogger.isDebugEnabled()) {
+				this.uiEventLogger.debug("&&& breakTimerElement set {} {} {} {} {}", this.parentName,
+				        formatDuration(milliseconds), e.isIndefinite(), this.id, LoggerUtils.stackTrace());
 			}
+
 		}
 		doSetTimer(milliseconds);
 	}
@@ -175,8 +172,8 @@ public class BreakTimerElement extends AthleteTimerElement {
 			return;
 		}
 		Integer tr = e.isIndefinite() ? null : e.getMillis();
-		if (!parentName.startsWith("BreakManagement")) {
-			uiEventLogger.trace("&&& breakTimerElement start {} {} {} {}", parentName, tr, e.getOrigin(),
+		if (this.uiEventLogger.isDebugEnabled()) {
+			this.uiEventLogger.debug("&&& breakTimerElement start {} {} {} {}", this.parentName, tr, e.getOrigin(),
 			        LoggerUtils.whereFrom());
 		}
 		if (Boolean.TRUE.equals(e.getPaused())) {
@@ -186,6 +183,11 @@ public class BreakTimerElement extends AthleteTimerElement {
 		}
 	}
 
+	@Subscribe
+	public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
+		syncWithFopTimer();
+	}
+
 	@Override
 	public void syncWithFopTimer() {
 		OwlcmsSession.withFop(fop -> {
@@ -193,26 +195,39 @@ public class BreakTimerElement extends AthleteTimerElement {
 			// sync with current status of FOP
 			IProxyTimer breakTimer = getFopTimer(fop);
 			if (breakTimer != null) {
-				if (!parentName.startsWith("BreakManagement")) {
-					// uiEventLogger.debug("&&& breakTimerElement sync running {} indefinite {}",
-					// breakTimer.isRunning(), breakTimer.isIndefinite());
+				if (this.uiEventLogger.isDebugEnabled()) {
+					this.uiEventLogger.debug("&&& breakTimerElement sync running {} indefinite {}",
+					        breakTimer.isRunning(),
+					        breakTimer.isIndefinite());
 				}
 				if (breakTimer.isRunning()) {
 					if (breakTimer.isIndefinite()) {
+						if (this.uiEventLogger.isDebugEnabled()) {
+							this.uiEventLogger.debug("&&& indefinite {}", breakTimer.liveTimeRemaining());
+						}
 						doStartTimer(null, fop.isEmitSoundsOnServer());
 					} else {
+						if (this.uiEventLogger.isDebugEnabled()) {
+							this.uiEventLogger.debug("&&& live {}", breakTimer.liveTimeRemaining());
+						}
 						doStartTimer(breakTimer.liveTimeRemaining(), isSilenced() || fop.isEmitSoundsOnServer());
 					}
 				} else {
 					doSetTimer(null);
-//					if (breakTimer.isIndefinite()) {
-//						doSetTimer(null);
-//					} else {
-//						doSetTimer(breakTimer.getTimeRemainingAtLastStop());
-//					}
+					// if (breakTimer.isIndefinite()) {
+					// doSetTimer(null);
+					// } else {
+					// doSetTimer(breakTimer.getTimeRemainingAtLastStop());
+					// }
 				}
 			}
 		});
+	}
+	
+	@Subscribe
+	@Override
+	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
+		// ignore, keep running
 	}
 
 	@Override
@@ -227,9 +242,7 @@ public class BreakTimerElement extends AthleteTimerElement {
 	protected void onAttach(AttachEvent attachEvent) {
 		OwlcmsSession.withFop(fop -> {
 			// we listen on uiEventBus; this method ensures we stop when detached.
-			if (!parentName.startsWith("BreakManagement")) {
-				uiEventLogger.trace("&&& breakTimerElement register {} {}", parentName, LoggerUtils.whereFrom());
-			}
+			this.uiEventLogger.trace("&&& breakTimerElement register {} {}", this.parentName, LoggerUtils.whereFrom());
 			uiEventBusRegister(this, fop);
 		});
 		syncWithFopTimer();
