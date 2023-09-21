@@ -1523,8 +1523,8 @@ public class FieldOfPlay {
 
 	private void doStartCeremony(CeremonyStarted e) {
 		setCeremonyType(e.getCeremony());
-        setVideoGroup(e.getCeremonyGroup());
-        setVideoCategory(e.getCeremonyCategory());
+		setVideoGroup(e.getCeremonyGroup());
+		setVideoCategory(e.getCeremonyCategory());
 		getUiEventBus().post(new UIEvent.CeremonyStarted(e.getCeremony(), e.getCeremonyGroup(), e.getCeremonyCategory(),
 		        e.getStackTrace(), e.getOrigin()));
 	}
@@ -2500,8 +2500,7 @@ public class FieldOfPlay {
 				if (newBreak == BreakType.FIRST_SNATCH) {
 					BreakType oldBreakType = getBreakType();
 					setBreakType(newBreak);
-					// logger.trace("???? oldbreaktype = {} indefinite = {}", oldBreakType,
-					// indefinite);
+					logger.warn("switching oldbreaktype = {} indefinite = {}", oldBreakType, indefinite);
 					if (oldBreakType == BEFORE_INTRODUCTION) {
 						breakTimer.stop();
 						breakTimer.setTimeRemaining(DEFAULT_BREAK_DURATION, true);
