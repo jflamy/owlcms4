@@ -6,11 +6,9 @@
 > Version 44 is a technical migration release.  It updates the code to the current version of the user interface framework ([Vaadin 24](http://vaadin.com)). A significant clean-up of the code was performed at the same time, and several annoyances were fixed as a result.
 >
 
-**44.0.0-beta12**
+**44.0.0-beta13**
 
-- Fix: The enter key shortcut now works for all fields on the athlete weigh-in/registration page.
-- Fix: Formatting of the medals and current ranking pages
-- Fix: in countries where the decimal separator is the comma, the scoreboards are no longer garbled when editing the team width or font size (injecting numbers with commas broke the style sheet).
+- The break management dialog at the end of a group now correctly offers the time to introduction as default.
 - Known issues: see this [list of known small issues](https://github.com/jflamy/owlcms4/issues/734)
 
 
