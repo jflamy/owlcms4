@@ -27,7 +27,7 @@
 
 	<properties>
 		<!-- revision is overridden by azure-pipelines.yml for the official builds. this value is only used for local development -->
-		<revision>44.0.0-beta12</revision>
+		<revision>44.0.0-beta13</revision>
 		<owlcms-maven-url>http://maven.lerta.ca:8880</owlcms-maven-url>
 		<owlcms-maven-suffix>/releases</owlcms-maven-suffix> <!-- /snapshots if revision is -SNAPSHOT -->
 		<owlcms-docker>docker.io/owlcms</owlcms-docker>
