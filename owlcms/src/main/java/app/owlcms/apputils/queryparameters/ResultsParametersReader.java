@@ -28,12 +28,12 @@ public interface ResultsParametersReader extends ResultsParameters, FOPParameter
 	@Override
 	public default Map<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
 
+		@SuppressWarnings("unused")
 		Logger logger = (Logger) LoggerFactory.getLogger(ResultsParametersReader.class);
 		//logger.debug("ResultsParameterReader readParams");
 		
 		var fop = getFop();
 
-		// logger.debug("ContextFreeParametersReader readParam");
 		// handle previous parameters by calling superclass
 		Map<String, List<String>> newParameterMap = FOPParametersReader.super.readParams(location, parametersMap);
 
