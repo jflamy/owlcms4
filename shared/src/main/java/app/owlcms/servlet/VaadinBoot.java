@@ -198,7 +198,7 @@ public class VaadinBoot {
 	}
 
 	/**
-	 * Runs your app. Blocks until the user presses Enter or CTRL+C.
+	 * Runs your app. Blocks until the user presses CTRL+C.
 	 * <p>
 	 * </p>
 	 * WARNING: this function may never terminate since the entire JVM may be killed
@@ -224,16 +224,16 @@ public class VaadinBoot {
 		//        if (openBrowserInDevMode && !isProductionMode()) {
 		Open.open(getServerURL());
 		//        }
-
-		// Await for Enter. ./gradlew run offers no stdin and read() will return
-		// immediately with -1
-		if (System.in.read() == -1) {
-			// running from Gradle
-			System.out.println("Press CTRL+C to shutdown");
-			server.join(); // blocks endlessly
-		} else {
-			stop("Shutting down");
-		}
+//
+//		// Await for Enter. ./gradlew run offers no stdin and read() will return
+//		// immediately with -1
+//		if (System.in.read() == -1) {
+//			// running from Gradle
+//			System.out.println("Press CTRL+C to shutdown");
+//			server.join(); // blocks endlessly
+//		} else {
+//			stop("Shutting down");
+//		}
 	}
 
 	/**
