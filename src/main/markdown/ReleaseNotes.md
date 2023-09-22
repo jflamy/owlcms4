@@ -6,9 +6,11 @@
 > Version 44 is a technical migration release.  It updates the code to the current version of the user interface framework ([Vaadin 24](http://vaadin.com)). A significant clean-up of the code was performed at the same time, and several annoyances were fixed as a result.
 >
 
-**44.0.0-beta14**
+**44.0.0-beta15**
 
-- Flags: The scoreboards and medal boards now handle both short and long team names correctly.  The flag is positioned at the left of the cell, and the name is centered.  For 3-letter acronyms, making the team column narrow works well.
+- Fix: the attempt board would not clear the record indicators when switching to another athlete.  The color of the new record was also wrong.
+- Fix: the athlete card validation was over-zealous, and signaled errors on cells that should not have been validated.
+- Flags: The scoreboards and medal boards now handle both short and long team names.  The flag is positioned at the left of the cell.  For 3-letter acronyms, making the team column narrow works well.
 - Fix: the public scoreboard now correctly switches to medals when the announcer starts the medal ceremony.  The medal board inherits the team width and other styling parameters from the public scoreboard.
 - Known issues: see this [list of known defects](https://github.com/jflamy/owlcms4/issues/734)
 
