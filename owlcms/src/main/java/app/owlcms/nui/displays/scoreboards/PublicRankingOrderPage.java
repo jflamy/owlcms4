@@ -1,17 +1,9 @@
 package app.owlcms.nui.displays.scoreboards;
 
-import java.util.Map;
-
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.DisplayParameters;
-import app.owlcms.apputils.queryparameters.SoundParameters;
-import app.owlcms.data.config.Config;
-import app.owlcms.displays.scoreboard.ResultsRankingOrder;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
@@ -32,20 +24,7 @@ public class PublicRankingOrderPage extends PublicScoreboardPage {
 	}
 
 	@Override
-	protected void init() {
-		var board = new ResultsRankingOrder();
-		this.setBoard(board);
-		this.addComponent(board);
-		this.ui = UI.getCurrent();
-
-		setDefaultParameters(QueryParameters.simple(Map.of(
-		        SoundParameters.SILENT, "true",
-		        SoundParameters.DOWNSILENT, "true",
-		        DisplayParameters.DARK, "true",
-		        DisplayParameters.LEADERS, "true",
-		        DisplayParameters.RECORDS, "true",
-		        DisplayParameters.ABBREVIATED,
-		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
+	public void setDefaultParameters() {
+		super.setDefaultParameters();
 	}
-
 }

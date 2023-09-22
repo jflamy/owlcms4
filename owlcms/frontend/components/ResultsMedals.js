@@ -51,12 +51,13 @@ class ResultsMedals extends LitElement {
 
           ${this.medalCategories
             ? html`
-                <table
+ <!--                <table
                   class="${"results medals " + (this.noLiftRanks ?? "")}"
                   style="${(this.hiddenGridStyle ?? "") +
                   "; padding-top: 0.5em; " +
                   (this.twOverride ?? "")}"
-                >
+                > -->
+                <table class="${this.athleteClasses()}" style="${this.athleteStyles()}">
                   ${(this.medalCategories ?? []).map(
                     (mc) => html`
                       <tr class="head" style="${this.leadersDisplay}">
@@ -111,7 +112,9 @@ class ResultsMedals extends LitElement {
                             </td>
                             <td class="${"club " + (leader.flagClass ?? "")}">
                               <div class="${leader.flagClass}" .innerHTML="${leader.flagURL}"></div>
-                              <div class="ellipsis">${leader.teamName}</div>
+                              <div class="clubName">
+                                <div class="ellipsis" style="${"width: " + (leader?.teamLength ?? "")}">${leader?.teamName}</div>
+                              </div>
                             </td>
                             <td class="vspacer"></td>
                             ${(leader.sattempts ?? []).map(
@@ -266,17 +269,14 @@ class ResultsMedals extends LitElement {
 
   athleteClasses() {
     //return "results " +  (this.noLiftRanks ?? "") + " " + (this.noBest ?? "")
-    return "results " 
+    return "results medals " 
       + (this.showLiftRanks ? "" : " noranks") 
       + (this.showBest ? "" : " nobest")
       + (this.showSinclair ? " sinclair" : " nosinclair");
   }
 
   athleteStyles() {
-    return (this.mode === "WAIT" ? "display: none" : "display:grid") 
-    + "; --top: calc(" + (this.resultLines ?? "") + " + 1)"
-    + "; --bottom: " + (this.leaderLines ?? "")
-    + "; --nbRanks: " + (this.nbRanks ?? "")
+    return "display:grid"
     + "; " + (this.leadersLineHeight ?? "")
     + "; " + (this.twOverride ?? "");
   }

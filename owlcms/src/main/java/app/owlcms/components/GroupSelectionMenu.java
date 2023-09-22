@@ -27,7 +27,7 @@ public class GroupSelectionMenu extends MenuBar {
 	static Icon xIcon;
 	Logger logger = (Logger) LoggerFactory.getLogger(GroupSelectionMenu.class);
 	{
-		xIcon = new Icon(VaadinIcon.CLOSE);
+		xIcon = new Icon(VaadinIcon.CLOSE_SMALL);
 		xIcon.getElement().setAttribute("style", "margin: 0px; padding: 0px");
 	}
 

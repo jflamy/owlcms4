@@ -133,6 +133,13 @@ public interface NavigationPage extends ContentWrapping {
 		button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
 		return button;
 	}
+	
+	public default <T extends Component & HasUrlParameter<String>> Button openInNewTabQueryParameters(Class<T> targetClass,
+	        String label, String queryParameters) {
+		Button button = new Button(label);
+		button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, null, QueryParameters.fromString(queryParameters)));
+		return button;
+	}
 
 	public default <T extends Component> Button openInNewTabNoParam(Class<T> targetClass,
 	        String label) {

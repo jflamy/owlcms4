@@ -4,14 +4,12 @@ import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.config.Config;
-import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
@@ -22,6 +20,12 @@ public class PublicNoLeadersPage extends PublicScoreboardPage {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(PublicNoLeadersPage.class);
 
+	/**
+	 * To avoid components being injected more than once, the initialization work
+	 * is done in an init() method that is overridden as required.
+	 * 
+	 * @see PublicScoreboardPage#init()
+	 */
 	public PublicNoLeadersPage() {
 		// intentionally empty. superclass will call init() as required.
 	}
@@ -32,13 +36,7 @@ public class PublicNoLeadersPage extends PublicScoreboardPage {
 	}
 
 	@Override
-	protected void init() {
-		// only difference is the default values
-		var board = new Results();
-		this.setBoard(board);
-		this.addComponent(board);
-		this.ui = UI.getCurrent();
-
+	public void setDefaultParameters() {
 		// when navigating to the page, Vaadin will call setParameter+readParameters
 		// these parameters will be applied.
 		setDefaultParameters(QueryParameters.simple(Map.of(

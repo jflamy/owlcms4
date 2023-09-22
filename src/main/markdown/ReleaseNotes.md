@@ -6,9 +6,10 @@
 > Version 44 is a technical migration release.  It updates the code to the current version of the user interface framework ([Vaadin 24](http://vaadin.com)). A significant clean-up of the code was performed at the same time, and several annoyances were fixed as a result.
 >
 
-**44.0.0-beta13**
+**44.0.0-beta14**
 
-- The break management dialog at the end of a group now correctly offers the countdown introduction as default.  Improved behavior when changing the current group after starting the intro countdown.
+- Flags: The scoreboards and medal boards now handle both short and long team names correctly.  The flag is positioned at the left of the cell, and the name is centered.  For 3-letter acronyms, making the team column narrow works well.
+- Fix: the public scoreboard now correctly switches to medals when the announcer starts the medal ceremony.  The medal board inherits the team width and other styling parameters from the public scoreboard.
 - Known issues: see this [list of known small issues](https://github.com/jflamy/owlcms4/issues/734)
 
 

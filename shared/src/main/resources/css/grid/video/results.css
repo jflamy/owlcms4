@@ -207,7 +207,15 @@ table.results.sinclair {
     color: var(--lightTeamTextColor);
 }
 
-table.results tr td.club div.ellipsis {
+table.results tr td.club div.clubName {
+    display:flex;
+    align-content:center;
+    width: 100%;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+table.results tr td.club div.clubName div.ellipsis {
     width: var(--teamNameShortLength);
 }
 

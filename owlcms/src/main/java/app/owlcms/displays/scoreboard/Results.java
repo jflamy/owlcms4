@@ -396,6 +396,7 @@ public class Results extends LitTemplate
 
 	@Override
 	public final void setRouteParameter(String routeParameter) {
+		logger.warn("setting routeParameter = {}",routeParameter);
 		this.routeParameter = routeParameter;
 	}
 
@@ -446,8 +447,12 @@ public class Results extends LitTemplate
 		this.urlParameterMap = parametersMap;
 	}
 
+	/**
+	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setVideo(boolean)
+	 */
 	@Override
 	public void setVideo(boolean b) {
+		logger.warn("setVideo {} from {}", b, LoggerUtils.whereFrom());
 		this.video = b;
 	}
 

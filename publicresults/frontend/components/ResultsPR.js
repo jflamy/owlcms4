@@ -114,7 +114,8 @@ class ResultsPR extends LitElement {
                               </td>
                               <td class="${"club " + (item?.flagClass ?? "")}">
                                 <div class="${item?.flagClass}" .innerHTML="${item?.flagURL} "></div>
-                                <div class="ellipsis" style="${"width: " + (item?.teamLength ?? "")}"> ${item?.teamName}
+                                <div class="clubName">
+                                  <div class="ellipsis" style="${"width: " + (item?.teamLength ?? "")}">${item?.teamName}</div>
                                 </div>
                               </td>
                               <td class="vspacer"></td>
@@ -189,7 +190,9 @@ class ResultsPR extends LitElement {
                                 <td class="custom2" style="${this.leadingAthleteStyles()} "> <div>${item?.custom2}</div></td>
                                 <td class="${"club " + (item?.flagClass ?? "")} ">
                                   <div class="${item?.flagClass}" .innerHTML="${item?.flagURL}"></div>
-                                  <div class="ellipsis"   style="${"width: " + (item?.teamLength ?? "")}">   ${item?.teamName} </div>
+                                  <div class="clubName">
+                                    <div class="ellipsis" style="${"width: " + (item?.teamLength ?? "")}">${item?.teamName}</div>
+                                  </div>
                                 </td>
                                 <td class="vspacer"></td>
                                 ${(item?.sattempts ?? []).map(

@@ -235,7 +235,7 @@ table.medals {
         /* custom fields */
         var(--custom1Width) var(--custom2Width)
         /* team name */
-        minmax(min-content, 25%)
+        var(--clubWidth)
         /* snatch results */
         var(--spacerWidth)
         repeat(3, var(--liftResultWidth))

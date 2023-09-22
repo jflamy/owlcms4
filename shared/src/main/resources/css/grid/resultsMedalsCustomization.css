@@ -6,8 +6,8 @@
     /* variable-size columns. fr = free space after other columns have been allocated.
        for ease of understanding, sum of all fr columns should be 1.00.
     */
-    --nameWidth: 0.60fr;
-    --clubWidth: 0.40fr;
+    --nameWidth: auto;
+    --clubWidth: min-content;
     /* define this if you use acronyms and want flags to line up
     --teamNameShortLength: 4ch;
      */
@@ -167,7 +167,7 @@ table.medals {
         /* group */
         var(--startWidth)
         /* name */
-        minmax(20ch, 25%)
+        var(--nameWidth)
         /* category */
         var(--categoryWidth)
         /* birth */
@@ -175,7 +175,7 @@ table.medals {
         /* custom fields */
         var(--custom1Width) var(--custom2Width)
         /* team name */
-        minmax(min-content, 25%)
+        var(--clubWidth)
         /* snatch results */
         var(--spacerWidth)
         repeat(3, var(--liftResultWidth))

@@ -21,9 +21,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.function.SerializableConsumer;
 
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
@@ -45,7 +43,6 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
-import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -162,14 +159,6 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	public void setSilenced(boolean silent) {
 	}
 
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setTeamWidth(java.lang.Double)
-	 */
-	@Override
-	public void setTeamWidth(Double teamWidth) {
-		pushTeamWidth();
-	}
-
 	@Override
 	public void setVideo(boolean video) {
 	}
@@ -253,13 +242,13 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			setDisplay();
 			// If this page was opened in replacement of a display, go back to the display.
 			unregister(this, uiEventBus);
-			retrieveFromSessionStorage("pageURL", result -> {
-				if (result != null && !result.isBlank()) {
-					UI.getCurrent().getPage().setLocation(result);
-				} else {
-					this.getElement().callJsFunction("reset");
-				}
-			});
+//			retrieveFromSessionStorage("pageURL", result -> {
+//				if (result != null && !result.isBlank()) {
+//					UI.getCurrent().getPage().setLocation(result);
+//				} else {
+//					this.getElement().callJsFunction("reset");
+//				}
+//			});
 		});
 	}
 
@@ -291,20 +280,20 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	protected void doUpdate(UIEvent e) {
 		// logger.trace("---------- doUpdate {} {} {}", e != null ?
 		// e.getClass().getSimpleName() : "no event");
-		boolean leaveTopAlone = false;
-		if (e instanceof UIEvent.LiftingOrderUpdated) {
-			LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
-			if (e2.isInBreak()) {
-				leaveTopAlone = !e2.isDisplayToggle();
-			} else {
-				leaveTopAlone = !e2.isCurrentDisplayAffected();
-			}
-		}
+		//boolean leaveTopAlone = false;
+//		if (e instanceof UIEvent.LiftingOrderUpdated) {
+//			LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
+//			if (e2.isInBreak()) {
+//				leaveTopAlone = !e2.isDisplayToggle();
+//			} else {
+//				leaveTopAlone = !e2.isCurrentDisplayAffected();
+//			}
+//		}
 
 		FieldOfPlay fop = OwlcmsSession.getFop();
-		if (!leaveTopAlone) {
-			this.getElement().callJsFunction("reset");
-		}
+//		if (!leaveTopAlone) {
+//			this.getElement().callJsFunction("reset");
+//		}
 		logger.debug("updating bottom");
 		updateBottom(null, fop);
 	}
@@ -668,10 +657,10 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		return false;
 	}
 
-	private void retrieveFromSessionStorage(String key, SerializableConsumer<String> resultHandler) {
-		getElement().executeJs("return window.sessionStorage.getItem($0);", key)
-		        .then(String.class, resultHandler);
-	}
+//	private void retrieveFromSessionStorage(String key, SerializableConsumer<String> resultHandler) {
+//		getElement().executeJs("return window.sessionStorage.getItem($0);", key)
+//		        .then(String.class, resultHandler);
+//	}
 
 	private void setDisplay() {
 		OwlcmsSession.withFop(fop -> {
