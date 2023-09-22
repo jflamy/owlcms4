@@ -6,11 +6,11 @@
     /* variable-size columns. fr = free space after other columns have been allocated.
        for ease of understanding, sum of all fr columns should be 1.00.
     */
-    --nameWidth: 35ch;
-    --clubWidth: 10em;
-    /* define this if you use acronyms and want flags to line up */
+    --nameWidth: auto;
+    --clubWidth: min-content;
+    /* define this if you use acronyms and want flags to line up
     --teamNameShortLength: 4ch;
-     
+     */
 
     /* left column width: adjust depending on how you name groups */
       --startWidth: 0em;
@@ -227,7 +227,7 @@ table.medals {
         /* group */
         var(--startWidth)
         /* name */
-        minmax(20ch, 25%)
+        var(--nameWidth)
         /* category */
         var(--categoryWidth)
         /* birth */
