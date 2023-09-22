@@ -902,12 +902,14 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	}
 
 	private void spotlightNewRecord() {
-		this.getElement().setProperty("recordBroken", "true");
+		this.getElement().setProperty("recordBroken", true);
+		this.getElement().setProperty("recordAttempt", false);
 		this.getElement().setProperty("recordMessage", Translator.translate("Scoreboard.NewRecord"));
 	}
 
 	private void spotlightRecordAttempt() {
-		this.getElement().setProperty("recordAttempt", "true");
+		this.getElement().setProperty("recordBroken", false);
+		this.getElement().setProperty("recordAttempt", true);
 		this.getElement().setProperty("recordMessage", Translator.translate("Scoreboard.RecordAttempt"));
 	}
 
