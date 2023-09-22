@@ -95,7 +95,7 @@ import ch.qos.logback.classic.Logger;
  * </p>
  */
 
-//must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
+// must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity
 @Cacheable
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -1590,7 +1590,7 @@ public class Athlete {
 		Category category2 = getCategory();
 		if (!fullName.isEmpty()) {
 			return fullName + " " + (category2 != null ? category2 : "");
-//              +(startNumber2 != null && startNumber2 >0 ? " ["+startNumber2+"]" : "");
+			// +(startNumber2 != null && startNumber2 >0 ? " ["+startNumber2+"]" : "");
 		} else {
 			return "";
 		}
@@ -3036,21 +3036,21 @@ public class Athlete {
 	 * @param cleanJerk1Declaration the new clean jerk 1 declaration
 	 */
 	public void setCleanJerk1Declaration(String cleanJerk1Declaration) {
-//		if ("0".equals(cleanJerk1Declaration)) {
-//			this.cleanJerk1Declaration = cleanJerk1Declaration;
-//			getLogger().info("{}{} cleanJerk1Declaration={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
-//			        cleanJerk1Declaration);
-//			setCleanJerk1ActualLift("0");
-//			return;
-//		}
+		// if ("0".equals(cleanJerk1Declaration)) {
+		// this.cleanJerk1Declaration = cleanJerk1Declaration;
+		// getLogger().info("{}{} cleanJerk1Declaration={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
+		// cleanJerk1Declaration);
+		// setCleanJerk1ActualLift("0");
+		// return;
+		// }
 
 		if (isValidation()) {
 			validateDeclaration(1, getCleanJerk1AutomaticProgression(), cleanJerk1Declaration, cleanJerk1Change1,
 			        cleanJerk1Change2, cleanJerk1ActualLift);
 		}
 		this.cleanJerk1Declaration = cleanJerk1Declaration;
-//      if (zeroIfInvalid(getSnatch1Declaration()) > 0)
-//          // validateStartingTotalsRule();
+		// if (zeroIfInvalid(getSnatch1Declaration()) > 0)
+		// // validateStartingTotalsRule();
 
 		getLogger().info("{}{} cleanJerk1Declaration={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
 		        cleanJerk1Declaration);
@@ -3073,11 +3073,11 @@ public class Athlete {
 		getLogger().info("{}{} cleanJerk2ActualLift={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
 		        cleanJerk2ActualLift);
 
-//        if (zeroIfInvalid(cleanJerk2ActualLift) == 0) {
-//            this.setCleanJerk2LiftTime((LocalDateTime) null);
-//        } else {
-//            this.setCleanJerk2LiftTime(LocalDateTime.now());
-//        }
+		// if (zeroIfInvalid(cleanJerk2ActualLift) == 0) {
+		// this.setCleanJerk2LiftTime((LocalDateTime) null);
+		// } else {
+		// this.setCleanJerk2LiftTime(LocalDateTime.now());
+		// }
 	}
 
 	/**
@@ -3169,11 +3169,11 @@ public class Athlete {
 		getLogger().info("{}{} cleanJerk3ActualLift={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
 		        cleanJerk3ActualLift);
 
-//        if (zeroIfInvalid(cleanJerk3ActualLift) == 0) {
-//            this.setCleanJerk3LiftTime((null));
-//        } else {
-//            this.setCleanJerk3LiftTime(LocalDateTime.now());
-//        }
+		// if (zeroIfInvalid(cleanJerk3ActualLift) == 0) {
+		// this.setCleanJerk3LiftTime((null));
+		// } else {
+		// this.setCleanJerk3LiftTime(LocalDateTime.now());
+		// }
 	}
 
 	/**
@@ -3579,11 +3579,11 @@ public class Athlete {
 		this.snatch1ActualLift = snatch1ActualLift;
 		getLogger().info("{}{} snatch1ActualLift={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
 		        snatch1ActualLift);
-//        if (zeroIfInvalid(snatch1ActualLift) == 0) {
-//            this.setSnatch1LiftTime(null);
-//        } else {
-//            this.setSnatch1LiftTime(LocalDateTime.now());
-//        }
+		// if (zeroIfInvalid(snatch1ActualLift) == 0) {
+		// this.setSnatch1LiftTime(null);
+		// } else {
+		// this.setSnatch1LiftTime(LocalDateTime.now());
+		// }
 	}
 
 	/**
@@ -3648,20 +3648,20 @@ public class Athlete {
 	 * @param snatch1Declaration the new snatch 1 declaration
 	 */
 	public void setSnatch1Declaration(String snatch1Declaration) {
-//		if ("0".equals(snatch1Declaration)) {
-//			this.snatch1Declaration = snatch1Declaration;
-//			getLogger().info("{}{} snatch1Declaration={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
-//			        snatch1Declaration);
-//			setSnatch1ActualLift("0");
-//			return;
-//		}
+		// if ("0".equals(snatch1Declaration)) {
+		// this.snatch1Declaration = snatch1Declaration;
+		// getLogger().info("{}{} snatch1Declaration={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
+		// snatch1Declaration);
+		// setSnatch1ActualLift("0");
+		// return;
+		// }
 		if (isValidation()) {
 			validateDeclaration(1, getSnatch1AutomaticProgression(), snatch1Declaration, snatch1Change1, snatch1Change2,
 			        snatch1ActualLift);
 		}
 		this.snatch1Declaration = snatch1Declaration;
-//      if (zeroIfInvalid(getCleanJerk1Declaration()) > 0)
-//          validateStartingTotalsRule();
+		// if (zeroIfInvalid(getCleanJerk1Declaration()) > 0)
+		// validateStartingTotalsRule();
 
 		getLogger().info("{}{} snatch1Declaration={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
 		        snatch1Declaration);
@@ -3683,33 +3683,33 @@ public class Athlete {
 		this.snatch2ActualLift = snatch2ActualLift;
 		getLogger().info("{}{} snatch2ActualLift={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
 		        snatch2ActualLift);
-//        if (zeroIfInvalid(snatch2ActualLift) == 0) {
-//            this.setSnatch2LiftTime((LocalDateTime)null);
-//        } else {
-//            this.setSnatch2LiftTime(LocalDateTime.now());
-//        }
+		// if (zeroIfInvalid(snatch2ActualLift) == 0) {
+		// this.setSnatch2LiftTime((LocalDateTime)null);
+		// } else {
+		// this.setSnatch2LiftTime(LocalDateTime.now());
+		// }
 	}
 
-//    /**
-//     * Sets the snatch rank.
-//     *
-//     * @param snatchRank the new snatch rank
-//     */
-//    public void setSnatchRank(Integer snatchRank) {
-//        this.snatchRank = snatchRank;
-//    }
-//
-//    public void setSnatchRankJr(Integer snatchRankJr) {
-//        this.snatchRankJr = snatchRankJr;
-//    }
-//
-//    public void setSnatchRankSr(Integer snatchRankSr) {
-//        this.snatchRankSr = snatchRankSr;
-//    }
-//
-//    public void setSnatchRankYth(Integer snatchRankYth) {
-//        this.snatchRankYth = snatchRankYth;
-//    }
+	// /**
+	// * Sets the snatch rank.
+	// *
+	// * @param snatchRank the new snatch rank
+	// */
+	// public void setSnatchRank(Integer snatchRank) {
+	// this.snatchRank = snatchRank;
+	// }
+	//
+	// public void setSnatchRankJr(Integer snatchRankJr) {
+	// this.snatchRankJr = snatchRankJr;
+	// }
+	//
+	// public void setSnatchRankSr(Integer snatchRankSr) {
+	// this.snatchRankSr = snatchRankSr;
+	// }
+	//
+	// public void setSnatchRankYth(Integer snatchRankYth) {
+	// this.snatchRankYth = snatchRankYth;
+	// }
 
 	/**
 	 * Sets the snatch 2 automatic progression.
@@ -3799,11 +3799,11 @@ public class Athlete {
 		this.snatch3ActualLift = snatch3ActualLift;
 		getLogger().info("{}{} snatch3ActualLift={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
 		        snatch3ActualLift);
-//        if (zeroIfInvalid(snatch3ActualLift) == 0) {
-//            this.setSnatch3LiftTime((LocalDateTime)null);
-//        } else {
-//            this.setSnatch3LiftTime(LocalDateTime.now());
-//        }
+		// if (zeroIfInvalid(snatch3ActualLift) == 0) {
+		// this.setSnatch3LiftTime((LocalDateTime)null);
+		// } else {
+		// this.setSnatch3LiftTime(LocalDateTime.now());
+		// }
 	}
 
 	/**
@@ -4106,9 +4106,9 @@ public class Athlete {
 		final int iAutomaticProgression = zeroIfInvalid(automaticProgression);
 		final int liftedWeight = zeroIfInvalid(actualLift);
 
-//        getLogger().trace(
-//                "declaredChanges={} automaticProgression={} declaration={} change1={} change2={} liftedWeight={}",
-//                lastChange, automaticProgression, declaration, change1, change2, liftedWeight);
+		// getLogger().trace(
+		// "declaredChanges={} automaticProgression={} declaration={} change1={} change2={} liftedWeight={}",
+		// lastChange, automaticProgression, declaration, change1, change2, liftedWeight);
 		if (liftedWeight == 0) {
 			// Athlete is not taking try; always ok no matter what was declared.
 			return;
@@ -4141,7 +4141,8 @@ public class Athlete {
 	public boolean validateCleanJerk1Change1(String cleanJerk1Change1) throws RuleViolationException {
 		validateChange1(3, getCleanJerk1AutomaticProgression(), cleanJerk1Declaration, cleanJerk1Change1,
 		        cleanJerk1Change2, cleanJerk1ActualLift, false);
-//		validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration, cleanJerk1Change1, cleanJerk1Change2);
+		// validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
+		// cleanJerk1Change1, cleanJerk1Change2);
 		return true;
 	}
 
@@ -4153,12 +4154,13 @@ public class Athlete {
 	public boolean validateCleanJerk1Change2(String cleanJerk1Change2) throws RuleViolationException {
 		validateChange2(3, getCleanJerk1AutomaticProgression(), cleanJerk1Declaration, cleanJerk1Change1,
 		        cleanJerk1Change2, cleanJerk1ActualLift, false);
-//		validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration, cleanJerk1Change1, cleanJerk1Change2);
+		// validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
+		// cleanJerk1Change1, cleanJerk1Change2);
 		return true;
 	}
 
 	public boolean validateCleanJerk1Declaration(String cleanJerk1Declaration) throws RuleViolationException {
-		// not always true.  Can violate moving down rules
+		// not always true. Can violate moving down rules
 		validateDeclaration(3, "0", cleanJerk1Declaration, cleanJerk1Change1,
 		        cleanJerk1Change1, cleanJerk2ActualLift);
 		return true;
@@ -4343,26 +4345,26 @@ public class Athlete {
 		}
 	}
 
-//    @SuppressWarnings("unused")
-//    private Long getCopyId() {
-//        return copyId;
-//    }
+	// @SuppressWarnings("unused")
+	// private Long getCopyId() {
+	// return copyId;
+	// }
 
-//    @SuppressWarnings("unused")
-//    private Integer getDeclaredAndActuallyAttempted(Integer... items) {
-//        int lastIndex = items.length - 1;
-//        if (items.length == 0) {
-//            return 0;
-//        }
-//        while (lastIndex >= 0) {
-//            if (items[lastIndex] > 0) {
-//                // if went down from declared weight, then return lower weight
-//                return (items[lastIndex] < items[0] ? items[lastIndex] : items[0]);
-//            }
-//            lastIndex--;
-//        }
-//        return 0;
-//    }
+	// @SuppressWarnings("unused")
+	// private Integer getDeclaredAndActuallyAttempted(Integer... items) {
+	// int lastIndex = items.length - 1;
+	// if (items.length == 0) {
+	// return 0;
+	// }
+	// while (lastIndex >= 0) {
+	// if (items[lastIndex] > 0) {
+	// // if went down from declared weight, then return lower weight
+	// return (items[lastIndex] < items[0] ? items[lastIndex] : items[0]);
+	// }
+	// lastIndex--;
+	// }
+	// return 0;
+	// }
 
 	/**
 	 * @param entryTotal
@@ -4438,16 +4440,16 @@ public class Athlete {
 		}
 	}
 
-//    /**
-//     * Null-safe comparison for longs.
-//     *
-//     * @param o1
-//     * @param o2
-//     * @return
-//     */
-//    private boolean LongEquals(Long o1, Long o2) {
-//        return o1 == o2 || o1 != null && o2 != null && o1.longValue() == (o2.longValue());
-//    }
+	// /**
+	// * Null-safe comparison for longs.
+	// *
+	// * @param o1
+	// * @param o2
+	// * @return
+	// */
+	// private boolean LongEquals(Long o1, Long o2) {
+	// return o1 == o2 || o1 != null && o2 != null && o1.longValue() == (o2.longValue());
+	// }
 
 	/**
 	 * As integer.
@@ -4475,8 +4477,8 @@ public class Athlete {
 		Integer requestedWeight = newVal;
 		int referenceWeight = reference.getWeight();
 		int referenceAttemptNo = reference.getAttemptNo();// this is the lift that was attempted by previous lifter
-		
-		int currentLiftNo = getAttemptsDone() + 1; 
+
+		int currentLiftNo = getAttemptsDone() + 1;
 		int checkedLift = curLift + 1;
 		if (checkedLift < currentLiftNo) {
 			// we are checking an earlier attempt of the athlete (e.g. when loading the
@@ -4486,7 +4488,7 @@ public class Athlete {
 		} else {
 			logger.trace("checking lift {} {}", checkedLift, currentLiftNo);
 		}
-		
+
 		// check: zero-based numbers, not referencing curLift, wrong sequence.
 		if (referenceAttemptNo < 3 && curLift == 3) {
 			getLogger().warn("{}start of CJ {}", OwlcmsSession.getFopLoggingName(), curLift);
@@ -4495,14 +4497,13 @@ public class Athlete {
 		}
 
 		if (requestedWeight > referenceWeight) {
-			getLogger().trace("{}{} attempt {}: requested {} > previous {}", OwlcmsSession.getFopLoggingName( ), this,
+			getLogger().trace("{}{} attempt {}: requested {} > previous {}", OwlcmsSession.getFopLoggingName(), this,
 			        currentLiftNo,
 			        requestedWeight,
 			        referenceWeight);
 			// lifting order is respected
 			return;
 		}
-
 
 		if (requestedWeight < referenceWeight) {
 			getLogger().trace("{}requestedWeight {} < referenceWeight {}", OwlcmsSession.getFopLoggingName(),
@@ -4725,10 +4726,17 @@ public class Athlete {
 		if (checkedLift < currentLiftNo) {
 			// we are checking an earlier attempt of the athlete (e.g. when loading the
 			// athlete card)
-			getLogger().trace("doCheckChangeVsLiftOrder ignoring lift {} {}", checkedLift, currentLiftNo);
+			getLogger().warn("doCheckChangeVsLiftOrder ignoring lift {} {}", checkedLift, currentLiftNo);
 			return;
 		} else {
-			getLogger().trace("doCheckChangeVsLiftOrder checking lift {} {}", checkedLift, currentLiftNo);
+			getLogger().warn("doCheckChangeVsLiftOrder checking lift {} {} from {}", checkedLift, currentLiftNo,
+			        LoggerUtils.whereFrom(1));
+		}
+
+		if (curLift <= 3 && checkedLift > 3) {
+			// ignore CJ while doing snatch
+			getLogger().warn("doCheckChangeVsLiftOrder ignoring cj lift {} {}", checkedLift, currentLiftNo);
+			return;
 		}
 
 		Object wi = OwlcmsSession.getAttribute("weighIn");
@@ -5163,6 +5171,10 @@ public class Athlete {
 		if (actualLift != null && !actualLift.isBlank()) {
 			return;
 		}
+		if (curLift > 3 && getAttemptsDone() <= 2) {
+			// ignore cj value when still in snatch
+			return;
+		}
 		long start = System.currentTimeMillis();
 		if (change1 == null || change1.trim().length() == 0) {
 			return; // allow reset of field.
@@ -5173,15 +5185,17 @@ public class Athlete {
 			throw new RuleViolationException.LastChangeTooLow(this, curLift, newVal, prevVal);
 		}
 		try {
-			checkChangeVsTimer(curLift, declaration, change1, change2);
-			checkDeclarationWasMade(curLift, declaration);
-			checkChangeVsLiftOrder(curLift, newVal);
+			if (change2.isBlank() && actualLift.isBlank()) {
+				checkChangeVsTimer(curLift, declaration, change1, change2);
+				checkDeclarationWasMade(curLift, declaration);
+				checkChangeVsLiftOrder(curLift, newVal);
+			}
 		} catch (RuleViolationException e) {
 			rethrow(e);
 		}
-//		catch (Exception e) {
-//			throw new RuntimeException(e);
-//		}
+		// catch (Exception e) {
+		// throw new RuntimeException(e);
+		// }
 		timingLogger.info("validateChange1 {}ms {} {}", System.currentTimeMillis() - start, curLift,
 		        LoggerUtils.whereFrom());
 	}
@@ -5205,13 +5219,15 @@ public class Athlete {
 			throw new RuleViolationException.LastChangeTooLow(this, curLift, newVal, prevVal);
 		}
 		try {
-			checkChangeVsTimer(curLift, declaration, change1, change2);
-			checkDeclarationWasMade(curLift, declaration);
-			checkChangeVsLiftOrder(curLift, newVal);
+			if (actualLift.isBlank()) {
+				checkChangeVsTimer(curLift, declaration, change1, change2);
+				checkDeclarationWasMade(curLift, declaration);
+				checkChangeVsLiftOrder(curLift, newVal);
+			}
 		} catch (RuleViolationException e) {
 			rethrow(e);
 		} catch (Exception e) {
-			logger.error("{}",LoggerUtils.exceptionMessage(e));
+			logger.error("{}", LoggerUtils.exceptionMessage(e));
 			throw new RuntimeException(e);
 		}
 		timingLogger.info("validateChange2 {}ms {} {}", System.currentTimeMillis() - start, curLift,
@@ -5236,8 +5252,10 @@ public class Athlete {
 			throw new RuleViolationException.DeclarationValueTooSmall(this, curLift, newVal, iAutomaticProgression);
 		}
 		try {
-			checkChangeVsTimer(curLift, declaration, change1, change2);
-			checkChangeVsLiftOrder(curLift, newVal);
+			if (change1.isBlank() && actualLift.isBlank()) {
+				checkChangeVsTimer(curLift, declaration, change1, change2);
+				checkChangeVsLiftOrder(curLift, newVal);
+			}
 		} catch (RuleViolationException e) {
 			rethrow(e);
 		} catch (Exception e) {

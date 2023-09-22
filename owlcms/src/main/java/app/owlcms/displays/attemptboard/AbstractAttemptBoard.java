@@ -854,6 +854,8 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		this.getElement().setProperty("recordName", "");
 		this.getElement().setProperty("teamName", a.getTeam());
 		this.getElement().setProperty("hideBecauseRecord", "");
+		this.getElement().setProperty("recordAttempt", false);
+		this.getElement().setProperty("recordBroken", false);
 	}
 
 	private void init() {
