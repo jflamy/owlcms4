@@ -19,7 +19,6 @@ import javax.persistence.EntityManager;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
@@ -66,8 +65,6 @@ public class MovingDownTest {
     final Logger logger = (Logger) LoggerFactory.getLogger(MovingDownTest.class);
 
     @Test
-    @Ignore
-    //FIXME missing exception
     public void cleanJerkCheckAttemptNumber() {
         FieldOfPlay fopState = emptyFieldOfPlay();
         testPrepAllSame(fopState, 3);
@@ -86,6 +83,8 @@ public class MovingDownTest {
         allisonR = groupAthletes.get(2);
 
         // clean&jerk start
+        simpsonR = declaration(simpsonR, "60", fopState);
+        allisonR = declaration(allisonR, "61", fopState);
         schneiderF = declaration(schneiderF, "70", fopState);
         allisonR = declaration(allisonR, "62", fopState);
         schneiderF = change1(schneiderF, "70", fopState);
@@ -114,8 +113,6 @@ public class MovingDownTest {
     }
 
     @Test
-    @Ignore
-    //FIXME: missing exception
     public void cleanJerkCheckAttemptNumberWithClock() {
         FieldOfPlay fopState = emptyFieldOfPlay();
         testPrepAllSame(fopState, 3);
@@ -134,9 +131,11 @@ public class MovingDownTest {
         allisonR = groupAthletes.get(2);
 
         // clean&jerk start
+        simpsonR = declaration(simpsonR, "60", fopState);
+        allisonR = declaration(allisonR, "61", fopState);
         schneiderF = declaration(schneiderF, "70", fopState);
         schneiderF = change1(schneiderF, "70", fopState);
-        change1(allisonR, "62", fopState);
+        allisonR = change1(allisonR, "62", fopState);
 
         // simpsonR successful at 60
         simpsonR = successfulLift(simpsonR, fopState);
@@ -181,6 +180,7 @@ public class MovingDownTest {
         allisonR = groupAthletes.get(2);
 
         // clean&jerk start
+        schneiderF = declaration(schneiderF, "60", fopState);
         simpsonR = declaration(simpsonR, "62", fopState);
         allisonR = declaration(allisonR, "62", fopState);
         simpsonR = change1(simpsonR, "62", fopState);
@@ -328,7 +328,6 @@ public class MovingDownTest {
     }
 
     @Test
-    @Ignore
     public void cleanJerkCheckStartNumber() {
         FieldOfPlay fopState = emptyFieldOfPlay();
         testPrepAllSame(fopState, 3);
@@ -350,7 +349,8 @@ public class MovingDownTest {
         simpsonR = groupAthletes.get(1);
         allisonR = groupAthletes.get(2);
 
-        // clean&jerk startd
+        // clean&jerk started
+        simpsonR = declaration(simpsonR, "60", fopState);
         schneiderF = declaration(schneiderF, "64", fopState);
         allisonR = declaration(allisonR, "64", fopState);
 
@@ -886,6 +886,7 @@ public class MovingDownTest {
     private void keepOnly(List<Athlete> athletes, int endIndex, EntityManager em) {
         // hide non-allAthletes
         AthleteSorter.liftingOrder(athletes);
+        
         Group group = athletes.get(0).getGroup();
         final int size = athletes.size();
         for (int i = 0; i < size; i++) {
