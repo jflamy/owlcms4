@@ -18,6 +18,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.SoundParameters;
+import app.owlcms.apputils.queryparameters.TopParametersReader;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.category.AgeDivision;
@@ -32,7 +33,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route("displays/topteams")
 
-public class TopTeamsPage extends AbstractResultsDisplayPage {
+public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParametersReader {
 
 	Logger logger;
 	Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -84,18 +85,22 @@ public class TopTeamsPage extends AbstractResultsDisplayPage {
 		        new HorizontalLayout(ageDivisionComboBox, ageGroupPrefixComboBox));
 	}
 
+	@Override
 	public final AgeDivision getAgeDivision() {
 		return ageDivision;
 	}
 
+	@Override
 	public final AgeGroup getAgeGroup() {
 		return ageGroup;
 	}
 
+	@Override
 	public final String getAgeGroupPrefix() {
 		return ageGroupPrefix;
 	}
 
+	@Override
 	public final Category getCategory() {
 		return category;
 	}
@@ -163,24 +168,28 @@ public class TopTeamsPage extends AbstractResultsDisplayPage {
 		return params1;
 	}
 
+	@Override
 	public void setAgeDivision(AgeDivision ageDivision) {
 		this.ageDivision = ageDivision;
 		((TopTeams) this.getBoard()).setAgeDivision(ageDivision);
 		((TopTeams) this.getBoard()).doUpdate(Competition.getCurrent());
 	}
 
+	@Override
 	public final void setAgeGroup(AgeGroup ag) {
 		this.ageGroup = ag;
 		((TopTeams) this.getBoard()).setAgeGroup(ag);
 		((TopTeams) this.getBoard()).doUpdate(Competition.getCurrent());
 	}
 
+	@Override
 	public void setAgeGroupPrefix(String ageGroupPrefix) {
 		this.ageGroupPrefix = ageGroupPrefix;
 		((TopTeams) this.getBoard()).setAgeGroupPrefix(ageGroupPrefix);
 		((TopTeams) this.getBoard()).doUpdate(Competition.getCurrent());
 	}
 
+	@Override
 	public final void setCategory(Category cat) {
 		this.category = cat;
 		((TopTeams) this.getBoard()).setCategory(cat);

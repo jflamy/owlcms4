@@ -23,15 +23,15 @@ public interface DisplayParameters extends SoundParameters {
 
 	final Logger logger = (Logger) LoggerFactory.getLogger(DisplayParameters.class);
 	public static final String CATEGORY = "cat";
-	public static final String DARK = "dark";
-	public static final String FONTSIZE = "em";
-	public static final String LIGHT = "light";
 	public static final String PUBLIC = "public";
-	public static final String SOUND = "sound";
 	public static final String RECORDS = "records";
 	public static final String LEADERS = "leaders";
-	public static final String TEAMWIDTH = "tw";
 	public static final String ABBREVIATED = "abb";
+	
+	public static final String DARK = "dark";
+	public static final String FONTSIZE = "em";
+	public static final String TEAMWIDTH = "tw";
+	public static final String LIGHT = "light";
 	public static final String VIDEO = "video";
 
 	public default void pushEmSize() {

@@ -17,8 +17,8 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
-import app.owlcms.apputils.queryparameters.ResultsParametersReader;
 import app.owlcms.apputils.queryparameters.SoundParameters;
+import app.owlcms.apputils.queryparameters.TopParametersReader;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.category.AgeDivision;
@@ -33,7 +33,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route("displays/topteamsinclair")
 
-public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements ResultsParametersReader {
+public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements TopParametersReader {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(TopTeamsSinclairPage.class);
 	Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
