@@ -12,10 +12,15 @@
     min-height: 100vh;
     padding: 1vmin 2vmin 2vmin 2vmin;
     overflow: hidden;
+
     display: flex;
     flex-direction: column;
-    flex-wrap: no-wrap;
+    /* move to top */
     justify-content: flex-start;
+    flex-wrap: wrap;
+    /* center horizontally */
+    align-content: space-around;
+
     line-height: unset;
 }
 
@@ -23,6 +28,7 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    width: var(--tableWidthRatio, 90%);
 }
 
 .waiting {
@@ -542,7 +548,7 @@ table {
         /* start */
         var(--startWidth)
         /* name */
-        minmax(50px, var(--nameWidth))
+        1fr
         /* category */
         var(--categoryWidth)
         /* birth */
@@ -550,7 +556,7 @@ table {
         /* custom fields */
         var(--custom1Width) var(--custom2Width)
         /* team name */
-        auto
+        max-content
         /* snatch results */
         var(--spacerWidth)
         repeat(3, var(--liftResultWidth))
