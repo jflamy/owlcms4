@@ -6,9 +6,9 @@
 > Version 44 is a technical migration release.  It updates the code to the current version of the user interface framework ([Vaadin 24](http://vaadin.com)). A significant clean-up of the code was performed at the same time, and several annoyances were fixed as a result.
 >
 
-**44.0.0-beta16**
+**44.0.0-beta17**
 
-- Fix: The group selection menu would disappear after selecting a group on the registration and weigh-in pages, but reappear on refresh.
+- Fix: Some invalid moving down changes of the requested weight were not detected if occurring on the first clean and jerk.
 - Known issues: see this [list of known defects](https://github.com/jflamy/owlcms4/issues/734)
 
 
