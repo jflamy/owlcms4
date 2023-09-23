@@ -44,7 +44,7 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
-import app.owlcms.displays.video.VideoCSSOverride;
+import app.owlcms.displays.video.StylesDirSelection;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -81,7 +81,7 @@ import elemental.json.JsonValue;
 
 public class Results extends LitTemplate
         implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
-        RequireDisplayLogin, HasBoardMode, VideoCSSOverride {
+        RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 	
 	@Id("timer")
 	private AthleteTimerElement timer; // WebComponent, injected by Vaadin
@@ -939,9 +939,8 @@ public class Results extends LitTemplate
 	protected void onAttach(AttachEvent attachEvent) {
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
-			init();
-			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/attemptboard.css", getRouteParameter(),
-			        this);
+			resultsInit();
+			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/attemptboard.css", this);
 			teamFlags = URLUtils.checkFlags();
 
 			// get the global category rankings (attached to each athlete)
@@ -1053,7 +1052,7 @@ public class Results extends LitTemplate
 		        : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
 	}
 
-	private void init() {
+	private void resultsInit() {
 		OwlcmsSession.withFop(fop -> {
 			logger.trace("{}Starting result board on FOP {}", fop.getLoggingName());
 			setId("scoreboard-" + fop.getName());

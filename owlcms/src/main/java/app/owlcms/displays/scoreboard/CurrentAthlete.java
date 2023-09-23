@@ -90,7 +90,6 @@ public class CurrentAthlete extends Results {
 	@Id("timer")
 	private AthleteTimerElement timer; // Flow creates it
 	private EventBus uiEventBus;
-	private String routeParameter;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	public CurrentAthlete(AbstractDisplayPage page) {
@@ -513,7 +512,7 @@ public class CurrentAthlete extends Results {
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
 			init();
-			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/currentathlete.css", routeParameter, this);
+			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/currentathlete.css", this);
 
 			// get the global category rankings attached to each athlete
 			order = fop.getDisplayOrder();

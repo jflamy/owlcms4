@@ -38,7 +38,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
-import app.owlcms.displays.video.VideoCSSOverride;
+import app.owlcms.displays.video.StylesDirSelection;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -74,7 +74,7 @@ import elemental.json.JsonObject;
 public abstract class AbstractAttemptBoard extends LitTemplate implements
         DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
         RequireDisplayLogin,
-        VideoCSSOverride, HasBoardMode {
+        StylesDirSelection, HasBoardMode {
 
 	protected final static Logger logger = (Logger) LoggerFactory.getLogger(AbstractAttemptBoard.class);
 	protected final static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -701,7 +701,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		OwlcmsSession.withFop(fop -> {
 			logger.debug("{}onAttach {}", fop.getLoggingName(), fop.getState());
 			init();
-			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/attemptboard.css", routeParameter, this);
+			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/attemptboard.css", this);
 			ThemeList themeList = UI.getCurrent().getElement().getThemeList();
 			themeList.remove(Lumo.LIGHT);
 			themeList.add(Lumo.DARK);

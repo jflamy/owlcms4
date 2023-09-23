@@ -68,7 +68,6 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	private Category category;
 	private JsonArray cattempts;
 	private TreeMap<Category, TreeSet<Athlete>> medals;
-	private String routeParameter;
 	private JsonArray sattempts;
 	private EventBus uiEventBus;
 	private boolean snatchCJTotalMedals;
@@ -159,9 +158,6 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	public void setSilenced(boolean silent) {
 	}
 
-	@Override
-	public void setVideo(boolean video) {
-	}
 
 	@Subscribe
 	public void slaveAllEvents(UIEvent e) {
@@ -505,7 +501,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
 			medalsInit();
-			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/results.css", routeParameter, this);
+			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/results.css", this);
 			teamFlags = URLUtils.checkFlags();
 			if (this.getCategory() == null) {
 				if (this.getGroup() != null) {
@@ -701,4 +697,5 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	public boolean isShowInitialDialog() {
 		return false;
 	}
+
 }

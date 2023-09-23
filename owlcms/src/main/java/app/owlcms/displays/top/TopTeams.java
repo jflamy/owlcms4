@@ -71,7 +71,6 @@ public class TopTeams extends AbstractTop {
 	private List<TeamTreeItem> mensTeams;
 	private EventBus uiEventBus;
 	private List<TeamTreeItem> womensTeams;
-	private String routeParameter;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	public TopTeams() {
@@ -185,7 +184,7 @@ public class TopTeams extends AbstractTop {
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		checkVideo(Config.getCurrent().getParamStylesDir() + "/video/top.css", routeParameter, this);
+		checkVideo(Config.getCurrent().getParamStylesDir() + "/video/top.css", this);
 		setWide(false);
 		setTranslationMap();
 		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {

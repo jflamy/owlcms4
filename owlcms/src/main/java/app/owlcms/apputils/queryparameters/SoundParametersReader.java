@@ -13,12 +13,12 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Location;
 
-import app.owlcms.displays.video.VideoCSSOverride;
+import app.owlcms.displays.video.StylesDirSelection;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
-public interface SoundParametersReader extends SoundParameters, FOPParametersReader, VideoCSSOverride {
+public interface SoundParametersReader extends SoundParameters, FOPParametersReader, StylesDirSelection {
 
 	final Logger logger = (Logger) LoggerFactory.getLogger(SoundParametersReader.class);
 

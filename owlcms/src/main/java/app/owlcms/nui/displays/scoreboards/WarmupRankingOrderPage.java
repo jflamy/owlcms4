@@ -27,7 +27,7 @@ public class WarmupRankingOrderPage extends AbstractResultsDisplayPage {
 
 	@Override
 	public String getPageTitle() {
-		return getTranslation("Scoreboard.RankingOrder") + OwlcmsSession.getFopNameIfMultiple()+"X";
+		return getTranslation("Scoreboard.RankingOrder") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
 	@Override

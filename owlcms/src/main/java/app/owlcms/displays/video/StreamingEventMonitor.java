@@ -62,7 +62,7 @@ import ch.qos.logback.classic.Logger;
 @Route("displays/notifications")
 
 public class StreamingEventMonitor extends LitTemplate implements FOPParametersReader,
-        SafeEventBusRegistration, UIEventProcessor, VideoCSSOverride, HasDynamicTitle {
+        SafeEventBusRegistration, UIEventProcessor, StylesDirSelection, HasDynamicTitle {
 
 	class Status {
 		BreakType breakType;
@@ -282,7 +282,7 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 		OwlcmsSession.withFop(fop -> {
 			init();
 
-			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/currentathlete.css", routeParameter, this);
+			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/currentathlete.css", this);
 			// sync with current status of FOP
 			syncWithFOP(null);
 			// we listen on uiEventBus.

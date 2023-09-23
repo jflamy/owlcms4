@@ -42,6 +42,9 @@ public class MedalsPage extends AbstractResultsDisplayPage {
 		        DisplayParameters.DARK, "true",
 		        DisplayParameters.LEADERS, "true",
 		        DisplayParameters.RECORDS, "true",
+		        DisplayParameters.SINGLEREF, "false",
+		        DisplayParameters.PUBLIC, "false",
+		        DisplayParameters.VIDEO, "false",
 		        DisplayParameters.ABBREVIATED,
 		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
 	}

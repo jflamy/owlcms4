@@ -72,7 +72,6 @@ public class TopSinclair extends AbstractTop {
 	private double topManSinclair;
 	private double topWomanSinclair;
 	private EventBus uiEventBus;
-	private String routeParameter;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	public TopSinclair() {
@@ -276,7 +275,7 @@ public class TopSinclair extends AbstractTop {
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		logger.debug("onAttach start");
-		checkVideo(Config.getCurrent().getParamStylesDir() + "/video/top.css", routeParameter, this);
+		checkVideo(Config.getCurrent().getParamStylesDir() + "/video/top.css", this);
 		setWide(false);
 		setTranslationMap();
 		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
