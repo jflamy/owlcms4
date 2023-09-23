@@ -80,9 +80,9 @@ import elemental.json.JsonValue;
 @JsModule("./components/AudioContext.js")
 
 public class Results extends LitTemplate
-        implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
-        RequireDisplayLogin, HasBoardMode, StylesDirSelection {
-	
+implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
+RequireDisplayLogin, HasBoardMode, StylesDirSelection {
+
 	@Id("timer")
 	private AthleteTimerElement timer; // WebComponent, injected by Vaadin
 	@Id("breakTimer")
@@ -91,7 +91,7 @@ public class Results extends LitTemplate
 	private DecisionElement decisions; // WebComponent, injected by Vaadin
 
 	private final Logger logger = (Logger) LoggerFactory.getLogger(Results.class);
-	private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 	private JsonArray cattempts;
 	private Group curGroup;
 	private JsonArray sattempts;
@@ -118,7 +118,7 @@ public class Results extends LitTemplate
 	private boolean downSilenced;
 
 	public Results() {
-		uiEventLogger.setLevel(Level.INFO);
+		this.uiEventLogger.setLevel(Level.INFO);
 		OwlcmsFactory.waitDBInitialized();
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
 	}
@@ -128,11 +128,11 @@ public class Results extends LitTemplate
 	 */
 	@Override
 	public void doBreak(UIEvent event) {
-		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
 
 			String title = inferGroupName() + " &ndash; "
-			        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), isPublicDisplay());
+					+ inferMessage(fop.getBreakType(), fop.getCeremonyType(), isPublicDisplay());
 			this.getElement().setProperty("fullName", title);
 			this.getElement().setProperty("teamName", "");
 			this.getElement().setProperty("attempt", "");
@@ -145,7 +145,7 @@ public class Results extends LitTemplate
 				nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
 			}
 			if (fop.getCeremonyType() == null && a != null && nextAttemptRequestedWeight != null
-			        && nextAttemptRequestedWeight > 0) {
+					&& nextAttemptRequestedWeight > 0) {
 				this.getElement().setProperty("weight", nextAttemptRequestedWeight);
 			}
 			setDisplay();
@@ -155,54 +155,54 @@ public class Results extends LitTemplate
 
 	@Override
 	public void doCeremony(UIEvent.CeremonyStarted e) {
-//		ceremonyGroup = e.getCeremonyGroup();
-//		ceremonyCategory = e.getCeremonyCategory();
-//		// logger.debug("------ ceremony event = {} {}", e, e.getTrace());
-//		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-//			if (e.getCeremonyType() == CeremonyType.MEDALS && isPublicDisplay() && ceremonyGroup != null) {
-//				Map<String, String> map = new HashMap<>(Map.of(
-//				        FOPParameters.FOP, fop.getName(),
-//				        FOPParameters.GROUP, ceremonyGroup.getName(),
-//				        DisplayParameters.DARK, Boolean.toString(darkMode)));
-//				if (ceremonyCategory != null) {
-//					map.put(DisplayParameters.CATEGORY, ceremonyCategory.getCode());
-//				} else {
-//					// logger.trace("no ceremonyCategory");
-//				}
-//				QueryParameters simple = QueryParameters.simple(map);
-//				// logger.debug("========== parameters {}",simple);
-//				UI.getCurrent().navigate("displays/resultsMedals", simple);
-//			} else {
-//				// logger.debug("========== NOT {} {} {}",e.getCeremonyType(),
-//				// this.isSwitchableDisplay(), ceremonyGroup);
-//				String title = inferGroupName() + " &ndash; "
-//				        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), isPublicDisplay());
-//				this.getElement().setProperty("fullName", title);
-//				this.getElement().setProperty("teamName", "");
-//				setGroupNameProperty("");
-//				getBreakTimer().setVisible(!fop.getBreakTimer().isIndefinite());
-//				setDisplay();
-//
-//				updateBottom(computeLiftType(fop.getCurAthlete()), fop);
-//			}
-//		}));
+		//		ceremonyGroup = e.getCeremonyGroup();
+		//		ceremonyCategory = e.getCeremonyCategory();
+		//		// logger.debug("------ ceremony event = {} {}", e, e.getTrace());
+		//		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		//			if (e.getCeremonyType() == CeremonyType.MEDALS && isPublicDisplay() && ceremonyGroup != null) {
+		//				Map<String, String> map = new HashMap<>(Map.of(
+		//				        FOPParameters.FOP, fop.getName(),
+		//				        FOPParameters.GROUP, ceremonyGroup.getName(),
+		//				        DisplayParameters.DARK, Boolean.toString(darkMode)));
+		//				if (ceremonyCategory != null) {
+		//					map.put(DisplayParameters.CATEGORY, ceremonyCategory.getCode());
+		//				} else {
+		//					// logger.trace("no ceremonyCategory");
+		//				}
+		//				QueryParameters simple = QueryParameters.simple(map);
+		//				// logger.debug("========== parameters {}",simple);
+		//				UI.getCurrent().navigate("displays/resultsMedals", simple);
+		//			} else {
+		//				// logger.debug("========== NOT {} {} {}",e.getCeremonyType(),
+		//				// this.isSwitchableDisplay(), ceremonyGroup);
+		//				String title = inferGroupName() + " &ndash; "
+		//				        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), isPublicDisplay());
+		//				this.getElement().setProperty("fullName", title);
+		//				this.getElement().setProperty("teamName", "");
+		//				setGroupNameProperty("");
+		//				getBreakTimer().setVisible(!fop.getBreakTimer().isIndefinite());
+		//				setDisplay();
+		//
+		//				updateBottom(computeLiftType(fop.getCurAthlete()), fop);
+		//			}
+		//		}));
 	}
 
 	public BreakTimerElement getBreakTimer() {
-		return breakTimer;
+		return this.breakTimer;
 	}
 
 	public JsonArray getCattempts() {
-		return cattempts;
+		return this.cattempts;
 	}
 
 	public DecisionElement getDecisions() {
-		return decisions;
+		return this.decisions;
 	}
 
 	@Override
 	public final Double getEmFontSize() {
-		return emFontSize;
+		return this.emFontSize;
 	}
 
 	@Override
@@ -216,11 +216,11 @@ public class Results extends LitTemplate
 	}
 
 	final public Location getLocation() {
-		return location;
+		return this.location;
 	}
 
 	final public UI getLocationUI() {
-		return locationUI;
+		return this.locationUI;
 	}
 
 	@Override
@@ -229,25 +229,25 @@ public class Results extends LitTemplate
 	}
 
 	final public JsonArray getSattempts() {
-		return sattempts;
+		return this.sattempts;
 	}
 
 	@Override
 	public final Double getTeamWidth() {
-		return teamWidth;
+		return this.teamWidth;
 	}
 
 	public AthleteTimerElement getTimer() {
-		return timer;
+		return this.timer;
 	}
 
 	final public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
+		return this.urlParameterMap;
 	}
 
 	@Override
 	public final boolean isAbbreviatedName() {
-		return abbreviatedName;
+		return this.abbreviatedName;
 	}
 
 	@Override
@@ -257,22 +257,22 @@ public class Results extends LitTemplate
 
 	@Override
 	public final boolean isDownSilenced() {
-		return downSilenced;
+		return this.downSilenced;
 	}
 
 	@Override
 	public final boolean isLeadersDisplay() {
-		return leadersDisplay;
+		return this.leadersDisplay;
 	}
 
 	@Override
 	public final boolean isPublicDisplay() {
-		return publicDisplay;
+		return this.publicDisplay;
 	}
 
 	@Override
 	public final boolean isRecordsDisplay() {
-		return recordsDisplay;
+		return this.recordsDisplay;
 	}
 
 	public boolean isShowInitialDialog() {
@@ -281,12 +281,12 @@ public class Results extends LitTemplate
 
 	@Override
 	public final boolean isSilenced() {
-		return silenced;
+		return this.silenced;
 	}
 
 	@Override
 	public final boolean isVideo() {
-		return video;
+		return this.video;
 	}
 
 	/**
@@ -295,8 +295,8 @@ public class Results extends LitTemplate
 	@Override
 	public void pushEmSize() {
 		String formattedEm = null;
-		if (emFontSize != null) {
-			formattedEm = ResultsParameters.formatEN_US.format(emFontSize);
+		if (this.emFontSize != null) {
+			formattedEm = ResultsParameters.formatEN_US.format(this.emFontSize);
 			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "rem;");
 			// logger.trace("%%%%% board changing em size={} from {}",emFontSize,LoggerUtils.whereFrom());
 		}
@@ -305,8 +305,8 @@ public class Results extends LitTemplate
 	@Override
 	public void pushTeamWidth() {
 		String formattedTW = null;
-		if (teamWidth != null) {
-			formattedTW = ResultsParameters.formatEN_US.format(teamWidth);
+		if (this.teamWidth != null) {
+			formattedTW = ResultsParameters.formatEN_US.format(this.teamWidth);
 			this.getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
 		}
 	}
@@ -315,7 +315,7 @@ public class Results extends LitTemplate
 	 * Reset.
 	 */
 	public void reset() {
-		displayOrder = ImmutableList.of();
+		this.displayOrder = ImmutableList.of();
 	}
 
 	@Override
@@ -337,7 +337,7 @@ public class Results extends LitTemplate
 		getElement().getClassList().set(DisplayParameters.DARK, dark);
 		getElement().getClassList().set(DisplayParameters.LIGHT, !dark);
 
-		String value = darkMode ? DisplayParameters.DARK : DisplayParameters.LIGHT;
+		String value = this.darkMode ? DisplayParameters.DARK : DisplayParameters.LIGHT;
 		getElement().setProperty("darkMode", value);
 	}
 
@@ -396,8 +396,11 @@ public class Results extends LitTemplate
 
 	@Override
 	public final void setRouteParameter(String routeParameter) {
-		logger.warn("setting routeParameter = {}",routeParameter);
+		this.logger.warn("setting routeParameter = {}",routeParameter);
 		this.routeParameter = routeParameter;
+		if (routeParameter != null && routeParameter.contentEquals("video")) {
+			setVideo(true);
+		}
 	}
 
 	public void setSattempts(JsonArray sattempts) {
@@ -407,8 +410,8 @@ public class Results extends LitTemplate
 	@Override
 	public void setSilenced(boolean silent) {
 		this.silenced = silent;
-		this.getTimer().setSilenced(silenced);
-		this.getBreakTimer().setSilenced(silenced);
+		this.getTimer().setSilenced(this.silenced);
+		this.getBreakTimer().setSilenced(this.silenced);
 	}
 
 	/**
@@ -419,7 +422,7 @@ public class Results extends LitTemplate
 		String team = a.getTeam();
 		String teamFileName = URLUtils.sanitizeFilename(team);
 		String prop = null;
-		if (teamFlags && !team.isBlank()) {
+		if (this.teamFlags && !team.isBlank()) {
 			prop = URLUtils.getImgTag("flags/", teamFileName, ".svg");
 			if (prop == null) {
 				prop = URLUtils.getImgTag("flags/", teamFileName, ".png");
@@ -452,23 +455,23 @@ public class Results extends LitTemplate
 	 */
 	@Override
 	public void setVideo(boolean b) {
-		logger.warn("setVideo {} from {}", b, LoggerUtils.whereFrom());
+		this.logger.warn("setVideo {} from {}", b, LoggerUtils.whereFrom());
 		this.video = b;
 	}
 
 	@Subscribe
 	public void slaveBreakDone(UIEvent.BreakDone e) {
 		uiLog(e);
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
 			Athlete a = e.getAthlete();
 			setDisplay();
 			if (a == null) {
-				displayOrder = fop.getLiftingOrder();
-				a = displayOrder.size() > 0 ? displayOrder.get(0) : null;
-				liftsDone = AthleteSorter.countLiftsDone(displayOrder);
+				this.displayOrder = fop.getLiftingOrder();
+				a = this.displayOrder.size() > 0 ? this.displayOrder.get(0) : null;
+				this.liftsDone = AthleteSorter.countLiftsDone(this.displayOrder);
 				doUpdate(a, e);
 			} else {
-				liftsDone = AthleteSorter.countLiftsDone(displayOrder);
+				this.liftsDone = AthleteSorter.countLiftsDone(this.displayOrder);
 				doUpdate(a, e);
 			}
 		}));
@@ -478,7 +481,7 @@ public class Results extends LitTemplate
 	public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
 		// logger.trace"------- slaveCeremonyDone {}", e.getCeremonyType());
 		uiLog(e);
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			setDisplay();
 			// revert to current break
 			doBreak(null);
@@ -489,7 +492,7 @@ public class Results extends LitTemplate
 	public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
 		// logger.trace"------- slaveCeremonyStarted {}", e.getCeremonyType());
 		uiLog(e);
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			setDisplay();
 			doCeremony(e);
 		});
@@ -498,7 +501,7 @@ public class Results extends LitTemplate
 	@Subscribe
 	public void slaveDecision(UIEvent.Decision e) {
 		uiLog(e);
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			setDisplay();
 			this.getElement().setProperty("decisionVisible", true);
 			Athlete a = e.getAthlete();
@@ -509,7 +512,7 @@ public class Results extends LitTemplate
 	@Subscribe
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
 		uiLog(e);
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			setDisplay();
 			this.getElement().setProperty("decisionVisible", false);
 			Athlete a = e.getAthlete();
@@ -520,7 +523,7 @@ public class Results extends LitTemplate
 	@Subscribe
 	public void slaveDownSignal(UIEvent.DownSignal e) {
 		uiLog(e);
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			this.getElement().setProperty("decisionVisible", true);
 			setDisplay();
 		});
@@ -529,7 +532,7 @@ public class Results extends LitTemplate
 	@Subscribe
 	public void slaveGroupDone(UIEvent.GroupDone e) {
 		uiLog(e);
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			setDisplay();
 			doDone(e.getGroup());
 		});
@@ -538,7 +541,7 @@ public class Results extends LitTemplate
 	@Subscribe
 	public void slaveJuryNotification(UIEvent.JuryNotification e) {
 		uiLog(e);
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			setDisplay();
 			if (e.getNewRecord()) {
 				spotlightNewRecord();
@@ -549,10 +552,10 @@ public class Results extends LitTemplate
 	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
 		uiLog(e);
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			Athlete a = e.getAthlete();
-			displayOrder = getOrder(OwlcmsSession.getFop());
-			liftsDone = AthleteSorter.countLiftsDone(displayOrder);
+			this.displayOrder = getOrder(OwlcmsSession.getFop());
+			this.liftsDone = AthleteSorter.countLiftsDone(this.displayOrder);
 			doUpdate(a, e);
 		});
 	}
@@ -560,7 +563,7 @@ public class Results extends LitTemplate
 	@Subscribe
 	public void slaveStartBreak(UIEvent.BreakStarted e) {
 		uiLog(e);
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			setDisplay();
 			doBreak(e);
 		});
@@ -569,7 +572,7 @@ public class Results extends LitTemplate
 	@Subscribe
 	public void slaveStartLifting(UIEvent.StartLifting e) {
 		uiLog(e);
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			setDisplay();
 			this.getElement().setProperty("decisionVisible", false);
 			this.getElement().setProperty("recordName", "");
@@ -580,7 +583,7 @@ public class Results extends LitTemplate
 	@Subscribe
 	public void slaveStopBreak(UIEvent.BreakDone e) {
 		uiLog(e);
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			syncWithFOP();
 		});
 	}
@@ -588,7 +591,7 @@ public class Results extends LitTemplate
 	@Subscribe
 	public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
 		uiLog(e);
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			syncWithFOP(e);
 		});
 	}
@@ -601,18 +604,18 @@ public class Results extends LitTemplate
 
 				if (Competition.getCurrent().isSinclair()) {
 					List<Athlete> sortedAthletes = new ArrayList<>(
-					        Competition.getCurrent().getGlobalSinclairRanking(curAthlete.getGender()));
-					displayOrder = AthleteSorter.topSinclair(sortedAthletes, 3).topAthletes;
+							Competition.getCurrent().getGlobalSinclairRanking(curAthlete.getGender()));
+					this.displayOrder = AthleteSorter.topSinclair(sortedAthletes, 3).topAthletes;
 					this.getElement().setProperty("categoryName", Translator.translate("sinclair"));
 				} else {
-					displayOrder = fop.getLeaders();
+					this.displayOrder = fop.getLeaders();
 				}
-				if ((!done || Competition.getCurrent().isSinclair()) && displayOrder != null
-				        && displayOrder.size() > 0) {
+				if ((!done || Competition.getCurrent().isSinclair()) && this.displayOrder != null
+						&& this.displayOrder.size() > 0) {
 					// null as second argument because we do not highlight current athletes in the
 					// leaderboard
-					this.getElement().setPropertyJson("leaders", getAthletesJson(displayOrder, null, fop));
-					this.getElement().setProperty("leaderLines", displayOrder.size() + 2); // spacer + title
+					this.getElement().setPropertyJson("leaders", getAthletesJson(this.displayOrder, null, fop));
+					this.getElement().setProperty("leaderLines", this.displayOrder.size() + 2); // spacer + title
 				} else {
 					// nothing to show
 					this.getElement().setPropertyJson("leaders", Json.createNull());
@@ -624,10 +627,10 @@ public class Results extends LitTemplate
 
 	protected void computeRecords(boolean done) {
 		// always compute
-//        if (!this.isRecordsDisplay()) {
-//            this.getElement().setPropertyJson("records", Json.createNull());
-//            return;
-//        }
+		//        if (!this.isRecordsDisplay()) {
+		//            this.getElement().setPropertyJson("records", Json.createNull());
+		//            return;
+		//        }
 		OwlcmsSession.withFop(fop -> {
 			Athlete curAthlete = fop.getCurAthlete();
 			if (curAthlete != null && curAthlete.getGender() != null) {
@@ -649,7 +652,7 @@ public class Results extends LitTemplate
 		int nbCats = 0;
 		Category prevCat = null;
 		List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
-		        : Collections.emptyList();
+				: Collections.emptyList();
 		for (Athlete a : athletes) {
 			Category curCat = a.getCategory();
 			if (curCat != null && !curCat.sameAs(prevCat)) {
@@ -692,7 +695,7 @@ public class Results extends LitTemplate
 				if (group != null && !group.isDone()) {
 					if (isAbbreviatedName()) {
 						this.getElement().setProperty("fullName",
-						        a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
+								a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
 					} else {
 						this.getElement().setProperty("fullName", a.getFullName() != null ? a.getFullName() : "");
 					}
@@ -763,11 +766,11 @@ public class Results extends LitTemplate
 			ja.put("cleanJerkRank", formatRank(mainRankings.getCleanJerkRank()));
 			ja.put("totalRank", formatRank(mainRankings.getTotalRank()));
 		} else {
-			logger.error("main rankings null for {}", a);
+			this.logger.error("main rankings null for {}", a);
 		}
 		ja.put("group", a.getSubCategory());
 		Double double1 = a.getAttemptsDone() <= 3 ? a.getSinclairForDelta()
-		        : a.getSinclair();
+				: a.getSinclair();
 		ja.put("sinclair", double1 > 0.001 ? String.format("%.3f", double1) : "-");
 		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
@@ -806,7 +809,7 @@ public class Results extends LitTemplate
 		long currentId = (liftOrder != null && liftOrder.size() > 0) ? liftOrder.get(0).getId() : -1L;
 		long nextId = (liftOrder != null && liftOrder.size() > 1) ? liftOrder.get(1).getId() : -1L;
 		List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
-		        : Collections.emptyList();
+				: Collections.emptyList();
 		for (Athlete a : athletes) {
 			JsonObject ja = Json.createObject();
 			if (getSeparatorPredicate().test(a, prevAthlete)) {
@@ -818,11 +821,11 @@ public class Results extends LitTemplate
 			}
 			// compute the blinking rank (1 = current, 2 = next)
 			getAthleteJson(a, ja, a.getCategory(), (a.getId() == currentId)
-			        ? 1
-			        : ((a.getId() == nextId)
-			                ? 2
-			                : 0),
-			        fop);
+					? 1
+							: ((a.getId() == nextId)
+									? 2
+											: 0),
+							fop);
 			String team = a.getTeam();
 			if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
 				setWideTeamNames(true);
@@ -882,7 +885,7 @@ public class Results extends LitTemplate
 						// recomputed and we get DECISION_RESET
 						int liftBeingDisplayed = i.getLiftNo();
 						if (liftBeingDisplayed == curLift && (fop.getState() != FOPState.DECISION_VISIBLE)
-						        && showCurrent(fop)) {
+								&& showCurrent(fop)) {
 							switch (liftOrderRank) {
 							case 1:
 								highlight = (" current" + blink);
@@ -926,8 +929,8 @@ public class Results extends LitTemplate
 	 */
 	protected BiPredicate<Athlete, Athlete> getSeparatorPredicate() {
 		BiPredicate<Athlete, Athlete> separator = (cur, prev) -> prev == null
-		        || (cur.getCategory() != null
-		                && !cur.getCategory().sameAs(prev.getCategory()));
+				|| (cur.getCategory() != null
+				&& !cur.getCategory().sameAs(prev.getCategory()));
 		return separator;
 	}
 
@@ -941,20 +944,20 @@ public class Results extends LitTemplate
 		OwlcmsSession.withFop(fop -> {
 			resultsInit();
 			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/attemptboard.css", this);
-			teamFlags = URLUtils.checkFlags();
+			this.teamFlags = URLUtils.checkFlags();
 
 			// get the global category rankings (attached to each athlete)
-			displayOrder = getOrder(fop);
+			this.displayOrder = getOrder(fop);
 
-			liftsDone = AthleteSorter.countLiftsDone(displayOrder);
+			this.liftsDone = AthleteSorter.countLiftsDone(this.displayOrder);
 			syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this));
 			// we listen on uiEventBus.
-			uiEventBus = uiEventBusRegister(this, fop);
+			this.uiEventBus = uiEventBusRegister(this, fop);
 		});
 
 		getElement().setProperty("showSinclair", Competition.getCurrent().isSinclair());
 		getElement().setProperty("showLiftRanks",
-		        Competition.getCurrent().isSnatchCJTotalMedals() && !Competition.getCurrent().isSinclair());
+				Competition.getCurrent().isSnatchCJTotalMedals() && !Competition.getCurrent().isSinclair());
 		SoundUtils.enableAudioContextNotification(this.getElement());
 	}
 
@@ -971,36 +974,36 @@ public class Results extends LitTemplate
 	}
 
 	protected void uiLog(UIEvent e) {
-		if (uiEventLogger.isDebugEnabled()) {
-			uiEventLogger.debug("### {} {} {} {}",
-			        this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getOrigin(),
-			        LoggerUtils.whereFrom());
+		if (this.uiEventLogger.isDebugEnabled()) {
+			this.uiEventLogger.debug("### {} {} {} {}",
+					this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getOrigin(),
+					LoggerUtils.whereFrom());
 		}
 	}
 
 	protected void updateBottom(String liftType, FieldOfPlay fop) {
-		curGroup = fop.getGroup();
-		String groupDescription = curGroup != null ? curGroup.getDescription() : null;
-		displayOrder = getOrder(fop);
+		this.curGroup = fop.getGroup();
+		String groupDescription = this.curGroup != null ? this.curGroup.getDescription() : null;
+		this.displayOrder = getOrder(fop);
 		spotlightRecords(fop);
-		if (liftType != null && curGroup != null && !curGroup.isDone()) {
+		if (liftType != null && this.curGroup != null && !this.curGroup.isDone()) {
 			this.getElement().setProperty("displayType", getDisplayType());
 		}
-		if (curGroup != null && curGroup.isDone()) {
+		if (this.curGroup != null && this.curGroup.isDone()) {
 			// logger.debug("case 2 {}", isSwitchableDisplay());
 			setGroupNameProperty(groupDescription != null ? groupDescription : "\u00a0");
 			setLiftsDoneProperty("");
-		} else if (curGroup != null && liftType != null) {
+		} else if (this.curGroup != null && liftType != null) {
 			// logger.debug("case 3 {}", isSwitchableDisplay());
-			String name = groupDescription != null ? groupDescription : curGroup.getName();
+			String name = groupDescription != null ? groupDescription : this.curGroup.getName();
 			String value = groupDescription == null ? Translator.translate("Scoreboard.GroupLiftType", name, liftType)
-			        : Translator.translate("Scoreboard.DescriptionLiftTypeFormat", groupDescription, liftType);
+					: Translator.translate("Scoreboard.DescriptionLiftTypeFormat", groupDescription, liftType);
 			setGroupNameProperty(value);
-			liftsDone = AthleteSorter.countLiftsDone(displayOrder);
+			this.liftsDone = AthleteSorter.countLiftsDone(this.displayOrder);
 			if ((isPublicDisplay() || isVideo())) {
 				setLiftsDoneProperty("");
 			} else {
-				setLiftsDoneProperty(" \u2013 " + Translator.translate("Scoreboard.AttemptsDone", liftsDone));
+				setLiftsDoneProperty(" \u2013 " + Translator.translate("Scoreboard.AttemptsDone", this.liftsDone));
 			}
 		} else {
 			// logger.debug("case 4 {}", isSwitchableDisplay());
@@ -1012,7 +1015,7 @@ public class Results extends LitTemplate
 		}
 		this.getElement().setPropertyJson("ageGroups", getAgeGroupNamesJson(fop.getAgeGroupMap()));
 		this.getElement().setPropertyJson("athletes",
-		        getAthletesJson(displayOrder, fop.getLiftingOrder(), fop));
+				getAthletesJson(this.displayOrder, fop.getLiftingOrder(), fop));
 
 		List<Athlete> order = getOrder(OwlcmsSession.getFop());
 		int resultLines = (order != null ? order.size() : 0) + countSubsets(order);
@@ -1027,12 +1030,12 @@ public class Results extends LitTemplate
 			return null;
 		}
 		String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
-		        : Translator.translate("Snatch");
+				: Translator.translate("Snatch");
 		return liftType;
 	}
 
 	private void doDone(Group g) {
-		logger.debug("doDone {}", g == null ? null : g.getName());
+		this.logger.debug("doDone {}", g == null ? null : g.getName());
 		if (g == null) {
 			doEmpty();
 		} else {
@@ -1049,19 +1052,19 @@ public class Results extends LitTemplate
 
 	private String formatKg(String total) {
 		return (total == null || total.trim().isEmpty()) ? "-"
-		        : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
+				: (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
 	}
 
 	private void resultsInit() {
 		OwlcmsSession.withFop(fop -> {
-			logger.trace("{}Starting result board on FOP {}", fop.getLoggingName());
+			this.logger.trace("{}Starting result board on FOP {}", fop.getLoggingName());
 			setId("scoreboard-" + fop.getName());
-			curGroup = fop.getGroup();
+			this.curGroup = fop.getGroup();
 			setWideTeamNames(false);
 			this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
 		});
 		setTranslationMap();
-		displayOrder = ImmutableList.of();
+		this.displayOrder = ImmutableList.of();
 	}
 
 	private void setDisplay() {
@@ -1110,7 +1113,7 @@ public class Results extends LitTemplate
 	private void spotlightRecordAttempt() {
 		this.getElement().setProperty("recordKind", "attempt");
 		this.getElement().setProperty("recordMessage",
-		        Translator.translate("Scoreboard.RecordAttempt"));
+				Translator.translate("Scoreboard.RecordAttempt"));
 	}
 
 	private void spotlightRecords(FieldOfPlay fop) {

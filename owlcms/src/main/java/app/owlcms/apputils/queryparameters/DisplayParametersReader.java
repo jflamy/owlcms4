@@ -90,10 +90,10 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 	@Override
 	public default Map<String, List<String>> readParams(Location location,
 	        Map<String, List<String>> parametersMap) {
-		//logger.debug("DisplayParameters readParams");
+		// logger.debug("DisplayParameters readParams");
 		// handle previous parameters by calling superclass
 		Map<String, List<String>> params = SoundParametersReader.super.readParams(location, parametersMap);
-		
+
 		processBooleanParam(params, DARK, (v) -> switchLightingMode(v, false));
 		processBooleanParam(params, PUBLIC, (v) -> switchSwitchable(v, false));
 		processBooleanParam(params, RECORDS, (v) -> switchRecords(v, false));
@@ -118,7 +118,8 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 		Double tWidth;
 		try {
 			tWidth = (twParams != null && !twParams.isEmpty() ? Double.parseDouble(twParams.get(0)) : 0.0D);
-			if (tWidth > 0.0D) {;
+			if (tWidth > 0.0D) {
+				;
 				switchTeamWidth(tWidth, false);
 			} else {
 				switchTeamWidth(null, true);
@@ -130,7 +131,7 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 		setUrlParameterMap(params);
 		return params;
 	}
-	
+
 	/*
 	 * Process query parameters
 	 *
@@ -182,7 +183,7 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 		getDialog().setDraggable(true);
 		return getDialog();
 	}
-	
+
 	public default void switchAbbreviated(boolean abbreviated, boolean updateURL) {
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), ABBREVIATED, Boolean.toString(abbreviated));
@@ -234,12 +235,19 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 		}
 		setTeamWidth(teamWidth);
 	}
-	
+
 	public default void switchVideo(boolean video, boolean updateURL) {
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), VIDEO, Boolean.toString(video));
 		}
 		setVideo(video);
+	}
+
+	@Override
+	public default void setRouteParameter(String routeParameter) {
+		if (routeParameter != null && routeParameter.contentEquals("video")) {
+			setVideo(true);
+		}
 	}
 
 	Timer getDialogTimer();

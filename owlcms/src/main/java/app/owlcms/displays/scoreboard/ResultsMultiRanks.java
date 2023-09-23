@@ -34,7 +34,7 @@ import elemental.json.JsonValue;
  */
 @SuppressWarnings("serial")
 @Tag("resultsfull-template")
-@JsModule("./components/ResultsLeadersRanks.js")
+@JsModule("./components/ResultsMulti.js")
 @JsModule("./components/AudioContext.js")
 
 public class ResultsMultiRanks extends Results {

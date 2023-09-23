@@ -40,7 +40,7 @@ public class PublicMultiRanksPage extends AbstractResultsDisplayPage {
 		logger = (Logger) LoggerFactory.getLogger(PublicScoreboardPage.class);
 		uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 
-		// each superclass must this routine.
+		// each subclass must override this routine.
 		// otherwise we end up with multiple instances of the Results board.
 		var board = new ResultsMultiRanks();
 		var medalsBoard = new ResultsMedals();
@@ -58,6 +58,8 @@ public class PublicMultiRanksPage extends AbstractResultsDisplayPage {
 		        DisplayParameters.DARK, "true",
 		        DisplayParameters.LEADERS, "true",
 		        DisplayParameters.RECORDS, "true",
+		        DisplayParameters.SINGLEREF, "false",
+		        DisplayParameters.PUBLIC, "false",
 		        DisplayParameters.ABBREVIATED,
 		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
 	}

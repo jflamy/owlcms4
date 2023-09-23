@@ -407,7 +407,7 @@ class ResultsFull extends LitElement {
   }
 
   attemptBarStyles() {
-    return "display: " + (this.mode === "WAIT" ? "none" : "block");
+    return "display: " + (this.mode === "WAIT" || this.video ? "none" : "block");
   }
 
   athleteInfoStyles() {

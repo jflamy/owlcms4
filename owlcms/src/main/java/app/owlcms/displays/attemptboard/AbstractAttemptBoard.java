@@ -299,6 +299,9 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	@Override
 	public void setRouteParameter(String routeParameter) {
 		this.routeParameter = routeParameter;
+		if (routeParameter != null && routeParameter.contentEquals("video")) {
+			setVideo(true);
+		}
 	}
 
 	/**
