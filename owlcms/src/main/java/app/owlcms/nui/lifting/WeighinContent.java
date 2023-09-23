@@ -535,7 +535,7 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		} else {
 			setCurrentGroup(newCurrentGroup);
 		}
-		getRouterLayout().updateHeader(true);
+		//getRouterLayout().updateHeader(true);
 		getGroupFilter().setValue(newCurrentGroup);
 	}
 
