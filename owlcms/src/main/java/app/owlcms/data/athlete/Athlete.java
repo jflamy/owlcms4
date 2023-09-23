@@ -5185,7 +5185,7 @@ public class Athlete {
 			throw new RuleViolationException.LastChangeTooLow(this, curLift, newVal, prevVal);
 		}
 		try {
-			if (change2.isBlank() && actualLift.isBlank()) {
+			if (checkBlank(change2) && checkBlank(actualLift)) {
 				checkChangeVsTimer(curLift, declaration, change1, change2);
 				checkDeclarationWasMade(curLift, declaration);
 				checkChangeVsLiftOrder(curLift, newVal);
@@ -5219,7 +5219,7 @@ public class Athlete {
 			throw new RuleViolationException.LastChangeTooLow(this, curLift, newVal, prevVal);
 		}
 		try {
-			if (actualLift.isBlank()) {
+			if (checkBlank(actualLift)) {
 				checkChangeVsTimer(curLift, declaration, change1, change2);
 				checkDeclarationWasMade(curLift, declaration);
 				checkChangeVsLiftOrder(curLift, newVal);
@@ -5252,7 +5252,7 @@ public class Athlete {
 			throw new RuleViolationException.DeclarationValueTooSmall(this, curLift, newVal, iAutomaticProgression);
 		}
 		try {
-			if (change1.isBlank() && actualLift.isBlank()) {
+			if (checkBlank(change1) && checkBlank(actualLift)) {
 				checkChangeVsTimer(curLift, declaration, change1, change2);
 				checkChangeVsLiftOrder(curLift, newVal);
 			}
@@ -5263,6 +5263,10 @@ public class Athlete {
 		}
 		timingLogger.info("validateDeclaration {}ms {} {}", System.currentTimeMillis() - start, curLift,
 		        LoggerUtils.whereFrom());
+	}
+
+	private boolean checkBlank(String s) {
+		return s == null || s.isBlank();
 	}
 
 }
