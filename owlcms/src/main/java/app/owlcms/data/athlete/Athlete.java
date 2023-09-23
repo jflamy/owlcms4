@@ -4378,7 +4378,7 @@ public class Athlete {
 		if (!isValidation() || !enforce20kg || (entryTotal == 0)) {
 			return true;
 		}
-		getLogger().warn("enforcing 20kg rule {} {} {}", LoggerUtils.whereFrom(), enforce20kg, entryTotal);
+		getLogger().debug("enforcing 20kg rule {} {} {}", LoggerUtils.whereFrom(), enforce20kg, entryTotal);
 		int sn1Decl = zeroIfInvalid(snatch1Declaration);
 		int cj1Decl = zeroIfInvalid(cleanJerk1Declaration);
 		getLogger().trace("prior to checking {} {}", sn1Decl, cj1Decl);
@@ -4491,7 +4491,7 @@ public class Athlete {
 
 		// check: zero-based numbers, not referencing curLift, wrong sequence.
 		if (referenceAttemptNo < 3 && curLift == 3) {
-			getLogger().warn("{}start of CJ {}", OwlcmsSession.getFopLoggingName(), curLift);
+			getLogger().debug("{}start of CJ {}", OwlcmsSession.getFopLoggingName(), curLift);
 			// first attempt for C&J, no check
 			return;
 		}
@@ -4726,16 +4726,15 @@ public class Athlete {
 		if (checkedLift < currentLiftNo) {
 			// we are checking an earlier attempt of the athlete (e.g. when loading the
 			// athlete card)
-			getLogger().warn("doCheckChangeVsLiftOrder ignoring lift {} {}", checkedLift, currentLiftNo);
+			// getLogger().debug("doCheckChangeVsLiftOrder ignoring lift {} {}", checkedLift, currentLiftNo);
 			return;
 		} else {
-			getLogger().warn("doCheckChangeVsLiftOrder checking lift {} {} from {}", checkedLift, currentLiftNo,
-			        LoggerUtils.whereFrom(1));
+			// getLogger().debug("doCheckChangeVsLiftOrder checking lift {} {} from {}", checkedLift, currentLiftNo, LoggerUtils.whereFrom(1));
 		}
 
-		if (curLift <= 3 && checkedLift > 3) {
+		if (currentLiftNo <= 3 && checkedLift > 3) {
 			// ignore CJ while doing snatch
-			getLogger().warn("doCheckChangeVsLiftOrder ignoring cj lift {} {}", checkedLift, currentLiftNo);
+			// getLogger().debug("doCheckChangeVsLiftOrder ignoring cj lift {} {}", checkedLift, currentLiftNo);
 			return;
 		}
 
