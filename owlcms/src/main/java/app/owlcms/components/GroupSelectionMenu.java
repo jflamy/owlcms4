@@ -40,7 +40,6 @@ public class GroupSelectionMenu extends MenuBar {
 	public GroupSelectionMenu(List<Group> groups, Group curGroup, FieldOfPlay fop2,
 	        Consumer<Group> whenChecked, Consumer<Group> whenUnselected, Icon unselectedIcon, String unselectedLabel) {
 		MenuItem item;
-
 		if (curGroup != null) {
 			// logger.debug(curGroup.toString());
 			item = this.addItem(curGroup.getName() + "\u2003\u25bd");
