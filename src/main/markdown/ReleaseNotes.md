@@ -6,23 +6,27 @@
 > Version 44 is a technical migration release.  It updates the code to the current version of the user interface framework ([Vaadin 24](http://vaadin.com)). A significant clean-up of the code was performed at the same time, and several annoyances were fixed as a result.
 >
 
-**44.0.0-beta17**
+**44.0.0-beta18**
 
-- Video board parameter processing has been harmonized: video styling is now requested using `video=true`  as a query parameter after the `?` (like all the other parameters).  URLs that use  `/video` in the URL path before the `?` should be changed (they currently should work, but support will be removed in a future release)
-- Fix: Some invalid moving down changes of the requested weight were not detected if occurring on the first clean and jerk.
+- Fix: the public scoreboard and the ranking scoreboard were coming up as blank in the production version of the application.  The production packaging creates the scoreboards in an optimized way which sometimes behaves differently than the development mode. A way to test the production packaging before publishing a build has been found to avoid these issues.
+- Fix: the ranking scoreboard now shows more intuitive rankings (Snatch order during snatch, CJ order during CJ in a 3-medal competition, Total when done, or after Snatch in a Total competition.)
+- Styles: styling inconsistencies between the grid and nogrid variants have been fixed.
 - Known issues: see this [list of known defects](https://github.com/jflamy/owlcms4/issues/734)
 
 **44.0 Changes**
 
-- IMPORTANT VISUAL CHANGES:   Advanced users who have performed modifications to the visual styles, or who use the video streaming pages should read carefully.
+- **REQUIRED MIGRATION CHANGES FOR STYLES CUSTOMIZATION AND VIDEO STREAMING**.
+  This only concerns advanced users who have edited the css files or are doing video streaming.
+  - *Local variations to styling MUST be copied to a subdirectory of* `local/css`.  If you have customized the `styles` folder move it to `local/css/mystyles` (or whatever name you want), and update the location your Preparation - Settings - Customization page. 
+  - Style sheet changes :  If you have customized the scoreboards,  you need to edit the `results.css` files. All instances of `:host(.dark)` must be changed to `.host .dark`  and all instances of `:host(.dark)` must be changed to `.host .dark`  
+  - For video streaming, *URLs that use*  `/video` *in* *the URL path should be changed* to use `?video=true` as a query parameter instead (video is now a parameter like all the others.)
+- Visual styling changes
   - The visual styling has been changed for a more modern look. 
     - The new default is `nogrid`
     - The old "styles" has been renamed to `grid`. 
     - An alternate styling directory can specified in the *Preparation - Settings - Customization* page.  For example, to get the old look back, you would specify `grid` instead of `nogrid`.  You can also specify a local styling directory.
-    - *Local variations to styling MUST be copied to a subdirectory of* `local/css`.  If you have customized the `styles` folder move it to `local/css/mystyles` (or whatever name you want), and update the location your Preparation - Settings - Customization page. 
     - If the styles directory named in the database is not found, the default  `nogrid`  is forced. A customized style directory must be moved to `local/css` before it can be used.
-    - Style sheet changes :  If you have customized the scoreboards,  you need to edit the `results.css` files. All instances of `:host(.dark)` must be changed to `.host .dark`  and all instances of `:host(.dark)` must be changed to `.host .dark`  
-  - Video board parameter processing has been harmonized: video styling is now requested using `video=true`  as a query parameter after the `?` (like all the other parameters).  *URLs that use*  `/video` *in* *the URL path should be changed* (they currently should work, but support will be removed in a future release)
+  - Video board parameter processing has been harmonized: video styling is now requested using `video=true`  as a query parameter after the `?` (like all the other parameters).  
 - The display selection page has been changed.  The public scoreboards are now separate from the warmup scoreboards - many people were unaware of the public scoreboard feature that switches the display during medal ceremonies.
 - It is no longer necessary to start different browsers to run owlcms, publicresults and owlcms-firmata on the same machine  They no longer interfere with one another.
   - However different browsers are still needed when testing several platforms on the same computer
