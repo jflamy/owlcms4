@@ -48,37 +48,39 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 	@Subscribe
 	public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
 		this.ui.access(() -> {
-			getMedalsBoard().setVisible(false);
-			getResultsBoard().setVisible(true);
+			getMedalsBoard().getStyle().set("display", "none");
+			getResultsBoard().getStyle().set("display", "block");
 		});
 	}
 
 	@Subscribe
 	public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
 		this.ui.access(() -> {
-			getMedalsBoard().setDarkMode(getResultsBoard().isDarkMode());
-			getMedalsBoard().setTeamWidth(getResultsBoard().getTeamWidth());
-			getMedalsBoard().setEmFontSize(getResultsBoard().getEmFontSize());
-			getMedalsBoard().setVisible(true);
-			getResultsBoard().setVisible(false);
+			/* copy current parameters from results board to medals board */
+			medalsBoard.setDownSilenced(true);
+			medalsBoard.setDarkMode(((DisplayParameters) getBoard()).isDarkMode());
+			medalsBoard.setVideo(((DisplayParameters) getBoard()).isVideo());
+			medalsBoard.setPublicDisplay(((DisplayParameters) getBoard()).isPublicDisplay());
+			medalsBoard.setSingleReferee(((SoundParameters) getBoard()).isSingleReferee());
+			medalsBoard.setAbbreviatedName(((DisplayParameters) getBoard()).isAbbreviatedName());
+			medalsBoard.setTeamWidth(((DisplayParameters) getBoard()).getTeamWidth());
+			medalsBoard.setEmFontSize(((DisplayParameters) getBoard()).getEmFontSize());	
+			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/results.css", medalsBoard);  
+			getMedalsBoard().getStyle().set("display", "block");
+			getResultsBoard().getStyle().set("display", "none");
 		});
 	}
 
-	/**
-	 * We make this method final because we want to force the {@link #createComponents()} method
-	 * to be called so the assumptions made by switching from scoreboard to medals are met.
-	 * 
-	 * @see app.owlcms.nui.displays.scoreboards.AbstractResultsDisplayPage#init()
-	 */
 	@Override
-	protected final void init() {
-		@SuppressWarnings("unused")
-		Logger logger = (Logger) LoggerFactory.getLogger(this.getClass());
+	protected void init() {
+		this.logger = (Logger) LoggerFactory.getLogger(this.getClass());
+		this.uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 		createComponents();
 		setDefaultParameters();
 	}
 
 	protected void setDefaultParameters() {
+		logger.warn("leaders+records default parameters");
 		// when navigating to the page, Vaadin will call setParameter+readParameters
 		// these parameters will be applied.
 		setDefaultParameters(QueryParameters.simple(Map.of(
@@ -95,19 +97,27 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 	}
 
 	protected void createComponents() {
-		this.logger = (Logger) LoggerFactory.getLogger(PublicScoreboardPage.class);
-		this.uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
-
-		// each superclass must this routine.
-		// otherwise we end up with multiple instances of the Results board.
+		logger.warn("create components {}",this.getClass());
 		var board = new Results();
 		var medalsBoard = new ResultsMedals();
+		
 		this.setBoard(board);
 		this.setResultsBoard(board);
 		this.setMedalsBoard(medalsBoard);
 		this.addComponent(board);
 		this.addComponent(medalsBoard);
-		medalsBoard.setVisible(false);
+		
+		medalsBoard.setDownSilenced(true);
+		medalsBoard.setDarkMode(board.isDarkMode());
+		medalsBoard.setVideo(board.isVideo());
+		medalsBoard.setPublicDisplay(board.isPublicDisplay());
+		medalsBoard.setSingleReferee(board.isSingleReferee());
+		medalsBoard.setAbbreviatedName(board.isAbbreviatedName());
+		medalsBoard.setTeamWidth(board.getTeamWidth());
+		medalsBoard.setEmFontSize(board.getEmFontSize());	
+		checkVideo(Config.getCurrent().getParamStylesDir() + "/video/results.css", medalsBoard);  
+		
+		medalsBoard.getStyle().set("display", "none");
 		this.ui = UI.getCurrent();
 	}
 
@@ -115,11 +125,11 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 		return this.medalsBoard;
 	}
 
-	private void setMedalsBoard(ResultsMedals medalsBoard) {
+	protected void setMedalsBoard(ResultsMedals medalsBoard) {
 		this.medalsBoard = medalsBoard;
 	}
 
-	private void setResultsBoard(Results board) {
+	protected void setResultsBoard(Results board) {
 		this.resultsBoard = board;
 	}
 }
