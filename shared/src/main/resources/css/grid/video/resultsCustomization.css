@@ -17,7 +17,7 @@
     --spacerWidth: 1vh;
 
     /* normally these do not need to change */
-    --categoryWidth: 10ch;
+    --categoryWidth: 11ch;
     --categoryVisibility: visible;
 
     --liftResultWidth: 6ch;
@@ -78,7 +78,7 @@ td.flags div img {
 }
 td.flags div {
     height: calc(var(--athleteNameFontSize)*0.8);
-    line-height:  var(--athleteNameFontSize);
+    line-height: calc(var(--athleteNameFontSize)*0.8);
     align-self: center;
     display: flex;
 }

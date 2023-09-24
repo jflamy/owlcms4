@@ -6,8 +6,8 @@
     /* variable-size columns. fr = free space after other columns have been allocated.
        for ease of understanding, sum of all fr columns should be 1.00.
     */
-    --nameWidth: 0.60fr;
-    --clubWidth: 0.40fr;
+    --nameWidth: 1fr;
+    --clubWidth: max-content;
 
     /* left column width: adjust depending on how you name groups */
     --startWidth: 4em;
@@ -17,7 +17,7 @@
     --spacerWidth: 1vh;
 
     /* normally these do not need to change */
-    --categoryWidth: 10ch;
+    --categoryWidth: 11ch;
     --categoryVisibility: visible;
 
     --liftResultWidth: 6ch;
@@ -78,7 +78,7 @@ td.flags div img {
 }
 td.flags div {
     height: calc(var(--athleteNameFontSize)*0.8);
-    line-height:  var(--athleteNameFontSize);
+    line-height: calc(var(--athleteNameFontSize)*0.8);
     align-self: center;
     display: flex;
 }

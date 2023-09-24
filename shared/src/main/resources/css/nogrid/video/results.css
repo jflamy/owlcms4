@@ -548,7 +548,7 @@ table {
         /* start */
         var(--startWidth)
         /* name */
-        1fr
+        minmax(50px, var(--nameWidth))
         /* category */
         var(--categoryWidth)
         /* birth */
@@ -556,7 +556,7 @@ table {
         /* custom fields */
         var(--custom1Width) var(--custom2Width)
         /* team name */
-        max-content
+        var(--clubWidth)
         /* snatch results */
         var(--spacerWidth)
         repeat(3, var(--liftResultWidth))
@@ -580,47 +580,6 @@ table {
         var(--sinclairRankWidth);
 }
 
-/* grid layout */
-table.medals {
-    /* do not use all available vertical space */
-    flex: 0;
-    display: grid;
-    border-collapse: collapse;
-    grid-template-columns:
-        /* group */
-        var(--startWidth)
-        /* name */
-        minmax(50px, var(--nameWidth))
-        /* category */
-        var(--categoryWidth)
-        /* birth */
-        var(--birthWidth)
-        /* custom fields */
-        var(--custom1Width) var(--custom2Width)
-        /* team name */
-        minmax(50px, var(--clubWidth))
-        /* snatch results */
-        var(--spacerWidth)
-        repeat(3, var(--liftResultWidth))
-        var(--bestWidth)
-        /* one snatch rank per category */
-        repeat(var(--nbRanks), var(--rankWidth))
-        /* clean&jerk */
-        var(--spacerWidth)
-        repeat(3, var(--liftResultWidth))
-        var(--bestWidth)
-        /* one snatch rank per category */
-        repeat(var(--nbRanks), var(--rankWidth))
-        /* total */
-        var(--spacerWidth)
-        repeat(1, var(--liftResultWidth))
-        /* one total rank per category */
-        repeat(var(--nbRanks), var(--totalRankWidth))
-        /* sinclair result */
-        var(--sinclairWidth)
-        /* sinclair ranks */
-        var(--sinclairRankWidth);
-}
 
 thead,
 tbody,

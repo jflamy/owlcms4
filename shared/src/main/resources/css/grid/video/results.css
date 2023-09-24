@@ -1,3 +1,4 @@
+/* default for page */
 .wrapper {
     /* results table font size */
     --tableFontSize: 1.25rem;
@@ -13,8 +14,12 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    flex-wrap: no-wrap;
+    /* move to top */
     justify-content: flex-start;
+    flex-wrap: wrap;
+    /* center horizontally */
+    align-content: space-around;
+
     line-height: unset;
 }
 
@@ -22,16 +27,18 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    width: var(--tableWidthRatio, 90%);
 }
 
 .waiting {
     display: flex;
     flex-grow: 1;
     align-items: center;
+    text-align: center;
 }
 
 .video {
-    font-size: 1.6rem;
+    font-size: 2rem;
     font-weight: bold;
     background-color: var(--videoHeaderBackgroundColor);
     color: var(--videoHeaderTextColor);
@@ -544,7 +551,7 @@ table {
         /* start */
         var(--startWidth)
         /* name */
-        minmax(50px, var(--nameWidth))
+        1fr
         /* category */
         var(--categoryWidth)
         /* birth */
@@ -552,7 +559,7 @@ table {
         /* custom fields */
         var(--custom1Width) var(--custom2Width)
         /* team name */
-        minmax(50px, var(--clubWidth))
+        max-content
         /* snatch results */
         var(--spacerWidth)
         repeat(3, var(--liftResultWidth))
