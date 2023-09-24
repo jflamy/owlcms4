@@ -83,7 +83,6 @@ public class PublicRankingOrderPage extends AbstractResultsDisplayPage {
 	}
 
 	protected void setDefaultParameters() {
-		logger.warn("ranking order default paramters");
 		// when navigating to the page, Vaadin will call setParameter+readParameters
 		// these parameters will be applied.
 		setDefaultParameters(QueryParameters.simple(Map.of(
@@ -100,7 +99,6 @@ public class PublicRankingOrderPage extends AbstractResultsDisplayPage {
 	}
 
 	protected void createComponents() {
-		logger.warn("create rankingorder components {}",this.getClass());
 		var board = new ResultsRankingOrder();
 		var medalsBoard = new ResultsMedals();
 		

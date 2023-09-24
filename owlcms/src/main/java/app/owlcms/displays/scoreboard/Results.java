@@ -396,7 +396,6 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 
 	@Override
 	public final void setRouteParameter(String routeParameter) {
-		this.logger.warn("setting routeParameter = {}",routeParameter);
 		this.routeParameter = routeParameter;
 		if (routeParameter != null && routeParameter.contentEquals("video")) {
 			setVideo(true);

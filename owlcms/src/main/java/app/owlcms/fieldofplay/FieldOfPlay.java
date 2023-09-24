@@ -1384,9 +1384,10 @@ public class FieldOfPlay {
 	}
 
 	private Ranking computeResultOrderRanking(boolean groupDone) {
-		if (groupDone || !Competition.getCurrent().isSnatchCJTotalMedals()) {
+		boolean _3medals = Competition.getCurrent().isSnatchCJTotalMedals();
+		if (groupDone || (isCjStarted() && !_3medals)) {
 			return Ranking.TOTAL;
-		} else if (isCjStarted()) {
+		} else if (_3medals && isCjStarted()) {
 			return Ranking.CLEANJERK;
 		} else {
 			return Ranking.SNATCH;
@@ -1896,12 +1897,15 @@ public class FieldOfPlay {
 	}
 
 	private void pushOutDone() {
-		logger.debug("{}group {} done", getLoggingName(), getGroup());
+		logger.debug("{} *** group {} done", getLoggingName(), getGroup());
 		UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null, LoggerUtils.whereFrom());
 		// make sure the publicresults update carries the right state.
 		this.setBreakType(BreakType.GROUP_DONE);
 		this.getBreakTimer().setIndefinite();
 		this.setState(BREAK);
+		// for 3medals, make sure that the results show total and no longer cj ranking.
+		setResultsOrder(AthleteSorter.resultsOrderCopy(getDisplayOrder(),
+		        computeResultOrderRanking(true)));
 		pushOutUIEvent(event);
 	}
 

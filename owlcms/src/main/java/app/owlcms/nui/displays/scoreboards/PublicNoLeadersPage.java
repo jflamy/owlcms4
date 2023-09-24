@@ -81,7 +81,6 @@ public class PublicNoLeadersPage extends AbstractResultsDisplayPage {
 	}
 
 	protected void setDefaultParameters() {
-		logger.warn("simple default parameters");
 		// when navigating to the page, Vaadin will call setParameter+readParameters
 		// these parameters will be applied.
 		setDefaultParameters(QueryParameters.simple(Map.of(
@@ -98,7 +97,6 @@ public class PublicNoLeadersPage extends AbstractResultsDisplayPage {
 	}
 
 	protected void createComponents() {	
-		logger.warn("create components {}",this.getClass());
 		var board = new Results();
 		var medalsBoard = new ResultsMedals();
 		

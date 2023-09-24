@@ -13,9 +13,6 @@ import ch.qos.logback.classic.Logger;
 
 public interface StylesDirSelection {
 
-	public boolean isVideo();
-	public void setVideo(boolean video);
-
 	public default void checkVideo(String cssPath, Component component) {
 		Logger logger = (Logger) LoggerFactory.getLogger(StylesDirSelection.class);
 		Element element = component.getElement();
@@ -38,4 +35,7 @@ public interface StylesDirSelection {
 		}
 
 	}
+	public boolean isVideo();
+
+	public void setVideo(boolean video);
 }
