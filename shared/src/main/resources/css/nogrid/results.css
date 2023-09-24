@@ -965,7 +965,7 @@ div.ellipsis {
 
 :host .dark .recordBox {
     float: left;
-    border: 1px solid var(--darkRecordBoxBorder);
+    border: var(--darkRecordBoxBorderWidth) solid var(--darkRecordBoxBorder);
     color: var(--darkRecordBoxText);
 }
 

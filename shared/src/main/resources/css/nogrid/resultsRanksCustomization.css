@@ -8,8 +8,9 @@
     /* variable-size columns. fr = free space after other columns have been allocated.
        for ease of understanding, sum of all fr columns should be 1.00.
     */
-    --nameWidth: 0.75fr;
-    --clubWidth: 0.25fr;
+    --nameWidth: 1fr;
+    --clubWidth: max-content;
+    --tableWidthRatio: 100%;
 
     /* left column width: adjust depending on how you name groups */
     --startWidth: 0em;
@@ -19,7 +20,9 @@
     --spacerWidth: 1vh;
 
     /* normally these do not need to change */
-    --categoryWidth: 10ch;
+    --categoryWidth: 11ch;
+    --categoryVisibility: visible;
+       
     --liftResultWidth: 6ch;
 
     /* to show these columns 
@@ -33,10 +36,12 @@
     --custom2Width: 0;
     --custom2Visibility: hidden;
 
-    --rankWidth: 4ch;
+    --rankWidth: var(--liftResultWidth);
     --rankVisibility: visible;
-    --totalRankWidth: 4ch;
     
+    --totalRankWidth: var(--liftResultWidth);
+
+    /* 
     --bestWidth: var(--liftResultWidth);
     --bestVisibility: visible;
     /*
@@ -68,7 +73,7 @@
     --rowSmallSpacerHeight: 0.25vh;
 }
 
-/* default for page */
+/* default for page 
 .wrapper {
     /* results table font size */
     --tableFontSize: 1.25rem;
@@ -88,6 +93,7 @@
     justify-content: space-around;
     line-height: unset;
 }
+*/ /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 
 .blockPositioningWrapper {
     background-color: var(--blockBackgroundColor);

@@ -8,9 +8,10 @@
     */
     --nameWidth: 1fr;
     --clubWidth: max-content;
+    --tableWidthRatio: 100%;
 
     /* left column width: adjust depending on how you name groups */
-    --startWidth: 4em;
+    --startWidth: min-content;
     --startVisibility: visible;
 
     /* spacers */
