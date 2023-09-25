@@ -133,9 +133,10 @@ public class MultiCategoryRankSetter {
 					p.setCustomRank(0);
 					// logger.debug("skipping custom rank {} {} {}", a, curCat, 0);
 				}
+				break;
 			}
 			default:
-				logger.error("CAN'T HAPPEN setting unknown rank {} {} {} {}", a, curCat, customRank, System.identityHashCode(p));
+				logger.error("CAN'T HAPPEN setting unknown rank '{}'  {} {} {}", r, a, curCat, System.identityHashCode(p));
 				break;
 			}
 		}
