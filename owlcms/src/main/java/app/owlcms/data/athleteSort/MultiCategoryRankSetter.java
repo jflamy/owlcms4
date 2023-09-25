@@ -24,8 +24,11 @@ public class MultiCategoryRankSetter {
 	// we use a participation objet because, by definition, it contains all the
 	// category-based rankings
 	Map<String, CategoryRankingHolder> rankings = new HashMap<>();
-
 	private int rank = 0;
+	private int snatchRank = 0;
+	private int cjRank = 0;
+	private int totalRank = 0;
+	private int customRank = 0;
 
 	public void increment(Athlete a, Ranking r, double rankingValue) {
 		if (a == null) {
@@ -70,11 +73,11 @@ public class MultiCategoryRankSetter {
 			case SNATCH: {
 				if (!zero) {
 					CategoryRankingHolder curRankings = getCategoryRankings(curCat);
-					rank = curRankings.getSnatchRank();
-					rank = rank + 1;
-					p.setSnatchRank(rank);
-					curRankings.setSnatchRank(rank);
-					// logger.debug("setting snatch rank {} {} {} {} {}", a, curCat, rank,
+					snatchRank = curRankings.getSnatchRank();
+					snatchRank = snatchRank + 1;
+					p.setSnatchRank(snatchRank);
+					curRankings.setSnatchRank(snatchRank);
+					// logger.debug("setting snatch rank {} {} {} {} {}", a, curCat, snatchRank,
 					// System.identityHashCode(p),
 					// System.identityHashCode(curRankings));
 				} else {
@@ -87,11 +90,11 @@ public class MultiCategoryRankSetter {
 			case CLEANJERK: {
 				if (!zero) {
 					CategoryRankingHolder curRankings = getCategoryRankings(curCat);
-					rank = curRankings.getCleanJerkRank();
-					rank = rank + 1;
-					p.setCleanJerkRank(rank);
-					curRankings.setCleanJerkRank(rank);
-					// logger.debug("setting clean&jerk rank {} {} {} {} {}", a, curCat, rank,
+					cjRank = curRankings.getCleanJerkRank();
+					cjRank = cjRank + 1;
+					p.setCleanJerkRank(cjRank);
+					curRankings.setCleanJerkRank(cjRank);
+					// logger.debug("setting clean&jerk rank {} {} {} {} {}", a, curCat, cjRank,
 					// System.identityHashCode(p), System.identityHashCode(curRankings));
 				} else {
 					p.setCleanJerkRank(0);
@@ -103,11 +106,11 @@ public class MultiCategoryRankSetter {
 			case TOTAL: {
 				if (!zero) {
 					CategoryRankingHolder curRankings = getCategoryRankings(curCat);
-					rank = curRankings.getTotalRank();
-					rank = rank + 1;
-					p.setTotalRank(rank);
-					curRankings.setTotalRank(rank);
-					// logger.debug("setting total rank {} {} {} {} {}", a, curCat, rank,
+					totalRank = curRankings.getTotalRank();
+					totalRank = totalRank + 1;
+					p.setTotalRank(totalRank);
+					curRankings.setTotalRank(totalRank);
+					// logger.debug("setting total rank {} {} {} {} {}", a, curCat, totalRank,
 					// System.identityHashCode(p),
 					// System.identityHashCode(curRankings));
 				} else {
@@ -119,11 +122,11 @@ public class MultiCategoryRankSetter {
 			case CUSTOM: {
 				if (!zero) {
 					CategoryRankingHolder curRankings = getCategoryRankings(curCat);
-					rank = curRankings.getCustomRank();
-					rank = rank + 1;
-					p.setCustomRank(rank);
-					curRankings.setCustomRank(rank);
-					// logger.debug("setting custom rank {} {} {} {} {}", a, curCat, rank,
+					customRank = curRankings.getCustomRank();
+					customRank = customRank + 1;
+					p.setCustomRank(customRank);
+					curRankings.setCustomRank(customRank);
+					// logger.debug("setting custom rank {} {} {} {} {}", a, curCat, customRank,
 					// System.identityHashCode(p),
 					// System.identityHashCode(curRankings));
 				} else {
@@ -131,8 +134,8 @@ public class MultiCategoryRankSetter {
 					// logger.debug("skipping custom rank {} {} {}", a, curCat, 0);
 				}
 			}
-				break;
 			default:
+				logger.error("CAN'T HAPPEN setting unknown rank {} {} {} {}", a, curCat, customRank, System.identityHashCode(p));
 				break;
 			}
 		}

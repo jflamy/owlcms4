@@ -628,7 +628,7 @@ public class AthleteSorter implements Serializable {
 	 * Assign ranks, sequentially.
 	 *
 	 * @param absoluteOrderList list sorted without taking categories into
-	 *                          accountoui
+	 *                          account
 	 *
 	 * @param rankingType       the ranking type
 	 */
