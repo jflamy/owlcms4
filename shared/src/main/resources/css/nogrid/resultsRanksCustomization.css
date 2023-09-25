@@ -44,10 +44,10 @@
     /* 
     --bestWidth: var(--liftResultWidth);
     --bestVisibility: visible;
-    /*
+    */
     --bestWidth: 0;
     --bestVisibility: hidden;
-      */
+
 
     /* top part: current attempt information */
     --topRowFontSize: 3vh;
@@ -72,28 +72,6 @@
     --spacerWidth: 1vh;
     --rowSmallSpacerHeight: 0.25vh;
 }
-
-/* default for page 
-.wrapper {
-    /* results table font size */
-    --tableFontSize: 1.25rem;
-    --recordValueCellHeight: calc(var(--tableFontSize)*1.5);
-    --recordsFontRatio: 0.9;
-
-    font-family: Arial, Helvetica, sans-serif;
-    color: var(--pageTextColor);
-    background-color: var(--pageBackgroundColor);
-    margin: 0;
-
-    padding: 0.1rem;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: no-wrap;
-    justify-content: space-around;
-    line-height: unset;
-}
-*/ /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 
 .blockPositioningWrapper {
     background-color: var(--blockBackgroundColor);
