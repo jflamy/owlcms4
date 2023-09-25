@@ -7,6 +7,9 @@
 
 package app.owlcms.nui.results;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -135,9 +138,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 
 	private Group currentGroup;
 	private DownloadDialog downloadDialog;
-
 	private Checkbox medalsOnly;
-
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	/**
@@ -293,7 +294,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	public void setGridGroup(Group group) {
-//        subscribeIfLifting(group);
+		// subscribeIfLifting(group);
 		getGroupFilter().setValue(group);
 		refresh();
 	}
@@ -327,6 +328,14 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 				// special group to show all athletes
 				currentGroup = null;
 			} else {
+				if (groupName.contains("%") || groupName.contains("+")) {
+					try {
+						groupName = URLDecoder.decode(groupName, StandardCharsets.UTF_8.name());
+					} catch (UnsupportedEncodingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 				currentGroup = GroupRepository.findByName(groupName);
 			}
 		} else {
@@ -384,7 +393,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 			        getTranslation("Warning_GroupLifting") + liftingFop.getName() + getTranslation("CannotEditResults"),
 			        3000, Position.MIDDLE);
 			logger.debug(getTranslation("CannotEditResults_logging"), currentGroup, liftingFop);
-//            subscribeIfLifting(currentGroup);
+			// subscribeIfLifting(currentGroup);
 		} else {
 			logger.debug(getTranslation("EditingResults_logging"), currentGroup, liftingFop);
 		}
@@ -524,7 +533,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 			logger.debug("updating filters: group={}", e.getValue());
 			currentGroup = e.getValue();
 			updateURLLocation(getLocationUI(), getLocation(), currentGroup);
-//            subscribeIfLifting(e.getValue());
+			// subscribeIfLifting(e.getValue());
 		});
 		crud.getCrudLayout().addFilterComponent(getGroupFilter());
 
