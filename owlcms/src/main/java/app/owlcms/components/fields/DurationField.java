@@ -115,7 +115,7 @@ public class DurationField extends WrappedTextField<Duration> implements HasVali
 			parsedTime = LocalTime.parse(string, formatter);
 			setFormatValidationStatus(true, locale);
 			Duration between = Duration.between(LocalTime.MIN, parsedTime);
-			getLogger().debug("parsed duration = {}", between);
+			//getLogger().debug("parsed duration = {}", between);
 			return Result.ok(between);
 		} catch (DateTimeParseException e) {
 //            getLogger().error(e.getLocalizedMessage());

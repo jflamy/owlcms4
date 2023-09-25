@@ -77,7 +77,7 @@ public abstract class WrappedTextField<T> extends AbstractCompositeField<Validat
             if (!this.isRequired() && value == null) {
                 return true;
             }
-            getLogger().debug("format validation {} {}", value, this.validFormat);
+            //getLogger().debug("format validation {} {}", value, this.validFormat);
             return this.validFormat;
         }, this.invalidFormatErrorMessage(locale));
     }

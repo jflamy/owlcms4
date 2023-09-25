@@ -4378,7 +4378,7 @@ public class Athlete {
 		if (!isValidation() || !enforce20kg || (entryTotal == 0)) {
 			return true;
 		}
-		getLogger().debug("enforcing 20kg rule {} {} {}", LoggerUtils.whereFrom(), enforce20kg, entryTotal);
+		//getLogger().debug("enforcing 20kg rule {} {} {}", LoggerUtils.whereFrom(), enforce20kg, entryTotal);
 		int sn1Decl = zeroIfInvalid(snatch1Declaration);
 		int cj1Decl = zeroIfInvalid(cleanJerk1Declaration);
 		getLogger().trace("prior to checking {} {}", sn1Decl, cj1Decl);
@@ -4491,7 +4491,7 @@ public class Athlete {
 
 		// check: zero-based numbers, not referencing curLift, wrong sequence.
 		if (referenceAttemptNo < 3 && curLift == 3) {
-			getLogger().debug("{}start of CJ {}", OwlcmsSession.getFopLoggingName(), curLift);
+			getLogger().info("{}start of CJ {}", OwlcmsSession.getFopLoggingName(), curLift);
 			// first attempt for C&J, no check
 			return;
 		}

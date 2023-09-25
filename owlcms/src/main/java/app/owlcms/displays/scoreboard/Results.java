@@ -454,7 +454,7 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 	 */
 	@Override
 	public void setVideo(boolean b) {
-		this.logger.warn("{} setVideo {} from {}", this.getClass(), b, LoggerUtils.whereFrom());
+		//this.logger.debug("{} setVideo {} from {}", this.getClass(), b, LoggerUtils.whereFrom());
 		this.video = b;
 	}
 
