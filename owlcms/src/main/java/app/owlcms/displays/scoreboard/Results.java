@@ -430,7 +430,7 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 				}
 			}
 		}
-		ja.put("teamLength", team.isBlank() ? "" : (team.length() + 2) + "ch");
+		//ja.put("teamLength", team.isBlank() ? "" : (team.length()*1.2) + "ch");
 		ja.put("flagURL", prop != null ? prop : "");
 		ja.put("flagClass", "flags");
 	}
