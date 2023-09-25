@@ -51,12 +51,6 @@ class ResultsMedals extends LitElement {
 
           ${this.medalCategories
             ? html`
- <!--                <table
-                  class="${"results medals " + (this.noLiftRanks ?? "")}"
-                  style="${(this.hiddenGridStyle ?? "") +
-                  "; padding-top: 0.5em; " +
-                  (this.twOverride ?? "")}"
-                > -->
                 <table class="${this.athleteClasses()}" style="${this.athleteStyles()}">
                   ${(this.medalCategories ?? []).map(
                     (mc) => html`
