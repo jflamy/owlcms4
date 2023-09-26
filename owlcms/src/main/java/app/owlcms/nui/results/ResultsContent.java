@@ -7,7 +7,6 @@
 
 package app.owlcms.nui.results;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -329,12 +328,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 				currentGroup = null;
 			} else {
 				if (groupName.contains("%") || groupName.contains("+")) {
-					try {
-						groupName = URLDecoder.decode(groupName, StandardCharsets.UTF_8.name());
-					} catch (UnsupportedEncodingException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					groupName = URLDecoder.decode(groupName, StandardCharsets.UTF_8);
 				}
 				currentGroup = GroupRepository.findByName(groupName);
 			}

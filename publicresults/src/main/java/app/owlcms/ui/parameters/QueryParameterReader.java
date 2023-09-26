@@ -6,7 +6,6 @@
  *******************************************************************************/
 package app.owlcms.ui.parameters;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -48,10 +47,7 @@ public interface QueryParameterReader extends HasUrlParameter<String> {
             }
             if (fopName != null) {
                 setFopName(fopName);
-                try {
-                    params.put("fop", Arrays.asList(URLEncoder.encode(fopName, StandardCharsets.UTF_8.name())));
-                } catch (UnsupportedEncodingException e) {
-                }
+                params.put("fop", Arrays.asList(URLEncoder.encode(fopName, StandardCharsets.UTF_8)));
             }
         } else {
             params.remove("fop");
@@ -66,10 +62,7 @@ public interface QueryParameterReader extends HasUrlParameter<String> {
 
             }
             if (groupName != null) {
-                try {
-                    params.put("group", Arrays.asList(URLEncoder.encode(groupName, StandardCharsets.UTF_8.name())));
-                } catch (UnsupportedEncodingException e) {
-                }
+                params.put("group", Arrays.asList(URLEncoder.encode(groupName, StandardCharsets.UTF_8)));
             }
         } else {
             params.remove("group");
@@ -104,7 +97,8 @@ public interface QueryParameterReader extends HasUrlParameter<String> {
     /*
      * Process query parameters
      *
-     * @see app.owlcms.ui.group.URLParameter#setParameter(com.vaadin.flow.router. BeforeEvent, java.lang.String)
+     * @see app.owlcms.ui.group.URLParameter#setParameter(com.vaadin.flow.router.
+     * BeforeEvent, java.lang.String)
      */
     @Override
     public default void setParameter(BeforeEvent event, @OptionalParameter String parameter) {

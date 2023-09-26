@@ -1,6 +1,5 @@
 package app.owlcms.apputils.queryparameters;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -157,19 +156,16 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 	 * @see app.owlcms.apputils.queryparameters.FOPParameters#updateURLLocation(UI, Location, String, String)
 	 */
 	@Override
+	@Deprecated
 	public default void storeReturnURL(Location location) {
 		if (isPublicDisplay()) {
 			// String trace = LoggerUtils.stackTrace();
 			UI.getCurrent().getPage().fetchCurrentURL(url -> {
 				String urlNonRelative = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort() + "/";
 				String arg1 = urlNonRelative + location.getPathWithQueryParameters();
-				if (arg1.contains("%")) {
-					try {
-						arg1 = URLDecoder.decode(arg1, StandardCharsets.UTF_8.name());
-					} catch (UnsupportedEncodingException e) {
-					}
+				if (arg1.contains("%") || arg1.contains("+")) {
+					arg1 = URLDecoder.decode(arg1, StandardCharsets.UTF_8);
 				}
-				// logger.debug("storing pageURL {} {}", arg1, trace);
 				storeInSessionStorage("pageURL", url.toExternalForm());
 			});
 		}
