@@ -89,11 +89,9 @@ class DecisionElement extends LitElement {
     return {
       ref1: {
         type: Boolean,
-        reflect: true,
       },
       ref2: {
         type: Boolean,
-        reflect: true,
       },
       ref3: {
         type: Boolean,
@@ -353,7 +351,7 @@ class DecisionElement extends LitElement {
   }
 
   showDecisions(isMaster, ref1, ref2, ref3) {
-    console.debug("de showDecision: " + ref1 + " " + ref2 + " " + ref3);
+    console.warn("de showDecision: " + ref1 + " " + ref2 + " " + ref3);
     this.ref1 = ref1;
     this.ref2 = ref2;
     this.ref3 = ref3;
@@ -363,7 +361,7 @@ class DecisionElement extends LitElement {
   }
 
   showDecisionsForJury(ref1, ref2, ref3, ref1Time, ref2Time, ref3Time) {
-    console.debug("de showDecisionForJury: " + ref1 + " " + ref2 + " " + ref3);
+    console.warn("de showDecisionForJury: " + ref1 + " " + ref2 + " " + ref3);
     this.ref1 = ref1;
     this.ref2 = ref2;
     this.ref3 = ref3;
@@ -376,7 +374,7 @@ class DecisionElement extends LitElement {
   }
 
   reset(isMaster) {
-    console.debug("de reset " + isMaster);
+    console.warn("de reset " + isMaster);
     this.hideDecisions();
     this._init();
   }
