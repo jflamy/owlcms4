@@ -53,8 +53,10 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.utils.DateTimeUtils;
 import app.owlcms.utils.StartupUtils;
@@ -1169,6 +1171,11 @@ public class Competition {
 	}
 
 	public void setJurySize(Integer jurySize) {
+		FieldOfPlay fop = OwlcmsSession.getFop();
+		if (fop != null) {
+			MQTTMonitor mqttMonitor = fop.getMqttMonitor();
+			if (mqttMonitor != null) mqttMonitor.publishMqttConfig();
+		}
 		this.jurySize = jurySize;
 	}
 
