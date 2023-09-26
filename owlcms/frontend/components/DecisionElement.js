@@ -15,6 +15,10 @@ class DecisionElement extends LitElement {
   static get styles() {
     return [
       css`
+        :host {
+          display: flex;
+          height: 100%;
+        }
         .decisionWrapper {
           width: 100%;
           height: 100%;

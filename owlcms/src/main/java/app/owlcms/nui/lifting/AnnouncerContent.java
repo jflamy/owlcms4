@@ -240,8 +240,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 //        Icon silenceIcon = AvIcons.MIC_OFF.create();
 		decisionLights = new HorizontalLayout(decisionDisplay);
 		decisionLights.addClassName("announcerLeft");
-		// decisionLights.setWidth("12em");
+		decisionLights.setWidth("12em");
 		decisionLights.getStyle().set("line-height", "2em");
+		decisionDisplay.getStyle().set("width", "9em");
 	}
 
 	private void hideLiveDecisions() {
@@ -325,8 +326,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 		topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
 		topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-		topBar.setFlexGrow(0.0, getTopBarLeft());
-		topBar.setFlexGrow(1.0, topBarRight);
+		topBar.setFlexGrow(0.2, getTopBarLeft());
+		topBar.setFlexGrow(0.5, topBarRight);
 		return topBar;
 	}
 
@@ -463,7 +464,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 		topBar.setAlignSelf(Alignment.CENTER, attempt, weight, time);
 		topBar.setFlexGrow(0.5, fullName);
-		topBar.setFlexGrow(0.0, topBarLeft);
+		topBar.setFlexGrow(0.2, topBarLeft);
 		return topBar;
 	}
 
@@ -561,6 +562,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		return this.downSilenced;
 	}
 
+	@Override
 	public void setDownSilenced(boolean downSilenced) {
 		this.downSilenced = downSilenced;
 	}

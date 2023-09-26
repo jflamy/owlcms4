@@ -403,7 +403,7 @@ public abstract class AthleteGridContent extends BaseContent
 		topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 		topBar.setAlignSelf(Alignment.CENTER, attempt, weight, time);
 		topBar.setFlexGrow(0.5, fullName);
-		topBar.setFlexGrow(0.0, topBarLeft);
+		topBar.setFlexGrow(0.2, topBarLeft);
 		return topBar;
 	}
 
