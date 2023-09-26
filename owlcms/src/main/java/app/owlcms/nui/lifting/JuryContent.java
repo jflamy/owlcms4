@@ -38,8 +38,10 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
@@ -98,6 +100,13 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		// we don't actually inherit behaviour from the superclass because
 		// all this does is call init() -- which we override.
 		super();
+		// when navigating to the page, Vaadin will call setParameter+readParameters
+		// these parameters will be applied.
+		setDefaultParameters(QueryParameters.simple(Map.of(
+		        SoundParameters.SILENT, "true",
+		        SoundParameters.DOWNSILENT, "true",
+		        SoundParameters.IMMEDIATE, "true",
+		        SoundParameters.SINGLEREF, "false")));
 	}
 
 	/**
@@ -241,7 +250,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 				decisions.doReset();
 				juryVotingButtons.removeAll();
 				resetJuryVoting();
-				decisions.setSilenced(this.isSilenced());
+				decisions.setSilenced(true);
 				if (decisionNotification != null) {
 					decisionNotification.close();
 				}
@@ -662,10 +671,10 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 			        e.getSource().setText(this.isSilenced() ? Translator.translate("Settings.TurnOnSound")
 			                : Translator.translate("Settings.TurnOffSound"));
 			        if (decisionDisplay != null) {
-				        decisionDisplay.setSilenced(this.isSilenced());
+				        decisionDisplay.setSilenced(true);
 			        }
 			        if (decisions != null) {
-				        decisions.setSilenced(this.isSilenced());
+				        decisions.setSilenced(true);
 			        }
 			        if (timer != null) {
 				        timer.setSilenced(this.isSilenced());
