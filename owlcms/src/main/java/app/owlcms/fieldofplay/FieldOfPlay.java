@@ -256,7 +256,7 @@ public class FieldOfPlay {
 		return liftsDone;
 	}
 
-	public void fopEventPost(FOPEvent e) {
+	public synchronized void fopEventPost(FOPEvent e) {
 		e.setFop(this);
 		handleFOPEvent(e);
 	}
