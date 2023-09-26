@@ -1,17 +1,16 @@
 > **Version 44 beta release**
 >
 > - Beta releases are meant for translation and for testing by people other than the developers.
-> - *A beta release should be tested very thoroughly before being used.*
+> - *A beta release should be tested thoroughly before being used.*
 >
 > Version 44 is a technical migration release.  It updates the code to the current version of the user interface framework ([Vaadin 24](http://vaadin.com)). A significant clean-up of the code was performed at the same time, and several annoyances were fixed as a result.
 >
 
-**44.0.0-beta18**
+**44.0.0-beta19**
 
-- Fix: the public scoreboard and the ranking scoreboard were coming up as blank in the production version of the application.  The production packaging creates the scoreboards in an optimized way which sometimes behaves differently than the development mode. A way to test the production packaging before publishing a build has been found to avoid these issues.
-- Fix: the ranking scoreboard now shows more intuitive rankings (Snatch order during snatch, CJ order during CJ in a 3-medal competition, Total when done, or after Snatch in a Total competition.)
-- Styles: styling inconsistencies between the grid and nogrid variants have been fixed.
-- Known issues: see this [list of known defects](https://github.com/jflamy/owlcms4/issues/734)
+- Last planned beta release: The next release will be a release candidate.
+- Styling: improvement to the display of the decisions on the jury and announcer pages, add more space for group selection drop-down on the announcer page, fix slightly truncated team names on scoreboards, removed un-needed differences between grid and nogrid styles, fixed video layouts.
+- Fix for URL encoding: the session code is normally a number or simple identifier since there is a description field to list the categories. But it can happen that by accident the code includes a description with spaces.  So the session code is now encoded/decoded when used in the page URL.
 
 **44.0 Changes**
 
