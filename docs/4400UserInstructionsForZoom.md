@@ -1,5 +1,9 @@
 # User Instructions For Zoom
 
+> This section only applies if the scoreboard is broadcast using Zoom.
+>
+> If the scoreboard is seen using the publicresults application, then the athletes/coaches see the scoreboard using a regular browser (Chrome, Edge, Safari, Firefox) on a tablet, phone or laptop.
+
 #### Laptop Users: switching between athlete view and scoreboard
 
 For users on a laptop, depending on the way the users interact with their Zoom application, there are two possibilities to select between the athlete and the scoreboard.

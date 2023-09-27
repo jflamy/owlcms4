@@ -24,9 +24,10 @@
   * [Live Streaming Events](Streaming)
   * [Automatic Scene Switching](OBSSceneSwitching)
 * Virtual Competitions
-  * [Overview](VirtualOverview)
-  * [Preparing the Zoom Setup](PrepareZoomBroadcasting)
-  * [Running a Virtual Competition](Zoom)
+  * [Overview](4100VirtualOverview)
+  * [Preparing the Zoom Setup](4200PrepareZoomBroadcasting)
+  * [Running a Virtual Competition](4300Zoom)
+  * [User Instructions for Zoom](4400UserInstructionsForZoom)
 * Advanced Topics
   * [Customization](UploadingLocalSettings)
   * [Scoreboard Colors](Styles)

@@ -1,5 +1,12 @@
 # Prepare Zoom for Broadcasting
 
+There are two options for running Zoom that depend on the equipment available to the person running the videos.
+
+1. If only a single screen is available, it is very difficult to broadcast the scoreboard on Zoom.  We strongly recommend that you install publicresults and tell the participants in advance what the URL will be for watching the scoreboard.  The participants will need to use Zoom to request their changes, and watch the scoreboard on a browser.  Since the scoreboard can be watched on a phone or tablet, this is not usually an issue. On a laptop the athletes can just switch windows.
+2. If two screens are available (such as a laptop with an external monitor), the rest of this section can be applied.
+
+### Dual Monitor Setup
+
 Start Zoom and use the Home icon, and then click on the settings Icon at the top right.  Make sure that "Use Dual Monitors" is selected.
 
 ![zoomsettings](img/OBS/zoomsettings.png)
@@ -21,7 +28,7 @@ In this example, we use one of our two monitors to have all the Zoom control win
 - On the right screen, make sure you are in Gallery View - there is an icon at the top right of the Zoom Meeting window for selecting.  In this way you see all the participants.
 - Right-click on the participant that you wish to select.
 - Select "`Spotlight`" or "`Replace Spotlight`" in the context menu.  This will switch the video output on all the users.  
-- As described [here](UserInstructionsForZoom), users can select whether they watch the video of the athlete or the scoreboard.
+- As described [here](4400UserInstructionsForZoom), users can select whether they watch the video of the athlete or the scoreboard.
 
 #### Rehearsal of the Broadcasting setup
 

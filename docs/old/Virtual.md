@@ -1,4 +1,4 @@
-This document explains the concepts behind running a virtual competition with owlcms. A *virtual competition* is a competition where the athletes and officials are in multiple locations and communicate via a videoconferencing application such as Zoom or Jitsi / 8x8.  We recommend Zoom or Jitsi / 8x8 because the video moderator can select what is seen by all attendees (putting the spotlight on the current athlete, in this case)
+This document explains the concepts behind running a virtual competition with owlcms. A *virtual competition* is a competition where the athletes and officials are in multiple locations and communicate via a videoconferencing application such as Zoom.  We recommend Zoom because the video moderator can easily select what is seen by all attendees (putting the spotlight on the current athlete, in this case)
 
 ## Remote Scoreboards Using the publicresults Cloud-Based Application
 
@@ -17,5 +17,4 @@ In a true virtual competition, the officials are in multiple locations.  In orde
 Remote referees should use a laptop because video rates on most iPads is not very good and a larger screen than a phone is needed.
 
 ![Slide5](img/PublicResults/CloudExplained/Slide5.SVG)
-
 

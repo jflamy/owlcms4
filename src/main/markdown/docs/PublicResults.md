@@ -9,7 +9,7 @@ The following example shows owlcms running standalone in a gym, sending informat
 - The public can connect to publicresults and  see the scoreboards via their phone or laptop no matter where they are
 - There is no load put on the competition site other than sending an update to the publicresults application.  The publicresults application takes all the load for the public queries.
 
-The other common configuration is when both owlcms and publicresults are in the cloud,  That scenario is discussed [here](VirtualOverview).
+The other common configuration is when both owlcms and publicresults are in the cloud,  That scenario is discussed [here](4100VirtualOverview).
 
 ## Install publicresults
 
