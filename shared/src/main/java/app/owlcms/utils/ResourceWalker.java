@@ -485,6 +485,7 @@ public class ResourceWalker {
 
 	public static void unzipBlobToTemp(InputStream in) throws IOException {
 		Path f = null;
+		//f = Files.createTempDirectory("owlcmsOverride");
 		f = MemTempUtils.createTempDirectory("owlcmsOverride");
 		if (logger.isEnabledFor(Level.DEBUG)) {
 			logger.debug("created temp directory " + f);

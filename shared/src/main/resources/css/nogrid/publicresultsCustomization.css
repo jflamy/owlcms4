@@ -53,6 +53,28 @@
     --nbRanks: 1;
 }
 
+/* table sizes: ipad, 1024 projector */
+@media screen and (orientation: landscape) and (min-height: 401px) and (max-height: 800px) {
+    :host table.results {
+        --tableFontSize: 1.8vh;
+        --bestVisibility: hidden;
+        --bestWidth: 0;
+        --rankVisibility: visible;
+        --rankWidth: var(--liftResultWidth);
+    }
+}
+
+/* table sizes: iphone */
+@media screen and (orientation: landscape) and (max-height: 400px) {
+    :host table.results {
+        --tableFontSize: 2.6vh;
+        --bestVisibility: hidden;
+        --bestWidth: 0;
+        --rankVisibility: visible;
+        --rankWidth: var(--liftResultWidth);
+    }
+}
+
 :host .light table.results {
     --spacerWidth: 0vh;
     --rowSmallSpacerHeight: 0;

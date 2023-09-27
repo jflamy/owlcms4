@@ -799,21 +799,6 @@ div.ellipsis {
     overflow: hidden;
 }
 
-/* table sizes: 1024 projector */
-@media screen and (max-width: 1025px) and (max-height: 769px) {
-    .wrapper {
-        --tableFontSize: 0.8rem;
-    }
-
-    /*
-    table.results {
-        --rankWidth: 0;
-        --rankVisibility: hidden;
-
-    }
-    */
-}
-
 /* records light theme */
 :host .light .recordCell {
     float: left;
