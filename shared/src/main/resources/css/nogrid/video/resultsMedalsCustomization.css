@@ -84,15 +84,20 @@
     /* min-height: min-content; */
     padding: 1vmin 2vmin 2vmin 2vmin;
     overflow: hidden;
-    /*display: grid;*/ /* not needed for medals/rankings */
-    justify-content: center;
     line-height: unset;
+    
+    /* needed to position background block correctly */
+    display: grid;
+    justify-content: center;
+    align-content: start;
 }
 
+/*
 table.results tr td.club div.ellipsis {
     width: var(--teamNameShortLength);
     max-width: var(--teamNameShortLength);
 }
+*/
 
 td.name.flags {
     font-size: 120%;

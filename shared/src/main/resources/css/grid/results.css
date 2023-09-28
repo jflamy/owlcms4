@@ -1,3 +1,4 @@
+/* default for page */
 .wrapper {
     /* results table font size */
     --tableFontSize: 1.25rem;
@@ -545,7 +546,7 @@ table {
     display: grid;
     border-collapse: collapse;
     grid-template-rows:
-        repeat(var(--top), min-content) 1fr repeat(var(--bottom), var(--leaderLineHeight));
+        repeat(var(--top), min-content) var(--leaderFillerHeight) repeat(var(--bottom), var(--leaderLineHeight));
     grid-template-columns:
         /* start */
         var(--startWidth)
@@ -558,7 +559,7 @@ table {
         /* custom fields */
         var(--custom1Width) var(--custom2Width)
         /* team name */
-        minmax(50px, var(--clubWidth))
+        var(--clubWidth)
         /* snatch results */
         var(--spacerWidth)
         repeat(3, var(--liftResultWidth))
