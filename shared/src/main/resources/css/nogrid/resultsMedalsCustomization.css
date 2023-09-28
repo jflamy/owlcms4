@@ -90,27 +90,28 @@
     line-height: unset;
 }
 
+td.flags div {
+    display: flex;
+}
+
 td.name.flags {
     font-size: 120%;
 }
 
-td.flags img {
+td.flags div.flags img {
     height: 5vh;
     margin: 1vh;
     align-self: center;
     border: 1px;
     border-style: solid;
 }
-td.flags div {
+td.flags div.flags {
     height: 6vh;
     line-height: 6vh;
     align-self: center;
     display: flex;
 }
 
-td.flags div {
-    display: flex;
-}
 
 /* .blockPositioningWrapper {
     background-color: var(--blockBackgroundColor);
@@ -125,46 +126,47 @@ td.flags div {
     min-height: 1.5em;
 }
 
-:host .dark .wrapper table.results tr td.rank {
+:host div.wrapper.dark table.results tr td.rank {
     border-color: var(--darkEmptyBackgroundColor);
     color: white;
     border-width: 0.6em;
     border-style: solid;
 }
-:host .dark .wrapper table.results tr td.rank.medal1 {
+:host div.wrapper.dark table.results tr td.rank.medal1 {
     background-color: gold;
     color: black;
 }
-:host .dark .wrapper table.results tr td.rank.medal2 {
+:host div.wrapper.dark table.results tr td.rank.medal2 {
     background-color: silver;
     color: black;
 }
-:host .dark .wrapper table.results tr td.rank.medal3 {
+:host div.wrapper.dark table.results tr td.rank.medal3 {
     background-color: #CD7F32;
     color: black;
 }
 
-:host .dark .wrapper table.results tr td.totalRrank {
+:host div.wrapper.dark table.results tr td.totalRrank {
     border-color: var(--darkEmptyBackgroundColor);
     color: white;
     border-width: 0.6em;
     border-style: solid;
 }
-:host .dark .wrapper table.results tr td.totalRank.medal1 {
+
+:host div.wrapper.dark table.results tr td.totalRank.medal1 {
     background-color: gold;
     color: black;
     border-color: var(--darkEmptyBackgroundColor);
     border-width: 0.6em;
     border-style: solid;
 }
-:host .dark .wrapper table.results tr td.totalRank.medal2 {
+:host div.wrapper.dark table.results tr td.totalRank.medal2 {
     background-color: silver;
     color: black;
     border-color: var(--darkEmptyBackgroundColor);
     border-width: 0.6em;
     border-style: solid;
 }
-:host .dark .wrapper table.results tr td.totalRank.medal3 {
+:host div.wrapper.dark table.results tr td.totalRank.medal3 {
     background-color: #CD7F32;
     color: black;
     border-color: var(--darkEmptyBackgroundColor);
@@ -172,46 +174,46 @@ td.flags div {
     border-style: solid;
 }
 
-:host .light .wrapper table.results tr td.rank {
+:host div.wrapper.light table.results tr td.rank {
     border-color: var(--lightTableBorders);
     color: white;
     border-width: 0.6em;
     border-style: solid;
 }
-:host .light .wrapper table.results tr td.rank.medal1 {
+:host div.wrapper.light table.results tr td.rank.medal1 {
     background-color: gold;
     color: black;
 }
-:host .light .wrapper table.results tr td.rank.medal2 {
+:host div.wrapper.light table.results tr td.rank.medal2 {
     background-color: silver;
     color: black;
 }
-:host .light .wrapper table.results tr td.rank.medal3 {
+:host div.wrapper.light table.results tr td.rank.medal3 {
     background-color: #CD7F32;
     color: black;
 }
 
-:host .light .wrapper table.results tr td.totalRrank {
+:host div.wrapper.light table.results tr td.totalRrank {
     border-color: var(--lightTableBorders);
     color: white;
     border-width: 0.6em;
     border-style: solid;
 }
-:host .light .wrapper table.results tr td.totalRank.medal1 {
+:host div.wrapper.light table.results tr td.totalRank.medal1 {
     background-color: gold;
     color: black;
     border-color: var(--lightTableBorders);
     border-width: 0.6em;
     border-style: solid;
 }
-:host .light .wrapper table.results tr td.totalRank.medal2 {
+:host div.wrapper.light table.results tr td.totalRank.medal2 {
     background-color: silver;
     color: black;
     border-color: var(--lightTableBorders);
     border-width: 0.6em;
     border-style: solid;
 }
-:host .light .wrapper table.results tr td.totalRank.medal3 {
+:host div.wrapper.light table.results tr td.totalRank.medal3 {
     background-color: #CD7F32;
     color: black;
     border-color: var(--lightTableBorders);

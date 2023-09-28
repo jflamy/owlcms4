@@ -4,6 +4,7 @@
     --tableFontSize: 1.25rem;
     --recordValueCellHeight: calc(var(--tableFontSize)*1.5);
     --recordsFontRatio: 0.9;
+    --leaderFillerHeight: 1fr;
 
     font-family: Arial, Helvetica, sans-serif;
     color: var(--pageTextColor);
@@ -542,7 +543,7 @@ table {
     display: grid;
     border-collapse: collapse;
     grid-template-rows:
-        repeat(var(--top), min-content) 1fr repeat(var(--bottom), var(--leaderLineHeight));
+        repeat(var(--top), min-content) var(--leaderFillerHeight) repeat(var(--bottom), var(--leaderLineHeight));
     grid-template-columns:
         /* start */
         var(--startWidth)
