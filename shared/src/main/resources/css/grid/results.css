@@ -3,6 +3,7 @@
     --tableFontSize: 1.25rem;
     --recordValueCellHeight: calc(var(--tableFontSize)*1.5);
     --recordsFontRatio: 0.9;
+    --leaderFillerHeight: 1fr;
 
     font-family: Arial, Helvetica, sans-serif;
     color: var(--pageTextColor);
@@ -843,6 +844,7 @@ div.ellipsis {
     line-height: var(--recordValueCellHeight);
     background-color: var(--lightRecordBoxBackground);
     color: var(--lightRecordBoxText);
+    border: 1px solid var(--darkRecordLiftTypeBorder);
 }
 
 :host .light .recordName {
@@ -929,6 +931,7 @@ div.ellipsis {
     line-height: var(--recordValueCellHeight);
     background-color: var(--darkRecordBoxBackground);
     color: var(--darkRecordBoxText);
+    border: 1px solid var(--darkRecordBoxBorder);
 }
 
 :host .dark .recordName {
