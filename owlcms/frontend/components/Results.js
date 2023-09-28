@@ -398,7 +398,8 @@ class Results extends LitElement {
     return (this.mode === "WAIT" ? "display: none" : "display:grid") + 
       "; --top: " +  (this.resultLines ?? "") + 
       "; --bottom: " + (this.leaderLines ?? "") + 
-      "; " + (this.leadersLineHeight ?? "") + 
+      "; " + (this.leadersLineHeight ?? "") +
+      "; " + (this.leaderFillerHeight ?? "");
       "; " + (this.twOverride ?? "");
   }
 
