@@ -78,6 +78,44 @@
     }
 }
 
+@media screen and (orientation:portrait) {
+    /* this is what actually controls the line height */
+    :host table.results tr td.flags div.flags {
+        height: calc(var(--tableFontSize)*1.5);
+        line-height: calc(var(--tableFontSize)*1.5);
+	}
+    :host table.results {
+        margin-top: 1em;
+        --tableFontSize: 1.4em;
+        --bestVisibility: hidden;
+        --bestWidth: 0;
+        --rankVisibility: hidden;
+        --rankWidth: 0;
+        --teamWidth: 0 !important;
+        --teamVisibility: hidden !important;
+        --birthVisibility: hidden;
+        --birthWidth: 0;
+        --totalRankWidth: 0;
+        --totalRankVisibility: hidden;
+    }
+    :host table.results tr td.club,  
+    :host table.results tr th.club {
+        visibility:hidden;
+        width: 0;
+    }
+    :host table.results tr td.yob, 
+    :host table.results tr th.yob {
+        --birthVisibility :hidden;
+        width: 0;
+    }
+    :host .attemptBar {
+        display: none !important;
+    }
+    :host .group {
+        display: none !important;
+    }
+}
+
 :host .light table.results {
     --spacerWidth: 0vh;
     --rowSmallSpacerHeight: 0;
@@ -95,7 +133,8 @@ td.flags div img {
     border: 1px;
     border-style: solid;
 }
-td.flags div {
+
+td.flags div.flags {
     height: calc(var(--athleteNameFontSize)*0.8);
     line-height: calc(var(--athleteNameFontSize)*0.8);
     align-self: center;
