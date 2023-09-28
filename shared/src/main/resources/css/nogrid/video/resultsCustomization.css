@@ -8,12 +8,12 @@
     */
     --nameWidth: 1fr;
     --clubWidth: max-content;
-    --tableWidthRatio: 100%;
+    --tableWidthRatio: 90%;
     --leaderFillerHeight: 1fr;
 
     /* left column width: adjust depending on how you name groups */
-    --startWidth: min-content;
-    --startVisibility: visible;
+    --startWidth: 0em;
+    --startVisibility: hidden;
 
     /* spacers */
     --spacerWidth: 1vh;
