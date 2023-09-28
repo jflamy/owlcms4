@@ -265,7 +265,7 @@ class ResultsMedals extends LitElement {
     //return "results " +  (this.noLiftRanks ?? "") + " " + (this.noBest ?? "")
     return "results medals " 
       + (this.showLiftRanks ? "" : " noranks") 
-      + (this.showBest ? "" : " nobest")
+     // + (this.showBest ? "" : " nobest")
       + (this.showSinclair ? " sinclair" : " nosinclair");
   }
 

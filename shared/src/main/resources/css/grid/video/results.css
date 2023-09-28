@@ -273,7 +273,7 @@ table.results tr td.club div.clubName div.ellipsis {
 }
 
 :host .light table.results tr td.best,
-:host .light table.results th td.best {
+:host .light table.results tr th.best {
     background-color: var(--lightTotalBackgroundColor);
     color: var(--lightTotalTextColor);
     visibility: var(--bestVisibility);
@@ -288,7 +288,7 @@ table.results tr td.club div.clubName div.ellipsis {
 }
 
 :host .light table.results tr td.totalRank,
-:host .light table.results tr th.totalRank {
+:host .light table.results th th.totalRank {
     background-color: var(--lightTotalRankBackgroundColor);
     color: var(--lightTotalRankTextColor);
     visibility: var(--totalRankVisibility);
@@ -296,14 +296,14 @@ table.results tr td.club div.clubName div.ellipsis {
 
 /* group */
 :host .light table.results tr td.groupCol,
-:host .light table.results th td.groupCol  {
+:host .light table.results tr th.groupCol  {
     background-color: var(--lightStartBackgroundColor);
     color: var(--lightStartTextColor);
     visibility: var(--startVisibility);
 }
 
 :host .dark table.results tr td.groupCol,
-:host .dark table.results th td.groupCol
+:host .dark table.results tr th.groupCol
  {
     background-color: var(--darkStartBackgroundColor);
     color: var(--darkStartTextColor);

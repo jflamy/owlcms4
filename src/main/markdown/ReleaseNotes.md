@@ -1,16 +1,17 @@
-> **Version 44 beta release**
+> **Version 44 release candidate**
 >
-> - Beta releases are meant for translation and for testing by people other than the developers.
-> - *A beta release should be tested thoroughly before being used.*
+> - Release candidates are the final testing stage. Only updates to the documentation are expected.
+> - They are normally stable enough for use in a real competition, but you should always test any release with your own data before using.
 >
 > Version 44 is a technical migration release.  It updates the code to the current version of the user interface framework ([Vaadin 24](http://vaadin.com)). A significant clean-up of the code was performed at the same time, and several annoyances were fixed as a result.
 >
 
-**44.0.0-beta19**
+**44.0.0-beta20**
 
-- Last planned beta release: The next release will be a release candidate.
-- Styling: improvement to the display of the decisions on the jury and announcer pages, add more space for group selection drop-down on the announcer page, fix slightly truncated team names on scoreboards, removed un-needed differences between grid and nogrid styles, fixed video layouts.
-- Fix for URL encoding: the session code is normally a number or simple identifier since there is a description field to list the categories. But it can happen that by accident the code includes a description with spaces.  So the session code is now encoded/decoded when used in the page URL.
+- Styling: fixed a small problem with scoreboard header cells that prevented hiding certain columns correctly
+- Styling: enabled a vertical orientation style to the scoreboards. T Some competitions use several (5 or more) platforms with single referees and athletes competing all at the same time.  There can be over 30 athletes in such a session.  The vertical orientation of the screen is detected automatically.
+- Styling: small fixes to facilitate customizing files with green screen for transparent backgrounds
+- Updated translations.
 
 **44.0 Changes**
 
@@ -18,6 +19,7 @@
   This only concerns advanced users who have edited the css files or are doing video streaming.
   - *Local variations to styling MUST be copied to a subdirectory of* `local/css`.  If you have customized the `styles` folder move it to `local/css/mystyles` (or whatever name you want), and update the location your Preparation - Settings - Customization page. 
   - Style sheet changes :  If you have customized the scoreboards,  you need to edit the `results.css` files. All instances of `:host(.dark)` must be changed to `.host .dark`  and all instances of `:host(.dark)` must be changed to `.host .dark`  
+  - Style sheet bug fixes: Several small changes have been made to grid and nogrid to fix small problems. You should compare your style sheets to the official ones.  Or for more safety, start from the official ones and redo your adjustments.
   - For video streaming, *URLs that use*  `/video` *in* *the URL path should be changed* to use `?video=true` as a query parameter instead (video is now a parameter like all the others.)
 - Visual styling changes
   - The visual styling has been changed for a more modern look. 

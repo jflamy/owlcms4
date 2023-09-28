@@ -521,6 +521,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 				this.getElement().setProperty("fillerDisplay", "display: none;");
 			}
 			setDisplay();
+			this.getElement().setProperty("showLiftRanks", Competition.getCurrent().isSnatchCJTotalMedals()); 
 			computeMedalsJson(medals);
 			// we listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
