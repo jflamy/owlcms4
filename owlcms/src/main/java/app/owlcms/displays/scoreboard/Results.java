@@ -1023,9 +1023,9 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 		List<Athlete> order = getOrder(OwlcmsSession.getFop());
 		int resultLines = (order != null ? order.size() : 0) + countSubsets(order);
 		boolean done = fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE;
-//		if (!isLeadersDisplay() && !done) {
-//			resultLines = resultLines -1;
-//		}
+		if (!isLeadersDisplay() || done) {
+			this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: 0px");
+		}
 		this.getElement().setProperty("resultLines", resultLines);
 
 		computeLeaders(done);
