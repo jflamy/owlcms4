@@ -64,14 +64,14 @@
     --rowSmallSpacerHeight: 0;
 }
 
-td.flags div img {
+td.flags div.flags img {
     height: 5vh;
     margin: 1vh;
     align-self: center;
     border: 1px;
     border-style: solid;
 }
-td.flags div {
+td.flags div.flags {
     height: 6vh;
     line-height: 6vh;
     align-self: center;
