@@ -546,7 +546,7 @@ table {
     display: grid;
     border-collapse: collapse;
     grid-template-rows:
-        repeat(var(--top), min-content) var(--leaderFillerHeight) repeat(var(--bottom), var(--leaderLineHeight));
+        repeat(var(--top), min-content) repeat(1,var(--leaderFillerHeight)) repeat(var(--bottom), var(--leaderLineHeight));
     grid-template-columns:
         /* start */
         var(--startWidth)

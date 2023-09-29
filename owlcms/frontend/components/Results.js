@@ -399,7 +399,7 @@ class Results extends LitElement {
       "; --top: " +  (this.resultLines ?? "") + 
       "; --bottom: " + (this.leaderLines ?? "") + 
       "; " + (this.leadersLineHeight ?? "") +
-      "; " + (this.leaderFillerHeight ?? "");
+      "; " + (this.leaderFillerHeight ?? "") +
       "; " + (this.twOverride ?? "");
   }
 
