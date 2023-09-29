@@ -1,16 +1,15 @@
-> **Version 44 release candidate**
+> **Version 44 beta release**
 >
-> - Release candidates are the final testing stage. Only updates to the documentation are expected.
-> - They are normally stable enough for use in a real competition, but you should always test any release with your own data before using.
+> - Beta releases are meant for translation and for testing by people other than the developers.
+> - *A beta release should be tested thoroughly before being used.*
 >
 > Version 44 is a technical migration release.  It updates the code to the current version of the user interface framework ([Vaadin 24](http://vaadin.com)). A significant clean-up of the code was performed at the same time, and several annoyances were fixed as a result.
 >
 
 **44.0.0-beta20**
 
-- Styling: fixed a small problem with scoreboard header cells that prevented hiding certain columns correctly
-- Styling: enabled a vertical orientation style to the scoreboards. T Some competitions use several (5 or more) platforms with single referees and athletes competing all at the same time.  There can be over 30 athletes in such a session.  The vertical orientation of the screen is detected automatically.
-- Styling: small fixes to facilitate customizing files with green screen for transparent backgrounds
+- Styling: final adjustments to the various style sheets (grid/nogrid, and the video/normal variants) for consistency.  Fixed small cosmetic issues and spacing differences.
+- Styling: enabled a vertical orientation style to the scoreboards. Some competitions use several (5 or more) platforms with single referees and athletes competing all at the same time.  There can be over 30 athletes in such a session.  The vertical orientation of the screen is detected automatically.
 - Updated translations.
 
 **44.0 Changes**
