@@ -65,17 +65,19 @@
 
 :host .dark table.results {
     --spacerWidth: 1vh;
-    --rowSmallSpacerHeight: 0.25vh;
+    --rowSmallSpacerHeight: 0.25vh; /* set to 0.25vh if transparent background */
 }
 
 td.flags div img {
+	width: calc(var(--athleteNameFontSize)*1.2);
     height: calc(var(--athleteNameFontSize)*0.8);
     margin: 1vh;
     align-self: center;
     border: 1px;
     border-style: solid;
 }
-td.flags div {
+
+td.flags div.flags {
     height: calc(var(--athleteNameFontSize)*0.8);
     line-height: calc(var(--athleteNameFontSize)*0.8);
     align-self: center;

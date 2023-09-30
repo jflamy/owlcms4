@@ -9,6 +9,7 @@
     --nameWidth: 1fr;
     --clubWidth: max-content;
     --tableWidthRatio: 100%;
+    --leaderFillerHeight: 1fr;
 
     /* left column width: adjust depending on how you name groups */
     --startWidth: min-content;
@@ -38,9 +39,9 @@
     --rankVisibility: visible;
     --totalRankWidth: var(--liftResultWidth);
     --totalRankVisibility: visible;
-
-    --bestWidth: 0;
-    --bestVisibility: hidden;
+ 
+    --bestWidth: var(--liftResultWidth);
+    --bestVisibility: visible;
 
     /* top part: current attempt information */
     --topRowFontSize: 3vh;

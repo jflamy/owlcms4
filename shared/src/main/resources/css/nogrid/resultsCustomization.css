@@ -6,6 +6,7 @@
     /* variable-size columns. fr = free space after other columns have been allocated.
        for ease of understanding, sum of all fr columns should be 1.00.
     */
+    --tableFontSize: 2vh;
     --nameWidth: 1fr;
     --clubWidth: max-content;
     --tableWidthRatio: 100%;
@@ -59,7 +60,7 @@
 }
 
 /* table sizes: ipad, 1024 projector */
-@media screen and (orientation: landscape) and (min-height: 401px) and (max-height: 800px) {
+@media screen and (orientation: landscape) and (min-height: 401px) and (max-height: 800px) and (max-width: 1024) {
     :host table.results {
         --tableFontSize: 1.8vh;
         --bestVisibility: hidden;
@@ -80,7 +81,7 @@
     }
 }
 
-@media screen and (orientation:portrait) {
+@media screen and (orientation:portrait) and (min-width: 1025) {
     /* this is what actually controls the line height */
     :host table.results tr td.flags div.flags {
         height: calc(var(--tableFontSize)*1.5);
@@ -129,6 +130,7 @@
 }
 
 td.flags div img {
+	width: calc(var(--athleteNameFontSize)*1.2);
     height: calc(var(--athleteNameFontSize)*0.8);
     margin: 1vh;
     align-self: center;
