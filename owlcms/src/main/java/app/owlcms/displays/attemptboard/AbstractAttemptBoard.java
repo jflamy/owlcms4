@@ -35,6 +35,7 @@ import app.owlcms.components.elements.DecisionElement;
 import app.owlcms.components.elements.PlatesElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
@@ -580,7 +581,8 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		this.getElement().setProperty("lastName", lastName.toUpperCase());
 		this.getElement().setProperty("firstName", a.getFirstName());
 		this.getElement().setProperty("decisionVisible", false);
-		this.getElement().setProperty("category", a.getCategory().getTranslatedName());
+		Category category2 = a.getCategory();
+		this.getElement().setProperty("category", category2 != null ? category2.getTranslatedName() : "");
 		this.getElement().setProperty("athletePictures", athletePictures);
 
 		String team = a.getTeam();
