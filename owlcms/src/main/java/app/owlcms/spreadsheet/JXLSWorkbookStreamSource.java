@@ -113,17 +113,17 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			PipedOutputStream out = new PipedOutputStream(in);
 			logger.debug("created pipes");
 			new Thread(
-			        new Runnable() {
-				        @Override
-				        public void run() {
-					        try {
-						        writeStream(out);
-						        out.close();
-					        } catch (IOException e) {
-						        throw new RuntimeException(e);
-					        }
-				        }
-			        }).start();
+					new Runnable() {
+						@Override
+						public void run() {
+							try {
+								writeStream(out);
+								out.close();
+							} catch (IOException e) {
+								throw new RuntimeException(e);
+							}
+						}
+					}).start();
 			return in;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -134,27 +134,27 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	 * @return the ageDivision
 	 */
 	public AgeDivision getAgeDivision() {
-		return ageDivision;
+		return this.ageDivision;
 	}
 
 	/**
 	 * @return the ageGroupPrefix
 	 */
 	public String getAgeGroupPrefix() {
-		return ageGroupPrefix;
+		return this.ageGroupPrefix;
 	}
 
 	public Category getCategory() {
-		return category;
+		return this.category;
 	}
 
 	public Consumer<String> getDoneCallback() {
-		return doneCallback;
+		return this.doneCallback;
 	}
 
 	public Group getGroup() {
-		if (group != null) {
-			Group nGroup = GroupRepository.getById(group.getId());
+		if (this.group != null) {
+			Group nGroup = GroupRepository.getById(this.group.getId());
 			return nGroup;
 		} else {
 			return null;
@@ -162,11 +162,11 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	}
 
 	public HashMap<String, Object> getReportingBeans() {
-		return reportingBeans;
+		return this.reportingBeans;
 	}
 
 	public List<Athlete> getSortedAthletes() {
-		return sortedAthletes;
+		return this.sortedAthletes;
 	}
 
 	public List<String> getSuffixes(Locale locale) {
@@ -189,11 +189,11 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	}
 
 	public String getTemplateFileName() {
-		return templateFileName;
+		return this.templateFileName;
 	}
 
 	public boolean isExcludeNotWeighed() {
-		return excludeNotWeighed;
+		return this.excludeNotWeighed;
 	}
 
 	public void setAgeDivision(AgeDivision ageDivision) {
@@ -280,7 +280,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	 * @throws IOException
 	 */
 	protected InputStream getLocalizedTemplate(String templateName, String extension, Locale locale)
-	        throws IOException {
+			throws IOException {
 		List<String> tryList = getSuffixes(locale);
 		List<String> extensionList;
 		if (extension.equals(".xls")) {
@@ -307,16 +307,16 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	}
 
 	protected InputStream getTemplate(Locale locale) throws IOException, Exception {
-		if (inputStream != null) {
-			logger.debug("explicitly set template {}", inputStream);
-			return inputStream;
+		if (this.inputStream != null) {
+			logger.debug("explicitly set template {}", this.inputStream);
+			return this.inputStream;
 		}
 		InputStream resourceAsStream = ResourceWalker.getFileOrResource(getTemplateFileName());
 		return resourceAsStream;
 	}
 
 	protected void init() {
-		setReportingBeans(new HashMap<String, Object>());
+		setReportingBeans(new HashMap<>());
 	}
 
 	protected boolean isEmptyOk() {
@@ -385,7 +385,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			} else {
 				String noAthletes = Translator.translate("NoAthletes");
 				logger./**/warn("no athletes: empty report.");
-				ui.access(() -> {
+				this.ui.access(() -> {
 					Notification notif = new Notification();
 					notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
 					notif.setPosition(Position.TOP_STRETCH);
@@ -403,14 +403,16 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			logger.debug("writing stream");
 			try {
 				workbook.write(stream);
-				doneCallback.accept(null);
+				if (this.doneCallback != null) {
+					this.doneCallback.accept(null);
+				}
 			} catch (Throwable e) {
 				LoggerUtils.logError(logger, e);
 			}
 			logger.debug("wrote stream");
 		}
-		
-		
+
+
 	}
 
 }
