@@ -708,6 +708,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		groupField.setWidth("25em");
 		groupField.setRenderer(new TextRenderer<Group>(g -> computeDesc(g)));
 		groupField.setItemLabelGenerator(g -> computeDesc(g));
+		groupField.setClearButtonVisible(true);
 		FormItem fi2 = layoutAddFormItem(layout, groupField, Translator.translate("Group"));
 		layout.setColspan(fi2, 2);
 
