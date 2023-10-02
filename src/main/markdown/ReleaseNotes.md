@@ -1,20 +1,19 @@
-> **Version 44 beta release**
+> **Version 44 release candidate**
 >
-> - Beta releases are meant for translation and for testing by people other than the developers.
-> - *A beta release should be tested thoroughly before being used.*
+> - A release candidate is normally the last release before an official release.  It is used as a last check to make sure that the build and packaging steps are correct.
+> - *Any release should be tested thoroughly before being used.*
 >
 > Version 44 is a technical migration release.  It updates the code to the current version of the user interface framework ([Vaadin 24](http://vaadin.com)). A significant clean-up of the code was performed at the same time, and several annoyances were fixed as a result.
 >
 
-**44.0.0-beta20**
+**44.0.0-rc01**
 
-- Styling: final adjustments to the various style sheets (grid/nogrid, and the video/normal variants) for consistency.  Fixed small cosmetic issues and spacing differences.
-- Styling: enabled a vertical orientation style to the scoreboards. Some competitions use several (5 or more) platforms with single referees and athletes competing all at the same time.  There can be over 30 athletes in such a session.  The vertical orientation of the screen is detected automatically.
+- See below for required changes if you have customized the styles or are doing video streaming.
 - Updated translations.
 
 **44.0 Changes**
 
-- **REQUIRED MIGRATION CHANGES FOR STYLES CUSTOMIZATION AND VIDEO STREAMING**.
+- **REQUIRED CHANGES FOR STYLES CUSTOMIZATION AND VIDEO STREAMING**.
   This only concerns advanced users who have edited the css files or are doing video streaming.
   - *Local variations to styling MUST be copied to a subdirectory of* `local/css`.  If you have customized the `styles` folder move it to `local/css/mystyles` (or whatever name you want), and update the location your Preparation - Settings - Customization page. 
   - Style sheet changes :  If you have customized the scoreboards,  you need to edit the `results.css` files. All instances of `:host(.dark)` must be changed to `.host .dark`  and all instances of `:host(.dark)` must be changed to `.host .dark`  
