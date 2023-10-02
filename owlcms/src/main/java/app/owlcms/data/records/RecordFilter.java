@@ -35,6 +35,11 @@ public class RecordFilter {
 	        Integer snatchRequest, Integer cjRequest,
 	        Integer totalRequest,
 	        Athlete a) {
+		
+		ArrayList<String> recordOrder = RecordConfig.getCurrent().getRecordOrder();
+		if (recordOrder == null || recordOrder.isEmpty()) {
+			return null;
+		}
 
 		Integer bestSnatch = a.getPersonalBestSnatch();
 		Integer bestCleanJerk = a.getPersonalBestCleanJerk();
@@ -60,6 +65,8 @@ public class RecordFilter {
 		// order columns left to right in ascending age groups;
 		List<Integer> columnOrder = recordsByAgeWeight.keySet().stream().sorted((e1, e2) -> Integer.compare(e1, e2))
 		        .collect(Collectors.toList());
+		
+		logger.warn("rowOrder {} columnOrder {}",rowOrder.keySet(),recordsByAgeWeight.values());
 
 		@SuppressWarnings("unchecked")
 		List<RecordEvent>[][] recordTable = new ArrayList[rowOrder.size()][columnOrder.size()];
