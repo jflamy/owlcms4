@@ -66,8 +66,6 @@ public class RecordFilter {
 		List<Integer> columnOrder = recordsByAgeWeight.keySet().stream().sorted((e1, e2) -> Integer.compare(e1, e2))
 		        .collect(Collectors.toList());
 		
-		logger.warn("rowOrder {} columnOrder {}",rowOrder.keySet(),recordsByAgeWeight.values());
-
 		@SuppressWarnings("unchecked")
 		List<RecordEvent>[][] recordTable = new ArrayList[rowOrder.size()][columnOrder.size()];
 		ArrayList<String> rowRecordNames = new ArrayList<>(rowOrder.values());

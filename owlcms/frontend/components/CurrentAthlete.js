@@ -37,7 +37,7 @@ class CurrentAthlete extends LitElement {
             <timer-element id="breakTimer"></timer-element>
           </div>
           <div class="decisionBox" style="${this.decisionStyles()}">
-            <decision-element id="decisions"></decision-element>
+            <decision-element id="decisions" style="padding:1ex"></decision-element>
           </div>
           <div class="attempts" style="${this.attemptStyles()}">
             <table class="results" id="resultsDiv">
@@ -85,7 +85,7 @@ class CurrentAthlete extends LitElement {
                           <td class="liftName">
                             <div id="totalNameTd" style="${this.decisionHiddenStyles()}" .innerHTML="${this.t?.Total}"></div>
                           </td>
-                          <td class="total">
+                          <td class="total" style="${this.decisionHiddenStyles()}">
                             <div id="totalCellTd" style="${this.decisionHiddenStyles()}">${item.total}</div>
                           </td>
                           <td class="totalRank">

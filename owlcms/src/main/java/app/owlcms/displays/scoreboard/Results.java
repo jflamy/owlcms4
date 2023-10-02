@@ -943,7 +943,7 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 		OwlcmsSession.withFop(fop -> {
 //			Page page = UI.getCurrent().getPage();
 //			page.retrieveExtendedClientDetails(details -> {
-//				logger.warn("{} device resolution : {}x{}", details.isIPad()?"iPad":(details.isIOS()?"iPhone" : details.toString()), details.getScreenWidth(), details.getScreenHeight());
+//				logger.debug("{} device resolution : {}x{}", details.isIPad()?"iPad":(details.isIOS()?"iPhone" : details.toString()), details.getScreenWidth(), details.getScreenHeight());
 //			});
 			resultsInit();
 			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/attemptboard.css", this);
