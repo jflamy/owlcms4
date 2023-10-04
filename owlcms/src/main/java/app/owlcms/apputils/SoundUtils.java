@@ -27,15 +27,15 @@ public class SoundUtils {
 
 	public static void doEnableAudioContext(Element element) {
 		// this.getElement().executeJs("window.audioCtx.suspend()");
-		PendingJavaScriptResult result = element.executeJs("console.warn('setting audio status'); return (window.isIOS ? window.audioCtx.state : 'running')");
-		result.then(String.class, r -> {
-			logger.debug("audio state {}", r);
-			if (!r.equals("running")) {
-				element.executeJs("console.warn('setting audio status'); window.audioCtx.resume()");
-			} else {
-				// Notification.show("Audio enabled");
-			}
-		});
+		PendingJavaScriptResult result = element.executeJs("console.warn('setting audio status***');  window.audioCtx.resume(); console.warn(window.audioCtx.state+'***')");
+//		result.then(String.class, r -> {
+//			logger.warn("audio state {}", r);
+//			if (!r.equals("running")) {
+//				element.executeJs("console.warn('setting audio status'); window.audioCtx.resume()");
+//			} else {
+//				// Notification.show("Audio enabled");
+//			}
+//		});
 	}
 
 	public static void enableAudioContextNotification(Element element) {
