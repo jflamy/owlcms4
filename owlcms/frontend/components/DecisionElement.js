@@ -79,8 +79,16 @@ class DecisionElement extends LitElement {
     </div>`;
   }
 
+  
+  initSounds() {
+    console.warn("initSound beep");
+    this.renderRoot.querySelector('#down').muted = true;
+    this.renderRoot.querySelector('#down').play();
+  }
+
   doDown() {
     console.warn("down called");
+    this.renderRoot.querySelector('#down').muted = false;
     this.renderRoot?.querySelector('#down').play();
   }
 
@@ -157,10 +165,11 @@ class DecisionElement extends LitElement {
     this.audio = true;
     this.enabled = false;
     this.silent = false;
-    // important - the handler must be bound to this object so "this" is the DecisionElement instance.
-    this._readRef = this._readRef.bind(this)
     this._downShown = false;
     this._showDecision = false;
+    // important - the handlers must be bound so "this" is the current DecisionElement instance.
+    this._readRef = this._readRef.bind(this);
+    this._initSounds = this._readRef.bind(this)
   }
   
   _init() {
@@ -181,10 +190,12 @@ class DecisionElement extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     document.body.addEventListener('keydown', this._readRef);
+    document.addEventListener('initSounds', this.initSounds);
   }
 
   disconnectedCallback() {
     document.body.removeEventListener('keydown', this._readRef);
+    document.removeEventListener('initSounds', this.initSounds);
     super.disconnectedCallback();
   }
 
@@ -336,7 +347,6 @@ class DecisionElement extends LitElement {
     console.debug("de showDown -- " + !this.silent + " " + !silent);
     if (!this.silent && !silent) {
       this.doDown();
-      // this._playTrack("../local/sounds/down.mp3", window.downSignal, true, 0);
     }
     this._downShown = true;
 
@@ -386,11 +396,9 @@ class DecisionElement extends LitElement {
     );
   }
 
-  
   setEnabled(isEnabled) {
     this.enabled = isEnabled;
   }
-
 
 }
 

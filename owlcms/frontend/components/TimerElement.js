@@ -19,19 +19,15 @@ class TimerElement extends LitElement {
       <div id="timer" .innerHTML="-:--"></div>`;
   }
 
-  soundInitialWarning() {
-    console.warn("initialWarning called");
-    this.renderRoot?.querySelector('#initialWarning').play();
+  
+  connectedCallback() {
+    super.connectedCallback();
+    document.addEventListener('initSounds', this.initSounds);
   }
 
-  soundFinalWarning() {
-    console.warn("finalWarning called");
-    this.renderRoot?.querySelector('#finalWarning').play();
-  }
-
-  soundTimeOver() {
-    console.warn("timeOver called");
-    this.renderRoot?.querySelector('#timeOver').play();
+  disconnectedCallback() {
+    document.removeEventListener('initSounds', this.initSounds);
+    super.disconnectedCallback();
   }
 
   static get properties() {
@@ -46,6 +42,21 @@ class TimerElement extends LitElement {
     super.firstUpdated(_changedProperties);
     console.warn("timer ready");
     this._init();
+  }
+
+  soundInitialWarning() {
+    console.warn("initialWarning called");
+    this.renderRoot?.querySelector('#initialWarning').play();
+  }
+
+  soundFinalWarning() {
+    console.warn("finalWarning called");
+    this.renderRoot?.querySelector('#finalWarning').play();
+  }
+
+  soundTimeOver() {
+    console.warn("timeOver called");
+    this.renderRoot?.querySelector('#timeOver').play();
   }
 
   start(seconds, indefinite, silent, element, serverMillis, from) {
