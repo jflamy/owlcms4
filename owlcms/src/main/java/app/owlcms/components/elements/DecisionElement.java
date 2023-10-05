@@ -215,6 +215,7 @@ public class DecisionElement extends LitTemplate
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
 		OwlcmsSession.withFop(fop -> {
+			// defensive: needed to make sure the update is processed on the right fop
 			init(fop.getName());
 			// we send on fopEventBus, listen on uiEventBus.
 			fopEventBus = fop.getFopEventBus();
@@ -225,7 +226,6 @@ public class DecisionElement extends LitTemplate
 	private void init(String fopName) {
 		getElement().setProperty("fopName", fopName);
 	}
-
 	private void setJuryMode(boolean juryMode) {
 		this.juryMode = juryMode;
 	}

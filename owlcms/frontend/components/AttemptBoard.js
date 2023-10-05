@@ -90,6 +90,7 @@ class CurrentAttempt extends LitElement {
       // WAIT INTRO_COUNTDOWN LIFT_COUNTDOWN CURRENT_ATHLETE INTERRUPTION SESSION_DONE CEREMONY
       mode: {},
       breakType: {},
+      initMode: {type: Boolean },
 
       // during lifting
 
@@ -206,7 +207,8 @@ class CurrentAttempt extends LitElement {
   }
 
   decisionStyles() {
-    return "display: " + ((this.mode === "CURRENT_ATHLETE" && this.decisionVisible) ? "grid" : "none");
+    const style = "display: " + ((this.mode === "CURRENT_ATHLETE" && this.decisionVisible) ? "grid" : "none");
+    return style;
   }
 
   constructor() {

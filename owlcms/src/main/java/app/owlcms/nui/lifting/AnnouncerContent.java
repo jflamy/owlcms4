@@ -465,7 +465,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		OwlcmsSession.withFop((fop) -> {
 			Group group = fop.getGroup();
 			logger.trace("initial setting group to {} {}", group, LoggerUtils.whereFrom());
-			getGroupFilter().setValue(group);
+			UI.getCurrent().access(()->getGroupFilter().setValue(group));
 		});
 
 		OwlcmsSession.withFop(fop -> {

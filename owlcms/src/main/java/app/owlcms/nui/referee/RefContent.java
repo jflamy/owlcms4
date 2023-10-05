@@ -406,7 +406,8 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		refContainer.getClassNames().add("dark");
 		refContainer.setHeight("100%");
 		refContainer.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
-		HorizontalLayout tl = new HorizontalLayout(beeper,topWrapper);
+		HorizontalLayout tl = new HorizontalLayout(beeper, topWrapper);
+		tl.setWidthFull();
 		refContainer.add(tl);
 		refContainer.setAlignSelf(Alignment.START, tl);
 		refVotingCenterHorizontally.setId("refVotingCenterHorizontally");

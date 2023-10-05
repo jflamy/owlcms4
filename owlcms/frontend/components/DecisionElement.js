@@ -66,32 +66,19 @@ class DecisionElement extends LitElement {
       `,
     ];
   }
+
   render() {
     return html` 
-    <audio preload="auto" id="down" src="../local/sounds/down.mp3"></audio>
-    <div class="decisionWrapper" style="${this.decisionWrapperStyle()}" >
-      <div class="down" style="font-weight: 900; ${this.downStyles()}"><vaadin-icon icon="vaadin:arrow-circle-down"></vaadin-icon></div>
-      <div class="decisions" style="${this.decisionsStyles()}">
-        <span class="${this.decisionClasses(1)}">&nbsp;</span>
-        <span class="${this.decisionClasses(2)}">&nbsp;</span>
-        <span class="${this.decisionClasses(3)}">&nbsp;</span>
-      </div>
-    </div>`;
+      <audio preload="auto" id="down" src="../local/sounds/down.mp3"></audio>
+      <div class="decisionWrapper" style="${this.decisionWrapperStyle()}" >
+        <div class="down" style="font-weight: 900; ${this.downStyles()}"><vaadin-icon icon="vaadin:arrow-circle-down"></vaadin-icon></div>
+        <div class="decisions" style="${this.decisionsStyles()}">
+          <span class="${this.decisionClasses(1)}">&nbsp;</span>
+          <span class="${this.decisionClasses(2)}">&nbsp;</span>
+          <span class="${this.decisionClasses(3)}">&nbsp;</span>
+        </div>
+      </div>`;
   }
-
-  
-  initSounds() {
-    console.warn("initSound beep");
-    this.renderRoot.querySelector('#down').muted = true;
-    this.renderRoot.querySelector('#down').play();
-  }
-
-  doDown() {
-    console.warn("down called");
-    this.renderRoot.querySelector('#down').muted = false;
-    this.renderRoot?.querySelector('#down').play();
-  }
-
 
   static get properties() {
     return {
@@ -118,21 +105,14 @@ class DecisionElement extends LitElement {
       },
       publicFacing: {
         type: Boolean,
-        reflect: true,
       },
       jury: {
         type: Boolean,
         state: true,
       },
-      audio: {
-        type: Boolean,
-      },
       enabled: {
         type: Boolean,
         state: true,
-        hasChanged(newVal, oldVal) {
-          console.warn("enabled changed from "+oldVal+" to "+newVal);
-         }
       },
       fopName: {
         type: String,
@@ -162,49 +142,66 @@ class DecisionElement extends LitElement {
     this.ref3Time = 0;
     this.publicFacing = true;
     this.jury = false;
-    this.audio = true;
     this.enabled = false;
     this.silent = false;
     this._downShown = false;
     this._showDecision = false;
     // important - the handlers must be bound so "this" is the current DecisionElement instance.
     this._readRef = this._readRef.bind(this);
-    this._initSounds = this._readRef.bind(this)
-  }
-  
-  _init() {
-    console.debug("_init");
-    this.downShown = false;
-    this.ref1 = null;
-    this.ref2 = null;
-    this.ref3 = null;
-    // this._setupAudio();
-  }
-
-  firstUpdated(_changedProperties) {
-    super.firstUpdated(_changedProperties);
-    console.debug("de decision ready");
-    this._init();
+    this.initSounds = this.initSounds.bind(this)
   }
 
   connectedCallback() {
+    console.warn("decision element connected");
     super.connectedCallback();
+    this._init();
     document.body.addEventListener('keydown', this._readRef);
     document.addEventListener('initSounds', this.initSounds);
   }
 
   disconnectedCallback() {
+    console.warn("decision element disconnected");
     document.body.removeEventListener('keydown', this._readRef);
     document.removeEventListener('initSounds', this.initSounds);
     super.disconnectedCallback();
   }
 
+  firstUpdated(_changedProperties) {
+    super.firstUpdated(_changedProperties);
+    console.debug("decision ready "+Array.from(_changedProperties.keys()));
+    this._init();
+  }
+    
+  _init() {
+    this.downShown = false;
+    this.ref1 = null;
+    this.ref2 = null;
+    this.ref3 = null;
+  }
+    
+  initSounds() {
+      var r =  this.renderRoot;
+      if (r == undefined) {
+        console.warn("initSound down NOT READY");
+        r = this;
+      } else {
+        console.warn("initSound down");
+        r.querySelector('#down').muted  = true;
+        r.querySelector('#down').play();
+      }
+  }
+
+  doDown() {
+    console.warn("down called");
+    this.renderRoot.querySelector('#down').muted = false;
+    this.renderRoot?.querySelector('#down').play();
+  }
+
   _readRef(e) {
-    console.warn("_readRef enabled="+this.enabled+" jury="+this.jury);
     if (!this.enabled || this.jury) return;
 
     var key = e.key;
-    console.debug("de key " + key);
+    console.warn("de key " + key);
     switch (e.key) {
       case "1":
         this.ref1 = true;
@@ -331,6 +328,7 @@ class DecisionElement extends LitElement {
   }
 
   decisionsStyles() {
+    console.warn("changing decision style "+ (this._downShown ? "none" : "flex"));
     return "display: " + (this._downShown ? "none" : "flex");
   }
 

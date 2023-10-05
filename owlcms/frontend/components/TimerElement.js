@@ -19,7 +19,6 @@ class TimerElement extends LitElement {
       <div id="timer" .innerHTML="-:--"></div>`;
   }
 
-  
   connectedCallback() {
     super.connectedCallback();
     document.addEventListener('initSounds', this.initSounds);
@@ -40,23 +39,43 @@ class TimerElement extends LitElement {
 
   firstUpdated(_changedProperties) {
     super.firstUpdated(_changedProperties);
-    console.warn("timer ready");
     this._init();
+  }
+
+  initSounds() {
+    /*
+      Sounds are played once in response to a user gesture.  The
+      SoundEnabler component triggers a document "initSounds" event that other components
+      listen to. When this routine is called, a user interaction event is below us on the stack.
+      This is an enforced requirement on iOS. Note: The "volume" variable is 
+      read-only on iOS, hence the use of "muted" instead.
+      Once played once sounds can be played again without user interaction. 
+    */
+    console.warn("initSound timer");
+    this.renderRoot.querySelector('#initialWarning').muted = true;
+    this.renderRoot.querySelector('#initialWarning').play();
+    this.renderRoot.querySelector('#finalWarning').muted = true;
+    this.renderRoot.querySelector('#finalWarning').play();
+    this.renderRoot.querySelector('#timeOver').muted = true;
+    this.renderRoot.querySelector('#timeOver').play();
   }
 
   soundInitialWarning() {
     console.warn("initialWarning called");
-    this.renderRoot?.querySelector('#initialWarning').play();
+    this.renderRoot.querySelector('#initialWarning').muted = false;
+    this.renderRoot.querySelector('#initialWarning').play();
   }
 
   soundFinalWarning() {
     console.warn("finalWarning called");
-    this.renderRoot?.querySelector('#finalWarning').play();
+    this.renderRoot.querySelector('#finalWarning').muted = false;
+    this.renderRoot.querySelector('#finalWarning').play();
   }
 
   soundTimeOver() {
     console.warn("timeOver called");
-    this.renderRoot?.querySelector('#timeOver').play();
+    this.renderRoot.querySelector('#timeOver').muted = false;
+    this.renderRoot.querySelector('#timeOver').play();
   }
 
   start(seconds, indefinite, silent, element, serverMillis, from) {
@@ -298,6 +317,7 @@ class TimerElement extends LitElement {
     this._initialWarningGiven = false;
     this._finalWarningGiven = false;
     this._timeOverWarningGiven = false;
+    this.initSounds = this.initSounds.bind(this);
   }
 }
 

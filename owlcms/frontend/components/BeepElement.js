@@ -12,16 +12,11 @@ class BeepElement extends LitElement {
   }
 
   render() {
-    return html`<audio preload="auto" id="beeper" src="../local/sounds/beepBeep.mp3"></audio><button type='button' id="enabler">Enable Sound</button>`;
+    return html`<audio preload="auto" id="beeper" src="../local/sounds/beepBeep.mp3"></audio>`;
   }
 
   static get properties() {
     return {
-      /**
-       * Set to true to have timer not emit sounds
-       *
-       * @default false
-       */
       doBeep: {
         type: Boolean,
       }
@@ -31,15 +26,9 @@ class BeepElement extends LitElement {
   firstUpdated(_changedProperties) {
     super.firstUpdated(_changedProperties);
     this.beeper = this.renderRoot?.querySelector('#beeper');
-    this.enabler = this.renderRoot?.querySelector('#enabler');
-    this.enabler.addEventListener('click', () => {
-      const event = new Event("initSounds");
-      document.dispatchEvent(event);
-    })
   }
 
   updated(changes) {
-    console.warn(changes+" doBeep ="+this.doBeep);
     if (changes.has('doBeep') && this.doBeep) {
       this.beep();
     }
@@ -56,20 +45,17 @@ class BeepElement extends LitElement {
   }
 
   beep() {
-    console.warn("beep");
     this.beeper.muted = false;
     this.beeper.play();
     this.doBeep = false; // will be reset from server side.
   }
 
   initSounds() {
-    console.warn("initSound beep");
-    this.renderRoot.querySelector('#beeper').muted = true;
-    this.renderRoot.querySelector('#beeper').play();
+    this.beeper.muted = true;
+    this.beeper.play();
   }
 
   constructor() {
-    console.warn("constructor");
     super();
     this.doBeep = false;
     this.beep = this.beep.bind(this);
