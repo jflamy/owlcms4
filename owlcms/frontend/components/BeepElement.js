@@ -12,7 +12,7 @@ class BeepElement extends LitElement {
   }
 
   render() {
-    return html`<audio preload="auto" id="beeper" src="../local/sounds/beepBeep.mp3"></audio>`;
+    return html`<audio preload="auto" id="beeper" src="../local/sounds/beepBeep.mp3">`;
   }
 
   static get properties() {
@@ -22,31 +22,42 @@ class BeepElement extends LitElement {
        *
        * @default false
        */
-      silent: {
-        type: Boolean,
-      },
       doBeep: {
         type: Boolean,
       }
     };
   }
 
+  firstUpdated(_changedProperties) {
+    super.firstUpdated(_changedProperties);
+    this.beeper = this.renderRoot?.querySelector('#beeper');
+  }
+
   updated(changes) {
+    console.warn(changes+" doBeep ="+this.doBeep);
     if (changes.has('doBeep') && this.doBeep) {
       this.beep();
     }
   }
 
   beep() {
-    console.warn("beep called");
-    this.renderRoot?.querySelector('#beeper').play();
+    console.warn("beep");
+    this.beeper.volume = 1;
+    this.beeper.play();
     this.doBeep = false; // will be reset from server side.
   }
 
+  initSounds() {
+    this.beeper.volume = 0;
+    this.beeper.play();
+  }
+
   constructor() {
+    console.warn("constructor");
     super();
-    this.silent = false;
-    this.doBeep = true;
+    this.doBeep = false;
+    this.beep = this.beep.bind(this);
+    this.initSounds = this.initSounds.bind(this);
   }
 }
 

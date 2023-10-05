@@ -93,7 +93,6 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
-
 	private Icon bad;
 	private BeepElement beeper;
 	private Icon good;
@@ -285,9 +284,9 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 			if (e.on) {
 				topWrapper.removeAll();
 				topWrapper.add(warningRow);
-			} /*
-			   * else { topWrapper.removeAll(); topWrapper.add(topRow); }
-			   */
+				logger.warn("beeping");
+				beeper.beep();
+			}
 		});
 	}
 
@@ -334,11 +333,11 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		var w = new Div();
 		w.add(new Text(Translator.translate("JuryNotification.PleaseEnterDecision")));
 		w.getStyle()
-			.set("background-color", "yellow")
-			.set("color", "black")
-			.set("text-align", "center")
-			.set("font-size", "larger")
-			.set("font-weight", "bold");
+		        .set("background-color", "yellow")
+		        .set("color", "black")
+		        .set("text-align", "center")
+		        .set("font-size", "larger")
+		        .set("font-weight", "bold");
 		w.getClassNames().add("blink");
 		w.setWidth("100%");
 		warningRow = new HorizontalLayout();
@@ -350,11 +349,11 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 
 		var j = new H2(Translator.translate("JuryNotification.PleaseSeeJury"));
 		j.getStyle()
-			.set("background-color", "red")
-			.set("color", "white")
-			.set("text-align", "center")
-			.set("font-size", "larger")
-			.set("font-weight", "bold");
+		        .set("background-color", "red")
+		        .set("color", "white")
+		        .set("text-align", "center")
+		        .set("font-size", "larger")
+		        .set("font-weight", "bold");
 		j.getClassNames().add("blink");
 		j.setWidth("100%");
 		juryRow = new HorizontalLayout();
@@ -388,7 +387,6 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		});
 
 		topRow = new HorizontalLayout();
-		topRow.add(beeper);
 		topRow.add(labelWrapper, fopSelect, refField);
 		topRow.setMargin(false);
 		topRow.setSpacing(true);
@@ -398,7 +396,7 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		topWrapper.setHeight("2em");
 		topWrapper.setWidthFull();
 		topWrapper.getStyle().set("line-height", "2em");
-		
+
 		createRefVoting();
 		resetRefVote();
 
@@ -408,8 +406,9 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		refContainer.getClassNames().add("dark");
 		refContainer.setHeight("100%");
 		refContainer.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
-		refContainer.add(topWrapper);
-		refContainer.setAlignSelf(Alignment.START, topRow);
+		HorizontalLayout tl = new HorizontalLayout(beeper,topWrapper);
+		refContainer.add(tl);
+		refContainer.setAlignSelf(Alignment.START, tl);
 		refVotingCenterHorizontally.setId("refVotingCenterHorizontally");
 		this.setId("top");
 		refContainer.add(refVotingCenterHorizontally);
@@ -435,7 +434,7 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		refVotingCenterHorizontally.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
 		refVotingCenterHorizontally.setPadding(true);
 		refVotingCenterHorizontally.setMargin(true);
-		
+
 		refVotingCenterHorizontally.add(refVotingButtons);
 		return;
 	}

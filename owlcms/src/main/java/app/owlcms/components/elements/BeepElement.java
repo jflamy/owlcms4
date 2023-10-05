@@ -6,12 +6,15 @@
  *******************************************************************************/
 package app.owlcms.components.elements;
 
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 
 import app.owlcms.nui.shared.SafeEventBusRegistration;
+import ch.qos.logback.classic.Logger;
 
 /**
  * ExplicitDecision display element.
@@ -23,12 +26,14 @@ public class BeepElement extends LitTemplate
         implements SafeEventBusRegistration {
 
 	public void beep() {
-		logger.debug("calling beep");
+		Logger logger = (Logger)LoggerFactory.getLogger(BeepElement.class);
+		logger.warn("calling beep");
 		getElement().setProperty("silent", false);
 		getElement().setProperty("doBeep", true);
 	}
 	
 	public void reset() {
+		Logger logger = (Logger)LoggerFactory.getLogger(BeepElement.class);
 		logger.debug("calling reset");
 		getElement().setProperty("silent", false);
 		getElement().setProperty("doBeep", false);

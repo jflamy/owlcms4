@@ -111,16 +111,6 @@ class CurrentAttempt extends LitElement {
   firstUpdated(_changedProperties) {
     super.firstUpdated(_changedProperties);
   }
-  
-  connectedCallback() {
-    super.connectedCallback();
-    document.body.addEventListener('touchstart', this._resumeAudio);
-  }
-
-  disconnectedCallback() {
-    document.body.removeEventListener('touchstart', this._resumeAudio);
-    super.disconnectedCallback();
-  }
 
   isBreak() {
     return this.mode === "INTERRUPTION" || this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "SESSION_DONE" || this.mode === "CEREMONY"
@@ -221,10 +211,6 @@ class CurrentAttempt extends LitElement {
 
   constructor() {
     super();
-    this._resumeAudio = this._resumeAudio.bind(this);
-    this._unlockAudio = this._unlockAudio.bind(this)
-    this._cleanListeners = this._cleanListeners.bind(this)
-
     this.javaComponentId = "";
     this.lastName = "";
     this.firstName = "";
@@ -246,19 +232,6 @@ class CurrentAttempt extends LitElement {
     this.autoVersion = 0;
     this.video = "";
   }
-
-  _resumeAudio(e) {
-    this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (this.audioCtx.state !== 'suspended') return;
-    this.docBody = document.body;
-    this.touchEvents = ['touchstart','touchend', 'mousedown','keydown'];
-    this.touchEvents.forEach(e => this.docBody .addEventListener(e, this._unlockAudio, false));
-  }
-
-  _unlockAudio() { this.audioCtx.resume().then(this._cleanListeners); }
-  _cleanListeners() { console.warn("audio context state : "+this.audioCtx.state); this.touchEvents.forEach(e => this.docBody.removeEventListener(e, this._unlockAudio)); }
 }
-
-
 
 customElements.define(CurrentAttempt.is, CurrentAttempt);
