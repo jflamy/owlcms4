@@ -1670,10 +1670,11 @@ public class FieldOfPlay {
 			// time is not running
 			recomputeLiftingOrder(true, wc.isResultChange());
 
-			setStateUnlessInBreak(CURRENT_ATHLETE_DISPLAYED);
-			// logger.trace("&&3.C2 displaying, curAthlete={}, state={}", getCurAthlete(),
-			// state);
-			uiDisplayCurrentAthleteAndTime(true, wc, false);
+			if (state != BREAK && state != INACTIVE) {
+				setStateUnlessInBreak(CURRENT_ATHLETE_DISPLAYED);
+				//logger.trace("&&3.C2 displaying, curAthlete={}, state={}", getCurAthlete(), state);
+				uiDisplayCurrentAthleteAndTime(true, wc, false);
+			}
 		}
 		if (timingLogger.isDebugEnabled()) {
 			timingLogger.debug("{}*** doWeightChange {} {} {}", getLoggingName(),
@@ -2337,7 +2338,9 @@ public class FieldOfPlay {
 					uiShowUpdatedRankings();
 				}
 				getBreakTimer().stop();
-			} else {
+			}
+			else {
+				logger.debug("remaining in state {} {}",state, getBreakType());
 				// remain in break state
 				this.setBreakType(getBreakType());
 				this.setState(BREAK);

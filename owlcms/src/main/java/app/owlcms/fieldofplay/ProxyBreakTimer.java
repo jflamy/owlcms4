@@ -183,8 +183,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
             return;
         }
         indefinite = true;
-        // logger.debug("setting breaktimer indefinite = {} [{}]", indefinite,
-        // LoggerUtils.whereFrom());
+        //logger.debug("setting breaktimer indefinite = {} [{}]", indefinite, LoggerUtils.whereFrom());
         this.setTimeRemaining(0, false);
         this.setEnd(null);
         getFop().pushOutUIEvent(
@@ -204,9 +203,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
      */
     @Override
     public void setTimeRemaining(int timeRemaining2, boolean indefinite) {
-        // logger.trace("ProxyBreakTimer setting breaktimer timeremaining={}
-        // indefinite={} from {}", timeRemaining2,
-        // indefinite, LoggerUtils.whereFrom());
+        //logger.trace("ProxyBreakTimer setting breaktimer timeremaining={} indefinite={} from {}", timeRemaining2, indefinite, LoggerUtils.whereFrom());
         this.indefinite = indefinite;
         this.timeRemaining = timeRemaining2;
     }
@@ -217,7 +214,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     @Override
     public void start() {
         BreakType breakType = getFop().getBreakType();
-        // logger.debug("****** starting break with breakType = {} fop={}", breakType, System.identityHashCode(getFop()));
+        //logger.debug("****** starting break with breakType = {} fop={}", breakType, System.identityHashCode(getFop()));
         if (breakType == null) {
             logger.error("null breaktype {}", LoggerUtils.stackTrace());
         }

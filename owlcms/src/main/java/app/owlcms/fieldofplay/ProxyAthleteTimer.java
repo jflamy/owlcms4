@@ -130,7 +130,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 		if (timeRemaining < 1) {
 			logger./**/warn("setting with no time {}", LoggerUtils.whereFrom());
 		}
-		getFop().pushOutUIEvent(new UIEvent.SetTime(timeRemaining, null));
+		getFop().pushOutUIEvent(new UIEvent.SetTime(timeRemaining, null, LoggerUtils.stackTrace()));
 		running = false;
 	}
 
