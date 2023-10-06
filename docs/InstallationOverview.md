@@ -1,12 +1,12 @@
 Several installation options are possible, depending on what is available at the competition site and the size of the competition.
 
-- Stand-alone installation, if you prefer to run things locally ([details below](#stand-alone-laptop-installation))
+- Stand-alone installation, if you prefer to run things locally ([description below](#stand-alone-laptop-installation))
   - [Windows Stand-alone Installation](LocalWindowsSetup)
   - [Linux or Mac Stand-alone Installation](LocalLinuxMacSetup)
 
 
 
-- Cloud-based options, where all you need are browsers (and a good internet connection).  Such setups are ideal for virtual competitions. ([more details below](#cloud-based-installation))
+- Cloud-based options, where all you need are browsers (and a good internet connection).  Such setups are ideal for virtual competitions. ([description below](#cloud-based-installation))
 
   - [Fly Cloud Installation Instructions](Fly).  
 

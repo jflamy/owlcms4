@@ -6,6 +6,14 @@
 > Version 44 is a technical migration release.  It updates the code to the current version of the user interface framework ([Vaadin 24](http://vaadin.com)). A significant clean-up of the code was performed at the same time, and several annoyances were fixed as a result.
 >
 
+**44.1.0**
+
+- iOS devices (iPhones and iPads) were not emitting sounds for down and timer warnings.  General clean-up of the sound activation dialogs.
+
+44.0.1
+
+- Fixes for links in the documentation
+
 **44.0.0**
 
 - *See the bottom of this note for required changes if you are doing video streaming or if you have customized the styles.*

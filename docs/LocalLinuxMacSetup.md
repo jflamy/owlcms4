@@ -8,27 +8,27 @@
 
   - If you are running on a Linux single-board computer, we suggest that you run the cpr
 
-- Make sure you have a Java 11 or 17 installed (JRE or JDK)
+- Make sure you have a **Java 17** LTS (long term support) installed. Either the JRE or JDK variant works.
 
-  - For Linux, refer to [Latest Releases | Adoptium](https://adoptium.net/temurin/releases/) depending on the Linux type you run. For Ubuntu and other Debian variants, the following should work 
+  - For Linux, refer to [Latest Releases | Adoptium](https://adoptium.net/temurin/releases/) depending on the Linux type you run. For Ubuntu and other Debian variants, you can normally use a system command.
 
     ```bash
     sudo apt install default-jre
     ```
     
-  - For macOS, see [Latest Releases | Adoptium](https://adoptium.net/temurin/releases/) and download the .pkg file.  Double-click the file.
+  - For macOS, see [Latest Releases | Adoptium](https://adoptium.net/temurin/releases/) and download the `.pkg` file.  Double-click the file.
 
-- Go to your installation directory where you unzipped owlcms
+- After installing java, open a terminal window and go to the directory where you unzipped owlcms. Run the program with
 
   ```bash
   java -jar owlcms.jar
   ```
-  This will actually start the program. See [Initial Startup](#initial-startup) for how to proceed.
+  See [Initial Startup](#initial-startup) below for how to proceed.
 
-  If you just want to use dummy data to practice (this will not touch your actual database), click on the grey box to copy this command and paste it.
+  If you just want to use dummy data to practice (this will not touch your actual database), click on the grey box just below to copy this command and paste it into your terminal window.  You can do this at any time.
 
   ```
-  java -DmemoryMode=true -DinitialData=LARGEGROUP_DEMO -jar owlcms.jar
+  java -Dport=8081 -DmemoryMode=true -DinitialData=LARGEGROUP_DEMO -jar owlcms.jar
   ```
 
 
