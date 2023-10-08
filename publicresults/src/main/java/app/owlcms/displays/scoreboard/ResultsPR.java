@@ -246,10 +246,10 @@ public class ResultsPR extends LitTemplate
         this.showLeaders = showLeaders;
         this.getElement().setProperty("showLeaders", showLeaders);
         if (!showLeaders || done) {
-            logger.warn("setLeadersDisplay 0px: isLeaders = {} done = {}",showLeaders,done);
+            logger.debug("setLeadersDisplay 0px: isLeaders = {} done = {}",showLeaders,done);
             this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: 0px");
         } else {
-            logger.warn("setLeadersDisplay default: isLeaders = {} done = {}",showLeaders,done);
+            logger.debug("setLeadersDisplay default: isLeaders = {} done = {}",showLeaders,done);
             this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: var(--defaultLeaderFillerHeight)");
         }
     }
@@ -454,7 +454,6 @@ public class ResultsPR extends LitTemplate
                 needReset = true;
             } else if ("BREAK".equals(fopState)) {
                 logger.debug("### in a break {}", e.getBreakType());
-                this.getElement().callJsFunction("doBreak");
                 // also trigger a break timer event to make sure we are in sync with owlcms
                 BreakStart breakStart = new BreakStart(e.getBreakRemaining(), e.isIndefinite());
                 breakStart.setFopName(e.getFopName());
