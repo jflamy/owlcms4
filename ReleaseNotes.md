@@ -1,10 +1,17 @@
-> **Version 44.0 **
+> **Version 44.1 **
 >
 > - A release candidate is normally the last release before an official release.  It is used as a last check to make sure that the build and packaging steps are correct.
 > - *Any release should be tested thoroughly before being used.*
 >
 > Version 44 is a technical migration release.  It updates the code to the current version of the user interface framework ([Vaadin 24](http://vaadin.com)). A significant clean-up of the code was performed at the same time, and several annoyances were fixed as a result.
 >
+
+**44.1.0-rc01**
+
+- Fix: the public scoreboards would switch to the medal board during other ceremonies
+- Fix: a previous fix in release 44.0.2 resulted in the announcer/marshall screens not being updated if changes were made during a break.
+- Fix: the break timer is no longer interrupted if a weight changes is done during the break.
+- Fix: if all platforms had been cleared from an existing database the initialization code failed when restarting the application.
 
 **44.0.2**
 
