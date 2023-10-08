@@ -375,10 +375,10 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		boolean done = fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE;
 		if (!isLeadersDisplay() || done) {
-			logger.warn("setLeadersDisplay 0px: isLeaders = {} done = {}",isLeadersDisplay(),done);
+			logger.debug("setLeadersDisplay 0px: isLeaders = {} done = {}",isLeadersDisplay(),done);
 			this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: 0px");
 		} else {
-			logger.warn("setLeadersDisplay default: isLeaders = {} done = {}",isLeadersDisplay(),done);
+			logger.debug("setLeadersDisplay default: isLeaders = {} done = {}",isLeadersDisplay(),done);
 			this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: var(--defaultLeaderFillerHeight)");
 		}
 	}
@@ -1034,10 +1034,10 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 		boolean done = fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE;
 
 		if (!isLeadersDisplay() || done) {
-			logger.warn("0px: isLeaders = {} done = {}",isLeadersDisplay(),done);
+			logger.debug("0px: isLeaders = {} done = {}",isLeadersDisplay(),done);
 			this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: 0px");
 		} else {
-			logger.warn("default: isLeaders = {} done = {}",isLeadersDisplay(),done);
+			logger.debug("default: isLeaders = {} done = {}",isLeadersDisplay(),done);
 			this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: var(--defaultLeaderFillerHeight)");
 		}
 		this.getElement().setProperty("resultLines", resultLines);
