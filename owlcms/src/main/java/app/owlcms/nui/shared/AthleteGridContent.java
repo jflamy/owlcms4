@@ -269,6 +269,7 @@ BreakDisplay {
 	private boolean summonNotificationSent;
 	private boolean deliberationNotificationSent;
 	private long previousToggleMillis;
+	protected HorizontalLayout decisionLights;
 
 	/**
 	 * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL
@@ -1630,6 +1631,31 @@ BreakDisplay {
 			doNotification(Translator.translate("Notification.WeightToBeLoaded", newWeight), "info");
 			this.prevWeight = newWeight;
 		}
+	}
+
+	protected void createDecisionLights() {
+		this.decisionDisplay = new JuryDisplayDecisionElement();
+		this.decisionDisplay.setSilenced(isDownSilenced());
+		// Icon silenceIcon = AvIcons.MIC_OFF.create();
+		this.decisionLights = new HorizontalLayout(this.decisionDisplay);
+		this.decisionLights.addClassName("announcerLeft");
+		this.decisionLights.setWidth("12em");
+		this.decisionLights.getStyle().set("line-height", "2em");
+		this.decisionDisplay.getStyle().set("width", "9em");
+	}
+	
+	protected void displayLiveDecisions() {
+		if (this.decisionLights == null) {
+			getTopBarLeft().removeAll();
+			createDecisionLights();
+			getTopBarLeft().add(this.decisionLights);
+		}
+	}
+
+	protected void hideLiveDecisions() {
+		getTopBarLeft().removeAll();
+		fillTopBarLeft();
+		this.decisionLights = null;
 	}
 
 }

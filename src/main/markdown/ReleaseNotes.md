@@ -7,12 +7,16 @@
 
 **44.1.0**
 
-- Fix: the public scoreboards would switch to the medal board during presentation ceremonies
-- Fix: a previous fix resulted in the announcer/marshall screens not being updated if changes were made during a break.
-- Fix: the break timer is no longer interrupted if there are marshal changes during the break.
+- Fix: Scoreboards
+  - The public scoreboards would switch to the medal board during presentation ceremonies
+  - The spacing between the results and the leaderboard was sometimes wrongly set to zero.  *Note: If you have your own version of the stylesheets, see the 44.1 REQUIRED ADJUSTMENTS section below.*
+
+- Fix: Updates during break
+  - In release, 44.0.2 the announcer/marshal screens were not updated if marshal changes were made during a break.
+  - In release 44.0.1,  the break timer was interrupted if there were marshal changes during the break.
+
 - Fix: the program would not start if all platforms had been deleted.
-- Fix: On the scoreboards, switching from "show leaders" to "don't show leaders" would sometimes remove the visual spacing above the leaders.
-  - If you have your own copy of the stylesheets, you will need to check the official style sheets and define a variable called `--defaultLeaderFillerHeight: 1fr` and edit the definitions of the `.filler` style to remove the `min-height` settings.
+- Fix: public results: the `publicresultsCustomization.css` was not being used.
 
 **44.0.2**
 

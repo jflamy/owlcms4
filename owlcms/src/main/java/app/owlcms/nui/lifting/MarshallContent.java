@@ -26,7 +26,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
@@ -49,8 +48,6 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 	static {
 		logger.setLevel(Level.INFO);
 	}
-
-	private HorizontalLayout decisionLights;
 
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
@@ -130,21 +127,6 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 		});
 	}
 
-	private void createDecisionLights() {
-		JuryDisplayDecisionElement decisionDisplay = new JuryDisplayDecisionElement();
-//        Icon silenceIcon = AvIcons.MIC_OFF.create();
-		decisionLights = new HorizontalLayout(decisionDisplay);
-		decisionLights.addClassName("announcerLeft");
-		// decisionLights.setWidth("12em");
-		decisionLights.getStyle().set("line-height", "2em");
-	}
-
-	private void hideLiveDecisions() {
-		getTopBarLeft().removeAll();
-		fillTopBarLeft();
-		decisionLights = null;
-	}
-
 	/**
 	 * @see app.owlcms.nui.shared.AthleteGridContent#announcerButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
 	 */
@@ -163,14 +145,6 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 	protected HorizontalLayout decisionButtons(FlexLayout announcerBar) {
 		HorizontalLayout decisions = new HorizontalLayout();
 		return decisions;
-	}
-
-	protected void displayLiveDecisions() {
-		if (decisionLights == null) {
-			getTopBarLeft().removeAll();
-			createDecisionLights();
-			getTopBarLeft().add(decisionLights);
-		}
 	}
 
 }

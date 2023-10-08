@@ -47,7 +47,6 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.elements.AthleteTimerElement;
-import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -84,7 +83,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
-	private HorizontalLayout decisionLights;
 	private long previousBadMillis = 0L;
 	private long previousGoodMillis = 0L;
 	private HorizontalLayout timerButtons;
@@ -592,28 +590,5 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		return decisions;
 	}
 
-	protected void displayLiveDecisions() {
-		if (this.decisionLights == null) {
-			getTopBarLeft().removeAll();
-			createDecisionLights();
-			getTopBarLeft().add(this.decisionLights);
-		}
-	}
 
-	private void createDecisionLights() {
-		this.decisionDisplay = new JuryDisplayDecisionElement();
-		this.decisionDisplay.setSilenced(isDownSilenced());
-		// Icon silenceIcon = AvIcons.MIC_OFF.create();
-		this.decisionLights = new HorizontalLayout(this.decisionDisplay);
-		this.decisionLights.addClassName("announcerLeft");
-		this.decisionLights.setWidth("12em");
-		this.decisionLights.getStyle().set("line-height", "2em");
-		this.decisionDisplay.getStyle().set("width", "9em");
-	}
-
-	private void hideLiveDecisions() {
-		getTopBarLeft().removeAll();
-		fillTopBarLeft();
-		this.decisionLights = null;
-	}
 }
