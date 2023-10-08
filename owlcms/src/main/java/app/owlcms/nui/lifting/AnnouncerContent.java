@@ -542,52 +542,57 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	 */
 	@Override
 	protected HorizontalLayout decisionButtons(FlexLayout announcerBar) {
-		Button good = new Button(new Icon(VaadinIcon.CHECK),
-		        (e) -> {
-			        OwlcmsSession.withFop(fop -> {
-				        long now = System.currentTimeMillis();
-				        long timeElapsed = now - this.previousGoodMillis;
-				        // no reason to give two decisions close together
-				        if (timeElapsed > 2000 || isSingleReferee()) {
-					        if (isSingleReferee()
-					                && (fop.getState() == FOPState.TIME_STOPPED
-					                        || fop.getState() == FOPState.TIME_RUNNING)) {
-						        fop.fopEventPost(new FOPEvent.DownSignal(this));
-						        try {
-							        Thread.sleep(1000);
-						        } catch (InterruptedException e1) {
-
-						        }
-					        }
-					        fop.fopEventPost(
-					                new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), true, true,
-					                        true,
-					                        true));
-				        }
-				        this.previousGoodMillis = now;
-			        });
-		        });
+		Button good = new Button(new Icon(VaadinIcon.CHECK), (e) -> goodLift());
 		good.getElement().setAttribute("theme", "success icon");
+		UI.getCurrent().addShortcutListener(() -> goodLift(), Key.F2);
 
-		Button bad = new Button(new Icon(VaadinIcon.CLOSE), (e) -> {
-			OwlcmsSession.withFop(fop -> {
-				long now = System.currentTimeMillis();
-				long timeElapsed = now - this.previousBadMillis;
-				if (timeElapsed > 2000 || isSingleReferee()) {
-					if (isSingleReferee()
-					        && (fop.getState() == FOPState.TIME_STOPPED || fop.getState() == FOPState.TIME_RUNNING)) {
-						fop.fopEventPost(new FOPEvent.DownSignal(this));
-					}
-					fop.fopEventPost(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
-					        false, false, false));
-				}
-				this.previousBadMillis = now;
-			});
-		});
+		Button bad = new Button(new Icon(VaadinIcon.CLOSE), (e) -> badLift());
 		bad.getElement().setAttribute("theme", "error icon");
+		UI.getCurrent().addShortcutListener(() -> badLift(), Key.F4);
 
 		HorizontalLayout decisions = new HorizontalLayout(good, bad);
 		return decisions;
+	}
+
+	private void badLift() {
+		OwlcmsSession.withFop(fop -> {
+			long now = System.currentTimeMillis();
+			long timeElapsed = now - this.previousBadMillis;
+			if (timeElapsed > 2000 || isSingleReferee()) {
+				if (isSingleReferee()
+				        && (fop.getState() == FOPState.TIME_STOPPED || fop.getState() == FOPState.TIME_RUNNING)) {
+					fop.fopEventPost(new FOPEvent.DownSignal(this));
+				}
+				fop.fopEventPost(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
+				        false, false, false));
+			}
+			this.previousBadMillis = now;
+		});
+	}
+
+	private void goodLift() {
+		OwlcmsSession.withFop(fop -> {
+		    long now = System.currentTimeMillis();
+		    long timeElapsed = now - this.previousGoodMillis;
+		    // no reason to give two decisions close together
+		    if (timeElapsed > 2000 || isSingleReferee()) {
+		        if (isSingleReferee()
+		                && (fop.getState() == FOPState.TIME_STOPPED
+		                        || fop.getState() == FOPState.TIME_RUNNING)) {
+			        fop.fopEventPost(new FOPEvent.DownSignal(this));
+			        try {
+				        Thread.sleep(1000);
+			        } catch (InterruptedException e1) {
+
+			        }
+		        }
+		        fop.fopEventPost(
+		                new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), true, true,
+		                        true,
+		                        true));
+		    }
+		    this.previousGoodMillis = now;
+		});
 	}
 
 

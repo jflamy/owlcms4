@@ -50,6 +50,8 @@ The clock can also be stopped by using the `.` key on the keyboard.   The `*` ke
 
 If no refereeing devices are being used, the announcer captures the decision given using flags, cards or hand signals.
 
+The F2 key can be used to signal a good lift, and the F4 key for a no lift.
+
 ![018_SoloGoodLift](nimg/3200Lifting/070.png)
 
 ## Announcing the decision
