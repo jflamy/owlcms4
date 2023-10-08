@@ -9,7 +9,7 @@
     --nameWidth: 1fr;
     --clubWidth: max-content;
     --tableWidthRatio: 100%;
-    --leaderFillerHeight: 1fr;
+    --defaultLeaderFillerHeight: 1fr;
 
     /* left column width: adjust depending on how you name groups */
     --startWidth: 0em;

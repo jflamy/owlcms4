@@ -127,7 +127,7 @@ td.flags div.flags {
 
 .filler {
     background-color: var(--blockBackgroundColor);
-    min-height: 1.5em;
+    /* min-height: 1.5em; */
 }
 
 :host div.wrapper.dark table.results tr td.rank {

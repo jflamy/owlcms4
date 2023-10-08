@@ -1023,8 +1023,13 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 		List<Athlete> order = getOrder(OwlcmsSession.getFop());
 		int resultLines = (order != null ? order.size() : 0) + countSubsets(order);
 		boolean done = fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE;
+
 		if (!isLeadersDisplay() || done) {
+			logger.warn("0px: isLeaders = {} done = {}",isLeadersDisplay(),done);
 			this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: 0px");
+		} else {
+			logger.warn("default: isLeaders = {} done = {}",isLeadersDisplay(),done);
+			this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: var(--defaultLeaderFillerHeight)");
 		}
 		this.getElement().setProperty("resultLines", resultLines);
 
