@@ -55,8 +55,8 @@ implements SafeEventBusRegistration, Focusable<Div> {
 	protected EventBus uiEventBus;
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 	{
-		this.logger.setLevel(Level.TRACE);
-		this.uiEventLogger.setLevel(Level.TRACE);
+		this.logger.setLevel(Level.WARN);
+		this.uiEventLogger.setLevel(Level.WARN);
 	}
 
 	/**
