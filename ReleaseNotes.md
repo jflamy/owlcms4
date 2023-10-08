@@ -1,27 +1,28 @@
 > **Version 44.1 **
 >
-> - A release candidate is normally the last release before an official release.  It is used as a last check to make sure that the build and packaging steps are correct.
-> - *Any release should be tested thoroughly before being used.*
->
-> Version 44 is a technical migration release.  It updates the code to the current version of the user interface framework ([Vaadin 24](http://vaadin.com)). A significant clean-up of the code was performed at the same time, and several annoyances were fixed as a result.
->
+> - Reminder: *You should test any release with your own data before using it in a competition.*
+> 
+>Version 44 is a technical migration release.  It updates the code to the current version of the user interface framework ([Vaadin 24](http://vaadin.com)). A significant clean-up of the code was performed at the same time, and several annoyances were fixed as a result.
+> 
 
-**44.1.0-rc01**
+**44.1.0**
 
-- Fix: the public scoreboards would switch to the medal board during other ceremonies
-- Fix: a previous fix in release 44.0.2 resulted in the announcer/marshall screens not being updated if changes were made during a break.
-- Fix: the break timer is no longer interrupted if a weight changes is done during the break.
-- Fix: if all platforms had been cleared from an existing database the initialization code failed when restarting the application.
+- New: keyboard shortcuts on announcer screen. F2 = good lift, F4 = bad lift.
+  
+- Fix: Scoreboards
+  - The public scoreboards would switch to the medal board during presentation ceremonies instead of remaining on the selected session.
+  - The spacing between the results and the leaderboard was sometimes wrongly set to zero.  
+  - *Note: If you have your own version of the stylesheets, see the [44.1 REQUIRED ADJUSTMENTS](#44.1-required-adjunstments) section below.*
+  
+- Fix: Requested weight updates during break
+  - In release 44.0.2 the announcer/marshal screens were not updated if marshal changes were made during a break.
+  - In release 44.0.1,  the break timer was interrupted if there were marshal changes during the break.
 
-**44.0.2**
+- Fix: the program would not start if all platforms had been deleted.
+- Fix: public results: the `publicresultsCustomization.css` was not being used.  Changes made to the scoreboards were applied as well.
+- Cosmetic: size of decision lights shown on marshal console fixed.
 
-- Fix: A change to an athlete during a break would cause the break timer to be set to 1:00 (the wrong timer was being updated).
-
-**44.0.1**
-
-- Documentation change.
-
-**44.0.0**
+**44.0**
 
 *See the bottom of this note for required changes if you are doing video streaming or if you have customized the styles.*
 
@@ -46,12 +47,18 @@ The download dialog for documents has been redone for robustness.
 
 This version updates the user interface to use the most current [Vaadin 24 framework](https://vaadin.com/), which has several major changes. The most important is a switch to the modern [LitElement](https://lit.dev/) template framework (used for the scoreboards, timers, and decisions).
 
+**44.1 REQUIRED ADJUSTMENTS**
+
+- **REQUIRED CHANGES FOR CSS CUSTOMIZATION**.
+  This only concerns advanced users who have edited the css files
+  - Compare with the official style sheets and define a variable called 
+    `--defaultLeaderFillerHeight: 1fr` and edit the definitions of the `.filler` style to remove the `min-height` settings.
+
 **44.0 REQUIRED ADJUSTMENTS**
 
-- **REQUIRED CHANGES FOR STYLES CUSTOMIZATION AND VIDEO STREAMING**.
+- **REQUIRED CHANGES FOR CSS CUSTOMIZATION AND VIDEO STREAMING**.
   This only concerns advanced users who have edited the css files or are doing video streaming.
   - *Local variations to styling MUST be copied to a subdirectory of* `local/css`.  If you have customized the `styles` folder move it to `local/css/mystyles` (or whatever name you want), and update the location your Preparation - Settings - Customization page. 
   - Style sheet changes :  If you have customized the scoreboards,  you need to edit the `results.css` files. All instances of `:host(.dark)` must be changed to `.host .dark`  and all instances of `:host(.dark)` must be changed to `.host .dark`  
   - Style sheet bug fixes: Several small changes have been made to grid and nogrid to fix small problems. You should compare your style sheets to the official ones.  Or for more safety, start from the official ones and redo your adjustments.
   - For video streaming, *URLs that use*  `/video` *in* *the URL path should be changed* to use `?video=true` as a query parameter instead (video is now a parameter like all the others.)
-- 
