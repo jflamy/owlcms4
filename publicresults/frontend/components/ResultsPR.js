@@ -15,7 +15,7 @@ class ResultsPR extends LitElement {
     return html`
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "") + ".css"}" />
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "results" + (this.autoversion ?? "") + ".css"}" />
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "resultsCustomization" + (this.autoversion ?? "") + ".css"}" />
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "publicresultsCustomization" + (this.autoversion ?? "") + ".css"}" />
 
       <div class="${this.wrapperClasses()}"  style="${this.sizeOverride}">
         <div class="blockPositioningWrapper">
@@ -293,6 +293,7 @@ class ResultsPR extends LitElement {
       decisionVisible: { type: Boolean }, // sub-mode of CURRENT_ATHLETE
 
       // dynamic styling
+      darkMode: {},
       teamWidthClass: {},
       sizeOverride: {},
       twOverride: {},
@@ -398,6 +399,7 @@ class ResultsPR extends LitElement {
       "; --top: " +  (this.resultLines ?? "") + 
       "; --bottom: " + (this.leaderLines ?? "") + 
       "; " + (this.leadersLineHeight ?? "") + 
+      "; " + (this.leaderFillerHeight ?? "") +
       "; " + (this.twOverride ?? "");
   }
 

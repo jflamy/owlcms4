@@ -372,6 +372,15 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 	public void setLeadersDisplay(boolean b) {
 		this.leadersDisplay = b;
 		this.getElement().setProperty("showLeaders", b);
+		FieldOfPlay fop = OwlcmsSession.getFop();
+		boolean done = fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE;
+		if (!isLeadersDisplay() || done) {
+			logger.warn("setLeadersDisplay 0px: isLeaders = {} done = {}",isLeadersDisplay(),done);
+			this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: 0px");
+		} else {
+			logger.warn("setLeadersDisplay default: isLeaders = {} done = {}",isLeadersDisplay(),done);
+			this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: var(--defaultLeaderFillerHeight)");
+		}
 	}
 
 	final public void setLocation(Location location) {
