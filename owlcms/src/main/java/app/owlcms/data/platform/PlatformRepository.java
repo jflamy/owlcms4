@@ -95,6 +95,9 @@ public class PlatformRepository {
 	 * @param Platform
 	 */
 	public static void delete(Platform platform) {
+		if (OwlcmsFactory.getFopByName() == null) {
+			OwlcmsFactory.initFOPByName();
+		}
 		FieldOfPlay fop = OwlcmsFactory.getFOPByName(platform.getName());
 		MQTTMonitor mm = fop.getMqttMonitor();
 		JPAService.runInTransaction(em -> {

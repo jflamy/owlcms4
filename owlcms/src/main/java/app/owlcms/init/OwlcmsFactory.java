@@ -164,7 +164,7 @@ public class OwlcmsFactory {
 			}
 		}
 		setFopByName(new HashMap<>());
-		logger.trace("fopByName reset done.");
+		logger.warn("fopByName reset done.");
 	}
 
 	public static void setFirstFOPAsDefault() {
@@ -210,6 +210,9 @@ public class OwlcmsFactory {
 	}
 
 	public static Map<String, FieldOfPlay> getFopByName() {
+		if (fopByName == null) {
+			logger.warn("fopByName null {}", LoggerUtils.stackTrace());
+		}
 		return fopByName;
 	}
 
