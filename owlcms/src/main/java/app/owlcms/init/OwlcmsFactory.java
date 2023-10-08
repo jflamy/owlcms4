@@ -210,9 +210,6 @@ public class OwlcmsFactory {
 	}
 
 	public static Map<String, FieldOfPlay> getFopByName() {
-		if (fopByName == null) {
-			logger.warn("fopByName null {}", LoggerUtils.stackTrace());
-		}
 		return fopByName;
 	}
 
