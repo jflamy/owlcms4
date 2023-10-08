@@ -1670,11 +1670,11 @@ public class FieldOfPlay {
 			// time is not running
 			recomputeLiftingOrder(true, wc.isResultChange());
 
-			if (state != BREAK && state != INACTIVE) {
-				setStateUnlessInBreak(CURRENT_ATHLETE_DISPLAYED);
-				//logger.trace("&&3.C2 displaying, curAthlete={}, state={}", getCurAthlete(), state);
-				uiDisplayCurrentAthleteAndTime(true, wc, false);
-			}
+			setStateUnlessInBreak(CURRENT_ATHLETE_DISPLAYED);
+			// logger.trace("&&3.C2 displaying, curAthlete={}, state={}", getCurAthlete(), state);
+			
+			// send an update even in a break (announcer/marshall need to refresh)
+			uiDisplayCurrentAthleteAndTime(true, wc, false);
 		}
 		if (timingLogger.isDebugEnabled()) {
 			timingLogger.debug("{}*** doWeightChange {} {} {}", getLoggingName(),
