@@ -10,7 +10,6 @@ import com.vaadin.flow.server.VaadinServletResponse;
 import com.vaadin.flow.server.communication.IndexHtmlRequestListener;
 import com.vaadin.flow.server.communication.IndexHtmlResponse;
 import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.init.OwlcmsSession;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,7 +21,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @SuppressWarnings("serial")
 //@PWA(name = "Olympic Weightlifting Competition Management System", shortName = "owlcms")
 @Push
-@Theme(themeClass = Lumo.class)
+@Theme(value = "owlcms")
 public class AppShell implements AppShellConfigurator, VaadinServiceInitListener, IndexHtmlRequestListener {
 
 	/**
