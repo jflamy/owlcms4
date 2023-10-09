@@ -9,7 +9,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 
-import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -42,9 +41,9 @@ public interface SoundEntries {
 		rbgroup.addValueChangeListener(e -> {
 			Boolean silenced = e.getValue();
 			parentPage.switchSoundMode(silenced, true);
-			if (!silenced) {
-				SoundUtils.doEnableAudioContext(audioComponent.getElement());
-			}
+//			if (!silenced) {
+//				SoundUtils.doEnableAudioContext(audioComponent.getElement());
+//			}
 		});
 		
 		boolean downSilentMode = parentPage.isDownSilenced();
@@ -60,9 +59,9 @@ public interface SoundEntries {
 		rb2group.addValueChangeListener(e -> {
 			Boolean downSilenced = e.getValue();
 			parentPage.switchDownMode(downSilenced, true);
-			if (!downSilenced) {
-				SoundUtils.doEnableAudioContext(audioComponent.getElement());
-			}
+//			if (!downSilenced) {
+//				SoundUtils.doEnableAudioContext(audioComponent.getElement());
+//			}
 		});
 		rb2group.setHelperText(Translator.translate("DisplayParameters.SoundHelper"));
 

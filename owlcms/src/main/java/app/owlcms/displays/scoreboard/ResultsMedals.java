@@ -23,7 +23,6 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 
-import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.ResultsParameters;
 import app.owlcms.data.agegroup.AgeGroup;
@@ -398,8 +397,9 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		doMedalsDisplay();
-		SoundUtils.enableAudioContextNotification(this.getElement());
-
+//		if (!isSilenced() || !isDownSilenced()) {
+//			SoundUtils.enableAudioContextNotification(this.getElement());
+//		}
 	}
 
 	@Override

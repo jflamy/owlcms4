@@ -22,35 +22,34 @@ public class SoundUtils {
 
 	static Logger logger = (Logger) LoggerFactory.getLogger(SoundUtils.class);
 
-	public static void doEnableAudioContext(Element element) {
-		PendingJavaScriptResult result = element.executeJs("console.warn('setting audio status'); return (window.isIOS ? window.audioCtx.state : 'running')");
-		result.then(String.class, r -> {
-			logger.debug("audio state {}", r);
-			if (!r.equals("running")) {
-				element.executeJs("console.warn('setting audio status'); window.audioCtx.resume()");
-			} else {
-				// Notification.show("Audio enabled");
-			}
-		});
-	}
-
-	public static void enableAudioContextNotification(Element element) {
-		// this.getElement().executeJs("window.audioCtx.suspend()");
-		logger.debug("enableAudioContextNotification");
-		PendingJavaScriptResult result = element.executeJs("console.warn('checking audio status'); return (window.isIOS ? window.audioCtx.state : 'running')");
-		// PendingJavaScriptResult result = element.executeJs("return window.audioCtx.state");
-		audioStatusCallback(element, result);
-	}
+//	public static void doEnableAudioContext(Element element) {
+//		PendingJavaScriptResult result = element.executeJs(
+//		        "console.warn('setting audio status'); return (window.isIOS ? window.audioCtx.state : 'running')");
+//		result.then(String.class, r -> {
+//			logger.debug("audio state {}", r);
+//			if (!r.equals("running")) {
+//				element.executeJs("console.warn('setting audio status'); window.audioCtx.resume()");
+//			} else {
+//				// Notification.show("Audio enabled");
+//			}
+//		});
+//	}
 
 	@AllowInert
-	public static void enableAudioContextNotification(Element element, boolean useState) {
-		PendingJavaScriptResult result = element
-		        .executeJs("return (window.isIOS ||" + useState + " ? window.audioCtx.state : 'running')");
-		// PendingJavaScriptResult result = element.executeJs("return window.audioCtx.state");
+	public static void enableAudioContextNotification(Element element) {
+		logger.debug("enableAudioContextNotification");
+		PendingJavaScriptResult result = element.executeJs(
+		        "console.warn('checking audio status'); return window.audioCtx.state");
 		audioStatusCallback(element, result);
 	}
 
-	
+//	@AllowInert
+//	public static void enableAudioContextNotification(Element element, boolean useState) {
+//		PendingJavaScriptResult result = element
+//		        .executeJs("return (window.isIOS ||" + useState + " ? window.audioCtx.state : 'running')");
+//		audioStatusCallback(element, result);
+//	}
+
 	@AllowInert
 	private static void audioStatusCallback(Element element, PendingJavaScriptResult result) {
 		result.then(String.class, r -> {

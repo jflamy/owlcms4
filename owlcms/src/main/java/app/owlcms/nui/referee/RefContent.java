@@ -315,7 +315,7 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		// detected in app.
 		getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
 
-		SoundUtils.enableAudioContextNotification(this.getElement(), true);
+		SoundUtils.enableAudioContextNotification(this.getElement());
 		OwlcmsSession.withFop(fop -> {
 			// we listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);

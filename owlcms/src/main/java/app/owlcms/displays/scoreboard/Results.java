@@ -970,7 +970,10 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 		getElement().setProperty("showSinclair", Competition.getCurrent().isSinclair());
 		getElement().setProperty("showLiftRanks",
 				Competition.getCurrent().isSnatchCJTotalMedals() && !Competition.getCurrent().isSinclair());
-		SoundUtils.enableAudioContextNotification(this.getElement());
+		
+		if (!isSilenced() || !isDownSilenced()) {
+			SoundUtils.enableAudioContextNotification(this.getElement());
+		}
 	}
 
 	protected void setTranslationMap() {

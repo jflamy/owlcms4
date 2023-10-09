@@ -24,7 +24,6 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Location;
 
-import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.components.fields.LocalizedDecimalField;
@@ -185,9 +184,9 @@ public class DisplayOptions {
 		rbgroup.addValueChangeListener(e -> {
 			Boolean silenced = e.getValue();
 			dp.switchSoundMode(silenced, true);
-			if (!silenced) {
-				SoundUtils.doEnableAudioContext(target.getElement());
-			}
+//			if (!silenced) {
+//				SoundUtils.doEnableAudioContext(target.getElement());
+//			}
 		});
 		
 		boolean downSilentMode = dp.isDownSilenced();
@@ -203,9 +202,9 @@ public class DisplayOptions {
 		rb2group.addValueChangeListener(e -> {
 			Boolean downSilenced = e.getValue();
 			dp.switchDownMode(downSilenced, true);
-			if (!downSilenced) {
-				SoundUtils.doEnableAudioContext(target.getElement());
-			}
+//			if (!downSilenced) {
+//				SoundUtils.doEnableAudioContext(target.getElement());
+//			}
 		});
 		rb2group.setHelperText(Translator.translate("DisplayParameters.SoundHelper"));
 
