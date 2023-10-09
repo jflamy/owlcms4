@@ -17,6 +17,7 @@ import app.owlcms.data.config.Config;
 import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.displays.scoreboard.ResultsMedals;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 import ch.qos.logback.classic.Logger;
 
@@ -47,6 +48,9 @@ public class PublicNoLeadersPage extends AbstractResultsDisplayPage {
 
 	@Subscribe
 	public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
+		if (e.getCeremonyType() != CeremonyType.MEDALS) {
+			return;
+		}
 		this.ui.access(() -> {
 			getMedalsBoard().getStyle().set("display", "none");
 			getResultsBoard().getStyle().set("display", "block");
@@ -55,6 +59,9 @@ public class PublicNoLeadersPage extends AbstractResultsDisplayPage {
 
 	@Subscribe
 	public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
+		if (e.getCeremonyType() != CeremonyType.MEDALS) {
+			return;
+		}
 		this.ui.access(() -> {
 			/* copy current parameters from results board to medals board */
 			medalsBoard.setDownSilenced(true);

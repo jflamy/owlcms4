@@ -18,6 +18,7 @@ import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.displays.scoreboard.ResultsMedals;
 import app.owlcms.displays.scoreboard.ResultsRankingOrder;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 import ch.qos.logback.classic.Logger;
 
@@ -49,6 +50,9 @@ public class PublicRankingOrderPage extends AbstractResultsDisplayPage {
 
 	@Subscribe
 	public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
+		if (e.getCeremonyType() != CeremonyType.MEDALS) {
+			return;
+		}
 		this.ui.access(() -> {
 			getMedalsBoard().getStyle().set("display", "none");
 			getResultsBoard().getStyle().set("display", "block");
@@ -57,21 +61,48 @@ public class PublicRankingOrderPage extends AbstractResultsDisplayPage {
 
 	@Subscribe
 	public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
+		if (e.getCeremonyType() != CeremonyType.MEDALS) {
+			return;
+		}
 		this.ui.access(() -> {
 			/* copy current parameters from results board to medals board */
-			medalsBoard.setDownSilenced(true);
-			medalsBoard.setDarkMode(((DisplayParameters) getBoard()).isDarkMode());
-			medalsBoard.setVideo(((DisplayParameters) getBoard()).isVideo());
-			medalsBoard.setPublicDisplay(((DisplayParameters) getBoard()).isPublicDisplay());
-			medalsBoard.setSingleReferee(((SoundParameters) getBoard()).isSingleReferee());
-			medalsBoard.setAbbreviatedName(((DisplayParameters) getBoard()).isAbbreviatedName());
-			medalsBoard.setTeamWidth(((DisplayParameters) getBoard()).getTeamWidth());
-			medalsBoard.setEmFontSize(((DisplayParameters) getBoard()).getEmFontSize());	
-			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/results.css", medalsBoard);  
+			this.medalsBoard.setDownSilenced(true);
+			this.medalsBoard.setDarkMode(((DisplayParameters) getBoard()).isDarkMode());
+			this.medalsBoard.setVideo(((DisplayParameters) getBoard()).isVideo());
+			this.medalsBoard.setPublicDisplay(((DisplayParameters) getBoard()).isPublicDisplay());
+			this.medalsBoard.setSingleReferee(((SoundParameters) getBoard()).isSingleReferee());
+			this.medalsBoard.setAbbreviatedName(((DisplayParameters) getBoard()).isAbbreviatedName());
+			this.medalsBoard.setTeamWidth(((DisplayParameters) getBoard()).getTeamWidth());
+			this.medalsBoard.setEmFontSize(((DisplayParameters) getBoard()).getEmFontSize());
+			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/results.css", this.medalsBoard);
 			getMedalsBoard().getStyle().set("display", "block");
-			
+
 			getResultsBoard().getStyle().set("display", "none");
 		});
+	}
+
+	protected void createComponents() {
+		var board = new ResultsRankingOrder();
+		var medalsBoard = new ResultsMedals();
+
+		this.setBoard(board);
+		this.setResultsBoard(board);
+		this.setMedalsBoard(medalsBoard);
+		this.addComponent(board);
+		this.addComponent(medalsBoard);
+
+		medalsBoard.setDownSilenced(true);
+		medalsBoard.setDarkMode(board.isDarkMode());
+		medalsBoard.setVideo(board.isVideo());
+		medalsBoard.setPublicDisplay(board.isPublicDisplay());
+		medalsBoard.setSingleReferee(board.isSingleReferee());
+		medalsBoard.setAbbreviatedName(board.isAbbreviatedName());
+		medalsBoard.setTeamWidth(board.getTeamWidth());
+		medalsBoard.setEmFontSize(board.getEmFontSize());
+		checkVideo(Config.getCurrent().getParamStylesDir() + "/video/results.css", medalsBoard);
+
+		medalsBoard.getStyle().set("display", "none");
+		this.ui = UI.getCurrent();
 	}
 
 	@Override
@@ -86,44 +117,16 @@ public class PublicRankingOrderPage extends AbstractResultsDisplayPage {
 		// when navigating to the page, Vaadin will call setParameter+readParameters
 		// these parameters will be applied.
 		setDefaultParameters(QueryParameters.simple(Map.of(
-		        SoundParameters.SILENT, "true",
-		        SoundParameters.DOWNSILENT, "true",
-		        DisplayParameters.DARK, "true",
-		        DisplayParameters.LEADERS, "true",
-		        DisplayParameters.RECORDS, "true",
-		        DisplayParameters.VIDEO, "false",
-		        DisplayParameters.PUBLIC, "true",
-		        SoundParameters.SINGLEREF, "false",
-		        DisplayParameters.ABBREVIATED,
-		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
-	}
-
-	protected void createComponents() {
-		var board = new ResultsRankingOrder();
-		var medalsBoard = new ResultsMedals();
-		
-		this.setBoard(board);
-		this.setResultsBoard(board);
-		this.setMedalsBoard(medalsBoard);
-		this.addComponent(board);
-		this.addComponent(medalsBoard);
-		
-		medalsBoard.setDownSilenced(true);
-		medalsBoard.setDarkMode(board.isDarkMode());
-		medalsBoard.setVideo(board.isVideo());
-		medalsBoard.setPublicDisplay(board.isPublicDisplay());
-		medalsBoard.setSingleReferee(board.isSingleReferee());
-		medalsBoard.setAbbreviatedName(board.isAbbreviatedName());
-		medalsBoard.setTeamWidth(board.getTeamWidth());
-		medalsBoard.setEmFontSize(board.getEmFontSize());	
-		checkVideo(Config.getCurrent().getParamStylesDir() + "/video/results.css", medalsBoard);  
-		
-		medalsBoard.getStyle().set("display", "none");
-		this.ui = UI.getCurrent();
-	}
-
-	private final ResultsMedals getMedalsBoard() {
-		return this.medalsBoard;
+				SoundParameters.SILENT, "true",
+				SoundParameters.DOWNSILENT, "true",
+				DisplayParameters.DARK, "true",
+				DisplayParameters.LEADERS, "true",
+				DisplayParameters.RECORDS, "true",
+				DisplayParameters.VIDEO, "false",
+				DisplayParameters.PUBLIC, "true",
+				SoundParameters.SINGLEREF, "false",
+				DisplayParameters.ABBREVIATED,
+				Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
 	}
 
 	protected void setMedalsBoard(ResultsMedals medalsBoard) {
@@ -132,5 +135,9 @@ public class PublicRankingOrderPage extends AbstractResultsDisplayPage {
 
 	protected void setResultsBoard(Results board) {
 		this.resultsBoard = board;
+	}
+
+	private final ResultsMedals getMedalsBoard() {
+		return this.medalsBoard;
 	}
 }

@@ -164,7 +164,7 @@ public class OwlcmsFactory {
 			}
 		}
 		setFopByName(new HashMap<>());
-		logger.trace("fopByName reset done.");
+		logger.debug("fopByName reset done.");
 	}
 
 	public static void setFirstFOPAsDefault() {

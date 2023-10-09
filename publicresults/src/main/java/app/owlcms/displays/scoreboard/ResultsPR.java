@@ -99,6 +99,7 @@ public class ResultsPR extends LitTemplate
     private boolean defaultRecordsDisplay;
     private boolean defaultLeadersDisplay;
     private boolean liftingOrder;
+    private boolean done;
 
     /**
      * Instantiates a new results board.
@@ -244,6 +245,13 @@ public class ResultsPR extends LitTemplate
     public void setShowLeaders(boolean showLeaders) {
         this.showLeaders = showLeaders;
         this.getElement().setProperty("showLeaders", showLeaders);
+        if (!showLeaders || done) {
+            logger.debug("setLeadersDisplay 0px: isLeaders = {} done = {}",showLeaders,done);
+            this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: 0px");
+        } else {
+            logger.debug("setLeadersDisplay default: isLeaders = {} done = {}",showLeaders,done);
+            this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: var(--defaultLeaderFillerHeight)");
+        }
     }
 
     @Override
@@ -360,6 +368,8 @@ public class ResultsPR extends LitTemplate
 
         ui.access(() -> {
             this.getElement().setProperty("stylesDir", stylesDir);
+            this.getElement().setProperty("done", e.isDone());
+            setDone(e.isDone());
 
             setBoardMode(e.getMode());
             String group = e.getGroupName();
@@ -444,7 +454,6 @@ public class ResultsPR extends LitTemplate
                 needReset = true;
             } else if ("BREAK".equals(fopState)) {
                 logger.debug("### in a break {}", e.getBreakType());
-                this.getElement().callJsFunction("doBreak");
                 // also trigger a break timer event to make sure we are in sync with owlcms
                 BreakStart breakStart = new BreakStart(e.getBreakRemaining(), e.isIndefinite());
                 breakStart.setFopName(e.getFopName());
@@ -463,6 +472,10 @@ public class ResultsPR extends LitTemplate
 //    protected void doEmpty() {
 //        setBoardMode("BREAK", null, null, this.getElement());
 //    }
+
+    private void setDone(boolean done) {
+        this.done = done;
+    }
 
     /**
      * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)

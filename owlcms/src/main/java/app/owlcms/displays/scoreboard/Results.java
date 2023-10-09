@@ -372,6 +372,15 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 	public void setLeadersDisplay(boolean b) {
 		this.leadersDisplay = b;
 		this.getElement().setProperty("showLeaders", b);
+		FieldOfPlay fop = OwlcmsSession.getFop();
+		boolean done = fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE;
+		if (!isLeadersDisplay() || done) {
+			logger.debug("setLeadersDisplay 0px: isLeaders = {} done = {}",isLeadersDisplay(),done);
+			this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: 0px");
+		} else {
+			logger.debug("setLeadersDisplay default: isLeaders = {} done = {}",isLeadersDisplay(),done);
+			this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: var(--defaultLeaderFillerHeight)");
+		}
 	}
 
 	final public void setLocation(Location location) {
@@ -1023,8 +1032,13 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 		List<Athlete> order = getOrder(OwlcmsSession.getFop());
 		int resultLines = (order != null ? order.size() : 0) + countSubsets(order);
 		boolean done = fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE;
+
 		if (!isLeadersDisplay() || done) {
+			logger.debug("0px: isLeaders = {} done = {}",isLeadersDisplay(),done);
 			this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: 0px");
+		} else {
+			logger.debug("default: isLeaders = {} done = {}",isLeadersDisplay(),done);
+			this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: var(--defaultLeaderFillerHeight)");
 		}
 		this.getElement().setProperty("resultLines", resultLines);
 

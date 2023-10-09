@@ -166,6 +166,7 @@ public class UpdateReceiverServlet extends HttpServlet {
                 updateEvent.setRecords(null);
                 updateEvent.setRecordKind("none");
                 updateEvent.setRecordMessage("");
+                updateEvent.setDone(true);
             }
 
             String fopName = updateEvent.getFopName();

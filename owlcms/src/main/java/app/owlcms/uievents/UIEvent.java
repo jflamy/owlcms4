@@ -964,8 +964,9 @@ public class UIEvent {
 		 * @param timeRemaining the time remaining
 		 * @param origin        the origin
 		 */
-		public SetTime(Integer timeRemaining, Object origin) {
+		public SetTime(Integer timeRemaining, Object origin, String trace) {
 			super(origin);
+			this.setTrace(trace);
 			this.timeRemaining = timeRemaining;
 		}
 

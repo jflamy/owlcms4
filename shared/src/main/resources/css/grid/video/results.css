@@ -4,6 +4,7 @@
     --tableFontSize: 1.25rem;
     --recordValueCellHeight: calc(var(--tableFontSize)*1.5);
     --recordsFontRatio: 0.9;
+    --defaultLeaderFillerHeight: 1fr;
 
     font-family: Arial, Helvetica, sans-serif;
     color: var(--pageTextColor);
@@ -288,7 +289,7 @@ table.results tr td.club div.clubName div.ellipsis {
 }
 
 :host .light table.results tr td.totalRank,
-:host .light table.results th th.totalRank {
+:host .light table.results tr th.totalRank {
     background-color: var(--lightTotalRankBackgroundColor);
     color: var(--lightTotalRankTextColor);
     visibility: var(--totalRankVisibility);
@@ -546,12 +547,12 @@ table {
     display: grid;
     border-collapse: collapse;
     grid-template-rows:
-        repeat(var(--top), min-content) 1fr repeat(var(--bottom), var(--leaderLineHeight));
+        repeat(var(--top), min-content) repeat(1,var(--leaderFillerHeight)) repeat(var(--bottom), var(--leaderLineHeight));
     grid-template-columns:
         /* start */
         var(--startWidth)
         /* name */
-        1fr
+        minmax(50px, var(--nameWidth))
         /* category */
         var(--categoryWidth)
         /* birth */
@@ -559,7 +560,7 @@ table {
         /* custom fields */
         var(--custom1Width) var(--custom2Width)
         /* team name */
-        max-content
+        var(--clubWidth)
         /* snatch results */
         var(--spacerWidth)
         repeat(3, var(--liftResultWidth))
@@ -801,21 +802,6 @@ div.ellipsis {
     overflow: hidden;
 }
 
-/* table sizes: 1024 projector */
-@media screen and (max-width: 1025px) and (max-height: 769px) {
-    .wrapper {
-        --tableFontSize: 0.8rem;
-    }
-
-    /*
-    table.results {
-        --rankWidth: 0;
-        --rankVisibility: hidden;
-
-    }
-    */
-}
-
 /* records light theme */
 :host .light .recordCell {
     float: left;
@@ -860,6 +846,7 @@ div.ellipsis {
     line-height: var(--recordValueCellHeight);
     background-color: var(--lightRecordBoxBackground);
     color: var(--lightRecordBoxText);
+    border: 1px solid var(--darkRecordLiftTypeBorder);
 }
 
 :host .light .recordName {
@@ -946,6 +933,7 @@ div.ellipsis {
     line-height: var(--recordValueCellHeight);
     background-color: var(--darkRecordBoxBackground);
     color: var(--darkRecordBoxText);
+    border: 1px solid var(--darkRecordBoxBorder);
 }
 
 :host .dark .recordName {

@@ -47,7 +47,6 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.elements.AthleteTimerElement;
-import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -84,7 +83,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
-	private HorizontalLayout decisionLights;
 	private long previousBadMillis = 0L;
 	private long previousGoodMillis = 0L;
 	private HorizontalLayout timerButtons;
@@ -544,76 +542,58 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	 */
 	@Override
 	protected HorizontalLayout decisionButtons(FlexLayout announcerBar) {
-		Button good = new Button(new Icon(VaadinIcon.CHECK),
-		        (e) -> {
-			        OwlcmsSession.withFop(fop -> {
-				        long now = System.currentTimeMillis();
-				        long timeElapsed = now - this.previousGoodMillis;
-				        // no reason to give two decisions close together
-				        if (timeElapsed > 2000 || isSingleReferee()) {
-					        if (isSingleReferee()
-					                && (fop.getState() == FOPState.TIME_STOPPED
-					                        || fop.getState() == FOPState.TIME_RUNNING)) {
-						        fop.fopEventPost(new FOPEvent.DownSignal(this));
-						        try {
-							        Thread.sleep(1000);
-						        } catch (InterruptedException e1) {
-
-						        }
-					        }
-					        fop.fopEventPost(
-					                new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), true, true,
-					                        true,
-					                        true));
-				        }
-				        this.previousGoodMillis = now;
-			        });
-		        });
+		Button good = new Button(new Icon(VaadinIcon.CHECK), (e) -> goodLift());
 		good.getElement().setAttribute("theme", "success icon");
+		UI.getCurrent().addShortcutListener(() -> goodLift(), Key.F2);
 
-		Button bad = new Button(new Icon(VaadinIcon.CLOSE), (e) -> {
-			OwlcmsSession.withFop(fop -> {
-				long now = System.currentTimeMillis();
-				long timeElapsed = now - this.previousBadMillis;
-				if (timeElapsed > 2000 || isSingleReferee()) {
-					if (isSingleReferee()
-					        && (fop.getState() == FOPState.TIME_STOPPED || fop.getState() == FOPState.TIME_RUNNING)) {
-						fop.fopEventPost(new FOPEvent.DownSignal(this));
-					}
-					fop.fopEventPost(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
-					        false, false, false));
-				}
-				this.previousBadMillis = now;
-			});
-		});
+		Button bad = new Button(new Icon(VaadinIcon.CLOSE), (e) -> badLift());
 		bad.getElement().setAttribute("theme", "error icon");
+		UI.getCurrent().addShortcutListener(() -> badLift(), Key.F4);
 
 		HorizontalLayout decisions = new HorizontalLayout(good, bad);
 		return decisions;
 	}
 
-	protected void displayLiveDecisions() {
-		if (this.decisionLights == null) {
-			getTopBarLeft().removeAll();
-			createDecisionLights();
-			getTopBarLeft().add(this.decisionLights);
-		}
+	private void badLift() {
+		OwlcmsSession.withFop(fop -> {
+			long now = System.currentTimeMillis();
+			long timeElapsed = now - this.previousBadMillis;
+			if (timeElapsed > 2000 || isSingleReferee()) {
+				if (isSingleReferee()
+				        && (fop.getState() == FOPState.TIME_STOPPED || fop.getState() == FOPState.TIME_RUNNING)) {
+					fop.fopEventPost(new FOPEvent.DownSignal(this));
+				}
+				fop.fopEventPost(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
+				        false, false, false));
+			}
+			this.previousBadMillis = now;
+		});
 	}
 
-	private void createDecisionLights() {
-		this.decisionDisplay = new JuryDisplayDecisionElement();
-		this.decisionDisplay.setSilenced(isDownSilenced());
-		// Icon silenceIcon = AvIcons.MIC_OFF.create();
-		this.decisionLights = new HorizontalLayout(this.decisionDisplay);
-		this.decisionLights.addClassName("announcerLeft");
-		this.decisionLights.setWidth("12em");
-		this.decisionLights.getStyle().set("line-height", "2em");
-		this.decisionDisplay.getStyle().set("width", "9em");
+	private void goodLift() {
+		OwlcmsSession.withFop(fop -> {
+		    long now = System.currentTimeMillis();
+		    long timeElapsed = now - this.previousGoodMillis;
+		    // no reason to give two decisions close together
+		    if (timeElapsed > 2000 || isSingleReferee()) {
+		        if (isSingleReferee()
+		                && (fop.getState() == FOPState.TIME_STOPPED
+		                        || fop.getState() == FOPState.TIME_RUNNING)) {
+			        fop.fopEventPost(new FOPEvent.DownSignal(this));
+			        try {
+				        Thread.sleep(1000);
+			        } catch (InterruptedException e1) {
+
+			        }
+		        }
+		        fop.fopEventPost(
+		                new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), true, true,
+		                        true,
+		                        true));
+		    }
+		    this.previousGoodMillis = now;
+		});
 	}
 
-	private void hideLiveDecisions() {
-		getTopBarLeft().removeAll();
-		fillTopBarLeft();
-		this.decisionLights = null;
-	}
+
 }

@@ -30,7 +30,7 @@ import ch.qos.logback.classic.Logger;
  * Countdown timer element.
  */
 @SuppressWarnings("serial")
-public class BreakTimerElement extends AthleteTimerElement {
+public class BreakTimerElement extends TimerElement {
 
 	public Long id;
 	private String parentName = "";
@@ -222,12 +222,6 @@ public class BreakTimerElement extends AthleteTimerElement {
 				}
 			}
 		});
-	}
-	
-	@Subscribe
-	@Override
-	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-		// ignore, keep running
 	}
 
 	@Override
