@@ -160,7 +160,7 @@ public class DecisionElement extends LitTemplate
 			        this.getParent().get().getClass().getSimpleName());
 			this.getElement().callJsFunction("showDown", false,
 			        isSilenced() || OwlcmsSession.getFop().isEmitSoundsOnServer());
-			// FIXME hide down signal in 1 second.
+			// TODO hide down signal in 1 second.
 		});
 	}
 

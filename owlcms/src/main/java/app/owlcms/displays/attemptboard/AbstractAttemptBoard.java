@@ -711,7 +711,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			themeList.remove(Lumo.LIGHT);
 			themeList.add(Lumo.DARK);
 
-			//FIXME: force notification for debugging.
+			//FIXME: force sound notification for debugging.
 			SoundUtils.enableAudioContextNotification(this.getElement(),true);
 
 			syncWithFOP(fop);
