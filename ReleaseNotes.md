@@ -7,22 +7,16 @@
 
 **44.1.0**
 
-- 44.1.0-rc03 Fix: Changing the birth date on the athlete registration card required re-selecting the weight class to get the correct eligibility categories.
-  
 - New: keyboard shortcuts on announcer screen. F2 = good lift, F4 = bad lift.
-  
 - Fix: Scoreboards
   - The public scoreboards would switch to the medal board during presentation ceremonies instead of remaining on the selected session.
   - The spacing between the results and the leaderboard was sometimes wrongly set to zero.  
-  - *Note: If you have your own version of the stylesheets, see the [44.1 REQUIRED ADJUSTMENTS](#44.1-required-adjunstments) section below.*
-  
-- Fix: Requested weight updates during break
-  - In release 44.0.2 the announcer/marshal screens were not updated if marshal changes were made during a break.
-  - In release 44.0.1,  the break timer was interrupted if there were marshal changes during the break.
-
+  - *Note: If you have your own version of the stylesheets, see the 44.1 REQUIRED ADJUSTMENTS section below.*
+- Fix: Requested weight updates during break now correctly update the announcer and marshall screens, and do not interfere with the break timer.
+- Fix: Changing the birth date on the athlete registration card no longer requires re-selecting the weight class to get the correct eligibility categories.
 - Fix: the program would not start if all platforms had been deleted.
-- Fix: public results: the `publicresultsCustomization.css` was not being used.  Changes made to the scoreboards were applied as well.
-- Cosmetic: size of decision lights shown on marshal console fixed.
+- Fix: public results: the `publicresultsCustomization.css` was not being used.  The spacing fixes made to the local scoreboards were also applied.
+- Cosmetic: The size of decision lights shown on marshal console has been fixed.
 
 **44.0**
 
