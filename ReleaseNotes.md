@@ -7,6 +7,8 @@
 
 **44.1.0**
 
+- 44.1.0-rc03 Fix: Changing the birth date on the athlete registration card required re-selecting the weight class to get the correct eligibility categories.
+  
 - New: keyboard shortcuts on announcer screen. F2 = good lift, F4 = bad lift.
   
 - Fix: Scoreboards
