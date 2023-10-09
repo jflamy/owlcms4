@@ -1,6 +1,6 @@
 ## macOS or Linux Installation
 
-- **Get the installation zip archive**: Get the current  [`owlcms_44.1.0.zip`](https://github.com/owlcms/owlcms4/releases/latest/download/owlcms_44.1.0.zip) file  (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4/releases/latest) .
+- **Get the installation zip archive**: Get the current  [`owlcms_44.2.0-beta01.zip`](https://github.com/owlcms/owlcms4-prerelease/releases/latest/download/owlcms_44.2.0-beta01.zip) file  (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4-prerelease/releases/latest) .
 
 - Double-click on the downloaded zip file, and extract the files to a directory. 
 
@@ -8,27 +8,27 @@
 
   - If you are running on a Linux single-board computer, we suggest that you run the cpr
 
-- Make sure you have a **Java 17** LTS (long term support) installed. Either the JRE or JDK variant works.
+- Make sure you have a Java 11 or 17 installed (JRE or JDK)
 
-  - For Linux, refer to [Latest Releases | Adoptium](https://adoptium.net/temurin/releases/) depending on the Linux type you run. For Ubuntu and other Debian variants, you can normally use a system command.
+  - For Linux, refer to [Latest Releases | Adoptium](https://adoptium.net/temurin/releases/) depending on the Linux type you run. For Ubuntu and other Debian variants, the following should work 
 
     ```bash
     sudo apt install default-jre
     ```
     
-  - For macOS, see [Latest Releases | Adoptium](https://adoptium.net/temurin/releases/) and download the `.pkg` file.  Double-click the file.
+  - For macOS, see [Latest Releases | Adoptium](https://adoptium.net/temurin/releases/) and download the .pkg file.  Double-click the file.
 
-- After installing java, open a terminal window and go to the directory where you unzipped owlcms. Run the program with
+- Go to your installation directory where you unzipped owlcms
 
   ```bash
   java -jar owlcms.jar
   ```
-  See [Initial Startup](#initial-startup) below for how to proceed.
+  This will actually start the program. See [Initial Startup](#initial-startup) for how to proceed.
 
-  If you just want to use dummy data to practice (this will not touch your actual database), click on the grey box just below to copy this command and paste it into your terminal window.  You can do this at any time.
+  If you just want to use dummy data to practice (this will not touch your actual database), click on the grey box to copy this command and paste it.
 
   ```
-  java -Dport=8081 -DmemoryMode=true -DinitialData=LARGEGROUP_DEMO -jar owlcms.jar
+  java -DmemoryMode=true -DinitialData=LARGEGROUP_DEMO -jar owlcms.jar
   ```
 
 
