@@ -89,6 +89,7 @@ public class RecordConfig {
 		// new items in database but not in list, add them at the end to preserve
 		// current sort order
 		recordOrder.addAll(findAllRecordNames);
+		setCurrent(this);
 	}
 
 	@Override
