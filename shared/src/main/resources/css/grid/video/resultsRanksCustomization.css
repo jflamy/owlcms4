@@ -109,3 +109,14 @@ td.flags div {
     align-self: center;
     display: flex;
 }
+
+td.custom1 div {
+    /* pre-wrap is used for multiple lines custom1 custom2 */
+    /* white-space: pre-wrap; */
+    text-align: center;
+}
+td.custom2 div {
+    /* pre-wrap is used for multiple lines custom1 custom2 */
+    /* white-space: pre-wrap; */
+    text-align: center;
+}

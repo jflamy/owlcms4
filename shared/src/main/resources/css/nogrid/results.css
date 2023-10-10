@@ -355,15 +355,6 @@ table.results tr td.club div.clubName div.ellipsis {
     visibility: var(--custom2Visibility);
 }
 
-td.custom1 div {
-    white-space: pre-wrap;
-    text-align: center;
-}
-td.custom2 div {
-    white-space: pre-wrap;
-    text-align: center;
-}
-
 :host .dark table.results tr td.sinclair,
 :host .dark table.results tr th.sinclair {
     background-color: var(--darkBackgroundColor);
