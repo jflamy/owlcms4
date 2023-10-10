@@ -2,8 +2,7 @@ Warning:  This feature is new and may evolve.  It has been implemented in the si
 
 > NOTES
 >
-> - When adding flags and pictures for the first time, you must restart the program (it checks on startup whether flags or pictures are present)
-> - As it stands, the picture feature requires running locally and not in the cloud.  You may use flags, however.
+> - The presence of flags is detected when starting the scoreboards.  You may need to refresh the scoreboards after adding flags.
 
 ### Including a Flag
 
