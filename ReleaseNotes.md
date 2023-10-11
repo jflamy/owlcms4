@@ -4,7 +4,9 @@
 > - Reminder: *You should test any release with your own data before using it in a competition.*
 >
 
-**44.2.0-rc02**
+**44.2.0-rc03**
+
+- 44.2.0-rc03: Fix an issue when importing databases from older versions.
 
 - 44.2.0-rc02 Usability: Disabled the confusing keyboard navigation focus ring on the athlete grids (announcer, marshal, registration, weigh-in, etc.)
 - 44.2.0-rc02 Fix: Flags were not positioned correctly on the attempt board (they were always centered as if athlete pictures were present).
