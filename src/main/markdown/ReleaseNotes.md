@@ -7,7 +7,8 @@
 **44.2.0-rc04**
 
 - 44.2.0-rc04: On grids with checkboxes or buttons (such as the age group or team membership pages), clicking on the checkbox or button would open the dialog box as if the line had been selected (the behavior changed from previous versions of the Vaadin user interface library.). Now fixed.
-- 44.2.0-rc04: Fixes when importing databases with no local override directory present (development environment issue)
+- 44.2.0-rc04: On the scoreboard, there would be a short period where the group description would switch to "Clean & Jerk" instead of staying on "Snatch" after an athlete took their 3rd Snatch. Now fixed.
+- 44.2.0-rc04: Fix for importing databases when the `local` override directory has been deleted or is missing.
 - Usability: Disabled the confusing keyboard navigation focus ring on the athlete grids (announcer, marshal, registration, weigh-in, etc.)
 - Fix: Flags were not positioned correctly on the attempt board (they were always centered as if athlete pictures were present).
 - Fix: Records would not be shown if the records were uploaded but the "save configuration" button was not applied. Uploading record files now saves the configuration.
