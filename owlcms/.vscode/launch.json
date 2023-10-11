@@ -18,8 +18,8 @@
             "request": "launch",
             "mainClass": "app.owlcms.Main",
             "projectName": "owlcms",
-            "vmArgs": "-Dvaadin.frontend.hotdeploy=true",
             "env": {"OWLCMS_INITIALDATA":"LARGEGROUP_DEMO", "OWLCMS_RESETMODE": "true"},
+            "vmArgs": "-Dvaadin.frontend.hotdeploy=true",
             "shortenCommandLine": "none"
         },
         {
