@@ -6,10 +6,8 @@
  *******************************************************************************/
 package app.owlcms.data.config;
 
-import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -823,22 +821,11 @@ public class Config {
 		} else {
 			this.stylesDirectory = sd;
 		}
-		
-		Path path = Paths.get("local", this.stylesDirectory);
-		if (!Files.exists(path)) {
-			this.stylesDirectory = "css/nogrid";
-			path = Paths.get("local", this.stylesDirectory);
+		// this routine is called when reloading an export, during
+		// the process of recreating the config.  Therefore we don't
+		// know where the override directory is (it can come from the
+		// database).
 		}
-		try {
-			Path f = ResourceWalker.getFileOrResourcePath(this.stylesDirectory);
-			logger.info("setting styles directory to {} (path={})", this.stylesDirectory, f);
-			Main.getStartupLogger().info("setting styles directory to {} (path={})", this.stylesDirectory, f);
-		} catch (FileNotFoundException e) {
-			logger.error("error setting styles directory to {}", this.stylesDirectory);
-			Main.getStartupLogger().error("error setting styles directory to {}", this.stylesDirectory);
-		}
-	
-	}
 
 	public void setTimeZone(TimeZone timeZone) {
 		if (timeZone == null) {

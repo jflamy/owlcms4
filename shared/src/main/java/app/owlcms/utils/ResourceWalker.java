@@ -374,7 +374,9 @@ public class ResourceWalker {
 	}
 
 	public static synchronized void initLocalDir() {
-		setInitializedLocalDir(true);
+		if (isInitializedLocalDir()) {
+			return;
+		}
 		byte[] blob = localZipBlobSupplier != null ? localZipBlobSupplier.get() : null;
 		if (blob != null && blob.length > 0) {
 			if (logger.isEnabledFor(Level.DEBUG)) {
@@ -389,6 +391,7 @@ public class ResourceWalker {
 			logger.debug("checking for override.");
 			checkForLocalOverrideDirectory();
 		}
+		setInitializedLocalDir(true);
 	}
 
 	public static void zipPublicResultsConfig(OutputStream os) throws IOException {
