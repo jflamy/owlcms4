@@ -6,8 +6,10 @@
  *******************************************************************************/
 package app.owlcms.data.config;
 
+import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -46,7 +48,7 @@ import io.moquette.broker.config.IConfig;
  */
 @Cacheable
 
-//must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
+// must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
 public class Config {
@@ -349,16 +351,16 @@ public class Config {
 	public String getParamDisplayPin() {
 		String uPin = StartupUtils.getStringParam("displayPin");
 		if (uPin == null) {
-//            // not defined in environment
-//            // use pin from database, which is either empty (no password required)
-//            // or current.
-//            uPin = Config.getCurrent().getDisplayPin();
-//            // logger.debug("pin = {}", uPin);
-//            if (uPin == null || uPin.isBlank()) {
-//                return null;
-//            } else {
-//                return uPin; // what is in the database is already encrypted
-//            }
+			// // not defined in environment
+			// // use pin from database, which is either empty (no password required)
+			// // or current.
+			// uPin = Config.getCurrent().getDisplayPin();
+			// // logger.debug("pin = {}", uPin);
+			// if (uPin == null || uPin.isBlank()) {
+			// return null;
+			// } else {
+			// return uPin; // what is in the database is already encrypted
+			// }
 			return null;
 		} else if (uPin.isBlank()) {
 			// no password will be expected
@@ -403,13 +405,13 @@ public class Config {
 		// get non-encrypted password
 		String param = StartupUtils.getStringParam("mqttPassword");
 		// don't get from the database - useless because encrypted
-//        if (param == null) {
-//            // get from database
-//            param = Config.getCurrent().getMqttPassword();
-//            if (param == null || param.isBlank()) {
-//                param = null;
-//            }
-//        }
+		// if (param == null) {
+		// // get from database
+		// param = Config.getCurrent().getMqttPassword();
+		// if (param == null || param.isBlank()) {
+		// param = null;
+		// }
+		// }
 		return param;
 	}
 
@@ -468,20 +470,20 @@ public class Config {
 			// not defined in environment
 			// use pin from database, which is either empty (no password required)
 			// or legacy (not crypted) or current.
-//            uPin = Config.getCurrent().getPin();
-//            logger.debug("getParamPin uPin = {}", uPin);
-//            if (uPin == null || uPin.isBlank() || uPin.trim().contentEquals(FAKE_PIN)) {
-//                logger.debug("no uPin");
-//                return null;
-//            } else if (uPin.length() < 64) {
-//                // assume legacy
-//                logger.debug("legacy uPin");
-//                String encodedPin = AccessUtils.encodePin(uPin, Config.getCurrent().getPin(), false);
-//                return encodedPin;
-//            } else {
-//                logger.debug("encrypted uPin");
-//                return uPin; // what is in the database is already encrypted
-//            }
+			// uPin = Config.getCurrent().getPin();
+			// logger.debug("getParamPin uPin = {}", uPin);
+			// if (uPin == null || uPin.isBlank() || uPin.trim().contentEquals(FAKE_PIN)) {
+			// logger.debug("no uPin");
+			// return null;
+			// } else if (uPin.length() < 64) {
+			// // assume legacy
+			// logger.debug("legacy uPin");
+			// String encodedPin = AccessUtils.encodePin(uPin, Config.getCurrent().getPin(), false);
+			// return encodedPin;
+			// } else {
+			// logger.debug("encrypted uPin");
+			// return uPin; // what is in the database is already encrypted
+			// }
 			return null;
 		} else if (uPin.isBlank()) {
 			// no password will be expected
@@ -545,7 +547,8 @@ public class Config {
 				Path ldp = ldpd.resolve("css/" + param);
 				boolean predefinedStyleName = param.contentEquals("grid") || param.contentEquals("nogrid");
 				if (!Files.exists(ldp) && !predefinedStyleName) {
-					Main.getStartupLogger().error("{} does not exist, using default css/nogrid as default", ldp.toAbsolutePath());
+					Main.getStartupLogger().error("{} does not exist, using default css/nogrid as default",
+					        ldp.toAbsolutePath());
 					logger./**/error("{} does not exist, using default css/nogrid as default", ldp.toAbsolutePath());
 					param = "css/nogrid";
 				}
@@ -808,14 +811,30 @@ public class Config {
 		this.skipReading = b;
 	}
 
-	public void setStylesDirectory(String stylesDirectory) {
+	public void setStylesDirectory(String sd) {
 		// styles directory is stored with a leading "css/"
-		if (!stylesDirectory.startsWith("css/")) {
-			this.stylesDirectory = "css/" + stylesDirectory;
+		if (sd == null) {
+			this.stylesDirectory = "css/nogrid";
+		} else if (!sd.startsWith("css/")) {
+			this.stylesDirectory = "css/" + sd;
 		} else {
-			this.stylesDirectory = stylesDirectory;
+			this.stylesDirectory = sd;
 		}
-		logger.info("setting styles directory to {}", stylesDirectory);
+		
+		Path path = Paths.get("local", this.stylesDirectory);
+		if (!Files.exists(path)) {
+			this.stylesDirectory = "css/nogrid";
+			path = Paths.get("local", this.stylesDirectory);
+		}
+		try {
+			Path f = ResourceWalker.getFileOrResourcePath(this.stylesDirectory);
+			logger.info("setting styles directory to {} (path={})", this.stylesDirectory, f);
+			Main.getStartupLogger().info("setting styles directory to {} (path={})", this.stylesDirectory, f);
+		} catch (FileNotFoundException e) {
+			logger.error("error setting styles directory to {}", this.stylesDirectory);
+			Main.getStartupLogger().error("error setting styles directory to {}", this.stylesDirectory);
+		}
+	
 	}
 
 	public void setTimeZone(TimeZone timeZone) {
