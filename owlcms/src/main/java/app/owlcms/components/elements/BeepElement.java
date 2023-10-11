@@ -27,7 +27,7 @@ public class BeepElement extends LitTemplate
 
 	public void beep() {
 		Logger logger = (Logger)LoggerFactory.getLogger(BeepElement.class);
-		logger.warn("calling beep");
+		logger.debug("calling beep");
 		getElement().setProperty("doBeep", true);
 	}
 	

@@ -284,7 +284,7 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 			if (e.on) {
 				topWrapper.removeAll();
 				topWrapper.add(warningRow);
-				logger.warn("beeping");
+				logger.debug("beeping");
 				beeper.beep();
 			}
 		});
