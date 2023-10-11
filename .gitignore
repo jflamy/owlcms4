@@ -31,3 +31,4 @@ database/owlcms.mv.db
 /logs/
 /node_modules/
 /.metadata/
+/.moquette_uuid
