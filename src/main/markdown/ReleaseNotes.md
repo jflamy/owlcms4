@@ -6,6 +6,7 @@
 
 **44.2.0-rc02**
 
+- 44.2.0-rc02 Usability: Disabled the confusing keyboard navigation focus ring on the athlete grids (announcer, marshal, registration, weigh-in, etc.)
 - 44.2.0-rc02 Fix: Flags were not positioned correctly on the attempt board (they were always centered as if athlete pictures were present).
 - Fix: Records would not be shown if the records were uploaded but the "save configuration" button was not applied. Uploading record files now saves the configuration.
 - Fix: The scoreboard line height was too high if data was present in the custom1/custom2 fields, even if these columns were hidden.  See the *REQUIRED CHANGES FOR CSS CUSTOMIZATION* text at the bottom of these notes.
