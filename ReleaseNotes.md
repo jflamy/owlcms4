@@ -1,15 +1,16 @@
-> **Version 44.2 **
+> **Version 44.2 Release Candidate**
 >
-> - **Beta version**.  Beta versions are for translation and testing.
-> - If you are running a competition, please use a 44.1-rc version or the 44.1 stable version.
->- Reminder: *You should test any release with your own data before using it in a competition.*
-> 
+> - Release candidates are the last releases before an official version. They are normally safe for use for a competition but should nevertheless be tested with more care.
+> - Reminder: *You should test any release with your own data before using it in a competition.*
+>
 
-**44.2.0-beta01**
+**44.2.0-rc01**
 
-- Fixes for sound activation.  There was no sound on iOS devices, and sound activation was not consistent on other browsers (browsers require that an interaction such as clicking or touching takes place in order to play sounds.)
+- Fix: Records would not be shown if the records were uploaded but the "save configuration" button was not applied. Uploading record files now saves the configuration.
+- Fix: The scoreboard line height was too high if data was present in the custom1/custom2 fields, even if these columns were hidden.  See the *REQUIRED CHANGES FOR CSS CUSTOMIZATION* text at the bottom of these notes.
+- Fixes for sound activation.  Browsers require that an interaction such as clicking or touching takes place in order to play sounds.  This was not working on iPad/iPhone, and partially working on other browsers.
 
-**44.0 and 44.1**
+**Version 44 changes**
 
 *See the bottom of this note for required changes if you are doing video streaming or if you have customized the styles.*
 
@@ -17,15 +18,15 @@
   - The visual styling has been changed for a more modern look. 
     - The new default is called `nogrid`
     - The old style has been renamed to `grid`. 
-    - An alternate styling directory can specified in the *Preparation - Settings - Customization* page.  For example, to get the old look back, you would specify `grid` instead of `nogrid`.  You can also specify your own local styling directory.
-    - If the styles directory named in the database is not found, the default  `nogrid`  is forced. So if you had changed the old `styles` directory, you must move it `local/css` before it can be used. You may now rename to whatever name you chose.
+    - The style can specified in the *Preparation - Settings - Customization* page.  For example, to get the old look back, you would specify `grid` instead of `nogrid`.  You can also specify the name of your own local styling directory.
+    - If the style directory named in the database is not found, the default  `nogrid`  is forced. So if you had changed the old `styles` directory, you must move it `local/css` before it can be used. You can rename it to whatever name you want.
 
-- Streaming: Video styling is now requested using `video=true`  as a query parameter after the `?` (like all the other parameters). See the bottom of this note.
+- Video Streaming: Video styling is now requested using `video=true`  as a query parameter after the `?` (like all the other parameters). See the *REQUIRED CHANGES FOR VIDEO STREAMING.* section at the bottom of this note.
 
-- The display selection page has been changed.  The public scoreboards are now separate from the warmup scoreboards - many people were unaware of the public scoreboard feature that switches the display during medal ceremonies.
+- The display selection page has been changed.  The public scoreboards are now separate from the warmup scoreboards. The public scoreboards switch to the medal display during medal ceremonies.
 
 
-- It is no longer necessary to start different browsers to run owlcms, publicresults and owlcms-firmata on the same machine  They no longer interfere with one another.
+- It is no longer necessary to start different browsers to run owlcms, publicresults and owlcms-firmata on the same laptop. They no longer interfere with one another.
   - However different browsers are still needed when testing several platforms on the same computer
 
 
@@ -37,19 +38,16 @@
 
 - This version updates the user interface to use the most current [Vaadin 24 framework](https://vaadin.com/), which has several major changes. The most important is a switch to the modern [LitElement](https://lit.dev/) template framework (used for the scoreboards, timers, and decisions).
 
-
-**44.1 REQUIRED ADJUSTMENTS**
+**Version 44 REQUIRED ADJUSTMENTS**
 
 - **REQUIRED CHANGES FOR CSS CUSTOMIZATION**.
   This only concerns advanced users who have edited the css files
   - Compare with the official style sheets and define a variable called 
     `--defaultLeaderFillerHeight: 1fr` and edit the definitions of the `.filler` style to remove the `min-height` settings.
-
-**44.0 REQUIRED ADJUSTMENTS**
-
-- **REQUIRED CHANGES FOR CSS CUSTOMIZATION AND VIDEO STREAMING**.
-  This only concerns advanced users who have edited the css files or are doing video streaming.
+  - If you display the custom1 or custom2 fields on the scoreboard, you need to add the lines from the bottom of `resultsCustomization.css`.  If several lines are needed, you must also uncomment the directive so that `pre-wrap` is enabled.
   - *Local variations to styling MUST be copied to a subdirectory of* `local/css`.  If you have customized the `styles` folder move it to `local/css/mystyles` (or whatever name you want), and update the location your Preparation - Settings - Customization page. 
   - Style sheet changes :  If you have customized the scoreboards,  you need to edit the `results.css` files. All instances of `:host(.dark)` must be changed to `.host .dark`  and all instances of `:host(.dark)` must be changed to `.host .dark`  
   - Style sheet bug fixes: Several small changes have been made to grid and nogrid to fix small problems. You should compare your style sheets to the official ones.  Or for more safety, start from the official ones and redo your adjustments.
+
+- **REQUIRED CHANGES FOR VIDEO STREAMING**.
   - For video streaming, *URLs that use*  `/video` *in* *the URL path should be changed* to use `?video=true` as a query parameter instead (video is now a parameter like all the others.)
