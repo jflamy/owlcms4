@@ -513,7 +513,8 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 			setDisplay();
 			this.getElement().setProperty("decisionVisible", true);
 			Athlete a = e.getAthlete();
-			updateBottom(computeLiftType(a), OwlcmsSession.getFop());
+			// -1 because if decision in on snatch 3 we don't want to show CJ
+			updateBottom(computeLiftType(a.getAttemptsDone()-1), OwlcmsSession.getFop());
 		});
 	}
 
@@ -524,7 +525,7 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 			setDisplay();
 			this.getElement().setProperty("decisionVisible", false);
 			Athlete a = e.getAthlete();
-			updateBottom(computeLiftType(a), OwlcmsSession.getFop());
+			updateBottom(computeLiftType(a.getAttemptsDone()-1), OwlcmsSession.getFop());
 		});
 	}
 
@@ -718,8 +719,7 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 				}
 			}
 		}
-		// logger.debug("updating bottom");
-		updateBottom(computeLiftType(a), fop);
+		updateBottom(computeLiftType(fop.getCurAthlete()), fop);
 	}
 
 	protected String formatInt(Integer total) {
@@ -1057,6 +1057,15 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 				: Translator.translate("Snatch");
 		return liftType;
 	}
+	
+	private String computeLiftType(Integer curAttempt) {
+		if (curAttempt == null || curAttempt > 6) {
+			return null;
+		}
+		String liftType = curAttempt >= 3 ? Translator.translate("Clean_and_Jerk")
+				: Translator.translate("Snatch");
+		return liftType;
+	}
 
 	private void doDone(Group g) {
 		this.logger.debug("doDone {}", g == null ? null : g.getName());
@@ -1111,6 +1120,7 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 	}
 
 	private void setGroupNameProperty(String value) {
+		//logger.debug("setGroupNameProperty {} from {}",value, LoggerUtils.whereFrom());
 		this.getElement().setProperty("groupName", value);
 	}
 
