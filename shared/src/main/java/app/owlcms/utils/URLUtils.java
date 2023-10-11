@@ -7,10 +7,13 @@
 package app.owlcms.utils;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -185,9 +188,9 @@ public class URLUtils {
     public static boolean checkPictures() {
         boolean athletePictures;
         try {
-            ResourceWalker.getFileOrResourcePath("pictures");
-            athletePictures = true;
-        } catch (FileNotFoundException e) {
+            Path f = ResourceWalker.getFileOrResourcePath("pictures");
+            athletePictures = Files.walk(f).anyMatch(x->x.endsWith(".jpg")|| x.endsWith(".jpeg"));
+        } catch (IOException e) {
             athletePictures = false;
         }
         return athletePictures;

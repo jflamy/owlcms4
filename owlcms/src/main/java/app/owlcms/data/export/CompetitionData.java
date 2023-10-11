@@ -238,11 +238,16 @@ public class CompetitionData {
 				e.printStackTrace();
 			} finally {
 				Athlete.setSkipValidationsDuringImport(false);
+
 			}
 			return null;
 		});
 		// register the new FOPs for events and MQTT
 		OwlcmsFactory.initFOPByName();
+		
+		// set the record order if empty (compensate for issue #766)
+		RecordConfig current = RecordConfig.getCurrent();
+		current.addMissing(RecordRepository.findAllRecordNames());
 	}
 
 	public void setAgeGroups(List<AgeGroup> ageGroups) {

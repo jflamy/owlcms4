@@ -128,7 +128,7 @@ class CurrentAttempt extends LitElement {
       ((this.recordAttempt || this.recordBroken) ? " hideBecauseRecord" : "");
   }
   teamFlagImgClasses() {
-    var mainClass = this.athleteImg || this.athletePictures ? "flagWithPicture" : "flag";
+    var mainClass = (this.athleteImg || this.athletePictures) ? "flagWithPicture" : "flag";
     return mainClass +
       (this.decisionVisible ? " hideBecauseDecision" : "") +
       ((this.recordAttempt || this.recordBroken) ? " hideBecauseRecord" : "");

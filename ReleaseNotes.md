@@ -1,60 +1,53 @@
-> **Version 44.1 **
+> **Version 44.2 Release Candidate**
 >
+> - Release candidates are the last releases before an official version. They are normally safe for use for a competition but should nevertheless be tested with more care.
 > - Reminder: *You should test any release with your own data before using it in a competition.*
-> 
->Version 44 is a technical migration release.  It updates the code to the current version of the user interface framework ([Vaadin 24](http://vaadin.com)). A significant clean-up of the code was performed at the same time, and several annoyances were fixed as a result.
-> 
+>
 
-**44.1.0**
+**44.2.0-rc01**
 
-- New: keyboard shortcuts on announcer screen. F2 = good lift, F4 = bad lift.
-- Fix: Scoreboards
-  - The public scoreboards would switch to the medal board during presentation ceremonies instead of remaining on the selected session.
-  - The spacing between the results and the leaderboard was sometimes wrongly set to zero.  
-  - *Note: If you have your own version of the stylesheets, see the 44.1 REQUIRED ADJUSTMENTS section below.*
-- Fix: Requested weight updates during break now correctly update the announcer and marshall screens, and do not interfere with the break timer.
-- Fix: Changing the birth date on the athlete registration card no longer requires re-selecting the weight class to get the correct eligibility categories.
-- Fix: the program would not start if all platforms had been deleted.
-- Fix: public results: the `publicresultsCustomization.css` was not being used.  The spacing fixes made to the local scoreboards were also applied.
-- Cosmetic: The size of decision lights shown on marshal console has been fixed.
+- Fix: Records would not be shown if the records were uploaded but the "save configuration" button was not applied. Uploading record files now saves the configuration.
+- Fix: The scoreboard line height was too high if data was present in the custom1/custom2 fields, even if these columns were hidden.  See the *REQUIRED CHANGES FOR CSS CUSTOMIZATION* text at the bottom of these notes.
+- Fixes for sound activation.  Browsers require that an interaction such as clicking or touching takes place in order to play sounds.  This was not working on iPad/iPhone, and partially working on other browsers.
 
-**44.0**
+**Version 44 changes**
 
 *See the bottom of this note for required changes if you are doing video streaming or if you have customized the styles.*
 
-Visual styling changes
-- The visual styling has been changed for a more modern look. 
-  - The new default is called `nogrid`
-  - The old style has been renamed to `grid`. 
-  - An alternate styling directory can specified in the *Preparation - Settings - Customization* page.  For example, to get the old look back, you would specify `grid` instead of `nogrid`.  You can also specify your own local styling directory.
-  - If the styles directory named in the database is not found, the default  `nogrid`  is forced. So if you had changed the old `styles` directory, you must move it `local/css` before it can be used. You may now rename to whatever name you chose.
-- Streaming: Video styling is now requested using `video=true`  as a query parameter after the `?` (like all the other parameters). See the bottom of this note.
+- Visual styling changes
+  - The visual styling has been changed for a more modern look. 
+    - The new default is called `nogrid`
+    - The old style has been renamed to `grid`. 
+    - The style can specified in the *Preparation - Settings - Customization* page.  For example, to get the old look back, you would specify `grid` instead of `nogrid`.  You can also specify the name of your own local styling directory.
+    - If the style directory named in the database is not found, the default  `nogrid`  is forced. So if you had changed the old `styles` directory, you must move it `local/css` before it can be used. You can rename it to whatever name you want.
 
-The display selection page has been changed.  The public scoreboards are now separate from the warmup scoreboards - many people were unaware of the public scoreboard feature that switches the display during medal ceremonies.
+- Video Streaming: Video styling is now requested using `video=true`  as a query parameter after the `?` (like all the other parameters). See the *REQUIRED CHANGES FOR VIDEO STREAMING.* section at the bottom of this note.
 
-It is no longer necessary to start different browsers to run owlcms, publicresults and owlcms-firmata on the same machine  They no longer interfere with one another.
-- However different browsers are still needed when testing several platforms on the same computer
+- The display selection page has been changed.  The public scoreboards are now separate from the warmup scoreboards. The public scoreboards switch to the medal display during medal ceremonies.
 
-A new report is available to accelerate the verification of final entries (VFE).  See the "Pre-Competition Documents" under "Teams". The document allows team leaders to sign off the changes to the athlete's category, entry total, as well as team memberships.
 
-The break management dialog for pauses and countdowns has been redesigned.
+- It is no longer necessary to start different browsers to run owlcms, publicresults and owlcms-firmata on the same laptop. They no longer interfere with one another.
+  - However different browsers are still needed when testing several platforms on the same computer
 
-The download dialog for documents has been redone for robustness.
 
-This version updates the user interface to use the most current [Vaadin 24 framework](https://vaadin.com/), which has several major changes. The most important is a switch to the modern [LitElement](https://lit.dev/) template framework (used for the scoreboards, timers, and decisions).
+- A new report is available to accelerate the verification of final entries (VFE).  See the "Pre-Competition Documents" under "Teams". The document allows team leaders to sign off the changes to the athlete's category, entry total, as well as team memberships.
 
-**44.1 REQUIRED ADJUSTMENTS**
+- The break management dialog for pauses and countdowns has been redesigned.
+
+- The download dialog for documents has been redone for robustness.
+
+- This version updates the user interface to use the most current [Vaadin 24 framework](https://vaadin.com/), which has several major changes. The most important is a switch to the modern [LitElement](https://lit.dev/) template framework (used for the scoreboards, timers, and decisions).
+
+**Version 44 REQUIRED ADJUSTMENTS**
 
 - **REQUIRED CHANGES FOR CSS CUSTOMIZATION**.
   This only concerns advanced users who have edited the css files
   - Compare with the official style sheets and define a variable called 
     `--defaultLeaderFillerHeight: 1fr` and edit the definitions of the `.filler` style to remove the `min-height` settings.
-
-**44.0 REQUIRED ADJUSTMENTS**
-
-- **REQUIRED CHANGES FOR CSS CUSTOMIZATION AND VIDEO STREAMING**.
-  This only concerns advanced users who have edited the css files or are doing video streaming.
+  - If you display the custom1 or custom2 fields on the scoreboard, you need to add the lines from the bottom of `resultsCustomization.css`.  If several lines are needed, you must also uncomment the directive so that `pre-wrap` is enabled.
   - *Local variations to styling MUST be copied to a subdirectory of* `local/css`.  If you have customized the `styles` folder move it to `local/css/mystyles` (or whatever name you want), and update the location your Preparation - Settings - Customization page. 
   - Style sheet changes :  If you have customized the scoreboards,  you need to edit the `results.css` files. All instances of `:host(.dark)` must be changed to `.host .dark`  and all instances of `:host(.dark)` must be changed to `.host .dark`  
   - Style sheet bug fixes: Several small changes have been made to grid and nogrid to fix small problems. You should compare your style sheets to the official ones.  Or for more safety, start from the official ones and redo your adjustments.
+
+- **REQUIRED CHANGES FOR VIDEO STREAMING**.
   - For video streaming, *URLs that use*  `/video` *in* *the URL path should be changed* to use `?video=true` as a query parameter instead (video is now a parameter like all the others.)

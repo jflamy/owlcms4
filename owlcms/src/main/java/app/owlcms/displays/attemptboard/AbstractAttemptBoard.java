@@ -611,7 +611,6 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			if (!done) {
 				done = URLUtils.setImgProp("athleteImg", "pictures/", membership, ".jpeg", this);
 			}
-			this.getElement().setProperty("WithPicture", done ? "WithPicture" : "");
 		}
 
 		spotlightRecords(fop, a);
