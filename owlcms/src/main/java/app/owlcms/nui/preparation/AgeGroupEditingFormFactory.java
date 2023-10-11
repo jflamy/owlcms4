@@ -94,6 +94,8 @@ public class AgeGroupEditingFormFactory
 	        ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
 	        ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
 	        ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
+		
+		//TODO return null if checkbox has been selected, fix caller to not open.
 
 		FormLayout formLayout = new FormLayout();
 		formLayout.setResponsiveSteps(new ResponsiveStep("0", 1, LabelsPosition.ASIDE));
