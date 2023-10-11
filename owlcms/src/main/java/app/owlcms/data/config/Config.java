@@ -30,6 +30,8 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import app.owlcms.Main;
 import app.owlcms.apputils.AccessUtils;
@@ -51,6 +53,7 @@ import io.moquette.broker.config.IConfig;
 // must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
+@JsonInclude(Include.NON_NULL)
 public class Config {
 
 	public static final String FAKE_PIN = "\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF";
