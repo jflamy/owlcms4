@@ -361,6 +361,8 @@ public class TeamSelectionContent extends BaseContent
 					activeBox.setValue(value);
 					JPAService.runInTransaction(em -> toggleTeamMember(p, value, em));
 				});
+				// prevent grid row selection from triggering
+				activeBox.getElement().addEventListener("click", ignore -> {}).addEventData("event.stopPropagation()");
 				return activeBox;
 			}
 		});

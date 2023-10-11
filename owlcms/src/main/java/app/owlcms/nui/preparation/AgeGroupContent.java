@@ -243,8 +243,6 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		Grid<AgeGroup> grid = new Grid<>(AgeGroup.class, false);
 		grid.getThemeNames().add("row-stripes");
 		grid.addColumn(new ComponentRenderer<>(cat -> {
-			//TODO set a variable somehow so that buildForm knows we have been clicked.
-			// checkbox to avoid entering in the form
 			Checkbox activeBox = new Checkbox("Name");
 			activeBox.setLabel(null);
 			activeBox.getElement().getThemeList().set("secondary", true);
@@ -255,6 +253,8 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 				AgeGroupRepository.save(cat);
 				grid.getDataProvider().refreshItem(cat);
 			});
+			// prevent getting the row selection involved.
+			activeBox.getElement().addEventListener("click", ignore -> {}).addEventData("event.stopPropagation()");
 			return activeBox;
 		})).setHeader(getTranslation("Active")).setWidth("0");
 		grid.addColumn(AgeGroup::getDisplayName).setHeader(getTranslation("Name"));

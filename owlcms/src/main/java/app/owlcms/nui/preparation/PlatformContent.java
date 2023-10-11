@@ -142,6 +142,8 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 		grid.addColumn(Platform::getSoundMixerName).setHeader(getTranslation("Speakers"));
 		grid.addColumn(new ComponentRenderer<>(p -> {
 			Button technical = openInNewTab(TCContent.class, getTranslation("PlatesCollarBarbell"), p.getName());
+			// prevent grid row selection from triggering
+			technical.getElement().addEventListener("click", ignore -> {}).addEventData("event.stopPropagation()");
 			return technical;
 		})).setHeader(getTranslation("PlatesCollarBarbell")).setWidth("0");
 

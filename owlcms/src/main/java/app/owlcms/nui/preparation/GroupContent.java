@@ -142,6 +142,8 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		int tSize = translation.length();
 		grid.addColumn(new ComponentRenderer<>(p -> {
 			Button technical = openInNewTab(RegistrationContent.class, translation, p.getName());
+			// prevent grid row selection from triggering
+			technical.getElement().addEventListener("click", ignore -> {}).addEventData("event.stopPropagation()");
 			technical.addThemeVariants(ButtonVariant.LUMO_SMALL);
 			return technical;
 		})).setHeader("").setWidth(tSize + "ch");
