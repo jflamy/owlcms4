@@ -1,4 +1,4 @@
 /* hide the keyboard focus ring in the grids */
-vaadin-grid ::part(focused-row-cell) {
+vaadin-grid::part(focused-cell) {
     display: none;
 }
