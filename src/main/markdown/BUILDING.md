@@ -8,7 +8,7 @@ This file describes how to build the program without changing it.  If you want t
 
 - Install git : Installing [GitHub Desktop](https://desktop.github.com/) is the easiest way to install Git on a Windows system. Select the options to add the programs to the execution path.
 - Clone this repository
-- Install Java 11
+- Install Java 17
 - Install Maven
   - You need to add lines to your the `.m2/settings.xml` file in your home directory.  You can copy the file `.gitpod/settings.xml` if you don't have anything special in your own file, else make sure to merge the directives to unlock the owlcms repository. 
 
@@ -30,8 +30,3 @@ This file describes how to build the program without changing it.  If you want t
 ### Building a Docker container
 
 There is an `owlcms-docker` project to build Docker containers using `mvn package`, once the production build has been done.
-
-
-
-
-
