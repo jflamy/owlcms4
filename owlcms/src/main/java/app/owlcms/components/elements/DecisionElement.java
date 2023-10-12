@@ -41,7 +41,7 @@ public class DecisionElement extends LitTemplate
 
 	static {
 		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.DEBUG);
+		uiEventLogger.setLevel(Level.INFO);
 	}
 	protected EventBus fopEventBus;
 	protected EventBus uiEventBus;

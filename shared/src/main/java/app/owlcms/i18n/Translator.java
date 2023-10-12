@@ -341,7 +341,7 @@ public class Translator implements I18NProvider {
             ResourceBundle bundle = ResourceBundle.getBundle(baseName, locale, i18nloader);
             return bundle;
         } catch (IOException e) {
-            logger.error("cannot create bundles directory {}", e);
+            logger.error("cannot create bundles directory {}", e.getMessage());
             throw new RuntimeException(e);
         } finally {
             // cannot clean up, resource bundle keeps the files open
