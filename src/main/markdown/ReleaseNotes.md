@@ -4,16 +4,18 @@
 > - Reminder: *You should test any release with your own data before using it in a competition.*
 >
 
-**44.2.0-rc04**
+**44.2.0**
 
-- 44.2.0-rc04: On grids with checkboxes or buttons (such as the age group or team membership pages), clicking on the checkbox or button would open the dialog box as if the line had been selected (the behavior changed from previous versions of the Vaadin user interface library.). Now fixed.
-- 44.2.0-rc04: On the scoreboard, there would be a short period where the group description would switch to "Clean & Jerk" instead of staying on "Snatch" after an athlete took their 3rd Snatch. Now fixed.
-- 44.2.0-rc04: Fix for importing databases when the `local` override directory has been deleted or is missing.
-- Usability: Disabled the confusing keyboard navigation focus ring on the athlete grids (announcer, marshal, registration, weigh-in, etc.)
+Several small fixes. No changes to competition flow.
+
+- Fixes for sound activation.  Browsers require that an interaction such as clicking or touching takes place in order to play sounds.  This was not working on iPad/iPhone, and not fully reliable on other browsers.
+- Usability: Disabled the user interface library's default keyboard navigation focus ring on the athlete grids (announcer, marshal, registration, weigh-in, etc.).
 - Fix: Flags were not positioned correctly on the attempt board (they were always centered as if athlete pictures were present).
 - Fix: Records would not be shown if the records were uploaded but the "save configuration" button was not applied. Uploading record files now saves the configuration.
+- Fix: On grids with checkboxes or buttons (such as the age group or team membership pages), clicking on the checkbox or button would open the dialog box as if the line had been selected (the behavior changed from previous versions of the Vaadin user interface library.). Now fixed.
 - Fix: The scoreboard line height was too high if data was present in the custom1/custom2 fields, even if these columns were hidden.  See the *REQUIRED CHANGES FOR CSS CUSTOMIZATION* text at the bottom of these notes.
-- Fixes for sound activation.  Browsers require that an interaction such as clicking or touching takes place in order to play sounds.  This was not working on iPad/iPhone, and partially working on other browsers.
+- Fix: On the scoreboard, there would be a short period where the group description would switch to "Clean & Jerk" instead of staying on "Snatch" after an athlete took their 3rd Snatch. Now fixed.
+- Fix for importing databases when the `local` override directory had been deleted.
 
 **Version 44 changes**
 
