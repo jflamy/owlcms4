@@ -24,8 +24,10 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
@@ -53,6 +55,13 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 
 	public MarshallContent() {
 		super();
+		// when navigating to the page, Vaadin will call setParameter+readParameters
+		// these parameters will be applied.
+		setDefaultParameters(QueryParameters.simple(Map.of(
+		        SoundParameters.SILENT, "true",
+		        SoundParameters.DOWNSILENT, "true",
+		        SoundParameters.IMMEDIATE, "true",
+		        SoundParameters.SINGLEREF, "false")));
 	}
 
 	/**
