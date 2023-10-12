@@ -1,15 +1,16 @@
 > **Version 44.2 Release Candidate**
 >
-> - Release candidates are the last releases before an official version. They are normally safe for use for a competition but should nevertheless be tested with more care.
+> - Release candidates are the last releases before an official version. Small bugs may still be present but not affect competition flow.  They should nevertheless be tested with care.
 > - Reminder: *You should test any release with your own data before using it in a competition.*
 >
 
-**44.2.0-rc03**
+**44.2.0-rc04**
 
-- 44.2.0-rc03: Fix an issue when importing databases from older versions.
-
-- 44.2.0-rc02 Usability: Disabled the confusing keyboard navigation focus ring on the athlete grids (announcer, marshal, registration, weigh-in, etc.)
-- 44.2.0-rc02 Fix: Flags were not positioned correctly on the attempt board (they were always centered as if athlete pictures were present).
+- 44.2.0-rc04: On grids with checkboxes or buttons (such as the age group or team membership pages), clicking on the checkbox or button would open the dialog box as if the line had been selected (the behavior changed from previous versions of the Vaadin user interface library.). Now fixed.
+- 44.2.0-rc04: On the scoreboard, there would be a short period where the group description would switch to "Clean & Jerk" instead of staying on "Snatch" after an athlete took their 3rd Snatch. Now fixed.
+- 44.2.0-rc04: Fix for importing databases when the `local` override directory has been deleted or is missing.
+- Usability: Disabled the confusing keyboard navigation focus ring on the athlete grids (announcer, marshal, registration, weigh-in, etc.)
+- Fix: Flags were not positioned correctly on the attempt board (they were always centered as if athlete pictures were present).
 - Fix: Records would not be shown if the records were uploaded but the "save configuration" button was not applied. Uploading record files now saves the configuration.
 - Fix: The scoreboard line height was too high if data was present in the custom1/custom2 fields, even if these columns were hidden.  See the *REQUIRED CHANGES FOR CSS CUSTOMIZATION* text at the bottom of these notes.
 - Fixes for sound activation.  Browsers require that an interaction such as clicking or touching takes place in order to play sounds.  This was not working on iPad/iPhone, and partially working on other browsers.
