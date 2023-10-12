@@ -6,8 +6,9 @@
 
 **44.2.0**
 
-Several small fixes. No changes to competition flow.
+Last release candidate before stable (stable release is always absolutely identical to final release candidate)
 
+- 44.2.0-rc05:  Fix: Marshal console now is silent by default.
 - Fixes for sound activation.  Browsers require that an interaction such as clicking or touching takes place in order to play sounds.  This was not working on iPad/iPhone, and not fully reliable on other browsers.
 - Usability: Disabled the user interface library's default keyboard navigation focus ring on the athlete grids (announcer, marshal, registration, weigh-in, etc.).
 - Fix: Flags were not positioned correctly on the attempt board (they were always centered as if athlete pictures were present).
