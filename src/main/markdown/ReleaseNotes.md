@@ -2,6 +2,10 @@
 >
 > - Reminder: *You should test any release with your own data before using it in a competition.*
 
+**44.2.1**
+
+- Fix: Athlete pictures would not show on attempt board if the application was running on Windows.
+
 **44.2.0**
 
 - Fixes for sound activation.  Browsers require that an interaction such as clicking or touching takes place in order to play sounds.  This was not working on iPad/iPhone, and not fully reliable on other browsers.
