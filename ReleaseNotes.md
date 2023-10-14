@@ -2,6 +2,13 @@
 >
 > - Reminder: *You should test any release with your own data before using it in a competition.*
 
+**44.2.2**
+
+- Fix: Editing athletes during a break could end the break
+- Fix: A false error message could be emitted when the first CJ was lower than the highest Snatch.
+- Fix: The withdrawal of an athlete would prevent the automatic CJ break
+- Fix: A false error message could be emitted related to a late declaration.
+
 **44.2.1**
 
 - Fix: Athlete pictures would not show on attempt board if the application was running on Windows.
