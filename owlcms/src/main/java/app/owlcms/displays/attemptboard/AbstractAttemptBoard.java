@@ -100,7 +100,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	protected BreakTimerElement breakTimer; // created by Flow during template instantiation
 	@Id("decisions")
 	protected DecisionElement decisions; // created by Flow during template instantiation
-	protected boolean athletePictures;
+	private boolean athletePictures;
 	protected String routeParameter;
 	protected boolean teamFlags;
 	protected EventBus uiEventBus;
@@ -554,7 +554,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 	protected void checkImages() {
 		teamFlags = URLUtils.checkFlags();
-		athletePictures = URLUtils.checkPictures();
+		setAthletePictures(URLUtils.checkPictures());
 	}
 
 	protected void doAthleteUpdate(Athlete a) {
@@ -583,7 +583,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		this.getElement().setProperty("decisionVisible", false);
 		Category category2 = a.getCategory();
 		this.getElement().setProperty("category", category2 != null ? category2.getTranslatedName() : "");
-		this.getElement().setProperty("athletePictures", athletePictures);
+		this.getElement().setProperty("athletePictures", isAthletePictures());
 
 		String team = a.getTeam();
 		if (team == null) {
@@ -605,7 +605,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 		String membership = a.getMembership();
 		this.getElement().setProperty("athleteImg", "");
-		if (athletePictures && membership != null) {
+		if (isAthletePictures() && membership != null) {
 			boolean done;
 			done = URLUtils.setImgProp("athleteImg", "pictures/", membership, ".jpg", this);
 			if (!done) {
@@ -929,6 +929,14 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		} else {
 			hideRecordInfo(a);
 		}
+	}
+
+	protected boolean isAthletePictures() {
+		return athletePictures;
+	}
+
+	protected void setAthletePictures(boolean athletePictures) {
+		this.athletePictures = athletePictures;
 	}
 
 }

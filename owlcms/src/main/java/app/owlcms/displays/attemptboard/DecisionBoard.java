@@ -24,7 +24,7 @@ public class DecisionBoard extends AbstractAttemptBoard {
 
 	@Override
 	protected void checkImages() {
-		athletePictures = false;
+		setAthletePictures(false);
 		teamFlags = false;
 	}
 }
