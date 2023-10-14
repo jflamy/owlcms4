@@ -1,7 +1,10 @@
 /* default for page */
 .wrapper {
+    /* em sizes will be relative to this */
+    font-size: 2vh;
+
     /* results table font size */
-    --tableFontSize: 1.25rem;
+    --tableFontSize: 1.00em;
     --recordValueCellHeight: calc(var(--tableFontSize)*1.5);
     --recordsFontRatio: 0.9;
     --defaultLeaderFillerHeight: 1fr;
@@ -105,6 +108,7 @@ table.results {
 table.results.noranks {
     --rankWidth: 0;
     --rankVisibility: hidden;
+    /* do not use rankWidth since we set it to 0 just above*/
     --totalRankWidth: var(--liftResultWidth);
     --totalRankVisibility: visible;
     --totalWidth: var(--liftResultWidth);
@@ -588,10 +592,10 @@ td {
     white-space: nowrap;
     display: flex;
     align-content: stretch;
-    padding-left: 0.2em;
-    padding-right: 2px;
-    padding-top: 3px;
-    padding-bottom: 3px;
+    padding-left: calc(var(--tableFontSize)*0.15);
+    padding-right: calc(var(--tableFontSize)*0.15);
+    padding-top: calc(var(--tableFontSize)*0.1);
+    padding-bottom: calc(var(--tableFontSize)*0.1);
     margin: 0;
 }
 
@@ -813,7 +817,6 @@ div.ellipsis {
     color: var(--lightRecordLiftTypeText);
     border: 1px solid var(--lightRecordLiftTypeBorder);
     font-weight: normal;
-    font-size: small;
 }
 
 :host .light .recordLiftTypeSpacer {
@@ -822,7 +825,6 @@ div.ellipsis {
     background-color: var(--lightRecordLiftTypeBackground);
     color: var(--lightRecordLiftTypeText);
     font-weight: normal;
-    font-size: small;
 }
 
 :host .light .recordsFiller {
@@ -900,7 +902,12 @@ div.ellipsis {
     color: var(--darkRecordLiftTypeText);
     border: 1px solid var(--darkRecordLiftTypeBorder);
     font-weight: normal;
-    font-size: small;
+}
+
+:host div.recordLiftType span.recordLiftType {
+    font-size: var(--recordTypeHeightRatio);
+    text-align: center;
+    width: 100%;
 }
 
 :host .dark .recordLiftTypeSpacer {
@@ -909,7 +916,12 @@ div.ellipsis {
     background-color: var(--darkRecordLiftTypeBackground);
     color: var(--darkRecordLiftTypeText);
     font-weight: normal;
-    font-size: small;
+}
+
+:host div.recordLiftTypeSpacer span.recordLiftTypeSpacer {
+    font-size: var(--recordTypeHeightRatio);
+    text-align: center;
+    width: 100%;
 }
 
 :host .dark .recordsFiller {

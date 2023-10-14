@@ -10,6 +10,8 @@
     */
     --nameWidth: 0.60fr;
     --clubWidth: 0.40fr;
+    --tableWidthRatio: 100%;
+    --defaultLeaderFillerHeight: 1fr;
     
     /* left column width: adjust depending on how you name groups */
     --startWidth: 0em;
@@ -19,7 +21,9 @@
     --spacerWidth: 1vh;
 
     /* normally these do not need to change */
-    --categoryWidth: 10ch;
+    --categoryWidth: 11ch;
+    --categoryVisibility: visible;
+       
     --liftResultWidth: 6ch;
 
     /* to show these columns 
@@ -35,7 +39,12 @@
 
     --rankWidth: var(--liftResultWidth);
     --rankVisibility: visible;
+    --totalRankWidth: var(--liftResultWidth);
 
+    /* 
+    --bestWidth: var(--liftResultWidth);
+    --bestVisibility: visible;
+    */
     --bestWidth: 0;
     --bestVisibility: hidden;
 
@@ -61,27 +70,7 @@
 
 :host .dark table.results {
     --spacerWidth: 1vh;
-    --rowSmallSpacerHeight: 0;
-}
-/* default for page */
-.wrapper {
-    /* results table font size */
-    --tableFontSize: 1.25rem;
-    --recordValueCellHeight: calc(var(--tableFontSize)*1.5);
-    --recordsFontRatio: 0.9;
-
-    font-family: Arial, Helvetica, sans-serif;
-    color: var(--pageTextColor);
-    background-color: var(--pageBackgroundColor);
-    margin: 0;
-
-    padding: 0.1rem;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: no-wrap;
-    justify-content: space-around;
-    line-height: unset;
+    --rowSmallSpacerHeight: 0.25vh;
 }
 
 .blockPositioningWrapper {
@@ -97,13 +86,14 @@
 }
 
 td.flags div img {
+	width: calc(var(--athleteNameFontSize)*1.2);
     height: calc(var(--athleteNameFontSize)*0.8);
     margin: 1vh;
     align-self: center;
     border: 1px;
     border-style: solid;
 }
-td.flags div {
+td.flags div.flags {
     height: calc(var(--athleteNameFontSize)*0.8);
     line-height:  var(--athleteNameFontSize);
     align-self: center;

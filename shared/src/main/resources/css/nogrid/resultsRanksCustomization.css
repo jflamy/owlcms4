@@ -11,10 +11,11 @@
     --nameWidth: 1fr;
     --clubWidth: max-content;
     --tableWidthRatio: 100%;
+    --defaultLeaderFillerHeight: 1fr;
 
     /* left column width: adjust depending on how you name groups */
-    --startWidth: 0em;
-    --startVisibility: hidden;
+    --startWidth: min-content;
+    --startVisibility: visible;
     
     /* spacers */
     --spacerWidth: 1vh;
@@ -86,13 +87,14 @@
 }
 
 td.flags div img {
+	width: calc(var(--athleteNameFontSize)*1.2);
     height: calc(var(--athleteNameFontSize)*0.8);
     margin: 1vh;
     align-self: center;
     border: 1px;
     border-style: solid;
 }
-td.flags div {
+td.flags div.flags {
     height: calc(var(--athleteNameFontSize)*0.8);
     line-height:  var(--athleteNameFontSize);
     align-self: center;

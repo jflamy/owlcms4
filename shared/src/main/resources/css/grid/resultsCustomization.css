@@ -49,7 +49,8 @@
     --groupInfoFontSize: 2.5vh;
 
     /* records */
-    --recordValueCellWidth: 4rem;
+    --recordValueCellWidth: 4em;
+    --recordTypeHeightRatio: 75%;
 
     /* leaders section control grid lines visibility */
     --leaderLineHeight: min-content;
