@@ -50,6 +50,13 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 		dialog.setWidth("75%");
 
 		VerticalLayout vl = new VerticalLayout();
+		UI.getCurrent().getPage().retrieveExtendedClientDetails(details -> {
+			if (details.getBodyClientWidth() >= 3800) {
+				// 4K screen
+				// could not figure out how to do with style sheet...
+				vl.getStyle().set("zoom", "200%");
+			}
+		});
 		dialog.add(vl);
 
 		addDialogContent(page, vl);

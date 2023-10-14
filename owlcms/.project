@@ -20,6 +20,13 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.eclipse.m2e.core.maven2Nature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>local/css/transparent</name>
+			<type>2</type>
+			<location>C:/Dev/git/owlcms_v23/shared/src/main/resources/css/transparent</location>
+		</link>
+	</linkedResources>
 	<filteredResources>
 		<filter>
 			<id>1665074822883</id>

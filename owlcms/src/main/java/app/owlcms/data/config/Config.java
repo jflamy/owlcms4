@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.data.config;
 
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Blob;
@@ -546,12 +547,19 @@ public class Config {
 			}
 			if (ldpd != null) {
 				Path ldp = ldpd.resolve("css/" + param);
-				boolean predefinedStyleName = param.contentEquals("grid") || param.contentEquals("nogrid");
-				if (!Files.exists(ldp) && !predefinedStyleName) {
-					Main.getStartupLogger().error("{} does not exist, using default css/nogrid as default",
-					        ldp.toAbsolutePath());
-					logger./**/error("{} does not exist, using default css/nogrid as default", ldp.toAbsolutePath());
-					param = "css/nogrid";
+				if (!Files.exists(ldp)) {
+					param = "css/" + param;
+					InputStream predefined = this.getClass().getResourceAsStream("/"+param);
+					if (predefined != null) {
+						String message = "{} does not exist, using predefined {} as default";
+						Main.getStartupLogger()./**/warn(message, ldp.toAbsolutePath(), param);
+						logger./**/warn(message, ldp.toAbsolutePath(), param);
+					} else {
+						String message = "{} does not exist, using default css/nogrid as default";
+						Main.getStartupLogger().error(message, ldp.toAbsolutePath());
+						logger.error(message, ldp.toAbsolutePath());
+						param = "css/nogrid";
+					}
 				}
 			}
 		}
@@ -822,10 +830,10 @@ public class Config {
 			this.stylesDirectory = sd;
 		}
 		// this routine is called when reloading an export, during
-		// the process of recreating the config.  Therefore we don't
+		// the process of recreating the config. Therefore we don't
 		// know where the override directory is (it can come from the
 		// database).
-		}
+	}
 
 	public void setTimeZone(TimeZone timeZone) {
 		if (timeZone == null) {

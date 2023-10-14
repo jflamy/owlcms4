@@ -230,7 +230,8 @@ class Results extends LitElement {
                 <div class="recordRow" style="${(this.hiddenGridStyle ?? "") + "; --nbRecords: " + (this.records?.nbRecords ?? "")}">
                   <div>
                     <div class="recordName recordTitle">${this.t?.records}</div>
-                    <div class="recordLiftTypeSpacer">&nbsp;</div>
+                    <div class="recordLiftTypeSpacer"><span class="recordLiftTypeSpacer">&nbsp;</span>
+                    </div>
                     ${(this.records?.recordNames ?? []).map(
                       (n, index) => 
                         html`
@@ -244,9 +245,9 @@ class Results extends LitElement {
                         <div class="${c?.recordClass}">
                           <div class="recordCat" .innerHTML="${c?.cat}"></div>
                           <div>
-                            <div class="recordLiftType">${this.t?.recordS}</div>
-                            <div class="recordLiftType">${this.t?.recordCJ}</div>
-                            <div class="recordLiftType">${this.t?.recordT}</div>
+                            <div class="recordLiftType"><span class="recordLiftType">${this.t?.recordS}</span></div>
+                            <div class="recordLiftType"><span class="recordLiftType">${this.t?.recordCJ}</span></div>
+                            <div class="recordLiftType"><span class="recordLiftType">${this.t?.recordT}</span></div>
                           </div>
                           ${(c?.records ?? []).map(
                             (r, index) => 

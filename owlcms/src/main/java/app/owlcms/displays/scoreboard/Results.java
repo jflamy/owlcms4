@@ -297,7 +297,7 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 		String formattedEm = null;
 		if (this.emFontSize != null) {
 			formattedEm = ResultsParameters.formatEN_US.format(this.emFontSize);
-			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "rem;");
+			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "em;");
 			// logger.trace("%%%%% board changing em size={} from {}",emFontSize,LoggerUtils.whereFrom());
 		}
 	}
