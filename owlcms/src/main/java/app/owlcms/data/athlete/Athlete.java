@@ -3817,7 +3817,6 @@ public class Athlete {
 			setSnatch3ActualLift("0");
 			return;
 		}
-		logger.warn("isValidation {}", isValidation());
 		if (isValidation()) {
 			validateDeclaration(3, getSnatch3AutomaticProgression(), snatch3Declaration, snatch3Change1, snatch3Change2,
 			        snatch3ActualLift);
@@ -4436,7 +4435,7 @@ public class Athlete {
 			logger.trace("checking lift {} {}", checkedLift, currentLiftNo);
 		}
 
-		logger.warn("referenceAttempt {} reference weight {} curLift {} currentLiftNo {}",referenceAttemptNo, referenceWeight, curLift, currentLiftNo);
+		logger.debug("referenceAttempt {} reference weight {} curLift {} currentLiftNo {}",referenceAttemptNo, referenceWeight, curLift, currentLiftNo);
 		// Careful: do not mix one-based numbers with zero-based numbers.
 		if (referenceAttemptNo < 3 && currentLiftNo == 4) {
 			getLogger().info("{}start of CJ {}", OwlcmsSession.getFopLoggingName(), curLift);
@@ -4501,7 +4500,7 @@ public class Athlete {
 			return;
 		}
 		
-		logger.warn("    checkChangeVsTimer {} {}", curLift, LoggerUtils.whereFrom());
+		//logger.debug("    checkChangeVsTimer {} {}", curLift, LoggerUtils.whereFrom());
 
 		Object wi = OwlcmsSession.getAttribute("weighIn");
 		String fopLoggingName = OwlcmsSession.getFopLoggingName();
@@ -4519,10 +4518,10 @@ public class Athlete {
 		int clock = getFop().getAthleteTimer().liveTimeRemaining();
 		if (!this.isSameAthleteAs(owner)) {
 			// clock is not running for us
-			logger.warn("NOT owning clock");
+			logger.debug("NOT owning clock");
 			doCheckChangeNotOwningTimer(declaration, change1, change2, getFop(), clock, initialTime);
 		} else {
-			logger.warn("OWNING clock");
+			logger.debug("OWNING clock");
 			doCheckChangeOwningTimer(declaration, change1, change2, getFop(), clock, initialTime);
 		}
 
@@ -4656,7 +4655,7 @@ public class Athlete {
 
 	private void doCheckChangeOwningTimer(String declaration, String change1, String change2, FieldOfPlay fop,
 	        int clock, int initialTime) {
-		logger.warn("{}doCheckChangeOwningTimer ===== initialTime={} clock={} {} {} {}", fop.getLoggingName(), initialTime, clock, declaration, change1, change2);
+		logger.debug("{}doCheckChangeOwningTimer ===== initialTime={} clock={} {} {} {}", fop.getLoggingName(), initialTime, clock, declaration, change1, change2);
 		if ((change1 == null || change1.isBlank()) && (change2 == null || change2.isBlank())) {
 			// validate declaration
 			if (clock < initialTime - 30000) {
