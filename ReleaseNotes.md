@@ -5,6 +5,7 @@
 **44.2.1**
 
 - Fix: Athlete pictures would not show on attempt board if the application was running on Windows.
+- Fix: Hidden "Team" header cell on start list and other Excel templates
 
 **44.2.0**
 
