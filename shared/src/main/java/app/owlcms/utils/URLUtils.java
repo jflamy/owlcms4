@@ -189,7 +189,8 @@ public class URLUtils {
         boolean athletePictures;
         try {
             Path f = ResourceWalker.getFileOrResourcePath("pictures");
-            athletePictures = Files.walk(f).anyMatch(x->x.endsWith(".jpg")|| x.endsWith(".jpeg"));
+            athletePictures = Files.walk(f)
+            		.anyMatch(x->(x.toString().toLowerCase().endsWith(".jpg")|| x.toString().toLowerCase().endsWith(".jpeg")));
         } catch (IOException e) {
             athletePictures = false;
         }
