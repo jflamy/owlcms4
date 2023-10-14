@@ -2233,8 +2233,7 @@ public class FieldOfPlay {
 	}
 
 	private void setClockOwnerInitialTimeAllowed(int timeAllowed) {
-		// logger.trace("===== setClockOwnerInitialTimeAllowed timeAllowed={} {}",
-		// timeAllowed,LoggerUtils.whereFrom());
+		logger.warn("===== setClockOwnerInitialTimeAllowed timeAllowed={} {}", timeAllowed,LoggerUtils.whereFrom());
 		this.clockOwnerInitialTimeAllowed = timeAllowed;
 	}
 
@@ -2463,7 +2462,8 @@ public class FieldOfPlay {
 		// is the previous athlete.
 		logger.debug("{}simulateDecision setting previousAthlete to {} -- {}", getLoggingName(), ed.getAthlete());
 		this.setPreviousAthlete(ed.getAthlete());
-		this.setClockOwnerInitialTimeAllowed(0);
+		//FIXME why is this required ?
+		//this.setClockOwnerInitialTimeAllowed(0);
 	}
 
 	private String stateName(FOPState state2) {
@@ -2705,9 +2705,11 @@ public class FieldOfPlay {
 			logger.debug("{}push out snatch done", this.getLoggingName());
 			pushOutSnatchDone();
 			cjBreakDisplayed = true;
-		} else if (state == BREAK && this.getBreakType() == BreakType.FIRST_CJ) {
-			fopEventPost(new FOPEvent.StartLifting(this));
 		}
+//		issue #778 - why was this there?
+//		else if (state == BREAK && this.getBreakType() == BreakType.FIRST_CJ) {
+//			fopEventPost(new FOPEvent.StartLifting(this));
+//		}
 	}
 
 	private synchronized void uiShowDownSignalOnSlaveDisplays(Object origin2) {
