@@ -4422,22 +4422,22 @@ public class Athlete {
 		long start = System.currentTimeMillis();
 		Integer requestedWeight = newVal;
 		int referenceWeight = reference.getWeight();
-		int referenceAttemptNo = reference.getAttemptNo();// this is the lift that was attempted by previous lifter
+		int referenceAttemptNo_1 = reference.getAttemptNo();// this is the lift that was attempted by previous lifter
 
-		int currentLiftNo = getAttemptsDone() + 1;
-		int checkedLift = curLift + 1;
-		if (checkedLift < currentLiftNo) {
+		int currentLiftNo_1 = getAttemptsDone() + 1;
+		int checkedLift_1 = curLift + 1;
+		if (checkedLift_1 < currentLiftNo_1) {
 			// we are checking an earlier attempt of the athlete (e.g. when loading the
 			// athlete card)
-			logger.trace("ignoring lift {} {}", checkedLift, currentLiftNo);
+			logger.debug("ignoring lift {} {}", checkedLift_1, currentLiftNo_1);
 			return;
 		} else {
-			logger.trace("checking lift {} {}", checkedLift, currentLiftNo);
+			logger.debug("checking lift {} {}", checkedLift_1, currentLiftNo_1);
 		}
 
-		logger.debug("referenceAttempt {} reference weight {} curLift {} currentLiftNo {}",referenceAttemptNo, referenceWeight, curLift, currentLiftNo);
+		logger.debug("referenceAttempt {} reference weight {} curLift {} currentLiftNo {}",referenceAttemptNo_1, referenceWeight, curLift, currentLiftNo_1);
 		// Careful: do not mix one-based numbers with zero-based numbers.
-		if (referenceAttemptNo < 3 && currentLiftNo == 4) {
+		if (referenceAttemptNo_1 <= 3 && currentLiftNo_1 == 4) {
 			getLogger().info("{}start of CJ {}", OwlcmsSession.getFopLoggingName(), curLift);
 			// first attempt for C&J, no check
 			return;
@@ -4445,7 +4445,7 @@ public class Athlete {
 
 		if (requestedWeight > referenceWeight) {
 			getLogger().trace("{}{} attempt {}: requested {} > previous {}", OwlcmsSession.getFopLoggingName(), this,
-			        currentLiftNo,
+			        currentLiftNo_1,
 			        requestedWeight,
 			        referenceWeight);
 			// lifting order is respected
@@ -4459,10 +4459,10 @@ public class Athlete {
 			// someone has already lifted heavier previously
 			if (requestedWeight > 0) {
 				throw new RuleViolationException.WeightBelowAlreadyLifted(this, requestedWeight,
-				        reference.getAthlete(), referenceWeight, referenceAttemptNo);
+				        reference.getAthlete(), referenceWeight, referenceAttemptNo_1);
 			}
 		} else {
-			checkSameWeightAsReference(reference, requestedWeight, referenceWeight, referenceAttemptNo, currentLiftNo);
+			checkSameWeightAsReference(reference, requestedWeight, referenceWeight, referenceAttemptNo_1, currentLiftNo_1);
 		}
 		timingLogger.info("    checkAttemptVsLiftOrderReference {}", System.currentTimeMillis() - start);
 	}
@@ -4506,10 +4506,10 @@ public class Athlete {
 		String fopLoggingName = OwlcmsSession.getFopLoggingName();
 		if (wi == this) {
 			// current athlete being weighed in
-			getLogger().warn("{}weighin {}", fopLoggingName, wi);
+			getLogger().debug("{}weighin {}", fopLoggingName, wi);
 			return;
 		} else {
-			getLogger().warn("{}lifting", fopLoggingName);
+			getLogger().debug("{}lifting", fopLoggingName);
 		}
 		
 
@@ -5182,7 +5182,7 @@ public class Athlete {
 			return;
 		}
 		long start = System.currentTimeMillis();
-		getLogger().warn("{}{} validateDeclaration {} {} {} from {}", OwlcmsSession.getFopLoggingName(), this, declaration, change1, change2, LoggerUtils.stackTrace());
+		//getLogger().debug("{}{} validateDeclaration {} {} {} from {}", OwlcmsSession.getFopLoggingName(), this, declaration, change1, change2, LoggerUtils.stackTrace());
 		int newVal = zeroIfInvalid(declaration);
 		int iAutomaticProgression = zeroIfInvalid(automaticProgression);
 		// allow null declaration for reloading old results.

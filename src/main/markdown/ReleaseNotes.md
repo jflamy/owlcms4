@@ -4,8 +4,8 @@
 
 **44.2.2**
 
+- 44.2.2-rc02 Fix: A false error message could be emitted when the first CJ was lower than the highest Snatch.
 - Fix: Editing athletes during a break could end the break
-- Fix: A false error message could be emitted when the first CJ was lower than the highest Snatch.
 - Fix: The withdrawal of an athlete would prevent the automatic CJ break
 - Fix: A false error message could be emitted related to a late declaration.
 
