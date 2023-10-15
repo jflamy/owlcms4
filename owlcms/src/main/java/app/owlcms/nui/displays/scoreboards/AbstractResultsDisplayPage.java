@@ -92,7 +92,7 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 	@Override
 	public Double getEmFontSize() {
 		if (super.getEmFontSize() == null) {
-			return 1.2;
+			return 1.0D;
 		}
 		return super.getEmFontSize();
 	}
