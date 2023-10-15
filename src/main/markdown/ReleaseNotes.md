@@ -4,10 +4,12 @@
 
 **44.2.2**
 
+- 44.2.2-rc02 Fix: A Jury deliberation or challenge related to the last snatch now stops the CJ countdown
+- 44.2.2-rc02 Fix: The end of competition report for "Registration Categories" was identical to the report per eligibility category.  It now shows each competitor exactly once, as it should.
 - 44.2.2-rc02 Fix: A false error message could be emitted when the first CJ was lower than the highest Snatch.
 - Fix: Editing athletes during a break could end the break
-- Fix: The withdrawal of an athlete would prevent the automatic CJ break
-- Fix: A false error message could be emitted related to a late declaration.
+- Fix: The withdrawal of an athlete would prevent the automatic CJ break from starting
+- Fix: A false error message could be emitted related to a late declaration, and some late declarations were allowed.
 
 **44.2.1**
 
