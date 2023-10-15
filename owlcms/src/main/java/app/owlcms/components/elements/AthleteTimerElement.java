@@ -85,15 +85,16 @@ public class AthleteTimerElement extends TimerElement {
 	@Override
 	@ClientCallable
 	public void clientSyncTime(String fopName) {
-		OwlcmsSession.withFop(fop -> {
-			if (!fopName.contentEquals(fop.getName())) {
-				return;
-			}
-			logger.debug("{}{} fetching time", getClass().getSimpleName(), fop.getLoggingName());
-			IProxyTimer fopTimer = getFopTimer(fop);
-			doSetTimer(/*fopTimer.isIndefinite() ? null : */fopTimer.liveTimeRemaining());
-		});
-		return;
+// timer should only get explicit changes
+//		OwlcmsSession.withFop(fop -> {
+//			if (!fopName.contentEquals(fop.getName())) {
+//				return;
+//			}
+//			logger.debug("{}{} fetching time", getClass().getSimpleName(), fop.getLoggingName());
+//			IProxyTimer fopTimer = getFopTimer(fop);
+//			doSetTimer(/*fopTimer.isIndefinite() ? null : */fopTimer.liveTimeRemaining());
+//		});
+//		return;
 	}
 	
 	@Override
@@ -168,17 +169,17 @@ public class AthleteTimerElement extends TimerElement {
 		this.origin = origin;
 	}
 
-	@Subscribe
-	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-		uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-		        (e.isCurrentDisplayAffected() ? "stop_timer" : "leave_asis"), this.getOrigin(), e.getOrigin());
-		if (e.isCurrentDisplayAffected()) {
-			clientSyncTime(fopName);
-		}
-//		else {
-//			uiEventLogger.trace(LoggerUtils./**/stackTrace());
+//	@Subscribe
+//	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
+//		uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+//		        (e.isCurrentDisplayAffected() ? "stop_timer" : "leave_asis"), this.getOrigin(), e.getOrigin());
+//		if (e.isCurrentDisplayAffected()) {
+//			clientSyncTime(fopName);
 //		}
-	}
+////		else {
+////			uiEventLogger.trace(LoggerUtils./**/stackTrace());
+////		}
+//	}
 
 	@Subscribe
 	public void slaveSetTimer(UIEvent.SetTime e) {

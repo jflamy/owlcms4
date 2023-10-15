@@ -2,6 +2,15 @@
 >
 > - Reminder: *You should test any release with your own data before using it in a competition.*
 
+**44.2.2**
+
+- Fix: A Jury deliberation or challenge related to the last snatch now stops the CJ countdown
+- Fix: The end of competition report for "Registration Categories" was identical to the report per eligibility category.  It now shows each competitor exactly once, as it should.
+- Fix: A false alarm error message could be emitted when the first CJ was lower than the highest Snatch.
+- Fix: Editing athletes' requested weights during a break could end the break
+- Fix: The withdrawal of an athlete would prevent the automatic CJ break from starting
+- Fix: A false error message could be emitted related to a late declaration, and some late declarations were allowed.
+
 **44.2.1**
 
 - Fix: Athlete pictures would not show on attempt board if the application was running on Windows.

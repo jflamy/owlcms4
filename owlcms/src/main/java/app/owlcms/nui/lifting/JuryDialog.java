@@ -70,7 +70,8 @@ public class JuryDialog extends Dialog {
 		this.setWidth("50em");
 		FieldOfPlay fop;
 		fop = OwlcmsSession.getFop();
-		if (fop != null && fop.getState() == FOPState.BREAK && fop.getBreakType().isCountdown()) {
+		if ((deliberation != JuryDeliberationEventType.START_DELIBERATION && deliberation != JuryDeliberationEventType.CHALLENGE) 
+				&& fop != null && fop.getState() == FOPState.BREAK && fop.getBreakType().isCountdown()) {
 			errorDialog();
 			return;
 		}

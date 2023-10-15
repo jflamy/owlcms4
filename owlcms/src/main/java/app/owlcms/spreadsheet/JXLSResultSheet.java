@@ -7,7 +7,9 @@
 package app.owlcms.spreadsheet;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Workbook;
@@ -53,7 +55,18 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 	@Override
 	public List<Athlete> getSortedAthletes() {
 		if (sortedAthletes != null) {
-			return sortedAthletes;
+			// we are provided with an externally computed list.
+			if (this.resultsByCategory) {
+				// no need to unwrap, each athlete is a wrapper PAthlete with a participation category.
+				return sortedAthletes;
+			} else {
+				// we need the athlete with the original registration category inside the PAthlete
+				// sometimes we are given the actual original athletes, so we are careful.
+				List<Athlete> unwrappedAthletes = unwrapAthletesAsNeeded(sortedAthletes);
+				Set<Athlete> noDuplicates = new HashSet<>(unwrappedAthletes);
+				sortedAthletes = AthleteSorter.displayOrderCopy(new ArrayList<>(noDuplicates));
+				return sortedAthletes;
+			}
 		}
 		final Group currentGroup = getGroup();
 		Category currentCategory = getCategory();
@@ -63,17 +76,7 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 
 		// get all the PAthletes for the current group - athletes show as many times as
 		// they have participations.
-		List<Athlete> pAthletes;
-		if (resultsByCategory) {
-			pAthletes = new ArrayList<>(rankedAthletes.size() * 2);
-			for (Athlete a : rankedAthletes) {
-				for (Participation p : a.getParticipations()) {
-					pAthletes.add(new PAthlete(p));
-				}
-			}
-		} else {
-			pAthletes = rankedAthletes;
-		}
+		List<Athlete> pAthletes = unwrapAthletesAsNeeded(rankedAthletes);
 
 		// @formatter:off
         List<Athlete> athletes = AthleteSorter.displayOrderCopy(pAthletes).stream()
@@ -116,6 +119,25 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
                 .collect(Collectors.toList());
         return athletes;
         // @formatter:on
+	}
+
+	private List<Athlete> unwrapAthletesAsNeeded(List<Athlete> rankedAthletes) {
+		List<Athlete> pAthletes;
+		if (resultsByCategory) {
+			pAthletes = new ArrayList<>(rankedAthletes.size() * 2);
+			for (Athlete a : rankedAthletes) {
+				for (Participation p : a.getParticipations()) {
+					pAthletes.add(new PAthlete(p));
+				}
+			}
+		} else {
+			// we sometimes get pAthletes and but here we need the wrapped athlete.
+			pAthletes = rankedAthletes.stream()
+					//.peek(r -> { logger.warn("{} {}", r.getShortName(), r.getClass().getSimpleName()); })
+					.map(r -> r instanceof PAthlete ? ((PAthlete)r)._getAthlete() : r)
+					.collect(Collectors.toList());
+		}
+		return pAthletes;
 	}
 
 	/*

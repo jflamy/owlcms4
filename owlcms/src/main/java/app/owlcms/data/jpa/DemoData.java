@@ -220,6 +220,7 @@ public class DemoData {
 
 		for (int i = 0; i < liftersToLoad; i++) {
 			Athlete p = new Athlete();
+			p.setValidation(false);
 			Level prevLoggerLevel = p.getLogger().getLevel();
 			try {
 				p.setLoggerLevel(Level.WARN);
@@ -239,6 +240,7 @@ public class DemoData {
 				LoggerUtils.logError(logger, e);
 			} finally {
 				p.setLoggerLevel(prevLoggerLevel);
+				p.setValidation(true);
 			}
 		}
 	}
