@@ -128,6 +128,9 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		grid.addColumn(new NumberRenderer<>(Athlete::getSinclairForDelta, "%.3f", OwlcmsSession.getLocale(), "0.000"))
 		        .setSortProperty("sinclair").setHeader(Translator.translate("sinclair"))
 		        .setComparator(new WinningOrderComparator(Ranking.BW_SINCLAIR, true));
+		grid.addColumn(new NumberRenderer<>(Athlete::getqPoints, "%.3f", OwlcmsSession.getLocale(), "0.000"))
+		        .setSortProperty("qPoints").setHeader(Translator.translate("Qpoints"))
+        .setComparator(new WinningOrderComparator(Ranking.BW_SINCLAIR, true));
 		grid.addColumn(new NumberRenderer<>(Athlete::getSmfForDelta, "%.3f", OwlcmsSession.getLocale(), "-"))
 		        .setHeader(Translator.translate("smm"))
 		        .setSortProperty("smm")
