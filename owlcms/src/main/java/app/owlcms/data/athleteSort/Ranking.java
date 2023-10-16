@@ -10,6 +10,7 @@ public enum Ranking {
 	BW_SINCLAIR, // normal sinclair
 	SMM, // Sinclair Malone-Meltzer
 	ROBI, // IWF ROBI
-	CUSTOM // custom score (e.g. technical merit for kids competition)
+	CUSTOM, // custom score (e.g. technical merit for kids competition)
+	QPOINTS  // Huebner QPoints.
 
 }

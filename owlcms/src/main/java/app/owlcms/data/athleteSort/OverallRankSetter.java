@@ -38,6 +38,8 @@ public class OverallRankSetter {
 		case SMM:
 			a.setSmmRank(eligible ? (zero ? 0 : ++rank) : -1);
 			break;
+		case QPOINTS:
+			a.setqPointsRank(eligible ? (zero ? 0 : ++rank) : -1);
 		}
 	}
 
