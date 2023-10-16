@@ -9,7 +9,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 44.2.2
+    default: 44.3.0-beta00
   - name: SkipTests
     type: string
     default: 'false'
