@@ -147,7 +147,7 @@ public class PlatesElement extends FlexLayout {
 			}
 			addPlates(platform.getNbL_10(), "L_10", 2 * 10);
 			addPlates(platform.getNbL_5(), "L_5", 2 * 5);
-			if (nonBarWeight < 10) {
+			if (nonBarWeight < 10 || platform.getNbL_5() == 0) {
 				addPlates(platform.getNbL_2_5(), "L_2_5", 2 * 2.5);
 			}
 
