@@ -112,10 +112,6 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		grid.addColumn("cleanJerkRank").setHeader(Translator.translate("Clean_and_Jerk_Rank"))
 		        .setComparator(new WinningOrderComparator(Ranking.CLEANJERK, false));
 
-		grid.addColumn(new NumberRenderer<>(Athlete::getRobi, "%.3f", OwlcmsSession.getLocale(), "-"))
-		        .setSortProperty("robi")
-		        .setHeader(Translator.translate("robi")).setComparator(new WinningOrderComparator(Ranking.ROBI, true));
-
 		String protocolFileName = Competition.getCurrent().getProtocolTemplateFileName();
 		if (protocolFileName != null && (protocolFileName.toLowerCase().contains("fhq"))) {
 			// historical
@@ -128,13 +124,17 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		grid.addColumn(new NumberRenderer<>(Athlete::getSinclairForDelta, "%.3f", OwlcmsSession.getLocale(), "0.000"))
 		        .setSortProperty("sinclair").setHeader(Translator.translate("sinclair"))
 		        .setComparator(new WinningOrderComparator(Ranking.BW_SINCLAIR, true));
-		grid.addColumn(new NumberRenderer<>(Athlete::getqPoints, "%.3f", OwlcmsSession.getLocale(), "0.000"))
+		grid.addColumn(new NumberRenderer<>(Athlete::getqPoints, "%.2f", OwlcmsSession.getLocale(), "0.00"))
 		        .setSortProperty("qPoints").setHeader(Translator.translate("Qpoints"))
         .setComparator(new WinningOrderComparator(Ranking.BW_SINCLAIR, true));
 		grid.addColumn(new NumberRenderer<>(Athlete::getSmfForDelta, "%.3f", OwlcmsSession.getLocale(), "-"))
 		        .setHeader(Translator.translate("smm"))
 		        .setSortProperty("smm")
 		        .setComparator(new WinningOrderComparator(Ranking.SMM, true));
+
+		grid.addColumn(new NumberRenderer<>(Athlete::getRobi, "%.3f", OwlcmsSession.getLocale(), "-"))
+		        .setSortProperty("robi")
+		        .setHeader(Translator.translate("robi")).setComparator(new WinningOrderComparator(Ranking.ROBI, true));
 		return grid;
 	}
 

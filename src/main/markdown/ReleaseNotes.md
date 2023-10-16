@@ -4,8 +4,7 @@
 
 **44.3**
 
-- New: added support for [Qpoints](https://osf.io/8x3nb/).  A new protocol sheet (QProtocol) uses QPoints instead of Sinclair.
-  The final results packages have an additional sheet for Qpoints.  The Qpoints are also visible on the Results pages.
+- 44.3.0-beta01 New: added support for [Qpoints](https://osf.io/8x3nb/) (a cleaner alternative to Sinclair).  A new protocol results sheet (QProtocol) shows QPoints instead of Sinclair. The final results packages have an additional sheet for Qpoints.  The Qpoints are also visible on the Results pages.
 
 **Version 44 changes **
 
