@@ -485,49 +485,57 @@ public class MQTTMonitor extends Thread {
 	}
 
 	private void doConnect() throws MqttSecurityException, MqttException {
-		if (Config.getCurrent().getParamMqttServer() != null && !Config.getCurrent().getParamMqttServer().isBlank()) {
-			logger.info("{}Connecting to external MQTT server", fop.getLoggingName());
-			userName = Config.getCurrent().getParamMqttUserName();
-			password = Config.getCurrent().getParamMqttPassword();
-		} else if (Config.getCurrent().getParamMqttInternal()) {
-			logger.info("{}Connecting to embedded MQTT server", fop.getLoggingName());
-			userName = Config.getCurrent().getMqttUserName();
-			password = Main.mqttStartup;
+		Config curConfig = Config.getCurrent();
+		boolean external = false;
+		if (curConfig.getParamMqttServer() != null && !Config.getCurrent().getParamMqttServer().isBlank()) {
+			external = true;
+			Config current2 = Config.getCurrent();
+			userName = current2.getParamMqttUserName();
+			Config current3 = Config.getCurrent();
+			password = current3.getParamMqttPassword();
+		} else {
+			Config current4 = Config.getCurrent();
+			if (current4.getParamMqttInternal()) {
+				Config current5 = Config.getCurrent();
+				userName = current5.getMqttUserName();
+				password = Main.mqttStartup;
+			}
 		}
 		MqttConnectOptions connOpts = setupMQTTClient(userName, password);
 		client.connect(connOpts).waitForCompletion();
 
 		publishMqttLedOnOff();
-
+		logger.info("connected to {} MQTT broker {}",(external ? "external" : "embedded"), client.getCurrentServerURI() );
+		
 		client.subscribe(callback.deprecatedDecisionTopicName, 0);
-		logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.deprecatedDecisionTopicName,
+		logger.trace("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.deprecatedDecisionTopicName,
 		        client.getCurrentServerURI());
 		client.subscribe(callback.decisionTopicName, 0);
-		logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.decisionTopicName,
+		logger.trace("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.decisionTopicName,
 		        client.getCurrentServerURI());
 		client.subscribe(callback.downEmittedTopicName, 0);
-		logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.downEmittedTopicName,
+		logger.trace("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.downEmittedTopicName,
 		        client.getCurrentServerURI());
 		client.subscribe(callback.juryBreakTopicName, 0);
-		logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.juryBreakTopicName,
+		logger.trace("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.juryBreakTopicName,
 		        client.getCurrentServerURI());
 		client.subscribe(callback.juryMemberDecisionTopicName, 0);
-		logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.juryMemberDecisionTopicName,
+		logger.trace("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.juryMemberDecisionTopicName,
 		        client.getCurrentServerURI());
 		client.subscribe(callback.juryDecisionTopicName, 0);
-		logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.juryDecisionTopicName,
+		logger.trace("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.juryDecisionTopicName,
 		        client.getCurrentServerURI());
 		client.subscribe(callback.jurySummonTopicName, 0);
-		logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.jurySummonTopicName,
+		logger.trace("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.jurySummonTopicName,
 		        client.getCurrentServerURI());
 		client.subscribe(callback.clockTopicName, 0);
-		logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.clockTopicName,
+		logger.trace("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.clockTopicName,
 		        client.getCurrentServerURI());
 		client.subscribe(callback.testTopicName, 0);
-		logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.testTopicName,
+		logger.trace("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.testTopicName,
 		        client.getCurrentServerURI());
 		client.subscribe(callback.configTopicName, 0);
-		logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.configTopicName,
+		logger.trace("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.configTopicName,
 		        client.getCurrentServerURI());
 	}
 
