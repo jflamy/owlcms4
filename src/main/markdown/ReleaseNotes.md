@@ -1,36 +1,15 @@
-> **Version 44.2**
+> **Version 44.3-beta**	
 >
 > - Reminder: *You should test any release with your own data before using it in a competition.*
 
-**44.2.2**
+**44.3**
 
-- Fix: A Jury deliberation or challenge related to the last snatch now stops the CJ countdown
-- Fix: The end of competition report for "Registration Categories" was identical to the report per eligibility category.  It now shows each competitor exactly once, as it should.
-- Fix: A false alarm error message could be emitted when the first CJ was lower than the highest Snatch.
-- Fix: Editing athletes' requested weights during a break could end the break
-- Fix: The withdrawal of an athlete would prevent the automatic CJ break from starting
-- Fix: A false error message could be emitted related to a late declaration, and some late declarations were allowed.
+- 44.3.0-beta01 Fix: for small weight, if no 5kg bumpers are available, the loading display will show the 2.5kg bumper and metal plates/collars as required (instead of switching to a 5kg metal plate).
+- 44.3.0-beta00 New: added support for [Qpoints](https://osf.io/8x3nb/) (a cleaner alternative to Sinclair).  A new protocol results sheet (QProtocol) shows QPoints instead of Sinclair. The final results packages have an additional sheet for Qpoints.  The Qpoints are also visible on the Results pages.
 
-**44.2.1**
+**Version 44 changes **
 
-- Fix: Athlete pictures would not show on attempt board if the application was running on Windows.
-- Fix: Hidden "Team" header cell on start list and other Excel templates
-
-**44.2.0**
-
-- Fixes for sound activation.  Browsers require that an interaction such as clicking or touching takes place in order to play sounds.  This was not working on iPad/iPhone, and not fully reliable on other browsers.
-- Usability: Disabled the user interface library's default keyboard navigation focus ring on the athlete grids (announcer, marshal, registration, weigh-in, etc.).
-- Fix: Flags were not positioned correctly on the attempt board (they were always centered as if athlete pictures were present).
-- Fix: Records would not be shown if the records were uploaded but the "save configuration" button was not applied. Uploading record files now saves the configuration.
-- Fix: On grids with checkboxes or buttons (such as the age group or team membership pages), clicking on the checkbox or button would open the dialog box as if the line had been selected (the behavior changed from previous versions of the Vaadin user interface library.). Now fixed.
-- Fix: The scoreboard line height was too high if data was present in the custom1/custom2 fields, even if these columns were hidden.  See the *REQUIRED CHANGES FOR CSS CUSTOMIZATION* text at the bottom of these notes.
-- Fix: The Marshal console now is silent by default.
-- Fix: On the scoreboard, there would be a short period where the group description would switch to "Clean & Jerk" instead of staying on "Snatch" after an athlete took their 3rd Snatch. Now fixed.
-- Fix for importing databases when the `local` override directory has been deleted.
-
-**Version 44 changes**
-
-*See the bottom of this note for required changes if you are doing video streaming or if you have customized the styles.*
+*See the bottom of this note for required changes if you are streaming video or have customized the styles.*
 
 - Visual styling changes
   - The visual styling has been changed for a more modern look. 

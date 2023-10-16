@@ -471,6 +471,16 @@ public class Competition {
 		reportingBeans.put("wSmm", sortedWomen);
 		logger.debug("mSmm {}", sortedMen);
 		logger.debug("wSmm {}", sortedWomen);
+		
+		sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.QPOINTS);
+		AthleteSorter.assignOverallRanksAndPoints(sortedAthletes, Ranking.QPOINTS);
+		sortedMen = new ArrayList<>(sortedAthletes.size());
+		sortedWomen = new ArrayList<>(sortedAthletes.size());
+		splitByGender(sortedAthletes, sortedMen, sortedWomen);
+		reportingBeans.put("mQPoints", sortedMen);
+		reportingBeans.put("wQPoints", sortedWomen);
+		logger.debug("mQPoints {}", sortedMen);
+		logger.debug("wQPoints {}", sortedWomen);
 	}
 
 	@Override

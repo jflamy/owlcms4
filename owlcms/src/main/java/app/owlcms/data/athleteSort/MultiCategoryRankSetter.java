@@ -63,6 +63,9 @@ public class MultiCategoryRankSetter {
 		case SMM:
 			a.setSmmRank(value);
 			break;
+		case QPOINTS:
+			a.setqPointsRank(value);
+			break;
 		}
 	}
 
