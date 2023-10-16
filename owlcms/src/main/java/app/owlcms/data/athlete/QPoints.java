@@ -121,7 +121,6 @@ public class QPoints {
 		if (bw == null) {
 			return 0.0D;
 		}
-		this.logger.warn("getQPoints {} {} {} {}", a.getShortName(), value, a.getGender(), a.getBodyWeight());
 		try {
 			Double beta0;
 			Double beta1;

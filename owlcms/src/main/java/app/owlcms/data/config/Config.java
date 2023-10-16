@@ -546,7 +546,7 @@ public class Config {
 			}
 			if (ldpd != null) {
 				Path ldp = ldpd.resolve("css/" + param);
-				boolean predefinedStyleName = param.contentEquals("grid") || param.contentEquals("nogrid");
+				boolean predefinedStyleName = isPredefinedStyle(param);
 				if (!Files.exists(ldp) && !predefinedStyleName) {
 					Main.getStartupLogger().error("{} does not exist, using default css/nogrid as default",
 					        ldp.toAbsolutePath());
@@ -559,6 +559,10 @@ public class Config {
 			param = "css/" + param;
 		}
 		return param;
+	}
+
+	private boolean isPredefinedStyle(String param) {
+		return param.contentEquals("grid") || param.contentEquals("nogrid") || param.contentEquals("transparent");
 	}
 
 	@Transient
