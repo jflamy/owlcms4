@@ -230,8 +230,7 @@ class Results extends LitElement {
                 <div class="recordRow" style="${(this.hiddenGridStyle ?? "") + "; --nbRecords: " + (this.records?.nbRecords ?? "")}">
                   <div class="recordTitleBlock">
                     <div class="recordName recordTitle">${this.t?.records}</div>
-                    <div class="recordLiftTypeSpacer"><span class="recordLiftTypeSpacer">&nbsp;</span>
-                    </div>
+                    <div class="recordLiftTypeSpacer"><span class="recordLiftTypeSpacer">&nbsp;</span></div>
                     ${(this.records?.recordNames ?? []).map(
                       (n, index) => 
                         html`

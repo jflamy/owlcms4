@@ -837,13 +837,24 @@ div.ellipsis {
     text-align: center;
     align-items: stretch;
     justify-items: stretch;
+    align-self: start;
 }
 :host .recordBox .recordCat {
     grid-column: 1 / span 3;
 }
+:host div.recordLiftType {
+    line-height: var(--recordTypeHeightRatio);
+    padding: 0.1em;
+}
 :host div.recordLiftType span.recordLiftType {
     font-size: var(--recordTypeHeightRatio);
-    width: 100%;
+}
+:host div.recordLiftTypeSpacer {
+    line-height: var(--recordTypeHeightRatio);
+    padding: 0.1em;
+}
+:host div.recordLiftTypeSpacer span.recordLiftTypeSpacer {
+    font-size: var(--recordTypeHeightRatio);
 }
 
 :host .recordBoxPersonal {
@@ -860,21 +871,28 @@ div.ellipsis {
     grid-column: 1 / span 3;
 }
 
-:host div.recordLiftTypeSpacer span.recordLiftTypeSpacer {
-    font-size: var(--recordTypeHeightRatio);
-    text-align: center;
-    width: 100%;
+:host .recordTitleBlock {
+    grid-gap: 1px;
+    display: grid;
+	grid-template-columns: repeat(1, min-content);
+	grid-template-rows: repeat(1, min-content);
+    text-align: right;
+    align-items: stretch;
+    justify-items: stretch;
+    align-self: start;
 }
 
 /* records light theme */
-:host .light .recordBox, .recordBoxPersonal {
+:host .light .recordBox,
+:host .light .recordBoxPersonal {
     outline: var(--lightRecordBoxBorderWidth);
     outline-color: var(--lightRecordBoxBorder);
     outline-style: solid;
     color: var(--lightRecordBoxText);
     background-color: var(--lightRecordBoxBackground);
 }
-:host .dark .recordBox, .recordBoxPersonal {
+:host .dark .recordBox,
+:host .dark .recordBoxPersonal {
     outline-width: var(--darkRecordBoxBorderWidth);
     outline-color: var(--darkRecordBoxBorder);
     outline-style: solid;
@@ -943,6 +961,11 @@ div.ellipsis {
     color: var(--darkRecordLiftTypeText);
 }
 
+:host .light span.recordLiftType {
+    background-color: var(--lightRecordLiftTypeBackground);
+    color: var(--lightRecordLiftTypeText);
+    font-weight: normal;
+}
 :host .dark span.recordLiftType {
     background-color: var(--darkRecordLiftTypeBackground);
     color: var(--darkRecordLiftTypeText);
@@ -998,23 +1021,6 @@ div.ellipsis {
     color: var(--darkRecordNameText);
 }
 
-/* :host .light .recordBoxPersonal {
-    float: left;
-    background-color: var(--lightRecordBoxBackground);
-    color: var(--lightRecordBoxText);
-}
-:host .dark .recordBoxPersonal {
-    float: left;
-    background-color: var(--darkRecordBoxBackground);
-    color: var(--darkRecordBoxText);
-}
-
-:host .light .recordBoxPersonal .recordCat {
-    border: 1px solid var(--lightRecordBoxBorder);
-    background-color: var(--pageBackgroundColor);
-    color: var(--darkRecordBoxText);
-} */
-
 :host .light .highlight {
     background-color: var(--lightAttemptHighlightBackground) !important;
     color: var(--lightRecordValueText) !important;
@@ -1031,28 +1037,34 @@ div.ellipsis {
     display: flex;
     height: 100%;
     font-size: var(--athleteNameFontSize);
+    outline-style: solid;
+    outline-width: medium;
 }
 
 :host .dark .recordNotification.new {
     background-color: var(--darkRecordHighlightBackground);
+    outline-color: var(--darkRecordHighlightBackground);
     color: var(--darkRecordHighlightText);
     z-index: var(--zIndexRecordNotifications);
     font-weight: bold;
 }
 :host .light .recordNotification.new {
     background-color: var(--lightRecordHighlightBackground);
+    outline-color: var(--lightRecordHighlightBackground);
     color: var(--lightRecordHighlightText);
     z-index: var(--zIndexRecordNotifications);
 }
 
 :host .dark .recordNotification.attempt {
     background-color: var(--darkAttemptHighlightBackground);
+    outline-color: var(--darkAttemptHighlightBackground);
     color: var(--darkAttemptHighlightText);
     z-index: var(--zIndexRecordNotifications);
     font-weight: bold;
 }
 :host .light .recordNotification.attempt {
     background-color: var(--lightAttemptHighlightBackground);
+    outline-color: var(--lightAttemptHighlightBackground);
     color: var(--lightAttemptHighlightText);
     z-index: var(--zIndexRecordNotifications);
 }
