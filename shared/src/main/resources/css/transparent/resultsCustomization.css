@@ -82,7 +82,7 @@
     }
 }
 
-@media screen and (orientation:portrait) and (min-width: 1025) {
+@media screen and (orientation:portrait) and (min-width: 1025px) {
     /* this is what actually controls the line height */
     :host table.results tr td.flags div.flags {
         height: calc(var(--tableFontSize)*1.5);
@@ -90,7 +90,7 @@
 	}
     :host table.results {
         margin-top: 1em;
-        --tableFontSize: 1.4em;
+        --tableFontSize: 1.3em;
         --bestVisibility: hidden;
         --bestWidth: 0;
         --rankVisibility: hidden;

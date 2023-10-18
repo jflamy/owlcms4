@@ -133,18 +133,22 @@
     /* records table section, white on black */
     --lightRecordBoxBorder: var(--pageTextColor);
     --lightRecordBoxBackground: var(--pageBackgroundColor);
+    --lightRecordBoxBorderWidth: medium;
     --lightRecordBoxText: var(--pageTextColor);
+
+    --lightRecordCellBorderWidth: thin;
+
+    --lightRecordCatBackground: var(--pageBackgroundColor);
+    --lightRecordCatText: var(--pageTextColor);
 
     --lightRecordValueText: var(--pageTextColor);
     --lightRecordValueBackground: var(--pageBackgroundColor);
-    --lightRecordCellBorderColor: var(--pageTextColor);
 
     --lightRecordNameBackground: var(--pageBackgroundColor);
     --lightRecordNameText: var(--pageTextColor);
 
     --lightRecordLiftTypeBackground: var(--pageBackgroundColor);
     --lightRecordLiftTypeText: var(--pageTextColor);
-    --lightRecordLiftTypeBorder: var(--pageTextColor);
 
     --lightRecordHighlightBackground: green;
     --lightRecordHighlightText: white;
@@ -155,20 +159,23 @@
     /* by default, same as white on black */
 
     --darkRecordBoxBorder: white;
-    --dardRecordBoxBorderWidth: 2px;
+    --darkRecordBoxBorderWidth: medium;
     --darkRecordBoxBackground: var(--darkEmptyBackgroundColor);
     --darkRecordBoxText: var(--darkTextColor);
 
+    --darkRecordCellBorderWidth: thin;
+
+    --darkRecordCatBackground: var(--pageBackgroundColor);
+    --darkRecordCatText: var(--pageTextColor);
+
     --darkRecordValueText: var(--darkTextColor);
     --darkRecordValueBackground: var(--darkEmptyBackgroundColor);
-    --darkRecordCellBorderColor: var(--darkTextColor);
 
     --darkRecordNameBackground: var(--pageBackgroundColor);
     --darkRecordNameText: white;
 
     --darkRecordLiftTypeBackground: var(--darkEmptyBackgroundColor);
     --darkRecordLiftTypeText: var(--darkTextColor);
-    --darkRecordLiftTypeBorder: var(--darkTextColor);
 
     --darkRecordHighlightBackground: green;
     --darkRecordHighlightText: white;
