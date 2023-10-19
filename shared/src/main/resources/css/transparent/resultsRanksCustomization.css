@@ -54,7 +54,8 @@
     --groupInfoFontSize: 2.5vh;
 
     /* records */
-    --recordValueCellWidth: 4rem;
+    --recordValueCellWidth: 4em;
+    --recordTypeHeightRatio: 75%;
 
     /* leaders section control grid lines visibility */
     --leaderLineHeight: min-content;
@@ -94,7 +95,7 @@ td.flags div img {
 }
 td.flags div.flags {
     height: calc(var(--athleteNameFontSize)*0.8);
-    line-height:  var(--athleteNameFontSize);
+    line-height: calc(var(--athleteNameFontSize)*0.8);
     align-self: center;
     display: flex;
 }
