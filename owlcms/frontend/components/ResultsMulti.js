@@ -458,11 +458,13 @@ class ResultsFull extends LitElement {
 
   athleteStyles() {
     return (this.mode === "WAIT" ? "display: none" : "display:grid ") 
-    + "; --top: calc(" + (this.resultLines ?? "") + " + 1)"
-    + "; --bottom: " + (this.leaderLines ?? "")
-    + "; --nbRanks: " + (this.nbRanks ?? "")
-    + "; " + (this.leadersLineHeight ?? "")
-    + "; " + (this.twOverride ?? "");
+    + (this.resultLines ? ("; --top: calc(" + this.resultLines + " + 1)") : "")
+    + (this.nbRanks ? "; --nbRanks: " + this.nbRanks : "")
+    + (this.leaderLines ? "; --bottom: " + this.leaderLines : "")
+    + (this.leadersLineHeight ? "; " + this.leadersLineHeight : "") 
+    + (this.leaderFillerHeight ? "; " + this.leaderFillerHeight : "")
+    + (this.twOverride ? "; " + this.twOverride : "")
+    ;
   }
 
   leadersStyles() {
