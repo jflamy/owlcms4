@@ -17,7 +17,7 @@ class Results extends LitElement {
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "results" + (this.autoversion ?? "") + ".css"}" />
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "resultsCustomization" + (this.autoversion ?? "") + ".css"}" />
 
-      <div class="${this.wrapperClasses()}"  style="${this.sizeOverride}">
+      <div class="${this.wrapperClasses()}" style="${this.sizeOverride}">
         <div class="blockPositioningWrapper">
           <div class="waiting" style="${this.waitingStyles()}">
             <div>
@@ -243,9 +243,9 @@ class Results extends LitElement {
                       html`
                         <div class="${c?.recordClass}">
                           <div class="recordCat" .innerHTML="${c?.cat}"></div>
-                            <div class="recordLiftType"><span class="recordLiftType">${this.t?.recordS}</span></div>
-                            <div class="recordLiftType"><span class="recordLiftType">${this.t?.recordCJ}</span></div>
-                            <div class="recordLiftType"><span class="recordLiftType">${this.t?.recordT}</span></div>
+                          <div class="recordLiftType"><span class="recordLiftType">${this.t?.recordS}</span></div>
+                          <div class="recordLiftType"><span class="recordLiftType">${this.t?.recordCJ}</span></div>
+                          <div class="recordLiftType"><span class="recordLiftType">${this.t?.recordT}</span></div>
                           ${(c?.records ?? []).map(
                             (r, index) => 
                               html`

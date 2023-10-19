@@ -292,9 +292,9 @@ class ResultsFull extends LitElement {
               <div style="${this.recordsStyles()}">
                 <div class="recordsFiller">&nbsp;</div>
                 <div class="recordRow" style="${(this.hiddenGridStyle ?? "") + "; --nbRecords: " + (this.records?.nbRecords ?? "")}">
-                  <div>
+                  <div class="recordTitleBlock">
                     <div class="recordName recordTitle">${this.t?.records}</div>
-                    <div class="recordLiftTypeSpacer">&nbsp;</div>
+                    <div class="recordLiftTypeSpacer"><span class="recordLiftTypeSpacer">&nbsp;</span></div>
                     ${(this.records?.recordNames ?? []).map(
                       (n, index) => 
                         html`
@@ -307,19 +307,15 @@ class ResultsFull extends LitElement {
                       html`
                         <div class="${c?.recordClass}">
                           <div class="recordCat" .innerHTML="${c?.cat}"></div>
-                          <div>
-                            <div class="recordLiftType">${this.t?.recordS}</div>
-                            <div class="recordLiftType">${this.t?.recordCJ}</div>
-                            <div class="recordLiftType">${this.t?.recordT}</div>
-                          </div>
+                          <div class="recordLiftType"><span class="recordLiftType">${this.t?.recordS}</span></div>
+                          <div class="recordLiftType"><span class="recordLiftType">${this.t?.recordCJ}</span></div>
+                          <div class="recordLiftType"><span class="recordLiftType">${this.t?.recordT}</span></div>
                           ${(c?.records ?? []).map(
                             (r, index) => 
                               html`
-                                <div>
-                                  <div class="${"recordCell " + (r?.snatchHighlight ?? "")} ">${r?.SNATCH}</div>
-                                  <div class="${"recordCell " + (r?.cjHighlight ?? "")} ">${r?.CLEANJERK}</div>
-                                  <div class="${"recordCell " + (r?.totalHighlight ?? "")} ">${r?.TOTAL}</div>
-                                </div>
+                                <div class="${"recordCell " + (r?.snatchHighlight ?? "")} ">${r?.SNATCH}</div>
+                                <div class="${"recordCell " + (r?.cjHighlight ?? "")} ">${r?.CLEANJERK}</div>
+                                <div class="${"recordCell " + (r?.totalHighlight ?? "")} ">${r?.TOTAL}</div>
                             `)}
                         </div>
                       `)}
@@ -461,7 +457,7 @@ class ResultsFull extends LitElement {
   }
 
   athleteStyles() {
-    return (this.mode === "WAIT" ? "display: none" : "display:grid") 
+    return (this.mode === "WAIT" ? "display: none" : "display:grid ") 
     + "; --top: calc(" + (this.resultLines ?? "") + " + 1)"
     + "; --bottom: " + (this.leaderLines ?? "")
     + "; --nbRanks: " + (this.nbRanks ?? "")
@@ -484,7 +480,7 @@ class ResultsFull extends LitElement {
   recordsStyles() {
     return (!this.showRecords || this.mode !== "CURRENT_ATHLETE") 
       ? "display:none" 
-      : "font-size: calc(var(--tableFontSize) * var(--recordsFontRatio)); display: block" ;
+      : "font-size: var(--recordsFontRatio); display: block" ;
   }
 
   isBreak() {
