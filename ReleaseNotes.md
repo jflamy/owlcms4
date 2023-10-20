@@ -1,11 +1,10 @@
-> **Version 44.3 Release Candidate**	
+> **Version 44.3**	
 >
 > - Reminder: *You should test any release with your own data before using it in a competition.*
 
 **44.3**
 
-- 44.3.0-rc01: Translation updates
-- Fix: for small weight, if no 5kg bumpers are available, the loading display will show the 2.5kg bumper and metal plates/collars as required (instead of switching to a 5kg metal plate).
+- Fix: for small weights, if no 5kg bumpers are available, the loading display will now show the 2.5kg bumper and metal plates/collars as required (instead of switching to a 5kg metal plate).
 - New: added support for [Qpoints](https://osf.io/8x3nb/) (a cleaner alternative to Sinclair).  A new protocol results sheet (QProtocol) shows QPoints instead of Sinclair. The final results packages have an additional sheet for Qpoints.  The Qpoints are also visible on the Results pages.
 
 **Version 44 changes **
