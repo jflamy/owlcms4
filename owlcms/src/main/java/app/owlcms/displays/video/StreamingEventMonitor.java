@@ -31,7 +31,6 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.queryparameters.FOPParametersReader;
 import app.owlcms.data.athlete.LiftDefinition;
 import app.owlcms.data.athlete.LiftDefinition.Stage;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.fieldofplay.FOPState;
@@ -282,7 +281,7 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 		OwlcmsSession.withFop(fop -> {
 			init();
 
-			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/currentathlete.css", this);
+			checkVideo(this);
 			// sync with current status of FOP
 			syncWithFOP(null);
 			// we listen on uiEventBus.

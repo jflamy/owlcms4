@@ -30,7 +30,6 @@ import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
@@ -275,7 +274,7 @@ public class TopSinclair extends AbstractTop {
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		logger.debug("onAttach start");
-		checkVideo(Config.getCurrent().getParamStylesDir() + "/video/top.css", this);
+		checkVideo(this);
 		setWide(false);
 		setTranslationMap();
 		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {

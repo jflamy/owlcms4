@@ -72,7 +72,7 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 			medalsBoard.setAbbreviatedName(((DisplayParameters) getBoard()).isAbbreviatedName());
 			medalsBoard.setTeamWidth(((DisplayParameters) getBoard()).getTeamWidth());
 			medalsBoard.setEmFontSize(((DisplayParameters) getBoard()).getEmFontSize());	
-			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/results.css", medalsBoard);  
+			checkVideo(medalsBoard);  
 			getMedalsBoard().getStyle().set("display", "block");
 			getResultsBoard().getStyle().set("display", "none");
 		});
@@ -120,7 +120,7 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 		medalsBoard.setAbbreviatedName(board.isAbbreviatedName());
 		medalsBoard.setTeamWidth(board.getTeamWidth());
 		medalsBoard.setEmFontSize(board.getEmFontSize());	
-		checkVideo(Config.getCurrent().getParamStylesDir() + "/video/results.css", medalsBoard);  
+		checkVideo(medalsBoard);  
 		
 		medalsBoard.getStyle().set("display", "none");
 		this.ui = UI.getCurrent();

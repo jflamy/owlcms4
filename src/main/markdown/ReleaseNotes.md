@@ -6,24 +6,18 @@
 
 **45.0**
 
-- alpha00: changes to the "transparent" style (nogrid and grid will come after)
+- alpha00: changes to the "nogrid" style ("grid" will be done afterwards)
   - Support for 4K TV screens without having to change display resolution
   - CSS variations for phones, tablets, laptops, 2K (1920x1080) and 4K devices.
   - Support for vertical orientation devices
+- alpha00: on-site styles and video styles and are now two different settings.  They both default to `nogrid`.  If you use green color filtering for transparency effects on video, you can select `transparent` as the video style (the `transparent` style is designed for a 1920x1080 canvas) 
 
+**Version 45 CUSTOM CSS ADJUSTMENTS**
 
-**Version 45 Changes**
+This only concerns advanced users who have edited the css files
 
-*See the bottom of this note for required changes if you are streaming video or have customized the styles.*
+- *Important changes were made to the css files* for the scoreboards. 
+- The `colors.css` file has only minor changes.  You should be able to put your colors back.
+- The major change is the use of an absolute `rem` font size unit in the `wrapper`.  All the font sizes elsewhere should be `em` units.  One exception is the decision lights and timer areas, which are in viewport units (vw/vh).
+- Another change is that the record grids at the bottom of scoreboards have been redone using grids. As a result, the borders are now done using the `outline` directive.
 
-- Support for 4K TV screens and for vertical orientation devices (phones, tablets, TV screens)
-  
-
-**Version 45 REQUIRED ADJUSTMENTS**
-
-- **REQUIRED CHANGES FOR CSS CUSTOMIZATION**.
-  This only concerns advanced users who have edited the css files
-  
-  - Important changes were made to the css files.  We suggest that you keep your colors.css files. Other changes (font sizes, etc) will need to be made anew due to the support of multiple sizes.
-  
-  

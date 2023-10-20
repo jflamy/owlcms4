@@ -131,10 +131,16 @@ public class Config {
 	@Transient
 	@JsonIgnore
 	private Boolean useCompetitionDate;
+	
 	@Column(columnDefinition = "boolean default true")
 	private Boolean mqttInternal = true;
+	
 	@Column(columnDefinition = "varchar(255) default 'css/nogrid'")
 	private String stylesDirectory;
+	
+	@Column(name="videoStylesDirectory", columnDefinition = "varchar(255) default 'css/nogrid'")
+	private String videoStylesDirectory;
+	
 	@Transient
 	@JsonIgnore
 	private IConfig mqttConfig;
@@ -159,7 +165,7 @@ public class Config {
 			return false;
 		}
 		Config other = (Config) obj;
-		return id != null && id.equals(other.getId());
+		return this.id != null && this.id.equals(other.getId());
 	}
 
 	public boolean featureSwitch(String string) {
@@ -182,11 +188,11 @@ public class Config {
 	 * @return the default locale
 	 */
 	public Locale getDefaultLocale() {
-		return defaultLocale;
+		return this.defaultLocale;
 	}
 
 	public String getDisplayPin() {
-		return displayPin;
+		return this.displayPin;
 	}
 
 	@Transient
@@ -200,7 +206,7 @@ public class Config {
 	}
 
 	public String getFeatureSwitches() {
-		return featureSwitches;
+		return this.featureSwitches;
 	}
 
 	/**
@@ -209,19 +215,19 @@ public class Config {
 	 * @return the id
 	 */
 	public Long getId() {
-		return id;
+		return this.id;
 	}
 
 	public String getIpAccessList() {
-		return ipAccessList;
+		return this.ipAccessList;
 	}
 
 	public String getIpBackdoorList() {
-		return ipBackdoorList;
+		return this.ipBackdoorList;
 	}
 
 	public String getIpDisplayList() {
-		return ipDisplayList;
+		return this.ipDisplayList;
 	}
 
 	/**
@@ -240,15 +246,15 @@ public class Config {
 	 * @throws SQLException
 	 */
 	public byte[] getLocalZipBlob() {
-		logger.debug("getLocalZipBlob skip={} localOverride={}", skipReading, localOverride);
-		if (localOverride == null || skipReading) {
+		logger.debug("getLocalZipBlob skip={} localOverride={}", this.skipReading, this.localOverride);
+		if (this.localOverride == null || this.skipReading) {
 			return null;
 		}
 
 		return JPAService.runInTransaction(em -> {
 			try {
 				Config thisConfig = em.find(Config.class, this.id);
-				byte[] res = thisConfig.localOverride.getBytes(1, (int) localOverride.length());
+				byte[] res = thisConfig.localOverride.getBytes(1, (int) this.localOverride.length());
 				logger.debug("getLocalZipBlob read {} bytes", res.length);
 				return res;
 			} catch (SQLException e) {
@@ -260,15 +266,15 @@ public class Config {
 	}
 
 	public IConfig getMqttConfig() {
-		return mqttConfig;
+		return this.mqttConfig;
 	}
 
 	public Boolean getMqttInternal() {
-		return mqttInternal;
+		return this.mqttInternal;
 	}
 
 	public String getMqttPassword() {
-		return mqttPassword;
+		return this.mqttPassword;
 	}
 
 	@Transient
@@ -282,11 +288,11 @@ public class Config {
 	}
 
 	public String getMqttPort() {
-		return mqttPort;
+		return this.mqttPort;
 	}
 
 	public String getMqttUserName() {
-		return mqttUserName;
+		return this.mqttUserName;
 	}
 
 	/**
@@ -505,7 +511,7 @@ public class Config {
 			uURL = uURL.replaceFirst("/update$", "");
 			return uURL;
 		} else {
-			uURL = publicResultsURL;
+			uURL = this.publicResultsURL;
 			if (uURL == null || uURL.isBlank()) {
 				return null;
 			} else {
@@ -549,7 +555,7 @@ public class Config {
 				boolean predefinedStyleName = isPredefinedStyle(param);
 				if (!Files.exists(ldp) && !predefinedStyleName) {
 					Main.getStartupLogger().error("{} does not exist, using default css/nogrid as default",
-					        ldp.toAbsolutePath());
+							ldp.toAbsolutePath());
 					logger./**/error("{} does not exist, using default css/nogrid as default", ldp.toAbsolutePath());
 					param = "css/nogrid";
 				}
@@ -560,19 +566,37 @@ public class Config {
 		}
 		return param;
 	}
-
-	private boolean isPredefinedStyle(String param) {
-		return param.contentEquals("grid") || param.contentEquals("nogrid") || param.contentEquals("transparent");
-	}
-
+	
 	@Transient
 	@JsonIgnore
-	public String getStylesDirBase() {
-		String bd = getParamStylesDir();
-		if (bd.startsWith("css/")) {
-			return bd.substring("css/".length());
+	public String getParamVideoStylesDir() {
+		String param = StartupUtils.getStringParam("videoStylesDir");
+		if (param == null || param.isBlank()) {
+			// get from database
+			param = Config.getCurrent().getVideoStylesDirectory();
+			if (param == null || param.isBlank()) {
+				param = "css/nogrid";
+			}
 		}
-		return bd;
+		Path ldpd = ResourceWalker.getLocalDirPath();
+			// accept and normalize old naming convention.
+			if (param.startsWith("css/")) {
+				param = param.substring("css/".length());
+			}
+			if (ldpd != null) {
+				Path ldp = ldpd.resolve("css/" + param);
+				boolean predefinedStyleName = isPredefinedStyle(param);
+				if (!Files.exists(ldp) && !predefinedStyleName) {
+					param = "css/nogrid";
+					String message = "{} does not exist, using default css/nogrid as default video styles";
+					Main.getStartupLogger().error(message, ldp.toAbsolutePath());
+					logger./**/error(message, ldp.toAbsolutePath());
+				}
+			}
+			if (!param.startsWith("css/")) {
+				param = "css/" + param;
+			}
+		return param;
 	}
 
 	@Transient
@@ -607,7 +631,7 @@ public class Config {
 	}
 
 	public String getPin() {
-		return pin;
+		return this.pin;
 	}
 
 	@Transient
@@ -621,27 +645,51 @@ public class Config {
 	}
 
 	public String getPublicResultsURL() {
-		return publicResultsURL;
+		return this.publicResultsURL;
 	}
 
 	public String getSalt() {
 		return this.salt;
 	}
 
+	@Transient
+	@JsonIgnore
+	public String getStylesDirBase() {
+		String bd = getParamStylesDir();
+		if (bd.startsWith("css/")) {
+			return bd.substring("css/".length());
+		}
+		return bd;
+	}
+	
+	@Transient
+	@JsonIgnore
+	public String getVideoStylesDirBase() {
+		String bd = getParamVideoStylesDir();
+		if (bd.startsWith("css/")) {
+			return bd.substring("css/".length());
+		}
+		return bd;
+	}
+
 	public String getStylesDirectory() {
-		return stylesDirectory;
+		return this.stylesDirectory;
 	}
 
 	public TimeZone getTimeZone() {
-		if (timeZoneId == null) {
+		if (this.timeZoneId == null) {
 			return null;
 		} else {
-			return TimeZone.getTimeZone(timeZoneId);
+			return TimeZone.getTimeZone(this.timeZoneId);
 		}
 	}
 
 	public String getUpdatekey() {
-		return updatekey;
+		return this.updatekey;
+	}
+
+	public String getVideoStylesDirectory() {
+		return this.videoStylesDirectory;
 	}
 
 	@Override
@@ -653,10 +701,10 @@ public class Config {
 	@Transient
 	@JsonIgnore
 	public boolean isClearZip() {
-		if (localOverride == null) {
-			clearZip = false;
+		if (this.localOverride == null) {
+			this.clearZip = false;
 		}
-		return clearZip;
+		return this.clearZip;
 	}
 
 	@Transient
@@ -670,25 +718,25 @@ public class Config {
 	}
 
 	public boolean isMqttInternal() {
-		return mqttInternal;
+		return this.mqttInternal;
 	}
 
 	@Transient
 	@JsonIgnore
 	public boolean isTraceMemory() {
-		if (traceMemory == null) {
-			traceMemory = StartupUtils.getBooleanParam("traceMemory");
+		if (this.traceMemory == null) {
+			this.traceMemory = StartupUtils.getBooleanParam("traceMemory");
 		}
-		return Boolean.TRUE.equals(traceMemory);
+		return Boolean.TRUE.equals(this.traceMemory);
 	}
 
 	@Transient
 	@JsonIgnore
 	public boolean isUseCompetitionDate() {
-		if (useCompetitionDate == null) {
-			useCompetitionDate = StartupUtils.getBooleanParam("useCompetitionDate");
+		if (this.useCompetitionDate == null) {
+			this.useCompetitionDate = StartupUtils.getBooleanParam("useCompetitionDate");
 		}
-		return useCompetitionDate;
+		return this.useCompetitionDate;
 	}
 
 	public void setClearZip(boolean clearZipRequested) {
@@ -789,7 +837,7 @@ public class Config {
 		// we cannot override Moquette login to directly invoke our authenticator...
 		if (getMqttConfig() != null) {
 			getMqttConfig().setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME,
-			        Boolean.toString(mqttUserName == null || mqttUserName.isBlank()));
+					Boolean.toString(mqttUserName == null || mqttUserName.isBlank()));
 		}
 		this.mqttUserName = mqttUserName;
 	}
@@ -842,6 +890,14 @@ public class Config {
 
 	public void setUpdatekey(String updatekey) {
 		this.updatekey = updatekey;
+	}
+
+	public void setVideoStylesDirectory(String videoStylesDirectory) {
+		this.videoStylesDirectory = videoStylesDirectory;
+	}
+
+	private boolean isPredefinedStyle(String param) {
+		return param.contentEquals("grid") || param.contentEquals("nogrid") || param.contentEquals("transparent");
 	}
 
 	/**

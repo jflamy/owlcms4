@@ -4,8 +4,8 @@
 
 .wrapper {
 	font: Arial;
-	color: var(--pageTextColor);
-	background-color: var(--pageBackgroundColor);
+	color: var(--videoTextColor);
+	background-color: var(--videoHeaderBackgroundColor);
 	height: 100vh;
 	width: 100vw;
 }
@@ -13,8 +13,6 @@
 .decisionBoard {
 	font-family: "Arial", "Helvetica", sans-serif;
 	display: grid;
-	color: var(--pageTextColor);
-	background-color: var(--pageBackgroundColor);
 	width: 100vw;
 	height: 100vh;
 	grid-template-columns:
@@ -49,6 +47,7 @@
 }
 
 .breakTime {
+	/* color: #99CCFF; */
 	color: var(--breakTimerColor);
 }
 

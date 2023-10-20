@@ -27,7 +27,6 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.team.Team;
 import app.owlcms.data.team.TeamResultsTreeData;
 import app.owlcms.data.team.TeamTreeItem;
@@ -184,7 +183,7 @@ public class TopTeams extends AbstractTop {
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		checkVideo(Config.getCurrent().getParamStylesDir() + "/video/top.css", this);
+		checkVideo(this);
 		setWide(false);
 		setTranslationMap();
 		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {

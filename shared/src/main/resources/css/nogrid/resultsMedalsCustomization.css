@@ -48,7 +48,8 @@
     --groupInfoFontSize: 2.5vh;
 
     /* records */
-    --recordValueCellWidth: 4rem;
+    --recordValueCellWidth: 4em;
+    --recordTypeHeightRatio: 75%;
 
     /* leaders section control grid lines visibility */
     --leaderLineHeight: min-content;
@@ -70,25 +71,6 @@
     --rowSmallSpacerHeight: 0.25vh;
 }
 
-
-
-/* default for page */
-.wrapper {
-    /* results table font size */
-    --tableFontSize: 1.25rem;
-    --recordValueCellHeight: calc(var(--tableFontSize)*1.5);
-    --recordsFontRatio: 0.9;
-
-    font-family: Arial, Helvetica, sans-serif;
-    color: var(--pageTextColor);
-
-    /* min-height: min-content; */
-    padding: 1vmin 2vmin 2vmin 2vmin;
-    overflow: hidden;
-    /*display: grid;*/ /* not needed for medals/rankings */
-    justify-content: center;
-    line-height: unset;
-}
 
 td.flags div {
     display: flex;

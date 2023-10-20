@@ -31,7 +31,6 @@ import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -512,7 +511,7 @@ public class CurrentAthlete extends Results {
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
 			init();
-			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/currentathlete.css", this);
+			checkVideo(this);
 
 			// get the global category rankings attached to each athlete
 			order = fop.getDisplayOrder();

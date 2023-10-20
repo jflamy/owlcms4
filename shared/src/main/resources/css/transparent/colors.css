@@ -1,12 +1,11 @@
-/* modern style dark mode without borders */
 * {
-    --pageBackgroundColor: black;
+    --pageBackgroundColor: #00ff00;
     --pageTextColor: white;
-    --blockBackgroundColor: var(--pageBackgroundColor);
+    --blockBackgroundColor: silver;
 
-    /* video header (same as page if no transparency) */
-    --videoHeaderBackgroundColor: var(--pageBackgroundColor);
-    --videoHeaderTextColor: var(--pageTextColor);
+    /* video header */
+    --videoHeaderBackgroundColor: #ab1a1f;
+    --videoHeaderTextColor: white;
 
     /* control record notification on scoreboard and attempt board.
        Set to 10 to show notifications, set to -10 if notifications not wanted */
@@ -16,7 +15,7 @@
     --startNumberBoxColor: red;
     --breakTimerColor: skyblue;
     --athleteTimerColor: yellow;
-    --athleteAttemptWeightColor: aqua;
+    --athleteAttemptWeightColor: #a1e94e;
     --downColor: lime;
 
     --athleteNameColor: white;
@@ -133,22 +132,18 @@
     /* records table section, white on black */
     --lightRecordBoxBorder: var(--pageTextColor);
     --lightRecordBoxBackground: var(--pageBackgroundColor);
-    --lightRecordBoxBorderWidth: medium;
     --lightRecordBoxText: var(--pageTextColor);
-
-    --lightRecordCellBorderWidth: thin;
-
-    --lightRecordCatBackground: var(--pageBackgroundColor);
-    --lightRecordCatText: var(--pageTextColor);
 
     --lightRecordValueText: var(--pageTextColor);
     --lightRecordValueBackground: var(--pageBackgroundColor);
+    --lightRecordCellBorderColor: var(--pageTextColor);
 
     --lightRecordNameBackground: var(--pageBackgroundColor);
     --lightRecordNameText: var(--pageTextColor);
 
     --lightRecordLiftTypeBackground: var(--pageBackgroundColor);
     --lightRecordLiftTypeText: var(--pageTextColor);
+    --lightRecordLiftTypeBorder: var(--pageTextColor);
 
     --lightRecordHighlightBackground: green;
     --lightRecordHighlightText: white;
@@ -159,28 +154,25 @@
     /* by default, same as white on black */
 
     --darkRecordBoxBorder: white;
-    --darkRecordBoxBorderWidth: medium;
+    --dardRecordBoxBorderWidth: 2px;
     --darkRecordBoxBackground: var(--darkEmptyBackgroundColor);
     --darkRecordBoxText: var(--darkTextColor);
 
-    --darkRecordCellBorderWidth: thin;
-
-    --darkRecordCatBackground: var(--pageBackgroundColor);
-    --darkRecordCatText: var(--pageTextColor);
-
     --darkRecordValueText: var(--darkTextColor);
     --darkRecordValueBackground: var(--darkEmptyBackgroundColor);
+    --darkRecordCellBorderColor: var(--darkTextColor);
 
-    --darkRecordNameBackground: var(--pageBackgroundColor);
-    --darkRecordNameText: white;
+    --darkRecordNameBackground: var(--blockBackgroundColor);
+    --darkRecordNameText: rgb(0 0 0 / 70%);
 
     --darkRecordLiftTypeBackground: var(--darkEmptyBackgroundColor);
     --darkRecordLiftTypeText: var(--darkTextColor);
+    --darkRecordLiftTypeBorder: var(--darkTextColor);
 
-    --darkRecordHighlightBackground: green;
+    --darkRecordHighlightBackground: darkOrange;
     --darkRecordHighlightText: white;
-    --darkAttemptHighlightText: white;
-    --darkAttemptHighlightBackground: purple;
+    --darkAttemptHighlightText: var(--videoHeaderTextColor);
+    --darkAttemptHighlightBackground: var(--videoHeaderBackgroundColor);
 }
 
 @font-face {
@@ -192,4 +184,21 @@
     font-family: Teko;
     font-weight: bold;
     src: url("../fonts/Teko-SemiBold.ttf") format("woff");
+}
+
+/* latin-ext */
+@font-face {
+  font-family: 'Roboto Slab';
+  font-style: normal;
+  font-display: swap;
+  src: url(../../fonts/RobotoSlab-VariableFont_wght.ttf) format('woff2');
+  unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Roboto Slab';
+  font-style: normal;
+  font-display: swap;
+  src: url(../../fonts/RobotoSlab-VariableFont_wght.ttf) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }

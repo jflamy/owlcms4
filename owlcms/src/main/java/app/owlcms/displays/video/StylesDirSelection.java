@@ -13,20 +13,21 @@ import ch.qos.logback.classic.Logger;
 
 public interface StylesDirSelection {
 
-	public default void checkVideo(String cssPath, Component component) {
+	public default void checkVideo(Component component) {
 		Logger logger = (Logger) LoggerFactory.getLogger(StylesDirSelection.class);
 		Element element = component.getElement();
 		if (isVideo()) {
 			try {
 				//logger.debug("{} setting video styles {}", this.getClass(), cssPath);
 				// use video override if /video is in the URL and the override stylesheet exists.
-				ResourceWalker.getFileOrResourcePath(cssPath);
-				element.setProperty("stylesDir", Config.getCurrent().getParamStylesDir());
-				element.setProperty("video", "video/");
+				ResourceWalker.getFileOrResourcePath(Config.getCurrent().getParamVideoStylesDir());
+				element.setProperty("stylesDir", Config.getCurrent().getParamVideoStylesDir());
+				element.setProperty("video", "");
 			} catch (FileNotFoundException e) {
+				// should not happen, fall back to normal style
 				element.setProperty("stylesDir", Config.getCurrent().getParamStylesDir());
 				element.setProperty("video", "");
-				logger.error("missing video override {}", cssPath);
+				logger.error("missing video styles {}", Config.getCurrent().getParamVideoStylesDir());
 			}
 		} else {
 			element.setProperty("stylesDir", Config.getCurrent().getParamStylesDir());

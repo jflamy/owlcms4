@@ -39,8 +39,8 @@
 
     --rankWidth: var(--liftResultWidth);
     --rankVisibility: visible;
-    
     --totalRankWidth: var(--liftResultWidth);
+    --totalRankVisibility: visible;
 
     /* 
     --bestWidth: var(--liftResultWidth);
@@ -49,14 +49,15 @@
     --bestWidth: 0;
     --bestVisibility: hidden;
 
-
     /* top part: current attempt information */
-    --topRowFontSize: 3vh;
-    --athleteNameFontSize: 4vh;
-    --groupInfoFontSize: 2.5vh;
+    --topRowFontSize: 1.35em;
+    --athleteNameFontSize: 1em;
+    --groupInfoFontSize: 0.9em;
 
     /* records */
-    --recordValueCellWidth: 4rem;
+    --recordValueCellWidth: 4em;
+    --recordTypeHeightRatio: 75%;
+    --recordsNotificationFontSize: 2.0em;
 
     /* leaders section control grid lines visibility */
     --leaderLineHeight: min-content;
@@ -65,10 +66,173 @@
     --nbRanks: 1;
 }
 
+@media screen and (orientation: landscape) {
+	* {
+		--topRowFontSize: 2.0em;
+		--athleteNameFontSize: 1.25em;
+		--groupInfoFontSize: 1.5em;
+        --lightRecordBoxBorderWidth: thin;
+        --darkRecordBoxBorderWidth: thin;
+    }
+    .wrapper {
+        font-size: calc(var(--baseRemSize)/8);
+    }
+}
+
+@media screen and (orientation: landscape) and (min-width: 0px) {
+	* {
+		--topRowFontSize: 1.5em;
+		--athleteNameFontSize: 1.0em;
+		--groupInfoFontSize: 1.0em;
+    }
+    .wrapper {
+        font-size: calc(var(--baseRemSize)/5);
+    }
+}
+@media screen and (orientation: landscape) and (min-width: 800px) and (max-width: 1179px) {
+	* {
+		--topRowFontSize: 1.5em;
+		--athleteNameFontSize: 1.0em;
+		--groupInfoFontSize: 1.0em;
+    }
+    .wrapper {
+        font-size: calc(var(--baseRemSize)/4);
+    }
+}
+@media screen and (orientation: landscape) and (min-width: 1180px) and (max-width: 1899px) {
+    * {
+        --lightRecordBoxBorderWidth: medium;
+        --darkRecordBoxBorderWidth: medium;
+    }
+    .wrapper {
+        font-size: calc(var(--baseRemSize)/3);
+    }
+}
+@media screen and (orientation: landscape) and (min-width: 1900px) and (max-width: 3799px) {
+    * {
+        --lightRecordBoxBorderWidth: medium;
+        --darkRecordBoxBorderWidth: medium;
+    }
+    .wrapper {
+        font-size: calc(var(--baseRemSize)/2);
+    }
+}
+@media screen and (orientation: landscape) and (min-width: 3800px) {
+    * {
+        --lightRecordBoxBorderWidth: medium;
+        --darkRecordBoxBorderWidth: medium;
+    }
+    .wrapper {
+        font-size: calc(var(--baseRemSize));
+    }
+}
+
+
+@media screen and (orientation:portrait) {
+	* {
+        --startWidth: 0;
+        --startVisibility: hidden;
+        --bestWidth: 0;
+        --bestVisibility: hidden;
+        --rankWidth: 0;
+        --rankVisibility: hidden;
+        --clubWidth: 0;
+        --clubVisibility: hidden;
+        --teamWidth: 0;
+        --teamVisibility: hidden;
+        --birthWidth: 0;
+        --birthVisibility: hidden;
+        --totalRankWidth: var(--liftResultWidth);
+        --totalRankVisibility: visible;
+    }
+    /* hide attempt bar when vertical 
+    :host .attemptBar {
+        display: none !important;
+    }
+    :host .group {
+        display: none !important;
+    }
+    */
+}
+
+@media screen and (orientation:portrait) and (min-width: 0px) {
+	* {
+		--topRowFontSize: 3em;
+		--athleteNameFontSize: 1.0em;
+		--groupInfoFontSize: 1.5em;
+        --recordsFontRatio: 2em;
+
+        --categoryWidth: 0px;
+        --categoryVisibility: hidden;
+
+        --totalRankWidth: 0px;
+        --totalRankVisibility: hidden;
+
+        --rankWidth: 0px;
+        --rankVisibility: hidden;
+    }
+    .wrapper {
+        font-size: calc(var(--baseRemSize)/12);
+    }
+    :host table.results {
+        margin-top: 1em;
+        --tableFontSize: 2.0em !important;
+    }
+}
+
+
+@media screen and (orientation:portrait) and (min-width: 768px) {
+	* {
+		--topRowFontSize: 3em;
+		--athleteNameFontSize: 1.0em;
+		--groupInfoFontSize: 1.5em;
+        --recordsFontRatio: 2em;
+    }
+    .wrapper {
+        font-size: calc(var(--baseRemSize)/8);
+    }
+    :host table.results {
+        margin-top: 1em;
+        --tableFontSize: 2.5em !important;
+    }
+}
+
+@media screen and (orientation:portrait) and (min-width: 1080px) {
+	* {
+		--topRowFontSize: 2.2em;
+		--athleteNameFontSize: 1.0em;
+		--groupInfoFontSize: 1.8em;
+        --recordsFontRatio: 1.8em;
+    }
+    .wrapper {
+        font-size: calc(var(--baseRemSize)/4);
+    }
+    :host table.results {
+        margin-top: 1em;
+        --tableFontSize: 1.8em !important;
+    }
+}
+@media screen and (orientation:portrait) and (min-width: 2160px) {
+	* {
+		--topRowFontSize: 4.4em;
+		--athleteNameFontSize: 1.0em;
+		--groupInfoFontSize: 3.6em;
+        --recordsFontRatio: 3.6em;
+    }
+    .wrapper {
+        font-size: calc(var(--baseRemSize)/4);
+    }
+    :host table.results {
+        margin-top: 2em;
+        --tableFontSize: 3.6em !important;
+    }
+}
+
 :host .light table.results {
     --spacerWidth: 0vh;
     --rowSmallSpacerHeight: 0;
 }
+
 :host .dark table.results {
     --spacerWidth: 1vh;
     --rowSmallSpacerHeight: 0.25vh;
@@ -94,9 +258,10 @@ td.flags div img {
     border: 1px;
     border-style: solid;
 }
+
 td.flags div.flags {
     height: calc(var(--athleteNameFontSize)*0.8);
-    line-height:  var(--athleteNameFontSize);
+    line-height: calc(var(--athleteNameFontSize)*0.8);
     align-self: center;
     display: flex;
 }

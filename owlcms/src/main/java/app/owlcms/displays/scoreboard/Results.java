@@ -42,7 +42,6 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.video.StylesDirSelection;
 import app.owlcms.fieldofplay.FOPState;
@@ -955,7 +954,7 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 //				logger.debug("{} device resolution : {}x{}", details.isIPad()?"iPad":(details.isIOS()?"iPhone" : details.toString()), details.getScreenWidth(), details.getScreenHeight());
 //			});
 			resultsInit();
-			checkVideo(Config.getCurrent().getParamStylesDir() + "/video/attemptboard.css", this);
+			checkVideo(this);
 			this.teamFlags = URLUtils.checkFlags();
 
 			// get the global category rankings (attached to each athlete)

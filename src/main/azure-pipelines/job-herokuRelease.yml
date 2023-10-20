@@ -61,7 +61,7 @@ jobs:
         displayName: Push to repositories
       - task: GitHubRelease@0
         inputs:
-          ${{ if eq(variables['Build.SourceBranchName'], 'v23') }}:
+          ${{ if eq(variables['Build.SourceBranchName'], 'alpha') }}:
             gitHubConnection: github.com_jflamy-dev
             repositoryName: $(RELEASE_USER)/${{ parameters.moduleName }}-heroku$(RELEASE_SUFFIX)
             isPreRelease: true
