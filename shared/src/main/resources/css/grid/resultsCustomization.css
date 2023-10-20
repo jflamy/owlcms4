@@ -258,3 +258,12 @@ td.custom2 div {
     /* white-space: pre-wrap; */
     text-align: center;
 }
+
+:host .light table.results {
+    --spacerWidth: 1vh;
+    --rowSmallSpacerHeight: 0;
+}
+:host .dark table.results {
+    --spacerWidth: 1vh;
+    --rowSmallSpacerHeight: 0;
+}

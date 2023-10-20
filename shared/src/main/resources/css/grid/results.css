@@ -428,7 +428,7 @@ table.results tr td.club div.clubName div.ellipsis {
 }
 
 :host .light table.results tr td.headerSpacer {
-    background-color: var(--lightSpacerBackgroundColor);
+    background-color: var(--pageBackgroundColor);
     padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
     border: none;
     max-height: 2px;
@@ -436,7 +436,7 @@ table.results tr td.club div.clubName div.ellipsis {
 
 /* spacer line between categories */
 :host .dark table.results tr td.spacer {
-    background-color: var(--darkSpacerBackgroundColor);
+    background-color: var(--pageBackgroundColor);
     padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
     border-right: 0;
     border: none;
@@ -444,7 +444,7 @@ table.results tr td.club div.clubName div.ellipsis {
 }
 
 :host .light table.results tr td.spacer {
-    background-color: var(--lightSpacerBackgroundColor);
+    background-color: var(--pageBackgroundColor);
     padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
     border: none;
     max-height: 2px;
@@ -607,6 +607,20 @@ td {
 
 :host .dark table.results tr th.vspacer,
 :host .dark table.results tr td.vspacer {
+    width: var(--spacerWidth);
+    background-color: var(--pageBackgroundColor);
+    border: none;
+}
+
+:host .light table.results tr.head th.vspacer,
+:host .light table.results tr.head td.vspacer {
+    width: var(--spacerWidth);
+    background-color: var(--pageBackgroundColor);
+    border: none;
+}
+
+:host .light table.results tr th.vspacer,
+:host .light table.results tr td.vspacer {
     width: var(--spacerWidth);
     background-color: var(--pageBackgroundColor);
     border: none;

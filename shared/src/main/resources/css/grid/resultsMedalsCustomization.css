@@ -60,7 +60,7 @@
 }
 
 :host .light table.results {
-    --spacerWidth: 0vh;
+    --spacerWidth: 1vh;
     --rowSmallSpacerHeight: 0;
 }
 :host .dark table.results {
@@ -92,10 +92,15 @@ td.flags div.flags {
 }
 
 :host div.wrapper.dark table.results tr td.rank {
-    border-color: var(--darkEmptyBackgroundColor);
     color: white;
-    border-width: 0.6em;
-    border-style: solid;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    align-content: center;
+}
+
+:host div.wrapper.dark table.results tr td.rank div {
+    text-align: center;
 }
 
 :host div.wrapper.dark table.results tr td.rank.medal1 {
@@ -110,33 +115,30 @@ td.flags div.flags {
     background-color: #CD7F32;
     color: black;
 }
-:host div.wrapper.dark table.results tr td.totalRrank {
-    border-color: var(--darkEmptyBackgroundColor);
+
+:host div.wrapper.dark table.results tr td.totalRank {
     color: white;
-    border-width: 0.6em;
-    border-style: solid;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    align-content: center;
+}
+
+:host div.wrapper.dark table.results tr td.totalRank div {
+    text-align: center;
 }
 
 :host div.wrapper.dark table.results tr td.totalRank.medal1 {
     background-color: gold;
     color: black;
-    border-color: var(--darkEmptyBackgroundColor);
-    border-width: 0.6em;
-    border-style: solid;
 }
 :host div.wrapper.dark table.results tr td.totalRank.medal2 {
     background-color: silver;
     color: black;
-    border-color: var(--darkEmptyBackgroundColor);
-    border-width: 0.6em;
-    border-style: solid;
 }
 :host div.wrapper.dark table.results tr td.totalRank.medal3 {
     background-color: #CD7F32;
     color: black;
-    border-color: var(--darkEmptyBackgroundColor);
-    border-width: 0.6em;
-    border-style: solid;
 }
 
 :host div.wrapper.light table.results tr td.rank {
