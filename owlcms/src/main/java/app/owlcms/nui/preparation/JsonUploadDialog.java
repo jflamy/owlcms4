@@ -42,7 +42,7 @@ public class JsonUploadDialog extends Dialog {
 		MemoryBuffer buffer = new MemoryBuffer();
 		Upload upload = new Upload(buffer);
 		upload.setWidth("40em");
-		//upload.setAcceptedFileTypes("application/json");
+		upload.setAcceptedFileTypes("application/json");
 
 		TextArea ta = new TextArea(getTranslation("Errors"));
 		ta.setHeight("20ex");
@@ -59,17 +59,17 @@ public class JsonUploadDialog extends Dialog {
 		});
 
 		upload.addStartedListener(event -> {
-			System.err.println("started");
+			logger.warn("started");
 			ta.clear();
 			ta.setVisible(false);
 		});
 		
 		upload.addFailedListener(event -> {
-			System.err.println("failed upload "+event.getReason());
+			logger.warn("failed upload {}",event.getReason());
 		});
 		
 		upload.addFileRejectedListener(event -> {
-			System.err.println("rejected "+event.getErrorMessage());
+			logger.warn("rejected {}"+event.getErrorMessage());
 		});
 
 		H3 title = new H3(getTranslation("ExportDatabase.UploadJson"));
@@ -87,61 +87,5 @@ public class JsonUploadDialog extends Dialog {
 			ta.setValue(LoggerUtils.exceptionMessage(e1));
 		}
 	}
-
-//    private void resetAthletes() {
-//        // delete all athletes and groups (naive version).
-//        JPAService.runInTransaction(em -> {
-//            List<Athlete> athletes = AthleteRepository.doFindAll(em);
-//            for (Athlete a : athletes) {
-//                em.remove(a);
-//            }
-//            em.flush();
-//            return null;
-//        });
-//    }
-//
-//    private void resetGroups() {
-//        // delete all groups (naive version).
-//        JPAService.runInTransaction(em -> {
-//            List<Group> oldGroups = GroupRepository.doFindAll(em);
-//            for (Group g : oldGroups) {
-//                em.remove(g);
-//            }
-//            em.flush();
-//            return null;
-//        });
-//    }
-
-//    private void updateAthletes() {
-//        JPAService.runInTransaction(em -> {
-//
-//            Competition curC = Competition.getCurrent();
-//            try {
-//                Competition rCompetition = c.getCompetition();
-//                // save some properties from current database that do not appear on spreadheet
-//                rCompetition.setEnforce20kgRule(curC.isEnforce20kgRule());
-//                rCompetition.setUseBirthYear(curC.isUseBirthYear());
-//                rCompetition.setMasters(curC.isMasters());
-//
-//                // update the current competition with the new properties read from spreadsheet
-//                BeanUtils.copyProperties(curC, rCompetition);
-//                // update in database and set current to result of JPA merging.
-//                Competition.setCurrent(em.merge(curC));
-//
-//                // update the athletes with the values read; create if not present.
-//                // because the athletes in the file have got no Id, this will create
-//                // new athletes if the file is reloaded.
-//                athletes.stream().forEach(r -> {
-//                    Athlete athlete = r.getAthlete();
-//                    em.merge(athlete);
-//                });
-//                em.flush();
-//            } catch (IllegalAccessException | InvocationTargetException | RuntimeException e) {
-//                sb.append(e.getLocalizedMessage());
-//            }
-//
-//            return null;
-//        });
-//    }
 
 }
