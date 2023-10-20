@@ -59,8 +59,10 @@
     --nbRanks: 1;
 
     --darkTotalBackgroundColor: var(--darkEmptyBackgroundColor);
-/*     --lightTotalBackgroundColor: var(--lightNameBackgroundColor);
-    --lightTotalTextColor: var(--lightNameTextColor); */
+/*  
+    --lightTotalBackgroundColor: var(--lightNameBackgroundColor);
+    --lightTotalTextColor: var(--lightNameTextColor); 
+ */
 }
 
 :host .light table.results {
