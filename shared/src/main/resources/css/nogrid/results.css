@@ -93,7 +93,6 @@
 table.results {
     border-collapse: collapse;
     font-size: var(--tableFontSize);
-    --totalWidth: var(--liftResultWidth);
     /* do not use rankWidth */
     --totalRankWidth: var(--liftResultWidth);
     --totalRankVisibility: visible;

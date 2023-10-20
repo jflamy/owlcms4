@@ -50,6 +50,7 @@
     /* records */
     --recordValueCellWidth: 4em;
     --recordTypeHeightRatio: 75%;
+    --recordsNotificationFontSize: 2.0em;
 
     /* leaders section control grid lines visibility */
     --leaderLineHeight: min-content;

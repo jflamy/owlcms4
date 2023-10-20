@@ -132,7 +132,13 @@
     /* records table section, white on black */
     --lightRecordBoxBorder: var(--pageTextColor);
     --lightRecordBoxBackground: var(--pageBackgroundColor);
+    --lightRecordBoxBorderWidth: medium;
     --lightRecordBoxText: var(--pageTextColor);
+
+    --lightRecordCellBorderWidth: thin;
+
+    --lightRecordCatBackground: var(--pageBackgroundColor);
+    --lightRecordCatText: var(--pageTextColor);
 
     --lightRecordValueText: var(--pageTextColor);
     --lightRecordValueBackground: var(--pageBackgroundColor);
@@ -154,8 +160,11 @@
     /* by default, same as white on black */
 
     --darkRecordBoxBorder: var(--pageTextColor);
+    --darkRecordBoxBorderWidth: medium;
     --darkRecordBoxBackground: var(--pageBackgroundColor);
     --darkRecordBoxText: var(--pageTextColor);
+
+    --darkRecordCellBorderWidth: thin;
 
     --darkRecordValueText: var(--pageTextColor);
     --darkRecordValueBackground: var(--pageBackgroundColor);
