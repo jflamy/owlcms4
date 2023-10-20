@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.publicresults;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,16 +15,15 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.fileupload2.core.DiskFileItem;
-import org.apache.commons.fileupload2.core.DiskFileItemFactory;
-import org.apache.commons.fileupload2.core.DiskFileItemFactory.Builder;
-import org.apache.commons.fileupload2.core.FileItem;
-import org.apache.commons.fileupload2.core.FileUploadException;
-import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
 //import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
 //import org.eclipse.jetty.util.Utf8Appendable.NotUtf8Exception;
 import org.slf4j.LoggerFactory;
+
+import com.vaadin.external.apache.commons.fileupload2.FileItem;
+import com.vaadin.external.apache.commons.fileupload2.FileUploadException;
+import com.vaadin.external.apache.commons.fileupload2.disk.DiskFileItemFactory;
+import com.vaadin.external.apache.commons.fileupload2.jaksrvlt.JakSrvltFileUpload;
 
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
@@ -68,6 +68,7 @@ public class ConfigReceiverServlet extends HttpServlet {
         }
     }
 
+    /* 24.2
     public void handleUploads(HttpServletRequest req, HttpServletResponse resp)
             throws FileUploadException, IOException {
 
@@ -109,8 +110,52 @@ public class ConfigReceiverServlet extends HttpServlet {
         }
         return;
     }
+    */
+    
+    public void handleUploads(HttpServletRequest req, HttpServletResponse resp)
+            throws FileUploadException, IOException {
 
-    private void copyFile(FileItem<?> item) throws IOException {
+        // Create a factory for disk-based file items
+        DiskFileItemFactory factory = new DiskFileItemFactory();
+        factory.setRepository(new File(System.getProperty("java.io.tmpdir")));
+        factory.setSizeThreshold(DiskFileItemFactory.DEFAULT_SIZE_THRESHOLD);
+        factory.setFileCleaningTracker(null);
+
+        // Configure a repository (to ensure a secure temp location is used)
+        JakSrvltFileUpload upload = new JakSrvltFileUpload(factory);
+        boolean authenticated = false;
+        // Parse the request
+        List<FileItem> items = upload.parseRequest(req);
+        // Process the uploaded items
+        Iterator<FileItem> iter = items.iterator();
+        while (iter.hasNext()) {
+            FileItem item = iter.next();
+            String fieldName = item.getFieldName();
+            if (item.isFormField()) {
+                String string = item.getString();
+                // updateKey should come first
+                authenticated = checkUpdateKey(req, resp, authenticated, fieldName, string);
+            } else {
+                if (!authenticated) {
+                    deny(req, resp, null);
+                    return;
+                }
+                logger.info("receiving {} {}", item, item.getContentType());
+                if (!item.getContentType().contains("zip")) {
+                    copyFile(item);
+                } else {
+                    ResourceWalker.unzipBlobToTemp(item.getInputStream());
+                }
+            }
+        }
+        if (!authenticated) {
+            deny(req, resp, null);
+        }
+        return;
+    }
+
+
+    private void copyFile(FileItem item) throws IOException {
         Path localDirPath = ResourceWalker.getLocalDirPath();
         if (localDirPath == null) {
             localDirPath = ResourceWalker.createLocalDir();

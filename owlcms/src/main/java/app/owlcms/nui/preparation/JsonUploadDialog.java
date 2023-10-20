@@ -42,7 +42,7 @@ public class JsonUploadDialog extends Dialog {
 		MemoryBuffer buffer = new MemoryBuffer();
 		Upload upload = new Upload(buffer);
 		upload.setWidth("40em");
-		upload.setAcceptedFileTypes("application/json");
+		//upload.setAcceptedFileTypes("application/json");
 
 		TextArea ta = new TextArea(getTranslation("Errors"));
 		ta.setHeight("20ex");
@@ -51,15 +51,25 @@ public class JsonUploadDialog extends Dialog {
 
 		upload.addSucceededListener(event -> {
 			try {
+				System.err.println("success");
 				processInput(event.getFileName(), buffer.getInputStream(), ta);
-			} catch (IOException e) {
+			} catch (Throwable e) {
 				ta.setValue(LoggerUtils./**/stackTrace(e));
 			}
 		});
 
 		upload.addStartedListener(event -> {
+			System.err.println("started");
 			ta.clear();
 			ta.setVisible(false);
+		});
+		
+		upload.addFailedListener(event -> {
+			System.err.println("failed upload "+event.getReason());
+		});
+		
+		upload.addFileRejectedListener(event -> {
+			System.err.println("rejected "+event.getErrorMessage());
 		});
 
 		H3 title = new H3(getTranslation("ExportDatabase.UploadJson"));
@@ -67,6 +77,7 @@ public class JsonUploadDialog extends Dialog {
 		add(vl);
 	}
 
+	@SuppressWarnings("unused")
 	private void processInput(String fileName, InputStream inputStream, TextArea ta)
 	        throws StreamReadException, DatabindException, IOException {
 		try {

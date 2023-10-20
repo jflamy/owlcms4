@@ -68,24 +68,25 @@
     "@vaadin/virtual-list": "24.2.0",
     "construct-style-sheets-polyfill": "3.1.0",
     "date-fns": "2.29.3",
-    "lit": "2.8.0"
+    "lit": "2.7.6"
   },
   "devDependencies": {
     "@rollup/plugin-replace": "5.0.2",
     "@rollup/pluginutils": "5.0.2",
-    "@vitejs/plugin-react": "4.0.4",
-    "async": "3.2.4",
-    "glob": "10.3.3",
+    "@vitejs/plugin-react": "4.0.0",
+    "async": "3.2.2",
+    "glob": "7.2.3",
     "rollup-plugin-brotli": "3.1.0",
-    "rollup-plugin-visualizer": "5.9.2",
+    "rollup-plugin-visualizer": "5.9.0",
     "strip-css-comments": "5.0.0",
     "transform-ast": "2.4.4",
-    "typescript": "5.1.6",
-    "vite": "4.4.11",
-    "vite-plugin-checker": "0.6.1",
+    "typescript": "5.0.4",
+    "vite": "4.3.9",
+    "vite-plugin-checker": "0.5.5",
     "workbox-build": "7.0.0",
     "workbox-core": "7.0.0",
-    "workbox-precaching": "7.0.0"
+    "workbox-precaching": "7.0.0",
+    "mkdirp": "1.0.4"
   },
   "vaadin": {
     "dependencies": {
@@ -155,24 +156,25 @@
       "@vaadin/virtual-list": "24.2.0",
       "construct-style-sheets-polyfill": "3.1.0",
       "date-fns": "2.29.3",
-      "lit": "2.8.0"
+      "lit": "2.7.6"
     },
     "devDependencies": {
       "@rollup/plugin-replace": "5.0.2",
       "@rollup/pluginutils": "5.0.2",
-      "@vitejs/plugin-react": "4.0.4",
-      "async": "3.2.4",
-      "glob": "10.3.3",
+      "@vitejs/plugin-react": "4.0.0",
+      "async": "3.2.2",
+      "glob": "7.2.3",
       "rollup-plugin-brotli": "3.1.0",
-      "rollup-plugin-visualizer": "5.9.2",
+      "rollup-plugin-visualizer": "5.9.0",
       "strip-css-comments": "5.0.0",
       "transform-ast": "2.4.4",
-      "typescript": "5.1.6",
-      "vite": "4.4.11",
-      "vite-plugin-checker": "0.6.1",
+      "typescript": "5.0.4",
+      "vite": "4.3.9",
+      "vite-plugin-checker": "0.5.5",
       "workbox-build": "7.0.0",
       "workbox-core": "7.0.0",
-      "workbox-precaching": "7.0.0"
+      "workbox-precaching": "7.0.0",
+      "mkdirp": "1.0.4"
     },
     "hash": "4edd2fe7904c87c4edc36e9582ad9db4e98a3e292aad1e3e55da274c61c8bb1a"
   },
