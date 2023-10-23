@@ -6,6 +6,7 @@
 
 **45.0**
 
+- alpha02: Changed the athlete card templates so the Clean & Jerk side is visually different from the Snatch side to make it easier to detect when the marshal card is on the wrong side.
 - alpha01: changes to the `nogrid` and `grid`  styles
   - Support for 4K TV screens (without having to change the display resolution)
   - CSS variants for phones, tablets, laptops, 2K (1920x1080) and 4K devices.
