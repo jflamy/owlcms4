@@ -1,13 +1,12 @@
-> **Version 44.3**	
+> **Version 44.4**	
 >
 > - Reminder: *You should test any release with your own data before using it in a competition.*
 
-**44.3**
+##### 44.4
 
-- Fix: for small weights, if no 5kg bumpers are available, the loading display will now show the 2.5kg bumper and metal plates/collars as required (instead of switching to a 5kg metal plate).
-- New: added support for [Qpoints](https://osf.io/8x3nb/) (a cleaner alternative to Sinclair).  A new protocol results sheet (QProtocol) shows QPoints instead of Sinclair. The final results packages have an additional sheet for Qpoints.  The Qpoints are also visible on the Results pages.
+- Fix: Editing Qualifying Totals was not possible on the Age Group definition form.
 
-**Version 44 changes **
+##### Version 44 changes
 
 *See the bottom of this note for required changes if you are streaming video or have customized the styles.*
 
@@ -33,6 +32,9 @@
 
 - The download dialog for documents has been redone for robustness.
 
+- Fix: for small weights, if no 5kg bumpers are available, the loading display will now show the 2.5kg bumper and metal plates/collars as required (instead of switching to a 5kg metal plate).
+
+- Added support for [Qpoints](https://osf.io/8x3nb/) (a cleaner alternative to Sinclair).  A new protocol results sheet (QProtocol) shows QPoints instead of Sinclair. The final results packages have an additional sheet for Qpoints.  The Qpoints are also visible on the Results pages.
 - This version updates the user interface to use the most current [Vaadin 24 framework](https://vaadin.com/), which has several major changes. The most important is a switch to the modern [LitElement](https://lit.dev/) template framework (used for the scoreboards, timers, and decisions).
 
 **Version 44 REQUIRED ADJUSTMENTS**
