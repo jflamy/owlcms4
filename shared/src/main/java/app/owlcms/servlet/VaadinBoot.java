@@ -26,8 +26,8 @@ import com.vaadin.open.Open;
 import jakarta.servlet.Servlet;
 
 /**
- * Code originally from https://github.com/mvysny/vaadin-boot-example-maven.git
- * Modified to remove stdout and always open browser.
+ * Code originally from https://github.com/mvysny/vaadin-boot/tree/main/vaadin-boot/src/main/java/com/github/mvysny/vaadinboot
+ * Modified for logging, always open browser, and not use the Env class.
  *
  * Bootstraps your Vaadin application from your main() function. Simply call
  * <code><pre>
