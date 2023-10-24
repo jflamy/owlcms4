@@ -6,7 +6,14 @@
 
 **45.0**
 
-- alpha02: Changed the athlete card templates so the Clean & Jerk side is visually different from the Snatch side to make it easier to detect when the marshal card is on the wrong side.
+- alpha02: Templates
+  - Added Challenge cards (same menu as Marshal cards)
+  - Changed the Athlete Card templates so the Clean & Jerk side is visually different from the Snatch side, to make it easier to detect when the marshal card is on the wrong side.
+- alpha02: Updated to latest Vaadin 24.2.0:
+    - Merged VaadinBoot changes from latest Martin Vysny [version](https://github.com/mvysny/vaadin-boot/tree/main/vaadin-boot/src/main/java/com/github/mvysny/vaadinboot)
+    -  Updated Jetty dependencies to latest
+    - Updated publicresults uploader to use commons fileupload2 and minimal associated dependencies.
+    - Updated indirect dependency to commons-io that was preventing upload from working.
 - alpha01: changes to the `nogrid` and `grid`  styles
   - Support for 4K TV screens (without having to change the display resolution)
   - CSS variants for phones, tablets, laptops, 2K (1920x1080) and 4K devices.
