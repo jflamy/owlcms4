@@ -17,11 +17,7 @@ Docker Desktop installs the `kubectl` utility that is used to control Kubernetes
 This step installs owlcms and its prerequisites into the Kubernetes cluster.  It does NOT configure the internet access, this is done in the later steps.
 
 ```powershell
-<<<<<<< HEAD
-kubectl apply -f https://github.com/owlcms/owlcms4/releases/45.0.0-alpha01/download/dd_setup.yaml
-=======
-kubectl apply -f https://github.com/owlcms/owlcms4/releases/44.4.0/download/dd_setup.yaml
->>>>>>> refs/heads/v24
+kubectl apply -f https://github.com/owlcms/owlcms4/releases/45.0.0-alpha02/download/dd_setup.yaml
 ```
 
 ## Link the cluster to KubeSail
