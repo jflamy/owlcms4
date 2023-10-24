@@ -18,17 +18,19 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.customfield.CustomField;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 
@@ -41,24 +43,13 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class CategoryGridField extends CustomField<List<Category>> {
 
+	private static final String CAT_WIDTH = "12.0ch";
+	private static final String QT_WIDTH = "5ch";
 	Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
-
 	Logger logger = (Logger) LoggerFactory.getLogger(CategoryGridField.class);
-
-	TextField qualTotField = new TextField();
-
 	private AgeGroup ageGroup;
-
-	private Binder<Category> catBinder;
-
-	private Editor<Category> catEditor;
-
-	private Grid<Category> catGrid;
-
+	private VerticalLayout catGrid;
 	private List<Category> presentationCategories = new ArrayList<>();
-
-	private Grid.Column<Category> qualTotColumn;
-
 	private Div validationStatus;
 
 	public CategoryGridField(AgeGroup ag) {
@@ -67,18 +58,9 @@ public class CategoryGridField extends CustomField<List<Category>> {
 
 		validationStatus = new Div();
 
-		catGrid = new Grid<>();
-		catGrid
-		        .addColumn(Category::getLimitString)
-		        .setHeader(Translator.translate("LimitForCategory"));
-		qualTotColumn = catGrid
-		        .addColumn(Category::getQualifyingTotal)
-		        .setHeader(Translator.translate("Category.QualificationTotal"));
-		catGrid.setAllRowsVisible(true);
-		catGrid.setSizeUndefined();
-		this.setWidth("50em");
-
-		setupEditing(catGrid);
+		catGrid = new VerticalLayout();
+		// NativeLabel l = new NativeLabel(Translator.translate("LimitForCategory"));
+		catGrid.setWidth("50em");
 
 		HorizontalLayout adder = new HorizontalLayout();
 		adder.getStyle().set("margin-top", "0.5em");
@@ -137,86 +119,11 @@ public class CategoryGridField extends CustomField<List<Category>> {
 		newCategoryField.clear();
 	}
 
-	private void setupEditing(Grid<Category> grid) {
-		catBinder = new Binder<>(Category.class);
-		catEditor = grid.getEditor();
-		catEditor.setBinder(catBinder);
-		catEditor.setBuffered(true);
-
-		catBinder
-		        .forField(qualTotField)
-		        .withConverter(
-		                new StringToIntegerConverter("Qualifying total must be a number."))
-		        .withStatusLabel(validationStatus).bind("qualifyingTotal");
-		qualTotColumn.setEditorComponent(qualTotField);
-
-		Grid.Column<Category> editorColumn = catGrid.addComponentColumn(cat -> {
-			Button edit = new Button(Translator.translate("Edit"));
-			edit.addClassName("edit");
-			edit.addClickListener(e -> {
-				catEditor.editItem(cat);
-				// logger.trace("editing {} {}",cat != null ? cat.shortDump() : null,
-				// presentationCategories.contains(cat));
-				qualTotField.setAutoselect(true);
-				qualTotField.focus();
-			});
-			Button delete = new Button(Translator.translate("Delete"));
-			delete.addClassName("delete");
-			delete.addClickListener(e -> {
-				// logger.trace("deleting {} {}",cat != null ? cat.shortDump() : null,
-				// presentationCategories.contains(cat));
-				if (cat.getMaximumWeight() >= 998.9D) {
-					return; // leave the sentinel.
-				}
-				cat.setMaximumWeight(0D); // disconnect
-				updatePresentation();
-				updateValue();
-			});
-			edit.setEnabled(!catEditor.isOpen());
-			delete.setEnabled(!catEditor.isOpen());
-			editButtons.add(edit);
-			editButtons.add(delete);
-
-			HorizontalLayout buttons = new HorizontalLayout();
-			buttons.setSizeUndefined();
-			buttons.setMargin(false);
-			buttons.setPadding(false);
-			buttons.setSpacing(true);
-			buttons.add(edit, delete);
-			return buttons;
-		});
-		editorColumn.setWidth("20em");
-
-		catEditor.addOpenListener(e -> editButtons.stream()
-		        .forEach(button -> button.setEnabled(!catEditor.isOpen())));
-		catEditor.addCloseListener(e -> editButtons.stream()
-		        .forEach(button -> button.setEnabled(!catEditor.isOpen())));
-
-		Button save = new Button("OK", e -> catEditor.save());
-		save.addClassName("save");
-		Button cancel = new Button("Cancel", e -> catEditor.cancel());
-		cancel.addClassName("cancel");
-		HorizontalLayout buttons = new HorizontalLayout(save, cancel);
-		buttons.setSizeUndefined();
-		buttons.setPadding(false);
-		buttons.setMargin(false);
-		buttons.setSpacing(true);
-		editorColumn.setEditorComponent(buttons);
-
-		catEditor.addSaveListener(
-		        event -> {
-			        // Category cat = event.getItem();
-			        updatePresentation();
-			        updateValue();
-		        });
-	}
-
 	private void updatePresentation() {
 		double prevDouble = 0.0;
 		presentationCategories.sort((c1, c2) -> ObjectUtils.compare(c1.getMaximumWeight(), c2.getMaximumWeight()));
 
-		// last category must be 999, create one if not the case. the loop below will
-		// sort out the labels.
+		// last category max must always be 999, create a sentinel.
 		if (presentationCategories.size() == 0) {
 			addSentinel();
 		} else if (presentationCategories.get(presentationCategories.size() - 1).getMaximumWeight() <= 998.9D) {
@@ -227,6 +134,7 @@ public class CategoryGridField extends CustomField<List<Category>> {
 		while (ic.hasNext()) {
 			Category c = ic.next();
 			AgeGroup ageGroup2 = c.getAgeGroup();
+			// deletion is flagged by setting maximum weight
 			if (c.getMaximumWeight() < 0.01) {
 				ic.remove();
 				continue;
@@ -239,8 +147,52 @@ public class CategoryGridField extends CustomField<List<Category>> {
 			prevDouble = maximumWeight;
 
 		}
-		catGrid.setItems(presentationCategories);
+		populateGrid(catGrid, presentationCategories);
 		catGrid.setSizeUndefined();
+	}
+
+	private void populateGrid(VerticalLayout catGrid2, List<Category> presentationCategories2) {
+		catGrid.removeAll();
+		Div filler = new Div();
+		filler.getElement().setProperty("innerHtml", "&nbsp;");
+		filler.setWidth(CAT_WIDTH);
+		HorizontalLayout title = new HorizontalLayout(filler,
+		        new Text(Translator.translate("Category.QualificationTotal")));
+		catGrid.add(title);
+		for (Category pc : presentationCategories2) {
+			HorizontalLayout hl = new HorizontalLayout();
+			NativeLabel nativeLabel = new NativeLabel(pc.getName());
+			nativeLabel.getStyle().set("font-weight","bold");
+			nativeLabel.setWidth(CAT_WIDTH);
+			hl.add(nativeLabel);
+			TextField qualTotField = new TextField();
+			qualTotField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_RIGHT);
+			qualTotField.setAllowedCharPattern("[0-9]");
+			qualTotField.setWidth(QT_WIDTH);
+			Binder<Category> catBinder = new Binder<>(Category.class);
+			catBinder
+			        .forField(qualTotField)
+			        .withConverter(
+			                new StringToIntegerConverter("Qualifying total must be a number."))
+			        .withStatusLabel(validationStatus).bind("qualifyingTotal");
+			catBinder.setBean(pc);
+			hl.add(qualTotField);		
+			Button delete = new Button(Translator.translate("Delete"));
+			delete.addClassName("delete");
+			delete.addClickListener(e -> {
+				// logger.trace("deleting {} {}",cat != null ? cat.shortDump() : null,
+				// presentationCategories.contains(cat));
+				if (pc.getMaximumWeight() >= 998.9D) {
+					return; // leave the sentinel.
+				}
+				pc.setMaximumWeight(0D); // disconnect
+				updatePresentation();
+				updateValue();
+			});
+			delete.getStyle().set("margin-left","2em");
+			hl.add(delete);
+			catGrid2.add(hl);
+		}
 	}
 
 	@Override
