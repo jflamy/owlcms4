@@ -14,9 +14,10 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,8 +28,6 @@ import jakarta.servlet.Servlet;
 /**
  * Code originally from https://github.com/mvysny/vaadin-boot-example-maven.git
  * Modified to remove stdout and always open browser.
- *
- *
  *
  * Bootstraps your Vaadin application from your main() function. Simply call
  * <code><pre>
@@ -45,10 +44,9 @@ public class VaadinBoot {
 	 * The default port where Jetty will listen for http:// traffic.
 	 */
 	private static final int DEFAULT_PORT = 8080;
-
 	private static final Logger log = LoggerFactory.getLogger(VaadinBoot.class);
 
-	private static Resource findWebRoot() throws MalformedURLException {
+	private Resource findWebRoot(ResourceFactory resourceFactory) throws MalformedURLException {
 		// don't look up directory as a resource, it's unreliable:
 		// https://github.com/eclipse/jetty.project/issues/4173#issuecomment-539769734
 		// instead we'll look up the /webapp/ROOT and retrieve the parent folder from
@@ -56,7 +54,7 @@ public class VaadinBoot {
 		final URL f = VaadinBoot.class.getResource("/webapp/ROOT");
 		if (f == null) {
 			throw new IllegalStateException(
-					"Invalid state: the resource /webapp/ROOT doesn't exist, has webapp been packaged in as a resource?");
+			        "Invalid state: the resource /webapp/ROOT doesn't exist, has webapp been packaged in as a resource?");
 		}
 		final String url = f.toString();
 		if (!url.endsWith("/ROOT")) {
@@ -67,10 +65,10 @@ public class VaadinBoot {
 		// Resolve file to directory
 		URL webRoot = new URL(url.substring(0, url.length() - 5));
 		log.debug("WebRoot is " + webRoot);
-		return Resource.newResource(webRoot);
+		return resourceFactory.newResource(webRoot);
 	}
 
-	private static boolean isProductionMode() {
+	private boolean isProductionMode() {
 		// try checking for flow-server-production-mode.jar on classpath
 		final String probe = "META-INF/maven/com.vaadin/flow-server-production-mode/pom.xml";
 		final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -95,7 +93,6 @@ public class VaadinBoot {
 	}
 
 	Logger logger = LoggerFactory.getLogger(VaadinBoot.class);
-
 	/**
 	 * The port where Jetty will listen for http:// traffic.
 	 */
@@ -104,21 +101,18 @@ public class VaadinBoot {
 	/**
 	 * When the app launches, open the browser automatically when in dev mode.
 	 */
-	//    private boolean openBrowserInDevMode = true;
-
+	// private boolean openBrowserInDevMode = true;
 	/**
 	 * The VaadinServlet.
 	 */
 
 	Class<? extends Servlet> servlet;
-
 	/**
 	 * Listen on interface handling given host name. Defaults to null which causes
 	 * Jetty to listen on all interfaces.
 	 */
 	@Nullable
 	private String hostName = null;
-
 	/**
 	 * The context root to run under. Defaults to `/`. Change this to e.g. /foo to
 	 * host your app on a different context root
@@ -129,9 +123,7 @@ public class VaadinBoot {
 	// mark volatile: might be accessed by the shutdown hook from a different
 	// thread.
 	private volatile Server server;
-
 	private long startupMeasurementSince;
-
 	private String appName;
 
 	/**
@@ -193,12 +185,12 @@ public class VaadinBoot {
 	 */
 
 	public VaadinBoot openBrowserInDevMode(boolean openBrowserInDevMode) {
-		//        this.openBrowserInDevMode = openBrowserInDevMode;
+		// this.openBrowserInDevMode = openBrowserInDevMode;
 		return this;
 	}
 
 	/**
-	 * Runs your app. Blocks until the user presses CTRL+C.
+	 * Runs your app. Blocks until the user presses Enter or CTRL+C.
 	 * <p>
 	 * </p>
 	 * WARNING: this function may never terminate since the entire JVM may be killed
@@ -221,19 +213,19 @@ public class VaadinBoot {
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> stop("Shutdown hook called, shutting down")));
 		System.out.println("Press CTRL+C to shutdown");
 
-		//        if (openBrowserInDevMode && !isProductionMode()) {
+		// if (openBrowserInDevMode && !isProductionMode()) {
 		Open.open(getServerURL());
-		//        }
-//
-//		// Await for Enter. ./gradlew run offers no stdin and read() will return
-//		// immediately with -1
-//		if (System.in.read() == -1) {
-//			// running from Gradle
-//			System.out.println("Press CTRL+C to shutdown");
-//			server.join(); // blocks endlessly
-//		} else {
-//			stop("Shutting down");
-//		}
+		// }
+
+		// Await for Enter. ./gradlew run offers no stdin and read() will return
+		// immediately with -1
+		if (System.in.read() == -1) {
+			// running from Gradle
+			System.out.println("Press CTRL+C to shutdown");
+			server.join(); // blocks endlessly
+		} else {
+			stop("Shutting down");
+		}
 	}
 
 	/**
@@ -351,7 +343,7 @@ public class VaadinBoot {
 
 	protected WebAppContext createWebAppContext() throws MalformedURLException {
 		final WebAppContext context = new WebAppContext();
-		context.setBaseResource(findWebRoot());
+		context.setBaseResource(findWebRoot(context.getResourceFactory()));
 		context.setContextPath(contextRoot);
 		context.addServlet(servlet, "/*");
 		// this will properly scan the classpath for all @WebListeners, including the
@@ -360,7 +352,7 @@ public class VaadinBoot {
 		// See also https://mvysny.github.io/vaadin-lookup-vs-instantiator/
 		context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", ".*\\.jar|.*/classes/.*");
 		context.setConfigurationDiscovered(true);
-		context.getServletContext().setExtendedListenerTypes(true);
+		//context.getServletContext().setExtendedListenerTypes(true);
 		return context;
 	}
 
@@ -370,8 +362,8 @@ public class VaadinBoot {
 		if (classpath != null) {
 			final String[] entries = classpath.split("[" + File.pathSeparator + "]");
 			final String filteredClasspath = Arrays.stream(entries)
-					.filter(it -> !it.isBlank() && new File(it).exists())
-					.collect(Collectors.joining(File.pathSeparator));
+			        .filter(it -> !it.isBlank() && new File(it).exists())
+			        .collect(Collectors.joining(File.pathSeparator));
 			System.setProperty("java.class.path", filteredClasspath);
 		}
 	}
