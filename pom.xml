@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>app.owlcms</groupId>
 	<artifactId>owlcms4top</artifactId>
@@ -26,10 +28,12 @@
 	</organization>
 
 	<properties>
-		<!-- revision is overridden by azure-pipelines.yml for the official builds. this value is only used for local development -->
+		<!-- revision is overridden by azure-pipelines.yml for the official
+		builds. this value is only used for local development -->
 		<revision>45.0.0-alpha01</revision>
 		<owlcms-maven-url>http://maven.lerta.ca:8880</owlcms-maven-url>
-		<owlcms-maven-suffix>/releases</owlcms-maven-suffix> <!-- /snapshots if revision is -SNAPSHOT -->
+		<owlcms-maven-suffix>/releases</owlcms-maven-suffix> <!-- /snapshots if
+		revision is -SNAPSHOT -->
 		<owlcms-docker>docker.io/owlcms</owlcms-docker>
 
 		<!-- maven configs -->
@@ -39,7 +43,7 @@
 
 		<!-- Library versions -->
 		<java.release>17</java.release>
-		<vaadin.version>24.1.12</vaadin.version>
+		<vaadin.version>24.2.0</vaadin.version>
 		<logback.version>1.4.11</logback.version>
 		<slf4j.version>2.0.7</slf4j.version>
 		<hibernate.version>5.6.10.Final</hibernate.version>
@@ -156,8 +160,10 @@
 
 	</dependencyManagement>
 
-	<!-- note that you must use mvn command line to deploy, does not work with embedded eclipse maven -->
-	<!-- for example: mvn -s c:\Dev\.m2\settings.xml -Dmaven.test.skip=true deploy -->
+	<!-- note that you must use mvn command line to deploy, does not work with
+	embedded eclipse maven -->
+	<!-- for example: mvn -s c:\Dev\.m2\settings.xml -Dmaven.test.skip=true
+	deploy -->
 	<distributionManagement>
 		<repository>
 			<id>owlcms-maven-repo</id>
@@ -193,8 +199,10 @@
 					<version>3.11.0</version>
 					<configuration>
 						<release>17</release>
-						<!-- <compilerArgs> should no longer be needed when moving to JDK 11 -->
-						<!-- <arg>- -add-exports=java.desktop/com.sun.media.sound=ALL-UNNAMED</arg> -->
+						<!-- <compilerArgs> should no longer be needed when
+						moving to JDK 11 -->
+						<!-- <arg>-
+						-add-exports=java.desktop/com.sun.media.sound=ALL-UNNAMED</arg> -->
 						<!-- </compilerArgs> -->
 					</configuration>
 				</plugin>
@@ -223,7 +231,8 @@
 		<plugins>
 			<plugin>
 				<?m2e ignore?>
-				<!-- this ensures that ${revision} is substituted in the installed/deployed jars -->
+				<!-- this ensures that ${revision} is substituted in the
+				installed/deployed jars -->
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>flatten-maven-plugin</artifactId>
 				<version>1.2.5</version>
@@ -267,7 +276,10 @@
 									<directory>src/main/markdown</directory>
 									<filtering>true</filtering>
 								</resource>
-								<!-- resource> <directory>src/main/azure-pipelines</directory> <include>azure-pipelines.yml</include> <filtering>true</filtering> 
+								<!-- resource>
+								<directory>src/main/azure-pipelines</directory>
+								<include>azure-pipelines.yml</include>
+								<filtering>true</filtering> 
                                     </resource> -->
 							</resources>
 						</configuration>

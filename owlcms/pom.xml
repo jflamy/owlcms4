@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>app.owlcms</groupId>
@@ -16,7 +18,8 @@
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-core</artifactId>
 			<exclusions>
-				<!-- Webjars are only needed when running in Vaadin 14 compatibility mode -->
+				<!-- Webjars are only needed when running in Vaadin 14
+				compatibility mode -->
 				<exclusion>
 					<groupId>com.vaadin.webjar</groupId>
 					<artifactId>*</artifactId>
@@ -66,10 +69,10 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-            <groupId>org.vaddon</groupId>
-            <artifactId>mediaquery</artifactId>
-            <version>5.0.3</version>
-        </dependency>
+			<groupId>org.vaddon</groupId>
+			<artifactId>mediaquery</artifactId>
+			<version>5.0.3</version>
+		</dependency>
 
 		<!-- database -->
 		<dependency>
@@ -112,11 +115,23 @@
 			<groupId>net.sf.jxls</groupId>
 			<artifactId>jxls-core</artifactId>
 			<version>1.1.3</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.jxls</groupId>
 			<artifactId>jxls-reader</artifactId>
 			<version>1.1.3</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.poi</groupId>
@@ -132,6 +147,12 @@
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
 			<version>1.9.4</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.supercsv</groupId>
@@ -139,16 +160,16 @@
 			<version>2.4.0</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+		<!-- Apache Commons -->
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>2.8.0</version>
+			<version>2.14.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-text</artifactId>
-			<version>1.9</version>
+			<version>1.10.0</version>
 		</dependency>
 
 		<!-- event bus -->
@@ -201,13 +222,21 @@
 			<version>2.4</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
+		<!--
+		https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<version>4.5.13</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpmime -->
+		<!--
+		https://mvnrepository.com/artifact/org.apache.httpcomponents/httpmime -->
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpmime</artifactId>
@@ -226,14 +255,16 @@
 			<version>2.13.0</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.glassfish.external/opendmk_jmxremote_optional_jar -->
+		<!--
+		https://mvnrepository.com/artifact/org.glassfish.external/opendmk_jmxremote_optional_jar -->
 		<dependency>
 			<groupId>org.glassfish.external</groupId>
 			<artifactId>opendmk_jmxremote_optional_jar</artifactId>
 			<version>1.0-b01-ea</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.eclipse.paho/org.eclipse.paho.client.mqttv3 -->
+		<!--
+		https://mvnrepository.com/artifact/org.eclipse.paho/org.eclipse.paho.client.mqttv3 -->
 		<dependency>
 			<groupId>org.eclipse.paho</groupId>
 			<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
@@ -263,8 +294,9 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
-		<!-- https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api -->
+
+		<!--
+		https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api -->
 		<dependency>
 			<groupId>jakarta.servlet</groupId>
 			<artifactId>jakarta.servlet-api</artifactId>
@@ -304,7 +336,8 @@
 					<artifactId>maven-shade-plugin</artifactId>
 					<version>3.2.4</version>
 				</plugin>
-				<!-- https://mvnrepository.com/artifact/com.coderplus.maven.plugins/copy-rename-maven-plugin -->
+				<!--
+				https://mvnrepository.com/artifact/com.coderplus.maven.plugins/copy-rename-maven-plugin -->
 				<plugin>
 					<groupId>com.coderplus.maven.plugins</groupId>
 					<artifactId>copy-rename-maven-plugin</artifactId>
@@ -314,7 +347,8 @@
 		</pluginManagement>
 
 		<plugins>
-			<!-- Take care of synchronizing java dependencies and imports in package.json -->
+			<!-- Take care of synchronizing java dependencies and imports in
+			package.json -->
 			<plugin>
 				<groupId>com.vaadin</groupId>
 				<artifactId>vaadin-maven-plugin</artifactId>
@@ -611,7 +645,8 @@
 									<goal>shade</goal>
 								</goals>
 								<configuration>
-									<!-- finalName>${project.artifactId}</finalName> -->
+									<!--
+									finalName>${project.artifactId}</finalName> -->
 									<createDependencyReducedPom>false</createDependencyReducedPom>
 									<shadedArtifactAttached>false</shadedArtifactAttached>
 									<artifactSet>
@@ -634,7 +669,8 @@
 										</filter>
 									</filters>
 									<transformers>
-										<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+										<transformer
+											implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
 									</transformers>
 								</configuration>
 							</execution>
@@ -646,7 +682,8 @@
 						<version>3.0.0-M5</version>
 						<configuration>
 							<systemPropertyVariables>
-								<logback.configurationFile>${project.basedir}/src/main/resources/logback-console.xml</logback.configurationFile>
+								<logback.configurationFile>
+									${project.basedir}/src/main/resources/logback-console.xml</logback.configurationFile>
 								<org.slf4j.simpleLogger.defaultLogLevel>DEBUG</org.slf4j.simpleLogger.defaultLogLevel>
 							</systemPropertyVariables>
 						</configuration>
@@ -678,7 +715,8 @@
 									<goal>single</goal>
 								</goals>
 								<configuration>
-									<!-- <skipAssembly>${noInstaller}</skipAssembly> -->
+									<!--
+									<skipAssembly>${noInstaller}</skipAssembly> -->
 									<finalName>${project.artifactId}</finalName>
 									<appendAssemblyId>false</appendAssemblyId>
 									<descriptors>
@@ -704,7 +742,8 @@
 									<goal>deploy-file</goal>
 								</goals>
 								<configuration>
-									<file>target/${project.artifactId}-${project.version}.jar</file>
+									<file>
+										target/${project.artifactId}-${project.version}.jar</file>
 									<repositoryId>owlcms-maven-repo</repositoryId>
 									<url>http://maven.lerta.ca:8880/releases</url>
 									<groupId>${project.groupId}</groupId>
@@ -731,8 +770,10 @@
 								<configuration>
 									<fileSets>
 										<fileSet>
-											<sourceFile>${project.build.directory}/${project.artifactId}.zip</sourceFile>
-											<destinationFile>${project.build.directory}/prerelease/${project.artifactId}_${project.version}.zip</destinationFile>
+											<sourceFile>
+												${project.build.directory}/${project.artifactId}.zip</sourceFile>
+											<destinationFile>
+												${project.build.directory}/prerelease/${project.artifactId}_${project.version}.zip</destinationFile>
 										</fileSet>
 									</fileSets>
 								</configuration>
