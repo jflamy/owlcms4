@@ -328,7 +328,6 @@
 				</executions>
 				<configuration>
 					<pnpmEnable>false</pnpmEnable>
-					<skipEs5>true</skipEs5>
 				</configuration>
 			</plugin>
 			<plugin>
