@@ -373,7 +373,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		configureTransformer(transformer);
 		Workbook workbook = null;
 		try {
-			logger.debug("setReportingInfo");
 			setReportingInfo();
 			HashMap<String, Object> reportingInfo = getReportingBeans();
 			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");

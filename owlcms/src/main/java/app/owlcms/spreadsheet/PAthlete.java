@@ -42,21 +42,17 @@ import ch.qos.logback.classic.Logger;
 public class PAthlete extends Athlete implements IRankHolder {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(PAthlete.class);
-
 	private Athlete a;
-
 	private Category c;
-
 	@JsonIgnore
 	@Transient
 	private Participation originalParticipation;
-
 	private Participation p;
 
 	public PAthlete(Participation p) {
 		this.a = p.getAthlete();
 		this.c = p.getCategory();
-		this.p = new Participation(p, a, c);
+		this.p = new Participation(p, this.a, this.c);
 		this.originalParticipation = p;
 	}
 
@@ -68,7 +64,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 	@JsonIgnore
 	@Transient
 	public Athlete _getAthlete() {
-		return a;
+		return this.a;
 	}
 
 	/**
@@ -79,7 +75,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 	@JsonIgnore
 	@Transient
 	public Participation _getOriginalParticipation() {
-		return originalParticipation;
+		return this.originalParticipation;
 	}
 
 	/**
@@ -90,12 +86,12 @@ public class PAthlete extends Athlete implements IRankHolder {
 	@JsonIgnore
 	@Transient
 	public Participation _getParticipation() {
-		return p;
+		return this.p;
 	}
 
 	@Override
 	public void computeMainAndEligibleCategories() {
-		a.getCategory();
+		this.a.getCategory();
 	}
 
 	@Override
@@ -107,470 +103,480 @@ public class PAthlete extends Athlete implements IRankHolder {
 			return false;
 		}
 		PAthlete other = (PAthlete) obj;
-		return Objects.equals(a, other.a) && Objects.equals(c, other.c) && Objects.equals(p, other.p);
+		return Objects.equals(this.a, other.a) && Objects.equals(this.c, other.c) && Objects.equals(this.p, other.p);
 	}
 
 	@Override
 	public int getActuallyAttemptedLifts() {
-		return a.getActuallyAttemptedLifts();
+		return this.a.getActuallyAttemptedLifts();
 	}
 
 	// the remaining methods come from athlete
 	@Override
 	public Integer getAge() {
-		return a.getAge();
+		return this.a.getAge();
 	}
 
 	@Override
 	public AgeGroup getAgeGroup() {
-		return p.getCategory().getAgeGroup();
+		return this.p.getCategory().getAgeGroup();
 	}
 
 	@Override
 	public Integer getAttemptNumber() {
-		return a.getAttemptNumber();
+		return this.a.getAttemptNumber();
 	}
 
 	@Override
 	public Integer getAttemptsDone() {
-		return a.getAttemptsDone();
+		return this.a.getAttemptsDone();
 	}
 
 	@Override
 	public Integer getBestCleanJerk() {
-		return a.getBestCleanJerk();
+		return this.a.getBestCleanJerk();
 	}
 
 	@Override
 	public int getBestCleanJerkAttemptNumber() {
-		return a.getBestCleanJerkAttemptNumber();
+		return this.a.getBestCleanJerkAttemptNumber();
 	}
 
 	@Override
 	public int getBestResultAttemptNumber() {
-		return a.getBestResultAttemptNumber();
+		return this.a.getBestResultAttemptNumber();
 	}
 
 	@Override
 	public Integer getBestSnatch() {
-		return a.getBestSnatch();
+		return this.a.getBestSnatch();
 	}
 
 	@Override
 	public int getBestSnatchAttemptNumber() {
-		return a.getBestSnatchAttemptNumber();
+		return this.a.getBestSnatchAttemptNumber();
 	}
 
 	@Override
 	public Integer getBirthDate() {
-		return a.getBirthDate();
+		return this.a.getBirthDate();
 	}
 
 	@Override
 	public Double getBodyWeight() {
-		return a.getBodyWeight();
+		return this.a.getBodyWeight();
 	}
 
 	@Override
 	public String getBWCategory() {
-		return a.getBWCategory();
+		return this.a.getBWCategory();
 	}
 
 	@Override
 	public Category getCategory() {
-		return p.getCategory();
+		return this.p.getCategory();
 	}
 
 	@Override
 	public String getCategoryCode() {
-		return a.getCategoryCode();
+		return this.a.getCategoryCode();
 	}
 
 	@Override
 	public Double getCategorySinclair() {
-		return a.getCategorySinclair();
+		return this.a.getCategorySinclair();
 	}
 
 	@Override
 	public int getCatSinclairRank() {
-		return a.getCatSinclairRank();
+		return this.a.getCatSinclairRank();
 	}
 
 	@Override
 	public String getCleanJerk1ActualLift() {
-		return a.getCleanJerk1ActualLift();
+		return this.a.getCleanJerk1ActualLift();
 	}
 
 	@Override
 	public Integer getCleanJerk1AsInteger() {
-		return a.getCleanJerk1AsInteger();
+		return this.a.getCleanJerk1AsInteger();
 	}
 
 	@Override
 	public String getCleanJerk1AutomaticProgression() {
-		return a.getCleanJerk1AutomaticProgression();
+		return this.a.getCleanJerk1AutomaticProgression();
 	}
 
 	@Override
 	public String getCleanJerk1Change1() {
-		return a.getCleanJerk1Change1();
+		return this.a.getCleanJerk1Change1();
 	}
 
 	@Override
 	public String getCleanJerk1Change2() {
-		return a.getCleanJerk1Change2();
+		return this.a.getCleanJerk1Change2();
 	}
 
 	@Override
 	public String getCleanJerk1Declaration() {
-		return a.getCleanJerk1Declaration();
+		return this.a.getCleanJerk1Declaration();
 	}
 
 	@Override
 	public LocalDateTime getCleanJerk1LiftTime() {
-		return a.getCleanJerk1LiftTime();
+		return this.a.getCleanJerk1LiftTime();
 	}
 
 	@Override
 	public String getCleanJerk2ActualLift() {
-		return a.getCleanJerk2ActualLift();
+		return this.a.getCleanJerk2ActualLift();
 	}
 
 	@Override
 	public Integer getCleanJerk2AsInteger() {
-		return a.getCleanJerk2AsInteger();
+		return this.a.getCleanJerk2AsInteger();
 	}
 
 	@Override
 	public String getCleanJerk2AutomaticProgression() {
-		return a.getCleanJerk2AutomaticProgression();
+		return this.a.getCleanJerk2AutomaticProgression();
 	}
 
 	@Override
 	public String getCleanJerk2Change1() {
-		return a.getCleanJerk2Change1();
+		return this.a.getCleanJerk2Change1();
 	}
 
 	@Override
 	public String getCleanJerk2Change2() {
-		return a.getCleanJerk2Change2();
+		return this.a.getCleanJerk2Change2();
 	}
 
 	@Override
 	public String getCleanJerk2Declaration() {
-		return a.getCleanJerk2Declaration();
+		return this.a.getCleanJerk2Declaration();
 	}
 
 	@Override
 	public LocalDateTime getCleanJerk2LiftTime() {
-		return a.getCleanJerk2LiftTime();
+		return this.a.getCleanJerk2LiftTime();
 	}
 
 	@Override
 	public String getCleanJerk3ActualLift() {
-		return a.getCleanJerk3ActualLift();
+		return this.a.getCleanJerk3ActualLift();
 	}
 
 	@Override
 	public Integer getCleanJerk3AsInteger() {
-		return a.getCleanJerk3AsInteger();
+		return this.a.getCleanJerk3AsInteger();
 	}
 
 	@Override
 	public String getCleanJerk3AutomaticProgression() {
-		return a.getCleanJerk3AutomaticProgression();
+		return this.a.getCleanJerk3AutomaticProgression();
 	}
 
 	@Override
 	public String getCleanJerk3Change1() {
-		return a.getCleanJerk3Change1();
+		return this.a.getCleanJerk3Change1();
 	}
 
 	@Override
 	public String getCleanJerk3Change2() {
-		return a.getCleanJerk3Change2();
+		return this.a.getCleanJerk3Change2();
 	}
 
 	@Override
 	public String getCleanJerk3Declaration() {
-		return a.getCleanJerk3Declaration();
+		return this.a.getCleanJerk3Declaration();
 	}
 
 	@Override
 	public LocalDateTime getCleanJerk3LiftTime() {
-		return a.getCleanJerk3LiftTime();
+		return this.a.getCleanJerk3LiftTime();
 	}
 
 	@Override
 	public Integer getCleanJerkAttemptsDone() {
-		return a.getCleanJerkAttemptsDone();
+		return this.a.getCleanJerkAttemptsDone();
 	}
 
 	@Override
 	public int getCleanJerkPoints() {
-		return p.getCleanJerkPoints();
+		return this.p.getCleanJerkPoints();
 	}
 
 	@Override
 	public int getCleanJerkRank() {
-		return p.getCleanJerkRank();
+		return this.p.getCleanJerkRank();
 	}
 
 	@Override
 	public int getCleanJerkTotal() {
-		return a.getCleanJerkTotal();
+		return this.a.getCleanJerkTotal();
 	}
 
 	@Override
 	public String getClub() {
-		return a.getClub();
+		return this.a.getClub();
 	}
 
 	@Override
 	public String getCoach() {
-		return a.getCoach();
+		return this.a.getCoach();
 	}
 
 	@Override
 	public Integer getCombinedPoints() {
-		return p.getCombinedPoints();
+		return this.p.getCombinedPoints();
 	}
 
 	@Override
 	public int getCombinedRank() {
-		return p.getCombinedRank();
+		return this.p.getCombinedRank();
 	}
 
 	@Override
 	public String getCurrentAutomatic() {
-		return a.getCurrentAutomatic();
+		return this.a.getCurrentAutomatic();
 	}
 
 	@Override
 	public String getCurrentChange1() {
-		return a.getCurrentChange1();
+		return this.a.getCurrentChange1();
 	}
 
 	@Override
 	public String getCurrentDeclaration() {
-		return a.getCurrentDeclaration();
+		return this.a.getCurrentDeclaration();
 	}
 
 	@Override
 	public String getCustom1() {
-		return a.getCustom1();
+		return this.a.getCustom1();
 	}
 
 	@Override
 	public String getCustom2() {
-		return a.getCustom2();
+		return this.a.getCustom2();
 	}
 
 	@Override
 	public int getCustomPoints() {
-		return p.getCustomPoints();
+		return this.p.getCustomPoints();
 	}
 
 	@Override
 	public int getCustomRank() {
-		return p.getCustomRank();
+		return this.p.getCustomRank();
 	}
 
 	@Override
 	public Double getCustomScore() {
-		return a.getCustomScore();
+		return this.a.getCustomScore();
 	}
 
 	@Override
 	public Double getCustomScoreComputed() {
-		return a.getCustomScoreComputed();
+		return this.a.getCustomScoreComputed();
 	}
 
 	@Override
 	public String getDisplayCategory() {
-		return p.getCategory().getTranslatedName();
+		return this.p.getCategory().getTranslatedName();
 	}
 
 	@Override
 	public Set<Category> getEligibleCategories() {
-		return a.getEligibleCategories();
+		return this.a.getEligibleCategories();
 	}
 
 	@Override
 	public Integer getEntryTotal() {
-		return a.getEntryTotal();
+		return this.a.getEntryTotal();
 	}
 
 	@Override
 	public LocalDateTime getFirstAttemptedLiftTime() {
-		return a.getFirstAttemptedLiftTime();
+		return this.a.getFirstAttemptedLiftTime();
 	}
 
 	@Override
 	public String getFirstName() {
-		return a.getFirstName();
+		return this.a.getFirstName();
 	}
 
 	@Override
 	public String getFormattedBirth() {
-		return a.getFormattedBirth();
+		return this.a.getFormattedBirth();
 	}
 
 	@Override
 	public LocalDate getFullBirthDate() {
-		return a.getFullBirthDate();
+		return this.a.getFullBirthDate();
 	}
 
 	@Override
 	public String getFullId() {
-		return a.getFullId();
+		return this.a.getFullId();
 	}
 
 	@Override
 	public String getFullName() {
-		return a.getFullName();
+		return this.a.getFullName();
 	}
 
 	@Override
 	public Gender getGender() {
-		return a.getGender();
+		return this.a.getGender();
 	}
 
 	@Override
 	public Group getGroup() {
-		return a.getGroup();
+		return this.a.getGroup();
 	}
 
 	@Override
 	public Long getId() {
-		return a.getId();
+		return this.a.getId();
 	}
 
 	@Override
 	public LocalDateTime getLastAttemptedLiftTime() {
-		return a.getLastAttemptedLiftTime();
+		return this.a.getLastAttemptedLiftTime();
 	}
 
 	@Override
 	public String getLastName() {
-		return a.getLastName();
+		return this.a.getLastName();
 	}
 
 	@Override
 	public LocalDateTime getLastSuccessfulLiftTime() {
-		return a.getLastSuccessfulLiftTime();
+		return this.a.getLastSuccessfulLiftTime();
 	}
 
 	@Override
 	public Integer getLiftOrderRank() {
-		return a.getLiftOrderRank();
+		return this.a.getLiftOrderRank();
 	}
 
 	@Override
 	public Logger getLogger() {
-		return a.getLogger();
+		return this.a.getLogger();
 	}
 
 	@Override
 	public String getLongCategory() {
-		return a.getLongCategory();
+		return this.a.getLongCategory();
 	}
 
 	@Override
 	public Integer getLotNumber() {
-		return a.getLotNumber();
+		return this.a.getLotNumber();
 	}
 
 	@Override
 	public Participation getMainRankings() {
-		return p;
+		return this.p;
 	}
 
 	@Override
 	public String getMastersAgeGroup() {
-		return a.getMastersAgeGroup();
+		return this.a.getMastersAgeGroup();
 	}
 
 	@Override
 	public String getMastersAgeGroupInterval() {
-		return a.getMastersAgeGroupInterval();
+		return this.a.getMastersAgeGroupInterval();
 	}
 
 	@Override
 	public String getMastersGenderAgeGroupInterval() {
-		return a.getMastersGenderAgeGroupInterval();
+		return this.a.getMastersGenderAgeGroupInterval();
 	}
 
 	@Override
 	public String getMastersLongCategory() {
-		return a.getMastersLongCategory();
+		return this.a.getMastersLongCategory();
 	}
 
 	@Override
 	public Integer getMedalRank() {
-		return a.getMedalRank();
+		return this.a.getMedalRank();
 	}
 
 	@Override
 	public String getMembership() {
-		return a.getMembership();
+		return this.a.getMembership();
 	}
 
 	@Override
 	public Integer getNextAttemptRequestedWeight() {
-		return a.getNextAttemptRequestedWeight();
+		return this.a.getNextAttemptRequestedWeight();
 	}
 
 	@Override
 	public List<Participation> getParticipations() {
 		List<Participation> lp = new ArrayList<>(1);
-		lp.add(p);
+		lp.add(this.p);
 		return lp;
 	}
 
 	@Override
 	public Integer getPersonalBestCleanJerk() {
-		return a.getPersonalBestCleanJerk();
+		return this.a.getPersonalBestCleanJerk();
 	}
 
 	@Override
 	public Integer getPersonalBestSnatch() {
-		return a.getPersonalBestSnatch();
+		return this.a.getPersonalBestSnatch();
 	}
 
 	@Override
 	public Integer getPersonalBestTotal() {
-		return a.getPersonalBestTotal();
+		return this.a.getPersonalBestTotal();
 	}
 
 	@Override
 	public Double getPresumedBodyWeight() {
-		return a.getPresumedBodyWeight();
+		return this.a.getPresumedBodyWeight();
+	}
+
+	@Override
+	public String getPresumedBodyWeightString() {
+		return this.a.getPresumedBodyWeightString();
+	}
+
+	@Override
+	public String getPresumedOpenCategoryString() {
+		return this.a.getPresumedOpenCategoryString();
 	}
 
 	@Override
 	public LocalDateTime getPreviousLiftTime() {
-		return a.getPreviousLiftTime();
+		return this.a.getPreviousLiftTime();
 	}
 
 	@Override
 	public Integer getQualifyingTotal() {
-		return a.getQualifyingTotal();
+		return this.a.getQualifyingTotal();
 	}
 
 	@Override
 	public Integer getRank() {
-		return a.getRank();
+		return this.a.getRank();
 	}
 
 	@Override
 	public Category getRegistrationCategory() {
-		return a.getCategory();
+		return this.a.getCategory();
 	}
 
 	@Override
 	public Integer getRequestedWeightForAttempt(int attempt) {
-		return a.getRequestedWeightForAttempt(attempt);
+		return this.a.getRequestedWeightForAttempt(attempt);
 	}
 
 	@Override
@@ -586,396 +592,411 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public Integer getRobiRank() {
-		return a.getRobiRank();
+		return this.a.getRobiRank();
 	}
 
 	@Override
 	public String getRoundedBodyWeight() {
-		return a.getRoundedBodyWeight();
+		return this.a.getRoundedBodyWeight();
+	}
+
+	@Override
+	public String getSessionPattern() {
+		return this.a.getSessionPattern();
 	}
 
 	@Override
 	public String getShortCategory() {
-		return a.getShortCategory();
+		return this.a.getShortCategory();
 	}
 
 	@Override
 	public String getShortName() {
-		return a.getShortName();
+		return this.a.getShortName();
 	}
 
 	@Override
 	public Double getSinclair() {
-		return a.getSinclair();
+		return this.a.getSinclair();
 	}
 
 	@Override
 	public Double getSinclair(Double bodyWeight1) {
-		return a.getSinclair(bodyWeight1);
+		return this.a.getSinclair(bodyWeight1);
 	}
 
 	@Override
 	public Double getSinclairFactor() {
-		return a.getSinclairFactor();
+		return this.a.getSinclairFactor();
 	}
 
 	@Override
 	public Double getSinclairForDelta() {
-		return a.getSinclairForDelta();
+		return this.a.getSinclairForDelta();
 	}
 
 	@Override
 	public Integer getSinclairRank() {
-		return a.getSinclairRank();
+		return this.a.getSinclairRank();
 	}
 
 	@Override
 	public Double getSmfForDelta() {
-		return a.getSmfForDelta();
+		return this.a.getSmfForDelta();
 	}
 
 	@Override
 	public Double getSmm() {
-		return a.getSmm();
+		return this.a.getSmm();
 	}
 
 	@Override
 	public int getSmmRank() {
-		return a.getSmmRank();
+		return this.a.getSmmRank();
 	}
 
 	@Override
 	public String getSnatch1ActualLift() {
-		String snatch1ActualLift = a.getSnatch1ActualLift();
+		String snatch1ActualLift = this.a.getSnatch1ActualLift();
 		return snatch1ActualLift;
 	}
 
 	@Override
 	public Integer getSnatch1AsInteger() {
-		return a.getSnatch1AsInteger();
+		return this.a.getSnatch1AsInteger();
 	}
 
 	@Override
 	public String getSnatch1AutomaticProgression() {
-		return a.getSnatch1AutomaticProgression();
+		return this.a.getSnatch1AutomaticProgression();
 	}
 
 	@Override
 	public String getSnatch1Change1() {
-		return a.getSnatch1Change1();
+		return this.a.getSnatch1Change1();
 	}
 
 	@Override
 	public String getSnatch1Change2() {
-		return a.getSnatch1Change2();
+		return this.a.getSnatch1Change2();
 	}
 
 	@Override
 	public String getSnatch1Declaration() {
-		return a.getSnatch1Declaration();
+		return this.a.getSnatch1Declaration();
 	}
 
 	@Override
 	public LocalDateTime getSnatch1LiftTime() {
-		return a.getSnatch1LiftTime();
+		return this.a.getSnatch1LiftTime();
 	}
 
 	@Override
 	public String getSnatch2ActualLift() {
-		return a.getSnatch2ActualLift();
+		return this.a.getSnatch2ActualLift();
 	}
 
 	@Override
 	public Integer getSnatch2AsInteger() {
-		return a.getSnatch2AsInteger();
+		return this.a.getSnatch2AsInteger();
 	}
 
 	@Override
 	public String getSnatch2AutomaticProgression() {
-		return a.getSnatch2AutomaticProgression();
+		return this.a.getSnatch2AutomaticProgression();
 	}
 
 	@Override
 	public String getSnatch2Change1() {
-		return a.getSnatch2Change1();
+		return this.a.getSnatch2Change1();
 	}
 
 	@Override
 	public String getSnatch2Change2() {
-		return a.getSnatch2Change2();
+		return this.a.getSnatch2Change2();
 	}
 
 	@Override
 	public String getSnatch2Declaration() {
-		return a.getSnatch2Declaration();
+		return this.a.getSnatch2Declaration();
 	}
 
 	@Override
 	public LocalDateTime getSnatch2LiftTime() {
-		return a.getSnatch2LiftTime();
+		return this.a.getSnatch2LiftTime();
 	}
 
 	@Override
 	public String getSnatch3ActualLift() {
-		return a.getSnatch3ActualLift();
+		return this.a.getSnatch3ActualLift();
 	}
 
 	@Override
 	public Integer getSnatch3AsInteger() {
-		return a.getSnatch3AsInteger();
+		return this.a.getSnatch3AsInteger();
 	}
 
 	@Override
 	public String getSnatch3AutomaticProgression() {
-		return a.getSnatch3AutomaticProgression();
+		return this.a.getSnatch3AutomaticProgression();
 	}
 
 	@Override
 	public String getSnatch3Change1() {
-		return a.getSnatch3Change1();
+		return this.a.getSnatch3Change1();
 	}
 
 	@Override
 	public String getSnatch3Change2() {
-		return a.getSnatch3Change2();
+		return this.a.getSnatch3Change2();
 	}
 
 	@Override
 	public String getSnatch3Declaration() {
-		return a.getSnatch3Declaration();
+		return this.a.getSnatch3Declaration();
 	}
 
 	@Override
 	public LocalDateTime getSnatch3LiftTime() {
-		return a.getSnatch3LiftTime();
+		return this.a.getSnatch3LiftTime();
 	}
 
 	@Override
 	public Integer getSnatchAttemptsDone() {
-		return a.getSnatchAttemptsDone();
+		return this.a.getSnatchAttemptsDone();
 	}
 
 	@Override
 	public int getSnatchPoints() {
-		return p.getSnatchPoints();
+		return this.p.getSnatchPoints();
 	}
 
 	@Override
 	public int getSnatchRank() {
-		return p.getSnatchRank();
+		return this.p.getSnatchRank();
 	}
 
 	@Override
 	public int getSnatchTotal() {
-		return a.getSnatchTotal();
+		return this.a.getSnatchTotal();
 	}
 
 	@Override
 	public Integer getStartNumber() {
-		return a.getStartNumber();
+		return this.a.getStartNumber();
+	}
+
+	@Override
+	public String getSubCategory() {
+		return this.a.getSubCategory();
 	}
 
 	@Override
 	public String getTeam() {
-		return a.getTeam();
+		return this.a.getTeam();
 	}
 
 	@Override
 	public Integer getTeamCleanJerkRank() {
-		return a.getTeamCleanJerkRank();
+		return this.a.getTeamCleanJerkRank();
 	}
 
 	@Override
 	public Integer getTeamCombinedRank() {
-		return a.getTeamCombinedRank();
+		return this.a.getTeamCombinedRank();
 	}
 
 	@Override
 	public Integer getTeamCustomRank() {
-		return a.getTeamCustomRank();
+		return this.a.getTeamCustomRank();
 	}
 
 	@Override
 	public Boolean getTeamMember() {
-		return a.getTeamMember();
+		return this.a.getTeamMember();
 	}
 
 	@Override
 	public Integer getTeamRobiRank() {
-		return a.getTeamRobiRank();
+		return this.a.getTeamRobiRank();
 	}
 
 	@Override
 	public Integer getTeamSinclairRank() {
-		return a.getTeamSinclairRank();
+		return this.a.getTeamSinclairRank();
 	}
 
 	@Override
 	public Integer getTeamSnatchRank() {
-		return a.getTeamSnatchRank();
+		return this.a.getTeamSnatchRank();
 	}
 
 	@Override
 	public Integer getTeamTotalRank() {
-		return a.getTeamTotalRank();
+		return this.a.getTeamTotalRank();
 	}
 
 	@Override
 	public Integer getTotal() {
-		return a.getTotal();
+		return this.a.getTotal();
 	}
 
 	@Override
 	public int getTotalPoints() {
-		return p.getTotalPoints();
+		return this.p.getTotalPoints();
 	}
 
 	@Override
 	public int getTotalRank() {
-		return p.getTotalRank();
+		return this.p.getTotalRank();
 	}
 
 	@Override
 	public Integer getYearOfBirth() {
-		return a.getYearOfBirth();
+		return this.a.getYearOfBirth();
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(a, c, p);
+		result = prime * result + Objects.hash(this.a, this.c, this.p);
 		return result;
 	}
 
 	@Override
 	public boolean isATeamMember() {
-		return a.isATeamMember();
+		return this.a.isATeamMember();
 	}
 
 	@Override
 	public int isDeclaring() {
-		return a.isDeclaring();
+		return this.a.isDeclaring();
 	}
 
 	@Override
 	public boolean isEligibleForIndividualRanking() {
-		return a.isEligibleForIndividualRanking();
+		return this.a.isEligibleForIndividualRanking();
 	}
 
 	@Override
 	public boolean isEligibleForTeamRanking() {
-		return a.isEligibleForTeamRanking();
+		return this.a.isEligibleForTeamRanking();
 	}
 
 	@Override
 	public boolean isForcedAsCurrent() {
-		return a.isForcedAsCurrent();
+		return this.a.isForcedAsCurrent();
 	}
 
 	@Override
 	public boolean isInvited() {
-		return a.isInvited();
+		return this.a.isInvited();
 	}
 
 	@Override
 	public boolean isTeamMember() {
-		return p.getTeamMember();
+		return this.p.getTeamMember();
 	}
 
 	@Override
 	public boolean isValidation() {
-		return a.isValidation();
+		return this.a.isValidation();
 	}
 
 	@Override
 	public String longDump() {
-		return a.longDump();
+		return this.a.longDump();
 	}
 
 	@Override
 	public void setCatSinclairRank(int i) {
-		a.setCatSinclairRank(i);
+		this.a.setCatSinclairRank(i);
 	}
 
 	@Override
 	public void setCoach(String coach) {
-		a.setCoach(coach);
+		this.a.setCoach(coach);
 	}
 
 	@Override
 	public void setCustom1(String v) {
-		a.setCustom1(v);
+		this.a.setCustom1(v);
 	}
 
 	@Override
 	public void setCustom2(String v) {
-		a.setCustom2(v);
+		this.a.setCustom2(v);
 	}
 
 	@Override
 	public void setPersonalBestCleanJerk(Integer personalBestCleanJerk) {
-		a.setPersonalBestCleanJerk(personalBestCleanJerk);
+		this.a.setPersonalBestCleanJerk(personalBestCleanJerk);
 	}
 
 	@Override
 	public void setPersonalBestSnatch(Integer personalBestSnatch) {
-		a.setPersonalBestSnatch(personalBestSnatch);
+		this.a.setPersonalBestSnatch(personalBestSnatch);
 	}
 
 	@Override
 	public void setPersonalBestTotal(Integer personalBestTotal) {
-		a.setPersonalBestTotal(personalBestTotal);
+		this.a.setPersonalBestTotal(personalBestTotal);
 	}
 
 	@Override
 	public void setRobiRank(Integer robiRank) {
-		a.setRobiRank(robiRank);
+		this.a.setRobiRank(robiRank);
+	}
+
+	@Override
+	public void setSessionPattern(String ignored) {
+		this.a.setSessionPattern(ignored);
 	}
 
 	@Override
 	public void setSinclairRank(Integer sinclairRank) {
-		a.setSinclairRank(sinclairRank);
+		this.a.setSinclairRank(sinclairRank);
 	}
 
 	@Override
 	public void setSmmRank(int i) {
-		a.setSmmRank(i);
+		this.a.setSmmRank(i);
 	}
 
 	@Override
 	public void setTeamCleanJerkRank(Integer teamCJRank) {
-		p.setTeamCleanJerkRank(teamCJRank);
+		this.p.setTeamCleanJerkRank(teamCJRank);
 	}
 
 	@Override
 	public void setTeamCombinedRank(Integer teamCombinedRank) {
-		p.setTeamCombinedRank(teamCombinedRank);
+		this.p.setTeamCombinedRank(teamCombinedRank);
 	}
 
 	@Override
 	public void setTeamMember(boolean member) {
-		p.setTeamMember(member);
+		this.p.setTeamMember(member);
 	}
 
 	@Override
 	public void setTeamRobiRank(Integer teamRobiRank) {
-		p.setTeamRobiRank(teamRobiRank);
+		this.p.setTeamRobiRank(teamRobiRank);
 	}
 
 	@Override
 	public void setTeamSinclairRank(Integer teamSinclairRank) {
-		p.setTeamSinclairRank(teamSinclairRank);
+		this.p.setTeamSinclairRank(teamSinclairRank);
 	}
 
 	@Override
 	public void setTeamSnatchRank(Integer teamSnatchRank) {
-		p.setTeamSnatchRank(teamSnatchRank);
+		this.p.setTeamSnatchRank(teamSnatchRank);
 	}
 
 	@Override
 	public void setTeamTotalRank(Integer teamTotalRank) {
-		p.setTeamTotalRank(teamTotalRank);
+		this.p.setTeamTotalRank(teamTotalRank);
 	}
 
 	@Override
@@ -983,15 +1004,5 @@ public class PAthlete extends Athlete implements IRankHolder {
 		// super is used because we want the methods from PAthlete to be called
 		// and we don't want to copy the code.
 		return super.toStringRanks();
-	}
-
-	@Override
-	public String getPresumedBodyWeightString() {
-		return a.getPresumedBodyWeightString();
-	}
-
-	@Override
-	public String getPresumedOpenCategoryString() {
-		return a.getPresumedOpenCategoryString();
 	}
 }
