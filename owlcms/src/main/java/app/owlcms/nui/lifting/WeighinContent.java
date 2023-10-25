@@ -74,7 +74,7 @@ import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.NAthleteRegistrationFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
-import app.owlcms.spreadsheet.JXLSCards;
+import app.owlcms.spreadsheet.JXLSCardsWeighIn;
 import app.owlcms.spreadsheet.JXLSJurySheet;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
 import app.owlcms.utils.NaturalOrderComparator;
@@ -349,7 +349,7 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		String downloadedFilePrefix = "cards";
 		DownloadDialog cardsButtonFactory = new DownloadDialog(
 		        () -> {
-			        JXLSCards rs = new JXLSCards();
+			        JXLSCardsWeighIn rs = new JXLSCardsWeighIn();
 			        // group may have been edited since the page was loaded
 			        Group curGroup = getGroupFilter().getValue();
 			        rs.setGroup(curGroup != null ? GroupRepository.getById(curGroup.getId()) : null);

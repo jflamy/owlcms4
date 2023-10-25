@@ -62,6 +62,7 @@ import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.LiftOrderInfo;
 import app.owlcms.fieldofplay.LiftOrderReconstruction;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.RAthlete;
 import app.owlcms.utils.DateTimeUtils;
@@ -2533,8 +2534,17 @@ public class Athlete {
 		if (Config.getCurrent().featureSwitch("UseCustom2AsSubCategory")) {
 			return (this.getCustom2() != null && !this.getCustom2().isBlank()) ? this.getCustom2() : "A";
 		} else {
-			return this.getGroup() != null ? this.getGroup().getName() : "";
+			return "";
 		}
+	}
+	
+	public String getSessionPattern() {
+		Group g = getGroup();
+		return (g != null ? Translator.translate("ChallengeCard.SessionPattern",g.getName()) : "");
+	}
+	
+	public void setSessionPattern(String ignored) {
+		
 	}
 
 	/**
