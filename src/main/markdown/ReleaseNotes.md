@@ -4,17 +4,16 @@
 > - They are meant to gather feedback and for initial tests.
 > - Alpha releases are not meant for use in competitions. Please look for a [stable release](https://github.com/owlcms/owlcms4/releases) or at least a release candidate.
 
-**45.0**
+**45.0-alpha**
 
-- alpha02: Templates
-  - Added Challenge cards (same menu as Marshal cards)
-  - Changed the Athlete Card templates so the Clean & Jerk side is visually different from the Snatch side, to make it easier to detect when the marshal card is on the wrong side.
-- alpha02: Updated to latest Vaadin 24.2.0:
-    - Merged VaadinBoot changes from latest Martin Vysny [version](https://github.com/mvysny/vaadin-boot/tree/main/vaadin-boot/src/main/java/com/github/mvysny/vaadinboot)
-    -  Updated Jetty dependencies to latest
-    - Updated publicresults uploader to use commons fileupload2 and minimal associated dependencies.
-    - Updated indirect dependency to commons-io that was preventing upload from working.
-- alpha01: changes to the `nogrid` and `grid`  styles
+- alpha03: Templates
+  - Workaround for non-working page breaks in Apache POI Excel library
+  - Changed Challenge Card templates so they can be printed in advance (no start number)
+
+##### 45.0
+
+- Added Challenge cards (same menu as Marshal cards)
+- Changes to the `nogrid` and `grid`  styles
   - Support for 4K TV screens (without having to change the display resolution)
   - CSS variants for phones, tablets, laptops, 2K (1920x1080) and 4K devices.
   - Support for vertical orientation devices. 
@@ -24,6 +23,7 @@
   - They both default to `nogrid`. 
   - You can create alternate looks by copying a style to a new name under `local/css` and editing the colors and other css.
   - However, a `transparent` style is also available for video. It uses a pure green background that can be made transparent by video streaming software such as OBS.  `transparent` is designed for a 1920x1080 canvas.
+- Updated to latest Vaadin 24.2.0
 
 
 **Version 45 CUSTOM CSS ADJUSTMENTS**
