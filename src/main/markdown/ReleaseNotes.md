@@ -6,6 +6,8 @@
 
 **45.0-alpha**
 
+- alpha04: Templates and documents
+  - Use the template name as basis for the output file name.
 - alpha03: Templates
   - Workaround for non-working page breaks in Apache POI Excel library
   - Changed Challenge Card templates so they can be printed in advance (no start number)

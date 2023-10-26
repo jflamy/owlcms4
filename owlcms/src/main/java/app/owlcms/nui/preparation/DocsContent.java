@@ -312,7 +312,8 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		        Competition::getComputedCardsTemplateFileName,
 		        Competition::setCardsTemplateFileName,
 		        title,
-		        downloadedFilePrefix, Translator.translate("Download"));
+		        downloadedFilePrefix, 
+		        Translator.translate("Download"));
 		cardsButtonFactory.setProcessingMessage(Translator.translate("LongProcessing"));
 		return cardsButtonFactory.createTopBarDownloadButton();
 	}

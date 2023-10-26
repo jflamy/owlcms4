@@ -65,7 +65,7 @@ public class DownloadDialog {
 	 * @param templateNameGetter   get last file name stored in Competition
 	 * @param templateNameSetter   set last file name in Competition
 	 * @param dialogTitle
-	 * @param outputFileName       first part of the downloaded file name (not dependent on template).
+	 * @param fallbackOutputFileName       first part of the downloaded file name (not dependent on template).
 	 * @param buttonLabel          label used dialog button
 	 * @return
 	 */
@@ -74,10 +74,12 @@ public class DownloadDialog {
 	        String resourceDirectoryLocation,
 	        Predicate<String> namePredicate,
 	        Function<Competition, String> templateNameGetter,
-	        BiConsumer<Competition, String> templateNameSetter, String dialogTitle, String outputFileName,
+	        BiConsumer<Competition, String> templateNameSetter,
+	        String dialogTitle, 
+	        String fallbackOutputFileName,
 	        String buttonLabel) {
 		logger.setLevel(Level.DEBUG);
-		this.outputFileName = outputFileName;
+		this.outputFileName = fallbackOutputFileName;
 		this.streamSourceSupplier = streamSourceSupplier;
 		this.resourceDirectoryLocation = resourceDirectoryLocation;
 		this.templateNameGetter = templateNameGetter;
@@ -99,7 +101,7 @@ public class DownloadDialog {
 	}
 
 	private Dialog createDialog() {
-//        Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
+		// Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
 		dialog = new Dialog();
 		dialog.setCloseOnEsc(true);
 		dialog.setHeaderTitle(dialogTitle);
@@ -171,9 +173,9 @@ public class DownloadDialog {
 
 					xlsWriter.setDoneCallback((message) -> dialog.close());
 
-//					downloadButton.setFileNameCallback(supplier);
-//					downloadButton.setInputStreamCallback(() -> xlsWriter.createInputStream());
-//					downloadButton.addDownloadStartsListener(ds -> dialog.close());
+					// downloadButton.setFileNameCallback(supplier);
+					// downloadButton.setInputStreamCallback(() -> xlsWriter.createInputStream());
+					// downloadButton.addDownloadStartsListener(ds -> dialog.close());
 				} catch (Throwable e1) {
 					logger.error("{}", LoggerUtils.stackTrace(e1));
 				}
@@ -189,7 +191,7 @@ public class DownloadDialog {
 	}
 
 	private Anchor createDownloadButton(StreamResource resource, StreamResourceWriter writer, String fileName) {
-		resource = new StreamResource(fileName, (StreamResourceWriter) writer);
+		resource = new StreamResource(fileName, writer);
 		Anchor link = new Anchor(resource, "");
 		link.getElement().setAttribute("download", true);
 		Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
@@ -227,7 +229,16 @@ public class DownloadDialog {
 		suffix.append("_");
 		suffix.append(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm';'ss")));
 		suffix.append(".xls");
-		String fileName = outputFileName + suffix;
+		String fileName = "";
+			String templateName = templateNameGetter.apply(Competition.getCurrent());
+			if ((templateName.matches(".*[_-](A4|LETTER|LEGAL).*"))) {
+				fileName = templateName.replaceAll("[_-](A4|LETTER|LEGAL)(.xls|.xlsx)","") + suffix;
+			} else if (outputFileName != null) {
+				fileName = outputFileName + suffix;
+			} else {{
+				fileName = "output" + suffix;
+			}
+		}
 		fileName = sanitizeFilename(fileName);
 		logger.trace(fileName);
 		return fileName;
