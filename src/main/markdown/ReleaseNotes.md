@@ -1,10 +1,10 @@
-> **Version 44.4**	
+> **Version 44.5**	
 >
 > - Reminder: *You should test any release with your own data before using it in a competition.*
 
-##### 44.4
+##### 44.5
 
-- Fix: Editing Qualifying Totals was not possible on the Age Group definition form.
+- Fix: Registration form upload could occasionally fail due to an error in category matching
 
 ##### Version 44 changes
 
