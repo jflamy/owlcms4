@@ -5,6 +5,7 @@
 ##### 44.5
 
 - Fix: Registration form upload could occasionally fail due to an error in category matching
+- Fix: False error message during 2:00 situation. A late declaration was falsely signaled when first change took place after 1:30.
 
 ##### Version 44 changes
 
