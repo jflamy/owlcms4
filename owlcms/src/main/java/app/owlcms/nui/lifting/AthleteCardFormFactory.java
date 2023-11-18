@@ -305,8 +305,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 
 		getEditedAthlete().setValidation(true);
 		getEditedAthlete().setStartingTotalViolation(false);
-
-		initialValidationStatus = binder.validate();
+		getEditedAthlete().setCheckTiming(false);
+		
+		initialValidationStatus = binder.validate();;
 		setErrorLabel(initialValidationStatus, false);
 		StringBuilder sb = getInitialErrors(initialValidationStatus);
 		if (logger.isDebugEnabled()) {
@@ -344,7 +345,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 //
 //		button.addClickListener(listener);
 		button.addClickListener((f) -> {
+			domainObject.setCheckTiming(true);
 			performOperationAndCallback(operation, domainObject, callBack, isIgnoreErrors());
+			domainObject.setCheckTiming(false);
 		});
 		return button;
 	}

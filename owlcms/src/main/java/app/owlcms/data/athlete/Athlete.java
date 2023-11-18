@@ -397,6 +397,7 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	private boolean startingTotalViolation = false;
+	private boolean checkTiming;
 
 	/**
 	 * Instantiates a new athlete.
@@ -3832,8 +3833,7 @@ public class Athlete {
 			return;
 		}
 		if (isValidation()) {
-			validateDeclaration(3, getSnatch3AutomaticProgression(), snatch3Declaration, this.snatch3Change1, this.snatch3Change2,
-					this.snatch3ActualLift);
+			validateSnatch3Declaration(snatch3Declaration);
 		}
 		this.snatch3Declaration = snatch3Declaration;
 		getLogger().info("{}{} snatch3Declaration={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
@@ -4673,7 +4673,7 @@ public class Athlete {
 
 	private void doCheckChangeOwningTimer(String declaration, String change1, String change2, FieldOfPlay fop,
 			int clock, int initialTime) {
-		logger.debug("{}doCheckChangeOwningTimer ===== initialTime={} clock={} {} {} {}", fop.getLoggingName(), initialTime, clock, declaration, change1, change2);
+		//logger.debug("{}doCheckChangeOwningTimer ===== initialTime={} clock={} {} {} {}\n{}", fop.getLoggingName(), initialTime, clock, declaration, change1, change2, LoggerUtils.stackTrace());
 		if ((change1 == null || change1.isBlank()) && (change2 == null || change2.isBlank())) {
 			// validate declaration
 			if (clock < initialTime - 30000) {
@@ -5156,7 +5156,7 @@ public class Athlete {
 			throw new RuleViolationException.LastChangeTooLow(this, curLift, newVal, prevVal);
 		}
 		try {
-			if (checkBlank(change2) && checkBlank(actualLift)) {
+			if (isCheckTiming() && checkBlank(change2) && checkBlank(actualLift)) {
 				checkChangeVsTimer(curLift, declaration, change1, change2);
 				checkDeclarationWasMade(curLift, declaration);
 				checkChangeVsLiftOrder(curLift, newVal);
@@ -5190,7 +5190,7 @@ public class Athlete {
 			throw new RuleViolationException.LastChangeTooLow(this, curLift, newVal, prevVal);
 		}
 		try {
-			if (checkBlank(actualLift)) {
+			if (isCheckTiming() && checkBlank(actualLift)) {
 				checkChangeVsTimer(curLift, declaration, change1, change2);
 				checkDeclarationWasMade(curLift, declaration);
 				checkChangeVsLiftOrder(curLift, newVal);
@@ -5223,7 +5223,7 @@ public class Athlete {
 			throw new RuleViolationException.DeclarationValueTooSmall(this, curLift, newVal, iAutomaticProgression);
 		}
 		try {
-			if (checkBlank(change1) && checkBlank(actualLift)) {
+			if (isCheckTiming() && (checkBlank(change1) && checkBlank(actualLift))) {
 				checkChangeVsTimer(curLift, declaration, change1, change2);
 				checkChangeVsLiftOrder(curLift, newVal);
 			}
@@ -5234,6 +5234,14 @@ public class Athlete {
 		}
 		this.timingLogger.info("validateDeclaration {}ms {} {}", System.currentTimeMillis() - start, curLift,
 				LoggerUtils.whereFrom());
+	}
+
+	public boolean isCheckTiming() {
+		return this.checkTiming;
+	}
+	
+	public void setCheckTiming(boolean checkTiming) {
+		this.checkTiming = checkTiming;
 	}
 
 }
