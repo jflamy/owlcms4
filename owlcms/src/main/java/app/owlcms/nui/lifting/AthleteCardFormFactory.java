@@ -345,8 +345,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 //
 //		button.addClickListener(listener);
 		button.addClickListener((f) -> {
-			domainObject.setCheckTiming(true);
 			performOperationAndCallback(operation, domainObject, callBack, isIgnoreErrors());
+			// the field value change listener will set the following to true if the user edits using the interface
 			domainObject.setCheckTiming(false);
 		});
 		return button;
@@ -529,7 +529,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 				if (!e.isFromClient()) {
 					return;
 				}
-				logger.trace("setting {} to {}", component.getId().get(), e.getValue());
+				getEditedAthlete().setCheckTiming(true);
+				logger.warn("setting {} to {}", component.getId().get(), e.getValue());
 			});
 		}
 	}
