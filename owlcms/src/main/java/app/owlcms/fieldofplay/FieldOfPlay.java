@@ -1947,6 +1947,14 @@ public class FieldOfPlay {
 		if (millisRemaining <= 0) {
 			return;
 		}
+		
+		if (state == BREAK && getBreakType() == FIRST_CJ) {
+			return;
+		}
+		if (state == CURRENT_ATHLETE_DISPLAYED && allFirstCJ()) {
+			return;
+		}
+		
 		this.logger.debug("{}group {} snatch done, break duration {}s", getLoggingName(), getGroup(),
 		        millisRemaining / 1000);
 
@@ -2708,10 +2716,6 @@ public class FieldOfPlay {
 			pushOutSnatchDone();
 			this.cjBreakDisplayed = true;
 		}
-		// issue #778 - why was this there?
-		// else if (state == BREAK && this.getBreakType() == BreakType.FIRST_CJ) {
-		// fopEventPost(new FOPEvent.StartLifting(this));
-		// }
 	}
 
 	private synchronized void uiShowDownSignalOnSlaveDisplays(Object origin2) {

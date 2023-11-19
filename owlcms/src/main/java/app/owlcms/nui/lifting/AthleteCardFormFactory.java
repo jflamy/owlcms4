@@ -530,7 +530,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 					return;
 				}
 				getEditedAthlete().setCheckTiming(true);
-				logger.warn("setting {} to {}", component.getId().get(), e.getValue());
+				//logger.debug("setting {} to {}", component.getId().get(), e.getValue());
 			});
 		}
 	}
