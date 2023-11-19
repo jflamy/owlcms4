@@ -1,5 +1,6 @@
-> **Version 44.5**	
+> **Version 44.5-beta**
 >
+> - NOTE: this is a BETA release due to the nature of the changes made.
 > - Reminder: *You should test any release with your own data before using it in a competition.*
 
 ##### 44.5
