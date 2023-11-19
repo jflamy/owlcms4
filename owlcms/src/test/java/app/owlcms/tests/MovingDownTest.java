@@ -942,6 +942,7 @@ public class MovingDownTest {
         fopState.testBefore();
         fopState.loadGroup(gA, this, true);
         List<Athlete> groupAthletes = fopState.getDisplayOrder();
+        setChecking(groupAthletes);
 
         // weigh-in
         JPAService.runInTransaction(em -> {
@@ -959,7 +960,13 @@ public class MovingDownTest {
         fopState.loadGroup(gA, this, true);
     }
 
-    private void testPrepSnatchCheckProgression(FieldOfPlay fopState, int nbAthletes) {
+    private void setChecking(List<Athlete> groupAthletes) {
+    	for (Athlete a: groupAthletes) {
+    		a.setCheckTiming(true);
+    	}
+	}
+
+	private void testPrepSnatchCheckProgression(FieldOfPlay fopState, int nbAthletes) {
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(LoggerLevel);
         // fopState.getFopEventBus();
@@ -969,6 +976,7 @@ public class MovingDownTest {
         fopState.testBefore();
         fopState.loadGroup(gA, this, true);
         List<Athlete> groupAthletes = fopState.getDisplayOrder();
+        setChecking(groupAthletes);
 
         // weigh-in
         JPAService.runInTransaction(em -> {
