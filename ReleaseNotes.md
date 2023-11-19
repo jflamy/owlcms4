@@ -1,10 +1,14 @@
-> **Version 44.4**	
+> **Version 44.5-beta**
 >
+> - NOTE: this is a BETA release due to the nature of the changes made.
 > - Reminder: *You should test any release with your own data before using it in a competition.*
 
-##### 44.4
+##### 44.5
 
-- Fix: Editing Qualifying Totals was not possible on the Age Group definition form.
+- Fix: Registration form upload could occasionally fail due to an error in category matching
+- Fix: During a 2:00 athlete clock, a late declaration would be falsely signaled when the first change took place after 1:30.
+- Fix: Reloading athlete info during the CJ break would restart the break needlessly.
+- Change: the snatch and cj break countdown timers are no longer hidden during the presentation of officials and medal ceremonies.
 
 ##### Version 44 changes
 
