@@ -16,7 +16,7 @@ class TimerElement extends LitElement {
       <audio preload="auto" id="finalWarning" src="../local/sounds/finalWarning.mp3"></audio>
       <audio preload="auto" id="initialWarning" src="../local/sounds/initialWarning.mp3"></audio>
       <audio preload="auto" id="timeOver" src="../local/sounds/timeOver.mp3"></audio>
-      <div id="timer" .innerHTML="-:--"></div>`;
+      <div id="timer" .innerHTML="&nbsp;&nbsp;&nbsp;&nbsp;"></div>`;
   }
 
   connectedCallback() {
@@ -283,7 +283,7 @@ class TimerElement extends LitElement {
   }
 
   _formatTime(ntime) {
-    if (ntime < 0) return "-:--";
+    if (ntime < 0) return "&nbsp;&nbsp;&nbsp;&nbsp;";
     var ntime = Math.round(ntime);
     var hours = Math.trunc(ntime / 3600);
     var minutes = Math.trunc((ntime - hours * 3600) / 60);
@@ -313,7 +313,7 @@ class TimerElement extends LitElement {
     this.silent = false;
     this.indefinite = false;
     this._elapsedTime = 0;
-    this._formattedTime = "-:--";
+    this._formattedTime = "&nbsp;&nbsp;&nbsp;&nbsp;";
     this._initialWarningGiven = false;
     this._finalWarningGiven = false;
     this._timeOverWarningGiven = false;

@@ -5,7 +5,9 @@
 ##### 44.5
 
 - Fix: Registration form upload could occasionally fail due to an error in category matching
-- Fix: False error message during 2:00 situation. A late declaration was falsely signaled when first change took place after 1:30.
+- Fix: During a 2:00 athlete clock, a late declaration would be falsely signaled when the first change took place after 1:30.
+- Fix: Reloading athlete info during the CJ break would restart the break needlessly.
+- Change: the snatch and cj break countdown timers are no longer hidden during the presentation of officials and medal ceremonies.
 
 ##### Version 44 changes
 

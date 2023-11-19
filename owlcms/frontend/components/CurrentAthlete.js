@@ -173,7 +173,7 @@ class CurrentAthlete extends LitElement {
 
   weightStyles() {
     // weights are visible during lift countdowns
-    return "display: " + ((this.mode === "LIFT_COUNTDOWN" || (this.mode === "CURRENT_ATHLETE")) ? "grid" : "none");
+    return "display: " + ((this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY" || (this.mode === "CURRENT_ATHLETE")) ? "grid" : "none");
   }
 
   athleteTimerStyles() {
@@ -182,7 +182,7 @@ class CurrentAthlete extends LitElement {
   }
 
   breakTimerStyles() {
-    return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN") ? "grid" : "none");
+    return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY") ? "grid" : "none");
   }
 
   decisionStyles() {
