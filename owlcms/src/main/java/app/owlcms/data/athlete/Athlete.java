@@ -5182,6 +5182,7 @@ public class Athlete {
 			throw new RuleViolationException.LastChangeTooLow(this, curLift, newVal, prevVal);
 		}
 		try {
+			logger.warn("validateChange1 {} {} {}",isCheckTiming(),checkBlank(change2),checkBlank(actualLift));
 			if (isCheckTiming() && checkBlank(change2) && checkBlank(actualLift)) {
 				checkChangeVsTimer(curLift, declaration, change1, change2);
 				checkDeclarationWasMade(curLift, declaration);
@@ -5216,6 +5217,7 @@ public class Athlete {
 			throw new RuleViolationException.LastChangeTooLow(this, curLift, newVal, prevVal);
 		}
 		try {
+			logger.warn("validateChange2 {} {} {}",isCheckTiming(),checkBlank(actualLift));
 			if (isCheckTiming() && checkBlank(actualLift)) {
 				checkChangeVsTimer(curLift, declaration, change1, change2);
 				checkDeclarationWasMade(curLift, declaration);
@@ -5250,6 +5252,7 @@ public class Athlete {
 			throw new RuleViolationException.DeclarationValueTooSmall(this, curLift, newVal, iAutomaticProgression);
 		}
 		try {
+			logger.warn("validateDeclaration {} {} {}",isCheckTiming(),checkBlank(change1),checkBlank(actualLift));
 			if (isCheckTiming() && (checkBlank(change1) && checkBlank(actualLift))) {
 				checkChangeVsTimer(curLift, declaration, change1, change2);
 				checkChangeVsLiftOrder(curLift, newVal);
