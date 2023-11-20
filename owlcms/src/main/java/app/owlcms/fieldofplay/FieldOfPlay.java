@@ -28,7 +28,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.sound.sampled.LineUnavailableException;
@@ -967,8 +969,13 @@ public class FieldOfPlay {
 		this.fopEventBus = new EventBus("FOP-" + this.name);
 
 		// we post on these buses
-		this.uiEventBus = new AsyncEventBus("UI-" + this.name, Executors.newCachedThreadPool());
-		this.postBus = new AsyncEventBus("POST-" + this.name, Executors.newCachedThreadPool());
+
+		this.uiEventBus = new AsyncEventBus("UI-" + this.name, new ThreadPoolExecutor(8, Integer.MAX_VALUE,
+		        60L, TimeUnit.SECONDS,
+		        new SynchronousQueue<Runnable>()));
+		this.postBus = new AsyncEventBus("POST-" + this.name, new ThreadPoolExecutor(1, Integer.MAX_VALUE,
+		        60L, TimeUnit.SECONDS,
+		        new SynchronousQueue<Runnable>()));
 	}
 
 	public boolean isAnnouncerDecisionImmediate() {
@@ -1947,14 +1954,14 @@ public class FieldOfPlay {
 		if (millisRemaining <= 0) {
 			return;
 		}
-		
+
 		if (state == BREAK && getBreakType() == FIRST_CJ) {
 			return;
 		}
 		if (state == CURRENT_ATHLETE_DISPLAYED && allFirstCJ()) {
 			return;
 		}
-		
+
 		this.logger.debug("{}group {} snatch done, break duration {}s", getLoggingName(), getGroup(),
 		        millisRemaining / 1000);
 
@@ -2504,18 +2511,19 @@ public class FieldOfPlay {
 		boolean indefinite = breakTimer.isIndefinite();
 		this.ceremonyType = null;
 
-		//logger.debug("transitionToBreak {}", LoggerUtils.whereFrom());
+		// logger.debug("transitionToBreak {}", LoggerUtils.whereFrom());
 		if (this.state == BREAK && (getBreakType() == FIRST_CJ)
 		        && !(newBreak == BreakType.JURY || newBreak == BreakType.CHALLENGE)) {
 			// no interruption other than jury during CJ countdown. Otherwise must stop
 			// break.
-			//logger.debug("CJ break, rejecting {}", newBreak);
+			// logger.debug("CJ break, rejecting {}", newBreak);
 			return;
 		}
 
-		if (this.state == BREAK && (getBreakType() != null && getBreakType().isCountdown() && getBreakType() != BreakType.FIRST_CJ)
+		if (this.state == BREAK
+		        && (getBreakType() != null && getBreakType().isCountdown() && getBreakType() != BreakType.FIRST_CJ)
 		        && (newBreak == BreakType.JURY || newBreak == BreakType.CHALLENGE)) {
-			//logger.debug("ignoring jury break during {}", getBreakType());
+			// logger.debug("ignoring jury break during {}", getBreakType());
 			return;
 		}
 
@@ -2524,7 +2532,7 @@ public class FieldOfPlay {
 		if (this.state == BREAK) {
 			if (getBreakType() == null) {
 				// don't care about what was going on, force new break. Used by BreakManagement.
-				//logger.debug("{}forced break from breakmgmt", getLoggingName());
+				// logger.debug("{}forced break from breakmgmt", getLoggingName());
 				setBreakType(newBreak);
 				getBreakTimer().start();
 
@@ -2533,11 +2541,12 @@ public class FieldOfPlay {
 				return;
 			} else if ((newBreak != getBreakType() || newCountdownType != getCountdownType())) {
 				// changing the kind of break
-				//logger.debug("{}switching break type while in break : current {} new {} remaining {}", getLoggingName(), getBreakType(), newBreak, breakTimer.liveTimeRemaining());
+				// logger.debug("{}switching break type while in break : current {} new {} remaining {}",
+				// getLoggingName(), getBreakType(), newBreak, breakTimer.liveTimeRemaining());
 				if (newBreak == BreakType.FIRST_SNATCH) {
 					BreakType oldBreakType = getBreakType();
 					setBreakType(newBreak);
-					//logger.debug("switching oldbreaktype = {} indefinite = {}", oldBreakType, indefinite);
+					// logger.debug("switching oldbreaktype = {} indefinite = {}", oldBreakType, indefinite);
 					if (oldBreakType == BEFORE_INTRODUCTION) {
 						breakTimer.stop();
 						breakTimer.setTimeRemaining(DEFAULT_BREAK_DURATION, true);
@@ -2557,7 +2566,8 @@ public class FieldOfPlay {
 					        CountdownType.DURATION, LoggerUtils.stackTrace(), getBreakTimer().isIndefinite()));
 					return;
 				} else {
-					//logger.debug("{}****** break switch: from {} to {} {}", getLoggingName(), getBreakType(),  newBreak, newCountdownType);
+					// logger.debug("{}****** break switch: from {} to {} {}", getLoggingName(), getBreakType(),
+					// newBreak, newCountdownType);
 					breakTimer.stop();
 					setBreakParams(e, breakTimer, newBreak, newCountdownType);
 					breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), newBreak.isInterruption());
@@ -2566,7 +2576,8 @@ public class FieldOfPlay {
 				}
 			} else {
 				// we are in a break, resume if needed
-				//logger.debug("{}******* resuming break : current {} new {}", getLoggingName(), getBreakType(), e.getBreakType());
+				// logger.debug("{}******* resuming break : current {} new {}", getLoggingName(), getBreakType(),
+				// e.getBreakType());
 				if (!breakTimer.isIndefinite()) {
 					breakTimer.setOrigin(e.getOrigin());
 					breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), false);
@@ -2583,7 +2594,8 @@ public class FieldOfPlay {
 			return;
 		} else {
 			setBreakParams(e, breakTimer, newBreak, newCountdownType);
-			//logger.debug("stopping bt={} ct={} indefinite={}", newBreak, newCountdownType, newBreak.isInterruption() ? true : e.isIndefinite());
+			// logger.debug("stopping bt={} ct={} indefinite={}", newBreak, newCountdownType, newBreak.isInterruption()
+			// ? true : e.isIndefinite());
 			breakTimer.stop(); // so we restart in the new type
 		}
 
