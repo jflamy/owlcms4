@@ -314,6 +314,16 @@ public class MQTTMonitor extends Thread {
 		PlatformRepository.syncFOPs();
 		publishMqttConfig("owlcms/fop/config");
 	}
+	
+	public void publishStartAthleteTimer() throws MqttPersistenceException, MqttException {
+		client.publish("owlcms/clock/" + fop.getName(),
+		        new MqttMessage("start".getBytes(StandardCharsets.UTF_8)));
+	}
+	
+	public void publishStopAthleteTimer() throws MqttPersistenceException, MqttException {
+		client.publish("owlcms/clock/" + fop.getName(),
+		        new MqttMessage("stop".getBytes(StandardCharsets.UTF_8)));
+	}
 
 	public void setFop(FieldOfPlay fop) {
 		this.fop = fop;
