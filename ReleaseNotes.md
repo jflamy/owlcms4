@@ -1,12 +1,12 @@
-> **Version 44.5-beta**
+> **Version 44.5 release candidate**
 >
-> - NOTE: this is a BETA release due to the nature of the changes made.
 > - Reminder: *You should test any release with your own data before using it in a competition.*
 
 ##### 44.5
 
-- Fix: Registration form upload could occasionally fail due to an error in category matching
+- (rc01) Fix: Refreshing publicresults would alternate between normal starting order and lifting order. Now correctly interprets the URL parameters.
 - Fix: During a 2:00 athlete clock, a late declaration would be falsely signaled when the first change took place after 1:30.
+- Fix: Registration form upload could occasionally fail due to an error in category matching
 - Fix: Reloading athlete info during the CJ break would restart the break needlessly.
 - Change: the snatch and cj break countdown timers are no longer hidden during the presentation of officials and medal ceremonies.
 
