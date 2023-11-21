@@ -2087,13 +2087,16 @@ public class Athlete {
 			return last(zeroIfInvalid(getSnatch3AutomaticProgression()), zeroIfInvalid(this.snatch3Declaration),
 			        zeroIfInvalid(this.snatch3Change1), zeroIfInvalid(this.snatch3Change2));
 		case 4:
-			return last(zeroIfInvalid(getCleanJerk1AutomaticProgression()), zeroIfInvalid(this.cleanJerk1Declaration),
+			return last(zeroIfInvalid(getCleanJerk1AutomaticProgression()),
+			        zeroIfInvalid(this.cleanJerk1Declaration),
 			        zeroIfInvalid(this.cleanJerk1Change1), zeroIfInvalid(this.cleanJerk1Change2));
 		case 5:
-			return last(zeroIfInvalid(getCleanJerk2AutomaticProgression()), zeroIfInvalid(this.cleanJerk2Declaration),
+			return last(zeroIfInvalid(getCleanJerk2AutomaticProgression()),
+			        zeroIfInvalid(this.cleanJerk2Declaration),
 			        zeroIfInvalid(this.cleanJerk2Change1), zeroIfInvalid(this.cleanJerk2Change2));
 		case 6:
-			return last(zeroIfInvalid(getCleanJerk3AutomaticProgression()), zeroIfInvalid(this.cleanJerk3Declaration),
+			return last(zeroIfInvalid(getCleanJerk3AutomaticProgression()),
+			        zeroIfInvalid(this.cleanJerk3Declaration),
 			        zeroIfInvalid(this.cleanJerk3Change1), zeroIfInvalid(this.cleanJerk3Change2));
 		}
 		return 0;
@@ -2563,14 +2566,14 @@ public class Athlete {
 			return "";
 		}
 	}
-	
+
 	public String getSessionPattern() {
 		Group g = getGroup();
-		return (g != null ? Translator.translate("ChallengeCard.SessionPattern",g.getName()) : "");
+		return (g != null ? Translator.translate("ChallengeCard.SessionPattern", g.getName()) : "");
 	}
-	
+
 	public void setSessionPattern(String ignored) {
-		
+
 	}
 
 	/**
@@ -5192,7 +5195,7 @@ public class Athlete {
 			throw new RuleViolationException.LastChangeTooLow(this, curLift, newVal, prevVal);
 		}
 		try {
-			//logger.debug("validateChange1 {} {} {}",isCheckTiming(),checkBlank(change2),checkBlank(actualLift));
+			// logger.debug("validateChange1 {} {} {}",isCheckTiming(),checkBlank(change2),checkBlank(actualLift));
 			if (isCheckTiming() && checkBlank(change2) && checkBlank(actualLift)) {
 				checkChangeVsTimer(curLift, declaration, change1, change2);
 				checkDeclarationWasMade(curLift, declaration);
@@ -5227,7 +5230,7 @@ public class Athlete {
 			throw new RuleViolationException.LastChangeTooLow(this, curLift, newVal, prevVal);
 		}
 		try {
-			//logger.debug("validateChange2 {} {} {}",isCheckTiming(),checkBlank(actualLift));
+			// logger.debug("validateChange2 {} {} {}",isCheckTiming(),checkBlank(actualLift));
 			if (isCheckTiming() && checkBlank(actualLift)) {
 				checkChangeVsTimer(curLift, declaration, change1, change2);
 				checkDeclarationWasMade(curLift, declaration);
@@ -5262,7 +5265,7 @@ public class Athlete {
 			throw new RuleViolationException.DeclarationValueTooSmall(this, curLift, newVal, iAutomaticProgression);
 		}
 		try {
-			//logger.debug("validateDeclaration {} {} {}",isCheckTiming(),checkBlank(change1),checkBlank(actualLift));
+			// logger.debug("validateDeclaration {} {} {}",isCheckTiming(),checkBlank(change1),checkBlank(actualLift));
 			if (isCheckTiming() && (checkBlank(change1) && checkBlank(actualLift))) {
 				checkChangeVsTimer(curLift, declaration, change1, change2);
 				checkChangeVsLiftOrder(curLift, newVal);
