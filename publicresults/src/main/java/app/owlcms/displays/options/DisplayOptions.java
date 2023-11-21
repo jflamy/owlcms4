@@ -159,7 +159,7 @@ public class DisplayOptions {
             if (e.isFromClient() && e.getSource() == liftingOrderCheckbox) {
                 dp.switchLiftingOrder(target, e.getValue(), true);
             }
-            UI.getCurrent().getPage().reload();
+            UI.getCurrent().getPage().open(dp.getLocation().getPathWithQueryParameters());
         });    
 
         HorizontalLayout horizontalLayout = new HorizontalLayout(liftingOrderCheckbox, recordsDisplayCheckbox, leadersDisplayCheckbox);
