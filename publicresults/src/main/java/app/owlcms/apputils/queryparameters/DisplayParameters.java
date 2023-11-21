@@ -201,6 +201,7 @@ public interface DisplayParameters extends ContentParameters {
     public default HashMap<String, List<String>> readParams(Location location,
             Map<String, List<String>> parametersMap) {
         // handle FOP and Group by calling superclass
+        //logger.debug("readparams location={}",location.getPathWithQueryParameters());
         HashMap<String, List<String>> params = ContentParameters.super.readParams(location, parametersMap);
 
         List<String> darkParams = params.get(DARK);
@@ -244,9 +245,10 @@ public interface DisplayParameters extends ContentParameters {
         List<String> liftingOrder = params.get(LIFTING_ORDER);
         boolean useLiftingOrder = isDefaultLiftingOrderDisplay();
         if (liftingOrder != null && !liftingOrder.isEmpty()) {
-            useLiftingOrder = !"true".contentEquals(liftingOrder.get(0));
+            useLiftingOrder = "true".contentEquals(liftingOrder.get(0));
         }
         setLiftingOrder(useLiftingOrder);
+        //logger.debug("readparams updating {} to {}",LIFTING_ORDER, Boolean.toString(isLiftingOrder()));
         updateParam(params, LIFTING_ORDER, Boolean.toString(isLiftingOrder()));
 
         List<String> sizeParams = params.get(FONTSIZE);
@@ -369,6 +371,7 @@ public interface DisplayParameters extends ContentParameters {
     public default void switchLiftingOrder(Component target, boolean liftingOrder, boolean updateURL) {
         setLiftingOrder(liftingOrder);
         if (updateURL) {
+            //logger.debug("updating url {} {}", LIFTING_ORDER, liftingOrder ? "true" : "false");
             updateURLLocation(getLocationUI(), getLocation(), LIFTING_ORDER, liftingOrder ? "true" : "false");
         }
         //        buildDialog(target);

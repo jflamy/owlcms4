@@ -169,16 +169,17 @@ public class RegistrationFileUploadDialog extends Dialog {
 
 				Map<String, Object> beans = new HashMap<>();
 				beans.put("competition", c);
+				// we created a batch of new athletes. the ones that have exact matches for a
+				// category have had their eligibility and team memberships set in during the
+				// reader processing.
+				keepParticipations = athletes.stream()
+				        .filter(r -> r.getAthlete().getEligibleCategories() != null).findFirst()
+				        .isPresent();
 				beans.put("athletes", athletes);
 
 				XLSReadStatus status = reader.read(inputStream, beans);
 
-				// we created a batch of new athletes. the ones that have exact matches for a
-				// category have had their eligibility and team memberships set in during the
-				// reader processing.
-				keepParticipations = beans.values().stream()
-				        .filter(r -> ((RAthlete) r).getAthlete().getEligibleCategories() != null).findFirst()
-				        .isPresent();
+
 
 				logger.info(getTranslation("DataRead") + " " + athletes.size() + " athletes");
 				if (dryRun) {

@@ -129,7 +129,7 @@ public class MovingDownTest {
         schneiderF = groupAthletes.get(0);
         simpsonR = groupAthletes.get(1);
         allisonR = groupAthletes.get(2);
-
+        
         // clean&jerk start
         simpsonR = declaration(simpsonR, "60", fopState);
         allisonR = declaration(allisonR, "61", fopState);
@@ -178,7 +178,7 @@ public class MovingDownTest {
         schneiderF = groupAthletes.get(0);
         simpsonR = groupAthletes.get(1);
         allisonR = groupAthletes.get(2);
-
+        
         // clean&jerk start
         schneiderF = declaration(schneiderF, "60", fopState);
         simpsonR = declaration(simpsonR, "62", fopState);
@@ -348,7 +348,7 @@ public class MovingDownTest {
         schneiderF = groupAthletes.get(0);
         simpsonR = groupAthletes.get(1);
         allisonR = groupAthletes.get(2);
-
+        
         // clean&jerk started
         simpsonR = declaration(simpsonR, "60", fopState);
         schneiderF = declaration(schneiderF, "64", fopState);
@@ -733,6 +733,7 @@ public class MovingDownTest {
         Athlete updated = JPAService.runInTransaction(em -> {
             int attempt = lifter.getAttemptsDone() + 1;
             logger.debug("***1 attempt {} change 1 for athlete {}: {}", attempt, lifter, weight);
+            lifter.setCheckTiming(true);
             switch (attempt) {
             case 1:
                 lifter.setSnatch1Change1(weight);
@@ -757,7 +758,6 @@ public class MovingDownTest {
                     lifter.getNextAttemptRequestedWeight());
             return em.merge(lifter);
         });
-
         fopState.fopEventPost(new FOPEvent.WeightChange(this, updated, false));
         return updated;
     }
@@ -771,6 +771,7 @@ public class MovingDownTest {
         Athlete updated = JPAService.runInTransaction(em -> {
             int attempt = lifter.getAttemptsDone() + 1;
             logger.debug("***1 attempt {} change 2 for athlete {}: {}", attempt, lifter, weight);
+            lifter.setCheckTiming(true);
             switch (attempt) {
             case 1:
                 lifter.setSnatch1Change2(weight);
@@ -808,6 +809,7 @@ public class MovingDownTest {
         Athlete updated = JPAService.runInTransaction(em -> {
             int attempt = lifter.getAttemptsDone() + 1;
             logger.info("*** attempt {} declaration for athlete {}: {}", attempt, lifter, weight);
+            lifter.setCheckTiming(true);
             switch (attempt) {
             case 1:
                 lifter.setSnatch1Declaration(weight);
@@ -959,7 +961,7 @@ public class MovingDownTest {
         fopState.loadGroup(gA, this, true);
     }
 
-    private void testPrepSnatchCheckProgression(FieldOfPlay fopState, int nbAthletes) {
+	private void testPrepSnatchCheckProgression(FieldOfPlay fopState, int nbAthletes) {
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(LoggerLevel);
         // fopState.getFopEventBus();

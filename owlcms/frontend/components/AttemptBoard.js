@@ -114,11 +114,11 @@ class CurrentAttempt extends LitElement {
   }
 
   isBreak() {
-    return this.mode === "INTERRUPTION" || this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "SESSION_DONE" || this.mode === "CEREMONY"
+    return this.mode === "INTERRUPTION" || this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY" || this.mode === "SESSION_DONE" || this.mode === "CEREMONY"
   }
 
   isCountdown() {
-    return this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN"
+    return this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY"
   }
 
   athleteImgClasses() {
@@ -199,7 +199,7 @@ class CurrentAttempt extends LitElement {
   }
 
   breakTimerStyles() {
-    return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN") ? "grid" : "none");
+    return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY") ? "grid" : "none");
   }
 
   barbellStyles() {

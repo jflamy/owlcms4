@@ -202,7 +202,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 			}
 			CountdownType cType = e.getValue();
 			setCountdownFieldVisibility(cType);
-			this.startCountdown.setEnabled(true);
+			enableStartCountdown(true);
 		});
 		this.interruptionRadios.addValueChangeListener(event -> {
 			if (!event.isFromClient()) {
@@ -231,7 +231,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 				// logger.debug("starting break from radiobutton setvalue {}", bType);
 				setBreakTimerFromFields();
 			}
-			this.startCountdown.setEnabled(true);
+			enableStartCountdown(true);
 		});
 		this.durationField.addValueChangeListener(e -> {
 			if (!e.isFromClient()) {
@@ -386,7 +386,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 							setBreakValue(BreakType.FIRST_SNATCH);
 							this.countdownTypeRadios.setValue(CountdownType.DURATION);
 							setEnablement();
-							this.startCountdown.setEnabled(true);
+							enableStartCountdown(true);
 						}
 					});
 				});
@@ -427,7 +427,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 						}
 						masterEndCeremony(fop, CeremonyType.OFFICIALS_INTRODUCTION);
 					});
-					this.startCountdown.setEnabled(true);
+					enableStartCountdown(true);
 				});
 		this.endOfficials.setTabIndex(-1);
 		this.startOfficials.getThemeNames().add("secondary contrast");
@@ -535,10 +535,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		this.startCountdown.getElement().setAttribute("theme", "primary contrast");
 		this.startCountdown.getElement().setAttribute("title", getTranslation("StartCountdown"));
 		if (this.countdownRadios.getValue() != null) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("disabling countdown start");
-			}
-			this.startCountdown.setEnabled(false);
+			enableStartCountdown(false);
 		}
 
 		this.endCountdown = new Button(getTranslation("EndBreak"), new Icon(VaadinIcon.MICROPHONE),
@@ -722,7 +719,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 				// logger.debug("endBreak start lifting");
 				fop.fopEventPost(new FOPEvent.StartLifting(this.getOrigin()));
 				// logger.debug("endbreak enabling start");
-				this.startCountdown.setEnabled(true);
+				enableStartCountdown(true);
 				this.endCountdown.setEnabled(false);
 				fop.getUiEventBus().unregister(this);
 				dialog.close();
@@ -919,25 +916,24 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		boolean inactiveOrBreak = (this.fop.getState() == FOPState.BREAK) || this.fop.getState() == FOPState.INACTIVE;
 		if (this.countdownRadios.getValue() == null) {
 			setCountdownTypeValue(null);
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("disabling countdown start");
-			}
-			this.startCountdown.setEnabled(false);
+			enableStartCountdown(false);
 			this.endCountdown.setEnabled(false);
 		} else {
 			if (inactiveOrBreak) {
 				// boolean enabled = (inactiveOrBreak || this.fop.getBreakType() == BreakType.GROUP_DONE)
 				// && !this.fop.getBreakTimer().isRunning() ? true : false;
-				// this.startCountdown.setEnabled(enabled);
+				// enableStartCountdown(enabled);
 				// this.endCountdown.setEnabled(!this.startCountdown.isEnabled());
-				this.startCountdown.setEnabled(this.countdownRadios.getValue() != null);
+				enableStartCountdown(this.countdownRadios.getValue() != null);
 				this.endCountdown.setEnabled(true);
 			} else {
 				if (this.logger.isDebugEnabled()) {
 					this.logger.debug("disabling countdown start");
 				}
-				this.startCountdown.setEnabled(false);
-				this.endCountdown.setEnabled(!this.startCountdown.isEnabled());
+//				enableStartCountdown(false);
+//				this.endCountdown.setEnabled(!this.startCountdown.isEnabled());
+				enableStartCountdown(true);
+				this.endCountdown.setEnabled(true);
 			}
 		}
 
@@ -950,6 +946,11 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 			this.endInterruption.setEnabled(!this.stopCompetition.isEnabled());
 		}
 
+	}
+
+	private void enableStartCountdown(boolean b) {
+		//logger.debug("enabled {} {}",b,LoggerUtils.whereFrom());
+		this.startCountdown.setEnabled(b);
 	}
 
 	private void setCeremonyButtonHighlight(BreakType breakType2) {

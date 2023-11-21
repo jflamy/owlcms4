@@ -133,7 +133,7 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 		} else {
 			// we sometimes get pAthletes and but here we need the wrapped athlete.
 			pAthletes = rankedAthletes.stream()
-					//.peek(r -> { logger.warn("{} {}", r.getShortName(), r.getClass().getSimpleName()); })
+					//.peek(r -> { logger.debug("{} {}", r.getShortName(), r.getClass().getSimpleName()); })
 					.map(r -> r instanceof PAthlete ? ((PAthlete)r)._getAthlete() : r)
 					.collect(Collectors.toList());
 		}

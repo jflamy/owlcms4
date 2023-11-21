@@ -305,8 +305,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 
 		getEditedAthlete().setValidation(true);
 		getEditedAthlete().setStartingTotalViolation(false);
-
-		initialValidationStatus = binder.validate();
+		getEditedAthlete().setCheckTiming(false);
+		
+		initialValidationStatus = binder.validate();;
 		setErrorLabel(initialValidationStatus, false);
 		StringBuilder sb = getInitialErrors(initialValidationStatus);
 		if (logger.isDebugEnabled()) {
@@ -345,6 +346,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 //		button.addClickListener(listener);
 		button.addClickListener((f) -> {
 			performOperationAndCallback(operation, domainObject, callBack, isIgnoreErrors());
+			// the field value change listener will set the following to true if the user edits using the interface
+			domainObject.setCheckTiming(false);
 		});
 		return button;
 	}
@@ -526,7 +529,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 				if (!e.isFromClient()) {
 					return;
 				}
-				logger.trace("setting {} to {}", component.getId().get(), e.getValue());
+				getEditedAthlete().setCheckTiming(true);
+				//logger.debug("setting {} to {}", component.getId().get(), e.getValue());
 			});
 		}
 	}

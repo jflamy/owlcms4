@@ -9,6 +9,7 @@ package app.owlcms.simulation;
 import java.util.List;
 import java.util.Random;
 
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
@@ -18,7 +19,9 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -36,22 +39,16 @@ import ch.qos.logback.classic.Logger;
  */
 public class FOPSimulator {
 
+	private static final boolean USE_MQTT_TIMER = true;
 	static private Random r = new Random(0);
-
 	private FieldOfPlay fop;
-
 	private boolean groupDone;
-
 	private List<Group> groups;
 
-//    private EventBus fopEventBus;
-
+	// private EventBus fopEventBus;
 	final private Logger logger = (Logger) LoggerFactory.getLogger(FOPSimulator.class);
-
 	private Object origin;
-
 	private EventBus uiEventBus;
-
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("Simulation-" + logger.getName());
 
 	public FOPSimulator(FieldOfPlay f, List<Group> groups) {
@@ -269,6 +266,7 @@ public class FOPSimulator {
 	protected void doEmpty() {
 	}
 
+	@SuppressWarnings("unused")
 	protected void doLift(Athlete a) {
 		if (a == null) {
 			doEmpty();
@@ -278,9 +276,19 @@ public class FOPSimulator {
 			// doDone(fop.getGroup());
 			return;
 		}
-
+		
+		MQTTMonitor mm = fop.getMqttMonitor();
 		// do a lift in group g: start timer
-		fop.fopEventPost(new FOPEvent.TimeStarted(this));
+		if (USE_MQTT_TIMER && mm != null) {
+			try {
+				mm.publishStartAthleteTimer();
+			} catch (MqttException e) {
+				LoggerUtils.logError(logger, e);
+			}
+
+		} else {
+			fop.fopEventPost(new FOPEvent.TimeStarted(this));
+		}
 
 		// wait for clock to run down a bit
 		try {
@@ -289,7 +297,16 @@ public class FOPSimulator {
 		}
 
 		// stop time and get decisions
-		fop.fopEventPost(new FOPEvent.TimeStopped(this));
+		if (USE_MQTT_TIMER && mm != null) {
+			try {
+				mm.publishStopAthleteTimer();
+			} catch (MqttException e) {
+				LoggerUtils.logError(logger, e);
+			}
+		} else {
+			fop.fopEventPost(new FOPEvent.TimeStopped(this));
+		}
+
 		// wait for clock to run down a bit
 		try {
 			Thread.sleep(1000);
