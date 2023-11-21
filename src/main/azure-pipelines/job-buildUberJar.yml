@@ -1,3 +1,8 @@
+# Note: the azure build runs under the ubuntu-latest image
+# That image only includes Java 11. The Java 17 compilation is done in a container, but other steps
+# run directly in the image.  Some steps run in both settings, and this is why JAVA_HOME_11_X64 
+# must be defined
+
 parameters:
   - name: jobName
     type: string
