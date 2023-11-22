@@ -591,12 +591,15 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-clean-plugin</artifactId>
-				<version>3.1.0</version>
+				<version>3.3.2</version>
 				<configuration>
 					<filesets>
 						<fileset>
 							<directory>logs</directory>
 							<followSymlinks>false</followSymlinks>
+						</fileset>
+						<fileset>
+							<directory>src/main/dev-bundle</directory>
 						</fileset>
 					</filesets>
 				</configuration>
