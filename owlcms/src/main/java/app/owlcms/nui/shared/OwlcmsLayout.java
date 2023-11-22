@@ -52,9 +52,7 @@ public class OwlcmsLayout extends AppLayout {
 	public static final String NONE = "m-0";
 	Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsLayout.class);
 	private Component viewTitle;
-
 	protected List<Component> navBarComponents;
-
 	private DrawerToggle drawerToggle;
 	private ComboBox<Locale> localeDropDown;
 	private FlexLayout menuArea;
@@ -190,7 +188,11 @@ public class OwlcmsLayout extends AppLayout {
 
 	private void clearNavBar() {
 		for (Component c : getNavBarComponents()) {
-			super.remove(c);
+			try {
+				super.remove(c);
+			} catch (Exception e) {
+				logger.error("removing component not present.");
+			}
 		}
 		navBarComponents.clear();
 	}
@@ -247,7 +249,7 @@ public class OwlcmsLayout extends AppLayout {
 	private Tabs getTabs() {
 		Tabs tabs = new Tabs();
 		String docOpener = "javascript:window.open('https://jflamy.github.io/owlcms4/#/index','_blank')";
-//        boolean tv = new OwlcmsLicense().isFeatureAllowed("tv");
+		// boolean tv = new OwlcmsLicense().isFeatureAllowed("tv");
 		tabs.add(
 		        createTab(new Icon(VaadinIcon.HOME),
 		                Translator.translate("Home"),
@@ -261,12 +263,12 @@ public class OwlcmsLayout extends AppLayout {
 		        createTab(new Icon(VaadinIcon.DESKTOP),
 		                Translator.translate("StartDisplays"),
 		                DisplayNavigationContent.class));
-//        if (tv) {
+		// if (tv) {
 		tabs.add(
 		        createTab(new Icon(VaadinIcon.MOVIE),
 		                Translator.translate("VideoStreaming"),
 		                VideoNavigationContent.class));
-//        }
+		// }
 		tabs.add(
 		        createTab(new Icon(VaadinIcon.PRINT),
 		                Translator.translate("Results"),
@@ -306,8 +308,7 @@ public class OwlcmsLayout extends AppLayout {
 	 *
 	 * Note: the top bar is created before the content.
 	 *
-	 * @see #showRouterLayoutContent(HasElement) for how to content to layout and
-	 *      vice-versa
+	 * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
 	 *
 	 * @param header
 	 */

@@ -391,12 +391,12 @@ class ResultsPR extends LitElement {
   }
 
   athleteStyles() {
-    return (this.mode === "WAIT" ? "display: none" : "display:grid") + 
-      "; --top: " +  (this.resultLines ?? "") + 
-      "; --bottom: " + (this.leaderLines ?? "") + 
-      "; " + (this.leadersLineHeight ?? "") + 
-      "; " + (this.leaderFillerHeight ?? "") +
-      "; " + (this.twOverride ?? "");
+    return (this.mode === "WAIT" ? "display: none" : "display:grid ")
+      + (this.resultLines ? ("; --top: " + this.resultLines) : "") 
+      + (this.leaderLines ? "; --bottom: " + this.leaderLines : "")
+      + (this.leadersLineHeight ? "; " + this.leadersLineHeight : "") 
+      + (this.leaderFillerHeight ? "; " + this.leaderFillerHeight : "") 
+      + (this.twOverride ? "; " + this.twOverride : "") 
   }
 
   leadersStyles() {
@@ -414,7 +414,7 @@ class ResultsPR extends LitElement {
   recordsStyles() {
     return (!this.showRecords || this.mode !== "CURRENT_ATHLETE") 
       ? "display:none" 
-      : "font-size: calc(var(--tableFontSize) * var(--recordsFontRatio)); display: block" ;
+      : "font-size: var(--recordsFontRatio); display: block" ;
   }
 
   isBreak() {

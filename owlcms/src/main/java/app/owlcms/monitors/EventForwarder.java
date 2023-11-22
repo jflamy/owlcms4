@@ -224,7 +224,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode {
 		if (breakType == null) {
 			return Translator.translate("PublicMsg.CompetitionPaused");
 		}
-		if (ceremonyType != null && publicDisplay) {
+		if (ceremonyType != null
+				//&& publicDisplay
+				) {
 			switch (ceremonyType) {
 			case INTRODUCTION:
 				return Translator.translate("BreakMgmt.IntroductionOfAthletes");
