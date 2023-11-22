@@ -4,6 +4,7 @@
 
 ##### 44.5
 
+- (rc03) Updated ro, de translations
 - (rc02) Fix: Timer would show blank instead of 0:00 if athlete timed out.
 - (rc01) Fix: Refreshing publicresults would alternate between normal starting order and lifting order. Now correctly interprets the URL parameters.
 - Fix: During a 2:00 athlete clock, a late declaration would be falsely signaled when the first change took place after 1:30.
