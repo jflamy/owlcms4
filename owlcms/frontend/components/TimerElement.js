@@ -283,7 +283,7 @@ class TimerElement extends LitElement {
   }
 
   _formatTime(ntime) {
-    if (ntime < 0) return "&nbsp;&nbsp;&nbsp;&nbsp;";
+    if (ntime <= 0) return "0:00";
     var ntime = Math.round(ntime);
     var hours = Math.trunc(ntime / 3600);
     var minutes = Math.trunc((ntime - hours * 3600) / 60);
@@ -313,7 +313,7 @@ class TimerElement extends LitElement {
     this.silent = false;
     this.indefinite = false;
     this._elapsedTime = 0;
-    this._formattedTime = "&nbsp;&nbsp;&nbsp;&nbsp;";
+    this._formattedTime = "0:00";
     this._initialWarningGiven = false;
     this._finalWarningGiven = false;
     this._timeOverWarningGiven = false;
