@@ -1,16 +1,18 @@
 > **Version 45.0-alpha**	
 >
+> - BEWARE: this is an early version of a future release. **For the bug fix prereleases of the current stable version, look for versions 44.x-beta or 44.x-rc**
 > - Alpha releases are snapshots of active development.  
 > - They are meant to gather feedback and for initial tests.
 > - Alpha releases are not meant for use in competitions. Please look for a [stable release](https://github.com/owlcms/owlcms4/releases) or at least a release candidate.
 
 **45.0-alpha**
 
-- alpha04: Templates and documents
-  - Use the template name as basis for the output file name.
-- alpha03: Templates
-  - Workaround for non-working page breaks in Apache POI Excel library
-  - Changed Challenge Card templates so they can be printed in advance (no start number)
+- (alpha04) : Merge 44.5 fixes and update to Vaadin 23.2.4
+- (alpha04) : Templates and documents
+  - Enhancement: Use the template name as the basis for the output file name.
+- (alpha03) : Templates
+  - Fix: Workaround for non-working page breaks in Apache POI Excel library
+  - Fix: Changed the Challenge Card templates so they can be printed in advance (no start number)
 
 ##### 45.0
 
