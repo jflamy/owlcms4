@@ -1,6 +1,7 @@
 > **Version 45.0-alpha**	
 >
-> - BEWARE: this is an early version of a future release. **For the bug fix prereleases of the current stable version, look for versions 44.x-beta or 44.x-rc**
+> - BEWARE: this is an early version of a future release. 
+>   - **For the bug fix prereleases of the 44 stable version, look for versions 44.x-beta or 44.x-rc**
 > - Alpha releases are snapshots of active development.  
 > - They are meant to gather feedback and for initial tests.
 > - Alpha releases are not meant for use in competitions. Please look for a [stable release](https://github.com/owlcms/owlcms4/releases) or at least a release candidate.
