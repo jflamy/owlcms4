@@ -1,30 +1,19 @@
-<<<<<<< HEAD
 > **Version 45.0-alpha**	
-=======
-> **Version 44.5 release candidate**
->>>>>>> refs/remotes/origin/v24
 >
+> - BEWARE: this is an early version of a future release. 
+>   - **For the bug fix prereleases of the 44 stable version, look for versions 44.x-beta or 44.x-rc**
 > - Alpha releases are snapshots of active development.  
 > - They are meant to gather feedback and for initial tests.
 > - Alpha releases are not meant for use in competitions. Please look for a [stable release](https://github.com/owlcms/owlcms4/releases) or at least a release candidate.
 
-<<<<<<< HEAD
 **45.0-alpha**
-=======
-##### 44.5
->>>>>>> refs/remotes/origin/v24
 
-<<<<<<< HEAD
-- alpha03: Templates
-  - Workaround for non-working page breaks in Apache POI Excel library
-  - Changed Challenge Card templates so they can be printed in advance (no start number)
-=======
-- (rc01) Fix: Refreshing publicresults would alternate between normal starting order and lifting order. Now correctly interprets the URL parameters.
-- Fix: During a 2:00 athlete clock, a late declaration would be falsely signaled when the first change took place after 1:30.
-- Fix: Registration form upload could occasionally fail due to an error in category matching
-- Fix: Reloading athlete info during the CJ break would restart the break needlessly.
-- Change: the snatch and cj break countdown timers are no longer hidden during the presentation of officials and medal ceremonies.
->>>>>>> refs/remotes/origin/v24
+- (alpha04) : Merge 44.5 fixes and update to Vaadin 23.2.4
+- (alpha04) : Templates and documents
+  - Enhancement: Use the template name as the basis for the output file name.
+- (alpha03) : Templates
+  - Fix: Workaround for non-working page breaks in Apache POI Excel library
+  - Fix: Changed the Challenge Card templates so they can be printed in advance (no start number)
 
 ##### 45.0
 
