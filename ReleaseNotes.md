@@ -4,13 +4,11 @@
 
 ##### 44.5
 
-- (rc03) Updated ro, de translations
-- (rc02) Fix: Timer would show blank instead of 0:00 if athlete timed out.
-- (rc01) Fix: Refreshing publicresults would alternate between normal starting order and lifting order. Now correctly interprets the URL parameters.
 - Fix: During a 2:00 athlete clock, a late declaration would be falsely signaled when the first change took place after 1:30.
-- Fix: Registration form upload could occasionally fail due to an error in category matching
 - Fix: Reloading athlete info during the CJ break would restart the break needlessly.
+- Fix: Registration form upload could occasionally fail due to an error in category matching
 - Change: the snatch and cj break countdown timers are no longer hidden during the presentation of officials and medal ceremonies.
+- Fix: Refreshing publicresults would alternate between normal starting order and lifting order. Now correctly interprets the URL parameters.
 
 ##### Version 44 changes
 
@@ -21,7 +19,7 @@
     - The new default is called `nogrid`
     - The old style has been renamed to `grid`. 
     - The style can specified in the *Preparation - Settings - Customization* page.  For example, to get the old look back, you would specify `grid` instead of `nogrid`.  You can also specify the name of your own local styling directory.
-    - If the style directory named in the database is not found, the default  `nogrid`  is forced. So if you had changed the old `styles` directory, you must move it `local/css` before it can be used. You can rename it to whatever name you want.
+    - If the style directory named in the database is not found, the default  `nogrid`  is forced. So if you had changed the old `styles` directory, you must move it `local/css` before it can be used. You can also then rename it to whatever you want, and use that name in the Customization section.
 
 - Video Streaming: Video styling is now requested using `video=true`  as a query parameter after the `?` (like all the other parameters). See the *REQUIRED CHANGES FOR VIDEO STREAMING.* section at the bottom of this note.
 
@@ -47,12 +45,13 @@
 
 - **REQUIRED CHANGES FOR CSS CUSTOMIZATION**.
   This only concerns advanced users who have edited the css files
-  - Compare with the official style sheets and define a variable called 
+  - Compare with the official style sheets and make sure you define a variable called 
     `--defaultLeaderFillerHeight: 1fr` and edit the definitions of the `.filler` style to remove the `min-height` settings.
-  - If you display the custom1 or custom2 fields on the scoreboard, you need to add the lines from the bottom of `resultsCustomization.css`.  If several lines are needed, you must also uncomment the directive so that `pre-wrap` is enabled.
+  - If you display the custom1 or custom2 fields on the scoreboard, you need to add the lines from the bottom of `resultsCustomization.css`.  If you wish to have custom1 and custom2 display with line breaks, you must also uncomment the directive so that `white-space: pre-wrap` is defined.
   - *Local variations to styling MUST be copied to a subdirectory of* `local/css`.  If you have customized the `styles` folder move it to `local/css/mystyles` (or whatever name you want), and update the location your Preparation - Settings - Customization page. 
-  - Style sheet changes :  If you have customized the scoreboards,  you need to edit the `results.css` files. All instances of `:host(.dark)` must be changed to `.host .dark`  and all instances of `:host(.dark)` must be changed to `.host .dark`  
+  - Style sheet changes :  If you have customized the scoreboards,  you need to edit the `results.css` files. 
+    - All instances of `:host(.dark)` must be changed to `.host .dark`  and all instances of `:host(.light)` must be changed to `.host .light`  
   - Style sheet bug fixes: Several small changes have been made to grid and nogrid to fix small problems. You should compare your style sheets to the official ones.  Or for more safety, start from the official ones and redo your adjustments.
-
+  
 - **REQUIRED CHANGES FOR VIDEO STREAMING**.
   - For video streaming, *URLs that use*  `/video` *in* *the URL path should be changed* to use `?video=true` as a query parameter instead (video is now a parameter like all the others.)
