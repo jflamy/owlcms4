@@ -49,9 +49,8 @@ import ch.qos.logback.classic.Logger;
 /**
  * This class receives and emits MQTT events.
  *
- * Events initiated by the devices start with topics that names the device
- * (owlcms/jurybox) Devices do not listen to other devices. They listen to MQTT
- * events that come from the field of play. These events are of the form
+ * Events initiated by the devices start with topics that names the device (owlcms/jurybox) Devices do not listen to
+ * other devices. They listen to MQTT events that come from the field of play. These events are of the form
  * (owlcms/fop). The field of play is always the last element in the topic.
  *
  * @author Jean-François Lamy
@@ -59,8 +58,7 @@ import ch.qos.logback.classic.Logger;
 public class MQTTMonitor extends Thread {
 
 	/**
-	 * This inner class contains the routines executed when an MQTT message is
-	 * received.
+	 * This inner class contains the routines executed when an MQTT message is received.
 	 */
 	private class MQTTCallback implements MqttCallback {
 		Athlete athleteUnderReview;
@@ -77,15 +75,15 @@ public class MQTTMonitor extends Thread {
 
 		MQTTCallback() {
 			// these are the device-initiated events that the monitor tracks
-			this.deprecatedDecisionTopicName = "owlcms/decision/" + fop.getName();
-			this.decisionTopicName = "owlcms/refbox/decision/" + fop.getName();
-			this.downEmittedTopicName = "owlcms/refbox/downEmitted/" + fop.getName();
-			this.clockTopicName = "owlcms/clock/" + fop.getName();
-			this.juryBreakTopicName = "owlcms/jurybox/break/" + fop.getName();
-			this.juryMemberDecisionTopicName = "owlcms/jurybox/juryMember/decision/" + fop.getName();
-			this.juryDecisionTopicName = "owlcms/jurybox/decision/" + fop.getName();
-			this.jurySummonTopicName = "owlcms/jurybox/summon/" + fop.getName();
-			this.testTopicName = "owlcms/test/" + fop.getName();
+			this.deprecatedDecisionTopicName = "owlcms/decision/" + MQTTMonitor.this.fop.getName();
+			this.decisionTopicName = "owlcms/refbox/decision/" + MQTTMonitor.this.fop.getName();
+			this.downEmittedTopicName = "owlcms/refbox/downEmitted/" + MQTTMonitor.this.fop.getName();
+			this.clockTopicName = "owlcms/clock/" + MQTTMonitor.this.fop.getName();
+			this.juryBreakTopicName = "owlcms/jurybox/break/" + MQTTMonitor.this.fop.getName();
+			this.juryMemberDecisionTopicName = "owlcms/jurybox/juryMember/decision/" + MQTTMonitor.this.fop.getName();
+			this.juryDecisionTopicName = "owlcms/jurybox/decision/" + MQTTMonitor.this.fop.getName();
+			this.jurySummonTopicName = "owlcms/jurybox/summon/" + MQTTMonitor.this.fop.getName();
+			this.testTopicName = "owlcms/test/" + MQTTMonitor.this.fop.getName();
 			// no FOP on this message, it is used for the device to query what FOPs are
 			// present
 			this.configTopicName = "owlcms/config";
@@ -93,9 +91,10 @@ public class MQTTMonitor extends Thread {
 
 		@Override
 		public void connectionLost(Throwable cause) {
-			logger.debug("{}lost connection to MQTT: {}", fop.getLoggingName(), cause.getLocalizedMessage());
+			logger.debug("{}lost connection to MQTT: {}", MQTTMonitor.this.fop.getLoggingName(),
+			        cause.getLocalizedMessage());
 			// Called when the client lost the connection to the broker
-			connectionLoop(client);
+			connectionLoop(MQTTMonitor.this.client);
 		}
 
 		@Override
@@ -107,30 +106,30 @@ public class MQTTMonitor extends Thread {
 		public void messageArrived(String topic, MqttMessage message) throws Exception {
 			new Thread(() -> {
 				String messageStr = new String(message.getPayload(), StandardCharsets.UTF_8);
-				logger.info("{}{} : {}", fop.getLoggingName(), topic, messageStr.trim());
+				logger.info("{}{} : {}", MQTTMonitor.this.fop.getLoggingName(), topic, messageStr.trim());
 
-				if (topic.endsWith(decisionTopicName) || topic.endsWith(deprecatedDecisionTopicName)) {
+				if (topic.endsWith(this.decisionTopicName) || topic.endsWith(this.deprecatedDecisionTopicName)) {
 					postFopEventRefereeDecisionUpdate(topic, messageStr);
-				} else if (topic.endsWith(downEmittedTopicName)) {
+				} else if (topic.endsWith(this.downEmittedTopicName)) {
 					postFopEventDownEmitted(topic, messageStr);
-				} else if (topic.endsWith(clockTopicName)) {
+				} else if (topic.endsWith(this.clockTopicName)) {
 					postFopTimeEvents(topic, messageStr);
-				} else if (topic.endsWith(juryBreakTopicName)) {
+				} else if (topic.endsWith(this.juryBreakTopicName)) {
 					postFopJuryBreakEvents(topic, messageStr);
-				} else if (topic.endsWith(juryMemberDecisionTopicName)) {
+				} else if (topic.endsWith(this.juryMemberDecisionTopicName)) {
 					postFopEventJuryMemberDecisionUpdate(topic, messageStr);
-				} else if (topic.endsWith(juryDecisionTopicName)) {
+				} else if (topic.endsWith(this.juryDecisionTopicName)) {
 					postFopEventJuryDecision(topic, messageStr);
-				} else if (topic.endsWith(jurySummonTopicName)) {
+				} else if (topic.endsWith(this.jurySummonTopicName)) {
 					postFopEventSummonReferee(topic, messageStr);
-				} else if (topic.endsWith(configTopicName)) {
+				} else if (topic.endsWith(this.configTopicName)) {
 					publishMqttConfig("owlcms/fop/config");
-				} else if (topic.endsWith(testTopicName)) {
+				} else if (topic.endsWith(this.testTopicName)) {
 					long before = Long.parseLong(messageStr);
 					logger.info("{} timing = {}", getFop(), System.currentTimeMillis() - before);
 				} else {
 					logger.error("{}Malformed MQTT unrecognized topic message topic='{}' message='{}'",
-					        fop.getLoggingName(), topic, messageStr);
+					        MQTTMonitor.this.fop.getLoggingName(), topic, messageStr);
 				}
 			}).start();
 		}
@@ -150,17 +149,17 @@ public class MQTTMonitor extends Thread {
 		 */
 		private void postFopEventDownEmitted(String topic, String messageStr) {
 			messageStr = messageStr.trim();
-			fop.fopEventPost(new FOPEvent.DownSignal(this));
+			MQTTMonitor.this.fop.fopEventPost(new FOPEvent.DownSignal(this));
 		}
 
 		private void postFopEventJuryDecision(String topic, String messageStr) {
 			messageStr = messageStr.trim();
 			try {
-				fop.fopEventPost(
-				        new FOPEvent.JuryDecision(athleteUnderReview, this, messageStr.contentEquals("good")));
+				MQTTMonitor.this.fop.fopEventPost(
+				        new FOPEvent.JuryDecision(this.athleteUnderReview, this, messageStr.contentEquals("good")));
 			} catch (NumberFormatException e) {
 				logger.error("{}Malformed MQTT jury decision message topic='{}' message='{}'",
-				        fop.getLoggingName(), topic, messageStr);
+				        MQTTMonitor.this.fop.getLoggingName(), topic, messageStr);
 			}
 		}
 
@@ -170,11 +169,11 @@ public class MQTTMonitor extends Thread {
 				String[] parts = messageStr.split(" ");
 				int refIndex = Integer.parseInt(parts[0]) - 1;
 				logger.debug("JuryMemberDecisionUpdate {} {}", parts, refIndex);
-				fop.fopEventPost(new FOPEvent.JuryMemberDecisionUpdate(MQTTMonitor.this, refIndex,
+				MQTTMonitor.this.fop.fopEventPost(new FOPEvent.JuryMemberDecisionUpdate(MQTTMonitor.this, refIndex,
 				        parts[parts.length - 1].contentEquals("good")));
 			} catch (NumberFormatException e) {
 				logger.error("{}Malformed MQTT jury member decision message topic='{}' message='{}'",
-				        fop.getLoggingName(), topic, messageStr);
+				        MQTTMonitor.this.fop.getLoggingName(), topic, messageStr);
 			}
 		}
 
@@ -183,12 +182,12 @@ public class MQTTMonitor extends Thread {
 			try {
 				String[] parts = messageStr.split(" ");
 				int refIndex = Integer.parseInt(parts[0]) - 1;
-				fop.fopEventPost(new FOPEvent.DecisionUpdate(this, refIndex,
+				MQTTMonitor.this.fop.fopEventPost(new FOPEvent.DecisionUpdate(this, refIndex,
 				        parts[parts.length - 1].contentEquals("good")));
 
 			} catch (NumberFormatException e) {
 				logger.error("{}Malformed MQTT referee decision message topic='{}' message='{}'",
-				        fop.getLoggingName(), topic, messageStr);
+				        MQTTMonitor.this.fop.getLoggingName(), topic, messageStr);
 			}
 		}
 
@@ -205,53 +204,53 @@ public class MQTTMonitor extends Thread {
 					refIndex = Integer.parseInt(parts[0]);
 				}
 				// do the actual summoning
-				if (fop != null) {
-					if (fop.getState() != FOPState.BREAK && refIndex != 4) {
-						fop.fopEventPost(
+				if (MQTTMonitor.this.fop != null) {
+					if (MQTTMonitor.this.fop.getState() != FOPState.BREAK && refIndex != 4) {
+						MQTTMonitor.this.fop.fopEventPost(
 						        new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true,
 						                this));
 					}
-					fop.fopEventPost(new FOPEvent.SummonReferee(this, refIndex));
+					MQTTMonitor.this.fop.fopEventPost(new FOPEvent.SummonReferee(this, refIndex));
 				}
 			} catch (NumberFormatException e) {
 				logger.error("{}Malformed MQTT referee summon message topic='{}' message='{}'",
-				        fop.getLoggingName(), topic, messageStr);
+				        MQTTMonitor.this.fop.getLoggingName(), topic, messageStr);
 			}
 		}
 
 		private void postFopJuryBreakEvents(String topic, String messageStr) {
 			messageStr = messageStr.trim();
 			if (messageStr.equalsIgnoreCase("technical")) {
-				fop.fopEventPost(
+				MQTTMonitor.this.fop.fopEventPost(
 				        new FOPEvent.BreakStarted(BreakType.TECHNICAL, CountdownType.INDEFINITE, 0, null, true, this));
 			} else if (messageStr.equalsIgnoreCase("deliberation")) {
-				fop.fopEventPost(
+				MQTTMonitor.this.fop.fopEventPost(
 				        new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
 			} else if (messageStr.equalsIgnoreCase("challenge")) {
-				fop.fopEventPost(
+				MQTTMonitor.this.fop.fopEventPost(
 				        new FOPEvent.BreakStarted(BreakType.CHALLENGE, CountdownType.INDEFINITE, 0, null, true, this));
 			} else if (messageStr.equalsIgnoreCase("stop")) {
-				fop.fopEventPost(
+				MQTTMonitor.this.fop.fopEventPost(
 				        new FOPEvent.StartLifting(this));
 			} else {
 				logger.error("{}Malformed MQTT jury break message topic='{}' message='{}'",
-				        fop.getLoggingName(), topic, messageStr);
+				        MQTTMonitor.this.fop.getLoggingName(), topic, messageStr);
 			}
 		}
 
 		private void postFopTimeEvents(String topic, String messageStr) {
 			messageStr = messageStr.trim();
 			if (messageStr.equalsIgnoreCase("start")) {
-				fop.fopEventPost(new FOPEvent.TimeStarted(this));
+				MQTTMonitor.this.fop.fopEventPost(new FOPEvent.TimeStarted(this));
 			} else if (messageStr.equalsIgnoreCase("stop")) {
-				fop.fopEventPost(new FOPEvent.TimeStopped(this));
+				MQTTMonitor.this.fop.fopEventPost(new FOPEvent.TimeStopped(this));
 			} else if (messageStr.equalsIgnoreCase("60")) {
-				fop.fopEventPost(new FOPEvent.ForceTime(60000, this));
+				MQTTMonitor.this.fop.fopEventPost(new FOPEvent.ForceTime(60000, this));
 			} else if (messageStr.equalsIgnoreCase("120")) {
-				fop.fopEventPost(new FOPEvent.ForceTime(120000, this));
+				MQTTMonitor.this.fop.fopEventPost(new FOPEvent.ForceTime(120000, this));
 			} else {
 				logger.error("{}Malformed MQTT clock message topic='{}' message='{}'",
-				        fop.getLoggingName(), topic, messageStr);
+				        MQTTMonitor.this.fop.getLoggingName(), topic, messageStr);
 			}
 		}
 	}
@@ -275,53 +274,31 @@ public class MQTTMonitor extends Thread {
 
 	private MqttAsyncClient client;
 	private FieldOfPlay fop;
-
 	private String password;
 	private String userName;
 	private MQTTCallback callback;
-
 	private Long prevRefereeTimeStamp = 0L;
 
 	public MQTTMonitor(FieldOfPlay fop) {
 		this.fop = fop;
 	}
 
-	@Override
-	public void start() {
-		logger.setLevel(Level.DEBUG);
-		this.setFop(fop);
-		fop.getUiEventBus().register(this);
-		fop.getFopEventBus().register(this);
-
-		try {
-			String paramMqttServer = Config.getCurrent().getParamMqttServer();
-			if (Config.getCurrent().getParamMqttInternal() || (paramMqttServer != null && !paramMqttServer.isBlank())) {
-				client = createMQTTClient(fop);
-				connectionLoop(client);
-			} else {
-				logger.info("no MQTT server configured, skipping");
-			}
-		} catch (MqttException e) {
-			logger.error("cannot initialize MQTT: {}", LoggerUtils.stackTrace(e));
-		}
-	}
-
 	public FieldOfPlay getFop() {
-		return fop;
+		return this.fop;
 	}
 
 	public void publishMqttConfig() {
 		PlatformRepository.syncFOPs();
 		publishMqttConfig("owlcms/fop/config");
 	}
-	
+
 	public void publishStartAthleteTimer() throws MqttPersistenceException, MqttException {
-		client.publish("owlcms/clock/" + fop.getName(),
+		this.client.publish("owlcms/clock/" + this.fop.getName(),
 		        new MqttMessage("start".getBytes(StandardCharsets.UTF_8)));
 	}
-	
+
 	public void publishStopAthleteTimer() throws MqttPersistenceException, MqttException {
-		client.publish("owlcms/clock/" + fop.getName(),
+		this.client.publish("owlcms/clock/" + this.fop.getName(),
 		        new MqttMessage("stop".getBytes(StandardCharsets.UTF_8)));
 	}
 
@@ -331,7 +308,7 @@ public class MQTTMonitor extends Thread {
 
 	@Subscribe
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
-		//logger.debug("mqtt slaveBreakStart {} {}",e, e.getBreakType());
+		// logger.debug("mqtt slaveBreakStart {} {}",e, e.getBreakType());
 		if (e.getBreakType() == BreakType.JURY) {
 			try {
 				publishMqttJuryDeliberation();
@@ -369,8 +346,8 @@ public class MQTTMonitor extends Thread {
 	}
 
 	/**
-	 * A display or console has triggered the down signal (e.g. keypad connected to
-	 * a laptop) and down signal post connected via MQTT.
+	 * A display or console has triggered the down signal (e.g. keypad connected to a laptop) and down signal post
+	 * connected via MQTT.
 	 *
 	 * @param d
 	 */
@@ -423,9 +400,11 @@ public class MQTTMonitor extends Thread {
 
 	@Subscribe
 	public void slaveRefereeDecision(UIEvent.Decision e) {
+		logger.warn("slaveRefereeDecision");
 		// the deliberation is about the last athlete judged, not on the current
 		// athlete.
-		callback.setAthleteUnderReview(e.getAthlete());
+		this.callback.setAthleteUnderReview(e.getAthlete());
+		publishMqttRefereeDecision(e.ref1, e.ref2, e.ref3);
 	}
 
 	@Subscribe
@@ -438,7 +417,7 @@ public class MQTTMonitor extends Thread {
 	@Subscribe
 	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
 		// we switched lifter, or we switched attempt. reset the decisions.
-		prevRefereeTimeStamp = 0L;
+		this.prevRefereeTimeStamp = 0L;
 		publishMqttResetAllDecisions();
 	}
 
@@ -478,6 +457,26 @@ public class MQTTMonitor extends Thread {
 		publishMqttWakeUpRef(ref, e.on);
 	}
 
+	@Override
+	public void start() {
+		logger.setLevel(Level.DEBUG);
+		this.setFop(this.fop);
+		this.fop.getUiEventBus().register(this);
+		this.fop.getFopEventBus().register(this);
+
+		try {
+			String paramMqttServer = Config.getCurrent().getParamMqttServer();
+			if (Config.getCurrent().getParamMqttInternal() || (paramMqttServer != null && !paramMqttServer.isBlank())) {
+				this.client = createMQTTClient(this.fop);
+				connectionLoop(this.client);
+			} else {
+				logger.info("no MQTT server configured, skipping");
+			}
+		} catch (MqttException e) {
+			logger.error("cannot initialize MQTT: {}", LoggerUtils.stackTrace(e));
+		}
+	}
+
 	private void connectionLoop(MqttAsyncClient mqttAsyncClient) {
 		while (!mqttAsyncClient.isConnected()) {
 			try {
@@ -485,9 +484,9 @@ public class MQTTMonitor extends Thread {
 				// client.reconnect() and automaticReconnection do not work as I expect.
 				doConnect();
 			} catch (Exception e1) {
-				Main.getStartupLogger().error("{}MQTT refereeing device server: {}", fop.getLoggingName(),
+				Main.getStartupLogger().error("{}MQTT refereeing device server: {}", this.fop.getLoggingName(),
 				        e1.getCause() != null ? e1.getCause().getMessage() : e1);
-				logger.error("{}MQTT refereeing device server: {}", fop.getLoggingName(),
+				logger.error("{}MQTT refereeing device server: {}", this.fop.getLoggingName(),
 				        e1.getCause() != null ? e1.getCause().getMessage() : e1);
 			}
 			sleep(1000);
@@ -500,73 +499,74 @@ public class MQTTMonitor extends Thread {
 		if (curConfig.getParamMqttServer() != null && !Config.getCurrent().getParamMqttServer().isBlank()) {
 			external = true;
 			Config current2 = Config.getCurrent();
-			userName = current2.getParamMqttUserName();
+			this.userName = current2.getParamMqttUserName();
 			Config current3 = Config.getCurrent();
-			password = current3.getParamMqttPassword();
+			this.password = current3.getParamMqttPassword();
 		} else {
 			Config current4 = Config.getCurrent();
 			if (current4.getParamMqttInternal()) {
 				Config current5 = Config.getCurrent();
-				userName = current5.getMqttUserName();
-				password = Main.mqttStartup;
+				this.userName = current5.getMqttUserName();
+				this.password = Main.mqttStartup;
 			}
 		}
-		MqttConnectOptions connOpts = setupMQTTClient(userName, password);
-		client.connect(connOpts).waitForCompletion();
+		MqttConnectOptions connOpts = setupMQTTClient(this.userName, this.password);
+		this.client.connect(connOpts).waitForCompletion();
 
 		publishMqttLedOnOff();
-		logger.info("connected to {} MQTT broker {}",(external ? "external" : "embedded"), client.getCurrentServerURI() );
-		
-		client.subscribe(callback.deprecatedDecisionTopicName, 0);
-		logger.trace("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.deprecatedDecisionTopicName,
-		        client.getCurrentServerURI());
-		client.subscribe(callback.decisionTopicName, 0);
-		logger.trace("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.decisionTopicName,
-		        client.getCurrentServerURI());
-		client.subscribe(callback.downEmittedTopicName, 0);
-		logger.trace("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.downEmittedTopicName,
-		        client.getCurrentServerURI());
-		client.subscribe(callback.juryBreakTopicName, 0);
-		logger.trace("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.juryBreakTopicName,
-		        client.getCurrentServerURI());
-		client.subscribe(callback.juryMemberDecisionTopicName, 0);
-		logger.trace("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.juryMemberDecisionTopicName,
-		        client.getCurrentServerURI());
-		client.subscribe(callback.juryDecisionTopicName, 0);
-		logger.trace("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.juryDecisionTopicName,
-		        client.getCurrentServerURI());
-		client.subscribe(callback.jurySummonTopicName, 0);
-		logger.trace("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.jurySummonTopicName,
-		        client.getCurrentServerURI());
-		client.subscribe(callback.clockTopicName, 0);
-		logger.trace("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.clockTopicName,
-		        client.getCurrentServerURI());
-		client.subscribe(callback.testTopicName, 0);
-		logger.trace("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.testTopicName,
-		        client.getCurrentServerURI());
-		client.subscribe(callback.configTopicName, 0);
-		logger.trace("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.configTopicName,
-		        client.getCurrentServerURI());
+		logger.info("connected to {} MQTT broker {}", (external ? "external" : "embedded"),
+		        this.client.getCurrentServerURI());
+
+		this.client.subscribe(this.callback.deprecatedDecisionTopicName, 0);
+		logger.trace("{}MQTT subscribe {} {}", this.fop.getLoggingName(), this.callback.deprecatedDecisionTopicName,
+		        this.client.getCurrentServerURI());
+		this.client.subscribe(this.callback.decisionTopicName, 0);
+		logger.trace("{}MQTT subscribe {} {}", this.fop.getLoggingName(), this.callback.decisionTopicName,
+		        this.client.getCurrentServerURI());
+		this.client.subscribe(this.callback.downEmittedTopicName, 0);
+		logger.trace("{}MQTT subscribe {} {}", this.fop.getLoggingName(), this.callback.downEmittedTopicName,
+		        this.client.getCurrentServerURI());
+		this.client.subscribe(this.callback.juryBreakTopicName, 0);
+		logger.trace("{}MQTT subscribe {} {}", this.fop.getLoggingName(), this.callback.juryBreakTopicName,
+		        this.client.getCurrentServerURI());
+		this.client.subscribe(this.callback.juryMemberDecisionTopicName, 0);
+		logger.trace("{}MQTT subscribe {} {}", this.fop.getLoggingName(), this.callback.juryMemberDecisionTopicName,
+		        this.client.getCurrentServerURI());
+		this.client.subscribe(this.callback.juryDecisionTopicName, 0);
+		logger.trace("{}MQTT subscribe {} {}", this.fop.getLoggingName(), this.callback.juryDecisionTopicName,
+		        this.client.getCurrentServerURI());
+		this.client.subscribe(this.callback.jurySummonTopicName, 0);
+		logger.trace("{}MQTT subscribe {} {}", this.fop.getLoggingName(), this.callback.jurySummonTopicName,
+		        this.client.getCurrentServerURI());
+		this.client.subscribe(this.callback.clockTopicName, 0);
+		logger.trace("{}MQTT subscribe {} {}", this.fop.getLoggingName(), this.callback.clockTopicName,
+		        this.client.getCurrentServerURI());
+		this.client.subscribe(this.callback.testTopicName, 0);
+		logger.trace("{}MQTT subscribe {} {}", this.fop.getLoggingName(), this.callback.testTopicName,
+		        this.client.getCurrentServerURI());
+		this.client.subscribe(this.callback.configTopicName, 0);
+		logger.trace("{}MQTT subscribe {} {}", this.fop.getLoggingName(), this.callback.configTopicName,
+		        this.client.getCurrentServerURI());
 	}
 
 	private void doPublishMQTTSummon(int ref) throws MqttException, MqttPersistenceException {
-		String topic = "owlcms/fop/summon/" + fop.getName();
-		client.publish(topic, new MqttMessage(Integer.toString(ref).getBytes(StandardCharsets.UTF_8)));
-		String deprecatedTopic = "owlcms/summon/" + fop.getName() + "/" + ref;
-		client.publish(deprecatedTopic, new MqttMessage(("on").getBytes(StandardCharsets.UTF_8)));
+		String topic = "owlcms/fop/summon/" + this.fop.getName();
+		this.client.publish(topic, new MqttMessage(Integer.toString(ref).getBytes(StandardCharsets.UTF_8)));
+		String deprecatedTopic = "owlcms/summon/" + this.fop.getName() + "/" + ref;
+		this.client.publish(deprecatedTopic, new MqttMessage(("on").getBytes(StandardCharsets.UTF_8)));
 	}
 
 	private void publishMqttBreak(BreakStarted e) throws MqttPersistenceException, MqttException {
 		try {
-			client.publish("owlcms/fop/break/" + fop.getName(),
+			this.client.publish("owlcms/fop/break/" + this.fop.getName(),
 			        new MqttMessage(e.getBreakType().name().getBytes(StandardCharsets.UTF_8)));
 		} catch (Exception e1) {
-			logger.error("mqttBreak event error - {}",e.getTrace());
+			logger.error("mqttBreak event error - {}", e.getTrace());
 		}
 	}
 
 	private void publishMqttCeremony(UIEvent e, boolean b) throws MqttPersistenceException, MqttException {
-		String topic = "owlcms/fop/ceremony/" + fop.getName();
+		String topic = "owlcms/fop/ceremony/" + this.fop.getName();
 		try {
 			CeremonyType ceremonyType;
 			if (e instanceof UIEvent.CeremonyStarted) {
@@ -574,7 +574,7 @@ public class MQTTMonitor extends Thread {
 			} else {
 				ceremonyType = ((UIEvent.CeremonyDone) e).getCeremonyType();
 			}
-			client.publish(
+			this.client.publish(
 			        topic,
 			        new MqttMessage(
 			                (ceremonyType.name() + " " + (e instanceof UIEvent.CeremonyStarted ? "start" : "stop"))
@@ -584,8 +584,8 @@ public class MQTTMonitor extends Thread {
 	}
 
 	private void publishMqttChallenge() throws MqttPersistenceException, MqttException {
-		String topic = "owlcms/fop/challenge/" + fop.getName();
-		client.publish(topic, new MqttMessage());
+		String topic = "owlcms/fop/challenge/" + this.fop.getName();
+		this.client.publish(topic, new MqttMessage());
 	}
 
 	private void publishMqttConfig(String topic) {
@@ -598,42 +598,42 @@ public class MQTTMonitor extends Thread {
 		payload.put("jurySize", Competition.getCurrent().getJurySize());
 		try {
 			String json = new ObjectMapper().writeValueAsString(payload);
-			logger.info("{}MQTT Config: {}",fop.getLoggingName(),json);
-			client.publish(topic, new MqttMessage(json.getBytes(StandardCharsets.UTF_8)));
+			logger.info("{}MQTT Config: {}", this.fop.getLoggingName(), json);
+			this.client.publish(topic, new MqttMessage(json.getBytes(StandardCharsets.UTF_8)));
 		} catch (JsonProcessingException | MqttException e) {
 		}
 	}
 
 	private void publishMqttDownSignal() throws MqttException, MqttPersistenceException {
-		String topic = "owlcms/fop/down/" + fop.getName();
-		client.publish(topic, new MqttMessage());
+		String topic = "owlcms/fop/down/" + this.fop.getName();
+		this.client.publish(topic, new MqttMessage());
 	}
 
 	private void publishMqttGroupDone(GroupDone e) throws MqttPersistenceException, MqttException {
-		client.publish("owlcms/fop/break/" + fop.getName(),
+		this.client.publish("owlcms/fop/break/" + this.fop.getName(),
 		        new MqttMessage(BreakType.GROUP_DONE.name().getBytes(StandardCharsets.UTF_8)));
 	}
 
 	private void publishMqttJuryDeliberation() throws MqttPersistenceException, MqttException {
-		String topic = "owlcms/fop/juryDeliberation/" + fop.getName();
-		client.publish(topic, new MqttMessage());
+		String topic = "owlcms/fop/juryDeliberation/" + this.fop.getName();
+		this.client.publish(topic, new MqttMessage());
 	}
 
 	private void publishMqttJuryMemberDecision(Integer juryMemberUpdated) {
-		String topic = "owlcms/fop/juryMemberDecision/" + fop.getName();
+		String topic = "owlcms/fop/juryMemberDecision/" + this.fop.getName();
 		try {
 			String message = Integer.toString(juryMemberUpdated + 1) + " hidden";
-			client.publish(topic, new MqttMessage(message.getBytes(StandardCharsets.UTF_8)));
+			this.client.publish(topic, new MqttMessage(message.getBytes(StandardCharsets.UTF_8)));
 		} catch (MqttException e) {
 		}
 	}
 
 	private void publishMqttJuryReveal(int jurySize, Boolean[] juryMemberDecision) {
-		String topic = "owlcms/fop/juryMemberDecision/" + fop.getName();
+		String topic = "owlcms/fop/juryMemberDecision/" + this.fop.getName();
 		for (int i = 0; i < jurySize; i++) {
 			try {
 				String message = Integer.toString(i + 1) + (juryMemberDecision[i] ? " good" : " bad");
-				client.publish(topic, new MqttMessage(message.getBytes(StandardCharsets.UTF_8)));
+				this.client.publish(topic, new MqttMessage(message.getBytes(StandardCharsets.UTF_8)));
 			} catch (MqttException e) {
 			}
 		}
@@ -641,18 +641,32 @@ public class MQTTMonitor extends Thread {
 
 	private void publishMqttLedOnOff() throws MqttException, MqttPersistenceException {
 		// logger.debug("{}MQTT LedOnOff", fop.getLoggingName());
-		String topic = "owlcms/fop/startup/" + fop.getName();
-		String deprecatedTopic = "owlcms/led/" + fop.getName();
-		client.publish(topic, new MqttMessage("on".getBytes(StandardCharsets.UTF_8)));
-		client.publish(deprecatedTopic, new MqttMessage("on".getBytes(StandardCharsets.UTF_8)));
+		String topic = "owlcms/fop/startup/" + this.fop.getName();
+		String deprecatedTopic = "owlcms/led/" + this.fop.getName();
+		this.client.publish(topic, new MqttMessage("on".getBytes(StandardCharsets.UTF_8)));
+		this.client.publish(deprecatedTopic, new MqttMessage("on".getBytes(StandardCharsets.UTF_8)));
 		sleep(1000);
-		client.publish(topic, new MqttMessage("off".getBytes(StandardCharsets.UTF_8)));
-		client.publish(deprecatedTopic, new MqttMessage("off".getBytes(StandardCharsets.UTF_8)));
+		this.client.publish(topic, new MqttMessage("off".getBytes(StandardCharsets.UTF_8)));
+		this.client.publish(deprecatedTopic, new MqttMessage("off".getBytes(StandardCharsets.UTF_8)));
 	}
 
 	private void publishMqttLiftingOrderUpdated() throws MqttPersistenceException, MqttException {
-		String topic = "owlcms/fop/liftingOrderUpdated/" + fop.getName();
-		client.publish(topic, new MqttMessage());
+		String topic = "owlcms/fop/liftingOrderUpdated/" + this.fop.getName();
+		this.client.publish(topic, new MqttMessage());
+	}
+
+	private void publishMqttRefereeDecision(Boolean ref1, Boolean ref2, Boolean ref3) {
+		boolean decision;
+		if (ref1 == null) {
+			decision = ref2;
+		} else {
+			decision = (ref1 && ref2) || (ref1 && ref3) || (ref2 && ref3);
+		}
+		try {
+			this.client.publish("owlcms/fop/refereesDecision/" + this.fop.getName(),
+			        new MqttMessage((decision ? "good" : "bad").getBytes(StandardCharsets.UTF_8)));
+		} catch (MqttException e) {
+		}
 	}
 
 	private void publishMqttRefereeUpdates(Boolean ref1, Boolean ref2, Boolean ref3, Long ref1Time, Long ref2Time,
@@ -664,36 +678,37 @@ public class MQTTMonitor extends Thread {
 		        })
 		        .max(Long::compare);
 		if (curRefereeUpdateTimeStamp.isPresent()
-		        && curRefereeUpdateTimeStamp.get() >= prevRefereeTimeStamp) {
-			logger.debug("{}MQTT publishMqttRefereeUpdates {}({}) {}({}) {}({})", fop.getLoggingName(), ref1, ref1Time,
+		        && curRefereeUpdateTimeStamp.get() >= this.prevRefereeTimeStamp) {
+			logger.debug("{}MQTT publishMqttRefereeUpdates {}({}) {}({}) {}({})", this.fop.getLoggingName(), ref1,
+			        ref1Time,
 			        ref2, ref2Time, ref3, ref3Time);
 			try {
 				if (ref1 != null) {
-					client.publish("owlcms/fop/decision/" + fop.getName(),
+					this.client.publish("owlcms/fop/decision/" + this.fop.getName(),
 					        new MqttMessage((1 + " " + (ref1 ? "good" : "bad")).getBytes(StandardCharsets.UTF_8)));
 				}
 				if (ref2 != null) {
-					client.publish("owlcms/fop/decision/" + fop.getName(),
+					this.client.publish("owlcms/fop/decision/" + this.fop.getName(),
 					        new MqttMessage((2 + " " + (ref2 ? "good" : "bad")).getBytes(StandardCharsets.UTF_8)));
 				}
 				if (ref3 != null) {
-					client.publish("owlcms/fop/decision/" + fop.getName(),
+					this.client.publish("owlcms/fop/decision/" + this.fop.getName(),
 					        new MqttMessage((3 + " " + (ref3 ? "good" : "bad")).getBytes(StandardCharsets.UTF_8)));
 				}
 			} catch (MqttException e1) {
 			}
 		} else {
 			logger.debug("{}MQTT skipping out-of-date publishMqttRefereeUpdates {}({}) {}({}) {}({})",
-			        fop.getLoggingName(), ref1, ref1Time,
+			        this.fop.getLoggingName(), ref1, ref1Time,
 			        ref2, ref2Time, ref3, ref3Time);
 		}
-		prevRefereeTimeStamp = curRefereeUpdateTimeStamp.isPresent() ? curRefereeUpdateTimeStamp.get() : 0L;
+		this.prevRefereeTimeStamp = curRefereeUpdateTimeStamp.isPresent() ? curRefereeUpdateTimeStamp.get() : 0L;
 	}
 
 	private void publishMqttResetAllDecisions() {
-		logger.debug("{}MQTT resetDecisions", fop.getLoggingName());
+		logger.debug("{}MQTT resetDecisions", this.fop.getLoggingName());
 		try {
-			client.publish("owlcms/fop/resetDecisions/" + fop.getName(),
+			this.client.publish("owlcms/fop/resetDecisions/" + this.fop.getName(),
 			        new MqttMessage("reset".getBytes(StandardCharsets.UTF_8)));
 		} catch (MqttException e1) {
 
@@ -701,12 +716,12 @@ public class MQTTMonitor extends Thread {
 	}
 
 	private void publishMqttStartLifting() throws MqttPersistenceException, MqttException {
-		String topic = "owlcms/fop/startLifting/" + fop.getName();
-		client.publish(topic, new MqttMessage());
+		String topic = "owlcms/fop/startLifting/" + this.fop.getName();
+		this.client.publish(topic, new MqttMessage());
 	}
 
 	private void publishMqttSummonRef(int ref) {
-		logger.debug("{}MQTT summon {}", fop.getLoggingName(), ref);
+		logger.debug("{}MQTT summon {}", this.fop.getLoggingName(), ref);
 		try {
 			if (ref > 0 && ref <= 4) {
 				doPublishMQTTSummon(ref);
@@ -722,9 +737,9 @@ public class MQTTMonitor extends Thread {
 	}
 
 	private void publishMqttTimeRemaining(int tr) {
-		logger.debug("{}MQTT timeRemaining {}", fop.getLoggingName(), tr);
+		logger.debug("{}MQTT timeRemaining {}", this.fop.getLoggingName(), tr);
 		try {
-			client.publish("owlcms/fop/timeRemaining/" + fop.getName(),
+			this.client.publish("owlcms/fop/timeRemaining/" + this.fop.getName(),
 			        new MqttMessage(Integer.toString(tr).getBytes(StandardCharsets.UTF_8)));
 		} catch (MqttException e1) {
 			logger.error("could not publish timeRemaining {}", e1.getCause());
@@ -732,9 +747,9 @@ public class MQTTMonitor extends Thread {
 	}
 
 	private void publishMqttWakeUpRef(int ref, boolean on) {
-		logger.debug("{}MQTT decisionRequest {} {}", fop.getLoggingName(), ref, on);
+		logger.debug("{}MQTT decisionRequest {} {}", this.fop.getLoggingName(), ref, on);
 		try {
-			FOPState state = fop.getState();
+			FOPState state = this.fop.getState();
 			if (state != FOPState.DOWN_SIGNAL_VISIBLE
 			        && state != FOPState.TIME_RUNNING
 			        && state != FOPState.TIME_STOPPED) {
@@ -742,20 +757,20 @@ public class MQTTMonitor extends Thread {
 				// in time; should not happen, this is defensive.
 				return;
 			}
-			String topic = "owlcms/fop/decisionRequest/" + fop.getName();
+			String topic = "owlcms/fop/decisionRequest/" + this.fop.getName();
 			if (on) {
-				client.publish(topic, new MqttMessage(Integer.toString(ref).getBytes(StandardCharsets.UTF_8)));
+				this.client.publish(topic, new MqttMessage(Integer.toString(ref).getBytes(StandardCharsets.UTF_8)));
 			} else {
 				// off is not sent in modern mode.
 			}
 
 			// Legacy : specific referee is added at the end of the topic.
-			String deprecatedTopic = "owlcms/decisionRequest/" + fop.getName() + "/" + ref;
+			String deprecatedTopic = "owlcms/decisionRequest/" + this.fop.getName() + "/" + ref;
 			if (on) {
-				client.publish(deprecatedTopic,
+				this.client.publish(deprecatedTopic,
 				        new MqttMessage(("on").getBytes(StandardCharsets.UTF_8)));
 			} else {
-				client.publish(deprecatedTopic,
+				this.client.publish(deprecatedTopic,
 				        new MqttMessage(("off").getBytes(StandardCharsets.UTF_8)));
 			}
 		} catch (MqttException e1) {
@@ -780,8 +795,8 @@ public class MQTTMonitor extends Thread {
 	private MqttConnectOptions setupMQTTClient(String userName, String password) {
 		MqttConnectOptions connOpts = setUpConnectionOptions(userName != null ? userName : "",
 		        password != null ? password : "");
-		callback = new MQTTCallback();
-		client.setCallback(callback);
+		this.callback = new MQTTCallback();
+		this.client.setCallback(this.callback);
 		return connOpts;
 	}
 
