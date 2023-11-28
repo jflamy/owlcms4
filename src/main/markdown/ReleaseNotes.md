@@ -6,26 +6,32 @@
 
 **45.0-beta**
 
-- (beta01) added a new MQTT message "refereesDecision" to make it easier to create devices that control ambiance lighting based on good/bad lift.
+- (beta01) Feature freeze.
 
 ##### 45.0
 
-- Templates and documents
-  - Use the template name as the basis for the output file name.
-  - Changed the Challenge Card templates so they can be printed in advance (no start number)
-
-- Added Challenge cards (same menu as Marshal cards)
 - Changes to the `nogrid` and `grid`  styles
   - Support for 4K TV screens (without having to change the display resolution)
   - CSS variants for phones, tablets, laptops, 2K (1920x1080) and 4K devices.
   - Support for vertical orientation devices. 
     - The initial look on phones and tablets is now correct. 
     - Special competitions that use very large groups with multiple platforms can use vertical TV screens
+
 - On-site styles and video styles are now separate configuration settings.
   - They both default to `nogrid`. 
   - You can create alternate looks by copying a style to a new name under `local/css` and editing the colors and other css.
   - However, a `transparent` style is also available for video. It uses a pure green background that can be made transparent by video streaming software such as OBS.  `transparent` is designed for a 1920x1080 canvas.
-- Updated to latest Vaadin 24.2.0
+
+- Templates and documents
+
+  - Use the template name as the basis for the output file name.
+  - Changed the Challenge Card templates so they can be printed in advance (no start number)
+
+  - Added Challenge cards (same menu as Marshal cards)
+
+- MQTT: a new message "refereesDecision" was added to make it easier to create devices that control ambiance lighting based on good/bad lift.
+
+- Updated to latest Vaadin 24.2 version
 
 
 **Version 45 CUSTOM CSS ADJUSTMENTS**
