@@ -1,21 +1,18 @@
-> **Version 45.0-alpha**	
+> **Version 45.0-beta**	
 >
-> - BEWARE: this is an early version of a future release. 
->   - **For the bug fix prereleases of the 44 stable version, look for versions 44.x-beta or 44.x-rc**
-> - Alpha releases are snapshots of active development.  
-> - They are meant to gather feedback and for initial tests.
-> - Alpha releases are not meant for use in competitions. Please look for a [stable release](https://github.com/owlcms/owlcms4/releases) or at least a release candidate.
+> - BEWARE: this is an early version of a future 45 release, **not a version 44 bug fix release**.  The version 44 prereleases have 44 in their version number.
+> - Beta releases are for testing and translation, they are meant to gather feedback and for tests by early adopters.  Normally no new features are introduced at the beta stage, only fixes.
+> - Beta releases are seldom used in competitions and need to be extremely well tested before doing so. Please look for a [stable release](https://github.com/owlcms/owlcms4/releases) or at least a release candidate unless you absolutely need a feature or fix.
 
-**45.0-alpha**
+**45.0-beta**
 
-- (alpha04) : Merge 44.5 fixes and update to Vaadin 23.2.4
-- (alpha04) : Templates and documents
-  - Enhancement: Use the template name as the basis for the output file name.
-- (alpha03) : Templates
-  - Fix: Workaround for non-working page breaks in Apache POI Excel library
-  - Fix: Changed the Challenge Card templates so they can be printed in advance (no start number)
+- (beta01) added a new MQTT message "refereesDecision" to make it easier to create devices that control ambiance lighting based on good/bad lift.
 
 ##### 45.0
+
+- Templates and documents
+  - Use the template name as the basis for the output file name.
+  - Changed the Challenge Card templates so they can be printed in advance (no start number)
 
 - Added Challenge cards (same menu as Marshal cards)
 - Changes to the `nogrid` and `grid`  styles
