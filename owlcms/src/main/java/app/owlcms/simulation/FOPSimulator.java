@@ -309,7 +309,7 @@ public class FOPSimulator {
 
 		// wait for clock to run down a bit
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 		}
 		fop.fopEventPost(new FOPEvent.DecisionUpdate(this, 0, goodLift(r)));
