@@ -1,25 +1,41 @@
 ## Installation on fly.io
 
-Fly.io is a cloud service that is, in effect, free. The charges incurred for a single owlcms application and the matching remote scoreboard are less than the minimal amount for which they emit a bill.
+Fly.io is a cloud service that is, in effect, free. Indeed, the charges for an owlcms application, its database the matching cloud scoreboard are less than the minimal billing amount and are therefore free.
 
-In order to install an application you will need to log in to their site and then copy-paste a few commands given on this page.
+To install in the cloud you will need to log in to their site and then copy-paste a few commands given on this page.
 
-#### Log in
+#### One-time tool installation and Log in
 
-- Go to the site https://fly.io and create an account if you don't have one, or login if you already do
+1. Go to the site https://fly.io and create an account if you don't have one
+
+2. Install the `fly` command on your machine. This command remote controls your applications.
 
 
-- Go to https://fly.io/terminal page in your browser address bar.  This will allow you to copy-paste the commands given on this page.
+      - For Windows users: 
 
-  Note: You can also install the `fly` command on your own machine. See the [flyctl installation instructions](https://fly.io/docs/hands-on/install-flyctl/) if so.
+         1. Click on the gray area just below and copy the installation command.
+
+            ```powershell
+            powershell -Command "iwr https://fly.io/install.ps1 -useb | iex"
+            ```
+
+
+        2. Then click on the `⊞` icon in your Windows taskbar at the bottom and type `cmd` to open a command window.
+        3. Then paste the command and hit Enter.
+
+      - For other users: See the [flyctl installation instructions](https://fly.io/docs/hands-on/install-flyctl/).  
+
+
+   - Type the `fly auth login` command to login to your account.
+
 
 #### Install owlcms
 
 - The application names in fly.io are global.  If the name you want is already taken, you will be told.
 
-- In this example, we will use `myclub` as the site name. The URL would then be `https://myclub.fly.dev`.  *You will of course replace `myclub` with your own site name everywhere in the commands given.*
+   - In this example, we will use `myclub` as the site name. The URL would then be `https://myclub.fly.dev`.  *You will of course replace `myclub` with your own site name everywhere in the commands given.*
 
-- Click on the grey box below to copy the command.  Paste it to the command line interface (*when using the Web interface use the browser Edit menu* -- control-C and control-V don't work).   *Replace `myclub` with your own value.*
+- Click on the grey box below to copy the command.  Paste it to the command line interface.  *Replace `myclub` with your own value.*
 
    ```bash
    fly launch --ha=false --vm-size shared-cpu-2x --image owlcms/owlcms:stable --name myclub
@@ -31,7 +47,7 @@ In order to install an application you will need to log in to their site and the
 
    - Pick the region closest to you if asked
 
-   - Important: say **y** (yes) when asked if you want a Postgres database
+   - **Important**: say **y** (yes) when asked if you want a Postgres database
 
    - Hit enter to pick the default (**Development**) for the Postgres database
 
@@ -43,7 +59,8 @@ In order to install an application you will need to log in to their site and the
 
 ​	**You are now done and can use https://myclub.fly.dev**
 
-- If you make a mistake and want to start over again, just issue the following commands `fly destroy --app myclub` and `fly destroy --app myclub-db`
+- If you make a mistake and want to start over again, just issue the following commands 
+  `fly destroy --app myclub` and `fly destroy --app myclub-db`
 
 
 
@@ -57,13 +74,14 @@ To update to the latest stable version, go back to the command line interface an
 fly deploy --image owlcms/owlcms:stable --app myclub
 ```
 
-If you want to try a prerelease, use "owlcms/owlcms:prerelease" instead -- you can switch between stable and prerelease as you wish.
+If you want to try a prerelease, use `owlcms/owlcms:prerelease` instead -- you can switch between stable and prerelease as you wish.
+You can also deploy a specific version, using for example ``owlcms/owlcms:44.6.0`
 
 
 
 ## Advanced topics
 
-#### (Optional) Install the public results scoreboard
+#### (Useful) Install the public results scoreboard
 
 This second site will allow anyone in the world to watch the scoreboard, including the audience (useful if the scoreboard is missing, small or faint).   Something like `myclub-results` makes sense as a name, and people would then use `myclub-results.fly.dev` to reach the scoreboard from their phone.
 
@@ -101,9 +119,9 @@ This second site will allow anyone in the world to watch the scoreboard, includi
 
 
 
-### Updating publicresults for new releases
+### Updating publicresults
 
-The `fly deploy` command fetches the newest version available from the public hub.docker.com repository and restarts the application.
+The `fly deploy` command fetches the newest version available from the public hub.docker.com repository and restarts the application.  The same conventions as owlcms regarding the version numbers are used.
 
 To update to the latest stable version
 
@@ -131,7 +149,7 @@ fly scale vm performance-1x --app $FLY_APP
 fly scale vm performance-2x --app $FLY_APP
 ```
 
-Running a performance-2x setup would cost 2US$ for one day -- 61$ per month.  So you would want to revert to the "free" setup after a competition
+Running a performance-2x setup would cost 2US$ for one day -- 61$ per month.  So you will likely want to revert to the "free" setup after a competition
 
 ```
 fly scale vm shared-cpu-2x --app $FLY_APP
