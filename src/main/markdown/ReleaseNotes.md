@@ -4,12 +4,9 @@
 
 ##### 44.6
 
+- 44.6.1: added a missing library dependency so that uploads work (bug reported to the Vaadin team)
 - 44.6: updated Vaadin version to 25.2.5 to get updated version of Atmosphere event push.
-- Fix: During a 2:00 athlete clock, a late declaration would be falsely signaled when the first change took place after 1:30.
-- Fix: Reloading athlete info during the CJ break would restart the break needlessly.
-- Fix: Registration form upload could occasionally fail due to an error in category matching
-- Change: the snatch and cj break countdown timers are no longer hidden during the presentation of officials and medal ceremonies.
-- Fix: Refreshing publicresults would alternate between normal starting order and lifting order. Now correctly interprets the URL parameters.
+
 
 ##### Version 44 changes
 
