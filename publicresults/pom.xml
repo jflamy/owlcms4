@@ -283,6 +283,16 @@
 					<artifactId>flow-server-production-mode</artifactId>
 					<scope>compile</scope>
 				</dependency>
+				<dependency>
+					<groupId>com.vaadin</groupId>
+					<artifactId>vaadin</artifactId>
+					<exclusions>
+						<exclusion>
+							<groupId>com.vaadin</groupId>
+							<artifactId>vaadin-dev</artifactId>
+						</exclusion>
+					</exclusions>
+				</dependency>
 			</dependencies>
 
 			<build>
