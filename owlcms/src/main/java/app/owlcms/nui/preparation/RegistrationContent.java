@@ -69,6 +69,7 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
@@ -845,6 +846,9 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			em.flush();
 			return null;
 		});
+		// when doing tests, the clock may have been started, need to clear
+		// otherwise marshal gets confusing message.
+		OwlcmsFactory.getFOPs().forEach(f -> f.setWeightAtLastStart(0));
 	}
 
 	private void deleteAthletes() {
