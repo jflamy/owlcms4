@@ -4,6 +4,8 @@
 
 ##### 44.6
 
+- 44.6.1-rc02: excluded the Vaadin development modules from the production build to reduce space and avoid module conflicts
+- 44.6.1-rc02: using the "Clear Lifts" after running testing lifts also clears the "already lifted" values to prevent confusing messages during weigh-in.
 - 44.6.1: added a missing library dependency so that uploads work (bug reported to the Vaadin team)
 - 44.6: updated Vaadin version to 25.2.5 to get updated version of Atmosphere event push.
 
