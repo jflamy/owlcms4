@@ -1,13 +1,13 @@
-> **Version 44.5 release candidate**
+> **Version 44.6**
 >
 > - Reminder: *You should test any release with your own data before using it in a competition.*
 
-##### 44.6
+##### 44.6.1
 
-- 44.6.1-rc02: excluded the Vaadin development modules from the production build to reduce space and avoid module conflicts
-- 44.6.1-rc02: using the "Clear Lifts" after running testing lifts also clears the "already lifted" values to prevent confusing messages during weigh-in.
-- 44.6.1: added a missing library dependency so that uploads work (bug reported to the Vaadin team)
-- 44.6: updated Vaadin version to 25.2.5 to get updated version of Atmosphere event push.
+- Excluded the Vaadin development modules from the production build to avoid module conflicts
+- Using the "Clear Lifts" after running test lifts also clears the "already lifted" values to prevent confusing messages during weigh-in.
+- Added a missing library dependency so that uploads work (bug reported to the Vaadin team)
+- Updated Vaadin version to 25.2.5 to get updated version of Atmosphere event push.
 
 
 ##### Version 44 changes
