@@ -149,6 +149,7 @@ public class RegistrationFileUploadDialog extends Dialog {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private int processAthletes(InputStream inputStream, TextArea ta, boolean dryRun) {
 		StringBuffer sb = new StringBuffer();
 		try (InputStream xmlInputStream = ResourceWalker.getResourceAsStream(REGISTRATION_READER_SPEC)) {
@@ -169,17 +170,17 @@ public class RegistrationFileUploadDialog extends Dialog {
 
 				Map<String, Object> beans = new HashMap<>();
 				beans.put("competition", c);
-				// we created a batch of new athletes. the ones that have exact matches for a
-				// category have had their eligibility and team memberships set in during the
-				// reader processing.
-				keepParticipations = athletes.stream()
-				        .filter(r -> r.getAthlete().getEligibleCategories() != null).findFirst()
-				        .isPresent();
 				beans.put("athletes", athletes);
 
 				XLSReadStatus status = reader.read(inputStream, beans);
-
-
+				
+				// get back the updated athletes
+				athletes = (List<RAthlete>) beans.get("athletes");
+				// if exact matches were found for categories, the processing for eligibility
+				// has been done, and we keep the eligibilities exactly as in the file.
+				keepParticipations = athletes.stream()
+				        .filter(r -> r.getAthlete().getEligibleCategories() != null).findFirst()
+				        .isPresent();
 
 				logger.info(getTranslation("DataRead") + " " + athletes.size() + " athletes");
 				if (dryRun) {
