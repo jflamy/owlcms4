@@ -1,13 +1,14 @@
-> **Version 44.6**
+> **Version 44.7**
 >
 > - Reminder: *You should test any release with your own data before using it in a competition.*
 
-##### 44.6.1
+##### 44.7
 
-- Excluded the Vaadin development modules from the production build to avoid module conflicts
-- Using the "Clear Lifts" after running test lifts also clears the "already lifted" values to prevent confusing messages during weigh-in.
-- Added a missing library dependency so that uploads work (bug reported to the Vaadin team)
-- Updated Vaadin version to 25.2.5 to get updated version of Atmosphere event push.
+- Fix: When reading back an exported registration file, the eligibilities specified were not respected
+  - Using `YTH W 55` means exactly and only that category, no other participation.  
+  - When using the exact category names, all additional participations must be spelled out after the `|`,  for example`YTH W 55|JR W 55; SR W 55`
+  - To let the program assign all eligible categories in an initial registration file, use only the category weight for the athletes. For example `109` or `109+`.   Then you can use the program to adjust the eligibilities if needed. Once the eligibilities have been edited, you can export and reload without losing the adjustments.
+
 
 
 ##### Version 44 changes
