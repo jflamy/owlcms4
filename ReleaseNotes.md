@@ -4,6 +4,7 @@
 
 ##### 44.7
 
+- Fix: Vaadin user interface library updated to their version 24.2.6: when a text field was shown in a dialog, the focus was set to the end of the text and could not be moved. They have reverted the guilty code.
 - Fix: When reading back an exported registration file, the eligibilities specified were not respected
   - Using `YTH W 55` means exactly and only that category, no other participation.  
   - When using the exact category names, all additional participations must be spelled out after the `|`,  for example`YTH W 55|JR W 55; SR W 55`
