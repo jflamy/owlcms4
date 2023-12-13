@@ -8,7 +8,8 @@
 - Fix: When reading back an exported registration file, the eligibilities specified were not respected
   - Using an exact category name like `YTH W 55` means only that category, no other participation. 
   - When using the exact category names, any additional participation must be spelled out after the `|`,  for example`YTH W 55|JR W 55;SR W 55`
-  - To let the program magically assign all eligible categories in an initial registration file, use only the category weight for the athletes. For example `109` or `109+`.   Then you can use the web page to adjust the eligibilities if needed. Once the eligibilities have been adjusted, you can export and reload a registration file without losing the adjustments.
+  - To let the program magically assign all eligible categories from an initial registration file, use only the category weight for the athletes, for example `109` or `109+`.   
+    Then you can use the web page to adjust the eligibilities if needed. Once the eligibilities have been adjusted, you can export and reload a registration file without losing the adjustments.
 
 
 
