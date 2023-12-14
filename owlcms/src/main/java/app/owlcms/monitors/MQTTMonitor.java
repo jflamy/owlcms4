@@ -400,7 +400,7 @@ public class MQTTMonitor extends Thread {
 
 	@Subscribe
 	public void slaveRefereeDecision(UIEvent.Decision e) {
-		logger.warn("slaveRefereeDecision");
+		logger.trace("slaveRefereeDecision");
 		// the deliberation is about the last athlete judged, not on the current
 		// athlete.
 		this.callback.setAthleteUnderReview(e.getAthlete());
