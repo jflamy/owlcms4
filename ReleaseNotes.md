@@ -6,6 +6,7 @@
 
 **45.0-beta**
 
+- (beta02) Merge bug fixes from 44.7, update to Vaadin 24.2.6
 - (beta01) Feature freeze.
 
 ##### 45.0
