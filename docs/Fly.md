@@ -13,14 +13,14 @@ To install in the cloud you will need to log in to their site and then copy-past
       - For Windows users: 
       
          1. Click on the gray area just below and copy the installation command.
-       
+      
             ```
           powershell -Command "iwr https://fly.io/install.ps1 -useb | iex"
            ```
-        
+      
       2. Then click the `⊞` icon in your Windows taskbar at the bottom and type `cmd` to open a command window.
         3. Then paste the command and hit Enter.
-        
+      
       - For other users: See the [flyctl installation instructions](https://fly.io/docs/hands-on/install-flyctl/).  
 
 
@@ -43,13 +43,12 @@ To install in the cloud you will need to log in to their site and then copy-past
 - If asked, do NOT copy  existing TOML files
 - IMPORTANT: Answer **y** (Yes) when asked if you want to adjust the settings.  A web page will open.
   - We need a database
-    - Find the setting for Postgres, and select the "Development" option instead of the "Production" (we don't need that much, and don't want to pay for it for nothing)
-
+    - Find the setting for Postgres
+    - Instead of `none` select `Fly Postgres`
     - Type a name for the database. We suggest that you add `-db` to your application name. 
       So in our example, the database name would be `myclub-db` .
-
+    - Select the "Development" option instead of the "Production" (we don't need that much, and don't want to pay for it for nothing)
   - Go to the bottom and click on `Confirm Settings`
-
   - The creation process will take place and the application will be started.
 
 
