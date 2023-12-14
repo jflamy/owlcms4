@@ -25,7 +25,11 @@ heroku login
 heroku plugins:install java
 ```
 
+<<<<<<< HEAD
 - Get a current release [zip](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/download/45.0.0-beta01/owlcms_45.0.0-beta01.zip) from the [release repository](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases)
+=======
+- Get a current release [zip](https://github.com/owlcms/owlcms4-prerelease/releases/download/45.0.0-beta02/owlcms_45.0.0-beta02.zip) from the [release repository](https://github.com/owlcms/owlcms4-prerelease/releases)
+>>>>>>> branch 'alpha' of https://github.com/jflamy/owlcms4.git
 - Unzip file to your desired installation location and change directory (`cd`) to that location
 - Run the following commands.  Replace `myclub` with you own application name.
 
