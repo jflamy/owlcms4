@@ -121,16 +121,6 @@
 			<type>pom</type>
 		</dependency>
 
-
-		<!--
-		https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api -->
-		<dependency>
-			<groupId>jakarta.servlet</groupId>
-			<artifactId>jakarta.servlet-api</artifactId>
-			<version>6.0.0</version> <!--$NO-MVN-MAN-VER$-->
-			<scope>provided</scope>
-		</dependency>
-
 		<dependency>
 			<groupId>app.owlcms</groupId>
 			<artifactId>shared</artifactId>

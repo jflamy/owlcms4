@@ -53,21 +53,12 @@
 			<artifactId>jul-to-slf4j</artifactId>
 		</dependency>
 
-		<!-- web server -->
-		<!-- https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api -->
-		<dependency>
-			<groupId>jakarta.servlet</groupId>
-			<artifactId>jakarta.servlet-api</artifactId>
-			<version>6.0.0</version> <!--$NO-MVN-MAN-VER$-->
-			<scope>provided</scope>
-		</dependency>
-
 		<!--
 		https://mvnrepository.com/artifact/org.eclipse.jetty.ee10.websocket/jetty-ee10-websocket-jakarta-server -->
 		<dependency>
 			<groupId>org.eclipse.jetty.ee10.websocket</groupId>
 			<artifactId>jetty-ee10-websocket-jakarta-server</artifactId>
-			<version>12.0.2</version>
+			<version>12.0.4</version>
 		</dependency>
 
 		<!--
@@ -75,9 +66,8 @@
 		<dependency>
 			<groupId>org.eclipse.jetty.ee10</groupId>
 			<artifactId>jetty-ee10-annotations</artifactId>
-			<version>12.0.2</version>
+			<version>12.0.4</version>
 		</dependency>
-
 
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-text -->
 		<dependency>
