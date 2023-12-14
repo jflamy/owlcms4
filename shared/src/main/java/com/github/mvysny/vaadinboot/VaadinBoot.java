@@ -257,7 +257,8 @@ public class VaadinBoot {
      * @throws Exception when the webapp fails to start.
      */
     public void start() throws Exception {
-        final long startupMeasurementSince = System.currentTimeMillis();
+        @SuppressWarnings("unused")
+		final long startupMeasurementSince = System.currentTimeMillis();
         log.info("Starting App");
 
         // detect&enable production mode, but only if it hasn't been specified by the user already
