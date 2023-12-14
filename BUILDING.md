@@ -2,7 +2,7 @@
 
 This is a standard Maven project.  If you wish, you can build the binaries from this source.  
 
-This file describes how to build the program without changing it.  If you want to change the code, please see the [Contributing](https://owlcms.github.io/owlcms4-prerelease/#/Gitpod) documentation for additional information on how to setup a Gitpod or VisualStudio Code environment.
+This file describes how to build the program without changing it.  If you want to change the code, please see the [Contributing](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Gitpod) documentation for additional information on how to setup a Gitpod or VisualStudio Code environment.
 
 ### Pre-requisites
 
