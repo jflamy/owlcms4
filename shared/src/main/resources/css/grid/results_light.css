@@ -132,8 +132,8 @@ table.results.sinclair {
 }
 
 /* default cell colors, backgrounds and borders */
-:host table.results tr td,
-:host table.results tr th {
+:host .light table.results tr td,
+:host .light table.results tr th {
     align-items: center;
     background-color: var(--BackgroundColor);
     color: var(--TextColor);
@@ -144,40 +144,35 @@ table.results.sinclair {
     font-weight: bold;
 }
 
-:host .dark table.results tr td,
-:host .dark table.results tr th {
-    margin-bottom: var(--rowSmallSpacerHeight);
-}
-
 /* start */
-:host table.results tr td.start {
+:host .light table.results tr td.start {
     background-color: var(--StartBackgroundColor);
     color: var(--StartTextColor);
     visibility: var(--startVisibility);
 }
 
 /* name */
-:host table.results tr td.name {
+:host .light table.results tr td.name {
     background-color: var(--NameBackgroundColor);
     color: var(--NameTextColor);
     justify-content: left;
 }
 
 /* category */
-:host table.results tr td.category {
+:host .light table.results tr td.category {
     background-color: var(--CategoryBackgroundColor);
     color: var(--CategoryTextColor);
     visibility: var(--categoryVisibility);
 }
 
 /* birth */
-:host table.results tr td.yob {
+:host .light table.results tr td.yob {
     background-color: var(--BirthBackgroundColor);
     color: var(--BirthTextColor);
 }
 
 /* team */
-:host table.results tr td.club {
+:host .light table.results tr td.club {
     background-color: var(--TeamBackgroundColor);
     color: var(--TeamTextColor);
 }
@@ -195,26 +190,18 @@ table.results tr td.club div.clubName div.ellipsis {
 }
 
 /* good/bad cells */
-:host table.results tr td.good {
+:host .light table.results tr td.good {
     background-color: var(--GoodBackgroundColor);
     color: var(--GoodTextColor);
 }
 
-:host .dark table.results tr td.good {
-    font-weight: bold;
-}
-
-:host table.results tr td.fail {
+:host .light table.results tr td.fail {
     background-color: var(--FailBackgroundColor);
     color: var(--FailTextColor);
 }
 
-:host .dark table.results tr td.fail {
-    font-weight: bold;
-}
-
 /* snatch and c&j ranks */
-:host table.results tr td.rank {
+:host .light table.results tr td.rank {
     background-color: var(--RankBackgroundColor);
     color: var(--RankTextColor);
     visibility: var(--rankVisibility);
@@ -222,82 +209,76 @@ table.results tr td.club div.clubName div.ellipsis {
 }
 
 /* snatch and c&j best */
-:host table.results tr td.best,
-:host table.results tr th.best {
+:host .light table.results tr td.best,
+:host .light table.results tr th.best {
     background-color: var(--TotalBackgroundColor);
     color: var(--TotalTextColor);
     visibility: var(--bestVisibility);
 }
 
 /* total rank */
-:host table.results tr td.totalRank,
-:host table.results tr th.totalRank {
+:host .light table.results tr td.totalRank,
+:host .light table.results tr th.totalRank {
     background-color: var(--TotalRankBackgroundColor);
     color: var(--TotalRankTextColor);
     visibility: var(--totalRankVisibility);
 }
 
 /* group */
-:host table.results tr td.groupCol,
-:host table.results tr th.groupCol
- {
+:host .light table.results tr td.groupCol,
+:host .light table.results tr th.groupCol  {
     background-color: var(--StartBackgroundColor);
     color: var(--StartTextColor);
     visibility: var(--startVisibility);
 }
 
 /* year of birth */
-:host table.results tr td.yob,
-:host table.results tr th.yob {
+:host .light table.results tr td.yob,
+:host .light table.results tr th.yob {
     background-color: var(--BackgroundColor);
     color: var(--TextColor);
     visibility: var(--birthVisibility);
 }
 
 /* custom fields */
-:host table.results tr td.custom1,
-:host table.results tr th.custom1 {
+:host .light table.results tr td.custom1,
+:host .light table.results tr th.custom1 {
     background-color: var(--BackgroundColor);
     color: var(--TextColor);
     visibility: var(--custom1Visibility);
 }
 
-:host table.results tr td.custom2,
-:host table.results tr th.custom2 {
+:host .light table.results tr td.custom2,
+:host .light table.results tr th.custom2 {
     background-color: var(--BackgroundColor);
     color: var(--TextColor);
     visibility: var(--custom2Visibility);
 }
 
 /* sinclair */
-:host table.results tr td.sinclair,
-:host table.results tr th.sinclair {
+:host .light table.results tr td.sinclair,
+:host .light table.results tr th.sinclair {
     background-color: var(--BackgroundColor);
     color: var(--TextColor);
     visibility: var(--sinclairVisibility);
 }
 
-:host table.results .nosinclair tr td.sinclair,
-:host table.results .nosinclair tr th.sinclair {
+:host .light table.results .nosinclair tr td.sinclair,
+:host .light table.results .nosinclair tr th.sinclair {
     visibility: hidden;
 }
 
 /* sinclair rank */
-:host table.results tr td.sinclairRank,
-:host table.results tr th.sinclairRank {
+:host .light table.results tr td.sinclairRank,
+:host .light table.results tr th.sinclairRank {
     background-color: var(--RankBackgroundColor);
     color: var(--RankTextColor);
     visibility: var(--sinclairRankVisibility);
 }
 
-:host table.results .nosinclair tr td.sinclairRank,
-:host table.results .nosinclair tr th.sinclairRank {
-    visibility: hidden;
-}
-
 /* total */
-:host table.results tr td.total,
-:host table.results tr th.total {
+:host .light table.results tr td.total,
+:host .light table.results tr th.total {
     background-color: var(--TotalBackgroundColor);
     color: var(--TotalTextColor);
     visibility: var(--totalVisibility);
@@ -337,7 +318,7 @@ table.results tr td.club div.clubName div.ellipsis {
 }
 
 /* filler space above leaders */
-:host table.results tr td.filler {
+:host .light table.results tr td.filler {
     background-color: var(--pageBackgroundColor);
     grid-column: 1 / -1;
     align-content: stretch;
@@ -348,14 +329,14 @@ table.results tr td.club div.clubName div.ellipsis {
 }
 
 /* requested weight column */
-:host table.results tr td.request {
+:host .light table.results tr td.request {
     background-color: var(--RequestBackgroundColor);
     color: var(--RequestTextColor);
     font-style: italic;
 }
 
 /* current athlete colors and blinks */
-:host table.results tr td.current {
+:host .light table.results tr td.current {
     color: var(--CurrentTextColor);
     background-color: var(--CurrentBackgroundColor);
     font-weight: bold;
@@ -372,14 +353,14 @@ table.results tr td.club div.clubName div.ellipsis {
 }
 
 /* next athlete colors */
-:host table.results tr td.next {
+:host .light table.results tr td.next {
     color: var(--NextTextColor);
     background-color: var(--NextBackgroundColor);
     font-weight: bold;
 }
 
 /* empty cells */
-:host table.results tr td.empty {
+:host .light table.results tr td.empty {
     color: var(--EmptyTextColor);
     background-color: var(--EmptyBackgroundColor);
     font-style: italic;
@@ -429,6 +410,7 @@ table {
         var(--sinclairRankWidth);
 }
 
+
 thead,
 tbody,
 tr {
@@ -449,22 +431,23 @@ td {
     margin: 0;
 }
 
-:host table.results tr.head th.vspacer,
-:host table.results tr.head td.vspacer {
+:host .light table.results tr.head th.vspacer,
+:host .light table.results tr.head td.vspacer {
     width: var(--spacerWidth);
     background-color: var(--pageBackgroundColor);
     border: none;
 }
 
-:host table.results tr th.vspacer,
-:host table.results tr td.vspacer {
+:host .light table.results tr th.vspacer,
+:host .light table.results tr td.vspacer {
     width: var(--spacerWidth);
     background-color: var(--pageBackgroundColor);
     border: none;
 }
 
-:host table.results tr.head td,
-:host table.results tr.head th {
+:host .light table.results tr.head td,
+:host .light table.results tr.head th {
+    position: sticky;
     justify-content: center;
     align-content: center;
     font-weight: normal;
@@ -476,12 +459,6 @@ td {
     background: var(--TitleBackgroundColor);
     color: var(--TitleTextColor);
     border-color: var(--TableBorders);
-}
-
-/* is sticky required? */
-:host .light table.results tr.head td,
-:host .light table.results tr.head th {
-    position: sticky;
 }
 
 :host table.results tr.head td.leaderTitle {
@@ -696,9 +673,9 @@ div.ellipsis {
     align-self: start;
 }
 
-/* records */
-:host .recordBox,
-:host .recordBoxPersonal {
+/* records theme */
+:host .light .recordBox,
+:host .light .recordBoxPersonal {
     outline-width: var(--RecordBoxBorderWidth);
     outline-color: var(--RecordBoxBorder);
     outline-style: solid;
@@ -706,13 +683,13 @@ div.ellipsis {
     background-color: var(--RecordBoxBackground);
 }
 
-:host .recordBox .recordCat {
+:host .light .recordBox .recordCat {
     outline-width: var(--RecordCellBorderWidth);
     outline-color: var(--RecordBoxBorder);
     outline-style: solid;
 }
 
-:host .recordCell {
+:host .light .recordCell {
     outline-width: var(--RecordCellBorderWidth);
     outline-color: var(--RecordBoxBorder);
     outline-style: solid;
@@ -722,60 +699,56 @@ div.ellipsis {
     color: var(--RecordValueText);
 }
 
-:host div.recordLiftType {
+:host .light div.recordLiftType {
     outline-width: var(--RecordCellBorderWidth);
     outline-color: var(--RecordBoxBorder);
     outline-style: solid;
 }
 
-:host span.recordLiftType {
+:host .light span.recordLiftType {
     height: var(--recordTypeCellHeight);
     background-color: var(--RecordLiftTypeBackground);
     color: var(--RecordLiftTypeText);
 }
 
-:host .recordLiftTypeSpacer {
+:host .light span.recordLiftTypeSpacer {
     background-color: var(--RecordLiftTypeBackground);
     color: var(--RecordLiftTypeText);
 }
 
-:host span.recordLiftType {
+:host .light span.recordLiftType {
     background-color: var(--RecordLiftTypeBackground);
     color: var(--RecordLiftTypeText);
     font-weight: normal;
 }
 
-:host .recordsFiller {
+:host .light .recordsFiller {
     text-align: right;
     height: calc(var(--recordValueCellHeight)*1.2);
 }
 
-:host .recordCat {
+:host .light .recordCat {
     height: var(--recordValueCellHeight);
     line-height: var(--recordValueCellHeight);
     background-color: var(--RecordBoxBackground);
     color: var(--RecordBoxText);
 }
 
-:host .dark .recordName {
+:host .light .recordName {
     background-color: var(--RecordNameBackground);
     color: var(--RecordNameText);
     height: var(--recordValueCellHeight);
     line-height: var(--recordValueCellHeight);
 }
 
-:host .dark .recordName {
-    font-weight: bold;
-}
-
-:host .recordTitle {
+:host .light .recordTitle {
     background-color: var(--RecordNameBackground);
     height: var(--recordValueCellHeight);
     line-height: var(--recordValueCellHeight);
     color: var(--RecordNameText);
 }
 
-:host .highlight {
+:host .light .highlight {
     background-color: var(--AttemptHighlightBackground) !important;
     color: var(--RecordValueText) !important;
 }
@@ -791,25 +764,18 @@ div.ellipsis {
     outline-width: medium;
 }
 
-:host .recordNotification.new {
+:host .light .recordNotification.new {
     background-color: var(--RecordHighlightBackground);
     outline-color: var(--RecordHighlightBackground);
     color: var(--RecordHighlightText);
     z-index: var(--zIndexRecordNotifications);
 }
-:host .dark .recordNotification.new {
-    font-weight: bold;
-}
 
-:host .recordNotification.attempt {
+:host .light .recordNotification.attempt {
     background-color: var(--AttemptHighlightBackground);
     outline-color: var(--AttemptHighlightBackground);
     color: var(--AttemptHighlightText);
     z-index: var(--zIndexRecordNotifications);
-}
-
-:host .dark .recordNotification.attempt {
-    font-weight: bold;
 }
 
 .recordNotification.none {

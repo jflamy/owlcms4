@@ -24,161 +24,165 @@
     --athleteAttemptColor: white;
 
     --groupInfoColor: white;
+}
 
+.light {
     /* results table section, "black on white", cell have a full background different from page background */
 
-    --lightTableBorders: grey;
-    --lightTextColor: black;
-    --lightBackgroundColor: white;
+    --TableBorders: grey;
+    --TextColor: black;
+    --BackgroundColor: white;
 
-    --lightTitleTextColor: black;
-    --lightTitleBackgroundColor: white;
+    --TitleTextColor: black;
+    --TitleBackgroundColor: white;
 
-    --lightCurrentTextColor: var(--lightTextColor);
-    --lightCurrentBackgroundColor: yellow;
+    --CurrentTextColor: var(--TextColor);
+    --CurrentBackgroundColor: yellow;
 
-    --lightNextTextColor: var(--lightTextColor);
-    --lightNextBackgroundColor: gold;
+    --NextTextColor: var(--TextColor);
+    --NextBackgroundColor: gold;
 
-    --lightRequestTextColor: var(--lightTextColor);
-    --lightRequestBackgroundColor: var(--lightBackgroundColor);
+    --RequestTextColor: var(--TextColor);
+    --RequestBackgroundColor: var(--BackgroundColor);
 
-    --lightStartBackgroundColor: var(--lightBackgroundColor);
-    --lightStartTextColor: var(--lightTextColor);
+    --StartBackgroundColor: var(--BackgroundColor);
+    --StartTextColor: var(--TextColor);
 
-    --lightNameBackgroundColor: var(--lightBackgroundColor);
-    --lightNameTextColor: var(--lightTextColor);
+    --NameBackgroundColor: var(--BackgroundColor);
+    --NameTextColor: var(--TextColor);
 
-    --lightCategoryTextColor: var(--lightTextColor);
-    --lightCategoryBackgroundColor: var(--lightBackgroundColor);
+    --CategoryTextColor: var(--TextColor);
+    --CategoryBackgroundColor: var(--BackgroundColor);
 
-    --lightBirthTextColor: var(--lightTextColor);
-    --lightBirthBackgroundColor: var(--lightBackgroundColor);
+    --BirthTextColor: var(--TextColor);
+    --BirthBackgroundColor: var(--BackgroundColor);
 
-    --lightTeamTextColor: var(--lightTextColor);
-    --lightTeamBackgroundColor: var(--lightBackgroundColor);
+    --TeamTextColor: var(--TextColor);
+    --TeamBackgroundColor: var(--BackgroundColor);
 
-    --lightGoodTextColor: white;
-    --lightGoodBackgroundColor: green;
+    --GoodTextColor: white;
+    --GoodBackgroundColor: green;
 
-    --lightFailTextColor: white;
-    --lightFailBackgroundColor: darkred;
+    --FailTextColor: white;
+    --FailBackgroundColor: darkred;
 
-    --lightRankTextColor: var(--lightTextColor);
-    --lightRankBackgroundColor: #F9E79F;
+    --RankTextColor: var(--TextColor);
+    --RankBackgroundColor: #F9E79F;
 
-    --lightTotalRankTextColor: var(--lightTextColor);
-    --lightTotalRankBackgroundColor: var(--lightRankBackgroundColor);
+    --TotalRankTextColor: var(--TextColor);
+    --TotalRankBackgroundColor: var(--RankBackgroundColor);
 
-    --lightTotalTextColor: var(--lightGoodTextColor);
-    --lightTotalBackgroundColor: blue;
+    --TotalTextColor: var(--GoodTextColor);
+    --TotalBackgroundColor: blue;
 
-    --lightSpacerBackgroundColor: var(--lightTableBorders);
-    --lightEmptyTextColor: #cccccc;
-    --lightEmptyBackgroundColor: #cccccc;
+    --SpacerBackgroundColor: var(--TableBorders);
+    --EmptyTextColor: #cccccc;
+    --EmptyBackgroundColor: #cccccc;
+    
+     /* records table section, white on black */
+    --RecordBoxBorder: var(--pageTextColor);
+    --RecordBoxBackground: var(--pageBackgroundColor);
+    --RecordBoxBorderWidth: medium;
+    --RecordBoxText: var(--pageTextColor);
 
+    --RecordCellBorderWidth: thin;
+
+    --RecordCatBackground: var(--pageBackgroundColor);
+    --RecordCatText: var(--pageTextColor);
+
+    --RecordValueText: var(--pageTextColor);
+    --RecordValueBackground: var(--pageBackgroundColor);
+    --RecordCellBorderColor: var(--pageTextColor);
+
+    --RecordNameBackground: var(--pageBackgroundColor);
+    --RecordNameText: var(--pageTextColor);
+
+    --RecordLiftTypeBackground: var(--pageBackgroundColor);
+    --RecordLiftTypeText: var(--pageTextColor);
+    --RecordLiftTypeBorder: var(--pageTextColor);
+
+    --RecordHighlightBackground: green;
+    --RecordHighlightText: white;
+    --AttemptHighlightText: white;
+    --AttemptHighlightBackground: purple;
+}
+
+.dark {
     /* results table section, "white on black", most cells have same dark background as page */
 
-    --darkTableBorders: var(--pageTextColor);
-    --darkTextColor: var(--pageTextColor);
-    --darkBackgroundColor: var(--pageBackgroundColor);
+    --TableBorders: var(--pageTextColor);
+    --TextColor: var(--pageTextColor);
+    --BackgroundColor: var(--pageBackgroundColor);
 
-    --darkTitleTextColor: var(--darkTextColor);
-    --darkTitleBackgroundColor: var(--darkBackgroundColor);
+    --TitleTextColor: var(--TextColor);
+    --TitleBackgroundColor: var(--BackgroundColor);
 
-    --darkCurrentTextColor: yellow;
-    --darkCurrentBackgroundColor: var(--darkBackgroundColor);
+    --CurrentTextColor: yellow;
+    --CurrentBackgroundColor: var(--BackgroundColor);
 
-    --darkNextTextColor: orange;
-    --darkNextBackgroundColor: var(--darkBackgroundColor);
+    --NextTextColor: orange;
+    --NextBackgroundColor: var(--BackgroundColor);
 
-    --darkRequestTextColor: var(--darkTextColor);
-    --darkRequestBackgroundColor: var(--darkBackgroundColor);
+    --RequestTextColor: var(--TextColor);
+    --RequestBackgroundColor: var(--BackgroundColor);
 
-    --darkStartBackgroundColor: var(--darkBackgroundColor);
-    --darkStartTextColor: var(--darkTextColor);
+    --StartBackgroundColor: var(--BackgroundColor);
+    --StartTextColor: var(--TextColor);
 
-    --darkNameBackgroundColor: var(--darkBackgroundColor);
-    --darkNameTextColor: var(--darkTextColor);
+    --NameBackgroundColor: var(--BackgroundColor);
+    --NameTextColor: var(--TextColor);
 
-    --darkCategoryTextColor: var(--darkTextColor);
-    --darkCategoryBackgroundColor: var(--darkBackgroundColor);
+    --CategoryTextColor: var(--TextColor);
+    --CategoryBackgroundColor: var(--BackgroundColor);
 
-    --darkBirthTextColor: var(--darkTextColor);
-    --darkBirthBackgroundColor: var(--darkBackgroundColor);
+    --BirthTextColor: var(--TextColor);
+    --BirthBackgroundColor: var(--BackgroundColor);
 
-    --darkTeamTextColor: var(--darkTextColor);
-    --darkTeamBackgroundColor: var(--darkBackgroundColor);
+    --TeamTextColor: var(--TextColor);
+    --TeamBackgroundColor: var(--BackgroundColor);
 
-    --darkGoodTextColor: white;
-    --darkGoodBackgroundColor: green;
+    --GoodTextColor: white;
+    --GoodBackgroundColor: green;
 
-    --darkFailTextColor: white;
-    --darkFailBackgroundColor: darkred;
+    --FailTextColor: white;
+    --FailBackgroundColor: darkred;
 
-    --darkRankTextColor: var(--darkTextColor);
-    --darkRankBackgroundColor: var(--darkBackgroundColor);
+    --RankTextColor: var(--TextColor);
+    --RankBackgroundColor: var(--BackgroundColor);
 
-    --darkTotalRankTextColor: var(--darkTextColor);
-    --darkTotalRankBackgroundColor: var(--darkBackgroundColor);
+    --TotalRankTextColor: var(--TextColor);
+    --TotalRankBackgroundColor: var(--BackgroundColor);
 
-    --darkTotalTextColor: var(--darkGoodTextColor);
-    --darkTotalBackgroundColor: blue;
+    --TotalTextColor: var(--GoodTextColor);
+    --TotalBackgroundColor: blue;
 
-    --darkSpacerBackgroundColor: var(--darkBackgroundColor);
-    --darkEmptyTextColor: #4d4d4d;
-    --darkEmptyBackgroundColor: #4d4d4d;
-
-    /* records table section, white on black */
-    --lightRecordBoxBorder: var(--pageTextColor);
-    --lightRecordBoxBackground: var(--pageBackgroundColor);
-    --lightRecordBoxBorderWidth: medium;
-    --lightRecordBoxText: var(--pageTextColor);
-
-    --lightRecordCellBorderWidth: thin;
-
-    --lightRecordCatBackground: var(--pageBackgroundColor);
-    --lightRecordCatText: var(--pageTextColor);
-
-    --lightRecordValueText: var(--pageTextColor);
-    --lightRecordValueBackground: var(--pageBackgroundColor);
-    --lightRecordCellBorderColor: var(--pageTextColor);
-
-    --lightRecordNameBackground: var(--pageBackgroundColor);
-    --lightRecordNameText: var(--pageTextColor);
-
-    --lightRecordLiftTypeBackground: var(--pageBackgroundColor);
-    --lightRecordLiftTypeText: var(--pageTextColor);
-    --lightRecordLiftTypeBorder: var(--pageTextColor);
-
-    --lightRecordHighlightBackground: green;
-    --lightRecordHighlightText: white;
-    --lightAttemptHighlightText: white;
-    --lightAttemptHighlightBackground: purple;
+    --SpacerBackgroundColor: var(--BackgroundColor);
+    --EmptyTextColor: #4d4d4d;
+    --EmptyBackgroundColor: #4d4d4d;
 
     /* records table section, black on white */
     /* by default, same as white on black */
 
-    --darkRecordBoxBorder: var(--pageTextColor);
-    --darkRecordBoxBorderWidth: medium;
-    --darkRecordBoxBackground: var(--pageBackgroundColor);
-    --darkRecordBoxText: var(--pageTextColor);
+    --RecordBoxBorder: var(--pageTextColor);
+    --RecordBoxBorderWidth: medium;
+    --RecordBoxBackground: var(--pageBackgroundColor);
+    --RecordBoxText: var(--pageTextColor);
 
-    --darkRecordCellBorderWidth: thin;
+    --RecordCellBorderWidth: thin;
 
-    --darkRecordValueText: var(--pageTextColor);
-    --darkRecordValueBackground: var(--pageBackgroundColor);
-    --darkRecordCellBorderColor: var(--pageTextColor);
+    --RecordValueText: var(--pageTextColor);
+    --RecordValueBackground: var(--pageBackgroundColor);
+    --RecordCellBorderColor: var(--pageTextColor);
 
-    --darkRecordNameBackground: var(--pageBackgroundColor);
-    --darkRecordNameText: var(--pageTextColor);
+    --RecordNameBackground: var(--pageBackgroundColor);
+    --RecordNameText: var(--pageTextColor);
 
-    --darkRecordLiftTypeBackground: var(--pageBackgroundColor);
-    --darkRecordLiftTypeText: var(--pageTextColor);
-    --darkRecordLiftTypeBorder: var(--pageTextColor);
+    --RecordLiftTypeBackground: var(--pageBackgroundColor);
+    --RecordLiftTypeText: var(--pageTextColor);
+    --RecordLiftTypeBorder: var(--pageTextColor);
 
-    --darkRecordHighlightBackground: green;
-    --darkRecordHighlightText: white;
-    --darkAttemptHighlightText: white;
-    --darkAttemptHighlightBackground: purple;
+    --RecordHighlightBackground: green;
+    --RecordHighlightText: white;
+    --AttemptHighlightText: white;
+    --AttemptHighlightBackground: purple;
 }

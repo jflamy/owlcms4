@@ -65,8 +65,7 @@
 		--topRowFontSize: 2.0em;
 		--athleteNameFontSize: 1.25em;
 		--groupInfoFontSize: 1.5em;
-        --lightRecordBoxBorderWidth: thin;
-        --darkRecordBoxBorderWidth: thin;
+        --RecordBoxBorderWidth: thin;
     }
     .wrapper {
         font-size: calc(var(--baseRemSize)/8);
@@ -95,8 +94,7 @@
 }
 @media screen and (orientation: landscape) and (min-width: 1180px) and (max-width: 1899px) {
     * {
-        --lightRecordBoxBorderWidth: medium;
-        --darkRecordBoxBorderWidth: medium;
+        --RecordBoxBorderWidth: medium;
     }
     .wrapper {
         font-size: calc(var(--baseRemSize)/3);
@@ -104,8 +102,7 @@
 }
 @media screen and (orientation: landscape) and (min-width: 1900px) and (max-width: 3799px) {
     * {
-        --lightRecordBoxBorderWidth: medium;
-        --darkRecordBoxBorderWidth: medium;
+        --RecordBoxBorderWidth: medium;
     }
     .wrapper {
         font-size: calc(var(--baseRemSize)/2);
@@ -113,8 +110,7 @@
 }
 @media screen and (orientation: landscape) and (min-width: 3800px) {
     * {
-        --lightRecordBoxBorderWidth: medium;
-        --darkRecordBoxBorderWidth: medium;
+        --RecordBoxBorderWidth: medium;
     }
     .wrapper {
         font-size: calc(var(--baseRemSize));
