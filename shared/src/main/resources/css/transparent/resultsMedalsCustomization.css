@@ -57,9 +57,9 @@
     box-sizing: border-box;
     --nbRanks: 1;
 
-    --darkTotalBackgroundColor: var(--darkEmptyBackgroundColor);
-/*     --lightTotalBackgroundColor: var(--lightNameBackgroundColor);
-    --lightTotalTextColor: var(--lightNameTextColor); */
+    --TotalBackgroundColor: var(--EmptyBackgroundColor);
+/*     --TotalBackgroundColor: var(--NameBackgroundColor);
+    --TotalTextColor: var(--NameTextColor); */
 }
 
 :host .light table.results {
@@ -131,7 +131,7 @@ td.flags div.flags {
 }
 
 :host div.wrapper.dark table.results tr td.rank {
-    border-color: var(--darkEmptyBackgroundColor);
+    border-color: var(--EmptyBackgroundColor);
     color: white;
     border-width: 0.6em;
     border-style: solid;
@@ -150,7 +150,7 @@ td.flags div.flags {
 }
 
 :host div.wrapper.dark table.results tr td.totalRrank {
-    border-color: var(--darkEmptyBackgroundColor);
+    border-color: var(--EmptyBackgroundColor);
     color: white;
     border-width: 0.6em;
     border-style: solid;
@@ -159,27 +159,27 @@ td.flags div.flags {
 :host div.wrapper.dark table.results tr td.totalRank.medal1 {
     background-color: gold;
     color: black;
-    border-color: var(--darkEmptyBackgroundColor);
+    border-color: var(--EmptyBackgroundColor);
     border-width: 0.6em;
     border-style: solid;
 }
 :host div.wrapper.dark table.results tr td.totalRank.medal2 {
     background-color: silver;
     color: black;
-    border-color: var(--darkEmptyBackgroundColor);
+    border-color: var(--EmptyBackgroundColor);
     border-width: 0.6em;
     border-style: solid;
 }
 :host div.wrapper.dark table.results tr td.totalRank.medal3 {
     background-color: #CD7F32;
     color: black;
-    border-color: var(--darkEmptyBackgroundColor);
+    border-color: var(--EmptyBackgroundColor);
     border-width: 0.6em;
     border-style: solid;
 }
 
 :host div.wrapper.light table.results tr td.rank {
-    border-color: var(--lightTableBorders);
+    border-color: var(--TableBorders);
     color: white;
     border-width: 0.6em;
     border-style: solid;
@@ -198,7 +198,7 @@ td.flags div.flags {
 }
 
 :host div.wrapper.light table.results tr td.totalRrank {
-    border-color: var(--lightTableBorders);
+    border-color: var(--TableBorders);
     color: white;
     border-width: 0.6em;
     border-style: solid;
@@ -206,21 +206,21 @@ td.flags div.flags {
 :host div.wrapper.light table.results tr td.totalRank.medal1 {
     background-color: gold;
     color: black;
-    border-color: var(--lightTableBorders);
+    border-color: var(--TableBorders);
     border-width: 0.6em;
     border-style: solid;
 }
 :host div.wrapper.light table.results tr td.totalRank.medal2 {
     background-color: silver;
     color: black;
-    border-color: var(--lightTableBorders);
+    border-color: var(--TableBorders);
     border-width: 0.6em;
     border-style: solid;
 }
 :host div.wrapper.light table.results tr td.totalRank.medal3 {
     background-color: #CD7F32;
     color: black;
-    border-color: var(--lightTableBorders);
+    border-color: var(--TableBorders);
     border-width: 0.6em;
     border-style: solid;
 }

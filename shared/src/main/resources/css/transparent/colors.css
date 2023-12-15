@@ -24,7 +24,9 @@
     --athleteAttemptColor: white;
 
     --groupInfoColor: white;
+}
 
+.light {
     /* results table section, "black on white", cell have a full background different from page background */
 
     --lightTableBorders: grey;
@@ -76,7 +78,30 @@
     --lightSpacerBackgroundColor: var(--lightTableBorders);
     --lightEmptyTextColor: #cccccc;
     --lightEmptyBackgroundColor: #cccccc;
+    
+     /* records table section, black on white */
+    --lightRecordBoxBorder: var(--pageTextColor);
+    --lightRecordBoxBackground: var(--pageBackgroundColor);
+    --lightRecordBoxText: var(--pageTextColor);
 
+    --lightRecordValueText: var(--pageTextColor);
+    --lightRecordValueBackground: var(--pageBackgroundColor);
+    --lightRecordCellBorderColor: var(--pageTextColor);
+
+    --lightRecordNameBackground: var(--pageBackgroundColor);
+    --lightRecordNameText: var(--pageTextColor);
+
+    --lightRecordLiftTypeBackground: var(--pageBackgroundColor);
+    --lightRecordLiftTypeText: var(--pageTextColor);
+    --lightRecordLiftTypeBorder: var(--pageTextColor);
+
+    --lightRecordHighlightBackground: green;
+    --lightRecordHighlightText: white;
+    --lightAttemptHighlightText: white;
+    --lightAttemptHighlightBackground: purple;
+}
+
+.dark {
     /* results table section, "white on black", most cells have same dark background as page */
 
     --darkTableBorders: var(--darkEmptyBackgroundColor);
@@ -128,30 +153,9 @@
     --darkSpacerBackgroundColor: var(--blockBackgroundColor);
     --darkEmptyTextColor: #4d4d4d;
     --darkEmptyBackgroundColor: #4d4d4d;
-
+    
     /* records table section, white on black */
-    --lightRecordBoxBorder: var(--pageTextColor);
-    --lightRecordBoxBackground: var(--pageBackgroundColor);
-    --lightRecordBoxText: var(--pageTextColor);
-
-    --lightRecordValueText: var(--pageTextColor);
-    --lightRecordValueBackground: var(--pageBackgroundColor);
-    --lightRecordCellBorderColor: var(--pageTextColor);
-
-    --lightRecordNameBackground: var(--pageBackgroundColor);
-    --lightRecordNameText: var(--pageTextColor);
-
-    --lightRecordLiftTypeBackground: var(--pageBackgroundColor);
-    --lightRecordLiftTypeText: var(--pageTextColor);
-    --lightRecordLiftTypeBorder: var(--pageTextColor);
-
-    --lightRecordHighlightBackground: green;
-    --lightRecordHighlightText: white;
-    --lightAttemptHighlightText: white;
-    --lightAttemptHighlightBackground: purple;
-
-    /* records table section, black on white */
-    /* by default, same as white on black */
+    /* by default, same as black on white */
 
     --darkRecordBoxBorder: white;
     --dardRecordBoxBorderWidth: 2px;
@@ -173,6 +177,7 @@
     --darkRecordHighlightText: white;
     --darkAttemptHighlightText: var(--videoHeaderTextColor);
     --darkAttemptHighlightBackground: var(--videoHeaderBackgroundColor);
+
 }
 
 @font-face {
