@@ -70,7 +70,7 @@
     background-size: contain;
     background-repeat: no-repeat;
     width: 70px;
-    height: 75px;
+    height: 70px;
     background-position: center;
 }
 
@@ -195,21 +195,20 @@ table.results tr td.club div.clubName div.ellipsis {
     width: var(--teamNameShortLength);
 }
 
-/* good/bad cells */
+/* good cells */
 :host table.results tr td.good {
     background-color: var(--GoodBackgroundColor);
     color: var(--GoodTextColor);
 }
-
-:host table.results tr td.fail {
-    background-color: var(--FailBackgroundColor);
-    color: var(--FailTextColor);
-}
-
 :host .dark table.results tr td.good {
     font-weight: bold;
 }
 
+/* bad cells */
+:host table.results tr td.fail {
+    background-color: var(--FailBackgroundColor);
+    color: var(--FailTextColor);
+}
 :host .dark table.results tr td.fail {
     font-weight: bold;
 }
@@ -305,7 +304,7 @@ table.results tr td.club div.clubName div.ellipsis {
 
 /* spacer line above first leader/medalist */
 :host table.results tr td.headerSpacer {
-    background-color: var(--darkSpacerBackgroundColor);
+    background-color: var(--SpacerBackgroundColor);
     /* padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin; */
     margin-bottom: 0.01vh;
     border-right: 0;
@@ -450,25 +449,8 @@ td {
     border: none;
 }
 
-:host .dark table.results tr.head td,
-:host .dark table.results tr.head th {
-    /* position: sticky; */
-    justify-content: center;
-    align-content: center;
-    font-weight: normal;
-    /* font-size: var(--tableFontSize); */
-    position: relative;
-    padding-top: 2px;
-    padding-bottom: 2px;
-    border: 1px solid;
-    background: var(--TitleBackgroundColor);
-    color: var(--TitleTextColor);
-    border-color: var(--TableBorders);
-}
-
-:host .light table.results tr.head td,
-:host .light table.results tr.head th {
-    position: sticky;
+:host table.results tr.head td,
+:host table.results tr.head th {
     justify-content: center;
     align-content: center;
     font-weight: normal;

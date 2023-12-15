@@ -22,11 +22,11 @@ public interface StylesDirSelection {
 				// use video override if /video is in the URL and the override stylesheet exists.
 				ResourceWalker.getFileOrResourcePath(Config.getCurrent().getParamVideoStylesDir());
 				element.setProperty("stylesDir", Config.getCurrent().getParamVideoStylesDir());
-				element.setProperty("video", "");
+				element.setProperty("video", true);
 			} catch (FileNotFoundException e) {
 				// should not happen, fall back to normal style
 				element.setProperty("stylesDir", Config.getCurrent().getParamStylesDir());
-				element.setProperty("video", "");
+				element.setProperty("video", true);
 				logger.error("missing video styles {}", Config.getCurrent().getParamVideoStylesDir());
 			}
 		} else {

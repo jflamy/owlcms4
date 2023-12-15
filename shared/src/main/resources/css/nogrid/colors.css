@@ -83,13 +83,14 @@
     /* records table section, black on white */
     /* by default, same as white on black */
 
-    --RecordBoxBorder: white;
+    --RecordBoxBorder: var(--pageTextColor);
+    --RecordBoxBackground: #4d4d4d;
     --RecordBoxBorderWidth: medium;
-    --RecordBoxBackground: var(--EmptyBackgroundColor);
-    --RecordBoxText: var(--TextColor);
+    --RecordBoxText: var(--pageTextColor);
 
     --RecordCellBorderWidth: thin;
-
+     --RecordCellBorderColor: var(--pageTextColor);
+    
     --RecordCatBackground: var(--pageBackgroundColor);
     --RecordCatText: var(--pageTextColor);
 
@@ -101,6 +102,7 @@
 
     --RecordLiftTypeBackground: var(--EmptyBackgroundColor);
     --RecordLiftTypeText: var(--TextColor);
+    --RecordLiftTypeBorder: var(--TextColor);
 
     --RecordHighlightBackground: green;
     --RecordHighlightText: white;
@@ -161,25 +163,27 @@
     --EmptyTextColor: #cccccc;
     --EmptyBackgroundColor: #cccccc;
 
-    /* records table section, white on black */
+     /* records table section, black on white */
     --RecordBoxBorder: var(--pageTextColor);
     --RecordBoxBackground: var(--pageBackgroundColor);
     --RecordBoxBorderWidth: medium;
     --RecordBoxText: var(--pageTextColor);
 
     --RecordCellBorderWidth: thin;
+    --RecordCellBorderColor: var(--pageTextColor);
 
-    --RecordCatBackground: var(--pageBackgroundColor);
+    --RecordCatBackground: var(--RecordBoxBackground);
     --RecordCatText: var(--pageTextColor);
 
     --RecordValueText: var(--pageTextColor);
-    --RecordValueBackground: var(--pageBackgroundColor);
+    --RecordValueBackground: var(--RecordBoxBackground);
 
-    --RecordNameBackground: var(--pageBackgroundColor);
+    --RecordNameBackground: var(--blockBackgroundColor);
     --RecordNameText: var(--pageTextColor);
 
-    --RecordLiftTypeBackground: var(--pageBackgroundColor);
+    --RecordLiftTypeBackground: var(--RecordBoxBackground);
     --RecordLiftTypeText: var(--pageTextColor);
+    --RecordLiftTypeBorder: var(--pageTextColor);
 
     --RecordHighlightBackground: green;
     --RecordHighlightText: white;
