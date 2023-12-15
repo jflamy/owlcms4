@@ -6,6 +6,7 @@
 
 **45.0-beta**
 
+- (beta04) Fix transparent style sheet for video streaming, adjusted nogrid style sheet.
 - (beta03) Fix library dependencies so the application runs in production mode, update to Jetty version 12.
 - (beta02) Merge bug fixes from 44.7, update to Vaadin 24.2.6
 - (beta01) Feature freeze.
