@@ -148,7 +148,8 @@ public class StartupUtils {
         setVersion(version);
         setBuildTimestamp(props.getProperty("buildTimestamp"));
         String buildZone = props.getProperty("buildZone");
-        mainLogger.info("{} {} built {} ({})", appName, version, getBuildTimestamp(), buildZone);
+        String vaadinVersion = props.getProperty("vaadinVersion");
+        mainLogger.info("{} {} built {} ({}). Vaadin {}", appName, version, getBuildTimestamp(), buildZone, vaadinVersion);
     }
 
     public static boolean openBrowser(Desktop desktop, String hostName)

@@ -6,10 +6,7 @@
 
 **45.0-beta**
 
-- (beta04) Fix transparent style sheet for video streaming, adjusted nogrid style sheet.
-- (beta03) Fix library dependencies so the application runs in production mode, update to Jetty version 12.
-- (beta02) Merge bug fixes from 44.7, update to Vaadin 24.2.6
-- (beta01) Feature freeze.
+- (beta04) First fully usable version. Completed the simplification of the various style sheets.
 
 ##### 45.0
 
@@ -36,8 +33,10 @@
 
 This only concerns advanced users who have edited the css files
 
-- *Important changes were made to the css files* for the scoreboards. 
-- The `colors.css` file has only minor changes.  You should be able to put your colors back.
+- *Important changes were made to the css files* for the scoreboards.  
+  - In particular, the differences between dark and light styles are defined by variables in the  `colors.css` . 
+  - The other files, such as `results.css` use these variables. Only a very small number of CSS rules still need to be different between dark and light.
+
 - The major change is using an absolute `rem` font size unit in the `wrapper`.  All the font sizes elsewhere should be `em` units.   However, for now, the dimensions of the timers and decision lights remain vh/vw units.
 - Another noticeable change is that the record grids at the bottom of scoreboards have been redone using grids and as a result, the border colors and width must now be defined using the `outline` directive.
 
