@@ -126,6 +126,9 @@ public class ResourceWalker {
 		Path target = null;
 		if (localDirPath2 != null) {
 			target = localDirPath2.resolve(relativeName);
+			if (logger.isEnabledFor(Level.DEBUG)) {
+				logger.debug("{} target={} exists={}", name, target.toAbsolutePath(), Files.exists(target));
+			}
 		}
 		if (target != null && Files.exists(target)) {
 			try {
