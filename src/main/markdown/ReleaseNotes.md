@@ -6,7 +6,7 @@
 
 **45.0-beta**
 
-- (beta04) First fully usable version. Completed the simplification of the various style sheets.
+- (beta05) Fixed references to style sheets for video streaming pages.
 
 ##### 45.0
 
