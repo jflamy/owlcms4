@@ -6,7 +6,8 @@
 
 **45.0-beta**
 
-- (beta05) Fixed references to style sheets for video streaming pages.
+- (beta06) Fixed style sheet for the current athlete banner
+- (beta05) Fixed access to style sheets for video streaming pages.
 
 ##### 45.0
 
