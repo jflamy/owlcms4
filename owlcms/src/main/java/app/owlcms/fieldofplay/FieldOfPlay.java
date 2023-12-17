@@ -1955,12 +1955,15 @@ public class FieldOfPlay {
             return;
         }
 
+        logger.warn("{} {} {}",state, getBreakType(), allFirstCJ());
         if (state == BREAK && getBreakType() == FIRST_CJ) {
             return;
         }
-        if (state == CURRENT_ATHLETE_DISPLAYED && allFirstCJ()) {
-            return;
-        }
+        //FIXME: this condition is wrong.
+        // Presumably meant to detect that we are *after* the break.
+		//        if (state == CURRENT_ATHLETE_DISPLAYED && allFirstCJ()) {
+		//            return;
+		//        }
 
         this.logger.debug("{}group {} snatch done, break duration {}s", getLoggingName(), getGroup(),
                 millisRemaining / 1000);
