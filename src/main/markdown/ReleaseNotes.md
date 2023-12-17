@@ -3,7 +3,7 @@
 > - Reminder: *You should test any release with your own data before using it in a competition.*
 
 ##### 44.7
-
+- 44.7.1-rc01 Fix: restore automatic start of CJ break
 - Fix: Vaadin user interface library updated to their version 24.2.6: when a text field was shown in a dialog, the focus was set to the end of the text and could not be moved. They have reverted the guilty code.
 - Fix: When reading back an exported registration file, the eligibilities specified were not respected
   - Using an exact category name like `YTH W 55` means only that category, no other participation. 
