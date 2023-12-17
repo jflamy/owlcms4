@@ -33,14 +33,14 @@ table.results tr td div {
 .showRank {
     display: table-cell;
     text-align: left;
-    background-color: var(--darkBackgroundColor);
+    background-color: var(--BackgroundColor);
 }
 
 .showRank div, .totalRank div {
     margin-left: 0.5em;
     border: none;
-    background-color: var(--darkBackgroundColor);
-    color: var(--darkTextColor);
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
     font-size: var(--fontSizeRows-height);
 }
 
@@ -143,14 +143,14 @@ div > div.attemptBar > div.attempts > table > tr > td.totalRank {
 
 table.results {
     border: none;
-    background-color: var(--darkBackgroundColor);
+    background-color: var(--BackgroundColor);
     margin-top: 0.3em;
 }
 
 
 :host .dark table.results tr {
-    background-color: var(--darkBackgroundColor);
-    color: var(--darkTextColor);
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
     display: flex;
     flex-direction: row;
     width: 100%;
@@ -160,8 +160,8 @@ table.results {
 }
 
 :host .light table.results tr {
-    background-color: var(--lightBackgroundColor);
-    color: var(--lightTextColor);
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
     display: flex;
     flex-direction: row;
     width: 100%;
@@ -181,14 +181,14 @@ table.results td {
 :host .dark th,
 :host .dark td {
     font-weight: normal;
-    border: solid 1px var(--darkTableBorders);
+    border: solid 1px var(--TableBorders);
 }
 
 :host .light th,
 :host .light td {
     font-weight: bold;
     /* intentional dark border */
-    border: solid 1px var(--darkTableBorders);
+    border: solid 1px var(--TableBorders);
 }
 
 .name {
@@ -223,8 +223,8 @@ table.results td {
 :host .light table.results td.showRank, :host .light table.results td.totalRank {
     white-space: nowrap;
     border: none;
-    background-color: var(--lightBackgroundColor);
-    color: var(--lightTextColor);
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
     text-align: center;
 }
 
@@ -233,15 +233,15 @@ table.results td {
     font-size: var(--fontSizeRows-height);
     margin-right: 0.5em;
     line-height: var(--divLineHeight);
-    background-color: var(--lightBackgroundColor);
-    color: var(--lightTextColor);
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
 }
 
 
 :host .dark table.results td.showRank, :host .dark table.results td.totalRank {
     border: none;
     font-size: var(--tableFontSize);
-    background-color: var(--darkBackgroundColor);
+    background-color: var(--BackgroundColor);
     color: var(--pageTextColor);
     font-weight: normal;
 }
@@ -251,15 +251,15 @@ table.results td {
     font-size: var(--fontSizeRows-height);
     margin-right: 0.5em;
     line-height: var(--divLineHeight);
-    background-color: var(--darkBackgroundColor);
-    color: var(--darkTextColor);
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
 }
 
 :host .dark table.results td.category {
     white-space: nowrap;
     border: none;
-    background-color: var(--darkBackgroundColor);
-    color: var(--darkTextColor);
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
     font-size: calc(var(--fontSizeRows-height)*1.0);
     padding-left: 1ch;
     padding-right: 1ch;
@@ -268,8 +268,8 @@ table.results td {
 :host .light table.results td.category {
     white-space: nowrap;
     border: none;
-    background-color: var(--lightBackgroundColor);
-    color: var(--lightTextColor);
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
     font-size: calc(var(--fontSizeRows-height)*1.0);
     padding-left: 1ch;
     padding-right: 1ch;
@@ -281,24 +281,24 @@ table.results td {
 
 :host .light table.results td.category div {
     display: inherit;
-    color: var(--lightTextColor);
-    background-color: var(--lightBackgroundColor);
+    color: var(--TextColor);
+    background-color: var(--BackgroundColor);
     line-height: var(--divLineHeight);
 }
 
 :host .dark table.results td.liftName {
     border: 0;
     white-space: nowrap;
-    background-color: var(--darkBackgroundColor);
-    color: var(--darkTextColor);
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
     text-align: center;
 }
 
 :host .light table.results td.liftName {
     white-space: nowrap;
     border: none;
-    background-color: var(--lightBackgroundColor);
-    color: var(--lightTextColor);
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
     text-align: center;
 }
 
@@ -310,8 +310,8 @@ table.results td.liftName div {
 }
 
 :host .dark table.results td.good {
-    background-color: var(--darkGoodBackgroundColor);
-    color: var(--darkGoodTextColor);
+    background-color: var(--GoodBackgroundColor);
+    color: var(--GoodTextColor);
     font-weight: bold;
     width: var(--narrow-width);
     text-align: center;
@@ -319,8 +319,8 @@ table.results td.liftName div {
 }
 
 :host .light table.results td.good {
-    background-color: var(--lightGoodBackgroundColor);
-    color: var(--lightGoodTextColor);
+    background-color: var(--GoodBackgroundColor);
+    color: var(--GoodTextColor);
     font-weight: bold;
     width: var(--narrow-width);
     text-align: center;
@@ -328,8 +328,8 @@ table.results td.liftName div {
 }
 
 :host .dark table.results td.fail {
-    background-color: var(--darkFailBackgroundColor);
-    color: var(--darkFailTextColor);
+    background-color: var(--FailBackgroundColor);
+    color: var(--FailTextColor);
     font-weight: bold;
     width: var(--narrow-width);
     text-align: center;
@@ -337,8 +337,8 @@ table.results td.liftName div {
 }
 
 :host .light table.results td.fail {
-    background-color: var(--lightFailBackgroundColor);
-    color: var(--lightFailTextColor);
+    background-color: var(--FailBackgroundColor);
+    color: var(--FailTextColor);
     font-weight: bold;
     width: var(--narrow-width);
     text-align: center;
@@ -346,7 +346,7 @@ table.results td.liftName div {
 }
 
 :host .dark .spacer {
-    background-color: var(--darkBackgroundColor);
+    background-color: var(--BackgroundColor);
     flex-grow: 1;
     border: 0;
 }
@@ -361,7 +361,7 @@ table.results td.liftName div {
 }
 
 :host .dark .request {
-    background-color: var(--darkEmptyBackgroundColor);
+    background-color: var(--EmptyBackgroundColor);
     font-style: italic;
     width: var(--narrow-width);
     text-align: center;
@@ -369,7 +369,7 @@ table.results td.liftName div {
 }
 
 :host .light .request {
-    background-color: var(--lightEmptyBackgroundColor);
+    background-color: var(--EmptyBackgroundColor);
     font-style: italic;
     width: var(--narrow-width);
     text-align: center;
@@ -378,8 +378,8 @@ table.results td.liftName div {
 
 :host .dark td.current {
 /* intentionally light, we want the yellow background */
-    color: var(--lightCurrentTextColor);
-    background-color: var(--lightCurrentBackgroundColor);
+    color: var(--CurrentTextColor);
+    background-color: var(--CurrentBackgroundColor);
     font-weight: bold;
     width: var(--narrow-width);
     text-align: center;
@@ -387,8 +387,8 @@ table.results td.liftName div {
 }
 
 :host .light td.current {
-    color: var(--lightCurrentTextColor);
-    background-color: var(--lightCurrentBackgroundColor);
+    color: var(--CurrentTextColor);
+    background-color: var(--CurrentBackgroundColor);
     font-weight: bold;
     width: var(--narrow-width);
     text-align: center;
@@ -429,20 +429,20 @@ table.results td.liftName div {
 }
 
 :host .dark table.results td.empty {
-    background-color: var(--darkEmptyBackgroundColor);
+    background-color: var(--EmptyBackgroundColor);
     font-style: italic;
     width: var(--narrow-width);
 }
 
 :host .light table.results td.empty {
-    background-color: var(--lightEmptyBackgroundColor);
+    background-color: var(--EmptyBackgroundColor);
     font-style: italic;
     width: var(--narrow-width);
 }
 
 :host .dark table.results td.total {
-    background-color: var(--darkTotalBackgroundColor);
-    color: var(--lightTotalTextColor);
+    background-color: var(--TotalBackgroundColor);
+    color: var(--TotalTextColor);
     width: var(--narrow-width);
     text-align: center;
     font-style: normal;
@@ -452,8 +452,8 @@ table.results td.liftName div {
 }
 
 :host .light table.results td.total {
-    background-color: var(--lightTotalBackgroundColor);
-    color: var(--darkTotalTextColor);
+    background-color: var(--TotalBackgroundColor);
+    color: var(--TotalTextColor);
     width: var(--narrow-width);
     text-align: center;
     font-style: normal;

@@ -13,8 +13,8 @@ class CurrentAthlete extends LitElement {
 
   render() {
     return html` 
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "")}.css"/>
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "currentathlete" + (this.autoversion ?? "")}.css"/>
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/colors" + (this.autoversion ?? "")}.css"/>
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/currentathlete" + (this.autoversion ?? "")}.css"/>
      
       <div class="${this.wrapperClasses()}">
         <div class="waiting" style="${this.waitingStyles()}">
