@@ -13,8 +13,8 @@ class DecisionBoard extends LitElement {
 
   render() {
     return html` 
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "")}.css"/>
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "decisionboard" + (this.autoversion ?? "")}.css"/>
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/colors" + (this.autoversion ?? "")}.css"/>
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/decisionboard" + (this.autoversion ?? "")}.css"/>
       
       <div class="wrapper">
         <div class="wrapper bigTitle" style="${this.waitingStyles()}">
