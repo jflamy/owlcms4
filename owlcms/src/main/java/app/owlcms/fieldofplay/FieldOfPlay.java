@@ -1955,7 +1955,7 @@ public class FieldOfPlay {
 			return;
 		}
 
-        logger.warn("{}pushOutSnatchDone {} {} {}",getLoggingName(), state, getBreakType(), allFirstCJ());
+        //logger.debug("{}pushOutSnatchDone {} {} {}",getLoggingName(), state, getBreakType(), allFirstCJ());
 		if (state == BREAK && getBreakType() == FIRST_CJ) {
 			return;
 		}
@@ -1965,7 +1965,7 @@ public class FieldOfPlay {
 		//            return;
 		//        }
 
-		this.logger.debug("{}group {} snatch done, break duration {}s", getLoggingName(), getGroup(),
+		this.logger.trace("{}group {} snatch done, break duration {}s", getLoggingName(), getGroup(),
 		        millisRemaining / 1000);
 
 		int timeRemaining = millisRemaining;
