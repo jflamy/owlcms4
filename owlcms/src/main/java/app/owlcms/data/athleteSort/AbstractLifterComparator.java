@@ -822,8 +822,8 @@ public class AbstractLifterComparator {
 			return compare;
 		}
 
-		Double lifter1Value = lifter1.getSinclair();
-		Double lifter2Value = lifter2.getSinclair();
+		Double lifter1Value = lifter1.getSinclairForDelta();
+		Double lifter2Value = lifter2.getSinclairForDelta();
 		final Double notWeighed = 0D;
 		if (lifter1Value == null) {
 			lifter1Value = notWeighed;
