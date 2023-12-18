@@ -1,10 +1,14 @@
-> **Version 44.7**
+> **Version 44.7.1**
 >
 > - Reminder: *You should test any release with your own data before using it in a competition.*
 
-##### 44.7
-- 44.7.1-rc01 Fix: restore automatic start of CJ break
-- Fix: Vaadin user interface library updated to their version 24.2.6: when a text field was shown in a dialog, the focus was set to the end of the text and could not be moved. They have reverted the guilty code.
+##### 44.7.1
+
+- Fix: The Clean&Jerk break was not starting automatically after the last snatch, now fixed.
+
+##### 44.7.0
+
+- Fix: Text selection was not working inside dialog text fields. User interface toolkit was updated to fix.
 - Fix: When reading back an exported registration file, the eligibilities specified were not respected
   - Using an exact category name like `YTH W 55` means only that category, no other participation. 
   - When using the exact category names, any additional participation must be spelled out after the `|`,  for example`YTH W 55|JR W 55;SR W 55`
