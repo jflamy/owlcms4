@@ -6,10 +6,10 @@
 
 **45.0-beta**
 
+- (beta08) Fixed Sinclair rankings for Sinclair-only non-standard competition rules (#809)
 - (beta07) Fixed style sheet for decision board page (#814)
 - (beta07) Fixed automatic CJ break not starting (#812)
 - (beta06) Fixed style sheet for the current athlete banner
-- (beta05) Fixed access to style sheets for video streaming pages.
 
 ##### 45.0
 
