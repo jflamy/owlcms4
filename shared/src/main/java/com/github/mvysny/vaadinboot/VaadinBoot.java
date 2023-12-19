@@ -259,12 +259,14 @@ public class VaadinBoot {
     public void start() throws Exception {
         @SuppressWarnings("unused")
 		final long startupMeasurementSince = System.currentTimeMillis();
-        log.info("Starting App");
+        log.info("Starting Application");
 
         // detect&enable production mode, but only if it hasn't been specified by the user already
-        if (System.getProperty("vaadin.productionMode") == null && Env.isVaadinProductionMode) {
+        String property = System.getProperty("vaadin.productionMode");
+		if (property == null && Env.isVaadinProductionMode) {
             // fixes https://github.com/mvysny/vaadin14-embedded-jetty/issues/1
             System.setProperty("vaadin.productionMode", "true");
+            log.info("Setting Vaadin Production mode.");
         }
 
         fixClasspath();
