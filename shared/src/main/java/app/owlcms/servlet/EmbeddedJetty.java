@@ -18,7 +18,7 @@ public class EmbeddedJetty extends com.github.mvysny.vaadinboot.VaadinBoot {
 
 	public EmbeddedJetty(CountDownLatch countDownLatch, String appName) {
 		this.setLatch(countDownLatch);
-		//this.setAppName(appName);
+		this.setAppName(appName);
 	}
 
 	public CountDownLatch getLatch() {

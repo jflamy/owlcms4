@@ -215,6 +215,8 @@ public class VaadinBoot {
     // mark volatile: might be accessed by the shutdown hook from a different thread.
     private volatile Server server;
 
+	private String appName;
+
     /**
      * Runs your app. Blocks until the user presses Enter or CTRL+C.
      * <br/>
@@ -273,6 +275,7 @@ public class VaadinBoot {
         log.debug("Classpath fixed");
 
         final WebAppContext context = createWebAppContext();
+		context.getSessionHandler().setSessionCookie(getAppName() != null ? getAppName() : "V"+System.currentTimeMillis());
         log.debug("Jetty WebAppContext created");
 
         server = new Server(newThreadPool());
@@ -304,7 +307,11 @@ public class VaadinBoot {
         }
     }
 
-    /**
+    private String getAppName() {
+		return appName;
+	}
+
+	/**
      * Invoked when the Jetty server has been started. By default, does nothing. You can
      * for example dump the quickstart configuration here.
      * @param context the web app context.
@@ -401,5 +408,9 @@ public class VaadinBoot {
 
 	public int getPort() {
 		return port;
+	}
+
+	public void setAppName(String appName) {
+		this.appName = appName;
 	}
 }
