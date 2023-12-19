@@ -6,6 +6,7 @@
 
 **45.0-beta**
 
+- (beta09) Should be last beta before release candidate
 - (beta09) Updated translations
 - (beta09) Updated to latest Vaadin 24.2.1
 
