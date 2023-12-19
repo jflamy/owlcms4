@@ -41,6 +41,7 @@
     <logger name="org.hibernate.type.descriptor.java.JavaTypeDescriptorRegistry" level="ERROR" />
     <logger name="h2database" level="WARN" />
     <logger name="com.vaadin" level="INFO" />
+    <logger name="com.github.mvysny.vaadinboot" level="INFO" />
 
 
     <!-- log all info to file; warnings and above unless logger specifies another level -->
