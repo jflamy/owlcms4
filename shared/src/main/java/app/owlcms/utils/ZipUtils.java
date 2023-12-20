@@ -49,7 +49,7 @@ public class ZipUtils {
 	public static void extractZip(InputStream inputStream, Path target) throws IOException {
 		try {
 			ArchiveStreamFactory archiveStreamFactory = new ArchiveStreamFactory();
-			ArchiveInputStream archiveInputStream = archiveStreamFactory
+			ArchiveInputStream<ArchiveEntry> archiveInputStream = archiveStreamFactory
 			        .createArchiveInputStream(ArchiveStreamFactory.ZIP, inputStream);
 			ArchiveEntry archiveEntry = null;
 			while ((archiveEntry = archiveInputStream.getNextEntry()) != null) {
