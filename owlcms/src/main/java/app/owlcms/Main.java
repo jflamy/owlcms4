@@ -127,10 +127,12 @@ public class Main {
 			startMQTT();
 		}
 
+		long now = System.currentTimeMillis();
 		// read locale from database and override if needed
 		Locale l = overrideDisplayLanguage();
 		injectData(initialData, l);
 		overrideTimeZone();
+		logger.info("Initialized data ({} ms)", System.currentTimeMillis()-now);
 
 		// initialization, don't push out to browsers
 		OwlcmsFactory.initDefaultFOP();
@@ -385,9 +387,10 @@ public class Main {
 
 
 		try {
+			long now = System.currentTimeMillis();
 			logger.info("starting MQTT broker.");
-
 			mqttBroker.startServer(mqttConfig, userHandlers);
+			logger.info("started MQTT broker ({} ms).",System.currentTimeMillis()-now);
 
 			// Bind a shutdown hook
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {

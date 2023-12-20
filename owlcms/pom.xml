@@ -685,9 +685,15 @@
 												<exclude>META-INF/LICENSE.txt</exclude>
 												<exclude>META-INF/VERSION</exclude>
 												<exclude>META-INF/LICENSE</exclude>
+												<exclude>META-INF/NOTICE</exclude>
+												<exclude>LICENSE*</exclude>
+												<exclude>NOTICE*</exclude>
 												<exclude>META-INF/*.SF</exclude>
 												<exclude>META-INF/*.DSA</exclude>
 												<exclude>META-INF/*.RSA</exclude>
+												<exclude>META-INF/*.md</exclude>
+												<exclude>com.vaadin:vaadin-dev</exclude>
+												<exclude>com.vaadin:vaadin-dev-server</exclude>
 											</excludes>
 										</filter>
 									</filters>
