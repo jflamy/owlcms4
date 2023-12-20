@@ -30,7 +30,7 @@ final class Env {
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         final URL probeURL = classLoader.getResource(probe);
         if (probeURL != null) {
-            log.warn("Vaadin production mode is on: " + probeURL + " is present");
+            log.info("Vaadin production mode is on: " + probeURL + " is present");
             return true;
         }
 
@@ -40,16 +40,16 @@ final class Env {
             try {
                 final String json = IOUtils.toString(flowBuildInfoJsonURL, StandardCharsets.UTF_8);
                 if (flowBuildInfoJsonContainsProductionModeTrue(json)) {
-                    log.warn("Vaadin production mode is on: " + flowBuildInfoJsonURL + " contains '\"productionMode\": true'");
+                    log.info("Vaadin production mode is on: " + flowBuildInfoJsonURL + " contains '\"productionMode\": true'");
                     return true;
                 }
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
-            log.warn("Vaadin production mode is off: " + flowBuildInfoJsonURL + " doesn't contain '\"productionMode\": true'");
+            log.info("Vaadin production mode is off: " + flowBuildInfoJsonURL + " doesn't contain '\"productionMode\": true'");
             return false;
         }
-        log.warn("Vaadin production mode is off: META-INF/VAADIN/config/flow-build-info.json is missing");
+        log.info("Vaadin production mode is off: META-INF/VAADIN/config/flow-build-info.json is missing");
         return false;
     }
 
