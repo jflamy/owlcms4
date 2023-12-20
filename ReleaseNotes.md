@@ -1,14 +1,11 @@
-> **Version 45.0-beta**	
+> **Version 45.0 release candidate**	
 >
-> - BEWARE: this is an early version of a future 45 release, **not a version 44 bug fix release**.  The version 44 prereleases have 44 in their version number.
-> - Beta releases are for testing and translation, they are meant to gather feedback and for tests by early adopters.  Normally no new features are introduced at the beta stage, only fixes.
-> - Beta releases are seldom used in competitions and need to be extremely well tested before doing so. Please look for a [stable release](https://github.com/owlcms/owlcms4/releases) or at least a release candidate unless you absolutely need a feature or fix.
+> - Release candidate versions are used for testing by early adopters or users that need a specific feature available in the new upcoming version.
+> - Release candidate versions are expected to be fully functional, but because they are new you should test them several days in advance, with your own data.
 
-**45.0-beta**
+##### 45.0 release candidates
 
-- (beta09) Should be last beta before release candidate
-- (beta09) Updated translations
-- (beta09) Updated to latest Vaadin 24.2.1
+- (rc01) owlcms and publicresults running on the same computer would interfere with one another. This regression is now fixed.
 
 ##### 45.0
 
