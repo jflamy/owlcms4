@@ -196,7 +196,7 @@ public class ResourceWalker {
 				}
 			} else {
 				if (logger.isEnabledFor(Level.DEBUG)) {
-					logger.debug("not found {} {}", target, resName);
+					logger.debug("not found {} {} {}", target, resName, LoggerUtils.whereFrom(1));
 				}
 				throw new FileNotFoundException(name);
 			}
