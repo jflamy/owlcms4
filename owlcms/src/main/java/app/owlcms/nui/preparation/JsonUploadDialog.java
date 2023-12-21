@@ -59,17 +59,17 @@ public class JsonUploadDialog extends Dialog {
 		});
 
 		upload.addStartedListener(event -> {
-			logger.warn("started");
+			logger.debug("started");
 			ta.clear();
 			ta.setVisible(false);
 		});
 		
 		upload.addFailedListener(event -> {
-			logger.warn("failed upload {}",event.getReason());
+			logger.error("failed upload {}",event.getReason());
 		});
 		
 		upload.addFileRejectedListener(event -> {
-			logger.warn("rejected {}"+event.getErrorMessage());
+			logger.error("rejected {}"+event.getErrorMessage());
 		});
 
 		H3 title = new H3(getTranslation("ExportDatabase.UploadJson"));

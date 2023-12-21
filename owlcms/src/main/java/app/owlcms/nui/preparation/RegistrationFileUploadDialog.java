@@ -329,7 +329,7 @@ public class RegistrationFileUploadDialog extends Dialog {
 				if (eligibles != null) {
 					Category first = eligibles.stream().findFirst().orElse(null);
 					a2.setCategory(first);
-					logger.warn("setting eligibility {} {}", a2.getShortName(), eligibles);
+					//logger.debug("setting eligibility {} {}", a2.getShortName(), eligibles);
 					a2.setEligibleCategories(eligibles);
 					List<Participation> participations2 = a2.getParticipations();
 					for (Participation p : participations2) {
@@ -341,7 +341,7 @@ public class RegistrationFileUploadDialog extends Dialog {
 							p.setTeamMember(false);
 						}
 					}
-					logger.warn("participations {} {}", a2.getShortName(), a2.getParticipations());
+					//logger.debug("participations {} {}", a2.getShortName(), a2.getParticipations());
 					em.merge(a2);
 				}
 			});
