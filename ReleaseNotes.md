@@ -5,6 +5,7 @@
 
 ##### 45.0 release candidates
 
+- (rc03) scoreboard style sheet adjustments for flags and decision lights
 - (rc02) removed unneeded development libraries from the production packaging
 - (rc01) owlcms and publicresults running on the same computer would interfere with one another. This regression is now fixed.
 
