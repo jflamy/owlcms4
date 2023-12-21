@@ -366,8 +366,8 @@ class Results extends LitElement {
   }
 
   athleteTimerStyles() {
-   //return "display:" + ((this.mode === "CURRENT_ATHLETE" && !this.decisionVisible) ? "flex" : "none");
-   return "display: " + (this.isBreak() ? "none" : "flex");
+   let visible = ((this.mode === "CURRENT_ATHLETE" && !this.decisionVisible) ? "display" : "hidden");
+   return "visibility: " + (this.isBreak() ? "hidden" : visible);
   }
 
   breakTimerStyles() {
