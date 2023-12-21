@@ -79,8 +79,8 @@ import elemental.json.JsonValue;
 @JsModule("./components/AudioContext.js")
 
 public class Results extends LitTemplate
-implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
-RequireDisplayLogin, HasBoardMode, StylesDirSelection {
+        implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
+        RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 
 	@Id("timer")
 	private AthleteTimerElement timer; // WebComponent, injected by Vaadin
@@ -88,7 +88,6 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 	private BreakTimerElement breakTimer; // WebComponent, injected by Vaadin
 	@Id("decisions")
 	private DecisionElement decisions; // WebComponent, injected by Vaadin
-
 	private final Logger logger = (Logger) LoggerFactory.getLogger(Results.class);
 	private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 	private JsonArray cattempts;
@@ -112,7 +111,7 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 	private Double teamWidth;
 	private boolean leadersDisplay;
 	private boolean recordsDisplay;
-
+	private HashMap<Athlete, String> athleteToFlag = new HashMap<>();
 	private boolean video;
 	private boolean downSilenced;
 
@@ -131,7 +130,7 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
 
 			String title = inferGroupName() + " &ndash; "
-					+ inferMessage(fop.getBreakType(), fop.getCeremonyType(), isPublicDisplay());
+			        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), isPublicDisplay());
 			this.getElement().setProperty("fullName", title);
 			this.getElement().setProperty("teamName", "");
 			this.getElement().setProperty("attempt", "");
@@ -144,7 +143,7 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 				nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
 			}
 			if (fop.getCeremonyType() == null && a != null && nextAttemptRequestedWeight != null
-					&& nextAttemptRequestedWeight > 0) {
+			        && nextAttemptRequestedWeight > 0) {
 				this.getElement().setProperty("weight", nextAttemptRequestedWeight);
 			}
 			setDisplay();
@@ -154,37 +153,37 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 
 	@Override
 	public void doCeremony(UIEvent.CeremonyStarted e) {
-		//		ceremonyGroup = e.getCeremonyGroup();
-		//		ceremonyCategory = e.getCeremonyCategory();
-		//		// logger.debug("------ ceremony event = {} {}", e, e.getTrace());
-		//		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-		//			if (e.getCeremonyType() == CeremonyType.MEDALS && isPublicDisplay() && ceremonyGroup != null) {
-		//				Map<String, String> map = new HashMap<>(Map.of(
-		//				        FOPParameters.FOP, fop.getName(),
-		//				        FOPParameters.GROUP, ceremonyGroup.getName(),
-		//				        DisplayParameters.DARK, Boolean.toString(darkMode)));
-		//				if (ceremonyCategory != null) {
-		//					map.put(DisplayParameters.CATEGORY, ceremonyCategory.getCode());
-		//				} else {
-		//					// logger.trace("no ceremonyCategory");
-		//				}
-		//				QueryParameters simple = QueryParameters.simple(map);
-		//				// logger.debug("========== parameters {}",simple);
-		//				UI.getCurrent().navigate("displays/resultsMedals", simple);
-		//			} else {
-		//				// logger.debug("========== NOT {} {} {}",e.getCeremonyType(),
-		//				// this.isSwitchableDisplay(), ceremonyGroup);
-		//				String title = inferGroupName() + " &ndash; "
-		//				        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), isPublicDisplay());
-		//				this.getElement().setProperty("fullName", title);
-		//				this.getElement().setProperty("teamName", "");
-		//				setGroupNameProperty("");
-		//				getBreakTimer().setVisible(!fop.getBreakTimer().isIndefinite());
-		//				setDisplay();
+		// ceremonyGroup = e.getCeremonyGroup();
+		// ceremonyCategory = e.getCeremonyCategory();
+		// // logger.debug("------ ceremony event = {} {}", e, e.getTrace());
+		// OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		// if (e.getCeremonyType() == CeremonyType.MEDALS && isPublicDisplay() && ceremonyGroup != null) {
+		// Map<String, String> map = new HashMap<>(Map.of(
+		// FOPParameters.FOP, fop.getName(),
+		// FOPParameters.GROUP, ceremonyGroup.getName(),
+		// DisplayParameters.DARK, Boolean.toString(darkMode)));
+		// if (ceremonyCategory != null) {
+		// map.put(DisplayParameters.CATEGORY, ceremonyCategory.getCode());
+		// } else {
+		// // logger.trace("no ceremonyCategory");
+		// }
+		// QueryParameters simple = QueryParameters.simple(map);
+		// // logger.debug("========== parameters {}",simple);
+		// UI.getCurrent().navigate("displays/resultsMedals", simple);
+		// } else {
+		// // logger.debug("========== NOT {} {} {}",e.getCeremonyType(),
+		// // this.isSwitchableDisplay(), ceremonyGroup);
+		// String title = inferGroupName() + " &ndash; "
+		// + inferMessage(fop.getBreakType(), fop.getCeremonyType(), isPublicDisplay());
+		// this.getElement().setProperty("fullName", title);
+		// this.getElement().setProperty("teamName", "");
+		// setGroupNameProperty("");
+		// getBreakTimer().setVisible(!fop.getBreakTimer().isIndefinite());
+		// setDisplay();
 		//
-		//				updateBottom(computeLiftType(fop.getCurAthlete()), fop);
-		//			}
-		//		}));
+		// updateBottom(computeLiftType(fop.getCurAthlete()), fop);
+		// }
+		// }));
 	}
 
 	public BreakTimerElement getBreakTimer() {
@@ -374,11 +373,12 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		boolean done = fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE;
 		if (!isLeadersDisplay() || done) {
-			logger.debug("setLeadersDisplay 0px: isLeaders = {} done = {}",isLeadersDisplay(),done);
+			logger.debug("setLeadersDisplay 0px: isLeaders = {} done = {}", isLeadersDisplay(), done);
 			this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: 0px");
 		} else {
-			logger.debug("setLeadersDisplay default: isLeaders = {} done = {}",isLeadersDisplay(),done);
-			this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: var(--defaultLeaderFillerHeight)");
+			logger.debug("setLeadersDisplay default: isLeaders = {} done = {}", isLeadersDisplay(), done);
+			this.getElement().setProperty("leaderFillerHeight",
+			        "--leaderFillerHeight: var(--defaultLeaderFillerHeight)");
 		}
 	}
 
@@ -426,19 +426,26 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 	 * @param ja
 	 */
 	public void setTeamFlag(Athlete a, JsonObject ja) {
-		String team = a.getTeam();
-		String teamFileName = URLUtils.sanitizeFilename(team);
 		String prop = null;
-		if (this.teamFlags && !team.isBlank()) {
-			prop = URLUtils.getImgTag("flags/", teamFileName, ".svg");
-			if (prop == null) {
-				prop = URLUtils.getImgTag("flags/", teamFileName, ".png");
+		if (athleteToFlag.containsKey(a)) {
+			prop = athleteToFlag.get(a);
+		} else {
+			String team = a.getTeam();
+			String teamFileName = URLUtils.sanitizeFilename(team);
+
+			if (this.teamFlags && !team.isBlank()) {
+				prop = URLUtils.getImgTag("flags/", teamFileName, ".svg");
 				if (prop == null) {
-					prop = URLUtils.getImgTag("flags/", teamFileName, ".jpg");
+					prop = URLUtils.getImgTag("flags/", teamFileName, ".png");
+					if (prop == null) {
+						prop = URLUtils.getImgTag("flags/", teamFileName, ".jpg");
+					}
 				}
 			}
+			// prop can be null, will be tested with ContainsKey
+			athleteToFlag.put(a, prop);
+			// ja.put("teamLength", team.isBlank() ? "" : (team.length()*1.2) + "ch");
 		}
-		//ja.put("teamLength", team.isBlank() ? "" : (team.length()*1.2) + "ch");
 		ja.put("flagURL", prop != null ? prop : "");
 		ja.put("flagClass", "flags");
 	}
@@ -462,7 +469,7 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 	 */
 	@Override
 	public void setVideo(boolean b) {
-		//this.logger.debug("{} setVideo {} from {}", this.getClass(), b, LoggerUtils.whereFrom());
+		// this.logger.debug("{} setVideo {} from {}", this.getClass(), b, LoggerUtils.whereFrom());
 		this.video = b;
 	}
 
@@ -513,7 +520,7 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 			this.getElement().setProperty("decisionVisible", true);
 			Athlete a = e.getAthlete();
 			// -1 because if decision in on snatch 3 we don't want to show CJ
-			updateBottom(computeLiftType(a.getAttemptsDone()-1), OwlcmsSession.getFop());
+			updateBottom(computeLiftType(a.getAttemptsDone() - 1), OwlcmsSession.getFop());
 		});
 	}
 
@@ -524,7 +531,7 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 			setDisplay();
 			this.getElement().setProperty("decisionVisible", false);
 			Athlete a = e.getAthlete();
-			updateBottom(computeLiftType(a.getAttemptsDone()-1), OwlcmsSession.getFop());
+			updateBottom(computeLiftType(a.getAttemptsDone() - 1), OwlcmsSession.getFop());
 		});
 	}
 
@@ -612,14 +619,14 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 
 				if (Competition.getCurrent().isSinclair()) {
 					List<Athlete> sortedAthletes = new ArrayList<>(
-							Competition.getCurrent().getGlobalSinclairRanking(curAthlete.getGender()));
+					        Competition.getCurrent().getGlobalSinclairRanking(curAthlete.getGender()));
 					this.displayOrder = AthleteSorter.topSinclair(sortedAthletes, 3).topAthletes;
 					this.getElement().setProperty("categoryName", Translator.translate("sinclair"));
 				} else {
 					this.displayOrder = fop.getLeaders();
 				}
 				if ((!done || Competition.getCurrent().isSinclair()) && this.displayOrder != null
-						&& this.displayOrder.size() > 0) {
+				        && this.displayOrder.size() > 0) {
 					// null as second argument because we do not highlight current athletes in the
 					// leaderboard
 					this.getElement().setPropertyJson("leaders", getAthletesJson(this.displayOrder, null, fop));
@@ -635,10 +642,10 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 
 	protected void computeRecords(boolean done) {
 		// always compute
-		//        if (!this.isRecordsDisplay()) {
-		//            this.getElement().setPropertyJson("records", Json.createNull());
-		//            return;
-		//        }
+		// if (!this.isRecordsDisplay()) {
+		// this.getElement().setPropertyJson("records", Json.createNull());
+		// return;
+		// }
 		OwlcmsSession.withFop(fop -> {
 			Athlete curAthlete = fop.getCurAthlete();
 			if (curAthlete != null && curAthlete.getGender() != null) {
@@ -660,7 +667,7 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 		int nbCats = 0;
 		Category prevCat = null;
 		List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
-				: Collections.emptyList();
+		        : Collections.emptyList();
 		for (Athlete a : athletes) {
 			Category curCat = a.getCategory();
 			if (curCat != null && !curCat.sameAs(prevCat)) {
@@ -703,7 +710,7 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 				if (group != null && !group.isDone()) {
 					if (isAbbreviatedName()) {
 						this.getElement().setProperty("fullName",
-								a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
+						        a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
 					} else {
 						this.getElement().setProperty("fullName", a.getFullName() != null ? a.getFullName() : "");
 					}
@@ -777,7 +784,7 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 		}
 		ja.put("group", a.getSubCategory());
 		Double double1 = a.getAttemptsDone() <= 3 ? a.getSinclairForDelta()
-				: a.getSinclair();
+		        : a.getSinclair();
 		ja.put("sinclair", double1 > 0.001 ? String.format("%.3f", double1) : "-");
 		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
@@ -816,7 +823,7 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 		long currentId = (liftOrder != null && liftOrder.size() > 0) ? liftOrder.get(0).getId() : -1L;
 		long nextId = (liftOrder != null && liftOrder.size() > 1) ? liftOrder.get(1).getId() : -1L;
 		List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
-				: Collections.emptyList();
+		        : Collections.emptyList();
 		for (Athlete a : athletes) {
 			JsonObject ja = Json.createObject();
 			if (getSeparatorPredicate().test(a, prevAthlete)) {
@@ -828,11 +835,11 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 			}
 			// compute the blinking rank (1 = current, 2 = next)
 			getAthleteJson(a, ja, a.getCategory(), (a.getId() == currentId)
-					? 1
-							: ((a.getId() == nextId)
-									? 2
-											: 0),
-							fop);
+			        ? 1
+			        : ((a.getId() == nextId)
+			                ? 2
+			                : 0),
+			        fop);
 			String team = a.getTeam();
 			if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
 				setWideTeamNames(true);
@@ -892,7 +899,7 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 						// recomputed and we get DECISION_RESET
 						int liftBeingDisplayed = i.getLiftNo();
 						if (liftBeingDisplayed == curLift && (fop.getState() != FOPState.DECISION_VISIBLE)
-								&& showCurrent(fop)) {
+						        && showCurrent(fop)) {
 							switch (liftOrderRank) {
 							case 1:
 								highlight = (" current" + blink);
@@ -936,11 +943,10 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 	 */
 	protected BiPredicate<Athlete, Athlete> getSeparatorPredicate() {
 		BiPredicate<Athlete, Athlete> separator = (cur, prev) -> prev == null
-				|| (cur.getCategory() != null
-				&& !cur.getCategory().sameAs(prev.getCategory()));
+		        || (cur.getCategory() != null
+		                && !cur.getCategory().sameAs(prev.getCategory()));
 		return separator;
 	}
-
 
 	/**
 	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
@@ -949,10 +955,11 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 	protected void onAttach(AttachEvent attachEvent) {
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
-//			Page page = UI.getCurrent().getPage();
-//			page.retrieveExtendedClientDetails(details -> {
-//				logger.debug("{} device resolution : {}x{}", details.isIPad()?"iPad":(details.isIOS()?"iPhone" : details.toString()), details.getScreenWidth(), details.getScreenHeight());
-//			});
+			// Page page = UI.getCurrent().getPage();
+			// page.retrieveExtendedClientDetails(details -> {
+			// logger.debug("{} device resolution : {}x{}", details.isIPad()?"iPad":(details.isIOS()?"iPhone" :
+			// details.toString()), details.getScreenWidth(), details.getScreenHeight());
+			// });
 			resultsInit();
 			checkVideo(this);
 			this.teamFlags = URLUtils.checkFlags();
@@ -968,8 +975,8 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 
 		getElement().setProperty("showSinclair", Competition.getCurrent().isSinclair());
 		getElement().setProperty("showLiftRanks",
-				Competition.getCurrent().isSnatchCJTotalMedals() && !Competition.getCurrent().isSinclair());
-		
+		        Competition.getCurrent().isSnatchCJTotalMedals() && !Competition.getCurrent().isSinclair());
+
 		if (!isSilenced() || !isDownSilenced()) {
 			SoundUtils.enableAudioContextNotification(this.getElement());
 		}
@@ -990,8 +997,8 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 	protected void uiLog(UIEvent e) {
 		if (this.uiEventLogger.isDebugEnabled()) {
 			this.uiEventLogger.debug("### {} {} {} {}",
-					this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getOrigin(),
-					LoggerUtils.whereFrom());
+			        this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getOrigin(),
+			        LoggerUtils.whereFrom());
 		}
 	}
 
@@ -1011,7 +1018,7 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 			// logger.debug("case 3 {}", isSwitchableDisplay());
 			String name = groupDescription != null ? groupDescription : this.curGroup.getName();
 			String value = groupDescription == null ? Translator.translate("Scoreboard.GroupLiftType", name, liftType)
-					: Translator.translate("Scoreboard.DescriptionLiftTypeFormat", groupDescription, liftType);
+			        : Translator.translate("Scoreboard.DescriptionLiftTypeFormat", groupDescription, liftType);
 			setGroupNameProperty(value);
 			this.liftsDone = AthleteSorter.countLiftsDone(this.displayOrder);
 			if ((isPublicDisplay() || isVideo())) {
@@ -1029,18 +1036,19 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 		}
 		this.getElement().setPropertyJson("ageGroups", getAgeGroupNamesJson(fop.getAgeGroupMap()));
 		this.getElement().setPropertyJson("athletes",
-				getAthletesJson(this.displayOrder, fop.getLiftingOrder(), fop));
+		        getAthletesJson(this.displayOrder, fop.getLiftingOrder(), fop));
 
 		List<Athlete> order = getOrder(OwlcmsSession.getFop());
 		int resultLines = (order != null ? order.size() : 0) + countSubsets(order);
 		boolean done = fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE;
 
 		if (!isLeadersDisplay() || done) {
-			logger.debug("0px: isLeaders = {} done = {}",isLeadersDisplay(),done);
+			logger.debug("0px: isLeaders = {} done = {}", isLeadersDisplay(), done);
 			this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: 0px");
 		} else {
-			logger.debug("default: isLeaders = {} done = {}",isLeadersDisplay(),done);
-			this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: var(--defaultLeaderFillerHeight)");
+			logger.debug("default: isLeaders = {} done = {}", isLeadersDisplay(), done);
+			this.getElement().setProperty("leaderFillerHeight",
+			        "--leaderFillerHeight: var(--defaultLeaderFillerHeight)");
 		}
 		this.getElement().setProperty("resultLines", resultLines);
 
@@ -1053,16 +1061,16 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 			return null;
 		}
 		String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
-				: Translator.translate("Snatch");
+		        : Translator.translate("Snatch");
 		return liftType;
 	}
-	
+
 	private String computeLiftType(Integer curAttempt) {
 		if (curAttempt == null || curAttempt > 6) {
 			return null;
 		}
 		String liftType = curAttempt >= 3 ? Translator.translate("Clean_and_Jerk")
-				: Translator.translate("Snatch");
+		        : Translator.translate("Snatch");
 		return liftType;
 	}
 
@@ -1084,7 +1092,7 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 
 	private String formatKg(String total) {
 		return (total == null || total.trim().isEmpty()) ? "-"
-				: (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
+		        : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
 	}
 
 	private void resultsInit() {
@@ -1119,7 +1127,7 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 	}
 
 	private void setGroupNameProperty(String value) {
-		//logger.debug("setGroupNameProperty {} from {}",value, LoggerUtils.whereFrom());
+		// logger.debug("setGroupNameProperty {} from {}",value, LoggerUtils.whereFrom());
 		this.getElement().setProperty("groupName", value);
 	}
 
@@ -1146,7 +1154,7 @@ RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 	private void spotlightRecordAttempt() {
 		this.getElement().setProperty("recordKind", "attempt");
 		this.getElement().setProperty("recordMessage",
-				Translator.translate("Scoreboard.RecordAttempt"));
+		        Translator.translate("Scoreboard.RecordAttempt"));
 	}
 
 	private void spotlightRecords(FieldOfPlay fop) {
