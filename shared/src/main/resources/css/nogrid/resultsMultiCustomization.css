@@ -30,8 +30,8 @@
     - change hidden to visible
     - set the width to value like 8ch 
     */
-    --birthWidth: 0;
-    --birthVisibility: hidden;
+    --birthWidth: 6ch;
+    --birthVisibility: visible;
     --custom1Width: 0;
     --custom1Visibility: hidden;
     --custom2Width: 0;
@@ -67,8 +67,7 @@
 		--topRowFontSize: 2.0em;
 		--athleteNameFontSize: 1.25em;
 		--groupInfoFontSize: 1.5em;
-        --lightRecordBoxBorderWidth: thin;
-        --darkRecordBoxBorderWidth: thin;
+        --RecordBoxBorderWidth: thin;
     }
     .wrapper {
         font-size: calc(var(--baseRemSize)/8);
@@ -97,8 +96,7 @@
 }
 @media screen and (orientation: landscape) and (min-width: 1180px) and (max-width: 1899px) {
     * {
-        --lightRecordBoxBorderWidth: medium;
-        --darkRecordBoxBorderWidth: medium;
+        --RecordBoxBorderWidth: medium;
     }
     .wrapper {
         font-size: calc(var(--baseRemSize)/3);
@@ -106,8 +104,7 @@
 }
 @media screen and (orientation: landscape) and (min-width: 1900px) and (max-width: 3799px) {
     * {
-        --lightRecordBoxBorderWidth: medium;
-        --darkRecordBoxBorderWidth: medium;
+        --RecordBoxBorderWidth: medium;
     }
     .wrapper {
         font-size: calc(var(--baseRemSize)/2);
@@ -115,8 +112,7 @@
 }
 @media screen and (orientation: landscape) and (min-width: 3800px) {
     * {
-        --lightRecordBoxBorderWidth: medium;
-        --darkRecordBoxBorderWidth: medium;
+        --RecordBoxBorderWidth: medium;
     }
     .wrapper {
         font-size: calc(var(--baseRemSize));
@@ -247,8 +243,8 @@
 }
 
 td.flags div img {
-	width: calc(var(--athleteNameFontSize)*1.2);
-    height: calc(var(--athleteNameFontSize)*0.8);
+	width: calc(var(--athleteNameFontSize)*1.2*1.2);
+    height: calc(var(--athleteNameFontSize)*1.2);
     margin: 1vh;
     align-self: center;
     border: 1px;

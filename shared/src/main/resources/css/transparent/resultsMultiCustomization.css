@@ -107,7 +107,8 @@
     /* min-height: 1.5em; */
 }
 td.flags div img {
-    height: calc(var(--athleteNameFontSize)*0.8);
+	width: calc(var(--athleteNameFontSize)*1.2*1.2);
+    height: calc(var(--athleteNameFontSize)*1.2);
     margin: 1vh;
     align-self: center;
     border: 1px;
