@@ -125,6 +125,7 @@ public class SinclairCoefficients {
 		if (props == null) {
 			loadProps();
 		}
+		//logger.debug("loadCoefficicients {}",props.get("sinclair.menCoefficient"));
 		menCoefficient = Double.valueOf((String) props.get("sinclair.menCoefficient"));
 		menMaxWeight = Double.valueOf((String) props.get("sinclair.menMaxWeight"));
 		womenCoefficient = Double.valueOf((String) props.get("sinclair.womenCoefficient"));
@@ -140,7 +141,8 @@ public class SinclairCoefficients {
 		try {
 			InputStream stream = ResourceWalker.getResourceAsStream(name);
 			props.load(stream);
-		} catch (IOException e) {
+			//logger.debug("props loaded {}",props.get("sinclair.menCoefficient"));
+		} catch (Throwable e) {
 			logger.error("could not load {} because {}\n{}", name, e, LoggerUtils.stackTrace(e));
 		}
 	}
