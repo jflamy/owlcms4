@@ -583,7 +583,7 @@ td {
     top: 1vmin;
     right: 1vmin;
     width: 15vw;
-    height: 10vh;
+    height: 2.6em;
     background-color: var(--pageBackgroundColor);
     display: none;
 }
@@ -596,7 +596,6 @@ td {
 }
 
 .breakTime {
-    /* color: #99CCFF; */
     color: var(--breakTimerColor);
 }
 
