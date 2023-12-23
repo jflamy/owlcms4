@@ -6,10 +6,21 @@
  *******************************************************************************/
 package app.owlcms.nui.home;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.text.MessageFormat;
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.css.grid.GridLayoutComponent.AutoFlow;
@@ -35,7 +46,9 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
+import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.nui.displays.DisplayNavigationContent;
 import app.owlcms.nui.displays.VideoNavigationContent;
 import app.owlcms.nui.lifting.LiftingNavigationContent;
@@ -89,9 +102,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	String RESULT_DOCUMENTS = Translator.translate("Results");
 	String RUN_LIFTING_GROUP = Translator.translate("RunLiftingGroup");
 	String VIDEO_STREAMING = Translator.translate("VideoStreaming");
-
 	String START_DISPLAYS = Translator.translate("StartDisplays");
-
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	/**
@@ -140,7 +151,46 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		return true;
 	}
 
+	String referenceVersionString;
+	String currentVersionString = "";
+	int comparison = 999;
+
 	private VerticalLayout buildIntro() {
+
+		if (Config.getCurrent().featureSwitch("checkForUpdate")) {
+			currentVersionString = OwlcmsFactory.getVersion();
+			String suffix = currentVersionString.contains("-") ? "-prerelease" : "";
+			HttpClient client = HttpClient.newHttpClient();
+
+			// log versions in use for statistical purposes
+			String usageStr = "https://usage.lerta.ca?"
+			        + "&version=" + currentVersionString
+			        + "&localtime=" + LocalTime.now().toString()
+			        ;
+			HttpRequest usageRequest = HttpRequest.newBuilder(URI.create(usageStr)).timeout(Duration.ofMillis(200)).build();
+			// fire and forget
+			client.sendAsync(usageRequest, BodyHandlers.ofString());
+
+			String str = "https://raw.githubusercontent.com/owlcms/owlcms4" + suffix + "/master/version.txt";
+			HttpRequest request = HttpRequest.newBuilder(URI.create(str)).build();
+			CompletableFuture<HttpResponse<String>> future = client.sendAsync(request, BodyHandlers.ofString());
+			try {
+				future
+				        .orTimeout(200, TimeUnit.MILLISECONDS)
+				        .whenComplete((response, exception) -> {
+					        if (exception != null)
+						        return;
+					        ComparableVersion currentVersion = new ComparableVersion(currentVersionString);
+					        referenceVersionString = response.body();
+					        ComparableVersion referenceVersion = new ComparableVersion(referenceVersionString);
+					        comparison = currentVersion.compareTo(referenceVersion);
+				        })
+				        .join();
+			} catch (Throwable e) {
+				logger.error("version fetch timed out");
+			}
+		}
+
 		VerticalLayout intro = new VerticalLayout();
 		intro.setSpacing(false);
 		intro.setId("homeIntro");
@@ -165,7 +215,27 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		}
 		intro.add(ul);
 		Div div = new Div();
+
+		if (Config.getCurrent().featureSwitch("checkForUpdate") && comparison < 999) {
+			String runningMsg = Translator.translate("CheckVersion.running", currentVersionString);
+			String referenceVersionMsg = Translator.translate(
+			        "CheckVersion.reference" + (referenceVersionString.contains("-") ? "Prerelease" : "Stable"),
+			        referenceVersionString);
+			String okVersionMsg = Translator.translate("CheckVersion.ok");
+			String behindVersionMsg = Translator.translate("CheckVersion.behind");
+			String aheadVersionMsg = Translator.translate("CheckVersion.ahead");
+
+			String formatted = MessageFormat.format(
+			        "{1} {0, choice, 0#{2} {3}|1#{4}|2#{2} {5}}",
+			        comparison + 1, runningMsg, referenceVersionMsg, behindVersionMsg, okVersionMsg, aheadVersionMsg);
+			div.setText(formatted);
+			if (comparison < 0) {
+				div.getStyle().set("font-weight", "bold");
+				div.getStyle().set("color", "red");
+			}
+		}
 		intro.add(div);
+
 		div.getStyle().set("margin-bottom", "1ex");
 		Hr hr = new Hr();
 		hr.getStyle().set("margin-bottom", "2ex");
@@ -183,8 +253,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	}
 
 	/**
-	 * @see app.owlcms.nui.shared.BaseNavigationContent#createMenuBarFopField(java.lang.String,
-	 *      java.lang.String)
+	 * @see app.owlcms.nui.shared.BaseNavigationContent#createMenuBarFopField(java.lang.String, java.lang.String)
 	 */
 	@Override
 	protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {
