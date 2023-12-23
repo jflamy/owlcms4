@@ -46,7 +46,6 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
-import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.nui.displays.DisplayNavigationContent;
@@ -157,7 +156,8 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 
 	private VerticalLayout buildIntro() {
 
-		if (Config.getCurrent().featureSwitch("checkForUpdate")) {
+		//if (Config.getCurrent().featureSwitch("checkForUpdate")) 
+		{
 			currentVersionString = OwlcmsFactory.getVersion();
 			String suffix = currentVersionString.contains("-") ? "-prerelease" : "";
 			HttpClient client = HttpClient.newHttpClient();
@@ -216,7 +216,9 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		intro.add(ul);
 		Div div = new Div();
 
-		if (Config.getCurrent().featureSwitch("checkForUpdate") && comparison < 999) {
+		if (
+				//(Config.getCurrent().featureSwitch("checkForUpdate")) && 
+				comparison < 999) {
 			String runningMsg = Translator.translate("CheckVersion.running", currentVersionString);
 			String referenceVersionMsg = Translator.translate(
 			        "CheckVersion.reference" + (referenceVersionString.contains("-") ? "Prerelease" : "Stable"),
