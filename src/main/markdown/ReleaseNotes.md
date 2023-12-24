@@ -1,6 +1,6 @@
 > **Version 45.0 beta**	
 >
-> - TEMPORARILY BACK TO BETA LEVEL - fixing small glitch with cloud deployments
+> - TEMPORARILY BACK TO BETA LEVEL - fixing small glitch with cloud deployments due to the presence of networking proxies
 > - Release candidate versions are used for testing by early adopters or users that need a specific feature available in the new upcoming version.
 > - Release candidate versions are expected to be fully functional, but because they are new you should test them several days in advance, with your own data.
 
