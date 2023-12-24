@@ -6,8 +6,6 @@
  *******************************************************************************/
 package app.owlcms.nui.home;
 
-import java.net.Inet4Address;
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
@@ -91,9 +89,9 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	public static FlexibleGridLayout navigationGrid(Component... items) {
 		FlexibleGridLayout layout = new FlexibleGridLayout();
 		layout.withColumns(Repeat.RepeatMode.AUTO_FILL, new MinMax(new Length("300px"), new Flex(1)))
-		        .withAutoRows(new Length("1fr")).withItems(items)
-		        .withOverflow(Overflow.AUTO).withAutoFlow(AutoFlow.ROW).withMargin(false).withPadding(true)
-		        .withSpacing(false);
+		.withAutoRows(new Length("1fr")).withItems(items)
+		.withOverflow(Overflow.AUTO).withAutoFlow(AutoFlow.ROW).withMargin(false).withPadding(true)
+		.withSpacing(false);
 		layout.getContent().setGap(new Length("0.5em"), new Length("1.0em"));
 		layout.setSizeUndefined();
 		layout.setWidth("80%");
@@ -108,7 +106,13 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	String RUN_LIFTING_GROUP = Translator.translate("RunLiftingGroup");
 	String VIDEO_STREAMING = Translator.translate("VideoStreaming");
 	String START_DISPLAYS = Translator.translate("StartDisplays");
-	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	Map<String, List<String>> urlParameterMap = new HashMap<>();
+
+	String referenceVersionString;
+
+	String currentVersionString = "";
+
+	int comparison = 999;
 
 	/**
 	 * Instantiates a new main navigation content.
@@ -117,16 +121,16 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		VerticalLayout intro = buildIntro();
 		intro.setSpacing(false);
 
-		Button prepare = new Button(PREPARE_COMPETITION,
-		        buttonClickEvent -> UI.getCurrent().navigate(PreparationNavigationContent.class));
-		Button displays = new Button(START_DISPLAYS,
-		        buttonClickEvent -> UI.getCurrent().navigate(DisplayNavigationContent.class));
-		Button video = new Button(VIDEO_STREAMING,
-		        buttonClickEvent -> UI.getCurrent().navigate(VideoNavigationContent.class));
-		Button lifting = new Button(RUN_LIFTING_GROUP,
-		        buttonClickEvent -> UI.getCurrent().navigate(LiftingNavigationContent.class));
-		Button documents = new Button(RESULT_DOCUMENTS,
-		        buttonClickEvent -> UI.getCurrent().navigate(ResultsNavigationContent.class));
+		Button prepare = new Button(this.PREPARE_COMPETITION,
+				buttonClickEvent -> UI.getCurrent().navigate(PreparationNavigationContent.class));
+		Button displays = new Button(this.START_DISPLAYS,
+				buttonClickEvent -> UI.getCurrent().navigate(DisplayNavigationContent.class));
+		Button video = new Button(this.VIDEO_STREAMING,
+				buttonClickEvent -> UI.getCurrent().navigate(VideoNavigationContent.class));
+		Button lifting = new Button(this.RUN_LIFTING_GROUP,
+				buttonClickEvent -> UI.getCurrent().navigate(LiftingNavigationContent.class));
+		Button documents = new Button(this.RESULT_DOCUMENTS,
+				buttonClickEvent -> UI.getCurrent().navigate(ResultsNavigationContent.class));
 		FlexibleGridLayout grid = HomeNavigationContent.navigationGrid(prepare, lifting, displays, video, documents);
 
 		fillH(intro, this);
@@ -139,7 +143,6 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	public String getMenuTitle() {
 		return getTranslation("OWLCMS_Top");
 	}
-
 	/**
 	 * @see app.owlcms.nui.shared.BaseNavigationContent#getPageTitle()
 	 */
@@ -147,7 +150,6 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	public String getPageTitle() {
 		return getTranslation("OWLCMS_Top");
 	}
-
 	/**
 	 * @see app.owlcms.apputils.queryparameters.FOPParameters#isIgnoreFopFromURL()
 	 */
@@ -156,73 +158,18 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		return true;
 	}
 
-	String referenceVersionString;
-	String currentVersionString = "";
-	int comparison = 999;
+	/**
+	 * @see app.owlcms.nui.shared.BaseNavigationContent#createMenuBarFopField(java.lang.String, java.lang.String)
+	 */
+	@Override
+	protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {
+		return null;
+	}
 
 	private VerticalLayout buildIntro() {
 
-		//if (Config.getCurrent().featureSwitch("checkForUpdate")) 
-		{
-			currentVersionString = OwlcmsFactory.getVersion();
-			String suffix = currentVersionString.contains("-") ? "-prerelease" : "";
-			HttpClient client = HttpClient.newHttpClient();
-			
-			VaadinRequest request = VaadinRequest.getCurrent();
-			String ipAddress = request.getHeader("X-FORWARDED-FOR");  
-			if (ipAddress == null) {  
-			    ipAddress = request.getRemoteAddr();  
-			}
-			
-			boolean local = false;
-			InetAddress a = null;
-			if (InetAddressUtils.isIPv4Address(ipAddress)) {
-				try {
-					a = Inet4Address.getByName(ipAddress);
-				} catch (UnknownHostException e) {
-					// can't happen, will be a numerical address
-				}
-			} else {
-				try {
-					a = Inet6Address.getByName(ipAddress);
-				} catch (UnknownHostException e) {
-					// can't happen, will be a numerical address
-				}
-			}
-			if (a != null && (a.isLoopbackAddress() || a.isSiteLocalAddress() || a.isLinkLocalAddress())) {
-				local = true;
-			}
-			
-			// log versions in use for statistical purposes
-			// origin will be localhost (ipv4 or ipv6) or an ip local address except when running on the cloud.
-			String usageStr = "https://usage.lerta.ca?"
-			        + "&version=" + currentVersionString
-			        + "&localtime=" + LocalTime.now().toString()
-			        + (local ? "" : "&origin="+ipAddress)
-			        ;
-			HttpRequest usageRequest = HttpRequest.newBuilder(URI.create(usageStr)).timeout(Duration.ofMillis(200)).build();
-			// fire and forget
-			client.sendAsync(usageRequest, BodyHandlers.ofString());
-
-			String str = "https://raw.githubusercontent.com/owlcms/owlcms4" + suffix + "/master/version.txt";
-			HttpRequest request1 = HttpRequest.newBuilder(URI.create(str)).build();
-			CompletableFuture<HttpResponse<String>> future = client.sendAsync(request1, BodyHandlers.ofString());
-			try {
-				future
-				        .orTimeout(200, TimeUnit.MILLISECONDS)
-				        .whenComplete((response, exception) -> {
-					        if (exception != null)
-						        return;
-					        ComparableVersion currentVersion = new ComparableVersion(currentVersionString);
-					        referenceVersionString = response.body();
-					        ComparableVersion referenceVersion = new ComparableVersion(referenceVersionString);
-					        comparison = currentVersion.compareTo(referenceVersion);
-				        })
-				        .join();
-			} catch (Throwable e) {
-				logger.error("version fetch timed out");
-			}
-		}
+		Div div = checkVersion();
+		logUsage();
 
 		VerticalLayout intro = new VerticalLayout();
 		intro.setSpacing(false);
@@ -247,28 +194,6 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 			ul.add(new ListItem(new Anchor(url, url), new NativeLabel(getTranslation("LocalComputer"))));
 		}
 		intro.add(ul);
-		Div div = new Div();
-
-		if (
-				//(Config.getCurrent().featureSwitch("checkForUpdate")) && 
-				comparison < 999) {
-			String runningMsg = Translator.translate("CheckVersion.running", currentVersionString);
-			String referenceVersionMsg = Translator.translate(
-			        "CheckVersion.reference" + (referenceVersionString.contains("-") ? "Prerelease" : "Stable"),
-			        referenceVersionString);
-			String okVersionMsg = Translator.translate("CheckVersion.ok");
-			String behindVersionMsg = Translator.translate("CheckVersion.behind");
-			String aheadVersionMsg = Translator.translate("CheckVersion.ahead");
-
-			String formatted = MessageFormat.format(
-			        "{1} {0, choice, 0#{2} {3}|1#{4}|2#{2} {5}}",
-			        comparison + 1, runningMsg, referenceVersionMsg, behindVersionMsg, okVersionMsg, aheadVersionMsg);
-			div.setText(formatted);
-			if (comparison < 0) {
-				div.getStyle().set("font-weight", "bold");
-				div.getStyle().set("color", "red");
-			}
-		}
 		intro.add(div);
 
 		div.getStyle().set("margin-bottom", "1ex");
@@ -276,22 +201,109 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		hr.getStyle().set("margin-bottom", "2ex");
 		intro.add(hr);
 		addP(intro,
-		        getTranslation("LeftMenuNavigate")
-		                + getTranslation("PrepareCompatition_description", PREPARE_COMPETITION)
-		                + getTranslation("RunLiftingGroup_description", RUN_LIFTING_GROUP)
-		                + getTranslation("StartDisplays_description", START_DISPLAYS)
-		                + getTranslation("VideoStreaming_description", VIDEO_STREAMING)
-		                + getTranslation("CompetitionDocuments_description", RESULT_DOCUMENTS)
-		                + getTranslation("SeparateLaptops"));
+				getTranslation("LeftMenuNavigate")
+				+ getTranslation("PrepareCompatition_description", this.PREPARE_COMPETITION)
+				+ getTranslation("RunLiftingGroup_description", this.RUN_LIFTING_GROUP)
+				+ getTranslation("StartDisplays_description", this.START_DISPLAYS)
+				+ getTranslation("VideoStreaming_description", this.VIDEO_STREAMING)
+				+ getTranslation("CompetitionDocuments_description", this.RESULT_DOCUMENTS)
+				+ getTranslation("SeparateLaptops"));
 		intro.getStyle().set("margin-bottom", "-1em");
 		return intro;
 	}
 
-	/**
-	 * @see app.owlcms.nui.shared.BaseNavigationContent#createMenuBarFopField(java.lang.String, java.lang.String)
-	 */
-	@Override
-	protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {
-		return null;
+	private Div checkVersion() {
+		//if (Config.getCurrent().featureSwitch("checkForUpdate"))
+		{
+			this.currentVersionString = OwlcmsFactory.getVersion();
+			String suffix = this.currentVersionString.contains("-") ? "-prerelease" : "";
+
+			String str = "https://raw.githubusercontent.com/owlcms/owlcms4" + suffix + "/master/version.txt";
+			HttpRequest request1 = HttpRequest.newBuilder(URI.create(str)).build();
+			HttpClient client1 = HttpClient.newHttpClient();
+			CompletableFuture<HttpResponse<String>> future = client1.sendAsync(request1, BodyHandlers.ofString());
+			try {
+				future
+				.orTimeout(200, TimeUnit.MILLISECONDS)
+				.whenComplete((response, exception) -> {
+					if (exception != null) {
+						return;
+					}
+					ComparableVersion currentVersion = new ComparableVersion(this.currentVersionString);
+					this.referenceVersionString = response.body();
+					ComparableVersion referenceVersion = new ComparableVersion(this.referenceVersionString);
+					this.comparison = currentVersion.compareTo(referenceVersion);
+				})
+				.join();
+			} catch (Throwable e) {
+				logger.error("version fetch timed out");
+			}
+		}
+		Div div = new Div();
+		if (
+				//(Config.getCurrent().featureSwitch("checkForUpdate")) &&
+				this.comparison < 999) {
+			String runningMsg = Translator.translate("CheckVersion.running", this.currentVersionString);
+			String referenceVersionMsg = Translator.translate(
+					"CheckVersion.reference" + (this.referenceVersionString.contains("-") ? "Prerelease" : "Stable"),
+					this.referenceVersionString);
+			String okVersionMsg = Translator.translate("CheckVersion.ok");
+			String behindVersionMsg = Translator.translate("CheckVersion.behind");
+			String aheadVersionMsg = Translator.translate("CheckVersion.ahead");
+
+			String formatted = MessageFormat.format(
+					"{1} {0, choice, 0#{2} {3}|1#{4}|2#{2} {5}}",
+					this.comparison + 1, runningMsg, referenceVersionMsg, behindVersionMsg, okVersionMsg, aheadVersionMsg);
+			div.setText(formatted);
+			if (this.comparison < 0) {
+				div.getStyle().set("font-weight", "bold");
+				div.getStyle().set("color", "red");
+			}
+		}
+		return div;
+	}
+
+	private void logUsage() {
+		HttpClient client = HttpClient.newHttpClient();
+		VaadinRequest request = VaadinRequest.getCurrent();
+		String forwarded = request.getHeader("X-FORWARDED-FOR");
+		String ipAddress;
+		if (forwarded == null) {
+			ipAddress = request.getRemoteAddr();
+		} else {
+			// original address is first in list, by definition
+			String[] path = forwarded.split(", ");
+			ipAddress = path[0];
+		}
+
+		boolean local = false;
+		InetAddress a = null;
+		if (InetAddressUtils.isIPv4Address(ipAddress)) {
+			try {
+				a = InetAddress.getByName(ipAddress);
+			} catch (UnknownHostException e) {
+				// can't happen, will be a numerical address
+			}
+		} else {
+			try {
+				a = InetAddress.getByName(ipAddress);
+			} catch (UnknownHostException e) {
+				// can't happen, will be a numerical address
+			}
+		}
+		if (a != null && (a.isLoopbackAddress() || a.isSiteLocalAddress() || a.isLinkLocalAddress())) {
+			local = true;
+		}
+
+		// log versions in use for statistical purposes
+		// origin will be localhost (ipv4 or ipv6) or an ip local address except when running on the cloud.
+		String usageStr = "https://usage.lerta.ca?"
+				+ "&version=" + this.currentVersionString
+				+ "&localtime=" + LocalTime.now().toString()
+				+ (local ? "" : "&origin="+ipAddress)
+				;
+		HttpRequest usageRequest = HttpRequest.newBuilder(URI.create(usageStr)).timeout(Duration.ofMillis(200)).build();
+		// fire and forget
+		client.sendAsync(usageRequest, BodyHandlers.ofString());
 	}
 }
