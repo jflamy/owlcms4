@@ -1,33 +1,41 @@
 ## Installation on fly.io
 
-Fly.io is a cloud service that is, in effect, free. Indeed, the charges for an owlcms application, its database the matching cloud scoreboard are less than the minimal billing amount and are therefore free.
+Fly.io is a cloud service that is, in effect, free. Indeed, the charges are less than their minimal billing amount and no bill is issued.
 
-To install in the cloud you will need to log in to their site and then copy-paste a few commands given on this page.
+There are three common cloud configurations
 
-#### One-time tool installation and Log in
+1. Running owlcms in the cloud
+2. Running owlcms locally on a laptop, and sending results to a cloud-based publicresults so people all over can see the results live and without delay.  **If you only need publicresults, simply skip the owlcms installation.**
+3. Running both owlcms and publicresults in the cloud.
+
+## First-time tool installation and Initial Login
+
+To install the application, you need to create an account and install a small software on your laptop.  This tool is used to create, start, stop and update the applications that run on the fly.io cloud.
 
 1. Go to the site https://fly.io and create an account if you don't have one
 
-2. Install the `fly` command on your machine. This sends your instructions to fly.io to configure your applications.
+2. Install the `fly` command on your machine. This is the command that interacts with the fly.io site to configure your applications.
 
       - For Windows users: 
       
-         1. Click on the gray area just below and copy the installation command.
+         1. Copy the following installation command (click on the gray area right here)
       
             ```
-          powershell -Command "iwr https://fly.io/install.ps1 -useb | iex"
-           ```
-      
-      2. Then click the `⊞` icon in your Windows taskbar at the bottom and type `cmd` to open a command window.
-        3. Then paste the command and hit Enter.
-      
+            powershell -Command "iwr https://fly.io/install.ps1 -useb | iex"
+            ```
+
+         
+         2. Then click the `⊞` icon in your Windows taskbar at the bottom and type `cmd` to open a command window.
+         
+         3. Then do a right-click in the command window to paste the command. Hit Enter.
+         
       - For other users: See the [flyctl installation instructions](https://fly.io/docs/hands-on/install-flyctl/).  
 
 
    - Type the `fly auth login` command to login to your account.
 
 
-#### Install owlcms
+## Install owlcms
 
 - The application names in fly.io are global.  If the name you want is already taken, you will be told.
 
@@ -41,7 +49,7 @@ To install in the cloud you will need to log in to their site and then copy-past
 
 
 - If asked, do NOT copy  existing TOML files
-- IMPORTANT: Answer **y** (Yes) when asked if you want to adjust the settings.  A web page will open.
+- IMPORTANT: Answer **y** (Yes) when asked if you want to adjust the settings.  A web page will open and you will provide the remaining information.
   - We need a database
     - Find the setting for Postgres
     - Instead of `none` select `Fly Postgres`
@@ -74,7 +82,7 @@ You can also deploy a specific version, using for example ``owlcms/owlcms:44.6.0
 
 
 
-## Public Results Scoreboard (optional)
+## Public Results Scoreboard
 
 #### Install the public results scoreboard
 

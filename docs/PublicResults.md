@@ -1,25 +1,22 @@
 # Public Scoreboard
 
-The `publicresults` application is used to make applications results available to the public at large, or to participants in virtual competition. For this reason, it is usually run in the cloud.
+The `publicresults` application is used to make results available to the public, or to participants in virtual competitions.
 
-The following example shows owlcms running standalone in a gym, sending information to publicresults running in the cloud.
-![Slide2](img/PublicResults/CloudExplained/Slide2.SVG)
+The following example shows owlcms running standalone in a gym, sending information to publicresults running in the cloud where it is accessed by anyone with internet access.
+![CloudHybrid](img/InstallationOptions/CloudHybrid.svg)
 
-- updates are sent from the competition site to  the publicresults application running on the cloud whenever there is a significant event (clock start/stop, weight changes, lift decisions, etc.)  
-- The public can connect to publicresults and  see the scoreboards via their phone or laptop no matter where they are
-- There is no load put on the competition site other than sending an update to the publicresults application.  The publicresults application takes all the load for the public queries.
+- All significant events are shown on the remote scoreboards (clock start/stop, weight changes, lift decisions, etc.)  
+- No matter how many people are watching the remote scoreboard, there is no impact on the competition owlcms
 
-The other common configuration is when both owlcms and publicresults are in the cloud,  That scenario is discussed [here](4100VirtualOverview).
+The other common configuration is when both owlcms and publicresults are in the cloud,  
+
+![CloudBoth](img/InstallationOptions/CloudBoth.svg)
 
 ## Install publicresults
 
-There are three ways to install and run publicresults.  The first two options are usual, since the purpose is normally go give access to all persons in attendance and all persons live streaming.
+The normal way to install publicresults is in the cloud.  See [this page](Fly) for details.  Note that if you only want to use publicresults and want to run owlcms locally, you can simply skip the section about installing owlcms
 
-1. Install it on the Heroku cloud.  See [this page](Heroku) for details
-2. Install it on the Fly.io cloud.  See [this page](Fly) for details.
-3. Install it locally.  See [this page](PublicResults_Local) for details.
-
-
+You can also install publicresults locally if you wish to give access to coaches, but don't have internet access. See [this page](PublicResults_Local) for details.
 
 ## Configure `owlcms` to send updates
 
