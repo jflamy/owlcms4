@@ -1,15 +1,8 @@
-> **Version 45.0 release candidate**	
+> **Version 45.0 beta**	
 >
+> - TEMPORARILY BACK TO BETA LEVEL - fixing small glitch with cloud deployments due to the presence of networking proxies
 > - Release candidate versions are used for testing by early adopters or users that need a specific feature available in the new upcoming version.
 > - Release candidate versions are expected to be fully functional, but because they are new you should test them several days in advance, with your own data.
-
-##### 45.0 release candidates
-
-- (rc05) Improvements to usage logging
-- (rc04) Show a warning on the home page when a version is out of date relative to the published GitHub release
-- (rc03) scoreboard style sheet adjustments for flags and decision lights
-- (rc02) removed unneeded development libraries from the production packaging
-- (rc01) owlcms and publicresults running on the same computer would interfere with one another. This regression is now fixed.
 
 ##### 45.0
 
