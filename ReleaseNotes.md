@@ -1,11 +1,11 @@
 > **Version 45.0 beta**	
 >
-> - TEMPORARILY BACK TO BETA LEVEL - fixing small glitch with cloud deployments due to the presence of networking proxies
-> - Release candidate versions are used for testing by early adopters or users that need a specific feature available in the new upcoming version.
+> - Release candidate versions are used for testing by early adopters,  or by users who need a specific feature available in the new upcoming version.
 > - Release candidate versions are expected to be fully functional, but because they are new you should test them several days in advance, with your own data.
 
 ##### 45.0
 
+- (rc06) Fixed issue with usage logs when going through a proxy
 - Changes to the `nogrid` and `grid`  styles
   - Support for 4K TV screens (at 100% scaling)
   - CSS variants for phones, tablets, laptops, 2K (1920x1080) and 4K devices.
