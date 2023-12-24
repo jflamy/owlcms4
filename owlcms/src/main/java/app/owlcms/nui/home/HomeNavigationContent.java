@@ -15,6 +15,7 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.text.MessageFormat;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +51,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinRequest;
 
 import app.owlcms.apputils.DebugUtils;
+import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.nui.displays.DisplayNavigationContent;
@@ -297,9 +299,12 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 
 		// log versions in use for statistical purposes
 		// origin will be localhost (ipv4 or ipv6) or an ip local address except when running on the cloud.
+		String tzId = Config.getCurrent().getTimeZone().getID().replaceAll("/", "_");
 		String usageStr = "https://usage.lerta.ca?"
 				+ "&version=" + this.currentVersionString
 				+ "&localtime=" + LocalTime.now().toString()
+				+ "&localdate=" + LocalDate.now().toString()
+				+ "&timezone=" + tzId 
 				+ (local ? "" : "&origin="+ipAddress)
 				;
 		HttpRequest usageRequest = HttpRequest.newBuilder(URI.create(usageStr)).timeout(Duration.ofMillis(200)).build();
