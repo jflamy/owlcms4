@@ -6,7 +6,11 @@
  *******************************************************************************/
 package app.owlcms.nui.home;
 
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.net.URI;
+import java.net.UnknownHostException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -20,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.http.conn.util.InetAddressUtils;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +49,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinRequest;
 
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.i18n.Translator;
@@ -161,19 +167,46 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 			currentVersionString = OwlcmsFactory.getVersion();
 			String suffix = currentVersionString.contains("-") ? "-prerelease" : "";
 			HttpClient client = HttpClient.newHttpClient();
-
+			
+			VaadinRequest request = VaadinRequest.getCurrent();
+			String ipAddress = request.getHeader("X-FORWARDED-FOR");  
+			if (ipAddress == null) {  
+			    ipAddress = request.getRemoteAddr();  
+			}
+			
+			boolean local = false;
+			InetAddress a = null;
+			if (InetAddressUtils.isIPv4Address(ipAddress)) {
+				try {
+					a = Inet4Address.getByName(ipAddress);
+				} catch (UnknownHostException e) {
+					// can't happen, will be a numerical address
+				}
+			} else {
+				try {
+					a = Inet6Address.getByName(ipAddress);
+				} catch (UnknownHostException e) {
+					// can't happen, will be a numerical address
+				}
+			}
+			if (a != null && (a.isLoopbackAddress() || a.isSiteLocalAddress() || a.isLinkLocalAddress())) {
+				local = true;
+			}
+			
 			// log versions in use for statistical purposes
+			// origin will be localhost (ipv4 or ipv6) or an ip local address except when running on the cloud.
 			String usageStr = "https://usage.lerta.ca?"
 			        + "&version=" + currentVersionString
 			        + "&localtime=" + LocalTime.now().toString()
+			        + (local ? "" : "&origin="+ipAddress)
 			        ;
 			HttpRequest usageRequest = HttpRequest.newBuilder(URI.create(usageStr)).timeout(Duration.ofMillis(200)).build();
 			// fire and forget
 			client.sendAsync(usageRequest, BodyHandlers.ofString());
 
 			String str = "https://raw.githubusercontent.com/owlcms/owlcms4" + suffix + "/master/version.txt";
-			HttpRequest request = HttpRequest.newBuilder(URI.create(str)).build();
-			CompletableFuture<HttpResponse<String>> future = client.sendAsync(request, BodyHandlers.ofString());
+			HttpRequest request1 = HttpRequest.newBuilder(URI.create(str)).build();
+			CompletableFuture<HttpResponse<String>> future = client.sendAsync(request1, BodyHandlers.ofString());
 			try {
 				future
 				        .orTimeout(200, TimeUnit.MILLISECONDS)

@@ -5,7 +5,8 @@
 
 ##### 45.0 release candidates
 
-- (rc04) show warning on home page when version is out of date relative to published github release
+- (rc05) Improvements to usage logging
+- (rc04) Show a warning on the home page when a version is out of date relative to the published GitHub release
 - (rc03) scoreboard style sheet adjustments for flags and decision lights
 - (rc02) removed unneeded development libraries from the production packaging
 - (rc01) owlcms and publicresults running on the same computer would interfere with one another. This regression is now fixed.
