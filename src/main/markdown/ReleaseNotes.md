@@ -5,7 +5,7 @@
 
 ##### 45.0
 
-- (rc06) Fixed issue with usage logs when going through a proxy
+- (rc07) Fixed additional issues with improved startup logging.
 - Changes to the `nogrid` and `grid`  styles
   - Support for 4K TV screens (at 100% scaling)
   - CSS variants for phones, tablets, laptops, 2K (1920x1080) and 4K devices.
