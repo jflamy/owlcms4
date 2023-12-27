@@ -1954,6 +1954,9 @@ public class FieldOfPlay {
         if (millisRemaining <= 0) {
             return;
         }
+        if (Competition.getCurrent().isSimulation()) {
+        	millisRemaining = 30 * 1000;
+        }
 
         if (state == BREAK && getBreakType() == FIRST_CJ) {
             return;
