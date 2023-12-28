@@ -3,7 +3,12 @@
 > - Version 45 is a technical release that updates the way the scoreboard styling is done.  There is now support for 4K TV screens, and better support for phones and tablets.  Vertical orientation is also supported.  *If you have customized your own CSS style files, see the section at the bottom of these notes.*
 > - Reminder: you should always test any new release several days in advance, with your own data.
 
-##### 45.0 Changes
+45.0.x
+
+- (45.0.1) Increased the flag sizes and fixed the borders on the results scoreboards.
+- (45.0.1) Fixed publicresults installer for running locally - removed the local directory since owlcms sends the information
+
+##### 45.0
 
 - Changes to the `nogrid` and `grid`  styles
   - Support for 4K TV screens (at 100% scaling)
