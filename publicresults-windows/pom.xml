@@ -95,7 +95,7 @@
 							</artifactItems>
 						</configuration>
 					</execution>
-					<execution>
+					<!-- execution>
 						<id>extract-local</id>
 						<phase>package</phase>
 						<goals>
@@ -111,7 +111,7 @@
 								</artifactItem>
 							</artifactItems>
 						</configuration>
-					</execution>
+					</execution -->
 				</executions>
 			</plugin>
 
