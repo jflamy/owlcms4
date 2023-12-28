@@ -19,7 +19,9 @@
     --spacerWidth: 1vh;
 
     /* normally these do not need to change */
-    --categoryWidth: 10ch;
+    --categoryWidth: 11ch;
+    --categoryVisibility: visible;
+
     --liftResultWidth: 6ch;
 
     /* to show these columns 
@@ -35,6 +37,8 @@
 
     --rankWidth: var(--liftResultWidth);
     --rankVisibility: visible;
+    --totalRankWidth: var(--liftResultWidth);
+    --totalRankVisibility: visible;
     
     --bestWidth: var(--liftResultWidth);
     --bestVisibility: visible;
@@ -46,39 +50,17 @@
 
     /* records */
     --recordValueCellWidth: 4rem;
+    --recordTypeHeightRatio: 75%;
+    --recordsNotificationFontSize: 2.0em;
 
     /* leaders section control grid lines visibility */
     --leaderLineHeight: min-content;
 
     box-sizing: border-box;
     --nbRanks: 1;
-}
-
-:host .light table.results {
-    --spacerWidth: 0vh;
-    --rowSmallSpacerHeight: 0;
-}
-:host .dark table.results {
-    --spacerWidth: 1vh;
-    --rowSmallSpacerHeight: 0.25vh;
-}
-
-/* default for page */
-.wrapper {
-    /* results table font size */
-    --tableFontSize: 1.25rem;
-    --recordValueCellHeight: calc(var(--tableFontSize)*1.5);
-    --recordsFontRatio: 0.9;
-
-    font-family: Arial, Helvetica, sans-serif;
-    color: var(--pageTextColor);
-
-    /* min-height: min-content; */
-    padding: 1vmin 2vmin 2vmin 2vmin;
-    overflow: hidden;
-    display: grid;
-    justify-content: center;
-    line-height: unset;
+    
+    /* flag height */
+    --flagHeight: 2.7vh;
 }
 
 .blockPositioningWrapper {
@@ -95,7 +77,8 @@
 }
 
 td.flags div img {
-    height: calc(var(--athleteNameFontSize)*0.8);
+	width: calc(var(--flagHeight)*1.2);
+    height: calc(var(--flagHeight));
     margin: 1vh;
     align-self: center;
     border: 1px;

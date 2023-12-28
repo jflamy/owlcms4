@@ -58,6 +58,9 @@
 
     box-sizing: border-box;
     --nbRanks: 1;
+    
+    /* flag height */
+    --flagHeight: calc(var(--athleteNameFontSize)*1.4);
 }
 
 @media screen and (orientation: landscape) {
@@ -229,8 +232,8 @@
 }
 
 td.flags div img {
-	width: calc(var(--athleteNameFontSize)*1.2*1.2);
-    height: calc(var(--athleteNameFontSize)*1.2);
+	width: calc(var(--flagHeight)*1.3);
+    height: calc(var(--flagHeight));
     margin: 1vh;
     align-self: center;
     border: 1px;

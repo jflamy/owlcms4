@@ -20,7 +20,9 @@
     --spacerWidth: 1vh;
 
     /* normally these do not need to change */
-    --categoryWidth: 10ch;
+    --categoryWidth: 11ch;
+    --categoryVisibility: visible;
+
     --liftResultWidth: 6ch;
 
     /* to show these columns 
@@ -43,9 +45,9 @@
     --bestVisibility: visible;
 
     /* top part: current attempt information */
-    --topRowFontSize: 3vh;
-    --athleteNameFontSize: 4vh;
-    --groupInfoFontSize: 2.5vh;
+    --topRowFontSize: 1.35em;
+    --athleteNameFontSize: 1em;
+    --groupInfoFontSize: 0.9em;
 
     /* records */
     --recordValueCellWidth: 4em;
@@ -57,6 +59,9 @@
 
     box-sizing: border-box;
     --nbRanks: 1;
+    
+    /* flag height */
+    --flagHeight: calc(var(--athleteNameFontSize)*1.4);
 }
 
 :host .light table.results {

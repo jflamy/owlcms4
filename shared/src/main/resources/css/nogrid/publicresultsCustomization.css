@@ -6,8 +6,8 @@
     /* variable-size columns. fr = free space after other columns have been allocated.
        for ease of understanding, sum of all fr columns should be 1.00.
     */
-    --nameWidth: 1fr;
-    --clubWidth: max-content;
+    --nameWidth: 0.7fr;
+    --clubWidth: 0.3fr;
     --tableWidthRatio: 100%;
     --defaultLeaderFillerHeight: 1fr;
 
@@ -61,15 +61,17 @@
 
     box-sizing: border-box;
     --nbRanks: 1;
+    
+    /* flag height */
+    --flagHeight: calc(var(--athleteNameFontSize)*1.4);
 }
 
-media screen and (orientation: landscape) {
+@media screen and (orientation: landscape) {
 	* {
 		--topRowFontSize: 2.0em;
 		--athleteNameFontSize: 1.25em;
 		--groupInfoFontSize: 1.5em;
-        --lightRecordBoxBorderWidth: thin;
-        --darkRecordBoxBorderWidth: thin;
+        --RecordBoxBorderWidth: thin;
     }
     .wrapper {
         font-size: calc(var(--baseRemSize)/8);
@@ -98,8 +100,7 @@ media screen and (orientation: landscape) {
 }
 @media screen and (orientation: landscape) and (min-width: 1180px) and (max-width: 1899px) {
     * {
-        --lightRecordBoxBorderWidth: medium;
-        --darkRecordBoxBorderWidth: medium;
+        --RecordBoxBorderWidth: medium;
     }
     .wrapper {
         font-size: calc(var(--baseRemSize)/3);
@@ -107,8 +108,7 @@ media screen and (orientation: landscape) {
 }
 @media screen and (orientation: landscape) and (min-width: 1900px) and (max-width: 3799px) {
     * {
-        --lightRecordBoxBorderWidth: medium;
-        --darkRecordBoxBorderWidth: medium;
+        --RecordBoxBorderWidth: medium;
     }
     .wrapper {
         font-size: calc(var(--baseRemSize)/2);
@@ -116,8 +116,7 @@ media screen and (orientation: landscape) {
 }
 @media screen and (orientation: landscape) and (min-width: 3800px) {
     * {
-        --lightRecordBoxBorderWidth: medium;
-        --darkRecordBoxBorderWidth: medium;
+        --RecordBoxBorderWidth: medium;
     }
     .wrapper {
         font-size: calc(var(--baseRemSize));
@@ -236,8 +235,8 @@ media screen and (orientation: landscape) {
 }
 
 td.flags div img {
-	width: calc(var(--athleteNameFontSize)*1.2);
-    height: calc(var(--athleteNameFontSize)*0.8);
+	width: calc(var(--flagHeight)*1.3);
+    height: calc(var(--flagHeight));
     margin: 1vh;
     align-self: center;
     border: 1px;

@@ -53,18 +53,21 @@
 
     /* records */
     --recordValueCellWidth: 4rem;
+    --recordTypeHeightRatio: 75%;
+    --recordsNotificationFontSize: 2.0em;
 
     /* leaders section control grid lines visibility */
     --leaderLineHeight: min-content;
 
     box-sizing: border-box;
     --nbRanks: 1;
+    
+    /* flag height */
+    --flagHeight: 2.7vh;
+}
 }
 
-:host .light table.results {
-    --spacerWidth: 0vh;
-    --rowSmallSpacerHeight: 0;
-}
+
 :host .dark table.results {
     --spacerWidth: 1vh;
     --rowSmallSpacerHeight: 0.25vh;
@@ -107,16 +110,16 @@
     /* min-height: 1.5em; */
 }
 td.flags div img {
-	width: calc(var(--athleteNameFontSize)*1.2*1.2);
-    height: calc(var(--athleteNameFontSize)*1.2);
+	width: calc(var(--flagHeight)*1.3);
+    height: calc(var(--flagHeight));
     margin: 1vh;
     align-self: center;
     border: 1px;
     border-style: solid;
 }
 td.flags div {
-    height: calc(var(--athleteNameFontSize)*0.8);
-    line-height:  var(--athleteNameFontSize);
+	width: calc(var(--flagHeight)*1.3);
+    height: calc(var(--flagHeight));
     align-self: center;
     display: flex;
 }
