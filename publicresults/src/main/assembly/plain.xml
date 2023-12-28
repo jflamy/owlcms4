@@ -7,18 +7,6 @@
 		<format>dir</format>
 	</formats>
 	<includeBaseDirectory>false</includeBaseDirectory>
-	<fileSets>
-		<fileSet>
-			<directory>${project.basedir}/src/main/resources</directory>
-			<outputDirectory>local</outputDirectory>
-			<includes>
-				<include>i18n**/**</include>
-				<include>templates**/**</include>
-                <include>config**/**</include>
-                <include>css**/**</include>
-			</includes>
-		</fileSet>
-	</fileSets>
 	<files>
         <file>
             <source>${project.build.directory}/${project.artifactId}-${project.version}.jar</source>

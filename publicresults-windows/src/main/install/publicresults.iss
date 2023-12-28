@@ -47,7 +47,6 @@ Type: filesandordirs; Name: "{app}"
 Type: filesandordirs; Name: "{app}\jre"
 
 [Files]
-Source: "target\publicresults-win32\local\*"; DestDir: "{app}\local"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "target\installtools\jre\*"; DestDir: "{app}\jre"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "target\publicresults-win32\*.exe"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "target\publicresults-win32\*.jar"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs

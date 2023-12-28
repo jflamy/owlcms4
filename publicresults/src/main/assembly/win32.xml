@@ -25,16 +25,6 @@
 				<include>conf**/**</include>
 			</includes>
 		</fileSet>
-		<fileSet>
-			<directory>${project.basedir}/src/main/resources</directory>
-			<outputDirectory>local</outputDirectory>
-			<includes>
-				<include>i18n**/**</include>
-				<include>templates**/**</include>
-				<include>config**/**</include>
-				<include>css**/**</include>
-			</includes>
-		</fileSet>
 	</fileSets>
 	<files>
 		<file>
