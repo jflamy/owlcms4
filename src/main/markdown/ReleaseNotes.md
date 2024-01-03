@@ -9,7 +9,11 @@
 - (45.0.1) Fixed publicresults installer for running locally - removed the local directory since owlcms sends the information
 
 ##### 45.0
-
+- Templates and documents
+  - It is now possible to print challenge cards. Select the template under "Athlete Cards" in the pre-competition or weigh-in pages.
+  - A new form is available to allow the team leaders to sign off (in writing) their team membership and registered categories (Select the template under "Pre-competition Documents > Entries, >Teams")
+  - Challenge cards can now be printed (same menu as Marshal cards)
+  - The template name is used as the basis for the output file name.
 - Changes to the `nogrid` and `grid`  styles
   - Support for 4K TV screens (at 100% scaling)
   - CSS variants for phones, tablets, laptops, 2K (1920x1080) and 4K devices.
@@ -20,10 +24,6 @@
   - By default, both the on-site and video styles are set to `nogrid`
   - A `transparent` style can be used for video. It uses a pure green background that can be made transparent by video streaming software such as OBS.  `transparent` is designed for a 1920x1080 canvas.
   - You can create you own alternate looks by copying a style to a new name under `local/css` and editing the `colors.css` files and, if needed, the other .css files.
-- Templates and documents
-
-  - The template name is used as the basis for the output file name.
-  - Challenge cards can now be printed (same menu as Marshal cards)
 - MQTT: a new message "refereesDecision" is available to make it easier to create devices that control ambiance lighting based on good/bad lift.
 
 
