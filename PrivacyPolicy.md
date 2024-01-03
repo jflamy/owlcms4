@@ -4,11 +4,20 @@ Last updated: January 03, 2024
 
 This Privacy Policy describes Our policies and procedures on the collection, use and disclosure of Your information when You use the Service and tells You about Your privacy rights.
 
+## Summary
+
+If you don't want to read the rest, the summary is that
+
+- We collect usage data so we know where the software is used, and eventually, what features are used so we can prioritize our development efforts.
+- We only care about the general location (your City), and do not store information about you personally.
+
+That's it.
+
 ## Context
 
-The information we collect falls under the Legitimate Usage clause of the General Data Protection Regulation (GDPR) and similar legislations. In fact, since we do *not* associate the information we gather with identifiable persons, so technically we would fall outside the scope of these laws, and the current policy would be unnecessary.  
+The information we collect falls under the Legitimate Usage clause of the General Data Protection Regulation (GDPR) and similar legislation. In fact, we do *not* associate the information we gather with identifiable persons, so technically we would fall outside the scope of these laws, and the current policy would be unnecessary.  
 
-But given the limited number of weightlifting clubs, even knowing the general geographic area can allow the inference of the identity, so we wrote this policy as if we were, in fact, doing the association with a person.
+However given the limited number of weightlifting clubs, knowing the general geographic area can allow the inference of the identity, out of an abundance of caution we wrote this policy as if we were associating with a person.
 
 ## Interpretation and Definitions
 
@@ -18,7 +27,7 @@ The words of which the initial letter is capitalized have meanings defined under
 
 ### Definitions
 
-For the purposes of this Privacy Policy:
+For the purpose of this Privacy Policy:
 
 - **Account** means a unique account created for You to access our Service or parts of our Service.
 - **Affiliate** means an entity that controls, is controlled by or is under common control with a party, where "control" means ownership of 50% or more of the shares, equity interest or other securities entitled to vote for election of directors or other managing authority.
