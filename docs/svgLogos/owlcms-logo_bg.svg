@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 41.7 38.85"
+   version="1.1"
+   id="svg14"
+   sodipodi:docname="owlcms-logo_bg.svg"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs18" />
+  <sodipodi:namedview
+     id="namedview16"
+     pagecolor="#000000"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="21.981983"
+     inkscape:cx="20.312089"
+     inkscape:cy="23.064343"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg14" />
+  <rect
+     width="5.7"
+     height="38.55"
+     x="11.725"
+     y=".15"
+     rx="1.5"
+     ry="1.5"
+     fill="red"
+     stroke="#fff"
+     stroke-width=".3"
+     stroke-linejoin="round"
+     id="rect2" />
+  <rect
+     width="4.825"
+     height="38.55"
+     x="18.475"
+     y=".15"
+     rx="1.5"
+     ry="1.5"
+     fill="green"
+     stroke="#fff"
+     stroke-width=".3"
+     stroke-linejoin="round"
+     id="rect4" />
+  <rect
+     width="2.45"
+     height="19.525"
+     x="24.35"
+     y="9.6619997"
+     rx="1.25"
+     ry="1.25"
+     fill="#ff0000"
+     stroke="#ffffff"
+     stroke-width="0.3"
+     stroke-linejoin="round"
+     id="rect6" />
+  <rect
+     width="2.45"
+     height="17.868"
+     x="33.85"
+     y="10.491"
+     rx="1.25"
+     ry="1.25"
+     fill="#00f"
+     stroke="#fff"
+     stroke-width=".3"
+     stroke-linejoin="round"
+     id="rect8" />
+  <rect
+     width="5.5"
+     height="8.924"
+     x="27.575"
+     y="14.963"
+     rx=".25"
+     ry=".25"
+     stroke="#fff"
+     stroke-width=".5"
+     stroke-linejoin="round"
+     id="rect10" />
+  <path
+     d="m 8.445,15.66 a 0.5,0.5 0 0 0 -0.5,0.5 v 2.022 H 0 v 2.487 h 7.945 v 2.02 a 0.5,0.5 0 0 0 0.5,0.5 H 10.7 a 0.5,0.5 0 0 0 0.5,-0.5 v -6.528 a 0.5,0.5 0 0 0 -0.5,-0.5 H 8.445 Z"
+     id="path862"
+     style="fill:#808080;fill-opacity:1" />
+  <path
+     d="M 36.825,17.39 H 41.7 v 4.071 h -4.875 z"
+     id="path12"
+     style="fill:#808080;fill-opacity:1" />
+</svg>
