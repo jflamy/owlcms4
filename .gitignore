@@ -32,3 +32,4 @@ database/owlcms.mv.db
 /node_modules/
 /.metadata/
 /.moquette_uuid
+/fly.toml

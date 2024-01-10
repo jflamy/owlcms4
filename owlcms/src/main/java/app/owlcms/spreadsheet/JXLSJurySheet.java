@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.competition.Competition;
 import net.sf.jxls.transformer.XLSTransformer;
 
 /**
@@ -38,7 +39,12 @@ public class JXLSJurySheet extends JXLSWorkbookStreamSource {
 	 */
 	@Override
 	protected void configureTransformer(XLSTransformer transformer) {
-		transformer.markAsFixedSizeCollection("athletes");
+		String fileName = Competition.getCurrent().getComputedJuryTemplateFileName();
+		if (!fileName.startsWith("Jury.")) {
+			transformer.markAsFixedSizeCollection("athletes");
+		} else {
+			logger.warn("not setting fixed size");
+		}
 	}
 
 	@Override
