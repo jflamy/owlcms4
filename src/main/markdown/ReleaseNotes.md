@@ -5,6 +5,7 @@
 
 45.0.x
 
+- (45.0.2) Fixed the Jury sheet template layout (available from the Weigh-In and Preparation pages)
 - (45.0.1) Increased the flag sizes and fixed the borders on the results scoreboards.
 - (45.0.1) Fixed publicresults installer for running locally - removed the local directory since owlcms sends the information
 
