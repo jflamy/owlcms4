@@ -5,15 +5,17 @@
 
 45.0.x
 
+- (45.0.4) Updated translations to 2024-01-11.
+- (45.0.4) Updated cloud installation instructions to use the interactive [owlcms-cloud.fly.dev](https://owlcms-cloud.fly.dev) application
 - (45.0.3) Fixed the vertical layouts for phones/tablets/tvs (including publicresults) to use the full width.
 - (45.0.2) Fixed the Jury sheet template layout (available from the Weigh-In and Preparation pages)
 - (45.0.1) Increased the flag sizes and fixed the borders on the results scoreboards.
-- (45.0.1) Fixed publicresults installer for running locally - removed the local directory since owlcms sends the information
+- (45.0.1) Local installation of publicresults fixed to correctly request the configuration files.
 
 ##### 45.0
 - Templates and documents
   - It is now possible to print challenge cards. Select the template under "Athlete Cards" in the pre-competition or weigh-in pages.
-  - A new form is available to allow the team leaders to sign off (in writing) their team membership and registered categories (Select the template under "Pre-competition Documents > Entries, >Teams")
+  - Verification of Final Entries: A form is now available to allow team leaders to sign off (in writing) their team membership and registered categories (Select the template under "Pre-competition Documents > Entries, >Teams")
   - Challenge cards can now be printed (same menu as Marshal cards)
   - The template name is used as the basis for the output file name.
 - Changes to the `nogrid` and `grid`  styles
