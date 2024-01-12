@@ -101,39 +101,10 @@ When OWLCMS is started on a laptop, two windows are visible:  a command-line win
 
 ## Control Access to the Application
 
-Mischevious users can probably figure out your WiFi network password, and gain access to the application. To prevent this, you will need to start the application with an extra parameter.
-
-- The `PIN` is an arbitrary strings of characters that will be requested when starting the first screen whenever you start a new session (typically, once per browser, or when the system is restarted).
-
-- The PIN is normally set up in the Access Control section of the Language and System Settings page.
-  If however you find yourself locked out, you can use the following techniques to override the password
-  
-- On Windows, go to the installation directory (see [Accessing the Program Files and Configuration](LocalSetup#control-access-to-the-application) for how) and right-click on the `owlcms.l4j.ini` file; select `Edit` and add a line that reads 
-
-  ```
-  -DPIN=5612
-  ```
-
-  to define the pin (use your own value instead of 5612, obviously).  You can then use `owlcms.exe` as usual
-
-- On Mac OS or Linux, you can give the PIN when starting the program, as follows
-
-  ```bash
-  java -DPIN=5612 -jar owlcms.jar
-  ```
-
-  or, alternately, as an environment variable that you can define using the `set` command or even dynamically when launching OWLCMS. 
-
-  ```bash
-  PIN=5612 java -jar owlcms.jar
-  ```
+Mischevious users can probably figure out your WiFi network password, and gain access to the application. 
+To prevent this, you can define an application password for the various technical official consoles.  See the [Access Control Settings](2120AdvancedSystemSettings.md#access-control) section.
 
 ## Defining the language
 
-You can use the same technique as for the PIN to force a language to be used on all the screens.  By default, OWLCMS will respect the browser settings.  To force a locale (say Canadian French, whose code is `fr_CA`)-- a locale is a language with possible per-country variations --  you can
+This is done as part of the Pre-Competition setup.  See the [Display and Printing language section](2100PreCompetitionSetup#display-and-printout-language)
 
--  define the Java system property `locale` (small letters) using the syntax 
-  `java -Dlocale=fr_CA` (on Windows, add `-Dlocale=fr_CA` to the `owlcms.l4j.ini` file).  
-- Alternately, define the environment variable `LOCALE` with the value `fr_CA` 
-
-If neither `-Dlocale` or `LOCALE` are defined, the [language setting](Preparation#display-language) from the competition information page is used.
