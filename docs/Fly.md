@@ -1,4 +1,4 @@
-## Installation on fly.io
+# Installation on fly.io
 
 Fly.io is a cloud service that is, in effect, free, because the monthly charges are extremely low (2 to 3US$), below the minimum billable amount of 5 US$
 
@@ -30,13 +30,13 @@ The first application we will create is owlcms.  *If you run owlcms on-site and 
 
    > NOTE: There is a step in the process that sometimes takes two minutes to complete (but is sometimes instantaneous).  Just be patient.
 
-If all you wanted is to run owlcms, you are done.
+If all you wanted was to run owlcms, you are done.
 
 ### Create publicresults
 
 If you want people on the Internet to see the competition scoreboard, keep going.  The process is the same whether you are running owlcms in the cloud or on a laptop at the competition site.
 
-Pick a name for your internet scoreboard application.  In this example, people would have to type `wl-gym-results.fly.dev` on their phone, which is perhaps not the best name.  Pick something short.   If you own a domain, you can later make it accessible [under a name you own](https://fly.io/docs/apps/custom-domain/).
+Pick a name for your internet scoreboard application.  Pick something short. In this fake example, people would have to type `wl-gym-results.fly.dev` on their phone, so that would not be a good choice.     If you own a domain, you can later make the scoreboard accessible [under a name you own](https://fly.io/docs/apps/custom-domain/).
 
 ![40PublicResults](nimg/1220FlyCloud/40PublicResults.png)
 
