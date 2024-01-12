@@ -1,6 +1,6 @@
 When running on a laptop, a simple database called H2 is used because it does not require installing additional software, and the database is a single file that can moved or transferred easily.
 
-When running in the cloud, files are temporary and disappear when the application is restarted.  The alternative is to use a database provided by the cloud vendor, which is independent from the application and remains when the application is restarted.  Heroku (and most cloud vendors) support PostgreSQL.  Because the owlcms database is small, it fits in the free tier and there is no fee.
+When running in the cloud, files are temporary and disappear when the application is restarted.  The alternative is to use a database provided by the cloud vendor, which is independent from the application and remains when the application is restarted.   Fly.io provides a free Postgres database.
 
 You may want to run Postgres locally if you want to use additional properties, such as creating an ODBC connection to the database to perform analytics.
 
@@ -18,11 +18,11 @@ You may want to run Postgres locally if you want to use additional properties, s
 1. **Configuration** In your local installation directory, locate the file `owlcms.l4j.ini`.  At the top of the file, add the following two lines to match the database we just created.
    
     ```
--DJDBC_DATABASE_URL=jdbc:postgresql://localhost:5432/owlcms_db
--DJDBC_DATABASE_USERNAME=postgres
+   -DJDBC_DATABASE_URL=jdbc:postgresql://localhost:5432/owlcms_db
+   -DJDBC_DATABASE_USERNAME=postgres
    -DJDBC_DATABASE_PASSWORD=the_password_you_created
    ```
-This tells owlcms to use the PostgreSQL database driver, and to connect to the local PostgreSQL server for the `owlcms_db` database using the `postgres` user.
+   This tells owlcms to use the PostgreSQL database driver, and to connect to the local PostgreSQL server for the `owlcms_db` database using the `postgres` user.
    
 2. **Testing**  If you start owlcms, it should now create the default tables in the PostgreSQL database and should open to a new empty competition.  On the very first startup, you may see warnings about missing tables, this is normal because owlcms creates them later in the startup sequence.
 
@@ -30,13 +30,15 @@ This tells owlcms to use the PostgreSQL database driver, and to connect to the l
 
 ## Restoring a PostgreSQL backup
 
+To get a postgres backup from fly.io, see the examples for `pg_dump` in [this article](https://www.advantch.com/blog/automate-postgres-database-backups-on-fly-dot-io/)
+
 1. Select the Restore option: Right-click on the owlcms_db database and select "Restore"
    ![restore_010](img/PostgreSQL/restore_010.png)
 
 2. Select the backup file
    ![restore_020](img/PostgreSQL/restore_020.png)
 
-3. Set the restore options to recreate the tables and ignore the Heroku username
+3. Set the restore options to recreate the tables and ignore the username used in the cloud.
 
    1. Click on the "Restore Options" header.  Scroll down and set "Do not save Owner" to "Yes"
    2. Select "Clean before restore" to remove the existing tables.

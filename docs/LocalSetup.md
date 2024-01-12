@@ -103,10 +103,11 @@ When OWLCMS is started on a laptop, two windows are visible:  a command-line win
 
 Mischevious users can probably figure out your WiFi network password, and gain access to the application. To prevent this, you will need to start the application with an extra parameter.
 
-- `PIN` is an arbitrary strings of characters that will be requested when starting the first screen whenever you start a new session (typically, once per browser, or when the system is restarted). 
+- The `PIN` is an arbitrary strings of characters that will be requested when starting the first screen whenever you start a new session (typically, once per browser, or when the system is restarted).
 
-  ![B_PIN](img/Heroku/B_PIN.png)
-
+- The PIN is normally set up in the Access Control section of the Language and System Settings page.
+  If however you find yourself locked out, you can use the following techniques to override the password
+  
 - On Windows, go to the installation directory (see [Accessing the Program Files and Configuration](LocalSetup#control-access-to-the-application) for how) and right-click on the `owlcms.l4j.ini` file; select `Edit` and add a line that reads 
 
   ```

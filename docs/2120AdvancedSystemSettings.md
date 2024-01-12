@@ -19,11 +19,11 @@ The settings are as follows.  In actual practice only the first (Password for Of
 
 ### Public Results Scoreboard
 
-This section controls how owlcms reaches the [Public Scoreboard](PublicScoreboard) application in order to send it updates. The installation of `publicresults` is documented for [fly.io](Fly) and for [Heroku](Heroku).
+This section controls how owlcms reaches the [Public Scoreboard](PublicScoreboard) application in order to send it updates. The installation of `publicresults` is documented for [fly.io](Fly) .
 
 ![20](nimg/2120AdvancedSystemSettings/20.png)
 
-- **publicresults Cloud Application URL**  This is the location of the publicresults application. If running on Heroku, it will be something like https://myclub-results.herokuapp.com if you used `myclub-results` as the name.  When deploying on fly.io this box is empty because a shared secret is used -- a shared secret defines an environment variable which takes precedence.
+- **publicresults Cloud Application URL**  This is the location of the publicresults application. It will be something like https://myclub-results.fly.dev if you used `myclub-results` as the name.  When deploying on fly.io this box is empty because a shared secret is used -- a shared secret defines an environment variable which takes precedence.
 - **Secret Update Key** the publicresults application is installed, it is configured with a secret key.  owlcms needs to send this secret key to publicresults for its update to be considered valid.  When deploying on fly.io this box is empty because a shared secret is used -- a shared secret defines an environment variable which takes precedence.
 
 ### Overriding Styles and Templates

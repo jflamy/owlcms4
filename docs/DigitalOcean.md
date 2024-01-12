@@ -1,8 +1,8 @@
-
+> This page is deprecated.  There is currently no advantage in deploying via Kubernetes.
 
 # Cloud Deployment using Kubernetes
 
-As an alternative to Heroku suitable for larger competitions, this page explains how to run owlcms and publicresults in the cloud using Kubernetes.
+As an alternative to Fly suitable for larger competitions, this page explains how to run owlcms and publicresults in the cloud using Kubernetes.
 
 The recipe allows you to create a setup in the cloud that you can create in a few minutes. You will be charged a small amount (0.06 US$) per hour.  If you take 3 days to prepare for a 2-day competition, this comes up to 7.20 US$.  Then you can take a backup of your machine, and destroy it. You can restore the machine before the next competition (keeping the backup is less than 0.30 US$ per month).
 

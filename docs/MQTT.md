@@ -65,18 +65,18 @@ On Windows, you can do as follows
 
 ## Using an External MQTT Server
 
-The Heroku and Fly.io services don't allow for the owlcms server to provide both HTTP and MQTT services.  For these situations, we must use a separate server and define the environment variable OWLCMS_MQTTSERVER to indicate its location.  There is no need to use a separate MQTT server when using owlcms locally as the performance of the embedded server is on par with standalone servers.
+The Fly.io service doesn't allow for the owlcms server to provide both HTTP and MQTT services.  For these situations, we must use a separate server and define the environment variable OWLCMS_MQTTSERVER to indicate its location.  There is no need to use a separate MQTT server when using owlcms locally as the performance of the embedded server is on par with standalone servers.
 
-As soon as owlcms detects OWLCMS_MQTTSERVER, it disables the embedded server and uses instead the parameters given to reach the external MQTT Server.
+As soon as owlcms detects OWLCMS_MQTTSERVER, it disables the embedded server and uses instead the parameters given to reach the external MQTT Server.  The external MQTT server cannot be configured using the Web interface.
 
-HiveMQ provides free accounts ([see here](https://console.cloudmq.cloud)) that are sufficient for running owlcms.  To use such an account, you would define "*config variable*s" on Heroku, and "*secrets*" on fly.io.   owlcms is handed down these values as environment variables, so you would provide the following (obviously, use your own values).:
+HiveMQ provides free accounts ([see here](https://console.hivemq.cloud)) that are sufficient for running owlcms.  To use such an account, you would define "*secrets*" on fly.io -- they are stored in an encrypted format.   owlcms sees them as environment variables. You need to provide the following values (obviously, use your own values).:
 
 | Variable            | Value                                                        |
 | ------------------- | ------------------------------------------------------------ |
 | OWLCMS_MQTTSERVER   | 44341a3e47cc48d2b260b8064120f2df.s2.eu.hivemq.cloud          |
 | OWLCMS_MQTTPORT     | 8883 (external servers require a TLS connection, owlcms will use TLS if the port starts with 8) |
-| OWLCMS_MQTTUSERNAME | your_username (one of the user names you created using the Credentials page) |
-| OWLCMS_MQTTPASSWORD | some_Password_you_choose (the associated password)           |
+| OWLCMS_MQTTUSERNAME | your_username (one of the user names you created using the Access Management > Credentials page) |
+| OWLCMS_MQTTPASSWORD | some_Password_you_choose (the password associated with the credential) |
 
 For testing, you might want your local owlcms to connect to the remote MQTT.  This can also be done using -D system property definitions instead of variables.   You would then modify the `owlcms.l4j` initialization file in the installation directory to have the following (or add these values to the `java` command line)
 

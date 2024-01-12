@@ -10,9 +10,8 @@ Parameters can be set in several ways:
    1. On Windows, these are set using the control panel.  Click on the windows icon at the bottom left and type `envi` .  Select `Edit the Environment Variables for your account` and add the variable name and value you need.
       Setting the variable `OWLCMS_PORT` to the value `80` is the same as using `-Dport=80`.
    2. On Linux and Mac OS, these are set in the `~/.bash_profile` file.  Google a tutorial if not familiar with this process.
-   3. On Heroku, on the `Settings` page for your application, under `Config Vars`.
-   4. On Fly.io, use the `flyctl secrets set NAM1E=VALUE1 NAME2=VALUE2`... command.
-   5. On Kubernetes, as part of a secrets or configmap section in a manifest
+   3. On Fly.io, use the `flyctl secrets set NAM1E=VALUE1 NAME2=VALUE2`... command.
+   4. In Docker, use the ENV command.
 
 | System Property Name (-D) | Environment Variable Name | Default Value     | Description                                                  |
 | ------------------------- | ------------------------- | ----------------- | ------------------------------------------------------------ |
@@ -51,7 +50,7 @@ These values are provided as environment variables or as Java definitions.  When
 
 ### Postgresql Parameters
 
-These parameters can be used instead of the JDBC parameters if the database is Postgres.  For example, these are the parameters used with Heroku cloud or with Docker. 
+These parameters can be used instead of the JDBC parameters if the database is Postgres.  For example, these are the parameters used with Docker. 
 
 These values are provided as environment variables or as Java definitions.  When passing them as Java definitions, use the syntax `-DPOSTGRES_PORT=5432` (each parameter has a separate `-D`)  When using environment variables, there is no `-D`. 
 

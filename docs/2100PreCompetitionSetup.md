@@ -51,8 +51,6 @@ owlcms allows selecting the language for each session using the menu at the top 
 
 ![60](nimg/2100PreCompetitionSetup/60.png)
 
-The display language can also be set via a configuration file or environment setting (see [here](Heroku#configure-your-time-zone-and-locale) and [here](LocalSetup#id=defining-the-language)).
-
 ### Time Zone Configuration
 
 When running in the cloud, you need to set the time zone so it matches the competition schedule.

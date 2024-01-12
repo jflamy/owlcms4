@@ -18,13 +18,13 @@ Before a large meet, you may wish to test your configuration and equipment.  The
 
    1. Go to the Preparation / Language and System Settings page
 
-   2. Locate the "Backdoor Access" setting and enter a string like the following (replace `192.168.0.105` with the actual address of the main owlcms computer when running on a laptop, or your public IP address if running on Heroku).
+   2. Locate the "Backdoor Access" setting and enter a string like the following (replace `192.168.0.105` with the actual address of the main owlcms computer when running on a laptop, or your public IP address if running on Fly.io).
 
       `192.168.0.105,127.0.0.1,[0:0:0:0:0:0:0:1]`
 
-      This setting is used to make sure that only these machines can start the simulation.  `127.0.0.1,[0:0:0:0:0:0:0:1]` are two different ways of writing down "localhost" (required because Firefox sends one or the other, as it feels like).
+      This setting is used to make sure that only these machines can start the simulation. The cryptic string  `127.0.0.1,[0:0:0:0:0:0:0:1]` is just two different ways of writing down "localhost", depending on whether the software sends IPV4 or IPV6 addresses.
 
-      If you are running on Heroku, you can type "what is my ip" in Google to get your public IP address.
+      If you are running on Fly.io, you can type "what is my ip" in Google to get your public IP address.
 
 3. Export your registration data from the Preparation page (for reference)
 
@@ -43,7 +43,7 @@ If you like watching scrolling graphics and have a computer or programming backg
 #### Start the simulation
 
 - If running locally, go to the main laptop and open the Home page.  Type "http://127.0.0.1/simulation" 
-- Ïf running remotely, open a window on the Heroku application and to the main page. Add `/simulation` at the end.  This will give you something similar to https://mycompetition.herokuapp.com/simulation 
+- Ïf running remotely, open a window on the cloud application and to the main page. Add `/simulation` at the end.  This will give you something similar to https://mycompetition.fly.dev/simulation 
 
 The system will perform a fake weigh-in if needed and create fake declarations for the snatch and clean & jerk.
 

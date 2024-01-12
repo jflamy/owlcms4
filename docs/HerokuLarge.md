@@ -1,3 +1,5 @@
+> This page is deprecated. Use [fly.io](Fly) instead.
+
 # Larger Competition Setup on Heroku
 
 Heroku is a cloud service that makes it easy to start from a very affordable service for small competitions, but also support a still affordable tier for larger meets.  In order to host a large competition, we need to update so the application gets dedicated and faster computing resources as well as more memory. 

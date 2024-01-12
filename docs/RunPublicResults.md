@@ -16,13 +16,13 @@ Changes are immediate.  Note however that if you used the `OWLCMS_REMOTE` and `O
 
 ## Running with Remote Scoreboards
 
-1. Start the publicresults application.  Just accessing the URL should enough -- the application will be restarted automatically if it was shut down due to inactivity (on the free Heroku subscription, the remote application will go to sleep if unused for an hour).  During a competition, there will be frequent updates, so there is no chance of this happening. 
+1. Start the publicresults application.  Just accessing the URL should enough -- the application will be restarted automatically if it was shut down due to inactivity (on the free Fly.io subscription, the remote application will go to sleep if unused for an hour).  During a competition, there will be frequent updates, so there is no chance of this happening. 
 2. Start the competition site application as usual, and get the the announcer to select a group.  Click on "Start Lifting"
    ![057_startLifting](img/PublicResults/057_startLifting.png)
 3. The public results application will now show that there are active platforms.
-  ![055_updateReceivedHome](img/PublicResults/055_updateReceivedHome.png)
+    ![055_updateReceivedHome](img/PublicResults/055_updateReceivedHome.png)
 4. Clicking on the `Platform A` link leads to a generic waiting page, until the announcer starts the countdown to the introduction or starts the competition group. 
-  ![056_updateReceivedFOP](img/PublicResults/056_updateReceivedFOP.png)
+    ![056_updateReceivedFOP](img/PublicResults/056_updateReceivedFOP.png)
 5. As soon as a break or lifting event happens, the competition site updates the remote application.  From then on the scoreboard updates whenever a pertinent change happens.  Note that in the first release the scoreboard clock only shows the time allocated for the lift, and does not count down, and that decision lights are not shown.
-  ![058_liftingStarted](img/PublicResults/058_liftingStarted.png)
+    ![058_liftingStarted](img/PublicResults/058_liftingStarted.png)
 

@@ -1,3 +1,5 @@
+> This page is deprecated. Use [fly.io](Fly) instead.
+
 Installing the Heroku cloud application is very simple.  Clicking on a button tells Heroku to grab a given version of the software and deploy it.  Unfortunately, Heroku does not provide a way to get the current version easily.
 
 But rest easy.  owlcms provides a simple application to update your Heroku applications to the current version. Running this application will connect to your Heroku account and compare your application versions with the latest available.  It uses the Heroku programming interface to tell Heroku where to find the most current version and tells it to deploy that version.
