@@ -35,6 +35,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
+import app.owlcms.data.jpa.BenchmarkData;
 import app.owlcms.data.jpa.DemoData;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.ProdData;
@@ -218,6 +219,9 @@ public class Main {
 					break;
 				case SINGLE_ATHLETE_GROUPS:
 					DemoData.insertInitialData(1, ageDivisions);
+					break;
+				case BENCHMARK:
+					BenchmarkData.insertInitialData(1, ageDivisions);
 					break;
 				}
 			} else {

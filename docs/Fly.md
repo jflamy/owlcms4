@@ -6,7 +6,7 @@ To make the process easier, a web application dashboard has been created.  If yo
 
 ### Login to the Dashboard
 
-The first step is to open the installation application at  https://owlcms-cloud.fly.net . Use the login button to proceed.
+The first step is to open the installation application at  https://owlcms-cloud.fly.dev . Use the login button to proceed.
 
 ![10Home](nimg/1220FlyCloud/10Home.png)
 
