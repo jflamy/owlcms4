@@ -1,8 +1,8 @@
-> This page is deprecated.  There is no advantage in using Kubernetes to deploy owlcms
+
 
 # Home Hosting with Secure Internet Access
 
-As an alternative to Fly suitable for larger competitions, this page explains how to run owlcms and publicresults on your own Windows computer, and make it available from the cloud.
+As an alternative to Heroku suitable for larger competitions, this page explains how to run owlcms and publicresults on your own Windows computer, and make it available from the cloud.
 
 This procedure uses the free tier of the https://kubesail.com service to make the program accessible from the cloud, and handles the tricker parts necessary to ensure the use of the secure https protocol.  There are other enhanced services available, such as taking backups, for a small monthly fee.
 
@@ -17,7 +17,7 @@ Docker Desktop installs the `kubectl` utility that is used to control Kubernetes
 This step installs owlcms and its prerequisites into the Kubernetes cluster.  It does NOT configure the internet access, this is done in the later steps.
 
 ```powershell
-kubectl apply -f https://github.com/owlcms/owlcms4/releases/45.0.3-rc01/download/dd_setup.yaml
+kubectl apply -f https://github.com/owlcms/owlcms4/releases/45.0.4-rc01/download/dd_setup.yaml
 ```
 
 ## Link the cluster to KubeSail

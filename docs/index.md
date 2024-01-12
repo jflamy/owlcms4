@@ -28,11 +28,20 @@ The owlcms competition management system is currently in use in well over 30 fed
 
 ## Downloads and Installation
 
-Most people run the program on a laptop at the competition site ([overview](InstallationOverview#stand-alone-laptop-installation)), but the program can be also be run for free on the cloud ([overview](InstallationOverview#cloud-based-installation))
+Most people run the program on a laptop at the competition site ([overview](InstallationOverview#stand-alone-laptop-installation))
 
 - [Windows Stand-alone Installation](LocalWindowsSetup)
 - [Linux or Mac Stand-alone Installation](LocalLinuxMacSetup)
-- [Cloud Installation](Fly)
+
+You can also run the program in the cloud, for example to host virtual meets. See [here](InstallationOverview#cloud-based-installation) for instructions
+
+## Demo
+
+The following videos and demos are available
+
+- [Simple setup](Demo1): running a minimal setup for a small club meet with a single person controlling the meet.
+- [Full setup](Demo2): running a regular or virtual competition with technical officials
+- Live demo: after watching the videos, try the [Live demo](https://owlcms.fly.dev) site, or better yet, [install your own copy](Downloads) and experiment.
 
 ## Features
 
