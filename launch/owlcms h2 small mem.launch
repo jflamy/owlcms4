@@ -13,7 +13,9 @@
         <mapEntry key="OWLCMS_LOCALE" value="en_CA"/>
         <mapEntry key="OWLCMS_MEMORYMODE" value="true"/>
         <mapEntry key="OWLCMS_PORT" value="8081"/>
+        <mapEntry key="OWLCMS_REMOTE" value="https://usaw.fly.dev"/>
         <mapEntry key="OWLCMS_RESETMODE" value="true"/>
+        <mapEntry key="OWLCMS_UPDATEKEY" value="mapetitevacheamalauxpattes"/>
     </mapAttribute>
     <mapAttribute key="org.eclipse.debug.core.preferred_launchers">
         <mapEntry key="[run]" value="org.eclipse.jdt.launching.localJavaApplication"/>
@@ -30,6 +32,5 @@
     <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="app.owlcms.Main"/>
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="owlcms"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="owlcms"/>
-    <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dvaadin.frontend.hotdeploy=false -Dlogback.configurationFile=logback-console.xml"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dvaadin.frontend.hotdeploy=false -Dlogback.configurationFile=logback-console.xml -Dvaadin.devmode.hostsAllowed=*  -Dvaadin.devmode.devTools.enabled=true"/>
 </launchConfiguration>
