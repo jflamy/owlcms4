@@ -5,8 +5,8 @@
 
 45.0.x
 
-- (45.0.4) Updated translations to 2024-01-11.
 - (45.0.4) Updated cloud installation instructions to use the interactive [owlcms-cloud.fly.dev](https://owlcms-cloud.fly.dev) application
+- (45.0.4) Updated translations to 2024-01-11.
 - (45.0.3) Fixed the vertical layouts for phones/tablets/tvs (including publicresults) to use the full width.
 - (45.0.2) Fixed the Jury sheet template layout (available from the Weigh-In and Preparation pages)
 - (45.0.1) Increased the flag sizes and fixed the borders on the results scoreboards.
