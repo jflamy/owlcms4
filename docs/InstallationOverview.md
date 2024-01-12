@@ -4,7 +4,7 @@ Several installation options are possible, depending on what is available at the
   - [Windows Stand-alone Installation](LocalWindowsSetup)
   - [Linux or Mac Stand-alone Installation](LocalLinuxMacSetup)
 
-- Cloud-based options, where all you need are browsers (and a good internet connection).  Such setups are ideal for virtual competitions. ([description below](#cloud-based-installation))
+- Cloud-based installation, where all you need are browsers (and a good internet connection). This is a good option for club competitions and virtual competitions. ([description below](#cloud-based-installation))
 
   - [Fly Cloud Installation Instructions](Fly).  
 
@@ -41,12 +41,13 @@ In the following drawing, phones are used as the referee device.  But you can ac
 
 ![CloudHostingOwlcms](img/InstallationOptions/CloudHostingOwlcms.svg)
 
-We provide instructions for the following variations
-
-- **Fly.io**: Fly.io is a service available world-wide where owlcms can be hosted free of charge -- they provide a free level of service See the [Fly Cloud Installation Instructions](Fly).  
-- **Docker**: if you have your own hosting, you can deploy a docker image using [Docker Instructions](Docker) 
-
 All the various display screens and devices connect to the cloud using the competition site's network.
+
+The preferred cloud deployment solution is hosting on **fly.io**.  Fly.io is a service available world-wide where owlcms can be hosted free of charge.  owlcms has a [web application to automate the installation](https://owlcms-cloud.fly.dev) on the fly.io cloud.  For details, see the [Fly Cloud Installation Instructions](Fly).  
+
+If you have your own hosting, you can also deploy a docker image using [Docker Instructions](Docker) 
+
+
 
 ## Public Scoreboard
 

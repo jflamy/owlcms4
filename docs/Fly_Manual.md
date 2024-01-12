@@ -25,7 +25,6 @@ To install the application, you need to create an account and install a small so
             ```
             powershell -Command "iwr https://fly.io/install.ps1 -useb | iex"
             ```
-
          
          2. Then click the `⊞` icon in your Windows taskbar at the bottom and type `cmd` to open a command window.
          
