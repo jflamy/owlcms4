@@ -221,7 +221,7 @@ public class Main {
 					DemoData.insertInitialData(1, ageDivisions);
 					break;
 				case BENCHMARK:
-					BenchmarkData.insertInitialData(1, ageDivisions);
+					BenchmarkData.insertInitialData(EnumSet.of(AgeDivision.IWF, AgeDivision.MASTERS));
 					break;
 				}
 			} else {
