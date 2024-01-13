@@ -111,7 +111,6 @@ public class BenchmarkData {
 
 	private static void createAthlete(EntityManager em, Group session, Random r, Gender gender, int genderIndex,
 			String ageGroup, String bwcat) {
-		logger.warn("creating athlete {} {} {} {}", r, gender, ageGroup, bwcats);
 		Athlete p = new Athlete();
 		p.setValidation(false);
 		Level prevLoggerLevel = p.getLogger().getLevel();
@@ -119,18 +118,22 @@ public class BenchmarkData {
 			p.setLoggerLevel(Level.WARN);
 			Group mg = (em.contains(session) ? session : em.merge(session));
 			p.setGroup(mg);
-			p.setFirstName(fNames[r.nextInt(fNames.length)]);
+			if (gender == Gender.F) {
+				p.setFirstName(fNames[r.nextInt(fNames.length)]);
+			} else {
+				p.setFirstName(mNames[r.nextInt(mNames.length)]);
+			}
 			p.setLastName(lnames[r.nextInt(lnames.length)]);
 			p.setGender(gender);
 			double nextDouble = r.nextDouble();
-
+			logger.warn("creating athlete {} {} {} {} {}", p.getLastName(), p.getFirstName(), gender, ageGroup, bwcat);
 			int minAge = 13;
 			int maxAge = 99;
 			if (ageGroup.startsWith("M") || ageGroup.startsWith("W")) {
 				//ageDivision = AgeDivision.MASTERS;
 				String s = ageGroup.substring(1);
 				minAge = Integer.parseInt(s);
-				maxAge = minAge + 4;
+				maxAge = minAge + 5; //(exclusive)
 			} else {
 				//ageDivision = AgeDivision.IWF;
 				if (ageGroup.contentEquals("YTH")) {
@@ -145,16 +148,13 @@ public class BenchmarkData {
 			// don't create YTH athlete >109.
 			int cat;
 			if (bwcat.startsWith(">") || bwcat.startsWith("+")) {
-				if (ageGroup.contentEquals("YTH")) {
-					// don't create YTH athlete >109.
-					return;
-				}
 				bwcat = bwcat.substring(1);
 				cat = Integer.parseInt(bwcat);
 				cat = cat + 10;
 			} else {
 				cat = Integer.parseInt(bwcat);
 			}
+			
 			int referenceYear = LocalDate.now().getYear();
 			LocalDate baseDate = LocalDate.of(referenceYear, 12, 31);
 
@@ -176,12 +176,13 @@ public class BenchmarkData {
 				team = "NORTH";
 			}
 			p.setTeam(team);
+			
 			// compute a random number of weeks inside the age bracket
 			long weeksToSubtract = (long) ((minAge * 52) + Math.floor(r.nextDouble() * (maxAge - minAge) * 52));
 			LocalDate fullBirthDate = baseDate.minusWeeks(weeksToSubtract);
 			p.setFullBirthDate(fullBirthDate);
 
-			// category not assigned here, will be computed automatically according to birth
+			// categories not assigned here, will be computed automatically according to birth
 			// date etc.
 
 			// respect 20kg rule
@@ -247,6 +248,7 @@ public class BenchmarkData {
 		Platform[] platforms = new Platform[4];
 		for (int i = 0; i < nbPlatforms; i++) {
 			platforms[i] = new Platform("P" + (i + 1));
+			em.persist(platforms[i]);
 		}
 		int sessionCount = 0;
 		Random r = new Random(0);
@@ -272,6 +274,7 @@ public class BenchmarkData {
 					}
 					Group session = new Group(sessionName, c.plusHours((long) -LENGTH_OF_WEIGHIN), c);
 					session.setPlatform(platforms[platformIndex]);
+					em.persist(session);
 
 					// probability of being in A B C D group varies with age group, we ignore this.
 					// we could do something more sophisticated like.
@@ -285,7 +288,7 @@ public class BenchmarkData {
 								bwcats[genderIndex][bwCatIndex]);
 						em.flush();
 					}
-					em.persist(session);
+
 				}
 			}
 		}

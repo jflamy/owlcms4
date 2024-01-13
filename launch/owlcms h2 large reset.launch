@@ -8,7 +8,8 @@
         <listEntry value="1"/>
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-        <mapEntry key="OWLCMS_INITIALDATA" value="LARGEGROUP_DEMO"/>
+        <mapEntry key="OWLCMS_BACKDOOR" value="127.0.0.1,[0:0:0:0:0:0:0:1]"/>
+        <mapEntry key="OWLCMS_INITIALDATA" value="BENCHMARK"/>
         <mapEntry key="OWLCMS_LOCALE" value="en"/>
         <mapEntry key="OWLCMS_PORT" value="8080"/>
         <mapEntry key="OWLCMS_RESETMODE" value="true"/>
