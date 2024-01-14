@@ -313,7 +313,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		        + "&localtime=" + LocalTime.now().toString()
 		        + "&timezone=" + tzId
 		        + (local ? "" : "&origin=" + ipAddress)
-		        + (JPAService.isLocalDb() ? "local=true" : "local=false");
+		        + (JPAService.isLocalDb() ? "&local=true" : "&local=false");
 		logger.info("logging {}", usageStr);
 		HttpRequest usageRequest = HttpRequest.newBuilder(URI.create(usageStr)).timeout(Duration.ofMillis(200)).build();
 		// fire and forget
