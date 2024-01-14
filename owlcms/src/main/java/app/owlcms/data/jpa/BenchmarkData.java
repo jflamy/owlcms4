@@ -168,7 +168,7 @@ public class BenchmarkData {
 			p.setCleanJerk1Declaration(Long.toString(icjd));
 			nextDouble = r.nextDouble();
 			
-			// 10 athletes per team max (roughly); so there are nbAthletes/10 teams at most
+			// 10 athletes per team max (roughly); so normally there are nbAthletes/10 teams at a minimum
 			// create more to be under 10.
 			int nbTeams = (int) ((nbAthletesPerGender / 10) * 1.4);
 			String team = "T" + (int)(nextDouble * nbTeams);
