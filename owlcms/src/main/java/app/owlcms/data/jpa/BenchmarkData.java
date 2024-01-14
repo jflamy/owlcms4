@@ -27,6 +27,7 @@ import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
+import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
@@ -39,10 +40,6 @@ public class BenchmarkData {
 
 	private static final double LENGTH_OF_WEIGHIN = 2.0;
 	private static final long LENGTH_OF_SESSION = 2;
-	private static Group groupF1;
-	private static Group groupM1;
-	private static Group groupM2;
-	private static Group groupY1;
 	private static Logger logger = (Logger) LoggerFactory.getLogger(BenchmarkData.class);
 
 	// private static Logger startLogger = (Logger) LoggerFactory.getLogger(Main.class);
@@ -75,6 +72,7 @@ public class BenchmarkData {
 	static String[][] ageGroups = {
 			{ "YTH", "JR", "SR", "W35", "W40", "W45", "W50", "W55", "W60", "W65", "W70", "W75", "W80", "W85" },
 			{ "YTH", "JR", "SR", "M35", "M40", "W45", "W50", "M55", "M60", "M65", "M70", "M75", "M80", "M85" } };
+	private static int nbAthletesPerGender;
 	/**
 	 * Insert initial data if the database is empty.
 	 *
@@ -98,7 +96,11 @@ public class BenchmarkData {
 		JPAService.runInTransaction(em -> {
 			AthleteRepository.doFindAll(em).stream()
 			.forEach(a -> a.getParticipations().forEach(part -> part.setTeamMember(true)));
-			startNumbers(em, groupM1, groupM2, groupF1, groupY1);
+			return null;
+		});
+		
+		JPAService.runInTransaction(em -> {
+			startNumbers(em);
 			return null;
 		});
 	}
@@ -126,7 +128,6 @@ public class BenchmarkData {
 			p.setLastName(lnames[r.nextInt(lnames.length)]);
 			p.setGender(gender);
 			double nextDouble = r.nextDouble();
-			logger.warn("creating athlete {} {} {} {} {}", p.getLastName(), p.getFirstName(), gender, ageGroup, bwcat);
 			int minAge = 13;
 			int maxAge = 99;
 			if (ageGroup.startsWith("M") || ageGroup.startsWith("W")) {
@@ -145,7 +146,6 @@ public class BenchmarkData {
 				}
 			}
 
-			// don't create YTH athlete >109.
 			int cat;
 			if (bwcat.startsWith(">") || bwcat.startsWith("+")) {
 				bwcat = bwcat.substring(1);
@@ -167,16 +167,13 @@ public class BenchmarkData {
 			long icjd = Math.round(sd * 1.20D);
 			p.setCleanJerk1Declaration(Long.toString(icjd));
 			nextDouble = r.nextDouble();
-			String team;
-			if (nextDouble < 0.333) {
-				team = "EAST";
-			} else if (nextDouble < 0.666) {
-				team = "WEST";
-			} else {
-				team = "NORTH";
-			}
-			p.setTeam(team);
 			
+			// 10 athletes per team max (roughly); so there are nbAthletes/10 teams at most
+			// create more to be under 10.
+			int nbTeams = (int) ((nbAthletesPerGender / 10) * 1.4);
+			String team = "T" + (int)(nextDouble * nbTeams);
+			p.setTeam(team);
+			logger.warn("creating athlete {} {} {} {} {} {}", p.getLastName(), p.getFirstName(), team, gender, ageGroup, bwcat);
 			// compute a random number of weeks inside the age bracket
 			long weeksToSubtract = (long) ((minAge * 52) + Math.floor(r.nextDouble() * (maxAge - minAge) * 52));
 			LocalDate fullBirthDate = baseDate.minusWeeks(weeksToSubtract);
@@ -240,7 +237,9 @@ public class BenchmarkData {
 	 *
 	 */
 	private static void setupBenchmarkData(EntityManager em, int nbPlatforms, int sessionsPerDay) {
+		char lastGroup = 'D';
 		LocalDateTime c = LocalDateTime.now();
+		nbAthletesPerGender = (lastGroup - 'A' + 1) * ageGroups[0].length * bwcats[0].length;
 
 		LocalDateTime startOfCompetition = LocalDateTime.of(c.getYear(), c.getMonth(), c.getDayOfMonth(), 9, 00, 0);
 		c = startOfCompetition;
@@ -253,7 +252,8 @@ public class BenchmarkData {
 		int sessionCount = 0;
 		Random r = new Random(0);
 
-		for (char groupName = 'D'; groupName >= 'A'; groupName--) {
+
+		for (char groupName = lastGroup; groupName >= 'A'; groupName--) {
 			for (int bwCatIndex = 0; bwCatIndex < 10; bwCatIndex++) {
 				for (int genderIndex = 0; genderIndex < 2; genderIndex++) {
 					Gender g = Gender.values()[genderIndex];
@@ -281,7 +281,7 @@ public class BenchmarkData {
 					// group D and C = 3 YTH + one each masters
 					// group B is 50% JR and 50% SR
 					// group A is 75% SR and 25% JR
-					System.out.println(sessionName);
+					logger.info(sessionName);
 					for (int ageGroupIndex = 0; ageGroupIndex < ageGroups[genderIndex].length; ageGroupIndex++) {
 						// add an athlete to the session
 						createAthlete(em, session, r, g, genderIndex, ageGroups[genderIndex][ageGroupIndex],
@@ -293,21 +293,23 @@ public class BenchmarkData {
 			}
 		}
 		int nbSess = sessionCount + 1;
-		System.out.println("sessions: " + nbSess + " athletes: " + nbSess * ageGroups[0].length);
+		logger.info("sessions: " + nbSess + " athletes: " + nbSess * ageGroups[0].length);
 
 		for (Platform p : platforms) {
 			em.persist(p);
 		}
 		em.flush();
+		
+		logger.info("assigning start numbers");
+		startNumbers(em);
 
 	}
 
-	//FIXME: iterate over groups.
-	private static void startNumbers(EntityManager em, Group groupM1, Group groupM2, Group groupF1, Group groupY1) {
+	private static void startNumbers(EntityManager em) {
 		drawLots(em);
-		assignStartNumbers(em, groupM1);
-		assignStartNumbers(em, groupM2);
-		assignStartNumbers(em, groupF1);
-		assignStartNumbers(em, groupY1);
+		List<Group> sessions = GroupRepository.doFindAll(em);
+		for (Group s : sessions) {
+			assignStartNumbers(em, s);
+		}
 	}
 }
