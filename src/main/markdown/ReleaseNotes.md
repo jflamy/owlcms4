@@ -5,8 +5,11 @@
 
 45.0.x
 
+- (45.0.5) New feature toggle `disableRecordHighlight` This is used to leave the attempt board intact if record attempts are signaled to the audience on some other screen (using OBS for example). See [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/FeatureToggles).
+- (45.0.5) New BENCHMARK value for OWLCMS_INITIALDATA. This creates a very large competition with 4 concurrent platforms and 1154 athletes of all IWF and Masters age groups. See [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Configuration).
+- (45.0.5) The clean and jerk break is shortened to 10 seconds during simulations.
+- (45.0.4) Updated translations to 2024-01-12.
 - (45.0.4) Updated cloud installation instructions to use the interactive [owlcms-cloud.fly.dev](https://owlcms-cloud.fly.dev) application
-- (45.0.4) Updated translations to 2024-01-11.
 - (45.0.3) Fixed the vertical layouts for phones/tablets/tvs (including publicresults) to use the full width.
 - (45.0.2) Fixed the Jury sheet template layout (available from the Weigh-In and Preparation pages)
 - (45.0.1) Increased the flag sizes and fixed the borders on the results scoreboards.
