@@ -52,6 +52,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinRequest;
 
 import app.owlcms.apputils.DebugUtils;
+import app.owlcms.data.jpa.JPAService;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.nui.displays.DisplayNavigationContent;
@@ -311,7 +312,8 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		        + "&localdate=" + LocalDate.now().toString()
 		        + "&localtime=" + LocalTime.now().toString()
 		        + "&timezone=" + tzId
-		        + (local ? "" : "&origin=" + ipAddress);
+		        + (local ? "" : "&origin=" + ipAddress)
+		        + (JPAService.isLocalDb() ? "local=true" : "local=false");
 		logger.info("logging {}", usageStr);
 		HttpRequest usageRequest = HttpRequest.newBuilder(URI.create(usageStr)).timeout(Duration.ofMillis(200)).build();
 		// fire and forget

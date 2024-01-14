@@ -67,6 +67,8 @@ public class JPAService {
 
 	private static EntityManagerFactory factory;
 
+	private static boolean localDb = false;
+
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(JPAService.class);
 	private static final Logger startLogger = (Logger) LoggerFactory.getLogger(Main.class);
 
@@ -290,6 +292,8 @@ public class JPAService {
 
 	private static Properties h2FileProperties(String schemaGeneration, String dbUrl, String userName,
 	        String password) {
+		setLocalDb(true);
+		
 		ImmutableMap<String, Object> vals = jpaProperties();
 		Properties props = new Properties();
 		props.putAll(vals);
@@ -321,6 +325,8 @@ public class JPAService {
 
 	private static Properties h2ServerProperties(String schemaGeneration, String dbUrl, String userName,
 	        String password) {
+		setLocalDb(true);
+		
 		ImmutableMap<String, Object> vals = jpaProperties();
 		Properties props = new Properties();
 		props.putAll(vals);
@@ -402,6 +408,11 @@ public class JPAService {
 		Properties props = new Properties();
 		props.putAll(vals);
 
+		setLocalDb((postgresHost == null 
+				|| postgresHost.contentEquals("localhost") 
+				|| postgresHost.startsWith("127.")
+				|| postgresHost.contentEquals("::1")
+				|| postgresHost.contentEquals("0:0:0:0:0:0:0:1")));
 		postgresHost = postgresHost == null ? "localhost" : postgresHost;
 		postgresPort = postgresPort == null ? "5432" : postgresPort;
 		postgresDb = postgresDb == null ? "owlcms" : postgresDb;
@@ -496,6 +507,8 @@ public class JPAService {
 	 * @return the properties
 	 */
 	protected static Properties h2MemProperties(String schemaGeneration) {
+		setLocalDb(true);
+		
 		ImmutableMap<String, Object> vals = jpaProperties();
 		Properties props = new Properties();
 		props.putAll(vals);
@@ -520,6 +533,14 @@ public class JPAService {
 	 */
 	protected static void setFactory(EntityManagerFactory factory) {
 		JPAService.factory = factory;
+	}
+
+	public static boolean isLocalDb() {
+		return localDb;
+	}
+
+	public static void setLocalDb(boolean localDb) {
+		JPAService.localDb = localDb;
 	}
 
 }
