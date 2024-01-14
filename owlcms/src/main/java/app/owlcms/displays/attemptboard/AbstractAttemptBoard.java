@@ -37,6 +37,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.video.StylesDirSelection;
 import app.owlcms.fieldofplay.FOPState;
@@ -919,6 +920,9 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	}
 
 	private void spotlightRecords(FieldOfPlay fop, Athlete a) {
+		if (Config.getCurrent().featureSwitch("disableRecordHighlight")) {
+			return;
+		}
 		if (fop.getState() == FOPState.INACTIVE || fop.getState() == FOPState.BREAK) {
 			hideRecordInfo(a);
 		} else if (fop.getNewRecords() != null && !fop.getNewRecords().isEmpty()) {
