@@ -24,7 +24,7 @@ In a local stand-alone setup, there is no reliance on a trustworthy internet con
 
 - In the following drawing, phones are used as the referee device.  But you can actually referee using hand signals, flags, phones, or dedicated keypads (USB or Bluetooth). See [this page](Refereeing) for the refereeing options
 
-  ![Slide1](img/InstallationOptions/StandAlone.svg)
+  ![Slide4](EquipmentSetup/OwlcmsCloud/CloudExplained/Slide4.SVG)
 
 See the following instructions
 
@@ -37,11 +37,7 @@ See the following instructions
 
 In this scenario, the owlcms software runs as a web site on the Internet, but it is your own private copy, with your own database.  All that is needed is a good internet connection from the competition site.
 
-In the following drawing, phones are used as the referee device.  But you can actually referee using hand signals, flags, phones, or dedicated keypads (USB or Bluetooth). See [this page](Refereeing) for the refereeing options.
-
-![CloudHostingOwlcms](img/InstallationOptions/CloudHostingOwlcms.svg)
-
-All the various display screens and devices connect to the cloud using the competition site's network.
+In the following drawing, phones are used as the referee device.  But you can actually referee using hand signals, flags, phones, or dedicated keypads (USB or Bluetooth). See [this page](Refereeing) for the refereeing options.![Slide1](EquipmentSetup/OwlcmsCloud/CloudExplained/Slide1.SVG)All the various display screens and devices connect to the cloud using the facilities network at the competition site.
 
 The preferred cloud deployment solution is hosting on **fly.io**.  Fly.io is a service available world-wide where owlcms can be hosted free of charge.  owlcms has a [web application to automate the installation](https://owlcms-cloud.fly.dev) on the fly.io cloud.  For details, see the [Fly Cloud Installation Instructions](Fly).  
 
@@ -51,6 +47,5 @@ If you have your own hosting, you can also deploy a docker image using [Docker I
 
 ## Public Scoreboard
 
-A complementary module to owlcms allows anyone with Internet access to see the competition scoreboard, live and without delay, including the down signal and decisions.
-
-See the [Public Scoreboard](PublicResults) page for more information.  Note that this module is normally installed in the cloud and its installation is described in the [Fly Cloud Installation Instructions](Fly).
+A complementary module to owlcms allows anyone with Internet access to see the competition scoreboard, live and without delay, including the down signal and decisions. For example, you can connect an on-site major competition with the public scoreboard running in the cloud.
+![Slide3](EquipmentSetup/OwlcmsCloud/CloudExplained/Slide3.SVG)See the [Public Scoreboard](PublicResults) page for more information.  Note that this module is normally installed in the cloud and its installation is described in the [Fly Cloud Installation Instructions](Fly).

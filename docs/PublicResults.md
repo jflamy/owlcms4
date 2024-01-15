@@ -3,13 +3,15 @@
 The `publicresults` application is used to make applications results available to the public at large, or to participants in virtual competition. For this reason, it is usually run in the cloud.
 
 The following example shows owlcms running standalone in a gym, sending information to publicresults running in the cloud.
-![Slide2](img/PublicResults/CloudExplained/Slide2.SVG)
+![Slide3](EquipmentSetup/OwlcmsCloud/CloudExplained/Slide3.SVG)
 
 - updates are sent from the competition site to  the publicresults application running on the cloud whenever there is a significant event (clock start/stop, weight changes, lift decisions, etc.)  
 - The public can connect to publicresults and  see the scoreboards via their phone or laptop no matter where they are
 - There is no load put on the competition site other than sending an update to the publicresults application.  The publicresults application takes all the load for the public queries.
 
-The other common configuration is when both owlcms and publicresults are in the cloud,  That scenario is discussed [here](4100VirtualOverview).
+The other common configuration is when both owlcms and publicresults are in the cloud,  There is no difference between the two, other than the location of the applications.  
+
+![Slide2](EquipmentSetup/OwlcmsCloud/CloudExplained/Slide2.SVG)
 
 ## Install publicresults
 
