@@ -5,8 +5,9 @@
 
 45.0.x
 
+- (45.0.5-rc02) Fixed usage reporting to report whether the application is running locally or in the cloud, and to report only once
 - (45.0.5) New feature toggle `disableRecordHighlight` This is used to leave the attempt board intact if record attempts are signaled to the audience on some other screen (using OBS for example). See [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/FeatureToggles).
-- (45.0.5) New BENCHMARK value for OWLCMS_INITIALDATA. This creates a very large competition with 4 concurrent platforms and 1154 athletes of all IWF and Masters age groups. See [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Configuration).
+- (45.0.5) New BENCHMARK value for OWLCMS_INITIALDATA. This creates a very large competition with 4 concurrent platforms and ~1150 athletes of all IWF and Masters age groups. See [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Configuration).
 - (45.0.5) The clean and jerk break is shortened to 10 seconds during simulations.
 - (45.0.4) Updated translations to 2024-01-12.
 - (45.0.4) Updated cloud installation instructions to use the interactive [owlcms-cloud.fly.dev](https://owlcms-cloud.fly.dev) application
