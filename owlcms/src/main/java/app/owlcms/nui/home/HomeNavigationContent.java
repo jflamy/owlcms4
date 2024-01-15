@@ -113,6 +113,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	String referenceVersionString;
 	String currentVersionString = "";
 	int comparison = 999;
+	static private String usageStr;
 
 	/**
 	 * Instantiates a new main navigation content.
@@ -171,7 +172,9 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	private VerticalLayout buildIntro() {
 
 		Div div = checkVersion();
-		logUsage();
+		if (usageStr == null) {
+			logUsage();
+		}
 
 		VerticalLayout intro = new VerticalLayout();
 		intro.setSpacing(false);
@@ -294,7 +297,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 				// can't happen, will be a numerical address
 			}
 		}
-		
+
 		// the origin will be localhost (ipv4 or ipv6) or an ip local address when running locally
 		// the remote logger will use the x-forwarded-for header to obtain the public ip address
 		if (a != null && (a.isLoopbackAddress() || a.isSiteLocalAddress() || a.isLinkLocalAddress())) {
@@ -304,19 +307,21 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		// When running in the cloud,the remote logger gets the cloud server as the originating address, which is
 		// useless.
 		// But owlcms receives the browser address in x-forwarded-for so owlcms injects the browser in the logging data.
-		
+
 		// The default time zone has already been overridden if specified in the database or environment.
-		String tzId = TimeZone.getDefault().getID().replaceAll("/", "_");;
-		String usageStr = "https://usage.lerta.ca?"
+		String tzId = TimeZone.getDefault().getID().replaceAll("/", "_");
+
+		usageStr = "https://usage.lerta.ca?"
 		        + "&version=" + this.currentVersionString
 		        + "&localdate=" + LocalDate.now().toString()
 		        + "&localtime=" + LocalTime.now().toString()
 		        + "&timezone=" + tzId
 		        + (local ? "" : "&origin=" + ipAddress)
 		        + (JPAService.isLocalDb() ? "&local=true" : "&local=false");
-		logger.info("logging {}", usageStr);
+		logger.info("logging usage: {}", usageStr);
 		HttpRequest usageRequest = HttpRequest.newBuilder(URI.create(usageStr)).timeout(Duration.ofMillis(200)).build();
 		// fire and forget
 		client.sendAsync(usageRequest, BodyHandlers.ofString());
+
 	}
 }
