@@ -5,10 +5,10 @@
 
 45.0.x
 
-- (45.0.5-rc02) Fixed usage reporting to report whether the application is running locally or in the cloud, and to report only once
-- (45.0.5) New feature toggle `disableRecordHighlight` This is used to leave the attempt board intact if record attempts are signaled to the audience on some other screen (using OBS for example). See [documentation](https://owlcms.github.io/owlcms4-prerelease/#/FeatureToggles).
-- (45.0.5) New BENCHMARK value for OWLCMS_INITIALDATA. This creates a very large competition with 4 concurrent platforms and ~1150 athletes of all IWF and Masters age groups. See [documentation](https://owlcms.github.io/owlcms4-prerelease/#/Configuration).
+- (45.0.5) New feature toggle `disableRecordHighlight`  This is useful to leave the attempt board untouched (no "Record Attempt" banner) when record attempts or new records are signaled to the audience on the main screen using video production equipment. See the [documentation](https://owlcms.github.io/owlcms4/#/FeatureToggles).
+- (45.0.5) New BENCHMARK value for OWLCMS_INITIALDATA. This creates a very large competition with 4 concurrent platforms and ~1150 athletes of all IWF and Masters age groups. See he [documentation](https://owlcms.github.io/owlcms4/#/Configuration).
 - (45.0.5) The clean and jerk break is shortened to 10 seconds during simulations.
+- (45.0.5) Fixed usage reporting to report whether the application is running locally or in the cloud, and to report only once
 - (45.0.4) Updated translations to 2024-01-12.
 - (45.0.4) Updated cloud installation instructions to use the interactive [owlcms-cloud.fly.dev](https://owlcms-cloud.fly.dev) application
 - (45.0.3) Fixed the vertical layouts for phones/tablets/tvs (including publicresults) to use the full width.
