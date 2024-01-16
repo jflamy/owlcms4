@@ -6,9 +6,13 @@
 >
 > **Simple and automatic**
 >
-> The program computes lifting order automatically, and automatically sets the clock correctly.  It also enforces the rules for weight changes (time remaining, moving down).  The announcer always sees the lifting order, and is informed of all the changes, and is shown what weight is required on the bar.
+> The program automatically computes lifting order, sets the clock correctly and enforces the rules for weight changes (time remaining, moving down).  The announcer always sees the lifting order, is informed of all changes to the weight required on the bar.
 >
-> It is actually simple enough that you can run a small club meet with just a single laptop, or a regional meet with only everyday electronics (a couple of laptops and TVs, some phones).
+> Usage is actually simple enough that you can run a small club meet with just a single laptop, or a regional meet with only everyday electronics (a couple of laptops and TVs, some phones).
+>
+> **On-site or Cloud**
+>
+> You can run the program on a laptop at the competition site.  Or if you prefer, in the cloud, without having to install anything, without fees.
 
 ## Gallery
 
