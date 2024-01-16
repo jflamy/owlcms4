@@ -2,7 +2,7 @@
 
 > **The full-range solution for running competitions**
 >
-> This free application is a *fully-compliant* weightlifting competition management system that has been used worldwide to manage many large-scale championships. 
+> This free application is a *fully-compliant* weightlifting competition management system that has been used worldwide to manage competitions of all sizes, from club meets to international championships. 
 >
 > **Simple and automatic**
 >
@@ -26,8 +26,6 @@
 <tr><td><img src='img/Gallery/gaspe2018.png' size=250></img></td><td>PanAm Masters Championship, Gaspé, Canada. The program has full support of Masters rules and coefficients.</td></tr>
 <tr><td><img src='img/Gallery/nordic2021.png' size=250></img></td><td>Nordic Championships, Copenhagen, Denmark.<br> Streaming software can easily integrate the displays produced by the application.</td></tr>
 <tr><td><img src='img/Gallery/mexicoNational.jpg'></img></td><td>Mexico National Games.<br>(4 platforms, each with jury.)</td></tr>
-
-
 </table>
 
 ## Downloads and Installation
@@ -37,15 +35,9 @@ Most people run the program on a laptop at the competition site ([overview](Inst
 - [Windows Stand-alone Installation](LocalWindowsSetup)
 - [Linux or Mac Stand-alone Installation](LocalLinuxMacSetup)
 
-You can also run the program in the cloud, for example to host virtual meets. See [here](InstallationOverview#cloud-based-installation) for instructions
+You can also run the program in the cloud, in which case you don't have to install anything and can run your consoles and displays directly from the Internet.
 
-## Demo
-
-The following videos and demos are available
-
-- [Simple setup](Demo1): running a minimal setup for a small club meet with a single person controlling the meet.
-- [Full setup](Demo2): running a regular or virtual competition with technical officials
-- Live demo: after watching the videos, try the [Live demo](https://owlcms.fly.dev) site, or better yet, [install your own copy](Downloads) and experiment.
+- [Cloud-based installation](InstallationOverview#cloud-based-installation)
 
 ## Features
 
