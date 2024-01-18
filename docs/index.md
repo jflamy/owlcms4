@@ -81,17 +81,16 @@ The following list is a sampling of the many features available.  <u>*Click on t
   
 - **Support for refereeing devices**
   
-  - Any USB or Bluetooth [**keypad**](Refereeing#usb-or-bluetooth-keypads) that can be programmed to generate the digits 0 to 9 can be used to enter decisions
-    
-      ![refereeingSetup](img/equipment/refereeingSetup.jpg ':size=350')  ![030_iPad_Flic](img/Refereeing/030_iPad_Flic.jpg ':size=350')
-    
-  - [**Mobile phones or tablets**](Refereeing#mobile-device-refereeing) can also be used.  These devices can provide notifications to the referees.
+  - [**Mobile phones or tablets**](Refereeing#mobile-device-refereeing) The easiest way to get started is to use phones or tablets. 
     
       ![mobile_ref](img/Refereeing/mobile_ref.png ':size=350')
-      
-  - [**Physical devices with visual and audio feedback capability**](Refereeing#full-feedback-keypad)  You can
-   [buy commercial devices](https://blue-owl.nemikor.com) or build your own ([free do-it-yourself schematics
-    and software](https://github.com/jflamy/owlcms-firmata/tree/v24?tab=readme-ov-file#owlcms-firmata) are available)![FederationKit](img/Gallery/FederationKit.png ':size=350')![home-built](img/Gallery/home-built.jpg ':size=350')
+    
+  - [**Button keypads**](Refereeing#usb-or-bluetooth-keypads). Many people prefer using actual buttons. Any USB or Bluetooth keypad that can be programmed to generate the digits 0 to 9 can be used to enter decisions (you can buy or build you own, see [this link](Refereeing#usb-or-bluetooth-keypads))
+    
+      ![refereeingSetup](img/equipment/refereeingSetup.jpg ':size=350')  
+    
+  - [**Fully compliant devices**](Refereeing#full-feedback-keypad)  The IWF technical rules and regulations (TCRR) state requirements for refereeing and jury devices, notably regarding notifications to referees.  You can [buy commercial devices](https://blue-owl.nemikor.com) that are fully compliant or build your own. [Free do-it-yourself schematics
+   and software](https://github.com/jflamy/owlcms-firmata/tree/v24?tab=readme-ov-file#owlcms-firmata) using low-cost Arduino boards are available.![FederationKit](img/Gallery/FederationKit.png ':size=350')![home-built](img/Gallery/home-built.jpg ':size=350')
   
 - **[Athlete-facing display](Displays#attempt-board)** (the decision display matches the referee positions as seen from platform). Refereeing keypads are typically connected to this laptop.
   
