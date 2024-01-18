@@ -89,11 +89,9 @@ The following list is a sampling of the many features available.  <u>*Click on t
     
       ![mobile_ref](img/Refereeing/mobile_ref.png ':size=350')
       
-  - [**Physical devices with visual and audio feedback capability**](Refereeing#full-feedback-keypad)  You can buy commercial devices or build your own (full do-it-yourself schematics and software are open-sourced)![FederationKit](img/Gallery/FederationKit.png ':size=350')![home-built](img/Gallery/home-built.jpg ':size=350')
-  
-      
-    
-      
+  - [**Physical devices with visual and audio feedback capability**](Refereeing#full-feedback-keypad)  You can
+   [buy commercial devices](https://blue-owl.nemikor.com) or build your own ([free do-it-yourself schematics
+    and software](https://github.com/jflamy/owlcms-firmata/tree/v24?tab=readme-ov-file#owlcms-firmata) are available)![FederationKit](img/Gallery/FederationKit.png ':size=350')![home-built](img/Gallery/home-built.jpg ':size=350')
   
 - **[Athlete-facing display](Displays#attempt-board)** (the decision display matches the referee positions as seen from platform). Refereeing keypads are typically connected to this laptop.
   
