@@ -5,10 +5,8 @@
 ## Translating the screens and displays
 
 1. For translation, you need to install OWLCMS locally.  Refer to the [Local Setup instructions](https://jflamy.github.io/owlcms4/#/LocalSetup). 
-
-2. Use the following link to locate the [Dropbox folder](https://www.dropbox.com/sh/3dzsbv02fgdrpp3/AAD-yKNcgiMzFOqQzv3qFTiFa?dl=0) that contains the master copy of the translations
+2. Use the following link to locate the [Google Drive](https://www.dropbox.com/sh/3dzsbv02fgdrpp3/AAD-yKNcgiMzFOqQzv3qFTiFa?dl=0) that contains the master copy of the translations.  You may need to ask owlcms@jflamy.dev for access, and you may need to create a Google account.
     - Click on the file named `translation4.gsheet`
-    - You will be prompted to login in order to edit. The simplest way to edit is to use a Google account (even if it's only for this purpose).  Log out of dropbox and login using the google account.  If you do not gain access, send an e-mail to jf@jflamy.dev for it to be granted.
 3. Each column of `translation4.gsheet`represents a language.  
     - Add your own language by adding a column at the end; use the ISO 639-1 two-letter code for your language -- see the list in https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes  (for example, da is Danish, fr is French, ru is Russian, etc.) 
     - You may  have variations per country. For example `fr_CA` is the code for French in Canada, where different words are used and some of the displays are bilingual.
