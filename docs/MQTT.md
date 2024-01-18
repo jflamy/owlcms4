@@ -12,7 +12,7 @@ Several projects use MQTT for communication between devices and owlcms :
   ![overview.drawio](img/MQTT/overview.drawio.png)
 
   - [owlcms/owlcms-firmata Technical Official device integration for OWLCMS (github.com)](https://github.com/owlcms/owlcms-firmata)  This project includes diagrams for building your own devices using Arduino boards. Both the software to run on the Arduino and the driver to interface with owlcms are provided. The software is user-configured - you can change what pins on the board are used, and you can add or remove components as you see fit.  This project is the "build-it-yourself" cousin of the BlueOwl project below. 
-  - [scottgonzalez/blue-owl: Technical Official device integration for OWLCMS (github.com)](https://github.com/scottgonzalez/blue-owl) is the originator of the Firmata integration with owlcms.  The project aims at creating commercially available devices thar fully comply with IWF rules and regulations.  The software base is freely licensed.
+  - [scottgonzalez/blue-owl: Technical Official device integration for OWLCMS (github.com)](https://github.com/scottgonzalez/blue-owl) is the originator of the Firmata integration with owlcms.  The project aims at creating commercially available devices that fully comply with IWF rules and regulations.  The software base is freely licensed.
 
 - ESP32 projects
 
