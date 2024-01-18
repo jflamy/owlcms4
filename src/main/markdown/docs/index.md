@@ -12,7 +12,7 @@
 >
 > **On-site or Cloud**
 >
-> You can run the program on a laptop at the competition site.  Or if you prefer, in the cloud, without having to install anything, without fees.
+> You can run the program on a laptop at the competition site.  Or if you prefer, in the cloud, without having to install anything, using free hosting services.
 
 ## Gallery
 
@@ -24,7 +24,7 @@
 <tr><td><img src='img/Gallery/chelles.jpg' size=250></img></td><td>Club meet, Chelles, France.<br>Supports mixed-gender kid groups.</td></tr>
 <tr><td><img src='img/Gallery/IMG_1480.jpg' size=250></img></td><td>Canadian Senior Championship, Kelowna, Canada. A full-scale national championship.</td></tr>
 <tr><td><img src='img/Gallery/gaspe2018.png' size=250></img></td><td>PanAm Masters Championship, Gaspé, Canada. The program has full support of Masters rules and coefficients.</td></tr>
-<tr><td><img src='img/Gallery/nordic2021.png' size=250></img></td><td>Nordic Championships, Copenhagen, Denmark.<br> Streaming software can easily integrate the displays produced by the application.</td></tr>
+<tr><td><img src='img/Gallery/Streaming.png' size=250></img></td><td>Direct support of multiple simultaneous age groups (South American Championships) Direct support of streaming/TV-oriented displays.</td></tr>
 <tr><td><img src='img/Gallery/mexicoNational.jpg'></img></td><td>Mexico National Games.<br>(4 platforms, each with jury.)</td></tr>
 </table>
 
@@ -44,6 +44,8 @@ You can also run the program in the cloud, in which case you don't have to insta
 The following list is a sampling of the many features available.  <u>*Click on the images if you wish to view them full-sized*</u>.
 
 - Run a **regular** or **masters** competition, with or without a **jury**.
+  
+- **State-of-the-art technology and high performance**: As an example, there is negligible CPU load and disk usage when [running a benchmark](https://groups.google.com/g/owlcms/c/57Ve5hUmMRM/m/T-NK8XkUBAAJ) with over 1150 athletes in 81 sessions spread over 4 simultaneous platforms, with athletes lifting at 8 times the normal rate. The system uses a modern, fully integrated web-based architecture and data is stored in a true relational database.
   
 - Ability to run locally or in the [**cloud**](EquipmentSetup#cloud-access-over-the-internet).  Decisions, timers and sounds are handled locally in the browser to provide better feedback.
   

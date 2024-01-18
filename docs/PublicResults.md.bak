@@ -15,10 +15,11 @@ The other common configuration is when both owlcms and publicresults are in the 
 
 ## Install publicresults
 
-There are two ways to install and run publicresults.  The first option is usual, since the main goal is to give access to both the persons in attendance and all persons live streaming.
+There are three ways to install and run publicresults.  The first two options are usual, since the purpose is normally go give access to all persons in attendance and all persons live streaming.
 
-1. Install it on the Fly.io cloud.  See [this page](Fly) for details.
-2. Install it locally to give access to coaches and the attendance.  See [this page](PublicResults_Local) for details.
+1. Install it on the Heroku cloud.  See [this page](Heroku) for details
+2. Install it on the Fly.io cloud.  See [this page](Fly) for details.
+3. Install it locally.  See [this page](PublicResults_Local) for details.
 
 
 
