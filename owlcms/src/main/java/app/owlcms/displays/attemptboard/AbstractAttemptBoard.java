@@ -64,13 +64,6 @@ import elemental.json.JsonObject;
  */
 
 @SuppressWarnings({ "serial", "deprecation" })
-//@Tag("attempt-board-template")
-//@JsModule("./components/AttemptBoard.js")
-//@JsModule("./components/AudioContext.js")
-//@JsModule("./components/TimerElement.js")
-//@JsModule("./components/DecisionElement.js")
-//@CssImport(value = "./styles/shared-styles.css")
-//@CssImport(value = "./styles/plates.css")
 
 public abstract class AbstractAttemptBoard extends LitTemplate implements
         DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
@@ -580,6 +573,9 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 		this.getElement().setProperty("lastName", lastName.toUpperCase());
 		this.getElement().setProperty("firstName", a.getFirstName());
+		if (lastName.length() > 18) {
+			this.getElement().setProperty("nameSizeOverride","font-size: 8vh; line-height: 8vh; text-wrap: wrap; text-overflow: hidden");
+		}
 		this.getElement().setProperty("decisionVisible", false);
 		Category category2 = a.getCategory();
 		this.getElement().setProperty("category", category2 != null ? category2.getTranslatedName() : "");

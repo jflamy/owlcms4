@@ -27,11 +27,11 @@ class CurrentAttempt extends LitElement {
         <div class="nextGroup">${this.t?.WaitingNextGroup}</div>
       </div>
       <div class="attemptBoard" style="${this.activeStyles()}">
-        <div id="lastNameDiv" class=${this.lastNameClasses()} style=${this.lastNameStyles()}>
-          <div>${this.lastName}</div>
+        <div id="lastNameDiv" class="${this.lastNameClasses()}" style="${this.lastNameStyles()}">
+          <div style="${this.nameSizeOverride}">${this.lastName}</div>
         </div>
-        <div class="${this.firstNameClasses()}" style="${this.firstNameStyles()}">
-          <div>${this.firstName}</div>
+        <div class="${this.firstNameClasses()}" style="${this.firstNameStyles()}}; ${this.longNames}; ${this.nameSizeOverride}">
+          <div style="${this.nameSizeOverride}">${this.firstName}</div>
         </div>
         <div class="teamName" style="${this.teamNameStyles()}">
           ${this.teamName}
