@@ -252,7 +252,7 @@
 							<followSymlinks>false</followSymlinks>
 						</fileset>
 						<fileset>
-							<directory>src/main/dev-bundle</directory>
+							<directory>src/main/bundles</directory>
 						</fileset>
 					</filesets>
 				</configuration>
