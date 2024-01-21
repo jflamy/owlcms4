@@ -6,13 +6,13 @@
 >
 > **Simple and automatic**
 >
-> The program automatically computes lifting order, sets the clock correctly and enforces the rules for weight changes (time remaining, moving down).  The announcer always sees the lifting order, is informed of all changes to the weight required on the bar.
+> Usage is simple enough that you can run a small club meet with just a single laptop, or a regional meet with only everyday electronics (a couple of laptops and TVs, some phones).
 >
-> Usage is actually simple enough that you can run a small club meet with just a single laptop, or a regional meet with only everyday electronics (a couple of laptops and TVs, some phones).
+> The program automatically computes the lifting order, sets the clock correctly and enforces the rules for weight changes.  The announcer always sees the lifting order and the information about the current athlete.
 >
 > **On-site or Cloud**
 >
-> You can run the program on a laptop at the competition site.  Or if you prefer, in the cloud, without having to install anything, using free hosting services.
+> You can run the program on a laptop at the competition site.  Or if you prefer, in the cloud, without having to install anything, using *free* hosting services.
 
 ## Gallery
 
@@ -93,7 +93,6 @@ The following list is a sampling of the many features available.  <u>*Click on t
    and software](https://github.com/jflamy/owlcms-firmata/tree/v24?tab=readme-ov-file#owlcms-firmata) using low-cost Arduino boards are available.
   
   ![FederationKit](img/Gallery/FederationKit.png ':size=450')![home-built](img/Gallery/home-built.jpg ':size=250')
-   
   
 - **[Athlete-facing display](Displays#attempt-board)** (the decision display matches the referee positions as seen from platform). Refereeing keypads are typically connected to this laptop.
   
