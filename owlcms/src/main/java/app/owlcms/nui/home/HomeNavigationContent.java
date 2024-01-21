@@ -66,7 +66,6 @@ import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.NavigationPage;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.utils.IPInterfaceUtils;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -333,7 +332,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 				attributes.setProperty(USAGE_STR, usageStr);
 				logger.info("logged usage {}", attributes.getProperty(USAGE_STR));
 			} catch (Throwable e) {
-				LoggerUtils.logError(logger, e);
+				logger.error("could not log usage: {}",e.getMessage());
 			}
 		}).start();
 	}
