@@ -5,6 +5,7 @@
 
 45.0.x
 
+- (45.0.6) Improvements to robustness of usage logging.
 - (45.0.6) Handle extremely long family names on the attempt board (name fonts are made smaller and the line is split on space or hyphen)
 - (45.0.5) New feature toggle `disableRecordHighlight`  This is useful to leave the attempt board untouched (no "Record Attempt" banner) when record attempts or new records are signaled to the audience on the main screen using video production equipment. See the [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/FeatureToggles).
 - (45.0.5) New BENCHMARK value for OWLCMS_INITIALDATA. This creates a very large competition with 4 concurrent platforms and ~1150 athletes of all IWF and Masters age groups. See he [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Configuration).

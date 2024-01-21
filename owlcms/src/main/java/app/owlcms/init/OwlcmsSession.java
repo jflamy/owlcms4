@@ -55,7 +55,7 @@ public class OwlcmsSession {
 	 * @return the attribute
 	 */
 	public static Object getAttribute(String s) {
-		return getCurrent().attributes.get(s);
+		return getCurrent().getAttributes().get(s);
 	}
 
 	public static OwlcmsSession getCurrent() {
@@ -139,9 +139,9 @@ public class OwlcmsSession {
 	 */
 	public static void setAttribute(String s, Object o) {
 		if (o == null) {
-			getCurrent().attributes.remove(s);
+			getCurrent().getAttributes().remove(s);
 		} else {
-			getCurrent().attributes.put(s, o);
+			getCurrent().getAttributes().put(s, o);
 		}
 	}
 
@@ -222,9 +222,14 @@ public class OwlcmsSession {
 
 	public void setLocale(Locale locale) {
 		if (locale == null) {
-			getCurrent().attributes.remove(LOCALE);
+			getCurrent().getAttributes().remove(LOCALE);
 		} else {
 			setAttribute(LOCALE, locale);
 		}
 	}
+
+	public Properties getAttributes() {
+		return attributes;
+	}
+
 }

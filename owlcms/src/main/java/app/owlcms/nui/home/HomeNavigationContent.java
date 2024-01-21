@@ -20,6 +20,7 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.TimeZone;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -55,6 +56,7 @@ import app.owlcms.apputils.DebugUtils;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.displays.DisplayNavigationContent;
 import app.owlcms.nui.displays.VideoNavigationContent;
 import app.owlcms.nui.lifting.LiftingNavigationContent;
@@ -64,6 +66,7 @@ import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.NavigationPage;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.utils.IPInterfaceUtils;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -78,6 +81,7 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "", layout = OwlcmsLayout.class)
 public class HomeNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
+	private static final String USAGE_STR = "usageStr";
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(HomeNavigationContent.class);
 	static {
 		logger.setLevel(Level.INFO);
@@ -172,10 +176,10 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	private VerticalLayout buildIntro() {
 
 		Div div = checkVersion();
-		if (usageStr == null) {
+		if (OwlcmsSession.getAttribute(USAGE_STR) == null) {
 			logUsage();
 		}
-
+		
 		VerticalLayout intro = new VerticalLayout();
 		intro.setSpacing(false);
 		intro.setId("homeIntro");
@@ -311,17 +315,26 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		// The default time zone has already been overridden if specified in the database or environment.
 		String tzId = TimeZone.getDefault().getID().replaceAll("/", "_");
 
-		usageStr = "https://usage.lerta.ca?"
+		usageStr = "https://usage.jflamy.dev?"
 		        + "&version=" + this.currentVersionString
 		        + "&localdate=" + LocalDate.now().toString()
 		        + "&localtime=" + LocalTime.now().toString()
 		        + "&timezone=" + tzId
 		        + (local ? "" : "&origin=" + ipAddress)
 		        + (JPAService.isLocalDb() ? "&local=true" : "&local=false");
-		logger.info("logging usage: {}", usageStr);
-		HttpRequest usageRequest = HttpRequest.newBuilder(URI.create(usageStr)).timeout(Duration.ofMillis(200)).build();
-		// fire and forget
-		client.sendAsync(usageRequest, BodyHandlers.ofString());
 
+		HttpRequest usageRequest = HttpRequest.newBuilder(URI.create(usageStr)).timeout(Duration.ofMillis(200)).build();
+
+		Properties attributes = OwlcmsSession.getCurrent().getAttributes();
+		// fire and forget
+		new Thread(() -> {
+			try {
+				client.send(usageRequest, BodyHandlers.ofString());
+				attributes.setProperty(USAGE_STR, usageStr);
+				logger.info("logged usage {}", attributes.getProperty(USAGE_STR));
+			} catch (Throwable e) {
+				LoggerUtils.logError(logger, e);
+			}
+		}).start();
 	}
 }
