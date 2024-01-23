@@ -5,11 +5,12 @@
 
 45.0.x
 
+- (45.0.7) Clean & Jerk break could be displayed falsely as Introduction of Athletes.
 - (45.0.6) Robi points: the default AgeGroups.xls file first tab has been updated with current world records. 
 - (45.0.6) Very long family names on the attempt board are split on two lines if over 18 characters. The split is made on spaces or hyphens, and the font is made a bit smaller.
 - (45.0.6) Usage logging has been made more reliable.
-- (45.0.5) New feature toggle `disableRecordHighlight`  This is useful to leave the attempt board untouched (no "Record Attempt" banner) when record attempts or new records are signaled to the audience on the main screen using video production equipment. See the [documentation](https://owlcms.github.io/owlcms4/#/FeatureToggles).
-- (45.0.5) New BENCHMARK value for OWLCMS_INITIALDATA. This creates a very large competition with 4 concurrent platforms and ~1150 athletes of all IWF and Masters age groups. See he [documentation](https://owlcms.github.io/owlcms4/#/Configuration).
+- (45.0.5) New feature toggle `disableRecordHighlight`  This is useful to leave the attempt board untouched (no "Record Attempt" banner) when record attempts or new records are signaled to the audience on the main screen using video production equipment. See the [documentation](https://owlcms.github.io/owlcms4-prerelease/#/FeatureToggles).
+- (45.0.5) New BENCHMARK value for OWLCMS_INITIALDATA. This creates a very large competition with 4 concurrent platforms and ~1150 athletes of all IWF and Masters age groups. See he [documentation](https://owlcms.github.io/owlcms4-prerelease/#/Configuration).
 - (45.0.5) The clean and jerk break is shortened to 10 seconds during simulations.
 - (45.0.5) Fixed usage reporting to report whether the application is running locally or in the cloud, and to report only once
 - (45.0.4) Updated translations to 2024-01-12.
