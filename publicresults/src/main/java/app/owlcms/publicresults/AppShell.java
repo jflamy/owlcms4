@@ -3,7 +3,6 @@ package app.owlcms.publicresults;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.server.AppShellSettings;
-import com.vaadin.flow.shared.ui.Transport;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
@@ -13,7 +12,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
  */
 //@PWA(name = "owlcms remote scoreboard", shortName = "publicresults")
 @Theme(variant=Lumo.DARK)
-@Push(transport = Transport.LONG_POLLING)
+@Push
 public class AppShell implements AppShellConfigurator {
     
     @Override

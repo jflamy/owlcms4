@@ -25,7 +25,7 @@ import com.microsoft.playwright.Playwright;
  */
 public class RunResults {
     private static final int NB_REMOTE_USERS = 22;
-    private static final int POLLING_DELAY_SECONDS = 10;
+    private static final int POLLING_DELAY_SECONDS = 0;
     private static final int POLLING_DELAY_MILLISECONDS = POLLING_DELAY_SECONDS*1000;
 
     public static void main(String[] args) {
@@ -35,7 +35,7 @@ public class RunResults {
             Browser browser = playwright.chromium().launch();
             for (int i = 0; i < NB_REMOTE_USERS; i++) {
                 Page page = browser.newContext().newPage();
-                page.navigate("https://owlcms-next.fly.dev");
+                page.navigate("https://owlcms-next-results.fly.dev");
                 System.out.println("creating context "+ (i+1));
             }
 
