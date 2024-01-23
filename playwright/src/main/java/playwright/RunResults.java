@@ -24,10 +24,10 @@ import com.microsoft.playwright.Playwright;
  * @author Jean-François Lamy
  */
 public class RunResults {
-    private static final int NB_REMOTE_USERS = 20;
-    private static final int POLLING_DELAY = 0;
+    private static final int NB_REMOTE_USERS = 22;
+    private static final int POLLING_DELAY_SECONDS = 10;
+    private static final int POLLING_DELAY_MILLISECONDS = POLLING_DELAY_SECONDS*1000;
 
-    @SuppressWarnings("unused")
     public static void main(String[] args) {
         try (Playwright playwright = Playwright.create()) {
             
@@ -35,31 +35,30 @@ public class RunResults {
             Browser browser = playwright.chromium().launch();
             for (int i = 0; i < NB_REMOTE_USERS; i++) {
                 Page page = browser.newContext().newPage();
-                page.navigate("http://localhost:8082/displays/scoreleader?fop=A");
+                page.navigate("https://owlcms-next.fly.dev");
                 System.out.println("creating context "+ (i+1));
             }
 
-            if (POLLING_DELAY > 0) {
+            if (POLLING_DELAY_MILLISECONDS > 0) {
                 // periodically poll the browsers to check content.
                 // loop forever, we must be killed externally.
-                while (true) {
-                    try {
-                        Thread.sleep(POLLING_DELAY);
-                    } catch (InterruptedException e) {
-                    }
-    
+                while (true) {    
                     // ask each browser for the name of the current athlete
                     // to check whether the Vaadin push has worked
                     List<BrowserContext> contexts = browser.contexts();
                     int i = 0;
                     for (BrowserContext context : contexts) {
                         for (Page page : context.pages()) {
-                            String res = page.innerHTML("scoreleader-template div#fullNameDiv");
+                            String res = page.innerHTML("div.v-status-message span");
                             System.out.println((i+1) + " " + res);
                             i++;
                         }
                     }
                     System.out.println();
+                    try {
+                        Thread.sleep(POLLING_DELAY_MILLISECONDS);
+                    } catch (InterruptedException e) {
+                    }
                 }
             } else {
                 // run to create load. Just wait for external kill.  
