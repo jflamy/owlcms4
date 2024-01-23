@@ -26,6 +26,7 @@ public interface HasBoardMode {
 
 	public default void setBoardMode(FOPState fopState, BreakType breakType, CeremonyType ceremonyType,
 	        Element element) {
+		//logger.debug("setBoardMode {} {} {} {}",fopState, breakType, ceremonyType, LoggerUtils.stackTrace());
 		element.setProperty("mode", computeBoardModeName(fopState, breakType, ceremonyType));
 		element.setProperty("breakType", fopState == FOPState.BREAK ? breakType.name() : null);
 	}

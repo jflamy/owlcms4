@@ -173,7 +173,7 @@ public class BenchmarkData {
 			int nbTeams = (int) ((nbAthletesPerGender / 10) * 1.4);
 			String team = "T" + (int)(nextDouble * nbTeams);
 			p.setTeam(team);
-			logger.warn("creating athlete {} {} {} {} {} {}", p.getLastName(), p.getFirstName(), team, gender, ageGroup, bwcat);
+			logger.info("creating athlete {} {} {} {} {} {}", p.getLastName(), p.getFirstName(), team, gender, ageGroup, bwcat);
 			// compute a random number of weeks inside the age bracket
 			long weeksToSubtract = (long) ((minAge * 52) + Math.floor(r.nextDouble() * (maxAge - minAge) * 52));
 			LocalDate fullBirthDate = baseDate.minusWeeks(weeksToSubtract);

@@ -41,6 +41,7 @@ public interface BreakDisplay {
 	}
 
 	public default String inferMessage(BreakType breakType, CeremonyType ceremonyType, boolean publicDisplay) {
+		//logger.debug("inferMessage {} {}",breakType,ceremonyType);
 		if (breakType == null && ceremonyType == null) {
 			return Translator.translate("PublicMsg.CompetitionPaused");
 		}

@@ -52,6 +52,7 @@ import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -127,40 +128,49 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	@Override
 	public void doBreak(UIEvent e) {
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			BreakType breakType = fop.getBreakType();
+			try {
+				BreakType breakType = fop.getBreakType();
+//				if ((e instanceof UIEvent.BreakStarted)) {
+//					logger.debug("breaktype {} fop={} event={}", breakType, fop.getBreakType(), ((UIEvent.BreakStarted)e).getBreakType());
+//				} else {
+//					logger.debug("not a break? breaktype {} fop={}", breakType, fop.getBreakType());
+//				}
 
-			setBoardMode(fop.getState(), breakType, fop.getCeremonyType(), this.getElement());
+				setBoardMode(fop.getState(), breakType, fop.getCeremonyType(), this.getElement());
 
-			// logger.trace("doBreak({}) bt={} a={}}", e, breakType, fop.getCurAthlete());
-			if (breakType == BreakType.GROUP_DONE) {
-				doGroupDoneBreak(fop);
-				return;
-			} else if (breakType == BreakType.JURY || breakType == BreakType.CHALLENGE) {
-				doJuryBreak(fop, breakType);
-				return;
-			}
+				//logger.debug("doBreak({}) bt={} a={}}", e, breakType, fop.getCurAthlete());
+				if (breakType == BreakType.GROUP_DONE) {
+					doGroupDoneBreak(fop);
+					return;
+				} else if (breakType == BreakType.JURY || breakType == BreakType.CHALLENGE) {
+					doJuryBreak(fop, breakType);
+					return;
+				}
 
-			this.getElement().setProperty("lastName", inferGroupName());
-			this.getElement().setProperty("firstName", inferMessage(breakType, fop.getCeremonyType(), true));
-			this.getElement().setProperty("teamName", "");
+				this.getElement().setProperty("lastName", inferGroupName());
+				this.getElement().setProperty("firstName", inferMessage(breakType, fop.getCeremonyType(), true));
+				this.getElement().setProperty("teamName", "");
 
-			setDisplayedWeight("");
-
-			Athlete a = fop.getCurAthlete();
-			if (a != null) {
-				this.getElement().setProperty("category", a.getCategory().getTranslatedName());
-				String formattedAttempt = formatAttempt(a);
-				this.getElement().setProperty("attempt", formattedAttempt);
-				Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
-				setDisplayedWeight(nextAttemptRequestedWeight > 0 ? nextAttemptRequestedWeight.toString() : "");
-				showPlates();
-			} else {
-				this.getElement().setProperty("attempt", "");
 				setDisplayedWeight("");
-			}
 
-			uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
-			// logger.trace("attemptBoard showWeights ? {}", fop.getCeremonyType());
+				Athlete a = fop.getCurAthlete();
+				if (a != null) {
+					this.getElement().setProperty("category", a.getCategory().getTranslatedName());
+					String formattedAttempt = formatAttempt(a);
+					this.getElement().setProperty("attempt", formattedAttempt);
+					Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
+					setDisplayedWeight(nextAttemptRequestedWeight > 0 ? nextAttemptRequestedWeight.toString() : "");
+					showPlates();
+				} else {
+					this.getElement().setProperty("attempt", "");
+					setDisplayedWeight("");
+				}
+
+				uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
+				// logger.trace("attemptBoard showWeights ? {}", fop.getCeremonyType());
+			} catch (Throwable e1) {
+				LoggerUtils.logError(logger, e1);
+			}
 		}));
 	}
 
@@ -475,7 +485,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			doNotEmpty();
+			//CHANGE doNotEmpty();
 			doBreak(e);
 		});
 	}
@@ -679,12 +689,10 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	}
 
 	protected void doNotEmpty() {
-		// logger.debug("****doNotEmpty");
+		//logger.debug("****doNotEmpty {}",LoggerUtils.stackTrace());
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			FieldOfPlay fop2 = OwlcmsSession.getFop();
-			UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-				setBoardMode(fop2.getState(), fop2.getBreakType(), fop2.getCeremonyType(), this.getElement());
-			});
+			setBoardMode(fop2.getState(), fop2.getBreakType(), fop2.getCeremonyType(), this.getElement());
 		});
 	}
 

@@ -43,7 +43,7 @@ public class JXLSJurySheet extends JXLSWorkbookStreamSource {
 		if (!fileName.startsWith("Jury.")) {
 			transformer.markAsFixedSizeCollection("athletes");
 		} else {
-			logger.warn("not setting fixed size");
+			logger./**/warn/**/("not setting fixed size");
 		}
 	}
 

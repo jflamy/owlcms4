@@ -628,6 +628,7 @@ public class FieldOfPlay {
 			}
 			// do not return; error message will be shown if state does not allow summon.
 		} else if (e instanceof StartLifting) {
+			this.setCeremonyType(null);
 			if (this.state == BREAK && (this.breakType == BreakType.JURY || this.breakType == BreakType.TECHNICAL
 			        || this.breakType == BreakType.MARSHAL)) {
 				if (getGroup() == null) {
