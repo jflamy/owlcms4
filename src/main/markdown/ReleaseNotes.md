@@ -5,9 +5,8 @@
 
 45.0.x
 
-- (45.0.7) Clean & Jerk break could be displayed falsely as Introduction of Athletes.
-- (45.0.7) Reverted publicresults back to default push mechanism used in all prior releases.
-- (45.0.6) Robi points: the default AgeGroups.xls file first tab has been updated with current world records. 
+- (45.0.7) The Clean & Jerk break could be displayed falsely as Introduction of Athletes.
+- (45.0.6) Robi points: the default AgeGroups.xls file has been updated with current world records. If you have your own AgeGroups file, get the data from the first tab of the default file.
 - (45.0.6) Very long family names on the attempt board are split on two lines if over 18 characters. The split is made on spaces or hyphens, and the font is made a bit smaller.
 - (45.0.6) Usage logging has been made more reliable.
 - (45.0.5) New feature toggle `disableRecordHighlight`  This is useful to leave the attempt board untouched (no "Record Attempt" banner) when record attempts or new records are signaled to the audience on the main screen using video production equipment. See the [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/FeatureToggles).
