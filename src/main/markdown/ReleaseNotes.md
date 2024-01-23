@@ -5,6 +5,7 @@
 
 45.0.x
 
+- (45.0.7) Clean & Jerk break could be displayed falsely as Introduction of Athletes.
 - (45.0.6) Robi points: the default AgeGroups.xls file first tab has been updated with current world records. 
 - (45.0.6) Very long family names on the attempt board are split on two lines if over 18 characters. The split is made on spaces or hyphens, and the font is made a bit smaller.
 - (45.0.6) Usage logging has been made more reliable.
