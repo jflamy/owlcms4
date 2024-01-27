@@ -1,4 +1,6 @@
-## macOS or Linux Installation
+## macOS, Linux or RaspberryOS Installation
+
+> Tip: The [following page](RaspberryInstall) illustrates the sequence of steps on a RaspberryPI and may help you follow along.
 
 - **Get the installation zip archive**: Get the current  [`owlcms_${revision}.zip`](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/latest/download/owlcms_${revision}.zip) file  (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/latest) .
 
@@ -6,17 +8,17 @@
 
   - On a Mac We suggest you use `~/owlcms` as the unzipped location.
 
-  - If you are running on a Linux single-board computer, we suggest that you run the cpr
+- Make sure you have a Java17 installed (the JRE "runtime engine" is sufficient)
 
-- Make sure you have a Java 11 or 17 installed (JRE or JDK)
+  - On RaspberryOS, Java is already installed.
+
+  - For macOS, see [Latest Releases | Adoptium](https://adoptium.net/temurin/releases/) and download the .pkg file for your type of Mac.  Double-click the file.
 
   - For Linux, refer to [Latest Releases | Adoptium](https://adoptium.net/temurin/releases/) depending on the Linux type you run. For Ubuntu and other Debian variants, the following should work 
 
     ```bash
     sudo apt install default-jre
     ```
-    
-  - For macOS, see [Latest Releases | Adoptium](https://adoptium.net/temurin/releases/) and download the .pkg file.  Double-click the file.
 
 - Go to your installation directory where you unzipped owlcms
 
