@@ -55,14 +55,18 @@ public class DownloadButtonFactory {
 	 * @return the div
 	 */
 	public static Div createDynamicXLSDownloadButton(String prefix, String label, JXLSWorkbookStreamSource xlsSource) {
+
 		final LazyDownloadButton downloadButton = new LazyDownloadButton(
 		        label,
 		        new Icon(VaadinIcon.DOWNLOAD_ALT),
 		        () -> {
+		        	logger.warn("xlsSource {} {}",xlsSource, xlsSource.getFileExtension());
 			        LocalDateTime now = LocalDateTime.now().withNano(0);
+					String value = ((xlsSource == null) || (xlsSource.getFileExtension() == null)) ?  ".xlsx" :  xlsSource.getFileExtension();
 			        return prefix
 			                + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm';'ss"))
-			                + ".xls";
+			        		+ value
+			                ;
 		        },
 		        xlsSource);
 

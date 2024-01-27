@@ -15,6 +15,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import org.apache.maven.shared.utils.io.FileUtils;
 import org.slf4j.LoggerFactory;
 
 //import com.vaadin.componentfactory.EnhancedDialog;
@@ -59,14 +60,14 @@ public class DownloadDialog {
 	private String processingMessage;
 
 	/**
-	 * @param streamSourceSupplier lambda that creates a JXLSWorkbookStreamSource and sets its filters
-	 * @param resourceDirectory    Location where to look for templates
-	 * @param namePredicate        filtering on base name
-	 * @param templateNameGetter   get last file name stored in Competition
-	 * @param templateNameSetter   set last file name in Competition
+	 * @param streamSourceSupplier   lambda that creates a JXLSWorkbookStreamSource and sets its filters
+	 * @param resourceDirectory      Location where to look for templates
+	 * @param namePredicate          filtering on base name
+	 * @param templateNameGetter     get last file name stored in Competition
+	 * @param templateNameSetter     set last file name in Competition
 	 * @param dialogTitle
-	 * @param fallbackOutputFileName       first part of the downloaded file name (not dependent on template).
-	 * @param buttonLabel          label used dialog button
+	 * @param fallbackOutputFileName first part of the downloaded file name (not dependent on template).
+	 * @param buttonLabel            label used dialog button
 	 * @return
 	 */
 	public DownloadDialog(
@@ -75,7 +76,7 @@ public class DownloadDialog {
 	        Predicate<String> namePredicate,
 	        Function<Competition, String> templateNameGetter,
 	        BiConsumer<Competition, String> templateNameSetter,
-	        String dialogTitle, 
+	        String dialogTitle,
 	        String fallbackOutputFileName,
 	        String buttonLabel) {
 		logger.setLevel(Level.DEBUG);
@@ -228,17 +229,21 @@ public class DownloadDialog {
 		LocalDateTime now = LocalDateTime.now().withNano(0);
 		suffix.append("_");
 		suffix.append(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm';'ss")));
-		suffix.append(".xls");
+
 		String fileName = "";
-			String templateName = templateNameGetter.apply(Competition.getCurrent());
-			if ((templateName.matches(".*[_-](A4|LETTER|LEGAL).*"))) {
-				fileName = templateName.replaceAll("[_-](A4|LETTER|LEGAL)(.xls|.xlsx)","") + suffix;
-			} else if (outputFileName != null) {
-				fileName = outputFileName + suffix;
-			} else {{
-				fileName = "output" + suffix;
-			}
+		String templateName = templateNameGetter.apply(Competition.getCurrent());
+		String extension = FileUtils.getExtension(templateName);
+		if ((templateName.matches(".*[_-](A4|LETTER|LEGAL).*"))) {
+			fileName = templateName.replaceAll("[_-](A4|LETTER|LEGAL)(." + extension+ ")", "") + suffix + "." + extension;
+		} else {
+			fileName = templateName.replaceAll("[.]" + extension, "") + suffix + "." + extension;
 		}
+			
+//		if (outputFileName != null) {
+//			fileName = outputFileName + suffix  + "." + extension;
+//		} else {
+//			fileName = "output" + suffix + "." + extension;
+//		}
 		fileName = sanitizeFilename(fileName);
 		logger.trace(fileName);
 		return fileName;

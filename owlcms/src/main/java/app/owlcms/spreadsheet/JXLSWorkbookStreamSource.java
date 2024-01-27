@@ -78,6 +78,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	private String templateFileName;
 	private UI ui;
 	private Consumer<String> doneCallback;
+	private String fileExtension;
 
 	public JXLSWorkbookStreamSource() {
 		this.ui = UI.getCurrent();
@@ -113,17 +114,17 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			PipedOutputStream out = new PipedOutputStream(in);
 			logger.debug("created pipes");
 			new Thread(
-					new Runnable() {
-						@Override
-						public void run() {
-							try {
-								writeStream(out);
-								out.close();
-							} catch (IOException e) {
-								throw new RuntimeException(e);
-							}
-						}
-					}).start();
+			        new Runnable() {
+				        @Override
+				        public void run() {
+					        try {
+						        writeStream(out);
+						        out.close();
+					        } catch (IOException e) {
+						        throw new RuntimeException(e);
+					        }
+				        }
+			        }).start();
 			return in;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -280,7 +281,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	 * @throws IOException
 	 */
 	protected InputStream getLocalizedTemplate(String templateName, String extension, Locale locale)
-			throws IOException {
+	        throws IOException {
 		List<String> tryList = getSuffixes(locale);
 		List<String> extensionList;
 		if (extension.equals(".xls")) {
@@ -296,6 +297,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 					final InputStream resourceAsStream = ResourceWalker.getFileOrResource(name);
 					// logger.debug("trying {} : {}", name, resourceAsStream);
 					if (resourceAsStream != null) {
+						this.setFileExtension(ext);
 						return resourceAsStream;
 					}
 				} catch (FileNotFoundException e) {
@@ -411,7 +413,15 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			logger.debug("wrote stream");
 		}
 
+	}
 
+	public void setFileExtension(String extension) {
+		logger.warn("setting extension {} in {}",extension,this);
+		this.fileExtension = extension;
+	}
+
+	public String getFileExtension() {
+		return fileExtension;
 	}
 
 }

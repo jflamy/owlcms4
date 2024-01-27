@@ -22,6 +22,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -43,6 +44,11 @@ public class JXLSRegistrationExport extends JXLSWorkbookStreamSource {
 
 	public JXLSRegistrationExport(UI ui) {
 		super();
+		try {
+			// needed to set the file extension in the source so the download button works.
+			getTemplate(OwlcmsSession.getLocale());
+		} catch (IOException e) {
+		}
 	}
 
 	@Override
