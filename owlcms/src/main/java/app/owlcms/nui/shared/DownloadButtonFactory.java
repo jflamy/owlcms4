@@ -60,7 +60,7 @@ public class DownloadButtonFactory {
 		        label,
 		        new Icon(VaadinIcon.DOWNLOAD_ALT),
 		        () -> {
-		        	logger.warn("xlsSource {} {}",xlsSource, xlsSource.getFileExtension());
+		        	//logger.debug("xlsSource {} {}",xlsSource, xlsSource.getFileExtension());
 			        LocalDateTime now = LocalDateTime.now().withNano(0);
 					String value = ((xlsSource == null) || (xlsSource.getFileExtension() == null)) ?  ".xlsx" :  xlsSource.getFileExtension();
 			        return prefix

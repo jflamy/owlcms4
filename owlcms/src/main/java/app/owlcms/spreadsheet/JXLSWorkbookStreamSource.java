@@ -416,7 +416,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	}
 
 	public void setFileExtension(String extension) {
-		logger.warn("setting extension {} in {}",extension,this);
+		//logger.debug("setting extension {} in {}",extension,this);
 		this.fileExtension = extension;
 	}
 
