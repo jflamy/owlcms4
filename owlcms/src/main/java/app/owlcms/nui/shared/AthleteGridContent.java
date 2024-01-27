@@ -71,6 +71,7 @@ import app.owlcms.components.elements.TimerElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.CountdownType;
@@ -107,8 +108,8 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @CssImport(value = "./styles/athlete-grid.css")
 public abstract class AthleteGridContent extends BaseContent
-implements CrudListener<Athlete>, OwlcmsContent, SoundParametersReader, UIEventProcessor, IAthleteEditing,
-BreakDisplay {
+        implements CrudListener<Athlete>, OwlcmsContent, SoundParametersReader, UIEventProcessor, IAthleteEditing,
+        BreakDisplay {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridContent.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -121,9 +122,9 @@ BreakDisplay {
 		Integer attemptsDone = a.getAttemptsDone();
 		Integer attemptNumber = a.getAttemptNumber();
 		return (attemptsDone >= 3)
-				? ((attemptsDone >= 6) ? Translator.translate("Done")
-						: Translator.translate("C_and_J_number", attemptNumber))
-						: Translator.translate("Snatch_number", attemptNumber);
+		        ? ((attemptsDone >= 6) ? Translator.translate("Done")
+		                : Translator.translate("C_and_J_number", attemptNumber))
+		        : Translator.translate("Snatch_number", attemptNumber);
 	}
 
 	private static String computeLift(int i, Athlete a) {
@@ -164,41 +165,41 @@ BreakDisplay {
 
 	private static Renderer<Athlete> createAttemptsRenderer() {
 		return LitRenderer.<Athlete>of(
-				"<vaadin-horizontal-layout>" +
-						"<span class='${item.sn1class}'>${item.sn1}</span>" +
-						"<span class='${item.sn2class}'>${item.sn2}</span>" +
-						"<span class='${item.sn3class}'>${item.sn3}</span>" +
-						"<span class='spacer'>\u00a0\u00a0\u00a0</span>" +
-						"<span class='${item.cj1class}'>${item.cj1}</span>" +
-						"<span class='${item.cj2class}'>${item.cj2}</span>" +
-						"<span class='${item.cj3class}'>${item.cj3}</span>" +
-				"</vaadin-horizontal-layout>")
-				.withProperty("sn1", (a) -> computeLift(1, a))
-				.withProperty("sn2", (a) -> computeLift(2, a))
-				.withProperty("sn3", (a) -> computeLift(3, a))
-				.withProperty("cj1", (a) -> computeLift(4, a))
-				.withProperty("cj2", (a) -> computeLift(5, a))
-				.withProperty("cj3", (a) -> computeLift(6, a))
-				.withProperty("sn1class", (a) -> computeLiftClass(1, a))
-				.withProperty("sn2class", (a) -> computeLiftClass(2, a))
-				.withProperty("sn3class", (a) -> computeLiftClass(3, a))
-				.withProperty("cj1class", (a) -> computeLiftClass(4, a))
-				.withProperty("cj2class", (a) -> computeLiftClass(5, a))
-				.withProperty("cj3class", (a) -> computeLiftClass(6, a));
+		        "<vaadin-horizontal-layout>" +
+		                "<span class='${item.sn1class}'>${item.sn1}</span>" +
+		                "<span class='${item.sn2class}'>${item.sn2}</span>" +
+		                "<span class='${item.sn3class}'>${item.sn3}</span>" +
+		                "<span class='spacer'>\u00a0\u00a0\u00a0</span>" +
+		                "<span class='${item.cj1class}'>${item.cj1}</span>" +
+		                "<span class='${item.cj2class}'>${item.cj2}</span>" +
+		                "<span class='${item.cj3class}'>${item.cj3}</span>" +
+		                "</vaadin-horizontal-layout>")
+		        .withProperty("sn1", (a) -> computeLift(1, a))
+		        .withProperty("sn2", (a) -> computeLift(2, a))
+		        .withProperty("sn3", (a) -> computeLift(3, a))
+		        .withProperty("cj1", (a) -> computeLift(4, a))
+		        .withProperty("cj2", (a) -> computeLift(5, a))
+		        .withProperty("cj3", (a) -> computeLift(6, a))
+		        .withProperty("sn1class", (a) -> computeLiftClass(1, a))
+		        .withProperty("sn2class", (a) -> computeLiftClass(2, a))
+		        .withProperty("sn3class", (a) -> computeLiftClass(3, a))
+		        .withProperty("cj1class", (a) -> computeLiftClass(4, a))
+		        .withProperty("cj2class", (a) -> computeLiftClass(5, a))
+		        .withProperty("cj3class", (a) -> computeLiftClass(6, a));
 	}
 
 	private static Renderer<Athlete> createFirstNameRenderer() {
 		return LitRenderer.<Athlete>of(
-				"<div class='${item.nameClass}'>${item.name}</div>")
-				.withProperty("nameClass", (a) -> computeNameClass(a))
-				.withProperty("name", Athlete::getFirstName);
+		        "<div class='${item.nameClass}'>${item.name}</div>")
+		        .withProperty("nameClass", (a) -> computeNameClass(a))
+		        .withProperty("name", Athlete::getFirstName);
 	}
 
 	private static Renderer<Athlete> createLastNameRenderer() {
 		return LitRenderer.<Athlete>of(
-				"<div class='${item.nameClass}'>${item.name}</div>")
-				.withProperty("nameClass", (a) -> computeNameClass(a))
-				.withProperty("name", a -> a.getLastName().toUpperCase());
+		        "<div class='${item.nameClass}'>${item.name}</div>")
+		        .withProperty("nameClass", (a) -> computeNameClass(a))
+		        .withProperty("name", a -> a.getLastName().toUpperCase());
 	}
 
 	protected TimerElement breakTimerElement;
@@ -270,6 +271,7 @@ BreakDisplay {
 	private boolean deliberationNotificationSent;
 	private long previousToggleMillis;
 	protected HorizontalLayout decisionLights;
+	private String stopButtonVariant;
 
 	/**
 	 * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL
@@ -277,6 +279,7 @@ BreakDisplay {
 	 */
 	public AthleteGridContent() {
 		init();
+		this.stopButtonVariant = Config.getCurrent().featureSwitch("blackStopButton") ? "contrast" : "error";
 		this.breakTimerElement = new BreakTimerElement();
 	}
 
@@ -294,7 +297,7 @@ BreakDisplay {
 
 	public void busyBreakButton() {
 		if (this.breakButton == null) {
-			//            logger.trace("breakButton is null\n{}", LoggerUtils. stackTrace());
+			// logger.trace("breakButton is null\n{}", LoggerUtils. stackTrace());
 			return;
 		}
 		this.breakButton.getElement().setAttribute("theme", "primary error");
@@ -461,13 +464,13 @@ BreakDisplay {
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		if (fop != null) {
 			logger.trace("{}findAll {} {}", fop.getLoggingName(),
-					fop.getGroup() == null ? null : fop.getGroup().getName(),
-							LoggerUtils.whereFrom());
+			        fop.getGroup() == null ? null : fop.getGroup().getName(),
+			        LoggerUtils.whereFrom());
 			final String filterValue;
 			if (this.lastNameFilter.getValue() != null) {
 				filterValue = this.lastNameFilter.getValue().toLowerCase();
 				return fop.getDisplayOrder().stream().filter(a -> a.getLastName().toLowerCase().startsWith(filterValue))
-						.collect(Collectors.toList());
+				        .collect(Collectors.toList());
 			} else {
 				return fop.getDisplayOrder();
 			}
@@ -492,14 +495,14 @@ BreakDisplay {
 		return this.firstNameWrapper;
 	}
 
-	//    @Override
-	//    public void setHeaderContent() {
-	//        routerLayout.setMenuTitle(getPageTitle());
-	//        routerLayout.setMenuArea(createMenuArea());
-	//        routerLayout.showLocaleDropdown(false);
-	//        routerLayout.setDrawerOpened(false);
-	//        routerLayout.updateHeader(false);
-	//    }
+	// @Override
+	// public void setHeaderContent() {
+	// routerLayout.setMenuTitle(getPageTitle());
+	// routerLayout.setMenuArea(createMenuArea());
+	// routerLayout.showLocaleDropdown(false);
+	// routerLayout.setDrawerOpened(false);
+	// routerLayout.updateHeader(false);
+	// }
 
 	/**
 	 * @return the groupFilter
@@ -547,14 +550,14 @@ BreakDisplay {
 	 */
 	@Override
 	public Map<String, List<String>> readParams(Location location,
-			Map<String, List<String>> parametersMap) {
+	        Map<String, List<String>> parametersMap) {
 		// handle FOP and Group by calling superclass
 		Map<String, List<String>> params = SoundParametersReader.super.readParams(location, parametersMap);
 
 		List<String> silentParams = params.get(SILENT);
 		// silent is the default. silent=false will cause sound
 		boolean silentMode = silentParams == null || silentParams.isEmpty()
-				|| silentParams.get(0).toLowerCase().equals("true");
+		        || silentParams.get(0).toLowerCase().equals("true");
 		switchSoundMode(silentMode, false);
 		updateParam(params, SILENT, !isSilenced() ? "false" : null);
 		setUrlParameterMap(params);
@@ -665,7 +668,7 @@ BreakDisplay {
 	@Subscribe
 	public void slaveGroupDone(UIEvent.GroupDone e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-				this.getOrigin(), e.getOrigin());
+		        this.getOrigin(), e.getOrigin());
 		OwlcmsSession.withFop((fop) -> {
 			UIEventProcessor.uiAccess(this.topBar, this.uiEventBus, e, () -> {
 				// doUpdateTopBar(fop.getCurAthlete(), 0);
@@ -683,7 +686,7 @@ BreakDisplay {
 			String reversalText = "";
 			if (e.getReversal() != null) {
 				reversalText = e.getReversal() ? Translator.translate("JuryNotification.Reversal")
-						: Translator.translate("JuryNotification.Confirmed");
+				        : Translator.translate("JuryNotification.Confirmed");
 			}
 			String style = "warning";
 			int previousAttemptNo;
@@ -722,7 +725,7 @@ BreakDisplay {
 			case BAD_LIFT:
 				previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
 				text = Translator.translate("JuryNotification.BadLift", reversalText, e.getAthlete().getFullName(),
-						previousAttemptNo % 3 + 1);
+				        previousAttemptNo % 3 + 1);
 				style = "primary error";
 				break;
 			case CALL_TECHNICAL_CONTROLLER:
@@ -731,7 +734,7 @@ BreakDisplay {
 			case GOOD_LIFT:
 				previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
 				text = Translator.translate("JuryNotification.GoodLift", reversalText, e.getAthlete().getFullName(),
-						previousAttemptNo % 3 + 1);
+				        previousAttemptNo % 3 + 1);
 				style = "primary success";
 				break;
 			case LOADING_ERROR:
@@ -776,7 +779,7 @@ BreakDisplay {
 			return;
 		}
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this.stopTimeButton, this.uiEventBus, e, this.getOrigin(),
-				() -> buttonsTimeStopped());
+		        () -> buttonsTimeStopped());
 	}
 
 	@Subscribe
@@ -797,7 +800,7 @@ BreakDisplay {
 			return;
 		}
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this.stopTimeButton, this.uiEventBus, e, this.getOrigin(),
-				() -> buttonsTimeStarted());
+		        () -> buttonsTimeStarted());
 	}
 
 	@Subscribe
@@ -808,7 +811,7 @@ BreakDisplay {
 			return;
 		}
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this.stopTimeButton, this.uiEventBus, e, this.getOrigin(),
-				() -> buttonsTimeStopped());
+		        () -> buttonsTimeStopped());
 	}
 
 	@Subscribe
@@ -879,7 +882,7 @@ BreakDisplay {
 					bt = BreakType.BEFORE_INTRODUCTION;
 					ct = CountdownType.TARGET;
 				} else if (curAthlete.getAttemptsDone() == 3 && AthleteSorter.countLiftsDone(order) == 0
-						&& fopState != FOPState.TIME_RUNNING) {
+				        && fopState != FOPState.TIME_RUNNING) {
 					bt = BreakType.FIRST_CJ;
 					ct = CountdownType.DURATION;
 				} else {
@@ -904,7 +907,7 @@ BreakDisplay {
 			this.startTimeButton.getElement().setAttribute("theme", "secondary icon");
 		}
 		if (this.stopTimeButton != null) {
-			this.stopTimeButton.getElement().setAttribute("theme", "primary error icon");
+			this.stopTimeButton.getElement().setAttribute("theme", "primary " + this.stopButtonVariant + " icon");
 		}
 	}
 
@@ -940,16 +943,16 @@ BreakDisplay {
 		grid.getThemeNames().add("compact");
 		grid.addColumn("startNumber").setHeader(getTranslation("StartNumber")).setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn(
-				createLastNameRenderer()).setHeader(getTranslation("LastName"));
+		        createLastNameRenderer()).setHeader(getTranslation("LastName"));
 		grid.addColumn(
-				createFirstNameRenderer()).setHeader(getTranslation("FirstName"));
+		        createFirstNameRenderer()).setHeader(getTranslation("FirstName"));
 		grid.addColumn("team").setHeader(getTranslation("Team"));
 		grid.addColumn("category").setHeader(getTranslation("Category")).setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn(createAttemptsRenderer()).setHeader(Translator.translate("AthleteGrid.Attempts"))
-		.setAutoWidth(true).setFlexGrow(0);
+		        .setAutoWidth(true).setFlexGrow(0);
 		grid.addColumn(
-				a -> (a.getTotal() > 0 ? a.getTotal() : "-")).setHeader(getTranslation("Total"))
-		.setTextAlign(ColumnTextAlign.CENTER);
+		        a -> (a.getTotal() > 0 ? a.getTotal() : "-")).setHeader(getTranslation("Total"))
+		        .setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn((a) -> formatAttemptNumber(a), "attemptsDone").setHeader(getTranslation("Attempt"));
 
 		this.crudLayout = new OwlcmsGridLayout(Athlete.class);
@@ -1147,17 +1150,17 @@ BreakDisplay {
 		MenuItem item2 = this.topBarSettings.addItem(new Icon(VaadinIcon.COG));
 		SubMenu subMenu2 = item2.getSubMenu();
 		MenuItem subItemSoundOn = subMenu2.addItem(
-				Translator.translate("Settings.TurnOnSound"),
-				e -> {
-					switchSoundMode(!this.isSilenced(), true);
-					e.getSource().setChecked(!this.isSilenced());
-					if (this.decisionDisplay != null) {
-						this.decisionDisplay.setSilenced(this.isSilenced());
-					}
-					if (this.timer != null) {
-						this.timer.setSilenced(this.isSilenced());
-					}
-				});
+		        Translator.translate("Settings.TurnOnSound"),
+		        e -> {
+			        switchSoundMode(!this.isSilenced(), true);
+			        e.getSource().setChecked(!this.isSilenced());
+			        if (this.decisionDisplay != null) {
+				        this.decisionDisplay.setSilenced(this.isSilenced());
+			        }
+			        if (this.timer != null) {
+				        this.timer.setSilenced(this.isSilenced());
+			        }
+		        });
 		subItemSoundOn.setCheckable(true);
 		subItemSoundOn.setChecked(!this.isSilenced());
 	}
@@ -1195,12 +1198,13 @@ BreakDisplay {
 		if (this.attempts == null) {
 			this.attempts = new HorizontalLayout();
 			this.attempts.setHeight("100%");
-			//            for (int i = 0; i < 6; i++) {
-			//                Paragraph div = new Paragraph();
-			//                div.getElement().setAttribute("style", "border: 1; width: 5ch; background-color: pink; text-align: center");
-			//                div.getElement().setProperty("innerHTML", i+1+"");
-			//                attempts.add(div);
-			//            }
+			// for (int i = 0; i < 6; i++) {
+			// Paragraph div = new Paragraph();
+			// div.getElement().setAttribute("style", "border: 1; width: 5ch; background-color: pink; text-align:
+			// center");
+			// div.getElement().setProperty("innerHTML", i+1+"");
+			// attempts.add(div);
+			// }
 		}
 		this.attempts.getElement().setAttribute("style", "float: right");
 		HorizontalLayout horizontalLayout = (HorizontalLayout) this.crudLayout.getFilterLayout();
@@ -1315,7 +1319,7 @@ BreakDisplay {
 						this.firstName.setText(firstName2 != null ? firstName2 : "");
 						Integer startNumber2 = athlete.getStartNumber();
 						String startNumberText = (startNumber2 != null && startNumber2 > 0 ? startNumber2.toString()
-								: null);
+						        : null);
 						if (startNumberText != null) {
 							this.startNumber.setText(startNumberText);
 							if (startNumberText.isBlank()) {
@@ -1334,8 +1338,8 @@ BreakDisplay {
 						this.attempt.setText(formatAttemptNumber(athlete));
 						Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();
 						this.weight.setText(
-								(nextAttemptRequestedWeight != null ? nextAttemptRequestedWeight.toString() : "\u2013")
-								+ getTranslation("KgSymbol"));
+						        (nextAttemptRequestedWeight != null ? nextAttemptRequestedWeight.toString() : "\u2013")
+						                + getTranslation("KgSymbol"));
 					}
 				} else {
 					topBarWarning(group, attemptsDone, fop.getState(), fop.getLiftingOrder());
@@ -1458,7 +1462,7 @@ BreakDisplay {
 				this.warning.setText(getTranslation("IdlePlatform"));
 				if (curAthlete2 == null || curAthlete2.getAttemptsDone() >= 6 || fop.getLiftingOrder().size() == 0) {
 					topBarWarning(fop.getGroup(), curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone(),
-							fop.getState(), fop.getLiftingOrder());
+					        fop.getState(), fop.getLiftingOrder());
 				}
 			} else {
 				getRouterLayout().setMenuTitle("");
@@ -1486,8 +1490,8 @@ BreakDisplay {
 					}
 					if (this.breakButton != null) {
 						quietBreakButton(
-								this instanceof MarshallContent ? Translator.translate("StopCompetition")
-										: Translator.translateOrElseEmpty("Pause"));
+						        this instanceof MarshallContent ? Translator.translate("StopCompetition")
+						                : Translator.translateOrElseEmpty("Pause"));
 					}
 				}
 				if (this.breakButton != null) {
@@ -1560,7 +1564,7 @@ BreakDisplay {
 			params.remove("group");
 		}
 		ui.getPage().getHistory().replaceState(null,
-				new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
+		        new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
 	}
 
 	/**
@@ -1643,7 +1647,7 @@ BreakDisplay {
 		this.decisionLights.getStyle().set("line-height", "2em");
 		this.decisionDisplay.getStyle().set("width", "9em");
 	}
-	
+
 	protected void displayLiveDecisions() {
 		if (this.decisionLights == null) {
 			getTopBarLeft().removeAll();

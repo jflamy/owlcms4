@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -51,6 +52,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 	 */
 	public ResultsNavigationContent() {
 		Button groupResults = openInNewTab(ResultsContent.class, getTranslation("GroupResults"));
+		highlight(groupResults);
 		// Button medals = openInNewTab(ResultsContent.class,
 		// getTranslation("Results.Medals"));
 		Button teamResults = openInNewTabNoParam(TeamResultsContent.class, getTranslation("TeamResults.Title"));
@@ -76,6 +78,10 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 		doGroup(getTranslation("Results.EndOfCompetition"), grid3, this);
 
 		DebugUtils.gc();
+	}
+	
+	private void highlight(Button button) {
+		button.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
 	}
 
 	@Override

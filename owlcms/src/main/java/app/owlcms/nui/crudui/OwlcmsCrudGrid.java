@@ -17,6 +17,7 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
@@ -159,6 +160,8 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 		crudLayout.addToolbarComponent(findAllButton);
 
 		addButton = new Button(VaadinIcon.PLUS.create(), e -> addButtonClicked());
+		getAddButton().setText(getTranslation("Add"));
+		getAddButton().addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
 		addButton.getElement().setAttribute("title", getTranslation("Add"));
 		crudLayout.addToolbarComponent(addButton);
 

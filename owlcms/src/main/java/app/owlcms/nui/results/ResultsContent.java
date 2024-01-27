@@ -24,6 +24,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.Icon;
@@ -195,6 +196,11 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 
 		return crudGrid;
 	}
+	
+	private void highlight(Button button) {
+		button.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
+	}
+
 
 	/**
 	 * @see #showRouterLayoutContent(HasElement) for how to content to layout and
@@ -211,11 +217,12 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 
 		Button resultsButton = createEligibilityResultsDownloadButton();
 		Button registrationResultsButton = createRegistrationResultsDownloadButton();
+		highlight(registrationResultsButton);
 		Button medalsButtons = createGroupMedalsDownloadButton();
 
 		createTopBarGroupSelect();
 
-		HorizontalLayout buttons = new HorizontalLayout(resultsButton, registrationResultsButton, medalsButtons);
+		HorizontalLayout buttons = new HorizontalLayout(registrationResultsButton, resultsButton, medalsButtons);
 		buttons.getStyle().set("margin-left", "5em");
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 		buttons.setMargin(false);

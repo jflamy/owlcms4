@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -29,15 +30,15 @@ import app.owlcms.nui.displays.attemptboards.AthleteFacingAttemptBoardPage;
 import app.owlcms.nui.displays.attemptboards.AthleteFacingDecisionBoardPage;
 import app.owlcms.nui.displays.attemptboards.PublicFacingAttemptBoardPage;
 import app.owlcms.nui.displays.scoreboards.CurrentAthletePage;
-import app.owlcms.nui.displays.scoreboards.PublicScoreboardPage;
+import app.owlcms.nui.displays.scoreboards.MedalsPage;
 import app.owlcms.nui.displays.scoreboards.PublicMultiRanksPage;
 import app.owlcms.nui.displays.scoreboards.PublicNoLeadersPage;
 import app.owlcms.nui.displays.scoreboards.PublicRankingOrderPage;
-import app.owlcms.nui.displays.scoreboards.WarmupScoreboardPage;
-import app.owlcms.nui.displays.scoreboards.WarmupMultiRanksPage;
+import app.owlcms.nui.displays.scoreboards.PublicScoreboardPage;
 import app.owlcms.nui.displays.scoreboards.WarmupLiftingOrderPage;
-import app.owlcms.nui.displays.scoreboards.MedalsPage;
+import app.owlcms.nui.displays.scoreboards.WarmupMultiRanksPage;
 import app.owlcms.nui.displays.scoreboards.WarmupNoLeadersPage;
+import app.owlcms.nui.displays.scoreboards.WarmupScoreboardPage;
 import app.owlcms.nui.displays.top.TopSinclairPage;
 import app.owlcms.nui.displays.top.TopTeamsPage;
 import app.owlcms.nui.displays.top.TopTeamsSinclairPage;
@@ -76,12 +77,14 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			fillH(intro, this);
 
 			Button attempt = openInNewTab(PublicFacingAttemptBoardPage.class, getTranslation("AttemptBoard"));
+			highlight(attempt);
 			Button currentAthlete = openInNewTab(CurrentAthletePage.class, getTranslation("CurrentAthleteTitle"));
 			FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(attempt, currentAthlete);
 			doGroup(getTranslation("AttemptBoard"), grid3, this);
 
 			Button decisions = openInNewTabNoParam(AthleteFacingDecisionBoardPage.class,
 			        getTranslation("Athlete_Decisions"));
+			highlight(decisions);
 			Button athleteFacingAttempt = openInNewTab(AthleteFacingAttemptBoardPage.class,
 			        getTranslation("Athlete_Attempt"));
 			VerticalLayout intro2 = new VerticalLayout();
@@ -90,6 +93,7 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			doGroup(getTranslation("Refereeing_Displays"), intro2, grid2, this);
 
 			Button scoreboard = openInNewTab(WarmupNoLeadersPage.class, getTranslation("Scoreboard"));
+			highlight(scoreboard);
 			Button scoreboardWLeaders = openInNewTab(WarmupScoreboardPage.class,
 			        getTranslation("ScoreboardWLeadersButton"));
 			scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
@@ -141,6 +145,10 @@ public class DisplayNavigationContent extends BaseNavigationContent
 		} catch (Throwable x) {
 			x.printStackTrace();
 		}
+	}
+
+	private void highlight(Button button) {
+		button.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
 	}
 
 	@Override

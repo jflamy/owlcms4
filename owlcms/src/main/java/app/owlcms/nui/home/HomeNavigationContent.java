@@ -247,6 +247,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		}
 
 		Html div = new Html("<div></div>");
+		
 		if (this.comparison < 999) {
 			String runningMsg = Translator.translate("CheckVersion.running", this.currentVersionString);
 			String referenceVersionMsg = Translator.translate(
@@ -263,9 +264,9 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 				       			Translator.translate("CheckVersion.clickToDownload"));
 			} else {
 				behindVersionMsg = """
-				        <a href='https://owlcms-cloud.fly.dev' style='text-decoration:underline'>%s</a>
+				        <a href='https://owlcms-cloud.fly.dev/apps' style='text-decoration:underline'>%s</a>
 				        """
-		                .formatted(Translator.translate("CheckVersion.clickToDownload"));
+		                .formatted(Translator.translate("CheckVersion.clickCloudUpdate"));
 			}
 
 			String aheadVersionMsg = Translator.translate("CheckVersion.ahead");
