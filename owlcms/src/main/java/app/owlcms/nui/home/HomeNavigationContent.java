@@ -37,10 +37,10 @@ import com.github.appreciated.css.grid.sizes.MinMax;
 import com.github.appreciated.css.grid.sizes.Repeat;
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.NativeLabel;
@@ -174,11 +174,11 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 
 	private VerticalLayout buildIntro() {
 
-		Div div = checkVersion();
+		Html div = checkVersion();
 		if (OwlcmsSession.getAttribute(USAGE_STR) == null) {
 			logUsage();
 		}
-		
+
 		VerticalLayout intro = new VerticalLayout();
 		intro.setSpacing(false);
 		intro.setId("homeIntro");
@@ -220,50 +220,61 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		return intro;
 	}
 
-	private Div checkVersion() {
-		// if (Config.getCurrent().featureSwitch("checkForUpdate"))
-		{
-			this.currentVersionString = OwlcmsFactory.getVersion();
-			String suffix = this.currentVersionString.contains("-") ? "-prerelease" : "";
+	private Html checkVersion() {
 
-			String str = "https://raw.githubusercontent.com/owlcms/owlcms4" + suffix + "/master/version.txt";
-			HttpRequest request1 = HttpRequest.newBuilder(URI.create(str)).build();
-			HttpClient client1 = HttpClient.newHttpClient();
-			CompletableFuture<HttpResponse<String>> future = client1.sendAsync(request1, BodyHandlers.ofString());
-			try {
-				future
-				        .orTimeout(500, TimeUnit.MILLISECONDS)
-				        .whenComplete((response, exception) -> {
-					        if (exception != null) {
-						        return;
-					        }
-					        ComparableVersion currentVersion = new ComparableVersion(this.currentVersionString);
-					        this.referenceVersionString = response.body();
-					        ComparableVersion referenceVersion = new ComparableVersion(this.referenceVersionString);
-					        this.comparison = currentVersion.compareTo(referenceVersion);
-				        })
-				        .join();
-			} catch (Throwable e) {
-				logger.error("version fetch timed out");
-			}
+		this.currentVersionString = OwlcmsFactory.getVersion();
+		String suffix = this.currentVersionString.contains("-") ? "-prerelease" : "";
+
+		String str = "https://raw.githubusercontent.com/owlcms/owlcms4" + suffix + "/master/version.txt";
+		HttpRequest request1 = HttpRequest.newBuilder(URI.create(str)).build();
+		HttpClient client1 = HttpClient.newHttpClient();
+		CompletableFuture<HttpResponse<String>> future = client1.sendAsync(request1, BodyHandlers.ofString());
+		try {
+			future
+			        .orTimeout(1000, TimeUnit.MILLISECONDS)
+			        .whenComplete((response, exception) -> {
+				        if (exception != null) {
+					        return;
+				        }
+				        ComparableVersion currentVersion = new ComparableVersion(this.currentVersionString);
+				        this.referenceVersionString = response.body();
+				        ComparableVersion referenceVersion = new ComparableVersion(this.referenceVersionString);
+				        this.comparison = currentVersion.compareTo(referenceVersion);
+			        })
+			        .join();
+		} catch (Throwable e) {
+			logger.error("version fetch timed out");
 		}
-		Div div = new Div();
-		if (
-		// (Config.getCurrent().featureSwitch("checkForUpdate")) &&
-		this.comparison < 999) {
+
+		Html div = new Html("<div></div>");
+		if (this.comparison < 999) {
 			String runningMsg = Translator.translate("CheckVersion.running", this.currentVersionString);
 			String referenceVersionMsg = Translator.translate(
 			        "CheckVersion.reference" + (this.referenceVersionString.contains("-") ? "Prerelease" : "Stable"),
 			        this.referenceVersionString);
 			String okVersionMsg = Translator.translate("CheckVersion.ok");
 			String behindVersionMsg = Translator.translate("CheckVersion.behind");
+			if (JPAService.isLocalDb()) {
+				behindVersionMsg = """
+				        <a href='https://github.com/owlcms/owlcms4%s/releases/tag/%s' style='text-decoration:underline'>%s</a>
+				        """
+		                .formatted(suffix,
+		                        currentVersionString,
+				       			Translator.translate("CheckVersion.clickToDownload"));
+			} else {
+				behindVersionMsg = """
+				        <a href='https://owlcms-cloud.fly.dev' style='text-decoration:underline'>%s</a>
+				        """
+		                .formatted(Translator.translate("CheckVersion.clickToDownload"));
+			}
+
 			String aheadVersionMsg = Translator.translate("CheckVersion.ahead");
 
 			String formatted = MessageFormat.format(
-			        "{1} {0, choice, 0#{2} {3}|1#{4}|2#{2} {5}}",
+			        "<div>{1} {0, choice, 0#{2} {3}|1#{4}|2#{2} {5}}</div>",
 			        this.comparison + 1, runningMsg, referenceVersionMsg, behindVersionMsg, okVersionMsg,
 			        aheadVersionMsg);
-			div.setText(formatted);
+			div.setHtmlContent(formatted);
 			if (this.comparison < 0) {
 				div.getStyle().set("font-weight", "bold");
 				div.getStyle().set("color", "red");
@@ -332,7 +343,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 				attributes.setProperty(USAGE_STR, usageStr);
 				logger.info("logged usage {}", attributes.getProperty(USAGE_STR));
 			} catch (Throwable e) {
-				logger.error("could not log usage: {}",e.getMessage());
+				logger.error("could not log usage: {}", e.getMessage());
 			}
 		}).start();
 	}

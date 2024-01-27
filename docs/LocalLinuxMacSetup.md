@@ -1,12 +1,10 @@
-## macOS or Linux Installation
+## macOS or Linux/RaspberryOS Installation
 
 - **Get the installation zip archive**: Get the current  [`owlcms_45.0.7.zip`](https://github.com/owlcms/owlcms4/releases/latest/download/owlcms_45.0.7.zip) file  (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4/releases/latest) .
 
 - Double-click on the downloaded zip file, and extract the files to a directory. 
 
-  - On a Mac We suggest you use `~/owlcms` as the unzipped location.
-
-  - If you are running on a Linux single-board computer, we suggest that you run the cpr
+  - We suggest you use `~/owlcms` as the unzipped location.
 
 - Make sure you have a Java 11 or 17 installed (JRE or JDK)
 
