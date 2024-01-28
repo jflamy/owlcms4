@@ -8,6 +8,7 @@
 - Wrap-up release. Work has started on release 46.
 - Only the addresses reachable from other computers are shown on the home page. Loopback (127.*) and APIPA (168.154.*) addresses are no longer shown.
 - Green highlights for frequently used buttons on various pages
+- Do not suggest updating to an alpha version.
 
 ##### 45.0
 - Templates and documents
