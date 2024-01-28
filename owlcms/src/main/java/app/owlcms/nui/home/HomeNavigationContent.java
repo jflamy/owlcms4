@@ -283,6 +283,10 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 
 			String aheadVersionMsg = Translator.translate("CheckVersion.ahead");
 
+			if (referenceVersionString.contains("-alpha")) {
+				// do not recommend update to an alpha version.
+				this.comparison = 0;
+			}
 			String formatted = MessageFormat.format(
 			        "<div>{1} {0, choice, 0#{2} {3}|1#{4}|2#{2} {5}}</div>",
 			        this.comparison + 1, runningMsg, referenceVersionMsg, behindVersionMsg, okVersionMsg,
