@@ -49,7 +49,6 @@ public class DownloadDialog {
 	private Function<Competition, String> templateNameGetter;
 	private BiConsumer<Competition, String> templateNameSetter;
 	private Logger logger = (Logger) LoggerFactory.getLogger(DownloadDialog.class);
-	private String outputFileName;
 	private String resourceDirectoryLocation;
 	private Supplier<JXLSWorkbookStreamSource> streamSourceSupplier;
 	private JXLSWorkbookStreamSource xlsWriter;
@@ -61,13 +60,12 @@ public class DownloadDialog {
 
 	/**
 	 * @param streamSourceSupplier   lambda that creates a JXLSWorkbookStreamSource and sets its filters
-	 * @param resourceDirectory      Location where to look for templates
 	 * @param namePredicate          filtering on base name
 	 * @param templateNameGetter     get last file name stored in Competition
 	 * @param templateNameSetter     set last file name in Competition
 	 * @param dialogTitle
-	 * @param fallbackOutputFileName first part of the downloaded file name (not dependent on template).
 	 * @param buttonLabel            label used dialog button
+	 * @param resourceDirectory      Location where to look for templates
 	 * @return
 	 */
 	public DownloadDialog(
@@ -77,10 +75,8 @@ public class DownloadDialog {
 	        Function<Competition, String> templateNameGetter,
 	        BiConsumer<Competition, String> templateNameSetter,
 	        String dialogTitle,
-	        String fallbackOutputFileName,
 	        String buttonLabel) {
 		logger.setLevel(Level.DEBUG);
-		this.outputFileName = fallbackOutputFileName;
 		this.streamSourceSupplier = streamSourceSupplier;
 		this.resourceDirectoryLocation = resourceDirectoryLocation;
 		this.templateNameGetter = templateNameGetter;

@@ -416,7 +416,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		        null,
 		        Competition::getComputedProtocolTemplateFileName,
 		        Competition::setProtocolTemplateFileName,
-		        Translator.translate("EligibilityCategoryResults"), "results", Translator.translate("Download"));
+		        Translator.translate("EligibilityCategoryResults"), Translator.translate("Download"));
 		Button resultsButton = downloadDialog.createTopBarDownloadButton();
 		return resultsButton;
 	}
@@ -433,7 +433,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		        null,
 		        Competition::getComputedMedalsTemplateFileName,
 		        Competition::setMedalsTemplateFileName,
-		        Translator.translate("Results.Medals"), "medals", Translator.translate("Download"));
+		        Translator.translate("Results.Medals"), Translator.translate("Download"));
 		Button resultsButton = downloadDialog.createTopBarDownloadButton();
 		return resultsButton;
 	}
@@ -450,7 +450,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		        null,
 		        Competition::getComputedProtocolTemplateFileName,
 		        Competition::setProtocolTemplateFileName,
-		        Translator.translate("RegistrationCategoryResults"), "results", Translator.translate("Download"));
+		        Translator.translate("RegistrationCategoryResults"), Translator.translate("Download"));
 		Button resultsButton = downloadDialog.createTopBarDownloadButton();
 		return resultsButton;
 	}

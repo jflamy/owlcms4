@@ -353,7 +353,6 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	protected Button createBWButton() {
 		String resourceDirectoryLocation = "/templates/bwStart";
 		String title = Translator.translate("BodyWeightCategories");
-		String downloadedFilePrefix = "bwStartingList";
 
 		DownloadDialog startingListFactory = new DownloadDialog(
 		        () -> {
@@ -372,14 +371,13 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		        Competition::getComputedStartListTemplateFileName,
 		        Competition::setStartListTemplateFileName,
 		        title,
-		        downloadedFilePrefix, Translator.translate("Download"));
+		        Translator.translate("Download"));
 		return startingListFactory.createTopBarDownloadButton();
 	}
 
 	protected Button createCategoriesListButton() {
 		String resourceDirectoryLocation = "/templates/categories";
 		String title = Translator.translate("StartingList.Categories");
-		String downloadedFilePrefix = "categories";
 
 		DownloadDialog startingListFactory = new DownloadDialog(
 		        () -> {
@@ -395,7 +393,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		        Competition::getComputedCategoriesListTemplateFileName,
 		        Competition::setCategoriesListTemplateFileName,
 		        title,
-		        downloadedFilePrefix, Translator.translate("Download"));
+		        Translator.translate("Download"));
 		return startingListFactory.createTopBarDownloadButton();
 	}
 
@@ -468,7 +466,6 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	protected Button createTeamsListButton() {
 		String resourceDirectoryLocation = "/templates/teams";
 		String title = Translator.translate("StartingList.Teams");
-		String downloadedFilePrefix = "teams";
 
 		DownloadDialog startingListFactory = new DownloadDialog(
 		        () -> {
@@ -487,7 +484,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		        Competition::getComputedTeamsListTemplateFileName,
 		        Competition::setTeamsListTemplateFileName,
 		        title,
-		        downloadedFilePrefix, Translator.translate("Download"));
+		        Translator.translate("Download"));
 		return startingListFactory.createTopBarDownloadButton();
 	}
 

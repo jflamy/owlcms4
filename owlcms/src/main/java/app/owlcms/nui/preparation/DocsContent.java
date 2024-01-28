@@ -297,7 +297,6 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 	protected Button createCardsButton() {
 		String resourceDirectoryLocation = "/templates/cards";
 		String title = Translator.translate("AthleteCards");
-		String downloadedFilePrefix = "cards";
 		DownloadDialog cardsButtonFactory = new DownloadDialog(
 		        () -> {
 			        // group may have been edited since the page was loaded
@@ -312,7 +311,6 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		        Competition::getComputedCardsTemplateFileName,
 		        Competition::setCardsTemplateFileName,
 		        title,
-		        downloadedFilePrefix, 
 		        Translator.translate("Download"));
 		cardsButtonFactory.setProcessingMessage(Translator.translate("LongProcessing"));
 		return cardsButtonFactory.createTopBarDownloadButton();
@@ -321,7 +319,6 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 	protected Button createOfficalsButton() {
 		String resourceDirectoryLocation = "/templates/officials";
 		String title = Translator.translate("StartingList.Officials");
-		String downloadedFilePrefix = "officials";
 
 		DownloadDialog startingListFactory = new DownloadDialog(
 		        () -> {
@@ -335,14 +332,13 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		        Competition::getComputedOfficialsListTemplateFileName,
 		        Competition::setOfficialsListTemplateFileName,
 		        title,
-		        downloadedFilePrefix, Translator.translate("Download"));
+		        Translator.translate("Download"));
 		return startingListFactory.createTopBarDownloadButton();
 	}
 
 	protected Button createSessionsButton() {
 		String resourceDirectoryLocation = "/templates/start";
 		String title = Translator.translate("StartingList");
-		String downloadedFilePrefix = "startingList";
 
 		DownloadDialog startingListFactory = new DownloadDialog(
 		        () -> {
@@ -361,7 +357,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		        Competition::getComputedStartListTemplateFileName,
 		        Competition::setStartListTemplateFileName,
 		        title,
-		        downloadedFilePrefix, Translator.translate("Download"));
+		        Translator.translate("Download"));
 		return startingListFactory.createTopBarDownloadButton();
 	}
 
@@ -369,7 +365,6 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 	protected Button createTeamsListButton() {
 		String resourceDirectoryLocation = "/templates/teams";
 		String title = Translator.translate("StartingList.Teams");
-		String downloadedFilePrefix = "teams";
 
 		DownloadDialog startingListFactory = new DownloadDialog(
 		        () -> {
@@ -388,14 +383,13 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		        Competition::getComputedTeamsListTemplateFileName,
 		        Competition::setTeamsListTemplateFileName,
 		        title,
-		        downloadedFilePrefix, Translator.translate("Download"));
+		        Translator.translate("Download"));
 		return startingListFactory.createTopBarDownloadButton();
 	}
 
 	protected Button createWeighInSummaryButton() {
 		String resourceDirectoryLocation = "/templates/weighin";
 		String title = Translator.translate("WeighinForm");
-		String downloadedFilePrefix = "weighIn";
 
 		DownloadDialog startingWeightsButton = new DownloadDialog(
 		        () -> {
@@ -410,7 +404,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		        Competition::getComputedStartingWeightsSheetTemplateFileName,
 		        Competition::setStartingWeightsSheetTemplateFileName,
 		        title,
-		        downloadedFilePrefix, Translator.translate("Download"));
+		        Translator.translate("Download"));
 		return startingWeightsButton.createTopBarDownloadButton();
 	}
 

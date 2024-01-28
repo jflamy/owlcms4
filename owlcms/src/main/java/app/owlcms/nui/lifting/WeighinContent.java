@@ -346,7 +346,6 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 	private Button createCardsButton() {
 		String resourceDirectoryLocation = "/templates/cards";
 		String title = Translator.translate("AthleteCards");
-		String downloadedFilePrefix = "cards";
 		DownloadDialog cardsButtonFactory = new DownloadDialog(
 		        () -> {
 			        JXLSCardsWeighIn rs = new JXLSCardsWeighIn();
@@ -360,7 +359,7 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		        Competition::getComputedCardsTemplateFileName,
 		        Competition::setCardsTemplateFileName,
 		        title,
-		        downloadedFilePrefix, Translator.translate("Download"));
+		        Translator.translate("Download"));
 		return cardsButtonFactory.createTopBarDownloadButton();
 	}
 
@@ -466,7 +465,6 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 	private Button createJuryButton() {
 		String resourceDirectoryLocation = "/templates/jury";
 		String title = Translator.translate("Jury");
-		String downloadedFilePrefix = "jury";
 
 		DownloadDialog juryButton = new DownloadDialog(
 		        () -> {
@@ -481,14 +479,13 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		        Competition::getComputedJuryTemplateFileName,
 		        Competition::setJuryTemplateFileName,
 		        title,
-		        downloadedFilePrefix, Translator.translate("Download"));
+		        Translator.translate("Download"));
 		return juryButton.createTopBarDownloadButton();
 	}
 
 	private Button createStartingWeightsButton() {
 		String resourceDirectoryLocation = "/templates/emptyProtocol";
 		String title = Translator.translate("EmptyProtocolSheet");
-		String downloadedFilePrefix = "startingWeights";
 
 		DownloadDialog startingWeightsButton = new DownloadDialog(
 		        () -> {
@@ -503,14 +500,13 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		        Competition::getComputedStartingWeightsSheetTemplateFileName,
 		        Competition::setStartingWeightsSheetTemplateFileName,
 		        title,
-		        downloadedFilePrefix, Translator.translate("Download"));
+		        Translator.translate("Download"));
 		return startingWeightsButton.createTopBarDownloadButton();
 	}
 
 	private Button createWeighInButton() {
 		String resourceDirectoryLocation = "/templates/weighin";
 		String title = Translator.translate("WeighinForm");
-		String downloadedFilePrefix = "weighIn";
 
 		DownloadDialog startingWeightsButton = new DownloadDialog(
 		        () -> {
@@ -525,7 +521,7 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		        Competition::getComputedStartingWeightsSheetTemplateFileName,
 		        Competition::setStartingWeightsSheetTemplateFileName,
 		        title,
-		        downloadedFilePrefix, Translator.translate("Download"));
+		        Translator.translate("Download"));
 		return startingWeightsButton.createTopBarDownloadButton();
 	}
 
