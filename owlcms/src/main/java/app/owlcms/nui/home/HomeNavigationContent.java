@@ -17,6 +17,7 @@ import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -186,20 +187,31 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		urlFinder.checkRequest();
 		addP(intro, getTranslation("SystemURL"));
 		UnorderedList ul = new UnorderedList();
-		for (String url : urlFinder.getRecommended()) {
+		ArrayList<String> recommended = urlFinder.getRecommended();
+		for (String url : recommended) {
 			ul.add(new ListItem(new Anchor(url, url)));
 		}
-		for (String url : urlFinder.getWired()) {
+		ArrayList<String> wired = urlFinder.getWired();
+		for (String url : wired) {
 			ul.add(new ListItem(new Anchor(url, url), new NativeLabel(getTranslation("Wired"))));
 		}
-		for (String url : urlFinder.getWireless()) {
+		ArrayList<String> wireless = urlFinder.getWireless();
+		for (String url : wireless) {
 			ul.add(new ListItem(new Anchor(url, url), new NativeLabel(getTranslation("Wireless"))));
 		}
-		for (String url : urlFinder.getNetworking()) {
+		ArrayList<String> networking = urlFinder.getNetworking();
+		for (String url : networking) {
 			ul.add(new ListItem(new Anchor(url, url), new NativeLabel("")));
 		}
-		for (String url : urlFinder.getLocalUrl()) {
-			ul.add(new ListItem(new Anchor(url, url), new NativeLabel(getTranslation("LocalComputer"))));
+		var addresses = new ArrayList<String>();
+		addresses.addAll(recommended);
+		addresses.addAll(wired);
+		addresses.addAll(wireless);
+		addresses.addAll(networking);
+		if (addresses.isEmpty()) {
+			for (String url : urlFinder.getLocalUrl()) {
+				ul.add(new ListItem(new Anchor(url, url), new NativeLabel(getTranslation("LocalComputer"))));
+			}
 		}
 		intro.add(ul);
 		intro.add(div);
@@ -247,7 +259,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		}
 
 		Html div = new Html("<div></div>");
-		
+
 		if (this.comparison < 999) {
 			String runningMsg = Translator.translate("CheckVersion.running", this.currentVersionString);
 			String referenceVersionMsg = Translator.translate(
@@ -259,14 +271,14 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 				behindVersionMsg = """
 				        <a href='https://github.com/owlcms/owlcms4%s/releases/tag/%s' style='text-decoration:underline'>%s</a>
 				        """
-		                .formatted(suffix,
-		                        currentVersionString,
-				       			Translator.translate("CheckVersion.clickToDownload"));
+				        .formatted(suffix,
+				                currentVersionString,
+				                Translator.translate("CheckVersion.clickToDownload"));
 			} else {
 				behindVersionMsg = """
 				        <a href='https://owlcms-cloud.fly.dev/apps' style='text-decoration:underline'>%s</a>
 				        """
-		                .formatted(Translator.translate("CheckVersion.clickCloudUpdate"));
+				        .formatted(Translator.translate("CheckVersion.clickCloudUpdate"));
 			}
 
 			String aheadVersionMsg = Translator.translate("CheckVersion.ahead");
@@ -285,7 +297,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	}
 
 	private void logUsage() {
-		HttpClient client = HttpClient.newHttpClient();
+		HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
 		VaadinRequest request = VaadinRequest.getCurrent();
 		String forwarded = request.getHeader("X-FORWARDED-FOR");
 		String ipAddress;
