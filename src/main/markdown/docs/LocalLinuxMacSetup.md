@@ -1,16 +1,12 @@
 ## macOS, Linux or RaspberryOS Installation
 
-> [!IMPORTANT]
->
-> The programming language Java needs to be present on your machine for the program to work. If you are not sure it is present, see the [Installing Java](#installing-java) section at the bottom of this page.
+> Pre-requisite:  You may need to perform a simple install prior to installing owlcms.  See the [Installing Java](#installing-java) section at the bottom of this page to check.
 
 ## Installation
 
 - **Get the installation zip archive**: Get the current  **[`owlcms_setup_${revision}.zip`](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/download/${revision}/owlcms_setup_${revision}.zip)** file. Installation files are available as assets at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4-prerelease/releases/latest) .
 
-  > [!TIP]
-  >
-  > [This page](RaspberryInstall) illustrates the sequence of steps on a RaspberryPI and may help you follow along since the process is similar for the other platforms.
+  > Tip: [This page](RaspberryInstall) illustrates the sequence of steps on a RaspberryPI and may help you follow along since the process is similar for the other platforms.
 
 - Double-click on the downloaded zip file, and extract the files to a directory. 
 

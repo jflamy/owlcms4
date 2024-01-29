@@ -10,9 +10,8 @@ This file describes how to build the program without changing it.  If you want t
 - Clone this repository
 - Install Java 17
 - Install Maven
-  - You need to add lines to your the `.m2/settings.xml` file in your home directory.  You can copy the file `.gitpod/settings.xml` if you don't have anything special in your own file, else make sure to merge the directives to unlock the owlcms repository. 
-
-- In order to build the Windows installer, you need to run on Windows and [Innosetup](http://www.jrsoftware.org/isinfo.php) needs to be available. The portable version used in the build is found under the `installtools/main/assembly` directory, so normally there is no need to install it separately.
+  
+- To build the Windows installer, you need to be on Windows and [Innosetup](http://www.jrsoftware.org/isinfo.php) needs to be available. The portable version used in the build is found under the `installtools/main/assembly` directory, so there is no need to actually install it.
 
 
 ### Building and testing
@@ -29,4 +28,6 @@ This file describes how to build the program without changing it.  If you want t
 
 ### Building a Docker container
 
-There is an `owlcms-docker` project to build Docker containers using `mvn package`, once the production build has been done.
+There is a Dockerfile in owlcms4top to build owlcms for quick testing to the fly.io cloud (see deploy.sh).  Building publicresults would be similar.
+
+The current process for actual production builds uses the `owlcms-docker` project to build Docker containers using  `mvn package`, once the production build has been done.
