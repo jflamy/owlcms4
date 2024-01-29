@@ -47,12 +47,8 @@
     <!-- log all info to file; warnings and above unless logger specifies another level -->
     <root level="WARN">
         <appender-ref ref="FILE" />
-    </root>
-
-    <!-- additionally log startup info and problems to console -->
-    <logger name="app.owlcms.Main" level="INFO">
         <appender-ref ref="CONSOLE" />
-    </logger>
+    </root>
 
     <!-- default levels for owlcms -->
     <logger name="app.owlcms" level="INFO" />
