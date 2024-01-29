@@ -1,30 +1,26 @@
 ## Windows Installation
 
-- **Windows Installer** : Get the current [`owlcms_setup_46.0.0-alpha01.exe`](https://github.com/owlcms/owlcms4-prerelease/releases/download/46.0.0-alpha01/owlcms_setup_46.0.0-alpha01.exe) file (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4-prerelease/releases/latest) ).
-
-![zip](img\LocalInstall\010_setupexe.png)
-
--  You may get warnings about the software being potentially dangerous.  Ignore the warnings and Keep the downloaded files.
-
-- Open the downloaded installer by double-clicking on it.  
-
-  - > **If you get a blue `Windows protected your PC` warning, or if your machine seems to take a long time to open the download, see this page : [Make Windows Defender Allow Installation](DefenderOff)**
-
-- The installer will prompt you for an installation location.  The default is usually correct.
+- **Windows Installer** : Get the current [`owlcms_setup_45.0.7.exe`](https://github.com/owlcms/owlcms4/releases/download/45.0.7/owlcms_setup_45.0.7.exe) file (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4/releases/latest) ).
+- Download and open the installer
+  > You may get warnings about the software being potentially dangerous.  Use the options to get and keep the downloaded files anyway.
+  >
+  > If you get a blue `Windows protected your PC` warning, use the `Mofe Info` button and `Install Anyway`.  See this page for more information [Make Windows Defender Allow Installation](DefenderOff)
+  
+-  The installer will prompt you for an installation location.  The default is usually correct.
 
   ![020_installLocation](img\LocalInstall\020_installLocation.png)
 
-- Accept all the defaults.  Doing so will create a shortcut on your desktop.
+-  Accept all the defaults.  Doing so will create a shortcut on your desktop.
 
   ![030_desktop](img\LocalInstall\030_desktop.png)
 
-- Double-clicking on the icon will start the server and a browser. See [Initial Startup](#initial-startup) for how to proceed.
+-  Double-clicking on the icon will start the server and a browser. See [Initial Startup](#initial-startup) for how to proceed.
 
-- If you just want to use dummy data to practice (which will not touch the actual database), right-click on the icon, double-click on "Open File Location" and then double-click on the `demo-owlcms.exe` file.
+-  If you just want to use dummy data to practice (which will not touch the actual database), right-click on the icon, double-click on "Open File Location" and then double-click on the `demo-owlcms.exe` file.
 
 ## Initial Startup
 
-> The following instructions assume that you are connected to a network.  If you are running a competition with several laptops, plug in your router, and *connect your laptop to the router prior to starting OWLCMS*. In that way OWLCMS will be able to tell you what network address it is getting from the router.  If you forget, simply stop OWLCMS and restart it.
+> The following instructions assume that you are connected to a network.  If you are running a competition with several laptops, plug in your router, and *connect your laptop to the router prior to starting OWLCMS*. In that way OWLCMS will be able to tell you what network address it is getting from the router.
 
 When OWLCMS is started on a laptop, two windows are visible:  a command-line window, and an internet browser
 
