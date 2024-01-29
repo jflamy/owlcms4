@@ -341,7 +341,7 @@ public class ResourceWalker {
 	public static Path getResourcePath(String resourcePathString) {
 		URL resourceURL = ResourceWalker.class.getResource(resourcePathString);
 		if (resourceURL == null) {
-			// logger.error(resourcePathString + " not found");
+			logger.error(resourcePathString + " not found *******");
 			// throw new RuntimeException(resourcePathString + " not found");
 			return null;
 		}
@@ -369,7 +369,7 @@ public class ResourceWalker {
 			// URI to be of the "jar" type.
 
 			// beware: use a resource that is in the shared module
-			openClassPathFileSystem("/i18n");
+			openClassPathFileSystem("/webapp/ROOT");
 			resourcePath = Paths.get(resourcesURI);
 			logger.debug("resourcePath: {} {}", resourcesURI, resourcePath);
 		}

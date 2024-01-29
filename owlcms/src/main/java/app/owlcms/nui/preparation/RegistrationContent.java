@@ -51,7 +51,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.ConfirmationDialog;
-import app.owlcms.components.DownloadDialog;
+import app.owlcms.components.JXLSDownloader;
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
@@ -354,7 +354,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		String resourceDirectoryLocation = "/templates/bwStart";
 		String title = Translator.translate("BodyWeightCategories");
 
-		DownloadDialog startingListFactory = new DownloadDialog(
+		JXLSDownloader startingListFactory = new JXLSDownloader(
 		        () -> {
 			        // group may have been edited since the page was loaded
 			        startingXlsWriter.setGroup(
@@ -367,19 +367,18 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			        return startingXlsWriter;
 		        },
 		        resourceDirectoryLocation,
-		        null,
 		        Competition::getComputedStartListTemplateFileName,
 		        Competition::setStartListTemplateFileName,
 		        title,
 		        Translator.translate("Download"));
-		return startingListFactory.createTopBarDownloadButton();
+		return startingListFactory.createDownloadButton();
 	}
 
 	protected Button createCategoriesListButton() {
 		String resourceDirectoryLocation = "/templates/categories";
 		String title = Translator.translate("StartingList.Categories");
 
-		DownloadDialog startingListFactory = new DownloadDialog(
+		JXLSDownloader startingListFactory = new JXLSDownloader(
 		        () -> {
 			        // group may have been edited since the page was loaded
 			        categoriesXlsWriter.setGroup(
@@ -389,12 +388,11 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			        return categoriesXlsWriter;
 		        },
 		        resourceDirectoryLocation,
-		        null,
 		        Competition::getComputedCategoriesListTemplateFileName,
 		        Competition::setCategoriesListTemplateFileName,
 		        title,
 		        Translator.translate("Download"));
-		return startingListFactory.createTopBarDownloadButton();
+		return startingListFactory.createDownloadButton();
 	}
 
 	/**
@@ -467,7 +465,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		String resourceDirectoryLocation = "/templates/teams";
 		String title = Translator.translate("StartingList.Teams");
 
-		DownloadDialog startingListFactory = new DownloadDialog(
+		JXLSDownloader startingListFactory = new JXLSDownloader(
 		        () -> {
 			        // group may have been edited since the page was loaded
 			        startingXlsWriter.setGroup(
@@ -480,12 +478,11 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			        return startingXlsWriter;
 		        },
 		        resourceDirectoryLocation,
-		        null,
 		        Competition::getComputedTeamsListTemplateFileName,
 		        Competition::setTeamsListTemplateFileName,
 		        title,
 		        Translator.translate("Download"));
-		return startingListFactory.createTopBarDownloadButton();
+		return startingListFactory.createDownloadButton();
 	}
 
 	protected void createTopBarGroupSelect() {

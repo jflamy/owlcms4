@@ -41,7 +41,7 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.ResultsParameters;
-import app.owlcms.components.DownloadDialog;
+import app.owlcms.components.JXLSDownloader;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
@@ -94,7 +94,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	private Category categoryValue;
 
 	private Group currentGroup;
-	private DownloadDialog downloadDialog;
+	private JXLSDownloader downloadDialog;
 	private List<AgeDivision> adItems;
 
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
@@ -289,7 +289,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	private Button createCategoryResultsDownloadButton() {
-		downloadDialog = new DownloadDialog(
+		downloadDialog = new JXLSDownloader(
 		        () -> {
 			        JXLSResultSheet rs = new JXLSResultSheet();
 			        rs.setAgeDivision(ageDivision);
@@ -301,16 +301,16 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        return rs;
 		        },
 		        "/templates/protocol",
-		        null,
 		        Competition::getComputedProtocolTemplateFileName,
 		        Competition::setProtocolTemplateFileName,
-		        Translator.translate("EligibilityCategoryResults"), Translator.translate("Download"));
-		Button resultsButton = downloadDialog.createTopBarDownloadButton();
+		        Translator.translate("EligibilityCategoryResults"),
+		        Translator.translate("Download"));
+		Button resultsButton = downloadDialog.createDownloadButton();
 		return resultsButton;
 	}
 
 	private Button createFinalPackageDownloadButton() {
-		downloadDialog = new DownloadDialog(
+		downloadDialog = new JXLSDownloader(
 		        () -> {
 			        JXLSCompetitionBook rs = new JXLSCompetitionBook(locationUI);
 			        // group may have been edited since the page was loaded
@@ -321,17 +321,17 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        return rs;
 		        },
 		        "/templates/competitionBook",
-		        null,
 		        Competition::getComputedFinalPackageTemplateFileName,
 		        Competition::setFinalPackageTemplateFileName,
-		        Translator.translate("FinalResultsPackage"), Translator.translate("Download"));
+		        Translator.translate("FinalResultsPackage"),
+		        Translator.translate("Download"));
 		downloadDialog.setProcessingMessage(Translator.translate("LongProcessing"));
-		Button resultsButton = downloadDialog.createTopBarDownloadButton();
+		Button resultsButton = downloadDialog.createDownloadButton();
 		return resultsButton;
 	}
 
 	private Button createRegistrationResultsDownloadButton() {
-		downloadDialog = new DownloadDialog(
+		downloadDialog = new JXLSDownloader(
 		        () -> {
 			        JXLSResultSheet rs = new JXLSResultSheet(false);
 			        rs.setAgeDivision(ageDivision);
@@ -343,11 +343,11 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        return rs;
 		        },
 		        "/templates/protocol",
-		        null,
 		        Competition::getComputedProtocolTemplateFileName,
 		        Competition::setProtocolTemplateFileName,
-		        Translator.translate("RegistrationCategoryResults"), Translator.translate("Download"));
-		Button resultsButton = downloadDialog.createTopBarDownloadButton();
+		        Translator.translate("RegistrationCategoryResults"),
+		        Translator.translate("Download"));
+		Button resultsButton = downloadDialog.createDownloadButton();
 		return resultsButton;
 	}
 

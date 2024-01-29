@@ -32,8 +32,10 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
+import app.owlcms.components.JXLSDownloader;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.i18n.Translator;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.DownloadButtonFactory;
@@ -75,21 +77,43 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, platforms,
 		        configureRecords);
 		doGroup(getTranslation("PreCompetitionSetup"), grid1, this);
-
-		Div downloadDiv = DownloadButtonFactory.createDynamicXLSDownloadButton("registration",
-		        getTranslation("DownloadRegistrationTemplate"), new JXLSRegistrationEmptyExport(UI.getCurrent()));
-		Optional<Component> content = downloadDiv.getChildren().findFirst();
-		content.ifPresent(c -> ((Button) c).setWidth("100%"));
+		
+		var emptyRegistrationWriter = new JXLSRegistrationEmptyExport(UI.getCurrent());
+		JXLSDownloader dd = new JXLSDownloader(
+		        () -> {
+			        // group may have been edited since the page was loaded
+			        emptyRegistrationWriter.setGroup(
+			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
+			        return emptyRegistrationWriter;
+		        },
+		        "/templates/registration",
+		        "RegistrationExport.xlsx",
+		        Translator.translate("DownloadRegistrationTemplate"),
+		        fileName -> fileName.endsWith(".xlsx"));
+		Div downloadDiv = new Div();
+		downloadDiv.add(dd.createImmediateDownloadButton());
 		downloadDiv.setWidthFull();
 
 		Button upload = new Button(getTranslation("UploadRegistrations"), new Icon(VaadinIcon.UPLOAD_ALT),
 		        buttonClickEvent -> new RegistrationFileUploadDialog().open());
 
-		Div exportDiv = DownloadButtonFactory.createDynamicXLSDownloadButton("exportRegistration",
-		        getTranslation("ExportRegistrationData"), new JXLSRegistrationExport(UI.getCurrent()));
-		Optional<Component> exportDivButton = exportDiv.getChildren().findFirst();
-		exportDivButton.ifPresent(c -> ((Button) c).setWidth("100%"));
+		
+		var registrationWriter = new JXLSRegistrationExport(UI.getCurrent());
+		JXLSDownloader dd2 = new JXLSDownloader(
+		        () -> {
+			        // group may have been edited since the page was loaded
+			        registrationWriter.setGroup(
+			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
+			        return registrationWriter;
+		        },
+		        "/templates/registration",
+		        "RegistrationExport.xlsx",
+		        Translator.translate("ExportRegistrationData"),
+		        fileName -> fileName.endsWith(".xlsx"));
+		Div exportDiv = new Div();
+		exportDiv.add(dd2.createImmediateDownloadButton());
 		exportDiv.setWidthFull();
+	
 
 		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(ageGroups, groups, downloadDiv, upload);
 		doGroup(getTranslation("Registration"), grid2, this);

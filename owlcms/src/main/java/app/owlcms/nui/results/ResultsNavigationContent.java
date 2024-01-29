@@ -22,10 +22,11 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
+import app.owlcms.components.JXLSDownloader;
+import app.owlcms.i18n.Translator;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.preparation.TeamSelectionContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
-import app.owlcms.nui.shared.DownloadButtonFactory;
 import app.owlcms.nui.shared.NavigationPage;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSExportRecords;
@@ -44,7 +45,6 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 	static {
 		logger.setLevel(Level.INFO);
 	}
-
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
 
 	/**
@@ -61,12 +61,41 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 		// getTranslation("CategoryResults"));
 		Button finalPackage = openInNewTabNoParam(PackageContent.class, getTranslation("CompetitionResults"));
 
-		Div timingStats = DownloadButtonFactory.createDynamicXLSDownloadButton("timingStats",
-		        getTranslation("TimingStatistics"), new JXLSTimingStats(UI.getCurrent()));
-		((Button) timingStats.getComponentAt(0)).setWidth("100%");
-		Div newRecords = DownloadButtonFactory.createDynamicXLSDownloadButton("records",
-		        getTranslation("Results.NewRecords"), new JXLSExportRecords(UI.getCurrent(),false));
-		((Button) newRecords.getComponentAt(0)).setWidth("100%");
+		// Div timingStats = DownloadButtonFactory.createDynamicXLSDownloadButton("timingStats",
+		// getTranslation("TimingStatistics"), new JXLSTimingStats(UI.getCurrent()));
+		// ((Button) timingStats.getComponentAt(0)).setWidth("100%");
+
+		var timingWriter = new JXLSTimingStats(UI.getCurrent());
+		JXLSDownloader dd1 = new JXLSDownloader(
+		        () -> {
+			        return timingWriter;
+		        },
+		        "/templates/timing",
+		        // template name used only to generate the results file name. Localized template determined by
+		        // JXLSTimingStats
+		        "TimingStats.xlsx",
+		        Translator.translate("TimingStatistics"),
+		        fileName -> fileName.endsWith(".xlsx"));
+		Div timingStats = new Div();
+		timingStats.add(dd1.createImmediateDownloadButton());
+		timingStats.setWidthFull();
+
+		// Div newRecords = DownloadButtonFactory.createDynamicXLSDownloadButton("records",
+		// getTranslation("Results.NewRecords"), new JXLSExportRecords(UI.getCurrent(),false));
+		// ((Button) newRecords.getComponentAt(0)).setWidth("100%");
+
+		var recordsWriter = new JXLSExportRecords(UI.getCurrent(), false);
+		JXLSDownloader dd2 = new JXLSDownloader(
+		        () -> {
+			        return recordsWriter;
+		        },
+		        "/templates/records",
+		        "exportRecords.xlsx",
+		        Translator.translate("Results.NewRecords"),
+		        fileName -> fileName.endsWith(".xlsx"));
+		Div newRecords = new Div();
+		newRecords.add(dd2.createImmediateDownloadButton());
+		newRecords.setWidthFull();
 
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(groupResults);
 		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(teamResults, teams);
@@ -79,7 +108,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 
 		DebugUtils.gc();
 	}
-	
+
 	private void highlight(Button button) {
 		button.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
 	}

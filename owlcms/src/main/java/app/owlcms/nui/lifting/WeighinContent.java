@@ -46,7 +46,7 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
-import app.owlcms.components.DownloadDialog;
+import app.owlcms.components.JXLSDownloader;
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.components.fields.LocalizedDecimalField;
@@ -346,7 +346,7 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 	private Button createCardsButton() {
 		String resourceDirectoryLocation = "/templates/cards";
 		String title = Translator.translate("AthleteCards");
-		DownloadDialog cardsButtonFactory = new DownloadDialog(
+		JXLSDownloader cardsButtonFactory = new JXLSDownloader(
 		        () -> {
 			        JXLSCardsWeighIn rs = new JXLSCardsWeighIn();
 			        // group may have been edited since the page was loaded
@@ -355,12 +355,11 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 			        return rs;
 		        },
 		        resourceDirectoryLocation,
-		        null,
 		        Competition::getComputedCardsTemplateFileName,
 		        Competition::setCardsTemplateFileName,
 		        title,
 		        Translator.translate("Download"));
-		return cardsButtonFactory.createTopBarDownloadButton();
+		return cardsButtonFactory.createDownloadButton();
 	}
 
 	/**
@@ -466,7 +465,7 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		String resourceDirectoryLocation = "/templates/jury";
 		String title = Translator.translate("Jury");
 
-		DownloadDialog juryButton = new DownloadDialog(
+		JXLSDownloader juryButton = new JXLSDownloader(
 		        () -> {
 			        JXLSJurySheet rs = new JXLSJurySheet();
 			        // group may have been edited since the page was loaded
@@ -475,19 +474,18 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 			        return rs;
 		        },
 		        resourceDirectoryLocation,
-		        null,
 		        Competition::getComputedJuryTemplateFileName,
 		        Competition::setJuryTemplateFileName,
 		        title,
 		        Translator.translate("Download"));
-		return juryButton.createTopBarDownloadButton();
+		return juryButton.createDownloadButton();
 	}
 
 	private Button createStartingWeightsButton() {
 		String resourceDirectoryLocation = "/templates/emptyProtocol";
 		String title = Translator.translate("EmptyProtocolSheet");
 
-		DownloadDialog startingWeightsButton = new DownloadDialog(
+		JXLSDownloader startingWeightsButton = new JXLSDownloader(
 		        () -> {
 			        JXLSWeighInSheet rs = new JXLSWeighInSheet();
 			        // group may have been edited since the page was loaded
@@ -496,19 +494,18 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 			        return rs;
 		        },
 		        resourceDirectoryLocation,
-		        null,
 		        Competition::getComputedStartingWeightsSheetTemplateFileName,
 		        Competition::setStartingWeightsSheetTemplateFileName,
 		        title,
 		        Translator.translate("Download"));
-		return startingWeightsButton.createTopBarDownloadButton();
+		return startingWeightsButton.createDownloadButton();
 	}
 
 	private Button createWeighInButton() {
 		String resourceDirectoryLocation = "/templates/weighin";
 		String title = Translator.translate("WeighinForm");
 
-		DownloadDialog startingWeightsButton = new DownloadDialog(
+		JXLSDownloader startingWeightsButton = new JXLSDownloader(
 		        () -> {
 			        JXLSWeighInSheet rs = new JXLSWeighInSheet();
 			        // group may have been edited since the page was loaded
@@ -517,12 +514,11 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 			        return rs;
 		        },
 		        resourceDirectoryLocation,
-		        null,
 		        Competition::getComputedStartingWeightsSheetTemplateFileName,
 		        Competition::setStartingWeightsSheetTemplateFileName,
 		        title,
 		        Translator.translate("Download"));
-		return startingWeightsButton.createTopBarDownloadButton();
+		return startingWeightsButton.createDownloadButton();
 	}
 
 	private void doSwitchGroup(Group newCurrentGroup) {

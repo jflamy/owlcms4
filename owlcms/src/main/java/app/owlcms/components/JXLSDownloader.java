@@ -42,25 +42,25 @@ import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
-public class DownloadDialog {
+public class JXLSDownloader {
 
 	private String buttonLabel;
 	private String dialogTitle;
 	private Function<Competition, String> templateNameGetter;
 	private BiConsumer<Competition, String> templateNameSetter;
-	private Logger logger = (Logger) LoggerFactory.getLogger(DownloadDialog.class);
+	private Logger logger = (Logger) LoggerFactory.getLogger(JXLSDownloader.class);
 	private String resourceDirectoryLocation;
 	private Supplier<JXLSWorkbookStreamSource> streamSourceSupplier;
 	private JXLSWorkbookStreamSource xlsWriter;
 	private Anchor downloadAnchor;
 	private Dialog dialog;
-	// private LazyDownloadButton downloadButton;
 	private ComboBox<Resource> templateSelect;
 	private String processingMessage;
+	private Predicate<String> nameFilter;
+	private StreamResource resource;
 
 	/**
 	 * @param streamSourceSupplier   lambda that creates a JXLSWorkbookStreamSource and sets its filters
-	 * @param namePredicate          filtering on base name
 	 * @param templateNameGetter     get last file name stored in Competition
 	 * @param templateNameSetter     set last file name in Competition
 	 * @param dialogTitle
@@ -68,10 +68,9 @@ public class DownloadDialog {
 	 * @param resourceDirectory      Location where to look for templates
 	 * @return
 	 */
-	public DownloadDialog(
+	public JXLSDownloader(
 	        Supplier<JXLSWorkbookStreamSource> streamSourceSupplier,
 	        String resourceDirectoryLocation,
-	        Predicate<String> namePredicate,
 	        Function<Competition, String> templateNameGetter,
 	        BiConsumer<Competition, String> templateNameSetter,
 	        String dialogTitle,
@@ -86,15 +85,80 @@ public class DownloadDialog {
 	}
 
 	/**
+	 * @param streamSourceSupplier   lambda that creates a JXLSWorkbookStreamSource and sets its filters
+	 * @param templateName
+	 * @param dialogTitle
+	 * @param buttonLabel            label used dialog button
+	 * @param resourceDirectory      Location where to look for templates
 	 * @return
 	 */
-	public Button createTopBarDownloadButton() {
+	public JXLSDownloader(
+	        Supplier<JXLSWorkbookStreamSource> streamSourceSupplier,
+	        String resourceDirectoryLocation,
+	        String templateName,
+	        String buttonLabel) {
+		logger.setLevel(Level.DEBUG);
+		this.streamSourceSupplier = streamSourceSupplier;
+		this.resourceDirectoryLocation = resourceDirectoryLocation;
+		this.templateNameGetter = c -> { return templateName; };
+		this.templateNameSetter = (c,s) -> {};
+		this.buttonLabel = Translator.translate("Download");
+		this.dialogTitle = buttonLabel;
+	}
+	
+
+	/**
+	 * This constructor is used when downloading a known file.  The given
+	 * template name is used.
+	 * 
+	 * @param streamSourceSupplier
+	 * @param resourceDirectoryLocation
+	 * @param templateName
+	 * @param buttonLabel
+	 * @param nameFilter
+	 */
+	public JXLSDownloader(
+	        Supplier<JXLSWorkbookStreamSource> streamSourceSupplier,
+	        String resourceDirectoryLocation,
+	        String templateName,
+	        String buttonLabel,
+	        Predicate<String> nameFilter) {
+		logger.setLevel(Level.DEBUG);
+		this.streamSourceSupplier = streamSourceSupplier;
+		this.resourceDirectoryLocation = resourceDirectoryLocation;
+		this.templateNameGetter = c -> { return templateName; };
+		this.templateNameSetter = (c,s) -> {};
+		this.buttonLabel = buttonLabel;
+		this.dialogTitle = buttonLabel;  // no dialog
+		this.nameFilter = nameFilter;
+	}
+	
+	/**
+	 * @return
+	 */
+	public Button createDownloadButton() {
 		Button dialogOpen = new Button(dialogTitle, new Icon(VaadinIcon.DOWNLOAD_ALT),
 		        e -> {
 			        Dialog dialog = createDialog();
 			        dialog.open();
 		        });
 		return dialogOpen;
+	}
+
+	public Anchor createImmediateDownloadButton() {
+		xlsWriter = streamSourceSupplier.get();
+		Supplier<String> supplier = () -> getTargetFileName();
+		resource = new StreamResource(supplier.get(), (StreamResourceWriter) xlsWriter);
+		Anchor link = new Anchor(resource, "");
+		link.getElement().setAttribute("download", true);
+		Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
+		innerButton.setWidth("100%");
+		link.add(innerButton);
+		return link;
+	}
+
+	public void setProcessingMessage(String processingMessage) {
+		this.processingMessage = processingMessage;
 	}
 
 	private Dialog createDialog() {
@@ -109,8 +173,11 @@ public class DownloadDialog {
 
 		templateSelect.setPlaceholder(Translator.translate("AvailableTemplates"));
 		templateSelect.setHelperText(Translator.translate("SelectTemplate"));
-		List<Resource> resourceList = new ResourceWalker().getResourceList(resourceDirectoryLocation,
-		        ResourceWalker::relativeName, null, OwlcmsSession.getLocale(),
+		List<Resource> resourceList = new ResourceWalker().getResourceList(
+				resourceDirectoryLocation,
+		        ResourceWalker::relativeName,
+		        nameFilter, 
+		        OwlcmsSession.getLocale(),
 		        Config.getCurrent().isLocalTemplatesOnly());
 		templateSelect.setItems(resourceList);
 		templateSelect.setValue(null);
@@ -118,7 +185,7 @@ public class DownloadDialog {
 		// templateSelect.getStyle().set("margin-left", "1em");
 		templateSelect.getStyle().set("margin-right", "0.8em");
 
-		StreamResource resource = null;
+		resource = null;
 
 		try {
 			// Competition.getTemplateFileName()
@@ -163,7 +230,7 @@ public class DownloadDialog {
 
 					Supplier<String> supplier = () -> getTargetFileName();
 
-					Anchor nDownloadAnchor = createDownloadButton(resource, xlsWriter, supplier.get());
+					Anchor nDownloadAnchor = doCreateActualDownloadButton(resource, xlsWriter, supplier.get());
 					// if downloadAnchor is null, same as add nDownloadAnchor
 					templateSelection.replace(downloadAnchor, nDownloadAnchor);
 					downloadAnchor = nDownloadAnchor;
@@ -186,8 +253,8 @@ public class DownloadDialog {
 
 		return dialog;
 	}
-
-	private Anchor createDownloadButton(StreamResource resource, StreamResourceWriter writer, String fileName) {
+	
+	private Anchor doCreateActualDownloadButton(StreamResource resource, StreamResourceWriter writer, String fileName) {
 		resource = new StreamResource(fileName, writer);
 		Anchor link = new Anchor(resource, "");
 		link.getElement().setAttribute("download", true);
@@ -260,10 +327,6 @@ public class DownloadDialog {
 			}
 		}
 		return found;
-	}
-
-	public void setProcessingMessage(String processingMessage) {
-		this.processingMessage = processingMessage;
 	}
 
 }

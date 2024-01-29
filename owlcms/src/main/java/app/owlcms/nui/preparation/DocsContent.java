@@ -33,7 +33,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.components.DownloadDialog;
+import app.owlcms.components.JXLSDownloader;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -297,7 +297,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 	protected Button createCardsButton() {
 		String resourceDirectoryLocation = "/templates/cards";
 		String title = Translator.translate("AthleteCards");
-		DownloadDialog cardsButtonFactory = new DownloadDialog(
+		JXLSDownloader cardsButtonFactory = new JXLSDownloader(
 		        () -> {
 			        // group may have been edited since the page was loaded
 			        cardsXlsWriter.setGroup(
@@ -307,20 +307,19 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 			        return cardsXlsWriter;
 		        },
 		        resourceDirectoryLocation,
-		        null,
 		        Competition::getComputedCardsTemplateFileName,
 		        Competition::setCardsTemplateFileName,
 		        title,
 		        Translator.translate("Download"));
 		cardsButtonFactory.setProcessingMessage(Translator.translate("LongProcessing"));
-		return cardsButtonFactory.createTopBarDownloadButton();
+		return cardsButtonFactory.createDownloadButton();
 	}
 
 	protected Button createOfficalsButton() {
 		String resourceDirectoryLocation = "/templates/officials";
 		String title = Translator.translate("StartingList.Officials");
 
-		DownloadDialog startingListFactory = new DownloadDialog(
+		JXLSDownloader startingListFactory = new JXLSDownloader(
 		        () -> {
 			        // group may have been edited since the page was loaded
 			        startingXlsWriter.setGroup(
@@ -328,19 +327,18 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 			        return startingXlsWriter;
 		        },
 		        resourceDirectoryLocation,
-		        null,
 		        Competition::getComputedOfficialsListTemplateFileName,
 		        Competition::setOfficialsListTemplateFileName,
 		        title,
 		        Translator.translate("Download"));
-		return startingListFactory.createTopBarDownloadButton();
+		return startingListFactory.createDownloadButton();
 	}
 
 	protected Button createSessionsButton() {
 		String resourceDirectoryLocation = "/templates/start";
 		String title = Translator.translate("StartingList");
 
-		DownloadDialog startingListFactory = new DownloadDialog(
+		JXLSDownloader startingListFactory = new JXLSDownloader(
 		        () -> {
 			        // group may have been edited since the page was loaded
 			        startingXlsWriter.setGroup(
@@ -353,12 +351,11 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 			        return startingXlsWriter;
 		        },
 		        resourceDirectoryLocation,
-		        null,
 		        Competition::getComputedStartListTemplateFileName,
 		        Competition::setStartListTemplateFileName,
 		        title,
 		        Translator.translate("Download"));
-		return startingListFactory.createTopBarDownloadButton();
+		return startingListFactory.createDownloadButton();
 	}
 
 	@Override
@@ -366,7 +363,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		String resourceDirectoryLocation = "/templates/teams";
 		String title = Translator.translate("StartingList.Teams");
 
-		DownloadDialog startingListFactory = new DownloadDialog(
+		JXLSDownloader startingListFactory = new JXLSDownloader(
 		        () -> {
 			        // group may have been edited since the page was loaded
 			        startingXlsWriter.setGroup(
@@ -379,19 +376,18 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 			        return startingXlsWriter;
 		        },
 		        resourceDirectoryLocation,
-		        null,
 		        Competition::getComputedTeamsListTemplateFileName,
 		        Competition::setTeamsListTemplateFileName,
 		        title,
 		        Translator.translate("Download"));
-		return startingListFactory.createTopBarDownloadButton();
+		return startingListFactory.createDownloadButton();
 	}
 
 	protected Button createWeighInSummaryButton() {
 		String resourceDirectoryLocation = "/templates/weighin";
 		String title = Translator.translate("WeighinForm");
 
-		DownloadDialog startingWeightsButton = new DownloadDialog(
+		JXLSDownloader startingWeightsButton = new JXLSDownloader(
 		        () -> {
 			        JXLSWeighInSheet rs = new JXLSWeighInSheet();
 			        // group may have been edited since the page was loaded
@@ -400,12 +396,11 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 			        return rs;
 		        },
 		        resourceDirectoryLocation,
-		        null,
 		        Competition::getComputedStartingWeightsSheetTemplateFileName,
 		        Competition::setStartingWeightsSheetTemplateFileName,
 		        title,
 		        Translator.translate("Download"));
-		return startingWeightsButton.createTopBarDownloadButton();
+		return startingWeightsButton.createDownloadButton();
 	}
 
 	/**

@@ -37,6 +37,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Binder.Binding;
 import com.vaadin.flow.data.binder.ValidationException;
 
+import app.owlcms.components.JXLSDownloader;
 import app.owlcms.components.fields.GridField;
 import app.owlcms.data.records.RecordConfig;
 import app.owlcms.data.records.RecordDefinitionReader;
@@ -44,7 +45,6 @@ import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.nui.shared.DownloadButtonFactory;
 import app.owlcms.spreadsheet.JXLSExportRecords;
 
 @SuppressWarnings("serial")
@@ -151,7 +151,7 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 
 	private FormLayout createLayout() {
 		FormLayout layout = new FormLayout();
-//        layout.setWidth("1024px");
+		// layout.setWidth("1024px");
 		layout.setResponsiveSteps(new ResponsiveStep("0", 1, LabelsPosition.TOP),
 		        new ResponsiveStep("800px", 2, LabelsPosition.TOP));
 		return layout;
@@ -170,8 +170,23 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 
 		recordsAvailableLayout.add(title);
 		recordsAvailableLayout.setColspan(title, 2);
-		Div newRecords = DownloadButtonFactory.createDynamicXLSDownloadButton("records",
-		        Translator.translate("Records.exportAllRecordsTitle"), new JXLSExportRecords(UI.getCurrent(), true));
+
+		// Div newRecords = DownloadButtonFactory.createDynamicXLSDownloadButton("records",
+		// Translator.translate("Records.exportAllRecordsTitle"), new JXLSExportRecords(UI.getCurrent(), true));
+
+		var recordsWriter = new JXLSExportRecords(UI.getCurrent(), true);
+		JXLSDownloader dd = new JXLSDownloader(
+		        () -> {
+			        return recordsWriter;
+		        },
+		        "/templates/records",
+		        "exportRecords.xlsx",
+		        Translator.translate("Records.exportAllRecordsTitle"),
+		        fileName -> fileName.endsWith(".xlsx"));
+		Div newRecords = new Div();
+		newRecords.add(dd.createImmediateDownloadButton());
+		newRecords.setWidthFull();
+
 		recordsAvailableLayout.addFormItem(newRecords, Translator.translate("Records.exportAllRecordsLabel"));
 
 		return recordsAvailableLayout;
@@ -256,9 +271,26 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 
 		recordsAvailableLayout.add(title);
 		recordsAvailableLayout.setColspan(title, 2);
-		Div newRecords = DownloadButtonFactory.createDynamicXLSDownloadButton("records",
-		        Translator.translate("Results.NewRecords"), new JXLSExportRecords(UI.getCurrent(), false));
+		
+//		Div newRecords = DownloadButtonFactory.createDynamicXLSDownloadButton("records",
+//		        Translator.translate("Results.NewRecords"), new JXLSExportRecords(UI.getCurrent(), false));
+		
+		var recordsWriter = new JXLSExportRecords(UI.getCurrent(), false);
+		JXLSDownloader dd = new JXLSDownloader(
+		        () -> {
+			        return recordsWriter;
+		        },
+		        "/templates/records",
+		        "exportRecords.xlsx",
+		        Translator.translate("Results.NewRecords"),
+		        fileName -> fileName.endsWith(".xlsx"));
+		Div newRecords = new Div();
+		newRecords.add(dd.createImmediateDownloadButton());
+		newRecords.setWidthFull();
+
 		recordsAvailableLayout.addFormItem(newRecords, Translator.translate("Results.NewRecords"));
+		
+		clearNewRecords.setWidthFull();
 		recordsAvailableLayout.addFormItem(clearNewRecords,
 		        Translator.translate("Preparation.ClearNewRecordsExplanation"));
 
