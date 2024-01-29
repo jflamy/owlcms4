@@ -9,6 +9,8 @@ package app.owlcms.components;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -60,12 +62,12 @@ public class JXLSDownloader {
 	private StreamResource resource;
 
 	/**
-	 * @param streamSourceSupplier   lambda that creates a JXLSWorkbookStreamSource and sets its filters
-	 * @param templateNameGetter     get last file name stored in Competition
-	 * @param templateNameSetter     set last file name in Competition
+	 * @param streamSourceSupplier lambda that creates a JXLSWorkbookStreamSource and sets its filters
+	 * @param templateNameGetter   get last file name stored in Competition
+	 * @param templateNameSetter   set last file name in Competition
 	 * @param dialogTitle
-	 * @param buttonLabel            label used dialog button
-	 * @param resourceDirectory      Location where to look for templates
+	 * @param buttonLabel          label used dialog button
+	 * @param resourceDirectory    Location where to look for templates
 	 * @return
 	 */
 	public JXLSDownloader(
@@ -85,11 +87,11 @@ public class JXLSDownloader {
 	}
 
 	/**
-	 * @param streamSourceSupplier   lambda that creates a JXLSWorkbookStreamSource and sets its filters
+	 * @param streamSourceSupplier lambda that creates a JXLSWorkbookStreamSource and sets its filters
 	 * @param templateName
 	 * @param dialogTitle
-	 * @param buttonLabel            label used dialog button
-	 * @param resourceDirectory      Location where to look for templates
+	 * @param buttonLabel          label used dialog button
+	 * @param resourceDirectory    Location where to look for templates
 	 * @return
 	 */
 	public JXLSDownloader(
@@ -100,16 +102,17 @@ public class JXLSDownloader {
 		logger.setLevel(Level.DEBUG);
 		this.streamSourceSupplier = streamSourceSupplier;
 		this.resourceDirectoryLocation = resourceDirectoryLocation;
-		this.templateNameGetter = c -> { return templateName; };
-		this.templateNameSetter = (c,s) -> {};
+		this.templateNameGetter = c -> {
+			return templateName;
+		};
+		this.templateNameSetter = (c, s) -> {
+		};
 		this.buttonLabel = Translator.translate("Download");
 		this.dialogTitle = buttonLabel;
 	}
-	
 
 	/**
-	 * This constructor is used when downloading a known file.  The given
-	 * template name is used.
+	 * This constructor is used when downloading a known file. The given template name is used.
 	 * 
 	 * @param streamSourceSupplier
 	 * @param resourceDirectoryLocation
@@ -126,13 +129,16 @@ public class JXLSDownloader {
 		logger.setLevel(Level.DEBUG);
 		this.streamSourceSupplier = streamSourceSupplier;
 		this.resourceDirectoryLocation = resourceDirectoryLocation;
-		this.templateNameGetter = c -> { return templateName; };
-		this.templateNameSetter = (c,s) -> {};
+		this.templateNameGetter = c -> {
+			return templateName;
+		};
+		this.templateNameSetter = (c, s) -> {
+		};
 		this.buttonLabel = buttonLabel;
-		this.dialogTitle = buttonLabel;  // no dialog
+		this.dialogTitle = buttonLabel; // no dialog
 		this.nameFilter = nameFilter;
 	}
-	
+
 	/**
 	 * @return
 	 */
@@ -174,12 +180,13 @@ public class JXLSDownloader {
 		templateSelect.setPlaceholder(Translator.translate("AvailableTemplates"));
 		templateSelect.setHelperText(Translator.translate("SelectTemplate"));
 		List<Resource> resourceList = new ResourceWalker().getResourceList(
-				resourceDirectoryLocation,
+		        resourceDirectoryLocation,
 		        ResourceWalker::relativeName,
-		        nameFilter, 
+		        nameFilter,
 		        OwlcmsSession.getLocale(),
 		        Config.getCurrent().isLocalTemplatesOnly());
-		templateSelect.setItems(resourceList);
+		List<Resource> prioritizedList = xlsxPriority(resourceList);
+		templateSelect.setItems(prioritizedList);
 		templateSelect.setValue(null);
 		templateSelect.setWidth("15em");
 		// templateSelect.getStyle().set("margin-left", "1em");
@@ -193,7 +200,7 @@ public class JXLSDownloader {
 			String curTemplateName = templateNameGetter.apply(Competition.getCurrent());
 			logger.debug("(1) curTemplateName {}", curTemplateName);
 			// searchMatch should always return something unless the directory is empty.
-			Resource found = searchMatch(resourceList, curTemplateName);
+			Resource found = searchMatch(prioritizedList, curTemplateName);
 			logger.debug("(1) template found {}", found != null ? found.getFilePath() : null);
 
 			templateSelect.addValueChangeListener(e -> {
@@ -207,9 +214,9 @@ public class JXLSDownloader {
 
 					// supplier is a lambda that sets the template and the filter values in the xls
 					// source
-					Resource res = searchMatch(resourceList, newTemplateName);
+					Resource res = searchMatch(prioritizedList, newTemplateName);
 					if (res == null) {
-						logger.debug("(2) template NOT found {} {}", newTemplateName, resourceList);
+						logger.debug("(2) template NOT found {} {}", newTemplateName, prioritizedList);
 						throw new Exception("template not found " + newTemplateName);
 					}
 					logger.debug("(2) template found {}", res != null ? res.getFilePath() : null);
@@ -253,7 +260,31 @@ public class JXLSDownloader {
 
 		return dialog;
 	}
-	
+
+	/**
+	 * give precedence to .xlsx file if both .xls and .xlsx
+	 * @param resourceList
+	 * @return
+	 */
+	private List<Resource> xlsxPriority(List<Resource> resourceList) {
+		// xlsx will come before xls
+		resourceList.sort(Comparator.comparing(Resource::getFileName).reversed());
+
+		ArrayList<Resource> proritizedList = new ArrayList<Resource>();
+		String prevName = "";
+		for (Resource r : resourceList) {
+			String curName = r.getFileName();
+			// give precedence to .xlsx file if both .xls and .xlsx
+			logger.warn("cur {} prev {}",curName, prevName);
+			if (curName.endsWith(".xlsx") || (curName.endsWith(".xls") && !prevName.contentEquals(curName + "x"))) {
+				proritizedList.add(r);
+			}
+			prevName = curName;
+		}
+		proritizedList.sort(Comparator.comparing(Resource::getFileName));
+		return proritizedList;
+	}
+
 	private Anchor doCreateActualDownloadButton(StreamResource resource, StreamResourceWriter writer, String fileName) {
 		resource = new StreamResource(fileName, writer);
 		Anchor link = new Anchor(resource, "");
@@ -297,16 +328,17 @@ public class JXLSDownloader {
 		String templateName = templateNameGetter.apply(Competition.getCurrent());
 		String extension = FileUtils.getExtension(templateName);
 		if ((templateName.matches(".*[_-](A4|LETTER|LEGAL).*"))) {
-			fileName = templateName.replaceAll("[_-](A4|LETTER|LEGAL)(." + extension+ ")", "") + suffix + "." + extension;
+			fileName = templateName.replaceAll("[_-](A4|LETTER|LEGAL)(." + extension + ")", "") + suffix + "."
+			        + extension;
 		} else {
 			fileName = templateName.replaceAll("[.]" + extension, "") + suffix + "." + extension;
 		}
-			
-//		if (outputFileName != null) {
-//			fileName = outputFileName + suffix  + "." + extension;
-//		} else {
-//			fileName = "output" + suffix + "." + extension;
-//		}
+
+		// if (outputFileName != null) {
+		// fileName = outputFileName + suffix + "." + extension;
+		// } else {
+		// fileName = "output" + suffix + "." + extension;
+		// }
 		fileName = sanitizeFilename(fileName);
 		logger.trace(fileName);
 		return fileName;
