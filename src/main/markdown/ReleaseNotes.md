@@ -1,23 +1,16 @@
-> **Version 46.0 alpha**	
+**Version 46.0 alpha**	
+
+> [!CAUTION]
 >
-> - **Alpha versions are NOT ready for use in actual competitions and can be non-functional**.  They are used as milestones when adding new features or making important changes.
-> - Version 46 updates the Excel production
-> - Reminder: you should always test any new release several days in advance, with your own data.
+> Alpha versions are NOT ready for use in actual competitions and can be non-functional.  They are used as technical testing milestones when adding new features or making important changes.
+>
+> You should always test any new release several days in advance, with your own data.
 
 ##### 46.0
-- (alpha00) Templates and documents
-  - All templates are now .xlsx by default.  Older .xls templates still work.
+- Templates and documents
+  - All the supplied Excel templates are now .xlsx by default.  As a consequence, all the Excel files produced from the default templates are also in .xlsx format.  The .xslx format is directly recognized by Office, LibreOffice, Google Sheets and Microsoft 365 Web. 
+  - Your existing .xls templates will work as before, but we recommend updating your local templates to .xlsx format.
+  - The mechanism used for Excel downloads has changed.  Microsoft Edge has special options for modern Office document formats such as `.xlsx`.  Without the change, some downloads of `.xslx` files would fail when using Edge's "open immediately" option.
 
 
-
-**Version 45 CUSTOM CSS ADJUSTMENTS**
-
-This only concerns advanced users who have edited the css files
-
-- *Important changes were made to the css files* for the scoreboards.  
-  - In particular, the differences between dark and light styles are defined by variables in the  `colors.css` . 
-  - The other files, such as `results.css` use these variables. Only a very small number of CSS rules still need to be different between dark and light.
-
-- The major change is using an absolute `rem` font size unit in the `wrapper`.  All the font sizes elsewhere should be `em` units.   However, for now, the dimensions of the timers and decision lights remain vh/vw units.
-- Another noticeable change is that the record grids at the bottom of scoreboards have been redone using grids and as a result, the border colors and width must now be defined using the `outline` directive.
 
