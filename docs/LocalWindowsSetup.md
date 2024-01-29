@@ -2,7 +2,7 @@
 
 - **Windows Installer** : Get the current [`owlcms_setup_45.0.7.exe`](https://github.com/owlcms/owlcms4/releases/download/45.0.7/owlcms_setup_45.0.7.exe) file (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4/releases/latest) ).
 - Download and open the installer
-  > You may get warnings about the software being potentially dangerous.  Use the options to get and keep the downloaded files anyway.
+  > You may get false alarms about the software being potentially dangerous.  *Rest assured that it is absolutely not*.  Use the `...` and dropdown menu options to get and keep the downloaded files anyway.
   >
   > If you get a blue `Windows protected your PC` warning, use the `Mofe Info` button and `Install Anyway`.  See this page for more information [Make Windows Defender Allow Installation](DefenderOff)
   
