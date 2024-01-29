@@ -275,7 +275,6 @@ public class JXLSDownloader {
 		for (Resource r : resourceList) {
 			String curName = r.getFileName();
 			// give precedence to .xlsx file if both .xls and .xlsx
-			logger.warn("cur {} prev {}",curName, prevName);
 			if (curName.endsWith(".xlsx") || (curName.endsWith(".xls") && !prevName.contentEquals(curName + "x"))) {
 				proritizedList.add(r);
 			}
