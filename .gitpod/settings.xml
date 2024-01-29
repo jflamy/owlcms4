@@ -1,6 +1,6 @@
 <settings>
     <localRepository>/workspace/m2-repository/</localRepository>
-    <mirrors>
+    <!-- mirrors>
         <mirror>
             <id>my-repository-http-unblocker</id>
             <mirrorOf>owlcms-maven-repo</mirrorOf>
@@ -8,5 +8,5 @@
             <url>http://maven.lerta.ca:8880/releases</url>
             <blocked>false</blocked>
         </mirror>
-    </mirrors>
+    </mirrors -->
 </settings>
