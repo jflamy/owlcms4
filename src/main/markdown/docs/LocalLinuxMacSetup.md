@@ -1,24 +1,20 @@
 ## macOS, Linux or RaspberryOS Installation
 
-> Tip: The [following page](RaspberryInstall) illustrates the sequence of steps on a RaspberryPI and may help you follow along.
+> [!IMPORTANT]
+>
+> The programming language Java needs to be present on your machine for the program to work. If you are not sure it is present, see the [Installing Java](#installing-java) section at the bottom of this page.
 
-- **Get the installation zip archive**: Get the current  [`owlcms_${revision}.zip`](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/latest/download/owlcms_${revision}.zip) file  (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/latest) .
+## Installation
+
+- **Get the installation zip archive**: Get the current  **[`owlcms_setup_${revision}.zip`](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/download/${revision}/owlcms_setup_${revision}.zip)** file. Installation files are available as assets at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4-prerelease/releases/latest) .
+
+  > [!TIP]
+  >
+  > [This page](RaspberryInstall) illustrates the sequence of steps on a RaspberryPI and may help you follow along since the process is similar for the other platforms.
 
 - Double-click on the downloaded zip file, and extract the files to a directory. 
 
   - On a Mac We suggest you use `~/owlcms` as the unzipped location.
-
-- Make sure you have a Java17 installed (the JRE "runtime engine" is sufficient)
-
-  - On RaspberryOS, Java is already installed.
-
-  - For macOS, see [Latest Releases | Adoptium](https://adoptium.net/temurin/releases/) and download the .pkg file for your type of Mac.  Double-click the file.
-
-  - For Linux, refer to [Latest Releases | Adoptium](https://adoptium.net/temurin/releases/) depending on the Linux type you run. For Ubuntu and other Debian variants, the following should work 
-
-    ```bash
-    sudo apt install default-jre
-    ```
 
 - Go to your installation directory where you unzipped owlcms
 
@@ -52,23 +48,20 @@ When owlcms is started on a laptop, two windows are visible:  a command-line win
 
   The address <u>depends on your own specific networking setup</u> and you must use one of the addresses displayed **on your setup.**  If none of the addresses listed work, you will need to refer to the persons that set up the networking at your site and on your laptop.  A "proxy" or a "firewall", or some other technical configuration may be blocking access, or requiring a different address that the server can't discover.
 
-## Accessing the Program Files and Configuration
+## Installing Java
 
-In order to uninstall owlcms4, to report problems, or to change some program configurations, you may need to access the program directory where you unzipped the files (the same where you start java from).
+Make sure you have a Java17 installed. 
 
-If you do so, you will see the installation directory content that is relevant to Linux and MacOS:
+- You can type `java -version` in a Terminal window to see if it is installed, and if so, what version you have.
 
-- `database` contains a file ending in `.db` which contains competition data and is managed using the [H2 database engine](https://www.h2database.com/html/main.html). 
+- On RaspberryOS, Java is already installed.
 
-- `logs` contains the execution journal of the program where the full details of what happened are written. If you report bugs, you will be asked to send a copy of the files found in that directory (and possibly a copy of the files in the database folder as well).
+- For macOS, see [MacOS Java 17](https://adoptium.net/temurin/releases/?os=mac&package=jre&arch=aarch64&version=17) and download the .pkg file. (Temurin is the code name for one of the free Java releases). Double-click the file.
 
-- `local` is a directory that is used for translating the screens and documents to other languages, or to add alternate formats for results documents.
+- For Ubuntu and other Debian variants, the following should work.
 
-- `jre`  contains the Java Runtime Environment
+  ```bash
+  sudo apt install default-jre
+  ```
 
-- the file ending in `.jar` is the OWLCMS application in executable format
-
-
-## Configuration Parameters
-
-See the [Configuration Parameters](Configuration.md  ' :include') page to see additional configuration options in addition to the ones presented on this page.
+- For other Linux distros, see [Linux Java 17](https://adoptium.net/temurin/releases/?os=linux&package=jre&arch=any&version=17) and choose according to the Linux you run
