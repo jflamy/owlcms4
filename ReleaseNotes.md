@@ -11,6 +11,4 @@
   - All the supplied Excel templates are now .xlsx by default.  As a consequence, all the Excel files produced from the default templates are also in .xlsx format.  The .xslx format is directly recognized by Office, LibreOffice, Google Sheets and Microsoft 365 Web. 
   - Your existing .xls templates will work as before, but we recommend updating your local templates to .xlsx format.
   - The mechanism used for Excel downloads has changed.  Microsoft Edge has special options for modern Office document formats such as `.xlsx`.  Without the change, some downloads of `.xslx` files would fail when using Edge's "open immediately" option.
-
-
-
+- Usability: the down signal is shown a little bit longer on all the boards (including publicresults)
