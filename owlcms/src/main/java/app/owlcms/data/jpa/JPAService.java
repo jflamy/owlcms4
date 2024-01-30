@@ -408,11 +408,13 @@ public class JPAService {
 		Properties props = new Properties();
 		props.putAll(vals);
 
-		setLocalDb((postgresHost == null 
-				|| postgresHost.contentEquals("localhost") 
-				|| postgresHost.startsWith("127.")
-				|| postgresHost.contentEquals("::1")
-				|| postgresHost.contentEquals("0:0:0:0:0:0:0:1")));
+		setLocalDb(false);
+		if (postgresHost != null) {
+			setLocalDb(postgresHost.contentEquals("localhost") 
+					|| postgresHost.startsWith("127.")
+					|| postgresHost.contentEquals("::1")
+					|| postgresHost.contentEquals("0:0:0:0:0:0:0:1"));
+		} 
 		postgresHost = postgresHost == null ? "localhost" : postgresHost;
 		postgresPort = postgresPort == null ? "5432" : postgresPort;
 		postgresDb = postgresDb == null ? "owlcms" : postgresDb;
@@ -536,10 +538,11 @@ public class JPAService {
 	}
 
 	public static boolean isLocalDb() {
-		return localDb;
+		return JPAService.localDb;
 	}
 
 	public static void setLocalDb(boolean localDb) {
+		logger.warn("setting localDb {} {}", localDb, LoggerUtils.whereFrom());
 		JPAService.localDb = localDb;
 	}
 
