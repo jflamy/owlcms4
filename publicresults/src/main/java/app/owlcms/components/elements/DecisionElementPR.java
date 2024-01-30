@@ -40,7 +40,7 @@ public class DecisionElementPR extends LitTemplate
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     static {
-        logger.setLevel(Level.INFO);
+        logger.setLevel(Level.DEBUG);
         uiEventLogger.setLevel(Level.INFO);
     }
 

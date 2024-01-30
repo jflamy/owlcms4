@@ -340,7 +340,7 @@ class DecisionElementPR extends LitElement {
     // hide the down arrow after 2 seconds -- the decisions will show when available
     // (there will be no decision lights for at least one second, more if last referee
     // waits after the other two have given down.
-    if (!this.jury) setTimeout(this.hideDown.bind(this), 2000);
+    if (!this.jury) setTimeout(this.hideDown.bind(this), 2750);
   }
 
   hideDown() {

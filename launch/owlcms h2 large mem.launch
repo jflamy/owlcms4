@@ -12,7 +12,8 @@
         <mapEntry key="OWLCMS_LOCALE" value="en"/>
         <mapEntry key="OWLCMS_MEMORYMODE" value="true"/>
         <mapEntry key="OWLCMS_PORT" value="8081"/>
-        <mapEntry key="OWLCMS_REMOTE" value="http://127.0.0.1:8082/update"/>
+        <mapEntry key="OWLCMS_REMOTE" value="http://localhost:8082"/>
+        <mapEntry key="OWLCMS_REMOTE__" value="https://owlcms-next-results.fly.dev"/>
         <mapEntry key="OWLCMS_RESETMODE" value="true"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="mapetitevacheamalauxpattes"/>
     </mapAttribute>
@@ -32,5 +33,5 @@
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="owlcms"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="owlcms"/>
     <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dvaadin.frontend.hotdeploy=false -Dlogback.configurationFile=logback-console.xml"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dvaadin.frontend.hotdeploy=false -Dlogback.configurationFile=logback-console.xml -Dvaadin.devmode.hostsAllowed=*  -Dvaadin.devmode.devTools.enabled=true"/>
 </launchConfiguration>

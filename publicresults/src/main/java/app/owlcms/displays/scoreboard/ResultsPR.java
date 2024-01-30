@@ -42,6 +42,7 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.DecisionEvent;
 import app.owlcms.uievents.DecisionEventType;
 import app.owlcms.uievents.UpdateEvent;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -321,7 +322,7 @@ public class ResultsPR extends LitTemplate
                     return;
                 }
                 ui.access(() -> {
-                    setBoardMode(e.getMode());
+                    //setBoardMode(e.getMode());
                     this.getElement().setProperty("decisionVisible", true);
                 });
                 break;
@@ -554,6 +555,7 @@ public class ResultsPR extends LitTemplate
     }
 
     private void setBoardMode(String mode) {
+        logger.warn("set board mode {} from {}", mode, LoggerUtils.whereFrom());
         this.getElement().setProperty("mode", mode);
     }
 
