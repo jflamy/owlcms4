@@ -95,7 +95,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		downloadDiv.setWidthFull();
 
 		Button upload = new Button(getTranslation("UploadRegistrations"), new Icon(VaadinIcon.UPLOAD_ALT),
-		        buttonClickEvent -> new RegistrationFileUploadDialog().open());
+		        buttonClickEvent -> new NRegistrationFileUploadDialog().open());
 
 		
 		var registrationWriter = new JXLSRegistrationExport(UI.getCurrent());

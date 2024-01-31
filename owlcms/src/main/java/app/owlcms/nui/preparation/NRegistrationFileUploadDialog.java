@@ -27,7 +27,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class NRegistrationFileUploadDialog extends Dialog {
 
-	
+
 	public final static Logger logger = (Logger) LoggerFactory.getLogger(NRegistrationFileUploadDialog.class);
 	final static Logger jxlsLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.reader.SimpleBlockReaderImpl");
 
@@ -52,7 +52,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		ta.setVisible(false);
 
 		upload.addSucceededListener(event -> {
-			processInput(event.getFileName(), buffer.getInputStream(), ta);
+			processInput(buffer.getInputStream(), ta);
 		});
 
 		upload.addStartedListener(event -> {
@@ -65,14 +65,32 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		add(vl);
 	}
 
-	public int processAthletes(InputStream inputStream, TextArea ta, boolean dryRun) {
+	public void processInput(InputStream inputStream, TextArea ta) {
+		// clear athletes to be able to clear groups
+		this.processor.resetAthletes();
+
+		// first do a dry run to count groups
+		int nbGroups = processGroups(inputStream, ta, true);
+		if (nbGroups > 0) {
+			// new format, reset groups from spreadsheet
+			this.processor.resetGroups();
+			processGroups(inputStream, ta, false);
+		}
+
+		// process athletes now that groups have been adjusted
+		processAthletes(inputStream, ta, false);
+		this.processor.adjustParticipations();
+		return;
+	}
+
+	private int processAthletes(InputStream inputStream, TextArea ta, boolean dryRun) {
 		StringBuffer sb = new StringBuffer();
 		Consumer<String> errorConsumer = str -> sb.append(str);
 		Runnable displayUpdater = () -> updateDisplay(ta, sb);
 		return this.processor.doProcessAthletes(inputStream, dryRun, errorConsumer, displayUpdater);
 	}
 
-	public int processGroups(InputStream inputStream, TextArea ta, boolean dryRun) {
+	private int processGroups(InputStream inputStream, TextArea ta, boolean dryRun) {
 		StringBuffer sb = new StringBuffer();
 		Consumer<String> errorConsumer = str -> sb.append(str);
 		Runnable displayUpdater = () -> updateDisplay(ta, sb);
@@ -84,24 +102,6 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			ta.setValue(sb.toString());
 			ta.setVisible(true);
 		}
-	}
-	
-	public void processInput(String fileName, InputStream inputStream, TextArea ta) {
-		// clear athletes to be able to clear groups
-		processor.resetAthletes();
-	
-		// dry run to count groups
-		int nbGroups = processGroups(inputStream, ta, true);
-		if (nbGroups > 0) {
-			// new format, reset groups from spreadsheet
-			processor.resetGroups();
-			processGroups(inputStream, ta, false);
-		}
-	
-		// process athletes now that groups have been adjusted
-		processAthletes(inputStream, ta, false);
-		processor.adjustParticipations();
-		return;
 	}
 
 

@@ -56,10 +56,10 @@ import net.sf.jxls.reader.XLSReadStatus;
 import net.sf.jxls.reader.XLSReader;
 
 @SuppressWarnings("serial")
-public class RegistrationFileUploadDialog extends Dialog {
+public class ORegistrationFileUploadDialog extends Dialog {
 
 	final static Logger jxlsLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.reader.SimpleBlockReaderImpl");
-	final static Logger logger = (Logger) LoggerFactory.getLogger(RegistrationFileUploadDialog.class);
+	final static Logger logger = (Logger) LoggerFactory.getLogger(ORegistrationFileUploadDialog.class);
 	private static final String GROUPS_READER_SPEC = "/templates/registration/GroupsReader.xml";
 	private static final String REGISTRATION_READER_SPEC = "/templates/registration/RegistrationReader.xml";
 	static {
@@ -80,7 +80,7 @@ public class RegistrationFileUploadDialog extends Dialog {
 
 	private boolean keepParticipations;
 
-	public RegistrationFileUploadDialog() {
+	public ORegistrationFileUploadDialog() {
 
 		H5 label = new H5(Translator.translate("Upload.WarningWillReplaceAll"));
 		label.getStyle().set("color", "red");
@@ -97,7 +97,7 @@ public class RegistrationFileUploadDialog extends Dialog {
 		ta.setVisible(false);
 
 		upload.addSucceededListener(event -> {
-			processInput(event.getFileName(), buffer.getInputStream(), ta);
+			processInput(buffer.getInputStream(), ta);
 		});
 
 		upload.addStartedListener(event -> {
@@ -238,7 +238,7 @@ public class RegistrationFileUploadDialog extends Dialog {
 		return 0;
 	}
 
-	private void processInput(String fileName, InputStream inputStream, TextArea ta) {
+	private void processInput(InputStream inputStream, TextArea ta) {
 		// clear athletes to be able to clear groups
 		resetAthletes();
 		listGroups("after reset athletes");
