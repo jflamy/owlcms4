@@ -21,6 +21,7 @@
 * Video
   * [Preparing the Video Setup](OBS)
   * [Live Streaming Events](Streaming)
+  * [Internet via a Phone](PhoneHotSpot)
   * [Automatic Scene Switching](OBSSceneSwitching)
 * Virtual Competitions
   * [Overview](4100VirtualOverview)
