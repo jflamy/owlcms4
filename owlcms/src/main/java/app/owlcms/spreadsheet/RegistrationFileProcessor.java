@@ -160,9 +160,6 @@ public class RegistrationFileProcessor {
 	}
 
 	public void updateAthletes(Consumer<String> errorConsumer, RCompetition c, List<RAthlete> athletes) {
-	//      for (Category c1: athlete.getEligibleCategories()) {
-	//      em.merge(c1);
-	//  }
 		JPAService.runInTransaction(em -> {
 			Competition curC = Competition.getCurrent();
 			try {
