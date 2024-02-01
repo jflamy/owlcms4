@@ -354,7 +354,8 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 
 		Properties attributes = OwlcmsSession.getCurrent().getAttributes();
 		// fire and forget
-		new Thread(() -> {
+		new Thread(() -> { 
+			// try 3 times, increasing timeout by 1 second.
 			for (int i = 0; i < 3; i++) {
 				try {
 					HttpRequest usageRequest = HttpRequest
