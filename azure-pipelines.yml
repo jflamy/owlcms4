@@ -114,9 +114,13 @@ jobs:
           git checkout $(Build.SourceBranchName)
           git add -A && git commit -m "$(Revision) [skip ci]" --allow-empty
           git tag $(Revision) -f -a -m "$(Revision)"
-          git push https://$(repoToken)@github.com/$(repoUser)/owlcms4.git $(Build.SourceBranchName) --force
           git push https://$(repoToken)@github.com/$(repoUser)/owlcms4.git $(Revision) --force
         displayName: tag origin
+      - script: |
+          # publish docs back to origin only for stable releases
+          git push https://$(repoToken)@github.com/$(repoUser)/owlcms4.git $(Build.SourceBranchName) --force
+        condition: or(eq(variables['Build.SourceBranchName'], 'main45'),eq(variables['Build.SourceBranchName'], 'main46'))
+        displayName: sync dev doc
       - script: |
           # publish sources and docs to prerelease repo
           # library group ReleaseRepoCredentials contains github users and tokens
