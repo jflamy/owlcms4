@@ -8,15 +8,23 @@ Download the zip file and open it
 
 ![21download](img/RPi/21download.png)
 
-In the zip application, select Extract.  Make sure you unselect the Ensure a containing directory checkbox. Use the folder icon to select where you will extract.
+- The zip application will open. Select Extract. 
 
-![40extract](img/RPi/40extract.png)
+- Make sure you unselect the Ensure a containing directory checkbox. 
+- Click on the folder icon to open the file destination dialog, move on to the next step
 
-When selecting the location for extraction, create a folder in your home directory.
+![31extract](img/RPi/31extract.png)
 
-![30createFolder](img/RPi/30createFolder.png)
+- Select the `Home` directory in the list on the left-hand side
+- At the top right click on the folder icon
+- Type the name of a folder you want to create in your home directory, click Create
+- Click on Open at the bottom right
 
-Go to the directory where you extracted the files and run `java -jar owlcms.jar`
+![32createFolder](img/RPi/32createFolder.png)
+
+- Start a terminal window; you will be in your home directory
+- Type `cd owlcms` (use the name of the folder you created)
+- Type `java -jar owlcms.jar`
 
 ![50run](img/RPi/50run.png)
 

@@ -36,7 +36,6 @@
   * [Translations](Translation)
   * [Configuration Parameters](Configuration)
   * [Feature Toggles](FeatureToggles)
-  * [Updating Cloud-based Applications](UpdatingCloudApplications)
   * [Simulation and Load Testing](Simulation)
   * [MQTT Server Configuration](MQTT)
   * [MQTT Messaging Specification](MQTTMessages)
