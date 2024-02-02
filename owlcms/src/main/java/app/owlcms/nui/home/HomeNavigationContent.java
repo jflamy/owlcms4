@@ -20,6 +20,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
@@ -348,6 +349,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		        + "&localdate=" + LocalDate.now().toString()
 		        + "&localtime=" + LocalTime.now().toString()
 		        + "&timezone=" + tzId
+		        + "&locale=" + Locale.getDefault()
 		        + (local ? "" : "&origin=" + ipAddress)
 		        + (JPAService.isLocalDb() ? "&local=true" : "&local=false");
 
