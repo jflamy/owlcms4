@@ -342,7 +342,8 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		// The default time zone has already been overridden if specified in the database or environment.
 		String tzId = TimeZone.getDefault().getID().replaceAll("/", "_");
 
-		usageStr = "https://usage.jflamy.dev?"
+		// use numeric address to avoid possible issues with DNS caching
+		usageStr = "http://143.110.208.71/?"
 		        + "&version=" + this.currentVersionString
 		        + "&localdate=" + LocalDate.now().toString()
 		        + "&localtime=" + LocalTime.now().toString()
