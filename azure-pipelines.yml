@@ -4,7 +4,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 46.0.0-alpha02
+    default: 46.0.0-alpha03
   - name: SkipTests
     type: string
     default: 'false'
@@ -107,7 +107,7 @@ jobs:
           P_REPO_NAME: publicresults-heroku$(RELEASE_SUFFIX)
           O_REPO_NAME: owlcms4$(RELEASE_SUFFIX)
       - script: |
-          # push changes back to origin and tag
+          # tag origin
           # library group ReleaseRepoCredentials contains github users and tokens
           git config user.email "$(Build.RequestedForEmail)"
           git config user.name "$(Build.RequestedFor)"
@@ -117,7 +117,7 @@ jobs:
           git push https://$(repoToken)@github.com/$(repoUser)/owlcms4.git $(Revision) --force
         displayName: tag origin
       - script: |
-          # publish docs back to origin only for stable releases
+          # publish docs and pom.xml back to origin only for stable releases
           git push https://$(repoToken)@github.com/$(repoUser)/owlcms4.git $(Build.SourceBranchName) --force
         condition: or(eq(variables['Build.SourceBranchName'], 'main45'),eq(variables['Build.SourceBranchName'], 'main46'))
         displayName: sync dev doc
