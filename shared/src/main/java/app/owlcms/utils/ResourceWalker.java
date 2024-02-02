@@ -652,14 +652,14 @@ public class ResourceWalker {
 			        Paths.get("..", "shared", "src", "main", "resources", "i18n"), "i18n");
 			addToResourceMap(resourceMap, ResourceWalker::relativeName, startsWith, locale,
 			        Paths.get("..", "shared", "src", "main", "resources", "css"), "css");
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			// ignore in production
 		}
 
 		try {
 			addToResourceMap(resourceMap, ResourceWalker::relativeName, startsWith, locale,
 			        getLocalDirPath(), null);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			// ignore in cloud mode.
 		}
 //
