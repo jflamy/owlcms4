@@ -7,6 +7,7 @@
 > You should always test any new release several days in advance, with your own data.
 
 ##### 46.0
+- (alpha04) Use numeric IPV4 address to log usage
 - (alpha03) Updated Moquette version
 - (alpha03) Build: Only push back the documentation back to the dev branch when doing stable version builds.  The dev documentation is actually the one referenced by search engines (we have no control) 
 - Templates and documents
