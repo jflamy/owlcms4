@@ -2,7 +2,7 @@ Several installation options are possible, depending on what is available at the
 
 - Stand-alone installation, if you prefer to run things locally ([description below](#stand-alone-laptop-installation))
   - [Windows Stand-alone Installation](LocalWindowsSetup)
-  - [Linux or Mac Stand-alone Installation](LocalLinuxMacSetup)
+  - [Linux, Raspberry or Mac Stand-alone Installation](LocalLinuxMacSetup)
 
 - Cloud-based installation, where all you need are browsers (and a good internet connection). This is a good option for club competitions and virtual competitions. ([description below](#cloud-based-installation))
 
@@ -29,7 +29,7 @@ In a local stand-alone setup, there is no reliance on a trustworthy internet con
 See the following instructions
 
   * [Windows Stand-alone Installation](LocalWindowsSetup)
-  * [Linux or Mac Stand-alone Installation](LocalLinuxMacSetup)
+  * [Linux, Raspberry or Mac Stand-alone Installation](LocalLinuxMacSetup)
 
 
 

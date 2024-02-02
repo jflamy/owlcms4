@@ -13,13 +13,13 @@ By default, owlcms arranges for the css and image files to be fetched again, onc
 However, when we are editing the files using the browser developer mode, we want the files to be named exactly as they are on the disk. This is done by using a configuration variable.  To turn off autoversioning and use the developer mode features:
 
 - If running on Windows, use Notepad to add `-DcssEdit=true` on a line at the top  the `owlcms.l4j.ini` file in the installation directory (you may see the file named as `owlcms.l4j` depending on your Windows settings.)
-- On Linux or MacOS, use `java -DcssEdit=true -jar owlcms.jar` to launch the program.
+- On Linux, Raspberry or MacOS, use `java -DcssEdit=true -jar owlcms.jar` to launch the program.
 
 After fixing your css files, you should undo your changes and put the value back to false, and restart the server.  This will ensure you get the recent copy for you normal tests.  When the variable is missing or false, the css files are refreshed after each server restart.
 
 ### Using the Browser Developer Mode
 
-The recommended way to edit the CSS files is to use the developer mode in your browser.  This allows you to immediately see the impact of your changes.  The examples below use Edge but the process is the same with Chrome.
+One way to edit the CSS files is to use the developer mode in your browser.  This allows you to immediately see the impact of your changes.  The examples below use Edge but the process is the same with Chrome.
 
 1. First, open the scoreboard you want to edit.  The color scheme is shared across scoreboards, so we usually use the "scoreboard + leaders".  
 2. Use Ctrl-F5 to reload the page clearing the previous caches. 

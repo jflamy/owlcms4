@@ -3,13 +3,13 @@
 Parameters can be set in several ways:
 
 1. As Java System Properties
-   1. On Mac OS and Linux, on the java command line using the `-Dvariable=value` syntax, immediately after the java word.
+   1. On Mac OS, Linux and RaspberryOS, on the java command line using the `-Dvariable=value` syntax, immediately after the java word.
       `java -Dport=80 owlcms.jar`
    2. On Windows, in the `owlcms.l4j.ini` file which is read by the `owlcms.exe` file
 2. As Environment Variables.  See the table below to see the correspondence with System Properties
    1. On Windows, these are set using the control panel.  Click on the windows icon at the bottom left and type `envi` .  Select `Edit the Environment Variables for your account` and add the variable name and value you need.
       Setting the variable `OWLCMS_PORT` to the value `80` is the same as using `-Dport=80`.
-   2. On Linux and Mac OS, these are set in the `~/.bash_profile` file.  Google a tutorial if not familiar with this process.
+   2. On Mac OS, Linux and RaspberryOS, these are set in the `~/.bash_profile` file.  Google a tutorial if not familiar with this process.
    3. On Fly.io, use the `flyctl secrets set NAM1E=VALUE1 NAME2=VALUE2`... command.
    4. In Docker, use the ENV command.
 

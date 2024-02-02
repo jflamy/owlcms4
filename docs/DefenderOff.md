@@ -51,4 +51,4 @@ If some kind soul donates the money, I'll do the certificate song and dance, unt
 
 ## Is there a real risk?
 
-Well, no.  The windows program you are downloading is a very simple packaging that just makes it easier to install the app.  Inside the packaging is the exact same program that runs on Mac, on Linux, and in the cloud on Fly.io or Docker.  There is simply no Windows-specific code in there, and the program runs without any special privilege whatsoever.
+Well, no.  The windows program you are downloading is a very simple packaging that just makes it easier to install the app.  Inside the packaging is the exact same program that runs on Mac, on Raspberry, and in the cloud on Fly.io or Docker.  There is simply no Windows-specific code in there, and the program runs without any special privilege whatsoever.

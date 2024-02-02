@@ -35,7 +35,7 @@
 Most people run the program on a laptop at the competition site ([overview](InstallationOverview#stand-alone-laptop-installation))
 
 - [Windows Stand-alone Installation](LocalWindowsSetup)
-- [Linux or Mac Stand-alone Installation](LocalLinuxMacSetup)
+- [Linux, Raspberry or Mac Stand-alone Installation](LocalLinuxMacSetup)
 
 You can also run the program in the cloud, in which case you don't have to install anything and can run your consoles and displays directly from the Internet.
 
