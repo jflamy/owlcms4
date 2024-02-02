@@ -30,10 +30,11 @@
 	<properties>
 		<!-- revision is overridden by azure-pipelines.yml for the official
 		builds. this value is only used for local development -->
-		<revision>46.0.0-alpha04</revision>
+		<revision>46.0.0-SNAPSHOT</revision>
+		
+		<!-- only used for builds -->
 		<owlcms-maven-url>https://maven.lerta.ca</owlcms-maven-url>
-		<owlcms-maven-suffix>/releases</owlcms-maven-suffix> <!-- /snapshots if
-		revision is -SNAPSHOT -->
+		<owlcms-maven-suffix>/releases</owlcms-maven-suffix> 
 		<owlcms-docker>docker.io/owlcms</owlcms-docker>
 
 		<!-- maven configs -->
