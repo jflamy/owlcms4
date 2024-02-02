@@ -279,12 +279,13 @@
 		</dependency>
 
 		<!--
-		https://mvnrepository.com/artifact/org.glassfish.external/opendmk_jmxremote_optional_jar -->
+		https://mvnrepository.com/artifact/org.glassfish.external/opendmk_jmxremote_optional_jar
 		<dependency>
 			<groupId>org.glassfish.external</groupId>
 			<artifactId>opendmk_jmxremote_optional_jar</artifactId>
 			<version>1.0-b01-ea</version>
 		</dependency>
+		-->
 
 		<!--
 		https://mvnrepository.com/artifact/org.eclipse.paho/org.eclipse.paho.client.mqttv3 -->
@@ -305,7 +306,7 @@
 		<dependency>
 			<groupId>io.moquette</groupId>
 			<artifactId>moquette-broker</artifactId>
-			<version>0.16</version>
+			<version>0.17</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>

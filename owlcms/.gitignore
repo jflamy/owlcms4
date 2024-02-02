@@ -12,3 +12,4 @@
 /vite.generated.ts
 /local-ru/
 /*.mjs
+/mqttData/

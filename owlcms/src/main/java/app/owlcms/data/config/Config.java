@@ -40,7 +40,6 @@ import app.owlcms.servlet.FileServlet;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
-import io.moquette.BrokerConstants;
 import io.moquette.broker.config.IConfig;
 
 /**
@@ -836,7 +835,7 @@ public class Config {
 		// anonymous allowed iff mqttUserName is empty or null.
 		// we cannot override Moquette login to directly invoke our authenticator...
 		if (getMqttConfig() != null) {
-			getMqttConfig().setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME,
+			getMqttConfig().setProperty(IConfig.ALLOW_ANONYMOUS_PROPERTY_NAME,
 					Boolean.toString(mqttUserName == null || mqttUserName.isBlank()));
 		}
 		this.mqttUserName = mqttUserName;

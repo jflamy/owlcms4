@@ -8,6 +8,7 @@ package app.owlcms;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -51,7 +52,6 @@ import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
-import io.moquette.BrokerConstants;
 import io.moquette.broker.Server;
 import io.moquette.broker.config.IConfig;
 import io.moquette.broker.config.MemoryConfig;
@@ -60,7 +60,8 @@ import io.moquette.interception.InterceptHandler;
 import io.moquette.interception.messages.InterceptPublishMessage;
 
 /**
- * Main class for launching owlcms through an embedded jetty server.
+ * Main class for launching owlcms using an embedded jetty server.
+ * Also start an embedded MQTT moquette server
  *
  * @author Jean-François Lamy
  */
@@ -77,6 +78,11 @@ public class Main {
 		public void onPublish(InterceptPublishMessage msg) {
 			final String decodedPayload = msg.getPayload().toString(UTF_8);
 			logger.debug("Received on topic: " + msg.getTopicName() + " content: " + decodedPayload);
+		}
+
+		@Override
+		public void onSessionLoopError(Throwable error) {
+			logger.error("mqtt onSessionLoopError: " + error);
 		}
 	}
 
@@ -348,6 +354,7 @@ public class Main {
 		masters = StartupUtils.getBooleanParam("masters");
 	}
 
+	@SuppressWarnings("deprecation")
 	private static void startMQTT() {
 		Config conf = Config.getCurrent();
 		Boolean mqttInternal = conf.getMqttInternal();
@@ -366,12 +373,16 @@ public class Main {
 		mqttStartup = Long.toString(System.currentTimeMillis());
 		final IConfig mqttConfig = new MemoryConfig(new Properties());
 		Config.getCurrent().setMqttConfig(mqttConfig);
-		mqttConfig.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME,
+		mqttConfig.setProperty(IConfig.ALLOW_ANONYMOUS_PROPERTY_NAME,
 		        Boolean.toString(Config.getCurrent().getParamMqttUserName() == null));
-		mqttConfig.setProperty(BrokerConstants.AUTHENTICATOR_CLASS_NAME, "app.owlcms.init.MoquetteAuthenticator");
-		mqttConfig.setProperty(BrokerConstants.PERSISTENT_STORE_PROPERTY_NAME, "");
-		mqttConfig.setProperty(BrokerConstants.IMMEDIATE_BUFFER_FLUSH_PROPERTY_NAME, "true");
-		mqttConfig.setProperty(BrokerConstants.PORT_PROPERTY_NAME, Config.getCurrent().getParamMqttPort());
+		mqttConfig.setProperty(IConfig.AUTHENTICATOR_CLASS_NAME, "app.owlcms.init.MoquetteAuthenticator");
+		mqttConfig.setProperty(IConfig.PORT_PROPERTY_NAME, Config.getCurrent().getParamMqttPort());
+		mqttConfig.setProperty(IConfig.BUFFER_FLUSH_MS_PROPERTY_NAME, Integer.toString(0));
+		mqttConfig.setProperty(IConfig.PERSISTENCE_ENABLED_PROPERTY_NAME, Boolean.FALSE.toString());
+		// this should be in memory, but the DATA_PATH_PROPERTY_NAME does not work with a virtual file system
+		mqttConfig.setProperty(IConfig.DATA_PATH_PROPERTY_NAME,"mqttData");
+		new File(mqttConfig.getProperty(IConfig.DATA_PATH_PROPERTY_NAME)).mkdirs();
+
 
 		final Server mqttBroker = new Server();
 		List<? extends InterceptHandler> userHandlers = Collections.singletonList(new PublisherListener());
