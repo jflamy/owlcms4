@@ -6,7 +6,7 @@
 ##### 45.2
 
 - When using records from multiple federations, 
-  - if there were identical records (e.g. Canadian Record = PanAm record) the record loaded last would be falsely ignored as a duplicate.
+  - if there were identical records bearing the same name but in different federations the record loaded last would be falsely ignored as a duplicate
   - The setting for "show records from all federations" did not cover all cases.
   - The list of eligible federations did not work if there were spaces around the "," or ";" separator.
 
