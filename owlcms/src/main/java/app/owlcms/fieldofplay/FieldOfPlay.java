@@ -2488,8 +2488,6 @@ public class FieldOfPlay {
 		// is the previous athlete.
 		this.logger.debug("{}simulateDecision setting previousAthlete to {} -- {}", getLoggingName(), ed.getAthlete());
 		this.setPreviousAthlete(ed.getAthlete());
-		// FIXME why is this required ?
-		// this.setClockOwnerInitialTimeAllowed(0);
 	}
 
 	private String stateName(FOPState state2) {
