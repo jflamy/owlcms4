@@ -58,8 +58,17 @@ public class RecordFilter {
 			
 			rowOrder.put(order , re.getRecordName());
 			// synthetic key to arrange records in correct box.
-			recordsByAgeWeight.put(re.getRecordFederation()+(re.getGender().ordinal() * 100000000) + re.getAgeGrpLower() * 1000000
-			        + re.getAgeGrpUpper() * 1000 + re.getBwCatUpper(), re);
+			
+//			String key = re.getRecordFederation()+(re.getGender().ordinal() * 100000000) + re.getAgeGrpLower() * 1000000
+//			        + re.getAgeGrpUpper() * 1000 + re.getBwCatUpper();
+//			recordsByAgeWeight.put(key, re);
+
+			try {
+				String key2 = String.format("%d_%03d_%03d_%03d_%s",re.getGender().ordinal(), re.getAgeGrpLower(), re.getAgeGrpUpper(), re.getBwCatUpper(), re.getRecordFederation());
+				recordsByAgeWeight.put(key2, re);
+			} catch (Exception e) {
+				logger.error("formatting error {}",e);
+			}
 		}
 
 		// order columns left to right in ascending age groups;
@@ -241,7 +250,7 @@ public class RecordFilter {
 	public static List<RecordEvent> computeDisplayableRecordsForAthlete(Athlete curAthlete) {
 		List<RecordEvent> records = RecordRepository.findFiltered(curAthlete.getGender(), curAthlete.getAge(),
 		        curAthlete.getBodyWeight(), null, null);
-		logger.warn("initial records fetched {} {} {} {}", curAthlete.getGender(), curAthlete.getAge(), curAthlete.getBodyWeight(), records);
+		logger.debug("initial records fetched {} {} {} {}", curAthlete.getGender(), curAthlete.getAge(), curAthlete.getBodyWeight(), records);
 
 		// remove duplicates for each kind of record, keep largest.
 		// Beware: must take federation into account.
@@ -249,13 +258,13 @@ public class RecordFilter {
 		for (RecordEvent r : records) {
 			RecordEvent curMax = cleanMap.get(r.getKey());
 			if (curMax == null || r.getRecordValue() > curMax.getRecordValue()) {
-				logger.warn("updating {} {}", r.getKey(), r.getRecordValue());
+				logger.debug("updating {} {}", r.getKey(), r.getRecordValue());
 				cleanMap.put(r.getKey(), r);
 			} else {
-				logger.warn("DISCARDING {} {}", r.getKey(), r.getRecordValue());
+				logger.debug("DISCARDING {} {}", r.getKey(), r.getRecordValue());
 			}
 		}
-		logger.warn("displayable records {} {} {} {}", curAthlete.getGender(), curAthlete.getAge(), curAthlete.getBodyWeight(), cleanMap.values());
+		logger.debug("displayable records {} {} {} {}", curAthlete.getGender(), curAthlete.getAge(), curAthlete.getBodyWeight(), cleanMap.values());
 		return new ArrayList<RecordEvent>(cleanMap.values());
 	}
 
