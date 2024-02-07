@@ -262,7 +262,7 @@ public class RecordEvent {
 	}
 
 	public String getKey() {
-		return getRecordName() + "_" + getRecordLift() + "_" + getBwCatLower() + "_" + getBwCatUpper() + "_"
+		return getRecordFederation() + "_" + getRecordName() + "_" + getRecordLift() + "_" + getBwCatLower() + "_" + getBwCatUpper() + "_"
 				+ getAgeGrpLower() + "_" + getAgeGrpUpper();
 	}
 
@@ -514,25 +514,26 @@ public class RecordEvent {
 
 	@Override
 	public String toString() {
-		return "RecordEvent [athleteBW=" + this.athleteBW + ", athleteAge=" + this.athleteAge + ", recordValue="
-				+ this.recordValue
-				+ ", ageGrp=" + this.ageGrp + ", ageGrpLower=" + this.ageGrpLower + ", ageGrpUpper=" + this.ageGrpUpper
-				+ ", athleteName=" + this.athleteName + ", birthDate=" + this.birthDate + ", birthYear="
-				+ this.birthYear
-				+ ", bwCatLower=" + this.bwCatLower + ", bwCatUpper=" + this.bwCatUpper + ", event=" + this.event
-				+ ", eventLocation="
-				+ this.eventLocation + ", gender=" + this.gender + ", nation=" + this.nation + ", recordDate="
-				+ this.recordDate
-				+ ", recordFederation=" + this.recordFederation + ", recordLift=" + this.recordLift + ", recordName="
-				+ this.recordName
-				+ ", recordYear=" + this.recordYear + ", fileName=" + this.fileName + ", bwCatString="
-				+ this.bwCatString
-				+ ", groupNameString=" + this.groupNameString + ", categoryString=" + this.categoryString + "]";
+		return getKey();
+//		return "RecordEvent [athleteBW=" + this.athleteBW + ", athleteAge=" + this.athleteAge + ", recordValue="
+//				+ this.recordValue
+//				+ ", ageGrp=" + this.ageGrp + ", ageGrpLower=" + this.ageGrpLower + ", ageGrpUpper=" + this.ageGrpUpper
+//				+ ", athleteName=" + this.athleteName + ", birthDate=" + this.birthDate + ", birthYear="
+//				+ this.birthYear
+//				+ ", bwCatLower=" + this.bwCatLower + ", bwCatUpper=" + this.bwCatUpper + ", event=" + this.event
+//				+ ", eventLocation="
+//				+ this.eventLocation + ", gender=" + this.gender + ", nation=" + this.nation + ", recordDate="
+//				+ this.recordDate
+//				+ ", recordFederation=" + this.recordFederation + ", recordLift=" + this.recordLift + ", recordName="
+//				+ this.recordName
+//				+ ", recordYear=" + this.recordYear + ", fileName=" + this.fileName + ", bwCatString="
+//				+ this.bwCatString
+//				+ ", groupNameString=" + this.groupNameString + ", categoryString=" + this.categoryString + "]";
 	}
 
 	private Integer computeAthleteAgeAtTimeOfRecord() {
 		if (this.recordDate == null) {
-			logger.error("missing record date {} {}", this.athleteName, this.categoryString);
+			//logger.error("missing record date {} {}", this.athleteName, this.categoryString);
 			return null;
 		} else if (this.birthDate != null) {
 			return Period.between(this.birthDate, this.recordDate).getYears();
