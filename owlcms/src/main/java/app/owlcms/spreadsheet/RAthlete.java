@@ -482,4 +482,8 @@ public class RAthlete {
 	private void setLegacyPattern(Pattern legacyPattern) {
 		this.legacyPattern = legacyPattern;
 	}
+
+	public void setSubCategory(String s) {
+		a.setSubCategory(s);
+	}
 }

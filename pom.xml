@@ -192,9 +192,10 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.11.0</version>
+					<version>3.12.1</version>
 					<configuration>
 						<release>17</release>
+						<enablepreview>true</enablepreview>
 						<!-- <compilerArgs> should no longer be needed when
 						moving to JDK 11 -->
 						<!-- <arg>-

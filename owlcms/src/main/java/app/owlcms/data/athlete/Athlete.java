@@ -401,6 +401,7 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	private boolean checkTiming;
+	private String subCategory;
 
 	/**
 	 * Instantiates a new athlete.
@@ -2563,7 +2564,7 @@ public class Athlete {
 		if (Config.getCurrent().featureSwitch("UseCustom2AsSubCategory")) {
 			return (this.getCustom2() != null && !this.getCustom2().isBlank()) ? this.getCustom2() : "A";
 		} else {
-			return "";
+			return subCategory;
 		}
 	}
 
@@ -5277,6 +5278,13 @@ public class Athlete {
 		}
 		this.timingLogger.info("validateDeclaration {}ms {} {}", System.currentTimeMillis() - start, curLift,
 		        LoggerUtils.whereFrom());
+	}
+
+	/**
+	 * @param s = A/B/C/D group -- we don't use the word group because of confusion with session.
+	 */
+	public void setSubCategory(String s) {
+		subCategory = s;
 	}
 
 }

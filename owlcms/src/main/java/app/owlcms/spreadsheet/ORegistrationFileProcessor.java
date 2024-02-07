@@ -38,16 +38,17 @@ import net.sf.jxls.reader.XLSReadMessage;
 import net.sf.jxls.reader.XLSReadStatus;
 import net.sf.jxls.reader.XLSReader;
 
-public class RegistrationFileProcessor {
+public class ORegistrationFileProcessor implements IRegistrationFileProcessor{
 	static final String GROUPS_READER_SPEC = "/templates/registration/GroupsReader.xml";
 	static final String REGISTRATION_READER_SPEC = "/templates/registration/RegistrationReader.xml";
-	Logger logger = (Logger) LoggerFactory.getLogger(RegistrationFileProcessor.class);
+	Logger logger = (Logger) LoggerFactory.getLogger(ORegistrationFileProcessor.class);
 	
 	public boolean keepParticipations;
 
-	public RegistrationFileProcessor() {
+	public ORegistrationFileProcessor() {
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public int doProcessAthletes(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer, Runnable displayUpdater) {
 		try (InputStream xmlInputStream = ResourceWalker.getResourceAsStream(REGISTRATION_READER_SPEC)) {
@@ -104,6 +105,7 @@ public class RegistrationFileProcessor {
 		return 0;
 	}
 
+	@Override
 	public int doProcessGroups(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer, Runnable displayUpdater) {
 		try (InputStream xmlInputStream = ResourceWalker.getResourceAsStream(GROUPS_READER_SPEC)) {
 			inputStream.reset();
@@ -136,7 +138,7 @@ public class RegistrationFileProcessor {
 		return 0;
 	}
 
-	public void appendErrors(Runnable displayUpdater, Consumer<String> errorAppender, XLSReadStatus status) {
+	private void appendErrors(Runnable displayUpdater, Consumer<String> errorAppender, XLSReadStatus status) {
 		@SuppressWarnings("unchecked")
 		List<XLSReadMessage> errors = status.getReadMessages();
 		for (XLSReadMessage m : errors) {
@@ -159,6 +161,7 @@ public class RegistrationFileProcessor {
 		displayUpdater.run();
 	}
 
+	@Override
 	public void updateAthletes(Consumer<String> errorConsumer, RCompetition c, List<RAthlete> athletes) {
 		JPAService.runInTransaction(em -> {
 			Competition curC = Competition.getCurrent();
@@ -220,6 +223,7 @@ public class RegistrationFileProcessor {
 		});
 	}
 
+	@Override
 	public void updatePlatformsAndGroups(List<RGroup> groups) {
 		Set<String> futurePlatforms = groups.stream().map(RGroup::getPlatform).filter(p -> (p != null && !p.isBlank()))
 		        .collect(Collectors.toSet());
@@ -260,6 +264,7 @@ public class RegistrationFileProcessor {
 		});
 	}
 
+	@Override
 	public String cleanMessage(String localizedMessage) {
 		localizedMessage = localizedMessage.replace("Can't read cell ", "");
 		String cell = localizedMessage.substring(0, localizedMessage.indexOf(" "));
@@ -274,6 +279,7 @@ public class RegistrationFileProcessor {
 	}
 
 
+	@Override
 	public void resetAthletes() {
 		// delete all athletes and groups (naive version).
 		JPAService.runInTransaction(em -> {
@@ -286,6 +292,7 @@ public class RegistrationFileProcessor {
 		});
 	}
 
+	@Override
 	public void resetGroups() {
 		// delete all athletes and groups (naive version).
 		JPAService.runInTransaction(em -> {
@@ -298,6 +305,7 @@ public class RegistrationFileProcessor {
 		});
 	}
 
+	@Override
 	public void adjustParticipations() {
 		if (!keepParticipations) {
 			AthleteRepository.resetParticipations();

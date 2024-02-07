@@ -6,9 +6,17 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.function.Consumer;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.util.CellReference;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.dialog.Dialog;
@@ -20,13 +28,14 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 
 import app.owlcms.i18n.Translator;
-import app.owlcms.spreadsheet.RegistrationFileProcessor;
+import app.owlcms.spreadsheet.IRegistrationFileProcessor;
+import app.owlcms.spreadsheet.NRegistrationFileProcessor;
+import app.owlcms.spreadsheet.ORegistrationFileProcessor;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public class NRegistrationFileUploadDialog extends Dialog {
-
 
 	public final static Logger logger = (Logger) LoggerFactory.getLogger(NRegistrationFileUploadDialog.class);
 	final static Logger jxlsLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.reader.SimpleBlockReaderImpl");
@@ -34,8 +43,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 	static {
 		jxlsLogger.setLevel(Level.ERROR);
 	}
-
-	public RegistrationFileProcessor processor = new RegistrationFileProcessor();
+	public IRegistrationFileProcessor processor;
 
 	public NRegistrationFileUploadDialog() {
 
@@ -52,7 +60,16 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		ta.setVisible(false);
 
 		upload.addSucceededListener(event -> {
-			processInput(buffer.getInputStream(), ta);
+			processor = oldFormat(buffer.getInputStream())
+			        ? new ORegistrationFileProcessor()
+			        : new NRegistrationFileProcessor();
+			try {
+				buffer.getInputStream().reset();
+				processInput(buffer.getInputStream(), ta);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+
 		});
 
 		upload.addStartedListener(event -> {
@@ -65,6 +82,22 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		add(vl);
 	}
 
+	private boolean oldFormat(InputStream inputStream) {
+		try (Workbook workbook = WorkbookFactory.create(inputStream)) {
+			Sheet sheet = workbook.getSheetAt(0);
+			CellReference cr = new CellReference("A1");
+			Row row = sheet.getRow(cr.getRow());
+			Cell cell = row.getCell(cr.getCol());
+			// empty cell indicates old format
+			boolean nullCell = cell == null;
+			CellType cellType = cell.getCellType();
+			return (nullCell || cellType == CellType.BLANK);
+		} catch (Exception e) {
+			logger.error("cannot determine format {}", e);
+		}
+		return false;
+	}
+
 	public void processInput(InputStream inputStream, TextArea ta) {
 		// clear athletes to be able to clear groups
 		this.processor.resetAthletes();
@@ -72,7 +105,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		// first do a dry run to count groups
 		int nbGroups = processGroups(inputStream, ta, true);
 		if (nbGroups > 0) {
-			// new format, reset groups from spreadsheet
+			// get the groups from the spreadsheet
 			this.processor.resetGroups();
 			processGroups(inputStream, ta, false);
 		}
@@ -103,6 +136,5 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			ta.setVisible(true);
 		}
 	}
-
 
 }
