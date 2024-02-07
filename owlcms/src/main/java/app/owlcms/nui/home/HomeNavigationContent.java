@@ -20,6 +20,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
@@ -342,11 +343,13 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		// The default time zone has already been overridden if specified in the database or environment.
 		String tzId = TimeZone.getDefault().getID().replaceAll("/", "_");
 
-		usageStr = "https://usage.jflamy.dev?"
+		// use numeric address to avoid possible issues with DNS caching
+		usageStr = "http://143.110.208.71/?"
 		        + "&version=" + this.currentVersionString
 		        + "&localdate=" + LocalDate.now().toString()
 		        + "&localtime=" + LocalTime.now().toString()
 		        + "&timezone=" + tzId
+		        + "&locale=" + Locale.getDefault()
 		        + (local ? "" : "&origin=" + ipAddress)
 		        + (JPAService.isLocalDb() ? "&local=true" : "&local=false");
 
