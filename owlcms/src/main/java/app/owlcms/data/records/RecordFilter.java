@@ -49,7 +49,7 @@ public class RecordFilter {
 			return Json.createNull();
 		}
 
-		Multimap<Integer, RecordEvent> recordsByAgeWeight = ArrayListMultimap.create();
+		Multimap<String, RecordEvent> recordsByAgeWeight = ArrayListMultimap.create();
 		TreeMap<String, String> rowOrder = new TreeMap<>();
 		for (RecordEvent re : displayedRecords) {
 			// rows are ordered according to configuration
@@ -57,13 +57,13 @@ public class RecordFilter {
 			String order = getRowOrder(re.getRecordName(), re.getFileName());
 			
 			rowOrder.put(order , re.getRecordName());
-			// synthetic key to arrange records in correct column.
-			recordsByAgeWeight.put((re.getGender().ordinal() * 100000000) + re.getAgeGrpLower() * 1000000
+			// synthetic key to arrange records in correct box.
+			recordsByAgeWeight.put(re.getRecordFederation()+(re.getGender().ordinal() * 100000000) + re.getAgeGrpLower() * 1000000
 			        + re.getAgeGrpUpper() * 1000 + re.getBwCatUpper(), re);
 		}
 
 		// order columns left to right in ascending age groups;
-		List<Integer> columnOrder = recordsByAgeWeight.keySet().stream().sorted((e1, e2) -> Integer.compare(e1, e2))
+		List<String> columnOrder = recordsByAgeWeight.keySet().stream().sorted()
 		        .collect(Collectors.toList());
 		
 		@SuppressWarnings("unchecked")
@@ -221,9 +221,14 @@ public class RecordFilter {
 		List<RecordEvent> records;
 		//logger.debug("candidate records {}", candidateRecords);
 		String federationCodes = curAthlete.getFederationCodes();
-		Set<String> athleteFederations = (federationCodes == null || federationCodes.isBlank())
-		        ? Set.of()
-		        : new HashSet<>(Arrays.asList(federationCodes.split("[,;]")));
+		
+		Set<String> athleteFederations;
+		if (federationCodes == null || federationCodes.isBlank()) {
+			athleteFederations =  Set.of();
+		} else {
+			federationCodes = federationCodes.replaceAll("[ ]*,[ ]*",",");
+			athleteFederations = new HashSet<>(Arrays.asList(federationCodes.split("[,;]")));
+		}
 		//logger.debug(" *** athlete {} agegroups {} federations {}", curAthlete.getShortName(), curAthlete.getEligibleCategories(), athleteFederations);
 		records = candidateRecords.stream()
 				//.peek(c -> logger.debug("{} {}",c.getAgeGrp(), c.getRecordFederation()))
@@ -236,19 +241,21 @@ public class RecordFilter {
 	public static List<RecordEvent> computeDisplayableRecordsForAthlete(Athlete curAthlete) {
 		List<RecordEvent> records = RecordRepository.findFiltered(curAthlete.getGender(), curAthlete.getAge(),
 		        curAthlete.getBodyWeight(), null, null);
-		//logger.debug("records size {} {} {} {}", curAthlete.getGender(), curAthlete.getAge(), curAthlete.getBodyWeight(), records);
+		logger.warn("initial records fetched {} {} {} {}", curAthlete.getGender(), curAthlete.getAge(), curAthlete.getBodyWeight(), records);
 
-		// remove duplicates for each kind of record, keep largest
+		// remove duplicates for each kind of record, keep largest.
+		// Beware: must take federation into account.
 		Map<String, RecordEvent> cleanMap = new HashMap<>();
 		for (RecordEvent r : records) {
 			RecordEvent curMax = cleanMap.get(r.getKey());
 			if (curMax == null || r.getRecordValue() > curMax.getRecordValue()) {
-				//if (curAthlete.getStartNumber() == 5) logger.debug("updating {} {}", r.getKey(), r.getRecordValue());
+				logger.warn("updating {} {}", r.getKey(), r.getRecordValue());
 				cleanMap.put(r.getKey(), r);
 			} else {
-				//if (curAthlete.getStartNumber() == 5) logger.debug("DISCARDING {} {}", r.getKey(), r.getRecordValue());
+				logger.warn("DISCARDING {} {}", r.getKey(), r.getRecordValue());
 			}
 		}
+		logger.warn("displayable records {} {} {} {}", curAthlete.getGender(), curAthlete.getAge(), curAthlete.getBodyWeight(), cleanMap.values());
 		return new ArrayList<RecordEvent>(cleanMap.values());
 	}
 
