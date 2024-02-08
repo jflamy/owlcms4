@@ -1,14 +1,21 @@
-> **Version 45.1**	
+> **Version 45**	
 >
 > - Version 45 is a technical release that updates the way the scoreboard styling is done.  There is now support for 4K TV screens, and better support for phones and tablets.  Vertical orientation is also supported.  *If you have customized your own CSS style files, see the section at the bottom of these notes.*
 > - Reminder: you should always test any new release several days in advance, with your own data.
+
+##### 45.2
+
+- When using records from multiple federations, 
+  - if there were identical records bearing the same name but in different federations the record loaded last would be ignored as a duplicate
+  - The setting for "show records from all federations" did not cover all cases.
+  - The list of eligible federations did not work if there were spaces around the "," or ";" separator.
 
 **45.1**
 
 - Wrap-up release. Work has started on release 46.
 - Only the addresses reachable from other computers are shown on the home page. Loopback (127.*) and APIPA (168.154.*) addresses are no longer shown.
 - Green highlights for frequently used buttons on various pages
-- Do not suggest updating to an alpha version.
+- We no longer suggest updating to an alpha version.
 
 ##### 45.0
 - Templates and documents
