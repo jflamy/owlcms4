@@ -359,7 +359,7 @@ public class RAthlete {
 //		        .collect(Collectors.toSet());
 		List<Category> eligibles = CategoryRepository.doFindEligibleCategories(a, a.getGender(), age, searchBodyWeight, qualifyingTotal);
 		a.setEligibleCategories(new HashSet<>(eligibles));
-
+logger.warn("eligibles {} {} {}", age, qualifyingTotal, eligibles);
 		Category category = eligibles.size() > 0 ? eligibles.get(0) : null;
 		if (category == null) {
 			throw new Exception(
