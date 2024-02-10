@@ -48,14 +48,16 @@ import net.sf.jxls.reader.ReaderConfig;
 
 public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 
+	record AthleteInput(List<RAthlete> athletes) {
+	};
+
 	/* some setters must be called in a specific order; */
 	private enum DelayedSetter {
 		BIRTHDATE, BODYWEIGHT, QUALIFYING_TOTAL, GENDER, CATEGORY
-	};
-
-	Integer[] delayedSetterColumns = new Integer[DelayedSetter.values().length];
+	}
 	static final String GROUPS_READER_SPEC = "/templates/registration/GroupsReader.xml";
 	static final String REGISTRATION_READER_SPEC = "/templates/registration/RegistrationReader.xml";
+	Integer[] delayedSetterColumns = new Integer[DelayedSetter.values().length];
 	Logger logger = (Logger) LoggerFactory.getLogger(NRegistrationFileProcessor.class);
 	public boolean keepParticipations;
 	@SuppressWarnings("unchecked")
@@ -63,10 +65,36 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	FormulaEvaluator formulaEvaluator;
 	DataFormatter formatter;
 
-	record AthleteInput(List<String> status, List<RAthlete> athletes) {
-	};
+	private boolean createMissingGroups = true;
 
 	public NRegistrationFileProcessor() {
+	}
+
+	/**
+	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#adjustParticipations()
+	 */
+	@Override
+	public void adjustParticipations() {
+		if (!keepParticipations) {
+			AthleteRepository.resetParticipations();
+		}
+	}
+
+	/**
+	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#cleanMessage(java.lang.String)
+	 */
+	@Override
+	public String cleanMessage(String localizedMessage) {
+		localizedMessage = localizedMessage.replace("Can't read cell ", "");
+		String cell = localizedMessage.substring(0, localizedMessage.indexOf(" "));
+		String ss = "spreadsheet";
+		int ix = localizedMessage.indexOf(ss) + ss.length();
+		localizedMessage = localizedMessage.substring(ix);
+		if (localizedMessage.trim().contentEquals("text")) {
+			localizedMessage = "Empty or invalid.";
+		}
+		String cleanMessage = Translator.translate("Cell") + " " + cell + ": " + localizedMessage;
+		return cleanMessage;
 	}
 
 	/**
@@ -81,17 +109,17 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 		try (InputStream xlsInputStream = inputStream) {
 			inputStream.reset();
 			RCompetition c = new RCompetition();
-			// RCompetition.resetActiveCategories();
-			// RCompetition.resetActiveGroups();
-			// RCompetition.resetAthleteToEligibles();
-			// RCompetition.resetAthleteToTeams();
+			RCompetition.resetActiveCategories();
+			RCompetition.resetActiveGroups();
+			RCompetition.resetAthleteToEligibles();
+			RCompetition.resetAthleteToTeams();
 
 			List<RAthlete> athletes = new ArrayList<>();
 			AthleteInput athleteInput;
 			try (Workbook workbook = WorkbookFactory.create(xlsInputStream)) {
 				formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
 				formatter = new DataFormatter();
-				athleteInput = readAthletes(workbook, errorConsumer);
+				athleteInput = readAthletes(workbook, c, errorConsumer);
 			} catch (IOException | EncryptedDocumentException e) {
 				errorConsumer.accept(e.getLocalizedMessage());
 				LoggerUtils.logError(logger, e);
@@ -113,7 +141,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 
 			if (athletes.size() > 0) {
 				updateAthletes(errorConsumer, c, athletes);
-				appendErrors(displayUpdater, errorConsumer, athleteInput.status);
+				appendErrors(displayUpdater, errorConsumer);
 			} else {
 				errorConsumer.accept(Translator.translate("NoAthletes"));
 				displayUpdater.run();
@@ -126,7 +154,212 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 		return 0;
 	}
 
-	private AthleteInput readAthletes(Workbook workbook, Consumer<String> errorConsumer) {
+	/**
+	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#doProcessGroups(java.io.InputStream, boolean,
+	 *      java.util.function.Consumer, java.lang.Runnable)
+	 */
+	@Override
+	public int doProcessGroups(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer,
+	        Runnable displayUpdater) {
+		try (InputStream xmlInputStream = ResourceWalker.getResourceAsStream(GROUPS_READER_SPEC)) {
+			inputStream.reset();
+			ReaderConfig readerConfig = ReaderConfig.getInstance();
+			readerConfig.setUseDefaultValuesForPrimitiveTypes(true);
+			readerConfig.setSkipErrors(true);
+
+			try (InputStream xlsInputStream = inputStream) {
+				List<RGroup> groups = new ArrayList<>();
+
+				Map<String, Object> beans = new HashMap<>();
+				beans.put("groups", groups);
+
+				// logger.info(getTranslation("ReadingData_"));
+				logger.info("Read {} groups.", groups.size());
+				if (!dryRun) {
+					updatePlatformsAndGroups(groups);
+				}
+
+				// FIXME real errors
+				appendErrors(displayUpdater, errorConsumer);
+				return groups.size();
+			} catch (IOException e) {
+				LoggerUtils.logError(logger, e);
+			}
+		} catch (IOException e1) {
+			LoggerUtils.logError(logger, e1);
+		}
+		return 0;
+	}
+
+	public boolean isCreateMissingGroups() {
+		return createMissingGroups;
+	}
+
+	/**
+	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#resetAthletes()
+	 */
+	@Override
+	public void resetAthletes() {
+		// delete all athletes and groups (naive version).
+		JPAService.runInTransaction(em -> {
+			List<Athlete> athletes = AthleteRepository.doFindAll(em);
+			for (Athlete a : athletes) {
+				em.remove(a);
+			}
+			em.flush();
+			return null;
+		});
+	}
+
+	/**
+	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#resetGroups()
+	 */
+	@Override
+	public void resetGroups() {
+		// delete all athletes and groups (naive version).
+		JPAService.runInTransaction(em -> {
+			List<Group> oldGroups = GroupRepository.doFindAll(em);
+			for (Group g : oldGroups) {
+				em.remove(g);
+			}
+			em.flush();
+			return null;
+		});
+	}
+
+	public void setCreateMissingGroups(boolean createMissingGroups) {
+		this.createMissingGroups = createMissingGroups;
+	}
+
+	/**
+	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#updateAthletes(java.util.function.Consumer,
+	 *      app.owlcms.spreadsheet.RCompetition, java.util.List)
+	 */
+	@Override
+	public void updateAthletes(Consumer<String> errorConsumer, RCompetition c, List<RAthlete> athletes) {
+		JPAService.runInTransaction(em -> {
+			// Competition curC = Competition.getCurrent();
+			try {
+
+				// updateCompetitionInfo(c, em, curC);
+
+				// Create the new athletes.
+				athletes.stream().forEach(r -> {
+					Athlete athlete = r.getAthlete();
+					//logger.debug("merging {}", athlete.getShortName());
+					em.merge(athlete);
+				});
+				em.flush();
+			} catch (Exception e) {
+				LoggerUtils.stackTrace(e);
+				errorConsumer.accept(e.toString());
+			}
+
+			return null;
+		});
+
+		JPAService.runInTransaction(em -> {
+			AthleteRepository.findAll().stream().forEach(a2 -> {
+				LinkedHashSet<Category> eligibles = (LinkedHashSet<Category>) RCompetition
+				        .getAthleteToEligibles()
+				        .get(a2.getId());
+				LinkedHashSet<Category> teams = (LinkedHashSet<Category>) RCompetition
+				        .getAthleteToTeams()
+				        .get(a2.getId());
+				if (eligibles != null) {
+					Category first = eligibles.stream().findFirst().orElse(null);
+					a2.setCategory(first);
+					// logger.debug("setting eligibility {} {}", a2.getShortName(), eligibles);
+					a2.setEligibleCategories(eligibles);
+					List<Participation> participations2 = a2.getParticipations();
+					for (Participation p : participations2) {
+						if (teams.contains(p.getCategory())) {
+							p.setTeamMember(true);
+						} else {
+							logger.info("Excluding {} as team member for {}", a2.getShortName(),
+							        p.getCategory().getComputedCode());
+							p.setTeamMember(false);
+						}
+					}
+					// logger.debug("participations {} {}", a2.getShortName(), a2.getParticipations());
+					em.merge(a2);
+				}
+			});
+			em.flush();
+			return null;
+		});
+	}
+
+	/**
+	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#updatePlatformsAndGroups(java.util.List)
+	 */
+	@Override
+	public void updatePlatformsAndGroups(List<RGroup> groups) {
+		Set<String> futurePlatforms = groups.stream().map(RGroup::getPlatform).filter(p -> (p != null && !p.isBlank()))
+		        .collect(Collectors.toSet());
+
+		String defaultPlatformName = OwlcmsFactory.getDefaultFOP().getName();
+		if (futurePlatforms.isEmpty()) {
+			// keep the current default if no group is linked to a platform.
+			futurePlatforms.add(defaultPlatformName);
+		}
+		logger.debug("to be kept if present: {}", futurePlatforms);
+
+		PlatformRepository.deleteUnusedPlatforms(futurePlatforms);
+		PlatformRepository.createMissingPlatforms(groups);
+
+		// recompute the available platforms, unregister the existing FOPs, etc.
+		OwlcmsFactory.initDefaultFOP();
+		String newDefault = OwlcmsFactory.getDefaultFOP().getName();
+
+		JPAService.runInTransaction(em -> {
+			groups.stream().forEach(g -> {
+				String platformName = g.getPlatform();
+				Group group = g.getGroup();
+				if (platformName == null || platformName.isBlank()) {
+					platformName = newDefault;
+				}
+				logger.info("setting platform '{}' for group {}", platformName, g.getGroupName());
+				Platform op = PlatformRepository.findByName(platformName);
+				group.setPlatform(op);
+				em.merge(group);
+			});
+			em.flush();
+			return null;
+		});
+
+		groups.stream().forEach(g -> {
+			logger.debug("group {} weighIn {} competition {}", g.getGroup(), g.getWeighinTime(),
+			        g.getCompetitionTime());
+		});
+	}
+
+	/**
+	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#appendErrors(java.lang.Runnable,
+	 *      java.util.function.Consumer, net.sf.jxls.reader.XLSReadStatus)
+	 */
+	private void appendErrors(Runnable displayUpdater, Consumer<String> errorAppender) {
+		displayUpdater.run();
+	}
+
+	private String cellToString(Cell cell) {
+		switch (cell.getCellType()) {
+			case FORMULA:
+				return formatter.formatCellValue(cell, formulaEvaluator);
+			default:
+				return formatter.formatCellValue(cell);
+		}
+	}
+
+	private void processException(RAthlete a, String s, Cell c, Exception e, Consumer<String> errorConsumer) {
+		errorConsumer.accept(c.getAddress() + " " + e.getLocalizedMessage() + System.lineSeparator());
+		// logger.error("{} {}", c.getAddress(), e.toString());
+		// if (e instanceof InvocationTargetException) {
+		LoggerUtils.logError(logger, e);
+		// }
+	}
+
+	private AthleteInput readAthletes(Workbook workbook, RCompetition rComp, Consumer<String> errorConsumer) {
 		Sheet sheet = workbook.getSheetAt(0);
 		Iterator<Row> rowIterator = sheet.rowIterator();
 		List<RAthlete> athletes = new LinkedList<>();
@@ -136,14 +369,14 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 			int iColumn = 0;
 			Row row = rowIterator.next();
 			if (iRow == 0) {
-				logger.warn("creating header");
+				//logger.debug("creating header");
 				// header, create map.
 				Iterator<Cell> cellIterator = row.cellIterator();
 				while (cellIterator.hasNext()) {
 					Cell cell = cellIterator.next();
 					String cellValue = cell.getStringCellValue();
 					String trim = cellValue.trim();
-					logger.warn("cell {} {} {} {}", iColumn, iRow, cell.getAddress(), trim);
+					//logger.trace("cell {} {} {} {}", iColumn, iRow, cell.getAddress(), trim);
 
 					if (trim.contentEquals(Translator.translate("Membership"))) {
 						setterForColumn[iColumn] = (a, s, c) -> {
@@ -201,8 +434,6 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 								processException(a, s, c, e, errorConsumer);
 							}
 						});
-
-						// Scoreboard.BodyWeight
 					} else if (trim.contentEquals(Translator.translate("Results.Snatch") + " "
 					        + Translator.translate("Results.Declaration_abbrev"))) {
 						setterForColumn[iColumn] = ((a, s, c) -> {
@@ -214,19 +445,28 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 							a.setCleanJerk1Declaration(s);
 						});
 					} else if (trim.contentEquals(Translator.translate("Group"))) {
-						logger.warn("setter for group {}", iColumn);
 						setterForColumn[iColumn] = ((a, s, c) -> {
 							try {
 								a.setGroup(s);
 							} catch (Exception e) {
-								processException(a, s, c, e, errorConsumer);
+								if (isCreateMissingGroups()) {
+									Group g = GroupRepository.add(new Group(s));
+									rComp.addGroup(g);
+									try {
+										a.setGroup(s);
+									} catch (Exception e1) {
+										processException(a, s, c, e, errorConsumer);
+									}
+								} else {
+									processException(a, s, c, e, errorConsumer);
+								}
 							}
 						});
 					} else if (trim.contentEquals(Translator.translate("Card.entryTotal"))) {
 						delayedSetterColumns[DelayedSetter.QUALIFYING_TOTAL.ordinal()] = iColumn;
 						setterForColumn[iColumn] = ((a, s, c) -> {
 							try {
-								logger.warn("qualifying total {}", s);
+								//logger.debug("qualifying total {}", s);
 								int i = Integer.parseInt(s);
 								a.setQualifyingTotal(i);
 							} catch (Exception e) {
@@ -274,7 +514,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 			} else {
 				RAthlete ra = new RAthlete();
 				Iterator<Cell> cellIterator = row.cellIterator();
-				
+
 				// first pass, memorize values for setters that need to be called in a specific order
 				// call the other setters.
 				String[] delayedSetterValues = new String[DelayedSetter.values().length];
@@ -289,7 +529,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 							break rows;
 						}
 					}
-					int delayedOrder = ArrayUtils.indexOf(delayedSetterColumns,iColumn);
+					int delayedOrder = ArrayUtils.indexOf(delayedSetterColumns, iColumn);
 					if (delayedOrder < 0) {
 						setterForColumn[iColumn].accept(ra, cellValue.trim(), cell);
 					} else {
@@ -298,142 +538,22 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 					}
 					iColumn++;
 				}
-				
+
 				// second pass, call the delayed setters in the correct order.
 				for (int delayedOrder = 0; delayedOrder < DelayedSetter.values().length; delayedOrder++) {
 					Integer setterColumn = delayedSetterColumns[delayedOrder];
-					setterForColumn[setterColumn].accept(ra, delayedSetterValues[delayedOrder], delayedSetterCells[delayedOrder]);
+					setterForColumn[setterColumn].accept(ra, delayedSetterValues[delayedOrder],
+					        delayedSetterCells[delayedOrder]);
 				}
 				athletes.add(ra);
 			}
 
 			iRow++;
 		}
-		// FIXME: accumulate error messages
-		return new AthleteInput(new ArrayList<String>(), athletes);
+		return new AthleteInput(athletes);
 	}
 
-	private String cellToString(Cell cell) {
-		switch (cell.getCellType()) {
-			case FORMULA:
-				return formatter.formatCellValue(cell, formulaEvaluator);
-			default:
-				return formatter.formatCellValue(cell);
-		}
-	}
-
-	private void processException(RAthlete a, String s, Cell c, Exception e, Consumer<String> errorConsumer) {
-		errorConsumer.accept(c.getAddress() + " " + e.getLocalizedMessage() + System.lineSeparator());
-		// logger.error("{} {}", c.getAddress(), e.toString());
-		// if (e instanceof InvocationTargetException) {
-		LoggerUtils.logError(logger, e);
-		// }
-	}
-
-	/**
-	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#doProcessGroups(java.io.InputStream, boolean,
-	 *      java.util.function.Consumer, java.lang.Runnable)
-	 */
-	@Override
-	public int doProcessGroups(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer,
-	        Runnable displayUpdater) {
-		try (InputStream xmlInputStream = ResourceWalker.getResourceAsStream(GROUPS_READER_SPEC)) {
-			inputStream.reset();
-			ReaderConfig readerConfig = ReaderConfig.getInstance();
-			readerConfig.setUseDefaultValuesForPrimitiveTypes(true);
-			readerConfig.setSkipErrors(true);
-
-			try (InputStream xlsInputStream = inputStream) {
-				List<RGroup> groups = new ArrayList<>();
-
-				Map<String, Object> beans = new HashMap<>();
-				beans.put("groups", groups);
-
-				// logger.info(getTranslation("ReadingData_"));
-				logger.info("Read {} groups.", groups.size());
-				if (!dryRun) {
-					updatePlatformsAndGroups(groups);
-				}
-
-				// FIXME real errors
-				appendErrors(displayUpdater, errorConsumer, new ArrayList<String>());
-				return groups.size();
-			} catch (IOException e) {
-				LoggerUtils.logError(logger, e);
-			}
-		} catch (IOException e1) {
-			LoggerUtils.logError(logger, e1);
-		}
-		return 0;
-	}
-
-	/**
-	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#appendErrors(java.lang.Runnable,
-	 *      java.util.function.Consumer, net.sf.jxls.reader.XLSReadStatus)
-	 */
-	private void appendErrors(Runnable displayUpdater, Consumer<String> errorAppender, List<String> status) {
-		displayUpdater.run();
-	}
-
-	/**
-	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#updateAthletes(java.util.function.Consumer,
-	 *      app.owlcms.spreadsheet.RCompetition, java.util.List)
-	 */
-	@Override
-	public void updateAthletes(Consumer<String> errorConsumer, RCompetition c, List<RAthlete> athletes) {
-		JPAService.runInTransaction(em -> {
-			// Competition curC = Competition.getCurrent();
-			try {
-
-				// updateCompetitionInfo(c, em, curC);
-
-				// Create the new athletes.
-				athletes.stream().forEach(r -> {
-					Athlete athlete = r.getAthlete();
-					logger.warn("merging {}", athlete.getShortName());
-					em.merge(athlete);
-				});
-				em.flush();
-			} catch (Exception e) {
-				LoggerUtils.stackTrace(e);
-				errorConsumer.accept(e.toString());
-			}
-
-			return null;
-		});
-
-		JPAService.runInTransaction(em -> {
-			AthleteRepository.findAll().stream().forEach(a2 -> {
-				LinkedHashSet<Category> eligibles = (LinkedHashSet<Category>) RCompetition
-				        .getAthleteToEligibles()
-				        .get(a2.getId());
-				LinkedHashSet<Category> teams = (LinkedHashSet<Category>) RCompetition
-				        .getAthleteToTeams()
-				        .get(a2.getId());
-				if (eligibles != null) {
-					Category first = eligibles.stream().findFirst().orElse(null);
-					a2.setCategory(first);
-					// logger.debug("setting eligibility {} {}", a2.getShortName(), eligibles);
-					a2.setEligibleCategories(eligibles);
-					List<Participation> participations2 = a2.getParticipations();
-					for (Participation p : participations2) {
-						if (teams.contains(p.getCategory())) {
-							p.setTeamMember(true);
-						} else {
-							logger.info("Excluding {} as team member for {}", a2.getShortName(),
-							        p.getCategory().getComputedCode());
-							p.setTeamMember(false);
-						}
-					}
-					// logger.debug("participations {} {}", a2.getShortName(), a2.getParticipations());
-					em.merge(a2);
-				}
-			});
-			em.flush();
-			return null;
-		});
-	}
-
+	@SuppressWarnings("unused")
 	private void updateCompetitionInfo(RCompetition c, EntityManager em, Competition curC)
 	        throws IllegalAccessException, InvocationTargetException {
 		Competition rCompetition = c.getCompetition();
@@ -446,108 +566,5 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 		BeanUtils.copyProperties(curC, rCompetition);
 		// update in database and set current to result of JPA merging.
 		Competition.setCurrent(em.merge(curC));
-	}
-
-	/**
-	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#updatePlatformsAndGroups(java.util.List)
-	 */
-	@Override
-	public void updatePlatformsAndGroups(List<RGroup> groups) {
-		Set<String> futurePlatforms = groups.stream().map(RGroup::getPlatform).filter(p -> (p != null && !p.isBlank()))
-		        .collect(Collectors.toSet());
-
-		String defaultPlatformName = OwlcmsFactory.getDefaultFOP().getName();
-		if (futurePlatforms.isEmpty()) {
-			// keep the current default if no group is linked to a platform.
-			futurePlatforms.add(defaultPlatformName);
-		}
-		logger.debug("to be kept if present: {}", futurePlatforms);
-
-		PlatformRepository.deleteUnusedPlatforms(futurePlatforms);
-		PlatformRepository.createMissingPlatforms(groups);
-
-		// recompute the available platforms, unregister the existing FOPs, etc.
-		OwlcmsFactory.initDefaultFOP();
-		String newDefault = OwlcmsFactory.getDefaultFOP().getName();
-
-		JPAService.runInTransaction(em -> {
-			groups.stream().forEach(g -> {
-				String platformName = g.getPlatform();
-				Group group = g.getGroup();
-				if (platformName == null || platformName.isBlank()) {
-					platformName = newDefault;
-				}
-				logger.info("setting platform '{}' for group {}", platformName, g.getGroupName());
-				Platform op = PlatformRepository.findByName(platformName);
-				group.setPlatform(op);
-				em.merge(group);
-			});
-			em.flush();
-			return null;
-		});
-
-		groups.stream().forEach(g -> {
-			logger.debug("group {} weighIn {} competition {}", g.getGroup(), g.getWeighinTime(),
-			        g.getCompetitionTime());
-		});
-	}
-
-	/**
-	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#cleanMessage(java.lang.String)
-	 */
-	@Override
-	public String cleanMessage(String localizedMessage) {
-		localizedMessage = localizedMessage.replace("Can't read cell ", "");
-		String cell = localizedMessage.substring(0, localizedMessage.indexOf(" "));
-		String ss = "spreadsheet";
-		int ix = localizedMessage.indexOf(ss) + ss.length();
-		localizedMessage = localizedMessage.substring(ix);
-		if (localizedMessage.trim().contentEquals("text")) {
-			localizedMessage = "Empty or invalid.";
-		}
-		String cleanMessage = Translator.translate("Cell") + " " + cell + ": " + localizedMessage;
-		return cleanMessage;
-	}
-
-	/**
-	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#resetAthletes()
-	 */
-	@Override
-	public void resetAthletes() {
-		// delete all athletes and groups (naive version).
-		JPAService.runInTransaction(em -> {
-			List<Athlete> athletes = AthleteRepository.doFindAll(em);
-			for (Athlete a : athletes) {
-				em.remove(a);
-			}
-			em.flush();
-			return null;
-		});
-	}
-
-	/**
-	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#resetGroups()
-	 */
-	@Override
-	public void resetGroups() {
-		// delete all athletes and groups (naive version).
-		JPAService.runInTransaction(em -> {
-			List<Group> oldGroups = GroupRepository.doFindAll(em);
-			for (Group g : oldGroups) {
-				em.remove(g);
-			}
-			em.flush();
-			return null;
-		});
-	}
-
-	/**
-	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#adjustParticipations()
-	 */
-	@Override
-	public void adjustParticipations() {
-		if (!keepParticipations) {
-			AthleteRepository.resetParticipations();
-		}
 	}
 }

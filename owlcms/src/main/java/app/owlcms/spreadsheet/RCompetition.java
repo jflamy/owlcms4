@@ -168,5 +168,9 @@ public class RCompetition {
 		}
 		c.setFederationWebSite(federationWebSite);
 	}
+	
+	public void addGroup(Group g) {
+		activeGroups.put(g.getName(), g);
+	}
 
 }
