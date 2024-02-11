@@ -4,7 +4,8 @@ First, you need to build the jars required to build a docker image.   We want th
 
 The command below does these steps.
 
-You need to have Docker desktop configured, and DOCKER_REG environment variable set to `owlcms`. The docker desktop daemon should be running in insecure mode, listening to port 2375 without TLS.
+You need to have Docker desktop configured, and DOCKER_REG environment variable set to `owlcms` to match the github account that would ultimately store the image.
+The docker desktop daemon should be running in insecure mode, listening to port 2375 without TLS.
 
 ```bash
 mvn -Dmaven.test.skip=true -P production -pl owlcms-docker -am package
