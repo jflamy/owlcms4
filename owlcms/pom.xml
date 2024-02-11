@@ -399,30 +399,6 @@
 					</archive>
 				</configuration>
 			</plugin>
-			<!-- plugin>
-				<groupId>com.google.cloud.tools</groupId>
-				<artifactId>jib-maven-plugin</artifactId>
-				<version>3.3.0</version>
-				<configuration>
-					<containerizingMode>packaged</containerizingMode>
-					<from>
-						<image>adoptopenjdk:11-jre-openj9</image>
-					</from>
-					<to>
-						<image>owlcms</image>
-						<tags>prerelease</tags>
-					</to>
-					<container>
-						<ports>
-							<port>8080</port>
-						</ports>
-						<jvmFlags>
-							<jvmFlag>-XX:HotswapAgent=fatjar</jvmFlag>
-						</jvmFlags>
-						<creationTime>USE_CURRENT_TIMESTAMP</creationTime>
-					</container>
-				</configuration>
-			</plugin -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>

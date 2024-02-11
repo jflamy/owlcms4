@@ -11,6 +11,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Paragraph;
@@ -76,6 +77,26 @@ public interface NavigationPage extends ContentWrapping {
 		grid1.getStyle().set("padding-left", "1em");
 		grid1.getStyle().set("padding-bottom", "1em");
 		fillH(grid1, wrapper);
+	}
+	
+	public default void doHiddenGroup(String label, Component explanation, FlexibleGridLayout grid1, VerticalLayout wrapper) {
+		VerticalLayout content1 = new VerticalLayout();
+		content1.setSpacing(false);
+		content1.setPadding(true);
+		content1.add(explanation, grid1);
+		content1.getStyle().set("margin-bottom", "-2ex");
+		fillH(content1, wrapper);
+		Details det = new Details(label, content1);
+//		det.getStyle().set("padding-left", "1em");
+//		det.getStyle().set("margin-top", "-1em");
+		det.getStyle().set("margin-right", "0");
+		det.getStyle().set("padding-right", "0");
+		grid1.getStyle().set("padding", "0");
+		grid1.getStyle().set("margin", "0");
+		grid1.getStyle().set("margin-left", "-1em");
+		explanation.getStyle().set("margin-left", "1em");
+		det.setWidthFull();
+		fillH(det, wrapper);
 	}
 
 	public default void doGroup(String label, VerticalLayout intro, FlexibleGridLayout grid1, VerticalLayout wrapper) {

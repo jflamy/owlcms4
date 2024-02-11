@@ -49,14 +49,13 @@ import net.sf.jxls.reader.ReaderConfig;
 public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 
 	record AthleteInput(List<RAthlete> athletes) {
-	};
+	}
 
 	/* some setters must be called in a specific order; */
 	private enum DelayedSetter {
 		BIRTHDATE, BODYWEIGHT, QUALIFYING_TOTAL, GENDER, CATEGORY
 	}
 	static final String GROUPS_READER_SPEC = "/templates/registration/GroupsReader.xml";
-	static final String REGISTRATION_READER_SPEC = "/templates/registration/RegistrationReader.xml";
 	Integer[] delayedSetterColumns = new Integer[DelayedSetter.values().length];
 	Logger logger = (Logger) LoggerFactory.getLogger(NRegistrationFileProcessor.class);
 	public boolean keepParticipations;
@@ -75,7 +74,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	 */
 	@Override
 	public void adjustParticipations() {
-		if (!keepParticipations) {
+		if (!this.keepParticipations) {
 			AthleteRepository.resetParticipations();
 		}
 	}
@@ -104,7 +103,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	@Override
 	@SuppressWarnings("unchecked")
 	public int doProcessAthletes(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer,
-	        Runnable displayUpdater) {
+			Runnable displayUpdater) {
 
 		try (InputStream xlsInputStream = inputStream) {
 			inputStream.reset();
@@ -117,12 +116,12 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 			List<RAthlete> athletes = new ArrayList<>();
 			AthleteInput athleteInput;
 			try (Workbook workbook = WorkbookFactory.create(xlsInputStream)) {
-				formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
-				formatter = new DataFormatter();
+				this.formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
+				this.formatter = new DataFormatter();
 				athleteInput = readAthletes(workbook, c, errorConsumer);
 			} catch (IOException | EncryptedDocumentException e) {
 				errorConsumer.accept(e.getLocalizedMessage());
-				LoggerUtils.logError(logger, e);
+				LoggerUtils.logError(this.logger, e);
 				return 0;
 			}
 
@@ -130,11 +129,11 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 			athletes = athleteInput.athletes;
 			// if exact matches were found for categories, the processing for eligibility
 			// has been done, and we keep the eligibilities exactly as in the file.
-			keepParticipations = athletes.stream()
-			        .filter(r -> r.getAthlete().getEligibleCategories() != null).findFirst()
-			        .isPresent();
+			this.keepParticipations = athletes.stream()
+					.filter(r -> r.getAthlete().getEligibleCategories() != null).findFirst()
+					.isPresent();
 
-			logger.info(Translator.translate("DataRead") + " " + athletes.size() + " athletes");
+			this.logger.info(Translator.translate("DataRead") + " " + athletes.size() + " athletes");
 			if (dryRun) {
 				return athletes.size();
 			}
@@ -149,7 +148,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 			return athletes.size();
 		} catch (IOException e) {
 			LoggerUtils.stackTrace(e);
-			LoggerUtils.logError(logger, e);
+			LoggerUtils.logError(this.logger, e);
 		}
 		return 0;
 	}
@@ -160,7 +159,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	 */
 	@Override
 	public int doProcessGroups(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer,
-	        Runnable displayUpdater) {
+			Runnable displayUpdater) {
 		try (InputStream xmlInputStream = ResourceWalker.getResourceAsStream(GROUPS_READER_SPEC)) {
 			inputStream.reset();
 			ReaderConfig readerConfig = ReaderConfig.getInstance();
@@ -174,7 +173,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 				beans.put("groups", groups);
 
 				// logger.info(getTranslation("ReadingData_"));
-				logger.info("Read {} groups.", groups.size());
+				this.logger.info("Read {} groups.", groups.size());
 				if (!dryRun) {
 					updatePlatformsAndGroups(groups);
 				}
@@ -183,16 +182,16 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 				appendErrors(displayUpdater, errorConsumer);
 				return groups.size();
 			} catch (IOException e) {
-				LoggerUtils.logError(logger, e);
+				LoggerUtils.logError(this.logger, e);
 			}
 		} catch (IOException e1) {
-			LoggerUtils.logError(logger, e1);
+			LoggerUtils.logError(this.logger, e1);
 		}
 		return 0;
 	}
 
 	public boolean isCreateMissingGroups() {
-		return createMissingGroups;
+		return this.createMissingGroups;
 	}
 
 	/**
@@ -261,11 +260,11 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 		JPAService.runInTransaction(em -> {
 			AthleteRepository.findAll().stream().forEach(a2 -> {
 				LinkedHashSet<Category> eligibles = (LinkedHashSet<Category>) RCompetition
-				        .getAthleteToEligibles()
-				        .get(a2.getId());
+						.getAthleteToEligibles()
+						.get(a2.getId());
 				LinkedHashSet<Category> teams = (LinkedHashSet<Category>) RCompetition
-				        .getAthleteToTeams()
-				        .get(a2.getId());
+						.getAthleteToTeams()
+						.get(a2.getId());
 				if (eligibles != null) {
 					Category first = eligibles.stream().findFirst().orElse(null);
 					a2.setCategory(first);
@@ -276,8 +275,8 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 						if (teams.contains(p.getCategory())) {
 							p.setTeamMember(true);
 						} else {
-							logger.info("Excluding {} as team member for {}", a2.getShortName(),
-							        p.getCategory().getComputedCode());
+							this.logger.info("Excluding {} as team member for {}", a2.getShortName(),
+									p.getCategory().getComputedCode());
 							p.setTeamMember(false);
 						}
 					}
@@ -296,14 +295,14 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	@Override
 	public void updatePlatformsAndGroups(List<RGroup> groups) {
 		Set<String> futurePlatforms = groups.stream().map(RGroup::getPlatform).filter(p -> (p != null && !p.isBlank()))
-		        .collect(Collectors.toSet());
+				.collect(Collectors.toSet());
 
 		String defaultPlatformName = OwlcmsFactory.getDefaultFOP().getName();
 		if (futurePlatforms.isEmpty()) {
 			// keep the current default if no group is linked to a platform.
 			futurePlatforms.add(defaultPlatformName);
 		}
-		logger.debug("to be kept if present: {}", futurePlatforms);
+		this.logger.debug("to be kept if present: {}", futurePlatforms);
 
 		PlatformRepository.deleteUnusedPlatforms(futurePlatforms);
 		PlatformRepository.createMissingPlatforms(groups);
@@ -319,7 +318,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 				if (platformName == null || platformName.isBlank()) {
 					platformName = newDefault;
 				}
-				logger.info("setting platform '{}' for group {}", platformName, g.getGroupName());
+				this.logger.info("setting platform '{}' for group {}", platformName, g.getGroupName());
 				Platform op = PlatformRepository.findByName(platformName);
 				group.setPlatform(op);
 				em.merge(group);
@@ -329,8 +328,8 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 		});
 
 		groups.stream().forEach(g -> {
-			logger.debug("group {} weighIn {} competition {}", g.getGroup(), g.getWeighinTime(),
-			        g.getCompetitionTime());
+			this.logger.debug("group {} weighIn {} competition {}", g.getGroup(), g.getWeighinTime(),
+					g.getCompetitionTime());
 		});
 	}
 
@@ -345,9 +344,9 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	private String cellToString(Cell cell) {
 		switch (cell.getCellType()) {
 			case FORMULA:
-				return formatter.formatCellValue(cell, formulaEvaluator);
+				return this.formatter.formatCellValue(cell, this.formulaEvaluator);
 			default:
-				return formatter.formatCellValue(cell);
+				return this.formatter.formatCellValue(cell);
 		}
 	}
 
@@ -355,7 +354,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 		errorConsumer.accept(c.getAddress() + " " + e.getLocalizedMessage() + System.lineSeparator());
 		// logger.error("{} {}", c.getAddress(), e.toString());
 		// if (e instanceof InvocationTargetException) {
-		LoggerUtils.logError(logger, e);
+		LoggerUtils.logError(this.logger, e);
 		// }
 	}
 
@@ -379,28 +378,28 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 					//logger.trace("cell {} {} {} {}", iColumn, iRow, cell.getAddress(), trim);
 
 					if (trim.contentEquals(Translator.translate("Membership"))) {
-						setterForColumn[iColumn] = (a, s, c) -> {
+						this.setterForColumn[iColumn] = (a, s, c) -> {
 							a.setMembership(s);
 						};
 					} else if (trim.contentEquals(Translator.translate("Card.lotNumber"))) {
-						setterForColumn[iColumn] = ((a, s, c) -> {
+						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setLotNumber(s);
 						});
 					} else if (trim.contentEquals(Translator.translate("LastName"))) {
-						setterForColumn[iColumn] = ((a, s, c) -> {
+						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setLastName(s);
 						});
 					} else if (trim.contentEquals(Translator.translate("FirstName"))) {
-						setterForColumn[iColumn] = ((a, s, c) -> {
+						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setFirstName(s);
 						});
 					} else if (trim.contentEquals(Translator.translate("Scoreboard.Team"))) {
-						setterForColumn[iColumn] = ((a, s, c) -> {
+						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setTeam(s);
 						});
 					} else if (trim.contentEquals(Translator.translate("Registration.birth"))) {
-						delayedSetterColumns[DelayedSetter.BIRTHDATE.ordinal()] = iColumn;
-						setterForColumn[iColumn] = ((a, s, c) -> {
+						this.delayedSetterColumns[DelayedSetter.BIRTHDATE.ordinal()] = iColumn;
+						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							try {
 								a.setFullBirthDate(s);
 							} catch (Exception e) {
@@ -408,13 +407,13 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 							}
 						});
 					} else if (trim.contentEquals("M/F")) {
-						delayedSetterColumns[DelayedSetter.GENDER.ordinal()] = iColumn;
-						setterForColumn[iColumn] = ((a, s, c) -> {
+						this.delayedSetterColumns[DelayedSetter.GENDER.ordinal()] = iColumn;
+						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setGender(s);
 						});
 					} else if (trim.contentEquals(Translator.translate("Card.category"))) {
-						delayedSetterColumns[DelayedSetter.CATEGORY.ordinal()] = iColumn;
-						setterForColumn[iColumn] = ((a, s, c) -> {
+						this.delayedSetterColumns[DelayedSetter.CATEGORY.ordinal()] = iColumn;
+						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							try {
 								a.setCategory(s);
 							} catch (Exception e) {
@@ -422,8 +421,8 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 							}
 						});
 					} else if (trim.contentEquals(Translator.translate("Scoreboard.BodyWeight"))) {
-						delayedSetterColumns[DelayedSetter.BODYWEIGHT.ordinal()] = iColumn;
-						setterForColumn[iColumn] = ((a, s, c) -> {
+						this.delayedSetterColumns[DelayedSetter.BODYWEIGHT.ordinal()] = iColumn;
+						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							try {
 								if (s == null || s.isBlank()) {
 									return;
@@ -435,17 +434,17 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 							}
 						});
 					} else if (trim.contentEquals(Translator.translate("Results.Snatch") + " "
-					        + Translator.translate("Results.Declaration_abbrev"))) {
-						setterForColumn[iColumn] = ((a, s, c) -> {
+							+ Translator.translate("Results.Declaration_abbrev"))) {
+						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setSnatch1Declaration(s);
 						});
 					} else if (trim.contentEquals(Translator.translate("Results.CJ_abbrev") + " "
-					        + Translator.translate("Results.Declaration_abbrev"))) {
-						setterForColumn[iColumn] = ((a, s, c) -> {
+							+ Translator.translate("Results.Declaration_abbrev"))) {
+						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setCleanJerk1Declaration(s);
 						});
 					} else if (trim.contentEquals(Translator.translate("Group"))) {
-						setterForColumn[iColumn] = ((a, s, c) -> {
+						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							try {
 								a.setGroup(s);
 							} catch (Exception e) {
@@ -463,8 +462,8 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 							}
 						});
 					} else if (trim.contentEquals(Translator.translate("Card.entryTotal"))) {
-						delayedSetterColumns[DelayedSetter.QUALIFYING_TOTAL.ordinal()] = iColumn;
-						setterForColumn[iColumn] = ((a, s, c) -> {
+						this.delayedSetterColumns[DelayedSetter.QUALIFYING_TOTAL.ordinal()] = iColumn;
+						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							try {
 								//logger.debug("qualifying total {}", s);
 								int i = Integer.parseInt(s);
@@ -474,40 +473,40 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 							}
 						});
 					} else if (trim.contentEquals(Translator.translate("Coach"))) {
-						setterForColumn[iColumn] = ((a, s, c) -> {
+						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setCoach(s);
 						});
 					} else if (trim.contentEquals(Translator.translate("Custom1.Title"))) {
-						setterForColumn[iColumn] = ((a, s, c) -> {
+						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setCustom1(s);
 						});
 					} else if (trim.contentEquals(Translator.translate("Custom2.Title"))) {
-						setterForColumn[iColumn] = ((a, s, c) -> {
+						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setCustom2(s);
 						});
 					} else if (trim.contentEquals(Translator.translate("Registration.FederationCodesShort"))) {
-						setterForColumn[iColumn] = ((a, s, c) -> {
+						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setFederationCodes(s);
 						});
 					} else if (trim.contentEquals(Translator.translate("PersonalBestSnatch"))) {
-						setterForColumn[iColumn] = ((a, s, c) -> {
+						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setPersonalBestSnatch(s);
 						});
 					} else if (trim.contentEquals(Translator.translate("PersonalBestCleanJerk"))) {
-						setterForColumn[iColumn] = ((a, s, c) -> {
+						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setPersonalBestCleanJerk(s);
 						});
 					} else if (trim.contentEquals(Translator.translate("PersonalBestTotal"))) {
-						setterForColumn[iColumn] = ((a, s, c) -> {
+						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setPersonalBestTotal(s);
 						});
 					} else if (trim.contentEquals(Translator.translate("SubCategory"))) {
-						setterForColumn[iColumn] = ((a, s, c) -> {
+						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setSubCategory(s);
 						});
 					} else {
 						errorConsumer
-						        .accept(Translator.translate("Registration.UnknownColumnHeader", trim) + " " + trim);
+						.accept(Translator.translate("Registration.UnknownColumnHeader", trim) + " " + trim);
 					}
 					iColumn++;
 				}
@@ -529,9 +528,9 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 							break rows;
 						}
 					}
-					int delayedOrder = ArrayUtils.indexOf(delayedSetterColumns, iColumn);
+					int delayedOrder = ArrayUtils.indexOf(this.delayedSetterColumns, iColumn);
 					if (delayedOrder < 0) {
-						setterForColumn[iColumn].accept(ra, cellValue.trim(), cell);
+						this.setterForColumn[iColumn].accept(ra, cellValue.trim(), cell);
 					} else {
 						delayedSetterValues[delayedOrder] = cellValue.trim();
 						delayedSetterCells[delayedOrder] = cell;
@@ -541,9 +540,9 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 
 				// second pass, call the delayed setters in the correct order.
 				for (int delayedOrder = 0; delayedOrder < DelayedSetter.values().length; delayedOrder++) {
-					Integer setterColumn = delayedSetterColumns[delayedOrder];
-					setterForColumn[setterColumn].accept(ra, delayedSetterValues[delayedOrder],
-					        delayedSetterCells[delayedOrder]);
+					Integer setterColumn = this.delayedSetterColumns[delayedOrder];
+					this.setterForColumn[setterColumn].accept(ra, delayedSetterValues[delayedOrder],
+							delayedSetterCells[delayedOrder]);
 				}
 				athletes.add(ra);
 			}
@@ -555,7 +554,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 
 	@SuppressWarnings("unused")
 	private void updateCompetitionInfo(RCompetition c, EntityManager em, Competition curC)
-	        throws IllegalAccessException, InvocationTargetException {
+			throws IllegalAccessException, InvocationTargetException {
 		Competition rCompetition = c.getCompetition();
 		// save some properties from current database that do not appear on spreadheet
 		rCompetition.setEnforce20kgRule(curC.isEnforce20kgRule());
