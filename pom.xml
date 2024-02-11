@@ -30,7 +30,7 @@
 	<properties>
 		<!-- revision is overridden by azure-pipelines.yml for the official
 		builds. this value is only used for local development -->
-		<revision>46.0.0-SNAPSHOT</revision>
+		<revision>46.0.0-alpha05</revision>
 		
 		<!-- only used for builds -->
 		<owlcms-maven-url>https://maven.lerta.ca</owlcms-maven-url>
