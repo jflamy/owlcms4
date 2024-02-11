@@ -128,6 +128,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	private TextField wrappedBWTextField;
 	private LocalizedIntegerField yobField;
 	private Checkbox invitedCheckbox;
+	private TextField subCategoryField;
 
 	public NAthleteRegistrationFormFactory(Class<Athlete> domainType, Group group) {
 		super(domainType);
@@ -655,7 +656,13 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		FormItem fi1 = layoutAddFormItem(layout, this.eligibleField, Translator.translate("Weighin.EligibleCategories"));
 		layout.setColspan(fi1, NB_COLUMNS - 1);
 
-		layoutAddFormItem(layout, new NativeLabel(), "");
+		this.subCategoryField = new TextField();
+		this.subCategoryField.setWidth("2.2em");
+		this.subCategoryField.setAllowedCharPattern("\\p{Lu}");
+		bindField(this.binder.forField(this.subCategoryField), this.subCategoryField, Athlete::getSubCategory,
+				Athlete::setSubCategory);
+		FormItem fi11 = layoutAddFormItem(layout, this.subCategoryField, Translator.translate("SubCategory"));
+		layout.setColspan(fi11, 1);
 
 		this.ageGroupTeamField = new CheckboxGroup<>(null, getEditedAthlete().getPossibleAgeGroupTeams());
 		bindField(this.binder.forField(this.ageGroupTeamField), this.ageGroupTeamField, Athlete::getAgeGroupTeams,
