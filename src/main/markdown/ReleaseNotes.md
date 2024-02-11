@@ -7,9 +7,10 @@
 > You should always test any new release several days in advance, with your own data.
 
 ##### 46.0
-- (alpha04) Use numeric IPV4 address to log usage
-- (alpha03) Updated Moquette version
-- (alpha03) Build: Only push back the documentation back to the dev branch when doing stable version builds.  The dev documentation is actually the one referenced by search engines (we have no control) 
+- Simplified initial registration spreadsheet
+  - The previous full registration with import/export moved to an "Advanced" section, and is now called "Start Book Data Entry".
+  - The download of the empty registration spreadsheet now produces a very simple spreadsheet by default.  However empty registration spreadsheet can be customized by adding any of the columns from the full registration if desired. The initial spreadsheet 
+  - The buttons on the preparation page were rearranged to facilitate understanding.
 - Templates and documents
   - All the supplied Excel templates are now .xlsx by default.  As a consequence, all the Excel files produced from the default templates are also in .xlsx format.  The .xslx format is directly recognized by Office, LibreOffice, Google Sheets and Microsoft 365 Web. 
   - Your existing .xls templates will work as before, but we recommend updating your local templates to .xlsx format.
