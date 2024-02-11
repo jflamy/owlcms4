@@ -31,10 +31,10 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
-public class JXLSRegistrationExport extends JXLSWorkbookStreamSource {
+public class JXLSSBDEExport extends JXLSWorkbookStreamSource {
 
 	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSRegistrationExport.class);
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSSBDEExport.class);
 	final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
 	static {
 		logger.setLevel(Level.INFO);
@@ -42,7 +42,7 @@ public class JXLSRegistrationExport extends JXLSWorkbookStreamSource {
 		tagLogger.setLevel(Level.ERROR);
 	}
 
-	public JXLSRegistrationExport(UI ui) {
+	public JXLSSBDEExport(UI ui) {
 		super();
 		try {
 			// needed to set the file extension in the source so the download button works.
@@ -68,7 +68,7 @@ public class JXLSRegistrationExport extends JXLSWorkbookStreamSource {
 
 	@Override
 	public InputStream getTemplate(Locale locale) throws IOException {
-		return getLocalizedTemplate("/templates/registration/RegistrationExport", ".xls", locale);
+		return getLocalizedTemplate("/templates/registration/SBDE", ".xls", locale);
 	}
 
 	@Override

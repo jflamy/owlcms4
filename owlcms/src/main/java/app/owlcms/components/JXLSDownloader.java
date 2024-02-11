@@ -151,13 +151,16 @@ public class JXLSDownloader {
 		return dialogOpen;
 	}
 
-	public Anchor createImmediateDownloadButton() {
+	public Anchor createImmediateDownloadButton(String... tooltipText) {
 		xlsWriter = streamSourceSupplier.get();
 		Supplier<String> supplier = () -> getTargetFileName();
 		resource = new StreamResource(supplier.get(), (StreamResourceWriter) xlsWriter);
 		Anchor link = new Anchor(resource, "");
 		link.getElement().setAttribute("download", true);
 		Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
+		if (tooltipText != null && tooltipText.length > 0) {
+			innerButton.setTooltipText(tooltipText[0]);
+		}
 		innerButton.setWidth("100%");
 		link.add(innerButton);
 		return link;

@@ -6,13 +6,17 @@
  *******************************************************************************/
 package app.owlcms.spreadsheet;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -24,7 +28,7 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
-public class JXLSRegistrationEmptyExport extends JXLSRegistrationExport {
+public class JXLSRegistrationEmptyExport extends JXLSWorkbookStreamSource {
 
 	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSRegistrationEmptyExport.class);
@@ -39,7 +43,17 @@ public class JXLSRegistrationEmptyExport extends JXLSRegistrationExport {
 	 * @param ui
 	 */
 	public JXLSRegistrationEmptyExport(UI ui) {
-		super(ui);
+		super();
+		try {
+			// needed to set the file extension in the source so the download button works.
+			getTemplate(OwlcmsSession.getLocale());
+		} catch (IOException e) {
+		}
+	}
+	
+	@Override
+	public InputStream getTemplate(Locale locale) throws IOException {
+		return getLocalizedTemplate("/templates/registration/RegistrationExport", ".xls", locale);
 	}
 
 	@Override
