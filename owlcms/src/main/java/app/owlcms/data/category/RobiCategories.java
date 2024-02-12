@@ -11,17 +11,23 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.data.agegroup.AgeGroupDefinitionReader;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.Gender;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
@@ -32,6 +38,8 @@ import ch.qos.logback.classic.Logger;
  * in a IWF competition.
  */
 public class RobiCategories {
+
+	public static final String ROBI_CATEGORIES_XLSX = "/robi/RobiCategories.xlsx";
 
 	private class RobiComparator implements Comparator<Category> {
 
@@ -114,12 +122,12 @@ public class RobiCategories {
 	}
 
 	private static void loadJrSrReferenceCategories() {
-		String localizedName = "/agegroups/AgeGroups.xlsx";
+		String localizedName = ROBI_CATEGORIES_XLSX;
 		InputStream localizedResourceAsStream;
 		try {
 			localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
 			try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {
-				Map<String, Category> referenceCategoryMap = AgeGroupDefinitionReader.createCategoryTemplates(workbook);
+				Map<String, Category> referenceCategoryMap = createCategoryTemplates(workbook);
 				// get the IWF categories, sorted.
 				jrSrReferenceCategories = referenceCategoryMap.values()
 				        .stream()
@@ -149,12 +157,12 @@ public class RobiCategories {
 	}
 
 	private static void loadYthReferenceCategories() {
-		String localizedName = "/agegroups/AgeGroups.xlsx";
+		String localizedName = ROBI_CATEGORIES_XLSX;
 		InputStream localizedResourceAsStream;
 		try {
 			localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
 			try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {
-				Map<String, Category> referenceCategoryMap = AgeGroupDefinitionReader.createCategoryTemplates(workbook);
+				Map<String, Category> referenceCategoryMap = createCategoryTemplates(workbook);
 				// get the IWF categories, sorted.
 				ythReferenceCategories = referenceCategoryMap.values()
 				        .stream()
@@ -183,4 +191,78 @@ public class RobiCategories {
 
 	}
 
+	/**
+	 * Create category templates that will be copied to instantiate the actual categories. The world records are read
+	 * and included in the template.
+	 *
+	 * @param workbook
+	 * @return
+	 */
+	public static Map<String, Category> createCategoryTemplates(Workbook workbook) {
+		Map<String, Category> categoryMap = new HashMap<>();
+		DataFormatter dataFormatter = new DataFormatter();
+		Sheet sheet = workbook.getSheetAt(0);
+		Iterator<Row> rowIterator = sheet.rowIterator();
+		int iRow = 0;
+		rows: while (rowIterator.hasNext()) {
+			int iColumn = 0;
+			Row row;
+			if (iRow == 0) {
+				// process header
+				row = rowIterator.next();
+			}
+			row = rowIterator.next();
+
+			Category c = new Category();
+
+			Iterator<Cell> cellIterator = row.cellIterator();
+
+			while (cellIterator.hasNext()) {
+				Cell cell = cellIterator.next();
+				switch (iColumn) {
+					case 0: {
+						String cellValue = dataFormatter.formatCellValue(cell);
+						String trim = cellValue.trim();
+						if (trim.isBlank()) {
+							c = null;
+							break rows;
+						}
+						c.setCode(trim);
+						categoryMap.put(cellValue, c);
+					}
+						break;
+					case 1: {
+						String cellValue = dataFormatter.formatCellValue(cell);
+						if (cellValue != null && !cellValue.trim().isEmpty()) {
+							try {
+								c.setGender(Gender.valueOf(cellValue));
+							} catch (IllegalArgumentException e) {
+								c.setGender(cellValue.contentEquals("W") ? Gender.F : Gender.M);
+							}
+						}
+					}
+						break;
+					case 2: {
+						c.setMaximumWeight(cell.getNumericCellValue());
+					}
+						break;
+					case 3: {
+						c.setWrSr((int) Math.round(cell.getNumericCellValue()));
+					}
+						break;
+					case 4: {
+						c.setWrJr((int) Math.round(cell.getNumericCellValue()));
+					}
+						break;
+					case 5: {
+						c.setWrYth((int) Math.round(cell.getNumericCellValue()));
+					}
+						break;
+				}
+				iColumn++;
+			}
+			iRow++;
+		}
+		return categoryMap;
+	}
 }

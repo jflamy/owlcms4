@@ -378,7 +378,7 @@ public class AgeGroupRepository {
 	public static void insertAgeGroups(EntityManager em, EnumSet<AgeDivision> es) {
 		try {
 			String localizedName = ResourceWalker.getLocalizedResourceName("/agegroups/AgeGroups.xlsx");
-			AgeGroupDefinitionReader.doInsertAgeGroup(es, localizedName);
+			AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(es, localizedName);
 		} catch (FileNotFoundException e1) {
 			// ignore
 		}
@@ -387,7 +387,7 @@ public class AgeGroupRepository {
 	public static void insertAgeGroups(EntityManager em, EnumSet<AgeDivision> es, String resourceName) {
 		try {
 			String localizedName = ResourceWalker.getLocalizedResourceName(resourceName);
-			AgeGroupDefinitionReader.doInsertAgeGroup(es, localizedName);
+			AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(es, localizedName);
 		} catch (FileNotFoundException e1) {
 			throw new RuntimeException(e1);
 		}
@@ -416,7 +416,7 @@ public class AgeGroupRepository {
 			}
 			return null;
 		});
-		AgeGroupDefinitionReader.doInsertAgeGroup(null, "/agegroups/" + localizedFileName);
+		AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(null, "/agegroups/" + localizedFileName);
 		AthleteRepository.resetParticipations();
 	}
 
@@ -573,9 +573,10 @@ public class AgeGroupRepository {
 
 	static Category createCategoryFromTemplate(String catCode, AgeGroup ag, Map<String, Category> templates,
 	        double curMin, String qualTotal) throws Exception {
+		logger.warn("getting {}",catCode);
 		Category template = templates.get(catCode);
 		if (template == null) {
-			logger.error("template {} not found", catCode);
+			logger.trace("template {} not found", catCode);
 			return null;
 		} else {
 			try {
