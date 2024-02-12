@@ -23,9 +23,9 @@ Yet it is simple enough to setup that you can use it to run a club or regional c
 
 ### Licensing and Notes
 
-This is free, as-is, no warranty *whatsoever* software. If you just want to run it as is for your own club or federation, just download from the [Releases](https://owlcms.github.io/owlcms4/releases) repository and go ahead. You should perform your own tests to see if the software is fit for your own purposes and circumstances.
+This is free, as-is, no warranty *whatsoever* software. If you just want to run it as is for your own club or federation, just download from the [Releases](https://owlcms.github.io/owlcms4-prerelease/releases) repository and go ahead. You should perform your own tests to see if the software is fit for your own purposes and circumstances.
 
-If you host the software, package it, or modify it, the license *requires* you to make the full sources available, including your modifications and the corresponding building instructions available for free (see the [License](https://owlcms.github.io/owlcms4/blob/master/LICENSE.txt) for details.)  You may charge for your services and expertise, but everyone is entitled to the original software and to your modifications for free.
+If you host the software, package it, or modify it, the license *requires* you to make the full sources available, including your modifications and the corresponding building instructions available for free (see the [License](https://owlcms.github.io/owlcms4-prerelease/blob/master/LICENSE.txt) for details.)  You may charge for your services and expertise, but everyone is entitled to the original software and to your modifications for free.
 
 ### Authoring and Software Acknowledgments
 
