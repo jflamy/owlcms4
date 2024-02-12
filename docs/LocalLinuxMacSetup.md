@@ -2,7 +2,7 @@
 
 > Tip: The [following page](RaspberryInstall) illustrates the sequence of steps on a RaspberryPI and may help you follow along.
 
-- **Get the installation zip archive**: Get the current  [`owlcms_45.2.0.zip`](https://github.com/owlcms/owlcms4/releases/latest/download/owlcms_45.2.0.zip) file  (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4/releases/latest) .
+- **Get the installation zip archive**: Get the current  [`owlcms_45.2.1-rc01.zip`](https://github.com/owlcms/owlcms4-prerelease/releases/latest/download/owlcms_45.2.1-rc01.zip) file  (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4-prerelease/releases/latest) .
 
 - Double-click on the downloaded zip file, and extract the files to a directory. 
 
