@@ -894,7 +894,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode {
 		if (a.getSinclairRank() != null) {
 			ja.put("sinclairRank", formatInt(a.getSinclairRank()));
 		}
-		ja.put("group", a.getSubCategory());
+		ja.put("group", a.getGroup().getName());
+		ja.put("subCategory", a.getSubCategory());
 		boolean notDone = a.getAttemptsDone() < 6;
 		String blink = (notDone ? " blink" : "");
 		if (notDone) {

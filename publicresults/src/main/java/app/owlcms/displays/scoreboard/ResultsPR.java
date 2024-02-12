@@ -42,7 +42,6 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.DecisionEvent;
 import app.owlcms.uievents.DecisionEventType;
 import app.owlcms.uievents.UpdateEvent;
-import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -134,7 +133,7 @@ public class ResultsPR extends LitTemplate
 
     @Override
     public Double getEmFontSize() {
-        return emFontSize;
+        return this.emFontSize;
     }
 
     @Override
@@ -159,17 +158,17 @@ public class ResultsPR extends LitTemplate
 
     @Override
     public boolean isDarkMode() {
-        return darkMode;
+        return this.darkMode;
     }
 
     @Override
     public boolean isDefaultLeadersDisplay() {
-        return defaultLeadersDisplay;
+        return this.defaultLeadersDisplay;
     }
 
     @Override
     public boolean isDefaultRecordsDisplay() {
-        return defaultRecordsDisplay;
+        return this.defaultRecordsDisplay;
     }
 
     @Override
@@ -178,18 +177,13 @@ public class ResultsPR extends LitTemplate
     }
 
     @Override
-    public boolean isShowLeaders() {
-        return showLeaders;
-    }
-
-    @Override
     public boolean isLiftingOrder() {
-        return liftingOrder;
+        return this.liftingOrder;
     }
 
     @Override
     public boolean isRecordsDisplay() {
-        return recordsDisplay;
+        return this.recordsDisplay;
     }
 
     @Override
@@ -198,8 +192,13 @@ public class ResultsPR extends LitTemplate
     }
 
     @Override
+    public boolean isShowLeaders() {
+        return this.showLeaders;
+    }
+
+    @Override
     public boolean isSilenced() {
-        return silenced;
+        return this.silenced;
     }
 
     @Override
@@ -243,19 +242,6 @@ public class ResultsPR extends LitTemplate
     }
 
     @Override
-    public void setShowLeaders(boolean showLeaders) {
-        this.showLeaders = showLeaders;
-        this.getElement().setProperty("showLeaders", showLeaders);
-        if (!showLeaders || done) {
-            logger.debug("setLeadersDisplay 0px: isLeaders = {} done = {}",showLeaders,done);
-            this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: 0px");
-        } else {
-            logger.debug("setLeadersDisplay default: isLeaders = {} done = {}",showLeaders,done);
-            this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: var(--defaultLeaderFillerHeight)");
-        }
-    }
-
-    @Override
     public void setLiftingOrder(boolean liftingOrder) {
         this.liftingOrder = liftingOrder;
     }
@@ -285,6 +271,20 @@ public class ResultsPR extends LitTemplate
     }
 
     @Override
+    public void setShowLeaders(boolean showLeaders) {
+        this.showLeaders = showLeaders;
+        this.getElement().setProperty("showLeaders", showLeaders);
+        if (!showLeaders || this.done) {
+            logger.debug("setLeadersDisplay 0px: isLeaders = {} done = {}", showLeaders, this.done);
+            this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: 0px");
+        } else {
+            logger.debug("setLeadersDisplay default: isLeaders = {} done = {}", showLeaders, this.done);
+            this.getElement().setProperty("leaderFillerHeight",
+                    "--leaderFillerHeight: var(--defaultLeaderFillerHeight)");
+        }
+    }
+
+    @Override
     public void setSilenced(boolean silenced) {
         this.timer.setSilenced(silenced);
         this.breakTimer.setSilenced(silenced);
@@ -294,7 +294,7 @@ public class ResultsPR extends LitTemplate
 
     @Subscribe
     public void slaveBreakDone(BreakTimerEvent.BreakDone e) {
-        ui.access(() -> {
+        this.ui.access(() -> {
             setBoardMode(e.getMode());
         });
         if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
@@ -302,7 +302,7 @@ public class ResultsPR extends LitTemplate
             return;
         }
         logger.debug("### received BreakDone {}");
-        needReset = false;
+        this.needReset = false;
     }
 
     @Subscribe
@@ -318,30 +318,30 @@ public class ResultsPR extends LitTemplate
         switch (eventType) {
             case DOWN_SIGNAL:
                 this.decisionVisible = true;
-                if (ui == null || ui.isClosing()) {
+                if (this.ui == null || this.ui.isClosing()) {
                     return;
                 }
-                ui.access(() -> {
-                    //setBoardMode(e.getMode());
+                this.ui.access(() -> {
+                    // setBoardMode(e.getMode());
                     this.getElement().setProperty("decisionVisible", true);
                 });
                 break;
             case RESET:
                 this.decisionVisible = false;
-                if (ui == null || ui.isClosing()) {
+                if (this.ui == null || this.ui.isClosing()) {
                     return;
                 }
-                ui.access(() -> {
+                this.ui.access(() -> {
                     setBoardMode(e.getMode());
                     this.getElement().setProperty("decisionVisible", false);
                 });
                 break;
             case FULL_DECISION:
                 this.decisionVisible = true;
-                if (ui == null || ui.isClosing()) {
+                if (this.ui == null || this.ui.isClosing()) {
                     return;
                 }
-                ui.access(() -> {
+                this.ui.access(() -> {
                     setBoardMode(e.getMode());
                     this.getElement().setProperty("decisionVisible", true);
                     this.getElement().setProperty("recordKind", e.getRecordKind());
@@ -367,7 +367,7 @@ public class ResultsPR extends LitTemplate
         BreakType breakType = e.getBreakType();
         String stylesDir = e.getStylesDir();
 
-        ui.access(() -> {
+        this.ui.access(() -> {
             this.getElement().setProperty("stylesDir", stylesDir);
             this.getElement().setProperty("done", e.isDone());
             setDone(e.isDone());
@@ -445,37 +445,37 @@ public class ResultsPR extends LitTemplate
                 logger./**/warn("### state {} {}", fopState, e.getBreakType());
             }
 
-            if (decisionVisible) {
+            if (this.decisionVisible) {
                 // wait for next event before doing anything.
                 logger.debug("### waiting for decision reset");
             } else if ("INACTIVE".equals(fopState)
                     || ("BREAK".equals(fopState) && e.getBreakType() == BreakType.GROUP_DONE)) {
                 logger.debug("### not in a group");
                 doDone(e.getFullName());
-                needReset = true;
+                this.needReset = true;
             } else if ("BREAK".equals(fopState)) {
                 logger.debug("### in a break {}", e.getBreakType());
                 // also trigger a break timer event to make sure we are in sync with owlcms
                 BreakStart breakStart = new BreakStart(e.getBreakRemaining(), e.isIndefinite());
                 breakStart.setFopName(e.getFopName());
                 TimerReceiverServlet.getEventBus().post(breakStart);
-                needReset = true;
-            } else if (!needReset) {
+                this.needReset = true;
+            } else if (!this.needReset) {
                 // logger.debug("no reset");
             } else {
                 logger.debug("### resetting becase of ranking update");
-                //this.getElement().callJsFunction("reset");
-                needReset = false;
+                // this.getElement().callJsFunction("reset");
+                this.needReset = false;
             }
         });
     }
 
-//    protected void doEmpty() {
-//        setBoardMode("BREAK", null, null, this.getElement());
-//    }
+    // protected void doEmpty() {
+    // setBoardMode("BREAK", null, null, this.getElement());
+    // }
 
-    private void setDone(boolean done) {
-        this.done = done;
+    protected boolean isVideo() {
+        return false;
     }
 
     /**
@@ -485,7 +485,7 @@ public class ResultsPR extends LitTemplate
     protected void onAttach(AttachEvent attachEvent) {
         SoundUtils.enableAudioContextNotification(this.getElement());
 
-        ui = UI.getCurrent();
+        this.ui = UI.getCurrent();
 
         eventBusRegister(this, TimerReceiverServlet.getEventBus());
         eventBusRegister(this, DecisionReceiverServlet.getEventBus());
@@ -495,7 +495,7 @@ public class ResultsPR extends LitTemplate
         UpdateEvent initEvent = UpdateReceiverServlet.sync(getFopName());
         if (initEvent != null) {
             slaveGlobalRankingUpdated(initEvent);
-            timer.slaveOrderUpdated(initEvent);
+            this.timer.slaveOrderUpdated(initEvent);
         } else {
             getElement().setProperty("fulName", Translator.translate("WaitingForSite"));
             getElement().setProperty("groupName", "");
@@ -550,37 +550,14 @@ public class ResultsPR extends LitTemplate
         }
     }
 
-    protected boolean isVideo() {
-        return false;
-    }
-
     private void setBoardMode(String mode) {
-        logger.warn("set board mode {} from {}", mode, LoggerUtils.whereFrom());
+        // logger.debug("set board mode {} from {}", mode, LoggerUtils.whereFrom());
         this.getElement().setProperty("mode", mode);
     }
 
-
-    // private void setHidden(boolean hidden) {
-    // this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" :
-    // "display:block"));
-    // this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" :
-    // "display:grid"));
-    // this.getElement().setProperty("hiddenFlexStyle", (hidden ? "display:none" :
-    // "display:flex"));
-    //
-    // this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block"
-    // : "display:none"));
-    // this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" :
-    // "display:none"));
-    // this.getElement().setProperty("inactiveFlexStyle", (hidden ? "display:flex" :
-    // "display:none"));
-    //
-    // this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
-    // this.getElement().setProperty("videoHeaderDisplay", (hidden || !isVideo() ?
-    // "display:none" : "display:flex"));
-    // this.getElement().setProperty("normalHeaderDisplay", (hidden || isVideo() ?
-    // "display:none" : "display:block"));
-    // }
+    private void setDone(boolean done) {
+        this.done = done;
+    }
 
     private void setWideTeamNames(boolean wide) {
         this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));

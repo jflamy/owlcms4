@@ -782,7 +782,8 @@ public class Results extends LitTemplate
 		} else {
 			this.logger.error("main rankings null for {}", a);
 		}
-		ja.put("group", a.getSubCategory());
+		ja.put("group", a.getGroup().getName());
+		ja.put("subCategory", a.getSubCategory());
 		Double double1 = a.getAttemptsDone() <= 3 ? a.getSinclairForDelta()
 		        : a.getSinclair();
 		ja.put("sinclair", double1 > 0.001 ? String.format("%.3f", double1) : "-");

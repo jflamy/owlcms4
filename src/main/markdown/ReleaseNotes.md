@@ -8,8 +8,8 @@
 
 ##### 46.0
 - Simplified initial registration spreadsheet
-  - The previous full registration with import/export moved to an "Advanced" section, and is now called "Start Book Data Entry".
-  - The download of the empty registration spreadsheet now produces a very simple spreadsheet by default.  However empty registration spreadsheet can be customized by adding any of the columns from the full registration if desired. The initial spreadsheet 
+  - The previous full registration with import/export has been moved to an "Advanced" section, and is now called "Start Book Data Entry".
+  - The download of the empty registration spreadsheet now produces a very simple spreadsheet by default.  Also, the empty registration spreadsheet can be customized by adding any of the columns from the full registration if desired, in any order (for example, to enter the coach or other details)
   - The buttons on the preparation page were rearranged to facilitate understanding.
 - Templates and documents
   - All the supplied Excel templates are now .xlsx by default.  As a consequence, all the Excel files produced from the default templates are also in .xlsx format.  The .xslx format is directly recognized by Office, LibreOffice, Google Sheets and Microsoft 365 Web. 

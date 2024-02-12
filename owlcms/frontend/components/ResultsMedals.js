@@ -87,7 +87,7 @@ class ResultsMedals extends LitElement {
                         (leader) => html`
                           <tr class="athlete" style="${this.leadersDisplay}">
                             <td class="groupCol">
-                              <div>${leader.group}</div>
+                              <div>${leader.subCategory}</div>
                             </td>
                             <td class="${"name " + (leader.classname ?? "")}">
                               <div class="ellipsis">${leader.fullName}</div>
