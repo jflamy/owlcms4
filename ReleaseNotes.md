@@ -3,6 +3,12 @@
 > - Version 45 is a technical release that updates the way the scoreboard styling is done.  There is now support for 4K TV screens, and better support for phones and tablets.  Vertical orientation is also supported.  *If you have customized your own CSS style files, see the section at the bottom of these notes.*
 > - Reminder: you should always test any new release several days in advance, with your own data.
 
+
+
+##### 45.2.1
+
+- The "Click here to download" link pointed to the older installed release instead of the newer one.
+
 ##### 45.2
 
 - When using records from multiple federations, 
