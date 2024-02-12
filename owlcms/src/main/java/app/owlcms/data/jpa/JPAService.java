@@ -542,7 +542,7 @@ public class JPAService {
 	}
 
 	public static void setLocalDb(boolean localDb) {
-		logger.warn("setting localDb {} {}", localDb, LoggerUtils.whereFrom());
+		logger.debug("setting localDb {} {}", localDb, LoggerUtils.whereFrom());
 		JPAService.localDb = localDb;
 	}
 
