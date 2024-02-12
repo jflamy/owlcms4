@@ -7,6 +7,10 @@
 > You should always test any new release several days in advance, with your own data.
 
 ##### 46.0
+- (alpha07) AgeGroups.xlsx specification cleanup and fixes
+  - The definition of the Robi categories and records is now in a separate RobiCategories.xlsx file. 
+  - The age group definitions are now the only sheet in the spreadsheet file (enablement for future export of the definitions).  For backward compatibility, if there are two sheets the first one is ignored.
+  - Previously, if you added a non-IWF category for an age group using the age group file it was ignored. This is now fixed.
 - (alpha06) Ability to annotate athlete with A/B/C/... when categories are split across multiple sessions.  
   - The letter is shown on the leaders section of the scoreboards.  
   - Added the entry to the new simplified initial registration sheet and the full start book data entry.
