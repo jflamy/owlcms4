@@ -270,15 +270,15 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 			String behindVersionMsg = Translator.translate("CheckVersion.behind");
 			if (JPAService.isLocalDb()) {
 				behindVersionMsg = """
-				        <a href='https://github.com/owlcms/owlcms4%s/releases/tag/%s' style='text-decoration:underline'>%s</a>
-				        """
+				                   <a href='https://github.com/owlcms/owlcms4%s/releases/tag/%s' style='text-decoration:underline'>%s</a>
+				                   """
 				        .formatted(suffix,
-				                currentVersionString,
+				        		referenceVersionString,
 				                Translator.translate("CheckVersion.clickToDownload"));
 			} else {
 				behindVersionMsg = """
-				        <a href='https://owlcms-cloud.fly.dev/apps' style='text-decoration:underline'>%s</a>
-				        """
+				                   <a href='https://owlcms-cloud.fly.dev/apps' style='text-decoration:underline'>%s</a>
+				                   """
 				        .formatted(Translator.translate("CheckVersion.clickCloudUpdate"));
 			}
 
@@ -353,17 +353,25 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		        + (local ? "" : "&origin=" + ipAddress)
 		        + (JPAService.isLocalDb() ? "&local=true" : "&local=false");
 
-		HttpRequest usageRequest = HttpRequest.newBuilder(URI.create(usageStr)).timeout(Duration.ofMillis(200)).build();
+		
 
 		Properties attributes = OwlcmsSession.getCurrent().getAttributes();
 		// fire and forget
-		new Thread(() -> {
-			try {
-				client.send(usageRequest, BodyHandlers.ofString());
-				attributes.setProperty(USAGE_STR, usageStr);
-				logger.info("logged usage {}", attributes.getProperty(USAGE_STR));
-			} catch (Throwable e) {
-				logger.error("could not log usage: {}", e.getMessage());
+		new Thread(() -> { 
+			// try 3 times, increasing timeout by 1 second.
+			for (int i = 0; i < 3; i++) {
+				try {
+					HttpRequest usageRequest = HttpRequest
+							.newBuilder(URI.create(usageStr))
+							.timeout(Duration.ofMillis(2000+(i*1000)))
+							.build();
+					client.send(usageRequest, BodyHandlers.ofString());
+					attributes.setProperty(USAGE_STR, usageStr);
+					logger.info("logged usage {}", attributes.getProperty(USAGE_STR));
+					break;
+				} catch (Throwable e) {
+					logger.error("could not log usage - attempt {}: {}", i, e.getMessage());
+				}
 			}
 		}).start();
 	}
