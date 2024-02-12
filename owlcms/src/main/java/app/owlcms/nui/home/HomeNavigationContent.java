@@ -273,7 +273,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 				                   <a href='https://github.com/owlcms/owlcms4%s/releases/tag/%s' style='text-decoration:underline'>%s</a>
 				                   """
 				        .formatted(suffix,
-				                currentVersionString,
+				        		referenceVersionString,
 				                Translator.translate("CheckVersion.clickToDownload"));
 			} else {
 				behindVersionMsg = """
