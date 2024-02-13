@@ -11,18 +11,25 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.poi.ss.usermodel.ClientAnchor;
+import org.apache.poi.ss.usermodel.Comment;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Drawing;
+import org.apache.poi.ss.usermodel.RichTextString;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Return empty list with the current information in the database for groups and
- * platforms, but no athletes
+ * Return empty list with the current information in the database for groups and platforms, but no athletes
  *
  * @author jflamy
  *
@@ -50,7 +57,7 @@ public class JXLSRegistrationEmptyExport extends JXLSWorkbookStreamSource {
 		} catch (IOException e) {
 		}
 	}
-	
+
 	@Override
 	public InputStream getTemplate(Locale locale) throws IOException {
 		return getLocalizedTemplate("/templates/registration/RegistrationExport", ".xls", locale);
@@ -65,6 +72,23 @@ public class JXLSRegistrationEmptyExport extends JXLSWorkbookStreamSource {
 	@Override
 	protected boolean isEmptyOk() {
 		return true;
+	}
+
+	@Override
+	protected void postProcess(Workbook workbook) {
+		Sheet sheet = workbook.getSheetAt(0);
+		Drawing<?> drawing = sheet.createDrawingPatriarch();
+		ClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 4, 3, 9, 9);
+		CreationHelper richTextFactory = workbook.getCreationHelper();
+		RichTextString instructions = richTextFactory.createRichTextString(
+		        Translator.translate("EmptyInstructions.1") + "\n" +
+		                Translator.translate("EmptyInstructions.2") + "\n" +
+		                Translator.translate("EmptyInstructions.3") + "\n" +
+		                Translator.translate("EmptyInstructions.4"));
+		Comment comment = drawing.createCellComment(anchor);
+		comment.setString(instructions);
+		comment.setVisible(true);
+
 	}
 
 }

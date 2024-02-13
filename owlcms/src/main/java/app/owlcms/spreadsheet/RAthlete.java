@@ -30,8 +30,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Used for registration. Converts from String to data types as required to
- * simplify Excel/CSV imports
+ * Used for registration. Converts from String to data types as required to simplify Excel/CSV imports
  *
  * @author Jean-François Lamy
  *
@@ -41,41 +40,24 @@ public class RAthlete {
 	public static final String NoTeamMarker = "/NoTeam";
 	private Pattern legacyPattern;
 	Athlete a = new Athlete();
-
 	final Logger logger = (Logger) LoggerFactory.getLogger(RAthlete.class);
 
 	{
-		logger.setLevel(Level.INFO);
+		this.logger.setLevel(Level.INFO);
 	}
 
 	public RAthlete() {
 	}
 
 	public Athlete getAthlete() {
-		return a;
+		return this.a;
 	}
-
-//	public String getCoach() {
-//		return a.getCoach();
-//	}
-//
-//	public String getCustom1() {
-//		return a.getCustom1();
-//	}
-//
-//	public String getCustom2() {
-//		return a.getCustom2();
-//	}
-//
-//	public String getFederationCodes() {
-//		return a.getFederationCodes();
-//	}
 
 	/**
 	 * @param bodyWeight
 	 */
 	public void setBodyWeight(Double bodyWeight) {
-		a.setBodyWeight(bodyWeight);
+		this.a.setBodyWeight(bodyWeight);
 	}
 
 	/**
@@ -89,9 +71,9 @@ public class RAthlete {
 		}
 		if (s == null || s.isBlank()) {
 			// no category, infer from age and body weight
-			a.computeMainAndEligibleCategories();
-			a.getParticipations().stream().forEach(p -> p.setTeamMember(true));
-			if (a.getCategory() == null) {
+			this.a.computeMainAndEligibleCategories();
+			this.a.getParticipations().stream().forEach(p -> p.setTeamMember(true));
+			if (this.a.getCategory() == null) {
 				throw new Exception(Translator.translate("Upload.CannotDetermineRegistrationCategory"));
 			}
 			return;
@@ -115,11 +97,9 @@ public class RAthlete {
 			} else {
 				// we have a short form category. infer from age and category limit
 				setCategoryHeuristics(s);
-				a.getParticipations().stream().forEach(p -> p.setTeamMember(true));
+				this.a.getParticipations().stream().forEach(p -> p.setTeamMember(true));
 			}
 		}
-
-		return;
 	}
 
 	/**
@@ -129,35 +109,26 @@ public class RAthlete {
 		if (s != null) {
 			s = CharMatcher.javaIsoControl().removeFrom(s);
 		}
-		a.setCleanJerk1Declaration(s);
+		this.a.setCleanJerk1Declaration(s);
 	}
 
 	public void setCoach(String s) {
-//		if (s != null) {
-//			s = CharMatcher.javaIsoControl().removeFrom(s);
-//		}
-		a.setCoach(s);
+		this.a.setCoach(s);
 	}
 
 	public void setCustom1(String s) {
-//		if (s != null) {
-//			s = CharMatcher.javaIsoControl().removeFrom(s);
-//		}
-		a.setCustom1(s);
+		this.a.setCustom1(s);
 	}
 
 	public void setCustom2(String s) {
-//		if (s != null) {
-//			s = CharMatcher.javaIsoControl().removeFrom(s);
-//		}
-		a.setCustom2(s);
+		this.a.setCustom2(s);
 	}
 
 	public void setFederationCodes(String s) {
 		if (s != null) {
 			s = CharMatcher.javaIsoControl().removeFrom(s);
 		}
-		a.setFederationCodes(s);
+		this.a.setFederationCodes(s);
 	}
 
 	/**
@@ -168,12 +139,12 @@ public class RAthlete {
 		if (s != null) {
 			s = CharMatcher.javaIsoControl().removeFrom(s);
 		}
-		a.setFirstName(s);
+		this.a.setFirstName(s);
 	}
 
 	/**
-	 * Note the mapping file must process the birth date before the category, as it
-	 * is a required input to determine the category.
+	 * Note the mapping file must process the birth date before the category, as it is a required input to determine the
+	 * category.
 	 *
 	 * @param category
 	 * @throws Exception
@@ -183,24 +154,23 @@ public class RAthlete {
 		if (s != null) {
 			s = CharMatcher.javaIsoControl().removeFrom(s);
 		}
-		s = CharMatcher.javaIsoControl().removeFrom(s);
 		try {
 			long l = Long.parseLong(s);
 			if (l < 3000) {
-				a.setYearOfBirth((int) l);
+				this.a.setYearOfBirth((int) l);
 				// logger.debug("short " + l);
 			} else {
+				// assume that a large number is an Excel date as an integer
 				LocalDate epoch = LocalDate.of(1900, 1, 1);
 				LocalDate plusDays = epoch.plusDays(l - 2); // Excel quirks: 1 is 1900-01-01 and 1900-02-29 did not
 				                                            // exist.
 				// logger.debug("long " + plusDays);
-				a.setFullBirthDate(plusDays);
+				this.a.setFullBirthDate(plusDays);
 			}
-			return;
 		} catch (NumberFormatException e) {
 			// logger.debug("localized");
 			LocalDate parse = DateTimeUtils.parseLocalizedOrISO8601Date(s, OwlcmsSession.getLocale());
-			a.setFullBirthDate(parse);
+			this.a.setFullBirthDate(parse);
 		}
 	}
 
@@ -212,11 +182,11 @@ public class RAthlete {
 		if (s != null) {
 			s = CharMatcher.javaIsoControl().removeFrom(s);
 		}
-		logger.trace("setting gender {} for athlete {}", s, a.getLastName());
+		this.logger.trace("setting gender {} for athlete {}", s, this.a.getLastName());
 		if (s == null) {
 			return;
 		}
-		a.setGender(Gender.valueOf(s.toUpperCase()));
+		this.a.setGender(Gender.valueOf(s.toUpperCase()));
 	}
 
 	/**
@@ -233,7 +203,7 @@ public class RAthlete {
 		}
 		Group g;
 		if ((g = RCompetition.getActiveGroups().get(s)) != null) {
-			a.setGroup(g);
+			this.a.setGroup(g);
 		} else {
 			throw new Exception(Translator.translate("Upload.GroupNotDefined", s));
 		}
@@ -247,7 +217,7 @@ public class RAthlete {
 		if (s != null) {
 			s = CharMatcher.javaIsoControl().removeFrom(s);
 		}
-		a.setLastName(s);
+		this.a.setLastName(s);
 	}
 
 	/**
@@ -261,7 +231,7 @@ public class RAthlete {
 		if (s == null) {
 			return;
 		}
-		a.setLotNumber(Integer.parseInt(s));
+		this.a.setLotNumber(Integer.parseInt(s));
 	}
 
 	/**
@@ -272,7 +242,7 @@ public class RAthlete {
 		if (s != null) {
 			s = CharMatcher.javaIsoControl().removeFrom(s);
 		}
-		a.setMembership(s);
+		this.a.setMembership(s);
 	}
 
 	public void setPersonalBestCleanJerk(String s) {
@@ -280,7 +250,7 @@ public class RAthlete {
 			s = CharMatcher.javaIsoControl().removeFrom(s);
 		}
 		if (s != null && !s.isEmpty()) {
-			a.setPersonalBestCleanJerk(Integer.parseInt(s));
+			this.a.setPersonalBestCleanJerk(Integer.parseInt(s));
 		}
 	}
 
@@ -289,7 +259,7 @@ public class RAthlete {
 			s = CharMatcher.javaIsoControl().removeFrom(s);
 		}
 		if (s != null && !s.isEmpty()) {
-			a.setPersonalBestSnatch(Integer.parseInt(s));
+			this.a.setPersonalBestSnatch(Integer.parseInt(s));
 		}
 	}
 
@@ -298,7 +268,7 @@ public class RAthlete {
 			s = CharMatcher.javaIsoControl().removeFrom(s);
 		}
 		if (s != null && !s.isEmpty()) {
-			a.setPersonalBestTotal(Integer.parseInt(s));
+			this.a.setPersonalBestTotal(Integer.parseInt(s));
 		}
 	}
 
@@ -307,7 +277,7 @@ public class RAthlete {
 	 * @see app.owlcms.data.athlete.Athlete#setQualifyingTotal(java.lang.Integer)
 	 */
 	public void setQualifyingTotal(Integer qualifyingTotal) {
-		a.setQualifyingTotal(qualifyingTotal);
+		this.a.setQualifyingTotal(qualifyingTotal);
 	}
 
 	/**
@@ -317,7 +287,11 @@ public class RAthlete {
 		if (s != null) {
 			s = CharMatcher.javaIsoControl().removeFrom(s);
 		}
-		a.setSnatch1Declaration(s);
+		this.a.setSnatch1Declaration(s);
+	}
+
+	public void setSubCategory(String s) {
+		this.a.setSubCategory(s);
 	}
 
 	/**
@@ -328,7 +302,7 @@ public class RAthlete {
 		if (s != null) {
 			s = CharMatcher.javaIsoControl().removeFrom(s);
 		}
-		a.setTeam(s);
+		this.a.setTeam(s);
 	}
 
 	private boolean addIfEligible(Set<Category> eligibleCategories, Set<Category> teams, Integer athleteQTotal,
@@ -353,36 +327,37 @@ public class RAthlete {
 
 	private Category findByAgeBW(Matcher legacyResult, double searchBodyWeight, int age, int qualifyingTotal)
 	        throws Exception {
-//		List<Category> found = CategoryRepository.findByGenderAgeBW(a.getGender(), age, searchBodyWeight);
-//		Set<Category> eligibles = new LinkedHashSet<>();
-//		eligibles = found.stream().filter(c -> qualifyingTotal >= c.getQualifyingTotal())
-//		        .collect(Collectors.toSet());
-		List<Category> eligibles = CategoryRepository.doFindEligibleCategories(a, a.getGender(), age, searchBodyWeight, qualifyingTotal);
-		a.setEligibleCategories(new HashSet<>(eligibles));
-//logger.debug("eligibles {} {} {}", age, qualifyingTotal, eligibles);
+		// List<Category> found = CategoryRepository.findByGenderAgeBW(a.getGender(), age, searchBodyWeight);
+		// Set<Category> eligibles = new LinkedHashSet<>();
+		// eligibles = found.stream().filter(c -> qualifyingTotal >= c.getQualifyingTotal())
+		// .collect(Collectors.toSet());
+		List<Category> eligibles = CategoryRepository.doFindEligibleCategories(this.a, this.a.getGender(), age,
+		        searchBodyWeight, qualifyingTotal);
+		this.a.setEligibleCategories(new HashSet<>(eligibles));
+		// logger.debug("eligibles {} {} {}", age, qualifyingTotal, eligibles);
 		Category category = eligibles.size() > 0 ? eligibles.get(0) : null;
 		if (category == null) {
 			throw new Exception(
 			        Translator.translate(
-			                "Upload.CategoryNotFound", age, a.getGender(),
+			                "Upload.CategoryNotFound", age, this.a.getGender(),
 			                legacyResult.group(2) + legacyResult.group(3)));
 		}
 		return category;
 	}
-	
+
 	private void fixLegacyGender(Matcher result) throws Exception {
 		String genderLetter = result.group(1);
-		if (a.getGender() == null) {
+		if (this.a.getGender() == null) {
 			if (genderLetter.equalsIgnoreCase("f")) {
-				a.setGender(Gender.F);
+				this.a.setGender(Gender.F);
 			} else if (genderLetter.equalsIgnoreCase("m")) {
-				a.setGender(Gender.M);
+				this.a.setGender(Gender.M);
 			}
 		} else if (!genderLetter.isEmpty()) {
 			// letter present, should match gender
-			if ((genderLetter.equalsIgnoreCase("f") && a.getGender() != Gender.F)
-			        || (genderLetter.equalsIgnoreCase("m") && a.getGender() != Gender.M)) {
-				throw new Exception(Translator.translate("Upload.GenderMismatch", result.group(0), a.getGender()));
+			if ((genderLetter.equalsIgnoreCase("f") && this.a.getGender() != Gender.F)
+			        || (genderLetter.equalsIgnoreCase("m") && this.a.getGender() != Gender.M)) {
+				throw new Exception(Translator.translate("Upload.GenderMismatch", result.group(0), this.a.getGender()));
 			}
 		} else {
 			// nothing to do gender is known and consistent.
@@ -390,11 +365,11 @@ public class RAthlete {
 	}
 
 	private Pattern getLegacyPattern() {
-		if (legacyPattern == null) {
+		if (this.legacyPattern == null) {
 			setLegacyPattern(Pattern
 			        .compile("([mMfF]?) *([>" + Pattern.quote("+") + "]?) *(\\d+) *(" + Pattern.quote("+") + "?)$"));
 		}
-		return legacyPattern;
+		return this.legacyPattern;
 	}
 
 	private void processEligibilityAndTeams(String[] parts, Category c, boolean mainCategoryTeamMember)
@@ -429,8 +404,8 @@ public class RAthlete {
 			}
 		}
 
-		RCompetition.getAthleteToEligibles().put(a.getId(), eligibleCategories);
-		RCompetition.getAthleteToTeams().put(a.getId(), teams);
+		RCompetition.getAthleteToEligibles().put(this.a.getId(), eligibleCategories);
+		RCompetition.getAthleteToTeams().put(this.a.getId(), teams);
 	}
 
 	private void setCategoryHeuristics(String categoryName) throws Exception {
@@ -443,11 +418,11 @@ public class RAthlete {
 			if (category == null) {
 				throw new Exception(Translator.translate("Upload.CategoryNotFoundByName", categoryName));
 			}
-			if (category.getGender() != a.getGender()) {
+			if (category.getGender() != this.a.getGender()) {
 				throw new Exception(
-				        Translator.translate("Upload.GenderMismatch", categoryName, a.getGender()));
+				        Translator.translate("Upload.GenderMismatch", categoryName, this.a.getGender()));
 			}
-			a.setCategory(category);
+			this.a.setCategory(category);
 			return;
 		} else {
 			fixLegacyGender(legacyResult);
@@ -464,26 +439,22 @@ public class RAthlete {
 
 		int age;
 		// if no birth date, try with 0 and see if we get the default group.
-		if (a.getFullBirthDate() == null) {
+		if (this.a.getFullBirthDate() == null) {
 			age = 0;
 		} else {
-			age = a.getAge();
+			age = this.a.getAge();
 		}
 
 		Integer qualifyingTotal = this.getAthlete().getQualifyingTotal();
 		Category category = findByAgeBW(legacyResult, searchBodyWeight, age,
 		        qualifyingTotal != null ? qualifyingTotal : 999);
 
-		a.setCategory(category);
+		this.a.setCategory(category);
 		// logger.debug("setting category to {} athlete {}",category.longDump(),
 		// a.longDump());
 	}
 
 	private void setLegacyPattern(Pattern legacyPattern) {
 		this.legacyPattern = legacyPattern;
-	}
-
-	public void setSubCategory(String s) {
-		a.setSubCategory(s);
 	}
 }
