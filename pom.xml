@@ -31,26 +31,24 @@
 		<!-- revision is overridden by azure-pipelines.yml for the official
 		builds. this value is only used for local development -->
 		<revision>46.0.0-SNAPSHOT</revision>
-		
-		<!-- only used for builds -->
-		<owlcms-maven-url>https://maven.lerta.ca</owlcms-maven-url>
-		<owlcms-maven-suffix>/releases</owlcms-maven-suffix> 
-		<owlcms-docker>docker.io/owlcms</owlcms-docker>
 
-		<!-- maven configs -->
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<failOnMissingWebXml>false</failOnMissingWebXml>
-
-		<!-- Library versions -->
-		<java.release>17</java.release>
-		<vaadin.version>24.3.3</vaadin.version>
+		<vaadin.version>24.3.5</vaadin.version>
 		<logback.version>1.4.14</logback.version>
 		<slf4j.version>2.0.7</slf4j.version>
 		<hibernate.version>5.6.10.Final</hibernate.version>
 		<guava.version>32.0.0-jre</guava.version>
 
+		<!-- maven configs -->
+		<java.release>17</java.release>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<failOnMissingWebXml>false</failOnMissingWebXml>
 		<rootOutputDir>${project.build.directory}</rootOutputDir>
+		
+		<!-- used by Azure Devops builds -->
+		<owlcms-maven-url>https://maven.lerta.ca</owlcms-maven-url>
+		<owlcms-maven-suffix>/releases</owlcms-maven-suffix> 
+		<owlcms-docker>docker.io/owlcms</owlcms-docker>
 	</properties>
 	<repositories>
 		<repository>
@@ -195,12 +193,6 @@
 					<version>3.12.1</version>
 					<configuration>
 						<release>17</release>
-						<enablepreview>true</enablepreview>
-						<!-- <compilerArgs> should no longer be needed when
-						moving to JDK 11 -->
-						<!-- <arg>-
-						-add-exports=java.desktop/com.sun.media.sound=ALL-UNNAMED</arg> -->
-						<!-- </compilerArgs> -->
 					</configuration>
 				</plugin>
 				<plugin>
