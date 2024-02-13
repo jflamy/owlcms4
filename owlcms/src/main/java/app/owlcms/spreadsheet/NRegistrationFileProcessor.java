@@ -21,6 +21,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -55,6 +56,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	private enum DelayedSetter {
 		BIRTHDATE, BODYWEIGHT, QUALIFYING_TOTAL, GENDER, CATEGORY
 	}
+
 	static final String GROUPS_READER_SPEC = "/templates/registration/GroupsReader.xml";
 	Integer[] delayedSetterColumns = new Integer[DelayedSetter.values().length];
 	Logger logger = (Logger) LoggerFactory.getLogger(NRegistrationFileProcessor.class);
@@ -63,7 +65,6 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	TriConsumer<RAthlete, String, Cell>[] setterForColumn = new TriConsumer[25];
 	FormulaEvaluator formulaEvaluator;
 	DataFormatter formatter;
-
 	private boolean createMissingGroups = true;
 
 	public NRegistrationFileProcessor() {
@@ -103,7 +104,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	@Override
 	@SuppressWarnings("unchecked")
 	public int doProcessAthletes(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer,
-			Runnable displayUpdater) {
+	        Runnable displayUpdater) {
 
 		try (InputStream xlsInputStream = inputStream) {
 			inputStream.reset();
@@ -130,8 +131,8 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 			// if exact matches were found for categories, the processing for eligibility
 			// has been done, and we keep the eligibilities exactly as in the file.
 			this.keepParticipations = athletes.stream()
-					.filter(r -> r.getAthlete().getEligibleCategories() != null).findFirst()
-					.isPresent();
+			        .filter(r -> r.getAthlete().getEligibleCategories() != null).findFirst()
+			        .isPresent();
 
 			this.logger.info(Translator.translate("DataRead") + " " + athletes.size() + " athletes");
 			if (dryRun) {
@@ -159,7 +160,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	 */
 	@Override
 	public int doProcessGroups(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer,
-			Runnable displayUpdater) {
+	        Runnable displayUpdater) {
 		try (InputStream xmlInputStream = ResourceWalker.getResourceAsStream(GROUPS_READER_SPEC)) {
 			inputStream.reset();
 			ReaderConfig readerConfig = ReaderConfig.getInstance();
@@ -245,7 +246,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 				// Create the new athletes.
 				athletes.stream().forEach(r -> {
 					Athlete athlete = r.getAthlete();
-					//logger.debug("merging {}", athlete.getShortName());
+					// logger.debug("merging {}", athlete.getShortName());
 					em.merge(athlete);
 				});
 				em.flush();
@@ -260,11 +261,11 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 		JPAService.runInTransaction(em -> {
 			AthleteRepository.findAll().stream().forEach(a2 -> {
 				LinkedHashSet<Category> eligibles = (LinkedHashSet<Category>) RCompetition
-						.getAthleteToEligibles()
-						.get(a2.getId());
+				        .getAthleteToEligibles()
+				        .get(a2.getId());
 				LinkedHashSet<Category> teams = (LinkedHashSet<Category>) RCompetition
-						.getAthleteToTeams()
-						.get(a2.getId());
+				        .getAthleteToTeams()
+				        .get(a2.getId());
 				if (eligibles != null) {
 					Category first = eligibles.stream().findFirst().orElse(null);
 					a2.setCategory(first);
@@ -276,7 +277,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 							p.setTeamMember(true);
 						} else {
 							this.logger.info("Excluding {} as team member for {}", a2.getShortName(),
-									p.getCategory().getComputedCode());
+							        p.getCategory().getComputedCode());
 							p.setTeamMember(false);
 						}
 					}
@@ -295,7 +296,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	@Override
 	public void updatePlatformsAndGroups(List<RGroup> groups) {
 		Set<String> futurePlatforms = groups.stream().map(RGroup::getPlatform).filter(p -> (p != null && !p.isBlank()))
-				.collect(Collectors.toSet());
+		        .collect(Collectors.toSet());
 
 		String defaultPlatformName = OwlcmsFactory.getDefaultFOP().getName();
 		if (futurePlatforms.isEmpty()) {
@@ -329,7 +330,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 
 		groups.stream().forEach(g -> {
 			this.logger.debug("group {} weighIn {} competition {}", g.getGroup(), g.getWeighinTime(),
-					g.getCompetitionTime());
+			        g.getCompetitionTime());
 		});
 	}
 
@@ -343,6 +344,12 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 
 	private String cellToString(Cell cell) {
 		switch (cell.getCellType()) {
+			case NUMERIC:
+				if (DateUtil.isCellDateFormatted(cell)) {
+					logger.warn("Date Cell {}", cell.getDateCellValue());
+				} else {
+					return this.formatter.formatCellValue(cell);
+				}
 			case FORMULA:
 				return this.formatter.formatCellValue(cell, this.formulaEvaluator);
 			default:
@@ -368,14 +375,12 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 			int iColumn = 0;
 			Row row = rowIterator.next();
 			if (iRow == 0) {
-				//logger.debug("creating header");
-				// header, create map.
+				// header, create a map from column to the appropriate setter.
 				Iterator<Cell> cellIterator = row.cellIterator();
 				while (cellIterator.hasNext()) {
 					Cell cell = cellIterator.next();
 					String cellValue = cell.getStringCellValue();
 					String trim = cellValue.trim();
-					//logger.trace("cell {} {} {} {}", iColumn, iRow, cell.getAddress(), trim);
 
 					if (trim.contentEquals(Translator.translate("Membership"))) {
 						this.setterForColumn[iColumn] = (a, s, c) -> {
@@ -434,12 +439,12 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 							}
 						});
 					} else if (trim.contentEquals(Translator.translate("Results.Snatch") + " "
-							+ Translator.translate("Results.Declaration_abbrev"))) {
+					        + Translator.translate("Results.Declaration_abbrev"))) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setSnatch1Declaration(s);
 						});
 					} else if (trim.contentEquals(Translator.translate("Results.CJ_abbrev") + " "
-							+ Translator.translate("Results.Declaration_abbrev"))) {
+					        + Translator.translate("Results.Declaration_abbrev"))) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setCleanJerk1Declaration(s);
 						});
@@ -465,9 +470,10 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 						this.delayedSetterColumns[DelayedSetter.QUALIFYING_TOTAL.ordinal()] = iColumn;
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							try {
-								//logger.debug("qualifying total {}", s);
-								int i = Integer.parseInt(s);
-								a.setQualifyingTotal(i);
+								if (s != null && !s.isBlank()) {
+									int i = Integer.parseInt(s);
+									a.setQualifyingTotal(i);
+								}
 							} catch (Exception e) {
 								processException(a, s, c, e, errorConsumer);
 							}
@@ -506,16 +512,17 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 						});
 					} else {
 						errorConsumer
-						.accept(Translator.translate("Registration.UnknownColumnHeader", trim) + " " + trim);
+						        .accept(Translator.translate("Registration.UnknownColumnHeader", trim) + " " + trim);
 					}
 					iColumn++;
 				}
 			} else {
+				// process the values
 				RAthlete ra = new RAthlete();
 				Iterator<Cell> cellIterator = row.cellIterator();
 
-				// first pass, memorize values for setters that need to be called in a specific order
-				// call the other setters.
+				// first pass, memorize cell values for setters that need to be called in a specific order
+				// setters that can be called immediately are invoked in this pass
 				String[] delayedSetterValues = new String[DelayedSetter.values().length];
 				Cell[] delayedSetterCells = new Cell[DelayedSetter.values().length];
 				iColumn = 0;
@@ -530,7 +537,10 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 					}
 					int delayedOrder = ArrayUtils.indexOf(this.delayedSetterColumns, iColumn);
 					if (delayedOrder < 0) {
-						this.setterForColumn[iColumn].accept(ra, cellValue.trim(), cell);
+						if (iColumn < this.setterForColumn.length && this.setterForColumn[iColumn] != null) {
+							logger.warn("setting column {} {}", iColumn, cell.getAddress());
+							this.setterForColumn[iColumn].accept(ra, cellValue.trim(), cell);
+						}
 					} else {
 						delayedSetterValues[delayedOrder] = cellValue.trim();
 						delayedSetterCells[delayedOrder] = cell;
@@ -541,8 +551,12 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 				// second pass, call the delayed setters in the correct order.
 				for (int delayedOrder = 0; delayedOrder < DelayedSetter.values().length; delayedOrder++) {
 					Integer setterColumn = this.delayedSetterColumns[delayedOrder];
-					this.setterForColumn[setterColumn].accept(ra, delayedSetterValues[delayedOrder],
-							delayedSetterCells[delayedOrder]);
+					logger.warn("delayed setter [{}] {} {}", delayedOrder, DelayedSetter.values()[delayedOrder],
+					        setterColumn);
+					if (setterColumn != null) {
+						this.setterForColumn[setterColumn].accept(ra, delayedSetterValues[delayedOrder],
+						        delayedSetterCells[delayedOrder]);
+					}
 				}
 				athletes.add(ra);
 			}
@@ -554,7 +568,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 
 	@SuppressWarnings("unused")
 	private void updateCompetitionInfo(RCompetition c, EntityManager em, Competition curC)
-			throws IllegalAccessException, InvocationTargetException {
+	        throws IllegalAccessException, InvocationTargetException {
 		Competition rCompetition = c.getCompetition();
 		// save some properties from current database that do not appear on spreadheet
 		rCompetition.setEnforce20kgRule(curC.isEnforce20kgRule());

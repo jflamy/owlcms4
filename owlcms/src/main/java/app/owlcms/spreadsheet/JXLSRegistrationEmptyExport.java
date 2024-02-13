@@ -60,7 +60,7 @@ public class JXLSRegistrationEmptyExport extends JXLSWorkbookStreamSource {
 
 	@Override
 	public InputStream getTemplate(Locale locale) throws IOException {
-		return getLocalizedTemplate("/templates/registration/RegistrationExport", ".xls", locale);
+		return getLocalizedTemplate("/templates/registration/Registration", ".xls", locale);
 	}
 
 	@Override

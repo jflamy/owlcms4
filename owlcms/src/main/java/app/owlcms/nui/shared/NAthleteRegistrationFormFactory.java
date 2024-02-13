@@ -842,8 +842,9 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		TabSheet ts = new TabSheet();
 
 		FormLayout idLayout = createIdForm();
-		FormLayout groupCatLayout = createGroupCategoryForm();
 		FormLayout weighInLayout = createWeighInForm();
+		FormLayout groupCatLayout = createGroupCategoryForm();
+
 		VerticalLayout content = new VerticalLayout(new Div(),
 				idLayout,
 				separator(),

@@ -34,10 +34,11 @@ public class GroupRepository {
 			try {
 				em.persist(group);
 				logger./**/warn("persisting {}",group.fullDump());
+				return group;
 			} catch (Exception e) {
 				LoggerUtils.logError(logger, e);
+				return null;
 			}
-			return null;
 		});
 		return nGroup;
 	}
