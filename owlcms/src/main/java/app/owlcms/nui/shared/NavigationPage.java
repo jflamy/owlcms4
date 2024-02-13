@@ -62,7 +62,7 @@ public interface NavigationPage extends ContentWrapping {
 		return ul;
 	}
 
-	public default void doGroup(String label, FlexibleGridLayout grid1, VerticalLayout wrapper) {
+	public default void doGroup(String label, FlexibleGridLayout grid1, VerticalLayout wrapper, Boolean... paired) {
 		VerticalLayout content1 = new VerticalLayout();
 		content1.setSpacing(false);
 		content1.setPadding(true);
@@ -76,10 +76,13 @@ public interface NavigationPage extends ContentWrapping {
 		grid1.getStyle().set("padding-top", "0.5em");
 		grid1.getStyle().set("padding-left", "1em");
 		grid1.getStyle().set("padding-bottom", "1em");
+		if (paired.length > 0 && paired[0]) {
+			grid1.setWidth("850px");
+		}
 		fillH(grid1, wrapper);
 	}
 	
-	public default void doHiddenGroup(String label, Component explanation, FlexibleGridLayout grid1, VerticalLayout wrapper) {
+	public default void doHiddenGroup(String label, Component explanation, FlexibleGridLayout grid1, VerticalLayout wrapper, Boolean... paired) {
 		VerticalLayout content1 = new VerticalLayout();
 		content1.setSpacing(false);
 		content1.setPadding(true);
@@ -95,6 +98,9 @@ public interface NavigationPage extends ContentWrapping {
 		grid1.getStyle().set("margin", "0");
 		grid1.getStyle().set("margin-left", "-1em");
 		explanation.getStyle().set("margin-left", "1em");
+		if (paired.length > 0 && paired[0]) {
+			grid1.setWidth("850px");
+		}
 		det.setWidthFull();
 		fillH(det, wrapper);
 	}

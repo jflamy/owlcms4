@@ -67,14 +67,15 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 	 */
 	public PreparationNavigationContent() {
 
-		Button competition = openInNewTabNoParam(CompetitionContent.class, Translator.translate("CompetitionInformation"));
+		Button competition = openInNewTabNoParam(CompetitionContent.class,
+		        Translator.translate("CompetitionInformation"));
 		Button config = openInNewTabNoParam(ConfigContent.class, Translator.translate("Config.Title"));
 		Button ageGroups = openInNewTabNoParam(AgeGroupContent.class, Translator.translate("DefineAgeGroups"));
 		Button groups = openInNewTabNoParam(GroupContent.class, Translator.translate("DefineGroups"));
 		Button platforms = openInNewTabNoParam(PlatformContent.class, Translator.translate("DefineFOP"));
 		Button configureRecords = openInNewTabNoParam(RecordsContent.class,
 		        Translator.translate("Records.RecordsManagementTitle"));
-		
+
 		var emptyRegistrationWriter = new JXLSRegistrationEmptyExport(UI.getCurrent());
 		JXLSDownloader dd = new JXLSDownloader(
 		        () -> {
@@ -93,7 +94,8 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 
 		Button upload = new Button(Translator.translate("UploadRegistrations"), new Icon(VaadinIcon.UPLOAD_ALT),
 		        buttonClickEvent -> new NRegistrationFileUploadDialog().open());
-		Button fullUpload = new Button(Translator.translate("AdvancedPreparation.Import"), new Icon(VaadinIcon.UPLOAD_ALT),
+		Button fullUpload = new Button(Translator.translate("AdvancedPreparation.Import"),
+		        new Icon(VaadinIcon.UPLOAD_ALT),
 		        buttonClickEvent -> new ORegistrationFileUploadDialog().open());
 		var registrationWriter = new JXLSSBDEExport(UI.getCurrent());
 		JXLSDownloader dd2 = new JXLSDownloader(
@@ -107,38 +109,43 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		        "SBDE.xlsx",
 		        Translator.translate("AdvancedPreparation.Export"),
 		        fileName -> fileName.endsWith(".xlsx"));
-		Anchor exportButton = dd2.createImmediateDownloadButton(Translator.translate("Preparation.AdvancedExcelExport"));
+		Anchor exportButton = dd2
+		        .createImmediateDownloadButton(Translator.translate("Preparation.AdvancedExcelExport"));
 		Div exportDiv = new Div(exportButton);
 		exportDiv.setWidthFull();
-	
+
 		Button athletes = openInNewTabNoParam(RegistrationContent.class, Translator.translate("EditAthletes"));
 		athletes.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
-		Button teams = openInNewTabNoParam(TeamSelectionContent.class, Translator.translate(TeamSelectionContent.TITLE));
-		
+		Button teams = openInNewTabNoParam(TeamSelectionContent.class,
+		        Translator.translate(TeamSelectionContent.TITLE));
+
 		Button documents = openInNewTabNoParam(DocsContent.class, Translator.translate(DocsContent.PRECOMP_DOCS_TITLE));
 		documents.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
 
-		Button uploadJson = new Button(Translator.translate("ExportDatabase.UploadJson"), new Icon(VaadinIcon.UPLOAD_ALT),
+		Button uploadJson = new Button(Translator.translate("ExportDatabase.UploadJson"),
+		        new Icon(VaadinIcon.UPLOAD_ALT),
 		        buttonClickEvent -> new JsonUploadDialog(UI.getCurrent()).open());
 		Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton("owlcmsDatabase",
 		        Translator.translate("ExportDatabase.DownloadJson"));
 		Optional<Component> exportJsonButton = exportJsonDiv.getChildren().findFirst();
 		exportJsonButton.ifPresent(c -> ((Button) c).setWidth("100%"));
 		exportJsonDiv.setWidthFull();
-		
-		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, ageGroups, groups, platforms,
+
+		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, ageGroups, groups,
+		        platforms,
 		        configureRecords);
-		doGroup(Translator.translate("PreCompetitionSetup"), grid1, this);
+		doGroup(Translator.translate("PreCompetitionSetup"), grid1, this, true);
 		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload, athletes, teams);
-		doGroup(Translator.translate("Registration"), grid2, this);
-//		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes, teams, exportDiv);
-//		doGroup(Translator.translate("EditAthletes_Groups"), grid3, this);
+		doGroup(Translator.translate("Registration"), grid2, this, true);
+		// FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes, teams, exportDiv);
+		// doGroup(Translator.translate("EditAthletes_Groups"), grid3, this);
 		FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(documents);
-		doGroup(Translator.translate(DocsContent.PRECOMP_DOCS_TITLE), grid4, this);
+		doGroup(Translator.translate(DocsContent.PRECOMP_DOCS_TITLE), grid4, this, true);
 		FlexibleGridLayout grid5 = HomeNavigationContent.navigationGrid(exportJsonDiv, uploadJson);
-		doGroup(Translator.translate("ExportDatabase.ExportImport"), grid5, this);
+		doGroup(Translator.translate("ExportDatabase.ExportImport"), grid5, this, true);
 		FlexibleGridLayout grid6 = HomeNavigationContent.navigationGrid(exportDiv, fullUpload);
-		doHiddenGroup(Translator.translate("AdvancedPreparation.Title"), new Div(Translator.translate("AdvancedPreparation.Explanation")), grid6, this);
+		doHiddenGroup(Translator.translate("AdvancedPreparation.Title"),
+		        new Div(Translator.translate("AdvancedPreparation.Explanation")), grid6, this, true);
 
 		DebugUtils.gc();
 	}
