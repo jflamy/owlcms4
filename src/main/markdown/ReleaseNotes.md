@@ -15,6 +15,10 @@
 
 New in version 46
 
+- (beta02) Age Groups
+  - Enhancement: The age groups definitions can now be exported
+  - Fix: Previously, if you added a non-IWF category for an age group using the age group file it was ignored.
+  - Change: The age group definitions is now the first sheet in the spreadsheet file, but for backward compatibility, if there are two sheets the first one is ignored (it used to be the Robi definitions)
 - Simplified initial registration spreadsheet
   - The download of the empty registration spreadsheet now produces a very simple spreadsheet by default. 
   - The buttons on the preparation page were rearranged to facilitate understanding.
@@ -23,13 +27,10 @@ New in version 46
 - Ability to annotate athlete with A/B/C/... when categories are split across multiple sessions.  
   - The letter is shown on the leaders section of the scoreboards.  
   - Added the entry to the new simplified initial registration sheet and the full start book data entry.
-- AgeGroups specification cleanup and fixes
-  - Fix: Previously, if you added a non-IWF category for an age group using the age group file it was ignored.
-  - The definition of the Robi categories and records is no longer in the AgeGroups file. It is now in a separate RobiCategories.xlsx file.  
-    - The age group definitions is now normally the first sheet in the spreadsheet file (enablement for future export of the definitions).
-    - For backward compatibility, if there are two sheets the first one is presumed to be an old Robi definition sheet and it is ignored.
 - Templates and documents
   - All the supplied Excel templates are now .xlsx by default.  As a consequence, all the Excel files produced from the default templates are also in .xlsx format.  The .xlsx format is directly recognized by Office, LibreOffice, Google Sheets and Microsoft 365 Web. 
   - Your existing .xls templates will work as before, but we recommend updating your local templates to .xlsx format.
   - The mechanism used for Excel downloads has changed.  Microsoft Edge has special options for modern Office document formats such as `.xlsx`.  Without the change, some downloads of `.xlsx` files would fail when using Edge's "open immediately" option.
+- Robi
+  - Change: The definition of the Robi reference records is no longer in the AgeGroups file. It is now in a separate RobiCategories.xlsx file.  
 - Usability: the down signal is shown a little bit longer on all the boards (including publicresults)
