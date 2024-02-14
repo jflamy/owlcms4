@@ -573,7 +573,6 @@ public class AgeGroupRepository {
 
 	static Category createCategoryFromTemplate(String catCode, AgeGroup ag, Map<String, Category> templates,
 	        double curMin, String qualTotal) throws Exception {
-		logger.warn("getting {}",catCode);
 		Category template = templates.get(catCode);
 		if (template == null) {
 			logger.trace("template {} not found", catCode);

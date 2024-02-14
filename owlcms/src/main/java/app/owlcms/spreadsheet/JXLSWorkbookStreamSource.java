@@ -112,7 +112,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		try {
 			PipedInputStream in = new PipedInputStream();
 			PipedOutputStream out = new PipedOutputStream(in);
-			logger.debug("created pipes");
 			new Thread(
 			        new Runnable() {
 				        @Override

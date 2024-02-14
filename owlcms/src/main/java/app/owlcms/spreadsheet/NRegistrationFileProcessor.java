@@ -346,7 +346,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 		switch (cell.getCellType()) {
 			case NUMERIC:
 				if (DateUtil.isCellDateFormatted(cell)) {
-					logger.warn("Date Cell {}", cell.getDateCellValue());
+					logger.debug("Date Cell {}", cell.getDateCellValue());
 				} else {
 					return this.formatter.formatCellValue(cell);
 				}
@@ -538,7 +538,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 					int delayedOrder = ArrayUtils.indexOf(this.delayedSetterColumns, iColumn);
 					if (delayedOrder < 0) {
 						if (iColumn < this.setterForColumn.length && this.setterForColumn[iColumn] != null) {
-							logger.warn("setting column {} {}", iColumn, cell.getAddress());
+							logger.debug("setting column {} {}", iColumn, cell.getAddress());
 							this.setterForColumn[iColumn].accept(ra, cellValue.trim(), cell);
 						}
 					} else {
@@ -551,7 +551,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 				// second pass, call the delayed setters in the correct order.
 				for (int delayedOrder = 0; delayedOrder < DelayedSetter.values().length; delayedOrder++) {
 					Integer setterColumn = this.delayedSetterColumns[delayedOrder];
-					logger.warn("delayed setter [{}] {} {}", delayedOrder, DelayedSetter.values()[delayedOrder],
+					logger.debug("delayed setter [{}] {} {}", delayedOrder, DelayedSetter.values()[delayedOrder],
 					        setterColumn);
 					if (setterColumn != null) {
 						this.setterForColumn[setterColumn].accept(ra, delayedSetterValues[delayedOrder],

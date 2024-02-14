@@ -21,6 +21,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -47,9 +48,11 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
+import app.owlcms.nui.shared.DownloadButtonFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.nui.shared.RequireLogin;
+import app.owlcms.spreadsheet.XLSXAgeGroupsExport;
 import app.owlcms.utils.Resource;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Level;
@@ -145,8 +148,12 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		reloadDefinition.setMargin(false);
 		reloadDefinition.setPadding(false);
 		reloadDefinition.setSpacing(false);
+		
+		Div exportAgeGroups = DownloadButtonFactory.createDynamicXLSXDownloadButton("AgeGroups",
+		        Translator.translate("AgeGroups.ExportDefinitions"), new XLSXAgeGroupsExport());
+		exportAgeGroups.getStyle().set("margin-left", "1em");
 
-		topBar.add(resetButton, reloadDefinition);
+		topBar.add(resetButton, reloadDefinition, exportAgeGroups);
 		topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 		topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 
