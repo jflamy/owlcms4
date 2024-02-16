@@ -182,7 +182,7 @@ class Results extends LitElement {
                         ${!item?.isSpacer 
                           ? html`
                               <tr class="athlete">
-                                <td class="groupCol" style="${this.leadingAthleteStyles()} "> <div>${item.subCategory}</div></td>
+                                <td class="groupCol" style="${this.leadingAthleteStyles()} "> <div>${item?.group}</div></td>
                                 <td class="${"name " + (item?.classname ?? "")}" style="${this.leadingAthleteStyles()} "> <div class="ellipsis">   ${item?.fullName} </div></td>
                                 <td class="category" style="${this.leadingAthleteStyles()} "> <div>${item?.category}</div></td>
                                 <td class="yob" style="${this.leadingAthleteStyles()} "> <div>${item?.yearOfBirth}</div></td>
