@@ -1,4 +1,4 @@
-# Internet Access using a Phone Hotspot
+# Internet Access using a Wi-Fi HotSpot
 
 If you are running a competition at a site where there is no Internet, then you need your own competition router that will give you the usual 192.168.x.y networking so you can connect your various consoles and displays.
 

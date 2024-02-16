@@ -1,8 +1,8 @@
-## Physical Setup
+# Physical Setup
 
 owlcms is a web-based application.  All the displays connect to owlcms using a browser.  In most scenarios, owlcms runs on a good laptop at the competition site, and all the other displays connect to that laptop.  For virtual meets, the computer running owlcms is actually running somewhere in the internet -- everything else on this page still applies.
 
-### Minimalistic Setup
+## Minimalistic Setup
 
 In a small club meet, the announcer will often do everything - announce, enter the weight changes, and operate the clock. This can be done on a single laptop, as demonstrated in this [video](Demo1).  You can sometimes even do away with the scoreboard.
 
@@ -10,7 +10,7 @@ In a small club meet, the announcer will often do everything - announce, enter t
 
 <center><img src="img/equipment/ClubCompetitionWIFI.png" alt="ClubCompetitionWIFI" /></center>
 
-### Suggested Small Competition Setup
+Suggested Small Competition Setup
 
 If you have a meeting with multiple groups, the following setup will allow you to comply with most requirements.  This adds a computer in the warmup area, and there is an attempt board on the platform.
 
@@ -20,12 +20,11 @@ If you have a meeting with multiple groups, the following setup will allow you t
 ![minimal](EquipmentSetup/images/minimal.png)
 
 - The clock and decisions are visible on the attempt board.  The attempt board should visible from the chalk box and from the center of the platform.
-- This uses the "extend desktop" capability of the laptop to have a different output on the monitor. To avoid moving the mouse non-intentionally on the external monitor, you can use [DualMonitorTool](https://dualmonitortool.sourceforge.net/) 
-  - Many people have also had success using Chromecast devices to drive the extra screens.
+- This uses the "extend desktop" capability of the laptop to have a different output on the monitor. 
 - If you have an extra laptop and a projector at your disposal, you can add a scoreboard for the public. 
 - The next step up is to have the secretary on a separate laptop so that weigh-in data can be entered while the competition is going on.
 
-### Full Competition Setup
+## Full Competition Setup
 
 At the opposite end of the spectrum, a setup for a state competition using refereeing devices would provide all the requisite displays and technical official stations.  To keep costs down, TVs and projectors can be driven using cheap devices such as Fire TV Sticks or Raspberry Pi.
 
@@ -35,44 +34,37 @@ At the opposite end of the spectrum, a setup for a state competition using refer
 
 
 
-There are basically two ways to achieve such as setup.  The first one uses fewer computers and relies on HDMI extenders, the second (illustrated above) uses old laptops, or small devices such as FireSticks, ChromeCasts, or mini PC sticks to feed the displays.  The two approaches can be combined as needed.
+There are three building blocks to such a setup
 
-#### Approach 1: Fewer laptops, HDMI extenders
+1. Some devices require frequent user input (Marshal, Secretary, Announcer). These are handled by laptops.  owlcms is often run on the secretary computer, only that laptop needs to be recent and performant.  All the other laptops can be basic, or refurbished.
+2. The various displays and TVs need a signal.  With owlcms, the signal comes from a web browser.  The most flexible way to do this is to use any of the following
+   - Old laptops or Chromebooks that can run Chrome or Firefox
+   - Raspberry Pi (the [model 400](https://www.raspberrypi.org/products/raspberry-pi-400/), has everything built-in and is an excellent choice.  They have two HDMI ports and so fewer devices are available (you can buy long optical fiber HDMI cables of more than 30m if you need to)
+   - Mini PCs (preferably with an Ethernet port). Mini PCs also have multiple HDMI ports, so you need fewer devices.  The basic models with 4GB or 8GB of memory are often quite cheap.
+   - Chromecasts (this requires internet access for setup, and Wi-Fi has to be of excellent quality). A computer must provide the display being replicated -- a single laptop can drive multiple displays)
+3. Video splitters.  Sometimes it is possible to share the output from a PC and send it to a TV.  For example, the scoreboard in the warmup room can be obtained from the marshal computer and shown on a marshal monitor and a warmup room TV.
 
-In this approach, officials use the main display of the laptop.  The monitor output is used to show scoreboards.  
+Large Competition: Networking for Maximum Reliability
 
-You can either use an HDMI Extender or use HDMI Fiber cables.  Use extenders that can provide a second output that is connected to a monitor next to the laptop.  In this way, the announcer can see the main scoreboard, and the marshall can see the warmup scoreboard.  If using HDMI Fiber cables, then you will need a splitter to send one signal to the monitor and one signal to the far-away TV.
+In this setup, all the devices are wired using Ethernet, and the network is private.  The competition can go on if the facility's network is down or if there is no Internet.  
 
-The diagram below illustrates the "full setup" that would be used in a multi-platform competition with a full jury.
-
-- A software like [DualMonitorTool](https://dualmonitortool.sourceforge.net/) is used to prevent the mouse from moving out of sight during the sessions.
-
-- The advantage to that setup is that HDMI extension is comparatively cheap (50-100$ per screen) and that there are extenders with an HDMI loop-out that allow the officials to have the same output on a monitor. This also makes it easy to control what is seen on the remote screens. 
-- The laptops are wired using a networking switch.
-- If needed, the laptops can also provide power or control refereeing/jury/timekeeping devices (that typically use Arduino or ESP32 chips).
-- *Two laptops are shared between all competition platforms*; one runs owlcms, the other is for the competition secretary. In a large meet the competition secretary needs a dedicated computer to do the data entry and to produce the results.  They can be connected to the router or to a switch.  In a smaller meet it is often the case that either the announcer laptop or the secretary laptop will run owlcms, but due to the risk of human error, a separate laptop is preferred.
-- *Four laptops are required per platform*, plus one for the jury if there is one, plus one for video streaming if needed.  The laptops are wired to a switch.
-- If there is only one platform, the video streaming computer can be attached to the competition router
-
-![hdmi](EquipmentSetup/images/hdmi.png)
-
-#### Approach 2: Fully Networked
-
-In this second approach, every screen is connected to a networked device.  The small green boxes in the diagram represent the networked devices.  In pre-pandemic times, it was easy to buy a Raspberry Pi for roughly 100$, which made this option price-competitive with the HDMI scenario described above.  These times are gone, so this approach is good when devices are already available and can be scrounged.
-
-Anything that can still run a recent version of Chromium is fine  This includes:
-
-- Old laptops (old laptops can often be converted to Chromebooks and get a second life).  Most old laptops that are too slow for anything else can still run Chrome or Edge.
-- Raspberry Pi (the [model 400](https://www.raspberrypi.org/products/raspberry-pi-400/), has everything built-in and is an excellent choice - when available).
-- PC Sticks or MiniPCs (preferably with an Ethernet port)
-- [Amazon Fire TV sticks](FireTV) (this requires WiFi to be of excellent quality)
-- Chromecasts (this requires internet access to start up, and WiFi has to be of excellent quality). A computer must provide the display being replicated -- a single laptop can drive multiple displays)
-
-The disadvantage to this approach is that each display must be setup separately, and the cost of the devices if you don't have a plentiful supply of obsolete laptops.  The reliance on good WiFi for certain devices is also something to take into account. This advantage is that every display is independent, so this is extremely flexible.
+In this approach, a networking switch is used for each platform.  A networking switch is like an extension for the router and allows more wired ports. The internet access aspect is discussed [further down on this page](#internet-access) .
 
 
 
-![networking](EquipmentSetup/images/networking.png)
+![Slide1](EquipmentSetup/Networking/Equipment/Slide1.SVG)
+
+
+
+## Large Competition: Hybrid Approach with Wi-Fi
+
+Using Wi-Fi simplifies the setup, but in large venues there are sometimes intermittent (or persistent issues) that don't affect casual browsing, but would interfere with time-sensitive displays.  So for a large competition, we **strongly recommend** to wire owlcms itself and the computer that shows the countdown clock and emits the down signal. 
+
+This yields an alternate setup where a portion of the competition network is WiFi and a portion is wired. The diagram also shows a different way to reach the Internet, discussed [further down on this page](#internet-access) 
+
+
+
+![Slide2](EquipmentSetup/Networking/Equipment/Slide2.SVG)
 
 ## Computer Requirements
 
@@ -84,6 +76,31 @@ The disadvantage to this approach is that each display must be setup separately,
 
 ## Sound Requirements
 
-By default, only the athlete-facing decision display emits sound.  See this [page](Displays#display-settings) for controlling the sound parameters for the various displays if you need to enable it on another display.  Enable sound only on one display per room, multiple sources are confusing.
+By default, only the athlete-facing decision display emits sound.  See this [page](Displays#display-settings) for controlling the sound parameters for the various displays if you need to enable it on another display.  You should normally enable sound only on one display per room, multiple sources are confusing.
 
 If the equipment used for display has no speakers, you can get the main computer to generate the sounds.   See [these explanations.](Preparation#associating-an-audio-output-with-a-platform)
+
+## Internet Access
+
+When available, Internet access is used for two reasons
+
+1. On the video streaming computers, to send video to YouTube or Facebook or another streaming service
+2. On the owlcms computer send the competition results to the publicresults module of owlcms running in the cloud.  This is increasingly desirable due to the cost and difficulty of setting up a large scoreboard in the main venue.
+
+What complicates matters is that these computers also need to talk to the rest of the competition network, in addition to the Internet.
+
+There are four ways to solve the problem.
+
+1. If the facility can offer Ethernet access to their network, that is the preferred option.  Simply connect the competition router to the facility's network.
+
+2. If the facility has excellent WiFi, you can take the risk of running everything on the facility WiFi.  Large facilities often have several WiFi networks. You should not use the WiFi used by the crowd, use a separate one if available.
+
+3. You can connect the competition router to a cellular network hotspot
+
+   - Some routers (for example the ASUS RT-AX58U or RT-AX68U) have a USB port and you use a cellular phone to get Internet Access (just like sharing a connection)
+
+   - You can buy or rent a cellular router that has a SIM card.  You connect the competition router to that router, and get Internet access that way.  In the picture, the competition router is in the center.  It is plugged into the cellular router at the left to get Internet access.  The box on the right is a switch that adds additional ports to the router.
+
+![hotspot](EquipmentSetup/Networking/hotspot.png)
+
+4. You can connect OBS and owlcms to the router with a wire, and use the facility WiFi or a phone hotspot to get to the Internet.  This is the approach illustrated in the second diagram -- OBS and owlcms communicate to the Internet on their own, independently.   The configuration required is explained on [this page](PhoneHotspot.md)

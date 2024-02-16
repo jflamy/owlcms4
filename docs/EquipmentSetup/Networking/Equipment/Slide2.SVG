@@ -1,0 +1,1504 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="689.16663"
+   height="682.5"
+   overflow="hidden"
+   version="1.1"
+   id="svg555"
+   sodipodi:docname="Slide2.SVG"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview557"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="0.88958333"
+     inkscape:cx="351.28806"
+     inkscape:cy="396.81499"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg555" />
+  <defs
+     id="defs65">
+    <image
+       width="75"
+       height="30"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAAAeCAMAAABT0xOcAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAzUExURQAAACBQnyBIlxtKmhxIlx1JmR1Imh5JmR5KmR1JmR1KmB1JmR1Jmh5JmR1JmR1JmR1JmUQV1z0AAAAQdFJOUwAQIDBAUGBwgI+fr7/P3+8jGoKKAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAtklEQVRIS+2S0Q6DIAxF6wZFW8D+/9cOYnWJhmETsyfO033oPSGlMBj84k0pm+CXNi9Mq1hZWzIUnmywBO2eCULBxiKzds8EfbiFrisTsUYi+ibdJxOlLXVdC/ryD4hRuCZAZImIE4DHRTJi2bdDHe64ar9Cx2BZpCYnSdNrG/6jK/FGPlKSrCnKeiSpS+u47hLKQT7lmsE/5pJYbqTlcjpjYf+oC/tZ3ofL1TXws4ng2qrBAAA+WUkmH7Zn72kAAAAASUVORK5CYII="
+       preserveAspectRatio="none"
+       id="img0" />
+    <clipPath
+       id="clip1">
+      <rect
+         x="0"
+         y="0"
+         width="714375"
+         height="285750"
+         id="rect3" />
+    </clipPath>
+    <image
+       width="32"
+       height="32"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAFKUExURQAAAAAAAP///4CAgKqqqv///0BAQL+/v5mZmczMzFVVVba2tp+fn46OjrOzs6KiolVVVZWVlaqqqp2dnbGxsaSkpJmZmVBQUI+Pj1FRUVVVVVFRUVVVVVhYWFVVVVJSUhQUFA4ODgAAAAAAAAQEBBwcHAkJCQAAAAABAQEBAQICAgMDAwQEBAUFBQYGBgcHBwgICAkJCQoKChIrGhWdhBcvHhk7IxmagRqZgRuYgBw0JCFMLyNQMSlWNywtLi0uLy5gPTyNVDyOVT6OVj6PVj+IVT+KVUOdXkqpZ0qqZ0uoZ0ymZ0+wbE+xbE+ybE+ybU+zbU+1bU+2bk+3bk+4bk+5bk+5b0+6b1CvbF1eYV5fYV5fYrG3urO5vbS6vba7v7a8v7a8wLi9wbm/w7vBxbzBxb3Dx9bX19na29vc3d/g4ODh4uTl5ubn6CAZfpsAAAAndFJOUwABAQIDAwQEBQUGBwgJCgsMDAwNDQ4PEBATFRYYGhscMzU7PD1AciWx3YEAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKWSURBVDhPLVL5W9NAEF0BEVCsgoIWRcXjuemRxnorV701kd6TNq0ilZXD/f9/9U1w++03aebNm/cmY+YXEQCoBagyVBBEDBZVDcDKvLm0HghPJ97rM/SbcUf/dtM9DVhbMWYhEqAj1Rh99O23r487EKRW9gAJzbSZMUjxFCyIpc8rTelISg68QIJZwwOJUBWWxYjfiLxtsoJ/LSKxmjfkZwX7M6gOhlxHIt+RAwKyEqH82oXP2oX5tlSZvryAplbl/RWhbEQk0qWOm3NmplihC+C15okgUhFJYPnSlqpmajUUZGAmB6R5F0mebU+cc5PfZXNxmm4yRJu5Ul5FJFLfdgFK7sAanWuYRXk18vnWkEivvrXvfrkDB4MsG2IAfCbiCVl5Iuqrb7kf7qc7A2RRFp4xjDQ/BrvUtyYIMSGgnGUDDEFEKnBEjJ2lDjIcuH03oYbBIENm3yfUB+dGY3cIKm2jTDkVG5hSDsC7NMkB49GhI6Adt9StXb1qagO2oM0evYH8hyMC2tJStz2sLdJmCWW1SQRlcX4RmNd5dLkPetBWm1+ISHnVjeYVkZx9Te5DVtY3CX8iz0s6L2WkLaandaPYZZPZriJK/sT/QUM1xThHxKyOmV05X9XRxon3PtrN2WrMF25bpW8nLe3faydl5r39oHnBrRvmWhFd+cRKq5Mp2VboPf7iY8qXgjvL5Ai5n6Hsau9TX+7hyFsfNrjJVM80XSR4iV4Dp/7Yn3Cb/RGO0BC8ovozgOxwsRvwFR96LnygNhvk38ltKoM6JAOOoQyZDp+AlN8/B+h8ef9rsBhkwyzUifMyvVTkrIwp3vvv4krIDRri4XpevL5kzi9P6dOFwt0HGxsb9+cKj4iDvV7IAUvz/wA/TP4Wdm8mKwAAAABJRU5ErkJggg=="
+       preserveAspectRatio="none"
+       id="img2" />
+    <clipPath
+       id="clip3">
+      <rect
+         x="0"
+         y="0"
+         width="200025"
+         height="200025"
+         id="rect7" />
+    </clipPath>
+    <clipPath
+       id="clip4">
+      <rect
+         x="0"
+         y="0"
+         width="180975"
+         height="133350"
+         id="rect10" />
+    </clipPath>
+    <image
+       width="60"
+       height="45"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAAtCAMAAADFqPh+AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACZUExURQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEQAADAAACwAACwAACgAACgAACgAACwAACwAADAAADgAADAAADwAADQAADAAADQAADgAAAAAACwAACQAADAAADAAADAAADQAADAAADAAADAAADAAADgAADAAACwAAAAAADAAACwAAAAAADQAADAAADQAAAAAADQAADQAAAAAADfG7IN4AAAAxdFJOUwABAgMHCQwODxVGR0tNTltfbnCFmJmprrS4ub3GzdLT1Nrb4eLt7u/v9Pj7/Pz9/f76ub0QAAAACXBIWXMAAA7DAAAOwwHHb6hkAAABjElEQVRIS82U2WLCIBBF6WJXW2s3u9rVbqka/f+P6wAnBAhB41PPS2bu3BESBlUL/XLpKPuI6zCnKWBOMYu3YkyJpYUBtlYGGJuMcGQZYY6guhLsPlTWgpaKY+SKckjBMIy/4hEFAxqMUQPGFAFVQDBM0RJMsRjQ/N4Vo+CPj1VIhBVToPHeXqeEgqnWbKn7yeROHiGYhbbebzT4QDagCS58oSQkx7ugKLwiueZ6cwgJMMgLVcKpebje5HWscGdhu0+UupIHWm5ZCzZjvCSE7LKW1tOkbim3UdVO+AFRIyhqGr/fHK0QSsINSsADRQHFh0rbvrKGayr75AkOsVyQ13DwZJonqzySaqwST7tgdOLo7tZ3XGfJ0+oVz0TN6XYNb8UuUQvV6AYk9priC3vEO+Uswdv6/GLIgVUzLQr/pzBkOMC5PENQ5whrNPO1vD8ON9lkOYyvRwJ7RiTJIusQeWRu8r9jtlj8EHZmYSDpiKyruSXthu3dcGl6N2tm25+kHbHNJJ2R1hlhAqX+AGN/vENb4POZAAAAAElFTkSuQmCC"
+       preserveAspectRatio="none"
+       id="img5" />
+    <clipPath
+       id="clip6">
+      <rect
+         x="0"
+         y="0"
+         width="177800"
+         height="133350"
+         id="rect14" />
+    </clipPath>
+    <clipPath
+       id="clip7">
+      <rect
+         x="0"
+         y="0"
+         width="180975"
+         height="133350"
+         id="rect17" />
+    </clipPath>
+    <clipPath
+       id="clip8">
+      <rect
+         x="0"
+         y="0"
+         width="177800"
+         height="133350"
+         id="rect20" />
+    </clipPath>
+    <clipPath
+       id="clip9">
+      <rect
+         x="0"
+         y="0"
+         width="200025"
+         height="209550"
+         id="rect23" />
+    </clipPath>
+    <clipPath
+       id="clip10">
+      <rect
+         x="0"
+         y="0"
+         width="200025"
+         height="200025"
+         id="rect26" />
+    </clipPath>
+    <clipPath
+       id="clip11">
+      <rect
+         x="0"
+         y="4.6566101e-10"
+         width="180975"
+         height="133350"
+         id="rect29" />
+    </clipPath>
+    <clipPath
+       id="clip12">
+      <rect
+         x="0"
+         y="0"
+         width="177800"
+         height="133350"
+         id="rect32" />
+    </clipPath>
+    <clipPath
+       id="clip13">
+      <rect
+         x="0"
+         y="0"
+         width="180975"
+         height="133350"
+         id="rect35" />
+    </clipPath>
+    <clipPath
+       id="clip14">
+      <rect
+         x="0"
+         y="0"
+         width="177800"
+         height="133350"
+         id="rect38" />
+    </clipPath>
+    <clipPath
+       id="clip15">
+      <rect
+         x="0"
+         y="0"
+         width="180975"
+         height="142875"
+         id="rect41" />
+    </clipPath>
+    <clipPath
+       id="clip16">
+      <rect
+         x="0"
+         y="0"
+         width="180975"
+         height="135731"
+         id="rect44" />
+    </clipPath>
+    <clipPath
+       id="clip17">
+      <rect
+         x="0"
+         y="0"
+         width="180975"
+         height="133350"
+         id="rect47" />
+    </clipPath>
+    <clipPath
+       id="clip18">
+      <rect
+         x="0"
+         y="0"
+         width="177800"
+         height="133350"
+         id="rect50" />
+    </clipPath>
+    <clipPath
+       id="clip19">
+      <rect
+         x="0"
+         y="-9.3132302e-10"
+         width="180975"
+         height="133350"
+         id="rect53" />
+    </clipPath>
+    <clipPath
+       id="clip20">
+      <rect
+         x="0"
+         y="0"
+         width="177800"
+         height="133350"
+         id="rect56" />
+    </clipPath>
+    <clipPath
+       id="clip21">
+      <rect
+         x="0"
+         y="0"
+         width="180975"
+         height="133350"
+         id="rect59" />
+    </clipPath>
+    <clipPath
+       id="clip22">
+      <rect
+         x="0"
+         y="0"
+         width="177800"
+         height="133350"
+         id="rect62" />
+    </clipPath>
+  </defs>
+  <rect
+     x="540.66663"
+     y="241.99998"
+     width="148"
+     height="440"
+     stroke="#70ad47"
+     stroke-linejoin="round"
+     stroke-miterlimit="10"
+     fill="#e2f0d9"
+     id="rect69" />
+  <text
+     fill="#5b9bd5"
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="24px"
+     id="text71"
+     x="574.39563"
+     y="268.49997">Internet</text>
+  <text
+     fill="#4472c4"
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text73"
+     x="431.10364"
+     y="361.49997">owlcms</text>
+  <g
+     id="g93"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g91">
+      <g
+         id="g89">
+        <path
+           d="m 24.8438,36.9896 h 3.3124 v 4.4166 h -3.3124 z"
+           fill="#4472c4"
+           transform="matrix(1.11321,0,0,1,576,301)"
+           id="path75" />
+        <path
+           d="m 24.8438,43.6146 h 3.3124 v 3.3125 h -3.3124 z"
+           fill="#4472c4"
+           transform="matrix(1.11321,0,0,1,576,301)"
+           id="path77" />
+        <path
+           d="M 30.3646,43.6146 H 46.375 v 3.3125 H 30.3646 Z"
+           fill="#4472c4"
+           transform="matrix(1.11321,0,0,1,576,301)"
+           id="path79" />
+        <path
+           d="m 6.625,43.6146 h 16.0104 v 3.3125 H 6.625 Z"
+           fill="#4472c4"
+           transform="matrix(1.11321,0,0,1,576,301)"
+           id="path81" />
+        <path
+           d="M 42.1902,28.1562 H 10.8098 c -1.09159,0 -1.97647,0.8849 -1.97647,1.9765 v 4.8804 c 0,1.0916 0.88488,1.9765 1.97647,1.9765 h 31.3804 c 1.0916,0 1.9765,-0.8849 1.9765,-1.9765 v -4.8804 c 0,-1.0916 -0.8849,-1.9765 -1.9765,-1.9765 z m -27.836,5.5209 c -0.6099,0 -1.1042,-0.4944 -1.1042,-1.1042 0,-0.6098 0.4943,-1.1042 1.1042,-1.1042 0.6098,0 1.1041,0.4944 1.1041,1.1042 0,0.6098 -0.4943,1.1042 -1.1041,1.1042 z m 5.5208,0 c -0.6098,0 -1.1042,-0.4944 -1.1042,-1.1042 0,-0.6098 0.4944,-1.1042 1.1042,-1.1042 0.6098,0 1.1042,0.4944 1.1042,1.1042 0,0.6098 -0.4944,1.1042 -1.1042,1.1042 z m 5.5208,0 c -0.6098,0 -1.1041,-0.4944 -1.1041,-1.1042 0,-0.6098 0.4943,-1.1042 1.1041,-1.1042 0.6099,0 1.1042,0.4944 1.1042,1.1042 0,0.6098 -0.4943,1.1042 -1.1042,1.1042 z"
+           fill="#4472c4"
+           transform="matrix(1.11321,0,0,1,576,301)"
+           id="path83" />
+        <path
+           d="M 42.1902,17.1146 H 10.8098 c -1.09159,0 -1.97647,0.8849 -1.97647,1.9764 v 4.8805 c 0,1.0915 0.88488,1.9764 1.97647,1.9764 h 31.3804 c 1.0916,0 1.9765,-0.8849 1.9765,-1.9764 V 19.091 c 0,-1.0915 -0.8849,-1.9764 -1.9765,-1.9764 z m -27.836,5.5208 c -0.6099,0 -1.1042,-0.4943 -1.1042,-1.1042 0,-0.6098 0.4943,-1.1041 1.1042,-1.1041 0.6098,0 1.1041,0.4943 1.1041,1.1041 0,0.6099 -0.4943,1.1042 -1.1041,1.1042 z m 5.5208,0 c -0.6098,0 -1.1042,-0.4943 -1.1042,-1.1042 0,-0.6098 0.4944,-1.1041 1.1042,-1.1041 0.6098,0 1.1042,0.4943 1.1042,1.1041 0,0.6099 -0.4944,1.1042 -1.1042,1.1042 z m 5.5208,0 c -0.6098,0 -1.1041,-0.4943 -1.1041,-1.1042 0,-0.6098 0.4943,-1.1041 1.1041,-1.1041 0.6099,0 1.1042,0.4943 1.1042,1.1041 0,0.6099 -0.4943,1.1042 -1.1042,1.1042 z"
+           fill="#4472c4"
+           transform="matrix(1.11321,0,0,1,576,301)"
+           id="path85" />
+        <path
+           d="M 42.1902,6.07292 H 10.8098 c -1.09159,0 -1.97647,0.88488 -1.97647,1.97645 v 4.88043 c 0,1.0916 0.88488,1.9764 1.97647,1.9764 h 31.3804 c 1.0916,0 1.9765,-0.8848 1.9765,-1.9764 V 8.04937 c 0,-1.09157 -0.8849,-1.97645 -1.9765,-1.97645 z m -27.836,5.52088 c -0.6099,0 -1.1042,-0.4944 -1.1042,-1.1042 0,-0.60985 0.4943,-1.10418 1.1042,-1.10418 0.6098,0 1.1041,0.49433 1.1041,1.10418 0,0.6098 -0.4943,1.1042 -1.1041,1.1042 z m 5.5208,0 c -0.6098,0 -1.1042,-0.4944 -1.1042,-1.1042 0,-0.60985 0.4944,-1.10418 1.1042,-1.10418 0.6098,0 1.1042,0.49433 1.1042,1.10418 0,0.6098 -0.4944,1.1042 -1.1042,1.1042 z m 5.5208,0 c -0.6098,0 -1.1041,-0.4944 -1.1041,-1.1042 0,-0.60985 0.4943,-1.10418 1.1041,-1.10418 0.6099,0 1.1042,0.49433 1.1042,1.10418 0,0.6098 -0.4943,1.1042 -1.1042,1.1042 z"
+           fill="#4472c4"
+           transform="matrix(1.11321,0,0,1,576,301)"
+           id="path87" />
+      </g>
+    </g>
+  </g>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text95"
+     x="555.16663"
+     y="350.49997">Publicresults</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text97"
+     x="628.33362"
+     y="350.49997">fly.dev</text>
+  <path
+     d="m 626.51015,316.3306 4.47656,0.57498 -0.0745,-0.0185 4.33593,1.62494 -0.0592,-0.0292 4.05472,2.5249 -0.047,-0.0354 3.6328,3.27488 -0.0381,-0.0406 3.0703,3.87488 -0.0311,-0.047 2.3672,4.3249 -0.0242,-0.0558 1.5234,4.6248 -0.0146,-0.0669 0.539,4.7749 10e-4,-0.0854 -0.695,4.7748 0.023,-0.0823 -1.9641,4.6248 0.0344,-0.0619 -3.0519,4.3248 0.0391,-0.046 -3.9585,3.8748 0.0422,-0.0349 -4.68378,3.2748 0.046,-0.0269 -5.22767,2.5249 0.0519,-0.02 -5.59028,1.625 0.06,-0.0116 -5.77159,0.575 10e-4,-2e-4 -5.80089,0.5525 -5.6446,1.5684 -5.2759,2.436 -4.7281,3.1603 -4.0007,3.7437 -3.0993,4.1985 -0.9282,2.5983 0.6278,0.2243 0.9117,-2.5521 -0.0457,0.0859 3.0519,-4.1344 -0.0404,0.0454 3.9585,-3.7042 -0.0425,0.0338 4.6838,-3.1307 -0.0455,0.0255 5.2276,-2.4137 -0.0505,0.0185 5.5903,-1.5533 -0.0577,0.0106 5.77232,-0.5497 5.80284,-0.5781 5.64654,-1.6413 5.2769,-2.5487 4.7282,-3.3059 3.9999,-3.9153 3.09,-4.3787 1.9949,-4.6973 0.7074,-4.86 -0.5477,-4.8519 -1.5438,-4.6865 -2.3954,-4.3764 -3.1052,-3.91888 -3.6755,-3.31334 -4.10788,-2.55805 -4.40317,-1.65015 -4.51488,-0.5799 z m -39.60653,66.57018 1.7631,8.7688 5.9572,-6.6718 z"
+     fill="#bfbfbf"
+     id="path99" />
+  <g
+     id="g111"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g109">
+      <g
+         id="g107">
+        <path
+           d="m 592.438,406.938 h -0.563 v 19.131 h 11.25 v -19.131 z m 10.124,18.568 H 592.438 V 407.5 h 10.124 z"
+           id="path101" />
+        <path
+           d="m 603.969,404.125 h -12.938 c -0.31,10e-4 -0.561,0.252 -0.562,0.563 v 23.632 c 10e-4,0.31 0.252,0.561 0.562,0.562 h 12.938 c 0.31,-0.001 0.561,-0.252 0.562,-0.562 v -23.632 c -10e-4,-0.311 -0.252,-0.562 -0.562,-0.563 z m 0,24.195 h -12.938 v -23.632 h 12.938 z"
+           id="path103" />
+        <path
+           d="m 596.375,406.094 h 2.531 c 0.156,0 0.282,-0.126 0.282,-0.282 0,-0.155 -0.126,-0.281 -0.282,-0.281 h -2.531 c -0.155,0 -0.281,0.126 -0.281,0.281 0,0.156 0.126,0.282 0.281,0.282 z"
+           id="path105" />
+      </g>
+    </g>
+  </g>
+  <g
+     transform="matrix(1.04987e-4,0,0,1.04987e-4,413.16662,506.49998)"
+     id="g117">
+    <g
+       clip-path="url(#clip1)"
+       id="g115">
+      <use
+         width="100%"
+         height="100%"
+         xlink:href="#img0"
+         transform="scale(9525)"
+         id="use113" />
+    </g>
+  </g>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text119"
+     x="583.7066"
+     y="586.5">Facebook/</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text121"
+     x="576.12665"
+     y="602.5">YouTube Live</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text123"
+     x="584.62665"
+     y="618.5">Streaming</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text125"
+     x="417.13263"
+     y="496.49997">Competition</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text127"
+     x="432.71262"
+     y="507.49997">Router</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text129"
+     x="596.4906"
+     y="403.49997">Phone/remote</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text131"
+     x="602.74365"
+     y="414.49997">Scoreboards</text>
+  <g
+     id="g143"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g141">
+      <g
+         id="g139">
+        <path
+           d="M 36.8958,29.7055 V 12.4583 H 9.10417 V 29.7131 Z M 10.0625,13.4167 h 25.875 v 15.3299 l -25.875,0.0082 z"
+           transform="matrix(1,0,0,1.04348,232,1)"
+           id="path133" />
+        <path
+           d="m 7.66667,11.9792 c 0,-0.5293 0.42904,-0.9584 0.95833,-0.9584 h 28.75 c 0.5293,0 0.9583,0.4291 0.9583,0.9584 v 19.652 h 0.9584 v -19.652 c 0,-1.0586 -0.8582,-1.9167 -1.9167,-1.9167 H 8.625 c -1.05853,0 -1.91667,0.8581 -1.91667,1.9167 v 19.652 h 0.95834 z"
+           transform="matrix(1,0,0,1.04348,232,1)"
+           id="path135" />
+        <path
+           d="M 25.3958,33.0596 V 34.018 H 20.6042 V 33.0596 H 0.958333 v 0.9584 c 0.001586,1.3225 1.073307,2.3942 2.395837,2.3958 H 42.6458 c 1.3226,-0.0016 2.3943,-1.0733 2.3959,-2.3958 v -0.9584 z m 17.25,2.3959 H 3.35417 c -0.79391,0 -1.4375,-0.6436 -1.4375,-1.4375 H 19.6458 c -0.0175,0.5117 0.3832,0.9408 0.895,0.9583 0.0211,7e-4 0.0422,7e-4 0.0634,0 h 4.7916 c 0.5118,0.0175 0.9409,-0.3832 0.9584,-0.895 7e-4,-0.0211 7e-4,-0.0422 0,-0.0633 h 17.7291 c 0,0.7939 -0.6435,1.4375 -1.4375,1.4375 z"
+           transform="matrix(1,0,0,1.04348,232,1)"
+           id="path137" />
+      </g>
+    </g>
+  </g>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text145"
+     x="215.80861"
+     y="38.499981">Announcer</text>
+  <g
+     id="g157"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g155">
+      <g
+         id="g153">
+        <path
+           d="M 36.8958,29.7055 V 12.4583 H 9.10417 V 29.7131 Z M 10.0625,13.4167 h 25.875 v 15.3299 l -25.875,0.0082 z"
+           transform="matrix(1,0,0,1.04348,232,236)"
+           id="path147" />
+        <path
+           d="m 7.66667,11.9792 c 0,-0.5293 0.42904,-0.9584 0.95833,-0.9584 h 28.75 c 0.5293,0 0.9583,0.4291 0.9583,0.9584 v 19.652 h 0.9584 v -19.652 c 0,-1.0586 -0.8582,-1.9167 -1.9167,-1.9167 H 8.625 c -1.05853,0 -1.91667,0.8581 -1.91667,1.9167 v 19.652 h 0.95834 z"
+           transform="matrix(1,0,0,1.04348,232,236)"
+           id="path149" />
+        <path
+           d="M 25.3958,33.0596 V 34.018 H 20.6042 V 33.0596 H 0.958333 v 0.9584 c 0.001586,1.3225 1.073307,2.3942 2.395837,2.3958 H 42.6458 c 1.3226,-0.0016 2.3943,-1.0733 2.3959,-2.3958 v -0.9584 z m 17.25,2.3959 H 3.35417 c -0.79391,0 -1.4375,-0.6436 -1.4375,-1.4375 H 19.6458 c -0.0175,0.5117 0.3832,0.9408 0.895,0.9583 0.0211,7e-4 0.0422,7e-4 0.0634,0 h 4.7916 c 0.5118,0.0175 0.9409,-0.3832 0.9584,-0.895 7e-4,-0.0211 7e-4,-0.0422 0,-0.0633 h 17.7291 c 0,0.7939 -0.6435,1.4375 -1.4375,1.4375 z"
+           transform="matrix(1,0,0,1.04348,232,236)"
+           id="path151" />
+      </g>
+    </g>
+  </g>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text159"
+     x="191.9826"
+     y="275.49997">Athlete</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text161"
+     x="232.4826"
+     y="275.49997">-</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text163"
+     x="236.64961"
+     y="275.49997">facing</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text165"
+     x="272.64963"
+     y="275.49997">Clock</text>
+  <g
+     id="g177"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g175">
+      <g
+         id="g173">
+        <path
+           d="M 36.8958,29.7055 V 12.4583 H 9.10417 V 29.7131 Z M 10.0625,13.4167 h 25.875 v 15.3299 l -25.875,0.0082 z"
+           transform="matrix(1,0,0,1.04348,232,540)"
+           id="path167" />
+        <path
+           d="m 7.66667,11.9792 c 0,-0.5293 0.42904,-0.9584 0.95833,-0.9584 h 28.75 c 0.5293,0 0.9583,0.4291 0.9583,0.9584 v 19.652 h 0.9584 v -19.652 c 0,-1.0586 -0.8582,-1.9167 -1.9167,-1.9167 H 8.625 c -1.05853,0 -1.91667,0.8581 -1.91667,1.9167 v 19.652 h 0.95834 z"
+           transform="matrix(1,0,0,1.04348,232,540)"
+           id="path169" />
+        <path
+           d="M 25.3958,33.0596 V 34.018 H 20.6042 V 33.0596 H 0.958333 v 0.9584 c 0.001586,1.3225 1.073307,2.3942 2.395837,2.3958 H 42.6458 c 1.3226,-0.0016 2.3943,-1.0733 2.3959,-2.3958 v -0.9584 z m 17.25,2.3959 H 3.35417 c -0.79391,0 -1.4375,-0.6436 -1.4375,-1.4375 H 19.6458 c -0.0175,0.5117 0.3832,0.9408 0.895,0.9583 0.0211,7e-4 0.0422,7e-4 0.0634,0 h 4.7916 c 0.5118,0.0175 0.9409,-0.3832 0.9584,-0.895 7e-4,-0.0211 7e-4,-0.0422 0,-0.0633 h 17.7291 c 0,0.7939 -0.6435,1.4375 -1.4375,1.4375 z"
+           transform="matrix(1,0,0,1.04348,232,540)"
+           id="path171" />
+      </g>
+    </g>
+  </g>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text179"
+     x="234.97461"
+     y="582.5">Jury</text>
+  <rect
+     x="2.6667156"
+     y="223.99998"
+     width="24"
+     height="13"
+     stroke="#787878"
+     stroke-width="1.33333"
+     stroke-miterlimit="8"
+     fill="#a5a5a5"
+     id="rect181" />
+  <g
+     id="g189"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g187">
+      <g
+         id="g185">
+        <path
+           d="M 10.425,2.6375 9.3625,1.575 6,4.9375 2.6375,1.575 1.575,2.6375 4.9375,6 1.575,9.3625 2.6375,10.425 6,7.0625 9.3625,10.425 10.425,9.3625 7.0625,6 Z"
+           fill="#ff0000"
+           transform="matrix(1,0,0,1.08333,22,235)"
+           id="path183" />
+      </g>
+    </g>
+  </g>
+  <g
+     id="g197"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g195">
+      <g
+         id="g193">
+        <path
+           d="M 9.86563,1.81042 3.99896,7.35625 1.18021,4.46875 0.20625,5.39687 3.95312,9.24687 4.93854,8.33021 10.7937,2.77292 Z"
+           stroke="#000000"
+           stroke-width="0.325925"
+           fill="#ffffff"
+           transform="matrix(1,0,0,1.09091,13,235)"
+           id="path191" />
+      </g>
+    </g>
+  </g>
+  <rect
+     x="2.6667156"
+     y="239.99998"
+     width="24"
+     height="13"
+     stroke="#787878"
+     stroke-width="1.33333"
+     stroke-miterlimit="8"
+     fill="#a5a5a5"
+     id="rect199" />
+  <g
+     id="g207"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g205">
+      <g
+         id="g203">
+        <path
+           d="M 10.425,2.6375 9.3625,1.575 6,4.9375 2.6375,1.575 1.575,2.6375 4.9375,6 1.575,9.3625 2.6375,10.425 6,7.0625 9.3625,10.425 10.425,9.3625 7.0625,6 Z"
+           fill="#ff0000"
+           transform="matrix(1,0,0,1.08333,22,251)"
+           id="path201" />
+      </g>
+    </g>
+  </g>
+  <g
+     id="g215"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g213">
+      <g
+         id="g211">
+        <path
+           d="M 9.86563,1.81042 3.99896,7.35625 1.18021,4.46875 0.20625,5.39687 3.95312,9.24687 4.93854,8.33021 10.7937,2.77292 Z"
+           stroke="#000000"
+           stroke-width="0.325925"
+           fill="#ffffff"
+           transform="matrix(1,0,0,1.09091,13,251)"
+           id="path209" />
+      </g>
+    </g>
+  </g>
+  <rect
+     x="2.6667156"
+     y="255.99998"
+     width="24"
+     height="13"
+     stroke="#787878"
+     stroke-width="1.33333"
+     stroke-miterlimit="8"
+     fill="#a5a5a5"
+     id="rect217" />
+  <g
+     id="g225"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g223">
+      <g
+         id="g221">
+        <path
+           d="M 10.425,2.6375 9.3625,1.575 6,4.9375 2.6375,1.575 1.575,2.6375 4.9375,6 1.575,9.3625 2.6375,10.425 6,7.0625 9.3625,10.425 10.425,9.3625 7.0625,6 Z"
+           fill="#ff0000"
+           transform="matrix(1,0,0,1.08333,22,267)"
+           id="path219" />
+      </g>
+    </g>
+  </g>
+  <g
+     id="g233"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g231">
+      <g
+         id="g229">
+        <path
+           d="M 9.86563,1.81042 3.99896,7.35625 1.18021,4.46875 0.20625,5.39687 3.95312,9.24687 4.93854,8.33021 10.7937,2.77292 Z"
+           stroke="#000000"
+           stroke-width="0.325925"
+           fill="#ffffff"
+           transform="matrix(1,0,0,1.09091,13,267)"
+           id="path227" />
+      </g>
+    </g>
+  </g>
+  <rect
+     x="54.666714"
+     y="238.99998"
+     width="16"
+     height="19"
+     stroke="#787878"
+     stroke-width="1.33333"
+     stroke-miterlimit="8"
+     fill="#a5a5a5"
+     id="rect235" />
+  <rect
+     x="44.666714"
+     y="541"
+     width="36"
+     height="24"
+     stroke="#787878"
+     stroke-width="1.33333"
+     stroke-miterlimit="8"
+     fill="#a5a5a5"
+     id="rect237" />
+  <rect
+     x="0.66666502"
+     y="529"
+     width="25"
+     height="13"
+     stroke="#787878"
+     stroke-width="1.33333"
+     stroke-miterlimit="8"
+     fill="#a5a5a5"
+     id="rect239" />
+  <g
+     id="g247"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g245">
+      <g
+         id="g243">
+        <path
+           d="M 9.55625,2.41771 8.58229,1.44375 5.5,4.52604 2.41771,1.44375 1.44375,2.41771 4.52604,5.5 1.44375,8.58229 2.41771,9.55625 5.5,6.47396 8.58229,9.55625 9.55625,8.58229 6.47396,5.5 Z"
+           fill="#ff0000"
+           transform="matrix(1,0,0,1.18182,21,540)"
+           id="path241" />
+      </g>
+    </g>
+  </g>
+  <g
+     id="g255"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g253">
+      <g
+         id="g251">
+        <path
+           d="m 21.7625,541.975 -6.4,6.05 -3.075,-3.15 -1.0625,1.013 4.0875,4.2 1.075,-1 6.3875,-6.063 z"
+           stroke="#000000"
+           stroke-width="0.355555"
+           fill="#ffffff"
+           id="path249" />
+      </g>
+    </g>
+  </g>
+  <rect
+     x="0.66666502"
+     y="545"
+     width="25"
+     height="13"
+     stroke="#787878"
+     stroke-width="1.33333"
+     stroke-miterlimit="8"
+     fill="#a5a5a5"
+     id="rect257" />
+  <g
+     id="g265"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g263">
+      <g
+         id="g261">
+        <path
+           d="M 9.55625,2.41771 8.58229,1.44375 5.5,4.52604 2.41771,1.44375 1.44375,2.41771 4.52604,5.5 1.44375,8.58229 2.41771,9.55625 5.5,6.47396 8.58229,9.55625 9.55625,8.58229 6.47396,5.5 Z"
+           fill="#ff0000"
+           transform="matrix(1,0,0,1.18182,21,556)"
+           id="path259" />
+      </g>
+    </g>
+  </g>
+  <g
+     id="g273"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g271">
+      <g
+         id="g269">
+        <path
+           d="m 21.7625,557.975 -6.4,6.05 -3.075,-3.15 -1.0625,1.013 4.0875,4.2 1.075,-1 6.3875,-6.063 z"
+           stroke="#000000"
+           stroke-width="0.355555"
+           fill="#ffffff"
+           id="path267" />
+      </g>
+    </g>
+  </g>
+  <rect
+     x="0.66666502"
+     y="561"
+     width="25"
+     height="13"
+     stroke="#787878"
+     stroke-width="1.33333"
+     stroke-miterlimit="8"
+     fill="#a5a5a5"
+     id="rect275" />
+  <g
+     id="g283"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g281">
+      <g
+         id="g279">
+        <path
+           d="M 9.55625,2.41771 8.58229,1.44375 5.5,4.52604 2.41771,1.44375 1.44375,2.41771 4.52604,5.5 1.44375,8.58229 2.41771,9.55625 5.5,6.47396 8.58229,9.55625 9.55625,8.58229 6.47396,5.5 Z"
+           fill="#ff0000"
+           transform="matrix(1,0,0,1.18182,21,572)"
+           id="path277" />
+      </g>
+    </g>
+  </g>
+  <g
+     id="g291"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g289">
+      <g
+         id="g287">
+        <path
+           d="m 21.7625,573.975 -6.4,6.05 -3.075,-3.15 -1.0625,1.013 4.0875,4.2 1.075,-1 6.3875,-6.063 z"
+           stroke="#000000"
+           stroke-width="0.355555"
+           fill="#ffffff"
+           id="path285" />
+      </g>
+    </g>
+  </g>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text293"
+     x="50.990715"
+     y="578.5">Jury</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text295"
+     x="51.990715"
+     y="589.5">Box</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text297"
+     x="40.740814"
+     y="272.49997">Referee</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text299"
+     x="47.160816"
+     y="283.49997">Box +</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text301"
+     x="45.994114"
+     y="294.49997">Down</text>
+  <path
+     d="m 95.333615,13.666683 h 61.209005 v 0.3685 l -0.333,-0.3333 h 60.876 v 0.666699 h -61.21 v -0.3685 l 0.334,0.3333 H 95.333615 Z m 1.333,4.3334 -7.9999,-4 7.9999,-4 z m 119.085005,-7.9649 8,4 -8,3.999998 z"
+     fill="#4472c4"
+     id="path303" />
+  <path
+     d="m 216.90062,249.79198 -139.568305,-0.438 0.0021,-0.666 139.568205,0.437 z m -1.32,-4.337 7.988,4.025 -8.013,3.975 z m -136.926505,7.57 -7.9875,-4.025 8.0126,-3.975 z"
+     fill="#4472c4"
+     id="path305" />
+  <path
+     d="m 217.00262,553.57998 -129.669905,-0.235 0.0013,-0.666 129.670605,0.234 z m -1.325,-4.336 7.993,4.015 -8.007,3.985 z m -127.018205,7.771 -7.9927,-4.015 8.0072,-3.985 z"
+     fill="#4472c4"
+     id="path307" />
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="11px"
+     id="text309"
+     x="189.60062"
+     y="9.4999819">USB</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="11px"
+     id="text311"
+     x="191.89461"
+     y="245.49998">USB</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="11px"
+     id="text313"
+     x="191.89461"
+     y="550.5">USB</text>
+  <path
+     d="m 413.02262,249.33331 -136.689,10e-5 v 1.33334 l 136.689,-1e-4 z m -135.356,-3.33323 -8,4 8,4 z"
+     fill="#4472c4"
+     id="path315" />
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text317"
+     x="30.688316"
+     y="31.499983">Timekeeper</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text319"
+     x="53.108315"
+     y="42.499981">Box</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text321"
+     x="134.44661"
+     y="188.49998">Main</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text323"
+     x="117.11362"
+     y="199.49998">Scoreboard</text>
+  <g
+     id="g331"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g329">
+      <g
+         id="g327">
+        <path
+           d="M 41,32 H 7 V 10 H 41 Z M 42,7 H 6 C 4.9,7 4,7.9 4,9 v 24 c 0,1.1 0.9,2 2,2 h 14 v 3 h -5 v 3 h 18 v -3 h -5 v -3 h 14 c 1.1,0 2,-0.9 2,-2 V 9 C 44,7.9 43.1,7 42,7 Z"
+           stroke="#000000"
+           fill="#ffffff"
+           transform="matrix(1,0,0,1.02083,135,144)"
+           id="path325" />
+      </g>
+    </g>
+  </g>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text333"
+     x="134.44661"
+     y="110.49998">Main</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text335"
+     x="125.61362"
+     y="121.49998">Attempt</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text337"
+     x="132.1936"
+     y="132.49998">Board</text>
+  <g
+     id="g345"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g343">
+      <g
+         id="g341">
+        <path
+           d="M 41,32 H 7 V 10 H 41 Z M 42,7 H 6 C 4.9,7 4,7.9 4,9 v 24 c 0,1.1 0.9,2 2,2 h 14 v 3 h -5 v 3 h 18 v -3 h -5 v -3 h 14 c 1.1,0 2,-0.9 2,-2 V 9 C 44,7.9 43.1,7 42,7 Z"
+           stroke="#000000"
+           fill="#ffffff"
+           transform="matrix(1,0,0,1.02083,135,69)"
+           id="path339" />
+      </g>
+    </g>
+  </g>
+  <g
+     transform="matrix(-1.04987e-4,0,0,1.04987e-4,258.16662,70.499983)"
+     id="g351">
+    <g
+       clip-path="url(#clip3)"
+       transform="scale(1.04762,1)"
+       id="g349">
+      <use
+         width="100%"
+         height="100%"
+         xlink:href="#img2"
+         transform="scale(6250.78)"
+         id="use347" />
+    </g>
+  </g>
+  <path
+     d="m 228.56735,79.666792 -42.24463,0.32535 0.0206,2.666579 42.24457,-0.32535 z m -40.93183,-2.351511 -7.969,4.061493 8.0306,3.938267 z"
+     fill="#548235"
+     id="path353" />
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="11px"
+     id="text355"
+     x="192.91261"
+     y="77.499985">HDMI</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text357"
+     x="232.96361"
+     y="105.49998">Main</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text359"
+     x="230.87761"
+     y="116.49998">Room</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text361"
+     x="224.54361"
+     y="127.49998">Displays</text>
+  <rect
+     x="52.666714"
+     y="8.0000811"
+     width="25"
+     height="12"
+     stroke="#787878"
+     stroke-width="1.33333"
+     stroke-miterlimit="8"
+     fill="#a5a5a5"
+     id="rect363" />
+  <text
+     fill="#c5e0b4"
+     font-family="Webdings, Webdings_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="12px"
+     id="text365"
+     x="53.663815"
+     y="16.499983">4</text>
+  <text
+     fill="#ff0000"
+     font-family="Webdings, Webdings_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="12px"
+     id="text367"
+     x="65.663818"
+     y="16.499983">&lt;</text>
+  <path
+     d="m 248.64662,136.99998 v 25.425 h -66.313 v -2.667 h 64.98 l -1.333,1.333 v -24.091 z m -64.98,28.091 -8,-4 8,-4 z"
+     fill="#548235"
+     id="path369" />
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="11px"
+     id="text371"
+     x="175.9976"
+     y="156.49998">Fiber 30m HDMI</text>
+  <g
+     id="g381"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g379">
+      <g
+         id="g377">
+        <path
+           d="m 471.75,624.75 h -31.5 v -19.125 h 31.5 z m 3.375,-20.25 c 0,-1.237 -1.013,-2.25 -2.25,-2.25 h -33.75 c -1.237,0 -2.25,1.013 -2.25,2.25 v 23.625 h 38.25 z"
+           fill="#4472c4"
+           id="path373" />
+        <path
+           d="m 459.375,630.375 v 0.563 c 0,0.337 -0.225,0.562 -0.563,0.562 h -5.624 c -0.338,0 -0.563,-0.225 -0.563,-0.562 v -0.563 h -22.5 v 1.125 c 0,1.237 1.013,2.25 2.25,2.25 h 47.25 c 1.237,0 2.25,-1.013 2.25,-2.25 v -1.125 z"
+           fill="#4472c4"
+           id="path375" />
+      </g>
+    </g>
+  </g>
+  <text
+     fill="#4472c4"
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text383"
+     x="437.64362"
+     y="636.5">OBS</text>
+  <text
+     fill="#4472c4"
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text385"
+     x="415.97662"
+     y="649.5">Streaming 1</text>
+  <g
+     id="g395"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g393">
+      <g
+         id="g391">
+        <path
+           d="m 473.75,351.75 h -31.5 v -19.125 h 31.5 z m 3.375,-20.25 c 0,-1.237 -1.013,-2.25 -2.25,-2.25 h -33.75 c -1.237,0 -2.25,1.013 -2.25,2.25 v 23.625 h 38.25 z"
+           fill="#4472c4"
+           id="path387" />
+        <path
+           d="m 461.375,357.375 v 0.563 c 0,0.337 -0.225,0.562 -0.563,0.562 h -5.624 c -0.338,0 -0.563,-0.225 -0.563,-0.562 v -0.563 h -22.5 v 1.125 c 0,1.237 1.013,2.25 2.25,2.25 h 47.25 c 1.237,0 2.25,-1.013 2.25,-2.25 v -1.125 z"
+           fill="#4472c4"
+           id="path389" />
+      </g>
+    </g>
+  </g>
+  <path
+     d="m 448.12165,375.66078 -0.0654,7.7426 1.33329,0.0113 0.0654,-7.74263 z m 4.65524,1.37271 -3.93227,-8.03351 -4.06744,7.96592 z m -8.0426,5.00849 3.93227,8.0335 4.06745,-7.9659 z"
+     fill="#4472c4"
+     id="path397" />
+  <path
+     d="m 435.28562,390.18498 c -1.115,0.299 -2.052,1.015 -2.689,2.07 -0.598,0.996 -0.598,1.095 -0.598,7.862 v 6.071 h -1.654 c -1.932,0 -2.649,0.12 -3.446,0.597 -1.056,0.637 -1.774,1.573 -2.073,2.687 -0.139,0.558 -0.159,1.314 -0.159,8.042 0,8.081 0,8.041 0.498,9.056 0.319,0.617 1.235,1.533 1.853,1.851 0.817,0.418 1.454,0.517 3.307,0.517 h 1.674 v 2.031 c 0,2.209 0.08,2.826 0.498,3.642 0.319,0.617 1.036,1.373 1.674,1.752 1.115,0.676 0.338,0.637 13.926,0.637 13.548,0 12.931,0.039 14.007,-0.598 0.697,-0.418 1.195,-0.915 1.594,-1.572 0.538,-0.876 0.637,-1.433 0.637,-3.822 v -2.09 h 1.654 c 1.932,0 2.65,-0.119 3.447,-0.597 1.056,-0.636 1.773,-1.572 2.072,-2.687 0.139,-0.557 0.159,-1.313 0.159,-8.041 0,-8.041 0,-8.041 -0.498,-9.036 -0.319,-0.657 -1.156,-1.493 -1.773,-1.831 -0.857,-0.458 -1.495,-0.578 -3.387,-0.578 h -1.674 v -6.13 c 0,-6.827 0,-6.807 -0.637,-7.862 -0.379,-0.637 -1.136,-1.354 -1.754,-1.672 -1.016,-0.498 -0.578,-0.498 -13.807,-0.478 -11.277,0.02 -12.293,0.04 -12.851,0.179 z m 25.423,3.006 c 0.14,0.099 0.359,0.338 0.478,0.497 l 0.199,0.299 v 6.091 6.09 h -13.229 -13.229 v -6.09 -6.091 l 0.219,-0.318 c 0.119,-0.16 0.359,-0.399 0.518,-0.518 l 0.319,-0.219 12.253,0.02 12.253,0.02 z m 7.292,16.122 c 0.16,0.119 0.399,0.338 0.498,0.478 0.199,0.258 0.199,0.298 0.199,7.782 0,7.444 0,7.524 -0.199,7.763 -0.458,0.597 -0.538,0.637 -2.43,0.657 l -1.734,0.02 v -1.453 -1.453 l 0.359,-0.1 c 0.498,-0.159 0.797,-0.418 0.976,-0.896 0.279,-0.716 -0.02,-1.492 -0.717,-1.791 -0.379,-0.179 -0.817,-0.179 -16.776,-0.179 -15.979,0 -16.397,0 -16.776,0.179 -0.697,0.299 -0.996,1.075 -0.717,1.791 0.179,0.478 0.478,0.737 0.976,0.896 l 0.359,0.1 v 1.453 1.453 h -1.694 c -1.593,0 -1.693,0 -1.992,-0.219 -0.159,-0.12 -0.398,-0.359 -0.518,-0.518 l -0.219,-0.318 v -7.405 -7.404 l 0.219,-0.318 c 0.12,-0.16 0.359,-0.399 0.518,-0.518 l 0.319,-0.219 h 19.505 19.545 z m -6.635,18.79 c -0.019,4.936 -0.019,5.055 -0.219,5.294 -0.099,0.139 -0.298,0.338 -0.438,0.438 -0.239,0.199 -0.279,0.199 -12.552,0.199 -12.273,0 -12.293,0 -12.552,-0.199 -0.139,-0.1 -0.339,-0.299 -0.438,-0.438 -0.199,-0.239 -0.199,-0.358 -0.219,-5.294 l -0.02,-5.036 h 13.229 13.229 z"
+     stroke="#ffffff"
+     stroke-width="0.199265"
+     stroke-miterlimit="8"
+     fill-rule="evenodd"
+     id="path399" />
+  <path
+     d="m 431.48262,411.12298 c -0.585,0.266 -0.907,1.004 -0.793,1.701 0.075,0.451 0.51,0.964 0.907,1.087 0.227,0.082 1.493,0.102 3.78,0.082 3.326,-0.021 3.477,-0.041 3.685,-0.226 0.454,-0.369 0.605,-0.676 0.605,-1.271 0,-0.594 -0.132,-0.901 -0.605,-1.27 -0.226,-0.185 -0.359,-0.205 -3.78,-0.226 -2.816,0 -3.591,0.021 -3.799,0.123 z"
+     stroke="#ffffff"
+     stroke-width="0.199265"
+     stroke-miterlimit="8"
+     fill-rule="evenodd"
+     id="path401" />
+  <path
+     d="m 438.51762,425.09698 c -0.164,0.036 -0.429,0.217 -0.592,0.38 -0.245,0.236 -0.286,0.345 -0.245,0.58 0.061,0.363 0.286,0.581 0.755,0.78 0.367,0.145 0.857,0.163 9.734,0.163 8.877,0 9.387,0 9.734,-0.163 0.49,-0.199 0.694,-0.417 0.755,-0.761 0.061,-0.363 -0.225,-0.708 -0.755,-0.925 -0.367,-0.145 -0.837,-0.163 -9.754,-0.145 -6.225,0 -9.428,0.036 -9.632,0.091 z"
+     stroke="#ffffff"
+     stroke-width="0.199265"
+     stroke-miterlimit="8"
+     fill-rule="evenodd"
+     id="path403" />
+  <path
+     d="m 438.50462,430.09598 c -0.47,0.143 -0.838,0.521 -0.838,0.898 0,0.377 0.225,0.629 0.756,0.844 0.368,0.144 0.858,0.162 9.744,0.162 8.886,0 9.397,0 9.744,-0.162 0.531,-0.215 0.756,-0.449 0.756,-0.844 0,-0.377 -0.225,-0.629 -0.756,-0.844 -0.367,-0.144 -0.837,-0.162 -9.744,-0.144 -6.087,0 -9.458,0.036 -9.662,0.09 z"
+     stroke="#ffffff"
+     stroke-width="0.199265"
+     stroke-miterlimit="8"
+     fill-rule="evenodd"
+     id="path405" />
+  <path
+     d="m 410.66662,523.99998 h 19.399"
+     stroke="#4472c4"
+     stroke-width="0.666667"
+     stroke-miterlimit="8"
+     fill="none"
+     fill-rule="evenodd"
+     id="path407" />
+  <path
+     d="m 571.19562,630.86298 c 1.379,0.095 5.402,0.137 5.402,0.137 h 73.708 c 9.072,-0.045 16.397,-9.295 16.361,-20.66 -0.036,-11.235 -7.257,-20.358 -16.225,-20.496 h -1.364 c -0.013,-8.279 -3.212,-16.043 -8.592,-20.852 -5.452,-4.778 -12.403,-5.986 -18.687,-3.246 -6.169,-15.112 -20.95,-21.097 -33.013,-13.368 -8.163,5.23 -13.316,15.726 -13.362,27.212 v 0.341 c -1.07,-0.219 -2.152,-0.329 -3.237,-0.33 -11.319,-0.016 -20.507,11.467 -20.52,25.648 -0.003,3.772 0.657,7.5 1.933,10.916 3.314,8.524 10.041,14.143 17.596,14.698 z m -13.233,-38.964 c 3.402,-5.537 8.646,-8.811 14.224,-8.881 0.936,0.001 1.871,0.096 2.796,0.285 l 3.168,0.65 v -4.364 c 0.074,-15.089 9.898,-27.246 21.943,-27.153 8.137,0.063 15.57,5.796 19.278,14.87 l 1.083,2.643 2.24,-0.976 c 9.204,-4.122 19.332,1.883 22.622,13.413 0.683,2.393 1.033,4.916 1.033,7.458 v 3.418 h 4.092 c 7.565,0.139 13.607,7.935 13.496,17.412 -0.11,9.347 -6.171,16.864 -13.632,16.909 h -76.532 l -2.43,-0.132 c -9.778,-0.528 -17.363,-10.886 -16.941,-23.136 0.155,-4.495 1.396,-8.824 3.559,-12.416 z"
+     stroke="#afabab"
+     stroke-width="0.666667"
+     stroke-miterlimit="8"
+     fill="none"
+     fill-rule="evenodd"
+     id="path409" />
+  <path
+     d="m 412.66662,601.99998 h 19.399"
+     stroke="#4472c4"
+     stroke-width="0.666667"
+     stroke-miterlimit="8"
+     fill="none"
+     fill-rule="evenodd"
+     id="path411" />
+  <path
+     d="m 412.66662,332.99998 h 19.399"
+     stroke="#4472c4"
+     stroke-width="0.666667"
+     stroke-miterlimit="8"
+     fill="none"
+     fill-rule="evenodd"
+     id="path413" />
+  <path
+     d="m 410.66662,251.99998 v 349.152"
+     stroke="#4472c4"
+     stroke-width="0.666667"
+     stroke-miterlimit="8"
+     fill="none"
+     fill-rule="evenodd"
+     id="path415" />
+  <g
+     clip-path="url(#clip4)"
+     transform="matrix(1.04987e-4,0,0,1.04987e-4,280.16662,1.499982)"
+     id="g421">
+    <g
+       clip-path="url(#clip6)"
+       transform="matrix(1.01786,0,0,1,0,-0.0078125)"
+       id="g419">
+      <use
+         width="100%"
+         height="100%"
+         xlink:href="#img5"
+         transform="scale(2963.33)"
+         id="use417" />
+    </g>
+  </g>
+  <g
+     clip-path="url(#clip7)"
+     transform="matrix(1.04987e-4,0,0,1.04987e-4,280.16662,77.499983)"
+     id="g427">
+    <g
+       clip-path="url(#clip8)"
+       transform="matrix(1.01786,0,0,1,0,-0.0625)"
+       id="g425">
+      <use
+         width="100%"
+         height="100%"
+         xlink:href="#img5"
+         transform="scale(2963.33)"
+         id="use423" />
+    </g>
+  </g>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text429"
+     x="226.24361"
+     y="359.49997">Marshal</text>
+  <g
+     id="g441"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g439">
+      <g
+         id="g437">
+        <path
+           d="M 36.0938,29.0597 V 12.1875 H 8.90625 V 29.0672 Z M 9.84375,13.125 H 35.1562 v 14.9967 l -25.31245,0.008 z"
+           transform="matrix(1,0,0,1.06667,235,319)"
+           id="path431" />
+        <path
+           d="m 7.5,11.7188 c 0,-0.5178 0.41972,-0.9376 0.9375,-0.9376 h 28.125 c 0.5178,0 0.9375,0.4198 0.9375,0.9376 v 19.2248 h 0.9375 V 11.7188 c 0,-1.0356 -0.8395,-1.87505 -1.875,-1.87505 H 8.4375 c -1.03552,0 -1.875,0.83945 -1.875,1.87505 V 30.9436 H 7.5 Z"
+           transform="matrix(1,0,0,1.06667,235,319)"
+           id="path433" />
+        <path
+           d="m 24.8438,32.3409 v 0.9375 H 20.1562 V 32.3409 H 0.9375 v 0.9375 c 0.001552,1.2938 1.04998,2.3422 2.34375,2.3438 H 41.7188 c 1.2937,-0.0016 2.3422,-1.05 2.3437,-2.3438 v -0.9375 z m 16.875,2.3438 H 3.28125 C 2.5046,34.6847 1.875,34.0551 1.875,33.2784 h 17.3438 c -0.0172,0.5007 0.3748,0.9204 0.8754,0.9375 0.0207,7e-4 0.0414,7e-4 0.062,0 h 4.6876 c 0.5006,0.0171 0.9203,-0.3748 0.9374,-0.8754 8e-4,-0.0207 8e-4,-0.0414 0,-0.0621 H 43.125 c 0,0.7767 -0.6296,1.4063 -1.4062,1.4063 z"
+           transform="matrix(1,0,0,1.06667,235,319)"
+           id="path435" />
+      </g>
+    </g>
+  </g>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text443"
+     x="126.62261"
+     y="510.49997">Warmup</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text445"
+     x="127.78962"
+     y="521.5">Attempt</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text447"
+     x="134.36961"
+     y="532.5">Board</text>
+  <g
+     id="g455"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g453">
+      <g
+         id="g451">
+        <path
+           d="m 175,356 h -34 v -22 h 34 z m 1,-25 h -36 c -1.1,0 -2,0.9 -2,2 v 24 c 0,1.1 0.9,2 2,2 h 14 v 3 h -5 v 3 h 18 v -3 h -5 v -3 h 14 c 1.1,0 2,-0.9 2,-2 v -24 c 0,-1.1 -0.9,-2 -2,-2 z"
+           stroke="#000000"
+           fill="#ffffff"
+           id="path449" />
+      </g>
+    </g>
+  </g>
+  <g
+     id="g463"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g461">
+      <g
+         id="g459">
+        <path
+           d="m 179,506 h -34 v -22 h 34 z m 1,-25 h -36 c -1.1,0 -2,0.9 -2,2 v 24 c 0,1.1 0.9,2 2,2 h 14 v 3 h -5 v 3 h 18 v -3 h -5 v -3 h 14 c 1.1,0 2,-0.9 2,-2 v -24 c 0,-1.1 -0.9,-2 -2,-2 z"
+           stroke="#000000"
+           fill="#ffffff"
+           id="path457" />
+      </g>
+    </g>
+  </g>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text465"
+     x="126.96561"
+     y="450.49997">Warmup</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text467"
+     x="119.63262"
+     y="461.49997">Scoreboard</text>
+  <g
+     id="g475"
+     transform="translate(-8.8333846,-11.500017)">
+    <g
+       id="g473">
+      <g
+         id="g471">
+        <path
+           d="M 41,32 H 7 V 10 H 41 Z M 42,7 H 6 C 4.9,7 4,7.9 4,9 v 24 c 0,1.1 0.9,2 2,2 h 14 v 3 h -5 v 3 h 18 v -3 h -5 v -3 h 14 c 1.1,0 2,-0.9 2,-2 V 9 C 44,7.9 43.1,7 42,7 Z"
+           stroke="#000000"
+           fill="#ffffff"
+           transform="matrix(1.02083,0,0,1,137,403)"
+           id="path469" />
+      </g>
+    </g>
+  </g>
+  <g
+     clip-path="url(#clip9)"
+     transform="matrix(-1.04987e-4,0,0,1.04987e-4,260.16662,403.49998)"
+     id="g481">
+    <g
+       clip-path="url(#clip10)"
+       transform="matrix(1,0,0,1.04762,0,-0.25)"
+       id="g479">
+      <use
+         width="100%"
+         height="100%"
+         xlink:href="#img2"
+         transform="scale(6250.78)"
+         id="use477" />
+    </g>
+  </g>
+  <path
+     d="m 230.56735,413.66669 -42.24463,0.32535 0.0206,2.66658 42.24457,-0.32535 z m -40.93183,-2.35151 -7.969,4.06149 8.0306,3.93827 z"
+     fill="#548235"
+     id="path483" />
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="11px"
+     id="text485"
+     x="195.43062"
+     y="411.49997">HDMI</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text487"
+     x="225.47961"
+     y="439.49997">Warmup</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text489"
+     x="233.39261"
+     y="450.49997">Room</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text491"
+     x="227.05962"
+     y="461.49997">Displays</text>
+  <path
+     d="m 222.56735,335.66669 -42.24463,0.32535 0.0206,2.66658 42.24457,-0.32535 z m -40.93183,-2.35151 -7.969,4.06149 8.0306,3.93827 z"
+     fill="#548235"
+     id="path493" />
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text495"
+     x="125.51061"
+     y="367.49997">Marshal</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="14px"
+     id="text497"
+     x="116.43062"
+     y="378.49997">Scoreboard</text>
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="11px"
+     id="text499"
+     x="195.3746"
+     y="332.49997">HDMI</text>
+  <path
+     d="m 251.71062,470.99998 v 17.865 h -67.377 v -2.667 h 66.044 l -1.333,1.334 v -16.532 z m -66.044,20.532 -8,-4 8,-4 z"
+     fill="#548235"
+     id="path501" />
+  <text
+     font-family="Calibri, Calibri_MSFontService, sans-serif"
+     font-weight="400"
+     font-size="11px"
+     id="text503"
+     x="201.53561"
+     y="482.49997">HDMI</text>
+  <g
+     clip-path="url(#clip11)"
+     transform="matrix(1.04987e-4,0,0,1.04987e-4,283.16662,327.49998)"
+     id="g509">
+    <g
+       clip-path="url(#clip12)"
+       transform="matrix(1.01786,0,0,1,0,-0.25)"
+       id="g507">
+      <use
+         width="100%"
+         height="100%"
+         xlink:href="#img5"
+         transform="scale(2963.33)"
+         id="use505" />
+    </g>
+  </g>
+  <g
+     clip-path="url(#clip13)"
+     transform="matrix(1.04987e-4,0,0,1.04987e-4,283.16662,414.49998)"
+     id="g515">
+    <g
+       clip-path="url(#clip14)"
+       transform="matrix(1.01786,0,0,1,0,-0.25)"
+       id="g513">
+      <use
+         width="100%"
+         height="100%"
+         xlink:href="#img5"
+         transform="scale(2963.33)"
+         id="use511" />
+    </g>
+  </g>
+  <g
+     clip-path="url(#clip15)"
+     transform="matrix(1.04987e-4,0,0,1.04987e-4,280.16662,545.49998)"
+     id="g521">
+    <g
+       clip-path="url(#clip16)"
+       transform="scale(1,1.05263)"
+       id="g519">
+      <use
+         width="100%"
+         height="100%"
+         xlink:href="#img5"
+         transform="scale(3016.25)"
+         id="use517" />
+    </g>
+  </g>
+  <g
+     clip-path="url(#clip17)"
+     transform="matrix(1.04987e-4,0,0,1.04987e-4,386.16662,514.49998)"
+     id="g527">
+    <g
+       clip-path="url(#clip18)"
+       transform="matrix(1.01786,0,0,1,-0.25,0)"
+       id="g525">
+      <use
+         width="100%"
+         height="100%"
+         xlink:href="#img5"
+         transform="scale(2963.33)"
+         id="use523" />
+    </g>
+  </g>
+  <rect
+     x="476.16663"
+     y="594.5"
+     width="19"
+     height="14"
+     fill="#e2f0d9"
+     id="rect529" />
+  <g
+     clip-path="url(#clip19)"
+     transform="matrix(1.04987e-4,0,0,1.04987e-4,476.16662,594.49998)"
+     id="g535">
+    <g
+       clip-path="url(#clip20)"
+       transform="matrix(1.01786,0,0,1,-0.5,0)"
+       id="g533">
+      <use
+         width="100%"
+         height="100%"
+         xlink:href="#img5"
+         transform="scale(2963.33)"
+         id="use531" />
+    </g>
+  </g>
+  <path
+     d="m 475.66662,593.99998 h 20 v 15 h -20 z"
+     stroke="#70ad47"
+     stroke-linejoin="round"
+     stroke-miterlimit="10"
+     fill="none"
+     fill-rule="evenodd"
+     id="path537" />
+  <rect
+     x="480.16663"
+     y="325.49997"
+     width="19"
+     height="14"
+     fill="#e2f0d9"
+     id="rect539" />
+  <g
+     clip-path="url(#clip21)"
+     transform="matrix(1.04987e-4,0,0,1.04987e-4,480.16662,325.49998)"
+     id="g545">
+    <g
+       clip-path="url(#clip22)"
+       transform="scale(1.01786,1)"
+       id="g543">
+      <use
+         width="100%"
+         height="100%"
+         xlink:href="#img5"
+         transform="scale(2963.33)"
+         id="use541" />
+    </g>
+  </g>
+  <path
+     d="m 479.66662,324.99998 h 20 v 15 h -20 z"
+     stroke="#70ad47"
+     stroke-linejoin="round"
+     stroke-miterlimit="10"
+     fill="none"
+     fill-rule="evenodd"
+     id="path547" />
+  <path
+     d="m 476.66802,334.60231 5.33329,-0.0225 -0.003,-0.66666 -5.33328,0.0225 z m 7.33327,-0.0309 5.33333,-0.0225 -0.003,-0.66666 -5.33334,0.0225 z m 7.33323,-0.0309 5.3333,-0.0225 -0.003,-0.66666 -5.3333,0.0225 z m 7.3333,-0.0309 5.3333,-0.0225 -0.003,-0.66667 -5.3333,0.0225 z m 7.3333,-0.0309 5.3333,-0.0225 -0.003,-0.66666 -5.3333,0.0225 z m 7.3332,-0.0309 5.3333,-0.0225 -0.003,-0.66666 -5.3333,0.0225 z m 7.3333,-0.0309 5.3333,-0.0225 -0.003,-0.66666 -5.3333,0.0225 z m 7.3333,-0.0309 5.3333,-0.0225 -0.003,-0.66666 -5.3333,0.0225 z m 4.5929,3.64735 7.983,-4.03366 -8.0167,-3.96627 z"
+     fill="#548235"
+     id="path549" />
+  <path
+     d="m 477.66802,602.60231 5.33329,-0.0225 -0.003,-0.66666 -5.33328,0.0225 z m 7.33327,-0.0309 5.33333,-0.0225 -0.003,-0.66666 -5.33334,0.0225 z m 7.33323,-0.0309 5.3333,-0.0225 -0.003,-0.66666 -5.3333,0.0225 z m 7.3333,-0.0309 5.3333,-0.0225 -0.003,-0.66667 -5.3333,0.0225 z m 7.3333,-0.0309 5.3333,-0.0225 -0.003,-0.66666 -5.3333,0.0225 z m 7.3332,-0.0309 5.3333,-0.0225 -0.003,-0.66666 -5.3333,0.0225 z m 7.3333,-0.0309 5.3333,-0.0225 -0.003,-0.66666 -5.3333,0.0225 z m 7.3333,-0.0309 5.3333,-0.0225 -0.003,-0.66666 -5.3333,0.0225 z m 4.5929,3.64735 7.983,-4.03366 -8.0167,-3.96627 z"
+     fill="#548235"
+     id="path551" />
+</svg>
