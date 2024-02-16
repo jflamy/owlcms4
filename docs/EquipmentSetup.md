@@ -10,7 +10,7 @@ In a small club meet, the announcer will often do everything - announce, enter t
 
 <center><img src="img/equipment/ClubCompetitionWIFI.png" alt="ClubCompetitionWIFI" /></center>
 
-Suggested Small Competition Setup
+## Suggested Small Competition Setup
 
 If you have a meeting with multiple groups, the following setup will allow you to comply with most requirements.  This adds a computer in the warmup area, and there is an attempt board on the platform.
 
@@ -24,7 +24,7 @@ If you have a meeting with multiple groups, the following setup will allow you t
 - If you have an extra laptop and a projector at your disposal, you can add a scoreboard for the public. 
 - The next step up is to have the secretary on a separate laptop so that weigh-in data can be entered while the competition is going on.
 
-## Full Competition Setup
+## Large Competition Setup
 
 At the opposite end of the spectrum, a setup for a state competition using refereeing devices would provide all the requisite displays and technical official stations.  To keep costs down, TVs and projectors can be driven using cheap devices such as Fire TV Sticks or Raspberry Pi.
 
@@ -44,7 +44,7 @@ There are three building blocks to such a setup
    - Chromecasts (this requires internet access for setup, and Wi-Fi has to be of excellent quality). A computer must provide the display being replicated -- a single laptop can drive multiple displays)
 3. Video splitters.  Sometimes it is possible to share the output from a PC and send it to a TV.  For example, the scoreboard in the warmup room can be obtained from the marshal computer and shown on a marshal monitor and a warmup room TV.
 
-Large Competition: Networking for Maximum Reliability
+### Large Competition: Networking for Maximum Reliability
 
 In this setup, all the devices are wired using Ethernet, and the network is private.  The competition can go on if the facility's network is down or if there is no Internet.  
 
@@ -56,7 +56,7 @@ In this approach, a networking switch is used for each platform.  A networking s
 
 
 
-## Large Competition: Hybrid Approach with Wi-Fi
+### Large Competition: Hybrid Approach with Wi-Fi
 
 Using Wi-Fi simplifies the setup, but in large venues there are sometimes intermittent (or persistent issues) that don't affect casual browsing, but would interfere with time-sensitive displays.  So for a large competition, we **strongly recommend** to wire owlcms itself and the computer that shows the countdown clock and emits the down signal. 
 
