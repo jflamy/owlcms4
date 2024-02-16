@@ -8,14 +8,15 @@
 
 ##### 46.0
 
-> Summary of recommended changes for people who have performed customizations (see below for details)
+> Summary of changes for people who have performed customizations
 >
 > - Save your Excel templates as .xlsx files instead of .xls 
 > - If you have created your own AgeGroups files, delete the first sheet that previously contained the Robi records.
 
 New in version 46
 
-- (beta02) Age Groups
+- (beta03) Fix: Scoreboards now working again
+- Age Groups
   - Enhancement: The age groups definitions can now be exported
   - Fix: Previously, if you added a non-IWF category for an age group using the age group file it was ignored.
   - Change: The age group definitions is now the first sheet in the spreadsheet file, but for backward compatibility, if there are two sheets the first one is ignored (it used to be the Robi definitions)
