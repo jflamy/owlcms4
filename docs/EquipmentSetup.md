@@ -103,4 +103,4 @@ There are four ways to solve the problem.
 
 ![hotspot](EquipmentSetup/Networking/hotspot.png)
 
-4. You can connect OBS and owlcms to the router with a wire, and use the facility WiFi or a phone hotspot to get to the Internet.  This is the approach illustrated in the second diagram -- OBS and owlcms communicate to the Internet on their own, independently.   The configuration required is explained on [this page](PhoneHotspot.md)
+4. You can connect OBS and owlcms to the router with a wire, and use the facility WiFi or a phone hotspot to get to the Internet.  This is the approach illustrated in the second diagram -- OBS and owlcms communicate to the Internet on their own, independently.   The configuration required is explained on [this page](PhoneHotSpot.md)
