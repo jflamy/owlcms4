@@ -81,8 +81,9 @@ public interface NavigationPage extends ContentWrapping {
 		}
 		fillH(grid1, wrapper);
 	}
-	
-	public default void doHiddenGroup(String label, Component explanation, FlexibleGridLayout grid1, VerticalLayout wrapper, Boolean... paired) {
+
+	public default void doHiddenGroup(String label, Component explanation, FlexibleGridLayout grid1,
+	        VerticalLayout wrapper, Boolean... paired) {
 		VerticalLayout content1 = new VerticalLayout();
 		content1.setSpacing(false);
 		content1.setPadding(true);
@@ -90,8 +91,8 @@ public interface NavigationPage extends ContentWrapping {
 		content1.getStyle().set("margin-bottom", "-2ex");
 		fillH(content1, wrapper);
 		Details det = new Details(label, content1);
-//		det.getStyle().set("padding-left", "1em");
-//		det.getStyle().set("margin-top", "-1em");
+		// det.getStyle().set("padding-left", "1em");
+		// det.getStyle().set("margin-top", "-1em");
 		det.getStyle().set("margin-right", "0");
 		det.getStyle().set("padding-right", "0");
 		grid1.getStyle().set("padding", "0");
@@ -132,7 +133,7 @@ public interface NavigationPage extends ContentWrapping {
 		return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass, parameter) + "','"
 		        + targetClass.getSimpleName() + name + "')";
 	}
-	
+
 	public default <T extends Component & HasUrlParameter<String>> String getWindowOpenerFromClass(Class<?> class1,
 	        String parameter, QueryParameters qp) {
 		FieldOfPlay fop = OwlcmsSession.getFop();
@@ -140,7 +141,6 @@ public interface NavigationPage extends ContentWrapping {
 		return "window.open('" + URLUtils.getUrlFromTargetClass(class1, parameter, qp) + "','"
 		        + class1.getSimpleName() + name + "')";
 	}
-
 
 	public default <T extends Component> String getWindowOpenerFromClassNoParam(Class<T> targetClass) {
 		FieldOfPlay fop = OwlcmsSession.getFop();
@@ -160,22 +160,28 @@ public interface NavigationPage extends ContentWrapping {
 		button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
 		return button;
 	}
-	
-	public default <T extends Component & HasUrlParameter<String>> Button openInNewTabQueryParameters(Class<T> targetClass,
+
+	public default <T extends Component & HasUrlParameter<String>> Button openInNewTabQueryParameters(
+	        Class<T> targetClass,
 	        String label, String queryParameters) {
 		Button button = new Button(label);
-		button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, null, QueryParameters.fromString(queryParameters)));
+		button.getElement().setAttribute("onClick",
+		        getWindowOpenerFromClass(targetClass, null, QueryParameters.fromString(queryParameters)));
 		return button;
 	}
 
 	public default <T extends Component> Button openInNewTabNoParam(Class<T> targetClass,
-	        String label) {
+	        String label, Component... icon) {
 		Button button = new Button(label);
+		if (icon.length > 0 && icon[0] != null) {
+			button.setIcon(icon[0]);
+		}
 		button.getElement().setAttribute("onClick", getWindowOpenerFromClassNoParam(targetClass));
 		return button;
 	}
-	
-	public default <T extends Component & HasUrlParameter<String>> void doOpenInNewTab(Class<?> class1, String label, String parameter, QueryParameters qp) {
+
+	public default <T extends Component & HasUrlParameter<String>> void doOpenInNewTab(Class<?> class1, String label,
+	        String parameter, QueryParameters qp) {
 		String windowOpenerFromClass = getWindowOpenerFromClass(class1, parameter, qp);
 		UI.getCurrent().getPage().executeJs(windowOpenerFromClass);
 	}

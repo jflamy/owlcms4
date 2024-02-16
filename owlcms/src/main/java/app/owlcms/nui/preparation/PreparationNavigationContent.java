@@ -69,7 +69,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 
 		Button competition = openInNewTabNoParam(CompetitionContent.class,
 		        Translator.translate("CompetitionInformation"));
-		Button config = openInNewTabNoParam(ConfigContent.class, Translator.translate("Config.Title"));
+		Button config = openInNewTabNoParam(ConfigContent.class, Translator.translate("Config.Title"), VaadinIcon.COG.create());
 		Button ageGroups = openInNewTabNoParam(AgeGroupContent.class, Translator.translate("DefineAgeGroups"));
 		Button groups = openInNewTabNoParam(GroupContent.class, Translator.translate("DefineGroups"));
 		Button platforms = openInNewTabNoParam(PlatformContent.class, Translator.translate("DefineFOP"));

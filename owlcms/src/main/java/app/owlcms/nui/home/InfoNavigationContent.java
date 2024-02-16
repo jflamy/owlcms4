@@ -93,7 +93,7 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 	 */
 	@Override
 	public String getMenuTitle() {
-		return getTranslation("OWLCMS_Info");
+		return Translator.translate("OWLCMS_Info");
 	}
 
 	/**
@@ -101,9 +101,8 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("ShortTitle.Info");
+		return Translator.translate("ShortTitle.Info");
 	}
-
 
 	/**
 	 * @see app.owlcms.apputils.queryparameters.FOPParameters#isIgnoreFopFromURL()
@@ -113,34 +112,47 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 		return true;
 	}
 
+	/**
+	 * @see app.owlcms.nui.shared.BaseNavigationContent#createMenuBarFopField(java.lang.String, java.lang.String)
+	 */
+	@Override
+	protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {
+		return null;
+	}
+
 	private VerticalLayout buildLicense() {
 		VerticalLayout license = new VerticalLayout();
 		license.add(
 		        sectionTitle(
-		                getTranslation("OwlcmsBuild", OwlcmsFactory.getVersion(), OwlcmsFactory.getBuildTimestamp())));
-		license.add(sectionTitle(getTranslation("CopyrightLicense")));
-		addP(license, getTranslation("Copyright2009") + LocalDate.now().getYear() + " " + getTranslation("JFL"));
-		addP(license, getTranslation("LicenseUsed"));
-		license.add(sectionTitle(getTranslation("SourceDocumentation")));
+		                Translator.translate("OwlcmsBuild", OwlcmsFactory.getVersion(),
+		                        OwlcmsFactory.getBuildTimestamp())));
+		license.add(sectionTitle(Translator.translate("CopyrightLicense")));
 		addUL(license,
-		        getTranslation("ProjectRepository"),
-		        getTranslation("Documentation"));
+		        Translator.translate("Copyright2009") + LocalDate.now().getYear() + " " + Translator.translate("JFL"),
+		        Translator.translate("LicenseUsed"));
 
-		license.add(sectionTitle(getTranslation("Notes")));
-		addP(license, getTranslation("TCRRCompliance") + getTranslation("AtTimeOfRelease")
-		        + getTranslation("UseAtYourOwnRisk"));
+		license.add(sectionTitle(Translator.translate("About.Community_Title")));
+		addUL(license, Translator.translate("About.Community"));
 
-		license.add(sectionTitle(getTranslation("Credits")));
-		addUL(license, getTranslation("WrittenJFL"), getTranslation("ThanksToAll"));
+		license.add(sectionTitle(Translator.translate("About.Bugs_Title")));
+		addUL(license, Translator.translate("About.Bugs"));
 
-//        Button resetTranslation = new Button(getTranslation("reloadTranslation"), buttonClickEvent -> Translator.reset());
-//        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(resetTranslation);
-//        doGroup(getTranslation("reloadTranslationInfo"), grid1, license);
-
-		license.add(sectionTitle(getTranslation("Translation")));
+		license.add(sectionTitle(Translator.translate("SourceDocumentation")));
 		addUL(license,
-		        getTranslation("ThanksToTranslators") + translators(),
-		        getTranslation("TranslationDocumentation"));
+		        Translator.translate("ProjectRepository"),
+		        Translator.translate("Documentation"));
+
+		license.add(sectionTitle(Translator.translate("Notes")));
+		addUL(license, Translator.translate("TCRRCompliance") + Translator.translate("AtTimeOfRelease"),
+		        Translator.translate("UseAtYourOwnRisk"));
+
+		license.add(sectionTitle(Translator.translate("Credits")));
+		addUL(license, Translator.translate("WrittenJFL"), Translator.translate("ThanksToAll"));
+
+		license.add(sectionTitle(Translator.translate("Translation")));
+		addUL(license,
+		        Translator.translate("ThanksToTranslators") + translators(),
+		        Translator.translate("TranslationDocumentation"));
 
 		return license;
 	}
@@ -179,14 +191,5 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 			sb.append(")");
 		}
 		return sb.toString();
-	}
-
-	/**
-	 * @see app.owlcms.nui.shared.BaseNavigationContent#createMenuBarFopField(java.lang.String,
-	 *      java.lang.String)
-	 */
-	@Override
-	protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {
-		return null;
 	}
 }
