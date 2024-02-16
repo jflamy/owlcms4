@@ -2562,9 +2562,9 @@ public class Athlete {
 
 	public String getSubCategory() {
 		if (Config.getCurrent().featureSwitch("UseCustom2AsSubCategory")) {
-			return (this.getCustom2() != null && !this.getCustom2().isBlank()) ? this.getCustom2() : "A";
+			return (this.getCustom2() != null && !this.getCustom2().isBlank()) ? this.getCustom2() : "";
 		} else {
-			return subCategory;
+			return subCategory != null ? subCategory : "";
 		}
 	}
 
