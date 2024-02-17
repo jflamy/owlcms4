@@ -28,11 +28,11 @@ This step is not necessary if running owlcms in the cloud -- the installation pr
 
 If running on-site, open the owlcms application and go to the `Prepare Competition` - `Language and System Settings ` page.
 
-     - paste the secret key on the right-hand side -- use the "eye" icon to see what you pasted.
-     - copy and paste the correct URL for the publicresults application we opened in step 5.
-     - Click on update.
+ - paste the secret key on the right-hand side -- use the "eye" icon to see what you pasted.
+ - copy and paste the correct URL for the publicresults application we opened in step 5.
+ - Click on update.
 
-     ![GkwHZ4ZHeW](img/PublicResults/Example/GkwHZ4ZHeW.png)
+ ![GkwHZ4ZHeW](img/PublicResults/Example/GkwHZ4ZHeW.png)
 
 
 
