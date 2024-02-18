@@ -15,7 +15,7 @@
 
 New in version 46
 
-- (beta03) Fix: Scoreboards now working again
+- (beta04) Fix: Q-Points correctly sorted on the Results pages.
 - Age Groups
   - Enhancement: The age groups definitions can now be exported
   - Fix: Previously, if you added a non-IWF category for an age group using the age group file it was ignored.
