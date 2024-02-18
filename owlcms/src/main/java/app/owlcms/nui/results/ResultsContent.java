@@ -44,8 +44,8 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.components.JXLSDownloader;
 import app.owlcms.components.GroupSelectionMenu;
+import app.owlcms.components.JXLSDownloader;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -127,7 +127,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		        .setComparator(new WinningOrderComparator(Ranking.BW_SINCLAIR, true));
 		grid.addColumn(new NumberRenderer<>(Athlete::getqPoints, "%.2f", OwlcmsSession.getLocale(), "0.00"))
 		        .setSortProperty("qPoints").setHeader(Translator.translate("Qpoints"))
-        .setComparator(new WinningOrderComparator(Ranking.BW_SINCLAIR, true));
+		        .setComparator(new WinningOrderComparator(Ranking.QPOINTS, true));
 		grid.addColumn(new NumberRenderer<>(Athlete::getSmfForDelta, "%.3f", OwlcmsSession.getLocale(), "-"))
 		        .setHeader(Translator.translate("smm"))
 		        .setSortProperty("smm")
@@ -196,15 +196,13 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 
 		return crudGrid;
 	}
-	
+
 	private void highlight(Button button) {
 		button.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
 	}
 
-
 	/**
-	 * @see #showRouterLayoutContent(HasElement) for how to content to layout and
-	 *      vice-versa
+	 * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
 	 */
 	@Override
 	public FlexLayout createMenuArea() {
@@ -311,12 +309,11 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 	/**
 	 * Parse the http query parameters
 	 *
-	 * Note: because we have the @Route, the parameters are parsed *before* our
-	 * parent layout is created.
+	 * Note: because we have the @Route, the parameters are parsed *before* our parent layout is created.
 	 *
 	 * @param event     Vaadin navigation event
-	 * @param parameter null in this case -- we don't want a vaadin "/" parameter.
-	 *                  This allows us to add query parameters instead.
+	 * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
+	 *                  parameters instead.
 	 *
 	 * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
 	 *      java.lang.String)
@@ -380,8 +377,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	/**
-	 * @return true if the current group is safe for editing -- i.e. not lifting
-	 *         currently
+	 * @return true if the current group is safe for editing -- i.e. not lifting currently
 	 */
 	private boolean checkFOP() {
 		Collection<FieldOfPlay> fops = OwlcmsFactory.getFOPs();
@@ -564,8 +560,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	/**
-	 * We do not connect to the event bus, and we do not track a field of play
-	 * (non-Javadoc)
+	 * We do not connect to the event bus, and we do not track a field of play (non-Javadoc)
 	 *
 	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
 	 */
