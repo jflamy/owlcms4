@@ -17,17 +17,21 @@ class CurrentAttempt extends LitElement {
   static styles = css`
   .wrapper {
     height: 100vh;
-    background-color: green;
+    background-color: #606263;
   }
 
   .attemptBoardGrid {
     display: grid;
-    grid-template-rows: 15vh repeat(5,12vh) 25vh;
-    grid-template-columns: 1fr repeat(5,12%) 10vh;
+    grid-template-rows: 14vh repeat(5,12vh) 20vh 8vh;
+    grid-template-columns: 20vw repeat(5,1fr) 20vw;
   }
   
   .attemptBoard {
     grid-area: 2/2/7/7;
+    border-color: black;
+    border-width: medium;
+    border-color: darkred;
+    border-style: solid;
   }
 
   .topLine {
@@ -49,10 +53,30 @@ class CurrentAttempt extends LitElement {
 
   .sponsors {
     display: grid;
-    grid-area: -1/1/8/-1;
-    grid-template-columns: repeat(auto-fit, min-max(200px,1fr));
+    grid-area: 7/1/8/-1;
+    grid-template-columns: repeat(auto-fit, minmax(10vw,1fr));
     align-items: center;
     justify-items: center;
+  }
+
+  .powered {
+    display: grid;
+    grid-area: 8/1/9/-1;
+    grid-template-columns: repeat(auto-fit, minmax(10vw,1fr));
+    align-items: center;
+    justify-items: center;
+    font-size: 2em;
+    color: white;
+    font-weight: bold;
+    padding-bottom: 0.5em;
+  }
+
+  .powered span {
+    background-color: #660033;
+    padding: 0.25em;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    border-radius: 0.5em;
   }
 `;
 
@@ -63,19 +87,24 @@ class CurrentAttempt extends LitElement {
     <div class="wrapper">
       <div class="attemptBoardGrid" style="height: 100%">
         <div class="topLine">
-          Competition Name Goes Here
+          Spring Equinox Classic 2024
         </div>
         <div class="attemptBoard"  style="overflow: hidden">
-          <iframe src="displays/attemptBoard"  style="width: 100%; height: 100%;"></iframe>
+          <iframe src="displays/attemptBoard"  style="width: 100%; height: 100%; border-style: solid; border-color: black"></iframe>
         </div>
         <div class="logos" style="zoom: 80%">
-          <div><img src="local/logos/owlcms-sticker.svg"/></div>
-          <div style="width: 30%"><img src="local/logos/blue-owl-sticker.svg" style="width: 100%"/></div>
+          <!-- div><img src="local/logos/owlcms-sticker.svg"/ style="width: 8vw"></div>
+          <div style="width: 30%"><img src="local/logos/blue-owl-sticker.svg" style="width: 8vw"/></div -->
         </div>
         <div class="sponsors">
           <div><img src="local/logos/WHC.svg" style="width: 10vw"></div>
           <div><img src="local/logos/sudamericana.png" style="width: 10vw"></div>
           <div><img src="local/logos/felp.png" style="width: 10vw"></div>
+          <div><img src="local/logos/event.png" style="width: 10vw"></div>
+          <div><img src="local/logos/federation.png" style="width: 8vw"></div>
+        </div>
+        <div class="powered">
+          <span>OWLCMS Competition Software</span>
         </div>
     </div>
 
