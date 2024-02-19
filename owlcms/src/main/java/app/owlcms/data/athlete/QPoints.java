@@ -195,7 +195,7 @@ public class QPoints {
 	 */
 	private void loadProps() {
 		this.props = new Properties();
-		String name = "/sinclair/qpoints" + this.qpointsYear + ".properties";
+		String name = "/qpoints/qpoints" + this.qpointsYear + ".properties";
 		try {
 			InputStream stream = ResourceWalker.getResourceAsStream(name);
 			this.props.load(stream);
