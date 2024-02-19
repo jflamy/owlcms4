@@ -4,7 +4,7 @@
 - Download and open the installer
   > You may get false alarms about the software being potentially dangerous.  *Rest assured that it is absolutely not*.  Use the `...` and dropdown menu options to get and keep the downloaded files anyway.
   >
-  > If you get a blue `Windows protected your PC` warning, use the `Mofe Info` button and `Install Anyway`.  See this page for more information [Make Windows Defender Allow Installation](DefenderOff)
+  > If you get a blue `Windows protected your PC` warning, use the `More Info` button and `Install Anyway`.  See this page for more information [Make Windows Defender Allow Installation](DefenderOff)
   
 -  The installer will prompt you for an installation location.  The default is usually correct.
 
