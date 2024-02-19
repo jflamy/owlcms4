@@ -223,7 +223,7 @@ class Results extends LitElement {
               `
               : html``}
           </table>
-          ${this.records  
+          ${this.records && this.showRecords
             ? html`
               <div style="${this.recordsStyles()}">
                 <div class="recordsFiller">&nbsp;</div>
@@ -252,14 +252,18 @@ class Results extends LitElement {
                                 <div class="${"recordCell " + (r?.snatchHighlight ?? "")} ">${r?.SNATCH}</div>
                                 <div class="${"recordCell " + (r?.cjHighlight ?? "")} ">${r?.CLEANJERK}</div>
                                 <div class="${"recordCell " + (r?.totalHighlight ?? "")} ">${r?.TOTAL}</div>
-                            `)}
+                              `)}
                         </div>
                       `)}
                   <div class="${"recordNotification " + (this.recordKind ?? "")}"> ${this.recordMessage} </div>
+                  <div style="position: absolute; bottom: 2em; right: 1em; display: flex; align-items: center; font-weight: thin; font-size: 0.9em;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
                 </div>
               </div>
             `
-            : html``}
+            : html`<div style="line-height: 1.25em">&nbsp;
+              <div style="position: absolute; bottom: 0.5em; right: 1em; display: flex; align-items: center; font-weight: thin; font-size: 0.9em;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
+            </div>
+            `}
         </div>
       </div>
     `;
