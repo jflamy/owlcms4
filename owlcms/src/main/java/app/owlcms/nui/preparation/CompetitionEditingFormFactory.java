@@ -32,6 +32,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -343,9 +344,9 @@ public class CompetitionEditingFormFactory
 		help.getStyle().set("height", "1.2em");
 		help.getStyle().set("vertical-align", "top");
 		help.getStyle().set("font-weight", "bold");
-		NativeLabel label = new NativeLabel(Translator.translate(string));
+		NativeLabel label = new NativeLabel(Translator.translate(string)+"\u00a0");
+		Tooltip.forComponent(label).setText(Translator.translate(explanation));
 		Span span = new Span();
-		span.setTitle(Translator.translate(explanation));
 		span.add(label, help);
 		return span;
 	}

@@ -108,33 +108,48 @@
     border-style: solid;
 }
 
-/* table general parameters */
+/* table general parameters
+  by default, show total and total rank, show lift ranks, do not show sinclair */
 table.results {
     border-collapse: collapse;
     font-size: var(--tableFontSize);
-    /* do not use rankWidth */
-    --totalRankWidth: var(--liftResultWidth);
-    --totalRankVisibility: visible;
     --totalWidth: var(--liftResultWidth);
     --totalVisibility: visible;
+    --rankWidth: var(--liftResultWidth);
+    --rankVisibility: visible;
+    /* do not use rankWidth since we set it to 0 */
+    --totalRankWidth: var(--liftResultWidth);
+    --totalRankVisibility: visible;
     --sinclairWidth: 0;
     --sinclairVisibility: hidden;
     --sinclairRankWidth: 0;
     --sinclairRankVisibility: hidden;
 }
 
+table.results.ranks {
+    --rankWidth: var(--liftResultWidth);
+    --rankVisibility: visible;
+}
+
 table.results.noranks {
     --rankWidth: 0;
     --rankVisibility: hidden;
+}
+
+table.visit.totalRank {
     /* do not use rankWidth since we set it to 0 */
     --totalRankWidth: var(--liftResultWidth);
     --totalRankVisibility: visible;
-    --totalWidth: var(--liftResultWidth);
-    --totalVisibility: visible;
+}
+
+table.results.nototalRank {
+    --totalRankWidth: 0;
+    --totalRankVisibility: hidden;
+}
+
+table.results.nosinclair {
     --sinclairWidth: 0;
     --sinclairVisibility: hidden;
-    --sinclairRankWidth: 0;
-    --sinclairRankVisibility: hidden;
 }
 
 table.results.sinclair {
@@ -144,10 +159,16 @@ table.results.sinclair {
     --totalRankVisibility: hidden;
     --sinclairWidth: 8ch;
     --sinclairVisibility: visible;
-    --sinclairRankWidth: 8ch;
+}
+
+table.results.sinclair.sinclairRank {
+    --sinclairRankWidth: var(--liftResultWidth);
     --sinclairRankVisibility: visible;
-    --totalWidth: var(--liftResultWidth);
-    --totalVisibility: visible;
+}
+
+table.results.sinclair.nosinclairRank {
+    --sinclairRankWidth: 0;
+    --sinclairRankVisibility: hidden;
 }
 
 /* default cell colors, backgrounds and borders */
