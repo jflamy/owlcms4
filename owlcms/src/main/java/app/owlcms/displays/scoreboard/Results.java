@@ -956,12 +956,16 @@ public class Results extends LitTemplate
 			this.uiEventBus = uiEventBusRegister(this, fop);
 		});
 
+		getElement().setProperty("showTotal", true);
+		getElement().setProperty("showBest", true);  //overridden by media queries, not a variable
+		getElement().setProperty("showLiftRanks",
+		        Competition.getCurrent().isSnatchCJTotalMedals() && !Competition.getCurrent().isSinclair());
+		getElement().setProperty("showTotalRank", !Competition.getCurrent().isSinclair());
 		getElement().setProperty("showSinclair",
 		        Competition.getCurrent().isSinclair() || Competition.getCurrent().isDisplayScores());
 		getElement().setProperty("showSinclairRank",
 		        Competition.getCurrent().isSinclair() || Competition.getCurrent().isDisplayScoreRanks());
-		getElement().setProperty("showLiftRanks",
-		        Competition.getCurrent().isSnatchCJTotalMedals() && !Competition.getCurrent().isSinclair());
+
 
 		if (!isSilenced() || !isDownSilenced()) {
 			SoundUtils.enableAudioContextNotification(this.getElement());

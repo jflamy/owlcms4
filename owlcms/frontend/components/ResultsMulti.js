@@ -320,12 +320,12 @@ class ResultsFull extends LitElement {
                         </div>
                       `)}
                   <div class="${"recordNotification " + (this.recordKind ?? "")}"> ${this.recordMessage} </div>
-                  <div style="position: absolute; bottom: 2em; right: 1em; display: flex; align-items: center; font-weight: thin; font-size: 0.9em;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
+                  <div style="position: absolute; bottom: 2em; right: 2em; display: flex; align-items: center; font-weight: thin; font-size: 0.9em;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
                 </div>
               </div>
             `
             : html`<div style="line-height: 1.25em">&nbsp;
-              <div style="position: absolute; bottom: 0.5em; right: 1em; display: flex; align-items: center; font-weight: thin; font-size: 0.9em;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
+              <div style="position: absolute; bottom: 0.5em; right: 2em; display: flex; align-items: center; font-weight: thin; font-size: 0.9em;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
             </div>
             `}
         </div>
@@ -353,7 +353,7 @@ class ResultsFull extends LitElement {
       leaders: { type: Object },
       records: { type: Object },
 
-      // mode (mutually exclusive, one of:
+      // mode. Mutually exclusive, one of:
       // WAIT INTRO_COUNTDOWN LIFT_COUNTDOWN CURRENT_ATHLETE INTERRUPTION SESSION_DONE CEREMONY
       mode: {},
       decisionVisible: { type: Boolean }, // sub-mode of CURRENT_ATHLETE
@@ -364,7 +364,9 @@ class ResultsFull extends LitElement {
       sizeOverride: {},
       twOverride: {},
       video: {},
+      showTotal: {type: Boolean},
       showLiftRanks: {type: Boolean},
+      showTotalRanks: {type: Boolean},
       showBest: {type: Boolean},
       showSinclair: {type: Boolean},
       showSinclairRanks: {type: Boolean},
@@ -455,9 +457,15 @@ class ResultsFull extends LitElement {
 
   athleteClasses() {
     //return "results " +  (this.noLiftRanks ?? "") + " " + (this.noBest ?? "")
+
+    // on veut show sinclair sans les rangs totaux pour compés sinclair seulement
+    // donc ajouter noTotalRank
+    // actuellement sinclair implique noTotalRank, doit être indépendant
     return "results " 
-      + (this.showLiftRanks ? "" : " noranks") 
-      + (this.showBest ? "" : " nobest")
+      + (this.showTotal ? " total" : " nototal")
+      + (this.showLiftRanks ? " ranks" : " noranks") 
+      + (this.showBest ? " best" : " nobest")
+      + (this.showTotalRank ? " totalRank" : " nototalRank")
       + (this.showSinclair ? " sinclair" : " nosinclair")
       + (this.showSinclairRank ? " sinclairRank" : " nosinclairRank")
       ;

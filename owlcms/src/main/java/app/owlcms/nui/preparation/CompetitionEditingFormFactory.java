@@ -471,9 +471,15 @@ public class CompetitionEditingFormFactory
 		binder.forField(showScoreRanksOnScoreboard)
 		        .bind(Competition::isDisplayScoreRanks, Competition::setDisplayScoreRanks);
 		
+		Checkbox sinclairMeetField = new Checkbox();
+		layout.addFormItem(sinclairMeetField,
+		        labelWithHelp("Competition.SinclairMeet", "Competition.SinclairMeetExplanation"));
+		binder.forField(sinclairMeetField)
+		        .bind(Competition::isSinclair, Competition::setSinclair);
+
+		
 		Checkbox customScoreField = new Checkbox();
 		layout.addFormItem(customScoreField,
-				
 		        labelWithHelp("Competition.customScore", "Competition.customScoreExplanation"));
 		binder.forField(customScoreField)
 		        .bind(Competition::isCustomScore, Competition::setCustomScore);
