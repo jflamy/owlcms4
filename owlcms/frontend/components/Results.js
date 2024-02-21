@@ -388,14 +388,15 @@ class Results extends LitElement {
   }
 
   athleteClasses() {
-    //return "results " +  (this.noLiftRanks ?? "") + " " + (this.noBest ?? "")
     return "results " 
-      + (this.showLiftRanks ? "" : " noranks") 
-      + (this.showBest ? "" : " nobest")
-      + (this.showSinclair ? " sinclair" : " nosinclair")
-      + (this.showSinclairRank ? " sinclairRank" : " nosinclairRank")
-      ;
-  }
+    + (this.showTotal ? " total" : " nototal")
+    + (this.showLiftRanks ? " ranks" : " noranks") 
+    + (this.showBest ? " best" : " nobest")
+    + (this.showTotalRank ? " totalRank" : " nototalRank")
+    + (this.showSinclair ? " sinclair" : " nosinclair")
+    + (this.showSinclairRank ? " sinclairRank" : " nosinclairRank")
+    ;
+}
 
   athleteStyles() {
     return (this.mode === "WAIT" ? "display: none" : "display:grid ")
