@@ -125,6 +125,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		grid.addColumn(new NumberRenderer<>(Athlete::getSinclairForDelta, "%.3f", OwlcmsSession.getLocale(), "0.000"))
 		        .setSortProperty("sinclair").setHeader(Translator.translate("sinclair"))
 		        .setComparator(new WinningOrderComparator(Ranking.BW_SINCLAIR, true));
+		//TODO select ranking system.
 		grid.addColumn(new NumberRenderer<>(Athlete::getqPoints, "%.2f", OwlcmsSession.getLocale(), "0.00"))
 		        .setSortProperty("qPoints").setHeader(Translator.translate("Qpoints"))
 		        .setComparator(new WinningOrderComparator(Ranking.QPOINTS, true));

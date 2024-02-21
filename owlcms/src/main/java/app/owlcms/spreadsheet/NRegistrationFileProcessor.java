@@ -178,8 +178,6 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 				if (!dryRun) {
 					updatePlatformsAndGroups(groups);
 				}
-
-				// FIXME real errors
 				appendErrors(displayUpdater, errorConsumer);
 				return groups.size();
 			} catch (IOException e) {

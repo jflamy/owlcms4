@@ -124,6 +124,7 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 					double curSinclair = a.getSinclairForDelta();
 					double curSmf = a.getSmfForDelta();
 					double curRobi = a.getRobi();
+					double curHSR = a.getHSR();
 
 					Team curTeam = curTeamItem.getTeam();
 
@@ -143,6 +144,7 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 							curTeam.setSmfScore(curTeam.getSmfScore() + curSmf);
 							curTeam.setCounted(curTeam.getCounted() + 1);
 							curTeam.setRobi(curTeam.getRobi() + curRobi);
+							curTeam.setHsr(curTeam.getHsr() + curHSR);
 						}
 					}
 					curTeamItem.addTreeItemChild(a, groupIsDone);

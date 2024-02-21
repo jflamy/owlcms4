@@ -804,6 +804,28 @@ public class AbstractLifterComparator {
 		// bigger Robi comes first
 		return -lifter1Value.compareTo(lifter2Value);
 	}
+	
+
+	/**
+	 * Compare HSR.
+	 *
+	 * @param lifter1 the lifter 1
+	 * @param lifter2 the lifter 2
+	 * @return the int
+	 */
+	int compareHSR(Athlete lifter1, Athlete lifter2) {
+		Double lifter1Value = lifter1.getHSR();
+		Double lifter2Value = lifter2.getHSR();
+		final Double notWeighed = 0D;
+		if (lifter1Value == null) {
+			lifter1Value = notWeighed;
+		}
+		if (lifter2Value == null) {
+			lifter2Value = notWeighed;
+		}
+		// bigger HSR comes first
+		return -lifter1Value.compareTo(lifter2Value);
+	}
 
 	/**
 	 * Compare sinclair.

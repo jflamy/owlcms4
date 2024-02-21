@@ -39,6 +39,7 @@ import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
@@ -753,32 +754,44 @@ public class Results extends LitTemplate
 		}
 		ja.put("group", a.getGroup().getName());
 		ja.put("subCategory", a.getSubCategory());
-		Double double1 = a.getAttemptsDone() <= 3 ? a.getSinclairForDelta()
-		        : a.getSinclair();
-		ja.put("sinclair", double1 > 0.001 ? String.format("%.3f", double1) : "-");
+
 		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
-		ja.put("sinclairRank", a.getSinclairRank() != null && a.getSinclairRank() > 0 ? "" + a.getSinclairRank() : "-");
+
+		ja.put("sinclair", computedScore(a));
+		ja.put("sinclairRank", computedScoreRank(a));
 
 		boolean notDone = a.getAttemptsDone() < 6;
 		String blink = (notDone ? " blink" : "");
 		String highlight = "";
 		if (fop.getState() != FOPState.DECISION_VISIBLE && notDone && showCurrent(fop)) {
 			switch (liftOrderRank) {
-			case 1:
-				highlight = (" current" + blink);
-				break;
-			case 2:
-				highlight = " next";
-				break;
-			default:
-				highlight = "";
+				case 1:
+					highlight = (" current" + blink);
+					break;
+				case 2:
+					highlight = " next";
+					break;
+				default:
+					highlight = "";
 			}
 		}
 		// logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
 		ja.put("classname", highlight);
 
 		setTeamFlag(a, ja);
+	}
+
+	private String computedScoreRank(Athlete a) {
+		Integer value = Ranking.getRanking(a, Competition.getCurrent().getScoringSystem());
+		return value != null && value > 0 ? "" + value : "-";
+	}
+
+	private String computedScore(Athlete a) {
+		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
+		double value = Ranking.getRankingValue(a, scoringSystem);
+		String score = value > 0.001 ? String.format("%.3f", value) : "-";
+		return score;
 	}
 
 	/**
@@ -847,47 +860,47 @@ public class Results extends LitTemplate
 			if (i.getChangeNo() >= 0) {
 				String trim = stringValue != null ? stringValue.trim() : "";
 				switch (Changes.values()[i.getChangeNo()]) {
-				case ACTUAL:
-					if (!trim.isEmpty()) {
-						if (trim.contentEquals("-") || trim.contentEquals("0")) {
-							jri.put("goodBadClassName", "narrow fail");
-							jri.put("stringValue", "-");
-						} else {
-							boolean failed = stringValue != null && stringValue.startsWith("-");
-							jri.put("goodBadClassName", failed ? "narrow fail" : "narrow good");
-							jri.put("stringValue", formatKg(stringValue));
-						}
-					}
-					break;
-				default:
-					if (stringValue != null && !trim.isEmpty()) {
-						// logger.debug("{} {} {}", fop.getState(), x.getShortName(), curLift);
-
-						String highlight = "";
-						// don't blink while decision is visible. wait until lifting displayOrder has
-						// been
-						// recomputed and we get DECISION_RESET
-						int liftBeingDisplayed = i.getLiftNo();
-						if (liftBeingDisplayed == curLift && (fop.getState() != FOPState.DECISION_VISIBLE)
-						        && showCurrent(fop)) {
-							switch (liftOrderRank) {
-							case 1:
-								highlight = (" current" + blink);
-								break;
-							case 2:
-								highlight = " next";
-								break;
-							default:
-								highlight = "";
+					case ACTUAL:
+						if (!trim.isEmpty()) {
+							if (trim.contentEquals("-") || trim.contentEquals("0")) {
+								jri.put("goodBadClassName", "narrow fail");
+								jri.put("stringValue", "-");
+							} else {
+								boolean failed = stringValue != null && stringValue.startsWith("-");
+								jri.put("goodBadClassName", failed ? "narrow fail" : "narrow good");
+								jri.put("stringValue", formatKg(stringValue));
 							}
 						}
-						jri.put("goodBadClassName", "narrow request");
-						if (notDone) {
-							jri.put("className", highlight);
+						break;
+					default:
+						if (stringValue != null && !trim.isEmpty()) {
+							// logger.debug("{} {} {}", fop.getState(), x.getShortName(), curLift);
+
+							String highlight = "";
+							// don't blink while decision is visible. wait until lifting displayOrder has
+							// been
+							// recomputed and we get DECISION_RESET
+							int liftBeingDisplayed = i.getLiftNo();
+							if (liftBeingDisplayed == curLift && (fop.getState() != FOPState.DECISION_VISIBLE)
+							        && showCurrent(fop)) {
+								switch (liftOrderRank) {
+									case 1:
+										highlight = (" current" + blink);
+										break;
+									case 2:
+										highlight = " next";
+										break;
+									default:
+										highlight = "";
+								}
+							}
+							jri.put("goodBadClassName", "narrow request");
+							if (notDone) {
+								jri.put("className", highlight);
+							}
+							jri.put("stringValue", stringValue);
 						}
-						jri.put("stringValue", stringValue);
-					}
-					break;
+						break;
 				}
 			}
 
@@ -943,7 +956,10 @@ public class Results extends LitTemplate
 			this.uiEventBus = uiEventBusRegister(this, fop);
 		});
 
-		getElement().setProperty("showSinclair", Competition.getCurrent().isSinclair());
+		getElement().setProperty("showSinclair",
+		        Competition.getCurrent().isSinclair() || Competition.getCurrent().isDisplayScores());
+		getElement().setProperty("showSinclairRank",
+		        Competition.getCurrent().isSinclair() || Competition.getCurrent().isDisplayScoreRanks());
 		getElement().setProperty("showLiftRanks",
 		        Competition.getCurrent().isSnatchCJTotalMedals() && !Competition.getCurrent().isSinclair());
 
@@ -961,6 +977,8 @@ public class Results extends LitTemplate
 				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
 			}
 		}
+
+		translations.put("ScoringTitle", Ranking.getScoringTitle(Competition.getCurrent().getScoringSystem()));
 		this.getElement().setPropertyJson("t", translations);
 	}
 
@@ -1145,20 +1163,20 @@ public class Results extends LitTemplate
 
 	private void syncWithFOP(UIEvent.SwitchGroup e) {
 		switch (OwlcmsSession.getFop().getState()) {
-		case INACTIVE:
-			doEmpty();
-			break;
-		case BREAK:
-			if (e.getGroup() == null) {
+			case INACTIVE:
 				doEmpty();
-			} else {
+				break;
+			case BREAK:
+				if (e.getGroup() == null) {
+					doEmpty();
+				} else {
+					doUpdate(e.getAthlete(), e);
+					doBreak(e);
+				}
+				break;
+			default:
+				setDisplay();
 				doUpdate(e.getAthlete(), e);
-				doBreak(e);
-			}
-			break;
-		default:
-			setDisplay();
-			doUpdate(e.getAthlete(), e);
 		}
 	}
 

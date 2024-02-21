@@ -80,7 +80,7 @@ class Results extends LitElement {
                   <th class="vspacer"></th>
                   <th class="total" .innerHTML="${this.t?.Total}"></th>
                   <th class="totalRank" .innerHTML="${this.t?.Rank}"></th>
-                  <th class="sinclair"  .innerHTML="${this.t?.Sinclair}"></th>
+                  <th class="sinclair"  .innerHTML="${this.t?.ScoringTitle}"></th>
                   <th class="sinclairRank" .innerHTML="${this.t?.Rank}"></th>
                 </tr>
                 ${(this.athletes ?? []).map(
@@ -256,12 +256,12 @@ class Results extends LitElement {
                         </div>
                       `)}
                   <div class="${"recordNotification " + (this.recordKind ?? "")}"> ${this.recordMessage} </div>
-                  <div style="position: absolute; bottom: 2em; right: 1em; display: flex; align-items: center; font-weight: thin; font-size: 0.9em;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
+                  <div style="position: absolute; bottom: 2em; right: 2em; display: flex; align-items: center; font-weight: thin; font-size: 0.9em;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
                 </div>
               </div>
             `
             : html`<div style="line-height: 1.25em">&nbsp;
-              <div style="position: absolute; bottom: 0.5em; right: 1em; display: flex; align-items: center; font-weight: thin; font-size: 0.9em;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
+              <div style="position: absolute; bottom: 0.5em; right: 2em; display: flex; align-items: center; font-weight: thin; font-size: 0.9em;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
             </div>
             `}
         </div>
@@ -301,6 +301,7 @@ class Results extends LitElement {
       showLiftRanks: {type: Boolean},
       showBest: {type: Boolean},
       showSinclair: {type: Boolean},
+      showSinclairRanks: {type: Boolean},
       showLeaders: {type: Boolean},
       showRecords: {type: Boolean},
 
@@ -391,7 +392,9 @@ class Results extends LitElement {
     return "results " 
       + (this.showLiftRanks ? "" : " noranks") 
       + (this.showBest ? "" : " nobest")
-      + (this.showSinclair ? " sinclair" : " nosinclair");
+      + (this.showSinclair ? " sinclair" : " nosinclair")
+      + (this.showSinclairRank ? " sinclairRank" : " nosinclairRank")
+      ;
   }
 
   athleteStyles() {

@@ -202,6 +202,8 @@ public class Athlete {
 				dest.setSmmRank(src.getSmmRank());
 				dest.setTeamSinclairRank(src.getTeamSinclairRank());
 				dest.setCatSinclairRank(src.getCatSinclairRank());
+				dest.setHSRRank(src.getHSRRank());
+				dest.setRobiRank(src.getRobiRank());
 			}
 		} finally {
 			dest.setValidation(validation);
@@ -402,6 +404,7 @@ public class Athlete {
 	@JsonIgnore
 	private boolean checkTiming;
 	private String subCategory;
+	private Integer hsrRank;
 
 	/**
 	 * Instantiates a new athlete.
@@ -2147,6 +2150,10 @@ public class Athlete {
 	public Integer getRobiRank() {
 		return this.robiRank;
 	}
+	
+	public Integer getHSRRank() {
+		return this.hsrRank;
+	}
 
 	@Transient
 	@JsonIgnore
@@ -3604,6 +3611,10 @@ public class Athlete {
 	 */
 	public void setRobiRank(Integer robiRank) {
 		this.robiRank = robiRank;
+	}
+	
+	public void setHSRRank(Integer hsrRank) {
+		this.hsrRank = hsrRank;
 	}
 
 	/**
@@ -5285,6 +5296,10 @@ public class Athlete {
 	 */
 	public void setSubCategory(String s) {
 		subCategory = s;
+	}
+
+	public Double getHSR() {
+		return getQPoints();
 	}
 
 }

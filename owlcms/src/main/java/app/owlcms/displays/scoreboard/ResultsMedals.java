@@ -30,6 +30,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
@@ -329,12 +330,12 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		}
 		ja.put("group", a.getGroup().getName());
 		ja.put("subCategory", a.getSubCategory());
-		Double double1 = a.getAttemptsDone() <= 3 ? a.getSinclairForDelta()
-		        : a.getSinclair();
-		ja.put("sinclair", double1 > 0.001 ? String.format("%.3f", double1) : "-");
+		
+		ja.put("sinclair", computedScore(a));
+		ja.put("sinclairRank", computedScoreRank(a));
+		
 		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
-		ja.put("sinclairRank", a.getSinclairRank() != null ? "" + a.getSinclairRank() : "-");
 
 		// only show flags when medals are for a single category
 		String prop = null;
@@ -697,6 +698,18 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	@Override
 	public boolean isShowInitialDialog() {
 		return false;
+	}
+	
+	private String computedScoreRank(Athlete a) {
+		Integer value = Ranking.getRanking(a, Competition.getCurrent().getScoringSystem());
+		return value != null && value > 0 ? "" + value : "-";
+	}
+
+	private String computedScore(Athlete a) {
+		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
+		double value = Ranking.getRankingValue(a, scoringSystem);
+		String score = value > 0.001 ? String.format("%.3f", value) : "-";
+		return score;
 	}
 
 }

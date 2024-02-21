@@ -19,6 +19,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
@@ -100,9 +101,10 @@ public class ResultsMultiRanks extends Results {
 		ja.put("totalRanks", getRanksJson(a, Ranking.TOTAL, ageGroupMap));
 		ja.put("group", a.getGroup().getName());
 		ja.put("subCategory", a.getSubCategory());
-		Double double1 = a.getAttemptsDone() <= 3 ? a.getSinclairForDelta()
-		        : a.getSinclair();
-		ja.put("sinclair", double1 > 0.001 ? String.format("%.3f", double1) : "-");
+		
+		ja.put("sinclair", computedScore(a));
+		ja.put("sinclairRank", computedScoreRank(a));
+		
 		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
 
@@ -176,5 +178,17 @@ public class ResultsMultiRanks extends Results {
 				// logger,debug("+++ cleared");
 			}
 		});
+	}
+	
+	private String computedScoreRank(Athlete a) {
+		Integer value = Ranking.getRanking(a, Competition.getCurrent().getScoringSystem());
+		return value != null && value > 0 ? "" + value : "-";
+	}
+
+	private String computedScore(Athlete a) {
+		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
+		double value = Ranking.getRankingValue(a, scoringSystem);
+		String score = value > 0.001 ? String.format("%.3f", value) : "-";
+		return score;
 	}
 }

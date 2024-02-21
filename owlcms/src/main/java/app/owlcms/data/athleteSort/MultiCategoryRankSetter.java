@@ -66,6 +66,8 @@ public class MultiCategoryRankSetter {
 		case QPOINTS:
 			a.setqPointsRank(value);
 			break;
+		case HSR:
+			a.setHSRRank(value);
 		}
 	}
 

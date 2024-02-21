@@ -41,6 +41,8 @@ public class Team {
 
 	private double robi = 0.0D;
 
+	private double hsr;
+
 	public Team(String curTeamName, Gender gender) {
 		name = curTeamName;
 		this.gender = gender;
@@ -114,6 +116,14 @@ public class Team {
 	 */
 	public void setSmfScore(double smfScore) {
 		this.smfScore = smfScore;
+	}
+
+	public double getHsr() {
+		return hsr;
+	}
+
+	public void setHsr(double hsr) {
+		this.hsr = hsr;
 	}
 
 }

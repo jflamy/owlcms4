@@ -18,6 +18,7 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
@@ -41,6 +42,7 @@ import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
 import app.owlcms.components.fields.LocalizedIntegerField;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.i18n.Translator;
@@ -123,6 +125,7 @@ public class CompetitionEditingFormFactory
 		FormLayout rulesLayout = rulesForm();
 		FormLayout breakDurationLayout = breakDurationForm();
 		FormLayout specialLayout = specialRulesForm();
+		FormLayout pointScoresForm = pointScoresForm();
 
 		Component footer = this.buildFooter(operation, comp, cancelButtonClickListener,
 		        c -> {
@@ -141,7 +144,8 @@ public class CompetitionEditingFormFactory
 		                breakDurationLayout));
 		ts.add(Translator.translate("Competition.specialRulesTitle"),
 		        new VerticalLayout(
-		                specialLayout));
+		        		pointScoresForm, separator(),
+		        		specialLayout));
 
 		VerticalLayout mainLayout = new VerticalLayout(
 		        footer,
@@ -159,11 +163,11 @@ public class CompetitionEditingFormFactory
 		return super.buildOperationButton(operation, domainObject, gridCallBackAction);
 	}
 
-//	@Override
-//	public TextField defineOperationTrigger(CrudOperation operation, Competition domainObject,
-//	        ComponentEventListener<ClickEvent<Button>> action) {
-//		return super.defineOperationTrigger(operation, domainObject, action);
-//	}
+	// @Override
+	// public TextField defineOperationTrigger(CrudOperation operation, Competition domainObject,
+	// ComponentEventListener<ClickEvent<Button>> action) {
+	// return super.defineOperationTrigger(operation, domainObject, action);
+	// }
 
 	@Override
 	public void delete(Competition competition) {
@@ -283,7 +287,7 @@ public class CompetitionEditingFormFactory
 
 	private FormLayout createLayout() {
 		FormLayout layout = new FormLayout();
-//        layout.setWidth("1024px");
+		// layout.setWidth("1024px");
 		layout.setResponsiveSteps(new ResponsiveStep("0", 1, LabelsPosition.TOP),
 		        new ResponsiveStep("800px", 2, LabelsPosition.TOP));
 		return layout;
@@ -438,21 +442,44 @@ public class CompetitionEditingFormFactory
 		binder.forField(genderOrderField)
 		        .bind(Competition::isGenderOrder, Competition::setGenderOrder);
 
-		Checkbox sinclairMeetField = new Checkbox();
-		layout.addFormItem(sinclairMeetField,
-		        labelWithHelp("Competition.SinclairMeet", "Competition.SinclairMeetExplanation"));
-		binder.forField(sinclairMeetField)
-		        .bind(Competition::isSinclair, Competition::setSinclair);
+		IntegerField wakeUpDelayField = new IntegerField();
+		layout.addFormItem(wakeUpDelayField, Translator.translate("Competition.decisionRequestDelayLabel"));
+		binder.forField(wakeUpDelayField).bind(Competition::getRefereeWakeUpDelay, Competition::setRefereeWakeUpDelay);
 
+		return layout;
+	}
+
+	private FormLayout pointScoresForm() {
+		FormLayout layout = createLayout();
+		Component title = createTitle("Competition.pointScoresTitle");
+		layout.add(title);
+		layout.setColspan(title, 2);
+		
+		ComboBox<Ranking> scoringCombo = new ComboBox<Ranking>();
+		scoringCombo.setItems(Ranking.scoringSystems());
+		scoringCombo.setItemLabelGenerator(r -> Translator.translate("Ranking."+r));
+		layout.addFormItem(scoringCombo, Translator.translate("Competition.scoringSystemTitle"));
+		binder.forField(scoringCombo).bind(Competition::getScoringSystem, Competition::setScoringSystem);
+		
+		Checkbox showScoressOnScoreboard = new Checkbox();
+		layout.addFormItem(showScoressOnScoreboard, Translator.translate("Competition.showScoresOnScoreboard"));
+		binder.forField(showScoressOnScoreboard)
+		        .bind(Competition::isDisplayScores, Competition::setDisplayScores);
+		
+		Checkbox showScoreRanksOnScoreboard = new Checkbox();
+		layout.addFormItem(showScoreRanksOnScoreboard, Translator.translate("Competition.showScoreRanksOnScoreboard"));
+		binder.forField(showScoreRanksOnScoreboard)
+		        .bind(Competition::isDisplayScoreRanks, Competition::setDisplayScoreRanks);
+		
 		Checkbox customScoreField = new Checkbox();
 		layout.addFormItem(customScoreField,
+				
 		        labelWithHelp("Competition.customScore", "Competition.customScoreExplanation"));
 		binder.forField(customScoreField)
 		        .bind(Competition::isCustomScore, Competition::setCustomScore);
 
-		IntegerField wakeUpDelayField = new IntegerField();
-		layout.addFormItem(wakeUpDelayField, Translator.translate("Competition.decisionRequestDelayLabel"));
-		binder.forField(wakeUpDelayField).bind(Competition::getRefereeWakeUpDelay, Competition::setRefereeWakeUpDelay);
+
+
 
 		return layout;
 	}

@@ -327,6 +327,7 @@ public class TopSinclair extends AbstractTop {
 			JsonObject ja = Json.createObject();
 			Gender curGender = a.getGender();
 
+			//TODO *** reverse mapping for HSR, reverse mapping for QPoints.
 			int needed;
 			if (curGender == Gender.F) {
 				needed = (int) Math

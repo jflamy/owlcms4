@@ -18,7 +18,7 @@ public class OverallRankSetter {
 	private int rank = 0;
 
 	public void increment(Athlete a, Ranking r, boolean eligible, boolean zero) {
-		// logger.trace("increment {} {}",a.getShortName(), rank, r);
+		//logger.trace("increment {} {}",a.getShortName(), rank, r);
 		switch (r) {
 		case SNATCH:
 		case CLEANJERK:
@@ -40,6 +40,8 @@ public class OverallRankSetter {
 			break;
 		case QPOINTS:
 			a.setqPointsRank(eligible ? (zero ? 0 : ++rank) : -1);
+		case HSR:
+			a.setHSRRank(eligible ? (zero ? 0 : ++rank) : -1);
 		}
 	}
 

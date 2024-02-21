@@ -41,6 +41,7 @@ import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
@@ -861,10 +862,6 @@ public class EventForwarder implements BreakDisplay, HasBoardMode {
 		        : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
 	}
 
-	private String formatSinclair(Double sinclairForDelta) {
-		return sinclairForDelta > 0.001 ? String.format("%01.3f", sinclairForDelta) : "-";
-	}
-
 	private void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
 		String category;
 		category = curCat != null ? curCat.getTranslatedName() : "";
@@ -888,12 +885,10 @@ public class EventForwarder implements BreakDisplay, HasBoardMode {
 		} else {
 			logger.error("main rankings null for {}", a);
 		}
-		if (a.getSinclairForDelta() != null) {
-			ja.put("sinclair", formatSinclair(a.getSinclairForDelta()));
-		}
-		if (a.getSinclairRank() != null) {
-			ja.put("sinclairRank", formatInt(a.getSinclairRank()));
-		}
+		
+		ja.put("sinclair", computedScore(a));
+		ja.put("sinclairRank", computedScoreRank(a));
+		
 		ja.put("group", a.getGroup().getName());
 		ja.put("subCategory", a.getSubCategory());
 		boolean notDone = a.getAttemptsDone() < 6;
@@ -1239,6 +1234,18 @@ public class EventForwarder implements BreakDisplay, HasBoardMode {
 
 	public void setBoardMode(String boardMode) {
 		this.boardMode = boardMode;
+	}
+	
+	private String computedScoreRank(Athlete a) {
+		Integer value = Ranking.getRanking(a, Competition.getCurrent().getScoringSystem());
+		return value != null && value > 0 ? "" + value : "-";
+	}
+
+	private String computedScore(Athlete a) {
+		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
+		double value = Ranking.getRankingValue(a, scoringSystem);
+		String score = value > 0.001 ? String.format("%.3f", value) : "-";
+		return score;
 	}
 
 }

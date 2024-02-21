@@ -125,10 +125,18 @@ table.results.sinclair {
     --totalRankVisibility: hidden;
     --sinclairWidth: 8ch;
     --sinclairVisibility: visible;
-    --sinclairRankWidth: 8ch;
-    --sinclairRankVisibility: visible;
     --totalWidth: var(--liftResultWidth);
     --totalVisibility: visible;
+}
+
+table.results.sinclair.sinclairRanks {
+    --sinclairRankWidth: 0;
+    --sinclairRankVisibility: hidden;
+}
+
+table.results.sinclair.nosinclairRanks {
+    --sinclairRankWidth: 0;
+    --sinclairRankVisibility: hidden;
 }
 
 /* default cell colors, backgrounds and borders */
