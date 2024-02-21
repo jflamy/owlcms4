@@ -978,7 +978,8 @@ public class Results extends LitTemplate
 			}
 		}
 
-		translations.put("ScoringTitle", Ranking.getScoringTitle(Competition.getCurrent().getScoringSystem()));
+		String scoringTitle = Ranking.getScoringTitle(Competition.getCurrent().getScoringSystem());
+		translations.put("ScoringTitle", scoringTitle != null ? scoringTitle : Translator.translate("Sinclair"));
 		this.getElement().setPropertyJson("t", translations);
 	}
 

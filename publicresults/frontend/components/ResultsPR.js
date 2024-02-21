@@ -80,7 +80,7 @@ class ResultsPR extends LitElement {
                   <th class="vspacer"></th>
                   <th class="total" .innerHTML="${this.t?.Total}"></th>
                   <th class="totalRank" .innerHTML="${this.t?.Rank}"></th>
-                  <th class="sinclair"  .innerHTML="${this.t?.Sinclair}"></th>
+                  <th class="sinclair"  .innerHTML="${this.t?.ScoringTitle}"></th>
                   <th class="sinclairRank" .innerHTML="${this.t?.Rank}"></th>
                 </tr>
                 ${(this.athletes ?? []).map(
@@ -301,6 +301,7 @@ class ResultsPR extends LitElement {
       showLiftRanks: {type: Boolean},
       showBest: {type: Boolean},
       showSinclair: {type: Boolean},
+      showSinclairRanks: {type: Boolean},
       showLeaders: {type: Boolean},
       showRecords: {type: Boolean},
 
@@ -391,7 +392,9 @@ class ResultsPR extends LitElement {
     return "results " 
       + (this.showLiftRanks ? "" : " noranks") 
       + (this.showBest ? "" : " nobest")
-      + (this.showSinclair ? " sinclair" : " nosinclair");
+      + (this.showSinclair ? " sinclair" : " nosinclair")
+      + (this.showSinclairRank ? " sinclairRank" : " nosinclairRank")
+      ;
   }
 
   athleteStyles() {

@@ -90,7 +90,7 @@ class ResultsFull extends LitElement {
                     <th class="vspacer"></th>
                     <th style="grid-column: span calc(1 + ${this.nbRanks});" .innerHTML="${this.t?.Total}" ></th>
                     <th class="sinclair" style="grid-row: span 2">
-                      <div style="display: grid; align-self: center" .innerHTML="${this.t?.Sinclair}" ></div>
+                      <div style="display: grid; align-self: center" .innerHTML="${this.t?.ScoringTitle}" ></div>
                     </th>
                     <th class="sinclairRank" style="grid-row: span 2" .innerHTML="${this.t?.Rank}" ></th>
                   </tr>
@@ -367,6 +367,7 @@ class ResultsFull extends LitElement {
       showLiftRanks: {type: Boolean},
       showBest: {type: Boolean},
       showSinclair: {type: Boolean},
+      showSinclairRanks: {type: Boolean},
       showLeaders: {type: Boolean},
       showRecords: {type: Boolean},
 
@@ -457,7 +458,9 @@ class ResultsFull extends LitElement {
     return "results " 
       + (this.showLiftRanks ? "" : " noranks") 
       + (this.showBest ? "" : " nobest")
-      + (this.showSinclair ? " sinclair" : " nosinclair");
+      + (this.showSinclair ? " sinclair" : " nosinclair")
+      + (this.showSinclairRank ? " sinclairRank" : " nosinclairRank")
+      ;
   }
 
   athleteStyles() {

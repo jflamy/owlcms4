@@ -31,6 +31,9 @@ public enum Ranking {
 	 * @return
 	 */
 	public static double getRankingValue(Athlete curLifter, Ranking rankingType) {
+		if (rankingType == null) {
+			return 0D;
+		}
 		switch (rankingType) {
 			case SNATCH:
 				return curLifter.getBestSnatch();
@@ -60,6 +63,9 @@ public enum Ranking {
 
 	public static int getRanking(Athlete curLifter, Ranking rankingType) {
 		Integer value = null;
+		if (rankingType == null) {
+			return 0;
+		}
 		switch (rankingType) {
 			case SNATCH:
 				value = curLifter.getSnatchRank();
@@ -88,6 +94,9 @@ public enum Ranking {
 	}
 	
 	public static String getScoringTitle(Ranking rankingType) {
+		if (rankingType == null) {
+			return Translator.translate("Ranking.SINCLAIR");
+		}
 		switch (rankingType) {
 			case ROBI:
 			case CUSTOM:
