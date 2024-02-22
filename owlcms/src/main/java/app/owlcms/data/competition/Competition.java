@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -393,11 +394,18 @@ public class Competition {
 	}
 
 	public void doGlobalRankings(List<Athlete> athletes) {
+		//FIXME: need to be done without duplicates
+		TreeSet<Athlete> noDup = new TreeSet<>(Comparator.comparing(Athlete::getFullId));
+		for (Athlete pAthlete : athletes) {
+			Athlete athlete = ((PAthlete)pAthlete)._getAthlete();
+			noDup.add(athlete);
+		}
+		athletes = new ArrayList<Athlete>(noDup);
+		
 		doReporting(athletes, Ranking.BW_SINCLAIR, true);
 		doReporting(athletes, Ranking.SMM, true);
 		doReporting(athletes, Ranking.QPOINTS, true);
-		doReporting(athletes, Ranking.CAT_SINCLAIR, true);
-		doMixedReporting(athletes, Ranking.ROBI, true);
+		doReporting(athletes, Ranking.CAT_SINCLAIR, false);
 	}
 
 	@Override
@@ -1308,6 +1316,8 @@ public class Competition {
 		doReporting(athletes, Ranking.CLEANJERK, false);
 		doReporting(athletes, Ranking.TOTAL, false);
 		doReporting(athletes, Ranking.CUSTOM, false);
+		// you can have two robi (one for junior, one for senior)
+		doMixedReporting(athletes, Ranking.ROBI, false);
 	}
 
 	private void doReporting(List<Athlete> athletes, Ranking ranking, boolean overall) {

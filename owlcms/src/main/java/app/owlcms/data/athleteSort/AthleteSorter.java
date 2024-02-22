@@ -25,6 +25,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.group.Group;
 import app.owlcms.spreadsheet.PAthlete;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -146,6 +147,8 @@ public class AthleteSorter implements Serializable {
 	 * @param rankingType the ranking type
 	 */
 	public static void assignOverallRanksAndPoints(List<Athlete> sortedList, Ranking rankingType) {
+		
+		logger.warn("athlete type {} {}",sortedList.get(0).getClass().getSimpleName(), LoggerUtils.stackTrace());
 		Gender prevGender = null;
 
 		OverallRankSetter rs = new OverallRankSetter();
