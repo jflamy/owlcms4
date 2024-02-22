@@ -15,6 +15,7 @@
 
 New in version 46
 
+- (beta06) Flic2 button shortcuts: the Flic2 sends NUMPAD_DECIMAL for "." and NUMPAD_DIVIDE for "/".  Added these shortcuts for stopping and starting the clock, respectively, on the announcer and timekeeper screens.
 - (beta05) Selectable Scoring System
   - New options on the "Non-Standard Rules" section of the competition rules.
     - The scoring system shown on the scoreboards is now selectable (Sinclair, Robi, SMM, Q-Points, etc.)
