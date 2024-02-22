@@ -393,39 +393,11 @@ public class Competition {
 	}
 
 	public void doGlobalRankings(List<Athlete> athletes) {
-		List<Athlete> sortedAthletes;
-		List<Athlete> sortedMen;
-		List<Athlete> sortedWomen;
-
-		sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.BW_SINCLAIR);
-		AthleteSorter.assignOverallRanksAndPoints(sortedAthletes, Ranking.BW_SINCLAIR);
-		sortedMen = new ArrayList<>(sortedAthletes.size());
-		sortedWomen = new ArrayList<>(sortedAthletes.size());
-		splitByGender(sortedAthletes, sortedMen, sortedWomen);
-		this.reportingBeans.put("mSinclair", sortedMen);
-		this.reportingBeans.put("wSinclair", sortedWomen);
-		logger.debug("mSinclair {}", sortedMen);
-		logger.debug("wSinclair {}", sortedWomen);
-
-		sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SMM);
-		AthleteSorter.assignOverallRanksAndPoints(sortedAthletes, Ranking.SMM);
-		sortedMen = new ArrayList<>(sortedAthletes.size());
-		sortedWomen = new ArrayList<>(sortedAthletes.size());
-		splitByGender(sortedAthletes, sortedMen, sortedWomen);
-		this.reportingBeans.put("mSmm", sortedMen);
-		this.reportingBeans.put("wSmm", sortedWomen);
-		logger.debug("mSmm {}", sortedMen);
-		logger.debug("wSmm {}", sortedWomen);
-
-		sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.QPOINTS);
-		AthleteSorter.assignOverallRanksAndPoints(sortedAthletes, Ranking.QPOINTS);
-		sortedMen = new ArrayList<>(sortedAthletes.size());
-		sortedWomen = new ArrayList<>(sortedAthletes.size());
-		splitByGender(sortedAthletes, sortedMen, sortedWomen);
-		this.reportingBeans.put("mQPoints", sortedMen);
-		this.reportingBeans.put("wQPoints", sortedWomen);
-		logger.debug("mQPoints {}", sortedMen);
-		logger.debug("wQPoints {}", sortedWomen);
+		doReporting(athletes, Ranking.BW_SINCLAIR, true);
+		doReporting(athletes, Ranking.SMM, true);
+		doReporting(athletes, Ranking.QPOINTS, true);
+		doReporting(athletes, Ranking.CAT_SINCLAIR, true);
+		doMixedReporting(athletes, Ranking.ROBI, true);
 	}
 
 	@Override
@@ -1320,10 +1292,6 @@ public class Competition {
 	}
 
 	private void categoryRankings(List<Athlete> athletes) {
-		List<Athlete> sortedAthletes;
-		List<Athlete> sortedMen = null;
-		List<Athlete> sortedWomen = null;
-
 		this.reportingBeans.clear();
 
 		this.reportingBeans.put("competition", Competition.getCurrent());
@@ -1336,65 +1304,56 @@ public class Competition {
 		}).collect(Collectors.toList()));
 		this.reportingBeans.put("t", Translator.getMap());
 
-		// sort only, use ranks stored in database
-		sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SNATCH, false);
-		sortedMen = new ArrayList<>(sortedAthletes.size());
-		sortedWomen = new ArrayList<>(sortedAthletes.size());
-		splitByGender(sortedAthletes, sortedMen, sortedWomen);
-		this.reportingBeans.put("mSn", sortedMen);
-		this.reportingBeans.put("wSn", sortedWomen);
+		doReporting(athletes, Ranking.SNATCH, false);
+		doReporting(athletes, Ranking.CLEANJERK, false);
+		doReporting(athletes, Ranking.TOTAL, false);
+		doReporting(athletes, Ranking.CUSTOM, false);
+	}
 
-		// sort only, use ranks stored in database
-		sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CLEANJERK, false);
-		AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.CLEANJERK);
+	private void doReporting(List<Athlete> athletes, Ranking ranking, boolean overall) {
+		List<Athlete> sortedAthletes;
+		List<Athlete> sortedMen;
+		List<Athlete> sortedWomen;
+		String mBeanName;
+		String wBeanName;
+		sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, ranking);
+		if (overall) {
+			AthleteSorter.assignOverallRanksAndPoints(sortedAthletes, ranking);
+		}
 		sortedMen = new ArrayList<>(sortedAthletes.size());
 		sortedWomen = new ArrayList<>(sortedAthletes.size());
 		splitByGender(sortedAthletes, sortedMen, sortedWomen);
-		this.reportingBeans.put("mCJ", sortedMen);
-		this.reportingBeans.put("wCJ", sortedWomen);
-
-		// sort only, use ranks stored in database
-		sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.TOTAL, false);
+		mBeanName = ranking.getMReportingName();
+		wBeanName = ranking.getWReportingName();
+		this.reportingBeans.put(mBeanName, sortedMen);
+		this.reportingBeans.put(wBeanName, sortedWomen);
+		logger.debug("{} {}", mBeanName, sortedMen);
+		logger.debug("{} {}", wBeanName, sortedWomen);
+	}
+	
+	private void doMixedReporting(List<Athlete> athletes, Ranking ranking, boolean overall) {
+		List<Athlete> sortedAthletes;
+		List<Athlete> sortedMen;
+		List<Athlete> sortedWomen;
+		String mBeanName;
+		String wBeanName;
+		String mwBeanName;
+		sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, ranking);
+		if (overall) {
+		AthleteSorter.assignOverallRanksAndPoints(sortedAthletes, ranking);
+		}
 		sortedMen = new ArrayList<>(sortedAthletes.size());
 		sortedWomen = new ArrayList<>(sortedAthletes.size());
 		splitByGender(sortedAthletes, sortedMen, sortedWomen);
-		this.reportingBeans.put("mTot", sortedMen);
-		this.reportingBeans.put("wTot", sortedWomen);
-		this.reportingBeans.put("mwTot", sortedAthletes);
-		logger.debug("mTot {}", sortedMen);
-		logger.debug("wTot {}", sortedWomen);
-		// for (Athlete a : sortedMen) {
-		// debugRanks("mTot", a);
-		// }
-
-		// sort only, use ranks stored in database
-		sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CUSTOM);
-		sortedMen = new ArrayList<>(sortedAthletes.size());
-		sortedWomen = new ArrayList<>(sortedAthletes.size());
-		splitByGender(sortedAthletes, sortedMen, sortedWomen);
-		this.reportingBeans.put("mCus", sortedMen);
-		this.reportingBeans.put("wCus", sortedWomen);
-		logger.debug("mCus {}", sortedMen);
-		logger.debug("wCus {}", sortedWomen);
-
-		sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CAT_SINCLAIR);
-		AthleteSorter.assignOverallRanksAndPoints(sortedAthletes, Ranking.CAT_SINCLAIR);
-		sortedMen = new ArrayList<>(sortedAthletes.size());
-		sortedWomen = new ArrayList<>(sortedAthletes.size());
-		splitByGender(sortedAthletes, sortedMen, sortedWomen);
-		this.reportingBeans.put("mCatSinclair", sortedMen);
-		this.reportingBeans.put("wCatSinclair", sortedWomen);
-		logger.debug("mCatSinclair {}", sortedMen);
-		logger.debug("wCatSinclair {}", sortedWomen);
-
-		sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.ROBI);
-		AthleteSorter.assignOverallRanksAndPoints(sortedAthletes, Ranking.ROBI);
-		sortedMen = new ArrayList<>(sortedAthletes.size());
-		sortedWomen = new ArrayList<>(sortedAthletes.size());
-		splitByGender(sortedAthletes, sortedMen, sortedWomen);
-		this.reportingBeans.put("mRobi", sortedMen);
-		this.reportingBeans.put("wRobi", sortedWomen);
-		this.reportingBeans.put("mwRobi", sortedAthletes);
+		mBeanName = ranking.getMReportingName();
+		wBeanName = ranking.getWReportingName();
+		mwBeanName = ranking.getMWReportingName();
+		this.reportingBeans.put(mBeanName, sortedMen);
+		this.reportingBeans.put(wBeanName, sortedWomen);
+		this.reportingBeans.put(mwBeanName, sortedAthletes);
+		logger.debug("{} {}", mBeanName, sortedMen);
+		logger.debug("{} {}", wBeanName, sortedWomen);
+		logger.debug("{} {}", mwBeanName, sortedAthletes);
 	}
 
 	private void clearTeamReportingBeans(String suffix) {
@@ -1705,7 +1664,7 @@ public class Competition {
 
 	public void setScoringSystem(Ranking scoringSystem) {
 		if (!Ranking.scoringSystems().contains(scoringSystem)) {
-			throw new IllegalArgumentException(scoringSystem+" is not a scoring system");
+			throw new IllegalArgumentException(scoringSystem + " is not a scoring system");
 		}
 		this.scoringSystem = scoringSystem;
 	}
@@ -1715,7 +1674,7 @@ public class Competition {
 	}
 
 	public void setDisplayScoreRanks(boolean displayScoreRanks) {
-		//TODO *** interactive selection
+		// TODO *** interactive selection
 		this.displayScoreRanks = displayScoreRanks;
 	}
 

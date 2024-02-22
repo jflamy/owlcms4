@@ -10,21 +10,45 @@ import app.owlcms.i18n.Translator;
  * The Enum Ranking.
  */
 public enum Ranking {
-	SNATCH, CLEANJERK, TOTAL,
-	SNATCH_CJ_TOTAL, // sum of all three point scores
-	CAT_SINCLAIR, // legacy Quebec federation, Sinclair computed at category boundary
-	BW_SINCLAIR, // normal sinclair
-	SMM, // Sinclair Malone-Meltzer
-	ROBI, // IWF ROBI
-	CUSTOM, // custom score (e.g. technical merit for kids competition)
-	QPOINTS,  // Huebner QPoints.
-	HSR; // Huebner Scaled Results
-	
-	
-	public static List<Ranking> scoringSystems() {	
-		return Arrays.asList(BW_SINCLAIR, SMM, ROBI, QPOINTS, CAT_SINCLAIR, CUSTOM);
+	SNATCH("Sn"),
+	CLEANJERK("CJ"),
+	TOTAL("Tot"),
+	CUSTOM("Cus"), // modified total / custom score (e.g. technical merit for kids competition)
+	SNATCH_CJ_TOTAL("Combined"), // sum of all three point scores
+
+	BW_SINCLAIR("Sinclair"), // normal Sinclair
+	CAT_SINCLAIR("CatSinclair"), // legacy Quebec federation, Sinclair computed at category boundary
+	SMM("Smm"), // Sinclair Malone-Meltzer -- ancient name for SMF and SMHF
+	ROBI("Robi"), // IWF ROBI
+	QPOINTS("QPoints"), // Huebner QPoints.
+	HSR("HSR") // Huebner Scaled Results aka Global Points
+	;
+
+	private String reportingName;
+
+	/**
+	 * @param reportingInfoName the name of the beans used for Excel reporting
+	 */
+	Ranking(String reportingName) {
+		this.reportingName = reportingName;
 	}
-	
+
+	public String getMReportingName() {
+		return "m" + this.reportingName;
+	}
+
+	public String getWReportingName() {
+		return "w" + this.reportingName;
+	}
+
+	public String getMWReportingName() {
+		return "mw" + this.reportingName;
+	}
+
+	public static List<Ranking> scoringSystems() {
+		return Arrays.asList(BW_SINCLAIR, SMM, ROBI, QPOINTS, CAT_SINCLAIR /* TODO , HSR */);
+	}
+
 	/**
 	 * @param curLifter
 	 * @param rankingType
@@ -92,7 +116,7 @@ public enum Ranking {
 		}
 		return value == null ? 0 : value;
 	}
-	
+
 	public static String getScoringTitle(Ranking rankingType) {
 		if (rankingType == null) {
 			return Translator.translate("Ranking.SINCLAIR");
@@ -105,9 +129,9 @@ public enum Ranking {
 			case SMM:
 			case HSR:
 			case QPOINTS:
-				return Translator.translate("Ranking."+rankingType);
+				return Translator.translate("Ranking." + rankingType);
 			default:
-				throw new UnsupportedOperationException("not a score ranking "+rankingType);
+				throw new UnsupportedOperationException("not a score ranking " + rankingType);
 		}
 	}
 
