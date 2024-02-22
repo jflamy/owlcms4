@@ -394,18 +394,21 @@ public class Competition {
 	}
 
 	public void doGlobalRankings(List<Athlete> athletes) {
-		//FIXME: need to be done without duplicates
+		logger.warn("doGlobalRankings");
 		TreeSet<Athlete> noDup = new TreeSet<>(Comparator.comparing(Athlete::getFullId));
 		for (Athlete pAthlete : athletes) {
 			Athlete athlete = ((PAthlete)pAthlete)._getAthlete();
+			if (athlete.getLastName().equalsIgnoreCase("Pizzutti")) {
+				logger.warn("{}", athlete.getFullId());
+			}
 			noDup.add(athlete);
 		}
-		athletes = new ArrayList<Athlete>(noDup);
+		ArrayList<Athlete> nodupAthletes = new ArrayList<Athlete>(noDup);
 		
-		doReporting(athletes, Ranking.BW_SINCLAIR, true);
-		doReporting(athletes, Ranking.SMM, true);
-		doReporting(athletes, Ranking.QPOINTS, true);
-		doReporting(athletes, Ranking.CAT_SINCLAIR, false);
+		doReporting(nodupAthletes, Ranking.BW_SINCLAIR, true);
+		doReporting(nodupAthletes, Ranking.SMM, true);
+		doReporting(nodupAthletes, Ranking.QPOINTS, true);
+		doReporting(nodupAthletes, Ranking.CAT_SINCLAIR, false);
 	}
 
 	@Override
@@ -1314,7 +1317,7 @@ public class Competition {
 
 		doReporting(athletes, Ranking.SNATCH, false);
 		doReporting(athletes, Ranking.CLEANJERK, false);
-		doReporting(athletes, Ranking.TOTAL, false);
+		doMixedReporting(athletes, Ranking.TOTAL, false);
 		doReporting(athletes, Ranking.CUSTOM, false);
 		// you can have two robi (one for junior, one for senior)
 		doMixedReporting(athletes, Ranking.ROBI, false);
@@ -1337,7 +1340,7 @@ public class Competition {
 		wBeanName = ranking.getWReportingName();
 		this.reportingBeans.put(mBeanName, sortedMen);
 		this.reportingBeans.put(wBeanName, sortedWomen);
-		logger.debug("{} {}", mBeanName, sortedMen);
+		logger.warn("{} {}", mBeanName, sortedMen);
 		logger.debug("{} {}", wBeanName, sortedWomen);
 	}
 	
