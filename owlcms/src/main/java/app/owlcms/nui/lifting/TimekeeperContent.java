@@ -225,14 +225,21 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	}
 
 	private void registerShortcuts() {
-		startReg = UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.COMMA);
-		startReg2 = UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.SLASH);
-		stopReg = UI.getCurrent().addShortcutListener(() -> doStopTime(), Key.PERIOD);
-		toggleReg = UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.DIGIT_8, KeyModifier.SHIFT);
-		toggleReg2 = UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.NUMPAD_MULTIPLY);
-		_1minReg = UI.getCurrent().addShortcutListener(() -> do1Minute(), Key.NUMPAD_ADD);
-		_1minReg = UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.EQUAL, KeyModifier.SHIFT);
-		_2minReg = UI.getCurrent().addShortcutListener(() -> do2Minutes(), Key.EQUAL);
+		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.COMMA);
+		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.SLASH);
+		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.NUMPAD_DIVIDE);
+
+		UI.getCurrent().addShortcutListener(() -> doStopTime(), Key.PERIOD);
+		UI.getCurrent().addShortcutListener(() -> doStopTime(), Key.NUMPAD_DECIMAL);
+
+		UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.DIGIT_8, KeyModifier.SHIFT);
+		UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.NUMPAD_MULTIPLY);
+
+		UI.getCurrent().addShortcutListener(() -> do1Minute(), Key.EQUAL, KeyModifier.SHIFT);
+		UI.getCurrent().addShortcutListener(() -> do1Minute(), Key.NUMPAD_ADD);
+
+		UI.getCurrent().addShortcutListener(() -> do2Minutes(), Key.EQUAL);
+		UI.getCurrent().addShortcutListener(() -> do2Minutes(), Key.NUMPAD_EQUAL);
 
 	}
 

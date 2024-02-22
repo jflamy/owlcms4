@@ -355,6 +355,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		super.createStartTimeButton();
 		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.COMMA);
 		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.SLASH);
+		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.NUMPAD_DIVIDE);
+		
 		UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.NUMPAD_MULTIPLY);
 		UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.DIGIT_8, KeyModifier.SHIFT);
 	}
@@ -368,6 +370,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	protected void createStopTimeButton() {
 		super.createStopTimeButton();
 		UI.getCurrent().addShortcutListener(() -> doStopTime(), Key.PERIOD);
+		UI.getCurrent().addShortcutListener(() -> doStopTime(), Key.NUMPAD_DECIMAL);
 	}
 
 	@Override
