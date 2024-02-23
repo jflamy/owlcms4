@@ -84,7 +84,7 @@ public enum Ranking {
 		}
 		return 0D;
 	}
-
+	
 	public static int getRanking(Athlete curLifter, Ranking rankingType) {
 		Integer value = null;
 		if (rankingType == null) {

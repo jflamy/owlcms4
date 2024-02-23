@@ -29,6 +29,7 @@ import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -98,14 +99,14 @@ public class TopSinclair extends AbstractTop {
 		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 
 		// create copies because we want to change the list
-		AthleteSorter.TopSinclair topSinclair;
-		List<Athlete> sortedMen2 = new ArrayList<>(competition.getGlobalSinclairRanking(Gender.M));
-		topSinclair = (AthleteSorter.topSinclair(sortedMen2, 25));
+		AthleteSorter.TopScore topSinclair;
+		List<Athlete> sortedMen2 = new ArrayList<>(competition.getGlobalScoreRanking(Gender.M));
+		topSinclair = (AthleteSorter.topScore(sortedMen2, 25));
 		setSortedMen(topSinclair.topAthletes);
 		topManSinclair = topSinclair.best;
 
-		List<Athlete> sortedWomen2 = new ArrayList<>(competition.getGlobalSinclairRanking(Gender.F));
-		topSinclair = (AthleteSorter.topSinclair(sortedWomen2, 25));
+		List<Athlete> sortedWomen2 = new ArrayList<>(competition.getGlobalScoreRanking(Gender.F));
+		topSinclair = (AthleteSorter.topScore(sortedWomen2, 25));
 		setSortedWomen(topSinclair.topAthletes);
 		topWomanSinclair = topSinclair.best;
 
@@ -201,7 +202,7 @@ public class TopSinclair extends AbstractTop {
 		logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			if (a != null) {
-				getElement().setProperty("fullName", getTranslation("Scoreboard.TopSinclair"));
+				getElement().setProperty("fullName", Translator.translate("Scoreboard.TopSinclair"));
 				updateBottom();
 			}
 		});
@@ -295,6 +296,8 @@ public class TopSinclair extends AbstractTop {
 				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
 			}
 		}
+		String scoringTitle = Ranking.getScoringTitle(Competition.getCurrent().getScoringSystem());
+		translations.put("ScoringTitle", scoringTitle != null ? scoringTitle : Translator.translate("Sinclair"));
 		this.getElement().setPropertyJson("t", translations);
 	}
 
@@ -314,6 +317,7 @@ public class TopSinclair extends AbstractTop {
 
 	private JsonValue getAthletesJson(List<Athlete> list2, boolean overrideTeamWidth) {
 		JsonArray jath = Json.createArray();
+		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
 		int athx = 0;
 		List<Athlete> list3 = list2 != null ? Collections.unmodifiableList(list2) : Collections.emptyList();
 		if (overrideTeamWidth) {
@@ -327,15 +331,60 @@ public class TopSinclair extends AbstractTop {
 			JsonObject ja = Json.createObject();
 			Gender curGender = a.getGender();
 
-			//TODO *** reverse mapping for HSR, reverse mapping for QPoints.
-			int needed;
-			if (curGender == Gender.F) {
-				needed = (int) Math
-				        .round(Math.ceil((topWomanSinclair - a.getSinclairForDelta()) / a.getSinclairFactor()));
-			} else {
-				needed = (int) Math
-				        .round(Math.ceil((topManSinclair - a.getSinclairForDelta()) / a.getSinclairFactor()));
+			//TODO *** reverse mapping for Robi, QPoints, HSR
+			int needed = 0;
+			
+			switch (scoringSystem) {
+				case BW_SINCLAIR:
+					if (curGender == Gender.F) {
+						needed = (int) Math
+						        .round(Math.ceil((topWomanSinclair - a.getSinclairForDelta()) / a.getSinclairFactor()));
+					} else {
+						needed = (int) Math
+						        .round(Math.ceil((topManSinclair - a.getSinclairForDelta()) / a.getSinclairFactor()));
+					}
+					break;
+				case CAT_SINCLAIR:
+					if (curGender == Gender.F) {
+						needed = (int) Math
+						        .round(Math.ceil((topWomanSinclair - a.getCategorySinclair()) / a.getCatSinclairFactor()));
+					} else {
+						needed = (int) Math
+						        .round(Math.ceil((topManSinclair - a.getCategorySinclair()) / a.getCatSinclairFactor()));
+					}
+					break;
+				case HSR:
+					needed = 0;
+					break;
+				case QPOINTS:
+					if (curGender == Gender.F) {
+						needed = (int) Math
+						        .round(Math.ceil((topWomanSinclair - a.getCategorySinclair()) / a.getCatSinclairFactor()));
+					} else {
+						needed = (int) Math
+						        .round(Math.ceil((topManSinclair - a.getCategorySinclair()) / a.getCatSinclairFactor()));
+					}
+					break;
+				case ROBI:
+			        double robiScore = 1000; // replace with target Robi Score
+			        double A = 1; // replace with actual A constant for the bodyweight category
+			        double b = 3.3219281;
+			        double total = Math.pow(robiScore / A, 1 / b);
+			        //needed = total - current;
+					break;
+				case SMM:
+					break;
+				case SNATCH:
+					break;
+				case SNATCH_CJ_TOTAL:
+					break;
+				case TOTAL:
+					break;
+				default:
+					break;
+				
 			}
+
 			getAthleteJson(a, ja, curGender, needed);
 			String team = a.getTeam();
 			if (team != null && team.length() > Competition.SHORT_TEAM_LENGTH) {
@@ -388,17 +437,19 @@ public class TopSinclair extends AbstractTop {
 	}
 
 	private void updateBottom() {
-		getElement().setProperty("fullName", getTranslation("Scoreboard.TopSinclair"));
+		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
+		String ssTitle = Ranking.getScoringTitle(scoringSystem);
+		getElement().setProperty("fullName", Translator.translate("Scoreboard.TopScore"));
 		List<Athlete> sortedMen2 = getSortedMen();
 		sortedMen2 = nodups(sortedMen2);
 		this.getElement().setProperty("topSinclairMen",
-		        sortedMen2 != null && sortedMen2.size() > 0 ? getTranslation("Scoreboard.TopSinclairMen") : "");
+		        sortedMen2 != null && sortedMen2.size() > 0 ? Translator.translate("Scoreboard.TopScoreMen", ssTitle) : "");
 		this.getElement().setPropertyJson("sortedMen", getAthletesJson(sortedMen2, true));
 
 		List<Athlete> sortedWomen2 = getSortedWomen();
 		sortedWomen2 = nodups(sortedWomen2);
 		this.getElement().setProperty("topSinclairWomen",
-		        sortedWomen2 != null && sortedWomen2.size() > 0 ? getTranslation("Scoreboard.TopSinclairWomen") : "");
+		        sortedWomen2 != null && sortedWomen2.size() > 0 ? Translator.translate("Scoreboard.TopScoreWomen", ssTitle) : "");
 		this.getElement().setPropertyJson("sortedWomen", getAthletesJson(sortedWomen2, false));
 
 		logger.debug("updateBottom {} {}", sortedWomen2, sortedMen2);

@@ -644,13 +644,10 @@ public class Competition {
 
 	@Transient
 	@JsonIgnore
-	synchronized public List<Athlete> getGlobalSinclairRanking(Gender gender) {
-		return getListOrElseRecompute(gender == Gender.F ? "wSinclair" : "mSinclair");
+	synchronized public List<Athlete> getGlobalScoreRanking(Gender gender) {
+		return getListOrElseRecompute(gender == Gender.F ? getScoringSystem().getWReportingName() : getScoringSystem().getMReportingName());
 	}
 
-	// synchronized public List<Athlete> getGlobalTotalRanking(Gender gender) {
-	// return getListOrElseRecompute(gender == Gender.F ? "wTot" : "mTot");
-	// }
 
 	/**
 	 * Gets the id.
@@ -1672,6 +1669,9 @@ public class Competition {
 	}
 
 	public Ranking getScoringSystem() {
+		if (scoringSystem == null) {
+			return Ranking.BW_SINCLAIR;
+		}
 		return scoringSystem;
 	}
 
@@ -1687,7 +1687,6 @@ public class Competition {
 	}
 
 	public void setDisplayScoreRanks(boolean displayScoreRanks) {
-		// TODO *** interactive selection
 		this.displayScoreRanks = displayScoreRanks;
 	}
 

@@ -11,6 +11,8 @@ import java.util.Comparator;
 import org.apache.commons.lang3.ObjectUtils;
 
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.competition.Competition;
 
 /**
  * A non-persistent class to assist in creating reports and team results
@@ -21,31 +23,45 @@ public class Team {
 
 	public static Comparator<Team> pointsComparator = ((a,
 	        b) -> -ObjectUtils.compare(a.getPoints(), b.getPoints(), true));
-
 	public static Comparator<Team> scoreComparator = ((a,
-	        b) -> -ObjectUtils.compare(a.sinclairScore, b.sinclairScore, true));
-
+	        b) -> -ObjectUtils.compare(a.getScore(), b.getScore(), true));
 	private int counted;
-
 	private Gender gender;
-
 	private String name;
-
 	private int points = 0;
-
 	private double sinclairScore = 0.0D;
-
+	private double catSinclairScore = 0.0D;
 	private long size;
-
 	private double smfScore = 0.0D;
-
 	private double robi = 0.0D;
-
 	private double hsr;
+	private double qPoints = 0.0D;
 
+	private Ranking scoringSystem;
+	
 	public Team(String curTeamName, Gender gender) {
 		name = curTeamName;
 		this.gender = gender;
+		this.scoringSystem = Competition.getCurrent().getScoringSystem();
+	}
+
+	public Double getScore() {
+		switch (scoringSystem) {
+			case BW_SINCLAIR:
+				return getSinclairScore();
+			case CAT_SINCLAIR:
+				return getCatSinclairScore();
+			case QPOINTS:
+				return getQPoints();
+			case ROBI:
+				return getRobi();
+			case SMM:
+				return getSmfScore();
+			case HSR:
+				return getHsr();
+			default:
+				return 0D;
+		}
 	}
 
 	public int getCounted() {
@@ -124,6 +140,22 @@ public class Team {
 
 	public void setHsr(double hsr) {
 		this.hsr = hsr;
+	}
+
+	public double getCatSinclairScore() {
+		return catSinclairScore;
+	}
+
+	public void setCatSinclairScore(double catSinclairScore) {
+		this.catSinclairScore = catSinclairScore;
+	}
+
+	public double getQPoints() {
+		return qPoints;
+	}
+
+	public void setQPoints(double qPoints) {
+		this.qPoints = qPoints;
 	}
 
 }

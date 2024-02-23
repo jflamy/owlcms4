@@ -23,6 +23,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Participation;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.spreadsheet.PAthlete;
 import ch.qos.logback.classic.Logger;
@@ -39,11 +40,11 @@ import ch.qos.logback.classic.Logger;
 @Entity
 public class AthleteSorter implements Serializable {
 
-	public static class TopSinclair {
+	public static class TopScore {
 		public double best;
 		public List<Athlete> topAthletes;
 
-		TopSinclair(double best, List<Athlete> topAthletes) {
+		TopScore(double best, List<Athlete> topAthletes) {
 			this.best = best;
 			this.topAthletes = topAthletes;
 		}
@@ -598,14 +599,14 @@ public class AthleteSorter implements Serializable {
 		return res;
 	}
 
-	public static TopSinclair topSinclair(List<Athlete> sortedAthletes, int nbAthletes) {
+	public static TopScore topScore(List<Athlete> sortedAthletes, int nbAthletes) {
+		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
 		double topSinclair = 0.0D;
 		if (sortedAthletes != null && !sortedAthletes.isEmpty()) {
 			ListIterator<Athlete> iterAthletes = sortedAthletes.listIterator();
 			while (iterAthletes.hasNext()) {
 				Athlete curMan = iterAthletes.next();
-				Double curSinclair = (curMan.getAttemptsDone() <= 3 ? curMan.getSinclairForDelta()
-				        : curMan.getSinclair());
+				Double curSinclair = Ranking.getRankingValue(curMan, scoringSystem);
 				if (curSinclair <= 0) {
 					iterAthletes.remove();
 				} else {
@@ -615,10 +616,10 @@ public class AthleteSorter implements Serializable {
 				}
 			}
 			int minAthletes = java.lang.Math.min(nbAthletes, sortedAthletes.size());
-			return new TopSinclair(topSinclair, sortedAthletes.subList(0, minAthletes));
+			return new TopScore(topSinclair, sortedAthletes.subList(0, minAthletes));
 		} else {
 			sortedAthletes = (new ArrayList<>());
-			return new TopSinclair(0.0D, List.of());
+			return new TopScore(0.0D, List.of());
 		}
 	}
 

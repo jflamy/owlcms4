@@ -14,7 +14,12 @@ class TopSinclair extends LitElement {
   render() {
     return html` 
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/colors" + (this.autoversion ?? "")}.css" />
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/top" + (this.autoversion ?? "")}.css" /> 
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/top" + (this.autoversion ?? "")}.css" />
+      <div class="notused" style="display:none">
+        <timer-element id="timer"></timer-element>
+        <timer-element id="breakTimer"></timer-element>
+        <decision-element id="decisions"></decision-element>
+      </div> 
       <div id="resultBoardDiv" class="${this.activeClasses()}">
         ${this.topSinclairWomen
           ? html`
@@ -30,7 +35,7 @@ class TopSinclair extends LitElement {
                     <th colspan="3" .innerHTML="${this.t?.Clean_and_Jerk}"></th>
                     <th class="narrow" .innerHTML="${this.t?.Total}"></th>
                     <th class="medium" .innerHTML="${this.t?.BodyWeight}"></th>
-                    <th class="medium sinclair" .innerHTML="${this.t?.Sinclair}"></th>
+                    <th class="medium sinclair" .innerHTML="${this.t?.ScoringTitle}"></th>
                     <th class="needed" .innerHTML="${this.t?.Needed}"></th>
                   </tr>
                 </thead>
@@ -81,7 +86,7 @@ class TopSinclair extends LitElement {
                     <th colspan="3" .innerHTML="${this.t?.Clean_and_Jerk}"></th>
                     <th class="narrow" .innerHTML="${this.t?.Total}"></th>
                     <th class="medium" .innerHTML="${this.t?.BodyWeight}"></th>
-                    <th class="medium sinclair" .innerHTML="${this.t?.Sinclair}"></th>
+                    <th class="medium sinclair" .innerHTML="${this.t?.ScoringTitle}"></th>
                     <th class="needed" .innerHTML="${this.t?.Needed}"></th>
                   </tr>
                 </thead>

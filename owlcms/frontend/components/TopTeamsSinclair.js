@@ -15,6 +15,11 @@ class TopTeamsSinclair extends LitElement {
     return html`
      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/colors" + (this.autoversion ?? "")}.css" />
      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/top" + (this.autoversion ?? "")}.css" />
+     <div class="notused" style="display:none">
+        <timer-element id="timer"></timer-element>
+        <timer-element id="breakTimer"></timer-element>
+        <decision-element id="decisions"></decision-element>
+      </div> 
      <div id="resultBoardDiv" class="${this.activeClasses()}">
         ${this.topTeamsWomen
           ? html`
@@ -23,7 +28,7 @@ class TopTeamsSinclair extends LitElement {
                 <thead>
                   <tr>
                     <th class="club" .innerHTML="${this.t?.Team}"></th>
-                    <th class="medium" .innerHTML="${this.t?.Sinclair}" ></th>
+                    <th class="medium" .innerHTML="${this.t?.ScoringTitle}" ></th>
                   </tr>
                 </thead>
                 ${(this.womensTeams ?? []).map(
@@ -45,7 +50,7 @@ class TopTeamsSinclair extends LitElement {
                 <thead>
                   <tr>
                     <th class="club" .innerHTML="${this.t?.Team}"></th>
-                    <th class="medium" .innerHTML="${this.t?.Sinclair}"></th>
+                    <th class="medium" .innerHTML="${this.t?.ScoringTitle}"></th>
                   </tr>
                 </thead>
                 ${(this.mensTeams ?? []).map(

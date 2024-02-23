@@ -99,18 +99,18 @@ public class TopTeamsSinclair extends AbstractTop {
 
 		TeamResultsTreeData teamResultsTreeData = new TeamResultsTreeData(getAgeGroupPrefix(), getAgeDivision(),
 		        (Gender) null,
-		        Ranking.BW_SINCLAIR, true);
+		        Competition.getCurrent().getScoringSystem(), true);
 		Map<Gender, List<TeamTreeItem>> teamsByGender = teamResultsTreeData.getTeamItemsByGender();
 
 		mensTeams = teamsByGender.get(Gender.M);
 		if (mensTeams != null) {
-			mensTeams.sort(TeamTreeItem.sinclairScoreComparator);
+			mensTeams.sort(TeamTreeItem.scoreComparator);
 		}
 		mensTeams = topN(mensTeams);
 
 		womensTeams = teamsByGender.get(Gender.F);
 		if (womensTeams != null) {
-			womensTeams.sort(TeamTreeItem.sinclairScoreComparator);
+			womensTeams.sort(TeamTreeItem.scoreComparator);
 		}
 		womensTeams = topN(womensTeams);
 
@@ -206,6 +206,8 @@ public class TopTeamsSinclair extends AbstractTop {
 				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
 			}
 		}
+		String scoringTitle = Ranking.getScoringTitle(Competition.getCurrent().getScoringSystem());
+		translations.put("ScoringTitle", scoringTitle != null ? scoringTitle : Translator.translate("Sinclair"));
 		this.getElement().setPropertyJson("t", translations);
 	}
 
@@ -237,7 +239,7 @@ public class TopTeamsSinclair extends AbstractTop {
 		ja.put("team", t.getName());
 		ja.put("counted", formatInt(t.getCounted()));
 		ja.put("size", formatInt((int) t.getSize()));
-		ja.put("score", formatDouble(t.getSinclairScore()));
+		ja.put("score", formatDouble(t.getScore()));
 		ja.put("points", formatInt(t.getPoints()));
 	}
 
@@ -285,15 +287,18 @@ public class TopTeamsSinclair extends AbstractTop {
 	}
 
 	private void updateBottom() {
-		this.getElement().setProperty("topTeamsMen",
-		        mensTeams != null && mensTeams.size() > 0
-		                ? getTranslation("Scoreboard.TopTeamsSinclairMen") + computeAgeGroupSuffix()
-		                : "");
+		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
+		String ssText = Ranking.getScoringTitle(scoringSystem);
+		String value = mensTeams != null && mensTeams.size() > 0
+		        ? Translator.translate("Scoreboard.TopTeamsScoreMen",ssText) + computeAgeGroupSuffix()
+		        : "";
+		this.getElement().setProperty("topTeamsMen", value);
+		logger.warn("topTeamsMen ****** {}", value);
 		this.getElement().setPropertyJson("mensTeams", getTeamsJson(mensTeams, true));
 
 		this.getElement().setProperty("topTeamsWomen",
 		        womensTeams != null && womensTeams.size() > 0
-		                ? getTranslation("Scoreboard.TopTeamsSinclairWomen") + computeAgeGroupSuffix()
+		                ? Translator.translate("Scoreboard.TopTeamsScoreWomen",ssText) + computeAgeGroupSuffix()
 		                : "");
 		this.getElement().setPropertyJson("womensTeams", getTeamsJson(womensTeams, false));
 	}

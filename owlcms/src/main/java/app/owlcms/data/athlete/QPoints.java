@@ -109,7 +109,6 @@ public class QPoints {
 	}
 
 	public Double getQPoints(Athlete a, Integer value) {
-
 		if (value == null) {
 			return 0.0D;
 		}
@@ -121,6 +120,12 @@ public class QPoints {
 		if (bw == null) {
 			return 0.0D;
 		}
+		Double qPointsFactor = qPointsFactor(gender, bw);
+		return value * qPointsFactor;
+	}
+
+	private Double qPointsFactor(Gender gender, Double bw) {
+		Double qPointsFactor = 0D;
 		try {
 			Double beta0;
 			Double beta1;
@@ -142,15 +147,11 @@ public class QPoints {
 			default:
 				return 0.0D;
 			}
-			Double qPoints;
-			qPoints = value
-			        * (tMax / (beta0 - beta1 * Math.pow((bw / 100.0D), -2) + beta2 * Math.pow((bw / 100.0D), 2)));
-			return qPoints;
+			qPointsFactor  =  (tMax / (beta0 - beta1 * Math.pow((bw / 100.0D), -2) + beta2 * Math.pow((bw / 100.0D), 2)));
 		} catch (Exception e) {
 			LoggerUtils.logError(logger, e);
 		}
-		return null;
-
+		return qPointsFactor;
 	}
 
 	public Double getWomenBeta0() {

@@ -18,6 +18,7 @@ import com.vaadin.flow.component.html.NativeLabel;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
@@ -42,14 +43,14 @@ public class TeamTreeItem {
 		return compare;
 	});
 
-	public static Comparator<TeamTreeItem> sinclairScoreComparator = ((a, b) -> {
+	public static Comparator<TeamTreeItem> scoreComparator = ((a, b) -> {
 		int compare = 0;
 		compare = ObjectUtils.compare(a.getGender(), b.getGender(), true);
 		if (compare != 0) {
 			return compare;
 		}
 		// bigger is better
-		compare = -ObjectUtils.compare(a.getSinclairScore(), b.getSinclairScore(), true);
+		compare = -ObjectUtils.compare(a.getScore(), b.getScore(), true);
 		return compare;
 	});
 
@@ -69,7 +70,10 @@ public class TeamTreeItem {
 
 	private boolean warning;
 
+	private Ranking scoringSystem;
+
 	public TeamTreeItem(String curTeamName, Gender gender, Athlete teamMember, boolean done) {
+		scoringSystem = Competition.getCurrent().getScoringSystem();
 		this.athlete = teamMember;
 		this.setDone(done);
 		if (this.athlete == null) {
@@ -164,6 +168,10 @@ public class TeamTreeItem {
 		return pts;
 	}
 
+	public Double getScore() {
+		return (team != null ? team.getScore() : Ranking.getRankingValue(athlete, scoringSystem));
+	}
+	
 	public Double getSinclairScore() {
 		return (team != null ? team.getSinclairScore() : athlete.getSinclairForDelta());
 	}

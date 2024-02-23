@@ -21,12 +21,14 @@ import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.apputils.queryparameters.TopParametersReader;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.displays.top.TopTeamsSinclair;
+import app.owlcms.i18n.Translator;
 import app.owlcms.nui.displays.scoreboards.AbstractResultsDisplayPage;
 import ch.qos.logback.classic.Logger;
 
@@ -114,7 +116,9 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("Scoreboard.TopTeams");
+		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
+		String ssText = Ranking.getScoringTitle(scoringSystem);
+		return Translator.translate("Scoreboard.TopScore",ssText);
 	}
 
 	/**

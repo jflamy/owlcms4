@@ -586,12 +586,12 @@ public class Results extends LitTemplate
 			Athlete curAthlete = fop.getCurAthlete();
 			if (curAthlete != null && curAthlete.getGender() != null) {
 				this.getElement().setProperty("categoryName", curAthlete.getCategory().getTranslatedName());
-
 				if (Competition.getCurrent().isSinclair()) {
+					Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
 					List<Athlete> sortedAthletes = new ArrayList<>(
-					        Competition.getCurrent().getGlobalSinclairRanking(curAthlete.getGender()));
-					this.displayOrder = AthleteSorter.topSinclair(sortedAthletes, 3).topAthletes;
-					this.getElement().setProperty("categoryName", Translator.translate("sinclair"));
+					        Competition.getCurrent().getGlobalScoreRanking(curAthlete.getGender()));
+					this.displayOrder = AthleteSorter.topScore(sortedAthletes, 3).topAthletes;
+					this.getElement().setProperty("categoryName", Ranking.getScoringTitle(scoringSystem));
 				} else {
 					this.displayOrder = fop.getLeaders();
 				}

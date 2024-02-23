@@ -2231,6 +2231,25 @@ public class Athlete {
 			return 0.0D;
 		}
 	}
+	
+	/**
+	 * Gets the sinclair factor.
+	 *
+	 * @return the sinclair factor
+	 */
+	@Transient
+	@JsonIgnore
+	public Double getCatSinclairFactor() {
+		if (this.gender == Gender.M) {
+			return sinclairFactor(this.getCategory().getMaximumWeight(), getSinclairProperties().menCoefficient(),
+			        getSinclairProperties().menMaxWeight());
+		} else if (getGender() == Gender.F) {
+			return sinclairFactor(this.getCategory().getMaximumWeight(), getSinclairProperties().womenCoefficient(),
+			        getSinclairProperties().womenMaxWeight());
+		} else {
+			return 0.0D;
+		}
+	}
 
 	/**
 	 * Gets the sinclair for delta.
