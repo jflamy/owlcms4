@@ -546,30 +546,30 @@ public class Athlete {
 	 */
 	public void doLift(int liftNo, final String weight) {
 		switch (liftNo) {
-		case 1:
-			this.setSnatch1ActualLift(weight);
-			this.setSnatch1LiftTime(LocalDateTime.now());
-			break;
-		case 2:
-			this.setSnatch2ActualLift(weight);
-			this.setSnatch2LiftTime(LocalDateTime.now());
-			break;
-		case 3:
-			this.setSnatch3ActualLift(weight);
-			this.setSnatch3LiftTime(LocalDateTime.now());
-			break;
-		case 4:
-			this.setCleanJerk1ActualLift(weight);
-			this.setCleanJerk1LiftTime(LocalDateTime.now());
-			break;
-		case 5:
-			this.setCleanJerk2ActualLift(weight);
-			this.setCleanJerk2LiftTime(LocalDateTime.now());
-			break;
-		case 6:
-			this.setCleanJerk3ActualLift(weight);
-			this.setCleanJerk3LiftTime(LocalDateTime.now());
-			break;
+			case 1:
+				this.setSnatch1ActualLift(weight);
+				this.setSnatch1LiftTime(LocalDateTime.now());
+				break;
+			case 2:
+				this.setSnatch2ActualLift(weight);
+				this.setSnatch2LiftTime(LocalDateTime.now());
+				break;
+			case 3:
+				this.setSnatch3ActualLift(weight);
+				this.setSnatch3LiftTime(LocalDateTime.now());
+				break;
+			case 4:
+				this.setCleanJerk1ActualLift(weight);
+				this.setCleanJerk1LiftTime(LocalDateTime.now());
+				break;
+			case 5:
+				this.setCleanJerk2ActualLift(weight);
+				this.setCleanJerk2LiftTime(LocalDateTime.now());
+				break;
+			case 6:
+				this.setCleanJerk3ActualLift(weight);
+				this.setCleanJerk3LiftTime(LocalDateTime.now());
+				break;
 		}
 	}
 
@@ -1342,18 +1342,18 @@ public class Athlete {
 	@JsonIgnore
 	public String getCurrentAutomatic() {
 		switch (this.getAttemptsDone() + 1) {
-		case 1:
-			return this.getSnatch1Declaration();
-		case 2:
-			return this.getSnatch2AutomaticProgression();
-		case 3:
-			return this.getSnatch3AutomaticProgression();
-		case 4:
-			return this.getCleanJerk1Declaration();
-		case 5:
-			return this.getCleanJerk2AutomaticProgression();
-		case 6:
-			return this.getCleanJerk3AutomaticProgression();
+			case 1:
+				return this.getSnatch1Declaration();
+			case 2:
+				return this.getSnatch2AutomaticProgression();
+			case 3:
+				return this.getSnatch3AutomaticProgression();
+			case 4:
+				return this.getCleanJerk1Declaration();
+			case 5:
+				return this.getCleanJerk2AutomaticProgression();
+			case 6:
+				return this.getCleanJerk3AutomaticProgression();
 		}
 		return null;
 	}
@@ -1367,18 +1367,18 @@ public class Athlete {
 	@JsonIgnore
 	public String getCurrentChange1() {
 		switch (this.getAttemptsDone() + 1) {
-		case 1:
-			return this.getSnatch1Change1();
-		case 2:
-			return this.getSnatch2Change1();
-		case 3:
-			return this.getSnatch3Change1();
-		case 4:
-			return this.getCleanJerk1Change1();
-		case 5:
-			return this.getCleanJerk2Change1();
-		case 6:
-			return this.getCleanJerk3Change1();
+			case 1:
+				return this.getSnatch1Change1();
+			case 2:
+				return this.getSnatch2Change1();
+			case 3:
+				return this.getSnatch3Change1();
+			case 4:
+				return this.getCleanJerk1Change1();
+			case 5:
+				return this.getCleanJerk2Change1();
+			case 6:
+				return this.getCleanJerk3Change1();
 		}
 		return null;
 	}
@@ -1392,18 +1392,18 @@ public class Athlete {
 	@JsonIgnore
 	public String getCurrentDeclaration() {
 		switch (this.getAttemptsDone() + 1) {
-		case 1:
-			return this.getSnatch1Declaration();
-		case 2:
-			return this.getSnatch2Declaration();
-		case 3:
-			return this.getSnatch3Declaration();
-		case 4:
-			return this.getCleanJerk1Declaration();
-		case 5:
-			return this.getCleanJerk2Declaration();
-		case 6:
-			return this.getCleanJerk3Declaration();
+			case 1:
+				return this.getSnatch1Declaration();
+			case 2:
+				return this.getSnatch2Declaration();
+			case 3:
+				return this.getSnatch3Declaration();
+			case 4:
+				return this.getCleanJerk1Declaration();
+			case 5:
+				return this.getCleanJerk2Declaration();
+			case 6:
+				return this.getCleanJerk3Declaration();
 		}
 		return null;
 	}
@@ -2081,27 +2081,27 @@ public class Athlete {
 	@JsonIgnore
 	public Integer getRequestedWeightForAttempt(int attempt) {
 		switch (attempt) {
-		case 1:
-			return last(zeroIfInvalid(getSnatch1AutomaticProgression()), zeroIfInvalid(this.snatch1Declaration),
-			        zeroIfInvalid(this.snatch1Change1), zeroIfInvalid(this.snatch1Change2));
-		case 2:
-			return last(zeroIfInvalid(getSnatch2AutomaticProgression()), zeroIfInvalid(this.snatch2Declaration),
-			        zeroIfInvalid(this.snatch2Change1), zeroIfInvalid(this.snatch2Change2));
-		case 3:
-			return last(zeroIfInvalid(getSnatch3AutomaticProgression()), zeroIfInvalid(this.snatch3Declaration),
-			        zeroIfInvalid(this.snatch3Change1), zeroIfInvalid(this.snatch3Change2));
-		case 4:
-			return last(zeroIfInvalid(getCleanJerk1AutomaticProgression()),
-			        zeroIfInvalid(this.cleanJerk1Declaration),
-			        zeroIfInvalid(this.cleanJerk1Change1), zeroIfInvalid(this.cleanJerk1Change2));
-		case 5:
-			return last(zeroIfInvalid(getCleanJerk2AutomaticProgression()),
-			        zeroIfInvalid(this.cleanJerk2Declaration),
-			        zeroIfInvalid(this.cleanJerk2Change1), zeroIfInvalid(this.cleanJerk2Change2));
-		case 6:
-			return last(zeroIfInvalid(getCleanJerk3AutomaticProgression()),
-			        zeroIfInvalid(this.cleanJerk3Declaration),
-			        zeroIfInvalid(this.cleanJerk3Change1), zeroIfInvalid(this.cleanJerk3Change2));
+			case 1:
+				return last(zeroIfInvalid(getSnatch1AutomaticProgression()), zeroIfInvalid(this.snatch1Declaration),
+				        zeroIfInvalid(this.snatch1Change1), zeroIfInvalid(this.snatch1Change2));
+			case 2:
+				return last(zeroIfInvalid(getSnatch2AutomaticProgression()), zeroIfInvalid(this.snatch2Declaration),
+				        zeroIfInvalid(this.snatch2Change1), zeroIfInvalid(this.snatch2Change2));
+			case 3:
+				return last(zeroIfInvalid(getSnatch3AutomaticProgression()), zeroIfInvalid(this.snatch3Declaration),
+				        zeroIfInvalid(this.snatch3Change1), zeroIfInvalid(this.snatch3Change2));
+			case 4:
+				return last(zeroIfInvalid(getCleanJerk1AutomaticProgression()),
+				        zeroIfInvalid(this.cleanJerk1Declaration),
+				        zeroIfInvalid(this.cleanJerk1Change1), zeroIfInvalid(this.cleanJerk1Change2));
+			case 5:
+				return last(zeroIfInvalid(getCleanJerk2AutomaticProgression()),
+				        zeroIfInvalid(this.cleanJerk2Declaration),
+				        zeroIfInvalid(this.cleanJerk2Change1), zeroIfInvalid(this.cleanJerk2Change2));
+			case 6:
+				return last(zeroIfInvalid(getCleanJerk3AutomaticProgression()),
+				        zeroIfInvalid(this.cleanJerk3Declaration),
+				        zeroIfInvalid(this.cleanJerk3Change1), zeroIfInvalid(this.cleanJerk3Change2));
 		}
 		return 0;
 	}
@@ -2115,24 +2115,9 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getRobi() {
-		Participation mainRankings;
-		Category c;
-		if ((mainRankings = getMainRankings()) == null || (c = mainRankings.getCategory()) == null) {
-			return 0.0;
-		}
-		Integer wr = c.getWr();
-		if (wr == null || wr <= 0.000001) {
-			// not an IWF category, find what the IWF Robi would be for age/body weight
-			Category robiC = RobiCategories.findRobiCategory(this);
-			if (robiC == null) {
-				return 0.0;
-			}
-			Integer age = getAge();
-			if (age != null) {
-				wr = robiC.getWr(age);
-			} else {
-				return robiC.getWr(999) + 0.0D;
-			}
+		Integer wr = getRobiWr();
+		if (wr == null) {
+			return 0.0D;
 		}
 
 		// assuming that ROBI_B does not change per age group -- should not
@@ -2140,6 +2125,31 @@ public class Athlete {
 		double robiA = 1000.0D / Math.pow(wr, Category.ROBI_B);
 		double robi = robiA * Math.pow(getTotal(), Category.ROBI_B);
 		return robi;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Integer getRobiWr() {
+		Participation mainRankings;
+		Category c;
+		if ((mainRankings = getMainRankings()) == null || (c = mainRankings.getCategory()) == null) {
+			return null;
+		}
+		Integer wr = c.getWr();
+		if (wr == null || wr <= 0.000001) {
+			// not an IWF category, find what the IWF Robi would be for age/body weight
+			Category robiC = RobiCategories.findRobiCategory(this);
+			if (robiC == null) {
+				return null;
+			}
+			Integer age = getAge();
+			if (age != null) {
+				wr = robiC.getWr(age);
+			} else {
+				return robiC.getWr(999);
+			}
+		}
+		return wr;
 	}
 
 	/**
@@ -2150,7 +2160,7 @@ public class Athlete {
 	public Integer getRobiRank() {
 		return this.robiRank;
 	}
-	
+
 	public Integer getHSRRank() {
 		return this.hsrRank;
 	}
@@ -2231,7 +2241,7 @@ public class Athlete {
 			return 0.0D;
 		}
 	}
-	
+
 	/**
 	 * Gets the sinclair factor.
 	 *
@@ -2284,13 +2294,19 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getSmfForDelta() {
+		double d = getMastersSinclairForDelta()
+		        * getSmfFactor();
+		return d;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Float getSmfFactor() {
 		final Integer birthDate1 = getYearOfBirth();
 		if (birthDate1 == null) {
-			return 0.0;
+			return 0.0F;
 		}
-		double d = getMastersSinclairForDelta()
-		        * sinclairProperties2020.getAgeGenderCoefficient(YEAR - birthDate1, getGender());
-		return d;
+		return sinclairProperties2020.getAgeGenderCoefficient(YEAR - birthDate1, getGender());
 	}
 
 	/**
@@ -2301,13 +2317,7 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getSmm() {
-		final Integer birthDate1 = getYearOfBirth();
-
-		if (birthDate1 == null) {
-			return 0.0;
-		}
-		double d = getMastersSinclair()
-		        * sinclairProperties2020.getAgeGenderCoefficient(YEAR - birthDate1, getGender());
+		double d = getMastersSinclair() * getSmfFactor();
 		return d;
 	}
 
@@ -3631,7 +3641,7 @@ public class Athlete {
 	public void setRobiRank(Integer robiRank) {
 		this.robiRank = robiRank;
 	}
-	
+
 	public void setHSRRank(Integer hsrRank) {
 		this.hsrRank = hsrRank;
 	}
@@ -4872,27 +4882,27 @@ public class Athlete {
 	private String getActualLiftStringOrElseNull(int liftNo) {
 		String value = null;
 		switch (liftNo) {
-		case 1:
-			value = this.getSnatch1ActualLift();
-			break;
-		case 2:
-			value = this.getSnatch2ActualLift();
-			break;
-		case 3:
-			value = this.getSnatch3ActualLift();
-			break;
-		case 4:
-			value = this.getCleanJerk1ActualLift();
-			break;
-		case 5:
-			value = this.getCleanJerk2ActualLift();
-			break;
-		case 6:
-			value = this.getCleanJerk3ActualLift();
-			break;
-		default:
-			value = null;
-			break;
+			case 1:
+				value = this.getSnatch1ActualLift();
+				break;
+			case 2:
+				value = this.getSnatch2ActualLift();
+				break;
+			case 3:
+				value = this.getSnatch3ActualLift();
+				break;
+			case 4:
+				value = this.getCleanJerk1ActualLift();
+				break;
+			case 5:
+				value = this.getCleanJerk2ActualLift();
+				break;
+			case 6:
+				value = this.getCleanJerk3ActualLift();
+				break;
+			default:
+				value = null;
+				break;
 		}
 		if (value == null || value.isBlank()) {
 			return null;
@@ -4961,18 +4971,18 @@ public class Athlete {
 	private int getProgression(Integer requestedWeight) {
 		int attempt = getAttemptsDone() + 1;
 		switch (attempt) {
-		case 1:
-			return 0;
-		case 2:
-			return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getSnatch1ActualLift()));
-		case 3:
-			return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getSnatch2ActualLift()));
-		case 4:
-			return 0;
-		case 5:
-			return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getCleanJerk1ActualLift()));
-		case 6:
-			return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getCleanJerk2ActualLift()));
+			case 1:
+				return 0;
+			case 2:
+				return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getSnatch1ActualLift()));
+			case 3:
+				return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getSnatch2ActualLift()));
+			case 4:
+				return 0;
+			case 5:
+				return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getCleanJerk1ActualLift()));
+			case 6:
+				return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getCleanJerk2ActualLift()));
 		}
 		return 0;
 	}

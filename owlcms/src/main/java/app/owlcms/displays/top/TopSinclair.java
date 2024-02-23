@@ -30,6 +30,7 @@ import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -69,10 +70,11 @@ public class TopSinclair extends AbstractTop {
 	JsonArray sattempts;
 	private List<Athlete> sortedMen;
 	private List<Athlete> sortedWomen;
-	private double topManSinclair;
-	private double topWomanSinclair;
+	private double topManScore;
+	private double topWomanScore;
 	private EventBus uiEventBus;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
+	private Ranking scoringSystem;
 
 	public TopSinclair() {
 		super();
@@ -99,16 +101,16 @@ public class TopSinclair extends AbstractTop {
 		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 
 		// create copies because we want to change the list
-		AthleteSorter.TopScore topSinclair;
+		AthleteSorter.TopScore topScores;
 		List<Athlete> sortedMen2 = new ArrayList<>(competition.getGlobalScoreRanking(Gender.M));
-		topSinclair = (AthleteSorter.topScore(sortedMen2, 25));
-		setSortedMen(topSinclair.topAthletes);
-		topManSinclair = topSinclair.best;
+		topScores = (AthleteSorter.topScore(sortedMen2, 25));
+		setSortedMen(topScores.topAthletes);
+		topManScore = topScores.best;
 
 		List<Athlete> sortedWomen2 = new ArrayList<>(competition.getGlobalScoreRanking(Gender.F));
-		topSinclair = (AthleteSorter.topScore(sortedWomen2, 25));
-		setSortedWomen(topSinclair.topAthletes);
-		topWomanSinclair = topSinclair.best;
+		topScores = (AthleteSorter.topScore(sortedWomen2, 25));
+		setSortedWomen(topScores.topAthletes);
+		topWomanScore = topScores.best;
 
 		updateBottom();
 	}
@@ -127,8 +129,7 @@ public class TopSinclair extends AbstractTop {
 		ja.put("cattempts", cattempts);
 		ja.put("total", formatInt(a.getTotal()));
 		ja.put("bw", String.format("%.2f", a.getBodyWeight()));
-		ja.put("sinclair", String.format("%.3f", (a.getAttemptsDone() <= 3 ? a.getSinclairForDelta()
-		        : a.getSinclair())));
+		ja.put("sinclair", String.format("%.3f", Ranking.getRankingValue(a, scoringSystem)));
 		ja.put("needed", formatInt(needed));
 	}
 
@@ -234,29 +235,29 @@ public class TopSinclair extends AbstractTop {
 			if (i.getChangeNo() >= 0) {
 				String trim = stringValue != null ? stringValue.trim() : "";
 				switch (Changes.values()[i.getChangeNo()]) {
-				case ACTUAL:
-					if (!trim.isEmpty()) {
-						if (trim.contentEquals("-") || trim.contentEquals("0")) {
-							jri.put("goodBadClassName", "veryNarrow fail");
-							jri.put("stringValue", "-");
-						} else {
-							boolean failed = stringValue != null && stringValue.startsWith("-");
-							jri.put("goodBadClassName", failed ? "veryNarrow fail" : "veryNarrow good");
-							jri.put("stringValue", formatKg(stringValue));
+					case ACTUAL:
+						if (!trim.isEmpty()) {
+							if (trim.contentEquals("-") || trim.contentEquals("0")) {
+								jri.put("goodBadClassName", "veryNarrow fail");
+								jri.put("stringValue", "-");
+							} else {
+								boolean failed = stringValue != null && stringValue.startsWith("-");
+								jri.put("goodBadClassName", failed ? "veryNarrow fail" : "veryNarrow good");
+								jri.put("stringValue", formatKg(stringValue));
+							}
 						}
-					}
-					break;
-				default:
-					if (stringValue != null && !trim.isEmpty()) {
-						String highlight = i.getLiftNo() == curLift && liftOrderRank == 1 ? (" current" + blink)
-						        : (i.getLiftNo() == curLift && liftOrderRank == 2) ? " next" : "";
-						jri.put("goodBadClassName", "veryNarrow request");
-						if (notDone) {
-							jri.put("className", highlight);
+						break;
+					default:
+						if (stringValue != null && !trim.isEmpty()) {
+							String highlight = i.getLiftNo() == curLift && liftOrderRank == 1 ? (" current" + blink)
+							        : (i.getLiftNo() == curLift && liftOrderRank == 2) ? " next" : "";
+							jri.put("goodBadClassName", "veryNarrow request");
+							if (notDone) {
+								jri.put("className", highlight);
+							}
+							jri.put("stringValue", stringValue);
 						}
-						jri.put("stringValue", stringValue);
-					}
-					break;
+						break;
 				}
 			}
 
@@ -283,6 +284,7 @@ public class TopSinclair extends AbstractTop {
 			uiEventBus = uiEventBusRegister(this, fop);
 		}
 		Competition competition = Competition.getCurrent();
+		scoringSystem = competition.getScoringSystem();
 		doUpdate(competition);
 	}
 
@@ -331,26 +333,26 @@ public class TopSinclair extends AbstractTop {
 			JsonObject ja = Json.createObject();
 			Gender curGender = a.getGender();
 
-			//TODO *** reverse mapping for Robi, QPoints, HSR
+			// TODO *** reverse mapping for Robi, QPoints, HSR
 			int needed = 0;
-			
+
 			switch (scoringSystem) {
 				case BW_SINCLAIR:
 					if (curGender == Gender.F) {
 						needed = (int) Math
-						        .round(Math.ceil((topWomanSinclair - a.getSinclairForDelta()) / a.getSinclairFactor()));
+						        .round(Math.ceil((topWomanScore - a.getSinclairForDelta()) / a.getSinclairFactor()));
 					} else {
 						needed = (int) Math
-						        .round(Math.ceil((topManSinclair - a.getSinclairForDelta()) / a.getSinclairFactor()));
+						        .round(Math.ceil((topManScore - a.getSinclairForDelta()) / a.getSinclairFactor()));
 					}
 					break;
 				case CAT_SINCLAIR:
 					if (curGender == Gender.F) {
 						needed = (int) Math
-						        .round(Math.ceil((topWomanSinclair - a.getCategorySinclair()) / a.getCatSinclairFactor()));
+						        .round(Math.ceil((topWomanScore - a.getCategorySinclair()) / a.getCatSinclairFactor()));
 					} else {
 						needed = (int) Math
-						        .round(Math.ceil((topManSinclair - a.getCategorySinclair()) / a.getCatSinclairFactor()));
+						        .round(Math.ceil((topManScore - a.getCategorySinclair()) / a.getCatSinclairFactor()));
 					}
 					break;
 				case HSR:
@@ -359,30 +361,41 @@ public class TopSinclair extends AbstractTop {
 				case QPOINTS:
 					if (curGender == Gender.F) {
 						needed = (int) Math
-						        .round(Math.ceil((topWomanSinclair - a.getCategorySinclair()) / a.getCatSinclairFactor()));
+						        .round(Math.ceil((topWomanScore - a.getCategorySinclair()) / a.getCatSinclairFactor()));
 					} else {
 						needed = (int) Math
-						        .round(Math.ceil((topManSinclair - a.getCategorySinclair()) / a.getCatSinclairFactor()));
+						        .round(Math.ceil((topManScore - a.getCategorySinclair()) / a.getCatSinclairFactor()));
 					}
 					break;
 				case ROBI:
-			        double robiScore = 1000; // replace with target Robi Score
-			        double A = 1; // replace with actual A constant for the bodyweight category
-			        double b = 3.3219281;
-			        double total = Math.pow(robiScore / A, 1 / b);
-			        //needed = total - current;
+					double robiScore = 0.0D;
+					if (curGender == Gender.F) {
+						robiScore = topWomanScore;
+					} else {
+						robiScore = topManScore;
+					}
+
+					double A = 1000.0D / Math.pow(a.getRobiWr(), Category.ROBI_B);
+					double b = Category.ROBI_B;
+					// int total = a.getBestCleanJerk() + a.getBestSnatch();
+					needed = (int) Math.pow(robiScore / A, 1 / b);
+					if (a.getGender() == Gender.F)
+						logger.warn("athlete {} robi {} bestRobi {} A {} total {}", a.getShortName(), a.getRobi(),
+						        robiScore, A, needed);
+
 					break;
 				case SMM:
-					break;
-				case SNATCH:
-					break;
-				case SNATCH_CJ_TOTAL:
-					break;
-				case TOTAL:
+					if (curGender == Gender.F) {
+						needed = (int) Math
+						        .round(Math.ceil((topWomanScore - a.getSmfForDelta()) / a.getSmfFactor()));
+					} else {
+						needed = (int) Math
+						        .round(Math.ceil((topManScore - a.getSmfForDelta()) / a.getSmfFactor()));
+					}
 					break;
 				default:
 					break;
-				
+
 			}
 
 			getAthleteJson(a, ja, curGender, needed);
@@ -416,8 +429,7 @@ public class TopSinclair extends AbstractTop {
 		        .map((p) -> p instanceof PAthlete ? ((PAthlete) p)._getAthlete() : p)
 		        .collect(Collectors.toSet())
 		        .stream()
-		        .sorted((a, b) -> ObjectUtils.compare(b.getSinclair(), a.getSinclair()))
-		        .limit(5)
+		        .sorted((a, b) -> ObjectUtils.compare(Ranking.getRankingValue(b, scoringSystem), Ranking.getRankingValue(a, scoringSystem)))
 		        .collect(Collectors.toList());
 		return athletes;
 	}
@@ -443,13 +455,16 @@ public class TopSinclair extends AbstractTop {
 		List<Athlete> sortedMen2 = getSortedMen();
 		sortedMen2 = nodups(sortedMen2);
 		this.getElement().setProperty("topSinclairMen",
-		        sortedMen2 != null && sortedMen2.size() > 0 ? Translator.translate("Scoreboard.TopScoreMen", ssTitle) : "");
+		        sortedMen2 != null && sortedMen2.size() > 0 ? Translator.translate("Scoreboard.TopScoreMen", ssTitle)
+		                : "");
 		this.getElement().setPropertyJson("sortedMen", getAthletesJson(sortedMen2, true));
 
 		List<Athlete> sortedWomen2 = getSortedWomen();
 		sortedWomen2 = nodups(sortedWomen2);
 		this.getElement().setProperty("topSinclairWomen",
-		        sortedWomen2 != null && sortedWomen2.size() > 0 ? Translator.translate("Scoreboard.TopScoreWomen", ssTitle) : "");
+		        sortedWomen2 != null && sortedWomen2.size() > 0
+		                ? Translator.translate("Scoreboard.TopScoreWomen", ssTitle)
+		                : "");
 		this.getElement().setPropertyJson("sortedWomen", getAthletesJson(sortedWomen2, false));
 
 		logger.debug("updateBottom {} {}", sortedWomen2, sortedMen2);

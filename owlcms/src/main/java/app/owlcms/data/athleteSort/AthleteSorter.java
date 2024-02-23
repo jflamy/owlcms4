@@ -601,22 +601,23 @@ public class AthleteSorter implements Serializable {
 
 	public static TopScore topScore(List<Athlete> sortedAthletes, int nbAthletes) {
 		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
-		double topSinclair = 0.0D;
+		double topScore = 0.0D;
 		if (sortedAthletes != null && !sortedAthletes.isEmpty()) {
 			ListIterator<Athlete> iterAthletes = sortedAthletes.listIterator();
 			while (iterAthletes.hasNext()) {
-				Athlete curMan = iterAthletes.next();
-				Double curSinclair = Ranking.getRankingValue(curMan, scoringSystem);
-				if (curSinclair <= 0) {
+				Athlete curAthlete = iterAthletes.next();
+				Double curScore = Ranking.getRankingValue(curAthlete, scoringSystem);
+				if (curScore <= 0) {
 					iterAthletes.remove();
 				} else {
-					if (curSinclair > topSinclair) {
-						topSinclair = curSinclair;
+					if (curScore > topScore) {
+						logger.warn("better score {} {} {}",scoringSystem, curAthlete.getShortName(), curScore);
+						topScore = curScore;
 					}
 				}
 			}
 			int minAthletes = java.lang.Math.min(nbAthletes, sortedAthletes.size());
-			return new TopScore(topSinclair, sortedAthletes.subList(0, minAthletes));
+			return new TopScore(topScore, sortedAthletes.subList(0, minAthletes));
 		} else {
 			sortedAthletes = (new ArrayList<>());
 			return new TopScore(0.0D, List.of());
