@@ -2,22 +2,19 @@
 
 > [!CAUTION]
 >
-> Beta versions are meant for testing and translation. Some features may be incomplete or broken.
+> - Beta versions are meant for testing and translation. Some features may be incomplete or broken.
 >
-> You should always carefully test any new release several days before using it, with your own data.
+> - You should always carefully test any new release several days before using it, with your own data.
+> - If you have made customizations, see the [notes at the bottom.](#customization-notes) 
 
-##### 46.0
+##### 46.0 
 
-> Summary of changes for people who have performed customizations
->
-> - Save your Excel templates as .xlsx files instead of .xls 
-> - If you have created your own AgeGroups files, delete the first sheet that previously contained the Robi records.
+- (beta07) Feature Freeze.  Only translations and bug fixes are expected.
+- (beta07) "Top Score" and "Top Team Score" scoreboards have been made more general
+  - Top Sinclair, Top SMM, Top QPoints are now shown depending on the selected scoring system
+  - Note that Top Robi is *not* available because they are not comparable between age groups. The same athlete gets up to three different Robi scores if Youth/JR/Sr.
 
-New in version 46
-
-- (beta07) Fixed Final Package sheet for QPoints.
-- (beta06) Flic2 button shortcuts: the Flic2 sends NUMPAD_DECIMAL for "." and NUMPAD_DIVIDE for "/".  Added these shortcuts for stopping and starting the clock, respectively, on the announcer and timekeeper screens.
-- (beta05) Selectable Scoring System
+- Selectable Scoring System
   - New options on the "Non-Standard Rules" section of the competition rules.
     - The scoring system shown on the scoreboards is now selectable (Sinclair, Robi, SMM, Q-Points, etc.)
     - The ranks according to the scoring system can be shown or not on the scoreboard
@@ -42,3 +39,10 @@ New in version 46
   - Change: The definition of the Robi reference records is no longer in the AgeGroups file. It is now in a separate RobiCategories.xlsx file. 
   - If you have a national Robi classification system based on your national records, you can edit the RobiCategories.xlsx file.
 - Usability: the down signal is shown a little bit longer on all the boards (including publicresults)
+- Flic2 button shortcuts: the Flic2 sends NUMPAD_DECIMAL for "." and NUMPAD_DIVIDE for "/".  Added these shortcuts for stopping and starting the clock, respectively, on the announcer and timekeeper screens.
+
+##### Customization Notes
+
+> - If you have created your own Excel reports, you should save your Excel templates as .xlsx files instead of .xls.  The old format should still work, but .xlsx will be the standard from now on.
+> - If you have created your own AgeGroups files, delete the first sheet that previously contained the Robi records.
+
