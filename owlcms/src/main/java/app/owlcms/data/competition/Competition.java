@@ -394,13 +394,9 @@ public class Competition {
 	}
 
 	public void doGlobalRankings(List<Athlete> athletes) {
-		logger.warn("doGlobalRankings");
 		TreeSet<Athlete> noDup = new TreeSet<>(Comparator.comparing(Athlete::getFullId));
 		for (Athlete pAthlete : athletes) {
 			Athlete athlete = ((PAthlete)pAthlete)._getAthlete();
-			if (athlete.getLastName().equalsIgnoreCase("Pizzutti")) {
-				logger.warn("{}", athlete.getFullId());
-			}
 			noDup.add(athlete);
 		}
 		ArrayList<Athlete> nodupAthletes = new ArrayList<Athlete>(noDup);
@@ -685,7 +681,7 @@ public class Competition {
 	@Transient
 	@JsonIgnore
 	synchronized public List<Athlete> getListOrElseRecompute(String listName) {
-		logger.warn("getting list {}",listName);
+		//logger.debug("getting list {}",listName);
 		List<Athlete> athletes = (List<Athlete>) this.reportingBeans.get(listName);
 		if (isRankingsInvalid() || athletes == null) {
 			setRankingsInvalid(true);
@@ -1338,7 +1334,7 @@ public class Competition {
 		wBeanName = ranking.getWReportingName();
 		this.reportingBeans.put(mBeanName, sortedMen);
 		this.reportingBeans.put(wBeanName, sortedWomen);
-		logger.warn("{} {}", mBeanName, sortedMen);
+		logger.debug("{} {}", mBeanName, sortedMen);
 		logger.debug("{} {}", wBeanName, sortedWomen);
 	}
 	

@@ -2124,6 +2124,7 @@ public class Athlete {
 		// since is same for women and men
 		double robiA = 1000.0D / Math.pow(wr, Category.ROBI_B);
 		double robi = robiA * Math.pow(getTotal(), Category.ROBI_B);
+		
 		return robi;
 	}
 

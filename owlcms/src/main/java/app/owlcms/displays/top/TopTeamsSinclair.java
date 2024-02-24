@@ -289,16 +289,15 @@ public class TopTeamsSinclair extends AbstractTop {
 	private void updateBottom() {
 		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
 		String ssText = Ranking.getScoringTitle(scoringSystem);
-		String value = mensTeams != null && mensTeams.size() > 0
-		        ? Translator.translate("Scoreboard.TopTeamsScoreMen",ssText) + computeAgeGroupSuffix()
-		        : "";
-		this.getElement().setProperty("topTeamsMen", value);
-		logger.warn("topTeamsMen ****** {}", value);
+		this.getElement().setProperty("topTeamsMen",
+		        mensTeams != null && mensTeams.size() > 0
+		                ? Translator.translate("Scoreboard.TopTeamsScoreMen", ssText) + computeAgeGroupSuffix()
+		                : "");
 		this.getElement().setPropertyJson("mensTeams", getTeamsJson(mensTeams, true));
 
 		this.getElement().setProperty("topTeamsWomen",
 		        womensTeams != null && womensTeams.size() > 0
-		                ? Translator.translate("Scoreboard.TopTeamsScoreWomen",ssText) + computeAgeGroupSuffix()
+		                ? Translator.translate("Scoreboard.TopTeamsScoreWomen", ssText) + computeAgeGroupSuffix()
 		                : "");
 		this.getElement().setPropertyJson("womensTeams", getTeamsJson(womensTeams, false));
 	}

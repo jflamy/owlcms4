@@ -581,12 +581,11 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public Double getRobi() {
-		// we want the getMainRanking from this class which uses
-		// the participation, not the real athlete's category
+		// we want the participation to be used (different robi depending on age group)
 		Double robi = super.getRobi();
-		// logger.trace("getRobi {} {} {} {}", _getAthlete().getShortName(),
-		// _getAthlete().getCategory(), getCategory(),
-		// robi);
+		
+		// this gives a single robi according to lowest age group
+		//Double robi = this._getAthlete().getRobi();
 		return robi;
 	}
 

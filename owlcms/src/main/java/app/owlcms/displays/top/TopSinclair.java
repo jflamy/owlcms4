@@ -103,12 +103,12 @@ public class TopSinclair extends AbstractTop {
 		// create copies because we want to change the list
 		AthleteSorter.TopScore topScores;
 		List<Athlete> sortedMen2 = new ArrayList<>(competition.getGlobalScoreRanking(Gender.M));
-		topScores = (AthleteSorter.topScore(sortedMen2, 25));
+		topScores = (AthleteSorter.topScore(sortedMen2, 10));
 		setSortedMen(topScores.topAthletes);
 		topManScore = topScores.best;
 
 		List<Athlete> sortedWomen2 = new ArrayList<>(competition.getGlobalScoreRanking(Gender.F));
-		topScores = (AthleteSorter.topScore(sortedWomen2, 25));
+		topScores = (AthleteSorter.topScore(sortedWomen2, 10));
 		setSortedWomen(topScores.topAthletes);
 		topWomanScore = topScores.best;
 
@@ -339,20 +339,20 @@ public class TopSinclair extends AbstractTop {
 			switch (scoringSystem) {
 				case BW_SINCLAIR:
 					if (curGender == Gender.F) {
-						needed = (int) Math
-						        .round(Math.ceil((topWomanScore - a.getSinclairForDelta()) / a.getSinclairFactor()));
+						needed = (int) Math.round(
+						        Math.ceil((topWomanScore - a.getSinclairForDelta()) / a.getSinclairFactor()));
 					} else {
-						needed = (int) Math
-						        .round(Math.ceil((topManScore - a.getSinclairForDelta()) / a.getSinclairFactor()));
+						needed = (int) Math.round(
+						        Math.ceil((topManScore - a.getSinclairForDelta()) / a.getSinclairFactor()));
 					}
 					break;
 				case CAT_SINCLAIR:
 					if (curGender == Gender.F) {
-						needed = (int) Math
-						        .round(Math.ceil((topWomanScore - a.getCategorySinclair()) / a.getCatSinclairFactor()));
+						needed = (int) Math.round(
+						        Math.ceil((topWomanScore - a.getCategorySinclair()) / a.getCatSinclairFactor()));
 					} else {
-						needed = (int) Math
-						        .round(Math.ceil((topManScore - a.getCategorySinclair()) / a.getCatSinclairFactor()));
+						needed = (int) Math.round(
+						        Math.ceil((topManScore - a.getCategorySinclair()) / a.getCatSinclairFactor()));
 					}
 					break;
 				case HSR:
@@ -360,11 +360,11 @@ public class TopSinclair extends AbstractTop {
 					break;
 				case QPOINTS:
 					if (curGender == Gender.F) {
-						needed = (int) Math
-						        .round(Math.ceil((topWomanScore - a.getCategorySinclair()) / a.getCatSinclairFactor()));
+						needed = (int) Math.round(
+						        Math.ceil((topWomanScore - a.getCategorySinclair()) / a.getCatSinclairFactor()));
 					} else {
-						needed = (int) Math
-						        .round(Math.ceil((topManScore - a.getCategorySinclair()) / a.getCatSinclairFactor()));
+						needed = (int) Math.round(
+						        Math.ceil((topManScore - a.getCategorySinclair()) / a.getCatSinclairFactor()));
 					}
 					break;
 				case ROBI:
@@ -377,20 +377,23 @@ public class TopSinclair extends AbstractTop {
 
 					double A = 1000.0D / Math.pow(a.getRobiWr(), Category.ROBI_B);
 					double b = Category.ROBI_B;
-					// int total = a.getBestCleanJerk() + a.getBestSnatch();
-					needed = (int) Math.pow(robiScore / A, 1 / b);
-					if (a.getGender() == Gender.F)
-						logger.warn("athlete {} robi {} bestRobi {} A {} total {}", a.getShortName(), a.getRobi(),
-						        robiScore, A, needed);
+
+					int total = a.getBestCleanJerk() + a.getBestSnatch();
+					needed = ((int) Math.pow((robiScore) / A, 1 / b)) - total;
+
+//					if (a.getFirstName().startsWith("Kelin")) {
+//						 logger.trace("athlete ++++ {} robi {} bestRobi {} A {} total {}", a.getShortName(),
+//						 a.getRobi(), robiScore, A, needed);
+//					}
 
 					break;
 				case SMM:
 					if (curGender == Gender.F) {
-						needed = (int) Math
-						        .round(Math.ceil((topWomanScore - a.getSmfForDelta()) / a.getSmfFactor()));
+						needed = (int) Math.round(
+						        Math.ceil((topWomanScore - a.getSmfForDelta()) / a.getSmfFactor()));
 					} else {
-						needed = (int) Math
-						        .round(Math.ceil((topManScore - a.getSmfForDelta()) / a.getSmfFactor()));
+						needed = (int) Math.round(
+						        Math.ceil((topManScore - a.getSmfForDelta()) / a.getSmfFactor()));
 					}
 					break;
 				default:
@@ -429,19 +432,20 @@ public class TopSinclair extends AbstractTop {
 		        .map((p) -> p instanceof PAthlete ? ((PAthlete) p)._getAthlete() : p)
 		        .collect(Collectors.toSet())
 		        .stream()
-		        .sorted((a, b) -> ObjectUtils.compare(Ranking.getRankingValue(b, scoringSystem), Ranking.getRankingValue(a, scoringSystem)))
+		        .sorted((a, b) -> ObjectUtils.compare(Ranking.getRankingValue(b, scoringSystem),
+		                Ranking.getRankingValue(a, scoringSystem)))
 		        .collect(Collectors.toList());
 		return athletes;
 	}
 
 	private void setSortedMen(List<Athlete> sortedMen) {
 		this.sortedMen = sortedMen;
-		logger.debug("sortedMen = {} -- {}", getSortedMen(), LoggerUtils.whereFrom());
+		//logger.debug("sortedMen = {} -- {}", getSortedMen().size(), LoggerUtils.whereFrom());
 	}
 
 	private void setSortedWomen(List<Athlete> sortedWomen) {
 		this.sortedWomen = sortedWomen;
-		logger.debug("sortedWomen = {} -- {}", getSortedWomen(), LoggerUtils.whereFrom());
+		//logger.debug("sortedWomen = {} -- {}", getSortedWomen().size(), LoggerUtils.whereFrom());
 	}
 
 	private void setWide(boolean b) {

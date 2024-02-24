@@ -611,7 +611,6 @@ public class AthleteSorter implements Serializable {
 					iterAthletes.remove();
 				} else {
 					if (curScore > topScore) {
-						logger.warn("better score {} {} {}",scoringSystem, curAthlete.getShortName(), curScore);
 						topScore = curScore;
 					}
 				}
