@@ -1,24 +1,21 @@
-**Version 46.0 beta**	
+**Version 46.0 release candidate**	
 
 > [!CAUTION]
 >
-> - Beta versions are meant for testing and translation. Some features may be incomplete or broken.
->
-> - You should always carefully test any new release several days before using it, with your own data.
-> - If you have made customizations, see the [notes at the bottom.](#customization-notes) 
+> - *You should always carefully test any new release several days before using it, with your own data.*
+>- If you have made customizations, see the [notes at the bottom.](#customization-notes) 
 
 ##### 46.0 
 
-- (beta07) Feature Freeze.  Only translations and bug fixes are expected.
-- (beta07) "Top Score" and "Top Team Score" scoreboards have been made more general
-  - Top Sinclair, Top SMM, Top QPoints are now shown depending on the selected scoring system
-  - Note that Top Robi is *not* available because they are not comparable between age groups. The same athlete gets up to three different Robi scores if Youth/JR/Sr.
-
+- (rc01) Translations for French, German, Hungarian and Romanian
 - Selectable Scoring System
   - New options on the "Non-Standard Rules" section of the competition rules.
     - The scoring system shown on the scoreboards is now selectable (Sinclair, Robi, SMM, Q-Points, etc.)
     - The ranks according to the scoring system can be shown or not on the scoreboard
     - Total-based ranks can be hidden if the competition is done according to the scoring system only (e.g. a Sinclair-based competition)
+  - "Top Score" and "Top Team Score" scoreboards have been made more general
+    - Top Sinclair, Top SMM, Top QPoints are now shown depending on the selected scoring system
+    - Note that Top Robi is *not* available because they are not comparable between age groups. The same athlete gets up to three different Robi scores if Youth/JR/Sr.
 - Simplified initial registration spreadsheet
   - The download of the empty registration spreadsheet now produces a very simple spreadsheet by default. 
   - The buttons on the preparation page were rearranged to facilitate understanding.
