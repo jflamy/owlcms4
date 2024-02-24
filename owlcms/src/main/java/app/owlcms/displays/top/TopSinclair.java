@@ -27,6 +27,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
+import app.owlcms.data.athlete.QPoints;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
@@ -75,6 +76,7 @@ public class TopSinclair extends AbstractTop {
 	private EventBus uiEventBus;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private Ranking scoringSystem;
+	private QPoints qpoints = new QPoints(2023);
 
 	public TopSinclair() {
 		super();
@@ -361,10 +363,10 @@ public class TopSinclair extends AbstractTop {
 				case QPOINTS:
 					if (curGender == Gender.F) {
 						needed = (int) Math.round(
-						        Math.ceil((topWomanScore - a.getCategorySinclair()) / a.getCatSinclairFactor()));
+						        Math.ceil((topWomanScore - a.getQPoints()) / qpoints.qPointsFactor(Gender.F, a.getBodyWeight())));
 					} else {
 						needed = (int) Math.round(
-						        Math.ceil((topManScore - a.getCategorySinclair()) / a.getCatSinclairFactor()));
+						        Math.ceil((topManScore - a.getQPoints()) / qpoints.qPointsFactor(Gender.M, a.getBodyWeight())));
 					}
 					break;
 				case ROBI:
