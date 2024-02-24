@@ -44,7 +44,7 @@ public class QPoints {
 	private Double womenBeta2;
 
 	public QPoints(int i) {
-		this.qpointsYear = i;
+		this.qpointsYear = 2023;
 		// don't load coefficients -- Athlete calls us too early and config not loaded.
 	}
 
@@ -124,7 +124,7 @@ public class QPoints {
 		return value * qPointsFactor;
 	}
 
-	private Double qPointsFactor(Gender gender, Double bw) {
+	public Double qPointsFactor(Gender gender, Double bw) {
 		Double qPointsFactor = 0D;
 		try {
 			Double beta0;
