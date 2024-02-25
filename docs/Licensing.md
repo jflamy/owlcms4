@@ -20,6 +20,6 @@ For the current work status, see the following links
 
 The software is written and maintained by Jean-François Lamy, IWF International Referee Category 1 (Canada)
 
-Thanks to Anders Bendix Nielsen (Denmark), Alexey Ruchev (Russia) and Brock Pedersen (Canada) for their support, feedback and help testing the software.
+Special thanks to Anders Bendix Nielsen (Denmark), Stepan Pesterev (Russia) and Carlos Mora (Ecuador) for their support, feedback and help testing the software.
 
 The software was built using the open source version of the [Vaadin Flow](https://vaadin.com/flow) framework and several open source libraries. See [this file](https://github.com/jflamy/owlcms4/blob/master/owlcms/pom.xml) for the list of Open Source software used in the project.

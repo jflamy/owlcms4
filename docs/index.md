@@ -149,7 +149,7 @@ The following list is a sampling of the many features available.  <u>*Click on t
   
 - **[Video Streaming Scene Switching](OBSSceneSwitching)** When using OBS (or similar software) to stream a competition, a special status window can be monitored to switch scenes, trigger replays, or provide information as to the course of the competition (for example, jury deliberation, etc.)
   
-- [**Multiple languages**](Preparation#display-language). Currently English, French, Spanish (Latin America, Spain), Danish, Swedish, German, Portuguese, Romanian, Hungarian, Russian, and Armenian.
+- [**Multiple languages**](Preparation#display-language). Currently English, French, Spanish (multiple variants), Danish, Swedish, German, Portuguese, Romanian, Hungarian, Russian, Finnish and Armenian.
   
 - **[Color and Visual Styling Customization](Styles)**  The colors of the displays are controlled by Web-standard CSS stylesheets, the format used by web designers world wide. A tutorial is given for the common case of adjusting the color scheme to local preferences.
   
