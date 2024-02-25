@@ -18,6 +18,7 @@
                 <include>flags**/**</include>
                 <include>pictures**/**</include>
                 <include>logos**/**</include>
+                <include>robi**/**</include>
                 <include>logback.xml</include>
             </includes>
         </fileSet>

@@ -12,6 +12,7 @@
                 <include>agegroups**/**</include>
                 <include>records**/**</include>
                 <include>sinclair**/**</include>
+                <include>robi**/**</include>
                 <include>templates**/**</include>
                 <include>flags**/**</include>
                 <include>pictures**/**</include>

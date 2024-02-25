@@ -2,11 +2,12 @@
 
 > [!CAUTION]
 >
-> - *You should always carefully test any new release several days before using it, with your own data.*
->- If you have made customizations, see the [notes at the bottom.](#customization-notes) 
+> - This is still a testing release.  *You should always carefully test any new release several days before using it, with your own data.*
+> - If you have made customizations, see the [notes at the bottom.](#customization-notes) 
 
 ##### 46.0 
 
+- (rc02) Translations for Spanish, Danish, Swedish, and (new!) Finnish.
 - (rc01) Translations for French, German, Hungarian and Romanian
 - Selectable Scoring System
   - New options on the "Non-Standard Rules" section of the competition rules.
@@ -33,7 +34,7 @@
   - Fix: Previously, if you added a non-IWF category for an age group using the age group file it was ignored.
   - Change: The age group definitions is now the first sheet in the spreadsheet file, but for backward compatibility, if there are two sheets the first one is ignored (it used to be the Robi definitions)
 - Robi
-  - Change: The definition of the Robi reference records is no longer in the AgeGroups file. It is now in a separate RobiCategories.xlsx file. 
+  - Change: The definition of the Robi reference records is no longer in the AgeGroups file. It is now in a separate local/robi/RobiCategories.xlsx file. 
   - If you have a national Robi classification system based on your national records, you can edit the RobiCategories.xlsx file.
 - Usability: the down signal is shown a little bit longer on all the boards (including publicresults)
 - Flic2 button shortcuts: the Flic2 sends NUMPAD_DECIMAL for "." and NUMPAD_DIVIDE for "/".  Added these shortcuts for stopping and starting the clock, respectively, on the announcer and timekeeper screens.
