@@ -260,8 +260,8 @@ class Results extends LitElement {
                 </div>
               </div>
             `
-            : html`<div style="line-height: 1.25em">&nbsp;
-              <div style="position: absolute; bottom: 0.5em; right: 2em; display: flex; align-items: center; font-weight: thin; font-size: 0.9em;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
+            : html`<div style="${this.bottomSpacerStyle()}">&nbsp;
+              <div style="position: absolute; bottom: 0.5em; right: 2em; display: flex; align-items: center; font-weight: thin; font-size: 0.9em; line-height: 1.25em"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
             </div>
             `}
         </div>
@@ -281,6 +281,7 @@ class Results extends LitElement {
       displayType: {},
       groupName: {},
       groupDescription: {},
+      platformName: {},
       
       // during lifting
       athletes: { type: Object },
@@ -331,6 +332,7 @@ class Results extends LitElement {
 
   wrapperClasses() {
     var classes = "wrapper";
+    classes = classes + (this.platformName ? " " + this.platformName : "");
     classes = classes + (this.darkMode ? " " + this.darkMode : "");
     classes = classes + (this.teamWidthClass ? " " + this.teamWidthClass : "");
     classes = classes + (this.mode === "WAIT" ? " bigTitle" : "");
@@ -385,6 +387,10 @@ class Results extends LitElement {
 
   videoHeaderStyles() {
     return "display: " + ((this.mode !== "WAIT" && this.video)? "flex" : "none");
+  }
+
+  bottomSpacerStyles() {
+    return "line-height: var(--bottomSpacerHeight)";
   }
 
   athleteClasses() {

@@ -52,6 +52,7 @@ import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.CSSUtils;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import app.owlcms.utils.URLUtils;
@@ -719,6 +720,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			}
 
 			syncWithFOP(fop);
+			this.getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
 			// we send on fopEventBus, listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
 		});

@@ -20,8 +20,8 @@ class CurrentAttempt extends LitElement {
     <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/resultsCustomization" + (this.autoversion ?? "") + ".css"}"/>
     <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/attemptboard" + (this.autoversion ?? "") + ".css"}"/>
 
-    <div class="wrapper">
-      <div class="wrapper bigTitle" style="${this.waitingStyles()}">
+    <div class="${this.wrapperClasses()}">
+      <div class="${this.wrapperClasses()} bigTitle" style="${this.waitingStyles()}">
         <div class="competitionName">${this.competitionName}</div>
         <br />
         <div class="nextGroup">${this.t?.WaitingNextGroup}</div>
@@ -81,6 +81,7 @@ class CurrentAttempt extends LitElement {
       competitionName: {},
       groupName: {},
       liftsDone: {},
+      platformName: {},
 
       athletes: { type: Object },
       leaders: { type: Object },
@@ -119,6 +120,12 @@ class CurrentAttempt extends LitElement {
 
   isCountdown() {
     return this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY"
+  }
+
+  wrapperClasses() {
+    var classes = "wrapper ";
+    classes = classes + (this.platformName ? " " + this.platformName : "");
+    return classes;
   }
 
   athleteImgClasses() {

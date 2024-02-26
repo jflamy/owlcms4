@@ -113,6 +113,7 @@ class CurrentAthlete extends LitElement {
       displayType: {},
       groupName: {},
       groupDescription: {},
+      platformName: {},
 
       // mode (mutually exclusive, one of:
       // WAIT INTRO_COUNTDOWN LIFT_COUNTDOWN CURRENT_ATHLETE INTERRUPTION SESSION_DONE CEREMONY
@@ -141,6 +142,7 @@ class CurrentAthlete extends LitElement {
 
   wrapperClasses() {
     var classes = "wrapper";
+    classes = classes + (this.platformName ? " " + this.platformName : "");
     classes = classes + (this.darkMode ? " " + this.darkMode : "");
     classes = classes + (this.teamWidthClass ? " " + this.teamWidthClass : "");
     classes = classes + ((this.mode === "WAIT") ? " bigTitle" : "");

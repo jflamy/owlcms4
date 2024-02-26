@@ -159,7 +159,7 @@ class ResultsMedals extends LitElement {
                 </table>
               `
             : html``}
-            <div style="line-height: 1.25em">&nbsp;
+            <div style="${this.bottomSpacerStyle()}">&nbsp;
               <div style="position: absolute; bottom: 0.5em; right: 1em; display: flex; align-items: center; font-weight: thin; font-size: 0.9em;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
             </div>
         </div>
@@ -180,6 +180,7 @@ class ResultsMedals extends LitElement {
       groupDescription: {},
       nbRanks: {},
       ageGroups: {},
+      platformName: {},
       
       // during lifting
       athletes: { type: Object },
@@ -230,6 +231,7 @@ class ResultsMedals extends LitElement {
 
   wrapperClasses() {
     var classes = "wrapper";
+    classes = classes + (this.platformName ? " " + this.platformName : "");
     classes = classes + (this.darkMode ? " " + this.darkMode : "");
     classes = classes + (this.teamWidthClass ? " " + this.teamWidthClass : "");
     classes = classes + (this.mode === "WAIT" ? " bigTitle" : "");
@@ -291,6 +293,10 @@ class ResultsMedals extends LitElement {
 
   fillerStyles() { // was display:flex
     return this.showLeaders && this.mode !== "WAIT" ? " display:grid" : " display:none";
+  }
+
+  bottomSpacerStyles() {
+    return "line-height: var(--bottomSpacerHeight)";
   }
 
   isBreak() {

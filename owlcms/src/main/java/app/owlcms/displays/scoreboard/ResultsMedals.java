@@ -42,6 +42,7 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.CSSUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -526,6 +527,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			computeMedalsJson(medals);
 			// we listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
+            this.getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
 		});
 
 		if (!Competition.getCurrent().isSnatchCJTotalMedals()) {

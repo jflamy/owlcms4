@@ -2,29 +2,38 @@
 * {
     --pageBackgroundColor: #00ff00;
     --pageTextColor: white;
-    --blockBackgroundColor: silver;
+}
 
-    /* video header */
-    --videoHeaderBackgroundColor: #ab1a1f;
-    --videoHeaderTextColor: white;
+.wrapper {
+  --blockBackgroundColor: silver;
 
-    /* control record notification on scoreboard and attempt board.
-       Set to 10 to show notifications, set to -10 if notifications not wanted */
-    --zIndexRecordNotifications: 10;
+  /* control record notification on scoreboard and attempt board.
+     Set to 10 to show notifications, set to -10 if notifications not wanted */
+  --zIndexRecordNotifications: 10;
 
-    /* current attempt section */
-    --startNumberBoxColor: red;
-    --breakTimerColor: skyblue;
-    --athleteTimerColor: yellow;
-    --athleteAttemptWeightColor: #a1e94e;
-    --downColor: lime;
+  /* current attempt section */
+  --startNumberBoxColor: red;
+  --breakTimerColor: skyblue;
+  --athleteTimerColor: yellow;
+  --athleteAttemptWeightColor: #a1e94e;
+  --downColor: lime;
 
-    --athleteNameColor: white;
-    --athleteCategoryColor: white;
-    --athleteTeamColor: white;
-    --athleteAttemptColor: white;
+  --athleteNameColor: white;
+  --athleteCategoryColor: white;
+  --athleteTeamColor: white;
+  --athleteAttemptColor: white;
 
-    --groupInfoColor: white;
+  --groupInfoColor: white;
+
+  /* video header */
+  --videoHeaderBackgroundColor: #ab1a1f;
+  --videoHeaderTextColor: white;
+}
+
+.wrapper.JQ {
+      /* video header */
+      --videoHeaderBackgroundColor: #1048af;
+      --videoHeaderTextColor: white;
 }
 
 .dark {
