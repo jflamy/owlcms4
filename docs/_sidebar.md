@@ -19,11 +19,12 @@
   * [Breaks and Ceremonies](Breaks)
   * [Result Documents](Documents)
   * [Optional Modified Competition Rules](ModifiedRules)
-* Video Streaming
+* Video
   * [Preparing the Video Setup](OBS)
   * [Live Streaming Events](Streaming)
   * [Internet via a Phone](PhoneHotSpot)
   * [Automatic Scene Switching](OBSSceneSwitching)
+  * [Jury Replays](JuryReplays)
 * Virtual Competitions
   * [Overview](4100VirtualOverview)
   * [Preparing the Zoom Setup](4200PrepareZoomBroadcasting)
