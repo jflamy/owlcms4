@@ -63,24 +63,24 @@ A little bit further down on the Replay Source configuration is the critical inf
 You must:
 
 1. Select a directory where the files will be stored.  Somewhere under "Videos" is fine.
-2. IMPORTANT: at the end of the proposed Filename magic string, add `_CameraX` (where is is the camera number).  This will ensure that we know what camera took what view.
+2. IMPORTANT: at the end of the proposed Filename magic string, add `_CameraX` (where X is the camera number).  This will ensure that we know what camera took what view.
 
 ### Configuring the Shortcut Hotkeys
 
 OBS allows the same hotkey to trigger multiple actions.  It displays a yellow triangle when doing so, but that's exactly what we want.  To define the hotkeys, go to the the Settings/Hotkeys menu.
 
-1. Locate the scene that should be shown when the athlete is lifting.  We will define a F6 Hotkey to go there and reset the replays.
+1. Locate the scene that should be shown when the athlete is lifting.  We will define a **F6** Hotkey to go there and reset the replays.
    ![50_HotKey_Reset](img/Replays/50_HotKey_Reset.png)
-2. Then we will define the hotkeys to deal with the replay.  We need to define how to start and save it.
-   Because of the order in the list,  we define the hotkeys for saving first.  We need to scroll down in the list to find our `ReplayCamera2Source` source.  The **F8** key will load the replay and save it.
+2. Then we will define the hotkeys to deal with the replay.  We need to define how to start and save the recording for each camera.
+   Because of the ordering of items on the screen,  we define the hotkeys for saving first.  We scroll down in the list to find our `ReplayCamera2Source` source.  We define the **F8** key twice for each camera, to load the replay and save it.
 
 ![52_HotKey_Save](img/Replays/52_HotKey_Save.png)
 
-Then we scroll one screenful down, and find the entries for resetting and starting the replay recording.
+Then we scroll one screenful down, and find the entries for resetting and starting the replay recording.  We define F6 and F7 for each camera in the same way.
 
 ![52_HotKey_Save](img/Replays/53_HotKey_Enable.png)
 
-If we have multiple cameras we do the same thing for the other cameras like `ReplayCamera1Source` and `ReplayCamera3Source`.  We use the same hotkeys for all the jury cameras.
+If we have multiple cameras we do the same thing for all the cameras (in our example, `ReplayCamera1Source` and `ReplayCamera3Source`)  We use the same hotkeys for all the jury cameras.
 
 ### Making the Replays Available to the Jury
 
