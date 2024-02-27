@@ -159,7 +159,7 @@ class ResultsMedals extends LitElement {
                 </table>
               `
             : html``}
-            <div style="${this.bottomSpacerStyle()}">&nbsp;
+            <div style="${this.bottomSpacerStyles()}">&nbsp;
               <div style="position: absolute; bottom: 0.5em; right: 1em; display: flex; align-items: center; font-weight: thin; font-size: 0.9em;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
             </div>
         </div>

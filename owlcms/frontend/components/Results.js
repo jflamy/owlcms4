@@ -260,7 +260,7 @@ class Results extends LitElement {
                 </div>
               </div>
             `
-            : html`<div style="${this.bottomSpacerStyle()}">&nbsp;
+            : html`<div style="${this.bottomSpacerStyles()}">&nbsp;
               <div style="position: absolute; bottom: 0.5em; right: 2em; display: flex; align-items: center; font-weight: thin; font-size: 0.9em; line-height: 1.25em"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
             </div>
             `}

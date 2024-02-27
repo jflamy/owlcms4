@@ -5,7 +5,7 @@
     --recordValueCellHeight: calc(var(--tableFontSize)*1.5);
     --recordsFontRatio: 0.9;
     --defaultLeaderFillerHeight: 1.75em;
-    --bottomSpacerHeight: 1.25em;
+    --bottomSpacerHeight: 0em;
 
     font-family: Arial, Helvetica, sans-serif;
     color: var(--pageTextColor);
