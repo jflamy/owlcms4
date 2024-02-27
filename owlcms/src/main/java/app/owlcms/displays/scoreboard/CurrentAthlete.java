@@ -66,12 +66,6 @@ public class CurrentAthlete extends Results {
     /**
      * ScoreboardModel
      *
-     * Vaadin Flow propagates these variables to the corresponding Polymer template
-     * JavaScript properties. When the JS
-     * properties are changed, a "propname-changed" event is triggered.
-     * {@link Element.#addPropertyChangeListener(String, String,
-     * com.vaadin.flow.dom.PropertyChangeListener)}
-     *
      */
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(CurrentAthlete.class);

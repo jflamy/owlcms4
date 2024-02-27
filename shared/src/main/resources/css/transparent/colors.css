@@ -30,6 +30,7 @@
   --videoHeaderTextColor: white;
 }
 
+/* sample override for a platform called 'JQ' */
 .wrapper.JQ {
       /* video header */
       --videoHeaderBackgroundColor: #1048af;
