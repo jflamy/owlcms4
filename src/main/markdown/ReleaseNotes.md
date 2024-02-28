@@ -13,9 +13,8 @@
 - It is now possible to create a zip archive of the local directory overrides from the "Customization" tab on the Settings page.
   - When running in the cloud, the setup can be done on a local laptop. The resulting zip can be uploaded to the cloud server where it is stored inside the database
   - When running locally, a federation can create a standard "kit" on a reference laptop and capture the zip this way.  Member clubs upload the zip, which is stored inside the database (same as the cloud)
-  - NOTE: due to the presence of accented characters in file names, the resulting zip cannot be read by the Windows standard utility.  However, the widely available 7z software (p7zip on Linux) can read the newer internationalized format.  So use 7z if you want to prune the resulting zip.
-
-
+  - NOTE: due to the possible presence of accented characters in file names, the resulting zip cannot always be read by the standard zip utility shipped by default.  However, the widely available 7z software (p7zip on Linux) can read the newer internationalized format.  So use 7z if you want to prune the resulting zip.  There is a version of 7z available for Windows, Linux and Mac.  You can also use the `jar` command that comes with Java.
+- Flic2: Added `;` and the numeric pad `=` as keyboard shortcuts for setting the clock to 2:00
 
 ##### Customization Notes
 
