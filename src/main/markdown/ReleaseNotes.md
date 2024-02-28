@@ -10,6 +10,11 @@
 
 - Ability to customize the result and attempt board styling based on the current platform.  This is typically used to change some colors for identification when streaming, or the attempt board when on site.
   - An identifier for the current platform is added to the top-level `wrapper` element in the page.  The name is modified to only keep legal CSS characters (Latin letters, digits, hyphens and underscores). If you wish to use this feature, the platform will have to have a Latin name, or only digits.  A `_` will be added in front of a digits-only name to make it legal.
+- It is now possible to create a zip archive of the local directory overrides from the "Customization" tab on the Settings page.
+  - When running in the cloud, the setup can be done on a local laptop. The resulting zip can be uploaded to the cloud server where it is stored inside the database
+  - When running locally, a federation can create a standard "kit" on a reference laptop and capture the zip this way.  Member clubs upload the zip, which is stored inside the database (same as the cloud)
+  - NOTE: due to the presence of accented characters in file names, the resulting zip cannot be read by the Windows standard utility.  However, the widely available 7z software (p7zip on Linux) can read the newer internationalized format.  So use 7z if you want to prune the resulting zip.
+
 
 
 ##### Customization Notes

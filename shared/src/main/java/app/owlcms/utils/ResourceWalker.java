@@ -77,6 +77,12 @@ public class ResourceWalker {
 			ResourceWalker.setLocalDirPath(null);
 		}
 	}
+	
+	public static boolean existsLocalOverrideDirectory() {
+		Path curDir = Paths.get(".", "local");
+		curDir = curDir.normalize();
+		return Files.exists(curDir);
+	}
 
 	public static synchronized Path createLocalDir() {
 		Path f = null;
@@ -405,15 +411,22 @@ public class ResourceWalker {
 			String curDirName = new File(n).getParent();
 			InputStream str = ResourceWalker.getResourceAsStream(n);
 			boolean createDir = !isSameDir(curDirName, prevDirName) && !isSubDir(curDirName, prevDirName);
-			// logger.debug("zipping {} {}", n, createDir);
+			logger.warn("zipping {} {}", n, createDir);
 			ZipUtils.zipStream(str, n, createDir, zipOut);
 			prevDirName = curDirName;
 		}
 	}
 
-	public static InputStream zipPublicResultsConfig() throws IOException {
-		PipedOutputStream out = new PipedOutputStream();
-		PipedInputStream in = new PipedInputStream(out);
+	public static InputStream zipPublicResultsConfig() {
+		logger.warn("zipPublicResultsConfig");
+		PipedOutputStream out;
+		PipedInputStream in;
+		try {
+			out = new PipedOutputStream();
+			in = new PipedInputStream(out);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 		new Thread(() -> {
 			try {
 				zipPublicResultsConfig(out);

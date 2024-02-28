@@ -9,7 +9,6 @@ package app.owlcms.nui.preparation;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.TimeZone;
 
 import org.slf4j.LoggerFactory;
@@ -166,12 +165,6 @@ public class ConfigEditingFormFactory
 		return super.buildOperationButton(operation, domainObject, gridCallBackAction);
 	}
 
-//	@Override
-//	public TextField defineOperationTrigger(CrudOperation operation, Config domainObject,
-//	        ComponentEventListener<ClickEvent<Button>> action) {
-//		return super.defineOperationTrigger(operation, domainObject, action);
-//	}
-
 	@Override
 	public void delete(Config config) {
 		ConfigRepository.delete(config);
@@ -266,7 +259,7 @@ public class ConfigEditingFormFactory
 
 	private FormLayout createLayout() {
 		FormLayout layout = new FormLayout();
-//        layout.setWidth("1024px");
+		// layout.setWidth("1024px");
 		layout.setResponsiveSteps(new ResponsiveStep("0", 1, LabelsPosition.TOP),
 		        new ResponsiveStep("800px", 2, LabelsPosition.TOP));
 		return layout;
@@ -309,32 +302,11 @@ public class ConfigEditingFormFactory
 		        .bind(Config::getLocalZipBlob, Config::setLocalZipBlob);
 
 		byte[] localOverride = Config.getCurrent().getLocalZipBlob();
-//		Div downloadDiv = null;
-//		if (localOverride == null) {
-//			localOverride = new byte[0];
-//			TODO create zip from local directory.
-//			try {
-//				downloadDiv = DownloadButtonFactory.createDynamicZipDownloadButton("resourcesOverride",
-//				        Translator.translate("Config.Download"), () -> ResourceWalker.zipPublicResultsConfig());
-//			} catch (IOException e) {
-//				downloadDiv = new Div();
-//				downloadDiv.add(new Text("Not available"));
-//			}
-//
-//		} else {
-//			downloadDiv = DownloadButtonFactory.createDynamicZipDownloadButton("resourcesOverride",
-//			        Translator.translate("Config.Download"), localOverride);
-//		}
-		if (localOverride == null) {
-			localOverride = new byte[0];
-		}
-		Div downloadDiv = DownloadButtonFactory.createDynamicZipDownloadButton("resourcesOverride",
+		Div downloadDiv = null;
+		downloadDiv = DownloadButtonFactory.createDynamicZipDownloadButton("resourcesOverride",
 		        Translator.translate("Config.Download"), localOverride);
+		downloadDiv.setEnabled(localOverride != null && localOverride.length > 0);
 		downloadDiv.setWidthFull();
-		Optional<Component> downloadButton = downloadDiv.getChildren().findFirst();
-		if (localOverride.length == 0) {
-			downloadButton.ifPresent(c -> ((Button) c).setEnabled(false));
-		}
 		layout.addFormItem(downloadDiv, Translator.translate("Config.DownloadLabel"));
 
 		Checkbox clearField = new Checkbox(Translator.translate("Config.ClearZip"));
@@ -342,6 +314,13 @@ public class ConfigEditingFormFactory
 		layout.addFormItem(clearField, Translator.translate("Config.ClearZipLabel"));
 		binder.forField(clearField)
 		        .bind(Config::isClearZip, Config::setClearZip);
+		
+		Div localDirZipDiv = null;
+		localDirZipDiv = DownloadButtonFactory.createDynamicZipDownloadButton("resourcesOverride",
+		        Translator.translate("Config.Download"), () -> ResourceWalker.zipPublicResultsConfig());
+		localDirZipDiv.setEnabled(ResourceWalker.existsLocalOverrideDirectory());
+		localDirZipDiv.setWidthFull();
+		layout.addFormItem(localDirZipDiv, Translator.translate("Config.DownloadLocalDirZipLabel"));
 
 		Checkbox localTemplatesField = new Checkbox(Translator.translate("Config.LocalTemplate"));
 		localTemplatesField.setWidthFull();
@@ -360,13 +339,13 @@ public class ConfigEditingFormFactory
 		layout.setColspan(title, 2);
 		layout.setColspan(label, 2);
 
-//        TextField mqttServerField = new TextField();
-//        mqttServerField.setWidthFull();
-//        layout.addFormItem(mqttServerField, Translator.translate("Config.MQTTServer"));
-//        binder.forField(mqttServerField)
-//                .withNullRepresentation("")
-//                .bind(Config::getMqttServer, Config::setMqttServer);
-//
+		// TextField mqttServerField = new TextField();
+		// mqttServerField.setWidthFull();
+		// layout.addFormItem(mqttServerField, Translator.translate("Config.MQTTServer"));
+		// binder.forField(mqttServerField)
+		// .withNullRepresentation("")
+		// .bind(Config::getMqttServer, Config::setMqttServer);
+		//
 
 		TextField mqttUserName = new TextField();
 		mqttUserName.setWidthFull();
@@ -459,13 +438,13 @@ public class ConfigEditingFormFactory
 		binder.forField(stylesField)
 		        .withNullRepresentation("")
 		        .bind(Config::getStylesDirBase, Config::setStylesDirectory);
-		
-        TextField videoStylesField = new TextField();
-        videoStylesField.setWidthFull();
-        layout.addFormItem(videoStylesField, Translator.translate("Config.videoStylesLabel"));
-        binder.forField(videoStylesField)
-                .withNullRepresentation("")
-                .bind(Config::getVideoStylesDirBase, Config::setVideoStylesDirectory);
+
+		TextField videoStylesField = new TextField();
+		videoStylesField.setWidthFull();
+		layout.addFormItem(videoStylesField, Translator.translate("Config.videoStylesLabel"));
+		binder.forField(videoStylesField)
+		        .withNullRepresentation("")
+		        .bind(Config::getVideoStylesDirBase, Config::setVideoStylesDirectory);
 
 		return layout;
 	}

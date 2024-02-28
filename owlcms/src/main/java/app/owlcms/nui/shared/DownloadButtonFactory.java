@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.server.InputStreamFactory;
 
 import app.owlcms.components.elements.LazyDownloadButton;
 import app.owlcms.data.export.CompetitionData;
@@ -72,6 +73,7 @@ public class DownloadButtonFactory {
 	}
 
 	public static Div createDynamicZipDownloadButton(String prefix, String label, byte[] content) {
+		logger.warn("creating byte[] download button");
 		final LazyDownloadButton downloadButton = new LazyDownloadButton(
 		        label,
 		        new Icon(VaadinIcon.DOWNLOAD_ALT),
@@ -84,6 +86,21 @@ public class DownloadButtonFactory {
 		        () -> {
 			        return new ByteArrayInputStream(content);
 		        });
+
+		return new Div(downloadButton);
+	}
+	
+	public static Div createDynamicZipDownloadButton(String prefix, String label, InputStreamFactory supplier) {
+		final LazyDownloadButton downloadButton = new LazyDownloadButton(
+		        label,
+		        new Icon(VaadinIcon.DOWNLOAD_ALT),
+		        () -> {
+			        LocalDateTime now = LocalDateTime.now().withNano(0);
+			        return prefix
+			                + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm"))
+			                + ".zip";
+		        },
+				supplier);
 
 		return new Div(downloadButton);
 	}
