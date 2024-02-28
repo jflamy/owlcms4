@@ -34,17 +34,23 @@ Either the announcer or the timekeeper can start the clock.
 
 ![014_StartClock](nimg/3200Lifting/050.png)
 
-The clock can also be started by using the `,`  (comma) or `/`keys on the keyboard.  The `*` key on the numeric keypad acts as a toggle (start if stopped, stop if started).  The regular `*` key works if it is located above the `8` key on the keyboard layout.
+##### Shortcuts
 
-The clock can be reset to 1:00 or 2:00 using the buttons, or by using the `+` on the numeric keypad and `=` keys respectively. The regular `+` key will work if it is located above the `=` key on the keyboard layout.
+> For shortcuts, the keys given are the key locations for a US keyboard. You will need to press the key at the [location shown on this diagram](https://kbdlayout.info/kbdus), no matter what is actually printed on your keyboard.
+
+The clock can be started by using the `,`  (comma) or `/` keys on the keyboard.  The `/` key on the numeric keypad also works. On the Flic2 buttons, this is the `/` shortcut.
+
+The clock can be stopped by using the `.`  (period) key on the keyboard.  The decimal fraction character on the numeric keypad should also work (in many countries, the numeric keypad shows a `,` instead of a `.` to match the local usage for decimal fraction). For the Flic2 buttons, this is the `.` shortcut.
+
+The clock can be reset to 1:00 by using the + key on the keyboard (more precisely, the key combination that corresponds to + on a US keyboard, that is, Shift=).  Using the + key on the numeric keypad will also work. On the Flic2 buttons, this is the `=` shortcut.
+
+The clock can be reset to 2:00 by using the `=` or `;`key on the keyboard ).  Using the + key on the numeric keypad will also work. On the Flic2 buttons, this is the `=` or `;` shortcut.
 
 ## Stopping/Restarting the clock
 
 The announcer (if acting as timekeeper), or the timekeeper (using the timekeeper screen), can stop the clock when the bar leaves ground.  Either person can restart the clock if the bar is put down not having travelled above the knee.
 
 ![016_StopClock](nimg/3200Lifting/060.png)
-
-The clock can also be stopped by using the `.` key on the keyboard.   The `*` key on the numeric keypad acts as a toggle (start if stopped, stop if started).
 
 ## Manual Refereeing
 
