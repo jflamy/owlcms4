@@ -77,7 +77,7 @@ public class ResourceWalker {
 			ResourceWalker.setLocalDirPath(null);
 		}
 	}
-	
+
 	public static boolean existsLocalOverrideDirectory() {
 		Path curDir = Paths.get(".", "local");
 		curDir = curDir.normalize();
@@ -347,7 +347,7 @@ public class ResourceWalker {
 	public static Path getResourcePath(String resourcePathString) {
 		URL resourceURL = ResourceWalker.class.getResource(resourcePathString);
 		if (resourceURL == null) {
-			logger.error(resourcePathString + " not found *");
+			logger.debug(resourcePathString + " not found *");
 			// throw new RuntimeException(resourcePathString + " not found");
 			return null;
 		}
@@ -366,15 +366,14 @@ public class ResourceWalker {
 		} catch (FileSystemNotFoundException e) {
 			// the normal classpath uses the default file system, which is always found.
 			// if the file was in a jar, normally Vaadin has already loaded the zip file
-			// system
-			// so we should not get a not found either.
+			// system so we should not get a not found either.
 
 			// so the only way to get here is if the file is in a jar, and somehow Vaadin
-			// has
-			// not opened it yet. So we use a file that should be in the jar, and expect the
+			// has not opened it yet. So we use a file that should be in the jar, and expect the
 			// URI to be of the "jar" type.
 
-			// beware: use a resource that is in the shared module
+			// beware: use a resource that is guaranteed to be present.
+			// we use one that the VaadinBoot class requires at startup.
 			openClassPathFileSystem("/webapp/ROOT");
 			resourcePath = Paths.get(resourcesURI);
 			logger.debug("resourcePath: {} {}", resourcesURI, resourcePath);
@@ -504,7 +503,7 @@ public class ResourceWalker {
 
 	public static void unzipBlobToTemp(InputStream in) throws IOException {
 		Path f = null;
-		//f = Files.createTempDirectory("owlcmsOverride");
+		// f = Files.createTempDirectory("owlcmsOverride");
 		f = MemTempUtils.createTempDirectory("owlcmsOverride");
 		if (logger.isEnabledFor(Level.DEBUG)) {
 			logger.debug("created temp directory " + f);
@@ -675,10 +674,10 @@ public class ResourceWalker {
 		} catch (Throwable e) {
 			// ignore in cloud mode.
 		}
-//
-//		for (Entry<String, Resource> n : resourceMap.entrySet()) {
-//			System.err.println(n.getKey() + " " + n.getValue().getFilePath().normalize().toAbsolutePath());
-//		}
+		//
+		// for (Entry<String, Resource> n : resourceMap.entrySet()) {
+		// System.err.println(n.getKey() + " " + n.getValue().getFilePath().normalize().toAbsolutePath());
+		// }
 		return resourceMap;
 	}
 
