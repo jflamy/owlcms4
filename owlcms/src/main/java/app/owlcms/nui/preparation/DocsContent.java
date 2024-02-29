@@ -49,6 +49,7 @@ import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.shared.OwlcmsLayout;
+import app.owlcms.spreadsheet.JXLS3StartingListDocs;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
@@ -76,6 +77,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 	private ComboBox<Platform> platformFilter;
 	private String groupName;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
+	protected JXLS3StartingListDocs startingXls3Writer;
 
 	/**
 	 * Instantiates a new announcer content. Does nothing. Content is created in
@@ -103,7 +105,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 
 		Button cardsButton = createCardsButton();
 		Button weighInSummaryButton = createWeighInSummaryButton();
-		Button sessionsButton = createSessionsButton();
+		Button sessionsButton = createSessions3Button();
 		Button officialSchedule = createOfficalsButton();
 
 		createTopBarGroupSelect();
@@ -349,6 +351,33 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 			        List<Athlete> sortedAthletes = startingXlsWriter.getSortedAthletes();
 			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(sortedAthletes));
 			        return startingXlsWriter;
+		        },
+		        resourceDirectoryLocation,
+		        Competition::getComputedStartListTemplateFileName,
+		        Competition::setStartListTemplateFileName,
+		        title,
+		        Translator.translate("Download"));
+		return startingListFactory.createDownloadButton();
+	}
+	
+	protected Button createSessions3Button() {
+		String resourceDirectoryLocation = "/templates/start3";
+		String title = Translator.translate("StartingList");
+		startingXls3Writer = new JXLS3StartingListDocs();
+		JXLSDownloader startingListFactory = new JXLSDownloader(
+		        () -> {
+					logger.warn("JXLSDownloader");
+			        // group may have been edited since the page was loaded
+			        startingXls3Writer.setGroup(
+			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
+			        // get current version of athletes.
+			        startingXls3Writer.setPostProcessor(null);
+			        findAll();
+			        // findAll sets startingXlsWriter.
+			        List<Athlete> sortedAthletes = startingXlsWriter.getSortedAthletes();
+			        startingXls3Writer.setSortedAthletes(AthleteSorter.registrationOrderCopy(sortedAthletes));
+			        logger.warn("*** sortedAthletes {}", sortedAthletes.size());
+			        return startingXls3Writer;
 		        },
 		        resourceDirectoryLocation,
 		        Competition::getComputedStartListTemplateFileName,

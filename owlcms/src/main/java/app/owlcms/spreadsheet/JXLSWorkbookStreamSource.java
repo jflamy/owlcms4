@@ -368,7 +368,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	}
 
 	@SuppressWarnings("unchecked")
-	private void writeStream(OutputStream stream) throws IOException {
+	protected void writeStream(OutputStream stream) throws IOException {
 		Locale locale = OwlcmsSession.getLocale();
 		XLSTransformer transformer = new XLSTransformer();
 		configureTransformer(transformer);
