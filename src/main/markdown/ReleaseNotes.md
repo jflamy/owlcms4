@@ -1,16 +1,12 @@
-**Version 46.0 release candidate**	
+**Version 46.0**
 
 > [!CAUTION]
 >
-> - This is still a testing release.  *You should always carefully test any new release several days before using it, with your own data.*
+> - *You should always carefully test any new release several days before using it, with your own data.*
 > - If you have made customizations, see the [notes at the bottom.](#customization-notes) 
 
 ##### 46.0 
 
-- (rc04) Flic2 shortcuts for 2 minutes (Flic2 `=` is `NUMPAD_EQUALS`, also `;`)
-- (rc03) Translations for Spanish (SV)
-- (rc02) Translations for Spanish, Danish, Swedish, and (new!) Finnish.
-- (rc01) Translations for French, German, Hungarian and Romanian
 - Fix: Lines in the final package for Sinclair/SMF/Q-Points could be duplicated (once per eligible category). Now fixed.  Only Robi where the score is different for each eligible category has duplicate lines.
 - Selectable Scoring System
   - New options on the "Non-Standard Rules" section of the competition rules.
@@ -39,7 +35,7 @@
   - Change: The definition of the Robi reference records is no longer in the AgeGroups file. It is now in a separate local/robi/RobiCategories.xlsx file. 
   - If you have a national Robi classification system based on your national records, you can edit the RobiCategories.xlsx file.
 - Usability: the down signal is shown a little bit longer on all the boards (including publicresults)
-- Flic2 button shortcuts: the Flic2 sends NUMPAD_DECIMAL for "." and NUMPAD_DIVIDE for "/".  Added these shortcuts for stopping and starting the clock, respectively, on the announcer and timekeeper screens.
+- Flic2 button shortcuts: the Flic2 sends NUMPAD_DECIMAL for "." and NUMPAD_DIVIDE for "/" and NUMPAD_EQUALS for "=". Added these shortcuts for the stop, start, and 2 minutes shortcuts.
 
 ##### Customization Notes
 
