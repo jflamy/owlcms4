@@ -6,20 +6,22 @@ It has been used to manage national championships and even continental champions
 
 Yet it is simple enough to setup that you can use it to run a club or regional competition.
 
-> **NOTES:**
->   - This is the source repository - report issues or make feature requests here, using the Issues button at the top.
->   - Stable releases are located at https://github.com/owlcms/owlcms4/releases.
->   - Preliminary releases for testing and translation are located at https://github.com/owlcms/owlcms4-prerelease/releases.
-
 ### Features, Downloads and Installation
-- [Extensive Documentation](https://owlcms.github.io/owlcms4-prerelease/#) is available.
-- Refer to the [Installation Overview](https://owlcms.github.io/owlcms4-prerelease/#/InstallationOverview) and to the [Downloads](https://owlcms.github.io/owlcms4-prerelease/#/Downloads) page for the various setup options.
+
+- Refer to the  to the [Downloads](https://owlcms.github.io/owlcms4/#/Downloads) page and to the [Installation Overview](https://owlcms.github.io/owlcms4/#/InstallationOverview) for the various setup options.
+  - [Extensive Documentation](https://owlcms.github.io/owlcms4-prerelease/#) is available.
+
 
 ### Help, Issues, Feature Requests
 
 - [Discussion list](https://groups.google.com/forum/#!forum/owlcms)  If you wish to discuss the program or ask questions, please add yourself to this discussion [group](https://groups.google.com/forum/#!forum/owlcms).  You can withdraw at any time.
-- [Issues and Feature Requests](https://github.com/jflamy/owlcms4/issues)  See the Project Board below to see what we are working on.
+- [Issues and Feature Requests](https://github.com/jflamy/owlcms4/issues)  Please use the `Issues` button at the top of this page to report issues.
 - [Work in Progress and Priorities](https://github.com/users/jflamy/projects/2/views/7) Shows what we are working on and what is currently planned.
+
+### Release repositories
+
+- Stable releases are kept at https://github.com/owlcms/owlcms4/releases.
+- Preliminary releases for testing and translation are located at https://github.com/owlcms/owlcms4-prerelease/releases.
 
 ### Licensing and Notes
 
