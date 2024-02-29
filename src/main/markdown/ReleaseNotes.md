@@ -8,6 +8,7 @@
 
 ##### 47.0 
 
+- (alpha04) Minor changes to the Customization page (zip backup/restore local directory)
 - Ability to customize the result and attempt board styling based on the current platform.  This is typically used to change some colors for identification when streaming, or the attempt board when on site.
   - An identifier for the current platform is added to the top-level `wrapper` element in the page.  The name is modified to only keep legal CSS characters (Latin letters, digits, hyphens and underscores). If you wish to use this feature, the platform will have to have a Latin name, or only digits.  A `_` will be added in front of a digits-only name to make it legal.
 - When running on a laptop, it is now possible to create a zip archive of the  `local` directory (on the Settings page/Customization tab).   This can be used to upload flags, style sheets, and templates to cloud instances, or to standardize items within a federation.
