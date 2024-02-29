@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.KeyModifier;
-import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
@@ -68,15 +67,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		uiEventLogger.setLevel(Level.INFO);
 	}
 
-	private ShortcutRegistration startReg;
-	private ShortcutRegistration stopReg;
-	private ShortcutRegistration _1minReg;
-	private ShortcutRegistration _2minReg;
-
 	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
-	private ShortcutRegistration startReg2;
-	private ShortcutRegistration toggleReg;
-	private ShortcutRegistration toggleReg2;
 
 	public TimekeeperContent() {
 		super();
@@ -221,7 +212,6 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	private void hideButtons() {
 		buttons.setVisible(false);
 		timer.getElement().setVisible(false);
-		unregisterShortcuts();
 	}
 
 	private void registerShortcuts() {
@@ -240,7 +230,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 
 		UI.getCurrent().addShortcutListener(() -> do2Minutes(), Key.EQUAL);
 		UI.getCurrent().addShortcutListener(() -> do2Minutes(), Key.NUMPAD_EQUAL);
-
+		UI.getCurrent().addShortcutListener(() -> do2Minutes(), Key.SEMICOLON);
 	}
 
 	private void showButtons() {
@@ -248,37 +238,6 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 			buttons.setVisible(true);
 		}
 		timer.getElement().setVisible(true);
-	}
-
-	private void unregisterShortcuts() {
-		if (startReg != null) {
-			startReg.remove();
-			startReg = null;
-		}
-		if (startReg2 != null) {
-			startReg2.remove();
-			startReg2 = null;
-		}
-		if (stopReg != null) {
-			stopReg.remove();
-			stopReg = null;
-		}
-		if (toggleReg != null) {
-			toggleReg.remove();
-			toggleReg = null;
-		}
-		if (toggleReg2 != null) {
-			toggleReg2.remove();
-			toggleReg2 = null;
-		}
-		if (_1minReg != null) {
-			_1minReg.remove();
-			_1minReg = null;
-		}
-		if (_2minReg != null) {
-			_2minReg.remove();
-			_2minReg = null;
-		}
 	}
 
 	@Override
@@ -360,7 +319,6 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	@Override
 	protected void createStartTimeButton() {
 		super.createStartTimeButton();
-		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.COMMA);
 	}
 
 	/**
@@ -371,7 +329,6 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	@Override
 	protected void createStopTimeButton() {
 		super.createStopTimeButton();
-		UI.getCurrent().addShortcutListener(() -> doStopTime(), Key.PERIOD);
 	}
 
 	@Override

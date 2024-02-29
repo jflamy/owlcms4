@@ -7,6 +7,7 @@
 
 ##### 46.0 
 
+- (rc04) Flic2 shortcuts for 2 minutes (Flic2 `=` is `NUMPAD_EQUALS`, also `;`)
 - (rc03) Translations for Spanish (SV)
 - (rc02) Translations for Spanish, Danish, Swedish, and (new!) Finnish.
 - (rc01) Translations for French, German, Hungarian and Romanian

@@ -258,7 +258,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	protected void create2MinButton() {
 		super.create2MinButton();
 		UI.getCurrent().addShortcutListener(() -> do2Minutes(), Key.EQUAL);
-
+		UI.getCurrent().addShortcutListener(() -> do2Minutes(), Key.NUMPAD_EQUAL);
+		UI.getCurrent().addShortcutListener(() -> do2Minutes(), Key.SEMICOLON);
 	}
 
 	/**
