@@ -6,6 +6,9 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -21,6 +24,7 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -39,6 +43,8 @@ import com.vaadin.flow.component.page.PendingJavaScriptResult;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.provider.ListDataProvider;
@@ -49,8 +55,10 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.CustomFormFactory;
 import app.owlcms.nui.shared.DownloadButtonFactory;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.TimeZoneUtils;
+import app.owlcms.utils.ZipUtils;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -114,6 +122,7 @@ public class ConfigEditingFormFactory
 		FormLayout tzLayout = tzForm();
 		FormLayout languageLayout = presentationForm();
 		FormLayout publicResultsLayout = publicResultsForm();
+		FormLayout templateSelectionLayout = templateSelectionForm();
 		FormLayout localOverrideLayout = localOverrideForm();
 		FormLayout translationLayout = translationForm();
 		FormLayout featuresLayout = featuresForm();
@@ -143,8 +152,10 @@ public class ConfigEditingFormFactory
 		        new VerticalLayout(
 		                new Div(), accessLayout));
 		ts.add(Translator.translate("Config.CustomizationTab"),
-		        new VerticalLayout(new Div(), localOverrideLayout, separator(),
-		                stylesLayout, separator(),
+		        new VerticalLayout(new Div(),
+		        		stylesLayout, separator(),
+		                templateSelectionLayout, separator(),
+		                localOverrideLayout, separator(),
 		                featuresLayout));
 
 		VerticalLayout mainLayout = new VerticalLayout(
@@ -315,13 +326,41 @@ public class ConfigEditingFormFactory
 		binder.forField(clearField)
 		        .bind(Config::isClearZip, Config::setClearZip);
 		
+		layout.addFormItem(new Div(), "");
+		
 		Div localDirZipDiv = null;
 		localDirZipDiv = DownloadButtonFactory.createDynamicZipDownloadButton("resourcesOverride",
 		        Translator.translate("Config.Download"), () -> ResourceWalker.zipPublicResultsConfig());
 		localDirZipDiv.setEnabled(ResourceWalker.existsLocalOverrideDirectory());
 		localDirZipDiv.setWidthFull();
 		layout.addFormItem(localDirZipDiv, Translator.translate("Config.DownloadLocalDirZipLabel"));
-
+		
+		Button uploadButton = new Button(Translator.translate("LocalOverride.DirUploadButton"));
+		MemoryBuffer receiver = new MemoryBuffer();
+		uploadButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		Upload uploadZip = new Upload(receiver);
+		uploadZip.setUploadButton(uploadButton);
+		uploadZip.setDropLabel(new NativeLabel(Translator.translate("LocalOverride.DirUploadDropZone")));
+		uploadZip.addSucceededListener(e -> {
+			Path curDir = Paths.get(".", "local");
+			try {
+				ZipUtils.deleteDirectoryRecursively(curDir);
+				ZipUtils.extractZip(receiver.getInputStream(), curDir);
+			} catch (IOException e1) {
+				LoggerUtils.logError(logger,e1);
+			}
+		});
+		layout.addFormItem(uploadZip, Translator.translate("LocalOverride.Title"));
+	
+		return layout;
+	}
+	
+	private FormLayout templateSelectionForm() {
+		FormLayout layout = createLayout();
+		Component title = createTitle("Config.TemplateSelection");
+		layout.add(title);
+		layout.setColspan(title, 2);
+		
 		Checkbox localTemplatesField = new Checkbox(Translator.translate("Config.LocalTemplate"));
 		localTemplatesField.setWidthFull();
 		layout.addFormItem(localTemplatesField, Translator.translate("Config.LocalTemplateLabel"));
