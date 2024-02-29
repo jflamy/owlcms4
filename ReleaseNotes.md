@@ -7,8 +7,11 @@
 
 ##### 46.0 
 
+- (rc04) Flic2 shortcuts for 2 minutes (Flic2 `=` is `NUMPAD_EQUALS`, also `;`)
+- (rc03) Translations for Spanish (SV)
 - (rc02) Translations for Spanish, Danish, Swedish, and (new!) Finnish.
 - (rc01) Translations for French, German, Hungarian and Romanian
+- Fix: Lines in the final package for Sinclair/SMF/Q-Points could be duplicated (once per eligible category). Now fixed.  Only Robi where the score is different for each eligible category has duplicate lines.
 - Selectable Scoring System
   - New options on the "Non-Standard Rules" section of the competition rules.
     - The scoring system shown on the scoreboards is now selectable (Sinclair, Robi, SMM, Q-Points, etc.)
@@ -28,7 +31,6 @@
 - Templates and documents
   - All the supplied Excel templates are now .xlsx by default.  As a consequence, all the Excel files produced from the default templates are also in .xlsx format.  The .xlsx format is directly recognized by Office, LibreOffice, Google Sheets and Microsoft 365 Web. 
   - Your existing .xls templates will work as before, but we recommend updating your local templates to .xlsx format.
-  - The mechanism used for Excel downloads has changed.  Microsoft Edge has special options for modern Office document formats such as `.xlsx`.  Without the change, some downloads of `.xlsx` files would fail when using Edge's "open immediately" option.
 - Age Groups
   - Enhancement: The age groups definitions can now be exported
   - Fix: Previously, if you added a non-IWF category for an age group using the age group file it was ignored.
