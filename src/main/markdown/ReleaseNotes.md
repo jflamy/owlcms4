@@ -9,6 +9,10 @@
 
 - Fix: IWF-format athlete cards were not working in version 46.0.0.  For this document we have returned to the previous .xls format.
 
+  > [!IMPORTANT]
+  >
+  > If you had installed version 46.0.0, you need to go to your `local/templates/cards` installation directory and remove the IWF templates in `.xlsx` format. Keep only the `.xls` files.  Uninstalling the previous version will also work.
+
 ##### 46.0.0 
 
 - Fix: Lines in the final package for Sinclair/SMF/Q-Points could be duplicated (once per eligible category). Now fixed.  Only Robi where the score is different for each eligible category has duplicate lines.
