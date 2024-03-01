@@ -410,14 +410,12 @@ public class ResourceWalker {
 			String curDirName = new File(n).getParent();
 			InputStream str = ResourceWalker.getResourceAsStream(n);
 			boolean createDir = !isSameDir(curDirName, prevDirName) && !isSubDir(curDirName, prevDirName);
-			logger.warn("zipping {} {}", n, createDir);
 			ZipUtils.zipStream(str, n, createDir, zipOut);
 			prevDirName = curDirName;
 		}
 	}
 
 	public static InputStream zipPublicResultsConfig() {
-		logger.warn("zipPublicResultsConfig");
 		PipedOutputStream out;
 		PipedInputStream in;
 		try {

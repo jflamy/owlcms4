@@ -42,6 +42,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.Platform;
@@ -106,8 +107,9 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 
 		Button cardsButton = createCardsButton();
 		Button weighInSummaryButton = createWeighInSummaryButton();
-		Button sessionsButton = createSessions3Button();
+		Button sessionsButton = createSessionsButton();
 		Button officialSchedule = createOfficalsButton();
+		Button checkInButton = createCheckInButton();
 
 		createTopBarGroupSelect();
 
@@ -119,6 +121,9 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		        bwButton, categoriesListButton, teamsListButton, hr,
 		        new NativeLabel(Translator.translate("Preparation_Groups")),
 		        sessionsButton, officialSchedule, cardsButton, weighInSummaryButton);
+		if (Config.getCurrent().featureSwitch("jxls3")) {
+			buttons.add(checkInButton);
+		}
 		buttons.getStyle().set("flex-wrap", "wrap");
 		buttons.getStyle().set("gap", "1ex");
 		buttons.getStyle().set("margin-left", "5em");
@@ -308,7 +313,6 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
 			        // get current version of athletes.
 			        List<Athlete> athletesFindAll = athletesFindAll();
-			        logger.warn("athletesFindAll {}", athletesFindAll.size());
 					cardsXlsWriter.setSortedAthletes(athletesFindAll);
 			        return cardsXlsWriter;
 		        },
@@ -368,24 +372,27 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		return startingListFactory.createDownloadButton();
 	}
 	
-	protected Button createSessions3Button() {
-		String resourceDirectoryLocation = "/templates/start3";
-		String title = Translator.translate("StartingList");
+	protected Button createCheckInButton() {
+		String resourceDirectoryLocation = "/templates/checkin";
+		String title = Translator.translate("CheckIn");
 		JXLSDownloader startingListFactory = new JXLSDownloader(
 		        () -> {
-					logger.warn("JXLSDownloader");
 					JXLS3StartingListDocs startingXls3Writer = new JXLS3StartingListDocs();
 			        // group may have been edited since the page was loaded
 			        startingXls3Writer.setGroup(
 			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
 			        // get current version of athletes.
 			        startingXls3Writer.setPostProcessor(null);
+			        HashMap<String, Object> reportingInfo = startingXls3Writer.getReportingBeans();
+			        List<Group> sessions = GroupRepository.findAll();
+			        sessions.sort((a,b) -> a.compareToWeighIn(b));
+			        reportingInfo.put("sessions", sessions);
 			        startingXls3Writer.setSortedAthletes(AthleteSorter.registrationOrderCopy(participationFindAll()));
 			        return startingXls3Writer;
 		        },
 		        resourceDirectoryLocation,
-		        Competition::getComputedStartListTemplateFileName,
-		        Competition::setStartListTemplateFileName,
+		        Competition::getCheckInTemplateFileName,
+		        Competition::setCheckInTemplateFileName,
 		        title,
 		        Translator.translate("Download"));
 		return startingListFactory.createDownloadButton();

@@ -64,7 +64,6 @@ public abstract class JXLS3WorkbookStreamSource extends JXLSWorkbookStreamSource
 			HashMap<String, Object> reportingInfo = getReportingBeans();
 			@SuppressWarnings("unchecked")
 			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
-			logger.warn("!!!! athletes.size {}", athletes.size());
 			if (athletes != null && (athletes.size() > 0 || isEmptyOk())) {
 				// workbook = transformer.transformXLS(getTemplate(locale), reportingInfo);
 				JxlsPoi.fill(getTemplate(locale), JxlsStreaming.STREAMING_OFF, reportingInfo, stream);

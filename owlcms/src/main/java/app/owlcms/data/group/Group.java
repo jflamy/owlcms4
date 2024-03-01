@@ -33,6 +33,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 
+import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.utils.DateTimeUtils;
@@ -681,4 +682,7 @@ public class Group implements Comparable<Group> {
 		return new DisplayGroup("?", "", null, "", "");
 	}
 
+	public List<Athlete> getAthletes() {
+		return AthleteRepository.findAllByGroupAndWeighIn(this, false);
+	}
 }

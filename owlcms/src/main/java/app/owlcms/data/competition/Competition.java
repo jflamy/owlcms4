@@ -270,6 +270,7 @@ public class Competition {
 	private boolean displayScores = false;
 	@Column(columnDefinition = "boolean default false")
 	private boolean displayScoreRanks;
+	private String checkInTemplateFileName;
 
 	public Competition() {
 		this.medalsByGroup = new HashMap<>();
@@ -396,11 +397,11 @@ public class Competition {
 	public void doGlobalRankings(List<Athlete> athletes) {
 		TreeSet<Athlete> noDup = new TreeSet<>(Comparator.comparing(Athlete::getFullId));
 		for (Athlete pAthlete : athletes) {
-			Athlete athlete = ((PAthlete)pAthlete)._getAthlete();
+			Athlete athlete = ((PAthlete) pAthlete)._getAthlete();
 			noDup.add(athlete);
 		}
-		ArrayList<Athlete> nodupAthletes = new ArrayList<Athlete>(noDup);
-		
+		ArrayList<Athlete> nodupAthletes = new ArrayList<>(noDup);
+
 		doReporting(nodupAthletes, Ranking.BW_SINCLAIR, true);
 		doReporting(nodupAthletes, Ranking.SMM, true);
 		doReporting(nodupAthletes, Ranking.QPOINTS, true);
@@ -432,6 +433,13 @@ public class Competition {
 
 	public String getCategoriesListTemplateFileName() {
 		return this.categoriesListTemplateFileName;
+	}
+
+	/**
+	 * @return the startListTemplateFileName
+	 */
+	public String getCheckInTemplateFileName() {
+		return this.checkInTemplateFileName;
 	}
 
 	/**
@@ -641,9 +649,9 @@ public class Competition {
 	@Transient
 	@JsonIgnore
 	synchronized public List<Athlete> getGlobalScoreRanking(Gender gender) {
-		return getListOrElseRecompute(gender == Gender.F ? getScoringSystem().getWReportingName() : getScoringSystem().getMReportingName());
+		return getListOrElseRecompute(
+		        gender == Gender.F ? getScoringSystem().getWReportingName() : getScoringSystem().getMReportingName());
 	}
-
 
 	/**
 	 * Gets the id.
@@ -681,7 +689,7 @@ public class Competition {
 	@Transient
 	@JsonIgnore
 	synchronized public List<Athlete> getListOrElseRecompute(String listName) {
-		//logger.debug("getting list {}",listName);
+		// logger.debug("getting list {}",listName);
 		List<Athlete> athletes = (List<Athlete>) this.reportingBeans.get(listName);
 		if (isRankingsInvalid() || athletes == null) {
 			setRankingsInvalid(true);
@@ -816,6 +824,13 @@ public class Competition {
 		return this.reportingBeans;
 	}
 
+	public Ranking getScoringSystem() {
+		if (this.scoringSystem == null) {
+			return Ranking.BW_SINCLAIR;
+		}
+		return this.scoringSystem;
+	}
+
 	public Integer getShorterBreakDuration() {
 		return this.shorterBreakDuration;
 	}
@@ -883,6 +898,14 @@ public class Competition {
 		return this.customScore;
 	}
 
+	public boolean isDisplayScoreRanks() {
+		return this.displayScoreRanks;
+	}
+
+	public boolean isDisplayScores() {
+		return this.displayScores;
+	}
+
 	/**
 	 * Checks if is enforce 20 kg rule.
 	 *
@@ -929,10 +952,6 @@ public class Competition {
 
 	public boolean isRoundRobinOrder() {
 		return this.roundRobinOrder;
-	}
-
-	public boolean isDisplayScores() {
-		return this.displayScores;
 	}
 
 	public boolean isSimulation() {
@@ -1009,6 +1028,10 @@ public class Competition {
 		this.categoriesListTemplateFileName = categoriesListTemplateFileName;
 	}
 
+	public void setCheckInTemplateFileName(String startingListFileName) {
+		this.checkInTemplateFileName = startingListFileName;
+	}
+
 	/**
 	 * Sets the competition city.
 	 *
@@ -1059,6 +1082,14 @@ public class Competition {
 
 	public void setCustomScore(boolean customScore) {
 		this.customScore = customScore;
+	}
+
+	public void setDisplayScoreRanks(boolean displayScoreRanks) {
+		this.displayScoreRanks = displayScoreRanks;
+	}
+
+	public void setDisplayScores(boolean score) {
+		this.displayScores = score;
 	}
 
 	public void setEnforce20kgRule(boolean enforce20kgRule) {
@@ -1205,8 +1236,11 @@ public class Competition {
 		this.roundRobinOrder = roundRobinOrder;
 	}
 
-	public void setDisplayScores(boolean score) {
-		this.displayScores = score;
+	public void setScoringSystem(Ranking scoringSystem) {
+		if (!Ranking.scoringSystems().contains(scoringSystem)) {
+			throw new IllegalArgumentException(scoringSystem + " is not a scoring system");
+		}
+		this.scoringSystem = scoringSystem;
 	}
 
 	public void setShorterBreakDuration(Integer shorterBreakDuration) {
@@ -1317,52 +1351,6 @@ public class Competition {
 		doMixedReporting(athletes, Ranking.ROBI, false);
 	}
 
-	private void doReporting(List<Athlete> athletes, Ranking ranking, boolean overall) {
-		List<Athlete> sortedAthletes;
-		List<Athlete> sortedMen;
-		List<Athlete> sortedWomen;
-		String mBeanName;
-		String wBeanName;
-		sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, ranking);
-		if (overall) {
-			AthleteSorter.assignOverallRanksAndPoints(sortedAthletes, ranking);
-		}
-		sortedMen = new ArrayList<>(sortedAthletes.size());
-		sortedWomen = new ArrayList<>(sortedAthletes.size());
-		splitByGender(sortedAthletes, sortedMen, sortedWomen);
-		mBeanName = ranking.getMReportingName();
-		wBeanName = ranking.getWReportingName();
-		this.reportingBeans.put(mBeanName, sortedMen);
-		this.reportingBeans.put(wBeanName, sortedWomen);
-		logger.debug("{} {}", mBeanName, sortedMen);
-		logger.debug("{} {}", wBeanName, sortedWomen);
-	}
-	
-	private void doMixedReporting(List<Athlete> athletes, Ranking ranking, boolean overall) {
-		List<Athlete> sortedAthletes;
-		List<Athlete> sortedMen;
-		List<Athlete> sortedWomen;
-		String mBeanName;
-		String wBeanName;
-		String mwBeanName;
-		sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, ranking);
-		if (overall) {
-		AthleteSorter.assignOverallRanksAndPoints(sortedAthletes, ranking);
-		}
-		sortedMen = new ArrayList<>(sortedAthletes.size());
-		sortedWomen = new ArrayList<>(sortedAthletes.size());
-		splitByGender(sortedAthletes, sortedMen, sortedWomen);
-		mBeanName = ranking.getMReportingName();
-		wBeanName = ranking.getWReportingName();
-		mwBeanName = ranking.getMWReportingName();
-		this.reportingBeans.put(mBeanName, sortedMen);
-		this.reportingBeans.put(wBeanName, sortedWomen);
-		this.reportingBeans.put(mwBeanName, sortedAthletes);
-		logger.debug("{} {}", mBeanName, sortedMen);
-		logger.debug("{} {}", wBeanName, sortedWomen);
-		logger.debug("{} {}", mwBeanName, sortedAthletes);
-	}
-
 	private void clearTeamReportingBeans(String suffix) {
 		getOrCreateBean("mCombined" + suffix).clear();
 		getOrCreateBean("wCombined" + suffix).clear();
@@ -1405,6 +1393,52 @@ public class Competition {
 			doGlobalRankings(athletes);
 			// globalRankings();
 		}, Thread.MIN_PRIORITY);
+	}
+
+	private void doMixedReporting(List<Athlete> athletes, Ranking ranking, boolean overall) {
+		List<Athlete> sortedAthletes;
+		List<Athlete> sortedMen;
+		List<Athlete> sortedWomen;
+		String mBeanName;
+		String wBeanName;
+		String mwBeanName;
+		sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, ranking);
+		if (overall) {
+			AthleteSorter.assignOverallRanksAndPoints(sortedAthletes, ranking);
+		}
+		sortedMen = new ArrayList<>(sortedAthletes.size());
+		sortedWomen = new ArrayList<>(sortedAthletes.size());
+		splitByGender(sortedAthletes, sortedMen, sortedWomen);
+		mBeanName = ranking.getMReportingName();
+		wBeanName = ranking.getWReportingName();
+		mwBeanName = ranking.getMWReportingName();
+		this.reportingBeans.put(mBeanName, sortedMen);
+		this.reportingBeans.put(wBeanName, sortedWomen);
+		this.reportingBeans.put(mwBeanName, sortedAthletes);
+		logger.debug("{} {}", mBeanName, sortedMen);
+		logger.debug("{} {}", wBeanName, sortedWomen);
+		logger.debug("{} {}", mwBeanName, sortedAthletes);
+	}
+
+	private void doReporting(List<Athlete> athletes, Ranking ranking, boolean overall) {
+		List<Athlete> sortedAthletes;
+		List<Athlete> sortedMen;
+		List<Athlete> sortedWomen;
+		String mBeanName;
+		String wBeanName;
+		sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, ranking);
+		if (overall) {
+			AthleteSorter.assignOverallRanksAndPoints(sortedAthletes, ranking);
+		}
+		sortedMen = new ArrayList<>(sortedAthletes.size());
+		sortedWomen = new ArrayList<>(sortedAthletes.size());
+		splitByGender(sortedAthletes, sortedMen, sortedWomen);
+		mBeanName = ranking.getMReportingName();
+		wBeanName = ranking.getWReportingName();
+		this.reportingBeans.put(mBeanName, sortedMen);
+		this.reportingBeans.put(wBeanName, sortedWomen);
+		logger.debug("{} {}", mBeanName, sortedMen);
+		logger.debug("{} {}", wBeanName, sortedWomen);
 	}
 
 	/**
@@ -1663,28 +1697,6 @@ public class Competition {
 		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.SMM);
 
 		reportSMF(sortedMen, sortedWomen);
-	}
-
-	public Ranking getScoringSystem() {
-		if (scoringSystem == null) {
-			return Ranking.BW_SINCLAIR;
-		}
-		return scoringSystem;
-	}
-
-	public void setScoringSystem(Ranking scoringSystem) {
-		if (!Ranking.scoringSystems().contains(scoringSystem)) {
-			throw new IllegalArgumentException(scoringSystem + " is not a scoring system");
-		}
-		this.scoringSystem = scoringSystem;
-	}
-
-	public boolean isDisplayScoreRanks() {
-		return this.displayScoreRanks;
-	}
-
-	public void setDisplayScoreRanks(boolean displayScoreRanks) {
-		this.displayScoreRanks = displayScoreRanks;
 	}
 
 }

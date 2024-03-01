@@ -95,12 +95,9 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void accept(OutputStream stream, VaadinSession session) throws IOException {
-		logger.warn("accepting");
 		try {
 			session.lock();
-			logger.warn("locked");
 			writeStream(stream);
-			logger.warn("done writeStream");
 		} catch (IOException e) {
 			logger.error(LoggerUtils./**/stackTrace(e));
 		} catch (Throwable t) {
@@ -311,13 +308,11 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	}
 
 	protected InputStream getTemplate(Locale locale) throws IOException, Exception {
-		logger.warn("getting template {}");
 		if (this.inputStream != null) {
-			logger.warn("explicitly set template {}", this.inputStream);
+			logger.debug("explicitly set template {}", this.inputStream);
 			return this.inputStream;
 		}
 		String templateFileName2 = getTemplateFileName();
-		logger.warn("getting template {}", templateFileName2);
 		InputStream resourceAsStream = ResourceWalker.getFileOrResource(templateFileName2);
 		return resourceAsStream;
 	}
@@ -380,17 +375,11 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		configureTransformer(transformer);
 		Workbook workbook = null;
 		try {
-			logger.warn("setreporting info");
 			setReportingInfo();
-			logger.warn("after setreporting info");
 			HashMap<String, Object> reportingInfo = getReportingBeans();
-			logger.warn("after getReportingBeans");
 			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
-			logger.warn("athletes {}", athletes == null ? null : athletes.size());
 			if (athletes != null && (athletes.size() > 0 || isEmptyOk())) {
-				logger.warn("before template");
 				InputStream template = getTemplate(locale);
-				logger.warn("after template");
 				workbook = transformer.transformXLS(template, reportingInfo);
 				logger.warn("after workbook");
 				if (workbook != null) {
