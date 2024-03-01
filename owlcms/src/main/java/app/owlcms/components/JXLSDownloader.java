@@ -78,6 +78,7 @@ public class JXLSDownloader {
 	        String dialogTitle,
 	        String buttonLabel) {
 		logger.setLevel(Level.DEBUG);
+		logger.warn("creating JXLSDownloader {}", LoggerUtils.whereFrom());
 		this.streamSourceSupplier = streamSourceSupplier;
 		this.resourceDirectoryLocation = resourceDirectoryLocation;
 		this.templateNameGetter = templateNameGetter;

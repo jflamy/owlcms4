@@ -51,8 +51,8 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.ConfirmationDialog;
-import app.owlcms.components.JXLSDownloader;
 import app.owlcms.components.GroupSelectionMenu;
+import app.owlcms.components.JXLSDownloader;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
@@ -77,7 +77,6 @@ import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.NAthleteRegistrationFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
-import app.owlcms.spreadsheet.JXLSCardsDocs;
 import app.owlcms.spreadsheet.JXLSCategoriesListDocs;
 import app.owlcms.spreadsheet.JXLSStartingListDocs;
 import app.owlcms.spreadsheet.PAthlete;
@@ -111,11 +110,11 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	private ComboBox<Group> groupFilter = new ComboBox<>();
 	protected TextField lastNameFilter = new TextField();
 	private OwlcmsLayout routerLayout;
-	protected JXLSStartingListDocs startingXlsWriter;
-	protected JXLSCategoriesListDocs categoriesXlsWriter;
-	protected JXLSCardsDocs cardsXlsWriter;
+	// protected JXLSStartingListDocs startingXlsWriter;
+	// protected JXLSCategoriesListDocs categoriesXlsWriter;
+	// protected JXLSCardsDocs cardsXlsWriter;
 	private ComboBox<Boolean> weighedInFilter = new ComboBox<>();
-//    private Group group;
+	// private Group group;
 	private ComboBox<Group> groupSelect;
 	protected GroupSelectionMenu topBarMenu;
 	protected FlexLayout topBar;
@@ -229,9 +228,9 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		        getCategory(), getAgeGroup(), getAgeDivision(),
 		        getGender(), getWeighedIn(), getTeam(), -1, -1);
 		AthleteSorter.registrationOrder(findFiltered);
-		startingXlsWriter.setSortedAthletes(findFiltered);
-		List<Athlete> c = AthleteSorter.displayOrderCopy(findFiltered);
-		categoriesXlsWriter.setSortedAthletes(c);
+		// startingXlsWriter.setSortedAthletes(findFiltered);
+		// List<Athlete> c = AthleteSorter.displayOrderCopy(findFiltered);
+		// categoriesXlsWriter.setSortedAthletes(c);
 		updateURLLocations();
 		return findFiltered;
 	}
@@ -356,13 +355,12 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 		JXLSDownloader startingListFactory = new JXLSDownloader(
 		        () -> {
+			        JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
 			        // group may have been edited since the page was loaded
 			        startingXlsWriter.setGroup(
 			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
 			        // get current version of athletes.
-			        findAll();
-			        List<Athlete> sortedAthletes = startingXlsWriter.getSortedAthletes();
-			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationBWCopy(sortedAthletes));
+			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationBWCopy(athletesFindAll()));
 			        startingXlsWriter.createAgeGroupColumns(10, 7);
 			        return startingXlsWriter;
 		        },
@@ -380,11 +378,12 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 		JXLSDownloader startingListFactory = new JXLSDownloader(
 		        () -> {
+			        JXLSCategoriesListDocs categoriesXlsWriter = new JXLSCategoriesListDocs();
 			        // group may have been edited since the page was loaded
 			        categoriesXlsWriter.setGroup(
 			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
 			        // get current version of athletes.
-			        participationFindAll();
+			        categoriesXlsWriter.setSortedAthletes(participationFindAll());
 			        return categoriesXlsWriter;
 		        },
 		        resourceDirectoryLocation,
@@ -467,13 +466,14 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 		JXLSDownloader startingListFactory = new JXLSDownloader(
 		        () -> {
+			        JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
 			        // group may have been edited since the page was loaded
 			        startingXlsWriter.setGroup(
 			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
 			        // get current version of athletes.
-			        findAll();
+			        // findAll();
 			        // List<Athlete> sortedAthletes = startingXlsWriter.getSortedAthletes();
-			        // startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(sortedAthletes));
+			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(participationFindAll()));
 			        startingXlsWriter.createTeamColumns(9, 6);
 			        return startingXlsWriter;
 		        },
@@ -682,9 +682,9 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	}
 
 	protected void init() {
-		cardsXlsWriter = new JXLSCardsDocs();
-		startingXlsWriter = new JXLSStartingListDocs();
-		categoriesXlsWriter = new JXLSCategoriesListDocs();
+		// cardsXlsWriter = new JXLSCardsDocs();
+		// startingXlsWriter = new JXLSStartingListDocs();
+		// categoriesXlsWriter = new JXLSCategoriesListDocs();
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
 		crudGrid = createCrudGrid(crudFormFactory);
 		defineFilters(crudGrid);
@@ -731,6 +731,30 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			        return a;
 		        });
 
+		List<Athlete> found = stream.sorted(
+		        groupCategoryComparator())
+		        .collect(Collectors.toList());
+		// categoriesXlsWriter.setSortedAthletes(found);
+		updateURLLocations();
+		return found;
+	}
+
+	protected List<Athlete> athletesFindAll() {
+		List<Athlete> found = participationFindAll();
+		// cards and starting we only want the actual athlete, without duplicates
+		Set<Athlete> regCatAthletes = found.stream().map(pa -> ((PAthlete) pa)._getAthlete())
+		        .collect(Collectors.toSet());
+		List<Athlete> regCatAthletesList = new ArrayList<>(regCatAthletes);
+		regCatAthletesList.sort(groupCategoryComparator());
+
+		// cardsXlsWriter.setSortedAthletes(regCatAthletesList);
+		// startingXlsWriter.setSortedAthletes(regCatAthletesList);
+
+		updateURLLocations();
+		return regCatAthletesList;
+	}
+
+	private Comparator<? super Athlete> groupCategoryComparator() {
 		// for categories listing we want all the participation categories
 		Comparator<? super Athlete> groupCategoryComparator = (a1, a2) -> {
 			int compare;
@@ -747,22 +771,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			compare = ObjectUtils.compare(a1.getEntryTotal(), a2.getEntryTotal());
 			return -compare;
 		};
-		List<Athlete> found = stream.sorted(
-		        groupCategoryComparator)
-		        .collect(Collectors.toList());
-		categoriesXlsWriter.setSortedAthletes(found);
-
-		// cards and starting we only want the actual athlete, without duplicates
-		Set<Athlete> regCatAthletes = found.stream().map(pa -> ((PAthlete) pa)._getAthlete())
-		        .collect(Collectors.toSet());
-		List<Athlete> regCatAthletesList = new ArrayList<>(regCatAthletes);
-		regCatAthletesList.sort(groupCategoryComparator);
-
-		cardsXlsWriter.setSortedAthletes(regCatAthletesList);
-		startingXlsWriter.setSortedAthletes(regCatAthletesList);
-
-		updateURLLocations();
-		return regCatAthletesList;
+		return groupCategoryComparator;
 	}
 
 	protected void setAgeDivision(AgeDivision ageDivision) {
@@ -870,7 +879,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		} else {
 			setGroup(newCurrentGroup);
 		}
-		//getRouterLayout().updateHeader(true);
+		// getRouterLayout().updateHeader(true);
 		getGroupFilter().setValue(newCurrentGroup);
 	}
 

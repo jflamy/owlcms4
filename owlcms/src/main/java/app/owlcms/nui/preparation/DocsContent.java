@@ -50,6 +50,8 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLS3StartingListDocs;
+import app.owlcms.spreadsheet.JXLSCardsDocs;
+import app.owlcms.spreadsheet.JXLSStartingListDocs;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
@@ -77,7 +79,6 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 	private ComboBox<Platform> platformFilter;
 	private String groupName;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
-	protected JXLS3StartingListDocs startingXls3Writer;
 
 	/**
 	 * Instantiates a new announcer content. Does nothing. Content is created in
@@ -302,10 +303,13 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		JXLSDownloader cardsButtonFactory = new JXLSDownloader(
 		        () -> {
 			        // group may have been edited since the page was loaded
+		        	JXLSCardsDocs cardsXlsWriter = new JXLSCardsDocs();
 			        cardsXlsWriter.setGroup(
 			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
 			        // get current version of athletes.
-			        findAll();
+			        List<Athlete> athletesFindAll = athletesFindAll();
+			        logger.warn("athletesFindAll {}", athletesFindAll.size());
+					cardsXlsWriter.setSortedAthletes(athletesFindAll);
 			        return cardsXlsWriter;
 		        },
 		        resourceDirectoryLocation,
@@ -323,9 +327,12 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 
 		JXLSDownloader startingListFactory = new JXLSDownloader(
 		        () -> {
+		        	JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
 			        // group may have been edited since the page was loaded
+		        	// FIXME: should be a list of sessions in the correct order
 			        startingXlsWriter.setGroup(
 			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
+			        //startingXlsWriter.setSortedAthletes(participationFindAll());
 			        return startingXlsWriter;
 		        },
 		        resourceDirectoryLocation,
@@ -342,14 +349,15 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 
 		JXLSDownloader startingListFactory = new JXLSDownloader(
 		        () -> {
+		        	JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
 			        // group may have been edited since the page was loaded
 			        startingXlsWriter.setGroup(
 			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
 			        // get current version of athletes.
 			        startingXlsWriter.setPostProcessor(null);
-			        findAll();
-			        List<Athlete> sortedAthletes = startingXlsWriter.getSortedAthletes();
-			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(sortedAthletes));
+//			        findAll();
+//			        List<Athlete> sortedAthletes = startingXlsWriter.getSortedAthletes();
+			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(athletesFindAll()));
 			        return startingXlsWriter;
 		        },
 		        resourceDirectoryLocation,
@@ -363,20 +371,16 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 	protected Button createSessions3Button() {
 		String resourceDirectoryLocation = "/templates/start3";
 		String title = Translator.translate("StartingList");
-		startingXls3Writer = new JXLS3StartingListDocs();
 		JXLSDownloader startingListFactory = new JXLSDownloader(
 		        () -> {
 					logger.warn("JXLSDownloader");
+					JXLS3StartingListDocs startingXls3Writer = new JXLS3StartingListDocs();
 			        // group may have been edited since the page was loaded
 			        startingXls3Writer.setGroup(
 			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
 			        // get current version of athletes.
 			        startingXls3Writer.setPostProcessor(null);
-			        findAll();
-			        // findAll sets startingXlsWriter.
-			        List<Athlete> sortedAthletes = startingXlsWriter.getSortedAthletes();
-			        startingXls3Writer.setSortedAthletes(AthleteSorter.registrationOrderCopy(sortedAthletes));
-			        logger.warn("*** sortedAthletes {}", sortedAthletes.size());
+			        startingXls3Writer.setSortedAthletes(AthleteSorter.registrationOrderCopy(participationFindAll()));
 			        return startingXls3Writer;
 		        },
 		        resourceDirectoryLocation,
@@ -394,13 +398,12 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 
 		JXLSDownloader startingListFactory = new JXLSDownloader(
 		        () -> {
+		        	JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
 			        // group may have been edited since the page was loaded
 			        startingXlsWriter.setGroup(
 			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
 			        // get current version of athletes.
-			        findAll();
-			        // List<Athlete> sortedAthletes = startingXlsWriter.getSortedAthletes();
-			        // startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(sortedAthletes));
+			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(participationFindAll()));
 			        startingXlsWriter.createTeamColumns(9, 6);
 			        return startingXlsWriter;
 		        },
