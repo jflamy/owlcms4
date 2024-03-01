@@ -5,7 +5,11 @@
 > - *You should always carefully test any new release several days before using it, with your own data.*
 > - If you have made customizations, see the [notes at the bottom.](#customization-notes) 
 
-##### 46.0 
+##### 46.0.1
+
+- Fix: IWF-format athlete cards were not working in version 46.0.0.  For this document we have returned to the previous .xls format.
+
+##### 46.0.0 
 
 - Fix: Lines in the final package for Sinclair/SMF/Q-Points could be duplicated (once per eligible category). Now fixed.  Only Robi where the score is different for each eligible category has duplicate lines.
 - Selectable Scoring System
