@@ -5,13 +5,18 @@
 > - *You should always carefully test any new release several days before using it, with your own data.*
 > - If you have made customizations, see the [notes at the bottom.](#customization-notes) 
 
+##### 46.0.2
+
+- Fix: The live updating or the Sinclair/SMM/Q-Points/Robi rankings now works again.
+
+
 ##### 46.0.1
 
 - Fix: IWF-format athlete cards were not working in version 46.0.0.  For this document we have returned to the previous .xls format.
 
   > [!IMPORTANT]
   >
-  > If you had installed version 46.0.0, you need to go to your `local/templates/cards` installation directory and remove the IWF templates in `.xlsx` format. Keep only the `.xls` files.  Uninstalling the previous version will also work.
+  > If you had installed 46.0.0, and then install a later version, you will have .xlsx and .xls versions of the IWF card templates.  Go to your `local/templates/cards` directory and keep only the .xls versions of the IWF cards.
 
 ##### 46.0.0 
 
