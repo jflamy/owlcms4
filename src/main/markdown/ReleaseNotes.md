@@ -7,7 +7,7 @@
 
 ##### 46.0.2
 
-- Fix: The live updating or the Sinclair/SMM/Q-Points/Robi rankings now works again.
+- Fix: The live updating of the Sinclair/SMM/Q-Points/Robi rankings now works again.
 
 
 ##### 46.0.1
