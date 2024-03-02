@@ -2078,7 +2078,7 @@ public class FieldOfPlay {
 				try {
 					Competition.getCurrent().globalRankings(em);
 				} catch (Exception e) {
-					this.logger.error("{} global ranking exception {}\n ", getLoggingName(), e,
+					this.logger.error("{} global ranking exception {}\n{}", getLoggingName(), e,
 					        LoggerUtils.stackTrace(e));
 				}
 				for (Athlete a : l) {
