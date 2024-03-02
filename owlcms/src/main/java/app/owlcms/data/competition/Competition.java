@@ -396,8 +396,13 @@ public class Competition {
 	public void doGlobalRankings(List<Athlete> athletes) {
 		TreeSet<Athlete> noDup = new TreeSet<>(Comparator.comparing(Athlete::getFullId));
 		for (Athlete pAthlete : athletes) {
-			Athlete athlete = ((PAthlete)pAthlete)._getAthlete();
-			noDup.add(athlete);
+			Athlete athlete;
+			if (pAthlete instanceof PAthlete) {
+				athlete = ((PAthlete)pAthlete)._getAthlete();
+				noDup.add(athlete);
+			} else {
+				noDup.add(pAthlete);
+			}
 		}
 		ArrayList<Athlete> nodupAthletes = new ArrayList<Athlete>(noDup);
 		
