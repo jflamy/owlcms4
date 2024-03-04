@@ -5,6 +5,10 @@
 > - *You should always carefully test any new release several days before using it, with your own data.*
 > - If you have made customizations, see the [notes at the bottom.](#customization-notes) 
 
+##### 46.0.3
+
+- Fix: The simplified initial registration file is now correctly read until the first empty line (instead of erroneously stopping at the first line with an empty first cell)
+
 ##### 46.0.2
 
 - Fix: The live updating of the Sinclair/SMM/Q-Points/Robi rankings now works again.
