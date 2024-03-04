@@ -524,15 +524,17 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 				String[] delayedSetterValues = new String[DelayedSetter.values().length];
 				Cell[] delayedSetterCells = new Cell[DelayedSetter.values().length];
 				iColumn = 0;
+				boolean curRowEmpty = true;
 				while (cellIterator.hasNext()) {
 					Cell cell = cellIterator.next();
 					String cellValue = cellToString(cell);
-					if (iColumn == 0) {
-						String trim = cellValue.trim();
-						if (trim.isBlank()) {
-							break rows;
-						}
+					String trim = cellValue.trim();
+					if (trim.isBlank()) {
+						iColumn++;
+						continue;
 					}
+					
+					curRowEmpty = false;
 					int delayedOrder = ArrayUtils.indexOf(this.delayedSetterColumns, iColumn);
 					if (delayedOrder < 0) {
 						if (iColumn < this.setterForColumn.length && this.setterForColumn[iColumn] != null) {
@@ -544,6 +546,9 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 						delayedSetterCells[delayedOrder] = cell;
 					}
 					iColumn++;
+				}
+				if (curRowEmpty) {
+					break rows;
 				}
 
 				// second pass, call the delayed setters in the correct order.
