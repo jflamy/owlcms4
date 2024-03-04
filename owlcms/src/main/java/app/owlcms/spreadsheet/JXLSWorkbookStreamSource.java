@@ -98,8 +98,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		try {
 			session.lock();
 			writeStream(stream);
-		} catch (IOException e) {
-			// ignore
 		} catch (Throwable t) {
 			logger.error(LoggerUtils./**/stackTrace(t));
 		} finally {

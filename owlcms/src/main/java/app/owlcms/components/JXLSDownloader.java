@@ -225,6 +225,7 @@ public class JXLSDownloader {
 					logger.debug("(2) template found {}", res != null ? res.getFilePath() : null);
 					templateNameSetter.accept(current, newTemplateName);
 					logger.debug("(2) template as set {}", templateNameGetter.apply(current));
+					//TODO determine if jxls3 template and set a flag in res.
 
 					CompetitionRepository.save(current);
 					current = Competition.getCurrent();
