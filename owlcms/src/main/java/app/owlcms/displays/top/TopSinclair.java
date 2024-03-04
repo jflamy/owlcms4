@@ -334,8 +334,6 @@ public class TopSinclair extends AbstractTop {
 		for (Athlete a : list3) {
 			JsonObject ja = Json.createObject();
 			Gender curGender = a.getGender();
-
-			// TODO *** reverse mapping for Robi, QPoints, HSR
 			int needed = 0;
 
 			switch (scoringSystem) {
