@@ -153,14 +153,7 @@ public class OwlcmsFactory {
 				Entry<String, FieldOfPlay> f = it.next();
 
 				FieldOfPlay fop = f.getValue();
-				EventBus fopEventBus = fop.getFopEventBus();
-				if (fopEventBus != null) {
-					try {
-						fopEventBus.unregister(fop);
-					} catch (IllegalArgumentException e) {
-						// not registered, or already unregistered
-					}
-				}
+				fop.unregister();
 			}
 		}
 		setFopByName(new HashMap<>());

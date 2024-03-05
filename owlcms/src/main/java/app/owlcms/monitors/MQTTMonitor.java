@@ -55,7 +55,7 @@ import ch.qos.logback.classic.Logger;
  *
  * @author Jean-François Lamy
  */
-public class MQTTMonitor extends Thread {
+public class MQTTMonitor extends Thread implements IUnregister {
 
 	/**
 	 * This inner class contains the routines executed when an MQTT message is received.
@@ -282,6 +282,21 @@ public class MQTTMonitor extends Thread {
 	public MQTTMonitor(FieldOfPlay fop) {
 		this.fop = fop;
 	}
+	
+	@Override
+	public void unregister() {
+		this.setFop(null);
+		try {
+			this.client.disconnect();
+		} catch (MqttException e) {
+			try {
+				this.client.disconnectForcibly();
+			} catch (MqttException e1) {
+				LoggerUtils.logError(logger, e1);
+			}
+		}
+	}
+
 
 	public FieldOfPlay getFop() {
 		return this.fop;
