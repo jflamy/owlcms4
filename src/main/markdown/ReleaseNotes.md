@@ -5,6 +5,10 @@
 > - *You should always carefully test any new release several days before using it, with your own data.*
 > - If you have made customizations, see the [notes at the bottom.](#customization-notes) 
 
+##### 46.0.4
+
+- Fix: Records from national, continental, world federations again appear in separate rows according the name given, with one record box per age group+body weight.  A previous attempt to automatically accommodate conflicting names when loading from several federations has been undone. Conflicts in record names should be fixed in the source files.
+
 ##### 46.0.3
 
 - Fix: The simplified initial registration file is now correctly read until the first empty line (instead of erroneously stopping at the first line with an empty first cell)
