@@ -39,6 +39,7 @@ import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.athleteSort.DisplayOrderComparator;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
@@ -116,6 +117,7 @@ public class Results extends LitTemplate
     private HashMap<Athlete, String> athleteToFlag = new HashMap<>();
     private boolean video;
     private boolean downSilenced;
+	private boolean displayByAgeGroup;
 
     public Results() {
         this.uiEventLogger.setLevel(Level.INFO);
@@ -929,9 +931,17 @@ public class Results extends LitTemplate
      * @return the separator
      */
     protected BiPredicate<Athlete, Athlete> getSeparatorPredicate() {
-        BiPredicate<Athlete, Athlete> separator = (cur, prev) -> prev == null
-                || (cur.getCategory() != null
+        BiPredicate<Athlete, Athlete> separator = (cur, prev) -> {
+        	if ( prev == null ) {
+        		return true;
+        	} else if (displayByAgeGroup) {
+                return (cur.getCategory() != null
                         && !cur.getCategory().sameAs(prev.getCategory()));
+        	} else {
+        		int compare = DisplayOrderComparator.compareBWCategory(cur, prev);
+        		return compare != 0;
+        	}
+        };
         return separator;
     }
 
@@ -961,6 +971,7 @@ public class Results extends LitTemplate
             this.uiEventBus = uiEventBusRegister(this, fop);
 
             this.getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
+            this.displayByAgeGroup = Competition.getCurrent().isDisplayByAgeGroup();
         });
 
         getElement().setProperty("showTotal", true);

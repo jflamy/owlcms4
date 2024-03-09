@@ -25,7 +25,7 @@ import app.owlcms.utils.NaturalOrderComparator;
  * The Class AbstractLifterComparator.
  */
 public class AbstractLifterComparator {
-	final private static Logger logger = LoggerFactory.getLogger(AbstractLifterComparator.class);
+	protected final static Logger logger = LoggerFactory.getLogger(AbstractLifterComparator.class);
 	private NaturalOrderComparator<String> noc;
 
 	/**
@@ -171,6 +171,22 @@ public class AbstractLifterComparator {
 		Category lifter2Value = lifter2.getCategory();
 		return ObjectUtils.compare(lifter1Value, lifter2Value, true);
 	}
+	
+	/**
+	 * Compare category.
+	 *
+	 * @param lifter1 the lifter 1
+	 * @param lifter2 the lifter 2
+	 * @return the int
+	 */
+	public static int compareBWCategory(Athlete lifter1, Athlete lifter2) {
+		Category lifter1Value = lifter1.getCategory();
+		Category lifter2Value = lifter2.getCategory();
+		Double bwCat1 = lifter1Value != null ? lifter1Value.getMaximumWeight() : null;
+		Double bwCat2 = lifter2Value != null ? lifter2Value.getMaximumWeight() : null;
+		return ObjectUtils.compare(bwCat1, bwCat2, true);
+	}
+	
 	
 	/**
 	 * Compare category.

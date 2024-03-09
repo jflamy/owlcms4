@@ -382,6 +382,11 @@ public class CompetitionEditingFormFactory
 		layout.addFormItem(mastersField, Translator.translate("Competition.mastersStartOrder"));
 		binder.forField(mastersField)
 		        .bind(Competition::isMasters, Competition::setMasters);
+		
+		Checkbox byAgeGroupField = new Checkbox();
+		layout.addFormItem(byAgeGroupField, Translator.translate("Competition.startNumbersByAgeGroup"));
+		binder.forField(byAgeGroupField)
+		        .bind(Competition::isDisplayByAgeGroup, Competition::setDisplayByAgeGroup);
 
 		return layout;
 	}
