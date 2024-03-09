@@ -7,6 +7,7 @@
 
 ##### 47.0 
 
+- (beta02) Publicresults: packaging of down signal icon.
 - Start numbers are now assigned by bodyweight category then by age group. A checkbox is available when it it desired to keep categories from the same age group together (i.e. kid categories first).  A separate option selects Masters order (older categories first).
 - There is now the ability to have different styles for the result and attempt board styling depending on the platform (both on-site and on streaming)
   - An identifier for the current platform is added to the top-level `wrapper` element in the page.  The name is modified to only keep legal CSS characters (Latin letters, digits, hyphens and underscores). If you wish to use this feature, the platform will have to have a Latin name, or only digits.  A `_` will be added in front of a digits-only name to make it legal.
