@@ -15,6 +15,8 @@ import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dependency.Uses;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 
 import app.owlcms.init.OwlcmsSession;
@@ -33,6 +35,7 @@ import ch.qos.logback.classic.Logger;
  */
 @Tag("decision-element-pr")
 @JsModule("./components/DecisionElementPR.js")
+@Uses(Icon.class)  
 public class DecisionElementPR extends LitTemplate
         implements IFopName, SafeEventBusRegistrationPR {
 
