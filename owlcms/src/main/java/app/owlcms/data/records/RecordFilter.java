@@ -31,11 +31,17 @@ public class RecordFilter {
 
 	@SuppressWarnings("unused")
 	private static Logger logger = (Logger) LoggerFactory.getLogger(RecordFilter.class);
+	private static Boolean recordNameIsCategory = null;
 
 	public static JsonValue buildRecordJson(List<RecordEvent> displayedRecords, Set<RecordEvent> challengedRecords,
 	        Integer snatchRequest, Integer cjRequest,
 	        Integer totalRequest,
 	        Athlete a) {
+		
+		if (recordNameIsCategory == null) {
+			recordNameIsCategory = Config.getCurrent().featureSwitch("recordNameIsCategory");
+			logger.warn("setting recordNameIsCategory {}", recordNameIsCategory);
+		}
 		
 		ArrayList<String> recordOrder = RecordConfig.getCurrent().getRecordOrder();
 		if (recordOrder == null || recordOrder.isEmpty()) {
@@ -65,7 +71,13 @@ public class RecordFilter {
 //			recordsByAgeWeight.put(key, re);
 
 			try {
-				String key2 = String.format("%d_%03d_%03d_%03d_%s",re.getGender().ordinal(), re.getAgeGrpLower(), re.getAgeGrpUpper(), re.getBwCatUpper(), re.getRecordFederation());
+				String key2 = String.format("%d_%03d_%03d_%03d_%s",
+						re.getGender().ordinal(),
+						re.getAgeGrpLower(), re.getAgeGrpUpper(),
+						re.getBwCatUpper(),
+						//re.getRecordFederation() 
+						recordNameIsCategory ? re.getRecordFederation() : ""
+						);
 				recordsByAgeWeight.put(key2, re);
 			} catch (Exception e) {
 				logger.error("formatting error {}",e);
