@@ -3,6 +3,11 @@
 > - You should test all releases with your own data, several days before a competition.
 >- If you have made local customizations, see the Customization Notes at the bottom of this page.
 
+##### 47.0.1
+
+- Record display on scoreboards:  merged missing fix from version 46.0.4. 
+  Records from national, continental, and world federations again appear in separate rows according the name given, with one record box per age group and body weight.  A previous attempt to automatically accommodate conflicting names when loading from several federations has been undone. Conflicts in record names should be fixed in the source files.
+
 ##### 47.0.0
 
 - Start numbers are now assigned by bodyweight category then by age group. A checkbox is available when it it desired to keep categories from the same age group together (i.e. kid categories first).  A separate option selects Masters order (older categories first).
