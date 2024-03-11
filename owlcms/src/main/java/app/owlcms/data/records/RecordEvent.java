@@ -262,7 +262,8 @@ public class RecordEvent {
 	}
 
 	public String getKey() {
-		return getRecordFederation() + "_" + getRecordName() + "_" + getRecordLift() + "_" + getBwCatLower() + "_" + getBwCatUpper() + "_"
+		return //getRecordFederation() + "_" + 
+				getRecordName() + "_" + getRecordLift() + "_" + getBwCatLower() + "_" + getBwCatUpper() + "_"
 				+ getAgeGrpLower() + "_" + getAgeGrpUpper();
 	}
 

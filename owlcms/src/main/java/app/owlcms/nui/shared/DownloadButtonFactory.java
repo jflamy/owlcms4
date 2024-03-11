@@ -73,7 +73,6 @@ public class DownloadButtonFactory {
 	}
 
 	public static Div createDynamicZipDownloadButton(String prefix, String label, byte[] content) {
-		logger.warn("creating byte[] download button");
 		final LazyDownloadButton downloadButton = new LazyDownloadButton(
 		        label,
 		        new Icon(VaadinIcon.DOWNLOAD_ALT),

@@ -331,7 +331,7 @@ class DecisionElementPR extends LitElement {
   The server side is responsible for not calling this again if the event took place in this element.
   */
   showDown(isMaster, silent) {
-    console.debug("de showDown -- " + !this.silent + " " + !silent);
+    console.warn("de showDown -- " + !this.silent + " " + !silent);
     if (!this.silent && !silent) {
       this._playTrack("../local/sounds/down.mp3", window.downSignal, true, 0);
     }
@@ -344,6 +344,7 @@ class DecisionElementPR extends LitElement {
   }
 
   hideDown() {
+    console.warn("de hideDown -- ");
     this._downShown = false;
   }
 

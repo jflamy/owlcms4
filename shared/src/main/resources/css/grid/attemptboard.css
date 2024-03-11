@@ -164,8 +164,8 @@
 .attemptBoard .recordNotification.new {
 	display: grid;
 	grid-area: teamName-start/teamName-start/teamName-end/teamName-end;
-    background-color: var(--darkRecordHighlightBackground);
-    color: var(--darkRecordHighlightText);
+    background-color: var(--RecordHighlightBackground);
+    color: var(--RecordHighlightText);
     visibility: var(--showRecordNotifications);
     width: 100%;
     align-self: center;
@@ -178,8 +178,8 @@
 .attemptBoard .recordNotification.attempt {
 	display: grid;
 	grid-area: teamName-start/teamName-start/teamName-end/teamName-end;
-    background-color: var(--darkAttemptHighlightBackground);
-    color: var(--darkAttemptHighlightText);
+    background-color: var(--AttemptHighlightBackground);
+    color: var(--AttemptHighlightText);
     visibility: var(--showRecordNotifications);
     width: 100%;
     align-self: center;
@@ -192,8 +192,8 @@
 .attemptBoard .recordNotification.none {
 	display: grid;
 	grid-area: teamName-start/teamName-start/teamName-end/teamName-end;
-    background-color: var(--darkAttemptHighlightBackground);
-    color: var(--darkAttemptHighlightText);
+    background-color: var(--AttemptHighlightBackground);
+    color: var(--AttemptHighlightText);
     visibility: var(--showRecordNotifications);
     width: 100%;
     align-self: center;
