@@ -480,6 +480,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 		this.fop.getFopEventBus().register(this);
 
 		try {
+			logger.info("starting MQTT monitoring for {}",fop.getLoggingName());
 			String paramMqttServer = Config.getCurrent().getParamMqttServer();
 			if (Config.getCurrent().getParamMqttInternal() || (paramMqttServer != null && !paramMqttServer.isBlank())) {
 				this.client = createMQTTClient(this.fop);
