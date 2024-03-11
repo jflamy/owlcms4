@@ -271,6 +271,8 @@ public class Competition {
 	@Column(columnDefinition = "boolean default false")
 	private boolean displayScoreRanks;
 	private String checkInTemplateFileName;
+	@Column(columnDefinition = "boolean default false")
+	private boolean displayByAgeGroup;
 
 	public Competition() {
 		this.medalsByGroup = new HashMap<>();
@@ -399,7 +401,7 @@ public class Competition {
 		for (Athlete pAthlete : athletes) {
 			Athlete athlete;
 			if (pAthlete instanceof PAthlete) {
-				athlete = ((PAthlete)pAthlete)._getAthlete();
+				athlete = ((PAthlete) pAthlete)._getAthlete();
 				noDup.add(athlete);
 			} else {
 				noDup.add(pAthlete);
@@ -903,6 +905,17 @@ public class Competition {
 		return this.customScore;
 	}
 
+<<<<<<< HEAD
+=======
+	public boolean isDisplayByAgeGroup() {
+		return this.displayByAgeGroup;
+	}
+	
+	public boolean getDisplayByAgeGroup() {
+		return this.isDisplayByAgeGroup();
+	}
+
+>>>>>>> refs/heads/dev47
 	public boolean isDisplayScoreRanks() {
 		return this.displayScoreRanks;
 	}
@@ -1089,6 +1102,13 @@ public class Competition {
 		this.customScore = customScore;
 	}
 
+<<<<<<< HEAD
+=======
+	public void setDisplayByAgeGroup(boolean displayByAgeGroup) {
+		this.displayByAgeGroup = displayByAgeGroup;
+	}
+
+>>>>>>> refs/heads/dev47
 	public void setDisplayScoreRanks(boolean displayScoreRanks) {
 		this.displayScoreRanks = displayScoreRanks;
 	}

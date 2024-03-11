@@ -75,7 +75,7 @@ import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
-public class EventForwarder implements BreakDisplay, HasBoardMode {
+public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 //    private static HashMap<String, EventForwarder> registeredFop = new HashMap<>();
 
@@ -139,6 +139,12 @@ public class EventForwarder implements BreakDisplay, HasBoardMode {
 			logger.info("{}Pushing to remote site {}", getFop().getLoggingName(), updateUrl);
 		}
 		pushUpdate();
+	}
+	
+	@Override
+	public void unregister() {
+		postBus.unregister(this);
+		this.setFop(null);
 	}
 
 	@Override

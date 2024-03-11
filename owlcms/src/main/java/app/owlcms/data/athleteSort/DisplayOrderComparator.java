@@ -36,10 +36,35 @@ public class DisplayOrderComparator extends AbstractLifterComparator implements 
 			}
 		}
 
-		compare = compareCategory(lifter1, lifter2);
+		boolean displayByAgeGroup = Competition.getCurrent().isDisplayByAgeGroup();
+		if (displayByAgeGroup) {
+			compare = compareCategory(lifter1, lifter2);
+		} else {
+			compare = compareBWCategory(lifter1, lifter2);
+			if (compare != 0) {
+				return compare;
+			}
+			// within a category, order by age group.
+			compare = compareAgeGroup(lifter1, lifter2);
+			if (compare != 0) {
+				return compare;
+			}
+		}
 		if (compare != 0) {
 			return compare;
 		}
+		
+		
+		if (displayByAgeGroup) {
+			compare = compareCategory(lifter1, lifter2);
+		} else {
+			compare = compareBWCategory(lifter1, lifter2);
+		}
+		if (compare != 0) {
+			return compare;
+		}
+		
+		
 
 		compare = compareLotNumber(lifter1, lifter2);
 		if (compare != 0) {

@@ -82,6 +82,7 @@ import app.owlcms.fieldofplay.FOPEvent.WeightChange;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.monitors.EventForwarder;
+import app.owlcms.monitors.IUnregister;
 import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.sound.Sound;
 import app.owlcms.sound.Tone;
@@ -108,7 +109,7 @@ import elemental.json.JsonValue;
  *
  * @author owlcms
  */
-public class FieldOfPlay {
+public class FieldOfPlay implements IUnregister {
 
 	public static final long DECISION_VISIBLE_DURATION = 3500;
 	public static final int REVERSAL_DELAY = 3000;
@@ -203,6 +204,7 @@ public class FieldOfPlay {
 	private List<Athlete> resultsOrder;
 	private boolean cjBreakDisplayed;
 	private MQTTMonitor mqttMonitor = null;
+	private EventForwarder eventForwarder;
 
 	public FieldOfPlay() {
 	}
@@ -233,7 +235,18 @@ public class FieldOfPlay {
 		this.setPlatform(platform2);
 
 		this.fopEventBus.register(this);
-		new EventForwarder(this);
+		this.setEventForwarder(new EventForwarder(this));
+	}
+	
+	@Override
+	public void unregister() {
+		this.fopEventBus.unregister(this);
+		if (this.getEventForwarder() != null) {
+			this.getEventForwarder().unregister();
+		}
+		if (this.getMqttMonitor() != null) {
+			this.getMqttMonitor().unregister();
+		}
 	}
 
 	public void broadcast(String string) {
@@ -2903,6 +2916,14 @@ public class FieldOfPlay {
 	private void weightChangeDoNotDisturb(WeightChange e) {
 		recomputeOrderAndRanks(e.isResultChange());
 		uiDisplayCurrentAthleteAndTime(false, e, false);
+	}
+
+	public EventForwarder getEventForwarder() {
+		return eventForwarder;
+	}
+
+	public void setEventForwarder(EventForwarder eventForwarder) {
+		this.eventForwarder = eventForwarder;
 	}
 
 }

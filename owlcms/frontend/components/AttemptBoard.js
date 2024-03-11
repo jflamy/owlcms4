@@ -123,7 +123,7 @@ class CurrentAttempt extends LitElement {
   }
 
   wrapperClasses() {
-    var classes = "wrapper ";
+    var classes = "wrapper dark";
     classes = classes + (this.platformName ? " " + this.platformName : "");
     return classes;
   }
