@@ -70,7 +70,7 @@ public class JXLSRegistrationEmptyExport extends JXLSWorkbookStreamSource {
 	}
 
 	@Override
-	protected boolean isEmptyOk() {
+	public boolean isEmptyOk() {
 		return true;
 	}
 

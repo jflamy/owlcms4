@@ -104,7 +104,7 @@ public class DecisionElementPR extends LitTemplate
             } else {
                 switch (de.getEventType()) {
                 case DOWN_SIGNAL:
-                    logger.warn("*****showing down");
+                    logger.debug("*****showing down");
                     this.getElement().callJsFunction("showDown", false, isSilenced());
                     break;
                 case FULL_DECISION:

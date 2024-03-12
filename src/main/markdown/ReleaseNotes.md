@@ -5,6 +5,7 @@
 
 ##### 47.1
 
+- New template: Check-in sheet. Used to hand out promotional items to athletes, give access passes, etc.
 - Excel templates for documents can now be in [jxls3](https://jxls.sourceforge.net/) format.  A jxls3 template is detected from the presence of a `jx:area` directive in a note in cell A1 of the first sheet.
 
 ##### 47.0.1

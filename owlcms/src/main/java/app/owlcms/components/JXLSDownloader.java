@@ -213,7 +213,7 @@ public class JXLSDownloader {
 					Competition current = Competition.getCurrent();
 
 					xlsWriter = streamSourceSupplier.get();
-					logger.warn("(2) xlsWriter {} {}", xlsWriter.getClass().getSimpleName(), newTemplateName);
+					logger.debug("(2) xlsWriter {} {}", xlsWriter.getClass().getSimpleName(), newTemplateName);
 
 					// supplier is a lambda that sets the template and the filter values in the xls
 					// source

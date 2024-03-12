@@ -683,6 +683,6 @@ public class Group implements Comparable<Group> {
 	}
 
 	public List<Athlete> getAthletes() {
-		return AthleteRepository.findAllByGroupAndWeighIn(this, false);
+		return AthleteRepository.findAllByGroupAndWeighIn(this, null);
 	}
 }

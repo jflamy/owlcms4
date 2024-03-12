@@ -88,6 +88,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	private UI ui;
 	private Consumer<String> doneCallback;
 	private String fileExtension;
+	private boolean emptyOk = false;
 
 	public JXLSWorkbookStreamSource() {
 		this.ui = UI.getCurrent();
@@ -159,6 +160,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		return this.doneCallback;
 	}
 
+	public String getFileExtension() {
+		return this.fileExtension;
+	}
+
 	public Group getGroup() {
 		if (this.group != null) {
 			Group nGroup = GroupRepository.getById(this.group.getId());
@@ -222,8 +227,17 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		this.doneCallback = action;
 	}
 
+	public void setEmptyOk(boolean emptyOk) {
+		this.emptyOk = emptyOk;
+	}
+
 	public void setExcludeNotWeighed(boolean excludeNotWeighed) {
 		this.excludeNotWeighed = excludeNotWeighed;
+	}
+
+	public void setFileExtension(String extension) {
+		// logger.debug("setting extension {} in {}",extension,this);
+		this.fileExtension = extension;
 	}
 
 	public void setGroup(Group group) {
@@ -328,8 +342,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		setReportingBeans(new HashMap<>());
 	}
 
-	protected boolean isEmptyOk() {
-		return false;
+	public boolean isEmptyOk() {
+		return this.emptyOk;
 	}
 
 	protected void postProcess(Workbook workbook) {
@@ -366,13 +380,15 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		}
 
 		getReportingBeans().put("masters", Competition.getCurrent().isMasters());
-		getReportingBeans().put("groups", GroupRepository.findAll().stream().sorted((a, b) -> {
+		List<Group> sessions = GroupRepository.findAll().stream().sorted((a, b) -> {
 			int compare = ObjectUtils.compare(a.getWeighInTime(), b.getWeighInTime(), true);
 			if (compare != 0) {
 				return compare;
 			}
 			return compare = ObjectUtils.compare(a.getPlatform(), b.getPlatform(), true);
-		}).collect(Collectors.toList()));
+		}).collect(Collectors.toList());
+		getReportingBeans().put("groups", sessions);
+		getReportingBeans().put("sessions", sessions);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -401,6 +417,66 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 
 	}
 
+	private boolean checkJxls3(Workbook tempWorkbook) throws IOException {
+		boolean jxls3 = false;
+		Sheet sheet = tempWorkbook.getSheetAt(0); // Get the first sheet
+		Row row = sheet.getRow(0); // Get the first row (0-based)
+		if (row != null) {
+			Cell cell = row.getCell(0); // Get the first cell in the row (0-based)
+			if (cell != null) {
+				Comment comment = cell.getCellComment();
+				jxls3 = (comment != null && comment.getString().getString().contains("jx:area"));
+			}
+		}
+		return jxls3;
+	}
+
+	private void jxls1Transform(OutputStream stream, Workbook workbook) {
+		XLSTransformer transformer = new XLSTransformer();
+		configureTransformer(transformer);
+		try {
+			setReportingInfo();
+			HashMap<String, Object> reportingInfo = getReportingBeans();
+			@SuppressWarnings("unchecked")
+			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
+			if (athletes != null && (athletes.size() > 0 || isEmptyOk())) {
+				transformer.transformWorkbook(workbook, reportingInfo);
+				logger.debug("after workbook");
+				if (workbook != null) {
+					postProcess(workbook);
+				}
+				logger.debug("after postprocess");
+			} else {
+				String noAthletes = Translator.translate("NoAthletes");
+				logger./**/warn("no athletes: empty report.");
+				this.ui.access(() -> {
+					Notification notif = new Notification();
+					notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
+					notif.setPosition(Position.TOP_STRETCH);
+					notif.setDuration(3000);
+					notif.setText(noAthletes);
+					notif.open();
+				});
+				workbook = new HSSFWorkbook();
+				workbook.createSheet().createRow(1).createCell(1).setCellValue(noAthletes);
+			}
+		} catch (Throwable t) {
+			LoggerUtils.logError(logger, t);
+		}
+		if (workbook != null) {
+			logger.debug("writing stream");
+			try {
+				workbook.write(stream);
+				if (this.doneCallback != null) {
+					this.doneCallback.accept(null);
+				}
+			} catch (Throwable e) {
+				LoggerUtils.logError(logger, e);
+			}
+			logger.debug("wrote stream");
+		}
+	}
+
 	private void jxls3Transform(OutputStream stream, File templateFile) {
 		Workbook workbook = null;
 		File tempFile = null;
@@ -409,15 +485,16 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			HashMap<String, Object> reportingInfo = getReportingBeans();
 			@SuppressWarnings("unchecked")
 			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
+			logger.debug("reportingInfo sessions {}", reportingInfo.get("sessions"));
 			if (athletes != null && (athletes.size() > 0 || isEmptyOk())) {
 				tempFile = File.createTempFile("jxlsOutput", ".xlsx");
 				JxlsPoi.fill(new FileInputStream(templateFile), JxlsStreaming.STREAMING_OFF, reportingInfo, tempFile);
 				workbook = WorkbookFactory.create(tempFile);
-				logger.warn("after workbook3");
+				logger.debug("after workbook3");
 				if (workbook != null) {
 					postProcess(workbook);
 				}
-				logger.warn("after postprocess3");
+				logger.debug("after postprocess3");
 			} else {
 				String noAthletes = Translator.translate("NoAthletes");
 				logger./**/warn("no athletes: empty report.");
@@ -440,7 +517,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			}
 		}
 		if (workbook != null) {
-			logger.warn("writing stream");
+			logger.debug("writing stream");
 			try {
 				workbook.write(stream);
 				if (this.doneCallback != null) {
@@ -449,77 +526,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			} catch (Throwable e) {
 				LoggerUtils.logError(logger, e);
 			}
-			logger.warn("wrote stream3");
+			logger.debug("wrote stream3");
 		}
-	}
-
-	private void jxls1Transform(OutputStream stream, Workbook workbook) {
-		XLSTransformer transformer = new XLSTransformer();
-		configureTransformer(transformer);
-		try {
-			setReportingInfo();
-			HashMap<String, Object> reportingInfo = getReportingBeans();
-			@SuppressWarnings("unchecked")
-			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
-			if (athletes != null && (athletes.size() > 0 || isEmptyOk())) {
-				transformer.transformWorkbook(workbook, reportingInfo);
-				logger.warn("after workbook");
-				if (workbook != null) {
-					postProcess(workbook);
-				}
-				logger.warn("after postprocess");
-			} else {
-				String noAthletes = Translator.translate("NoAthletes");
-				logger./**/warn("no athletes: empty report.");
-				this.ui.access(() -> {
-					Notification notif = new Notification();
-					notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
-					notif.setPosition(Position.TOP_STRETCH);
-					notif.setDuration(3000);
-					notif.setText(noAthletes);
-					notif.open();
-				});
-				workbook = new HSSFWorkbook();
-				workbook.createSheet().createRow(1).createCell(1).setCellValue(noAthletes);
-			}
-		} catch (Throwable t) {
-			LoggerUtils.logError(logger, t);
-		}
-		if (workbook != null) {
-			logger.warn("writing stream");
-			try {
-				workbook.write(stream);
-				if (this.doneCallback != null) {
-					this.doneCallback.accept(null);
-				}
-			} catch (Throwable e) {
-				LoggerUtils.logError(logger, e);
-			}
-			logger.warn("wrote stream");
-		}
-	}
-
-	private boolean checkJxls3(Workbook tempWorkbook) throws IOException {
-		boolean jxls3 = false;
-		Sheet sheet = tempWorkbook.getSheetAt(0); // Get the first sheet
-		Row row = sheet.getRow(0); // Get the first row (0-based)
-		if (row != null) {
-			Cell cell = row.getCell(0); // Get the first cell in the row (0-based)
-			if (cell != null) {
-				Comment comment = cell.getCellComment();
-				jxls3 = (comment != null && comment.getString().getString().contains("jx:area"));
-			}
-		}
-		return jxls3;
-	}
-
-	public void setFileExtension(String extension) {
-		// logger.debug("setting extension {} in {}",extension,this);
-		this.fileExtension = extension;
-	}
-
-	public String getFileExtension() {
-		return fileExtension;
 	}
 
 }

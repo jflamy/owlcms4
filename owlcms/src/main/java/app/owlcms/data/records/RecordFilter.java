@@ -40,7 +40,7 @@ public class RecordFilter {
 		
 		if (recordNameIsCategory == null) {
 			recordNameIsCategory = Config.getCurrent().featureSwitch("recordNameIsCategory");
-			logger.warn("setting recordNameIsCategory {}", recordNameIsCategory);
+			logger.debug("setting recordNameIsCategory {}", recordNameIsCategory);
 		}
 		
 		ArrayList<String> recordOrder = RecordConfig.getCurrent().getRecordOrder();
