@@ -6,6 +6,9 @@
  *******************************************************************************/
 package app.owlcms.spreadsheet;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,13 +23,19 @@ import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.jxls.builder.JxlsStreaming;
+import org.jxls.transform.poi.JxlsPoi;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.UI;
@@ -308,11 +317,11 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	protected InputStream getTemplate(Locale locale) throws IOException, Exception {
 		if (this.inputStream != null) {
 			logger.debug("explicitly set template {}", this.inputStream);
-			return this.inputStream;
+			return new BufferedInputStream(this.inputStream);
 		}
 		String templateFileName2 = getTemplateFileName();
 		InputStream resourceAsStream = ResourceWalker.getFileOrResource(templateFileName2);
-		return resourceAsStream;
+		return new BufferedInputStream(resourceAsStream);
 	}
 
 	protected void init() {
@@ -368,17 +377,92 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 
 	@SuppressWarnings("unchecked")
 	protected void writeStream(OutputStream stream) throws IOException {
-		Locale locale = OwlcmsSession.getLocale();
-		XLSTransformer transformer = new XLSTransformer();
-		configureTransformer(transformer);
+		File tempFile = null;
+		try {
+			InputStream template;
+			Locale locale = OwlcmsSession.getLocale();
+			template = getTemplate(locale);
+			tempFile = File.createTempFile("jxlsTemplate", ".tmp");
+			FileUtils.copyInputStreamToFile(template, tempFile);
+			Workbook workbook = WorkbookFactory.create(tempFile);
+			if (checkJxls3(workbook)) {
+				jxls3Transform(stream, tempFile);
+			} else {
+				jxls1Transform(stream, workbook);
+			}
+		} catch (Exception e) {
+			LoggerUtils.logError(logger, e);
+			return;
+		} finally {
+			if (tempFile != null) {
+				tempFile.delete();
+			}
+		}
+
+	}
+
+	private void jxls3Transform(OutputStream stream, File templateFile) {
 		Workbook workbook = null;
+		File tempFile = null;
 		try {
 			setReportingInfo();
 			HashMap<String, Object> reportingInfo = getReportingBeans();
+			@SuppressWarnings("unchecked")
 			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
 			if (athletes != null && (athletes.size() > 0 || isEmptyOk())) {
-				InputStream template = getTemplate(locale);
-				workbook = transformer.transformXLS(template, reportingInfo);
+				tempFile = File.createTempFile("jxlsOutput", ".xlsx");
+				JxlsPoi.fill(new FileInputStream(templateFile), JxlsStreaming.STREAMING_OFF, reportingInfo, tempFile);
+				workbook = WorkbookFactory.create(tempFile);
+				logger.warn("after workbook3");
+				if (workbook != null) {
+					postProcess(workbook);
+				}
+				logger.warn("after postprocess3");
+			} else {
+				String noAthletes = Translator.translate("NoAthletes");
+				logger./**/warn("no athletes: empty report.");
+				this.ui.access(() -> {
+					Notification notif = new Notification();
+					notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
+					notif.setPosition(Position.TOP_STRETCH);
+					notif.setDuration(3000);
+					notif.setText(noAthletes);
+					notif.open();
+				});
+				workbook = new HSSFWorkbook();
+				workbook.createSheet().createRow(1).createCell(1).setCellValue(noAthletes);
+			}
+		} catch (Exception e) {
+			LoggerUtils.logError(logger, e);
+		} finally {
+			if (tempFile != null) {
+				tempFile.delete();
+			}
+		}
+		if (workbook != null) {
+			logger.warn("writing stream");
+			try {
+				workbook.write(stream);
+				if (this.doneCallback != null) {
+					this.doneCallback.accept(null);
+				}
+			} catch (Throwable e) {
+				LoggerUtils.logError(logger, e);
+			}
+			logger.warn("wrote stream3");
+		}
+	}
+
+	private void jxls1Transform(OutputStream stream, Workbook workbook) {
+		XLSTransformer transformer = new XLSTransformer();
+		configureTransformer(transformer);
+		try {
+			setReportingInfo();
+			HashMap<String, Object> reportingInfo = getReportingBeans();
+			@SuppressWarnings("unchecked")
+			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
+			if (athletes != null && (athletes.size() > 0 || isEmptyOk())) {
+				transformer.transformWorkbook(workbook, reportingInfo);
 				logger.warn("after workbook");
 				if (workbook != null) {
 					postProcess(workbook);
@@ -413,11 +497,24 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			}
 			logger.warn("wrote stream");
 		}
+	}
 
+	private boolean checkJxls3(Workbook tempWorkbook) throws IOException {
+		boolean jxls3 = false;
+		Sheet sheet = tempWorkbook.getSheetAt(0); // Get the first sheet
+		Row row = sheet.getRow(0); // Get the first row (0-based)
+		if (row != null) {
+			Cell cell = row.getCell(0); // Get the first cell in the row (0-based)
+			if (cell != null) {
+				Comment comment = cell.getCellComment();
+				jxls3 = (comment != null && comment.getString().getString().contains("jx:area"));
+			}
+		}
+		return jxls3;
 	}
 
 	public void setFileExtension(String extension) {
-		//logger.debug("setting extension {} in {}",extension,this);
+		// logger.debug("setting extension {} in {}",extension,this);
 		this.fileExtension = extension;
 	}
 

@@ -50,7 +50,6 @@ import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.shared.OwlcmsLayout;
-import app.owlcms.spreadsheet.JXLS3StartingListDocs;
 import app.owlcms.spreadsheet.JXLSCardsDocs;
 import app.owlcms.spreadsheet.JXLSStartingListDocs;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
@@ -377,18 +376,18 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		String title = Translator.translate("CheckIn");
 		JXLSDownloader startingListFactory = new JXLSDownloader(
 		        () -> {
-					JXLS3StartingListDocs startingXls3Writer = new JXLS3StartingListDocs();
+					JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
 			        // group may have been edited since the page was loaded
-			        startingXls3Writer.setGroup(
+			        startingXlsWriter.setGroup(
 			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
 			        // get current version of athletes.
-			        startingXls3Writer.setPostProcessor(null);
-			        HashMap<String, Object> reportingInfo = startingXls3Writer.getReportingBeans();
+			        startingXlsWriter.setPostProcessor(null);
+			        HashMap<String, Object> reportingInfo = startingXlsWriter.getReportingBeans();
 			        List<Group> sessions = GroupRepository.findAll();
 			        sessions.sort((a,b) -> a.compareToWeighIn(b));
 			        reportingInfo.put("sessions", sessions);
-			        startingXls3Writer.setSortedAthletes(AthleteSorter.registrationOrderCopy(participationFindAll()));
-			        return startingXls3Writer;
+			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(participationFindAll()));
+			        return startingXlsWriter;
 		        },
 		        resourceDirectoryLocation,
 		        Competition::getCheckInTemplateFileName,
