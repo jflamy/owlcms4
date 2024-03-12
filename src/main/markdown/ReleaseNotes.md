@@ -1,7 +1,9 @@
-**Version 47.1**	
+**Version 47.1 Alpha**
 
+> [!WARNING]
+>
+> - This is an alpha release, used for validating new features.  *Features may be incomplete or non-functional*.  Alpha releases are **not** normally used in actual competitions.
 > - You should test all releases with your own data, several days before a competition.
->- If you have made local customizations, see the Customization Notes at the bottom of this page.
 
 ##### 47.1
 
@@ -10,7 +12,7 @@
 
 ##### 47.0.1
 
-- Record display on scoreboards:  merged missing fix from version 46.0.4. 
+- Fix for Record display on scoreboards; a missing fix from version 46.0.4 was merged.
   Records from national, continental, and world federations again appear in separate rows according to the name given, with one record box per age group and body weight.  A previous attempt to automatically accommodate conflicting names when loading from several federations has been undone. Conflicts in record names should be fixed in the source files.
 
 ##### 47.0.0
