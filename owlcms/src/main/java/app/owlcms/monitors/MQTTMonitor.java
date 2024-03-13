@@ -426,6 +426,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 	public void slaveRefereeUpdate(UIEvent.RefereeUpdate e) {
 		// the deliberation is about the last athlete judged, not on the current
 		// athlete.
+		this.callback.setAthleteUnderReview(e.getAthlete());
 		publishMqttRefereeUpdates(e.ref1, e.ref2, e.ref3, e.ref1Time, e.ref2Time, e.ref3Time);
 	}
 

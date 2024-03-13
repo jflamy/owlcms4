@@ -371,12 +371,11 @@ public class CompetitionEditingFormFactory
 		layout.addFormItem(useBirthYearField, Translator.translate("Competition.useBirthYear"));
 		binder.forField(useBirthYearField)
 		        .bind(Competition::isUseBirthYear, Competition::setUseBirthYear);
-
-		RadioButtonGroup<Integer> sinclairYear = new RadioButtonGroup<>();
-		layout.addFormItem(sinclairYear, Translator.translate("sinclair"));
-		sinclairYear.setItems(2020, 2024);
-		binder.forField(sinclairYear)
-		        .bind(Competition::getSinclairYear, Competition::setSinclairYear);
+		
+		Checkbox announcerControlledJuryField = new Checkbox();
+		layout.addFormItem(announcerControlledJuryField, Translator.translate("Competition.announcerControlledJury"));
+		binder.forField(announcerControlledJuryField)
+		        .bind(Competition::isAnnouncerControlledJuryDecision, Competition::setAnnouncerControlledJuryDecision);
 
 		Checkbox mastersField = new Checkbox();
 		layout.addFormItem(mastersField, Translator.translate("Competition.mastersStartOrder"));
@@ -477,21 +476,23 @@ public class CompetitionEditingFormFactory
 		binder.forField(showScoreRanksOnScoreboard)
 		        .bind(Competition::isDisplayScoreRanks, Competition::setDisplayScoreRanks);
 		
+		RadioButtonGroup<Integer> sinclairYear = new RadioButtonGroup<>();
+		layout.addFormItem(sinclairYear, Translator.translate("sinclair"));
+		sinclairYear.setItems(2020, 2024);
+		binder.forField(sinclairYear)
+		        .bind(Competition::getSinclairYear, Competition::setSinclairYear);
+		
 		Checkbox sinclairMeetField = new Checkbox();
 		layout.addFormItem(sinclairMeetField,
 		        labelWithHelp("Competition.SinclairMeet", "Competition.SinclairMeetExplanation"));
 		binder.forField(sinclairMeetField)
 		        .bind(Competition::isSinclair, Competition::setSinclair);
 
-		
 		Checkbox customScoreField = new Checkbox();
 		layout.addFormItem(customScoreField,
 		        labelWithHelp("Competition.customScore", "Competition.customScoreExplanation"));
 		binder.forField(customScoreField)
 		        .bind(Competition::isCustomScore, Competition::setCustomScore);
-
-
-
 
 		return layout;
 	}

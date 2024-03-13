@@ -238,7 +238,7 @@ public class FieldOfPlay implements IUnregister {
 		this.fopEventBus.register(this);
 		this.setEventForwarder(new EventForwarder(this));
 	}
-	
+
 	@Override
 	public void unregister() {
 		this.fopEventBus.unregister(this);
@@ -348,13 +348,13 @@ public class FieldOfPlay implements IUnregister {
 			return null;
 		} else if (this.state == BREAK) {
 			switch (this.breakType) {
-			case BEFORE_INTRODUCTION:
-			case FIRST_SNATCH:
-			case FIRST_CJ:
-			case GROUP_DONE:
-				return null;
-			default:
-				break;
+				case BEFORE_INTRODUCTION:
+				case FIRST_SNATCH:
+				case FIRST_CJ:
+				case GROUP_DONE:
+					return null;
+				default:
+					break;
 			}
 		}
 
@@ -706,230 +706,231 @@ public class FieldOfPlay implements IUnregister {
 
 		switch (this.getState()) {
 
-		case INACTIVE:
-			// if (e instanceof TimeStarted) {
-			// transitionToTimeRunning();
-			// } else
-			if (e instanceof WeightChange) {
-				doWeightChange((WeightChange) e);
-			} else if (e instanceof FOPEvent.CeremonyStarted) {
-				getBreakTimer().setIndefinite();
-				doStartCeremony((FOPEvent.CeremonyStarted) e);
-			} else if (e instanceof FOPEvent.CeremonyDone) {
-				doEndCeremony((FOPEvent.CeremonyDone) e);
-			} else {
-				unexpectedEventInState(e, INACTIVE);
-			}
-			break;
-
-		case BREAK:
-			if (e instanceof FOPEvent.BreakPaused) {
-				FOPEvent.BreakPaused bpe = (FOPEvent.BreakPaused) e;
-				getBreakTimer().stop();
-				getBreakTimer().setTimeRemaining(bpe.getTimeRemaining(), false);
-				pushOutUIEvent(new UIEvent.BreakPaused(
-				        bpe.getTimeRemaining(),
-				        e.getOrigin(),
-				        false,
-				        this.getBreakType(),
-				        this.getCountdownType()));
-			} else if (e instanceof FOPEvent.BreakDone) {
-				pushOutUIEvent(new UIEvent.BreakDone(e.getOrigin(), getBreakType()));
-				// logger.trace("break done {} {} \n{}", this.getName(), e.getFop().getName(),
-				// e.getStackTrace());
-				BreakType breakType = getBreakType();
-				if (breakType == FIRST_SNATCH || breakType == FIRST_CJ) {
-					transitionToLifting(e, getGroup(), false);
-				} else if (breakType == BEFORE_INTRODUCTION) {
-					transitionToBreak(
-					        new FOPEvent.BreakStarted(FIRST_SNATCH, CountdownType.INDEFINITE, null,
-					                null, true, this));
-					doStartCeremony(new FOPEvent.CeremonyStarted(CeremonyType.INTRODUCTION, getGroup(), null, this));
+			case INACTIVE:
+				// if (e instanceof TimeStarted) {
+				// transitionToTimeRunning();
+				// } else
+				if (e instanceof WeightChange) {
+					doWeightChange((WeightChange) e);
+				} else if (e instanceof FOPEvent.CeremonyStarted) {
+					getBreakTimer().setIndefinite();
+					doStartCeremony((FOPEvent.CeremonyStarted) e);
+				} else if (e instanceof FOPEvent.CeremonyDone) {
+					doEndCeremony((FOPEvent.CeremonyDone) e);
 				} else {
-					transitionToLifting(e, getGroup(), false);
+					unexpectedEventInState(e, INACTIVE);
 				}
-			} else if (e instanceof FOPEvent.BreakStarted) {
-				transitionToBreak((FOPEvent.BreakStarted) e);
-			} else if (e instanceof FOPEvent.CeremonyStarted) {
-				doStartCeremony((FOPEvent.CeremonyStarted) e);
-			} else if (e instanceof FOPEvent.CeremonyDone) {
-				doEndCeremony((FOPEvent.CeremonyDone) e);
-			} else if (e instanceof WeightChange) {
-				doWeightChange((WeightChange) e);
-			} else if (e instanceof JuryMemberDecisionUpdate) {
-				doJuryMemberDecisionUpdate((JuryMemberDecisionUpdate) e);
-			} else if (e instanceof JuryDecision) {
-				doJuryDecision((JuryDecision) e);
-			} else if (e instanceof SummonReferee) {
-				doSummonReferee((SummonReferee) e);
-			} else if (e instanceof DecisionReset) {
-				doDecisionReset(e);
-			} else {
-				unexpectedEventInState(e, BREAK);
-			}
-			break;
+				break;
 
-		case CURRENT_ATHLETE_DISPLAYED:
-			if (e instanceof TimeStarted) {
-				transitionToTimeRunning();
-			} else if (e instanceof WeightChange) {
-				doWeightChange((WeightChange) e);
-			} else if (e instanceof ForceTime) {
-				doForceTime((ForceTime) e);
-			}
-			// else if (e instanceof DecisionFullUpdate && isClockStoppedDecisionsAllowed()) {
-			// // after a break from jury, decisions can be entered even though the clock is
-			// // not running
-			// updateRefereeDecisions((DecisionFullUpdate) e);
-			// uiShowUpdateOnJuryScreen(e);
-			// } else if (e instanceof DecisionUpdate && isClockStoppedDecisionsAllowed()) {
-			// // after a break from jury, decisions can be entered even though the clock is
-			// // not running
-			// updateRefereeDecisions((DecisionUpdate) e);
-			// uiShowUpdateOnJuryScreen(e);
-			// }
-			else {
-				pushOutUIEvent(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, this.state,
-				        UIEvent.Notification.Level.ERROR));
-				// unexpectedEventInState(e, CURRENT_ATHLETE_DISPLAYED);
-			}
-			break;
-
-		case TIME_RUNNING:
-			if (e instanceof DownSignal) {
-				this.logger.debug("emitting down");
-				emitDown(e);
-			} else if (e instanceof TimeStopped) {
-				// athlete lifted the bar
-				setState(TIME_STOPPED);
-				getAthleteTimer().stop();
-				this.logger.info("{}time stopped for {} : {}", getLoggingName(), getCurAthlete().getShortName(),
-				        getAthleteTimer().getTimeRemainingAtLastStop());
-			} else if (e instanceof DecisionFullUpdate) {
-				// decision board/attempt board sends bulk update
-				updateRefereeDecisions((DecisionFullUpdate) e);
-				uiShowUpdateOnJuryScreen(e);
-			} else if (e instanceof DecisionUpdate) {
-				updateRefereeDecisions((DecisionUpdate) e);
-				uiShowUpdateOnJuryScreen(e);
-			} else if (e instanceof WeightChange) {
-				doWeightChange((WeightChange) e);
-			} else if (e instanceof ExplicitDecision) {
-				simulateDecision((ExplicitDecision) e);
-			} else if (e instanceof TimeOver) {
-				// athleteTimer got down to 0
-				// getTimer() signals this, nothing else required for athleteTimer
-				// rule says referees must give reds
-				setState(TIME_STOPPED);
-			} else if (e instanceof ForceTime) {
-				doForceTime((ForceTime) e);
-			} else if (e instanceof TimeStarted) {
-				// do nothing
-				this.logger.debug("{}ignoring start clock when clock is running.", getLoggingName());
-				return;
-			} else {
-				unexpectedEventInState(e, TIME_RUNNING);
-			}
-			break;
-
-		case TIME_STOPPED:
-			if (e instanceof DownSignal) {
-				// only occurs if solo referee
-				emitDown(e);
-			} else if (e instanceof DecisionFullUpdate) {
-				// decision coming from decision display or attempt board
-				updateRefereeDecisions((DecisionFullUpdate) e);
-				uiShowUpdateOnJuryScreen(e);
-			} else if (e instanceof DecisionUpdate) {
-				updateRefereeDecisions((DecisionUpdate) e);
-				uiShowUpdateOnJuryScreen(e);
-			} else if (e instanceof TimeStarted) {
-				if (!getCurAthlete().equals(getClockOwner())) {
-					setClockOwner(getCurAthlete());
-					// setClockOwnerInitialTimeAllowed(getTimeAllowed());
-				}
-				getTimeAllowed();
-				prepareDownSignal();
-				setWeightAtLastStart();
-
-				// we do not reset decisions or "emitted" flags
-				setState(TIME_RUNNING);
-				getAthleteTimer().start();
-			} else if (e instanceof WeightChange) {
-				doWeightChange((WeightChange) e);
-			} else if (e instanceof ExplicitDecision) {
-				simulateDecision((ExplicitDecision) e);
-			} else if (e instanceof ForceTime) {
-				getAthleteTimer().setTimeRemaining(((ForceTime) e).timeAllowed, false);
-				setState(CURRENT_ATHLETE_DISPLAYED);
-			} else if (e instanceof TimeStopped) {
-				// ignore duplicate time stopped
-			} else if (e instanceof TimeOver) {
-				// ignore, already dealt by timer
-			} else if (e instanceof StartLifting) {
-				// nothing to do, end of break when clock was already started
-			} else if (e instanceof ForceTime) {
-				doForceTime((ForceTime) e);
-			} else {
-				unexpectedEventInState(e, TIME_STOPPED);
-			}
-			break;
-
-		case DOWN_SIGNAL_VISIBLE:
-			if (e instanceof ExplicitDecision) {
-				simulateDecision((ExplicitDecision) e);
-			} else if (e instanceof DecisionFullUpdate) {
-				// decision coming from decision display or attempt board
-				updateRefereeDecisions((DecisionFullUpdate) e);
-				uiShowUpdateOnJuryScreen(e);
-			} else if (e instanceof DecisionUpdate) {
-				updateRefereeDecisions((DecisionUpdate) e);
-				uiShowUpdateOnJuryScreen(e);
-			} else if (e instanceof WeightChange) {
-				this.logger.debug("weight change during down {} {} {}", e.getAthlete(), this.getPreviousAthlete(),
-				        this.getCurAthlete());
-				if (e.getAthlete() == this.getCurAthlete()) {
-					this.logger./**/warn("{}signal stuck, direct editing of {}", getLoggingName(),
-					        this.getCurAthlete());
-					// decision signal stuck, direct editing of athlete card. Force recomputing
+			case BREAK:
+				if (e instanceof FOPEvent.BreakPaused) {
+					FOPEvent.BreakPaused bpe = (FOPEvent.BreakPaused) e;
+					getBreakTimer().stop();
+					getBreakTimer().setTimeRemaining(bpe.getTimeRemaining(), false);
+					pushOutUIEvent(new UIEvent.BreakPaused(
+					        bpe.getTimeRemaining(),
+					        e.getOrigin(),
+					        false,
+					        this.getBreakType(),
+					        this.getCountdownType()));
+				} else if (e instanceof FOPEvent.BreakDone) {
+					pushOutUIEvent(new UIEvent.BreakDone(e.getOrigin(), getBreakType()));
+					// logger.trace("break done {} {} \n{}", this.getName(), e.getFop().getName(),
+					// e.getStackTrace());
+					BreakType breakType = getBreakType();
+					if (breakType == FIRST_SNATCH || breakType == FIRST_CJ) {
+						transitionToLifting(e, getGroup(), false);
+					} else if (breakType == BEFORE_INTRODUCTION) {
+						transitionToBreak(
+						        new FOPEvent.BreakStarted(FIRST_SNATCH, CountdownType.INDEFINITE, null,
+						                null, true, this));
+						doStartCeremony(
+						        new FOPEvent.CeremonyStarted(CeremonyType.INTRODUCTION, getGroup(), null, this));
+					} else {
+						transitionToLifting(e, getGroup(), false);
+					}
+				} else if (e instanceof FOPEvent.BreakStarted) {
+					transitionToBreak((FOPEvent.BreakStarted) e);
+				} else if (e instanceof FOPEvent.CeremonyStarted) {
+					doStartCeremony((FOPEvent.CeremonyStarted) e);
+				} else if (e instanceof FOPEvent.CeremonyDone) {
+					doEndCeremony((FOPEvent.CeremonyDone) e);
+				} else if (e instanceof WeightChange) {
+					doWeightChange((WeightChange) e);
+				} else if (e instanceof JuryMemberDecisionUpdate) {
+					doJuryMemberDecisionUpdate((JuryMemberDecisionUpdate) e);
+				} else if (e instanceof JuryDecision) {
+					doJuryDecision((JuryDecision) e);
+				} else if (e instanceof SummonReferee) {
+					doSummonReferee((SummonReferee) e);
+				} else if (e instanceof DecisionReset) {
 					doDecisionReset(e);
-					recomputeLiftingOrder(true, ((WeightChange) e).isResultChange());
 				} else {
-					recomputeOrderAndRanks(((WeightChange) e).isResultChange()); // &&&&&&&&&&&&&&&&&&&&&
-					// weightChangeDoNotDisturb((WeightChange) e);
-					setState(DOWN_SIGNAL_VISIBLE);
+					unexpectedEventInState(e, BREAK);
 				}
-			} else {
-				unexpectedEventInState(e, DOWN_SIGNAL_VISIBLE);
-			}
-			break;
+				break;
 
-		case DECISION_VISIBLE:
-			if (e instanceof ExplicitDecision) {
-				simulateDecision((ExplicitDecision) e);
-				// showExplicitDecision(((ExplicitDecision) e), e.origin);
-			} else if (e instanceof DecisionFullUpdate) {
-				// late update
-				pushOutUIEvent(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, this.state,
-				        UIEvent.Notification.Level.ERROR));
-			} else if (e instanceof DecisionUpdate) {
-				// late update
-				pushOutUIEvent(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, this.state,
-				        UIEvent.Notification.Level.ERROR));
-			} else if (e instanceof WeightChange) {
-				recomputeLiftingOrder(true, ((WeightChange) e).isResultChange()); // &&&&&&&&&&&&&&&&&&&&&
-				// weightChangeDoNotDisturb((WeightChange) e);
-				setState(DECISION_VISIBLE);
-			} else if (e instanceof DecisionReset) {
-				doDecisionReset(e);
-				if (this.deferredBreak != null) {
-					transitionToBreak((FOPEvent.BreakStarted) this.deferredBreak);
-					this.deferredBreak = null;
+			case CURRENT_ATHLETE_DISPLAYED:
+				if (e instanceof TimeStarted) {
+					transitionToTimeRunning();
+				} else if (e instanceof WeightChange) {
+					doWeightChange((WeightChange) e);
+				} else if (e instanceof ForceTime) {
+					doForceTime((ForceTime) e);
 				}
-			} else {
-				unexpectedEventInState(e, DECISION_VISIBLE);
-			}
-			break;
+				// else if (e instanceof DecisionFullUpdate && isClockStoppedDecisionsAllowed()) {
+				// // after a break from jury, decisions can be entered even though the clock is
+				// // not running
+				// updateRefereeDecisions((DecisionFullUpdate) e);
+				// uiShowUpdateOnJuryScreen(e);
+				// } else if (e instanceof DecisionUpdate && isClockStoppedDecisionsAllowed()) {
+				// // after a break from jury, decisions can be entered even though the clock is
+				// // not running
+				// updateRefereeDecisions((DecisionUpdate) e);
+				// uiShowUpdateOnJuryScreen(e);
+				// }
+				else {
+					pushOutUIEvent(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, this.state,
+					        UIEvent.Notification.Level.ERROR));
+					// unexpectedEventInState(e, CURRENT_ATHLETE_DISPLAYED);
+				}
+				break;
+
+			case TIME_RUNNING:
+				if (e instanceof DownSignal) {
+					this.logger.debug("emitting down");
+					emitDown(e);
+				} else if (e instanceof TimeStopped) {
+					// athlete lifted the bar
+					setState(TIME_STOPPED);
+					getAthleteTimer().stop();
+					this.logger.info("{}time stopped for {} : {}", getLoggingName(), getCurAthlete().getShortName(),
+					        getAthleteTimer().getTimeRemainingAtLastStop());
+				} else if (e instanceof DecisionFullUpdate) {
+					// decision board/attempt board sends bulk update
+					updateRefereeDecisions((DecisionFullUpdate) e);
+					uiShowUpdateOnJuryScreen(e);
+				} else if (e instanceof DecisionUpdate) {
+					updateRefereeDecisions((DecisionUpdate) e);
+					uiShowUpdateOnJuryScreen(e);
+				} else if (e instanceof WeightChange) {
+					doWeightChange((WeightChange) e);
+				} else if (e instanceof ExplicitDecision) {
+					simulateDecision((ExplicitDecision) e);
+				} else if (e instanceof TimeOver) {
+					// athleteTimer got down to 0
+					// getTimer() signals this, nothing else required for athleteTimer
+					// rule says referees must give reds
+					setState(TIME_STOPPED);
+				} else if (e instanceof ForceTime) {
+					doForceTime((ForceTime) e);
+				} else if (e instanceof TimeStarted) {
+					// do nothing
+					this.logger.debug("{}ignoring start clock when clock is running.", getLoggingName());
+					return;
+				} else {
+					unexpectedEventInState(e, TIME_RUNNING);
+				}
+				break;
+
+			case TIME_STOPPED:
+				if (e instanceof DownSignal) {
+					// only occurs if solo referee
+					emitDown(e);
+				} else if (e instanceof DecisionFullUpdate) {
+					// decision coming from decision display or attempt board
+					updateRefereeDecisions((DecisionFullUpdate) e);
+					uiShowUpdateOnJuryScreen(e);
+				} else if (e instanceof DecisionUpdate) {
+					updateRefereeDecisions((DecisionUpdate) e);
+					uiShowUpdateOnJuryScreen(e);
+				} else if (e instanceof TimeStarted) {
+					if (!getCurAthlete().equals(getClockOwner())) {
+						setClockOwner(getCurAthlete());
+						// setClockOwnerInitialTimeAllowed(getTimeAllowed());
+					}
+					getTimeAllowed();
+					prepareDownSignal();
+					setWeightAtLastStart();
+
+					// we do not reset decisions or "emitted" flags
+					setState(TIME_RUNNING);
+					getAthleteTimer().start();
+				} else if (e instanceof WeightChange) {
+					doWeightChange((WeightChange) e);
+				} else if (e instanceof ExplicitDecision) {
+					simulateDecision((ExplicitDecision) e);
+				} else if (e instanceof ForceTime) {
+					getAthleteTimer().setTimeRemaining(((ForceTime) e).timeAllowed, false);
+					setState(CURRENT_ATHLETE_DISPLAYED);
+				} else if (e instanceof TimeStopped) {
+					// ignore duplicate time stopped
+				} else if (e instanceof TimeOver) {
+					// ignore, already dealt by timer
+				} else if (e instanceof StartLifting) {
+					// nothing to do, end of break when clock was already started
+				} else if (e instanceof ForceTime) {
+					doForceTime((ForceTime) e);
+				} else {
+					unexpectedEventInState(e, TIME_STOPPED);
+				}
+				break;
+
+			case DOWN_SIGNAL_VISIBLE:
+				if (e instanceof ExplicitDecision) {
+					simulateDecision((ExplicitDecision) e);
+				} else if (e instanceof DecisionFullUpdate) {
+					// decision coming from decision display or attempt board
+					updateRefereeDecisions((DecisionFullUpdate) e);
+					uiShowUpdateOnJuryScreen(e);
+				} else if (e instanceof DecisionUpdate) {
+					updateRefereeDecisions((DecisionUpdate) e);
+					uiShowUpdateOnJuryScreen(e);
+				} else if (e instanceof WeightChange) {
+					this.logger.debug("weight change during down {} {} {}", e.getAthlete(), this.getPreviousAthlete(),
+					        this.getCurAthlete());
+					if (e.getAthlete() == this.getCurAthlete()) {
+						this.logger./**/warn("{}signal stuck, direct editing of {}", getLoggingName(),
+						        this.getCurAthlete());
+						// decision signal stuck, direct editing of athlete card. Force recomputing
+						doDecisionReset(e);
+						recomputeLiftingOrder(true, ((WeightChange) e).isResultChange());
+					} else {
+						recomputeOrderAndRanks(((WeightChange) e).isResultChange()); // &&&&&&&&&&&&&&&&&&&&&
+						// weightChangeDoNotDisturb((WeightChange) e);
+						setState(DOWN_SIGNAL_VISIBLE);
+					}
+				} else {
+					unexpectedEventInState(e, DOWN_SIGNAL_VISIBLE);
+				}
+				break;
+
+			case DECISION_VISIBLE:
+				if (e instanceof ExplicitDecision) {
+					simulateDecision((ExplicitDecision) e);
+					// showExplicitDecision(((ExplicitDecision) e), e.origin);
+				} else if (e instanceof DecisionFullUpdate) {
+					// late update
+					pushOutUIEvent(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, this.state,
+					        UIEvent.Notification.Level.ERROR));
+				} else if (e instanceof DecisionUpdate) {
+					// late update
+					pushOutUIEvent(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, this.state,
+					        UIEvent.Notification.Level.ERROR));
+				} else if (e instanceof WeightChange) {
+					recomputeLiftingOrder(true, ((WeightChange) e).isResultChange()); // &&&&&&&&&&&&&&&&&&&&&
+					// weightChangeDoNotDisturb((WeightChange) e);
+					setState(DECISION_VISIBLE);
+				} else if (e instanceof DecisionReset) {
+					doDecisionReset(e);
+					if (this.deferredBreak != null) {
+						transitionToBreak((FOPEvent.BreakStarted) this.deferredBreak);
+						this.deferredBreak = null;
+					}
+				} else {
+					unexpectedEventInState(e, DECISION_VISIBLE);
+				}
+				break;
 		}
 	}
 
@@ -1505,27 +1506,33 @@ public class FieldOfPlay implements IUnregister {
 			boolean reversalToBad = !e.success && actualLift > 0;
 			boolean newRecord = e.success && getLastChallengedRecords() != null
 			        && !getLastChallengedRecords().isEmpty();
-			
-			boolean waitForAnnouncer = Competition.getCurrent().isIWFJury() && e.isJuryButton();
+
+			boolean waitForAnnouncer = Competition.getCurrent().isAnnouncerControlledJuryDecision() && e.isJuryButton();
 			JuryNotification juryNotificationEvent = new UIEvent.JuryNotification(a, e.getOrigin(),
 			        e.success ? JuryDeliberationEventType.GOOD_LIFT : JuryDeliberationEventType.BAD_LIFT,
 			        reversalToGood || reversalToBad, newRecord,
 			        waitForAnnouncer);
-			
+
 			if (waitForAnnouncer) {
 				// we will get a second JuryDecision event, coming this time from the announcer
+				// we postpone processing until then
 				toBeAnnouncedJuryDecision = e;
 				pushOutUIEvent(juryNotificationEvent);
 				return;
 			}
 
-			// if we are here, either we are in immediate jury mode (waitForAnnouncer is not set at all)
-			// or the announcer has sent a second JuryDecision event with waitForAnnouncer false
 			if (toBeAnnouncedJuryDecision != null) {
+				// we are in announcer-controlled mode, and when the jury pressed the button,
+				// we stored their decision.
+				// now we have received a second jurydecision event, this time from the announcer
+				// that indicates that the stored decision has been announced and must be processed.
 				e = toBeAnnouncedJuryDecision;
+				toBeAnnouncedJuryDecision = null;
+			} else {
+				// we are in immediate mode.  e is the jury decision to be processed.
+				// nothing to do.
 			}
-			
-			
+
 			// must set state before recomputing order so that scoreboards stop blinking the
 			// current athlete
 			// must also set state prior to sending event, so that state monitor shows new
@@ -1607,41 +1614,41 @@ public class FieldOfPlay implements IUnregister {
 			// resuming
 			if (this.state == BREAK) {
 				switch (this.breakType) {
-				case JURY:
-				case MARSHAL:
-				case TECHNICAL:
-					getUiEventBus().post(new UIEvent.JuryNotification(this.athleteUnderReview, this,
-					        JuryDeliberationEventType.END_JURY_BREAK, null, null, false));
-					break;
-				case CHALLENGE:
-					getUiEventBus().post(new UIEvent.JuryNotification(this.athleteUnderReview, this,
-					        JuryDeliberationEventType.END_CHALLENGE, null, null, false));
-				default:
-					break;
+					case JURY:
+					case MARSHAL:
+					case TECHNICAL:
+						getUiEventBus().post(new UIEvent.JuryNotification(this.athleteUnderReview, this,
+						        JuryDeliberationEventType.END_JURY_BREAK, null, null, false));
+						break;
+					case CHALLENGE:
+						getUiEventBus().post(new UIEvent.JuryNotification(this.athleteUnderReview, this,
+						        JuryDeliberationEventType.END_CHALLENGE, null, null, false));
+					default:
+						break;
 				}
 			}
 		} else {
 			switch (newBreak) {
-			case JURY:
-				resetJuryDecisions();
-				getUiEventBus().post(new UIEvent.JuryNotification(this.athleteUnderReview, this,
-				        JuryDeliberationEventType.START_DELIBERATION, null, null, false));
-				break;
-			case MARSHAL:
-				getUiEventBus().post(new UIEvent.JuryNotification(this.athleteUnderReview, this,
-				        JuryDeliberationEventType.MARSHALL, null, null, false));
-				break;
-			case TECHNICAL:
-				getUiEventBus().post(new UIEvent.JuryNotification(null, this,
-				        JuryDeliberationEventType.TECHNICAL_PAUSE, null, null, false));
-				break;
-			case CHALLENGE:
-				resetJuryDecisions();
-				getUiEventBus().post(new UIEvent.JuryNotification(null, this,
-				        JuryDeliberationEventType.CHALLENGE, null, null, false));
-				break;
-			default:
-				break;
+				case JURY:
+					resetJuryDecisions();
+					getUiEventBus().post(new UIEvent.JuryNotification(this.athleteUnderReview, this,
+					        JuryDeliberationEventType.START_DELIBERATION, null, null, false));
+					break;
+				case MARSHAL:
+					getUiEventBus().post(new UIEvent.JuryNotification(this.athleteUnderReview, this,
+					        JuryDeliberationEventType.MARSHALL, null, null, false));
+					break;
+				case TECHNICAL:
+					getUiEventBus().post(new UIEvent.JuryNotification(null, this,
+					        JuryDeliberationEventType.TECHNICAL_PAUSE, null, null, false));
+					break;
+				case CHALLENGE:
+					resetJuryDecisions();
+					getUiEventBus().post(new UIEvent.JuryNotification(null, this,
+					        JuryDeliberationEventType.CHALLENGE, null, null, false));
+					break;
+				default:
+					break;
 			}
 		}
 	}
@@ -1975,7 +1982,7 @@ public class FieldOfPlay implements IUnregister {
 		if (!cCur.isAutomaticCJBreak()) {
 			return;
 		}
-		
+
 		int millisRemaining;
 		if (Competition.getCurrent().isSimulation()) {
 			millisRemaining = 10 * 1000;
@@ -2844,26 +2851,26 @@ public class FieldOfPlay implements IUnregister {
 			for (RecordEvent rec : challengedRecords) {
 				Double value = rec.getRecordValue();
 				switch (rec.getRecordLift()) {
-				case SNATCH:
-					Integer bestSnatch = a.getBestSnatch();
-					if (bestSnatch > value) {
-						createNewRecordEvent(a, newRecords, rec, bestSnatch + 0.0D);
-					}
-					break;
-				case CLEANJERK:
-					Integer bestCleanJerk = a.getBestCleanJerk();
-					if (bestCleanJerk > value) {
-						createNewRecordEvent(a, newRecords, rec, bestCleanJerk + 0.0D);
-					}
-					break;
-				case TOTAL:
-					Integer total = a.getTotal();
-					if (total > value) {
-						createNewRecordEvent(a, newRecords, rec, total + 0.0D);
-					}
-					break;
-				default:
-					break;
+					case SNATCH:
+						Integer bestSnatch = a.getBestSnatch();
+						if (bestSnatch > value) {
+							createNewRecordEvent(a, newRecords, rec, bestSnatch + 0.0D);
+						}
+						break;
+					case CLEANJERK:
+						Integer bestCleanJerk = a.getBestCleanJerk();
+						if (bestCleanJerk > value) {
+							createNewRecordEvent(a, newRecords, rec, bestCleanJerk + 0.0D);
+						}
+						break;
+					case TOTAL:
+						Integer total = a.getTotal();
+						if (total > value) {
+							createNewRecordEvent(a, newRecords, rec, total + 0.0D);
+						}
+						break;
+					default:
+						break;
 				}
 			}
 			JPAService.runInTransaction(em -> {

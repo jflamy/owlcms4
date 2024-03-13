@@ -681,7 +681,6 @@ public abstract class AthleteGridContent extends BaseContent
 
 	@Subscribe
 	public void slaveJuryNotification(UIEvent.JuryNotification e) {
-		logger.warn("AnnouncerContent slaveJuryNotification");
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			String text = "";
 			String reversalText = "";

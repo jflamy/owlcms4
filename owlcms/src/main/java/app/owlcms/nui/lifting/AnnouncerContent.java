@@ -240,7 +240,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	@Override
 	@Subscribe
 	public void slaveJuryNotification(UIEvent.JuryNotification e) {
-		logger.warn("AnnouncerContent slaveJuryNotification");
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			JuryDeliberationEventType et = e.getDeliberationEventType();
 			if (e.isRequestForAnnounce() && (et == GOOD_LIFT || et == BAD_LIFT)) {

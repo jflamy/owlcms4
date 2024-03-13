@@ -273,6 +273,8 @@ public class Competition {
 	private String checkInTemplateFileName;
 	@Column(columnDefinition = "boolean default false")
 	private boolean displayByAgeGroup;
+	@Column(columnDefinition = "boolean default true")
+	private boolean announcerControlledJuryDecision = true;
 
 	public Competition() {
 		this.medalsByGroup = new HashMap<>();
@@ -610,6 +612,10 @@ public class Competition {
 		return this.teamsListTemplateFileName;
 	}
 
+	public boolean getDisplayByAgeGroup() {
+		return this.isDisplayByAgeGroup();
+	}
+
 	/**
 	 * Gets the federation.
 	 *
@@ -893,6 +899,10 @@ public class Competition {
 		return 31;
 	}
 
+	public boolean isAnnouncerControlledJuryDecision() {
+		return this.announcerControlledJuryDecision;
+	}
+
 	public boolean isAnnouncerLiveDecisions() {
 		return this.announcerLiveDecisions;
 	}
@@ -907,10 +917,6 @@ public class Competition {
 
 	public boolean isDisplayByAgeGroup() {
 		return this.displayByAgeGroup;
-	}
-	
-	public boolean getDisplayByAgeGroup() {
-		return this.isDisplayByAgeGroup();
 	}
 
 	public boolean isDisplayScoreRanks() {
@@ -1022,6 +1028,10 @@ public class Competition {
 
 	public void setAgeGroupsFileName(String localizedName) {
 		this.ageGroupsFileName = localizedName;
+	}
+
+	public void setAnnouncerControlledJuryDecision(boolean announcerControlledJuryDecision) {
+		this.announcerControlledJuryDecision = announcerControlledJuryDecision;
 	}
 
 	public void setAnnouncerLiveDecisions(boolean announcerLiveDecisions) {
@@ -1716,11 +1726,6 @@ public class Competition {
 		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.SMM);
 
 		reportSMF(sortedMen, sortedWomen);
-	}
-
-	public boolean isIWFJury() {
-		//FIXME - checkbox for IWF manual jury announce
-		return true;
 	}
 
 }
