@@ -7,7 +7,8 @@
 
 ##### 47.1
 
-- New template: Check-in sheet. Used to hand out promotional items to athletes, give access passes, etc.
+- (alpha02) Restored lost feature: setting session competition time sets the weigh-in time if it is empty, and vice-versa.  Once set the two fields need to be changed individually.  Clear the other field first if you want the automatic computation.
+- New template: Check-in sheet. Used to hand out promotional items to athletes, give access passes, etc. Template serves as example of jxls3 (see below)
 - Excel templates for documents can now be in [jxls3](https://jxls.sourceforge.net/) format.  A jxls3 template is detected from the presence of a `jx:area` directive in a note in cell A1 of the first sheet.
 
 ##### 47.0.1
