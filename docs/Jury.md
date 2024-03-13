@@ -22,7 +22,21 @@ The jury console now allows direct reversal/confirmation of lifts
 
 ![080_JuryDeliberation](img/Refereeing/080_JuryDeliberation.png)
 
-Jury decisions are shown in yellow to the other technical officials consoles to keep them informed.  The decisions are also shown on the attempt board.
+### Decision Announce
+
+By rule, the announcer must announce the decision of the jury and the reason for which a lift was overturned.
+
+When the jury presses the reverse or confirm button, the announcer receives a prompt.
+![095_AnnouncerPrompt](img/Refereeing/095_AnnouncerPrompt.png)
+
+After the announcer has done the announce, he presses the blue button, so that
+
+1. The system is updated. 
+2. Jury decisions are shown to the other technical officials consoles to keep them informed.
+3. The decision (reversal or confirmation) is shown on the attempt boards.
+
+This behavior (Announcer control of the display of jury decisions) is actually optional.  If it is disabled in the Competition Rules section, the display of the jury decisions will be immediate.  The announcer is still expected to announce the reason for reversal.
+
 ![090_JuryReversal](img/Refereeing/090_JuryReversal.png)
 
 ## Calling Referees
