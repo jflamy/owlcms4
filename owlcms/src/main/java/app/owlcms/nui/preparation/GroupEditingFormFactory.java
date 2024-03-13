@@ -245,6 +245,23 @@ public class GroupEditingFormFactory
 		formLayout.add(competitionTimeField);
 		binder.forField(competitionTimeField)
 		        .bind(Group::getCompetitionTime, Group::setCompetitionTime);
+		
+		weighInTimeField.addValueChangeListener(e -> {
+			if (!e.isFromClient()) {
+				return;
+			}
+			if (competitionTimeField.getValue() == null) {
+				competitionTimeField.setValue(e.getValue().plusHours(2));
+			}
+		});
+		competitionTimeField.addValueChangeListener(e -> {
+			if (!e.isFromClient()) {
+				return;
+			}
+			if (weighInTimeField.getValue() == null) {
+				weighInTimeField.setValue(e.getValue().minusHours(2));
+			}
+		});
 
 		return formLayout;
 	}
