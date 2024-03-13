@@ -267,8 +267,8 @@ public abstract class AthleteGridContent extends BaseContent
 	private String topBarTitle;
 	private HorizontalLayout attempts;
 	private Integer prevWeight;
-	private boolean summonNotificationSent;
-	private boolean deliberationNotificationSent;
+	protected boolean summonNotificationSent;
+	protected boolean deliberationNotificationSent;
 	private long previousToggleMillis;
 	protected HorizontalLayout decisionLights;
 	private String stopButtonVariant;
@@ -681,6 +681,7 @@ public abstract class AthleteGridContent extends BaseContent
 
 	@Subscribe
 	public void slaveJuryNotification(UIEvent.JuryNotification e) {
+		logger.warn("AnnouncerContent slaveJuryNotification");
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			String text = "";
 			String reversalText = "";

@@ -206,7 +206,7 @@ public class JuryDialog extends Dialog {
 		if (shortcutTooSoon()) {
 			return;
 		}
-		fop.fopEventPost(new FOPEvent.JuryDecision(athleteUnderReview, this, false));
+		fop.fopEventPost(new FOPEvent.JuryDecision(athleteUnderReview, this, false, true));
 		UI.getCurrent().access(() -> {
 			if (origin != null && ((JuryContent) origin).decisionNotification != null) {
 				((JuryContent) origin).decisionNotification.close();
@@ -361,7 +361,7 @@ public class JuryDialog extends Dialog {
 			return;
 		}
 
-		fop.fopEventPost(new FOPEvent.JuryDecision(athleteUnderReview, this, true));
+		fop.fopEventPost(new FOPEvent.JuryDecision(athleteUnderReview, this, true, true));
 		doClose(false);
 	}
 

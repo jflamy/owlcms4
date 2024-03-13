@@ -205,6 +205,7 @@ public class FieldOfPlay implements IUnregister {
 	private boolean cjBreakDisplayed;
 	private MQTTMonitor mqttMonitor = null;
 	private EventForwarder eventForwarder;
+	private JuryDecision toBeAnnouncedJuryDecision;
 
 	public FieldOfPlay() {
 	}
@@ -1504,17 +1505,34 @@ public class FieldOfPlay implements IUnregister {
 			boolean reversalToBad = !e.success && actualLift > 0;
 			boolean newRecord = e.success && getLastChallengedRecords() != null
 			        && !getLastChallengedRecords().isEmpty();
-			JuryNotification event = new UIEvent.JuryNotification(a, e.getOrigin(),
+			
+			boolean waitForAnnouncer = Competition.getCurrent().isIWFJury() && e.isJuryButton();
+			JuryNotification juryNotificationEvent = new UIEvent.JuryNotification(a, e.getOrigin(),
 			        e.success ? JuryDeliberationEventType.GOOD_LIFT : JuryDeliberationEventType.BAD_LIFT,
-			        reversalToGood || reversalToBad, newRecord);
+			        reversalToGood || reversalToBad, newRecord,
+			        waitForAnnouncer);
+			
+			if (waitForAnnouncer) {
+				// we will get a second JuryDecision event, coming this time from the announcer
+				toBeAnnouncedJuryDecision = e;
+				pushOutUIEvent(juryNotificationEvent);
+				return;
+			}
 
+			// if we are here, either we are in immediate jury mode (waitForAnnouncer is not set at all)
+			// or the announcer has sent a second JuryDecision event with waitForAnnouncer false
+			if (toBeAnnouncedJuryDecision != null) {
+				e = toBeAnnouncedJuryDecision;
+			}
+			
+			
 			// must set state before recomputing order so that scoreboards stop blinking the
 			// current athlete
 			// must also set state prior to sending event, so that state monitor shows new
 			// state.
 			setGoodLift(e.success);
 			setState(DECISION_VISIBLE);
-			pushOutUIEvent(event);
+			pushOutUIEvent(juryNotificationEvent);
 			a.doLift(a.getAttemptsDone(), e.success ? Integer.toString(curValue) : Integer.toString(-curValue));
 			AthleteRepository.save(a);
 
@@ -1573,11 +1591,11 @@ public class FieldOfPlay implements IUnregister {
 	private void doSummonReferee(SummonReferee e) {
 		if (e.getRefNumber() >= 4) {
 			JuryNotification event = new UIEvent.JuryNotification(null, e.getOrigin(),
-			        JuryDeliberationEventType.CALL_TECHNICAL_CONTROLLER, null, null);
+			        JuryDeliberationEventType.CALL_TECHNICAL_CONTROLLER, null, null, false);
 			getUiEventBus().post(event);
 		} else {
 			JuryNotification event = new UIEvent.JuryNotification(null, this, JuryDeliberationEventType.CALL_REFEREES,
-			        null, null);
+			        null, null, false);
 			getUiEventBus().post(event);
 		}
 		getUiEventBus().post(new UIEvent.SummonRef(e.getRefNumber(), true, this));
@@ -1593,11 +1611,11 @@ public class FieldOfPlay implements IUnregister {
 				case MARSHAL:
 				case TECHNICAL:
 					getUiEventBus().post(new UIEvent.JuryNotification(this.athleteUnderReview, this,
-					        JuryDeliberationEventType.END_JURY_BREAK, null, null));
+					        JuryDeliberationEventType.END_JURY_BREAK, null, null, false));
 					break;
 				case CHALLENGE:
 					getUiEventBus().post(new UIEvent.JuryNotification(this.athleteUnderReview, this,
-					        JuryDeliberationEventType.END_CHALLENGE, null, null));
+					        JuryDeliberationEventType.END_CHALLENGE, null, null, false));
 				default:
 					break;
 				}
@@ -1607,20 +1625,20 @@ public class FieldOfPlay implements IUnregister {
 			case JURY:
 				resetJuryDecisions();
 				getUiEventBus().post(new UIEvent.JuryNotification(this.athleteUnderReview, this,
-				        JuryDeliberationEventType.START_DELIBERATION, null, null));
+				        JuryDeliberationEventType.START_DELIBERATION, null, null, false));
 				break;
 			case MARSHAL:
 				getUiEventBus().post(new UIEvent.JuryNotification(this.athleteUnderReview, this,
-				        JuryDeliberationEventType.MARSHALL, null, null));
+				        JuryDeliberationEventType.MARSHALL, null, null, false));
 				break;
 			case TECHNICAL:
 				getUiEventBus().post(new UIEvent.JuryNotification(null, this,
-				        JuryDeliberationEventType.TECHNICAL_PAUSE, null, null));
+				        JuryDeliberationEventType.TECHNICAL_PAUSE, null, null, false));
 				break;
 			case CHALLENGE:
 				resetJuryDecisions();
 				getUiEventBus().post(new UIEvent.JuryNotification(null, this,
-				        JuryDeliberationEventType.CHALLENGE, null, null));
+				        JuryDeliberationEventType.CHALLENGE, null, null, false));
 				break;
 			default:
 				break;

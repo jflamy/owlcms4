@@ -495,33 +495,40 @@ public class FOPEvent {
 	}
 
 	static public class JuryDecision extends FOPEvent {
-		/** The decision. */
+		/** The decision. true = good lift*/
 		public Boolean success = null;
+		/** if true, the decision comes from the jury box, not from the announcer having been told */
+		private boolean juryButton;
 
-		public JuryDecision(Athlete athlete, Object origin, boolean decision) {
+		public JuryDecision(Athlete athlete, Object origin, boolean decision, boolean juryButton) {
 			super(athlete, origin);
 			logger.trace("jury decision for {}", athlete);
 			this.success = decision;
+			this.juryButton = juryButton;
 		}
 
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj) {
+			if (this == obj)
 				return true;
-			}
-			if (!super.equals(obj) || (getClass() != obj.getClass())) {
+			if (!super.equals(obj))
 				return false;
-			}
+			if (getClass() != obj.getClass())
+				return false;
 			JuryDecision other = (JuryDecision) obj;
-			return Objects.equals(success, other.success);
+			return juryButton == other.juryButton && Objects.equals(success, other.success);
 		}
 
 		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = super.hashCode();
-			result = prime * result + Objects.hash(success);
+			result = prime * result + Objects.hash(juryButton, success);
 			return result;
+		}
+
+		public boolean isJuryButton() {
+			return juryButton;
 		}
 
 	}

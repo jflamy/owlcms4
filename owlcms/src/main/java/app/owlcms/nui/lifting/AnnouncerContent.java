@@ -7,6 +7,9 @@
 
 package app.owlcms.nui.lifting;
 
+import static app.owlcms.uievents.JuryDeliberationEventType.BAD_LIFT;
+import static app.owlcms.uievents.JuryDeliberationEventType.GOOD_LIFT;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -18,10 +21,12 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.KeyModifier;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -60,6 +65,7 @@ import app.owlcms.nui.shared.AthleteGridContent;
 import app.owlcms.nui.shared.BreakDialog;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.NaturalOrderComparator;
@@ -231,6 +237,141 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		});
 	}
 
+	@Override
+	@Subscribe
+	public void slaveJuryNotification(UIEvent.JuryNotification e) {
+		logger.warn("AnnouncerContent slaveJuryNotification");
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			JuryDeliberationEventType et = e.getDeliberationEventType();
+			if (e.isRequestForAnnounce() && (et == GOOD_LIFT || et == BAD_LIFT)) {
+				juryDecisionAnnounce(e);
+				return;
+			}
+			String text = "";
+			String reversalText = "";
+			if (e.getReversal() != null) {
+				reversalText = e.getReversal() ? Translator.translate("JuryNotification.Reversal")
+				        : Translator.translate("JuryNotification.Confirmed");
+			}
+			String style = "warning";
+			int previousAttemptNo;
+
+
+			// logger.debug("slaveJuryNotification {} {} {}", et, e.getDeliberationEventType(), e.getTrace());
+			switch (et) {
+				case CALL_REFEREES:
+					text = Translator.translate("JuryNotification." + et.name());
+					if (!this.summonNotificationSent) {
+						doNotification(text, style);
+					}
+					this.summonNotificationSent = true;
+					return;
+				case START_DELIBERATION:
+					text = Translator.translate("JuryNotification." + et.name());
+					if (!this.deliberationNotificationSent) {
+						doNotification(text, style);
+					}
+					this.deliberationNotificationSent = true;
+					return;
+				case CHALLENGE:
+					text = Translator.translate("JuryNotification." + et.name());
+					if (!this.deliberationNotificationSent) {
+						doNotification(text, style);
+					}
+					this.deliberationNotificationSent = true;
+					return;
+				case END_CALL_REFEREES:
+				case END_DELIBERATION:
+				case END_TECHNICAL_PAUSE:
+				case END_CHALLENGE:
+					text = Translator.translate("JuryNotification." + et.name());
+					break;
+				case BAD_LIFT:
+					previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
+					text = Translator.translate("JuryNotification.BadLift", reversalText, e.getAthlete().getFullName(),
+					        previousAttemptNo % 3 + 1);
+					style = "primary error";
+					break;
+				case CALL_TECHNICAL_CONTROLLER:
+					text = Translator.translate("JuryNotification.CallTechnicalController");
+					break;
+				case GOOD_LIFT:
+					previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
+					text = Translator.translate("JuryNotification.GoodLift", reversalText, e.getAthlete().getFullName(),
+					        previousAttemptNo % 3 + 1);
+					style = "primary success";
+					break;
+				case LOADING_ERROR:
+					text = Translator.translate("JuryNotification.LoadingError");
+					break;
+				case END_JURY_BREAK:
+					this.summonNotificationSent = false;
+					this.deliberationNotificationSent = false;
+					text = Translator.translate("JuryNotification.END_JURY_BREAK");
+					break;
+				case TECHNICAL_PAUSE:
+					text = Translator.translate("BreakType.TECHNICAL");
+					break;
+				case MARSHALL:
+					text = Translator.translate("BreakType.MARSHAL");
+					break;
+				default:
+					break;
+			}
+			doNotification(text, style);
+		});
+	}
+
+	private void juryDecisionAnnounce(UIEvent.JuryNotification e) {
+		ConfirmDialog d = new ConfirmDialog();
+		d.setHeader(Translator.translate("Announcer.JuryDecisionTitle"));
+		
+		String reversalText = "";
+		if (e.getReversal() != null) {
+			reversalText  = e.getReversal() ? Translator.translate("JuryNotification.Reversal")
+			        : Translator.translate("JuryNotification.Confirmed");
+		}
+		JuryDeliberationEventType et = e.getDeliberationEventType();
+		int previousAttemptNo;
+		String text = "";
+		String style = "";
+		switch (et) {
+			case BAD_LIFT:
+				previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
+				text = Translator.translate("JuryNotification.BadLift", reversalText, e.getAthlete().getFullName(),
+				        previousAttemptNo % 3 + 1);
+				style = "color: red; font-size: large";
+				break;
+			case GOOD_LIFT:
+				previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
+				text = Translator.translate("JuryNotification.GoodLift", reversalText, e.getAthlete().getFullName(),
+				        previousAttemptNo % 3 + 1);
+				style = "color: green; font-size: large";
+				break;
+			default:
+				break;
+		}
+		d.setText(new Html(
+				"""
+		        <div>
+		        <div style="%s">%s</div>
+		        <br/>
+		        <div>%s</div>
+		        <div>
+		        """.formatted(style,text,Translator.translate("Announcer.JuryDecisionExplanation"))));
+
+		d.setCloseOnEsc(false);
+		d.setConfirmText(Translator.translate("Announcer.PerformJuryDecision"));
+		d.setCancelable(true);
+		d.setCancelText(Translator.translate("Announcer.IgnoreJuryDecision"));
+		// the last parameter to the event will trigger the processing of the pending jury decision.
+		d.addConfirmListener(c -> OwlcmsSession.getFop().fopEventPost(new FOPEvent.JuryDecision(e.getAthlete(), e.getOrigin(), et == GOOD_LIFT, false)));
+		d.addCancelListener(c -> OwlcmsSession.getFop().fopEventPost(new FOPEvent.StartLifting(this)));
+		d.open();
+
+		
+	}
+
 	/**
 	 * @see app.owlcms.nui.shared.AthleteGridContent#announcerButtons(com.vaadin.flow.component.orderedlayout.FlexLayout)
 	 */
@@ -357,7 +498,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.COMMA);
 		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.SLASH);
 		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.NUMPAD_DIVIDE);
-		
+
 		UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.NUMPAD_MULTIPLY);
 		UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.DIGIT_8, KeyModifier.SHIFT);
 	}
@@ -467,7 +608,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		OwlcmsSession.withFop((fop) -> {
 			Group group = fop.getGroup();
 			logger.trace("initial setting group to {} {}", group, LoggerUtils.whereFrom());
-			UI.getCurrent().access(()->getGroupFilter().setValue(group));
+			UI.getCurrent().access(() -> getGroupFilter().setValue(group));
 		});
 
 		OwlcmsSession.withFop(fop -> {
@@ -576,28 +717,27 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 	private void goodLift() {
 		OwlcmsSession.withFop(fop -> {
-		    long now = System.currentTimeMillis();
-		    long timeElapsed = now - this.previousGoodMillis;
-		    // no reason to give two decisions close together
-		    if (timeElapsed > 2000 || isSingleReferee()) {
-		        if (isSingleReferee()
-		                && (fop.getState() == FOPState.TIME_STOPPED
-		                        || fop.getState() == FOPState.TIME_RUNNING)) {
-			        fop.fopEventPost(new FOPEvent.DownSignal(this));
-			        try {
-				        Thread.sleep(1000);
-			        } catch (InterruptedException e1) {
+			long now = System.currentTimeMillis();
+			long timeElapsed = now - this.previousGoodMillis;
+			// no reason to give two decisions close together
+			if (timeElapsed > 2000 || isSingleReferee()) {
+				if (isSingleReferee()
+				        && (fop.getState() == FOPState.TIME_STOPPED
+				                || fop.getState() == FOPState.TIME_RUNNING)) {
+					fop.fopEventPost(new FOPEvent.DownSignal(this));
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e1) {
 
-			        }
-		        }
-		        fop.fopEventPost(
-		                new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), true, true,
-		                        true,
-		                        true));
-		    }
-		    this.previousGoodMillis = now;
+					}
+				}
+				fop.fopEventPost(
+				        new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), true, true,
+				                true,
+				                true));
+			}
+			this.previousGoodMillis = now;
 		});
 	}
-
 
 }

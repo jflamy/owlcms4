@@ -1718,4 +1718,9 @@ public class Competition {
 		reportSMF(sortedMen, sortedWomen);
 	}
 
+	public boolean isIWFJury() {
+		//FIXME - checkbox for IWF manual jury announce
+		return true;
+	}
+
 }

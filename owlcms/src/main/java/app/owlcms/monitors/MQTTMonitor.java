@@ -156,7 +156,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 			messageStr = messageStr.trim();
 			try {
 				MQTTMonitor.this.fop.fopEventPost(
-				        new FOPEvent.JuryDecision(this.athleteUnderReview, this, messageStr.contentEquals("good")));
+				        new FOPEvent.JuryDecision(this.athleteUnderReview, this, messageStr.contentEquals("good"), true));
 			} catch (NumberFormatException e) {
 				logger.error("{}Malformed MQTT jury decision message topic='{}' message='{}'",
 				        MQTTMonitor.this.fop.getLoggingName(), topic, messageStr);
