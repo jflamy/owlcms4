@@ -1,13 +1,15 @@
-**Version 47.1 Alpha**
+**Version 47.1 Beta**
 
 > [!WARNING]
 >
-> - This is an alpha release, used for validating new features.  *Features may be incomplete or non-functional*.  Alpha releases are **not** normally used in actual competitions.
+> - This is a beta release, used for public testing new features and performing translation.  
+> - *The new features may still exhibit some bugs. Previously working features may have been broken*.  Beta releases are seldom used in actual competitions, except if they have been very thoroughly tested.
 > - You should test all releases with your own data, several days before a competition.
 
 ##### 47.1
 
-- (alpha02) Restored lost feature: setting session competition time sets the weigh-in time if it is empty, and vice-versa.  Once set the two fields need to be changed individually.  Clear the other field first if you want the automatic computation.
+- (beta01) Announcer-controlled display of jury decisions.  To better apply the IWF rule that the reason for jury reversals should be announced, by default the jury decision shows a prompt to the announcer.  The announcer then announces the decision and the reason, and presses a button that actually updates the system and the scoreboards.  The prior behavior (instant update when the jury presses) can be obtained using a checkbox in the Competition Rules section.
+- Fix: Setting the session competition time (again) sets the weigh-in time if it is empty, and vice-versa.  Once set the two fields need to be changed individually.  Clear the other field first if you want the automatic computation.
 - New template: Check-in sheet. Used to hand out promotional items to athletes, give access passes, etc. Template serves as example of jxls3 (see below)
 - Excel templates for documents can now be in [jxls3](https://jxls.sourceforge.net/) format.  A jxls3 template is detected from the presence of a `jx:area` directive in a note in cell A1 of the first sheet.
 
