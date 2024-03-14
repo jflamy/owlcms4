@@ -181,9 +181,47 @@ public class AgeGroupDefinitionReader {
 		});
 	}
 
-	static void doInsertRobiAndAgeGroups(EnumSet<AgeDivision> es, String localizedName) {
-		InputStream localizedResourceAsStream;
+	static void doInsertRobiAndAgeGroups(EnumSet<AgeDivision> es, String localizedFileName) {
 		Logger mainLogger = Main.getStartupLogger();
+		Map<String, Category> templates = loadRobi(mainLogger);
+		InputStream ageGroupStream = findAgeGroupFile(localizedFileName, mainLogger);
+		loadAgeGroupStream(es, localizedFileName, mainLogger, templates, ageGroupStream);
+
+	}
+
+	private static InputStream findAgeGroupFile(String localizedFileName, Logger mainLogger) {
+		InputStream ageGroupStream = null;
+		try {
+			ageGroupStream = ResourceWalker.getResourceAsStream(localizedFileName);
+		} catch (FileNotFoundException e1) {
+			logger.error("could not find ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e1));
+			mainLogger.error("could not find ageGroup configuration. See logs for details");
+		}
+		return ageGroupStream;
+	}
+
+	public static void doInsertRobiAndAgeGroups(InputStream ageGroupStream) {
+		Logger mainLogger = Main.getStartupLogger();
+		Map<String, Category> templates = loadRobi(mainLogger);
+		loadAgeGroupStream(null, "custom upload", mainLogger, templates, ageGroupStream);
+
+	}
+	
+	private static void loadAgeGroupStream(EnumSet<AgeDivision> es, String localizedName, Logger mainLogger,
+	        Map<String, Category> templates, InputStream localizedResourceAsStream1) {
+		try (Workbook workbook = WorkbookFactory
+		        .create(localizedResourceAsStream1)) {
+			logger.info("loading age group configuration file {}", localizedName);
+			mainLogger.info("loading age group definitions {}", localizedName);
+			createAgeGroups(workbook, templates, es, localizedName);
+		} catch (Exception e) {
+			logger.error("could not process ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e));
+			mainLogger.error("could not process ageGroup configuration. See logs for details");
+		}
+	}
+
+	private static Map<String, Category> loadRobi(Logger mainLogger) {
+		InputStream localizedResourceAsStream;
 		Map<String, Category> templates = new TreeMap<>();
 		try {
 			localizedResourceAsStream = ResourceWalker.getResourceAsStream(RobiCategories.ROBI_CATEGORIES_XLSX);
@@ -194,22 +232,7 @@ public class AgeGroupDefinitionReader {
 			logger.error("could not process RobiCategories configuration\n{}", LoggerUtils./**/stackTrace(e));
 			mainLogger.error("could not process RobiCategories configuration. See logs for details");
 		}
-		try {
-			localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
-			try (Workbook workbook = WorkbookFactory
-			        .create(localizedResourceAsStream)) {
-				logger.info("loading age group configuration file {}", localizedName);
-				mainLogger.info("loading age group definitions {}", localizedName);
-				createAgeGroups(workbook, templates, es, localizedName);
-			} catch (Exception e) {
-				logger.error("could not process ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e));
-				mainLogger.error("could not process ageGroup configuration. See logs for details");
-			}
-		} catch (FileNotFoundException e1) {
-			logger.error("could not find ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e1));
-			mainLogger.error("could not find ageGroup configuration. See logs for details");
-		}
-
+		return templates;
 	}
 
 }

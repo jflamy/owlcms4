@@ -7,6 +7,7 @@
 package app.owlcms.data.agegroup;
 
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -394,6 +395,18 @@ public class AgeGroupRepository {
 	}
 
 	public static void reloadDefinitions(String localizedFileName) {
+		cleanUpExisting();
+		AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(null, "/agegroups/" + localizedFileName);
+		AthleteRepository.resetParticipations();
+	}
+	
+	public static void reloadDefinitions(InputStream inputStream) {
+		cleanUpExisting();
+		AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(inputStream);
+		AthleteRepository.resetParticipations();
+	}
+
+	private static void cleanUpExisting() {
 		JPAService.runInTransaction(em -> {
 			List<Athlete> athletes = AthleteRepository.doFindAll(em);
 			for (Athlete a : athletes) {
@@ -416,8 +429,6 @@ public class AgeGroupRepository {
 			}
 			return null;
 		});
-		AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(null, "/agegroups/" + localizedFileName);
-		AthleteRepository.resetParticipations();
 	}
 
 	/**

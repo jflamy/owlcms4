@@ -22,7 +22,9 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
@@ -45,6 +47,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
@@ -119,8 +122,12 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 
 		ageGroupDefinitionSelect = new ComboBox<>();
 		ageGroupDefinitionSelect.setPlaceholder(getTranslation("ResetCategories.AvailableDefinitions"));
+		
+		Locale locale = OwlcmsSession.getLocale();
+		//locale = new Locale("fr","FR");
+		logger.warn("locale={}",locale);
 		List<Resource> resourceList = new ResourceWalker().getResourceList("/agegroups", ResourceWalker::relativeName,
-		        null, new Locale(""));
+		        null, locale);
 		resourceList.sort((a, b) -> a.compareTo(b));
 		ageGroupDefinitionSelect.setItems(resourceList);
 		ageGroupDefinitionSelect.setValue(null);
@@ -128,7 +135,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		ageGroupDefinitionSelect.getStyle().set("margin-left", "1em");
 		setAgeGroupsSelectionListener(resourceList);
 
-		Button reload = new Button(getTranslation("ResetCategories.ReloadAgeGroups"), (e) -> {
+		Button loadPredefined = new Button(getTranslation("AgeGroups.LoadPredefined"), (e) -> {
 			Resource definitions = ageGroupDefinitionSelect.getValue();
 			if (definitions == null) {
 				String labelText = getTranslation("ResetCategories.PleaseSelectDefinitionFile");
@@ -142,8 +149,14 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 				        }).open();
 			}
 		});
+		Button uploadCustom = new Button(Translator.translate("AgeGroups.UploadCustom"), new Icon(VaadinIcon.UPLOAD_ALT),
+		        buttonClickEvent -> {
+		        	AgeGroupsFileUploadDialog ageGroupsFileUploadDialog = new AgeGroupsFileUploadDialog();
+		        	ageGroupsFileUploadDialog.setCallback(() -> resetCategories());
+					ageGroupsFileUploadDialog.open();
+		        });
 
-		HorizontalLayout reloadDefinition = new HorizontalLayout(ageGroupDefinitionSelect, reload);
+		HorizontalLayout reloadDefinition = new HorizontalLayout(ageGroupDefinitionSelect, loadPredefined);
 		reloadDefinition.setAlignItems(FlexComponent.Alignment.BASELINE);
 		reloadDefinition.setMargin(false);
 		reloadDefinition.setPadding(false);
@@ -153,11 +166,34 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		        Translator.translate("AgeGroups.ExportDefinitions"), new XLSXAgeGroupsExport());
 		exportAgeGroups.getStyle().set("margin-left", "1em");
 
-		topBar.add(resetButton, reloadDefinition, exportAgeGroups);
-		topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+		FlexLayout buttons = new FlexLayout(
+		        new NativeLabel(Translator.translate("AgeGroups.Predefined")),
+		        reloadDefinition,
+		        hr(),
+		        new NativeLabel(Translator.translate("AgeGroups.Custom")),
+		        exportAgeGroups,uploadCustom,
+		        hr(),
+		        new NativeLabel(Translator.translate("AgeGroups.Reassign")),
+		        resetButton);
+		buttons.getStyle().set("flex-wrap", "wrap");
+		buttons.getStyle().set("gap", "1ex");
+		buttons.getStyle().set("margin-left", "5em");
+		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+
+		topBar.getStyle().set("flex", "100 1");
+		topBar.add(buttons);
+		topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
 		topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 
 		return topBar;
+	}
+
+	private Hr hr() {
+		Hr hr = new Hr();
+		hr.setWidthFull();
+		hr.getStyle().set("margin", "0");
+		hr.getStyle().set("padding", "0");
+		return hr;
 	}
 
 	@Override

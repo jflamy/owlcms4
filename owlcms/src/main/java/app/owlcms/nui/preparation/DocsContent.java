@@ -115,8 +115,10 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		hr.setWidthFull();
 		hr.getStyle().set("margin", "0");
 		hr.getStyle().set("padding", "0");
-		FlexLayout buttons = new FlexLayout(new NativeLabel(Translator.translate("Entries")),
-		        bwButton, categoriesListButton, teamsListButton, hr,
+		FlexLayout buttons = new FlexLayout(
+		        new NativeLabel(Translator.translate("Entries")),
+		        bwButton, categoriesListButton, teamsListButton,
+		        hr,
 		        new NativeLabel(Translator.translate("Preparation_Groups")),
 		        sessionsButton, cardsButton, weighInSummaryButton, checkInButton, officialSchedule);
 		buttons.getStyle().set("flex-wrap", "wrap");

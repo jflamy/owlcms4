@@ -65,6 +65,10 @@ public class ResourceWalker {
 	private static Path localDirPath = null;
 	private static Supplier<byte[]> localZipBlobSupplier;
 	private static Supplier<Locale> localeSupplier;
+	
+	public ResourceWalker() {
+		//logger.setLevel(Level.TRACE);
+	}
 
 	public static void checkForLocalOverrideDirectory() {
 		Path curDir = Paths.get(".", "local");
@@ -823,19 +827,17 @@ public class ResourceWalker {
 
 					        if (matchesLocale(baseName, locale)) {
 						        if (logger.isEnabledFor(Level.TRACE)) {
-							        // logger.debug("kept {}, baseName={}, locale {}", filePath, baseName, locale);
+							        logger.trace("kept {}, baseName={}, locale {}", filePath, baseName, locale);
 						        }
 						        localeNames.add(new Resource(generatedName, filePath));
 					        } else if (matchesLocale(baseName, null)) {
 						        if (logger.isEnabledFor(Level.TRACE)) {
-							        // logger.debug("kept_default {}, baseName={}, locale {}", filePath, baseName,
-							        // locale);
+							        logger.trace("kept_default {}, baseName={}, locale {}", filePath, baseName, locale);
 						        }
 						        englishNames.add(new Resource(generatedName, filePath));
 					        } else {
 						        if (logger.isEnabledFor(Level.TRACE)) {
-							        // logger.debug("ignored {}, baseName={}, wrong locale {}", filePath, baseName,
-							        // locale);
+							        logger.trace("ignored {}, baseName={}, wrong locale {}", filePath, baseName, locale);
 						        }
 						        otherNames.add(new Resource(generatedName, filePath));
 					        }
@@ -844,7 +846,7 @@ public class ResourceWalker {
 			        });
 			localeNames.addAll(englishNames);
 			if (logger.isEnabledFor(Level.TRACE)) {
-				// logger.debug("resources: {}", localeNames);
+				logger.trace("resources: {}", localeNames);
 			}
 
 			return localeNames;

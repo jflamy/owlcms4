@@ -8,9 +8,22 @@
 
 ##### 47.1
 
-- (beta01) Announcer-controlled display of jury decisions.  To better apply the IWF rule that the reason for jury reversals should be announced, by default the jury decision shows a prompt to the announcer.  The announcer then announces the decision and the reason, and presses a button that actually updates the system and the scoreboards.  The prior behavior (instant update when the jury presses) can be obtained using a checkbox in the Competition Rules section.
+- (beta02) Age Group Definitions
+
+  - It is now possible to download an age group definition Excel from the system, edit it, and upload the edited file.  This makes it easier to change things like qualification totals. 
+  - The list of predefined Age Group definition files is again filtered according to locale, so that fewer files are shown: if the file name ends with _es_ES, it will only be shown to Spanish users in Spain.
+
+- (beta01) Announcer-controlled display of jury decisions.  To better apply the IWF rule that the reason for jury reversals must be announced, by default the jury decision buttons now triggers a two-step process:
+
+  1. show a prompt to the announcer.  The announcer  announces the decision and the reason
+  2. the announcer presses a button that updates the system and the scoreboards. 
+
+  The prior behaviour (instant update when the jury presses) is still available by using a checkbox in the Competition Rules section.
+
 - Fix: Setting the session competition time (again) sets the weigh-in time if it is empty, and vice-versa.  Once set the two fields need to be changed individually.  Clear the other field first if you want the automatic computation.
+
 - New template: Check-in sheet. Used to hand out promotional items to athletes, give access passes, etc. Template serves as example of jxls3 (see below)
+
 - Excel templates for documents can now be in [jxls3](https://jxls.sourceforge.net/) format.  A jxls3 template is detected from the presence of a `jx:area` directive in a note in cell A1 of the first sheet.
 
 ##### 47.0.1
