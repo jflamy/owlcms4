@@ -8,6 +8,8 @@
 
 ##### 47.1
 
+- (beta03) Internal: Code refactoring for scoring systems (no visible feature)
+
 - (beta02) Age Group Definitions
 
   - It is now possible to download an age group definition Excel from the system, edit it, and upload the edited file.  This makes it easier to change things like qualification totals. 
