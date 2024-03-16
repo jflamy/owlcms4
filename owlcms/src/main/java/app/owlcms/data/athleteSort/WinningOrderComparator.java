@@ -68,6 +68,8 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 			return compareSmmResultOrder(lifter1, lifter2);
 		case QPOINTS:
 			return compareQPointsResultOrder(lifter1, lifter2);
+		case GAMX:
+			return compareGamxResultOrder(lifter1, lifter2);
 		default:
 			throw new UnsupportedOperationException("Unsupported ranking type "+rankingType);
 		}
@@ -199,7 +201,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 	}
 	
 	/**
-	 * Determine who ranks first on Sinclair points.
+	 * Determine who ranks first on QPoints points.
 	 *
 	 * @param lifter1 the lifter 1
 	 * @param lifter2 the lifter 2
@@ -212,6 +214,27 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 			return compare;
 		}
 		compare = compareQPoints(lifter1, lifter2);
+		if (compare != 0) {
+			return compare;
+		}
+		// for best lifter awards based on qpoints, lighter Athlete that achieves same qpoints is better
+		return tieBreak(lifter1, lifter2, true);
+	}
+	
+	/**
+	 * Determine who ranks first on GAMX points.
+	 *
+	 * @param lifter1 the lifter 1
+	 * @param lifter2 the lifter 2
+	 * @return the int
+	 */
+	public int compareGamxResultOrder(Athlete lifter1, Athlete lifter2) {
+		int compare = 0;
+		compare = ObjectUtils.compare(lifter1.getGender(), lifter2.getGender());
+		if (compare != 0) {
+			return compare;
+		}
+		compare = compareGamx(lifter1, lifter2);
 		if (compare != 0) {
 			return compare;
 		}

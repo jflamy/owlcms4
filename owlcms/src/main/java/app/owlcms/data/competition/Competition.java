@@ -415,6 +415,7 @@ public class Competition {
 		doReporting(nodupAthletes, Ranking.SMM, true);
 		doReporting(nodupAthletes, Ranking.QPOINTS, true);
 		doReporting(nodupAthletes, Ranking.CAT_SINCLAIR, false);
+		doReporting(nodupAthletes, Ranking.GAMX, true);
 	}
 
 	@Override

@@ -32,6 +32,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.scoring.GAMX;
 import app.owlcms.data.scoring.QPoints;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -355,8 +356,20 @@ public class TopSinclair extends AbstractTop {
 						        Math.ceil((topManScore - a.getCategorySinclair()) / a.getCatSinclairFactor()));
 					}
 					break;
-				case HSR:
-					needed = 0;
+				case GAMX:
+					if (curGender == Gender.F) {
+						int tot = a.getBestSnatch()+a.getBestCleanJerk();
+						needed = GAMX.kgTarget(curGender, topWomanScore, a.getBodyWeight()) - tot;
+						if (needed < 0) {
+							needed = 0;
+						}
+					} else {
+						int tot = a.getBestSnatch()+a.getBestCleanJerk();
+						needed = GAMX.kgTarget(curGender, topWomanScore, a.getBodyWeight()) - tot;
+						if (needed < 0) {
+							needed = 0;
+						}
+					}
 					break;
 				case QPOINTS:
 					if (curGender == Gender.F) {

@@ -1,9 +1,11 @@
 package app.owlcms.data.athleteSort;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 
 /**
@@ -21,7 +23,7 @@ public enum Ranking {
 	SMM("Smm"), // Sinclair Malone-Meltzer -- ancient name for SMF and SMHF
 	ROBI("Robi"), // IWF ROBI
 	QPOINTS("QPoints"), // Huebner QPoints.
-	HSR("HSR") // Huebner Scaled Results aka Global Points
+	GAMX("GAMX") // Global Adjusted Mixed (Huebner)
 	;
 
 	private String reportingName;
@@ -46,7 +48,11 @@ public enum Ranking {
 	}
 
 	public static List<Ranking> scoringSystems() {
-		return Arrays.asList(BW_SINCLAIR, SMM, ROBI, QPOINTS, CAT_SINCLAIR /* TODO , HSR */);
+		List<Ranking> systems = new ArrayList<Ranking>(Arrays.asList(BW_SINCLAIR, SMM, ROBI, QPOINTS, CAT_SINCLAIR));
+		if (Config.getCurrent().featureSwitch("gamx")) {
+			systems.add(GAMX);
+		}
+		return systems;
 	}
 
 	/**
@@ -77,8 +83,8 @@ public enum Ranking {
 				return curLifter.getCategorySinclair();
 			case SMM:
 				return curLifter.getSmfForDelta();
-			case HSR:
-				return curLifter.getHSR();
+			case GAMX:
+				return curLifter.getGamx();
 			case QPOINTS:
 				return curLifter.getQPoints();
 		}
@@ -109,8 +115,8 @@ public enum Ranking {
 				value = curLifter.getCatSinclairRank();
 			case SMM:
 				value = curLifter.getSmmRank();
-			case HSR:
-				value = curLifter.getHSRRank();
+			case GAMX:
+				value = curLifter.getGmaxRank();
 			case QPOINTS:
 				value = curLifter.getqPointsRank();
 		}
@@ -127,7 +133,7 @@ public enum Ranking {
 			case BW_SINCLAIR:
 			case CAT_SINCLAIR:
 			case SMM:
-			case HSR:
+			case GAMX:
 			case QPOINTS:
 				return Translator.translate("Ranking." + rankingType);
 			default:

@@ -40,8 +40,8 @@ public class OverallRankSetter {
 			break;
 		case QPOINTS:
 			a.setqPointsRank(eligible ? (zero ? 0 : ++rank) : -1);
-		case HSR:
-			a.setHSRRank(eligible ? (zero ? 0 : ++rank) : -1);
+		case GAMX:
+			a.setGmaxRank(eligible ? (zero ? 0 : ++rank) : -1);
 		}
 	}
 

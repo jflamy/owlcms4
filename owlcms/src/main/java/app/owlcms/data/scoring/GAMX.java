@@ -40,7 +40,7 @@ public class GAMX {
 	private final static float[][][] z = new float[2][NB_BW][NB_TOT];
 	private final static float[][][] gamx = new float[2][NB_BW][NB_TOT];
 	private static boolean loaded = false;
-	Logger logger = (Logger) LoggerFactory.getLogger(GAMX.class);
+	static Logger logger = (Logger) LoggerFactory.getLogger(GAMX.class);
 
 	public GAMX() {
 	}
@@ -53,7 +53,7 @@ public class GAMX {
 		return coefficient;
 	}
 
-	public float doGetZScore(Gender gender, Double dBW, Integer liftedWeight) {
+	public static float doGetGamx(Gender gender, Double dBW, Integer liftedWeight) {
 		if (gender == null || dBW == null) {
 			return 0.0F;
 		}
@@ -63,22 +63,22 @@ public class GAMX {
 		float ceilingScore = M_CONSTANT + zCoefficient(gender, (int) Math.ceil(dBW), liftedWeight) * SD_CONSTANT;
 		double interpolated = floorScore + ((dBW - Math.floor(dBW)) * (ceilingScore - floorScore));
 
-		// logger.info("gender={} bw={} total={} floor={} ceil={} score={}", gender, dBW, liftedWeight, floorScore,
-		// ceilingScore, interpolated);
+		logger.info("doGetGamx gender={} bw={} total={} floor={} ceil={} score={}", gender, dBW, liftedWeight, floorScore,
+		        ceilingScore, interpolated);
 
 		return (float) interpolated;
 	}
 
-	public float getZScore(Athlete a, Integer liftedWeight) {
+	public static float getGamx(Athlete a, Integer liftedWeight) {
 		if (liftedWeight == null) {
 			return 0.0F;
 		}
 		Gender gender = a.getGender();
 		Double dBW = a.getBodyWeight();
-		return doGetZScore(gender, dBW, liftedWeight);
+		return doGetGamx(gender, dBW, liftedWeight);
 	}
 
-	public int kgTarget(Gender gender, double targetScore, double bw) {
+	public static int kgTarget(Gender gender, double targetScore, double bw) {
 		int floorBW = (int) Math.floor(bw) - STARTING_BW;
 
 		// search the target score in the weight row of the chasing athlete
@@ -89,21 +89,29 @@ public class GAMX {
 		} else {
 			// floorfloorWeightIndex is exact hit (unlikely given float).
 		}
-		this.logger.warn("{} binary {} {}<{}<{}", floorBW + STARTING_BW, floorWeightIndex + STARTING_TOTAL,
-		        gamx[gender.ordinal()][floorBW][floorWeightIndex - 1],
-		        targetScore, gamx[gender.ordinal()][floorBW][floorWeightIndex]);
 
-		int returnValue = floorWeightIndex;
-		float score = 0;
-		while ((score = doGetZScore(gender, bw, returnValue)) <= targetScore) {
-			returnValue++;
+		try {
+			logger.warn("{} binary {} {}<{}<{}", floorBW + STARTING_BW, floorWeightIndex + STARTING_TOTAL,
+			        gamx[gender.ordinal()][floorBW][floorWeightIndex - 1],
+			        targetScore, gamx[gender.ordinal()][floorBW][floorWeightIndex]);
+
+			int returnValue = floorWeightIndex + STARTING_TOTAL;
+			var score = doGetGamx(gender, bw, returnValue);
+			logger.warn("bw={} total={} score={} targetScore={}", bw, returnValue, score, targetScore);
+			while (score < targetScore) {
+				returnValue++;
+				score = doGetGamx(gender, bw, returnValue);
+				logger.warn("bw={} total={} score={} targetScore={}", bw, returnValue, score, targetScore);
+			}
+			return returnValue;
+		} catch (Exception e) {
+			logger.warn("kgTarget IMPOSSIBLE {} {} {}", gender, targetScore, bw);
+			return 0;
 		}
-		this.logger.warn("score {} {}", score, returnValue);
-		return returnValue;
 
 	}
 
-	public float zCoefficient(Gender gender, int bw, Integer liftedWeight) {
+	public static float zCoefficient(Gender gender, int bw, Integer liftedWeight) {
 		loadCoefficients();
 		float zCoeff = z[gender.ordinal()][bw - STARTING_BW][liftedWeight - STARTING_TOTAL];
 		return zCoeff;
@@ -112,7 +120,7 @@ public class GAMX {
 	/**
 	 *
 	 */
-	private void loadCoefficients() {
+	private static void loadCoefficients() {
 		if (loaded) {
 			return;
 		}
@@ -143,9 +151,11 @@ public class GAMX {
 
 							try {
 								float coeff = (float) cell.getNumericCellValue();
-								float gamxEquiv = (M_CONSTANT + SD_CONSTANT * coeff);
-								if (coeff <= 0.001) {
+								float gamxEquiv;
+								if (Math.abs(coeff) <= 0.001) {
 									gamxEquiv = 1000.0F; // any large value
+								} else {
+									gamxEquiv = (M_CONSTANT + SD_CONSTANT * coeff);
 								}
 
 								z[gender.ordinal()][rowNum - 1][cellNum - 2] = coeff;
@@ -154,7 +164,7 @@ public class GAMX {
 								// logger.trace("z[{}][{}][{}] = {} => {}", gender.ordinal(), rowNum - 1, cellNum - 2,
 								// coeff, equivKg);
 							} catch (Exception e) {
-								this.logger.error("{}[{}] {}", sheet.getSheetName(), cell.getAddress(), e);
+								logger.error("{}[{}] {}", sheet.getSheetName(), cell.getAddress(), e);
 							}
 						}
 					}
@@ -162,7 +172,7 @@ public class GAMX {
 			}
 			loaded = true;
 		} catch (Exception e) {
-			LoggerUtils.logError(this.logger, e);
+			LoggerUtils.logError(logger, e);
 		}
 	}
 

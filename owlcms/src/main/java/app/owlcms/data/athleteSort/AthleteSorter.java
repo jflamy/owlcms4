@@ -499,7 +499,7 @@ public class AthleteSorter implements Serializable {
 			case ROBI:
 			case SMM:
 			case QPOINTS:
-			case HSR:
+			case GAMX:
 				// logger.debug("ranking type {}",rankingType);
 				resultsOrder(sorted, rankingType, true);
 				break;
@@ -531,7 +531,7 @@ public class AthleteSorter implements Serializable {
 			case ROBI:
 			case SMM:
 			case QPOINTS:
-			case HSR:
+			case GAMX:
 				resultsOrder(sorted, rankingType, true);
 				break;
 			case SNATCH:

@@ -113,13 +113,13 @@ public class TeamPointsComparator extends AbstractLifterComparator implements Co
 			logger.trace(
 			        lifter1 + " " + robi1 + " [" + compareRobi + "]" + lifter2 + " " + robi2);
 			return compareRobi;
-		case HSR:
-			final Double hsr1 = lifter1.getHSR();
-			final Double hsr2 = lifter2.getHSR();
-			final int compareHSR = hsr1.compareTo(hsr2);
+		case GAMX:
+			final Double gamx1 = lifter1.getGamx();
+			final Double gamx2 = lifter2.getGamx();
+			final int compareGamx = gamx1.compareTo(gamx2);
 			logger.trace(
-			        lifter1 + " " + hsr1 + " [" + compareHSR + "]" + lifter2 + " " + hsr2);
-			return compareHSR;
+			        lifter1 + " " + gamx1 + " [" + compareGamx + "]" + lifter2 + " " + gamx2);
+			return compareGamx;
 		default:
 			break;
 		}

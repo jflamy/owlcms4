@@ -34,7 +34,7 @@ public class Team {
 	private long size;
 	private double smfScore = 0.0D;
 	private double robi = 0.0D;
-	private double hsr;
+	private double gamx;
 	private double qPoints = 0.0D;
 
 	private Ranking scoringSystem;
@@ -57,8 +57,8 @@ public class Team {
 				return getRobi();
 			case SMM:
 				return getSmfScore();
-			case HSR:
-				return getHsr();
+			case GAMX:
+				return getGamx();
 			default:
 				return 0D;
 		}
@@ -134,12 +134,12 @@ public class Team {
 		this.smfScore = smfScore;
 	}
 
-	public double getHsr() {
-		return hsr;
+	public double getGamx() {
+		return gamx;
 	}
 
-	public void setHsr(double hsr) {
-		this.hsr = hsr;
+	public void setGamx(double gamx) {
+		this.gamx = gamx;
 	}
 
 	public double getCatSinclairScore() {

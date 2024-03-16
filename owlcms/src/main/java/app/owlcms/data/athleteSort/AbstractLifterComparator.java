@@ -823,15 +823,15 @@ public class AbstractLifterComparator {
 	
 
 	/**
-	 * Compare HSR.
+	 * Compare GAMX.
 	 *
 	 * @param lifter1 the lifter 1
 	 * @param lifter2 the lifter 2
 	 * @return the int
 	 */
-	int compareHSR(Athlete lifter1, Athlete lifter2) {
-		Double lifter1Value = lifter1.getHSR();
-		Double lifter2Value = lifter2.getHSR();
+	int compareGamx(Athlete lifter1, Athlete lifter2) {
+		Double lifter1Value = lifter1.getGamx();
+		Double lifter2Value = lifter2.getGamx();
 		final Double notWeighed = 0D;
 		if (lifter1Value == null) {
 			lifter1Value = notWeighed;
@@ -839,7 +839,7 @@ public class AbstractLifterComparator {
 		if (lifter2Value == null) {
 			lifter2Value = notWeighed;
 		}
-		// bigger HSR comes first
+		// bigger GAMX comes first
 		return -lifter1Value.compareTo(lifter2Value);
 	}
 

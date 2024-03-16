@@ -58,6 +58,7 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.group.DisplayGroup;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.LocalDateAttributeConverter;
+import app.owlcms.data.scoring.GAMX;
 import app.owlcms.data.scoring.QPoints;
 import app.owlcms.data.scoring.SinclairCoefficients;
 import app.owlcms.fieldofplay.FOPState;
@@ -204,7 +205,7 @@ public class Athlete {
 				dest.setSmmRank(src.getSmmRank());
 				dest.setTeamSinclairRank(src.getTeamSinclairRank());
 				dest.setCatSinclairRank(src.getCatSinclairRank());
-				dest.setHSRRank(src.getHSRRank());
+				dest.setGmaxRank(src.getGmaxRank());
 				dest.setRobiRank(src.getRobiRank());
 			}
 		} finally {
@@ -406,7 +407,8 @@ public class Athlete {
 	@JsonIgnore
 	private boolean checkTiming;
 	private String subCategory;
-	private Integer hsrRank;
+	@Column(columnDefinition = "integer default 0")
+	private Integer gmaxRank;
 
 	/**
 	 * Instantiates a new athlete.
@@ -2164,8 +2166,8 @@ public class Athlete {
 		return this.robiRank;
 	}
 
-	public Integer getHSRRank() {
-		return this.hsrRank;
+	public Integer getGmaxRank() {
+		return this.gmaxRank;
 	}
 
 	@Transient
@@ -3645,8 +3647,8 @@ public class Athlete {
 		this.robiRank = robiRank;
 	}
 
-	public void setHSRRank(Integer hsrRank) {
-		this.hsrRank = hsrRank;
+	public void setGmaxRank(Integer rank) {
+		this.gmaxRank = rank;
 	}
 
 	/**
@@ -5330,8 +5332,9 @@ public class Athlete {
 		subCategory = s;
 	}
 
-	public Double getHSR() {
-		return getQPoints();
+	public Double getGamx() {
+		Integer total = getBestCleanJerk() + getBestSnatch();
+		return (double) GAMX.getGamx(this, total);
 	}
 
 }
