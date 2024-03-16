@@ -8,7 +8,7 @@
 
 ##### 47.1
 
-- (beta03) Internal: Code refactoring for scoring systems (no visible feature)
+- (beta03) Internal: Refactoring for scoring systems (no visible feature)
 
 - (beta02) Age Group Definitions
 
