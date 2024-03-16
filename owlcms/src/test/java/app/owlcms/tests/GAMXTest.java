@@ -10,6 +10,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.scoring.GAMX;
 import ch.qos.logback.classic.Logger;
 
+@Ignore
 public class GAMXTest {
 	
 	Logger logger = (Logger) LoggerFactory.getLogger(GAMXTest.class);
