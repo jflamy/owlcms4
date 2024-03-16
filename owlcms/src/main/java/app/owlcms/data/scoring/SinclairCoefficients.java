@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.data.athlete;
+package app.owlcms.data.scoring;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +16,7 @@ import javax.annotation.Nullable;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.athlete.Gender;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
