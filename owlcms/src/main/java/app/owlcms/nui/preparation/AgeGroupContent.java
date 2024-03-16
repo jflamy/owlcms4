@@ -125,7 +125,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		
 		Locale locale = OwlcmsSession.getLocale();
 		//locale = new Locale("fr","FR");
-		logger.warn("locale={}",locale);
+
 		List<Resource> resourceList = new ResourceWalker().getResourceList("/agegroups", ResourceWalker::relativeName,
 		        null, locale);
 		resourceList.sort((a, b) -> a.compareTo(b));

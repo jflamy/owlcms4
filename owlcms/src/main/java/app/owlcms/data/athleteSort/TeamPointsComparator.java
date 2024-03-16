@@ -117,7 +117,7 @@ public class TeamPointsComparator extends AbstractLifterComparator implements Co
 			final Double gamx1 = lifter1.getGamx();
 			final Double gamx2 = lifter2.getGamx();
 			final int compareGamx = gamx1.compareTo(gamx2);
-			logger.warn(
+			logger.trace(
 			        lifter1 + " " + gamx1 + " [" + compareGamx + "]" + lifter2 + " " + gamx2);
 			return compareGamx;
 		default:

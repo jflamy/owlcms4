@@ -91,21 +91,21 @@ public class GAMX {
 		}
 
 		try {
-			logger.warn("{} binary {} {}<{}<{}", floorBW + STARTING_BW, floorWeightIndex + STARTING_TOTAL,
-			        gamx[gender.ordinal()][floorBW][floorWeightIndex - 1],
-			        targetScore, gamx[gender.ordinal()][floorBW][floorWeightIndex]);
+//			logger.debug("{} binary {} {}<{}<{}", floorBW + STARTING_BW, floorWeightIndex + STARTING_TOTAL,
+//			        gamx[gender.ordinal()][floorBW][floorWeightIndex - 1],
+//			        targetScore, gamx[gender.ordinal()][floorBW][floorWeightIndex]);
 
 			int returnValue = floorWeightIndex + STARTING_TOTAL;
 			var score = doGetGamx(gender, bw, returnValue);
-			logger.warn("bw={} total={} score={} targetScore={}", bw, returnValue, score, targetScore);
+//			logger.debug("bw={} total={} score={} targetScore={}", bw, returnValue, score, targetScore);
 			while (score < targetScore) {
 				returnValue++;
 				score = doGetGamx(gender, bw, returnValue);
-				logger.warn("bw={} total={} score={} targetScore={}", bw, returnValue, score, targetScore);
+//				logger.debug("bw={} total={} score={} targetScore={}", bw, returnValue, score, targetScore);
 			}
 			return returnValue;
 		} catch (Exception e) {
-			logger.warn("kgTarget IMPOSSIBLE {} {} {}", gender, targetScore, bw);
+			logger.warn/**/("kgTarget IMPOSSIBLE {} {} {}", gender, targetScore, bw);
 			return 0;
 		}
 
