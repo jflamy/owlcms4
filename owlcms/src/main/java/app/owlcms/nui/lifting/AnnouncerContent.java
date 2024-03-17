@@ -94,6 +94,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	private HorizontalLayout timerButtons;
 	private boolean singleReferee;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
+	private ConfirmDialog juryConfirmationDialog;
 
 	public AnnouncerContent() {
 		super();
@@ -322,8 +323,12 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	}
 
 	private void juryDecisionAnnounce(UIEvent.JuryNotification e) {
-		ConfirmDialog d = new ConfirmDialog();
-		d.setHeader(Translator.translate("Announcer.JuryDecisionTitle"));
+		if (juryConfirmationDialog != null) {
+			// jury can send multiple decisions.
+			juryConfirmationDialog.close();
+		}
+		juryConfirmationDialog = new ConfirmDialog();
+		juryConfirmationDialog.setHeader(Translator.translate("Announcer.JuryDecisionTitle"));
 		
 		String reversalText = "";
 		if (e.getReversal() != null) {
@@ -350,7 +355,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			default:
 				break;
 		}
-		d.setText(new Html(
+		juryConfirmationDialog.setText(new Html(
 				"""
 		        <div>
 		        <div style="%s">%s</div>
@@ -359,15 +364,15 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		        <div>
 		        """.formatted(style,text,Translator.translate("Announcer.JuryDecisionExplanation"))));
 
-		d.setCloseOnEsc(false);
-		d.setConfirmText(Translator.translate("Announcer.PerformJuryDecision"));
-		d.setCancelable(true);
-		d.setCancelText(Translator.translate("Announcer.IgnoreJuryDecision"));
+		juryConfirmationDialog.setCloseOnEsc(false);
+		juryConfirmationDialog.setConfirmText(Translator.translate("Announcer.PerformJuryDecision"));
+		juryConfirmationDialog.setCancelable(true);
+		juryConfirmationDialog.setCancelText(Translator.translate("Announcer.IgnoreJuryDecision"));
 		// the last parameter to the event will trigger the processing of the pending jury decision.
-		d.addConfirmListener(c -> OwlcmsSession.getFop().fopEventPost(new FOPEvent.JuryDecision(e.getAthlete(), e.getOrigin(), et == GOOD_LIFT, false)));
-		d.addCancelListener(c -> OwlcmsSession.getFop().fopEventPost(new FOPEvent.StartLifting(this)));
-		d.open();
-
+		// false indicates that the decision event comes from the announcer and not from the jury.
+		juryConfirmationDialog.addConfirmListener(c -> OwlcmsSession.getFop().fopEventPost(new FOPEvent.JuryDecision(e.getAthlete(), e.getOrigin(), et == GOOD_LIFT, false)));
+		juryConfirmationDialog.addCancelListener(c -> OwlcmsSession.getFop().fopEventPost(new FOPEvent.StartLifting(this)));
+		juryConfirmationDialog.open();
 		
 	}
 

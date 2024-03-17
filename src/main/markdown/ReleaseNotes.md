@@ -8,6 +8,8 @@
 
 ##### 47.1
 
+- (beta04) Public results no longer shows the "tap here to enable sound" notification if silent=true (which it is by default).
+
 - (beta04) Fix: the internal cleanup in beta03 could cause export/import problem, now fixed.
 
 - (beta03) Internal: Refactoring for scoring systems (no visible feature)
