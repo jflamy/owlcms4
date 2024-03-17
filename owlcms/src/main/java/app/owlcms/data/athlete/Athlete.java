@@ -5332,7 +5332,12 @@ public class Athlete {
 		subCategory = s;
 	}
 
+	@Transient
+	@JsonIgnore
 	public Double getGamx() {
+		if (!Config.getCurrent().featureSwitch("gamx")) {
+			return 0.0D;
+		}
 		Integer total = getBestCleanJerk() + getBestSnatch();
 		return (double) GAMX.getGamx(this, total);
 	}

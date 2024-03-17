@@ -8,6 +8,8 @@
 
 ##### 47.1
 
+- (beta04) Fix: the internal cleanup in beta03 could cause export/import problem, now fixed.
+
 - (beta03) Internal: Refactoring for scoring systems (no visible feature)
 
 - (beta02) Age Group Definitions
