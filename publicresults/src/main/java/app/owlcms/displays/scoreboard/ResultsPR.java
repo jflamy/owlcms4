@@ -483,7 +483,10 @@ public class ResultsPR extends LitTemplate
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        SoundUtils.enableAudioContextNotification(this.getElement());
+        if (!this.isSilenced()) {
+            SoundUtils.enableAudioContextNotification(this.getElement());
+        }
+
 
         this.ui = UI.getCurrent();
 

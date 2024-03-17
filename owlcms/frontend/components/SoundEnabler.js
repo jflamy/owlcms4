@@ -12,7 +12,7 @@ class SoundEnabler extends LitElement {
   }
 
   render() {
-    return html`<div class="soundEnabler" id="enabler">${this.caption}</button>`;
+    return html`<div class="soundEnabler" id="enabler">${this.caption}</div>`;
   }
 
   static get properties() {
