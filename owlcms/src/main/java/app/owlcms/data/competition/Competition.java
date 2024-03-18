@@ -616,6 +616,12 @@ public class Competition {
 	public boolean getDisplayByAgeGroup() {
 		return this.isDisplayByAgeGroup();
 	}
+	
+	@Transient
+	@JsonIgnore
+	public boolean isByAgeGroup() {
+		return this.isDisplayByAgeGroup() || this.isMasters();
+	}
 
 	/**
 	 * Gets the federation.

@@ -117,7 +117,6 @@ public class Results extends LitTemplate
     private HashMap<Athlete, String> athleteToFlag = new HashMap<>();
     private boolean video;
     private boolean downSilenced;
-	private boolean displayByAgeGroup;
 
     public Results() {
         this.uiEventLogger.setLevel(Level.INFO);
@@ -653,9 +652,33 @@ public class Results extends LitTemplate
         }
         return nbCats;
     }
+    
+    /**
+     * @param groupAthletes, List<Athlete> liftOrder
+     * @return
+     */
+    protected int countBWClasses(List<Athlete> displayOrder) {
+        int nbCats = 0;
+        String prevCat = null;
+        List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
+                : Collections.emptyList();
+        for (Athlete a : athletes) {
+            String curCat = a.getBWCategory();
+            if (curCat != null && (prevCat == null || !prevCat.contentEquals(curCat))) {
+                // changing categories, put marker before athlete
+                prevCat = curCat;
+                nbCats++;
+            }
+        }
+        return nbCats;
+    }
 
     protected int countSubsets(List<Athlete> order) {
-        return countCategories(order) + 1;
+    	if (Competition.getCurrent().isByAgeGroup()) {
+    		return countCategories(order) + 1;
+    	} else {
+    		return (countBWClasses(order)) + 1;
+    	}
     }
 
     protected void doEmpty() {
@@ -931,6 +954,7 @@ public class Results extends LitTemplate
      * @return the separator
      */
     protected BiPredicate<Athlete, Athlete> getSeparatorPredicate() {
+    	boolean displayByAgeGroup = Competition.getCurrent().isByAgeGroup();
         BiPredicate<Athlete, Athlete> separator = (cur, prev) -> {
         	if ( prev == null ) {
         		return true;
@@ -971,7 +995,6 @@ public class Results extends LitTemplate
             this.uiEventBus = uiEventBusRegister(this, fop);
 
             this.getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
-            this.displayByAgeGroup = Competition.getCurrent().isDisplayByAgeGroup();
         });
 
         getElement().setProperty("showTotal", true);

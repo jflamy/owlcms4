@@ -1,18 +1,20 @@
-**Version 47.1 Beta**
+**Version 47.1 Release Candidate**
 
 > [!WARNING]
 >
-> - This is a beta release, used for public testing of new features and for performing translation.  
-> - *New features may still exhibit bugs. Previously working features may have been broken*.  Beta releases are rarely used in actual competitions, except if they have been very thoroughly tested.
+> - This is a release candidate, used for final public testing of new features and for final translation.  
+> - *Recent features may still exhibit bugs. Previously working features may have been broken*.  Release Candidates are still very new, and should be *tested intensively* before being considered for use in a competition.
 > - You should test all releases with your own data, several days before a competition.
 
 ##### 47.1
 
-- (beta06) Updated to Vaadin 24.3.7, includes update to Atmosphere push library.
+- (rc01) Scoreboards: Fixed the spacing between the top section and the bottom (leaders and records) to be correct when athletes are grouped by body weight instead of by age group+bodyweight.
+
+- Updated to Vaadin 24.3.7, includes update to Atmosphere push library.
 
   - Also added an explicit push to prevent a (very rare) situation: The announcer screen is the only screen used and the announcer timer fails to start after a 1min or 2min reset.  Note that a refresh always clears the issue.
 
-- (beta06) Updated calls to MQTT to respect the 23-character limit on client ids.
+- Updated calls to MQTT to respect the 23-character limit on client ids.
 
 - Age Group Definitions
 
