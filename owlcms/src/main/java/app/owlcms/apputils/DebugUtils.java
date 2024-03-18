@@ -41,7 +41,9 @@ public class DebugUtils {
 		Class<? extends Component> class1 = e.getClass();
 		String className = class1.getName();
 		if (className.contains("vaadin") || (!className.endsWith("Board") && !className.endsWith("Content")
-		        && !className.endsWith("Display") && !className.endsWith("Layout"))) {
+		        && !className.endsWith("Display") 
+		        //&& !className.endsWith("Layout")
+		        )) {
 			Optional<Component> parent = e.getParent();
 			if (parent.isPresent()) {
 				return getOwlcmsParentName(parent.get());

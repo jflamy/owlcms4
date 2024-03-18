@@ -55,7 +55,7 @@ implements SafeEventBusRegistration, Focusable<Div> {
 	protected EventBus uiEventBus;
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 	{
-		this.logger.setLevel(Level.WARN);
+		this.logger.setLevel(Level.DEBUG);
 		this.uiEventLogger.setLevel(Level.WARN);
 	}
 
@@ -130,6 +130,7 @@ implements SafeEventBusRegistration, Focusable<Div> {
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
+			initTime(milliseconds);
 			stop(getMsRemaining(), isIndefinite(), isSilenced(), parent);
 			initTime(milliseconds);
 		});
@@ -138,6 +139,7 @@ implements SafeEventBusRegistration, Focusable<Div> {
 	protected void doStartTimer(Integer milliseconds, boolean serverSound) {
 		this.logger.debug("====== {} doStartTimer {}", this.getClass().getSimpleName(), milliseconds);
 		setServerSound(serverSound);
+		String trace = LoggerUtils.stackTrace();
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			setIndefinite(milliseconds == null);
 			setMsRemaining(milliseconds);
@@ -148,6 +150,7 @@ implements SafeEventBusRegistration, Focusable<Div> {
 			}
 			getElement().setProperty("silent", isSilent());
 			start(milliseconds, isIndefinite(), isSilent(), parent);
+			UI.getCurrent().push();
 		});
 	}
 

@@ -29,6 +29,7 @@ public class AthleteTimerElement extends TimerElement {
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteTimerElement.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	static {
+		logger.setLevel(Level.DEBUG);
 		uiEventLogger.setLevel(Level.INFO);
 	}
 
@@ -131,7 +132,9 @@ public class AthleteTimerElement extends TimerElement {
 	@Override
 	@ClientCallable
 	public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from) {
-		//logger.debug("timer {} starting on client: remaining = {}, late={}, roundtrip={}", from, remainingTime, lateMillis, delta(lastStartMillis));
+		if (logger.isDebugEnabled()) {
+			logger.warn("timer {} starting on client: remaining = {}, late={}", from, remainingTime, lateMillis, delta(lastStartMillis));
+		}
 	}
 
 	/**
@@ -142,7 +145,9 @@ public class AthleteTimerElement extends TimerElement {
 	@Override
 	@ClientCallable
 	public void clientTimerStopped(String fopName, double remainingTime, String from) {
-		//logger.debug("{} timer {} stopped on client: remaining = {}, roundtrip={}", fopName, from, remainingTime, delta(lastStopMillis));
+		if (logger.isDebugEnabled()) {
+			logger.warn("{} timer {} stopped on client: remaining = {}", fopName, from, remainingTime, delta(lastStopMillis));
+		}
 
 		// do not stop the server-side timer, this is getting called as a result of the
 		// server-side timer issuing a command. Otherwise we create an infinite loop.
