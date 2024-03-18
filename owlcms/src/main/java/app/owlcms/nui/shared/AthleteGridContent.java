@@ -682,6 +682,10 @@ public abstract class AthleteGridContent extends BaseContent
 	@Subscribe
 	public void slaveJuryNotification(UIEvent.JuryNotification e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			JuryDeliberationEventType et = e.getDeliberationEventType();
+			if (e.isRequestForAnnounce()) {
+				return;
+			}
 			String text = "";
 			String reversalText = "";
 			if (e.getReversal() != null) {
@@ -690,7 +694,7 @@ public abstract class AthleteGridContent extends BaseContent
 			}
 			String style = "warning";
 			int previousAttemptNo;
-			JuryDeliberationEventType et = e.getDeliberationEventType();
+
 
 			// logger.debug("slaveJuryNotification {} {} {}", et,
 			// e.getDeliberationEventType(), e.getTrace());

@@ -27,6 +27,7 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout.ContentAlignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
@@ -117,6 +118,14 @@ public class JuryDialog extends Dialog {
 
 	public void doClose(boolean noAction) {
 		UI.getCurrent().access(() -> {
+			if (Competition.getCurrent().isAnnouncerControlledJuryDecision()) {
+				if (noAction) {
+					((JuryContent) origin).doSync();
+				}
+				this.close();
+				return;
+			}
+			//FIXME: this should be done after processing the JuryEvent, not from UI.
 			OwlcmsSession.withFop(fop -> {
 				fop.fopEventPost(new FOPEvent.StartLifting(this));
 			});
