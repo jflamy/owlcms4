@@ -120,7 +120,11 @@ public class ZipUtils {
 		if (createDir) {
 			// pretend that a new directory is entered
 			String dirName = new File(fileName).getParent();
-			zipOut.putNextEntry(new ZipEntry(dirName + (dirName.endsWith("/") ? "" : "/")));
+			if (dirName != null) {
+				zipOut.putNextEntry(new ZipEntry(dirName + (dirName.endsWith("/") ? "" : "/")));
+			} else {
+				zipOut.putNextEntry(new ZipEntry("/"));
+			}
 			zipOut.closeEntry();
 		}
 		ZipEntry zipEntry = new ZipEntry(fileName);

@@ -8,6 +8,8 @@
 
 ##### 47.1
 
+- (beta05) Publicresults: owlcms on Linux/MacOS/RaspberryPi could not zip the configuration directory correctly to push it to the remote server, which would keep requesting the configuration
+
 - (beta04) Fix: if multiple decisions are given by the jury, announcer confirmation dialogs no longer stack.
 
 - (beta04) Publicresults no longer shows the "tap here to enable sound" notification if silent=true (which it is by default).
