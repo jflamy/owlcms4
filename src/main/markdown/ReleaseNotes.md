@@ -2,13 +2,15 @@
 
 > [!WARNING]
 >
-> - This is a beta release, used for public testing new features and performing translation.  
-> - *The new features may still exhibit some bugs. Previously working features may have been broken*.  Beta releases are seldom used in actual competitions, except if they have been very thoroughly tested.
+> - This is a beta release, used for public testing of new features and for performing translation.  
+> - *New features may still exhibit bugs. Previously working features may have been broken*.  Beta releases are rarely used in actual competitions, except if they have been very thoroughly tested.
 > - You should test all releases with your own data, several days before a competition.
 
 ##### 47.1
 
-- (beta04) Public results no longer shows the "tap here to enable sound" notification if silent=true (which it is by default).
+- (beta04) Fix: if multiple decisions are given by the jury, announcer confirmation dialogs no longer stack.
+
+- (beta04) Publicresults no longer shows the "tap here to enable sound" notification if silent=true (which it is by default).
 
 - (beta04) Fix: the internal cleanup in beta03 could cause export/import problem, now fixed.
 
