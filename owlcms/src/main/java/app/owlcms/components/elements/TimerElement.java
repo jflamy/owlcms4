@@ -150,7 +150,7 @@ implements SafeEventBusRegistration, Focusable<Div> {
 			}
 			getElement().setProperty("silent", isSilent());
 			start(milliseconds, isIndefinite(), isSilent(), parent);
-			UI.getCurrent().push();
+			UI.getCurrent().push(); // should not be required...
 		});
 	}
 
