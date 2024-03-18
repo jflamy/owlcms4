@@ -29,7 +29,7 @@ public class AthleteTimerElement extends TimerElement {
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteTimerElement.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	static {
-		logger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.DEBUG); //FIXME temp tracing.
 		uiEventLogger.setLevel(Level.INFO);
 	}
 
