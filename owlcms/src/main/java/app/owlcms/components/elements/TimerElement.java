@@ -55,7 +55,7 @@ implements SafeEventBusRegistration, Focusable<Div> {
 	protected EventBus uiEventBus;
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 	{
-		this.logger.setLevel(Level.DEBUG); //FIXME temp tracing
+		this.logger.setLevel(Level.WARN);
 		this.uiEventLogger.setLevel(Level.WARN);
 	}
 
@@ -139,7 +139,7 @@ implements SafeEventBusRegistration, Focusable<Div> {
 	protected void doStartTimer(Integer milliseconds, boolean serverSound) {
 		this.logger.debug("====== {} doStartTimer {}", this.getClass().getSimpleName(), milliseconds);
 		setServerSound(serverSound);
-		String trace = LoggerUtils.stackTrace();
+		//String trace = LoggerUtils.stackTrace();
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			setIndefinite(milliseconds == null);
 			setMsRemaining(milliseconds);

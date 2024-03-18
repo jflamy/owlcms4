@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
@@ -267,7 +266,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 
 		MqttAsyncClient client = new MqttAsyncClient(
 		        string + server + ":" + port,
-		        fop.getName() + "_" + MqttClient.generateClientId(), // ClientId
+		        fop.getName() + "_" + System.currentTimeMillis(), // ClientId
 		        new MemoryPersistence()); // Persistence
 		return client;
 	}

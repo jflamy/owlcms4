@@ -8,24 +8,18 @@
 
 ##### 47.1
 
-- (beta05) Fixed Announcer-controlled Jury reversal to work the same for MQTT keypads and the web page dialog box.
+- (beta06) Updated to Vaadin 24.3.7, includes update to Atmosphere push library.
 
-- (beta05) Publicresults: owlcms on Linux/MacOS/RaspberryPi could not zip the configuration directory correctly to push it to the remote server, which would keep requesting the configuration
+  - Also added an explicit push to prevent a (very rare) situation: The announcer screen is the only screen used and the announcer timer fails to start after a 1min or 2min reset.  Note that a refresh always clears the issue.
 
-- (beta04) Fix: if multiple decisions are given by the jury, announcer confirmation dialogs no longer stack.
+- (beta06) Updated calls to MQTT to respect the 23-character limit on client ids.
 
-- (beta04) Publicresults no longer shows the "tap here to enable sound" notification if silent=true (which it is by default).
-
-- (beta04) Fix: the internal cleanup in beta03 could cause export/import problem, now fixed.
-
-- (beta03) Internal: Refactoring for scoring systems (no visible feature)
-
-- (beta02) Age Group Definitions
+- Age Group Definitions
 
   - It is now possible to download an age group definition Excel from the system, edit it, and upload the edited file.  This makes it easier to change things like qualification totals. 
   - The list of predefined Age Group definition files is again filtered according to locale, so that fewer files are shown: if the file name ends with _es_ES, it will only be shown to Spanish users in Spain.
 
-- (beta01) Announcer-controlled display of jury decisions.  To better apply the IWF rule that the reason for jury reversals must be announced, by default the jury decision buttons now triggers a two-step process:
+- Announcer-controlled display of jury decisions.  To better apply the IWF rule that the reason for jury reversals must be announced, by default the jury decision buttons now triggers a two-step process:
 
   1. show a prompt to the announcer.  The announcer  announces the decision and the reason
   2. the announcer presses a button that updates the system and the scoreboards. 
