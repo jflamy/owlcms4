@@ -8,6 +8,8 @@
 
 ##### 47.1
 
+- (beta05) Fixed Announcer-controlled Jury reversal to work the same for MQTT keypads and the web page dialog box.
+
 - (beta05) Publicresults: owlcms on Linux/MacOS/RaspberryPi could not zip the configuration directory correctly to push it to the remote server, which would keep requesting the configuration
 
 - (beta04) Fix: if multiple decisions are given by the jury, announcer confirmation dialogs no longer stack.
