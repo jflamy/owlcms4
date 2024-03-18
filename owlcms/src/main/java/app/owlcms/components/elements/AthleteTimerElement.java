@@ -133,7 +133,7 @@ public class AthleteTimerElement extends TimerElement {
 	@ClientCallable
 	public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from) {
 		if (logger.isDebugEnabled()) {
-			logger.warn("timer {} starting on client: remaining = {}, late={}", from, remainingTime, lateMillis, delta(lastStartMillis));
+			logger.warn/**/("timer {} starting on client: remaining = {}, late={}", from, remainingTime, lateMillis, delta(lastStartMillis));
 		}
 	}
 
@@ -146,7 +146,7 @@ public class AthleteTimerElement extends TimerElement {
 	@ClientCallable
 	public void clientTimerStopped(String fopName, double remainingTime, String from) {
 		if (logger.isDebugEnabled()) {
-			logger.warn("{} timer {} stopped on client: remaining = {}", fopName, from, remainingTime, delta(lastStopMillis));
+			logger.warn/**/("{} timer {} stopped on client: remaining = {}", fopName, from, remainingTime, delta(lastStopMillis));
 		}
 
 		// do not stop the server-side timer, this is getting called as a result of the
