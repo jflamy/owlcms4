@@ -8,9 +8,9 @@
 
 ##### 47.1
 
-- (rc01) Scoreboards: Fixed the spacing between the top section and the bottom (leaders and records) to be correct when athletes are grouped by body weight instead of by age group+bodyweight.
+- (rc02) **IMPORTANT**: Fix for a database export bug. Database exports created with release 47.1 before rc02 are likely not importable due to duplicate objects.  If you still have the database, update to rc02 and recreate the export.  If you absolutely must use an older 47.1 export contact the author for help on removing the duplicates.
 
-- Updated to Vaadin 24.3.7, includes update to Atmosphere push library.
+- Updated to Vaadin 24.3.7, to update the Atmosphere push library.
 
   - Also added an explicit push to prevent a (very rare) situation: The announcer screen is the only screen used and the announcer timer fails to start after a 1min or 2min reset.  Note that a refresh always clears the issue.
 
