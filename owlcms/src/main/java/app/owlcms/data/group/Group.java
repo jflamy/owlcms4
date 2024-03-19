@@ -682,6 +682,8 @@ public class Group implements Comparable<Group> {
 		return new DisplayGroup("?", "", null, "", "");
 	}
 
+	@Transient
+	@JsonIgnore
 	public List<Athlete> getAthletes() {
 		return AthleteRepository.findAllByGroupAndWeighIn(this, null);
 	}

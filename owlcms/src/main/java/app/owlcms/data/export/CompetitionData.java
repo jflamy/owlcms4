@@ -11,6 +11,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -105,9 +106,10 @@ public class CompetitionData {
 		setAgeGroups(AgeGroupRepository.findAll());
 		List<Athlete> allAthletes = AthleteRepository
 		        .findAll()
-//                .stream()
-//                .filter(a -> a.getAgeGroup().getAgeDivision() == AgeDivision.MASTERS && a.getGender() == Gender.F)
-//                .collect(Collectors.toList())
+                .stream()
+//                .findFirst()
+//                .map(Arrays::asList).orElseGet(List::of);
+            .collect(Collectors.toList());
 		;
 		setAthletes(allAthletes);
 		setGroups(GroupRepository.findAll());
