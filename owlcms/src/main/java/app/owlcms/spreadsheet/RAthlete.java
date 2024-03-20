@@ -79,10 +79,11 @@ public class RAthlete {
 			return;
 		}
 		s = CharMatcher.javaIsoControl().removeFrom(s);
-		String[] parts = s.split("\\|");
+		String[] parts = s.split(Pattern.quote("|"));
+		logger.warn("*setCategory {} {}",s,parts.length);
 		if (parts.length >= 1) {
 			String catName = parts[0].trim();
-
+			logger.warn("*catName {}",catName);
 			// check for team exclusion marker.
 			boolean teamMember = true;
 			if (catName.endsWith(NoTeamMarker)) {

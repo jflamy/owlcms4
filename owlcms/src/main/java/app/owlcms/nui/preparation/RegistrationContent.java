@@ -224,16 +224,16 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	 */
 	@Override
 	public Collection<Athlete> findAll() {
-//		List<Athlete> findFiltered = AthleteRepository.findFiltered(getLastName(), getGroup(),
-//		        getCategory(), getAgeGroup(), getAgeDivision(),
-//		        getGender(), getWeighedIn(), getTeam(), -1, -1);
-//		AthleteSorter.registrationOrder(findFiltered);
-//		// startingXlsWriter.setSortedAthletes(findFiltered);
-//		// List<Athlete> c = AthleteSorter.displayOrderCopy(findFiltered);
-//		// categoriesXlsWriter.setSortedAthletes(c);
-//		updateURLLocations();
-//		return findFiltered;
-		return athletesFindAll();
+		List<Athlete> findFiltered = AthleteRepository.findFiltered(getLastName(), getGroup(),
+		        getCategory(), getAgeGroup(), getAgeDivision(),
+		        getGender(), getWeighedIn(), getTeam(), -1, -1);
+		AthleteSorter.registrationOrder(findFiltered);
+		// startingXlsWriter.setSortedAthletes(findFiltered);
+		// List<Athlete> c = AthleteSorter.displayOrderCopy(findFiltered);
+		// categoriesXlsWriter.setSortedAthletes(c);
+		updateURLLocations();
+		return findFiltered;
+		//return athletesFindAll();
 	}
 
 	/**
@@ -526,11 +526,18 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		crudGrid.getCrudLayout().addFilterComponent(lastNameFilter);
 
 		teamFilter.setPlaceholder(Translator.translate("Team"));
-		teamFilter.setItems(AthleteRepository.findAllTeams());
+		List<String> allTeams = AthleteRepository.findAllTeams();
+		logger.warn("allTeams {}",allTeams.size());
+		for (String s: allTeams) {
+			logger.warn("s {}",s);
+		}
+		teamFilter.setItems(allTeams);
 		teamFilter.setClearButtonVisible(true);
 		teamFilter.setWidth("10em");
+		teamFilter.getStyle().set("--vaadin-combo-box-overlay-width", "25em");
 		teamFilter.addValueChangeListener(e -> {
-			setTeam(e.getValue());
+			String value = e.getValue();
+			setTeam(value != null ? value : "");
 			crudGrid.refreshGrid();
 		});
 		crudGrid.getCrudLayout().addFilterComponent(teamFilter);

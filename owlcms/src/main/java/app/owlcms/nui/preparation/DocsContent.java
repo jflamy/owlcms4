@@ -443,6 +443,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 
 		teamFilter.setPlaceholder(Translator.translate("Team"));
 		teamFilter.setItems(AthleteRepository.findAllTeams());
+		teamFilter.getStyle().set("--vaadin-combo-box-overlay-width", "25em");
 		teamFilter.setClearButtonVisible(true);
 		teamFilter.addValueChangeListener(e -> {
 			setTeam(e.getValue());

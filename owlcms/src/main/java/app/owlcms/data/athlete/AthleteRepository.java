@@ -102,7 +102,8 @@ public class AthleteRepository {
 		if (group != null && group.getName() == "*") {
 			group = null;
 		}
-		String selection = filteringSelection(lastName, group, category, ageGroup, ageDivision, gender, weighedIn, team);
+		String selection = filteringSelection(lastName, group, category, ageGroup, ageDivision, gender, weighedIn,
+		        team);
 		String qlString = "select count(a.id) from Athlete a " + selection;
 		logger.trace("count query = {}", qlString);
 		Query query = em.createQuery(qlString);
@@ -210,8 +211,8 @@ public class AthleteRepository {
 	}
 
 	/**
-	 * Fetch all athletes and participations for the categories present in the
-	 * group. If group is null, all athletes and their participations.
+	 * Fetch all athletes and participations for the categories present in the group. If group is null, all athletes and
+	 * their participations.
 	 *
 	 * @param g
 	 * @return
@@ -264,8 +265,7 @@ public class AthleteRepository {
 	}
 
 	/**
-	 * Use the athlete bodyweight (or presumed body weight if weigh-in has not taken
-	 * place) to determine category.
+	 * Use the athlete bodyweight (or presumed body weight if weigh-in has not taken place) to determine category.
 	 */
 	public static void resetParticipations() {
 		// logger.debug("recomputing eligibles");
@@ -319,10 +319,10 @@ public class AthleteRepository {
 			String categoriesFromCurrentGroup = "select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 where g.id = :groupId";
 			onlyCategoriesFromCurrentGroup = " join p.category c where exists (" + categoriesFromCurrentGroup
 			        + " and c2.id = c.id)";
-//                Query q2 = em.createQuery(categoriesFromCurrentGroup);
-//                q2.setParameter("groupId", g.getId());
-//                List<Category> q2Results = q2.getResultList();
-//                logger.debug("categories for currentGroup {}",q2Results);
+			// Query q2 = em.createQuery(categoriesFromCurrentGroup);
+			// q2.setParameter("groupId", g.getId());
+			// List<Category> q2Results = q2.getResultList();
+			// logger.debug("categories for currentGroup {}",q2Results);
 		}
 		Query q = em.createQuery(
 		        "select distinct a, p from Athlete a join fetch a.participations p"
@@ -426,12 +426,15 @@ public class AthleteRepository {
 			query.setParameter("team", team);
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static List<String> findAllTeams() {
 		return JPAService.runInTransaction((em) -> {
 			Query query = em.createQuery("select distinct a.team from Athlete a");
-			return query.getResultList();
+			List<String> resultList = query.getResultList();
+			return resultList.stream().filter(s -> {
+				return s != null;
+			}).collect(Collectors.toList());
 		});
 	}
 }

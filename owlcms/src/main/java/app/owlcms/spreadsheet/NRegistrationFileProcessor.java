@@ -167,7 +167,6 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	@Override
 	public int doProcessGroups(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer,
 	        Runnable displayUpdater) {
-		StringBuffer sb = new StringBuffer();
 		try (InputStream xmlInputStream = ResourceWalker.getResourceAsStream(GROUPS_READER_SPEC)) {
 			inputStream.reset();
 			ReaderConfig readerConfig = ReaderConfig.getInstance();
