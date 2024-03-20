@@ -8,7 +8,6 @@ package app.owlcms.nui.preparation;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -17,7 +16,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -286,35 +284,32 @@ public class ORegistrationFileUploadDialog extends Dialog {
 		});
 	}
 
-	private void updateAthletes(StringBuffer sb, RCompetition c, List<RAthlete> athletes) {
-//      for (Category c1: athlete.getEligibleCategories()) {
-//      em.merge(c1);
-//  }
+	private void updateAthletes(StringBuffer sb, RCompetition rc, List<RAthlete> athletes) {
 		JPAService.runInTransaction(em -> {
 			Competition curC = Competition.getCurrent();
 			try {
-				Competition rCompetition = c.getCompetition();
-				// save some properties from current database that do not appear on spreadheet
-				rCompetition.setEnforce20kgRule(curC.isEnforce20kgRule());
-				rCompetition.setUseBirthYear(curC.isUseBirthYear());
-				rCompetition.setMasters(curC.isMasters());
+				Competition rCompetition = rc.getCompetition();
 
 				// update the current competition with the new properties read from spreadsheet
-				BeanUtils.copyProperties(curC, rCompetition);
-				// update in database and set current to result of JPA merging.
+				curC.setCompetitionName(rCompetition.getCompetitionName());
+				curC.setCompetitionDate(rCompetition.getCompetitionDate());
+				curC.setCompetitionCity(rCompetition.getCompetitionCity());
+				curC.setCompetitionSite(rCompetition.getCompetitionSite());
+				curC.setCompetitionOrganizer(rCompetition.getCompetitionOrganizer());
+				
+				// update in database, current must be result of merging (new object created)
 				Competition.setCurrent(em.merge(curC));
 
 				// Create the new athletes.
 				athletes.stream().forEach(r -> {
-					Athlete athlete = r.getAthlete();
-					em.merge(athlete);
+						Athlete athlete = r.getAthlete();
+						em.merge(athlete);
 				});
 				em.flush();
-			} catch (IllegalAccessException | InvocationTargetException | RuntimeException e) {
+			} catch (Exception e) {
+				sb.append(e.getMessage() != null ? e.getMessage() : e.toString());
 				LoggerUtils.stackTrace(e);
-				sb.append(e.getLocalizedMessage());
 			}
-
 			return null;
 		});
 

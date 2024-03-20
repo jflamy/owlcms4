@@ -104,11 +104,14 @@ public class NRegistrationFileUploadDialog extends Dialog {
 
 		// first do a dry run to count groups
 		int nbGroups = processGroups(inputStream, ta, true);
+		logger.info("{} groups found in file", nbGroups);
 		if (nbGroups > 0) {
 			// get the groups from the spreadsheet
 			this.processor.resetGroups();
 			processGroups(inputStream, ta, false);
+			logger.info("{} groups processed", nbGroups);
 		}
+
 
 		// process athletes now that groups have been adjusted
 		processAthletes(inputStream, ta, false);
