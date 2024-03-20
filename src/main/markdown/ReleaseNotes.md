@@ -8,13 +8,15 @@
 
 ##### 47.1
 
+- (rc04) Translation file updated.
+
 - (rc03) Excel Registration File Fixes
 
   - Simple Registration File: Empty cells (for example no club name) could cause the import to fail.
 
   - Full Start Book Data Entry (SBDE) format: Could fail when reading the Competition information at the top.
 
-- (rc02) **IMPORTANT**: Fix for database export/import issue. To read database exports created in 47.1 before rc02, you must update to rc02.
+- Fix for database export/import issue. Database exports created with 47.1 prereleases can be read again starting with release rc02.
 
 - Updated to Vaadin 24.3.7, to update the Atmosphere push library.
 
