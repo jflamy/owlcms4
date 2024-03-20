@@ -527,17 +527,13 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 		teamFilter.setPlaceholder(Translator.translate("Team"));
 		List<String> allTeams = AthleteRepository.findAllTeams();
-		logger.warn("allTeams {}",allTeams.size());
-		for (String s: allTeams) {
-			logger.warn("s {}",s);
-		}
 		teamFilter.setItems(allTeams);
 		teamFilter.setClearButtonVisible(true);
 		teamFilter.setWidth("10em");
 		teamFilter.getStyle().set("--vaadin-combo-box-overlay-width", "25em");
 		teamFilter.addValueChangeListener(e -> {
 			String value = e.getValue();
-			setTeam(value != null ? value : "");
+			setTeam(value);
 			crudGrid.refreshGrid();
 		});
 		crudGrid.getCrudLayout().addFilterComponent(teamFilter);

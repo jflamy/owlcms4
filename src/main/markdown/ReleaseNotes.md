@@ -8,7 +8,7 @@
 
 ##### 47.1
 
-- (rc07) Athlete Entries and Weigh-in screens: Fixed Teams filtering, adjusted athlete deduplication
+- (rc08) Athlete Entries and Weigh-in screens: Fixed Teams filtering, adjusted athlete deduplication
 
 - Excel Registration File Fixes
 
