@@ -284,20 +284,17 @@ public class ORegistrationFileUploadDialog extends Dialog {
 		});
 	}
 
-	private void updateAthletes(StringBuffer sb, RCompetition rc, List<RAthlete> athletes) {
+	private void updateAthletes(StringBuffer sb, RCompetition competitionReader, List<RAthlete> athletes) {
 		JPAService.runInTransaction(em -> {
 			Competition curC = Competition.getCurrent();
 			try {
-				Competition rCompetition = rc.getCompetition();
-
 				// update the current competition with the new properties read from spreadsheet
-				curC.setCompetitionName(rCompetition.getCompetitionName());
-				curC.setCompetitionDate(rCompetition.getCompetitionDate());
-				curC.setCompetitionCity(rCompetition.getCompetitionCity());
-				curC.setCompetitionSite(rCompetition.getCompetitionSite());
-				curC.setCompetitionOrganizer(rCompetition.getCompetitionOrganizer());
-				
-				// update in database, current must be result of merging (new object created)
+				Competition competitionUpdate = competitionReader.getCompetition();
+				curC.setCompetitionName(competitionUpdate.getCompetitionName());
+				curC.setCompetitionDate(competitionUpdate.getCompetitionDate());
+				curC.setCompetitionCity(competitionUpdate.getCompetitionCity());
+				curC.setCompetitionSite(competitionUpdate.getCompetitionSite());
+				curC.setCompetitionOrganizer(competitionUpdate.getCompetitionOrganizer());
 				Competition.setCurrent(em.merge(curC));
 
 				// Create the new athletes.
