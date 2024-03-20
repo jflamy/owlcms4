@@ -8,6 +8,12 @@
 
 ##### 47.1
 
+- (rc06) Additional Simple Registration File Fixes
+
+  - Additional precautions regarding empty cells have been added (especially empty dates)
+
+  - The second tab with Sessions was skipped.
+
 - (rc05) Duplicate lines shown in the Registration and Pre-competition Documents (all participating categories were shown as individual lines). Would also cause missing team checkboxes when editing an athlete.
 
 - (rc04) Translation file updated.

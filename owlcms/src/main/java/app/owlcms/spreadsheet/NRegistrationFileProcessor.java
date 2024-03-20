@@ -19,6 +19,7 @@ import javax.persistence.EntityManager;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.DateUtil;
@@ -28,6 +29,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 import app.owlcms.components.GroupCategorySelectionMenu.TriConsumer;
 import app.owlcms.data.athlete.Athlete;
@@ -45,7 +47,11 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
+import net.sf.jxls.reader.ReaderBuilder;
 import net.sf.jxls.reader.ReaderConfig;
+import net.sf.jxls.reader.XLSReadMessage;
+import net.sf.jxls.reader.XLSReadStatus;
+import net.sf.jxls.reader.XLSReader;
 
 public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 
@@ -161,11 +167,13 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	@Override
 	public int doProcessGroups(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer,
 	        Runnable displayUpdater) {
+		StringBuffer sb = new StringBuffer();
 		try (InputStream xmlInputStream = ResourceWalker.getResourceAsStream(GROUPS_READER_SPEC)) {
 			inputStream.reset();
 			ReaderConfig readerConfig = ReaderConfig.getInstance();
 			readerConfig.setUseDefaultValuesForPrimitiveTypes(true);
 			readerConfig.setSkipErrors(true);
+			XLSReader reader = ReaderBuilder.buildFromXML(xmlInputStream);
 
 			try (InputStream xlsInputStream = inputStream) {
 				List<RGroup> groups = new ArrayList<>();
@@ -174,19 +182,44 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 				beans.put("groups", groups);
 
 				// logger.info(getTranslation("ReadingData_"));
-				this.logger.info("Read {} groups.", groups.size());
+				XLSReadStatus status = reader.read(inputStream, beans);
+				logger.info("Read {} groups.", groups.size());
 				if (!dryRun) {
 					updatePlatformsAndGroups(groups);
 				}
-				appendErrors(displayUpdater, errorConsumer);
+
+				appendErrors(displayUpdater, errorConsumer, status);
 				return groups.size();
-			} catch (IOException e) {
-				LoggerUtils.logError(this.logger, e);
+			} catch (InvalidFormatException | IOException e) {
+				LoggerUtils.logError(logger, e);
 			}
-		} catch (IOException e1) {
-			LoggerUtils.logError(this.logger, e1);
+		} catch (IOException | SAXException e1) {
+			LoggerUtils.logError(logger, e1);
 		}
 		return 0;
+	}
+	
+	private void appendErrors(Runnable updater, Consumer<String> appender, XLSReadStatus status) {
+		@SuppressWarnings("unchecked")
+		List<XLSReadMessage> errors = status.getReadMessages();
+		for (XLSReadMessage m : errors) {
+			String cleanMessage = cleanMessage(m.getMessage());
+			appender.accept(cleanMessage);
+			Exception e = m.getException();
+			if (e != null) {
+				Throwable cause = e.getCause();
+				String causeMessage = cause != null ? cause.getLocalizedMessage() : e.getLocalizedMessage();
+				// causeMessage = LoggerUtils.stackTrace(cause);
+				causeMessage = causeMessage != null ? causeMessage : e.toString();
+				if (causeMessage.contentEquals("text")) {
+					causeMessage = "Empty or invalid.";
+				}
+				appender.accept(causeMessage);
+				logger.debug(cleanMessage + causeMessage);
+			}
+			appender.accept(System.lineSeparator());
+		}
+		updater.run();
 	}
 
 	public boolean isCreateMissingGroups() {
@@ -537,7 +570,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 					curRowEmpty = false;
 					int delayedOrder = ArrayUtils.indexOf(this.delayedSetterColumns, iColumn);
 					if (delayedOrder < 0) {
-						if (iColumn < this.setterForColumn.length && this.setterForColumn[iColumn] != null) {
+						if (iColumn < this.setterForColumn.length && this.setterForColumn[iColumn] != null && cell != null) {
 							logger.debug("setting column {} {}", iColumn, cell.getAddress());
 							this.setterForColumn[iColumn].accept(ra, cellValue.trim(), cell);
 						}
@@ -555,7 +588,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 					Integer setterColumn = this.delayedSetterColumns[delayedOrder];
 					logger.debug("delayed setter [{}] {} {}", delayedOrder, DelayedSetter.values()[delayedOrder],
 					        setterColumn);
-					if (setterColumn != null) {
+					if (setterColumn != null && delayedSetterCells[delayedOrder] != null) {
 						this.setterForColumn[setterColumn].accept(ra, delayedSetterValues[delayedOrder],
 						        delayedSetterCells[delayedOrder]);
 					}
