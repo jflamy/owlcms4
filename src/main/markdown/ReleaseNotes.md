@@ -8,6 +8,8 @@
 
 ##### 47.1
 
+- (rc05) Duplicate lines shown in the Registration and Pre-competition Documents (all participating categories were shown as individual lines). Would also cause missing team checkboxes when editing an athlete.
+
 - (rc04) Translation file updated.
 
 - (rc03) Excel Registration File Fixes
