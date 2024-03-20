@@ -8,19 +8,13 @@
 
 ##### 47.1
 
-- (rc06) Additional Simple Registration File Fixes
+- (rc07) Athlete Entries and Weigh-in screens: Fixed Teams filtering, adjusted athlete deduplication
 
-  - Additional precautions regarding empty cells have been added (especially empty dates)
+- Excel Registration File Fixes
 
-  - The second tab with Sessions was skipped.
+  - Simple Registration File: Empty cells (for example no club name) could cause the import to fail
 
-- (rc05) Duplicate lines shown in the Registration and Pre-competition Documents (all participating categories were shown as individual lines). Would also cause missing team checkboxes when editing an athlete.
-
-- (rc04) Translation file updated.
-
-- (rc03) Excel Registration File Fixes
-
-  - Simple Registration File: Empty cells (for example no club name) could cause the import to fail.
+  - Simple Registration File: The second tab with Sessions was skipped.
 
   - Full Start Book Data Entry (SBDE) format: Could fail when reading the Competition information at the top.
 
