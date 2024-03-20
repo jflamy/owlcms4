@@ -359,7 +359,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 		errorConsumer.accept(c.getAddress() + " " + e.getLocalizedMessage() + System.lineSeparator());
 		// logger.error("{} {}", c.getAddress(), e.toString());
 		// if (e instanceof InvocationTargetException) {
-		LoggerUtils.logError(this.logger, e);
+		LoggerUtils.logError(this.logger, e, true);
 		// }
 	}
 
@@ -523,17 +523,17 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 				// setters that can be called immediately are invoked in this pass
 				String[] delayedSetterValues = new String[DelayedSetter.values().length];
 				Cell[] delayedSetterCells = new Cell[DelayedSetter.values().length];
-				iColumn = 0;
+
 				boolean curRowEmpty = true;
 				while (cellIterator.hasNext()) {
 					Cell cell = cellIterator.next();
 					String cellValue = cellToString(cell);
 					String trim = cellValue.trim();
 					if (trim.isBlank()) {
-						iColumn++;
 						continue;
 					}
 					
+					iColumn = cell.getColumnIndex();		
 					curRowEmpty = false;
 					int delayedOrder = ArrayUtils.indexOf(this.delayedSetterColumns, iColumn);
 					if (delayedOrder < 0) {
@@ -545,7 +545,6 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 						delayedSetterValues[delayedOrder] = cellValue.trim();
 						delayedSetterCells[delayedOrder] = cell;
 					}
-					iColumn++;
 				}
 				if (curRowEmpty) {
 					break rows;

@@ -34,8 +34,12 @@ public class LoggerUtils {
         return message;
     }
 
-    public static void logError(Logger logger, Throwable e) {
-        logger.error(stackTrace(e));
+    public static void logError(Logger logger, Throwable e, Boolean... shortMessage) {
+    	if (shortMessage.length > 0 && shortMessage[0]) {
+    		logger.error(shortStackTrace(e));
+    	} else {
+    		logger.error(stackTrace(e));
+    	}
     }
 
     /**
@@ -47,7 +51,11 @@ public class LoggerUtils {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         StackTraceElement[] trace = Thread.currentThread().getStackTrace();
-        int i = 0;
+        return shortStackTrace(sw, pw, trace);
+    }
+
+	private static String shortStackTrace(StringWriter sw, PrintWriter pw, StackTraceElement[] trace) {
+		int i = 0;
         for (StackTraceElement ste : trace) {
             String string = ste.toString();
             if (string.startsWith("com.vaadin.flow.server.")
@@ -61,8 +69,19 @@ public class LoggerUtils {
             i++;
         }
         return sw.toString();
-    }
+	}
 
+    /**
+     * @param t
+     * @return
+     */
+    public static String shortStackTrace(Throwable t) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        StackTraceElement[] trace = t.getStackTrace();
+        return shortStackTrace(sw, pw, trace);
+    }
+    
     /**
      * @param t
      * @return
