@@ -224,15 +224,16 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	 */
 	@Override
 	public Collection<Athlete> findAll() {
-		List<Athlete> findFiltered = AthleteRepository.findFiltered(getLastName(), getGroup(),
-		        getCategory(), getAgeGroup(), getAgeDivision(),
-		        getGender(), getWeighedIn(), getTeam(), -1, -1);
-		AthleteSorter.registrationOrder(findFiltered);
-		// startingXlsWriter.setSortedAthletes(findFiltered);
-		// List<Athlete> c = AthleteSorter.displayOrderCopy(findFiltered);
-		// categoriesXlsWriter.setSortedAthletes(c);
-		updateURLLocations();
-		return findFiltered;
+//		List<Athlete> findFiltered = AthleteRepository.findFiltered(getLastName(), getGroup(),
+//		        getCategory(), getAgeGroup(), getAgeDivision(),
+//		        getGender(), getWeighedIn(), getTeam(), -1, -1);
+//		AthleteSorter.registrationOrder(findFiltered);
+//		// startingXlsWriter.setSortedAthletes(findFiltered);
+//		// List<Athlete> c = AthleteSorter.displayOrderCopy(findFiltered);
+//		// categoriesXlsWriter.setSortedAthletes(c);
+//		updateURLLocations();
+//		return findFiltered;
+		return athletesFindAll();
 	}
 
 	/**

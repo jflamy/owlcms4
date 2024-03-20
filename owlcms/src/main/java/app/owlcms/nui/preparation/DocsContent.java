@@ -142,7 +142,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 
 	@Override
 	public List<Athlete> findAll() {
-		return participationFindAll();
+		return athletesFindAll();
 	}
 
 	@Override
