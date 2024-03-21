@@ -57,7 +57,8 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 				
 				int cellNum = 7;
 				for (Category cat: ag.getCategories()) {
-					String val = cat.getGender().name() + cat.getMaximumWeight().intValue();
+					Double maximumWeight = cat.getMaximumWeight();
+					int val = (int)(maximumWeight+0.5);
 					int qt = cat.getQualifyingTotal();
 					curRow.createCell(cellNum).setCellValue(val+ (qt > 0 ? (" "+qt): ""));
 					cellNum++;
