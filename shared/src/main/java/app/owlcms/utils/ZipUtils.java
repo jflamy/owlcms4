@@ -49,6 +49,7 @@ public class ZipUtils {
 
 	final static Logger logger = (Logger) LoggerFactory.getLogger(ZipUtils.class);
 
+	@SuppressWarnings("deprecation")
 	public static void extractZip(InputStream inputStream, Path target) throws IOException {
 		try {
 			ArchiveStreamFactory archiveStreamFactory = new ArchiveStreamFactory();
