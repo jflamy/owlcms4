@@ -245,7 +245,19 @@ public class ORegistrationFileProcessor implements IRegistrationFileProcessor{
 		JPAService.runInTransaction(em -> {
 			groups.stream().forEach(g -> {
 				String platformName = g.getPlatform();
-				Group group = g.getGroup();
+				Group readGroup = g.getGroup();
+				Group group = GroupRepository.doFindByName(g.getGroupName(), em);
+				if (group == null) {
+					// new group
+					group = readGroup;
+				} else {
+					try {
+						group.copy(readGroup);
+					} catch (IllegalAccessException | InvocationTargetException e) {
+						logger.error(LoggerUtils.shortStackTrace(e));
+					}
+				}
+				
 				if (platformName == null || platformName.isBlank()) {
 					platformName = newDefault;
 				}
@@ -303,6 +315,7 @@ public class ORegistrationFileProcessor implements IRegistrationFileProcessor{
 			em.flush();
 			return null;
 		});
+		logger.info("previous groups removed");
 	}
 
 	@Override

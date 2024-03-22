@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.data.group;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -22,6 +23,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
@@ -686,5 +688,11 @@ public class Group implements Comparable<Group> {
 	@JsonIgnore
 	public List<Athlete> getAthletes() {
 		return AthleteRepository.findAllByGroupAndWeighIn(this, null);
+	}
+	
+	public void copy(Group source) throws IllegalAccessException, InvocationTargetException {
+		Long myId = getId();
+		BeanUtils.copyProperties(source, this);
+		this.setId(myId);
 	}
 }

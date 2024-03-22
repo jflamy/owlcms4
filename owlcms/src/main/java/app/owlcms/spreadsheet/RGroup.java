@@ -153,25 +153,29 @@ public class RGroup {
 		this.announcer = announcer;
 	}
 
-	public void setCompetitionTime(String competitionTime) {
-		if (competitionTime == null || competitionTime.isBlank()) {
+	public void setCompetitionTime(String cTime) {
+		if (cTime == null || cTime.isBlank()) {
 			this.competitionTime = "";
 			return;
 		}
 		try {
-			LocalDateTime parseExcelDateTime = DateTimeUtils.parseExcelFractionalDate(competitionTime);
+			LocalDateTime parseExcelDateTime = DateTimeUtils.parseExcelFractionalDate(cTime);
 			// brute force round to the closest minute due to rounding errors in Excel fractional date times.
 			int seconds = parseExcelDateTime.getSecond();
 			parseExcelDateTime = parseExcelDateTime.withSecond(0).withNano(0);
 			if (seconds >= 30) {
 				parseExcelDateTime = parseExcelDateTime.plusMinutes(1);
 			}
-			group.setCompetitionTime(parseExcelDateTime);
+
 			this.competitionTime = parseExcelDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE) + " "
 			        + parseExcelDateTime.format(DateTimeFormatter.ISO_LOCAL_TIME);
+			group.setCompetitionTime(parseExcelDateTime);
+			logger.trace("is a numeric time {} {}",this.competitionTime, parseExcelDateTime);
 		} catch (NumberFormatException e) {
-			DateTimeUtils.parseISO8601DateTime(competitionTime);
+			logger.trace("not a numeric time {}",cTime);
+			group.setCompetitionTime(DateTimeUtils.parseISO8601DateTime(cTime));
 			// if no Exception thrown, the time was correctly parsed
+			this.competitionTime = cTime;
 			return;
 		}
 	}
@@ -266,25 +270,28 @@ public class RGroup {
 		this.timekeeper = timekeeper;
 	}
 
-	public void setWeighinTime(String weighinTime) {	
-		if (weighinTime == null || weighinTime.isBlank()) {
+	public void setWeighinTime(String wTime) {	
+		if (wTime == null || wTime.isBlank()) {
 			this.weighinTime = "";
 			return;
 		}
 		try {
-			LocalDateTime parseExcelDateTime = DateTimeUtils.parseExcelFractionalDate(weighinTime);
+			LocalDateTime parseExcelDateTime = DateTimeUtils.parseExcelFractionalDate(wTime);
 			// brute force round to the closest minute due to rounding errors in Excel fractional date times.
 			int seconds = parseExcelDateTime.getSecond();
 			parseExcelDateTime = parseExcelDateTime.withSecond(0).withNano(0);
 			if (seconds >= 30) {
 				parseExcelDateTime = parseExcelDateTime.plusMinutes(1);
 			}
-			group.setWeighInTime(parseExcelDateTime);
 			this.weighinTime = parseExcelDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE) + " "
 			        + parseExcelDateTime.format(DateTimeFormatter.ISO_LOCAL_TIME);
+			group.setWeighInTime(parseExcelDateTime);
+			logger.trace("is a numeric time {} {}",this.weighinTime, parseExcelDateTime);
 		} catch (NumberFormatException e) {
-			DateTimeUtils.parseISO8601DateTime(weighinTime);
+			group.setWeighInTime(DateTimeUtils.parseISO8601DateTime(wTime));
+			logger.trace("not a numeric time {}",wTime);
 			// if no Exception thrown, the time was correctly parsed
+			this.competitionTime = wTime;
 			return;
 		}
 		

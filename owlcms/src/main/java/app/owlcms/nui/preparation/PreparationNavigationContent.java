@@ -96,7 +96,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		        buttonClickEvent -> new NRegistrationFileUploadDialog().open());
 		Button fullUpload = new Button(Translator.translate("AdvancedPreparation.Import"),
 		        new Icon(VaadinIcon.UPLOAD_ALT),
-		        buttonClickEvent -> new ORegistrationFileUploadDialog().open());
+		        buttonClickEvent -> new NRegistrationFileUploadDialog().open());
 		var registrationWriter = new JXLSSBDEExport(UI.getCurrent());
 		JXLSDownloader dd2 = new JXLSDownloader(
 		        () -> {

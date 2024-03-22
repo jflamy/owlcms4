@@ -14,9 +14,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import javax.persistence.EntityManager;
-
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -36,7 +33,6 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
-import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
@@ -345,13 +341,25 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 		JPAService.runInTransaction(em -> {
 			groups.stream().forEach(g -> {
 				String platformName = g.getPlatform();
-				Group group = g.getGroup();
+				Group readGroup = g.getGroup();
+				Group group = GroupRepository.doFindByName(g.getGroupName(), em);
+				if (group == null) {
+					// new group
+					group = readGroup;
+				} else {
+					try {
+						group.copy(readGroup);
+					} catch (IllegalAccessException | InvocationTargetException e) {
+						logger.error(LoggerUtils.shortStackTrace(e));
+					}
+				}
+				
 				if (platformName == null || platformName.isBlank()) {
 					platformName = newDefault;
 				}
 				this.logger.info("setting platform '{}' for group {}", platformName, g.getGroupName());
 				Platform op = PlatformRepository.findByName(platformName);
-				group.setPlatform(op);
+				readGroup.setPlatform(op);
 				em.merge(group);
 			});
 			em.flush();
@@ -599,19 +607,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 		}
 		return new AthleteInput(athletes);
 	}
+	
+	
 
-	@SuppressWarnings("unused")
-	private void updateCompetitionInfo(RCompetition c, EntityManager em, Competition curC)
-	        throws IllegalAccessException, InvocationTargetException {
-		Competition rCompetition = c.getCompetition();
-		// save some properties from current database that do not appear on spreadheet
-		rCompetition.setEnforce20kgRule(curC.isEnforce20kgRule());
-		rCompetition.setUseBirthYear(curC.isUseBirthYear());
-		rCompetition.setMasters(curC.isMasters());
-
-		// update the current competition with the new properties read from spreadsheet
-		BeanUtils.copyProperties(curC, rCompetition);
-		// update in database and set current to result of JPA merging.
-		Competition.setCurrent(em.merge(curC));
-	}
 }

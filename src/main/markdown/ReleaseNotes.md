@@ -8,6 +8,12 @@
 
 ##### 47.1
 
+- (rc10) Excel Registration File Fixes
+
+  - Both the Simple registration format and the full Start Book Data Entry (SBDE) now accept start times in Excel numerical date format, and in Text format (yyyy-MM-dd hh:ss).  
+  - The times are now correctly rounded to the closest minute
+  - Both formats again correctly update pre-existing groups.
+
 - (rc09) Translation update, Clean-up of tracing levels
 
 - Announcer-controlled display of jury decisions.  To better apply the IWF rule that the reason for jury reversals must be announced, by default the jury decision buttons now triggers a two-step process:
@@ -22,15 +28,7 @@
   - It is now possible to download an age group definition Excel from the system, edit it, and upload the edited file.  This makes it easier to change things like qualification totals. 
   - The list of predefined Age Group definition files is again filtered according to locale, so that fewer files are shown: if the file name ends with _es_ES, it will only be shown to Spanish users in Spain.
 
-- Excel Registration File Fixes
-
-  - Simple Registration File: Empty cells (for example no club name) could cause the import to fail
-
-  - Simple Registration File: The second tab with Sessions was skipped.
-
-  - Full Start Book Data Entry (SBDE) format: Could fail when reading the Competition information at the top.
-
-- User Inteface Fixes: 
+- User Interface Fixes: 
 
   - Sessions: Setting the session competition time sets the weigh-in time if it is empty, and vice-versa.  Once set the two fields need to be changed individually.  Clear the other field first if you want the automatic computation.
   - Registration and Weigh-in lists: Athletes eligible in multiple categories could appear multiple times.

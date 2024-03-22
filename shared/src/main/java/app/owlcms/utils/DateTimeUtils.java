@@ -77,11 +77,11 @@ public class DateTimeUtils {
 		// logger.debug("parseExcelDateTime {} {}", competitionTime);
 		double doubleDays = Double.parseDouble(competitionTime);
 		// logger.debug("parseExcelDateTime {} {}", competitionTime, doubleDays);
-		long minutes = (long) (doubleDays * 24 * 60);
+		long seconds = (long) (doubleDays * 24 * 60 * 60);
 		return LocalDateTime
 		        .of(1899, Month.DECEMBER, 30, 0, 0) // Specify epoch reference date used by *some* versions of Excel.
 		                                            // Beware: Some versions use a 1904 epoch reference
-		        .plusMinutes(minutes);
+		        .plusSeconds(seconds);
 	}
 
 	public static LocalDate parseLocalizedOrISO8601Date(String content, Locale locale) throws Exception {
@@ -114,6 +114,9 @@ public class DateTimeUtils {
 	private static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm";
 	private final static DateTimeFormatter DATETIME_FORMATTER = new DateTimeFormatterBuilder().parseLenient()
 	        .appendPattern(DATETIME_FORMAT).toFormatter();
+	private static final String DATETIME_FORMAT_SECONDS = "yyyy-MM-dd HH:mm:ss";
+	private final static DateTimeFormatter DATETIME_FORMATTER_SECONDS = new DateTimeFormatterBuilder().parseLenient()
+	        .appendPattern(DATETIME_FORMAT_SECONDS).toFormatter();
 	// try as a local date
 	public static LocalDateTime parseISO8601DateTime(String content) {
 		// try as a local date
@@ -122,8 +125,13 @@ public class DateTimeUtils {
 			parse = LocalDateTime.parse(content, DATETIME_FORMATTER);
 			return parse;
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
+			try {
+				parse = LocalDateTime.parse(content, DATETIME_FORMATTER_SECONDS);
+				return parse;
+			} catch (Exception e2) {
+				e.printStackTrace();
+				throw e;
+			}
 		}
 	}
 
