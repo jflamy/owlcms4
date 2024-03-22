@@ -8,16 +8,13 @@
 
 ##### 47.1
 
-- (rc02) **IMPORTANT**: Fix for database export/import issue. To read database exports created in 47.1 before rc02, you must update to rc02.
+- (rc10) Excel Registration File Fixes
 
-- Updated to Vaadin 24.3.7, to update the Atmosphere push library.
+  - Both the Simple registration format and the full Start Book Data Entry (SBDE) now accept start times in Excel numerical date format, and in Text format (yyyy-MM-dd hh:ss).  
+  - The times are now correctly rounded to the closest minute
+  - Both formats again correctly update pre-existing groups.
 
-- Updated calls to MQTT to respect the 23-character limit on client identifiers.
-
-- Age Group Definitions
-
-  - It is now possible to download an age group definition Excel from the system, edit it, and upload the edited file.  This makes it easier to change things like qualification totals. 
-  - The list of predefined Age Group definition files is again filtered according to locale, so that fewer files are shown: if the file name ends with _es_ES, it will only be shown to Spanish users in Spain.
+- (rc09) Translation update, Clean-up of tracing levels
 
 - Announcer-controlled display of jury decisions.  To better apply the IWF rule that the reason for jury reversals must be announced, by default the jury decision buttons now triggers a two-step process:
 
@@ -26,11 +23,25 @@
 
   The prior behaviour (instant update when the jury presses) is still available by using a checkbox in the Competition Rules section.
 
-- Fix: Setting the session competition time (again) sets the weigh-in time if it is empty, and vice-versa.  Once set the two fields need to be changed individually.  Clear the other field first if you want the automatic computation.
+- Age Group Definitions
 
-- New template: Check-in sheet. Used to hand out promotional items to athletes, give access passes, etc. Template serves as example of jxls3 (see below)
+  - It is now possible to download an age group definition Excel from the system, edit it, and upload the edited file.  This makes it easier to change things like qualification totals. 
+  - The list of predefined Age Group definition files is again filtered according to locale, so that fewer files are shown: if the file name ends with _es_ES, it will only be shown to Spanish users in Spain.
 
-- Excel templates for documents can now be in [jxls3](https://jxls.sourceforge.net/) format.  A jxls3 template is detected from the presence of a `jx:area` directive in a note in cell A1 of the first sheet.
+- User Interface Fixes: 
+
+  - Sessions: Setting the session competition time sets the weigh-in time if it is empty, and vice-versa.  Once set the two fields need to be changed individually.  Clear the other field first if you want the automatic computation.
+  - Registration and Weigh-in lists: Athletes eligible in multiple categories could appear multiple times.
+
+- Excel Templates:
+
+  - New template: Check-in sheet. Used to hand out promotional items to athletes, give access passes, etc. Template serves as example of jxls3 (see below)
+  - Excel templates for documents can now be in [jxls3](https://jxls.sourceforge.net/) format.  A jxls3 template is detected from the presence of a `jx:area` directive in a note in cell A1 of the first sheet.
+
+- Technical:
+
+  - Updated to Vaadin 24.3.7, to update the Atmosphere push library.
+  - Updated calls to MQTT to respect the 23-character limit on client identifiers
 
 ##### 47.0.1
 
