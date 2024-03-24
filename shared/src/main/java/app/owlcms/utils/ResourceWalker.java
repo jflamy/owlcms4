@@ -804,6 +804,10 @@ public class ResourceWalker {
 			List<Resource> localeNames = new ArrayList<>();
 			List<Resource> englishNames = new ArrayList<>();
 			List<Resource> otherNames = new ArrayList<>();
+			
+			if (!Files.exists(rootPath)) {
+				return List.of();
+			}
 
 			Files.walkFileTree(rootPath, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
 			        new SimpleFileVisitor<Path>() {
