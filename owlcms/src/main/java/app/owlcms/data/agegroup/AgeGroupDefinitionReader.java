@@ -140,8 +140,17 @@ public class AgeGroupDefinitionReader {
 //									        curMin, qualTotal);
 //									if (cat == null) {
 										// category is not IWF, no records available
-										cat = new Category(curMin, Double.parseDouble(catCode.substring(1)),
-										        Gender.valueOf(catCode.substring(0, 1)), ag.isActive(), 0, 0, 0,
+										Gender gender;
+										String upper;
+										if (catCode.matches("^[A-Za-z]\\d+$")) {
+											gender = Gender.valueOf(catCode.substring(0, 1));
+											upper = catCode.substring(1);
+										} else {
+											gender = ag.getGender();
+											upper = catCode;
+										}
+										cat = new Category(curMin, Double.parseDouble(upper),
+										        gender, ag.isActive(), 0, 0, 0,
 										        ag, Integer.parseInt(qualTotal));
 //									}
 									em.persist(cat);
