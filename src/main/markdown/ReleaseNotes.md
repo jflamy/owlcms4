@@ -1,36 +1,28 @@
-**Version 47.1 Release Candidate**
+**Version 47.1**
 
-> [!WARNING]
+> [!IMPORTANT]
 >
-> - This is a release candidate, used for final public testing of new features and for final translation.  
-> - *Recent features may still exhibit bugs. Previously working features may have been broken*.  Release Candidates are still very new, and should be *tested intensively* before being considered for use in a competition.
 > - You should test all releases with your own data, several days before a competition.
 
 ##### 47.1
 
-- (rc11) Fix:  the attempt board was showing the jury decision even when in announcer-controlled mode.
+- Announcer-Controlled Display of Jury Decisions: To better apply the IWF rule that the reason for jury reversals must be announced, by default the jury decision now triggers a two-step process:
 
-- (rc11) Fix: publicresults was needlessly showing the option selection dialog
+  1. Show a prompt to the announcer.  The announcer  announces the decision and the reason
+  2. The announcer presses a button that updates the system and the scoreboards. 
 
-- (rc11) Fix: spurious error message was shown on owlcms console when sending configuration to publicresults.
-
--  Announcer-controlled display of jury decisions : To better apply the IWF rule that the reason for jury reversals must be announced, by default the jury decision buttons now triggers a two-step process:
-
-  1. show a prompt to the announcer.  The announcer  announces the decision and the reason
-  2. the announcer presses a button that updates the system and the scoreboards. 
-
-  The prior behaviour (instant update when the jury presses) is still available by using a checkbox in the Competition Rules section
-
-- Excel Registration File Fixes
-
-  - Both the Simple registration format and the full Start Book Data Entry (SBDE) now accept start times in Excel numerical date format, and in Text format (yyyy-MM-dd hh:ss).  
-  - The times are now correctly rounded to the closest minute
-  - Both formats again correctly update pre-existing groups.
+  The prior behaviour (instant update when the jury decides good or bad) is still selectable using a checkbox in the Competition Rules section
 
 - Age Group Definitions
 
-  - It is now possible to download an age group definition Excel from the system, edit it, and upload the edited file.  This makes it easier to change things like qualification totals. 
-  - The list of predefined Age Group definition files is again filtered according to locale, so that fewer files are shown: if the file name ends with _es_ES, it will only be shown to Spanish users in Spain.
+  - It is now possible to download the age group definitions from the system as an Excel spreadsheet, edit it, and upload the edited file back.  This makes it easier to change things like doing bulk changes to qualification totals. 
+  - The list of predefined Age Group definition files is again filtered according to the locale, so that fewer files are shown: if the file name ends with _es_ES, it will only be shown to Spanish users in Spain.
+  
+- Excel Registration Files
+
+  - Both the Simple registration format and the full Start Book Data Entry (SBDE) now accept start times in Excel numerical date format, and in Text format (yyyy-MM-dd hh:ss).  
+  - The times are now correctly rounded to the closest minute
+  - Both formats correctly update pre-existing groups.
 
 - User Interface Fixes: 
 
@@ -39,7 +31,7 @@
 
 - Excel Templates:
 
-  - New template: Check-in sheet. Used to hand out promotional items to athletes, give access passes, etc. Template serves as example of jxls3 (see below)
+  - New template: Check-in sheet. Used to hand out promotional items to athletes, give access passes, etc. The check-in template serves as an example of jxls3 (see next item)
   - Excel templates for documents can now be in [jxls3](https://jxls.sourceforge.net/) format.  A jxls3 template is detected from the presence of a `jx:area` directive in a note in cell A1 of the first sheet.
 
 - Technical:
