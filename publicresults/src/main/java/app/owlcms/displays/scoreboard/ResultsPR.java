@@ -109,6 +109,7 @@ public class ResultsPR extends LitTemplate
         setDefaultLeadersDisplay(true);
         setDefaultRecordsDisplay(true);
         setDefaultLiftingOrderDisplay(false);
+        setShowInitialDialog(false);
         this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
     }
 
@@ -188,7 +189,7 @@ public class ResultsPR extends LitTemplate
 
     @Override
     public boolean isShowInitialDialog() {
-        return this.initializationNeeded;
+        return this.isInitializationNeeded();
     }
 
     @Override
@@ -267,7 +268,8 @@ public class ResultsPR extends LitTemplate
      */
     @Override
     public void setShowInitialDialog(boolean b) {
-        this.initializationNeeded = true;
+        //logger.debug("setShowInitialDialog {} {}",b, LoggerUtils.stackTrace());
+        this.setInitializationNeeded(true);
     }
 
     @Override
@@ -564,5 +566,13 @@ public class ResultsPR extends LitTemplate
 
     private void setWideTeamNames(boolean wide) {
         this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
+    }
+
+    private boolean isInitializationNeeded() {
+        return initializationNeeded;
+    }
+
+    private void setInitializationNeeded(boolean initializationNeeded) {
+        this.initializationNeeded = initializationNeeded;
     }
 }
