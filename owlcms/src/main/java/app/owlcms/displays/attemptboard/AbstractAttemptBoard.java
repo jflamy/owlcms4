@@ -397,6 +397,9 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 	@Subscribe
 	public void slaveJuryNotification(UIEvent.JuryNotification e) {
+		if (e.isRequestForAnnounce()) {
+			return;
+		}
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			String text = "";
 			String reversalText = "";
