@@ -99,7 +99,9 @@ public interface DisplayParameters extends ContentParameters {
         };
 
         if (isShowInitialDialog()) {
-            openDialog(dialog);
+            if (!isSilenced()) {
+                openDialog(dialog);
+            }
             setShowInitialDialog(false);
         }
         ComponentUtil.addListener(target, ClickEvent.class, listener);
@@ -201,7 +203,7 @@ public interface DisplayParameters extends ContentParameters {
     public default HashMap<String, List<String>> readParams(Location location,
             Map<String, List<String>> parametersMap) {
         // handle FOP and Group by calling superclass
-        //logger.debug("readparams location={}",location.getPathWithQueryParameters());
+        // logger.debug("readparams location={}",location.getPathWithQueryParameters());
         HashMap<String, List<String>> params = ContentParameters.super.readParams(location, parametersMap);
 
         List<String> darkParams = params.get(DARK);
@@ -248,7 +250,8 @@ public interface DisplayParameters extends ContentParameters {
             useLiftingOrder = "true".contentEquals(liftingOrder.get(0));
         }
         setLiftingOrder(useLiftingOrder);
-        //logger.debug("readparams updating {} to {}",LIFTING_ORDER, Boolean.toString(isLiftingOrder()));
+        // logger.debug("readparams updating {} to {}",LIFTING_ORDER,
+        // Boolean.toString(isLiftingOrder()));
         updateParam(params, LIFTING_ORDER, Boolean.toString(isLiftingOrder()));
 
         List<String> sizeParams = params.get(FONTSIZE);
@@ -365,16 +368,17 @@ public interface DisplayParameters extends ContentParameters {
         if (updateURL) {
             updateURLLocation(getLocationUI(), getLocation(), LEADERS, showLeaders ? "true" : "false");
         }
-        //        buildDialog(target);
+        // buildDialog(target);
     }
 
     public default void switchLiftingOrder(Component target, boolean liftingOrder, boolean updateURL) {
         setLiftingOrder(liftingOrder);
         if (updateURL) {
-            //logger.debug("updating url {} {}", LIFTING_ORDER, liftingOrder ? "true" : "false");
+            // logger.debug("updating url {} {}", LIFTING_ORDER, liftingOrder ? "true" :
+            // "false");
             updateURLLocation(getLocationUI(), getLocation(), LIFTING_ORDER, liftingOrder ? "true" : "false");
         }
-        //        buildDialog(target);
+        // buildDialog(target);
     }
 
     public default void switchLightingMode(Component target, boolean dark, boolean updateURL) {
@@ -396,7 +400,7 @@ public interface DisplayParameters extends ContentParameters {
         if (updateURL) {
             updateURLLocation(getLocationUI(), getLocation(), RECORDS, showRecords ? "true" : "false");
         }
-        //        buildDialog(target);
+        // buildDialog(target);
     }
 
     public default void switchSwitchable(Component target, boolean switchable, boolean updateURL) {
