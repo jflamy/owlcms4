@@ -54,7 +54,6 @@ public interface FOPParameters extends HasUrlParameter<String> {
         return false;
     }
 
-    @SuppressWarnings("null")
     public default HashMap<String, List<String>> readParams(Location location,
             Map<String, List<String>> parametersMap) {
         logger.debug("location {} getLocation {}", location.getPathWithQueryParameters(),
