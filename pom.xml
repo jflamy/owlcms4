@@ -30,7 +30,7 @@
 	<properties>
 		<!-- revision is overridden by azure-pipelines.yml for the official
 		builds. this value is only used for local development -->
-		<revision>48.0.0-alpha00</revision>
+		<revision>48.0.0-SNAPSHOT</revision>
 
 		<vaadin.version>24.3.8</vaadin.version>
 		<logback.version>1.4.14</logback.version>
@@ -190,7 +190,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.12.1</version>
+					<version>3.13.0</version>
 					<configuration>
 						<release>17</release>
 					</configuration>
