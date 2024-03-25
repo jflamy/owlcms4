@@ -34,7 +34,6 @@ public class DebugUtils {
 
         }).start();
     }
-    
 
     public static String getOwlcmsParentName(Component e) {
         Class<? extends Component> class1 = e.getClass();

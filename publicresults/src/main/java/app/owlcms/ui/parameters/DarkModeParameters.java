@@ -106,9 +106,12 @@ public interface DarkModeParameters extends QueryParameterReader {
     /*
      * Process query parameters
      *
-     * @see app.owlcms.ui.group.URLParameter#setParameter(com.vaadin.flow.router. BeforeEvent, java.lang.String)
+     * @see app.owlcms.ui.group.URLParameter#setParameter(com.vaadin.flow.router.
+     * BeforeEvent, java.lang.String)
      *
-     * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router .BeforeEvent,
+     * @see
+     * app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router
+     * .BeforeEvent,
      * java.lang.String)
      */
     @Override
@@ -140,7 +143,8 @@ public interface DarkModeParameters extends QueryParameterReader {
         } else {
             params.remove(DARK);
         }
-        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
+        ui.getPage().getHistory().replaceState(null,
+                new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
     }
 
 }

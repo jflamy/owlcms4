@@ -23,7 +23,6 @@ public class BreakTimerEvent {
          * @param timeRemaining the time remaining
          */
         public BreakPaused(Integer timeRemaining) {
-            super();
             this.timeRemaining = timeRemaining;
         }
 
@@ -33,7 +32,7 @@ public class BreakTimerEvent {
          * @return the time remaining
          */
         public Integer getTimeRemaining() {
-            return timeRemaining;
+            return this.timeRemaining;
         }
     }
 
@@ -48,7 +47,6 @@ public class BreakTimerEvent {
          * @param indefinite
          */
         public BreakSetTime(Integer timeRemaining, boolean indefinite) {
-            super();
             this.timeRemaining = timeRemaining;
             this.indefinite = indefinite;
         }
@@ -59,11 +57,11 @@ public class BreakTimerEvent {
          * @return the time remaining
          */
         public Integer getTimeRemaining() {
-            return timeRemaining;
+            return this.timeRemaining;
         }
 
         public boolean isIndefinite() {
-            return indefinite;
+            return this.indefinite;
         }
     }
 
@@ -78,7 +76,6 @@ public class BreakTimerEvent {
          * @param indefinite
          */
         public BreakStart(Integer timeRemaining, boolean indefinite) {
-            super();
             this.timeRemaining = timeRemaining;
             this.indefinite = indefinite;
         }
@@ -89,11 +86,11 @@ public class BreakTimerEvent {
          * @return the time remaining
          */
         public Integer getTimeRemaining() {
-            return timeRemaining;
+            return this.timeRemaining;
         }
 
         public boolean isIndefinite() {
-            return indefinite;
+            return this.indefinite;
         }
     }
 
@@ -106,15 +103,15 @@ public class BreakTimerEvent {
     }
 
     public BreakType getBreakType() {
-        return breakType;
+        return this.breakType;
     }
 
     public String getFopName() {
-        return fopName;
+        return this.fopName;
     }
 
     public String getGroupName() {
-        return groupName;
+        return this.groupName;
     }
 
     public String getMode() {
@@ -128,7 +125,6 @@ public class BreakTimerEvent {
     public void setFopName(String fopName) {
         this.fopName = fopName;
     }
-
 
     public void setGroupName(String groupName) {
         this.groupName = groupName;

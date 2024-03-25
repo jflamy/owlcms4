@@ -18,19 +18,28 @@ import com.vaadin.flow.shared.Registration;
 
 /**
  * Server-side component that listens to {@code beforeunload} events. Based on
- * <a href="https://vaadin.com/forum/thread/17523194/unsaved-changes-detect-page-exit-or-reload">the code by Kaspar
- * Scherrer and Stuart Robinson</a>. This component will broadcast events on {@code beforeunload} event in the browser.
- * If {@link #isQueryingOnUnload()} is {@code true}, before the event the user will be prompted about leaving the page.
- * However, there is no way to find out what the user selected. If {@link #isQueryingOnUnload()} is {@code false}, the
- * event on the server will be called just before the page is unloaded. Note that the component must be present in the
+ * <a href=
+ * "https://vaadin.com/forum/thread/17523194/unsaved-changes-detect-page-exit-or-reload">the
+ * code by Kaspar
+ * Scherrer and Stuart Robinson</a>. This component will broadcast events on
+ * {@code beforeunload} event in the browser.
+ * If {@link #isQueryingOnUnload()} is {@code true}, before the event the user
+ * will be prompted about leaving the page.
+ * However, there is no way to find out what the user selected. If
+ * {@link #isQueryingOnUnload()} is {@code false}, the
+ * event on the server will be called just before the page is unloaded. Note
+ * that the component must be present in the
  * DOM structure in the browser for the event to be received on the server.
  *
- * Warning: this class is a {@link UI}-scoped; the class is final, the constructors are private and there is at most one
+ * Warning: this class is a {@link UI}-scoped; the class is final, the
+ * constructors are private and there is at most one
  * instance per UI.
  *
- * Warning: when the page is unloaded, the UI instance should be removed to prevent memory leaks. See {@link #remove()}.
+ * Warning: when the page is unloaded, the UI instance should be removed to
+ * prevent memory leaks. See {@link #remove()}.
  *
- * @author Kaspar Scherrer, Stuart Robinson; adapted to web-component by miki@vaadin.com ; UI-scope by jf@jflamy.dev
+ * @author Kaspar Scherrer, Stuart Robinson; adapted to web-component by
+ *         miki@vaadin.com ; UI-scope by jf@jflamy.dev
  * @since 2020-04-29
  */
 @JsModule("./unload/unload-observer.js")
@@ -40,7 +49,8 @@ public final class UnloadObserver extends LitTemplate {
     private static final String UNLOAD_OBSERVER = "owlcms_unload_observer";
 
     /**
-     * Returns the current instance. Will create one using default no-arg constructor if none is present yet.
+     * Returns the current instance. Will create one using default no-arg
+     * constructor if none is present yet.
      *
      * @return An instance of {@link UnloadObserver}.
      */
@@ -55,7 +65,8 @@ public final class UnloadObserver extends LitTemplate {
     }
 
     /**
-     * Returns the current instance. Will create one if needed and set its {@link #setQueryingOnUnload(boolean)}.
+     * Returns the current instance. Will create one if needed and set its
+     * {@link #setQueryingOnUnload(boolean)}.
      *
      * @param queryingOnUnload Whether or not query at page close.
      * @return An instance of {@link UnloadObserver}.
@@ -67,7 +78,8 @@ public final class UnloadObserver extends LitTemplate {
     }
 
     /**
-     * Cleans up the thread-local variable. This method is called automatically when the component receives
+     * Cleans up the thread-local variable. This method is called automatically when
+     * the component receives
      * {@code unload} event.
      */
     public static void remove() {
@@ -82,7 +94,8 @@ public final class UnloadObserver extends LitTemplate {
     private boolean clientInitialised;
 
     /**
-     * Creates the unload observer and by default queries the user on unloading the page.
+     * Creates the unload observer and by default queries the user on unloading the
+     * page.
      */
     private UnloadObserver() {
         this(true);
@@ -94,7 +107,6 @@ public final class UnloadObserver extends LitTemplate {
      * @param queryOnUnload Whether or not to query the user on unloading the page.
      */
     private UnloadObserver(boolean queryOnUnload) {
-        super();
         this.setQueryingOnUnload(queryOnUnload);
     }
 
@@ -102,7 +114,8 @@ public final class UnloadObserver extends LitTemplate {
      * Adds an {@link UnloadListener}.
      *
      * @param listener Listener to add.
-     * @return A {@link Registration} that can be used to stop listening to the event.
+     * @return A {@link Registration} that can be used to stop listening to the
+     *         event.
      */
     public Registration addUnloadListener(UnloadListener listener) {
         return this.getEventBus().addListener(UnloadEvent.class, listener);
@@ -111,19 +124,25 @@ public final class UnloadObserver extends LitTemplate {
     /**
      * Returns whether or not querying on document unload will happen.
      *
-     * @return {@code true} when unloading the document from browser window results in showing a browser-native
-     *         confirmation dialog and notifying {@link UnloadListener}s; {@code false} otherwise.
+     * @return {@code true} when unloading the document from browser window results
+     *         in showing a browser-native
+     *         confirmation dialog and notifying {@link UnloadListener}s;
+     *         {@code false} otherwise.
      */
     public boolean isQueryingOnUnload() {
         return this.queryingOnUnload;
     }
 
     /**
-     * Controls whether or not there should be querying when the document is going to be unloaded.
+     * Controls whether or not there should be querying when the document is going
+     * to be unloaded.
      *
-     * @param queryingOnUnload When {@code true}, {@link UnloadListener}s registered through
-     *                         {@link #addUnloadListener(UnloadListener)} will be notified and document unloading can be
-     *                         prevented. When {@code false}, nothing will happen when the document gets unloaded.
+     * @param queryingOnUnload When {@code true}, {@link UnloadListener}s registered
+     *                         through
+     *                         {@link #addUnloadListener(UnloadListener)} will be
+     *                         notified and document unloading can be
+     *                         prevented. When {@code false}, nothing will happen
+     *                         when the document gets unloaded.
      */
     public void setQueryingOnUnload(boolean queryingOnUnload) {
         if (queryingOnUnload != this.queryingOnUnload) {

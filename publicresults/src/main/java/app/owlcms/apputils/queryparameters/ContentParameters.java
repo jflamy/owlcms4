@@ -12,38 +12,19 @@ public interface ContentParameters extends FOPParameters {
     public static final String SILENT = "silent";
     public static final String SINGLEREF = "singleRef";
 
+    public default void buildDialog(Component target) {
+    }
+
     public boolean isSilenced();
 
     public default boolean isSilencedByDefault() {
         return true;
     }
 
-    public void setSilenced(boolean silent);
-
-    public default void switchSoundMode(boolean silent, boolean updateURL) {
-        if (updateURL) {
-            updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? "true" : "false");
-        }
-        setSilenced(silent);
-    }
-
-    public default void buildDialog(Component target) {
-    }
-
     public default boolean isSingleReferee() {
         return false;
     }
 
-    public default void switchSingleRefereeMode(Component component, boolean b, boolean updateURL) {
-        setSingleReferee(b);
-        if (updateURL) {
-            updateURLLocation(getLocationUI(), getLocation(), SINGLEREF, b ? "true" : "false");
-        }
-    }
-
-    public default void setSingleReferee(boolean b) {
-    };
-    
     @Override
     public default HashMap<String, List<String>> readParams(Location location,
             Map<String, List<String>> parametersMap) {
@@ -68,7 +49,26 @@ public interface ContentParameters extends FOPParameters {
         setSingleReferee(sr);
         switchSingleRefereeMode((Component) this, sr, false);
         updateParam(params, SINGLEREF, isSingleReferee() ? "true" : null);
-        
+
         return params;
+    }
+
+    public void setSilenced(boolean silent);
+
+    public default void setSingleReferee(boolean b) {
+    }
+
+    public default void switchSingleRefereeMode(Component component, boolean b, boolean updateURL) {
+        setSingleReferee(b);
+        if (updateURL) {
+            updateURLLocation(getLocationUI(), getLocation(), SINGLEREF, b ? "true" : "false");
+        }
+    }
+
+    public default void switchSoundMode(boolean silent, boolean updateURL) {
+        if (updateURL) {
+            updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? "true" : "false");
+        }
+        setSilenced(silent);
     }
 }

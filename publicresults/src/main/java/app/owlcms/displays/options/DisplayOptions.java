@@ -32,7 +32,7 @@ public class DisplayOptions {
 
     public static void addLightingEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
         NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.VisualSettings"));
-        
+
         boolean darkMode = dp.isDarkMode();
         Button darkButton = new Button(Translator.translate(DisplayParameters.DARK));
         darkButton.getStyle().set("color", "white");
@@ -47,7 +47,7 @@ public class DisplayOptions {
         rbgroup.setLabel(null);
         rbgroup.setItems(Boolean.TRUE, Boolean.FALSE);
         rbgroup.setValue(Boolean.valueOf(darkMode));
-        rbgroup.setRenderer(new ComponentRenderer<Button, Boolean>((mn) -> mn ? darkButton : lightButton));
+        rbgroup.setRenderer(new ComponentRenderer<>((mn) -> mn ? darkButton : lightButton));
         rbgroup.addValueChangeListener(e -> {
             dp.switchLightingMode(target, e.getValue(), true);
         });
@@ -57,11 +57,83 @@ public class DisplayOptions {
         layout.add(rbgroup);
     }
 
+    public static void addRule(VerticalLayout vl) {
+        Hr hr = new Hr();
+        hr.getStyle().set("border-top", "1px solid");
+        hr.getStyle().set("margin-top", "1em");
+        vl.add(hr);
+    }
+
+    public static void addSectionEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
+        NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.Content"));
+
+        boolean showRecords = dp.isRecordsDisplay();
+        Checkbox recordsDisplayCheckbox = new Checkbox(Translator.translate("DisplayParameters.ShowRecords"));//
+        recordsDisplayCheckbox.setValue(showRecords);
+        recordsDisplayCheckbox.addValueChangeListener(e -> {
+            if (e.isFromClient()) {
+                dp.switchRecords(target, e.getValue(), true);
+            }
+            // UI.getCurrent().getPage().reload();
+        });
+
+        boolean showLeaders = dp.isShowLeaders();
+        Checkbox leadersDisplayCheckbox = new Checkbox(Translator.translate("DisplayParameters.ShowLeaders"));//
+        leadersDisplayCheckbox.setValue(showLeaders);
+        leadersDisplayCheckbox.addValueChangeListener(e -> {
+            if (e.isFromClient() && e.getSource() == leadersDisplayCheckbox) {
+                dp.switchLeaders(target, e.getValue(), true);
+            }
+            // UI.getCurrent().getPage().reload();
+        });
+
+        boolean liftingOrder = dp.isLiftingOrder();
+        Checkbox liftingOrderCheckbox = new Checkbox(Translator.translate("DisplayParameters.LiftingOrder"));//
+        liftingOrderCheckbox.setValue(liftingOrder);
+        liftingOrderCheckbox.addValueChangeListener(e -> {
+            if (e.isFromClient() && e.getSource() == liftingOrderCheckbox) {
+                dp.switchLiftingOrder(target, e.getValue(), true);
+            }
+            UI.getCurrent().getPage().open(dp.getLocation().getPathWithQueryParameters());
+        });
+
+        HorizontalLayout horizontalLayout = new HorizontalLayout(liftingOrderCheckbox, recordsDisplayCheckbox,
+                leadersDisplayCheckbox);
+        layout.add(label);
+        layout.add(horizontalLayout);
+
+    }
+
+    public static void addSizingEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
+        NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.FontSizeLabel"));
+
+        LocalizedDecimalField fontSizeField = new LocalizedDecimalField();
+        TextField wrappedTextField = fontSizeField.getWrappedTextField();
+        wrappedTextField.setLabel(null);
+        wrappedTextField.setValueChangeMode(ValueChangeMode.ON_CHANGE);
+        wrappedTextField.addFocusListener(f -> {
+            dp.getDialogTimer().cancel();
+            dp.getDialogTimer().purge();
+        });
+        fontSizeField.setValue(dp.getEmFontSize());
+        fontSizeField.addValueChangeListener(e -> {
+            dp.getDialogTimer().cancel();
+
+            Double emSize = e.getValue();
+            dp.switchEmFontSize(target, emSize, true);
+            // UI.getCurrent().getPage().reload();
+        });
+
+        layout.add(label);
+        layout.add(fontSizeField);
+    }
+
     public static void addSoundEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
         NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.SoundSettings"));
         boolean silentMode = dp.isSilenced();
-        Button silentButton = new Button(Translator.translate("DisplayParameters.Silent"));//AvIcons.VOLUME_OFF.create()));
-        Button soundButton = new Button(Translator.translate("DisplayParameters.SoundOn"));//, AvIcons.VOLUME_UP.create()));
+        Button silentButton = new Button(Translator.translate("DisplayParameters.Silent"));// AvIcons.VOLUME_OFF.create()));
+        Button soundButton = new Button(Translator.translate("DisplayParameters.SoundOn"));// ,
+                                                                                           // AvIcons.VOLUME_UP.create()));
 
         RadioButtonGroup<Boolean> rbgroup = new RadioButtonGroup<>();
         rbgroup.setRequired(true);
@@ -69,7 +141,7 @@ public class DisplayOptions {
         rbgroup.setHelperText(Translator.translate("DisplayParameters.SoundHelper"));
         rbgroup.setItems(Boolean.TRUE, Boolean.FALSE);
         rbgroup.setValue(silentMode);
-        rbgroup.setRenderer(new ComponentRenderer<Button, Boolean>((mn) -> mn ? silentButton : soundButton));
+        rbgroup.setRenderer(new ComponentRenderer<>((mn) -> mn ? silentButton : soundButton));
         rbgroup.addValueChangeListener(e -> {
             Boolean silenced = e.getValue();
             dp.switchSoundMode(silenced, true);
@@ -95,7 +167,7 @@ public class DisplayOptions {
         rbgroup.setHelperText(Translator.translate("DisplayParameters.SwitchableHelper"));
         rbgroup.setItems(Boolean.TRUE, Boolean.FALSE);
         rbgroup.setValue(switchable);
-        rbgroup.setRenderer(new ComponentRenderer<Button, Boolean>((mn) -> mn ? publicDisplay : warmupDisplay));
+        rbgroup.setRenderer(new ComponentRenderer<>((mn) -> mn ? publicDisplay : warmupDisplay));
         rbgroup.addValueChangeListener(e -> {
             Boolean silenced = e.getValue();
             dp.switchSwitchable(target, silenced, true);
@@ -103,77 +175,6 @@ public class DisplayOptions {
 
         layout.add(label);
         layout.add(rbgroup);
-    }
-
-    public static void addSizingEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
-        NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.FontSizeLabel"));
-        
-        LocalizedDecimalField fontSizeField = new LocalizedDecimalField();
-        TextField wrappedTextField = fontSizeField.getWrappedTextField();
-        wrappedTextField.setLabel(null);
-        wrappedTextField.setValueChangeMode(ValueChangeMode.ON_CHANGE);
-        wrappedTextField.addFocusListener(f -> {
-            dp.getDialogTimer().cancel();
-            dp.getDialogTimer().purge();
-        });
-        fontSizeField.setValue(dp.getEmFontSize());
-        fontSizeField.addValueChangeListener(e -> {
-            dp.getDialogTimer().cancel();
-
-            Double emSize = e.getValue();
-            dp.switchEmFontSize(target, emSize, true);
-            // UI.getCurrent().getPage().reload();
-        });
-        
-        layout.add(label);
-        layout.add(fontSizeField);
-    }
-
-    public static void addSectionEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
-        NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.Content"));
-        
-        boolean showRecords = dp.isRecordsDisplay();
-        Checkbox recordsDisplayCheckbox = new Checkbox(Translator.translate("DisplayParameters.ShowRecords"));//
-        recordsDisplayCheckbox.setValue(showRecords);
-        recordsDisplayCheckbox.addValueChangeListener(e -> {
-            if (e.isFromClient()) {
-                dp.switchRecords(target, e.getValue(), true);
-            }
-            // UI.getCurrent().getPage().reload();
-        });
-
-        boolean showLeaders = dp.isShowLeaders();
-        Checkbox leadersDisplayCheckbox = new Checkbox(Translator.translate("DisplayParameters.ShowLeaders"));//
-        leadersDisplayCheckbox.setValue(showLeaders);
-        leadersDisplayCheckbox.addValueChangeListener(e -> {
-            if (e.isFromClient() && e.getSource() == leadersDisplayCheckbox) {
-                dp.switchLeaders(target, e.getValue(), true);
-            }
-            //UI.getCurrent().getPage().reload();
-        });
-        
-        boolean liftingOrder = dp.isLiftingOrder();
-        Checkbox liftingOrderCheckbox = new Checkbox(Translator.translate("DisplayParameters.LiftingOrder"));//
-        liftingOrderCheckbox.setValue(liftingOrder);
-        liftingOrderCheckbox.addValueChangeListener(e -> {
-            if (e.isFromClient() && e.getSource() == liftingOrderCheckbox) {
-                dp.switchLiftingOrder(target, e.getValue(), true);
-            }
-            UI.getCurrent().getPage().open(dp.getLocation().getPathWithQueryParameters());
-        });    
-
-        HorizontalLayout horizontalLayout = new HorizontalLayout(liftingOrderCheckbox, recordsDisplayCheckbox, leadersDisplayCheckbox);
-        layout.add(label);
-        layout.add(horizontalLayout);
-        
-    }
-
-    
-    public static void addRule(VerticalLayout vl) {
-        Hr hr = new Hr();
-        hr.getStyle().set("border-top", "1px solid");
-        hr.getStyle().set("margin-top", "1em");
-        vl.add(hr);
     }
 
 }

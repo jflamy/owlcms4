@@ -40,14 +40,16 @@ public class SoundUtils {
     public static void enableAudioContextNotification(Element element) {
         // this.getElement().executeJs("window.audioCtx.suspend()");
         PendingJavaScriptResult result = element.executeJs("return (window.isIOS ? window.audioCtx.state : 'running')");
-        // PendingJavaScriptResult result = element.executeJs("return window.audioCtx.state");
+        // PendingJavaScriptResult result = element.executeJs("return
+        // window.audioCtx.state");
         audioStatusCallback(element, result);
     }
 
     public static void enableAudioContextNotification(Element element, boolean useState) {
         PendingJavaScriptResult result = element
                 .executeJs("return (window.isIOS ||" + useState + " ? window.audioCtx.state : 'running')");
-        // PendingJavaScriptResult result = element.executeJs("return window.audioCtx.state");
+        // PendingJavaScriptResult result = element.executeJs("return
+        // window.audioCtx.state");
         audioStatusCallback(element, result);
     }
 

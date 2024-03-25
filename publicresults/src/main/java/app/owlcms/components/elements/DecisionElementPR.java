@@ -35,7 +35,7 @@ import ch.qos.logback.classic.Logger;
  */
 @Tag("decision-element-pr")
 @JsModule("./components/DecisionElementPR.js")
-@Uses(Icon.class)  
+@Uses(Icon.class)
 public class DecisionElementPR extends LitTemplate
         implements IFopName, SafeEventBusRegistrationPR {
 
@@ -63,7 +63,7 @@ public class DecisionElementPR extends LitTemplate
     }
 
     public boolean isSilenced() {
-        return silenced;
+        return this.silenced;
     }
 
     /** @see app.owlcms.components.elements.IFopName#setFopName(java.lang.String) */
@@ -74,7 +74,7 @@ public class DecisionElementPR extends LitTemplate
 
     public void setJury(boolean juryMode) {
         // ignore input.d
-        getElement().setProperty("jury",false);
+        getElement().setProperty("jury", false);
     }
 
     public void setPublicFacing(boolean publicFacing) {
@@ -88,39 +88,41 @@ public class DecisionElementPR extends LitTemplate
     @Subscribe
     public void slaveDecision(DecisionEvent de) {
         if (getFopName() == null || de.getFopName() == null || !getFopName().contentEquals(de.getFopName())) {
-            // logger.debug("slaveDecision self={}: {} ignored", getFopName(), de.getFopName());
+            // logger.debug("slaveDecision self={}: {} ignored", getFopName(),
+            // de.getFopName());
             // event is not for us
             return;
         }
-        // logger.debug("DecisionElement DecisionEvent {} {} {}", de.getEventType(), System.identityHashCode(de), ui);
-        if (ui == null || ui.isClosing()) {
+        // logger.debug("DecisionElement DecisionEvent {} {} {}", de.getEventType(),
+        // System.identityHashCode(de), ui);
+        if (this.ui == null || this.ui.isClosing()) {
             return;
         }
 
-        ui.access(() -> {
+        this.ui.access(() -> {
             if (de.isBreak()) {
                 logger.debug("break: slaveDecision disable");
                 this.getElement().callJsFunction("setEnabled", false);
             } else {
                 switch (de.getEventType()) {
-                case DOWN_SIGNAL:
-                    logger.debug("*****showing down");
-                    this.getElement().callJsFunction("showDown", false, isSilenced());
-                    break;
-                case FULL_DECISION:
-                    logger.debug("calling full decision");
-                    this.getElement().callJsFunction("showDecisions", false, de.getDecisionLight1(),
-                            de.getDecisionLight2(),
-                            de.getDecisionLight3());
-                    this.getElement().callJsFunction("setEnabled", false);
-                    break;
-                case RESET:
-                    logger.debug("calling reset");
-                    getElement().callJsFunction("reset", false);
-                    break;
-                default:
-                    logger.error("unknown decision event type {}", de.getEventType());
-                    break;
+                    case DOWN_SIGNAL:
+                        logger.debug("*****showing down");
+                        this.getElement().callJsFunction("showDown", false, isSilenced());
+                        break;
+                    case FULL_DECISION:
+                        logger.debug("calling full decision");
+                        this.getElement().callJsFunction("showDecisions", false, de.getDecisionLight1(),
+                                de.getDecisionLight2(),
+                                de.getDecisionLight3());
+                        this.getElement().callJsFunction("setEnabled", false);
+                        break;
+                    case RESET:
+                        logger.debug("calling reset");
+                        getElement().callJsFunction("reset", false);
+                        break;
+                    default:
+                        logger.error("unknown decision event type {}", de.getEventType());
+                        break;
                 }
             }
         });
@@ -133,10 +135,10 @@ public class DecisionElementPR extends LitTemplate
             return;
         }
 
-        if (ui == null || ui.isClosing()) {
+        if (this.ui == null || this.ui.isClosing()) {
             return;
         }
-        ui.access(() -> {
+        this.ui.access(() -> {
             // was true !?
             this.getElement().callJsFunction("setEnabled", false);
         });
@@ -148,10 +150,10 @@ public class DecisionElementPR extends LitTemplate
             // event is not for us
             return;
         }
-        if (ui == null || ui.isClosing()) {
+        if (this.ui == null || this.ui.isClosing()) {
             return;
         }
-        ui.access(() -> {
+        this.ui.access(() -> {
             this.getElement().callJsFunction("setEnabled", true);
         });
     }
@@ -162,10 +164,10 @@ public class DecisionElementPR extends LitTemplate
             // event is not for us
             return;
         }
-        if (ui == null || ui.isClosing()) {
+        if (this.ui == null || this.ui.isClosing()) {
             return;
         }
-        ui.access(() -> {
+        this.ui.access(() -> {
             this.getElement().callJsFunction("setEnabled", true);
         });
     }
@@ -176,10 +178,10 @@ public class DecisionElementPR extends LitTemplate
             // event is not for us
             return;
         }
-        if (ui == null || ui.isClosing()) {
+        if (this.ui == null || this.ui.isClosing()) {
             return;
         }
-        ui.access(() -> {
+        this.ui.access(() -> {
             this.getElement().callJsFunction("setEnabled", true);
         });
     }
@@ -190,10 +192,10 @@ public class DecisionElementPR extends LitTemplate
             // event is not for us
             return;
         }
-        if (ui == null || ui.isClosing()) {
+        if (this.ui == null || this.ui.isClosing()) {
             return;
         }
-        ui.access(() -> {
+        this.ui.access(() -> {
             this.getElement().callJsFunction("setEnabled", true);
         });
     }
@@ -206,14 +208,15 @@ public class DecisionElementPR extends LitTemplate
     }
 
     /*
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
+     * AttachEvent)
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         this.ui = attachEvent.getUI();
         init();
 
-        ui = attachEvent.getUI();
+        this.ui = attachEvent.getUI();
         eventBusRegister(this, UpdateReceiverServlet.getEventBus());
         eventBusRegister(this, DecisionReceiverServlet.getEventBus());
         eventBusRegister(this, TimerReceiverServlet.getEventBus());

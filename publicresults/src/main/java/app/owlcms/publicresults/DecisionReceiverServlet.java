@@ -50,7 +50,8 @@ public class DecisionReceiverServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        // get makes no sense on this URL. Standard says there shouldn't be a 405 on a get,
+        // get makes no sense on this URL. Standard says there shouldn't be a 405 on a
+        // get,
         // but "disallowed" is what makes most sense as a return code.
         resp.sendError(405);
     }
@@ -63,15 +64,16 @@ public class DecisionReceiverServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (StartupUtils.isDebugSetting()) {
             Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
-            logger./**/warn("++++ decision update received from {}", ProxyUtils.getClientIp(req));
+            this.logger./**/warn("++++ decision update received from {}", ProxyUtils.getClientIp(req));
             for (Entry<String, String[]> pair : pairs) {
-                logger./**/warn("    {} = {}", pair.getKey(), pair.getValue()[0]);
+                this.logger./**/warn("    {} = {}", pair.getKey(), pair.getValue()[0]);
             }
         }
 
         String updateKey = req.getParameter("updateKey");
-        if (updateKey == null || !updateKey.equals(secret)) {
-            logger.error("denying access from {} expected {} got {} ", req.getRemoteHost(), secret, updateKey);
+        if (updateKey == null || !updateKey.equals(this.secret)) {
+            this.logger.error("denying access from {} expected {} got {} ", req.getRemoteHost(), this.secret,
+                    updateKey);
             resp.sendError(401, "Denied, wrong credentials");
             return;
         }
@@ -85,7 +87,7 @@ public class DecisionReceiverServlet extends HttpServlet {
             decisionEvent.setEventType(eventType);
         } catch (Exception e) {
             String message = MessageFormat.format("unknown event type {0}", eventTypeString);
-            logger.error(message);
+            this.logger.error(message);
             resp.sendError(400, message);
             return;
         }

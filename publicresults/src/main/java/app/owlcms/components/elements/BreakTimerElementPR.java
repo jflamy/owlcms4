@@ -33,16 +33,15 @@ public class BreakTimerElementPR extends TimerElementPR {
     final private Logger logger = (Logger) LoggerFactory.getLogger(BreakTimerElementPR.class);
 
     private String parentName = "";
-    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 
     {
-        logger.setLevel(Level.INFO);
-        uiEventLogger.setLevel(Level.INFO);
+        this.logger.setLevel(Level.INFO);
+        this.uiEventLogger.setLevel(Level.INFO);
     }
 
     public BreakTimerElementPR() {
-        super();
-        id = IdUtils.getTimeBasedId();
+        this.id = IdUtils.getTimeBasedId();
         // logger./**/warn(LoggerUtils./**/stackTrace());
     }
 
@@ -50,8 +49,7 @@ public class BreakTimerElementPR extends TimerElementPR {
      * Instantiates a new timer element.
      */
     public BreakTimerElementPR(String parentName) {
-        super();
-        id = IdUtils.getTimeBasedId();
+        this.id = IdUtils.getTimeBasedId();
         // logger./**/warn(LoggerUtils./**/stackTrace());
     }
 
@@ -66,7 +64,8 @@ public class BreakTimerElementPR extends TimerElementPR {
     }
 
     /**
-     * Set the remaining time when the timer element has been hidden for a long time.
+     * Set the remaining time when the timer element has been hidden for a long
+     * time.
      */
     @Override
     @ClientCallable
@@ -91,7 +90,7 @@ public class BreakTimerElementPR extends TimerElementPR {
     @Override
     @ClientCallable
     public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from) {
-        logger.trace("break timer {} starting on client: remaining = {}", from, remainingTime);
+        this.logger.trace("break timer {} starting on client: remaining = {}", from, remainingTime);
     }
 
     /**
@@ -102,11 +101,11 @@ public class BreakTimerElementPR extends TimerElementPR {
     @Override
     @ClientCallable
     public void clientTimerStopped(String fopName, double remainingTime, String from) {
-        logger.trace("break timer {} stopped on client: remaining = {}", from, remainingTime);
+        this.logger.trace("break timer {} stopped on client: remaining = {}", from, remainingTime);
     }
 
     public void setParent(String s) {
-        parentName = s;
+        this.parentName = s;
     }
 
     @Subscribe
@@ -120,8 +119,8 @@ public class BreakTimerElementPR extends TimerElementPR {
 
     @Subscribe
     public void slaveBreakPause(BreakTimerEvent.BreakPaused e) {
-        if (!parentName.startsWith("BreakManagement")) {
-            uiEventLogger.trace("&&& breakTimerElement pause {} {}", parentName, e.getTimeRemaining());
+        if (!this.parentName.startsWith("BreakManagement")) {
+            this.uiEventLogger.trace("&&& breakTimerElement pause {} {}", this.parentName, e.getTimeRemaining());
         }
         doStopTimer(e.getTimeRemaining());
     }
@@ -136,10 +135,11 @@ public class BreakTimerElementPR extends TimerElementPR {
         Integer milliseconds;
 
         milliseconds = e.isIndefinite() ? null : e.getTimeRemaining();
-        uiEventLogger.debug("&&& breakTimer set {} {} {} {}", parentName, formatDuration(milliseconds),
+        this.uiEventLogger.debug("&&& breakTimer set {} {} {} {}", this.parentName, formatDuration(milliseconds),
                 e.isIndefinite(), LoggerUtils.whereFrom());
         doSetTimer(milliseconds);
     }
+
     @Subscribe
     public void slaveBreakStart(BreakTimerEvent.BreakStart e) {
         if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
@@ -147,10 +147,10 @@ public class BreakTimerElementPR extends TimerElementPR {
             return;
         }
         Integer tr = e.isIndefinite() ? null : e.getTimeRemaining();
-        uiEventLogger.debug("&&& breakTimer start {} {} {}", parentName, tr, LoggerUtils.whereFrom());
+        this.uiEventLogger.debug("&&& breakTimer start {} {} {}", this.parentName, tr, LoggerUtils.whereFrom());
         doStartTimer(tr, true); // true means "silent".
     }
-    
+
     @Subscribe
     // not clear why we listen to this event.
     public void slaveOrderUpdated(UpdateEvent e) {
@@ -164,7 +164,7 @@ public class BreakTimerElementPR extends TimerElementPR {
             doStartTimer(breakRemaining, true);
         }
     }
-    
+
     /*
      * (non-Javadoc)
      *
@@ -174,11 +174,12 @@ public class BreakTimerElementPR extends TimerElementPR {
     protected void init() {
         super.init();
         setSilenced(true);
-        getElement().setProperty("silent",true); // do not emit sounds
+        getElement().setProperty("silent", true); // do not emit sounds
     }
 
     /*
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
+     * AttachEvent)
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
@@ -190,7 +191,7 @@ public class BreakTimerElementPR extends TimerElementPR {
 
         setFopName(OwlcmsSession.getFopName());
     }
-    
+
     @Override
     protected void onDetach(DetachEvent detachEvent) {
         super.onDetach(detachEvent);
@@ -204,7 +205,6 @@ public class BreakTimerElementPR extends TimerElementPR {
         } catch (Exception e) {
         }
     }
-
 
     private String formatDuration(Integer milliseconds) {
         return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds)

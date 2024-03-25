@@ -11,10 +11,10 @@ import com.vaadin.flow.theme.lumo.Lumo;
  * and some desktop browsers.
  */
 //@PWA(name = "owlcms remote scoreboard", shortName = "publicresults")
-@Theme(variant=Lumo.DARK)
+@Theme(variant = Lumo.DARK)
 @Push
 public class AppShell implements AppShellConfigurator {
-    
+
     @Override
     public void configurePage(AppShellSettings settings) {
         settings.addLink("shortcut icon", "icons/owlcms.ico");

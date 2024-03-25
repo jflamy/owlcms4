@@ -59,19 +59,24 @@ public class UpdateEvent {
         return Objects.equals(this.athletes, other.athletes) && Objects.equals(this.attempt, other.attempt)
                 && Objects.equals(this.breakRemaining, other.breakRemaining) && this.breakType == other.breakType
                 && Objects.equals(this.categoryName, other.categoryName) && this.ceremonyType == other.ceremonyType
-                && Objects.equals(this.competitionName, other.competitionName) && Objects.equals(this.fopName, other.fopName)
+                && Objects.equals(this.competitionName, other.competitionName)
+                && Objects.equals(this.fopName, other.fopName)
                 && Objects.equals(this.fopState, other.fopState) && Objects.equals(this.fullName, other.fullName)
                 && Objects.equals(this.groupDescription, other.groupDescription)
                 && Objects.equals(this.groupName, other.groupName) && this.hidden == other.hidden
                 && this.indefinite == other.indefinite && Objects.equals(this.isBreak, other.isBreak)
                 && Objects.equals(this.leaders, other.leaders)
                 && Objects.equals(this.liftingOrderAthletes, other.liftingOrderAthletes)
-                && Objects.equals(this.liftsDone, other.liftsDone) && Objects.equals(this.noLiftRanks, other.noLiftRanks)
-                && Objects.equals(this.recordKind, other.recordKind) && Objects.equals(this.recordMessage, other.recordMessage)
+                && Objects.equals(this.liftsDone, other.liftsDone)
+                && Objects.equals(this.noLiftRanks, other.noLiftRanks)
+                && Objects.equals(this.recordKind, other.recordKind)
+                && Objects.equals(this.recordMessage, other.recordMessage)
                 && Objects.equals(this.records, other.records) && this.sinclairMeet == other.sinclairMeet
-                && Objects.equals(this.startNumber, other.startNumber) && Objects.equals(this.stylesDir, other.stylesDir)
+                && Objects.equals(this.startNumber, other.startNumber)
+                && Objects.equals(this.stylesDir, other.stylesDir)
                 && Objects.equals(this.teamName, other.teamName) && Objects.equals(this.timeAllowed, other.timeAllowed)
-                && Objects.equals(this.translationMap, other.translationMap) && Objects.equals(this.weight, other.weight)
+                && Objects.equals(this.translationMap, other.translationMap)
+                && Objects.equals(this.weight, other.weight)
                 && this.wideTeamNames == other.wideTeamNames;
     }
 
@@ -193,10 +198,14 @@ public class UpdateEvent {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.athletes, this.attempt, this.breakRemaining, this.breakType, this.categoryName, this.ceremonyType, this.competitionName,
-                this.fopName, this.fopState, this.fullName, this.groupDescription, this.groupName, this.hidden, this.indefinite, this.isBreak, this.leaders,
-                this.liftingOrderAthletes, this.liftsDone, this.noLiftRanks, this.recordKind, this.recordMessage, this.records, this.sinclairMeet,
-                this.startNumber, this.stylesDir, this.teamName, this.timeAllowed, this.translationMap, this.weight, this.wideTeamNames);
+        return Objects.hash(this.athletes, this.attempt, this.breakRemaining, this.breakType, this.categoryName,
+                this.ceremonyType, this.competitionName,
+                this.fopName, this.fopState, this.fullName, this.groupDescription, this.groupName, this.hidden,
+                this.indefinite, this.isBreak, this.leaders,
+                this.liftingOrderAthletes, this.liftsDone, this.noLiftRanks, this.recordKind, this.recordMessage,
+                this.records, this.sinclairMeet,
+                this.startNumber, this.stylesDir, this.teamName, this.timeAllowed, this.translationMap, this.weight,
+                this.wideTeamNames);
     }
 
     public Boolean isBreak() {
@@ -248,7 +257,7 @@ public class UpdateEvent {
     }
 
     public void setDone(boolean b) {
-        this.done  = b;
+        this.done = b;
     }
 
     public void setFopName(String parameter) {
@@ -349,8 +358,10 @@ public class UpdateEvent {
 
     @Override
     public String toString() {
-        return "UpdateEvent [groupName=" + this.groupName + ", timeAllowed=" + this.timeAllowed + ", fopName=" + this.fopName
-                + ", fopState=" + this.fopState + ", isBreak=" + this.isBreak + ", breakType=" + this.breakType + ", breakRemaining="
+        return "UpdateEvent [groupName=" + this.groupName + ", timeAllowed=" + this.timeAllowed + ", fopName="
+                + this.fopName
+                + ", fopState=" + this.fopState + ", isBreak=" + this.isBreak + ", breakType=" + this.breakType
+                + ", breakRemaining="
                 + this.breakRemaining + "]";
     }
 

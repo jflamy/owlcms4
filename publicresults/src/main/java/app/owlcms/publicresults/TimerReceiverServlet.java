@@ -51,7 +51,8 @@ public class TimerReceiverServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        // get makes no sense on this URL. Standard says there shouldn't be a 405 on a get,
+        // get makes no sense on this URL. Standard says there shouldn't be a 405 on a
+        // get,
         // but "disallowed" is what makes most sense as a return code.
         resp.sendError(405);
     }
@@ -67,15 +68,16 @@ public class TimerReceiverServlet extends HttpServlet {
             resp.setCharacterEncoding("UTF-8");
             if (StartupUtils.isTraceSetting()) {
                 Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
-                logger./**/warn("---- timer update received from {}", ProxyUtils.getClientIp(req));
+                this.logger./**/warn("---- timer update received from {}", ProxyUtils.getClientIp(req));
                 for (Entry<String, String[]> pair : pairs) {
-                    logger./**/warn("    {} = {}", pair.getKey(), pair.getValue()[0]);
+                    this.logger./**/warn("    {} = {}", pair.getKey(), pair.getValue()[0]);
                 }
             }
 
             String updateKey = req.getParameter("updateKey");
-            if (updateKey == null || !updateKey.equals(secret)) {
-                logger.error("denying access from {} expected {} got {} ", req.getRemoteHost(), secret, updateKey);
+            if (updateKey == null || !updateKey.equals(this.secret)) {
+                this.logger.error("denying access from {} expected {} got {} ", req.getRemoteHost(), this.secret,
+                        updateKey);
                 resp.sendError(401, "Denied, wrong credentials");
                 return;
             }
@@ -109,7 +111,7 @@ public class TimerReceiverServlet extends HttpServlet {
                 breakTimerEvent = new BreakTimerEvent.BreakSetTime(seconds, indefinite);
             } else {
                 String message = MessageFormat.format("unknown event type {0}", eventTypeString);
-                logger.error(message);
+                this.logger.error(message);
                 resp.sendError(400, message);
             }
 
@@ -128,7 +130,7 @@ public class TimerReceiverServlet extends HttpServlet {
                 defaultFopName = fopName;
             }
         } catch (NumberFormatException | IOException e) {
-            logger.error(LoggerUtils.stackTrace(e));
+            this.logger.error(LoggerUtils.stackTrace(e));
         }
     }
 

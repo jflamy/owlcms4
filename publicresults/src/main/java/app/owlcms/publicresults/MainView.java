@@ -43,19 +43,19 @@ public class MainView extends VerticalLayout {
     public MainView() {
         logger.debug("mainView");
         text = new Text(Translator.translate("WaitingForSite"));
-        ui = UI.getCurrent();
-        if (ui != null) {
+        this.ui = UI.getCurrent();
+        if (this.ui != null) {
             buildHomePage();
         }
     }
 
     @Subscribe
     public void update(UpdateEvent e) {
-        if (ui == null) {
+        if (this.ui == null) {
             logger.error("ui is null!?");
             return;
         }
-        ui.access(() -> {
+        this.ui.access(() -> {
             buildHomePage();
         });
     }
@@ -64,7 +64,7 @@ public class MainView extends VerticalLayout {
     protected void onAttach(AttachEvent attachEvent) {
         logger.debug("onAttach");
         super.onAttach(attachEvent);
-        ui = UI.getCurrent();
+        this.ui = UI.getCurrent();
         UpdateReceiverServlet.getEventBus().register(this);
     }
 
@@ -80,7 +80,7 @@ public class MainView extends VerticalLayout {
     private void buildHomePage() {
         // we cache the last update received for each field of play, indexed by fop name
         Set<String> fopNames = UpdateReceiverServlet.getUpdateCache().keySet();
-        if (fopNames.size() == 0 || ui == null) {
+        if (fopNames.size() == 0 || this.ui == null) {
             removeAll();
             add(text);
         } else if (fopNames.size() == 1) {
@@ -89,7 +89,7 @@ public class MainView extends VerticalLayout {
             String fop = fopNames.stream().findFirst().get();
             parameterMap.put("FOP", fop);
             // ui.navigate("displays/resultsLeader", QueryParameters.simple(parameterMap));
-            ui.getPage().executeJs("window.location.href='results?fop=" + fop + "'");
+            this.ui.getPage().executeJs("window.location.href='results?fop=" + fop + "'");
         } else {
             createButtons(fopNames);
         }

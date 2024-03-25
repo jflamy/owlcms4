@@ -36,6 +36,8 @@ public interface FOPParameters extends HasUrlParameter<String> {
     final String GROUP = "group";
     final Logger logger = (Logger) LoggerFactory.getLogger(FOPParameters.class);
 
+    public abstract String getFopName();
+
     public Location getLocation();
 
     public UI getLocationUI();
@@ -55,10 +57,10 @@ public interface FOPParameters extends HasUrlParameter<String> {
     @SuppressWarnings("null")
     public default HashMap<String, List<String>> readParams(Location location,
             Map<String, List<String>> parametersMap) {
-        logger.debug("location {} getLocation {}",location.getPathWithQueryParameters(), getLocation().getPathWithQueryParameters());
+        logger.debug("location {} getLocation {}", location.getPathWithQueryParameters(),
+                getLocation().getPathWithQueryParameters());
 
         HashMap<String, List<String>> newParameterMap = new HashMap<>(parametersMap);
-
 
         List<String> fopNames = parametersMap.get(FOP);
         boolean fopFound = fopNames != null && fopNames.get(0) != null;
@@ -80,7 +82,8 @@ public interface FOPParameters extends HasUrlParameter<String> {
                 }
             }
             if (getFopName() == null) {
-                // logger.trace("OwlcmsFactory.getDefaultFOP() {}", OwlcmsFactory.getDefaultFOP());
+                // logger.trace("OwlcmsFactory.getDefaultFOP() {}",
+                // OwlcmsFactory.getDefaultFOP());
                 Set<String> knownNames = UpdateReceiverServlet.getUpdateCache().keySet();
                 if (knownNames.size() >= 1) {
                     setFopName(knownNames.stream().findFirst().get());
@@ -119,7 +122,6 @@ public interface FOPParameters extends HasUrlParameter<String> {
     }
 
     public abstract void setFopName(String decoded);
-    public abstract String getFopName();
 
     public void setLocation(Location location);
 
@@ -128,15 +130,20 @@ public interface FOPParameters extends HasUrlParameter<String> {
     /*
      * Retrieve parameter(s) from URL and update according to current settings.
      *
-     * The values are stored in the URL in order to allow bookmarking and easy reloading.
+     * The values are stored in the URL in order to allow bookmarking and easy
+     * reloading.
      *
-     * Note: what Vaadin calls a parameter is in the REST style, actually part of the URL path. We use the old-style
+     * Note: what Vaadin calls a parameter is in the REST style, actually part of
+     * the URL path. We use the old-style
      * Query parameters for our purposes.
      *
-     * @see com.vaadin.flow.router.HasUrlParameter#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.Object)
+     * @see
+     * com.vaadin.flow.router.HasUrlParameter#setParameter(com.vaadin.flow.router.
+     * BeforeEvent, java.lang.Object)
      */
     /**
-     * @see com.vaadin.flow.router.HasUrlParameter#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.Object)
+     * @see com.vaadin.flow.router.HasUrlParameter#setParameter(com.vaadin.flow.router.BeforeEvent,
+     *      java.lang.Object)
      */
     @Override
     public default void setParameter(BeforeEvent event, @OptionalParameter String unused) {
@@ -148,7 +155,7 @@ public interface FOPParameters extends HasUrlParameter<String> {
 
         // change the URL to reflect the updated parameters
         Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params)));
-        logger.debug("setParameter {}",location2);
+        logger.debug("setParameter {}", location2);
         event.getUI().getPage().getHistory().replaceState(null, location2);
     }
 
@@ -190,7 +197,7 @@ public interface FOPParameters extends HasUrlParameter<String> {
 
         Location location2 = new Location(location.getPath(), new QueryParameters(parametersMap));
         ui.getPage().getHistory().replaceState(null, location2);
-        logger.debug("location2 = {}",location2.getPathWithQueryParameters());
+        logger.debug("location2 = {}", location2.getPathWithQueryParameters());
         setLocation(location2);
         storeReturnURL();
     }

@@ -268,7 +268,7 @@ public class ResultsPR extends LitTemplate
      */
     @Override
     public void setShowInitialDialog(boolean b) {
-        //logger.debug("setShowInitialDialog {} {}",b, LoggerUtils.stackTrace());
+        // logger.debug("setShowInitialDialog {} {}",b, LoggerUtils.stackTrace());
         this.setInitializationNeeded(true);
     }
 
@@ -489,7 +489,6 @@ public class ResultsPR extends LitTemplate
             SoundUtils.enableAudioContextNotification(this.getElement());
         }
 
-
         this.ui = UI.getCurrent();
 
         eventBusRegister(this, TimerReceiverServlet.getEventBus());
@@ -555,6 +554,10 @@ public class ResultsPR extends LitTemplate
         }
     }
 
+    private boolean isInitializationNeeded() {
+        return this.initializationNeeded;
+    }
+
     private void setBoardMode(String mode) {
         // logger.debug("set board mode {} from {}", mode, LoggerUtils.whereFrom());
         this.getElement().setProperty("mode", mode);
@@ -564,15 +567,11 @@ public class ResultsPR extends LitTemplate
         this.done = done;
     }
 
-    private void setWideTeamNames(boolean wide) {
-        this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
-    }
-
-    private boolean isInitializationNeeded() {
-        return initializationNeeded;
-    }
-
     private void setInitializationNeeded(boolean initializationNeeded) {
         this.initializationNeeded = initializationNeeded;
+    }
+
+    private void setWideTeamNames(boolean wide) {
+        this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
     }
 }

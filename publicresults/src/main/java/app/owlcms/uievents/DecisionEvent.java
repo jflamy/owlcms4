@@ -26,27 +26,27 @@ public class DecisionEvent {
     }
 
     public Boolean getDecisionLight1() {
-        return decisionLight1;
+        return this.decisionLight1;
     }
 
     public Boolean getDecisionLight2() {
-        return decisionLight2;
+        return this.decisionLight2;
     }
 
     public Boolean getDecisionLight3() {
-        return decisionLight3;
+        return this.decisionLight3;
     }
 
     public DecisionEventType getEventType() {
-        return eventType;
+        return this.eventType;
     }
 
     public String getFopName() {
-        return fopName;
+        return this.fopName;
     }
 
     public String getGroupName() {
-        return groupName;
+        return this.groupName;
     }
 
     public String getMode() {
@@ -54,27 +54,27 @@ public class DecisionEvent {
     }
 
     public String getRecordKind() {
-        return recordKind;
+        return this.recordKind;
     }
 
     public String getRecordMessage() {
-        return recordMessage;
+        return this.recordMessage;
     }
 
     public boolean isBreak() {
-        return isBreak;
+        return this.isBreak;
     }
 
     public boolean isDecisionLightsVisible() {
-        return decisionLightsVisible;
+        return this.decisionLightsVisible;
     }
 
     public boolean isDone() {
-        return done;
+        return this.done;
     }
 
     public boolean isDown() {
-        return down;
+        return this.down;
     }
 
     public void setBreak(boolean isBreak) {

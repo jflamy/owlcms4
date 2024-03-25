@@ -41,13 +41,11 @@ public class AthleteTimerElementPR extends TimerElementPR {
      * Instantiates a new timer element.
      */
     public AthleteTimerElementPR() {
-        super();
         this.setOrigin(null); // force exception
-        logger.trace("### AthleteTimerElement new {}", origin);
+        logger.trace("### AthleteTimerElement new {}", this.origin);
     }
 
     public AthleteTimerElementPR(Object origin) {
-        super();
         this.setOrigin(origin);
         logger.trace("### AthleteTimerElement new {} {}", origin, LoggerUtils.whereFrom());
     }
@@ -76,7 +74,6 @@ public class AthleteTimerElementPR extends TimerElementPR {
     @Override
     @ClientCallable
     public void clientSyncTime(String fopName) {
-        return;
     }
 
     /**
@@ -111,15 +108,15 @@ public class AthleteTimerElementPR extends TimerElementPR {
      * @return the origin
      */
     public Object getOrigin() {
-        return origin;
+        return this.origin;
     }
 
     public void setOrigin(Object origin) {
         this.origin = origin;
     }
 
-
-    // we do not listen to the bus for this event. Score with leaders forwards this event
+    // we do not listen to the bus for this event. Score with leaders forwards this
+    // event
     // when appropriate
     public void slaveOrderUpdated(UpdateEvent e) {
         if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
@@ -143,13 +140,14 @@ public class AthleteTimerElementPR extends TimerElementPR {
     @Subscribe
     public void slaveStartTimer(TimerEvent.StartTime e) {
         Integer milliseconds = e.getTimeRemaining();
-        // uiEventLogger.debug(">>> start received {} {} {} {}", e, milliseconds, e.getFopName(), getFopName());
+        // uiEventLogger.debug(">>> start received {} {} {} {}", e, milliseconds,
+        // e.getFopName(), getFopName());
         if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
             // event is not for us
             return;
         }
-        
-        doStartTimer(milliseconds, e.isSilent());  //check: original is e.isServerSound().
+
+        doStartTimer(milliseconds, e.isSilent()); // check: original is e.isServerSound().
     }
 
     @Subscribe
@@ -170,11 +168,12 @@ public class AthleteTimerElementPR extends TimerElementPR {
     @Override
     protected void init() {
         super.init();
-        getElement().setProperty("silent",false); // emit sounds
+        getElement().setProperty("silent", false); // emit sounds
     }
 
     /*
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
+     * AttachEvent)
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
@@ -184,7 +183,7 @@ public class AthleteTimerElementPR extends TimerElementPR {
         eventBusRegister(this, UpdateReceiverServlet.getEventBus());
         eventBusRegister(this, DecisionReceiverServlet.getEventBus());
 
-        ui = UI.getCurrent();
+        this.ui = UI.getCurrent();
         this.setFopName(OwlcmsSession.getFopName());
     }
 

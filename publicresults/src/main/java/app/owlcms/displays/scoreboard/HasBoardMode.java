@@ -10,8 +10,6 @@ import ch.qos.logback.classic.Logger;
 
 public interface HasBoardMode {
 
-    Logger logger = (Logger) LoggerFactory.getLogger(HasBoardMode.class);
-
     public enum BoardMode {
         WAIT,
         INTRO_COUNTDOWN,
@@ -23,14 +21,17 @@ public interface HasBoardMode {
         LIFT_COUNTDOWN_CEREMONY
     }
 
-	public default void setBoardMode(String fopState, BreakType breakType, CeremonyType ceremonyType, Element element) {
+    Logger logger = (Logger) LoggerFactory.getLogger(HasBoardMode.class);
+
+    public default void setBoardMode(String fopState, BreakType breakType, CeremonyType ceremonyType, Element element) {
         BoardMode bm = BoardMode.WAIT;
         if (fopState == "BREAK" && breakType == BreakType.BEFORE_INTRODUCTION) {
             bm = BoardMode.INTRO_COUNTDOWN;
         } else if (fopState == "BREAK"
                 && breakType == BreakType.FIRST_SNATCH) {
             if (ceremonyType != null) {
-                bm = (ceremonyType != CeremonyType.INTRODUCTION) ? BoardMode.LIFT_COUNTDOWN_CEREMONY : BoardMode.CEREMONY;
+                bm = (ceremonyType != CeremonyType.INTRODUCTION) ? BoardMode.LIFT_COUNTDOWN_CEREMONY
+                        : BoardMode.CEREMONY;
             } else {
                 bm = BoardMode.LIFT_COUNTDOWN;
             }
@@ -52,7 +53,7 @@ public interface HasBoardMode {
         } else if (fopState == "INACTIVE") {
             bm = BoardMode.WAIT;
         }
-		element.setProperty("mode", bm.name());
+        element.setProperty("mode", bm.name());
     }
 
 }

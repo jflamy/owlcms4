@@ -152,10 +152,6 @@ public interface DisplayParameters extends ContentParameters {
         return false;
     }
 
-    public default boolean isShowLeaders() {
-        return false;
-    }
-
     public default boolean isLiftingOrder() {
         return false;
     }
@@ -166,6 +162,10 @@ public interface DisplayParameters extends ContentParameters {
 
     @Override
     public boolean isShowInitialDialog();
+
+    public default boolean isShowLeaders() {
+        return false;
+    }
 
     /**
      * @return true if the display can switch during breaks (for example, to medals)
@@ -292,9 +292,6 @@ public interface DisplayParameters extends ContentParameters {
     public default void setEmFontSize(Double emFontSize) {
     }
 
-    public default void setShowLeaders(boolean showLeaders) {
-    }
-
     public default void setLiftingOrder(boolean showLeaders) {
     }
 
@@ -332,6 +329,9 @@ public interface DisplayParameters extends ContentParameters {
 
     @Override
     public void setShowInitialDialog(boolean b);
+
+    public default void setShowLeaders(boolean showLeaders) {
+    }
 
     public default void setSwitchableDisplay(boolean switchable) {
     }

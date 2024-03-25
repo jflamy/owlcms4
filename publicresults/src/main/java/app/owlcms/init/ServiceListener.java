@@ -18,9 +18,11 @@ import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Automatic configuration at startup of the various listeners for sessions, etc.
+ * Automatic configuration at startup of the various listeners for sessions,
+ * etc.
  *
- * The fully qualified name of this class (app.owlcms.ui.uiEvents.ServiceListener) must appear on single line in file
+ * The fully qualified name of this class
+ * (app.owlcms.ui.uiEvents.ServiceListener) must appear on single line in file
  * src/main/resources/META-INF/services/com.vaadin.flow.server.VaadinServiceInitListener
  *
  * @author owlcms
@@ -38,7 +40,9 @@ public class ServiceListener implements VaadinServiceInitListener {
     /*
      * (non-Javadoc)
      *
-     * @see com.vaadin.flow.server.VaadinServiceInitListener#serviceInit(com.vaadin.flow.server.ServiceInitEvent)
+     * @see
+     * com.vaadin.flow.server.VaadinServiceInitListener#serviceInit(com.vaadin.flow.
+     * server.ServiceInitEvent)
      */
     @Override
     public void serviceInit(ServiceInitEvent event) {

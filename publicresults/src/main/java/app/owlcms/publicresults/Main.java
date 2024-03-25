@@ -58,10 +58,12 @@ public class Main {
     /**
      * Prepare owlcms
      *
-     * Reads configuration options, injects data, initializes singletons and configurations. The embedded web server can
+     * Reads configuration options, injects data, initializes singletons and
+     * configurations. The embedded web server can
      * then be started.
      *
-     * Sample command line to run on port 80 and in demo mode (automatically generated fake data, in-memory database)
+     * Sample command line to run on port 80 and in demo mode (automatically
+     * generated fake data, in-memory database)
      *
      * <code><pre>java -D"server.port"=80 -DdemoMode=true -jar owlcms-4.0.1-SNAPSHOT.jar app.owlcms.Main</pre></code>
      *
@@ -91,10 +93,8 @@ public class Main {
         });
 
         // technical initializations
-        //System.setProperty("java.net.preferIPv4Stack", "true");
-        
+        // System.setProperty("java.net.preferIPv4Stack", "true");
 
-        return;
     }
 
     private static Locale computeLocale() {
@@ -129,7 +129,8 @@ public class Main {
     }
 
     /**
-     * get configuration from environment variables and if not found, from system properties.
+     * get configuration from environment variables and if not found, from system
+     * properties.
      */
     private static void parseConfig() {
         // read server.port parameter from -D"server.port"=9999 on java command line

@@ -20,7 +20,6 @@ public class TimerEvent {
          * @param timeRemaining the time remaining
          */
         public SetTime(Integer timeRemaining) {
-            super();
             this.timeRemaining = timeRemaining;
         }
 
@@ -30,7 +29,7 @@ public class TimerEvent {
          * @return the time remaining
          */
         public Integer getTimeRemaining() {
-            return timeRemaining;
+            return this.timeRemaining;
         }
 
     }
@@ -50,7 +49,6 @@ public class TimerEvent {
          * @param silent
          */
         public StartTime(Integer timeRemaining, boolean silent) {
-            super();
             this.timeRemaining = timeRemaining;
             this.silent = silent;
         }
@@ -61,11 +59,11 @@ public class TimerEvent {
          * @return the time remaining
          */
         public Integer getTimeRemaining() {
-            return timeRemaining;
+            return this.timeRemaining;
         }
 
         public boolean isSilent() {
-            return silent;
+            return this.silent;
         }
 
     }
@@ -83,7 +81,6 @@ public class TimerEvent {
          * @param timeRemaining the time remaining
          */
         public StopTime(int timeRemaining) {
-            super();
             this.timeRemaining = timeRemaining;
         }
 
@@ -93,7 +90,7 @@ public class TimerEvent {
          * @return the time remaining
          */
         public Integer getTimeRemaining() {
-            return timeRemaining;
+            return this.timeRemaining;
         }
     }
 
@@ -103,7 +100,7 @@ public class TimerEvent {
     }
 
     public String getFopName() {
-        return fopName;
+        return this.fopName;
     }
 
     public void setFopName(String fopName) {

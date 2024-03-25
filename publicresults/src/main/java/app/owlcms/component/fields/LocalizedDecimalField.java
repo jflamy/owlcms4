@@ -70,26 +70,6 @@ public class LocalizedDecimalField extends WrappedTextField<Double> {
         };
     }
 
-    private Result<Double> parseWithSeparator(String content, Locale locale, char separator) {
-        DecimalFormat formatter2 = new DecimalFormat("0.00");
-        DecimalFormatSymbols symbols = formatter2.getDecimalFormatSymbols();
-        symbols.setDecimalSeparator(separator);
-        formatter2.setDecimalFormatSymbols(symbols);
-
-        ParsePosition pp2 = new ParsePosition(0);
-        Number parse2 = formatter2.parse(content, pp2);
-        Result<Double> r2;
-        int index = pp2.getIndex();
-        if (index < content.length() - 1) {
-            String m = invalidFormatErrorMessage(locale);
-            r2 = Result.error(m);
-        } else {
-            setFormatValidationStatus(true, locale);
-            r2 = Result.ok(parse2.doubleValue());
-        }
-        return r2;
-    }
-
     @Override
     public String toString() {
         return this.getValue().toString();
@@ -130,6 +110,26 @@ public class LocalizedDecimalField extends WrappedTextField<Double> {
         }
         setFormatValidationStatus(false, locale);
         return r;
+    }
+
+    private Result<Double> parseWithSeparator(String content, Locale locale, char separator) {
+        DecimalFormat formatter2 = new DecimalFormat("0.00");
+        DecimalFormatSymbols symbols = formatter2.getDecimalFormatSymbols();
+        symbols.setDecimalSeparator(separator);
+        formatter2.setDecimalFormatSymbols(symbols);
+
+        ParsePosition pp2 = new ParsePosition(0);
+        Number parse2 = formatter2.parse(content, pp2);
+        Result<Double> r2;
+        int index = pp2.getIndex();
+        if (index < content.length() - 1) {
+            String m = invalidFormatErrorMessage(locale);
+            r2 = Result.error(m);
+        } else {
+            setFormatValidationStatus(true, locale);
+            r2 = Result.ok(parse2.doubleValue());
+        }
+        return r2;
     }
 
 }

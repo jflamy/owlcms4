@@ -75,7 +75,8 @@ public class UpdateReceiverServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        // get makes no sense on this URL. Standard says there shouldn't be a 405 on a get. Sue me.
+        // get makes no sense on this URL. Standard says there shouldn't be a 405 on a
+        // get. Sue me.
         resp.sendError(405);
     }
 
@@ -87,27 +88,28 @@ public class UpdateReceiverServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try {
             String updateKey = req.getParameter("updateKey");
-            if (updateKey == null || !updateKey.equals(secret)) {
-                logger.error("denying access from {} expected {} got {} ", req.getRemoteHost(), secret, updateKey);
+            if (updateKey == null || !updateKey.equals(this.secret)) {
+                this.logger.error("denying access from {} expected {} got {} ", req.getRemoteHost(), this.secret,
+                        updateKey);
                 resp.sendError(401, "Denied, wrong credentials");
                 return;
             }
-            
+
             if (ResourceWalker.getLocalDirPath() == null) {
                 String message = "Local override directory not present: requesting remote configuration files.";
-                logger.info(message);
-                logger.info("requesting customization");
+                this.logger.info(message);
+                this.logger.info("requesting customization");
                 resp.sendError(412, "Missing configuration files.");
                 return;
             }
 
             if (StartupUtils.isDebugSetting()) {
-                logger.setLevel(Level.DEBUG);
+                this.logger.setLevel(Level.DEBUG);
                 Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
-                logger./**/debug("update received from {}", ProxyUtils.getClientIp(req));
+                this.logger./**/debug("update received from {}", ProxyUtils.getClientIp(req));
                 if (StartupUtils.isTraceSetting()) {
                     for (Entry<String, String[]> pair : pairs) {
-                        logger./**/debug("    {} = {}", pair.getKey(), pair.getValue()[0]);
+                        this.logger./**/debug("    {} = {}", pair.getKey(), pair.getValue()[0]);
                     }
                 }
             }
@@ -130,7 +132,7 @@ public class UpdateReceiverServlet extends HttpServlet {
             updateEvent.setTeamName(req.getParameter("teamName"));
             String weight = req.getParameter("weight");
             updateEvent.setWeight(weight != null ? Integer.parseInt(weight) : null);
-            
+
             updateEvent.setMode(req.getParameter("mode"));
 
             updateEvent.setNoLiftRanks(req.getParameter("noLiftRanks"));
@@ -158,7 +160,7 @@ public class UpdateReceiverServlet extends HttpServlet {
             updateEvent.setBreakType(bt);
             updateEvent.setBreakRemaining(breakRemainingString != null ? Integer.parseInt(breakRemainingString) : null);
             updateEvent.setIndefinite(Boolean.parseBoolean(breakIsIndefiniteString));
-            
+
             String sinclairMeetString = req.getParameter("sinclairMeet");
             updateEvent.setSinclairMeet(Boolean.parseBoolean(sinclairMeetString));
 
@@ -177,7 +179,7 @@ public class UpdateReceiverServlet extends HttpServlet {
                 // short time range, is this a duplicate?
                 UpdateEvent prevUpdate = updateCache.get(fopName);
                 if (prevUpdate != null && updateEvent.hashCode() == prevUpdate.hashCode()) {
-                    logger./**/warn("duplicate event ignored");
+                    this.logger./**/warn("duplicate event ignored");
                 } else {
                     updateCache.put(fopName, updateEvent);
                     eventBus.post(updateEvent);
@@ -192,7 +194,7 @@ public class UpdateReceiverServlet extends HttpServlet {
             }
             resp.sendError(200);
         } catch (Exception e) {
-            logger.error(LoggerUtils.stackTrace(e));
+            this.logger.error(LoggerUtils.stackTrace(e));
         }
     }
 
