@@ -33,3 +33,4 @@ database/owlcms.mv.db
 /.metadata/
 /.moquette_uuid
 /fly.toml
+/mqttData/

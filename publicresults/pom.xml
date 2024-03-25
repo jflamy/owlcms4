@@ -228,7 +228,7 @@
 							<systemProperties>
 								<systemProperty>
 									<key>port</key>
-									<value>8081</value>
+									<value>8082</value>
 								</systemProperty>
 								<systemProperty>
 									<key>updateKey</key>
