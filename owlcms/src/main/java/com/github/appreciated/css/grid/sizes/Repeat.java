@@ -7,71 +7,71 @@ import com.github.appreciated.css.interfaces.CssUnit;
 
 public class Repeat implements TemplateRowsAndColsUnit {
 
-    public static final String FUNCTION_NAME = "repeat";
+	public enum RepeatMode {
+		AUTO_FILL("auto-fill"),
+		AUTO_FIT("auto-fit");
 
-    private Integer times;
-    private RepeatMode mode;
-    private CssUnit[] sizes;
+		static RepeatMode toRepeatMode(String repeatValue, RepeatMode defaultValue) {
+			return Arrays.stream(values())
+			        .filter((repeatMode) -> repeatMode.getRepeatModeValue().equals(repeatValue))
+			        .findFirst()
+			        .orElse(defaultValue);
+		}
 
-    public Repeat(int times, TemplateRowsAndColsUnit... sizes) {
-        this(sizes);
-        this.times = times;
-    }
+		private final String repeatValue;
 
+		RepeatMode(String repeatValue) {
+			this.repeatValue = repeatValue;
+		}
 
-    private Repeat(TemplateRowsAndColsUnit... sizes) {
-        this.sizes = sizes;
-    }
+		String getRepeatModeValue() {
+			return this.repeatValue;
+		}
+	}
 
-    public Repeat(RepeatMode mode, TemplateRowsAndColsUnit... sizes) {
-        this(sizes);
-        this.mode = mode;
-    }
+	public static final String FUNCTION_NAME = "repeat";
+	private Integer times;
+	private RepeatMode mode;
+	private CssUnit[] sizes;
 
-    @Override
-    public String getValue() {
-        return Arrays.stream(sizes).map(CssUnit::getCssValue).reduce((unit, unit2) -> unit + " " + unit2).orElse("");
-    }
+	public Repeat(int times, TemplateRowsAndColsUnit... sizes) {
+		this(sizes);
+		this.times = times;
+	}
 
-    @Override
-    public boolean hasSuffix() {
-        return true;
-    }
+	public Repeat(RepeatMode mode, TemplateRowsAndColsUnit... sizes) {
+		this(sizes);
+		this.mode = mode;
+	}
 
-    @Override
-    public String getSuffixValue() {
-        return ")";
-    }
+	private Repeat(TemplateRowsAndColsUnit... sizes) {
+		this.sizes = sizes;
+	}
 
-    @Override
-    public boolean hasPrefix() {
-        return true;
-    }
+	@Override
+	public String getPrefixValue() {
+		return FUNCTION_NAME + "(" + (this.times == null ? this.mode.getRepeatModeValue() : this.times.toString())
+		        + ", ";
+	}
 
-    @Override
-    public String getPrefixValue() {
-        return FUNCTION_NAME + "(" + (times == null ? mode.getRepeatModeValue() : times.toString()) + ", ";
-    }
+	@Override
+	public String getSuffixValue() {
+		return ")";
+	}
 
-    public enum RepeatMode {
-        AUTO_FILL("auto-fill"),
-        AUTO_FIT("auto-fit");
+	@Override
+	public String getValue() {
+		return Arrays.stream(this.sizes).map(CssUnit::getCssValue).reduce((unit, unit2) -> unit + " " + unit2)
+		        .orElse("");
+	}
 
-        private final String repeatValue;
+	@Override
+	public boolean hasPrefix() {
+		return true;
+	}
 
-        RepeatMode(String repeatValue) {
-            this.repeatValue = repeatValue;
-        }
-
-        static RepeatMode toRepeatMode(String repeatValue, RepeatMode defaultValue) {
-            return Arrays.stream(values())
-                    .filter((repeatMode) -> repeatMode.getRepeatModeValue().equals(repeatValue))
-                    .findFirst()
-                    .orElse(defaultValue);
-        }
-
-        String getRepeatModeValue() {
-            return this.repeatValue;
-        }
-    }
+	@Override
+	public boolean hasSuffix() {
+		return true;
+	}
 }

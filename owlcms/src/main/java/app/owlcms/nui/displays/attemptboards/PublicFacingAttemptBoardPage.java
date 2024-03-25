@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.config.Config;
 import app.owlcms.displays.attemptboard.AbstractAttemptBoard;
 import app.owlcms.displays.attemptboard.AttemptBoard;
@@ -34,7 +34,7 @@ public class PublicFacingAttemptBoardPage extends AbstractAttemptBoardPage {
 	@Override
 	protected void init() {
 		setBoard(new AttemptBoard());
-		
+
 		// when navigating to the page, Vaadin will call setParameter+readParameters
 		// these parameters will be applied.
 		setDefaultParameters(QueryParameters.simple(Map.of(
@@ -48,7 +48,7 @@ public class PublicFacingAttemptBoardPage extends AbstractAttemptBoardPage {
 		        SoundParameters.SINGLEREF, "false",
 		        DisplayParameters.ABBREVIATED,
 		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
-		
+
 		AbstractAttemptBoard board = (AbstractAttemptBoard) getBoard();
 		board.setPublicFacing(true);
 		this.addComponent(board);

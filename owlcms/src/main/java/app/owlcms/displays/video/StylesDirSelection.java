@@ -18,7 +18,7 @@ public interface StylesDirSelection {
 		Element element = component.getElement();
 		if (isVideo()) {
 			try {
-				//logger.debug("{} setting video styles {}", this.getClass(), cssPath);
+				// logger.debug("{} setting video styles {}", this.getClass(), cssPath);
 				// use video override if /video is in the URL and the override stylesheet exists.
 				ResourceWalker.getFileOrResourcePath(Config.getCurrent().getParamVideoStylesDir());
 				element.setProperty("stylesDir", Config.getCurrent().getParamVideoStylesDir());
@@ -32,10 +32,11 @@ public interface StylesDirSelection {
 		} else {
 			element.setProperty("stylesDir", Config.getCurrent().getParamStylesDir());
 			element.setProperty("video", "");
-			//logger.debug("no video override requested");
+			// logger.debug("no video override requested");
 		}
 
 	}
+
 	public boolean isVideo();
 
 	public void setVideo(boolean video);

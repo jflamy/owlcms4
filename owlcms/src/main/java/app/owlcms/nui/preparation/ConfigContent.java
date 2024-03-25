@@ -54,10 +54,10 @@ public class ConfigContent extends Composite<VerticalLayout>
 		try {
 			urlFinder.checkInterfaces("http", StartupUtils.getServerPort(), false);
 		} catch (SocketException e) {
-			LoggerUtils.logError(logger, e);
+			LoggerUtils.logError(this.logger, e);
 		}
-		factory = createFormFactory();
-		Component form = factory.buildNewForm(CrudOperation.UPDATE, Config.getCurrent(), false, null, event -> {
+		this.factory = createFormFactory();
+		Component form = this.factory.buildNewForm(CrudOperation.UPDATE, Config.getCurrent(), false, null, event -> {
 		});
 		fillH(form, getContent());
 	}
@@ -84,7 +84,7 @@ public class ConfigContent extends Composite<VerticalLayout>
 	@Override
 	public void delete(Config domainObjectToDelete) {
 		// not used
-		factory.delete(domainObjectToDelete);
+		this.factory.delete(domainObjectToDelete);
 	}
 
 	@Override
@@ -109,7 +109,7 @@ public class ConfigContent extends Composite<VerticalLayout>
 
 	@Override
 	public OwlcmsLayout getRouterLayout() {
-		return routerLayout;
+		return this.routerLayout;
 	}
 
 	@Override
@@ -117,14 +117,14 @@ public class ConfigContent extends Composite<VerticalLayout>
 	}
 
 	public void initLoggers() {
-		logger.setLevel(Level.INFO);
+		this.logger.setLevel(Level.INFO);
 	}
 
 	@Override
 	public void setHeaderContent() {
-		routerLayout.setMenuTitle(getPageTitle());
-		routerLayout.showLocaleDropdown(true);
-		routerLayout.setDrawerOpened(false);
+		this.routerLayout.setMenuTitle(getPageTitle());
+		this.routerLayout.showLocaleDropdown(true);
+		this.routerLayout.setDrawerOpened(false);
 	}
 
 	/**
@@ -168,8 +168,8 @@ public class ConfigContent extends Composite<VerticalLayout>
 	 * @return the form factory that will create the actual form on demand
 	 */
 	protected OwlcmsCrudFormFactory<Config> createFormFactory() {
-//        ConfigEditingFormFactory competitionEditingFormFactory = new ConfigEditingFormFactory(Config.class);
-//        createFormLayout(competitionEditingFormFactory);
+		// ConfigEditingFormFactory competitionEditingFormFactory = new ConfigEditingFormFactory(Config.class);
+		// createFormLayout(competitionEditingFormFactory);
 		OwlcmsCrudFormFactory<Config> competitionEditingFormFactory = new ConfigEditingFormFactory(
 		        Config.class, this);
 		return competitionEditingFormFactory;

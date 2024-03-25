@@ -48,14 +48,14 @@ public class OwlcmsComboBoxProvider<T> extends ComboBoxProvider<T> {
 	@Override
 	protected ComboBox<T> buildAbstractListing() {
 		ComboBox<T> field = new ComboBox<>();
-		if (renderer != null) {
-			field.setRenderer(renderer);
+		if (this.renderer != null) {
+			field.setRenderer(this.renderer);
 		}
-		if (itemLabelGenerator != null) {
-			field.setItemLabelGenerator(itemLabelGenerator);
+		if (this.itemLabelGenerator != null) {
+			field.setItemLabelGenerator(this.itemLabelGenerator);
 		}
-		field.setClearButtonVisible(clearButtonVisible);
-		field.setItems(items);
+		field.setClearButtonVisible(this.clearButtonVisible);
+		field.setItems(this.items);
 		return field;
 	}
 }

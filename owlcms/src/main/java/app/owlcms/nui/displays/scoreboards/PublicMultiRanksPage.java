@@ -26,7 +26,6 @@ public class PublicMultiRanksPage extends AbstractResultsDisplayPage {
 
 	Logger logger;
 	Logger uiEventLogger;
-
 	private ResultsMultiRanks resultsBoard;
 	private ResultsMedals medalsBoard;
 	protected UI ui;
@@ -83,15 +82,15 @@ public class PublicMultiRanksPage extends AbstractResultsDisplayPage {
 		this.ui = UI.getCurrent();
 
 		setDefaultParameters(QueryParameters.simple(Map.of(
-				SoundParameters.SILENT, "true",
-				SoundParameters.DOWNSILENT, "true",
-				DisplayParameters.DARK, "true",
-				DisplayParameters.LEADERS, "true",
-				DisplayParameters.RECORDS, "true",
-				SoundParameters.SINGLEREF, "false",
-				DisplayParameters.PUBLIC, "false",
-				DisplayParameters.ABBREVIATED,
-				Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
+		        SoundParameters.SILENT, "true",
+		        SoundParameters.DOWNSILENT, "true",
+		        DisplayParameters.DARK, "true",
+		        DisplayParameters.LEADERS, "true",
+		        DisplayParameters.RECORDS, "true",
+		        SoundParameters.SINGLEREF, "false",
+		        DisplayParameters.PUBLIC, "false",
+		        DisplayParameters.ABBREVIATED,
+		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
 	}
 
 	private final ResultsMedals getMedalsBoard() {

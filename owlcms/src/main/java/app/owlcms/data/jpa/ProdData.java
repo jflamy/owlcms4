@@ -48,17 +48,13 @@ public class ProdData {
 		});
 	}
 
-	private static Locale getLocale() {
-		return Locale.ENGLISH;
-	}
-
 	protected static Competition createDefaultCompetition() {
-//		RecordConfig rc = new RecordConfig(Arrays.asList());
-//		JPAService.runInTransaction(em -> {		
-//			em.persist(rc);
-//			return null;
-//		});
-		
+		// RecordConfig rc = new RecordConfig(Arrays.asList());
+		// JPAService.runInTransaction(em -> {
+		// em.persist(rc);
+		// return null;
+		// });
+
 		Competition competition = new Competition();
 
 		competition.setCompetitionName(Translator.translate("Competition", getLocale()) + " ?");
@@ -107,8 +103,7 @@ public class ProdData {
 	}
 
 	/**
-	 * Create an empty competition. Set-up the defaults for using the timekeeping
-	 * and refereeing features.
+	 * Create an empty competition. Set-up the defaults for using the timekeeping and refereeing features.
 	 *
 	 * @param em
 	 */
@@ -126,6 +121,10 @@ public class ProdData {
 
 		em.persist(platform1);
 
+	}
+
+	private static Locale getLocale() {
+		return Locale.ENGLISH;
 	}
 
 }

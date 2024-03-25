@@ -30,7 +30,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 	private int timeRemaining;
 	private int timeRemainingAtLastStop;
 	{
-		logger.setLevel(Level.INFO);
+		this.logger.setLevel(Level.INFO);
 	}
 
 	/**
@@ -51,7 +51,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 	 * @return the fop
 	 */
 	public FieldOfPlay getFop() {
-		return fop;
+		return this.fop;
 	}
 
 	/**
@@ -59,7 +59,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 	 */
 	@Override
 	public int getTimeRemaining() {
-		return timeRemaining;
+		return this.timeRemaining;
 	}
 
 	/**
@@ -67,7 +67,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 	 */
 	@Override
 	public int getTimeRemainingAtLastStop() {
-		return timeRemainingAtLastStop;
+		return this.timeRemainingAtLastStop;
 	}
 
 	/**
@@ -78,12 +78,17 @@ public class ProxyAthleteTimer implements IProxyTimer {
 		getFop().emitInitialWarning();
 	}
 
+	@Override
+	public boolean isIndefinite() {
+		return false;
+	}
+
 	/**
 	 * @see app.owlcms.fieldofplay.IProxyTimer#isRunning()
 	 */
 	@Override
 	public boolean isRunning() {
-		return running;
+		return this.running;
 	}
 
 	/**
@@ -91,9 +96,9 @@ public class ProxyAthleteTimer implements IProxyTimer {
 	 */
 	@Override
 	public int liveTimeRemaining() {
-		if (running) {
-			stopMillis = System.currentTimeMillis();
-			long elapsed = stopMillis - startMillis;
+		if (this.running) {
+			this.stopMillis = System.currentTimeMillis();
+			long elapsed = this.stopMillis - this.startMillis;
 			int tr = (int) (getTimeRemaining() - elapsed);
 			// logger.debug("liveTimeRemaining running {} {}", formattedDuration(tr),
 			// LoggerUtils.whereFrom());
@@ -119,19 +124,20 @@ public class ProxyAthleteTimer implements IProxyTimer {
 	 */
 	@Override
 	public void setTimeRemaining(int timeRemaining, boolean indefinite) {
-		if (running) {
+		if (this.running) {
 			computeTimeRemaining();
 		}
-		if (logger.isDebugEnabled()) {
-			logger.debug("{}==== setting Time -- timeRemaining = {} ({})", getFop().getLoggingName(), timeRemaining,
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("{}==== setting Time -- timeRemaining = {} ({})", getFop().getLoggingName(),
+			        timeRemaining,
 			        LoggerUtils.whereFrom());
 		}
 		this.timeRemaining = timeRemaining;
 		if (timeRemaining < 1) {
-			logger./**/warn("setting with no time {}", LoggerUtils.whereFrom());
+			this.logger./**/warn("setting with no time {}", LoggerUtils.whereFrom());
 		}
 		getFop().pushOutUIEvent(new UIEvent.SetTime(timeRemaining, null, LoggerUtils.stackTrace()));
-		running = false;
+		this.running = false;
 	}
 
 	/**
@@ -139,20 +145,22 @@ public class ProxyAthleteTimer implements IProxyTimer {
 	 */
 	@Override
 	public void start() {
-		if (!running) {
-			startMillis = System.currentTimeMillis();
-			if (logger.isDebugEnabled()) {
-				logger.debug("{}starting Time -- timeRemaining = {} ({})", getFop().getLoggingName(), timeRemaining,
+		if (!this.running) {
+			this.startMillis = System.currentTimeMillis();
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("{}starting Time -- timeRemaining = {} ({})", getFop().getLoggingName(),
+				        this.timeRemaining,
 				        LoggerUtils.whereFrom());
 			}
-			timeRemainingAtLastStop = timeRemaining;
+			this.timeRemainingAtLastStop = this.timeRemaining;
 		}
-		if (timeRemaining < 1) {
-			logger./**/warn("starting with no time {}", LoggerUtils.whereFrom());
+		if (this.timeRemaining < 1) {
+			this.logger./**/warn("starting with no time {}", LoggerUtils.whereFrom());
 		}
 		getFop().pushOutUIEvent(
-		        new UIEvent.StartTime(timeRemaining, null, getFop().isEmitSoundsOnServer(), LoggerUtils.stackTrace()));
-		running = true;
+		        new UIEvent.StartTime(this.timeRemaining, null, getFop().isEmitSoundsOnServer(),
+		                LoggerUtils.stackTrace()));
+		this.running = true;
 	}
 
 	/**
@@ -160,16 +168,17 @@ public class ProxyAthleteTimer implements IProxyTimer {
 	 */
 	@Override
 	public void stop() {
-		if (running) {
+		if (this.running) {
 			computeTimeRemaining();
 		}
-		if (logger.isDebugEnabled()) {
-			logger.debug("{}stopping Time -- timeRemaining = {} ({})", getFop().getLoggingName(), timeRemaining,
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("{}stopping Time -- timeRemaining = {} ({})", getFop().getLoggingName(),
+			        this.timeRemaining,
 			        LoggerUtils.whereFrom());
 		}
-		timeRemainingAtLastStop = timeRemaining;
-		getFop().pushOutUIEvent(new UIEvent.StopTime(timeRemaining, null));
-		running = false;
+		this.timeRemainingAtLastStop = this.timeRemaining;
+		getFop().pushOutUIEvent(new UIEvent.StopTime(this.timeRemaining, null));
+		this.running = false;
 	}
 
 	@Override
@@ -181,7 +190,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 			getFop().fopEventPost(new FOPEvent.TimeOver(origin));
 		}
 		// leave enough time for buzzer event to propagate allowing for some clock drift
-		if (running) {
+		if (this.running) {
 			try {
 				// timers that are more than 1 sec. late will now stop silently.
 				Thread.sleep(1000);
@@ -195,19 +204,14 @@ public class ProxyAthleteTimer implements IProxyTimer {
 	 * Compute time elapsed since start and adjust time remaining accordingly.
 	 */
 	private void computeTimeRemaining() {
-		stopMillis = System.currentTimeMillis();
-		long elapsed = stopMillis - startMillis;
-		timeRemaining = (int) (timeRemaining - elapsed);
+		this.stopMillis = System.currentTimeMillis();
+		long elapsed = this.stopMillis - this.startMillis;
+		this.timeRemaining = (int) (this.timeRemaining - elapsed);
 	}
 
 	@SuppressWarnings("unused")
 	private String formattedDuration(Integer milliseconds) {
 		return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds)
 		        : (milliseconds != null ? milliseconds.toString() : "-");
-	}
-
-	@Override
-	public boolean isIndefinite() {
-		return false;
 	}
 }

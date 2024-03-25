@@ -20,13 +20,13 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import app.owlcms.apputils.JpaJsonConverter;
 import app.owlcms.data.jpa.JPAService;
 import ch.qos.logback.classic.Logger;
+
 @Cacheable
 @Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RecordConfig {
 
 	static Logger logger = (Logger) LoggerFactory.getLogger(RecordConfig.class);
-
 	private static RecordConfig current;
 
 	public static RecordConfig getCurrent() {
@@ -36,7 +36,7 @@ public class RecordConfig {
 			setCurrent(current);
 		}
 		if (current.getRecordOrder() == null) {
-			current.setRecordOrder(new ArrayList<String>());
+			current.setRecordOrder(new ArrayList<>());
 		}
 		if (current.getShowAllCategoryRecords() == null) {
 			current.setShowAllCategoryRecords(false);
@@ -57,16 +57,12 @@ public class RecordConfig {
 		return current;
 	}
 
-
 	@Convert(converter = JpaJsonConverter.class)
 	private ArrayList<String> recordOrder;
-
 	@Column(columnDefinition = "boolean default false")
 	private Boolean showAllCategoryRecords;
-
 	@Column(columnDefinition = "boolean default false")
 	private Boolean showAllFederations;
-
 	@Id
 	Long id = 1L; // is a singleton. if we ever create a new one it should merge.
 
@@ -76,34 +72,34 @@ public class RecordConfig {
 
 	public void addMissing(List<String> findAllRecordNames) {
 		// get rid of items in list but not in database
-		if (recordOrder != null && recordOrder.size() > 0) {
-			ArrayList<String> extras = new ArrayList<>(recordOrder);
+		if (this.recordOrder != null && this.recordOrder.size() > 0) {
+			ArrayList<String> extras = new ArrayList<>(this.recordOrder);
 			extras.removeAll(findAllRecordNames);
-			recordOrder.removeAll(extras);
-			findAllRecordNames.removeAll(recordOrder);
+			this.recordOrder.removeAll(extras);
+			findAllRecordNames.removeAll(this.recordOrder);
 		}
-		if (recordOrder == null && findAllRecordNames != null && findAllRecordNames.size() > 0) {
-			recordOrder = new ArrayList<String>();
+		if (this.recordOrder == null && findAllRecordNames != null && findAllRecordNames.size() > 0) {
+			this.recordOrder = new ArrayList<>();
 		}
 
 		// new items in database but not in list, add them at the end to preserve
 		// current sort order
-		recordOrder.addAll(findAllRecordNames);
+		this.recordOrder.addAll(findAllRecordNames);
 		setCurrent(this);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if ((obj == null) || (getClass() != obj.getClass())) {
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
+		}
 		RecordConfig other = (RecordConfig) obj;
-		return Objects.equals(id, other.id) && Objects.equals(recordOrder, other.recordOrder)
-		        && Objects.equals(showAllCategoryRecords, other.showAllCategoryRecords)
-		        && Objects.equals(showAllFederations, other.showAllFederations);
+		return Objects.equals(this.id, other.id) && Objects.equals(this.recordOrder, other.recordOrder)
+		        && Objects.equals(this.showAllCategoryRecords, other.showAllCategoryRecords)
+		        && Objects.equals(this.showAllFederations, other.showAllFederations);
 	}
 
 	@Transient
@@ -113,20 +109,20 @@ public class RecordConfig {
 	}
 
 	public ArrayList<String> getRecordOrder() {
-		return recordOrder;
+		return this.recordOrder;
+	}
+
+	public Boolean getShowAllCategoryRecords() {
+		return this.showAllCategoryRecords;
+	}
+
+	public Boolean getShowAllFederations() {
+		return this.showAllFederations;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, recordOrder, showAllCategoryRecords, showAllFederations);
-	}
-
-	public Boolean getShowAllCategoryRecords() {
-		return showAllCategoryRecords;
-	}
-
-	public Boolean getShowAllFederations() {
-		return showAllFederations;
+		return Objects.hash(this.id, this.recordOrder, this.showAllCategoryRecords, this.showAllFederations);
 	}
 
 	@Transient
@@ -144,11 +140,11 @@ public class RecordConfig {
 	}
 
 	public void setShowAllCategoryRecords(Boolean b) {
-		showAllCategoryRecords = b;
+		this.showAllCategoryRecords = b;
 	}
 
 	public void setShowAllFederations(Boolean b) {
-		showAllFederations = b;
+		this.showAllFederations = b;
 	}
 
 }

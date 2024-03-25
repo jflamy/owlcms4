@@ -18,8 +18,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
 
 /**
- * Methods that need to be implemented to have a manually-generated editing form
- * that interacts with the Crud framework.
+ * Methods that need to be implemented to have a manually-generated editing form that interacts with the Crud framework.
  *
  */
 public interface CustomFormFactory<T> {
@@ -46,10 +45,8 @@ public interface CustomFormFactory<T> {
 	 * We create a copy of the edited object so that we can validate live
 	 *
 	 * @see app.owlcms.nui.crudui.OwlcmsCrudFormFactory#buildNewForm(org.vaadin.crudui.crud.CrudOperation,
-	 *      java.lang.Object, boolean,
-	 *      com.vaadin.flow.component.ComponentEventListener,
-	 *      com.vaadin.flow.component.ComponentEventListener,
-	 *      com.vaadin.flow.component.ComponentEventListener)
+	 *      java.lang.Object, boolean, com.vaadin.flow.component.ComponentEventListener,
+	 *      com.vaadin.flow.component.ComponentEventListener, com.vaadin.flow.component.ComponentEventListener)
 	 */
 	Component buildNewForm(CrudOperation operation, T aFromDb, boolean readOnly,
 	        ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
@@ -59,24 +56,24 @@ public interface CustomFormFactory<T> {
 	Button buildOperationButton(CrudOperation operation, T domainObject,
 	        ComponentEventListener<ClickEvent<Button>> callBack);
 
-//	/**
-//	 * Workaround for the fact that ENTER as keyboard shortcut prevents the value
-//	 * being typed from being set in the underlying object.
-//	 *
-//	 * i.e. Typing TAB followed by ENTER works (because tab causes ON_BLUR), but
-//	 * ENTER alone doesn't. We work around this issue by causing focus to move, and
-//	 * reacting to the focus being set.
-//	 *
-//	 * @param operation
-//	 *
-//	 * @param operation
-//	 * @param gridLayout
-//	 *
-//	 * @see app.owlcms.nui.crudui.OwlcmsCrudFormFactory#defineUpdateTrigger(org.vaadin.crudui.crud.CrudOperation,
-//	 *      com.github.appreciated.layout.GridLayout)
-//	 */
-//	TextField defineOperationTrigger(CrudOperation operation, T domainObject,
-//	        ComponentEventListener<ClickEvent<Button>> action);
+	// /**
+	// * Workaround for the fact that ENTER as keyboard shortcut prevents the value
+	// * being typed from being set in the underlying object.
+	// *
+	// * i.e. Typing TAB followed by ENTER works (because tab causes ON_BLUR), but
+	// * ENTER alone doesn't. We work around this issue by causing focus to move, and
+	// * reacting to the focus being set.
+	// *
+	// * @param operation
+	// *
+	// * @param operation
+	// * @param gridLayout
+	// *
+	// * @see app.owlcms.nui.crudui.OwlcmsCrudFormFactory#defineUpdateTrigger(org.vaadin.crudui.crud.CrudOperation,
+	// * com.github.appreciated.layout.GridLayout)
+	// */
+	// TextField defineOperationTrigger(CrudOperation operation, T domainObject,
+	// ComponentEventListener<ClickEvent<Button>> action);
 
 	/**
 	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)

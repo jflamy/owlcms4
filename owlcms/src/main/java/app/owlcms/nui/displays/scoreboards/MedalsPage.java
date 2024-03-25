@@ -42,7 +42,7 @@ public class MedalsPage extends AbstractResultsDisplayPage {
 		        DisplayParameters.DARK, "true",
 		        DisplayParameters.LEADERS, "true",
 		        DisplayParameters.RECORDS, "true",
-		        DisplayParameters.SINGLEREF, "false",
+		        SoundParameters.SINGLEREF, "false",
 		        DisplayParameters.PUBLIC, "false",
 		        DisplayParameters.VIDEO, "false",
 		        DisplayParameters.ABBREVIATED,

@@ -11,134 +11,136 @@ import com.vaadin.flow.component.orderedlayout.ThemableLayout;
 
 public interface GridLayoutComponent extends HasElement, ThemableLayout, HasSize, HasStyle, HasOrderedComponents {
 
-    default void setColumnAlign(Component component, ColumnAlign align) {
-        for (String cssProperty : ColumnAlign.cssProperties) {
-            component.getElement().getStyle().set(cssProperty, align.getAlignValue());
-        }
-    }
+	enum AutoFlow {
+		ROW("row"),
+		COLUMN("column"),
+		ROW_DENSE("row dense"),
+		COLUMN_DENSE("column dense");
 
-    default void setRowAlign(Component component, RowAlign align) {
-        for (String cssProperty : RowAlign.cssProperties) {
-            component.getElement().getStyle().set(cssProperty, align.getAlignValue());
-        }
-    }
+		public static final String cssProperty = "grid-auto-flow";
 
-    default void setOverflow(Overflow overflow) {
-        if (overflow == null) {
-            getElement().getStyle().remove(Overflow.cssProperty);
-        } else {
-            getElement().getStyle().set(Overflow.cssProperty, overflow.getOverflowValue());
-        }
-    }
+		public static AutoFlow toAutoFlow(String autoFlowValue) {
+			return toAutoFlow(autoFlowValue, ROW);
+		}
 
-    enum ColumnAlign {
-        START("start"),
-        END("end"),
-        CENTER("center"),
-        STRETCH("stretch");
+		public static AutoFlow toAutoFlow(String autoFlowValue, AutoFlow defaultValue) {
+			return Arrays.stream(values())
+			        .filter((alignment) -> alignment.getAutoFlowValue().equals(autoFlowValue))
+			        .findFirst()
+			        .orElse(defaultValue);
+		}
 
-        public static final String[] cssProperties = new String[]{"justify-self"};
-        private final String alignValue;
+		private final String autoFlowValue;
 
-        ColumnAlign(String alignValue) {
-            this.alignValue = alignValue;
-        }
+		AutoFlow(String autoFlowValue) {
+			this.autoFlowValue = autoFlowValue;
+		}
 
-        static ColumnAlign toColumnAlign(String alignValue, ColumnAlign defaultValue) {
-            return Arrays.stream(values())
-                    .filter((justifyContent) -> justifyContent.getAlignValue().equals(alignValue))
-                    .findFirst()
-                    .orElse(defaultValue);
-        }
+		public String getAutoFlowValue() {
+			return this.autoFlowValue;
+		}
+	}
 
-        String getAlignValue() {
-            return this.alignValue;
-        }
-    }
+	enum ColumnAlign {
+		START("start"),
+		END("end"),
+		CENTER("center"),
+		STRETCH("stretch");
 
-    enum RowAlign {
-        START("start"),
-        END("end"),
-        CENTER("center"),
-        STRETCH("stretch");
+		public static final String[] cssProperties = new String[] { "justify-self" };
 
-        public static final String[] cssProperties = new String[]{"align-self"};
-        private final String alignValue;
+		static ColumnAlign toColumnAlign(String alignValue, ColumnAlign defaultValue) {
+			return Arrays.stream(values())
+			        .filter((justifyContent) -> justifyContent.getAlignValue().equals(alignValue))
+			        .findFirst()
+			        .orElse(defaultValue);
+		}
 
-        RowAlign(String alignValue) {
-            this.alignValue = alignValue;
-        }
+		private final String alignValue;
 
-        static RowAlign toAlignment(String alignValue, RowAlign defaultValue) {
-            return Arrays.stream(values())
-                    .filter((alignment) -> alignment.getAlignValue().equals(alignValue))
-                    .findFirst()
-                    .orElse(defaultValue);
-        }
+		ColumnAlign(String alignValue) {
+			this.alignValue = alignValue;
+		}
 
-        String getAlignValue() {
-            return this.alignValue;
-        }
-    }
+		String getAlignValue() {
+			return this.alignValue;
+		}
+	}
 
+	enum Overflow {
+		VISIBLE("visible"),
+		HIDDEN("hidden"),
+		SCROLL("scroll"),
+		AUTO("auto");
 
-    enum AutoFlow {
-        ROW("row"),
-        COLUMN("column"),
-        ROW_DENSE("row dense"),
-        COLUMN_DENSE("column dense");
+		public static final String cssProperty = "overflow";
 
-        public static final String cssProperty = "grid-auto-flow";
-        private final String autoFlowValue;
+		public static Overflow toOverflow(String autoFlowValue) {
+			return toOverflow(autoFlowValue, VISIBLE);
+		}
 
-        AutoFlow(String autoFlowValue) {
-            this.autoFlowValue = autoFlowValue;
-        }
+		public static Overflow toOverflow(String overFlowValue, Overflow defaultValue) {
+			return Arrays.stream(values())
+			        .filter((alignment) -> alignment.getOverflowValue().equals(overFlowValue))
+			        .findFirst()
+			        .orElse(defaultValue);
+		}
 
-        public static AutoFlow toAutoFlow(String autoFlowValue) {
-            return toAutoFlow(autoFlowValue, ROW);
-        }
+		private final String overflowValue;
 
-        public static AutoFlow toAutoFlow(String autoFlowValue, AutoFlow defaultValue) {
-            return Arrays.stream(values())
-                    .filter((alignment) -> alignment.getAutoFlowValue().equals(autoFlowValue))
-                    .findFirst()
-                    .orElse(defaultValue);
-        }
+		Overflow(String overflowValue) {
+			this.overflowValue = overflowValue;
+		}
 
-        public String getAutoFlowValue() {
-            return this.autoFlowValue;
-        }
-    }
+		public String getOverflowValue() {
+			return this.overflowValue;
+		}
+	}
 
-    enum Overflow {
-        VISIBLE("visible"),
-        HIDDEN("hidden"),
-        SCROLL("scroll"),
-        AUTO("auto");
+	enum RowAlign {
+		START("start"),
+		END("end"),
+		CENTER("center"),
+		STRETCH("stretch");
 
-        public static final String cssProperty = "overflow";
-        private final String overflowValue;
+		public static final String[] cssProperties = new String[] { "align-self" };
 
-        Overflow(String overflowValue) {
-            this.overflowValue = overflowValue;
-        }
+		static RowAlign toAlignment(String alignValue, RowAlign defaultValue) {
+			return Arrays.stream(values())
+			        .filter((alignment) -> alignment.getAlignValue().equals(alignValue))
+			        .findFirst()
+			        .orElse(defaultValue);
+		}
 
-        public static Overflow toOverflow(String autoFlowValue) {
-            return toOverflow(autoFlowValue, VISIBLE);
-        }
+		private final String alignValue;
 
-        public static Overflow toOverflow(String overFlowValue, Overflow defaultValue) {
-            return Arrays.stream(values())
-                    .filter((alignment) -> alignment.getOverflowValue().equals(overFlowValue))
-                    .findFirst()
-                    .orElse(defaultValue);
-        }
+		RowAlign(String alignValue) {
+			this.alignValue = alignValue;
+		}
 
-        public String getOverflowValue() {
-            return this.overflowValue;
-        }
-    }
+		String getAlignValue() {
+			return this.alignValue;
+		}
+	}
 
+	default void setColumnAlign(Component component, ColumnAlign align) {
+		for (String cssProperty : ColumnAlign.cssProperties) {
+			component.getElement().getStyle().set(cssProperty, align.getAlignValue());
+		}
+	}
+
+	default void setOverflow(Overflow overflow) {
+		if (overflow == null) {
+			getElement().getStyle().remove(Overflow.cssProperty);
+		} else {
+			getElement().getStyle().set(Overflow.cssProperty, overflow.getOverflowValue());
+		}
+	}
+
+	default void setRowAlign(Component component, RowAlign align) {
+		for (String cssProperty : RowAlign.cssProperties) {
+			component.getElement().getStyle().set(cssProperty, align.getAlignValue());
+		}
+	}
 
 }

@@ -19,13 +19,33 @@ import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 public class ValidationUtils {
-	
+
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(ValidationUtils.class);
 
+	public static <T> Validator<T> checkUsingException(SerializablePredicate<T> guard, Consumer<String> messageSetter,
+	        String... errorMessage) {
+		Objects.requireNonNull(guard, "guard cannot be null");
+		return (value, context) -> {
+			try {
+				if (guard.test(value)) {
+					return ValidationResult.ok();
+				} else {
+					logger.error("missing message {}", LoggerUtils.stackTrace());
+					String msg = errorMessage.length > 0 ? errorMessage[0] : "Validation Error";
+					messageSetter.accept(msg);
+					return ValidationResult.error(msg);
+				}
+			} catch (Exception e) {
+				logger.error("check Using Exception {}", e.getLocalizedMessage());
+				messageSetter.accept(e.getLocalizedMessage());
+				return ValidationResult.error(e.getLocalizedMessage());
+			}
+		};
+	}
+
 	/**
-	 * Builds a validator out of a conditional function and an error message If the
-	 * function returns true, the validator returns {@code Result.ok()}; if it
-	 * returns false or throws an exception, {@code Result.error()} is returned with
+	 * Builds a validator out of a conditional function and an error message If the function returns true, the validator
+	 * returns {@code Result.ok()}; if it returns false or throws an exception, {@code Result.error()} is returned with
 	 * the message from the exception using getLocalizedMessage().
 	 *
 	 * @param <T>          the value type
@@ -45,13 +65,14 @@ public class ValidationUtils {
 					return ValidationResult.error(errorMessage.length > 0 ? errorMessage[0] : "Validation Error");
 				}
 			} catch (Exception e) {
-				logger.error("check Using Exception {}",e.getLocalizedMessage());
+				logger.error("check Using Exception {}", e.getLocalizedMessage());
 				return ValidationResult.error(e.getLocalizedMessage());
 			}
 		};
 	}
-	
-	public static <T> Validator<T> checkUsingException(SerializablePredicate<T> guard, Consumer<String> messageSetter, String... errorMessage) {
+
+	public static <T> Validator<T> checkUsingException2(SerializablePredicate<T> guard, Consumer<String> messageSetter,
+	        String... errorMessage) {
 		Objects.requireNonNull(guard, "guard cannot be null");
 		return (value, context) -> {
 			try {
@@ -64,27 +85,7 @@ public class ValidationUtils {
 					return ValidationResult.error(msg);
 				}
 			} catch (Exception e) {
-				logger.error("check Using Exception {}",e.getLocalizedMessage());
-				messageSetter.accept(e.getLocalizedMessage());
-				return ValidationResult.error(e.getLocalizedMessage());
-			}
-		};
-	}
-	
-	public static <T> Validator<T> checkUsingException2(SerializablePredicate<T> guard, Consumer<String> messageSetter, String... errorMessage) {
-		Objects.requireNonNull(guard, "guard cannot be null");
-		return (value, context) -> {
-			try {
-				if (guard.test(value)) {
-					return ValidationResult.ok();
-				} else {
-					logger.error("missing message {}", LoggerUtils.stackTrace());
-					String msg = errorMessage.length > 0 ? errorMessage[0] : "Validation Error";
-					messageSetter.accept(msg);
-					return ValidationResult.error(msg);
-				}
-			} catch (Exception e) {
-				logger.error("check Using Exception {}",e.getLocalizedMessage());
+				logger.error("check Using Exception {}", e.getLocalizedMessage());
 				messageSetter.accept(e.getLocalizedMessage());
 				return ValidationResult.error(e.getLocalizedMessage());
 			}

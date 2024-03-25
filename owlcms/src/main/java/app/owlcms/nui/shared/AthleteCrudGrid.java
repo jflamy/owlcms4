@@ -20,15 +20,12 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * This class attempts to locate the selected athlete from the in the lifting
- * order.
+ * This class attempts to locate the selected athlete from the in the lifting order.
  *
  * <p>
  * This is a workaround for two issues:
- * <li>Why does getValue() return a different object than that in the lifting
- * order (initialization issue?)
- * <li>Why do we have to get the same object anyway (spurious comparison with ==
- * instead of getId() or .equals)
+ * <li>Why does getValue() return a different object than that in the lifting order (initialization issue?)
+ * <li>Why do we have to get the same object anyway (spurious comparison with == instead of getId() or .equals)
  * </p>
  *
  * @author Jean-François Lamy
@@ -40,7 +37,7 @@ public class AthleteCrudGrid extends OwlcmsCrudGrid<Athlete> {
 	final private Logger logger = (Logger) LoggerFactory.getLogger(AthleteCrudGrid.class);
 
 	{
-		logger.setLevel(Level.INFO);
+		this.logger.setLevel(Level.INFO);
 	}
 
 	public AthleteCrudGrid(Class<Athlete> domainType, OwlcmsGridLayout crudLayout,
@@ -55,25 +52,25 @@ public class AthleteCrudGrid extends OwlcmsCrudGrid<Athlete> {
 	 */
 	@Override
 	protected void updateButtonClicked() {
-		Athlete domainObject = grid.asSingleSelect().getValue();
+		Athlete domainObject = this.grid.asSingleSelect().getValue();
 		Athlete sought = domainObject;
 		// if available we want the exact object from the lifting order and not a copy
 		OwlcmsSession.withFop((fop) -> {
 			Long id = sought.getId();
 			found: for (Athlete a : fop.getLiftingOrder()) {
-				logger.debug("checking for {} : {} {}", id, a, a.getId());
+				this.logger.debug("checking for {} : {} {}", id, a, a.getId());
 				if (a.getId().equals(id)) {
-					match = a;
+					this.match = a;
 					break found;
 				}
 			}
 		});
-		logger.trace("domainObject = {} {}", (domainObject != match ? "!!!!" : ""), domainObject, match);
-		if (match != null) {
-			domainObject = match;
+		this.logger.trace("domainObject = {} {}", (domainObject != this.match ? "!!!!" : ""), domainObject, this.match);
+		if (this.match != null) {
+			domainObject = this.match;
 		}
 
 		// show both an update and a delete button.
-		this.showForm(CrudOperation.UPDATE, domainObject, false, savedMessage, null);
+		this.showForm(CrudOperation.UPDATE, domainObject, false, this.savedMessage, null);
 	}
 }

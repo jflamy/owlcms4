@@ -50,7 +50,6 @@ public class JXLSRegistrationEmptyExport extends JXLSWorkbookStreamSource {
 	 * @param ui
 	 */
 	public JXLSRegistrationEmptyExport(UI ui) {
-		super();
 		try {
 			// needed to set the file extension in the source so the download button works.
 			getTemplate(OwlcmsSession.getLocale());
@@ -59,14 +58,14 @@ public class JXLSRegistrationEmptyExport extends JXLSWorkbookStreamSource {
 	}
 
 	@Override
-	public InputStream getTemplate(Locale locale) throws IOException {
-		return getLocalizedTemplate("/templates/registration/Registration", ".xls", locale);
-	}
-
-	@Override
 	public List<Athlete> getSortedAthletes() {
 		// no athletes - create an empty so the reporting works
 		return List.of();
+	}
+
+	@Override
+	public InputStream getTemplate(Locale locale) throws IOException {
+		return getLocalizedTemplate("/templates/registration/Registration", ".xls", locale);
 	}
 
 	@Override

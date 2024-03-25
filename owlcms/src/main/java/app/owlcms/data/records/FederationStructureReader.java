@@ -26,9 +26,8 @@ import ch.qos.logback.classic.Logger;
 /**
  * Read federation structure from an Excel file
  *
- * Example: qc < ca < panam < iwf but also ca < commonwealth < iwf and qc <
- * francophonie At a competition, qc can break all these records (if included in
- * the records file). but usa would not.
+ * Example: qc < ca < panam < iwf but also ca < commonwealth < iwf and qc < francophonie At a competition, qc can break
+ * all these records (if included in the records file). but usa would not.
  *
  * @author Jean-François Lamy
  *
@@ -37,16 +36,14 @@ public class FederationStructureReader {
 
 	@SuppressWarnings("unused")
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(FederationStructureReader.class);
-
 	private Map<String, Set<String>> eligibility = new HashMap<>();
-
 	private Map<String, Set<String>> membership = new HashMap<>();
 
 	public Map<String, Set<String>> buildStructure(Workbook workbook, String uri) throws Exception {
 		try {
 			readMembership(workbook, uri);
 
-			for (Entry<String, Set<String>> e : membership.entrySet()) {
+			for (Entry<String, Set<String>> e : this.membership.entrySet()) {
 				String childFederation = e.getKey();
 				Set<String> childParents = e.getValue();
 
@@ -57,9 +54,9 @@ public class FederationStructureReader {
 				for (String parentFederation : childParents) {
 					transitiveClosure(parentFederation, childFederation, childEligibility);
 				}
-				eligibility.put(childFederation, childEligibility);
+				this.eligibility.put(childFederation, childEligibility);
 			}
-			return eligibility;
+			return this.eligibility;
 		} catch (Exception e) {
 			RecordRepository.logger.error("could not process federation structure\n{}",
 			        LoggerUtils./**/stackTrace(e));
@@ -89,30 +86,30 @@ public class FederationStructureReader {
 				int iColumn = 0;
 				for (Cell cell : row) {
 					switch (iColumn) {
-					case 0: {
-						String cellValue = cell.getStringCellValue();
-						String trim = cellValue.trim();
-						if (trim.isEmpty()) {
-							break processsheet;
+						case 0: {
+							String cellValue = cell.getStringCellValue();
+							String trim = cellValue.trim();
+							if (trim.isEmpty()) {
+								break processsheet;
+							}
+							parentFederation = trim;
+							break;
 						}
-						parentFederation = trim;
-						break;
-					}
-					case 1: {
-						String cellValue = cell.getStringCellValue();
-						cellValue = cellValue != null ? cellValue.trim() : cellValue;
-						childFederation = cellValue;
-						break;
-					}
+						case 1: {
+							String cellValue = cell.getStringCellValue();
+							cellValue = cellValue != null ? cellValue.trim() : cellValue;
+							childFederation = cellValue;
+							break;
+						}
 					}
 
 					iColumn++;
 				}
 
-				Set<String> childMemberOf = membership.get(childFederation);
+				Set<String> childMemberOf = this.membership.get(childFederation);
 				if (childMemberOf == null) {
 					childMemberOf = new HashSet<>();
-					membership.put(childFederation, childMemberOf);
+					this.membership.put(childFederation, childMemberOf);
 				}
 				childMemberOf.add(parentFederation);
 
@@ -124,7 +121,7 @@ public class FederationStructureReader {
 	private void transitiveClosure(String newAncestorFederation, String childFederation,
 	        Collection<String> childAncestors) {
 		childAncestors.add(newAncestorFederation);
-		Set<String> parentMembers = membership.get(newAncestorFederation);
+		Set<String> parentMembers = this.membership.get(newAncestorFederation);
 		if (parentMembers == null || parentMembers.isEmpty()) {
 			return;
 		}

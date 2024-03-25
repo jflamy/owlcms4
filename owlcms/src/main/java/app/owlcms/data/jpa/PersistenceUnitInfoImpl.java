@@ -47,15 +47,10 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 	}
 
 	private DataSource jtaDataSource;
-
 	private final List<String> managedClassNames;
-
 	private DataSource nonJtaDataSource;
-
 	private final String persistenceUnitName;
-
 	private final Properties properties;
-
 	private PersistenceUnitTransactionType transactionType = PersistenceUnitTransactionType.RESOURCE_LOCAL;
 
 	/**
@@ -74,9 +69,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see
-	 * javax.persistence.spi.PersistenceUnitInfo#addTransformer(javax.persistence.
-	 * spi.ClassTransformer)
+	 * @see javax.persistence.spi.PersistenceUnitInfo#addTransformer(javax.persistence. spi.ClassTransformer)
 	 */
 	@Override
 	public void addTransformer(ClassTransformer transformer) {
@@ -120,7 +113,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 	 */
 	@Override
 	public DataSource getJtaDataSource() {
-		return jtaDataSource;
+		return this.jtaDataSource;
 	}
 
 	/*
@@ -130,7 +123,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 	 */
 	@Override
 	public List<String> getManagedClassNames() {
-		return managedClassNames;
+		return this.managedClassNames;
 	}
 
 	/*
@@ -160,14 +153,13 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 	 */
 	@Override
 	public DataSource getNonJtaDataSource() {
-		return nonJtaDataSource;
+		return this.nonJtaDataSource;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see
-	 * javax.persistence.spi.PersistenceUnitInfo#getPersistenceProviderClassName()
+	 * @see javax.persistence.spi.PersistenceUnitInfo#getPersistenceProviderClassName()
 	 */
 	@Override
 	public String getPersistenceProviderClassName() {
@@ -181,7 +173,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 	 */
 	@Override
 	public String getPersistenceUnitName() {
-		return persistenceUnitName;
+		return this.persistenceUnitName;
 	}
 
 	/*
@@ -197,8 +189,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see
-	 * javax.persistence.spi.PersistenceUnitInfo#getPersistenceXMLSchemaVersion()
+	 * @see javax.persistence.spi.PersistenceUnitInfo#getPersistenceXMLSchemaVersion()
 	 */
 	@Override
 	public String getPersistenceXMLSchemaVersion() {
@@ -212,7 +203,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 	 */
 	@Override
 	public Properties getProperties() {
-		return properties;
+		return this.properties;
 	}
 
 	/*
@@ -232,7 +223,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 	 */
 	@Override
 	public PersistenceUnitTransactionType getTransactionType() {
-		return transactionType;
+		return this.transactionType;
 	}
 
 	/*

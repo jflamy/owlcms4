@@ -32,7 +32,7 @@ import ch.qos.logback.classic.Logger;
 public class TopSinclairPage extends AbstractResultsDisplayPage implements TopParametersReader {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(TopSinclairPage.class);
-	Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private AgeGroup ageGroup;
 	private Category category;
@@ -53,44 +53,44 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 	}
 
 	@Override
+	public AgeDivision getAgeDivision() {
+		return this.ageDivision;
+	}
+
+	@Override
 	public final AgeGroup getAgeGroup() {
-		return ageGroup;
+		return this.ageGroup;
+	}
+
+	@Override
+	public String getAgeGroupPrefix() {
+		return this.ageGroupPrefix;
 	}
 
 	@Override
 	public final Category getCategory() {
-		return category;
+		return this.category;
 	}
-	
-	@Override
-	public AgeDivision getAgeDivision() {
-		return ageDivision;
-	}
-	
-	@Override
-	public String getAgeGroupPrefix() {
-		return ageGroupPrefix;
-	}
-	
-	@Override
-	public void setAgeDivision(AgeDivision ageDivision) {
-		this.ageDivision = ageDivision;
-	}
-	
-	@Override
-	public void setAgeGroupPrefix(String ageGroupPrefix) {
-		this.ageGroupPrefix = ageGroupPrefix;
-	}
-
 
 	@Override
 	public String getPageTitle() {
-		return Translator.translate("Scoreboard.TopScore", Ranking.getScoringTitle(Competition.getCurrent().getScoringSystem()));
+		return Translator.translate("Scoreboard.TopScore",
+		        Ranking.getScoringTitle(Competition.getCurrent().getScoringSystem()));
+	}
+
+	@Override
+	public void setAgeDivision(AgeDivision ageDivision) {
+		this.ageDivision = ageDivision;
 	}
 
 	@Override
 	public final void setAgeGroup(AgeGroup ag) {
 		this.ageGroup = ag;
+	}
+
+	@Override
+	public void setAgeGroupPrefix(String ageGroupPrefix) {
+		this.ageGroupPrefix = ageGroupPrefix;
 	}
 
 	@Override

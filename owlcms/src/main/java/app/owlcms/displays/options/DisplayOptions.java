@@ -52,7 +52,7 @@ public class DisplayOptions {
 		rbgroup.setLabel(null);
 		rbgroup.setItems(Boolean.TRUE, Boolean.FALSE);
 		rbgroup.setValue(Boolean.valueOf(darkMode));
-		rbgroup.setRenderer(new ComponentRenderer<Button, Boolean>((mn) -> mn ? darkButton : lightButton));
+		rbgroup.setRenderer(new ComponentRenderer<>((mn) -> mn ? darkButton : lightButton));
 		rbgroup.addValueChangeListener(e -> {
 			dp.switchLightingMode(e.getValue(), true);
 		});
@@ -73,16 +73,16 @@ public class DisplayOptions {
 		NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.Content"));
 
 		Checkbox recordsDisplayCheckbox = null;
-		//if (!RecordRepository.findAll().isEmpty()) {
-			boolean showRecords = dp.isRecordsDisplay();
-			recordsDisplayCheckbox = new Checkbox(Translator.translate("DisplayParameters.ShowRecords"));//
-			recordsDisplayCheckbox.setValue(showRecords);
-			recordsDisplayCheckbox.addValueChangeListener(e -> {
-				if (e.isFromClient()) {
-					dp.switchRecords(e.getValue(), true);
-				}
-			});
-		//}
+		// if (!RecordRepository.findAll().isEmpty()) {
+		boolean showRecords = dp.isRecordsDisplay();
+		recordsDisplayCheckbox = new Checkbox(Translator.translate("DisplayParameters.ShowRecords"));//
+		recordsDisplayCheckbox.setValue(showRecords);
+		recordsDisplayCheckbox.addValueChangeListener(e -> {
+			if (e.isFromClient()) {
+				dp.switchRecords(e.getValue(), true);
+			}
+		});
+		// }
 
 		boolean showLeaders = dp.isLeadersDisplay();
 		Checkbox leadersDisplayCheckbox = new Checkbox(Translator.translate("DisplayParameters.ShowLeaders"));//
@@ -92,7 +92,7 @@ public class DisplayOptions {
 				dp.switchLeaders(e.getValue(), true);
 			}
 		});
-		
+
 		boolean abbreviated = dp.isAbbreviatedName();
 		Checkbox abbreviatedCheckbox = new Checkbox(Translator.translate("DisplayParameters.Abbreviated"));//
 		abbreviatedCheckbox.setValue(abbreviated);
@@ -132,7 +132,7 @@ public class DisplayOptions {
 			Double emSize = e.getValue();
 			dp.switchEmFontSize(emSize, true);
 		});
-		
+
 		LocalizedDecimalField twField = new LocalizedDecimalField(3);
 		TextField twTextField = fontSizeField.getWrappedTextField();
 		twTextField.setLabel(null);
@@ -150,10 +150,12 @@ public class DisplayOptions {
 
 		HorizontalLayout fx = new HorizontalLayout();
 		fx.setSizeFull();
-		HorizontalLayout p1 = new HorizontalLayout(new NativeLabel(Translator.translate("DisplayParameters.FontSizeLabel")), wrappedTextField);
+		HorizontalLayout p1 = new HorizontalLayout(
+		        new NativeLabel(Translator.translate("DisplayParameters.FontSizeLabel")), wrappedTextField);
 		fx.add(p1);
 		p1.setSizeFull();
-		HorizontalLayout p2 = new HorizontalLayout(new NativeLabel(Translator.translate("DisplayParameters.TeamSizeLabel")),twField);
+		HorizontalLayout p2 = new HorizontalLayout(
+		        new NativeLabel(Translator.translate("DisplayParameters.TeamSizeLabel")), twField);
 		fx.add(p2);
 		p2.setSizeFull();
 		layout.add(fx);
@@ -172,39 +174,43 @@ public class DisplayOptions {
 		}
 
 		boolean silentMode = dp.isSilenced();
-		Button silentButton = new Button(Translator.translate("DisplayParameters.ClockSoundOff"), new Icon(VaadinIcon.BELL_SLASH));
-		Button soundButton = new Button(Translator.translate("DisplayParameters.ClockSoundOn"), new Icon(VaadinIcon.BELL));
+		Button silentButton = new Button(Translator.translate("DisplayParameters.ClockSoundOff"),
+		        new Icon(VaadinIcon.BELL_SLASH));
+		Button soundButton = new Button(Translator.translate("DisplayParameters.ClockSoundOn"),
+		        new Icon(VaadinIcon.BELL));
 
 		RadioButtonGroup<Boolean> rbgroup = new RadioButtonGroup<>();
 		rbgroup.setRequired(true);
 		rbgroup.setLabel(null);
 		rbgroup.setItems(Boolean.TRUE, Boolean.FALSE);
 		rbgroup.setValue(silentMode);
-		rbgroup.setRenderer(new ComponentRenderer<Button, Boolean>((mn) -> mn ? silentButton : soundButton));
+		rbgroup.setRenderer(new ComponentRenderer<>((mn) -> mn ? silentButton : soundButton));
 		rbgroup.addValueChangeListener(e -> {
 			Boolean silenced = e.getValue();
 			dp.switchSoundMode(silenced, true);
-//			if (!silenced) {
-//				SoundUtils.doEnableAudioContext(target.getElement());
-//			}
+			// if (!silenced) {
+			// SoundUtils.doEnableAudioContext(target.getElement());
+			// }
 		});
-		
+
 		boolean downSilentMode = dp.isDownSilenced();
-		Button downSilencedButton = new Button(Translator.translate("DisplayParameters.DownSoundOff"), new Icon(VaadinIcon.BELL_SLASH));
-		Button downSoundButton = new Button(Translator.translate("DisplayParameters.DownSoundOn"), new Icon(VaadinIcon.BELL));
+		Button downSilencedButton = new Button(Translator.translate("DisplayParameters.DownSoundOff"),
+		        new Icon(VaadinIcon.BELL_SLASH));
+		Button downSoundButton = new Button(Translator.translate("DisplayParameters.DownSoundOn"),
+		        new Icon(VaadinIcon.BELL));
 
 		RadioButtonGroup<Boolean> rb2group = new RadioButtonGroup<>();
 		rb2group.setRequired(true);
 		rb2group.setLabel(null);
 		rb2group.setItems(Boolean.TRUE, Boolean.FALSE);
 		rb2group.setValue(downSilentMode);
-		rb2group.setRenderer(new ComponentRenderer<Button, Boolean>((mn) -> mn ? downSilencedButton : downSoundButton));
+		rb2group.setRenderer(new ComponentRenderer<>((mn) -> mn ? downSilencedButton : downSoundButton));
 		rb2group.addValueChangeListener(e -> {
 			Boolean downSilenced = e.getValue();
 			dp.switchDownMode(downSilenced, true);
-//			if (!downSilenced) {
-//				SoundUtils.doEnableAudioContext(target.getElement());
-//			}
+			// if (!downSilenced) {
+			// SoundUtils.doEnableAudioContext(target.getElement());
+			// }
 		});
 		rb2group.setHelperText(Translator.translate("DisplayParameters.SoundHelper"));
 
@@ -225,7 +231,7 @@ public class DisplayOptions {
 		rbgroup.setHelperText(Translator.translate("DisplayParameters.SwitchableHelper"));
 		rbgroup.setItems(Boolean.TRUE, Boolean.FALSE);
 		rbgroup.setValue(switchable);
-		rbgroup.setRenderer(new ComponentRenderer<Button, Boolean>((mn) -> mn ? publicDisplay : warmupDisplay));
+		rbgroup.setRenderer(new ComponentRenderer<>((mn) -> mn ? publicDisplay : warmupDisplay));
 		rbgroup.addValueChangeListener(e -> {
 			Boolean silenced = e.getValue();
 			dp.switchSwitchable(silenced, true);

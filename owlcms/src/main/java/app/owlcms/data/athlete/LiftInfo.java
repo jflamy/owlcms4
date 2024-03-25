@@ -12,13 +12,9 @@ import app.owlcms.data.athlete.LiftDefinition.Stage;
 public class LiftInfo {
 
 	int liftNo;
-
 	Integer value;
-
 	private int changeNo;
-
 	private Stage stage;
-
 	private String stringValue;
 
 	LiftInfo(Stage stage, int liftNo, int changeNo, String stringValue) {
@@ -29,33 +25,33 @@ public class LiftInfo {
 	}
 
 	public String getChangeName() {
-		if (changeNo < 0) {
+		if (this.changeNo < 0) {
 			return "";
 		}
-		Changes changes = LiftDefinition.Changes.values()[changeNo];
+		Changes changes = LiftDefinition.Changes.values()[this.changeNo];
 		return changes.name();
 	}
 
 	public int getChangeNo() {
-		return changeNo;
+		return this.changeNo;
 	}
 
 	public int getLiftNo() {
-		return liftNo;
+		return this.liftNo;
 	}
 
 	public Stage getStage() {
-		return stage;
+		return this.stage;
 	}
 
 	public String getStringValue() {
-		return stringValue;
+		return this.stringValue;
 	}
 
 	public Integer getValue() {
-		if (stringValue == null) {
+		if (this.stringValue == null) {
 			return null;
 		}
-		return Integer.parseInt(stringValue);
+		return Integer.parseInt(this.stringValue);
 	}
 }

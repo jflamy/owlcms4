@@ -16,22 +16,20 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 
 /**
- * Button that triggers an initSounds document event that causes components
- * to initialize their sounds.
- * 
- * iOS in particular is stringent about requiring that sounds be played in response
- * to a user interaction.  Once a sound has been played once, it can be played
- * again without user intervention
- * 
+ * Button that triggers an initSounds document event that causes components to initialize their sounds.
+ *
+ * iOS in particular is stringent about requiring that sounds be played in response to a user interaction. Once a sound
+ * has been played once, it can be played again without user intervention
+ *
  * @author jflamy
- * 
+ *
  */
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("soundenabler-element")
 @JsModule("./components/SoundEnabler.js")
 public class SoundEnabler extends LitTemplate
         implements SafeEventBusRegistration {
-	
+
 	private Runnable afterSoundEnabled;
 
 	public SoundEnabler(Runnable afterSoundEnabled) {
@@ -41,11 +39,11 @@ public class SoundEnabler extends LitTemplate
 		this.getStyle().set("padding", "1ex");
 		this.getElement().setProperty("caption", Translator.translate("ClickOrTapToEnableSound"));
 	}
-	
+
 	@AllowInert
 	@ClientCallable
 	public void soundEnabled() {
-		afterSoundEnabled.run();
+		this.afterSoundEnabled.run();
 	}
 
 }

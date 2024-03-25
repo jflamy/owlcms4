@@ -24,11 +24,9 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Store the current user's settings and choices, across the multiple pages that
- * may be opened.
+ * Store the current user's settings and choices, across the multiple pages that may be opened.
  *
- * This class is either stored in a the Vaadin session shared between pages, or
- * used as a singleton for testing.
+ * This class is either stored in a the Vaadin session shared between pages, or used as a singleton for testing.
  *
  * @author Jean-François Lamy
  */
@@ -41,7 +39,6 @@ public class OwlcmsSession {
 	private static final String FOP = "fop";
 	private static final String LOCALE = "locale";
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsSession.class);
-
 	private static OwlcmsSession owlcmsSessionSingleton = null;
 
 	static {
@@ -220,16 +217,16 @@ public class OwlcmsSession {
 	private OwlcmsSession() {
 	}
 
+	public Properties getAttributes() {
+		return this.attributes;
+	}
+
 	public void setLocale(Locale locale) {
 		if (locale == null) {
 			getCurrent().getAttributes().remove(LOCALE);
 		} else {
 			setAttribute(LOCALE, locale);
 		}
-	}
-
-	public Properties getAttributes() {
-		return attributes;
 	}
 
 }

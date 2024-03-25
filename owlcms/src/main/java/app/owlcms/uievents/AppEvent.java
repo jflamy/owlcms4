@@ -22,14 +22,13 @@ public class AppEvent {
 			UI.getCurrent().access(() -> {
 				Notification notification = new Notification();
 				Div div = new Div();
-				div.setText(message + "\u00A0\u00A0\u00A0" + "\u2715");
+				div.setText(this.message + "\u00A0\u00A0\u00A0" + "\u2715");
 				div.addClickListener(e -> notification.close());
 				notification.add(div);
 				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 				notification.setPosition(Position.MIDDLE);
 				notification.setDuration(0);
 				notification.open();
-				return;
 			});
 		}
 	}

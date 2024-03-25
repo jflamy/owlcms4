@@ -65,7 +65,7 @@ public class DisplayNavigationContent extends BaseNavigationContent
 	static {
 		logger.setLevel(Level.INFO);
 	}
-	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	/**
 	 * Instantiates a new display navigation content.
@@ -107,13 +107,12 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			VerticalLayout intro1 = new VerticalLayout();
 			addP(intro1, Translator.translate("WarmupScoreboards.explanation"));
 			FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(
-					scoreboard,
+			        scoreboard,
 			        scoreboardWLeaders,
 			        liftingOrder,
-			        scoreboardMultiRanks
-			        );
+			        scoreboardMultiRanks);
 			doGroup(Translator.translate("WarmupScoreboards"), intro1, grid1, this);
-			
+
 			Button scoreboard1 = openInNewTab(PublicNoLeadersPage.class, Translator.translate("Scoreboard"));
 			Button scoreboardWLeaders1 = openInNewTab(PublicScoreboardPage.class,
 			        Translator.translate("ScoreboardWLeadersButton"));
@@ -125,27 +124,28 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			VerticalLayout intro11 = new VerticalLayout();
 			addP(intro11, Translator.translate("PublicScoreboards.explanation"));
 			FlexibleGridLayout grid11 = HomeNavigationContent.navigationGrid(
-					scoreboard1,
+			        scoreboard1,
 			        scoreboardWLeaders1,
-			        scoreboardRankings1, 
+			        scoreboardRankings1,
 			        scoreboardMultiRanks1);
 			doGroup(Translator.translate("PublicScoreboards"), intro11, grid11, this);
 
 			Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
 			String scoringTitle = Ranking.getScoringTitle(scoringSystem);
-			
+
 			Button medals = openInNewTab(MedalsPage.class, Translator.translate("CeremonyType.MEDALS"));
-			Button topSinclair = openInNewTab(TopSinclairPage.class, Translator.translate("Scoreboard.TopScore",scoringTitle));
+			Button topSinclair = openInNewTab(TopSinclairPage.class,
+			        Translator.translate("Scoreboard.TopScore", scoringTitle));
 			Button topTeams = openInNewTab(TopTeamsPage.class, Translator.translate("Scoreboard.TopTeams"));
 			Button topTeamsSinclair = openInNewTab(TopTeamsSinclairPage.class,
-			        Translator.translate("Scoreboard.TopTeamsScore",scoringTitle));
+			        Translator.translate("Scoreboard.TopTeamsScore", scoringTitle));
 			VerticalLayout intro111 = new VerticalLayout();
 			FlexibleGridLayout grid111 = HomeNavigationContent.navigationGrid(
 			        topTeams,
 			        medals,
 			        topSinclair,
 			        topTeamsSinclair);
-			
+
 			if (scoringSystem == Ranking.ROBI) {
 				topSinclair.setEnabled(false);
 				topTeamsSinclair.setEnabled(false);
@@ -156,10 +156,6 @@ public class DisplayNavigationContent extends BaseNavigationContent
 		} catch (Throwable x) {
 			x.printStackTrace();
 		}
-	}
-
-	private void highlight(Button button) {
-		button.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
 	}
 
 	@Override
@@ -199,5 +195,9 @@ public class DisplayNavigationContent extends BaseNavigationContent
 		HorizontalLayout fopField = new HorizontalLayout(fopLabel, fopSelect);
 		fopField.setAlignItems(Alignment.CENTER);
 		return fopField;
+	}
+
+	private void highlight(Button button) {
+		button.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
 	}
 }

@@ -38,11 +38,10 @@ import ch.qos.logback.classic.Logger;
  * Groups are associated with a lifting platformName.
  * </p>
  * <p>
- * Projectors and officials are associated with a lifting platformName so there
- * is no need to refresh their setup during a competition. The name of the
- * platformName is used as a key in the ServletContext so other sessions and
- * other kinds of pages (such as JSP) can locate the information about that
- * platformName. See in particular the {@link LiftList#updateTable()} method
+ * Projectors and officials are associated with a lifting platformName so there is no need to refresh their setup during
+ * a competition. The name of the platformName is used as a key in the ServletContext so other sessions and other kinds
+ * of pages (such as JSP) can locate the information about that platformName. See in particular the
+ * {@link LiftList#updateTable()} method
  * </p>
  *
  * @author jflamy
@@ -50,7 +49,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 
-//must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
+// must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity
 @Cacheable
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Platform.class)
@@ -60,7 +59,6 @@ public class Platform implements Serializable, Comparable<Platform> {
 	@Transient
 	@JsonIgnore
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(Platform.class);
-
 	/**
 	 * Only used for unit testing when there is no session
 	 */
@@ -103,14 +101,12 @@ public class Platform implements Serializable, Comparable<Platform> {
 
 	/** The name. */
 	String name;
-
 	/** The id. */
 	@Id
 	private
 	// @GeneratedValue(strategy = GenerationType.AUTO)
 	// @JsonIgnore
 	Long id;
-
 	private Integer lightBar = 0;
 	/**
 	 * If mixer is not null, emit sound on the associated device
@@ -137,27 +133,22 @@ public class Platform implements Serializable, Comparable<Platform> {
 	// small plates
 	private Integer nbS_0_5 = 1;
 	private Integer nbS_1 = 1;
-
 	private Integer nbS_1_5 = 1;
 	private Integer nbS_2 = 1;
 	private Integer nbS_2_5 = 1;
 	private Integer nbS_5 = 1;
-
 	private boolean nonStandardBar;
 	// bar
 	private Integer officialBar = 0;
-
 	/**
-	 * true if the referee use this application to give decisions, and decision
-	 * lights need to be shown on the attempt and result boards.
+	 * true if the referee use this application to give decisions, and decision lights need to be shown on the attempt
+	 * and result boards.
 	 */
 	private Boolean showDecisionLights = false;
-
 	/**
 	 * true if the time should be displayed
 	 */
 	private Boolean showTimer = false;
-
 	private String soundMixerName;
 
 	/**
@@ -265,7 +256,7 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 * @return the id
 	 */
 	public Long getId() {
-		return id;
+		return this.id;
 	}
 
 	/**
@@ -274,17 +265,17 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 * @return the light bar
 	 */
 	public Integer getLightBar() {
-		if (lightBar == null) {
+		if (this.lightBar == null) {
 			return 0;
 		}
-		return lightBar;
+		return this.lightBar;
 	}
 
 	public Mixer getMixer() {
-		if (!mixerChecked && mixer == null) {
+		if (!this.mixerChecked && this.mixer == null) {
 			setSoundMixerName(this.getSoundMixerName());
 		}
-		return mixer;
+		return this.mixer;
 	}
 
 	/**
@@ -293,7 +284,7 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 * @return the name
 	 */
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	/**
@@ -302,10 +293,10 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 * @return the nb C 2 5
 	 */
 	public Integer getNbC_2_5() {
-		if (nbC_2_5 == null) {
+		if (this.nbC_2_5 == null) {
 			return 0;
 		}
-		return nbC_2_5;
+		return this.nbC_2_5;
 	}
 
 	/**
@@ -314,10 +305,10 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 * @return the nb L 10
 	 */
 	public Integer getNbL_10() {
-		if (nbL_10 == null) {
+		if (this.nbL_10 == null) {
 			return 0;
 		}
-		return nbL_10;
+		return this.nbL_10;
 	}
 
 	/**
@@ -326,10 +317,10 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 * @return the nb L 15
 	 */
 	public Integer getNbL_15() {
-		if (nbL_15 == null) {
+		if (this.nbL_15 == null) {
 			return 0;
 		}
-		return nbL_15;
+		return this.nbL_15;
 	}
 
 	/**
@@ -338,10 +329,10 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 * @return the nb L 2 5
 	 */
 	public Integer getNbL_2_5() {
-		if (nbL_2_5 == null) {
+		if (this.nbL_2_5 == null) {
 			return 0;
 		}
-		return nbL_2_5;
+		return this.nbL_2_5;
 	}
 
 	/**
@@ -350,10 +341,10 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 * @return the nb L 20
 	 */
 	public Integer getNbL_20() {
-		if (nbL_20 == null) {
+		if (this.nbL_20 == null) {
 			return 0;
 		}
-		return nbL_20;
+		return this.nbL_20;
 	}
 
 	/**
@@ -362,10 +353,10 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 * @return the nb L 25
 	 */
 	public Integer getNbL_25() {
-		if (nbL_25 == null) {
+		if (this.nbL_25 == null) {
 			return 0;
 		}
-		return nbL_25;
+		return this.nbL_25;
 	}
 
 	/**
@@ -374,10 +365,10 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 * @return the nb L 5
 	 */
 	public Integer getNbL_5() {
-		if (nbL_5 == null) {
+		if (this.nbL_5 == null) {
 			return 0;
 		}
-		return nbL_5;
+		return this.nbL_5;
 	}
 
 	/**
@@ -386,10 +377,10 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 * @return the nb S 0 5
 	 */
 	public Integer getNbS_0_5() {
-		if (nbS_0_5 == null) {
+		if (this.nbS_0_5 == null) {
 			return 0;
 		}
-		return nbS_0_5;
+		return this.nbS_0_5;
 	}
 
 	/**
@@ -398,10 +389,10 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 * @return the nb S 1
 	 */
 	public Integer getNbS_1() {
-		if (nbS_1 == null) {
+		if (this.nbS_1 == null) {
 			return 0;
 		}
-		return nbS_1;
+		return this.nbS_1;
 	}
 
 	/**
@@ -410,10 +401,10 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 * @return the nb S 1 5
 	 */
 	public Integer getNbS_1_5() {
-		if (nbS_1_5 == null) {
+		if (this.nbS_1_5 == null) {
 			return 0;
 		}
-		return nbS_1_5;
+		return this.nbS_1_5;
 	}
 
 	/**
@@ -422,10 +413,10 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 * @return the nb S 2
 	 */
 	public Integer getNbS_2() {
-		if (nbS_2 == null) {
+		if (this.nbS_2 == null) {
 			return 0;
 		}
-		return nbS_2;
+		return this.nbS_2;
 	}
 
 	/**
@@ -434,10 +425,10 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 * @return the nb S 2 5
 	 */
 	public Integer getNbS_2_5() {
-		if (nbS_2_5 == null) {
+		if (this.nbS_2_5 == null) {
 			return 0;
 		}
-		return nbS_2_5;
+		return this.nbS_2_5;
 	}
 
 	/**
@@ -446,10 +437,10 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 * @return the nb S 5
 	 */
 	public Integer getNbS_5() {
-		if (nbS_5 == null) {
+		if (this.nbS_5 == null) {
 			return 0;
 		}
-		return nbS_5;
+		return this.nbS_5;
 	}
 
 	/**
@@ -458,10 +449,10 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 * @return the official bar
 	 */
 	public Integer getOfficialBar() {
-		if (lightBar == null) {
+		if (this.lightBar == null) {
 			return 0;
 		}
-		return officialBar;
+		return this.officialBar;
 	}
 
 	/**
@@ -470,7 +461,7 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 * @return the show decision lights
 	 */
 	public Boolean getShowDecisionLights() {
-		return showDecisionLights == null ? false : showDecisionLights;
+		return this.showDecisionLights == null ? false : this.showDecisionLights;
 	}
 
 	/**
@@ -479,7 +470,7 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 * @return the show timer
 	 */
 	public Boolean getShowTimer() {
-		boolean b = showTimer == null ? false : showTimer;
+		boolean b = this.showTimer == null ? false : this.showTimer;
 		return b;
 	}
 
@@ -487,11 +478,11 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 * @return the soundMixerName
 	 */
 	public String getSoundMixerName() {
-		logger.debug("getSoundMixerName {} {}", System.identityHashCode(this), soundMixerName);
-		if (soundMixerName == null) {
+		logger.debug("getSoundMixerName {} {}", System.identityHashCode(this), this.soundMixerName);
+		if (this.soundMixerName == null) {
 			return Translator.translate("UseBrowserSound");
 		}
-		return soundMixerName;
+		return this.soundMixerName;
 	}
 
 	@Override
@@ -500,15 +491,15 @@ public class Platform implements Serializable, Comparable<Platform> {
 		return 31;
 	}
 
-//    @Override
-//    public int hashCode() {
-//        return Objects.hash(id, lightBar, mixerChecked, name, nbC_2_5, nbL_10, nbL_15, nbL_20, nbL_25, nbL_2_5, nbL_5,
-//                nbS_0_5, nbS_1, nbS_1_5, nbS_2, nbS_2_5, nbS_5, nonStandardBar, officialBar, showDecisionLights,
-//                showTimer, soundMixerName);
-//    }
+	// @Override
+	// public int hashCode() {
+	// return Objects.hash(id, lightBar, mixerChecked, name, nbC_2_5, nbL_10, nbL_15, nbL_20, nbL_25, nbL_2_5, nbL_5,
+	// nbS_0_5, nbS_1, nbS_1_5, nbS_2, nbS_2_5, nbS_5, nonStandardBar, officialBar, showDecisionLights,
+	// showTimer, soundMixerName);
+	// }
 
 	public boolean isNonStandardBar() {
-		return nonStandardBar;
+		return this.nonStandardBar;
 	}
 
 	/**
@@ -692,7 +683,7 @@ public class Platform implements Serializable, Comparable<Platform> {
 		        LoggerUtils.whereFrom());
 		this.soundMixerName = soundMixerName;
 		if (soundMixerName == null) {
-			mixerChecked = true;
+			this.mixerChecked = true;
 			setMixer(null);
 			return;
 		}
@@ -707,15 +698,15 @@ public class Platform implements Serializable, Comparable<Platform> {
 				break;
 			}
 		}
-		if (mixer == null) {
+		if (this.mixer == null) {
 			logger.debug("Platform: {}: changing mixer to {}", this.name, null);
 		}
-		mixerChecked = true;
+		this.mixerChecked = true;
 	}
 
 	@Override
 	public String toString() {
-		return name; // $NON-NLS-1$
+		return this.name; // $NON-NLS-1$
 	}
 
 	private void setMixer(Mixer soundMixer) {

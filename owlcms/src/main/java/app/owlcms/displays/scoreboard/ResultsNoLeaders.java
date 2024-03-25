@@ -30,7 +30,6 @@ public class ResultsNoLeaders extends Results {
 	Logger logger = (Logger) LoggerFactory.getLogger(ResultsNoLeaders.class);
 
 	public ResultsNoLeaders(WarmupNoLeadersPage page) {
-		super();
 	}
 
 }

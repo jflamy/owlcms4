@@ -12,8 +12,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
 
 /**
- * This comparator is used for the standard display board. It returns the same
- * order throughout the competition.
+ * This comparator is used for the standard display board. It returns the same order throughout the competition.
  *
  * @author jflamy
  *
@@ -53,8 +52,7 @@ public class DisplayOrderComparator extends AbstractLifterComparator implements 
 		if (compare != 0) {
 			return compare;
 		}
-		
-		
+
 		if (displayByAgeGroup) {
 			compare = compareCategory(lifter1, lifter2);
 		} else {
@@ -63,8 +61,6 @@ public class DisplayOrderComparator extends AbstractLifterComparator implements 
 		if (compare != 0) {
 			return compare;
 		}
-		
-		
 
 		compare = compareLotNumber(lifter1, lifter2);
 		if (compare != 0) {

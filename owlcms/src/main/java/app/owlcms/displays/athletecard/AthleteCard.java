@@ -78,6 +78,11 @@ public class AthleteCard extends LitTemplate
 	}
 
 	@Override
+	public QueryParameters getDefaultParameters() {
+		return this.defaultParameters;
+	}
+
+	@Override
 	final public FieldOfPlay getFop() {
 		return this.fop;
 	}
@@ -89,12 +94,12 @@ public class AthleteCard extends LitTemplate
 
 	@Override
 	final public Location getLocation() {
-		return location;
+		return this.location;
 	}
 
 	@Override
 	final public UI getLocationUI() {
-		return locationUI;
+		return this.locationUI;
 	}
 
 	@Override
@@ -103,13 +108,23 @@ public class AthleteCard extends LitTemplate
 	}
 
 	@Override
+	public String getRouteParameter() {
+		return this.routeParameter;
+	}
+
+	@Override
 	final public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
+		return this.urlParameterMap;
 	}
 
 	@Override
 	public boolean isShowInitialDialog() {
 		return false;
+	}
+
+	@Override
+	public void setDefaultParameters(QueryParameters qp) {
+		this.defaultParameters = qp;
 	}
 
 	@Override
@@ -134,6 +149,11 @@ public class AthleteCard extends LitTemplate
 	}
 
 	@Override
+	public void setRouteParameter(String routeParameter) {
+		this.routeParameter = routeParameter;
+	}
+
+	@Override
 	final public void setUrlParameterMap(Map<String, List<String>> parametersMap) {
 		this.urlParameterMap = removeDefaultValues(parametersMap);
 	}
@@ -153,56 +173,56 @@ public class AthleteCard extends LitTemplate
 	protected void onAttach(AttachEvent attachEvent) {
 		init();
 
-		getElement().setProperty("fullName", athlete.getFullName());
-		getElement().setProperty("team", athlete.getTeam());
-		getElement().setProperty("bodyWeight", String.format("%.2f", athlete.getBodyWeight()));
-		AgeGroup ageGroup = athlete.getAgeGroup();
+		getElement().setProperty("fullName", this.athlete.getFullName());
+		getElement().setProperty("team", this.athlete.getTeam());
+		getElement().setProperty("bodyWeight", String.format("%.2f", this.athlete.getBodyWeight()));
+		AgeGroup ageGroup = this.athlete.getAgeGroup();
 		getElement().setProperty("ageGroup", ageGroup != null ? ageGroup.getName() : "");
 		getElement().setProperty("ageDivision",
 		        ageGroup != null ? getTranslation("Division." + ageGroup.getAgeDivision().name()) : "");
-		Integer yearOfBirth = athlete.getYearOfBirth();
+		Integer yearOfBirth = this.athlete.getYearOfBirth();
 		if (yearOfBirth != null && yearOfBirth > 1900) {
 			getElement().setProperty("birth", yearOfBirth.toString());
 		} else {
 			getElement().setProperty("birth", "");
 		}
-		Integer lotNumber = athlete.getLotNumber();
+		Integer lotNumber = this.athlete.getLotNumber();
 		if (lotNumber != null && lotNumber > 0) {
 			getElement().setProperty("lotNumber", lotNumber.toString());
 		} else {
 			getElement().setProperty("lotNumber", "");
 		}
-		Integer startNumber = athlete.getStartNumber();
+		Integer startNumber = this.athlete.getStartNumber();
 		if (startNumber != null && startNumber > 0) {
 			getElement().setProperty("startNumber", startNumber.toString());
 		} else {
 			getElement().setProperty("startNumber", "");
 		}
-		Group group = athlete.getGroup();
+		Group group = this.athlete.getGroup();
 		if (group != null && group != null) {
 			getElement().setProperty("group", group.getName());
 		} else {
 			getElement().setProperty("group", "");
 		}
-		Category category = athlete.getCategory();
+		Category category = this.athlete.getCategory();
 		if (category != null) {
 			getElement().setProperty("category", category.getTranslatedName());
 		} else {
 			getElement().setProperty("category", "");
 		}
-		String snatch1Declaration = athlete.getSnatch1Declaration();
+		String snatch1Declaration = this.athlete.getSnatch1Declaration();
 		if (snatch1Declaration != null && zeroIfInvalid(snatch1Declaration) > 0) {
 			getElement().setProperty("snatch1Declaration", snatch1Declaration);
 		} else {
 			getElement().setProperty("snatch1Declaration", "");
 		}
-		String cleanJerk1Declaration = athlete.getCleanJerk1Declaration();
+		String cleanJerk1Declaration = this.athlete.getCleanJerk1Declaration();
 		if (cleanJerk1Declaration != null && zeroIfInvalid(cleanJerk1Declaration) > 0) {
 			getElement().setProperty("cleanJerk1Declaration", cleanJerk1Declaration);
 		} else {
 			getElement().setProperty("cleanJerk1Declaration", "");
 		}
-		Integer entryTotal = athlete.getEntryTotal();
+		Integer entryTotal = this.athlete.getEntryTotal();
 		if (entryTotal != null && entryTotal > 0) {
 			getElement().setProperty("entryTotal", entryTotal.toString());
 		} else {
@@ -234,27 +254,6 @@ public class AthleteCard extends LitTemplate
 		banner.setPadding(true);
 		banner.setClassName("printing");
 		getElement().getParent().appendChild(banner.getElement());
-	}
-	
-	
-	@Override
-	public void setDefaultParameters(QueryParameters qp) {
-		this.defaultParameters = qp;
-	}
-	
-	@Override
-	public QueryParameters getDefaultParameters() {
-		return this.defaultParameters;
-	}
-
-	@Override
-	public void setRouteParameter(String routeParameter) {
-		this.routeParameter = routeParameter;
-	}
-
-	@Override
-	public String getRouteParameter() {
-		return this.routeParameter;
 	}
 
 }

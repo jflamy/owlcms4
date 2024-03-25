@@ -42,9 +42,7 @@ import ch.qos.logback.classic.Logger;
 public class CompetitionSimulator {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(CompetitionSimulator.class);
-
 	private static List<FOPSimulator> registeredSimulators = new ArrayList<>();
-
 	private Random r = new Random(0);
 
 	public CompetitionSimulator() {
@@ -137,7 +135,7 @@ public class CompetitionSimulator {
 			if (catLimit > 998) {
 				catLimit = c.getMinimumWeight() * 1.1;
 			}
-			double bodyWeight = catLimit - (r.nextDouble() * 2.0);
+			double bodyWeight = catLimit - (this.r.nextDouble() * 2.0);
 			a.setBodyWeight(bodyWeight);
 
 			Integer entryTotal = a.getEntryTotal();
@@ -148,7 +146,7 @@ public class CompetitionSimulator {
 				a.setCleanJerk1Declaration(Long.toString(icjd));
 				AthleteRepository.save(a);
 			} else {
-				double sd = catLimit * (1 + (r.nextGaussian() / 10));
+				double sd = catLimit * (1 + (this.r.nextGaussian() / 10));
 				long isd = Math.round(sd);
 				a.setSnatch1Declaration(Long.toString(isd));
 				long icjd = Math.round(sd * 1.20D);

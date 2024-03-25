@@ -43,9 +43,7 @@ public class MAthlete extends PAthlete {
 	}
 
 	private int liftRank;
-
 	private int liftResult;
-
 	private Ranking ranking;
 
 	public MAthlete(PAthlete p, Ranking r, int rank, Integer result) {
@@ -56,27 +54,27 @@ public class MAthlete extends PAthlete {
 	}
 
 	public int getLiftRank() {
-		return liftRank;
+		return this.liftRank;
 	}
 
 	public int getLiftResult() {
-		return liftResult;
+		return this.liftResult;
 	}
 
 	public Ranking getRanking() {
-		return ranking;
+		return this.ranking;
 	}
 
 	public String getRankingText() {
-		switch (ranking) {
-		case CLEANJERK:
-			return Translator.translate("Clean_and_Jerk");
-		case SNATCH:
-			return Translator.translate("Snatch");
-		case TOTAL:
-			return Translator.translate("Total");
-		default:
-			return ranking.name();
+		switch (this.ranking) {
+			case CLEANJERK:
+				return Translator.translate("Clean_and_Jerk");
+			case SNATCH:
+				return Translator.translate("Snatch");
+			case TOTAL:
+				return Translator.translate("Total");
+			default:
+				return this.ranking.name();
 		}
 	}
 

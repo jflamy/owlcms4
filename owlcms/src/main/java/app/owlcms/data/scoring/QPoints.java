@@ -23,10 +23,10 @@ import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
 /**
- * 
- * Compute Q Points according to https://osf.io/8x3nb/
- * (formulas in https://osf.io/download/r2gxa/ and https://osf.io/download/bmctw/)
- * 
+ *
+ * Compute Q Points according to https://osf.io/8x3nb/ (formulas in https://osf.io/download/r2gxa/ and
+ * https://osf.io/download/bmctw/)
+ *
  * This class keeps the code for applying an age factor like SMF/SMHF even though this has not been discussed.
  */
 public class QPoints {
@@ -60,32 +60,32 @@ public class QPoints {
 			return 0.0F;
 		}
 		switch (gender) {
-		case M:
-			if (this.smf == null) {
-				loadSMM();
-			}
-			if (age <= 30) {
+			case M:
+				if (this.smf == null) {
+					loadSMM();
+				}
+				if (age <= 30) {
+					return 1.0F;
+				}
+				if (age >= 90) {
+					return this.smf.get(90);
+				}
+				return this.smf.get(age);
+			case F:
+				if (this.smhf == null) {
+					loadSMM();
+				}
+				if (age <= 30) {
+					return 1.0F;
+				}
+				if (age >= 80) {
+					return this.smhf.get(80);
+				}
+				return this.smhf.get(age);
+			case I:
 				return 1.0F;
-			}
-			if (age >= 90) {
-				return this.smf.get(90);
-			}
-			return this.smf.get(age);
-		case F:
-			if (this.smhf == null) {
-				loadSMM();
-			}
-			if (age <= 30) {
-				return 1.0F;
-			}
-			if (age >= 80) {
-				return this.smhf.get(80);
-			}
-			return this.smhf.get(age);
-		case I:
-			return 1.0F;
-		default:
-			break;
+			default:
+				break;
 		}
 		return 0.0F;
 	}
@@ -126,36 +126,6 @@ public class QPoints {
 		return value * qPointsFactor;
 	}
 
-	public Double qPointsFactor(Gender gender, Double bw) {
-		Double qPointsFactor = 0D;
-		try {
-			Double beta0;
-			Double beta1;
-			Double beta2;
-			Double tMax;
-			switch (gender) {
-			case F:
-				beta0 = getWomenBeta0();
-				beta1 = getWomenBeta1();
-				beta2 = getWomenBeta2();
-				tMax = getWomenTMax();
-				break;
-			case M:
-				beta0 = getMenBeta0();
-				beta1 = getMenBeta1();
-				beta2 = getMenBeta2();
-				tMax = getMenTMax();
-				break;
-			default:
-				return 0.0D;
-			}
-			qPointsFactor  =  (tMax / (beta0 - beta1 * Math.pow((bw / 100.0D), -2) + beta2 * Math.pow((bw / 100.0D), 2)));
-		} catch (Exception e) {
-			LoggerUtils.logError(logger, e);
-		}
-		return qPointsFactor;
-	}
-
 	public Double getWomenBeta0() {
 		loadCoefficients();
 		return this.womenBeta0;
@@ -174,6 +144,36 @@ public class QPoints {
 	public Double getWomenTMax() {
 		loadCoefficients();
 		return this.womenTMax;
+	}
+
+	public Double qPointsFactor(Gender gender, Double bw) {
+		double qPointsFactor = 0D;
+		try {
+			Double beta0;
+			Double beta1;
+			Double beta2;
+			Double tMax;
+			switch (gender) {
+				case F:
+					beta0 = getWomenBeta0();
+					beta1 = getWomenBeta1();
+					beta2 = getWomenBeta2();
+					tMax = getWomenTMax();
+					break;
+				case M:
+					beta0 = getMenBeta0();
+					beta1 = getMenBeta1();
+					beta2 = getMenBeta2();
+					tMax = getMenTMax();
+					break;
+				default:
+					return 0.0D;
+			}
+			qPointsFactor = (tMax / (beta0 - beta1 * Math.pow((bw / 100.0D), -2) + beta2 * Math.pow((bw / 100.0D), 2)));
+		} catch (Exception e) {
+			LoggerUtils.logError(this.logger, e);
+		}
+		return qPointsFactor;
 	}
 
 	private void loadCoefficients() {

@@ -79,6 +79,17 @@ public class LocalizedIntegerField extends WrappedTextField<Integer> {
 		return this.getValue().toString();
 	}
 
+	@Override
+	protected void initLoggers() {
+		setLogger((Logger) LoggerFactory.getLogger(LocalizedIntegerField.class));
+		getLogger().setLevel(Level.INFO);
+	}
+
+	@Override
+	protected String invalidFormatErrorMessage(Locale locale) {
+		return "Please enter a valid number (for example " + getFormatter(locale).format(64.56) + ")";
+	}
+
 	private Result<Integer> doParse(String content, Locale locale, NumberFormat formatter) {
 		if ((content == null || content.trim().isEmpty()) && !this.isRequired()) {
 			// field is not required, accept empty content
@@ -123,17 +134,6 @@ public class LocalizedIntegerField extends WrappedTextField<Integer> {
 			r2 = Result.ok(parse2.intValue());
 		}
 		return r2;
-	}
-
-	@Override
-	protected void initLoggers() {
-		setLogger((Logger) LoggerFactory.getLogger(LocalizedIntegerField.class));
-		getLogger().setLevel(Level.INFO);
-	}
-
-	@Override
-	protected String invalidFormatErrorMessage(Locale locale) {
-		return "Please enter a valid number (for example " + getFormatter(locale).format(64.56) + ")";
 	}
 
 }

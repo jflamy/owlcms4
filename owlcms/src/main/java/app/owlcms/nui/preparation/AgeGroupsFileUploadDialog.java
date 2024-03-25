@@ -24,12 +24,11 @@ import ch.qos.logback.classic.Logger;
 public class AgeGroupsFileUploadDialog extends Dialog {
 
 	public final static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupsFileUploadDialog.class);
-	
 	private Runnable callback;
-	
+
 	public AgeGroupsFileUploadDialog() {
 
-		Html label = new Html("<div>"+Translator.translate("AgeGroups.WarningWillReplaceAll")+"</div>");
+		Html label = new Html("<div>" + Translator.translate("AgeGroups.WarningWillReplaceAll") + "</div>");
 		label.getStyle().set("color", "red");
 		label.getStyle().set("font-size", "large");
 
@@ -58,12 +57,11 @@ public class AgeGroupsFileUploadDialog extends Dialog {
 	}
 
 	public Runnable getCallback() {
-		return callback;
+		return this.callback;
 	}
 
 	public void setCallback(Runnable callback) {
 		this.callback = callback;
 	}
-
 
 }

@@ -36,12 +36,12 @@ public class TeamItemResultsFormFactory
 
 	public TeamItemResultsFormFactory(Class<TeamTreeItem> domainType, IAthleteEditing origin) {
 		super(domainType);
-		acff = new AthleteCardFormFactory(Athlete.class, origin);
+		this.acff = new AthleteCardFormFactory(Athlete.class, origin);
 	}
 
 	@Override
 	public TeamTreeItem add(TeamTreeItem athlete) {
-		acff.add(athlete.getAthlete());
+		this.acff.add(athlete.getAthlete());
 		return null;
 	}
 
@@ -53,7 +53,7 @@ public class TeamItemResultsFormFactory
 
 	@Override
 	public String buildCaption(CrudOperation operation, TeamTreeItem aFromDb) {
-		return acff.buildCaption(operation, aFromDb.getAthlete());
+		return this.acff.buildCaption(operation, aFromDb.getAthlete());
 	}
 
 	@Override
@@ -61,7 +61,7 @@ public class TeamItemResultsFormFactory
 	        ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
 	        ComponentEventListener<ClickEvent<Button>> unused2, ComponentEventListener<ClickEvent<Button>> unused3,
 	        boolean shortcutEnter, Button... buttons) {
-		return acff.buildFooter(operation, null, cancelButtonClickListener, null, null, shortcutEnter, buttons);
+		return this.acff.buildFooter(operation, null, cancelButtonClickListener, null, null, shortcutEnter, buttons);
 	}
 
 	@Override
@@ -74,21 +74,21 @@ public class TeamItemResultsFormFactory
 			// get the original athlete
 			athlete = ((PAthlete) athlete)._getAthlete();
 		}
-		return acff.buildNewForm(operation, athlete, readOnly, cancelButtonClickListener,
+		return this.acff.buildNewForm(operation, athlete, readOnly, cancelButtonClickListener,
 		        updateButtonClickListener, deleteButtonClickListener, buttons);
 	}
 
 	@Override
 	public Button buildOperationButton(CrudOperation operation, TeamTreeItem domainObject,
 	        ComponentEventListener<ClickEvent<Button>> callBack) {
-		return acff.buildOperationButton(operation, domainObject.getAthlete(), callBack);
+		return this.acff.buildOperationButton(operation, domainObject.getAthlete(), callBack);
 	}
 
-//	@Override
-//	public TextField defineOperationTrigger(CrudOperation operation, TeamTreeItem domainObject,
-//	        ComponentEventListener<ClickEvent<Button>> action) {
-//		return acff.defineOperationTrigger(operation, domainObject.getAthlete(), action);
-//	}
+	// @Override
+	// public TextField defineOperationTrigger(CrudOperation operation, TeamTreeItem domainObject,
+	// ComponentEventListener<ClickEvent<Button>> action) {
+	// return acff.defineOperationTrigger(operation, domainObject.getAthlete(), action);
+	// }
 
 	@Override
 	public void delete(TeamTreeItem notUsed) {
@@ -103,7 +103,7 @@ public class TeamItemResultsFormFactory
 
 	@Override
 	public boolean setErrorLabel(BinderValidationStatus<?> validationStatus, boolean updateFieldStatus) {
-		return acff.setErrorLabel(validationStatus, updateFieldStatus);
+		return this.acff.setErrorLabel(validationStatus, updateFieldStatus);
 	}
 
 	@Override

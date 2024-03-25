@@ -36,7 +36,7 @@ import ch.qos.logback.classic.Logger;
 public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParametersReader {
 
 	Logger logger;
-	Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private AgeDivision ageDivision;
 	private String ageGroupPrefix;
@@ -87,22 +87,22 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 
 	@Override
 	public final AgeDivision getAgeDivision() {
-		return ageDivision;
+		return this.ageDivision;
 	}
 
 	@Override
 	public final AgeGroup getAgeGroup() {
-		return ageGroup;
+		return this.ageGroup;
 	}
 
 	@Override
 	public final String getAgeGroupPrefix() {
-		return ageGroupPrefix;
+		return this.ageGroupPrefix;
 	}
 
 	@Override
 	public final Category getCategory() {
-		return category;
+		return this.category;
 	}
 
 	/**
@@ -113,14 +113,14 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 		return getTranslation("Scoreboard.TopTeams");
 	}
 
-
 	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParametersReader#readParams(com.vaadin.flow.router.Location, java.util.Map)
+	 * @see app.owlcms.apputils.queryparameters.DisplayParametersReader#readParams(com.vaadin.flow.router.Location,
+	 *      java.util.Map)
 	 */
 	@Override
 	public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
 		HashMap<String, List<String>> params1 = new HashMap<>(parametersMap);
-		//logger.debug("TopTeamsPage readParams");
+		// logger.debug("TopTeamsPage readParams");
 
 		List<String> darkParams = params1.get(DARK);
 		// dark is the default. dark=false or dark=no or ... will turn off dark mode.
@@ -198,11 +198,11 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 
 	@Override
 	protected void init() {
-		logger = (Logger) LoggerFactory.getLogger(TopTeamsPage.class);
-		//logger.debug("TopTeamsPage init");
+		this.logger = (Logger) LoggerFactory.getLogger(TopTeamsPage.class);
+		// logger.debug("TopTeamsPage init");
 		var board = new TopTeams();
 		this.setBoard(board);
-		//logger.debug("TopTeamsPage board {}", this.getBoard());
+		// logger.debug("TopTeamsPage board {}", this.getBoard());
 
 		// when navigating to the page, Vaadin will call setParameter+readParameters
 		// these parameters will be applied.
@@ -219,7 +219,6 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
 		this.addComponent(board);
 	}
-	
 
 	private List<String> setAgeGroupPrefixItems(ComboBox<String> ageGroupPrefixComboBox,
 	        AgeDivision ageDivision2) {

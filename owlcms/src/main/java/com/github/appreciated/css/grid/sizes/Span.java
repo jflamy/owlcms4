@@ -8,39 +8,39 @@ import com.github.appreciated.css.grid.interfaces.TemplateAreaUnit;
 
 public class Span implements RowOrColUnit, TemplateAreaUnit {
 
-    private CustomIdent area;
-    private Integer span;
+	private CustomIdent area;
+	private Integer span;
 
-    public Span(int span) {
-        if (span < 1) {
-            throw new NegativeOrZeroValueException(span);
-        }
-        this.span = span;
-    }
+	public Span(CustomIdent area) {
+		Objects.requireNonNull(area);
+		this.area = area;
+	}
 
-    public Span(CustomIdent area) {
-        Objects.requireNonNull(area);
-        this.area = area;
-    }
+	public Span(int span) {
+		if (span < 1) {
+			throw new NegativeOrZeroValueException(span);
+		}
+		this.span = span;
+	}
 
-    @Override
-    public String getValue() {
-        if (span != null && area != null) {
-            return span + " " + area.getCssValue();
-        } else if (span != null) {
-            return String.valueOf(span);
-        } else {
-            return area.getCssValue();
-        }
-    }
+	@Override
+	public String getPrefixValue() {
+		return "span ";
+	}
 
-    @Override
-    public boolean hasPrefix() {
-        return true;
-    }
+	@Override
+	public String getValue() {
+		if (this.span != null && this.area != null) {
+			return this.span + " " + this.area.getCssValue();
+		} else if (this.span != null) {
+			return String.valueOf(this.span);
+		} else {
+			return this.area.getCssValue();
+		}
+	}
 
-    @Override
-    public String getPrefixValue() {
-        return "span ";
-    }
+	@Override
+	public boolean hasPrefix() {
+		return true;
+	}
 }

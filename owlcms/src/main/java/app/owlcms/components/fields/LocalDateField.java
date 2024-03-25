@@ -63,6 +63,19 @@ public class LocalDateField extends WrappedTextField<LocalDate> {
 		return FORMATTER.format(getValue());
 	}
 
+	@Override
+	protected void initLoggers() {
+		setLogger((Logger) LoggerFactory.getLogger(LocalDateField.class));
+		getLogger().setLevel(Level.INFO);
+	}
+
+	@Override
+	protected String invalidFormatErrorMessage(Locale locale) {
+		LocalDate sampleDate = LocalDate.of(2000, 12, 31);
+		return "Date must be in international format YYYY-MM-DD " + "(" + FORMATTER.format(sampleDate) + " for "
+		        + DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale).format(sampleDate) + ")";
+	}
+
 	private Result<LocalDate> doParse(String content, Locale locale, DateTimeFormatter formatter) {
 		LocalDate parse;
 		try {
@@ -79,19 +92,6 @@ public class LocalDateField extends WrappedTextField<LocalDate> {
 			setFormatValidationStatus(false, locale);
 			return Result.error(m);
 		}
-	}
-
-	@Override
-	protected void initLoggers() {
-		setLogger((Logger) LoggerFactory.getLogger(LocalDateField.class));
-		getLogger().setLevel(Level.INFO);
-	}
-
-	@Override
-	protected String invalidFormatErrorMessage(Locale locale) {
-		LocalDate sampleDate = LocalDate.of(2000, 12, 31);
-		return "Date must be in international format YYYY-MM-DD " + "(" + FORMATTER.format(sampleDate) + " for "
-		        + DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale).format(sampleDate) + ")";
 	}
 
 }

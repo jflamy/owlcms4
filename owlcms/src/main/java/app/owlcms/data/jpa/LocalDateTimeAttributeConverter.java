@@ -21,8 +21,7 @@ public class LocalDateTimeAttributeConverter implements AttributeConverter<Local
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see javax.persistence.AttributeConverter#convertToDatabaseColumn(java.lang.
-	 * Object)
+	 * @see javax.persistence.AttributeConverter#convertToDatabaseColumn(java.lang. Object)
 	 */
 	@Override
 	public Timestamp convertToDatabaseColumn(LocalDateTime locDateTime) {
@@ -32,8 +31,7 @@ public class LocalDateTimeAttributeConverter implements AttributeConverter<Local
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see javax.persistence.AttributeConverter#convertToEntityAttribute(java.lang.
-	 * Object)
+	 * @see javax.persistence.AttributeConverter#convertToEntityAttribute(java.lang. Object)
 	 */
 	@Override
 	public LocalDateTime convertToEntityAttribute(Timestamp sqlTimestamp) {

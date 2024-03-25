@@ -43,7 +43,6 @@ public class BreakTimerElement extends TimerElement {
 	}
 
 	public BreakTimerElement() {
-		super();
 		this.id = IdUtils.getTimeBasedId();
 	}
 
@@ -51,7 +50,6 @@ public class BreakTimerElement extends TimerElement {
 	 * Instantiates a new timer element.
 	 */
 	public BreakTimerElement(String parentName) {
-		super();
 		this.id = IdUtils.getTimeBasedId();
 	}
 
@@ -80,7 +78,6 @@ public class BreakTimerElement extends TimerElement {
 			IProxyTimer fopTimer = getFopTimer(fop);
 			doSetTimer(fopTimer.isIndefinite() ? null : fopTimer.liveTimeRemaining());
 		});
-		return;
 	}
 
 	/**

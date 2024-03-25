@@ -61,11 +61,10 @@ public class DownloadButtonFactory {
 		        new Icon(VaadinIcon.DOWNLOAD_ALT),
 		        () -> {
 			        LocalDateTime now = LocalDateTime.now().withNano(0);
-					String value = ".xlsx";
+			        String value = ".xlsx";
 			        return prefix
 			                + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm';'ss"))
-			        		+ value
-			                ;
+			                + value;
 		        },
 		        xlsSource);
 
@@ -88,7 +87,7 @@ public class DownloadButtonFactory {
 
 		return new Div(downloadButton);
 	}
-	
+
 	public static Div createDynamicZipDownloadButton(String prefix, String label, InputStreamFactory supplier) {
 		final LazyDownloadButton downloadButton = new LazyDownloadButton(
 		        label,
@@ -99,7 +98,7 @@ public class DownloadButtonFactory {
 			                + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm"))
 			                + ".zip";
 		        },
-				supplier);
+		        supplier);
 
 		return new Div(downloadButton);
 	}

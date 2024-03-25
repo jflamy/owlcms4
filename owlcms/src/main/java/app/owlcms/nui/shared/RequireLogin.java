@@ -45,7 +45,6 @@ public interface RequireLogin extends BeforeEnterObserver {
 			// no check required
 			logger.debug("noPin {}", paramPin == null ? null : paramPin.length());
 			OwlcmsSession.setAuthenticated(true);
-			return;
 		} else {
 			boolean pinExpected = (paramPin != null && !paramPin.isBlank()) || (dbPin != null && !dbPin.isBlank());
 			// non-whitelisted addresses will get the login page, but will stubbornly be
@@ -58,7 +57,6 @@ public interface RequireLogin extends BeforeEnterObserver {
 					// explicit backdoor access allowed (e.g. for video capture of browser screens)
 					logger.info("Backdoor access from {}", clientIp);
 					OwlcmsSession.setAuthenticated(true);
-					return;
 				} else if (!path.equals(LoginView.LOGIN)) {
 					// prompt user for PIN
 					OwlcmsSession.setRequestedUrl(path);

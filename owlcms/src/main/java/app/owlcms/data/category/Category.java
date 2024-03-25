@@ -44,11 +44,10 @@ import ch.qos.logback.classic.Logger;
 /**
  * Contains information regarding each competition category.
  *
- * A category is the combination of an age range (AgeGroup), a gender, and a
- * bodyweight range.
+ * A category is the combination of an age range (AgeGroup), a gender, and a bodyweight range.
  *
- * Category currently include record information for the computation of Robi
- * points. Category links to its associated records.
+ * Category currently include record information for the computation of Robi points. Category links to its associated
+ * records.
  *
  * Robi = * A x (total)^b where b = log(10)/log(2)
  *
@@ -59,7 +58,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 
-//must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
+// must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity
 @Cacheable
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -67,19 +66,14 @@ import ch.qos.logback.classic.Logger;
 public class Category implements Serializable, Comparable<Category>, Cloneable {
 
 	public final static Double ROBI_B = 3.321928095;
-
 	@Transient
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(Category.class);
-
 	/** The maximum weight. */
 	Double maximumWeight; // exclusive
-
 	/** The minimum weight. */
 	Double minimumWeight; // inclusive
-
 	@Column(columnDefinition = "boolean default false")
 	private boolean active;
-
 	@ManyToOne(fetch = FetchType.LAZY) // ok in this case
 	@JoinColumn(name = "agegroup_id")
 	@JsonIdentityReference(alwaysAsId = true)
@@ -87,28 +81,20 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
 	// combines age group and bw category (which includes gender).
 	private String code;
-
 	@Enumerated(EnumType.STRING)
 	private Gender gender;
-
 	/** The id. */
 	@Id
 	// @GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-
 	private String name;
-
 	@OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<Participation> participations = new ArrayList<>();
-
 	/** minimum weight to be considered eligible */
 	@Column(columnDefinition = "integer default 0")
 	private int qualifyingTotal = 0;
-
 	private Integer wrJr;
-
 	private Integer wrSr;
-
 	private Integer wrYth;
 
 	/**
@@ -123,7 +109,8 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	}
 
 	public Category(Category c) {
-		this(c.minimumWeight, c.maximumWeight, c.getGender(), c.active, c.getWrYth(), c.getWrJr(), c.getWrSr(), c.ageGroup,
+		this(c.minimumWeight, c.maximumWeight, c.getGender(), c.active, c.getWrYth(), c.getWrJr(), c.getWrSr(),
+		        c.ageGroup,
 		        c.qualifyingTotal);
 	}
 
@@ -174,9 +161,10 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	}
 
 	public String dump() {
-		return "Category [code=" + code + ", name=" + getName() + ", minimumWeight=" + minimumWeight
+		return "Category [code=" + this.code + ", name=" + getName() + ", minimumWeight=" + this.minimumWeight
 		        + ", maximumWeight="
-		        + maximumWeight + ", ageGroup=" + ageGroup + ", gender=" + getGender() + ", active=" + active + ", wrSr="
+		        + this.maximumWeight + ", ageGroup=" + this.ageGroup + ", gender=" + getGender() + ", active="
+		        + this.active + ", wrSr="
 		        + getWrSr() + ", wrJr=" + getWrJr() + ", wrYth=" + getWrYth() + "]";
 	}
 
@@ -190,9 +178,9 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		}
 		Category cat = (Category) o;
 
-//        String name2 = getCode();
-//        String name3 = cat.getCode();
-//        boolean equal1 = StringUtils.equals(name2,name3);
+		// String name2 = getCode();
+		// String name3 = cat.getCode();
+		// boolean equal1 = StringUtils.equals(name2,name3);
 
 		Long id1 = getId();
 		Long id2 = cat.getId();
@@ -212,27 +200,27 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		return sb.toString();
 	}
 
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (this == obj) {
-//            return true;
-//        }
-//        if ((obj == null) || (getClass() != obj.getClass())) {
-//            return false;
-//        }
-//        Category other = (Category) obj;
-//
-//        // other is not null, and neither are we
-//        // don't compare the categories inside age group, this gets circular.
-//        boolean ageGroupEquals = AgeGroup.looseEquals(this.ageGroup, other.ageGroup);
-//
-//        return active == other.active && ageGroupEquals && Objects.equals(code, other.code)
-//                && gender == other.gender && Objects.equals(id, other.id)
-//                && Objects.equals(maximumWeight, other.maximumWeight)
-//                && Objects.equals(minimumWeight, other.minimumWeight) && Objects.equals(name, other.name)
-//                && Objects.equals(getWrJr(), other.getWrJr())
-//                && Objects.equals(getWrSr(), other.getWrSr()) && Objects.equals(getWrYth(), other.getWrYth());
-//    }
+	// @Override
+	// public boolean equals(Object obj) {
+	// if (this == obj) {
+	// return true;
+	// }
+	// if ((obj == null) || (getClass() != obj.getClass())) {
+	// return false;
+	// }
+	// Category other = (Category) obj;
+	//
+	// // other is not null, and neither are we
+	// // don't compare the categories inside age group, this gets circular.
+	// boolean ageGroupEquals = AgeGroup.looseEquals(this.ageGroup, other.ageGroup);
+	//
+	// return active == other.active && ageGroupEquals && Objects.equals(code, other.code)
+	// && gender == other.gender && Objects.equals(id, other.id)
+	// && Objects.equals(maximumWeight, other.maximumWeight)
+	// && Objects.equals(minimumWeight, other.minimumWeight) && Objects.equals(name, other.name)
+	// && Objects.equals(getWrJr(), other.getWrJr())
+	// && Objects.equals(getWrSr(), other.getWrSr()) && Objects.equals(getWrYth(), other.getWrYth());
+	// }
 
 	/**
 	 * Gets the active.
@@ -240,15 +228,15 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	 * @return the active
 	 */
 	public Boolean getActive() {
-		return active;
+		return this.active;
 	}
 
 	public AgeGroup getAgeGroup() {
-		return ageGroup;
+		return this.ageGroup;
 	}
 
 	public String getCode() {
-		return code != null ? code : "";
+		return this.code != null ? this.code : "";
 	}
 
 	@Transient
@@ -257,63 +245,41 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		// logger.debug("category {} {} {} {}", this.getId(), this.getCode(),
 		// this.getMinimumWeight(),
 		// this.getMinimumWeight());
-		if (id == null || maximumWeight == null || maximumWeight - Math.round(maximumWeight) > 0.1) {
-			String val = "temp_" + minimumWeight + "_" + maximumWeight;
+		if (this.id == null || this.maximumWeight == null
+		        || this.maximumWeight - Math.round(this.maximumWeight) > 0.1) {
+			String val = "temp_" + this.minimumWeight + "_" + this.maximumWeight;
 			// logger.debug("{} \n{}", val, LoggerUtils.stackTrace());
 			return val;
 		}
-		if (maximumWeight > 130) {
+		if (this.maximumWeight > 130) {
 			return "999";
 		} else {
-			return String.valueOf((int) (Math.round(maximumWeight)));
+			return String.valueOf((int) (Math.round(this.maximumWeight)));
 		}
 	}
 
 	@JsonIgnore
 	@Transient
 	public String getComputedCode() {
-		String agName = (ageGroup != null ? ageGroup.getName() : "");
+		String agName = (this.ageGroup != null ? this.ageGroup.getName() : "");
 
 		if (agName == null || agName.isEmpty()) {
 			String catName = getGender() + getCodeLimitString();
 			return catName;
 		} else {
-			return ageGroup.getCode() + "_" + getGender() + getCodeLimitString();
+			return this.ageGroup.getCode() + "_" + getGender() + getCodeLimitString();
 		}
 	}
 
 	@JsonIgnore
 	@Transient
 	public String getComputedName() {
-		String agName = (ageGroup != null ? ageGroup.getName() : "");
+		String agName = (this.ageGroup != null ? this.ageGroup.getName() : "");
 		String catName = getLimitString();
 		if (agName == null || agName.isEmpty()) {
 			return getGender() + " " + catName;
 		} else {
 			return agName + " " + catName;
-		}
-	}
-
-	@JsonIgnore
-	@Transient
-	public String getTranslatedName() {
-		String agName = (ageGroup != null ? ageGroup.getName() : "");
-		String catName = getLimitString();
-		if (agName == null || agName.isEmpty()) {
-			return getTranslatedGender() + " " + catName;
-		} else {
-			return agName + " " + catName;
-		}
-	}
-	
-	public String getTranslatedGender() {
-		switch (getGender()) {
-		case F:
-		case I:
-		case M:
-			return getGender().asPublicGenderCode();
-		default:
-			throw new IllegalStateException();
 		}
 	}
 
@@ -323,7 +289,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	 * @return the gender
 	 */
 	public Gender getGender() {
-		return gender;
+		return this.gender;
 	}
 
 	/**
@@ -332,7 +298,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	 * @return the id
 	 */
 	public Long getId() {
-		return id;
+		return this.id;
 	}
 
 	@Transient
@@ -341,16 +307,17 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		// logger.debug("category {} {} {} {}", this.getId(), this.getCode(),
 		// this.getMinimumWeight(),
 		// this.getMinimumWeight());
-		if (id == null || maximumWeight == null || maximumWeight - Math.round(maximumWeight) > 0.1) {
-			String val = "temp_" + minimumWeight + "_" + maximumWeight;
+		if (this.id == null || this.maximumWeight == null
+		        || this.maximumWeight - Math.round(this.maximumWeight) > 0.1) {
+			String val = "temp_" + this.minimumWeight + "_" + this.maximumWeight;
 			// logger.debug("{} \n{}", val, LoggerUtils.stackTrace());
 			return val;
 		}
-		if (maximumWeight > 130) {
+		if (this.maximumWeight > 130) {
 			return Translator.translate("catAboveFormat",
-			        minimumWeight != null ? String.valueOf((int) (Math.round(minimumWeight))) : "");
+			        this.minimumWeight != null ? String.valueOf((int) (Math.round(this.minimumWeight))) : "");
 		} else {
-			return String.valueOf((int) (Math.round(maximumWeight)));
+			return String.valueOf((int) (Math.round(this.maximumWeight)));
 		}
 	}
 
@@ -360,7 +327,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	 * @return the maximumWeight
 	 */
 	public Double getMaximumWeight() {
-		return maximumWeight;
+		return this.maximumWeight;
 	}
 
 	/**
@@ -369,7 +336,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	 * @return the minimumWeight
 	 */
 	public Double getMinimumWeight() {
-		return minimumWeight;
+		return this.minimumWeight;
 	}
 
 	/**
@@ -378,22 +345,53 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	 * @return the name
 	 */
 	public String getName() {
-		if (name == null || name.isBlank()) {
+		if (this.name == null || this.name.isBlank()) {
 			return getComputedName();
 		}
-		return name;
+		return this.name;
 	}
 
 	@JsonIgnore
 	public List<Participation> getParticipations() {
-		return participations;
+		return this.participations;
 	}
 
 	/**
 	 * @return the qualifyingTotal
 	 */
 	public int getQualifyingTotal() {
-		return qualifyingTotal;
+		return this.qualifyingTotal;
+	}
+
+	public String getTranslatedGender() {
+		switch (getGender()) {
+			case F:
+			case I:
+			case M:
+				return getGender().asPublicGenderCode();
+			default:
+				throw new IllegalStateException();
+		}
+	}
+
+	@JsonIgnore
+	@Transient
+	public String getTranslatedName() {
+		String agName = (this.ageGroup != null ? this.ageGroup.getName() : "");
+		String catName = getLimitString();
+		if (agName == null || agName.isEmpty()) {
+			return getTranslatedGender() + " " + catName;
+		} else {
+			return agName + " " + catName;
+		}
+	}
+
+	public String getUpperBound() {
+		if (getMaximumWeight() > 998) {
+			return ">" + Math.round(getMinimumWeight());
+		} else {
+			return "" + Math.round(getMaximumWeight());
+		}
 	}
 
 	/**
@@ -404,17 +402,17 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	@Transient
 	@JsonIgnore
 	public Integer getWr() {
-		if (ageGroup == null) {
+		if (this.ageGroup == null) {
 			return 0;
 		}
 		int wr = 0;
-		if (ageGroup.getAgeDivision() != AgeDivision.IWF) {
+		if (this.ageGroup.getAgeDivision() != AgeDivision.IWF) {
 			wr = 0;
-		} else if (ageGroup.getMaxAge() == 999) {
+		} else if (this.ageGroup.getMaxAge() == 999) {
 			wr = getWrSr();
-		} else if (ageGroup.getMaxAge() == 20) {
+		} else if (this.ageGroup.getMaxAge() == 20) {
 			wr = getWrJr();
-		} else if (ageGroup.getMaxAge() == 17) {
+		} else if (this.ageGroup.getMaxAge() == 17) {
 			wr = getWrYth();
 		} else {
 			wr = 0;
@@ -445,28 +443,28 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	}
 
 	public Integer getWrJr() {
-		return wrJr;
+		return this.wrJr;
 	}
 
 	public Integer getWrSr() {
-		return wrSr;
+		return this.wrSr;
 	}
 
 	public Integer getWrYth() {
-		return wrYth;
+		return this.wrYth;
 	}
+
+	// @Override
+	// public int hashCode() {
+	// return Objects.hash(active, ageGroup, code, gender, id, maximumWeight, minimumWeight, name, getWrJr(),
+	// getWrSr(),
+	// getWrYth());
+	// }
 
 	@Override
 	public int hashCode() {
 		return Objects.hash(getName());
 	}
-
-//    @Override
-//    public int hashCode() {
-//        return Objects.hash(active, ageGroup, code, gender, id, maximumWeight, minimumWeight, name, getWrJr(),
-//                getWrSr(),
-//                getWrYth());
-//    }
 
 	/**
 	 * Checks if is active.
@@ -474,20 +472,21 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	 * @return the boolean
 	 */
 	public Boolean isActive() {
-		return active;
+		return this.active;
 	}
 
 	public String longDump() {
 		return "Category " + System.identityHashCode(this)
 		        + " [name=" + getName()
-		        + ", active=" + active
+		        + ", active=" + this.active
 		        + ", id=" + getId()
-		        + ", minimumWeight=" + minimumWeight
-		        + ", maximumWeight=" + maximumWeight + ", ageGroup=" + (ageGroup != null ? ageGroup.getName() : null)
+		        + ", minimumWeight=" + this.minimumWeight
+		        + ", maximumWeight=" + this.maximumWeight + ", ageGroup="
+		        + (this.ageGroup != null ? this.ageGroup.getName() : null)
 		        + ", gender=" + getGender()
-		        + ", qualifying=" + qualifyingTotal
+		        + ", qualifying=" + this.qualifyingTotal
 		        + ", wr=" + getWrSr()
-		        + ", code=" + code + "]";
+		        + ", code=" + this.code + "]";
 	}
 
 	public boolean sameAs(Category prevCat) {
@@ -584,7 +583,8 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	 * @return the string
 	 */
 	public String shortDump() {
-		return getName() + "_" + System.identityHashCode(this) + "_" + active + "_" + getGender() + "_" + ageGroup;
+		return getName() + "_" + System.identityHashCode(this) + "_" + this.active + "_" + getGender() + "_"
+		        + this.ageGroup;
 	}
 
 	/*
@@ -595,14 +595,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	@Override
 	public String toString() {
 		return getComputedName();
-	}
-
-	public String getUpperBound() {
-		if (getMaximumWeight() > 998) {
-			return ">"+Math.round(getMinimumWeight());
-		} else {
-			return ""+Math.round(getMaximumWeight());
-		}
 	}
 
 }

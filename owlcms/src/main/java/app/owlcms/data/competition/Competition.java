@@ -616,12 +616,6 @@ public class Competition {
 	public boolean getDisplayByAgeGroup() {
 		return this.isDisplayByAgeGroup();
 	}
-	
-	@Transient
-	@JsonIgnore
-	public boolean isByAgeGroup() {
-		return this.isDisplayByAgeGroup() || this.isMasters();
-	}
 
 	/**
 	 * Gets the federation.
@@ -916,6 +910,12 @@ public class Competition {
 
 	public boolean isAutomaticCJBreak() {
 		return this.automaticCJBreak;
+	}
+
+	@Transient
+	@JsonIgnore
+	public boolean isByAgeGroup() {
+		return this.isDisplayByAgeGroup() || this.isMasters();
 	}
 
 	public boolean isCustomScore() {

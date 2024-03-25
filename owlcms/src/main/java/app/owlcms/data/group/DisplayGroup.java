@@ -4,13 +4,9 @@ import app.owlcms.data.platform.Platform;
 
 public class DisplayGroup {
 	private String competitionShortDateTime = "";
-
 	private String description = "";
-
 	private String name = "?";
-
 	private String platform = "";
-
 	private String weighInShortDateTime = "";
 
 	public DisplayGroup(String name2, String description2, Platform platform2, String weighInShortDateTime2,
@@ -23,23 +19,23 @@ public class DisplayGroup {
 	}
 
 	public String getCompetitionShortDateTime() {
-		return competitionShortDateTime;
+		return this.competitionShortDateTime;
 	}
 
 	public String getDescription() {
-		return description;
+		return this.description;
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	public String getPlatform() {
-		return platform;
+		return this.platform;
 	}
 
 	public String getWeighInShortDateTime() {
-		return weighInShortDateTime;
+		return this.weighInShortDateTime;
 	}
 
 	public void setCompetitionShortDateTime(String competitionShortDateTime) {

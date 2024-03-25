@@ -26,33 +26,36 @@ public enum Ranking {
 	GAMX("GAMX") // Global Adjusted Mixed (Huebner)
 	;
 
-	private String reportingName;
-
-	/**
-	 * @param reportingInfoName the name of the beans used for Excel reporting
-	 */
-	Ranking(String reportingName) {
-		this.reportingName = reportingName;
-	}
-
-	public String getMReportingName() {
-		return "m" + this.reportingName;
-	}
-
-	public String getWReportingName() {
-		return "w" + this.reportingName;
-	}
-
-	public String getMWReportingName() {
-		return "mw" + this.reportingName;
-	}
-
-	public static List<Ranking> scoringSystems() {
-		List<Ranking> systems = new ArrayList<Ranking>(Arrays.asList(BW_SINCLAIR, SMM, ROBI, QPOINTS, CAT_SINCLAIR));
-		if (Config.getCurrent().featureSwitch("gamx")) {
-			systems.add(GAMX);
+	public static int getRanking(Athlete curLifter, Ranking rankingType) {
+		Integer value = null;
+		if (rankingType == null) {
+			return 0;
 		}
-		return systems;
+		switch (rankingType) {
+			case SNATCH:
+				value = curLifter.getSnatchRank();
+			case CLEANJERK:
+				value = curLifter.getCleanJerkRank();
+			case TOTAL:
+				value = curLifter.getTotalRank();
+			case ROBI:
+				value = curLifter.getRobiRank();
+			case CUSTOM:
+				value = curLifter.getCustomRank();
+			case SNATCH_CJ_TOTAL:
+				value = 0; // no such thing
+			case BW_SINCLAIR:
+				value = curLifter.getSinclairRank();
+			case CAT_SINCLAIR:
+				value = curLifter.getCatSinclairRank();
+			case SMM:
+				value = curLifter.getSmmRank();
+			case GAMX:
+				value = curLifter.getGmaxRank();
+			case QPOINTS:
+				value = curLifter.getqPointsRank();
+		}
+		return value == null ? 0 : value;
 	}
 
 	/**
@@ -90,38 +93,6 @@ public enum Ranking {
 		}
 		return 0D;
 	}
-	
-	public static int getRanking(Athlete curLifter, Ranking rankingType) {
-		Integer value = null;
-		if (rankingType == null) {
-			return 0;
-		}
-		switch (rankingType) {
-			case SNATCH:
-				value = curLifter.getSnatchRank();
-			case CLEANJERK:
-				value = curLifter.getCleanJerkRank();
-			case TOTAL:
-				value = curLifter.getTotalRank();
-			case ROBI:
-				value = curLifter.getRobiRank();
-			case CUSTOM:
-				value = curLifter.getCustomRank();
-			case SNATCH_CJ_TOTAL:
-				value = 0; // no such thing
-			case BW_SINCLAIR:
-				value = curLifter.getSinclairRank();
-			case CAT_SINCLAIR:
-				value = curLifter.getCatSinclairRank();
-			case SMM:
-				value = curLifter.getSmmRank();
-			case GAMX:
-				value = curLifter.getGmaxRank();
-			case QPOINTS:
-				value = curLifter.getqPointsRank();
-		}
-		return value == null ? 0 : value;
-	}
 
 	public static String getScoringTitle(Ranking rankingType) {
 		if (rankingType == null) {
@@ -139,6 +110,35 @@ public enum Ranking {
 			default:
 				throw new UnsupportedOperationException("not a score ranking " + rankingType);
 		}
+	}
+
+	public static List<Ranking> scoringSystems() {
+		List<Ranking> systems = new ArrayList<>(Arrays.asList(BW_SINCLAIR, SMM, ROBI, QPOINTS, CAT_SINCLAIR));
+		if (Config.getCurrent().featureSwitch("gamx")) {
+			systems.add(GAMX);
+		}
+		return systems;
+	}
+
+	private String reportingName;
+
+	/**
+	 * @param reportingInfoName the name of the beans used for Excel reporting
+	 */
+	Ranking(String reportingName) {
+		this.reportingName = reportingName;
+	}
+
+	public String getMReportingName() {
+		return "m" + this.reportingName;
+	}
+
+	public String getMWReportingName() {
+		return "mw" + this.reportingName;
+	}
+
+	public String getWReportingName() {
+		return "w" + this.reportingName;
 	}
 
 }

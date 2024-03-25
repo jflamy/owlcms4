@@ -28,8 +28,6 @@ import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public class GroupCategorySelectionMenu extends MenuBar {
-	
-	Logger logger = (Logger) LoggerFactory.getLogger(GroupCategorySelectionMenu.class);
 
 	@FunctionalInterface
 	public interface TriConsumer<T, U, V> {
@@ -43,6 +41,7 @@ public class GroupCategorySelectionMenu extends MenuBar {
 		void accept(T t, U u, V v);
 	}
 
+	Logger logger = (Logger) LoggerFactory.getLogger(GroupCategorySelectionMenu.class);
 	private boolean includeNotCompleted;
 	private List<Group> groups;
 	private FieldOfPlay fop;
@@ -52,12 +51,43 @@ public class GroupCategorySelectionMenu extends MenuBar {
 	public GroupCategorySelectionMenu(List<Group> groups, FieldOfPlay fop,
 	        TriConsumer<Group, Category, FieldOfPlay> whenChecked,
 	        TriConsumer<Group, Category, FieldOfPlay> whenUnselected) {
-		
+
 		this.groups = groups;
 		this.fop = fop;
 		this.whenChecked = whenChecked;
 		this.whenUnselected = whenUnselected;
 		init(groups, fop, whenChecked, whenUnselected);
+	}
+
+	public void recompute() {
+		this.removeAll();
+		init(this.groups, this.fop, this.whenChecked, this.whenUnselected);
+	}
+
+	public void setIncludeNotCompleted(Boolean value) {
+		this.includeNotCompleted = value;
+	}
+
+	@SuppressWarnings("unused")
+	private String describedName(Group g) {
+		String desc = g.getDescription();
+		if (desc == null || desc.isBlank()) {
+			return g.getName();
+		} else {
+			return g.getName() + " - " + g.getDescription();
+		}
+	}
+
+	private Set<Category> getAllCategories(Group g) {
+		TreeMap<Category, TreeSet<Athlete>> medals = Competition.getCurrent().getMedals(g, false);
+		return medals.keySet();
+	}
+
+	private Set<Category> getFinishedCategories(Group g) {
+		Set<Category> finishedCategories = new TreeSet<>();
+		TreeMap<Category, TreeSet<Athlete>> medals = Competition.getCurrent().getMedals(g, true);
+		finishedCategories = medals.keySet();
+		return finishedCategories;
 	}
 
 	private void init(List<Group> groups, FieldOfPlay fop, TriConsumer<Group, Category, FieldOfPlay> whenChecked,
@@ -69,7 +99,7 @@ public class GroupCategorySelectionMenu extends MenuBar {
 
 		SubMenu subMenu = item.getSubMenu();
 		for (Group g : groups) {
-			Set<Category> categories = includeNotCompleted ? getAllCategories(g) : getFinishedCategories(g);
+			Set<Category> categories = this.includeNotCompleted ? getAllCategories(g) : getFinishedCategories(g);
 			if (categories.size() > 0) {
 				MenuItem subItem = subMenu.addItem(
 				        g.getName(),
@@ -121,28 +151,6 @@ public class GroupCategorySelectionMenu extends MenuBar {
 		item.setEnabled(true);
 	}
 
-	private Set<Category> getAllCategories(Group g) {
-		TreeMap<Category, TreeSet<Athlete>> medals = Competition.getCurrent().getMedals(g, false);
-		return medals.keySet();
-	}
-
-	@SuppressWarnings("unused")
-	private String describedName(Group g) {
-		String desc = g.getDescription();
-		if (desc == null || desc.isBlank()) {
-			return g.getName();
-		} else {
-			return g.getName() + " - " + g.getDescription();
-		}
-	}
-
-	private Set<Category> getFinishedCategories(Group g) {
-		Set<Category> finishedCategories = new TreeSet<>();
-		TreeMap<Category, TreeSet<Athlete>> medals = Competition.getCurrent().getMedals(g, true);
-		finishedCategories = medals.keySet();
-		return finishedCategories;
-	}
-
 	private void setChecked(MenuItem menuItem, SubMenu subMenu, boolean checked) {
 		for (MenuItem item : subMenu.getItems()) {
 			item.setChecked(false);
@@ -150,15 +158,6 @@ public class GroupCategorySelectionMenu extends MenuBar {
 		if (checked) {
 			menuItem.setChecked(checked);
 		}
-	}
-
-	public void setIncludeNotCompleted(Boolean value) {
-		this.includeNotCompleted = value;
-	}
-
-	public void recompute() {
-		this.removeAll();
-		init(groups, fop, whenChecked, whenUnselected);
 	}
 
 }

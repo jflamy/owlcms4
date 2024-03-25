@@ -145,8 +145,8 @@ public class CompetitionEditingFormFactory
 		                breakDurationLayout));
 		ts.add(Translator.translate("Competition.specialRulesTitle"),
 		        new VerticalLayout(
-		        		pointScoresForm, separator(),
-		        		specialLayout));
+		                pointScoresForm, separator(),
+		                specialLayout));
 
 		VerticalLayout mainLayout = new VerticalLayout(
 		        footer,
@@ -154,7 +154,7 @@ public class CompetitionEditingFormFactory
 		mainLayout.setMargin(false);
 		mainLayout.setPadding(false);
 
-		binder.readBean(comp);
+		this.binder.readBean(comp);
 		return mainLayout;
 	}
 
@@ -195,7 +195,7 @@ public class CompetitionEditingFormFactory
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	protected void bindField(HasValue field, String property, Class<?> propertyType, CrudFormConfiguration c) {
-		binder.forField(field);
+		this.binder.forField(field);
 		super.bindField(field, property, propertyType, c);
 	}
 
@@ -206,7 +206,7 @@ public class CompetitionEditingFormFactory
 		layout.setColspan(title, 2);
 
 		Checkbox toggle = new Checkbox();
-		binder.forField(toggle).bind(Competition::isAutomaticCJBreak, Competition::setAutomaticCJBreak);
+		this.binder.forField(toggle).bind(Competition::isAutomaticCJBreak, Competition::setAutomaticCJBreak);
 		layout.addFormItem(toggle, Translator.translate("Competition.automaticCJBreakQ"));
 
 		Paragraph explain = new Paragraph(Translator.translate("Competition.breakParametersLonger"));
@@ -217,12 +217,12 @@ public class CompetitionEditingFormFactory
 
 		LocalizedIntegerField ifLongerThreshold = new LocalizedIntegerField();
 		layout.addFormItem(ifLongerThreshold, Translator.translate("Competition.longerBreakThreshold"));
-		binder.forField(ifLongerThreshold)
+		this.binder.forField(ifLongerThreshold)
 		        .bind(Competition::getLongerBreakMax, Competition::setLongerBreakMax);
 
 		LocalizedIntegerField ifLongerDuration = new LocalizedIntegerField();
 		layout.addFormItem(ifLongerDuration, Translator.translate("Competition.longerBreakDuration"));
-		binder.forField(ifLongerDuration)
+		this.binder.forField(ifLongerDuration)
 		        .bind(Competition::getLongerBreakDuration, Competition::setLongerBreakDuration);
 
 		Paragraph explain1 = new Paragraph(Translator.translate("Competition.breakParametersShorter"));
@@ -233,12 +233,12 @@ public class CompetitionEditingFormFactory
 
 		LocalizedIntegerField ifShorterThreshold = new LocalizedIntegerField();
 		layout.addFormItem(ifShorterThreshold, Translator.translate("Competition.shorterBreakThreshold"));
-		binder.forField(ifShorterThreshold)
+		this.binder.forField(ifShorterThreshold)
 		        .bind(Competition::getShorterBreakMin, Competition::setShorterBreakMin);
 
 		LocalizedIntegerField ifShorterDuration = new LocalizedIntegerField();
 		layout.addFormItem(ifShorterDuration, Translator.translate("Competition.shorterBreakDuration"));
-		binder.forField(ifShorterDuration)
+		this.binder.forField(ifShorterDuration)
 		        .bind(Competition::getShorterBreakDuration, Competition::setShorterBreakDuration);
 
 		return layout;
@@ -253,33 +253,33 @@ public class CompetitionEditingFormFactory
 		TextField nameField = new TextField();
 		nameField.setWidthFull();
 		competitionLayout.addFormItem(nameField, Translator.translate("Competition.competitionName"));
-		binder.forField(nameField)
+		this.binder.forField(nameField)
 		        .withNullRepresentation("")
 		        .bind(Competition::getCompetitionName, Competition::setCompetitionName);
 
 		DatePicker dateField = new DatePicker();
 		competitionLayout.addFormItem(dateField, Translator.translate("Competition.competitionDate"));
-		binder.forField(dateField)
+		this.binder.forField(dateField)
 		        .bind(Competition::getCompetitionDate, Competition::setCompetitionDate);
 
 		TextField organizerField = new TextField();
 		organizerField.setWidthFull();
 		competitionLayout.addFormItem(organizerField, Translator.translate("Competition.competitionOrganizer"));
-		binder.forField(organizerField)
+		this.binder.forField(organizerField)
 		        .withNullRepresentation("")
 		        .bind(Competition::getCompetitionOrganizer, Competition::setCompetitionOrganizer);
 
 		TextField siteField = new TextField();
 		siteField.setWidthFull();
 		competitionLayout.addFormItem(siteField, Translator.translate("Competition.competitionSite"));
-		binder.forField(siteField)
+		this.binder.forField(siteField)
 		        .withNullRepresentation("")
 		        .bind(Competition::getCompetitionSite, Competition::setCompetitionSite);
 
 		TextField cityField = new TextField();
 		cityField.setWidthFull();
 		competitionLayout.addFormItem(cityField, Translator.translate("Competition.competitionCity"));
-		binder.forField(cityField)
+		this.binder.forField(cityField)
 		        .withNullRepresentation("")
 		        .bind(Competition::getCompetitionCity, Competition::setCompetitionCity);
 
@@ -310,21 +310,21 @@ public class CompetitionEditingFormFactory
 		TextField federationField = new TextField();
 		federationField.setWidthFull();
 		layout.addFormItem(federationField, Translator.translate("Competition.federation"));
-		binder.forField(federationField)
+		this.binder.forField(federationField)
 		        .withNullRepresentation("")
 		        .bind(Competition::getFederation, Competition::setFederation);
 
 		TextField federationAddressField = new TextField();
 		federationAddressField.setWidthFull();
 		layout.addFormItem(federationAddressField, Translator.translate("Competition.federationAddress"));
-		binder.forField(federationAddressField)
+		this.binder.forField(federationAddressField)
 		        .withNullRepresentation("")
 		        .bind(Competition::getFederationAddress, Competition::setFederationAddress);
 
 		TextField federationEMailField = new TextField();
 		federationEMailField.setWidthFull();
 		layout.addFormItem(federationEMailField, Translator.translate("Competition.federationEMail"));
-		binder.forField(federationEMailField)
+		this.binder.forField(federationEMailField)
 		        .withNullRepresentation("")
 		        .withValidator(new EmailValidator("Invalid Email Address"))
 		        .bind(Competition::getFederationEMail, Competition::setFederationEMail);
@@ -332,7 +332,7 @@ public class CompetitionEditingFormFactory
 		TextField federationWebSiteField = new TextField();
 		federationWebSiteField.setWidthFull();
 		layout.addFormItem(federationWebSiteField, Translator.translate("Competition.federationWebSite"));
-		binder.forField(federationWebSiteField)
+		this.binder.forField(federationWebSiteField)
 		        .withNullRepresentation("")
 		        .bind(Competition::getFederationWebSite, Competition::setFederationWebSite);
 
@@ -344,11 +344,54 @@ public class CompetitionEditingFormFactory
 		help.getStyle().set("height", "1.2em");
 		help.getStyle().set("vertical-align", "top");
 		help.getStyle().set("font-weight", "bold");
-		NativeLabel label = new NativeLabel(Translator.translate(string)+"\u00a0");
+		NativeLabel label = new NativeLabel(Translator.translate(string) + "\u00a0");
 		Tooltip.forComponent(label).setText(Translator.translate(explanation));
 		Span span = new Span();
 		span.add(label, help);
 		return span;
+	}
+
+	private FormLayout pointScoresForm() {
+		FormLayout layout = createLayout();
+		Component title = createTitle("Competition.pointScoresTitle");
+		layout.add(title);
+		layout.setColspan(title, 2);
+
+		ComboBox<Ranking> scoringCombo = new ComboBox<>();
+		scoringCombo.setItems(Ranking.scoringSystems());
+		scoringCombo.setItemLabelGenerator(r -> Translator.translate("Ranking." + r));
+		layout.addFormItem(scoringCombo, Translator.translate("Competition.scoringSystemTitle"));
+		this.binder.forField(scoringCombo).bind(Competition::getScoringSystem, Competition::setScoringSystem);
+
+		Checkbox showScoressOnScoreboard = new Checkbox();
+		layout.addFormItem(showScoressOnScoreboard, Translator.translate("Competition.showScoresOnScoreboard"));
+		this.binder.forField(showScoressOnScoreboard)
+		        .bind(Competition::isDisplayScores, Competition::setDisplayScores);
+
+		Checkbox showScoreRanksOnScoreboard = new Checkbox();
+		layout.addFormItem(showScoreRanksOnScoreboard, Translator.translate("Competition.showScoreRanksOnScoreboard"));
+		this.binder.forField(showScoreRanksOnScoreboard)
+		        .bind(Competition::isDisplayScoreRanks, Competition::setDisplayScoreRanks);
+
+		RadioButtonGroup<Integer> sinclairYear = new RadioButtonGroup<>();
+		layout.addFormItem(sinclairYear, Translator.translate("sinclair"));
+		sinclairYear.setItems(2020, 2024);
+		this.binder.forField(sinclairYear)
+		        .bind(Competition::getSinclairYear, Competition::setSinclairYear);
+
+		Checkbox sinclairMeetField = new Checkbox();
+		layout.addFormItem(sinclairMeetField,
+		        labelWithHelp("Competition.SinclairMeet", "Competition.SinclairMeetExplanation"));
+		this.binder.forField(sinclairMeetField)
+		        .bind(Competition::isSinclair, Competition::setSinclair);
+
+		Checkbox customScoreField = new Checkbox();
+		layout.addFormItem(customScoreField,
+		        labelWithHelp("Competition.customScore", "Competition.customScoreExplanation"));
+		this.binder.forField(customScoreField)
+		        .bind(Competition::isCustomScore, Competition::setCustomScore);
+
+		return layout;
 	}
 
 	private FormLayout rulesForm() {
@@ -359,32 +402,32 @@ public class CompetitionEditingFormFactory
 
 		Checkbox enforce20kgRuleField = new Checkbox();
 		layout.addFormItem(enforce20kgRuleField, Translator.translate("Competition.enforce20kgRule"));
-		binder.forField(enforce20kgRuleField)
+		this.binder.forField(enforce20kgRuleField)
 		        .bind(Competition::isEnforce20kgRule, Competition::setEnforce20kgRule);
 
 		Checkbox snatchCJTotalField = new Checkbox();
 		layout.addFormItem(snatchCJTotalField, Translator.translate("Competition.snatchCJTotalMedals"));
-		binder.forField(snatchCJTotalField)
+		this.binder.forField(snatchCJTotalField)
 		        .bind(Competition::isSnatchCJTotalMedals, Competition::setSnatchCJTotalMedals);
 
 		Checkbox useBirthYearField = new Checkbox();
 		layout.addFormItem(useBirthYearField, Translator.translate("Competition.useBirthYear"));
-		binder.forField(useBirthYearField)
+		this.binder.forField(useBirthYearField)
 		        .bind(Competition::isUseBirthYear, Competition::setUseBirthYear);
-		
+
 		Checkbox announcerControlledJuryField = new Checkbox();
 		layout.addFormItem(announcerControlledJuryField, Translator.translate("Competition.announcerControlledJury"));
-		binder.forField(announcerControlledJuryField)
+		this.binder.forField(announcerControlledJuryField)
 		        .bind(Competition::isAnnouncerControlledJuryDecision, Competition::setAnnouncerControlledJuryDecision);
 
 		Checkbox mastersField = new Checkbox();
 		layout.addFormItem(mastersField, Translator.translate("Competition.mastersStartOrder"));
-		binder.forField(mastersField)
+		this.binder.forField(mastersField)
 		        .bind(Competition::isMasters, Competition::setMasters);
-		
+
 		Checkbox byAgeGroupField = new Checkbox();
 		layout.addFormItem(byAgeGroupField, Translator.translate("Competition.startNumbersByAgeGroup"));
-		binder.forField(byAgeGroupField)
+		this.binder.forField(byAgeGroupField)
 		        .bind(Competition::isDisplayByAgeGroup, Competition::setDisplayByAgeGroup);
 
 		return layout;
@@ -400,7 +443,7 @@ public class CompetitionEditingFormFactory
 	}
 
 	private void setBinder(Binder<Competition> buildBinder) {
-		binder = buildBinder;
+		this.binder = buildBinder;
 	}
 
 	private FormLayout specialRulesForm() {
@@ -414,7 +457,7 @@ public class CompetitionEditingFormFactory
 		TextField mensTeamSizeField = new TextField();
 		layout.addFormItem(mensTeamSizeField,
 		        labelWithHelp("Competition.mensTeamSize", "Competition.teamSizeExplanation"));
-		binder.forField(mensTeamSizeField)
+		this.binder.forField(mensTeamSizeField)
 		        .withNullRepresentation("")
 		        .withConverter(new StringToIntegerConverter(message))
 		        .withValidator(new IntegerRangeValidator(message, 0, 99))
@@ -423,7 +466,7 @@ public class CompetitionEditingFormFactory
 		TextField womensTeamSizeField = new TextField();
 		layout.addFormItem(womensTeamSizeField,
 		        labelWithHelp("Competition.womensTeamSize", "Competition.teamSizeExplanation"));
-		binder.forField(womensTeamSizeField)
+		this.binder.forField(womensTeamSizeField)
 		        .withNullRepresentation("")
 		        .withConverter(new StringToIntegerConverter(message))
 		        .withValidator(new IntegerRangeValidator(message, 0, 99))
@@ -432,67 +475,25 @@ public class CompetitionEditingFormFactory
 		Checkbox roundRobinOrderField = new Checkbox();
 		layout.addFormItem(roundRobinOrderField,
 		        labelWithHelp("Competition.roundRobinOrder", "Competition.roundRobinOrderExplanation"));
-		binder.forField(roundRobinOrderField)
+		this.binder.forField(roundRobinOrderField)
 		        .bind(Competition::isRoundRobinOrder, Competition::setRoundRobinOrder);
 
 		Checkbox roundRobinFixedOrderField = new Checkbox();
 		layout.addFormItem(roundRobinFixedOrderField,
 		        labelWithHelp("Competition.fixedRoundRobinOrder", "Competition.fixedRoundRobinOrderExplanation"));
-		binder.forField(roundRobinFixedOrderField)
+		this.binder.forField(roundRobinFixedOrderField)
 		        .bind(Competition::isFixedOrder, Competition::setFixedOrder);
 
 		Checkbox genderOrderField = new Checkbox();
 		layout.addFormItem(genderOrderField,
 		        labelWithHelp("Competition.genderOrder", "Competition.genderOrderExplanation"));
-		binder.forField(genderOrderField)
+		this.binder.forField(genderOrderField)
 		        .bind(Competition::isGenderOrder, Competition::setGenderOrder);
 
 		IntegerField wakeUpDelayField = new IntegerField();
 		layout.addFormItem(wakeUpDelayField, Translator.translate("Competition.decisionRequestDelayLabel"));
-		binder.forField(wakeUpDelayField).bind(Competition::getRefereeWakeUpDelay, Competition::setRefereeWakeUpDelay);
-
-		return layout;
-	}
-
-	private FormLayout pointScoresForm() {
-		FormLayout layout = createLayout();
-		Component title = createTitle("Competition.pointScoresTitle");
-		layout.add(title);
-		layout.setColspan(title, 2);
-		
-		ComboBox<Ranking> scoringCombo = new ComboBox<Ranking>();
-		scoringCombo.setItems(Ranking.scoringSystems());
-		scoringCombo.setItemLabelGenerator(r -> Translator.translate("Ranking."+r));
-		layout.addFormItem(scoringCombo, Translator.translate("Competition.scoringSystemTitle"));
-		binder.forField(scoringCombo).bind(Competition::getScoringSystem, Competition::setScoringSystem);
-		
-		Checkbox showScoressOnScoreboard = new Checkbox();
-		layout.addFormItem(showScoressOnScoreboard, Translator.translate("Competition.showScoresOnScoreboard"));
-		binder.forField(showScoressOnScoreboard)
-		        .bind(Competition::isDisplayScores, Competition::setDisplayScores);
-		
-		Checkbox showScoreRanksOnScoreboard = new Checkbox();
-		layout.addFormItem(showScoreRanksOnScoreboard, Translator.translate("Competition.showScoreRanksOnScoreboard"));
-		binder.forField(showScoreRanksOnScoreboard)
-		        .bind(Competition::isDisplayScoreRanks, Competition::setDisplayScoreRanks);
-		
-		RadioButtonGroup<Integer> sinclairYear = new RadioButtonGroup<>();
-		layout.addFormItem(sinclairYear, Translator.translate("sinclair"));
-		sinclairYear.setItems(2020, 2024);
-		binder.forField(sinclairYear)
-		        .bind(Competition::getSinclairYear, Competition::setSinclairYear);
-		
-		Checkbox sinclairMeetField = new Checkbox();
-		layout.addFormItem(sinclairMeetField,
-		        labelWithHelp("Competition.SinclairMeet", "Competition.SinclairMeetExplanation"));
-		binder.forField(sinclairMeetField)
-		        .bind(Competition::isSinclair, Competition::setSinclair);
-
-		Checkbox customScoreField = new Checkbox();
-		layout.addFormItem(customScoreField,
-		        labelWithHelp("Competition.customScore", "Competition.customScoreExplanation"));
-		binder.forField(customScoreField)
-		        .bind(Competition::isCustomScore, Competition::setCustomScore);
+		this.binder.forField(wakeUpDelayField).bind(Competition::getRefereeWakeUpDelay,
+		        Competition::setRefereeWakeUpDelay);
 
 		return layout;
 	}
@@ -505,12 +506,12 @@ public class CompetitionEditingFormFactory
 
 		LocalizedIntegerField maxTeamSize = new LocalizedIntegerField();
 		layout.addFormItem(maxTeamSize, Translator.translate("Competition.AthletesPerTeam"));
-		binder.forField(maxTeamSize)
+		this.binder.forField(maxTeamSize)
 		        .bind(Competition::getMaxTeamSize, Competition::setMaxTeamSize);
 
 		LocalizedIntegerField maxPerCategory = new LocalizedIntegerField();
 		layout.addFormItem(maxPerCategory, Translator.translate("Competition.maxAthletesPerCategory"));
-		binder.forField(maxPerCategory)
+		this.binder.forField(maxPerCategory)
 		        .bind(Competition::getMaxPerCategory, Competition::setMaxPerCategory);
 
 		return layout;

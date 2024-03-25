@@ -33,8 +33,8 @@ public class ClientMultipartFormPost {
 		try {
 			HttpPost httppost = new HttpPost(u.toURI());
 
-//            FileBody bin = new FileBody(new File("E:\\meter.jpg"));
-//            StringBody comment = new StringBody("A binary file of some kind", ContentType.TEXT_PLAIN);
+			// FileBody bin = new FileBody(new File("E:\\meter.jpg"));
+			// StringBody comment = new StringBody("A binary file of some kind", ContentType.TEXT_PLAIN);
 
 			HttpEntity reqEntity = MultipartEntityBuilder.create()
 			        .addPart("zip", new InputStreamBody(is, ct))

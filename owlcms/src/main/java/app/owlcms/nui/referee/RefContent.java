@@ -80,7 +80,7 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 					r.run();
 				}
 			};
-			t.schedule(task, delay);
+			this.t.schedule(task, delay);
 			return task;
 		}
 	}
@@ -146,11 +146,11 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 	 */
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-		location = event.getLocation();
-		locationUI = event.getUI();
-		QueryParameters queryParameters = location.getQueryParameters();
+		this.location = event.getLocation();
+		this.locationUI = event.getUI();
+		QueryParameters queryParameters = this.location.getQueryParameters();
 		Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
-		urlParams = readParams(location, parametersMap);
+		this.urlParams = readParams(this.location, parametersMap);
 
 		// get the referee number from query parameters, do not add value if num is not
 		// defined
@@ -161,7 +161,7 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 			try {
 				setRef13ix(Integer.parseInt(num));
 				logger.debug("parsed {} parameter = {}", REF_INDEX, num);
-				refField.setValue(getRef13ix().intValue());
+				this.refField.setValue(getRef13ix().intValue());
 			} catch (NumberFormatException e) {
 				setRef13ix(null);
 				num = null;
@@ -173,9 +173,9 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 
 	@Subscribe
 	public void slaveDecision(UIEvent.Decision e) {
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			good.getElement().setEnabled(false); // cannot grant after down has been given
-			redTouched = false; // re-enable processing of red.
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			this.good.getElement().setEnabled(false); // cannot grant after down has been given
+			this.redTouched = false; // re-enable processing of red.
 		});
 	}
 
@@ -188,7 +188,7 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 	@Subscribe
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
 		logger.debug("received decision reset {}", getRef13ix());
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			resetRefVote();
 		});
 	}
@@ -203,37 +203,37 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		if (!Competition.getCurrent().isSimulation()) {
 			return;
 		}
-		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this, () -> {
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this, () -> {
 			switch (getRef13ix()) {
-			case 1:
-				if (e.ref1 != null) {
-					if (e.ref1) {
-						doWhiteColor();
-					} else {
-						doRedColor();
+				case 1:
+					if (e.ref1 != null) {
+						if (e.ref1) {
+							doWhiteColor();
+						} else {
+							doRedColor();
+						}
 					}
-				}
-				break;
-			case 2:
-				if (e.ref2 != null) {
-					if (e.ref2) {
-						doWhiteColor();
-					} else {
-						doRedColor();
+					break;
+				case 2:
+					if (e.ref2 != null) {
+						if (e.ref2) {
+							doWhiteColor();
+						} else {
+							doRedColor();
+						}
 					}
-				}
-				break;
-			case 3:
-				if (e.ref3 != null) {
-					if (e.ref3) {
-						doWhiteColor();
-					} else {
-						doRedColor();
+					break;
+				case 3:
+					if (e.ref3 != null) {
+						if (e.ref3) {
+							doWhiteColor();
+						} else {
+							doRedColor();
+						}
 					}
-				}
-				break;
-			default:
-				break;
+					break;
+				default:
+					break;
 			}
 		});
 
@@ -242,7 +242,7 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 	@Subscribe
 	public void slaveStartLifting(UIEvent.StartLifting e) {
 		logger.debug("received decision reset {}", getRef13ix());
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			resetRefVote();
 		});
 	}
@@ -252,25 +252,25 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		if (getRef13ix() == null || (e.ref != 0 && e.ref != getRef13ix())) {
 			return;
 		}
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			topWrapper.removeAll();
-			topWrapper.add(juryRow);
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			this.topWrapper.removeAll();
+			this.topWrapper.add(this.juryRow);
 
 			UI currentUI = UI.getCurrent();
 			new DelayTimer().schedule(() -> currentUI.access(() -> {
-				beeper.beep();
+				this.beeper.beep();
 			}), 1000);
 			new DelayTimer().schedule(() -> currentUI.access(() -> {
-				beeper.reset();
-				topWrapper.removeAll();
-				topWrapper.add(topRow);
+				this.beeper.reset();
+				this.topWrapper.removeAll();
+				this.topWrapper.add(this.topRow);
 			}), 9000);
 		});
 	}
 
 	@Subscribe
 	public void slaveTimeStarted(UIEvent.StartTime e) {
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			resetRefVote();
 		});
 	}
@@ -280,12 +280,12 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		if (getRef13ix() == null || e.ref != getRef13ix()) {
 			return;
 		}
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			if (e.on) {
-				topWrapper.removeAll();
-				topWrapper.add(warningRow);
+				this.topWrapper.removeAll();
+				this.topWrapper.add(this.warningRow);
 				logger.debug("beeping");
-				beeper.beep();
+				this.beeper.beep();
 			}
 		});
 	}
@@ -302,7 +302,7 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 	protected void init() {
 		this.setBoxSizing(BoxSizing.BORDER_BOX);
 		this.setSizeFull();
-		beeper = new BeepElement();
+		this.beeper = new BeepElement();
 		createContent(this);
 	}
 
@@ -318,7 +318,7 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		SoundUtils.enableAudioContextNotification(this.getElement());
 		OwlcmsSession.withFop(fop -> {
 			// we listen on uiEventBus.
-			uiEventBus = uiEventBusRegister(this, fop);
+			this.uiEventBus = uiEventBusRegister(this, fop);
 		});
 	}
 
@@ -340,12 +340,12 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		        .set("font-weight", "bold");
 		w.getClassNames().add("blink");
 		w.setWidth("100%");
-		warningRow = new HorizontalLayout();
-		warningRow.add(w);
-		warningRow.setPadding(false);
-		warningRow.setMargin(false);
-		warningRow.setWidthFull();
-		warningRow.getStyle().set("background-color", "yellow");
+		this.warningRow = new HorizontalLayout();
+		this.warningRow.add(w);
+		this.warningRow.setPadding(false);
+		this.warningRow.setMargin(false);
+		this.warningRow.setWidthFull();
+		this.warningRow.getStyle().set("background-color", "yellow");
 
 		var j = new H2(Translator.translate("JuryNotification.PleaseSeeJury"));
 		j.getStyle()
@@ -356,26 +356,26 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		        .set("font-weight", "bold");
 		j.getClassNames().add("blink");
 		j.setWidth("100%");
-		juryRow = new HorizontalLayout();
-		juryRow.add(j);
-		juryRow.setWidthFull();
-		juryRow.setPadding(false);
-		juryRow.setMargin(false);
-		juryRow.getStyle().set("background-color", "red");
+		this.juryRow = new HorizontalLayout();
+		this.juryRow.add(j);
+		this.juryRow.setWidthFull();
+		this.juryRow.setPadding(false);
+		this.juryRow.setMargin(false);
+		this.juryRow.getStyle().set("background-color", "red");
 
 		NativeLabel refLabel = new NativeLabel(getTranslation("Referee"));
 		var labelWrapper = new H2(refLabel);
 		labelWrapper.getStyle().set("margin-top", "0");
 		labelWrapper.getStyle().set("margin-bottom", "0");
 
-		refField = new IntegerField();
-		refField.setStep(1);
-		refField.setMax(3);
-		refField.setMin(1);
-		refField.setValue(getRef13ix() == null ? null : getRef13ix().intValue());
-		refField.setPlaceholder(getTranslation("Number"));
-		refField.setStepButtonsVisible(true);
-		refField.addValueChangeListener((e) -> {
+		this.refField = new IntegerField();
+		this.refField.setStep(1);
+		this.refField.setMax(3);
+		this.refField.setMin(1);
+		this.refField.setValue(getRef13ix() == null ? null : getRef13ix().intValue());
+		this.refField.setPlaceholder(getTranslation("Number"));
+		this.refField.setStepButtonsVisible(true);
+		this.refField.addValueChangeListener((e) -> {
 			setRef13ix(e.getValue());
 			setUrl(getRef13ix() != null ? getRef13ix().toString() : null);
 		});
@@ -386,16 +386,16 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 			OwlcmsSession.setFop(e.getValue());
 		});
 
-		topRow = new HorizontalLayout();
-		topRow.add(labelWrapper, fopSelect, refField);
-		topRow.setMargin(false);
-		topRow.setSpacing(true);
-		topRow.setAlignItems(Alignment.BASELINE);
+		this.topRow = new HorizontalLayout();
+		this.topRow.add(labelWrapper, fopSelect, this.refField);
+		this.topRow.setMargin(false);
+		this.topRow.setSpacing(true);
+		this.topRow.setAlignItems(Alignment.BASELINE);
 
-		topWrapper = new HorizontalLayout();
-		topWrapper.setHeight("2em");
-		topWrapper.setWidthFull();
-		topWrapper.getStyle().set("line-height", "2em");
+		this.topWrapper = new HorizontalLayout();
+		this.topWrapper.setHeight("2em");
+		this.topWrapper.setWidthFull();
+		this.topWrapper.getStyle().set("line-height", "2em");
 
 		createRefVoting();
 		resetRefVote();
@@ -406,38 +406,37 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		refContainer.getClassNames().add("dark");
 		refContainer.setHeight("100%");
 		refContainer.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
-		HorizontalLayout tl = new HorizontalLayout(beeper, topWrapper);
+		HorizontalLayout tl = new HorizontalLayout(this.beeper, this.topWrapper);
 		tl.setWidthFull();
 		refContainer.add(tl);
 		refContainer.setAlignSelf(Alignment.START, tl);
-		refVotingCenterHorizontally.setId("refVotingCenterHorizontally");
+		this.refVotingCenterHorizontally.setId("refVotingCenterHorizontally");
 		this.setId("top");
-		refContainer.add(refVotingCenterHorizontally);
+		refContainer.add(this.refVotingCenterHorizontally);
 	}
 
 	private void createRefVoting() {
 		// center buttons vertically, spread withing proper width
-		refVotingButtons = new HorizontalLayout();
-		refVotingButtons.setBoxSizing(BoxSizing.BORDER_BOX);
-		refVotingButtons.setJustifyContentMode(JustifyContentMode.EVENLY);
-		refVotingButtons.setDefaultVerticalComponentAlignment(Alignment.CENTER);
-		refVotingButtons.setHeight("100%");
-		refVotingButtons.setWidth("100%");
-		refVotingButtons.getStyle().set("background-color", "black");
-		refVotingButtons.setPadding(false);
-		refVotingButtons.setMargin(false);
-		refVotingButtons.setSpacing(true);
+		this.refVotingButtons = new HorizontalLayout();
+		this.refVotingButtons.setBoxSizing(BoxSizing.BORDER_BOX);
+		this.refVotingButtons.setJustifyContentMode(JustifyContentMode.EVENLY);
+		this.refVotingButtons.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+		this.refVotingButtons.setHeight("100%");
+		this.refVotingButtons.setWidth("100%");
+		this.refVotingButtons.getStyle().set("background-color", "black");
+		this.refVotingButtons.setPadding(false);
+		this.refVotingButtons.setMargin(false);
+		this.refVotingButtons.setSpacing(true);
 
 		// center the button cluster within page width
-		refVotingCenterHorizontally = new VerticalLayout();
-		refVotingCenterHorizontally.setSizeFull();
-		refVotingCenterHorizontally.setBoxSizing(BoxSizing.BORDER_BOX);
-		refVotingCenterHorizontally.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
-		refVotingCenterHorizontally.setPadding(true);
-		refVotingCenterHorizontally.setMargin(true);
+		this.refVotingCenterHorizontally = new VerticalLayout();
+		this.refVotingCenterHorizontally.setSizeFull();
+		this.refVotingCenterHorizontally.setBoxSizing(BoxSizing.BORDER_BOX);
+		this.refVotingCenterHorizontally.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
+		this.refVotingCenterHorizontally.setPadding(true);
+		this.refVotingCenterHorizontally.setMargin(true);
 
-		refVotingCenterHorizontally.add(refVotingButtons);
-		return;
+		this.refVotingCenterHorizontally.add(this.refVotingButtons);
 	}
 
 	private void doRed() {
@@ -451,12 +450,12 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 	}
 
 	private void doRedColor() {
-		good.getStyle().set("color", "DarkSlateGrey");
-		good.getStyle().set("outline-color", "white");
-		bad.getStyle().set("color", "red");
-		topWrapper.removeAll();
-		topWrapper.add(topRow);
-		beeper.reset();
+		this.good.getStyle().set("color", "DarkSlateGrey");
+		this.good.getStyle().set("outline-color", "white");
+		this.bad.getStyle().set("color", "red");
+		this.topWrapper.removeAll();
+		this.topWrapper.add(this.topRow);
+		this.beeper.reset();
 	}
 
 	private void doWhite() {
@@ -470,12 +469,12 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 	}
 
 	private void doWhiteColor() {
-		bad.getStyle().set("color", "DarkSlateGrey");
-		bad.getStyle().set("outline-color", "white");
-		good.getStyle().set("color", "white");
-		topWrapper.removeAll();
-		topWrapper.add(topRow);
-		beeper.reset();
+		this.bad.getStyle().set("color", "DarkSlateGrey");
+		this.bad.getStyle().set("outline-color", "white");
+		this.good.getStyle().set("color", "white");
+		this.topWrapper.removeAll();
+		this.topWrapper.add(this.topRow);
+		this.beeper.reset();
 	}
 
 	private Object getOrigin() {
@@ -483,33 +482,33 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 	}
 
 	private Integer getRef13ix() {
-		return ref13ix;
+		return this.ref13ix;
 	}
 
 	private void redClicked(DomEvent e) {
-		if (!redTouched) {
+		if (!this.redTouched) {
 			doRed();
 		}
 	}
 
 	private void redTouched(DomEvent e) {
-		redTouched = true;
+		this.redTouched = true;
 		doRed();
 		vibrate();
 	}
 
 	private void resetRefVote() {
-		refVotingButtons.removeAll();
-		good = bigIcon(VaadinIcon.CHECK_CIRCLE, "white");
-		good.getElement().addEventListener("touchstart", (e) -> whiteTouched(e));
-		good.getElement().addEventListener("click", (e) -> whiteClicked(e));
-		bad = bigIcon(VaadinIcon.CLOSE_CIRCLE, "red");
-		bad.getElement().addEventListener("touchstart", (e) -> redTouched(e));
-		bad.getElement().addEventListener("click", (e) -> redClicked(e));
-		refVotingButtons.add(bad, good);
-		topWrapper.removeAll();
-		topWrapper.add(topRow);
-		beeper.reset();
+		this.refVotingButtons.removeAll();
+		this.good = bigIcon(VaadinIcon.CHECK_CIRCLE, "white");
+		this.good.getElement().addEventListener("touchstart", (e) -> whiteTouched(e));
+		this.good.getElement().addEventListener("click", (e) -> whiteClicked(e));
+		this.bad = bigIcon(VaadinIcon.CLOSE_CIRCLE, "red");
+		this.bad.getElement().addEventListener("touchstart", (e) -> redTouched(e));
+		this.bad.getElement().addEventListener("click", (e) -> redClicked(e));
+		this.refVotingButtons.add(this.bad, this.good);
+		this.topWrapper.removeAll();
+		this.topWrapper.add(this.topRow);
+		this.beeper.reset();
 	}
 
 	private void setRef13ix(Integer ref13ix) {
@@ -518,13 +517,13 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 
 	private void setUrl(String num) {
 		if (num != null) {
-			urlParams.put(REF_INDEX, Arrays.asList(num));
+			this.urlParams.put(REF_INDEX, Arrays.asList(num));
 		} else {
-			urlParams.remove(REF_INDEX);
+			this.urlParams.remove(REF_INDEX);
 		}
 		// change the URL to reflect group
-		Location location2 = new Location(location.getPath(), new QueryParameters(urlParams));
-		locationUI.getPage().getHistory().replaceState(null, location2);
+		Location location2 = new Location(this.location.getPath(), new QueryParameters(this.urlParams));
+		this.locationUI.getPage().getHistory().replaceState(null, location2);
 		logger.trace("changed location to {}", location2.getPathWithQueryParameters());
 		UI.getCurrent().getPage().setTitle(getPageTitle());
 	}
@@ -534,14 +533,14 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 	}
 
 	private void whiteClicked(DomEvent e) {
-		if (!whiteTouched) {
+		if (!this.whiteTouched) {
 			doWhite();
 		}
 		vibrate();
 	}
 
 	private void whiteTouched(DomEvent e) {
-		whiteTouched = true;
+		this.whiteTouched = true;
 		doWhite();
 	}
 

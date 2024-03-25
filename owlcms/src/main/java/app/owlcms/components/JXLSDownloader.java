@@ -77,7 +77,7 @@ public class JXLSDownloader {
 	        BiConsumer<Competition, String> templateNameSetter,
 	        String dialogTitle,
 	        String buttonLabel) {
-		logger.setLevel(Level.DEBUG);
+		this.logger.setLevel(Level.DEBUG);
 		this.streamSourceSupplier = streamSourceSupplier;
 		this.resourceDirectoryLocation = resourceDirectoryLocation;
 		this.templateNameGetter = templateNameGetter;
@@ -99,7 +99,7 @@ public class JXLSDownloader {
 	        String resourceDirectoryLocation,
 	        String templateName,
 	        String buttonLabel) {
-		logger.setLevel(Level.DEBUG);
+		this.logger.setLevel(Level.DEBUG);
 		this.streamSourceSupplier = streamSourceSupplier;
 		this.resourceDirectoryLocation = resourceDirectoryLocation;
 		this.templateNameGetter = c -> {
@@ -113,7 +113,7 @@ public class JXLSDownloader {
 
 	/**
 	 * This constructor is used when downloading a known file. The given template name is used.
-	 * 
+	 *
 	 * @param streamSourceSupplier
 	 * @param resourceDirectoryLocation
 	 * @param templateName
@@ -126,7 +126,7 @@ public class JXLSDownloader {
 	        String templateName,
 	        String buttonLabel,
 	        Predicate<String> nameFilter) {
-		logger.setLevel(Level.DEBUG);
+		this.logger.setLevel(Level.DEBUG);
 		this.streamSourceSupplier = streamSourceSupplier;
 		this.resourceDirectoryLocation = resourceDirectoryLocation;
 		this.templateNameGetter = c -> {
@@ -143,7 +143,7 @@ public class JXLSDownloader {
 	 * @return
 	 */
 	public Button createDownloadButton() {
-		Button dialogOpen = new Button(dialogTitle, new Icon(VaadinIcon.DOWNLOAD_ALT),
+		Button dialogOpen = new Button(this.dialogTitle, new Icon(VaadinIcon.DOWNLOAD_ALT),
 		        e -> {
 			        Dialog dialog = createDialog();
 			        dialog.open();
@@ -152,12 +152,12 @@ public class JXLSDownloader {
 	}
 
 	public Anchor createImmediateDownloadButton(String... tooltipText) {
-		xlsWriter = streamSourceSupplier.get();
+		this.xlsWriter = this.streamSourceSupplier.get();
 		Supplier<String> supplier = () -> getTargetFileName();
-		resource = new StreamResource(supplier.get(), (StreamResourceWriter) xlsWriter);
-		Anchor link = new Anchor(resource, "");
+		this.resource = new StreamResource(supplier.get(), (StreamResourceWriter) this.xlsWriter);
+		Anchor link = new Anchor(this.resource, "");
 		link.getElement().setAttribute("download", true);
-		Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
+		Button innerButton = new Button(this.buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
 		if (tooltipText != null && tooltipText.length > 0) {
 			innerButton.setTooltipText(tooltipText[0]);
 		}
@@ -172,162 +172,142 @@ public class JXLSDownloader {
 
 	private Dialog createDialog() {
 		// Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
-		dialog = new Dialog();
-		dialog.setCloseOnEsc(true);
-		dialog.setHeaderTitle(dialogTitle);
-		templateSelect = new ComboBox<Resource>();
+		this.dialog = new Dialog();
+		this.dialog.setCloseOnEsc(true);
+		this.dialog.setHeaderTitle(this.dialogTitle);
+		this.templateSelect = new ComboBox<>();
 
 		HorizontalLayout templateSelection = new HorizontalLayout();
 		templateSelection.setSpacing(false);
 
-		templateSelect.setPlaceholder(Translator.translate("AvailableTemplates"));
-		templateSelect.setHelperText(Translator.translate("SelectTemplate"));
+		this.templateSelect.setPlaceholder(Translator.translate("AvailableTemplates"));
+		this.templateSelect.setHelperText(Translator.translate("SelectTemplate"));
 		List<Resource> resourceList = new ResourceWalker().getResourceList(
-		        resourceDirectoryLocation,
+		        this.resourceDirectoryLocation,
 		        ResourceWalker::relativeName,
-		        nameFilter,
+		        this.nameFilter,
 		        OwlcmsSession.getLocale(),
 		        Config.getCurrent().isLocalTemplatesOnly());
 		List<Resource> prioritizedList = xlsxPriority(resourceList);
-		templateSelect.setItems(prioritizedList);
-		templateSelect.setValue(null);
-		templateSelect.setWidth("15em");
+		this.templateSelect.setItems(prioritizedList);
+		this.templateSelect.setValue(null);
+		this.templateSelect.setWidth("15em");
 		// templateSelect.getStyle().set("margin-left", "1em");
-		templateSelect.getStyle().set("margin-right", "0.8em");
+		this.templateSelect.getStyle().set("margin-right", "0.8em");
 
-		resource = null;
+		this.resource = null;
 
 		try {
 			// Competition.getTemplateFileName()
 			// the getter should return a default if not set.
-			String curTemplateName = templateNameGetter.apply(Competition.getCurrent());
-			logger.debug("(1) curTemplateName {}", curTemplateName);
+			String curTemplateName = this.templateNameGetter.apply(Competition.getCurrent());
+			this.logger.debug("(1) curTemplateName {}", curTemplateName);
 			// searchMatch should always return something unless the directory is empty.
 			Resource found = searchMatch(prioritizedList, curTemplateName);
-			logger.debug("(1) template found {}", found != null ? found.getFilePath() : null);
+			this.logger.debug("(1) template found {}", found != null ? found.getFilePath() : null);
 
-			templateSelect.addValueChangeListener(e -> {
+			this.templateSelect.addValueChangeListener(e -> {
 				try {
 					String newTemplateName = e.getValue().getFileName();
 
 					Competition current = Competition.getCurrent();
 
-					xlsWriter = streamSourceSupplier.get();
-					logger.debug("(2) xlsWriter {} {}", xlsWriter.getClass().getSimpleName(), newTemplateName);
+					this.xlsWriter = this.streamSourceSupplier.get();
+					this.logger.debug("(2) xlsWriter {} {}", this.xlsWriter.getClass().getSimpleName(),
+					        newTemplateName);
 
 					// supplier is a lambda that sets the template and the filter values in the xls
 					// source
 					Resource res = searchMatch(prioritizedList, newTemplateName);
 					if (res == null) {
-						logger.debug("(2) template NOT found {} {}", newTemplateName, prioritizedList);
+						this.logger.debug("(2) template NOT found {} {}", newTemplateName, prioritizedList);
 						throw new Exception("template not found " + newTemplateName);
 					}
-					logger.debug("(2) template found {}", res != null ? res.getFilePath() : null);
-					templateNameSetter.accept(current, newTemplateName);
-					logger.debug("(2) template as set {}", templateNameGetter.apply(current));
+					this.logger.debug("(2) template found {}", res != null ? res.getFilePath() : null);
+					this.templateNameSetter.accept(current, newTemplateName);
+					this.logger.debug("(2) template as set {}", this.templateNameGetter.apply(current));
 
 					CompetitionRepository.save(current);
 					current = Competition.getCurrent();
-					logger.debug("(2) template as stored {}", templateNameGetter.apply(current));
+					this.logger.debug("(2) template as stored {}", this.templateNameGetter.apply(current));
 
 					InputStream is = res.getStream();
-					xlsWriter.setInputStream(is);
-					logger.debug("(2) filter present = {} {} {}", xlsWriter.getGroup(), xlsWriter.getCategory(),
-					        xlsWriter.getAgeDivision());
+					this.xlsWriter.setInputStream(is);
+					this.logger.debug("(2) filter present = {} {} {}", this.xlsWriter.getGroup(),
+					        this.xlsWriter.getCategory(),
+					        this.xlsWriter.getAgeDivision());
 
 					String targetFileName = getTargetFileName();
-					logger.debug("(2) targetFileName final = {}", targetFileName);
+					this.logger.debug("(2) targetFileName final = {}", targetFileName);
 
 					Supplier<String> supplier = () -> getTargetFileName();
 
-					Anchor nDownloadAnchor = doCreateActualDownloadButton(resource, xlsWriter, supplier.get());
+					Anchor nDownloadAnchor = doCreateActualDownloadButton(this.resource, this.xlsWriter,
+					        supplier.get());
 					// if downloadAnchor is null, same as add nDownloadAnchor
-					templateSelection.replace(downloadAnchor, nDownloadAnchor);
-					downloadAnchor = nDownloadAnchor;
+					templateSelection.replace(this.downloadAnchor, nDownloadAnchor);
+					this.downloadAnchor = nDownloadAnchor;
 
-					xlsWriter.setDoneCallback((message) -> dialog.close());
+					this.xlsWriter.setDoneCallback((message) -> this.dialog.close());
 
 					// downloadButton.setFileNameCallback(supplier);
 					// downloadButton.setInputStreamCallback(() -> xlsWriter.createInputStream());
 					// downloadButton.addDownloadStartsListener(ds -> dialog.close());
 				} catch (Throwable e1) {
-					logger.error("{}", LoggerUtils.stackTrace(e1));
+					this.logger.error("{}", LoggerUtils.stackTrace(e1));
 				}
 			});
-			templateSelection.add(templateSelect);
-			dialog.add(templateSelection);
-			templateSelect.setValue(found);
+			templateSelection.add(this.templateSelect);
+			this.dialog.add(templateSelection);
+			this.templateSelect.setValue(found);
 		} catch (Exception e1) {
 			throw new RuntimeException(e1);
 		}
 
-		return dialog;
-	}
-
-	/**
-	 * give precedence to .xlsx file if both .xls and .xlsx
-	 * @param resourceList
-	 * @return
-	 */
-	private List<Resource> xlsxPriority(List<Resource> resourceList) {
-		// xlsx will come before xls
-		resourceList.sort(Comparator.comparing(Resource::getFileName).reversed());
-
-		ArrayList<Resource> proritizedList = new ArrayList<Resource>();
-		String prevName = "";
-		for (Resource r : resourceList) {
-			String curName = r.getFileName();
-			// give precedence to .xlsx file if both .xls and .xlsx
-			if (curName.endsWith(".xlsx") || (curName.endsWith(".xls") && !prevName.contentEquals(curName + "x"))) {
-				proritizedList.add(r);
-			}
-			prevName = curName;
-		}
-		proritizedList.sort(Comparator.comparing(Resource::getFileName));
-		return proritizedList;
+		return this.dialog;
 	}
 
 	private Anchor doCreateActualDownloadButton(StreamResource resource, StreamResourceWriter writer, String fileName) {
 		resource = new StreamResource(fileName, writer);
 		Anchor link = new Anchor(resource, "");
 		link.getElement().setAttribute("download", true);
-		Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
+		Button innerButton = new Button(this.buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
 		link.add(innerButton);
 		innerButton.setDisableOnClick(true);
 		innerButton.addClickListener((c) -> {
-			templateSelect.setEnabled(false);
-			dialog.add(new Paragraph(getProcessingMessage()));
+			this.templateSelect.setEnabled(false);
+			this.dialog.add(new Paragraph(getProcessingMessage()));
 		});
 		return link;
 	}
 
 	private String getProcessingMessage() {
-		return processingMessage == null ? Translator.translate("Processing") : processingMessage;
+		return this.processingMessage == null ? Translator.translate("Processing") : this.processingMessage;
 	}
 
 	private String getTargetFileName() {
 		StringBuilder suffix = new StringBuilder();
-		if (xlsWriter.getCategory() != null) {
+		if (this.xlsWriter.getCategory() != null) {
 			suffix.append("_");
-			suffix.append(xlsWriter.getCategory().getCode());
-		} else if (xlsWriter.getAgeGroupPrefix() != null) {
+			suffix.append(this.xlsWriter.getCategory().getCode());
+		} else if (this.xlsWriter.getAgeGroupPrefix() != null) {
 			suffix.append("_");
-			suffix.append(xlsWriter.getAgeGroupPrefix().toString());
-		} else if (xlsWriter.getAgeDivision() != null) {
+			suffix.append(this.xlsWriter.getAgeGroupPrefix().toString());
+		} else if (this.xlsWriter.getAgeDivision() != null) {
 			suffix.append("_");
-			suffix.append(xlsWriter.getAgeDivision().toString());
+			suffix.append(this.xlsWriter.getAgeDivision().toString());
 		}
 
-		if (xlsWriter.getGroup() != null) {
+		if (this.xlsWriter.getGroup() != null) {
 			suffix.append("_");
-			suffix.append(xlsWriter.getGroup().toString());
+			suffix.append(this.xlsWriter.getGroup().toString());
 		}
 		LocalDateTime now = LocalDateTime.now().withNano(0);
 		suffix.append("_");
 		suffix.append(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm';'ss")));
 
 		String fileName = "";
-		String templateName = templateNameGetter.apply(Competition.getCurrent());
+		String templateName = this.templateNameGetter.apply(Competition.getCurrent());
 		String extension = FileUtils.getExtension(templateName);
 		if ((templateName.matches(".*[_-](A4|LETTER|LEGAL).*"))) {
 			fileName = templateName.replaceAll("[_-](A4|LETTER|LEGAL)(." + extension + ")", "") + suffix + "."
@@ -342,7 +322,7 @@ public class JXLSDownloader {
 		// fileName = "output" + suffix + "." + extension;
 		// }
 		fileName = sanitizeFilename(fileName);
-		logger.trace(fileName);
+		this.logger.trace(fileName);
 		return fileName;
 	}
 
@@ -354,13 +334,37 @@ public class JXLSDownloader {
 		Resource found = null;
 		for (Resource curResource : resourceList) {
 			String fileName = curResource.getFileName();
-			logger.trace("comparing {} {}", fileName, curTemplateName);
+			this.logger.trace("comparing {} {}", fileName, curTemplateName);
 			if (fileName.equals(curTemplateName)) {
 				found = curResource;
 				break;
 			}
 		}
 		return found;
+	}
+
+	/**
+	 * give precedence to .xlsx file if both .xls and .xlsx
+	 *
+	 * @param resourceList
+	 * @return
+	 */
+	private List<Resource> xlsxPriority(List<Resource> resourceList) {
+		// xlsx will come before xls
+		resourceList.sort(Comparator.comparing(Resource::getFileName).reversed());
+
+		ArrayList<Resource> proritizedList = new ArrayList<>();
+		String prevName = "";
+		for (Resource r : resourceList) {
+			String curName = r.getFileName();
+			// give precedence to .xlsx file if both .xls and .xlsx
+			if (curName.endsWith(".xlsx") || (curName.endsWith(".xls") && !prevName.contentEquals(curName + "x"))) {
+				proritizedList.add(r);
+			}
+			prevName = curName;
+		}
+		proritizedList.sort(Comparator.comparing(Resource::getFileName));
+		return proritizedList;
 	}
 
 }

@@ -27,18 +27,11 @@ public interface DisplayParameters extends SoundParameters {
 	public static final String RECORDS = "records";
 	public static final String LEADERS = "leaders";
 	public static final String ABBREVIATED = "abb";
-	
 	public static final String DARK = "dark";
 	public static final String FONTSIZE = "em";
 	public static final String TEAMWIDTH = "tw";
 	public static final String LIGHT = "light";
 	public static final String VIDEO = "video";
-
-	public default void pushEmSize() {
-	}
-
-	public default void pushTeamWidth() {
-	}
 
 	public default Double getEmFontSize() {
 		return 1.0D;
@@ -81,8 +74,12 @@ public interface DisplayParameters extends SoundParameters {
 	}
 
 	public boolean isVideo();
-	
-	public void setVideo(boolean b);
+
+	public default void pushEmSize() {
+	}
+
+	public default void pushTeamWidth() {
+	}
 
 	public void setAbbreviatedName(boolean b);
 
@@ -97,5 +94,7 @@ public interface DisplayParameters extends SoundParameters {
 	public void setRecordsDisplay(boolean showRecords);
 
 	public void setTeamWidth(Double tw);
+
+	public void setVideo(boolean b);
 
 }

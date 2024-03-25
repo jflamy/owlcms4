@@ -16,7 +16,6 @@ import ch.qos.logback.classic.Logger;
 public class LiftOrderReconstruction {
 
 	final static String LINESEPARATOR = System.getProperty("line.separator");
-
 	private TreeSet<LiftOrderInfo> pastOrder;
 
 	public LiftOrderReconstruction(FieldOfPlay fop) {
@@ -32,7 +31,7 @@ public class LiftOrderReconstruction {
 	}
 
 	public TreeSet<LiftOrderInfo> getPastOrder() {
-		return pastOrder;
+		return this.pastOrder;
 	}
 
 	/**
@@ -49,10 +48,10 @@ public class LiftOrderReconstruction {
 	}
 
 	public void shortDump(String string, Logger logger) {
-//        logger.trace("{}{}", OwlcmsSession.getFopLoggingName(), string);
-//        for (LiftOrderInfo ali : this.pastOrder) {
-//            logger.trace("{}    {}", OwlcmsSession.getFopLoggingName(), ali.toString());
-//        }
+		// logger.trace("{}{}", OwlcmsSession.getFopLoggingName(), string);
+		// for (LiftOrderInfo ali : this.pastOrder) {
+		// logger.trace("{} {}", OwlcmsSession.getFopLoggingName(), ali.toString());
+		// }
 	}
 
 	/**
@@ -70,28 +69,28 @@ public class LiftOrderReconstruction {
 				LiftOrderInfo ali = new LiftOrderInfo();
 				int w;
 				switch (liftNo) {
-				case 0:
-					w = Math.abs(Athlete.zeroIfInvalid(a.getSnatch1ActualLift()));
-					prevweight = w;
-					ali.setWeight(w);
-					break;
-				case 1:
-					ali.setWeight(Math.abs(Athlete.zeroIfInvalid(a.getSnatch2ActualLift())));
-					break;
-				case 2:
-					ali.setWeight(Math.abs(Athlete.zeroIfInvalid(a.getSnatch3ActualLift())));
-					break;
-				case 3:
-					w = Math.abs(Athlete.zeroIfInvalid(a.getCleanJerk1ActualLift()));
-					prevweight = w;
-					ali.setWeight(w);
-					break;
-				case 4:
-					ali.setWeight(Math.abs(Athlete.zeroIfInvalid(a.getCleanJerk2ActualLift())));
-					break;
-				case 5:
-					ali.setWeight(Math.abs(Athlete.zeroIfInvalid(a.getCleanJerk3ActualLift())));
-					break;
+					case 0:
+						w = Math.abs(Athlete.zeroIfInvalid(a.getSnatch1ActualLift()));
+						prevweight = w;
+						ali.setWeight(w);
+						break;
+					case 1:
+						ali.setWeight(Math.abs(Athlete.zeroIfInvalid(a.getSnatch2ActualLift())));
+						break;
+					case 2:
+						ali.setWeight(Math.abs(Athlete.zeroIfInvalid(a.getSnatch3ActualLift())));
+						break;
+					case 3:
+						w = Math.abs(Athlete.zeroIfInvalid(a.getCleanJerk1ActualLift()));
+						prevweight = w;
+						ali.setWeight(w);
+						break;
+					case 4:
+						ali.setWeight(Math.abs(Athlete.zeroIfInvalid(a.getCleanJerk2ActualLift())));
+						break;
+					case 5:
+						ali.setWeight(Math.abs(Athlete.zeroIfInvalid(a.getCleanJerk3ActualLift())));
+						break;
 				}
 				ali.setAthlete(a);
 				ali.setAttemptNo(liftNo + 1);

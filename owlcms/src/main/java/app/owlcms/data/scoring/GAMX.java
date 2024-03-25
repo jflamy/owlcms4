@@ -42,17 +42,6 @@ public class GAMX {
 	private static boolean loaded = false;
 	static Logger logger = (Logger) LoggerFactory.getLogger(GAMX.class);
 
-	public GAMX() {
-	}
-
-	public float doGetZCoefficient(Gender gender, Double dBW, Float score) {
-		if (gender == null || dBW == null) {
-			return 0.0F;
-		}
-		float coefficient = (score - M_CONSTANT) / SD_CONSTANT;
-		return coefficient;
-	}
-
 	public static float doGetGamx(Gender gender, Double dBW, Integer liftedWeight) {
 		if (gender == null || dBW == null) {
 			return 0.0F;
@@ -63,7 +52,8 @@ public class GAMX {
 		float ceilingScore = M_CONSTANT + zCoefficient(gender, (int) Math.ceil(dBW), liftedWeight) * SD_CONSTANT;
 		double interpolated = floorScore + ((dBW - Math.floor(dBW)) * (ceilingScore - floorScore));
 
-		logger.info("doGetGamx gender={} bw={} total={} floor={} ceil={} score={}", gender, dBW, liftedWeight, floorScore,
+		logger.info("doGetGamx gender={} bw={} total={} floor={} ceil={} score={}", gender, dBW, liftedWeight,
+		        floorScore,
 		        ceilingScore, interpolated);
 
 		return (float) interpolated;
@@ -91,17 +81,17 @@ public class GAMX {
 		}
 
 		try {
-//			logger.debug("{} binary {} {}<{}<{}", floorBW + STARTING_BW, floorWeightIndex + STARTING_TOTAL,
-//			        gamx[gender.ordinal()][floorBW][floorWeightIndex - 1],
-//			        targetScore, gamx[gender.ordinal()][floorBW][floorWeightIndex]);
+			// logger.debug("{} binary {} {}<{}<{}", floorBW + STARTING_BW, floorWeightIndex + STARTING_TOTAL,
+			// gamx[gender.ordinal()][floorBW][floorWeightIndex - 1],
+			// targetScore, gamx[gender.ordinal()][floorBW][floorWeightIndex]);
 
 			int returnValue = floorWeightIndex + STARTING_TOTAL;
 			var score = doGetGamx(gender, bw, returnValue);
-//			logger.debug("bw={} total={} score={} targetScore={}", bw, returnValue, score, targetScore);
+			// logger.debug("bw={} total={} score={} targetScore={}", bw, returnValue, score, targetScore);
 			while (score < targetScore) {
 				returnValue++;
 				score = doGetGamx(gender, bw, returnValue);
-//				logger.debug("bw={} total={} score={} targetScore={}", bw, returnValue, score, targetScore);
+				// logger.debug("bw={} total={} score={} targetScore={}", bw, returnValue, score, targetScore);
 			}
 			return returnValue;
 		} catch (Exception e) {
@@ -174,6 +164,17 @@ public class GAMX {
 		} catch (Exception e) {
 			LoggerUtils.logError(logger, e);
 		}
+	}
+
+	public GAMX() {
+	}
+
+	public float doGetZCoefficient(Gender gender, Double dBW, Float score) {
+		if (gender == null || dBW == null) {
+			return 0.0F;
+		}
+		float coefficient = (score - M_CONSTANT) / SD_CONSTANT;
+		return coefficient;
 	}
 
 }

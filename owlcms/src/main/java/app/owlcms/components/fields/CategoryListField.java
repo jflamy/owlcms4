@@ -34,20 +34,18 @@ import ch.qos.logback.classic.Logger;
 public class CategoryListField extends CustomField<List<Category>> {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(CategoryListField.class);
-
 	private AgeGroup ageGroup;
 	private FlexLayout flex;
-
 	private List<Category> presentationCategories = new ArrayList<>();
 
 	public CategoryListField(AgeGroup ag) {
-		super(new ArrayList<Category>());
+		super(new ArrayList<>());
 		this.ageGroup = ag;
-		flex = new FlexLayout();
-		flex.setSizeFull();
-		flex.getStyle().set("flex-wrap", "wrap");
-		flex.getStyle().set("margin-top", "1em");
-		add(flex);
+		this.flex = new FlexLayout();
+		this.flex.setSizeFull();
+		this.flex.getStyle().set("flex-wrap", "wrap");
+		this.flex.getStyle().set("margin-top", "1em");
+		add(this.flex);
 
 		HorizontalLayout adder = new HorizontalLayout();
 		adder.getStyle().set("margin-top", "0.5em");
@@ -69,10 +67,27 @@ public class CategoryListField extends CustomField<List<Category>> {
 		add(adder);
 	}
 
+	@Override
+	protected List<Category> generateModelValue() {
+		// the presentation objects are already model values and no conversion is
+		// necessary
+		// the business model can use them as is; the model ignores the categories with
+		// no age group
+		// the database ids are also preserved in the copy, and used to update the
+		// database
+		return this.presentationCategories;
+	}
+
+	@Override
+	protected void setPresentationValue(List<Category> iCategories) {
+		this.presentationCategories = iCategories.stream().map(c -> new Category(c)).collect(Collectors.toList());
+		updatePresentation();
+	}
+
 	private void addSentinel() {
-		Category newCat = new Category(0.0, 999.0D, ageGroup.getGender(), true,
-		        0, 0, 0, ageGroup, 0);
-		presentationCategories.add(newCat);
+		Category newCat = new Category(0.0, 999.0D, this.ageGroup.getGender(), true,
+		        0, 0, 0, this.ageGroup, 0);
+		this.presentationCategories.add(newCat);
 	}
 
 	private void react(AgeGroup ag, TextField newCategoryField) {
@@ -89,25 +104,26 @@ public class CategoryListField extends CustomField<List<Category>> {
 		double newMax = Double.parseDouble(value);
 		Category newCat = new Category(0.0, newMax, ag.getGender(), true,
 		        0, 0, 0, ag, 0);
-		presentationCategories.add(newCat);
+		this.presentationCategories.add(newCat);
 		updatePresentation();
 		newCategoryField.clear();
 	}
 
 	private void updatePresentation() {
-		flex.removeAll();
+		this.flex.removeAll();
 		double prevDouble = 0.0;
-		presentationCategories.sort((c1, c2) -> ObjectUtils.compare(c1.getMaximumWeight(), c2.getMaximumWeight()));
+		this.presentationCategories.sort((c1, c2) -> ObjectUtils.compare(c1.getMaximumWeight(), c2.getMaximumWeight()));
 
 		// last category must be 999, create one if not the case. the loop below will
 		// sort out the labels.
-		if (presentationCategories.size() == 0) {
+		if (this.presentationCategories.size() == 0) {
 			addSentinel();
-		} else if (presentationCategories.get(presentationCategories.size() - 1).getMaximumWeight() <= 998.9D) {
+		} else if (this.presentationCategories.get(this.presentationCategories.size() - 1)
+		        .getMaximumWeight() <= 998.9D) {
 			addSentinel();
 		}
 
-		for (Category c : presentationCategories) {
+		for (Category c : this.presentationCategories) {
 			AgeGroup ageGroup2 = c.getAgeGroup();
 			if (ageGroup2 == null) {
 				continue;
@@ -139,25 +155,8 @@ public class CategoryListField extends CustomField<List<Category>> {
 				updatePresentation();
 				updateValue();
 			});
-			flex.add(aspan, new Span("\u00a0"));
+			this.flex.add(aspan, new Span("\u00a0"));
 		}
-	}
-
-	@Override
-	protected List<Category> generateModelValue() {
-		// the presentation objects are already model values and no conversion is
-		// necessary
-		// the business model can use them as is; the model ignores the categories with
-		// no age group
-		// the database ids are also preserved in the copy, and used to update the
-		// database
-		return presentationCategories;
-	}
-
-	@Override
-	protected void setPresentationValue(List<Category> iCategories) {
-		presentationCategories = iCategories.stream().map(c -> new Category(c)).collect(Collectors.toList());
-		updatePresentation();
 	}
 
 }

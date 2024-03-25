@@ -15,11 +15,10 @@ import app.owlcms.init.OwlcmsSession;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Use the @PWA annotation make the application installable on phones, tablets
- * and some desktop browsers.
+ * Use the @PWA annotation make the application installable on phones, tablets and some desktop browsers.
  */
 @SuppressWarnings("serial")
-//@PWA(name = "Olympic Weightlifting Competition Management System", shortName = "owlcms")
+// @PWA(name = "Olympic Weightlifting Competition Management System", shortName = "owlcms")
 @Push
 @Theme(value = "owlcms")
 public class AppShell implements AppShellConfigurator, VaadinServiceInitListener, IndexHtmlRequestListener {

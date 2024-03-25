@@ -41,18 +41,18 @@ public interface BreakDisplay {
 	}
 
 	public default String inferMessage(BreakType breakType, CeremonyType ceremonyType, boolean publicDisplay) {
-		//logger.debug("inferMessage {} {}",breakType,ceremonyType);
+		// logger.debug("inferMessage {} {}",breakType,ceremonyType);
 		if (breakType == null && ceremonyType == null) {
 			return Translator.translate("PublicMsg.CompetitionPaused");
 		}
 		if (ceremonyType != null && publicDisplay) {
 			switch (ceremonyType) {
-			case INTRODUCTION:
-				return Translator.translate("BreakMgmt.IntroductionOfAthletes");
-			case MEDALS:
-				return Translator.translate("PublicMsg.Medals");
-			case OFFICIALS_INTRODUCTION:
-				return Translator.translate("BreakMgmt.IntroductionOfOfficials");
+				case INTRODUCTION:
+					return Translator.translate("BreakMgmt.IntroductionOfAthletes");
+				case MEDALS:
+					return Translator.translate("PublicMsg.Medals");
+				case OFFICIALS_INTRODUCTION:
+					return Translator.translate("BreakMgmt.IntroductionOfOfficials");
 			}
 		}
 		if (ceremonyType != null && ceremonyType == CeremonyType.INTRODUCTION) {
@@ -64,24 +64,24 @@ public interface BreakDisplay {
 			return "";
 		}
 		switch (breakType) {
-		case FIRST_CJ:
-			return Translator.translate("BreakType.FIRST_CJ");
-		case FIRST_SNATCH:
-			return Translator.translate("BreakType.FIRST_SNATCH");
-		case BEFORE_INTRODUCTION:
-			return Translator.translate("BreakType.BEFORE_INTRODUCTION");
-		case TECHNICAL:
-			return Translator.translate("PublicMsg.CompetitionPaused");
-		case JURY:
-			return Translator.translate("PublicMsg.JuryDeliberation");
-		case CHALLENGE:
-			return Translator.translate("PublicMsg.CHALLENGE");
-		case GROUP_DONE:
-			return Translator.translate("PublicMsg.GroupDone");
-		case MARSHAL:
-			return Translator.translate("PublicMsg.CompetitionPaused");
-		default:
-			break;
+			case FIRST_CJ:
+				return Translator.translate("BreakType.FIRST_CJ");
+			case FIRST_SNATCH:
+				return Translator.translate("BreakType.FIRST_SNATCH");
+			case BEFORE_INTRODUCTION:
+				return Translator.translate("BreakType.BEFORE_INTRODUCTION");
+			case TECHNICAL:
+				return Translator.translate("PublicMsg.CompetitionPaused");
+			case JURY:
+				return Translator.translate("PublicMsg.JuryDeliberation");
+			case CHALLENGE:
+				return Translator.translate("PublicMsg.CHALLENGE");
+			case GROUP_DONE:
+				return Translator.translate("PublicMsg.GroupDone");
+			case MARSHAL:
+				return Translator.translate("PublicMsg.CompetitionPaused");
+			default:
+				break;
 		}
 		// can't happen
 		return "";

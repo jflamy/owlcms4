@@ -36,7 +36,6 @@ public class JXLSWeighInSheet extends JXLSWorkbookStreamSource {
 	}
 
 	public JXLSWeighInSheet() {
-		super();
 	}
 
 	@Override

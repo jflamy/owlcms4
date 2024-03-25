@@ -30,8 +30,8 @@ public class LocalOverrideUploadDialog extends Dialog {
 
 	public LocalOverrideUploadDialog(ZipFileField f) {
 
-//        H5 label = new H5(Translator.translate("Upload.WarningWillReplaceAll"));
-//        label.getStyle().set("color", "red");
+		// H5 label = new H5(Translator.translate("Upload.WarningWillReplaceAll"));
+		// label.getStyle().set("color", "red");
 
 		MemoryBuffer buffer = new MemoryBuffer();
 		Upload upload = new Upload(buffer);
@@ -80,7 +80,6 @@ public class LocalOverrideUploadDialog extends Dialog {
 			appendErrors(ta, localizedMessage != null ? localizedMessage : e.toString());
 			logger.error("{}", LoggerUtils.stackTrace(e));
 		}
-		return;
 	}
 
 }

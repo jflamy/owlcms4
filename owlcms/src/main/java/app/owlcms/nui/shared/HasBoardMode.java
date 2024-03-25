@@ -11,8 +11,6 @@ import ch.qos.logback.classic.Logger;
 
 public interface HasBoardMode {
 
-	Logger logger = (Logger) LoggerFactory.getLogger(HasBoardMode.class);
-
 	public enum BoardMode {
 		WAIT,
 		INTRO_COUNTDOWN,
@@ -24,17 +22,7 @@ public interface HasBoardMode {
 		LIFT_COUNTDOWN_CEREMONY
 	}
 
-	public default void setBoardMode(FOPState fopState, BreakType breakType, CeremonyType ceremonyType,
-	        Element element) {
-		//logger.debug("setBoardMode {} {} {} {}",fopState, breakType, ceremonyType, LoggerUtils.stackTrace());
-		element.setProperty("mode", computeBoardModeName(fopState, breakType, ceremonyType));
-		element.setProperty("breakType", fopState == FOPState.BREAK ? breakType.name() : null);
-	}
-
-	public default String computeBoardModeName(FOPState fopState, BreakType breakType, CeremonyType ceremonyType) {
-		BoardMode bm = computeBoardMode(fopState, breakType, ceremonyType);
-		return bm.name();
-	}
+	Logger logger = (Logger) LoggerFactory.getLogger(HasBoardMode.class);
 
 	public default BoardMode computeBoardMode(FOPState fopState, BreakType breakType, CeremonyType ceremonyType) {
 		BoardMode bm = BoardMode.WAIT;
@@ -43,7 +31,8 @@ public interface HasBoardMode {
 		} else if (fopState == FOPState.BREAK
 		        && breakType == BreakType.FIRST_SNATCH) {
 			if (ceremonyType != null) {
-				bm = (ceremonyType != CeremonyType.INTRODUCTION) ? BoardMode.LIFT_COUNTDOWN_CEREMONY : BoardMode.CEREMONY;
+				bm = (ceremonyType != CeremonyType.INTRODUCTION) ? BoardMode.LIFT_COUNTDOWN_CEREMONY
+				        : BoardMode.CEREMONY;
 			} else {
 				bm = BoardMode.LIFT_COUNTDOWN;
 			}
@@ -65,8 +54,20 @@ public interface HasBoardMode {
 		} else if (fopState == FOPState.INACTIVE) {
 			bm = BoardMode.WAIT;
 		}
-		//logger.debug("computeBoardMode {} {} {} = {}", fopState, breakType, ceremonyType, bm);
+		// logger.debug("computeBoardMode {} {} {} = {}", fopState, breakType, ceremonyType, bm);
 		return bm;
+	}
+
+	public default String computeBoardModeName(FOPState fopState, BreakType breakType, CeremonyType ceremonyType) {
+		BoardMode bm = computeBoardMode(fopState, breakType, ceremonyType);
+		return bm.name();
+	}
+
+	public default void setBoardMode(FOPState fopState, BreakType breakType, CeremonyType ceremonyType,
+	        Element element) {
+		// logger.debug("setBoardMode {} {} {} {}",fopState, breakType, ceremonyType, LoggerUtils.stackTrace());
+		element.setProperty("mode", computeBoardModeName(fopState, breakType, ceremonyType));
+		element.setProperty("breakType", fopState == FOPState.BREAK ? breakType.name() : null);
 	}
 
 }

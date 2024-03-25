@@ -22,7 +22,7 @@ public interface ContentWrapping {
 	}
 
 	public default void centerHW(Component content, VerticalLayout vWrapper) {
-//      LoggerFactory.getLogger(ContentWrapping.class)./**/warn("fillHW from {}",LoggerUtils.whereFrom());
+		// LoggerFactory.getLogger(ContentWrapping.class)./**/warn("fillHW from {}",LoggerUtils.whereFrom());
 		vWrapper.setBoxSizing(BoxSizing.BORDER_BOX);
 		vWrapper.setSizeFull();
 		vWrapper.add(content);
@@ -39,7 +39,7 @@ public interface ContentWrapping {
 	}
 
 	public default void fillHW(Component content, VerticalLayout vWrapper) {
-//        LoggerFactory.getLogger(ContentWrapping.class)./**/warn("fillHW from {}",LoggerUtils.whereFrom());
+		// LoggerFactory.getLogger(ContentWrapping.class)./**/warn("fillHW from {}",LoggerUtils.whereFrom());
 		vWrapper.setBoxSizing(BoxSizing.BORDER_BOX);
 		vWrapper.setSizeFull();
 		vWrapper.add(content);

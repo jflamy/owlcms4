@@ -37,14 +37,11 @@ import ch.qos.logback.classic.Logger;
 public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 
 	private static final int DOUBLE_CLICK_MS_DELTA = 1000;
-
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsCrudGrid.class);
 
 	// private OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory;
 	protected OwlcmsGridLayout owlcmsGridLayout;
-
 	private boolean clickable = true;
-
 	private long clicked = 0L;
 
 	/**
@@ -68,7 +65,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 	}
 
 	public boolean isClickable() {
-		return clickable;
+		return this.clickable;
 	}
 
 	public void setClickable(boolean clickable) {
@@ -76,7 +73,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 	}
 
 	public void sort(List<GridSortOrder<T>> sortOrder) {
-		grid.sort(sortOrder);
+		this.grid.sort(sortOrder);
 	}
 
 	/*
@@ -86,10 +83,10 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 	 */
 	@Override
 	protected void deleteButtonClicked() {
-		T domainObject = grid.asSingleSelect().getValue();
+		T domainObject = this.grid.asSingleSelect().getValue();
 		try {
-			deleteOperation.perform(domainObject);
-			grid.asSingleSelect().clear();
+			this.deleteOperation.perform(domainObject);
+			this.grid.asSingleSelect().clear();
 			refreshGrid();
 		} catch (CrudOperationException e1) {
 			refreshGrid();
@@ -101,13 +98,13 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 
 	@Override
 	protected void findAllButtonClicked() {
-		grid.sort(null); // reset the sorting order to none - use the query result set as is.
+		this.grid.sort(null); // reset the sorting order to none - use the query result set as is.
 		super.findAllButtonClicked();
 	}
 
 	/**
-	 * Do nothing. Initialization must wait for crudGrid to be constructed,
-	 * constuctor calls {@link #initLayoutGrid()} instead.
+	 * Do nothing. Initialization must wait for crudGrid to be constructed, constuctor calls {@link #initLayoutGrid()}
+	 * instead.
 	 *
 	 * @see org.vaadin.crudui.crud.impl.GridCrud#initLayout()
 	 */
@@ -116,62 +113,62 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 	}
 
 	/**
-	 * Replacement initialization We do not create the crudGrid automatically, but
-	 * instead receive the crudGrid pre-populated.
+	 * Replacement initialization We do not create the crudGrid automatically, but instead receive the crudGrid
+	 * pre-populated.
 	 */
 	protected void initLayoutGrid() {
 		initToolbar();
 
-		grid.setSizeFull();
-		grid.setSelectionMode(SelectionMode.SINGLE);
+		this.grid.setSizeFull();
+		this.grid.setSelectionMode(SelectionMode.SINGLE);
 
 		// We do not use a selection listener; instead we handle clicks explicitely.
 		// grid.addSelectionListener(e -> gridSelectionChanged());
-		grid.addItemClickListener((e) -> {
+		this.grid.addItemClickListener((e) -> {
 			if (!this.isClickable()) {
 				return;
 			}
-			long delta = System.currentTimeMillis() - clicked;
+			long delta = System.currentTimeMillis() - this.clicked;
 			if (delta > DOUBLE_CLICK_MS_DELTA) {
-				grid.select(e.getItem());
+				this.grid.select(e.getItem());
 				gridSelectionChanged();
 			}
-			clicked = System.currentTimeMillis();
+			this.clicked = System.currentTimeMillis();
 		});
-		grid.addItemDoubleClickListener((e) -> {
+		this.grid.addItemDoubleClickListener((e) -> {
 		});
-//		grid.addCellFocusListener(e -> {
-//		});
+		// grid.addCellFocusListener(e -> {
+		// });
 
-		for (Column<T> c : grid.getColumns()) {
+		for (Column<T> c : this.grid.getColumns()) {
 			c.setResizable(true);
 		}
 
-		crudLayout.setMainComponent(grid);
+		this.crudLayout.setMainComponent(this.grid);
 	}
 
 	/**
 	 * Inits the toolbar.
 	 */
 	protected void initToolbar() {
-		findAllButton = new Button(getTranslation("RefreshList"), VaadinIcon.REFRESH.create(),
+		this.findAllButton = new Button(getTranslation("RefreshList"), VaadinIcon.REFRESH.create(),
 		        e -> findAllButtonClicked());
-		findAllButton.getElement().setAttribute("title", getTranslation("RefreshList"));
-		crudLayout.addToolbarComponent(findAllButton);
+		this.findAllButton.getElement().setAttribute("title", getTranslation("RefreshList"));
+		this.crudLayout.addToolbarComponent(this.findAllButton);
 
-		addButton = new Button(VaadinIcon.PLUS.create(), e -> addButtonClicked());
+		this.addButton = new Button(VaadinIcon.PLUS.create(), e -> addButtonClicked());
 		getAddButton().setText(getTranslation("Add"));
 		getAddButton().addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
-		addButton.getElement().setAttribute("title", getTranslation("Add"));
-		crudLayout.addToolbarComponent(addButton);
+		this.addButton.getElement().setAttribute("title", getTranslation("Add"));
+		this.crudLayout.addToolbarComponent(this.addButton);
 
-		updateButton = new Button(VaadinIcon.PENCIL.create(), e -> updateButtonClicked());
-		updateButton.getElement().setAttribute("title", getTranslation("Update"));
-//        crudLayout.addToolbarComponent(updateButton);
+		this.updateButton = new Button(VaadinIcon.PENCIL.create(), e -> updateButtonClicked());
+		this.updateButton.getElement().setAttribute("title", getTranslation("Update"));
+		// crudLayout.addToolbarComponent(updateButton);
 
-		deleteButton = new Button(VaadinIcon.TRASH.create(), e -> deleteButtonClicked());
-		deleteButton.getElement().setAttribute("title", getTranslation("Delete"));
-//        crudLayout.addToolbarComponent(deleteButton);
+		this.deleteButton = new Button(VaadinIcon.TRASH.create(), e -> deleteButtonClicked());
+		this.deleteButton.getElement().setAttribute("title", getTranslation("Delete"));
+		// crudLayout.addToolbarComponent(deleteButton);
 
 		updateButtons();
 	}
@@ -179,9 +176,8 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 	/**
 	 * Show form with a delete button.
 	 *
-	 * @see org.vaadin.crudui.crud.impl.GridCrud#showForm(org.vaadin.crudui.crud.CrudOperation,
-	 *      java.lang.Object, boolean, java.lang.String,
-	 *      com.vaadin.flow.component.ComponentEventListener)
+	 * @see org.vaadin.crudui.crud.impl.GridCrud#showForm(org.vaadin.crudui.crud.CrudOperation, java.lang.Object,
+	 *      boolean, java.lang.String, com.vaadin.flow.component.ComponentEventListener)
 	 */
 	@Override
 	protected void showForm(CrudOperation operation, T domainObject, boolean readOnly, String successMessage,
@@ -190,14 +186,14 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 		Component form = owlcmsCrudFormFactory.buildNewForm(operation, domainObject, readOnly,
 		        cancelButtonClickEvent -> {
 			        logger.debug("cancelButtonClickEvent");
-			        owlcmsGridLayout.hideForm();
-			        grid.asSingleSelect().clear();
+			        this.owlcmsGridLayout.hideForm();
+			        this.grid.asSingleSelect().clear();
 		        },
 		        operationButtonClickEvent -> {
 			        try {
 				        logger.debug("postOperation");
-				        grid.asSingleSelect().clear();
-				        owlcmsGridLayout.hideForm();
+				        this.grid.asSingleSelect().clear();
+				        this.owlcmsGridLayout.hideForm();
 				        refreshGrid();
 				        Notification.show(successMessage);
 				        logger.trace("operation performed");
@@ -207,12 +203,12 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 		        },
 		        deleteButtonClickEvent -> {
 			        logger.debug("preDelete");
-			        owlcmsGridLayout.hideForm();
+			        this.owlcmsGridLayout.hideForm();
 			        this.deleteButtonClicked();
 		        });
 
 		String caption = owlcmsCrudFormFactory.buildCaption(operation, domainObject);
-		owlcmsGridLayout.showForm(operation, form, caption);
+		this.owlcmsGridLayout.showForm(operation, form, caption);
 	}
 
 }

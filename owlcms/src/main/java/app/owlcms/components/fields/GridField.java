@@ -27,96 +27,76 @@ import ch.qos.logback.classic.Logger;
 public class GridField<T> extends CustomField<List<T>> {
 
 	Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
-
 	Logger logger = (Logger) LoggerFactory.getLogger(GridField.class);
-
 	protected Grid<T> grid;
 	protected NativeLabel message;
-
 	private List<T> presentationStrings = new ArrayList<>();
-
 	private Object draggedItem;
+
+	public GridField(boolean b, String messageString) {
+		this(new ArrayList<>(), b, messageString);
+	}
 
 	@SuppressWarnings("unchecked")
 	public GridField(List<T> rows, boolean draggable, String messageString) {
-		super(new ArrayList<T>(rows));
-		
-		message = new NativeLabel();
-		message.setText(messageString);
-		//message.getStyle().set("background-color", "var(--lumo-error-color-10pct)");
-		message.getStyle().set("color", "red");
-		message.getStyle().set("margin-left", "1em");
-		
-		grid = new Grid<>();
+		super(new ArrayList<>(rows));
+
+		this.message = new NativeLabel();
+		this.message.setText(messageString);
+		// message.getStyle().set("background-color", "var(--lumo-error-color-10pct)");
+		this.message.getStyle().set("color", "red");
+		this.message.getStyle().set("margin-left", "1em");
+
+		this.grid = new Grid<>();
 		createColumns();
 
-		grid.setAllRowsVisible(true);
-		grid.setSizeUndefined();
-		grid.setRowsDraggable(draggable);
-		
-        grid.addDragStartListener(
-            event -> {
-                // store current dragged item so we know what to drop
-                draggedItem = event.getDraggedItems().get(0);
-                grid.setDropMode(GridDropMode.BETWEEN);
-            }
-        );
+		this.grid.setAllRowsVisible(true);
+		this.grid.setSizeUndefined();
+		this.grid.setRowsDraggable(draggable);
 
-        grid.addDragEndListener(
-            event -> {
-                draggedItem = null;
-                // Once dragging has ended, disable drop mode so that
-                // it won't look like other dragged items can be dropped
-                grid.setDropMode(null);
-            }
-        );
+		this.grid.addDragStartListener(
+		        event -> {
+			        // store current dragged item so we know what to drop
+			        this.draggedItem = event.getDraggedItems().get(0);
+			        this.grid.setDropMode(GridDropMode.BETWEEN);
+		        });
 
-        grid.addDropListener(
-            event -> {
-                T dropOverItem = event.getDropTargetItem().get();
-                if (!dropOverItem.equals(draggedItem)) {
-                    // reorder dragged item the backing gridItems container
-                    presentationStrings.remove(draggedItem);
-                    // calculate drop index based on the dropOverItem
-                    int droppedOverIndex = presentationStrings.indexOf(dropOverItem);
-					int dropIndex =  droppedOverIndex + (event.getDropLocation() == GridDropLocation.BELOW ? 1 : 0);
-                    presentationStrings.add(dropIndex, (T) draggedItem);
-                    grid.getDataProvider().refreshAll();
-                }
-            }
-        );
-		
+		this.grid.addDragEndListener(
+		        event -> {
+			        this.draggedItem = null;
+			        // Once dragging has ended, disable drop mode so that
+			        // it won't look like other dragged items can be dropped
+			        this.grid.setDropMode(null);
+		        });
+
+		this.grid.addDropListener(
+		        event -> {
+			        T dropOverItem = event.getDropTargetItem().get();
+			        if (!dropOverItem.equals(this.draggedItem)) {
+				        // reorder dragged item the backing gridItems container
+				        this.presentationStrings.remove(this.draggedItem);
+				        // calculate drop index based on the dropOverItem
+				        int droppedOverIndex = this.presentationStrings.indexOf(dropOverItem);
+				        int dropIndex = droppedOverIndex + (event.getDropLocation() == GridDropLocation.BELOW ? 1 : 0);
+				        this.presentationStrings.add(dropIndex, (T) this.draggedItem);
+				        this.grid.getDataProvider().refreshAll();
+			        }
+		        });
+
 		this.setWidth("50em");
 
 		updatePresentation();
-		add(message,grid);
+		add(this.message, this.grid);
 
-	}
-
-	protected void createColumns() {
-		grid.addColumn(T::toString);
-	}
-
-	public GridField(boolean b, String messageString) {
-		this(new ArrayList<T>(), b, messageString);
 	}
 
 	@Override
 	public List<T> getValue() {
-		return presentationStrings;
+		return this.presentationStrings;
 	}
 
-	private void updatePresentation() {
-		if (presentationStrings != null && presentationStrings.size() > 0) {
-			message.getStyle().set("display", "none");
-			grid.getStyle().set("display", "block");
-			grid.setItems(presentationStrings);
-			grid.setSizeUndefined();
-		} else {
-			message.getStyle().set("display", "block");
-			grid.getStyle().set("display", "none");
-		}
-
+	protected void createColumns() {
+		this.grid.addColumn(T::toString);
 	}
 
 	@Override
@@ -127,13 +107,26 @@ public class GridField<T> extends CustomField<List<T>> {
 		// no age group
 		// the database ids are also preserved in the copy, and used to update the
 		// database
-		return presentationStrings;
+		return this.presentationStrings;
 	}
 
 	@Override
 	protected void setPresentationValue(List<T> iCategories) {
-		presentationStrings = iCategories;
+		this.presentationStrings = iCategories;
 		updatePresentation();
+	}
+
+	private void updatePresentation() {
+		if (this.presentationStrings != null && this.presentationStrings.size() > 0) {
+			this.message.getStyle().set("display", "none");
+			this.grid.getStyle().set("display", "block");
+			this.grid.setItems(this.presentationStrings);
+			this.grid.setSizeUndefined();
+		} else {
+			this.message.getStyle().set("display", "block");
+			this.grid.getStyle().set("display", "none");
+		}
+
 	}
 
 }

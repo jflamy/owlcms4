@@ -37,21 +37,90 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 	Logger logger = (Logger) LoggerFactory.getLogger(JXLSExportRecords.class);
 	Group group;
 	private List<RecordEvent> records;
-	//private List<RecordEvent> bestRecords;
+	// private List<RecordEvent> bestRecords;
 	private boolean allRecords;
 
 	public JXLSExportRecords(Group group, boolean excludeNotWeighed, UI ui) {
-		super();
 	}
 
 	public JXLSExportRecords(UI ui, boolean allRecords) {
-		super();
 		this.allRecords = allRecords;
 	}
 
 	@Override
 	public Group getGroup() {
-		return group;
+		return this.group;
+	}
+
+	/**
+	 * Must be called immediately after getSortedAthletes due to reliance on "records" variable side-effect.
+	 *
+	 * @param cat
+	 * @return
+	 */
+	public List<RecordEvent> getRecords(Category cat) {
+		if (cat == null) {
+			return this.records.isEmpty() ? null : this.records;
+		}
+		this.logger.debug("category {} age >= {} <= {}  bw > {} <= {}",
+		        cat.getGender(),
+		        cat.getAgeGroup().getMinAge(),
+		        cat.getAgeGroup().getMaxAge(),
+		        cat.getMinimumWeight(),
+		        cat.getMaximumWeight());
+		List<RecordEvent> catRecords = new ArrayList<>();
+		for (RecordEvent record : this.records) {
+			Integer athleteAge = record.getAthleteAge();
+			Double athleteBW = record.getAthleteBW();
+			try {
+				if (record.getGender() == cat.getGender()
+				        && athleteAge >= cat.getAgeGroup().getMinAge()
+				        && athleteAge <= cat.getAgeGroup().getMaxAge()
+				        && athleteBW > cat.getMinimumWeight()
+				        && athleteBW <= cat.getMaximumWeight()) {
+					catRecords.add(record);
+				}
+			} catch (Exception e) {
+				this.logger.error("faulty record {}", record);
+			}
+		}
+		return catRecords.isEmpty() ? null : catRecords;
+	}
+
+	@Override
+	public List<Athlete> getSortedAthletes() {
+		HashMap<String, Object> reportingBeans = getReportingBeans();
+
+		List<Athlete> athletes = AthleteSorter
+		        .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, isExcludeNotWeighed()));
+		if (athletes.isEmpty()) {
+			// prevent outputting silliness.
+			throw new RuntimeException("");
+		} else {
+			this.logger.debug("{} athletes", athletes.size());
+		}
+
+		String groupName = this.group != null ? this.group.getName() : null;
+		this.records = RecordRepository.findFiltered(null, null, null, groupName, !this.allRecords);
+		this.records.sort(sortRecords());
+
+		// // keep best record if beaten several times
+		// RecordEvent[] best = records.toArray(new RecordEvent[0]);
+		// RecordEvent prev = null;
+		// for (int i = best.length - 1; i >= 0; i--) {
+		// if (best[i].sameRecordAs(prev)) {
+		// prev = best[i];
+		// best[i] = null;
+		// } else {
+		// prev = best[i];
+		// }
+		// }
+		// bestRecords = Arrays.stream(best).filter(re -> re != null).collect(Collectors.toList());
+		// if (!bestRecords.isEmpty()) {
+		// reportingBeans.put("records", bestRecords);
+		// }
+		reportingBeans.put("records", this.records);
+		return athletes;
 	}
 
 	@Override
@@ -77,78 +146,6 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 		        .thenComparing((r) -> r.getRecordLift().ordinal()) // SNATCH, CJ, TOTAL
 		        .thenComparing(RecordEvent::getRecordValue) // increasing records
 		;
-	}
-
-	@Override
-	public List<Athlete> getSortedAthletes() {
-		HashMap<String, Object> reportingBeans = getReportingBeans();
-
-		List<Athlete> athletes = AthleteSorter
-		        .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, isExcludeNotWeighed()));
-		if (athletes.isEmpty()) {
-			// prevent outputting silliness.
-			throw new RuntimeException("");
-		} else {
-			logger.debug("{} athletes", athletes.size());
-		}
-
-		String groupName = group != null ? group.getName() : null;
-		records = RecordRepository.findFiltered(null, null, null, groupName, !allRecords);
-		records.sort(sortRecords());
-
-//		// keep best record if beaten several times
-//		RecordEvent[] best = records.toArray(new RecordEvent[0]);
-//		RecordEvent prev = null;
-//		for (int i = best.length - 1; i >= 0; i--) {
-//			if (best[i].sameRecordAs(prev)) {
-//				prev = best[i];
-//				best[i] = null;
-//			} else {
-//				prev = best[i];
-//			}
-//		}
-//		bestRecords = Arrays.stream(best).filter(re -> re != null).collect(Collectors.toList());
-//		if (!bestRecords.isEmpty()) {
-//			reportingBeans.put("records", bestRecords);
-//		}
-		reportingBeans.put("records", records);
-		return athletes;
-	}
-
-	/**
-	 * Must be called immediately after getSortedAthletes due to reliance on "records" variable side-effect.
-	 * 
-	 * @param cat
-	 * @return
-	 */
-	public List<RecordEvent> getRecords(Category cat) {
-		if (cat == null) {
-			return records.isEmpty() ? null : records;
-		}
-		logger.debug("category {} age >= {} <= {}  bw > {} <= {}", 
-				cat.getGender(), 
-				cat.getAgeGroup().getMinAge(), 
-				cat.getAgeGroup().getMaxAge(),
-				cat.getMinimumWeight(),
-				cat.getMaximumWeight()
-				);
-		List<RecordEvent> catRecords = new ArrayList<>();
-		for (RecordEvent record : records) {
-			Integer athleteAge = record.getAthleteAge();
-			Double athleteBW = record.getAthleteBW();
-			try {
-			if (record.getGender() == cat.getGender()
-					&& athleteAge >= cat.getAgeGroup().getMinAge()
-					&& athleteAge <= cat.getAgeGroup().getMaxAge()
-					&& athleteBW > cat.getMinimumWeight()
-					&& athleteBW <= cat.getMaximumWeight()) {
-				catRecords.add(record);
-			}
-			} catch (Exception e) {
-				logger.error("faulty record {}", record);
-			}
-		}
-		return catRecords.isEmpty() ? null : catRecords;
 	}
 
 }

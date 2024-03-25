@@ -27,9 +27,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 
 	/** The Constant logger. */
 	final static Logger logger = (Logger) LoggerFactory.getLogger(WinningOrderComparator.class);
-
 	private boolean ignoreCategories;
-
 	private Ranking rankingType;
 
 	/**
@@ -49,35 +47,34 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 	 */
 	@Override
 	public int compare(Athlete lifter1, Athlete lifter2) {
-		switch (rankingType) {
-		case SNATCH:
-			return compareSnatchResultOrder(lifter1, lifter2, ignoreCategories);
-		case CLEANJERK:
-			return compareCleanJerkResultOrder(lifter1, lifter2, ignoreCategories);
-		case TOTAL:
-			return compareTotalResultOrder(lifter1, lifter2, ignoreCategories);
-		case CUSTOM:
-			return compareCustomResultOrder(lifter1, lifter2, ignoreCategories);
-		case ROBI:
-			return compareRobiResultOrder(lifter1, lifter2);
-		case CAT_SINCLAIR:
-			return compareCatSinclairResultOrder(lifter1, lifter2);
-		case BW_SINCLAIR:
-			return compareSinclairResultOrder(lifter1, lifter2);
-		case SMM:
-			return compareSmmResultOrder(lifter1, lifter2);
-		case QPOINTS:
-			return compareQPointsResultOrder(lifter1, lifter2);
-		case GAMX:
-			return compareGamxResultOrder(lifter1, lifter2);
-		default:
-			throw new UnsupportedOperationException("Unsupported ranking type "+rankingType);
+		switch (this.rankingType) {
+			case SNATCH:
+				return compareSnatchResultOrder(lifter1, lifter2, this.ignoreCategories);
+			case CLEANJERK:
+				return compareCleanJerkResultOrder(lifter1, lifter2, this.ignoreCategories);
+			case TOTAL:
+				return compareTotalResultOrder(lifter1, lifter2, this.ignoreCategories);
+			case CUSTOM:
+				return compareCustomResultOrder(lifter1, lifter2, this.ignoreCategories);
+			case ROBI:
+				return compareRobiResultOrder(lifter1, lifter2);
+			case CAT_SINCLAIR:
+				return compareCatSinclairResultOrder(lifter1, lifter2);
+			case BW_SINCLAIR:
+				return compareSinclairResultOrder(lifter1, lifter2);
+			case SMM:
+				return compareSmmResultOrder(lifter1, lifter2);
+			case QPOINTS:
+				return compareQPointsResultOrder(lifter1, lifter2);
+			case GAMX:
+				return compareGamxResultOrder(lifter1, lifter2);
+			default:
+				throw new UnsupportedOperationException("Unsupported ranking type " + this.rankingType);
 		}
 	}
 
 	/**
-	 * Determine who ranks first. the Athlete who reached total first is ranked
-	 * first.
+	 * Determine who ranks first. the Athlete who reached total first is ranked first.
 	 *
 	 * @param lifter1 the lifter 1
 	 * @param lifter2 the lifter 2
@@ -121,11 +118,10 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 	}
 
 	/**
-	 * Determine who ranks first. If the body weights are the same, the Athlete who
-	 * reached total first is ranked first.
+	 * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
 	 *
-	 * This variant allows judges to award a score based on a formula, with bonuses
-	 * or penalties, manually. Used for the U12 championship in Quebec.
+	 * This variant allows judges to award a score based on a formula, with bonuses or penalties, manually. Used for the
+	 * U12 championship in Quebec.
 	 *
 	 * @param lifter1          the lifter 1
 	 * @param lifter2          the lifter 2
@@ -153,6 +149,48 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		}
 
 		return tieBreak(lifter1, lifter2, Competition.getCurrent().isUseOldBodyWeightTieBreak());
+	}
+
+	/**
+	 * Determine who ranks first on GAMX points.
+	 *
+	 * @param lifter1 the lifter 1
+	 * @param lifter2 the lifter 2
+	 * @return the int
+	 */
+	public int compareGamxResultOrder(Athlete lifter1, Athlete lifter2) {
+		int compare = 0;
+		compare = ObjectUtils.compare(lifter1.getGender(), lifter2.getGender());
+		if (compare != 0) {
+			return compare;
+		}
+		compare = compareGamx(lifter1, lifter2);
+		if (compare != 0) {
+			return compare;
+		}
+		// for best lifter awards based on qpoints, lighter Athlete that achieves same qpoints is better
+		return tieBreak(lifter1, lifter2, true);
+	}
+
+	/**
+	 * Determine who ranks first on QPoints points.
+	 *
+	 * @param lifter1 the lifter 1
+	 * @param lifter2 the lifter 2
+	 * @return the int
+	 */
+	public int compareQPointsResultOrder(Athlete lifter1, Athlete lifter2) {
+		int compare = 0;
+		compare = ObjectUtils.compare(lifter1.getGender(), lifter2.getGender());
+		if (compare != 0) {
+			return compare;
+		}
+		compare = compareQPoints(lifter1, lifter2);
+		if (compare != 0) {
+			return compare;
+		}
+		// for best lifter awards based on qpoints, lighter Athlete that achieves same qpoints is better
+		return tieBreak(lifter1, lifter2, true);
 	}
 
 	/**
@@ -199,69 +237,9 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		// for sinclair, lighter Athlete that achieves same sinclair is better
 		return tieBreak(lifter1, lifter2, true);
 	}
-	
-	/**
-	 * Determine who ranks first on QPoints points.
-	 *
-	 * @param lifter1 the lifter 1
-	 * @param lifter2 the lifter 2
-	 * @return the int
-	 */
-	public int compareQPointsResultOrder(Athlete lifter1, Athlete lifter2) {
-		int compare = 0;
-		compare = ObjectUtils.compare(lifter1.getGender(), lifter2.getGender());
-		if (compare != 0) {
-			return compare;
-		}
-		compare = compareQPoints(lifter1, lifter2);
-		if (compare != 0) {
-			return compare;
-		}
-		// for best lifter awards based on qpoints, lighter Athlete that achieves same qpoints is better
-		return tieBreak(lifter1, lifter2, true);
-	}
-	
-	/**
-	 * Determine who ranks first on GAMX points.
-	 *
-	 * @param lifter1 the lifter 1
-	 * @param lifter2 the lifter 2
-	 * @return the int
-	 */
-	public int compareGamxResultOrder(Athlete lifter1, Athlete lifter2) {
-		int compare = 0;
-		compare = ObjectUtils.compare(lifter1.getGender(), lifter2.getGender());
-		if (compare != 0) {
-			return compare;
-		}
-		compare = compareGamx(lifter1, lifter2);
-		if (compare != 0) {
-			return compare;
-		}
-		// for best lifter awards based on qpoints, lighter Athlete that achieves same qpoints is better
-		return tieBreak(lifter1, lifter2, true);
-	}
 
 	/**
-	 * Compare Q-Points.
-	 */
-	int compareQPoints(Athlete lifter1, Athlete lifter2) {
-		Double lifter1Value = lifter1.getQPoints();
-		Double lifter2Value = lifter2.getQPoints();
-		final Double notWeighed = 0D;
-		if (lifter1Value == null) {
-			lifter1Value = notWeighed;
-		}
-		if (lifter2Value == null) {
-			lifter2Value = notWeighed;
-		}
-		// bigger QPoints comes first
-		return -lifter1Value.compareTo(lifter2Value);
-	}
-
-	/**
-	 * Determine who ranks first. If the body weights are the same, the Athlete who
-	 * reached total first is ranked first.
+	 * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
 	 *
 	 * @param lifter1 the lifter 1
 	 * @param lifter2 the lifter 2
@@ -332,10 +310,10 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 			}
 		}
 
-//        if (Competition.getCurrent().isMasters()) {
-//            compare = compareBirthDate(lifter1, lifter2);
-//            if (compare != 0) return -compare; // oldest wins
-//        }
+		// if (Competition.getCurrent().isMasters()) {
+		// compare = compareBirthDate(lifter1, lifter2);
+		// if (compare != 0) return -compare; // oldest wins
+		// }
 
 		compare = compareBestSnatchAttemptNumber(lifter1, lifter2);
 		if (trace) {
@@ -367,8 +345,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 	}
 
 	/**
-	 * Determine who ranks first. If the body weights are the same, the Athlete who
-	 * reached total first is ranked first.
+	 * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
 	 *
 	 * @param lifter1          the lifter 1
 	 * @param lifter2          the lifter 2
@@ -395,13 +372,29 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 	}
 
 	/**
-	 * Compare competition session start times for two athletes. A null session time
-	 * is considered to be at the beginning of time, earlier than any non-null time.
+	 * Compare Q-Points.
+	 */
+	int compareQPoints(Athlete lifter1, Athlete lifter2) {
+		Double lifter1Value = lifter1.getQPoints();
+		Double lifter2Value = lifter2.getQPoints();
+		final Double notWeighed = 0D;
+		if (lifter1Value == null) {
+			lifter1Value = notWeighed;
+		}
+		if (lifter2Value == null) {
+			lifter2Value = notWeighed;
+		}
+		// bigger QPoints comes first
+		return -lifter1Value.compareTo(lifter2Value);
+	}
+
+	/**
+	 * Compare competition session start times for two athletes. A null session time is considered to be at the
+	 * beginning of time, earlier than any non-null time.
 	 *
 	 * @param lifter1
 	 * @param lifter2
-	 * @return -1 if lifter1 was part of earlier group, 0 if same group, 1 if
-	 *         lifter1 lifted in later group
+	 * @return -1 if lifter1 was part of earlier group, 0 if same group, 1 if lifter1 lifted in later group
 	 */
 	private int compareCompetitionSessionTime(Athlete lifter1, Athlete lifter2) {
 		Group group1 = lifter1.getGroup();

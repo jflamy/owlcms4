@@ -53,14 +53,14 @@ public class CategoryGridField extends CustomField<List<Category>> {
 	private Div validationStatus;
 
 	public CategoryGridField(AgeGroup ag) {
-		super(new ArrayList<Category>());
+		super(new ArrayList<>());
 		this.ageGroup = ag;
 
-		validationStatus = new Div();
+		this.validationStatus = new Div();
 
-		catGrid = new VerticalLayout();
+		this.catGrid = new VerticalLayout();
 		// NativeLabel l = new NativeLabel(Translator.translate("LimitForCategory"));
-		catGrid.setWidth("50em");
+		this.catGrid.setWidth("50em");
 
 		HorizontalLayout adder = new HorizontalLayout();
 		adder.getStyle().set("margin-top", "0.5em");
@@ -83,20 +83,81 @@ public class CategoryGridField extends CustomField<List<Category>> {
 		updatePresentation();
 
 		add(adder);
-		add(validationStatus);
-		add(catGrid);
+		add(this.validationStatus);
+		add(this.catGrid);
 
 	}
 
 	@Override
 	public List<Category> getValue() {
-		return presentationCategories;
+		return this.presentationCategories;
+	}
+
+	@Override
+	protected List<Category> generateModelValue() {
+		// the presentation objects are already model values and no conversion is
+		// necessary
+		// the business model can use them as is; the model ignores the categories with
+		// no age group
+		// the database ids are also preserved in the copy, and used to update the
+		// database
+		return this.presentationCategories;
+	}
+
+	@Override
+	protected void setPresentationValue(List<Category> iCategories) {
+		this.presentationCategories = iCategories.stream().map(c -> new Category(c)).collect(Collectors.toList());
+		updatePresentation();
 	}
 
 	private void addSentinel() {
-		Category newCat = new Category(0.0, 999.0D, ageGroup.getGender(), true,
-		        0, 0, 0, ageGroup, 0);
-		presentationCategories.add(newCat);
+		Category newCat = new Category(0.0, 999.0D, this.ageGroup.getGender(), true,
+		        0, 0, 0, this.ageGroup, 0);
+		this.presentationCategories.add(newCat);
+	}
+
+	private void populateGrid(VerticalLayout catGrid2, List<Category> presentationCategories2) {
+		this.catGrid.removeAll();
+		Div filler = new Div();
+		filler.getElement().setProperty("innerHtml", "&nbsp;");
+		filler.setWidth(CAT_WIDTH);
+		HorizontalLayout title = new HorizontalLayout(filler,
+		        new Text(Translator.translate("Category.QualificationTotal")));
+		this.catGrid.add(title);
+		for (Category pc : presentationCategories2) {
+			HorizontalLayout hl = new HorizontalLayout();
+			NativeLabel nativeLabel = new NativeLabel(pc.getName());
+			nativeLabel.getStyle().set("font-weight", "bold");
+			nativeLabel.setWidth(CAT_WIDTH);
+			hl.add(nativeLabel);
+			TextField qualTotField = new TextField();
+			qualTotField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_RIGHT);
+			qualTotField.setAllowedCharPattern("[0-9]");
+			qualTotField.setWidth(QT_WIDTH);
+			Binder<Category> catBinder = new Binder<>(Category.class);
+			catBinder
+			        .forField(qualTotField)
+			        .withConverter(
+			                new StringToIntegerConverter("Qualifying total must be a number."))
+			        .withStatusLabel(this.validationStatus).bind("qualifyingTotal");
+			catBinder.setBean(pc);
+			hl.add(qualTotField);
+			Button delete = new Button(Translator.translate("Delete"));
+			delete.addClassName("delete");
+			delete.addClickListener(e -> {
+				// logger.trace("deleting {} {}",cat != null ? cat.shortDump() : null,
+				// presentationCategories.contains(cat));
+				if (pc.getMaximumWeight() >= 998.9D) {
+					return; // leave the sentinel.
+				}
+				pc.setMaximumWeight(0D); // disconnect
+				updatePresentation();
+				updateValue();
+			});
+			delete.getStyle().set("margin-left", "2em");
+			hl.add(delete);
+			catGrid2.add(hl);
+		}
 	}
 
 	private void react(AgeGroup ag, TextField newCategoryField) {
@@ -113,7 +174,7 @@ public class CategoryGridField extends CustomField<List<Category>> {
 		double newMax = Double.parseDouble(value);
 		Category newCat = new Category(0.0, newMax, ag.getGender(), true,
 		        0, 0, 0, ag, 0);
-		presentationCategories.add(newCat);
+		this.presentationCategories.add(newCat);
 		updatePresentation();
 		updateValue();
 		newCategoryField.clear();
@@ -121,16 +182,17 @@ public class CategoryGridField extends CustomField<List<Category>> {
 
 	private void updatePresentation() {
 		double prevDouble = 0.0;
-		presentationCategories.sort((c1, c2) -> ObjectUtils.compare(c1.getMaximumWeight(), c2.getMaximumWeight()));
+		this.presentationCategories.sort((c1, c2) -> ObjectUtils.compare(c1.getMaximumWeight(), c2.getMaximumWeight()));
 
 		// last category max must always be 999, create a sentinel.
-		if (presentationCategories.size() == 0) {
+		if (this.presentationCategories.size() == 0) {
 			addSentinel();
-		} else if (presentationCategories.get(presentationCategories.size() - 1).getMaximumWeight() <= 998.9D) {
+		} else if (this.presentationCategories.get(this.presentationCategories.size() - 1)
+		        .getMaximumWeight() <= 998.9D) {
 			addSentinel();
 		}
 
-		Iterator<Category> ic = presentationCategories.iterator();
+		Iterator<Category> ic = this.presentationCategories.iterator();
 		while (ic.hasNext()) {
 			Category c = ic.next();
 			AgeGroup ageGroup2 = c.getAgeGroup();
@@ -147,69 +209,8 @@ public class CategoryGridField extends CustomField<List<Category>> {
 			prevDouble = maximumWeight;
 
 		}
-		populateGrid(catGrid, presentationCategories);
-		catGrid.setSizeUndefined();
-	}
-
-	private void populateGrid(VerticalLayout catGrid2, List<Category> presentationCategories2) {
-		catGrid.removeAll();
-		Div filler = new Div();
-		filler.getElement().setProperty("innerHtml", "&nbsp;");
-		filler.setWidth(CAT_WIDTH);
-		HorizontalLayout title = new HorizontalLayout(filler,
-		        new Text(Translator.translate("Category.QualificationTotal")));
-		catGrid.add(title);
-		for (Category pc : presentationCategories2) {
-			HorizontalLayout hl = new HorizontalLayout();
-			NativeLabel nativeLabel = new NativeLabel(pc.getName());
-			nativeLabel.getStyle().set("font-weight","bold");
-			nativeLabel.setWidth(CAT_WIDTH);
-			hl.add(nativeLabel);
-			TextField qualTotField = new TextField();
-			qualTotField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_RIGHT);
-			qualTotField.setAllowedCharPattern("[0-9]");
-			qualTotField.setWidth(QT_WIDTH);
-			Binder<Category> catBinder = new Binder<>(Category.class);
-			catBinder
-			        .forField(qualTotField)
-			        .withConverter(
-			                new StringToIntegerConverter("Qualifying total must be a number."))
-			        .withStatusLabel(validationStatus).bind("qualifyingTotal");
-			catBinder.setBean(pc);
-			hl.add(qualTotField);		
-			Button delete = new Button(Translator.translate("Delete"));
-			delete.addClassName("delete");
-			delete.addClickListener(e -> {
-				// logger.trace("deleting {} {}",cat != null ? cat.shortDump() : null,
-				// presentationCategories.contains(cat));
-				if (pc.getMaximumWeight() >= 998.9D) {
-					return; // leave the sentinel.
-				}
-				pc.setMaximumWeight(0D); // disconnect
-				updatePresentation();
-				updateValue();
-			});
-			delete.getStyle().set("margin-left","2em");
-			hl.add(delete);
-			catGrid2.add(hl);
-		}
-	}
-
-	@Override
-	protected List<Category> generateModelValue() {
-		// the presentation objects are already model values and no conversion is
-		// necessary
-		// the business model can use them as is; the model ignores the categories with
-		// no age group
-		// the database ids are also preserved in the copy, and used to update the
-		// database
-		return presentationCategories;
-	}
-
-	@Override
-	protected void setPresentationValue(List<Category> iCategories) {
-		presentationCategories = iCategories.stream().map(c -> new Category(c)).collect(Collectors.toList());
-		updatePresentation();
+		populateGrid(this.catGrid, this.presentationCategories);
+		this.catGrid.setSizeUndefined();
 	}
 
 }

@@ -68,7 +68,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 	static {
 		logger.setLevel(Level.INFO);
 	}
-	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private Category medalCategory;
 	private Group medalGroup;
 
@@ -83,22 +83,22 @@ public class VideoNavigationContent extends BaseNavigationContent
 		intro.getStyle().set("margin-bottom", "0");
 		fillH(intro, this);
 
-		Button currentAthlete = openInNewTabQueryParameters(CurrentAthletePage.class, 
-				getTranslation("CurrentAthleteTitle"), "video=true");
-		Button attempt = openInNewTabQueryParameters(PublicFacingAttemptBoardPage.class, 
-				getTranslation("AttemptBoard"), "video=true");
+		Button currentAthlete = openInNewTabQueryParameters(CurrentAthletePage.class,
+		        getTranslation("CurrentAthleteTitle"), "video=true");
+		Button attempt = openInNewTabQueryParameters(PublicFacingAttemptBoardPage.class,
+		        getTranslation("AttemptBoard"), "video=true");
 		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(attempt, currentAthlete);
 		doGroup(getTranslation("AttemptBoard"), grid3, this);
 
-		Button publicDecisions = openInNewTabQueryParameters(PublicFacingDecisionBoardPage.class, 
-				getTranslation("RefereeDecisions"), "video=true");
+		Button publicDecisions = openInNewTabQueryParameters(PublicFacingDecisionBoardPage.class,
+		        getTranslation("RefereeDecisions"), "video=true");
 		FlexibleGridLayout grid31 = HomeNavigationContent.navigationGrid(publicDecisions);
 		doGroup(getTranslation("RefereeDecisions"), grid31, this);
 
 		Button scoreboard = openInNewTabQueryParameters(WarmupNoLeadersPage.class,
-				getTranslation("Scoreboard"), "video=true");
-		Button scoreboardWLeaders = openInNewTabQueryParameters(WarmupScoreboardPage.class, 
-				getTranslation("ScoreboardWLeadersButton"), "video=true");
+		        getTranslation("Scoreboard"), "video=true");
+		Button scoreboardWLeaders = openInNewTabQueryParameters(WarmupScoreboardPage.class,
+		        getTranslation("ScoreboardWLeadersButton"), "video=true");
 		scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
 		Button scoreboardMultiRanks = openInNewTabQueryParameters(WarmupMultiRanksPage.class,
 		        getTranslation("ScoreboardMultiRanksButton"), "video=true");
@@ -109,8 +109,9 @@ public class VideoNavigationContent extends BaseNavigationContent
 		// more recent group first, else reverse order.
 		groups.sort((g1, g2) -> {
 			int compare = -ObjectUtils.compare(g1.getCompetitionTime(), g2.getCompetitionTime(), true);
-			if (compare != 0)
+			if (compare != 0) {
 				return compare;
+			}
 			compare = -(new NaturalOrderComparator<Group>().compare(g1, g2));
 			return compare;
 		});
@@ -152,7 +153,8 @@ public class VideoNavigationContent extends BaseNavigationContent
 		doGroup(getTranslation("Scoreboard.RANKINGS"), intro1a, grid1a, this);
 
 		Button obsMonitor = openInNewTab(OBSMonitor.class, getTranslation("OBS.MonitoringButton"));
-		Button eventMonitor = openInNewTabQueryParameters(StreamingEventMonitor.class, getTranslation("Video.EventMonitoringButton"),
+		Button eventMonitor = openInNewTabQueryParameters(StreamingEventMonitor.class,
+		        getTranslation("Video.EventMonitoringButton"),
 		        "video=true");
 		VerticalLayout intro4 = new VerticalLayout();
 		addP(intro4, getTranslation("Video.EventMonitoringExplanation", getTranslation("Video.EventMonitoringButton")));
@@ -161,44 +163,6 @@ public class VideoNavigationContent extends BaseNavigationContent
 		doGroup(getTranslation("OBS.MonitoringButton"), intro4, grid4, this);
 
 		DebugUtils.gc();
-	}
-
-	private void openInNewTabWithResultsQueryParameters(Class<?> class1) {
-		Map<String, String> params = new TreeMap<>();
-		Category medalCategory2 = getMedalCategory();
-		if (medalCategory2 != null) {
-			params.put("cat", medalCategory2.getCode().toString());
-		} else if (getMedalGroup() != null) {
-			params.put("group", getMedalGroup().toString());
-		}
-		params.put("video", "true");
-		QueryParameters qp = QueryParameters.simple(params);
-		doOpenInNewTab(class1,
-		        getTranslation("CeremonyType.MEDALS"),
-		        null,
-		        qp);
-	}
-
-	private void selectVideoContext(Group g, Category c, FieldOfPlay fop) {
-		Competition.getCurrent().computeMedals(g);
-		fop.setVideoGroup(g);
-		fop.setVideoCategory(c);
-		setMedalGroup(g);
-		setMedalCategory(c);
-		logger.info("switching to {} {}", g.getName(), c != null ? c.getTranslatedName() : "");
-		fop.getUiEventBus().post(new UIEvent.VideoRefresh(this, g, c));
-	}
-
-//	private void setMedalAgeGroup(AgeGroup ag) {
-//		this.medalAgeGroup = ag;
-//	}
-
-	private void setMedalCategory(Category c) {
-		this.medalCategory = c;
-	}
-
-	private void setMedalGroup(Group g) {
-		this.medalGroup = g;
 	}
 
 	@Override
@@ -210,6 +174,10 @@ public class VideoNavigationContent extends BaseNavigationContent
 	public String getMenuTitle() {
 		return getTranslation("VideoStreaming");
 	}
+
+	// private void setMedalAgeGroup(AgeGroup ag) {
+	// this.medalAgeGroup = ag;
+	// }
 
 	@Override
 	public String getPageTitle() {
@@ -240,12 +208,46 @@ public class VideoNavigationContent extends BaseNavigationContent
 		return fopField;
 	}
 
-	@SuppressWarnings("unused")
-	private Group getMedalGroup() {
-		return medalGroup;
+	private Category getMedalCategory() {
+		return this.medalCategory;
 	}
 
-	private Category getMedalCategory() {
-		return medalCategory;
+	@SuppressWarnings("unused")
+	private Group getMedalGroup() {
+		return this.medalGroup;
+	}
+
+	private void openInNewTabWithResultsQueryParameters(Class<?> class1) {
+		Map<String, String> params = new TreeMap<>();
+		Category medalCategory2 = getMedalCategory();
+		if (medalCategory2 != null) {
+			params.put("cat", medalCategory2.getCode().toString());
+		} else if (getMedalGroup() != null) {
+			params.put("group", getMedalGroup().toString());
+		}
+		params.put("video", "true");
+		QueryParameters qp = QueryParameters.simple(params);
+		doOpenInNewTab(class1,
+		        getTranslation("CeremonyType.MEDALS"),
+		        null,
+		        qp);
+	}
+
+	private void selectVideoContext(Group g, Category c, FieldOfPlay fop) {
+		Competition.getCurrent().computeMedals(g);
+		fop.setVideoGroup(g);
+		fop.setVideoCategory(c);
+		setMedalGroup(g);
+		setMedalCategory(c);
+		logger.info("switching to {} {}", g.getName(), c != null ? c.getTranslatedName() : "");
+		fop.getUiEventBus().post(new UIEvent.VideoRefresh(this, g, c));
+	}
+
+	private void setMedalCategory(Category c) {
+		this.medalCategory = c;
+	}
+
+	private void setMedalGroup(Group g) {
+		this.medalGroup = g;
 	}
 }

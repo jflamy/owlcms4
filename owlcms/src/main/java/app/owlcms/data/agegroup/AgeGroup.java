@@ -41,8 +41,7 @@ import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 /**
- * An AgeGroup designates an age range and the associated bodyweight categories,
- * for a given gender.
+ * An AgeGroup designates an age range and the associated bodyweight categories, for a given gender.
  *
  * @author Jean-François Lamy
  *
@@ -58,9 +57,8 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	private static final long serialVersionUID = 8154757158144876816L;
 
 	/**
-	 * don't deep compare the categories inside age group to avoid circularities.
-	 * This method is used when comparing categories (rely on code and other
-	 * top-level properties only)
+	 * don't deep compare the categories inside age group to avoid circularities. This method is used when comparing
+	 * categories (rely on code and other top-level properties only)
 	 *
 	 * @param firstAgeGroup
 	 * @param otherAgeGroup
@@ -87,35 +85,24 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	@Transient
 	@JsonIgnore
 	public String categoriesAsString;
-
 	boolean active;
-
 	String code;
-
 	@Column(name = "agkey")
 	String key;
-
 	@Transient
 	Logger logger = (Logger) LoggerFactory.getLogger(AgeGroup.class);
-
 	Integer maxAge;
-
 	Integer minAge;
-
 	@Enumerated(EnumType.STRING)
 	private AgeDivision ageDivision;
-
 	@OneToMany(mappedBy = "ageGroup", cascade = { CascadeType.ALL }, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<Category> categories = new ArrayList<>();
-
 	@Enumerated(EnumType.STRING)
 	private Gender gender;
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@JsonIgnore
 	private Long id;
-
 	private Integer qualificationTotal;
 
 	public AgeGroup() {
@@ -123,7 +110,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 	public AgeGroup(String code, boolean active, Integer minAge, Integer maxAge, Gender gender,
 	        AgeDivision ageDivision, Integer qualificationTotal) {
-		super();
 		this.active = active;
 		this.code = code;
 		this.minAge = minAge;
@@ -135,7 +121,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 	public void addCategory(Category category) {
 		if (category != null) {
-			categories.add(category);
+			this.categories.add(category);
 			category.setAgeGroup(this);
 		}
 	}
@@ -147,15 +133,15 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		}
 		int compare = 0;
 
-		compare = ObjectUtils.compare(gender, o.getGender());
+		compare = ObjectUtils.compare(this.gender, o.getGender());
 		if (compare != 0) {
 			return compare;
 		}
-		compare = ObjectUtils.compare(minAge, o.getMinAge());
+		compare = ObjectUtils.compare(this.minAge, o.getMinAge());
 		if (compare != 0) {
 			return compare;
 		}
-		compare = ObjectUtils.compare(maxAge, o.getMaxAge());
+		compare = ObjectUtils.compare(this.maxAge, o.getMaxAge());
 
 		return compare;
 	}
@@ -169,60 +155,85 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 			return false;
 		}
 		AgeGroup other = (AgeGroup) obj;
-		if (other.getId() == this.getId()) return true;
-		return active == other.active && ageDivision == other.ageDivision
-		        && Objects.equals(categories, other.categories) && Objects.equals(code, other.code)
-		        && gender == other.gender && Objects.equals(id, other.id) && Objects.equals(maxAge, other.maxAge)
-		        && Objects.equals(minAge, other.minAge);
+		if (other.getId() == this.getId()) {
+			return true;
+		}
+		return this.active == other.active && this.ageDivision == other.ageDivision
+		        && Objects.equals(this.categories, other.categories) && Objects.equals(this.code, other.code)
+		        && this.gender == other.gender && Objects.equals(this.id, other.id)
+		        && Objects.equals(this.maxAge, other.maxAge)
+		        && Objects.equals(this.minAge, other.minAge);
 	}
 
 	public AgeDivision getAgeDivision() {
-		return ageDivision;
+		return this.ageDivision;
 	}
 
 	@JsonIgnore
 	public List<Category> getAllCategories() {
-		return categories;
+		return this.categories;
 	}
 
 	/**
 	 * @return the categories for which we are the AgeGroup
 	 */
 	public List<Category> getCategories() {
-		return categories.stream().filter(c -> {
+		return this.categories.stream().filter(c -> {
 			return !(c.getAgeGroup() == null);
 		}).sorted().collect(Collectors.toList());
 	}
 
 	public String getCategoriesAsString() {
-		if (categories == null || categories.size() == 0) {
+		if (this.categories == null || this.categories.size() == 0) {
 			return "";
 		}
 		return getCategories().stream().map(c -> c.getLimitString()).collect(Collectors.joining(", "));
 	}
 
 	public String getCode() {
-		return code;
+		return this.code;
+	}
+
+	@JsonIgnore
+	public String getDisplayName() {
+		String code2 = this.getCode();
+		if (code2 == null) {
+			return "";
+		}
+
+		String value = null;
+		String translatedCode = getTranslatedCode(code2);
+		if (this.ageDivision == AgeDivision.MASTERS) {
+			value = translatedCode;
+		}
+		// else if (ageDivision == AgeDivision.DEFAULT) {
+		// value = getTranslatedGender();
+		// }
+		else {
+			value = translatedCode + " " + getTranslatedGender();
+		}
+		return value;
 	}
 
 	public Gender getGender() {
-		return gender;
+		return this.gender;
 	}
 
 	public Long getId() {
-		return id;
+		return this.id;
 	}
 
 	public String getKey() {
-		return getCode() + "_" + ageDivision.name() + "_" + gender.name() + "_" + minAge + "_" + maxAge;
+		return getCode() + "_" + this.ageDivision.name() + "_" + this.gender.name() + "_" + this.minAge + "_"
+		        + this.maxAge;
 	}
 
 	public Integer getMaxAge() {
-		return maxAge;
+		return this.maxAge;
 	}
 
 	public Integer getMinAge() {
-		return minAge;
+		return this.minAge;
 	}
 
 	@JsonIgnore
@@ -234,56 +245,32 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 		String value = null;
 		String translatedCode = getTranslatedCode(code2);
-		if (ageDivision == AgeDivision.MASTERS) {
+		if (this.ageDivision == AgeDivision.MASTERS) {
 			value = translatedCode;
-		}
-		else if (ageDivision == AgeDivision.DEFAULT) {
+		} else if (this.ageDivision == AgeDivision.DEFAULT) {
 			value = getTranslatedGender();
-		}
-		else {
-			value = translatedCode + " " + getTranslatedGender();
-		}
-		return value;
-	}
-	
-	@JsonIgnore
-	public String getDisplayName() {
-		String code2 = this.getCode();
-		if (code2 == null) {
-			return "";
-		}
-
-		String value = null;
-		String translatedCode = getTranslatedCode(code2);
-		if (ageDivision == AgeDivision.MASTERS) {
-			value = translatedCode;
-		}
-//		else if (ageDivision == AgeDivision.DEFAULT) {
-//			value = getTranslatedGender();
-//		}
-		else {
+		} else {
 			value = translatedCode + " " + getTranslatedGender();
 		}
 		return value;
 	}
 
-	public String getTranslatedGender() {
-		switch (getGender()) {
-		case F:
-		case I:
-		case M:
-			return getGender().asPublicGenderCode();
-		default:
-			throw new IllegalStateException();
-		}
-	}
-
-	
 	/**
 	 * @return the qualificationTotal
 	 */
 	public Integer getQualificationTotal() {
-		return qualificationTotal;
+		return this.qualificationTotal;
+	}
+
+	public String getTranslatedGender() {
+		switch (getGender()) {
+			case F:
+			case I:
+			case M:
+				return getGender().asPublicGenderCode();
+			default:
+				throw new IllegalStateException();
+		}
 	}
 
 	@Override
@@ -292,13 +279,13 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	}
 
 	public boolean isActive() {
-		return active;
+		return this.active;
 	}
 
 	public void removeCategory(Category category) {
 		if (category != null) {
 			category.setAgeGroup(null);
-			categories.remove(category);
+			this.categories.remove(category);
 		}
 	}
 

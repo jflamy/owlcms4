@@ -97,8 +97,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	private ConfirmDialog juryConfirmationDialog;
 
 	public AnnouncerContent() {
-		super();
-
 		// when navigating to the page, Vaadin will call setParameter+readParameters
 		// these parameters will be applied.
 		setDefaultParameters(QueryParameters.simple(Map.of(
@@ -194,52 +192,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 	@Override
 	@Subscribe
-	public void slaveNotification(UIEvent.Notification e) {
-		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			String fopEventString = e.getFopEventString();
-			if (fopEventString != null && fopEventString.contentEquals("TimeStarted")) {
-				// time started button was selected, but denied. reset the colors
-				// to show that time is not running.
-				buttonsTimeStopped();
-			}
-			e.doNotification();
-		});
-	}
-
-	@Subscribe
-	public void slaveRefereeDecision(UIEvent.Decision e) {
-		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			hideLiveDecisions();
-
-			int d = e.decision ? 1 : 0;
-			String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
-
-			Notification n = new Notification();
-			String themeName = e.decision ? "success" : "error";
-			n.getElement().getThemeList().add(themeName);
-
-			Div label = new Div();
-			label.add(text);
-			label.addClickListener((event) -> n.close());
-			label.setSizeFull();
-			label.getStyle().set("font-size", "large");
-			n.add(label);
-			n.setPosition(Position.TOP_START);
-			n.setDuration(5000);
-			n.open();
-		});
-	}
-
-	@Subscribe
-	public void slaveStartTime(UIEvent.StartTime e) {
-		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			buttonsTimeStarted();
-			displayLiveDecisions();
-		});
-	}
-
-	@Override
-	@Subscribe
 	public void slaveJuryNotification(UIEvent.JuryNotification e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			JuryDeliberationEventType et = e.getDeliberationEventType();
@@ -255,7 +207,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			}
 			String style = "warning";
 			int previousAttemptNo;
-
 
 			// logger.debug("slaveJuryNotification {} {} {}", et, e.getDeliberationEventType(), e.getTrace());
 			switch (et) {
@@ -322,58 +273,50 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		});
 	}
 
-	private void juryDecisionAnnounce(UIEvent.JuryNotification e) {
-		if (juryConfirmationDialog != null) {
-			// jury can send multiple decisions.
-			juryConfirmationDialog.close();
-		}
-		juryConfirmationDialog = new ConfirmDialog();
-		juryConfirmationDialog.setHeader(Translator.translate("Announcer.JuryDecisionTitle"));
-		
-		String reversalText = "";
-		if (e.getReversal() != null) {
-			reversalText  = e.getReversal() ? Translator.translate("JuryNotification.Reversal")
-			        : Translator.translate("JuryNotification.Confirmed");
-		}
-		JuryDeliberationEventType et = e.getDeliberationEventType();
-		int previousAttemptNo;
-		String text = "";
-		String style = "";
-		switch (et) {
-			case BAD_LIFT:
-				previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
-				text = Translator.translate("JuryNotification.BadLift", reversalText, e.getAthlete().getFullName(),
-				        previousAttemptNo % 3 + 1);
-				style = "color: red; font-size: large";
-				break;
-			case GOOD_LIFT:
-				previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
-				text = Translator.translate("JuryNotification.GoodLift", reversalText, e.getAthlete().getFullName(),
-				        previousAttemptNo % 3 + 1);
-				style = "color: green; font-size: large";
-				break;
-			default:
-				break;
-		}
-		juryConfirmationDialog.setText(new Html(
-				"""
-		        <div>
-		        <div style="%s">%s</div>
-		        <br/>
-		        <div>%s</div>
-		        <div>
-		        """.formatted(style,text,Translator.translate("Announcer.JuryDecisionExplanation"))));
+	@Override
+	@Subscribe
+	public void slaveNotification(UIEvent.Notification e) {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+			String fopEventString = e.getFopEventString();
+			if (fopEventString != null && fopEventString.contentEquals("TimeStarted")) {
+				// time started button was selected, but denied. reset the colors
+				// to show that time is not running.
+				buttonsTimeStopped();
+			}
+			e.doNotification();
+		});
+	}
 
-		juryConfirmationDialog.setCloseOnEsc(false);
-		juryConfirmationDialog.setConfirmText(Translator.translate("Announcer.PerformJuryDecision"));
-		juryConfirmationDialog.setCancelable(true);
-		juryConfirmationDialog.setCancelText(Translator.translate("Announcer.IgnoreJuryDecision"));
-		// the last parameter to the event will trigger the processing of the pending jury decision.
-		// false indicates that the decision event comes from the announcer and not from the jury.
-		juryConfirmationDialog.addConfirmListener(c -> OwlcmsSession.getFop().fopEventPost(new FOPEvent.JuryDecision(e.getAthlete(), e.getOrigin(), et == GOOD_LIFT, false)));
-		juryConfirmationDialog.addCancelListener(c -> OwlcmsSession.getFop().fopEventPost(new FOPEvent.StartLifting(this)));
-		juryConfirmationDialog.open();
-		
+	@Subscribe
+	public void slaveRefereeDecision(UIEvent.Decision e) {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+			hideLiveDecisions();
+
+			int d = e.decision ? 1 : 0;
+			String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
+
+			Notification n = new Notification();
+			String themeName = e.decision ? "success" : "error";
+			n.getElement().getThemeList().add(themeName);
+
+			Div label = new Div();
+			label.add(text);
+			label.addClickListener((event) -> n.close());
+			label.setSizeFull();
+			label.getStyle().set("font-size", "large");
+			n.add(label);
+			n.setPosition(Position.TOP_START);
+			n.setDuration(5000);
+			n.open();
+		});
+	}
+
+	@Subscribe
+	public void slaveStartTime(UIEvent.StartTime e) {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+			buttonsTimeStarted();
+			displayLiveDecisions();
+		});
 	}
 
 	/**
@@ -742,6 +685,62 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			}
 			this.previousGoodMillis = now;
 		});
+	}
+
+	private void juryDecisionAnnounce(UIEvent.JuryNotification e) {
+		if (this.juryConfirmationDialog != null) {
+			// jury can send multiple decisions.
+			this.juryConfirmationDialog.close();
+		}
+		this.juryConfirmationDialog = new ConfirmDialog();
+		this.juryConfirmationDialog.setHeader(Translator.translate("Announcer.JuryDecisionTitle"));
+
+		String reversalText = "";
+		if (e.getReversal() != null) {
+			reversalText = e.getReversal() ? Translator.translate("JuryNotification.Reversal")
+			        : Translator.translate("JuryNotification.Confirmed");
+		}
+		JuryDeliberationEventType et = e.getDeliberationEventType();
+		int previousAttemptNo;
+		String text = "";
+		String style = "";
+		switch (et) {
+			case BAD_LIFT:
+				previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
+				text = Translator.translate("JuryNotification.BadLift", reversalText, e.getAthlete().getFullName(),
+				        previousAttemptNo % 3 + 1);
+				style = "color: red; font-size: large";
+				break;
+			case GOOD_LIFT:
+				previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
+				text = Translator.translate("JuryNotification.GoodLift", reversalText, e.getAthlete().getFullName(),
+				        previousAttemptNo % 3 + 1);
+				style = "color: green; font-size: large";
+				break;
+			default:
+				break;
+		}
+		this.juryConfirmationDialog.setText(new Html(
+		        """
+		        <div>
+		        <div style="%s">%s</div>
+		        <br/>
+		        <div>%s</div>
+		        <div>
+		        """.formatted(style, text, Translator.translate("Announcer.JuryDecisionExplanation"))));
+
+		this.juryConfirmationDialog.setCloseOnEsc(false);
+		this.juryConfirmationDialog.setConfirmText(Translator.translate("Announcer.PerformJuryDecision"));
+		this.juryConfirmationDialog.setCancelable(true);
+		this.juryConfirmationDialog.setCancelText(Translator.translate("Announcer.IgnoreJuryDecision"));
+		// the last parameter to the event will trigger the processing of the pending jury decision.
+		// false indicates that the decision event comes from the announcer and not from the jury.
+		this.juryConfirmationDialog.addConfirmListener(c -> OwlcmsSession.getFop()
+		        .fopEventPost(new FOPEvent.JuryDecision(e.getAthlete(), e.getOrigin(), et == GOOD_LIFT, false)));
+		this.juryConfirmationDialog
+		        .addCancelListener(c -> OwlcmsSession.getFop().fopEventPost(new FOPEvent.StartLifting(this)));
+		this.juryConfirmationDialog.open();
+
 	}
 
 }

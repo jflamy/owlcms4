@@ -45,7 +45,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 	static {
 		logger.setLevel(Level.INFO);
 	}
-	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	/**
 	 * Instantiates a new wrapup navigation content.
@@ -109,10 +109,6 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 		DebugUtils.gc();
 	}
 
-	private void highlight(Button button) {
-		button.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
-	}
-
 	@Override
 	public String getMenuTitle() {
 		return getTranslation("ShortTitle.Results");
@@ -126,5 +122,9 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 	@Override
 	protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {
 		return null;
+	}
+
+	private void highlight(Button button) {
+		button.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
 	}
 }

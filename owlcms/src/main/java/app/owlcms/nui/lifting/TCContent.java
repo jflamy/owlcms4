@@ -65,15 +65,12 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
-
 	private OwlcmsCrudFormFactory<Athlete> crudFormFactory;
 	private PlatesElement plates;
 	private Platform platform;
-
-	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	public TCContent() {
-		super();
 	}
 
 	@Override
@@ -100,7 +97,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 	}
 
 	public OwlcmsCrudFormFactory<Athlete> getCrudFormFactory() {
-		return crudFormFactory;
+		return this.crudFormFactory;
 	}
 
 	@Override
@@ -123,8 +120,8 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 	@Override
 	@Subscribe
 	public void slaveUpdateGrid(UIEvent.LiftingOrderUpdated e) {
-		OwlcmsSession.withFop((fop) -> UIEventProcessor.uiAccess(plates, uiEventBus, () -> {
-			plates.computeImageArea(fop, false);
+		OwlcmsSession.withFop((fop) -> UIEventProcessor.uiAccess(this.plates, this.uiEventBus, () -> {
+			this.plates.computeImageArea(fop, false);
 		}));
 	}
 
@@ -149,13 +146,13 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 	protected void init() {
 		setCrudFormFactory(createFormFactory());
 
-		plates = new PlatesElement();
-		plates.setId("loadchart");
+		this.plates = new PlatesElement();
+		this.plates.setId("loadchart");
 		OwlcmsSession.withFop((fop) -> {
-			plates.computeImageArea(fop, false);
-			platform = fop.getPlatform();
+			this.plates.computeImageArea(fop, false);
+			this.platform = fop.getPlatform();
 		});
-		plates.getStyle().set("font-size", "150%");
+		this.plates.getStyle().set("font-size", "150%");
 
 		FormLayout largePlates = new FormLayout();
 		FormLayout smallPlates = new FormLayout();
@@ -235,7 +232,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		});
 		binder.forField(useOtherBar).bind(Platform::isNonStandardBar, Platform::setNonStandardBar);
 
-		barWeight.setEnabled(platform.isNonStandardBar());
+		barWeight.setEnabled(this.platform.isNonStandardBar());
 		lightBar.addFormItem(barWeight, getTranslation("BarWeight"));
 		int min = 1;
 		int max = 20;
@@ -246,18 +243,18 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		                : ValidationResult.ok())
 		        .bind(Platform::getLightBar, Platform::setLightBar);
 
-		VerticalLayout platesDisplay = new VerticalLayout(plates);
+		VerticalLayout platesDisplay = new VerticalLayout(this.plates);
 		platesDisplay.setAlignItems(Alignment.CENTER);
 		Button applyButton = new Button(getTranslation("Apply"));
 		applyButton.setThemeName("primary");
 		applyButton.addClickListener((e) -> {
 			try {
-				binder.writeBean(platform);
-				PlatformRepository.save(platform);
+				binder.writeBean(this.platform);
+				PlatformRepository.save(this.platform);
 				OwlcmsSession.withFop((fop) -> {
 					platesDisplay.removeAll();
-					plates.computeImageArea(fop, false);
-					platesDisplay.add(plates);
+					this.plates.computeImageArea(fop, false);
+					platesDisplay.add(this.plates);
 					fop.fopEventPost(new FOPEvent.BarbellOrPlatesChanged(this));
 				});
 			} catch (ValidationException e1) {
@@ -281,7 +278,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		leftRight.setAlignItems(Alignment.CENTER);
 
 		fillH(leftRight, this);
-		binder.readBean(platform);
+		binder.readBean(this.platform);
 	}
 
 }

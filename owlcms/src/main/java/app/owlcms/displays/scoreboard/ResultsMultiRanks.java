@@ -44,7 +44,6 @@ public class ResultsMultiRanks extends Results {
 	private LinkedHashMap<String, Participation> ageGroupMap;
 
 	public ResultsMultiRanks() {
-		super();
 		OwlcmsFactory.waitDBInitialized();
 		getTimer().setOrigin(this);
 	}
@@ -96,15 +95,15 @@ public class ResultsMultiRanks extends Results {
 		ja.put("bestCleanJerk", formatInt(a.getBestCleanJerk()));
 		ja.put("total", formatInt(a.getTotal()));
 		setCurrentAthleteParticipations(a);
-		ja.put("snatchRanks", getRanksJson(a, Ranking.SNATCH, ageGroupMap));
-		ja.put("cleanJerkRanks", getRanksJson(a, Ranking.CLEANJERK, ageGroupMap));
-		ja.put("totalRanks", getRanksJson(a, Ranking.TOTAL, ageGroupMap));
+		ja.put("snatchRanks", getRanksJson(a, Ranking.SNATCH, this.ageGroupMap));
+		ja.put("cleanJerkRanks", getRanksJson(a, Ranking.CLEANJERK, this.ageGroupMap));
+		ja.put("totalRanks", getRanksJson(a, Ranking.TOTAL, this.ageGroupMap));
 		ja.put("group", a.getGroup().getName());
 		ja.put("subCategory", a.getSubCategory());
-		
+
 		ja.put("sinclair", computedScore(a));
 		ja.put("sinclairRank", computedScoreRank(a));
-		
+
 		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
 
@@ -113,14 +112,14 @@ public class ResultsMultiRanks extends Results {
 		String highlight = "";
 		if (fop.getState() != FOPState.DECISION_VISIBLE && notDone) {
 			switch (liftOrderRank) {
-			case 1:
-				highlight = (" current" + blink);
-				break;
-			case 2:
-				highlight = " next";
-				break;
-			default:
-				highlight = "";
+				case 1:
+					highlight = (" current" + blink);
+					break;
+				case 2:
+					highlight = " next";
+					break;
+				default:
+					highlight = "";
 			}
 		}
 		// logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
@@ -129,27 +128,39 @@ public class ResultsMultiRanks extends Results {
 		setTeamFlag(a, ja);
 	}
 
+	private String computedScore(Athlete a) {
+		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
+		double value = Ranking.getRankingValue(a, scoringSystem);
+		String score = value > 0.001 ? String.format("%.3f", value) : "-";
+		return score;
+	}
+
+	private String computedScoreRank(Athlete a) {
+		Integer value = Ranking.getRanking(a, Competition.getCurrent().getScoringSystem());
+		return value != null && value > 0 ? "" + value : "-";
+	}
+
 	private JsonValue getRanksJson(Athlete a, Ranking r, LinkedHashMap<String, Participation> ageGroupMap2) {
 		JsonArray ranks = Json.createArray();
 		int i = 0;
-		for (Entry<String, Participation> e : ageGroupMap.entrySet()) {
+		for (Entry<String, Participation> e : this.ageGroupMap.entrySet()) {
 			Participation p = e.getValue();
 			// logger,debug("a {} k {} v {}", a.getShortName(), e.getKey(), p);
 			if (p == null) {
 				ranks.set(i, formatRank(null));
 			} else {
 				switch (r) {
-				case CLEANJERK:
-					ranks.set(i, formatRank(p.getCleanJerkRank()));
-					break;
-				case SNATCH:
-					ranks.set(i, formatRank(p.getSnatchRank()));
-					break;
-				case TOTAL:
-					ranks.set(i, formatRank(p.getTotalRank()));
-					break;
-				default:
-					break;
+					case CLEANJERK:
+						ranks.set(i, formatRank(p.getCleanJerkRank()));
+						break;
+					case SNATCH:
+						ranks.set(i, formatRank(p.getSnatchRank()));
+						break;
+					case TOTAL:
+						ranks.set(i, formatRank(p.getTotalRank()));
+						break;
+					default:
+						break;
 				}
 			}
 			i++;
@@ -159,8 +170,8 @@ public class ResultsMultiRanks extends Results {
 
 	private void setCurrentAthleteParticipations(Athlete a) {
 		OwlcmsSession.withFop(fop -> {
-			ageGroupMap = new LinkedHashMap<>(fop.getAgeGroupMap());
-			for (Entry<String, Participation> cape : ageGroupMap.entrySet()) {
+			this.ageGroupMap = new LinkedHashMap<>(fop.getAgeGroupMap());
+			for (Entry<String, Participation> cape : this.ageGroupMap.entrySet()) {
 				cape.setValue(null);
 			}
 			if (a != null) {
@@ -170,7 +181,7 @@ public class ResultsMultiRanks extends Results {
 					AgeGroup ag = p.getCategory() != null ? p.getCategory().getAgeGroup() : null;
 					if (ag != null) {
 						// logger,debug("athlete {} curRankings {} {}", a, ag.getCode(), p);
-						ageGroupMap.put(ag.getCode(), p);
+						this.ageGroupMap.put(ag.getCode(), p);
 					}
 				}
 				// logger,debug("<<<setCurrentAthleteParticipations end");
@@ -178,17 +189,5 @@ public class ResultsMultiRanks extends Results {
 				// logger,debug("+++ cleared");
 			}
 		});
-	}
-	
-	private String computedScoreRank(Athlete a) {
-		Integer value = Ranking.getRanking(a, Competition.getCurrent().getScoringSystem());
-		return value != null && value > 0 ? "" + value : "-";
-	}
-
-	private String computedScore(Athlete a) {
-		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
-		double value = Ranking.getRankingValue(a, scoringSystem);
-		String score = value > 0.001 ? String.format("%.3f", value) : "-";
-		return score;
 	}
 }

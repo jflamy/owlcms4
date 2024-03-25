@@ -48,7 +48,7 @@ import ch.qos.logback.classic.Logger;
  * The Class Group.
  */
 
-//must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
+// must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity(name = "CompetitionGroup")
 @Cacheable
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Group.class)
@@ -56,26 +56,24 @@ import ch.qos.logback.classic.Logger;
 public class Group implements Comparable<Group> {
 
 	private final static NaturalOrderComparator<String> c = new NaturalOrderComparator<>();
-
 	private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
-
 	private final static DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder().parseLenient()
 	        .appendPattern(DATE_FORMAT).toFormatter();
+
+	public static DisplayGroup getEmptyDisplayGroup() {
+		return new DisplayGroup("?", "", null, "", "");
+	}
 
 	/** The platform. */
 	@ManyToOne(cascade = { CascadeType.MERGE }, optional = true, fetch = FetchType.EAGER)
 	@JsonIdentityReference(alwaysAsId = true)
 	Platform platform;
-
 	private String announcer;
-
 	/** The competition short date time. */
 	private LocalDateTime competitionTime;
 	private String description;
-
 	@Column(columnDefinition = "boolean default false")
 	private boolean done;
-
 	@Id
 	// @GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
@@ -84,28 +82,20 @@ public class Group implements Comparable<Group> {
 	private String jury3;
 	private String jury4;
 	private String jury5;
-
 	@Transient
 	final private Logger logger = (Logger) LoggerFactory.getLogger(Group.class);
-
 	private String marshall;
 	private String marshal2;
 	private String name;
-
 	private String referee1;
 	private String referee2;
 	private String referee3;
-
 	private String reserve;
-
 	private String technicalController;
 	private String technicalController2;
-
 	private String timeKeeper;
-
 	private String weighIn1;
 	private String weighIn2;
-
 	private LocalDateTime weighInTime;
 
 	/**
@@ -157,7 +147,7 @@ public class Group implements Comparable<Group> {
 			return -1;
 		}
 		Group other = obj;
-		if (name == null) {
+		if (this.name == null) {
 			if (other.name != null) {
 				return 1;
 			} else {
@@ -165,7 +155,7 @@ public class Group implements Comparable<Group> {
 			}
 		} else {
 			if (other.name != null) {
-				return c.compare(name, other.name);
+				return c.compare(this.name, other.name);
 			} else {
 				return -1;
 			}
@@ -196,8 +186,17 @@ public class Group implements Comparable<Group> {
 		return compare;
 	}
 
+	public void copy(Group source) throws IllegalAccessException, InvocationTargetException {
+		Long myId = getId();
+		BeanUtils.copyProperties(source, this);
+		this.setId(myId);
+	}
+
+	// @Override
+
 	public void doDone(boolean b) {
-		logger.debug("done? {} previous={} done={} {} [{}]", getName(), this.done, b, System.identityHashCode(this),
+		this.logger.debug("done? {} previous={} done={} {} [{}]", getName(), this.done, b,
+		        System.identityHashCode(this),
 		        LoggerUtils.whereFrom());
 		if (this.done != b) {
 			this.setDone(b);
@@ -245,7 +244,22 @@ public class Group implements Comparable<Group> {
 		// }
 	}
 
-//    @Override
+	public String fullDump() {
+		return "Group [name=" + this.name + ", platform=" + this.platform + ", description=" + this.description
+		        + ", weighInTime="
+		        + this.weighInTime + ", competitionTime=" + this.competitionTime + ", done=" + this.done
+		        + ", announcer=" + this.announcer
+		        + ", marshall=" + this.marshall + ", marshal2=" + this.marshal2 + ", referee1=" + this.referee1
+		        + ", referee2="
+		        + this.referee2 + ", referee3=" + this.referee3 + ", weighIn1=" + this.weighIn1 + ", weighIn2="
+		        + this.weighIn2
+		        + ", timeKeeper=" + this.timeKeeper + ", technicalController=" + this.technicalController
+		        + ", technicalController2=" + this.technicalController2 + ", jury1=" + this.jury1 + ", jury2="
+		        + this.jury2
+		        + ", jury3=" + this.jury3 + ", jury4=" + this.jury4 + ", jury5=" + this.jury5 + ", logger="
+		        + this.logger + ", reserve="
+		        + this.reserve + ", id=" + this.id + "]";
+	}
 
 	/**
 	 * Gets the announcer.
@@ -253,7 +267,13 @@ public class Group implements Comparable<Group> {
 	 * @return the announcer
 	 */
 	public String getAnnouncer() {
-		return announcer;
+		return this.announcer;
+	}
+
+	@Transient
+	@JsonIgnore
+	public List<Athlete> getAthletes() {
+		return AthleteRepository.findAllByGroupAndWeighIn(this, null);
 	}
 
 	/**
@@ -269,7 +289,7 @@ public class Group implements Comparable<Group> {
 			LocalDateTime competitionTime2 = getCompetitionTime();
 			formatted = competitionTime2 == null ? "" : DATE_TIME_FORMATTER.format(competitionTime2);
 		} catch (Exception e) {
-			LoggerUtils.logError(logger, e);
+			LoggerUtils.logError(this.logger, e);
 		}
 		return formatted;
 	}
@@ -280,17 +300,17 @@ public class Group implements Comparable<Group> {
 	 * @return the competition time
 	 */
 	public LocalDateTime getCompetitionTime() {
-		return competitionTime;
+		return this.competitionTime;
 	}
 
 	@Transient
 	@JsonIgnore
 	public Date getCompetitionTimeAsDate() {
-		return DateTimeUtils.dateFromLocalDateTime(competitionTime);
+		return DateTimeUtils.dateFromLocalDateTime(this.competitionTime);
 	}
 
 	public String getDescription() {
-		return description;
+		return this.description;
 	}
 
 	/**
@@ -299,7 +319,7 @@ public class Group implements Comparable<Group> {
 	 * @return the id
 	 */
 	public Long getId() {
-		return id;
+		return this.id;
 	}
 
 	/**
@@ -309,7 +329,7 @@ public class Group implements Comparable<Group> {
 	 */
 	@JsonIgnore
 	public String getJury() {
-		List<String> jurors = Arrays.asList(jury1, jury2, jury3, jury4, jury5);
+		List<String> jurors = Arrays.asList(this.jury1, this.jury2, this.jury3, this.jury4, this.jury5);
 		Iterables.removeIf(jurors, Predicates.isNull());
 		return String.join(", ", jurors);
 	}
@@ -318,39 +338,39 @@ public class Group implements Comparable<Group> {
 	 * @return the jury1
 	 */
 	public String getJury1() {
-		return jury1;
+		return this.jury1;
 	}
 
 	/**
 	 * @return the jury2
 	 */
 	public String getJury2() {
-		return jury2;
+		return this.jury2;
 	}
 
 	/**
 	 * @return the jury3
 	 */
 	public String getJury3() {
-		return jury3;
+		return this.jury3;
 	}
 
 	/**
 	 * @return the jury4
 	 */
 	public String getJury4() {
-		return jury4;
+		return this.jury4;
 	}
 
 	/**
 	 * @return the jury5
 	 */
 	public String getJury5() {
-		return jury5;
+		return this.jury5;
 	}
 
 	public String getMarshal2() {
-		return marshal2;
+		return this.marshal2;
 	}
 
 	/**
@@ -359,7 +379,7 @@ public class Group implements Comparable<Group> {
 	 * @return the marshall
 	 */
 	public String getMarshall() {
-		return marshall;
+		return this.marshall;
 	}
 
 	/**
@@ -368,7 +388,7 @@ public class Group implements Comparable<Group> {
 	 * @return the name
 	 */
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	/**
@@ -377,7 +397,7 @@ public class Group implements Comparable<Group> {
 	 * @return the platformName on which group will be lifting
 	 */
 	public Platform getPlatform() {
-		return platform;
+		return this.platform;
 	}
 
 	/**
@@ -386,7 +406,7 @@ public class Group implements Comparable<Group> {
 	 * @return the referee 1
 	 */
 	public String getReferee1() {
-		return referee1;
+		return this.referee1;
 	}
 
 	/**
@@ -395,7 +415,7 @@ public class Group implements Comparable<Group> {
 	 * @return the referee 2
 	 */
 	public String getReferee2() {
-		return referee2;
+		return this.referee2;
 	}
 
 	/**
@@ -404,14 +424,14 @@ public class Group implements Comparable<Group> {
 	 * @return the referee 3
 	 */
 	public String getReferee3() {
-		return referee3;
+		return this.referee3;
 	}
 
 	/**
 	 * @return the reserve
 	 */
 	public String getReserve() {
-		return reserve;
+		return this.reserve;
 	}
 
 	/**
@@ -420,11 +440,11 @@ public class Group implements Comparable<Group> {
 	 * @return the technical controller
 	 */
 	public String getTechnicalController() {
-		return technicalController;
+		return this.technicalController;
 	}
 
 	public String getTechnicalController2() {
-		return technicalController2;
+		return this.technicalController2;
 	}
 
 	/**
@@ -433,15 +453,15 @@ public class Group implements Comparable<Group> {
 	 * @return the time keeper
 	 */
 	public String getTimeKeeper() {
-		return timeKeeper;
+		return this.timeKeeper;
 	}
 
 	public String getWeighIn1() {
-		return weighIn1;
+		return this.weighIn1;
 	}
 
 	public String getWeighIn2() {
-		return weighIn2;
+		return this.weighIn2;
 	}
 
 	/**
@@ -457,7 +477,7 @@ public class Group implements Comparable<Group> {
 			LocalDateTime weighInTime2 = getWeighInTime();
 			formatted = weighInTime2 == null ? "" : DATE_TIME_FORMATTER.format(weighInTime2);
 		} catch (Exception e) {
-			LoggerUtils.logError(logger, e);
+			LoggerUtils.logError(this.logger, e);
 		}
 		return formatted;
 	}
@@ -468,13 +488,13 @@ public class Group implements Comparable<Group> {
 	 * @return the weigh-in time (two hours before competition, normally)
 	 */
 	public LocalDateTime getWeighInTime() {
-		return weighInTime;
+		return this.weighInTime;
 	}
 
 	@Transient
 	@JsonIgnore
 	public Date getWeighInTimeAsDate() {
-		return DateTimeUtils.dateFromLocalDateTime(weighInTime);
+		return DateTimeUtils.dateFromLocalDateTime(this.weighInTime);
 	}
 
 	@Override
@@ -484,7 +504,7 @@ public class Group implements Comparable<Group> {
 	}
 
 	public boolean isDone() {
-		return done;
+		return this.done;
 	}
 
 	/**
@@ -660,17 +680,6 @@ public class Group implements Comparable<Group> {
 		return AthleteRepository.findAllByGroupAndWeighIn(this, null).size();
 	}
 
-	public String fullDump() {
-		return "Group [name=" + name + ", platform=" + platform + ", description=" + description + ", weighInTime="
-		        + weighInTime + ", competitionTime=" + competitionTime + ", done=" + done + ", announcer=" + announcer
-		        + ", marshall=" + marshall + ", marshal2=" + marshal2 + ", referee1=" + referee1 + ", referee2="
-		        + referee2 + ", referee3=" + referee3 + ", weighIn1=" + weighIn1 + ", weighIn2=" + weighIn2
-		        + ", timeKeeper=" + timeKeeper + ", technicalController=" + technicalController
-		        + ", technicalController2=" + technicalController2 + ", jury1=" + jury1 + ", jury2=" + jury2
-		        + ", jury3=" + jury3 + ", jury4=" + jury4 + ", jury5=" + jury5 + ", logger=" + logger + ", reserve="
-		        + reserve + ", id=" + id + "]";
-	}
-
 	@Override
 	public String toString() {
 		return getName();
@@ -678,21 +687,5 @@ public class Group implements Comparable<Group> {
 
 	private void setDone(boolean b) {
 		this.done = b;
-	}
-
-	public static DisplayGroup getEmptyDisplayGroup() {
-		return new DisplayGroup("?", "", null, "", "");
-	}
-
-	@Transient
-	@JsonIgnore
-	public List<Athlete> getAthletes() {
-		return AthleteRepository.findAllByGroupAndWeighIn(this, null);
-	}
-	
-	public void copy(Group source) throws IllegalAccessException, InvocationTargetException {
-		Long myId = getId();
-		BeanUtils.copyProperties(source, this);
-		this.setId(myId);
 	}
 }

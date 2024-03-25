@@ -76,7 +76,7 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 		return layout;
 	}
 
-	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	/**
 	 * Instantiates a new main navigation content.

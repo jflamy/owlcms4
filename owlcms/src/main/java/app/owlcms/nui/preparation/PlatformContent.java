@@ -65,7 +65,7 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 
 	@Override
 	public Platform add(Platform domainObjectToAdd) {
-		return editingFormFactory.add(domainObjectToAdd);
+		return this.editingFormFactory.add(domainObjectToAdd);
 	}
 
 	@Override
@@ -75,7 +75,7 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 
 	@Override
 	public void delete(Platform domainObjectToDelete) {
-		editingFormFactory.delete(domainObjectToDelete);
+		this.editingFormFactory.delete(domainObjectToDelete);
 	}
 
 	/**
@@ -103,7 +103,7 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 
 	@Override
 	public OwlcmsLayout getRouterLayout() {
-		return routerLayout;
+		return this.routerLayout;
 	}
 
 	@Override
@@ -113,7 +113,7 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 
 	@Override
 	public Platform update(Platform domainObjectToUpdate) {
-		return editingFormFactory.update(domainObjectToUpdate);
+		return this.editingFormFactory.update(domainObjectToUpdate);
 	}
 
 	/**
@@ -143,7 +143,8 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 		grid.addColumn(new ComponentRenderer<>(p -> {
 			Button technical = openInNewTab(TCContent.class, getTranslation("PlatesCollarBarbell"), p.getName());
 			// prevent grid row selection from triggering
-			technical.getElement().addEventListener("click", ignore -> {}).addEventData("event.stopPropagation()");
+			technical.getElement().addEventListener("click", ignore -> {
+			}).addEventData("event.stopPropagation()");
 			return technical;
 		})).setHeader(getTranslation("PlatesCollarBarbell")).setWidth("0");
 
@@ -160,9 +161,9 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 	 * @return the form factory that will create the actual form on demand
 	 */
 	private OwlcmsCrudFormFactory<Platform> createFormFactory() {
-		editingFormFactory = createPlatformEditingFactory();
-		createFormLayout(editingFormFactory);
-		return editingFormFactory;
+		this.editingFormFactory = createPlatformEditingFactory();
+		createFormLayout(this.editingFormFactory);
+		return this.editingFormFactory;
 	}
 
 	/**

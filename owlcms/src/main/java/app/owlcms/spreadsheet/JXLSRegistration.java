@@ -37,18 +37,17 @@ public class JXLSRegistration extends JXLSWorkbookStreamSource {
 	}
 
 	public JXLSRegistration(UI ui) {
-		super();
-	}
-
-	@Override
-	public InputStream getTemplate(Locale locale) throws IOException {
-		return getLocalizedTemplate("/templates/registration/RegistrationTemplate", ".xls", locale);
 	}
 
 	@Override
 	public List<Athlete> getSortedAthletes() {
 		getReportingBeans();
 		return ImmutableList.of(new Athlete());
+	}
+
+	@Override
+	public InputStream getTemplate(Locale locale) throws IOException {
+		return getLocalizedTemplate("/templates/registration/RegistrationTemplate", ".xls", locale);
 	}
 
 }

@@ -40,18 +40,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * A file servlet supporting resume of downloads and client-side caching and
- * GZIP of text content. This servlet can also be used for images, client-side
- * caching would become more efficient. This servlet can also be used for text
- * files, GZIP would decrease network bandwidth.
+ * A file servlet supporting resume of downloads and client-side caching and GZIP of text content. This servlet can also
+ * be used for images, client-side caching would become more efficient. This servlet can also be used for text files,
+ * GZIP would decrease network bandwidth.
  *
  * @author BalusC
  * @link http://balusc.blogspot.com/2009/02/fileservlet-supporting-resume-and.html
  */
 @SuppressWarnings("serial")
 /**
- * Modified to fetch files under the ./local directory relative to the startup
- * directory and, failing that, as a resource on the classpath.
+ * Modified to fetch files under the ./local directory relative to the startup directory and, failing that, as a
+ * resource on the classpath.
  *
  * @author Jean-François Lamy
  *
@@ -63,18 +62,41 @@ public class CompetitionExport extends HttpServlet {
 	// ----------------------------------------
 
 	private static Logger logger = (Logger) LoggerFactory.getLogger(CompetitionExport.class);
-//    { logger.setLevel(Level.DEBUG); }
+	// { logger.setLevel(Level.DEBUG); }
 
 	// Inner classes
 	// ------------------------------------------------------------------------------
+
+	/**
+	 * Process GET request.
+	 *
+	 * @see HttpServlet#doGet(HttpServletRequest, HttpServletResponse).
+	 */
+	@Override
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+	        throws ServletException, IOException {
+		// Process request with content.
+		processRequest(request, response, true);
+	}
+
+	/**
+	 * Process HEAD request. This returns the same headers as GET request, but without content.
+	 *
+	 * @see HttpServlet#doHead(HttpServletRequest, HttpServletResponse).
+	 */
+	@Override
+	protected void doHead(HttpServletRequest request, HttpServletResponse response)
+	        throws ServletException, IOException {
+		// Process request without content.
+		processRequest(request, response, false);
+	}
 
 	/**
 	 * Process the actual request.
 	 *
 	 * @param request  The request to be processed.
 	 * @param response The response to be created.
-	 * @param content  Whether the request body should be written (GET) or not
-	 *                 (HEAD).
+	 * @param content  Whether the request body should be written (GET) or not (HEAD).
 	 * @throws IOException If something fails at I/O level.
 	 */
 	private void processRequest(HttpServletRequest request, HttpServletResponse response, boolean content)
@@ -109,7 +131,7 @@ public class CompetitionExport extends HttpServlet {
 			printWriter = new PrintWriter(output, true, StandardCharsets.UTF_8);
 			response.setContentType("application/json");
 			response.setCharacterEncoding("UTF-8");
-			
+
 			inputStream = new CompetitionData().exportData();
 			inputStream.transferTo(output);
 			output.flush();
@@ -131,31 +153,6 @@ public class CompetitionExport extends HttpServlet {
 				inputStream.close();
 			}
 		}
-	}
-
-	/**
-	 * Process GET request.
-	 *
-	 * @see HttpServlet#doGet(HttpServletRequest, HttpServletResponse).
-	 */
-	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-	        throws ServletException, IOException {
-		// Process request with content.
-		processRequest(request, response, true);
-	}
-
-	/**
-	 * Process HEAD request. This returns the same headers as GET request, but
-	 * without content.
-	 *
-	 * @see HttpServlet#doHead(HttpServletRequest, HttpServletResponse).
-	 */
-	@Override
-	protected void doHead(HttpServletRequest request, HttpServletResponse response)
-	        throws ServletException, IOException {
-		// Process request without content.
-		processRequest(request, response, false);
 	}
 
 }

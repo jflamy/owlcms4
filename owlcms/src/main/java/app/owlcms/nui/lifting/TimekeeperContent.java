@@ -66,11 +66,9 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
-
-	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	public TimekeeperContent() {
-		super();
 	}
 
 	/*
@@ -147,99 +145,6 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		return athlete;
 	}
 
-	private void createBottom() {
-		this.removeAll();
-		if (timer == null) {
-			timer = new AthleteTimerElement("");
-		}
-		VerticalLayout time = new VerticalLayout();
-		time.setWidth("50%");
-
-		time.getElement().getStyle().set("font-size", "15vh");
-		time.getElement().getStyle().set("font-weight", "bold");
-		time.setAlignItems(Alignment.CENTER);
-		time.setAlignSelf(Alignment.CENTER, timer);
-		centerH(timer, time);
-		this.add(time);
-
-		createStartTimeButton();
-		createStopTimeButton();
-		create1MinButton();
-		create2MinButton();
-
-		registerShortcuts();
-
-//		_1min = new Button("1:00", (e2) -> {
-//			OwlcmsSession.withFop(fop -> {
-//				fop.fopEventPost(new FOPEvent.ForceTime(60000, this.getOrigin()));
-//			});
-//		});
-//		_1min.getElement().setAttribute("theme", "icon");
-//
-//		_2min = new Button("2:00", (e3) -> {
-//			OwlcmsSession.withFop(fop -> {
-//				fop.fopEventPost(new FOPEvent.ForceTime(120000, this.getOrigin()));
-//			});
-//		});
-//		_2min.getElement().setAttribute("theme", "icon");
-
-		startTimeButton.setSizeFull();
-		stopTimeButton.setSizeFull();
-		_1min.setHeight("15vh");
-		_1min.setWidthFull();
-		_2min.setHeight("15vh");
-		_2min.setWidthFull();
-		// required by Vaadin v24.
-		startTimeButton.getStyle().set("flex-shrink", "1");
-		stopTimeButton.getStyle().set("flex-shrink", "1");
-		_1min.getStyle().set("flex-shrink", "1");
-		_2min.getStyle().set("flex-shrink", "1");
-
-		VerticalLayout resets = new VerticalLayout(_1min, _2min);
-		resets.setWidthFull();
-
-		buttons = new HorizontalLayout(startTimeButton, stopTimeButton, resets);
-		time.getStyle().set("margin-top", "3vh");
-		time.getStyle().set("margin-bottom", "3vh");
-		buttons.setWidth("75%");
-		buttons.setHeight("40vh");
-		buttons.setAlignItems(FlexComponent.Alignment.CENTER);
-		buttons.getStyle().set("--lumo-font-size-m", "10vh");
-
-		centerHW(buttons, this);
-	}
-
-	private void hideButtons() {
-		buttons.setVisible(false);
-		timer.getElement().setVisible(false);
-	}
-
-	private void registerShortcuts() {
-		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.COMMA);
-		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.SLASH);
-		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.NUMPAD_DIVIDE);
-
-		UI.getCurrent().addShortcutListener(() -> doStopTime(), Key.PERIOD);
-		UI.getCurrent().addShortcutListener(() -> doStopTime(), Key.NUMPAD_DECIMAL);
-
-		UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.DIGIT_8, KeyModifier.SHIFT);
-		UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.NUMPAD_MULTIPLY);
-
-		UI.getCurrent().addShortcutListener(() -> do1Minute(), Key.EQUAL, KeyModifier.SHIFT);
-		UI.getCurrent().addShortcutListener(() -> do1Minute(), Key.NUMPAD_ADD);
-
-		UI.getCurrent().addShortcutListener(() -> do2Minutes(), Key.EQUAL);
-		UI.getCurrent().addShortcutListener(() -> do2Minutes(), Key.NUMPAD_EQUAL);
-		UI.getCurrent().addShortcutListener(() -> do2Minutes(), Key.SEMICOLON);
-	}
-
-	private void showButtons() {
-		if (buttons != null) {
-			buttons.setVisible(true);
-		}
-		timer.getElement().setVisible(true);
-	}
-
 	@Override
 	protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
 		createStartTimeButton();
@@ -247,7 +152,8 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		create1MinButton();
 		create2MinButton();
 
-		HorizontalLayout buttons = new HorizontalLayout(startTimeButton, stopTimeButton, _1min, _2min);
+		HorizontalLayout buttons = new HorizontalLayout(this.startTimeButton, this.stopTimeButton, this._1min,
+		        this._2min);
 		buttons.getStyle().set("background-color", "pink");
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 		return buttons;
@@ -259,29 +165,29 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	@Override
 	protected FlexLayout createInitialBar() {
 
-		topBar = new FlexLayout();
-		initialBar = true;
+		this.topBar = new FlexLayout();
+		this.initialBar = true;
 
 		createTopBarGroupSelect();
 		createTopBarLeft();
 
-		introCountdownButton = new Button(getTranslation("introCountdown"), new Icon(VaadinIcon.TIMER), (e) -> {
+		this.introCountdownButton = new Button(getTranslation("introCountdown"), new Icon(VaadinIcon.TIMER), (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				BreakDialog dialog = new BreakDialog(BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET, null, this);
 				dialog.open();
 			});
 		});
-		introCountdownButton.getElement().setAttribute("theme", "primary contrast");
+		this.introCountdownButton.getElement().setAttribute("theme", "primary contrast");
 
-		startLiftingButton = new Button(getTranslation("startLifting"), new Icon(VaadinIcon.MICROPHONE), (e) -> {
+		this.startLiftingButton = new Button(getTranslation("startLifting"), new Icon(VaadinIcon.MICROPHONE), (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				UI.getCurrent().access(() -> createTopBar());
 				fop.fopEventPost(new FOPEvent.StartLifting(this));
 			});
 		});
-		startLiftingButton.getThemeNames().add("success primary");
+		this.startLiftingButton.getThemeNames().add("success primary");
 
-		showResultsButton = new Button(getTranslation("ShowResults"), new Icon(VaadinIcon.MEDAL), (e) -> {
+		this.showResultsButton = new Button(getTranslation("ShowResults"), new Icon(VaadinIcon.MEDAL), (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				UI.getCurrent().access(() -> createTopBar());
 				fop.fopEventPost(
@@ -289,26 +195,26 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 				                this));
 			});
 		});
-		showResultsButton.getThemeNames().add("success primary");
-		showResultsButton.setVisible(false);
+		this.showResultsButton.getThemeNames().add("success primary");
+		this.showResultsButton.setVisible(false);
 
-		warning = new H3();
-		warning.getStyle().set("margin-top", "0").set("margin-bottom", "0");
+		this.warning = new H3();
+		this.warning.getStyle().set("margin-top", "0").set("margin-bottom", "0");
 		HorizontalLayout topBarRight = new HorizontalLayout();
-		topBarRight.add(warning, introCountdownButton, startLiftingButton, showResultsButton);
+		topBarRight.add(this.warning, this.introCountdownButton, this.startLiftingButton, this.showResultsButton);
 		topBarRight.setSpacing(true);
 		topBarRight.setPadding(true);
 		topBarRight.setAlignItems(FlexComponent.Alignment.CENTER);
 
-		topBar.removeAll();
-		topBar.setSizeFull();
-		topBar.add(getTopBarLeft(), topBarRight);
+		this.topBar.removeAll();
+		this.topBar.setSizeFull();
+		this.topBar.add(getTopBarLeft(), topBarRight);
 
-		topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
-		topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-		topBar.setFlexGrow(0.0, getTopBarLeft());
-		topBar.setFlexGrow(1.0, topBarRight);
-		return topBar;
+		this.topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+		this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+		this.topBar.setFlexGrow(0.0, getTopBarLeft());
+		this.topBar.setFlexGrow(1.0, topBarRight);
+		return this.topBar;
 	}
 
 	/**
@@ -334,22 +240,22 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	@Override
 	protected FlexLayout createTopBar() {
 
-		topBar = new FlexLayout();
-		topBar.setClassName("athleteGridTopBar");
-		initialBar = false;
+		this.topBar = new FlexLayout();
+		this.topBar.setClassName("athleteGridTopBar");
+		this.initialBar = false;
 
 		HorizontalLayout topBarLeft = createTopBarLeft();
 
-		lastName = new H2();
-		lastName.setText("\u2013");
-		lastName.getStyle().set("margin", "0px 0px 0px 0px");
+		this.lastName = new H2();
+		this.lastName.setText("\u2013");
+		this.lastName.getStyle().set("margin", "0px 0px 0px 0px");
 
 		setFirstNameWrapper(new H3(""));
 		getFirstNameWrapper().getStyle().set("margin", "0px 0px 0px 0px");
-		firstName = new Span("");
-		firstName.getStyle().set("margin", "0px 0px 0px 0px");
-		startNumber = new Span("");
-		Style style = startNumber.getStyle();
+		this.firstName = new Span("");
+		this.firstName.getStyle().set("margin", "0px 0px 0px 0px");
+		this.startNumber = new Span("");
+		Style style = this.startNumber.getStyle();
 		style.set("margin", "0px 0px 0px 1em");
 		style.set("padding", "0px 0px 0px 0px");
 		style.set("border", "2px solid var(--lumo-primary-color)");
@@ -357,40 +263,40 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		style.set("width", "1.4em");
 		style.set("text-align", "center");
 		style.set("display", "inline-block");
-		startNumber.setVisible(false);
-		getFirstNameWrapper().add(firstName, startNumber);
-		Div fullName = new Div(lastName, getFirstNameWrapper());
+		this.startNumber.setVisible(false);
+		getFirstNameWrapper().add(this.firstName, this.startNumber);
+		Div fullName = new Div(this.lastName, getFirstNameWrapper());
 
-		attempt = new H2();
-		weight = new H2();
-		weight.setText("");
-		if (timer == null) {
-			timer = new AthleteTimerElement("");
+		this.attempt = new H2();
+		this.weight = new H2();
+		this.weight.setText("");
+		if (this.timer == null) {
+			this.timer = new AthleteTimerElement("");
 		}
-		timer.setSilenced(this.isSilenced());
-		H1 time = new H1(timer);
-		clearVerticalMargins(attempt);
+		this.timer.setSilenced(this.isSilenced());
+		H1 time = new H1(this.timer);
+		clearVerticalMargins(this.attempt);
 		clearVerticalMargins(time);
-		clearVerticalMargins(weight);
+		clearVerticalMargins(this.weight);
 
-		breaks = breakButtons(topBar);
-		breaks.setPadding(false);
-		breaks.setMargin(false);
-		breaks.setSpacing(true);
+		this.breaks = breakButtons(this.topBar);
+		this.breaks.setPadding(false);
+		this.breaks.setMargin(false);
+		this.breaks.setSpacing(true);
 
-		topBar.setSizeFull();
-		topBar.add(topBarLeft, fullName, attempt, weight, time);
+		this.topBar.setSizeFull();
+		this.topBar.add(topBarLeft, fullName, this.attempt, this.weight, time);
 
-		if (breaks != null) {
-			topBar.add(breaks);
+		if (this.breaks != null) {
+			this.topBar.add(this.breaks);
 		}
 
-		topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);
-		topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-		topBar.setAlignSelf(Alignment.CENTER, attempt, weight, time);
-		topBar.setFlexGrow(0.5, fullName);
-		topBar.setFlexGrow(0.0, topBarLeft);
-		return topBar;
+		this.topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);
+		this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+		this.topBar.setAlignSelf(Alignment.CENTER, this.attempt, this.weight, time);
+		this.topBar.setFlexGrow(0.5, fullName);
+		this.topBar.setFlexGrow(0.0, topBarLeft);
+		return this.topBar;
 	}
 
 	/**
@@ -403,10 +309,10 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		// filter.
 
 		List<Group> groups = GroupRepository.findAll();
-		groups.sort(new NaturalOrderComparator<Group>());
+		groups.sort(new NaturalOrderComparator<>());
 
 		OwlcmsSession.withFop(fop -> {
-			topBarMenu = new GroupSelectionMenu(groups, fop.getGroup(),
+			this.topBarMenu = new GroupSelectionMenu(groups, fop.getGroup(),
 			        fop,
 			        (g1) -> fop.fopEventPost(
 			                new FOPEvent.SwitchGroup(g1.compareTo(fop.getGroup()) == 0 ? null : g1, this)),
@@ -429,7 +335,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 
 	@Override
 	protected void init() {
-		crudLayout = null;
+		this.crudLayout = null;
 	}
 
 	@Override
@@ -448,7 +354,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 				getRouterLayout().setMenuArea(createInitialBar());
 				getRouterLayout().updateHeader(true);
 
-				warning.setText(getTranslation("IdlePlatform"));
+				this.warning.setText(getTranslation("IdlePlatform"));
 				if (curAthlete2 == null || curAthlete2.getAttemptsDone() >= 6 || fop.getLiftingOrder().size() == 0) {
 					topBarWarning(fop.getGroup(), curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone(),
 					        fop.getState(), fop.getLiftingOrder());
@@ -461,33 +367,126 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 				createBottom();
 
 				if (state == FOPState.BREAK) {
-					if (buttons != null) {
+					if (this.buttons != null) {
 						hideButtons();
 					}
-					if (decisions != null) {
-						decisions.setVisible(false);
+					if (this.decisions != null) {
+						this.decisions.setVisible(false);
 					}
 					busyBreakButton();
 				} else {
-					if (buttons != null) {
+					if (this.buttons != null) {
 						showButtons();
 					}
-					if (decisions != null) {
-						decisions.setVisible(true);
+					if (this.decisions != null) {
+						this.decisions.setVisible(true);
 					}
-					if (breakButton == null) {
+					if (this.breakButton == null) {
 						// logger.debug("breakButton is null\n{}", LoggerUtils. stackTrace());
 						return;
 					}
-					breakButton.setText("");
+					this.breakButton.setText("");
 					quietBreakButton(Translator.translateOrElseEmpty("Pause"));
 				}
-				breakButton.setEnabled(true);
+				this.breakButton.setEnabled(true);
 
 				Athlete curAthlete = curAthlete2;
 				int timeRemaining = fop.getAthleteTimer().getTimeRemaining();
 				super.doUpdateTopBar(curAthlete, timeRemaining);
 			}
 		});
+	}
+
+	private void createBottom() {
+		this.removeAll();
+		if (this.timer == null) {
+			this.timer = new AthleteTimerElement("");
+		}
+		VerticalLayout time = new VerticalLayout();
+		time.setWidth("50%");
+
+		time.getElement().getStyle().set("font-size", "15vh");
+		time.getElement().getStyle().set("font-weight", "bold");
+		time.setAlignItems(Alignment.CENTER);
+		time.setAlignSelf(Alignment.CENTER, this.timer);
+		centerH(this.timer, time);
+		this.add(time);
+
+		createStartTimeButton();
+		createStopTimeButton();
+		create1MinButton();
+		create2MinButton();
+
+		registerShortcuts();
+
+		// _1min = new Button("1:00", (e2) -> {
+		// OwlcmsSession.withFop(fop -> {
+		// fop.fopEventPost(new FOPEvent.ForceTime(60000, this.getOrigin()));
+		// });
+		// });
+		// _1min.getElement().setAttribute("theme", "icon");
+		//
+		// _2min = new Button("2:00", (e3) -> {
+		// OwlcmsSession.withFop(fop -> {
+		// fop.fopEventPost(new FOPEvent.ForceTime(120000, this.getOrigin()));
+		// });
+		// });
+		// _2min.getElement().setAttribute("theme", "icon");
+
+		this.startTimeButton.setSizeFull();
+		this.stopTimeButton.setSizeFull();
+		this._1min.setHeight("15vh");
+		this._1min.setWidthFull();
+		this._2min.setHeight("15vh");
+		this._2min.setWidthFull();
+		// required by Vaadin v24.
+		this.startTimeButton.getStyle().set("flex-shrink", "1");
+		this.stopTimeButton.getStyle().set("flex-shrink", "1");
+		this._1min.getStyle().set("flex-shrink", "1");
+		this._2min.getStyle().set("flex-shrink", "1");
+
+		VerticalLayout resets = new VerticalLayout(this._1min, this._2min);
+		resets.setWidthFull();
+
+		this.buttons = new HorizontalLayout(this.startTimeButton, this.stopTimeButton, resets);
+		time.getStyle().set("margin-top", "3vh");
+		time.getStyle().set("margin-bottom", "3vh");
+		this.buttons.setWidth("75%");
+		this.buttons.setHeight("40vh");
+		this.buttons.setAlignItems(FlexComponent.Alignment.CENTER);
+		this.buttons.getStyle().set("--lumo-font-size-m", "10vh");
+
+		centerHW(this.buttons, this);
+	}
+
+	private void hideButtons() {
+		this.buttons.setVisible(false);
+		this.timer.getElement().setVisible(false);
+	}
+
+	private void registerShortcuts() {
+		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.COMMA);
+		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.SLASH);
+		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.NUMPAD_DIVIDE);
+
+		UI.getCurrent().addShortcutListener(() -> doStopTime(), Key.PERIOD);
+		UI.getCurrent().addShortcutListener(() -> doStopTime(), Key.NUMPAD_DECIMAL);
+
+		UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.DIGIT_8, KeyModifier.SHIFT);
+		UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.NUMPAD_MULTIPLY);
+
+		UI.getCurrent().addShortcutListener(() -> do1Minute(), Key.EQUAL, KeyModifier.SHIFT);
+		UI.getCurrent().addShortcutListener(() -> do1Minute(), Key.NUMPAD_ADD);
+
+		UI.getCurrent().addShortcutListener(() -> do2Minutes(), Key.EQUAL);
+		UI.getCurrent().addShortcutListener(() -> do2Minutes(), Key.NUMPAD_EQUAL);
+		UI.getCurrent().addShortcutListener(() -> do2Minutes(), Key.SEMICOLON);
+	}
+
+	private void showButtons() {
+		if (this.buttons != null) {
+			this.buttons.setVisible(true);
+		}
+		this.timer.getElement().setVisible(true);
 	}
 }

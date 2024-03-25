@@ -39,16 +39,14 @@ public class LocalDateTimePicker extends CustomField<LocalDateTime> {
 	}
 
 	Logger logger = (Logger) LoggerFactory.getLogger(LocalDateTimePicker.class);
-
 	private final DatePicker datePicker = new DatePicker();
-
 	private final TimePicker timePicker = new TimePicker();
 
 	public LocalDateTimePicker() {
-		timePicker.getStyle().set("margin-left", "1em");
-		Locale l = timePicker.getLocale();
-		timePicker.setLocale(fixAM_PM(l));
-		add(datePicker, timePicker);
+		this.timePicker.getStyle().set("margin-left", "1em");
+		Locale l = this.timePicker.getLocale();
+		this.timePicker.setLocale(fixAM_PM(l));
+		add(this.datePicker, this.timePicker);
 	}
 
 	/**
@@ -61,15 +59,15 @@ public class LocalDateTimePicker extends CustomField<LocalDateTime> {
 
 	@Override
 	protected LocalDateTime generateModelValue() {
-		final LocalDate date = datePicker.getValue();
-		final LocalTime time = timePicker.getValue();
+		final LocalDate date = this.datePicker.getValue();
+		final LocalTime time = this.timePicker.getValue();
 		return date != null && time != null ? LocalDateTime.of(date, time) : null;
 	}
 
 	@Override
 	protected void setPresentationValue(LocalDateTime newPresentationValue) {
-		datePicker.setValue(newPresentationValue != null ? newPresentationValue.toLocalDate() : null);
-		timePicker.setValue(newPresentationValue != null ? newPresentationValue.toLocalTime() : null);
+		this.datePicker.setValue(newPresentationValue != null ? newPresentationValue.toLocalDate() : null);
+		this.timePicker.setValue(newPresentationValue != null ? newPresentationValue.toLocalTime() : null);
 	}
 
 }

@@ -38,7 +38,7 @@ import ch.qos.logback.classic.Logger;
 public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements TopParametersReader {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(TopTeamsSinclairPage.class);
-	Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private AgeDivision ageDivision;
 	private String ageGroupPrefix;
@@ -93,22 +93,22 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 
 	@Override
 	public final AgeDivision getAgeDivision() {
-		return ageDivision;
+		return this.ageDivision;
 	}
 
 	@Override
 	public final AgeGroup getAgeGroup() {
-		return ageGroup;
+		return this.ageGroup;
 	}
 
 	@Override
 	public final String getAgeGroupPrefix() {
-		return ageGroupPrefix;
+		return this.ageGroupPrefix;
 	}
 
 	@Override
 	public final Category getCategory() {
-		return category;
+		return this.category;
 	}
 
 	/**
@@ -118,7 +118,7 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 	public String getPageTitle() {
 		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
 		String ssText = Ranking.getScoringTitle(scoringSystem);
-		return Translator.translate("Scoreboard.TopScore",ssText);
+		return Translator.translate("Scoreboard.TopScore", ssText);
 	}
 
 	/**

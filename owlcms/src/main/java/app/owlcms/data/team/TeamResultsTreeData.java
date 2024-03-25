@@ -33,32 +33,26 @@ import ch.qos.logback.classic.Logger;
 public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 
 	Map<Gender, List<TeamTreeItem>> teamsByGender = new EnumMap<>(Gender.class);
-
 	private boolean debug = false;
-
 	private List<Group> doneGroups = null;
-
 	private Gender genderFilterValue;
-
 	private final Logger logger = (Logger) LoggerFactory.getLogger(TeamResultsTreeData.class);
-
 	private HashMap<String, Object> reportingBeans;
-
 	private Ranking ranking;
 
 	public TeamResultsTreeData(String ageGroupPrefix, AgeDivision ageDivision, Gender gender, Ranking ranking,
 	        boolean includeNotDone) {
-		genderFilterValue = gender;
+		this.genderFilterValue = gender;
 		this.setRanking(ranking);
 		init(ageGroupPrefix, ageDivision, includeNotDone);
 	}
 
 	public Ranking getRanking() {
-		return ranking;
+		return this.ranking;
 	}
 
 	public Map<Gender, List<TeamTreeItem>> getTeamItemsByGender() {
-		return teamsByGender;
+		return this.teamsByGender;
 	}
 
 	public void setRanking(Ranking ranking) {
@@ -70,12 +64,12 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 	        String ageGroupPrefix,
 	        AgeDivision ageDivision,
 	        boolean includeNotDone) {
-		doneGroups = null; // force recompute.
+		this.doneGroups = null; // force recompute.
 		if (ageDivision == null) {
 			return;
 		}
 		for (Gender gender : Gender.mfValues()) {
-			if (genderFilterValue != null && gender != genderFilterValue) {
+			if (this.genderFilterValue != null && gender != this.genderFilterValue) {
 				continue;
 			}
 
@@ -83,26 +77,28 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 			if (curGenderTeams == null) {
 				curGenderTeams = new ArrayList<>();
 				getTeamItemsByGender().put(gender, curGenderTeams);
-				logger.debug("created list for gender {}: {}", gender, getTeamItemsByGender().get(gender));
+				this.logger.debug("created list for gender {}: {}", gender, getTeamItemsByGender().get(gender));
 			}
 
 			TeamTreeItem curTeamItem = null;
 			String key = computeGenderKey(gender) + "Team"
 			        + (ageGroupPrefix != null ? ageGroupPrefix : ageDivision.name());
-			logger.debug("looking for {} in {}", key, reportingBeans.keySet());
+			this.logger.debug("looking for {} in {}", key, this.reportingBeans.keySet());
 
 			@SuppressWarnings("unchecked")
-			List<Athlete> athletes = (List<Athlete>) reportingBeans.get(key);
+			List<Athlete> athletes = (List<Athlete>) this.reportingBeans.get(key);
 			if (athletes == null) {
 				return;
 			}
 			athletes = athletes.stream()
-//                    .peek(a -> {
-//                        logger.debug("{} {} {} {}",a.getShortName(), ((PAthlete) a)._getOriginalParticipation().getTeamMember(), a.getClass().getSimpleName(), ((PAthlete) a).getCategory());
-//                    })
-//			        .filter(a -> a.isTeamMember())
+			        // .peek(a -> {
+			        // logger.debug("{} {} {} {}",a.getShortName(), ((PAthlete)
+			        // a)._getOriginalParticipation().getTeamMember(), a.getClass().getSimpleName(), ((PAthlete)
+			        // a).getCategory());
+			        // })
+			        // .filter(a -> a.isTeamMember())
 			        .collect(Collectors.toList());
-			AthleteSorter.teamPointsOrder(athletes, ranking);
+			AthleteSorter.teamPointsOrder(athletes, this.ranking);
 
 			String prevTeamName = null;
 			if (athletes != null) {
@@ -131,10 +127,10 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 					boolean b = curTeam.getCounted() < maxCount;
 					boolean c = curPoints != null && curPoints > 0;
 
-//                    if (debug) {
-//                        logger.debug("---- Athlete {} {} {} {} {} {} {} {}", curTeamName, a, a.getGender(), curPoints,
-//                                curTeam.getCounted(), groupIsDone, b, c);
-//                    }
+					// if (debug) {
+					// logger.debug("---- Athlete {} {} {} {} {} {} {} {}", curTeamName, a, a.getGender(), curPoints,
+					// curTeam.getCounted(), groupIsDone, b, c);
+					// }
 					if (a.isTeamMember()) {
 						if ((includeNotDone || groupIsDone) && b && c) {
 							curTeam.setPoints(curTeam.getPoints() + Math.round(curPoints));
@@ -160,15 +156,15 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 	private String computeGenderKey(Gender gender) {
 		String genderKey;
 		switch (gender) {
-		case F:
-			genderKey = "w";
-			break;
-		case M:
-			genderKey = "m";
-			break;
-		default:
-			genderKey = "mw";
-			break;
+			case F:
+				genderKey = "w";
+				break;
+			case M:
+				genderKey = "m";
+				break;
+			default:
+				genderKey = "mw";
+				break;
 		}
 		return genderKey;
 	}
@@ -180,11 +176,11 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 				continue;
 			}
 			for (TeamTreeItem item : teamItems) {
-				logger.debug("team: {} {} {} {} {}", item.getName(), item.getGender(), item.getPoints(),
+				this.logger.debug("team: {} {} {} {} {}", item.getName(), item.getGender(), item.getPoints(),
 				        item.getSinclairScore(), item.getCounted());
 				List<TeamTreeItem> teamMembers = item.getTeamMembers();
 				for (TeamTreeItem t : teamMembers) {
-					logger.debug("    {} {} {}", t.getName(), t.getPoints(), t.getSinclairScore());
+					this.logger.debug("    {} {} {}", t.getName(), t.getPoints(), t.getSinclairScore());
 				}
 			}
 		}
@@ -217,35 +213,35 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 		Competition comp = Competition.getCurrent();
 
 		switch (gender) {
-		case M:
-			maxCount = comp.getMensBestN() != null ? comp.getMensBestN() : Integer.MAX_VALUE;
-			break;
-		case F:
-			maxCount = comp.getWomensBestN() != null ? comp.getWomensBestN() : Integer.MAX_VALUE;
-			break;
-		case I:
-			return 0;
-		default:
-			break;
+			case M:
+				maxCount = comp.getMensBestN() != null ? comp.getMensBestN() : Integer.MAX_VALUE;
+				break;
+			case F:
+				maxCount = comp.getWomensBestN() != null ? comp.getWomensBestN() : Integer.MAX_VALUE;
+				break;
+			case I:
+				return 0;
+			default:
+				break;
 		}
 		return maxCount;
 	}
 
 	private boolean groupIsDone(Athlete a) {
-		if (doneGroups == null) {
-			doneGroups = GroupRepository.findAll().stream().filter(g -> g.isDone()).collect(Collectors.toList());
+		if (this.doneGroups == null) {
+			this.doneGroups = GroupRepository.findAll().stream().filter(g -> g.isDone()).collect(Collectors.toList());
 		}
-		return doneGroups.contains(a.getGroup());
+		return this.doneGroups.contains(a.getGroup());
 	}
 
 	private void init(String ageGroupPrefix, AgeDivision ageDivision, boolean includeNotDone) {
-		if (debug) {
-			logger.setLevel(Level.DEBUG);
+		if (this.debug) {
+			this.logger.setLevel(Level.DEBUG);
 		}
 		// logger.debug("init tree {} {}", ageGroupPrefix, ageDivision);
-		reportingBeans = Competition.getCurrent().computeReportingInfo(ageGroupPrefix, ageDivision);
-		buildTeamItemTree(reportingBeans, ageGroupPrefix, ageDivision, includeNotDone);
-		if (debug) {
+		this.reportingBeans = Competition.getCurrent().computeReportingInfo(ageGroupPrefix, ageDivision);
+		buildTeamItemTree(this.reportingBeans, ageGroupPrefix, ageDivision, includeNotDone);
+		if (this.debug) {
 			dumpTeams();
 		}
 

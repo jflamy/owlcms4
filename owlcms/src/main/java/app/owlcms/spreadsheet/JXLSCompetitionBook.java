@@ -33,21 +33,17 @@ import net.sf.jxls.transformer.XLSTransformer;
 public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
 	private static final long serialVersionUID = 1L;
-
 	private AgeDivision ageDivision;
-
 	private String ageGroupPrefix;
-
 	@SuppressWarnings("unused")
 	private Logger logger = LoggerFactory.getLogger(JXLSCompetitionBook.class);
 
 	public JXLSCompetitionBook(boolean excludeNotWeighed, UI ui) {
-		super();
 	}
 
 	public JXLSCompetitionBook(UI ui) {
 		// by default, we exclude athletes who did not weigh in.
-		super();
+		
 	}
 
 	/**
@@ -55,12 +51,18 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 	 */
 	@Override
 	public AgeDivision getAgeDivision() {
-		return ageDivision;
+		return this.ageDivision;
 	}
 
 	@Override
 	public String getAgeGroupPrefix() {
-		return ageGroupPrefix;
+		return this.ageGroupPrefix;
+	}
+
+	@Override
+	public List<Athlete> getSortedAthletes() {
+		// not used (setReportingInfo does all the work)
+		return null;
 	}
 
 	/**
@@ -77,6 +79,60 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 		this.ageGroupPrefix = ageGroupPrefix;
 	}
 
+	@Override
+	protected void configureTransformer(XLSTransformer transformer) {
+		super.configureTransformer(transformer);
+		transformer.markAsFixedSizeCollection("clubs");
+		transformer.markAsFixedSizeCollection("mTeam");
+		transformer.markAsFixedSizeCollection("wTeam");
+		transformer.markAsFixedSizeCollection("mwTeam");
+		transformer.markAsFixedSizeCollection("mCombined");
+		transformer.markAsFixedSizeCollection("wCombined");
+		transformer.markAsFixedSizeCollection("mwCombined");
+		transformer.markAsFixedSizeCollection("mCustom");
+		transformer.markAsFixedSizeCollection("wCustom");
+	}
+
+	/*
+	 * team result sheets need columns hidden, print area fixed
+	 *
+	 * @see org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
+	 * postProcess(org.apache.poi.ss.usermodel.Workbook)
+	 */
+	@Override
+	protected void postProcess(Workbook workbook) {
+		super.postProcess(workbook);
+		@SuppressWarnings("unchecked")
+		int nbClubs = ((Set<String>) getReportingBeans().get("clubs")).size();
+
+		setTeamSheetPrintArea(workbook, "MT", nbClubs);
+		setTeamSheetPrintArea(workbook, "WT", nbClubs);
+		setTeamSheetPrintArea(workbook, "MWT", nbClubs);
+
+		setTeamSheetPrintArea(workbook, "MXT", nbClubs);
+		setTeamSheetPrintArea(workbook, "WXT", nbClubs);
+
+		setTeamSheetPrintArea(workbook, "MCT", nbClubs);
+		setTeamSheetPrintArea(workbook, "WCT", nbClubs);
+		setTeamSheetPrintArea(workbook, "MWCT", nbClubs);
+
+		translateSheets(workbook);
+		workbook.setForceFormulaRecalculation(true);
+
+	}
+
+	@Override
+	protected void setReportingInfo() {
+		Competition competition = Competition.getCurrent();
+		competition.computeReportingInfo(getAgeGroupPrefix(), getAgeDivision());
+
+		super.setReportingInfo();
+		Object records = super.getReportingBeans().get("records");
+		HashMap<String, Object> reportingBeans = competition.getReportingBeans();
+		reportingBeans.put("records", records);
+		setReportingBeans(reportingBeans);
+	}
+
 	private void setTeamSheetPrintArea(Workbook workbook, String sheetName, int nbClubs) {
 		// int sheetIndex = workbook.getSheetIndex(sheetName);
 		// if (sheetIndex >= 0) {
@@ -91,7 +147,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 	 * @param workbook
 	 */
 	private void translateSheets(Workbook workbook) {
-		//logger.debug("translating sheets {}", OwlcmsSession.getLocale());
+		// logger.debug("translating sheets {}", OwlcmsSession.getLocale());
 		int nbSheets = workbook.getNumberOfSheets();
 		for (int sheetIndex = 0; sheetIndex < nbSheets; sheetIndex++) {
 			Sheet curSheet = workbook.getSheetAt(sheetIndex);
@@ -134,67 +190,6 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 				curSheet.getFooter().setRight(rightFooter);
 			}
 		}
-	}
-
-	@Override
-	protected void configureTransformer(XLSTransformer transformer) {
-		super.configureTransformer(transformer);
-		transformer.markAsFixedSizeCollection("clubs");
-		transformer.markAsFixedSizeCollection("mTeam");
-		transformer.markAsFixedSizeCollection("wTeam");
-		transformer.markAsFixedSizeCollection("mwTeam");
-		transformer.markAsFixedSizeCollection("mCombined");
-		transformer.markAsFixedSizeCollection("wCombined");
-		transformer.markAsFixedSizeCollection("mwCombined");
-		transformer.markAsFixedSizeCollection("mCustom");
-		transformer.markAsFixedSizeCollection("wCustom");
-	}
-
-	@Override
-	public List<Athlete> getSortedAthletes() {
-		// not used (setReportingInfo does all the work)
-		return null;
-	}
-
-	/*
-	 * team result sheets need columns hidden, print area fixed
-	 *
-	 * @see
-	 * org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
-	 * postProcess(org.apache.poi.ss.usermodel.Workbook)
-	 */
-	@Override
-	protected void postProcess(Workbook workbook) {
-		super.postProcess(workbook);
-		@SuppressWarnings("unchecked")
-		int nbClubs = ((Set<String>) getReportingBeans().get("clubs")).size();
-
-		setTeamSheetPrintArea(workbook, "MT", nbClubs);
-		setTeamSheetPrintArea(workbook, "WT", nbClubs);
-		setTeamSheetPrintArea(workbook, "MWT", nbClubs);
-
-		setTeamSheetPrintArea(workbook, "MXT", nbClubs);
-		setTeamSheetPrintArea(workbook, "WXT", nbClubs);
-
-		setTeamSheetPrintArea(workbook, "MCT", nbClubs);
-		setTeamSheetPrintArea(workbook, "WCT", nbClubs);
-		setTeamSheetPrintArea(workbook, "MWCT", nbClubs);
-
-		translateSheets(workbook);
-		workbook.setForceFormulaRecalculation(true);
-
-	}
-
-	@Override
-	protected void setReportingInfo() {
-		Competition competition = Competition.getCurrent();
-		competition.computeReportingInfo(getAgeGroupPrefix(), getAgeDivision());
-
-		super.setReportingInfo();
-		Object records = super.getReportingBeans().get("records");
-		HashMap<String, Object> reportingBeans = competition.getReportingBeans();
-		reportingBeans.put("records", records);
-		setReportingBeans(reportingBeans);
 	}
 
 }

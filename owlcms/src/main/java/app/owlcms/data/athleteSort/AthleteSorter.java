@@ -680,6 +680,4 @@ public class AthleteSorter implements Serializable {
 		return false; // o1 is null but not o2
 	}
 
-
-
 }

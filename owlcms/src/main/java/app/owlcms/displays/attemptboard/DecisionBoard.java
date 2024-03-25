@@ -19,12 +19,11 @@ import app.owlcms.nui.displays.attemptboards.AbstractAttemptBoardPage;
 public class DecisionBoard extends AbstractAttemptBoard {
 
 	public DecisionBoard(AbstractAttemptBoardPage page) {
-		super();
 	}
 
 	@Override
 	protected void checkImages() {
 		setAthletePictures(false);
-		teamFlags = false;
+		this.teamFlags = false;
 	}
 }

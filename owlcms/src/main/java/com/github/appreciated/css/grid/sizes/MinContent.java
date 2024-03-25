@@ -5,8 +5,8 @@ import com.github.appreciated.css.grid.interfaces.MinMaxUnit;
 import com.github.appreciated.css.grid.interfaces.TemplateRowsAndColsUnit;
 
 public class MinContent implements AutoRowAndColUnit, TemplateRowsAndColsUnit, MinMaxUnit {
-    @Override
-    public String getValue() {
-        return "min-content";
-    }
+	@Override
+	public String getValue() {
+		return "min-content";
+	}
 }

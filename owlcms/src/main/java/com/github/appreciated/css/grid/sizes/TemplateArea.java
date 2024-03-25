@@ -6,15 +6,15 @@ import com.github.appreciated.css.grid.interfaces.TemplateAreaUnit;
 
 public class TemplateArea implements TemplateAreaUnit {
 
-    private String area;
+	private String area;
 
-    public TemplateArea(String area) {
-        Objects.requireNonNull(area);
-        this.area = area;
-    }
+	public TemplateArea(String area) {
+		Objects.requireNonNull(area);
+		this.area = area;
+	}
 
-    @Override
-    public String getValue() {
-        return area;
-    }
+	@Override
+	public String getValue() {
+		return this.area;
+	}
 }

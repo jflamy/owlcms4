@@ -25,12 +25,24 @@ import ch.qos.logback.classic.Logger;
 public class CurrentAthletePage extends AbstractResultsDisplayPage {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(CurrentAthletePage.class);
-	Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
+
+	@Override
+	public void addDialogContent(Component target, VerticalLayout vl) {
+		DisplayOptions.addLightingEntries(vl, target, this);
+		DisplayOptions.addRule(vl);
+		DisplayOptions.addSoundEntries(vl, target, this);
+	}
 
 	@Override
 	public String getPageTitle() {
 		return getTranslation("CurrentAthleteTitle") + OwlcmsSession.getFopNameIfMultiple();
+	}
+
+	@Override
+	public boolean isShowInitialDialog() {
+		return false;
 	}
 
 	@Override
@@ -52,18 +64,5 @@ public class CurrentAthletePage extends AbstractResultsDisplayPage {
 		        DisplayParameters.ABBREVIATED,
 		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
 	}
-	
-	@Override
-	public void addDialogContent(Component target, VerticalLayout vl) {
-		DisplayOptions.addLightingEntries(vl, target, this);
-		DisplayOptions.addRule(vl);
-		DisplayOptions.addSoundEntries(vl, target, this);
-	}
-	
-	@Override
-	public boolean isShowInitialDialog() {
-		return false;
-	}
-	
 
 }

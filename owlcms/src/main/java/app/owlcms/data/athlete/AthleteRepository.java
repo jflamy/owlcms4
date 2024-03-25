@@ -190,6 +190,17 @@ public class AthleteRepository {
 		});
 	}
 
+	@SuppressWarnings("unchecked")
+	public static List<String> findAllTeams() {
+		return JPAService.runInTransaction((em) -> {
+			Query query = em.createQuery("select distinct a.team from Athlete a");
+			List<String> resultList = query.getResultList();
+			return resultList.stream().filter(s -> {
+				return s != null;
+			}).collect(Collectors.toList());
+		});
+	}
+
 	/**
 	 * Fetch all athletes needed for leader board
 	 *
@@ -425,16 +436,5 @@ public class AthleteRepository {
 		if (team != null) {
 			query.setParameter("team", team);
 		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static List<String> findAllTeams() {
-		return JPAService.runInTransaction((em) -> {
-			Query query = em.createQuery("select distinct a.team from Athlete a");
-			List<String> resultList = query.getResultList();
-			return resultList.stream().filter(s -> {
-				return s != null;
-			}).collect(Collectors.toList());
-		});
 	}
 }

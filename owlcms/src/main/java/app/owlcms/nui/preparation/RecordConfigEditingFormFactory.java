@@ -61,11 +61,11 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 
 		@Override
 		protected void createColumns() {
-			grid.addColumn(RecordEvent::getRecordName);
-			grid.addColumn(RecordEvent::getAgeGrp).setTextAlign(ColumnTextAlign.CENTER);
-			grid.addColumn(RecordEvent::getRecordFederation).setTextAlign(ColumnTextAlign.CENTER);
-			grid.addColumn(RecordEvent::getFileName).setAutoWidth(true);
-			grid.addComponentColumn(re -> createClearButton(re)).setTextAlign(ColumnTextAlign.CENTER);
+			this.grid.addColumn(RecordEvent::getRecordName);
+			this.grid.addColumn(RecordEvent::getAgeGrp).setTextAlign(ColumnTextAlign.CENTER);
+			this.grid.addColumn(RecordEvent::getRecordFederation).setTextAlign(ColumnTextAlign.CENTER);
+			this.grid.addColumn(RecordEvent::getFileName).setAutoWidth(true);
+			this.grid.addComponentColumn(re -> createClearButton(re)).setTextAlign(ColumnTextAlign.CENTER);
 		}
 
 		private Button createClearButton(RecordEvent re) {
@@ -73,7 +73,7 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 			button.addClickListener(e -> {
 				RecordRepository.clearByExample(re);
 				this.setPresentationValue(RecordConfig.getCurrent().getLoadedFiles());
-				callback.run();
+				this.callback.run();
 			});
 			return button;
 		}
@@ -124,7 +124,7 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		mainLayout.setMargin(false);
 		mainLayout.setPadding(false);
 
-		binder.readBean(comp);
+		this.binder.readBean(comp);
 		return mainLayout;
 	}
 
@@ -141,12 +141,12 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 	@Override
 	public RecordConfig update(RecordConfig domainObjectToUpdate) {
 		try {
-			binder.writeBean(domainObjectToUpdate);
+			this.binder.writeBean(domainObjectToUpdate);
 		} catch (ValidationException e) {
 			throw new RuntimeException("Cannot update RecordConfig {}", e);
 		}
-		recordConfig = RecordConfig.setCurrent(domainObjectToUpdate);
-		return recordConfig;
+		this.recordConfig = RecordConfig.setCurrent(domainObjectToUpdate);
+		return this.recordConfig;
 	}
 
 	private FormLayout createLayout() {
@@ -232,13 +232,13 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		FormLayout recordsAvailableLayout = createLayout();
 		Component title = createTitle("Records.OfficialSection");
 
-		loadedField = new LoadedRecordsField(() -> {
+		this.loadedField = new LoadedRecordsField(() -> {
 			RecordConfig current = RecordConfig.getCurrent();
 			current.addMissing(RecordRepository.findAllRecordNames());
-			ofBinding.read(current);
+			this.ofBinding.read(current);
 		});
-		loadedField.setWidthFull();
-		binder.forField(loadedField).bind(RecordConfig::getLoadedFiles, RecordConfig::setLoadedFiles);
+		this.loadedField.setWidthFull();
+		this.binder.forField(this.loadedField).bind(RecordConfig::getLoadedFiles, RecordConfig::setLoadedFiles);
 
 		recordsAvailableLayout.add(title);
 		recordsAvailableLayout.setColspan(title, 2);
@@ -250,7 +250,7 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		        Translator.translate("Records.ClearOfficialRecordsExplanation"));
 		recordsAvailableLayout.setColspan(cni, 1);
 
-		FormItem lfi = recordsAvailableLayout.addFormItem(loadedField,
+		FormItem lfi = recordsAvailableLayout.addFormItem(this.loadedField,
 		        Translator.translate("Records.LoadedOfficialFiles"));
 		recordsAvailableLayout.setColspan(lfi, 2);
 		return recordsAvailableLayout;
@@ -271,10 +271,10 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 
 		recordsAvailableLayout.add(title);
 		recordsAvailableLayout.setColspan(title, 2);
-		
-//		Div newRecords = DownloadButtonFactory.createDynamicXLSDownloadButton("records",
-//		        Translator.translate("Results.NewRecords"), new JXLSExportRecords(UI.getCurrent(), false));
-		
+
+		// Div newRecords = DownloadButtonFactory.createDynamicXLSDownloadButton("records",
+		// Translator.translate("Results.NewRecords"), new JXLSExportRecords(UI.getCurrent(), false));
+
 		var recordsWriter = new JXLSExportRecords(UI.getCurrent(), false);
 		JXLSDownloader dd = new JXLSDownloader(
 		        () -> {
@@ -289,7 +289,7 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		newRecords.setWidthFull();
 
 		recordsAvailableLayout.addFormItem(newRecords, Translator.translate("Results.NewRecords"));
-		
+
 		clearNewRecords.setWidthFull();
 		recordsAvailableLayout.addFormItem(clearNewRecords,
 		        Translator.translate("Preparation.ClearNewRecordsExplanation"));
@@ -299,7 +299,7 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 
 	private FormLayout recordOrderForm() {
 		Button update = new Button(Translator.translate("Records.UpdateDisplayOptions"));
-		update.addClickListener((e) -> this.update(recordConfig));
+		update.addClickListener((e) -> this.update(this.recordConfig));
 		update.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		VerticalLayout updateContainer = new VerticalLayout(update);
 		updateContainer.setAlignSelf(Alignment.END, update);
@@ -311,23 +311,24 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 
 		recordsOrderLayout.add(updateContainer);
 
-		orderingField = new GridField<>(true,
+		this.orderingField = new GridField<>(true,
 		        Translator.translate("Records.NoRecords", Translator.translate("Records.UploadButton")));
-		ofBinding = binder.forField(orderingField).bind(RecordConfig::getRecordOrder, RecordConfig::setRecordOrder);
+		this.ofBinding = this.binder.forField(this.orderingField).bind(RecordConfig::getRecordOrder,
+		        RecordConfig::setRecordOrder);
 
-		HorizontalLayout ordering = new HorizontalLayout(orderingField);
+		HorizontalLayout ordering = new HorizontalLayout(this.orderingField);
 		ordering.setSizeUndefined();
 		recordsOrderLayout.addFormItem(ordering, Translator.translate("Records.OrderingField"));
 
 		recordsOrderLayout.add(new Paragraph());
 
 		Checkbox showAllCategoriesField = new Checkbox();
-		binder.forField(showAllCategoriesField).bind(RecordConfig::getShowAllCategoryRecords,
+		this.binder.forField(showAllCategoriesField).bind(RecordConfig::getShowAllCategoryRecords,
 		        RecordConfig::setShowAllCategoryRecords);
 		recordsOrderLayout.addFormItem(showAllCategoriesField, Translator.translate("Records.AllCategories"));
 
 		Checkbox showAllFederationsField = new Checkbox();
-		binder.forField(showAllFederationsField).bind(RecordConfig::getShowAllFederations,
+		this.binder.forField(showAllFederationsField).bind(RecordConfig::getShowAllFederations,
 		        RecordConfig::setShowAllFederations);
 		recordsOrderLayout.addFormItem(showAllFederationsField, Translator.translate("Records.AllFederations"));
 
@@ -344,6 +345,6 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 	}
 
 	private void setBinder(Binder<RecordConfig> buildBinder) {
-		binder = buildBinder;
+		this.binder = buildBinder;
 	}
 }

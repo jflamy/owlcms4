@@ -11,9 +11,8 @@ import java.util.Comparator;
 import app.owlcms.data.athlete.Athlete;
 
 /**
- * This comparator is used to highlight the athletes that have lifted recently,
- * and are likely to request changes to the automatic progression. It simply
- * sorts according to time stamp, if available. Else lot number is used.
+ * This comparator is used to highlight the athletes that have lifted recently, and are likely to request changes to the
+ * automatic progression. It simply sorts according to time stamp, if available. Else lot number is used.
  *
  * @author jflamy
  *

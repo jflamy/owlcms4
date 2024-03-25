@@ -32,16 +32,8 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 public class LocalizedDecimalField extends WrappedTextField<Double> {
-	
-	private static int precision;
-	
-	public LocalizedDecimalField() {
-		this(2);
-	}
 
-	public LocalizedDecimalField(int precision) {
-		LocalizedDecimalField.precision = precision;
-	}
+	private static int precision;
 
 	public static <SOURCE> Renderer<SOURCE> getRenderer(ValueProvider<SOURCE, Number> v, Locale locale) {
 		return new NumberRenderer<>(v, getFormatter(locale));
@@ -57,6 +49,14 @@ public class LocalizedDecimalField extends WrappedTextField<Double> {
 
 	@SuppressWarnings("unused")
 	private Logger logger = (Logger) LoggerFactory.getLogger(LocalizedIntegerField.class);
+
+	public LocalizedDecimalField() {
+		this(2);
+	}
+
+	public LocalizedDecimalField(int precision) {
+		LocalizedDecimalField.precision = precision;
+	}
 
 	@Override
 	public void focus() {
@@ -84,6 +84,17 @@ public class LocalizedDecimalField extends WrappedTextField<Double> {
 	@Override
 	public String toString() {
 		return this.getValue().toString();
+	}
+
+	@Override
+	protected void initLoggers() {
+		setLogger((Logger) LoggerFactory.getLogger(LocalizedIntegerField.class));
+		getLogger().setLevel(Level.INFO);
+	}
+
+	@Override
+	protected String invalidFormatErrorMessage(Locale locale) {
+		return "Please enter a valid number (for example " + getFormatter(locale).format(64.56) + ")";
 	}
 
 	private Result<Double> doParse(String content, Locale locale, NumberFormat formatter) {
@@ -130,17 +141,6 @@ public class LocalizedDecimalField extends WrappedTextField<Double> {
 			r2 = Result.ok(parse2.doubleValue());
 		}
 		return r2;
-	}
-
-	@Override
-	protected void initLoggers() {
-		setLogger((Logger) LoggerFactory.getLogger(LocalizedIntegerField.class));
-		getLogger().setLevel(Level.INFO);
-	}
-
-	@Override
-	protected String invalidFormatErrorMessage(Locale locale) {
-		return "Please enter a valid number (for example " + getFormatter(locale).format(64.56) + ")";
 	}
 
 }

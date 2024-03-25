@@ -24,7 +24,7 @@ public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage
         implements SoundEntries, DisplayParametersReader, HasDynamicTitle, SafeEventBusRegistration {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(AbstractAttemptBoardPage.class);
-	
+
 	public AbstractAttemptBoardPage() {
 		// intentionally empty; superclass will invoke init() as required.
 	}

@@ -67,11 +67,14 @@ public class RCompetition {
 	}
 
 	Competition c = new Competition();
-
 	Logger logger = (Logger) LoggerFactory.getLogger(RCompetition.class);
 
+	public void addGroup(Group g) {
+		activeGroups.put(g.getName(), g);
+	}
+
 	public Competition getCompetition() {
-		return c;
+		return this.c;
 	}
 
 	/**
@@ -82,14 +85,14 @@ public class RCompetition {
 		if (competitionCity == null || competitionCity.isBlank()) {
 			return;
 		}
-		c.setCompetitionCity(competitionCity);
+		this.c.setCompetitionCity(competitionCity);
 	}
 
 	public void setCompetitionDate(String date) throws Exception {
 		if (date == null || date.isBlank()) {
 			return;
 		}
-		c.setCompetitionDate(DateTimeUtils.parseExcelDate(date, OwlcmsSession.getLocale()));
+		this.c.setCompetitionDate(DateTimeUtils.parseExcelDate(date, OwlcmsSession.getLocale()));
 	}
 
 	/**
@@ -100,7 +103,7 @@ public class RCompetition {
 		if (competitionName == null || competitionName.isBlank()) {
 			return;
 		}
-		c.setCompetitionName(competitionName);
+		this.c.setCompetitionName(competitionName);
 	}
 
 	/**
@@ -111,7 +114,7 @@ public class RCompetition {
 		if (competitionOrganizer == null || competitionOrganizer.isBlank()) {
 			return;
 		}
-		c.setCompetitionOrganizer(competitionOrganizer);
+		this.c.setCompetitionOrganizer(competitionOrganizer);
 	}
 
 	/**
@@ -122,7 +125,7 @@ public class RCompetition {
 		if (competitionSite == null || competitionSite.isBlank()) {
 			return;
 		}
-		c.setCompetitionSite(competitionSite);
+		this.c.setCompetitionSite(competitionSite);
 	}
 
 	/**
@@ -133,7 +136,7 @@ public class RCompetition {
 		if (federation == null || federation.isBlank()) {
 			return;
 		}
-		c.setFederation(federation);
+		this.c.setFederation(federation);
 	}
 
 	/**
@@ -144,7 +147,7 @@ public class RCompetition {
 		if (federationAddress == null || federationAddress.isBlank()) {
 			return;
 		}
-		c.setFederationAddress(federationAddress);
+		this.c.setFederationAddress(federationAddress);
 	}
 
 	/**
@@ -155,7 +158,7 @@ public class RCompetition {
 		if (federationEMail == null || federationEMail.isBlank()) {
 			return;
 		}
-		c.setFederationEMail(federationEMail);
+		this.c.setFederationEMail(federationEMail);
 	}
 
 	/**
@@ -166,11 +169,7 @@ public class RCompetition {
 		if (federationWebSite == null || federationWebSite.isBlank()) {
 			return;
 		}
-		c.setFederationWebSite(federationWebSite);
-	}
-	
-	public void addGroup(Group g) {
-		activeGroups.put(g.getName(), g);
+		this.c.setFederationWebSite(federationWebSite);
 	}
 
 }

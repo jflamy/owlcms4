@@ -33,7 +33,7 @@ public class GroupRepository {
 		Group nGroup = JPAService.runInTransaction(em -> {
 			try {
 				em.persist(group);
-				logger./**/warn("persisting {}",group.fullDump());
+				logger./**/warn("persisting {}", group.fullDump());
 				return group;
 			} catch (Exception e) {
 				LoggerUtils.logError(logger, e);
@@ -65,7 +65,7 @@ public class GroupRepository {
 					a.setGroup(null);
 				}
 				em.flush();
-				logger./**/warn("removing {}",groupe.fullDump());
+				logger./**/warn("removing {}", groupe.fullDump());
 				em.remove(em.contains(groupe) ? groupe : em.merge(groupe));
 				em.flush();
 			} catch (Exception e) {
@@ -131,7 +131,7 @@ public class GroupRepository {
 	 * @return the group
 	 */
 	public static Group save(Group group) {
-		logger./**/warn("saving {}",group.fullDump());
+		logger./**/warn("saving {}", group.fullDump());
 		return JPAService.runInTransaction(em -> em.merge(group));
 	}
 

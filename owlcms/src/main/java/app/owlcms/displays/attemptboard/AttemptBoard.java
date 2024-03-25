@@ -22,6 +22,5 @@ import com.vaadin.flow.component.dependency.JsModule;
 public class AttemptBoard extends AbstractAttemptBoard {
 
 	public AttemptBoard() {
-		super();
 	}
 }

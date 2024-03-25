@@ -17,18 +17,23 @@ public interface ResultsParameters {
 	DecimalFormatSymbols symbolsEN_US = DecimalFormatSymbols.getInstance(Locale.US);
 	DecimalFormat formatEN_US = new DecimalFormat("0.000", symbolsEN_US);
 
-	public boolean isVideo();
-	public void setVideo(boolean video);
+	public AgeDivision getAgeDivision();
 
-	public void setAgeGroup(AgeGroup ag);
 	public AgeGroup getAgeGroup();
 
-	public void setCategory(Category cat);
-	public Category getCategory();
-	
-	public void setAgeDivision(AgeDivision ad);
-	public AgeDivision getAgeDivision();
-	
-	public void setAgeGroupPrefix(String agp);
 	public String getAgeGroupPrefix();
+
+	public Category getCategory();
+
+	public boolean isVideo();
+
+	public void setAgeDivision(AgeDivision ad);
+
+	public void setAgeGroup(AgeGroup ag);
+
+	public void setAgeGroupPrefix(String agp);
+
+	public void setCategory(Category cat);
+
+	public void setVideo(boolean video);
 }

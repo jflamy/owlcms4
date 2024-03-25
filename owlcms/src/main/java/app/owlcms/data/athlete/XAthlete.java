@@ -34,7 +34,6 @@ import ch.qos.logback.classic.Logger;
 public class XAthlete extends Athlete {
 
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(XAthlete.class);
-
 	private Athlete a;
 
 	public XAthlete(Athlete a) {
@@ -43,37 +42,37 @@ public class XAthlete extends Athlete {
 
 	@Override
 	public void addEligibleCategory(Category category) {
-		a.addEligibleCategory(category);
+		this.a.addEligibleCategory(category);
 	}
 
 	@Override
 	public void checkParticipations() {
-		a.checkParticipations();
+		this.a.checkParticipations();
 	}
 
 	@Override
 	public void clearLifts() {
-		a.clearLifts();
+		this.a.clearLifts();
 	}
 
 	@Override
 	public void computeMainAndEligibleCategories() {
-		a.computeMainAndEligibleCategories();
+		this.a.computeMainAndEligibleCategories();
 	}
 
 	@Override
 	public void doLift(int liftNo, String weight) {
-		a.doLift(liftNo, weight);
+		this.a.doLift(liftNo, weight);
 	}
 
 	@Override
 	public void doLift(String weight) {
-		a.doLift(weight);
+		this.a.doLift(weight);
 	}
 
 	@Override
 	public void enforceCategoryIsEligible() {
-		a.enforceCategoryIsEligible();
+		this.a.enforceCategoryIsEligible();
 	}
 
 	/**
@@ -83,7 +82,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		return a.equals(obj);
+		return this.a.equals(obj);
 	}
 
 	/**
@@ -92,12 +91,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void failedLift() {
-		a.failedLift();
+		this.a.failedLift();
 	}
 
 	@Override
 	public Integer getActualLift(int liftNo) {
-		return a.getActualLift(liftNo);
+		return this.a.getActualLift(liftNo);
 	}
 
 	/**
@@ -120,7 +119,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public AgeGroup getAgeGroup() {
-		return a.getAgeGroup();
+		return this.a.getAgeGroup();
 	}
 
 	/**
@@ -129,7 +128,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getAttemptNumber() {
-		return a.getAttemptNumber();
+		return this.a.getAttemptNumber();
 	}
 
 	/**
@@ -143,7 +142,7 @@ public class XAthlete extends Athlete {
 			int i = 0;
 			while (i < LiftDefinition.NBLIFTS) {
 				Method method = LiftDefinition.lifts[i].getters[changeNo];
-				Object value = method.invoke(a);
+				Object value = method.invoke(this.a);
 				if (value == null || ((String) value).isEmpty()) {
 					return i;
 				}
@@ -213,7 +212,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Double getBodyWeight() {
-		return a.getBodyWeight();
+		return this.a.getBodyWeight();
 	}
 
 	/**
@@ -222,7 +221,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getBWCategory() {
-		return a.getBWCategory();
+		return this.a.getBWCategory();
 	}
 
 	/**
@@ -231,7 +230,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Category getCategory() {
-		return a.getCategory();
+		return this.a.getCategory();
 	}
 
 	/**
@@ -240,12 +239,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Double getCategorySinclair() {
-		return a.getCategorySinclair();
+		return this.a.getCategorySinclair();
 	}
 
 	@Override
 	public int getCatSinclairRank() {
-		return a.getCatSinclairRank();
+		return this.a.getCatSinclairRank();
 	}
 
 	/**
@@ -254,7 +253,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getCleanJerk1ActualLift() {
-		return a.getCleanJerk1ActualLift();
+		return this.a.getCleanJerk1ActualLift();
 	}
 
 	/**
@@ -263,7 +262,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getCleanJerk1AsInteger() {
-		return a.getCleanJerk1AsInteger();
+		return this.a.getCleanJerk1AsInteger();
 	}
 
 	/**
@@ -272,7 +271,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getCleanJerk1AutomaticProgression() {
-		return a.getCleanJerk1AutomaticProgression();
+		return this.a.getCleanJerk1AutomaticProgression();
 	}
 
 	/**
@@ -281,7 +280,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getCleanJerk1Change1() {
-		return a.getCleanJerk1Change1();
+		return this.a.getCleanJerk1Change1();
 	}
 
 	/**
@@ -290,7 +289,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getCleanJerk1Change2() {
-		return a.getCleanJerk1Change2();
+		return this.a.getCleanJerk1Change2();
 	}
 
 	/**
@@ -299,7 +298,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getCleanJerk1Declaration() {
-		return a.getCleanJerk1Declaration();
+		return this.a.getCleanJerk1Declaration();
 	}
 
 	/**
@@ -308,7 +307,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public LocalDateTime getCleanJerk1LiftTime() {
-		return a.getCleanJerk1LiftTime();
+		return this.a.getCleanJerk1LiftTime();
 	}
 
 	/**
@@ -317,7 +316,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getCleanJerk2ActualLift() {
-		return a.getCleanJerk2ActualLift();
+		return this.a.getCleanJerk2ActualLift();
 	}
 
 	/**
@@ -326,7 +325,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getCleanJerk2AsInteger() {
-		return a.getCleanJerk2AsInteger();
+		return this.a.getCleanJerk2AsInteger();
 	}
 
 	/**
@@ -335,7 +334,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getCleanJerk2AutomaticProgression() {
-		return a.getCleanJerk2AutomaticProgression();
+		return this.a.getCleanJerk2AutomaticProgression();
 	}
 
 	/**
@@ -344,7 +343,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getCleanJerk2Change1() {
-		return a.getCleanJerk2Change1();
+		return this.a.getCleanJerk2Change1();
 	}
 
 	/**
@@ -353,7 +352,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getCleanJerk2Change2() {
-		return a.getCleanJerk2Change2();
+		return this.a.getCleanJerk2Change2();
 	}
 
 	/**
@@ -362,7 +361,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getCleanJerk2Declaration() {
-		return a.getCleanJerk2Declaration();
+		return this.a.getCleanJerk2Declaration();
 	}
 
 	/**
@@ -371,7 +370,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public LocalDateTime getCleanJerk2LiftTime() {
-		return a.getCleanJerk2LiftTime();
+		return this.a.getCleanJerk2LiftTime();
 	}
 
 	/**
@@ -380,7 +379,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getCleanJerk3ActualLift() {
-		return a.getCleanJerk3ActualLift();
+		return this.a.getCleanJerk3ActualLift();
 	}
 
 	/**
@@ -389,7 +388,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getCleanJerk3AsInteger() {
-		return a.getCleanJerk3AsInteger();
+		return this.a.getCleanJerk3AsInteger();
 	}
 
 	/**
@@ -398,7 +397,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getCleanJerk3AutomaticProgression() {
-		return a.getCleanJerk3AutomaticProgression();
+		return this.a.getCleanJerk3AutomaticProgression();
 	}
 
 	/**
@@ -407,7 +406,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getCleanJerk3Change1() {
-		return a.getCleanJerk3Change1();
+		return this.a.getCleanJerk3Change1();
 	}
 
 	/**
@@ -416,7 +415,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getCleanJerk3Change2() {
-		return a.getCleanJerk3Change2();
+		return this.a.getCleanJerk3Change2();
 	}
 
 	/**
@@ -425,7 +424,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getCleanJerk3Declaration() {
-		return a.getCleanJerk3Declaration();
+		return this.a.getCleanJerk3Declaration();
 	}
 
 	/**
@@ -434,7 +433,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public LocalDateTime getCleanJerk3LiftTime() {
-		return a.getCleanJerk3LiftTime();
+		return this.a.getCleanJerk3LiftTime();
 	}
 
 	/**
@@ -443,7 +442,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getCleanJerkAttemptsDone() {
-		return a.getCleanJerkAttemptsDone();
+		return this.a.getCleanJerkAttemptsDone();
 	}
 
 	/**
@@ -452,12 +451,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public int getCleanJerkPoints() {
-		return a.getCleanJerkPoints();
+		return this.a.getCleanJerkPoints();
 	}
 
 	@Override
 	public int getCleanJerkRank() {
-		return a.getCleanJerkRank();
+		return this.a.getCleanJerkRank();
 	}
 
 	/**
@@ -466,7 +465,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public int getCleanJerkTotal() {
-		return a.getCleanJerkTotal();
+		return this.a.getCleanJerkTotal();
 	}
 
 	/**
@@ -475,12 +474,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getClub() {
-		return a.getClub();
+		return this.a.getClub();
 	}
 
 	@Override
 	public String getCoach() {
-		return a.getCoach();
+		return this.a.getCoach();
 	}
 
 	/**
@@ -489,12 +488,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getCombinedPoints() {
-		return a.getCombinedPoints();
+		return this.a.getCombinedPoints();
 	}
 
 	@Override
 	public int getCombinedRank() {
-		return a.getCombinedRank();
+		return this.a.getCombinedRank();
 	}
 
 	/**
@@ -503,7 +502,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getCurrentAutomatic() {
-		return a.getCurrentAutomatic();
+		return this.a.getCurrentAutomatic();
 	}
 
 	/**
@@ -512,7 +511,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getCurrentChange1() {
-		return a.getCurrentChange1();
+		return this.a.getCurrentChange1();
 	}
 
 	/**
@@ -521,7 +520,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getCurrentDeclaration() {
-		return a.getCurrentDeclaration();
+		return this.a.getCurrentDeclaration();
 	}
 
 	public LiftInfo getCurrentRequestInfo() {
@@ -530,12 +529,12 @@ public class XAthlete extends Athlete {
 
 	@Override
 	public String getCustom1() {
-		return a.getCustom1();
+		return this.a.getCustom1();
 	}
 
 	@Override
 	public String getCustom2() {
-		return a.getCustom2();
+		return this.a.getCustom2();
 	}
 
 	/**
@@ -544,7 +543,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public int getCustomPoints() {
-		return a.getCustomPoints();
+		return this.a.getCustomPoints();
 	}
 
 	/**
@@ -553,7 +552,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public int getCustomRank() {
-		return a.getCustomRank();
+		return this.a.getCustomRank();
 	}
 
 	/**
@@ -562,7 +561,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Double getCustomScore() {
-		return a.getCustomScore();
+		return this.a.getCustomScore();
 	}
 
 	/**
@@ -571,7 +570,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Double getCustomScoreComputed() {
-		return a.getCustomScoreComputed();
+		return this.a.getCustomScoreComputed();
 	}
 
 	/**
@@ -580,12 +579,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getDisplayCategory() {
-		return a.getDisplayCategory();
+		return this.a.getDisplayCategory();
 	}
 
 	@Override
 	public Set<Category> getEligibleCategories() {
-		return a.getEligibleCategories();
+		return this.a.getEligibleCategories();
 	}
 
 	@Override
@@ -599,7 +598,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public LocalDateTime getFirstAttemptedLiftTime() {
-		return a.getFirstAttemptedLiftTime();
+		return this.a.getFirstAttemptedLiftTime();
 	}
 
 	/**
@@ -608,7 +607,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getFirstName() {
-		return a.getFirstName();
+		return this.a.getFirstName();
 	}
 
 	@Override
@@ -622,7 +621,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public LocalDate getFullBirthDate() {
-		return a.getFullBirthDate();
+		return this.a.getFullBirthDate();
 	}
 
 	/**
@@ -631,7 +630,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getFullId() {
-		return a.getFullId();
+		return this.a.getFullId();
 	}
 
 	/**
@@ -640,7 +639,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getFullName() {
-		return a.getFullName();
+		return this.a.getFullName();
 	}
 
 	/**
@@ -649,7 +648,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Gender getGender() {
-		return a.getGender();
+		return this.a.getGender();
 	}
 
 	/**
@@ -658,7 +657,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Group getGroup() {
-		return a.getGroup();
+		return this.a.getGroup();
 	}
 
 	/**
@@ -667,7 +666,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Long getId() {
-		return a.getId();
+		return this.a.getId();
 	}
 
 	/**
@@ -676,7 +675,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public LocalDateTime getLastAttemptedLiftTime() {
-		return a.getLastAttemptedLiftTime();
+		return this.a.getLastAttemptedLiftTime();
 	}
 
 	/**
@@ -685,7 +684,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getLastName() {
-		return a.getLastName();
+		return this.a.getLastName();
 	}
 
 	/**
@@ -694,7 +693,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public LocalDateTime getLastSuccessfulLiftTime() {
-		return a.getLastSuccessfulLiftTime();
+		return this.a.getLastSuccessfulLiftTime();
 	}
 
 	/**
@@ -703,7 +702,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getLiftOrderRank() {
-		return a.getLiftOrderRank();
+		return this.a.getLiftOrderRank();
 	}
 
 	@Override
@@ -717,7 +716,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getLongCategory() {
-		return a.getLongCategory();
+		return this.a.getLongCategory();
 	}
 
 	/**
@@ -726,12 +725,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getLotNumber() {
-		return a.getLotNumber();
+		return this.a.getLotNumber();
 	}
 
 	@Override
 	public Participation getMainRankings() {
-		return a.getMainRankings();
+		return this.a.getMainRankings();
 	}
 
 	/**
@@ -740,7 +739,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getMastersAgeGroup() {
-		return a.getMastersAgeGroup();
+		return this.a.getMastersAgeGroup();
 	}
 
 	/**
@@ -749,7 +748,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getMastersAgeGroupInterval() {
-		return a.getMastersAgeGroupInterval();
+		return this.a.getMastersAgeGroupInterval();
 	}
 
 	/**
@@ -758,7 +757,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getMastersGenderAgeGroupInterval() {
-		return a.getMastersGenderAgeGroupInterval();
+		return this.a.getMastersGenderAgeGroupInterval();
 	}
 
 	/**
@@ -767,7 +766,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getMedalRank() {
-		return a.getMedalRank();
+		return this.a.getMedalRank();
 	}
 
 	/**
@@ -776,7 +775,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getMembership() {
-		return a.getMembership();
+		return this.a.getMembership();
 	}
 
 	/**
@@ -785,12 +784,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getNextAttemptRequestedWeight() {
-		return a.getNextAttemptRequestedWeight();
+		return this.a.getNextAttemptRequestedWeight();
 	}
 
 	@Override
 	public List<Participation> getParticipations() {
-		return a.getParticipations();
+		return this.a.getParticipations();
 	}
 
 	@Override
@@ -804,7 +803,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public LocalDateTime getPreviousLiftTime() {
-		return a.getPreviousLiftTime();
+		return this.a.getPreviousLiftTime();
 	}
 
 	/**
@@ -813,7 +812,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getQualifyingTotal() {
-		return a.getQualifyingTotal();
+		return this.a.getQualifyingTotal();
 	}
 
 	/**
@@ -822,12 +821,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getRank() {
-		return a.getRank();
+		return this.a.getRank();
 	}
 
 	@Override
 	public Category getRegistrationCategory() {
-		return a.getRegistrationCategory();
+		return this.a.getRegistrationCategory();
 	}
 
 	/**
@@ -837,7 +836,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getRequestedWeightForAttempt(int attempt) {
-		return a.getRequestedWeightForAttempt(attempt);
+		return this.a.getRequestedWeightForAttempt(attempt);
 	}
 
 	public LiftInfo[] getRequestInfoArray() {
@@ -854,7 +853,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Double getRobi() {
-		return a.getRobi();
+		return this.a.getRobi();
 	}
 
 	/**
@@ -863,7 +862,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getRobiRank() {
-		return a.getRobiRank();
+		return this.a.getRobiRank();
 	}
 
 	/**
@@ -872,18 +871,18 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getRoundedBodyWeight() {
-		return a.getRoundedBodyWeight();
+		return this.a.getRoundedBodyWeight();
 	}
 
 	@Override
 	@Deprecated
 	public String getShortCategory() {
-		return a.getShortCategory();
+		return this.a.getShortCategory();
 	}
 
 	@Override
 	public String getShortName() {
-		return a.getShortName();
+		return this.a.getShortName();
 	}
 
 	/**
@@ -892,7 +891,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Double getSinclair() {
-		return a.getSinclair();
+		return this.a.getSinclair();
 	}
 
 	/**
@@ -902,7 +901,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Double getSinclair(Double bodyWeight1) {
-		return a.getSinclair(bodyWeight1);
+		return this.a.getSinclair(bodyWeight1);
 	}
 
 	/**
@@ -911,7 +910,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Double getSinclairFactor() {
-		return a.getSinclairFactor();
+		return this.a.getSinclairFactor();
 	}
 
 	/**
@@ -920,7 +919,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Double getSinclairForDelta() {
-		return a.getSinclairForDelta();
+		return this.a.getSinclairForDelta();
 	}
 
 	/**
@@ -929,12 +928,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getSinclairRank() {
-		return a.getSinclairRank();
+		return this.a.getSinclairRank();
 	}
 
 	@Override
 	public Double getSmfForDelta() {
-		return a.getSmfForDelta();
+		return this.a.getSmfForDelta();
 	}
 
 	/**
@@ -943,12 +942,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Double getSmm() {
-		return a.getSmm();
+		return this.a.getSmm();
 	}
 
 	@Override
 	public int getSmmRank() {
-		return a.getSmmRank();
+		return this.a.getSmmRank();
 	}
 
 	/**
@@ -957,7 +956,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getSnatch1ActualLift() {
-		return a.getSnatch1ActualLift();
+		return this.a.getSnatch1ActualLift();
 	}
 
 	/**
@@ -966,7 +965,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getSnatch1AsInteger() {
-		return a.getSnatch1AsInteger();
+		return this.a.getSnatch1AsInteger();
 	}
 
 	/**
@@ -975,7 +974,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getSnatch1AutomaticProgression() {
-		return a.getSnatch1AutomaticProgression();
+		return this.a.getSnatch1AutomaticProgression();
 	}
 
 	/**
@@ -984,7 +983,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getSnatch1Change1() {
-		return a.getSnatch1Change1();
+		return this.a.getSnatch1Change1();
 	}
 
 	/**
@@ -993,7 +992,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getSnatch1Change2() {
-		return a.getSnatch1Change2();
+		return this.a.getSnatch1Change2();
 	}
 
 	/**
@@ -1002,7 +1001,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getSnatch1Declaration() {
-		return a.getSnatch1Declaration();
+		return this.a.getSnatch1Declaration();
 	}
 
 	/**
@@ -1011,7 +1010,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public LocalDateTime getSnatch1LiftTime() {
-		return a.getSnatch1LiftTime();
+		return this.a.getSnatch1LiftTime();
 	}
 
 	/**
@@ -1020,7 +1019,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getSnatch2ActualLift() {
-		return a.getSnatch2ActualLift();
+		return this.a.getSnatch2ActualLift();
 	}
 
 	/**
@@ -1029,7 +1028,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getSnatch2AsInteger() {
-		return a.getSnatch2AsInteger();
+		return this.a.getSnatch2AsInteger();
 	}
 
 	/**
@@ -1038,7 +1037,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getSnatch2AutomaticProgression() {
-		return a.getSnatch2AutomaticProgression();
+		return this.a.getSnatch2AutomaticProgression();
 	}
 
 	/**
@@ -1047,7 +1046,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getSnatch2Change1() {
-		return a.getSnatch2Change1();
+		return this.a.getSnatch2Change1();
 	}
 
 	/**
@@ -1056,7 +1055,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getSnatch2Change2() {
-		return a.getSnatch2Change2();
+		return this.a.getSnatch2Change2();
 	}
 
 	/**
@@ -1065,7 +1064,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getSnatch2Declaration() {
-		return a.getSnatch2Declaration();
+		return this.a.getSnatch2Declaration();
 	}
 
 	/**
@@ -1074,7 +1073,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public LocalDateTime getSnatch2LiftTime() {
-		return a.getSnatch2LiftTime();
+		return this.a.getSnatch2LiftTime();
 	}
 
 	/**
@@ -1083,7 +1082,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getSnatch3ActualLift() {
-		return a.getSnatch3ActualLift();
+		return this.a.getSnatch3ActualLift();
 	}
 
 	/**
@@ -1092,7 +1091,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getSnatch3AsInteger() {
-		return a.getSnatch3AsInteger();
+		return this.a.getSnatch3AsInteger();
 	}
 
 	/**
@@ -1101,7 +1100,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getSnatch3AutomaticProgression() {
-		return a.getSnatch3AutomaticProgression();
+		return this.a.getSnatch3AutomaticProgression();
 	}
 
 	/**
@@ -1110,7 +1109,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getSnatch3Change1() {
-		return a.getSnatch3Change1();
+		return this.a.getSnatch3Change1();
 	}
 
 	/**
@@ -1119,7 +1118,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getSnatch3Change2() {
-		return a.getSnatch3Change2();
+		return this.a.getSnatch3Change2();
 	}
 
 	/**
@@ -1128,7 +1127,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getSnatch3Declaration() {
-		return a.getSnatch3Declaration();
+		return this.a.getSnatch3Declaration();
 	}
 
 	/**
@@ -1137,7 +1136,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public LocalDateTime getSnatch3LiftTime() {
-		return a.getSnatch3LiftTime();
+		return this.a.getSnatch3LiftTime();
 	}
 
 	/**
@@ -1146,7 +1145,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getSnatchAttemptsDone() {
-		return a.getSnatchAttemptsDone();
+		return this.a.getSnatchAttemptsDone();
 	}
 
 	/**
@@ -1155,12 +1154,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public int getSnatchPoints() {
-		return a.getSnatchPoints();
+		return this.a.getSnatchPoints();
 	}
 
 	@Override
 	public int getSnatchRank() {
-		return a.getSnatchRank();
+		return this.a.getSnatchRank();
 	}
 
 	/**
@@ -1169,7 +1168,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public int getSnatchTotal() {
-		return a.getSnatchTotal();
+		return this.a.getSnatchTotal();
 	}
 
 	/**
@@ -1178,7 +1177,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getStartNumber() {
-		return a.getStartNumber();
+		return this.a.getStartNumber();
 	}
 
 	/**
@@ -1187,7 +1186,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String getTeam() {
-		return a.getTeam();
+		return this.a.getTeam();
 	}
 
 	/**
@@ -1196,7 +1195,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getTeamCleanJerkRank() {
-		return a.getTeamCleanJerkRank();
+		return this.a.getTeamCleanJerkRank();
 	}
 
 	/**
@@ -1205,12 +1204,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getTeamCombinedRank() {
-		return a.getTeamCombinedRank();
+		return this.a.getTeamCombinedRank();
 	}
 
 	@Override
 	public Integer getTeamCustomRank() {
-		return a.getTeamCustomRank();
+		return this.a.getTeamCustomRank();
 	}
 
 	/**
@@ -1219,7 +1218,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getTeamRobiRank() {
-		return a.getTeamRobiRank();
+		return this.a.getTeamRobiRank();
 	}
 
 	/**
@@ -1228,7 +1227,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getTeamSinclairRank() {
-		return a.getTeamSinclairRank();
+		return this.a.getTeamSinclairRank();
 	}
 
 	/**
@@ -1237,7 +1236,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getTeamSnatchRank() {
-		return a.getTeamSnatchRank();
+		return this.a.getTeamSnatchRank();
 	}
 
 	/**
@@ -1246,7 +1245,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getTeamTotalRank() {
-		return a.getTeamTotalRank();
+		return this.a.getTeamTotalRank();
 	}
 
 	/**
@@ -1255,7 +1254,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getTotal() {
-		return a.getTotal();
+		return this.a.getTotal();
 	}
 
 	/**
@@ -1264,12 +1263,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public int getTotalPoints() {
-		return a.getTotalPoints();
+		return this.a.getTotalPoints();
 	}
 
 	@Override
 	public int getTotalRank() {
-		return a.getTotalRank();
+		return this.a.getTotalRank();
 	}
 
 	/**
@@ -1278,7 +1277,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public Integer getYearOfBirth() {
-		return a.getYearOfBirth();
+		return this.a.getYearOfBirth();
 	}
 
 	/**
@@ -1287,7 +1286,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public int hashCode() {
-		return a.hashCode();
+		return this.a.hashCode();
 	}
 
 	/**
@@ -1296,17 +1295,17 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public int isDeclaring() {
-		return a.isDeclaring();
+		return this.a.isDeclaring();
 	}
 
 	@Override
 	public boolean isEligibleForIndividualRanking() {
-		return a.isEligibleForIndividualRanking();
+		return this.a.isEligibleForIndividualRanking();
 	}
 
 	@Override
 	public boolean isEligibleForTeamRanking() {
-		return a.isEligibleForTeamRanking();
+		return this.a.isEligibleForTeamRanking();
 	}
 
 	/**
@@ -1315,23 +1314,23 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public boolean isForcedAsCurrent() {
-		return a.isForcedAsCurrent();
+		return this.a.isForcedAsCurrent();
 	}
 
 	@Override
 	@Deprecated
 	public boolean isInvited() {
-		return a.isInvited();
+		return this.a.isInvited();
 	}
 
 	@Override
 	public boolean isTeamMember() {
-		return a.isTeamMember();
+		return this.a.isTeamMember();
 	}
 
 	@Override
 	public boolean isValidation() {
-		return a.isValidation();
+		return this.a.isValidation();
 	}
 
 	/**
@@ -1340,12 +1339,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String longDump() {
-		return a.longDump();
+		return this.a.longDump();
 	}
 
 	@Override
 	public void removeEligibleCategory(Category category) {
-		a.removeEligibleCategory(category);
+		this.a.removeEligibleCategory(category);
 	}
 
 	/**
@@ -1354,7 +1353,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void resetForcedAsCurrent() {
-		a.resetForcedAsCurrent();
+		this.a.resetForcedAsCurrent();
 	}
 
 	/**
@@ -1363,7 +1362,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setAttemptsDone(Integer i) {
-		a.setAttemptsDone(i);
+		this.a.setAttemptsDone(i);
 	}
 
 	/**
@@ -1372,7 +1371,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setBestCleanJerk(Integer i) {
-		a.setBestCleanJerk(i);
+		this.a.setBestCleanJerk(i);
 	}
 
 	/**
@@ -1381,7 +1380,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setBestSnatch(Integer i) {
-		a.setBestSnatch(i);
+		this.a.setBestSnatch(i);
 	}
 
 	/**
@@ -1390,7 +1389,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setBodyWeight(Double bodyWeight) {
-		a.setBodyWeight(bodyWeight);
+		this.a.setBodyWeight(bodyWeight);
 	}
 
 	/**
@@ -1399,12 +1398,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setCategory(Category category) {
-		a.setCategory(category);
+		this.a.setCategory(category);
 	}
 
 	@Override
 	public void setCatSinclairRank(int i) {
-		a.setCatSinclairRank(i);
+		this.a.setCatSinclairRank(i);
 	}
 
 	/**
@@ -1413,7 +1412,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setCleanJerk1ActualLift(String cleanJerk1ActualLift) {
-		a.setCleanJerk1ActualLift(cleanJerk1ActualLift);
+		this.a.setCleanJerk1ActualLift(cleanJerk1ActualLift);
 	}
 
 	/**
@@ -1422,7 +1421,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setCleanJerk1AutomaticProgression(String s) {
-		a.setCleanJerk1AutomaticProgression(s);
+		this.a.setCleanJerk1AutomaticProgression(s);
 	}
 
 	/**
@@ -1431,7 +1430,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setCleanJerk1Change1(String cleanJerk1Change1) {
-		a.setCleanJerk1Change1(cleanJerk1Change1);
+		this.a.setCleanJerk1Change1(cleanJerk1Change1);
 	}
 
 	/**
@@ -1440,7 +1439,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setCleanJerk1Change2(String cleanJerk1Change2) {
-		a.setCleanJerk1Change2(cleanJerk1Change2);
+		this.a.setCleanJerk1Change2(cleanJerk1Change2);
 	}
 
 	/**
@@ -1449,7 +1448,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setCleanJerk1Declaration(String cleanJerk1Declaration) {
-		a.setCleanJerk1Declaration(cleanJerk1Declaration);
+		this.a.setCleanJerk1Declaration(cleanJerk1Declaration);
 	}
 
 	@Override
@@ -1463,7 +1462,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setCleanJerk2ActualLift(String cleanJerk2ActualLift) {
-		a.setCleanJerk2ActualLift(cleanJerk2ActualLift);
+		this.a.setCleanJerk2ActualLift(cleanJerk2ActualLift);
 	}
 
 	/**
@@ -1472,7 +1471,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setCleanJerk2AutomaticProgression(String s) {
-		a.setCleanJerk2AutomaticProgression(s);
+		this.a.setCleanJerk2AutomaticProgression(s);
 	}
 
 	/**
@@ -1481,7 +1480,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setCleanJerk2Change1(String cleanJerk2Change1) {
-		a.setCleanJerk2Change1(cleanJerk2Change1);
+		this.a.setCleanJerk2Change1(cleanJerk2Change1);
 	}
 
 	/**
@@ -1490,7 +1489,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setCleanJerk2Change2(String cleanJerk2Change2) {
-		a.setCleanJerk2Change2(cleanJerk2Change2);
+		this.a.setCleanJerk2Change2(cleanJerk2Change2);
 	}
 
 	/**
@@ -1499,7 +1498,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setCleanJerk2Declaration(String cleanJerk2Declaration) {
-		a.setCleanJerk2Declaration(cleanJerk2Declaration);
+		this.a.setCleanJerk2Declaration(cleanJerk2Declaration);
 	}
 
 	@Override
@@ -1513,7 +1512,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setCleanJerk3ActualLift(String cleanJerk3ActualLift) {
-		a.setCleanJerk3ActualLift(cleanJerk3ActualLift);
+		this.a.setCleanJerk3ActualLift(cleanJerk3ActualLift);
 	}
 
 	/**
@@ -1522,7 +1521,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setCleanJerk3AutomaticProgression(String s) {
-		a.setCleanJerk3AutomaticProgression(s);
+		this.a.setCleanJerk3AutomaticProgression(s);
 	}
 
 	/**
@@ -1531,7 +1530,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setCleanJerk3Change1(String cleanJerk3Change1) {
-		a.setCleanJerk3Change1(cleanJerk3Change1);
+		this.a.setCleanJerk3Change1(cleanJerk3Change1);
 	}
 
 	/**
@@ -1540,7 +1539,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setCleanJerk3Change2(String cleanJerk3Change2) {
-		a.setCleanJerk3Change2(cleanJerk3Change2);
+		this.a.setCleanJerk3Change2(cleanJerk3Change2);
 	}
 
 	/**
@@ -1549,7 +1548,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setCleanJerk3Declaration(String cleanJerk3Declaration) {
-		a.setCleanJerk3Declaration(cleanJerk3Declaration);
+		this.a.setCleanJerk3Declaration(cleanJerk3Declaration);
 	}
 
 	@Override
@@ -1563,7 +1562,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setCleanJerkAttemptsDone(Integer i) {
-		a.setCleanJerkAttemptsDone(i);
+		this.a.setCleanJerkAttemptsDone(i);
 	}
 
 	/**
@@ -1577,7 +1576,7 @@ public class XAthlete extends Athlete {
 
 	@Override
 	public void setCleanJerkRank(int ignored) {
-		a.setCleanJerkRank(ignored);
+		this.a.setCleanJerkRank(ignored);
 	}
 
 	/**
@@ -1586,27 +1585,27 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setClub(String club) {
-		a.setClub(club);
+		this.a.setClub(club);
 	}
 
 	@Override
 	public void setCoach(String coach) {
-		a.setCoach(coach);
+		this.a.setCoach(coach);
 	}
 
 	@Override
 	public void setCombinedRank(int i) {
-		a.setCombinedRank(i);
+		this.a.setCombinedRank(i);
 	}
 
 	@Override
 	public void setCustom1(String v) {
-		a.setCustom1(v);
+		this.a.setCustom1(v);
 	}
 
 	@Override
 	public void setCustom2(String v) {
-		a.setCustom2(v);
+		this.a.setCustom2(v);
 	}
 
 	/**
@@ -1624,7 +1623,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setCustomRank(Integer customRank) {
-		a.setCustomRank(customRank);
+		this.a.setCustomRank(customRank);
 	}
 
 	/**
@@ -1633,51 +1632,51 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setCustomScore(Double customScore) {
-		a.setCustomScore(customScore);
+		this.a.setCustomScore(customScore);
 	}
 
 	@Override
 	public void setEligibleCategories(Set<Category> newEligibles) {
-		a.setEligibleCategories(newEligibles);
+		this.a.setEligibleCategories(newEligibles);
 	}
 
 	@Override
 	public void setEligibleForIndividualRanking(boolean eligibleForIndividualRanking) {
-		a.setEligibleForIndividualRanking(eligibleForIndividualRanking);
+		this.a.setEligibleForIndividualRanking(eligibleForIndividualRanking);
 	}
 
 	@Override
 	public void setEligibleForTeamRanking(boolean eligibleForTeamRanking) {
-		a.setEligibleForTeamRanking(eligibleForTeamRanking);
+		this.a.setEligibleForTeamRanking(eligibleForTeamRanking);
 	}
 
-//    /**
-//     * @param cleanJerkRank
-//     * @see app.owlcms.data.athlete.Athlete#setCleanJerkRank(java.lang.Integer)
-//     */
-//    @Override
-//    public void setCleanJerkRank(Integer cleanJerkRank) {
-//        a.setCleanJerkRank(cleanJerkRank);
-//    }
-//
-//    @Override
-//    public void setCleanJerkRankJr(Integer cleanJerkRankJr) {
-//        a.setCleanJerkRankJr(cleanJerkRankJr);
-//    }
-//
-//    @Override
-//    public void setCleanJerkRankSr(Integer cleanJerkRankSr) {
-//        a.setCleanJerkRankSr(cleanJerkRankSr);
-//    }
-//
-//    @Override
-//    public void setCleanJerkRankYth(Integer cleanJerkRankYth) {
-//        a.setCleanJerkRankYth(cleanJerkRankYth);
-//    }
+	// /**
+	// * @param cleanJerkRank
+	// * @see app.owlcms.data.athlete.Athlete#setCleanJerkRank(java.lang.Integer)
+	// */
+	// @Override
+	// public void setCleanJerkRank(Integer cleanJerkRank) {
+	// a.setCleanJerkRank(cleanJerkRank);
+	// }
+	//
+	// @Override
+	// public void setCleanJerkRankJr(Integer cleanJerkRankJr) {
+	// a.setCleanJerkRankJr(cleanJerkRankJr);
+	// }
+	//
+	// @Override
+	// public void setCleanJerkRankSr(Integer cleanJerkRankSr) {
+	// a.setCleanJerkRankSr(cleanJerkRankSr);
+	// }
+	//
+	// @Override
+	// public void setCleanJerkRankYth(Integer cleanJerkRankYth) {
+	// a.setCleanJerkRankYth(cleanJerkRankYth);
+	// }
 
 	@Override
 	public void setEntryTotal(Integer entryTotal) {
-		a.setEntryTotal(entryTotal);
+		this.a.setEntryTotal(entryTotal);
 	}
 
 	/**
@@ -1686,7 +1685,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setFirstName(String firstName) {
-		a.setFirstName(firstName);
+		this.a.setFirstName(firstName);
 	}
 
 	/**
@@ -1695,7 +1694,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setForcedAsCurrent(boolean forcedAsCurrent) {
-		a.setForcedAsCurrent(forcedAsCurrent);
+		this.a.setForcedAsCurrent(forcedAsCurrent);
 	}
 
 	/**
@@ -1704,7 +1703,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setFullBirthDate(LocalDate fullBirthDate) {
-		a.setFullBirthDate(fullBirthDate);
+		this.a.setFullBirthDate(fullBirthDate);
 	}
 
 	/**
@@ -1713,7 +1712,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setGender(Gender gender) {
-		a.setGender(gender);
+		this.a.setGender(gender);
 	}
 
 	/**
@@ -1722,7 +1721,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setGroup(Group group) {
-		a.setGroup(group);
+		this.a.setGroup(group);
 	}
 
 	/**
@@ -1731,7 +1730,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setLastName(String lastName) {
-		a.setLastName(lastName);
+		this.a.setLastName(lastName);
 	}
 
 	/**
@@ -1740,12 +1739,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setLiftOrderRank(Integer liftOrder) {
-		a.setLiftOrderRank(liftOrder);
+		this.a.setLiftOrderRank(liftOrder);
 	}
 
 	@Override
 	public void setLoggerLevel(Level newLevel) {
-		a.setLoggerLevel(newLevel);
+		this.a.setLoggerLevel(newLevel);
 	}
 
 	/**
@@ -1754,7 +1753,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setLotNumber(Integer lotNumber) {
-		a.setLotNumber(lotNumber);
+		this.a.setLotNumber(lotNumber);
 	}
 
 	/**
@@ -1763,7 +1762,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setMembership(String membership) {
-		a.setMembership(membership);
+		this.a.setMembership(membership);
 	}
 
 	/**
@@ -1772,12 +1771,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setNextAttemptRequestedWeight(Integer i) {
-		a.setNextAttemptRequestedWeight(i);
+		this.a.setNextAttemptRequestedWeight(i);
 	}
 
 	@Override
 	public void setParticipations(List<Participation> participations) {
-		a.setParticipations(participations);
+		this.a.setParticipations(participations);
 	}
 
 	@Override
@@ -1796,7 +1795,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setQualifyingTotal(Integer qualifyingTotal) {
-		a.setQualifyingTotal(qualifyingTotal);
+		this.a.setQualifyingTotal(qualifyingTotal);
 	}
 
 	/**
@@ -1805,7 +1804,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setRobiRank(Integer robiRank) {
-		a.setRobiRank(robiRank);
+		this.a.setRobiRank(robiRank);
 	}
 
 	/**
@@ -1814,12 +1813,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setSinclairRank(Integer sinclairRank) {
-		a.setSinclairRank(sinclairRank);
+		this.a.setSinclairRank(sinclairRank);
 	}
 
 	@Override
 	public void setSmmRank(int i) {
-		a.setSmmRank(i);
+		this.a.setSmmRank(i);
 	}
 
 	/**
@@ -1828,7 +1827,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setSnatch1ActualLift(String snatch1ActualLift) {
-		a.setSnatch1ActualLift(snatch1ActualLift);
+		this.a.setSnatch1ActualLift(snatch1ActualLift);
 	}
 
 	/**
@@ -1837,7 +1836,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setSnatch1AutomaticProgression(String s) {
-		a.setSnatch1AutomaticProgression(s);
+		this.a.setSnatch1AutomaticProgression(s);
 	}
 
 	/**
@@ -1846,17 +1845,17 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setSnatch1Change1(String snatch1Change1) {
-		a.setSnatch1Change1(snatch1Change1);
+		this.a.setSnatch1Change1(snatch1Change1);
 	}
 
-//    /**
-//     * @param i
-//     * @see app.owlcms.data.athlete.Athlete#setRank(java.lang.Integer)
-//     */
-//    @Override
-//    public void setRank(Integer i) {
-//        a.setRank(i);
-//    }
+	// /**
+	// * @param i
+	// * @see app.owlcms.data.athlete.Athlete#setRank(java.lang.Integer)
+	// */
+	// @Override
+	// public void setRank(Integer i) {
+	// a.setRank(i);
+	// }
 
 	/**
 	 * @param snatch1Change2
@@ -1864,7 +1863,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setSnatch1Change2(String snatch1Change2) {
-		a.setSnatch1Change2(snatch1Change2);
+		this.a.setSnatch1Change2(snatch1Change2);
 	}
 
 	/**
@@ -1873,7 +1872,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setSnatch1Declaration(String snatch1Declaration) {
-		a.setSnatch1Declaration(snatch1Declaration);
+		this.a.setSnatch1Declaration(snatch1Declaration);
 	}
 
 	@Override
@@ -1887,7 +1886,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setSnatch2ActualLift(String snatch2ActualLift) {
-		a.setSnatch2ActualLift(snatch2ActualLift);
+		this.a.setSnatch2ActualLift(snatch2ActualLift);
 	}
 
 	/**
@@ -1896,7 +1895,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setSnatch2AutomaticProgression(String s) {
-		a.setSnatch2AutomaticProgression(s);
+		this.a.setSnatch2AutomaticProgression(s);
 	}
 
 	/**
@@ -1905,7 +1904,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setSnatch2Change1(String snatch2Change1) {
-		a.setSnatch2Change1(snatch2Change1);
+		this.a.setSnatch2Change1(snatch2Change1);
 	}
 
 	/**
@@ -1914,7 +1913,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setSnatch2Change2(String snatch2Change2) {
-		a.setSnatch2Change2(snatch2Change2);
+		this.a.setSnatch2Change2(snatch2Change2);
 	}
 
 	/**
@@ -1923,7 +1922,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setSnatch2Declaration(String snatch2Declaration) {
-		a.setSnatch2Declaration(snatch2Declaration);
+		this.a.setSnatch2Declaration(snatch2Declaration);
 	}
 
 	@Override
@@ -1937,7 +1936,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setSnatch3ActualLift(String snatch3ActualLift) {
-		a.setSnatch3ActualLift(snatch3ActualLift);
+		this.a.setSnatch3ActualLift(snatch3ActualLift);
 	}
 
 	/**
@@ -1946,7 +1945,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setSnatch3AutomaticProgression(String s) {
-		a.setSnatch3AutomaticProgression(s);
+		this.a.setSnatch3AutomaticProgression(s);
 	}
 
 	/**
@@ -1955,7 +1954,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setSnatch3Change1(String snatch3Change1) {
-		a.setSnatch3Change1(snatch3Change1);
+		this.a.setSnatch3Change1(snatch3Change1);
 	}
 
 	/**
@@ -1964,7 +1963,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setSnatch3Change2(String snatch3Change2) {
-		a.setSnatch3Change2(snatch3Change2);
+		this.a.setSnatch3Change2(snatch3Change2);
 	}
 
 	/**
@@ -1973,7 +1972,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setSnatch3Declaration(String snatch3Declaration) {
-		a.setSnatch3Declaration(snatch3Declaration);
+		this.a.setSnatch3Declaration(snatch3Declaration);
 	}
 
 	@Override
@@ -1987,7 +1986,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setSnatchAttemptsDone(Integer i) {
-		a.setSnatchAttemptsDone(i);
+		this.a.setSnatchAttemptsDone(i);
 	}
 
 	/**
@@ -2001,7 +2000,7 @@ public class XAthlete extends Athlete {
 
 	@Override
 	public void setSnatchRank(int ignored) {
-		a.setSnatchRank(ignored);
+		this.a.setSnatchRank(ignored);
 	}
 
 	/**
@@ -2010,7 +2009,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setStartNumber(Integer startNumber) {
-		a.setStartNumber(startNumber);
+		this.a.setStartNumber(startNumber);
 	}
 
 	/**
@@ -2019,7 +2018,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setTeam(String club) {
-		a.setTeam(club);
+		this.a.setTeam(club);
 	}
 
 	/**
@@ -2028,7 +2027,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setTeamCleanJerkRank(Integer teamCJRank) {
-		a.setTeamCleanJerkRank(teamCJRank);
+		this.a.setTeamCleanJerkRank(teamCJRank);
 	}
 
 	/**
@@ -2037,51 +2036,52 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setTeamCombinedRank(Integer teamCombinedRank) {
-		a.setTeamCombinedRank(teamCombinedRank);
+		this.a.setTeamCombinedRank(teamCombinedRank);
 	}
 
-//	/**
-//	 * @param resultOrderRank
-//	 * @param rankingType
-//	 * @see app.owlcms.data.athlete.Athlete#setResultOrderRank(java.lang.Integer, app.owlcms.data.athleteSort.AthleteSorter.Ranking)
-//	 */
-//	@Override
-//	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
-//		a.setResultOrderRank(resultOrderRank, rankingType);
-//	}
+	// /**
+	// * @param resultOrderRank
+	// * @param rankingType
+	// * @see app.owlcms.data.athlete.Athlete#setResultOrderRank(java.lang.Integer,
+	// app.owlcms.data.athleteSort.AthleteSorter.Ranking)
+	// */
+	// @Override
+	// public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
+	// a.setResultOrderRank(resultOrderRank, rankingType);
+	// }
 
 	@Override
 	public void setTeamCustomRank(Integer teamCustomRank) {
-		a.setTeamCustomRank(teamCustomRank);
+		this.a.setTeamCustomRank(teamCustomRank);
 	}
 
-//    /**
-//     * @param snatchRank
-//     * @see app.owlcms.data.athlete.Athlete#setSnatchRank(java.lang.Integer)
-//     */
-//    @Override
-//    public void setSnatchRank(Integer snatchRank) {
-//        a.setSnatchRank(snatchRank);
-//    }
-//
-//    @Override
-//    public void setSnatchRankJr(Integer snatchRankJr) {
-//        a.setSnatchRankJr(snatchRankJr);
-//    }
-//
-//    @Override
-//    public void setSnatchRankSr(Integer snatchRankSr) {
-//        a.setSnatchRankSr(snatchRankSr);
-//    }
-//
-//    @Override
-//    public void setSnatchRankYth(Integer snatchRankYth) {
-//        a.setSnatchRankYth(snatchRankYth);
-//    }
+	// /**
+	// * @param snatchRank
+	// * @see app.owlcms.data.athlete.Athlete#setSnatchRank(java.lang.Integer)
+	// */
+	// @Override
+	// public void setSnatchRank(Integer snatchRank) {
+	// a.setSnatchRank(snatchRank);
+	// }
+	//
+	// @Override
+	// public void setSnatchRankJr(Integer snatchRankJr) {
+	// a.setSnatchRankJr(snatchRankJr);
+	// }
+	//
+	// @Override
+	// public void setSnatchRankSr(Integer snatchRankSr) {
+	// a.setSnatchRankSr(snatchRankSr);
+	// }
+	//
+	// @Override
+	// public void setSnatchRankYth(Integer snatchRankYth) {
+	// a.setSnatchRankYth(snatchRankYth);
+	// }
 
 	@Override
 	public void setTeamMember(boolean member) {
-		a.setTeamMember(member);
+		this.a.setTeamMember(member);
 	}
 
 	/**
@@ -2090,7 +2090,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setTeamRobiRank(Integer teamRobiRank) {
-		a.setTeamRobiRank(teamRobiRank);
+		this.a.setTeamRobiRank(teamRobiRank);
 	}
 
 	/**
@@ -2099,7 +2099,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setTeamSinclairRank(Integer teamSinclairRank) {
-		a.setTeamSinclairRank(teamSinclairRank);
+		this.a.setTeamSinclairRank(teamSinclairRank);
 	}
 
 	/**
@@ -2108,7 +2108,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setTeamSnatchRank(Integer teamSnatchRank) {
-		a.setTeamSnatchRank(teamSnatchRank);
+		this.a.setTeamSnatchRank(teamSnatchRank);
 	}
 
 	/**
@@ -2117,7 +2117,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setTeamTotalRank(Integer teamTotalRank) {
-		a.setTeamTotalRank(teamTotalRank);
+		this.a.setTeamTotalRank(teamTotalRank);
 	}
 
 	/**
@@ -2126,7 +2126,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setTotal(Integer i) {
-		a.setTotal(i);
+		this.a.setTotal(i);
 	}
 
 	/**
@@ -2140,12 +2140,12 @@ public class XAthlete extends Athlete {
 
 	@Override
 	public void setTotalRank(int ignored) {
-		a.setTotalRank(ignored);
+		this.a.setTotalRank(ignored);
 	}
 
 	@Override
 	public void setValidation(boolean validation) {
-		a.setValidation(validation);
+		this.a.setValidation(validation);
 	}
 
 	/**
@@ -2154,37 +2154,37 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void setYearOfBirth(Integer birthYear) {
-		a.setYearOfBirth(birthYear);
+		this.a.setYearOfBirth(birthYear);
 	}
 
-//    /**
-//     * @param totalRank
-//     * @see app.owlcms.data.athlete.Athlete#setTotalRank(java.lang.Integer)
-//     */
-//    @Override
-//    public void setTotalRank(Integer totalRank) {
-//        a.setTotalRank(totalRank);
-//    }
-//
-//    @Override
-//    public void setTotalRankJr(Integer totalRankJr) {
-//        a.setTotalRankJr(totalRankJr);
-//    }
-//
-//    @Override
-//    public void setTotalRankSr(Integer totalRankSr) {
-//        a.setTotalRankSr(totalRankSr);
-//    }
-//
-//    @Override
-//    public void setTotalRankYth(Integer totalRankYth) {
-//        a.setTotalRankYth(totalRankYth);
-//    }
-//
-//    @Override
-//    public void setValidation(boolean validation) {
-//        a.setValidation(validation);
-//    }
+	// /**
+	// * @param totalRank
+	// * @see app.owlcms.data.athlete.Athlete#setTotalRank(java.lang.Integer)
+	// */
+	// @Override
+	// public void setTotalRank(Integer totalRank) {
+	// a.setTotalRank(totalRank);
+	// }
+	//
+	// @Override
+	// public void setTotalRankJr(Integer totalRankJr) {
+	// a.setTotalRankJr(totalRankJr);
+	// }
+	//
+	// @Override
+	// public void setTotalRankSr(Integer totalRankSr) {
+	// a.setTotalRankSr(totalRankSr);
+	// }
+	//
+	// @Override
+	// public void setTotalRankYth(Integer totalRankYth) {
+	// a.setTotalRankYth(totalRankYth);
+	// }
+	//
+	// @Override
+	// public void setValidation(boolean validation) {
+	// a.setValidation(validation);
+	// }
 
 	/**
 	 *
@@ -2192,12 +2192,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void successfulLift() {
-		a.successfulLift();
+		this.a.successfulLift();
 	}
 
 	@Override
 	public String toShortString() {
-		return a.toShortString();
+		return this.a.toShortString();
 	}
 
 	/**
@@ -2206,12 +2206,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public String toString() {
-		return a.toString();
+		return this.a.toString();
 	}
 
 	@Override
 	public String toStringRanks() {
-		return a.toStringRanks();
+		return this.a.toStringRanks();
 	}
 
 	/**
@@ -2221,14 +2221,13 @@ public class XAthlete extends Athlete {
 	 * @param change1
 	 * @param change2
 	 * @param actualLift
-	 * @see app.owlcms.data.athlete.Athlete#validateActualLift(int,
-	 *      java.lang.String, java.lang.String, java.lang.String, java.lang.String,
-	 *      java.lang.String)
+	 * @see app.owlcms.data.athlete.Athlete#validateActualLift(int, java.lang.String, java.lang.String,
+	 *      java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
 	public void validateActualLift(int curLift, String automaticProgression, String declaration, String change1,
 	        String change2, String actualLift) {
-		a.validateActualLift(curLift, automaticProgression, declaration, change1, change2, actualLift);
+		this.a.validateActualLift(curLift, automaticProgression, declaration, change1, change2, actualLift);
 	}
 
 	/**
@@ -2239,7 +2238,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public boolean validateCleanJerk1ActualLift(String cleanJerk1ActualLift) throws RuleViolationException {
-		return a.validateCleanJerk1ActualLift(cleanJerk1ActualLift);
+		return this.a.validateCleanJerk1ActualLift(cleanJerk1ActualLift);
 	}
 
 	/**
@@ -2250,7 +2249,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public boolean validateCleanJerk1Change1(String cleanJerk1Change1) throws RuleViolationException {
-		return a.validateCleanJerk1Change1(cleanJerk1Change1);
+		return this.a.validateCleanJerk1Change1(cleanJerk1Change1);
 	}
 
 	/**
@@ -2261,12 +2260,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public boolean validateCleanJerk1Change2(String cleanJerk1Change2) throws RuleViolationException {
-		return a.validateCleanJerk1Change2(cleanJerk1Change2);
+		return this.a.validateCleanJerk1Change2(cleanJerk1Change2);
 	}
 
 	@Override
 	public boolean validateCleanJerk1Declaration(String cleanJerk1Declaration) throws RuleViolationException {
-		return a.validateCleanJerk1Declaration(cleanJerk1Declaration);
+		return this.a.validateCleanJerk1Declaration(cleanJerk1Declaration);
 	}
 
 	/**
@@ -2277,7 +2276,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public boolean validateCleanJerk2ActualLift(String cleanJerk2ActualLift) throws RuleViolationException {
-		return a.validateCleanJerk2ActualLift(cleanJerk2ActualLift);
+		return this.a.validateCleanJerk2ActualLift(cleanJerk2ActualLift);
 	}
 
 	/**
@@ -2288,7 +2287,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public boolean validateCleanJerk2Change1(String cleanJerk2Change1) throws RuleViolationException {
-		return a.validateCleanJerk2Change1(cleanJerk2Change1);
+		return this.a.validateCleanJerk2Change1(cleanJerk2Change1);
 	}
 
 	/**
@@ -2299,12 +2298,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public boolean validateCleanJerk2Change2(String cleanJerk2Change2) throws RuleViolationException {
-		return a.validateCleanJerk2Change2(cleanJerk2Change2);
+		return this.a.validateCleanJerk2Change2(cleanJerk2Change2);
 	}
 
 	@Override
 	public boolean validateCleanJerk2Declaration(String cleanJerk2Declaration) throws RuleViolationException {
-		return a.validateCleanJerk2Declaration(cleanJerk2Declaration);
+		return this.a.validateCleanJerk2Declaration(cleanJerk2Declaration);
 	}
 
 	/**
@@ -2315,7 +2314,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public boolean validateCleanJerk3ActualLift(String cleanJerk3ActualLift) throws RuleViolationException {
-		return a.validateCleanJerk3ActualLift(cleanJerk3ActualLift);
+		return this.a.validateCleanJerk3ActualLift(cleanJerk3ActualLift);
 	}
 
 	/**
@@ -2326,7 +2325,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public boolean validateCleanJerk3Change1(String cleanJerk3Change1) throws RuleViolationException {
-		return a.validateCleanJerk3Change1(cleanJerk3Change1);
+		return this.a.validateCleanJerk3Change1(cleanJerk3Change1);
 	}
 
 	/**
@@ -2337,12 +2336,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public boolean validateCleanJerk3Change2(String cleanJerk3Change2) throws RuleViolationException {
-		return a.validateCleanJerk3Change2(cleanJerk3Change2);
+		return this.a.validateCleanJerk3Change2(cleanJerk3Change2);
 	}
 
 	@Override
 	public boolean validateCleanJerk3Declaration(String cleanJerk3Declaration) throws RuleViolationException {
-		return a.validateCleanJerk3Declaration(cleanJerk3Declaration);
+		return this.a.validateCleanJerk3Declaration(cleanJerk3Declaration);
 	}
 
 	/**
@@ -2353,7 +2352,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public boolean validateSnatch1ActualLift(String snatch1ActualLift) throws RuleViolationException {
-		return a.validateSnatch1ActualLift(snatch1ActualLift);
+		return this.a.validateSnatch1ActualLift(snatch1ActualLift);
 	}
 
 	/**
@@ -2364,7 +2363,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public boolean validateSnatch1Change1(String snatch1Change1) throws RuleViolationException {
-		return a.validateSnatch1Change1(snatch1Change1);
+		return this.a.validateSnatch1Change1(snatch1Change1);
 	}
 
 	/**
@@ -2375,12 +2374,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public boolean validateSnatch1Change2(String snatch1Change2) throws RuleViolationException {
-		return a.validateSnatch1Change2(snatch1Change2);
+		return this.a.validateSnatch1Change2(snatch1Change2);
 	}
 
 	@Override
 	public boolean validateSnatch1Declaration(String snatch1Declaration) throws RuleViolationException {
-		return a.validateSnatch1Declaration(snatch1Declaration);
+		return this.a.validateSnatch1Declaration(snatch1Declaration);
 	}
 
 	/**
@@ -2391,7 +2390,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public boolean validateSnatch2ActualLift(String snatch2ActualLift) throws RuleViolationException {
-		return a.validateSnatch2ActualLift(snatch2ActualLift);
+		return this.a.validateSnatch2ActualLift(snatch2ActualLift);
 	}
 
 	/**
@@ -2402,7 +2401,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public boolean validateSnatch2Change1(String snatch2Change1) throws RuleViolationException {
-		return a.validateSnatch2Change1(snatch2Change1);
+		return this.a.validateSnatch2Change1(snatch2Change1);
 	}
 
 	/**
@@ -2413,12 +2412,12 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public boolean validateSnatch2Change2(String snatch2Change2) throws RuleViolationException {
-		return a.validateSnatch2Change2(snatch2Change2);
+		return this.a.validateSnatch2Change2(snatch2Change2);
 	}
 
 	@Override
 	public boolean validateSnatch2Declaration(String snatch2Declaration) throws RuleViolationException {
-		return a.validateSnatch2Declaration(snatch2Declaration);
+		return this.a.validateSnatch2Declaration(snatch2Declaration);
 	}
 
 	/**
@@ -2429,7 +2428,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public boolean validateSnatch3ActualLift(String snatch3ActualLift) throws RuleViolationException {
-		return a.validateSnatch3ActualLift(snatch3ActualLift);
+		return this.a.validateSnatch3ActualLift(snatch3ActualLift);
 	}
 
 	/**
@@ -2440,7 +2439,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public boolean validateSnatch3Change1(String snatch3Change1) throws RuleViolationException {
-		return a.validateSnatch3Change1(snatch3Change1);
+		return this.a.validateSnatch3Change1(snatch3Change1);
 	}
 
 	/**
@@ -2451,17 +2450,17 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public boolean validateSnatch3Change2(String snatch3Change2) throws RuleViolationException {
-		return a.validateSnatch3Change2(snatch3Change2);
+		return this.a.validateSnatch3Change2(snatch3Change2);
 	}
 
 	@Override
 	public boolean validateSnatch3Declaration(String snatch3Declaration) throws RuleViolationException {
-		return a.validateSnatch3Declaration(snatch3Declaration);
+		return this.a.validateSnatch3Declaration(snatch3Declaration);
 	}
 
 	@Override
 	public boolean validateStartingTotalsRule(Integer snatch1Request, Integer cleanJerk1Request, int qualTotal) {
-		return a.validateStartingTotalsRule(snatch1Request, cleanJerk1Request, qualTotal);
+		return this.a.validateStartingTotalsRule(snatch1Request, cleanJerk1Request, qualTotal);
 	}
 
 	/**
@@ -2471,7 +2470,8 @@ public class XAthlete extends Athlete {
 	@Override
 	public boolean validateStartingTotalsRule(String snatch1Declaration, String snatch1Change1, String snatch1Change2,
 	        String cleanJerk1Declaration, String cleanJerk1Change1, String cleanJerk1Change2) {
-		return a.validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
+		return this.a.validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2,
+		        cleanJerk1Declaration,
 		        cleanJerk1Change1, cleanJerk1Change2);
 	}
 
@@ -2481,33 +2481,7 @@ public class XAthlete extends Athlete {
 	 */
 	@Override
 	public void withdraw() {
-		a.withdraw();
-	}
-
-	private LiftInfo getRequestInfo(Integer liftNo) {
-		try {
-			int changeNo = LiftDefinition.NBCHANGES - 1;
-			String stringValue = null;
-			boolean found = false;
-			while (!found && changeNo >= 0) {
-				Method method = LiftDefinition.lifts[liftNo].getters[changeNo];
-				stringValue = (String) method.invoke(a);
-				boolean zeroKgAutomaticChange = (changeNo == 0 && "0".equals(stringValue));
-				if (stringValue != null && !stringValue.isEmpty() && !zeroKgAutomaticChange) {
-					found = true;
-				} else {
-					changeNo--;
-				}
-			}
-			if (found) {
-				return new LiftInfo(LiftDefinition.lifts[liftNo].stage, liftNo, changeNo, stringValue);
-			} else {
-				return new LiftInfo(LiftDefinition.lifts[liftNo].stage, liftNo, -1, null);
-			}
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			logger.error(e.getLocalizedMessage(), e);
-			throw new RuntimeException(e);
-		}
+		this.a.withdraw();
 	}
 
 	@Override
@@ -2523,7 +2497,7 @@ public class XAthlete extends Athlete {
 			boolean found = false;
 			while (!found && liftNo > stage.inclLower) {
 				changeNo = change.ordinal();
-				stringValue = (String) LiftDefinition.lifts[liftNo].getters[changeNo].invoke(a);
+				stringValue = (String) LiftDefinition.lifts[liftNo].getters[changeNo].invoke(this.a);
 				if (stringValue != null) {
 					found = true;
 				} else {
@@ -2534,6 +2508,32 @@ public class XAthlete extends Athlete {
 				return new LiftInfo(stage, liftNo, changeNo, stringValue);
 			} else {
 				return new LiftInfo(stage, -1, changeNo, null);
+			}
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			logger.error(e.getLocalizedMessage(), e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	private LiftInfo getRequestInfo(Integer liftNo) {
+		try {
+			int changeNo = LiftDefinition.NBCHANGES - 1;
+			String stringValue = null;
+			boolean found = false;
+			while (!found && changeNo >= 0) {
+				Method method = LiftDefinition.lifts[liftNo].getters[changeNo];
+				stringValue = (String) method.invoke(this.a);
+				boolean zeroKgAutomaticChange = (changeNo == 0 && "0".equals(stringValue));
+				if (stringValue != null && !stringValue.isEmpty() && !zeroKgAutomaticChange) {
+					found = true;
+				} else {
+					changeNo--;
+				}
+			}
+			if (found) {
+				return new LiftInfo(LiftDefinition.lifts[liftNo].stage, liftNo, changeNo, stringValue);
+			} else {
+				return new LiftInfo(LiftDefinition.lifts[liftNo].stage, liftNo, -1, null);
 			}
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			logger.error(e.getLocalizedMessage(), e);

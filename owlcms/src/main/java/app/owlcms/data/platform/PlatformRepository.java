@@ -58,7 +58,7 @@ public class PlatformRepository {
 				}
 			}
 		}
-		
+
 	}
 
 	public static void createMissingPlatforms(List<RGroup> groups) {
@@ -136,21 +136,6 @@ public class PlatformRepository {
 			}
 		}
 	}
-	
-	public static void syncFOPs() {
-		Set<String> preCheckPlatforms = PlatformRepository.findAll().stream().map(p -> p.getName())
-		        .collect(Collectors.toSet());
-		Set<String> fops = OwlcmsFactory.getFOPs().stream().map(f -> f.getName()).collect(Collectors.toSet());
-
-		// delete all unused FOPs
-		for (String fopName : fops) {
-			if (!preCheckPlatforms.contains(fopName)) {
-				FieldOfPlay fop = OwlcmsFactory.getFopByName().get(fopName);
-				fop.getFopEventBus().unregister(fop);
-				OwlcmsFactory.getFopByName().remove(fopName);
-			}
-		}
-	}
 
 	/**
 	 * Find all.
@@ -195,8 +180,7 @@ public class PlatformRepository {
 	}
 
 	/**
-	 * Save. The 1:1 relationship with FOP is managed manually since FOP is not
-	 * persisted.
+	 * Save. The 1:1 relationship with FOP is managed manually since FOP is not persisted.
 	 *
 	 * @param platform the platform
 	 * @return the platform
@@ -218,5 +202,20 @@ public class PlatformRepository {
 			mm.publishMqttConfig();
 		}
 		return nPlatform;
+	}
+
+	public static void syncFOPs() {
+		Set<String> preCheckPlatforms = PlatformRepository.findAll().stream().map(p -> p.getName())
+		        .collect(Collectors.toSet());
+		Set<String> fops = OwlcmsFactory.getFOPs().stream().map(f -> f.getName()).collect(Collectors.toSet());
+
+		// delete all unused FOPs
+		for (String fopName : fops) {
+			if (!preCheckPlatforms.contains(fopName)) {
+				FieldOfPlay fop = OwlcmsFactory.getFopByName().get(fopName);
+				fop.getFopEventBus().unregister(fop);
+				OwlcmsFactory.getFopByName().remove(fopName);
+			}
+		}
 	}
 }

@@ -46,9 +46,10 @@ public class CompetitionContent extends Composite<VerticalLayout>
 	 */
 	public CompetitionContent() {
 		initLoggers();
-		factory = createFormFactory();
-		Component form = factory.buildNewForm(CrudOperation.UPDATE, Competition.getCurrent(), false, null, event -> {
-		});
+		this.factory = createFormFactory();
+		Component form = this.factory.buildNewForm(CrudOperation.UPDATE, Competition.getCurrent(), false, null,
+		        event -> {
+		        });
 		fillH(form, getContent());
 	}
 
@@ -74,7 +75,7 @@ public class CompetitionContent extends Composite<VerticalLayout>
 	@Override
 	public void delete(Competition domainObjectToDelete) {
 		// not used
-		factory.delete(domainObjectToDelete);
+		this.factory.delete(domainObjectToDelete);
 	}
 
 	@Override
@@ -99,7 +100,7 @@ public class CompetitionContent extends Composite<VerticalLayout>
 
 	@Override
 	public OwlcmsLayout getRouterLayout() {
-		return routerLayout;
+		return this.routerLayout;
 	}
 
 	@Override
@@ -107,14 +108,14 @@ public class CompetitionContent extends Composite<VerticalLayout>
 	}
 
 	public void initLoggers() {
-		logger.setLevel(Level.INFO);
+		this.logger.setLevel(Level.INFO);
 	}
 
 	@Override
 	public void setHeaderContent() {
-		routerLayout.setMenuTitle(getPageTitle());
-		routerLayout.showLocaleDropdown(true);
-		routerLayout.setDrawerOpened(false);
+		this.routerLayout.setMenuTitle(getPageTitle());
+		this.routerLayout.showLocaleDropdown(true);
+		this.routerLayout.setDrawerOpened(false);
 	}
 
 	/**
@@ -158,8 +159,9 @@ public class CompetitionContent extends Composite<VerticalLayout>
 	 * @return the form factory that will create the actual form on demand
 	 */
 	protected OwlcmsCrudFormFactory<Competition> createFormFactory() {
-//        CompetitionEditingFormFactory competitionEditingFormFactory = new CompetitionEditingFormFactory(Competition.class);
-//        createFormLayout(competitionEditingFormFactory);
+		// CompetitionEditingFormFactory competitionEditingFormFactory = new
+		// CompetitionEditingFormFactory(Competition.class);
+		// createFormLayout(competitionEditingFormFactory);
 		OwlcmsCrudFormFactory<Competition> competitionEditingFormFactory = new CompetitionEditingFormFactory(
 		        Competition.class, this);
 		return competitionEditingFormFactory;

@@ -30,7 +30,6 @@ public class ResultsRankings extends ResultsMedals implements ResultsParameters 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsMedals.class);
 
 	public ResultsRankings() {
-		super();
 
 	}
 
@@ -62,7 +61,7 @@ public class ResultsRankings extends ResultsMedals implements ResultsParameters 
 			        getAthleteJson(a, ja, curCat, 0);
 			        String team = a.getTeam();
 			        if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
-				        logger.trace("long team {}", team);
+				        this.logger.trace("long team {}", team);
 				        setWideTeamNames(true);
 			        }
 			        jath.set(athx.getAndIncrement(), ja);

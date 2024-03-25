@@ -80,7 +80,6 @@ public class TopSinclair extends AbstractTop {
 	private QPoints qpoints = new QPoints(2023);
 
 	public TopSinclair() {
-		super();
 		uiEventLogger.setLevel(Level.INFO);
 		OwlcmsFactory.waitDBInitialized();
 		setDarkMode(true);
@@ -88,7 +87,7 @@ public class TopSinclair extends AbstractTop {
 
 	@Override
 	public void doBreak(UIEvent e) {
-		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			// just update the display
 			doUpdate(fop.getCurAthlete(), null);
 		}));
@@ -108,12 +107,12 @@ public class TopSinclair extends AbstractTop {
 		List<Athlete> sortedMen2 = new ArrayList<>(competition.getGlobalScoreRanking(Gender.M));
 		topScores = (AthleteSorter.topScore(sortedMen2, 10));
 		setSortedMen(topScores.topAthletes);
-		topManScore = topScores.best;
+		this.topManScore = topScores.best;
 
 		List<Athlete> sortedWomen2 = new ArrayList<>(competition.getGlobalScoreRanking(Gender.F));
 		topScores = (AthleteSorter.topScore(sortedWomen2, 10));
 		setSortedWomen(topScores.topAthletes);
-		topWomanScore = topScores.best;
+		this.topWomanScore = topScores.best;
 
 		updateBottom();
 	}
@@ -128,11 +127,11 @@ public class TopSinclair extends AbstractTop {
 		ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
 		ja.put("category", category != null ? category : "");
 		getAttemptsJson(a);
-		ja.put("sattempts", sattempts);
-		ja.put("cattempts", cattempts);
+		ja.put("sattempts", this.sattempts);
+		ja.put("cattempts", this.cattempts);
 		ja.put("total", formatInt(a.getTotal()));
 		ja.put("bw", String.format("%.2f", a.getBodyWeight()));
-		ja.put("sinclair", String.format("%.3f", Ranking.getRankingValue(a, scoringSystem)));
+		ja.put("sinclair", String.format("%.3f", Ranking.getRankingValue(a, this.scoringSystem)));
 		ja.put("needed", formatInt(needed));
 	}
 
@@ -159,7 +158,7 @@ public class TopSinclair extends AbstractTop {
 		uiLog(e);
 		Competition competition = Competition.getCurrent();
 
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			doUpdate(competition);
 		});
 	}
@@ -170,7 +169,7 @@ public class TopSinclair extends AbstractTop {
 		uiLog(e);
 		Competition competition = Competition.getCurrent();
 
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			doUpdate(competition);
 		});
 	}
@@ -180,7 +179,7 @@ public class TopSinclair extends AbstractTop {
 	public void slaveStartLifting(UIEvent.StartLifting e) {
 		uiLog(e);
 		Competition competition = Competition.getCurrent();
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			doUpdate(competition);
 		});
 	}
@@ -204,7 +203,7 @@ public class TopSinclair extends AbstractTop {
 	@Override
 	protected void doUpdate(Athlete a, UIEvent e) {
 		logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			if (a != null) {
 				getElement().setProperty("fullName", Translator.translate("Scoreboard.TopSinclair"));
 				updateBottom();
@@ -221,8 +220,8 @@ public class TopSinclair extends AbstractTop {
 	 * @return json string with nested attempts values
 	 */
 	protected void getAttemptsJson(Athlete a) {
-		sattempts = Json.createArray();
-		cattempts = Json.createArray();
+		this.sattempts = Json.createArray();
+		this.cattempts = Json.createArray();
 		XAthlete x = new XAthlete(a);
 		Integer liftOrderRank = x.getLiftOrderRank();
 		Integer curLift = x.getAttemptsDone();
@@ -265,9 +264,9 @@ public class TopSinclair extends AbstractTop {
 			}
 
 			if (ix < 3) {
-				sattempts.set(ix, jri);
+				this.sattempts.set(ix, jri);
 			} else {
-				cattempts.set(ix % 3, jri);
+				this.cattempts.set(ix % 3, jri);
 			}
 			ix++;
 		}
@@ -284,10 +283,10 @@ public class TopSinclair extends AbstractTop {
 		setTranslationMap();
 		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
 			// we listen on all the uiEventBus.
-			uiEventBus = uiEventBusRegister(this, fop);
+			this.uiEventBus = uiEventBusRegister(this, fop);
 		}
 		Competition competition = Competition.getCurrent();
-		scoringSystem = competition.getScoringSystem();
+		this.scoringSystem = competition.getScoringSystem();
 		doUpdate(competition);
 	}
 
@@ -310,7 +309,7 @@ public class TopSinclair extends AbstractTop {
 		uiLog(e);
 		Competition competition = Competition.getCurrent();
 
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			doUpdate(competition);
 		});
 	}
@@ -341,31 +340,31 @@ public class TopSinclair extends AbstractTop {
 				case BW_SINCLAIR:
 					if (curGender == Gender.F) {
 						needed = (int) Math.round(
-						        Math.ceil((topWomanScore - a.getSinclairForDelta()) / a.getSinclairFactor()));
+						        Math.ceil((this.topWomanScore - a.getSinclairForDelta()) / a.getSinclairFactor()));
 					} else {
 						needed = (int) Math.round(
-						        Math.ceil((topManScore - a.getSinclairForDelta()) / a.getSinclairFactor()));
+						        Math.ceil((this.topManScore - a.getSinclairForDelta()) / a.getSinclairFactor()));
 					}
 					break;
 				case CAT_SINCLAIR:
 					if (curGender == Gender.F) {
 						needed = (int) Math.round(
-						        Math.ceil((topWomanScore - a.getCategorySinclair()) / a.getCatSinclairFactor()));
+						        Math.ceil((this.topWomanScore - a.getCategorySinclair()) / a.getCatSinclairFactor()));
 					} else {
 						needed = (int) Math.round(
-						        Math.ceil((topManScore - a.getCategorySinclair()) / a.getCatSinclairFactor()));
+						        Math.ceil((this.topManScore - a.getCategorySinclair()) / a.getCatSinclairFactor()));
 					}
 					break;
 				case GAMX:
 					if (curGender == Gender.F) {
-						int tot = a.getBestSnatch()+a.getBestCleanJerk();
-						needed = GAMX.kgTarget(curGender, topWomanScore, a.getBodyWeight()) - tot;
+						int tot = a.getBestSnatch() + a.getBestCleanJerk();
+						needed = GAMX.kgTarget(curGender, this.topWomanScore, a.getBodyWeight()) - tot;
 						if (needed < 0) {
 							needed = 0;
 						}
 					} else {
-						int tot = a.getBestSnatch()+a.getBestCleanJerk();
-						needed = GAMX.kgTarget(curGender, topWomanScore, a.getBodyWeight()) - tot;
+						int tot = a.getBestSnatch() + a.getBestCleanJerk();
+						needed = GAMX.kgTarget(curGender, this.topWomanScore, a.getBodyWeight()) - tot;
 						if (needed < 0) {
 							needed = 0;
 						}
@@ -374,18 +373,20 @@ public class TopSinclair extends AbstractTop {
 				case QPOINTS:
 					if (curGender == Gender.F) {
 						needed = (int) Math.round(
-						        Math.ceil((topWomanScore - a.getQPoints()) / qpoints.qPointsFactor(Gender.F, a.getBodyWeight())));
+						        Math.ceil((this.topWomanScore - a.getQPoints())
+						                / this.qpoints.qPointsFactor(Gender.F, a.getBodyWeight())));
 					} else {
 						needed = (int) Math.round(
-						        Math.ceil((topManScore - a.getQPoints()) / qpoints.qPointsFactor(Gender.M, a.getBodyWeight())));
+						        Math.ceil((this.topManScore - a.getQPoints())
+						                / this.qpoints.qPointsFactor(Gender.M, a.getBodyWeight())));
 					}
 					break;
 				case ROBI:
 					double robiScore = 0.0D;
 					if (curGender == Gender.F) {
-						robiScore = topWomanScore;
+						robiScore = this.topWomanScore;
 					} else {
-						robiScore = topManScore;
+						robiScore = this.topManScore;
 					}
 
 					double A = 1000.0D / Math.pow(a.getRobiWr(), Category.ROBI_B);
@@ -394,19 +395,19 @@ public class TopSinclair extends AbstractTop {
 					int total = a.getBestCleanJerk() + a.getBestSnatch();
 					needed = ((int) Math.pow((robiScore) / A, 1 / b)) - total;
 
-//					if (a.getFirstName().startsWith("Kelin")) {
-//						 logger.trace("athlete ++++ {} robi {} bestRobi {} A {} total {}", a.getShortName(),
-//						 a.getRobi(), robiScore, A, needed);
-//					}
+					// if (a.getFirstName().startsWith("Kelin")) {
+					// logger.trace("athlete ++++ {} robi {} bestRobi {} A {} total {}", a.getShortName(),
+					// a.getRobi(), robiScore, A, needed);
+					// }
 
 					break;
 				case SMM:
 					if (curGender == Gender.F) {
 						needed = (int) Math.round(
-						        Math.ceil((topWomanScore - a.getSmfForDelta()) / a.getSmfFactor()));
+						        Math.ceil((this.topWomanScore - a.getSmfForDelta()) / a.getSmfFactor()));
 					} else {
 						needed = (int) Math.round(
-						        Math.ceil((topManScore - a.getSmfForDelta()) / a.getSmfFactor()));
+						        Math.ceil((this.topManScore - a.getSmfForDelta()) / a.getSmfFactor()));
 					}
 					break;
 				default:
@@ -445,20 +446,20 @@ public class TopSinclair extends AbstractTop {
 		        .map((p) -> p instanceof PAthlete ? ((PAthlete) p)._getAthlete() : p)
 		        .collect(Collectors.toSet())
 		        .stream()
-		        .sorted((a, b) -> ObjectUtils.compare(Ranking.getRankingValue(b, scoringSystem),
-		                Ranking.getRankingValue(a, scoringSystem)))
+		        .sorted((a, b) -> ObjectUtils.compare(Ranking.getRankingValue(b, this.scoringSystem),
+		                Ranking.getRankingValue(a, this.scoringSystem)))
 		        .collect(Collectors.toList());
 		return athletes;
 	}
 
 	private void setSortedMen(List<Athlete> sortedMen) {
 		this.sortedMen = sortedMen;
-		//logger.debug("sortedMen = {} -- {}", getSortedMen().size(), LoggerUtils.whereFrom());
+		// logger.debug("sortedMen = {} -- {}", getSortedMen().size(), LoggerUtils.whereFrom());
 	}
 
 	private void setSortedWomen(List<Athlete> sortedWomen) {
 		this.sortedWomen = sortedWomen;
-		//logger.debug("sortedWomen = {} -- {}", getSortedWomen().size(), LoggerUtils.whereFrom());
+		// logger.debug("sortedWomen = {} -- {}", getSortedWomen().size(), LoggerUtils.whereFrom());
 	}
 
 	private void setWide(boolean b) {

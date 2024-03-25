@@ -21,14 +21,12 @@ public class JXLSCardsDocs extends JXLSWorkbookStreamSource {
 	private final static Logger logger = LoggerFactory.getLogger(JXLSCardsDocs.class);
 
 	public JXLSCardsDocs() {
-		super();
 	}
 
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see
-	 * org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
+	 * @see org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
 	 * postProcess(org.apache.poi.ss.usermodel.Workbook)
 	 */
 	@Override
@@ -47,8 +45,8 @@ public class JXLSCardsDocs extends JXLSWorkbookStreamSource {
 
 		sheet.setFitToPage(true);
 		PrintSetup printSetup = sheet.getPrintSetup();
-		printSetup.setFitWidth( (short) 1);
-		printSetup.setFitHeight( (short) 0);
+		printSetup.setFitWidth((short) 1);
+		printSetup.setFitHeight((short) 0);
 
 		sheet.setAutobreaks(false);
 		int increment = (cardsPerPage * linesPerCard) + (cardsPerPage - 1);

@@ -54,18 +54,18 @@ public class DecisionElement extends LitTemplate
 	}
 
 	public boolean isDontReset() {
-		return dontReset;
+		return this.dontReset;
 	}
 
 	public boolean isPublicFacing() {
-		return publicFacing;
+		return this.publicFacing;
 	}
 
 	/**
 	 * @return the silenced
 	 */
 	public boolean isSilenced() {
-		return silenced;
+		return this.silenced;
 	}
 
 	@ClientCallable
@@ -126,12 +126,12 @@ public class DecisionElement extends LitTemplate
 
 	public void setSilenced(boolean b) {
 		getElement().setProperty("silent", b);
-		silenced = b;
+		this.silenced = b;
 	}
 
 	@Subscribe
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			logger.debug("slaveBreakStart disable");
 			this.getElement().callJsFunction("setEnabled", false);
 		});
@@ -142,7 +142,7 @@ public class DecisionElement extends LitTemplate
 		if (isDontReset()) {
 			return;
 		}
-		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 			getElement().callJsFunction("reset", false);
 		});
 	}
@@ -155,7 +155,7 @@ public class DecisionElement extends LitTemplate
 			// logger.trace("skipping down, {} is origin",this.getOrigin());
 			return;
 		}
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			uiEventLogger.debug("!!! {} down ({})", this.getOrigin(),
 			        this.getParent().get().getClass().getSimpleName());
 			this.getElement().callJsFunction("showDown", false,
@@ -165,7 +165,7 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
-		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 			getElement().callJsFunction("reset", false);
 		});
 	}
@@ -174,7 +174,7 @@ public class DecisionElement extends LitTemplate
 	public void slaveShowDecision(UIEvent.Decision e) {
 		uiEventLogger.debug("!!! {} majority decision ({})", this.getOrigin(),
 		        this.getParent().get().getClass().getSimpleName());
-		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 			this.getElement().callJsFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
 			this.getElement().callJsFunction("setEnabled", false);
 		});
@@ -182,16 +182,16 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveStartTimer(UIEvent.StartTime e) {
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			//uiEventLogger.debug("!!! slaveStartTimer enable");
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			// uiEventLogger.debug("!!! slaveStartTimer enable");
 			this.getElement().callJsFunction("setEnabled", true);
 		});
 	}
 
 	@Subscribe
 	public void slaveStopTimer(UIEvent.StopTime e) {
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			//uiEventLogger.debug("!!! slaveStopTimer enable");
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			// uiEventLogger.debug("!!! slaveStopTimer enable");
 			this.getElement().callJsFunction("setEnabled", true);
 		});
 	}
@@ -204,7 +204,7 @@ public class DecisionElement extends LitTemplate
 	}
 
 	protected boolean isJuryMode() {
-		return juryMode;
+		return this.juryMode;
 	}
 
 	/*
@@ -217,14 +217,15 @@ public class DecisionElement extends LitTemplate
 			// defensive: needed to make sure the update is processed on the right fop
 			init(fop.getName());
 			// we send on fopEventBus, listen on uiEventBus.
-			fopEventBus = fop.getFopEventBus();
-			uiEventBus = uiEventBusRegister(this, fop);
+			this.fopEventBus = fop.getFopEventBus();
+			this.uiEventBus = uiEventBusRegister(this, fop);
 		});
 	}
 
 	private void init(String fopName) {
 		getElement().setProperty("fopName", fopName);
 	}
+
 	private void setJuryMode(boolean juryMode) {
 		this.juryMode = juryMode;
 	}

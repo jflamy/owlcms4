@@ -37,18 +37,14 @@ import ch.qos.logback.classic.Logger;
  *
  * Scenarios:
  * <ul>
- * <li>If the IP environment variable is present, it is expected to be a
- * commma-separated address list of IPv4 addresses. Browser must come from one
- * of these addresses The IP address(es) will normally be those for the local
+ * <li>If the IP environment variable is present, it is expected to be a commma-separated address list of IPv4
+ * addresses. Browser must come from one of these addresses The IP address(es) will normally be those for the local
  * router or routers used at the competition site.
- * <li>if a PIN environment variable is present, the PIN will be required (even
- * if no IP whitelist)
- * <li>if PIN enviroment variable is not present, all accesses from the
- * whitelisted routers will be allowed. This can be sufficient if the router
- * password is well-protected (which is not likely). Users can type any NIP,
- * including an empty value.
- * <li>if neither IP nor PIN is present, no check is done ({@link RequireLogin}
- * does not display this view).
+ * <li>if a PIN environment variable is present, the PIN will be required (even if no IP whitelist)
+ * <li>if PIN enviroment variable is not present, all accesses from the whitelisted routers will be allowed. This can be
+ * sufficient if the router password is well-protected (which is not likely). Users can type any NIP, including an empty
+ * value.
+ * <li>if neither IP nor PIN is present, no check is done ({@link RequireLogin} does not display this view).
  * </ul>
  */
 @SuppressWarnings("serial")
@@ -57,26 +53,23 @@ public class LoginView extends Composite<VerticalLayout>
         implements OwlcmsLayoutAware, ContentWrapping, HasDynamicTitle {
 
 	public static final String LOGIN = "login";
-
 	static Logger logger = (Logger) LoggerFactory.getLogger(LoginView.class);
-
 	private PasswordField pinField = new PasswordField();
-
 	private OwlcmsLayout routerLayout;
 
 	public LoginView() {
-		pinField.setClearButtonVisible(true);
-		pinField.setRevealButtonVisible(true);
-		pinField.setLabel(getTranslation("EnterPin"));
-		pinField.setWidthFull();
-		pinField.addValueChangeListener(event -> {
+		this.pinField.setClearButtonVisible(true);
+		this.pinField.setRevealButtonVisible(true);
+		this.pinField.setLabel(getTranslation("EnterPin"));
+		this.pinField.setWidthFull();
+		this.pinField.addValueChangeListener(event -> {
 			String value = event.getValue();
 			logger.debug("login input {}", value);
 			if (checkAuthenticated(value)) {
-				pinField.setErrorMessage(getTranslation("LoginDenied"));
-				pinField.setInvalid(true);
+				this.pinField.setErrorMessage(getTranslation("LoginDenied"));
+				this.pinField.setInvalid(true);
 			} else {
-				pinField.setInvalid(false);
+				this.pinField.setInvalid(false);
 				redirect();
 			}
 		});
@@ -93,7 +86,7 @@ public class LoginView extends Composite<VerticalLayout>
 		button.getThemeNames().add("icon");
 
 		VerticalLayout form = new VerticalLayout();
-		form.add(h3, pinField, button);
+		form.add(h3, this.pinField, button);
 		form.setWidth("20em");
 		form.setAlignSelf(Alignment.CENTER, button);
 
@@ -117,7 +110,7 @@ public class LoginView extends Composite<VerticalLayout>
 
 	@Override
 	public OwlcmsLayout getRouterLayout() {
-		return routerLayout;
+		return this.routerLayout;
 	}
 
 	@Override
@@ -129,11 +122,11 @@ public class LoginView extends Composite<VerticalLayout>
 		image.getStyle().set("width", "auto");
 		HorizontalLayout topBarTitle = new HorizontalLayout(image, label);
 		topBarTitle.setAlignSelf(Alignment.CENTER, label);
-		routerLayout.setMenuTitle(topBarTitle);
-		routerLayout.setMenuArea(createMenuArea());
-		routerLayout.showLocaleDropdown(true);
-		routerLayout.setDrawerOpened(true);
-		routerLayout.updateHeader(true);
+		this.routerLayout.setMenuTitle(topBarTitle);
+		this.routerLayout.setMenuArea(createMenuArea());
+		this.routerLayout.showLocaleDropdown(true);
+		this.routerLayout.setDrawerOpened(true);
+		this.routerLayout.updateHeader(true);
 	}
 
 	@Override

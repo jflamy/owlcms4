@@ -20,23 +20,23 @@ public class CategoryRankingHolder implements IRankHolder {
 	protected int totalRank = 0;
 
 	public int getCleanJerkRank() {
-		return cleanJerkRank;
+		return this.cleanJerkRank;
 	}
 
 	public int getCombinedRank() {
-		return combinedRank;
+		return this.combinedRank;
 	}
 
 	public int getCustomRank() {
-		return customRank;
+		return this.customRank;
 	}
 
 	public int getSnatchRank() {
-		return snatchRank;
+		return this.snatchRank;
 	}
 
 	public int getTotalRank() {
-		return totalRank;
+		return this.totalRank;
 	}
 
 	public void setCleanJerkRank(int cleanJerkRank) {

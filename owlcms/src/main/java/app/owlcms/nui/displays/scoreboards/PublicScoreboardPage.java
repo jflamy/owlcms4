@@ -64,18 +64,42 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 		}
 		this.ui.access(() -> {
 			/* copy current parameters from results board to medals board */
-			medalsBoard.setDownSilenced(true);
-			medalsBoard.setDarkMode(((DisplayParameters) getBoard()).isDarkMode());
-			medalsBoard.setVideo(((DisplayParameters) getBoard()).isVideo());
-			medalsBoard.setPublicDisplay(((DisplayParameters) getBoard()).isPublicDisplay());
-			medalsBoard.setSingleReferee(((SoundParameters) getBoard()).isSingleReferee());
-			medalsBoard.setAbbreviatedName(((DisplayParameters) getBoard()).isAbbreviatedName());
-			medalsBoard.setTeamWidth(((DisplayParameters) getBoard()).getTeamWidth());
-			medalsBoard.setEmFontSize(((DisplayParameters) getBoard()).getEmFontSize());	
-			checkVideo(medalsBoard);  
+			this.medalsBoard.setDownSilenced(true);
+			this.medalsBoard.setDarkMode(((DisplayParameters) getBoard()).isDarkMode());
+			this.medalsBoard.setVideo(((DisplayParameters) getBoard()).isVideo());
+			this.medalsBoard.setPublicDisplay(((DisplayParameters) getBoard()).isPublicDisplay());
+			this.medalsBoard.setSingleReferee(((SoundParameters) getBoard()).isSingleReferee());
+			this.medalsBoard.setAbbreviatedName(((DisplayParameters) getBoard()).isAbbreviatedName());
+			this.medalsBoard.setTeamWidth(((DisplayParameters) getBoard()).getTeamWidth());
+			this.medalsBoard.setEmFontSize(((DisplayParameters) getBoard()).getEmFontSize());
+			checkVideo(this.medalsBoard);
 			getMedalsBoard().getStyle().set("display", "block");
 			getResultsBoard().getStyle().set("display", "none");
 		});
+	}
+
+	protected void createComponents() {
+		var board = new Results();
+		var medalsBoard = new ResultsMedals();
+
+		this.setBoard(board);
+		this.setResultsBoard(board);
+		this.setMedalsBoard(medalsBoard);
+		this.addComponent(board);
+		this.addComponent(medalsBoard);
+
+		medalsBoard.setDownSilenced(true);
+		medalsBoard.setDarkMode(board.isDarkMode());
+		medalsBoard.setVideo(board.isVideo());
+		medalsBoard.setPublicDisplay(board.isPublicDisplay());
+		medalsBoard.setSingleReferee(board.isSingleReferee());
+		medalsBoard.setAbbreviatedName(board.isAbbreviatedName());
+		medalsBoard.setTeamWidth(board.getTeamWidth());
+		medalsBoard.setEmFontSize(board.getEmFontSize());
+		checkVideo(medalsBoard);
+
+		medalsBoard.getStyle().set("display", "none");
+		this.ui = UI.getCurrent();
 	}
 
 	@Override
@@ -102,39 +126,15 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
 	}
 
-	protected void createComponents() {
-		var board = new Results();
-		var medalsBoard = new ResultsMedals();
-		
-		this.setBoard(board);
-		this.setResultsBoard(board);
-		this.setMedalsBoard(medalsBoard);
-		this.addComponent(board);
-		this.addComponent(medalsBoard);
-		
-		medalsBoard.setDownSilenced(true);
-		medalsBoard.setDarkMode(board.isDarkMode());
-		medalsBoard.setVideo(board.isVideo());
-		medalsBoard.setPublicDisplay(board.isPublicDisplay());
-		medalsBoard.setSingleReferee(board.isSingleReferee());
-		medalsBoard.setAbbreviatedName(board.isAbbreviatedName());
-		medalsBoard.setTeamWidth(board.getTeamWidth());
-		medalsBoard.setEmFontSize(board.getEmFontSize());	
-		checkVideo(medalsBoard);  
-		
-		medalsBoard.getStyle().set("display", "none");
-		this.ui = UI.getCurrent();
-	}
-
-	private final ResultsMedals getMedalsBoard() {
-		return this.medalsBoard;
-	}
-
 	protected void setMedalsBoard(ResultsMedals medalsBoard) {
 		this.medalsBoard = medalsBoard;
 	}
 
 	protected void setResultsBoard(Results board) {
 		this.resultsBoard = board;
+	}
+
+	private final ResultsMedals getMedalsBoard() {
+		return this.medalsBoard;
 	}
 }

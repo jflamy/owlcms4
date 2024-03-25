@@ -46,8 +46,8 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
-import app.owlcms.components.JXLSDownloader;
 import app.owlcms.components.GroupSelectionMenu;
+import app.owlcms.components.JXLSDownloader;
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.components.fields.LocalizedDecimalField;
 import app.owlcms.components.fields.ValidationTextField;
@@ -85,8 +85,7 @@ import ch.qos.logback.classic.Logger;
 /**
  * Class WeighinContent
  *
- * Defines the toolbar and the table for editing data on athletes during
- * weigh-in
+ * Defines the toolbar and the table for editing data on athletes during weigh-in
  *
  */
 @SuppressWarnings("serial")
@@ -98,7 +97,6 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 	static {
 		logger.setLevel(Level.INFO);
 	}
-
 	private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
 	private ComboBox<AgeGroup> ageGroupFilter = new ComboBox<>();
 	private ComboBox<Category> categoryFilter = new ComboBox<>();
@@ -109,38 +107,34 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 	private TextField lastNameFilter = new TextField();
 	private OwlcmsLayout routerLayout;
 	private ComboBox<Boolean> weighedInFilter = new ComboBox<>();
-
 	private Button cardsButton;
 
 	// private Group group;
 
-//    private ComboBox<Group> groupSelect;
+	// private ComboBox<Group> groupSelect;
 	private GroupSelectionMenu topBarMenu;
-//    private FlexLayout topBar;
-
+	// private FlexLayout topBar;
 	private Button juryButton;
-
 	private Button startingWeightsButton;
 	private Button weighInButton;
-
-	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	/**
 	 * Instantiates the athlete crudGrid
 	 */
 	public WeighinContent() {
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
-		crudGrid = createGrid(crudFormFactory);
-		defineFilters(crudGrid);
-		fillHW(crudGrid, this);
+		this.crudGrid = createGrid(crudFormFactory);
+		defineFilters(this.crudGrid);
+		fillHW(this.crudGrid, this);
 	}
 
 	@Override
 	public Athlete add(Athlete athlete) {
-		if (athlete.getGroup() == null && currentGroup != null) {
-			athlete.setGroup(currentGroup);
+		if (athlete.getGroup() == null && this.currentGroup != null) {
+			athlete.setGroup(this.currentGroup);
 		}
-		((OwlcmsCrudFormFactory<Athlete>) crudGrid.getCrudFormFactory()).add(athlete);
+		((OwlcmsCrudFormFactory<Athlete>) this.crudGrid.getCrudFormFactory()).add(athlete);
 		return athlete;
 	}
 
@@ -148,10 +142,10 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 	public FlexLayout createMenuArea() {
 		createTopBarGroupSelect();
 
-		cardsButton = createCardsButton();
-		startingWeightsButton = createStartingWeightsButton();
-		weighInButton = createWeighInButton();
-		juryButton = createJuryButton();
+		this.cardsButton = createCardsButton();
+		this.startingWeightsButton = createStartingWeightsButton();
+		this.weighInButton = createWeighInButton();
+		this.juryButton = createJuryButton();
 
 		Button start = new Button(getTranslation("GenerateStartNumbers"), (e) -> {
 			generateStartNumbers();
@@ -165,11 +159,11 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		hr.getStyle().set("margin", "0");
 		hr.getStyle().set("padding", "0");
 		FlexLayout buttons = new FlexLayout(
-				new NativeLabel(Translator.translate("WeighIn_StartNumbers")),
-				start, clear,
-				hr, 
+		        new NativeLabel(Translator.translate("WeighIn_StartNumbers")),
+		        start, clear,
+		        hr,
 		        new NativeLabel(Translator.translate("WeighIn_SessionDocuments")),
-		        weighInButton, cardsButton, startingWeightsButton,  juryButton);
+		        this.weighInButton, this.cardsButton, this.startingWeightsButton, this.juryButton);
 		buttons.getStyle().set("flex-wrap", "wrap");
 		buttons.getStyle().set("gap", "1ex");
 		buttons.getStyle().set("margin-left", "3em");
@@ -178,7 +172,7 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		FlexLayout topBar = new FlexLayout();
 		topBar.getStyle().set("flex", "100 1");
 		topBar.removeAll();
-		topBar.add(topBarMenu, buttons);
+		topBar.add(this.topBarMenu, buttons);
 		topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
 		topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 
@@ -187,8 +181,7 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 
 	@Override
 	public void delete(Athlete athlete) {
-		((OwlcmsCrudFormFactory<Athlete>) crudGrid.getCrudFormFactory()).delete(athlete);
-		return;
+		((OwlcmsCrudFormFactory<Athlete>) this.crudGrid.getCrudFormFactory()).delete(athlete);
 	}
 
 	/**
@@ -198,23 +191,23 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 	 */
 	@Override
 	public Collection<Athlete> findAll() {
-		List<Athlete> findFiltered = AthleteRepository.findFiltered(lastNameFilter.getValue(),
+		List<Athlete> findFiltered = AthleteRepository.findFiltered(this.lastNameFilter.getValue(),
 		        getGroupFilter().getValue(),
-		        categoryFilter.getValue(), ageGroupFilter.getValue(), ageDivisionFilter.getValue(),
-		        genderFilter.getValue(), weighedInFilter.getValue(), (String) null, -1, -1);
+		        this.categoryFilter.getValue(), this.ageGroupFilter.getValue(), this.ageDivisionFilter.getValue(),
+		        this.genderFilter.getValue(), this.weighedInFilter.getValue(), (String) null, -1, -1);
 		AthleteSorter.registrationOrder(findFiltered);
 		return findFiltered;
 	}
 
-//    public ComboBox<Group> getGroupSelect() {
-//        return groupSelect;
-//    }
+	// public ComboBox<Group> getGroupSelect() {
+	// return groupSelect;
+	// }
 
 	/**
 	 * @return the groupFilter
 	 */
 	public ComboBox<Group> getGroupFilter() {
-		return groupFilter;
+		return this.groupFilter;
 	}
 
 	@Override
@@ -232,7 +225,7 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 
 	@Override
 	public OwlcmsLayout getRouterLayout() {
-		return routerLayout;
+		return this.routerLayout;
 	}
 
 	@Override
@@ -240,12 +233,12 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		return true;
 	}
 
-//    /**
-//     * @param groupSelect the groupSelect to set
-//     */
-//    public void setGroupSelect(ComboBox<Group> groupSelect) {
-//        this.groupSelect = groupSelect;
-//    }
+	// /**
+	// * @param groupSelect the groupSelect to set
+	// */
+	// public void setGroupSelect(ComboBox<Group> groupSelect) {
+	// this.groupSelect = groupSelect;
+	// }
 
 	@Override
 	public boolean isIgnoreGroupFromURL() {
@@ -253,27 +246,26 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 	}
 
 	public void refresh() {
-		crudGrid.refreshGrid();
+		this.crudGrid.refreshGrid();
 	}
 
 	@Override
 	public void setHeaderContent() {
-		routerLayout.setMenuTitle(getPageTitle());
-		routerLayout.setMenuArea(createMenuArea());
-		routerLayout.showLocaleDropdown(false);
-		routerLayout.setDrawerOpened(false);
-		routerLayout.updateHeader(true);
+		this.routerLayout.setMenuTitle(getPageTitle());
+		this.routerLayout.setMenuArea(createMenuArea());
+		this.routerLayout.showLocaleDropdown(false);
+		this.routerLayout.setDrawerOpened(false);
+		this.routerLayout.updateHeader(true);
 	}
 
 	/**
 	 * Parse the http query parameters
 	 *
-	 * Note: because we have the @Route, the parameters are parsed *before* our
-	 * parent layout is created.
+	 * Note: because we have the @Route, the parameters are parsed *before* our parent layout is created.
 	 *
 	 * @param event     Vaadin navigation event
-	 * @param parameter null in this case -- we don't want a vaadin "/" parameter.
-	 *                  This allows us to add query parameters instead.
+	 * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
+	 *                  parameters instead.
 	 *
 	 * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
 	 *      java.lang.String)
@@ -294,12 +286,12 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 			groupName = URLDecoder.decode(groupName, StandardCharsets.UTF_8);
 			setCurrentGroup(GroupRepository.findByName(groupName));
 		} else {
-			currentGroup = null;
+			this.currentGroup = null;
 		}
 		if (getCurrentGroup() != null) {
 			params.put("group", Arrays.asList(URLUtils.urlEncode(getCurrentGroup().getName())));
 			OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
-			crudGrid.setCrudFormFactory(crudFormFactory);
+			this.crudGrid.setCrudFormFactory(crudFormFactory);
 		} else {
 			params.remove("group");
 		}
@@ -319,9 +311,231 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 	@Override
 	public Athlete update(Athlete athlete) {
 		OwlcmsSession.setAttribute("weighIn", athlete);
-		Athlete a = ((OwlcmsCrudFormFactory<Athlete>) crudGrid.getCrudFormFactory()).update(athlete);
+		Athlete a = ((OwlcmsCrudFormFactory<Athlete>) this.crudGrid.getCrudFormFactory()).update(athlete);
 		OwlcmsSession.setAttribute("weighIn", null);
 		return a;
+	}
+
+	/**
+	 * Define the form used to edit a given athlete.
+	 *
+	 * @return the form factory that will create the actual form on demand
+	 */
+	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
+		OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory;
+		// if (Config.getCurrent().featureSwitch("oldAthleteForm")) {
+		// athleteEditingFormFactory = new AthleteRegistrationFormFactory(Athlete.class,
+		// currentGroup);
+		// } else {
+		athleteEditingFormFactory = new NAthleteRegistrationFormFactory(Athlete.class,
+		        this.currentGroup);
+
+		// }
+		// logger.trace("created form factory {} {}",
+		// System.identityHashCode(athleteEditingFormFactory), currentGroup);
+		createFormLayout(athleteEditingFormFactory);
+		return athleteEditingFormFactory;
+	}
+
+	/**
+	 * The columns of the crudGrid
+	 *
+	 * @param crudFormFactory what to call to create the form for editing an athlete
+	 * @return
+	 */
+	protected OwlcmsCrudGrid<Athlete> createGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
+		Grid<Athlete> grid = new Grid<>(Athlete.class, false);
+		grid.getThemeNames().add("row-stripes");
+		grid.addColumn("startNumber").setHeader(getTranslation("Start_")).setAutoWidth(true);
+		grid.addColumn("lastName").setHeader(getTranslation("LastName"));
+		grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
+		grid.addColumn("team").setHeader(getTranslation("Team")).setAutoWidth(true);
+		grid.addColumn("gender").setHeader(getTranslation("Gender")).setAutoWidth(true);
+		grid.addColumn(new TextRenderer<>(a -> a.getAgeGroupDisplayName())).setHeader(getTranslation("AgeGroup"))
+		        .setAutoWidth(true);
+		grid.addColumn("category").setHeader(getTranslation("Category")).setAutoWidth(true);
+		grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))
+		        .setSortProperty("bodyWeight")
+		        .setHeader(getTranslation("BodyWeight")).setAutoWidth(true);
+		grid.addColumn("snatch1Declaration").setHeader(getTranslation("SnatchDecl_"));
+		grid.addColumn("cleanJerk1Declaration").setHeader(getTranslation("C_and_J_decl"));
+		grid.addColumn("eligibleCategories").setHeader(getTranslation("Weighin.EligibleCategories")).setAutoWidth(true);
+		grid.addColumn("entryTotal").setHeader(getTranslation("EntryTotal")).setAutoWidth(true);
+		grid.addColumn("federationCodes").setHeader(getTranslation("Registration.FederationCodesShort"))
+		        .setAutoWidth(true);
+		OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class) {
+			@Override
+			public void hideForm() {
+				super.hideForm();
+				logger.trace("clearing {}", OwlcmsSession.getAttribute("weighIn"));
+				OwlcmsSession.setAttribute("weighIn", null);
+			}
+		},
+		        crudFormFactory, grid);
+		crudGrid.setCrudListener(this);
+		crudGrid.setClickRowToUpdate(true);
+		return crudGrid;
+	}
+
+	protected void createTopBarGroupSelect() {
+		// there is already all the SQL filtering logic for the group attached
+		// hidden field in the crudGrid part of the page so we just set that
+		// filter.
+
+		List<Group> groups = GroupRepository.findAll();
+		groups.sort(new NaturalOrderComparator<>());
+
+		OwlcmsSession.withFop(fop -> {
+			// logger.debug("initial setting group to {} {}", getCurrentGroup(),
+			// LoggerUtils.whereFrom());
+			getGroupFilter().setValue(getCurrentGroup());
+			// switching to group "*" is understood to mean all groups
+			this.topBarMenu = new GroupSelectionMenu(groups, getCurrentGroup(),
+			        fop,
+			        (g1) -> doSwitchGroup(g1),
+			        (g1) -> doSwitchGroup(new Group("*")),
+			        null,
+			        Translator.translate("AllGroups"));
+		});
+	}
+
+	/**
+	 * The filters at the top of the crudGrid
+	 *
+	 * @param crudGrid the crudGrid that will be filtered.
+	 */
+	protected void defineFilters(OwlcmsCrudGrid<Athlete> crudGrid) {
+
+		this.lastNameFilter.setPlaceholder(getTranslation("LastName"));
+		this.lastNameFilter.setClearButtonVisible(true);
+		this.lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
+		this.lastNameFilter.addValueChangeListener(e -> {
+			crudGrid.refreshGrid();
+		});
+		crudGrid.getCrudLayout().addFilterComponent(this.lastNameFilter);
+
+		this.ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
+		this.ageDivisionFilter.setItems(AgeDivision.findAll());
+		this.ageDivisionFilter.setItemLabelGenerator((ad) -> getTranslation("Division." + ad.name()));
+		this.ageDivisionFilter.setClearButtonVisible(true);
+		this.ageDivisionFilter.addValueChangeListener(e -> {
+			crudGrid.refreshGrid();
+		});
+		crudGrid.getCrudLayout().addFilterComponent(this.ageDivisionFilter);
+
+		this.ageGroupFilter.setPlaceholder(getTranslation("AgeGroup"));
+		this.ageGroupFilter.setItems(AgeGroupRepository.findAll());
+		// ageGroupFilter.setItemLabelGenerator(AgeDivision::name);
+		this.ageGroupFilter.setClearButtonVisible(true);
+		this.ageGroupFilter.addValueChangeListener(e -> {
+			crudGrid.refreshGrid();
+		});
+		this.ageGroupFilter.setWidth("10em");
+		crudGrid.getCrudLayout().addFilterComponent(this.ageGroupFilter);
+
+		this.categoryFilter.setPlaceholder(getTranslation("Category"));
+		this.categoryFilter.setItems(CategoryRepository.findActive());
+		this.categoryFilter.setItemLabelGenerator(Category::getTranslatedName);
+		this.categoryFilter.setClearButtonVisible(true);
+		this.categoryFilter.addValueChangeListener(e -> {
+			crudGrid.refreshGrid();
+		});
+		crudGrid.getCrudLayout().addFilterComponent(this.categoryFilter);
+
+		this.groupFilter.setPlaceholder(getTranslation("Group"));
+		List<Group> groups = GroupRepository.findAll();
+		groups.sort(new NaturalOrderComparator<>());
+		this.groupFilter.setItems(groups);
+		this.groupFilter.setItemLabelGenerator(Group::getName);
+		this.groupFilter.setClearButtonVisible(true);
+		this.groupFilter.addValueChangeListener(e -> {
+			crudGrid.refreshGrid();
+			setCurrentGroup(e.getValue());
+			updateURLLocation(getLocationUI(), getLocation(), e.getValue());
+		});
+		crudGrid.getCrudLayout().addFilterComponent(this.groupFilter);
+		// hide because the top bar has it
+		this.groupFilter.getStyle().set("display", "none");
+
+		this.weighedInFilter.setPlaceholder(getTranslation("Weighed_in_p"));
+		this.weighedInFilter.setItems(Boolean.TRUE, Boolean.FALSE);
+		this.weighedInFilter.setItemLabelGenerator((i) -> {
+			return i ? getTranslation("Weighed") : getTranslation("Not_weighed");
+		});
+		this.weighedInFilter.setClearButtonVisible(true);
+		this.weighedInFilter.addValueChangeListener(e -> {
+			crudGrid.refreshGrid();
+		});
+		crudGrid.getCrudLayout().addFilterComponent(this.weighedInFilter);
+
+		this.genderFilter.setPlaceholder(getTranslation("Gender"));
+		if (Competition.getCurrent().isGenderInclusive()) {
+			this.genderFilter.setItems(Gender.M, Gender.F);
+			this.genderFilter.setItemLabelGenerator((i) -> {
+				switch (i) {
+					case M:
+						return getTranslation("Gender.Men");
+					case F:
+						return getTranslation("Gender.Women");
+					default:
+						throw new IllegalStateException("can't happen");
+				}
+			});
+		} else {
+			this.genderFilter.setItems(Gender.M, Gender.F, Gender.I);
+			this.genderFilter.setItemLabelGenerator((i) -> {
+				switch (i) {
+					case M:
+						return getTranslation("Gender.Men");
+					case F:
+						return getTranslation("Gender.Women");
+					case I:
+						return getTranslation("Gender.Inclusive");
+					default:
+						throw new IllegalStateException("can't happen");
+				}
+			});
+		}
+		this.genderFilter.setClearButtonVisible(true);
+		this.genderFilter.addValueChangeListener(e -> {
+			crudGrid.refreshGrid();
+		});
+		this.genderFilter.setWidth("10em");
+		crudGrid.getCrudLayout().addFilterComponent(this.genderFilter);
+
+		Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
+		clearFilters.addClickListener(event -> {
+			this.lastNameFilter.clear();
+			this.ageGroupFilter.clear();
+			this.ageDivisionFilter.clear();
+			this.categoryFilter.clear();
+			// groupFilter.clear();
+			this.weighedInFilter.clear();
+			this.genderFilter.clear();
+		});
+		crudGrid.getCrudLayout().addFilterComponent(clearFilters);
+	}
+
+	protected void errorNotification() {
+		NativeLabel content = new NativeLabel(getTranslation("Select_group_first"));
+		content.getElement().setAttribute("theme", "error");
+		Button buttonInside = new Button(getTranslation("GotIt"));
+		buttonInside.getElement().setAttribute("theme", "error primary");
+		VerticalLayout verticalLayout = new VerticalLayout(content, buttonInside);
+		verticalLayout.setAlignItems(Alignment.CENTER);
+		Notification notification = new Notification(verticalLayout);
+		notification.setDuration(3000);
+		buttonInside.addClickListener(event -> notification.close());
+		notification.setPosition(Position.MIDDLE);
+		notification.open();
+	}
+
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+	}
+
+	protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
+		this.groupFilter.setValue(e.getValue());
 	}
 
 	private void clearStartNumbers() {
@@ -365,8 +579,7 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 	/**
 	 * The content and ordering of the editing form
 	 *
-	 * @param crudFormFactory the factory that will create the form using this
-	 *                        information
+	 * @param crudFormFactory the factory that will create the form using this information
 	 */
 	private void createFormLayout(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
 		if (!Config.getCurrent().featureSwitch("oldAthleteForm")) {
@@ -434,17 +647,18 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		crudFormFactory.setFieldProvider("gender", new OwlcmsComboBoxProvider<>(getTranslation("Gender"),
 		        Arrays.asList(Gender.mfValues()), new TextRenderer<>(Gender::name), Gender::name));
 		List<Group> groups = GroupRepository.findAll();
-		groups.sort(new NaturalOrderComparator<Group>());
+		groups.sort(new NaturalOrderComparator<>());
 		crudFormFactory.setFieldProvider("group", new OwlcmsComboBoxProvider<>(getTranslation("Group"),
 		        groups, new TextRenderer<>(Group::getName), Group::getName));
 		crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
-		        CategoryRepository.findActive(), new TextRenderer<>(Category::getTranslatedName), Category::getTranslatedName));
+		        CategoryRepository.findActive(), new TextRenderer<>(Category::getTranslatedName),
+		        Category::getTranslatedName));
 		crudFormFactory.setFieldProvider("eligibleCategories",
 		        new CheckBoxGroupProvider<>(getTranslation("Weighin.EligibleCategories"),
 		                new ArrayList<Category>(), (c) -> (c.getTranslatedName())));
-//        crudFormFactory.setFieldProvider("ageDivision",
-//                new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"), Arrays.asList(AgeDivision.values()),
-//                        new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), AgeDivision::name));
+		// crudFormFactory.setFieldProvider("ageDivision",
+		// new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"), Arrays.asList(AgeDivision.values()),
+		// new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), AgeDivision::name));
 
 		crudFormFactory.setFieldType("bodyWeight", LocalizedDecimalField.class);
 		crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
@@ -527,7 +741,7 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		} else {
 			setCurrentGroup(newCurrentGroup);
 		}
-		//getRouterLayout().updateHeader(true);
+		// getRouterLayout().updateHeader(true);
 		getGroupFilter().setValue(newCurrentGroup);
 	}
 
@@ -542,7 +756,7 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 	}
 
 	private Group getCurrentGroup() {
-		return currentGroup;
+		return this.currentGroup;
 	}
 
 	private void setCurrentGroup(Group currentGroup) {
@@ -557,235 +771,14 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 			params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
 			if (newGroup != null) {
 				params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
-				currentGroup = newGroup;
+				this.currentGroup = newGroup;
 				OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
-				crudGrid.setCrudFormFactory(crudFormFactory);
+				this.crudGrid.setCrudFormFactory(crudFormFactory);
 			}
 		} else {
 			params.remove("group");
 		}
 		ui.getPage().getHistory().replaceState(null,
 		        new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
-	}
-
-	/**
-	 * Define the form used to edit a given athlete.
-	 *
-	 * @return the form factory that will create the actual form on demand
-	 */
-	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
-		OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory;
-//		if (Config.getCurrent().featureSwitch("oldAthleteForm")) {
-//			athleteEditingFormFactory = new AthleteRegistrationFormFactory(Athlete.class,
-//			        currentGroup);
-//		} else {
-			athleteEditingFormFactory = new NAthleteRegistrationFormFactory(Athlete.class,
-			        currentGroup);
-
-//		}
-		// logger.trace("created form factory {} {}",
-		// System.identityHashCode(athleteEditingFormFactory), currentGroup);
-		createFormLayout(athleteEditingFormFactory);
-		return athleteEditingFormFactory;
-	}
-
-	/**
-	 * The columns of the crudGrid
-	 *
-	 * @param crudFormFactory what to call to create the form for editing an athlete
-	 * @return
-	 */
-	protected OwlcmsCrudGrid<Athlete> createGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
-		Grid<Athlete> grid = new Grid<>(Athlete.class, false);
-		grid.getThemeNames().add("row-stripes");
-		grid.addColumn("startNumber").setHeader(getTranslation("Start_")).setAutoWidth(true);
-		grid.addColumn("lastName").setHeader(getTranslation("LastName"));
-		grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
-		grid.addColumn("team").setHeader(getTranslation("Team")).setAutoWidth(true);
-		grid.addColumn("gender").setHeader(getTranslation("Gender")).setAutoWidth(true);
-		grid.addColumn(new TextRenderer<Athlete>(a -> a.getAgeGroupDisplayName())).setHeader(getTranslation("AgeGroup")).setAutoWidth(true);
-		grid.addColumn("category").setHeader(getTranslation("Category")).setAutoWidth(true);
-		grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))
-		        .setSortProperty("bodyWeight")
-		        .setHeader(getTranslation("BodyWeight")).setAutoWidth(true);
-		grid.addColumn("snatch1Declaration").setHeader(getTranslation("SnatchDecl_"));
-		grid.addColumn("cleanJerk1Declaration").setHeader(getTranslation("C_and_J_decl"));
-		grid.addColumn("eligibleCategories").setHeader(getTranslation("Weighin.EligibleCategories")).setAutoWidth(true);
-		grid.addColumn("entryTotal").setHeader(getTranslation("EntryTotal")).setAutoWidth(true);
-		grid.addColumn("federationCodes").setHeader(getTranslation("Registration.FederationCodesShort"))
-		        .setAutoWidth(true);
-		OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class) {
-			@Override
-			public void hideForm() {
-				super.hideForm();
-				logger.trace("clearing {}", OwlcmsSession.getAttribute("weighIn"));
-				OwlcmsSession.setAttribute("weighIn", null);
-			}
-		},
-		        crudFormFactory, grid);
-		crudGrid.setCrudListener(this);
-		crudGrid.setClickRowToUpdate(true);
-		return crudGrid;
-	}
-
-	protected void createTopBarGroupSelect() {
-		// there is already all the SQL filtering logic for the group attached
-		// hidden field in the crudGrid part of the page so we just set that
-		// filter.
-
-		List<Group> groups = GroupRepository.findAll();
-		groups.sort(new NaturalOrderComparator<Group>());
-
-		OwlcmsSession.withFop(fop -> {
-			// logger.debug("initial setting group to {} {}", getCurrentGroup(),
-			// LoggerUtils.whereFrom());
-			getGroupFilter().setValue(getCurrentGroup());
-			// switching to group "*" is understood to mean all groups
-			topBarMenu = new GroupSelectionMenu(groups, getCurrentGroup(),
-			        fop,
-			        (g1) -> doSwitchGroup(g1),
-			        (g1) -> doSwitchGroup(new Group("*")),
-			        null,
-			        Translator.translate("AllGroups"));
-		});
-	}
-
-	/**
-	 * The filters at the top of the crudGrid
-	 *
-	 * @param crudGrid the crudGrid that will be filtered.
-	 */
-	protected void defineFilters(OwlcmsCrudGrid<Athlete> crudGrid) {
-
-		lastNameFilter.setPlaceholder(getTranslation("LastName"));
-		lastNameFilter.setClearButtonVisible(true);
-		lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
-		lastNameFilter.addValueChangeListener(e -> {
-			crudGrid.refreshGrid();
-		});
-		crudGrid.getCrudLayout().addFilterComponent(lastNameFilter);
-
-		ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
-		ageDivisionFilter.setItems(AgeDivision.findAll());
-		ageDivisionFilter.setItemLabelGenerator((ad) -> getTranslation("Division." + ad.name()));
-		ageDivisionFilter.setClearButtonVisible(true);
-		ageDivisionFilter.addValueChangeListener(e -> {
-			crudGrid.refreshGrid();
-		});
-		crudGrid.getCrudLayout().addFilterComponent(ageDivisionFilter);
-
-		ageGroupFilter.setPlaceholder(getTranslation("AgeGroup"));
-		ageGroupFilter.setItems(AgeGroupRepository.findAll());
-		// ageGroupFilter.setItemLabelGenerator(AgeDivision::name);
-		ageGroupFilter.setClearButtonVisible(true);
-		ageGroupFilter.addValueChangeListener(e -> {
-			crudGrid.refreshGrid();
-		});
-		ageGroupFilter.setWidth("10em");
-		crudGrid.getCrudLayout().addFilterComponent(ageGroupFilter);
-
-		categoryFilter.setPlaceholder(getTranslation("Category"));
-		categoryFilter.setItems(CategoryRepository.findActive());
-		categoryFilter.setItemLabelGenerator(Category::getTranslatedName);
-		categoryFilter.setClearButtonVisible(true);
-		categoryFilter.addValueChangeListener(e -> {
-			crudGrid.refreshGrid();
-		});
-		crudGrid.getCrudLayout().addFilterComponent(categoryFilter);
-
-		groupFilter.setPlaceholder(getTranslation("Group"));
-		List<Group> groups = GroupRepository.findAll();
-		groups.sort(new NaturalOrderComparator<Group>());
-		groupFilter.setItems(groups);
-		groupFilter.setItemLabelGenerator(Group::getName);
-		groupFilter.setClearButtonVisible(true);
-		groupFilter.addValueChangeListener(e -> {
-			crudGrid.refreshGrid();
-			setCurrentGroup(e.getValue());
-			updateURLLocation(getLocationUI(), getLocation(), e.getValue());
-		});
-		crudGrid.getCrudLayout().addFilterComponent(groupFilter);
-		// hide because the top bar has it
-		groupFilter.getStyle().set("display", "none");
-
-		weighedInFilter.setPlaceholder(getTranslation("Weighed_in_p"));
-		weighedInFilter.setItems(Boolean.TRUE, Boolean.FALSE);
-		weighedInFilter.setItemLabelGenerator((i) -> {
-			return i ? getTranslation("Weighed") : getTranslation("Not_weighed");
-		});
-		weighedInFilter.setClearButtonVisible(true);
-		weighedInFilter.addValueChangeListener(e -> {
-			crudGrid.refreshGrid();
-		});
-		crudGrid.getCrudLayout().addFilterComponent(weighedInFilter);
-
-		genderFilter.setPlaceholder(getTranslation("Gender"));
-		if (Competition.getCurrent().isGenderInclusive()) {
-			genderFilter.setItems(Gender.M, Gender.F);
-			genderFilter.setItemLabelGenerator((i) -> {
-				switch (i) {
-				case M:
-					return getTranslation("Gender.Men");
-				case F:
-					return getTranslation("Gender.Women");
-				default:
-					throw new IllegalStateException("can't happen");
-				}
-			});
-		} else {
-			genderFilter.setItems(Gender.M, Gender.F, Gender.I);
-			genderFilter.setItemLabelGenerator((i) -> {
-				switch (i) {
-				case M:
-					return getTranslation("Gender.Men");
-				case F:
-					return getTranslation("Gender.Women");
-				case I:
-					return getTranslation("Gender.Inclusive");
-				default:
-					throw new IllegalStateException("can't happen");
-				}
-			});
-		}
-		genderFilter.setClearButtonVisible(true);
-		genderFilter.addValueChangeListener(e -> {
-			crudGrid.refreshGrid();
-		});
-		genderFilter.setWidth("10em");
-		crudGrid.getCrudLayout().addFilterComponent(genderFilter);
-
-		Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
-		clearFilters.addClickListener(event -> {
-			lastNameFilter.clear();
-			ageGroupFilter.clear();
-			ageDivisionFilter.clear();
-			categoryFilter.clear();
-			// groupFilter.clear();
-			weighedInFilter.clear();
-			genderFilter.clear();
-		});
-		crudGrid.getCrudLayout().addFilterComponent(clearFilters);
-	}
-
-	protected void errorNotification() {
-		NativeLabel content = new NativeLabel(getTranslation("Select_group_first"));
-		content.getElement().setAttribute("theme", "error");
-		Button buttonInside = new Button(getTranslation("GotIt"));
-		buttonInside.getElement().setAttribute("theme", "error primary");
-		VerticalLayout verticalLayout = new VerticalLayout(content, buttonInside);
-		verticalLayout.setAlignItems(Alignment.CENTER);
-		Notification notification = new Notification(verticalLayout);
-		notification.setDuration(3000);
-		buttonInside.addClickListener(event -> notification.close());
-		notification.setPosition(Position.MIDDLE);
-		notification.open();
-	}
-
-	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-	}
-
-	protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
-		groupFilter.setValue(e.getValue());
 	}
 }

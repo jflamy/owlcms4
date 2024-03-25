@@ -47,10 +47,10 @@ public class RecordsContent extends Composite<VerticalLayout>
 	 */
 	public RecordsContent() {
 		initLoggers();
-		factory = createFormFactory();
+		this.factory = createFormFactory();
 		RecordConfig current = RecordConfig.getCurrent();
 		current.addMissing(RecordRepository.findAllRecordNames());
-		Component form = factory.buildNewForm(CrudOperation.UPDATE, current, false, null, event -> {
+		Component form = this.factory.buildNewForm(CrudOperation.UPDATE, current, false, null, event -> {
 		});
 		fillH(form, getContent());
 	}
@@ -77,7 +77,7 @@ public class RecordsContent extends Composite<VerticalLayout>
 	@Override
 	public void delete(RecordConfig domainObjectToDelete) {
 		// not used
-		factory.delete(domainObjectToDelete);
+		this.factory.delete(domainObjectToDelete);
 	}
 
 	@Override
@@ -102,7 +102,7 @@ public class RecordsContent extends Composite<VerticalLayout>
 
 	@Override
 	public OwlcmsLayout getRouterLayout() {
-		return routerLayout;
+		return this.routerLayout;
 	}
 
 	@Override
@@ -110,14 +110,14 @@ public class RecordsContent extends Composite<VerticalLayout>
 	}
 
 	public void initLoggers() {
-		logger.setLevel(Level.INFO);
+		this.logger.setLevel(Level.INFO);
 	}
 
 	@Override
 	public void setHeaderContent() {
-		routerLayout.setMenuTitle(getPageTitle());
-		routerLayout.showLocaleDropdown(true);
-		routerLayout.setDrawerOpened(false);
+		this.routerLayout.setMenuTitle(getPageTitle());
+		this.routerLayout.showLocaleDropdown(true);
+		this.routerLayout.setDrawerOpened(false);
 	}
 
 	/**

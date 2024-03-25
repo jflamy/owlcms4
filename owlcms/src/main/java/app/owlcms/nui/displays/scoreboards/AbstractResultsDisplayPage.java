@@ -28,9 +28,8 @@ import ch.qos.logback.classic.Logger;
 public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
         implements SoundEntries, DisplayParametersReader, HasDynamicTitle, SafeEventBusRegistration {
 
-	Logger logger = (Logger) LoggerFactory.getLogger(AbstractResultsDisplayPage.class);
-	
 	private static final int DEBOUNCE = 50;
+	Logger logger = (Logger) LoggerFactory.getLogger(AbstractResultsDisplayPage.class);
 	private long now;
 	private long lastShortcut;
 
@@ -48,8 +47,8 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 		DisplayOptions.addRule(vl);
 		DisplayOptions.addSoundEntries(vl, target, this);
 		DisplayOptions.addRule(vl);
-//		DisplayOptions.addSwitchableEntries(vl, target, this);
-//		DisplayOptions.addRule(vl);
+		// DisplayOptions.addSwitchableEntries(vl, target, this);
+		// DisplayOptions.addRule(vl);
 		DisplayOptions.addSectionEntries(vl, target, this);
 		DisplayOptions.addRule(vl);
 		DisplayOptions.addSizingEntries(vl, target, this);
@@ -60,32 +59,32 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 	@Override
 	public void addKeyboardShortcuts() {
 		UI.getCurrent().addShortcutListener(() -> {
-			now = System.currentTimeMillis();
-			if (now - lastShortcut > DEBOUNCE) {
+			this.now = System.currentTimeMillis();
+			if (this.now - this.lastShortcut > DEBOUNCE) {
 				setEmFontSize(getEmFontSize() + 0.005);
 			}
-			lastShortcut = now;
+			this.lastShortcut = this.now;
 		}, Key.ARROW_UP);
 		UI.getCurrent().addShortcutListener(() -> {
-			now = System.currentTimeMillis();
-			if (now - lastShortcut > DEBOUNCE) {
+			this.now = System.currentTimeMillis();
+			if (this.now - this.lastShortcut > DEBOUNCE) {
 				setEmFontSize(getEmFontSize() - 0.005);
 			}
-			lastShortcut = now;
+			this.lastShortcut = this.now;
 		}, Key.ARROW_DOWN);
 		UI.getCurrent().addShortcutListener(() -> {
-			now = System.currentTimeMillis();
-			if (now - lastShortcut > DEBOUNCE) {
+			this.now = System.currentTimeMillis();
+			if (this.now - this.lastShortcut > DEBOUNCE) {
 				setTeamWidth(getTeamWidth() + 0.5);
 			}
-			lastShortcut = now;
+			this.lastShortcut = this.now;
 		}, Key.ARROW_RIGHT);
 		UI.getCurrent().addShortcutListener(() -> {
-			now = System.currentTimeMillis();
-			if (now - lastShortcut > DEBOUNCE) {
+			this.now = System.currentTimeMillis();
+			if (this.now - this.lastShortcut > DEBOUNCE) {
 				setTeamWidth(getTeamWidth() - 0.5);
 			}
-			lastShortcut = now;
+			this.lastShortcut = this.now;
 		}, Key.ARROW_LEFT);
 	}
 

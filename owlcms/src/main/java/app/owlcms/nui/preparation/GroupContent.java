@@ -57,15 +57,15 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 	 * Instantiates the Group crudGrid.
 	 */
 	public GroupContent() {
-		editingFormFactory = new GroupEditingFormFactory(Group.class, this);
-		GridCrud<Group> crud = createGrid(editingFormFactory);
-//		defineFilters(crudGrid);
+		this.editingFormFactory = new GroupEditingFormFactory(Group.class, this);
+		GridCrud<Group> crud = createGrid(this.editingFormFactory);
+		// defineFilters(crudGrid);
 		fillHW(crud, this);
 	}
 
 	@Override
 	public Group add(Group domainObjectToAdd) {
-		return editingFormFactory.add(domainObjectToAdd);
+		return this.editingFormFactory.add(domainObjectToAdd);
 	}
 
 	public void closeDialog() {
@@ -78,7 +78,7 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 
 	@Override
 	public void delete(Group domainObjectToDelete) {
-		editingFormFactory.delete(domainObjectToDelete);
+		this.editingFormFactory.delete(domainObjectToDelete);
 	}
 
 	/**
@@ -106,7 +106,7 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 
 	@Override
 	public OwlcmsLayout getRouterLayout() {
-		return routerLayout;
+		return this.routerLayout;
 	}
 
 	@Override
@@ -116,7 +116,7 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 
 	@Override
 	public Group update(Group domainObjectToUpdate) {
-		return editingFormFactory.update(domainObjectToUpdate);
+		return this.editingFormFactory.update(domainObjectToUpdate);
 	}
 
 	/**
@@ -143,7 +143,8 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		grid.addColumn(new ComponentRenderer<>(p -> {
 			Button technical = openInNewTab(RegistrationContent.class, translation, p.getName());
 			// prevent grid row selection from triggering
-			technical.getElement().addEventListener("click", ignore -> {}).addEventData("event.stopPropagation()");
+			technical.getElement().addEventListener("click", ignore -> {
+			}).addEventData("event.stopPropagation()");
 			technical.addThemeVariants(ButtonVariant.LUMO_SMALL);
 			return technical;
 		})).setHeader("").setWidth(tSize + "ch");

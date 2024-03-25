@@ -34,42 +34,42 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
 	 * @param aClass the a class
 	 */
 	public OwlcmsGridLayout(Class<?> aClass) {
-		mainLayout = getContent();
-		mainLayout.removeAll();
-		mainLayout.setBoxSizing(BoxSizing.BORDER_BOX);
+		this.mainLayout = getContent();
+		this.mainLayout.removeAll();
+		this.mainLayout.setBoxSizing(BoxSizing.BORDER_BOX);
 
-//        getContent().setPadding(false);
-//        ((ThemableLayout) getContent()).setMargin(false);
-//        ((HasComponents) getContent()).add(mainLayout);
+		// getContent().setPadding(false);
+		// ((ThemableLayout) getContent()).setMargin(false);
+		// ((HasComponents) getContent()).add(mainLayout);
 
-		mainLayout.setSizeFull();
-		mainLayout.setMargin(false);
-		mainLayout.setPadding(false);
-		mainLayout.setSpacing(false);
+		this.mainLayout.setSizeFull();
+		this.mainLayout.setMargin(false);
+		this.mainLayout.setPadding(false);
+		this.mainLayout.setSpacing(false);
 		setSizeFull();
 
-		headerLayout.setVisible(false);
-		headerLayout.setSpacing(true);
-		headerLayout.setMargin(true);
-		headerLayout.setId("headerLayout");
+		this.headerLayout.setVisible(false);
+		this.headerLayout.setSpacing(true);
+		this.headerLayout.setMargin(true);
+		this.headerLayout.setId("headerLayout");
 
-		toolbarLayout.setVisible(false);
-		headerLayout.add(toolbarLayout);
+		this.toolbarLayout.setVisible(false);
+		this.headerLayout.add(this.toolbarLayout);
 
-		filterLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-		filterLayout.setVisible(false);
-		filterLayout.setSpacing(true);
-		headerLayout.add(filterLayout);
+		this.filterLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+		this.filterLayout.setVisible(false);
+		this.filterLayout.setSpacing(true);
+		this.headerLayout.add(this.filterLayout);
 
-		mainComponentLayout.setWidth("100%");
-		mainComponentLayout.setHeight("100%");
-		mainComponentLayout.setMargin(false);
-		mainComponentLayout.setPadding(false);
-		mainComponentLayout.setBoxSizing(BoxSizing.BORDER_BOX);
-		mainLayout.add(mainComponentLayout);
-		mainLayout.expand(mainComponentLayout);
-		mainComponentLayout.setId("mainComponentLayout");
-		mainLayout.setId("mainLayout");
+		this.mainComponentLayout.setWidth("100%");
+		this.mainComponentLayout.setHeight("100%");
+		this.mainComponentLayout.setMargin(false);
+		this.mainComponentLayout.setPadding(false);
+		this.mainComponentLayout.setBoxSizing(BoxSizing.BORDER_BOX);
+		this.mainLayout.add(this.mainComponentLayout);
+		this.mainLayout.expand(this.mainComponentLayout);
+		this.mainComponentLayout.setId("mainComponentLayout");
+		this.mainLayout.setId("mainLayout");
 
 		setWindowCaption(CrudOperation.ADD, getTranslation("Add_title", aClass.getSimpleName()));
 		setWindowCaption(CrudOperation.UPDATE, getTranslation("Update_title", aClass.getSimpleName()));
@@ -77,19 +77,19 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
 	}
 
 	public Component getFilterLayout() {
-		return filterLayout;
+		return this.filterLayout;
 	}
 
 	public Component getHeaderLayout() {
-		return headerLayout;
+		return this.headerLayout;
 	}
 
 	public Component getMainLayout() {
-		return mainLayout;
+		return this.mainLayout;
 	}
 
 	public Component getToolbarLayout() {
-		return toolbarLayout;
+		return this.toolbarLayout;
 	}
 
 	@Override
@@ -102,8 +102,8 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
 		H3 h3 = new H3(caption);
 		h3.getStyle().set("margin-top", "0");
 		h3.getStyle().set("margin-bottom", "0");
-		dialog = new Dialog(h3, dialogLayout);
-		dialog.setWidth(formWindowWidth);
-		dialog.open();
+		this.dialog = new Dialog(h3, dialogLayout);
+		this.dialog.setWidth(this.formWindowWidth);
+		this.dialog.open();
 	}
 }

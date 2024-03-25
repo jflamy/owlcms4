@@ -40,7 +40,7 @@ import ch.qos.logback.classic.Logger;
 @Tag("timer-element")
 @JsModule("./components/TimerElement.js")
 public abstract class TimerElement extends LitTemplate
-implements SafeEventBusRegistration, Focusable<Div> {
+        implements SafeEventBusRegistration, Focusable<Div> {
 
 	public long lastStartMillis;
 	public long lastStopMillis;
@@ -74,8 +74,8 @@ implements SafeEventBusRegistration, Focusable<Div> {
 	abstract public void clientInitialWarning(String fopName);
 
 	/**
-	 * Client requests that the server send back the remaining time. Intended to be
-	 * used after client has been hidden and is made visible again.
+	 * Client requests that the server send back the remaining time. Intended to be used after client has been hidden
+	 * and is made visible again.
 	 */
 	@AllowInert
 	@ClientCallable
@@ -110,7 +110,8 @@ implements SafeEventBusRegistration, Focusable<Div> {
 	}
 
 	public void setSilenced(boolean b) {
-		//this.logger.trace("======= {} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.whereFrom(1));
+		// this.logger.trace("======= {} silenced = {} from {}", this.getClass().getSimpleName(), b,
+		// LoggerUtils.whereFrom(1));
 		this.silenced = b;
 	}
 
@@ -126,7 +127,8 @@ implements SafeEventBusRegistration, Focusable<Div> {
 
 	protected final void doSetTimer(Integer milliseconds) {
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("====== {} doSetTimer {} {}", this.getClass().getSimpleName(), milliseconds, LoggerUtils.whereFrom());
+			this.logger.debug("====== {} doSetTimer {} {}", this.getClass().getSimpleName(), milliseconds,
+			        LoggerUtils.whereFrom());
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
@@ -139,7 +141,7 @@ implements SafeEventBusRegistration, Focusable<Div> {
 	protected void doStartTimer(Integer milliseconds, boolean serverSound) {
 		this.logger.debug("====== {} doStartTimer {}", this.getClass().getSimpleName(), milliseconds);
 		setServerSound(serverSound);
-		//String trace = LoggerUtils.stackTrace();
+		// String trace = LoggerUtils.stackTrace();
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			setIndefinite(milliseconds == null);
 			setMsRemaining(milliseconds);
@@ -212,8 +214,7 @@ implements SafeEventBusRegistration, Focusable<Div> {
 	}
 
 	/*
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-	 * AttachEvent)
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
@@ -261,14 +262,14 @@ implements SafeEventBusRegistration, Focusable<Div> {
 				}
 			}
 			timerElement2.callJsFunction("start", seconds, indefinite, silent, timerElement2,
-					Long.toString(System.currentTimeMillis()), from);
+			        Long.toString(System.currentTimeMillis()), from);
 		}
 	}
 
 	@SuppressWarnings("unused")
 	private String formatDuration(Integer milliseconds) {
 		return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds)
-				: (milliseconds != null ? milliseconds.toString() : "-");
+		        : (milliseconds != null ? milliseconds.toString() : "-");
 	}
 
 	private Integer getMsRemaining() {
@@ -313,7 +314,7 @@ implements SafeEventBusRegistration, Focusable<Div> {
 				this.logger.debug("stop {}s", seconds);
 			}
 			timerElement2.callJsFunction("pause", seconds, indefinite, silent, timerElement2,
-					Long.toString(System.currentTimeMillis()), from);
+			        Long.toString(System.currentTimeMillis()), from);
 		}
 	}
 }

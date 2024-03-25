@@ -60,7 +60,7 @@ public class OwlcmsLayout extends AppLayout {
 	private boolean margin;
 
 	public OwlcmsLayout() {
-		navBarComponents = new ArrayList<>();
+		this.navBarComponents = new ArrayList<>();
 		// create default empty components. Content will fill them in.
 		populateHeader();
 		// setPrimarySection(Section.DRAWER);
@@ -70,13 +70,13 @@ public class OwlcmsLayout extends AppLayout {
 
 	@Override
 	public void addToNavbar(boolean touchOptimized, Component... components) {
-		navBarComponents.addAll(Arrays.asList(components));
+		this.navBarComponents.addAll(Arrays.asList(components));
 		super.addToNavbar(touchOptimized, components);
 	}
 
 	@Override
 	public void addToNavbar(Component... components) {
-		navBarComponents.addAll(Arrays.asList(components));
+		this.navBarComponents.addAll(Arrays.asList(components));
 		super.addToNavbar(components);
 	}
 
@@ -85,33 +85,33 @@ public class OwlcmsLayout extends AppLayout {
 	}
 
 	public DrawerToggle getDrawerToggle() {
-		return drawerToggle;
+		return this.drawerToggle;
 	}
 
 	public ComboBox<Locale> getLocaleDropDown() {
-		return localeDropDown;
+		return this.localeDropDown;
 	}
 
 	public FlexLayout getMenuArea() {
-		return menuArea;
+		return this.menuArea;
 	}
 
 	/**
 	 * @return the navBarComponents
 	 */
 	public List<Component> getNavBarComponents() {
-		return navBarComponents;
+		return this.navBarComponents;
 	}
 
 	public Component getViewTitle() {
-		return viewTitle;
+		return this.viewTitle;
 	}
 
 	@Override
 	public void remove(Component... components) {
 		for (Component c : components) {
-			if (navBarComponents.contains(c)) {
-				navBarComponents.remove(c);
+			if (this.navBarComponents.contains(c)) {
+				this.navBarComponents.remove(c);
 			}
 		}
 		super.remove(components);
@@ -125,7 +125,7 @@ public class OwlcmsLayout extends AppLayout {
 		Component curTitle = getViewTitle();
 		remove(curTitle);
 		setViewTitle(topBarTitle);
-		updateHeader(margin);
+		updateHeader(this.margin);
 	}
 
 	public void setMenuTitle(String topBarTitle) {
@@ -169,16 +169,58 @@ public class OwlcmsLayout extends AppLayout {
 
 	public void updateHeader(boolean margin) {
 		this.margin = margin;
-		header.removeAll();
-		header.setMargin(margin);
-		header.setPadding(false);
-		header.add(getDrawerToggle(), getViewTitle(), getMenuArea(), getLocaleDropDown());
-		header.setFlexGrow(1.0D, getMenuArea());
-		header.setWidth("100%");
-		header.setAlignItems(Alignment.CENTER);
+		this.header.removeAll();
+		this.header.setMargin(margin);
+		this.header.setPadding(false);
+		this.header.add(getDrawerToggle(), getViewTitle(), getMenuArea(), getLocaleDropDown());
+		this.header.setFlexGrow(1.0D, getMenuArea());
+		this.header.setWidth("100%");
+		this.header.setAlignItems(Alignment.CENTER);
 
 		clearNavBar();
-		addToNavbar(false, header);
+		addToNavbar(false, this.header);
+	}
+
+	@Override
+	protected void afterNavigation() {
+		super.afterNavigation();
+		setMenuTitle(getCurrentPageTitle());
+	}
+
+	/**
+	 * Create the top bar.
+	 *
+	 * Note: the top bar is created before the content.
+	 *
+	 * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
+	 *
+	 * @param header
+	 */
+	protected FlexLayout createMenuArea() {
+		FlexLayout hLayout = new FlexLayout();
+		hLayout.setFlexDirection(FlexDirection.ROW);
+		return hLayout;
+	}
+
+	protected void populateHeader() {
+		this.header = new HorizontalLayout();
+		this.header.setPadding(false);
+		this.header.setSpacing(false);
+
+		setDrawerToggle(new DrawerToggle());
+		getDrawerToggle().getElement().setAttribute("aria-label", "Menu drawerToggle");
+		getDrawerToggle().setSizeUndefined();
+
+		setViewTitle(new NativeLabel());
+		Style style = getViewTitle().getElement().getStyle();
+		style.set("font-size", "large");
+		style.set("padding-right", "1em");
+
+		setMenuArea(createMenuArea());
+
+		setLocaleDropDown(createLocaleDropdown());
+
+		updateHeader(true);
 	}
 
 	private void addDrawerContent() {
@@ -191,10 +233,10 @@ public class OwlcmsLayout extends AppLayout {
 			try {
 				super.remove(c);
 			} catch (Exception e) {
-				logger.error("removing component not present.");
+				this.logger.error("removing component not present.");
 			}
 		}
-		navBarComponents.clear();
+		this.navBarComponents.clear();
 	}
 
 	private ComboBox<Locale> createLocaleDropdown() {
@@ -295,48 +337,6 @@ public class OwlcmsLayout extends AppLayout {
 
 	private void setViewTitle(Component topBarTitle) {
 		this.viewTitle = topBarTitle;
-	}
-
-	@Override
-	protected void afterNavigation() {
-		super.afterNavigation();
-		setMenuTitle(getCurrentPageTitle());
-	}
-
-	/**
-	 * Create the top bar.
-	 *
-	 * Note: the top bar is created before the content.
-	 *
-	 * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
-	 *
-	 * @param header
-	 */
-	protected FlexLayout createMenuArea() {
-		FlexLayout hLayout = new FlexLayout();
-		hLayout.setFlexDirection(FlexDirection.ROW);
-		return hLayout;
-	}
-
-	protected void populateHeader() {
-		header = new HorizontalLayout();
-		header.setPadding(false);
-		header.setSpacing(false);
-
-		setDrawerToggle(new DrawerToggle());
-		getDrawerToggle().getElement().setAttribute("aria-label", "Menu drawerToggle");
-		getDrawerToggle().setSizeUndefined();
-
-		setViewTitle(new NativeLabel());
-		Style style = getViewTitle().getElement().getStyle();
-		style.set("font-size", "large");
-		style.set("padding-right", "1em");
-
-		setMenuArea(createMenuArea());
-
-		setLocaleDropDown(createLocaleDropdown());
-
-		updateHeader(true);
 	}
 
 }

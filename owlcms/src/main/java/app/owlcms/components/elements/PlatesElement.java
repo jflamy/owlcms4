@@ -24,7 +24,6 @@ public class PlatesElement extends FlexLayout {
 	@SuppressWarnings("unused")
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(PlatesElement.class);
 	private static final long serialVersionUID = 8340222363211435843L;
-
 	private int weight;
 
 	public PlatesElement() {
@@ -41,8 +40,8 @@ public class PlatesElement extends FlexLayout {
 		if (currentAthlete == null) {
 			return;
 		}
-		weight = currentAthlete.getNextAttemptRequestedWeight();
-		final String caption = getTranslation("Kg", weight);
+		this.weight = currentAthlete.getNextAttemptRequestedWeight();
+		final String caption = getTranslation("Kg", this.weight);
 
 		createImageArea(fop, barWeight, (showCaption ? caption : ""));
 	}
@@ -55,7 +54,7 @@ public class PlatesElement extends FlexLayout {
 	 */
 	private int addPlates(Integer availablePlates, String style, double plateWeight) {
 		int subtractedWeight = 0;
-		while (availablePlates > 0 && weight >= plateWeight) {
+		while (availablePlates > 0 && this.weight >= plateWeight) {
 			NativeLabel plate = new NativeLabel();
 			plate.setSizeUndefined();
 			plate.getElement().getClassList().add(style);
@@ -65,7 +64,7 @@ public class PlatesElement extends FlexLayout {
 			this.add(plate);
 			this.setAlignSelf(Alignment.CENTER, plate);
 			final long delta = Math.round(plateWeight);
-			weight -= delta;
+			this.weight -= delta;
 			subtractedWeight += delta;
 			availablePlates--;
 		}
@@ -110,7 +109,7 @@ public class PlatesElement extends FlexLayout {
 		this.removeAll();
 		Platform platform = fop.getPlatform();
 
-		if (weight == 0) {
+		if (this.weight == 0) {
 			return;
 			// compute the bar and collar first.
 		}
@@ -120,11 +119,11 @@ public class PlatesElement extends FlexLayout {
 		final Integer collarAvailable = platform.getNbC_2_5();
 		boolean useCollar = collarAvailable > 0;
 
-		if (weight >= 25) {
+		if (this.weight >= 25) {
 			if (useCollar) {
 				// we only take off the collar weight because we need to
 				// wait before showing the collar.
-				weight -= 5;
+				this.weight -= 5;
 			}
 
 			// use large plates first
@@ -133,7 +132,7 @@ public class PlatesElement extends FlexLayout {
 			addPlates(platform.getNbL_15(), "L_15", 2 * 15);
 			addPlates(platform.getNbL_10(), "L_10", 2 * 10);
 		} else {
-			int nonBarWeight = weight;
+			int nonBarWeight = this.weight;
 			// make sure that large 5 and large 2.5 are only used when warranted
 			// (must not require manual intervention if they are available)
 			if (platform.getNbL_2_5() > 0 && nonBarWeight < 10 || platform.getNbL_5() > 0 && nonBarWeight < 15) {
@@ -142,7 +141,7 @@ public class PlatesElement extends FlexLayout {
 			if (useCollar) {
 				// we take off the collar weight because we need to
 				// wait before showing the collar.
-				weight -= 5;
+				this.weight -= 5;
 				nonBarWeight -= 5;
 			}
 			addPlates(platform.getNbL_10(), "L_10", 2 * 10);
@@ -159,7 +158,7 @@ public class PlatesElement extends FlexLayout {
 		// collar is depicted here
 		if (useCollar) {
 			// we add back the collar weight we took off above
-			weight += 5;
+			this.weight += 5;
 			addPlates(collarAvailable, "C_2_5", 2 * 2.5);
 		}
 		// remainder of small plates

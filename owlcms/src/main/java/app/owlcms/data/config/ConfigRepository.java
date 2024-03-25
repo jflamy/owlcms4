@@ -83,7 +83,7 @@ public class ConfigRepository {
 			Config nc = em.merge(config);
 			TimeZone tz = nc.getTimeZone();
 			if (tz != null) {
-				logger.info("setting time zone to {}",tz);
+				logger.info("setting time zone to {}", tz);
 				TimeZone.setDefault(tz);
 			}
 			return nc;

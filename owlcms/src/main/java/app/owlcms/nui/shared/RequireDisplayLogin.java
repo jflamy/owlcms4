@@ -46,16 +46,13 @@ public interface RequireDisplayLogin extends BeforeEnterObserver {
 		if ((noDisplayPin && noDisplayList)) {
 			// no check required
 			OwlcmsSession.setDisplayAuthenticated(true);
-			return;
 		} else if (backdoor && AccessUtils.checkBackdoor(AccessUtils.getClientIp())) {
 			// explicit backdoor access allowed (e.g. for video capture of browser screens)
 			logger.info("allowing backdoor access from {}", AccessUtils.getClientIp());
 			OwlcmsSession.setDisplayAuthenticated(true);
-			return;
 		} else if (noDisplayPin && AccessUtils.isIpAllowedForDisplay(AccessUtils.getClientIp())) {
 			// no pin required, proper origin, no need to challenge
 			OwlcmsSession.setDisplayAuthenticated(true);
-			return;
 		} else if (!path.equals(LoginView.LOGIN)) {
 			// prompt user for PIN
 			// (if whitelist membership is required, will be prompted even if no PIN is

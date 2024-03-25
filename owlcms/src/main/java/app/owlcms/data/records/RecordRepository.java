@@ -31,6 +31,22 @@ public class RecordRepository {
 
 	static Logger logger = (Logger) LoggerFactory.getLogger(RecordRepository.class);
 
+	public static void clearByExample(RecordEvent re) {
+		JPAService.runInTransaction(em -> {
+			Query q = em.createQuery("DELETE FROM RecordEvent a WHERE "
+			        + "a.fileName = :fn "
+			        + "AND a.recordFederation = :rf "
+			        + "AND a.recordName = :rn "
+			        + "AND a.ageGrp = :ag ");
+			q.setParameter("fn", re.getFileName());
+			q.setParameter("rf", re.getRecordFederation());
+			q.setParameter("rn", re.getRecordName());
+			q.setParameter("ag", re.getAgeGrp());
+			q.executeUpdate();
+			return null;
+		});
+	}
+
 	/**
 	 * @throws IOException
 	 */
@@ -68,7 +84,13 @@ public class RecordRepository {
 			return null;
 		});
 	}
-	
+
+	// public static JsonValue computeRecords(Gender gender, Integer age, Double bw, Integer snatchRequest,
+	// Integer cjRequest, Integer totalRequest) {
+	// List<RecordEvent> records = findFiltered(gender, age, bw, null, null);
+	// return buildRecordJson(records, snatchRequest, cjRequest, totalRequest);
+	// }
+
 	/**
 	 * @throws IOException
 	 */
@@ -88,11 +110,16 @@ public class RecordRepository {
 		});
 	}
 
-//    public static JsonValue computeRecords(Gender gender, Integer age, Double bw, Integer snatchRequest,
-//            Integer cjRequest, Integer totalRequest) {
-//        List<RecordEvent> records = findFiltered(gender, age, bw, null, null);
-//        return buildRecordJson(records, snatchRequest, cjRequest, totalRequest);
-//    }
+	public static void clearRecordsOriginallyFromFile(String fileName) {
+		JPAService.runInTransaction(em -> {
+			Query q = em.createQuery("DELETE FROM RecordEvent a WHERE "
+			        + "a.fileName = :fn "
+			        + "AND a.groupNameString IS NULL");
+			q.setParameter("fn", fileName);
+			q.executeUpdate();
+			return null;
+		});
+	}
 
 	/**
 	 * Delete.
@@ -130,6 +157,42 @@ public class RecordRepository {
 	 */
 	public static List<RecordEvent> findAll() {
 		return JPAService.runInTransaction(em -> doFindAll(em));
+	}
+
+	public static List<RecordEvent> findAllLoadedRecords() {
+		ArrayList<RecordEvent> recordEventStubs = new ArrayList<>();
+		JPAService.runInTransaction(em -> {
+			Query q = em.createNativeQuery(
+			        "SELECT DISTINCT a.fileName, a.recordFederation, a.recordName, a.ageGrp FROM RecordEvent a");
+			@SuppressWarnings("unchecked")
+			List<Object[]> records = q.getResultList();
+
+			for (Object[] a : records) {
+				RecordEvent e = new RecordEvent();
+				e.setFileName((String) a[0]);
+				e.setRecordFederation((String) a[1]);
+				e.setRecordName((String) a[2]);
+				e.setAgeGrp((String) a[3]);
+				recordEventStubs.add(e);
+			}
+			return null;
+		});
+		return recordEventStubs;
+	}
+
+	public static List<String> findAllRecordNames() {
+		ArrayList<String> names = new ArrayList<>();
+		JPAService.runInTransaction(em -> {
+			Query q = em.createNativeQuery("SELECT DISTINCT a.recordName FROM RecordEvent a");
+			@SuppressWarnings("unchecked")
+			List<Object> records = q.getResultList();
+
+			for (Object a : records) {
+				names.add((String) a);
+			}
+			return null;
+		});
+		return names;
 	}
 
 	public static RecordEvent findByName(String name) {
@@ -250,69 +313,6 @@ public class RecordRepository {
 		if (groupName != null) {
 			query.setParameter("groupName", groupName);
 		}
-	}
-
-	public static List<String> findAllRecordNames() {
-		ArrayList<String> names = new ArrayList<String>();
-		JPAService.runInTransaction(em -> {
-			Query q = em.createNativeQuery("SELECT DISTINCT a.recordName FROM RecordEvent a");
-			@SuppressWarnings("unchecked")
-			List<Object> records = q.getResultList();
-
-			for (Object a : records) {
-				names.add((String) a);
-			}
-			return null;
-		});
-		return names;
-	}
-
-	public static List<RecordEvent> findAllLoadedRecords() {
-		ArrayList<RecordEvent> recordEventStubs = new ArrayList<>();
-		JPAService.runInTransaction(em -> {
-			Query q = em.createNativeQuery(
-			        "SELECT DISTINCT a.fileName, a.recordFederation, a.recordName, a.ageGrp FROM RecordEvent a");
-			@SuppressWarnings("unchecked")
-			List<Object[]> records = q.getResultList();
-
-			for (Object[] a : records) {
-				RecordEvent e = new RecordEvent();
-				e.setFileName((String) a[0]);
-				e.setRecordFederation((String) a[1]);
-				e.setRecordName((String) a[2]);
-				e.setAgeGrp((String) a[3]);
-				recordEventStubs.add(e);
-			}
-			return null;
-		});
-		return recordEventStubs;
-	}
-
-	public static void clearByExample(RecordEvent re) {
-		JPAService.runInTransaction(em -> {
-			Query q = em.createQuery("DELETE FROM RecordEvent a WHERE "
-			        + "a.fileName = :fn "
-			        + "AND a.recordFederation = :rf "
-			        + "AND a.recordName = :rn "
-			        + "AND a.ageGrp = :ag ");
-			q.setParameter("fn", re.getFileName());
-			q.setParameter("rf", re.getRecordFederation());
-			q.setParameter("rn", re.getRecordName());
-			q.setParameter("ag", re.getAgeGrp());
-			q.executeUpdate();
-			return null;
-		});
-	}
-
-	public static void clearRecordsOriginallyFromFile(String fileName) {
-		JPAService.runInTransaction(em -> {
-			Query q = em.createQuery("DELETE FROM RecordEvent a WHERE "
-			        + "a.fileName = :fn "
-					+ "AND a.groupNameString IS NULL");
-			q.setParameter("fn", fileName);
-			q.executeUpdate();
-			return null;
-		});
 	}
 
 }

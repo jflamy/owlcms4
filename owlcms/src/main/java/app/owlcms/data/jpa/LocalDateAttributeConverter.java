@@ -30,8 +30,7 @@ public class LocalDateAttributeConverter implements AttributeConverter<LocalDate
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see javax.persistence.AttributeConverter#convertToDatabaseColumn(java.lang.
-	 * Object)
+	 * @see javax.persistence.AttributeConverter#convertToDatabaseColumn(java.lang. Object)
 	 */
 	@Override
 	public Date convertToDatabaseColumn(LocalDate locDate) {
@@ -41,8 +40,7 @@ public class LocalDateAttributeConverter implements AttributeConverter<LocalDate
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see javax.persistence.AttributeConverter#convertToEntityAttribute(java.lang.
-	 * Object)
+	 * @see javax.persistence.AttributeConverter#convertToEntityAttribute(java.lang. Object)
 	 */
 	@SuppressWarnings("deprecation")
 	@Override
@@ -51,10 +49,10 @@ public class LocalDateAttributeConverter implements AttributeConverter<LocalDate
 			return null;
 		}
 
-		if (logger.isDebugEnabled()) {
+		if (this.logger.isDebugEnabled()) {
 			Calendar cal = Calendar.getInstance();
 			int timezoneOffset = (cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET)) / (60 * 1000);
-			logger.debug("sqlDate {} realOffset {} TZ={} sqlDateOffset {}", sqlDate, timezoneOffset,
+			this.logger.debug("sqlDate {} realOffset {} TZ={} sqlDateOffset {}", sqlDate, timezoneOffset,
 			        ZoneId.systemDefault(), sqlDate.getTimezoneOffset());
 		}
 
@@ -63,7 +61,7 @@ public class LocalDateAttributeConverter implements AttributeConverter<LocalDate
 		if (sqlDate.getTimezoneOffset() >= 360 && prop != null && prop.contains("h2:")) {
 			// kludge to work around a bug in H2
 			local = sqlDate.toLocalDate().plus(1, ChronoUnit.DAYS);
-			logger.debug("sqlDate fixed {} to {}", sqlDate.toLocalDate(), local);
+			this.logger.debug("sqlDate fixed {} to {}", sqlDate.toLocalDate(), local);
 		} else {
 			// not needed for Postgres
 			local = sqlDate.toLocalDate();

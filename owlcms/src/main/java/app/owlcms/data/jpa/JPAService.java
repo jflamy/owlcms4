@@ -66,9 +66,7 @@ import ch.qos.logback.classic.Logger;
 public class JPAService {
 
 	private static EntityManagerFactory factory;
-
 	private static boolean localDb = false;
-
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(JPAService.class);
 	private static final Logger startLogger = (Logger) LoggerFactory.getLogger(Main.class);
 
@@ -123,6 +121,10 @@ public class JPAService {
 			}
 			setFactory(factory2);
 		}
+	}
+
+	public static boolean isLocalDb() {
+		return JPAService.localDb;
 	}
 
 	public static Properties processSettings(boolean inMemory, boolean reset) throws RuntimeException {
@@ -272,6 +274,66 @@ public class JPAService {
 		}
 	}
 
+	public static void setLocalDb(boolean localDb) {
+		logger.debug("setting localDb {} {}", localDb, LoggerUtils.whereFrom());
+		JPAService.localDb = localDb;
+	}
+
+	/**
+	 * Entity class names.
+	 *
+	 * @return the list
+	 */
+	protected static List<String> entityClassNames() {
+		ImmutableList<String> vals = new ImmutableList.Builder<String>()
+		        .add(Group.class.getName())
+		        .add(Category.class.getName())
+		        .add(Athlete.class.getName())
+		        .add(Platform.class.getName())
+		        .add(Competition.class.getName())
+		        .add(AgeGroup.class.getName())
+		        .add(Config.class.getName())
+		        .add(RecordEvent.class.getName())
+		        .add(Participation.class.getName())
+		        .add(RecordConfig.class.getName())
+		        .build();
+		return vals;
+	}
+
+	/**
+	 * Properties for running in memory (used for tests and demos)
+	 *
+	 * @return the properties
+	 */
+	protected static Properties h2MemProperties(String schemaGeneration) {
+		setLocalDb(true);
+
+		ImmutableMap<String, Object> vals = jpaProperties();
+		Properties props = new Properties();
+		props.putAll(vals);
+
+		// keep the database even if all the connections have timed out
+		// to turn off transactions MVCC=FALSE;MV_STORE=FALSE;LOCK_MODE=0;
+		String url = "jdbc:h2:mem:owlcms;DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4";
+		props.put(JPA_JDBC_URL, url);
+		props.put(JPA_JDBC_USER, "sa");
+		props.put(JPA_JDBC_PASSWORD, "");
+
+		props.put(JPA_JDBC_DRIVER, org.h2.Driver.class.getName());
+		props.put("javax.persistence.schema-generation.database.action", schemaGeneration);
+		props.put(DIALECT, H2Dialect.class.getName());
+
+		startLogger.info("Database: {}, inMemory={}, schema={}", url, true, schemaGeneration);
+		return props;
+	}
+
+	/**
+	 * @param factory the factory to set
+	 */
+	protected static void setFactory(EntityManagerFactory factory) {
+		JPAService.factory = factory;
+	}
+
 	/**
 	 * Gets the factory from code (without a persistance.xml file)
 	 *
@@ -293,7 +355,7 @@ public class JPAService {
 	private static Properties h2FileProperties(String schemaGeneration, String dbUrl, String userName,
 	        String password) {
 		setLocalDb(true);
-		
+
 		ImmutableMap<String, Object> vals = jpaProperties();
 		Properties props = new Properties();
 		props.putAll(vals);
@@ -326,7 +388,7 @@ public class JPAService {
 	private static Properties h2ServerProperties(String schemaGeneration, String dbUrl, String userName,
 	        String password) {
 		setLocalDb(true);
-		
+
 		ImmutableMap<String, Object> vals = jpaProperties();
 		Properties props = new Properties();
 		props.putAll(vals);
@@ -358,9 +420,9 @@ public class JPAService {
 		        .put("hibernate.javax.cache.missing_cache_strategy", "create")
 		        .put("javax.persistence.sharedCache.mode", "ALL").put("hibernate.c3p0.min_size", 5)
 		        .put("hibernate.enable_lazy_load_no_trans", true)
-//                .put("hibernate.c3p0.max_size", 20).put("hibernate.c3p0.acquire_increment", 5)
-//                .put("hibernate.c3p0.timeout", 84200).put("hibernate.c3p0.preferredTestQuery", "SELECT 1")
-//                .put("hibernate.c3p0.testConnectionOnCheckout", true).put("hibernate.c3p0.idle_test_period", 500)
+		        // .put("hibernate.c3p0.max_size", 20).put("hibernate.c3p0.acquire_increment", 5)
+		        // .put("hibernate.c3p0.timeout", 84200).put("hibernate.c3p0.preferredTestQuery", "SELECT 1")
+		        // .put("hibernate.c3p0.testConnectionOnCheckout", true).put("hibernate.c3p0.idle_test_period", 500)
 		        .put("hibernate.connection.provider_class", cp)
 		        .put("hibernate.hikari.minimumIdle", "5")
 		        .put("hibernate.hikari.maximumPoolSize", "15")
@@ -410,11 +472,11 @@ public class JPAService {
 
 		setLocalDb(false);
 		if (postgresHost != null) {
-			setLocalDb(postgresHost.contentEquals("localhost") 
-					|| postgresHost.startsWith("127.")
-					|| postgresHost.contentEquals("::1")
-					|| postgresHost.contentEquals("0:0:0:0:0:0:0:1"));
-		} 
+			setLocalDb(postgresHost.contentEquals("localhost")
+			        || postgresHost.startsWith("127.")
+			        || postgresHost.contentEquals("::1")
+			        || postgresHost.contentEquals("0:0:0:0:0:0:0:1"));
+		}
 		postgresHost = postgresHost == null ? "localhost" : postgresHost;
 		postgresPort = postgresPort == null ? "5432" : postgresPort;
 		postgresDb = postgresDb == null ? "owlcms" : postgresDb;
@@ -435,7 +497,7 @@ public class JPAService {
 		props.put(JPA_JDBC_URL, url);
 		props.put(JPA_JDBC_USER, userName != null ? userName : "owlcms");
 		props.put(JPA_JDBC_PASSWORD, password != null ? password : "db_owlcms");
-		
+
 		if (dbUrl == null) {
 			// fly.io format was parsed in parsePostgresUrl
 			props.put("hibernate.hikari.idleTimeout", "60000"); // 1 minute
@@ -456,9 +518,8 @@ public class JPAService {
 	 * Not enabled by default, protected by a feature switch
 	 * (<code>-DH2ServerPort=9092 or OWLCMS_H2SERVERPORT=9092</code>)
 	 * <p>
-	 * When using a tool to connect, such as the H2 console
-	 * (<code>java -jar h2-1.4.200.jar</code>) or DBVisualizer, the the URL given to
-	 * the tool must include the absolute path to the database for example:
+	 * When using a tool to connect, such as the H2 console (<code>java -jar h2-1.4.200.jar</code>) or DBVisualizer, the
+	 * the URL given to the tool must include the absolute path to the database for example:
 	 *
 	 * <pre>
 	 * jdbc:h2:tcp://localhost:9092/c:/dev/git/owlcms4/owlcms/database/owlcms
@@ -480,70 +541,6 @@ public class JPAService {
 		} catch (SQLException e) {
 			LoggerUtils.logError(logger, e);
 		}
-	}
-
-	/**
-	 * Entity class names.
-	 *
-	 * @return the list
-	 */
-	protected static List<String> entityClassNames() {
-		ImmutableList<String> vals = new ImmutableList.Builder<String>()
-		        .add(Group.class.getName())
-		        .add(Category.class.getName())
-		        .add(Athlete.class.getName())
-		        .add(Platform.class.getName())
-		        .add(Competition.class.getName())
-		        .add(AgeGroup.class.getName())
-		        .add(Config.class.getName())
-		        .add(RecordEvent.class.getName())
-		        .add(Participation.class.getName())
-		        .add(RecordConfig.class.getName())
-		        .build();
-		return vals;
-	}
-
-	/**
-	 * Properties for running in memory (used for tests and demos)
-	 *
-	 * @return the properties
-	 */
-	protected static Properties h2MemProperties(String schemaGeneration) {
-		setLocalDb(true);
-		
-		ImmutableMap<String, Object> vals = jpaProperties();
-		Properties props = new Properties();
-		props.putAll(vals);
-
-		// keep the database even if all the connections have timed out
-		// to turn off transactions MVCC=FALSE;MV_STORE=FALSE;LOCK_MODE=0;
-		String url = "jdbc:h2:mem:owlcms;DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4";
-		props.put(JPA_JDBC_URL, url);
-		props.put(JPA_JDBC_USER, "sa");
-		props.put(JPA_JDBC_PASSWORD, "");
-
-		props.put(JPA_JDBC_DRIVER, org.h2.Driver.class.getName());
-		props.put("javax.persistence.schema-generation.database.action", schemaGeneration);
-		props.put(DIALECT, H2Dialect.class.getName());
-
-		startLogger.info("Database: {}, inMemory={}, schema={}", url, true, schemaGeneration);
-		return props;
-	}
-
-	/**
-	 * @param factory the factory to set
-	 */
-	protected static void setFactory(EntityManagerFactory factory) {
-		JPAService.factory = factory;
-	}
-
-	public static boolean isLocalDb() {
-		return JPAService.localDb;
-	}
-
-	public static void setLocalDb(boolean localDb) {
-		logger.debug("setting localDb {} {}", localDb, LoggerUtils.whereFrom());
-		JPAService.localDb = localDb;
 	}
 
 }

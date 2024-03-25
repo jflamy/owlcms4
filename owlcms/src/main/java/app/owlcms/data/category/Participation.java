@@ -28,11 +28,10 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Association class between Athlete and Category. Holds rankings and points of
- * athlete and category.
+ * Association class between Athlete and Category. Holds rankings and points of athlete and category.
  *
- * An athlete participates in one or more category (when eligible according to
- * age, gender and qualifying total). A category contains zero or more athletes.
+ * An athlete participates in one or more category (when eligible according to age, gender and qualifying total). A
+ * category contains zero or more athletes.
  *
  * @author Jean-François Lamy
  */
@@ -43,58 +42,42 @@ public class Participation implements IRankHolder {
 
 	@Transient
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(Participation.class);
-
 	@ManyToOne(fetch = FetchType.LAZY)
 	@MapsId("athleteId")
 	@JsonIdentityReference(alwaysAsId = true)
 	private Athlete athlete;
-
 	@ManyToOne(fetch = FetchType.LAZY)
 	@MapsId("categoryId")
 	@JsonIdentityReference(alwaysAsId = true)
 	private Category category;
-
 	@Column(columnDefinition = "integer default 0")
 	private int cleanJerkRank;
-
 	@Column(columnDefinition = "integer default 0")
 	private int combinedRank;
-
 	@Column(columnDefinition = "integer default 0")
 	private int customRank;
-
 	@EmbeddedId
 	private ParticipationId id;
-
 	@Column(columnDefinition = "integer default 0")
 	private int snatchRank;
-
 	@Column(columnDefinition = "integer default 0")
 	private int teamCJRank;
-
 	@Column(columnDefinition = "integer default 0")
 	private int teamCombinedRank;
-
 	/**
-	 * Athlete is member of team for the age group. Points will be scored according
-	 * to ranks. An athlete can be qualified for JR and SR, but only on the JR team
-	 * for example.
+	 * Athlete is member of team for the age group. Points will be scored according to ranks. An athlete can be
+	 * qualified for JR and SR, but only on the JR team for example.
 	 */
 	@Column(columnDefinition = "boolean default true")
 	private boolean teamMember = true;
-
 	@Column(columnDefinition = "integer default 0")
 	private int teamRobiRank;
-
 	@Column(columnDefinition = "integer default 0")
 	private int teamSinclairRank;
-
 	@Column(columnDefinition = "integer default 0")
 	private int teamSnatchRank;
-
 	@Column(columnDefinition = "integer default 0")
 	private int teamTotalRank;
-
 	@Column(columnDefinition = "integer default 0")
 	private int totalRank;
 
@@ -134,28 +117,28 @@ public class Participation implements IRankHolder {
 		}
 
 		Participation that = (Participation) o;
-		return Objects.equals(athlete, that.athlete) &&
-		        Objects.equals(category, that.category);
+		return Objects.equals(this.athlete, that.athlete) &&
+		        Objects.equals(this.category, that.category);
 	}
 
 	@JsonIdentityReference(alwaysAsId = true)
 	public Athlete getAthlete() {
-		return athlete;
+		return this.athlete;
 	}
 
 	@JsonIdentityReference(alwaysAsId = true)
 	public Category getCategory() {
-		return category;
+		return this.category;
 	}
 
 	@Transient
 	@JsonIgnore
 	public int getCleanJerkPoints() {
-		return isTeamMember() ? AthleteSorter.pointsFormula(cleanJerkRank) : 0;
+		return isTeamMember() ? AthleteSorter.pointsFormula(this.cleanJerkRank) : 0;
 	}
 
 	public int getCleanJerkRank() {
-		return cleanJerkRank;
+		return this.cleanJerkRank;
 	}
 
 	@Transient
@@ -165,39 +148,39 @@ public class Participation implements IRankHolder {
 	}
 
 	public int getCombinedRank() {
-		return combinedRank;
+		return this.combinedRank;
 	}
 
 	@Transient
 	@JsonIgnore
 	public int getCustomPoints() {
-		return isTeamMember() ? AthleteSorter.pointsFormula(customRank) : 0;
+		return isTeamMember() ? AthleteSorter.pointsFormula(this.customRank) : 0;
 	}
 
 	public int getCustomRank() {
-		return customRank;
+		return this.customRank;
 	}
 
 	public ParticipationId getId() {
-		return id;
+		return this.id;
 	}
 
 	@Transient
 	@JsonIgnore
 	public int getSnatchPoints() {
-		return isTeamMember() ? AthleteSorter.pointsFormula(snatchRank) : 0;
+		return isTeamMember() ? AthleteSorter.pointsFormula(this.snatchRank) : 0;
 	}
 
 	public int getSnatchRank() {
-		return snatchRank;
+		return this.snatchRank;
 	}
 
 	public int getTeamCJRank() {
-		return teamCJRank;
+		return this.teamCJRank;
 	}
 
 	public int getTeamCombinedRank() {
-		return teamCombinedRank;
+		return this.teamCombinedRank;
 	}
 
 	public boolean getTeamMember() {
@@ -205,41 +188,41 @@ public class Participation implements IRankHolder {
 	}
 
 	public int getTeamRobiRank() {
-		return teamRobiRank;
+		return this.teamRobiRank;
 	}
 
 	public int getTeamSinclairRank() {
-		return teamSinclairRank;
+		return this.teamSinclairRank;
 	}
 
 	public int getTeamSnatchRank() {
-		return teamSnatchRank;
+		return this.teamSnatchRank;
 	}
 
 	public int getTeamTotalRank() {
-		return teamTotalRank;
+		return this.teamTotalRank;
 	}
 
 	@Transient
 	@JsonIgnore
 	public int getTotalPoints() {
-		return isTeamMember() ? AthleteSorter.pointsFormula(totalRank) : 0;
+		return isTeamMember() ? AthleteSorter.pointsFormula(this.totalRank) : 0;
 	}
 
 	public int getTotalRank() {
-		return totalRank;
+		return this.totalRank;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(athlete, category);
+		return Objects.hash(this.athlete, this.category);
 	}
 
 	public String long_dump() {
 		return "Participation " + System.identityHashCode(this)
-		        + " [id=" + id
-		        + ", athlete=" + athlete + "(" + System.identityHashCode(athlete) + ")"
-		        + ", category=" + category + "(" + System.identityHashCode(category) + ")"
+		        + " [id=" + this.id
+		        + ", athlete=" + this.athlete + "(" + System.identityHashCode(this.athlete) + ")"
+		        + ", category=" + this.category + "(" + System.identityHashCode(this.category) + ")"
 		        + ", snatchRank=" + getSnatchRank()
 		        + ", cleanJerkRank=" + getCleanJerkRank()
 		        + ", totalRank=" + getTotalRank()
@@ -316,10 +299,10 @@ public class Participation implements IRankHolder {
 
 	@Override
 	public String toString() {
-		return "Participation [athlete=" + athlete + ", category=" + category + "]";
+		return "Participation [athlete=" + this.athlete + ", category=" + this.category + "]";
 	}
 
 	private boolean isTeamMember() {
-		return teamMember;
+		return this.teamMember;
 	}
 }

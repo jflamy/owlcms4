@@ -23,34 +23,31 @@ import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Play a sampled sound. Requires an uncompressed format (WAV), not a compressed
- * (MP3) format.
+ * Play a sampled sound. Requires an uncompressed format (WAV), not a compressed (MP3) format.
  *
  * @author jflamy
  */
 public class Sound {
 	static final String SOUND_PREFIX = "/sounds/";
-
 	final Logger logger = (Logger) LoggerFactory.getLogger(Sound.class);
 	private Mixer mixer;
 	private InputStream resource;
-
 	private String soundURL;
 
 	public Sound(Mixer mixer, String soundRelativeURL) throws IllegalArgumentException {
 		this.mixer = mixer;
 		this.soundURL = SOUND_PREFIX + soundRelativeURL;
 		try {
-			this.resource = ResourceWalker.getResourceAsStream(soundURL);
+			this.resource = ResourceWalker.getResourceAsStream(this.soundURL);
 		} catch (FileNotFoundException e) {
-			logger.error("cannot find sound {}", soundURL);
+			this.logger.error("cannot find sound {}", this.soundURL);
 			this.resource = null;
 		}
 	}
 
 	public synchronized void emit() {
 		try {
-			if (mixer == null) {
+			if (this.mixer == null) {
 				return;
 			}
 
@@ -58,8 +55,8 @@ public class Sound {
 			// error from AudioSystem.getAudioInputStream
 			// so we force WaveFileReader.
 			WaveFileReader wfr = new WaveFileReader();
-			final AudioInputStream inputStream = wfr.getAudioInputStream(resource);
-			final Clip clip = AudioSystem.getClip(mixer.getMixerInfo());
+			final AudioInputStream inputStream = wfr.getAudioInputStream(this.resource);
+			final Clip clip = AudioSystem.getClip(this.mixer.getMixerInfo());
 			clip.open(inputStream);
 
 			// clip.start() creates a native thread 'behind the scenes'
@@ -77,7 +74,7 @@ public class Sound {
 			clip.start();
 
 		} catch (Exception e) {
-			logger.error("could not emit {} {}", soundURL, LoggerUtils./**/stackTrace(e));
+			this.logger.error("could not emit {} {}", this.soundURL, LoggerUtils./**/stackTrace(e));
 		}
 	}
 

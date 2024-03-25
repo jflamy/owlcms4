@@ -10,8 +10,8 @@ import com.github.appreciated.css.grid.interfaces.TemplateRowsAndColsUnit;
  * A class which mimics the css value "auto"
  */
 public class Auto implements AutoRowAndColUnit, RowOrColUnit, TemplateRowsAndColsUnit, MinMaxUnit, TemplateAreaUnit {
-    @Override
-    public String getValue() {
-        return "auto";
-    }
+	@Override
+	public String getValue() {
+		return "auto";
+	}
 }

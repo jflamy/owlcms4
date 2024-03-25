@@ -29,9 +29,9 @@ public interface ResultsParametersReader extends ResultsParameters, FOPParameter
 
 		@SuppressWarnings("unused")
 		Logger logger = (Logger) LoggerFactory.getLogger(ResultsParametersReader.class);
-		//logger.debug("ResultsParameterReader readParams");
-		
-//		var fop = getFop();
+		// logger.debug("ResultsParameterReader readParams");
+
+		// var fop = getFop();
 
 		// handle previous parameters by calling superclass
 		Map<String, List<String>> newParameterMap = FOPParametersReader.super.readParams(location, parametersMap);
@@ -42,19 +42,19 @@ public interface ResultsParametersReader extends ResultsParameters, FOPParameter
 			List<String> ageGroupNames = parametersMap.get(AGEGROUP);
 			if (ageGroupNames != null && ageGroupNames.get(0) != null) {
 				ageGroup = AgeGroupRepository.findByName(ageGroupNames.get(0));
-			} 
-//			else if (fop != null && fop.getVideoAgeGroup() != null) {
-//				ageGroup = fop.getVideoAgeGroup();
-//			}
+			}
+			// else if (fop != null && fop.getVideoAgeGroup() != null) {
+			// ageGroup = fop.getVideoAgeGroup();
+			// }
 			if (ageGroup != null) {
 				newParameterMap.put(AGEGROUP, Arrays.asList(URLUtils.urlEncode(ageGroup.getName())));
 			}
 			this.setAgeGroup(ageGroup);
-		} 
-//		else if (fop != null && fop.getVideoAgeGroup() != null) {
-//			ageGroup = fop.getVideoAgeGroup();
-//			newParameterMap.put(AGEGROUP, Arrays.asList(URLUtils.urlEncode(ageGroup.getName())));
-//		} 
+		}
+		// else if (fop != null && fop.getVideoAgeGroup() != null) {
+		// ageGroup = fop.getVideoAgeGroup();
+		// newParameterMap.put(AGEGROUP, Arrays.asList(URLUtils.urlEncode(ageGroup.getName())));
+		// }
 		else {
 			newParameterMap.remove(AGEGROUP);
 		}

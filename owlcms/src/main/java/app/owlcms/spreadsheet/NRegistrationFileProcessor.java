@@ -178,7 +178,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 
 				// logger.info(getTranslation("ReadingData_"));
 				XLSReadStatus status = reader.read(inputStream, beans);
-				logger.info("Read {} groups.", groups.size());
+				this.logger.info("Read {} groups.", groups.size());
 				if (!dryRun) {
 					updatePlatformsAndGroups(groups);
 				}
@@ -186,35 +186,12 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 				appendErrors(displayUpdater, errorConsumer, status);
 				return groups.size();
 			} catch (InvalidFormatException | IOException e) {
-				LoggerUtils.logError(logger, e);
+				LoggerUtils.logError(this.logger, e);
 			}
 		} catch (IOException | SAXException e1) {
-			LoggerUtils.logError(logger, e1);
+			LoggerUtils.logError(this.logger, e1);
 		}
 		return 0;
-	}
-	
-	private void appendErrors(Runnable updater, Consumer<String> appender, XLSReadStatus status) {
-		@SuppressWarnings("unchecked")
-		List<XLSReadMessage> errors = status.getReadMessages();
-		for (XLSReadMessage m : errors) {
-			String cleanMessage = cleanMessage(m.getMessage());
-			appender.accept(cleanMessage);
-			Exception e = m.getException();
-			if (e != null) {
-				Throwable cause = e.getCause();
-				String causeMessage = cause != null ? cause.getLocalizedMessage() : e.getLocalizedMessage();
-				// causeMessage = LoggerUtils.stackTrace(cause);
-				causeMessage = causeMessage != null ? causeMessage : e.toString();
-				if (causeMessage.contentEquals("text")) {
-					causeMessage = "Empty or invalid.";
-				}
-				appender.accept(causeMessage);
-				logger.debug(cleanMessage + causeMessage);
-			}
-			appender.accept(System.lineSeparator());
-		}
-		updater.run();
 	}
 
 	public boolean isCreateMissingGroups() {
@@ -350,10 +327,10 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 					try {
 						group.copy(readGroup);
 					} catch (IllegalAccessException | InvocationTargetException e) {
-						logger.error(LoggerUtils.shortStackTrace(e));
+						this.logger.error(LoggerUtils.shortStackTrace(e));
 					}
 				}
-				
+
 				if (platformName == null || platformName.isBlank()) {
 					platformName = newDefault;
 				}
@@ -380,11 +357,34 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 		displayUpdater.run();
 	}
 
+	private void appendErrors(Runnable updater, Consumer<String> appender, XLSReadStatus status) {
+		@SuppressWarnings("unchecked")
+		List<XLSReadMessage> errors = status.getReadMessages();
+		for (XLSReadMessage m : errors) {
+			String cleanMessage = cleanMessage(m.getMessage());
+			appender.accept(cleanMessage);
+			Exception e = m.getException();
+			if (e != null) {
+				Throwable cause = e.getCause();
+				String causeMessage = cause != null ? cause.getLocalizedMessage() : e.getLocalizedMessage();
+				// causeMessage = LoggerUtils.stackTrace(cause);
+				causeMessage = causeMessage != null ? causeMessage : e.toString();
+				if (causeMessage.contentEquals("text")) {
+					causeMessage = "Empty or invalid.";
+				}
+				appender.accept(causeMessage);
+				this.logger.debug(cleanMessage + causeMessage);
+			}
+			appender.accept(System.lineSeparator());
+		}
+		updater.run();
+	}
+
 	private String cellToString(Cell cell) {
 		switch (cell.getCellType()) {
 			case NUMERIC:
 				if (DateUtil.isCellDateFormatted(cell)) {
-					logger.debug("Date Cell {}", cell.getDateCellValue());
+					this.logger.debug("Date Cell {}", cell.getDateCellValue());
 				} else {
 					return this.formatter.formatCellValue(cell);
 				}
@@ -572,13 +572,14 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 					if (trim.isBlank()) {
 						continue;
 					}
-					
-					iColumn = cell.getColumnIndex();		
+
+					iColumn = cell.getColumnIndex();
 					curRowEmpty = false;
 					int delayedOrder = ArrayUtils.indexOf(this.delayedSetterColumns, iColumn);
 					if (delayedOrder < 0) {
-						if (iColumn < this.setterForColumn.length && this.setterForColumn[iColumn] != null && cell != null) {
-							logger.debug("setting column {} {}", iColumn, cell.getAddress());
+						if (iColumn < this.setterForColumn.length && this.setterForColumn[iColumn] != null
+						        && cell != null) {
+							this.logger.debug("setting column {} {}", iColumn, cell.getAddress());
 							this.setterForColumn[iColumn].accept(ra, cellValue.trim(), cell);
 						}
 					} else {
@@ -593,7 +594,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 				// second pass, call the delayed setters in the correct order.
 				for (int delayedOrder = 0; delayedOrder < DelayedSetter.values().length; delayedOrder++) {
 					Integer setterColumn = this.delayedSetterColumns[delayedOrder];
-					logger.debug("delayed setter [{}] {} {}", delayedOrder, DelayedSetter.values()[delayedOrder],
+					this.logger.debug("delayed setter [{}] {} {}", delayedOrder, DelayedSetter.values()[delayedOrder],
 					        setterColumn);
 					if (setterColumn != null && delayedSetterCells[delayedOrder] != null) {
 						this.setterForColumn[setterColumn].accept(ra, delayedSetterValues[delayedOrder],
@@ -607,7 +608,5 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 		}
 		return new AthleteInput(athletes);
 	}
-	
-	
 
 }

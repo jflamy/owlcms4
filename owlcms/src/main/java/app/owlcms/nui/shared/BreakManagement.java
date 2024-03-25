@@ -570,7 +570,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		this.countdownTypeLayout = new VerticalLayout();
 		this.countdownTypeRadios = new RadioButtonGroup<>();
 		this.countdownTypeRadios.setItems(CountdownType.values());
-		this.countdownTypeRadios.setRenderer(new TextRenderer<CountdownType>(
+		this.countdownTypeRadios.setRenderer(new TextRenderer<>(
 		        (item) -> getTranslation(CountdownType.class.getSimpleName() + "." + item.name())));
 
 		Locale locale = new Locale("en", "SE"); // ISO 8601 style dates and time
@@ -713,6 +713,11 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		setEnablement();
 	}
 
+	private void enableStartCountdown(boolean b) {
+		// logger.debug("enabled {} {}",b,LoggerUtils.whereFrom());
+		this.startCountdown.setEnabled(b);
+	}
+
 	private ComponentEventListener<ClickEvent<Button>> endBreak(Dialog dialog) {
 		return (e) -> {
 			OwlcmsSession.withFop(fop -> {
@@ -816,7 +821,6 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		// e.getSource().setEnabled(false);
 		// logger.debug("start break disable start");
 		setEnablement();
-		return;
 	}
 
 	private void masterStartBreak(FieldOfPlay fop) {
@@ -893,7 +897,6 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 				fop.getBreakTimer().setEnd(null);
 			}
 		});
-		return;
 	}
 
 	private void setBreakType(BreakType breakType) {
@@ -946,11 +949,6 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 			this.endInterruption.setEnabled(!this.stopCompetition.isEnabled());
 		}
 
-	}
-
-	private void enableStartCountdown(boolean b) {
-		// logger.debug("enabled {} {}",b,LoggerUtils.whereFrom());
-		this.startCountdown.setEnabled(b);
 	}
 
 	private void setCeremonyButtonHighlight(BreakType breakType2) {
@@ -1011,15 +1009,15 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		CountdownType value = this.countdownTypeRadios.getValue();
 		if (value != null) {
 			switch (value) {
-			case DURATION:
-				this.timeRemaining = (long) targetTimeDuration;
-				break;
-			case INDEFINITE:
-				this.timeRemaining = null;
-				break;
-			case TARGET:
-				this.timeRemaining = (long) targetTimeDuration;
-				break;
+				case DURATION:
+					this.timeRemaining = (long) targetTimeDuration;
+					break;
+				case INDEFINITE:
+					this.timeRemaining = null;
+					break;
+				case TARGET:
+					this.timeRemaining = (long) targetTimeDuration;
+					break;
 			}
 		}
 	}
@@ -1198,47 +1196,48 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 			int fopLiveTimeRemaining = fopBreakTimer.liveTimeRemaining();
 			Integer fopBreakDuration = fopBreakTimer.getBreakDuration();
 
-			// logger.debug("syncWithFop {} {} {}", fopState, fop.getBreakTimer().liveTimeRemaining(),fop.getBreakTimer().isRunning());
+			// logger.debug("syncWithFop {} {} {}", fopState,
+			// fop.getBreakTimer().liveTimeRemaining(),fop.getBreakTimer().isRunning());
 
 			running[0] = false;
 
 			switch (fopState) {
-			case BREAK:
-			case INACTIVE:
-				BreakType breakType2 = fop.getBreakType();
-				if (breakType2 == BreakType.GROUP_DONE || fopState == FOPState.INACTIVE) {
-					if (this.logger.isDebugEnabled()) {
-						this.logger.debug("syncWithFOP: explicit BEFORE_INTRODUCTION");
+				case BREAK:
+				case INACTIVE:
+					BreakType breakType2 = fop.getBreakType();
+					if (breakType2 == BreakType.GROUP_DONE || fopState == FOPState.INACTIVE) {
+						if (this.logger.isDebugEnabled()) {
+							this.logger.debug("syncWithFOP: explicit BEFORE_INTRODUCTION");
+						}
+						breakType2 = BreakType.BEFORE_INTRODUCTION;
+						this.countdownRadios.setValue(breakType2);
+						computeDefaultTimeValues();
+						setCountdownTypeValue(CountdownType.TARGET);
+						setBreakType(breakType2);
+						return;
 					}
-					breakType2 = BreakType.BEFORE_INTRODUCTION;
-					this.countdownRadios.setValue(breakType2);
-					computeDefaultTimeValues();
-					setCountdownTypeValue(CountdownType.TARGET);
+
 					setBreakType(breakType2);
-					return;
-				}
+					CountdownType ct = fop.getCountdownType();
+					setCountdownType(ct);
+					if (ct == CountdownType.INDEFINITE) {
+						fopLiveTimeRemaining = (int) DEFAULT_DURATION.toMillis();
+					}
 
-				setBreakType(breakType2);
-				CountdownType ct = fop.getCountdownType();
-				setCountdownType(ct);
-				if (ct == CountdownType.INDEFINITE) {
-					fopLiveTimeRemaining = (int) DEFAULT_DURATION.toMillis();
-				}
+					// override from FOP
+					setDurationFields(fopLiveTimeRemaining, fopBreakDuration);
+					if (ct != null) {
+						setCountdownTypeValue(ct);
+					} else {
+						setCountdownTypeValue(mapBreakTypeToDurationValue(this.getBreakType()));
+					}
 
-				// override from FOP
-				setDurationFields(fopLiveTimeRemaining, fopBreakDuration);
-				if (ct != null) {
-					setCountdownTypeValue(ct);
-				} else {
-					setCountdownTypeValue(mapBreakTypeToDurationValue(this.getBreakType()));
-				}
-
-				if (breakType2 == BreakType.GROUP_DONE) {
-					computeDefaultTimeValues();
-				}
-				break;
-			default:
-				break;
+					if (breakType2 == BreakType.GROUP_DONE) {
+						computeDefaultTimeValues();
+					}
+					break;
+				default:
+					break;
 			}
 
 		});

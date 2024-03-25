@@ -239,17 +239,6 @@ public class FieldOfPlay implements IUnregister {
 		this.setEventForwarder(new EventForwarder(this));
 	}
 
-	@Override
-	public void unregister() {
-		this.fopEventBus.unregister(this);
-		if (this.getEventForwarder() != null) {
-			this.getEventForwarder().unregister();
-		}
-		if (this.getMqttMonitor() != null) {
-			this.getMqttMonitor().unregister();
-		}
-	}
-
 	public void broadcast(String string) {
 		getUiEventBus().post(new UIEvent.Broadcast(string, this));
 	}
@@ -368,6 +357,10 @@ public class FieldOfPlay implements IUnregister {
 
 	public List<Athlete> getDisplayOrder() {
 		return this.displayOrder;
+	}
+
+	public EventForwarder getEventForwarder() {
+		return this.eventForwarder;
 	}
 
 	/**
@@ -988,10 +981,10 @@ public class FieldOfPlay implements IUnregister {
 
 		this.uiEventBus = new AsyncEventBus("UI-" + this.name, new ThreadPoolExecutor(8, Integer.MAX_VALUE,
 		        60L, TimeUnit.SECONDS,
-		        new SynchronousQueue<Runnable>()));
+		        new SynchronousQueue<>()));
 		this.postBus = new AsyncEventBus("POST-" + this.name, new ThreadPoolExecutor(1, Integer.MAX_VALUE,
 		        60L, TimeUnit.SECONDS,
-		        new SynchronousQueue<Runnable>()));
+		        new SynchronousQueue<>()));
 	}
 
 	public boolean isAnnouncerDecisionImmediate() {
@@ -1165,7 +1158,6 @@ public class FieldOfPlay implements IUnregister {
 			setRecordsJson(Json.createNull());
 			setChallengedRecords(List.of());
 			setNewRecords(List.of());
-			return;
 		} else {
 			setRecordsJson(recordsJson);
 			setChallengedRecords(challengedRecords);
@@ -1216,6 +1208,10 @@ public class FieldOfPlay implements IUnregister {
 
 	public void setCountdownType(CountdownType countdownType) {
 		this.countdownType = countdownType;
+	}
+
+	public void setEventForwarder(EventForwarder eventForwarder) {
+		this.eventForwarder = eventForwarder;
 	}
 
 	/**
@@ -1328,7 +1324,6 @@ public class FieldOfPlay implements IUnregister {
 		}
 		setWeightAtLastStart(0);
 		testStartLifting(null, null);
-		return;
 	}
 
 	/**
@@ -1342,6 +1337,17 @@ public class FieldOfPlay implements IUnregister {
 		        (group != null ? group.getName() : group), origin);
 		// intentionally posting an event for testing purposes
 		fopEventPost(new StartLifting(origin));
+	}
+
+	@Override
+	public void unregister() {
+		this.fopEventBus.unregister(this);
+		if (this.getEventForwarder() != null) {
+			this.getEventForwarder().unregister();
+		}
+		if (this.getMqttMonitor() != null) {
+			this.getMqttMonitor().unregister();
+		}
 	}
 
 	void emitFinalWarning() {
@@ -1406,10 +1412,10 @@ public class FieldOfPlay implements IUnregister {
 		boolean firstCJ = true;
 		for (Athlete a : this.liftingOrder) {
 			Integer firstCJValue = a.getCleanJerk1AsInteger();
-			logger.trace("{} {} {}", a.getShortName(), a.getAttemptsDone(), a.getCleanJerk1AsInteger());
+			this.logger.trace("{} {} {}", a.getShortName(), a.getAttemptsDone(), a.getCleanJerk1AsInteger());
 			if (a.getAttemptsDone() != 3 && (firstCJValue == null || (firstCJValue != null && firstCJValue != 0))) {
 				// 0 means athlete withdrew
-				logger.trace("no break because of {}", a.getShortName());
+				this.logger.trace("no break because of {}", a.getShortName());
 				firstCJ = false;
 				break;
 			}
@@ -1516,20 +1522,20 @@ public class FieldOfPlay implements IUnregister {
 			if (waitForAnnouncer) {
 				// we will get a second JuryDecision event, coming this time from the announcer
 				// we postpone processing until then
-				toBeAnnouncedJuryDecision = e;
+				this.toBeAnnouncedJuryDecision = e;
 				pushOutUIEvent(juryNotificationEvent);
 				return;
 			}
 
-			if (toBeAnnouncedJuryDecision != null) {
+			if (this.toBeAnnouncedJuryDecision != null) {
 				// we are in announcer-controlled mode, and when the jury pressed the button,
 				// we stored their decision.
 				// now we have received a second jurydecision event, this time from the announcer
 				// that indicates that the stored decision has been announced and must be processed.
-				e = toBeAnnouncedJuryDecision;
-				toBeAnnouncedJuryDecision = null;
+				e = this.toBeAnnouncedJuryDecision;
+				this.toBeAnnouncedJuryDecision = null;
 			} else {
-				// we are in immediate mode.  e is the jury decision to be processed.
+				// we are in immediate mode. e is the jury decision to be processed.
 				// nothing to do.
 			}
 
@@ -2000,7 +2006,7 @@ public class FieldOfPlay implements IUnregister {
 			}
 		}
 
-		if (state == BREAK && getBreakType() == FIRST_CJ) {
+		if (this.state == BREAK && getBreakType() == FIRST_CJ) {
 			// already in the break
 			return;
 		}
@@ -2941,14 +2947,6 @@ public class FieldOfPlay implements IUnregister {
 	private void weightChangeDoNotDisturb(WeightChange e) {
 		recomputeOrderAndRanks(e.isResultChange());
 		uiDisplayCurrentAthleteAndTime(false, e, false);
-	}
-
-	public EventForwarder getEventForwarder() {
-		return eventForwarder;
-	}
-
-	public void setEventForwarder(EventForwarder eventForwarder) {
-		this.eventForwarder = eventForwarder;
 	}
 
 }

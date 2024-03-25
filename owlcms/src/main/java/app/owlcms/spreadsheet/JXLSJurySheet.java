@@ -27,14 +27,18 @@ public class JXLSJurySheet extends JXLSWorkbookStreamSource {
 	Logger logger = LoggerFactory.getLogger(JXLSJurySheet.class);
 
 	public JXLSJurySheet() {
-		super();
+	}
+
+	@Override
+	public List<Athlete> getSortedAthletes() {
+		return AthleteSorter
+		        .displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getGroup(), isExcludeNotWeighed()));
 	}
 
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see
-	 * org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
+	 * @see org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
 	 * configureTransformer(net.sf.jxls.transformer.XLSTransformer )
 	 */
 	@Override
@@ -43,14 +47,8 @@ public class JXLSJurySheet extends JXLSWorkbookStreamSource {
 		if (!fileName.startsWith("Jury.")) {
 			transformer.markAsFixedSizeCollection("athletes");
 		} else {
-			logger./**/warn/**/("not setting fixed size");
+			this.logger./**/warn/**/("not setting fixed size");
 		}
-	}
-
-	@Override
-	public List<Athlete> getSortedAthletes() {
-		return AthleteSorter
-		        .displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getGroup(), isExcludeNotWeighed()));
 	}
 
 }

@@ -41,30 +41,8 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 	private Consumer<Workbook> postProcessor;
 
 	public JXLSStartingListDocs() {
-		super();
 		this.setExcludeNotWeighed(false);
 	}
-
-	@Override
-	protected void postProcess(Workbook workbook) {
-		if (postProcessor != null) {
-			postProcessor.accept(workbook);
-		}
-	}
-
-	public Consumer<Workbook> getPostProcessor() {
-		return postProcessor;
-	}
-
-	public void setPostProcessor(Consumer<Workbook> postProcessor) {
-		this.postProcessor = postProcessor;
-	}
-
-//	@Override
-//	protected List<Athlete> getSortedAthletes() {
-//		List<Athlete> registrationOrderCopy = AthleteSorter.registrationOrderCopy(sortedAthletes);
-//		return registrationOrderCopy;
-//	}
 
 	public void createAgeGroupColumns(int listColumn, int catColumn) {
 		setPostProcessor((w) -> {
@@ -217,13 +195,35 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 					}
 					nonContentCounter++;
 				}
-				if (nonContentCounter > 5)
+				if (nonContentCounter > 5) {
 					break;
+				}
 			}
 			sheet.setColumnHidden(sourceCol, true);
 
 			sheet.addMergedRegion(new CellRangeAddress(4, 4, 0, listColumn - 1 + prefixes.size()));
 			w.setPrintArea(0, 0, listColumn - 1 + prefixes.size(), 0, lastLine);
 		});
+	}
+
+	public Consumer<Workbook> getPostProcessor() {
+		return this.postProcessor;
+	}
+
+	// @Override
+	// protected List<Athlete> getSortedAthletes() {
+	// List<Athlete> registrationOrderCopy = AthleteSorter.registrationOrderCopy(sortedAthletes);
+	// return registrationOrderCopy;
+	// }
+
+	public void setPostProcessor(Consumer<Workbook> postProcessor) {
+		this.postProcessor = postProcessor;
+	}
+
+	@Override
+	protected void postProcess(Workbook workbook) {
+		if (this.postProcessor != null) {
+			this.postProcessor.accept(workbook);
+		}
 	}
 }

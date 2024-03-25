@@ -102,6 +102,34 @@ public class CategoryRepository {
 		return (Category) query.getResultList().stream().findFirst().orElse(null);
 	}
 
+	public static List<Category> doFindEligibleCategories(Athlete a, Gender gender, Integer ageFromFields, Double bw,
+	        int qualifyingTotal) {
+		List<Category> allEligible = CategoryRepository.findByGenderAgeBW(gender, ageFromFields, null);
+		logger.debug/* edit */("allEligible bw={} {} -- {}", bw, allEligible.size(), LoggerUtils.whereFrom());
+
+		// if youth F >81, athlete may be jr87 or jr>87
+		if ((bw != null && bw > 998) && !allEligible.isEmpty()) {
+			double bodyWeight = allEligible.get(0).getMinimumWeight() + 1;
+			List<Category> otherEligibles = CategoryRepository.findByGenderAgeBW(gender, ageFromFields, bodyWeight);
+			HashSet<Category> allEligibleSet = new HashSet<>(allEligible);
+			for (Category otherEligible : otherEligibles) {
+				if (!otherEligible.sameAsAny(allEligibleSet)) {
+					allEligible.add(otherEligible);
+				}
+			}
+			allEligible.sort(new RegistrationPreferenceComparator());
+		}
+
+		allEligible = allEligible.stream()
+		        .filter(c -> (qualifyingTotal >= c.getQualifyingTotal()))
+		        .peek(c -> logger.debug/* edit */("bw {}  c.getMinimumWeight {} c.getMaximumWeight {} ---> {}",
+		                bw, c.getMinimumWeight(), c.getMaximumWeight(),
+		                (bw == null || (bw > c.getMinimumWeight() && bw <= c.getMaximumWeight()))))
+		        .filter(c -> (bw == null || (bw > c.getMinimumWeight() && bw <= c.getMaximumWeight())))
+		        .collect(Collectors.toList());
+		return allEligible;
+	}
+
 	public static List<Category> doFindFiltered(EntityManager em, String name, Gender gender, AgeDivision ageDivision,
 	        AgeGroup ageGroup, Integer age, Double bodyWeight, Boolean active, int offset, int limit) {
 		String qlString = "select c from Category c"
@@ -360,33 +388,5 @@ public class CategoryRepository {
 		if (gender != null) {
 			query.setParameter("gender", gender);
 		}
-	}
-
-	public static List<Category> doFindEligibleCategories(Athlete a, Gender gender, Integer ageFromFields, Double bw,
-	        int qualifyingTotal) {
-		List<Category> allEligible = CategoryRepository.findByGenderAgeBW(gender, ageFromFields, null);
-		logger.debug/*edit*/("allEligible bw={} {} -- {}", bw, allEligible.size(), LoggerUtils.whereFrom());
-
-		// if youth F >81, athlete may be jr87 or jr>87
-		if ((bw != null && bw > 998) && !allEligible.isEmpty()) {
-			double bodyWeight = allEligible.get(0).getMinimumWeight() + 1;
-			List<Category> otherEligibles = CategoryRepository.findByGenderAgeBW(gender, ageFromFields, bodyWeight);
-			HashSet<Category> allEligibleSet = new HashSet<Category>(allEligible);
-			for (Category otherEligible : otherEligibles) {
-				if (!otherEligible.sameAsAny(allEligibleSet)) {
-					allEligible.add(otherEligible);
-				}
-			}
-			allEligible.sort(new RegistrationPreferenceComparator());
-		}
-
-		allEligible = allEligible.stream()
-		        .filter(c -> (qualifyingTotal >= c.getQualifyingTotal()))
-		        .peek(c -> logger.debug/*edit*/("bw {}  c.getMinimumWeight {} c.getMaximumWeight {} ---> {}",
-		                bw, c.getMinimumWeight(), c.getMaximumWeight(),
-		                (bw == null || (bw > c.getMinimumWeight() && bw <= c.getMaximumWeight()))))
-		        .filter(c -> (bw == null || (bw > c.getMinimumWeight() && bw <= c.getMaximumWeight())))
-		        .collect(Collectors.toList());
-		return allEligible;
 	}
 }

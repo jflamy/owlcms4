@@ -69,7 +69,8 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 
 		Button competition = openInNewTabNoParam(CompetitionContent.class,
 		        Translator.translate("CompetitionInformation"));
-		Button config = openInNewTabNoParam(ConfigContent.class, Translator.translate("Config.Title"), VaadinIcon.COG.create());
+		Button config = openInNewTabNoParam(ConfigContent.class, Translator.translate("Config.Title"),
+		        VaadinIcon.COG.create());
 		Button ageGroups = openInNewTabNoParam(AgeGroupContent.class, Translator.translate("DefineAgeGroups"));
 		Button groups = openInNewTabNoParam(GroupContent.class, Translator.translate("DefineGroups"));
 		Button platforms = openInNewTabNoParam(PlatformContent.class, Translator.translate("DefineFOP"));
@@ -194,12 +195,12 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		List<String> groupNames = params.get("group");
 		if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
 			String groupName = groupNames.get(0);
-			currentGroup = GroupRepository.findByName(groupName);
+			this.currentGroup = GroupRepository.findByName(groupName);
 		} else {
-			currentGroup = null;
+			this.currentGroup = null;
 		}
-		if (currentGroup != null) {
-			params.put("group", Arrays.asList(URLUtils.urlEncode(currentGroup.getName())));
+		if (this.currentGroup != null) {
+			params.put("group", Arrays.asList(URLUtils.urlEncode(this.currentGroup.getName())));
 		} else {
 			params.remove("group");
 		}

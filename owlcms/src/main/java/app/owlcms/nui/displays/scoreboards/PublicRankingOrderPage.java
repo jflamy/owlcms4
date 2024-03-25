@@ -117,16 +117,16 @@ public class PublicRankingOrderPage extends AbstractResultsDisplayPage {
 		// when navigating to the page, Vaadin will call setParameter+readParameters
 		// these parameters will be applied.
 		setDefaultParameters(QueryParameters.simple(Map.of(
-				SoundParameters.SILENT, "true",
-				SoundParameters.DOWNSILENT, "true",
-				DisplayParameters.DARK, "true",
-				DisplayParameters.LEADERS, "true",
-				DisplayParameters.RECORDS, "true",
-				DisplayParameters.VIDEO, "false",
-				DisplayParameters.PUBLIC, "true",
-				SoundParameters.SINGLEREF, "false",
-				DisplayParameters.ABBREVIATED,
-				Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
+		        SoundParameters.SILENT, "true",
+		        SoundParameters.DOWNSILENT, "true",
+		        DisplayParameters.DARK, "true",
+		        DisplayParameters.LEADERS, "true",
+		        DisplayParameters.RECORDS, "true",
+		        DisplayParameters.VIDEO, "false",
+		        DisplayParameters.PUBLIC, "true",
+		        SoundParameters.SINGLEREF, "false",
+		        DisplayParameters.ABBREVIATED,
+		        Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")))));
 	}
 
 	protected void setMedalsBoard(ResultsMedals medalsBoard) {

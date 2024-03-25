@@ -16,7 +16,7 @@ public class AbstractTop extends Results implements TopParameters {
 
 	@Override
 	final public AgeDivision getAgeDivision() {
-		return ageDivision;
+		return this.ageDivision;
 	}
 
 	@Override
@@ -26,7 +26,7 @@ public class AbstractTop extends Results implements TopParameters {
 
 	@Override
 	final public String getAgeGroupPrefix() {
-		return ageGroupPrefix;
+		return this.ageGroupPrefix;
 	}
 
 	@Override

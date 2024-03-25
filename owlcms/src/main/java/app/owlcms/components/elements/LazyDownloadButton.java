@@ -31,26 +31,23 @@ import com.vaadin.flow.shared.Registration;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Extension of anchor, that will display a vaadin button as clickable instance
- * to initiate a download. The download content is generated at click time.
+ * Extension of anchor, that will display a vaadin button as clickable instance to initiate a download. The download
+ * content is generated at click time.
  *
  * @author Stefan Uebe
- * @implNote Copied from
- *           https://github.com/stefanuebe/vaadin-lazy-download-button
+ * @implNote Copied from https://github.com/stefanuebe/vaadin-lazy-download-button
  */
 
 @SuppressWarnings("serial")
 public class LazyDownloadButton extends Button {
-	
-	Logger logger = (Logger) LoggerFactory.getLogger(LazyDownloadButton.class);
 
 	public static class DownloadStartsEvent extends ComponentEvent<LazyDownloadButton> {
 
 		private final DomEvent clientSideEvent;
 
 		/**
-		 * Creates a new event using the given source and indicator whether the event
-		 * originated from the client side or the server side.
+		 * Creates a new event using the given source and indicator whether the event originated from the client side or
+		 * the server side.
 		 *
 		 * @param source     the source component
 		 * @param fromClient <code>true</code> if the event originated from the client
@@ -61,16 +58,15 @@ public class LazyDownloadButton extends Button {
 		}
 
 		public DomEvent getClientSideEvent() {
-			return clientSideEvent;
+			return this.clientSideEvent;
 		}
 	}
 
 	private static final String DEFAULT_FILE_NAME = "download";
 	private static final Supplier<String> DEFAULT_FILE_NAME_SUPPLIER = () -> DEFAULT_FILE_NAME;
+	Logger logger = (Logger) LoggerFactory.getLogger(LazyDownloadButton.class);
 	private Anchor anchor;
-
 	private Supplier<String> fileNameCallback;
-
 	private InputStreamFactory inputStreamCallback;
 
 	public LazyDownloadButton() {
@@ -99,23 +95,20 @@ public class LazyDownloadButton extends Button {
 
 	/**
 	 * Creates a download button.
-	 * 
+	 *
 	 * The first two parameters are used for the button display.
 	 * <p>
-	 * The third parameter is a callback, that is used to generate the download file
-	 * name
+	 * The third parameter is a callback, that is used to generate the download file name
 	 * <p/>
 	 * <p>
-	 * The fourth parameter is a callback to generate the input stream sent to the
-	 * client. This callback will be called in a separate thread (so that the UI
-	 * thread is not blocked).
+	 * The fourth parameter is a callback to generate the input stream sent to the client. This callback will be called
+	 * in a separate thread (so that the UI thread is not blocked).
 	 * <p/>
 	 * <p>
-	 * You can add an additional listener using
-	 * {@link #addDownloadStartsListener(ComponentEventListener)} for when the
+	 * You can add an additional listener using {@link #addDownloadStartsListener(ComponentEventListener)} for when the
 	 * download starts
 	 * </p>
-	 * 
+	 *
 	 * @param text                button text
 	 * @param icon                button icon
 	 * @param fileNameCallback    callback for file name generation
@@ -145,12 +138,12 @@ public class LazyDownloadButton extends Button {
 				Objects.requireNonNull(getFileNameCallback(), "File name callback must not be null");
 				Objects.requireNonNull(getInputStreamCallback(), "Input stream callback must not be null");
 
-				if (anchor == null) {
-					anchor = new Anchor();
-					Element anchorElement = anchor.getElement();
+				if (this.anchor == null) {
+					this.anchor = new Anchor();
+					Element anchorElement = this.anchor.getElement();
 					anchorElement.setAttribute("download", true);
 					anchorElement.getStyle().set("display", "none");
-					component.getElement().appendChild(anchor.getElement());
+					component.getElement().appendChild(this.anchor.getElement());
 
 					anchorElement.addEventListener("click",
 					        event1 -> fireEvent(new DownloadStartsEvent(this, true, event1)));
@@ -164,12 +157,12 @@ public class LazyDownloadButton extends Button {
 						optionalUI.ifPresent(ui -> ui.access(() -> {
 							StreamResource href = new StreamResource(getFileNameCallback().get(), () -> inputStream);
 							href.setCacheTime(0);
-							anchor.setHref(href);
+							this.anchor.setHref(href);
 							try {
 								Thread.sleep(1000);
 							} catch (InterruptedException e) {
 							}
-							anchor.getElement().callJsFunction("click");
+							this.anchor.getElement().callJsFunction("click");
 						}));
 
 					} catch (Exception e) {
@@ -194,11 +187,11 @@ public class LazyDownloadButton extends Button {
 	}
 
 	public Supplier<String> getFileNameCallback() {
-		return fileNameCallback;
+		return this.fileNameCallback;
 	}
 
 	public InputStreamFactory getInputStreamCallback() {
-		return inputStreamCallback;
+		return this.inputStreamCallback;
 	}
 
 	public void setFileNameCallback(Supplier<String> fileNameCallback) {
@@ -211,9 +204,9 @@ public class LazyDownloadButton extends Button {
 
 	@Override
 	protected void onDetach(DetachEvent detachEvent) {
-		if (anchor != null) {
+		if (this.anchor != null) {
 			getParent().map(Component::getElement).ifPresent(parentElement -> {
-				Element anchorElement = anchor.getElement();
+				Element anchorElement = this.anchor.getElement();
 				if (anchorElement != null && parentElement.getChildren().anyMatch(anchorElement::equals)) {
 					parentElement.removeChild(anchorElement);
 				}

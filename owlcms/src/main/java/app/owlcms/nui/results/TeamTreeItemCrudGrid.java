@@ -19,15 +19,12 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * This class attempts to locate the selected athlete from the in the lifting
- * order.
+ * This class attempts to locate the selected athlete from the in the lifting order.
  *
  * <p>
  * This is a workaround for two issues:
- * <li>Why does getValue() return a different object than that in the lifting
- * order (initialization issue?)
- * <li>Why do we have to get the same object anyway (spurious comparison with ==
- * instead of getId() or .equals)
+ * <li>Why does getValue() return a different object than that in the lifting order (initialization issue?)
+ * <li>Why do we have to get the same object anyway (spurious comparison with == instead of getId() or .equals)
  * </p>
  *
  * @author Jean-François Lamy
@@ -39,7 +36,7 @@ public class TeamTreeItemCrudGrid extends OwlcmsCrudGrid<TeamTreeItem> {
 	final private Logger logger = (Logger) LoggerFactory.getLogger(TeamTreeItemCrudGrid.class);
 
 	{
-		logger.setLevel(Level.INFO);
+		this.logger.setLevel(Level.INFO);
 	}
 
 	public TeamTreeItemCrudGrid(Class<TeamTreeItem> domainType, OwlcmsGridLayout crudLayout,

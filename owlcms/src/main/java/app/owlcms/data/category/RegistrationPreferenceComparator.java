@@ -13,8 +13,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import app.owlcms.data.agegroup.AgeGroup;
 
 /**
- * When several categories are possible for an athlete, this class returns the
- * preferred choice.
+ * When several categories are possible for an athlete, this class returns the preferred choice.
  *
  * Given a 36 year old athlete, they could be
  * <ul>
@@ -22,8 +21,8 @@ import app.owlcms.data.agegroup.AgeGroup;
  * <li>O21 (21+) or
  * <li>SR (15+)
  * </ul>
- * in that order of preference if all 3 categories are active. The athlete would
- * be placed as a M35 by default, and the choice can be overriden.
+ * in that order of preference if all 3 categories are active. The athlete would be placed as a M35 by default, and the
+ * choice can be overriden.
  *
  * Given a 15 year old athlete they could be
  * <ul>
@@ -31,9 +30,8 @@ import app.owlcms.data.agegroup.AgeGroup;
  * <li>JR (15-20) or
  * <li>SR (15+)
  * </ul>
- * in that order of preference. Normally youth age groups would not be used in
- * addition to JR because of the ambiguity, but JR and SR could be used at the
- * same time. The lifter would be shown on the boards as JR.
+ * in that order of preference. Normally youth age groups would not be used in addition to JR because of the ambiguity,
+ * but JR and SR could be used at the same time. The lifter would be shown on the boards as JR.
  *
  */
 public class RegistrationPreferenceComparator implements Comparator<Category> {

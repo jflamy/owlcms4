@@ -130,16 +130,12 @@ public class Config {
 	@Transient
 	@JsonIgnore
 	private Boolean useCompetitionDate;
-	
 	@Column(columnDefinition = "boolean default true")
 	private Boolean mqttInternal = true;
-	
 	@Column(columnDefinition = "varchar(255) default 'css/nogrid'")
 	private String stylesDirectory;
-	
-	@Column(name="videoStylesDirectory", columnDefinition = "varchar(255) default 'css/nogrid'")
+	@Column(name = "videoStylesDirectory", columnDefinition = "varchar(255) default 'css/nogrid'")
 	private String videoStylesDirectory;
-	
 	@Transient
 	@JsonIgnore
 	private IConfig mqttConfig;
@@ -554,7 +550,7 @@ public class Config {
 				boolean predefinedStyleName = isPredefinedStyle(param);
 				if (!Files.exists(ldp) && !predefinedStyleName) {
 					Main.getStartupLogger().error("{} does not exist, using default css/nogrid as default",
-							ldp.toAbsolutePath());
+					        ldp.toAbsolutePath());
 					logger./**/error("{} does not exist, using default css/nogrid as default", ldp.toAbsolutePath());
 					param = "css/nogrid";
 				}
@@ -563,38 +559,6 @@ public class Config {
 		if (!param.startsWith("css/")) {
 			param = "css/" + param;
 		}
-		return param;
-	}
-	
-	@Transient
-	@JsonIgnore
-	public String getParamVideoStylesDir() {
-		String param = StartupUtils.getStringParam("videoStylesDir");
-		if (param == null || param.isBlank()) {
-			// get from database
-			param = Config.getCurrent().getVideoStylesDirectory();
-			if (param == null || param.isBlank()) {
-				param = "css/nogrid";
-			}
-		}
-		Path ldpd = ResourceWalker.getLocalDirPath();
-			// accept and normalize old naming convention.
-			if (param.startsWith("css/")) {
-				param = param.substring("css/".length());
-			}
-			if (ldpd != null) {
-				Path ldp = ldpd.resolve("css/" + param);
-				boolean predefinedStyleName = isPredefinedStyle(param);
-				if (!Files.exists(ldp) && !predefinedStyleName) {
-					param = "css/nogrid";
-					String message = "{} does not exist, using default css/nogrid as default video styles";
-					Main.getStartupLogger().error(message, ldp.toAbsolutePath());
-					logger./**/error(message, ldp.toAbsolutePath());
-				}
-			}
-			if (!param.startsWith("css/")) {
-				param = "css/" + param;
-			}
 		return param;
 	}
 
@@ -629,6 +593,38 @@ public class Config {
 		return publicResultsURLParam != null ? publicResultsURLParam + "/update" : null;
 	}
 
+	@Transient
+	@JsonIgnore
+	public String getParamVideoStylesDir() {
+		String param = StartupUtils.getStringParam("videoStylesDir");
+		if (param == null || param.isBlank()) {
+			// get from database
+			param = Config.getCurrent().getVideoStylesDirectory();
+			if (param == null || param.isBlank()) {
+				param = "css/nogrid";
+			}
+		}
+		Path ldpd = ResourceWalker.getLocalDirPath();
+		// accept and normalize old naming convention.
+		if (param.startsWith("css/")) {
+			param = param.substring("css/".length());
+		}
+		if (ldpd != null) {
+			Path ldp = ldpd.resolve("css/" + param);
+			boolean predefinedStyleName = isPredefinedStyle(param);
+			if (!Files.exists(ldp) && !predefinedStyleName) {
+				param = "css/nogrid";
+				String message = "{} does not exist, using default css/nogrid as default video styles";
+				Main.getStartupLogger().error(message, ldp.toAbsolutePath());
+				logger./**/error(message, ldp.toAbsolutePath());
+			}
+		}
+		if (!param.startsWith("css/")) {
+			param = "css/" + param;
+		}
+		return param;
+	}
+
 	public String getPin() {
 		return this.pin;
 	}
@@ -660,16 +656,6 @@ public class Config {
 		}
 		return bd;
 	}
-	
-	@Transient
-	@JsonIgnore
-	public String getVideoStylesDirBase() {
-		String bd = getParamVideoStylesDir();
-		if (bd.startsWith("css/")) {
-			return bd.substring("css/".length());
-		}
-		return bd;
-	}
 
 	public String getStylesDirectory() {
 		return this.stylesDirectory;
@@ -685,6 +671,16 @@ public class Config {
 
 	public String getUpdatekey() {
 		return this.updatekey;
+	}
+
+	@Transient
+	@JsonIgnore
+	public String getVideoStylesDirBase() {
+		String bd = getParamVideoStylesDir();
+		if (bd.startsWith("css/")) {
+			return bd.substring("css/".length());
+		}
+		return bd;
 	}
 
 	public String getVideoStylesDirectory() {
@@ -836,7 +832,7 @@ public class Config {
 		// we cannot override Moquette login to directly invoke our authenticator...
 		if (getMqttConfig() != null) {
 			getMqttConfig().setProperty(IConfig.ALLOW_ANONYMOUS_PROPERTY_NAME,
-					Boolean.toString(mqttUserName == null || mqttUserName.isBlank()));
+			        Boolean.toString(mqttUserName == null || mqttUserName.isBlank()));
 		}
 		this.mqttUserName = mqttUserName;
 	}
@@ -881,7 +877,6 @@ public class Config {
 	public void setTimeZone(TimeZone timeZone) {
 		if (timeZone == null) {
 			this.timeZoneId = null;
-			return;
 		} else {
 			this.timeZoneId = timeZone.getID();
 		}

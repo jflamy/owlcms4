@@ -22,9 +22,8 @@ import ch.qos.logback.classic.Logger;
 public class WarmupScoreboardPage extends AbstractResultsDisplayPage {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(WarmupScoreboardPage.class);
-	Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
-
 
 	public WarmupScoreboardPage() {
 		// intentionally empty. superclass will call init() as required.

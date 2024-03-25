@@ -38,242 +38,20 @@ import net.sf.jxls.reader.XLSReadMessage;
 import net.sf.jxls.reader.XLSReadStatus;
 import net.sf.jxls.reader.XLSReader;
 
-public class ORegistrationFileProcessor implements IRegistrationFileProcessor{
+public class ORegistrationFileProcessor implements IRegistrationFileProcessor {
 	static final String GROUPS_READER_SPEC = "/templates/registration/GroupsReader.xml";
 	static final String REGISTRATION_READER_SPEC = "/templates/registration/RegistrationReader.xml";
 	Logger logger = (Logger) LoggerFactory.getLogger(ORegistrationFileProcessor.class);
-	
 	public boolean keepParticipations;
 
 	public ORegistrationFileProcessor() {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public int doProcessAthletes(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer, Runnable displayUpdater) {
-		try (InputStream xmlInputStream = ResourceWalker.getResourceAsStream(REGISTRATION_READER_SPEC)) {
-			inputStream.reset();
-			ReaderConfig readerConfig = ReaderConfig.getInstance();
-			readerConfig.setUseDefaultValuesForPrimitiveTypes(true);
-			readerConfig.setSkipErrors(true);
-			XLSReader reader = ReaderBuilder.buildFromXML(xmlInputStream);
-	
-			try (InputStream xlsInputStream = inputStream) {
-				RCompetition c = new RCompetition();
-				RCompetition.resetActiveCategories();
-				RCompetition.resetActiveGroups();
-				RCompetition.resetAthleteToEligibles();
-				RCompetition.resetAthleteToTeams();
-	
-				List<RAthlete> athletes = new ArrayList<>();
-	
-				Map<String, Object> beans = new HashMap<>();
-				beans.put("competition", c);
-				beans.put("athletes", athletes);
-	
-				XLSReadStatus status = reader.read(inputStream, beans);
-				
-				// get back the updated athletes
-				athletes = (List<RAthlete>) beans.get("athletes");
-				// if exact matches were found for categories, the processing for eligibility
-				// has been done, and we keep the eligibilities exactly as in the file.
-				keepParticipations = athletes.stream()
-				        .filter(r -> r.getAthlete().getEligibleCategories() != null).findFirst()
-				        .isPresent();
-	
-				logger.info(Translator.translate("DataRead") + " " + athletes.size() + " athletes");
-				if (dryRun) {
-					return athletes.size();
-				}
-	
-				if (athletes.size() > 0) {
-					updateAthletes(errorConsumer, c, athletes);
-					appendErrors(displayUpdater, errorConsumer, status);
-				} else {
-					errorConsumer.accept(Translator.translate("NoAthletes"));
-					displayUpdater.run();
-				}
-				return athletes.size();
-			} catch (InvalidFormatException | IOException e) {
-				LoggerUtils.stackTrace(e);
-				LoggerUtils.logError(logger, e);
-			}
-		} catch (IOException | SAXException e1) {
-			LoggerUtils.stackTrace(e1);
-			LoggerUtils.logError(logger, e1);
+	public void adjustParticipations() {
+		if (!this.keepParticipations) {
+			AthleteRepository.resetParticipations();
 		}
-		return 0;
-	}
-
-	@Override
-	public int doProcessGroups(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer, Runnable displayUpdater) {
-		try (InputStream xmlInputStream = ResourceWalker.getResourceAsStream(GROUPS_READER_SPEC)) {
-			inputStream.reset();
-			ReaderConfig readerConfig = ReaderConfig.getInstance();
-			readerConfig.setUseDefaultValuesForPrimitiveTypes(true);
-			readerConfig.setSkipErrors(true);
-			XLSReader reader = ReaderBuilder.buildFromXML(xmlInputStream);
-	
-			try (InputStream xlsInputStream = inputStream) {
-				List<RGroup> groups = new ArrayList<>();
-	
-				Map<String, Object> beans = new HashMap<>();
-				beans.put("groups", groups);
-	
-				// logger.info(getTranslation("ReadingData_"));
-				XLSReadStatus status = reader.read(inputStream, beans);
-				logger.info("Read {} groups.", groups.size());
-				if (!dryRun) {
-					updatePlatformsAndGroups(groups);
-				}
-	
-				appendErrors(displayUpdater, errorConsumer, status);
-				return groups.size();
-			} catch (InvalidFormatException | IOException e) {
-				LoggerUtils.logError(logger, e);
-			}
-		} catch (IOException | SAXException e1) {
-			LoggerUtils.logError(logger, e1);
-		}
-		return 0;
-	}
-
-	private void appendErrors(Runnable displayUpdater, Consumer<String> errorAppender, XLSReadStatus status) {
-		@SuppressWarnings("unchecked")
-		List<XLSReadMessage> errors = status.getReadMessages();
-		for (XLSReadMessage m : errors) {
-			String cleanMessage = cleanMessage(m.getMessage());
-			errorAppender.accept(cleanMessage);
-			Exception e = m.getException();
-			if (e != null) {
-				Throwable cause = e.getCause();
-				String causeMessage = cause != null ? cause.getLocalizedMessage() : e.getLocalizedMessage();
-				// causeMessage = LoggerUtils.stackTrace(cause);
-				causeMessage = causeMessage != null ? causeMessage : e.toString();
-				if (causeMessage.contentEquals("text")) {
-					causeMessage = "Empty or invalid.";
-				}
-				errorAppender.accept(causeMessage);
-				logger.debug(cleanMessage + causeMessage);
-			}
-			errorAppender.accept(System.lineSeparator());
-		}
-		displayUpdater.run();
-	}
-
-	@Override
-	public void updateAthletes(Consumer<String> errorConsumer, RCompetition c, List<RAthlete> athletes) {
-		JPAService.runInTransaction(em -> {
-			Competition curC = Competition.getCurrent();
-			try {
-				Competition rCompetition = c.getCompetition();
-				// save some properties from current database that do not appear on spreadheet
-				rCompetition.setEnforce20kgRule(curC.isEnforce20kgRule());
-				rCompetition.setUseBirthYear(curC.isUseBirthYear());
-				rCompetition.setMasters(curC.isMasters());
-	
-				// update the current competition with the new properties read from spreadsheet
-				BeanUtils.copyProperties(curC, rCompetition);
-				// update in database and set current to result of JPA merging.
-				Competition.setCurrent(em.merge(curC));
-	
-				// Create the new athletes.
-				athletes.stream().forEach(r -> {
-					Athlete athlete = r.getAthlete();
-					em.merge(athlete);
-				});
-				em.flush();
-			} catch (IllegalAccessException | InvocationTargetException | RuntimeException e) {
-				LoggerUtils.stackTrace(e);
-				errorConsumer.accept(e.getLocalizedMessage());
-			}
-	
-			return null;
-		});
-	
-		JPAService.runInTransaction(em -> {
-			AthleteRepository.findAll().stream().forEach(a2 -> {
-				LinkedHashSet<Category> eligibles = (LinkedHashSet<Category>) RCompetition
-				        .getAthleteToEligibles()
-				        .get(a2.getId());
-				LinkedHashSet<Category> teams = (LinkedHashSet<Category>) RCompetition
-				        .getAthleteToTeams()
-				        .get(a2.getId());
-				if (eligibles != null) {
-					Category first = eligibles.stream().findFirst().orElse(null);
-					a2.setCategory(first);
-					//logger.debug("setting eligibility {} {}", a2.getShortName(), eligibles);
-					a2.setEligibleCategories(eligibles);
-					List<Participation> participations2 = a2.getParticipations();
-					for (Participation p : participations2) {
-						if (teams.contains(p.getCategory())) {
-							p.setTeamMember(true);
-						} else {
-							logger.info("Excluding {} as team member for {}", a2.getShortName(),
-							        p.getCategory().getComputedCode());
-							p.setTeamMember(false);
-						}
-					}
-					//logger.debug("participations {} {}", a2.getShortName(), a2.getParticipations());
-					em.merge(a2);
-				}
-			});
-			em.flush();
-			return null;
-		});
-	}
-
-	@Override
-	public void updatePlatformsAndGroups(List<RGroup> groups) {
-		Set<String> futurePlatforms = groups.stream().map(RGroup::getPlatform).filter(p -> (p != null && !p.isBlank()))
-		        .collect(Collectors.toSet());
-	
-		String defaultPlatformName = OwlcmsFactory.getDefaultFOP().getName();
-		if (futurePlatforms.isEmpty()) {
-			// keep the current default if no group is linked to a platform.
-			futurePlatforms.add(defaultPlatformName);
-		}
-		logger.debug("to be kept if present: {}", futurePlatforms);
-	
-		PlatformRepository.deleteUnusedPlatforms(futurePlatforms);
-		PlatformRepository.createMissingPlatforms(groups);
-	
-		// recompute the available platforms, unregister the existing FOPs, etc.
-		OwlcmsFactory.initDefaultFOP();
-		String newDefault = OwlcmsFactory.getDefaultFOP().getName();
-	
-		JPAService.runInTransaction(em -> {
-			groups.stream().forEach(g -> {
-				String platformName = g.getPlatform();
-				Group readGroup = g.getGroup();
-				Group group = GroupRepository.doFindByName(g.getGroupName(), em);
-				if (group == null) {
-					// new group
-					group = readGroup;
-				} else {
-					try {
-						group.copy(readGroup);
-					} catch (IllegalAccessException | InvocationTargetException e) {
-						logger.error(LoggerUtils.shortStackTrace(e));
-					}
-				}
-				
-				if (platformName == null || platformName.isBlank()) {
-					platformName = newDefault;
-				}
-				logger.info("setting platform '{}' for group {}", platformName, g.getGroupName());
-				Platform op = PlatformRepository.findByName(platformName);
-				group.setPlatform(op);
-				em.merge(group);
-			});
-			em.flush();
-			return null;
-		});
-	
-		groups.stream().forEach(g -> {
-			logger.debug("group {} weighIn {} competition {}", g.getGroup(), g.getWeighinTime(),
-			        g.getCompetitionTime());
-		});
 	}
 
 	@Override
@@ -290,6 +68,97 @@ public class ORegistrationFileProcessor implements IRegistrationFileProcessor{
 		return cleanMessage;
 	}
 
+	@Override
+	@SuppressWarnings("unchecked")
+	public int doProcessAthletes(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer,
+	        Runnable displayUpdater) {
+		try (InputStream xmlInputStream = ResourceWalker.getResourceAsStream(REGISTRATION_READER_SPEC)) {
+			inputStream.reset();
+			ReaderConfig readerConfig = ReaderConfig.getInstance();
+			readerConfig.setUseDefaultValuesForPrimitiveTypes(true);
+			readerConfig.setSkipErrors(true);
+			XLSReader reader = ReaderBuilder.buildFromXML(xmlInputStream);
+
+			try (InputStream xlsInputStream = inputStream) {
+				RCompetition c = new RCompetition();
+				RCompetition.resetActiveCategories();
+				RCompetition.resetActiveGroups();
+				RCompetition.resetAthleteToEligibles();
+				RCompetition.resetAthleteToTeams();
+
+				List<RAthlete> athletes = new ArrayList<>();
+
+				Map<String, Object> beans = new HashMap<>();
+				beans.put("competition", c);
+				beans.put("athletes", athletes);
+
+				XLSReadStatus status = reader.read(inputStream, beans);
+
+				// get back the updated athletes
+				athletes = (List<RAthlete>) beans.get("athletes");
+				// if exact matches were found for categories, the processing for eligibility
+				// has been done, and we keep the eligibilities exactly as in the file.
+				this.keepParticipations = athletes.stream()
+				        .filter(r -> r.getAthlete().getEligibleCategories() != null).findFirst()
+				        .isPresent();
+
+				this.logger.info(Translator.translate("DataRead") + " " + athletes.size() + " athletes");
+				if (dryRun) {
+					return athletes.size();
+				}
+
+				if (athletes.size() > 0) {
+					updateAthletes(errorConsumer, c, athletes);
+					appendErrors(displayUpdater, errorConsumer, status);
+				} else {
+					errorConsumer.accept(Translator.translate("NoAthletes"));
+					displayUpdater.run();
+				}
+				return athletes.size();
+			} catch (InvalidFormatException | IOException e) {
+				LoggerUtils.stackTrace(e);
+				LoggerUtils.logError(this.logger, e);
+			}
+		} catch (IOException | SAXException e1) {
+			LoggerUtils.stackTrace(e1);
+			LoggerUtils.logError(this.logger, e1);
+		}
+		return 0;
+	}
+
+	@Override
+	public int doProcessGroups(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer,
+	        Runnable displayUpdater) {
+		try (InputStream xmlInputStream = ResourceWalker.getResourceAsStream(GROUPS_READER_SPEC)) {
+			inputStream.reset();
+			ReaderConfig readerConfig = ReaderConfig.getInstance();
+			readerConfig.setUseDefaultValuesForPrimitiveTypes(true);
+			readerConfig.setSkipErrors(true);
+			XLSReader reader = ReaderBuilder.buildFromXML(xmlInputStream);
+
+			try (InputStream xlsInputStream = inputStream) {
+				List<RGroup> groups = new ArrayList<>();
+
+				Map<String, Object> beans = new HashMap<>();
+				beans.put("groups", groups);
+
+				// logger.info(getTranslation("ReadingData_"));
+				XLSReadStatus status = reader.read(inputStream, beans);
+				this.logger.info("Read {} groups.", groups.size());
+				if (!dryRun) {
+					updatePlatformsAndGroups(groups);
+				}
+
+				appendErrors(displayUpdater, errorConsumer, status);
+				return groups.size();
+			} catch (InvalidFormatException | IOException e) {
+				LoggerUtils.logError(this.logger, e);
+			}
+		} catch (IOException | SAXException e1) {
+			LoggerUtils.logError(this.logger, e1);
+		}
+		return 0;
+	}
 
 	@Override
 	public void resetAthletes() {
@@ -315,13 +184,144 @@ public class ORegistrationFileProcessor implements IRegistrationFileProcessor{
 			em.flush();
 			return null;
 		});
-		logger.info("previous groups removed");
+		this.logger.info("previous groups removed");
 	}
 
 	@Override
-	public void adjustParticipations() {
-		if (!keepParticipations) {
-			AthleteRepository.resetParticipations();
+	public void updateAthletes(Consumer<String> errorConsumer, RCompetition c, List<RAthlete> athletes) {
+		JPAService.runInTransaction(em -> {
+			Competition curC = Competition.getCurrent();
+			try {
+				Competition rCompetition = c.getCompetition();
+				// save some properties from current database that do not appear on spreadheet
+				rCompetition.setEnforce20kgRule(curC.isEnforce20kgRule());
+				rCompetition.setUseBirthYear(curC.isUseBirthYear());
+				rCompetition.setMasters(curC.isMasters());
+
+				// update the current competition with the new properties read from spreadsheet
+				BeanUtils.copyProperties(curC, rCompetition);
+				// update in database and set current to result of JPA merging.
+				Competition.setCurrent(em.merge(curC));
+
+				// Create the new athletes.
+				athletes.stream().forEach(r -> {
+					Athlete athlete = r.getAthlete();
+					em.merge(athlete);
+				});
+				em.flush();
+			} catch (IllegalAccessException | InvocationTargetException | RuntimeException e) {
+				LoggerUtils.stackTrace(e);
+				errorConsumer.accept(e.getLocalizedMessage());
+			}
+
+			return null;
+		});
+
+		JPAService.runInTransaction(em -> {
+			AthleteRepository.findAll().stream().forEach(a2 -> {
+				LinkedHashSet<Category> eligibles = (LinkedHashSet<Category>) RCompetition
+				        .getAthleteToEligibles()
+				        .get(a2.getId());
+				LinkedHashSet<Category> teams = (LinkedHashSet<Category>) RCompetition
+				        .getAthleteToTeams()
+				        .get(a2.getId());
+				if (eligibles != null) {
+					Category first = eligibles.stream().findFirst().orElse(null);
+					a2.setCategory(first);
+					// logger.debug("setting eligibility {} {}", a2.getShortName(), eligibles);
+					a2.setEligibleCategories(eligibles);
+					List<Participation> participations2 = a2.getParticipations();
+					for (Participation p : participations2) {
+						if (teams.contains(p.getCategory())) {
+							p.setTeamMember(true);
+						} else {
+							this.logger.info("Excluding {} as team member for {}", a2.getShortName(),
+							        p.getCategory().getComputedCode());
+							p.setTeamMember(false);
+						}
+					}
+					// logger.debug("participations {} {}", a2.getShortName(), a2.getParticipations());
+					em.merge(a2);
+				}
+			});
+			em.flush();
+			return null;
+		});
+	}
+
+	@Override
+	public void updatePlatformsAndGroups(List<RGroup> groups) {
+		Set<String> futurePlatforms = groups.stream().map(RGroup::getPlatform).filter(p -> (p != null && !p.isBlank()))
+		        .collect(Collectors.toSet());
+
+		String defaultPlatformName = OwlcmsFactory.getDefaultFOP().getName();
+		if (futurePlatforms.isEmpty()) {
+			// keep the current default if no group is linked to a platform.
+			futurePlatforms.add(defaultPlatformName);
 		}
+		this.logger.debug("to be kept if present: {}", futurePlatforms);
+
+		PlatformRepository.deleteUnusedPlatforms(futurePlatforms);
+		PlatformRepository.createMissingPlatforms(groups);
+
+		// recompute the available platforms, unregister the existing FOPs, etc.
+		OwlcmsFactory.initDefaultFOP();
+		String newDefault = OwlcmsFactory.getDefaultFOP().getName();
+
+		JPAService.runInTransaction(em -> {
+			groups.stream().forEach(g -> {
+				String platformName = g.getPlatform();
+				Group readGroup = g.getGroup();
+				Group group = GroupRepository.doFindByName(g.getGroupName(), em);
+				if (group == null) {
+					// new group
+					group = readGroup;
+				} else {
+					try {
+						group.copy(readGroup);
+					} catch (IllegalAccessException | InvocationTargetException e) {
+						this.logger.error(LoggerUtils.shortStackTrace(e));
+					}
+				}
+
+				if (platformName == null || platformName.isBlank()) {
+					platformName = newDefault;
+				}
+				this.logger.info("setting platform '{}' for group {}", platformName, g.getGroupName());
+				Platform op = PlatformRepository.findByName(platformName);
+				group.setPlatform(op);
+				em.merge(group);
+			});
+			em.flush();
+			return null;
+		});
+
+		groups.stream().forEach(g -> {
+			this.logger.debug("group {} weighIn {} competition {}", g.getGroup(), g.getWeighinTime(),
+			        g.getCompetitionTime());
+		});
+	}
+
+	private void appendErrors(Runnable displayUpdater, Consumer<String> errorAppender, XLSReadStatus status) {
+		@SuppressWarnings("unchecked")
+		List<XLSReadMessage> errors = status.getReadMessages();
+		for (XLSReadMessage m : errors) {
+			String cleanMessage = cleanMessage(m.getMessage());
+			errorAppender.accept(cleanMessage);
+			Exception e = m.getException();
+			if (e != null) {
+				Throwable cause = e.getCause();
+				String causeMessage = cause != null ? cause.getLocalizedMessage() : e.getLocalizedMessage();
+				// causeMessage = LoggerUtils.stackTrace(cause);
+				causeMessage = causeMessage != null ? causeMessage : e.toString();
+				if (causeMessage.contentEquals("text")) {
+					causeMessage = "Empty or invalid.";
+				}
+				errorAppender.accept(causeMessage);
+				this.logger.debug(cleanMessage + causeMessage);
+			}
+			errorAppender.accept(System.lineSeparator());
+		}
+		displayUpdater.run();
 	}
 }

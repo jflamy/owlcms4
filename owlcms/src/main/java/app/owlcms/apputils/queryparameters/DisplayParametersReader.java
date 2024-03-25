@@ -125,7 +125,7 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 		try {
 			tWidth = (twParams != null && !twParams.isEmpty() ? Double.parseDouble(twParams.get(0)) : 0.0D);
 			if (tWidth > 0.0D) {
-				;
+
 				switchTeamWidth(tWidth, false);
 			} else {
 				switchTeamWidth(null, true);
@@ -156,6 +156,13 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 		SoundParametersReader.super.setParameter(event, routeParameter);
 	}
 
+	@Override
+	public default void setRouteParameter(String routeParameter) {
+		if (routeParameter != null && routeParameter.contentEquals("video")) {
+			setVideo(true);
+		}
+	}
+
 	/**
 	 * called by updateURLLocation
 	 *
@@ -176,15 +183,6 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 				storeInSessionStorage("pageURL", url.toExternalForm());
 			});
 		}
-	}
-
-	default Dialog getDialogCreateIfMissing() {
-		if (getDialog() == null) {
-			setDialog(new Dialog());
-		}
-		getDialog().setResizable(true);
-		getDialog().setDraggable(true);
-		return getDialog();
 	}
 
 	public default void switchAbbreviated(boolean abbreviated, boolean updateURL) {
@@ -246,11 +244,13 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 		setVideo(video);
 	}
 
-	@Override
-	public default void setRouteParameter(String routeParameter) {
-		if (routeParameter != null && routeParameter.contentEquals("video")) {
-			setVideo(true);
+	default Dialog getDialogCreateIfMissing() {
+		if (getDialog() == null) {
+			setDialog(new Dialog());
 		}
+		getDialog().setResizable(true);
+		getDialog().setDraggable(true);
+		return getDialog();
 	}
 
 	Timer getDialogTimer();

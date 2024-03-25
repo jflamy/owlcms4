@@ -41,7 +41,6 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 		jexlLogger.setLevel(Level.ERROR);
 		tagLogger.setLevel(Level.ERROR);
 	}
-
 	private boolean resultsByCategory;
 
 	public JXLSResultSheet() {
@@ -54,18 +53,18 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 
 	@Override
 	public List<Athlete> getSortedAthletes() {
-		if (sortedAthletes != null) {
+		if (this.sortedAthletes != null) {
 			// we are provided with an externally computed list.
 			if (this.resultsByCategory) {
 				// no need to unwrap, each athlete is a wrapper PAthlete with a participation category.
-				return sortedAthletes;
+				return this.sortedAthletes;
 			} else {
 				// we need the athlete with the original registration category inside the PAthlete
 				// sometimes we are given the actual original athletes, so we are careful.
-				List<Athlete> unwrappedAthletes = unwrapAthletesAsNeeded(sortedAthletes);
+				List<Athlete> unwrappedAthletes = unwrapAthletesAsNeeded(this.sortedAthletes);
 				Set<Athlete> noDuplicates = new HashSet<>(unwrappedAthletes);
-				sortedAthletes = AthleteSorter.displayOrderCopy(new ArrayList<>(noDuplicates));
-				return sortedAthletes;
+				this.sortedAthletes = AthleteSorter.displayOrderCopy(new ArrayList<>(noDuplicates));
+				return this.sortedAthletes;
 			}
 		}
 		final Group currentGroup = getGroup();
@@ -121,30 +120,10 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
         // @formatter:on
 	}
 
-	private List<Athlete> unwrapAthletesAsNeeded(List<Athlete> rankedAthletes) {
-		List<Athlete> pAthletes;
-		if (resultsByCategory) {
-			pAthletes = new ArrayList<>(rankedAthletes.size() * 2);
-			for (Athlete a : rankedAthletes) {
-				for (Participation p : a.getParticipations()) {
-					pAthletes.add(new PAthlete(p));
-				}
-			}
-		} else {
-			// we sometimes get pAthletes and but here we need the wrapped athlete.
-			pAthletes = rankedAthletes.stream()
-					//.peek(r -> { logger.debug("{} {}", r.getShortName(), r.getClass().getSimpleName()); })
-					.map(r -> r instanceof PAthlete ? ((PAthlete)r)._getAthlete() : r)
-					.collect(Collectors.toList());
-		}
-		return pAthletes;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see
-	 * org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
+	 * @see org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
 	 * postProcess(org.apache.poi.ss.usermodel.Workbook)
 	 */
 	@Override
@@ -154,6 +133,25 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 		        && !Competition.getCurrent().getProtocolTemplateFileName().contains("USAW")) {
 			zapCellPair(workbook, 3, 9);
 		}
+	}
+
+	private List<Athlete> unwrapAthletesAsNeeded(List<Athlete> rankedAthletes) {
+		List<Athlete> pAthletes;
+		if (this.resultsByCategory) {
+			pAthletes = new ArrayList<>(rankedAthletes.size() * 2);
+			for (Athlete a : rankedAthletes) {
+				for (Participation p : a.getParticipations()) {
+					pAthletes.add(new PAthlete(p));
+				}
+			}
+		} else {
+			// we sometimes get pAthletes and but here we need the wrapped athlete.
+			pAthletes = rankedAthletes.stream()
+			        // .peek(r -> { logger.debug("{} {}", r.getShortName(), r.getClass().getSimpleName()); })
+			        .map(r -> r instanceof PAthlete ? ((PAthlete) r)._getAthlete() : r)
+			        .collect(Collectors.toList());
+		}
+		return pAthletes;
 	}
 
 }

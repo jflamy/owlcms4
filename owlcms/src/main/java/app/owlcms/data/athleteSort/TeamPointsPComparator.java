@@ -21,7 +21,6 @@ import ch.qos.logback.classic.Logger;
  */
 public class TeamPointsPComparator extends AbstractLifterComparator implements Comparator<Participation> {
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TeamPointsPComparator.class);
-
 	private Ranking rankingType;
 
 	/**
@@ -68,32 +67,32 @@ public class TeamPointsPComparator extends AbstractLifterComparator implements C
 	 * @return
 	 */
 	private int comparePointsOrder(Participation p1, Participation p2) {
-		switch (rankingType) {
-		case SNATCH:
-			return Integer.compare(p1.getSnatchPoints(), p2.getSnatchPoints());
-		case CLEANJERK:
-			return Integer.compare(p1.getCleanJerkPoints(), p2.getCleanJerkPoints());
-		case TOTAL:
-			final Integer totalPoints1 = p1.getTotalPoints();
-			final Integer totalPoints2 = p2.getTotalPoints();
-			final int compareTotal = totalPoints1.compareTo(totalPoints2);
-			logger.trace(p1 + " " + totalPoints1 + " [" + compareTotal + "]" + p2 + " " + totalPoints2);
-			return compareTotal;
-		case CUSTOM:
-			final Integer customPoints1 = p1.getCustomPoints();
-			final Integer customPoints2 = p2.getCustomPoints();
-			final int compareCustom = customPoints1.compareTo(customPoints2);
-			logger.trace(p1 + " " + customPoints1 + " [" + compareCustom + "]" + p2 + " " + customPoints2);
-			return compareCustom;
-		case SNATCH_CJ_TOTAL:
-			final Integer combinedPoints1 = p1.getCombinedPoints();
-			final Integer combinedPoints2 = p2.getCombinedPoints();
-			final int compareCombined = combinedPoints1.compareTo(combinedPoints2);
-			logger.trace(
-			        p1 + " " + combinedPoints1 + " [" + compareCombined + "]" + p2 + " " + combinedPoints2);
-			return compareCombined;
-		default:
-			break;
+		switch (this.rankingType) {
+			case SNATCH:
+				return Integer.compare(p1.getSnatchPoints(), p2.getSnatchPoints());
+			case CLEANJERK:
+				return Integer.compare(p1.getCleanJerkPoints(), p2.getCleanJerkPoints());
+			case TOTAL:
+				final Integer totalPoints1 = p1.getTotalPoints();
+				final Integer totalPoints2 = p2.getTotalPoints();
+				final int compareTotal = totalPoints1.compareTo(totalPoints2);
+				logger.trace(p1 + " " + totalPoints1 + " [" + compareTotal + "]" + p2 + " " + totalPoints2);
+				return compareTotal;
+			case CUSTOM:
+				final Integer customPoints1 = p1.getCustomPoints();
+				final Integer customPoints2 = p2.getCustomPoints();
+				final int compareCustom = customPoints1.compareTo(customPoints2);
+				logger.trace(p1 + " " + customPoints1 + " [" + compareCustom + "]" + p2 + " " + customPoints2);
+				return compareCustom;
+			case SNATCH_CJ_TOTAL:
+				final Integer combinedPoints1 = p1.getCombinedPoints();
+				final Integer combinedPoints2 = p2.getCombinedPoints();
+				final int compareCombined = combinedPoints1.compareTo(combinedPoints2);
+				logger.trace(
+				        p1 + " " + combinedPoints1 + " [" + compareCombined + "]" + p2 + " " + combinedPoints2);
+				return compareCombined;
+			default:
+				break;
 		}
 
 		return 0;

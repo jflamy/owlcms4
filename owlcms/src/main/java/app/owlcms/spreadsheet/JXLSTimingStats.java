@@ -37,7 +37,6 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 	public class SessionStats {
 
 		String groupName = null;
-
 		LocalDateTime maxTime = LocalDateTime.MIN; // forever ago
 		LocalDateTime minTime = LocalDateTime.MAX; // long time in the future
 		int nbAthletes;
@@ -61,7 +60,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 		 * @return duration as a fraction of day, for Excel
 		 */
 		public Double getDayDuration() {
-			Duration delta = Duration.between(minTime, maxTime);
+			Duration delta = Duration.between(this.minTime, this.maxTime);
 			if (delta.isNegative()) {
 				delta = Duration.ZERO;
 				return 0.0D;
@@ -70,27 +69,27 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 		}
 
 		public String getGroupName() {
-			return groupName;
+			return this.groupName;
 		}
 
 		public LocalDateTime getMaxTime() {
-			return maxTime;
+			return this.maxTime;
 		}
 
 		public LocalDateTime getMinTime() {
-			return minTime;
+			return this.minTime;
 		}
 
 		public int getNbAthletes() {
-			return nbAthletes;
+			return this.nbAthletes;
 		}
 
 		public int getNbAttemptedLifts() {
-			return nbAttemptedLifts;
+			return this.nbAttemptedLifts;
 		}
 
 		public String getSDuration() {
-			Duration delta = Duration.between(minTime, maxTime);
+			Duration delta = Duration.between(this.minTime, this.maxTime);
 			if (delta.isNegative()) {
 				delta = Duration.ZERO;
 			}
@@ -98,17 +97,17 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 		}
 
 		public String getSMaxTime() {
-			if (maxTime == null || maxTime.isEqual(LocalDateTime.MIN)) {
+			if (this.maxTime == null || this.maxTime.isEqual(LocalDateTime.MIN)) {
 				return "-";
 			}
-			return maxTime.truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_LOCAL_TIME);
+			return this.maxTime.truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_LOCAL_TIME);
 		}
 
 		public String getSMinTime() {
-			if (minTime == null || minTime.isEqual(LocalDateTime.MAX)) {
+			if (this.minTime == null || this.minTime.isEqual(LocalDateTime.MAX)) {
 				return "-";
 			}
-			return minTime.truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_LOCAL_TIME);
+			return this.minTime.truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_LOCAL_TIME);
 		}
 
 		public void setGroupName(String groupName) {
@@ -133,8 +132,10 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 
 		@Override
 		public String toString() {
-			return "SessionStats [groupName=" + getGroupName() + ", nbAthletes=" + nbAthletes + ", minTime=" + minTime
-			        + ", maxTime=" + maxTime + ", nbAttemptedLifts=" + nbAttemptedLifts + " Hours=" + getDayDuration()
+			return "SessionStats [groupName=" + getGroupName() + ", nbAthletes=" + this.nbAthletes + ", minTime="
+			        + this.minTime
+			        + ", maxTime=" + this.maxTime + ", nbAttemptedLifts=" + this.nbAttemptedLifts + " Hours="
+			        + getDayDuration()
 			        + " AthletesPerHour=" + getAthletesPerHour() + "]";
 		}
 
@@ -156,10 +157,10 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 
 		private Double getHoursForGroup() {
 			Duration delta;
-			if (minTime == null || maxTime == null) {
+			if (this.minTime == null || this.maxTime == null) {
 				delta = Duration.ZERO;
 			} else {
-				delta = Duration.between(minTime, maxTime);
+				delta = Duration.between(this.minTime, this.maxTime);
 			}
 			if (delta.isNegative()) {
 				delta = Duration.ZERO;
@@ -182,23 +183,9 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 	Logger logger = (Logger) LoggerFactory.getLogger(JXLSTimingStats.class);
 
 	public JXLSTimingStats(Group group, boolean excludeNotWeighed, UI ui) {
-		super();
 	}
 
 	public JXLSTimingStats(UI ui) {
-		super();
-	}
-
-	@Override
-	public InputStream getTemplate(Locale locale) throws IOException {
-		return getLocalizedTemplate("/templates/timing/TimingStats", ".xls", locale);
-	}
-
-	private void addSessionStatsIfNotEmpty(List<SessionStats> sessions, SessionStats curStat) {
-		if (curStat == null) {
-			return;
-		}
-		sessions.add(curStat);
 	}
 
 	@Override
@@ -211,7 +198,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 			// prevent outputting silliness.
 			throw new RuntimeException("");
 		} else {
-			logger.debug("{} athletes", athletes.size());
+			this.logger.debug("{} athletes", athletes.size());
 		}
 
 		// extract group stats
@@ -223,7 +210,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 		SessionStats curStat = new SessionStats("");
 		for (Athlete curAthlete : athletes) {
 			curGroup = curAthlete.getGroup();
-			logger.debug("athlete = {} {}", curAthlete, curGroup);
+			this.logger.debug("athlete = {} {}", curAthlete, curGroup);
 			if (curGroup == null) {
 				continue; // we simply skip over athletes with no groups
 			}
@@ -243,7 +230,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 
 			int nbAttemptedLifts = curAthlete.getActuallyAttemptedLifts();
 			curStat.setNbAttemptedLifts(curStat.getNbAttemptedLifts() + nbAttemptedLifts);
-			logger.debug(curStat.toString());
+			this.logger.debug(curStat.toString());
 			prevGroup = curGroup;
 		}
 		if (curStat.getNbAthletes() > 0) {
@@ -251,5 +238,17 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 		}
 		reportingBeans.put("groupStats", sessions);
 		return athletes;
+	}
+
+	@Override
+	public InputStream getTemplate(Locale locale) throws IOException {
+		return getLocalizedTemplate("/templates/timing/TimingStats", ".xls", locale);
+	}
+
+	private void addSessionStatsIfNotEmpty(List<SessionStats> sessions, SessionStats curStat) {
+		if (curStat == null) {
+			return;
+		}
+		sessions.add(curStat);
 	}
 }

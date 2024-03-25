@@ -87,6 +87,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	static {
 		logger.setLevel(Level.INFO);
 	}
+	static private String usageStr;
 
 	/**
 	 * Navigation crudGrid.
@@ -118,7 +119,6 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	String referenceVersionString;
 	String currentVersionString = "";
 	int comparison = 999;
-	static private String usageStr;
 
 	/**
 	 * Instantiates a new main navigation content.
@@ -273,7 +273,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 				                   <a href='https://github.com/owlcms/owlcms4%s/releases/tag/%s' style='text-decoration:underline'>%s</a>
 				                   """
 				        .formatted(suffix,
-				        		referenceVersionString,
+				                this.referenceVersionString,
 				                Translator.translate("CheckVersion.clickToDownload"));
 			} else {
 				behindVersionMsg = """
@@ -284,7 +284,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 
 			String aheadVersionMsg = Translator.translate("CheckVersion.ahead");
 
-			if (referenceVersionString.contains("-alpha")) {
+			if (this.referenceVersionString.contains("-alpha")) {
 				// do not recommend update to an alpha version.
 				this.comparison = 0;
 			}
@@ -353,18 +353,16 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		        + (local ? "" : "&origin=" + ipAddress)
 		        + (JPAService.isLocalDb() ? "&local=true" : "&local=false");
 
-		
-
 		Properties attributes = OwlcmsSession.getCurrent().getAttributes();
 		// fire and forget
-		new Thread(() -> { 
+		new Thread(() -> {
 			// try 3 times, increasing timeout by 1 second.
 			for (int i = 0; i < 3; i++) {
 				try {
 					HttpRequest usageRequest = HttpRequest
-							.newBuilder(URI.create(usageStr))
-							.timeout(Duration.ofMillis(2000+(i*1000)))
-							.build();
+					        .newBuilder(URI.create(usageStr))
+					        .timeout(Duration.ofMillis(2000 + (i * 1000)))
+					        .build();
 					client.send(usageRequest, BodyHandlers.ofString());
 					attributes.setProperty(USAGE_STR, usageStr);
 					logger.info("logged usage {}", attributes.getProperty(USAGE_STR));

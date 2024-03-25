@@ -281,6 +281,21 @@ public class AgeGroupRepository {
 	 * @param g
 	 * @return
 	 */
+	public static List<String> findAgeGroupPrefixes(Group g) {
+		List<AgeGroup> l = findAgeGroups(g);
+		LinkedHashSet<String> lhss = new LinkedHashSet<>();
+		for (AgeGroup ag : l) {
+			lhss.add(ag.getCode());
+		}
+		return new ArrayList<>(lhss);
+	}
+
+	/**
+	 * Fetch all age groups present in the current group
+	 *
+	 * @param g
+	 * @return
+	 */
 	public static List<AgeGroup> findAgeGroups(Group g) {
 		if (g == null) {
 			return JPAService.runInTransaction((em) -> {
@@ -298,21 +313,6 @@ public class AgeGroupRepository {
 				return q.getResultList();
 			});
 		}
-	}
-
-	/**
-	 * Fetch all age groups present in the current group
-	 *
-	 * @param g
-	 * @return
-	 */
-	public static List<String> findAgeGroupPrefixes(Group g) {
-		List<AgeGroup> l = findAgeGroups(g);
-		LinkedHashSet<String> lhss = new LinkedHashSet<>();
-		for (AgeGroup ag : l) {
-			lhss.add(ag.getCode());
-		}
-		return new ArrayList<String>(lhss);
 	}
 
 	/**
@@ -394,41 +394,16 @@ public class AgeGroupRepository {
 		}
 	}
 
-	public static void reloadDefinitions(String localizedFileName) {
-		cleanUpExisting();
-		AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(null, "/agegroups/" + localizedFileName);
-		AthleteRepository.resetParticipations();
-	}
-	
 	public static void reloadDefinitions(InputStream inputStream) {
 		cleanUpExisting();
 		AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(inputStream);
 		AthleteRepository.resetParticipations();
 	}
 
-	private static void cleanUpExisting() {
-		JPAService.runInTransaction(em -> {
-			List<Athlete> athletes = AthleteRepository.doFindAll(em);
-			for (Athlete a : athletes) {
-				a.setCategory(null);
-				a.setEligibleCategories(null);
-				em.merge(a);
-			}
-			em.flush();
-			Competition.getCurrent().setRankingsInvalid(true);
-			return null;
-		});
-		JPAService.runInTransaction(em -> {
-			try {
-				Query upd = em.createQuery("delete from Category");
-				upd.executeUpdate();
-				upd = em.createQuery("delete from AgeGroup");
-				upd.executeUpdate();
-			} catch (Exception e) {
-				LoggerUtils.logError(logger, e);
-			}
-			return null;
-		});
+	public static void reloadDefinitions(String localizedFileName) {
+		cleanUpExisting();
+		AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(null, "/agegroups/" + localizedFileName);
+		AthleteRepository.resetParticipations();
 	}
 
 	/**
@@ -450,6 +425,42 @@ public class AgeGroupRepository {
 		});
 
 		return nAgeGroup;
+	}
+
+	static void cascadeCategoryRemoval(EntityManager em, AgeGroup mAgeGroup, Category nc) {
+		// so far we have not categories removed from the age group, time to do so
+		logger.debug("removing category {} from age group", nc.getId());
+		mAgeGroup.removeCategory(nc);
+		em.remove(nc);
+	}
+
+	static Category createCategoryFromTemplate(String catCode, AgeGroup ag, Map<String, Category> templates,
+	        double curMin, String qualTotal) throws Exception {
+		Category template = templates.get(catCode);
+		if (template == null) {
+			logger.trace("template {} not found", catCode);
+			return null;
+		} else {
+			try {
+				Category newCat = new Category(template);
+				newCat.setMinimumWeight(curMin);
+				newCat.setCode(ag.getCode() + "_" + template.getCode());
+				newCat.setAgeGroup(ag);
+				// logger.debug("code = {} {}",newCat.getCode(), newCat.getComputedCode());
+				ag.addCategory(newCat);
+				newCat.setActive(ag.isActive());
+				try {
+					newCat.setQualifyingTotal(Integer.parseInt(qualTotal));
+				} catch (NumberFormatException e) {
+					throw new Exception(e);
+				}
+				// logger.debug(newCat.dump());
+				return newCat;
+			} catch (IllegalAccessException | InvocationTargetException e) {
+				logger.error("cannot create category from template\n{}", LoggerUtils./**/stackTrace(e));
+				return null;
+			}
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -516,6 +527,31 @@ public class AgeGroupRepository {
 		return mAgeGroup;
 	}
 
+	private static void cleanUpExisting() {
+		JPAService.runInTransaction(em -> {
+			List<Athlete> athletes = AthleteRepository.doFindAll(em);
+			for (Athlete a : athletes) {
+				a.setCategory(null);
+				a.setEligibleCategories(null);
+				em.merge(a);
+			}
+			em.flush();
+			Competition.getCurrent().setRankingsInvalid(true);
+			return null;
+		});
+		JPAService.runInTransaction(em -> {
+			try {
+				Query upd = em.createQuery("delete from Category");
+				upd.executeUpdate();
+				upd = em.createQuery("delete from AgeGroup");
+				upd.executeUpdate();
+			} catch (Exception e) {
+				LoggerUtils.logError(logger, e);
+			}
+			return null;
+		});
+	}
+
 	@SuppressWarnings("unchecked")
 	private static List<AgeGroup> doFindAll(EntityManager em) {
 		return em.createQuery("select c from AgeGroup c order by c.ageDivision,c.minAge,c.maxAge").getResultList();
@@ -572,42 +608,6 @@ public class AgeGroupRepository {
 		}
 		if (gender != null) {
 			query.setParameter("gender", gender);
-		}
-	}
-
-	static void cascadeCategoryRemoval(EntityManager em, AgeGroup mAgeGroup, Category nc) {
-		// so far we have not categories removed from the age group, time to do so
-		logger.debug("removing category {} from age group", nc.getId());
-		mAgeGroup.removeCategory(nc);
-		em.remove(nc);
-	}
-
-	static Category createCategoryFromTemplate(String catCode, AgeGroup ag, Map<String, Category> templates,
-	        double curMin, String qualTotal) throws Exception {
-		Category template = templates.get(catCode);
-		if (template == null) {
-			logger.trace("template {} not found", catCode);
-			return null;
-		} else {
-			try {
-				Category newCat = new Category(template);
-				newCat.setMinimumWeight(curMin);
-				newCat.setCode(ag.getCode() + "_" + template.getCode());
-				newCat.setAgeGroup(ag);
-				// logger.debug("code = {} {}",newCat.getCode(), newCat.getComputedCode());
-				ag.addCategory(newCat);
-				newCat.setActive(ag.isActive());
-				try {
-					newCat.setQualifyingTotal(Integer.parseInt(qualTotal));
-				} catch (NumberFormatException e) {
-					throw new Exception(e);
-				}
-				// logger.debug(newCat.dump());
-				return newCat;
-			} catch (IllegalAccessException | InvocationTargetException e) {
-				logger.error("cannot create category from template\n{}", LoggerUtils./**/stackTrace(e));
-				return null;
-			}
 		}
 	}
 

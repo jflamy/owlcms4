@@ -20,7 +20,6 @@ import app.owlcms.nui.displays.scoreboards.WarmupLiftingOrderPage;
 public class ResultsLiftingOrder extends Results {
 
 	public ResultsLiftingOrder(WarmupLiftingOrderPage page) {
-		super();
 	}
 
 	@Override

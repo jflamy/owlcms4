@@ -21,16 +21,14 @@ public interface UIEventProcessor {
 	/**
 	 * Access the ui safely
 	 *
-	 * Do nothing if the event originates from ourselves -- if we stop the clock on
-	 * the timekeeper device, there is no need to obey the command to stop the clock
-	 * on all the other devices, since we are the cause of that event.
+	 * Do nothing if the event originates from ourselves -- if we stop the clock on the timekeeper device, there is no
+	 * need to obey the command to stop the clock on all the other devices, since we are the cause of that event.
 	 *
-	 * @param attachedComponent the component we are updating (any of them if
-	 *                          several)
+	 * @param attachedComponent the component we are updating (any of them if several)
 	 * @param uiEventBus        the bus on which we are listening
 	 * @param e                 the event we received
-	 * @param selfOrigin        our reference element -- for composite objects, we
-	 *                          will likely use the parent of the hierarchy
+	 * @param selfOrigin        our reference element -- for composite objects, we will likely use the parent of the
+	 *                          hierarchy
 	 * @param command
 	 */
 	public static void uiAccessIgnoreIfSelfOrigin(Component attachedComponent, EventBus uiEventBus, UIEvent e,
@@ -72,8 +70,7 @@ public interface UIEventProcessor {
 	 *
 	 * This version does not care about events.
 	 *
-	 * @param attachedComponent the component we are updating (any of them if
-	 *                          several)
+	 * @param attachedComponent the component we are updating (any of them if several)
 	 * @param uiEventBus
 	 * @param command
 	 */
@@ -88,8 +85,7 @@ public interface UIEventProcessor {
 	 *
 	 * The command is performed even if it results from ourself.
 	 *
-	 * @param attachedComponent the component we are updating (any of them if
-	 *                          several)
+	 * @param attachedComponent the component we are updating (any of them if several)
 	 * @param uiEventBus
 	 * @param e
 	 * @param command

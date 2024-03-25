@@ -12,6 +12,7 @@ public interface IBreakTimer extends IProxyTimer {
 
 	Integer getBreakDuration();
 
+	@Override
 	boolean isIndefinite();
 
 	void setBreakDuration(Integer breakDuration);

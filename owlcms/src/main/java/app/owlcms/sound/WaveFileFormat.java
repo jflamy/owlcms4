@@ -27,17 +27,14 @@ import javax.sound.sampled.AudioFormat;
 final class WaveFileFormat extends AudioFileFormat {
 
 	static final int DATA_MAGIC = 0x64617461; // "data"
-
 	static final int FMT_MAGIC = 0x666d7420; // "fmt "
 
 	// magic numbers
 	static final int RIFF_MAGIC = 1380533830;
-
 	static final int WAVE_FORMAT_ADPCM = 0x0002;
 	static final int WAVE_FORMAT_ALAW = 0x0006;
 	static final int WAVE_FORMAT_DIGIFIX = 0x0016;
 	static final int WAVE_FORMAT_DIGISTD = 0x0015;
-
 	static final int WAVE_FORMAT_DVI_ADPCM = 0x0011;
 	static final int WAVE_FORMAT_MULAW = 0x0007;
 	static final int WAVE_FORMAT_OKI_ADPCM = 0x0010;
@@ -95,14 +92,14 @@ final class WaveFileFormat extends AudioFileFormat {
 		AudioFormat.Encoding encoding = format.getEncoding();
 
 		if (encoding.equals(AudioFormat.Encoding.ALAW)) {
-			waveType = WAVE_FORMAT_ALAW;
+			this.waveType = WAVE_FORMAT_ALAW;
 		} else if (encoding.equals(AudioFormat.Encoding.ULAW)) {
-			waveType = WAVE_FORMAT_MULAW;
+			this.waveType = WAVE_FORMAT_MULAW;
 		} else if (encoding.equals(AudioFormat.Encoding.PCM_SIGNED) ||
 		        encoding.equals(AudioFormat.Encoding.PCM_UNSIGNED)) {
-			waveType = WAVE_FORMAT_PCM;
+			this.waveType = WAVE_FORMAT_PCM;
 		} else {
-			waveType = WAVE_FORMAT_UNKNOWN;
+			this.waveType = WAVE_FORMAT_UNKNOWN;
 		}
 	}
 
@@ -112,6 +109,6 @@ final class WaveFileFormat extends AudioFileFormat {
 
 	int getWaveType() {
 
-		return waveType;
+		return this.waveType;
 	}
 }

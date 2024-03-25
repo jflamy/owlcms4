@@ -39,7 +39,7 @@ public abstract class XLSXWorkbookStreamSource implements InputStreamFactory {
 
 	public XLSXWorkbookStreamSource() {
 	}
-	
+
 	@Override
 	public InputStream createInputStream() {
 		try {
@@ -63,9 +63,6 @@ public abstract class XLSXWorkbookStreamSource implements InputStreamFactory {
 		}
 	}
 
-
-	protected abstract void writeStream(OutputStream stream);
-
 	public Consumer<String> getDoneCallback() {
 		return this.doneCallback;
 	}
@@ -74,6 +71,6 @@ public abstract class XLSXWorkbookStreamSource implements InputStreamFactory {
 		this.doneCallback = action;
 	}
 
-
+	protected abstract void writeStream(OutputStream stream);
 
 }

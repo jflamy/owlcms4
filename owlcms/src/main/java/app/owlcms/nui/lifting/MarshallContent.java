@@ -50,11 +50,9 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 	static {
 		logger.setLevel(Level.INFO);
 	}
-
-	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	public MarshallContent() {
-		super();
 		// when navigating to the page, Vaadin will call setParameter+readParameters
 		// these parameters will be applied.
 		setDefaultParameters(QueryParameters.simple(Map.of(
@@ -77,8 +75,8 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 			        fop.getGroup() == null ? null : fop.getGroup().getName(),
 			        LoggerUtils.whereFrom());
 			final String filterValue;
-			if (lastNameFilter.getValue() != null) {
-				filterValue = lastNameFilter.getValue().toLowerCase();
+			if (this.lastNameFilter.getValue() != null) {
+				filterValue = this.lastNameFilter.getValue().toLowerCase();
 				return fop.getLiftingOrder().stream().filter(a -> a.getLastName().toLowerCase().startsWith(filterValue))
 				        .collect(Collectors.toList());
 			} else {
@@ -106,7 +104,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 
 	@Subscribe
 	public void slaveRefereeDecision(UIEvent.Decision e) {
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			hideLiveDecisions();
 
 			int d = e.decision ? 1 : 0;
@@ -130,7 +128,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 
 	@Subscribe
 	public void slaveStartTime(UIEvent.StartTime e) {
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			buttonsTimeStarted();
 			displayLiveDecisions();
 		});
@@ -142,7 +140,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 	@Override
 	protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
 		createStopTimeButton();
-		HorizontalLayout buttons = new HorizontalLayout(stopTimeButton);
+		HorizontalLayout buttons = new HorizontalLayout(this.stopTimeButton);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 		return buttons;
 	}

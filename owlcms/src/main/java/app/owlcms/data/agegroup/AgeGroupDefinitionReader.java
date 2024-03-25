@@ -38,9 +38,11 @@ public class AgeGroupDefinitionReader {
 
 	private static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupDefinitionReader.class);
 
+	public static void doInsertRobiAndAgeGroups(InputStream ageGroupStream) {
+		Logger mainLogger = Main.getStartupLogger();
+		Map<String, Category> templates = loadRobi(mainLogger);
+		loadAgeGroupStream(null, "custom upload", mainLogger, templates, ageGroupStream);
 
-	private static Object cellName(int iColumn, int iRow) {
-		return Character.toString('A' + iColumn) + (Integer.toString(iRow + 1));
 	}
 
 	static void createAgeGroups(Workbook workbook, Map<String, Category> templates,
@@ -49,7 +51,7 @@ public class AgeGroupDefinitionReader {
 
 		JPAService.runInTransaction(em -> {
 			// backward compatibility
-			Sheet sheet = workbook.getSheetAt(workbook.getNumberOfSheets()-1);
+			Sheet sheet = workbook.getSheetAt(workbook.getNumberOfSheets() - 1);
 			Iterator<Row> rowIterator = sheet.rowIterator();
 			int iRow = 0;
 			rows: while (rowIterator.hasNext()) {
@@ -136,23 +138,23 @@ public class AgeGroupDefinitionReader {
 								String qualTotal = parts.length > 1 ? parts[1] : "0";
 								Category cat;
 								try {
-//									cat = AgeGroupRepository.createCategoryFromTemplate(catCode, ag, templates,
-//									        curMin, qualTotal);
-//									if (cat == null) {
-										// category is not IWF, no records available
-										Gender gender;
-										String upper;
-										if (catCode.matches("^[A-Za-z]\\d+$")) {
-											gender = Gender.valueOf(catCode.substring(0, 1));
-											upper = catCode.substring(1);
-										} else {
-											gender = ag.getGender();
-											upper = catCode;
-										}
-										cat = new Category(curMin, Double.parseDouble(upper),
-										        gender, ag.isActive(), 0, 0, 0,
-										        ag, Integer.parseInt(qualTotal));
-//									}
+									// cat = AgeGroupRepository.createCategoryFromTemplate(catCode, ag, templates,
+									// curMin, qualTotal);
+									// if (cat == null) {
+									// category is not IWF, no records available
+									Gender gender;
+									String upper;
+									if (catCode.matches("^[A-Za-z]\\d+$")) {
+										gender = Gender.valueOf(catCode.substring(0, 1));
+										upper = catCode.substring(1);
+									} else {
+										gender = ag.getGender();
+										upper = catCode;
+									}
+									cat = new Category(curMin, Double.parseDouble(upper),
+									        gender, ag.isActive(), 0, 0, 0,
+									        ag, Integer.parseInt(qualTotal));
+									// }
 									em.persist(cat);
 									// logger.debug(cat.longDump());
 									curMin = cat.getMaximumWeight();
@@ -198,6 +200,10 @@ public class AgeGroupDefinitionReader {
 
 	}
 
+	private static Object cellName(int iColumn, int iRow) {
+		return Character.toString('A' + iColumn) + (Integer.toString(iRow + 1));
+	}
+
 	private static InputStream findAgeGroupFile(String localizedFileName, Logger mainLogger) {
 		InputStream ageGroupStream = null;
 		try {
@@ -209,13 +215,6 @@ public class AgeGroupDefinitionReader {
 		return ageGroupStream;
 	}
 
-	public static void doInsertRobiAndAgeGroups(InputStream ageGroupStream) {
-		Logger mainLogger = Main.getStartupLogger();
-		Map<String, Category> templates = loadRobi(mainLogger);
-		loadAgeGroupStream(null, "custom upload", mainLogger, templates, ageGroupStream);
-
-	}
-	
 	private static void loadAgeGroupStream(EnumSet<AgeDivision> es, String localizedName, Logger mainLogger,
 	        Map<String, Category> templates, InputStream localizedResourceAsStream1) {
 		try (Workbook workbook = WorkbookFactory

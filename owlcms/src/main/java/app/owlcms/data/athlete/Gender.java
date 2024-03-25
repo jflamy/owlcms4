@@ -24,28 +24,28 @@ public enum Gender {
 		}
 		return mfValueArray;
 	}
-	
+
 	public String asGenderName() {
 		switch (this) {
-		case F:
-			return (Translator.translate("Gender.Women"));
-		case I:
-			return (Translator.translate("Gender.Inclusive"));
-		case M:
-			return (Translator.translate("Gender.Men"));
-		default:
-			throw new IllegalStateException();
+			case F:
+				return (Translator.translate("Gender.Women"));
+			case I:
+				return (Translator.translate("Gender.Inclusive"));
+			case M:
+				return (Translator.translate("Gender.Men"));
+			default:
+				throw new IllegalStateException();
 		}
 	}
-	
+
 	public String asPublicGenderCode() {
 		switch (this) {
-		case F:
-		case I:
-		case M:
-			return (Translator.translate("Gender."+this.name()));
-		default:
-			throw new IllegalStateException();
+			case F:
+			case I:
+			case M:
+				return (Translator.translate("Gender." + this.name()));
+			default:
+				throw new IllegalStateException();
 		}
 	}
 }

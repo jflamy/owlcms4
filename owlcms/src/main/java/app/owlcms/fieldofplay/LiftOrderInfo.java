@@ -12,15 +12,10 @@ import app.owlcms.data.athlete.Athlete;
 
 public class LiftOrderInfo implements Comparable<LiftOrderInfo> {
 	private Athlete athlete;
-
 	private int attemptNo;
-
 	private int lotNumber;
-
 	private int progression;
-
 	private int startNumber;
-
 	private int weight;
 
 	@Override
@@ -80,27 +75,27 @@ public class LiftOrderInfo implements Comparable<LiftOrderInfo> {
 	}
 
 	public Athlete getAthlete() {
-		return athlete;
+		return this.athlete;
 	}
 
 	public int getAttemptNo() {
-		return attemptNo;
+		return this.attemptNo;
 	}
 
 	public int getLotNumber() {
-		return lotNumber;
+		return this.lotNumber;
 	}
 
 	public int getProgression() {
-		return progression;
+		return this.progression;
 	}
 
 	public int getStartNumber() {
-		return startNumber;
+		return this.startNumber;
 	}
 
 	public int getWeight() {
-		return weight;
+		return this.weight;
 	}
 
 	@Override

@@ -64,7 +64,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsMedals.class);
 	@SuppressWarnings("unused")
-	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 	private Category category;
 	private JsonArray cattempts;
 	private TreeMap<Category, TreeSet<Athlete>> medals;
@@ -77,12 +77,11 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	private String ageGroupPrefix;
 
 	public ResultsMedals() {
-		super();
 		getTimer().setSilenced(true);
 		getBreakTimer().setSilenced(true);
 		getDecisions().setSilenced(true);
 	}
-	
+
 	@Override
 	public void doBreak(UIEvent event) {
 		if (!(event instanceof UIEvent.BreakStarted)) {
@@ -91,7 +90,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		// logger.trace("break event = {} {} {}", e.getBreakType(), e.getTrace(),
 		// ceremonyGroup);
 
-		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			this.getElement().setProperty("fullName",
 			        inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
 			this.getElement().setProperty("teamName", "");
@@ -105,7 +104,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	@Override
 	public void doCeremony(UIEvent.CeremonyStarted e) {
 		// logger.debug("+++++++ ceremony event = {} {}", e, e.getTrace());
-		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			Group ceremonyGroup = e.getCeremonyGroup();
 			setGroup(ceremonyGroup);
 			Category ceremonyCategory = e.getCeremonyCategory();
@@ -116,22 +115,27 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 
 	@Override
 	public AgeDivision getAgeDivision() {
-		return ageDivision;
+		return this.ageDivision;
 	}
 
 	@Override
 	public AgeGroup getAgeGroup() {
-		return ageGroup;
+		return this.ageGroup;
 	}
 
 	@Override
 	public String getAgeGroupPrefix() {
-		return ageGroupPrefix;
+		return this.ageGroupPrefix;
 	}
 
 	@Override
 	public Category getCategory() {
-		return category;
+		return this.category;
+	}
+
+	@Override
+	public boolean isShowInitialDialog() {
+		return false;
 	}
 
 	@Override
@@ -158,7 +162,6 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	public void setSilenced(boolean silent) {
 	}
 
-
 	@Subscribe
 	public void slaveAllEvents(UIEvent e) {
 		// logger.trace("*** {}", e);
@@ -168,7 +171,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	@Subscribe
 	public void slaveBreakDone(UIEvent.BreakDone e) {
 		uiLog(e);
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
 			// logger.trace("------- slaveBreakDone {}", e.getBreakType());
 			setDisplay();
 			doUpdate(e);
@@ -179,7 +182,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	@Subscribe
 	public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
 		uiLog(e);
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
 			// logger.trace("------- slaveCeremonyDone {}", e.getCeremonyType());
 			if (e.getCeremonyType() == CeremonyType.MEDALS) {
 				// end of medals break.
@@ -193,7 +196,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
 		// logger.trace("------- slaveCeremonyStarted {}", e.getCeremonyType());
 		uiLog(e);
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			setDisplay();
 			doCeremony(e);
 		});
@@ -223,7 +226,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	@Subscribe
 	public void slaveStartBreak(UIEvent.BreakStarted e) {
 		uiLog(e);
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			setDisplay();
 			doBreak(e);
 		});
@@ -234,17 +237,17 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	public void slaveStartLifting(UIEvent.StartLifting e) {
 		// logger.trace("****** slaveStartLifting ");
 		uiLog(e);
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			setDisplay();
 			// If this page was opened in replacement of a display, go back to the display.
-			unregister(this, uiEventBus);
-//			retrieveFromSessionStorage("pageURL", result -> {
-//				if (result != null && !result.isBlank()) {
-//					UI.getCurrent().getPage().setLocation(result);
-//				} else {
-//					this.getElement().callJsFunction("reset");
-//				}
-//			});
+			unregister(this, this.uiEventBus);
+			// retrieveFromSessionStorage("pageURL", result -> {
+			// if (result != null && !result.isBlank()) {
+			// UI.getCurrent().getPage().setLocation(result);
+			// } else {
+			// this.getElement().callJsFunction("reset");
+			// }
+			// });
 		});
 	}
 
@@ -252,7 +255,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	@Subscribe
 	public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
 		uiLog(e);
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			syncWithFOP(e);
 		});
 	}
@@ -276,21 +279,21 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	protected void doUpdate(UIEvent e) {
 		// logger.trace("---------- doUpdate {} {} {}", e != null ?
 		// e.getClass().getSimpleName() : "no event");
-		//boolean leaveTopAlone = false;
-//		if (e instanceof UIEvent.LiftingOrderUpdated) {
-//			LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
-//			if (e2.isInBreak()) {
-//				leaveTopAlone = !e2.isDisplayToggle();
-//			} else {
-//				leaveTopAlone = !e2.isCurrentDisplayAffected();
-//			}
-//		}
+		// boolean leaveTopAlone = false;
+		// if (e instanceof UIEvent.LiftingOrderUpdated) {
+		// LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
+		// if (e2.isInBreak()) {
+		// leaveTopAlone = !e2.isDisplayToggle();
+		// } else {
+		// leaveTopAlone = !e2.isCurrentDisplayAffected();
+		// }
+		// }
 
 		FieldOfPlay fop = OwlcmsSession.getFop();
-//		if (!leaveTopAlone) {
-//			this.getElement().callJsFunction("reset");
-//		}
-		logger.debug("updating bottom");
+		// if (!leaveTopAlone) {
+		// this.getElement().callJsFunction("reset");
+		// }
+		this.logger.debug("updating bottom");
 		updateBottom(null, fop);
 	}
 
@@ -308,9 +311,9 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
 		ja.put("category", category != null ? category : "");
 		getAttemptsJson(a);
-		ja.put("sattempts", sattempts);
+		ja.put("sattempts", this.sattempts);
 		ja.put("bestSnatch", formatInt(a.getBestSnatch()));
-		ja.put("cattempts", cattempts);
+		ja.put("cattempts", this.cattempts);
 		ja.put("bestCleanJerk", formatInt(a.getBestCleanJerk()));
 		ja.put("total", formatInt(a.getTotal()));
 		Participation mainRankings = a.getMainRankings();
@@ -327,14 +330,14 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			ja.put("totalRank", formatRank(totalRank));
 			ja.put("totalMedal", totalRank <= 3 ? "medal" + totalRank : "");
 		} else {
-			logger.error("main rankings null for {}", a);
+			this.logger.error("main rankings null for {}", a);
 		}
 		ja.put("group", a.getGroup().getName());
 		ja.put("subCategory", a.getSubCategory());
-		
+
 		ja.put("sinclair", computedScore(a));
 		ja.put("sinclairRank", computedScoreRank(a));
-		
+
 		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
 
@@ -344,7 +347,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			String team = a.getTeam();
 			String teamFileName = URLUtils.sanitizeFilename(team);
 
-			if (teamFlags && !team.isBlank()) {
+			if (this.teamFlags && !team.isBlank()) {
 				prop = URLUtils.getImgTag("flags/", teamFileName, ".svg");
 				if (prop == null) {
 					prop = URLUtils.getImgTag("flags/", teamFileName, ".png");
@@ -368,10 +371,10 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	 * @return
 	 */
 	protected JsonValue getAthletesJson(List<Athlete> displayOrder, final FieldOfPlay _unused) {
-		snatchCJTotalMedals = Competition.getCurrent().isSnatchCJTotalMedals();
+		this.snatchCJTotalMedals = Competition.getCurrent().isSnatchCJTotalMedals();
 		JsonArray jath = Json.createArray();
 		AtomicInteger athx = new AtomicInteger(0);
-//        Category prevCat = null;
+		// Category prevCat = null;
 		List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
 		        : Collections.emptyList();
 
@@ -384,7 +387,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			        getAthleteJson(a, ja, curCat, 0);
 			        String team = a.getTeam();
 			        if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
-				        logger.trace("long team {}", team);
+				        this.logger.trace("long team {}", team);
 				        setWideTeamNames(true);
 			        }
 			        jath.set(athx.getAndIncrement(), ja);
@@ -399,9 +402,9 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		doMedalsDisplay();
-//		if (!isSilenced() || !isDownSilenced()) {
-//			SoundUtils.enableAudioContextNotification(this.getElement());
-//		}
+		// if (!isSilenced() || !isDownSilenced()) {
+		// SoundUtils.enableAudioContextNotification(this.getElement());
+		// }
 	}
 
 	@Override
@@ -426,7 +429,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		// logger.debug("updateBottom");
 		this.getElement().setProperty("groupName", "");
 		this.getElement().setProperty("liftDone", "-");
-		computeMedalsJson(medals);
+		computeMedalsJson(this.medals);
 	}
 
 	private void computeCategoryMedalsJson(TreeMap<Category, TreeSet<Athlete>> medals2) {
@@ -450,6 +453,18 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 				this.getElement().setProperty("noCategories", true);
 			}
 		});
+	}
+
+	private String computedScore(Athlete a) {
+		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
+		double value = Ranking.getRankingValue(a, scoringSystem);
+		String score = value > 0.001 ? String.format("%.3f", value) : "-";
+		return score;
+	}
+
+	private String computedScoreRank(Athlete a) {
+		Integer value = Ranking.getRanking(a, Competition.getCurrent().getScoringSystem());
+		return value != null && value > 0 ? "" + value : "-";
 	}
 
 	private void computeGroupMedalsJson(TreeMap<Category, TreeSet<Athlete>> medals2) {
@@ -504,30 +519,30 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		OwlcmsSession.withFop(fop -> {
 			medalsInit();
 			checkVideo(this);
-			teamFlags = URLUtils.checkFlags();
+			this.teamFlags = URLUtils.checkFlags();
 			if (this.getCategory() == null) {
 				if (this.getGroup() != null) {
-					medals = Competition.getCurrent().getMedals(this.getGroup(), false);
+					this.medals = Competition.getCurrent().getMedals(this.getGroup(), false);
 				} else {
 					// we listen on uiEventBus.
-					uiEventBus = uiEventBusRegister(this, fop);
-					medals = Competition.getCurrent().getMedals(OwlcmsSession.getFop().getGroup(), false);
+					this.uiEventBus = uiEventBusRegister(this, fop);
+					this.medals = Competition.getCurrent().getMedals(OwlcmsSession.getFop().getGroup(), false);
 				}
 				this.getElement().setProperty("fillerDisplay", "");
 			} else {
 				TreeSet<Athlete> catMedals = Competition.getCurrent().computeMedalsForCategory(this.getCategory());
 				// logger.debug("group {} category {} catMedals {}", getGroup(), getCategory(),
 				// catMedals);
-				medals = new TreeMap<>();
-				medals.put(this.getCategory(), catMedals);
+				this.medals = new TreeMap<>();
+				this.medals.put(this.getCategory(), catMedals);
 				this.getElement().setProperty("fillerDisplay", "display: none;");
 			}
 			setDisplay();
-			this.getElement().setProperty("showLiftRanks", Competition.getCurrent().isSnatchCJTotalMedals()); 
-			computeMedalsJson(medals);
+			this.getElement().setProperty("showLiftRanks", Competition.getCurrent().isSnatchCJTotalMedals());
+			computeMedalsJson(this.medals);
 			// we listen on uiEventBus.
-			uiEventBus = uiEventBusRegister(this, fop);
-            this.getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
+			this.uiEventBus = uiEventBusRegister(this, fop);
+			this.getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
 		});
 
 		if (!Competition.getCurrent().isSnatchCJTotalMedals()) {
@@ -538,23 +553,23 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 
 	private void doRefresh(UIEvent e) {
 		Thread t1 = new Thread(() -> {
-			UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 				if (this.getCategory() == null) {
 					if (this.getGroup() != null) {
-						medals = Competition.getCurrent().getMedals(this.getGroup(), false);
+						this.medals = Competition.getCurrent().getMedals(this.getGroup(), false);
 					} else {
 						OwlcmsSession.getCurrent();
-						medals = Competition.getCurrent().getMedals(OwlcmsSession.getFop().getGroup(), false);
+						this.medals = Competition.getCurrent().getMedals(OwlcmsSession.getFop().getGroup(), false);
 					}
 				} else {
 					TreeSet<Athlete> catMedals = Competition.getCurrent().computeMedalsForCategory(this.getCategory());
 					// logger.debug("group {} category {} catMedals {}", getGroup(), getCategory(),
 					// catMedals);
-					medals = new TreeMap<>();
-					medals.put(this.getCategory(), catMedals);
+					this.medals = new TreeMap<>();
+					this.medals.put(this.getCategory(), catMedals);
 				}
 				setDisplay();
-				computeMedalsJson(medals);
+				computeMedalsJson(this.medals);
 			});
 		});
 		// medal stuff can wait.
@@ -567,6 +582,11 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		        : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
 	}
 
+	// private void retrieveFromSessionStorage(String key, SerializableConsumer<String> resultHandler) {
+	// getElement().executeJs("return window.sessionStorage.getItem($0);", key)
+	// .then(String.class, resultHandler);
+	// }
+
 	/**
 	 * Compute Json string ready to be used by web component template
 	 *
@@ -577,8 +597,8 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	 * @return json string with nested attempts values
 	 */
 	private void getAttemptsJson(Athlete a) {
-		sattempts = Json.createArray();
-		cattempts = Json.createArray();
+		this.sattempts = Json.createArray();
+		this.cattempts = Json.createArray();
 		XAthlete x = new XAthlete(a);
 		int ix = 0;
 		for (LiftInfo i : x.getRequestInfoArray()) {
@@ -591,56 +611,44 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			if (i.getChangeNo() >= 0) {
 				String trim = stringValue != null ? stringValue.trim() : "";
 				switch (Changes.values()[i.getChangeNo()]) {
-				case ACTUAL:
-					if (!trim.isEmpty()) {
-						if (trim.contentEquals("-") || trim.contentEquals("0")) {
-							jri.put("goodBadClassName", "narrow fail");
-							jri.put("stringValue", "-");
-						} else {
-							boolean failed = stringValue != null && stringValue.startsWith("-");
-							jri.put("goodBadClassName", failed ? "narrow fail" : "narrow good");
-							jri.put("stringValue", formatKg(stringValue));
+					case ACTUAL:
+						if (!trim.isEmpty()) {
+							if (trim.contentEquals("-") || trim.contentEquals("0")) {
+								jri.put("goodBadClassName", "narrow fail");
+								jri.put("stringValue", "-");
+							} else {
+								boolean failed = stringValue != null && stringValue.startsWith("-");
+								jri.put("goodBadClassName", failed ? "narrow fail" : "narrow good");
+								jri.put("stringValue", formatKg(stringValue));
+							}
 						}
-					}
-					break;
-				default:
-					if (stringValue != null && !trim.isEmpty()) {
-						// logger.debug("{} {} {}", fop.getState(), x.getShortName(), curLift);
+						break;
+					default:
+						if (stringValue != null && !trim.isEmpty()) {
+							// logger.debug("{} {} {}", fop.getState(), x.getShortName(), curLift);
 
-						String highlight = "";
-						jri.put("goodBadClassName", "narrow request");
-						if (notDone) {
-							jri.put("className", highlight);
+							String highlight = "";
+							jri.put("goodBadClassName", "narrow request");
+							if (notDone) {
+								jri.put("className", highlight);
+							}
+							jri.put("stringValue", stringValue);
 						}
-						jri.put("stringValue", stringValue);
-					}
-					break;
+						break;
 				}
 			}
 
 			if (ix < 3) {
-				sattempts.set(ix, jri);
+				this.sattempts.set(ix, jri);
 			} else {
-				cattempts.set(ix % 3, jri);
+				this.cattempts.set(ix % 3, jri);
 			}
 			ix++;
 		}
 	}
 
-	private void medalsInit() {
-		OwlcmsSession.withFop(fop -> {
-			logger.trace("{}Starting result board on FOP {}", fop.getLoggingName());
-			setId("medals-" + fop.getName());
-			setWideTeamNames(false);
-			this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
-			this.setGroup(fop.getVideoGroup());
-			this.setCategory(fop.getVideoCategory());
-		});
-		setTranslationMap();
-	}
-
 	private boolean isMedalist(Athlete a) {
-		if (snatchCJTotalMedals) {
+		if (this.snatchCJTotalMedals) {
 			int snatchRank = a.getSnatchRank();
 			if (snatchRank <= 3 && snatchRank > 0) {
 				return true;
@@ -657,10 +665,17 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		return false;
 	}
 
-//	private void retrieveFromSessionStorage(String key, SerializableConsumer<String> resultHandler) {
-//		getElement().executeJs("return window.sessionStorage.getItem($0);", key)
-//		        .then(String.class, resultHandler);
-//	}
+	private void medalsInit() {
+		OwlcmsSession.withFop(fop -> {
+			this.logger.trace("{}Starting result board on FOP {}", fop.getLoggingName());
+			setId("medals-" + fop.getName());
+			setWideTeamNames(false);
+			this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
+			this.setGroup(fop.getVideoGroup());
+			this.setCategory(fop.getVideoCategory());
+		});
+		setTranslationMap();
+	}
 
 	private void setDisplay() {
 		OwlcmsSession.withFop(fop -> {
@@ -680,38 +695,21 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	private void syncWithFOP(UIEvent.SwitchGroup e) {
 		// logger.debug("sync {}", e.getState());
 		switch (e.getState()) {
-		case INACTIVE:
-			doEmpty();
-			break;
-		case BREAK:
-			if (e.getGroup() == null) {
+			case INACTIVE:
 				doEmpty();
-			} else {
+				break;
+			case BREAK:
+				if (e.getGroup() == null) {
+					doEmpty();
+				} else {
+					doUpdate(e);
+					doBreak(e);
+				}
+				break;
+			default:
+				setDisplay();
 				doUpdate(e);
-				doBreak(e);
-			}
-			break;
-		default:
-			setDisplay();
-			doUpdate(e);
 		}
-	}
-
-	@Override
-	public boolean isShowInitialDialog() {
-		return false;
-	}
-	
-	private String computedScoreRank(Athlete a) {
-		Integer value = Ranking.getRanking(a, Competition.getCurrent().getScoringSystem());
-		return value != null && value > 0 ? "" + value : "-";
-	}
-
-	private String computedScore(Athlete a) {
-		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
-		double value = Ranking.getRankingValue(a, scoringSystem);
-		String score = value > 0.001 ? String.format("%.3f", value) : "-";
-		return score;
 	}
 
 }

@@ -155,7 +155,8 @@ public class MQTTMonitor extends Thread implements IUnregister {
 			messageStr = messageStr.trim();
 			try {
 				MQTTMonitor.this.fop.fopEventPost(
-				        new FOPEvent.JuryDecision(this.athleteUnderReview, this, messageStr.contentEquals("good"), true));
+				        new FOPEvent.JuryDecision(this.athleteUnderReview, this, messageStr.contentEquals("good"),
+				                true));
 			} catch (NumberFormatException e) {
 				logger.error("{}Malformed MQTT jury decision message topic='{}' message='{}'",
 				        MQTTMonitor.this.fop.getLoggingName(), topic, messageStr);
@@ -281,21 +282,6 @@ public class MQTTMonitor extends Thread implements IUnregister {
 	public MQTTMonitor(FieldOfPlay fop) {
 		this.fop = fop;
 	}
-	
-	@Override
-	public void unregister() {
-		this.setFop(null);
-		try {
-			this.client.disconnect();
-		} catch (MqttException e) {
-			try {
-				this.client.disconnectForcibly();
-			} catch (MqttException e1) {
-				LoggerUtils.logError(logger, e1);
-			}
-		}
-	}
-
 
 	public FieldOfPlay getFop() {
 		return this.fop;
@@ -480,7 +466,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 		this.fop.getFopEventBus().register(this);
 
 		try {
-			logger.info("starting MQTT monitoring for {}",fop.getLoggingName());
+			logger.info("starting MQTT monitoring for {}", this.fop.getLoggingName());
 			String paramMqttServer = Config.getCurrent().getParamMqttServer();
 			if (Config.getCurrent().getParamMqttInternal() || (paramMqttServer != null && !paramMqttServer.isBlank())) {
 				this.client = createMQTTClient(this.fop);
@@ -490,6 +476,20 @@ public class MQTTMonitor extends Thread implements IUnregister {
 			}
 		} catch (MqttException e) {
 			logger.error("cannot initialize MQTT: {}", LoggerUtils.stackTrace(e));
+		}
+	}
+
+	@Override
+	public void unregister() {
+		this.setFop(null);
+		try {
+			this.client.disconnect();
+		} catch (MqttException e) {
+			try {
+				this.client.disconnectForcibly();
+			} catch (MqttException e1) {
+				LoggerUtils.logError(logger, e1);
+			}
 		}
 	}
 

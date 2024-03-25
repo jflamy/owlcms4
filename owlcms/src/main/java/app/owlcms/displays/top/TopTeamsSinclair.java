@@ -73,7 +73,6 @@ public class TopTeamsSinclair extends AbstractTop {
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	public TopTeamsSinclair() {
-		super();
 		uiEventLogger.setLevel(Level.INFO);
 		OwlcmsFactory.waitDBInitialized();
 		setDarkMode(true);
@@ -81,7 +80,7 @@ public class TopTeamsSinclair extends AbstractTop {
 
 	@Override
 	public void doBreak(UIEvent e) {
-		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			// just update the display
 			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 			doUpdate(fop.getCurAthlete(), null);
@@ -102,17 +101,17 @@ public class TopTeamsSinclair extends AbstractTop {
 		        Competition.getCurrent().getScoringSystem(), true);
 		Map<Gender, List<TeamTreeItem>> teamsByGender = teamResultsTreeData.getTeamItemsByGender();
 
-		mensTeams = teamsByGender.get(Gender.M);
-		if (mensTeams != null) {
-			mensTeams.sort(TeamTreeItem.scoreComparator);
+		this.mensTeams = teamsByGender.get(Gender.M);
+		if (this.mensTeams != null) {
+			this.mensTeams.sort(TeamTreeItem.scoreComparator);
 		}
-		mensTeams = topN(mensTeams);
+		this.mensTeams = topN(this.mensTeams);
 
-		womensTeams = teamsByGender.get(Gender.F);
-		if (womensTeams != null) {
-			womensTeams.sort(TeamTreeItem.scoreComparator);
+		this.womensTeams = teamsByGender.get(Gender.F);
+		if (this.womensTeams != null) {
+			this.womensTeams.sort(TeamTreeItem.scoreComparator);
 		}
-		womensTeams = topN(womensTeams);
+		this.womensTeams = topN(this.womensTeams);
 
 		updateBottom();
 	}
@@ -127,7 +126,7 @@ public class TopTeamsSinclair extends AbstractTop {
 		uiLog(e);
 		Competition competition = Competition.getCurrent();
 
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			doUpdate(competition);
 		});
 	}
@@ -138,7 +137,7 @@ public class TopTeamsSinclair extends AbstractTop {
 		uiLog(e);
 		Competition competition = Competition.getCurrent();
 
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			doUpdate(competition);
 		});
 	}
@@ -148,7 +147,7 @@ public class TopTeamsSinclair extends AbstractTop {
 	public void slaveStartLifting(UIEvent.StartLifting e) {
 		uiLog(e);
 		Competition competition = Competition.getCurrent();
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			doUpdate(competition);
 		});
 	}
@@ -173,7 +172,7 @@ public class TopTeamsSinclair extends AbstractTop {
 	@Override
 	protected void doUpdate(Athlete a, UIEvent e) {
 		logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			if (a != null) {
 				updateBottom();
 			}
@@ -190,7 +189,7 @@ public class TopTeamsSinclair extends AbstractTop {
 		setTranslationMap();
 		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
 			// we listen on all the uiEventBus.
-			uiEventBus = uiEventBusRegister(this, fop);
+			this.uiEventBus = uiEventBusRegister(this, fop);
 		}
 		Competition competition = Competition.getCurrent();
 		doUpdate(competition);
@@ -220,14 +219,14 @@ public class TopTeamsSinclair extends AbstractTop {
 	}
 
 	private String formatDouble(double d) {
-		if (floatFormat == null) {
-			floatFormat = new DecimalFormat();
-			floatFormat.setMinimumIntegerDigits(1);
-			floatFormat.setMaximumFractionDigits(3);
-			floatFormat.setMinimumFractionDigits(3);
-			floatFormat.setGroupingUsed(false);
+		if (this.floatFormat == null) {
+			this.floatFormat = new DecimalFormat();
+			this.floatFormat.setMinimumIntegerDigits(1);
+			this.floatFormat.setMaximumFractionDigits(3);
+			this.floatFormat.setMinimumFractionDigits(3);
+			this.floatFormat.setGroupingUsed(false);
 		}
-		return floatFormat.format(d);
+		return this.floatFormat.format(d);
 	}
 
 	@SuppressWarnings("unused")
@@ -290,16 +289,16 @@ public class TopTeamsSinclair extends AbstractTop {
 		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
 		String ssText = Ranking.getScoringTitle(scoringSystem);
 		this.getElement().setProperty("topTeamsMen",
-		        mensTeams != null && mensTeams.size() > 0
+		        this.mensTeams != null && this.mensTeams.size() > 0
 		                ? Translator.translate("Scoreboard.TopTeamsScoreMen", ssText) + computeAgeGroupSuffix()
 		                : "");
-		this.getElement().setPropertyJson("mensTeams", getTeamsJson(mensTeams, true));
+		this.getElement().setPropertyJson("mensTeams", getTeamsJson(this.mensTeams, true));
 
 		this.getElement().setProperty("topTeamsWomen",
-		        womensTeams != null && womensTeams.size() > 0
+		        this.womensTeams != null && this.womensTeams.size() > 0
 		                ? Translator.translate("Scoreboard.TopTeamsScoreWomen", ssText) + computeAgeGroupSuffix()
 		                : "");
-		this.getElement().setPropertyJson("womensTeams", getTeamsJson(womensTeams, false));
+		this.getElement().setPropertyJson("womensTeams", getTeamsJson(this.womensTeams, false));
 	}
 
 }

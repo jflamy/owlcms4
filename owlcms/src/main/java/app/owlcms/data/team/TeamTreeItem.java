@@ -24,8 +24,7 @@ import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 /**
- * A TeamTreeItem is either a team, or a person inside a team. A Vaadin tree
- * contains only one type of node.
+ * A TeamTreeItem is either a team, or a person inside a team. A Vaadin tree contains only one type of node.
  *
  * @author JF
  *
@@ -42,7 +41,6 @@ public class TeamTreeItem {
 		compare = -ObjectUtils.compare(a.getPoints(), b.getPoints(), true);
 		return compare;
 	});
-
 	public static Comparator<TeamTreeItem> scoreComparator = ((a, b) -> {
 		int compare = 0;
 		compare = ObjectUtils.compare(a.getGender(), b.getGender(), true);
@@ -53,27 +51,20 @@ public class TeamTreeItem {
 		compare = -ObjectUtils.compare(a.getScore(), b.getScore(), true);
 		return compare;
 	});
-
 	@SuppressWarnings("unused")
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(TeamTreeItem.class);
-
 	private Athlete athlete;
 	private boolean done;
 	private TeamTreeItem parent;
 	private Team team;
-
 	private List<TeamTreeItem> teamMembers;
-
 	private boolean combinedPoints;
-
 	private NativeLabel membershipLabel;
-
 	private boolean warning;
-
 	private Ranking scoringSystem;
 
 	public TeamTreeItem(String curTeamName, Gender gender, Athlete teamMember, boolean done) {
-		scoringSystem = Competition.getCurrent().getScoringSystem();
+		this.scoringSystem = Competition.getCurrent().getScoringSystem();
 		this.athlete = teamMember;
 		this.setDone(done);
 		if (this.athlete == null) {
@@ -89,7 +80,7 @@ public class TeamTreeItem {
 		child.setParent(this);
 		getTeamMembers().add(child);
 	}
-	
+
 	public void addTreeItemChild(TeamSelectionTreeData teamSelectionTreeData, Athlete a, boolean done) {
 		TeamTreeItem child = new TeamTreeItem(null, a.getGender(), a, done);
 		child.setParent(this);
@@ -98,15 +89,15 @@ public class TeamTreeItem {
 	}
 
 	public String formatName() {
-		if (athlete == null) {
+		if (this.athlete == null) {
 			return Translator.translate("TeamResults.TeamNameFormat", getTeam().getName(), getTeam().getGender());
 		} else {
-			return athlete.getFullName();
+			return this.athlete.getFullName();
 		}
 	}
 
 	public String formatProgress() {
-		if (athlete != null) {
+		if (this.athlete != null) {
 			return isDone() ? Translator.translate("Done") : "";
 		} else {
 			return getTeam().getCounted() + "/" + getTeam().getSize();
@@ -119,73 +110,77 @@ public class TeamTreeItem {
 	}
 
 	public Athlete getAthlete() {
-		return athlete;
+		return this.athlete;
 	}
 
 	public String getCategory() {
-		return team == null ? athlete.getCategory().getTranslatedName() : "";
+		return this.team == null ? this.athlete.getCategory().getTranslatedName() : "";
 	}
 
 	public Integer getCleanJerkPoints() {
-		return athlete.getCleanJerkPoints();
+		return this.athlete.getCleanJerkPoints();
 	}
 
 	public Integer getCombinedPoints() {
-		return athlete.getCombinedPoints();
+		return this.athlete.getCombinedPoints();
 	}
 
 	public Integer getCounted() {
-		return team != null ? team.getCounted() : null;
+		return this.team != null ? this.team.getCounted() : null;
 	}
 
 	public Integer getCustomPoints() {
-		return athlete.getCustomPoints();
+		return this.athlete.getCustomPoints();
 	}
 
 	public Gender getGender() {
-		return team != null ? team.getGender() : athlete.getGender();
+		return this.team != null ? this.team.getGender() : this.athlete.getGender();
+	}
+
+	public NativeLabel getMembershipLabel() {
+		return this.membershipLabel;
 	}
 
 	public String getName() {
-		if (athlete == null) {
+		if (this.athlete == null) {
 			return getTeam().getName();
 		} else {
-			return athlete.getFullName();
+			return this.athlete.getFullName();
 		}
 	}
 
 	public TeamTreeItem getParent() {
-		return parent;
+		return this.parent;
 	}
 
 	public Integer getPoints() {
 		Integer pts;
-		if (athlete == null) {
+		if (this.athlete == null) {
 			pts = getTeam().getPoints();
 		} else {
-			pts = isDone() ? (combinedPoints ? getCombinedPoints() : getTotalPoints()) : null;
+			pts = isDone() ? (this.combinedPoints ? getCombinedPoints() : getTotalPoints()) : null;
 		}
 		return pts;
 	}
 
 	public Double getScore() {
-		return (team != null ? team.getScore() : Ranking.getRankingValue(athlete, scoringSystem));
+		return (this.team != null ? this.team.getScore() : Ranking.getRankingValue(this.athlete, this.scoringSystem));
 	}
-	
+
 	public Double getSinclairScore() {
-		return (team != null ? team.getSinclairScore() : athlete.getSinclairForDelta());
+		return (this.team != null ? this.team.getSinclairScore() : this.athlete.getSinclairForDelta());
 	}
 
 	public long getSize() {
-		return team != null ? team.getSize() : 0;
+		return this.team != null ? this.team.getSize() : 0;
 	}
 
 	public Double getSmfScore() {
-		return (team != null ? team.getSmfScore() : athlete.getSmfForDelta());
+		return (this.team != null ? this.team.getSmfScore() : this.athlete.getSmfForDelta());
 	}
 
 	public Integer getSnatchPoints() {
-		return athlete.getSnatchPoints();
+		return this.athlete.getSnatchPoints();
 	}
 
 	public List<TeamTreeItem> getSortedTeamMembers() {
@@ -197,34 +192,56 @@ public class TeamTreeItem {
 	}
 
 	public Team getTeam() {
-		return team;
+		return this.team;
 	}
 
 	public List<TeamTreeItem> getTeamMembers() {
-		if (teamMembers == null) {
+		if (this.teamMembers == null) {
 			return Collections.emptyList();
 		}
-		return teamMembers;
+		return this.teamMembers;
 	}
 
 	public String getTeamName() {
-		return athlete.getTeam();
+		return this.athlete.getTeam();
 	}
 
 	public Integer getTotalPoints() {
-		return (athlete != null ? athlete.getTotalPoints() : null);
+		return (this.athlete != null ? this.athlete.getTotalPoints() : null);
+	}
+
+	public Boolean isTeamMember() {
+		return (this.athlete != null ? this.athlete.isTeamMember() : null);
+	}
+
+	public boolean isWarning() {
+		return this.warning;
+	}
+
+	public void setMembershipLabel(NativeLabel label) {
+		this.membershipLabel = label;
 	}
 
 	public void setParent(TeamTreeItem parent) {
 		this.parent = parent;
 	}
 
+	public void setTeamMember(boolean b) {
+		if (this.athlete != null) {
+			this.athlete.setTeamMember(b);
+		}
+	}
+
 	public void setTeamMembers(List<TeamTreeItem> teamMembers) {
 		this.teamMembers = teamMembers;
 	}
 
+	public void setWarning(boolean contains) {
+		this.warning = contains;
+	}
+
 	private boolean isDone() {
-		return done;
+		return this.done;
 	}
 
 	private void setDone(boolean done) {
@@ -233,32 +250,6 @@ public class TeamTreeItem {
 
 	private void setTeam(Team team) {
 		this.team = team;
-	}
-
-	public Boolean isTeamMember() {
-		return (athlete != null ? athlete.isTeamMember() : null);
-	}
-
-	public void setTeamMember(boolean b) {
-		if (athlete != null) {
-			athlete.setTeamMember(b);
-		}
-	}
-
-	public void setMembershipLabel(NativeLabel label) {
-		this.membershipLabel = label;
-	}
-	
-	public NativeLabel getMembershipLabel() {
-		return this.membershipLabel;
-	}
-
-	public void setWarning(boolean contains) {
-		this.warning = contains;
-	}
-
-	public boolean isWarning() {
-		return warning;
 	}
 
 }

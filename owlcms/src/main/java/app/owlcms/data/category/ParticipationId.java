@@ -22,10 +22,8 @@ public class ParticipationId
         implements Serializable {
 
 	private static final long serialVersionUID = -5619538756170067634L;
-
 	@Column(name = "athlete_id")
 	public Long athleteId;
-
 	@Column(name = "category_id")
 	public Long categoryId;
 
@@ -51,13 +49,13 @@ public class ParticipationId
 		}
 
 		ParticipationId that = (ParticipationId) o;
-		return Objects.equals(athleteId, that.athleteId) &&
-		        Objects.equals(categoryId, that.categoryId);
+		return Objects.equals(this.athleteId, that.athleteId) &&
+		        Objects.equals(this.categoryId, that.categoryId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(athleteId, categoryId);
+		return Objects.hash(this.athleteId, this.categoryId);
 	}
 
 }

@@ -73,7 +73,6 @@ public class TopTeams extends AbstractTop {
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	public TopTeams() {
-		super();
 		uiEventLogger.setLevel(Level.INFO);
 		OwlcmsFactory.waitDBInitialized();
 		setDarkMode(true);
@@ -81,7 +80,7 @@ public class TopTeams extends AbstractTop {
 
 	@Override
 	public void doBreak(UIEvent e) {
-		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			// just update the display
 			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 			doUpdate(fop.getCurAthlete(), null);
@@ -103,17 +102,17 @@ public class TopTeams extends AbstractTop {
 		        Ranking.SNATCH_CJ_TOTAL, false);
 		Map<Gender, List<TeamTreeItem>> teamsByGender = teamResultsTreeData.getTeamItemsByGender();
 
-		mensTeams = teamsByGender.get(Gender.M);
-		if (mensTeams != null) {
-			mensTeams.sort(TeamTreeItem.pointComparator);
+		this.mensTeams = teamsByGender.get(Gender.M);
+		if (this.mensTeams != null) {
+			this.mensTeams.sort(TeamTreeItem.pointComparator);
 		}
-		mensTeams = topN(mensTeams);
+		this.mensTeams = topN(this.mensTeams);
 
-		womensTeams = teamsByGender.get(Gender.F);
-		if (womensTeams != null) {
-			womensTeams.sort(TeamTreeItem.pointComparator);
+		this.womensTeams = teamsByGender.get(Gender.F);
+		if (this.womensTeams != null) {
+			this.womensTeams.sort(TeamTreeItem.pointComparator);
 		}
-		womensTeams = topN(womensTeams);
+		this.womensTeams = topN(this.womensTeams);
 
 		updateBottom();
 	}
@@ -136,7 +135,7 @@ public class TopTeams extends AbstractTop {
 		uiLog(e);
 		Competition competition = Competition.getCurrent();
 
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			doUpdate(competition);
 		});
 	}
@@ -146,7 +145,7 @@ public class TopTeams extends AbstractTop {
 	public void slaveStartLifting(UIEvent.StartLifting e) {
 		uiLog(e);
 		Competition competition = Competition.getCurrent();
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			doUpdate(competition);
 		});
 	}
@@ -171,7 +170,7 @@ public class TopTeams extends AbstractTop {
 	@Override
 	protected void doUpdate(Athlete a, UIEvent e) {
 		// logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			if (a != null) {
 				updateBottom();
 			}
@@ -188,7 +187,7 @@ public class TopTeams extends AbstractTop {
 		setTranslationMap();
 		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
 			// we listen on all the uiEventBus.
-			uiEventBus = uiEventBusRegister(this, fop);
+			this.uiEventBus = uiEventBusRegister(this, fop);
 		}
 		Competition competition = Competition.getCurrent();
 		doUpdate(competition);
@@ -216,13 +215,13 @@ public class TopTeams extends AbstractTop {
 	}
 
 	private String formatDouble(double d) {
-		if (floatFormat == null) {
-			floatFormat = new DecimalFormat();
-			floatFormat.setMinimumIntegerDigits(1);
-			floatFormat.setMaximumFractionDigits(0);
-			floatFormat.setGroupingUsed(false);
+		if (this.floatFormat == null) {
+			this.floatFormat = new DecimalFormat();
+			this.floatFormat.setMinimumIntegerDigits(1);
+			this.floatFormat.setMaximumFractionDigits(0);
+			this.floatFormat.setGroupingUsed(false);
 		}
-		return floatFormat.format(d);
+		return this.floatFormat.format(d);
 	}
 
 	@SuppressWarnings("unused")
@@ -283,14 +282,14 @@ public class TopTeams extends AbstractTop {
 	}
 
 	private void updateBottom() {
-		String menTitle = mensTeams != null && mensTeams.size() > 0
+		String menTitle = this.mensTeams != null && this.mensTeams.size() > 0
 		        ? getTranslation("Scoreboard.TopTeamsMen") + computeAgeGroupSuffix()
 		        : "";
-		JsonValue menJson = getTeamsJson(mensTeams, true);
-		String womenTitle = womensTeams != null && womensTeams.size() > 0
+		JsonValue menJson = getTeamsJson(this.mensTeams, true);
+		String womenTitle = this.womensTeams != null && this.womensTeams.size() > 0
 		        ? getTranslation("Scoreboard.TopTeamsWomen") + computeAgeGroupSuffix()
 		        : "";
-		JsonValue womenJson = getTeamsJson(womensTeams, false);
+		JsonValue womenJson = getTeamsJson(this.womensTeams, false);
 
 		// logger.debug("updateBottomX {} {}", mensTeams, womensTeams);
 		this.getElement().setProperty("topTeamsMen", menTitle);

@@ -36,17 +36,48 @@ public class Team {
 	private double robi = 0.0D;
 	private double gamx;
 	private double qPoints = 0.0D;
-
 	private Ranking scoringSystem;
-	
+
 	public Team(String curTeamName, Gender gender) {
-		name = curTeamName;
+		this.name = curTeamName;
 		this.gender = gender;
 		this.scoringSystem = Competition.getCurrent().getScoringSystem();
 	}
 
+	public double getCatSinclairScore() {
+		return this.catSinclairScore;
+	}
+
+	public int getCounted() {
+		return this.counted;
+	}
+
+	public double getGamx() {
+		return this.gamx;
+	}
+
+	public Gender getGender() {
+		return this.gender;
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public int getPoints() {
+		return this.points;
+	}
+
+	public double getQPoints() {
+		return this.qPoints;
+	}
+
+	public double getRobi() {
+		return this.robi;
+	}
+
 	public Double getScore() {
-		switch (scoringSystem) {
+		switch (this.scoringSystem) {
 			case BW_SINCLAIR:
 				return getSinclairScore();
 			case CAT_SINCLAIR:
@@ -64,43 +95,31 @@ public class Team {
 		}
 	}
 
-	public int getCounted() {
-		return counted;
-	}
-
-	public Gender getGender() {
-		return gender;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public int getPoints() {
-		return points;
-	}
-
-	public double getRobi() {
-		return robi;
-	}
-
 	public double getSinclairScore() {
-		return sinclairScore;
+		return this.sinclairScore;
 	}
 
 	public long getSize() {
-		return size;
+		return this.size;
 	}
 
 	/**
 	 * @return the smfScore
 	 */
 	public double getSmfScore() {
-		return smfScore;
+		return this.smfScore;
+	}
+
+	public void setCatSinclairScore(double catSinclairScore) {
+		this.catSinclairScore = catSinclairScore;
 	}
 
 	public void setCounted(int counted) {
 		this.counted = counted;
+	}
+
+	public void setGamx(double gamx) {
+		this.gamx = gamx;
 	}
 
 	public void setGender(Gender gender) {
@@ -113,6 +132,10 @@ public class Team {
 
 	public void setPoints(int points) {
 		this.points = points;
+	}
+
+	public void setQPoints(double qPoints) {
+		this.qPoints = qPoints;
 	}
 
 	public void setRobi(double robi) {
@@ -132,30 +155,6 @@ public class Team {
 	 */
 	public void setSmfScore(double smfScore) {
 		this.smfScore = smfScore;
-	}
-
-	public double getGamx() {
-		return gamx;
-	}
-
-	public void setGamx(double gamx) {
-		this.gamx = gamx;
-	}
-
-	public double getCatSinclairScore() {
-		return catSinclairScore;
-	}
-
-	public void setCatSinclairScore(double catSinclairScore) {
-		this.catSinclairScore = catSinclairScore;
-	}
-
-	public double getQPoints() {
-		return qPoints;
-	}
-
-	public void setQPoints(double qPoints) {
-		this.qPoints = qPoints;
 	}
 
 }

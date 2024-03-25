@@ -53,7 +53,7 @@ import ch.qos.logback.classic.Logger;
  * This shows an overlay when competition events such as a record attempt or jury deliberation take place.
  *
  */
-//FIXME: show record attempt and new record for a limited duration.
+// FIXME: show record attempt and new record for a limited duration.
 
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("eventmonitor-template")
@@ -82,7 +82,7 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 		}
 
 		public Stage getLiftType() {
-			return liftType;
+			return this.liftType;
 		}
 
 		public void setLiftType(Stage liftType) {
@@ -91,8 +91,10 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 
 		@Override
 		public String toString() {
-			return "Status [breakType=" + breakType + ", ceremonyType=" + ceremonyType + ", decision=" + decision
-			        + ", state=" + state + ", challengedRecords=" + challengedRecords + ", liftType=" + liftType + "]";
+			return "Status [breakType=" + this.breakType + ", ceremonyType=" + this.ceremonyType + ", decision="
+			        + this.decision
+			        + ", state=" + this.state + ", challengedRecords=" + this.challengedRecords + ", liftType="
+			        + this.liftType + "]";
 		}
 	}
 
@@ -148,6 +150,11 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 	}
 
 	@Override
+	public QueryParameters getDefaultParameters() {
+		return this.defaultParameters;
+	}
+
+	@Override
 	final public FieldOfPlay getFop() {
 		return this.fop;
 	}
@@ -173,8 +180,13 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 	}
 
 	@Override
+	public String getRouteParameter() {
+		return this.routeParameter;
+	}
+
+	@Override
 	public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
+		return this.urlParameterMap;
 	}
 
 	@Override
@@ -193,6 +205,11 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 	@Override
 	public boolean isVideo() {
 		return this.video;
+	}
+
+	@Override
+	public void setDefaultParameters(QueryParameters qp) {
+		this.defaultParameters = qp;
 	}
 
 	@Override
@@ -222,6 +239,11 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 	}
 
 	@Override
+	public void setRouteParameter(String routeParameter) {
+		this.routeParameter = routeParameter;
+	}
+
+	@Override
 	public void setShowInitialDialog(boolean b) {
 	}
 
@@ -241,15 +263,15 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 			// ignore events that don't change state
 			return;
 		} else if (e instanceof UIEvent.Notification) {
-			UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 				OwlcmsSession.withFop(fop -> {
-					logger.trace("---- notification {} {}", fop.getName(),
+					this.logger.trace("---- notification {} {}", fop.getName(),
 					        ((UIEvent.Notification) e).getNotificationString());
 				});
 			});
 		}
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e /* , e.getTrace() */);
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			if (syncWithFOP(e)) {
 				// significant transition
 				doUpdate();
@@ -262,14 +284,18 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 
 	@Override
 	public String toString() {
-		return "EventMonitor [history=" + history + ", currentBreakType=" + currentBreakType
+		return "EventMonitor [history=" + this.history + ", currentBreakType=" + this.currentBreakType
 		        + ", currentCeremony="
-		        + currentCeremony + ", currentDecision=" + currentDecision + ", currentChallengedRecords="
-		        + currentChallengedRecords + ", currentFOP=" + currentFOP + ", currentState=" + currentState
-		        + ", previousBreakType=" + previousBreakType + ", previousCeremony=" + previousCeremony
-		        + ", previousDecision=" + previousDecision + ", previousChallengedRecords=" + previousChallengedRecords
-		        + ", previousState=" + previousState + ", prevTitle=" + prevTitle + ", title=" + title + ", uiEventBus="
-		        + uiEventBus + ", currentLiftType=" + currentLiftType + ", previousLiftType=" + previousLiftType + "]";
+		        + this.currentCeremony + ", currentDecision=" + this.currentDecision + ", currentChallengedRecords="
+		        + this.currentChallengedRecords + ", currentFOP=" + this.currentFOP + ", currentState="
+		        + this.currentState
+		        + ", previousBreakType=" + this.previousBreakType + ", previousCeremony=" + this.previousCeremony
+		        + ", previousDecision=" + this.previousDecision + ", previousChallengedRecords="
+		        + this.previousChallengedRecords
+		        + ", previousState=" + this.previousState + ", prevTitle=" + this.prevTitle + ", title=" + this.title
+		        + ", uiEventBus="
+		        + this.uiEventBus + ", currentLiftType=" + this.currentLiftType + ", previousLiftType="
+		        + this.previousLiftType + "]";
 	}
 
 	/*
@@ -285,7 +311,7 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 			// sync with current status of FOP
 			syncWithFOP(null);
 			// we listen on uiEventBus.
-			uiEventBus = uiEventBusRegister(this, fop);
+			this.uiEventBus = uiEventBusRegister(this, fop);
 		});
 		doUpdate();
 	}
@@ -300,58 +326,61 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 		computeValues();
 
 		{
-			logger.debug("-- normal {} {} {}", h0, h1, h2);
+			this.logger.debug("-- normal {} {} {}", this.h0, this.h1, this.h2);
 		}
 
-		if (currentState == FOPState.INACTIVE || currentState == FOPState.BREAK) {
+		if (this.currentState == FOPState.INACTIVE || this.currentState == FOPState.BREAK) {
 			pageTitle.append("break=");
 		} else {
 			pageTitle.append("state=");
 		}
-		pageTitle.append(currentState.name());
+		pageTitle.append(this.currentState.name());
 
-		if (currentState == FOPState.BREAK && currentCeremony != null) {
+		if (this.currentState == FOPState.BREAK && this.currentCeremony != null) {
 			pageTitle.append(".");
-			pageTitle.append(currentCeremony.name());
-		} else if (currentState == FOPState.BREAK && currentBreakType != null) {
+			pageTitle.append(this.currentCeremony.name());
+		} else if (this.currentState == FOPState.BREAK && this.currentBreakType != null) {
 			pageTitle.append(".");
-			pageTitle.append(currentBreakType.name());
-		} else if (currentState == FOPState.DECISION_VISIBLE) {
+			pageTitle.append(this.currentBreakType.name());
+		} else if (this.currentState == FOPState.DECISION_VISIBLE) {
 			pageTitle.append(".");
-			pageTitle.append(currentDecision == null ? "UNDECIDED" : (currentDecision ? "GOOD_LIFT" : "BAD_LIFT"));
-			if (currentDecision && currentChallengedRecords) {
+			pageTitle.append(
+			        this.currentDecision == null ? "UNDECIDED" : (this.currentDecision ? "GOOD_LIFT" : "BAD_LIFT"));
+			if (this.currentDecision && this.currentChallengedRecords) {
 				pageTitle.append(".NEW_RECORD");
-			} else if (previousState == FOPState.DECISION_VISIBLE && previousDecision && previousChallengedRecords) {
+			} else if (this.previousState == FOPState.DECISION_VISIBLE && this.previousDecision
+			        && this.previousChallengedRecords) {
 				// special case where state changes too quickly;
 				pageTitle.append(".NEW_RECORD");
 			}
 			setExpiryBeforeChangingStatus(System.currentTimeMillis() + (FieldOfPlay.DECISION_VISIBLE_DURATION));
-		} else if (currentChallengedRecords) {
+		} else if (this.currentChallengedRecords) {
 			pageTitle.append(".RECORD_ATTEMPT");
 		}
 
 		pageTitle.append(";");
 		pageTitle.append("previous=");
-		pageTitle.append(previousState.name());
-		if (previousState == FOPState.BREAK && previousCeremony != null) {
+		pageTitle.append(this.previousState.name());
+		if (this.previousState == FOPState.BREAK && this.previousCeremony != null) {
 			pageTitle.append(".");
-			pageTitle.append(previousCeremony.name());
-		} else if (previousState == FOPState.BREAK && previousBreakType != null) {
+			pageTitle.append(this.previousCeremony.name());
+		} else if (this.previousState == FOPState.BREAK && this.previousBreakType != null) {
 			pageTitle.append(".");
-			pageTitle.append(previousBreakType.name());
-		} else if (previousState == FOPState.DECISION_VISIBLE) {
+			pageTitle.append(this.previousBreakType.name());
+		} else if (this.previousState == FOPState.DECISION_VISIBLE) {
 			pageTitle.append(".");
-			pageTitle.append(previousDecision == null ? "UNDECIDED" : (previousDecision ? "GOOD_LIFT" : "BAD_LIFT"));
+			pageTitle.append(
+			        this.previousDecision == null ? "UNDECIDED" : (this.previousDecision ? "GOOD_LIFT" : "BAD_LIFT"));
 		}
 
-		if (currentLiftType != null) {
+		if (this.currentLiftType != null) {
 			pageTitle.append(";");
 			pageTitle.append("liftType=");
-			pageTitle.append(currentLiftType.toString());
+			pageTitle.append(this.currentLiftType.toString());
 		}
 		pageTitle.append(";");
 		pageTitle.append("fop=");
-		pageTitle.append(currentFOP);
+		pageTitle.append(this.currentFOP);
 
 		String string = pageTitle.toString();
 
@@ -359,36 +388,38 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 	}
 
 	private void computeValues() {
-		h0 = history.size() > 0 ? history.get(0) : null;
-		h1 = history.size() > 1 ? history.get(1) : null;
-		h2 = history.size() > 2 ? history.get(2) : null;
-		currentState = h0 != null ? h0.state : null;
-		currentBreakType = h0 != null ? h0.breakType : null;
-		currentCeremony = h0 != null ? h0.ceremonyType : null;
-		currentDecision = h0 != null ? h0.decision : null;
-		currentChallengedRecords = h0 != null ? h0.challengedRecords : false;
-		currentLiftType = h0 != null ? h0.liftType : null;
+		this.h0 = this.history.size() > 0 ? this.history.get(0) : null;
+		this.h1 = this.history.size() > 1 ? this.history.get(1) : null;
+		this.h2 = this.history.size() > 2 ? this.history.get(2) : null;
+		this.currentState = this.h0 != null ? this.h0.state : null;
+		this.currentBreakType = this.h0 != null ? this.h0.breakType : null;
+		this.currentCeremony = this.h0 != null ? this.h0.ceremonyType : null;
+		this.currentDecision = this.h0 != null ? this.h0.decision : null;
+		this.currentChallengedRecords = this.h0 != null ? this.h0.challengedRecords : false;
+		this.currentLiftType = this.h0 != null ? this.h0.liftType : null;
 
-		previousState = h1 != null ? h1.state : null;
-		previousBreakType = h1 != null ? h1.breakType : null;
-		previousCeremony = h1 != null ? h1.ceremonyType : null;
-		previousDecision = h1 != null ? h1.decision : null;
-		previousChallengedRecords = h1 != null ? h1.challengedRecords : null;
-		previousLiftType = h1 != null ? h1.liftType : null;
+		this.previousState = this.h1 != null ? this.h1.state : null;
+		this.previousBreakType = this.h1 != null ? this.h1.breakType : null;
+		this.previousCeremony = this.h1 != null ? this.h1.ceremonyType : null;
+		this.previousDecision = this.h1 != null ? this.h1.decision : null;
+		this.previousChallengedRecords = this.h1 != null ? this.h1.challengedRecords : null;
+		this.previousLiftType = this.h1 != null ? this.h1.liftType : null;
 	}
 
 	private void doPush(Status status) {
-		history.add(0, status);
-		if (history.size() > HISTORY_SIZE) {
-			history.remove(HISTORY_SIZE);
+		this.history.add(0, status);
+		if (this.history.size() > HISTORY_SIZE) {
+			this.history.remove(HISTORY_SIZE);
 		}
 	}
 
 	private synchronized void doUpdate() {
-		title = computePageTitle();
-		String comparisonTitle = title != null ? title.substring(0, title.indexOf(";")) : title;
-		String comparisonPrevTitle = prevTitle != null ? prevTitle.substring(0, prevTitle.indexOf(";")) : prevTitle;
-		logger.debug("comparing comparisonTitle={} with comparisonPrevTitle={}", comparisonTitle, comparisonPrevTitle);
+		this.title = computePageTitle();
+		String comparisonTitle = this.title != null ? this.title.substring(0, this.title.indexOf(";")) : this.title;
+		String comparisonPrevTitle = this.prevTitle != null ? this.prevTitle.substring(0, this.prevTitle.indexOf(";"))
+		        : this.prevTitle;
+		this.logger.debug("comparing comparisonTitle={} with comparisonPrevTitle={}", comparisonTitle,
+		        comparisonPrevTitle);
 		boolean same = false;
 		if (comparisonPrevTitle == null || comparisonTitle == null) {
 			// same if both null
@@ -403,36 +434,37 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 			Element element = this.getElement();
 			UI ui = UI.getCurrent();
 			if (waitBeforeChangingStatus > 0) {
-				if ((!title.startsWith("state=DECISION"))) {
-					logger.info("#### DELAYING {} monitor {}", waitBeforeChangingStatus, title);
+				if ((!this.title.startsWith("state=DECISION"))) {
+					this.logger.info("#### DELAYING {} monitor {}", waitBeforeChangingStatus, this.title);
 					new java.util.Timer().schedule(
 					        new java.util.TimerTask() {
 						        @Override
 						        public void run() {
 							        ui.access(() -> {
-								        updateBar(element, title);
-								        logger.info("#### DELAYED monitor {}", title);
+								        updateBar(element, StreamingEventMonitor.this.title);
+								        StreamingEventMonitor.this.logger.info("#### DELAYED monitor {}",
+								                StreamingEventMonitor.this.title);
 							        });
 						        }
 					        },
 					        waitBeforeChangingStatus);
 				} else {
-					updateBar(element, title);
-					logger.info("#### DECISION monitor {}", title);
+					updateBar(element, this.title);
+					this.logger.info("#### DECISION monitor {}", this.title);
 				}
 			} else {
-				updateBar(element, title);
-				logger.info("#### notification monitor {}", title);
+				updateBar(element, this.title);
+				this.logger.info("#### notification monitor {}", this.title);
 			}
-			prevTitle = title;
+			this.prevTitle = this.title;
 		}
 		if (same) {
-			logger.debug("---- monitor duplicate {}", title);
+			this.logger.debug("---- monitor duplicate {}", this.title);
 		}
 	}
 
 	private long getExpiryBeforeChangingStatus() {
-		return expiryBeforeChangingStatus;
+		return this.expiryBeforeChangingStatus;
 	}
 
 	private Object getOrigin() {
@@ -441,7 +473,7 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 
 	private void init() {
 		OwlcmsSession.withFop(fop -> {
-			logger.trace("{}Starting notification monitor", fop.getLoggingName());
+			this.logger.trace("{}Starting notification monitor", fop.getLoggingName());
 			setId("scoreboard-" + fop.getName());
 		});
 	}
@@ -451,21 +483,21 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 	}
 
 	private void setExpiryBeforeChangingStatus(long expiry) {
-		expiryBeforeChangingStatus = expiry;
+		this.expiryBeforeChangingStatus = expiry;
 	}
 
 	private boolean syncWithFOP(UIEvent e) {
 		boolean significant[] = { false };
 		OwlcmsSession.withFop(fop -> {
-			currentFOP = fop.getName();
+			this.currentFOP = fop.getName();
 			boolean fopChallengedRecords = fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty();
 			boolean newRecord = e instanceof UIEvent.JuryNotification && ((UIEvent.JuryNotification) e).getNewRecord();
-			boolean curChallengedRecords = history.get(0).challengedRecords;
+			boolean curChallengedRecords = this.history.get(0).challengedRecords;
 
-			boolean stateChanged = fop.getState() != history.get(0).state;
+			boolean stateChanged = fop.getState() != this.history.get(0).state;
 			boolean recordsChanged = fopChallengedRecords != curChallengedRecords;
-			logger.debug(">>>>>>EventMonitor event {} fop {} history {} recordsChanged {}",
-			        e != null ? e.getClass().getSimpleName() : null, fop.getState(), history.get(0).state,
+			this.logger.debug(">>>>>>EventMonitor event {} fop {} history {} recordsChanged {}",
+			        e != null ? e.getClass().getSimpleName() : null, fop.getState(), this.history.get(0).state,
 			        recordsChanged);
 			if (e != null && e instanceof UIEvent.DecisionReset) {
 				// this event does not change state, and should always be ignored.
@@ -473,15 +505,15 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 				// asynchronous events
 				// there is a possibility that it comes late and out of order. So we ignore it
 				// explicitly.
-				logger.debug(">>>>>>EventMonitor DecisionReset ignored");
+				this.logger.debug(">>>>>>EventMonitor DecisionReset ignored");
 				significant[0] = false;
 			} else if (stateChanged || recordsChanged) {
 				doPush(new Status(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), fop.getGoodLift(),
 				        isNotEmpty(fop.getChallengedRecords()) || newRecord, fop.getCurrentStage()));
 				significant[0] = true;
 			} else if (fop.getState() == FOPState.BREAK) {
-				if (fop.getBreakType() != history.get(0).breakType
-				        || fop.getCeremonyType() != history.get(0).ceremonyType) {
+				if (fop.getBreakType() != this.history.get(0).breakType
+				        || fop.getCeremonyType() != this.history.get(0).ceremonyType) {
 					doPush(new Status(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), null,
 					        isNotEmpty(fop.getChallengedRecords()), null));
 					significant[0] = true;
@@ -494,17 +526,17 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 				// logger.trace("*** EventMonitor non break {}", fop.getState());
 			}
 		});
-		logger.debug(">>>>>>EventMonitor sync significant {}", significant[0]);
+		this.logger.debug(">>>>>>EventMonitor sync significant {}", significant[0]);
 		return significant[0];
 	}
 
 	private void updateBar(Element element, String title) {
-		if (showLonger) {
+		if (this.showLonger) {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 			}
-			showLonger = false;
+			this.showLonger = false;
 		}
 		// logger.debug("UpdateBar {}",title);
 		element.setProperty("title", title);
@@ -513,7 +545,7 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 
 		if (title.contains(".NEW_RECORD")) {
 			element.setProperty("title", Translator.translate("NewRecord"));
-			showLonger = true;
+			this.showLonger = true;
 		} else if (title.contains(".RECORD_ATTEMPT")) {
 			element.setProperty("notificationClass", "attemptNotification");
 			element.setProperty("title", Translator.translate("VideoNotification.RecordAttempt"));
@@ -543,32 +575,11 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 		} else {
 			element.setProperty("title", "");
 			element.setProperty("notificationClass", "invisibleNotification");
-			return;
 		}
 
 	}
 
 	private long waitBeforeChangingStatus() {
 		return getExpiryBeforeChangingStatus() - System.currentTimeMillis();
-	}
-	
-	@Override
-	public void setDefaultParameters(QueryParameters qp) {
-		this.defaultParameters = qp;
-	}
-	
-	@Override
-	public QueryParameters getDefaultParameters() {
-		return this.defaultParameters;
-	}
-
-	@Override
-	public void setRouteParameter(String routeParameter) {
-		this.routeParameter = routeParameter;
-	}
-
-	@Override
-	public String getRouteParameter() {
-		return this.routeParameter;
 	}
 }

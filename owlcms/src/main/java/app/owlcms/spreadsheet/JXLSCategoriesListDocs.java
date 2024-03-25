@@ -19,7 +19,6 @@ import ch.qos.logback.classic.Logger;
 public class JXLSCategoriesListDocs extends JXLSWorkbookStreamSource {
 
 	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
-
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSCategoriesListDocs.class);
 	final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
 	static {
@@ -29,13 +28,12 @@ public class JXLSCategoriesListDocs extends JXLSWorkbookStreamSource {
 	}
 
 	public JXLSCategoriesListDocs() {
-		super();
 		this.setExcludeNotWeighed(false);
 	}
 
-//	@Override
-//	public List<Athlete> getSortedAthletes() {
-//		List<Athlete> displayOrderCopy = AthleteSorter.displayOrderCopy(sortedAthletes);
-//		return displayOrderCopy;
-//	}
+	// @Override
+	// public List<Athlete> getSortedAthletes() {
+	// List<Athlete> displayOrderCopy = AthleteSorter.displayOrderCopy(sortedAthletes);
+	// return displayOrderCopy;
+	// }
 }

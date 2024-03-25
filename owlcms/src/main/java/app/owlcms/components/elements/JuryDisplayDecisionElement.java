@@ -28,14 +28,12 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
-
 	private boolean automaticReset;
 
 	public JuryDisplayDecisionElement() {
-		super();
 		this.setJury(true);
 		this.getElement().getStyle().set("font-size", "100%");
-		
+
 	}
 
 	public JuryDisplayDecisionElement(boolean b) {
@@ -50,17 +48,17 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	@Subscribe
 	public void slaveBreakDone(UIEvent.BreakDone e) {
 		OwlcmsSession.withFop((fop) -> {
-			UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
+			UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 				uiEventLogger.debug("*** {} break start -> reset", this.getOrigin());
 				doReset();
 			});
 		});
 	}
 
-//    @Override
-//    public void slaveDownSignal(DownSignal e) {
-//        // ignore
-//    }
+	// @Override
+	// public void slaveDownSignal(DownSignal e) {
+	// // ignore
+	// }
 
 	@Subscribe
 	public void slaveBreakStarted(UIEvent.BreakStarted e) {
@@ -70,7 +68,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 		OwlcmsSession.withFop((fop) -> {
 			if (fop.getBreakType() != BreakType.JURY) {
 				// don't reset on a break we just created !
-				UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
+				UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 					uiEventLogger.debug("*** {} break start -> reset", this.getOrigin());
 					doReset();
 				});
@@ -83,9 +81,28 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 		// ignore
 	}
 
+	@Override
+	@Subscribe
+	public void slaveDownSignal(UIEvent.DownSignal e) {
+		// logger.debug("jury slaveDownSignal {} {} {} {}", this, this.getOrigin(), e.getOrigin(), isSilenced());
+		if (isSilenced()
+		// && (isJuryMode() || (this.getOrigin() == e.getOrigin()))
+		) {
+			// we emitted the down signal, don't do it again.
+			// logger.trace("skipping down, {} is origin",this.getOrigin());
+			return;
+		}
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+			uiEventLogger.debug("!!! {} down ({})", this.getOrigin(),
+			        this.getParent().get().getClass().getSimpleName());
+			this.getElement().callJsFunction("showDown", false,
+			        isSilenced() || OwlcmsSession.getFop().isEmitSoundsOnServer());
+		});
+	}
+
 	@Subscribe
 	public void slaveRefereeUpdate(UIEvent.RefereeUpdate e) {
-		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 			uiEventLogger.debug("*** {} referee update ({} {} {})", this.getOrigin(), e.ref1, e.ref2, e.ref3);
 			this.getElement().callJsFunction("showDecisionsForJury", e.ref1, e.ref2, e.ref3, intBox(e.ref1Time),
 			        intBox(e.ref2Time),
@@ -100,7 +117,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 
 	@Subscribe
 	public void slaveStartTime(UIEvent.StartTime e) {
-		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 			uiEventLogger.debug("*** {} startTime -> reset", this.getOrigin());
 			if (isAutomaticReset()) {
 				doReset();
@@ -113,30 +130,11 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	}
 
 	private boolean isAutomaticReset() {
-		return automaticReset;
+		return this.automaticReset;
 	}
 
 	private void setAutomaticReset(boolean automaticReset) {
 		this.automaticReset = automaticReset;
-	}
-	
-	@Override
-	@Subscribe
-	public void slaveDownSignal(UIEvent.DownSignal e) {
-		//logger.debug("jury slaveDownSignal {} {} {} {}", this, this.getOrigin(), e.getOrigin(), isSilenced());
-		if (isSilenced() 
-				//&& (isJuryMode() || (this.getOrigin() == e.getOrigin()))
-				) {
-			// we emitted the down signal, don't do it again.
-			// logger.trace("skipping down, {} is origin",this.getOrigin());
-			return;
-		}
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			uiEventLogger.debug("!!! {} down ({})", this.getOrigin(),
-			        this.getParent().get().getClass().getSimpleName());
-			this.getElement().callJsFunction("showDown", false,
-			        isSilenced() || OwlcmsSession.getFop().isEmitSoundsOnServer());
-		});
 	}
 
 }

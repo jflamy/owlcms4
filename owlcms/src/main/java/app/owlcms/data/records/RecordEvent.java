@@ -39,7 +39,7 @@ import ch.qos.logback.classic.Logger;
 @Entity
 @Cacheable
 @Table(indexes = {
-		@Index(name = "ix_category", columnList = "gender,ageGrpLower,ageGrpUpper,bwCatLower,bwCatUpper") })
+        @Index(name = "ix_category", columnList = "gender,ageGrpLower,ageGrpUpper,bwCatLower,bwCatUpper") })
 @SuppressWarnings("serial")
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
 @JsonInclude(Include.NON_NULL)
@@ -128,20 +128,20 @@ public class RecordEvent {
 		}
 		RecordEvent other = (RecordEvent) obj;
 		return Objects.equals(this.ageGrp, other.ageGrp) && this.ageGrpLower == other.ageGrpLower
-				&& this.ageGrpUpper == other.ageGrpUpper && Objects.equals(this.athleteName, other.athleteName)
-				&& Objects.equals(this.birthDate, other.birthDate) && Objects.equals(this.birthYear, other.birthYear)
-				&& this.bwCatLower == other.bwCatLower && Objects.equals(this.bwCatString, other.bwCatString)
-				&& Objects.equals(this.bwCatUpper, other.bwCatUpper)
-				&& Objects.equals(this.categoryString, other.categoryString)
-				&& Objects.equals(this.event, other.event) && Objects.equals(this.eventLocation, other.eventLocation)
-				&& this.gender == other.gender && Objects.equals(this.groupNameString, other.groupNameString)
-				&& Objects.equals(this.id, other.id) && Objects.equals(this.nation, other.nation)
-				&& Objects.equals(this.recordDate, other.recordDate)
-				&& Objects.equals(this.recordFederation, other.recordFederation) && this.recordLift == other.recordLift
-				&& Objects.equals(this.recordName, other.recordName)
-				&& Objects.equals(this.recordValue, other.recordValue)
-				&& Objects.equals(this.fileName, other.fileName)
-				&& this.recordYear == other.recordYear;
+		        && this.ageGrpUpper == other.ageGrpUpper && Objects.equals(this.athleteName, other.athleteName)
+		        && Objects.equals(this.birthDate, other.birthDate) && Objects.equals(this.birthYear, other.birthYear)
+		        && this.bwCatLower == other.bwCatLower && Objects.equals(this.bwCatString, other.bwCatString)
+		        && Objects.equals(this.bwCatUpper, other.bwCatUpper)
+		        && Objects.equals(this.categoryString, other.categoryString)
+		        && Objects.equals(this.event, other.event) && Objects.equals(this.eventLocation, other.eventLocation)
+		        && this.gender == other.gender && Objects.equals(this.groupNameString, other.groupNameString)
+		        && Objects.equals(this.id, other.id) && Objects.equals(this.nation, other.nation)
+		        && Objects.equals(this.recordDate, other.recordDate)
+		        && Objects.equals(this.recordFederation, other.recordFederation) && this.recordLift == other.recordLift
+		        && Objects.equals(this.recordName, other.recordName)
+		        && Objects.equals(this.recordValue, other.recordValue)
+		        && Objects.equals(this.fileName, other.fileName)
+		        && this.recordYear == other.recordYear;
 	}
 
 	public void fillDefaults() throws MissingAgeGroup, MissingGender, UnknownIWFBodyWeightCategory {
@@ -202,7 +202,7 @@ public class RecordEvent {
 
 	public String getBirth() {
 		return (this.birthDate != null ? this.dateFormat.format(this.birthDate)
-				: (this.birthYear != null ? Integer.toString(this.birthYear) : null));
+		        : (this.birthYear != null ? Integer.toString(this.birthYear) : null));
 	}
 
 	public LocalDate getBirthDate() {
@@ -262,9 +262,9 @@ public class RecordEvent {
 	}
 
 	public String getKey() {
-		return //getRecordFederation() + "_" + 
-				getRecordName() + "_" + getRecordLift() + "_" + getBwCatLower() + "_" + getBwCatUpper() + "_"
-				+ getAgeGrpLower() + "_" + getAgeGrpUpper();
+		return // getRecordFederation() + "_" +
+		getRecordName() + "_" + getRecordLift() + "_" + getBwCatLower() + "_" + getBwCatUpper() + "_"
+		        + getAgeGrpLower() + "_" + getAgeGrpUpper();
 	}
 
 	public String getNation() {
@@ -312,25 +312,25 @@ public class RecordEvent {
 	@JsonIgnore
 	public String getResRecordLift() {
 		switch (this.recordLift) {
-		case CLEANJERK:
-			return Translator.translate("Results.Clean_and_Jerk");
-		case SNATCH:
-			return Translator.translate("Results.Snatch");
-		case TOTAL:
-			return Translator.translate("Results.Total");
-		default:
-			return this.recordLift.toString();
+			case CLEANJERK:
+				return Translator.translate("Results.Clean_and_Jerk");
+			case SNATCH:
+				return Translator.translate("Results.Snatch");
+			case TOTAL:
+				return Translator.translate("Results.Total");
+			default:
+				return this.recordLift.toString();
 		}
 	}
 
 	@Override
 	public int hashCode() {
 		return Objects.hash(this.ageGrp, this.ageGrpLower, this.ageGrpUpper, this.athleteName, this.birthDate,
-				this.birthYear, this.bwCatLower,
-				this.bwCatString, this.bwCatUpper, this.categoryString, this.event, this.eventLocation, this.gender,
-				this.groupNameString, this.id, this.nation,
-				this.recordDate, this.recordFederation, this.recordLift, this.recordName, this.recordValue,
-				this.fileName, this.recordYear);
+		        this.birthYear, this.bwCatLower,
+		        this.bwCatString, this.bwCatUpper, this.categoryString, this.event, this.eventLocation, this.gender,
+		        this.groupNameString, this.id, this.nation,
+		        this.recordDate, this.recordFederation, this.recordLift, this.recordName, this.recordValue,
+		        this.fileName, this.recordYear);
 	}
 
 	/**
@@ -348,20 +348,20 @@ public class RecordEvent {
 		}
 		RecordEvent other = (RecordEvent) obj;
 		return Objects.equals(this.ageGrp, other.ageGrp) && this.ageGrpLower == other.ageGrpLower
-				&& this.ageGrpUpper == other.ageGrpUpper && Objects.equals(this.athleteName, other.athleteName)
-				&& Objects.equals(this.birthDate, other.birthDate) && Objects.equals(this.birthYear, other.birthYear)
-				&& this.bwCatLower == other.bwCatLower && Objects.equals(this.bwCatString, other.bwCatString)
-				&& Objects.equals(this.bwCatUpper, other.bwCatUpper)
-				&& Objects.equals(this.categoryString, other.categoryString)
-				&& Objects.equals(this.event, other.event) && Objects.equals(this.eventLocation, other.eventLocation)
-				&& Objects.equals(this.fileName, other.fileName) && this.gender == other.gender
-				&& Objects.equals(this.groupNameString, other.groupNameString)
-				&& Objects.equals(this.nation, other.nation)
-				&& Objects.equals(this.recordDate, other.recordDate)
-				&& Objects.equals(this.recordFederation, other.recordFederation) && this.recordLift == other.recordLift
-				&& Objects.equals(this.recordName, other.recordName)
-				&& Objects.equals(this.recordValue, other.recordValue)
-				&& this.recordYear == other.recordYear;
+		        && this.ageGrpUpper == other.ageGrpUpper && Objects.equals(this.athleteName, other.athleteName)
+		        && Objects.equals(this.birthDate, other.birthDate) && Objects.equals(this.birthYear, other.birthYear)
+		        && this.bwCatLower == other.bwCatLower && Objects.equals(this.bwCatString, other.bwCatString)
+		        && Objects.equals(this.bwCatUpper, other.bwCatUpper)
+		        && Objects.equals(this.categoryString, other.categoryString)
+		        && Objects.equals(this.event, other.event) && Objects.equals(this.eventLocation, other.eventLocation)
+		        && Objects.equals(this.fileName, other.fileName) && this.gender == other.gender
+		        && Objects.equals(this.groupNameString, other.groupNameString)
+		        && Objects.equals(this.nation, other.nation)
+		        && Objects.equals(this.recordDate, other.recordDate)
+		        && Objects.equals(this.recordFederation, other.recordFederation) && this.recordLift == other.recordLift
+		        && Objects.equals(this.recordName, other.recordName)
+		        && Objects.equals(this.recordValue, other.recordValue)
+		        && this.recordYear == other.recordYear;
 	}
 
 	/**
@@ -379,19 +379,19 @@ public class RecordEvent {
 		}
 		RecordEvent other = (RecordEvent) obj;
 		return Objects.equals(this.ageGrp, other.ageGrp) && this.ageGrpLower == other.ageGrpLower
-				&& this.ageGrpUpper == other.ageGrpUpper && Objects.equals(this.athleteName, other.athleteName)
-				&& Objects.equals(this.birthDate, other.birthDate) && Objects.equals(this.birthYear, other.birthYear)
-				&& this.bwCatLower == other.bwCatLower && Objects.equals(this.bwCatString, other.bwCatString)
-				&& Objects.equals(this.bwCatUpper, other.bwCatUpper)
-				&& Objects.equals(this.categoryString, other.categoryString)
-				&& Objects.equals(this.event, other.event) && Objects.equals(this.eventLocation, other.eventLocation)
-				&& Objects.equals(this.fileName, other.fileName) && this.gender == other.gender
-				&& Objects.equals(this.groupNameString, other.groupNameString)
-				&& Objects.equals(this.nation, other.nation)
-				&& Objects.equals(this.recordDate, other.recordDate)
-				&& Objects.equals(this.recordFederation, other.recordFederation) && this.recordLift == other.recordLift
-				&& Objects.equals(this.recordName, other.recordName)
-				&& this.recordYear == other.recordYear;
+		        && this.ageGrpUpper == other.ageGrpUpper && Objects.equals(this.athleteName, other.athleteName)
+		        && Objects.equals(this.birthDate, other.birthDate) && Objects.equals(this.birthYear, other.birthYear)
+		        && this.bwCatLower == other.bwCatLower && Objects.equals(this.bwCatString, other.bwCatString)
+		        && Objects.equals(this.bwCatUpper, other.bwCatUpper)
+		        && Objects.equals(this.categoryString, other.categoryString)
+		        && Objects.equals(this.event, other.event) && Objects.equals(this.eventLocation, other.eventLocation)
+		        && Objects.equals(this.fileName, other.fileName) && this.gender == other.gender
+		        && Objects.equals(this.groupNameString, other.groupNameString)
+		        && Objects.equals(this.nation, other.nation)
+		        && Objects.equals(this.recordDate, other.recordDate)
+		        && Objects.equals(this.recordFederation, other.recordFederation) && this.recordLift == other.recordLift
+		        && Objects.equals(this.recordName, other.recordName)
+		        && this.recordYear == other.recordYear;
 	}
 
 	public void setAgeGrp(String ageGrp) {
@@ -516,25 +516,25 @@ public class RecordEvent {
 	@Override
 	public String toString() {
 		return getKey();
-//		return "RecordEvent [athleteBW=" + this.athleteBW + ", athleteAge=" + this.athleteAge + ", recordValue="
-//				+ this.recordValue
-//				+ ", ageGrp=" + this.ageGrp + ", ageGrpLower=" + this.ageGrpLower + ", ageGrpUpper=" + this.ageGrpUpper
-//				+ ", athleteName=" + this.athleteName + ", birthDate=" + this.birthDate + ", birthYear="
-//				+ this.birthYear
-//				+ ", bwCatLower=" + this.bwCatLower + ", bwCatUpper=" + this.bwCatUpper + ", event=" + this.event
-//				+ ", eventLocation="
-//				+ this.eventLocation + ", gender=" + this.gender + ", nation=" + this.nation + ", recordDate="
-//				+ this.recordDate
-//				+ ", recordFederation=" + this.recordFederation + ", recordLift=" + this.recordLift + ", recordName="
-//				+ this.recordName
-//				+ ", recordYear=" + this.recordYear + ", fileName=" + this.fileName + ", bwCatString="
-//				+ this.bwCatString
-//				+ ", groupNameString=" + this.groupNameString + ", categoryString=" + this.categoryString + "]";
+		// return "RecordEvent [athleteBW=" + this.athleteBW + ", athleteAge=" + this.athleteAge + ", recordValue="
+		// + this.recordValue
+		// + ", ageGrp=" + this.ageGrp + ", ageGrpLower=" + this.ageGrpLower + ", ageGrpUpper=" + this.ageGrpUpper
+		// + ", athleteName=" + this.athleteName + ", birthDate=" + this.birthDate + ", birthYear="
+		// + this.birthYear
+		// + ", bwCatLower=" + this.bwCatLower + ", bwCatUpper=" + this.bwCatUpper + ", event=" + this.event
+		// + ", eventLocation="
+		// + this.eventLocation + ", gender=" + this.gender + ", nation=" + this.nation + ", recordDate="
+		// + this.recordDate
+		// + ", recordFederation=" + this.recordFederation + ", recordLift=" + this.recordLift + ", recordName="
+		// + this.recordName
+		// + ", recordYear=" + this.recordYear + ", fileName=" + this.fileName + ", bwCatString="
+		// + this.bwCatString
+		// + ", groupNameString=" + this.groupNameString + ", categoryString=" + this.categoryString + "]";
 	}
 
 	private Integer computeAthleteAgeAtTimeOfRecord() {
 		if (this.recordDate == null) {
-			//logger.error("missing record date {} {}", this.athleteName, this.categoryString);
+			// logger.error("missing record date {} {}", this.athleteName, this.categoryString);
 			return null;
 		} else if (this.birthDate != null) {
 			return Period.between(this.birthDate, this.recordDate).getYears();
@@ -558,97 +558,97 @@ public class RecordEvent {
 		}
 		if (this.gender == Gender.F) {
 			switch (this.bwCatUpper) {
-			case 40:
-				this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 0;
-				break;
-			case 45:
-				this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 40;
-				break;
-			case 49:
-				if (this.ageGrp.equals("YTH")) {
-					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 45;
-				} else {
+				case 40:
 					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 0;
-				}
-				break;
-			case 55:
-				this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 49;
-				break;
-			case 59:
-				this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 55;
-				break;
-			case 64:
-				this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 59;
-				break;
-			case 71:
-				this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 64;
-				break;
-			case 76:
-				this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 71;
-				break;
-			case 81:
-				this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 76;
-				break;
-			case 87:
-				this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 81;
-				break;
-			case 999:
-				if (this.ageGrp.equals("YTH")) {
+					break;
+				case 45:
+					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 40;
+					break;
+				case 49:
+					if (this.ageGrp.equals("YTH")) {
+						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 45;
+					} else {
+						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 0;
+					}
+					break;
+				case 55:
+					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 49;
+					break;
+				case 59:
+					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 55;
+					break;
+				case 64:
+					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 59;
+					break;
+				case 71:
+					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 64;
+					break;
+				case 76:
+					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 71;
+					break;
+				case 81:
+					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 76;
+					break;
+				case 87:
 					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 81;
-				} else {
-					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 87;
-				}
-				break;
-			default:
-				// throw new UnknownIWFBodyWeightCategory();
-				// leave alone
+					break;
+				case 999:
+					if (this.ageGrp.equals("YTH")) {
+						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 81;
+					} else {
+						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 87;
+					}
+					break;
+				default:
+					// throw new UnknownIWFBodyWeightCategory();
+					// leave alone
 			}
 		} else {
 			switch (this.bwCatUpper) {
-			case 49:
-				this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 0;
-				break;
-			case 55:
-				this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 49;
-				break;
-			case 61:
-				if (this.ageGrp.equals("YTH")) {
-					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 55;
-				} else {
+				case 49:
 					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 0;
-				}
-				break;
-			case 67:
-				this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 61;
-				break;
-			case 73:
-				this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 67;
-				break;
-			case 81:
-				this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 73;
-				break;
-			case 89:
-				this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 81;
-				break;
-			case 96:
-				this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 89;
-				break;
-			case 102:
-				this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 96;
-				break;
-			case 109:
-				this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 96;
-				break;
-			case 999:
-				if (this.ageGrp.equals("YTH")) {
-					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 102;
-				} else {
-					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 109;
-				}
-				break;
-			default:
-				// throw new UnknownIWFBodyWeightCategory();
-				// leave alone
+					break;
+				case 55:
+					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 49;
+					break;
+				case 61:
+					if (this.ageGrp.equals("YTH")) {
+						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 55;
+					} else {
+						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 0;
+					}
+					break;
+				case 67:
+					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 61;
+					break;
+				case 73:
+					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 67;
+					break;
+				case 81:
+					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 73;
+					break;
+				case 89:
+					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 81;
+					break;
+				case 96:
+					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 89;
+					break;
+				case 102:
+					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 96;
+					break;
+				case 109:
+					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 96;
+					break;
+				case 999:
+					if (this.ageGrp.equals("YTH")) {
+						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 102;
+					} else {
+						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 109;
+					}
+					break;
+				default:
+					// throw new UnknownIWFBodyWeightCategory();
+					// leave alone
 			}
 
 		}

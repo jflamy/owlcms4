@@ -23,133 +23,124 @@ import ch.qos.logback.classic.Logger;
  */
 public class RGroup {
 	final Logger logger = (Logger) LoggerFactory.getLogger(RGroup.class);
-
 	Group group = new Group();
 	String groupName;
 	String description;
-
 	String jury1;
 	String jury2;
 	String jury3;
 	String jury4;
 	String jury5;
-
 	String ref1;
 	String ref2;
 	String ref3;
-
 	String marshall;
 	String marshal2;
-
 	String weighInTO1;
 	String weighInTO2;
-
 	String techController;
 	String techController2;
-
 	String announcer;
 	String timekeeper;
-
 	String reserve;
-
 	String competitionTime;
 	String weighinTime;
 	String platform;
 
 	public String getAnnouncer() {
-		return announcer;
+		return this.announcer;
 	}
 
 	public String getCompetitionTime() {
-		return competitionTime;
+		return this.competitionTime;
 	}
 
 	public String getDescription() {
-		return description;
+		return this.description;
 	}
 
 	public Group getGroup() {
-		return group;
+		return this.group;
 	}
 
 	public String getGroupName() {
-		return groupName;
+		return this.groupName;
 	}
 
 	public String getJury1() {
-		return jury1;
+		return this.jury1;
 	}
 
 	public String getJury2() {
-		return jury2;
+		return this.jury2;
 	}
 
 	public String getJury3() {
-		return jury3;
+		return this.jury3;
 	}
 
 	public String getJury4() {
-		return jury4;
+		return this.jury4;
 	}
 
 	public String getJury5() {
-		return jury5;
+		return this.jury5;
 	}
 
 	public String getMarshal2() {
-		return marshal2;
+		return this.marshal2;
 	}
 
 	public String getMarshall() {
-		return marshall;
+		return this.marshall;
 	}
 
 	public String getPlatform() {
-		return platform;
+		return this.platform;
 	}
 
 	public String getRef1() {
-		return ref1;
+		return this.ref1;
 	}
 
 	public String getRef2() {
-		return ref2;
+		return this.ref2;
 	}
 
 	public String getRef3() {
-		return ref3;
+		return this.ref3;
 	}
 
 	public String getReserve() {
-		return reserve;
+		return this.reserve;
 	}
 
 	public String getTechController() {
-		return techController;
+		return this.techController;
 	}
 
 	public String getTechController2() {
-		return techController2;
+		return this.techController2;
 	}
 
 	public String getTimekeeper() {
-		return timekeeper;
+		return this.timekeeper;
 	}
 
 	public String getWeighinTime() {
-		return weighinTime;
+		return this.weighinTime;
 	}
 
 	public String getWeighInTO1() {
-		return weighInTO1;
+		return this.weighInTO1;
 	}
 
 	public String getWeighInTO2() {
-		return weighInTO2;
+		return this.weighInTO2;
 	}
 
 	public void setAnnouncer(String announcer) {
-		group.setAnnouncer(announcer);
+		this.group.setAnnouncer(announcer);
 		this.announcer = announcer;
 	}
 
@@ -169,11 +160,11 @@ public class RGroup {
 
 			this.competitionTime = parseExcelDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE) + " "
 			        + parseExcelDateTime.format(DateTimeFormatter.ISO_LOCAL_TIME);
-			group.setCompetitionTime(parseExcelDateTime);
-			logger.trace("is a numeric time {} {}",this.competitionTime, parseExcelDateTime);
+			this.group.setCompetitionTime(parseExcelDateTime);
+			this.logger.trace("is a numeric time {} {}", this.competitionTime, parseExcelDateTime);
 		} catch (NumberFormatException e) {
-			logger.trace("not a numeric time {}",cTime);
-			group.setCompetitionTime(DateTimeUtils.parseISO8601DateTime(cTime));
+			this.logger.trace("not a numeric time {}", cTime);
+			this.group.setCompetitionTime(DateTimeUtils.parseISO8601DateTime(cTime));
 			// if no Exception thrown, the time was correctly parsed
 			this.competitionTime = cTime;
 			return;
@@ -181,7 +172,7 @@ public class RGroup {
 	}
 
 	public void setDescription(String description) {
-		group.setDescription(description);
+		this.group.setDescription(description);
 		this.description = description;
 	}
 
@@ -190,42 +181,42 @@ public class RGroup {
 	}
 
 	public void setGroupName(String groupName) {
-		group.setName(groupName);
+		this.group.setName(groupName);
 		this.groupName = groupName;
 	}
 
 	public void setJury1(String jury1) {
-		group.setJury1(jury1);
+		this.group.setJury1(jury1);
 		this.jury1 = jury1;
 	}
 
 	public void setJury2(String jury2) {
-		group.setJury2(jury2);
+		this.group.setJury2(jury2);
 		this.jury2 = jury2;
 	}
 
 	public void setJury3(String jury3) {
-		group.setJury3(jury3);
+		this.group.setJury3(jury3);
 		this.jury3 = jury3;
 	}
 
 	public void setJury4(String jury4) {
-		group.setJury4(jury4);
+		this.group.setJury4(jury4);
 		this.jury4 = jury4;
 	}
 
 	public void setJury5(String jury5) {
-		group.setJury5(jury5);
+		this.group.setJury5(jury5);
 		this.jury5 = jury5;
 	}
 
 	public void setMarshal2(String marshal2) {
-		group.setMarshal2(marshal2);
+		this.group.setMarshal2(marshal2);
 		this.marshal2 = marshal2;
 	}
 
 	public void setMarshall(String marshall) {
-		group.setMarshall(marshall);
+		this.group.setMarshall(marshall);
 		this.marshall = marshall;
 	}
 
@@ -236,41 +227,41 @@ public class RGroup {
 	}
 
 	public void setRef1(String ref1) {
-		group.setReferee1(ref1);
+		this.group.setReferee1(ref1);
 		this.ref1 = ref1;
 	}
 
 	public void setRef2(String ref2) {
-		group.setReferee2(ref2);
+		this.group.setReferee2(ref2);
 		this.ref2 = ref2;
 	}
 
 	public void setRef3(String ref3) {
-		group.setReferee3(ref3);
+		this.group.setReferee3(ref3);
 		this.ref3 = ref3;
 	}
 
 	public void setReserve(String reserve) {
-		group.setReserve(reserve);
+		this.group.setReserve(reserve);
 		this.reserve = reserve;
 	}
 
 	public void setTechController(String techController) {
-		group.setTechnicalController(techController);
+		this.group.setTechnicalController(techController);
 		this.techController = techController;
 	}
 
 	public void setTechController2(String techController2) {
-		group.setTechnicalController2(techController2);
+		this.group.setTechnicalController2(techController2);
 		this.techController2 = techController2;
 	}
 
 	public void setTimekeeper(String timekeeper) {
-		group.setTimeKeeper(timekeeper);
+		this.group.setTimeKeeper(timekeeper);
 		this.timekeeper = timekeeper;
 	}
 
-	public void setWeighinTime(String wTime) {	
+	public void setWeighinTime(String wTime) {
 		if (wTime == null || wTime.isBlank()) {
 			this.weighinTime = "";
 			return;
@@ -285,25 +276,25 @@ public class RGroup {
 			}
 			this.weighinTime = parseExcelDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE) + " "
 			        + parseExcelDateTime.format(DateTimeFormatter.ISO_LOCAL_TIME);
-			group.setWeighInTime(parseExcelDateTime);
-			logger.trace("is a numeric time {} {}",this.weighinTime, parseExcelDateTime);
+			this.group.setWeighInTime(parseExcelDateTime);
+			this.logger.trace("is a numeric time {} {}", this.weighinTime, parseExcelDateTime);
 		} catch (NumberFormatException e) {
-			group.setWeighInTime(DateTimeUtils.parseISO8601DateTime(wTime));
-			logger.trace("not a numeric time {}",wTime);
+			this.group.setWeighInTime(DateTimeUtils.parseISO8601DateTime(wTime));
+			this.logger.trace("not a numeric time {}", wTime);
 			// if no Exception thrown, the time was correctly parsed
 			this.competitionTime = wTime;
 			return;
 		}
-		
+
 	}
 
 	public void setWeighInTO1(String weighInTO1) {
-		group.setWeighIn1(weighInTO1);
+		this.group.setWeighIn1(weighInTO1);
 		this.weighInTO1 = weighInTO1;
 	}
 
 	public void setWeighInTO2(String weighInTO2) {
-		group.setWeighIn2(weighInTO2);
+		this.group.setWeighIn2(weighInTO2);
 		this.weighInTO2 = weighInTO2;
 	}
 

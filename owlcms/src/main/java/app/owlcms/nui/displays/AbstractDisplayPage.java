@@ -27,10 +27,19 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public abstract class AbstractDisplayPage extends Div implements DisplayParametersReader, SafeEventBusRegistration {
 
+	private static Logger logger = (Logger) LoggerFactory.getLogger(AbstractDisplayPage.class);
+
+	public static Logger getLogger() {
+		return logger;
+	}
+
+	public static void setLogger(Logger logger) {
+		AbstractDisplayPage.logger = logger;
+	}
+
 	protected boolean downSilenced;
 	protected String routeParameter;
 	protected boolean silenced;
-	private static Logger logger = (Logger) LoggerFactory.getLogger(AbstractDisplayPage.class);
 	private boolean darkMode;
 	private QueryParameters defaultParameters;
 	private Dialog dialog;
@@ -56,12 +65,15 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	}
 
 	final public void addComponent(Component display) {
-		display.addClassName(darkMode ? DisplayParameters.DARK : DisplayParameters.LIGHT);
+		display.addClassName(this.darkMode ? DisplayParameters.DARK : DisplayParameters.LIGHT);
 		this.add(display);
 	}
 
 	@Override
 	public abstract void addDialogContent(Component page, VerticalLayout vl);
+
+	public void addKeyboardShortcuts() {
+	}
 
 	public void doChangeAbbreviated() {
 		if (isAbbreviatedName()) {
@@ -76,61 +88,61 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	 */
 	@Override
 	final public QueryParameters getDefaultParameters() {
-		if (defaultParameters == null) {
+		if (this.defaultParameters == null) {
 			return QueryParameters.fromString(
 			        "abb=false&singleRef=false&public=false&records=false&fop=A&dark=false&leaders=false&video=false");
 		}
-		return defaultParameters;
+		return this.defaultParameters;
 	}
 
 	@Override
 	final public Dialog getDialog() {
-		return dialog;
+		return this.dialog;
 	}
 
 	@Override
 	final public Timer getDialogTimer() {
-		return dialogTimer;
+		return this.dialogTimer;
 	}
 
 	@Override
 	public Double getEmFontSize() {
-		return emFontSize;
+		return this.emFontSize;
 	}
 
 	@Override
 	final public FieldOfPlay getFop() {
-		return fop;
+		return this.fop;
 	}
 
 	@Override
 	final public Group getGroup() {
-		return group;
+		return this.group;
 	}
 
 	@Override
 	final public Location getLocation() {
-		return location;
+		return this.location;
 	}
 
 	@Override
 	final public UI getLocationUI() {
-		return locationUI;
+		return this.locationUI;
 	}
 
 	@Override
 	final public String getRouteParameter() {
-		return routeParameter;
+		return this.routeParameter;
 	}
 
 	@Override
 	public Double getTeamWidth() {
-		return teamWidth;
+		return this.teamWidth;
 	}
 
 	@Override
 	final public Map<String, List<String>> getUrlParameterMap() {
-		return urlParameterMap;
+		return this.urlParameterMap;
 	}
 
 	final public AbstractDisplayPage getWrapper() {
@@ -139,47 +151,47 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 
 	@Override
 	public final boolean isAbbreviatedName() {
-		return abbreviatedName;
+		return this.abbreviatedName;
 	}
 
 	@Override
 	final public boolean isDarkMode() {
-		return darkMode;
+		return this.darkMode;
 	}
 
 	@Override
 	final public boolean isDownSilenced() {
-		return downSilenced;
+		return this.downSilenced;
 	}
 
 	@Override
 	public final boolean isLeadersDisplay() {
-		return leadersDisplay;
+		return this.leadersDisplay;
 	}
 
 	@Override
 	final public boolean isPublicDisplay() {
-		return publicDisplay;
+		return this.publicDisplay;
 	}
 
 	@Override
 	public final boolean isRecordsDisplay() {
-		return recordsDisplay;
+		return this.recordsDisplay;
 	}
 
 	@Override
 	public boolean isShowInitialDialog() {
-		return showInitialDialog;
+		return this.showInitialDialog;
 	}
 
 	@Override
 	final public boolean isSilenced() {
-		return silenced;
+		return this.silenced;
 	}
 
 	@Override
 	final public boolean isVideo() {
-		return video;
+		return this.video;
 	}
 
 	@Override
@@ -327,21 +339,10 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
-		uiEventBusRegister(this,OwlcmsSession.getFop());
+		uiEventBusRegister(this, OwlcmsSession.getFop());
 		if (isShowInitialDialog()) {
 			openDialog(getDialog());
 		}
 		addKeyboardShortcuts();
-	}
-
-	public static Logger getLogger() {
-		return logger;
-	}
-
-	public static void setLogger(Logger logger) {
-		AbstractDisplayPage.logger = logger;
-	}
-
-	public void addKeyboardShortcuts() {
 	}
 }

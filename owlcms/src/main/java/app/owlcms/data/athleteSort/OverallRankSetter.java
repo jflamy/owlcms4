@@ -14,34 +14,33 @@ import ch.qos.logback.classic.Logger;
 public class OverallRankSetter {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(OverallRankSetter.class);
-
 	private int rank = 0;
 
 	public void increment(Athlete a, Ranking r, boolean eligible, boolean zero) {
-		//logger.trace("increment {} {}",a.getShortName(), rank, r);
+		// logger.trace("increment {} {}",a.getShortName(), rank, r);
 		switch (r) {
-		case SNATCH:
-		case CLEANJERK:
-		case TOTAL:
-		case SNATCH_CJ_TOTAL:
-		case CUSTOM:
-			throw new RuntimeException("using OverallRankSetter on a category-specific ranking");
-		case BW_SINCLAIR:
-			a.setSinclairRank(eligible ? (zero ? 0 : ++rank) : -1);
-			break;
-		case CAT_SINCLAIR:
-			a.setCatSinclairRank(eligible ? (zero ? 0 : ++rank) : -1);
-			break;
-		case ROBI:
-			a.setRobiRank(eligible ? (zero ? 0 : ++rank) : -1);
-			break;
-		case SMM:
-			a.setSmmRank(eligible ? (zero ? 0 : ++rank) : -1);
-			break;
-		case QPOINTS:
-			a.setqPointsRank(eligible ? (zero ? 0 : ++rank) : -1);
-		case GAMX:
-			a.setGmaxRank(eligible ? (zero ? 0 : ++rank) : -1);
+			case SNATCH:
+			case CLEANJERK:
+			case TOTAL:
+			case SNATCH_CJ_TOTAL:
+			case CUSTOM:
+				throw new RuntimeException("using OverallRankSetter on a category-specific ranking");
+			case BW_SINCLAIR:
+				a.setSinclairRank(eligible ? (zero ? 0 : ++this.rank) : -1);
+				break;
+			case CAT_SINCLAIR:
+				a.setCatSinclairRank(eligible ? (zero ? 0 : ++this.rank) : -1);
+				break;
+			case ROBI:
+				a.setRobiRank(eligible ? (zero ? 0 : ++this.rank) : -1);
+				break;
+			case SMM:
+				a.setSmmRank(eligible ? (zero ? 0 : ++this.rank) : -1);
+				break;
+			case QPOINTS:
+				a.setqPointsRank(eligible ? (zero ? 0 : ++this.rank) : -1);
+			case GAMX:
+				a.setGmaxRank(eligible ? (zero ? 0 : ++this.rank) : -1);
 		}
 	}
 

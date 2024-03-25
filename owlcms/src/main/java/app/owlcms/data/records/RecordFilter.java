@@ -37,12 +37,12 @@ public class RecordFilter {
 	        Integer snatchRequest, Integer cjRequest,
 	        Integer totalRequest,
 	        Athlete a) {
-		
+
 		if (recordNameIsCategory == null) {
 			recordNameIsCategory = Config.getCurrent().featureSwitch("recordNameIsCategory");
 			logger.debug("setting recordNameIsCategory {}", recordNameIsCategory);
 		}
-		
+
 		ArrayList<String> recordOrder = RecordConfig.getCurrent().getRecordOrder();
 		if (recordOrder == null || recordOrder.isEmpty()) {
 			return null;
@@ -60,34 +60,34 @@ public class RecordFilter {
 		TreeMap<String, String> rowOrder = new TreeMap<>();
 		for (RecordEvent re : displayedRecords) {
 			// rows are ordered according to configuration
-			
+
 			String order = getRowOrder(re.getRecordName(), re.getFileName());
-			
-			rowOrder.put(order , re.getRecordName());
+
+			rowOrder.put(order, re.getRecordName());
 			// synthetic key to arrange records in correct box.
-			
-//			String key = re.getRecordFederation()+(re.getGender().ordinal() * 100000000) + re.getAgeGrpLower() * 1000000
-//			        + re.getAgeGrpUpper() * 1000 + re.getBwCatUpper();
-//			recordsByAgeWeight.put(key, re);
+
+			// String key = re.getRecordFederation()+(re.getGender().ordinal() * 100000000) + re.getAgeGrpLower() *
+			// 1000000
+			// + re.getAgeGrpUpper() * 1000 + re.getBwCatUpper();
+			// recordsByAgeWeight.put(key, re);
 
 			try {
 				String key2 = String.format("%d_%03d_%03d_%03d_%s",
-						re.getGender().ordinal(),
-						re.getAgeGrpLower(), re.getAgeGrpUpper(),
-						re.getBwCatUpper(),
-						//re.getRecordFederation() 
-						recordNameIsCategory ? re.getRecordFederation() : ""
-						);
+				        re.getGender().ordinal(),
+				        re.getAgeGrpLower(), re.getAgeGrpUpper(),
+				        re.getBwCatUpper(),
+				        // re.getRecordFederation()
+				        recordNameIsCategory ? re.getRecordFederation() : "");
 				recordsByAgeWeight.put(key2, re);
 			} catch (Exception e) {
-				logger.error("formatting error {}",e);
+				logger.error("formatting error {}", e);
 			}
 		}
 
 		// order columns left to right in ascending age groups;
 		List<String> columnOrder = recordsByAgeWeight.keySet().stream().sorted()
 		        .collect(Collectors.toList());
-		
+
 		@SuppressWarnings("unchecked")
 		List<RecordEvent>[][] recordTable = new ArrayList[rowOrder.size()][columnOrder.size()];
 		ArrayList<String> rowRecordNames = new ArrayList<>(rowOrder.values());
@@ -203,11 +203,6 @@ public class RecordFilter {
 		return recordInfo;
 	}
 
-	private static String getRowOrder(String recordName, String fileName) {
-		ArrayList<String> recordOrder = RecordConfig.getCurrent().getRecordOrder();
-		return Integer.toString(recordOrder.indexOf(recordName));
-	}
-
 	public static List<RecordEvent> computeChallengedRecords(List<RecordEvent> eligibleRecords, Integer snatchRequest,
 	        Integer cjRequest,
 	        Integer totalRequest) {
@@ -233,37 +228,11 @@ public class RecordFilter {
 		return challengedRecords;
 	}
 
-	public static List<RecordEvent> computeEligibleRecordsForAthlete(Athlete curAthlete) {
-		Collection<RecordEvent> candidateRecords = computeDisplayableRecordsForAthlete(curAthlete);
-		return filterEligibleRecordsForAthlete(curAthlete, candidateRecords);
-	}
-
-	public static List<RecordEvent> filterEligibleRecordsForAthlete(Athlete curAthlete,
-	        Collection<RecordEvent> candidateRecords) {
-		List<RecordEvent> records;
-		//logger.debug("candidate records {}", candidateRecords);
-		String federationCodes = curAthlete.getFederationCodes();
-		
-		Set<String> athleteFederations;
-		if (federationCodes == null || federationCodes.isBlank()) {
-			athleteFederations =  Set.of();
-		} else {
-			federationCodes = federationCodes.replaceAll("[ ]*,[ ]*",",");
-			athleteFederations = new HashSet<>(Arrays.asList(federationCodes.split("[,;]")));
-		}
-		//logger.debug(" *** athlete {} agegroups {} federations {}", curAthlete.getShortName(), curAthlete.getEligibleCategories(), athleteFederations);
-		records = candidateRecords.stream()
-				//.peek(c -> logger.debug("{} {}",c.getAgeGrp(), c.getRecordFederation()))
-		        .filter(c -> athleteFederations.isEmpty() ? true : athleteFederations.contains(c.getRecordFederation()))
-		        .collect(Collectors.toList());
-		//logger.debug("retained records {}", records);
-		return records;
-	}
-
 	public static List<RecordEvent> computeDisplayableRecordsForAthlete(Athlete curAthlete) {
 		List<RecordEvent> records = RecordRepository.findFiltered(curAthlete.getGender(), curAthlete.getAge(),
 		        curAthlete.getBodyWeight(), null, null);
-		logger.debug("initial records fetched {} {} {} {}", curAthlete.getGender(), curAthlete.getAge(), curAthlete.getBodyWeight(), records);
+		logger.debug("initial records fetched {} {} {} {}", curAthlete.getGender(), curAthlete.getAge(),
+		        curAthlete.getBodyWeight(), records);
 
 		// remove duplicates for each kind of record, keep largest.
 		// Beware: must take federation into account.
@@ -277,7 +246,40 @@ public class RecordFilter {
 				logger.debug("DISCARDING {} {}", r.getKey(), r.getRecordValue());
 			}
 		}
-		return new ArrayList<RecordEvent>(cleanMap.values());
+		return new ArrayList<>(cleanMap.values());
+	}
+
+	public static List<RecordEvent> computeEligibleRecordsForAthlete(Athlete curAthlete) {
+		Collection<RecordEvent> candidateRecords = computeDisplayableRecordsForAthlete(curAthlete);
+		return filterEligibleRecordsForAthlete(curAthlete, candidateRecords);
+	}
+
+	public static List<RecordEvent> filterEligibleRecordsForAthlete(Athlete curAthlete,
+	        Collection<RecordEvent> candidateRecords) {
+		List<RecordEvent> records;
+		// logger.debug("candidate records {}", candidateRecords);
+		String federationCodes = curAthlete.getFederationCodes();
+
+		Set<String> athleteFederations;
+		if (federationCodes == null || federationCodes.isBlank()) {
+			athleteFederations = Set.of();
+		} else {
+			federationCodes = federationCodes.replaceAll("[ ]*,[ ]*", ",");
+			athleteFederations = new HashSet<>(Arrays.asList(federationCodes.split("[,;]")));
+		}
+		// logger.debug(" *** athlete {} agegroups {} federations {}", curAthlete.getShortName(),
+		// curAthlete.getEligibleCategories(), athleteFederations);
+		records = candidateRecords.stream()
+		        // .peek(c -> logger.debug("{} {}",c.getAgeGrp(), c.getRecordFederation()))
+		        .filter(c -> athleteFederations.isEmpty() ? true : athleteFederations.contains(c.getRecordFederation()))
+		        .collect(Collectors.toList());
+		// logger.debug("retained records {}", records);
+		return records;
+	}
+
+	private static String getRowOrder(String recordName, String fileName) {
+		ArrayList<String> recordOrder = RecordConfig.getCurrent().getRecordOrder();
+		return Integer.toString(recordOrder.indexOf(recordName));
 	}
 
 }

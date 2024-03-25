@@ -46,8 +46,7 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 	static {
 		logger.setLevel(Level.INFO);
 	}
-
-	Map<String, List<String>> urlParameterMap = new HashMap<String, List<String>>();
+	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	/**
 	 * Competition Group Navigation
@@ -85,7 +84,6 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 		DebugUtils.gc();
 	}
 
-
 	@Override
 	public String getMenuTitle() {
 		return getTranslation("RunLiftingGroup");
@@ -100,9 +98,7 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see
-	 * app.owlcms.nui.home.BaseNavigationContent#createTopBarFopField(java.lang.
-	 * String, java.lang.String)
+	 * @see app.owlcms.nui.home.BaseNavigationContent#createTopBarFopField(java.lang. String, java.lang.String)
 	 */
 	@Override
 	protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {

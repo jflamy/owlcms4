@@ -108,14 +108,13 @@ public class TeamResultsContent extends BaseContent
 	 * {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
 	 */
 	public TeamResultsContent() {
-		super();
 		OwlcmsFactory.waitDBInitialized();
 	}
 
 	@Override
 	public void closeDialog() {
-		crudGrid.getCrudLayout().hideForm();
-		crudGrid.getGrid().asSingleSelect().clear();
+		this.crudGrid.getCrudLayout().hideForm();
+		this.crudGrid.getGrid().asSingleSelect().clear();
 	}
 
 	/**
@@ -129,44 +128,44 @@ public class TeamResultsContent extends BaseContent
 	 */
 	@Override
 	public FlexLayout createMenuArea() {
-		topBar = new FlexLayout();
-		xlsWriter = new JXLSCompetitionBook(true, UI.getCurrent());
-		StreamResource href = new StreamResource(TITLE + "Report" + ".xls", () -> xlsWriter.createInputStream());
-		finalPackage = new Anchor(href, "");
-		finalPackage.getStyle().set("margin-left", "1em");
-		download = new Button(getTranslation(TITLE + ".Report"), new Icon(VaadinIcon.DOWNLOAD_ALT));
+		this.topBar = new FlexLayout();
+		this.xlsWriter = new JXLSCompetitionBook(true, UI.getCurrent());
+		StreamResource href = new StreamResource(TITLE + "Report" + ".xls", () -> this.xlsWriter.createInputStream());
+		this.finalPackage = new Anchor(href, "");
+		this.finalPackage.getStyle().set("margin-left", "1em");
+		this.download = new Button(getTranslation(TITLE + ".Report"), new Icon(VaadinIcon.DOWNLOAD_ALT));
 
-		topBarAgeGroupPrefixSelect = new ComboBox<>();
-		topBarAgeGroupPrefixSelect.setPlaceholder(getTranslation("AgeGroup"));
+		this.topBarAgeGroupPrefixSelect = new ComboBox<>();
+		this.topBarAgeGroupPrefixSelect.setPlaceholder(getTranslation("AgeGroup"));
 
-		topBarAgeGroupPrefixSelect.setEnabled(false);
-		topBarAgeGroupPrefixSelect.setClearButtonVisible(true);
-		topBarAgeGroupPrefixSelect.setValue(null);
-		topBarAgeGroupPrefixSelect.setWidth("8em");
-		topBarAgeGroupPrefixSelect.setClearButtonVisible(true);
-		topBarAgeGroupPrefixSelect.getStyle().set("margin-left", "1em");
+		this.topBarAgeGroupPrefixSelect.setEnabled(false);
+		this.topBarAgeGroupPrefixSelect.setClearButtonVisible(true);
+		this.topBarAgeGroupPrefixSelect.setValue(null);
+		this.topBarAgeGroupPrefixSelect.setWidth("8em");
+		this.topBarAgeGroupPrefixSelect.setClearButtonVisible(true);
+		this.topBarAgeGroupPrefixSelect.getStyle().set("margin-left", "1em");
 		setAgeGroupPrefixSelectionListener();
 
-		topBarAgeDivisionSelect = new ComboBox<>();
-		topBarAgeDivisionSelect.setPlaceholder(getTranslation("AgeDivision"));
-		adItems = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
-		topBarAgeDivisionSelect.setItems(adItems);
-		topBarAgeDivisionSelect.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
-		topBarAgeDivisionSelect.setClearButtonVisible(true);
-		topBarAgeDivisionSelect.setWidth("8em");
-		topBarAgeDivisionSelect.getStyle().set("margin-left", "1em");
+		this.topBarAgeDivisionSelect = new ComboBox<>();
+		this.topBarAgeDivisionSelect.setPlaceholder(getTranslation("AgeDivision"));
+		this.adItems = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
+		this.topBarAgeDivisionSelect.setItems(this.adItems);
+		this.topBarAgeDivisionSelect.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
+		this.topBarAgeDivisionSelect.setClearButtonVisible(true);
+		this.topBarAgeDivisionSelect.setWidth("8em");
+		this.topBarAgeDivisionSelect.getStyle().set("margin-left", "1em");
 		setAgeDivisionSelectionListener();
 
-		finalPackage.add(download);
-		HorizontalLayout buttons = new HorizontalLayout(finalPackage);
+		this.finalPackage.add(this.download);
+		HorizontalLayout buttons = new HorizontalLayout(this.finalPackage);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
-		topBar.getStyle().set("flex", "100 1");
-		topBar.removeAll();
-		topBar.add(topBarAgeDivisionSelect, topBarAgeGroupPrefixSelect);
-		topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
-		topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-		return topBar;
+		this.topBar.getStyle().set("flex", "100 1");
+		this.topBar.removeAll();
+		this.topBar.add(this.topBarAgeDivisionSelect, this.topBarAgeGroupPrefixSelect);
+		this.topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+		this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+		return this.topBar;
 	}
 
 	/**
@@ -196,20 +195,20 @@ public class TeamResultsContent extends BaseContent
 	}
 
 	public AgeDivision getAgeDivision() {
-		return ageDivision;
+		return this.ageDivision;
 	}
 
 	public String getAgeGroupPrefix() {
-		return ageGroupPrefix;
+		return this.ageGroupPrefix;
 	}
 
 	@Override
 	public OwlcmsCrudGrid<?> getEditingGrid() {
-		return crudGrid;
+		return this.crudGrid;
 	}
 
 	public ComboBox<Gender> getGenderFilter() {
-		return genderFilter;
+		return this.genderFilter;
 	}
 
 	@Override
@@ -227,7 +226,7 @@ public class TeamResultsContent extends BaseContent
 
 	@Override
 	public OwlcmsLayout getRouterLayout() {
-		return routerLayout;
+		return this.routerLayout;
 	}
 
 	@Override
@@ -236,7 +235,7 @@ public class TeamResultsContent extends BaseContent
 	}
 
 	public void refresh() {
-		crudGrid.refreshGrid();
+		this.crudGrid.refreshGrid();
 	}
 
 	public void setAgeDivision(AgeDivision ageDivision) {
@@ -271,12 +270,12 @@ public class TeamResultsContent extends BaseContent
 		List<String> groupNames = params.get("group");
 		if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
 			String groupName = groupNames.get(0);
-			currentGroup = GroupRepository.findByName(groupName);
+			this.currentGroup = GroupRepository.findByName(groupName);
 		} else {
-			currentGroup = null;
+			this.currentGroup = null;
 		}
-		if (currentGroup != null) {
-			params.put("group", Arrays.asList(URLUtils.urlEncode(currentGroup.getName())));
+		if (this.currentGroup != null) {
+			params.put("group", Arrays.asList(URLUtils.urlEncode(this.currentGroup.getName())));
 		} else {
 			params.remove("group");
 		}
@@ -340,15 +339,15 @@ public class TeamResultsContent extends BaseContent
 			@SuppressWarnings("deprecation")
 			@Override
 			public void refreshGrid() {
-				if (topBar == null) {
+				if (TeamResultsContent.this.topBar == null) {
 					return;
 				}
 				// logger.debug("refreshing grid {} {} {}",getAgeGroupPrefix(),
 				// getAgeDivision(),
 				// genderFilter.getValue());
 				TeamResultsTreeData teamResultsTreeData = new TeamResultsTreeData(getAgeGroupPrefix(), getAgeDivision(),
-				        genderFilter.getValue(), Ranking.SNATCH_CJ_TOTAL, false);
-				grid.setDataProvider(new TreeDataProvider<>(teamResultsTreeData));
+				        TeamResultsContent.this.genderFilter.getValue(), Ranking.SNATCH_CJ_TOTAL, false);
+				this.grid.setDataProvider(new TreeDataProvider<>(teamResultsTreeData));
 			}
 
 			@Override
@@ -357,18 +356,18 @@ public class TeamResultsContent extends BaseContent
 
 			@Override
 			protected void updateButtonClicked() {
-				TeamTreeItem item = grid.asSingleSelect().getValue();
+				TeamTreeItem item = this.grid.asSingleSelect().getValue();
 				if (item.getAthlete() == null) {
 					return;
 				}
 
-				TeamTreeItem domainObject = grid.asSingleSelect().getValue();
-				showForm(CrudOperation.UPDATE, domainObject, false, savedMessage, event -> {
+				TeamTreeItem domainObject = this.grid.asSingleSelect().getValue();
+				showForm(CrudOperation.UPDATE, domainObject, false, this.savedMessage, event -> {
 					try {
-						TeamTreeItem updatedObject = updateOperation.perform(domainObject);
-						grid.asSingleSelect().clear();
+						TeamTreeItem updatedObject = this.updateOperation.perform(domainObject);
+						this.grid.asSingleSelect().clear();
 						refreshGrid();
-						grid.asSingleSelect().setValue(updatedObject);
+						this.grid.asSingleSelect().setValue(updatedObject);
 					} catch (IllegalArgumentException ignore) {
 					} catch (CrudOperationException e1) {
 						refreshGrid();
@@ -396,44 +395,44 @@ public class TeamResultsContent extends BaseContent
 	 * @param crudGrid the crudGrid that will be filtered.
 	 */
 	protected void defineFilters(OwlcmsCrudGrid<TeamTreeItem> crudGrid2) {
-//        if (teamFilter == null) {
-//            teamFilter = new ComboBox<>();
-//            teamFilter.setPlaceholder(getTranslation("Team"));
-//            teamFilter.setClearButtonVisible(true);
-//            teamFilter.addValueChangeListener(e -> {
-//                if (!teamFilterRecusion) return;
-//                crudGrid2.refreshGrid();
-//            });
-//            teamFilter.setWidth("10em");
-//        }
-//        crudGrid2.getCrudLayout().addFilterComponent(teamFilter);
+		// if (teamFilter == null) {
+		// teamFilter = new ComboBox<>();
+		// teamFilter.setPlaceholder(getTranslation("Team"));
+		// teamFilter.setClearButtonVisible(true);
+		// teamFilter.addValueChangeListener(e -> {
+		// if (!teamFilterRecusion) return;
+		// crudGrid2.refreshGrid();
+		// });
+		// teamFilter.setWidth("10em");
+		// }
+		// crudGrid2.getCrudLayout().addFilterComponent(teamFilter);
 
-		if (genderFilter == null) {
-			genderFilter = new ComboBox<>();
-			genderFilter.setPlaceholder(getTranslation("Gender"));
-			genderFilter.setItems(Gender.M, Gender.F);
-			genderFilter.setItemLabelGenerator((i) -> {
+		if (this.genderFilter == null) {
+			this.genderFilter = new ComboBox<>();
+			this.genderFilter.setPlaceholder(getTranslation("Gender"));
+			this.genderFilter.setItems(Gender.M, Gender.F);
+			this.genderFilter.setItemLabelGenerator((i) -> {
 				return i == Gender.M ? getTranslation("Gender.Men") : getTranslation("Gender.Women");
 			});
-			genderFilter.setClearButtonVisible(true);
-			genderFilter.addValueChangeListener(e -> {
+			this.genderFilter.setClearButtonVisible(true);
+			this.genderFilter.addValueChangeListener(e -> {
 				crudGrid2.refreshGrid();
 			});
-			genderFilter.setWidth("10em");
+			this.genderFilter.setWidth("10em");
 		}
-		crudGrid2.getCrudLayout().addFilterComponent(genderFilter);
+		crudGrid2.getCrudLayout().addFilterComponent(this.genderFilter);
 
-//        if (categoryFilter == null) {
-//            categoryFilter = new ComboBox<>();
-//            categoryFilter.setClearButtonVisible(true);
-//            categoryFilter.setPlaceholder(getTranslation("Category"));
-//            categoryFilter.setClearButtonVisible(true);
-//            categoryFilter.addValueChangeListener(e -> {
-//                crudGrid2.refreshGrid();
-//            });
-//            categoryFilter.setWidth("10em");
-//        }
-//        crudGrid2.getCrudLayout().addFilterComponent(categoryFilter);
+		// if (categoryFilter == null) {
+		// categoryFilter = new ComboBox<>();
+		// categoryFilter.setClearButtonVisible(true);
+		// categoryFilter.setPlaceholder(getTranslation("Category"));
+		// categoryFilter.setClearButtonVisible(true);
+		// categoryFilter.addValueChangeListener(e -> {
+		// crudGrid2.refreshGrid();
+		// });
+		// categoryFilter.setWidth("10em");
+		// }
+		// crudGrid2.getCrudLayout().addFilterComponent(categoryFilter);
 	}
 
 	/**
@@ -444,11 +443,11 @@ public class TeamResultsContent extends BaseContent
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		OwlcmsCrudFormFactory<TeamTreeItem> crudFormFactory = new TeamItemResultsFormFactory(TeamTreeItem.class, this);
-		crudGrid = createCrudGrid(crudFormFactory);
-		fillHW(crudGrid, this);
-		AgeDivision value = (adItems != null && adItems.size() > 0) ? adItems.get(0) : null;
+		this.crudGrid = createCrudGrid(crudFormFactory);
+		fillHW(this.crudGrid, this);
+		AgeDivision value = (this.adItems != null && this.adItems.size() > 0) ? this.adItems.get(0) : null;
 		setAgeDivision(value);
-		topBarAgeDivisionSelect.setValue(value);
+		this.topBarAgeDivisionSelect.setValue(value);
 	}
 
 	private void defineContent(OwlcmsCrudGrid<TeamTreeItem> crudGrid) {
@@ -480,64 +479,64 @@ public class TeamResultsContent extends BaseContent
 	}
 
 	private String formatDouble(double d, int decimals) {
-		if (floatFormat == null) {
-			floatFormat = new DecimalFormat();
-			floatFormat.setMinimumIntegerDigits(1);
-			floatFormat.setMaximumFractionDigits(decimals);
-			floatFormat.setMinimumFractionDigits(decimals);
-			floatFormat.setGroupingUsed(false);
+		if (this.floatFormat == null) {
+			this.floatFormat = new DecimalFormat();
+			this.floatFormat.setMinimumIntegerDigits(1);
+			this.floatFormat.setMaximumFractionDigits(decimals);
+			this.floatFormat.setMinimumFractionDigits(decimals);
+			this.floatFormat.setGroupingUsed(false);
 		}
-		return floatFormat.format(d);
+		return this.floatFormat.format(d);
 	}
 
 	private void setAgeDivisionSelectionListener() {
-		topBarAgeDivisionSelect.addValueChangeListener(e -> {
+		this.topBarAgeDivisionSelect.addValueChangeListener(e -> {
 			// the name of the resulting file is set as an attribute on the <a href tag that
 			// surrounds the download button.
 			AgeDivision ageDivisionValue = e.getValue();
 			setAgeDivision(ageDivisionValue);
 			// logger.debug("ageDivisionSelectionListener {}",ageDivisionValue);
 			if (ageDivisionValue == null) {
-				topBarAgeGroupPrefixSelect.setValue(null);
-				topBarAgeGroupPrefixSelect.setItems(new ArrayList<String>());
-				topBarAgeGroupPrefixSelect.setEnabled(false);
-				topBarAgeGroupPrefixSelect.setValue(null);
-				crudGrid.refreshGrid();
+				this.topBarAgeGroupPrefixSelect.setValue(null);
+				this.topBarAgeGroupPrefixSelect.setItems(new ArrayList<>());
+				this.topBarAgeGroupPrefixSelect.setEnabled(false);
+				this.topBarAgeGroupPrefixSelect.setValue(null);
+				this.crudGrid.refreshGrid();
 				return;
 			}
 
 			List<String> ageDivisionAgeGroupPrefixes;
 			ageDivisionAgeGroupPrefixes = AgeGroupRepository.findActiveAndUsed(ageDivisionValue);
 
-			topBarAgeGroupPrefixSelect.setItems(ageDivisionAgeGroupPrefixes);
+			this.topBarAgeGroupPrefixSelect.setItems(ageDivisionAgeGroupPrefixes);
 			boolean notEmpty = ageDivisionAgeGroupPrefixes.size() > 0;
-			topBarAgeGroupPrefixSelect.setEnabled(notEmpty);
+			this.topBarAgeGroupPrefixSelect.setEnabled(notEmpty);
 			String first = (notEmpty && ageDivisionValue == AgeDivision.IWF) ? ageDivisionAgeGroupPrefixes.get(0)
 			        : null;
 			// logger.debug("ad {} ag {} first {} select {}", ageDivisionValue,
 			// ageDivisionAgeGroupPrefixes, first,
 			// topBarAgeGroupPrefixSelect);
 
-			xlsWriter.setAgeDivision(ageDivisionValue);
-			finalPackage.getElement().setAttribute("download",
+			this.xlsWriter.setAgeDivision(ageDivisionValue);
+			this.finalPackage.getElement().setAttribute("download",
 			        "results" + (getAgeDivision() != null ? "_" + getAgeDivision().name()
-			                : (ageGroupPrefix != null ? "_" + ageGroupPrefix : "_all")) + ".xls");
+			                : (this.ageGroupPrefix != null ? "_" + this.ageGroupPrefix : "_all")) + ".xls");
 
 			String value = notEmpty ? first : null;
 			// logger.debug("setting prefix to {}", value);
-			topBarAgeGroupPrefixSelect.setValue(value);
+			this.topBarAgeGroupPrefixSelect.setValue(value);
 			updateFilters();
 
-			if (crudGrid != null && value == null) {
+			if (this.crudGrid != null && value == null) {
 				// if prefix is already null, does not refresh. Force it.
-				crudGrid.refreshGrid();
+				this.crudGrid.refreshGrid();
 			}
 
 		});
 	}
 
 	private void setAgeGroupPrefixSelectionListener() {
-		topBarAgeGroupPrefixSelect.addValueChangeListener(e -> {
+		this.topBarAgeGroupPrefixSelect.addValueChangeListener(e -> {
 			// the name of the resulting file is set as an attribute on the <a href tag that
 			// surrounds the download button.
 			String prefix = e.getValue();
@@ -545,27 +544,27 @@ public class TeamResultsContent extends BaseContent
 
 			// logger.debug("ageGroupPrefixSelectionListener {}",prefix);
 			// updateFilters(getAgeDivision(), getAgeGroupPrefix());
-			xlsWriter.setAgeGroupPrefix(ageGroupPrefix);
-			finalPackage.getElement().setAttribute("download",
+			this.xlsWriter.setAgeGroupPrefix(this.ageGroupPrefix);
+			this.finalPackage.getElement().setAttribute("download",
 			        "results" + (getAgeDivision() != null ? "_" + getAgeDivision().name()
-			                : (ageGroupPrefix != null ? "_" + ageGroupPrefix : "_all")) + ".xls");
+			                : (this.ageGroupPrefix != null ? "_" + this.ageGroupPrefix : "_all")) + ".xls");
 
-			if (crudGrid != null) {
-				crudGrid.refreshGrid();
+			if (this.crudGrid != null) {
+				this.crudGrid.refreshGrid();
 			}
 
 		});
 	}
 
 	private void updateFilters() {
-//        List<Category> categories = CategoryRepository.findByGenderDivisionAgeBW(genderFilter.getValue(),
-//                getAgeDivision(), null, null);
-//        if (getAgeGroupPrefix() != null && !getAgeGroupPrefix().isBlank()) {
-//            categories = categories.stream().filter((c) -> c.getAgeGroup().getCode().equals(getAgeGroupPrefix()))
-//                    .collect(Collectors.toList());
-//        }
-//         logger.trace("updateFilters {}, {}, {}", ageDivision2, ageGroupPrefix2, categories);
-//        categoryFilter.setItems(categories);
+		// List<Category> categories = CategoryRepository.findByGenderDivisionAgeBW(genderFilter.getValue(),
+		// getAgeDivision(), null, null);
+		// if (getAgeGroupPrefix() != null && !getAgeGroupPrefix().isBlank()) {
+		// categories = categories.stream().filter((c) -> c.getAgeGroup().getCode().equals(getAgeGroupPrefix()))
+		// .collect(Collectors.toList());
+		// }
+		// logger.trace("updateFilters {}, {}, {}", ageDivision2, ageGroupPrefix2, categories);
+		// categoryFilter.setItems(categories);
 	}
 
 }

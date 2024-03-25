@@ -43,7 +43,6 @@ public class JXLSSBDEExport extends JXLSWorkbookStreamSource {
 	}
 
 	public JXLSSBDEExport(UI ui) {
-		super();
 		try {
 			// needed to set the file extension in the source so the download button works.
 			getTemplate(OwlcmsSession.getLocale());
@@ -67,15 +66,15 @@ public class JXLSSBDEExport extends JXLSWorkbookStreamSource {
 	}
 
 	@Override
-	public InputStream getTemplate(Locale locale) throws IOException {
-		return getLocalizedTemplate("/templates/registration/SBDE", ".xls", locale);
-	}
-
-	@Override
 	public List<Athlete> getSortedAthletes() {
 		List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, null);
 		return AthleteSorter
 		        .registrationExportCopy(athletes);
+	}
+
+	@Override
+	public InputStream getTemplate(Locale locale) throws IOException {
+		return getLocalizedTemplate("/templates/registration/SBDE", ".xls", locale);
 	}
 
 }

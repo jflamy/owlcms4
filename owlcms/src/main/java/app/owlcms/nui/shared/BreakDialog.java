@@ -21,36 +21,7 @@ public class BreakDialog extends Dialog {
 	private BreakManagement content;
 	final private Logger logger = (Logger) LoggerFactory.getLogger(BreakDialog.class);
 	{
-		logger.setLevel(Level.INFO);
-	}
-
-	/**
-	 * Used by the announcer -- tries to guess what type of break is pertinent based
-	 * on field of play.
-	 *
-	 * @param origin the origin
-	 */
-	public BreakDialog(Object origin) {
-		content = new BreakManagement(OwlcmsSession.getFop(), this, origin);
-		this.add(content);
-
-		this.addDialogCloseActionListener((e) -> {
-			this.removeAll();
-			this.close();
-
-			// defensive, should have been unregistered already
-			try {
-				OwlcmsSession.getFop().getUiEventBus().unregister(content);
-			} catch (Exception e1) {
-			}
-
-			try {
-				OwlcmsSession.getFop().getFopEventBus().unregister(content);
-			} catch (Exception e1) {
-			}
-			content = null;
-
-		});
+		this.logger.setLevel(Level.INFO);
 	}
 
 	/**
@@ -60,24 +31,52 @@ public class BreakDialog extends Dialog {
 	 */
 	public BreakDialog(BreakType brt, CountdownType cdt, Integer secondsRemaining, Object origin) {
 		// logger.debug("BreakDialog brt = {}", brt);
-		content = new BreakManagement(OwlcmsSession.getFop(), brt, cdt, secondsRemaining, this, origin);
-		this.add(content);
+		this.content = new BreakManagement(OwlcmsSession.getFop(), brt, cdt, secondsRemaining, this, origin);
+		this.add(this.content);
 
 		this.addDialogCloseActionListener((e) -> {
 
 			// defensive, should have been unregistered already
 			try {
-				OwlcmsSession.getFop().getUiEventBus().unregister(content);
+				OwlcmsSession.getFop().getUiEventBus().unregister(this.content);
 				// logger.debug("++++++ unregistered {}", breakTimer.id);
 			} catch (Exception e1) {
 			}
 			try {
-				OwlcmsSession.getFop().getFopEventBus().unregister(content);
+				OwlcmsSession.getFop().getFopEventBus().unregister(this.content);
 			} catch (Exception e1) {
 			}
-			content = null;
+			this.content = null;
 			this.removeAll();
 			this.close();
+		});
+	}
+
+	/**
+	 * Used by the announcer -- tries to guess what type of break is pertinent based on field of play.
+	 *
+	 * @param origin the origin
+	 */
+	public BreakDialog(Object origin) {
+		this.content = new BreakManagement(OwlcmsSession.getFop(), this, origin);
+		this.add(this.content);
+
+		this.addDialogCloseActionListener((e) -> {
+			this.removeAll();
+			this.close();
+
+			// defensive, should have been unregistered already
+			try {
+				OwlcmsSession.getFop().getUiEventBus().unregister(this.content);
+			} catch (Exception e1) {
+			}
+
+			try {
+				OwlcmsSession.getFop().getFopEventBus().unregister(this.content);
+			} catch (Exception e1) {
+			}
+			this.content = null;
+
 		});
 	}
 

@@ -54,7 +54,6 @@ public abstract class BaseNavigationContent extends BaseContent
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
-
 	protected OwlcmsLayout routerLayout;
 	protected EventBus uiEventBus;
 	/**
@@ -71,14 +70,14 @@ public abstract class BaseNavigationContent extends BaseContent
 	}
 
 	public ComboBox<Group> createGroupSelect(String placeHolder) {
-		groupSelect = new ComboBox<>();
-		groupSelect.setPlaceholder(placeHolder);
+		this.groupSelect = new ComboBox<>();
+		this.groupSelect.setPlaceholder(placeHolder);
 		List<Group> groups = GroupRepository.findAll();
-		groups.sort(new NaturalOrderComparator<Group>());
-		groupSelect.setItems(groups);
-		groupSelect.setItemLabelGenerator(Group::getName);
-		groupSelect.setWidth("10rem");
-		return groupSelect;
+		groups.sort(new NaturalOrderComparator<>());
+		this.groupSelect.setItems(groups);
+		this.groupSelect.setItemLabelGenerator(Group::getName);
+		this.groupSelect.setWidth("10rem");
+		return this.groupSelect;
 	}
 
 	/**
@@ -113,12 +112,12 @@ public abstract class BaseNavigationContent extends BaseContent
 
 	@Override
 	public String getPageTitle() {
-		return pageTitle;
+		return this.pageTitle;
 	}
 
 	@Override
 	final public OwlcmsLayout getRouterLayout() {
-		return routerLayout;
+		return this.routerLayout;
 	}
 
 	@Override
@@ -130,11 +129,11 @@ public abstract class BaseNavigationContent extends BaseContent
 		image.getStyle().set("width", "auto");
 		HorizontalLayout topBarTitle = new HorizontalLayout(image, label);
 		topBarTitle.setAlignSelf(Alignment.CENTER, label);
-		routerLayout.setMenuTitle(topBarTitle);
-		routerLayout.setMenuArea(createMenuArea());
-		routerLayout.showLocaleDropdown(true);
-		routerLayout.setDrawerOpened(true);
-		routerLayout.updateHeader(true);
+		this.routerLayout.setMenuTitle(topBarTitle);
+		this.routerLayout.setMenuArea(createMenuArea());
+		this.routerLayout.showLocaleDropdown(true);
+		this.routerLayout.setDrawerOpened(true);
+		this.routerLayout.updateHeader(true);
 	}
 
 	/**
@@ -224,7 +223,7 @@ public abstract class BaseNavigationContent extends BaseContent
 	protected void onAttach(AttachEvent attachEvent) {
 		OwlcmsSession.withFop(fop -> {
 			// we listen on uiEventBus.
-			uiEventBus = uiEventBusRegister(this, fop);
+			this.uiEventBus = uiEventBusRegister(this, fop);
 		});
 	}
 

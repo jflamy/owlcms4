@@ -204,6 +204,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		return this.templateFileName;
 	}
 
+	public boolean isEmptyOk() {
+		return this.emptyOk;
+	}
+
 	public boolean isExcludeNotWeighed() {
 		return this.excludeNotWeighed;
 	}
@@ -340,10 +344,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 
 	protected void init() {
 		setReportingBeans(new HashMap<>());
-	}
-
-	public boolean isEmptyOk() {
-		return this.emptyOk;
 	}
 
 	protected void postProcess(Workbook workbook) {

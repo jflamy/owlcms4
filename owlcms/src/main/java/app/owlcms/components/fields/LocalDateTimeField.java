@@ -38,7 +38,6 @@ import ch.qos.logback.classic.Logger;
 public class LocalDateTimeField extends WrappedTextField<LocalDateTime> implements HasValidation {
 
 	private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
-
 	private final static DateTimeFormatter FORMATTER = new DateTimeFormatterBuilder().parseLenient()
 	        .appendPattern(DATE_FORMAT).toFormatter();
 
@@ -74,6 +73,19 @@ public class LocalDateTimeField extends WrappedTextField<LocalDateTime> implemen
 		return FORMATTER.format(getValue());
 	}
 
+	@Override
+	protected void initLoggers() {
+		setLogger((Logger) LoggerFactory.getLogger(LocalDateTimeField.class));
+		getLogger().setLevel(Level.INFO);
+	}
+
+	@Override
+	protected String invalidFormatErrorMessage(Locale locale) {
+		LocalDateTime date = LocalDateTime.of(2000, 11, 29, 13, 31);
+		return "Time must be in international format " + DATE_FORMAT + " (" + FORMATTER.format(date) + " for "
+		        + DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(locale).format(date) + " )";
+	}
+
 	private Result<LocalDateTime> doParse(String content, Locale locale, DateTimeFormatter formatter) {
 		LocalDateTime parse;
 		try {
@@ -89,18 +101,5 @@ public class LocalDateTimeField extends WrappedTextField<LocalDateTime> implemen
 			setFormatValidationStatus(false, locale);
 			return Result.error(invalidFormatErrorMessage(locale));
 		}
-	}
-
-	@Override
-	protected void initLoggers() {
-		setLogger((Logger) LoggerFactory.getLogger(LocalDateTimeField.class));
-		getLogger().setLevel(Level.INFO);
-	}
-
-	@Override
-	protected String invalidFormatErrorMessage(Locale locale) {
-		LocalDateTime date = LocalDateTime.of(2000, 11, 29, 13, 31);
-		return "Time must be in international format " + DATE_FORMAT + " (" + FORMATTER.format(date) + " for "
-		        + DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(locale).format(date) + " )";
 	}
 }

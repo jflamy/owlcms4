@@ -32,20 +32,17 @@ public class AthleteTimerElement extends TimerElement {
 		logger.setLevel(Level.WARN);
 		uiEventLogger.setLevel(Level.INFO);
 	}
-
 	private Object origin;
 
 	/**
 	 * Instantiates a new timer element.
 	 */
 	public AthleteTimerElement() {
-		super();
 		this.setOrigin(null); // force exception
-		logger.trace("### AthleteTimerElement new {}", origin);
+		logger.trace("### AthleteTimerElement new {}", this.origin);
 	}
 
 	public AthleteTimerElement(Object origin) {
-		super();
 		this.setOrigin(origin);
 		logger.trace("### AthleteTimerElement new {} {}", origin, LoggerUtils.whereFrom());
 	}
@@ -86,21 +83,16 @@ public class AthleteTimerElement extends TimerElement {
 	@Override
 	@ClientCallable
 	public void clientSyncTime(String fopName) {
-// timer should only get explicit changes
-//		OwlcmsSession.withFop(fop -> {
-//			if (!fopName.contentEquals(fop.getName())) {
-//				return;
-//			}
-//			logger.debug("{}{} fetching time", getClass().getSimpleName(), fop.getLoggingName());
-//			IProxyTimer fopTimer = getFopTimer(fop);
-//			doSetTimer(/*fopTimer.isIndefinite() ? null : */fopTimer.liveTimeRemaining());
-//		});
-//		return;
-	}
-	
-	@Override
-	protected boolean isIndefinite() {
-		return false;
+		// timer should only get explicit changes
+		// OwlcmsSession.withFop(fop -> {
+		// if (!fopName.contentEquals(fop.getName())) {
+		// return;
+		// }
+		// logger.debug("{}{} fetching time", getClass().getSimpleName(), fop.getLoggingName());
+		// IProxyTimer fopTimer = getFopTimer(fop);
+		// doSetTimer(/*fopTimer.isIndefinite() ? null : */fopTimer.liveTimeRemaining());
+		// });
+		// return;
 	}
 
 	/**
@@ -115,9 +107,9 @@ public class AthleteTimerElement extends TimerElement {
 			if (fopName != null && !fopName.contentEquals(fop.getName())) {
 				return;
 			}
-			//logger.debug("{}Received time over.", fop.getLoggingName());
+			// logger.debug("{}Received time over.", fop.getLoggingName());
 			IProxyTimer fopTimer = getFopTimer(fop);
-			//logger.debug("{} ============= {} break time over {}", fopName, fop.getName(), fopTimer.isIndefinite());
+			// logger.debug("{} ============= {} break time over {}", fopName, fop.getName(), fopTimer.isIndefinite());
 			if (!fopTimer.isIndefinite()) {
 				getFopTimer(fop).timeOver(this);
 			}
@@ -133,7 +125,8 @@ public class AthleteTimerElement extends TimerElement {
 	@ClientCallable
 	public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from) {
 		if (logger.isDebugEnabled()) {
-			logger.warn/**/("timer {} starting on client: remaining = {}, late={}", from, remainingTime, lateMillis, delta(lastStartMillis));
+			logger.warn/**/("timer {} starting on client: remaining = {}, late={}", from, remainingTime, lateMillis,
+			        delta(this.lastStartMillis));
 		}
 	}
 
@@ -146,7 +139,8 @@ public class AthleteTimerElement extends TimerElement {
 	@ClientCallable
 	public void clientTimerStopped(String fopName, double remainingTime, String from) {
 		if (logger.isDebugEnabled()) {
-			logger.warn/**/("{} timer {} stopped on client: remaining = {}", fopName, from, remainingTime, delta(lastStopMillis));
+			logger.warn/**/("{} timer {} stopped on client: remaining = {}", fopName, from, remainingTime,
+			        delta(this.lastStopMillis));
 		}
 
 		// do not stop the server-side timer, this is getting called as a result of the
@@ -167,24 +161,12 @@ public class AthleteTimerElement extends TimerElement {
 	 * @return the origin
 	 */
 	public Object getOrigin() {
-		return origin;
+		return this.origin;
 	}
 
 	public void setOrigin(Object origin) {
 		this.origin = origin;
 	}
-
-//	@Subscribe
-//	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-//		uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-//		        (e.isCurrentDisplayAffected() ? "stop_timer" : "leave_asis"), this.getOrigin(), e.getOrigin());
-//		if (e.isCurrentDisplayAffected()) {
-//			clientSyncTime(fopName);
-//		}
-////		else {
-////			uiEventLogger.trace(LoggerUtils./**/stackTrace());
-////		}
-//	}
 
 	@Subscribe
 	public void slaveSetTimer(UIEvent.SetTime e) {
@@ -194,6 +176,18 @@ public class AthleteTimerElement extends TimerElement {
 		        this.getOrigin(), e.getOrigin());
 		doSetTimer(milliseconds);
 	}
+
+	// @Subscribe
+	// public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
+	// uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+	// (e.isCurrentDisplayAffected() ? "stop_timer" : "leave_asis"), this.getOrigin(), e.getOrigin());
+	// if (e.isCurrentDisplayAffected()) {
+	// clientSyncTime(fopName);
+	// }
+	//// else {
+	//// uiEventLogger.trace(LoggerUtils./**/stackTrace());
+	//// }
+	// }
 
 	@Subscribe
 	public void slaveStartTimer(UIEvent.StartTime e) {
@@ -232,10 +226,14 @@ public class AthleteTimerElement extends TimerElement {
 		// only used by break timer
 	}
 
-
 	@Override
 	protected IProxyTimer getFopTimer(FieldOfPlay fop) {
 		return fop.getAthleteTimer();
+	}
+
+	@Override
+	protected boolean isIndefinite() {
+		return false;
 	}
 
 	/*

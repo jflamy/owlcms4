@@ -29,7 +29,7 @@ public class RankingsPage extends MedalsPage {
 		String translation = getTranslation("Scoreboard.RANKING");
 		return translation;
 	}
-	
+
 	@Override
 	protected void init() {
 		var board = new ResultsRankings();

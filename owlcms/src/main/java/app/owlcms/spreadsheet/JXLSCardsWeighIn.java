@@ -22,21 +22,19 @@ public class JXLSCardsWeighIn extends JXLSCardsDocs {
 	private final static Logger logger = LoggerFactory.getLogger(JXLSCardsWeighIn.class);
 
 	public JXLSCardsWeighIn() {
-		super();
 	}
 
 	@Override
 	public List<Athlete> getSortedAthletes() {
 		if (getGroup() != null) {
 			List<Athlete> registrationOrderCopy = AthleteSorter
-					.registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getGroup(), null));
+			        .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getGroup(), null));
 			return registrationOrderCopy;
 		} else {
 			List<Athlete> registrationOrderCopy = AthleteSorter
-					.registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, null));
+			        .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, null));
 			return registrationOrderCopy;
 		}
 	}
-
 
 }

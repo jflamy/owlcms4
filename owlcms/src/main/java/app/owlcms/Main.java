@@ -60,8 +60,7 @@ import io.moquette.interception.InterceptHandler;
 import io.moquette.interception.messages.InterceptPublishMessage;
 
 /**
- * Main class for launching owlcms using an embedded jetty server.
- * Also start an embedded MQTT moquette server
+ * Main class for launching owlcms using an embedded jetty server. Also start an embedded MQTT moquette server
  *
  * @author Jean-François Lamy
  */
@@ -87,7 +86,6 @@ public class Main {
 	}
 
 	private static final int WARNING_MINUTES = 5;
-
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
 	protected static boolean demoData;
 	protected static boolean demoMode;
@@ -96,13 +94,9 @@ public class Main {
 	protected static String productionMode;
 	protected static boolean resetMode;
 	protected static Integer serverPort;
-
 	protected static boolean smallData;
-
 	private static InitialData initialData;
-
 	public static String mqttStartup;
-
 	private static Integer demoResetDelay;
 
 	public static Logger getStartupLogger() {
@@ -124,8 +118,7 @@ public class Main {
 	}
 
 	/**
-	 * This method is actually called from EmbeddedJetty immediately after starting
-	 * the server
+	 * This method is actually called from EmbeddedJetty immediately after starting the server
 	 */
 	public static void initData() {
 		// Vaadin configs
@@ -139,7 +132,7 @@ public class Main {
 		Locale l = overrideDisplayLanguage();
 		injectData(initialData, l);
 		overrideTimeZone();
-		logger.info("Initialized data ({} ms)", System.currentTimeMillis()-now);
+		logger.info("Initialized data ({} ms)", System.currentTimeMillis() - now);
 
 		// initialization, don't push out to browsers
 		OwlcmsFactory.initDefaultFOP();
@@ -155,9 +148,8 @@ public class Main {
 	/**
 	 * The main method.
 	 *
-	 * Start a web server and do all the required initializations for the
-	 * application If running normally, we run until killed. If running as a public
-	 * demo, we sleep for awhile, and then exit. Some external mechanism such as
+	 * Start a web server and do all the required initializations for the application If running normally, we run until
+	 * killed. If running as a public demo, we sleep for awhile, and then exit. Some external mechanism such as
 	 * Kubernetes will notice and restart another instance.
 	 *
 	 * @param args the arguments
@@ -196,6 +188,51 @@ public class Main {
 
 	}
 
+	/**
+	 * Prepare owlcms
+	 *
+	 * Reads configuration options, injects data, initializes singletons and configurations. The embedded web server can
+	 * then be started.
+	 *
+	 * Sample command line to run on port 80 and in demo mode (automatically generated fake data, in-memory database)
+	 *
+	 * <code><pre>java -D"server.port"=80 -DdemoMode=true -jar owlcms-4.0.1-SNAPSHOT.jar app.owlcms.Main</pre></code>
+	 *
+	 * @return the server port on which we want to run
+	 * @throws IOException
+	 * @throws ParseException
+	 */
+	protected static void init() throws IOException, ParseException {
+		// Configure logging -- must take place before anything else
+		// Redirect java.util.logging logs to SLF4J
+		SLF4JBridgeHandler.removeHandlersForRootLogger();
+		SLF4JBridgeHandler.install();
+		// disable poixml warning
+		StartupUtils.disableWarning();
+
+		// read command-line and environment variable parameters
+		parseConfig();
+		StartupUtils.setServerPort(serverPort);
+		StartupUtils.logStart("owlcms", serverPort);
+
+		// message about log locations.
+		Path logPath = Path.of("logs", "owlcms.log");
+		if (Files.exists(logPath)) {
+			logger.info("Detailed log location: {}", logPath.toAbsolutePath());
+		}
+
+		// technical initializations
+		ConvertUtils.register(new DateConverter(null), java.util.Date.class);
+		ConvertUtils.register(new DateConverter(null), java.sql.Date.class);
+
+		// dependency injection
+		injectSuppliers();
+	}
+
+	protected static void tearDown() {
+		JPAService.close();
+	}
+
 	private static void injectData(InitialData data,
 	        Locale locale) {
 		Locale l = (locale == null ? Locale.ENGLISH : locale);
@@ -215,20 +252,20 @@ public class Main {
 			if (allCompetitions.isEmpty() || publicDemo) {
 				logger.info("injecting initial data {}", data);
 				switch (data) {
-				case EMPTY_COMPETITION:
-					ProdData.insertInitialData(0);
-					break;
-				case LARGEGROUP_DEMO:
-					DemoData.insertInitialData(14, ageDivisions);
-					break;
-				case LEAVE_AS_IS:
-					break;
-				case SINGLE_ATHLETE_GROUPS:
-					DemoData.insertInitialData(1, ageDivisions);
-					break;
-				case BENCHMARK:
-					BenchmarkData.insertInitialData(EnumSet.of(AgeDivision.IWF, AgeDivision.MASTERS));
-					break;
+					case EMPTY_COMPETITION:
+						ProdData.insertInitialData(0);
+						break;
+					case LARGEGROUP_DEMO:
+						DemoData.insertInitialData(14, ageDivisions);
+						break;
+					case LEAVE_AS_IS:
+						break;
+					case SINGLE_ATHLETE_GROUPS:
+						DemoData.insertInitialData(1, ageDivisions);
+						break;
+					case BENCHMARK:
+						BenchmarkData.insertInitialData(EnumSet.of(AgeDivision.IWF, AgeDivision.MASTERS));
+						break;
 				}
 			} else {
 				// migrations and other changes
@@ -248,7 +285,8 @@ public class Main {
 				}
 
 				int nbParts = CategoryRepository.countParticipations();
-				if (nbParts == 0 && AthleteRepository.countFiltered(null, null, null, null, null, null, null, null) > 0) {
+				if (nbParts == 0
+				        && AthleteRepository.countFiltered(null, null, null, null, null, null, null, null) > 0) {
 					// database has athletes, but no participations. 4.22 and earlier.
 					// need to create Participation entries for the Athletes.
 					logger.info("updating database: computing athlete eligibility to age groups and categories.");
@@ -307,8 +345,7 @@ public class Main {
 	}
 
 	/**
-	 * get configuration from environment variables and if not found, from system
-	 * properties.
+	 * get configuration from environment variables and if not found, from system properties.
 	 */
 	private static void parseConfig() {
 		// under Kubernetes deployed under an owlcms service LoadBalancer
@@ -362,8 +399,8 @@ public class Main {
 			conf.setMqttInternal(true);
 			Config.setCurrent(conf);
 		} else {
-//			conf.setMqttInternal(true);
-//			Config.setCurrent(conf);
+			// conf.setMqttInternal(true);
+			// Config.setCurrent(conf);
 			if (!mqttInternal) {
 				logger.info("MQTT server disabled using database configuration");
 				return;
@@ -380,9 +417,8 @@ public class Main {
 		mqttConfig.setProperty(IConfig.BUFFER_FLUSH_MS_PROPERTY_NAME, Integer.toString(0));
 		mqttConfig.setProperty(IConfig.PERSISTENCE_ENABLED_PROPERTY_NAME, Boolean.FALSE.toString());
 		// this should be in memory, but the DATA_PATH_PROPERTY_NAME does not work with a virtual file system
-		mqttConfig.setProperty(IConfig.DATA_PATH_PROPERTY_NAME,"mqttData");
+		mqttConfig.setProperty(IConfig.DATA_PATH_PROPERTY_NAME, "mqttData");
 		new File(mqttConfig.getProperty(IConfig.DATA_PATH_PROPERTY_NAME)).mkdirs();
-
 
 		final Server mqttBroker = new Server();
 		List<? extends InterceptHandler> userHandlers = Collections.singletonList(new PublisherListener());
@@ -400,12 +436,11 @@ public class Main {
 			Config.getCurrent().setMqttInternal(true);
 		}
 
-
 		try {
 			long now = System.currentTimeMillis();
 			logger.info("starting MQTT broker.");
 			mqttBroker.startServer(mqttConfig, userHandlers);
-			logger.info("started MQTT broker ({} ms).",System.currentTimeMillis()-now);
+			logger.info("started MQTT broker ({} ms).", System.currentTimeMillis() - now);
 
 			// Bind a shutdown hook
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -440,54 +475,5 @@ public class Main {
 			logger.info("public demo server shut down");
 		}));
 		System.exit(0);
-		return;
-	}
-
-	/**
-	 * Prepare owlcms
-	 *
-	 * Reads configuration options, injects data, initializes singletons and
-	 * configurations. The embedded web server can then be started.
-	 *
-	 * Sample command line to run on port 80 and in demo mode (automatically
-	 * generated fake data, in-memory database)
-	 *
-	 * <code><pre>java -D"server.port"=80 -DdemoMode=true -jar owlcms-4.0.1-SNAPSHOT.jar app.owlcms.Main</pre></code>
-	 *
-	 * @return the server port on which we want to run
-	 * @throws IOException
-	 * @throws ParseException
-	 */
-	protected static void init() throws IOException, ParseException {
-		// Configure logging -- must take place before anything else
-		// Redirect java.util.logging logs to SLF4J
-		SLF4JBridgeHandler.removeHandlersForRootLogger();
-		SLF4JBridgeHandler.install();
-		// disable poixml warning
-		StartupUtils.disableWarning();
-
-		// read command-line and environment variable parameters
-		parseConfig();
-		StartupUtils.setServerPort(serverPort);
-		StartupUtils.logStart("owlcms", serverPort);
-
-		// message about log locations.
-		Path logPath = Path.of("logs", "owlcms.log");
-		if (Files.exists(logPath)) {
-			logger.info("Detailed log location: {}", logPath.toAbsolutePath());
-		}
-
-		// technical initializations
-		ConvertUtils.register(new DateConverter(null), java.util.Date.class);
-		ConvertUtils.register(new DateConverter(null), java.sql.Date.class);
-
-		// dependency injection
-		injectSuppliers();
-
-		return;
-	}
-
-	protected static void tearDown() {
-		JPAService.close();
 	}
 }

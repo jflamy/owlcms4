@@ -60,7 +60,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		ta.setVisible(false);
 
 		upload.addSucceededListener(event -> {
-			processor = oldFormat(buffer.getInputStream())
+			this.processor = oldFormat(buffer.getInputStream())
 			        ? new ORegistrationFileProcessor()
 			        : new NRegistrationFileProcessor();
 			try {
@@ -82,22 +82,6 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		add(vl);
 	}
 
-	private boolean oldFormat(InputStream inputStream) {
-		try (Workbook workbook = WorkbookFactory.create(inputStream)) {
-			Sheet sheet = workbook.getSheetAt(0);
-			CellReference cr = new CellReference("A1");
-			Row row = sheet.getRow(cr.getRow());
-			Cell cell = row.getCell(cr.getCol());
-			// empty cell indicates old format
-			boolean nullCell = cell == null;
-			CellType cellType = cell.getCellType();
-			return (nullCell || cellType == CellType.BLANK);
-		} catch (Exception e) {
-			logger.error("cannot determine format {}", e);
-		}
-		return false;
-	}
-
 	public void processInput(InputStream inputStream, TextArea ta) {
 		// clear athletes to be able to clear groups
 		this.processor.resetAthletes();
@@ -112,11 +96,25 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			logger.info("{} groups processed", nbGroups);
 		}
 
-
 		// process athletes now that groups have been adjusted
 		processAthletes(inputStream, ta, false);
 		this.processor.adjustParticipations();
-		return;
+	}
+
+	private boolean oldFormat(InputStream inputStream) {
+		try (Workbook workbook = WorkbookFactory.create(inputStream)) {
+			Sheet sheet = workbook.getSheetAt(0);
+			CellReference cr = new CellReference("A1");
+			Row row = sheet.getRow(cr.getRow());
+			Cell cell = row.getCell(cr.getCol());
+			// empty cell indicates old format
+			boolean nullCell = cell == null;
+			CellType cellType = cell.getCellType();
+			return (nullCell || cellType == CellType.BLANK);
+		} catch (Exception e) {
+			logger.error("cannot determine format {}", e);
+		}
+		return false;
 	}
 
 	private int processAthletes(InputStream inputStream, TextArea ta, boolean dryRun) {

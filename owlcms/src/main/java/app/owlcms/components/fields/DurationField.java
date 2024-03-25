@@ -38,9 +38,7 @@ public class DurationField extends WrappedTextField<Duration> implements HasVali
 
 	private static DurationField helper = new DurationField();
 	private static final String HHMMSS_FORMAT = "HH:mm:ss";
-
 	private static final DateTimeFormatter HHMMSS_FORMATTER = DateTimeFormatter.ofPattern(HHMMSS_FORMAT);
-
 	private static final String MMSS_FORMAT = "mm:ss";
 	private static final DateTimeFormatter MMSS_FORMATTER = DateTimeFormatter.ofPattern(MMSS_FORMAT);
 
@@ -50,7 +48,6 @@ public class DurationField extends WrappedTextField<Duration> implements HasVali
 	}
 
 	Logger overrideLogger = (Logger) LoggerFactory.getLogger(DurationField.class);
-
 	Level overrideLoggerLevel = Level.INFO;
 
 	public DurationField() {
@@ -104,35 +101,15 @@ public class DurationField extends WrappedTextField<Duration> implements HasVali
 		return getConverter().convertToPresentation(getValue(), new ValueContext(getLocale()));
 	}
 
-	private Result<Duration> doParse(String string, Locale locale, DateTimeFormatter formatter) {
-		LocalTime parsedTime;
-		try {
-			if ((string == null || string.trim().isEmpty()) && !this.isRequired()) {
-				// field is not required, accept empty content
-				setFormatValidationStatus(true, locale);
-				return Result.ok(null);
-			}
-			parsedTime = LocalTime.parse(string, formatter);
-			setFormatValidationStatus(true, locale);
-			Duration between = Duration.between(LocalTime.MIN, parsedTime);
-			//getLogger().debug("parsed duration = {}", between);
-			return Result.ok(between);
-		} catch (DateTimeParseException e) {
-//            getLogger().error(e.getLocalizedMessage());
-			setFormatValidationStatus(false, locale);
-			return Result.error(invalidFormatErrorMessage(locale));
-		}
-	}
-
 	protected LocalTime getValueAsLocalTime() {
 		return LocalTime.MIN.plus(getValue());
 	}
 
 	@Override
 	protected void initLoggers() {
-		overrideLogger = (Logger) LoggerFactory.getLogger(DurationField.class);
-		overrideLogger.setLevel(overrideLoggerLevel);
-		setLogger(overrideLogger);
+		this.overrideLogger = (Logger) LoggerFactory.getLogger(DurationField.class);
+		this.overrideLogger.setLevel(this.overrideLoggerLevel);
+		setLogger(this.overrideLogger);
 	}
 
 	@Override
@@ -146,6 +123,26 @@ public class DurationField extends WrappedTextField<Duration> implements HasVali
 	protected void setValueFromLocalTime(LocalTime hhmmss) {
 		LocalTime min = LocalTime.MIN;
 		setValue(Duration.between(min, hhmmss));
+	}
+
+	private Result<Duration> doParse(String string, Locale locale, DateTimeFormatter formatter) {
+		LocalTime parsedTime;
+		try {
+			if ((string == null || string.trim().isEmpty()) && !this.isRequired()) {
+				// field is not required, accept empty content
+				setFormatValidationStatus(true, locale);
+				return Result.ok(null);
+			}
+			parsedTime = LocalTime.parse(string, formatter);
+			setFormatValidationStatus(true, locale);
+			Duration between = Duration.between(LocalTime.MIN, parsedTime);
+			// getLogger().debug("parsed duration = {}", between);
+			return Result.ok(between);
+		} catch (DateTimeParseException e) {
+			// getLogger().error(e.getLocalizedMessage());
+			setFormatValidationStatus(false, locale);
+			return Result.error(invalidFormatErrorMessage(locale));
+		}
 	}
 
 }
