@@ -52,6 +52,7 @@ import app.owlcms.components.fields.ValidationUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -169,7 +170,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		Integer entryTotal = aFromDb.getEntryTotal();
 		String entryString = "";
 		if (entryTotal != null && entryTotal > 0 && Competition.getCurrent().isEnforce20kgRule()
-				//&& Config.getCurrent().featureSwitch("USAW")
+				&& Config.getCurrent().featureSwitch("AthleteCardEntryTotal")
 				) {
 			entryString  = " ("+Translator.translate("Results.Entry_abbrev")+" = "+entryTotal+")";
 		}
