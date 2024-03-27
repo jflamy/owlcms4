@@ -11,6 +11,6 @@
   - in the athlete information, the previous field `goodBadClassName` is now `liftStatus`
   - in the group information, there are now two fields, `groupName` and `groupInfo`.  `groupName` now contains only the group name. `groupInfo` contains what is shown on the second line of the scoreboard (group description + attempts done, etc.) 
 
-- Under Feature Toggle AthleteCardEntryTotal, show the Entry Total in the title of the Athlete Card.
+- If the Feature Toggle `AthleteCardEntryTotal` is enabled, show the Entry Total in the title of the Athlete Card.
 - Jury Sheet labels can now all be translated.
 
