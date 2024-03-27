@@ -871,7 +871,7 @@ public class Results extends LitTemplate
 			boolean notDone = x.getAttemptsDone() < 6;
 			String blink = (notDone ? " blink" : "");
 
-			jri.put("goodBadClassName", "narrow empty");
+			jri.put("goodBadClassName", "empty");
 			jri.put("stringValue", "");
 			if (i.getChangeNo() >= 0) {
 				String trim = stringValue != null ? stringValue.trim() : "";
@@ -879,11 +879,11 @@ public class Results extends LitTemplate
 					case ACTUAL:
 						if (!trim.isEmpty()) {
 							if (trim.contentEquals("-") || trim.contentEquals("0")) {
-								jri.put("goodBadClassName", "narrow fail");
+								jri.put("goodBadClassName", "fail");
 								jri.put("stringValue", "-");
 							} else {
 								boolean failed = stringValue != null && stringValue.startsWith("-");
-								jri.put("goodBadClassName", failed ? "narrow fail" : "narrow good");
+								jri.put("goodBadClassName", failed ? "fail" : "good");
 								jri.put("stringValue", formatKg(stringValue));
 							}
 						}
@@ -910,7 +910,7 @@ public class Results extends LitTemplate
 										highlight = "";
 								}
 							}
-							jri.put("goodBadClassName", "narrow request");
+							jri.put("goodBadClassName", "request");
 							if (notDone) {
 								jri.put("className", highlight);
 							}
