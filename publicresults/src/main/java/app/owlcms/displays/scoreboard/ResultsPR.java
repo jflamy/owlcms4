@@ -375,12 +375,12 @@ public class ResultsPR extends LitTemplate
             setDone(e.isDone());
 
             setBoardMode(e.getMode());
-            String group = e.getGroupName();
+            String groupInfo = e.getGroupInfo();
             String description = null;
-            if (group != null) {
+            if (groupInfo != null) {
                 description = e.getGroupDescription();
                 if (description == null) {
-                    description = Translator.translate("Group_number", group);
+                    description = Translator.translate("Group_number", groupInfo);
                 }
             }
             this.getElement().setProperty("groupDescription", description != null ? description : "");
@@ -434,7 +434,7 @@ public class ResultsPR extends LitTemplate
             getElement().setProperty("attempt", e.getAttempt());
             getElement().setProperty("fullName", e.getFullName());
             String groupName = e.getGroupName();
-            getElement().setProperty("groupName", groupName);
+            getElement().setProperty("groupInfo", groupName);
             getElement().setProperty("startNumber", e.getStartNumber());
             getElement().setProperty("teamName", e.getTeamName());
             getElement().setProperty("weight", e.getWeight() != null ? e.getWeight() : 0);
@@ -502,7 +502,7 @@ public class ResultsPR extends LitTemplate
             this.timer.slaveOrderUpdated(initEvent);
         } else {
             getElement().setProperty("fulName", Translator.translate("WaitingForSite"));
-            getElement().setProperty("groupName", "");
+            getElement().setProperty("groupInfo", "");
         }
     }
 

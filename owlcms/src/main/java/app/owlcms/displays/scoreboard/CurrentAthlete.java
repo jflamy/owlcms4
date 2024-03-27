@@ -444,7 +444,7 @@ public class CurrentAthlete extends Results {
 			boolean notDone = x.getAttemptsDone() < 6;
 			String blink = "";// (notDone ? " blink" : "");
 
-			jri.put("goodBadClassName", "empty");
+			jri.put("liftStatus", "empty");
 			jri.put("stringValue", "");
 			if (i.getChangeNo() >= 0) {
 				String trim = stringValue != null ? stringValue.trim() : "";
@@ -452,11 +452,11 @@ public class CurrentAthlete extends Results {
 					case ACTUAL:
 						if (!trim.isEmpty()) {
 							if (trim.contentEquals("-") || trim.contentEquals("0")) {
-								jri.put("goodBadClassName", "fail");
+								jri.put("liftStatus", "fail");
 								jri.put("stringValue", "-");
 							} else {
 								boolean failed = stringValue != null && stringValue.startsWith("-");
-								jri.put("goodBadClassName", failed ? "fail" : "good");
+								jri.put("liftStatus", failed ? "fail" : "good");
 								jri.put("stringValue", formatKg(stringValue));
 							}
 						}
@@ -481,7 +481,7 @@ public class CurrentAthlete extends Results {
 										highlight = "";
 								}
 							}
-							jri.put("goodBadClassName", "request");
+							jri.put("liftStatus", "request");
 							if (notDone) {
 								jri.put("className", highlight);
 							}
@@ -538,10 +538,10 @@ public class CurrentAthlete extends Results {
 	protected void updateBottom(String liftType, FieldOfPlay fop) {
 		// logger.debug("updateBottom {}",LoggerUtils.stackTrace());
 		if (liftType != null) {
-			getElement().setProperty("groupName", "");
+			getElement().setProperty("groupInfo", "");
 			getElement().setProperty("liftsDone", "");
 		} else {
-			getElement().setProperty("groupName", "X");
+			getElement().setProperty("groupInfo", "X");
 			getElement().setProperty("liftsDone", "Y");
 		}
 		this.getElement().setPropertyJson("athletes",

@@ -427,7 +427,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	@Override
 	protected void updateBottom(String liftType, FieldOfPlay fop) {
 		// logger.debug("updateBottom");
-		this.getElement().setProperty("groupName", "");
+		this.getElement().setProperty("groupInfo", "");
 		this.getElement().setProperty("liftDone", "-");
 		computeMedalsJson(this.medals);
 	}
@@ -606,7 +606,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			String stringValue = i.getStringValue();
 			boolean notDone = x.getAttemptsDone() < 6;
 
-			jri.put("goodBadClassName", "empty");
+			jri.put("liftStatus", "empty");
 			jri.put("stringValue", "");
 			if (i.getChangeNo() >= 0) {
 				String trim = stringValue != null ? stringValue.trim() : "";
@@ -614,11 +614,11 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 					case ACTUAL:
 						if (!trim.isEmpty()) {
 							if (trim.contentEquals("-") || trim.contentEquals("0")) {
-								jri.put("goodBadClassName", "fail");
+								jri.put("liftStatus", "fail");
 								jri.put("stringValue", "-");
 							} else {
 								boolean failed = stringValue != null && stringValue.startsWith("-");
-								jri.put("goodBadClassName", failed ? "fail" : "good");
+								jri.put("liftStatus", failed ? "fail" : "good");
 								jri.put("stringValue", formatKg(stringValue));
 							}
 						}
@@ -628,7 +628,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 							// logger.debug("{} {} {}", fop.getState(), x.getShortName(), curLift);
 
 							String highlight = "";
-							jri.put("goodBadClassName", "request");
+							jri.put("liftStatus", "request");
 							if (notDone) {
 								jri.put("className", highlight);
 							}

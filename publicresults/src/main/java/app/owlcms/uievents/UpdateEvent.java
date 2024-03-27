@@ -42,6 +42,7 @@ public class UpdateEvent {
     private CeremonyType ceremonyType;
     private String mode;
     private boolean done = false;
+    private String groupInfo;
 
     public UpdateEvent() {
         setLeaders(this.leaders);
@@ -122,6 +123,10 @@ public class UpdateEvent {
 
     public String getGroupDescription() {
         return this.groupDescription;
+    }
+
+    public String getGroupInfo() {
+        return this.groupInfo;
     }
 
     public String getGroupName() {
@@ -276,12 +281,16 @@ public class UpdateEvent {
         this.groupDescription = groupDescription;
     }
 
-    public void setGroupName(String parameter) {
-        this.groupName = parameter;
+    public void setGroupInfo(String groupInfo) {
+        this.groupInfo = groupInfo;
     }
 
-    public void setHidden(boolean parameter) {
-        this.hidden = parameter;
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+    }
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
     }
 
     public void setIndefinite(boolean indefinite) {

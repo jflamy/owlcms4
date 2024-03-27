@@ -68,6 +68,10 @@ public class UpdateReceiverServlet extends HttpServlet {
 
     private String secret = StartupUtils.getStringParam("updateKey");
 
+    public UpdateReceiverServlet() {
+        this.logger.setLevel(Level.DEBUG);
+    }
+
     /**
      * @see jakarta.servlet.http.HttpServlet#doGet(jakarta.servlet.http.HttpServletRequest,
      *      jakarta.servlet.http.HttpServletResponse)
@@ -125,6 +129,7 @@ public class UpdateReceiverServlet extends HttpServlet {
             updateEvent.setCategoryName(req.getParameter("categoryName"));
             updateEvent.setFullName(req.getParameter("fullName"));
             updateEvent.setGroupName(req.getParameter("groupName"));
+            updateEvent.setGroupInfo(req.getParameter("groupInfo"));
 
             updateEvent.setHidden(Boolean.valueOf(req.getParameter("hidden")));
             String startNumber = req.getParameter("startNumber");

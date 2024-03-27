@@ -46,13 +46,13 @@ class Results extends LitElement {
           </div>
           <div class="group" style="${this.attemptBarStyles()}">
             <div id="groupDiv">
-              <span class="groupName">${this.displayType}${this.groupName}</span>${this.liftsDone}
+              <span class="groupInfo">${this.displayType}${this.groupInfo}</span>${this.liftsDone}
             </div>
           </div>
           <div class="video" style="${this.videoHeaderStyles()}">
             <div class="eventlogo"></div>
             <div class="videoheader">
-              <div class="groupName">${this.competitionName}</div>
+              <div class="groupInfo">${this.competitionName}</div>
               <div>${this.groupDescription}</div>
             </div>
             <div class="federationlogo"></div>
@@ -122,8 +122,8 @@ class Results extends LitElement {
                               ${(item?.sattempts ?? []).map(
                                 (attempt, index) => 
                                   html`
-                                    <td class="${(attempt?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}">   
-                                      <div class="${(attempt?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}">${attempt?.stringValue}</div>
+                                    <td class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">   
+                                      <div class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">${attempt?.stringValue}</div>
                                     </td>
                                   `)}
                               <td class="best">
@@ -136,8 +136,8 @@ class Results extends LitElement {
                               ${(item?.cattempts ?? []).map(
                                 (attempt, index) => 
                                   html`
-                                    <td class="${(attempt?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}">
-                                      <div class="${(attempt?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}">${attempt?.stringValue}</div> 
+                                    <td class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">
+                                      <div class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">${attempt?.stringValue}</div> 
                                     </td>
                                   `)}
                               <td class="best">
@@ -198,7 +198,7 @@ class Results extends LitElement {
                                 ${(item?.sattempts ?? []).map(
                                   (attempt, index) => 
                                     html`
-                                      <td class="${(attempt ?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}"><div>${attempt?.stringValue}</div></td>
+                                      <td class="${(attempt ?.liftStatus ?? "") + " " + (attempt?.className ?? "")}"><div>${attempt?.stringValue}</div></td>
                                     `)}
                                 <td class="best" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.bestSnatch}"></div></td>
                                 <td class="rank" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.snatchRank}"></div></td>
@@ -206,7 +206,7 @@ class Results extends LitElement {
                                 ${(item?.cattempts ?? []).map(
                                   (attempt, index) => 
                                     html`
-                                      <td class="${(attempt ?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}"><div>${attempt?.stringValue}</div></td>
+                                      <td class="${(attempt ?.liftStatus ?? "") + " " + (attempt?.className ?? "")}"><div>${attempt?.stringValue}</div></td>
                                     `)}
                                 <td class="best" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.bestCleanJerk}"></div></td>
                                 <td class="rank" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.cleanJerkRank}"></div></td>

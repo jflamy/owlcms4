@@ -49,14 +49,14 @@ class TopSinclair extends LitElement {
                       <td class="club"><div>${item.teamName}</div></td>
                       ${(item.sattempts ?? []).map(
                         (attempt) => html`
-                          <td class="${(attempt.goodBadClassName ?? "") + " " + (attempt.className ?? "")}">
+                          <td class="${(attempt.liftStatus ?? "") + " " + (attempt.className ?? "")}">
                             <div>${attempt.stringValue}</div>
                           </td>
                         `
                       )}
                       ${(item.cattempts ?? []).map(
                         (attempt) => html`
-                          <td class="${(attempt.goodBadClassName ?? "") + " " + (attempt.className ?? "")}">
+                          <td class="${(attempt.liftStatus ?? "") + " " + (attempt.className ?? "")}">
                             <div>${attempt.stringValue}</div>
                           </td>
                         `
@@ -99,14 +99,14 @@ class TopSinclair extends LitElement {
                       <td class="club"><div>${item.teamName}</div></td>
                       ${(item.sattempts ?? []).map(
                         (attempt) => html`
-                          <td class="${(attempt.goodBadClassName ?? "") + " " + (attempt.className ?? "")}">
+                          <td class="${(attempt.liftStatus ?? "") + " " + (attempt.className ?? "")}">
                            <div>${attempt.stringValue}</div>
                           </td>
                         `
                       )}
                       ${(item.cattempts ?? []).map(
                         (attempt) => html`
-                          <td class="${(attempt.goodBadClassName ?? "") + " " + (attempt.className ?? "")}">
+                          <td class="${(attempt.liftStatus ?? "") + " " + (attempt.className ?? "")}">
                             <div>${attempt.stringValue}</div>
                           </td>
                         `

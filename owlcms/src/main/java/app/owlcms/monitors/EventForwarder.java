@@ -117,6 +117,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private JsonValue records;
 	private Boolean teamFlags;
 	private String boardMode;
+	private String groupInfo;
 
 	public EventForwarder(FieldOfPlay emittingFop) {
 		this.setFop(emittingFop);
@@ -195,6 +196,10 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	public Boolean getDecisionLight3() {
 		return this.decisionLight3;
+	}
+
+	public String getGroupInfo() {
+		return this.groupInfo;
 	}
 
 	public String getGroupName() {
@@ -548,7 +553,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		Group group = getFop().getGroup();
 		List<Athlete> displayOrder = getFop().getDisplayOrder();
 		int liftsDone = AthleteSorter.countLiftsDone(displayOrder);
-		setGroupName(computeSecondLine(getFop().getCurAthlete(), group != null ? group.getName() : null));
+		setGroupName(group != null ? group.getName() : "");
+		setGroupInfo(computeSecondLine(getFop().getCurAthlete(), group != null ? group.getName() : null));
 		setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
 		if (displayOrder != null && displayOrder.size() > 0) {
 			setGroupAthletes(getAthletesJson(displayOrder, getFop().getLiftingOrder(), true));
@@ -754,6 +760,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 		// current group
 		mapPut(sb, "groupName", getGroupName());
+		mapPut(sb, "groupInfo", getGroupInfo());
 		mapPut(sb, "liftsDone", getLiftsDone());
 
 		// bottom tables
@@ -803,6 +810,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		} else {
 			setFullName(g.getName());
 			setGroupName("");
+			setGroupInfo("");
 			setLiftsDone("");
 		}
 		pushUpdate();
@@ -1036,7 +1044,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			boolean notDone = x.getAttemptsDone() < 6;
 			String blink = (notDone ? " blink" : "");
 
-			jri.put("goodBadClassName", "empty");
+			jri.put("liftStatus", "empty");
 			jri.put("stringValue", "");
 			if (i.getChangeNo() >= 0) {
 				String trim = stringValue != null ? stringValue.trim() : "";
@@ -1044,11 +1052,11 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 					case ACTUAL:
 						if (!trim.isEmpty()) {
 							if (trim.contentEquals("-") || trim.contentEquals("0")) {
-								jri.put("goodBadClassName", "fail");
+								jri.put("liftStatus", "fail");
 								jri.put("stringValue", "-");
 							} else {
 								boolean failed = stringValue != null && stringValue.startsWith("-");
-								jri.put("goodBadClassName", failed ? "fail" : "good");
+								jri.put("liftStatus", failed ? "fail" : "good");
 								jri.put("stringValue", formatKg(stringValue));
 							}
 						}
@@ -1057,7 +1065,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 						if (stringValue != null && !trim.isEmpty()) {
 							String highlight = i.getLiftNo() == curLift && liftOrderRank == 1 ? (" current" + blink)
 							        : (i.getLiftNo() == curLift && liftOrderRank == 2) ? " next" : "";
-							jri.put("goodBadClassName", "request");
+							jri.put("liftStatus", "request");
 							if (notDone) {
 								jri.put("className", highlight);
 							}
@@ -1213,6 +1221,10 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	private void setGroupAthletes(JsonValue athletesJson) {
 		this.groupAthletes = athletesJson;
+	}
+
+	private void setGroupInfo(String computeSecondLine) {
+		this.groupInfo = computeSecondLine;
 	}
 
 	private void setLeaders(JsonValue athletesJson) {

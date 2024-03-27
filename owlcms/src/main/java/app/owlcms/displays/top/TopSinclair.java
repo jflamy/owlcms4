@@ -232,7 +232,7 @@ public class TopSinclair extends AbstractTop {
 			boolean notDone = x.getAttemptsDone() < 6;
 			String blink = (notDone ? " blink" : "");
 
-			jri.put("goodBadClassName", "veryNarrow empty");
+			jri.put("liftStatus", "veryNarrow empty");
 			jri.put("stringValue", "");
 			if (i.getChangeNo() >= 0) {
 				String trim = stringValue != null ? stringValue.trim() : "";
@@ -240,11 +240,11 @@ public class TopSinclair extends AbstractTop {
 					case ACTUAL:
 						if (!trim.isEmpty()) {
 							if (trim.contentEquals("-") || trim.contentEquals("0")) {
-								jri.put("goodBadClassName", "veryNarrow fail");
+								jri.put("liftStatus", "veryNarrow fail");
 								jri.put("stringValue", "-");
 							} else {
 								boolean failed = stringValue != null && stringValue.startsWith("-");
-								jri.put("goodBadClassName", failed ? "veryNarrow fail" : "veryNarrow good");
+								jri.put("liftStatus", failed ? "veryNarrow fail" : "veryNarrow good");
 								jri.put("stringValue", formatKg(stringValue));
 							}
 						}
@@ -253,7 +253,7 @@ public class TopSinclair extends AbstractTop {
 						if (stringValue != null && !trim.isEmpty()) {
 							String highlight = i.getLiftNo() == curLift && liftOrderRank == 1 ? (" current" + blink)
 							        : (i.getLiftNo() == curLift && liftOrderRank == 2) ? " next" : "";
-							jri.put("goodBadClassName", "veryNarrow request");
+							jri.put("liftStatus", "veryNarrow request");
 							if (notDone) {
 								jri.put("className", highlight);
 							}

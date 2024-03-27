@@ -33,7 +33,7 @@ class ResultsMedals extends LitElement {
           <div class="video" style="${this.videoHeaderStyles()}">
             <div class="eventlogo"></div>
             <div class="videoheader">
-              <div class="groupName">${this.competitionName}</div>
+              <div class="groupInfo">${this.competitionName}</div>
               <div>${this.displayTitle} ${this.groupDescription}</div>
             </div>
             <div class="federationlogo"></div>
@@ -113,7 +113,7 @@ class ResultsMedals extends LitElement {
                             <td class="vspacer"></td>
                             ${(leader.sattempts ?? []).map(
                               (attempt) => html`
-                                <td class="${(attempt.goodBadClassName ?? "") + " " + (attempt.className ?? "")}" >
+                                <td class="${(attempt.liftStatus ?? "") + " " + (attempt.className ?? "")}" >
                                   <div>${attempt.stringValue}</div>
                                 </td>
                               `)}
@@ -126,7 +126,7 @@ class ResultsMedals extends LitElement {
                             <td class="vspacer"></td>
                             ${(leader.cattempts ?? []).map(
                               (attempt) => html`
-                                <td class="${(attempt.goodBadClassName ?? "") + " " + (attempt.className ?? "")}" >
+                                <td class="${(attempt.liftStatus ?? "") + " " + (attempt.className ?? "")}" >
                                   <div>${attempt.stringValue}</div>
                                 </td>
                               `)}

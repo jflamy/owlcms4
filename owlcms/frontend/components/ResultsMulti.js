@@ -46,13 +46,13 @@ class ResultsFull extends LitElement {
           </div>
           <div class="group" style="${this.attemptBarStyles()}">
             <div id="groupDiv">
-              <span class="groupName">${this.displayType}${this.groupName}</span>${this.liftsDone}
+              <span class="groupInfo">${this.displayType}${this.groupInfo}</span>${this.liftsDone}
             </div>
           </div>
           <div class="video" style="${this.videoHeaderStyles()}">
             <div class="eventlogo"></div>
             <div class="videoheader">
-              <div class="groupName">${this.competitionName}</div>
+              <div class="groupInfo">${this.competitionName}</div>
               <div>${this.groupDescription}</div>
             </div>
             <div class="federationlogo"></div>
@@ -162,8 +162,8 @@ class ResultsFull extends LitElement {
                               ${(item?.sattempts ?? []).map(
                                 (attempt, index) => 
                                   html`
-                                    <td class="${(attempt?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}">   
-                                      <div class="${(attempt?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}">${attempt?.stringValue}</div>
+                                    <td class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">   
+                                      <div class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">${attempt?.stringValue}</div>
                                     </td>
                                   `)}
                               <td class="best">
@@ -179,8 +179,8 @@ class ResultsFull extends LitElement {
                               ${(item?.cattempts ?? []).map(
                                 (attempt, index) => 
                                   html`
-                                    <td class="${(attempt?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}">
-                                      <div class="${(attempt?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}">${attempt?.stringValue}</div> 
+                                    <td class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">
+                                      <div class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">${attempt?.stringValue}</div> 
                                     </td>
                                   `)}
                               <td class="best">
@@ -247,7 +247,7 @@ class ResultsFull extends LitElement {
                                 ${(item?.sattempts ?? []).map(
                                   (attempt, index) => 
                                     html`
-                                      <td class="${(attempt ?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}"><div>${attempt?.stringValue}</div></td>
+                                      <td class="${(attempt ?.liftStatus ?? "") + " " + (attempt?.className ?? "")}"><div>${attempt?.stringValue}</div></td>
                                     `)}
                                 <td class="best" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.bestSnatch}"></div></td>
                                 ${(item?.snatchRanks ?? []).map(
@@ -260,7 +260,7 @@ class ResultsFull extends LitElement {
                                 ${(item?.cattempts ?? []).map(
                                   (attempt, index) => 
                                     html`
-                                      <td class="${(attempt ?.goodBadClassName ?? "") + " " + (attempt?.className ?? "")}"><div>${attempt?.stringValue}</div></td>
+                                      <td class="${(attempt ?.liftStatus ?? "") + " " + (attempt?.className ?? "")}"><div>${attempt?.stringValue}</div></td>
                                     `)}
                                 <td class="best" style="${this.leadingAthleteStyles()} "><div .innerHTML="${item?.bestCleanJerk}"></div></td>
                                 ${(item?.cleanJerkRanks ?? []).map(
