@@ -79,6 +79,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	// private static HashMap<String, EventForwarder> registeredFop = new HashMap<>();
 
+	private static final int UPDATE_INTERVAL = 15000;
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(EventForwarder.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	public static final Object singleThreadLock = new Object();
@@ -118,6 +119,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private Boolean teamFlags;
 	private String boardMode;
 	private String groupInfo;
+	private Map<String, String> lastTimerMap;
+	private Map<String, String> lastDecisionMap;
 
 	public EventForwarder(FieldOfPlay emittingFop) {
 		this.setFop(emittingFop);
@@ -137,7 +140,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		} else {
 			logger.info("{}Pushing to remote site {}", getFop().getLoggingName(), updateUrl);
 		}
-		pushUpdate();
+		if (emittingFop.getState() != null) {
+			pushUpdate();
+		}
 	}
 
 	@Override
@@ -480,6 +485,11 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	@Subscribe
 	public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
 		computeCurrentGroup(e.getGroup());
+		if (e.getState() == null) {
+			setHidden(true);
+			pushUpdate();
+			return;
+		}
 		switch (e.getState()) {
 			case INACTIVE:
 				setHidden(true);
@@ -782,6 +792,14 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "wideTeamNames", String.valueOf(this.wideTeamNames));
 		mapPut(sb, "sinclairMeet", Boolean.toString(Competition.getCurrent().isSinclair()));
 		mapPut(sb, "mode", getBoardMode());
+		
+		// include timer and decision info for possible future use
+		if (lastTimerMap != null) {
+			sb.putAll(lastTimerMap);
+		}
+		if (lastDecisionMap != null) {
+			sb.putAll(lastDecisionMap);
+		}
 
 		return sb;
 	}
@@ -1117,7 +1135,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			return;
 		}
 		logger.trace("pushing {}", det);
-		sendPost(decisionUrl, createDecision(det));
+		lastDecisionMap = createDecision(det);
+		sendPost(decisionUrl, lastDecisionMap);
 	}
 
 	private void pushTimer(UIEvent e) {
@@ -1126,17 +1145,43 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		if (timerUrl == null) {
 			return;
 		}
-		sendPost(timerUrl, createTimer(e));
+		lastTimerMap = createTimer(e);
+		sendPost(timerUrl, lastTimerMap);
 	}
 
+	Thread keepaliveThread;
+
+
+	/**
+	 * push updates every n seconds in case publicresults is restarted.
+	 * The individual instances on the receiver side can debounce.
+	 */
 	private void pushUpdate() {
-		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(), this.fop.getCeremonyType()));
-		logger.debug("### pushing update");
-		String updateUrl = Config.getCurrent().getParamUpdateUrl();
-		if (updateUrl == null) {
-			return;
+		if (keepaliveThread != null) {
+			keepaliveThread.interrupt();
 		}
-		sendPost(updateUrl, createUpdate());
+		keepaliveThread = new Thread(() -> {
+			while (!Thread.currentThread().isInterrupted()) {
+				try {
+					pushUpdateDoIt();
+					Thread.sleep(UPDATE_INTERVAL);
+				} catch (InterruptedException e) {
+					logger.debug("thread {} interrupted", Thread.currentThread().getId());
+					break;
+				}
+			}
+		});
+		keepaliveThread.start();
+	}
+
+	private void pushUpdateDoIt() {
+		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(),
+		        this.fop.getCeremonyType()));
+		logger.debug("### pushing update from {}", Thread.currentThread().getId());
+		String updateUrl = Config.getCurrent().getParamUpdateUrl();
+		if (updateUrl != null) {
+			sendPost(updateUrl, createUpdate());
+		}
 	}
 
 	private void sendConfig(String updateKey) {

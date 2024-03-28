@@ -90,6 +90,8 @@ public class UpdateReceiverServlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+        // TODO create timer and decision events
+        // TODO compute checksum of update, timer, decision, issue bus events if changed
         try {
             String updateKey = req.getParameter("updateKey");
             if (updateKey == null || !updateKey.equals(this.secret)) {
@@ -180,10 +182,14 @@ public class UpdateReceiverServlet extends HttpServlet {
             // put in the cache first so events can know which FOPs are active;
 
             long now = System.currentTimeMillis();
+
+            // the computed hashcode is not included in the hashcode
+            // this avoids every servlet recomputing it.
+            updateEvent.setHashCode(updateEvent.hashCode());
             if (now - lastUpdate < 500) {
                 // short time range, is this a duplicate?
                 UpdateEvent prevUpdate = updateCache.get(fopName);
-                if (prevUpdate != null && updateEvent.hashCode() == prevUpdate.hashCode()) {
+                if (prevUpdate != null && updateEvent.getHashCode() == prevUpdate.getHashCode()) {
                     this.logger./**/warn("duplicate event ignored");
                 } else {
                     updateCache.put(fopName, updateEvent);
@@ -197,6 +203,8 @@ public class UpdateReceiverServlet extends HttpServlet {
             if (defaultFopName == null) {
                 defaultFopName = fopName;
             }
+
+            // TODO create timer and decision objects as well.
             resp.sendError(200);
         } catch (Exception e) {
             this.logger.error(LoggerUtils.stackTrace(e));

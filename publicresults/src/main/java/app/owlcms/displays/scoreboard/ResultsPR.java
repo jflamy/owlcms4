@@ -100,6 +100,7 @@ public class ResultsPR extends LitTemplate
     private boolean defaultLeadersDisplay;
     private boolean liftingOrder;
     private boolean done;
+    private int lastHashCode;
 
     /**
      * Instantiates a new results board.
@@ -356,7 +357,13 @@ public class ResultsPR extends LitTemplate
     }
 
     @Subscribe
-    public void slaveGlobalRankingUpdated(UpdateEvent e) {
+    public void slaveUpdateEvent(UpdateEvent e) {
+        // ignore identical updates
+        if (e.getHashCode() == this.lastHashCode) {
+            return;
+        }
+        this.lastHashCode = e.getHashCode();
+
         if (StartupUtils.isDebugSetting()) {
             logger./**/warn("### {} received UpdateEvent {} {} {}", System.identityHashCode(this), getFopName(),
                     e.getFopName(), e);
@@ -498,7 +505,7 @@ public class ResultsPR extends LitTemplate
         // setDarkMode(this, isDarkMode(), false);
         UpdateEvent initEvent = UpdateReceiverServlet.sync(getFopName());
         if (initEvent != null) {
-            slaveGlobalRankingUpdated(initEvent);
+            slaveUpdateEvent(initEvent);
             this.timer.slaveOrderUpdated(initEvent);
         } else {
             getElement().setProperty("fulName", Translator.translate("WaitingForSite"));
