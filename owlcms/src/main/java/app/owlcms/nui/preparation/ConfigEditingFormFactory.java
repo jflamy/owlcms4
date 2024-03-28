@@ -122,6 +122,7 @@ public class ConfigEditingFormFactory
 		FormLayout tzLayout = tzForm();
 		FormLayout languageLayout = presentationForm();
 		FormLayout publicResultsLayout = publicResultsForm();
+		FormLayout videoDataLayout = videoDataForm();
 		FormLayout templateSelectionLayout = templateSelectionForm();
 		FormLayout localOverrideLayout = localOverrideForm();
 		FormLayout translationLayout = translationForm();
@@ -146,7 +147,9 @@ public class ConfigEditingFormFactory
 		                tzLayout, separator(), translationLayout));
 		ts.add(Translator.translate("Config.ConnexionsTab"),
 		        new VerticalLayout(
-		                new Div(), publicResultsLayout, separator(),
+		                new Div(), 
+		                publicResultsLayout, separator(),
+		                videoDataLayout, separator(),
 		                mqttLayout, separator()));
 		ts.add(Translator.translate("Config.AccessControlTab"),
 		        new VerticalLayout(
@@ -424,10 +427,10 @@ public class ConfigEditingFormFactory
 		layout.add(title);
 		layout.setColspan(title, 2);
 
-		TextField federationField = new TextField();
-		federationField.setWidthFull();
-		layout.addFormItem(federationField, Translator.translate("Config.publicResultsURL"));
-		this.binder.forField(federationField)
+		TextField publicResultsField = new TextField();
+		publicResultsField.setWidthFull();
+		layout.addFormItem(publicResultsField, Translator.translate("Config.publicResultsURL"));
+		this.binder.forField(publicResultsField)
 		        .withNullRepresentation("")
 		        .bind(Config::getPublicResultsURL, Config::setPublicResultsURL);
 
@@ -441,6 +444,29 @@ public class ConfigEditingFormFactory
 		return layout;
 	}
 
+	private FormLayout videoDataForm() {
+		FormLayout layout = createLayout();
+		Component title = createTitle("Config.VideoDataTitle");
+		layout.add(title);
+		layout.setColspan(title, 2);
+
+		TextField videoDataField = new TextField();
+		videoDataField.setWidthFull();
+		layout.addFormItem(videoDataField, Translator.translate("Config.videoDataURL"));
+		this.binder.forField(videoDataField)
+		        .withNullRepresentation("")
+		        .bind(Config::getVideoDataURL, Config::setVideoDataURL);
+
+		PasswordField updateKey = new PasswordField();
+		updateKey.setWidthFull();
+		layout.addFormItem(updateKey, Translator.translate("Config.UpdateKey"));
+		this.binder.forField(updateKey)
+		        .withNullRepresentation("")
+		        .bind(Config::getVideoDataKey, Config::setVideoDataKey);
+
+		return layout;
+	}
+	
 	private Hr separator() {
 		Hr hr = new Hr();
 		hr.getStyle().set("margin-top", "0.5em");

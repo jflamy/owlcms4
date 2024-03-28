@@ -119,8 +119,10 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private Boolean teamFlags;
 	private String boardMode;
 	private String groupInfo;
+	
 	private Map<String, String> lastTimerMap;
 	private Map<String, String> lastDecisionMap;
+	private Map<String, String> lastUpdate;
 
 	public EventForwarder(FieldOfPlay emittingFop) {
 		this.setFop(emittingFop);
@@ -1131,25 +1133,30 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private void pushDecision(DecisionEventType det) {
 		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(), this.fop.getCeremonyType()));
 		String decisionUrl = Config.getCurrent().getParamDecisionUrl();
-		if (decisionUrl == null) {
+		String videoUrl = Config.getCurrent().getParamVideoDataDecisionUrl();
+		if (decisionUrl == null && videoUrl == null) {
 			return;
 		}
 		logger.trace("pushing {}", det);
 		lastDecisionMap = createDecision(det);
+		sendPost(videoUrl, lastDecisionMap);
 		sendPost(decisionUrl, lastDecisionMap);
 	}
 
 	private void pushTimer(UIEvent e) {
 		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(), this.fop.getCeremonyType()));
 		String timerUrl = Config.getCurrent().getParamTimerUrl();
-		if (timerUrl == null) {
+		String videoUrl = Config.getCurrent().getParamVideoDataTimerUrl();
+		if (timerUrl == null && videoUrl == null) {
 			return;
 		}
 		lastTimerMap = createTimer(e);
+		sendPost(videoUrl, lastTimerMap);
 		sendPost(timerUrl, lastTimerMap);
 	}
 
 	Thread keepaliveThread;
+
 
 
 	/**
@@ -1179,9 +1186,13 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		        this.fop.getCeremonyType()));
 		logger.debug("### pushing update from {}", Thread.currentThread().getId());
 		String updateUrl = Config.getCurrent().getParamUpdateUrl();
-		if (updateUrl != null) {
-			sendPost(updateUrl, createUpdate());
+		String videoUrl = Config.getCurrent().getParamVideoDataUpdateUrl();
+		if (updateUrl == null && videoUrl == null) {
+			return;
 		}
+		lastUpdate = createUpdate();
+		sendPost(videoUrl, lastUpdate);
+		sendPost(updateUrl, lastUpdate);
 	}
 
 	private void sendConfig(String updateKey) {
@@ -1238,6 +1249,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	}
 
 	private void sendPost(String url, Map<String, String> parameters) {
+		if (url == null) {
+			return;
+		}
 		// logger.debug("{}posting update {}", getFop().getLoggingName(),
 		// LoggerUtils.whereFrom());
 		long deltaMillis = System.currentTimeMillis() - this.previousMillis;

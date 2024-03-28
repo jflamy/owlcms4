@@ -117,10 +117,12 @@ public class Config {
 	@Column(name = "localcontent", nullable = true)
 	private Blob localOverride;
 	private String publicResultsURL;
+	private String updatekey;
+	private String videoDataURL;
+	private String videoDataKey;
 	private String salt;
 	private String timeZoneId;
 	private Boolean traceMemory;
-	private String updatekey;
 	@Transient
 	@JsonIgnore
 	private boolean skipReading;
@@ -389,6 +391,8 @@ public class Config {
 		return uAccessList;
 	}
 
+	@Transient
+	@JsonIgnore
 	public boolean getParamMqttInternal() {
 		Boolean enableInternal = StartupUtils.getBooleanParamOrElseNull("enableEmbeddedMqtt");
 		if (enableInternal != null) {
@@ -499,6 +503,8 @@ public class Config {
 	/**
 	 * @return the public results url stored in the database, except if overridden by system property or envariable.
 	 */
+	@Transient
+	@JsonIgnore
 	public String getParamPublicResultsURL() {
 		String uURL = StartupUtils.getStringParam("remote");
 		if (uURL != null) {
@@ -595,6 +601,63 @@ public class Config {
 
 	@Transient
 	@JsonIgnore
+	public String getParamVideoDataDecisionUrl() {
+		String paramVideoDataURL = getParamVideoDataURL();
+		return paramVideoDataURL != null ? paramVideoDataURL + "/decision" : null;
+	}
+
+	/**
+	 * @return the updateKey stored in the database, except if overridden by system property or envariable.
+	 */
+	@Transient
+	@JsonIgnore
+	public String getParamVideoDataKey() {
+		String uKey = StartupUtils.getStringParam("videoDataKey");
+		if (uKey == null) {
+			// use pin from database
+			uKey = Config.getCurrent().getVideoDataKey();
+			if (uKey == null || uKey.isBlank()) {
+				uKey = null;
+			}
+		}
+		return uKey;
+	}
+
+	@Transient
+	@JsonIgnore
+	public String getParamVideoDataTimerUrl() {
+		String paramVideoDataURL = getParamVideoDataURL();
+		return paramVideoDataURL != null ? paramVideoDataURL + "/timer" : null;
+	}
+
+	@Transient
+	@JsonIgnore
+	public String getParamVideoDataUpdateUrl() {
+		String paramVideoDataURL = getParamVideoDataURL();
+		return paramVideoDataURL != null ? paramVideoDataURL + "/update" : null;
+	}
+
+	/**
+	 * @return the public results url stored in the database, except if overridden by system property or envariable.
+	 */
+	public String getParamVideoDataURL() {
+		String uURL = StartupUtils.getStringParam("videodata");
+		if (uURL != null) {
+			return uURL;
+		} else {
+			uURL = this.videoDataURL;
+			if (uURL == null || uURL.isBlank()) {
+				return null;
+			} else {
+				// user may have copied URL with trailing /
+				uURL = uURL.replaceFirst("/$", "");
+				return uURL;
+			}
+		}
+	}
+
+	@Transient
+	@JsonIgnore
 	public String getParamVideoStylesDir() {
 		String param = StartupUtils.getStringParam("videoStylesDir");
 		if (param == null || param.isBlank()) {
@@ -671,6 +734,14 @@ public class Config {
 
 	public String getUpdatekey() {
 		return this.updatekey;
+	}
+
+	public String getVideoDataKey() {
+		return this.videoDataKey;
+	}
+
+	public String getVideoDataURL() {
+		return this.videoDataURL;
 	}
 
 	@Transient
@@ -884,6 +955,14 @@ public class Config {
 
 	public void setUpdatekey(String updatekey) {
 		this.updatekey = updatekey;
+	}
+
+	public void setVideoDataKey(String videoDataKey) {
+		this.videoDataKey = videoDataKey;
+	}
+
+	public void setVideoDataURL(String videoDataURL) {
+		this.videoDataURL = videoDataURL;
 	}
 
 	public void setVideoStylesDirectory(String videoStylesDirectory) {
