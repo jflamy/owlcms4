@@ -43,8 +43,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.NativeLabel;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
@@ -57,7 +55,6 @@ import com.vaadin.flow.data.binder.Binder.Binding;
 import com.vaadin.flow.data.binder.Binder.BindingBuilder;
 import com.vaadin.flow.data.binder.BindingValidationStatus;
 import com.vaadin.flow.data.binder.Setter;
-import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.validator.DoubleRangeValidator;
@@ -80,10 +77,11 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
-import app.owlcms.displays.athletecard.AthleteCard;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
+import app.owlcms.nui.lifting.NextAthleteAble;
+import app.owlcms.nui.lifting.WeighinContent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.NaturalOrderComparator;
 import ch.qos.logback.classic.Logger;
@@ -114,13 +112,11 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	private boolean genderCatOk;
 	private ComboBox<Gender> genderField;
 	private ComboBox<Group> groupField;
-	private Button hiddenButton;
 	private Checkbox ignoreErrorsCheckbox;
 	private Category initialCategory;
 	private TextField lastNameField;
 	private LocalizedIntegerField lotNumberField;
 	private TextField membershipField;
-	private Button printButton;
 	private LocalizedIntegerField qualifyingTotalField;
 	private LocalizedIntegerField snatch1DeclarationField;
 	private LocalizedIntegerField startNumberField;
@@ -129,11 +125,13 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	private LocalizedIntegerField yobField;
 	private Checkbox invitedCheckbox;
 	private TextField subCategoryField;
+	private NextAthleteAble previousNext;
 
-	public NAthleteRegistrationFormFactory(Class<Athlete> domainType, Group group) {
+	public NAthleteRegistrationFormFactory(Class<Athlete> domainType, Group group,
+	        NextAthleteAble parentGrid) {
 		super(domainType);
-		// logger.trace("constructor {} {}", System.identityHashCode(this), group);
 		this.setCurrentGroup(group);
+		this.setPreviousNext(parentGrid);
 	}
 
 	/**
@@ -144,7 +142,6 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		Athlete nAthlete = JPAService.runInTransaction((em) -> {
 			return em.merge(athlete);
 		});
-		enablePrint(nAthlete);
 		return nAthlete;
 	}
 
@@ -192,7 +189,6 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	        Button... buttons) {
 
 		Button operationButton = null;
-
 		if (operation == CrudOperation.UPDATE) {
 			operationButton = buildOperationButton(CrudOperation.UPDATE, athlete, postOperationCallBack);
 		} else if (operation == CrudOperation.ADD) {
@@ -223,10 +219,21 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		footerLayout.add(vl);
 		footerLayout.setAlignItems(Alignment.CENTER);
 
+		if (buttons != null) {
+			for (Button b : buttons) {
+				footerLayout.add(b);
+			}
+		}
 		if (cancelButton != null) {
 			footerLayout.add(cancelButton);
 		}
 
+		if (previousNext instanceof WeighinContent) {
+			boolean nextMode = ((WeighinContent)previousNext).isNextMode();
+			if (nextMode) {
+				operationButton.setText(Translator.translate("WeighIn.UpdateAndNext"));
+			}
+		}
 		if (operationButton != null) {
 			footerLayout.add(operationButton);
 			if (operation == CrudOperation.UPDATE && shortcutEnter) {
@@ -259,16 +266,11 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		// loaded.
 		OwlcmsSession.setAttribute("weighIn", getEditedAthlete());
 
-		// workaround for Return shortcut not working. Check that this is still needed
-		// in v23+
-		this.hiddenButton = new Button("doit");
-		this.hiddenButton.getStyle().set("visibility", "hidden");
-
-		createPrintButton();
+		// createPrintButton();
 		setChangeListenersEnabled(false);
 
 		Component footer = this.buildFooter(operation, getEditedAthlete(), cancelButtonClickListener,
-		        operationButtonClickListener, deleteButtonClickListener, false, this.hiddenButton, this.printButton);
+		        operationButtonClickListener, deleteButtonClickListener, false);
 
 		// dumpCategories(aFromList, null, new
 		// ArrayList<Category>(aFromList.getEligibleCategories()));
@@ -291,20 +293,20 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		AthleteRepository.delete(athlete);
 	}
 
-	public void enablePrint(Athlete domainObject) {
-		if (domainObject == null || domainObject.getId() == null) {
-			this.printButton.setEnabled(false);
-		} else {
-			this.printButton.setEnabled(true);
-			this.hiddenButton.getElement().setAttribute("onClick",
-			        getWindowOpenerFromClass(AthleteCard.class, domainObject.getId().toString()));
-		}
-	}
-
 	@Override
 	public Collection<Athlete> findAll() {
 		throw new UnsupportedOperationException(); // should be called on the grid, not on the form
 	}
+
+	// public void enablePrint(Athlete domainObject) {
+	// if (domainObject == null || domainObject.getId() == null) {
+	// this.printButton.setEnabled(false);
+	// } else {
+	// this.printButton.setEnabled(true);
+	// this.hiddenButton.getElement().setAttribute("onClick",
+	// getWindowOpenerFromClass(AthleteCard.class, domainObject.getId().toString()));
+	// }
+	// }
 
 	@Override
 	public void setValidationStatusHandler(boolean showErrorsOnFields) {
@@ -782,30 +784,6 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		return layout;
 	}
 
-	private void createPrintButton() {
-		this.printButton = new Button(Translator.translate("AthleteCard"), new Icon(VaadinIcon.PRINT));
-		enablePrint(getEditedAthlete());
-		this.printButton.setThemeName("secondary success");
-
-		// ensure that writeBean() is called; this horror is due to the fact that we
-		// must open a new window from the client side, and cannot save on click.
-		this.printButton.addClickListener(click -> {
-			try {
-				Athlete editedAthlete2 = getEditedAthlete();
-				if (isIgnoreErrors()) {
-					getEditedAthlete().setValidation(false);
-				}
-				this.binder.writeBean(editedAthlete2);
-				this.update(editedAthlete2);
-				this.hiddenButton.clickInClient();
-			} catch (ValidationException e) {
-				getEditedAthlete().setValidation(true);
-				this.binder.validate();
-			}
-
-		});
-	}
-
 	private FormLayout createRecordForm() {
 		FormLayout layout = createLayout();
 		Component title = createTitle("Athlete.RecordsTitle");
@@ -840,6 +818,30 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 		return layout;
 	}
+
+	// private void createPrintButton() {
+	// this.printButton = new Button(Translator.translate("AthleteCard"), new Icon(VaadinIcon.PRINT));
+	// enablePrint(getEditedAthlete());
+	// this.printButton.setThemeName("secondary success");
+	//
+	// // ensure that writeBean() is called; this horror is due to the fact that we
+	// // must open a new window from the client side, and cannot save on click.
+	// this.printButton.addClickListener(click -> {
+	// try {
+	// Athlete editedAthlete2 = getEditedAthlete();
+	// if (isIgnoreErrors()) {
+	// getEditedAthlete().setValidation(false);
+	// }
+	// this.binder.writeBean(editedAthlete2);
+	// this.update(editedAthlete2);
+	// this.hiddenButton.clickInClient();
+	// } catch (ValidationException e) {
+	// getEditedAthlete().setValidation(true);
+	// this.binder.validate();
+	// }
+	//
+	// });
+	// }
 
 	private FlexLayout createTabSheets(Component footer) {
 		TabSheet ts = new TabSheet();
@@ -1140,6 +1142,11 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		return gender;
 	}
 
+	@SuppressWarnings("unused")
+	private NextAthleteAble getPreviousNext() {
+		return this.previousNext;
+	}
+
 	private boolean isChangeListenersEnabled() {
 		return this.changeListenersEnabled;
 	}
@@ -1281,6 +1288,10 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		});
 	}
 
+	private void setPreviousNext(NextAthleteAble parentGrid) {
+		this.previousNext = parentGrid;
+	}
+
 	private void setupAthlete(CrudOperation operation, Athlete aFromList) {
 		if (operation == CrudOperation.ADD) {
 			Athlete editedAthlete2 = new Athlete();
@@ -1358,6 +1369,13 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		}
 	}
 
+	// private String zeroIfEmpty(String snatch1Declaration) {
+	// if (snatch1Declaration == null || snatch1Declaration.isBlank()) {
+	// return "0";
+	// }
+	// return snatch1Declaration;
+	// }
+
 	private boolean validateStartingTotals(
 	        LocalizedIntegerField snatch1DeclarationField2, LocalizedIntegerField cleanJerk1DeclarationField2,
 	        LocalizedIntegerField qualifyingTotalField2) throws RuleViolationException.Rule15_20Violated {
@@ -1386,15 +1404,9 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		return true;
 	}
 
-	// private String zeroIfEmpty(String snatch1Declaration) {
-	// if (snatch1Declaration == null || snatch1Declaration.isBlank()) {
-	// return "0";
-	// }
-	// return snatch1Declaration;
-	// }
-
 	private int zeroIfNull(LocalizedIntegerField intField) {
 		Integer value = intField.getValue();
 		return value != null ? value : 0;
 	}
+
 }

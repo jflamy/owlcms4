@@ -40,7 +40,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsCrudGrid.class);
 
 	// private OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory;
-	protected OwlcmsGridLayout owlcmsGridLayout;
+	private OwlcmsGridLayout owlcmsGridLayout;
 	private boolean clickable = true;
 	private long clicked = 0L;
 
@@ -60,8 +60,12 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 		// logger.trace("creating OwlcmsCrudGrid with formfactory {} wherefrom
 		// {}",System.identityHashCode(owlcmsCrudFormFactory), LoggerUtils.whereFrom());
 		this.setCrudFormFactory(owlcmsCrudFormFactory);
-		this.owlcmsGridLayout = crudLayout;
+		this.setOwlcmsGridLayout(crudLayout);
 		initLayoutGrid();
+	}
+
+	public OwlcmsGridLayout getOwlcmsGridLayout() {
+		return this.owlcmsGridLayout;
 	}
 
 	public boolean isClickable() {
@@ -72,8 +76,17 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 		this.clickable = clickable;
 	}
 
+	public void setOwlcmsGridLayout(OwlcmsGridLayout owlcmsGridLayout) {
+		this.owlcmsGridLayout = owlcmsGridLayout;
+	}
+
 	public void sort(List<GridSortOrder<T>> sortOrder) {
 		this.grid.sort(sortOrder);
+	}
+
+	protected void cancelCallback() {
+		this.getOwlcmsGridLayout().hideForm();
+		this.grid.asSingleSelect().clear();
 	}
 
 	/*
@@ -94,6 +107,11 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 			refreshGrid();
 			throw e2;
 		}
+	}
+
+	protected void deleteCallBack() {
+		this.getOwlcmsGridLayout().hideForm();
+		this.deleteButtonClicked();
 	}
 
 	@Override
@@ -173,6 +191,19 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 		updateButtons();
 	}
 
+	protected void saveCallBack(OwlcmsCrudGrid<T> owlcmsCrudGrid, String successMessage, CrudOperation operation) {
+		try {
+			logger.debug("postOperation");
+			owlcmsCrudGrid.grid.asSingleSelect().clear();
+			owlcmsCrudGrid.getOwlcmsGridLayout().hideForm();
+			refreshGrid();
+			Notification.show(successMessage);
+			logger.trace("operation performed");
+		} catch (Exception e) {
+			LoggerUtils.logError(logger, e);
+		}
+	}
+
 	/**
 	 * Show form with a delete button.
 	 *
@@ -185,30 +216,17 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 		OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory = (OwlcmsCrudFormFactory<T>) this.getCrudFormFactory();
 		Component form = owlcmsCrudFormFactory.buildNewForm(operation, domainObject, readOnly,
 		        cancelButtonClickEvent -> {
-			        logger.debug("cancelButtonClickEvent");
-			        this.owlcmsGridLayout.hideForm();
-			        this.grid.asSingleSelect().clear();
+			        cancelCallback();
 		        },
 		        operationButtonClickEvent -> {
-			        try {
-				        logger.debug("postOperation");
-				        this.grid.asSingleSelect().clear();
-				        this.owlcmsGridLayout.hideForm();
-				        refreshGrid();
-				        Notification.show(successMessage);
-				        logger.trace("operation performed");
-			        } catch (Exception e) {
-				        LoggerUtils.logError(logger, e);
-			        }
+			        saveCallBack(this, successMessage, operation);
 		        },
 		        deleteButtonClickEvent -> {
-			        logger.debug("preDelete");
-			        this.owlcmsGridLayout.hideForm();
-			        this.deleteButtonClicked();
+			        deleteCallBack();
 		        });
 
 		String caption = owlcmsCrudFormFactory.buildCaption(operation, domainObject);
-		this.owlcmsGridLayout.showForm(operation, form, caption);
+		this.getOwlcmsGridLayout().showForm(operation, form, caption);
 	}
 
 }

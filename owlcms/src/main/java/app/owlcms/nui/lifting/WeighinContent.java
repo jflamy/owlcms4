@@ -18,12 +18,14 @@ import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
+import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.form.impl.field.provider.CheckBoxGroupProvider;
 
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
@@ -77,6 +79,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCardsWeighIn;
 import app.owlcms.spreadsheet.JXLSJurySheet;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -91,12 +94,84 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/weighin", layout = OwlcmsLayout.class)
 @CssImport(value = "./styles/shared-styles.css")
-public class WeighinContent extends BaseContent implements CrudListener<Athlete>, OwlcmsContent {
+public class WeighinContent extends BaseContent implements CrudListener<Athlete>, OwlcmsContent, NextAthleteAble {
+	/**
+	 * Variation to do Next instead of closing.
+	 *
+	 */
+	private final class NextCrudGrid extends OwlcmsCrudGrid<Athlete> {
+		private Button batchButton;
+
+		private NextCrudGrid(Class<Athlete> domainType, OwlcmsGridLayout crudLayout,
+		        OwlcmsCrudFormFactory<Athlete> owlcmsCrudFormFactory, Grid<Athlete> grid) {
+			super(domainType, crudLayout, owlcmsCrudFormFactory, grid);
+		}
+
+		/**
+		 * Inits the toolbar.
+		 */
+		@Override
+		protected void initToolbar() {
+			this.findAllButton = new Button(getTranslation("RefreshList"), VaadinIcon.REFRESH.create(),
+			        e -> findAllButtonClicked());
+			this.findAllButton.getElement().setAttribute("title", getTranslation("RefreshList"));
+			this.crudLayout.addToolbarComponent(this.findAllButton);
+
+			this.addButton = new Button(VaadinIcon.PLUS.create(), e -> addButtonClicked());
+			getAddButton().setText(getTranslation("Add"));
+			// getAddButton().addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
+			this.addButton.getElement().setAttribute("title", getTranslation("Add"));
+			this.crudLayout.addToolbarComponent(this.addButton);
+
+			this.updateButton = new Button(VaadinIcon.PENCIL.create(), e -> batchButtonClicked());
+			this.deleteButton = new Button(VaadinIcon.TRASH.create(), e -> deleteButtonClicked());
+
+			this.batchButton = new Button(VaadinIcon.FILE_TEXT.create(), e -> batchButtonClicked());
+			this.batchButton.setText(getTranslation("WeighIn.Batch"));
+			this.crudLayout.addToolbarComponent(this.batchButton);
+
+			updateButtons();
+		}
+
+		@Override
+		protected void saveCallBack(OwlcmsCrudGrid<Athlete> owlcmsCrudGrid, String successMessage,
+		        CrudOperation operation) {
+			try {
+				Athlete nextAthlete = getNextAthlete(owlcmsCrudGrid.getGrid().asSingleSelect().getValue());
+				if (isNextMode() && nextAthlete != null && operation == CrudOperation.UPDATE) {
+					owlcmsCrudGrid.getGrid().asSingleSelect().clear();
+					owlcmsCrudGrid.getOwlcmsGridLayout().hideForm();
+					refreshGrid();
+					owlcmsCrudGrid.getGrid().asSingleSelect().setValue(nextAthlete);
+					updateButtonClicked();
+				} else {
+					owlcmsCrudGrid.getGrid().asSingleSelect().clear();
+					owlcmsCrudGrid.getOwlcmsGridLayout().hideForm();
+					refreshGrid();
+					Notification.show(successMessage);
+				}
+			} catch (Exception e) {
+				LoggerUtils.logError(logger, e);
+			}
+		}
+
+		private void batchButtonClicked() {
+			setNextMode(!isNextMode());
+			if (isNextMode()) {
+				this.batchButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+			} else {
+				this.batchButton.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+			}
+
+		}
+	}
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(WeighinContent.class);
+
 	static {
 		logger.setLevel(Level.INFO);
 	}
+	private boolean nextMode;
 	private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
 	private ComboBox<AgeGroup> ageGroupFilter = new ComboBox<>();
 	private ComboBox<Category> categoryFilter = new ComboBox<>();
@@ -108,12 +183,7 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 	private OwlcmsLayout routerLayout;
 	private ComboBox<Boolean> weighedInFilter = new ComboBox<>();
 	private Button cardsButton;
-
-	// private Group group;
-
-	// private ComboBox<Group> groupSelect;
 	private GroupSelectionMenu topBarMenu;
-	// private FlexLayout topBar;
 	private Button juryButton;
 	private Button startingWeightsButton;
 	private Button weighInButton;
@@ -199,9 +269,10 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		return findFiltered;
 	}
 
-	// public ComboBox<Group> getGroupSelect() {
-	// return groupSelect;
-	// }
+	@Override
+	public List<Athlete> getAthletes() {
+		return (List<Athlete>) findAll();
+	}
 
 	/**
 	 * @return the groupFilter
@@ -215,12 +286,36 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		return getPageTitle();
 	}
 
+	@Override
+	public Athlete getNextAthlete(Athlete current) {
+		ArrayList<Athlete> all = new ArrayList<>(findAll());
+		for (int i = 0; i < all.size();) {
+			if (all.get(i).getId().equals(current.getId())) {
+				return (i + 1 < all.size() ? all.get(i + 1) : null);
+			}
+			i++;
+		}
+		return null;
+	}
+
 	/**
 	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
 	 */
 	@Override
 	public String getPageTitle() {
 		return getTranslation("WeighIn");
+	}
+
+	@Override
+	public Athlete getPreviousAthlete(Athlete current) {
+		ArrayList<Athlete> all = new ArrayList<>(findAll());
+		for (int i = 0; i < all.size();) {
+			if (all.get(i).getId().equals(current.getId())) {
+				return (i - 1 > 0 ? all.get(i - 1) : null);
+			}
+			i++;
+		}
+		return null;
 	}
 
 	@Override
@@ -233,16 +328,13 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		return true;
 	}
 
-	// /**
-	// * @param groupSelect the groupSelect to set
-	// */
-	// public void setGroupSelect(ComboBox<Group> groupSelect) {
-	// this.groupSelect = groupSelect;
-	// }
-
 	@Override
 	public boolean isIgnoreGroupFromURL() {
 		return false;
+	}
+
+	public boolean isNextMode() {
+		return this.nextMode;
 	}
 
 	public void refresh() {
@@ -256,6 +348,10 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		this.routerLayout.showLocaleDropdown(false);
 		this.routerLayout.setDrawerOpened(false);
 		this.routerLayout.updateHeader(true);
+	}
+
+	public void setNextMode(boolean b) {
+		this.nextMode = b;
 	}
 
 	/**
@@ -323,16 +419,10 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 	 */
 	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
 		OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory;
-		// if (Config.getCurrent().featureSwitch("oldAthleteForm")) {
-		// athleteEditingFormFactory = new AthleteRegistrationFormFactory(Athlete.class,
-		// currentGroup);
-		// } else {
-		athleteEditingFormFactory = new NAthleteRegistrationFormFactory(Athlete.class,
-		        this.currentGroup);
 
-		// }
-		// logger.trace("created form factory {} {}",
-		// System.identityHashCode(athleteEditingFormFactory), currentGroup);
+		athleteEditingFormFactory = new NAthleteRegistrationFormFactory(Athlete.class,
+		        this.currentGroup, this);
+
 		createFormLayout(athleteEditingFormFactory);
 		return athleteEditingFormFactory;
 	}
@@ -363,15 +453,13 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		grid.addColumn("entryTotal").setHeader(getTranslation("EntryTotal")).setAutoWidth(true);
 		grid.addColumn("federationCodes").setHeader(getTranslation("Registration.FederationCodesShort"))
 		        .setAutoWidth(true);
-		OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class) {
+		NextCrudGrid crudGrid = new NextCrudGrid(Athlete.class, new OwlcmsGridLayout(Athlete.class) {
 			@Override
 			public void hideForm() {
 				super.hideForm();
-				logger.trace("clearing {}", OwlcmsSession.getAttribute("weighIn"));
 				OwlcmsSession.setAttribute("weighIn", null);
 			}
-		},
-		        crudFormFactory, grid);
+		}, crudFormFactory, grid);
 		crudGrid.setCrudListener(this);
 		crudGrid.setClickRowToUpdate(true);
 		return crudGrid;
@@ -414,14 +502,14 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		});
 		crudGrid.getCrudLayout().addFilterComponent(this.lastNameFilter);
 
-		this.ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
-		this.ageDivisionFilter.setItems(AgeDivision.findAll());
-		this.ageDivisionFilter.setItemLabelGenerator((ad) -> getTranslation("Division." + ad.name()));
-		this.ageDivisionFilter.setClearButtonVisible(true);
-		this.ageDivisionFilter.addValueChangeListener(e -> {
-			crudGrid.refreshGrid();
-		});
-		crudGrid.getCrudLayout().addFilterComponent(this.ageDivisionFilter);
+		// this.ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
+		// this.ageDivisionFilter.setItems(AgeDivision.findAll());
+		// this.ageDivisionFilter.setItemLabelGenerator((ad) -> getTranslation("Division." + ad.name()));
+		// this.ageDivisionFilter.setClearButtonVisible(true);
+		// this.ageDivisionFilter.addValueChangeListener(e -> {
+		// crudGrid.refreshGrid();
+		// });
+		// crudGrid.getCrudLayout().addFilterComponent(this.ageDivisionFilter);
 
 		this.ageGroupFilter.setPlaceholder(getTranslation("AgeGroup"));
 		this.ageGroupFilter.setItems(AgeGroupRepository.findAll());

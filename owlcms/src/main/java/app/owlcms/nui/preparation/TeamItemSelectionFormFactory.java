@@ -36,7 +36,7 @@ public class TeamItemSelectionFormFactory
 
 	public TeamItemSelectionFormFactory(Class<TeamTreeItem> domainType, IAthleteEditing origin) {
 		super(domainType);
-		this.acff = new NAthleteRegistrationFormFactory(Athlete.class, null);
+		this.acff = new NAthleteRegistrationFormFactory(Athlete.class, null, null);
 	}
 
 	@Override

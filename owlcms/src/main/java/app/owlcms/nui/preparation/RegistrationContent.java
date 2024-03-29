@@ -470,7 +470,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
 		OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory;
 		athleteEditingFormFactory = new NAthleteRegistrationFormFactory(Athlete.class,
-		        this.group);
+		        this.group, null);
 		// createFormLayout(athleteEditingFormFactory);
 		return athleteEditingFormFactory;
 	}
