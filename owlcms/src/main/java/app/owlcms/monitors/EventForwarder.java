@@ -119,7 +119,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private Boolean teamFlags;
 	private String boardMode;
 	private String groupInfo;
-	
+
 	private Map<String, String> lastTimerMap;
 	private Map<String, String> lastDecisionMap;
 	private Map<String, String> lastUpdate;
@@ -794,7 +794,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "wideTeamNames", String.valueOf(this.wideTeamNames));
 		mapPut(sb, "sinclairMeet", Boolean.toString(Competition.getCurrent().isSinclair()));
 		mapPut(sb, "mode", getBoardMode());
-		
+
 		// include timer and decision info for possible future use
 		if (lastTimerMap != null) {
 			sb.putAll(lastTimerMap);
@@ -913,7 +913,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				String computedName = groupName != null
 				        ? computeSecondLine(a, groupName)
 				        : "";
-				setGroupName(computedName);
+				setGroupInfo(computedName);
 			}
 		} else {
 			if (!leaveTopAlone) {
