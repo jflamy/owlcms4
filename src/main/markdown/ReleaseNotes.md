@@ -7,7 +7,7 @@
 
 ##### 48.0
 
-- (alpha02) Additional output URL for structured JSON data, to be used for creating video overlays, The same information as publicresults is emitted.  Video production companies can use the source code of publicresults as an example and build a custom web server to receive this information and interface with their video editing software (for example using the APIs exposed by vMix). 
+- (alpha02) Additional output URL for structured JSON data, to be used for creating video overlays. The information emitted is identical to what is sent to publicresults.  Video production companies can build a custom web server to receive this information and transform the data as required by their video software.
   
 - (alpha02) /update endpoint is updated every 15 seconds.  publicresults computes a hashcode before putting the event on its event bus. Individual publicresults user sessions compare the hashcode and ignore duplicate events.  This deals with publicresults being restarted randomly and users joining in at random times.
   
