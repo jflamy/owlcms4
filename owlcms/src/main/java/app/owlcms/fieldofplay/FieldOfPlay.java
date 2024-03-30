@@ -2592,11 +2592,12 @@ public class FieldOfPlay implements IUnregister {
 						breakTimer.stop();
 						breakTimer.setTimeRemaining(DEFAULT_BREAK_DURATION, true);
 						breakTimer.setBreakDuration(DEFAULT_BREAK_DURATION);
+						// do not start the break timer.
 					} else {
 						breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), false);
+						// break timer pushes out the BreakStarted event.
+						breakTimer.start();
 					}
-					// break timer pushes out the BreakStarted event.
-					breakTimer.start();
 					return;
 				} else if (newBreak.isCountdown()) {
 					this.logger.debug("{}switching to countdown {}", getLoggingName(), newBreak,
