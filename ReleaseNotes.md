@@ -1,20 +1,16 @@
-**Version 47.1 Release Candidate**
+#### Version 47.1.1
 
-> [!WARNING]
->
-> - This is a release candidate, used for final public testing of new features and for final translation.  
-> - *Recent features may still exhibit bugs. Previously working features may have been broken*.  Release Candidates are still very new, and should be *tested intensively* before being considered for use in a competition.
+> [!IMPORTANT]
+> 
 > - You should test all releases with your own data, several days before a competition.
+
+##### 47.1.1
+
+- Fix: the countdown for the time before snatch is now starting correctly at the end of the athlete introduction.
 
 ##### 47.1
 
-- (rc11) Fix:  the attempt board was showing the jury decision even when in announcer-controlled mode.
-
-- (rc11) Fix: publicresults was needlessly showing the option selection dialog
-
-- (rc11) Fix: spurious error message was shown on owlcms console when sending configuration to publicresults.
-
--  Announcer-controlled display of jury decisions : To better apply the IWF rule that the reason for jury reversals must be announced, by default the jury decision buttons now triggers a two-step process:
+- Announcer-controlled display of jury decisions : To better apply the IWF rule that the reason for jury reversals must be announced, by default the jury decision buttons now triggers a two-step process:
 
   1. show a prompt to the announcer.  The announcer  announces the decision and the reason
   2. the announcer presses a button that updates the system and the scoreboards. 
