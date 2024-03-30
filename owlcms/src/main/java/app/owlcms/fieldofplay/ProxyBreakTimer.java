@@ -216,8 +216,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	@Override
 	public void start() {
 		BreakType breakType = getFop().getBreakType();
-		// logger.debug("****** starting break with breakType = {} fop={}", breakType,
-		// System.identityHashCode(getFop()));
+		//logger.debug("{}****** starting break with breakType = {} from={}", fop.getLoggingName(), breakType, LoggerUtils.whereFrom());
 		if (breakType == null) {
 			this.logger.error("null breaktype {}", LoggerUtils.stackTrace());
 		}
