@@ -1,4 +1,4 @@
-#### Version 47.1.1 Release Candidate
+#### Version 47.1.1
 
 > [!IMPORTANT]
 > 
@@ -6,7 +6,7 @@
 
 ##### 47.1.1
 
-- Fix: the countdown for the time before snatch was starting prematurely (when the before introduction timer ended)
+- Fix: the countdown for the time before snatch is now starting correctly at the end of the athlete introduction.
 
 ##### 47.1
 
