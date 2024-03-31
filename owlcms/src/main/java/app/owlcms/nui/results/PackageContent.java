@@ -42,9 +42,9 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.ResultsParameters;
 import app.owlcms.components.JXLSDownloader;
-import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;

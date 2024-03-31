@@ -10,11 +10,11 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -375,7 +375,7 @@ public class AgeGroupRepository {
 		return (AgeGroup) query.getResultList().stream().findFirst().orElse(null);
 	}
 
-	public static void insertAgeGroups(EntityManager em, EnumSet<Championship> es) {
+	public static void insertAgeGroups(EntityManager em, Set<Championship> es) {
 		try {
 			String localizedName = ResourceWalker.getLocalizedResourceName("/agegroups/AgeGroups.xlsx");
 			AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(es, localizedName);
@@ -384,7 +384,7 @@ public class AgeGroupRepository {
 		}
 	}
 
-	public static void insertAgeGroups(EntityManager em, EnumSet<Championship> es, String resourceName) {
+	public static void insertAgeGroups(EntityManager em, Set<Championship> es, String resourceName) {
 		try {
 			String localizedName = ResourceWalker.getLocalizedResourceName(resourceName);
 			AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(es, localizedName);

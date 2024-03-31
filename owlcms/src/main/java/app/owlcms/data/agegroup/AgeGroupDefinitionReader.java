@@ -9,9 +9,9 @@ package app.owlcms.data.agegroup;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Predicate;
 
@@ -45,7 +45,7 @@ public class AgeGroupDefinitionReader {
 	}
 
 	static void createAgeGroups(Workbook workbook, Map<String, Category> templates,
-	        EnumSet<Championship> ageDivisionOverride,
+	        Set<Championship> ageDivisionOverride,
 	        String localizedName) {
 
 		JPAService.runInTransaction(em -> {
@@ -191,7 +191,7 @@ public class AgeGroupDefinitionReader {
 		});
 	}
 
-	static void doInsertRobiAndAgeGroups(EnumSet<Championship> es, String localizedFileName) {
+	static void doInsertRobiAndAgeGroups(Set<Championship> es, String localizedFileName) {
 		Logger mainLogger = Main.getStartupLogger();
 		Map<String, Category> templates = loadRobi(mainLogger);
 		InputStream ageGroupStream = findAgeGroupFile(localizedFileName, mainLogger);
@@ -214,7 +214,7 @@ public class AgeGroupDefinitionReader {
 		return ageGroupStream;
 	}
 
-	private static void loadAgeGroupStream(EnumSet<Championship> es, String localizedName, Logger mainLogger,
+	private static void loadAgeGroupStream(Set<Championship> es, String localizedName, Logger mainLogger,
 	        Map<String, Category> templates, InputStream localizedResourceAsStream1) {
 		try (Workbook workbook = WorkbookFactory
 		        .create(localizedResourceAsStream1)) {

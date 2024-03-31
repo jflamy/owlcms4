@@ -14,10 +14,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.CountDownLatch;
 
@@ -26,9 +26,9 @@ import org.apache.commons.beanutils.converters.DateConverter;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
@@ -236,7 +236,7 @@ public class Main {
 	private static void injectData(InitialData data,
 	        Locale locale) {
 		Locale l = (locale == null ? Locale.ENGLISH : locale);
-		EnumSet<Championship> ageDivisions = masters ? EnumSet.of(Championship.MASTERS, Championship.U) : null;
+		Set<Championship> ageDivisions = masters ? Set.of(Championship.MASTERS, Championship.U) : null;
 		try {
 			Translator.setForcedLocale(l);
 			// if a reset was required (e.g. for demonstrations, or to reinitialize, this
@@ -264,7 +264,7 @@ public class Main {
 						DemoData.insertInitialData(1, ageDivisions);
 						break;
 					case BENCHMARK:
-						BenchmarkData.insertInitialData(EnumSet.of(Championship.IWF, Championship.MASTERS));
+						BenchmarkData.insertInitialData(Set.of(Championship.IWF, Championship.MASTERS));
 						break;
 				}
 			} else {

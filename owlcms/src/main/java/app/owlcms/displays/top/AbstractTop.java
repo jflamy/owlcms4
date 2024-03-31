@@ -1,8 +1,8 @@
 package app.owlcms.displays.top;
 
 import app.owlcms.apputils.queryparameters.TopParameters;
-import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.category.Category;
 import app.owlcms.displays.scoreboard.Results;
 

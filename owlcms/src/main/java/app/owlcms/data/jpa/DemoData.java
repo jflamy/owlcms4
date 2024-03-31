@@ -14,16 +14,16 @@ import static app.owlcms.data.athlete.Gender.M;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -58,7 +58,7 @@ public class DemoData {
 	 * @param nbAthletes   how many athletes
 	 * @param ageDivisions
 	 */
-	public static void insertInitialData(int nbAthletes, EnumSet<Championship> ageDivisions) {
+	public static void insertInitialData(int nbAthletes, Set<Championship> ageDivisions) {
 		JPAService.runInTransaction(em -> {
 			Competition competition = createDefaultCompetition(ageDivisions);
 			CompetitionRepository.save(competition);
@@ -128,7 +128,7 @@ public class DemoData {
 
 	}
 
-	protected static Competition createDefaultCompetition(EnumSet<Championship> ageDivisions) {
+	protected static Competition createDefaultCompetition(Set<Championship> ageDivisions) {
 		// RecordConfig rc = new RecordConfig(Arrays.asList());
 		// JPAService.runInTransaction(em -> {
 		// em.persist(rc);
@@ -207,7 +207,7 @@ public class DemoData {
 	 * @param w             the w
 	 * @param c             the c
 	 */
-	protected static void setupDemoData(EntityManager em, int liftersToLoad, EnumSet<Championship> ageDivisions) {
+	protected static void setupDemoData(EntityManager em, int liftersToLoad, Set<Championship> ageDivisions) {
 
 		LocalDateTime c = LocalDateTime.now();
 
@@ -246,7 +246,7 @@ public class DemoData {
 	}
 
 	private static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupM1, Group groupM2,
-	        Group groupF1, Group groupY1, EnumSet<Championship> ageDivisions) {
+	        Group groupF1, Group groupY1, Set<Championship> ageDivisions) {
 		final String[] lnames = { "Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller", "Wilson",
 		        "Moore", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris", "Martin", "Thompson", "Garcia",
 		        "Martinez", "Robinson", "Clark", "Rodriguez", "Lewis", "Lee", "Walker", "Hall", "Allen", "Young",

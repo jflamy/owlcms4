@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.data.provider.hierarchy.TreeData;
 
-import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;

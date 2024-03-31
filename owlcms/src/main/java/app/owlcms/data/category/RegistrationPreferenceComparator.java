@@ -10,8 +10,8 @@ import java.util.Comparator;
 
 import org.apache.commons.lang3.ObjectUtils;
 
-import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.Championship;
 
 /**
  * When several categories are possible for an athlete, this class returns the preferred choice.

@@ -33,9 +33,9 @@ import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 
 import app.owlcms.components.fields.CategoryGridField;
-import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.i18n.Translator;
