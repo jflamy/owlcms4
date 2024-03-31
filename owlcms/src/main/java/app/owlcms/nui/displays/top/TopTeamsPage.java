@@ -19,9 +19,9 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.apputils.queryparameters.TopParametersReader;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
@@ -38,7 +38,7 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 	Logger logger;
 	Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
-	private AgeDivision ageDivision;
+	private Championship ageDivision;
 	private String ageGroupPrefix;
 	private AgeGroup ageGroup;
 	private Category category;
@@ -54,20 +54,20 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 	@Override
 	public void addDialogContent(Component target, VerticalLayout vl) {
 		DisplayOptions.addLightingEntries(vl, target, this);
-		ComboBox<AgeDivision> ageDivisionComboBox = new ComboBox<>();
+		ComboBox<Championship> ageDivisionComboBox = new ComboBox<>();
 		ComboBox<String> ageGroupPrefixComboBox = new ComboBox<>();
-		List<AgeDivision> ageDivisions = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
+		List<Championship> ageDivisions = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
 		ageDivisionComboBox.setItems(ageDivisions);
-		ageDivisionComboBox.setPlaceholder(getTranslation("AgeDivision"));
+		ageDivisionComboBox.setPlaceholder(getTranslation("Championship"));
 		ageDivisionComboBox.setClearButtonVisible(true);
 		ageDivisionComboBox.addValueChangeListener(e -> {
-			AgeDivision ageDivision = e.getValue();
+			Championship ageDivision = e.getValue();
 			setAgeDivision(ageDivision);
 			String existingAgeGroupPrefix = getAgeGroupPrefix();
 			List<String> activeAgeGroups = setAgeGroupPrefixItems(ageGroupPrefixComboBox, ageDivision);
 			if (existingAgeGroupPrefix != null) {
 				ageGroupPrefixComboBox.setValue(existingAgeGroupPrefix);
-			} else if (activeAgeGroups != null && !activeAgeGroups.isEmpty() && ageDivision != AgeDivision.MASTERS) {
+			} else if (activeAgeGroups != null && !activeAgeGroups.isEmpty() && ageDivision != Championship.MASTERS) {
 				ageGroupPrefixComboBox.setValue(activeAgeGroups.get(0));
 			}
 		});
@@ -86,7 +86,7 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 	}
 
 	@Override
-	public final AgeDivision getAgeDivision() {
+	public final Championship getAgeDivision() {
 		return this.ageDivision;
 	}
 
@@ -140,9 +140,9 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 		String ageDivisionName = (ageDivisionParams != null && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0)
 		        : null);
 		try {
-			setAgeDivision(AgeDivision.valueOf(ageDivisionName));
+			setAgeDivision(Championship.valueOf(ageDivisionName));
 		} catch (Exception e) {
-			List<AgeDivision> ageDivisions = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
+			List<Championship> ageDivisions = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
 			setAgeDivision((ageDivisions != null && !ageDivisions.isEmpty()) ? ageDivisions.get(0) : null);
 		}
 		// remove if now null
@@ -169,7 +169,7 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 	}
 
 	@Override
-	public void setAgeDivision(AgeDivision ageDivision) {
+	public void setAgeDivision(Championship ageDivision) {
 		this.ageDivision = ageDivision;
 		((TopTeams) this.getBoard()).setAgeDivision(ageDivision);
 		((TopTeams) this.getBoard()).doUpdate(Competition.getCurrent());
@@ -221,7 +221,7 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 	}
 
 	private List<String> setAgeGroupPrefixItems(ComboBox<String> ageGroupPrefixComboBox,
-	        AgeDivision ageDivision2) {
+	        Championship ageDivision2) {
 		List<String> activeAgeGroups = AgeGroupRepository.findActiveAndUsed(ageDivision2);
 		ageGroupPrefixComboBox.setItems(activeAgeGroups);
 		return activeAgeGroups;

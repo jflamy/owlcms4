@@ -53,13 +53,13 @@ import app.owlcms.components.JXLSDownloader;
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.components.fields.LocalizedDecimalField;
 import app.owlcms.components.fields.ValidationTextField;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
@@ -172,7 +172,7 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		logger.setLevel(Level.INFO);
 	}
 	private boolean nextMode;
-	private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
+	private ComboBox<Championship> ageDivisionFilter = new ComboBox<>();
 	private ComboBox<AgeGroup> ageGroupFilter = new ComboBox<>();
 	private ComboBox<Category> categoryFilter = new ComboBox<>();
 	private OwlcmsCrudGrid<Athlete> crudGrid;
@@ -502,8 +502,8 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		});
 		crudGrid.getCrudLayout().addFilterComponent(this.lastNameFilter);
 
-		// this.ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
-		// this.ageDivisionFilter.setItems(AgeDivision.findAll());
+		// this.ageDivisionFilter.setPlaceholder(getTranslation("Championship"));
+		// this.ageDivisionFilter.setItems(Championship.findAll());
 		// this.ageDivisionFilter.setItemLabelGenerator((ad) -> getTranslation("Division." + ad.name()));
 		// this.ageDivisionFilter.setClearButtonVisible(true);
 		// this.ageDivisionFilter.addValueChangeListener(e -> {
@@ -513,7 +513,7 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 
 		this.ageGroupFilter.setPlaceholder(getTranslation("AgeGroup"));
 		this.ageGroupFilter.setItems(AgeGroupRepository.findAll());
-		// ageGroupFilter.setItemLabelGenerator(AgeDivision::name);
+		// ageGroupFilter.setItemLabelGenerator(Championship::name);
 		this.ageGroupFilter.setClearButtonVisible(true);
 		this.ageGroupFilter.addValueChangeListener(e -> {
 			crudGrid.refreshGrid();
@@ -745,8 +745,8 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		        new CheckBoxGroupProvider<>(getTranslation("Weighin.EligibleCategories"),
 		                new ArrayList<Category>(), (c) -> (c.getTranslatedName())));
 		// crudFormFactory.setFieldProvider("ageDivision",
-		// new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"), Arrays.asList(AgeDivision.values()),
-		// new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), AgeDivision::name));
+		// new OwlcmsComboBoxProvider<>(getTranslation("Championship"), Arrays.asList(Championship.values()),
+		// new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), Championship::name));
 
 		crudFormFactory.setFieldType("bodyWeight", LocalizedDecimalField.class);
 		crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);

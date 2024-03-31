@@ -33,10 +33,10 @@ import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 
 import app.owlcms.components.fields.CategoryGridField;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
@@ -113,11 +113,11 @@ public class AgeGroupEditingFormFactory
 		                new StringLengthValidator(Translator.translate("CodeMustBeShort", maxLength), 0, maxLength))
 		        .bind(AgeGroup::getCode, AgeGroup::setCode);
 
-		ComboBox<AgeDivision> ageDivisionField = new ComboBox<>();
-		ageDivisionField.setItems(new ListDataProvider<>(Arrays.asList(AgeDivision.values())));
+		ComboBox<Championship> ageDivisionField = new ComboBox<>();
+		ageDivisionField.setItems(new ListDataProvider<>(Arrays.asList(Championship.values())));
 		ageDivisionField.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
 		this.binder.forField(ageDivisionField).bind(AgeGroup::getAgeDivision, AgeGroup::setAgeDivision);
-		formLayout.addFormItem(ageDivisionField, Translator.translate("AgeDivision"));
+		formLayout.addFormItem(ageDivisionField, Translator.translate("Championship"));
 
 		TextField minAgeField = new TextField();
 		formLayout.addFormItem(minAgeField, Translator.translate("MinimumAge"));
@@ -183,7 +183,7 @@ public class AgeGroupEditingFormFactory
 			genderField.setValue(Gender.F);
 		}
 		if (ageDivisionField.getValue() == null) {
-			ageDivisionField.setValue(AgeDivision.U);
+			ageDivisionField.setValue(Championship.U);
 		}
 
 		Component footerLayout = this.buildFooter(operation, aFromDb, cancelButtonClickListener,

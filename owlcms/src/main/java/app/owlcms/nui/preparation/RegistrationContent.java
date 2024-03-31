@@ -53,13 +53,13 @@ import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.JXLSDownloader;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.category.Participation;
@@ -100,7 +100,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	static {
 		logger.setLevel(Level.INFO);
 	}
-	private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
+	private ComboBox<Championship> ageDivisionFilter = new ComboBox<>();
 	private ComboBox<AgeGroup> ageGroupFilter = new ComboBox<>();
 	private ComboBox<Category> categoryFilter = new ComboBox<>();
 	protected OwlcmsCrudGrid<Athlete> crudGrid;
@@ -122,7 +122,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	private Category category;
 	private Gender gender;
 	private Platform platform;
-	private AgeDivision ageDivision;
+	private Championship ageDivision;
 	private String ageGroupPrefix;
 	private String lastName;
 	private AgeGroup ageGroup;
@@ -552,8 +552,8 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		});
 		crudGrid.getCrudLayout().addFilterComponent(this.teamFilter);
 
-		this.ageDivisionFilter.setPlaceholder(Translator.translate("AgeDivision"));
-		this.ageDivisionFilter.setItems(AgeDivision.findAll());
+		this.ageDivisionFilter.setPlaceholder(Translator.translate("Championship"));
+		this.ageDivisionFilter.setItems(Championship.findAll());
 		this.ageDivisionFilter.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
 		this.ageDivisionFilter.setClearButtonVisible(true);
 		this.ageDivisionFilter.addValueChangeListener(e -> {
@@ -565,7 +565,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 		this.ageGroupFilter.setPlaceholder(Translator.translate("AgeGroup"));
 		this.ageGroupFilter.setItems(AgeGroupRepository.findAll());
-		// ageGroupFilter.setItemLabelGenerator(AgeDivision::name);
+		// ageGroupFilter.setItemLabelGenerator(Championship::name);
 		this.ageGroupFilter.setClearButtonVisible(true);
 		this.ageGroupFilter.addValueChangeListener(e -> {
 			setAgeGroup(e.getValue());
@@ -656,7 +656,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	/**
 	 * @return the ageDivision
 	 */
-	protected AgeDivision getAgeDivision() {
+	protected Championship getAgeDivision() {
 		return this.ageDivision;
 	}
 
@@ -757,7 +757,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		return found;
 	}
 
-	protected void setAgeDivision(AgeDivision ageDivision) {
+	protected void setAgeDivision(Championship ageDivision) {
 		this.ageDivision = ageDivision;
 	}
 

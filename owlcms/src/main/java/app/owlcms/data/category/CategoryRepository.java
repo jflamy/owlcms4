@@ -17,6 +17,7 @@ import javax.persistence.Query;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
@@ -44,7 +45,7 @@ public class CategoryRepository {
 	 * @param active      active category
 	 * @return the int
 	 */
-	public static int countFiltered(String name, AgeDivision ageDivision, AgeGroup ageGroup, Gender gender, Integer age,
+	public static int countFiltered(String name, Championship ageDivision, AgeGroup ageGroup, Gender gender, Integer age,
 	        Double bodyWeight, Boolean active) {
 		return JPAService.runInTransaction(em -> {
 			return doCountFiltered(name, gender, ageDivision, ageGroup, age, bodyWeight, active, em);
@@ -72,7 +73,7 @@ public class CategoryRepository {
 		});
 	}
 
-	public static Integer doCountFiltered(String name, Gender gender, AgeDivision ageDivision, AgeGroup ageGroup,
+	public static Integer doCountFiltered(String name, Gender gender, Championship ageDivision, AgeGroup ageGroup,
 	        Integer age, Double bodyWeight, Boolean active, EntityManager em) {
 		String selection = filteringSelection(name, gender, ageDivision, ageGroup, age, bodyWeight, active);
 		String qlString = "select count(c.id) from Category c " + selection;
@@ -130,7 +131,7 @@ public class CategoryRepository {
 		return allEligible;
 	}
 
-	public static List<Category> doFindFiltered(EntityManager em, String name, Gender gender, AgeDivision ageDivision,
+	public static List<Category> doFindFiltered(EntityManager em, String name, Gender gender, Championship ageDivision,
 	        AgeGroup ageGroup, Integer age, Double bodyWeight, Boolean active, int offset, int limit) {
 		String qlString = "select c from Category c"
 		        + filteringSelection(name, gender, ageDivision, ageGroup, age, bodyWeight, active)
@@ -154,7 +155,7 @@ public class CategoryRepository {
 	 * @return active categories
 	 */
 	public static List<Category> findActive() {
-		List<Category> findFiltered = findFiltered((String) null, (Gender) null, (AgeDivision) null, (AgeGroup) null,
+		List<Category> findFiltered = findFiltered((String) null, (Gender) null, (Championship) null, (AgeGroup) null,
 		        (Integer) null, (Double) null,
 		        true, -1, -1);
 		findFiltered.sort(new RegistrationPreferenceComparator());
@@ -162,7 +163,7 @@ public class CategoryRepository {
 	}
 
 	public static Collection<Category> findActive(Gender gender, Double bodyWeight) {
-		List<Category> findFiltered = findFiltered((String) null, gender, (AgeDivision) null, (AgeGroup) null,
+		List<Category> findFiltered = findFiltered((String) null, gender, (Championship) null, (AgeGroup) null,
 		        (Integer) null,
 		        bodyWeight, true, -1, -1);
 		// sort comparison to put more specific category age before. M30 before O21, O21
@@ -197,7 +198,7 @@ public class CategoryRepository {
 
 	public static List<Category> findByGenderAgeBW(Gender gender, Integer age, Double bodyWeight) {
 		Boolean active = true;
-		List<Category> findFiltered = findFiltered((String) null, gender, (AgeDivision) null, (AgeGroup) null, age,
+		List<Category> findFiltered = findFiltered((String) null, gender, (Championship) null, (AgeGroup) null, age,
 		        bodyWeight, active, -1, -1);
 		// sort comparison to put more specific category age before. M30 before O21, O21
 		// also before SR (MASTERS, then
@@ -206,7 +207,7 @@ public class CategoryRepository {
 		return findFiltered;
 	}
 
-	public static List<Category> findByGenderDivisionAgeBW(Gender gender, AgeDivision ageDivision, Integer age,
+	public static List<Category> findByGenderDivisionAgeBW(Gender gender, Championship ageDivision, Integer age,
 	        Double bodyWeight) {
 		Boolean active = true;
 		List<Category> findFiltered = findFiltered((String) null, gender, ageDivision, (AgeGroup) null, age, bodyWeight,
@@ -237,7 +238,7 @@ public class CategoryRepository {
 	 * @param limit       the limit
 	 * @return the list
 	 */
-	public static List<Category> findFiltered(String name, Gender gender, AgeDivision ageDivision, AgeGroup ageGroup,
+	public static List<Category> findFiltered(String name, Gender gender, Championship ageDivision, AgeGroup ageGroup,
 	        Integer age, Double bodyWeight, Boolean active, int offset, int limit) {
 		return JPAService.runInTransaction(em -> {
 			List<Category> doFindFiltered = doFindFiltered(em, name, gender, ageDivision, ageGroup, age, bodyWeight,
@@ -318,7 +319,7 @@ public class CategoryRepository {
 		}
 	}
 
-	private static String filteringSelection(String name, Gender gender, AgeDivision ageDivision, AgeGroup ageGroup,
+	private static String filteringSelection(String name, Gender gender, Championship ageDivision, AgeGroup ageGroup,
 	        Integer age, Double bodyWeight, Boolean active) {
 		String joins = filteringJoins(ageGroup, age);
 		String where = filteringWhere(name, ageDivision, ageGroup, age, bodyWeight, gender, active);
@@ -326,7 +327,7 @@ public class CategoryRepository {
 		return selection;
 	}
 
-	private static String filteringWhere(String name, AgeDivision ageDivision, AgeGroup ageGroup, Integer age,
+	private static String filteringWhere(String name, Championship ageDivision, AgeGroup ageGroup, Integer age,
 	        Double bodyWeight, Gender gender, Boolean active) {
 		List<String> whereList = new LinkedList<>();
 		if (ageDivision != null) {
@@ -363,7 +364,7 @@ public class CategoryRepository {
 		}
 	}
 
-	private static void setFilteringParameters(String name, Gender gender, AgeDivision ageDivision, AgeGroup ageGroup,
+	private static void setFilteringParameters(String name, Gender gender, Championship ageDivision, AgeGroup ageGroup,
 	        Integer age, Double bodyWeight, Boolean active, Query query) {
 		if (name != null && name.trim().length() > 0) {
 			// starts with

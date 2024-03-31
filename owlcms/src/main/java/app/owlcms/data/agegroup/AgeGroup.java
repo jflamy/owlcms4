@@ -34,7 +34,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -94,7 +93,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	Integer maxAge;
 	Integer minAge;
 	@Enumerated(EnumType.STRING)
-	private AgeDivision ageDivision;
+	private Championship ageDivision;
 	@OneToMany(mappedBy = "ageGroup", cascade = { CascadeType.ALL }, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<Category> categories = new ArrayList<>();
 	@Enumerated(EnumType.STRING)
@@ -109,7 +108,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	}
 
 	public AgeGroup(String code, boolean active, Integer minAge, Integer maxAge, Gender gender,
-	        AgeDivision ageDivision, Integer qualificationTotal) {
+	        Championship ageDivision, Integer qualificationTotal) {
 		this.active = active;
 		this.code = code;
 		this.minAge = minAge;
@@ -165,7 +164,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		        && Objects.equals(this.minAge, other.minAge);
 	}
 
-	public AgeDivision getAgeDivision() {
+	public Championship getAgeDivision() {
 		return this.ageDivision;
 	}
 
@@ -203,10 +202,10 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 		String value = null;
 		String translatedCode = getTranslatedCode(code2);
-		if (this.ageDivision == AgeDivision.MASTERS) {
+		if (this.ageDivision == Championship.MASTERS) {
 			value = translatedCode;
 		}
-		// else if (ageDivision == AgeDivision.DEFAULT) {
+		// else if (ageDivision == Championship.DEFAULT) {
 		// value = getTranslatedGender();
 		// }
 		else {
@@ -245,9 +244,9 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 		String value = null;
 		String translatedCode = getTranslatedCode(code2);
-		if (this.ageDivision == AgeDivision.MASTERS) {
+		if (this.ageDivision == Championship.MASTERS) {
 			value = translatedCode;
-		} else if (this.ageDivision == AgeDivision.DEFAULT) {
+		} else if (this.ageDivision == Championship.DEFAULT) {
 			value = getTranslatedGender();
 		} else {
 			value = translatedCode + " " + getTranslatedGender();
@@ -293,7 +292,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		this.active = active;
 	}
 
-	public void setAgeDivision(AgeDivision ageDivision) {
+	public void setAgeDivision(Championship ageDivision) {
 		this.ageDivision = ageDivision;
 	}
 

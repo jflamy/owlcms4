@@ -23,11 +23,11 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.data.provider.hierarchy.TreeData;
 
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
@@ -65,13 +65,13 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 		}
 	});
 
-	public TeamSelectionTreeData(String ageGroupPrefix, AgeDivision ageDivision, Gender gender, Ranking ranking,
+	public TeamSelectionTreeData(String ageGroupPrefix, Championship ageDivision, Gender gender, Ranking ranking,
 	        boolean includeNotDone) {
 		this.setRanking(ranking);
 		init(ageGroupPrefix, ageDivision, gender, includeNotDone);
 	}
 
-	public Collection<Participation> findAll(String ageGroupPrefix, AgeDivision ageDivision, Gender genderFilterValue,
+	public Collection<Participation> findAll(String ageGroupPrefix, Championship ageDivision, Gender genderFilterValue,
 	        Category catFilterValue, String teamFilterValue) {
 		if (ageGroupPrefix == null && ageDivision == null) {
 			return new ArrayList<>();
@@ -169,7 +169,7 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 	private void buildTeamItemTree(
 	        Collection<Participation> participations,
 	        String ageGroupPrefix,
-	        AgeDivision ageDivision,
+	        Championship ageDivision,
 	        boolean includeNotDone) {
 
 		if (ageDivision == null) {
@@ -282,7 +282,7 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 		return curTeamItem;
 	}
 
-	private void init(String ageGroupPrefix, AgeDivision ageDivision, Gender gender, boolean includeNotDone) {
+	private void init(String ageGroupPrefix, Championship ageDivision, Gender gender, boolean includeNotDone) {
 		if (this.debug) {
 			this.logger.setLevel(Level.DEBUG);
 		}

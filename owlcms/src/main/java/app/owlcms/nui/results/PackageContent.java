@@ -42,12 +42,12 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.ResultsParameters;
 import app.owlcms.components.JXLSDownloader;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
@@ -84,15 +84,15 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		logger.setLevel(Level.INFO);
 		jexlLogger.setLevel(Level.ERROR);
 	}
-	protected ComboBox<AgeDivision> topBarAgeDivisionSelect;
+	protected ComboBox<Championship> topBarAgeDivisionSelect;
 	protected ComboBox<String> topBarAgeGroupPrefixSelect;
-	private AgeDivision ageDivision;
+	private Championship ageDivision;
 	private String ageGroupPrefix;
 	private ComboBox<Category> categoryFilter;
 	private Category categoryValue;
 	private Group currentGroup;
 	private JXLSDownloader downloadDialog;
-	private List<AgeDivision> adItems;
+	private List<Championship> adItems;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private List<String> ageDivisionAgeGroupPrefixes;
 	private AgeGroup ageGroup;
@@ -193,7 +193,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	@Override
-	public AgeDivision getAgeDivision() {
+	public Championship getAgeDivision() {
 		return this.ageDivision;
 	}
 
@@ -249,7 +249,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	@Override
-	public void setAgeDivision(AgeDivision ageDivision) {
+	public void setAgeDivision(Championship ageDivision) {
 		// logger.debug("setAgeDivision to {} from {}",ageDivision,
 		// LoggerUtils.whereFrom());
 		this.ageDivision = ageDivision;
@@ -367,7 +367,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
 		if (this.topBarAgeDivisionSelect == null) {
 			this.topBarAgeDivisionSelect = new ComboBox<>();
-			this.topBarAgeDivisionSelect.setPlaceholder(getTranslation("AgeDivision"));
+			this.topBarAgeDivisionSelect.setPlaceholder(getTranslation("Championship"));
 			this.topBarAgeDivisionSelect.setWidth("25ch");
 			this.adItems = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
 			this.topBarAgeDivisionSelect.setItems(this.adItems);
@@ -425,7 +425,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		AgeDivision urlAD = getAgeDivision();
+		Championship urlAD = getAgeDivision();
 		String urlAG = getAgeGroupPrefix();
 
 		setAgeDivisionSelectionListener();
@@ -458,7 +458,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			// logger.debug("topBarAgeDivisionSelect {}",e.getValue());
 			// the name of the resulting file is set as an attribute on the <a href tag that
 			// surrounds the packageDownloadButton button.
-			AgeDivision ageDivisionValue = e.getValue();
+			Championship ageDivisionValue = e.getValue();
 			setAgeDivision(ageDivisionValue);
 			if (ageDivisionValue == null) {
 				this.topBarAgeGroupPrefixSelect.setValue(null);
@@ -475,7 +475,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			boolean notEmpty = this.ageDivisionAgeGroupPrefixes.size() > 0;
 			// logger.debug("ageDivisionAgeGroupPrefixes {}",ageDivisionAgeGroupPrefixes);
 			this.topBarAgeGroupPrefixSelect.setEnabled(notEmpty);
-			String first = (notEmpty && ageDivisionValue == AgeDivision.IWF)
+			String first = (notEmpty && ageDivisionValue == Championship.IWF)
 			        || (this.ageDivisionAgeGroupPrefixes.size() == 1) ? this.ageDivisionAgeGroupPrefixes.get(0)
 			                : null;
 
@@ -617,7 +617,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		return this.categoryValue;
 	}
 
-	private void updateCategoryFilter(AgeDivision ageDivision2, String ageGroupPrefix2) {
+	private void updateCategoryFilter(Championship ageDivision2, String ageGroupPrefix2) {
 		List<Category> categories = CategoryRepository.findByGenderDivisionAgeBW(this.genderFilter.getValue(),
 		        getAgeDivision(), null, null);
 		if (getAgeGroupPrefix() != null && !getAgeGroupPrefix().isBlank()) {

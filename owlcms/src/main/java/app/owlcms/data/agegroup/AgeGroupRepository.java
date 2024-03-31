@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
@@ -65,12 +64,12 @@ public class AgeGroupRepository {
 		return nAgeGroup;
 	}
 
-	public static List<AgeDivision> allAgeDivisionsForAllAgeGroups() {
+	public static List<Championship> allAgeDivisionsForAllAgeGroups() {
 		return JPAService.runInTransaction((em) -> {
-			TypedQuery<AgeDivision> q = em.createQuery(
+			TypedQuery<Championship> q = em.createQuery(
 			        "select distinct ag.ageDivision from Participation p join p.category c join c.ageGroup ag",
-			        AgeDivision.class);
-			List<AgeDivision> resultSet = q.getResultList();
+			        Championship.class);
+			List<Championship> resultSet = q.getResultList();
 			return resultSet;
 		});
 	}
@@ -98,7 +97,7 @@ public class AgeGroupRepository {
 	// allParticipationsForAgeDivision
 
 	public static List<Participation> allParticipationsForAgeGroupAgeDivision(String ageGroupPrefix,
-	        AgeDivision ageDivision) {
+	        Championship ageDivision) {
 		List<Participation> participations = JPAService.runInTransaction(em -> {
 
 			List<String> whereList = new ArrayList<>();
@@ -178,7 +177,7 @@ public class AgeGroupRepository {
 		return parts.stream().map(p -> new PAthlete(p)).collect(Collectors.toList());
 	}
 
-	public static List<Athlete> allPAthletesForAgeGroupAgeDivision(String ageGroupPrefix, AgeDivision ageDivision) {
+	public static List<Athlete> allPAthletesForAgeGroupAgeDivision(String ageGroupPrefix, Championship ageDivision) {
 		List<Participation> participations = allParticipationsForAgeGroupAgeDivision(ageGroupPrefix, ageDivision);
 		List<Athlete> collect = participations.stream().map(p -> new PAthlete(p)).collect(Collectors.toList());
 		return collect;
@@ -204,7 +203,7 @@ public class AgeGroupRepository {
 	}
 
 	public static List<Athlete> allWeighedInPAthletesForAgeGroupAgeDivision(String ageGroupPrefix,
-	        AgeDivision ageDivision) {
+	        Championship ageDivision) {
 		List<Participation> participations = allParticipationsForAgeGroupAgeDivision(ageGroupPrefix, ageDivision);
 		List<Athlete> collect = participations.stream().map(p -> new PAthlete(p))
 		        .filter(a -> a.getBodyWeight() != null && a.getBodyWeight() > 0.1).collect(Collectors.toList());
@@ -249,12 +248,12 @@ public class AgeGroupRepository {
 	 * @return active categories
 	 */
 	public static List<AgeGroup> findActive() {
-		List<AgeGroup> findFiltered = findFiltered((String) null, (Gender) null, (AgeDivision) null, (Integer) null,
+		List<AgeGroup> findFiltered = findFiltered((String) null, (Gender) null, (Championship) null, (Integer) null,
 		        true, -1, -1);
 		return findFiltered;
 	}
 
-	public static List<String> findActiveAndUsed(AgeDivision ageDivisionValue) {
+	public static List<String> findActiveAndUsed(Championship ageDivisionValue) {
 
 		return JPAService.runInTransaction((em) -> {
 			if (ageDivisionValue == null) {
@@ -330,7 +329,7 @@ public class AgeGroupRepository {
 		});
 	}
 
-	public static List<AgeGroup> findFiltered(String name, Gender gender, AgeDivision ageDivision, Integer age,
+	public static List<AgeGroup> findFiltered(String name, Gender gender, Championship ageDivision, Integer age,
 	        boolean active, int offset, int limit) {
 
 		List<AgeGroup> findFiltered = JPAService.runInTransaction(em -> {
@@ -376,7 +375,7 @@ public class AgeGroupRepository {
 		return (AgeGroup) query.getResultList().stream().findFirst().orElse(null);
 	}
 
-	public static void insertAgeGroups(EntityManager em, EnumSet<AgeDivision> es) {
+	public static void insertAgeGroups(EntityManager em, EnumSet<Championship> es) {
 		try {
 			String localizedName = ResourceWalker.getLocalizedResourceName("/agegroups/AgeGroups.xlsx");
 			AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(es, localizedName);
@@ -385,7 +384,7 @@ public class AgeGroupRepository {
 		}
 	}
 
-	public static void insertAgeGroups(EntityManager em, EnumSet<AgeDivision> es, String resourceName) {
+	public static void insertAgeGroups(EntityManager em, EnumSet<Championship> es, String resourceName) {
 		try {
 			String localizedName = ResourceWalker.getLocalizedResourceName(resourceName);
 			AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(es, localizedName);
@@ -557,7 +556,7 @@ public class AgeGroupRepository {
 		return em.createQuery("select c from AgeGroup c order by c.ageDivision,c.minAge,c.maxAge").getResultList();
 	}
 
-	private static String filteringSelection(String name, Gender gender, AgeDivision ageDivision, Integer age,
+	private static String filteringSelection(String name, Gender gender, Championship ageDivision, Integer age,
 	        Boolean active) {
 		String joins = null;
 		String where = filteringWhere(name, ageDivision, age, gender, active);
@@ -565,7 +564,7 @@ public class AgeGroupRepository {
 		return selection;
 	}
 
-	private static String filteringWhere(String name, AgeDivision ageDivision, Integer age, Gender gender,
+	private static String filteringWhere(String name, Championship ageDivision, Integer age, Gender gender,
 	        Boolean active) {
 		List<String> whereList = new LinkedList<>();
 		if (ageDivision != null) {
@@ -591,7 +590,7 @@ public class AgeGroupRepository {
 		}
 	}
 
-	private static void setFilteringParameters(String name, Gender gender, AgeDivision ageDivision, Integer age,
+	private static void setFilteringParameters(String name, Gender gender, Championship ageDivision, Integer age,
 	        Boolean active, Query query) {
 		if (name != null && name.trim().length() > 0) {
 			// starts with

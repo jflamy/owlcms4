@@ -35,6 +35,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.i18n.Translator;
@@ -406,7 +407,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 			return 0;
 		}
 		int wr = 0;
-		if (this.ageGroup.getAgeDivision() != AgeDivision.IWF) {
+		if (this.ageGroup.getAgeDivision() != Championship.IWF) {
 			wr = 0;
 		} else if (this.ageGroup.getMaxAge() == 999) {
 			wr = getWrSr();

@@ -17,8 +17,8 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.UI;
 
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -33,7 +33,7 @@ import net.sf.jxls.transformer.XLSTransformer;
 public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
 	private static final long serialVersionUID = 1L;
-	private AgeDivision ageDivision;
+	private Championship ageDivision;
 	private String ageGroupPrefix;
 	@SuppressWarnings("unused")
 	private Logger logger = LoggerFactory.getLogger(JXLSCompetitionBook.class);
@@ -50,7 +50,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 	 * @return the ageDivision
 	 */
 	@Override
-	public AgeDivision getAgeDivision() {
+	public Championship getAgeDivision() {
 		return this.ageDivision;
 	}
 
@@ -69,7 +69,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 	 * @param ageDivision the ageDivision to set
 	 */
 	@Override
-	public void setAgeDivision(AgeDivision ageDivision) {
+	public void setAgeDivision(Championship ageDivision) {
 		// logger.debug("set ad {} \\n{}",ageDivision,LoggerUtils.stackTrace());
 		this.ageDivision = ageDivision;
 	}

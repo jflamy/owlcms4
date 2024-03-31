@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.router.Location;
 
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
@@ -63,7 +63,7 @@ public interface ResultsParametersReader extends ResultsParameters, FOPParameter
 		try {
 			String ageDivisionName = (ageDivisionParams != null
 			        && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0) : null);
-			AgeDivision valueOf = AgeDivision.valueOf(ageDivisionName);
+			Championship valueOf = Championship.valueOf(ageDivisionName);
 			setAgeDivision(valueOf);
 		} catch (Exception e) {
 			setAgeDivision(null);

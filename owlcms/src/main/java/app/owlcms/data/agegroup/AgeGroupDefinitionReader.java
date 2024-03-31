@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.Main;
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.RobiCategories;
 import app.owlcms.data.competition.Competition;
@@ -46,7 +45,7 @@ public class AgeGroupDefinitionReader {
 	}
 
 	static void createAgeGroups(Workbook workbook, Map<String, Category> templates,
-	        EnumSet<AgeDivision> ageDivisionOverride,
+	        EnumSet<Championship> ageDivisionOverride,
 	        String localizedName) {
 
 		JPAService.runInTransaction(em -> {
@@ -87,7 +86,7 @@ public class AgeGroupDefinitionReader {
 						case 2: {
 							String cellValue = cell.getStringCellValue();
 							if (ag != null) {
-								ag.setAgeDivision(AgeDivision.getAgeDivisionFromCode(cellValue));
+								ag.setAgeDivision(Championship.getAgeDivisionFromCode(cellValue));
 							}
 						}
 							break;
@@ -122,10 +121,10 @@ public class AgeGroupDefinitionReader {
 							// explicit
 							// list of age divisions as override (e.g. to setup tests or demos)
 							if (ag != null) {
-								AgeDivision aDiv = ag.getAgeDivision();
+								Championship aDiv = ag.getAgeDivision();
 								boolean active = ageDivisionOverride == null ? explicitlyActive
 								        : ageDivisionOverride.stream()
-								                .anyMatch((Predicate<AgeDivision>) (ad) -> ad.equals(aDiv));
+								                .anyMatch((Predicate<Championship>) (ad) -> ad.equals(aDiv));
 								ag.setActive(active);
 							}
 						}
@@ -192,7 +191,7 @@ public class AgeGroupDefinitionReader {
 		});
 	}
 
-	static void doInsertRobiAndAgeGroups(EnumSet<AgeDivision> es, String localizedFileName) {
+	static void doInsertRobiAndAgeGroups(EnumSet<Championship> es, String localizedFileName) {
 		Logger mainLogger = Main.getStartupLogger();
 		Map<String, Category> templates = loadRobi(mainLogger);
 		InputStream ageGroupStream = findAgeGroupFile(localizedFileName, mainLogger);
@@ -215,7 +214,7 @@ public class AgeGroupDefinitionReader {
 		return ageGroupStream;
 	}
 
-	private static void loadAgeGroupStream(EnumSet<AgeDivision> es, String localizedName, Logger mainLogger,
+	private static void loadAgeGroupStream(EnumSet<Championship> es, String localizedName, Logger mainLogger,
 	        Map<String, Category> templates, InputStream localizedResourceAsStream1) {
 		try (Workbook workbook = WorkbookFactory
 		        .create(localizedResourceAsStream1)) {

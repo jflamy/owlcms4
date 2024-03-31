@@ -6,7 +6,7 @@
  *******************************************************************************/
 package app.owlcms.data.jpa;
 
-import static app.owlcms.data.category.AgeDivision.MASTERS;
+import static app.owlcms.data.agegroup.Championship.MASTERS;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,12 +18,12 @@ import javax.persistence.EntityManager;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
@@ -76,7 +76,7 @@ public class BenchmarkData {
 	 *
 	 * @param ageDivisions
 	 */
-	public static void insertInitialData(EnumSet<AgeDivision> ageDivisions) {
+	public static void insertInitialData(EnumSet<Championship> ageDivisions) {
 		JPAService.runInTransaction(em -> {
 			Competition competition = createDefaultCompetition(ageDivisions);
 			CompetitionRepository.save(competition);
@@ -129,12 +129,12 @@ public class BenchmarkData {
 			int minAge = 13;
 			int maxAge = 99;
 			if (ageGroup.startsWith("M") || ageGroup.startsWith("W")) {
-				// ageDivision = AgeDivision.MASTERS;
+				// ageDivision = Championship.MASTERS;
 				String s = ageGroup.substring(1);
 				minAge = Integer.parseInt(s);
 				maxAge = minAge + 5; // (exclusive)
 			} else {
-				// ageDivision = AgeDivision.IWF;
+				// ageDivision = Championship.IWF;
 				if (ageGroup.contentEquals("YTH")) {
 					minAge = 13;
 					maxAge = 17;
@@ -192,7 +192,7 @@ public class BenchmarkData {
 
 	}
 
-	private static Competition createDefaultCompetition(EnumSet<AgeDivision> ageDivisions) {
+	private static Competition createDefaultCompetition(EnumSet<Championship> ageDivisions) {
 		// RecordConfig rc = new RecordConfig(Arrays.asList());
 		// JPAService.runInTransaction(em -> {
 		// em.persist(rc);

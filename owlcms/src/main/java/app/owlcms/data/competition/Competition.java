@@ -41,6 +41,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -48,7 +49,6 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.athleteSort.WinningOrderComparator;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.config.Config;
@@ -392,7 +392,7 @@ public class Competition {
 		return this.reportingBeans;
 	}
 
-	synchronized public HashMap<String, Object> computeReportingInfo(String ageGroupPrefix, AgeDivision ad) {
+	synchronized public HashMap<String, Object> computeReportingInfo(String ageGroupPrefix, Championship ad) {
 		List<Athlete> athletes = AgeGroupRepository.allWeighedInPAthletesForAgeGroupAgeDivision(ageGroupPrefix, ad);
 		doComputeReportingInfo(true, athletes, ageGroupPrefix, ad);
 		return this.reportingBeans;
@@ -1400,7 +1400,7 @@ public class Competition {
 	}
 
 	private void doComputeReportingInfo(boolean full, List<Athlete> athletes, String ageGroupPrefix,
-	        AgeDivision ad) {
+	        Championship ad) {
 		// reporting does many database queries. fork a low-priority thread.
 		runInThread(() -> {
 			if (athletes.isEmpty()) {
@@ -1678,7 +1678,7 @@ public class Competition {
 	 * @param athletes
 	 * @param ageGroupPrefix
 	 */
-	private void teamRankingsForAgeDivision(AgeDivision ad) {
+	private void teamRankingsForAgeDivision(Championship ad) {
 		if (ad == null) {
 			return;
 		}

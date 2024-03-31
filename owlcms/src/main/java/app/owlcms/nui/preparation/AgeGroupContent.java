@@ -38,11 +38,11 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.ConfirmationDialog;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.i18n.Translator;
@@ -75,7 +75,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		logger.setLevel(Level.INFO);
 	}
 	private Checkbox activeFilter = new Checkbox();
-	private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
+	private ComboBox<Championship> ageDivisionFilter = new ComboBox<>();
 	private ComboBox<Resource> ageGroupDefinitionSelect;
 	private OwlcmsCrudFormFactory<AgeGroup> ageGroupEditingFormFactory;
 	private GridCrud<AgeGroup> crud;
@@ -297,12 +297,12 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		grid.addColumn(AgeGroup::getDisplayName).setHeader(getTranslation("Name"));
 		grid.addColumn(new TextRenderer<>(
 		        item -> {
-			        AgeDivision ageDivision = item.getAgeDivision();
+			        Championship ageDivision = item.getAgeDivision();
 			        logger.trace("createGrid age division {}", ageDivision);
 			        String tr = getTranslation("Division." + (ageDivision != null ? ageDivision.name() : "?"));
 			        return tr;
 		        }))
-		        .setHeader(getTranslation("AgeDivision"));
+		        .setHeader(getTranslation("Championship"));
 		grid.addColumn(new TextRenderer<>(
 		        item -> {
 			        return item.getGender().asGenderName();
@@ -334,8 +334,8 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		});
 		crud.getCrudLayout().addFilterComponent(this.nameFilter);
 
-		this.ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
-		this.ageDivisionFilter.setItems(AgeDivision.findAll());
+		this.ageDivisionFilter.setPlaceholder(getTranslation("Championship"));
+		this.ageDivisionFilter.setItems(Championship.findAll());
 		this.ageDivisionFilter.setItemLabelGenerator((ad) -> getTranslation("Division." + ad.name()));
 		this.ageDivisionFilter.setClearButtonVisible(true);
 		this.ageDivisionFilter.addValueChangeListener(e -> {

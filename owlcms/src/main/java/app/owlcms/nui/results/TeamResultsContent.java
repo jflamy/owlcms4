@@ -43,11 +43,11 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.team.TeamResultsTreeData;
@@ -87,8 +87,8 @@ public class TeamResultsContent extends BaseContent
 	protected FlexLayout topBar;
 	protected ComboBox<Group> topBarGroupSelect;
 	// private boolean teamFilterRecusion;
-	private List<AgeDivision> adItems;
-	private AgeDivision ageDivision;
+	private List<Championship> adItems;
+	private Championship ageDivision;
 	private String ageGroupPrefix;
 	private OwlcmsCrudGrid<TeamTreeItem> crudGrid;
 	private Group currentGroup;
@@ -98,7 +98,7 @@ public class TeamResultsContent extends BaseContent
 	// private ComboBox<Category> categoryFilter;
 	private ComboBox<Gender> genderFilter;
 	private OwlcmsLayout routerLayout;
-	private ComboBox<AgeDivision> topBarAgeDivisionSelect;
+	private ComboBox<Championship> topBarAgeDivisionSelect;
 	// private ComboBox<String> teamFilter;
 	private ComboBox<String> topBarAgeGroupPrefixSelect;
 	private JXLSCompetitionBook xlsWriter;
@@ -147,7 +147,7 @@ public class TeamResultsContent extends BaseContent
 		setAgeGroupPrefixSelectionListener();
 
 		this.topBarAgeDivisionSelect = new ComboBox<>();
-		this.topBarAgeDivisionSelect.setPlaceholder(getTranslation("AgeDivision"));
+		this.topBarAgeDivisionSelect.setPlaceholder(getTranslation("Championship"));
 		this.adItems = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
 		this.topBarAgeDivisionSelect.setItems(this.adItems);
 		this.topBarAgeDivisionSelect.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
@@ -194,7 +194,7 @@ public class TeamResultsContent extends BaseContent
 		return allTeams;
 	}
 
-	public AgeDivision getAgeDivision() {
+	public Championship getAgeDivision() {
 		return this.ageDivision;
 	}
 
@@ -238,7 +238,7 @@ public class TeamResultsContent extends BaseContent
 		this.crudGrid.refreshGrid();
 	}
 
-	public void setAgeDivision(AgeDivision ageDivision) {
+	public void setAgeDivision(Championship ageDivision) {
 		this.ageDivision = ageDivision;
 	}
 
@@ -445,7 +445,7 @@ public class TeamResultsContent extends BaseContent
 		OwlcmsCrudFormFactory<TeamTreeItem> crudFormFactory = new TeamItemResultsFormFactory(TeamTreeItem.class, this);
 		this.crudGrid = createCrudGrid(crudFormFactory);
 		fillHW(this.crudGrid, this);
-		AgeDivision value = (this.adItems != null && this.adItems.size() > 0) ? this.adItems.get(0) : null;
+		Championship value = (this.adItems != null && this.adItems.size() > 0) ? this.adItems.get(0) : null;
 		setAgeDivision(value);
 		this.topBarAgeDivisionSelect.setValue(value);
 	}
@@ -493,7 +493,7 @@ public class TeamResultsContent extends BaseContent
 		this.topBarAgeDivisionSelect.addValueChangeListener(e -> {
 			// the name of the resulting file is set as an attribute on the <a href tag that
 			// surrounds the download button.
-			AgeDivision ageDivisionValue = e.getValue();
+			Championship ageDivisionValue = e.getValue();
 			setAgeDivision(ageDivisionValue);
 			// logger.debug("ageDivisionSelectionListener {}",ageDivisionValue);
 			if (ageDivisionValue == null) {
@@ -511,7 +511,7 @@ public class TeamResultsContent extends BaseContent
 			this.topBarAgeGroupPrefixSelect.setItems(ageDivisionAgeGroupPrefixes);
 			boolean notEmpty = ageDivisionAgeGroupPrefixes.size() > 0;
 			this.topBarAgeGroupPrefixSelect.setEnabled(notEmpty);
-			String first = (notEmpty && ageDivisionValue == AgeDivision.IWF) ? ageDivisionAgeGroupPrefixes.get(0)
+			String first = (notEmpty && ageDivisionValue == Championship.IWF) ? ageDivisionAgeGroupPrefixes.get(0)
 			        : null;
 			// logger.debug("ad {} ag {} first {} select {}", ageDivisionValue,
 			// ageDivisionAgeGroupPrefixes, first,

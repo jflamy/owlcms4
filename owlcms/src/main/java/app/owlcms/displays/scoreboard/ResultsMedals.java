@@ -25,13 +25,13 @@ import com.vaadin.flow.component.dependency.JsModule;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.ResultsParameters;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.Ranking;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
@@ -73,7 +73,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	private boolean snatchCJTotalMedals;
 	private AgeGroup ageGroup;
 	private boolean teamFlags;
-	private AgeDivision ageDivision;
+	private Championship ageDivision;
 	private String ageGroupPrefix;
 
 	public ResultsMedals() {
@@ -114,7 +114,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	}
 
 	@Override
-	public AgeDivision getAgeDivision() {
+	public Championship getAgeDivision() {
 		return this.ageDivision;
 	}
 
@@ -139,7 +139,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	}
 
 	@Override
-	public void setAgeDivision(AgeDivision ageDivision) {
+	public void setAgeDivision(Championship ageDivision) {
 		this.ageDivision = ageDivision;
 	}
 

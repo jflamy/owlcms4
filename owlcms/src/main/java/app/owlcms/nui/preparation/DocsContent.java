@@ -34,12 +34,12 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.JXLSDownloader;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
@@ -73,7 +73,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		logger.setLevel(Level.INFO);
 		jexlLogger.setLevel(Level.ERROR);
 	}
-	private ComboBox<AgeDivision> ageDivisionFilter;
+	private ComboBox<Championship> ageDivisionFilter;
 	private ComboBox<String> ageGroupFilter;
 	private ComboBox<Platform> platformFilter;
 	private String groupName;
@@ -180,7 +180,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		try {
 			String ageDivisionName = (ageDivisionParams != null
 			        && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0) : null);
-			AgeDivision valueOf = AgeDivision.valueOf(ageDivisionName);
+			Championship valueOf = Championship.valueOf(ageDivisionName);
 			setAgeDivision(valueOf);
 			this.ageDivisionFilter.setValue(valueOf);
 		} catch (Exception e) {
@@ -483,8 +483,8 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		if (this.ageDivisionFilter == null) {
 			this.ageDivisionFilter = new ComboBox<>();
 		}
-		this.ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
-		List<AgeDivision> adItems = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
+		this.ageDivisionFilter.setPlaceholder(getTranslation("Championship"));
+		List<Championship> adItems = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
 		this.ageDivisionFilter.setItems(adItems);
 		this.ageDivisionFilter.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
 		this.ageDivisionFilter.setClearButtonVisible(true);

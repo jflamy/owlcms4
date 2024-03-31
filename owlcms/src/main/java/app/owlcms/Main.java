@@ -26,10 +26,10 @@ import org.apache.commons.beanutils.converters.DateConverter;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.AthleteRepository;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
@@ -236,7 +236,7 @@ public class Main {
 	private static void injectData(InitialData data,
 	        Locale locale) {
 		Locale l = (locale == null ? Locale.ENGLISH : locale);
-		EnumSet<AgeDivision> ageDivisions = masters ? EnumSet.of(AgeDivision.MASTERS, AgeDivision.U) : null;
+		EnumSet<Championship> ageDivisions = masters ? EnumSet.of(Championship.MASTERS, Championship.U) : null;
 		try {
 			Translator.setForcedLocale(l);
 			// if a reset was required (e.g. for demonstrations, or to reinitialize, this
@@ -264,7 +264,7 @@ public class Main {
 						DemoData.insertInitialData(1, ageDivisions);
 						break;
 					case BENCHMARK:
-						BenchmarkData.insertInitialData(EnumSet.of(AgeDivision.IWF, AgeDivision.MASTERS));
+						BenchmarkData.insertInitialData(EnumSet.of(Championship.IWF, Championship.MASTERS));
 						break;
 				}
 			} else {

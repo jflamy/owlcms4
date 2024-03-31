@@ -46,8 +46,8 @@ import com.vaadin.flow.server.InputStreamFactory;
 import com.vaadin.flow.server.StreamResourceWriter;
 import com.vaadin.flow.server.VaadinSession;
 
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
@@ -77,7 +77,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		tagLogger.setLevel(Level.ERROR);
 	}
 	protected List<Athlete> sortedAthletes;
-	private AgeDivision ageDivision;
+	private Championship ageDivision;
 	private String ageGroupPrefix;
 	private Category category;
 	private boolean excludeNotWeighed;
@@ -141,7 +141,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	/**
 	 * @return the ageDivision
 	 */
-	public AgeDivision getAgeDivision() {
+	public Championship getAgeDivision() {
 		return this.ageDivision;
 	}
 
@@ -212,7 +212,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		return this.excludeNotWeighed;
 	}
 
-	public void setAgeDivision(AgeDivision ageDivision) {
+	public void setAgeDivision(Championship ageDivision) {
 		this.ageDivision = ageDivision;
 	}
 

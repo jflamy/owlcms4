@@ -6,7 +6,7 @@
  *******************************************************************************/
 package app.owlcms.tests;
 
-import static app.owlcms.data.category.AgeDivision.MASTERS;
+import static app.owlcms.data.agegroup.Championship.MASTERS;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -21,12 +21,12 @@ import javax.persistence.EntityManager;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
@@ -63,7 +63,7 @@ public class TestData {
      */
     public static void insertInitialData(int nbAthletes, boolean testMode) {
         JPAService.runInTransaction(em -> {
-            EnumSet<AgeDivision> divisions = EnumSet.of(AgeDivision.IWF);
+            EnumSet<Championship> divisions = EnumSet.of(Championship.IWF);
             Competition competition = createDefaultCompetition(divisions);
             CompetitionRepository.save(competition);
             AgeGroupRepository.insertAgeGroups(em, divisions, "/agegroups/AgeGroups_Tests.xlsx");
@@ -110,7 +110,7 @@ public class TestData {
         logger.debug("athlete {} category {} participations {}", p, p.getCategory(), p.getParticipations());
     }
 
-    protected static Competition createDefaultCompetition(EnumSet<AgeDivision> ageDivisions) {
+    protected static Competition createDefaultCompetition(EnumSet<Championship> ageDivisions) {
         Competition competition = new Competition();
 
         competition.setCompetitionName("Spring Equinox Open");

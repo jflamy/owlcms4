@@ -17,12 +17,12 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.data.provider.hierarchy.TreeData;
 
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -40,7 +40,7 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 	private HashMap<String, Object> reportingBeans;
 	private Ranking ranking;
 
-	public TeamResultsTreeData(String ageGroupPrefix, AgeDivision ageDivision, Gender gender, Ranking ranking,
+	public TeamResultsTreeData(String ageGroupPrefix, Championship ageDivision, Gender gender, Ranking ranking,
 	        boolean includeNotDone) {
 		this.genderFilterValue = gender;
 		this.setRanking(ranking);
@@ -62,7 +62,7 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 	private void buildTeamItemTree(
 	        HashMap<String, Object> reportingBeans2,
 	        String ageGroupPrefix,
-	        AgeDivision ageDivision,
+	        Championship ageDivision,
 	        boolean includeNotDone) {
 		this.doneGroups = null; // force recompute.
 		if (ageDivision == null) {
@@ -234,7 +234,7 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 		return this.doneGroups.contains(a.getGroup());
 	}
 
-	private void init(String ageGroupPrefix, AgeDivision ageDivision, boolean includeNotDone) {
+	private void init(String ageGroupPrefix, Championship ageDivision, boolean includeNotDone) {
 		if (this.debug) {
 			this.logger.setLevel(Level.DEBUG);
 		}

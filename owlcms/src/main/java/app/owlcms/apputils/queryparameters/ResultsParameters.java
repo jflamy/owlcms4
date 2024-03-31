@@ -6,8 +6,8 @@ import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import ch.qos.logback.classic.Logger;
 
@@ -17,7 +17,7 @@ public interface ResultsParameters {
 	DecimalFormatSymbols symbolsEN_US = DecimalFormatSymbols.getInstance(Locale.US);
 	DecimalFormat formatEN_US = new DecimalFormat("0.000", symbolsEN_US);
 
-	public AgeDivision getAgeDivision();
+	public Championship getAgeDivision();
 
 	public AgeGroup getAgeGroup();
 
@@ -27,7 +27,7 @@ public interface ResultsParameters {
 
 	public boolean isVideo();
 
-	public void setAgeDivision(AgeDivision ad);
+	public void setAgeDivision(Championship ad);
 
 	public void setAgeGroup(AgeGroup ag);
 

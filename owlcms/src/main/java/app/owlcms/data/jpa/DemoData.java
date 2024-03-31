@@ -6,11 +6,11 @@
  *******************************************************************************/
 package app.owlcms.data.jpa;
 
+import static app.owlcms.data.agegroup.Championship.DEFAULT;
+import static app.owlcms.data.agegroup.Championship.MASTERS;
+import static app.owlcms.data.agegroup.Championship.U;
 import static app.owlcms.data.athlete.Gender.F;
 import static app.owlcms.data.athlete.Gender.M;
-import static app.owlcms.data.category.AgeDivision.DEFAULT;
-import static app.owlcms.data.category.AgeDivision.MASTERS;
-import static app.owlcms.data.category.AgeDivision.U;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,12 +22,12 @@ import javax.persistence.EntityManager;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
@@ -58,7 +58,7 @@ public class DemoData {
 	 * @param nbAthletes   how many athletes
 	 * @param ageDivisions
 	 */
-	public static void insertInitialData(int nbAthletes, EnumSet<AgeDivision> ageDivisions) {
+	public static void insertInitialData(int nbAthletes, EnumSet<Championship> ageDivisions) {
 		JPAService.runInTransaction(em -> {
 			Competition competition = createDefaultCompetition(ageDivisions);
 			CompetitionRepository.save(competition);
@@ -93,7 +93,7 @@ public class DemoData {
 	}
 
 	protected static void createAthlete(EntityManager em, Random r, Athlete p, double nextDouble, int catMax,
-	        AgeDivision ageDivision, int minAge, int maxAge, Gender gender) {
+	        Championship ageDivision, int minAge, int maxAge, Gender gender) {
 		int referenceYear = LocalDate.now().getYear();
 		LocalDate baseDate = LocalDate.of(referenceYear, 12, 31);
 
@@ -128,7 +128,7 @@ public class DemoData {
 
 	}
 
-	protected static Competition createDefaultCompetition(EnumSet<AgeDivision> ageDivisions) {
+	protected static Competition createDefaultCompetition(EnumSet<Championship> ageDivisions) {
 		// RecordConfig rc = new RecordConfig(Arrays.asList());
 		// JPAService.runInTransaction(em -> {
 		// em.persist(rc);
@@ -158,7 +158,7 @@ public class DemoData {
 	}
 
 	protected static void createGroup(EntityManager em, Group group, final String[] fnames, final String[] lnames,
-	        Random r, int cat1, int cat2, int liftersToLoad, AgeDivision ageDivision, int min, int max,
+	        Random r, int cat1, int cat2, int liftersToLoad, Championship ageDivision, int min, int max,
 	        Gender gender) {
 		if (liftersToLoad < 1) {
 			liftersToLoad = 1;
@@ -207,7 +207,7 @@ public class DemoData {
 	 * @param w             the w
 	 * @param c             the c
 	 */
-	protected static void setupDemoData(EntityManager em, int liftersToLoad, EnumSet<AgeDivision> ageDivisions) {
+	protected static void setupDemoData(EntityManager em, int liftersToLoad, EnumSet<Championship> ageDivisions) {
 
 		LocalDateTime c = LocalDateTime.now();
 
@@ -246,7 +246,7 @@ public class DemoData {
 	}
 
 	private static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupM1, Group groupM2,
-	        Group groupF1, Group groupY1, EnumSet<AgeDivision> ageDivisions) {
+	        Group groupF1, Group groupY1, EnumSet<Championship> ageDivisions) {
 		final String[] lnames = { "Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller", "Wilson",
 		        "Moore", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris", "Martin", "Thompson", "Garcia",
 		        "Martinez", "Robinson", "Clark", "Rodriguez", "Lewis", "Lee", "Walker", "Hall", "Allen", "Young",

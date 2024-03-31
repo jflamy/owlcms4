@@ -19,10 +19,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import app.owlcms.Main;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
@@ -65,7 +65,7 @@ public class AthleteTest {
         athlete.setCleanJerk1Declaration("80");
         athlete.setYearOfBirth(1900);
         Category registrationCategory = new Category(67.0, 73.0, Gender.M, true, 0, 0, 348,
-                new AgeGroup("SR", true, 15, 999, Gender.M, AgeDivision.IWF, 0),
+                new AgeGroup("SR", true, 15, 999, Gender.M, Championship.IWF, 0),
                 0);
         athlete.setEligibleCategories(new LinkedHashSet<>(Arrays.asList(registrationCategory)));
         athlete.setCategory(registrationCategory);

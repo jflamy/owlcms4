@@ -10,6 +10,7 @@ import java.util.Comparator;
 
 import org.apache.commons.lang3.ObjectUtils;
 
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
 
 /**
@@ -48,8 +49,8 @@ public class RegistrationPreferenceComparator implements Comparator<Category> {
 		} else if (c1 != null && c2 != null) {
 			AgeGroup ag1 = c1.getAgeGroup();
 			AgeGroup ag2 = c2.getAgeGroup();
-			AgeDivision ad1 = (ag1 != null ? ag1.getAgeDivision() : null);
-			AgeDivision ad2 = (ag2 != null ? ag2.getAgeDivision() : null);
+			Championship ad1 = (ag1 != null ? ag1.getAgeDivision() : null);
+			Championship ad2 = (ag2 != null ? ag2.getAgeDivision() : null);
 
 			int compare = 0;
 			if (ad1 != null && ad2 != null && ag1 != null && ag2 != null) {

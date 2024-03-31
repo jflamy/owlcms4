@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.data.category;
+package app.owlcms.data.agegroup;
 
 import java.util.Collection;
 import java.util.EnumSet;
@@ -14,11 +14,11 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
 
 /**
- * The Enum AgeDivision.
+ * The Enum Championship.
  *
  * Divisions are listed in registration preference order.
  */
-public enum AgeDivision {
+public enum Championship {
 
     /*
      * the divisions are listed in preference order, from more specific to more generic
@@ -33,16 +33,16 @@ public enum AgeDivision {
 	SPECIAL;
 
 	@SuppressWarnings("unused")
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(AgeDivision.class);
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(Championship.class);
 
 	/**
 	 * Find all.
 	 *
 	 * @return the collection
 	 */
-	public static Collection<AgeDivision> findAll() {
-		return EnumSet.of(AgeDivision.DEFAULT, AgeDivision.IWF, AgeDivision.U, AgeDivision.MASTERS);
-		// return Arrays.asList(AgeDivision.values());
+	public static Collection<Championship> findAll() {
+		return EnumSet.of(Championship.DEFAULT, Championship.IWF, Championship.U, Championship.MASTERS);
+		// return Arrays.asList(Championship.values());
 	}
 
 	/**
@@ -51,16 +51,16 @@ public enum AgeDivision {
 	 * @param code the code
 	 * @return the age division from code
 	 */
-	static public AgeDivision getAgeDivisionFromCode(String code) {
+	static public Championship getAgeDivisionFromCode(String code) {
 		if (code == null) {
 			return null;
 		}
-		for (AgeDivision curAD : AgeDivision.values()) {
+		for (Championship curAD : Championship.values()) {
 			if (code.equalsIgnoreCase(curAD.name())) {
 				return curAD;
 			}
 		}
-		return AgeDivision.DEFAULT;
+		return Championship.DEFAULT;
 	}
 
 	/**
