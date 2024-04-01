@@ -51,7 +51,7 @@ In this example, OBS is running on the machine that controls the attempt board. 
 
 We define a "Group is done" macro as follows:
 
-1. The top part is for the conditions that will trigger our scene change. We the status monitor window. 
+1. The top part is for the conditions that will trigger our scene change. We will watch the title of all open windows. One of them will be our status monitoring window, and our conditions will be based on what we expect to see in the title of that window. 
    - The scene switcher checks every few hundred milliseconds for changes in the window titles.  
    - We want a match for `break=BREAK.GROUP_DONE.*$` 
      Note that `.*$` reads "anything up to the end".  We add this because otherwise the match would be on the exact title, and our title is longer (it includes the previous state and what platform we are on).
