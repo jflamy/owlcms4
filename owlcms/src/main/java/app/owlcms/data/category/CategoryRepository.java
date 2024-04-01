@@ -384,7 +384,7 @@ public class CategoryRepository {
 			query.setParameter("bodyWeight", bodyWeight);
 		}
 		if (ageDivision != null) {
-			query.setParameter("division", ageDivision); // ageDivision is a string
+			query.setParameter("division", ageDivision.getName()); // ageDivision is a string
 		}
 		if (gender != null) {
 			query.setParameter("gender", gender);

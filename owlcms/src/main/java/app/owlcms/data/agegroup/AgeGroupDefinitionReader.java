@@ -66,6 +66,7 @@ public class AgeGroupDefinitionReader {
 				double curMin = 0.0D;
 
 				Iterator<Cell> cellIterator = row.cellIterator();
+				String championshipName = null;
 				while (cellIterator.hasNext()) {
 					Cell cell = cellIterator.next();
 					switch (iColumn) {
@@ -82,12 +83,14 @@ public class AgeGroupDefinitionReader {
 						}
 							break;
 						case 1:
+							championshipName = cell.getStringCellValue();
+							if (championshipName != null && !championshipName.isBlank()) {
+								ag.setChampionshipName(championshipName);
+							}
 							break;
 						case 2: {
 							String cellValue = cell.getStringCellValue();
-							if (ag != null) {
-								ag.setAgeDivision(Championship.getAgeDivisionFromCode(cellValue));
-							}
+							ag.setAgeDivision(cellValue);
 						}
 							break;
 						case 3: {
@@ -121,7 +124,7 @@ public class AgeGroupDefinitionReader {
 							// explicit
 							// list of age divisions as override (e.g. to setup tests or demos)
 							if (ag != null) {
-								Championship aDiv = ag.getAgeDivision();
+								Championship aDiv = ag.getChampionship();
 								boolean active = ageDivisionOverride == null ? explicitlyActive
 								        : ageDivisionOverride.stream()
 								                .anyMatch((Predicate<Championship>) (ad) -> ad.equals(aDiv));
@@ -130,7 +133,15 @@ public class AgeGroupDefinitionReader {
 						}
 							break;
 						default: {
-							String cellValue = cell.getStringCellValue();
+							String cellValue = null;
+							try {
+								cellValue = cell.getStringCellValue();
+							} catch (IllegalStateException e) {
+								Double doubleValue = cell.getNumericCellValue();
+								if (doubleValue != null) {
+									cellValue = Integer.toString(doubleValue.intValue());
+								}
+							}
 							if (cellValue != null && !cellValue.trim().isEmpty()) {
 								String[] parts = cellValue.split("[-_. /]");
 								String catCode = parts.length > 0 ? parts[0] : cellValue;
@@ -196,7 +207,6 @@ public class AgeGroupDefinitionReader {
 		Map<String, Category> templates = loadRobi(mainLogger);
 		InputStream ageGroupStream = findAgeGroupFile(localizedFileName, mainLogger);
 		loadAgeGroupStream(es, localizedFileName, mainLogger, templates, ageGroupStream);
-
 	}
 
 	private static Object cellName(int iColumn, int iRow) {
@@ -221,6 +231,7 @@ public class AgeGroupDefinitionReader {
 			logger.info("loading age group configuration file {}", localizedName);
 			mainLogger.info("loading age group definitions {}", localizedName);
 			createAgeGroups(workbook, templates, es, localizedName);
+			Championship.reset();
 		} catch (Exception e) {
 			logger.error("could not process ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e));
 			mainLogger.error("could not process ageGroup configuration. See logs for details");

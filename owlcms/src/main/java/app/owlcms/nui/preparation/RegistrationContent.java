@@ -554,7 +554,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 		this.ageDivisionFilter.setPlaceholder(Translator.translate("Championship"));
 		this.ageDivisionFilter.setItems(Championship.findAll());
-		this.ageDivisionFilter.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
+		this.ageDivisionFilter.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.getName()));
 		this.ageDivisionFilter.setClearButtonVisible(true);
 		this.ageDivisionFilter.addValueChangeListener(e -> {
 			setAgeDivision(e.getValue());
@@ -804,7 +804,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		String ag = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
 		updateURLLocation(UI.getCurrent(), getLocation(), "ag",
 		        ag);
-		String ad = getAgeDivision() != null ? getAgeDivision().name() : null;
+		String ad = getAgeDivision() != null ? getAgeDivision().getName() : null;
 		updateURLLocation(UI.getCurrent(), getLocation(), "ad",
 		        ad);
 		String cat = getCategoryValue() != null ? getCategoryValue().getComputedCode() : null;

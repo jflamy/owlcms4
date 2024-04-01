@@ -369,9 +369,9 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			this.topBarAgeDivisionSelect = new ComboBox<>();
 			this.topBarAgeDivisionSelect.setPlaceholder(getTranslation("Championship"));
 			this.topBarAgeDivisionSelect.setWidth("25ch");
-			this.adItems = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
+			this.adItems = Championship.findAllUsed();
 			this.topBarAgeDivisionSelect.setItems(this.adItems);
-			this.topBarAgeDivisionSelect.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
+			this.topBarAgeDivisionSelect.setItemLabelGenerator((ad) -> ad.translate());
 			this.topBarAgeDivisionSelect.setClearButtonVisible(true);
 			this.topBarAgeDivisionSelect.getStyle().set("margin-left", "1em");
 			// logger.debug("adItems {}",adItems);
@@ -469,13 +469,13 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 				return;
 			}
 
-			this.ageDivisionAgeGroupPrefixes = AgeGroupRepository.findActiveAndUsed(ageDivisionValue);
+			this.ageDivisionAgeGroupPrefixes = AgeGroupRepository.findActiveAndUsedAgeGroups(ageDivisionValue);
 
 			this.topBarAgeGroupPrefixSelect.setItems(this.ageDivisionAgeGroupPrefixes);
 			boolean notEmpty = this.ageDivisionAgeGroupPrefixes.size() > 0;
 			// logger.debug("ageDivisionAgeGroupPrefixes {}",ageDivisionAgeGroupPrefixes);
 			this.topBarAgeGroupPrefixSelect.setEnabled(notEmpty);
-			String first = (notEmpty && ageDivisionValue == Championship.IWF)
+			String first = (notEmpty && ageDivisionValue == Championship.of(Championship.IWF))
 			        || (this.ageDivisionAgeGroupPrefixes.size() == 1) ? this.ageDivisionAgeGroupPrefixes.get(0)
 			                : null;
 
@@ -509,7 +509,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		String ag = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
 		updateURLLocation(UI.getCurrent(), getLocation(), "ag",
 		        ag);
-		String ad = getAgeDivision() != null ? getAgeDivision().name() : null;
+		String ad = getAgeDivision() != null ? getAgeDivision().getName() : null;
 		updateURLLocation(UI.getCurrent(), getLocation(), "ad",
 		        ad);
 		String cat = getCategoryValue() != null ? getCategoryValue().getComputedCode() : null;

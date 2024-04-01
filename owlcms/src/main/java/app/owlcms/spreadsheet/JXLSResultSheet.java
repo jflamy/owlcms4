@@ -97,7 +97,7 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
                             : true))
                 .filter(a -> {
                     AgeGroup ageGroup = a.getAgeGroup();
-                    Championship ageDivision2 = ageGroup != null ? ageGroup.getAgeDivision() : null;
+                    Championship ageDivision2 = ageGroup != null ? ageGroup.getChampionship() : null;
                     return (
                         currentAgeDivision != null
                             ? (ageDivision2 != null ?

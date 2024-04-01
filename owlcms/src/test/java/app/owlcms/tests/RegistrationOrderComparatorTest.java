@@ -38,7 +38,10 @@ public class RegistrationOrderComparatorTest {
         Config.initConfig();
         JPAService.runInTransaction(em -> {
             Competition.setCurrent(new Competition());
-            AgeGroupRepository.insertAgeGroups(em, Set.of(Championship.IWF, Championship.MASTERS, Championship.U));
+            AgeGroupRepository.insertAgeGroups(em, Set.of(
+            		Championship.of(Championship.IWF),
+            		Championship.of(Championship.MASTERS),
+            		Championship.of(Championship.U)));
             return null;
         });
     }

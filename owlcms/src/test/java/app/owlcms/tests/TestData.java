@@ -6,8 +6,6 @@
  *******************************************************************************/
 package app.owlcms.tests;
 
-import static app.owlcms.data.agegroup.Championship.MASTERS;
-
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -63,7 +61,7 @@ public class TestData {
      */
     public static void insertInitialData(int nbAthletes, boolean testMode) {
         JPAService.runInTransaction(em -> {
-            Set<Championship> divisions = Set.of(Championship.IWF);
+            Set<Championship> divisions = Set.of(Championship.of(Championship.IWF));
             Competition competition = createDefaultCompetition(divisions);
             CompetitionRepository.save(competition);
             AgeGroupRepository.insertAgeGroups(em, divisions, "/agegroups/AgeGroups_Tests.xlsx");
@@ -124,7 +122,7 @@ public class TestData {
         competition.setFederationWebSite("http://national-weightlifting.org");
 
         competition.setEnforce20kgRule(true);
-        competition.setMasters(ageDivisions != null && ageDivisions.contains(MASTERS));
+        competition.setMasters(ageDivisions != null && ageDivisions.contains(Championship.of(Championship.MASTERS)));
         competition.setUseBirthYear(true);
         competition.setAnnouncerLiveDecisions(true);
 

@@ -63,13 +63,13 @@ public interface ResultsParametersReader extends ResultsParameters, FOPParameter
 		try {
 			String ageDivisionName = (ageDivisionParams != null
 			        && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0) : null);
-			Championship valueOf = Championship.valueOf(ageDivisionName);
+			Championship valueOf = Championship.of(ageDivisionName);
 			setAgeDivision(valueOf);
 		} catch (Exception e) {
 			setAgeDivision(null);
 		}
 		// remove if now null
-		String value = getAgeDivision() != null ? getAgeDivision().name() : null;
+		String value = getAgeDivision() != null ? getAgeDivision().getName() : null;
 		updateParam(newParameterMap, AGEDIVISION, value);
 
 		List<String> ageGroupParams = newParameterMap.get(AGEGROUP_PREFIX);

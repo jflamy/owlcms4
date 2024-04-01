@@ -49,7 +49,7 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 				Row curRow = sheet.createRow(rowNum);
 				curRow.createCell(0).setCellValue(ag.getCode());
 				curRow.createCell(1).setCellValue("");
-				curRow.createCell(2).setCellValue(ag.getAgeDivision().name());
+				curRow.createCell(2).setCellValue(ag.getChampionship().getName());
 				curRow.createCell(3).setCellValue(ag.getGender().name());
 				curRow.createCell(4).setCellValue(ag.getMinAge());
 				curRow.createCell(5).setCellValue(ag.getMaxAge());

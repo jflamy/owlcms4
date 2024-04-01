@@ -6,11 +6,16 @@
  *******************************************************************************/
 package app.owlcms.data.agegroup;
 
-import java.util.Collection;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -20,74 +25,129 @@ import ch.qos.logback.classic.Logger;
  */
 public class Championship implements Comparable<Championship> {
 
-//    /*
-//     * the divisions are listed in preference order, from more specific to more generic
-//     */
-//	MASTERS,
-//	/** 35+ (30+ in some federations) */
-//	U,
-//	/** for age groups */
-//	OLY,
-//	IWF,
-//	DEFAULT, /* All ages */
-//	SPECIAL;
-
+	public static final String MASTERS = ChampionshipType.MASTERS.name();
+	public static final String U = ChampionshipType.U.name();
+	public static final String IWF = ChampionshipType.IWF.name();
+	public static final String OLY = ChampionshipType.OLY.name();
+	public static final String DEFAULT = ChampionshipType.DEFAULT.name();
+	public static final String ADAPTIVE = ChampionshipType.ADAPTIVE.name();
 	@SuppressWarnings("unused")
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(Championship.class);
-	public static final Championship IWF = new Championship("IWF");
-	public static final Championship DEFAULT = new Championship("DEFAULT");
-	public static final Championship MASTERS = new Championship("MASTERS");
-	public static final Championship U = new Championship("U");
-	private String code;
-
-	public Championship(String string) {
-		this.code = string;
-	}
+	private static Map<String, Championship> allChampionshipsMap;
+	private static List<Championship> allChampionshipsList;
+	static Comparator<Championship> ct = Comparator.comparing(Championship::getType)
+	        .thenComparing(Championship::getName);
 
 	/**
 	 * Find all.
 	 *
 	 * @return the collection
 	 */
-	public static Collection<Championship> findAll() {
-		return Set.of(Championship.DEFAULT, Championship.IWF, Championship.U, Championship.MASTERS);
-		// return Arrays.asList(Championship.values());
+	public static List<Championship> findAll() {
+		if (allChampionshipsMap == null || allChampionshipsMap.isEmpty()) {
+			allChampionshipsMap = new HashMap<>();
+
+			// default championships, always present.
+			allChampionshipsMap.put(U, new Championship(ChampionshipType.U));
+			allChampionshipsMap.put(MASTERS, new Championship(ChampionshipType.MASTERS));
+			allChampionshipsMap.put(OLY, new Championship(ChampionshipType.OLY));
+			allChampionshipsMap.put(IWF, new Championship(ChampionshipType.IWF));
+			allChampionshipsMap.put(DEFAULT, new Championship(ChampionshipType.DEFAULT));
+			allChampionshipsMap.put(ADAPTIVE, new Championship(ChampionshipType.ADAPTIVE));
+
+			// additional championships.
+			List<String> allChampionships = AgeGroupRepository.allChampionshipsForAllAgeGroups();
+
+			for (String s : allChampionships) {
+				String typeString = null;
+				String nameString = null;
+				if (s.contains("¤")) {
+					String[] arr = s.split("¤");
+					typeString = arr[1];
+					nameString = arr[0];
+				} else {
+					typeString = s;
+					nameString = s;
+				}
+				if (allChampionshipsMap.get(nameString) == null) {
+					allChampionshipsMap.put(nameString,
+					        new Championship(nameString, ChampionshipType.valueOf(typeString)));
+				}
+			}
+			allChampionshipsList = new ArrayList<>(allChampionshipsMap.values());
+			allChampionshipsList.sort(Championship::compareTo);
+		}
+		return allChampionshipsList;
+	}
+
+	public static List<Championship> findAllUsed() {
+		var results = new ArrayList<Championship>();
+		findAll();
+		List<String> names = AgeGroupRepository.allActiveChampionshipsNames();
+		logger.warn("names = {}",names);
+		for (String n : names) {
+			Championship of = Championship.of(n);
+			results.add(of);
+		}
+		results.sort(ct.reversed());
+		return results;
 	}
 
 	/**
-	 * Gets the age division from code.
+	 * Gets the age division from name.
 	 *
-	 * @param code the code
-	 * @return the age division from code
+	 * @param name the name
+	 * @return the age division from name
 	 */
-	static public Championship getAgeDivisionFromCode(String code) {
-		if (code == null) {
+	static public Championship getChampionshipFromName(String name) {
+		if (name == null) {
 			return null;
 		}
-		for (Championship curAD : Championship.values()) {
-			if (code.equalsIgnoreCase(curAD.name())) {
-				return curAD;
-			}
-		}
-		return Championship.DEFAULT;
+		Championship value = of(name);
+		return value != null ? value : of(Championship.DEFAULT);
 	}
 
-	public String name() {
-		return code;
+	public static Championship of(String championshipName) {
+		if (allChampionshipsMap == null) {
+			findAll();
+		}
+		return allChampionshipsMap.get(championshipName);
+	}
+
+	public static void reset() {
+		allChampionshipsMap = null;
+		allChampionshipsList = null;
+		findAll();
 	}
 
 	public static Championship[] values() {
-		// TODO Auto-generated method stub
-		return null;
+		return (Championship[]) findAll().toArray();
 	}
 
-	/**
-	 * Gets the code.
-	 *
-	 * @return the code
-	 */
-	public String getCode() {
-		return (isDefault() ? "" : name().substring(0, 1).toLowerCase());
+	private String name;
+	private ChampionshipType type;
+
+	public Championship(ChampionshipType type) {
+		this.name = type.name();
+		this.setType(type);
+	}
+
+	public Championship(String name, ChampionshipType type) {
+		this.name = name;
+		this.setType(type);
+	}
+
+	@Override
+	public int compareTo(Championship o) {
+		return ct.compare(this, o);
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public ChampionshipType getType() {
+		return this.type;
 	}
 
 	/**
@@ -96,17 +156,21 @@ public class Championship implements Comparable<Championship> {
 	 * @return true, if is default
 	 */
 	public boolean isDefault() {
-		return this == DEFAULT;
+		return this.getType() == ChampionshipType.DEFAULT;
+	}
+
+	public void setType(ChampionshipType type) {
+		this.type = type;
+	}
+
+	public String translate() {
+		String tr = Translator.translateOrElseNull("Championship."+getName(), OwlcmsSession.getLocale());
+		return tr != null ? tr : getName();
 	}
 
 	@Override
-	public int compareTo(Championship o) {
-		// TODO Auto-generated method stub
-		return 0;
+	public String toString() {
+		return "Championship [name=" + name + ", type=" + type + "]";
 	}
 
-	public static Championship valueOf(String ageDivisionName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

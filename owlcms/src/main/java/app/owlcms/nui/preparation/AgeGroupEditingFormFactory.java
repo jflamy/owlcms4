@@ -115,8 +115,8 @@ public class AgeGroupEditingFormFactory
 
 		ComboBox<Championship> ageDivisionField = new ComboBox<>();
 		ageDivisionField.setItems(new ListDataProvider<>(Arrays.asList(Championship.values())));
-		ageDivisionField.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
-		this.binder.forField(ageDivisionField).bind(AgeGroup::getAgeDivision, AgeGroup::setAgeDivision);
+		ageDivisionField.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.getName()));
+		this.binder.forField(ageDivisionField).bind(AgeGroup::getChampionship, AgeGroup::setChampionship);
 		formLayout.addFormItem(ageDivisionField, Translator.translate("Championship"));
 
 		TextField minAgeField = new TextField();
@@ -183,7 +183,7 @@ public class AgeGroupEditingFormFactory
 			genderField.setValue(Gender.F);
 		}
 		if (ageDivisionField.getValue() == null) {
-			ageDivisionField.setValue(Championship.U);
+			ageDivisionField.setValue(Championship.of(Championship.U));
 		}
 
 		Component footerLayout = this.buildFooter(operation, aFromDb, cancelButtonClickListener,

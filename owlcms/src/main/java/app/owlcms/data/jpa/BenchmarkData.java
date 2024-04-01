@@ -6,8 +6,6 @@
  *******************************************************************************/
 package app.owlcms.data.jpa;
 
-import static app.owlcms.data.agegroup.Championship.MASTERS;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -129,12 +127,12 @@ public class BenchmarkData {
 			int minAge = 13;
 			int maxAge = 99;
 			if (ageGroup.startsWith("M") || ageGroup.startsWith("W")) {
-				// ageDivision = Championship.MASTERS;
+				// ageDivision = Championship.of(Championship.MASTERS));
 				String s = ageGroup.substring(1);
 				minAge = Integer.parseInt(s);
 				maxAge = minAge + 5; // (exclusive)
 			} else {
-				// ageDivision = Championship.IWF;
+				// ageDivision = Championship.of(Championship.IWF));
 				if (ageGroup.contentEquals("YTH")) {
 					minAge = 13;
 					maxAge = 17;
@@ -212,7 +210,7 @@ public class BenchmarkData {
 		competition.setFederationWebSite("http://national-weightlifting.org");
 
 		competition.setEnforce20kgRule(true);
-		competition.setMasters(ageDivisions != null && ageDivisions.contains(MASTERS));
+		competition.setMasters(ageDivisions != null && ageDivisions.contains(Championship.of(Championship.MASTERS)));
 		competition.setUseBirthYear(false);
 		competition.setAnnouncerLiveDecisions(true);
 		competition.setMensBestN(null);

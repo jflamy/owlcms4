@@ -236,7 +236,7 @@ public class Main {
 	private static void injectData(InitialData data,
 	        Locale locale) {
 		Locale l = (locale == null ? Locale.ENGLISH : locale);
-		Set<Championship> ageDivisions = masters ? Set.of(Championship.MASTERS, Championship.U) : null;
+		Set<Championship> ageDivisions = masters ? Set.of(Championship.of(Championship.MASTERS), Championship.of(Championship.U)) : null;
 		try {
 			Translator.setForcedLocale(l);
 			// if a reset was required (e.g. for demonstrations, or to reinitialize, this
@@ -264,7 +264,7 @@ public class Main {
 						DemoData.insertInitialData(1, ageDivisions);
 						break;
 					case BENCHMARK:
-						BenchmarkData.insertInitialData(Set.of(Championship.IWF, Championship.MASTERS));
+						BenchmarkData.insertInitialData(Set.of(Championship.of(Championship.IWF), Championship.of(Championship.MASTERS)));
 						break;
 				}
 			} else {
@@ -277,6 +277,10 @@ public class Main {
 						AgeGroupRepository.insertAgeGroups(em, null);
 						return null;
 					});
+				} else {
+					// make sure there is a championship name as foreign key to Championship
+					// (Championships are transient, not persisted)
+					AgeGroupRepository.updateExistingChampionships();
 				}
 				List<Config> configs = ConfigRepository.findAll();
 				if (configs.isEmpty()) {

@@ -180,7 +180,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 		try {
 			String ageDivisionName = (ageDivisionParams != null
 			        && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0) : null);
-			Championship valueOf = Championship.valueOf(ageDivisionName);
+			Championship valueOf = Championship.of(ageDivisionName);
 			setAgeDivision(valueOf);
 			this.ageDivisionFilter.setValue(valueOf);
 		} catch (Exception e) {
@@ -188,7 +188,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 			this.ageDivisionFilter.setValue(null);
 		}
 		// remove if now null
-		String value = getAgeDivision() != null ? getAgeDivision().name() : null;
+		String value = getAgeDivision() != null ? getAgeDivision().getName() : null;
 		updateParam(params1, "ad", value);
 
 		List<String> ageGroupParams = params1.get("ag");
@@ -484,9 +484,9 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 			this.ageDivisionFilter = new ComboBox<>();
 		}
 		this.ageDivisionFilter.setPlaceholder(getTranslation("Championship"));
-		List<Championship> adItems = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
+		List<Championship> adItems = Championship.findAll();
 		this.ageDivisionFilter.setItems(adItems);
-		this.ageDivisionFilter.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
+		this.ageDivisionFilter.setItemLabelGenerator((ad) -> ad.translate());
 		this.ageDivisionFilter.setClearButtonVisible(true);
 		this.ageDivisionFilter.setWidth("8em");
 		this.ageDivisionFilter.getStyle().set("margin-left", "1em");
@@ -500,7 +500,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle 
 			this.ageGroupFilter = new ComboBox<>();
 		}
 		this.ageGroupFilter.setPlaceholder(getTranslation("AgeGroup"));
-		List<String> agItems = AgeGroupRepository.findActiveAndUsed(getAgeDivision());
+		List<String> agItems = AgeGroupRepository.findActiveAndUsedAgeGroups(getAgeDivision());
 		this.ageGroupFilter.setItems(agItems);
 		// ageGroupFilter.setItemLabelGenerator((ad) -> Translator.translate("Division."
 		// + ad.name()));

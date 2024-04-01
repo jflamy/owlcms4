@@ -5058,9 +5058,10 @@ public class Athlete {
 		if (cat != null) {
 			AgeGroup ag = cat.getAgeGroup();
 			if (ag != null) {
-				Championship ad = ag.getAgeDivision();
+				Championship ad = ag.getChampionship();
 				if (ad != null) {
-					if (ad == Championship.MASTERS) {
+					//FIXME: find a way to indicate MASTERS if several MASTERS championships
+					if (ad == Championship.of(Championship.MASTERS)) {
 						double margin = 0.2D * entryTotal;
 						// we would round up the required total, so we round down the allowed margin
 						double floor = Math.floor(margin);

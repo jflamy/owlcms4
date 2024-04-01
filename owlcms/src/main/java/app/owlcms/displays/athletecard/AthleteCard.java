@@ -179,7 +179,7 @@ public class AthleteCard extends LitTemplate
 		AgeGroup ageGroup = this.athlete.getAgeGroup();
 		getElement().setProperty("ageGroup", ageGroup != null ? ageGroup.getName() : "");
 		getElement().setProperty("ageDivision",
-		        ageGroup != null ? getTranslation("Division." + ageGroup.getAgeDivision().name()) : "");
+		        ageGroup != null ? ageGroup.getChampionship().translate() : "");
 		Integer yearOfBirth = this.athlete.getYearOfBirth();
 		if (yearOfBirth != null && yearOfBirth > 1900) {
 			getElement().setProperty("birth", yearOfBirth.toString());

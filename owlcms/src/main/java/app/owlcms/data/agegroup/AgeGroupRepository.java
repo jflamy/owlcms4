@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -64,14 +65,45 @@ public class AgeGroupRepository {
 		return nAgeGroup;
 	}
 
-	public static List<Championship> allAgeDivisionsForAllAgeGroups() {
-		return JPAService.runInTransaction((em) -> {
-			TypedQuery<Championship> q = em.createQuery(
-			        "select distinct ag.ageDivision from Participation p join p.category c join c.ageGroup ag",
-			        Championship.class);
-			List<Championship> resultSet = q.getResultList();
+	public static List<String> allChampionshipsForAllAgeGroups() {
+		logger.warn("allChampionshipsForAllAgeGroups {}",LoggerUtils.whereFrom());
+		List<AgeGroup> ageGroups = JPAService.runInTransaction((em) -> {
+			TypedQuery<AgeGroup> q = em.createQuery(
+			        //"select ag from Participation p join p.category c join c.ageGroup ag",
+					"select ag from AgeGroup ag",
+			        AgeGroup.class);
+			List<AgeGroup> resultSet = q.getResultList();
 			return resultSet;
 		});
+		logger.warn("%%%%%%%%%% age groups {}",ageGroups);
+		TreeSet<String> ts = new TreeSet<>();
+		for (AgeGroup ag : ageGroups) {
+			if (ag.getChampionshipName() != null && !ag.getChampionshipName().isBlank()) {
+				ts.add(ag.getChampionshipName() + "¤" + ag.getAgeDivision());
+			} else {
+				ts.add(ag.getAgeDivision());
+			}
+		}
+		return new ArrayList<>(ts);
+	}
+	
+	public static List<String> allActiveChampionshipsNames() {
+		List<AgeGroup> ageGroups = JPAService.runInTransaction((em) -> {
+			TypedQuery<AgeGroup> q = em.createQuery(
+			        "select ag from AgeGroup ag",
+			        AgeGroup.class);
+			List<AgeGroup> resultSet = q.getResultList();
+			return resultSet;
+		});
+		TreeSet<String> ts = new TreeSet<>();
+		for (AgeGroup ag : ageGroups) {
+			if (ag.getChampionshipName() != null && !ag.getChampionshipName().isBlank()) {
+				ts.add(ag.getChampionshipName());
+			} else {
+				ts.add(ag.getAgeDivision());
+			}
+		}
+		return new ArrayList<>(ts);
 	}
 
 	/**
@@ -97,15 +129,15 @@ public class AgeGroupRepository {
 	// allParticipationsForAgeDivision
 
 	public static List<Participation> allParticipationsForAgeGroupAgeDivision(String ageGroupPrefix,
-	        Championship ageDivision) {
+	        Championship championship) {
 		List<Participation> participations = JPAService.runInTransaction(em -> {
 
 			List<String> whereList = new ArrayList<>();
 			if (ageGroupPrefix != null && !ageGroupPrefix.isBlank()) {
 				whereList.add("ag.code = :ageGroupPrefix");
 			}
-			if (ageDivision != null) {
-				whereList.add("ag.ageDivision = :ageDivision");
+			if (championship != null) {
+				whereList.add("ag.championshipName = :championshipName");
 			}
 			String whereClause = "";
 			if (whereList.size() > 0) {
@@ -119,8 +151,8 @@ public class AgeGroupRepository {
 			if (ageGroupPrefix != null && !ageGroupPrefix.isBlank()) {
 				q.setParameter("ageGroupPrefix", ageGroupPrefix);
 			}
-			if (ageDivision != null) {
-				q.setParameter("ageDivision", ageDivision);
+			if (championship != null) {
+				q.setParameter("championshipName", championship.getName());
 			}
 
 			List<Participation> resultSet = q.getResultList();
@@ -253,24 +285,25 @@ public class AgeGroupRepository {
 		return findFiltered;
 	}
 
-	public static List<String> findActiveAndUsed(Championship ageDivisionValue) {
+	public static List<String> findActiveAndUsedAgeGroups(Championship championship) {
 
 		return JPAService.runInTransaction((em) -> {
-			if (ageDivisionValue == null) {
+			if (championship == null) {
 				TypedQuery<String> q = em.createQuery(
 				        "select distinct ag.code from Participation p join p.category c join c.ageGroup ag",
 				        String.class);
 				List<String> resultSet = q.getResultList();
+				logger.warn("none {}",resultSet);
 				return resultSet;
 			} else {
 				TypedQuery<String> q = em.createQuery(
-				        "select distinct ag.code from Participation p join p.category c join c.ageGroup ag where ag.ageDivision = :agv",
+				        "select distinct ag.code from Participation p join p.category c join c.ageGroup ag where ag.championshipName = :championshipName",
 				        String.class);
-				q.setParameter("agv", ageDivisionValue);
+				q.setParameter("championshipName", championship.getName());
 				List<String> resultSet = q.getResultList();
+				logger.warn("code {}",resultSet);
 				return resultSet;
 			}
-
 		});
 	}
 
@@ -329,17 +362,17 @@ public class AgeGroupRepository {
 		});
 	}
 
-	public static List<AgeGroup> findFiltered(String name, Gender gender, Championship ageDivision, Integer age,
+	public static List<AgeGroup> findFiltered(String name, Gender gender, Championship championship, Integer age,
 	        boolean active, int offset, int limit) {
 
 		List<AgeGroup> findFiltered = JPAService.runInTransaction(em -> {
 			String qlString = "select ag from AgeGroup ag"
-			        + filteringSelection(name, gender, ageDivision, age, active)
+			        + filteringSelection(name, gender, championship, age, active)
 			        + " order by ag.ageDivision, ag.gender, ag.minAge, ag.maxAge";
 			logger.debug("query = {}", qlString);
 
 			Query query = em.createQuery(qlString);
-			setFilteringParameters(name, gender, ageDivision, age, active, query);
+			setFilteringParameters(name, gender, championship, age, active, query);
 			if (offset >= 0) {
 				query.setFirstResult(offset);
 			}
@@ -358,6 +391,7 @@ public class AgeGroupRepository {
 			}
 			return ag1.compareTo(ag2);
 		});
+		logger.warn("%%%%%%\r{}",findFiltered.stream().map(f -> f.getChampionshipName()+"¤"+f.getAgeDivision()).collect(Collectors.joining("\r")));
 		return findFiltered;
 	}
 
@@ -550,25 +584,39 @@ public class AgeGroupRepository {
 			return null;
 		});
 	}
+	
+	public static void updateExistingChampionships() {
+		JPAService.runInTransaction(em -> {
+			List<AgeGroup> ags = doFindAll(em);
+			for (AgeGroup a : ags) {
+				if (a.getChampionshipName() == null || a.getChampionshipName().isBlank()) {
+					a.setChampionshipName(a.getAgeDivision());
+				}
+				em.merge(a);
+			}
+			em.flush();
+			return null;
+		});
+	}
 
 	@SuppressWarnings("unchecked")
 	private static List<AgeGroup> doFindAll(EntityManager em) {
 		return em.createQuery("select c from AgeGroup c order by c.ageDivision,c.minAge,c.maxAge").getResultList();
 	}
 
-	private static String filteringSelection(String name, Gender gender, Championship ageDivision, Integer age,
+	private static String filteringSelection(String name, Gender gender, Championship championship, Integer age,
 	        Boolean active) {
 		String joins = null;
-		String where = filteringWhere(name, ageDivision, age, gender, active);
+		String where = filteringWhere(name, championship, age, gender, active);
 		String selection = (joins != null ? " " + joins : "") + (where != null ? " where " + where : "");
 		return selection;
 	}
 
-	private static String filteringWhere(String name, Championship ageDivision, Integer age, Gender gender,
+	private static String filteringWhere(String name, Championship championship, Integer age, Gender gender,
 	        Boolean active) {
 		List<String> whereList = new LinkedList<>();
-		if (ageDivision != null) {
-			whereList.add("ag.ageDivision = :division");
+		if (championship != null) {
+			whereList.add("((ag.championshipName = :championshipName) or (ag.ageDivision = :championshipName))");
 		}
 		if (name != null && name.trim().length() > 0) {
 			whereList.add("lower(ag.name) like :name");
@@ -590,7 +638,7 @@ public class AgeGroupRepository {
 		}
 	}
 
-	private static void setFilteringParameters(String name, Gender gender, Championship ageDivision, Integer age,
+	private static void setFilteringParameters(String name, Gender gender, Championship championship, Integer age,
 	        Boolean active, Query query) {
 		if (name != null && name.trim().length() > 0) {
 			// starts with
@@ -602,8 +650,9 @@ public class AgeGroupRepository {
 		if (age != null) {
 			query.setParameter("age", age);
 		}
-		if (ageDivision != null) {
-			query.setParameter("division", ageDivision); // ageDivision is a string
+		if (championship != null) {
+			logger.warn("%%%%%%% championship {}", championship);
+			query.setParameter("championshipName", championship.getName()); // is a string
 		}
 		if (gender != null) {
 			query.setParameter("gender", gender);

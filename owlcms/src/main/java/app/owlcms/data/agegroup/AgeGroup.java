@@ -92,9 +92,10 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	Logger logger = (Logger) LoggerFactory.getLogger(AgeGroup.class);
 	Integer maxAge;
 	Integer minAge;
-	
-	//@Enumerated(EnumType.STRING)
-	private String ageDivision;
+
+	// @Enumerated(EnumType.STRING)
+	private String ageDivision; // this is actually the championship type (MASTERS, IWF, etc.)
+	private String championshipName;  // foreign key: PanAm, SouthAm, etc.  Same the type if not specified explicitly.
 	
 	@OneToMany(mappedBy = "ageGroup", cascade = { CascadeType.ALL }, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<Category> categories = new ArrayList<>();
@@ -106,16 +107,17 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	private Long id;
 	private Integer qualificationTotal;
 
+
 	public AgeGroup() {
 	}
 
 	public AgeGroup(String code, boolean active, Integer minAge, Integer maxAge, Gender gender,
-	        Championship ageDivision, Integer qualificationTotal) {
+	        String ageDivisionName, Integer qualificationTotal) {
 		this.active = active;
 		this.code = code;
 		this.minAge = minAge;
 		this.maxAge = maxAge;
-		this.ageDivision = ageDivision.name();
+		this.ageDivision = ageDivisionName;
 		this.gender = gender;
 		this.setQualificationTotal(qualificationTotal);
 	}
@@ -166,8 +168,8 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		        && Objects.equals(this.minAge, other.minAge);
 	}
 
-	public Championship getAgeDivision() {
-		return Championship.valueOf(this.ageDivision);
+	public String getAgeDivision() {
+		return this.ageDivision;
 	}
 
 	@JsonIgnore
@@ -191,6 +193,16 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		return getCategories().stream().map(c -> c.getLimitString()).collect(Collectors.joining(", "));
 	}
 
+	@JsonIgnore
+	@Transient
+	public Championship getChampionship() {
+		return Championship.of(this.getChampionshipName());
+	}
+
+	public String getChampionshipName() {
+		return (this.championshipName != null && !this.championshipName.isBlank()) ? this.championshipName : this.ageDivision;
+	}
+
 	public String getCode() {
 		return this.code;
 	}
@@ -204,7 +216,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 		String value = null;
 		String translatedCode = getTranslatedCode(code2);
-		if (this.ageDivision == Championship.MASTERS.name()) {
+		if (this.ageDivision == Championship.of(Championship.MASTERS).getName()) {
 			value = translatedCode;
 		}
 		// else if (ageDivision == Championship.DEFAULT) {
@@ -246,9 +258,9 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 		String value = null;
 		String translatedCode = getTranslatedCode(code2);
-		if (this.ageDivision == Championship.MASTERS.name()) {
+		if (this.ageDivision == Championship.of(Championship.MASTERS).getName()) {
 			value = translatedCode;
-		} else if (this.ageDivision == Championship.DEFAULT.name()) {
+		} else if (this.ageDivision == Championship.DEFAULT) {
 			value = getTranslatedGender();
 		} else {
 			value = translatedCode + " " + getTranslatedGender();
@@ -294,12 +306,21 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		this.active = active;
 	}
 
-	public void setAgeDivision(Championship ageDivision) {
-		this.ageDivision = ageDivision.name();
+	public void setAgeDivision(String ageDivision) {
+		this.ageDivision = ageDivision;
 	}
 
 	public void setCategories(List<Category> value) {
 		this.categories = value;
+	}
+
+	public void setChampionship(Championship championship) {
+		this.ageDivision = championship.getType().name();
+	}
+
+	public void setChampionshipName(String championshipName) {
+		this.championshipName = championshipName;
+
 	}
 
 	public void setCode(String code) {
