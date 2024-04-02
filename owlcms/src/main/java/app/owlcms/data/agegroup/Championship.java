@@ -80,10 +80,10 @@ public class Championship implements Comparable<Championship> {
 		return allChampionshipsList;
 	}
 
-	public static List<Championship> findAllUsed() {
+	public static List<Championship> findAllUsed(boolean activeOnly) {
 		var results = new ArrayList<Championship>();
 		findAll();
-		List<String> names = AgeGroupRepository.allActiveChampionshipsNames();
+		List<String> names = AgeGroupRepository.allActiveChampionshipsNames(activeOnly);
 		logger.warn("names = {}",names);
 		for (String n : names) {
 			Championship of = Championship.of(n);

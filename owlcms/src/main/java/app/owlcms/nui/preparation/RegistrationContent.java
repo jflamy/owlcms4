@@ -236,6 +236,28 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	}
 
 	/**
+	 * @return the ageGroupPrefix
+	 */
+	public String getAgeGroupPrefix() {
+		return this.ageGroupPrefix;
+	}
+
+	public Category getCategoryValue() {
+		return getCategory();
+	}
+
+	/**
+	 * @return the championship
+	 */
+	public Championship getChampionship() {
+		return this.championship;
+	}
+
+	public Gender getGender() {
+		return this.gender;
+	}
+
+	/**
 	 * @return the groupFilter
 	 */
 	public ComboBox<Group> getGroupFilter() {
@@ -280,6 +302,18 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 	public void refreshCrudGrid() {
 		this.crudGrid.refreshGrid();
+	}
+
+	public void setAgeGroupPrefix(String ageGroupPrefix) {
+		this.ageGroupPrefix = ageGroupPrefix;
+	}
+
+	public void setChampionship(Championship championship) {
+		this.championship = championship;
+	}
+
+	public void setGender(Gender value) {
+		this.gender = value;
 	}
 
 	@Override
@@ -550,7 +584,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		crudGrid.getCrudLayout().addFilterComponent(this.teamFilter);
 
 		this.championshipFilter.setPlaceholder(Translator.translate("Championship"));
-		this.championshipFilter.setItems(Championship.findAllUsed());
+		this.championshipFilter.setItems(Championship.findAllUsed(true));
 		this.championshipFilter.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.getName()));
 		this.championshipFilter.setClearButtonVisible(true);
 		this.championshipFilter.addValueChangeListener(e -> {
@@ -650,34 +684,12 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		notification.open();
 	}
 
-	/**
-	 * @return the championship
-	 */
-	public Championship getChampionship() {
-		return this.championship;
-	}
-
 	protected AgeGroup getAgeGroup() {
 		return this.ageGroup;
 	}
 
-	/**
-	 * @return the ageGroupPrefix
-	 */
-	public String getAgeGroupPrefix() {
-		return this.ageGroupPrefix;
-	}
-
 	protected Category getCategory() {
 		return this.category;
-	}
-
-	public Category getCategoryValue() {
-		return getCategory();
-	}
-
-	protected Gender getGender() {
-		return this.gender;
 	}
 
 	protected String getLastName() {
@@ -754,25 +766,13 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		return found;
 	}
 
-	public void setChampionship(Championship championship) {
-		this.championship = championship;
-	}
-
 	protected void setAgeGroup(AgeGroup value) {
 		this.ageGroup = value;
 
 	}
 
-	public void setAgeGroupPrefix(String ageGroupPrefix) {
-		this.ageGroupPrefix = ageGroupPrefix;
-	}
-
 	protected void setCategory(Category category) {
 		this.category = category;
-	}
-
-	protected void setGender(Gender value) {
-		this.gender = value;
 	}
 
 	/**

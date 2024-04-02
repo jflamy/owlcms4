@@ -96,6 +96,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	private List<String> championshipAgeGroupPrefixes;
 	private AgeGroup ageGroup;
 	private Category category;
+	private Gender gender;
 
 	/**
 	 * Instantiates a new announcer content. Does nothing. Content is created in
@@ -165,8 +166,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		Category catFilterValue = getCategoryValue();
 		Stream<Athlete> stream = ranked.stream()
 		        .filter(a -> {
-			        Gender genderFilterValue = this.getGenderFilter() != null ? this.getGenderFilter().getValue()
-			                : null;
+			        Gender genderFilterValue = this.getGender();
 			        Gender athleteGender = a.getGender();
 			        boolean catOk = (catFilterValue == null
 			                || catFilterValue.toString().equals(a.getCategory().toString()))
@@ -239,6 +239,11 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	@Override
 	public CrudLayout getCrudLayout(GridCrud<Athlete> crud) {
 		return crud.getCrudLayout();
+	}
+
+	@Override
+	public Gender getGender() {
+		return this.gender;
 	}
 
 	@Override
@@ -336,6 +341,11 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	@Override
 	public void setChampionshipItems(List<Championship> championshipItems) {
 		this.championshipItems = championshipItems;
+	}
+
+	@Override
+	public void setGender(Gender value) {
+		this.gender = value;
 	}
 
 	@Override

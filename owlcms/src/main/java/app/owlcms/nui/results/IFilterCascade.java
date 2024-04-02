@@ -31,7 +31,7 @@ public interface IFilterCascade {
 		}
 		this.getChampionshipFilter().setPlaceholder(Translator.translate("Championship"));
 		this.getChampionshipFilter().setWidth("25ch");
-		this.setChampionshipItems(Championship.findAllUsed());
+		this.setChampionshipItems(Championship.findAllUsed(true));
 		this.getChampionshipFilter().setItems(this.getChampionshipItems());
 		this.getChampionshipFilter().setItemLabelGenerator((ad) -> ad.translate());
 		this.getChampionshipFilter().setClearButtonVisible(true);
@@ -74,11 +74,16 @@ public interface IFilterCascade {
 		});
 		this.getGenderFilter().setClearButtonVisible(true);
 		this.getGenderFilter().addValueChangeListener(e -> {
+			getLogger().warn("------ setting gender {}",e.getValue());
+			this.setGender(e.getValue());
 			crud.refreshGrid();
 		});
 		this.getGenderFilter().setWidth("10em");
 		getCrudLayout(crud).addFilterComponent(this.getGenderFilter());
 	}
+
+	public void setGender(Gender value);
+	public Gender getGender();
 
 	default public void defineSelectionListeners() {
 		Championship urlAD = getChampionship();

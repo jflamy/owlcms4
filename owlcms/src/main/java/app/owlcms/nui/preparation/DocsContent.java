@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.slf4j.LoggerFactory;
-import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.HasElement;
@@ -518,62 +517,6 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 		        Translator.translate("Download"));
 		return startingWeightsButton.createDownloadButton();
 	}
-	
-	protected void defineCategoryFilters(GridCrud<Athlete> crud) {
-
-		if (this.getChampionshipFilter() == null) {
-			this.setChampionshipFilter(new ComboBox<>());
-		}
-		this.getChampionshipFilter().setPlaceholder(getTranslation("Championship"));
-		this.getChampionshipFilter().setWidth("25ch");
-		this.setChampionshipItems(Championship.findAllUsed());
-		this.getChampionshipFilter().setItems(this.getChampionshipItems());
-		this.getChampionshipFilter().setItemLabelGenerator((ad) -> ad.translate());
-		this.getChampionshipFilter().setClearButtonVisible(true);
-		this.getChampionshipFilter().getStyle().set("margin-left", "1em");
-
-		if (this.getAgeGroupFilter() == null) {
-			this.setAgeGroupFilter(new ComboBox<>());
-		}
-		this.getAgeGroupFilter().setPlaceholder(getTranslation("AgeGroup"));
-		this.getAgeGroupFilter().setEnabled(false);
-		this.getAgeGroupFilter().setClearButtonVisible(true);
-		this.getAgeGroupFilter().setValue(null);
-		this.getAgeGroupFilter().setWidth("20ch");
-		this.getAgeGroupFilter().setClearButtonVisible(true);
-		this.getAgeGroupFilter().getStyle().set("margin-left", "1em");
-
-		crud.getCrudLayout().addFilterComponent(this.getChampionshipFilter());
-		crud.getCrudLayout().addFilterComponent(this.getAgeGroupFilter());
-
-		if (this.getCategoryFilter() == null) {
-			this.setCategoryFilter(new ComboBox<>());
-		}
-		this.getCategoryFilter().setClearButtonVisible(true);
-		this.getCategoryFilter().setPlaceholder(getTranslation("Category"));
-		this.getCategoryFilter().setClearButtonVisible(true);
-		this.getCategoryFilter().setWidth("10em");
-
-		crud.getCrudLayout().addFilterComponent(this.getCategoryFilter());
-
-		// hidden group filter
-		this.getGroupFilter().setVisible(false);
-
-		if (this.getGenderFilter() == null) {
-			this.setGenderFilter(new ComboBox<>());
-		}
-		this.getGenderFilter().setPlaceholder(getTranslation("Gender"));
-		this.getGenderFilter().setItems(Gender.M, Gender.F);
-		this.getGenderFilter().setItemLabelGenerator((i) -> {
-			return i == Gender.M ? getTranslation("Gender.Men") : getTranslation("Gender.Women");
-		});
-		this.getGenderFilter().setClearButtonVisible(true);
-		this.getGenderFilter().addValueChangeListener(e -> {
-			crud.refreshGrid();
-		});
-		this.getGenderFilter().setWidth("10em");
-		crud.getCrudLayout().addFilterComponent(this.getGenderFilter());
-	}
 
 	/**
 	 *
@@ -582,7 +525,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 	@Override
 	protected void defineFilters(OwlcmsCrudGrid<Athlete> crudGrid) {
 
-		this.defineCategoryFilters(crudGrid);
+		this.defineFilterCascade(crudGrid);
 
 		this.teamFilter.setPlaceholder(Translator.translate("Team"));
 		this.teamFilter.setItems(AthleteRepository.findAllTeams());
@@ -631,6 +574,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
+		defineSelectionListeners();
 	}
 
 }

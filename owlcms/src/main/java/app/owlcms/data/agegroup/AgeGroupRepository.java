@@ -66,16 +66,16 @@ public class AgeGroupRepository {
 	}
 
 	public static List<String> allChampionshipsForAllAgeGroups() {
-		logger.warn("allChampionshipsForAllAgeGroups {}",LoggerUtils.whereFrom());
+		logger.warn("allChampionshipsForAllAgeGroups {}", LoggerUtils.whereFrom());
 		List<AgeGroup> ageGroups = JPAService.runInTransaction((em) -> {
 			TypedQuery<AgeGroup> q = em.createQuery(
-			        //"select ag from Participation p join p.category c join c.ageGroup ag",
-					"select ag from AgeGroup ag",
+			        // "select ag from Participation p join p.category c join c.ageGroup ag",
+			        "select ag from AgeGroup ag",
 			        AgeGroup.class);
 			List<AgeGroup> resultSet = q.getResultList();
 			return resultSet;
 		});
-		logger.warn("%%%%%%%%%% age groups {}",ageGroups);
+		logger.warn("%%%%%%%%%% age groups {}", ageGroups);
 		TreeSet<String> ts = new TreeSet<>();
 		for (AgeGroup ag : ageGroups) {
 			if (ag.getChampionshipName() != null && !ag.getChampionshipName().isBlank()) {
@@ -86,8 +86,8 @@ public class AgeGroupRepository {
 		}
 		return new ArrayList<>(ts);
 	}
-	
-	public static List<String> allActiveChampionshipsNames() {
+
+	public static List<String> allActiveChampionshipsNames(boolean activeOnly) {
 		List<AgeGroup> ageGroups = JPAService.runInTransaction((em) -> {
 			TypedQuery<AgeGroup> q = em.createQuery(
 			        "select ag from AgeGroup ag",
@@ -97,10 +97,12 @@ public class AgeGroupRepository {
 		});
 		TreeSet<String> ts = new TreeSet<>();
 		for (AgeGroup ag : ageGroups) {
-			if (ag.getChampionshipName() != null && !ag.getChampionshipName().isBlank()) {
-				ts.add(ag.getChampionshipName());
-			} else {
-				ts.add(ag.getAgeDivision());
+			if (!activeOnly || ag.isActive()) {
+				if (ag.getChampionshipName() != null && !ag.getChampionshipName().isBlank()) {
+					ts.add(ag.getChampionshipName());
+				} else {
+					ts.add(ag.getAgeDivision());
+				}
 			}
 		}
 		return new ArrayList<>(ts);
@@ -130,7 +132,7 @@ public class AgeGroupRepository {
 
 	public static List<Participation> allParticipationsForAgeGroupAgeDivision(String ageGroupPrefix,
 	        Championship championship) {
-		logger.warn("allParticipationsForAgeGroupAgeDivision");
+		logger.warn("allParticipationsForAgeGroupAgeDivision\n{}",LoggerUtils.stackTrace());
 		List<Participation> participations = JPAService.runInTransaction(em -> {
 
 			List<String> whereList = new ArrayList<>();
@@ -294,7 +296,7 @@ public class AgeGroupRepository {
 				        "select distinct ag.code from Participation p join p.category c join c.ageGroup ag",
 				        String.class);
 				List<String> resultSet = q.getResultList();
-				logger.warn("none {}",resultSet);
+				logger.warn("none {}", resultSet);
 				return resultSet;
 			} else {
 				TypedQuery<String> q = em.createQuery(
@@ -302,7 +304,7 @@ public class AgeGroupRepository {
 				        String.class);
 				q.setParameter("championshipName", championship.getName());
 				List<String> resultSet = q.getResultList();
-				logger.warn("code {}",resultSet);
+				logger.warn("code {}", resultSet);
 				return resultSet;
 			}
 		});
@@ -392,7 +394,8 @@ public class AgeGroupRepository {
 			}
 			return ag1.compareTo(ag2);
 		});
-		logger.warn("%%%%%%\r{}",findFiltered.stream().map(f -> f.getChampionshipName()+"¤"+f.getAgeDivision()).collect(Collectors.joining("\r")));
+		logger.warn("%%%%%%\r{}", findFiltered.stream().map(f -> f.getChampionshipName() + "¤" + f.getAgeDivision())
+		        .collect(Collectors.joining("\r")));
 		return findFiltered;
 	}
 
@@ -585,7 +588,7 @@ public class AgeGroupRepository {
 			return null;
 		});
 	}
-	
+
 	public static void updateExistingChampionships() {
 		JPAService.runInTransaction(em -> {
 			List<AgeGroup> ags = doFindAll(em);
