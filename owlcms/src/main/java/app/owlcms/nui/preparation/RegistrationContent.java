@@ -80,6 +80,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCategoriesListDocs;
 import app.owlcms.spreadsheet.JXLSStartingListDocs;
 import app.owlcms.spreadsheet.PAthlete;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -560,6 +561,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	 */
 
 	protected void defineFilters(OwlcmsCrudGrid<Athlete> crudGrid) {
+		logger.warn("???????  defineFilters {}",LoggerUtils.whereFrom());
 		this.lastNameFilter.setPlaceholder(Translator.translate("LastName"));
 		this.lastNameFilter.setClearButtonVisible(true);
 		this.lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
@@ -616,32 +618,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		this.categoryFilter.setWidth("10em");
 		crudGrid.getCrudLayout().addFilterComponent(this.categoryFilter);
 
-		this.groupFilter.setPlaceholder(Translator.translate("Group"));
-		List<Group> groups = GroupRepository.findAll();
-		groups.sort(new NaturalOrderComparator<>());
-		this.groupFilter.setItems(groups);
-		this.groupFilter.setItemLabelGenerator(Group::getName);
-		this.groupFilter.addValueChangeListener(e -> {
-			crudGrid.refreshGrid();
-			setGroup(e.getValue());
-			updateURLLocation(getLocationUI(), getLocation(), e.getValue());
-		});
-		this.groupFilter.setWidth("10em");
-		crudGrid.getCrudLayout().addFilterComponent(this.groupFilter);
-		this.groupFilter.getStyle().set("display", "none");
-
-		this.weighedInFilter.setPlaceholder(Translator.translate("Weighed_in_p"));
-		this.weighedInFilter.setItems(Boolean.TRUE, Boolean.FALSE);
-		this.weighedInFilter.setItemLabelGenerator((i) -> {
-			return i ? Translator.translate("Weighed") : Translator.translate("Not_weighed");
-		});
-		this.weighedInFilter.setClearButtonVisible(true);
-		this.weighedInFilter.addValueChangeListener(e -> {
-			setWeighedIn(e.getValue());
-			crudGrid.refreshGrid();
-		});
-		this.weighedInFilter.setWidth("10em");
-		crudGrid.getCrudLayout().addFilterComponent(this.weighedInFilter);
+		defineRegistrationFilters(crudGrid);
 
 		this.genderFilter.setPlaceholder(Translator.translate("Gender"));
 		this.genderFilter.setItems(Gender.M, Gender.F);
@@ -668,6 +645,35 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		});
 		this.lastNameFilter.setWidth("10em");
 		crudGrid.getCrudLayout().addFilterComponent(clearFilters);
+	}
+
+	protected void defineRegistrationFilters(OwlcmsCrudGrid<Athlete> crudGrid) {
+		this.groupFilter.setPlaceholder(Translator.translate("Group"));
+		List<Group> groups = GroupRepository.findAll();
+		groups.sort(new NaturalOrderComparator<>());
+		this.groupFilter.setItems(groups);
+		this.groupFilter.setItemLabelGenerator(Group::getName);
+		this.groupFilter.addValueChangeListener(e -> {
+			crudGrid.refreshGrid();
+			setGroup(e.getValue());
+			updateURLLocation(getLocationUI(), getLocation(), e.getValue());
+		});
+		this.groupFilter.setWidth("10em");
+		crudGrid.getCrudLayout().addFilterComponent(this.groupFilter);
+		this.groupFilter.getStyle().set("display", "none");
+
+		this.weighedInFilter.setPlaceholder(Translator.translate("Weighed_in_p"));
+		this.weighedInFilter.setItems(Boolean.TRUE, Boolean.FALSE);
+		this.weighedInFilter.setItemLabelGenerator((i) -> {
+			return i ? Translator.translate("Weighed") : Translator.translate("Not_weighed");
+		});
+		this.weighedInFilter.setClearButtonVisible(true);
+		this.weighedInFilter.addValueChangeListener(e -> {
+			setWeighedIn(e.getValue());
+			crudGrid.refreshGrid();
+		});
+		this.weighedInFilter.setWidth("10em");
+		crudGrid.getCrudLayout().addFilterComponent(this.weighedInFilter);
 	}
 
 	protected void errorNotification() {

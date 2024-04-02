@@ -67,22 +67,29 @@ public interface IFilterCascade {
 		if (this.getGenderFilter() == null) {
 			this.setGenderFilter(new ComboBox<>());
 		}
-		this.getGenderFilter().setPlaceholder(Translator.translate("Gender"));
-		this.getGenderFilter().setItems(Gender.M, Gender.F);
-		this.getGenderFilter().setItemLabelGenerator((i) -> {
-			return i == Gender.M ? Translator.translate("Gender.Men") : Translator.translate("Gender.Women");
-		});
-		this.getGenderFilter().setClearButtonVisible(true);
-		this.getGenderFilter().addValueChangeListener(e -> {
-			getLogger().warn("------ setting gender {}",e.getValue());
-			this.setGender(e.getValue());
-			crud.refreshGrid();
-		});
-		this.getGenderFilter().setWidth("10em");
-		getCrudLayout(crud).addFilterComponent(this.getGenderFilter());
+		if (showGenderFilter()) {
+			this.getGenderFilter().setPlaceholder(Translator.translate("Gender"));
+			this.getGenderFilter().setItems(Gender.M, Gender.F);
+			this.getGenderFilter().setItemLabelGenerator((i) -> {
+				return i == Gender.M ? Translator.translate("Gender.Men") : Translator.translate("Gender.Women");
+			});
+			this.getGenderFilter().setClearButtonVisible(true);
+			this.getGenderFilter().addValueChangeListener(e -> {
+				getLogger().warn("------ setting gender {}", e.getValue());
+				this.setGender(e.getValue());
+				crud.refreshGrid();
+			});
+			this.getGenderFilter().setWidth("10em");
+			getCrudLayout(crud).addFilterComponent(this.getGenderFilter());
+		}
+	}
+
+	public default boolean showGenderFilter() {
+		return false;
 	}
 
 	public void setGender(Gender value);
+
 	public Gender getGender();
 
 	default public void defineSelectionListeners() {

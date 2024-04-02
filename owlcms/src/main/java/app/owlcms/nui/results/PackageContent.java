@@ -25,6 +25,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.Icon;
@@ -359,6 +360,11 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	@Override
+	public boolean showGenderFilter() {
+		return true;
+	}
+
+	@Override
 	public Athlete update(Athlete a) {
 		Athlete a1 = super.update(a);
 		return a1;
@@ -532,6 +538,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		        Translator.translate("Download"));
 		this.downloadDialog.setProcessingMessage(Translator.translate("LongProcessing"));
 		Button resultsButton = this.downloadDialog.createDownloadButton();
+		highlight(resultsButton);
 		return resultsButton;
 	}
 
@@ -554,5 +561,9 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		        Translator.translate("Download"));
 		Button resultsButton = this.downloadDialog.createDownloadButton();
 		return resultsButton;
+	}
+
+	private void highlight(Button button) {
+		button.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
 	}
 }

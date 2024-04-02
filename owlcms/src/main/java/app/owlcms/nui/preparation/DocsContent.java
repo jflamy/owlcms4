@@ -53,6 +53,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCardsDocs;
 import app.owlcms.spreadsheet.JXLSStartingListDocs;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -524,8 +525,10 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 	 */
 	@Override
 	protected void defineFilters(OwlcmsCrudGrid<Athlete> crudGrid) {
-
+		logger.warn("defineFilters {}", LoggerUtils.whereFrom());
 		this.defineFilterCascade(crudGrid);
+		this.defineRegistrationFilters(crudGrid);
+		this.defineSelectionListeners();
 
 		this.teamFilter.setPlaceholder(Translator.translate("Team"));
 		this.teamFilter.setItems(AthleteRepository.findAllTeams());
@@ -574,7 +577,6 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		defineSelectionListeners();
 	}
 
 }
