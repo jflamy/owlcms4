@@ -17,7 +17,7 @@ public interface ResultsParameters {
 	DecimalFormatSymbols symbolsEN_US = DecimalFormatSymbols.getInstance(Locale.US);
 	DecimalFormat formatEN_US = new DecimalFormat("0.000", symbolsEN_US);
 
-	public Championship getAgeDivision();
+	public Championship getChampionship();
 
 	public AgeGroup getAgeGroup();
 
@@ -27,7 +27,7 @@ public interface ResultsParameters {
 
 	public boolean isVideo();
 
-	public void setAgeDivision(Championship ad);
+	public void setChampionship(Championship ad);
 
 	public void setAgeGroup(AgeGroup ag);
 

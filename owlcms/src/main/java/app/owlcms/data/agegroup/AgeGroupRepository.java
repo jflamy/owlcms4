@@ -130,6 +130,7 @@ public class AgeGroupRepository {
 
 	public static List<Participation> allParticipationsForAgeGroupAgeDivision(String ageGroupPrefix,
 	        Championship championship) {
+		logger.warn("allParticipationsForAgeGroupAgeDivision");
 		List<Participation> participations = JPAService.runInTransaction(em -> {
 
 			List<String> whereList = new ArrayList<>();
@@ -137,7 +138,7 @@ public class AgeGroupRepository {
 				whereList.add("ag.code = :ageGroupPrefix");
 			}
 			if (championship != null) {
-				whereList.add("ag.championshipName = :championshipName");
+				whereList.add("((ag.championshipName = :championshipName) or (ag.ageDivision = :championshipName))");
 			}
 			String whereClause = "";
 			if (whereList.size() > 0) {
@@ -297,7 +298,7 @@ public class AgeGroupRepository {
 				return resultSet;
 			} else {
 				TypedQuery<String> q = em.createQuery(
-				        "select distinct ag.code from Participation p join p.category c join c.ageGroup ag where ag.championshipName = :championshipName",
+				        "select distinct ag.code from Participation p join p.category c join c.ageGroup ag where ((ag.championshipName = :championshipName) or (ag.ageDivision = :championshipName))",
 				        String.class);
 				q.setParameter("championshipName", championship.getName());
 				List<String> resultSet = q.getResultList();

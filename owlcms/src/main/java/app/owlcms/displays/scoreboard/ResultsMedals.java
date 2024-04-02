@@ -114,7 +114,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	}
 
 	@Override
-	public Championship getAgeDivision() {
+	public Championship getChampionship() {
 		return this.ageDivision;
 	}
 
@@ -139,7 +139,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	}
 
 	@Override
-	public void setAgeDivision(Championship ageDivision) {
+	public void setChampionship(Championship ageDivision) {
 		this.ageDivision = ageDivision;
 	}
 

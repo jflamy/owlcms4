@@ -95,8 +95,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 	// @Enumerated(EnumType.STRING)
 	private String ageDivision; // this is actually the championship type (MASTERS, IWF, etc.)
-	private String championshipName;  // foreign key: PanAm, SouthAm, etc.  Same the type if not specified explicitly.
-	
+	private String championshipName; // foreign key: PanAm, SouthAm, etc. Same the type if not specified explicitly.
 	@OneToMany(mappedBy = "ageGroup", cascade = { CascadeType.ALL }, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<Category> categories = new ArrayList<>();
 	@Enumerated(EnumType.STRING)
@@ -106,7 +105,8 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	@JsonIgnore
 	private Long id;
 	private Integer qualificationTotal;
-
+	@Column(columnDefinition = "boolean default false")
+	private Boolean categoriesAlreadyGendered = false;
 
 	public AgeGroup() {
 	}
@@ -200,7 +200,8 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	}
 
 	public String getChampionshipName() {
-		return (this.championshipName != null && !this.championshipName.isBlank()) ? this.championshipName : this.ageDivision;
+		return (this.championshipName != null && !this.championshipName.isBlank()) ? this.championshipName
+		        : this.ageDivision;
 	}
 
 	public String getCode() {
@@ -258,7 +259,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 		String value = null;
 		String translatedCode = getTranslatedCode(code2);
-		if (this.ageDivision == Championship.of(Championship.MASTERS).getName()) {
+		if (this.ageDivision == Championship.of(Championship.MASTERS).getName() || this.isCategoriesAlreadyGendered()) {
 			value = translatedCode;
 		} else if (this.ageDivision == Championship.DEFAULT) {
 			value = getTranslatedGender();
@@ -360,6 +361,14 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		        "AgeGroup." + code2,
 		        OwlcmsSession.getLocale());
 		return translatedCode != null ? translatedCode : code2;
+	}
+
+	public void setCategoriesAlreadyGendered(boolean b) {
+		this.categoriesAlreadyGendered = b;
+	}
+
+	public boolean isCategoriesAlreadyGendered() {
+		return categoriesAlreadyGendered == null ? false : categoriesAlreadyGendered;
 	}
 
 }

@@ -15,7 +15,7 @@ public class AbstractTop extends Results implements TopParameters {
 	private Category category;
 
 	@Override
-	final public Championship getAgeDivision() {
+	final public Championship getChampionship() {
 		return this.ageDivision;
 	}
 
@@ -35,7 +35,7 @@ public class AbstractTop extends Results implements TopParameters {
 	}
 
 	@Override
-	final public void setAgeDivision(Championship ageDivision) {
+	final public void setChampionship(Championship ageDivision) {
 		this.ageDivision = ageDivision;
 	}
 

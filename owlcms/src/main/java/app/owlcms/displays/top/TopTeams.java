@@ -97,7 +97,7 @@ public class TopTeams extends AbstractTop {
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 
-		TeamResultsTreeData teamResultsTreeData = new TeamResultsTreeData(getAgeGroupPrefix(), getAgeDivision(),
+		TeamResultsTreeData teamResultsTreeData = new TeamResultsTreeData(getAgeGroupPrefix(), getChampionship(),
 		        (Gender) null,
 		        Ranking.SNATCH_CJ_TOTAL, false);
 		Map<Gender, List<TeamTreeItem>> teamsByGender = teamResultsTreeData.getTeamItemsByGender();

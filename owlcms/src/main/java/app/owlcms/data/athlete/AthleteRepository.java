@@ -428,7 +428,7 @@ public class AthleteRepository {
 			query.setParameter("ageGroup", ageGroup);
 		}
 		if (ageDivision != null) {
-			query.setParameter("division", ageDivision);
+			query.setParameter("division", ageDivision.getName());
 		}
 		if (gender != null) {
 			query.setParameter("gender", gender);

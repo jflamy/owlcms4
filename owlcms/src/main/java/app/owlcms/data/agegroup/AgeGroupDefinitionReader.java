@@ -76,6 +76,10 @@ public class AgeGroupDefinitionReader {
 							if (trim.isBlank()) {
 								ag = null;
 								break rows;
+							} else if (trim.startsWith("!")) {
+								ag = new AgeGroup();
+								ag.setCode(trim.substring(1));
+								ag.setCategoriesAlreadyGendered(true);
 							} else {
 								ag = new AgeGroup();
 								ag.setCode(trim);

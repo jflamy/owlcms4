@@ -105,7 +105,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		        SoundParameters.IMMEDIATE, "true",
 		        SoundParameters.SINGLEREF, "false")));
 		createTopBarGroupSelect();
-		defineFilters(this.crudGrid);
+		defineFilters(this.getCrudGrid());
 	}
 
 	/**

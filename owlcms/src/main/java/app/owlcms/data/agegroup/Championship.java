@@ -121,7 +121,7 @@ public class Championship implements Comparable<Championship> {
 	}
 
 	public static Championship[] values() {
-		return (Championship[]) findAll().toArray();
+		return findAll().toArray(new Championship[0]);
 	}
 
 	private String name;

@@ -100,7 +100,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	static {
 		logger.setLevel(Level.INFO);
 	}
-	private ComboBox<Championship> ageDivisionFilter = new ComboBox<>();
+	private ComboBox<Championship> championshipFilter = new ComboBox<>();
 	private ComboBox<AgeGroup> ageGroupFilter = new ComboBox<>();
 	private ComboBox<Category> categoryFilter = new ComboBox<>();
 	protected OwlcmsCrudGrid<Athlete> crudGrid;
@@ -122,7 +122,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	private Category category;
 	private Gender gender;
 	private Platform platform;
-	private Championship ageDivision;
+	private Championship championship;
 	private String ageGroupPrefix;
 	private String lastName;
 	private AgeGroup ageGroup;
@@ -224,7 +224,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	@Override
 	public Collection<Athlete> findAll() {
 		List<Athlete> findFiltered = AthleteRepository.findFiltered(getLastName(), getGroup(),
-		        getCategory(), getAgeGroup(), getAgeDivision(),
+		        getCategory(), getAgeGroup(), getChampionship(),
 		        getGender(), getWeighedIn(), getTeam(), -1, -1);
 		AthleteSorter.registrationOrder(findFiltered);
 		// startingXlsWriter.setSortedAthletes(findFiltered);
@@ -351,14 +351,11 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 	protected List<Athlete> athletesFindAll() {
 		List<Athlete> found = participationFindAll();
-		// cards and starting we only want the actual athlete, without duplicates
+		// for cards and starting lists we only want the actual athlete, without duplicates
 		Set<Athlete> regCatAthletes = found.stream().map(pa -> ((PAthlete) pa)._getAthlete())
 		        .collect(Collectors.toSet());
 		List<Athlete> regCatAthletesList = new ArrayList<>(regCatAthletes);
 		regCatAthletesList.sort(groupCategoryComparator());
-
-		// cardsXlsWriter.setSortedAthletes(regCatAthletesList);
-		// startingXlsWriter.setSortedAthletes(regCatAthletesList);
 
 		updateURLLocations();
 		return regCatAthletesList;
@@ -552,16 +549,16 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		});
 		crudGrid.getCrudLayout().addFilterComponent(this.teamFilter);
 
-		this.ageDivisionFilter.setPlaceholder(Translator.translate("Championship"));
-		this.ageDivisionFilter.setItems(Championship.findAll());
-		this.ageDivisionFilter.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.getName()));
-		this.ageDivisionFilter.setClearButtonVisible(true);
-		this.ageDivisionFilter.addValueChangeListener(e -> {
-			setAgeDivision(e.getValue());
+		this.championshipFilter.setPlaceholder(Translator.translate("Championship"));
+		this.championshipFilter.setItems(Championship.findAllUsed());
+		this.championshipFilter.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.getName()));
+		this.championshipFilter.setClearButtonVisible(true);
+		this.championshipFilter.addValueChangeListener(e -> {
+			setChampionship(e.getValue());
 			crudGrid.refreshGrid();
 		});
-		this.ageDivisionFilter.setWidth("10em");
-		crudGrid.getCrudLayout().addFilterComponent(this.ageDivisionFilter);
+		this.championshipFilter.setWidth("10em");
+		crudGrid.getCrudLayout().addFilterComponent(this.championshipFilter);
 
 		this.ageGroupFilter.setPlaceholder(Translator.translate("AgeGroup"));
 		this.ageGroupFilter.setItems(AgeGroupRepository.findAll());
@@ -629,7 +626,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		clearFilters.addClickListener(event -> {
 			this.lastNameFilter.clear();
 			this.ageGroupFilter.clear();
-			this.ageDivisionFilter.clear();
+			this.championshipFilter.clear();
 			this.categoryFilter.clear();
 			// groupFilter.clear();
 			this.weighedInFilter.clear();
@@ -654,10 +651,10 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	}
 
 	/**
-	 * @return the ageDivision
+	 * @return the championship
 	 */
-	protected Championship getAgeDivision() {
-		return this.ageDivision;
+	public Championship getChampionship() {
+		return this.championship;
 	}
 
 	protected AgeGroup getAgeGroup() {
@@ -667,7 +664,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	/**
 	 * @return the ageGroupPrefix
 	 */
-	protected String getAgeGroupPrefix() {
+	public String getAgeGroupPrefix() {
 		return this.ageGroupPrefix;
 	}
 
@@ -675,7 +672,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		return this.category;
 	}
 
-	protected Category getCategoryValue() {
+	public Category getCategoryValue() {
 		return getCategory();
 	}
 
@@ -715,7 +712,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 	protected List<Athlete> participationFindAll() {
 		List<Athlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(getAgeGroupPrefix(),
-		        getAgeDivision());
+		        getChampionship());
 
 		Category catFilterValue = getCategoryValue();
 		Stream<Athlete> stream = athletes.stream()
@@ -757,8 +754,8 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		return found;
 	}
 
-	protected void setAgeDivision(Championship ageDivision) {
-		this.ageDivision = ageDivision;
+	public void setChampionship(Championship championship) {
+		this.championship = championship;
 	}
 
 	protected void setAgeGroup(AgeGroup value) {
@@ -766,7 +763,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 	}
 
-	protected void setAgeGroupPrefix(String ageGroupPrefix) {
+	public void setAgeGroupPrefix(String ageGroupPrefix) {
 		this.ageGroupPrefix = ageGroupPrefix;
 	}
 
@@ -804,7 +801,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		String ag = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
 		updateURLLocation(UI.getCurrent(), getLocation(), "ag",
 		        ag);
-		String ad = getAgeDivision() != null ? getAgeDivision().getName() : null;
+		String ad = getChampionship() != null ? getChampionship().getName() : null;
 		updateURLLocation(UI.getCurrent(), getLocation(), "ad",
 		        ad);
 		String cat = getCategoryValue() != null ? getCategoryValue().getComputedCode() : null;
@@ -851,7 +848,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 	private Collection<Athlete> doFindAll(EntityManager em) {
 		List<Athlete> all = AthleteRepository.doFindFiltered(em, getLastName(), getGroup(),
-		        getCategory(), getAgeGroup(), getAgeDivision(),
+		        getCategory(), getAgeGroup(), getChampionship(),
 		        getGender(), getWeighedIn(), getTeam(), -1, -1);
 		return all;
 	}

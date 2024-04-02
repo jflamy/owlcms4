@@ -210,7 +210,7 @@ public abstract class AthleteGridContent extends BaseContent
 	protected BreakDialog breakDialog;
 	protected HorizontalLayout breaks;
 	protected HorizontalLayout buttons;
-	protected OwlcmsCrudGrid<Athlete> crudGrid;
+	private OwlcmsCrudGrid<Athlete> crudGrid;
 	protected OwlcmsGridLayout crudLayout;
 	protected JuryDisplayDecisionElement decisionDisplay;
 	protected HorizontalLayout decisions;
@@ -339,7 +339,7 @@ public abstract class AthleteGridContent extends BaseContent
 	@Override
 	public void closeDialog() {
 		this.crudLayout.hideForm();
-		this.crudGrid.getGrid().asSingleSelect().clear();
+		this.getCrudGrid().getGrid().asSingleSelect().clear();
 	}
 
 	/**
@@ -488,7 +488,7 @@ public abstract class AthleteGridContent extends BaseContent
 
 	@Override
 	public OwlcmsCrudGrid<?> getEditingGrid() {
-		return this.crudGrid;
+		return this.getCrudGrid();
 	}
 
 	public H3 getFirstNameWrapper() {
@@ -849,12 +849,12 @@ public abstract class AthleteGridContent extends BaseContent
 	 */
 	@Subscribe
 	public void slaveUpdateGrid(UIEvent.LiftingOrderUpdated e) {
-		if (this.crudGrid == null) {
+		if (this.getCrudGrid() == null) {
 			return;
 		}
 		logger.debug("{} {}", e.getOrigin(), LoggerUtils.whereFrom());
-		UIEventProcessor.uiAccess(this.crudGrid, this.uiEventBus, e, () -> {
-			this.crudGrid.refreshGrid();
+		UIEventProcessor.uiAccess(this.getCrudGrid(), this.uiEventBus, e, () -> {
+			this.getCrudGrid().refreshGrid();
 		});
 	}
 
@@ -1413,10 +1413,10 @@ public abstract class AthleteGridContent extends BaseContent
 	protected void init() {
 		this.id = IdUtils.getTimeBasedId();
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
-		this.crudGrid = createCrudGrid(crudFormFactory);
-		this.crudLayout = (OwlcmsGridLayout) this.crudGrid.getCrudLayout();
-		defineFilters(this.crudGrid);
-		fillHW(this.crudGrid, this);
+		this.setCrudGrid(createCrudGrid(crudFormFactory));
+		this.crudLayout = (OwlcmsGridLayout) this.getCrudGrid().getCrudLayout();
+		defineFilters(this.getCrudGrid());
+		fillHW(this.getCrudGrid(), this);
 		setDownSilenced(true);
 	}
 
@@ -1473,9 +1473,9 @@ public abstract class AthleteGridContent extends BaseContent
 
 			if (refreshGrid) {
 				// ** this.setValue(fopGroup);
-				if (this.crudGrid != null) {
-					this.crudGrid.sort(null);
-					this.crudGrid.refreshGrid();
+				if (this.getCrudGrid() != null) {
+					this.getCrudGrid().sort(null);
+					this.getCrudGrid().refreshGrid();
 				}
 			}
 
@@ -1662,6 +1662,22 @@ public abstract class AthleteGridContent extends BaseContent
 			doNotification(Translator.translate("Notification.WeightToBeLoaded", newWeight), "info");
 			this.prevWeight = newWeight;
 		}
+	}
+
+	protected OwlcmsCrudGrid<Athlete> getCrudGrid() {
+		return crudGrid;
+	}
+
+	protected void setCrudGrid(OwlcmsCrudGrid<Athlete> crudGrid) {
+		this.crudGrid = crudGrid;
+	}
+
+	protected ComboBox<Gender> getGenderFilter() {
+		return genderFilter;
+	}
+
+	protected void setGenderFilter(ComboBox<Gender> genderFilter) {
+		this.genderFilter = genderFilter;
 	}
 
 }
