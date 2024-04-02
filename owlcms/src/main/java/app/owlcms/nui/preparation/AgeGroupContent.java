@@ -335,7 +335,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		crud.getCrudLayout().addFilterComponent(this.nameFilter);
 
 		this.championshipFilter.setPlaceholder(getTranslation("Championship"));
-		this.championshipFilter.setItems(Championship.findAllUsed());
+		this.championshipFilter.setItems(Championship.findAllUsed(false));
 		this.championshipFilter.setItemLabelGenerator((ad) -> ad.translate());
 		this.championshipFilter.setClearButtonVisible(true);
 		this.championshipFilter.addValueChangeListener(e -> {
