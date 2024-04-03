@@ -447,6 +447,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	@Override
 	protected void defineFilters(GridCrud<Athlete> crud) {
 		defineFilterCascade(crud);
+		defineSelectionListeners();
 		Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
 		clearFilters.addClickListener(event -> {
 			clearFilters();
@@ -462,7 +463,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		defineSelectionListeners();
+
 	}
 
 	protected void updateURLLocations() {

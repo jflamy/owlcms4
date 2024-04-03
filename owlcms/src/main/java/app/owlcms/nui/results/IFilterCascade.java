@@ -19,7 +19,6 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 public interface IFilterCascade {
@@ -114,7 +113,6 @@ public interface IFilterCascade {
 
 		updateCategoryFilter(getChampionship(), getAgeGroupPrefix());
 		this.getCategoryFilter().addValueChangeListener(e -> {
-			// logger.debug("categoryFilter set {}", e.getValue());
 			setCategoryValue(e.getValue());
 			this.getCrudGrid().refreshGrid();
 		});
@@ -123,7 +121,6 @@ public interface IFilterCascade {
 	public default void doAgeGroupPrefixRefresh(String string) {
 		setAgeGroupPrefix(string);
 		updateCategoryFilter(getChampionship(), getAgeGroupPrefix());
-		// xlsWriter.setAgeGroupPrefix(ageGroupPrefix);
 		if (this.getCrudGrid() != null) {
 			this.getCrudGrid().refreshGrid();
 		}
@@ -234,7 +231,6 @@ public interface IFilterCascade {
 	}
 
 	public default void updateCategoryFilter(Championship ageDivision2, String ageGroupPrefix2) {
-		getLogger().warn("updateCategoryFilter {} {} {}", ageDivision2, ageGroupPrefix2, LoggerUtils.whereFrom());
 		List<Category> categories = CategoryRepository.findByGenderDivisionAgeBW(this.getGenderFilter().getValue(),
 		        getChampionship(), null, null);
 		if (getAgeGroupPrefix() != null && !getAgeGroupPrefix().isBlank()) {

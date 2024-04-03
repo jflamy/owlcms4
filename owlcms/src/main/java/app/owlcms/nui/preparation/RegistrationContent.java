@@ -947,7 +947,6 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		} else {
 			setGroup(newCurrentGroup);
 		}
-		// getRouterLayout().updateHeader(true);
 		getGroupFilter().setValue(newCurrentGroup);
 	}
 
