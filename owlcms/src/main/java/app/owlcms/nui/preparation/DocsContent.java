@@ -53,7 +53,6 @@ import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCardsDocs;
 import app.owlcms.spreadsheet.JXLSStartingListDocs;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
-import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -272,14 +271,14 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 		platformParam = platformParam != null ? URLDecoder.decode(platformParam, StandardCharsets.UTF_8) : null;
 		this.setPlatform(platformParam != null ? PlatformRepository.findByName(platformParam) : null);
 		// logger.debug("reading param platform {}", platformParam);
-		this.platformFilter.setValue(this.getPlatform());
+		this.getPlatformFilter().setValue(this.getPlatform());
 		updateParam(params1, "platform", platformParam != null ? platformParam : null);
 
 		// logger.debug("params {}", params1);
 		setUrlParameterMap(params1);
 		return params1;
 	}
-	
+
 	@Override
 	public Category getCategoryValue() {
 		return super.getCategoryValue();
@@ -525,49 +524,55 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 	 */
 	@Override
 	protected void defineFilters(OwlcmsCrudGrid<Athlete> crudGrid) {
-		logger.warn("defineFilters {}", LoggerUtils.whereFrom());
 		this.defineFilterCascade(crudGrid);
 		this.defineRegistrationFilters(crudGrid);
 		this.defineSelectionListeners();
 
-		this.teamFilter.setPlaceholder(Translator.translate("Team"));
-		this.teamFilter.setItems(AthleteRepository.findAllTeams());
-		this.teamFilter.getStyle().set("--vaadin-combo-box-overlay-width", "25em");
-		this.teamFilter.setClearButtonVisible(true);
-		this.teamFilter.addValueChangeListener(e -> {
+		this.getTeamFilter().setPlaceholder(Translator.translate("Team"));
+		this.getTeamFilter().setItems(AthleteRepository.findAllTeams());
+		this.getTeamFilter().getStyle().set("--vaadin-combo-box-overlay-width", "25em");
+		this.getTeamFilter().setClearButtonVisible(true);
+		this.getTeamFilter().addValueChangeListener(e -> {
 			setTeam(e.getValue());
 			crudGrid.refreshGrid();
 		});
-		crudGrid.getCrudLayout().addFilterComponent(this.teamFilter);
+		crudGrid.getCrudLayout().addFilterComponent(this.getTeamFilter());
 
-		if (this.platformFilter == null) {
-			this.platformFilter = new ComboBox<>();
+		if (this.getPlatformFilter() == null) {
+			this.setPlatformFilter(new ComboBox<>());
 		}
-		this.platformFilter.setPlaceholder(getTranslation("Platform"));
+		this.getPlatformFilter().setPlaceholder(getTranslation("Platform"));
 		List<Platform> agItems1 = PlatformRepository.findAll();
-		this.platformFilter.setItems(agItems1);
+		this.getPlatformFilter().setItems(agItems1);
 		// platformFilter.setItemLabelGenerator((ad) -> Translator.translate("Division."
 		// + ad.name()));
-		this.platformFilter.setClearButtonVisible(true);
-		this.platformFilter.setWidth("8em");
-		this.platformFilter.getStyle().set("margin-left", "1em");
-		this.platformFilter.addValueChangeListener(e -> {
+		this.getPlatformFilter().setClearButtonVisible(true);
+		this.getPlatformFilter().setWidth("8em");
+		this.getPlatformFilter().getStyle().set("margin-left", "1em");
+		this.getPlatformFilter().addValueChangeListener(e -> {
 			setPlatform(e.getValue());
 			crudGrid.refreshGrid();
 		});
-		crudGrid.getCrudLayout().addFilterComponent(this.platformFilter);
+		crudGrid.getCrudLayout().addFilterComponent(this.getPlatformFilter());
 		// logger.debug("setting platform filter {}", getPlatform());
-		this.platformFilter.setValue(getPlatform());
+		this.getPlatformFilter().setValue(getPlatform());
 
 		Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
 		clearFilters.addClickListener(event -> {
-			this.lastNameFilter.clear();
-			this.getAgeGroupFilter().clear();
-			this.getChampionshipFilter().clear();
-			this.platformFilter.clear();
-			this.getGenderFilter().clear();
+			clearFilters();
 		});
 		crudGrid.getCrudLayout().addFilterComponent(clearFilters);
+	}
+
+	@Override
+	public void clearFilters() {
+		this.getAgeGroupFilter().clear();
+		this.getChampionshipFilter().clear();
+		this.getCategoryFilter().clear();
+		this.getGenderFilter().clear();
+		this.getPlatformFilter().clear();
+		this.getLastNameFilter().clear();
+		this.getWeighedInFilter().clear();
 	}
 
 	/**
@@ -577,6 +582,14 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
+	}
+
+	public ComboBox<Platform> getPlatformFilter() {
+		return platformFilter;
+	}
+
+	public void setPlatformFilter(ComboBox<Platform> platformFilter) {
+		this.platformFilter = platformFilter;
 	}
 
 }

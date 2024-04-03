@@ -84,7 +84,6 @@ public class Championship implements Comparable<Championship> {
 		var results = new ArrayList<Championship>();
 		findAll();
 		List<String> names = AgeGroupRepository.allActiveChampionshipsNames(activeOnly);
-		logger.warn("names = {}",names);
 		for (String n : names) {
 			Championship of = Championship.of(n);
 			results.add(of);

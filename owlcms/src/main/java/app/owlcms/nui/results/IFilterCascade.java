@@ -84,13 +84,12 @@ public interface IFilterCascade {
 		}
 	}
 
-	public default boolean showGenderFilter() {
-		return false;
+	default public void clearFilters() {
+		this.getAgeGroupFilter().clear();
+		this.getChampionshipFilter().clear();
+		this.getCategoryFilter().clear();
+		this.getGenderFilter().clear();
 	}
-
-	public void setGender(Gender value);
-
-	public Gender getGender();
 
 	default public void defineSelectionListeners() {
 		Championship urlAD = getChampionship();
@@ -151,6 +150,8 @@ public interface IFilterCascade {
 	default public CrudLayout getCrudLayout(GridCrud<Athlete> crud) {
 		return crud.getCrudLayout();
 	}
+
+	public Gender getGender();
 
 	public ComboBox<Gender> getGenderFilter();
 
@@ -224,7 +225,13 @@ public interface IFilterCascade {
 		});
 	}
 
+	public void setGender(Gender value);
+
 	public void setGenderFilter(ComboBox<Gender> genderFilter);
+
+	public default boolean showGenderFilter() {
+		return false;
+	}
 
 	public default void updateCategoryFilter(Championship ageDivision2, String ageGroupPrefix2) {
 		getLogger().warn("updateCategoryFilter {} {} {}", ageDivision2, ageGroupPrefix2, LoggerUtils.whereFrom());

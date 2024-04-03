@@ -155,7 +155,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	 */
 	@Override
 	public Collection<Athlete> findAll() {
-		logger.warn("%%%%% package findall {} {}", this.getGenderFilter(), this.getGenderFilter().getValue());
 		Competition competition = Competition.getCurrent();
 		HashMap<String, Object> beans = competition.computeReportingInfo(this.ageGroupPrefix, this.championship);
 		String key = "mwTot";
@@ -351,7 +350,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
 	@Override
 	public void setGenderFilter(ComboBox<Gender> genderFilter) {
-		logger.warn("%%%% setGenderFilter {}", genderFilter);
 		this.genderFilter = genderFilter;
 	}
 
@@ -449,6 +447,12 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	@Override
 	protected void defineFilters(GridCrud<Athlete> crud) {
 		defineFilterCascade(crud);
+		Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
+		clearFilters.addClickListener(event -> {
+			clearFilters();
+		});
+		
+		getCrudLayout(crud).addFilterComponent(clearFilters);
 	}
 
 	/**
@@ -566,4 +570,5 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	private void highlight(Button button) {
 		button.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
 	}
+
 }

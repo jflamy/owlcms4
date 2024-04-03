@@ -362,7 +362,6 @@ public class CategoryRepository {
 			return null;
 		} else {
 			String join = String.join(" and ", whereList);
-			logger.warn("join = {}",join);
 			return join;
 		}
 	}
@@ -387,7 +386,6 @@ public class CategoryRepository {
 			query.setParameter("bodyWeight", bodyWeight);
 		}
 		if (championship != null) {
-			logger.warn("division = {}", championship.getName());
 			query.setParameter("championshipName", championship.getName()); // ageDivision is a string
 		}
 		if (gender != null) {
