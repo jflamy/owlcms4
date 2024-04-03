@@ -1,4 +1,4 @@
-#### Version 47.1.1
+#### Version 47.1.2
 
 > [!IMPORTANT]
 > 
@@ -6,7 +6,7 @@
 
 ##### 47.1.2
 
-- Fix: the detection of the Start Book Data Entry (SBDE) format would sometimes fail, and the new format would be attempted and fail.
+- Fix: Removed the automatic detection of the Excel registration file formats. Using the SBDE button will not accept the simple format, and vice versa.
 
 ##### 47.1.1
 
