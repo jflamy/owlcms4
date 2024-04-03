@@ -93,10 +93,10 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		downloadDiv.setWidthFull();
 
 		Button upload = new Button(Translator.translate("UploadRegistrations"), new Icon(VaadinIcon.UPLOAD_ALT),
-		        buttonClickEvent -> new NRegistrationFileUploadDialog().open());
+		        buttonClickEvent -> new NRegistrationFileUploadDialog(false).open());
 		Button fullUpload = new Button(Translator.translate("AdvancedPreparation.Import"),
 		        new Icon(VaadinIcon.UPLOAD_ALT),
-		        buttonClickEvent -> new NRegistrationFileUploadDialog().open());
+		        buttonClickEvent -> new NRegistrationFileUploadDialog(true).open());
 		var registrationWriter = new JXLSSBDEExport(UI.getCurrent());
 		JXLSDownloader dd2 = new JXLSDownloader(
 		        () -> {
