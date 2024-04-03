@@ -1,8 +1,12 @@
-#### Version 47.1.1
+#### Version 47.1.2
 
 > [!IMPORTANT]
 > 
 > - You should test all releases with your own data, several days before a competition.
+
+##### 47.1.2
+
+- Fix: Removed the automatic detection of the Excel registration file formats. Using the SBDE button will not accept the simple format, and vice versa.
 
 ##### 47.1.1
 
