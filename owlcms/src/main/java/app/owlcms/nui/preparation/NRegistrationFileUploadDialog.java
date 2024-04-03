@@ -91,7 +91,10 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			// empty cell indicates old format
 			boolean nullCell = cell == null;
 			CellType cellType = cell.getCellType();
-			return (nullCell || cellType == CellType.BLANK);
+			boolean b = nullCell
+			        || cellType == CellType.BLANK
+			        || (cellType == CellType.STRING && cell.getStringCellValue().isBlank());
+			return b;
 		} catch (Exception e) {
 			logger.error("cannot determine format {}", e);
 		}
@@ -111,7 +114,6 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			processGroups(inputStream, ta, false);
 			logger.info("{} groups processed", nbGroups);
 		}
-
 
 		// process athletes now that groups have been adjusted
 		processAthletes(inputStream, ta, false);

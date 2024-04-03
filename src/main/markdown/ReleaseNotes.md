@@ -4,6 +4,10 @@
 > 
 > - You should test all releases with your own data, several days before a competition.
 
+##### 47.1.2
+
+- Fix: the detection of the Start Book Data Entry (SBDE) format would sometimes fail, and the new format would be attempted and fail.
+
 ##### 47.1.1
 
 - Fix: the countdown for the time before snatch is now starting correctly at the end of the athlete introduction.
