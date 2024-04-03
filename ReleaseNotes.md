@@ -1,8 +1,13 @@
-#### Version 47.1.1
+#### Version 47.1.2
 
 > [!IMPORTANT]
 > 
 > - You should test all releases with your own data, several days before a competition.
+
+##### 47.1.2
+
+- Fix: Removed the automatic detection of the Excel registration file formats. The matching user interface buttons for the format must be used for extracting and reloading.
+- Updated several translations
 
 ##### 47.1.1
 
