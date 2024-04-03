@@ -6,8 +6,8 @@
  *******************************************************************************/
 package app.owlcms.tests;
 
-import static org.junit.Assert.assertEquals;
 import static app.owlcms.tests.AllTests.assertEqualsToReferenceFile;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.io.InputStream;
