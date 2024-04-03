@@ -6,7 +6,8 @@
 
 ##### 47.1.2
 
-- Fix: Removed the automatic detection of the Excel registration file formats. Using the SBDE button will not accept the simple format, and vice versa.
+- Fix: Removed the automatic detection of the Excel registration file formats. The matching user interface buttons for the format must be used for extracting and reloading.
+- Updated several translations
 
 ##### 47.1.1
 
