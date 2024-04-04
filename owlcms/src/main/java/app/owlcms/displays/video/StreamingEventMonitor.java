@@ -473,7 +473,7 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 
 	private void init() {
 		OwlcmsSession.withFop(fop -> {
-			this.logger.trace("{}Starting notification monitor", fop.getLoggingName());
+			this.logger.trace("{}Starting notification monitor", FieldOfPlay.getLoggingName(fop));
 			setId("scoreboard-" + fop.getName());
 		});
 	}
