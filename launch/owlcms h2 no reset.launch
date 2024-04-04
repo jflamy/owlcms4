@@ -11,7 +11,6 @@
         <mapEntry key="OWLCMS_PORT" value="8080"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="mapetitevacheamalauxpattes"/>
         <mapEntry key="OWLCMS_UPDATEKEY_2" value="X)&gt;G#qSz7|B+OC!3*LLM"/>
-        <mapEntry key="OWLCMS_USECOMPETITIONDATE" value="true"/>
         <mapEntry key="_JDBC_DATABASE_URL" value="jdbc:h2:file:./database/scolaire.mv.db"/>
         <mapEntry key="_OWLCMS_BACKDOOR" value="127.0.0.1,[0:0:0:0:0:0:0:1]"/>
         <mapEntry key="_OWLCMS_CSSEDIT" value="false"/>
@@ -20,6 +19,7 @@
         <mapEntry key="_OWLCMS_PIN" value="1234"/>
         <mapEntry key="_OWLCMS_REMOTE" value="http://localhost:8082"/>
         <mapEntry key="_OWLCMS_REMOTE_2" value="https://owlcms-next.fly.dev"/>
+        <mapEntry key="_OWLCMS_USECOMPETITIONDATE" value="true"/>
     </mapAttribute>
     <mapAttribute key="org.eclipse.debug.core.preferred_launchers">
         <mapEntry key="[debug]" value="org.eclipse.jdt.launching.localJavaApplication"/>

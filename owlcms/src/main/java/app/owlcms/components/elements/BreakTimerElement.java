@@ -76,7 +76,7 @@ public class BreakTimerElement extends TimerElement {
 			if (!fopName.contentEquals(fop.getName())) {
 				return;
 			}
-			this.logger.debug("{}{} fetching time", getClass().getSimpleName(), fop.getLoggingName());
+			this.logger.debug("{}{} fetching time", getClass().getSimpleName(), FieldOfPlay.getLoggingName(fop));
 			IProxyTimer fopTimer = getFopTimer(fop);
 			doSetTimer(fopTimer.isIndefinite() ? null : fopTimer.liveTimeRemaining());
 		});

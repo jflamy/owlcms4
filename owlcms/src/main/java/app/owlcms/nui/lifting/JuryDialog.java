@@ -66,7 +66,7 @@ public class JuryDialog extends Dialog {
 		this.setDraggable(true);
 		logger.info(
 		        deliberation == JuryDeliberationEventType.START_DELIBERATION ? "{}{} reviewedAthlete {}" : "{}{}",
-		        OwlcmsSession.getFop().getLoggingName(), deliberation, athleteUnderReview);
+		        FieldOfPlay.getLoggingName(OwlcmsSession.getFop()), deliberation, athleteUnderReview);
 		this.setReviewedAthlete(athleteUnderReview);
 		this.setWidth("50em");
 		FieldOfPlay fop;
@@ -141,7 +141,7 @@ public class JuryDialog extends Dialog {
 			                : "{}end jury break");
 			logger.info(
 			        message,
-			        OwlcmsSession.getFop().getLoggingName());
+			        FieldOfPlay.getLoggingName(OwlcmsSession.getFop()));
 
 			this.close();
 		});

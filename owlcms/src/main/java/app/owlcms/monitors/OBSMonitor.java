@@ -383,7 +383,7 @@ public class OBSMonitor extends LitTemplate implements FOPParametersReader,
 
 	private void init() {
 		OwlcmsSession.withFop(fop -> {
-			logger.trace("{}Starting monitoring", fop.getLoggingName());
+			logger.trace("{}Starting monitoring", FieldOfPlay.getLoggingName(fop));
 			setId("scoreboard-" + fop.getName());
 		});
 	}

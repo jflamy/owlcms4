@@ -134,9 +134,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		String updateUrl = Config.getCurrent().getParamUpdateUrl();
 		if (updateUrl == null || updateKey == null || updateUrl.trim().isEmpty()
 		        || updateKey.trim().isEmpty()) {
-			logger.info("{}Pushing results to remote site not enabled.", getFop().getLoggingName());
+			logger.info("{}Pushing results to remote site not enabled.", FieldOfPlay.getLoggingName(getFop()));
 		} else {
-			logger.info("{}Pushing to remote site {}", getFop().getLoggingName(), updateUrl);
+			logger.info("{}Pushing to remote site {}", FieldOfPlay.getLoggingName(getFop()), updateUrl);
 		}
 		pushUpdate();
 	}
@@ -779,13 +779,13 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 					if (statusCode != null && statusCode != 200) {
 						synchronized (singleThreadLock) {
 							if (nbTries == 0 && statusCode != null && statusCode == 412) {
-								logger.error("{}missing remote configuration {} {} {}", getFop().getLoggingName(), url,
+								logger.error("{}missing remote configuration {} {} {}", FieldOfPlay.getLoggingName(getFop()), url,
 								        statusLine,
 								        LoggerUtils.whereFrom(1));
 								sendConfig(parameters.get("updateKey"));
 								nbTries++;
 							} else {
-								logger.error("{}could not post to {} {} {}", getFop().getLoggingName(), url, statusLine,
+								logger.error("{}could not post to {} {} {}", FieldOfPlay.getLoggingName(getFop()), url, statusLine,
 								        LoggerUtils.whereFrom(1));
 								done = true;
 							}
@@ -794,13 +794,13 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 						done = true;
 					}
 				} catch (Exception e1) {
-					logger.error("{}could not post to {} {}", getFop().getLoggingName(), url,
+					logger.error("{}could not post to {} {}", FieldOfPlay.getLoggingName(getFop()), url,
 					        LoggerUtils.exceptionMessage(e1));
 					done = true;
 				}
 			} catch (UnsupportedEncodingException e2) {
 				// can't happen.
-				logger.error("{}could not post to {} {}", getFop().getLoggingName(), url,
+				logger.error("{}could not post to {} {}", FieldOfPlay.getLoggingName(getFop()), url,
 				        LoggerUtils.exceptionMessage(e2));
 				done = true;
 			}
@@ -1116,7 +1116,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		// is being requested again.
 		synchronized (Config.getCurrent()) {
 			try {
-				logger.info("{}sending config", getFop().getLoggingName());
+				logger.info("{}sending config", FieldOfPlay.getLoggingName(getFop()));
 				HttpPost post = new HttpPost(destination);
 
 				MultipartEntityBuilder builder = MultipartEntityBuilder.create();
@@ -1147,17 +1147,17 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 					StatusLine statusLine = response.getStatusLine();
 					Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
 					if (statusCode != null && statusCode != 200) {
-						logger.error("{}could not send config to {} {} {}", getFop().getLoggingName(), destination,
+						logger.error("{}could not send config to {} {} {}", FieldOfPlay.getLoggingName(getFop()), destination,
 						        statusLine,
 						        LoggerUtils.whereFrom(1));
 					}
 					EntityUtils.toString(response.getEntity());
 				} catch (Exception e1) {
-					logger.error("{}could not send config to {} {}", getFop().getLoggingName(), destination,
+					logger.error("{}could not send config to {} {}", FieldOfPlay.getLoggingName(getFop()), destination,
 					        LoggerUtils.exceptionMessage(e1));
 				}
 			} catch (Exception e2) {
-				logger.error("{}could not send config to {} {}", getFop().getLoggingName(), destination, e2);
+				logger.error("{}could not send config to {} {}", FieldOfPlay.getLoggingName(getFop()), destination, e2);
 			}
 		}
 	}

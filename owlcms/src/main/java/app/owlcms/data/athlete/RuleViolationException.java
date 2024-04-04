@@ -10,6 +10,7 @@ import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
@@ -259,7 +260,7 @@ public class RuleViolationException extends RuntimeException {
 		this.messageKey = s;
 		this.messageFormatData = objs;
 		OwlcmsSession.withFop(fop -> {
-			logger./**/warn("{}{}: {} [{}]", fop.getLoggingName(), requestingAthlete.getShortName(),
+			logger./**/warn("{}{}: {} [{}]", FieldOfPlay.getLoggingName(fop), requestingAthlete.getShortName(),
 			        getLocalizedMessage(Locale.ENGLISH), LoggerUtils.whereFrom(3));
 		});
 

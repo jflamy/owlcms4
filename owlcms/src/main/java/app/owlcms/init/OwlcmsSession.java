@@ -88,7 +88,7 @@ public class OwlcmsSession {
 	public static String getFopLoggingName() {
 		FieldOfPlay fop = getFop();
 		if (fop != null) {
-			return fop.getLoggingName();
+			return FieldOfPlay.getLoggingName(fop);
 		} else {
 			return "-";
 		}

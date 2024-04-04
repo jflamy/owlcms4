@@ -629,7 +629,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 
 	private void medalsInit() {
 		OwlcmsSession.withFop(fop -> {
-			logger.trace("{}Starting result board on FOP {}", fop.getLoggingName());
+			logger.trace("{}Starting result board on FOP {}", FieldOfPlay.getLoggingName(fop));
 			setId("medals-" + fop.getName());
 			setWideTeamNames(false);
 			this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());

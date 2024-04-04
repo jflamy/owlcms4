@@ -1130,7 +1130,7 @@ public class Results extends LitTemplate
 
     private void resultsInit() {
         OwlcmsSession.withFop(fop -> {
-            this.logger.trace("{}Starting result board on FOP {}", fop.getLoggingName());
+            this.logger.trace("{}Starting result board on FOP {}", FieldOfPlay.getLoggingName(fop));
             setId("scoreboard-" + fop.getName());
             this.curGroup = fop.getGroup();
             setWideTeamNames(false);

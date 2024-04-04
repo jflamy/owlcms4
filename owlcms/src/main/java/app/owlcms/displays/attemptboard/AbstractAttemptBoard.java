@@ -711,7 +711,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	protected void onAttach(AttachEvent attachEvent) {
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
-			logger.debug("{}onAttach {}", fop.getLoggingName(), fop.getState());
+			logger.debug("{}onAttach {}", FieldOfPlay.getLoggingName(fop), fop.getState());
 			init();
 			checkVideo(this);
 			ThemeList themeList = UI.getCurrent().getElement().getThemeList();
@@ -875,7 +875,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 	private void init() {
 		OwlcmsSession.withFop(fop -> {
-			logger.trace("{}Starting attempt board", fop.getLoggingName());
+			logger.trace("{}Starting attempt board", FieldOfPlay.getLoggingName(fop));
 		});
 		setTranslationMap();
 	}

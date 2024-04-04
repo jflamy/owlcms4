@@ -588,7 +588,7 @@ public class CurrentAthlete extends Results {
 
     private void init() {
         OwlcmsSession.withFop(fop -> {
-            logger.trace("{}Starting result board", fop.getLoggingName());
+            logger.trace("{}Starting result board", FieldOfPlay.getLoggingName(fop));
             setId("scoreboard-" + fop.getName());
             setWideTeamNames(false);
             this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
