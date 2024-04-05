@@ -536,7 +536,7 @@ public class TeamSelectionContent extends BaseContent
 			// ageDivisionAgeGroupPrefixes, first,
 			// topBarAgeGroupPrefixSelect);
 
-			this.xlsWriter.setAgeDivision(ageDivisionValue);
+			this.xlsWriter.setChampionship(ageDivisionValue);
 			this.finalPackage.getElement().setAttribute("download",
 			        "results" + (getAgeDivision() != null ? "_" + getAgeDivision().getName()
 			                : (this.ageGroupPrefix != null ? "_" + this.ageGroupPrefix : "_all")) + ".xls");

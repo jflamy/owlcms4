@@ -508,7 +508,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		this.downloadDialog = new JXLSDownloader(
 		        () -> {
 			        JXLSResultSheet rs = new JXLSResultSheet();
-			        rs.setAgeDivision(this.championship);
+			        rs.setChampionship(this.championship);
 			        rs.setAgeGroupPrefix(this.ageGroupPrefix);
 			        rs.setCategory(getCategoryValue());
 			        // group may have been edited since the page was loaded
@@ -531,7 +531,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        JXLSCompetitionBook rs = new JXLSCompetitionBook(this.locationUI);
 			        // group may have been edited since the page was loaded
 			        rs.setGroup(this.currentGroup != null ? GroupRepository.getById(this.currentGroup.getId()) : null);
-			        rs.setAgeDivision(this.championship);
+			        rs.setChampionship(this.championship);
 			        rs.setAgeGroupPrefix(this.ageGroupPrefix);
 			        rs.setCategory(this.categoryValue);
 			        return rs;
@@ -551,7 +551,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		this.downloadDialog = new JXLSDownloader(
 		        () -> {
 			        JXLSResultSheet rs = new JXLSResultSheet(false);
-			        rs.setAgeDivision(this.championship);
+			        rs.setChampionship(this.championship);
 			        rs.setAgeGroupPrefix(this.ageGroupPrefix);
 			        rs.setCategory(getCategoryValue());
 			        // group may have been edited since the page was loaded

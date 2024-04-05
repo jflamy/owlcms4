@@ -85,7 +85,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 //			// empty cell indicates old format
 //			boolean nullCell = cell == null;
 //			CellType cellType = cell.getCellType();
-//			logger.warn("cell type {} {}", cellType,
+//			logger.debug("cell type {} {}", cellType,
 //			        cellType == CellType.STRING ? ">" + cell.getStringCellValue() + "<" : "-");
 //			boolean b = nullCell
 //			        || cellType == CellType.BLANK

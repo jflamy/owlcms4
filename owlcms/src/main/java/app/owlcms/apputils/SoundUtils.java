@@ -24,11 +24,11 @@ public class SoundUtils {
 
 	// public static void doEnableAudioContext(Element element) {
 	// PendingJavaScriptResult result = element.executeJs(
-	// "console.warn('setting audio status'); return (window.isIOS ? window.audioCtx.state : 'running')");
+	// "console./**/warn('setting audio status'); return (window.isIOS ? window.audioCtx.state : 'running')");
 	// result.then(String.class, r -> {
 	// logger.debug("audio state {}", r);
 	// if (!r.equals("running")) {
-	// element.executeJs("console.warn('setting audio status'); window.audioCtx.resume()");
+	// element.executeJs("console./**/warn('setting audio status'); window.audioCtx.resume()");
 	// } else {
 	// // Notification.show("Audio enabled");
 	// }
@@ -39,7 +39,7 @@ public class SoundUtils {
 	public static void enableAudioContextNotification(Element element) {
 		logger.debug("enableAudioContextNotification");
 		PendingJavaScriptResult result = element.executeJs(
-		        "console.warn('checking audio status'); return window.audioCtx.state");
+		        "console./**/warn('checking audio status'); return window.audioCtx.state");
 		audioStatusCallback(element, result);
 	}
 

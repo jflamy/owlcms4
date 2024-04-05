@@ -69,7 +69,7 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 		}
 		final Group currentGroup = getGroup();
 		Category currentCategory = getCategory();
-		Championship currentAgeDivision = getAgeDivision();
+		Championship currentAgeDivision = getChampionship();
 		String currentAgeGroupPrefix = getAgeGroupPrefix();
 		List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(currentGroup);
 

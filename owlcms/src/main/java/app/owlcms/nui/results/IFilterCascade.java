@@ -40,7 +40,8 @@ public interface IFilterCascade {
 			this.setAgeGroupFilter(new ComboBox<>());
 		}
 		this.getAgeGroupFilter().setPlaceholder(Translator.translate("AgeGroup"));
-		this.getAgeGroupFilter().setEnabled(false);
+		//this.getAgeGroupFilter().setEnabled(false);
+		this.getAgeGroupFilter().setVisible(false);
 		this.getAgeGroupFilter().setClearButtonVisible(true);
 		this.getAgeGroupFilter().setValue(null);
 		this.getAgeGroupFilter().setWidth("20ch");
@@ -74,7 +75,6 @@ public interface IFilterCascade {
 			});
 			this.getGenderFilter().setClearButtonVisible(true);
 			this.getGenderFilter().addValueChangeListener(e -> {
-				getLogger().warn("------ setting gender {}", e.getValue());
 				this.setGender(e.getValue());
 				crud.refreshGrid();
 			});
@@ -161,10 +161,10 @@ public interface IFilterCascade {
 	public void setAgeGroupPrefix(String value);
 
 	public default void setAgeGroupSelectionListener() {
+
 		this.getAgeGroupFilter().addValueChangeListener(e -> {
 			// the name of the resulting file is set as an attribute on the <a href tag that
-			// surrounds
-			// the packageDownloadButton button.
+			// surrounds the packageDownloadButton button.
 			doAgeGroupPrefixRefresh(e.getValue());
 		});
 	}
@@ -186,23 +186,23 @@ public interface IFilterCascade {
 			// logger.debug("championshipFilter {}",e.getValue());
 			// the name of the resulting file is set as an attribute on the <a href tag that
 			// surrounds the packageDownloadButton button.
-			Championship ageDivisionValue = e.getValue();
-			setChampionship(ageDivisionValue);
-			if (ageDivisionValue == null) {
+			Championship championshipValue = e.getValue();
+			setChampionship(championshipValue);
+			if (championshipValue == null) {
 				this.getAgeGroupFilter().setValue(null);
 				this.getAgeGroupFilter().setItems(new ArrayList<>());
-				this.getAgeGroupFilter().setEnabled(false);
+				this.getAgeGroupFilter().setVisible(false);
 				this.getAgeGroupFilter().setValue(null);
 				this.getCrudGrid().refreshGrid();
 				return;
 			}
 
-			this.setChampionshipAgeGroupPrefixes(AgeGroupRepository.findActiveAndUsedAgeGroups(ageDivisionValue));
+			this.setChampionshipAgeGroupPrefixes(AgeGroupRepository.findActiveAndUsedAgeGroups(championshipValue));
 			this.getAgeGroupFilter().setItems(this.getChampionshipAgeGroupPrefixes());
 			boolean notEmpty = this.getChampionshipAgeGroupPrefixes().size() > 0;
-			// logger.debug("championshipAgeGroupPrefixes {}",championshipAgeGroupPrefixes);
-			this.getAgeGroupFilter().setEnabled(notEmpty);
-			String first = (notEmpty && ageDivisionValue == Championship.of(Championship.IWF))
+			//this.getAgeGroupFilter().setEnabled(notEmpty);
+			this.getAgeGroupFilter().setVisible(this.getChampionshipAgeGroupPrefixes().size() > 1);
+			String first = (notEmpty && championshipValue == Championship.of(Championship.IWF))
 			        || (this.getChampionshipAgeGroupPrefixes().size() == 1)
 			                ? this.getChampionshipAgeGroupPrefixes().get(0)
 			                : null;

@@ -50,7 +50,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 	 * @return the ageDivision
 	 */
 	@Override
-	public Championship getAgeDivision() {
+	public Championship getChampionship() {
 		return this.ageDivision;
 	}
 
@@ -69,7 +69,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 	 * @param ageDivision the ageDivision to set
 	 */
 	@Override
-	public void setAgeDivision(Championship ageDivision) {
+	public void setChampionship(Championship ageDivision) {
 		// logger.debug("set ad {} \\n{}",ageDivision,LoggerUtils.stackTrace());
 		this.ageDivision = ageDivision;
 	}
@@ -124,7 +124,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 	@Override
 	protected void setReportingInfo() {
 		Competition competition = Competition.getCurrent();
-		competition.computeReportingInfo(getAgeGroupPrefix(), getAgeDivision());
+		competition.computeReportingInfo(getAgeGroupPrefix(), getChampionship());
 
 		super.setReportingInfo();
 		Object records = super.getReportingBeans().get("records");
