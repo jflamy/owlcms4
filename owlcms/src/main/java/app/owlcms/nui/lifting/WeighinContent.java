@@ -842,10 +842,11 @@ public class WeighinContent extends BaseContent
 		                : true)
 		        .map(a -> {
 			        if (a.getTeam() == null) {
-				        a.setTeam("-");
+				        a.setTeam("");
 			        }
 			        return a;
-		        });
+		        })
+		        ;
 
 		List<Athlete> found = stream.sorted(
 		        groupCategoryComparator())

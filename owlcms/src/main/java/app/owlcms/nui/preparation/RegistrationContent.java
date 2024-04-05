@@ -829,7 +829,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		                : true)
 		        .map(a -> {
 			        if (a.getTeam() == null) {
-				        a.setTeam("-");
+				        a.setTeam("");
 			        }
 			        return a;
 		        });

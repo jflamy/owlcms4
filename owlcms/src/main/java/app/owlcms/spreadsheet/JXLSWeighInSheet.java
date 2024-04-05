@@ -49,7 +49,7 @@ public class JXLSWeighInSheet extends JXLSWorkbookStreamSource {
 			        .displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup, null)).stream()
 			        .map(a -> {
 				        if (a.getTeam() == null) {
-					        a.setTeam("-");
+					        a.setTeam("");
 				        }
 				        return a;
 			        }).collect(Collectors.toList());
