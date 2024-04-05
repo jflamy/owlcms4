@@ -10,11 +10,11 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -406,19 +406,19 @@ public class AgeGroupRepository {
 		return (AgeGroup) query.getResultList().stream().findFirst().orElse(null);
 	}
 
-	public static void insertAgeGroups(EntityManager em, Set<Championship> es) {
+	public static void insertAgeGroups(EntityManager em, EnumSet<ChampionshipType> forcedInsertion) {
 		try {
 			String localizedName = ResourceWalker.getLocalizedResourceName("/agegroups/AgeGroups.xlsx");
-			AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(es, localizedName);
+			AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(forcedInsertion, localizedName);
 		} catch (FileNotFoundException e1) {
 			// ignore
 		}
 	}
 
-	public static void insertAgeGroups(EntityManager em, Set<Championship> es, String resourceName) {
+	public static void insertAgeGroups(EntityManager em, EnumSet<ChampionshipType> forcedInsertion, String resourceName) {
 		try {
 			String localizedName = ResourceWalker.getLocalizedResourceName(resourceName);
-			AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(es, localizedName);
+			AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(forcedInsertion, localizedName);
 		} catch (FileNotFoundException e1) {
 			throw new RuntimeException(e1);
 		}

@@ -8,16 +8,16 @@ package app.owlcms.data.jpa;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.AgeGroupRepository;
-import app.owlcms.data.agegroup.Championship;
+import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -72,13 +72,13 @@ public class BenchmarkData {
 	/**
 	 * Insert initial data if the database is empty.
 	 *
-	 * @param ageDivisions
+	 * @param championshipTypes
 	 */
-	public static void insertInitialData(Set<Championship> ageDivisions) {
+	public static void insertInitialData(EnumSet<ChampionshipType> championshipTypes) {
 		JPAService.runInTransaction(em -> {
-			Competition competition = createDefaultCompetition(ageDivisions);
+			Competition competition = createDefaultCompetition(championshipTypes);
 			CompetitionRepository.save(competition);
-			AgeGroupRepository.insertAgeGroups(em, ageDivisions);
+			AgeGroupRepository.insertAgeGroups(em, championshipTypes);
 			return null;
 		});
 
@@ -190,7 +190,7 @@ public class BenchmarkData {
 
 	}
 
-	private static Competition createDefaultCompetition(Set<Championship> ageDivisions) {
+	private static Competition createDefaultCompetition(EnumSet<ChampionshipType> championshipTypes) {
 		// RecordConfig rc = new RecordConfig(Arrays.asList());
 		// JPAService.runInTransaction(em -> {
 		// em.persist(rc);
@@ -210,7 +210,7 @@ public class BenchmarkData {
 		competition.setFederationWebSite("http://national-weightlifting.org");
 
 		competition.setEnforce20kgRule(true);
-		competition.setMasters(ageDivisions != null && ageDivisions.contains(Championship.of(Championship.MASTERS)));
+		competition.setMasters(championshipTypes != null && championshipTypes.contains(ChampionshipType.MASTERS));
 		competition.setUseBirthYear(false);
 		competition.setAnnouncerLiveDecisions(true);
 		competition.setMensBestN(null);

@@ -9,11 +9,10 @@ package app.owlcms.data.agegroup;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.text.MessageFormat;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.function.Predicate;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -45,7 +44,7 @@ public class AgeGroupDefinitionReader {
 	}
 
 	static void createAgeGroups(Workbook workbook, Map<String, Category> templates,
-	        Set<Championship> ageDivisionOverride,
+	        EnumSet<ChampionshipType> forcedInsertion,
 	        String localizedName) {
 
 		JPAService.runInTransaction(em -> {
@@ -125,13 +124,12 @@ public class AgeGroupDefinitionReader {
 						case 6: {
 							boolean explicitlyActive = cell.getBooleanCellValue();
 							// age division is active according to spreadsheet, unless we are given an
-							// explicit
-							// list of age divisions as override (e.g. to setup tests or demos)
+							// explicit list of championship types as override (e.g. to setup tests or demos)
 							if (ag != null) {
-								Championship aDiv = ag.getChampionship();
-								boolean active = ageDivisionOverride == null ? explicitlyActive
-								        : ageDivisionOverride.stream()
-								                .anyMatch((Predicate<Championship>) (ad) -> ad.equals(aDiv));
+								ChampionshipType aDiv = ag.getChampionshipType();
+								boolean active = forcedInsertion == null ? explicitlyActive
+								        : forcedInsertion.stream()
+								                .anyMatch(ad -> (ad == aDiv));
 								ag.setActive(active);
 							}
 						}
@@ -206,11 +204,11 @@ public class AgeGroupDefinitionReader {
 		});
 	}
 
-	static void doInsertRobiAndAgeGroups(Set<Championship> es, String localizedFileName) {
+	static void doInsertRobiAndAgeGroups(EnumSet<ChampionshipType> forcedInsertion, String localizedFileName) {
 		Logger mainLogger = Main.getStartupLogger();
 		Map<String, Category> templates = loadRobi(mainLogger);
 		InputStream ageGroupStream = findAgeGroupFile(localizedFileName, mainLogger);
-		loadAgeGroupStream(es, localizedFileName, mainLogger, templates, ageGroupStream);
+		loadAgeGroupStream(forcedInsertion, localizedFileName, mainLogger, templates, ageGroupStream);
 	}
 
 	private static Object cellName(int iColumn, int iRow) {
@@ -228,13 +226,13 @@ public class AgeGroupDefinitionReader {
 		return ageGroupStream;
 	}
 
-	private static void loadAgeGroupStream(Set<Championship> es, String localizedName, Logger mainLogger,
+	private static void loadAgeGroupStream(EnumSet<ChampionshipType> forcedInsertion, String localizedName, Logger mainLogger,
 	        Map<String, Category> templates, InputStream localizedResourceAsStream1) {
 		try (Workbook workbook = WorkbookFactory
 		        .create(localizedResourceAsStream1)) {
 			logger.info("loading age group configuration file {}", localizedName);
 			mainLogger.info("loading age group definitions {}", localizedName);
-			createAgeGroups(workbook, templates, es, localizedName);
+			createAgeGroups(workbook, templates, forcedInsertion, localizedName);
 			Championship.reset();
 		} catch (Exception e) {
 			logger.error("could not process ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e));

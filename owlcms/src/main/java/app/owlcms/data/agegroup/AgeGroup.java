@@ -198,6 +198,13 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	public Championship getChampionship() {
 		return Championship.of(this.getChampionshipName());
 	}
+	
+	@JsonIgnore
+	@Transient
+	public ChampionshipType getChampionshipType() {
+		Championship of = Championship.of(this.getChampionshipName());
+		return of != null ? of.getType() : ChampionshipType.DEFAULT;
+	}
 
 	public String getChampionshipName() {
 		return (this.championshipName != null && !this.championshipName.isBlank()) ? this.championshipName

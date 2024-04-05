@@ -11,16 +11,16 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.AgeGroupRepository;
-import app.owlcms.data.agegroup.Championship;
+import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -61,7 +61,7 @@ public class TestData {
      */
     public static void insertInitialData(int nbAthletes, boolean testMode) {
         JPAService.runInTransaction(em -> {
-            Set<Championship> divisions = Set.of(Championship.of(Championship.IWF));
+        	EnumSet<ChampionshipType> divisions = EnumSet.of(ChampionshipType.IWF);
             Competition competition = createDefaultCompetition(divisions);
             CompetitionRepository.save(competition);
             AgeGroupRepository.insertAgeGroups(em, divisions, "/agegroups/AgeGroups_Tests.xlsx");
@@ -108,7 +108,7 @@ public class TestData {
         logger.debug("athlete {} category {} participations {}", p, p.getCategory(), p.getParticipations());
     }
 
-    protected static Competition createDefaultCompetition(Set<Championship> ageDivisions) {
+    protected static Competition createDefaultCompetition(EnumSet<ChampionshipType> championshipTypes) {
         Competition competition = new Competition();
 
         competition.setCompetitionName("Spring Equinox Open");
@@ -122,7 +122,7 @@ public class TestData {
         competition.setFederationWebSite("http://national-weightlifting.org");
 
         competition.setEnforce20kgRule(true);
-        competition.setMasters(ageDivisions != null && ageDivisions.contains(Championship.of(Championship.MASTERS)));
+        competition.setMasters(championshipTypes != null && championshipTypes.contains(ChampionshipType.MASTERS));
         competition.setUseBirthYear(true);
         competition.setAnnouncerLiveDecisions(true);
 
