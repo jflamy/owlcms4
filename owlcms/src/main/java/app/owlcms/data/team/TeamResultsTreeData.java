@@ -82,7 +82,7 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 
 			TeamTreeItem curTeamItem = null;
 			String key = computeGenderKey(gender) + "Team"
-			        + (ageGroupPrefix != null ? ageGroupPrefix : ageDivision.name());
+			        + (ageGroupPrefix != null ? ageGroupPrefix : ageDivision.getName());
 			this.logger.debug("looking for {} in {}", key, this.reportingBeans.keySet());
 
 			@SuppressWarnings("unchecked")

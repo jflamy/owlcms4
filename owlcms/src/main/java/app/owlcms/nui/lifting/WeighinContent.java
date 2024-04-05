@@ -11,11 +11,16 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.CrudOperation;
@@ -53,32 +58,34 @@ import app.owlcms.components.JXLSDownloader;
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.components.fields.LocalizedDecimalField;
 import app.owlcms.components.fields.ValidationTextField;
-import app.owlcms.data.agegroup.Championship;
-import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.platform.Platform;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsComboBoxProvider;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
+import app.owlcms.nui.results.IFilterCascade;
 import app.owlcms.nui.shared.NAthleteRegistrationFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCardsWeighIn;
 import app.owlcms.spreadsheet.JXLSJurySheet;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
+import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
@@ -94,7 +101,8 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/weighin", layout = OwlcmsLayout.class)
 @CssImport(value = "./styles/shared-styles.css")
-public class WeighinContent extends BaseContent implements CrudListener<Athlete>, OwlcmsContent, NextAthleteAble {
+public class WeighinContent extends BaseContent
+        implements CrudListener<Athlete>, OwlcmsContent, NextAthleteAble, IFilterCascade {
 	/**
 	 * Variation to do Next instead of closing.
 	 *
@@ -172,8 +180,7 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		logger.setLevel(Level.INFO);
 	}
 	private boolean nextMode;
-	private ComboBox<Championship> ageDivisionFilter = new ComboBox<>();
-	private ComboBox<AgeGroup> ageGroupFilter = new ComboBox<>();
+	private ComboBox<String> ageGroupFilter = new ComboBox<>();
 	private ComboBox<Category> categoryFilter = new ComboBox<>();
 	private OwlcmsCrudGrid<Athlete> crudGrid;
 	private Group currentGroup;
@@ -188,6 +195,18 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 	private Button startingWeightsButton;
 	private Button weighInButton;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
+	private ComboBox<String> teamFilter = new ComboBox<>();
+	private Boolean weighedIn;
+	private Gender gender;
+	private List<Championship> championshipItems;
+	private ComboBox<Championship> championshipFilter;
+	private List<String> championshipAgeGroupPrefixes;
+	private Championship championship;
+	private String ageGroupPrefix;
+	private Category category;
+	private String lastName;
+	private String team;
+	private Platform platform;
 
 	/**
 	 * Instantiates the athlete crudGrid
@@ -261,12 +280,27 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 	 */
 	@Override
 	public Collection<Athlete> findAll() {
-		List<Athlete> findFiltered = AthleteRepository.findFiltered(this.lastNameFilter.getValue(),
-		        getGroupFilter().getValue(),
-		        this.categoryFilter.getValue(), this.ageGroupFilter.getValue(), this.ageDivisionFilter.getValue(),
-		        this.genderFilter.getValue(), this.weighedInFilter.getValue(), (String) null, -1, -1);
-		AthleteSorter.registrationOrder(findFiltered);
+		// List<Athlete> findFiltered = AthleteRepository.findFiltered(this.lastNameFilter.getValue(),
+		// getGroupFilter().getValue(),
+		// this.categoryFilter.getValue(), this.ageGroupFilter.getValue(), this.ageDivisionFilter.getValue(),
+		// this.genderFilter.getValue(), this.weighedInFilter.getValue(), (String) null, -1, -1);
+		// AthleteSorter.registrationOrder(findFiltered);
+		List<Athlete> findFiltered = athletesFindAll();
+		updateURLLocations();
 		return findFiltered;
+	}
+
+	@Override
+	public ComboBox<String> getAgeGroupFilter() {
+		return this.ageGroupFilter;
+	}
+
+	/**
+	 * @return the ageGroupPrefix
+	 */
+	@Override
+	public String getAgeGroupPrefix() {
+		return this.ageGroupPrefix;
 	}
 
 	@Override
@@ -274,11 +308,65 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		return (List<Athlete>) findAll();
 	}
 
+	@Override
+	public ComboBox<Category> getCategoryFilter() {
+		return this.categoryFilter;
+	}
+
+	@Override
+	public Category getCategoryValue() {
+		return getCategory();
+	}
+
+	/**
+	 * @return the championship
+	 */
+	@Override
+	public Championship getChampionship() {
+		return this.championship;
+	}
+
+	@Override
+	public List<String> getChampionshipAgeGroupPrefixes() {
+		return this.championshipAgeGroupPrefixes;
+	}
+
+	@Override
+	public ComboBox<Championship> getChampionshipFilter() {
+		return this.championshipFilter;
+	}
+
+	@Override
+	public List<Championship> getChampionshipItems() {
+		return this.championshipItems;
+	}
+
+	@Override
+	public OwlcmsCrudGrid<Athlete> getCrudGrid() {
+		return this.crudGrid;
+	}
+
+	@Override
+	public Gender getGender() {
+		return this.gender;
+	}
+
+	@Override
+	public ComboBox<Gender> getGenderFilter() {
+		return this.genderFilter;
+	}
+
 	/**
 	 * @return the groupFilter
 	 */
+	@Override
 	public ComboBox<Group> getGroupFilter() {
 		return this.groupFilter;
+	}
+
+	@Override
+	public Logger getLogger() {
+		return logger;
 	}
 
 	@Override
@@ -342,12 +430,82 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 	}
 
 	@Override
+	public void setAgeGroupFilter(ComboBox<String> ageGroupFilter) {
+		this.ageGroupFilter = ageGroupFilter;
+	}
+
+	@Override
+	public void setAgeGroupPrefix(String ageGroupPrefix) {
+		this.ageGroupPrefix = ageGroupPrefix;
+	}
+
+	public void setCategory(Category category) {
+		this.category = category;
+	}
+
+	@Override
+	public void setCategoryFilter(ComboBox<Category> categoryFilter) {
+		this.categoryFilter = categoryFilter;
+	}
+
+	@Override
+	public void setCategoryValue(Category category) {
+		this.setCategory(category);
+	}
+
+	@Override
+	public void setChampionship(Championship championship) {
+		this.championship = championship;
+	}
+
+	@Override
+	public void setChampionshipAgeGroupPrefixes(List<String> championshipAgeGroupPrefixes) {
+		this.championshipAgeGroupPrefixes = championshipAgeGroupPrefixes;
+	}
+
+	@Override
+	public void setChampionshipFilter(ComboBox<Championship> championshipFilter) {
+		this.championshipFilter = championshipFilter;
+	}
+
+	@Override
+	public void setChampionshipItems(List<Championship> championshipItems) {
+		this.championshipItems = championshipItems;
+	}
+
+	public void setCrudGrid(OwlcmsCrudGrid<Athlete> crudGrid) {
+		this.crudGrid = crudGrid;
+	}
+
+	@Override
+	public void setGender(Gender gender) {
+		this.gender = gender;
+	}
+
+	@Override
+	public void setGenderFilter(ComboBox<Gender> genderFilter) {
+		this.genderFilter = genderFilter;
+	}
+
+	public void setGroupFilter(ComboBox<Group> groupFilter) {
+		this.groupFilter = groupFilter;
+	}
+
+	@Override
 	public void setHeaderContent() {
 		this.routerLayout.setMenuTitle(getPageTitle());
 		this.routerLayout.setMenuArea(createMenuArea());
 		this.routerLayout.showLocaleDropdown(false);
 		this.routerLayout.setDrawerOpened(false);
 		this.routerLayout.updateHeader(true);
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+	public void setLastNameFilter(TextField lastNameFilter) {
+		this.lastNameFilter = lastNameFilter;
 	}
 
 	public void setNextMode(boolean b) {
@@ -399,9 +557,29 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		        new Location(getLocation().getPath(), new QueryParameters(URLUtils.cleanParams(params))));
 	}
 
+	public void setPlatform(Platform platform) {
+		this.platform = platform;
+	}
+
 	@Override
 	public void setRouterLayout(OwlcmsLayout routerLayout) {
 		this.routerLayout = routerLayout;
+	}
+
+	public void setTeam(String team) {
+		this.team = team;
+	}
+
+	public void setTeamFilter(ComboBox<String> teamFilter) {
+		this.teamFilter = teamFilter;
+	}
+
+	public void setWeighedIn(Boolean weighedIn) {
+		this.weighedIn = weighedIn;
+	}
+
+	public void setWeighedInFilter(ComboBox<Boolean> weighedInFilter) {
+		this.weighedInFilter = weighedInFilter;
 	}
 
 	@Override
@@ -410,6 +588,18 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		Athlete a = ((OwlcmsCrudFormFactory<Athlete>) this.crudGrid.getCrudFormFactory()).update(athlete);
 		OwlcmsSession.setAttribute("weighIn", null);
 		return a;
+	}
+
+	protected List<Athlete> athletesFindAll() {
+		List<Athlete> found = participationFindAll();
+		// for cards and starting lists we only want the actual athlete, without duplicates
+		Set<Athlete> regCatAthletes = found.stream().map(pa -> ((PAthlete) pa)._getAthlete())
+		        .collect(Collectors.toSet());
+		List<Athlete> regCatAthletesList = new ArrayList<>(regCatAthletes);
+		regCatAthletesList.sort(groupCategoryComparator());
+
+		updateURLLocations();
+		return regCatAthletesList;
 	}
 
 	/**
@@ -492,114 +682,65 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 	 *
 	 * @param crudGrid the crudGrid that will be filtered.
 	 */
+
 	protected void defineFilters(OwlcmsCrudGrid<Athlete> crudGrid) {
-
-		this.lastNameFilter.setPlaceholder(getTranslation("LastName"));
-		this.lastNameFilter.setClearButtonVisible(true);
-		this.lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
-		this.lastNameFilter.addValueChangeListener(e -> {
+		this.getLastNameFilter().setPlaceholder(Translator.translate("LastName"));
+		this.getLastNameFilter().setClearButtonVisible(true);
+		this.getLastNameFilter().setValueChangeMode(ValueChangeMode.EAGER);
+		this.getLastNameFilter().addValueChangeListener(e -> {
+			setLastName(e.getValue());
 			crudGrid.refreshGrid();
 		});
-		crudGrid.getCrudLayout().addFilterComponent(this.lastNameFilter);
+		this.getLastNameFilter().setWidth("10em");
+		crudGrid.getCrudLayout().addFilterComponent(this.getLastNameFilter());
 
-		// this.ageDivisionFilter.setPlaceholder(getTranslation("Championship"));
-		// this.ageDivisionFilter.setItems(Championship.findAll());
-		// this.ageDivisionFilter.setItemLabelGenerator((ad) -> getTranslation("Division." + ad.name()));
-		// this.ageDivisionFilter.setClearButtonVisible(true);
-		// this.ageDivisionFilter.addValueChangeListener(e -> {
-		// crudGrid.refreshGrid();
-		// });
-		// crudGrid.getCrudLayout().addFilterComponent(this.ageDivisionFilter);
+		this.defineFilterCascade(crudGrid);
+		this.defineRegistrationFilters(crudGrid);
 
-		this.ageGroupFilter.setPlaceholder(getTranslation("AgeGroup"));
-		this.ageGroupFilter.setItems(AgeGroupRepository.findAll());
-		// ageGroupFilter.setItemLabelGenerator(Championship::name);
-		this.ageGroupFilter.setClearButtonVisible(true);
-		this.ageGroupFilter.addValueChangeListener(e -> {
-			crudGrid.refreshGrid();
-		});
-		this.ageGroupFilter.setWidth("10em");
-		crudGrid.getCrudLayout().addFilterComponent(this.ageGroupFilter);
+		this.defineSelectionListeners();
+	}
 
-		this.categoryFilter.setPlaceholder(getTranslation("Category"));
-		this.categoryFilter.setItems(CategoryRepository.findActive());
-		this.categoryFilter.setItemLabelGenerator(Category::getTranslatedName);
-		this.categoryFilter.setClearButtonVisible(true);
-		this.categoryFilter.addValueChangeListener(e -> {
-			crudGrid.refreshGrid();
-		});
-		crudGrid.getCrudLayout().addFilterComponent(this.categoryFilter);
-
-		this.groupFilter.setPlaceholder(getTranslation("Group"));
+	protected void defineRegistrationFilters(OwlcmsCrudGrid<Athlete> crudGrid) {
+		this.groupFilter.setPlaceholder(Translator.translate("Group"));
 		List<Group> groups = GroupRepository.findAll();
 		groups.sort(new NaturalOrderComparator<>());
 		this.groupFilter.setItems(groups);
 		this.groupFilter.setItemLabelGenerator(Group::getName);
-		this.groupFilter.setClearButtonVisible(true);
 		this.groupFilter.addValueChangeListener(e -> {
+			setGroup(e.getValue());
 			crudGrid.refreshGrid();
-			setCurrentGroup(e.getValue());
 			updateURLLocation(getLocationUI(), getLocation(), e.getValue());
 		});
+		this.groupFilter.setWidth("10em");
 		crudGrid.getCrudLayout().addFilterComponent(this.groupFilter);
-		// hide because the top bar has it
 		this.groupFilter.getStyle().set("display", "none");
 
-		this.weighedInFilter.setPlaceholder(getTranslation("Weighed_in_p"));
-		this.weighedInFilter.setItems(Boolean.TRUE, Boolean.FALSE);
-		this.weighedInFilter.setItemLabelGenerator((i) -> {
-			return i ? getTranslation("Weighed") : getTranslation("Not_weighed");
+		this.getWeighedInFilter().setPlaceholder(Translator.translate("Weighed_in_p"));
+		this.getWeighedInFilter().setItems(Boolean.TRUE, Boolean.FALSE);
+		this.getWeighedInFilter().setItemLabelGenerator((i) -> {
+			return i ? Translator.translate("Weighed") : Translator.translate("Not_weighed");
 		});
-		this.weighedInFilter.setClearButtonVisible(true);
-		this.weighedInFilter.addValueChangeListener(e -> {
+		this.getWeighedInFilter().setClearButtonVisible(true);
+		this.getWeighedInFilter().addValueChangeListener(e -> {
+			setWeighedIn(e.getValue());
 			crudGrid.refreshGrid();
 		});
-		crudGrid.getCrudLayout().addFilterComponent(this.weighedInFilter);
+		this.getWeighedInFilter().setWidth("10em");
+		crudGrid.getCrudLayout().addFilterComponent(this.getWeighedInFilter());
 
-		this.genderFilter.setPlaceholder(getTranslation("Gender"));
-		if (Competition.getCurrent().isGenderInclusive()) {
-			this.genderFilter.setItems(Gender.M, Gender.F);
-			this.genderFilter.setItemLabelGenerator((i) -> {
-				switch (i) {
-					case M:
-						return getTranslation("Gender.Men");
-					case F:
-						return getTranslation("Gender.Women");
-					default:
-						throw new IllegalStateException("can't happen");
-				}
-			});
-		} else {
-			this.genderFilter.setItems(Gender.M, Gender.F, Gender.I);
-			this.genderFilter.setItemLabelGenerator((i) -> {
-				switch (i) {
-					case M:
-						return getTranslation("Gender.Men");
-					case F:
-						return getTranslation("Gender.Women");
-					case I:
-						return getTranslation("Gender.Inclusive");
-					default:
-						throw new IllegalStateException("can't happen");
-				}
-			});
-		}
-		this.genderFilter.setClearButtonVisible(true);
-		this.genderFilter.addValueChangeListener(e -> {
+		this.getTeamFilter().setPlaceholder(Translator.translate("Team"));
+		this.getTeamFilter().setItems(AthleteRepository.findAllTeams());
+		this.getTeamFilter().getStyle().set("--vaadin-combo-box-overlay-width", "25em");
+		this.getTeamFilter().setClearButtonVisible(true);
+		this.getTeamFilter().addValueChangeListener(e -> {
+			setTeam(e.getValue());
 			crudGrid.refreshGrid();
 		});
-		this.genderFilter.setWidth("10em");
-		crudGrid.getCrudLayout().addFilterComponent(this.genderFilter);
+		crudGrid.getCrudLayout().addFilterComponent(this.getTeamFilter());
 
 		Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
 		clearFilters.addClickListener(event -> {
-			this.lastNameFilter.clear();
-			this.ageGroupFilter.clear();
-			this.ageDivisionFilter.clear();
-			this.categoryFilter.clear();
-			// groupFilter.clear();
-			this.weighedInFilter.clear();
-			this.genderFilter.clear();
+			clearFilters();
 		});
 		crudGrid.getCrudLayout().addFilterComponent(clearFilters);
 	}
@@ -618,8 +759,100 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		notification.open();
 	}
 
+	protected Category getCategory() {
+		return this.category;
+	}
+
+	protected String getLastName() {
+		return this.lastName;
+	}
+
+	protected TextField getLastNameFilter() {
+		return this.lastNameFilter;
+	}
+
+	protected Platform getPlatform() {
+		return this.platform;
+	}
+
+	protected String getTeam() {
+		return this.team;
+	}
+
+	protected ComboBox<String> getTeamFilter() {
+		return this.teamFilter;
+	}
+
+	protected Boolean getWeighedIn() {
+		return this.weighedIn;
+	}
+
+	protected ComboBox<Boolean> getWeighedInFilter() {
+		return this.weighedInFilter;
+	}
+
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
+	}
+
+	protected List<Athlete> participationFindAll() {
+		List<Athlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(getAgeGroupPrefix(),
+		        getChampionship());
+
+		Category catFilterValue = getCategoryValue();
+		Stream<Athlete> stream = athletes.stream()
+		        .filter(a -> {
+			        Platform platformFilterValue = getPlatform();
+			        if (platformFilterValue == null) {
+				        return true;
+			        }
+			        Platform athletePlaform = a.getGroup() != null
+			                ? (a.getGroup().getPlatform() != null ? a.getGroup().getPlatform() : null)
+			                : null;
+			        return platformFilterValue.equals(athletePlaform);
+		        })
+
+		        .filter(a -> getGroup() != null ? getGroup().equals(a.getGroup())
+		                : true)
+		        .filter(a -> {
+			        String fLastName = getLastName();
+			        if (fLastName == null) {
+				        return true;
+			        }
+			        String aLastName = a.getLastName();
+			        if (aLastName == null || aLastName.isBlank()) {
+				        return false;
+			        }
+			        aLastName = aLastName.toLowerCase();
+			        fLastName = fLastName.toLowerCase();
+			        return aLastName.startsWith(fLastName);
+		        })
+		        .filter(a -> getWeighedIn() == null
+		                || (getWeighedIn() && (a.getBodyWeight() != null && a.getBodyWeight() > 0)))
+		        .filter(a -> a.getCategory() != null)
+		        .filter(a -> {
+			        Gender genderFilterValue = getGender();
+			        Gender athleteGender = a.getGender();
+			        boolean catOk = (catFilterValue == null
+			                || catFilterValue.toString().equals(a.getCategory().toString()))
+			                && (genderFilterValue == null || genderFilterValue == athleteGender);
+			        return catOk;
+		        })
+		        .filter(a -> getTeam() != null ? getTeam().contentEquals(a.getTeam())
+		                : true)
+		        .map(a -> {
+			        if (a.getTeam() == null) {
+				        a.setTeam("-");
+			        }
+			        return a;
+		        });
+
+		List<Athlete> found = stream.sorted(
+		        groupCategoryComparator())
+		        .collect(Collectors.toList());
+		// categoriesXlsWriter.setSortedAthletes(found);
+		updateURLLocations();
+		return found;
 	}
 
 	protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
@@ -847,6 +1080,26 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		return this.currentGroup;
 	}
 
+	private Comparator<? super Athlete> groupCategoryComparator() {
+		// for categories listing we want all the participation categories
+		Comparator<? super Athlete> groupCategoryComparator = (a1, a2) -> {
+			int compare;
+			compare = ObjectUtils.compare(a1.getGroup(), a2.getGroup(), true);
+			if (compare != 0) {
+				return compare;
+			}
+			Participation mainRankings1 = a1.getMainRankings() != null ? a1.getMainRankings() : null;
+			Participation mainRankings2 = a2.getMainRankings() != null ? a2.getMainRankings() : null;
+			compare = ObjectUtils.compare(mainRankings1.getCategory(), mainRankings2.getCategory(), true);
+			if (compare != 0) {
+				return compare;
+			}
+			compare = ObjectUtils.compare(a1.getEntryTotal(), a2.getEntryTotal());
+			return -compare;
+		};
+		return groupCategoryComparator;
+	}
+
 	private void setCurrentGroup(Group currentGroup) {
 		this.currentGroup = currentGroup;
 	}
@@ -868,5 +1121,8 @@ public class WeighinContent extends BaseContent implements CrudListener<Athlete>
 		}
 		ui.getPage().getHistory().replaceState(null,
 		        new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
+	}
+
+	private void updateURLLocations() {
 	}
 }

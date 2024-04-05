@@ -17,8 +17,8 @@ import javax.persistence.Query;
 
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.jpa.JPAService;
@@ -45,7 +45,8 @@ public class CategoryRepository {
 	 * @param active      active category
 	 * @return the int
 	 */
-	public static int countFiltered(String name, Championship ageDivision, AgeGroup ageGroup, Gender gender, Integer age,
+	public static int countFiltered(String name, Championship ageDivision, AgeGroup ageGroup, Gender gender,
+	        Integer age,
 	        Double bodyWeight, Boolean active) {
 		return JPAService.runInTransaction(em -> {
 			return doCountFiltered(name, gender, ageDivision, ageGroup, age, bodyWeight, active, em);
@@ -331,7 +332,7 @@ public class CategoryRepository {
 	        Double bodyWeight, Gender gender, Boolean active) {
 		List<String> whereList = new LinkedList<>();
 		if (ageDivision != null) {
-			whereList.add("c.ageGroup.ageDivision = :division");
+			whereList.add("((ag.ageDivision = :championshipName) or (ag.championshipName = :championshipName))");
 		}
 		if (name != null && name.trim().length() > 0) {
 			whereList.add("lower(c.name) like :name");
@@ -360,11 +361,12 @@ public class CategoryRepository {
 		if (whereList.size() == 0) {
 			return null;
 		} else {
-			return String.join(" and ", whereList);
+			String join = String.join(" and ", whereList);
+			return join;
 		}
 	}
 
-	private static void setFilteringParameters(String name, Gender gender, Championship ageDivision, AgeGroup ageGroup,
+	private static void setFilteringParameters(String name, Gender gender, Championship championship, AgeGroup ageGroup,
 	        Integer age, Double bodyWeight, Boolean active, Query query) {
 		if (name != null && name.trim().length() > 0) {
 			// starts with
@@ -383,8 +385,8 @@ public class CategoryRepository {
 		if (bodyWeight != null) {
 			query.setParameter("bodyWeight", bodyWeight);
 		}
-		if (ageDivision != null) {
-			query.setParameter("division", ageDivision); // ageDivision is a string
+		if (championship != null) {
+			query.setParameter("championshipName", championship.getName()); // ageDivision is a string
 		}
 		if (gender != null) {
 			query.setParameter("gender", gender);

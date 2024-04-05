@@ -19,9 +19,9 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.apputils.queryparameters.TopParametersReader;
-import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
@@ -56,18 +56,18 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 		DisplayOptions.addLightingEntries(vl, target, this);
 		ComboBox<Championship> ageDivisionComboBox = new ComboBox<>();
 		ComboBox<String> ageGroupPrefixComboBox = new ComboBox<>();
-		List<Championship> ageDivisions = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
+		List<Championship> ageDivisions = Championship.findAll();
 		ageDivisionComboBox.setItems(ageDivisions);
 		ageDivisionComboBox.setPlaceholder(getTranslation("Championship"));
 		ageDivisionComboBox.setClearButtonVisible(true);
 		ageDivisionComboBox.addValueChangeListener(e -> {
 			Championship ageDivision = e.getValue();
-			setAgeDivision(ageDivision);
+			setChampionship(ageDivision);
 			String existingAgeGroupPrefix = getAgeGroupPrefix();
 			List<String> activeAgeGroups = setAgeGroupPrefixItems(ageGroupPrefixComboBox, ageDivision);
 			if (existingAgeGroupPrefix != null) {
 				ageGroupPrefixComboBox.setValue(existingAgeGroupPrefix);
-			} else if (activeAgeGroups != null && !activeAgeGroups.isEmpty() && ageDivision != Championship.MASTERS) {
+			} else if (activeAgeGroups != null && !activeAgeGroups.isEmpty() && ageDivision != Championship.of(Championship.MASTERS)) {
 				ageGroupPrefixComboBox.setValue(activeAgeGroups.get(0));
 			}
 		});
@@ -77,16 +77,16 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 			setAgeGroupPrefix(e.getValue());
 			updateURLLocations();
 		});
-		setAgeGroupPrefixItems(ageGroupPrefixComboBox, getAgeDivision());
+		setAgeGroupPrefixItems(ageGroupPrefixComboBox, getChampionship());
 		ageGroupPrefixComboBox.setValue(getAgeGroupPrefix());
-		ageDivisionComboBox.setValue(getAgeDivision());
+		ageDivisionComboBox.setValue(getChampionship());
 
 		vl.add(new NativeLabel(getTranslation("SelectAgeGroup")),
 		        new HorizontalLayout(ageDivisionComboBox, ageGroupPrefixComboBox));
 	}
 
 	@Override
-	public final Championship getAgeDivision() {
+	public final Championship getChampionship() {
 		return this.ageDivision;
 	}
 
@@ -140,13 +140,13 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 		String ageDivisionName = (ageDivisionParams != null && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0)
 		        : null);
 		try {
-			setAgeDivision(Championship.valueOf(ageDivisionName));
+			setChampionship(Championship.of(ageDivisionName));
 		} catch (Exception e) {
-			List<Championship> ageDivisions = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
-			setAgeDivision((ageDivisions != null && !ageDivisions.isEmpty()) ? ageDivisions.get(0) : null);
+			List<Championship> ageDivisions = Championship.findAll();
+			setChampionship((ageDivisions != null && !ageDivisions.isEmpty()) ? ageDivisions.get(0) : null);
 		}
 		// remove if now null
-		String value = getAgeDivision() != null ? getAgeDivision().name() : null;
+		String value = getChampionship() != null ? getChampionship().getName() : null;
 		updateParam(params1, "ad", value);
 
 		List<String> ageGroupParams = params1.get("ag");
@@ -169,9 +169,9 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 	}
 
 	@Override
-	public void setAgeDivision(Championship ageDivision) {
+	public void setChampionship(Championship ageDivision) {
 		this.ageDivision = ageDivision;
-		((TopTeams) this.getBoard()).setAgeDivision(ageDivision);
+		((TopTeams) this.getBoard()).setChampionship(ageDivision);
 		((TopTeams) this.getBoard()).doUpdate(Competition.getCurrent());
 	}
 
@@ -222,7 +222,7 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 
 	private List<String> setAgeGroupPrefixItems(ComboBox<String> ageGroupPrefixComboBox,
 	        Championship ageDivision2) {
-		List<String> activeAgeGroups = AgeGroupRepository.findActiveAndUsed(ageDivision2);
+		List<String> activeAgeGroups = AgeGroupRepository.findActiveAndUsedAgeGroups(ageDivision2);
 		ageGroupPrefixComboBox.setItems(activeAgeGroups);
 		return activeAgeGroups;
 	}
@@ -233,7 +233,7 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 		updateURLLocation(UI.getCurrent(), getLocation(), "ag",
 		        getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null);
 		updateURLLocation(UI.getCurrent(), getLocation(), "ad",
-		        getAgeDivision() != null ? getAgeDivision().name() : null);
+		        getChampionship() != null ? getChampionship().getName() : null);
 	}
 
 }

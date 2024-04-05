@@ -38,9 +38,9 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.ConfirmationDialog;
-import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.competition.Competition;
@@ -75,7 +75,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		logger.setLevel(Level.INFO);
 	}
 	private Checkbox activeFilter = new Checkbox();
-	private ComboBox<Championship> ageDivisionFilter = new ComboBox<>();
+	private ComboBox<Championship> championshipFilter = new ComboBox<>();
 	private ComboBox<Resource> ageGroupDefinitionSelect;
 	private OwlcmsCrudFormFactory<AgeGroup> ageGroupEditingFormFactory;
 	private GridCrud<AgeGroup> crud;
@@ -202,13 +202,13 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 	@Override
 	public Collection<AgeGroup> findAll() {
 		List<AgeGroup> all = AgeGroupRepository.findFiltered(this.nameFilter.getValue(), (Gender) null,
-		        this.ageDivisionFilter.getValue(),
+		        this.championshipFilter.getValue(),
 		        (Integer) null, this.activeFilter.getValue(), -1, -1);
 		all.sort((ag1, ag2) -> {
 			int compare = 0;
-			compare = ObjectUtils.compare(ag1.getAgeDivision(), ag2.getAgeDivision());
+			compare = ObjectUtils.compare(ag1.getChampionship(), ag2.getChampionship());
 			if (compare != 0) {
-				return -compare; // DEFAULT first.
+				return -compare; // reverse order for DEFAULT first.
 			}
 			compare = ObjectUtils.compare(ag1.getGender(), ag2.getGender());
 			if (compare != 0) {
@@ -297,9 +297,9 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		grid.addColumn(AgeGroup::getDisplayName).setHeader(getTranslation("Name"));
 		grid.addColumn(new TextRenderer<>(
 		        item -> {
-			        Championship ageDivision = item.getAgeDivision();
-			        logger.trace("createGrid age division {}", ageDivision);
-			        String tr = getTranslation("Division." + (ageDivision != null ? ageDivision.name() : "?"));
+			        Championship championship = item.getChampionship();
+			        logger.trace("createGrid age division {}", championship);
+			        String tr = (championship != null ? championship.translate() : "?");
 			        return tr;
 		        }))
 		        .setHeader(getTranslation("Championship"));
@@ -334,14 +334,14 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		});
 		crud.getCrudLayout().addFilterComponent(this.nameFilter);
 
-		this.ageDivisionFilter.setPlaceholder(getTranslation("Championship"));
-		this.ageDivisionFilter.setItems(Championship.findAll());
-		this.ageDivisionFilter.setItemLabelGenerator((ad) -> getTranslation("Division." + ad.name()));
-		this.ageDivisionFilter.setClearButtonVisible(true);
-		this.ageDivisionFilter.addValueChangeListener(e -> {
+		this.championshipFilter.setPlaceholder(getTranslation("Championship"));
+		this.championshipFilter.setItems(Championship.findAllUsed(false));
+		this.championshipFilter.setItemLabelGenerator((ad) -> ad.translate());
+		this.championshipFilter.setClearButtonVisible(true);
+		this.championshipFilter.addValueChangeListener(e -> {
 			crud.refreshGrid();
 		});
-		crud.getCrudLayout().addFilterComponent(this.ageDivisionFilter);
+		crud.getCrudLayout().addFilterComponent(this.championshipFilter);
 		crud.getCrudLayout().addToolbarComponent(new NativeLabel(""));
 
 		this.activeFilter.addValueChangeListener(e -> {
@@ -355,7 +355,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		clearFilters.addClickListener(event -> {
 			this.nameFilter.clear();
 			this.activeFilter.clear();
-			this.ageDivisionFilter.clear();
+			this.championshipFilter.clear();
 		});
 		crud.getCrudLayout().addFilterComponent(clearFilters);
 	}

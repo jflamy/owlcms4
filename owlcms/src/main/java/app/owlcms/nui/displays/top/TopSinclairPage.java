@@ -14,8 +14,8 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.apputils.queryparameters.TopParametersReader;
-import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
@@ -53,7 +53,7 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 	}
 
 	@Override
-	public Championship getAgeDivision() {
+	public Championship getChampionship() {
 		return this.ageDivision;
 	}
 
@@ -79,7 +79,7 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 	}
 
 	@Override
-	public void setAgeDivision(Championship ageDivision) {
+	public void setChampionship(Championship ageDivision) {
 		this.ageDivision = ageDivision;
 	}
 

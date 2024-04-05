@@ -9,8 +9,8 @@ package app.owlcms.tests;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -18,8 +18,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import app.owlcms.Main;
-import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
@@ -38,7 +38,10 @@ public class RegistrationOrderComparatorTest {
         Config.initConfig();
         JPAService.runInTransaction(em -> {
             Competition.setCurrent(new Competition());
-            AgeGroupRepository.insertAgeGroups(em, EnumSet.of(Championship.IWF, Championship.MASTERS, Championship.U));
+            AgeGroupRepository.insertAgeGroups(em, Set.of(
+            		Championship.of(Championship.IWF),
+            		Championship.of(Championship.MASTERS),
+            		Championship.of(Championship.U)));
             return null;
         });
     }

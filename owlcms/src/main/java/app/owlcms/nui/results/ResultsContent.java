@@ -150,7 +150,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 	 * {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
 	 */
 	public ResultsContent() {
-		defineFilters(this.crudGrid);
+		defineFilters(this.getCrudGrid());
 	}
 
 	/**
@@ -240,7 +240,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 	@Override
 	public Collection<Athlete> findAll() {
 		Group currentGroup = getGroupFilter().getValue();
-		Gender currentGender = this.genderFilter.getValue();
+		Gender currentGender = this.getGenderFilter().getValue();
 
 		List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(currentGroup);
 
@@ -292,8 +292,8 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	public void refresh() {
-		this.crudGrid.sort(null);
-		this.crudGrid.refreshGrid();
+		this.getCrudGrid().sort(null);
+		this.getCrudGrid().refreshGrid();
 	}
 
 	public void setGridGroup(Group group) {
@@ -445,22 +445,22 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		this.medalsOnly.setLabel(getTranslation("MedalsOnly"));
 		this.medalsOnly.setValue(false);
 		this.medalsOnly.addValueChangeListener(e -> {
-			this.crudGrid.getGrid().getElement().getClassList().set("medals", Boolean.TRUE.equals(e.getValue()));
+			this.getCrudGrid().getGrid().getElement().getClassList().set("medals", Boolean.TRUE.equals(e.getValue()));
 			crud.refreshGrid();
 		});
 		crud.getCrudLayout().addFilterComponent(this.medalsOnly);
 
-		this.genderFilter.setPlaceholder(getTranslation("Gender"));
-		this.genderFilter.setItems(Gender.M, Gender.F);
-		this.genderFilter.setItemLabelGenerator((i) -> {
+		this.getGenderFilter().setPlaceholder(getTranslation("Gender"));
+		this.getGenderFilter().setItems(Gender.M, Gender.F);
+		this.getGenderFilter().setItemLabelGenerator((i) -> {
 			return i == Gender.M ? getTranslation("Gender.Men") : getTranslation("Gender.Women");
 		});
-		this.genderFilter.setClearButtonVisible(true);
-		this.genderFilter.addValueChangeListener(e -> {
+		this.getGenderFilter().setClearButtonVisible(true);
+		this.getGenderFilter().addValueChangeListener(e -> {
 			crud.refreshGrid();
 		});
-		this.genderFilter.setWidth("10em");
-		crud.getCrudLayout().addFilterComponent(this.genderFilter);
+		this.getGenderFilter().setWidth("10em");
+		crud.getCrudLayout().addFilterComponent(this.getGenderFilter());
 	}
 
 	/**

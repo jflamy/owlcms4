@@ -6,24 +6,21 @@
  *******************************************************************************/
 package app.owlcms.data.jpa;
 
-import static app.owlcms.data.agegroup.Championship.DEFAULT;
-import static app.owlcms.data.agegroup.Championship.MASTERS;
-import static app.owlcms.data.agegroup.Championship.U;
 import static app.owlcms.data.athlete.Gender.F;
 import static app.owlcms.data.athlete.Gender.M;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -58,7 +55,7 @@ public class DemoData {
 	 * @param nbAthletes   how many athletes
 	 * @param ageDivisions
 	 */
-	public static void insertInitialData(int nbAthletes, EnumSet<Championship> ageDivisions) {
+	public static void insertInitialData(int nbAthletes, Set<Championship> ageDivisions) {
 		JPAService.runInTransaction(em -> {
 			Competition competition = createDefaultCompetition(ageDivisions);
 			CompetitionRepository.save(competition);
@@ -128,7 +125,7 @@ public class DemoData {
 
 	}
 
-	protected static Competition createDefaultCompetition(EnumSet<Championship> ageDivisions) {
+	protected static Competition createDefaultCompetition(Set<Championship> ageDivisions) {
 		// RecordConfig rc = new RecordConfig(Arrays.asList());
 		// JPAService.runInTransaction(em -> {
 		// em.persist(rc);
@@ -148,7 +145,7 @@ public class DemoData {
 		competition.setFederationWebSite("http://national-weightlifting.org");
 
 		competition.setEnforce20kgRule(true);
-		competition.setMasters(ageDivisions != null && ageDivisions.contains(MASTERS));
+		competition.setMasters(ageDivisions != null && ageDivisions.contains(Championship.of(Championship.MASTERS)));
 		competition.setUseBirthYear(false);
 		competition.setAnnouncerLiveDecisions(true);
 		competition.setMensBestN(null);
@@ -207,7 +204,7 @@ public class DemoData {
 	 * @param w             the w
 	 * @param c             the c
 	 */
-	protected static void setupDemoData(EntityManager em, int liftersToLoad, EnumSet<Championship> ageDivisions) {
+	protected static void setupDemoData(EntityManager em, int liftersToLoad, Set<Championship> ageDivisions) {
 
 		LocalDateTime c = LocalDateTime.now();
 
@@ -246,7 +243,7 @@ public class DemoData {
 	}
 
 	private static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupM1, Group groupM2,
-	        Group groupF1, Group groupY1, EnumSet<Championship> ageDivisions) {
+	        Group groupF1, Group groupY1, Set<Championship> ageDivisions) {
 		final String[] lnames = { "Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller", "Wilson",
 		        "Moore", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris", "Martin", "Thompson", "Garcia",
 		        "Martinez", "Robinson", "Clark", "Rodriguez", "Lewis", "Lee", "Walker", "Hall", "Allen", "Young",
@@ -268,23 +265,23 @@ public class DemoData {
 		Random r = new Random(0);
 		Random r2 = new Random(0);
 
-		if (ageDivisions != null && ageDivisions.contains(MASTERS)) {
-			createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, MASTERS, 35, 45, M);
-			createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, MASTERS, 35, 50, M);
-			createGroup(em, groupF1, fNames, lnames, r2, 59, 59, (int) Math.round(liftersToLoad / 1.6), MASTERS, 35, 45,
+		if (ageDivisions != null && ageDivisions.contains(Championship.of(Championship.MASTERS))) {
+			createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, Championship.of(Championship.MASTERS), 35, 45, M);
+			createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, Championship.of(Championship.MASTERS), 35, 50, M);
+			createGroup(em, groupF1, fNames, lnames, r2, 59, 59, (int) Math.round(liftersToLoad / 1.6), Championship.of(Championship.MASTERS), 35, 45,
 			        F);
-			createGroup(em, groupY1, mNames, lnames, r2, 55, 61, (int) Math.round(liftersToLoad / 2.5), U, 13, 17,
+			createGroup(em, groupY1, mNames, lnames, r2, 55, 61, (int) Math.round(liftersToLoad / 2.5), Championship.of(Championship.U), 13, 17,
 			        Gender.M);
-			createGroup(em, groupY1, fNames, lnames, r2, 45, 49, (int) Math.round(liftersToLoad / 2.5), U, 13, 17, F);
+			createGroup(em, groupY1, fNames, lnames, r2, 45, 49, (int) Math.round(liftersToLoad / 2.5), Championship.of(Championship.U), 13, 17, F);
 		} else {
-			createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, DEFAULT, 18, 32, M);
-			createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad > 10 ? 20 : liftersToLoad, DEFAULT, 18,
+			createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, Championship.of(Championship.DEFAULT), 18, 32, M);
+			createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad > 10 ? 20 : liftersToLoad, Championship.of(Championship.DEFAULT), 18,
 			        32, M);
-			createGroup(em, groupF1, fNames, lnames, r2, 59, 59, (int) Math.round(liftersToLoad / 1.6), DEFAULT, 18, 32,
+			createGroup(em, groupF1, fNames, lnames, r2, 59, 59, (int) Math.round(liftersToLoad / 1.6), Championship.of(Championship.DEFAULT), 18, 32,
 			        F);
-			createGroup(em, groupY1, mNames, lnames, r2, 55, 61, (int) Math.round(liftersToLoad / 2.5), DEFAULT, 13, 17,
+			createGroup(em, groupY1, mNames, lnames, r2, 55, 61, (int) Math.round(liftersToLoad / 2.5), Championship.of(Championship.DEFAULT), 13, 17,
 			        M);
-			createGroup(em, groupY1, fNames, lnames, r2, 45, 49, (int) Math.round(liftersToLoad / 2.5), DEFAULT, 13, 17,
+			createGroup(em, groupY1, fNames, lnames, r2, 45, 49, (int) Math.round(liftersToLoad / 2.5), Championship.of(Championship.DEFAULT), 13, 17,
 			        F);
 
 		}

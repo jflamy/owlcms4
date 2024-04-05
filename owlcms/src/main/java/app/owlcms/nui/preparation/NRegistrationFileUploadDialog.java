@@ -6,17 +6,9 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.function.Consumer;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.ss.util.CellReference;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.dialog.Dialog;
@@ -44,8 +36,10 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		jxlsLogger.setLevel(Level.ERROR);
 	}
 	public IRegistrationFileProcessor processor;
+	private boolean sbdeFormat;
 
-	public NRegistrationFileUploadDialog() {
+	public NRegistrationFileUploadDialog(boolean sbdeFormat) {
+		this.sbdeFormat = sbdeFormat;
 
 		H5 label = new H5(Translator.translate("Upload.WarningWillReplaceAll"));
 		label.getStyle().set("color", "red");
@@ -60,15 +54,15 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		ta.setVisible(false);
 
 		upload.addSucceededListener(event -> {
-			this.processor = oldFormat(buffer.getInputStream())
+			processor = this.sbdeFormat //(buffer.getInputStream())
 			        ? new ORegistrationFileProcessor()
 			        : new NRegistrationFileProcessor();
-			try {
-				buffer.getInputStream().reset();
+//			try {
+				//buffer.getInputStream().reset();
 				processInput(buffer.getInputStream(), ta);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
+//			} catch (IOException e) {
+//				throw new RuntimeException(e);
+//			}
 
 		});
 
@@ -81,6 +75,28 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		VerticalLayout vl = new VerticalLayout(title, label, upload, ta);
 		add(vl);
 	}
+
+//	private boolean oldFormat(InputStream inputStream) {
+//		try (Workbook workbook = WorkbookFactory.create(inputStream)) {
+//			Sheet sheet = workbook.getSheetAt(0);
+//			CellReference cr = new CellReference("C1");
+//			Row row = sheet.getRow(cr.getRow());
+//			Cell cell = row.getCell(cr.getCol());
+//			// empty cell indicates old format
+//			boolean nullCell = cell == null;
+//			CellType cellType = cell.getCellType();
+//			logger.debug("cell type {} {}", cellType,
+//			        cellType == CellType.STRING ? ">" + cell.getStringCellValue() + "<" : "-");
+//			boolean b = nullCell
+//			        || cellType == CellType.BLANK
+//			        || (cellType == CellType.STRING && cell.getStringCellValue().isBlank());
+//			return b;
+//		} catch (Exception e) {
+//			logger.error("cannot determine format {}", e);
+//		}
+//		return false;
+//		return this.oldFormat;
+//	}
 
 	public void processInput(InputStream inputStream, TextArea ta) {
 		// clear athletes to be able to clear groups
@@ -99,22 +115,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		// process athletes now that groups have been adjusted
 		processAthletes(inputStream, ta, false);
 		this.processor.adjustParticipations();
-	}
-
-	private boolean oldFormat(InputStream inputStream) {
-		try (Workbook workbook = WorkbookFactory.create(inputStream)) {
-			Sheet sheet = workbook.getSheetAt(0);
-			CellReference cr = new CellReference("A1");
-			Row row = sheet.getRow(cr.getRow());
-			Cell cell = row.getCell(cr.getCol());
-			// empty cell indicates old format
-			boolean nullCell = cell == null;
-			CellType cellType = cell.getCellType();
-			return (nullCell || cellType == CellType.BLANK);
-		} catch (Exception e) {
-			logger.error("cannot determine format {}", e);
-		}
-		return false;
+		return;
 	}
 
 	private int processAthletes(InputStream inputStream, TextArea ta, boolean dryRun) {

@@ -60,6 +60,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 		// Button categoryResults = openInNewTabNoParam(PackageContent.class,
 		// getTranslation("CategoryResults"));
 		Button finalPackage = openInNewTabNoParam(PackageContent.class, getTranslation("CompetitionResults"));
+		highlight(finalPackage);
 
 		// Div timingStats = DownloadButtonFactory.createDynamicXLSDownloadButton("timingStats",
 		// getTranslation("TimingStatistics"), new JXLSTimingStats(UI.getCurrent()));

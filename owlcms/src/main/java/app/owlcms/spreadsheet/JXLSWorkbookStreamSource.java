@@ -77,7 +77,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		tagLogger.setLevel(Level.ERROR);
 	}
 	protected List<Athlete> sortedAthletes;
-	private Championship ageDivision;
+	private Championship championship;
 	private String ageGroupPrefix;
 	private Category category;
 	private boolean excludeNotWeighed;
@@ -141,8 +141,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	/**
 	 * @return the ageDivision
 	 */
-	public Championship getAgeDivision() {
-		return this.ageDivision;
+	public Championship getChampionship() {
+		return this.championship;
 	}
 
 	/**
@@ -212,8 +212,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		return this.excludeNotWeighed;
 	}
 
-	public void setAgeDivision(Championship ageDivision) {
-		this.ageDivision = ageDivision;
+	public void setChampionship(Championship championship) {
+		this.championship = championship;
 	}
 
 	/**

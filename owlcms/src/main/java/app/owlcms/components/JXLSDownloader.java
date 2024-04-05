@@ -235,7 +235,7 @@ public class JXLSDownloader {
 					this.xlsWriter.setInputStream(is);
 					this.logger.debug("(2) filter present = {} {} {}", this.xlsWriter.getGroup(),
 					        this.xlsWriter.getCategory(),
-					        this.xlsWriter.getAgeDivision());
+					        this.xlsWriter.getChampionship());
 
 					String targetFileName = getTargetFileName();
 					this.logger.debug("(2) targetFileName final = {}", targetFileName);
@@ -293,9 +293,9 @@ public class JXLSDownloader {
 		} else if (this.xlsWriter.getAgeGroupPrefix() != null) {
 			suffix.append("_");
 			suffix.append(this.xlsWriter.getAgeGroupPrefix().toString());
-		} else if (this.xlsWriter.getAgeDivision() != null) {
+		} else if (this.xlsWriter.getChampionship() != null) {
 			suffix.append("_");
-			suffix.append(this.xlsWriter.getAgeDivision().toString());
+			suffix.append(this.xlsWriter.getChampionship().getName());
 		}
 
 		if (this.xlsWriter.getGroup() != null) {

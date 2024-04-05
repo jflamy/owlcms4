@@ -25,8 +25,8 @@ import com.vaadin.flow.component.dependency.JsModule;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.ResultsParameters;
-import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
@@ -114,7 +114,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	}
 
 	@Override
-	public Championship getAgeDivision() {
+	public Championship getChampionship() {
 		return this.ageDivision;
 	}
 
@@ -139,7 +139,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	}
 
 	@Override
-	public void setAgeDivision(Championship ageDivision) {
+	public void setChampionship(Championship ageDivision) {
 		this.ageDivision = ageDivision;
 	}
 
@@ -667,7 +667,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 
 	private void medalsInit() {
 		OwlcmsSession.withFop(fop -> {
-			this.logger.trace("{}Starting result board on FOP {}", fop.getLoggingName());
+			this.logger.trace("{}Starting result board on FOP {}", FieldOfPlay.getLoggingName(fop));
 			setId("medals-" + fop.getName());
 			setWideTeamNames(false);
 			this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());

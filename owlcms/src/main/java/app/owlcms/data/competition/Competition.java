@@ -41,8 +41,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -1682,53 +1682,53 @@ public class Competition {
 		if (ad == null) {
 			return;
 		}
-		List<String> agePrefixes = AgeGroupRepository.findActiveAndUsed(ad);
+		List<String> agePrefixes = AgeGroupRepository.findActiveAndUsedAgeGroups(ad);
 
 		for (String curAGPrefix : agePrefixes) {
 			List<Athlete> athletes = AgeGroupRepository.allPAthletesForAgeGroup(curAGPrefix);
-			doTeamRankings(athletes, ad.name(), false);
+			doTeamRankings(athletes, ad.getName(), false);
 		}
 
 		List<Athlete> sortedAthletes;
 		List<Athlete> sortedMen;
 		List<Athlete> sortedWomen;
 
-		sortedMen = getOrCreateBean("mTeam" + ad.name());
-		sortedWomen = getOrCreateBean("wTeam" + ad.name());
-		sortedAthletes = getOrCreateBean("mwTeam" + ad.name());
+		sortedMen = getOrCreateBean("mTeam" + ad.getName());
+		sortedWomen = getOrCreateBean("wTeam" + ad.getName());
+		sortedAthletes = getOrCreateBean("mwTeam" + ad.getName());
 		AthleteSorter.teamPointsOrder(sortedMen, Ranking.TOTAL);
 		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.TOTAL);
 		AthleteSorter.teamPointsOrder(sortedAthletes, Ranking.TOTAL);
 
 		reportTeams(sortedAthletes, sortedMen, sortedWomen);
 
-		sortedMen = getOrCreateBean("mCombined" + ad.name());
-		sortedWomen = getOrCreateBean("wCombined" + ad.name());
-		sortedAthletes = getOrCreateBean("mwCombined" + ad.name());
+		sortedMen = getOrCreateBean("mCombined" + ad.getName());
+		sortedWomen = getOrCreateBean("wCombined" + ad.getName());
+		sortedAthletes = getOrCreateBean("mwCombined" + ad.getName());
 		AthleteSorter.teamPointsOrder(sortedMen, Ranking.SNATCH_CJ_TOTAL);
 		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.SNATCH_CJ_TOTAL);
 		AthleteSorter.teamPointsOrder(sortedAthletes, Ranking.SNATCH_CJ_TOTAL);
 
 		reportCombined(sortedAthletes, sortedMen, sortedWomen);
 
-		sortedMen = getOrCreateBean("mCustom" + ad.name());
-		sortedWomen = getOrCreateBean("wCustom" + ad.name());
-		sortedAthletes = getOrCreateBean("mwCustom" + ad.name());
+		sortedMen = getOrCreateBean("mCustom" + ad.getName());
+		sortedWomen = getOrCreateBean("wCustom" + ad.getName());
+		sortedAthletes = getOrCreateBean("mwCustom" + ad.getName());
 		AthleteSorter.teamPointsOrder(sortedMen, Ranking.CUSTOM);
 		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.CUSTOM);
 		AthleteSorter.teamPointsOrder(sortedAthletes, Ranking.CUSTOM);
 
 		reportCustom(sortedAthletes, sortedMen, sortedWomen);
 
-		sortedMen = getOrCreateBean("mTeamSinclair" + ad.name());
-		sortedWomen = getOrCreateBean("wTeamSinclair" + ad.name());
+		sortedMen = getOrCreateBean("mTeamSinclair" + ad.getName());
+		sortedWomen = getOrCreateBean("wTeamSinclair" + ad.getName());
 		AthleteSorter.teamPointsOrder(sortedMen, Ranking.BW_SINCLAIR);
 		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.BW_SINCLAIR);
 
 		reportSinclair(sortedMen, sortedWomen);
 
-		sortedMen = getOrCreateBean("mTeamSMF" + ad.name());
-		sortedWomen = getOrCreateBean("wTeamSMF" + ad.name());
+		sortedMen = getOrCreateBean("mTeamSMF" + ad.getName());
+		sortedWomen = getOrCreateBean("wTeamSMF" + ad.getName());
 		AthleteSorter.teamPointsOrder(sortedMen, Ranking.SMM);
 		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.SMM);
 

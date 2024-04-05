@@ -91,10 +91,10 @@ final class Env {
         log.info("WebRoot is served from " + webRoot);
         final Resource resource = resourceFactory.newResource(webRoot);
         if (!resource.exists()) {
-            log.warn(resource + " (" + resource.getClass().getName() + ") claims it doesn't exist");
+            log./**/warn(resource + " (" + resource.getClass().getName() + ") claims it doesn't exist");
         }
         if (!resource.isDirectory()) {
-            log.warn(resource + " (" + resource.getClass().getName() + ") is not a directory, Jetty QuickStart will most probably fail");
+            log./**/warn(resource + " (" + resource.getClass().getName() + ") is not a directory, Jetty QuickStart will most probably fail");
         }
         return resource;
     }

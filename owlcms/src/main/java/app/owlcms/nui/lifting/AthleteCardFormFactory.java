@@ -54,6 +54,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
@@ -909,7 +910,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		this.ignoreErrorsCheckbox = new Checkbox(Translator.translate("RuleViolation.ignoreErrors"), e -> {
 			if (BooleanUtils.isTrue(isIgnoreErrors())) {
 				logger./**/warn/**/("{}!Errors ignored - checkbox override for athlete {}",
-				        OwlcmsSession.getFop().getLoggingName(), this.getEditedAthlete().getShortName());
+				        FieldOfPlay.getLoggingName(OwlcmsSession.getFop()), this.getEditedAthlete().getShortName());
 				// binder.validate();
 				boolean validationReset = this.editedAthlete.isValidation();
 				try {

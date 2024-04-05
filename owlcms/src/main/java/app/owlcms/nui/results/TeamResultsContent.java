@@ -43,8 +43,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
-import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
@@ -148,9 +148,9 @@ public class TeamResultsContent extends BaseContent
 
 		this.topBarAgeDivisionSelect = new ComboBox<>();
 		this.topBarAgeDivisionSelect.setPlaceholder(getTranslation("Championship"));
-		this.adItems = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
+		this.adItems = Championship.findAll();
 		this.topBarAgeDivisionSelect.setItems(this.adItems);
-		this.topBarAgeDivisionSelect.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
+		this.topBarAgeDivisionSelect.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.getName()));
 		this.topBarAgeDivisionSelect.setClearButtonVisible(true);
 		this.topBarAgeDivisionSelect.setWidth("8em");
 		this.topBarAgeDivisionSelect.getStyle().set("margin-left", "1em");
@@ -506,20 +506,20 @@ public class TeamResultsContent extends BaseContent
 			}
 
 			List<String> ageDivisionAgeGroupPrefixes;
-			ageDivisionAgeGroupPrefixes = AgeGroupRepository.findActiveAndUsed(ageDivisionValue);
+			ageDivisionAgeGroupPrefixes = AgeGroupRepository.findActiveAndUsedAgeGroups(ageDivisionValue);
 
 			this.topBarAgeGroupPrefixSelect.setItems(ageDivisionAgeGroupPrefixes);
 			boolean notEmpty = ageDivisionAgeGroupPrefixes.size() > 0;
 			this.topBarAgeGroupPrefixSelect.setEnabled(notEmpty);
-			String first = (notEmpty && ageDivisionValue == Championship.IWF) ? ageDivisionAgeGroupPrefixes.get(0)
+			String first = (notEmpty && ageDivisionValue == Championship.of(Championship.IWF)) ? ageDivisionAgeGroupPrefixes.get(0)
 			        : null;
 			// logger.debug("ad {} ag {} first {} select {}", ageDivisionValue,
 			// ageDivisionAgeGroupPrefixes, first,
 			// topBarAgeGroupPrefixSelect);
 
-			this.xlsWriter.setAgeDivision(ageDivisionValue);
+			this.xlsWriter.setChampionship(ageDivisionValue);
 			this.finalPackage.getElement().setAttribute("download",
-			        "results" + (getAgeDivision() != null ? "_" + getAgeDivision().name()
+			        "results" + (getAgeDivision() != null ? "_" + getAgeDivision().getName()
 			                : (this.ageGroupPrefix != null ? "_" + this.ageGroupPrefix : "_all")) + ".xls");
 
 			String value = notEmpty ? first : null;
@@ -546,7 +546,7 @@ public class TeamResultsContent extends BaseContent
 			// updateFilters(getAgeDivision(), getAgeGroupPrefix());
 			this.xlsWriter.setAgeGroupPrefix(this.ageGroupPrefix);
 			this.finalPackage.getElement().setAttribute("download",
-			        "results" + (getAgeDivision() != null ? "_" + getAgeDivision().name()
+			        "results" + (getAgeDivision() != null ? "_" + getAgeDivision().getName()
 			                : (this.ageGroupPrefix != null ? "_" + this.ageGroupPrefix : "_all")) + ".xls");
 
 			if (this.crudGrid != null) {

@@ -92,8 +92,10 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	Logger logger = (Logger) LoggerFactory.getLogger(AgeGroup.class);
 	Integer maxAge;
 	Integer minAge;
-	@Enumerated(EnumType.STRING)
-	private Championship ageDivision;
+
+	// @Enumerated(EnumType.STRING)
+	private String ageDivision; // this is actually the championship type (MASTERS, IWF, etc.)
+	private String championshipName; // foreign key: PanAm, SouthAm, etc. Same the type if not specified explicitly.
 	@OneToMany(mappedBy = "ageGroup", cascade = { CascadeType.ALL }, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<Category> categories = new ArrayList<>();
 	@Enumerated(EnumType.STRING)
@@ -103,17 +105,19 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	@JsonIgnore
 	private Long id;
 	private Integer qualificationTotal;
+	@Column(columnDefinition = "boolean default false")
+	private Boolean categoriesAlreadyGendered = false;
 
 	public AgeGroup() {
 	}
 
 	public AgeGroup(String code, boolean active, Integer minAge, Integer maxAge, Gender gender,
-	        Championship ageDivision, Integer qualificationTotal) {
+	        String ageDivisionName, Integer qualificationTotal) {
 		this.active = active;
 		this.code = code;
 		this.minAge = minAge;
 		this.maxAge = maxAge;
-		this.ageDivision = ageDivision;
+		this.ageDivision = ageDivisionName;
 		this.gender = gender;
 		this.setQualificationTotal(qualificationTotal);
 	}
@@ -164,7 +168,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		        && Objects.equals(this.minAge, other.minAge);
 	}
 
-	public Championship getAgeDivision() {
+	public String getAgeDivision() {
 		return this.ageDivision;
 	}
 
@@ -189,6 +193,17 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		return getCategories().stream().map(c -> c.getLimitString()).collect(Collectors.joining(", "));
 	}
 
+	@JsonIgnore
+	@Transient
+	public Championship getChampionship() {
+		return Championship.of(this.getChampionshipName());
+	}
+
+	public String getChampionshipName() {
+		return (this.championshipName != null && !this.championshipName.isBlank()) ? this.championshipName
+		        : this.ageDivision;
+	}
+
 	public String getCode() {
 		return this.code;
 	}
@@ -202,7 +217,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 		String value = null;
 		String translatedCode = getTranslatedCode(code2);
-		if (this.ageDivision == Championship.MASTERS) {
+		if (this.ageDivision == Championship.of(Championship.MASTERS).getName()) {
 			value = translatedCode;
 		}
 		// else if (ageDivision == Championship.DEFAULT) {
@@ -223,7 +238,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	}
 
 	public String getKey() {
-		return getCode() + "_" + this.ageDivision.name() + "_" + this.gender.name() + "_" + this.minAge + "_"
+		return getCode() + "_" + this.ageDivision + "_" + this.gender.name() + "_" + this.minAge + "_"
 		        + this.maxAge;
 	}
 
@@ -244,7 +259,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 		String value = null;
 		String translatedCode = getTranslatedCode(code2);
-		if (this.ageDivision == Championship.MASTERS) {
+		if (this.ageDivision == Championship.of(Championship.MASTERS).getName() || this.isCategoriesAlreadyGendered()) {
 			value = translatedCode;
 		} else if (this.ageDivision == Championship.DEFAULT) {
 			value = getTranslatedGender();
@@ -292,12 +307,21 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		this.active = active;
 	}
 
-	public void setAgeDivision(Championship ageDivision) {
+	public void setAgeDivision(String ageDivision) {
 		this.ageDivision = ageDivision;
 	}
 
 	public void setCategories(List<Category> value) {
 		this.categories = value;
+	}
+
+	public void setChampionship(Championship championship) {
+		this.ageDivision = championship.getType().name();
+	}
+
+	public void setChampionshipName(String championshipName) {
+		this.championshipName = championshipName;
+
 	}
 
 	public void setCode(String code) {
@@ -337,6 +361,14 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		        "AgeGroup." + code2,
 		        OwlcmsSession.getLocale());
 		return translatedCode != null ? translatedCode : code2;
+	}
+
+	public void setCategoriesAlreadyGendered(boolean b) {
+		this.categoriesAlreadyGendered = b;
+	}
+
+	public boolean isCategoriesAlreadyGendered() {
+		return categoriesAlreadyGendered == null ? false : categoriesAlreadyGendered;
 	}
 
 }

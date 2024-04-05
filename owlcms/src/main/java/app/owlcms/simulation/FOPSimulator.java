@@ -303,9 +303,9 @@ public class FOPSimulator {
 				Thread.sleep(6000);
 			} catch (InterruptedException e) {
 			}
-			this.logger.info("{}########## switching to group {} of {}", this.fop.getLoggingName(), g, curGs);
+			this.logger.info("{}########## switching to group {} of {}", FieldOfPlay.getLoggingName(this.fop), g, curGs);
 			this.fop.fopEventPost(new FOPEvent.SwitchGroup(g, this));
-			this.logger.info("{}########## starting group {}", this.fop.getLoggingName(), g);
+			this.logger.info("{}########## starting group {}", FieldOfPlay.getLoggingName(this.fop), g);
 			this.groupDone = false;
 			this.fop.fopEventPost(new FOPEvent.StartLifting(this));
 

@@ -105,7 +105,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		        SoundParameters.IMMEDIATE, "true",
 		        SoundParameters.SINGLEREF, "false")));
 		createTopBarGroupSelect();
-		defineFilters(this.crudGrid);
+		defineFilters(this.getCrudGrid());
 	}
 
 	/**
@@ -127,7 +127,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	public Collection<Athlete> findAll() {
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		if (fop != null) {
-			logger.trace("{}findAll {} {}", fop.getLoggingName(),
+			logger.trace("{}findAll {} {}", FieldOfPlay.getLoggingName(fop),
 			        fop.getGroup() == null ? null : fop.getGroup().getName(),
 			        LoggerUtils.whereFrom());
 			final String filterValue;

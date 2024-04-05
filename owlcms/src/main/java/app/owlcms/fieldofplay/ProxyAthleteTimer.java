@@ -128,7 +128,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 			computeTimeRemaining();
 		}
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("{}==== setting Time -- timeRemaining = {} ({})", getFop().getLoggingName(),
+			this.logger.debug("{}==== setting Time -- timeRemaining = {} ({})", FieldOfPlay.getLoggingName(getFop()),
 			        timeRemaining,
 			        LoggerUtils.whereFrom());
 		}
@@ -148,7 +148,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 		if (!this.running) {
 			this.startMillis = System.currentTimeMillis();
 			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("{}starting Time -- timeRemaining = {} ({})", getFop().getLoggingName(),
+				this.logger.debug("{}starting Time -- timeRemaining = {} ({})", FieldOfPlay.getLoggingName(getFop()),
 				        this.timeRemaining,
 				        LoggerUtils.whereFrom());
 			}
@@ -172,7 +172,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 			computeTimeRemaining();
 		}
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("{}stopping Time -- timeRemaining = {} ({})", getFop().getLoggingName(),
+			this.logger.debug("{}stopping Time -- timeRemaining = {} ({})", FieldOfPlay.getLoggingName(getFop()),
 			        this.timeRemaining,
 			        LoggerUtils.whereFrom());
 		}

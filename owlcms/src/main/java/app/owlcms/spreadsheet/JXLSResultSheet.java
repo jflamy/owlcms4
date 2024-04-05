@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
@@ -69,7 +69,7 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 		}
 		final Group currentGroup = getGroup();
 		Category currentCategory = getCategory();
-		Championship currentAgeDivision = getAgeDivision();
+		Championship currentAgeDivision = getChampionship();
 		String currentAgeGroupPrefix = getAgeGroupPrefix();
 		List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(currentGroup);
 
@@ -97,7 +97,7 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
                             : true))
                 .filter(a -> {
                     AgeGroup ageGroup = a.getAgeGroup();
-                    Championship ageDivision2 = ageGroup != null ? ageGroup.getAgeDivision() : null;
+                    Championship ageDivision2 = ageGroup != null ? ageGroup.getChampionship() : null;
                     return (
                         currentAgeDivision != null
                             ? (ageDivision2 != null ?
