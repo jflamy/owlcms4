@@ -6,7 +6,7 @@
 
 ##### 47.1.2
 
-- Fix: Loading a Start Book Data Entry (SBDE) could fail unpredictably (`null` was written to the loading summary). The loads would work after a clean start but not after other SBDE loads.  JSON loads without a restart could also cause the problem.
+- Fix: Loading a Start Book Data Entry (SBDE) could fail unpredictably (`null` was written to the loading summary). The loads would work after a clean start but not after other SBDE or JSON loads.
 - Fix: Removed the automatic detection of the Excel registration file formats. The matching user interface buttons for the format must be used for extracting and reloading.
 - Updated several translations
 
