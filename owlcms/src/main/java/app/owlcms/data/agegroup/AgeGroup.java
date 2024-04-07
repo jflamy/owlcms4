@@ -93,8 +93,17 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	Integer maxAge;
 	Integer minAge;
 
-	// @Enumerated(EnumType.STRING)
-	private String ageDivision; // this is actually the championship type (MASTERS, IWF, etc.)
+	/*
+	 * ageDivision is the legacy name for a championship type. MASTERS, U, DEFAULT. The only value that has special
+	 * meaning is MASTERS.
+	 * 
+	 * A championship is a set of age groups. Most championships group only one age group (a U15 championship at the
+	 * same time as a U17 and a U20). Masters are the exception where multiple age groups are combined to create a
+	 * single team competition. But there might be other situations -- like a SCHOOL championship where there are two
+	 * age groups, but still only one school team wins by combining the two, or any combination.
+	 * 
+	 */
+	private String ageDivision;
 	private String championshipName; // foreign key: PanAm, SouthAm, etc. Same the type if not specified explicitly.
 	@OneToMany(mappedBy = "ageGroup", cascade = { CascadeType.ALL }, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<Category> categories = new ArrayList<>();
@@ -106,7 +115,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	private Long id;
 	private Integer qualificationTotal;
 	@Column(columnDefinition = "boolean default false")
-	private Boolean categoriesAlreadyGendered = false;
+	private Boolean alreadyGendered = false;
 
 	public AgeGroup() {
 	}
@@ -120,6 +129,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		this.ageDivision = ageDivisionName;
 		this.gender = gender;
 		this.setQualificationTotal(qualificationTotal);
+		this.alreadyGendered = false;
 	}
 
 	public void addCategory(Category category) {
@@ -198,7 +208,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	public Championship getChampionship() {
 		return Championship.of(this.getChampionshipName());
 	}
-	
+
 	@JsonIgnore
 	@Transient
 	public ChampionshipType getChampionshipType() {
@@ -224,13 +234,9 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 		String value = null;
 		String translatedCode = getTranslatedCode(code2);
-		if (this.ageDivision == Championship.of(Championship.MASTERS).getName()) {
+		if (this.isAlreadyGendered() || this.getAgeDivision().contentEquals(Championship.MASTERS)) {
 			value = translatedCode;
-		}
-		// else if (ageDivision == Championship.DEFAULT) {
-		// value = getTranslatedGender();
-		// }
-		else {
+		} else {
 			value = translatedCode + " " + getTranslatedGender();
 		}
 		return value;
@@ -266,7 +272,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 		String value = null;
 		String translatedCode = getTranslatedCode(code2);
-		if (this.ageDivision == Championship.of(Championship.MASTERS).getName() || this.isCategoriesAlreadyGendered()) {
+		if (this.ageDivision == Championship.of(Championship.MASTERS).getName() || this.isAlreadyGendered()) {
 			value = translatedCode;
 		} else if (this.ageDivision == Championship.DEFAULT) {
 			value = getTranslatedGender();
@@ -370,12 +376,12 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		return translatedCode != null ? translatedCode : code2;
 	}
 
-	public void setCategoriesAlreadyGendered(boolean b) {
-		this.categoriesAlreadyGendered = b;
+	public void setAlreadyGendered(boolean b) {
+		this.alreadyGendered = b;
 	}
 
-	public boolean isCategoriesAlreadyGendered() {
-		return categoriesAlreadyGendered == null ? false : categoriesAlreadyGendered;
+	public boolean isAlreadyGendered() {
+		return alreadyGendered == null ? false : alreadyGendered;
 	}
 
 }

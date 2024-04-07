@@ -37,6 +37,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
+import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.i18n.Translator;
 import app.owlcms.utils.IdUtils;
@@ -277,8 +278,12 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	public String getComputedName() {
 		String agName = (this.ageGroup != null ? this.ageGroup.getName() : "");
 		String catName = getLimitString();
-		if (agName == null || agName.isEmpty()) {
-			return getGender() + " " + catName;
+		if (ageGroup.isAlreadyGendered()) {
+			// this takes priority over DEFAULT championship
+			return agName + " " + catName;
+		} else if (ageGroup.getChampionshipType() == ChampionshipType.DEFAULT) {
+			// legacy case - just the gender and the category.
+			return getTranslatedGender() + " " + catName;
 		} else {
 			return agName + " " + catName;
 		}

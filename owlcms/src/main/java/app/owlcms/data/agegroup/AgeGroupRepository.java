@@ -78,8 +78,10 @@ public class AgeGroupRepository {
 		for (AgeGroup ag : ageGroups) {
 			if (ag.getChampionshipName() != null && !ag.getChampionshipName().isBlank()) {
 				ts.add(ag.getChampionshipName() + "¤" + ag.getAgeDivision());
-			} else {
+			} else if (ag.getAgeDivision() != null){
 				ts.add(ag.getAgeDivision());
+			} else {
+				logger.error("{} {} {}",ag.getId(), ag.code, ag.getChampionshipName(), ag.getCategoriesAsString());
 			}
 		}
 		return new ArrayList<>(ts);

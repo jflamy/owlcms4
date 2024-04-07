@@ -36,13 +36,14 @@ public class RegistrationOrderComparatorTest {
         Main.injectSuppliers();
         JPAService.init(true, true);
         Config.initConfig();
-        TestData.insertInitialData(5, true);
+        //TestData.insertInitialData(5, true);
         JPAService.runInTransaction(em -> {
             Competition.setCurrent(new Competition());
             AgeGroupRepository.insertAgeGroups(em, EnumSet.of(
             		ChampionshipType.IWF,
             		ChampionshipType.MASTERS,
-            		ChampionshipType.U));
+            		ChampionshipType.U),
+            		"/agegroups/AgeGroups_Tests.xlsx");
             return null;
         });
     }

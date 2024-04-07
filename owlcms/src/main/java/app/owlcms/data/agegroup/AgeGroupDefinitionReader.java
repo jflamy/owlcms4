@@ -78,10 +78,11 @@ public class AgeGroupDefinitionReader {
 							} else if (trim.startsWith("!")) {
 								ag = new AgeGroup();
 								ag.setCode(trim.substring(1));
-								ag.setCategoriesAlreadyGendered(true);
+								ag.setAlreadyGendered(true);
 							} else {
 								ag = new AgeGroup();
 								ag.setCode(trim);
+								ag.setAlreadyGendered(false);
 							}
 						}
 							break;
@@ -94,6 +95,9 @@ public class AgeGroupDefinitionReader {
 						case 2: {
 							String cellValue = cell.getStringCellValue();
 							ag.setAgeDivision(cellValue);
+							if (ag.getChampionshipType() == ChampionshipType.MASTERS) {
+								ag.setAlreadyGendered(true);
+							}
 						}
 							break;
 						case 3: {
@@ -123,14 +127,13 @@ public class AgeGroupDefinitionReader {
 							break;
 						case 6: {
 							boolean explicitlyActive = cell.getBooleanCellValue();
+
 							// age division is active according to spreadsheet, unless we are given an
 							// explicit list of championship types as override (e.g. to setup tests or demos)
 							if (ag != null) {
 								ChampionshipType aDiv = ag.getChampionshipType();
-								boolean active = forcedInsertion == null ? explicitlyActive
-								        : forcedInsertion.stream()
-								                .anyMatch(ad -> (ad == aDiv));
-								ag.setActive(active);
+								boolean forcedActive = forcedInsertion != null ?  forcedInsertion.contains(aDiv) : false;
+								ag.setActive(forcedInsertion != null ? forcedActive : explicitlyActive);
 							}
 						}
 							break;

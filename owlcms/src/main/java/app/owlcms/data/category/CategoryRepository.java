@@ -149,6 +149,7 @@ public class CategoryRepository {
 		}
 		@SuppressWarnings("unchecked")
 		List<Category> resultList = query.getResultList();
+		logger.debug("resultList {}", resultList);
 		return resultList;
 	}
 
@@ -204,7 +205,7 @@ public class CategoryRepository {
 		// sort comparison to put more specific category age before. M30 before O21, O21
 		// also before SR (MASTERS, then
 		// U, then IWF/other)
-		findFiltered.sort(new RegistrationPreferenceComparator());
+		findFiltered = findFiltered.stream().filter(c -> c.getAgeGroup().isActive()).sorted(new RegistrationPreferenceComparator()).collect(Collectors.toList());
 		return findFiltered;
 	}
 
@@ -213,7 +214,7 @@ public class CategoryRepository {
 		Boolean active = true;
 		List<Category> findFiltered = findFiltered((String) null, gender, ageDivision, (AgeGroup) null, age, bodyWeight,
 		        active, -1, -1);
-		findFiltered.sort(new RegistrationPreferenceComparator());
+		findFiltered = findFiltered.stream().filter(c -> c.getAgeGroup().isActive()).sorted(new RegistrationPreferenceComparator()).collect(Collectors.toList());
 		return findFiltered;
 	}
 
