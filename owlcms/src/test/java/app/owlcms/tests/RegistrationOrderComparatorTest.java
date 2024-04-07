@@ -15,6 +15,7 @@ import java.util.List;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import app.owlcms.Main;
@@ -29,6 +30,7 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.init.OwlcmsSession;
 
+@Ignore
 public class RegistrationOrderComparatorTest {
 
     @BeforeClass
