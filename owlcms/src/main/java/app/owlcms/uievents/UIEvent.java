@@ -973,6 +973,8 @@ public class UIEvent {
 
 		private boolean serverSound;
 		private Integer timeRemaining;
+		private long start;
+		private long end;
 
 		/**
 		 * Instantiates a new start time.
@@ -983,6 +985,8 @@ public class UIEvent {
 		 */
 		public StartTime(Integer timeRemaining, Object origin, boolean serverSound) {
 			super(origin);
+			this.start = System.currentTimeMillis();
+			this.end = start + timeRemaining;
 			this.timeRemaining = timeRemaining;
 			this.serverSound = serverSound;
 		}
@@ -1002,6 +1006,22 @@ public class UIEvent {
 
 		public boolean isServerSound() {
 			return this.serverSound;
+		}
+
+		public long getStart() {
+			return start;
+		}
+
+		public void setStart(long start) {
+			this.start = start;
+		}
+
+		public long getEnd() {
+			return end;
+		}
+
+		public void setEnd(long end) {
+			this.end = end;
 		}
 
 	}

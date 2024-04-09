@@ -18,7 +18,6 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.publicresults.TimerReceiverServlet;
 import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.uievents.BreakTimerEvent;
-import app.owlcms.uievents.UpdateEvent;
 import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
@@ -151,19 +150,18 @@ public class BreakTimerElementPR extends TimerElementPR {
         doStartTimer(tr, true); // true means "silent".
     }
 
-    @Subscribe
-    // not clear why we listen to this event.
-    public void slaveOrderUpdated(UpdateEvent e) {
-        if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
-            // event is not for us
-            return;
-        }
-        Integer breakRemaining = e.getBreakRemaining();
-        if (e.isBreak() && breakRemaining > 0) {
-            doSetTimer(breakRemaining);
-            doStartTimer(breakRemaining, true);
-        }
-    }
+//    @Subscribe
+//    public void slaveOrderUpdated(UpdateEvent e) {
+//        if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
+//            // event is not for us
+//            return;
+//        }
+//        Integer breakRemaining = e.getBreakRemaining();
+//        if (e.isBreak() && breakRemaining > 0) {
+//            doSetTimer(breakRemaining);
+//            doStartTimer(breakRemaining, true);
+//        }
+//    }
 
     /*
      * (non-Javadoc)

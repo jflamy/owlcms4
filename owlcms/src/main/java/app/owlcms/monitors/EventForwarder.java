@@ -645,7 +645,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	private Map<String, String> createDecision(DecisionEventType det) {
 		Map<String, String> sb = new HashMap<>();
-		mapPut(sb, "eventType", det.toString());
+		mapPut(sb, "decisionEventType", det.toString());
 		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
 
 		// competition state
@@ -689,44 +689,66 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
 		mapPut(sb, "fopName", getFop().getName());
 
-		Integer milliseconds = null;
-		boolean indefiniteBreak = false;
-		mapPut(sb, "eventType", e.getClass().getSimpleName());
+		Integer breakMillisRemaining = null;
+		Integer athleteMillisRemaining = null;
+		Long breakStartTimeMillis = null;
+		Long athleteStartTimeMillis = null;
+		Boolean indefiniteBreak = null;
+		String timerEventType = e.getClass().getSimpleName();
+		mapPut(sb, "timerEventType", timerEventType);
+		logger.warn("****** {}", timerEventType);
+
 		if (e instanceof SetTime) {
 			SetTime st = (SetTime) e;
-			milliseconds = st.getTimeRemaining();
+			athleteStartTimeMillis = null;
+			athleteMillisRemaining = st.getTimeRemaining();
 		} else if (e instanceof StartTime) {
 			StartTime st = (StartTime) e;
-			milliseconds = st.getTimeRemaining();
+			athleteStartTimeMillis = System.currentTimeMillis();
+			athleteMillisRemaining = st.getTimeRemaining();
 		} else if (e instanceof UIEvent.StopTime) {
 			StopTime st = (StopTime) e;
-			milliseconds = st.getTimeRemaining();
+			athleteStartTimeMillis = null;
+			athleteMillisRemaining = st.getTimeRemaining();
 		} else if (e instanceof BreakSetTime) {
 			BreakSetTime bst = (BreakSetTime) e;
+			indefiniteBreak = bst.isIndefinite();
 			if (bst.getEnd() != null) {
-				milliseconds = (int) LocalDateTime.now().until(bst.getEnd(), ChronoUnit.MILLIS);
+				breakMillisRemaining = (int) LocalDateTime.now().until(bst.getEnd(), ChronoUnit.MILLIS);
 			} else {
-				milliseconds = bst.isIndefinite() ? null : bst.getTimeRemaining();
+				breakMillisRemaining = bst.isIndefinite() ? null : bst.getTimeRemaining();
 			}
 		} else if (e instanceof BreakStarted) {
 			BreakStarted bst = (BreakStarted) e;
-			milliseconds = bst.isIndefinite() ? null : bst.getTimeRemaining();
+			breakStartTimeMillis = System.currentTimeMillis();
+			breakMillisRemaining = bst.isIndefinite() ? null : bst.getTimeRemaining();
+			indefiniteBreak = bst.isIndefinite();
 		} else if (e instanceof BreakPaused) {
 			logger.trace("????? break paused {}", LoggerUtils.whereFrom());
 			BreakPaused bst = (BreakPaused) e;
-			milliseconds = bst.isIndefinite() ? null : bst.getTimeRemaining();
+			breakMillisRemaining = bst.isIndefinite() ? null : bst.getTimeRemaining();
+			indefiniteBreak = bst.isIndefinite();
 		} else if (e instanceof BreakDone) {
-			milliseconds = -1;
+			breakMillisRemaining = -1;
 		}
-
-		mapPut(sb, "milliseconds", milliseconds != null ? milliseconds.toString() : null);
+		
+		athleteMillisRemaining = athleteMillisRemaining != null ? athleteMillisRemaining : 0;
+		mapPut(sb, "athleteStartTimeMillis", athleteStartTimeMillis != null ? Long.toString(athleteStartTimeMillis) : null);
+		mapPut(sb, "athleteMillisRemaining", athleteMillisRemaining != null ? athleteMillisRemaining.toString() : null);
+		
+		breakStartTimeMillis = breakStartTimeMillis != null ? breakStartTimeMillis : System.currentTimeMillis();
+		breakMillisRemaining = breakMillisRemaining != null ? breakMillisRemaining : 0;
+		mapPut(sb, "breakStartTimeMillis", Long.toString(breakStartTimeMillis));
+		mapPut(sb, "breakMillisRemaining", breakMillisRemaining != null ? breakMillisRemaining.toString() : null);
 		mapPut(sb, "break", String.valueOf(isBreak()));
 		mapPut(sb, "breakType",
 		        ((getFop().getState() == FOPState.BREAK) && (getFop().getBreakType() != null))
 		                ? getFop().getBreakType().toString()
 		                : null);
-		mapPut(sb, "indefiniteBreak", Boolean.toString(indefiniteBreak));
+		mapPut(sb, "indefiniteBreak", indefiniteBreak != null ? Boolean.toString(indefiniteBreak) : null);
 		mapPut(sb, "mode", getBoardMode());
+		
+		logger.warn("timer {} {} {} end {}", sb.get("timerEventType"), sb.get("break"), sb.get("breakType"), breakStartTimeMillis + breakMillisRemaining);
 
 		return sb;
 	}
@@ -757,8 +779,6 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "breakType", bts);
 		// logger.trace("***** break {} breakType {}", isBreak, bts);
 		IBreakTimer breakTimer = getFop().getBreakTimer();
-		int breakTimeRemaining = breakTimer != null ? breakTimer.liveTimeRemaining() : 0;
-		mapPut(sb, "breakRemaining", Integer.toString(breakTimeRemaining));
 		mapPut(sb, "breakIsIndefinite", Boolean.toString(breakTimer != null ? breakTimer.isIndefinite() : false));
 
 		// current athlete & attempt
@@ -795,13 +815,17 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "sinclairMeet", Boolean.toString(Competition.getCurrent().isSinclair()));
 		mapPut(sb, "mode", getBoardMode());
 
-		// include timer and decision info for possible future use
-		if (lastTimerMap != null) {
-			sb.putAll(lastTimerMap);
+		// include timer and decision info for synchronization on restart/refresh
+		if (getLastTimerMap() != null) {
+			sb.putAll(getLastTimerMap());
 		}
-		if (lastDecisionMap != null) {
-			sb.putAll(lastDecisionMap);
+		if (getLastDecisionMap() != null) {
+			sb.putAll(getLastDecisionMap());
 		}
+		
+		var breakStartTimeMillis = Long.parseLong(sb.get("breakStartTimeMillis"));
+		var breakMillisRemaining = Long.parseLong(sb.get("breakMillisRemaining"));
+		logger.warn("update last timerEvent {} {} {} end {}", sb.get("timerEventType"), sb.get("break"), sb.get("breakType"), breakStartTimeMillis + breakMillisRemaining);
 
 		return sb;
 	}
@@ -1138,9 +1162,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			return;
 		}
 		logger.trace("pushing {}", det);
-		lastDecisionMap = createDecision(det);
-		sendPost(videoUrl, lastDecisionMap);
-		sendPost(decisionUrl, lastDecisionMap);
+		setLastDecisionMap(createDecision(det));
+		sendPost(videoUrl, getLastDecisionMap());
+		sendPost(decisionUrl, getLastDecisionMap());
 	}
 
 	private void pushTimer(UIEvent e) {
@@ -1150,9 +1174,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		if (timerUrl == null && videoUrl == null) {
 			return;
 		}
-		lastTimerMap = createTimer(e);
-		sendPost(videoUrl, lastTimerMap);
-		sendPost(timerUrl, lastTimerMap);
+		setLastTimerMap(createTimer(e));
+		sendPost(videoUrl, getLastTimerMap());
+		sendPost(timerUrl, getLastTimerMap());
 	}
 
 	Thread keepaliveThread;
@@ -1317,6 +1341,22 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private void uiLog(UIEvent e) {
 		uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        null, e.getOrigin(), LoggerUtils.whereFrom());
+	}
+
+	private Map<String, String> getLastTimerMap() {
+		return lastTimerMap;
+	}
+
+	private void setLastTimerMap(Map<String, String> lastTimerMap) {
+		this.lastTimerMap = lastTimerMap;
+	}
+
+	private Map<String, String> getLastDecisionMap() {
+		return lastDecisionMap;
+	}
+
+	private void setLastDecisionMap(Map<String, String> lastDecisionMap) {
+		this.lastDecisionMap = lastDecisionMap;
 	}
 
 }

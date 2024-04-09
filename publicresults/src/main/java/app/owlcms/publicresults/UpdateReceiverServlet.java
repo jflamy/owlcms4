@@ -158,25 +158,22 @@ public class UpdateReceiverServlet extends HttpServlet {
 
             updateEvent.setTranslationMap(req.getParameter("translationMap"));
 
-            String breakString = req.getParameter("break");
-            String breakTypeString = req.getParameter("breakType");
-            String breakRemainingString = req.getParameter("breakRemaining");
-            String breakIsIndefiniteString = req.getParameter("breakIsIndefinite");
-            updateEvent.setBreak(breakString != null ? Boolean.valueOf(breakString) : null);
-            BreakType bt = breakTypeString != null ? BreakType.valueOf(breakTypeString) : null;
-            updateEvent.setBreakType(bt);
-            updateEvent.setBreakRemaining(breakRemainingString != null ? Integer.parseInt(breakRemainingString) : null);
-            updateEvent.setIndefinite(Boolean.parseBoolean(breakIsIndefiniteString));
+            String breakTypeString = req.getParameter("breakType");        
+            
+            TimerReceiverServlet.processTimerReq(req, null);
 
-            String sinclairMeetString = req.getParameter("sinclairMeet");
-            updateEvent.setSinclairMeet(Boolean.parseBoolean(sinclairMeetString));
-
-            if (bt == BreakType.GROUP_DONE) {
+            updateEvent.setBreak("true".equalsIgnoreCase(req.getParameter("break")));
+            if (breakTypeString == BreakType.GROUP_DONE.name()) {
                 updateEvent.setRecords(null);
                 updateEvent.setRecordKind("none");
                 updateEvent.setRecordMessage("");
                 updateEvent.setDone(true);
             }
+            String mode = req.getParameter("mode");
+            updateEvent.setMode(mode);
+            
+            String sinclairMeetString = req.getParameter("sinclairMeet");
+            updateEvent.setSinclairMeet(Boolean.parseBoolean(sinclairMeetString));
 
             String fopName = updateEvent.getFopName();
             // put in the cache first so events can know which FOPs are active;
@@ -209,6 +206,15 @@ public class UpdateReceiverServlet extends HttpServlet {
         } catch (Exception e) {
             this.logger.error(LoggerUtils.stackTrace(e));
         }
+    }
+    
+    
+    private int computeTargetDuration(String startTimeMillisString, String durationMillis) {
+        long startTimeMillis = durationMillis != null ? Long.valueOf(startTimeMillisString) : System.currentTimeMillis();
+        int deltaMillis = durationMillis != null ? Integer.valueOf(durationMillis) : 0;
+        long targetMillis = startTimeMillis + deltaMillis;
+        int milliSeconds = (int) (targetMillis - System.currentTimeMillis());
+        return milliSeconds;
     }
 
 }

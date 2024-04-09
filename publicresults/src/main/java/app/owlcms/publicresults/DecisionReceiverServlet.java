@@ -80,13 +80,13 @@ public class DecisionReceiverServlet extends HttpServlet {
 
         DecisionEvent decisionEvent = new DecisionEvent();
 
-        String eventTypeString = req.getParameter("eventType");
+        String eventTypeString = req.getParameter("decisionEventType");
         DecisionEventType eventType = null;
         try {
             eventType = DecisionEventType.valueOf(eventTypeString);
             decisionEvent.setEventType(eventType);
         } catch (Exception e) {
-            String message = MessageFormat.format("unknown event type {0}", eventTypeString);
+            String message = MessageFormat.format("unknown decision event type {0}", eventTypeString);
             this.logger.error(message);
             resp.sendError(400, message);
             return;
