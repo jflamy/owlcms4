@@ -8,6 +8,10 @@ package app.owlcms.uievents;
 
 import java.util.Objects;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Logger;
+
 public class UpdateEvent {
 
     private String athletes;
@@ -44,6 +48,7 @@ public class UpdateEvent {
     private boolean done = false;
     private String groupInfo;
     private int hashCode;
+    private Logger logger = (Logger) LoggerFactory.getLogger(UpdateEvent.class);
 
     public UpdateEvent() {
     }
@@ -64,8 +69,8 @@ public class UpdateEvent {
                 && Objects.equals(fopName, other.fopName) && Objects.equals(fopState, other.fopState)
                 && Objects.equals(fullName, other.fullName) && Objects.equals(groupDescription, other.groupDescription)
                 && Objects.equals(groupInfo, other.groupInfo) && Objects.equals(groupName, other.groupName)
-                && hidden == other.hidden && indefinite == other.indefinite && Objects.equals(isBreak, other.isBreak)
-                && Objects.equals(leaders, other.leaders)
+                && hashCode == other.hashCode && hidden == other.hidden && indefinite == other.indefinite
+                && Objects.equals(isBreak, other.isBreak) && Objects.equals(leaders, other.leaders)
                 && Objects.equals(liftingOrderAthletes, other.liftingOrderAthletes)
                 && Objects.equals(liftsDone, other.liftsDone) && Objects.equals(mode, other.mode)
                 && Objects.equals(noLiftRanks, other.noLiftRanks) && Objects.equals(recordKind, other.recordKind)
@@ -200,9 +205,10 @@ public class UpdateEvent {
     @Override
     public int hashCode() {
         return Objects.hash(athletes, attempt, breakRemaining, breakType, categoryName, ceremonyType, competitionName,
-                done, fopName, fopState, fullName, groupDescription, groupInfo, groupName, hidden, indefinite, isBreak,
-                leaders, liftingOrderAthletes, liftsDone, mode, noLiftRanks, recordKind, recordMessage, records,
-                sinclairMeet, startNumber, stylesDir, teamName, timeAllowed, translationMap, weight, wideTeamNames);
+                done, fopName, fopState, fullName, groupDescription, groupInfo, groupName, hashCode, hidden, indefinite,
+                isBreak, leaders, liftingOrderAthletes, liftsDone, mode, noLiftRanks, recordKind, recordMessage,
+                records, sinclairMeet, startNumber, stylesDir, teamName, timeAllowed, translationMap, weight,
+                wideTeamNames);
     }
 
     public Boolean isBreak() {

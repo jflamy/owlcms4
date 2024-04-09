@@ -68,15 +68,15 @@ public class TimerReceiverServlet extends HttpServlet {
             resp.setCharacterEncoding("UTF-8");
             if (StartupUtils.isTraceSetting()) {
                 Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
-                this.logger./**/warn("---- timer update received from {}", ProxyUtils.getClientIp(req));
+                TimerReceiverServlet.logger./**/warn("---- timer update received from {}", ProxyUtils.getClientIp(req));
                 for (Entry<String, String[]> pair : pairs) {
-                    this.logger./**/warn("    {} = {}", pair.getKey(), pair.getValue()[0]);
+                    TimerReceiverServlet.logger./**/warn("    {} = {}", pair.getKey(), pair.getValue()[0]);
                 }
             }
 
             String updateKey = req.getParameter("updateKey");
             if (updateKey == null || !updateKey.equals(this.secret)) {
-                this.logger.error("denying access from {} expected {} got {} ", req.getRemoteHost(), this.secret,
+                TimerReceiverServlet.logger.error("denying access from {} expected {} got {} ", req.getRemoteHost(), this.secret,
                         updateKey);
                 resp.sendError(401, "Denied, wrong credentials");
                 return;
@@ -116,7 +116,6 @@ public class TimerReceiverServlet extends HttpServlet {
         } else if (eventTypeString.equals("BreakPaused")) {
             breakTimerEvent = new BreakTimerEvent.BreakPaused(breakMillis);
         } else if (eventTypeString.equals("BreakStarted")) {
-            logger.warn("****creating breakstarted event {}", breakMillis);
             breakTimerEvent = new BreakTimerEvent.BreakStart(breakMillis, indefinite);
         } else if (eventTypeString.equals("BreakDone")) {
             breakTimerEvent = new BreakTimerEvent.BreakDone(null);

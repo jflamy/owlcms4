@@ -110,12 +110,12 @@ public class UpdateReceiverServlet extends HttpServlet {
             }
 
             if (StartupUtils.isDebugSetting()) {
-                this.logger.setLevel(Level.DEBUG);
+                this.logger.setLevel(Level.TRACE);
                 Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
                 this.logger./**/debug("update received from {}", ProxyUtils.getClientIp(req));
                 if (StartupUtils.isTraceSetting()) {
                     for (Entry<String, String[]> pair : pairs) {
-                        this.logger./**/debug("    {} = {}", pair.getKey(), pair.getValue()[0]);
+                        this.logger./**/warn("    {} = {}", pair.getKey(), pair.getValue()[0]);
                     }
                 }
             }
@@ -140,8 +140,6 @@ public class UpdateReceiverServlet extends HttpServlet {
             String weight = req.getParameter("weight");
             updateEvent.setWeight(weight != null ? Integer.parseInt(weight) : null);
 
-            updateEvent.setMode(req.getParameter("mode"));
-
             updateEvent.setNoLiftRanks(req.getParameter("noLiftRanks"));
             updateEvent.setAthletes(req.getParameter("groupAthletes"));
             updateEvent.setLiftingOrderAthletes(req.getParameter("liftingOrderAthletes"));
@@ -158,7 +156,9 @@ public class UpdateReceiverServlet extends HttpServlet {
 
             updateEvent.setTranslationMap(req.getParameter("translationMap"));
 
-            String breakTypeString = req.getParameter("breakType");        
+            String breakTypeString = req.getParameter("breakType");
+            String mode = req.getParameter("mode");
+            updateEvent.setMode(mode);
             
             TimerReceiverServlet.processTimerReq(req, null);
 
@@ -169,8 +169,7 @@ public class UpdateReceiverServlet extends HttpServlet {
                 updateEvent.setRecordMessage("");
                 updateEvent.setDone(true);
             }
-            String mode = req.getParameter("mode");
-            updateEvent.setMode(mode);
+
             
             String sinclairMeetString = req.getParameter("sinclairMeet");
             updateEvent.setSinclairMeet(Boolean.parseBoolean(sinclairMeetString));
@@ -208,13 +207,4 @@ public class UpdateReceiverServlet extends HttpServlet {
         }
     }
     
-    
-    private int computeTargetDuration(String startTimeMillisString, String durationMillis) {
-        long startTimeMillis = durationMillis != null ? Long.valueOf(startTimeMillisString) : System.currentTimeMillis();
-        int deltaMillis = durationMillis != null ? Integer.valueOf(durationMillis) : 0;
-        long targetMillis = startTimeMillis + deltaMillis;
-        int milliSeconds = (int) (targetMillis - System.currentTimeMillis());
-        return milliSeconds;
-    }
-
 }
