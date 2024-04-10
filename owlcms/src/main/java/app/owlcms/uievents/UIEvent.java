@@ -293,7 +293,7 @@ public class UIEvent {
 	}
 
 	/**
-	 * Class BreakDone.
+	 * Class CeremonyDone.
 	 */
 	static public class CeremonyDone extends UIEvent {
 
@@ -323,7 +323,6 @@ public class UIEvent {
 	/**
 	 * Class BreakStarted.
 	 */
-	// MUST NOT EXTEND otherwise subscription triggers on supertype as well
 	static public class CeremonyStarted extends UIEvent {
 
 		private Category ceremonyCategory;
@@ -986,13 +985,21 @@ public class UIEvent {
 		public StartTime(Integer timeRemaining, Object origin, boolean serverSound) {
 			super(origin);
 			this.start = System.currentTimeMillis();
-			this.end = start + timeRemaining;
+			this.end = this.start + timeRemaining;
 			this.timeRemaining = timeRemaining;
 			this.serverSound = serverSound;
 		}
 
 		public StartTime(Integer timeRemaining, Object origin, boolean serverSound, String stackTrace) {
 			this(timeRemaining, origin, serverSound);
+		}
+
+		public long getEnd() {
+			return this.end;
+		}
+
+		public long getStart() {
+			return this.start;
 		}
 
 		/**
@@ -1008,20 +1015,12 @@ public class UIEvent {
 			return this.serverSound;
 		}
 
-		public long getStart() {
-			return start;
+		public void setEnd(long end) {
+			this.end = end;
 		}
 
 		public void setStart(long start) {
 			this.start = start;
-		}
-
-		public long getEnd() {
-			return end;
-		}
-
-		public void setEnd(long end) {
-			this.end = end;
 		}
 
 	}

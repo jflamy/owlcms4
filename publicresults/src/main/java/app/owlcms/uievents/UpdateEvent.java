@@ -380,4 +380,12 @@ public class UpdateEvent {
         this.hashCode = hashCode;
     }
 
+    public Logger getLogger() {
+        return logger;
+    }
+
+    public void setLogger(Logger logger) {
+        this.logger = logger;
+    }
+
 }

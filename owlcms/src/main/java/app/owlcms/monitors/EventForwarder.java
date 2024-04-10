@@ -79,7 +79,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	// private static HashMap<String, EventForwarder> registeredFop = new HashMap<>();
 
-	private static final int UPDATE_INTERVAL = 15000;
+	private static final int KEEPALIVE_INTERVAL = 15000;
+	private static final boolean NO_KEEPALIVE = true;
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(EventForwarder.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	public static final Object singleThreadLock = new Object();
@@ -119,7 +120,6 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private Boolean teamFlags;
 	private String boardMode;
 	private String groupInfo;
-
 	private Map<String, String> lastTimerMap;
 	private Map<String, String> lastDecisionMap;
 	private Map<String, String> lastUpdate;
@@ -129,7 +129,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		// logger.debug("|||| eventForwarder {} {} {}", System.identityHashCode(this),
 		// emittingFop.getName(),System.identityHashCode(emittingFop));
 
-		this.postBus = getFop().getPostEventBus();
+		this.postBus = getFop().getEventForwardingBus();
 		this.postBus.register(this);
 
 		this.translatorResetTimeStamp = 0L;
@@ -147,8 +147,12 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		}
 	}
 
+	/**
+	 * @see app.owlcms.uievents.BreakDisplay#doBreak(app.owlcms.uievents.UIEvent)
+	 */
 	@Override
 	public void doBreak(UIEvent e) {
+		logger.warn("============= doBreak {} {}",e.getClass().getSimpleName(), this.fop.getBreakType());
 		BreakType breakType = this.fop.getBreakType();
 		Group group = this.fop.getGroup();
 		if (breakType == null) {
@@ -239,13 +243,47 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	 * @see app.owlcms.uievents.BreakDisplay#inferMessage(app.owlcms.uievents.BreakType)
 	 */
 	@Override
+	// public String inferMessage(BreakType breakType, CeremonyType ceremonyType, boolean publicDisplay) {
+	// if (breakType == null) {
+	// return Translator.translate("PublicMsg.CompetitionPaused");
+	// }
+	// if (ceremonyType != null) {
+	// switch (ceremonyType) {
+	// case INTRODUCTION:
+	// return Translator.translate("BreakMgmt.IntroductionOfAthletes");
+	// case MEDALS:
+	// return Translator.translate("PublicMsg.Medals");
+	// case OFFICIALS_INTRODUCTION:
+	// return Translator.translate("BreakMgmt.IntroductionOfOfficials");
+	// }
+	// }
+	// switch (breakType) {
+	// case FIRST_CJ:
+	// return Translator.translate("BreakType.FIRST_CJ");
+	// case FIRST_SNATCH:
+	// return Translator.translate("BreakType.FIRST_SNATCH");
+	// case BEFORE_INTRODUCTION:
+	// return Translator.translate("BreakType.BEFORE_INTRODUCTION");
+	// case TECHNICAL:
+	// return Translator.translate("PublicMsg.CompetitionPaused");
+	// case JURY:
+	// return Translator.translate("PublicMsg.JuryDeliberation");
+	// case GROUP_DONE:
+	// return Translator.translate("PublicMsg.GroupDone");
+	// case MARSHAL:
+	// return Translator.translate("PublicMsg.CompetitionPaused");
+	// default:
+	// break;
+	// }
+	// // can't happen
+	// return "";
+	// }
+
 	public String inferMessage(BreakType breakType, CeremonyType ceremonyType, boolean publicDisplay) {
-		if (breakType == null) {
+		if (breakType == null && ceremonyType == null) {
 			return Translator.translate("PublicMsg.CompetitionPaused");
 		}
-		if (ceremonyType != null
-		// && publicDisplay
-		) {
+		if (ceremonyType != null) {
 			switch (ceremonyType) {
 				case INTRODUCTION:
 					return Translator.translate("BreakMgmt.IntroductionOfAthletes");
@@ -254,6 +292,14 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				case OFFICIALS_INTRODUCTION:
 					return Translator.translate("BreakMgmt.IntroductionOfOfficials");
 			}
+		}
+		if (ceremonyType != null && ceremonyType == CeremonyType.INTRODUCTION) {
+			// we display the introduction title even in the warmup room because it
+			// is the introduction of the group that is warming up.
+			return Translator.translate("BreakMgmt.IntroductionOfAthletes");
+		}
+		if (breakType == null) {
+			return "";
 		}
 		switch (breakType) {
 			case FIRST_CJ:
@@ -266,6 +312,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				return Translator.translate("PublicMsg.CompetitionPaused");
 			case JURY:
 				return Translator.translate("PublicMsg.JuryDeliberation");
+			case CHALLENGE:
+				return Translator.translate("PublicMsg.CHALLENGE");
 			case GROUP_DONE:
 				return Translator.translate("PublicMsg.GroupDone");
 			case MARSHAL:
@@ -344,6 +392,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		uiLog(e);
 		Athlete a = e.getAthlete();
 		setHidden(false);
+		doBreak(e);
 		doUpdate(a, e);
 		pushUpdate();
 	}
@@ -562,16 +611,20 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	}
 
 	private void computeCurrentGroup(Group g) {
-		Group group = getFop().getGroup();
+		//Group group = getFop().getGroup();
 		List<Athlete> displayOrder = getFop().getDisplayOrder();
-		int liftsDone = AthleteSorter.countLiftsDone(displayOrder);
-		setGroupName(group != null ? group.getName() : "");
-		setGroupInfo(computeSecondLine(getFop().getCurAthlete(), group != null ? group.getName() : null));
-		setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
+		//int liftsDone = AthleteSorter.countLiftsDone(displayOrder);
+
+		// setGroupName(group != null ? group.getName() : "");
+		// setGroupInfo(computeSecondLine(getFop().getCurAthlete(), group != null ? group.getName() : null));
+		// setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
+
 		if (displayOrder != null && displayOrder.size() > 0) {
+			updateGroupInfo(computeLiftType(displayOrder.get(0)));
 			setGroupAthletes(getAthletesJson(displayOrder, getFop().getLiftingOrder(), true));
 			setLiftingOrderAthletes(getAthletesJson(getFop().getLiftingOrder(), getFop().getLiftingOrder(), false));
 		} else {
+			updateGroupInfo(null);
 			setGroupAthletes(null);
 			setLiftingOrderAthletes(null);
 		}
@@ -643,10 +696,44 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		                : Translator.translate("Snatch")));
 	}
 
+	private void updateGroupInfo(String pLiftType) {
+		Group lCurGroup = fop.getGroup();
+		int lNbLiftsDone = AthleteSorter.countLiftsDone(fop.getDisplayOrder());
+
+		String lGroupDescription = lCurGroup != null ? lCurGroup.getDescription() : null;
+		String lGroupName = "";
+		String lLiftsDone = "";
+		if (lCurGroup != null && lCurGroup.isDone()) {
+			lGroupName = lGroupDescription != null ? lGroupDescription : "\u00a0";
+			lLiftsDone = "";
+		} else if (lCurGroup != null && pLiftType != null) {
+			String name = lGroupDescription != null ? lGroupDescription : lCurGroup.getName();
+			String value = lGroupDescription == null ? Translator.translate("Scoreboard.GroupLiftType", name, pLiftType)
+			        : Translator.translate("Scoreboard.DescriptionLiftTypeFormat", lGroupDescription, pLiftType);
+			lGroupName = value;
+			lLiftsDone = Translator.translate("Scoreboard.AttemptsDone", lNbLiftsDone);
+		} else {
+			lGroupName = "";
+		}
+		setGroupName(lGroupName);
+		setGroupInfo(lGroupDescription);
+		setLiftsDone(lLiftsDone);
+	}
+
+	private String computeLiftType(Athlete a) {
+		if (a == null || a.getAttemptsDone() > 6) {
+			return null;
+		}
+		String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
+		        : Translator.translate("Snatch");
+		return liftType;
+	}
+
 	private Map<String, String> createDecision(DecisionEventType det) {
 		Map<String, String> sb = new HashMap<>();
 		mapPut(sb, "decisionEventType", det.toString());
 		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
+		setMode(sb);
 
 		// competition state
 		mapPut(sb, "competitionName", Competition.getCurrent().getCompetitionName());
@@ -661,11 +748,15 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "d3", getDecisionLight3() != null ? getDecisionLight3().toString() : null);
 		mapPut(sb, "decisionsVisible", Boolean.toString(isDecisionLightsVisible()));
 		mapPut(sb, "down", Boolean.toString(isDown()));
-		mapPut(sb, "mode", getBoardMode());
 
 		createRecord(sb);
 
 		return sb;
+	}
+
+	private void setMode(Map<String, String> sb) {
+		String boardMode2 = getBoardMode();
+		mapPut(sb, "mode", boardMode2);
 	}
 
 	private void createRecord(Map<String, String> sb) {
@@ -696,7 +787,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		Boolean indefiniteBreak = null;
 		String timerEventType = e.getClass().getSimpleName();
 		mapPut(sb, "timerEventType", timerEventType);
-		logger.warn("****** {}", timerEventType);
+		logger.debug("****** {}", timerEventType);
 
 		if (e instanceof SetTime) {
 			SetTime st = (SetTime) e;
@@ -731,11 +822,12 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		} else if (e instanceof BreakDone) {
 			breakMillisRemaining = -1;
 		}
-		
+
 		athleteMillisRemaining = athleteMillisRemaining != null ? athleteMillisRemaining : 0;
-		mapPut(sb, "athleteStartTimeMillis", athleteStartTimeMillis != null ? Long.toString(athleteStartTimeMillis) : null);
+		mapPut(sb, "athleteStartTimeMillis",
+		        athleteStartTimeMillis != null ? Long.toString(athleteStartTimeMillis) : null);
 		mapPut(sb, "athleteMillisRemaining", athleteMillisRemaining != null ? athleteMillisRemaining.toString() : null);
-		
+
 		breakStartTimeMillis = breakStartTimeMillis != null ? breakStartTimeMillis : System.currentTimeMillis();
 		breakMillisRemaining = breakMillisRemaining != null ? breakMillisRemaining : 0;
 		mapPut(sb, "breakStartTimeMillis", Long.toString(breakStartTimeMillis));
@@ -746,9 +838,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		                ? getFop().getBreakType().toString()
 		                : null);
 		mapPut(sb, "indefiniteBreak", indefiniteBreak != null ? Boolean.toString(indefiniteBreak) : null);
-		mapPut(sb, "mode", getBoardMode());
-		
-		logger.warn("timer {} {} {} end {}", sb.get("timerEventType"), sb.get("break"), sb.get("breakType"), breakStartTimeMillis + breakMillisRemaining);
+
+		logger.debug("timer {} {} {} end {}", sb.get("timerEventType"), sb.get("break"), sb.get("breakType"),
+		        breakStartTimeMillis + breakMillisRemaining);
 
 		return sb;
 	}
@@ -813,7 +905,6 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "hidden", String.valueOf(this.hidden));
 		mapPut(sb, "wideTeamNames", String.valueOf(this.wideTeamNames));
 		mapPut(sb, "sinclairMeet", Boolean.toString(Competition.getCurrent().isSinclair()));
-		mapPut(sb, "mode", getBoardMode());
 
 		// include timer and decision info for synchronization on restart/refresh
 		if (getLastTimerMap() != null) {
@@ -822,10 +913,14 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		if (getLastDecisionMap() != null) {
 			sb.putAll(getLastDecisionMap());
 		}
-		
+
+		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(), this.fop.getCeremonyType()));
+		setMode(sb);
+
 		var breakStartTimeMillis = Long.parseLong(sb.get("breakStartTimeMillis"));
 		var breakMillisRemaining = Long.parseLong(sb.get("breakMillisRemaining"));
-		logger.warn("update last timerEvent {} {} {} end {}", sb.get("timerEventType"), sb.get("break"), sb.get("breakType"), breakStartTimeMillis + breakMillisRemaining);
+		logger.debug("update last timerEvent {} {} {} end {}", sb.get("timerEventType"), sb.get("break"),
+		        sb.get("breakType"), breakStartTimeMillis + breakMillisRemaining);
 
 		return sb;
 	}
@@ -882,13 +977,15 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 					if (statusCode != null && statusCode != 200) {
 						synchronized (singleThreadLock) {
 							if (nbTries == 0 && statusCode != null && statusCode == 412) {
-								logger.error("{}missing remote configuration {} {} {}", FieldOfPlay.getLoggingName(getFop()), url,
+								logger.error("{}missing remote configuration {} {} {}",
+								        FieldOfPlay.getLoggingName(getFop()), url,
 								        statusLine,
 								        LoggerUtils.whereFrom(1));
 								sendConfig(parameters.get("updateKey"));
 								nbTries++;
 							} else {
-								logger.error("{}could not post to {} {} {}", FieldOfPlay.getLoggingName(getFop()), url, statusLine,
+								logger.error("{}could not post to {} {} {}", FieldOfPlay.getLoggingName(getFop()), url,
+								        statusLine,
 								        LoggerUtils.whereFrom(1));
 								done = true;
 							}
@@ -1181,13 +1278,15 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	Thread keepaliveThread;
 
-
-
 	/**
-	 * push updates every n seconds in case publicresults is restarted.
-	 * The individual instances on the receiver side can debounce.
+	 * push updates every n seconds in case publicresults is restarted. The individual instances on the receiver side
+	 * can debounce.
 	 */
 	private void pushUpdate() {
+		if (NO_KEEPALIVE) {
+			pushUpdateDoIt();
+			return;
+		}
 		if (keepaliveThread != null) {
 			keepaliveThread.interrupt();
 		}
@@ -1195,7 +1294,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			while (!Thread.currentThread().isInterrupted()) {
 				try {
 					pushUpdateDoIt();
-					Thread.sleep(UPDATE_INTERVAL);
+					Thread.sleep(KEEPALIVE_INTERVAL);
 				} catch (InterruptedException e) {
 					logger.debug("thread {} interrupted", Thread.currentThread().getId());
 					break;
@@ -1257,7 +1356,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 					StatusLine statusLine = response.getStatusLine();
 					Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
 					if (statusCode != null && statusCode != 200) {
-						logger.error("{}could not send config to {} {} {}", FieldOfPlay.getLoggingName(getFop()), destination,
+						logger.error("{}could not send config to {} {} {}", FieldOfPlay.getLoggingName(getFop()),
+						        destination,
 						        statusLine,
 						        LoggerUtils.whereFrom(1));
 					}

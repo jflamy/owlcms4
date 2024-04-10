@@ -51,7 +51,6 @@ public class JsonUploadDialog extends Dialog {
 
 		upload.addSucceededListener(event -> {
 			try {
-				System.err.println("success");
 				processInput(event.getFileName(), buffer.getInputStream(), ta);
 			} catch (Throwable e) {
 				ta.setValue(LoggerUtils./**/stackTrace(e));

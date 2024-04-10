@@ -127,7 +127,7 @@ public class FieldOfPlay implements IUnregister {
 		mFop.name = "test";
 		mFop.fopEventBus = new EventBus("FOP-" + mFop.name);
 		mFop.uiEventBus = new EventBus("UI-" + mFop.name);
-		mFop.postBus = new EventBus("POST-" + mFop.name);
+		mFop.eventForwardingBus = new EventBus("POST-" + mFop.name);
 		mFop.setTestingMode(true);
 		mFop.setGroup(new Group());
 		mFop.init(athletes, timer1, breakTimer1, true);
@@ -170,7 +170,7 @@ public class FieldOfPlay implements IUnregister {
 	private TreeMap<Category, TreeSet<Athlete>> medals;
 	private String name;
 	private Platform platform = null;
-	private EventBus postBus = null;
+	private EventBus eventForwardingBus = null;
 	private Integer prevHash;
 	private Athlete previousAthlete;
 	private Boolean[] refereeDecision;
@@ -240,7 +240,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	public void broadcast(String string) {
-		getUiEventBus().post(new UIEvent.Broadcast(string, this));
+		pushOutUIEvent(new UIEvent.Broadcast(string, this));
 	}
 
 	public boolean computeShowAllGroupRecords() {
@@ -454,8 +454,8 @@ public class FieldOfPlay implements IUnregister {
 		return this.platform;
 	}
 
-	public EventBus getPostEventBus() {
-		return this.postBus;
+	public EventBus getEventForwardingBus() {
+		return this.eventForwardingBus;
 	}
 
 	/**
@@ -983,7 +983,7 @@ public class FieldOfPlay implements IUnregister {
 		this.uiEventBus = new AsyncEventBus("UI-" + this.name, new ThreadPoolExecutor(8, Integer.MAX_VALUE,
 		        60L, TimeUnit.SECONDS,
 		        new SynchronousQueue<>()));
-		this.postBus = new AsyncEventBus("POST-" + this.name, new ThreadPoolExecutor(1, Integer.MAX_VALUE,
+		this.eventForwardingBus = new AsyncEventBus("POST-" + this.name, new ThreadPoolExecutor(1, Integer.MAX_VALUE,
 		        60L, TimeUnit.SECONDS,
 		        new SynchronousQueue<>()));
 	}
@@ -1387,7 +1387,7 @@ public class FieldOfPlay implements IUnregister {
 	void pushOutUIEvent(UIEvent event) {
 		// logger.debug("!!!! {}",event);
 		getUiEventBus().post(event);
-		getPostEventBus().post(event);
+		getEventForwardingBus().post(event);
 	}
 
 	/**
@@ -1488,7 +1488,7 @@ public class FieldOfPlay implements IUnregister {
 
 	private void doEndCeremony(CeremonyDone e) {
 		setCeremonyType(null);
-		getUiEventBus().post(new UIEvent.CeremonyDone(e.getCeremonyType(), e));
+		pushOutUIEvent(new UIEvent.CeremonyDone(e.getCeremonyType(), e));
 	}
 
 	private void doForceTime(FOPEvent.ForceTime e) {
@@ -1598,7 +1598,7 @@ public class FieldOfPlay implements IUnregister {
 		setCeremonyType(e.getCeremony());
 		setVideoGroup(e.getCeremonyGroup());
 		setVideoCategory(e.getCeremonyCategory());
-		getUiEventBus().post(new UIEvent.CeremonyStarted(e.getCeremony(), e.getCeremonyGroup(), e.getCeremonyCategory(),
+		pushOutUIEvent(new UIEvent.CeremonyStarted(e.getCeremony(), e.getCeremonyGroup(), e.getCeremonyCategory(),
 		        e.getStackTrace(), e.getOrigin()));
 	}
 
@@ -1606,13 +1606,13 @@ public class FieldOfPlay implements IUnregister {
 		if (e.getRefNumber() >= 4) {
 			JuryNotification event = new UIEvent.JuryNotification(null, e.getOrigin(),
 			        JuryDeliberationEventType.CALL_TECHNICAL_CONTROLLER, null, null, false);
-			getUiEventBus().post(event);
+			pushOutUIEvent(event);
 		} else {
 			JuryNotification event = new UIEvent.JuryNotification(null, this, JuryDeliberationEventType.CALL_REFEREES,
 			        null, null, false);
-			getUiEventBus().post(event);
+			pushOutUIEvent(event);
 		}
-		getUiEventBus().post(new UIEvent.SummonRef(e.getRefNumber(), true, this));
+		pushOutUIEvent(new UIEvent.SummonRef(e.getRefNumber(), true, this));
 	}
 
 	private void doTONotifications(BreakType newBreak) {
@@ -1624,11 +1624,11 @@ public class FieldOfPlay implements IUnregister {
 					case JURY:
 					case MARSHAL:
 					case TECHNICAL:
-						getUiEventBus().post(new UIEvent.JuryNotification(this.athleteUnderReview, this,
+						pushOutUIEvent(new UIEvent.JuryNotification(this.athleteUnderReview, this,
 						        JuryDeliberationEventType.END_JURY_BREAK, null, null, false));
 						break;
 					case CHALLENGE:
-						getUiEventBus().post(new UIEvent.JuryNotification(this.athleteUnderReview, this,
+						pushOutUIEvent(new UIEvent.JuryNotification(this.athleteUnderReview, this,
 						        JuryDeliberationEventType.END_CHALLENGE, null, null, false));
 					default:
 						break;
@@ -1638,20 +1638,20 @@ public class FieldOfPlay implements IUnregister {
 			switch (newBreak) {
 				case JURY:
 					resetJuryDecisions();
-					getUiEventBus().post(new UIEvent.JuryNotification(this.athleteUnderReview, this,
+					pushOutUIEvent(new UIEvent.JuryNotification(this.athleteUnderReview, this,
 					        JuryDeliberationEventType.START_DELIBERATION, null, null, false));
 					break;
 				case MARSHAL:
-					getUiEventBus().post(new UIEvent.JuryNotification(this.athleteUnderReview, this,
+					pushOutUIEvent(new UIEvent.JuryNotification(this.athleteUnderReview, this,
 					        JuryDeliberationEventType.MARSHALL, null, null, false));
 					break;
 				case TECHNICAL:
-					getUiEventBus().post(new UIEvent.JuryNotification(null, this,
+					pushOutUIEvent(new UIEvent.JuryNotification(null, this,
 					        JuryDeliberationEventType.TECHNICAL_PAUSE, null, null, false));
 					break;
 				case CHALLENGE:
 					resetJuryDecisions();
-					getUiEventBus().post(new UIEvent.JuryNotification(null, this,
+					pushOutUIEvent(new UIEvent.JuryNotification(null, this,
 					        JuryDeliberationEventType.CHALLENGE, null, null, false));
 					break;
 				default:
@@ -2225,7 +2225,7 @@ public class FieldOfPlay implements IUnregister {
 		resetJuryDecisions();
 		setRefereeTime(new Long[3]);
 		setRefereeForcedDecision(false);
-		getUiEventBus().post(new UIEvent.ResetOnNewClock(this.clockOwner, this));
+		pushOutUIEvent(new UIEvent.ResetOnNewClock(this.clockOwner, this));
 	}
 
 	private void resetEmittedFlags() {
@@ -2502,14 +2502,14 @@ public class FieldOfPlay implements IUnregister {
 	private void showJuryMemberDecisionReceived(Object origin, int i, Boolean[] juryMemberDecision2, int jurySize) {
 		// show that one jury decision has been received (green LED)
 		// logger.debug("{}updating jury member {}", getLoggingName(), i);
-		getUiEventBus().post(new UIEvent.JuryUpdate(origin, i, juryMemberDecision2, jurySize));
+		pushOutUIEvent(new UIEvent.JuryUpdate(origin, i, juryMemberDecision2, jurySize));
 	}
 
 	private void showJuryMemberDecisionsNow(Object origin, boolean unanimous, int jurySize,
 	        Boolean[] juryMemberDecision2) {
 		// logger.debug("{}reveal jury member decisions {}", getLoggingName(),
 		// juryMemberDecision2);
-		getUiEventBus().post(new UIEvent.JuryUpdate(origin, unanimous, juryMemberDecision2, jurySize));
+		pushOutUIEvent(new UIEvent.JuryUpdate(origin, unanimous, juryMemberDecision2, jurySize));
 	}
 
 	/**

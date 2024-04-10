@@ -57,6 +57,7 @@ public class BreakDialog extends Dialog {
 	 *
 	 * @param origin the origin
 	 */
+	@SuppressWarnings("deprecation")
 	public BreakDialog(Object origin) {
 		this.content = new BreakManagement(OwlcmsSession.getFop(), this, origin);
 		this.add(this.content);

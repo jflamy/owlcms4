@@ -97,7 +97,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			this.getElement().setProperty("attempt", "");
 			setDisplay();
 
-			updateBottom(computeLiftType(fop.getCurAthlete()), fop);
+			updateDisplay(computeLiftType(fop.getCurAthlete()), fop);
 		}));
 	}
 
@@ -294,7 +294,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		// this.getElement().callJsFunction("reset");
 		// }
 		this.logger.debug("updating bottom");
-		updateBottom(null, fop);
+		updateDisplay(null, fop);
 	}
 
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
@@ -425,7 +425,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	}
 
 	@Override
-	protected void updateBottom(String liftType, FieldOfPlay fop) {
+	protected void updateDisplay(String liftType, FieldOfPlay fop) {
 		// logger.debug("updateBottom");
 		this.getElement().setProperty("groupInfo", "");
 		this.getElement().setProperty("liftDone", "-");

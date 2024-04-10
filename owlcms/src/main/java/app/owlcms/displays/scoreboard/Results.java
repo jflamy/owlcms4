@@ -129,6 +129,7 @@ public class Results extends LitTemplate
 	 */
 	@Override
 	public void doBreak(UIEvent event) {
+		//this.logger.debug("Results doBreak {}", LoggerUtils.stackTrace());
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
 
@@ -150,7 +151,7 @@ public class Results extends LitTemplate
 				this.getElement().setProperty("weight", nextAttemptRequestedWeight);
 			}
 			setDisplay();
-			updateBottom(computeLiftType(a), fop);
+			updateDisplay(computeLiftType(a), fop);
 		}));
 	}
 
@@ -467,7 +468,6 @@ public class Results extends LitTemplate
 
 	@Subscribe
 	public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
-		// logger.trace"------- slaveCeremonyDone {}", e.getCeremonyType());
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			setDisplay();
@@ -494,7 +494,7 @@ public class Results extends LitTemplate
 			this.getElement().setProperty("decisionVisible", true);
 			Athlete a = e.getAthlete();
 			// -1 because if decision in on snatch 3 we don't want to show CJ
-			updateBottom(computeLiftType(a.getAttemptsDone() - 1), OwlcmsSession.getFop());
+			updateDisplay(computeLiftType(a.getAttemptsDone() - 1), OwlcmsSession.getFop());
 		});
 	}
 
@@ -505,7 +505,7 @@ public class Results extends LitTemplate
 			setDisplay();
 			this.getElement().setProperty("decisionVisible", false);
 			Athlete a = e.getAthlete();
-			updateBottom(computeLiftType(a.getAttemptsDone() - 1), OwlcmsSession.getFop());
+			updateDisplay(computeLiftType(a.getAttemptsDone() - 1), OwlcmsSession.getFop());
 		});
 	}
 
@@ -723,7 +723,7 @@ public class Results extends LitTemplate
 				}
 			}
 		}
-		updateBottom(computeLiftType(fop.getCurAthlete()), fop);
+		updateDisplay(computeLiftType(fop.getCurAthlete()), fop);
 	}
 
 	protected String formatInt(Integer total) {
@@ -1022,38 +1022,15 @@ public class Results extends LitTemplate
 		}
 	}
 
-	protected void updateBottom(String liftType, FieldOfPlay fop) {
+	protected void updateDisplay(String liftType, FieldOfPlay fop) {
 		this.curGroup = fop.getGroup();
-		String groupDescription = this.curGroup != null ? this.curGroup.getDescription() : null;
 		this.displayOrder = getOrder(fop);
 		spotlightRecords(fop);
 		if (liftType != null && this.curGroup != null && !this.curGroup.isDone()) {
-			this.getElement().setProperty("displayType", getDisplayType());
+			setDisplayTypeProperty(getDisplayType());
 		}
-		if (this.curGroup != null && this.curGroup.isDone()) {
-			// logger.debug("case 2 {}", isSwitchableDisplay());
-			setGroupNameProperty(groupDescription != null ? groupDescription : "\u00a0");
-			setLiftsDoneProperty("");
-		} else if (this.curGroup != null && liftType != null) {
-			// logger.debug("case 3 {}", isSwitchableDisplay());
-			String name = groupDescription != null ? groupDescription : this.curGroup.getName();
-			String value = groupDescription == null ? Translator.translate("Scoreboard.GroupLiftType", name, liftType)
-			        : Translator.translate("Scoreboard.DescriptionLiftTypeFormat", groupDescription, liftType);
-			setGroupNameProperty(value);
-			this.liftsDone = AthleteSorter.countLiftsDone(this.displayOrder);
-			if ((isPublicDisplay() || isVideo())) {
-				setLiftsDoneProperty("");
-			} else {
-				setLiftsDoneProperty(" \u2013 " + Translator.translate("Scoreboard.AttemptsDone", this.liftsDone));
-			}
-		} else {
-			// logger.debug("case 4 {}", isSwitchableDisplay());
-			if ((isPublicDisplay() || isVideo()) && groupDescription != null) {
-				setLiftsDoneProperty(groupDescription);
-				setGroupDescriptionProperty("");
-			}
-			setGroupNameProperty("");
-		}
+
+		updateGroupInfo(liftType);
 		this.getElement().setPropertyJson("ageGroups", getAgeGroupNamesJson(fop.getAgeGroupMap()));
 		this.getElement().setPropertyJson("athletes",
 		        getAthletesJson(this.displayOrder, fop.getLiftingOrder(), fop));
@@ -1154,6 +1131,10 @@ public class Results extends LitTemplate
 		});
 	}
 
+	private void setDisplayTypeProperty(String displayType) {
+		this.getElement().setProperty("displayType", displayType);
+	}
+
 	private void setGroupDescriptionProperty(String groupDescription) {
 		this.getElement().setProperty("groupDescription", groupDescription);
 	}
@@ -1222,6 +1203,31 @@ public class Results extends LitTemplate
 			default:
 				setDisplay();
 				doUpdate(e.getAthlete(), e);
+		}
+	}
+
+	private void updateGroupInfo(String liftType) {
+		String groupDescription = this.curGroup != null ? this.curGroup.getDescription() : null;
+		if (this.curGroup != null && this.curGroup.isDone()) {
+			setGroupNameProperty(groupDescription != null ? groupDescription : "\u00a0");
+			setLiftsDoneProperty("");
+		} else if (this.curGroup != null && liftType != null) {
+			String name = groupDescription != null ? groupDescription : this.curGroup.getName();
+			String value = groupDescription == null ? Translator.translate("Scoreboard.GroupLiftType", name, liftType)
+			        : Translator.translate("Scoreboard.DescriptionLiftTypeFormat", groupDescription, liftType);
+			setGroupNameProperty(value);
+			this.liftsDone = AthleteSorter.countLiftsDone(this.displayOrder);
+			if ((isPublicDisplay() || isVideo())) {
+				setLiftsDoneProperty("");
+			} else {
+				setLiftsDoneProperty(" \u2013 " + Translator.translate("Scoreboard.AttemptsDone", this.liftsDone));
+			}
+		} else {
+			if ((isPublicDisplay() || isVideo()) && groupDescription != null) {
+				setLiftsDoneProperty(groupDescription);
+				setGroupDescriptionProperty("");
+			}
+			setGroupNameProperty("");
 		}
 	}
 

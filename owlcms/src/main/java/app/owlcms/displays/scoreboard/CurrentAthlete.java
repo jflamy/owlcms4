@@ -113,7 +113,7 @@ public class CurrentAthlete extends Results {
 				getElement().setProperty("attempt", "");
 				setDisplay();
 
-				updateBottom(computeLiftType(fop.getCurAthlete()), fop);
+				updateDisplay(computeLiftType(fop.getCurAthlete()), fop);
 				uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
 			}
 		}));
@@ -129,7 +129,7 @@ public class CurrentAthlete extends Results {
 			getElement().setProperty("attempt", "");
 			setDisplay();
 
-			updateBottom(computeLiftType(fop.getCurAthlete()), fop);
+			updateDisplay(computeLiftType(fop.getCurAthlete()), fop);
 
 		}));
 	}
@@ -345,7 +345,7 @@ public class CurrentAthlete extends Results {
 			// current athlete bottom should only change when top does
 			if (fop.getState() != FOPState.DECISION_VISIBLE) {
 				// logger.debug("updating bottom {}", fop.getState());
-				updateBottom(computeLiftType(a), fop);
+				updateDisplay(computeLiftType(a), fop);
 			} else {
 				// logger.debug("not updating bottom {}", fop.getState());
 			}
@@ -353,7 +353,7 @@ public class CurrentAthlete extends Results {
 		}
 		// logger.debug("leave top alone {} {}", leaveTopAlone, fop.getState());
 		if (leaveTopAlone && fop.getState() == FOPState.CURRENT_ATHLETE_DISPLAYED) {
-			updateBottom(computeLiftType(a), fop);
+			updateDisplay(computeLiftType(a), fop);
 		}
 
 	}
@@ -535,7 +535,7 @@ public class CurrentAthlete extends Results {
 	}
 
 	@Override
-	protected void updateBottom(String liftType, FieldOfPlay fop) {
+	protected void updateDisplay(String liftType, FieldOfPlay fop) {
 		// logger.debug("updateBottom {}",LoggerUtils.stackTrace());
 		if (liftType != null) {
 			getElement().setProperty("groupInfo", "");
@@ -563,7 +563,7 @@ public class CurrentAthlete extends Results {
 			doEmpty();
 		} else {
 			OwlcmsSession.withFop(fop -> {
-				updateBottom(null, fop);
+				updateDisplay(null, fop);
 				getElement().setProperty("fullName", getTranslation("Group_number_done", g.toString()));
 			});
 		}

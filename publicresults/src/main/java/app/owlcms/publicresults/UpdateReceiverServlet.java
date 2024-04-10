@@ -112,10 +112,10 @@ public class UpdateReceiverServlet extends HttpServlet {
             if (StartupUtils.isDebugSetting()) {
                 this.logger.setLevel(Level.TRACE);
                 Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
-                this.logger./**/debug("update received from {}", ProxyUtils.getClientIp(req));
                 if (StartupUtils.isTraceSetting()) {
+                    this.logger./**/trace("update received from {}", ProxyUtils.getClientIp(req));
                     for (Entry<String, String[]> pair : pairs) {
-                        this.logger./**/warn("    {} = {}", pair.getKey(), pair.getValue()[0]);
+                        this.logger./**/trace("    {} = {}", pair.getKey(), pair.getValue()[0]);
                     }
                 }
             }
