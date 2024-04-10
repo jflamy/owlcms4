@@ -1682,7 +1682,7 @@ public class Competition {
 		if (ad == null) {
 			return;
 		}
-		List<String> agePrefixes = AgeGroupRepository.findActiveAndUsedAgeGroups(ad);
+		List<String> agePrefixes = AgeGroupRepository.findActiveAndUsedAgeGroupNames(ad);
 
 		for (String curAGPrefix : agePrefixes) {
 			List<Athlete> athletes = AgeGroupRepository.allPAthletesForAgeGroup(curAGPrefix);

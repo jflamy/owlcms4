@@ -226,7 +226,7 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 
 	private List<String> setAgeGroupPrefixItems(ComboBox<String> ageGroupPrefixComboBox,
 	        Championship ageDivision2) {
-		List<String> activeAgeGroups = AgeGroupRepository.findActiveAndUsedAgeGroups(ageDivision2);
+		List<String> activeAgeGroups = AgeGroupRepository.findActiveAndUsedAgeGroupNames(ageDivision2);
 		ageGroupPrefixComboBox.setItems(activeAgeGroups);
 		return activeAgeGroups;
 	}

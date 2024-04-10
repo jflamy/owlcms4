@@ -276,9 +276,22 @@ public class AgeGroupRepository {
 
 	@SuppressWarnings("unchecked")
 	public static AgeGroup doFindByName(String name, EntityManager em) {
-		Query query = em.createQuery("select u from AgeGroup u where u.name=:name");
+		TypedQuery<AgeGroup> query = em.createQuery("select u from AgeGroup u where u.name=:name", AgeGroup.class);
 		query.setParameter("name", name);
-		return (AgeGroup) query.getResultList().stream().findFirst().orElse(null);
+		AgeGroup ag = query.getResultList().stream().findFirst().orElse(null);
+		fixAg(ag);
+		return ag;
+	}
+
+	private static AgeGroup fixAg(AgeGroup ag) {
+		if (ag.getChampionshipType() == ChampionshipType.MASTERS) {
+			ag.setAlreadyGendered(true);
+		}
+		if (ag.getCode().startsWith("!")) {
+			ag.setCode(ag.getCode().substring(1));
+			ag.setAlreadyGendered(true);
+		}
+		return ag;
 	}
 
 	/**
@@ -287,11 +300,10 @@ public class AgeGroupRepository {
 	public static List<AgeGroup> findActive() {
 		List<AgeGroup> findFiltered = findFiltered((String) null, (Gender) null, (Championship) null, (Integer) null,
 		        true, -1, -1);
-		return findFiltered;
+		return findFiltered.stream().map(ag -> fixAg(ag)).collect(Collectors.toList());
 	}
 
-	public static List<String> findActiveAndUsedAgeGroups(Championship championship) {
-
+	public static List<String> findActiveAndUsedAgeGroupNames(Championship championship) {
 		return JPAService.runInTransaction((em) -> {
 			if (championship == null) {
 				TypedQuery<String> q = em.createQuery(

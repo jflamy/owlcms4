@@ -197,7 +197,7 @@ public interface IFilterCascade {
 				return;
 			}
 
-			this.setChampionshipAgeGroupPrefixes(AgeGroupRepository.findActiveAndUsedAgeGroups(championshipValue));
+			this.setChampionshipAgeGroupPrefixes(AgeGroupRepository.findActiveAndUsedAgeGroupNames(championshipValue));
 			this.getAgeGroupFilter().setItems(this.getChampionshipAgeGroupPrefixes());
 			boolean notEmpty = this.getChampionshipAgeGroupPrefixes().size() > 0;
 			//this.getAgeGroupFilter().setEnabled(notEmpty);

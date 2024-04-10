@@ -525,7 +525,7 @@ public class TeamSelectionContent extends BaseContent
 			}
 
 			List<String> ageDivisionAgeGroupPrefixes;
-			ageDivisionAgeGroupPrefixes = AgeGroupRepository.findActiveAndUsedAgeGroups(ageDivisionValue);
+			ageDivisionAgeGroupPrefixes = AgeGroupRepository.findActiveAndUsedAgeGroupNames(ageDivisionValue);
 
 			this.topBarAgeGroupPrefixSelect.setItems(ageDivisionAgeGroupPrefixes);
 			boolean notEmpty = ageDivisionAgeGroupPrefixes.size() > 0;

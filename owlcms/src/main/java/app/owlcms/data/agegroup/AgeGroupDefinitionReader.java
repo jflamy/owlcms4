@@ -95,6 +95,7 @@ public class AgeGroupDefinitionReader {
 						case 2: {
 							String cellValue = cell.getStringCellValue();
 							ag.setAgeDivision(cellValue);
+							logger.warn("{} {} {}",cell.getAddress(), cellValue, ag.getChampionshipType());
 							if (ag.getChampionshipType() == ChampionshipType.MASTERS) {
 								ag.setAlreadyGendered(true);
 							}

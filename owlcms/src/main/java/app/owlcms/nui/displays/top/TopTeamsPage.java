@@ -222,7 +222,7 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 
 	private List<String> setAgeGroupPrefixItems(ComboBox<String> ageGroupPrefixComboBox,
 	        Championship ageDivision2) {
-		List<String> activeAgeGroups = AgeGroupRepository.findActiveAndUsedAgeGroups(ageDivision2);
+		List<String> activeAgeGroups = AgeGroupRepository.findActiveAndUsedAgeGroupNames(ageDivision2);
 		ageGroupPrefixComboBox.setItems(activeAgeGroups);
 		return activeAgeGroups;
 	}
