@@ -566,7 +566,8 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		        .setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn("category").setHeader(Translator.translate("Category")).setAutoWidth(true)
 		        .setTextAlign(ColumnTextAlign.CENTER)
-		        .setRenderer(new TextRenderer<Athlete>(a -> a.getCategory() != null ? a.getCategory().toString() : "-"));
+		        .setRenderer(
+		                new TextRenderer<Athlete>(a -> a.getCategory() != null ? a.getCategory().toString() : "-"));
 		grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))
 		        .setSortProperty("bodyWeight")
 		        .setHeader(Translator.translate("BodyWeight")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
@@ -674,12 +675,12 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		crudGrid.getCrudLayout().addFilterComponent(this.getLastNameFilter());
 
 		this.defineFilterCascade(crudGrid);
-		this.defineRegistrationFilters(crudGrid);
+		this.defineRegistrationFilters(crudGrid, true);
 
 		this.defineSelectionListeners();
 	}
 
-	protected void defineRegistrationFilters(OwlcmsCrudGrid<Athlete> crudGrid) {
+	protected void defineRegistrationFilters(OwlcmsCrudGrid<Athlete> crudGrid, boolean clearFilter) {
 		this.groupFilter.setPlaceholder(Translator.translate("Group"));
 		List<Group> groups = GroupRepository.findAll();
 		groups.sort(new NaturalOrderComparator<>());
@@ -717,11 +718,13 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		});
 		crudGrid.getCrudLayout().addFilterComponent(this.getTeamFilter());
 
-		Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
-		clearFilters.addClickListener(event -> {
-			clearFilters();
-		});
-		crudGrid.getCrudLayout().addFilterComponent(clearFilters);
+		if (clearFilter) {
+			Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
+			clearFilters.addClickListener(event -> {
+				clearFilters();
+			});
+			crudGrid.getCrudLayout().addFilterComponent(clearFilters);
+		}
 	}
 
 	protected void errorNotification() {
@@ -820,7 +823,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		        })
 		        .filter(a -> getWeighedIn() == null
 		                || (getWeighedIn() && (a.getBodyWeight() != null && a.getBodyWeight() > 0)))
-		        //.filter(a -> a.getCategory() != null)
+		        // .filter(a -> a.getCategory() != null)
 		        .filter(a -> {
 			        Gender genderFilterValue = getGender();
 			        Gender athleteGender = a.getGender();
@@ -993,7 +996,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			if (compare != 0) {
 				return compare;
 			}
-			
+
 			compare = ObjectUtils.compare(a1.getEntryTotal(), a2.getEntryTotal());
 			return -compare;
 		};
@@ -1002,6 +1005,8 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 	private void resetCategories() {
 		AthleteRepository.resetParticipations();
+		this.setChampionshipItems(Championship.findAllUsed(true));
+		this.getChampionshipFilter().setItems(this.getChampionshipItems());
 		refreshCrudGrid();
 	}
 

@@ -525,7 +525,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 	@Override
 	protected void defineFilters(OwlcmsCrudGrid<Athlete> crudGrid) {
 		this.defineFilterCascade(crudGrid);
-		this.defineRegistrationFilters(crudGrid);
+		this.defineRegistrationFilters(crudGrid, false);
 		this.defineSelectionListeners();
 
 		this.getTeamFilter().setPlaceholder(Translator.translate("Team"));
