@@ -7,7 +7,7 @@
 
 ##### 48.0
 
-- (alpha05) Event forwarding now includes all UI events, so publicresults now correctly reflects start and end of ceremonies.  Event type names in the published JSON are now separate (timer, break, decision subtypes have been added)
+- (alpha05) Event forwarding now includes all UI events, so publicresults now correctly reflects the start and end of ceremonies.  Event type names in the published JSON are now separate (timer, break, and decision subtypes have been added)
   
 - (alpha04) The second column, previously empty, of the AgeGroups file is now used for a Championship Name. The third column is the championship type.  A Championship Name normally goes with one final package (each championship has its own medals and its own teams)
   The AgeGroups file should be updated as follows:

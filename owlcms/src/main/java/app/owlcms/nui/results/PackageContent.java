@@ -467,6 +467,10 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	protected void updateURLLocations() {
+		if (getLocation() == null) {
+			// sometimes called from routines outside of normal event flow.
+			return;
+		}
 
 		updateURLLocation(UI.getCurrent(), getLocation(), "fop", null);
 		String ag = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;

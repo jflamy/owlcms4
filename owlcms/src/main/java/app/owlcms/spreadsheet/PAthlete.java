@@ -55,6 +55,13 @@ public class PAthlete extends Athlete implements IRankHolder {
 		this.originalParticipation = p;
 	}
 
+	public PAthlete(Athlete a2) {
+		this.a = a2;
+		this.c = a2.getCategory();
+		this.p = a2.getMainRankings();
+		this.originalParticipation = p;
+	}
+
 	/**
 	 * used only for debugging
 	 *
@@ -173,7 +180,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public Category getCategory() {
-		return this.p.getCategory();
+		return this.p != null ? this.p.getCategory() : null;
 	}
 
 	@Override

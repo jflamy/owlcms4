@@ -232,6 +232,10 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 	}
 
 	private void updateURLLocations() {
+		if (getLocation() == null) {
+			// sometimes called from routines outside of normal event flow.
+			return;
+		}
 		updateURLLocation(UI.getCurrent(), getLocation(), DARK,
 		        !isDarkMode() ? Boolean.TRUE.toString() : null);
 		updateURLLocation(UI.getCurrent(), getLocation(), "ag",

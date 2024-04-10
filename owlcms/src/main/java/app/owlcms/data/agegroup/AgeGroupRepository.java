@@ -211,8 +211,11 @@ public class AgeGroupRepository {
 		return parts.stream().map(p -> new PAthlete(p)).collect(Collectors.toList());
 	}
 
-	public static List<Athlete> allPAthletesForAgeGroupAgeDivision(String ageGroupPrefix, Championship ageDivision) {
-		List<Participation> participations = allParticipationsForAgeGroupAgeDivision(ageGroupPrefix, ageDivision);
+	public static List<Athlete> allPAthletesForAgeGroupAgeDivision(String ageGroupPrefix, Championship championship) {
+		if (championship == null) {
+			return AthleteRepository.findAll().stream().map(a -> new PAthlete(a)).collect(Collectors.toList());
+		}
+		List<Participation> participations = allParticipationsForAgeGroupAgeDivision(ageGroupPrefix, championship);
 		List<Athlete> collect = participations.stream().map(p -> new PAthlete(p)).collect(Collectors.toList());
 		return collect;
 	}

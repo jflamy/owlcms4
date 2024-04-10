@@ -42,6 +42,7 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.NumberRenderer;
+import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
@@ -439,6 +440,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	 */
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		logger.warn("setParameter---------------------------");
 		setLocation(event.getLocation());
 		setLocationUI(event.getUI());
 		QueryParameters queryParameters = getLocation().getQueryParameters();
@@ -563,7 +565,8 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		grid.addColumn("ageGroup").setHeader(Translator.translate("AgeGroup")).setAutoWidth(true)
 		        .setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn("category").setHeader(Translator.translate("Category")).setAutoWidth(true)
-		        .setTextAlign(ColumnTextAlign.CENTER);
+		        .setTextAlign(ColumnTextAlign.CENTER)
+		        .setRenderer(new TextRenderer<Athlete>(a -> a.getCategory() != null ? a.getCategory().toString() : "-"));
 		grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))
 		        .setSortProperty("bodyWeight")
 		        .setHeader(Translator.translate("BodyWeight")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
@@ -672,7 +675,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 		this.defineFilterCascade(crudGrid);
 		this.defineRegistrationFilters(crudGrid);
-		
+
 		this.defineSelectionListeners();
 	}
 
@@ -703,7 +706,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		});
 		this.getWeighedInFilter().setWidth("10em");
 		crudGrid.getCrudLayout().addFilterComponent(this.getWeighedInFilter());
-		
+
 		this.getTeamFilter().setPlaceholder(Translator.translate("Team"));
 		this.getTeamFilter().setItems(AthleteRepository.findAllTeams());
 		this.getTeamFilter().getStyle().set("--vaadin-combo-box-overlay-width", "25em");
@@ -713,7 +716,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			crudGrid.refreshGrid();
 		});
 		crudGrid.getCrudLayout().addFilterComponent(this.getTeamFilter());
-		
+
 		Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
 		clearFilters.addClickListener(event -> {
 			clearFilters();
@@ -804,19 +807,20 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		        .filter(a -> getGroup() != null ? getGroup().equals(a.getGroup())
 		                : true)
 		        .filter(a -> {
-					String fLastName = getLastName();
-					if (fLastName == null) {
-						return true;
-					}
-					String aLastName = a.getLastName();
-					if (aLastName == null || aLastName.isBlank()) return false;
-					aLastName = aLastName.toLowerCase();
-					fLastName = fLastName.toLowerCase();
-					return aLastName.startsWith(fLastName);
-				})
+			        String fLastName = getLastName();
+			        if (fLastName == null) {
+				        return true;
+			        }
+			        String aLastName = a.getLastName();
+			        if (aLastName == null || aLastName.isBlank())
+				        return false;
+			        aLastName = aLastName.toLowerCase();
+			        fLastName = fLastName.toLowerCase();
+			        return aLastName.startsWith(fLastName);
+		        })
 		        .filter(a -> getWeighedIn() == null
 		                || (getWeighedIn() && (a.getBodyWeight() != null && a.getBodyWeight() > 0)))
-		        .filter(a -> a.getCategory() != null)
+		        //.filter(a -> a.getCategory() != null)
 		        .filter(a -> {
 			        Gender genderFilterValue = getGender();
 			        Gender athleteGender = a.getGender();
@@ -884,6 +888,10 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	}
 
 	protected void updateURLLocations() {
+		if (getLocation() == null) {
+			// sometimes called from routines outside of normal event flow.
+			return;
+		}
 		updateURLLocation(UI.getCurrent(), getLocation(), "fop", null);
 
 		String ag = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
@@ -973,10 +981,19 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			}
 			Participation mainRankings1 = a1.getMainRankings() != null ? a1.getMainRankings() : null;
 			Participation mainRankings2 = a2.getMainRankings() != null ? a2.getMainRankings() : null;
-			compare = ObjectUtils.compare(mainRankings1.getCategory(), mainRankings2.getCategory(), true);
+			if (mainRankings1 == null && mainRankings2 != null) {
+				compare = 1;
+			} else if (mainRankings1 != null && mainRankings2 == null) {
+				compare = -1;
+			} else if (mainRankings1 == null && mainRankings1 == null) {
+				compare = 0;
+			} else {
+				compare = ObjectUtils.compare(mainRankings1.getCategory(), mainRankings2.getCategory(), true);
+			}
 			if (compare != 0) {
 				return compare;
 			}
+			
 			compare = ObjectUtils.compare(a1.getEntryTotal(), a2.getEntryTotal());
 			return -compare;
 		};
