@@ -7,6 +7,8 @@
 
 ##### 48.0
 
+- (alpha06) The SBDE reader was inverting the declarations and personal best values.
+  
 - (alpha06) Internal: Identical age groups and categories from different championships are now correctly considered different.  For ease of debugging, category and medal maps now use the category codes as key instead of the category objects.
   
 - (alpha06) The registration and weigh-in lists had stopped showing athletes with no eligible category. Fixed.
