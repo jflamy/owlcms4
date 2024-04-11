@@ -425,7 +425,7 @@ public class FieldOfPlay implements IUnregister {
 	 * @return the name
 	 */
 	public static String getLoggingName(FieldOfPlay fieldOfPlay) {
-		return "FOP " + (fieldOfPlay != null ? fieldOfPlay.name : "-") + "    ";
+		return "FOP " + (fieldOfPlay != null ? fieldOfPlay.name+System.identityHashCode(fieldOfPlay): "-") + "    ";
 	}
 
 	public TreeMap<String, TreeSet<Athlete>> getMedals() {
@@ -1247,6 +1247,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	public void setMqttMonitor(MQTTMonitor mqttMonitor) {
+		logger.warn("setting mqttMonitor {}",System.identityHashCode(mqttMonitor));
 		this.mqttMonitor = mqttMonitor;
 	}
 
@@ -1345,9 +1346,11 @@ public class FieldOfPlay implements IUnregister {
 		this.fopEventBus.unregister(this);
 		if (this.getEventForwarder() != null) {
 			this.getEventForwarder().unregister();
+			this.setEventForwarder(null);
 		}
 		if (this.getMqttMonitor() != null) {
 			this.getMqttMonitor().unregister();
+			this.setMqttMonitor(null);
 		}
 	}
 

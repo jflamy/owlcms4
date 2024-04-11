@@ -7,7 +7,9 @@
 
 ##### 48.0
 
-- (alpha06) Identical age groups and categories from different championships are now correctly considered different.
+- (alpha06) Internal: Identical age groups and categories from different championships are now correctly considered different.  For ease of debugging, category and medal maps now use the category codes as key instead of the category objects.
+  
+- (alpha06) The registration and weigh-in lists had stopped showing athletes with no eligible category. Fixed.
   
 - (alpha05) Event forwarding now includes all UI events, so publicresults now correctly reflects the start and end of ceremonies.  Event type names in the published JSON are now separate (timer, break, and decision subtypes have been added)
   

@@ -35,11 +35,11 @@
 				<mapping col="13">a.custom1</mapping><!-- N -->
 				<mapping col="14">a.custom2</mapping><!-- O -->
 				<mapping col="15">a.federationCodes</mapping><!-- P -->
-				<mapping col="16">a.snatch1Declaration</mapping><!-- Q -->
-				<mapping col="17">a.cleanJerk1Declaration</mapping><!-- R -->
-				<mapping col="18">a.personalBestSnatch</mapping><!-- S -->
-				<mapping col="19">a.personalBestCleanJerk</mapping><!-- T -->
-				<mapping col="20">a.personalBestTotal</mapping><!-- U -->
+				<mapping col="16">a.personalBestSnatch</mapping><!-- Q-->
+				<mapping col="17">a.personalBestCleanJerk</mapping><!-- R -->
+				<mapping col="18">a.personalBestTotal</mapping><!-- S -->
+				<mapping col="19">a.snatch1Declaration</mapping><!-- T -->
+				<mapping col="20">a.cleanJerk1Declaration</mapping><!-- U -->
 			</section>
 			<loopbreakcondition>
 				<rowcheck offset="0">

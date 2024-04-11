@@ -29,6 +29,7 @@ import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
@@ -113,6 +114,10 @@ public class ORegistrationFileProcessor implements IRegistrationFileProcessor {
 				} else {
 					errorConsumer.accept(Translator.translate("NoAthletes"));
 					displayUpdater.run();
+				}
+				if (status.getReadMessages().isEmpty()) {
+					// FIXME: this should invalidate all sessions and force screens to be re-read
+					OwlcmsSession.invalidate();
 				}
 				return athletes.size();
 			} catch (InvalidFormatException | IOException e) {

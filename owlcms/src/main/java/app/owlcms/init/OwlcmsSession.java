@@ -229,4 +229,9 @@ public class OwlcmsSession {
 		}
 	}
 
+	public static void invalidate() {
+		VaadinSession currentVaadinSession = VaadinSession.getCurrent();
+		currentVaadinSession.getSession().invalidate();
+	}
+
 }

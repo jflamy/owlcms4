@@ -55,6 +55,8 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 		logger.trace("LiftingNavigationContent constructor start");
 
 		Button weighIn = openInNewTabNoParam(WeighinContent.class, getTranslation("WeighIn_Title"));
+		weighIn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+		weighIn.setIcon(new Icon(VaadinIcon.SCALE));
 		// weighIn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(weighIn);
 		doGroup(getTranslation("WeighIn_Title"), grid3, this);
