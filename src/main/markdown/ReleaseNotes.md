@@ -1,13 +1,13 @@
-**Version 48.0 alpha**
+**Version 48.0 beta**
 
-> [!CAUTION]
+> [!WARNING]
 >
-> - This is an alpha release, used for validating new features.  *Features may be incomplete or non-functional*.  
-> - Alpha releases are **not** normally used in actual competitions.
+> - This is a beta release, used for testing and translation.  *Some features could non-functional*.  
+> - Beta releases are **not** normally used in actual competitions, except if a new feature is required and extreme care has been used in testing.
 
 ##### 48.0
 
-- (beta01) Now exporting SBDE dates in ISO yyyy-MM-dd format.
+- (beta01) Now exporting the SBDE dates in ISO yyyy-MM-dd format to avoid issues when reading in a different locale.
   
 - (beta01) An English-language initial registration file will always be understood, in addition to the current language.
   
