@@ -1612,6 +1612,18 @@ public class Athlete {
 			return getFullBirthDate().format(shortStyleFormatter);
 		}
 	}
+	
+	@Transient
+	@JsonIgnore
+	public String getIsoBirth() {
+		if (Competition.getCurrent().isUseBirthYear()) {
+			Integer yearOfBirth = getYearOfBirth();
+			return yearOfBirth != null ? yearOfBirth.toString() : "";
+		} else {
+			DateTimeFormatter shortStyleFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			return getFullBirthDate().format(shortStyleFormatter);
+		}
+	}
 
 	/**
 	 * Gets the full birth date.

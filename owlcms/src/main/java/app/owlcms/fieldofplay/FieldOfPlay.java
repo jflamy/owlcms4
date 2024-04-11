@@ -425,7 +425,11 @@ public class FieldOfPlay implements IUnregister {
 	 * @return the name
 	 */
 	public static String getLoggingName(FieldOfPlay fieldOfPlay) {
-		return "FOP " + (fieldOfPlay != null ? fieldOfPlay.name+System.identityHashCode(fieldOfPlay): "-") + "    ";
+		return "FOP "
+		        + (fieldOfPlay != null ? fieldOfPlay.name
+		                /* +System.identityHashCode(fieldOfPlay) */
+		                : "-")
+		        + "    ";
 	}
 
 	public TreeMap<String, TreeSet<Athlete>> getMedals() {
@@ -595,7 +599,8 @@ public class FieldOfPlay implements IUnregister {
 			        e, getWhereFrom(stackTrace));
 			return;
 		} else {
-			this.logger.info("{}state {}, event received {} from {}", FieldOfPlay.getLoggingName(this), stateName(this.getState()),
+			this.logger.info("{}state {}, event received {} from {}", FieldOfPlay.getLoggingName(this),
+			        stateName(this.getState()),
 			        e, getWhereFrom(stackTrace));
 			this.prevHash = newHash;
 		}
@@ -798,7 +803,8 @@ public class FieldOfPlay implements IUnregister {
 					// athlete lifted the bar
 					setState(TIME_STOPPED);
 					getAthleteTimer().stop();
-					this.logger.info("{}time stopped for {} : {}", FieldOfPlay.getLoggingName(this), getCurAthlete().getShortName(),
+					this.logger.info("{}time stopped for {} : {}", FieldOfPlay.getLoggingName(this),
+					        getCurAthlete().getShortName(),
 					        getAthleteTimer().getTimeRemainingAtLastStop());
 				} else if (e instanceof DecisionFullUpdate) {
 					// decision board/attempt board sends bulk update
@@ -820,7 +826,8 @@ public class FieldOfPlay implements IUnregister {
 					doForceTime((ForceTime) e);
 				} else if (e instanceof TimeStarted) {
 					// do nothing
-					this.logger.debug("{}ignoring start clock when clock is running.", FieldOfPlay.getLoggingName(this));
+					this.logger.debug("{}ignoring start clock when clock is running.",
+					        FieldOfPlay.getLoggingName(this));
 					return;
 				} else {
 					unexpectedEventInState(e, TIME_RUNNING);
@@ -1247,7 +1254,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	public void setMqttMonitor(MQTTMonitor mqttMonitor) {
-		logger.warn("setting mqttMonitor {}",System.identityHashCode(mqttMonitor));
+		logger.debug("setting mqttMonitor {}", System.identityHashCode(mqttMonitor));
 		this.mqttMonitor = mqttMonitor;
 	}
 
@@ -1262,7 +1269,8 @@ public class FieldOfPlay implements IUnregister {
 
 	public void setNewRecords(List<RecordEvent> newRecords) {
 		if (newRecords == null || newRecords.isEmpty()) {
-			this.logger.debug("{} + clearing athlete records {}", FieldOfPlay.getLoggingName(this), LoggerUtils.whereFrom());
+			this.logger.debug("{} + clearing athlete records {}", FieldOfPlay.getLoggingName(this),
+			        LoggerUtils.whereFrom());
 		}
 		this.newRecords = newRecords;
 	}
@@ -1399,7 +1407,8 @@ public class FieldOfPlay implements IUnregister {
 	 * @param state the new state
 	 */
 	void setState(FOPState state) {
-		this.logger.info("{}entering {} {}", FieldOfPlay.getLoggingName(this), stateName(state), LoggerUtils.whereFrom());
+		this.logger.info("{}entering {} {}", FieldOfPlay.getLoggingName(this), stateName(state),
+		        LoggerUtils.whereFrom());
 		doSetState(state);
 	}
 
@@ -2302,7 +2311,8 @@ public class FieldOfPlay implements IUnregister {
 		if (athlete == null) {
 			this.logger.info("{}no clock owner [{}]", FieldOfPlay.getLoggingName(this), LoggerUtils.whereFrom());
 		} else {
-			this.logger.info("{}setting clock owner to {} [{}]", FieldOfPlay.getLoggingName(this), athlete, LoggerUtils.whereFrom());
+			this.logger.info("{}setting clock owner to {} [{}]", FieldOfPlay.getLoggingName(this), athlete,
+			        LoggerUtils.whereFrom());
 		}
 		this.clockOwner = athlete;
 	}
@@ -2395,7 +2405,8 @@ public class FieldOfPlay implements IUnregister {
 		if (this.state == INACTIVE) {
 			// remain in INACTIVE state (do nothing)
 		} else if (this.state == BREAK) {
-			this.logger.debug("{}Break {} {} newState={}", FieldOfPlay.getLoggingName(this), this.state, getBreakType(), newState);
+			this.logger.debug("{}Break {} {} newState={}", FieldOfPlay.getLoggingName(this), this.state, getBreakType(),
+			        newState);
 			// if in a break, we don't stop break timer on a weight change.
 			if (getBreakType() == BreakType.GROUP_DONE) {
 				// weight change in state GROUP_DONE can happen if there is a loading error
@@ -2534,7 +2545,8 @@ public class FieldOfPlay implements IUnregister {
 		uiShowUpdateOnJuryScreen(ed);
 		// needed to make sure 2min rule is triggered. The athlete we have just decided
 		// is the previous athlete.
-		this.logger.debug("{}simulateDecision setting previousAthlete to {} -- {}", FieldOfPlay.getLoggingName(this), ed.getAthlete());
+		this.logger.debug("{}simulateDecision setting previousAthlete to {} -- {}", FieldOfPlay.getLoggingName(this),
+		        ed.getAthlete());
 		this.setPreviousAthlete(ed.getAthlete());
 	}
 

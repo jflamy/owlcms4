@@ -7,6 +7,10 @@
 
 ##### 48.0
 
+- (beta01) Now exporting SBDE dates in ISO yyyy-MM-dd format.
+  
+- (beta01) An English-language initial registration file will always be understood, in addition to the current language.
+  
 - (alpha06) The SBDE reader was inverting the declarations and personal best values.
   
 - (alpha06) Internal: Identical age groups and categories from different championships are now correctly considered different.  For ease of debugging, category and medal maps now use the category codes as key instead of the category objects.

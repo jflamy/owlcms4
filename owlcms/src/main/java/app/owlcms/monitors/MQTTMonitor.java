@@ -305,7 +305,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 
 	public void setFop(FieldOfPlay fop) {
 		this.fop = fop;
-		logger.warn("MQTTMonitor setFop {} {}", fop, System.identityHashCode(this), LoggerUtils.stackTrace());
+		logger.debug("MQTTMonitor setFop {} {}", fop, System.identityHashCode(this), LoggerUtils.stackTrace());
 	}
 
 	@Subscribe
@@ -468,7 +468,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 		this.getFop().getFopEventBus().register(this);
 
 		try {
-			logger.info("starting MQTT monitoring for {} {} {}", FieldOfPlay.getLoggingName(this.getFop()), System.identityHashCode(this), LoggerUtils.stackTrace());
+			logger.info("starting MQTT monitoring for {} {}", FieldOfPlay.getLoggingName(this.getFop()), System.identityHashCode(this));
 			String paramMqttServer = Config.getCurrent().getParamMqttServer();
 			if (Config.getCurrent().getParamMqttInternal() || (paramMqttServer != null && !paramMqttServer.isBlank())) {
 				this.client = createMQTTClient(this.getFop());

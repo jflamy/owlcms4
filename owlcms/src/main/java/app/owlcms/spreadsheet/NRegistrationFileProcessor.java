@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -418,29 +419,29 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 				while (cellIterator.hasNext()) {
 					Cell cell = cellIterator.next();
 					String cellValue = cell.getStringCellValue();
-					String trim = cellValue.trim();
+					String trimmedCellValue = cellValue.trim();
 
-					if (trim.contentEquals(Translator.translate("Membership"))) {
+					if (checkTranslation(trimmedCellValue, "Membership")) {
 						this.setterForColumn[iColumn] = (a, s, c) -> {
 							a.setMembership(s);
 						};
-					} else if (trim.contentEquals(Translator.translate("Card.lotNumber"))) {
+					} else if (checkTranslation(trimmedCellValue, "Card.lotNumber")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setLotNumber(s);
 						});
-					} else if (trim.contentEquals(Translator.translate("LastName"))) {
+					} else if (checkTranslation(trimmedCellValue, "LastName")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setLastName(s);
 						});
-					} else if (trim.contentEquals(Translator.translate("FirstName"))) {
+					} else if (checkTranslation(trimmedCellValue, "FirstName")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setFirstName(s);
 						});
-					} else if (trim.contentEquals(Translator.translate("Scoreboard.Team"))) {
+					} else if (checkTranslation(trimmedCellValue, "Scoreboard.Team")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setTeam(s);
 						});
-					} else if (trim.contentEquals(Translator.translate("Registration.birth"))) {
+					} else if (checkTranslation(trimmedCellValue, "Registration.birth")) {
 						this.delayedSetterColumns[DelayedSetter.BIRTHDATE.ordinal()] = iColumn;
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							try {
@@ -449,12 +450,12 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 								processException(a, s, c, e, errorConsumer);
 							}
 						});
-					} else if (trim.contentEquals("M/F")) {
+					} else if (trimmedCellValue.contentEquals("M/F")) {
 						this.delayedSetterColumns[DelayedSetter.GENDER.ordinal()] = iColumn;
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setGender(s);
 						});
-					} else if (trim.contentEquals(Translator.translate("Card.category"))) {
+					} else if (checkTranslation(trimmedCellValue, "Card.category")) {
 						this.delayedSetterColumns[DelayedSetter.CATEGORY.ordinal()] = iColumn;
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							try {
@@ -463,7 +464,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 								processException(a, s, c, e, errorConsumer);
 							}
 						});
-					} else if (trim.contentEquals(Translator.translate("Scoreboard.BodyWeight"))) {
+					} else if (checkTranslation(trimmedCellValue, "Scoreboard.BodyWeight")) {
 						this.delayedSetterColumns[DelayedSetter.BODYWEIGHT.ordinal()] = iColumn;
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							try {
@@ -476,17 +477,15 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 								processException(a, s, c, e, errorConsumer);
 							}
 						});
-					} else if (trim.contentEquals(Translator.translate("Results.Snatch") + " "
-					        + Translator.translate("Results.Declaration_abbrev"))) {
+					} else if (checkTranslation(trimmedCellValue,"Results.Snatch", "Results.Declaration_abbrev")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setSnatch1Declaration(s);
 						});
-					} else if (trim.contentEquals(Translator.translate("Results.CJ_abbrev") + " "
-					        + Translator.translate("Results.Declaration_abbrev"))) {
+					} else if (checkTranslation(trimmedCellValue,"Results.CJ_abbrev", "Results.Declaration_abbrev")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setCleanJerk1Declaration(s);
 						});
-					} else if (trim.contentEquals(Translator.translate("Group"))) {
+					} else if (checkTranslation(trimmedCellValue, "Group")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							try {
 								a.setGroup(s);
@@ -504,7 +503,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 								}
 							}
 						});
-					} else if (trim.contentEquals(Translator.translate("Card.entryTotal"))) {
+					} else if (checkTranslation(trimmedCellValue, "Card.entryTotal")) {
 						this.delayedSetterColumns[DelayedSetter.QUALIFYING_TOTAL.ordinal()] = iColumn;
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							try {
@@ -516,41 +515,41 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 								processException(a, s, c, e, errorConsumer);
 							}
 						});
-					} else if (trim.contentEquals(Translator.translate("Coach"))) {
+					} else if (checkTranslation(trimmedCellValue, "Coach")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setCoach(s);
 						});
-					} else if (trim.contentEquals(Translator.translate("Custom1.Title"))) {
+					} else if (checkTranslation(trimmedCellValue, "Custom1.Title")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setCustom1(s);
 						});
-					} else if (trim.contentEquals(Translator.translate("Custom2.Title"))) {
+					} else if (checkTranslation(trimmedCellValue, "Custom2.Title")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setCustom2(s);
 						});
-					} else if (trim.contentEquals(Translator.translate("Registration.FederationCodesShort"))) {
+					} else if (checkTranslation(trimmedCellValue, "Registration.FederationCodesShort")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setFederationCodes(s);
 						});
-					} else if (trim.contentEquals(Translator.translate("PersonalBestSnatch"))) {
+					} else if (checkTranslation(trimmedCellValue, "PersonalBestSnatch")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setPersonalBestSnatch(s);
 						});
-					} else if (trim.contentEquals(Translator.translate("PersonalBestCleanJerk"))) {
+					} else if (checkTranslation(trimmedCellValue, "PersonalBestCleanJerk")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setPersonalBestCleanJerk(s);
 						});
-					} else if (trim.contentEquals(Translator.translate("PersonalBestTotal"))) {
+					} else if (checkTranslation(trimmedCellValue, "PersonalBestTotal")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setPersonalBestTotal(s);
 						});
-					} else if (trim.contentEquals(Translator.translate("SubCategory"))) {
+					} else if (checkTranslation(trimmedCellValue, "SubCategory")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setSubCategory(s);
 						});
 					} else {
 						errorConsumer
-						        .accept(Translator.translate("Registration.UnknownColumnHeader", trim) + " " + trim);
+						        .accept(Translator.translate("Registration.UnknownColumnHeader", trimmedCellValue) + " " + trimmedCellValue);
 					}
 					iColumn++;
 				}
@@ -607,6 +606,16 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 			iRow++;
 		}
 		return new AthleteInput(athletes);
+	}
+
+	private boolean checkTranslation(String valueRead, String string, String string2) {
+		return valueRead.contentEquals(Translator.translate(string) + " " + Translator.translate(string2)) 
+				|| valueRead.contentEquals(Translator.translate(string, Locale.ENGLISH) + " " + Translator.translate(string2, Locale.ENGLISH));
+	}
+
+	private boolean checkTranslation(String valueRead, String string) {
+		return valueRead.contentEquals(Translator.translate(string)) 
+				|| valueRead.contentEquals(Translator.translate(string, Locale.ENGLISH));
 	}
 
 }
