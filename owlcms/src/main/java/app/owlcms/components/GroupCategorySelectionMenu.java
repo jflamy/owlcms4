@@ -20,6 +20,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -78,14 +79,14 @@ public class GroupCategorySelectionMenu extends MenuBar {
 		}
 	}
 
-	private Set<Category> getAllCategories(Group g) {
-		TreeMap<Category, TreeSet<Athlete>> medals = Competition.getCurrent().getMedals(g, false);
+	private Set<String> getAllCategories(Group g) {
+		TreeMap<String, TreeSet<Athlete>> medals = Competition.getCurrent().getMedals(g, false);
 		return medals.keySet();
 	}
 
-	private Set<Category> getFinishedCategories(Group g) {
-		Set<Category> finishedCategories = new TreeSet<>();
-		TreeMap<Category, TreeSet<Athlete>> medals = Competition.getCurrent().getMedals(g, true);
+	private Set<String> getFinishedCategories(Group g) {
+		Set<String> finishedCategories = new TreeSet<>();
+		TreeMap<String, TreeSet<Athlete>> medals = Competition.getCurrent().getMedals(g, true);
 		finishedCategories = medals.keySet();
 		return finishedCategories;
 	}
@@ -99,7 +100,7 @@ public class GroupCategorySelectionMenu extends MenuBar {
 
 		SubMenu subMenu = item.getSubMenu();
 		for (Group g : groups) {
-			Set<Category> categories = this.includeNotCompleted ? getAllCategories(g) : getFinishedCategories(g);
+			Set<String> categories = this.includeNotCompleted ? getAllCategories(g) : getFinishedCategories(g);
 			if (categories.size() > 0) {
 				MenuItem subItem = subMenu.addItem(
 				        g.getName(),
@@ -116,13 +117,14 @@ public class GroupCategorySelectionMenu extends MenuBar {
 				subItem.getElement().setAttribute("style", "margin: 0px; padding: 0px");
 			}
 
-			for (Category c : categories) {
+			for (String c : categories) {
+				Category cat = CategoryRepository.findByName(c);
 				MenuItem subItem1 = subMenu.addItem(
-				        g.getName() + " - " + c.getTranslatedName(),
+				        g.getName() + " - " + cat.getTranslatedName(),
 				        e -> {
-					        whenChecked.accept(g, c, fop);
+					        whenChecked.accept(g, cat, fop);
 					        setChecked(e.getSource(), subMenu, true);
-					        item.setText(g.getName() + " - " + c.getTranslatedName() + "\u2003\u25bd");
+					        item.setText(g.getName() + " - " + cat.getTranslatedName() + "\u2003\u25bd");
 				        });
 				subItem1.setCheckable(true);
 				subItem1.getElement().setAttribute("style", "margin: 0px; padding: 0px");

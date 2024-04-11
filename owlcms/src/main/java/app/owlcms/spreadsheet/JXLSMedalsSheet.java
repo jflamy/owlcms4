@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.Ranking;
-import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import ch.qos.logback.classic.Level;
@@ -51,9 +50,9 @@ public class JXLSMedalsSheet extends JXLSWorkbookStreamSource {
 		}
 
 		Group group = getGroup();
-		TreeMap<Category, TreeSet<Athlete>> medals = Competition.getCurrent().getMedals(group, true);
+		TreeMap<String, TreeSet<Athlete>> medals = Competition.getCurrent().getMedals(group, true);
 		this.sortedAthletes = new ArrayList<>();
-		for (Entry<Category, TreeSet<Athlete>> medalCat : medals.entrySet()) {
+		for (Entry<String, TreeSet<Athlete>> medalCat : medals.entrySet()) {
 			TreeSet<Athlete> medalists = medalCat.getValue();
 			if (medalists != null && !medalists.isEmpty()) {
 				for (Athlete p : medalists) {

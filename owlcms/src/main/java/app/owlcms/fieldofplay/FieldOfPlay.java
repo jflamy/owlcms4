@@ -167,7 +167,7 @@ public class FieldOfPlay implements IUnregister {
 	private List<Athlete> liftingOrder;
 	private int liftsDoneAtLastStart;
 	final private Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlay.class);
-	private TreeMap<Category, TreeSet<Athlete>> medals;
+	private TreeMap<String, TreeSet<Athlete>> medals;
 	private String name;
 	private Platform platform = null;
 	private EventBus eventForwardingBus = null;
@@ -428,7 +428,7 @@ public class FieldOfPlay implements IUnregister {
 		return "FOP " + (fieldOfPlay != null ? fieldOfPlay.name : "-") + "    ";
 	}
 
-	public TreeMap<Category, TreeSet<Athlete>> getMedals() {
+	public TreeMap<String, TreeSet<Athlete>> getMedals() {
 		return this.medals;
 	}
 
@@ -1242,7 +1242,7 @@ public class FieldOfPlay implements IUnregister {
 		this.liftsDoneAtLastStart = liftsDoneAtLastStart;
 	}
 
-	public void setMedals(TreeMap<Category, TreeSet<Athlete>> medals) {
+	public void setMedals(TreeMap<String, TreeSet<Athlete>> medals) {
 		this.medals = medals;
 	}
 
@@ -2064,7 +2064,7 @@ public class FieldOfPlay implements IUnregister {
 		if (getCurAthlete() != null) {
 			Category category = getCurAthlete().getCategory();
 
-			TreeSet<Athlete> medalists = getMedals().get(category);
+			TreeSet<Athlete> medalists = getMedals().get(category.getCode());
 			// logger.debug("medals {}", medalists);
 			List<Athlete> snatchMedalists = medalists.stream().filter(a -> {
 				int r = a.getSnatchRank();

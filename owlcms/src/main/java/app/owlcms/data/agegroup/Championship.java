@@ -146,7 +146,7 @@ public class Championship implements Comparable<Championship> {
 		return this.name;
 	}
 	
-	public String getNameLength() {
+	public int getNameLength() {
 		return this.name.length();
 	}
 

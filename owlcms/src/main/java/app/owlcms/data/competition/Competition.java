@@ -185,7 +185,7 @@ public class Competition {
 	private boolean mastersGenderEquality = false;
 	@Transient
 	@JsonIgnore
-	private HashMap<Group, TreeMap<Category, TreeSet<Athlete>>> medalsByGroup;
+	private HashMap<Group, TreeMap<String, TreeSet<Athlete>>> medalsByGroup;
 	private String medalsTemplateFileName;
 
 	/* this is really "keep best n results", backward compatibility with database exports */
@@ -284,7 +284,7 @@ public class Competition {
 	 * @param g a group
 	 * @return for each category represented in group g where all athletes have lifted, the medals
 	 */
-	public TreeMap<Category, TreeSet<Athlete>> computeMedals(Group g) {
+	public TreeMap<String, TreeSet<Athlete>> computeMedals(Group g) {
 		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g);
 		return computeMedals(g, rankedAthletes);
 	}
@@ -295,7 +295,7 @@ public class Competition {
 	 *                       compete
 	 * @return for each category, medal-winnning athletes in snatch, clean & jerk and total.
 	 */
-	public TreeMap<Category, TreeSet<Athlete>> computeMedals(Group g, List<Athlete> rankedAthletes
+	public TreeMap<String, TreeSet<Athlete>> computeMedals(Group g, List<Athlete> rankedAthletes
 	// , boolean onlyFinished
 	) {
 		if (g == null) {
@@ -306,17 +306,17 @@ public class Competition {
 			this.medalsByGroup = new HashMap<>();
 		}
 		if (rankedAthletes == null || rankedAthletes.size() == 0) {
-			TreeMap<Category, TreeSet<Athlete>> treeMap = new TreeMap<>();
+			TreeMap<String, TreeSet<Athlete>> treeMap = new TreeMap<>();
 			this.medalsByGroup.put(g, treeMap);
 			return treeMap;
 		}
 
-		TreeMap<Category, TreeSet<Athlete>> medals = computeMedalsByCategory(rankedAthletes);
+		TreeMap<String, TreeSet<Athlete>> medals = computeMedalsByCategory(rankedAthletes);
 		this.medalsByGroup.put(g, medals);
 		return medals;
 	}
 
-	public TreeMap<Category, TreeSet<Athlete>> computeMedalsByCategory(List<Athlete> rankedAthletes
+	public TreeMap<String, TreeSet<Athlete>> computeMedalsByCategory(List<Athlete> rankedAthletes
 	// , boolean onlyFinished
 	) {
 		// extract all categories
@@ -327,7 +327,7 @@ public class Competition {
 
 		// onlyFinishedCategories(rankedAthletes, onlyFinished, medalCategories);
 
-		TreeMap<Category, TreeSet<Athlete>> medals = new TreeMap<>();
+		TreeMap<String, TreeSet<Athlete>> medals = new TreeMap<>();
 
 		// iterate over the remaining categories
 		for (Category category : medalCategories) {
@@ -367,7 +367,7 @@ public class Competition {
 			medalists.addAll(cjLeaders);
 			medalists.addAll(snatchLeaders);
 			// }
-			medals.put(category, medalists);
+			medals.put(category.getCode(), medalists);
 
 			// logger.debug("medalists for {}", category);
 			// for (Athlete medalist : medalists) {
@@ -381,7 +381,7 @@ public class Competition {
 	public TreeSet<Athlete> computeMedalsForCategory(Category category) {
 		// brute force - reuse what works
 		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(null);
-		TreeSet<Athlete> treeSet = computeMedalsByCategory(rankedAthletes).get(category);
+		TreeSet<Athlete> treeSet = computeMedalsByCategory(rankedAthletes).get(category.getCode());
 		// logger.debug("computeMedalsForCategory {}",treeSet);
 		return treeSet;
 	}
@@ -772,14 +772,14 @@ public class Competition {
 		return this.maxTeamSize;
 	}
 
-	public TreeMap<Category, TreeSet<Athlete>> getMedals(Group g, boolean onlyFinished) {
-		TreeMap<Category, TreeSet<Athlete>> medals;
+	public TreeMap<String, TreeSet<Athlete>> getMedals(Group g, boolean onlyFinished) {
+		TreeMap<String, TreeSet<Athlete>> medals;
 		if (this.medalsByGroup == null || (medals = this.medalsByGroup.get(g)) == null) {
 			medals = computeMedals(g);
 		}
-		final TreeMap<Category, TreeSet<Athlete>> m = new TreeMap<>(medals);
+		final TreeMap<String, TreeSet<Athlete>> m = new TreeMap<>(medals);
 		if (onlyFinished) {
-			List<Category> toRemove = medals.keySet().stream()
+			List<String> toRemove = medals.keySet().stream()
 			        .filter(k -> {
 				        TreeSet<Athlete> athletes = m.get(k);
 				        if (athletes.isEmpty()) {
@@ -795,7 +795,7 @@ public class Competition {
 			        })
 			        .collect(Collectors.toList());
 			// logger.debug("notFinished {}",toRemove);
-			for (Category notFinished : toRemove) {
+			for (String notFinished : toRemove) {
 				m.remove(notFinished);
 			}
 		}
