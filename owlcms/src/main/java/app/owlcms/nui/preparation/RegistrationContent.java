@@ -440,7 +440,6 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	 */
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-		logger.warn("setParameter---------------------------");
 		setLocation(event.getLocation());
 		setLocationUI(event.getUI());
 		QueryParameters queryParameters = getLocation().getQueryParameters();

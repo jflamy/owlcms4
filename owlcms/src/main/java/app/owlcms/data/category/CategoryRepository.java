@@ -107,9 +107,30 @@ public class CategoryRepository {
 	public static List<Category> doFindEligibleCategories(Athlete a, Gender gender, Integer ageFromFields, Double bw,
 	        int qualifyingTotal) {
 		List<Category> allEligible = CategoryRepository.findByGenderAgeBW(gender, ageFromFields, null);
-		logger.debug/* edit */("allEligible bw={} {} -- {}", bw, allEligible.size(), LoggerUtils.whereFrom());
+		if (logger.isEnabledFor(Level.TRACE) && a.getLastName().contentEquals("Molnar")) {
+			logger.trace("allEligible bw={} {} -- {}", bw, allEligible.size(), LoggerUtils.whereFrom());
+		}
 
-		// if youth F >81, athlete may be jr87 or jr>87
+		// if youth F >81, athlete may be jr87 or jr>87;
+		allEligible = checkMultipleBWClasses(gender, ageFromFields, bw, allEligible);
+		allEligible.sort(new RegistrationPreferenceComparator());
+		
+		allEligible = allEligible.stream()
+		        .filter(c -> (qualifyingTotal >= c.getQualifyingTotal()))
+		        .peek(c -> {
+			        if (logger.isEnabledFor(Level.TRACE) && a.getLastName().contentEquals("Molnar"))
+				        logger.trace("{} {} bw {}  c.getMinimumWeight {} c.getMaximumWeight {} ---> {}",
+				                a, c, bw, c.getMinimumWeight(), c.getMaximumWeight(),
+				                (bw == null || (bw > c.getMinimumWeight() && bw <= c.getMaximumWeight())));
+		        })
+		        .filter(c -> (bw == null || (bw > c.getMinimumWeight() && bw <= c.getMaximumWeight())))
+		        .collect(Collectors.toList());
+		return allEligible;
+	}
+
+	private static List<Category> checkMultipleBWClasses(Gender gender, Integer ageFromFields, Double bw,
+	        List<Category> allEligible) {
+		// > 998 is our signal for max weight in category
 		if ((bw != null && bw > 998) && !allEligible.isEmpty()) {
 			double bodyWeight = allEligible.get(0).getMinimumWeight() + 1;
 			List<Category> otherEligibles = CategoryRepository.findByGenderAgeBW(gender, ageFromFields, bodyWeight);
@@ -119,16 +140,9 @@ public class CategoryRepository {
 					allEligible.add(otherEligible);
 				}
 			}
-			allEligible.sort(new RegistrationPreferenceComparator());
-		}
-
-		allEligible = allEligible.stream()
-		        .filter(c -> (qualifyingTotal >= c.getQualifyingTotal()))
-		        .peek(c -> logger.debug/* edit */("bw {}  c.getMinimumWeight {} c.getMaximumWeight {} ---> {}",
-		                bw, c.getMinimumWeight(), c.getMaximumWeight(),
-		                (bw == null || (bw > c.getMinimumWeight() && bw <= c.getMaximumWeight()))))
-		        .filter(c -> (bw == null || (bw > c.getMinimumWeight() && bw <= c.getMaximumWeight())))
-		        .collect(Collectors.toList());
+			allEligible = allEligible.stream()
+			        .collect(Collectors.toList());
+		} 
 		return allEligible;
 	}
 
@@ -205,7 +219,8 @@ public class CategoryRepository {
 		// sort comparison to put more specific category age before. M30 before O21, O21
 		// also before SR (MASTERS, then
 		// U, then IWF/other)
-		findFiltered = findFiltered.stream().filter(c -> c.getAgeGroup().isActive()).sorted(new RegistrationPreferenceComparator()).collect(Collectors.toList());
+		findFiltered = findFiltered.stream().filter(c -> c.getAgeGroup().isActive())
+		        .sorted(new RegistrationPreferenceComparator()).collect(Collectors.toList());
 		return findFiltered;
 	}
 
@@ -214,7 +229,8 @@ public class CategoryRepository {
 		Boolean active = true;
 		List<Category> findFiltered = findFiltered((String) null, gender, ageDivision, (AgeGroup) null, age, bodyWeight,
 		        active, -1, -1);
-		findFiltered = findFiltered.stream().filter(c -> c.getAgeGroup().isActive()).sorted(new RegistrationPreferenceComparator()).collect(Collectors.toList());
+		findFiltered = findFiltered.stream().filter(c -> c.getAgeGroup().isActive())
+		        .sorted(new RegistrationPreferenceComparator()).collect(Collectors.toList());
 		return findFiltered;
 	}
 

@@ -144,13 +144,15 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		if (o == null) {
 			return -1; // we are smaller than null -- null goes to the end;
 		}
+		
+		int compare;
 
-		int compare = ObjectUtils.compare(this.getGender(), o.getGender());
+		compare = ObjectUtils.compare(this.getGender(), o.getGender());
 		if (compare != 0) {
 			return compare;
 		}
-
-		compare = ObjectUtils.compare(this.ageGroup, o.getAgeGroup(), true);
+		
+		compare = ObjectUtils.compare(this.getAgeGroup(), o.getAgeGroup(), true);
 		if (compare != 0) {
 			return compare;
 		}
@@ -161,6 +163,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		compare = ObjectUtils.compare(value1, value2);
 		return compare;
 	}
+
 
 	public String dump() {
 		return "Category [code=" + this.code + ", name=" + getName() + ", minimumWeight=" + this.minimumWeight

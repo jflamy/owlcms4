@@ -60,8 +60,13 @@ public class RegistrationPreferenceComparator implements Comparator<Category> {
 				}
 
 				// Championships are in registration preference order
-				// U before M before OLY before IWF before DEFAULT
-				compare = ObjectUtils.compare(ad1, ad2);
+				compare = ObjectUtils.compare(ad1.getType(), ad2.getType());
+				if (compare != 0) {
+					return compare;
+				}
+				
+				// Championships are in registration preference order
+				compare = ObjectUtils.compare(ad1.getName().length(), ad2.getName().length());
 				if (compare != 0) {
 					return compare;
 				}

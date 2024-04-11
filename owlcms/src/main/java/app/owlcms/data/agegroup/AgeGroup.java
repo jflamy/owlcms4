@@ -73,7 +73,9 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		} else if (otherAgeGroup == null) {
 			ageGroupEquals = false;
 		} else {
-			ageGroupEquals = Objects.equals(firstAgeGroup.getCode(), otherAgeGroup.getCode())
+			ageGroupEquals = 
+					Objects.equals(firstAgeGroup.getChampionshipName(), otherAgeGroup.getChampionshipName())
+					&& Objects.equals(firstAgeGroup.getCode(), otherAgeGroup.getCode())
 			        && Objects.equals(firstAgeGroup.getGender(), otherAgeGroup.getGender())
 			        && Objects.equals(firstAgeGroup.getMinAge(), otherAgeGroup.getMinAge())
 			        && Objects.equals(firstAgeGroup.getMaxAge(), otherAgeGroup.getMaxAge());
@@ -145,11 +147,26 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 			return 1; // we are bigger.
 		}
 		int compare = 0;
+		
+		String championshipName1 = this.championshipName;
+		String championshipName2 = o.getChampionshipName();
+		int length1 = championshipName1 != null ? championshipName1.length() : 0;
+		int length2 = championshipName2 != null ? championshipName2.length() : 0;
+		
+		compare = ObjectUtils.compare(length1, length2);
+		if (compare != 0) {
+			return -compare; // shorter first
+		}
+		compare = ObjectUtils.compare(championshipName1, championshipName2);;
+		if (compare != 0) {
+			return compare;
+		}
 
 		compare = ObjectUtils.compare(this.gender, o.getGender());
 		if (compare != 0) {
 			return compare;
 		}
+		
 		compare = ObjectUtils.compare(this.minAge, o.getMinAge());
 		if (compare != 0) {
 			return compare;
@@ -172,7 +189,9 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 			return true;
 		}
 		return this.active == other.active && this.ageDivision == other.ageDivision
-		        && Objects.equals(this.categories, other.categories) && Objects.equals(this.code, other.code)
+				&& Objects.equals(this.championshipName, other.championshipName)
+		        && Objects.equals(this.categories, other.categories)
+		        && Objects.equals(this.code, other.code)
 		        && this.gender == other.gender && Objects.equals(this.id, other.id)
 		        && Objects.equals(this.maxAge, other.maxAge)
 		        && Objects.equals(this.minAge, other.minAge);

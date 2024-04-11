@@ -152,7 +152,6 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	 */
 	@Override
 	public void doBreak(UIEvent e) {
-		logger.warn("============= doBreak {} {}",e.getClass().getSimpleName(), this.fop.getBreakType());
 		BreakType breakType = this.fop.getBreakType();
 		Group group = this.fop.getGroup();
 		if (breakType == null) {

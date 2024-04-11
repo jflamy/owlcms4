@@ -3444,10 +3444,8 @@ public class Athlete {
 
 		Set<String> membershipCategories = participations2.stream().filter(p -> p.getTeamMember())
 		        .map(p -> p.getCategory().getCode()).collect(Collectors.toSet());
-		logger.debug("athlete memberships {}", membershipCategories);
 
 		Set<Category> oldEligibles = getEligibleCategories();
-		logger.debug("setting eligible before:{} target:{}", oldEligibles, newEligibles);
 		if (oldEligibles != null) {
 			for (Category cat : oldEligibles) {
 				removeEligibleCategory(cat);
@@ -3456,7 +3454,6 @@ public class Athlete {
 		if (newEligibles != null) {
 			for (Category cat : newEligibles) {
 				boolean membership = membershipCategories.contains(cat.getCode());
-				logger.trace("cat {} {}", cat, membership);
 				addEligibleCategory(cat, membership); // creates new join table entry, links from category as well.
 			}
 		}

@@ -36,6 +36,7 @@ public class Championship implements Comparable<Championship> {
 	private static Map<String, Championship> allChampionshipsMap;
 	private static List<Championship> allChampionshipsList;
 	static Comparator<Championship> ct = Comparator.comparing(Championship::getType)
+			.thenComparing(Championship::getNameLength)
 	        .thenComparing(Championship::getName);
 
 	/**
@@ -143,6 +144,10 @@ public class Championship implements Comparable<Championship> {
 
 	public String getName() {
 		return this.name;
+	}
+	
+	public String getNameLength() {
+		return this.name.length();
 	}
 
 	public ChampionshipType getType() {
