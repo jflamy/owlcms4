@@ -7,6 +7,7 @@
 
 ##### 48.0
 
+- (beta03) Fixed sequencing of actions during JSON database restore to ensure Championships, Platforms and MQTT monitors are reset correctly.
 - (beta02) Fixed the AgeGroups definition file export to include both the Championship name and type.
 - (beta02) Accept a registration file where there are explicit categories but no athlete birth date.
 - (beta01) Now exporting the SBDE dates in ISO yyyy-MM-dd format to avoid issues when reading in a different locale.
