@@ -1254,7 +1254,6 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	public void setMqttMonitor(MQTTMonitor mqttMonitor) {
-		logger.debug("setting mqttMonitor {}", System.identityHashCode(mqttMonitor));
 		this.mqttMonitor = mqttMonitor;
 	}
 
@@ -1351,13 +1350,15 @@ public class FieldOfPlay implements IUnregister {
 
 	@Override
 	public void unregister() {
+		MQTTMonitor mqttMonitor2 = this.getMqttMonitor();
+		logger.debug("{}unregistering mqttmonitor {}", getLoggingName(this), System.identityHashCode(mqttMonitor2));
 		this.fopEventBus.unregister(this);
 		if (this.getEventForwarder() != null) {
 			this.getEventForwarder().unregister();
 			this.setEventForwarder(null);
 		}
-		if (this.getMqttMonitor() != null) {
-			this.getMqttMonitor().unregister();
+		if (mqttMonitor2 != null) {
+			mqttMonitor2.unregister();
 			this.setMqttMonitor(null);
 		}
 	}

@@ -66,7 +66,6 @@ public class RAthlete {
 	 * @see app.owlcms.data.athlete.Athlete#setCategory(app.owlcms.data.category.Category)
 	 */
 	public void setCategory(String s) throws Exception {
-		logger.warn("setCategory {}", s);
 		if (s != null) {
 			s = CharMatcher.javaIsoControl().removeFrom(s);
 		}

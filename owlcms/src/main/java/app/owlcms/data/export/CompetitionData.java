@@ -25,6 +25,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.competition.Competition;
@@ -188,6 +189,7 @@ public class CompetitionData {
 		JPAService.runInTransaction(em -> {
 			try {
 				Athlete.setSkipValidationsDuringImport(true);
+				OwlcmsFactory.resetFOPByName();
 
 				CompetitionData updated = this.importData(inputStream);
 				Config config = updated.getConfig();
@@ -239,8 +241,9 @@ public class CompetitionData {
 			}
 			return null;
 		});
+		Championship.reset();
 		// register the new FOPs for events and MQTT
-		OwlcmsFactory.initFOPByName();
+		OwlcmsFactory.initDefaultFOP();
 
 		// set the record order if empty (compensate for issue #766)
 		RecordConfig current = RecordConfig.getCurrent();

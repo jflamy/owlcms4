@@ -280,7 +280,6 @@ public class MQTTMonitor extends Thread implements IUnregister {
 	private Long prevRefereeTimeStamp = 0L;
 
 	public MQTTMonitor(FieldOfPlay fop) {
-		
 		this.setFop(fop);
 	}
 
@@ -290,6 +289,9 @@ public class MQTTMonitor extends Thread implements IUnregister {
 
 	public void publishMqttConfig() {
 		PlatformRepository.syncFOPs();
+		if (this.fop == null) {
+			return;
+		}
 		publishMqttConfig("owlcms/fop/config");
 	}
 
@@ -609,6 +611,11 @@ public class MQTTMonitor extends Thread implements IUnregister {
 	private void publishMqttConfig(String topic) {
 		Map<String, Object> payload = new TreeMap<>();
 		Collection<FieldOfPlay> fops = OwlcmsFactory.getFOPs();
+		if (fops != null && fops.isEmpty()) {
+			// there is always a default Fop unless we get the message prematurely
+			// when are not fully initialized
+			return;
+		}
 		List<String> platforms = fops.stream().map(p -> p.getPlatform().getName())
 		        .collect(Collectors.toList());
 		payload.put("platforms", platforms);
@@ -616,7 +623,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 		payload.put("jurySize", Competition.getCurrent().getJurySize());
 		try {
 			String json = new ObjectMapper().writeValueAsString(payload);
-			logger.info("{}MQTT Config: {}", FieldOfPlay.getLoggingName(this.getFop()), json);
+			logger.info("{}{} MQTT Config: {}", FieldOfPlay.getLoggingName(this.getFop()), System.identityHashCode(this), json);
 			this.client.publish(topic, new MqttMessage(json.getBytes(StandardCharsets.UTF_8)));
 		} catch (JsonProcessingException | MqttException e) {
 		}

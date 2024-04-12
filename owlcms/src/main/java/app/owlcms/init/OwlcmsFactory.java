@@ -26,7 +26,6 @@ import app.owlcms.fieldofplay.ProxyAthleteTimer;
 import app.owlcms.fieldofplay.ProxyBreakTimer;
 import app.owlcms.i18n.Translator;
 import app.owlcms.monitors.MQTTMonitor;
-import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -114,8 +113,6 @@ public class OwlcmsFactory {
 	 * @return first field of play, sorted alphabetically
 	 */
 	public static synchronized FieldOfPlay initDefaultFOP() {
-		logger.trace("initDefaultFOP {} {}", getFopByName() != null ? getFopByName().size() : null,
-		        LoggerUtils.stackTrace());
 		initFOPByName();
 		setFirstFOPAsDefault();
 		FieldOfPlay fop = getDefaultFOP();
@@ -132,7 +129,7 @@ public class OwlcmsFactory {
 			// logger.trace("registering fop for {}", platform);
 			registerEmptyFOP(platform);
 		}
-		logger.trace("after initFOPByName {}", getFopByName() != null ? getFopByName().size() : null);
+		logger.trace("*** after initFOPByName {}", getFopByName() != null ? getFopByName().size() : null);
 	}
 
 	public static FieldOfPlay registerEmptyFOP(Platform platform) {
@@ -153,7 +150,6 @@ public class OwlcmsFactory {
 			}
 		}
 		setFopByName(new HashMap<>());
-		logger.debug("fopByName reset done.");
 	}
 
 	public static void setFirstFOPAsDefault() {
