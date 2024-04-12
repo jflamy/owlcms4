@@ -129,21 +129,38 @@ public class AgeGroupDefinitionReader {
 						}
 							break;
 						default: {
-							String cellValue = cell.getStringCellValue();
+							String cellValue = null;
+							try {
+								cellValue = cell.getStringCellValue();
+							} catch (IllegalStateException e) {
+								Double doubleValue = cell.getNumericCellValue();
+								if (doubleValue != null) {
+									cellValue = Integer.toString(doubleValue.intValue());
+								}
+							}
 							if (cellValue != null && !cellValue.trim().isEmpty()) {
 								String[] parts = cellValue.split("[-_. /]");
 								String catCode = parts.length > 0 ? parts[0] : cellValue;
 								String qualTotal = parts.length > 1 ? parts[1] : "0";
 								Category cat;
 								try {
-//									cat = AgeGroupRepository.createCategoryFromTemplate(catCode, ag, templates,
-//									        curMin, qualTotal);
-//									if (cat == null) {
-										// category is not IWF, no records available
-										cat = new Category(curMin, Double.parseDouble(catCode.substring(1)),
-										        Gender.valueOf(catCode.substring(0, 1)), ag.isActive(), 0, 0, 0,
-										        ag, Integer.parseInt(qualTotal));
-//									}
+									// cat = AgeGroupRepository.createCategoryFromTemplate(catCode, ag, templates,
+									// curMin, qualTotal);
+									// if (cat == null) {
+									// category is not IWF, no records available
+									Gender gender;
+									String upper;
+									if (catCode.matches("^[A-Za-z]\\d+$")) {
+										gender = Gender.valueOf(catCode.substring(0, 1));
+										upper = catCode.substring(1);
+									} else {
+										gender = ag.getGender();
+										upper = catCode;
+									}
+									cat = new Category(curMin, Double.parseDouble(upper),
+									        gender, ag.isActive(), 0, 0, 0,
+									        ag, Integer.parseInt(qualTotal));
+									// }
 									em.persist(cat);
 									// logger.debug(cat.longDump());
 									curMin = cat.getMaximumWeight();
