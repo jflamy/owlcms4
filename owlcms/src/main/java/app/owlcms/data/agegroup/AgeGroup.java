@@ -74,7 +74,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 			ageGroupEquals = false;
 		} else {
 			ageGroupEquals = 
-					Objects.equals(firstAgeGroup.getChampionshipName(), otherAgeGroup.getChampionshipName())
+					Objects.equals(firstAgeGroup.computeChampionshipName(), otherAgeGroup.computeChampionshipName())
 					&& Objects.equals(firstAgeGroup.getCode(), otherAgeGroup.getCode())
 			        && Objects.equals(firstAgeGroup.getGender(), otherAgeGroup.getGender())
 			        && Objects.equals(firstAgeGroup.getMinAge(), otherAgeGroup.getMinAge())
@@ -148,31 +148,38 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		}
 		int compare = 0;
 		
-		String championshipName1 = this.championshipName;
-		String championshipName2 = o.getChampionshipName();
+		String championshipName1 = this.computeChampionshipName();
+		String championshipName2 = o.computeChampionshipName();
 		int length1 = championshipName1 != null ? championshipName1.length() : 0;
 		int length2 = championshipName2 != null ? championshipName2.length() : 0;
 		
 		compare = ObjectUtils.compare(length1, length2);
 		if (compare != 0) {
+			//logger.trace("(agegroup championshipName length) {} {} {}", -compare, championshipName1, championshipName2);
 			return -compare; // shorter first
 		}
-		compare = ObjectUtils.compare(championshipName1, championshipName2);;
+		compare = ObjectUtils.compare(championshipName1, championshipName2);
 		if (compare != 0) {
+			//logger.trace("(agegroup championshipName) {} {} {}", compare, championshipName1, championshipName2);
 			return compare;
 		}
 
 		compare = ObjectUtils.compare(this.gender, o.getGender());
 		if (compare != 0) {
+			//logger.trace("(agegroup gender) {} {} {}", compare, this.gender, o.getGender());
 			return compare;
 		}
 		
 		compare = ObjectUtils.compare(this.minAge, o.getMinAge());
 		if (compare != 0) {
+			//logger.trace("(agegroup minage) {} {} {}", compare, this.minAge, o.getMinAge());
 			return compare;
 		}
 		compare = ObjectUtils.compare(this.maxAge, o.getMaxAge());
-
+		if (compare != 0) {
+			//logger.trace("(agegroup maxage) {} {} {}", compare, this.maxAge, o.getMaxAge());
+			return compare;
+		}
 		return compare;
 	}
 
@@ -189,7 +196,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 			return true;
 		}
 		return this.active == other.active && this.ageDivision == other.ageDivision
-				&& Objects.equals(this.championshipName, other.championshipName)
+				&& Objects.equals(this.getChampionshipName(), other.getChampionshipName())
 		        && Objects.equals(this.categories, other.categories)
 		        && Objects.equals(this.code, other.code)
 		        && this.gender == other.gender && Objects.equals(this.id, other.id)
@@ -225,18 +232,20 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	@JsonIgnore
 	@Transient
 	public Championship getChampionship() {
-		return Championship.of(this.getChampionshipName());
+		return Championship.of(this.computeChampionshipName());
 	}
 
 	@JsonIgnore
 	@Transient
 	public ChampionshipType getChampionshipType() {
-		Championship of = Championship.of(this.getChampionshipName());
+		Championship of = Championship.of(this.computeChampionshipName());
 		return of != null ? of.getType() : ChampionshipType.DEFAULT;
 	}
 
-	public String getChampionshipName() {
-		return (this.championshipName != null && !this.championshipName.isBlank()) ? this.championshipName
+	@JsonIgnore
+	@Transient
+	public String computeChampionshipName() {
+		return (this.getChampionshipName() != null && !this.getChampionshipName().isBlank()) ? this.getChampionshipName()
 		        : this.ageDivision;
 	}
 
@@ -401,6 +410,10 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 	public boolean isAlreadyGendered() {
 		return alreadyGendered == null ? false : alreadyGendered;
+	}
+
+	private String getChampionshipName() {
+		return championshipName;
 	}
 
 }

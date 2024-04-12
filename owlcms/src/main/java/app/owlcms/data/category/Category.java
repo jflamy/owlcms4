@@ -154,7 +154,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		
 		compare = ObjectUtils.compare(this.getAgeGroup(), o.getAgeGroup(), true);
 		if (compare != 0) {
-			return compare;
+			//logger.trace("(agegroup) {} {} {}",compare,this.getAgeGroup(), o.getAgeGroup());
 		}
 
 		// same division, same gender, rank according to maximumWeight.

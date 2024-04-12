@@ -974,32 +974,47 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	}
 
 	private Comparator<? super Athlete> groupCategoryComparator() {
-		// for categories listing we want all the participation categories
 		Comparator<? super Athlete> groupCategoryComparator = (a1, a2) -> {
 			int compare;
 			compare = ObjectUtils.compare(a1.getGroup(), a2.getGroup(), true);
 			if (compare != 0) {
+				logComparison(compare, a1, a2, "group");
 				return compare;
 			}
+
+			// deal with athletes not fully registered or not eligible to any category.
 			Participation mainRankings1 = a1.getMainRankings() != null ? a1.getMainRankings() : null;
 			Participation mainRankings2 = a2.getMainRankings() != null ? a2.getMainRankings() : null;
-			if (mainRankings1 == null && mainRankings2 != null) {
-				compare = 1;
-			} else if (mainRankings1 != null && mainRankings2 == null) {
-				compare = -1;
-			} else if (mainRankings1 == null && mainRankings1 == null) {
-				compare = 0;
-			} else {
-				compare = ObjectUtils.compare(mainRankings1.getCategory(), mainRankings2.getCategory(), true);
-			}
+			Category category1 = mainRankings1 != null ? mainRankings1.getCategory() : null;
+			Category category2 = mainRankings2 != null ? mainRankings2.getCategory() : null;
+			compare = ObjectUtils.compare(category1, category2, true);
 			if (compare != 0) {
+				logComparison(compare, a1, a2, "mainCategory");
 				return compare;
 			}
 
 			compare = ObjectUtils.compare(a1.getEntryTotal(), a2.getEntryTotal());
+			logComparison(compare, a1, a2, "entryTotal");
 			return -compare;
 		};
 		return groupCategoryComparator;
+	}
+
+	private void logComparison(int compare, Athlete a1, Athlete a2, String string) {
+		if (compare == 0) {
+			//logger.trace("({}) {} = {}", string, athleteLog(a1), athleteLog(a2));
+		} else if (compare < 0) {
+			//logger.trace("({}) {} < {}", string, athleteLog(a1), athleteLog(a2));
+		} else if (compare > 0) {
+			//logger.trace("({}) {} > {}", string, athleteLog(a1), athleteLog(a2));
+		}
+	}
+
+	@SuppressWarnings("unused")
+	private String athleteLog(Athlete a1) {
+		Participation mainRankings1 = a1.getMainRankings() != null ? a1.getMainRankings() : null;
+		Category category1 = mainRankings1 != null ? mainRankings1.getCategory() : null;
+		return "[" + a1.getShortName() + " " + a1.getGroup() + " " + category1 + " " + a1.getEntryTotal() + "]";
 	}
 
 	private void resetCategories() {

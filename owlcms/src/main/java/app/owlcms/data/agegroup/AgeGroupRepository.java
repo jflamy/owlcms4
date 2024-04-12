@@ -76,12 +76,12 @@ public class AgeGroupRepository {
 		});
 		TreeSet<String> ts = new TreeSet<>();
 		for (AgeGroup ag : ageGroups) {
-			if (ag.getChampionshipName() != null && !ag.getChampionshipName().isBlank()) {
-				ts.add(ag.getChampionshipName() + "¤" + ag.getAgeDivision());
+			if (ag.computeChampionshipName() != null && !ag.computeChampionshipName().isBlank()) {
+				ts.add(ag.computeChampionshipName() + "¤" + ag.getAgeDivision());
 			} else if (ag.getAgeDivision() != null){
 				ts.add(ag.getAgeDivision());
 			} else {
-				logger.error("{} {} {}",ag.getId(), ag.code, ag.getChampionshipName(), ag.getCategoriesAsString());
+				logger.error("{} {} {}",ag.getId(), ag.code, ag.computeChampionshipName(), ag.getCategoriesAsString());
 			}
 		}
 		return new ArrayList<>(ts);
@@ -98,8 +98,8 @@ public class AgeGroupRepository {
 		TreeSet<String> ts = new TreeSet<>();
 		for (AgeGroup ag : ageGroups) {
 			if (!activeOnly || ag.isActive()) {
-				if (ag.getChampionshipName() != null && !ag.getChampionshipName().isBlank()) {
-					ts.add(ag.getChampionshipName());
+				if (ag.computeChampionshipName() != null && !ag.computeChampionshipName().isBlank()) {
+					ts.add(ag.computeChampionshipName());
 				} else {
 					ts.add(ag.getAgeDivision());
 				}
@@ -603,7 +603,7 @@ public class AgeGroupRepository {
 		JPAService.runInTransaction(em -> {
 			List<AgeGroup> ags = doFindAll(em);
 			for (AgeGroup a : ags) {
-				if (a.getChampionshipName() == null || a.getChampionshipName().isBlank()) {
+				if (a.computeChampionshipName() == null || a.computeChampionshipName().isBlank()) {
 					a.setChampionshipName(a.getAgeDivision());
 				}
 				em.merge(a);
