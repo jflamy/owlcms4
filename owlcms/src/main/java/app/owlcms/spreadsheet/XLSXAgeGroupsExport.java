@@ -30,17 +30,16 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 			Sheet sheet = workbook.createSheet();
 			Row header = sheet.createRow(0);
 			header.createCell(0).setCellValue("code");
-			header.createCell(1).setCellValue("");
-			header.createCell(2).setCellValue("division");
+			header.createCell(1).setCellValue("championship");
+			header.createCell(2).setCellValue("championshipType");
 			header.createCell(3).setCellValue("gender");
 			header.createCell(4).setCellValue("from");
 			header.createCell(5).setCellValue("to");
 			header.createCell(6).setCellValue("active");
-			sheet.setColumnWidth(1, 100);
 
 			List<AgeGroup> ageGroups = AgeGroupRepository.findAll();
 			ageGroups.sort(Comparator
-			        .comparing(AgeGroup::getAgeDivision)
+			        .comparing(AgeGroup::getChampionship)
 			        .thenComparing(AgeGroup::getGender).reversed()
 			        .thenComparing(AgeGroup::getMaxAge));
 
@@ -48,8 +47,8 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 			for (AgeGroup ag : ageGroups) {
 				Row curRow = sheet.createRow(rowNum);
 				curRow.createCell(0).setCellValue(ag.getCode());
-				curRow.createCell(1).setCellValue("");
-				curRow.createCell(2).setCellValue(ag.getChampionship().getName());
+				curRow.createCell(1).setCellValue(ag.getChampionship().getName());
+				curRow.createCell(2).setCellValue(ag.getChampionshipType().name());
 				curRow.createCell(3).setCellValue(ag.getGender().name());
 				curRow.createCell(4).setCellValue(ag.getMinAge());
 				curRow.createCell(5).setCellValue(ag.getMaxAge());
