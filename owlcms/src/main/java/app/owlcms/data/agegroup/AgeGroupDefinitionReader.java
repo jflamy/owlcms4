@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -51,15 +53,17 @@ public class AgeGroupDefinitionReader {
 			// backward compatibility
 			Sheet sheet = workbook.getSheetAt(workbook.getNumberOfSheets() - 1);
 			Iterator<Row> rowIterator = sheet.rowIterator();
-			int iRow = 0;
+			int iRow;
 			rows: while (rowIterator.hasNext()) {
-				int iColumn = 0;
+				int iColumn;
 				Row row;
+				row = rowIterator.next();
+				iRow = row.getRowNum();
 				if (iRow == 0) {
 					// process header
 					row = rowIterator.next();
+					iRow = row.getRowNum();
 				}
-				row = rowIterator.next();
 
 				AgeGroup ag = null;
 				double curMin = 0.0D;
@@ -68,9 +72,10 @@ public class AgeGroupDefinitionReader {
 				String championshipName = null;
 				while (cellIterator.hasNext()) {
 					Cell cell = cellIterator.next();
+					iColumn = cell.getColumnIndex();
 					switch (iColumn) {
 						case 0: {
-							String cellValue = cell.getStringCellValue();
+							String cellValue = safeGetTextValue(cell);
 							String trim = cellValue.trim();
 							if (trim.isBlank()) {
 								ag = null;
@@ -87,13 +92,13 @@ public class AgeGroupDefinitionReader {
 						}
 							break;
 						case 1:
-							championshipName = cell.getStringCellValue();
+							championshipName = safeGetTextValue(cell);
 							if (championshipName != null && !championshipName.isBlank()) {
 								ag.setChampionshipName(championshipName);
 							}
 							break;
 						case 2: {
-							String cellValue = cell.getStringCellValue();
+							String cellValue = safeGetTextValue(cell);
 							ag.setAgeDivision(cellValue);
 							if (ag.getChampionshipType() == ChampionshipType.MASTERS) {
 								ag.setAlreadyGendered(true);
@@ -101,7 +106,7 @@ public class AgeGroupDefinitionReader {
 						}
 							break;
 						case 3: {
-							String cellValue = cell.getStringCellValue();
+							String cellValue = safeGetTextValue(cell);
 							if (cellValue != null && !cellValue.trim().isEmpty() && ag != null) {
 								try {
 									ag.setGender(Gender.valueOf(cellValue));
@@ -126,13 +131,12 @@ public class AgeGroupDefinitionReader {
 						}
 							break;
 						case 6: {
-							boolean explicitlyActive = cell.getBooleanCellValue();
-
+							boolean explicitlyActive = getSafeBooleanValue(cell);
 							// age division is active according to spreadsheet, unless we are given an
 							// explicit list of championship types as override (e.g. to setup tests or demos)
 							if (ag != null) {
 								ChampionshipType aDiv = ag.getChampionshipType();
-								boolean forcedActive = forcedInsertion != null ?  forcedInsertion.contains(aDiv) : false;
+								boolean forcedActive = forcedInsertion != null ? forcedInsertion.contains(aDiv) : false;
 								ag.setActive(forcedInsertion != null ? forcedActive : explicitlyActive);
 							}
 						}
@@ -140,7 +144,7 @@ public class AgeGroupDefinitionReader {
 						default: {
 							String cellValue = null;
 							try {
-								cellValue = cell.getStringCellValue();
+								cellValue = safeGetTextValue(cell);
 							} catch (IllegalStateException e) {
 								Double doubleValue = cell.getNumericCellValue();
 								if (doubleValue != null) {
@@ -174,18 +178,12 @@ public class AgeGroupDefinitionReader {
 									// logger.debug(cat.longDump());
 									curMin = cat.getMaximumWeight();
 								} catch (Exception e) {
-									try {
-										Throwable cause = e.getCause();
-										String msg = MessageFormat.format(
-										        "cannot process cell {0} (content = \"{1}\") {2} {3}",
-										        cellName(iColumn, iRow), cellValue, cause.getClass().getSimpleName(),
-										        cause.getMessage());
-										logger.error(msg);
-										NotificationUtils.errorNotification(msg);
-										throw new RuntimeException(msg);
-									} catch (Exception e1) {
-										throw new RuntimeException(e);
-									}
+									String msg = MessageFormat.format(
+									        "cannot process cell {0} (content = \"{1}\") {2}",
+									        cellName(iColumn, iRow), cellValue, e);
+									logger.error(msg);
+									NotificationUtils.errorNotification(msg);
+									throw new RuntimeException(msg);
 								}
 
 							}
@@ -205,6 +203,36 @@ public class AgeGroupDefinitionReader {
 
 			return null;
 		});
+	}
+
+	static DataFormatter formatter = new DataFormatter();
+
+	private static boolean getSafeBooleanValue(Cell cell) {
+		try {
+			return cell.getBooleanCellValue();
+		} catch (IllegalStateException e) {
+			if (cell.getCellType() == CellType.NUMERIC) {
+				String strValue = formatter.formatCellValue(cell);
+				return strValue.equalsIgnoreCase("true");
+			} else {
+				logger.error("cannot extract string from cell {}", cell.getAddress());
+				throw new IllegalStateException("cannot extract boolean from cell " + cell.getAddress());
+			}
+		}
+	}
+
+	private static String safeGetTextValue(Cell cell) {
+		try {
+			return cell.getStringCellValue();
+		} catch (IllegalStateException e) {
+			if (cell.getCellType() == CellType.NUMERIC) {
+				String strValue = formatter.formatCellValue(cell);
+				return strValue;
+			} else {
+				logger.error("cannot extract string from cell {}", cell.getAddress());
+				throw new IllegalStateException("cannot extract string from cell " + cell.getAddress());
+			}
+		}
 	}
 
 	static void doInsertRobiAndAgeGroups(EnumSet<ChampionshipType> forcedInsertion, String localizedFileName) {
@@ -229,7 +257,8 @@ public class AgeGroupDefinitionReader {
 		return ageGroupStream;
 	}
 
-	private static void loadAgeGroupStream(EnumSet<ChampionshipType> forcedInsertion, String localizedName, Logger mainLogger,
+	private static void loadAgeGroupStream(EnumSet<ChampionshipType> forcedInsertion, String localizedName,
+	        Logger mainLogger,
 	        Map<String, Category> templates, InputStream localizedResourceAsStream1) {
 		try (Workbook workbook = WorkbookFactory
 		        .create(localizedResourceAsStream1)) {
