@@ -1,8 +1,14 @@
-#### Version 47.1.2
+#### Version 47.1.3
 
 > [!IMPORTANT]
 > 
 > - You should test all releases with your own data, several days before a competition.
+
+##### 47.1.3
+
+- Fix: Loading an AgeGroups file in the same format as version 48 will now work
+  - Only keep the tab that defines age group (delete the tab that defined the Robi world records, it is no longer needed)
+  - Remove the gender letter from the columns H and above (only keep the numbers, for example F64 becomes 64 and M67 becomes 67)
 
 ##### 47.1.2
 
