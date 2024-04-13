@@ -7,6 +7,7 @@
 
 ##### 48.0
 
+- (beta05) Fixed pre-existing issue (v47 or before) with wrong values for the positions shown on scoreboard when using global rankings like Sinclair.
 - (beta04) Fixed intermittent issues with lists using the registration sort order and re-enabled unit tests that had been wrongly thought to be false positives.
 - (beta03) Fixed sequencing of actions during JSON database restore to ensure Championships, Platforms and MQTT monitors are reset correctly.
 - (beta02) Fixed the AgeGroups definition file export to include both the Championship name and type.
