@@ -27,22 +27,30 @@ public class OverallRankSetter {
 		case CUSTOM:
 			throw new RuntimeException("using OverallRankSetter on a category-specific ranking");
 		case BW_SINCLAIR:
-			a.setSinclairRank(eligible ? (zero ? 0 : ++rank) : -1);
+				a.setSinclairRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 			break;
 		case CAT_SINCLAIR:
-			a.setCatSinclairRank(eligible ? (zero ? 0 : ++rank) : -1);
+				a.setCatSinclairRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 			break;
 		case ROBI:
-			a.setRobiRank(eligible ? (zero ? 0 : ++rank) : -1);
+				a.setRobiRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 			break;
 		case SMM:
-			a.setSmmRank(eligible ? (zero ? 0 : ++rank) : -1);
+				a.setSmmRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 			break;
 		case QPOINTS:
-			a.setqPointsRank(eligible ? (zero ? 0 : ++rank) : -1);
+				a.setqPointsRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
+				break;
 		case GAMX:
-			a.setGmaxRank(eligible ? (zero ? 0 : ++rank) : -1);
+				a.setGmaxRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
+				break;
 		}
+		}
+
+	private int incrementRank(Ranking ranking) {
+		rank++;
+		//logger.debug("incrementing ranking {} to {}", ranking, rank);
+		return rank;
 	}
 
 }
