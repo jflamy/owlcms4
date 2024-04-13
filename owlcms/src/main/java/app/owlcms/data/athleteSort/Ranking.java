@@ -4,14 +4,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.LoggerFactory;
+
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
+import ch.qos.logback.classic.Logger;
 
 /**
  * The Enum Ranking.
  */
-public enum Ranking {
+public enum Ranking {	
 	SNATCH("Sn"),
 	CLEANJERK("CJ"),
 	TOTAL("Tot"),
@@ -25,6 +28,8 @@ public enum Ranking {
 	QPOINTS("QPoints"), // Huebner QPoints.
 	GAMX("GAMX") // Global Adjusted Mixed (Huebner)
 	;
+	
+	static Logger logger = (Logger) LoggerFactory.getLogger(Ranking.class);
 
 	public static int getRanking(Athlete curLifter, Ranking rankingType) {
 		Integer value = null;
@@ -34,27 +39,39 @@ public enum Ranking {
 		switch (rankingType) {
 			case SNATCH:
 				value = curLifter.getSnatchRank();
+				break;
 			case CLEANJERK:
 				value = curLifter.getCleanJerkRank();
+				break;
 			case TOTAL:
 				value = curLifter.getTotalRank();
+				break;
 			case ROBI:
 				value = curLifter.getRobiRank();
+				break;
 			case CUSTOM:
 				value = curLifter.getCustomRank();
+				break;
 			case SNATCH_CJ_TOTAL:
 				value = 0; // no such thing
+				break;
 			case BW_SINCLAIR:
 				value = curLifter.getSinclairRank();
+				break;
 			case CAT_SINCLAIR:
 				value = curLifter.getCatSinclairRank();
+				break;
 			case SMM:
 				value = curLifter.getSmmRank();
+				break;
 			case GAMX:
 				value = curLifter.getGmaxRank();
+				break;
 			case QPOINTS:
 				value = curLifter.getqPointsRank();
+				break;
 		}
+		//logger.debug("{} ranking value: {}", curLifter.getShortName(), value);
 		return value == null ? 0 : value;
 	}
 
