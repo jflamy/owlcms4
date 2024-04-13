@@ -48,6 +48,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
+import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.category.Participation;
@@ -5069,8 +5070,7 @@ public class Athlete {
 			if (ag != null) {
 				Championship ad = ag.getChampionship();
 				if (ad != null) {
-					//FIXME: find a way to indicate MASTERS if several MASTERS championships
-					if (ad == Championship.of(Championship.MASTERS)) {
+					if (ad.getType() == ChampionshipType.MASTERS) {
 						double margin = 0.2D * entryTotal;
 						// we would round up the required total, so we round down the allowed margin
 						double floor = Math.floor(margin);
