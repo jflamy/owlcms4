@@ -114,7 +114,7 @@ public class JuryDialog extends Dialog {
 				this.close();
 				return;
 			}
-			// FIXME: this should be done after processing the JuryEvent, not from UI.
+			// TODO: this should be done after processing the JuryEvent in FieldOfPlay
 			OwlcmsSession.withFop(fop -> {
 				fop.fopEventPost(new FOPEvent.StartLifting(this));
 			});

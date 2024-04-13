@@ -53,7 +53,7 @@ import ch.qos.logback.classic.Logger;
  * This shows an overlay when competition events such as a record attempt or jury deliberation take place.
  *
  */
-// FIXME: show record attempt and new record for a limited duration.
+// TODO: show record attempt and new record for a limited duration.
 
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("eventmonitor-template")

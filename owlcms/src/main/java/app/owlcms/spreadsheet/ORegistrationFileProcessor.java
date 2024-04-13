@@ -116,7 +116,7 @@ public class ORegistrationFileProcessor implements IRegistrationFileProcessor {
 					displayUpdater.run();
 				}
 				if (status.getReadMessages().isEmpty()) {
-					// FIXME: this should invalidate all sessions and force screens to be re-read
+					// TODO: add UI Event to invalidate all sessions.
 					OwlcmsSession.invalidate();
 				}
 				return athletes.size();

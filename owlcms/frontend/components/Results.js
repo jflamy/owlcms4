@@ -394,7 +394,7 @@ class Results extends LitElement {
   }
 
   athleteClasses() {
-    return "results " 
+    var classes = "results " 
     + (this.showTotal ? " total" : " nototal")
     + (this.showLiftRanks ? " ranks" : " noranks") 
     + (this.showBest ? " best" : " nobest")
@@ -402,6 +402,8 @@ class Results extends LitElement {
     + (this.showSinclair ? " sinclair" : " nosinclair")
     + (this.showSinclairRank ? " sinclairRank" : " nosinclairRank")
     ;
+    //console.log("athleteClasses = "+classes);
+    return classes;
 }
 
   athleteStyles() {

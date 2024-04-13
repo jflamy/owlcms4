@@ -115,7 +115,6 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private long translatorResetTimeStamp;
 	private Integer weight;
 	private boolean wideTeamNames;
-	private String noLiftRanks;
 	private JsonValue records;
 	private Boolean teamFlags;
 	private String boardMode;
@@ -123,6 +122,11 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private Map<String, String> lastTimerMap;
 	private Map<String, String> lastDecisionMap;
 	private Map<String, String> lastUpdate;
+	Thread keepaliveThread;
+	private boolean showLiftRanks;
+	private boolean showSinclair;
+	private boolean showSinclairRank;
+	private boolean showTotalRank;
 
 	public EventForwarder(FieldOfPlay emittingFop) {
 		this.setFop(emittingFop);
@@ -610,9 +614,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	}
 
 	private void computeCurrentGroup(Group g) {
-		//Group group = getFop().getGroup();
+		// Group group = getFop().getGroup();
 		List<Athlete> displayOrder = getFop().getDisplayOrder();
-		//int liftsDone = AthleteSorter.countLiftsDone(displayOrder);
+		// int liftsDone = AthleteSorter.countLiftsDone(displayOrder);
 
 		// setGroupName(group != null ? group.getName() : "");
 		// setGroupInfo(computeSecondLine(getFop().getCurAthlete(), group != null ? group.getName() : null));
@@ -627,13 +631,18 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			setGroupAthletes(null);
 			setLiftingOrderAthletes(null);
 		}
-		if (Competition.getCurrent().isSinclair()) {
-			setNoLiftRanks("noranks sinclair");
-		} else if (!Competition.getCurrent().isSnatchCJTotalMedals()) {
-			setNoLiftRanks("noranks");
-		} else {
-			setNoLiftRanks("");
-		}
+
+		// String sinclair = Competition.getCurrent().isSinclair() ? "sinclair" : "nosinclair";
+		// String ranks = Competition.getCurrent().isSnatchCJTotalMedals() ? "ranks" : "noranks";
+		// setNoLiftRanks(sinclair + " " + ranks);
+
+		// getElement().setProperty("showTotal", true);
+		// getElement().setProperty("showBest", true);
+		setShowLiftRanks(Competition.getCurrent().isSnatchCJTotalMedals() && !Competition.getCurrent().isSinclair());
+		setShowTotalRank(!Competition.getCurrent().isSinclair());
+		setShowSinclair(Competition.getCurrent().isSinclair() || Competition.getCurrent().isDisplayScores());
+		setShowSinclairRank(Competition.getCurrent().isSinclair() || Competition.getCurrent().isDisplayScoreRanks());
+
 		computeLeaders();
 		setRecords(this.fop.getRecordsJson());
 	}
@@ -686,39 +695,6 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	}
 
-	private String computeSecondLine(Athlete a, String groupName) {
-		if (a == null) {
-			return ("");
-		}
-		return Translator.translate("Scoreboard.GroupLiftType", groupName,
-		        (a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
-		                : Translator.translate("Snatch")));
-	}
-
-	private void updateGroupInfo(String pLiftType) {
-		Group lCurGroup = fop.getGroup();
-		int lNbLiftsDone = AthleteSorter.countLiftsDone(fop.getDisplayOrder());
-
-		String lGroupDescription = lCurGroup != null ? lCurGroup.getDescription() : null;
-		String lGroupName = "";
-		String lLiftsDone = "";
-		if (lCurGroup != null && lCurGroup.isDone()) {
-			lGroupName = lGroupDescription != null ? lGroupDescription : "\u00a0";
-			lLiftsDone = "";
-		} else if (lCurGroup != null && pLiftType != null) {
-			String name = lGroupDescription != null ? lGroupDescription : lCurGroup.getName();
-			String value = lGroupDescription == null ? Translator.translate("Scoreboard.GroupLiftType", name, pLiftType)
-			        : Translator.translate("Scoreboard.DescriptionLiftTypeFormat", lGroupDescription, pLiftType);
-			lGroupName = value;
-			lLiftsDone = Translator.translate("Scoreboard.AttemptsDone", lNbLiftsDone);
-		} else {
-			lGroupName = "";
-		}
-		setGroupName(lGroupName);
-		setGroupInfo(lGroupDescription);
-		setLiftsDone(lLiftsDone);
-	}
-
 	private String computeLiftType(Athlete a) {
 		if (a == null || a.getAttemptsDone() > 6) {
 			return null;
@@ -726,6 +702,15 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
 		        : Translator.translate("Snatch");
 		return liftType;
+	}
+
+	private String computeSecondLine(Athlete a, String groupName) {
+		if (a == null) {
+			return ("");
+		}
+		return Translator.translate("Scoreboard.GroupLiftType", groupName,
+		        (a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
+		                : Translator.translate("Snatch")));
 	}
 
 	private Map<String, String> createDecision(DecisionEventType det) {
@@ -751,11 +736,6 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		createRecord(sb);
 
 		return sb;
-	}
-
-	private void setMode(Map<String, String> sb) {
-		String boardMode2 = getBoardMode();
-		mapPut(sb, "mode", boardMode2);
 	}
 
 	private void createRecord(Map<String, String> sb) {
@@ -887,7 +867,11 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "liftsDone", getLiftsDone());
 
 		// bottom tables
-		mapPut(sb, "noLiftRanks", getNoLiftRanks());
+		mapPut(sb,"showLiftRanks", Boolean.toString(isShowLiftRanks()));
+		mapPut(sb, "showTotalRank", Boolean.toString(isShowTotalRank()));
+		mapPut(sb, "showSinclair", Boolean.toString(isShowSinclair()));
+		mapPut(sb, "showSinclairRank", Boolean.toString(isShowSinclairRank()));
+		
 		if (this.groupAthletes != null) {
 			mapPut(sb, "groupAthletes", this.groupAthletes.toJson());
 		}
@@ -1231,8 +1215,12 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		return this.fop;
 	}
 
-	private String getNoLiftRanks() {
-		return this.noLiftRanks;
+	private Map<String, String> getLastDecisionMap() {
+		return this.lastDecisionMap;
+	}
+
+	private Map<String, String> getLastTimerMap() {
+		return this.lastTimerMap;
 	}
 
 	private String groupResults(Group g) {
@@ -1275,21 +1263,20 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		sendPost(timerUrl, getLastTimerMap());
 	}
 
-	Thread keepaliveThread;
-
 	/**
 	 * push updates every n seconds in case publicresults is restarted. The individual instances on the receiver side
 	 * can debounce.
 	 */
 	private void pushUpdate() {
+		//FIXME: remove for production
 		if (NO_KEEPALIVE) {
 			pushUpdateDoIt();
 			return;
 		}
-		if (keepaliveThread != null) {
-			keepaliveThread.interrupt();
+		if (this.keepaliveThread != null) {
+			this.keepaliveThread.interrupt();
 		}
-		keepaliveThread = new Thread(() -> {
+		this.keepaliveThread = new Thread(() -> {
 			while (!Thread.currentThread().isInterrupted()) {
 				try {
 					pushUpdateDoIt();
@@ -1300,7 +1287,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				}
 			}
 		});
-		keepaliveThread.start();
+		this.keepaliveThread.start();
 	}
 
 	private void pushUpdateDoIt() {
@@ -1312,9 +1299,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		if (updateUrl == null && videoUrl == null) {
 			return;
 		}
-		lastUpdate = createUpdate();
-		sendPost(videoUrl, lastUpdate);
-		sendPost(updateUrl, lastUpdate);
+		this.lastUpdate = createUpdate();
+		sendPost(videoUrl, this.lastUpdate);
+		sendPost(updateUrl, this.lastUpdate);
 	}
 
 	private void sendConfig(String updateKey) {
@@ -1409,6 +1396,14 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		this.groupInfo = computeSecondLine;
 	}
 
+	private void setLastDecisionMap(Map<String, String> lastDecisionMap) {
+		this.lastDecisionMap = lastDecisionMap;
+	}
+
+	private void setLastTimerMap(Map<String, String> lastTimerMap) {
+		this.lastTimerMap = lastTimerMap;
+	}
+
 	private void setLeaders(JsonValue athletesJson) {
 		this.leaders = athletesJson;
 	}
@@ -1417,12 +1412,29 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		this.liftingOrderAthletes = athletesJson;
 	}
 
-	private void setNoLiftRanks(String string) {
-		this.noLiftRanks = string;
+	private void setMode(Map<String, String> sb) {
+		String boardMode2 = getBoardMode();
+		mapPut(sb, "mode", boardMode2);
 	}
 
 	private void setRecords(JsonValue recordsJson) {
 		this.records = recordsJson;
+	}
+
+	private void setShowLiftRanks(boolean b) {
+		this.showLiftRanks = b;
+	}
+
+	private void setShowSinclair(boolean b) {
+		this.showSinclair = b;
+	}
+
+	private void setShowSinclairRank(boolean b) {
+		this.showSinclairRank = b;
+	}
+
+	private void setShowTotalRank(boolean b) {
+		this.showTotalRank = b;
 	}
 
 	private void setTimeAllowed(Integer timeAllowed) {
@@ -1442,20 +1454,44 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		        null, e.getOrigin(), LoggerUtils.whereFrom());
 	}
 
-	private Map<String, String> getLastTimerMap() {
-		return lastTimerMap;
+	private void updateGroupInfo(String pLiftType) {
+		Group lCurGroup = this.fop.getGroup();
+		int lNbLiftsDone = AthleteSorter.countLiftsDone(this.fop.getDisplayOrder());
+
+		String lGroupDescription = lCurGroup != null ? lCurGroup.getDescription() : null;
+		String lGroupName = "";
+		String lLiftsDone = "";
+		if (lCurGroup != null && lCurGroup.isDone()) {
+			lGroupName = lGroupDescription != null ? lGroupDescription : "\u00a0";
+			lLiftsDone = "";
+		} else if (lCurGroup != null && pLiftType != null) {
+			String name = lGroupDescription != null ? lGroupDescription : lCurGroup.getName();
+			String value = lGroupDescription == null ? Translator.translate("Scoreboard.GroupLiftType", name, pLiftType)
+			        : Translator.translate("Scoreboard.DescriptionLiftTypeFormat", lGroupDescription, pLiftType);
+			lGroupName = value;
+			lLiftsDone = Translator.translate("Scoreboard.AttemptsDone", lNbLiftsDone);
+		} else {
+			lGroupName = "";
+		}
+		setGroupName(lGroupName);
+		setGroupInfo(lGroupDescription);
+		setLiftsDone(lLiftsDone);
 	}
 
-	private void setLastTimerMap(Map<String, String> lastTimerMap) {
-		this.lastTimerMap = lastTimerMap;
+	public boolean isShowLiftRanks() {
+		return showLiftRanks;
 	}
 
-	private Map<String, String> getLastDecisionMap() {
-		return lastDecisionMap;
+	public boolean isShowSinclair() {
+		return showSinclair;
 	}
 
-	private void setLastDecisionMap(Map<String, String> lastDecisionMap) {
-		this.lastDecisionMap = lastDecisionMap;
+	public boolean isShowSinclairRank() {
+		return showSinclairRank;
+	}
+
+	public boolean isShowTotalRank() {
+		return showTotalRank;
 	}
 
 }
