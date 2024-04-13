@@ -30,7 +30,6 @@ public class UpdateEvent {
     private String leaders;
     private String liftingOrderAthletes;
     private String liftsDone;
-    private String noLiftRanks;
     private String recordKind;
     private String recordMessage;
     private String records;
@@ -49,37 +48,48 @@ public class UpdateEvent {
     private String groupInfo;
     private int hashCode;
     private Logger logger = (Logger) LoggerFactory.getLogger(UpdateEvent.class);
+    private boolean showLiftRanks;
+    private boolean showTotalRank;
+    private boolean showSinclairRank;
+    private boolean showSinclair;
 
     public UpdateEvent() {
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if ((obj == null) || (getClass() != obj.getClass())) {
             return false;
-        if (getClass() != obj.getClass())
-            return false;
+        }
         UpdateEvent other = (UpdateEvent) obj;
-        return Objects.equals(athletes, other.athletes) && Objects.equals(attempt, other.attempt)
-                && Objects.equals(breakRemaining, other.breakRemaining) && breakType == other.breakType
-                && Objects.equals(categoryName, other.categoryName) && ceremonyType == other.ceremonyType
-                && Objects.equals(competitionName, other.competitionName) && done == other.done
-                && Objects.equals(fopName, other.fopName) && Objects.equals(fopState, other.fopState)
-                && Objects.equals(fullName, other.fullName) && Objects.equals(groupDescription, other.groupDescription)
-                && Objects.equals(groupInfo, other.groupInfo) && Objects.equals(groupName, other.groupName)
-                && hashCode == other.hashCode && hidden == other.hidden && indefinite == other.indefinite
-                && Objects.equals(isBreak, other.isBreak) && Objects.equals(leaders, other.leaders)
-                && Objects.equals(liftingOrderAthletes, other.liftingOrderAthletes)
-                && Objects.equals(liftsDone, other.liftsDone) && Objects.equals(mode, other.mode)
-                && Objects.equals(noLiftRanks, other.noLiftRanks) && Objects.equals(recordKind, other.recordKind)
-                && Objects.equals(recordMessage, other.recordMessage) && Objects.equals(records, other.records)
-                && sinclairMeet == other.sinclairMeet && Objects.equals(startNumber, other.startNumber)
-                && Objects.equals(stylesDir, other.stylesDir) && Objects.equals(teamName, other.teamName)
-                && Objects.equals(timeAllowed, other.timeAllowed)
-                && Objects.equals(translationMap, other.translationMap) && Objects.equals(weight, other.weight)
-                && wideTeamNames == other.wideTeamNames;
+        return Objects.equals(this.athletes, other.athletes) && Objects.equals(this.attempt, other.attempt)
+                && Objects.equals(this.breakRemaining, other.breakRemaining) && this.breakType == other.breakType
+                && Objects.equals(this.categoryName, other.categoryName) && this.ceremonyType == other.ceremonyType
+                && Objects.equals(this.competitionName, other.competitionName) && this.done == other.done
+                && Objects.equals(this.fopName, other.fopName) && Objects.equals(this.fopState, other.fopState)
+                && Objects.equals(this.fullName, other.fullName)
+                && Objects.equals(this.groupDescription, other.groupDescription)
+                && Objects.equals(this.groupInfo, other.groupInfo) && Objects.equals(this.groupName, other.groupName)
+                && this.hashCode == other.hashCode && this.hidden == other.hidden && this.indefinite == other.indefinite
+                && Objects.equals(this.isBreak, other.isBreak) && Objects.equals(this.leaders, other.leaders)
+                && Objects.equals(this.liftingOrderAthletes, other.liftingOrderAthletes)
+                && Objects.equals(this.liftsDone, other.liftsDone) && Objects.equals(this.mode, other.mode)
+                && Objects.equals(this.recordKind, other.recordKind)
+                && Objects.equals(this.recordMessage, other.recordMessage)
+                && Objects.equals(this.records, other.records)
+                && Objects.equals(this.showLiftRanks, other.showLiftRanks)
+                && Objects.equals(this.showSinclair, other.showSinclair)
+                && Objects.equals(this.showSinclairRank, other.showSinclairRank)
+                && Objects.equals(this.showTotalRank, other.showTotalRank) && this.sinclairMeet == other.sinclairMeet
+                && Objects.equals(this.startNumber, other.startNumber)
+                && Objects.equals(this.stylesDir, other.stylesDir)
+                && Objects.equals(this.teamName, other.teamName) && Objects.equals(this.timeAllowed, other.timeAllowed)
+                && Objects.equals(this.translationMap, other.translationMap)
+                && Objects.equals(this.weight, other.weight)
+                && this.wideTeamNames == other.wideTeamNames;
     }
 
     public String getAthletes() {
@@ -134,6 +144,10 @@ public class UpdateEvent {
         return this.groupName;
     }
 
+    public int getHashCode() {
+        return this.hashCode;
+    }
+
     public boolean getHidden() {
         return this.hidden;
     }
@@ -154,12 +168,12 @@ public class UpdateEvent {
         return this.liftsDone;
     }
 
-    public String getMode() {
-        return this.mode;
+    public Logger getLogger() {
+        return this.logger;
     }
 
-    public String getNoLiftRanks() {
-        return this.noLiftRanks;
+    public String getMode() {
+        return this.mode;
     }
 
     public String getRecordKind() {
@@ -204,11 +218,15 @@ public class UpdateEvent {
 
     @Override
     public int hashCode() {
-        return Objects.hash(athletes, attempt, breakRemaining, breakType, categoryName, ceremonyType, competitionName,
-                done, fopName, fopState, fullName, groupDescription, groupInfo, groupName, hashCode, hidden, indefinite,
-                isBreak, leaders, liftingOrderAthletes, liftsDone, mode, noLiftRanks, recordKind, recordMessage,
-                records, sinclairMeet, startNumber, stylesDir, teamName, timeAllowed, translationMap, weight,
-                wideTeamNames);
+        return Objects.hash(this.athletes, this.attempt, this.breakRemaining, this.breakType, this.categoryName,
+                this.ceremonyType, this.competitionName,
+                this.done, this.fopName, this.fopState, this.fullName, this.groupDescription, this.groupInfo,
+                this.groupName, this.hashCode, this.hidden, this.indefinite,
+                this.isBreak, this.leaders, this.liftingOrderAthletes, this.liftsDone, this.mode, this.recordKind,
+                this.recordMessage, this.records,
+                this.showLiftRanks, this.showSinclair, this.showSinclairRank, this.showTotalRank, this.sinclairMeet,
+                this.startNumber, this.stylesDir,
+                this.teamName, this.timeAllowed, this.translationMap, this.weight, this.wideTeamNames);
     }
 
     public Boolean isBreak() {
@@ -287,6 +305,10 @@ public class UpdateEvent {
         this.groupName = groupName;
     }
 
+    public void setHashCode(int hashCode) {
+        this.hashCode = hashCode;
+    }
+
     public void setHidden(boolean hidden) {
         this.hidden = hidden;
     }
@@ -311,12 +333,12 @@ public class UpdateEvent {
         this.liftsDone = liftsDone;
     }
 
-    public void setMode(String mode) {
-        this.mode = mode;
+    public void setLogger(Logger logger) {
+        this.logger = logger;
     }
 
-    public void setNoLiftRanks(String parameter) {
-        this.noLiftRanks = parameter;
+    public void setMode(String mode) {
+        this.mode = mode;
     }
 
     public void setRecordKind(String kind) {
@@ -329,6 +351,22 @@ public class UpdateEvent {
 
     public void setRecords(String records) {
         this.records = records;
+    }
+
+    public void setShowLiftRanks(boolean b) {
+        this.showLiftRanks = b;
+    }
+
+    public void setShowSinclair(boolean showSinclair) {
+        this.showSinclair = showSinclair;
+    }
+
+    public void setShowSinclairRank(boolean showSinclairRank) {
+        this.showSinclairRank = showSinclairRank;
+    }
+
+    public void setShowTotalRank(boolean showTotalRanks) {
+        this.showTotalRank = showTotalRanks;
     }
 
     public void setSinclairMeet(boolean sinclairMeet) {
@@ -372,20 +410,20 @@ public class UpdateEvent {
                 + this.breakRemaining + "]";
     }
 
-    public int getHashCode() {
-        return hashCode;
+    public boolean isShowLiftRanks() {
+        return showLiftRanks;
     }
 
-    public void setHashCode(int hashCode) {
-        this.hashCode = hashCode;
+    public boolean isShowTotalRank() {
+        return showTotalRank;
     }
 
-    public Logger getLogger() {
-        return logger;
+    public boolean isShowSinclairRank() {
+        return showSinclairRank;
     }
 
-    public void setLogger(Logger logger) {
-        this.logger = logger;
+    public boolean isShowSinclair() {
+        return showSinclair;
     }
 
 }

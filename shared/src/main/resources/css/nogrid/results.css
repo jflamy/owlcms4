@@ -232,7 +232,8 @@ table.results tr td.club div.clubName div.ellipsis {
 }
 
 /* snatch and c&j ranks */
-:host table.results tr td.rank {
+:host table.results tr td.rank,
+:host table.results tr th.rank {
     background-color: var(--RankBackgroundColor);
     color: var(--RankTextColor);
     visibility: var(--rankVisibility);

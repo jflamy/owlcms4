@@ -41,10 +41,8 @@
     --totalRankWidth: var(--liftResultWidth);
     --totalRankVisibility: visible;
 
-    /* --bestWidth: var(--liftResultWidth);
-    --bestVisibility: visible; */
-    --bestWidth: 0;
-    --bestVisibility: hidden;
+    --bestWidth: var(--liftResultWidth);
+    --bestVisibility: visible; 
 
     /* top part: current attempt information */
     --topRowFontSize: 1.35em;

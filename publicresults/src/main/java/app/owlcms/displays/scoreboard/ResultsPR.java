@@ -435,13 +435,19 @@ public class ResultsPR extends LitTemplate
             this.getElement().setPropertyJson("t",
                     translationMap != null ? jreJsonFactory.parse(translationMap) : Json.createNull());
 
-            getElement().setProperty("noLiftRanks", e.getNoLiftRanks());
-
+            // following two are fixed in owlcms
+            getElement().setProperty("showTotal", true);
+            getElement().setProperty("showBest", true);
+            
+            getElement().setProperty("showLiftRanks", e.isShowLiftRanks());
+            getElement().setProperty("showTotalRank",  e.isShowTotalRank());
+            getElement().setProperty("showSinclair", e.isShowSinclair());
+            getElement().setProperty("showSinclairRanks", e.isShowSinclairRank());
+            
             getElement().setProperty("competitionName", e.getCompetitionName());
             getElement().setProperty("attempt", e.getAttempt());
             getElement().setProperty("fullName", e.getFullName());
-            String groupName = e.getGroupName();
-            getElement().setProperty("groupInfo", groupName);
+            getElement().setProperty("groupInfo", e.getGroupName());
             getElement().setProperty("startNumber", e.getStartNumber());
             getElement().setProperty("teamName", e.getTeamName());
             getElement().setProperty("weight", e.getWeight() != null ? e.getWeight() : 0);
