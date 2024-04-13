@@ -6,9 +6,13 @@
 
 ##### 47.1.3
 
-- Fix: Loading an AgeGroups file in the same format as version 48 will now work
-  - Only keep the tab that defines age group (delete the tab that defined the Robi world records, it is no longer needed)
-  - Remove the gender letter from the columns H and above (only keep the numbers, for example F64 becomes 64 and M67 becomes 67)
+- Fix: Global ranks (Sinclair, SMF, Q-Points, etc.) were incorrect when shown on scoreboards
+- Fix/Enhancement: AgeGroup files
+  - Robustness enhancement for dealing with misplaced/wrong cell contents
+  - AgeGroup files now accept the simplified version 48 format
+    - Only keep the tab that defines age group (delete the tab that defined the Robi world records, it is no longer needed)
+    - Remove the gender letter from the columns H and above (only keep the numbers, for example F64 becomes 64 and M67 becomes 67)
+
 
 ##### 47.1.2
 
