@@ -47,7 +47,7 @@ public class RCompetition {
 	public static void resetActiveCategories() {
 		activeCategories.clear();
 		CategoryRepository.findActive().forEach(c -> {
-			activeCategories.put(c.getName(), c);
+			activeCategories.put(c.getSafeName(), c);
 		});
 	}
 

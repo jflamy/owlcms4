@@ -126,7 +126,7 @@ public class CategoryGridField extends CustomField<List<Category>> {
 		this.catGrid.add(title);
 		for (Category pc : presentationCategories2) {
 			HorizontalLayout hl = new HorizontalLayout();
-			NativeLabel nativeLabel = new NativeLabel(pc.getName());
+			NativeLabel nativeLabel = new NativeLabel(pc.getSafeName());
 			nativeLabel.getStyle().set("font-weight", "bold");
 			nativeLabel.setWidth(CAT_WIDTH);
 			hl.add(nativeLabel);

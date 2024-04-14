@@ -283,12 +283,8 @@ public class CategoryRepository {
 	public static void fixNullCodes(List<Category> nullCodeCategories) {
 		JPAService.runInTransaction(em -> {
 			for (Category c : nullCodeCategories) {
-				c.setCode(c.getComputedCode());
-				if (c.getName() == null) {
-					c.setName(c.getComputedName());
-				}
-				logger.info("correcting code: {} {}", c.getCode(), c.getName());
-				em.merge(c);
+				// recomputes the code and the name
+				save(c);
 			}
 			em.flush();
 			return null;
@@ -321,6 +317,7 @@ public class CategoryRepository {
 		return JPAService.runInTransaction(em -> {
 			// code must match inside info for string-based matches in db.
 			category.setCode(category.getComputedCode());
+			category.setName(category.getComputedName());
 			return em.merge(category);
 		});
 	}

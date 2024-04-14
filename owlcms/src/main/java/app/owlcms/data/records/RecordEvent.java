@@ -83,7 +83,7 @@ public class RecordEvent {
 		newRecord.setAthleteAge(a.getAge());
 		newRecord.setAthleteBW(a.getBodyWeight());
 		Category cat = a.getCategory();
-		newRecord.setCategoryString(cat != null ? cat.getName() : "");
+		newRecord.setCategoryString(cat != null ? cat.getSafeName() : "");
 		return newRecord;
 	}
 

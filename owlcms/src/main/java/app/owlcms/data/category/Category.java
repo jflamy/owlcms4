@@ -129,6 +129,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		this.setWrSr(wrSr);
 		this.setQualifyingTotal(qualifyingTotal);
 		this.setCode(getComputedCode());
+		this.setName(getComputedName());
 		// logger.debug("{} Category({},{},{}) [{}]", getComputedCode(), gender,
 		// minimumWeight, maximumWeight,
 		// LoggerUtils.whereFrom(1));
@@ -166,7 +167,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
 
 	public String dump() {
-		return "Category [code=" + this.code + ", name=" + getName() + ", minimumWeight=" + this.minimumWeight
+		return "Category [code=" + this.code + ", name=" + getSafeName() + ", minimumWeight=" + this.minimumWeight
 		        + ", maximumWeight="
 		        + this.maximumWeight + ", ageGroup=" + this.ageGroup + ", gender=" + getGender() + ", active="
 		        + this.active + ", wrSr="
@@ -281,15 +282,29 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	public String getComputedName() {
 		String agName = (this.ageGroup != null ? this.ageGroup.getName() : "");
 		String catName = getLimitString();
-		if (ageGroup.isAlreadyGendered()) {
+		if (isAlreadyGendered()) {
 			// this takes priority over DEFAULT championship
 			return agName + " " + catName;
-		} else if (ageGroup.getChampionshipType() == ChampionshipType.DEFAULT) {
+		} else if (getChampionshipType() == ChampionshipType.DEFAULT) {
 			// legacy case - just the gender and the category.
 			return getTranslatedGender() + " " + catName;
 		} else {
 			return agName + " " + catName;
 		}
+	}
+
+	@JsonIgnore
+	@Transient
+	ChampionshipType getChampionshipType() {
+		ChampionshipType championshipType = this.ageGroup != null ? ageGroup.getChampionshipType() : null;
+		return championshipType;
+	}
+
+	@JsonIgnore
+	@Transient
+	private boolean isAlreadyGendered() {
+		boolean alreadyGendered = this.ageGroup != null ? ageGroup.isAlreadyGendered() : false;
+		return alreadyGendered;
 	}
 
 	/**
@@ -353,7 +368,9 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	 *
 	 * @return the name
 	 */
-	public String getName() {
+	@JsonIgnore
+	@Transient
+	public String getSafeName() {
 		if (this.name == null || this.name.isBlank()) {
 			return getComputedName();
 		}
@@ -472,7 +489,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(getName());
+		return Objects.hash(getSafeName());
 	}
 
 	/**
@@ -486,7 +503,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
 	public String longDump() {
 		return "Category " + System.identityHashCode(this)
-		        + " [name=" + getName()
+		        + " [name=" + getSafeName()
 		        + ", active=" + this.active
 		        + ", id=" + getId()
 		        + ", minimumWeight=" + this.minimumWeight
@@ -592,7 +609,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	 * @return the string
 	 */
 	public String shortDump() {
-		return getName() + "_" + System.identityHashCode(this) + "_" + this.active + "_" + getGender() + "_"
+		return getSafeName() + "_" + System.identityHashCode(this) + "_" + this.active + "_" + getGender() + "_"
 		        + this.ageGroup;
 	}
 
@@ -604,6 +621,10 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	@Override
 	public String toString() {
 		return getComputedName();
+	}
+
+	public String getName() {
+		return name;
 	}
 
 }
