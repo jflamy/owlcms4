@@ -175,6 +175,11 @@
         margin-top: 1em;
         --tableFontSize: 2.0em !important;
     }
+    /* override the request for ranks */
+    :host table.results.ranks {
+        --rankWidth: 0 !important;
+        --rankVisibility: hidden !important;
+    }  
 }
 
 
@@ -192,6 +197,11 @@
         margin-top: 1em;
         --tableFontSize: 2.5em !important;
     }
+    /* override the request for ranks */
+    :host table.results.ranks {
+        --rankWidth: 0 !important;
+        --rankVisibility: hidden !important;
+    }  
 }
 
 @media screen and (orientation:portrait) and (min-width: 1080px) {
@@ -261,4 +271,12 @@ td.custom2 div {
     /* pre-wrap is used for multiple lines custom1 custom2 */
     /* white-space: pre-wrap; */
     text-align: center;
+}
+:host .light table.results {
+    --spacerWidth: 1vh;
+    --rowSmallSpacerHeight: 0;
+}
+:host .dark table.results {
+    --spacerWidth: 1vh;
+    --rowSmallSpacerHeight: 0;
 }
