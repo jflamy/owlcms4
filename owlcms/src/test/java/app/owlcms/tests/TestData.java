@@ -25,6 +25,8 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.category.Category;
+import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
@@ -102,9 +104,8 @@ public class TestData {
     protected static void createAthlete(EntityManager em, Random r, Athlete p, double nextDouble, int catLimit) {
         p.setBodyWeight(81 - nextDouble);
         p.setGender(Gender.M);
-//        Category categ = CategoryRepository.findByGenderAgeBW(Gender.M, 40, p.getBodyWeight()).get(0);
-//        p.addEligibleCategory(em.contains(categ) ? categ : em.merge(categ));
-//        p.setCategory(categ);
+        Category cat = CategoryRepository.findByCode("SR_M81");
+        p.setCategory(cat);
         logger.debug("athlete {} category {} participations {}", p, p.getCategory(), p.getParticipations());
     }
 
