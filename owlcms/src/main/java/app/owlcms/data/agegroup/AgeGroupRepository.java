@@ -557,6 +557,10 @@ public class AgeGroupRepository {
 		}
 
 		for (Category newC : newCats) {
+			newC.setAgeGroup(ageGroup);
+			newC.setGender(ageGroup.getGender());
+			newC.setCode(newC.getComputedCode());
+			newC.setName(newC.getComputedName());
 			em.merge(newC);
 		}
 

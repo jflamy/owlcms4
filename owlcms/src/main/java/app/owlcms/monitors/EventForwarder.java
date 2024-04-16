@@ -80,10 +80,10 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	// private static HashMap<String, EventForwarder> registeredFop = new HashMap<>();
 
 	private static final int KEEPALIVE_INTERVAL = 15000;
-	private static final boolean NO_KEEPALIVE = true;
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(EventForwarder.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	public static final Object singleThreadLock = new Object();
+	private boolean NO_KEEPALIVE = false;
 	private String attempt;
 	private String categoryName;
 	private JsonArray cattempts;
@@ -132,6 +132,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		this.setFop(emittingFop);
 		// logger.debug("|||| eventForwarder {} {} {}", System.identityHashCode(this),
 		// emittingFop.getName(),System.identityHashCode(emittingFop));
+		this.NO_KEEPALIVE = Config.getCurrent().featureSwitch("noForwarderKeepAlive");
 
 		this.postBus = getFop().getEventForwardingBus();
 		this.postBus.register(this);
@@ -334,6 +335,22 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	public boolean isDown() {
 		return this.down;
+	}
+
+	public boolean isShowLiftRanks() {
+		return this.showLiftRanks;
+	}
+
+	public boolean isShowSinclair() {
+		return this.showSinclair;
+	}
+
+	public boolean isShowSinclairRank() {
+		return this.showSinclairRank;
+	}
+
+	public boolean isShowTotalRank() {
+		return this.showTotalRank;
 	}
 
 	public void setBoardMode(String boardMode) {
@@ -776,7 +793,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			StartTime st = (StartTime) e;
 			athleteStartTimeMillis = System.currentTimeMillis();
 			athleteMillisRemaining = st.getTimeRemaining();
-		} else if (e instanceof UIEvent.StopTime) {
+		} else if (e instanceof StopTime) {
 			StopTime st = (StopTime) e;
 			athleteStartTimeMillis = null;
 			athleteMillisRemaining = st.getTimeRemaining();
@@ -794,7 +811,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			breakMillisRemaining = bst.isIndefinite() ? null : bst.getTimeRemaining();
 			indefiniteBreak = bst.isIndefinite();
 		} else if (e instanceof BreakPaused) {
-			logger.trace("????? break paused {}", LoggerUtils.whereFrom());
+			logger.warn("????? break paused {}", LoggerUtils.whereFrom());
 			BreakPaused bst = (BreakPaused) e;
 			breakMillisRemaining = bst.isIndefinite() ? null : bst.getTimeRemaining();
 			indefiniteBreak = bst.isIndefinite();
@@ -802,24 +819,27 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			breakMillisRemaining = -1;
 		}
 
-		athleteMillisRemaining = athleteMillisRemaining != null ? athleteMillisRemaining : 0;
-		mapPut(sb, "athleteStartTimeMillis",
-		        athleteStartTimeMillis != null ? Long.toString(athleteStartTimeMillis) : null);
-		mapPut(sb, "athleteMillisRemaining", athleteMillisRemaining != null ? athleteMillisRemaining.toString() : null);
-
-		breakStartTimeMillis = breakStartTimeMillis != null ? breakStartTimeMillis : System.currentTimeMillis();
-		breakMillisRemaining = breakMillisRemaining != null ? breakMillisRemaining : 0;
-		mapPut(sb, "breakStartTimeMillis", Long.toString(breakStartTimeMillis));
-		mapPut(sb, "breakMillisRemaining", breakMillisRemaining != null ? breakMillisRemaining.toString() : null);
-		mapPut(sb, "break", String.valueOf(isBreak()));
-		mapPut(sb, "breakType",
-		        ((getFop().getState() == FOPState.BREAK) && (getFop().getBreakType() != null))
-		                ? getFop().getBreakType().toString()
-		                : null);
-		mapPut(sb, "indefiniteBreak", indefiniteBreak != null ? Boolean.toString(indefiniteBreak) : null);
-
-		logger.debug("timer {} {} {} end {}", sb.get("timerEventType"), sb.get("break"), sb.get("breakType"),
-		        breakStartTimeMillis + breakMillisRemaining);
+		if (e instanceof SetTime || e instanceof StartTime || e instanceof StopTime) {
+			athleteMillisRemaining = athleteMillisRemaining != null ? athleteMillisRemaining : 0;
+			mapPut(sb, "athleteStartTimeMillis",
+			        athleteStartTimeMillis != null ? Long.toString(athleteStartTimeMillis) : null);
+			mapPut(sb, "athleteMillisRemaining",
+			        athleteMillisRemaining != null ? athleteMillisRemaining.toString() : null);
+		} else {
+			breakStartTimeMillis = breakStartTimeMillis != null ? breakStartTimeMillis : System.currentTimeMillis();
+			breakMillisRemaining = breakMillisRemaining != null ? breakMillisRemaining : 0;
+			mapPut(sb, "breakStartTimeMillis", Long.toString(breakStartTimeMillis));
+			mapPut(sb, "breakMillisRemaining", breakMillisRemaining != null ? breakMillisRemaining.toString() : null);
+			mapPut(sb, "break", String.valueOf(isBreak()));
+			mapPut(sb, "breakType",
+			        ((getFop().getState() == FOPState.BREAK) && (getFop().getBreakType() != null))
+			                ? getFop().getBreakType().toString()
+			                : null);
+			mapPut(sb, "indefiniteBreak", indefiniteBreak != null ? Boolean.toString(indefiniteBreak) : null);
+			logger.debug("breaktimer {} {} {} end {} indefinite {}", sb.get("timerEventType"), sb.get("break"),
+			        sb.get("breakType"),
+			        breakStartTimeMillis + breakMillisRemaining, sb.get("indefiniteBreak"));
+		}
 
 		return sb;
 	}
@@ -867,11 +887,11 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "liftsDone", getLiftsDone());
 
 		// bottom tables
-		mapPut(sb,"showLiftRanks", Boolean.toString(isShowLiftRanks()));
+		mapPut(sb, "showLiftRanks", Boolean.toString(isShowLiftRanks()));
 		mapPut(sb, "showTotalRank", Boolean.toString(isShowTotalRank()));
 		mapPut(sb, "showSinclair", Boolean.toString(isShowSinclair()));
 		mapPut(sb, "showSinclairRank", Boolean.toString(isShowSinclairRank()));
-		
+
 		if (this.groupAthletes != null) {
 			mapPut(sb, "groupAthletes", this.groupAthletes.toJson());
 		}
@@ -900,11 +920,14 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(), this.fop.getCeremonyType()));
 		setMode(sb);
 
-		var breakStartTimeMillis = Long.parseLong(sb.get("breakStartTimeMillis"));
-		var breakMillisRemaining = Long.parseLong(sb.get("breakMillisRemaining"));
-		logger.debug("update last timerEvent {} {} {} end {}", sb.get("timerEventType"), sb.get("break"),
-		        sb.get("breakType"), breakStartTimeMillis + breakMillisRemaining);
-
+		String s = sb.get("breakStartTimeMillis");
+		if (s != null) {
+			String s2 = sb.get("breakMillisRemaining");
+			var breakStartTimeMillis = Long.parseLong(s);
+			var breakMillisRemaining = Long.parseLong(s2);
+			logger.debug("update last timerEvent {} {} {} end {}", sb.get("timerEventType"), sb.get("break"),
+			        sb.get("breakType"), breakStartTimeMillis + breakMillisRemaining);
+		}
 		return sb;
 	}
 
@@ -1268,8 +1291,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	 * can debounce.
 	 */
 	private void pushUpdate() {
-		//FIXME: remove for production
-		if (NO_KEEPALIVE) {
+		if (this.NO_KEEPALIVE) {
 			pushUpdateDoIt();
 			return;
 		}
@@ -1476,22 +1498,6 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		setGroupName(lGroupName);
 		setGroupInfo(lGroupDescription);
 		setLiftsDone(lLiftsDone);
-	}
-
-	public boolean isShowLiftRanks() {
-		return showLiftRanks;
-	}
-
-	public boolean isShowSinclair() {
-		return showSinclair;
-	}
-
-	public boolean isShowSinclairRank() {
-		return showSinclairRank;
-	}
-
-	public boolean isShowTotalRank() {
-		return showTotalRank;
 	}
 
 }
