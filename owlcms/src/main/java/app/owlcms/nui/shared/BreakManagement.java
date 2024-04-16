@@ -873,6 +873,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		if (cType == null && bType != null) {
 			cType = mapBreakTypeToDurationValue(bType);
 			this.countdownTypeRadios.setValue(cType);
+			this.setCountdownType(cType);
 		}
 		final CountdownType curCType = cType;
 		OwlcmsSession.withFop(fop -> {

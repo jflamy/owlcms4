@@ -479,7 +479,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 				TreeSet<Athlete> medalists = medalCat.getValue();
 				if (medalists != null && !medalists.isEmpty()) {
 					String key = medalCat.getKey();
-					Category cat = CategoryRepository.findByName(key);
+					Category cat = CategoryRepository.findByCode(key); //FIXME: check that this works
 					jMC.put("categoryName", cat.getTranslatedName());
 					jMC.put("leaders", getAthletesJson(new ArrayList<>(medalists), fop));
 					if (mcX == 0) {

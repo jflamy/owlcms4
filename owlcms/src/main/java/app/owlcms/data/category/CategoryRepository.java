@@ -240,11 +240,12 @@ public class CategoryRepository {
 	 * @param string the string
 	 * @return the category
 	 */
-	public static Category findByName(String string) {
-		return JPAService.runInTransaction(em -> {
-			return doFindByName(string, em);
-		});
-	}
+//	@Deprecated
+//	public static Category findByName(String string) {
+//		return JPAService.runInTransaction(em -> {
+//			return doFindByName(string, em);
+//		});
+//	}
 
 	/**
 	 * Find filtered.
