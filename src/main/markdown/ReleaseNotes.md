@@ -7,6 +7,7 @@
 
 ##### 48.0
 
+- (beta07) publicresults/video updates: fixed issues with athlete timers and break timers updates, as well as showing the same header text as the owlcms scoreboard during breaks.
 - (beta06) publicresults now behaves the same as the announcer scoreboard wrt the showing/hiding of the ranks of individual lifts.  Individual lift ranks are shown if the option for separate medals is selected in the competition options.
 - (beta05) Fixed pre-existing issue (v47 or before) with wrong values for the positions shown on scoreboard when using global rankings like Sinclair.
 - (beta04) Fixed intermittent issues with lists using the registration sort order and re-enabled unit tests that had been wrongly thought to be false positives.
