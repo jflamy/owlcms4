@@ -159,7 +159,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	 */
 	@Override
 	public void setEnd(LocalDateTime targetTime) {
-		this.indefinite = false;
+		this.setIndefinite(false);
 		// end != null overrides duration computation
 		// logger.trace("setting end time = {} \n{}", targetTime, LoggerUtils.stackTrace());
 		this.end = targetTime;
@@ -206,7 +206,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	public void setTimeRemaining(int timeRemaining2, boolean indefinite) {
 		// logger.trace("ProxyBreakTimer setting breaktimer timeremaining={} indefinite={} from {}", timeRemaining2,
 		// indefinite, LoggerUtils.whereFrom());
-		this.indefinite = indefinite;
+		this.setIndefinite(indefinite);
 		this.timeRemaining = timeRemaining2;
 	}
 
@@ -228,7 +228,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 		UIEvent.BreakStarted event = new UIEvent.BreakStarted(
 		        millisRemaining, getOrigin(), false,
 		        breakType,
-		        getFop().getCountdownType(), LoggerUtils.stackTrace(), this.indefinite);
+		        getFop().getCountdownType(), LoggerUtils.stackTrace(), this.isIndefinite());
 		// logger.debug("posting {}", event);
 		getFop().pushOutUIEvent(event);
 		setRunning(true);
@@ -312,5 +312,10 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 
 	private void setRunning(boolean running) {
 		this.running = running;
+	}
+
+	private void setIndefinite(boolean indefinite) {
+		logger.warn("setIndefinite {} {}",indefinite, LoggerUtils.whereFrom());
+		this.indefinite = indefinite;
 	}
 }

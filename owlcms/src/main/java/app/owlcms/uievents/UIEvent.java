@@ -9,6 +9,7 @@ package app.owlcms.uievents;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,7 @@ import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -60,6 +62,9 @@ public class UIEvent {
 		public BreakDone(Object origin, BreakType breakType) {
 			super(origin);
 			this.setBreakType(breakType);
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 		public BreakType getBreakType() {
@@ -91,6 +96,9 @@ public class UIEvent {
 			this.breakType = bt;
 			this.countdownType = ct;
 			this.setDisplayToggle(displayToggle);
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 		public BreakType getBreakType() {
@@ -166,8 +174,9 @@ public class UIEvent {
 			this.breakType = bt;
 			this.countdownType = ct;
 			this.trace = trace;
-			// logger.trace("BreakSetTime setting to {} from {}", getTimeRemaining(),
-			// trace);
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 		public BreakType getBreakType() {
@@ -213,7 +222,10 @@ public class UIEvent {
 			this.countdownType = ct;
 			this.setDisplayToggle(displayToggle);
 			this.setPaused(paused);
-			this.setTrace(trace);
+			this.trace = trace;
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 		public BreakType getBreakType() {
@@ -280,6 +292,9 @@ public class UIEvent {
 		public Broadcast(String string, Object origin) {
 			super(origin);
 			this.setMessage(string);
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 		public String getMessage() {
@@ -308,6 +323,9 @@ public class UIEvent {
 		public CeremonyDone(CeremonyType ceremonyType, Object origin) {
 			super(origin);
 			this.setCeremonyType(ceremonyType);
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 		public CeremonyType getCeremonyType() {
@@ -335,7 +353,10 @@ public class UIEvent {
 			this.setCeremonyType(ceremonyType);
 			this.setCeremonyGroup(ceremonyGroup);
 			this.setCeremonyCategory(ceremonyCategory);
-			this.setTrace(trace);
+			this.trace = trace;
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 		@Override
@@ -417,8 +438,10 @@ public class UIEvent {
 			this.ref1 = ref1;
 			this.ref2 = ref2;
 			this.ref3 = ref3;
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
-
 	}
 
 	/**
@@ -433,6 +456,9 @@ public class UIEvent {
 		 */
 		public DecisionReset(Athlete a, Object origin) {
 			super(a, origin);
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 	}
 
@@ -448,12 +474,18 @@ public class UIEvent {
 		 */
 		public DownSignal(Object origin) {
 			super(origin);
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 	}
 
 	static public class GlobalRankingUpdated extends UIEvent {
 		public GlobalRankingUpdated(Object object) {
 			super(object);
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 	}
 
@@ -470,7 +502,10 @@ public class UIEvent {
 		public GroupDone(Group group, UI ui, String stackTrace) {
 			super(ui);
 			this.setGroup(group);
-			this.setTrace(stackTrace);
+			this.trace = stackTrace;
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 		public Group getGroup() {
@@ -496,8 +531,11 @@ public class UIEvent {
 			this.setDeliberationEventType(deliberationEventType);
 			this.setReversal(reversal);
 			this.setNewRecord(newRecord != null && newRecord);
-			this.setTrace(LoggerUtils.stackTrace());
+			this.setTrace(() -> LoggerUtils.stackTrace());
 			this.requestForAnnounce = requestForAnnounce;
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 		/**
@@ -507,6 +545,9 @@ public class UIEvent {
 		 */
 		public JuryNotification(Athlete a, Object origin, String notificationString, String fopEventString) {
 			super(a, origin);
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 		/**
@@ -563,6 +604,9 @@ public class UIEvent {
 			this.collective = collective;
 			this.juryMemberDecision = juryMemberDecision;
 			this.jurySize = jurySize;
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 		public JuryUpdate(Object origin, int i, Boolean[] juryMemberDecision2, int jurySize) {
@@ -570,6 +614,9 @@ public class UIEvent {
 			this.collective = null;
 			this.juryMemberUpdated = i;
 			this.juryMemberDecision = juryMemberDecision2;
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 		/**
@@ -637,7 +684,7 @@ public class UIEvent {
 		        boolean currentDisplayAffected, boolean displayToggle, Object origin, boolean inBreak,
 		        Integer newWeight) {
 			super(athlete, origin);
-			this.setTrace(LoggerUtils.stackTrace());
+			this.setTrace(() -> LoggerUtils.stackTrace());
 			this.nextAthlete = nextAthlete;
 			this.previousAthlete = previousAthlete;
 			this.changingAthlete = changingAthlete;
@@ -648,6 +695,9 @@ public class UIEvent {
 			this.setDisplayToggle(displayToggle);
 			this.setInBreak(inBreak);
 			this.setNewWeight(newWeight);
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 		public Athlete getChangingAthlete() {
@@ -753,6 +803,9 @@ public class UIEvent {
 			this.setFopEventString(e.getClass().getSimpleName());
 			this.setNotificationString(state.toString());
 			this.level = level;
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 		/**
@@ -773,6 +826,9 @@ public class UIEvent {
 			this.setLevel(level);
 			this.setInfos(infos);
 			this.setMsDuration(msDuration);
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 		public void doNotification() {
@@ -875,6 +931,9 @@ public class UIEvent {
 			this.ref1Time = long1;
 			this.ref2Time = long2;
 			this.ref3Time = long3;
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 	}
 
@@ -908,8 +967,11 @@ public class UIEvent {
 		 */
 		public SetTime(Integer timeRemaining, Object origin, String trace) {
 			super(origin);
-			this.setTrace(trace);
 			this.timeRemaining = timeRemaining;
+			this.trace = trace;
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 		/**
@@ -936,7 +998,10 @@ public class UIEvent {
 		public SnatchDone(Group group, UI ui, String stackTrace) {
 			super(ui);
 			this.setGroup(group);
-			this.setTrace(stackTrace);
+			this.trace = stackTrace;
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 		public Group getGroup() {
@@ -954,6 +1019,9 @@ public class UIEvent {
 		public StartLifting(Group group, Object object) {
 			super(object);
 			this.setGroup(group);
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 		public Group getGroup() {
@@ -988,6 +1056,9 @@ public class UIEvent {
 			this.end = this.start + timeRemaining;
 			this.timeRemaining = timeRemaining;
 			this.serverSound = serverSound;
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 		public StartTime(Integer timeRemaining, Object origin, boolean serverSound, String stackTrace) {
@@ -1041,6 +1112,9 @@ public class UIEvent {
 		public StopTime(int timeRemaining, Object origin) {
 			super(origin);
 			this.timeRemaining = timeRemaining;
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 		/**
@@ -1061,6 +1135,9 @@ public class UIEvent {
 			// ref 1..3 ; 4 is technical controller.
 			super(origin);
 			this.ref = refNum;
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 	}
@@ -1074,6 +1151,9 @@ public class UIEvent {
 			this.setGroup(group2);
 			this.setAthlete(curAthlete);
 			this.setState(state);
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 		public Group getGroup() {
@@ -1106,6 +1186,9 @@ public class UIEvent {
 		public TimeRemaining(Object origin, int timeRemaining) {
 			super(origin);
 			this.timeRemaining = timeRemaining;
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 		public int getTimeRemaining() {
@@ -1125,6 +1208,9 @@ public class UIEvent {
 			super(origin);
 			this.setGroup(g);
 			this.setCategory(c);
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 		public Category getCategory() {
@@ -1153,6 +1239,9 @@ public class UIEvent {
 			super(origin);
 			this.ref = lastRef;
 			this.on = b;
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
 		}
 
 	}
@@ -1201,8 +1290,10 @@ public class UIEvent {
 		this.origin = origin;
 	}
 
-	protected void setTrace(String stackTrace) {
-		this.trace = stackTrace;
+	protected void setTrace(Supplier<String> stackTrace) {
+		if (StartupUtils.isTraceSetting()) {
+			this.trace = stackTrace.get();
+		}
 	}
 
 }

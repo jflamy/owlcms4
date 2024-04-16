@@ -14,9 +14,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -68,6 +69,7 @@ import app.owlcms.uievents.UIEvent.StartTime;
 import app.owlcms.uievents.UIEvent.StopTime;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
+import app.owlcms.utils.StartupUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -76,8 +78,6 @@ import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
 public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
-
-	// private static HashMap<String, EventForwarder> registeredFop = new HashMap<>();
 
 	private static final int KEEPALIVE_INTERVAL = 15000;
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(EventForwarder.class);
@@ -141,14 +141,15 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 		String updateKey = Config.getCurrent().getParamUpdateKey();
 		String updateUrl = Config.getCurrent().getParamUpdateUrl();
-		if (updateUrl == null || updateKey == null || updateUrl.trim().isEmpty()
+		if (updateUrl == null || updateKey == null 
+				|| updateUrl.trim().isEmpty()
 		        || updateKey.trim().isEmpty()) {
 			logger.info("{}Pushing results to remote site not enabled.", FieldOfPlay.getLoggingName(getFop()));
 		} else {
 			logger.info("{}Pushing to remote site {}", FieldOfPlay.getLoggingName(getFop()), updateUrl);
 		}
 		if (emittingFop.getState() != null) {
-			pushUpdate();
+			pushUpdate(null);
 		}
 	}
 
@@ -414,7 +415,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		setHidden(false);
 		doBreak(e);
 		doUpdate(a, e);
-		pushUpdate();
+		pushUpdate(e);
 	}
 
 	@Subscribe
@@ -434,7 +435,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		uiLog(e);
 		setHidden(false);
 		doBreak(e);
-		pushUpdate();
+		pushUpdate(e);
 		pushTimer(e);
 	}
 
@@ -443,7 +444,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		uiLog(e);
 		setHidden(false);
 		doBreak(e);
-		pushUpdate();
+		pushUpdate(e);
 	}
 
 	@Subscribe
@@ -451,7 +452,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		uiLog(e);
 		setHidden(false);
 		doCeremony(e);
-		pushUpdate();
+		pushUpdate(e);
 	}
 
 	@Subscribe
@@ -462,7 +463,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		setDecisionLight3(e.ref3);
 		setDecisionLightsVisible(true);
 		setDown(false);
-		pushDecision(DecisionEventType.FULL_DECISION);
+		pushDecision(DecisionEventType.FULL_DECISION, e);
 	}
 
 	@Subscribe
@@ -473,7 +474,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		setDecisionLight3(null);
 		setDecisionLightsVisible(false);
 		setDown(false);
-		pushDecision(DecisionEventType.RESET);
+		pushDecision(DecisionEventType.RESET, e);
 	}
 
 	@Subscribe
@@ -481,14 +482,14 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		uiLog(e);
 		setDecisionLightsVisible(false);
 		setDown(true);
-		pushDecision(DecisionEventType.DOWN_SIGNAL);
+		pushDecision(DecisionEventType.DOWN_SIGNAL, e);
 	}
 
 	@Subscribe
 	public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
 		uiLog(e);
 		computeCurrentGroup(getFop().getGroup());
-		pushUpdate();
+		pushUpdate(e);
 	}
 
 	@Subscribe
@@ -512,7 +513,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			// done is a special kind of break.
 			// the done event can be triggered when the decision is being given
 			// we need to wait until after the decision is shown and reset.
-			doBreak(g);
+			doBreak(e, g);
 		}
 	}
 
@@ -522,7 +523,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		Athlete a = e.getAthlete();
 		computeCurrentGroup(e.getAthlete() != null ? e.getAthlete().getGroup() : null);
 		doUpdate(a, e);
-		pushUpdate();
+		pushUpdate(e);
 	}
 
 	@Subscribe
@@ -536,7 +537,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	public void slaveStartLifting(UIEvent.StartLifting e) {
 		uiLog(e);
 		setHidden(false);
-		pushUpdate();
+		pushUpdate(e);
 	}
 
 	@Subscribe
@@ -558,7 +559,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		computeCurrentGroup(e.getGroup());
 		if (e.getState() == null) {
 			setHidden(true);
-			pushUpdate();
+			pushUpdate(e);
 			return;
 		}
 		switch (e.getState()) {
@@ -577,7 +578,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				setHidden(false);
 				doUpdate(e.getAthlete(), e);
 		}
-		pushUpdate();
+		pushUpdate(e);
 	}
 
 	@Override
@@ -730,8 +731,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		                : Translator.translate("Snatch")));
 	}
 
-	private Map<String, String> createDecision(DecisionEventType det) {
-		Map<String, String> sb = new HashMap<>();
+	private Map<String, String> createDecision(UIEvent event, DecisionEventType det) {
+		Map<String, String> sb = new LinkedHashMap<>();
 		mapPut(sb, "decisionEventType", det.toString());
 		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
 		setMode(sb);
@@ -751,7 +752,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "down", Boolean.toString(isDown()));
 
 		createRecord(sb);
-
+		dumpMap("createDecision", event.getTrace(), sb);
 		return sb;
 	}
 
@@ -771,8 +772,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		}
 	}
 
-	private Map<String, String> createTimer(UIEvent e) {
-		Map<String, String> sb = new HashMap<>();
+	private synchronized Map<String, String> createTimer(UIEvent e) {
+		Map<String, String> sb = new LinkedHashMap<>();
 		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
 		mapPut(sb, "fopName", getFop().getName());
 
@@ -819,36 +820,44 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			breakMillisRemaining = -1;
 		}
 
-		if (e instanceof SetTime || e instanceof StartTime || e instanceof StopTime) {
+		if (e instanceof StartTime) {
 			athleteMillisRemaining = athleteMillisRemaining != null ? athleteMillisRemaining : 0;
 			mapPut(sb, "athleteStartTimeMillis",
 			        athleteStartTimeMillis != null ? Long.toString(athleteStartTimeMillis) : null);
 			mapPut(sb, "athleteMillisRemaining",
 			        athleteMillisRemaining != null ? athleteMillisRemaining.toString() : null);
 		} else {
-			breakStartTimeMillis = breakStartTimeMillis != null ? breakStartTimeMillis : System.currentTimeMillis();
-			breakMillisRemaining = breakMillisRemaining != null ? breakMillisRemaining : 0;
-			mapPut(sb, "breakStartTimeMillis", Long.toString(breakStartTimeMillis));
-			mapPut(sb, "breakMillisRemaining", breakMillisRemaining != null ? breakMillisRemaining.toString() : null);
 			mapPut(sb, "break", String.valueOf(isBreak()));
 			mapPut(sb, "breakType",
 			        ((getFop().getState() == FOPState.BREAK) && (getFop().getBreakType() != null))
 			                ? getFop().getBreakType().toString()
 			                : null);
-			mapPut(sb, "indefiniteBreak", indefiniteBreak != null ? Boolean.toString(indefiniteBreak) : null);
-			logger.debug("breaktimer {} {} {} end {} indefinite {}", sb.get("timerEventType"), sb.get("break"),
-			        sb.get("breakType"),
-			        breakStartTimeMillis + breakMillisRemaining, sb.get("indefiniteBreak"));
+			if (e instanceof BreakStarted || e instanceof BreakSetTime) {
+				mapPut(sb, "indefiniteBreak", indefiniteBreak != null ? Boolean.toString(indefiniteBreak) : null);
+			}
+			if (e instanceof BreakStarted) {
+				breakStartTimeMillis = breakStartTimeMillis != null ? breakStartTimeMillis : System.currentTimeMillis();
+				breakMillisRemaining = breakMillisRemaining != null ? breakMillisRemaining : 0;
+				mapPut(sb, "breakStartTimeMillis", Long.toString(breakStartTimeMillis));
+				mapPut(sb, "breakMillisRemaining",
+				        breakMillisRemaining != null ? breakMillisRemaining.toString() : null);
+				logger.warn("breaktimer {} {} {} end {} indefinite {}", sb.get("timerEventType"), sb.get("break"),
+				        sb.get("breakType"),
+				        breakStartTimeMillis + breakMillisRemaining, sb.get("indefiniteBreak"));
+			}
 		}
-
+		dumpMap("createTimer", e.getTrace(), sb);
 		return sb;
 	}
 
-	private Map<String, String> createUpdate() {
-		Map<String, String> sb = new HashMap<>();
+	private synchronized Map<String, String> createUpdate(UIEvent event) {
+		Map<String, String> sb = new LinkedHashMap<>();
+		//TODO: process in updatereceiver
+		mapPut(sb, "uiEvent", event.getClass().getSimpleName());
 		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
 		String paramStylesDir = Config.getCurrent().getParamStylesDir();
 		mapPut(sb, "stylesDir", paramStylesDir);
+		
 
 		if (this.translatorResetTimeStamp != Translator.getResetTimeStamp()) {
 			// translation map has been updated (reload or language change)
@@ -920,20 +929,23 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(), this.fop.getCeremonyType()));
 		setMode(sb);
 
-		String s = sb.get("breakStartTimeMillis");
-		if (s != null) {
-			String s2 = sb.get("breakMillisRemaining");
-			var breakStartTimeMillis = Long.parseLong(s);
-			var breakMillisRemaining = Long.parseLong(s2);
-			logger.debug("update last timerEvent {} {} {} end {}", sb.get("timerEventType"), sb.get("break"),
-			        sb.get("breakType"), breakStartTimeMillis + breakMillisRemaining);
-		}
+		dumpMap("createUpdate", event.getTrace(), sb);
+
 		return sb;
 	}
 
-	private void doBreak(Group g) {
+	private void dumpMap(String string, String string2, Map<String, String> map) {
+		if (StartupUtils.isDebugSetting()) {
+			logger.warn("=== {}\n{}", string, string2);
+			for (Entry<String, String> m : map.entrySet()) {
+				logger.warn("    {} = {}", m.getKey(), m.getValue());
+			}
+		}
+	}
+
+	private void doBreak(UIEvent e, Group g) {
 		OwlcmsSession.withFop(fop -> {
-			createUpdate();
+			createUpdate(e);
 			if (fop.getState() != FOPState.BREAK) {
 				logger.debug("### done not break");
 			} else {
@@ -944,10 +956,10 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				setHidden(false);
 			}
 		});
-		pushUpdate();
+		pushUpdate(e);
 	}
 
-	private void doDone(Group g) {
+	private void doDone(UIEvent e, Group g) {
 		logger.debug("forwarding doDone {}", g == null ? null : g.getName());
 		computeCurrentGroup(g);
 		if (g == null) {
@@ -958,7 +970,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			setGroupInfo("");
 			setLiftsDone("");
 		}
-		pushUpdate();
+		pushUpdate(e);
 	}
 
 	private void doPost(String url, Map<String, String> parameters) {
@@ -1046,7 +1058,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			if (!leaveTopAlone) {
 				logger.trace("ef doUpdate doDone");
 				Group g = (a != null ? a.getGroup() : null);
-				doDone(g);
+				doDone(e, g);
 			}
 		}
 	}
@@ -1261,38 +1273,42 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		wr.put(key, value);
 	}
 
-	private void pushDecision(DecisionEventType det) {
+	private void pushDecision(DecisionEventType det, UIEvent e) {
 		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(), this.fop.getCeremonyType()));
 		String decisionUrl = Config.getCurrent().getParamDecisionUrl();
 		String videoUrl = Config.getCurrent().getParamVideoDataDecisionUrl();
+		
+		setLastDecisionMap(createDecision(e, det));
 		if (decisionUrl == null && videoUrl == null) {
 			return;
 		}
-		logger.trace("pushing {}", det);
-		setLastDecisionMap(createDecision(det));
+
 		sendPost(videoUrl, getLastDecisionMap());
 		sendPost(decisionUrl, getLastDecisionMap());
 	}
 
-	private void pushTimer(UIEvent e) {
+	private synchronized void pushTimer(UIEvent e) {
 		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(), this.fop.getCeremonyType()));
 		String timerUrl = Config.getCurrent().getParamTimerUrl();
 		String videoUrl = Config.getCurrent().getParamVideoDataTimerUrl();
+		
+		setLastTimerMap(createTimer(e));
 		if (timerUrl == null && videoUrl == null) {
 			return;
 		}
-		setLastTimerMap(createTimer(e));
+
 		sendPost(videoUrl, getLastTimerMap());
 		sendPost(timerUrl, getLastTimerMap());
 	}
 
 	/**
-	 * push updates every n seconds in case publicresults is restarted. The individual instances on the receiver side
-	 * can debounce.
+	 * push updates every n seconds in case publicresults is restarted. The individual instances for each viewer need to
+	 * debounce because they will get duplicate events.
+	 * @param event TODO
 	 */
-	private void pushUpdate() {
+	private synchronized void pushUpdate(UIEvent e2) {
 		if (this.NO_KEEPALIVE) {
-			pushUpdateDoIt();
+			pushUpdateDoIt(e2);
 			return;
 		}
 		if (this.keepaliveThread != null) {
@@ -1301,7 +1317,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		this.keepaliveThread = new Thread(() -> {
 			while (!Thread.currentThread().isInterrupted()) {
 				try {
-					pushUpdateDoIt();
+					pushUpdateDoIt(e2);
 					Thread.sleep(KEEPALIVE_INTERVAL);
 				} catch (InterruptedException e) {
 					logger.debug("thread {} interrupted", Thread.currentThread().getId());
@@ -1312,16 +1328,17 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		this.keepaliveThread.start();
 	}
 
-	private void pushUpdateDoIt() {
+	private void pushUpdateDoIt(UIEvent e2) {
 		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(),
 		        this.fop.getCeremonyType()));
-		logger.debug("### pushing update from {}", Thread.currentThread().getId());
+		this.lastUpdate = createUpdate(e2);
+		
 		String updateUrl = Config.getCurrent().getParamUpdateUrl();
 		String videoUrl = Config.getCurrent().getParamVideoDataUpdateUrl();
 		if (updateUrl == null && videoUrl == null) {
 			return;
 		}
-		this.lastUpdate = createUpdate();
+
 		sendPost(videoUrl, this.lastUpdate);
 		sendPost(updateUrl, this.lastUpdate);
 	}
