@@ -1557,21 +1557,21 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		int lNbLiftsDone = AthleteSorter.countLiftsDone(this.fop.getDisplayOrder());
 
 		String lGroupDescription = lCurGroup != null ? lCurGroup.getDescription() : null;
-		String lGroupName = "";
+		//String lGroupName = "";
 		String lLiftsDone = "";
 		if (lCurGroup != null && lCurGroup.isDone()) {
-			lGroupName = lGroupDescription != null ? lGroupDescription : "\u00a0";
+			//lGroupName = lGroupDescription != null ? lGroupDescription : "\u00a0";
 			lLiftsDone = "";
 		} else if (lCurGroup != null && pLiftType != null) {
 			String name = lGroupDescription != null ? lGroupDescription : lCurGroup.getName();
 			String value = lGroupDescription == null ? Translator.translate("Scoreboard.GroupLiftType", name, pLiftType)
 			        : Translator.translate("Scoreboard.DescriptionLiftTypeFormat", lGroupDescription, pLiftType);
-			lGroupName = value;
+			lGroupDescription = value;
 			lLiftsDone = Translator.translate("Scoreboard.AttemptsDone", lNbLiftsDone);
 		} else {
-			lGroupName = "";
+			//lGroupName = "";
 		}
-		setGroupName(lGroupName);
+		setGroupName(lCurGroup != null ? lCurGroup.getName() : "");
 		setGroupInfo(lGroupDescription);
 		setLiftsDone(lLiftsDone);
 	}
