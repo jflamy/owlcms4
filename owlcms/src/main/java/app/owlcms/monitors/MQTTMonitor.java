@@ -676,6 +676,9 @@ public class MQTTMonitor extends Thread implements IUnregister {
 	}
 
 	private void publishMqttLiftingOrderUpdated() throws MqttPersistenceException, MqttException {
+		if (getFop() == null) {
+			return;
+		}
 		String topic = "owlcms/fop/liftingOrderUpdated/" + this.getFop().getName();
 		this.client.publish(topic, new MqttMessage());
 	}

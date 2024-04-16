@@ -34,6 +34,10 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet("/update")
 public class UpdateReceiverServlet extends HttpServlet {
+    //TODO: process uievent in updatereceiver
+    //TODO: breakTimerEventType
+    //TODO: athleteTimerEventType
+    //TODO: remove timerEventType
 
     private static String defaultFopName;
     static EventBus eventBus = new AsyncEventBus(UpdateReceiverServlet.class.getSimpleName(),
@@ -160,12 +164,12 @@ public class UpdateReceiverServlet extends HttpServlet {
 
             updateEvent.setTranslationMap(req.getParameter("translationMap"));
 
-            String breakTypeString = req.getParameter("breakType");
             String mode = req.getParameter("mode");
             updateEvent.setMode(mode);
             
             TimerReceiverServlet.processTimerReq(req, null);
 
+            String breakTypeString = req.getParameter("breakType");
             updateEvent.setBreak("true".equalsIgnoreCase(req.getParameter("break")));
             if (breakTypeString == BreakType.GROUP_DONE.name()) {
                 updateEvent.setRecords(null);
@@ -173,7 +177,8 @@ public class UpdateReceiverServlet extends HttpServlet {
                 updateEvent.setRecordMessage("");
                 updateEvent.setDone(true);
             }
-
+            updateEvent.setCeremonyType(req.getParameter("ceremonyType"));
+            updateEvent.setBreakType(req.getParameter("breakType"));
             
             String sinclairMeetString = req.getParameter("sinclairMeet");
             updateEvent.setSinclairMeet(Boolean.parseBoolean(sinclairMeetString));

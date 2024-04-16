@@ -76,7 +76,8 @@ public class TimerReceiverServlet extends HttpServlet {
 
             String updateKey = req.getParameter("updateKey");
             if (updateKey == null || !updateKey.equals(this.secret)) {
-                TimerReceiverServlet.logger.error("denying access from {} expected {} got {} ", req.getRemoteHost(), this.secret,
+                TimerReceiverServlet.logger.error("denying access from {} expected {} got {} ", req.getRemoteHost(),
+                        this.secret,
                         updateKey);
                 resp.sendError(401, "Denied, wrong credentials");
                 return;
@@ -96,7 +97,8 @@ public class TimerReceiverServlet extends HttpServlet {
         TimerEvent timerEvent = null;
         BreakTimerEvent breakTimerEvent = null;
 
-        String eventTypeString = req.getParameter("timerEventType");
+        String athleteTimerEventTypeString = req.getParameter("athleteTimerEventType");
+        String breakTimerEventTypeString = req.getParameter("breakTimerEventType");
         String fopName = req.getParameter("fopName");
 
         int athleteMillis = computeAthleteTargetDuration(req);
@@ -107,28 +109,38 @@ public class TimerReceiverServlet extends HttpServlet {
         String silentString = req.getParameter("silent");
         boolean silent = silentString != null ? Boolean.valueOf(silentString) : false;
 
-        if (eventTypeString.equals("SetTime")) {
-            timerEvent = new TimerEvent.SetTime(athleteMillis);
-        } else if (eventTypeString.equals("StopTime")) {
-            timerEvent = new TimerEvent.StopTime(athleteMillis);
-        } else if (eventTypeString.equals("StartTime")) {
-            timerEvent = new TimerEvent.StartTime(athleteMillis, silent);
-        } else if (eventTypeString.equals("BreakPaused")) {
-            breakTimerEvent = new BreakTimerEvent.BreakPaused(breakMillis);
-        } else if (eventTypeString.equals("BreakStarted")) {
-            breakTimerEvent = new BreakTimerEvent.BreakStart(breakMillis, indefinite);
-        } else if (eventTypeString.equals("BreakDone")) {
-            breakTimerEvent = new BreakTimerEvent.BreakDone(null);
-        } else if (eventTypeString.equals("BreakSetTime")) {
-            breakTimerEvent = new BreakTimerEvent.BreakSetTime(breakMillis, indefinite);
-        } else {
-            String message = MessageFormat.format("**** unknown event type {0}", eventTypeString);
-            logger.error(message);
-            if (resp != null) {
-                resp.sendError(400, message);
+        if (athleteTimerEventTypeString != null) {
+            if (athleteTimerEventTypeString.equals("SetTime")) {
+                timerEvent = new TimerEvent.SetTime(athleteMillis);
+            } else if (athleteTimerEventTypeString.equals("StopTime")) {
+                timerEvent = new TimerEvent.StopTime(athleteMillis);
+            } else if (athleteTimerEventTypeString.equals("StartTime")) {
+                timerEvent = new TimerEvent.StartTime(athleteMillis, silent);
+            } else {
+                String message = MessageFormat.format("**** unknown athlete timer event type {0}", athleteTimerEventTypeString);
+                logger.error(message);
+                if (resp != null) {
+                    resp.sendError(400, message);
+                }
             }
         }
-
+        if (breakTimerEventTypeString != null) {
+            if (breakTimerEventTypeString.equals("BreakPaused")) {
+                breakTimerEvent = new BreakTimerEvent.BreakPaused(breakMillis);
+            } else if (breakTimerEventTypeString.equals("BreakStarted")) {
+                breakTimerEvent = new BreakTimerEvent.BreakStart(breakMillis, indefinite);
+            } else if (breakTimerEventTypeString.equals("BreakDone")) {
+                breakTimerEvent = new BreakTimerEvent.BreakDone(null);
+            } else if (breakTimerEventTypeString.equals("BreakSetTime")) {
+                breakTimerEvent = new BreakTimerEvent.BreakSetTime(breakMillis, indefinite);
+            } else {
+                String message = MessageFormat.format("**** unknown break timer event type {0}", breakTimerEventTypeString);
+                logger.error(message);
+                if (resp != null) {
+                    resp.sendError(400, message);
+                }
+            }
+        }
         if (timerEvent != null) {
             timerEvent.setFopName(fopName);
             eventBus.post(timerEvent);

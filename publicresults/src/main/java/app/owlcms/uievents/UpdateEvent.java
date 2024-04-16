@@ -241,6 +241,22 @@ public class UpdateEvent {
         return this.indefinite;
     }
 
+    public boolean isShowLiftRanks() {
+        return this.showLiftRanks;
+    }
+
+    public boolean isShowSinclair() {
+        return this.showSinclair;
+    }
+
+    public boolean isShowSinclairRank() {
+        return this.showSinclairRank;
+    }
+
+    public boolean isShowTotalRank() {
+        return this.showTotalRank;
+    }
+
     public boolean isSinclairMeet() {
         return this.sinclairMeet;
     }
@@ -261,16 +277,16 @@ public class UpdateEvent {
         this.breakRemaining = milliseconds;
     }
 
-    public void setBreakType(BreakType bt) {
-        this.breakType = bt;
+    public void setBreakType(String string) {
+        this.breakType = string != null ? BreakType.valueOf(string) : null;;
     }
 
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
     }
 
-    public void setCeremonyType(CeremonyType ceremonyType) {
-        this.ceremonyType = ceremonyType;
+    public void setCeremonyType(String string) {
+        this.ceremonyType = string != null ? CeremonyType.valueOf(string) : null;
     }
 
     public void setCompetitionName(String competitionName) {
@@ -410,20 +426,12 @@ public class UpdateEvent {
                 + this.breakRemaining + "]";
     }
 
-    public boolean isShowLiftRanks() {
-        return showLiftRanks;
+    public void setBreakType(BreakType breakType) {
+        this.breakType = breakType;
     }
 
-    public boolean isShowTotalRank() {
-        return showTotalRank;
-    }
-
-    public boolean isShowSinclairRank() {
-        return showSinclairRank;
-    }
-
-    public boolean isShowSinclair() {
-        return showSinclair;
+    public void setCeremonyType(CeremonyType ceremonyType) {
+        this.ceremonyType = ceremonyType;
     }
 
 }

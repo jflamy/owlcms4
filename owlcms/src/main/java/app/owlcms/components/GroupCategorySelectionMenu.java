@@ -117,7 +117,7 @@ public class GroupCategorySelectionMenu extends MenuBar {
 				subItem.getElement().setAttribute("style", "margin: 0px; padding: 0px");
 			}
 
-			logger.warn("***medal categories {}", categories);
+			logger.debug("***medal categories {}", categories);
 			for (String c : categories) {
 	
 				Category cat = CategoryRepository.findByCode(c);

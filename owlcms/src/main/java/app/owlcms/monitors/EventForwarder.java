@@ -71,6 +71,7 @@ import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import app.owlcms.utils.URLUtils;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -127,6 +128,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private boolean showSinclair;
 	private boolean showSinclairRank;
 	private boolean showTotalRank;
+	private CeremonyType ceremonyType;
+	private BreakType breakType;
+	private FOPState fopState;
 
 	public EventForwarder(FieldOfPlay emittingFop) {
 		this.setFop(emittingFop);
@@ -141,8 +145,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 		String updateKey = Config.getCurrent().getParamUpdateKey();
 		String updateUrl = Config.getCurrent().getParamUpdateUrl();
-		if (updateUrl == null || updateKey == null 
-				|| updateUrl.trim().isEmpty()
+		if (updateUrl == null || updateKey == null
+		        || updateUrl.trim().isEmpty()
 		        || updateKey.trim().isEmpty()) {
 			logger.info("{}Pushing results to remote site not enabled.", FieldOfPlay.getLoggingName(getFop()));
 		} else {
@@ -158,7 +162,11 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	 */
 	@Override
 	public void doBreak(UIEvent e) {
+		if (!isBreak()) {
+			return;
+		}
 		BreakType breakType = this.fop.getBreakType();
+
 		Group group = this.fop.getGroup();
 		if (breakType == null) {
 			breakType = BreakType.BEFORE_INTRODUCTION;
@@ -179,6 +187,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	@Override
 	public void doCeremony(UIEvent.CeremonyStarted e) {
+		if (!isBreak()) {
+			return;
+		}
 		BreakType breakType = this.fop.getBreakType();
 		Group group = this.fop.getGroup();
 		if (breakType == null) {
@@ -202,6 +213,14 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		return this.boardMode;
 	}
 
+	public BreakType getBreakType() {
+		return this.breakType;
+	}
+
+	public CeremonyType getCeremonyType() {
+		return this.ceremonyType;
+	}
+
 	public Boolean getDecisionLight1() {
 		return this.decisionLight1;
 	}
@@ -212,6 +231,10 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	public Boolean getDecisionLight3() {
 		return this.decisionLight3;
+	}
+
+	public FOPState getFopState() {
+		return this.fopState;
 	}
 
 	public String getGroupInfo() {
@@ -413,7 +436,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		uiLog(e);
 		Athlete a = e.getAthlete();
 		setHidden(false);
-		doBreak(e);
+//		doBreak(e);
 		doUpdate(a, e);
 		pushUpdate(e);
 	}
@@ -731,17 +754,17 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		                : Translator.translate("Snatch")));
 	}
 
-	private Map<String, String> createDecision(UIEvent event, DecisionEventType det) {
+	private synchronized Map<String, String> createDecision(UIEvent event, DecisionEventType det) {
+		updateState();
 		Map<String, String> sb = new LinkedHashMap<>();
 		mapPut(sb, "decisionEventType", det.toString());
 		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
-		setMode(sb);
+		mapPut(sb, "mode", getBoardMode());
 
 		// competition state
 		mapPut(sb, "competitionName", Competition.getCurrent().getCompetitionName());
 		mapPut(sb, "fop", getFop().getName());
-		FOPState state = getFop().getState();
-		mapPut(sb, "fopState", state != null ? state.toString() : FOPState.INACTIVE.name());
+		setMapFopState(sb);
 		mapPut(sb, "break", String.valueOf(isBreak()));
 
 		// current athlete & attempt
@@ -773,6 +796,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	}
 
 	private synchronized Map<String, String> createTimer(UIEvent e) {
+		updateState();
 		Map<String, String> sb = new LinkedHashMap<>();
 		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
 		mapPut(sb, "fopName", getFop().getName());
@@ -783,22 +807,28 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		Long athleteStartTimeMillis = null;
 		Boolean indefiniteBreak = null;
 		String timerEventType = e.getClass().getSimpleName();
-		mapPut(sb, "timerEventType", timerEventType);
 		logger.debug("****** {}", timerEventType);
 
+		String breakTimerEventType = "";
+		String athleteTimerEventType = "";
 		if (e instanceof SetTime) {
 			SetTime st = (SetTime) e;
+			// relative time to be displayed. start time will send the absolute value
+			athleteTimerEventType = timerEventType;
 			athleteStartTimeMillis = null;
 			athleteMillisRemaining = st.getTimeRemaining();
 		} else if (e instanceof StartTime) {
+			athleteTimerEventType = timerEventType;
 			StartTime st = (StartTime) e;
 			athleteStartTimeMillis = System.currentTimeMillis();
 			athleteMillisRemaining = st.getTimeRemaining();
 		} else if (e instanceof StopTime) {
+			athleteTimerEventType = timerEventType;
 			StopTime st = (StopTime) e;
-			athleteStartTimeMillis = null;
+			athleteStartTimeMillis = System.currentTimeMillis();
 			athleteMillisRemaining = st.getTimeRemaining();
 		} else if (e instanceof BreakSetTime) {
+			breakTimerEventType = timerEventType;
 			BreakSetTime bst = (BreakSetTime) e;
 			indefiniteBreak = bst.isIndefinite();
 			if (bst.getEnd() != null) {
@@ -807,12 +837,13 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				breakMillisRemaining = bst.isIndefinite() ? null : bst.getTimeRemaining();
 			}
 		} else if (e instanceof BreakStarted) {
+			breakTimerEventType = timerEventType;
 			BreakStarted bst = (BreakStarted) e;
 			breakStartTimeMillis = System.currentTimeMillis();
 			breakMillisRemaining = bst.isIndefinite() ? null : bst.getTimeRemaining();
 			indefiniteBreak = bst.isIndefinite();
 		} else if (e instanceof BreakPaused) {
-			logger.warn("????? break paused {}", LoggerUtils.whereFrom());
+			breakTimerEventType = timerEventType;
 			BreakPaused bst = (BreakPaused) e;
 			breakMillisRemaining = bst.isIndefinite() ? null : bst.getTimeRemaining();
 			indefiniteBreak = bst.isIndefinite();
@@ -820,18 +851,22 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			breakMillisRemaining = -1;
 		}
 
-		if (e instanceof StartTime) {
+		if (e instanceof StartTime || e instanceof SetTime || e instanceof StopTime) {
+			mapPut(sb, "athleteTimerEventType", athleteTimerEventType);
 			athleteMillisRemaining = athleteMillisRemaining != null ? athleteMillisRemaining : 0;
 			mapPut(sb, "athleteStartTimeMillis",
 			        athleteStartTimeMillis != null ? Long.toString(athleteStartTimeMillis) : null);
 			mapPut(sb, "athleteMillisRemaining",
 			        athleteMillisRemaining != null ? athleteMillisRemaining.toString() : null);
 		} else {
+			mapPut(sb, "breakTimerEventType", breakTimerEventType);
 			mapPut(sb, "break", String.valueOf(isBreak()));
 			mapPut(sb, "breakType",
-			        ((getFop().getState() == FOPState.BREAK) && (getFop().getBreakType() != null))
+			        ((getFopState() == FOPState.BREAK) && (getFop().getBreakType() != null))
 			                ? getFop().getBreakType().toString()
 			                : null);
+			mapPut(sb, "ceremonyType",
+			        getCeremonyType() != null ? getCeremonyType().name() : null);
 			if (e instanceof BreakStarted || e instanceof BreakSetTime) {
 				mapPut(sb, "indefiniteBreak", indefiniteBreak != null ? Boolean.toString(indefiniteBreak) : null);
 			}
@@ -841,9 +876,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				mapPut(sb, "breakStartTimeMillis", Long.toString(breakStartTimeMillis));
 				mapPut(sb, "breakMillisRemaining",
 				        breakMillisRemaining != null ? breakMillisRemaining.toString() : null);
-				logger.warn("breaktimer {} {} {} end {} indefinite {}", sb.get("timerEventType"), sb.get("break"),
-				        sb.get("breakType"),
-				        breakStartTimeMillis + breakMillisRemaining, sb.get("indefiniteBreak"));
+//				logger.debug("breaktimer {} {} {} end {} indefinite {}", sb.get("timerEventType"), sb.get("break"),
+//				        sb.get("breakType"),
+//				        breakStartTimeMillis + breakMillisRemaining, sb.get("indefiniteBreak"));
 			}
 		}
 		dumpMap("createTimer", e.getTrace(), sb);
@@ -851,13 +886,22 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	}
 
 	private synchronized Map<String, String> createUpdate(UIEvent event) {
+		updateState();
 		Map<String, String> sb = new LinkedHashMap<>();
-		//TODO: process in updatereceiver
+		
+		// include timer and decision info for synchronization on restart/refresh
+		// the update will override common fields
+		if (getLastTimerMap() != null) {
+			sb.putAll(getLastTimerMap());
+		}
+		if (getLastDecisionMap() != null) {
+			sb.putAll(getLastDecisionMap());
+		}
+
 		mapPut(sb, "uiEvent", event.getClass().getSimpleName());
 		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
 		String paramStylesDir = Config.getCurrent().getParamStylesDir();
 		mapPut(sb, "stylesDir", paramStylesDir);
-		
 
 		if (this.translatorResetTimeStamp != Translator.getResetTimeStamp()) {
 			// translation map has been updated (reload or language change)
@@ -867,19 +911,21 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		// competition state
 		mapPut(sb, "competitionName", Competition.getCurrent().getCompetitionName());
 		mapPut(sb, "fop", getFop().getName());
-		FOPState state = getFop().getState();
-		mapPut(sb, "fopState", state != null ? state.toString() : FOPState.INACTIVE.name());
+		setMapFopState(sb);
+
 		String isBreak = String.valueOf(isBreak());
 		mapPut(sb, "break", isBreak);
 		BreakType breakType = getFop().getBreakType();
 		String bts = ((getFop().getState() == FOPState.BREAK) && (breakType != null))
 		        ? getFop().getBreakType().toString()
 		        : null;
-
 		mapPut(sb, "breakType", bts);
-		// logger.trace("***** break {} breakType {}", isBreak, bts);
 		IBreakTimer breakTimer = getFop().getBreakTimer();
 		mapPut(sb, "breakIsIndefinite", Boolean.toString(breakTimer != null ? breakTimer.isIndefinite() : false));
+
+		CeremonyType ceremonyType = getFop().getCeremonyType();
+		String cts = ceremonyType != null ? ceremonyType.name() : null;
+		mapPut(sb, "ceremonyType", cts);
 
 		// current athlete & attempt
 		mapPut(sb, "startNumber", this.startNumber != null ? this.startNumber.toString() : null);
@@ -918,35 +964,24 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "wideTeamNames", String.valueOf(this.wideTeamNames));
 		mapPut(sb, "sinclairMeet", Boolean.toString(Competition.getCurrent().isSinclair()));
 
-		// include timer and decision info for synchronization on restart/refresh
-		if (getLastTimerMap() != null) {
-			sb.putAll(getLastTimerMap());
-		}
-		if (getLastDecisionMap() != null) {
-			sb.putAll(getLastDecisionMap());
-		}
-
 		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(), this.fop.getCeremonyType()));
-		setMode(sb);
+		mapPut(sb, "mode", getBoardMode());
 
-		dumpMap("createUpdate", event.getTrace(), sb);
+		dumpMap("createUpdate "+ System.identityHashCode(sb), event.getTrace(), sb);
 
 		return sb;
 	}
 
-	private void dumpMap(String string, String string2, Map<String, String> map) {
-		if (StartupUtils.isDebugSetting()) {
-			logger.warn("=== {}\n{}", string, string2);
-			for (Entry<String, String> m : map.entrySet()) {
-				logger.warn("    {} = {}", m.getKey(), m.getValue());
-			}
-		}
+	private void setMapFopState(Map<String, String> sb) {
+		FOPState state = getFopState();
+		String value = state != null ? state.toString() : FOPState.INACTIVE.name();
+		mapPut(sb, "fopState", value);
 	}
 
 	private void doBreak(UIEvent e, Group g) {
 		OwlcmsSession.withFop(fop -> {
 			createUpdate(e);
-			if (fop.getState() != FOPState.BREAK) {
+			if (getFopState() != FOPState.BREAK) {
 				logger.debug("### done not break");
 			} else {
 				logger.debug("### done but break");
@@ -955,8 +990,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				setAttempt("");
 				setHidden(false);
 			}
+			pushUpdate(e);
 		});
-		pushUpdate(e);
+
 	}
 
 	private void doDone(UIEvent e, Group g) {
@@ -1059,6 +1095,24 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				logger.trace("ef doUpdate doDone");
 				Group g = (a != null ? a.getGroup() : null);
 				doDone(e, g);
+			}
+		}
+		// override top scoreboard line when we are in a break
+		doBreak(e);
+	}
+
+	private void dumpMap(String string, String string2, Map<String, String> map) {
+		if (StartupUtils.isDebugSetting()) {
+			Level level = logger.getLevel();
+			try {
+				logger.setLevel(Level.TRACE);
+				logger.trace("=== {}\n{}", string, string2);
+				for (Entry<String, String> m : map.entrySet()) {
+					logger.trace("    {} = {}", m.getKey(), m.getValue());
+				}
+			} finally {
+				// TODO Auto-generated catch block
+				logger.setLevel(level);
 			}
 		}
 	}
@@ -1273,11 +1327,10 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		wr.put(key, value);
 	}
 
-	private void pushDecision(DecisionEventType det, UIEvent e) {
-		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(), this.fop.getCeremonyType()));
+	private synchronized void pushDecision(DecisionEventType det, UIEvent e) {
 		String decisionUrl = Config.getCurrent().getParamDecisionUrl();
 		String videoUrl = Config.getCurrent().getParamVideoDataDecisionUrl();
-		
+
 		setLastDecisionMap(createDecision(e, det));
 		if (decisionUrl == null && videoUrl == null) {
 			return;
@@ -1288,10 +1341,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	}
 
 	private synchronized void pushTimer(UIEvent e) {
-		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(), this.fop.getCeremonyType()));
 		String timerUrl = Config.getCurrent().getParamTimerUrl();
 		String videoUrl = Config.getCurrent().getParamVideoDataTimerUrl();
-		
+
 		setLastTimerMap(createTimer(e));
 		if (timerUrl == null && videoUrl == null) {
 			return;
@@ -1304,7 +1356,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	/**
 	 * push updates every n seconds in case publicresults is restarted. The individual instances for each viewer need to
 	 * debounce because they will get duplicate events.
-	 * @param event TODO
+	 *
 	 */
 	private synchronized void pushUpdate(UIEvent e2) {
 		if (this.NO_KEEPALIVE) {
@@ -1332,7 +1384,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(),
 		        this.fop.getCeremonyType()));
 		this.lastUpdate = createUpdate(e2);
-		
+
 		String updateUrl = Config.getCurrent().getParamUpdateUrl();
 		String videoUrl = Config.getCurrent().getParamVideoDataUpdateUrl();
 		if (updateUrl == null && videoUrl == null) {
@@ -1416,8 +1468,16 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	}
 
+	private void setBreakType(BreakType breakType) {
+		this.breakType = breakType;
+	}
+
 	private void setCategoryName(String name) {
 		this.categoryName = name;
+	}
+
+	private void setCeremonyType(CeremonyType ceremonyType) {
+		this.ceremonyType = ceremonyType;
 	}
 
 	/**
@@ -1425,6 +1485,10 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	 */
 	private void setFop(FieldOfPlay fop) {
 		this.fop = fop;
+	}
+
+	private void setFopState(FOPState state) {
+		this.fopState = state;
 	}
 
 	private void setGroupAthletes(JsonValue athletesJson) {
@@ -1449,11 +1513,6 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	private void setLiftingOrderAthletes(JsonValue athletesJson) {
 		this.liftingOrderAthletes = athletesJson;
-	}
-
-	private void setMode(Map<String, String> sb) {
-		String boardMode2 = getBoardMode();
-		mapPut(sb, "mode", boardMode2);
 	}
 
 	private void setRecords(JsonValue recordsJson) {
@@ -1515,6 +1574,16 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		setGroupName(lGroupName);
 		setGroupInfo(lGroupDescription);
 		setLiftsDone(lLiftsDone);
+	}
+
+	private synchronized void updateState() {
+		FOPState state = this.fop.getState();
+		BreakType breakType = this.fop.getBreakType();
+		CeremonyType ceremonyType = this.fop.getCeremonyType();
+		setBoardMode(computeBoardModeName(state, breakType, ceremonyType));
+		setFopState(state);
+		setBreakType(breakType);
+		setCeremonyType(ceremonyType);
 	}
 
 }

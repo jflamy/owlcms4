@@ -9,6 +9,7 @@
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
         <mapEntry key="OWLCMS_BACKDOOR" value="127.0.0.1,[0:0:0:0:0:0:0:1]"/>
+        <mapEntry key="OWLCMS_DEBUG" value="trace"/>
         <mapEntry key="OWLCMS_INITIALDATA" value="SINGLE_ATHLETE_GROUPS"/>
         <mapEntry key="OWLCMS_LOCALE" value="en_CA"/>
         <mapEntry key="OWLCMS_MEMORYMODE" value="true"/>

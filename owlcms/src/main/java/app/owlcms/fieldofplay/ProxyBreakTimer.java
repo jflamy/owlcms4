@@ -315,7 +315,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	}
 
 	private void setIndefinite(boolean indefinite) {
-		logger.warn("setIndefinite {} {}",indefinite, LoggerUtils.whereFrom());
+		logger.warn("breakTimer setIndefinite {} {}",indefinite, LoggerUtils.whereFrom());
 		this.indefinite = indefinite;
 	}
 }

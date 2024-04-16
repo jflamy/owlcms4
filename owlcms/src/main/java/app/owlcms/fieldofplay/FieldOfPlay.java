@@ -1802,11 +1802,15 @@ public class FieldOfPlay implements IUnregister {
 
 	private String getWhereFrom(String stackTrace) {
 		if (stackTrace != null) {
-			String sep = System.lineSeparator();
-			int start = stackTrace.indexOf(sep);
-			start = stackTrace.indexOf(sep, start + 1);
-			start = stackTrace.indexOf(sep, start + 1);
-			return stackTrace.substring(start + 3, stackTrace.indexOf(sep, start + 1));
+			try {
+				String sep = System.lineSeparator();
+				int start = stackTrace.indexOf(sep);
+				start = stackTrace.indexOf(sep, start + 1);
+				start = stackTrace.indexOf(sep, start + 1);
+				return stackTrace.substring(start + 3, stackTrace.indexOf(sep, start + 1));
+			} catch (Exception e) {
+				return "?";
+			}
 		} else {
 			return "?";
 		}
