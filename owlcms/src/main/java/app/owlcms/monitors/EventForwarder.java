@@ -800,6 +800,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		Map<String, String> sb = new LinkedHashMap<>();
 		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
 		mapPut(sb, "fopName", getFop().getName());
+		setMapFopState(sb);
+		mapPut(sb, "mode", getBoardMode());
+		
 
 		Integer breakMillisRemaining = null;
 		Integer athleteMillisRemaining = null;
@@ -807,7 +810,6 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		Long athleteStartTimeMillis = null;
 		Boolean indefiniteBreak = null;
 		String timerEventType = e.getClass().getSimpleName();
-		logger.debug("****** {}", timerEventType);
 
 		String breakTimerEventType = "";
 		String athleteTimerEventType = "";
