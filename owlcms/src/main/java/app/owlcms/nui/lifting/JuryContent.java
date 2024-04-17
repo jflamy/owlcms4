@@ -34,6 +34,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -48,6 +49,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.shared.AthleteGridContent;
@@ -577,7 +579,16 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		Button technicalPauseButton = new Button(
 		        new Icon(VaadinIcon.TIMER),
 		        (e) -> {
-			        openJuryDialog(JuryDeliberationEventType.TECHNICAL_PAUSE);
+			        FieldOfPlay fop = OwlcmsSession.getFop();
+			        if (fop.getState() == FOPState.BREAK) {
+				        slaveNotification(
+				                new UIEvent.Notification(null, this,
+				                        UIEvent.Notification.Level.ERROR,
+				                        "BreakButton.cannotInterruptBreak",
+				                        3000));
+			        } else {
+				        openJuryDialog(JuryDeliberationEventType.TECHNICAL_PAUSE);
+			        }
 		        });
 		technicalPauseButton.getElement().setAttribute("theme", "primary");
 		technicalPauseButton.setText(getTranslation("BreakType.TECHNICAL"));
