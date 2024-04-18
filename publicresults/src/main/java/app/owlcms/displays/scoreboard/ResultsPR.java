@@ -447,7 +447,7 @@ public class ResultsPR extends LitTemplate
             getElement().setProperty("competitionName", e.getCompetitionName());
             getElement().setProperty("attempt", e.getAttempt());
             getElement().setProperty("fullName", e.getFullName());
-            getElement().setProperty("groupInfo", e.getGroupName());
+            getElement().setProperty("groupInfo", e.getGroupInfo());
             getElement().setProperty("startNumber", e.getStartNumber());
             getElement().setProperty("teamName", e.getTeamName());
             getElement().setProperty("weight", e.getWeight() != null ? e.getWeight() : 0);
