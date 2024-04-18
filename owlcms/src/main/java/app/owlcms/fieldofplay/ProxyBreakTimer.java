@@ -204,7 +204,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	 */
 	@Override
 	public void setTimeRemaining(int timeRemaining2, boolean indefinite) {
-		logger.warn("--- ProxyBreakTimer setTimeRemaining={} indefinite={} from {}", timeRemaining2, indefinite, LoggerUtils.whereFrom());
+		//logger.debug("--- ProxyBreakTimer setTimeRemaining={} indefinite={} from {}", timeRemaining2, indefinite, LoggerUtils.whereFrom());
 		this.setIndefinite(indefinite);
 		this.timeRemaining = timeRemaining2;
 	}
@@ -314,7 +314,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	}
 
 	private void setIndefinite(boolean indefinite) {
-		logger.warn("breakTimer setIndefinite {} {}",indefinite, LoggerUtils.whereFrom());
+		//logger.debug("breakTimer setIndefinite {} {}",indefinite, LoggerUtils.whereFrom());
 		this.indefinite = indefinite;
 	}
 }

@@ -883,7 +883,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		}
 
 		final CountdownType curCType = cType;
-		logger.warn("--- interruption {} {} {}", interruption, curCType, bType);
+		logger.debug("--- interruption {} {} {}", interruption, curCType, bType);
 		OwlcmsSession.withFop(fop -> {
 			if (!interruption && curCType == CountdownType.TARGET) {
 				LocalDateTime target = getTarget();
@@ -947,7 +947,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 			}
 		}
 
-		logger.warn("countdownRadios inferred as {}", this.countdownRadios.getValue());
+		logger.debug("countdownRadios inferred as {}", this.countdownRadios.getValue());
 
 		// this.countdownRadios.setValue(this.countdowns.contains(breakType) ? breakType : null);
 		// setInterruptionRadios(this.interruptions.contains(breakType) ? breakType : null);
