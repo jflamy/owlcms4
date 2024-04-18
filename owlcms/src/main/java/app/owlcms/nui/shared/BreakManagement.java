@@ -103,10 +103,10 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 	private Long timeRemaining = null;
 	private EventBus uiEventBus;
 	private Paragraph waitText = new Paragraph(Translator.translate("Wait.Text"));
-	private Paragraph countdownActiveError = new Paragraph(
-	        Translator.translate("BreakManagement.countdownActiveError"));
-	private Paragraph interruptionActiveError = new Paragraph(
-	        Translator.translate("BreakManagement.interruptionActiveError"));
+	// private Paragraph countdownActiveError = new Paragraph(
+	// Translator.translate("BreakManagement.countdownActiveError"));
+	// private Paragraph interruptionActiveError = new Paragraph(
+	// Translator.translate("BreakManagement.interruptionActiveError"));
 	private Paragraph countdownSelectionRequired = new Paragraph(
 	        Translator.translate("BreakManagement.needCountdownSelection"));
 	private Paragraph interruptionSelectionRequired = new Paragraph(
@@ -178,7 +178,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		initFromFOP(parentDialog);
 	}
 
-	public Category getMedalCategory() {
+	private Category getMedalCategory() {
 		return this.medalCategory;
 	}
 
@@ -589,7 +589,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		this.noCountdown.getElement().setProperty("innerHTML", "&nbsp;");
 
 		cd.add(title2);
-		cd.add(this.interruptionActiveError);
+		// cd.add(this.interruptionActiveError);
 		cd.add(this.countdownSelectionRequired);
 		cd.add(this.countdownRadios);
 
@@ -616,20 +616,10 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 				        if (!e.isFromClient()) {
 					        return;
 				        }
-				        BreakType value = this.countdownRadios.getValue();
-				        if (value != null &&
-				                (value.isCountdown()
-				                        || (this.countdownTypeRadios.getValue() != CountdownType.INDEFINITE))) {
-					        // force FOP to accept our break and value as new
-					        fop.setBreakType(null);
-					        fop.setCountdownType(null);
-					        Integer tr = this.computeTimerRemainingFromFields(this.countdownTypeRadios.getValue());
-					        if (tr == null) {
-						        fop.getBreakTimer().setTimeRemaining(0, true);
-					        } else {
-						        fop.getBreakTimer().setTimeRemaining(tr, false);
-					        }
-				        }
+				        BreakType value = this.interruptionRadios.getValue();
+				        fop.setBreakType(value);
+				        fop.setCountdownType(null);
+				        fop.getBreakTimer().setTimeRemaining(0, true);
 			        });
 			        masterStartBreak(true);
 		        });
@@ -684,14 +674,16 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		Component interruptionButtons = createInterruptionButtons(this.interruptionRadios);
 		VerticalLayout cd = new VerticalLayout();
 		this.interruptionRadios.setItems(this.interruptions);
-		setInterruptionRadios(getBreakType());
+
+		BreakType bt = getBreakType();
+		setInterruptionRadios(this.interruptions.contains(bt) ? bt : BreakType.TECHNICAL);
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug("interruptionRadios {} value={}", this.interruptions, this.interruptionRadios.getValue());
 		}
 
 		Div title1 = new Div(label("InterruptionType.Title"));
 		cd.add(title1);
-		cd.add(this.countdownActiveError);
+		// cd.add(this.countdownActiveError);
 		cd.add(this.interruptionSelectionRequired);
 		cd.add(this.interruptionRadios);
 		cd.add(interruptionButtons);
@@ -752,7 +744,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 	}
 
 	private LocalDateTime getTarget() {
-		if (getCountdownType() == CountdownType.INDEFINITE) {
+		if (getCountdownType() == CountdownType.INDEFINITE || getBreakType().isInterruption()) {
 			return null;
 		}
 		final LocalDateTime target;
@@ -863,7 +855,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 
 		CountdownType cType = this.countdownTypeRadios.getValue();
 		BreakType bType;
-		
+
 		if (!interruption) {
 			bType = this.countdownRadios.getValue();
 			cType = this.countdownTypeRadios.getValue();
@@ -969,9 +961,10 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 			this.stopCompetition.setEnabled(false);
 			this.endInterruption.setEnabled(false);
 		} else {
-			this.stopCompetition
-			        .setEnabled(inactiveOrBreak && this.fop.getBreakType() != BreakType.GROUP_DONE ? false : true);
-			this.endInterruption.setEnabled(!this.stopCompetition.isEnabled());
+//			this.stopCompetition
+//			        .setEnabled(getBreakType().isInterruption() || this.fop.getBreakType() == BreakType.GROUP_DONE ? true : false);
+			this.stopCompetition.setEnabled(true);
+			this.endInterruption.setEnabled(true);
 		}
 
 	}
@@ -1059,10 +1052,10 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 
 	private void setEnablement() {
 		if (this.fop.getState() == FOPState.BREAK && this.fop.getBreakType() != BreakType.GROUP_DONE) {
-			this.countdownActiveError.getStyle().set("display",
-			        this.fop.getBreakType().isCountdown() ? "block" : "none");
-			this.countdownActiveError.getStyle().set("background-color",
-			        this.fop.getBreakType().isCountdown() ? "var(--lumo-error-color-10pct)" : "var(--lumo-base-color)");
+			// this.countdownActiveError.getStyle().set("display",
+			// this.fop.getBreakType().isCountdown() ? "block" : "none");
+			// this.countdownActiveError.getStyle().set("background-color",
+			// this.fop.getBreakType().isCountdown() ? "var(--lumo-error-color-10pct)" : "var(--lumo-base-color)");
 
 			// this.interruptionActiveError.getStyle().set("display",
 			// this.fop.getBreakType().isInterruption() ? "block" : "none");
@@ -1077,8 +1070,8 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 
 		} else {
 			// logger.debug("setEnablement not break");
-			this.countdownActiveError.getStyle().set("display", "none");
-			this.interruptionActiveError.getStyle().set("display", "none");
+			// this.countdownActiveError.getStyle().set("display", "none");
+			// this.interruptionActiveError.getStyle().set("display", "none");
 			this.interruptionRadios.setEnabled(true);
 			this.countdownRadios.setEnabled(true);
 			this.countdownTypeLayout.setEnabled(true);
