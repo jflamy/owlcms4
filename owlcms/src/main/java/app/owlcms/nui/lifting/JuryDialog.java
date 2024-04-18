@@ -36,6 +36,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.JuryDeliberationEventType;
+import app.owlcms.uievents.UIEvent;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -55,7 +56,7 @@ public class JuryDialog extends Dialog {
 		this.logger.setLevel(Level.INFO);
 	}
 
-	public JuryDialog(Object origin, Athlete athleteUnderReview, JuryDeliberationEventType deliberation,
+	public JuryDialog(JuryContent origin, Athlete athleteUnderReview, JuryDeliberationEventType deliberation,
 	        boolean summonEnabled) {
 		this.origin = origin;
 		this.deliberation = deliberation;
@@ -107,33 +108,46 @@ public class JuryDialog extends Dialog {
 
 	public void doClose(boolean noAction) {
 		UI.getCurrent().access(() -> {
-			if (Competition.getCurrent().isAnnouncerControlledJuryDecision()) {
+			if (Competition.getCurrent().isAnnouncerControlledJuryDecision()
+			        && (deliberation == JuryDeliberationEventType.START_DELIBERATION
+			                || deliberation == JuryDeliberationEventType.CHALLENGE)) {
 				if (noAction) {
-					((JuryContent) this.origin).doSync();
+					resumeLifting(noAction);
+				} else {
+					// announcer has been notified to announce, remind the jury
+					((JuryContent) origin).slaveNotification(
+					        new UIEvent.Notification(null, this,
+					                UIEvent.Notification.Level.WARNING,
+					                "Jury.AnnouncerWillAnnounce",
+					                5000));
 				}
 				this.close();
 				return;
 			}
 			// TODO: this should be done after processing the JuryEvent in FieldOfPlay
-			OwlcmsSession.withFop(fop -> {
-				fop.fopEventPost(new FOPEvent.StartLifting(this));
-			});
-			if (noAction) {
-				((JuryContent) this.origin).doSync();
-			}
-			this.close();
-
-			String message = this.deliberation == JuryDeliberationEventType.START_DELIBERATION
-			        ? "{}end of jury deliberation"
-			        : (this.deliberation == JuryDeliberationEventType.CHALLENGE
-			                ? "{}end of challenge"
-			                : "{}end jury break");
-			this.logger.info(
-			        message,
-			        FieldOfPlay.getLoggingName(OwlcmsSession.getFop()));
+			resumeLifting(noAction);
 
 			this.close();
 		});
+	}
+
+	private void resumeLifting(boolean noAction) {
+		OwlcmsSession.withFop(fop -> {
+			fop.fopEventPost(new FOPEvent.StartLifting(this));
+		});
+		if (noAction) {
+			((JuryContent) this.origin).doSync();
+		}
+		this.close();
+
+		String message = this.deliberation == JuryDeliberationEventType.START_DELIBERATION
+		        ? "{}end of jury deliberation"
+		        : (this.deliberation == JuryDeliberationEventType.CHALLENGE
+		                ? "{}end of challenge"
+		                : "{}end jury break");
+		this.logger.info(
+		        message,
+		        FieldOfPlay.getLoggingName(OwlcmsSession.getFop()));
 	}
 
 	private void addCallController() {

@@ -560,7 +560,16 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		Button juryDeliberationButton = new Button(
 		        new Icon(VaadinIcon.TIMER),
 		        (e) -> {
-			        openJuryDialog(JuryDeliberationEventType.START_DELIBERATION);
+			        FieldOfPlay fop = OwlcmsSession.getFop();
+			        if (fop.getState() == FOPState.BREAK && fop.getBreakType().isCountdown()) {
+				        slaveNotification(
+				                new UIEvent.Notification(null, this,
+				                        UIEvent.Notification.Level.ERROR,
+				                        "BreakButton.cannotInterruptBreak",
+				                        3000));
+			        } else {
+				        openJuryDialog(JuryDeliberationEventType.START_DELIBERATION);
+			        }
 		        });
 		juryDeliberationButton.getElement().setAttribute("theme", "primary");
 		juryDeliberationButton.setText(getTranslation("BreakButton.JuryDeliberation"));
@@ -568,7 +577,16 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		Button challengeButton = new Button(
 		        new Icon(VaadinIcon.TIMER),
 		        (e) -> {
-			        openJuryDialog(JuryDeliberationEventType.CHALLENGE);
+			        FieldOfPlay fop = OwlcmsSession.getFop();
+			        if (fop.getState() == FOPState.BREAK && fop.getBreakType().isCountdown()) {
+				        slaveNotification(
+				                new UIEvent.Notification(null, this,
+				                        UIEvent.Notification.Level.ERROR,
+				                        "BreakButton.cannotInterruptBreak",
+				                        3000));
+			        } else {
+				        openJuryDialog(JuryDeliberationEventType.CHALLENGE);
+			        }
 		        });
 		challengeButton.getElement().setAttribute("theme", "primary");
 		challengeButton.setText(getTranslation("BreakButton.CHALLENGE"));
@@ -579,7 +597,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		        new Icon(VaadinIcon.TIMER),
 		        (e) -> {
 			        FieldOfPlay fop = OwlcmsSession.getFop();
-			        if (fop.getState() == FOPState.BREAK) {
+			        if (fop.getState() == FOPState.BREAK && fop.getBreakType().isCountdown()) {
 				        slaveNotification(
 				                new UIEvent.Notification(null, this,
 				                        UIEvent.Notification.Level.ERROR,
@@ -728,39 +746,6 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		}
 	}
 
-	@SuppressWarnings("unused")
-	private Component summonRefereeButtons() {
-		Button one = new Button("1", (e) -> {
-			OwlcmsSession.withFop(fop -> {
-				this.summonReferee(1);
-			});
-		});
-		one.setWidth("4em");
-
-		Button two = new Button("2", (e) -> {
-			OwlcmsSession.withFop(fop -> {
-				this.summonReferee(2);
-			});
-		});
-		two.setWidth("4em");
-
-		Button three = new Button("3", (e) -> {
-			OwlcmsSession.withFop(fop -> {
-				this.summonReferee(3);
-			});
-		});
-		three.setWidth("4em");
-
-		Button all = new Button("*", (e) -> {
-			OwlcmsSession.withFop(fop -> {
-				this.summonReferee(0);
-			});
-		});
-		all.setWidth("4em");
-
-		HorizontalLayout selection = new HorizontalLayout(one, two, three, all);
-		return selection;
-	}
 
 	private void swapRefereeLabel(Athlete athlete) {
 		Component nc = createRefereeLabel(athlete);

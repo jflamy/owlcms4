@@ -84,6 +84,8 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.monitors.EventForwarder;
 import app.owlcms.monitors.IUnregister;
 import app.owlcms.monitors.MQTTMonitor;
+import app.owlcms.nui.lifting.AnnouncerContent;
+import app.owlcms.nui.lifting.TimekeeperContent;
 import app.owlcms.sound.Sound;
 import app.owlcms.sound.Tone;
 import app.owlcms.uievents.BreakType;
@@ -612,6 +614,22 @@ public class FieldOfPlay implements IUnregister {
 		// two lifts, technical incident, etc.). Even switching break type is allowed.
 
 		if (e instanceof FOPEvent.BreakStarted) {
+			Object origin = e.getOrigin();
+			BreakType requestedBreak = ((FOPEvent.BreakStarted) e).getBreakType();
+			boolean allAllowed = origin instanceof AnnouncerContent || origin instanceof TimekeeperContent;
+
+			if (getState() == BREAK
+					&& (requestedBreak == BreakType.JURY)
+			        && (getBreakType() == BreakType.FIRST_CJ || getBreakType() == BreakType.GROUP_DONE)) {
+				transitionToBreak((FOPEvent.BreakStarted) e);
+				return;
+			} else if (getState() == BREAK && getBreakType().isCountdown() && !allAllowed) {
+				pushOutUIEvent(new UIEvent.Notification(null, this,
+				        UIEvent.Notification.Level.ERROR,
+				        "BreakButton.cannotInterruptBreak",
+				        3000));
+				return;
+			}
 			// exception: wait until a decision has been registered to process jury
 			// deliberation.
 			if (this.state != DECISION_VISIBLE && this.state != DOWN_SIGNAL_VISIBLE) {
@@ -628,7 +646,7 @@ public class FieldOfPlay implements IUnregister {
 				doSummonReferee(e2);
 				return;
 			} else if (this.state != DECISION_VISIBLE && this.state != DOWN_SIGNAL_VISIBLE) {
-				// Summoning a referee must trigger a break if not already done
+				// Summoning a referee must trigger a break if not already in a break
 				if (getBreakType() != null) {
 					doSummonReferee(e2);
 				} else {
