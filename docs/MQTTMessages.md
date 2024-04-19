@@ -50,7 +50,6 @@
 - `fop/decisionRequest/A :ref`: The third ref must make a decision.
     - LEGACY: `decisionRequest/A/:ref :status` (status is `on` or `off`)
     - `ref` is `1`, `2`, or `3` for normal situations
-    - `ref` is `0` when there is only one referee, or when the announcer enters the decisions given by flags using good/bad buttons on an announcer keypad.
     - The delay before triggering is configurable in owlcms.  If the device decides to remind the referee on its own, it should be longer than the owlcms default.
 - `fop/summon/A :official`: The jury summons an official to the jury table.
     - LEGACY: `summon/A/:official :status` (status is `on` or `off`, off is unused, device turns it off on its own)
@@ -118,7 +117,21 @@ Only owlcms listens; devices do not listen to one another.
     - `ref` is `1`, `2`, or `3`
     - `decision` is `good` or `bad`
     - DEPRECATED: This message is equivalent to `decision/A :ref :decision`
+
 - `refbox/downEmitted/A`: The referee device has emitted a down signal.
+
+### Messages published for decisions in "announcer" or "solo" mode
+
+The owlcms announcer screen has  two additional options that affect refereeing under the ⚙menu
+
+-  When flags are used, the announcer enters the decisions.  They are displayed immediately (no 3-second delay).
+- When the announcer acts as referee the down signal is shown and the 3-second delay is observed.
+
+Refereeing devices can be configured for these situations (single referee, or announcer-entered decisions). In both cases, the same configuration is used.  It is the owlcms configuration that determines whether or not the down signal and 3-second delays are used.
+
+- `refbox/decision/A 0 :decision`: 
+  - `ref` is `0` 
+  - `decision` is `good` or `bad`
 
 ### Messages published by the timekeeper device
 
