@@ -1264,7 +1264,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 						return;
 					}
 
-					setBreakType(breakType2);
+					setBreakValue(breakType2);
 					CountdownType ct = fop.getCountdownType();
 					setCountdownType(ct);
 					if (ct == CountdownType.INDEFINITE) {
