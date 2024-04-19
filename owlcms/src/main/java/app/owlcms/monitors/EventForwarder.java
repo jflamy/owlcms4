@@ -66,6 +66,7 @@ import app.owlcms.uievents.UIEvent.BreakDone;
 import app.owlcms.uievents.UIEvent.BreakPaused;
 import app.owlcms.uievents.UIEvent.BreakSetTime;
 import app.owlcms.uievents.UIEvent.BreakStarted;
+import app.owlcms.uievents.UIEvent.CeremonyDone;
 import app.owlcms.uievents.UIEvent.JuryNotification;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.uievents.UIEvent.SetTime;
@@ -501,9 +502,18 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
 		uiLog(e);
 		setHidden(false);
-		setCeremonyEventType("ceremonyDone");
+		doCeremony(e);
 		doBreak(e);
 		pushUpdate(e);
+	}
+
+	private void doCeremony(CeremonyDone e) {
+		setCeremonyEventType("ceremonyDone");
+		setCeremonyType(null);
+		setCeremonySession(null);
+		setCeremonyCategory(null);
+		setCeremonyAgeGroup(null);
+		setCeremonyChampionship(null);
 	}
 
 	@Subscribe
