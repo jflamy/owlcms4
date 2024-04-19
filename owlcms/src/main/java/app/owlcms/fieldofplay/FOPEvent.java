@@ -359,13 +359,13 @@ public class FOPEvent {
 
 	static public class DecisionUpdate extends FOPEvent {
 
-		public boolean decision;
-		public int refIndex;
+		private boolean decision;
+		private int refIndex;
 
 		public DecisionUpdate(Object origin, int refIndex, boolean decision) {
 			super(origin);
-			this.refIndex = refIndex;
-			this.decision = decision;
+			this.setRefIndex(refIndex);
+			this.setDecision(decision);
 		}
 
 		@Override
@@ -377,20 +377,36 @@ public class FOPEvent {
 				return false;
 			}
 			DecisionUpdate other = (DecisionUpdate) obj;
-			return this.decision == other.decision && this.refIndex == other.refIndex;
+			return this.isDecision() == other.isDecision() && this.getRefIndex() == other.getRefIndex();
 		}
 
 		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = super.hashCode();
-			result = prime * result + Objects.hash(this.decision, this.refIndex);
+			result = prime * result + Objects.hash(this.isDecision(), this.getRefIndex());
 			return result;
 		}
 
 		@Override
 		public String toString() {
-			return "[decision=" + this.decision + ", refIndex=" + this.refIndex + "]";
+			return "[decision=" + this.isDecision() + ", refIndex=" + this.getRefIndex() + "]";
+		}
+
+		public int getRefIndex() {
+			return refIndex;
+		}
+
+		public void setRefIndex(int refIndex) {
+			this.refIndex = refIndex;
+		}
+
+		public boolean isDecision() {
+			return decision;
+		}
+
+		public void setDecision(boolean decision) {
+			this.decision = decision;
 		}
 
 	}

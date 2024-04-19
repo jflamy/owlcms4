@@ -794,19 +794,7 @@ public class FieldOfPlay implements IUnregister {
 					doWeightChange((WeightChange) e);
 				} else if (e instanceof ForceTime) {
 					doForceTime((ForceTime) e);
-				}
-				// else if (e instanceof DecisionFullUpdate && isClockStoppedDecisionsAllowed()) {
-				// // after a break from jury, decisions can be entered even though the clock is
-				// // not running
-				// updateRefereeDecisions((DecisionFullUpdate) e);
-				// uiShowUpdateOnJuryScreen(e);
-				// } else if (e instanceof DecisionUpdate && isClockStoppedDecisionsAllowed()) {
-				// // after a break from jury, decisions can be entered even though the clock is
-				// // not running
-				// updateRefereeDecisions((DecisionUpdate) e);
-				// uiShowUpdateOnJuryScreen(e);
-				// }
-				else {
+				} else {
 					pushOutUIEvent(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, this.state,
 					        UIEvent.Notification.Level.ERROR));
 					// unexpectedEventInState(e, CURRENT_ATHLETE_DISPLAYED);
@@ -829,8 +817,7 @@ public class FieldOfPlay implements IUnregister {
 					updateRefereeDecisions((DecisionFullUpdate) e);
 					uiShowUpdateOnJuryScreen(e);
 				} else if (e instanceof DecisionUpdate) {
-					updateRefereeDecisions((DecisionUpdate) e);
-					uiShowUpdateOnJuryScreen(e);
+					doPossiblySoloRefereeUpdate(e);
 				} else if (e instanceof WeightChange) {
 					doWeightChange((WeightChange) e);
 				} else if (e instanceof ExplicitDecision) {
@@ -861,8 +848,7 @@ public class FieldOfPlay implements IUnregister {
 					updateRefereeDecisions((DecisionFullUpdate) e);
 					uiShowUpdateOnJuryScreen(e);
 				} else if (e instanceof DecisionUpdate) {
-					updateRefereeDecisions((DecisionUpdate) e);
-					uiShowUpdateOnJuryScreen(e);
+					doPossiblySoloRefereeUpdate(e);
 				} else if (e instanceof TimeStarted) {
 					if (!getCurAthlete().equals(getClockOwner())) {
 						setClockOwner(getCurAthlete());
@@ -903,8 +889,7 @@ public class FieldOfPlay implements IUnregister {
 					updateRefereeDecisions((DecisionFullUpdate) e);
 					uiShowUpdateOnJuryScreen(e);
 				} else if (e instanceof DecisionUpdate) {
-					updateRefereeDecisions((DecisionUpdate) e);
-					uiShowUpdateOnJuryScreen(e);
+					doPossiblySoloRefereeUpdate(e);
 				} else if (e instanceof WeightChange) {
 					this.logger.debug("weight change during down {} {} {}", e.getAthlete(), this.getPreviousAthlete(),
 					        this.getCurAthlete());
@@ -950,6 +935,16 @@ public class FieldOfPlay implements IUnregister {
 					unexpectedEventInState(e, DECISION_VISIBLE);
 				}
 				break;
+		}
+	}
+
+	private void doPossiblySoloRefereeUpdate(FOPEvent e) {
+		if (((DecisionUpdate) e).getRefIndex() < 0) {
+			boolean goodLift = ((DecisionUpdate) e).isDecision();
+			simulateDecision(new ExplicitDecision(e.getAthlete(), e.getStackTrace(), isAnnouncerDecisionImmediate(), goodLift, goodLift, goodLift));
+		} else {
+			updateRefereeDecisions((DecisionUpdate) e);
+			uiShowUpdateOnJuryScreen(e);
 		}
 	}
 
@@ -1943,7 +1938,7 @@ public class FieldOfPlay implements IUnregister {
 			}
 		}
 		setGoodLift(null);
-		if (nbWhite == 2 || nbRed == 2) {
+		if (nbWhite >= 2 || nbRed >= 2) {
 			if (!this.downEmitted) {
 				emitDown(e);
 				this.downEmitted = true;
@@ -2559,7 +2554,7 @@ public class FieldOfPlay implements IUnregister {
 		if (getAthleteTimer().isRunning()) {
 			getAthleteTimer().stop();
 		}
-		// setState(DOWN_SIGNAL_VISIBLE);
+
 		this.setClockOwner(null);
 		DecisionFullUpdate ne = new DecisionFullUpdate(ed.getOrigin(), ed.getAthlete(), ed.ref1, ed.ref2, ed.ref3, now,
 		        now, now, isAnnouncerDecisionImmediate());
@@ -2962,8 +2957,8 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void updateRefereeDecisions(FOPEvent.DecisionUpdate e) {
-		getRefereeDecision()[e.refIndex] = e.decision;
-		getRefereeTime()[e.refIndex] = System.currentTimeMillis();
+		getRefereeDecision()[e.getRefIndex()] = e.isDecision();
+		getRefereeTime()[e.getRefIndex()] = System.currentTimeMillis();
 		processRefereeDecisions(e);
 	}
 
