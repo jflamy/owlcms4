@@ -139,6 +139,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private Category ceremonyCategory;
 	private AgeGroup ceremonyAgeGroup;
 	private Championship ceremonyChampionship;
+	private String ceremonyEventType;
 
 	public EventForwarder(FieldOfPlay emittingFop) {
 		this.setFop(emittingFop);
@@ -215,11 +216,16 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		setTeamName("");
 		setAttempt("");
 		setHidden(false);
+		setCeremonyEventType("ceremonyStarted");
 		setCeremonyType(ceremonyType);
 		setCeremonySession(e.getCeremonySession() != null ? e.getCeremonySession() : null);
 		setCeremonyCategory(e.getCeremonyCategory() != null ? e.getCeremonyCategory() : null);
 		setCeremonyAgeGroup(e.getAgeGroup() != null ? e.getAgeGroup() : null);
 		setCeremonyChampionship(e.getChampionship() != null ? e.getChampionship() : null);
+	}
+
+	private void setCeremonyEventType(String ceremonyEventType) {
+		this.ceremonyEventType = ceremonyEventType;
 	}
 
 	private void setCeremonyChampionship(Championship ceremonyChampionship) {
@@ -495,6 +501,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
 		uiLog(e);
 		setHidden(false);
+		setCeremonyEventType("ceremonyDone");
 		doBreak(e);
 		pushUpdate(e);
 	}
@@ -830,6 +837,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		JuryDeliberationEventType det = e.getDeliberationEventType();
 		if (det == JuryDeliberationEventType.BAD_LIFT
 		        || det == JuryDeliberationEventType.GOOD_LIFT) {
+			mapPut(sb, "decisionEventType", "JURY_DECISION");
 			mapPut(sb, "juryDecision", det.name());
 			mapPut(sb, "juryReversal", e.getReversal().toString());
 			mapPut(sb, "athleteFull", e.getAthlete().getFullName());
@@ -837,7 +845,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		} else if (det == JuryDeliberationEventType.START_DELIBERATION
 		        || det == JuryDeliberationEventType.END_DELIBERATION
 		        || det == JuryDeliberationEventType.CHALLENGE) {
-			mapPut(sb, "juryDeliberation", det.name());
+			mapPut(sb, "decisionEventType", "det.name()");
 		}
 
 		dumpMap("createJuryDecision", e.getTrace(), sb);
@@ -991,6 +999,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 		CeremonyType ceremonyType = getFop().getCeremonyType();
 		String cts = ceremonyType != null ? ceremonyType.name() : null;
+		mapPut(sb, "ceremonyEventType", ceremonyEventType);
 		mapPut(sb, "ceremonyType", cts);
 		mapPut(sb, "ceremonySession", ceremonySession != null ? ceremonySession.getName() : null);
 		mapPut(sb, "ceremonyCategory", ceremonyCategory != null ? ceremonyCategory.getComputedName() : null);
