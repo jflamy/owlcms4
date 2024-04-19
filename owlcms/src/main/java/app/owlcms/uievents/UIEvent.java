@@ -18,6 +18,8 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
 
+import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
@@ -344,19 +346,32 @@ public class UIEvent {
 	static public class CeremonyStarted extends UIEvent {
 
 		private Category ceremonyCategory;
-		private Group ceremonyGroup;
+		private Group ceremonySession;
 		private CeremonyType ceremonyType;
+		private Championship championship;
+		private AgeGroup ageGroup;
 
-		public CeremonyStarted(CeremonyType ceremonyType, Group ceremonyGroup, Category ceremonyCategory, String trace,
+		public CeremonyStarted(CeremonyType ceremonyType, Group ceremonySession, Category ceremonyCategory, String trace,
 		        Object origin) {
 			super(origin);
 			this.setCeremonyType(ceremonyType);
-			this.setCeremonyGroup(ceremonyGroup);
+			this.setCeremonySession(ceremonySession);
 			this.setCeremonyCategory(ceremonyCategory);
+			AgeGroup ageGroup = ceremonyCategory != null ? ceremonyCategory.getAgeGroup() : null;
+			this.setCeremonyAgeGroup(ageGroup);
+			this.setCeremonyChampionship(ageGroup != null ? ageGroup.getChampionship() : null);
 			this.trace = trace;
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
 			}
+		}
+
+		private void setCeremonyChampionship(Championship championship) {
+			this.championship=championship;
+		}
+
+		private void setCeremonyAgeGroup(AgeGroup ageGroup) {
+			this.setAgeGroup(ageGroup);
 		}
 
 		@Override
@@ -369,7 +384,7 @@ public class UIEvent {
 			}
 			CeremonyStarted other = (CeremonyStarted) obj;
 			return Objects.equals(this.ceremonyCategory, other.ceremonyCategory)
-			        && Objects.equals(this.ceremonyGroup, other.ceremonyGroup)
+			        && Objects.equals(this.ceremonySession, other.ceremonySession)
 			        && this.ceremonyType == other.ceremonyType;
 		}
 
@@ -377,8 +392,8 @@ public class UIEvent {
 			return this.ceremonyCategory;
 		}
 
-		public Group getCeremonyGroup() {
-			return this.ceremonyGroup;
+		public Group getCeremonySession() {
+			return this.ceremonySession;
 		}
 
 		public CeremonyType getCeremonyType() {
@@ -387,11 +402,11 @@ public class UIEvent {
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(this.ceremonyCategory, this.ceremonyGroup, this.ceremonyType);
+			return Objects.hash(this.ceremonyCategory, this.ceremonySession, this.ceremonyType);
 		}
 
-		public void setCeremonyGroup(Group ceremonyGroup2) {
-			this.ceremonyGroup = ceremonyGroup2;
+		public void setCeremonySession(Group ceremonyGroup2) {
+			this.ceremonySession = ceremonyGroup2;
 		}
 
 		public void setCeremonyType(CeremonyType ceremonyType) {
@@ -401,11 +416,27 @@ public class UIEvent {
 		@Override
 		public String toString() {
 			return "CeremonyStarted [ceremonyType=" + this.ceremonyType + ", ceremonyCategory=" + this.ceremonyCategory
-			        + ", ceremonyGroup=" + this.ceremonyGroup + "]";
+			        + ", ceremonySession=" + this.ceremonySession + "]";
 		}
 
 		private void setCeremonyCategory(Category ceremonyCategory2) {
 			this.ceremonyCategory = ceremonyCategory2;
+		}
+
+		public Championship getChampionship() {
+			return championship;
+		}
+
+		public void setChampionship(Championship championship) {
+			this.championship = championship;
+		}
+
+		public AgeGroup getAgeGroup() {
+			return ageGroup;
+		}
+
+		public void setAgeGroup(AgeGroup ageGroup) {
+			this.ageGroup = ageGroup;
 		}
 	}
 

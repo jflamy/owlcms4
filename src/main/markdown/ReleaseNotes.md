@@ -7,8 +7,10 @@
 
 ##### 48.0
 
+- (beta09) Event Forwarding: publicresults and video listeners now get all information aboutceremonies and jury decisions, in addition to breaks and interruptions.  Jury decisions are sent on the `/decision` endpoint.
+  
 - (beta08) Break Management:
-  - Now possible to go from an interruption (for example a Technical Pause because platform is broken) to a timed countdown (after repair, timed warmup before resuming), and vice-versa
+  - It is now possible to go from an interruption (for example a Technical Pause because platform is broken) to a timed countdown (after repair, timed warmup before resuming), and vice-versa
   - Spurious interruptions of the countdown are now prevented and signalled to the announcer (e.g. normally a technical pause during a countdown should not interrupt the count, and if stopping the countdown is indeed required a decision on when to restart will be required).
 
 - (beta08) Fix: exporting all records from an empty database (to obtain a template) yielded a file with an incorrect validation criterion.

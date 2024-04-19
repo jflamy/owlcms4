@@ -106,7 +106,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	public void doCeremony(UIEvent.CeremonyStarted e) {
 		// logger.debug("+++++++ ceremony event = {} {}", e, e.getTrace());
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			Group ceremonyGroup = e.getCeremonyGroup();
+			Group ceremonyGroup = e.getCeremonySession();
 			setGroup(ceremonyGroup);
 			Category ceremonyCategory = e.getCeremonyCategory();
 			setCategory(ceremonyCategory);

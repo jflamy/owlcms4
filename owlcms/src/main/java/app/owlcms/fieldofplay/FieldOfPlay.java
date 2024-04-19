@@ -618,22 +618,18 @@ public class FieldOfPlay implements IUnregister {
 			BreakType requestedBreak = ((FOPEvent.BreakStarted) e).getBreakType();
 			boolean allAllowed = origin instanceof AnnouncerContent || origin instanceof TimekeeperContent;
 
-			logger.warn("requestedBreak = {} {} state={}", requestedBreak, getBreakType(), getState());
 			if (getState() == BREAK
 			        && (requestedBreak == BreakType.JURY || requestedBreak == BreakType.CHALLENGE)
 			        && (getBreakType() == BreakType.FIRST_CJ || getBreakType() == BreakType.GROUP_DONE)) {
-				logger.warn("$$$$$ case 1");
 				transitionToBreak((FOPEvent.BreakStarted) e);
 				return;
 			} else if (getState() == BREAK && getBreakType() != null && getBreakType().isCountdown() && !allAllowed) {
-				logger.warn("$$$$$$ case 2");
 				pushOutUIEvent(new UIEvent.Notification(null, this,
 				        UIEvent.Notification.Level.ERROR,
 				        "BreakButton.cannotInterruptBreak",
 				        3000));
 				return;
 			}
-			logger.warn("$$$$$$ case 3");
 			// exception: wait until a decision has been registered to process jury
 			// deliberation.
 			if (this.state != DECISION_VISIBLE && this.state != DOWN_SIGNAL_VISIBLE) {

@@ -37,6 +37,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
+import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
@@ -133,6 +135,10 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private CeremonyType ceremonyType;
 	private BreakType breakType;
 	private FOPState fopState;
+	private Group ceremonySession;
+	private Category ceremonyCategory;
+	private AgeGroup ceremonyAgeGroup;
+	private Championship ceremonyChampionship;
 
 	public EventForwarder(FieldOfPlay emittingFop) {
 		this.setFop(emittingFop);
@@ -209,6 +215,27 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		setTeamName("");
 		setAttempt("");
 		setHidden(false);
+		setCeremonyType(ceremonyType);
+		setCeremonySession(e.getCeremonySession() != null ? e.getCeremonySession() : null);
+		setCeremonyCategory(e.getCeremonyCategory() != null ? e.getCeremonyCategory() : null);
+		setCeremonyAgeGroup(e.getAgeGroup() != null ? e.getAgeGroup() : null);
+		setCeremonyChampionship(e.getChampionship() != null ? e.getChampionship() : null);
+	}
+
+	private void setCeremonyChampionship(Championship ceremonyChampionship) {
+		this.ceremonyChampionship=ceremonyChampionship;
+	}
+
+	private void setCeremonyAgeGroup(AgeGroup ceremonyAgeGroup) {
+		this.ceremonyAgeGroup=ceremonyAgeGroup;
+	}
+
+	private void setCeremonyCategory(Category ceremonyCategory) {
+		this.ceremonyCategory=ceremonyCategory;
+	}
+
+	private void setCeremonySession(Group ceremonySession) {
+		this.ceremonySession=ceremonySession;
 	}
 
 	public String getBoardMode() {
@@ -965,6 +992,12 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		CeremonyType ceremonyType = getFop().getCeremonyType();
 		String cts = ceremonyType != null ? ceremonyType.name() : null;
 		mapPut(sb, "ceremonyType", cts);
+		mapPut(sb, "ceremonySession", ceremonySession != null ? ceremonySession.getName() : null);
+		mapPut(sb, "ceremonyCategory", ceremonyCategory != null ? ceremonyCategory.getComputedName() : null);
+		mapPut(sb, "ceremonyType", ceremonyType != null ? ceremonyType.name() : null);
+		mapPut(sb, "ceremonyCategory", ceremonyCategory != null ? ceremonyCategory.getComputedName() : null);
+		mapPut(sb, "ceremonyAgeGroup", ceremonyAgeGroup != null ? ceremonyAgeGroup.getName() : null);
+		mapPut(sb, "ceremonyChampionship", ceremonyChampionship != null ? ceremonyChampionship.getName() : null);
 
 		// current athlete & attempt
 		mapPut(sb, "startNumber", this.startNumber != null ? this.startNumber.toString() : null);
