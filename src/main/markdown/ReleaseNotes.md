@@ -9,9 +9,10 @@
 
 - (rc02) Translations updated (Spanish, German, Finnish, Portuguese, Romanian, Hungarian, French)
 - (rc02) Athlete Registration, Weigh-in and Competition Documents
-  - On the editing form, it is now possible to enter incomplete athletes with no birth date and no body weight.  A category is now required when editing interactively.
+  - The editing form now requires a category.  The best choice is calculated automatically. The category must be selected manually if the birth date or body weight is missing.
   - The weigh-in, registration and document lists show athletes without categories, to allow fixing data entered using spreadsheets.
-  - If a single championship is present, the Documentation page selects it by default like the Athlete Entries page.
+  - If a single Championship is being competed, it is selected by default.
+  - When a session has been selected on the registration or weigh-in page, the `Add` button will assign that session as default for the new athlete.
 - Championships and Final Results Package
   - The second column, previously empty, of the AgeGroups file is now used for a Championship Name. The third column is the championship type (IWF, MASTERS, etc.) 
   - You can name the Championship in your local language. For example: Youth, Junior, Senior, Masters, U13, U15, Junior High, Senior High, whatever you need.
