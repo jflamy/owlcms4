@@ -137,7 +137,11 @@ public class DemoData {
 
 		competition.setCompetitionName("Spring Equinox Open");
 		competition.setCompetitionCity("Sometown, Lower Cascadia");
-		competition.setCompetitionDate(LocalDate.of(2019, 03, 23));
+		//competition.setCompetitionDate(LocalDate.of(2019, 03, 23));
+		
+		// same reference year will be used for athlete creation
+		int referenceYear = LocalDate.now().getYear();
+		competition.setCompetitionDate(LocalDate.of(referenceYear, 03, 23));
 		competition.setCompetitionOrganizer("Giant Weightlifting Club");
 		competition.setCompetitionSite("West-End Gym");
 		competition.setFederation("National Weightlifting Federation");
