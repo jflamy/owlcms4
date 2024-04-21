@@ -131,6 +131,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	private List<Championship> championshipItems;
 	private ComboBox<String> ageGroupFilter;
 	private List<String> championshipAgeGroupPrefixes;
+	private NAthleteRegistrationFormFactory athleteEditingFormFactory;
 
 	/**
 	 * Instantiates the athlete crudGrid
@@ -237,16 +238,6 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	 */
 	@Override
 	public Collection<Athlete> findAll() {
-		// List<Athlete> findFiltered = AthleteRepository.findFiltered(getLastName(), getGroup(),
-		// getCategory(), getAgeGroup(), getChampionship(),
-		// getGender(), getWeighedIn(), getTeam(), -1, -1);
-		// AthleteSorter.registrationOrder(findFiltered);
-		// // startingXlsWriter.setSortedAthletes(findFiltered);
-		// // List<Athlete> c = AthleteSorter.displayOrderCopy(findFiltered);
-		// // categoriesXlsWriter.setSortedAthletes(c);
-		// updateURLLocations();
-		// return findFiltered;
-		// // return athletesFindAll();
 		List<Athlete> findFiltered = athletesFindAll();
 		updateURLLocations();
 		return findFiltered;
@@ -489,13 +480,18 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		// for cards and starting lists we only want the actual athlete, without duplicates
 		Set<Athlete> regCatAthletes = found.stream().map(pa -> ((PAthlete) pa)._getAthlete())
 		        .collect(Collectors.toSet());
+		// we also need athletes with no participations (implies no category)
+		List<Athlete> noCat = AthleteRepository.findAthletesNoCategory();
+		regCatAthletes.addAll(noCat);
+		
+		// sort
 		List<Athlete> regCatAthletesList = new ArrayList<>(regCatAthletes);
 		regCatAthletesList.sort(groupCategoryComparator());
 
 		updateURLLocations();
 		return regCatAthletesList;
 	}
-
+	
 	protected Button createBWButton() {
 		String resourceDirectoryLocation = "/templates/bwStart";
 		String title = Translator.translate("BodyWeightCategories");
@@ -602,9 +598,8 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	 * @return the form factory that will create the actual form on demand
 	 */
 	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
-		OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory;
 		athleteEditingFormFactory = new NAthleteRegistrationFormFactory(Athlete.class,
-		        this.group, null);
+		        getGroup(), null);
 		// createFormLayout(athleteEditingFormFactory);
 		return athleteEditingFormFactory;
 	}
@@ -950,13 +945,17 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		        getGender(), getWeighedIn(), getTeam(), -1, -1);
 		return all;
 	}
-
+	
 	private void doSwitchGroup(Group newCurrentGroup) {
+		logger.warn("switching group {}", newCurrentGroup);
 		if (newCurrentGroup != null && newCurrentGroup.getName() == "*") {
 			setGroup(null);
+			athleteEditingFormFactory.setCurrentGroup(null);
 		} else {
 			setGroup(newCurrentGroup);
+			athleteEditingFormFactory.setCurrentGroup(newCurrentGroup);
 		}
+		// getRouterLayout().updateHeader(true);
 		getGroupFilter().setValue(newCurrentGroup);
 	}
 

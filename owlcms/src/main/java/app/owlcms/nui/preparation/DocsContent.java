@@ -7,8 +7,6 @@
 
 package app.owlcms.nui.preparation;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +38,6 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
-import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -216,68 +213,70 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
 	 *      java.util.Map)
 	 */
-	@Override
-	public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
-		HashMap<String, List<String>> params1 = new HashMap<>(parametersMap);
-
-		List<String> ageDivisionParams = params1.get("ad");
-		try {
-			String ageDivisionName = (ageDivisionParams != null
-			        && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0) : null);
-			Championship valueOf = Championship.of(ageDivisionName);
-			setChampionship(valueOf);
-			this.getChampionshipFilter().setValue(valueOf);
-		} catch (Exception e) {
-			setChampionship(null);
-			this.getChampionshipFilter().setValue(null);
-		}
-		// remove if now null
-		String value = getChampionship() != null ? getChampionship().getName() : null;
-		updateParam(params1, "ad", value);
-
-		List<String> ageGroupParams = params1.get("ag");
-		// no age group is the default
-		String ageGroupPrefix = (ageGroupParams != null && !ageGroupParams.isEmpty() ? ageGroupParams.get(0) : null);
-		setAgeGroupPrefix(ageGroupPrefix);
-		this.getAgeGroupFilter().setValue(ageGroupPrefix);
-		String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
-		updateParam(params1, "ag", value2);
-
-		List<String> groupParams = params1.get("group");
-		// no age group is the default
-		String groupString = (groupParams != null && !groupParams.isEmpty() ? groupParams.get(0) : null);
-		Group groupValue = groupString != null ? GroupRepository.findByName(groupString) : null;
-		setGroup(groupValue);
-		getGroupFilter().setValue(groupValue);
-		updateParam(params1, "group", groupString);
-
-		List<String> genderParams = params1.get("gender");
-		// no age group is the default
-		String genderString = (genderParams != null && !genderParams.isEmpty() ? genderParams.get(0) : null);
-		Gender genderValue = genderString != null ? Gender.valueOf(genderString) : null;
-		setGender(genderValue);
-		this.getGenderFilter().setValue(genderValue);
-		updateParam(params1, "gender", genderString);
-
-		List<String> catParams = params1.get("cat");
-		String catParam = (catParams != null && !catParams.isEmpty() ? catParams.get(0) : null);
-		catParam = catParam != null ? URLDecoder.decode(catParam, StandardCharsets.UTF_8) : null;
-		this.setCategory(CategoryRepository.findByCode(catParam));
-		String catValue = getCategoryValue() != null ? getCategoryValue().toString() : null;
-		updateParam(params1, "cat", catValue);
-
-		List<String> platformParams = params1.get("platform");
-		String platformParam = (platformParams != null && !platformParams.isEmpty() ? platformParams.get(0) : null);
-		platformParam = platformParam != null ? URLDecoder.decode(platformParam, StandardCharsets.UTF_8) : null;
-		this.setPlatform(platformParam != null ? PlatformRepository.findByName(platformParam) : null);
-		// logger.debug("reading param platform {}", platformParam);
-		this.getPlatformFilter().setValue(this.getPlatform());
-		updateParam(params1, "platform", platformParam != null ? platformParam : null);
-
-		// logger.debug("params {}", params1);
-		setUrlParameterMap(params1);
-		return params1;
-	}
+//	@Override
+//	public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
+//		HashMap<String, List<String>> params1 = new HashMap<>(parametersMap);
+//
+//		List<String> ageDivisionParams = params1.get("ad");
+//		try {
+//			String ageDivisionName = (ageDivisionParams != null
+//			        && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0) : null);
+//			Championship valueOf = Championship.of(ageDivisionName);
+//			if (valueOf != null) {
+//				setChampionship(valueOf);
+//				this.getChampionshipFilter().setValue(valueOf);
+//			}
+//		} catch (Exception e) {
+//			setChampionship(null);
+//			this.getChampionshipFilter().setValue(null);
+//		}
+//		// remove if now null
+//		String value = getChampionship() != null ? getChampionship().getName() : null;
+//		updateParam(params1, "ad", value);
+//
+//		List<String> ageGroupParams = params1.get("ag");
+//		// no age group is the default
+//		String ageGroupPrefix = (ageGroupParams != null && !ageGroupParams.isEmpty() ? ageGroupParams.get(0) : null);
+//		setAgeGroupPrefix(ageGroupPrefix);
+//		this.getAgeGroupFilter().setValue(ageGroupPrefix);
+//		String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
+//		updateParam(params1, "ag", value2);
+//
+//		List<String> groupParams = params1.get("group");
+//		// no age group is the default
+//		String groupString = (groupParams != null && !groupParams.isEmpty() ? groupParams.get(0) : null);
+//		Group groupValue = groupString != null ? GroupRepository.findByName(groupString) : null;
+//		setGroup(groupValue);
+//		getGroupFilter().setValue(groupValue);
+//		updateParam(params1, "group", groupString);
+//
+//		List<String> genderParams = params1.get("gender");
+//		// no age group is the default
+//		String genderString = (genderParams != null && !genderParams.isEmpty() ? genderParams.get(0) : null);
+//		Gender genderValue = genderString != null ? Gender.valueOf(genderString) : null;
+//		setGender(genderValue);
+//		this.getGenderFilter().setValue(genderValue);
+//		updateParam(params1, "gender", genderString);
+//
+//		List<String> catParams = params1.get("cat");
+//		String catParam = (catParams != null && !catParams.isEmpty() ? catParams.get(0) : null);
+//		catParam = catParam != null ? URLDecoder.decode(catParam, StandardCharsets.UTF_8) : null;
+//		this.setCategory(CategoryRepository.findByCode(catParam));
+//		String catValue = getCategoryValue() != null ? getCategoryValue().toString() : null;
+//		updateParam(params1, "cat", catValue);
+//
+//		List<String> platformParams = params1.get("platform");
+//		String platformParam = (platformParams != null && !platformParams.isEmpty() ? platformParams.get(0) : null);
+//		platformParam = platformParam != null ? URLDecoder.decode(platformParam, StandardCharsets.UTF_8) : null;
+//		this.setPlatform(platformParam != null ? PlatformRepository.findByName(platformParam) : null);
+//		// logger.debug("reading param platform {}", platformParam);
+//		this.getPlatformFilter().setValue(this.getPlatform());
+//		updateParam(params1, "platform", platformParam != null ? platformParam : null);
+//
+//		// logger.debug("params {}", params1);
+//		setUrlParameterMap(params1);
+//		return params1;
+//	}
 
 	@Override
 	public Category getCategoryValue() {
@@ -360,7 +359,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 		// we use the ? query parameters instead.
 		QueryParameters queryParameters = location.getQueryParameters();
 		Map<String, List<String>> parametersMap = queryParameters.getParameters();
-		HashMap<String, List<String>> params = readParams(location, parametersMap);
+		Map<String, List<String>> params = readParams(location, parametersMap);
 		List<String> groups = params.get("group");
 		this.groupName = (groups != null && !groups.isEmpty() ? groups.get(0) : null);
 		getGroupFilter().setValue(GroupRepository.findByName(this.groupName));

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.layout.CrudLayout;
 
@@ -23,6 +24,7 @@ import ch.qos.logback.classic.Logger;
 
 public interface IFilterCascade {
 
+	final static Logger logger = (Logger) LoggerFactory.getLogger(IFilterCascade.class);
 	default public void defineFilterCascade(GridCrud<Athlete> crud) {
 
 		if (this.getChampionshipFilter() == null) {
@@ -95,10 +97,14 @@ public interface IFilterCascade {
 		String urlAG = getAgeGroupPrefix();
 
 		setChampionshipSelectionListener();
+		logger.warn("defining listeners {}",this.getChampionshipItems());
 		if (urlAD != null && this.getChampionshipItems().contains(urlAD)) {
+			logger.warn("case 1");
 			this.getChampionshipFilter().setValue(urlAD);
 		} else if (this.getChampionshipItems() != null && this.getChampionshipItems().size() == 1) {
 			setChampionship(this.getChampionshipItems().get(0));
+			this.getChampionshipFilter().setItems(this.getChampionshipItems());
+			logger.warn("setting value to {}",this.getChampionshipItems().get(0));
 			this.getChampionshipFilter().setValue(this.getChampionshipItems().get(0));
 		}
 

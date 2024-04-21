@@ -207,6 +207,7 @@ public class WeighinContent extends BaseContent
 	private String lastName;
 	private String team;
 	private Platform platform;
+	private NAthleteRegistrationFormFactory athleteEditingFormFactory;
 
 	/**
 	 * Instantiates the athlete crudGrid
@@ -220,8 +221,8 @@ public class WeighinContent extends BaseContent
 
 	@Override
 	public Athlete add(Athlete athlete) {
-		if (athlete.getGroup() == null && this.currentGroup != null) {
-			athlete.setGroup(this.currentGroup);
+		if (athlete.getGroup() == null && this.getCurrentGroup() != null) {
+			athlete.setGroup(this.getCurrentGroup());
 		}
 		((OwlcmsCrudFormFactory<Athlete>) this.crudGrid.getCrudFormFactory()).add(athlete);
 		return athlete;
@@ -543,7 +544,7 @@ public class WeighinContent extends BaseContent
 			groupName = URLDecoder.decode(groupName, StandardCharsets.UTF_8);
 			setCurrentGroup(GroupRepository.findByName(groupName));
 		} else {
-			this.currentGroup = null;
+			this.setCurrentGroup(null);
 		}
 		if (getCurrentGroup() != null) {
 			params.put("group", Arrays.asList(URLUtils.urlEncode(getCurrentGroup().getName())));
@@ -598,6 +599,11 @@ public class WeighinContent extends BaseContent
 		// for cards and starting lists we only want the actual athlete, without duplicates
 		Set<Athlete> regCatAthletes = found.stream().map(pa -> ((PAthlete) pa)._getAthlete())
 		        .collect(Collectors.toSet());
+		// we also need athletes with no participations (implies no category)
+		List<Athlete> noCat = AthleteRepository.findAthletesNoCategory();
+		regCatAthletes.addAll(noCat);
+
+		// sort
 		List<Athlete> regCatAthletesList = new ArrayList<>(regCatAthletes);
 		regCatAthletesList.sort(groupCategoryComparator());
 
@@ -611,11 +617,9 @@ public class WeighinContent extends BaseContent
 	 * @return the form factory that will create the actual form on demand
 	 */
 	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
-		OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory;
-
+		logger.warn("weighin {} current grp {}", System.identityHashCode(this), this.getCurrentGroup());
 		athleteEditingFormFactory = new NAthleteRegistrationFormFactory(Athlete.class,
-		        this.currentGroup, this);
-
+		        this.getCurrentGroup(), this);
 		createFormLayout(athleteEditingFormFactory);
 		return athleteEditingFormFactory;
 	}
@@ -1063,8 +1067,10 @@ public class WeighinContent extends BaseContent
 	private void doSwitchGroup(Group newCurrentGroup) {
 		if (newCurrentGroup != null && newCurrentGroup.getName() == "*") {
 			setCurrentGroup(null);
+			athleteEditingFormFactory.setCurrentGroup(null);
 		} else {
 			setCurrentGroup(newCurrentGroup);
+			athleteEditingFormFactory.setCurrentGroup(newCurrentGroup);
 		}
 		// getRouterLayout().updateHeader(true);
 		getGroupFilter().setValue(newCurrentGroup);
@@ -1110,6 +1116,8 @@ public class WeighinContent extends BaseContent
 	}
 
 	private void setCurrentGroup(Group currentGroup) {
+		logger.warn("weighin {} setting currentgroup {} {}", System.identityHashCode(this), currentGroup,
+		        LoggerUtils.whereFrom());
 		this.currentGroup = currentGroup;
 	}
 
@@ -1121,7 +1129,7 @@ public class WeighinContent extends BaseContent
 			params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
 			if (newGroup != null) {
 				params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
-				this.currentGroup = newGroup;
+				this.setCurrentGroup(newGroup);
 				OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
 				this.crudGrid.setCrudFormFactory(crudFormFactory);
 			}

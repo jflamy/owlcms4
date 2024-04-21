@@ -216,6 +216,15 @@ public class AthleteRepository {
 			return q.getResultList();
 		});
 	}
+	
+	public static List<Athlete> findAthletesNoCategory() {
+		return JPAService.runInTransaction((em) -> {
+			TypedQuery<Athlete> q = em.createQuery(
+			        "select distinct a from Athlete a left outer join a.participations p where p is null",
+			        Athlete.class);
+			return q.getResultList();
+		});
+	}
 
 	public static List<Athlete> findAthletesForGlobalRanking(EntityManager emgr, Group g) {
 		return doFindAthletesForGlobalRanking(g, emgr);
