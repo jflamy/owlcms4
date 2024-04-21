@@ -947,7 +947,6 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	}
 	
 	private void doSwitchGroup(Group newCurrentGroup) {
-		logger.warn("switching group {}", newCurrentGroup);
 		if (newCurrentGroup != null && newCurrentGroup.getName() == "*") {
 			setGroup(null);
 			athleteEditingFormFactory.setCurrentGroup(null);

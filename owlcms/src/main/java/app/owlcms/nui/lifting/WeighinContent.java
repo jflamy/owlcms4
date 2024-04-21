@@ -617,7 +617,6 @@ public class WeighinContent extends BaseContent
 	 * @return the form factory that will create the actual form on demand
 	 */
 	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
-		logger.warn("weighin {} current grp {}", System.identityHashCode(this), this.getCurrentGroup());
 		athleteEditingFormFactory = new NAthleteRegistrationFormFactory(Athlete.class,
 		        this.getCurrentGroup(), this);
 		createFormLayout(athleteEditingFormFactory);
@@ -1116,8 +1115,6 @@ public class WeighinContent extends BaseContent
 	}
 
 	private void setCurrentGroup(Group currentGroup) {
-		logger.warn("weighin {} setting currentgroup {} {}", System.identityHashCode(this), currentGroup,
-		        LoggerUtils.whereFrom());
 		this.currentGroup = currentGroup;
 	}
 

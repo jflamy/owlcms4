@@ -258,7 +258,6 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	        ComponentEventListener<ClickEvent<Button>> operationButtonClickListener,
 	        ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
 
-		logger.warn("buildNewForm {} {} {}", System.identityHashCode(this), getCurrentGroup(), LoggerUtils.stackTrace());
 		setupAthlete(operation, aFromList);
 		this.binder = buildBinder(operation, getEditedAthlete());
 
@@ -277,7 +276,6 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 		Component form = createTabSheets(footer);
 		if (this.getCurrentGroup() != null) {
-			logger.warn("setting group {}",getCurrentGroup());
 			aFromList.setGroup(getCurrentGroup());
 		}
 		this.binder.readBean(aFromList); // FIXME should be getEditedAthlete() ?
@@ -1298,7 +1296,6 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	}
 
 	public void setCurrentGroup(Group currentGroup) {
-		logger.warn("setting current group {} in form factory {}\n{}",currentGroup, System.identityHashCode(this), LoggerUtils.stackTrace());
 		this.currentGroup = currentGroup;
 	}
 

@@ -12,7 +12,6 @@ import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -97,7 +96,6 @@ public class BaseContent extends VerticalLayout implements FOPParametersReader, 
 
 	@Override
 	final public void setGroup(Group group) {
-		logger.warn("setting group {} {}",group, LoggerUtils.whereFrom());
 		this.group = group;
 	}
 

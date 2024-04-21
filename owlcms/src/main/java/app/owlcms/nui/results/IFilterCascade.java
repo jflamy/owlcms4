@@ -97,14 +97,11 @@ public interface IFilterCascade {
 		String urlAG = getAgeGroupPrefix();
 
 		setChampionshipSelectionListener();
-		logger.warn("defining listeners {}",this.getChampionshipItems());
 		if (urlAD != null && this.getChampionshipItems().contains(urlAD)) {
-			logger.warn("case 1");
 			this.getChampionshipFilter().setValue(urlAD);
 		} else if (this.getChampionshipItems() != null && this.getChampionshipItems().size() == 1) {
 			setChampionship(this.getChampionshipItems().get(0));
 			this.getChampionshipFilter().setItems(this.getChampionshipItems());
-			logger.warn("setting value to {}",this.getChampionshipItems().get(0));
 			this.getChampionshipFilter().setValue(this.getChampionshipItems().get(0));
 		}
 
