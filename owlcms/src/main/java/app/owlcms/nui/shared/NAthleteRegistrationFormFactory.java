@@ -230,7 +230,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		}
 
 		if (previousNext instanceof WeighinContent) {
-			boolean nextMode = ((WeighinContent)previousNext).isNextMode();
+			boolean nextMode = ((WeighinContent) previousNext).isNextMode();
 			if (nextMode) {
 				operationButton.setText(Translator.translate("WeighIn.UpdateAndNext"));
 			}
@@ -277,7 +277,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		// ArrayList<Category>(aFromList.getEligibleCategories()));
 
 		Component form = createTabSheets(footer);
-		this.binder.readBean(aFromList);
+		this.binder.readBean(aFromList); // FIXME should be getEditedAthlete() ?
 
 		// binder has read bean.
 		filterCategories(getEditedAthlete().getCategory(), operation != CrudOperation.ADD);
@@ -367,7 +367,10 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			// logger.debug("v0");
 			try {
 				Double bw = this.bodyWeightField.getValue();
-				if (category == null && bw != null) {
+				if ((bw == null || bw < 0.1) && this.dateField.getValue() == null) {
+					return true;
+				}
+				if (category == null && (bw != null && bw > 0.0)) {
 					// logger.debug("0 category {} {} bw {}", category, cat, bw);
 					return false;
 				} else {
@@ -1228,9 +1231,21 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				updateCategoryFields(null, categoryField, eligibleField, qualifyingTotalField2,
 				        this.allEligible, true);
 
+			} else if (cat != null) {
+				// only the category, no age
+				int qualifyingTotal = qualifyingTotalField2.getValue();
+				Double bw = cat.getMaximumWeight();
+				int catAge = cat.getAgeGroup().getMaxAge();
+				this.allEligible = CategoryRepository.doFindEligibleCategories(this.getEditedAthlete(),
+				        cat.getGender(), catAge, bw, qualifyingTotal);
+				logger.warn/* edit */("cat-based allEligible {} {}", cat, this.allEligible);
+				Category bestMatchCategory = bestMatch(this.allEligible);
+				updateCategoryFields(bestMatchCategory, categoryField, eligibleField, qualifyingTotalField2,
+				        this.allEligible,
+				        true);
 			} else {
 				// cannot compute eligibility and category
-				logger.debug/* edit */("cat, but need age");
+				logger.debug("not enough information to compute eligibility");
 			}
 		}
 

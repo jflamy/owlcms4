@@ -3062,12 +3062,6 @@ public class Athlete {
 			// known
 			setPresumedBodyWeight(category.getMaximumWeight());
 		}
-		// the category is already from the eligible set
-		// this.addEligibleCategory(category);
-		// logger.trace("{}{} category {} {}", OwlcmsSession.getFopLoggingName(),
-		// System.identityHashCode(this),
-		// category != null ? category.getParticipations() : null,
-		// LoggerUtils./**/stackTrace());
 		this.category = category;
 	}
 
