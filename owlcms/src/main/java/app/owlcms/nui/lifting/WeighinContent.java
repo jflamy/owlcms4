@@ -377,6 +377,9 @@ public class WeighinContent extends BaseContent
 	@Override
 	public Athlete getNextAthlete(Athlete current) {
 		ArrayList<Athlete> all = new ArrayList<>(findAll());
+		if (current == null && all.size() > 0) {
+			current = all.get(0);
+		}
 		for (int i = 0; i < all.size();) {
 			if (all.get(i).getId().equals(current.getId())) {
 				return (i + 1 < all.size() ? all.get(i + 1) : null);
@@ -812,7 +815,7 @@ public class WeighinContent extends BaseContent
 			        return platformFilterValue.equals(athletePlaform);
 		        })
 
-		        .filter(a -> getGroup() != null ? getGroup().equals(a.getGroup())
+		        .filter(a -> getGroup() != null ? (getGroup().equals(a.getGroup()) || getGroup().toString().equals("*"))
 		                : true)
 		        .filter(a -> {
 			        String fLastName = getLastName();
@@ -828,8 +831,9 @@ public class WeighinContent extends BaseContent
 			        return aLastName.startsWith(fLastName);
 		        })
 		        .filter(a -> getWeighedIn() == null
-		                || (getWeighedIn() && (a.getBodyWeight() != null && a.getBodyWeight() > 0)))
-		        .filter(a -> a.getCategory() != null)
+		                || (getWeighedIn() ? (a.getBodyWeight() != null && a.getBodyWeight() > 0)
+		                        : (a.getBodyWeight() == null || a.getBodyWeight() < 0.1)))
+		        .filter(a -> catFilterValue != null ? a.getCategory() != null : true)
 		        .filter(a -> {
 			        Gender genderFilterValue = getGender();
 			        Gender athleteGender = a.getGender();
@@ -845,8 +849,7 @@ public class WeighinContent extends BaseContent
 				        a.setTeam("");
 			        }
 			        return a;
-		        })
-		        ;
+		        });
 
 		List<Athlete> found = stream.sorted(
 		        groupCategoryComparator())
@@ -1091,7 +1094,12 @@ public class WeighinContent extends BaseContent
 			}
 			Participation mainRankings1 = a1.getMainRankings() != null ? a1.getMainRankings() : null;
 			Participation mainRankings2 = a2.getMainRankings() != null ? a2.getMainRankings() : null;
-			compare = ObjectUtils.compare(mainRankings1.getCategory(), mainRankings2.getCategory(), true);
+			Category c1 = mainRankings1 != null ? mainRankings1.getCategory() : null;
+			Category c2 = mainRankings2 != null ? mainRankings2.getCategory() : null;
+			compare = ObjectUtils.compare(
+			        c1,
+			        c2,
+			        true);
 			if (compare != 0) {
 				return compare;
 			}
