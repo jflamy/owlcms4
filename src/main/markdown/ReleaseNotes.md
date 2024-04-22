@@ -7,6 +7,7 @@
 
 ##### 48.0
 
+- (rc04) Fixed the lookup of categories when loading the Simple and SBDE Excel registration files
 - (rc03) Translations: Spanish (Spain), Danish, Romanian
 - (rc03) Switching languages during a session (using the top right drop-down selector) is now working again.
 - (rc03) Forwarding events to both a publicresults URL and a video data URL is now working correctly.
