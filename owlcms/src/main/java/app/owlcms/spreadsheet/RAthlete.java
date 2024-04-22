@@ -90,7 +90,9 @@ public class RAthlete {
 			}
 
 			Category c;
-			if ((c = RCompetition.getActiveCategories().get(catName)) != null) {
+			String catCode = Category.codeFromName(catName);
+			logger.warn("keySet {}",RCompetition.getActiveCategories().keySet());
+			if ((c = RCompetition.getActiveCategories().get(catCode)) != null) {
 				// exact match for a category. This is the athlete's registration category.
 				processEligibilityAndTeams(parts, c, teamMember);
 			} else {

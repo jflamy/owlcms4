@@ -627,4 +627,12 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		return name;
 	}
 
+	public static String codeFromName(String catName) {
+		String newName = catName.replaceFirst(" ", "_");
+		newName = newName.replaceFirst(" ", "");
+		newName = newName.replaceFirst(">.*$", "999");
+		logger.warn("codeFromName {} --> {}",catName,newName);
+		return newName;
+	}
+
 }

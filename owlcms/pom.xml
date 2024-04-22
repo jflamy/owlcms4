@@ -771,7 +771,7 @@
 									<file>
 										target/${project.artifactId}-${project.version}.jar</file>
 									<repositoryId>owlcms-maven-repo</repositoryId>
-									<url>http://maven.lerta.ca:8880/releases</url>
+									<url>https://maven.lerta.ca/releases</url>
 									<groupId>${project.groupId}</groupId>
 									<artifactId>${project.artifactId}</artifactId>
 									<version>${project.version}</version>
