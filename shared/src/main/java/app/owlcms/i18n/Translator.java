@@ -374,7 +374,7 @@ public class Translator implements I18NProvider {
      */
     @Override
     public String getTranslation(String key, Locale locale, Object... params) {
-        //locale = overrideLocale(locale);
+        locale = overrideLocale(locale);
 
         if (key == null) {
             nullTranslationKey();
