@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -33,6 +35,8 @@ import ch.qos.logback.classic.Logger;
 public class CategoryRepository {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(CategoryRepository.class);
+	private static Map<String, Category> allCategories = new TreeMap<>();
+
 	static {
 		logger.setLevel(Level.INFO);
 	}
@@ -114,7 +118,7 @@ public class CategoryRepository {
 		// if youth F >81, athlete may be jr87 or jr>87;
 		allEligible = checkMultipleBWClasses(gender, ageFromFields, bw, allEligible);
 		allEligible.sort(new RegistrationPreferenceComparator());
-		
+
 		allEligible = allEligible.stream()
 		        .filter(c -> (qualifyingTotal >= c.getQualifyingTotal()))
 		        .peek(c -> {
@@ -142,7 +146,7 @@ public class CategoryRepository {
 			}
 			allEligible = allEligible.stream()
 			        .collect(Collectors.toList());
-		} 
+		}
 		return allEligible;
 	}
 
@@ -240,12 +244,12 @@ public class CategoryRepository {
 	 * @param string the string
 	 * @return the category
 	 */
-//	@Deprecated
-//	public static Category findByName(String string) {
-//		return JPAService.runInTransaction(em -> {
-//			return doFindByName(string, em);
-//		});
-//	}
+	// @Deprecated
+	// public static Category findByName(String string) {
+	// return JPAService.runInTransaction(em -> {
+	// return doFindByName(string, em);
+	// });
+	// }
 
 	/**
 	 * Find filtered.
@@ -405,6 +409,22 @@ public class CategoryRepository {
 		}
 		if (gender != null) {
 			query.setParameter("gender", gender);
+		}
+	}
+
+	public static void resetCodeMap() {
+		synchronized (allCategories) {
+			findActive().stream()
+			//.peek(c -> logger.debug("adding {}", c.getName()))
+			.forEach(c -> {
+				allCategories.put(c.getName(), c);
+			});
+		}
+	}
+
+	public static Category codeFromName(String catName) {
+		synchronized (allCategories) {
+			return allCategories.get(catName);
 		}
 	}
 }

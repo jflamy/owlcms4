@@ -19,6 +19,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 
+import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.spreadsheet.IRegistrationFileProcessor;
 import app.owlcms.spreadsheet.NRegistrationFileProcessor;
@@ -100,6 +101,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 
 	public void processInput(InputStream inputStream, TextArea ta) {
 		// clear athletes to be able to clear groups
+		CategoryRepository.resetCodeMap();
 		this.processor.resetAthletes();
 
 		// first do a dry run to count groups

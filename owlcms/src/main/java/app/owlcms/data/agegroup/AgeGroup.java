@@ -362,7 +362,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 	public void setChampionshipName(String championshipName) {
 		this.championshipName = championshipName;
-
 	}
 
 	public void setCode(String code) {
@@ -412,7 +411,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		return alreadyGendered == null ? false : alreadyGendered;
 	}
 
-	private String getChampionshipName() {
+	public String getChampionshipName() {
 		return championshipName;
 	}
 

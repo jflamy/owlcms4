@@ -27,6 +27,7 @@ import app.owlcms.Main;
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.category.RobiCategories;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
@@ -261,6 +262,7 @@ public class AgeGroupDefinitionReader {
 			mainLogger.info("loading age group definitions {}", localizedName);
 			createAgeGroups(workbook, templates, forcedInsertion, localizedName);
 			Championship.reset();
+			CategoryRepository.resetCodeMap();
 		} catch (Exception e) {
 			logger.error("could not process ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e));
 			mainLogger.error("could not process ageGroup configuration. See logs for details");

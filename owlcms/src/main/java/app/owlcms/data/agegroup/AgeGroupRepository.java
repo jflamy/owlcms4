@@ -294,14 +294,14 @@ public class AgeGroupRepository {
 		return ag;
 	}
 
-	/**
-	 * @return active categories
-	 */
-	public static List<AgeGroup> findActive() {
-		List<AgeGroup> findFiltered = findFiltered((String) null, (Gender) null, (Championship) null, (Integer) null,
-		        true, -1, -1);
-		return findFiltered.stream().map(ag -> fixAg(ag)).collect(Collectors.toList());
-	}
+//	/**
+//	 * @return active categories
+//	 */
+//	private static List<AgeGroup> findActive() {
+//		List<AgeGroup> findFiltered = findFiltered((String) null, (Gender) null, (Championship) null, (Integer) null,
+//		        true, -1, -1);
+//		return findFiltered.stream().map(ag -> fixAg(ag)).collect(Collectors.toList());
+//	}
 
 	public static List<String> findActiveAndUsedAgeGroupNames(Championship championship) {
 		return JPAService.runInTransaction((em) -> {

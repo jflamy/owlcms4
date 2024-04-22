@@ -28,6 +28,7 @@ import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
@@ -242,6 +243,7 @@ public class CompetitionData {
 			return null;
 		});
 		Championship.reset();
+		CategoryRepository.resetCodeMap();
 		// register the new FOPs for events and MQTT
 		OwlcmsFactory.initDefaultFOP();
 

@@ -38,7 +38,7 @@ public class Championship implements Comparable<Championship> {
 	static Comparator<Championship> ct = Comparator.comparing(Championship::getType)
 			.thenComparing(Championship::getNameLength)
 	        .thenComparing(Championship::getName);
-
+	
 	/**
 	 * Find all.
 	 *
