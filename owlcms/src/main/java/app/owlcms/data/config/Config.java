@@ -512,7 +512,7 @@ public class Config {
 			uURL = uURL.replaceFirst("/update$", "");
 			return uURL;
 		} else {
-			uURL = this.publicResultsURL;
+			uURL = this.getPublicResultsURL();
 			if (uURL == null || uURL.isBlank()) {
 				return null;
 			} else {
@@ -645,7 +645,7 @@ public class Config {
 		if (uURL != null) {
 			return uURL;
 		} else {
-			uURL = this.videoDataURL;
+			uURL = this.getVideoDataURL();
 			if (uURL == null || uURL.isBlank()) {
 				return null;
 			} else {

@@ -104,7 +104,6 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	private ComboBox<Championship> championshipFilter = new ComboBox<>();
 	private ComboBox<Category> categoryFilter = new ComboBox<>();
 	protected OwlcmsCrudGrid<Athlete> crudGrid;
-	private Group group;
 	private ComboBox<Gender> genderFilter = new ComboBox<>();
 	private ComboBox<String> teamFilter = new ComboBox<>();
 	private ComboBox<Group> groupFilter = new ComboBox<>();

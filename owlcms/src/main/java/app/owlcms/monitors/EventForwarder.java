@@ -14,6 +14,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -111,8 +112,6 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private JsonValue leaders;
 	private String liftsDone;
 	private EventBus postBus;
-	private int previousHashCode = 0;
-	private long previousMillis = 0L;
 	private JsonArray sattempts;
 	private Integer startNumber;
 	private String teamName;
@@ -154,13 +153,26 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		this.translatorResetTimeStamp = 0L;
 
 		String updateKey = Config.getCurrent().getParamUpdateKey();
-		String updateUrl = Config.getCurrent().getParamUpdateUrl();
+		String updateUrl = Config.getCurrent().getParamPublicResultsURL();
 		if (updateUrl == null || updateKey == null
 		        || updateUrl.trim().isEmpty()
 		        || updateKey.trim().isEmpty()) {
-			logger.info("{}Pushing results to remote site not enabled.", FieldOfPlay.getLoggingName(getFop()));
+			logger.info("{}publicresults not enabled.", FieldOfPlay.getLoggingName(getFop()));
 		} else {
-			logger.info("{}Pushing to remote site {}", FieldOfPlay.getLoggingName(getFop()), updateUrl);
+			logger.info("{}publicresults enabled, pushing to {}", FieldOfPlay.getLoggingName(getFop()), updateUrl);
+		}
+		if (emittingFop.getState() != null) {
+			pushUpdate(null);
+		}
+
+		String updateKeyV = Config.getCurrent().getParamVideoDataKey();
+		String updateUrlV = Config.getCurrent().getParamVideoDataURL();
+		if (updateUrlV == null || updateKeyV == null
+		        || updateUrlV.trim().isEmpty()
+		        || updateKeyV.trim().isEmpty()) {
+			logger.info("{}video data  not enabled.", FieldOfPlay.getLoggingName(getFop()));
+		} else {
+			logger.info("{}video data enabled, pushing to {}", FieldOfPlay.getLoggingName(getFop()), updateUrlV);
 		}
 		if (emittingFop.getState() != null) {
 			pushUpdate(null);
@@ -230,19 +242,19 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	}
 
 	private void setCeremonyChampionship(Championship ceremonyChampionship) {
-		this.ceremonyChampionship=ceremonyChampionship;
+		this.ceremonyChampionship = ceremonyChampionship;
 	}
 
 	private void setCeremonyAgeGroup(AgeGroup ceremonyAgeGroup) {
-		this.ceremonyAgeGroup=ceremonyAgeGroup;
+		this.ceremonyAgeGroup = ceremonyAgeGroup;
 	}
 
 	private void setCeremonyCategory(Category ceremonyCategory) {
-		this.ceremonyCategory=ceremonyCategory;
+		this.ceremonyCategory = ceremonyCategory;
 	}
 
 	private void setCeremonySession(Group ceremonySession) {
-		this.ceremonySession=ceremonySession;
+		this.ceremonySession = ceremonySession;
 	}
 
 	public String getBoardMode() {
@@ -1094,7 +1106,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		pushUpdate(e);
 	}
 
-	private void doPost(String url, Map<String, String> parameters) {
+	private void doPost(String url, String updateKey, Map<String, String> parameters) {
 		HttpPost post = new HttpPost(url);
 		// add request parameters or form parameters
 		List<NameValuePair> urlParameters = new ArrayList<>();
@@ -1120,7 +1132,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 								        FieldOfPlay.getLoggingName(getFop()), url,
 								        statusLine,
 								        LoggerUtils.whereFrom(1));
-								sendConfig(parameters.get("updateKey"));
+								sendConfig(url, updateKey);
 								nbTries++;
 							} else {
 								logger.error("{}could not post to {} {} {}", FieldOfPlay.getLoggingName(getFop()), url,
@@ -1413,40 +1425,43 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	}
 
 	private synchronized void pushDecision(DecisionEventType det, UIEvent e) {
-		String decisionUrl = Config.getCurrent().getParamDecisionUrl();
-		String videoUrl = Config.getCurrent().getParamVideoDataDecisionUrl();
+		Config current = Config.getCurrent();
+		String decisionUrl = current.getParamDecisionUrl();
+		String videoUrl = current.getParamVideoDataDecisionUrl();
 
 		setLastDecisionMap(createDecision(e, det));
 		if (decisionUrl == null && videoUrl == null) {
 			return;
 		}
-
-		sendPost(videoUrl, getLastDecisionMap());
-		sendPost(decisionUrl, getLastDecisionMap());
+		sendPost(videoUrl, current.getParamVideoDataKey(), getLastDecisionMap());
+		sendPost(decisionUrl, current.getUpdatekey(), getLastDecisionMap());
 	}
 
 	private void pushDecision(JuryNotification e) {
-		String decisionUrl = Config.getCurrent().getParamDecisionUrl();
-		String videoUrl = Config.getCurrent().getParamVideoDataDecisionUrl();
-		
+		Config current = Config.getCurrent();
+		String decisionUrl = current.getParamDecisionUrl();
+		String videoUrl = current.getParamVideoDataDecisionUrl();
+
 		if (decisionUrl == null && videoUrl == null) {
 			return;
 		}
 		setLastDecisionMap(createJuryEvent(e));
-		sendPost(videoUrl, getLastDecisionMap());
+		sendPost(videoUrl, current.getParamVideoDataKey(), getLastDecisionMap());
+		sendPost(decisionUrl, current.getUpdatekey(), getLastDecisionMap());
 	}
 
 	private synchronized void pushTimer(UIEvent e) {
-		String timerUrl = Config.getCurrent().getParamTimerUrl();
-		String videoUrl = Config.getCurrent().getParamVideoDataTimerUrl();
+		Config current = Config.getCurrent();
+		String timerUrl = current.getParamTimerUrl();
+		String videoUrl = current.getParamVideoDataTimerUrl();
 
 		setLastTimerMap(createTimer(e));
 		if (timerUrl == null && videoUrl == null) {
 			return;
 		}
 
-		sendPost(videoUrl, getLastTimerMap());
-		sendPost(timerUrl, getLastTimerMap());
+		sendPost(videoUrl, current.getParamVideoDataKey(), getLastTimerMap());
+		sendPost(timerUrl, current.getUpdatekey(), getLastTimerMap());
 	}
 
 	/**
@@ -1481,22 +1496,24 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		        this.fop.getCeremonyType()));
 		this.lastUpdate = createUpdate(e2);
 
-		String updateUrl = Config.getCurrent().getParamUpdateUrl();
+		Config current = Config.getCurrent();
+		String updateUrl = current.getParamUpdateUrl();
 		String videoUrl = Config.getCurrent().getParamVideoDataUpdateUrl();
 		if (updateUrl == null && videoUrl == null) {
 			return;
 		}
 
-		sendPost(videoUrl, this.lastUpdate);
-		sendPost(updateUrl, this.lastUpdate);
+		sendPost(videoUrl, current.getParamVideoDataKey(), this.lastUpdate);
+		sendPost(updateUrl, current.getUpdatekey(), this.lastUpdate);
 	}
 
-	private void sendConfig(String updateKey) {
-		String destination = Config.getCurrent().getParamPublicResultsURL() + "/config";
+	private void sendConfig(String url, String updateKey) {
+		Config current = Config.getCurrent();
+		String destination = url.replaceAll("/update", "") + "/config";
 		// wait for previous send to finish.
 		// no consequences sending it multiple times in a row -- we have no idea why it
 		// is being requested again.
-		synchronized (Config.getCurrent()) {
+		synchronized (current) {
 			try {
 				logger.info("{}sending config", FieldOfPlay.getLoggingName(getFop()));
 				HttpPost post = new HttpPost(destination);
@@ -1545,21 +1562,25 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		}
 	}
 
-	private void sendPost(String url, Map<String, String> parameters) {
+	Map<String, Integer> debouncingHash = new HashMap<>();
+	Map<String, Long> debouncingMillis = new HashMap<>();
+
+	private void sendPost(String url, String updateKey, Map<String, String> parameters) {
 		if (url == null) {
 			return;
 		}
-		// logger.debug("{}posting update {}", getFop().getLoggingName(),
-		// LoggerUtils.whereFrom());
-		long deltaMillis = System.currentTimeMillis() - this.previousMillis;
-		int hashCode = parameters.hashCode();
+		Integer previousDebounceHash = debouncingHash.get(url);
+		Long previousDebounceMillis = debouncingMillis.get(url);
+		Long deltaMillis = System.currentTimeMillis() - (previousDebounceMillis != null ? previousDebounceMillis : 0);
+		Integer hashCode = parameters.hashCode();
+
 		// debounce, sometimes several identical updates in a rapid succession
 		// identical updates are ok after 1 sec.
-		if (hashCode != this.previousHashCode || (deltaMillis > 1000)) {
-			new Thread(() -> doPost(url, parameters)).start();
+		if (hashCode != previousDebounceHash || (deltaMillis > 1000)) {
+			new Thread(() -> doPost(url, updateKey, parameters)).start();
 
-			this.previousHashCode = hashCode;
-			this.previousMillis = System.currentTimeMillis();
+			this.debouncingHash.put(url, hashCode);
+			this.debouncingMillis.put(url, System.currentTimeMillis());
 		}
 
 	}
