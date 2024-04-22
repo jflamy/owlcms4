@@ -7,6 +7,7 @@
 
 ##### 48.0
 
+- (rc03) Forwarding events to both a publicresults and a video data URL is now working correctly.
 - (rc02) Translations updated (Spanish, German, Finnish, Portuguese, Romanian, Hungarian, French)
 - (rc02) Athlete Registration, Weigh-in and Competition Documents
   - The editing form now requires a category.  The best choice is calculated automatically. The category must be selected manually if the birth date or body weight is missing.
