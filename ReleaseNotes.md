@@ -7,8 +7,11 @@
 
 ##### 48.0
 
-- (rc02) Translations updated (Spanish, German, Finnish, Portuguese, Romanian, Hungarian, French)
-- (rc02) Athlete Registration, Weigh-in and Competition Documents
+- (rc04) Fixed the lookup of categories when loading the Simple and SBDE Excel registration files
+- (rc03) Translations: Spanish (Spain), Danish, Romanian
+- (rc03) Switching languages during a session (using the top right drop-down selector) is now working again.
+- (rc03) Forwarding events to both a publicresults URL and a video data URL is now working correctly.
+- Athlete Registration, Weigh-in and Competition Documents
   - The editing form now requires a category.  The best choice is calculated automatically. The category must be selected manually if the birth date or body weight is missing.
   - The weigh-in, registration and document lists show athletes without categories, to allow fixing data entered using spreadsheets.
   - If a single Championship is being competed, it is selected by default.
