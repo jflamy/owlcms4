@@ -7,13 +7,15 @@
 
 ##### 48.0
 
-- (rc07) publicresults: fixed retrieval of update key from environment variables; required for cloud-to-cloud operation (regression in rc05)
-- (rc06) When loading a registration or SBDE file, if explicit category names are used, they can be entered exactly as displayed in the current language.
+- Scoreboards:
+  - The open age group is no longer shown ("W 64" in now shown instead of "Open W 64").  Other age groups are shown as before ("U15 W 64").
+
 - Athlete Registration, Weigh-in and Competition Documents
   - The editing form now requires a category.  The best choice is calculated automatically. The category must be selected manually if the birth date or body weight is missing.
   - The weigh-in, registration and document lists show athletes without categories, to allow fixing data entered using spreadsheets.
   - If a single Championship is being competed, it is selected by default.
   - When a session has been selected on the registration or weigh-in page, the `Add` button will assign that session as default for the new athlete.
+  - When loading a registration or SBDE file, if explicit category names are used, they can be entered exactly as displayed in the current language.
 - Championships and Final Results Package
   - The second column, previously empty, of the AgeGroups file is now used for a Championship Name. The third column is the championship type (IWF, MASTERS, etc.) 
   - You can name the Championship in your local language. For example: Youth, Junior, Senior, Masters, U13, U15, Junior High, Senior High, whatever you need.
