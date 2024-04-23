@@ -7,6 +7,8 @@
 
 ##### 48.0
 
+- (rc05) Fixed assignment of category when ages for categories overlap and the lowest age group is not desired
+- (rc05) In the registration/weigh-in grids, filters were not applied to athletes without a selected category
 - (rc04) Fixed the lookup of categories when loading the Simple and SBDE Excel registration files
 - (rc03) Translations: Spanish (Spain), Danish, Romanian
 - (rc03) Switching languages during a session (using the top right drop-down selector) is now working again.
