@@ -415,9 +415,9 @@ public class CategoryRepository {
 	public static void resetCodeMap() {
 		synchronized (allCategories) {
 			findActive().stream()
-			//.peek(c -> logger.warn/**/("adding {} {}", c.getName(), c.getTranslatedName()))
+			//.peek(c -> logger.warn/**/("adding {} + {}", c.getComputedName(), c.getTranslatedName()))
 			.forEach(c -> {
-				allCategories.put(c.getName(), c);
+				allCategories.put(c.getComputedName(), c);
 				allCategories.put(c.getTranslatedName(), c);
 			});
 		}

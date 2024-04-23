@@ -43,6 +43,7 @@ import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.i18n.Translator;
@@ -224,6 +225,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 			}
 			return 0;
 		});
+		CategoryRepository.resetCodeMap();
 		return all;
 	}
 
