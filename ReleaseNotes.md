@@ -7,8 +7,8 @@
 
 ##### 48.0
 
-- (rc02) Translations updated (Spanish, German, Finnish, Portuguese, Romanian, Hungarian, French)
-- (rc02) Athlete Registration, Weigh-in and Competition Documents
+- (rc06) When loading a registration or SBDE file, if explicit category names are used, they can be entered exactly as displayed in the current language.
+- Athlete Registration, Weigh-in and Competition Documents
   - The editing form now requires a category.  The best choice is calculated automatically. The category must be selected manually if the birth date or body weight is missing.
   - The weigh-in, registration and document lists show athletes without categories, to allow fixing data entered using spreadsheets.
   - If a single Championship is being competed, it is selected by default.
