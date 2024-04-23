@@ -145,34 +145,13 @@ public class TeamSelectionContent extends BaseContent
 		this.finalPackage.getStyle().set("margin-left", "1em");
 		this.download = new Button(getTranslation(TITLE + ".Report"), new Icon(VaadinIcon.DOWNLOAD_ALT));
 
-		this.topBarAgeGroupPrefixSelect = new ComboBox<>();
-		this.topBarAgeGroupPrefixSelect.setPlaceholder(getTranslation("AgeGroup"));
-
-		this.topBarAgeGroupPrefixSelect.setEnabled(false);
-		this.topBarAgeGroupPrefixSelect.setClearButtonVisible(true);
-		this.topBarAgeGroupPrefixSelect.setValue(null);
-		this.topBarAgeGroupPrefixSelect.setWidth("8em");
-		this.topBarAgeGroupPrefixSelect.setClearButtonVisible(true);
-		this.topBarAgeGroupPrefixSelect.getStyle().set("margin-left", "1em");
-		setAgeGroupPrefixSelectionListener();
-
-		this.topBarAgeDivisionSelect = new ComboBox<>();
-		this.topBarAgeDivisionSelect.setPlaceholder(getTranslation("Championship"));
-		this.adItems = Championship.findAll();
-		this.topBarAgeDivisionSelect.setItems(this.adItems);
-		this.topBarAgeDivisionSelect.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.getName()));
-		this.topBarAgeDivisionSelect.setClearButtonVisible(true);
-		this.topBarAgeDivisionSelect.setWidth("8em");
-		this.topBarAgeDivisionSelect.getStyle().set("margin-left", "1em");
-		setAgeDivisionSelectionListener();
-
 		this.finalPackage.add(this.download);
 		HorizontalLayout buttons = new HorizontalLayout(this.finalPackage);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
 		this.topBar.getStyle().set("flex", "100 1");
 		this.topBar.removeAll();
-		this.topBar.add(this.topBarAgeDivisionSelect, this.topBarAgeGroupPrefixSelect);
+		//this.topBar.add(this.topBarAgeDivisionSelect, this.topBarAgeGroupPrefixSelect);
 		this.topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
 		this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 		return this.topBar;
@@ -378,9 +357,6 @@ public class TeamSelectionContent extends BaseContent
 				if (TeamSelectionContent.this.topBar == null) {
 					return;
 				}
-				// logger.debug("refreshing grid {} {} {}",getAgeGroupPrefix(),
-				// getAgeDivision(),
-				// genderFilter.getValue());
 				TeamSelectionTreeData teamTreeData = new TeamSelectionTreeData(getAgeGroupPrefix(), getAgeDivision(),
 				        TeamSelectionContent.this.genderFilter.getValue(), Ranking.SNATCH_CJ_TOTAL, false);
 				this.grid.setDataProvider(new TreeDataProvider<>(teamTreeData));
@@ -432,18 +408,27 @@ public class TeamSelectionContent extends BaseContent
 	 * @param crudGrid the crudGrid that will be filtered.
 	 */
 	protected void defineFilters(OwlcmsCrudGrid<TeamTreeItem> crudGrid2) {
-		// if (teamFilter == null) {
-		// teamFilter = new ComboBox<>();
-		// teamFilter.setPlaceholder(getTranslation("Team"));
-		// teamFilter.setClearButtonVisible(true);
-		// teamFilter.addValueChangeListener(e -> {
-		// if (!teamFilterRecusion) return;
-		// crudGrid2.refreshGrid();
-		// });
-		// teamFilter.setWidth("10em");
-		// }
-		// crudGrid2.getCrudLayout().addFilterComponent(teamFilter);
 
+		this.topBarAgeGroupPrefixSelect = new ComboBox<>();
+		this.topBarAgeGroupPrefixSelect.setPlaceholder(getTranslation("AgeGroup"));
+		this.topBarAgeGroupPrefixSelect.setEnabled(false);
+		this.topBarAgeGroupPrefixSelect.setClearButtonVisible(true);
+		this.topBarAgeGroupPrefixSelect.setValue(null);
+		this.topBarAgeGroupPrefixSelect.setWidth("15em");
+		this.topBarAgeGroupPrefixSelect.setClearButtonVisible(true);
+		this.topBarAgeGroupPrefixSelect.getStyle().set("margin-left", "1em");
+		setAgeGroupPrefixSelectionListener();
+
+		this.topBarAgeDivisionSelect = new ComboBox<>();
+		this.topBarAgeDivisionSelect.setPlaceholder(getTranslation("Championship"));
+		this.adItems = Championship.findAllUsed(true);
+		this.topBarAgeDivisionSelect.setItems(this.adItems);
+		this.topBarAgeDivisionSelect.setItemLabelGenerator((ad) -> ad.getName());
+		this.topBarAgeDivisionSelect.setClearButtonVisible(true);
+		this.topBarAgeDivisionSelect.setWidth("15em");
+		this.topBarAgeDivisionSelect.getStyle().set("margin-left", "1em");
+		setAgeDivisionSelectionListener();
+		
 		if (this.genderFilter == null) {
 			this.genderFilter = new ComboBox<>();
 			this.genderFilter.setPlaceholder(getTranslation("Gender"));
@@ -457,6 +442,9 @@ public class TeamSelectionContent extends BaseContent
 			});
 			this.genderFilter.setWidth("10em");
 		}
+		
+		crudGrid2.getCrudLayout().addFilterComponent(this.topBarAgeDivisionSelect);
+		crudGrid2.getCrudLayout().addFilterComponent(this.topBarAgeGroupPrefixSelect);
 		crudGrid2.getCrudLayout().addFilterComponent(this.genderFilter);
 	}
 
