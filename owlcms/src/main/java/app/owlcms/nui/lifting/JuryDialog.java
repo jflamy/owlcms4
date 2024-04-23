@@ -124,7 +124,7 @@ public class JuryDialog extends Dialog {
 				this.close();
 				return;
 			}
-			// TODO: this should be done after processing the JuryEvent in FieldOfPlay
+			// FIXME: this should be done after processing the JuryEvent in FieldOfPlay
 			resumeLifting(noAction);
 
 			this.close();
