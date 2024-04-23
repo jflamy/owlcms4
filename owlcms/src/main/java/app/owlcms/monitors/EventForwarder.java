@@ -1208,7 +1208,6 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 					logger.trace("    {} = {}", m.getKey(), m.getValue());
 				}
 			} finally {
-				// TODO Auto-generated catch block
 				logger.setLevel(level);
 			}
 		}
