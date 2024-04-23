@@ -76,7 +76,7 @@ public class ResultsMultiRanks extends Results {
 	@Override
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 		String category;
-		category = curCat != null ? curCat.getTranslatedName() : "";
+		category = curCat != null ? curCat.getDisplayName() : "";
 		if (isAbbreviatedName()) {
 			ja.put("fullName", a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
 		} else {

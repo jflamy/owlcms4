@@ -206,7 +206,7 @@ public class AthleteCard extends LitTemplate
 		}
 		Category category = this.athlete.getCategory();
 		if (category != null) {
-			getElement().setProperty("category", category.getTranslatedName());
+			getElement().setProperty("category", category.getNameWithAgeGroup());
 		} else {
 			getElement().setProperty("category", "");
 		}

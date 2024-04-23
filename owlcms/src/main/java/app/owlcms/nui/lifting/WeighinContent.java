@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,7 +23,6 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.CrudOperation;
-import org.vaadin.crudui.form.impl.field.provider.CheckBoxGroupProvider;
 
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.AttachEvent;
@@ -55,26 +53,20 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.JXLSDownloader;
-import app.owlcms.components.fields.LocalDateField;
-import app.owlcms.components.fields.LocalizedDecimalField;
-import app.owlcms.components.fields.ValidationTextField;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
-import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.nui.crudui.OwlcmsComboBoxProvider;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
@@ -917,97 +909,97 @@ public class WeighinContent extends BaseContent
 	 * @param crudFormFactory the factory that will create the form using this information
 	 */
 	private void createFormLayout(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
-		if (!Config.getCurrent().featureSwitch("oldAthleteForm")) {
-			return;
-		}
-		List<String> props = new LinkedList<>();
-		List<String> captions = new LinkedList<>();
-
-		props.add("lastName");
-		captions.add(getTranslation("LastName"));
-		props.add("firstName");
-		captions.add(getTranslation("FirstName"));
-
-		props.add("bodyWeight");
-		captions.add(getTranslation("BodyWeight"));
-		props.add("snatch1Declaration");
-		captions.add(getTranslation("SnatchDecl_"));
-		props.add("cleanJerk1Declaration");
-		captions.add(getTranslation("C_and_J_decl"));
-
-		props.add("qualifyingTotal");
-		captions.add(getTranslation("EntryTotal"));
-		props.add("category");
-		captions.add(getTranslation("Weighin.Category"));
-		props.add("eligibleCategories");
-		captions.add(getTranslation("Weighin.EligibleCategories"));
-		props.add("group");
-		captions.add(getTranslation("Group"));
-
-		props.add("gender");
-		captions.add(getTranslation("Gender"));
-		props.add("team");
-		captions.add(getTranslation("Team"));
-
-		Competition competition = Competition.getCurrent();
-		if (competition.isUseBirthYear()) {
-			props.add("yearOfBirth");
-			captions.add(getTranslation("YearOfBirth"));
-		} else {
-			props.add("fullBirthDate");
-			captions.add(getTranslation("BirthDate_yyyy"));
-		}
-		props.add("membership");
-		captions.add(getTranslation("Membership"));
-
-		props.add("coach");
-		captions.add(getTranslation("Coach"));
-		props.add("custom1");
-		captions.add(getTranslation("Custom1.Title"));
-		props.add("custom2");
-		captions.add(getTranslation("Custom2.Title"));
-
-		props.add("lotNumber");
-		captions.add(getTranslation("Lot"));
-
-		props.add("federationCodes");
-		captions.add(getTranslation("Registration.FederationCodes"));
-
-		props.add("eligibleForIndividualRanking");
-		captions.add(getTranslation("Eligible for Individual Ranking?"));
-
-		crudFormFactory.setVisibleProperties(props.toArray(new String[0]));
-		crudFormFactory.setFieldCaptions(captions.toArray(new String[0]));
-
-		crudFormFactory.setFieldProvider("gender", new OwlcmsComboBoxProvider<>(getTranslation("Gender"),
-		        Arrays.asList(Gender.mfValues()), new TextRenderer<>(Gender::name), Gender::name));
-		List<Group> groups = GroupRepository.findAll();
-		groups.sort(new NaturalOrderComparator<>());
-		crudFormFactory.setFieldProvider("group", new OwlcmsComboBoxProvider<>(getTranslation("Group"),
-		        groups, new TextRenderer<>(Group::getName), Group::getName));
-		crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
-		        CategoryRepository.findActive(), new TextRenderer<>(Category::getTranslatedName),
-		        Category::getTranslatedName));
-		crudFormFactory.setFieldProvider("eligibleCategories",
-		        new CheckBoxGroupProvider<>(getTranslation("Weighin.EligibleCategories"),
-		                new ArrayList<Category>(), (c) -> (c.getTranslatedName())));
-		// crudFormFactory.setFieldProvider("ageDivision",
-		// new OwlcmsComboBoxProvider<>(getTranslation("Championship"), Arrays.asList(Championship.values()),
-		// new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), Championship::name));
-
-		crudFormFactory.setFieldType("bodyWeight", LocalizedDecimalField.class);
-		crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
-
-		// ValidationTextField (or a wrapper) must be used as workaround for unexplained
-		// validation behaviour
-		crudFormFactory.setFieldType("snatch1Declaration", ValidationTextField.class);
-		crudFormFactory.setFieldType("cleanJerk1Declaration", ValidationTextField.class);
-		crudFormFactory.setFieldType("qualifyingTotal", ValidationTextField.class);
-		crudFormFactory.setFieldType("yearOfBirth", ValidationTextField.class);
-
-		crudFormFactory.setFieldCreationListener("bodyWeight", (e) -> {
-			((LocalizedDecimalField) e).focus();
-		});
+//		if (!Config.getCurrent().featureSwitch("oldAthleteForm")) {
+//			return;
+//		}
+//		List<String> props = new LinkedList<>();
+//		List<String> captions = new LinkedList<>();
+//
+//		props.add("lastName");
+//		captions.add(getTranslation("LastName"));
+//		props.add("firstName");
+//		captions.add(getTranslation("FirstName"));
+//
+//		props.add("bodyWeight");
+//		captions.add(getTranslation("BodyWeight"));
+//		props.add("snatch1Declaration");
+//		captions.add(getTranslation("SnatchDecl_"));
+//		props.add("cleanJerk1Declaration");
+//		captions.add(getTranslation("C_and_J_decl"));
+//
+//		props.add("qualifyingTotal");
+//		captions.add(getTranslation("EntryTotal"));
+//		props.add("category");
+//		captions.add(getTranslation("Weighin.Category"));
+//		props.add("eligibleCategories");
+//		captions.add(getTranslation("Weighin.EligibleCategories"));
+//		props.add("group");
+//		captions.add(getTranslation("Group"));
+//
+//		props.add("gender");
+//		captions.add(getTranslation("Gender"));
+//		props.add("team");
+//		captions.add(getTranslation("Team"));
+//
+//		Competition competition = Competition.getCurrent();
+//		if (competition.isUseBirthYear()) {
+//			props.add("yearOfBirth");
+//			captions.add(getTranslation("YearOfBirth"));
+//		} else {
+//			props.add("fullBirthDate");
+//			captions.add(getTranslation("BirthDate_yyyy"));
+//		}
+//		props.add("membership");
+//		captions.add(getTranslation("Membership"));
+//
+//		props.add("coach");
+//		captions.add(getTranslation("Coach"));
+//		props.add("custom1");
+//		captions.add(getTranslation("Custom1.Title"));
+//		props.add("custom2");
+//		captions.add(getTranslation("Custom2.Title"));
+//
+//		props.add("lotNumber");
+//		captions.add(getTranslation("Lot"));
+//
+//		props.add("federationCodes");
+//		captions.add(getTranslation("Registration.FederationCodes"));
+//
+//		props.add("eligibleForIndividualRanking");
+//		captions.add(getTranslation("Eligible for Individual Ranking?"));
+//
+//		crudFormFactory.setVisibleProperties(props.toArray(new String[0]));
+//		crudFormFactory.setFieldCaptions(captions.toArray(new String[0]));
+//
+//		crudFormFactory.setFieldProvider("gender", new OwlcmsComboBoxProvider<>(getTranslation("Gender"),
+//		        Arrays.asList(Gender.mfValues()), new TextRenderer<>(Gender::name), Gender::name));
+//		List<Group> groups = GroupRepository.findAll();
+//		groups.sort(new NaturalOrderComparator<>());
+//		crudFormFactory.setFieldProvider("group", new OwlcmsComboBoxProvider<>(getTranslation("Group"),
+//		        groups, new TextRenderer<>(Group::getName), Group::getName));
+//		crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
+//		        CategoryRepository.findActive(), new TextRenderer<>(Category::getNameWithAgeGroup),
+//		        Category::getNameWithAgeGroup));
+//		crudFormFactory.setFieldProvider("eligibleCategories",
+//		        new CheckBoxGroupProvider<>(getTranslation("Weighin.EligibleCategories"),
+//		                new ArrayList<Category>(), (c) -> (c.getNameWithAgeGroup())));
+//		// crudFormFactory.setFieldProvider("ageDivision",
+//		// new OwlcmsComboBoxProvider<>(getTranslation("Championship"), Arrays.asList(Championship.values()),
+//		// new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), Championship::name));
+//
+//		crudFormFactory.setFieldType("bodyWeight", LocalizedDecimalField.class);
+//		crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
+//
+//		// ValidationTextField (or a wrapper) must be used as workaround for unexplained
+//		// validation behaviour
+//		crudFormFactory.setFieldType("snatch1Declaration", ValidationTextField.class);
+//		crudFormFactory.setFieldType("cleanJerk1Declaration", ValidationTextField.class);
+//		crudFormFactory.setFieldType("qualifyingTotal", ValidationTextField.class);
+//		crudFormFactory.setFieldType("yearOfBirth", ValidationTextField.class);
+//
+//		crudFormFactory.setFieldCreationListener("bodyWeight", (e) -> {
+//			((LocalizedDecimalField) e).focus();
+//		});
 	}
 
 	private Button createJuryButton() {

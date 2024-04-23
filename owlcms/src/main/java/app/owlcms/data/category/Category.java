@@ -129,7 +129,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		this.setWrSr(wrSr);
 		this.setQualifyingTotal(qualifyingTotal);
 		this.setCode(getComputedCode());
-		this.setName(getComputedName());
+		this.setName(getDisplayName());
 		// logger.debug("{} Category({},{},{}) [{}]", getComputedCode(), gender,
 		// minimumWeight, maximumWeight,
 		// LoggerUtils.whereFrom(1));
@@ -287,7 +287,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
 	@JsonIgnore
 	@Transient
-	public String getComputedName() {
+	public String getDisplayName() {
 		String agName = (this.ageGroup != null ? this.ageGroup.getName() : "");
 		String catName = getLimitString();
 		if (isAlreadyGendered()) {
@@ -380,7 +380,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	@Transient
 	public String getSafeName() {
 		if (this.name == null || this.name.isBlank()) {
-			return getComputedName();
+			return getDisplayName();
 		}
 		return this.name;
 	}
@@ -410,7 +410,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
 	@JsonIgnore
 	@Transient
-	public String getTranslatedName() {
+	public String getNameWithAgeGroup() {
 		String agName = (this.ageGroup != null ? this.ageGroup.getName() : "");
 		String catName = getLimitString();
 		if (agName == null || agName.isEmpty()) {
@@ -628,7 +628,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	 */
 	@Override
 	public String toString() {
-		return getComputedName();
+		return getDisplayName();
 	}
 
 	public String getName() {

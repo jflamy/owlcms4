@@ -662,14 +662,14 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		validateCategory(bb);
 		bindField(bb, this.categoryField, Athlete::getCategory, Athlete::setCategory);
 		safeCategorySetItems(CategoryRepository.findActive());
-		this.categoryField.setRenderer(new TextRenderer<>(Category::getTranslatedName));
+		this.categoryField.setRenderer(new TextRenderer<>(Category::getDisplayName));
 		FormItem fi = layoutAddFormItem(layout, this.categoryField, Translator.translate("Category"));
 		layout.setColspan(fi, 1);
 
 		this.eligibleField = new CheckboxGroup<>();
 		bindField(this.binder.forField(this.eligibleField), this.eligibleField, Athlete::getEligibleCategories,
 		        Athlete::setEligibleCategories);
-		this.eligibleField.setRenderer(new TextRenderer<>(Category::getTranslatedName));
+		this.eligibleField.setRenderer(new TextRenderer<>(Category::getDisplayName));
 		FormItem fi1 = layoutAddFormItem(layout, this.eligibleField,
 		        Translator.translate("Weighin.EligibleCategories"));
 		layout.setColspan(fi1, NB_COLUMNS - 1);

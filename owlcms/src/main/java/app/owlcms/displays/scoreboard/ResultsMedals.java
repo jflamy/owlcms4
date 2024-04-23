@@ -300,7 +300,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
 		String category;
-		category = curCat != null ? curCat.getTranslatedName() : "";
+		category = curCat != null ? curCat.getDisplayName() : "";
 		if (isAbbreviatedName()) {
 			ja.put("fullName", a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
 		} else {
@@ -442,7 +442,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			JsonObject jMC = Json.createObject();
 			int mcX = 0;
 			if (medalists != null && !medalists.isEmpty()) {
-				jMC.put("categoryName", getCategory().getTranslatedName());
+				jMC.put("categoryName", getCategory().getDisplayName());
 				jMC.put("leaders", getAthletesJson(new ArrayList<>(medalists), fop));
 				// logger.debug("medalCategory: {}", jMC.toJson());
 				jsonMCArray.set(mcX, jMC);
@@ -480,7 +480,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 				if (medalists != null && !medalists.isEmpty()) {
 					String key = medalCat.getKey();
 					Category cat = CategoryRepository.findByCode(key); //FIXME: check that this works
-					jMC.put("categoryName", cat.getTranslatedName());
+					jMC.put("categoryName", cat.getDisplayName());
 					jMC.put("leaders", getAthletesJson(new ArrayList<>(medalists), fop));
 					if (mcX == 0) {
 						jMC.put("showCatHeader", "");

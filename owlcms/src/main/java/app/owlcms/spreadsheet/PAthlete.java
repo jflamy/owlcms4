@@ -390,7 +390,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public String getDisplayCategory() {
-		return this.p.getCategory().getTranslatedName();
+		return this.p.getCategory().getDisplayName();
 	}
 
 	@Override

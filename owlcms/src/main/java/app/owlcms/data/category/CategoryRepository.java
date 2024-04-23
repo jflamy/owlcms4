@@ -322,7 +322,7 @@ public class CategoryRepository {
 		return JPAService.runInTransaction(em -> {
 			// code must match inside info for string-based matches in db.
 			category.setCode(category.getComputedCode());
-			category.setName(category.getComputedName());
+			category.setName(category.getDisplayName());
 			return em.merge(category);
 		});
 	}
@@ -417,8 +417,8 @@ public class CategoryRepository {
 			findActive().stream()
 			//.peek(c -> logger.warn/**/("adding {} + {}", c.getComputedName(), c.getTranslatedName()))
 			.forEach(c -> {
-				allCategories.put(c.getComputedName(), c);
-				allCategories.put(c.getTranslatedName(), c);
+				allCategories.put(c.getDisplayName(), c);
+				allCategories.put(c.getNameWithAgeGroup(), c);
 			});
 		}
 	}

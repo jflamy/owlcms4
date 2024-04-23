@@ -769,7 +769,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		// System.identityHashCode(fop), fop.getGroup(), fop.getCurAthlete(), LoggerUtils.stackTrace());
 		Athlete curAthlete = this.fop.getCurAthlete();
 		if (curAthlete != null && curAthlete.getGender() != null) {
-			setCategoryName(curAthlete.getCategory().getTranslatedName());
+			setCategoryName(curAthlete.getCategory().getDisplayName());
 			this.groupLeaders = this.fop.getLeaders();
 			if (this.groupLeaders == null || this.groupLeaders.isEmpty()) {
 				setLeaders(null);
@@ -1024,9 +1024,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "ceremonyEventType", ceremonyEventType);
 		mapPut(sb, "ceremonyType", cts);
 		mapPut(sb, "ceremonySession", ceremonySession != null ? ceremonySession.getName() : null);
-		mapPut(sb, "ceremonyCategory", ceremonyCategory != null ? ceremonyCategory.getComputedName() : null);
+		mapPut(sb, "ceremonyCategory", ceremonyCategory != null ? ceremonyCategory.getDisplayName() : null);
 		mapPut(sb, "ceremonyType", ceremonyType != null ? ceremonyType.name() : null);
-		mapPut(sb, "ceremonyCategory", ceremonyCategory != null ? ceremonyCategory.getComputedName() : null);
+		mapPut(sb, "ceremonyCategory", ceremonyCategory != null ? ceremonyCategory.getDisplayName() : null);
 		mapPut(sb, "ceremonyAgeGroup", ceremonyAgeGroup != null ? ceremonyAgeGroup.getName() : null);
 		mapPut(sb, "ceremonyChampionship", ceremonyChampionship != null ? ceremonyChampionship.getName() : null);
 
@@ -1241,7 +1241,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	private void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
 		String category;
-		category = curCat != null ? curCat.getTranslatedName() : "";
+		category = curCat != null ? curCat.getNameWithAgeGroup() : "";
 		ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
 		ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
 		ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");

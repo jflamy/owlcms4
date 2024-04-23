@@ -114,7 +114,7 @@ public class TeamTreeItem {
 	}
 
 	public String getCategory() {
-		return this.team == null ? this.athlete.getCategory().getTranslatedName() : "";
+		return this.team == null ? this.athlete.getCategory().getNameWithAgeGroup() : "";
 	}
 
 	public Integer getCleanJerkPoints() {

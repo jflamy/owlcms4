@@ -122,11 +122,11 @@ public class GroupCategorySelectionMenu extends MenuBar {
 	
 				Category cat = CategoryRepository.findByCode(c);
 				MenuItem subItem1 = subMenu.addItem(
-				        g.getName() + " - " + cat.getTranslatedName(),
+				        g.getName() + " - " + cat.getNameWithAgeGroup(),
 				        e -> {
 					        whenChecked.accept(g, cat, fop);
 					        setChecked(e.getSource(), subMenu, true);
-					        item.setText(g.getName() + " - " + cat.getTranslatedName() + "\u2003\u25bd");
+					        item.setText(g.getName() + " - " + cat.getNameWithAgeGroup() + "\u2003\u25bd");
 				        });
 				subItem1.setCheckable(true);
 				subItem1.getElement().setAttribute("style", "margin: 0px; padding: 0px");

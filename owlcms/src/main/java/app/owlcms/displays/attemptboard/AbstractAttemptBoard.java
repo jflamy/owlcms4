@@ -157,7 +157,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 				Athlete a = fop.getCurAthlete();
 				if (a != null) {
-					this.getElement().setProperty("category", a.getCategory().getTranslatedName());
+					this.getElement().setProperty("category", a.getCategory().getDisplayName());
 					String formattedAttempt = formatAttempt(a);
 					this.getElement().setProperty("attempt", formattedAttempt);
 					Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
@@ -590,7 +590,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		}
 		this.getElement().setProperty("decisionVisible", false);
 		Category category2 = a.getCategory();
-		this.getElement().setProperty("category", category2 != null ? category2.getTranslatedName() : "");
+		this.getElement().setProperty("category", category2 != null ? category2.getDisplayName() : "");
 		this.getElement().setProperty("athletePictures", isAthletePictures());
 
 		String team = a.getTeam();
@@ -647,7 +647,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		this.getElement().setProperty("attempt", "");
 		Athlete a = fop.getCurAthlete();
 		if (a != null) {
-			this.getElement().setProperty("category", a.getCategory().getTranslatedName());
+			this.getElement().setProperty("category", a.getCategory().getDisplayName());
 			String formattedAttempt = formatAttempt(a);
 			this.getElement().setProperty("attempt", formattedAttempt);
 			Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();

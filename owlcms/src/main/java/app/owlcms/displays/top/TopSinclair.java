@@ -119,7 +119,7 @@ public class TopSinclair extends AbstractTop {
 
 	public void getAthleteJson(Athlete a, JsonObject ja, Gender g, int needed) {
 		String category;
-		category = a.getCategory() != null ? a.getCategory().getTranslatedName() : "";
+		category = a.getCategory() != null ? a.getCategory().getDisplayName() : "";
 		ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
 		ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
 		ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");

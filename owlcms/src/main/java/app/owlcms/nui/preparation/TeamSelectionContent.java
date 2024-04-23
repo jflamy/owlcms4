@@ -565,7 +565,7 @@ public class TeamSelectionContent extends BaseContent
 
 	private Object toggleTeamMember(TeamTreeItem tti, Boolean value, EntityManager em) {
 		logger.info("{} {} as team member for category {}", value ? "setting" : "removing",
-		        tti.getAthlete().getShortName(), tti.getAthlete().getCategory().getTranslatedName());
+		        tti.getAthlete().getShortName(), tti.getAthlete().getCategory().getNameWithAgeGroup());
 		Participation _getOriginalParticipation = ((PAthlete) tti.getAthlete())._getOriginalParticipation();
 		boolean member = Boolean.TRUE.equals(value);
 		_getOriginalParticipation.setTeamMember(member);

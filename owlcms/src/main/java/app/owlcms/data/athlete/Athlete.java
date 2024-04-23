@@ -770,7 +770,7 @@ public class Athlete {
 	public String getAllCategoriesAsString() {
 		Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
 		// use getName because we don't want the translated gender.
-		String mainCategory = mrCat != null ? mrCat.getComputedName() : "";
+		String mainCategory = mrCat != null ? mrCat.getDisplayName() : "";
 
 		String mainCategoryString = mainCategory;
 		if (mrCat != null && !getMainRankings().getTeamMember()) {
@@ -781,7 +781,7 @@ public class Athlete {
 		        .filter(p -> (p.getCategory() != mrCat))
 		        .sorted((a, b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
 		        .map(p -> {
-			        String catName = p.getCategory().getComputedName();
+			        String catName = p.getCategory().getDisplayName();
 			        return catName + (!p.getTeamMember() ? RAthlete.NoTeamMarker : "");
 		        })
 		        .collect(Collectors.joining(";"));
@@ -792,31 +792,31 @@ public class Athlete {
 		}
 	}
 
-	@Transient
-	@JsonIgnore
-	public String getAllTranslatedCategoriesAsString() {
-		Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
-		String mainCategory = mrCat != null ? mrCat.getTranslatedName() : "";
-
-		String mainCategoryString = mainCategory;
-		if (mrCat != null && !getMainRankings().getTeamMember()) {
-			mainCategoryString = mainCategory + RAthlete.NoTeamMarker;
-		}
-
-		String eligiblesAsString = this.getParticipations().stream()
-		        .filter(p -> (p.getCategory() != mrCat))
-		        .sorted((a, b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
-		        .map(p -> {
-			        String catName = p.getCategory().getTranslatedName();
-			        return catName + (!p.getTeamMember() ? RAthlete.NoTeamMarker : "");
-		        })
-		        .collect(Collectors.joining(";"));
-		if (eligiblesAsString.isBlank()) {
-			return mainCategoryString;
-		} else {
-			return mainCategory + "|" + eligiblesAsString;
-		}
-	}
+//	@Transient
+//	@JsonIgnore
+//	private String getAllTranslatedCategoriesAsString() {
+//		Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
+//		String mainCategory = mrCat != null ? mrCat.getNameWithAgeGroup() : "";
+//
+//		String mainCategoryString = mainCategory;
+//		if (mrCat != null && !getMainRankings().getTeamMember()) {
+//			mainCategoryString = mainCategory + RAthlete.NoTeamMarker;
+//		}
+//
+//		String eligiblesAsString = this.getParticipations().stream()
+//		        .filter(p -> (p.getCategory() != mrCat))
+//		        .sorted((a, b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
+//		        .map(p -> {
+//			        String catName = p.getCategory().getNameWithAgeGroup();
+//			        return catName + (!p.getTeamMember() ? RAthlete.NoTeamMarker : "");
+//		        })
+//		        .collect(Collectors.joining(";"));
+//		if (eligiblesAsString.isBlank()) {
+//			return mainCategoryString;
+//		} else {
+//			return mainCategory + "|" + eligiblesAsString;
+//		}
+//	}
 
 	/**
 	 * Number of attempt 1..3, relative to current lift
@@ -1496,7 +1496,8 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public String getDisplayCategory() {
-		return getLongCategory();
+		Category category = getCategory();
+		return (category != null ? category.getDisplayName() : "");
 	}
 
 	@JsonIgnore
@@ -1528,7 +1529,7 @@ public class Athlete {
 	@JsonIgnore
 	public String getEligibleCategoriesAsString() {
 		Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
-		String mainCategory = mrCat != null ? mrCat.getTranslatedName() : "";
+		String mainCategory = mrCat != null ? mrCat.getDisplayName() : "";
 
 		String mainCategoryString = mainCategory;
 		if (mrCat != null && !getMainRankings().getTeamMember()) {
@@ -1539,7 +1540,7 @@ public class Athlete {
 		        .filter(p -> (p.getCategory() != mrCat))
 		        .sorted((a, b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
 		        .map(p -> {
-			        String catName = p.getCategory().getTranslatedName();
+			        String catName = p.getCategory().getNameWithAgeGroup();
 			        return catName;
 		        })
 		        .collect(Collectors.joining(";"));
@@ -1799,7 +1800,7 @@ public class Athlete {
 	@JsonIgnore
 	public String getLongCategory() {
 		Category category = getCategory();
-		return (category != null ? category.getTranslatedName() : "");
+		return (category != null ? category.getNameWithAgeGroup() : "");
 	}
 
 	/**
@@ -1895,7 +1896,7 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public String getMastersLongCategory() {
-		return getCategory().getComputedName();
+		return getCategory().getDisplayName();
 	}
 
 	/**
@@ -2653,7 +2654,7 @@ public class Athlete {
 		List<Participation> participations2 = getParticipations();
 		for (Participation p : participations2) {
 			if (p.getTeamMember()) {
-				s.add(p.getCategory().getTranslatedName());
+				s.add(p.getCategory().getNameWithAgeGroup());
 			}
 		}
 
@@ -2950,7 +2951,7 @@ public class Athlete {
 		        .append(" group=" + (group != null ? group.getName() : null)).append(" team=" + this.getTeam())
 		        .append(" gender=" + this.getGender()).append(" bodyWeight=" + this.getBodyWeight())
 		        .append(" birthDate=" + this.getYearOfBirth())
-		        .append(" category=" + (category != null ? category.getComputedName().toLowerCase() : null))
+		        .append(" category=" + (category != null ? category.getDisplayName().toLowerCase() : null))
 		        .append(" actualCategory=" + this.getLongCategory().toString().toLowerCase())
 		        .append(" snatch1ActualLift=" + this.getSnatch1ActualLift())
 		        .append(" snatch2=" + this.getSnatch2ActualLift()).append(" snatch3=" + this.getSnatch3ActualLift())
