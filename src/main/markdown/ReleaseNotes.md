@@ -7,12 +7,7 @@
 
 ##### 48.0
 
-- (rc05) Fixed assignment of category when ages for categories overlap and the lowest age group is not desired
-- (rc05) In the registration/weigh-in grids, filters were not applied to athletes without a selected category
-- (rc04) Fixed the lookup of categories when loading the Simple and SBDE Excel registration files
-- (rc03) Translations: Spanish (Spain), Danish, Romanian
-- (rc03) Switching languages during a session (using the top right drop-down selector) is now working again.
-- (rc03) Forwarding events to both a publicresults URL and a video data URL is now working correctly.
+- (rc06) When loading a registration or SBDE file, if explicit category names are used, they can be entered exactly as displayed in the current language.
 - Athlete Registration, Weigh-in and Competition Documents
   - The editing form now requires a category.  The best choice is calculated automatically. The category must be selected manually if the birth date or body weight is missing.
   - The weigh-in, registration and document lists show athletes without categories, to allow fixing data entered using spreadsheets.
