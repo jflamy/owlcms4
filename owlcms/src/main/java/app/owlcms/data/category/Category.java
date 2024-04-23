@@ -147,7 +147,13 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		}
 		
 		int compare;
-
+		
+		compare = ObjectUtils.compare(this.getCode(), o.getCode());
+		if (compare == 0) {
+			// shortcut.  identical codes are identical
+			return compare;
+		}
+		
 		compare = ObjectUtils.compare(this.getGender(), o.getGender());
 		if (compare != 0) {
 			return compare;
@@ -155,6 +161,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		
 		compare = ObjectUtils.compare(this.getAgeGroup(), o.getAgeGroup(), true);
 		if (compare != 0) {
+			//FIXME: this should be returning ?
 			//logger.trace("(agegroup) {} {} {}",compare,this.getAgeGroup(), o.getAgeGroup());
 		}
 
@@ -520,7 +527,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	}
 
 	public boolean sameAsAny(Set<Category> set) {
-		return set.stream().anyMatch(c -> this.compareTo(c) == 0);
+		return set.stream().anyMatch(c -> this.getCode() == c.getCode());
 	}
 
 	public void setActive(boolean active) {
