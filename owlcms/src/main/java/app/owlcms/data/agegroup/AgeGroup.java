@@ -150,14 +150,14 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		
 		String championshipName1 = this.computeChampionshipName();
 		String championshipName2 = o.computeChampionshipName();
-		int length1 = championshipName1 != null ? championshipName1.length() : 0;
-		int length2 = championshipName2 != null ? championshipName2.length() : 0;
 		
-		compare = ObjectUtils.compare(length1, length2);
-		if (compare != 0) {
-			//logger.trace("(agegroup championshipName length) {} {} {}", -compare, championshipName1, championshipName2);
-			return -compare; // shorter first
-		}
+//		int length1 = championshipName1 != null ? championshipName1.length() : 0;
+//		int length2 = championshipName2 != null ? championshipName2.length() : 0;	
+//		compare = ObjectUtils.compare(length1, length2);
+//		if (compare != 0) {
+//			//logger.trace("(agegroup championshipName length) {} {} {}", -compare, championshipName1, championshipName2);
+//			return compare; // shorter first
+//		}
 		compare = ObjectUtils.compare(championshipName1, championshipName2);
 		if (compare != 0) {
 			//logger.trace("(agegroup championshipName) {} {} {}", compare, championshipName1, championshipName2);
