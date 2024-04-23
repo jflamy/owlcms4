@@ -599,10 +599,12 @@ public class WeighinContent extends BaseContent
 		// for cards and starting lists we only want the actual athlete, without duplicates
 		Set<Athlete> regCatAthletes = found.stream().map(pa -> ((PAthlete) pa)._getAthlete())
 		        .collect(Collectors.toSet());
+		
 		// we also need athletes with no participations (implies no category)
 		List<Athlete> noCat = AthleteRepository.findAthletesNoCategory();
-		regCatAthletes.addAll(noCat);
-
+		List<Athlete> found2 = filterAthletes(noCat);
+		regCatAthletes.addAll(found2);
+		
 		// sort
 		List<Athlete> regCatAthletesList = new ArrayList<>(regCatAthletes);
 		regCatAthletesList.sort(groupCategoryComparator());
@@ -805,6 +807,13 @@ public class WeighinContent extends BaseContent
 		List<Athlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(getAgeGroupPrefix(),
 		        getChampionship());
 
+		List<Athlete> found = filterAthletes(athletes);
+		// categoriesXlsWriter.setSortedAthletes(found);
+		updateURLLocations();
+		return found;
+	}
+
+	private List<Athlete> filterAthletes(List<Athlete> athletes) {
 		Category catFilterValue = getCategoryValue();
 		Stream<Athlete> stream = athletes.stream()
 		        .filter(a -> {
@@ -857,8 +866,6 @@ public class WeighinContent extends BaseContent
 		List<Athlete> found = stream.sorted(
 		        groupCategoryComparator())
 		        .collect(Collectors.toList());
-		// categoriesXlsWriter.setSortedAthletes(found);
-		updateURLLocations();
 		return found;
 	}
 
