@@ -105,7 +105,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 		public void messageArrived(String topic, MqttMessage message) throws Exception {
 			new Thread(() -> {
 				String messageStr = new String(message.getPayload(), StandardCharsets.UTF_8);
-				logger.info("{}{} : {}", FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, messageStr.trim());
+				logger.info("{}MQTT received {} : {}", FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, messageStr.trim());
 
 				if (topic.endsWith(this.decisionTopicName) || topic.endsWith(this.deprecatedDecisionTopicName)) {
 					postFopEventRefereeDecisionUpdate(topic, messageStr);

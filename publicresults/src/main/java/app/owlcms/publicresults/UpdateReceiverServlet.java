@@ -33,11 +33,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet("/update")
-public class UpdateReceiverServlet extends HttpServlet {
-    //TODO: process uievent in updatereceiver
-    //TODO: breakTimerEventType
-    //TODO: athleteTimerEventType
-    //TODO: remove timerEventType
+public class UpdateReceiverServlet extends HttpServlet implements Traceable {
 
     private static String defaultFopName;
     static EventBus eventBus = new AsyncEventBus(UpdateReceiverServlet.class.getSimpleName(),
@@ -68,12 +64,12 @@ public class UpdateReceiverServlet extends HttpServlet {
         return null;
     }
 
-    Logger logger = (Logger) LoggerFactory.getLogger(UpdateReceiverServlet.class);
+    private Logger logger = (Logger) LoggerFactory.getLogger(UpdateReceiverServlet.class);
 
     private String secret = StartupUtils.getStringParam("updateKey");
 
     public UpdateReceiverServlet() {
-        this.logger.setLevel(Level.DEBUG);
+        this.getLogger().setLevel(Level.DEBUG);
     }
 
     /**
@@ -99,7 +95,7 @@ public class UpdateReceiverServlet extends HttpServlet {
         try {
             String updateKey = req.getParameter("updateKey");
             if (updateKey == null || !updateKey.equals(this.secret)) {
-                this.logger.error("denying access from {} expected {} got {} ", req.getRemoteHost(), this.secret,
+                this.getLogger().error("denying access from {} expected {} got {} ", req.getRemoteHost(), this.secret,
                         updateKey);
                 resp.sendError(401, "Denied, wrong credentials");
                 return;
@@ -107,20 +103,18 @@ public class UpdateReceiverServlet extends HttpServlet {
 
             if (ResourceWalker.getLocalDirPath() == null) {
                 String message = "Local override directory not present: requesting remote configuration files.";
-                this.logger.info(message);
-                this.logger.info("requesting customization");
+                this.getLogger().info(message);
+                this.getLogger().info("requesting customization");
                 resp.sendError(412, "Missing configuration files.");
                 return;
             }
 
             if (StartupUtils.isDebugSetting()) {
-                this.logger.setLevel(Level.TRACE);
+                this.getLogger().setLevel(Level.TRACE);
                 Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
                 if (StartupUtils.isTraceSetting()) {
-                    this.logger./**/trace("update received from {}", ProxyUtils.getClientIp(req));
-                    for (Entry<String, String[]> pair : pairs) {
-                        this.logger./**/trace("    {} = {}", pair.getKey(), pair.getValue()[0]);
-                    }
+                    this.getLogger()./**/trace("update received from {}", ProxyUtils.getClientIp(req));
+                    tracePairs(pairs);
                 }
             }
 
@@ -167,7 +161,7 @@ public class UpdateReceiverServlet extends HttpServlet {
             String mode = req.getParameter("mode");
             updateEvent.setMode(mode);
             
-            TimerReceiverServlet.processTimerReq(req, null);
+            TimerReceiverServlet.processTimerReq(req, null, getLogger());
 
             String breakTypeString = req.getParameter("breakType");
             updateEvent.setBreak("true".equalsIgnoreCase(req.getParameter("break")));
@@ -195,7 +189,7 @@ public class UpdateReceiverServlet extends HttpServlet {
                 // short time range, is this a duplicate?
                 UpdateEvent prevUpdate = updateCache.get(fopName);
                 if (prevUpdate != null && updateEvent.getHashCode() == prevUpdate.getHashCode()) {
-                    this.logger./**/warn("duplicate event ignored");
+                    this.getLogger()./**/warn("duplicate event ignored");
                 } else {
                     updateCache.put(fopName, updateEvent);
                     eventBus.post(updateEvent);
@@ -212,8 +206,17 @@ public class UpdateReceiverServlet extends HttpServlet {
             // TODO create timer and decision objects as well.
             resp.sendError(200);
         } catch (Exception e) {
-            this.logger.error(LoggerUtils.stackTrace(e));
+            this.getLogger().error(LoggerUtils.stackTrace(e));
         }
+    }
+
+    @Override
+    public Logger getLogger() {
+        return logger;
+    }
+
+    void setLogger(Logger logger) {
+        this.logger = logger;
     }
     
 }

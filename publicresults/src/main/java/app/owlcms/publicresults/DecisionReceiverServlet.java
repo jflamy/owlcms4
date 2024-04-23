@@ -29,7 +29,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet("/decision")
-public class DecisionReceiverServlet extends HttpServlet {
+public class DecisionReceiverServlet extends HttpServlet implements Traceable {
 
     private static String defaultFopName;
     static EventBus eventBus = new AsyncEventBus(DecisionReceiverServlet.class.getSimpleName(),
@@ -39,7 +39,7 @@ public class DecisionReceiverServlet extends HttpServlet {
         return eventBus;
     }
 
-    Logger logger = (Logger) LoggerFactory.getLogger(DecisionReceiverServlet.class);
+    private Logger logger = (Logger) LoggerFactory.getLogger(DecisionReceiverServlet.class);
 
     private String secret = StartupUtils.getStringParam("updateKey");
 
@@ -64,15 +64,13 @@ public class DecisionReceiverServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (StartupUtils.isDebugSetting()) {
             Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
-            this.logger./**/warn("++++ decision update received from {}", ProxyUtils.getClientIp(req));
-            for (Entry<String, String[]> pair : pairs) {
-                this.logger./**/warn("    {} = {}", pair.getKey(), pair.getValue()[0]);
-            }
+            this.getLogger()./**/warn("++++ decision update received from {}", ProxyUtils.getClientIp(req));
+            tracePairs(pairs);
         }
 
         String updateKey = req.getParameter("updateKey");
         if (updateKey == null || !updateKey.equals(this.secret)) {
-            this.logger.error("denying access from {} expected {} got {} ", req.getRemoteHost(), this.secret,
+            this.getLogger().error("denying access from {} expected {} got {} ", req.getRemoteHost(), this.secret,
                     updateKey);
             resp.sendError(401, "Denied, wrong credentials");
             return;
@@ -87,7 +85,7 @@ public class DecisionReceiverServlet extends HttpServlet {
             decisionEvent.setEventType(eventType);
         } catch (Exception e) {
             String message = MessageFormat.format("unknown decision event type {0}", eventTypeString);
-            this.logger.error(message);
+            this.getLogger().error(message);
             resp.sendError(400, message);
             return;
         }
@@ -113,5 +111,15 @@ public class DecisionReceiverServlet extends HttpServlet {
             defaultFopName = fopName;
         }
     }
+
+    @Override
+    public Logger getLogger() {
+        return logger;
+    }
+
+    void setLogger(Logger logger) {
+        this.logger = logger;
+    }
+
 
 }

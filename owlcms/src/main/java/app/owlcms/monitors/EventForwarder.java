@@ -1205,7 +1205,11 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				logger.setLevel(Level.TRACE);
 				logger.trace("=== {}\n{}", string, string2);
 				for (Entry<String, String> m : map.entrySet()) {
-					logger.trace("    {} = {}", m.getKey(), m.getValue());
+					if (m.getKey() == "updateKey") {
+						logger.trace("    {} = {}", m.getKey(), m.getValue() != null ? "masked "+m.getValue().length() : "masked null value");
+					} else {
+						logger.trace("    {} = {}", m.getKey(), m.getValue());
+					}
 				}
 			} finally {
 				logger.setLevel(level);
@@ -1503,10 +1507,14 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		}
 
 		sendPost(videoUrl, current.getParamVideoDataKey(), this.lastUpdate);
-		sendPost(updateUrl, current.getUpdatekey(), this.lastUpdate);
+		sendPost(updateUrl, current.getParamUpdateKey(), this.lastUpdate);
 	}
 
 	private void sendConfig(String url, String updateKey) {
+		if (url == null || updateKey == null) {
+			logger.error("cannot send config info, url or updateKey is null");
+			return;
+		}
 		Config current = Config.getCurrent();
 		String destination = url.replaceAll("/update", "") + "/config";
 		// wait for previous send to finish.

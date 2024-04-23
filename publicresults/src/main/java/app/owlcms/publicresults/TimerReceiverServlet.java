@@ -30,7 +30,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet("/timer")
-public class TimerReceiverServlet extends HttpServlet {
+public class TimerReceiverServlet extends HttpServlet implements Traceable {
 
     private static String defaultFopName;
     static EventBus eventBus = new AsyncEventBus(TimerReceiverServlet.class.getSimpleName(),
@@ -40,7 +40,7 @@ public class TimerReceiverServlet extends HttpServlet {
         return eventBus;
     }
 
-    static Logger logger = (Logger) LoggerFactory.getLogger(TimerReceiverServlet.class);
+     private Logger logger = (Logger) LoggerFactory.getLogger(TimerReceiverServlet.class);
 
     private String secret = StartupUtils.getStringParam("updateKey");
 
@@ -68,32 +68,30 @@ public class TimerReceiverServlet extends HttpServlet {
             resp.setCharacterEncoding("UTF-8");
             if (StartupUtils.isTraceSetting()) {
                 Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
-                TimerReceiverServlet.logger./**/warn("---- timer update received from {}", ProxyUtils.getClientIp(req));
-                for (Entry<String, String[]> pair : pairs) {
-                    TimerReceiverServlet.logger./**/warn("    {} = {}", pair.getKey(), pair.getValue()[0]);
-                }
+                getLogger()./**/warn("---- timer update received from {}", ProxyUtils.getClientIp(req));
+                tracePairs(pairs);
             }
 
             String updateKey = req.getParameter("updateKey");
             if (updateKey == null || !updateKey.equals(this.secret)) {
-                TimerReceiverServlet.logger.error("denying access from {} expected {} got {} ", req.getRemoteHost(),
+                getLogger().error("denying access from {} expected {} got {} ", req.getRemoteHost(),
                         this.secret,
                         updateKey);
                 resp.sendError(401, "Denied, wrong credentials");
                 return;
             }
 
-            String fopName = TimerReceiverServlet.processTimerReq(req, resp);
+            String fopName = TimerReceiverServlet.processTimerReq(req, resp, getLogger());
 
             if (defaultFopName == null) {
                 defaultFopName = fopName;
             }
         } catch (NumberFormatException | IOException e) {
-            TimerReceiverServlet.logger.error(LoggerUtils.stackTrace(e));
+            getLogger().error(LoggerUtils.stackTrace(e));
         }
     }
 
-    public static String processTimerReq(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    public static String processTimerReq(HttpServletRequest req, HttpServletResponse resp, Logger logger) throws IOException {
         TimerEvent timerEvent = null;
         BreakTimerEvent breakTimerEvent = null;
 
@@ -179,6 +177,15 @@ public class TimerReceiverServlet extends HttpServlet {
         long targetMillis = startTimeMillis + deltaMillis;
         int milliSeconds = (int) (targetMillis - System.currentTimeMillis());
         return milliSeconds;
+    }
+
+    @Override
+    public Logger getLogger() {
+        return logger;
+    }
+
+    void setLogger(Logger logger) {
+        this.logger = logger;
     }
 
 }
