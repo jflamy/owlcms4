@@ -807,6 +807,9 @@ public class WeighinContent extends BaseContent
 
 	private List<Athlete> filterAthletes(List<Athlete> athletes) {
 		Category catFilterValue = getCategoryValue();
+		Group group2 = getGroup() == null
+		        ? null
+		        : (getGroup().getName() == "*" ? null : getGroup());
 		Stream<Athlete> stream = athletes.stream()
 		        .filter(a -> {
 			        Platform platformFilterValue = getPlatform();
@@ -818,9 +821,10 @@ public class WeighinContent extends BaseContent
 			                : null;
 			        return platformFilterValue.equals(athletePlaform);
 		        })
-
-		        .filter(a -> getGroup() != null ? (getGroup().equals(a.getGroup()) || getGroup().toString().equals("*"))
-		                : true)
+		        .filter(a -> {
+			        return group2 != null ? group2.equals(a.getGroup())
+			                : true;
+		        })
 		        .filter(a -> {
 			        String fLastName = getLastName();
 			        if (fLastName == null) {

@@ -479,12 +479,12 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		// for cards and starting lists we only want the actual athlete, without duplicates
 		Set<Athlete> regCatAthletes = found.stream().map(pa -> ((PAthlete) pa)._getAthlete())
 		        .collect(Collectors.toSet());
-		
+
 		// we also need athletes with no participations (implies no category)
 		List<Athlete> noCat = AthleteRepository.findAthletesNoCategory();
 		List<Athlete> found2 = filterAthletes(noCat);
 		regCatAthletes.addAll(found2);
-		
+
 		// sort
 		List<Athlete> regCatAthletesList = new ArrayList<>(regCatAthletes);
 		regCatAthletesList.sort(groupCategoryComparator());
@@ -492,7 +492,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		updateURLLocations();
 		return regCatAthletesList;
 	}
-	
+
 	protected Button createBWButton() {
 		String resourceDirectoryLocation = "/templates/bwStart";
 		String title = Translator.translate("BodyWeightCategories");
@@ -798,6 +798,9 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 	private List<Athlete> filterAthletes(List<Athlete> athletes) {
 		Category catFilterValue = getCategoryValue();
+		Group group2 = getGroup() == null
+		        ? null
+		        : (getGroup().getName() == "*" ? null : getGroup());
 		Stream<Athlete> stream = athletes.stream()
 		        .filter(a -> {
 			        Platform platformFilterValue = getPlatform();
@@ -809,8 +812,10 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			                : null;
 			        return platformFilterValue.equals(athletePlaform);
 		        })
-		        .filter(a -> getGroup() != null ? getGroup().equals(a.getGroup())
-		                : true)
+		        .filter(a -> {
+			        return group2 != null ? group2.equals(a.getGroup())
+			                : true;
+		        })
 		        .filter(a -> {
 			        String fLastName = getLastName();
 			        if (fLastName == null) {
@@ -951,8 +956,9 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		        getGender(), getWeighedIn(), getTeam(), -1, -1);
 		return all;
 	}
-	
+
 	private void doSwitchGroup(Group newCurrentGroup) {
+		logger.warn("newCurrentGroup.getName() {}", newCurrentGroup.getName());
 		if (newCurrentGroup != null && newCurrentGroup.getName() == "*") {
 			setGroup(null);
 			athleteEditingFormFactory.setCurrentGroup(null);
@@ -1006,11 +1012,11 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 	private void logComparison(int compare, Athlete a1, Athlete a2, String string) {
 		if (compare == 0) {
-			//logger.trace("({}) {} = {}", string, athleteLog(a1), athleteLog(a2));
+			// logger.trace("({}) {} = {}", string, athleteLog(a1), athleteLog(a2));
 		} else if (compare < 0) {
-			//logger.trace("({}) {} < {}", string, athleteLog(a1), athleteLog(a2));
+			// logger.trace("({}) {} < {}", string, athleteLog(a1), athleteLog(a2));
 		} else if (compare > 0) {
-			//logger.trace("({}) {} > {}", string, athleteLog(a1), athleteLog(a2));
+			// logger.trace("({}) {} > {}", string, athleteLog(a1), athleteLog(a2));
 		}
 	}
 

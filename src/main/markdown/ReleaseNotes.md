@@ -7,15 +7,18 @@
 
 ##### 48.0
 
-- Scoreboards:
-  - The open age group is no longer shown ("W 64" in now shown instead of "Open W 64").  Other age groups are shown as before ("U15 W 64").
-
+- (rc09) Fix: the order of validations when changing categories caused counter-intuitive error messages.
+- (rc09) Fix: Filtering on the weigh-in and registration pages could fail if "All Sessions" had been selected.
 - Athlete Registration, Weigh-in and Competition Documents
-  - The editing form now requires a category.  The best choice is calculated automatically. The category must be selected manually if the birth date or body weight is missing.
+  - The editing form now requires a registration category (overriding is needed to have none)
+    - The best choice is calculated automatically as the youngest category (based on maximum age), and if equal, the one with the narrowest age range (so an eligible Masters will be chosen over Senior)
+    - The category can be overridden explicitly if within the eligible categories.
   - The weigh-in, registration and document lists show athletes without categories, to allow fixing data entered using spreadsheets.
   - If a single Championship is being competed, it is selected by default.
   - When a session has been selected on the registration or weigh-in page, the `Add` button will assign that session as default for the new athlete.
   - When loading a registration or SBDE file, if explicit category names are used, they can be entered exactly as displayed in the current language.
+- Scoreboards:
+  - The open age group is no longer shown ("W 64" in now shown instead of "Open W 64").  Other age groups are shown as before ("U15 W 64").
 - Championships and Final Results Package
   - The second column, previously empty, of the AgeGroups file is now used for a Championship Name. The third column is the championship type (IWF, MASTERS, etc.) 
   - You can name the Championship in your local language. For example: Youth, Junior, Senior, Masters, U13, U15, Junior High, Senior High, whatever you need.

@@ -53,6 +53,38 @@ public class LoggerUtils {
         StackTraceElement[] trace = Thread.currentThread().getStackTrace();
         return shortStackTrace(sw, pw, trace);
     }
+    
+    public static String fullStackTrace() {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        StackTraceElement[] trace = Thread.currentThread().getStackTrace();
+        int i = 0;
+		for (StackTraceElement ste : trace) {
+		    String string = ste.toString();
+		
+		    // dealing with traces created in UIEvents. lines at the top are not useful.
+		    // first line is java.base and we skip it.
+		    
+		    //System.err.println("processing "+string+" "+i);
+		    
+		    if (i > 1 && string.trim().startsWith("app.owlcms.uievents.UIEvent")) {
+		    	continue;
+		    }
+		    if (string.startsWith("com.vaadin.flow.server.")
+		            || string.startsWith("com.vaadin.flow.internal")
+		            || string.startsWith("com.vaadin.flow.router")
+//		            || string.startsWith("com.vaadin.flow.component")
+		            || (i > 1 && string.startsWith("java.base"))) {
+		        break;
+		    }
+		    if (i > 1) {
+		        pw.println("\t" + string);
+		    }
+		
+		    i++;
+		}
+		return sw.toString();
+    }
 
 	private static String shortStackTrace(StringWriter sw, PrintWriter pw, StackTraceElement[] trace) {
 		int i = 0;
