@@ -7,7 +7,7 @@
 
 ##### 48.0
 
-- (rc09) Fix: the order of validations when changing categories caused counter-intuitive error messages.
+- (rc09) Fix: the order of validations when changing categories caused counter-intuitive error messages. Also removed unneeded restrictions on category changes when no body weight is known.
 - (rc09) Fix: Filtering on the weigh-in and registration pages could fail if "All Sessions" had been selected.
 - Athlete Registration, Weigh-in and Competition Documents
   - The editing form now requires a registration category (overriding is needed to have none)
