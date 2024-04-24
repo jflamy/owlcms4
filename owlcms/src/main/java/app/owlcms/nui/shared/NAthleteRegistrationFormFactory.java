@@ -475,7 +475,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		// category must be eligible
 		Validator<Category> v6 = Validator.from((category) -> {
 			if (category == null) {
-				logger.warn("v6 skipped");
+				logger.debug("v6 skipped");
 				return true;
 			}
 			logger.debug("v6 {} {}", category, category.getName(), category.getCode());
@@ -488,7 +488,6 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				}
 				for (Category eligible : eligibles) {
 					if (eligible.getCode() == category.getCode()) {
-						logger.warn("match {} {}", eligible.getCode(), category.getCode());
 						matchingEligible = eligible;
 						break;
 					}
