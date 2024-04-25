@@ -7,6 +7,7 @@
 
 ##### 48.0
 
+- (rc10) Fix: Athlete registration editing. Removing an assigned category would empty the selected category, due to an extremely subtle and obscure bug that would only materialize when using Postgres as a database (i.e., in the cloud)
 - (rc09) Fix: the order of validations when changing categories caused counter-intuitive error messages. Also removed unneeded restrictions on category changes when no body weight is known.
 - (rc09) Fix: Filtering on the weigh-in and registration pages could fail if "All Sessions" had been selected.
 - Athlete Registration, Weigh-in and Competition Documents
