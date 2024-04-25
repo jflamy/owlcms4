@@ -214,28 +214,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		return sb.toString();
 	}
 
-	// @Override
-	// public boolean equals(Object obj) {
-	// if (this == obj) {
-	// return true;
-	// }
-	// if ((obj == null) || (getClass() != obj.getClass())) {
-	// return false;
-	// }
-	// Category other = (Category) obj;
-	//
-	// // other is not null, and neither are we
-	// // don't compare the categories inside age group, this gets circular.
-	// boolean ageGroupEquals = AgeGroup.looseEquals(this.ageGroup, other.ageGroup);
-	//
-	// return active == other.active && ageGroupEquals && Objects.equals(code, other.code)
-	// && gender == other.gender && Objects.equals(id, other.id)
-	// && Objects.equals(maximumWeight, other.maximumWeight)
-	// && Objects.equals(minimumWeight, other.minimumWeight) && Objects.equals(name, other.name)
-	// && Objects.equals(getWrJr(), other.getWrJr())
-	// && Objects.equals(getWrSr(), other.getWrSr()) && Objects.equals(getWrYth(), other.getWrYth());
-	// }
-
 	/**
 	 * Gets the active.
 	 *
@@ -256,9 +234,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	@Transient
 	@JsonIgnore
 	public String getCodeLimitString() {
-		// logger.debug("category {} {} {} {}", this.getId(), this.getCode(),
-		// this.getMinimumWeight(),
-		// this.getMinimumWeight());
 		if (this.id == null || this.maximumWeight == null
 		        || this.maximumWeight - Math.round(this.maximumWeight) > 0.1) {
 			String val = "temp_" + this.minimumWeight + "_" + this.maximumWeight;
@@ -528,7 +503,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	}
 
 	public boolean sameAsAny(Set<Category> set) {
-		return set.stream().anyMatch(c -> this.getCode() == c.getCode());
+		return set.stream().anyMatch(c -> this.getCode().contentEquals(c.getCode()));
 	}
 
 	public void setActive(boolean active) {

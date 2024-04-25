@@ -195,7 +195,8 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		if (other.getId() == this.getId()) {
 			return true;
 		}
-		return this.active == other.active && this.ageDivision == other.ageDivision
+		return this.active == other.active 
+				&& this.ageDivision.contentEquals(other.ageDivision)
 				&& Objects.equals(this.getChampionshipName(), other.getChampionshipName())
 		        && Objects.equals(this.categories, other.categories)
 		        && Objects.equals(this.code, other.code)
@@ -300,9 +301,9 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 		String value = null;
 		String translatedCode = getTranslatedCode(code2);
-		if (this.ageDivision == Championship.of(Championship.MASTERS).getName() || this.isAlreadyGendered()) {
+		if (this.ageDivision.contentEquals(Championship.of(Championship.MASTERS).getName()) || this.isAlreadyGendered()) {
 			value = translatedCode;
-		} else if (this.ageDivision == Championship.DEFAULT) {
+		} else if (this.ageDivision.contentEquals(Championship.DEFAULT)) {
 			value = getTranslatedGender();
 		} else {
 			value = translatedCode + " " + getTranslatedGender();

@@ -8,6 +8,9 @@
         <listEntry value="1"/>
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
+        <mapEntry key="JDBC_DATABASE_PASSWORD" value="postgres"/>
+        <mapEntry key="JDBC_DATABASE_URL" value="jdbc:postgresql://localhost:5432/owlcms_db"/>
+        <mapEntry key="JDBC_DATABASE_USERNAME" value="postgres"/>
         <mapEntry key="OWLCMS_BACKDOOR" value="127.0.0.1,[0:0:0:0:0:0:0:1]"/>
         <mapEntry key="OWLCMS_PORT" value="8080"/>
         <mapEntry key="OWLCMS_USECOMPETITIONDATE" value="true"/>
