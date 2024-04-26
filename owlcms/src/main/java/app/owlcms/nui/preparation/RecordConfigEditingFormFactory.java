@@ -183,11 +183,11 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		        "exportRecords.xlsx",
 		        Translator.translate("Records.exportAllRecordsTitle"),
 		        fileName -> fileName.endsWith(".xlsx"));
-		Div newRecords = new Div();
-		newRecords.add(dd.createImmediateDownloadButton());
-		newRecords.setWidthFull();
+		Div allRecords = new Div();
+		allRecords.add(dd.createImmediateDownloadButton());
+		allRecords.setWidthFull();
 
-		recordsAvailableLayout.addFormItem(newRecords, Translator.translate("Records.exportAllRecordsLabel"));
+		recordsAvailableLayout.addFormItem(allRecords, Translator.translate("Records.exportAllRecordsLabel"));
 
 		return recordsAvailableLayout;
 	}

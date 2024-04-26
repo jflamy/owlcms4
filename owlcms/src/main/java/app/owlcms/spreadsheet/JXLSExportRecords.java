@@ -13,7 +13,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.UI;
@@ -22,9 +24,13 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordRepository;
+import app.owlcms.i18n.Translator;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -101,26 +107,50 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 		}
 
 		String groupName = this.group != null ? this.group.getName() : null;
+		logger.warn("new records : {} {}",!this.allRecords, LoggerUtils.whereFrom());
 		this.records = RecordRepository.findFiltered(null, null, null, groupName, !this.allRecords);
 		this.records.sort(sortRecords());
-
-		// // keep best record if beaten several times
-		// RecordEvent[] best = records.toArray(new RecordEvent[0]);
-		// RecordEvent prev = null;
-		// for (int i = best.length - 1; i >= 0; i--) {
-		// if (best[i].sameRecordAs(prev)) {
-		// prev = best[i];
-		// best[i] = null;
-		// } else {
-		// prev = best[i];
-		// }
-		// }
-		// bestRecords = Arrays.stream(best).filter(re -> re != null).collect(Collectors.toList());
-		// if (!bestRecords.isEmpty()) {
-		// reportingBeans.put("records", bestRecords);
-		// }
 		reportingBeans.put("records", this.records);
 		return athletes;
+	}
+	
+	@Override
+	protected void setReportingInfo() {
+		List<Athlete> athletes = getSortedAthletes();
+		if (athletes != null) {
+			getReportingBeans().put("athletes", athletes);
+			getReportingBeans().put("lifters", athletes); // legacy
+		}
+		Competition competition = Competition.getCurrent();
+		getReportingBeans().put("t", Translator.getMap());
+		getReportingBeans().put("competition", competition);
+		getReportingBeans().put("session", getGroup()); // legacy
+		getReportingBeans().put("group", getGroup());
+
+		// reuse existing logic for processing records
+		JXLSExportRecords jxlsExportRecords = this;
+		//jxlsExportRecords.setGroup(getGroup());
+		logger.debug("fetching records for session {} category {}", getGroup(), getCategory());
+		try {
+			//jxlsExportRecords.getSortedAthletes();
+			// Must be called immediately after getSortedAthletes
+			List<RecordEvent> records = jxlsExportRecords.getRecords(getCategory());
+			logger.debug("{} records found", records.size());
+			getReportingBeans().put("records", records);
+		} catch (Exception e) {
+			// no records
+		}
+
+		getReportingBeans().put("masters", Competition.getCurrent().isMasters());
+		List<Group> sessions = GroupRepository.findAll().stream().sorted((a, b) -> {
+			int compare = ObjectUtils.compare(a.getWeighInTime(), b.getWeighInTime(), true);
+			if (compare != 0) {
+				return compare;
+			}
+			return compare = ObjectUtils.compare(a.getPlatform(), b.getPlatform(), true);
+		}).collect(Collectors.toList());
+		getReportingBeans().put("groups", sessions);
+		getReportingBeans().put("sessions", sessions);
 	}
 
 	@Override
