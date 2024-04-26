@@ -296,7 +296,6 @@ public class RecordRepository {
 			return null;
 		} else {
 			String join = String.join(" and ", whereList);
-			logger.warn("filteringWhere records: {}", join);
 			return join;
 		}
 	}

@@ -30,7 +30,6 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordRepository;
 import app.owlcms.i18n.Translator;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -107,7 +106,6 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 		}
 
 		String groupName = this.group != null ? this.group.getName() : null;
-		logger.warn("new records : {} {}",!this.allRecords, LoggerUtils.whereFrom());
 		this.records = RecordRepository.findFiltered(null, null, null, groupName, !this.allRecords);
 		this.records.sort(sortRecords());
 		reportingBeans.put("records", this.records);
