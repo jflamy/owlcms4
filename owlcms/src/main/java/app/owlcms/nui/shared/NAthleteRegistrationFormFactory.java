@@ -275,7 +275,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		// ArrayList<Category>(aFromList.getEligibleCategories()));
 
 		Component form = createTabSheets(footer);
-		if (this.getCurrentGroup() != null) {
+		if (this.getCurrentGroup() != null && !this.getCurrentGroup().getName().equals("*")) {
 			aFromList.setGroup(getCurrentGroup());
 		}
 		this.binder.readBean(aFromList); // FIXME should be getEditedAthlete() ?
