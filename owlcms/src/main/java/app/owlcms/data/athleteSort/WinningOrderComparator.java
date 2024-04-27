@@ -294,11 +294,18 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 			return -compare; // smaller snatch is less good
 		}
 
-		compare = compareCompetitionSessionTime(lifter1, lifter2);
-		traceComparison("compareCompetitionSessionTime", lifter1, lifter2, compare);
-		if (compare != 0) {
-			return compare; // earlier group time wins
+		if (lifter1 != null && lifter2 != null && lifter1.getGroup() != lifter2.getGroup()) {
+			compare = compareBestSnatchTime(lifter1, lifter2);
+			if (compare != 0) {
+				return compare; // earlier is better (higher in ascending sorted list)
+			}
 		}
+
+		// compare = compareCompetitionSessionTime(lifter1, lifter2);
+		// traceComparison("compareCompetitionSessionTime", lifter1, lifter2, compare);
+		// if (compare != 0) {
+		// return compare; // earlier group time wins
+		// }
 
 		if (Competition.getCurrent().isUseOldBodyWeightTieBreak()) {
 			compare = compareBodyWeight(lifter1, lifter2);
@@ -388,6 +395,19 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		return -lifter1Value.compareTo(lifter2Value);
 	}
 
+	private int compareBestCleanJerkTime(Athlete lifter1, Athlete lifter2) {
+		LocalDateTime bestCleanJerkAttemptTime1 = lifter1.getBestCleanJerkAttemptTime();
+		LocalDateTime bestCleanJerkAttemptTime2 = lifter2.getBestCleanJerkAttemptTime();
+//			logger.trace("tieBreak {} {}={} {} {}={} {}", LoggerUtils.stackTrace(),
+//			        lifter1.getShortName(), lifter1.getBestCleanJerk(), bestCleanJerkAttemptTime1,
+//			        lifter2.getShortName(), lifter2.getBestCleanJerk(), bestCleanJerkAttemptTime2);
+		return ObjectUtils.compare(bestCleanJerkAttemptTime1, bestCleanJerkAttemptTime2);
+	}
+
+	private int compareBestSnatchTime(Athlete lifter1, Athlete lifter2) {
+		return ObjectUtils.compare(lifter1.getBestSnatchAttemptTime(), lifter2.getBestSnatchAttemptTime());
+	}
+
 	/**
 	 * Compare competition session start times for two athletes. A null session time is considered to be at the
 	 * beginning of time, earlier than any non-null time.
@@ -431,6 +451,14 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 	 */
 	private int tieBreak(Athlete lifter1, Athlete lifter2, boolean bodyWeightTieBreak) {
 		int compare;
+
+		if (lifter1 != null && lifter2 != null && lifter1.getGroup() != lifter2.getGroup()) {
+			compare = compareBestCleanJerkTime(lifter1, lifter2);
+			if (compare != 0) {
+				// <0 means lifter1 earlier than lifter2
+				return compare; // earlier time means higher up in the ascending sort order
+			}
+		}
 
 		compare = compareCompetitionSessionTime(lifter1, lifter2);
 		traceComparison("compareCompetitionSessionTime", lifter1, lifter2, compare);

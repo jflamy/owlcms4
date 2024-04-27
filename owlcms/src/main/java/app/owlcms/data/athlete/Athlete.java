@@ -948,8 +948,57 @@ public class Athlete {
 			}
 		}
 		return 0; // no match - bomb-out.
-
 	}
+	
+	/**
+	 * Gets the best snatch attempt number.
+	 *
+	 * @return the best snatch attempt number
+	 */
+	@Transient
+	@JsonIgnore
+	public LocalDateTime getBestSnatchAttemptTime() {
+		int referenceValue = getBestSnatch();
+		if (referenceValue > 0) {
+			if (zeroIfInvalid(this.snatch3ActualLift) == referenceValue) {
+				return this.getSnatch3LiftTime();
+			}
+			if (zeroIfInvalid(this.snatch2ActualLift) == referenceValue) {
+				return this.getSnatch2LiftTime();
+			}
+			if (zeroIfInvalid(this.snatch1ActualLift) == referenceValue) {
+				return this.getSnatch1LiftTime();
+			}
+		}
+		// should not be required - bomb-out.
+		return LocalDateTime.MIN;
+	}
+	
+	/**
+	 * Gets the best snatch attempt number.
+	 *
+	 * @return the best snatch attempt number
+	 */
+	@Transient
+	@JsonIgnore
+	public LocalDateTime getBestCleanJerkAttemptTime() {
+		int referenceValue = getBestCleanJerk();
+		if (referenceValue > 0) {
+			if (zeroIfInvalid(this.cleanJerk3ActualLift) == referenceValue) {
+				return this.getCleanJerk3LiftTime();
+			}
+			if (zeroIfInvalid(this.cleanJerk2ActualLift) == referenceValue) {
+				return this.getSnatch2LiftTime();
+			}
+			if (zeroIfInvalid(this.cleanJerk1ActualLift) == referenceValue) {
+				return this.getCleanJerk1LiftTime();
+			}
+		}
+		// should not be required - bomb-out.
+		return LocalDateTime.MIN;
+	}
+	
+	
 
 	/**
 	 * Gets the birth date.
