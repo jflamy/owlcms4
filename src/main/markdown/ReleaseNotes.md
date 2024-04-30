@@ -7,6 +7,7 @@
 
 ##### 48.0
 
+- (rc13) When awarding medals, the verification that the category is completely done was broken in v48, now fixed again.
 - (rc12) Improvement: The actual lift time will be used when breaking ties between two athletes in two different groups. This is compatible with rule 6.8.2 for the normal IWF context where groups are in sequence. It also works when competition times have not been entered for the sessions.  It also works as a tie-breaker for situations where multiple championships run on several platforms and no group ordering is possible (for example, tie-breaking an Open championship taking place concurrently with other championships).
 - (rc12) Fix: accessing an athlete from the "Editing Athletes" could switch the athlete to a fake "*" lifting session.
 - (rc11) Fix: the Export All Records button now exports all records (old and new).  New records are identified by a group name in the "Group" column.
