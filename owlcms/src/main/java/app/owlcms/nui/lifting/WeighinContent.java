@@ -58,6 +58,7 @@ import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
@@ -599,7 +600,9 @@ public class WeighinContent extends BaseContent
 		
 		// sort
 		List<Athlete> regCatAthletesList = new ArrayList<>(regCatAthletes);
-		regCatAthletesList.sort(groupCategoryComparator());
+		AthleteSorter.registrationOrder(regCatAthletesList);
+		
+		//regCatAthletesList.sort(groupCategoryComparator());
 
 		updateURLLocations();
 		return regCatAthletesList;

@@ -487,7 +487,8 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 		// sort
 		List<Athlete> regCatAthletesList = new ArrayList<>(regCatAthletes);
-		regCatAthletesList.sort(groupCategoryComparator());
+		AthleteSorter.registrationOrder(regCatAthletesList);
+		//regCatAthletesList.sort(groupCategoryComparator());
 
 		updateURLLocations();
 		return regCatAthletesList;
