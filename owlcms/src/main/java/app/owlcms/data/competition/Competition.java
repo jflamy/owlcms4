@@ -286,6 +286,7 @@ public class Competition {
 	 */
 	public TreeMap<String, TreeSet<Athlete>> computeMedals(Group g) {
 		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g);
+		logger.debug("*** ranked athletes for group {} {}",g,rankedAthletes);
 		return computeMedals(g, rankedAthletes);
 	}
 
@@ -298,6 +299,7 @@ public class Competition {
 	public TreeMap<String, TreeSet<Athlete>> computeMedals(Group g, List<Athlete> rankedAthletes
 	// , boolean onlyFinished
 	) {
+ //FIXME: should be able to compute medals for all sessions by iterating
 		if (g == null) {
 			return new TreeMap<>();
 		}
@@ -319,6 +321,7 @@ public class Competition {
 	public TreeMap<String, TreeSet<Athlete>> computeMedalsByCategory(List<Athlete> rankedAthletes
 	// , boolean onlyFinished
 	) {
+		logger.debug("computeMedalsByCategory {}", rankedAthletes);
 		// extract all categories
 		Set<Category> medalCategories = rankedAthletes.stream()
 		        .map(a -> a.getEligibleCategories())
@@ -358,6 +361,9 @@ public class Competition {
 			List<Athlete> totalLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.TOTAL)
 			        .stream().filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
 			        .collect(Collectors.toList());
+			List<Athlete> notFinished = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.TOTAL)
+			        .stream().filter(a -> a.isEligibleForIndividualRanking() && a.getActuallyAttemptedLifts() < 6)
+			        .collect(Collectors.toList());
 
 			// Athletes excluded from Total due to bombing out can still win medals, so we
 			// add them
@@ -366,14 +372,17 @@ public class Competition {
 			// if (isSnatchCJTotalMedals()) {
 			medalists.addAll(cjLeaders);
 			medalists.addAll(snatchLeaders);
+			medalists.addAll(notFinished);
 			// }
 			medals.put(category.getCode(), medalists);
 
-			// logger.debug("medalists for {}", category);
-			// for (Athlete medalist : medalists) {
-			// logger.debug("{}\t{} {} {} S {}", medalist.getShortName(), medalist.getSnatchRank(),
-			// medalist.getCleanJerkRank(), medalist.getTotalRank(), medalist.getSinclairRank());
-			// }
+			if (StartupUtils.isTraceSetting()) {
+				logger./**/warn("medalists for {}", category);
+				for (Athlete medalist : medalists) {
+					logger./**/warn("{}\tS{} C{} T{} Sinc {}", medalist.getShortName(), medalist.getSnatchRank(),
+					        medalist.getCleanJerkRank(), medalist.getTotalRank(), medalist.getSinclairRank());
+				}
+			}
 		}
 		return medals;
 	}
@@ -778,6 +787,7 @@ public class Competition {
 			medals = computeMedals(g);
 		}
 		final TreeMap<String, TreeSet<Athlete>> m = new TreeMap<>(medals);
+		logger./**/warn("medals keyset {}",medals.keySet());
 		if (onlyFinished) {
 			List<String> toRemove = medals.keySet().stream()
 			        .filter(k -> {
@@ -790,11 +800,11 @@ public class Competition {
 				        // removed"
 				        boolean anyMatch = athletes.stream()
 				                .anyMatch(a -> a.getSnatch3AsInteger() == null || a.getCleanJerk3AsInteger() == null);
-				        // logger.debug("category {} has finished {}", k, !anyMatch);
+				        logger.info("category {} has finished {}", k, !anyMatch);
 				        return anyMatch;
 			        })
 			        .collect(Collectors.toList());
-			// logger.debug("notFinished {}",toRemove);
+			logger.info("notFinished {}",toRemove);
 			for (String notFinished : toRemove) {
 				m.remove(notFinished);
 			}

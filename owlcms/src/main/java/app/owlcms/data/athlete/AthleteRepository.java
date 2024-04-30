@@ -338,11 +338,11 @@ public class AthleteRepository {
 		if (g != null) {
 			String categoriesFromCurrentGroup = "select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 where g.id = :groupId";
 			onlyCategoriesFromCurrentGroup = " join p.category c where exists (" + categoriesFromCurrentGroup
-			        + " and c2.id = c.id)";
-			// Query q2 = em.createQuery(categoriesFromCurrentGroup);
-			// q2.setParameter("groupId", g.getId());
-			// List<Category> q2Results = q2.getResultList();
-			// logger.debug("categories for currentGroup {}",q2Results);
+			        + " and c2.code = c.code)";
+//			 TypedQuery<Category> q2 = em.createQuery(categoriesFromCurrentGroup, Category.class);
+//			 q2.setParameter("groupId", g.getId());
+//			 List<Category> q2Results = q2.getResultList();
+//			 logger.debug("categories for currentGroup {}",q2Results);
 		}
 		Query q = em.createQuery(
 		        "select distinct a, p from Athlete a join fetch a.participations p"
@@ -356,6 +356,7 @@ public class AthleteRepository {
 			Double bw = ((Athlete) a).getBodyWeight();
 			return bw != null && bw >= 0.01;
 		}).collect(Collectors.toList());
+		logger.debug("athletes in categories from group {} {}",g,resultList);
 		return resultList;
 	}
 
