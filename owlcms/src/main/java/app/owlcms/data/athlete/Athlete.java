@@ -465,7 +465,7 @@ public class Athlete {
 		Level prevLevel = this.getLogger().getLevel();
 		try {
 			this.setValidation(false);
-			this.setLoggerLevel(Level.OFF);
+			//this.setLoggerLevel(Level.OFF);
 
 			this.setCleanJerk1Declaration("");
 			this.setCleanJerk1AutomaticProgression("");

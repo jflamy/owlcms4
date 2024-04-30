@@ -80,6 +80,7 @@ import app.owlcms.fieldofplay.FOPEvent.TimeStarted;
 import app.owlcms.fieldofplay.FOPEvent.TimeStopped;
 import app.owlcms.fieldofplay.FOPEvent.WeightChange;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.monitors.EventForwarder;
 import app.owlcms.monitors.IUnregister;
@@ -208,6 +209,7 @@ public class FieldOfPlay implements IUnregister {
 	private MQTTMonitor mqttMonitor = null;
 	private EventForwarder eventForwarder;
 	private JuryDecision toBeAnnouncedJuryDecision;
+	private FieldOfPlay existingFOP;
 
 	public FieldOfPlay() {
 	}
@@ -222,14 +224,22 @@ public class FieldOfPlay implements IUnregister {
 	public FieldOfPlay(Group group, Platform platform2) {
 		this.name = platform2.getName();
 		initEventBuses();
+		
+		existingFOP = OwlcmsFactory.getFOPByName(this.name);
+		if (existingFOP != null) {
+			RuntimeException exc = new RuntimeException("FOP "+this.name+" already exists");
+			LoggerUtils.logError(logger, exc, true);
+			throw exc;
+		}
 
 		// check if refereeing devices connected via MQTT are in use
 		String paramMqttServer = Config.getCurrent().getParamMqttServer();
 		boolean mqttInternal = Config.getCurrent().getParamMqttInternal();
+		
+		OwlcmsFactory.getFopByName().put(this.name, this);
 
 		if (mqttInternal || paramMqttServer != null) {
-			MQTTMonitor mm = new MQTTMonitor(this);
-			setMqttMonitor(mm);
+			MQTTMonitor mm = MQTTMonitor.initMQTTMonitorByName(this.name, this);
 			mm.start();
 		}
 
@@ -238,7 +248,7 @@ public class FieldOfPlay implements IUnregister {
 		this.setPlatform(platform2);
 
 		this.fopEventBus.register(this);
-		this.setEventForwarder(new EventForwarder(this));
+		this.setEventForwarder(EventForwarder.initEventForwarderByName(this.name, this));
 	}
 
 	public void broadcast(String string) {
@@ -1364,7 +1374,7 @@ public class FieldOfPlay implements IUnregister {
 	@Override
 	public void unregister() {
 		MQTTMonitor mqttMonitor2 = this.getMqttMonitor();
-		logger.debug("{}unregistering mqttmonitor {}", getLoggingName(this), System.identityHashCode(mqttMonitor2));
+		logger.debug("{}unregistering event forwarder and mqtt monitor {}", getLoggingName(this), System.identityHashCode(mqttMonitor2));
 		this.fopEventBus.unregister(this);
 		if (this.getEventForwarder() != null) {
 			this.getEventForwarder().unregister();

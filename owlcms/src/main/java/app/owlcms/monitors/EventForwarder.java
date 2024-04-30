@@ -140,8 +140,28 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private AgeGroup ceremonyAgeGroup;
 	private Championship ceremonyChampionship;
 	private String ceremonyEventType;
+	private String forwardedFopName;
+	
+	private static Map<String, EventForwarder> eventForwarderByName = new HashMap<>();
+	
+	synchronized public static EventForwarder initEventForwarderByName(String name, FieldOfPlay fieldOfPlay) {
+		EventForwarder eventForwarder = eventForwarderByName.get(name);
+		if (eventForwarder == null) {
+			logger.info("{}creating event forwarder", FieldOfPlay.getLoggingName(fieldOfPlay));
+			EventForwarder newForwarder = new EventForwarder(name, fieldOfPlay);
+			eventForwarderByName.put(name, newForwarder);
+			return newForwarder;
+		} else {
+			// reusing the found forwarder, forcing the values
+			logger.info("{}reusing event forwarder", FieldOfPlay.getLoggingName(fieldOfPlay));
+			eventForwarder.getFop().setEventForwarder(eventForwarder);
+			eventForwarder.setFop(fieldOfPlay);
+			return eventForwarder;
+		}
+	}
 
-	public EventForwarder(FieldOfPlay emittingFop) {
+	private EventForwarder(String name, FieldOfPlay emittingFop) {
+		this.setForwardedFopName(name);
 		this.setFop(emittingFop);
 		// logger.debug("|||| eventForwarder {} {} {}", System.identityHashCode(this),
 		// emittingFop.getName(),System.identityHashCode(emittingFop));
@@ -664,8 +684,14 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	@Override
 	public void unregister() {
-		this.postBus.unregister(this);
-		this.setFop(null);
+		// we do nothing.  We now have exactly one EventForwarder per name
+		// and we reuse it if we ever recreate the field of play
+		
+//		logger.info("unregistering event forwarder for platform {}",getForwardedFopName());
+//		this.postBus.unregister(this);
+//		this.setFop(null);
+//		OwlcmsFactory.getFOPByName(getForwardedFopName()).setEventForwarder(null);
+//		eventForwarderByName.remove(getForwardedFopName());
 	}
 
 	protected void setTranslationMap() {
@@ -1714,6 +1740,14 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		setFopState(state);
 		setBreakType(breakType);
 		setCeremonyType(ceremonyType);
+	}
+
+	private String getForwardedFopName() {
+		return forwardedFopName;
+	}
+
+	private void setForwardedFopName(String name) {
+		this.forwardedFopName = name;
 	}
 
 }

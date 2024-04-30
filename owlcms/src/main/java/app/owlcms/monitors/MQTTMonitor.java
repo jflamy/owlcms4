@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -55,6 +56,23 @@ import ch.qos.logback.classic.Logger;
  * @author Jean-François Lamy
  */
 public class MQTTMonitor extends Thread implements IUnregister {
+	
+	private static Map<String, MQTTMonitor> mqttMonitorByName = new HashMap<>();
+	
+	synchronized public static MQTTMonitor initMQTTMonitorByName(String monitorName, FieldOfPlay fieldOfPlay) {
+		MQTTMonitor existingMonitor = mqttMonitorByName.get(monitorName);
+		if (existingMonitor == null) {
+			logger.info("{}creating MQTT monitor",FieldOfPlay.getLoggingName(fieldOfPlay));
+			MQTTMonitor newForwarder = new MQTTMonitor(monitorName,fieldOfPlay);
+			mqttMonitorByName.put(monitorName, newForwarder);
+			return newForwarder;
+		} else {
+			logger.info("{}reusing MQTT monitor",FieldOfPlay.getLoggingName(fieldOfPlay));
+			existingMonitor.getFop().setMqttMonitor(existingMonitor);
+			existingMonitor.setFop(fieldOfPlay);
+			return existingMonitor;
+		}
+	}
 
 	/**
 	 * This inner class contains the routines executed when an MQTT message is received.
@@ -256,6 +274,9 @@ public class MQTTMonitor extends Thread implements IUnregister {
 	}
 
 	private static Logger logger = (Logger) LoggerFactory.getLogger(MQTTMonitor.class);
+	static {
+		logger.setLevel(Level.DEBUG);
+	}
 
 	public static MqttAsyncClient createMQTTClient(FieldOfPlay fop) throws MqttException {
 		String server = Config.getCurrent().getParamMqttServer();
@@ -278,8 +299,10 @@ public class MQTTMonitor extends Thread implements IUnregister {
 	private String userName;
 	private MQTTCallback callback;
 	private Long prevRefereeTimeStamp = 0L;
+	private String monitoredFopName;
 
-	public MQTTMonitor(FieldOfPlay fop) {
+	private MQTTMonitor(String monitorName, FieldOfPlay fop) {
+		this.setMonitoredFopName(monitorName);
 		this.setFop(fop);
 	}
 
@@ -307,7 +330,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 
 	public void setFop(FieldOfPlay fop) {
 		this.fop = fop;
-		logger.debug("MQTTMonitor setFop {} {}", fop, System.identityHashCode(this), LoggerUtils.stackTrace());
+		logger.warn("MQTTMonitor setFop {} {} {}\n{}", fop.getName(), System.identityHashCode(fop), System.identityHashCode(this), LoggerUtils.stackTrace());
 	}
 
 	@Subscribe
@@ -464,13 +487,12 @@ public class MQTTMonitor extends Thread implements IUnregister {
 
 	@Override
 	public void start() {
-		logger.setLevel(Level.DEBUG);
-		this.setFop(this.getFop());
+		//this.setFop(this.getFop());
 		this.getFop().getUiEventBus().register(this);
 		this.getFop().getFopEventBus().register(this);
 
 		try {
-			logger.info("starting MQTT monitoring for {} {}", FieldOfPlay.getLoggingName(this.getFop()), System.identityHashCode(this));
+			logger.info("{}starting MQTT monitoring for {}", FieldOfPlay.getLoggingName(this.getFop()), System.identityHashCode(this));
 			String paramMqttServer = Config.getCurrent().getParamMqttServer();
 			if (Config.getCurrent().getParamMqttInternal() || (paramMqttServer != null && !paramMqttServer.isBlank())) {
 				this.client = createMQTTClient(this.getFop());
@@ -485,16 +507,25 @@ public class MQTTMonitor extends Thread implements IUnregister {
 
 	@Override
 	public void unregister() {
-		this.setFop(null);
-		try {
-			this.client.disconnect();
-		} catch (MqttException e) {
-			try {
-				this.client.disconnectForcibly();
-			} catch (MqttException e1) {
-				LoggerUtils.logError(logger, e1);
-			}
-		}
+		// we do nothing.  We now have exactly one MQTTMonitor per platform name
+		// and we reuse it if we ever recreate the field of play
+		
+//		logger.info("unregistering MQTT monitor for platform {}",getName());
+//		this.setFop(null);
+//		FieldOfPlay fop2 = OwlcmsFactory.getFOPByName(getMonitoredFopName());
+//		if (fop2 != null) {
+//			fop2.setEventForwarder(null);
+//		}
+//		mqttMonitorByName.remove(getMonitoredFopName());
+//		try {
+//			this.client.disconnect();
+//		} catch (MqttException e) {
+//			try {
+//				this.client.disconnectForcibly();
+//			} catch (MqttException e1) {
+//				LoggerUtils.logError(logger, e1);
+//			}
+//		}
 	}
 
 	private void connectionLoop(MqttAsyncClient mqttAsyncClient) {
@@ -534,8 +565,10 @@ public class MQTTMonitor extends Thread implements IUnregister {
 		this.client.connect(connOpts).waitForCompletion();
 
 		publishMqttLedOnOff();
-		logger.info("connected to {} MQTT broker {}", (external ? "external" : "embedded"),
-		        this.client.getCurrentServerURI());
+		logger.info("{}connected to {} MQTT broker {}", 
+				FieldOfPlay.getLoggingName(fop),
+				(external ? "external" : "embedded"),
+				this.client.getCurrentServerURI());
 
 		this.client.subscribe(this.callback.deprecatedDecisionTopicName, 0);
 		logger.trace("{}MQTT subscribe {} {}", FieldOfPlay.getLoggingName(this.getFop()), this.callback.deprecatedDecisionTopicName,
@@ -833,5 +866,13 @@ public class MQTTMonitor extends Thread implements IUnregister {
 			Thread.sleep(ms);
 		} catch (InterruptedException e) {
 		}
+	}
+
+	private String getMonitoredFopName() {
+		return monitoredFopName;
+	}
+
+	private void setMonitoredFopName(String monitorName) {
+		this.monitoredFopName = monitorName;
 	}
 }

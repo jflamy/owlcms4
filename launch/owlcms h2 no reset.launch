@@ -9,6 +9,7 @@
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
         <mapEntry key="OWLCMS_BACKDOOR" value="127.0.0.1,[0:0:0:0:0:0:0:1]"/>
+        <mapEntry key="OWLCMS_FEATURESWITCHES" value="noForwarderKeepAlive"/>
         <mapEntry key="OWLCMS_PORT" value="8080"/>
         <mapEntry key="OWLCMS_REMOTE" value="http://localhost:8082"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="mapetitevacheamalauxpattes"/>
