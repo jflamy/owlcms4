@@ -144,10 +144,11 @@ public class AthleteRepository {
 		if (group != null && group.getName() == "*") {
 			group = null;
 		}
+		//FIXME check that it works with ageDivision/Championship
 		String qlString = "select a from Athlete a"
 		        + filteringSelection(lastName, group, category, ageGroup, ageDivision, gender, weighedIn, team)
 		        + " order by a.category";
-		// logger.debug("find query = {}", qlString);
+		logger.warn("find query = {}", qlString);
 		Query query = em.createQuery(qlString);
 		setFilteringParameters(lastName, group, category, ageGroup, ageDivision, gender, team, query);
 		if (offset >= 0) {

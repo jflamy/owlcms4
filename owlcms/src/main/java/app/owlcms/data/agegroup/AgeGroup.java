@@ -8,6 +8,7 @@ package app.owlcms.data.agegroup;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -91,7 +92,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	@Column(name = "agkey")
 	String key;
 	@Transient
-	Logger logger = (Logger) LoggerFactory.getLogger(AgeGroup.class);
+	static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroup.class);
 	Integer maxAge;
 	Integer minAge;
 
@@ -182,6 +183,33 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		}
 		return compare;
 	}
+	
+	public static Comparator<AgeGroup> registrationComparator = (a,b) -> {
+		logger.warn("comparing agegroups");
+		if (b == null) {
+			return -1; // we are smaller, we come first in the list
+		}
+		int compare = 0;
+
+		compare = ObjectUtils.compare(a.getGender(), b.getGender());
+		if (compare != 0) {
+			logger.warn("agegroup gender {} {} {} ", a.getGender(), compare > 0 ? ">" : "<",  b.getGender());
+			return compare;
+		}
+		
+		compare = ObjectUtils.compare(a.getMinAge(), b.getMinAge());
+		if (compare != 0) {
+			logger.warn("agegroup minage {} {} {} ", a.getMinAge(), compare > 0 ? ">" : "<",  b.getMinAge());
+			return compare;
+		}
+		
+		compare = ObjectUtils.compare(a.getMaxAge(), b.getMaxAge());
+		if (compare != 0) {
+			logger.warn("maxage {} {} {} ", a.getMaxAge(), compare > 0 ? ">" : "<",  b.getMaxAge());
+			return compare;
+		}
+		return compare;
+	};
 
 	@Override
 	public boolean equals(Object obj) {
