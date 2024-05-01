@@ -374,11 +374,11 @@ public class WeighinContent extends BaseContent
 		if (current == null && all.size() > 0) {
 			current = all.get(0);
 		}
-		for (int i = 0; i < all.size();) {
+		for (int i = 0; i < all.size(); i++) {
+			//TODO: get first empty bw, careful about looping back to self
 			if (all.get(i).getId().equals(current.getId())) {
 				return (i + 1 < all.size() ? all.get(i + 1) : null);
 			}
-			i++;
 		}
 		return null;
 	}
@@ -394,11 +394,10 @@ public class WeighinContent extends BaseContent
 	@Override
 	public Athlete getPreviousAthlete(Athlete current) {
 		ArrayList<Athlete> all = new ArrayList<>(findAll());
-		for (int i = 0; i < all.size();) {
+		for (int i = 0; i < all.size(); i++) {
 			if (all.get(i).getId().equals(current.getId())) {
 				return (i - 1 > 0 ? all.get(i - 1) : null);
 			}
-			i++;
 		}
 		return null;
 	}
