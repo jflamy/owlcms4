@@ -926,8 +926,9 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 	private void clearLifts() {
 		JPAService.runInTransaction(em -> {
-			List<Athlete> athletes = (List<Athlete>) doFindAll(em);
+			List<Athlete> athletes = athletesFindAll();
 			for (Athlete a : athletes) {
+				logger.warn("clearing {}",a);
 				a.clearLifts();
 				em.merge(a);
 			}
@@ -941,7 +942,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 	private void deleteAthletes() {
 		JPAService.runInTransaction(em -> {
-			List<Athlete> athletes = (List<Athlete>) doFindAll(em);
+			List<Athlete> athletes = athletesFindAll();
 			for (Athlete a : athletes) {
 				em.remove(a);
 			}
