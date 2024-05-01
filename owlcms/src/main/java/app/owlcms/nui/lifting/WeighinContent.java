@@ -58,6 +58,7 @@ import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
@@ -100,7 +101,7 @@ public class WeighinContent extends BaseContent
 	 *
 	 */
 	private final class NextCrudGrid extends OwlcmsCrudGrid<Athlete> {
-		private Button batchButton;
+		Button batchButton;
 
 		private NextCrudGrid(Class<Athlete> domainType, OwlcmsGridLayout crudLayout,
 		        OwlcmsCrudFormFactory<Athlete> owlcmsCrudFormFactory, Grid<Athlete> grid) {
@@ -135,7 +136,7 @@ public class WeighinContent extends BaseContent
 
 		@Override
 		protected void saveCallBack(OwlcmsCrudGrid<Athlete> owlcmsCrudGrid, String successMessage,
-		        CrudOperation operation) {
+		        CrudOperation operation, Athlete a) {
 			try {
 				Athlete nextAthlete = getNextAthlete(owlcmsCrudGrid.getGrid().asSingleSelect().getValue());
 				if (isNextMode() && nextAthlete != null && operation == CrudOperation.UPDATE) {
@@ -367,18 +368,56 @@ public class WeighinContent extends BaseContent
 		return getPageTitle();
 	}
 
+	// @Override
+	// public Athlete getNextAthlete(Athlete current) {
+	// ArrayList<Athlete> all = new ArrayList<>(findAll());
+	// if (current == null && all.size() > 0) {
+	// current = all.get(0);
+	// }
+	// for (int i = 0; i < all.size(); i++) {
+	// //TODO: get first empty bw, careful about looping back to self
+	// if (all.get(i).getId().equals(current.getId())) {
+	// return (i + 1 < all.size() ? all.get(i + 1) : null);
+	// }
+	// }
+	// return null;
+	// }
+
 	@Override
 	public Athlete getNextAthlete(Athlete current) {
 		ArrayList<Athlete> all = new ArrayList<>(findAll());
-		if (current == null && all.size() > 0) {
+
+		// Make sure we have updated data for the current athlete
+		if (current != null) {
+			for (int i = 0; i < all.size(); i++) {
+				if (all.get(i).getId().equals(current.getId())) {
+					current = all.get(i);
+					break;
+				}
+			}
+		} else if (all.size() > 0) {
 			current = all.get(0);
 		}
-		for (int i = 0; i < all.size();) {
-			if (all.get(i).getId().equals(current.getId())) {
-				return (i + 1 < all.size() ? all.get(i + 1) : null);
+
+		// If the current athlete has a body weight entered, then find the
+		// first athlete that does not have a body weight entered. This ensures
+		// that the order will match the weigh-in form even if the current
+		// athlete has moved up a weight class. Otherwise just find the next
+		// athlete based on current order.
+		if (current.getBodyWeight() != null) {
+			for (int i = 0; i < all.size(); i++) {
+				if (all.get(i).getBodyWeight() == null) {
+					return all.get(i);
+				}
 			}
-			i++;
+		} else {
+			for (int i = 0; i < all.size() - 1; i++) {
+				if (all.get(i).getId().equals(current.getId())) {
+					return all.get(i + 1);
+				}
+			}
 		}
+
 		return null;
 	}
 
@@ -393,11 +432,10 @@ public class WeighinContent extends BaseContent
 	@Override
 	public Athlete getPreviousAthlete(Athlete current) {
 		ArrayList<Athlete> all = new ArrayList<>(findAll());
-		for (int i = 0; i < all.size();) {
+		for (int i = 0; i < all.size(); i++) {
 			if (all.get(i).getId().equals(current.getId())) {
 				return (i - 1 > 0 ? all.get(i - 1) : null);
 			}
-			i++;
 		}
 		return null;
 	}
@@ -591,15 +629,17 @@ public class WeighinContent extends BaseContent
 		// for cards and starting lists we only want the actual athlete, without duplicates
 		Set<Athlete> regCatAthletes = found.stream().map(pa -> ((PAthlete) pa)._getAthlete())
 		        .collect(Collectors.toSet());
-		
+
 		// we also need athletes with no participations (implies no category)
 		List<Athlete> noCat = AthleteRepository.findAthletesNoCategory();
 		List<Athlete> found2 = filterAthletes(noCat);
 		regCatAthletes.addAll(found2);
-		
+
 		// sort
 		List<Athlete> regCatAthletesList = new ArrayList<>(regCatAthletes);
-		regCatAthletesList.sort(groupCategoryComparator());
+		AthleteSorter.registrationOrder(regCatAthletesList);
+
+		// regCatAthletesList.sort(groupCategoryComparator());
 
 		updateURLLocations();
 		return regCatAthletesList;
@@ -802,6 +842,10 @@ public class WeighinContent extends BaseContent
 		List<Athlete> found = filterAthletes(athletes);
 		// categoriesXlsWriter.setSortedAthletes(found);
 		updateURLLocations();
+		
+		// enable quick batch mode only when doing a session
+		boolean sessionSelected = this.getGroup() != null && !this.getGroup().getName().equals("*");
+		((NextCrudGrid) crudGrid).batchButton.setEnabled(sessionSelected);
 		return found;
 	}
 
@@ -913,97 +957,97 @@ public class WeighinContent extends BaseContent
 	 * @param crudFormFactory the factory that will create the form using this information
 	 */
 	private void createFormLayout(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
-//		if (!Config.getCurrent().featureSwitch("oldAthleteForm")) {
-//			return;
-//		}
-//		List<String> props = new LinkedList<>();
-//		List<String> captions = new LinkedList<>();
-//
-//		props.add("lastName");
-//		captions.add(getTranslation("LastName"));
-//		props.add("firstName");
-//		captions.add(getTranslation("FirstName"));
-//
-//		props.add("bodyWeight");
-//		captions.add(getTranslation("BodyWeight"));
-//		props.add("snatch1Declaration");
-//		captions.add(getTranslation("SnatchDecl_"));
-//		props.add("cleanJerk1Declaration");
-//		captions.add(getTranslation("C_and_J_decl"));
-//
-//		props.add("qualifyingTotal");
-//		captions.add(getTranslation("EntryTotal"));
-//		props.add("category");
-//		captions.add(getTranslation("Weighin.Category"));
-//		props.add("eligibleCategories");
-//		captions.add(getTranslation("Weighin.EligibleCategories"));
-//		props.add("group");
-//		captions.add(getTranslation("Group"));
-//
-//		props.add("gender");
-//		captions.add(getTranslation("Gender"));
-//		props.add("team");
-//		captions.add(getTranslation("Team"));
-//
-//		Competition competition = Competition.getCurrent();
-//		if (competition.isUseBirthYear()) {
-//			props.add("yearOfBirth");
-//			captions.add(getTranslation("YearOfBirth"));
-//		} else {
-//			props.add("fullBirthDate");
-//			captions.add(getTranslation("BirthDate_yyyy"));
-//		}
-//		props.add("membership");
-//		captions.add(getTranslation("Membership"));
-//
-//		props.add("coach");
-//		captions.add(getTranslation("Coach"));
-//		props.add("custom1");
-//		captions.add(getTranslation("Custom1.Title"));
-//		props.add("custom2");
-//		captions.add(getTranslation("Custom2.Title"));
-//
-//		props.add("lotNumber");
-//		captions.add(getTranslation("Lot"));
-//
-//		props.add("federationCodes");
-//		captions.add(getTranslation("Registration.FederationCodes"));
-//
-//		props.add("eligibleForIndividualRanking");
-//		captions.add(getTranslation("Eligible for Individual Ranking?"));
-//
-//		crudFormFactory.setVisibleProperties(props.toArray(new String[0]));
-//		crudFormFactory.setFieldCaptions(captions.toArray(new String[0]));
-//
-//		crudFormFactory.setFieldProvider("gender", new OwlcmsComboBoxProvider<>(getTranslation("Gender"),
-//		        Arrays.asList(Gender.mfValues()), new TextRenderer<>(Gender::name), Gender::name));
-//		List<Group> groups = GroupRepository.findAll();
-//		groups.sort(new NaturalOrderComparator<>());
-//		crudFormFactory.setFieldProvider("group", new OwlcmsComboBoxProvider<>(getTranslation("Group"),
-//		        groups, new TextRenderer<>(Group::getName), Group::getName));
-//		crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
-//		        CategoryRepository.findActive(), new TextRenderer<>(Category::getNameWithAgeGroup),
-//		        Category::getNameWithAgeGroup));
-//		crudFormFactory.setFieldProvider("eligibleCategories",
-//		        new CheckBoxGroupProvider<>(getTranslation("Weighin.EligibleCategories"),
-//		                new ArrayList<Category>(), (c) -> (c.getNameWithAgeGroup())));
-//		// crudFormFactory.setFieldProvider("ageDivision",
-//		// new OwlcmsComboBoxProvider<>(getTranslation("Championship"), Arrays.asList(Championship.values()),
-//		// new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), Championship::name));
-//
-//		crudFormFactory.setFieldType("bodyWeight", LocalizedDecimalField.class);
-//		crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
-//
-//		// ValidationTextField (or a wrapper) must be used as workaround for unexplained
-//		// validation behaviour
-//		crudFormFactory.setFieldType("snatch1Declaration", ValidationTextField.class);
-//		crudFormFactory.setFieldType("cleanJerk1Declaration", ValidationTextField.class);
-//		crudFormFactory.setFieldType("qualifyingTotal", ValidationTextField.class);
-//		crudFormFactory.setFieldType("yearOfBirth", ValidationTextField.class);
-//
-//		crudFormFactory.setFieldCreationListener("bodyWeight", (e) -> {
-//			((LocalizedDecimalField) e).focus();
-//		});
+		// if (!Config.getCurrent().featureSwitch("oldAthleteForm")) {
+		// return;
+		// }
+		// List<String> props = new LinkedList<>();
+		// List<String> captions = new LinkedList<>();
+		//
+		// props.add("lastName");
+		// captions.add(getTranslation("LastName"));
+		// props.add("firstName");
+		// captions.add(getTranslation("FirstName"));
+		//
+		// props.add("bodyWeight");
+		// captions.add(getTranslation("BodyWeight"));
+		// props.add("snatch1Declaration");
+		// captions.add(getTranslation("SnatchDecl_"));
+		// props.add("cleanJerk1Declaration");
+		// captions.add(getTranslation("C_and_J_decl"));
+		//
+		// props.add("qualifyingTotal");
+		// captions.add(getTranslation("EntryTotal"));
+		// props.add("category");
+		// captions.add(getTranslation("Weighin.Category"));
+		// props.add("eligibleCategories");
+		// captions.add(getTranslation("Weighin.EligibleCategories"));
+		// props.add("group");
+		// captions.add(getTranslation("Group"));
+		//
+		// props.add("gender");
+		// captions.add(getTranslation("Gender"));
+		// props.add("team");
+		// captions.add(getTranslation("Team"));
+		//
+		// Competition competition = Competition.getCurrent();
+		// if (competition.isUseBirthYear()) {
+		// props.add("yearOfBirth");
+		// captions.add(getTranslation("YearOfBirth"));
+		// } else {
+		// props.add("fullBirthDate");
+		// captions.add(getTranslation("BirthDate_yyyy"));
+		// }
+		// props.add("membership");
+		// captions.add(getTranslation("Membership"));
+		//
+		// props.add("coach");
+		// captions.add(getTranslation("Coach"));
+		// props.add("custom1");
+		// captions.add(getTranslation("Custom1.Title"));
+		// props.add("custom2");
+		// captions.add(getTranslation("Custom2.Title"));
+		//
+		// props.add("lotNumber");
+		// captions.add(getTranslation("Lot"));
+		//
+		// props.add("federationCodes");
+		// captions.add(getTranslation("Registration.FederationCodes"));
+		//
+		// props.add("eligibleForIndividualRanking");
+		// captions.add(getTranslation("Eligible for Individual Ranking?"));
+		//
+		// crudFormFactory.setVisibleProperties(props.toArray(new String[0]));
+		// crudFormFactory.setFieldCaptions(captions.toArray(new String[0]));
+		//
+		// crudFormFactory.setFieldProvider("gender", new OwlcmsComboBoxProvider<>(getTranslation("Gender"),
+		// Arrays.asList(Gender.mfValues()), new TextRenderer<>(Gender::name), Gender::name));
+		// List<Group> groups = GroupRepository.findAll();
+		// groups.sort(new NaturalOrderComparator<>());
+		// crudFormFactory.setFieldProvider("group", new OwlcmsComboBoxProvider<>(getTranslation("Group"),
+		// groups, new TextRenderer<>(Group::getName), Group::getName));
+		// crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
+		// CategoryRepository.findActive(), new TextRenderer<>(Category::getNameWithAgeGroup),
+		// Category::getNameWithAgeGroup));
+		// crudFormFactory.setFieldProvider("eligibleCategories",
+		// new CheckBoxGroupProvider<>(getTranslation("Weighin.EligibleCategories"),
+		// new ArrayList<Category>(), (c) -> (c.getNameWithAgeGroup())));
+		// // crudFormFactory.setFieldProvider("ageDivision",
+		// // new OwlcmsComboBoxProvider<>(getTranslation("Championship"), Arrays.asList(Championship.values()),
+		// // new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), Championship::name));
+		//
+		// crudFormFactory.setFieldType("bodyWeight", LocalizedDecimalField.class);
+		// crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
+		//
+		// // ValidationTextField (or a wrapper) must be used as workaround for unexplained
+		// // validation behaviour
+		// crudFormFactory.setFieldType("snatch1Declaration", ValidationTextField.class);
+		// crudFormFactory.setFieldType("cleanJerk1Declaration", ValidationTextField.class);
+		// crudFormFactory.setFieldType("qualifyingTotal", ValidationTextField.class);
+		// crudFormFactory.setFieldType("yearOfBirth", ValidationTextField.class);
+		//
+		// crudFormFactory.setFieldCreationListener("bodyWeight", (e) -> {
+		// ((LocalizedDecimalField) e).focus();
+		// });
 	}
 
 	private Button createJuryButton() {

@@ -46,7 +46,7 @@ public class JXLSWeighInSheet extends JXLSWorkbookStreamSource {
 		// logger.debug(computedStartingWeightsSheetTemplateFileName);
 		if (computedStartingWeightsSheetTemplateFileName.contains("Weigh")) {
 			List<Athlete> collect = AthleteSorter
-			        .displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup, null)).stream()
+			        .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup, null)).stream()
 			        .map(a -> {
 				        if (a.getTeam() == null) {
 					        a.setTeam("");
@@ -58,10 +58,10 @@ public class JXLSWeighInSheet extends JXLSWorkbookStreamSource {
 		}
 		if (currentGroup != null) {
 			return AthleteSorter
-			        .displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup, isExcludeNotWeighed()));
+			        .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup, isExcludeNotWeighed()));
 		} else {
 			return AthleteSorter
-			        .displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, isExcludeNotWeighed()));
+			        .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, isExcludeNotWeighed()));
 		}
 
 	}

@@ -19,8 +19,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.persistence.EntityManager;
-
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
@@ -487,7 +485,8 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 		// sort
 		List<Athlete> regCatAthletesList = new ArrayList<>(regCatAthletes);
-		regCatAthletesList.sort(groupCategoryComparator());
+		AthleteSorter.registrationOrder(regCatAthletesList);
+		//regCatAthletesList.sort(groupCategoryComparator());
 
 		updateURLLocations();
 		return regCatAthletesList;
@@ -925,8 +924,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 	private void clearLifts() {
 		JPAService.runInTransaction(em -> {
-			List<Athlete> athletes = (List<Athlete>) doFindAll(em);
-			logger.warn("&&&&&&&&&&&&&&&& clearing {} athletes", athletes.size());
+			List<Athlete> athletes = athletesFindAll();
 			for (Athlete a : athletes) {
 				a.clearLifts();
 				em.merge(a);
@@ -941,7 +939,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 	private void deleteAthletes() {
 		JPAService.runInTransaction(em -> {
-			List<Athlete> athletes = (List<Athlete>) doFindAll(em);
+			List<Athlete> athletes = athletesFindAll();
 			for (Athlete a : athletes) {
 				em.remove(a);
 			}
@@ -950,13 +948,13 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		});
 		refreshCrudGrid();
 	}
-
-	private Collection<Athlete> doFindAll(EntityManager em) {
-		List<Athlete> all = AthleteRepository.doFindFiltered(em, getLastName(), getGroup(),
-		        getCategory(), getAgeGroup(), getChampionship(),
-		        getGender(), getWeighedIn(), getTeam(), -1, -1);
-		return all;
-	}
+//
+//	private Collection<Athlete> doFindAll(EntityManager em) {
+//		List<Athlete> all = AthleteRepository.doFindFiltered(em, getLastName(), getGroup(),
+//		        getCategory(), getAgeGroup(), getChampionship(),
+//		        getGender(), getWeighedIn(), getTeam(), -1, -1);
+//		return all;
+//	}
 
 	private void doSwitchGroup(Group newCurrentGroup) {
 		logger.debug("newCurrentGroup.getName() {}", newCurrentGroup.getName());

@@ -158,12 +158,10 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		if (compare != 0) {
 			return compare;
 		}
-		
+
 		compare = ObjectUtils.compare(this.getAgeGroup(), o.getAgeGroup(), true);
 		if (compare != 0) {
-			//FIXME: check for side-effects of adding the age group back in the comparison
 			return compare;
-			//logger.trace("(agegroup) {} {} {}",compare,this.getAgeGroup(), o.getAgeGroup());
 		}
 
 		// same division, same gender, rank according to maximumWeight.

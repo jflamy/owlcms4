@@ -191,9 +191,9 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 		updateButtons();
 	}
 
-	protected void saveCallBack(OwlcmsCrudGrid<T> owlcmsCrudGrid, String successMessage, CrudOperation operation) {
+	protected void saveCallBack(OwlcmsCrudGrid<T> owlcmsCrudGrid, String successMessage, CrudOperation operation, T domainObject) {
 		try {
-			logger.debug("postOperation");
+			//logger.debug("postOperation {}", domainObject);
 			owlcmsCrudGrid.grid.asSingleSelect().clear();
 			owlcmsCrudGrid.getOwlcmsGridLayout().hideForm();
 			refreshGrid();
@@ -219,7 +219,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 			        cancelCallback();
 		        },
 		        operationButtonClickEvent -> {
-			        saveCallBack(this, successMessage, operation);
+			        saveCallBack(this, successMessage, operation, domainObject);
 		        },
 		        deleteButtonClickEvent -> {
 			        deleteCallBack();

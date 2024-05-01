@@ -51,8 +51,6 @@ public class JXLSMedalsSheet extends JXLSWorkbookStreamSource {
 
 		Group group = getGroup();
 		TreeMap<String, TreeSet<Athlete>> medals = Competition.getCurrent().getMedals(group, true);
-		//FIXME: the medalists don't include athletes who have not lifted yet - so we can't
-		// rely only on this set.
 		this.sortedAthletes = new ArrayList<>();
 		for (Entry<String, TreeSet<Athlete>> medalCat : medals.entrySet()) {
 			TreeSet<Athlete> medalists = medalCat.getValue();
