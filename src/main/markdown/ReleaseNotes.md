@@ -7,6 +7,7 @@
 
 ##### 48.0
 
+- (rc15) Weigh-in page: When doing the weigh-in for a session, the Quick Mode enables a "Next" button. The behavior when athletes move up category has been improved.
 - (rc14) Fix: The orders on the starting list, the weigh-in sheet, the weigh-in screen and the marshal cards are now identical.
 - (rc14) Fix: Filtering for championships on the registration page made clearing lifts and deleting athletes ineffective. This is now fixed (what is shown in the grid will be cleared/deleted).
 - (rc13) Fix: When awarding medals, the verification that all athletes in a category have finished lifting was broken in v48, now fixed again.
