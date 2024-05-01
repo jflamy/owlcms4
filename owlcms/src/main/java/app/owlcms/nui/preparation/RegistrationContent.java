@@ -19,8 +19,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.persistence.EntityManager;
-
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
@@ -951,13 +949,13 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		});
 		refreshCrudGrid();
 	}
-
-	private Collection<Athlete> doFindAll(EntityManager em) {
-		List<Athlete> all = AthleteRepository.doFindFiltered(em, getLastName(), getGroup(),
-		        getCategory(), getAgeGroup(), getChampionship(),
-		        getGender(), getWeighedIn(), getTeam(), -1, -1);
-		return all;
-	}
+//
+//	private Collection<Athlete> doFindAll(EntityManager em) {
+//		List<Athlete> all = AthleteRepository.doFindFiltered(em, getLastName(), getGroup(),
+//		        getCategory(), getAgeGroup(), getChampionship(),
+//		        getGender(), getWeighedIn(), getTeam(), -1, -1);
+//		return all;
+//	}
 
 	private void doSwitchGroup(Group newCurrentGroup) {
 		logger.debug("newCurrentGroup.getName() {}", newCurrentGroup.getName());
