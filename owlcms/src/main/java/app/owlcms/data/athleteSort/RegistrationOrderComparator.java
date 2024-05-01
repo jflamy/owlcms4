@@ -30,7 +30,7 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 	 */
 	@Override
 	public int compare(Athlete lifter1, Athlete lifter2) {
-		logger.warn("comparing RegistrationOrderComparator");
+		//logger.debug("comparing RegistrationOrderComparator");
 		int compare = 0;
 
 		// takes into account platform and group name so that groups are not mixed
@@ -51,7 +51,7 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 		Category b = lifter2.getCategory();
 		compare = registrationComparator.compare(a, b);
 		if (compare != 0) {
-			logger.warn("category {} {} {} ", a, compare > 0 ? ">" : "<", b);
+			//logger.debug("category {} {} {} ", a, compare > 0 ? ">" : "<", b);
 			return compare;
 		}
 
@@ -88,13 +88,13 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 		
 		compare = ObjectUtils.compare(category1.getGender(), category2.getGender());
 		if (compare != 0) {
-			logger.warn("gender {} {} {} ", category1.getGender(), compare > 0 ? ">" : "<", category2.getGender());
+			//logger.debug("gender {} {} {} ", category1.getGender(), compare > 0 ? ">" : "<", category2.getGender());
 			return compare;
 		}
 
 		compare = AgeGroup.registrationComparator.compare(category1.getAgeGroup(), category2.getAgeGroup());
 		if (compare != 0) {
-			logger.warn("agegroup {} {} {} ", category1.getAgeGroup(), compare > 0 ? ">" : "<", category2.getAgeGroup());
+			//logger.debug("agegroup {} {} {} ", category1.getAgeGroup(), compare > 0 ? ">" : "<", category2.getAgeGroup());
 			return compare;
 		}
 

@@ -193,7 +193,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 
 	protected void saveCallBack(OwlcmsCrudGrid<T> owlcmsCrudGrid, String successMessage, CrudOperation operation, T domainObject) {
 		try {
-			logger.warn("postOperation {}", domainObject);
+			//logger.debug("postOperation {}", domainObject);
 			owlcmsCrudGrid.grid.asSingleSelect().clear();
 			owlcmsCrudGrid.getOwlcmsGridLayout().hideForm();
 			refreshGrid();

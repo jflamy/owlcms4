@@ -148,7 +148,7 @@ public class AthleteRepository {
 		String qlString = "select a from Athlete a"
 		        + filteringSelection(lastName, group, category, ageGroup, ageDivision, gender, weighedIn, team)
 		        + " order by a.category";
-		logger.warn("find query = {}", qlString);
+		//logger.trace("find query = {}", qlString);
 		Query query = em.createQuery(qlString);
 		setFilteringParameters(lastName, group, category, ageGroup, ageDivision, gender, team, query);
 		if (offset >= 0) {

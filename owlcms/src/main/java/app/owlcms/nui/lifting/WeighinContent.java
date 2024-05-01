@@ -138,7 +138,6 @@ public class WeighinContent extends BaseContent
 		protected void saveCallBack(OwlcmsCrudGrid<Athlete> owlcmsCrudGrid, String successMessage,
 		        CrudOperation operation, Athlete a) {
 			try {
-				logger.warn("{} {}", a, a.getBodyWeight());
 				Athlete nextAthlete = getNextAthlete(owlcmsCrudGrid.getGrid().asSingleSelect().getValue());
 				if (isNextMode() && nextAthlete != null && operation == CrudOperation.UPDATE) {
 					owlcmsCrudGrid.getGrid().asSingleSelect().clear();
