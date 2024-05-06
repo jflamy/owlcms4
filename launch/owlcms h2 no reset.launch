@@ -11,7 +11,6 @@
         <mapEntry key="OWLCMS_BACKDOOR" value="127.0.0.1,[0:0:0:0:0:0:0:1]"/>
         <mapEntry key="OWLCMS_FEATURESWITCHES" value="noForwarderKeepAlive"/>
         <mapEntry key="OWLCMS_PORT" value="8080"/>
-        <mapEntry key="OWLCMS_REMOTE" value="http://localhost:8082"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="mapetitevacheamalauxpattes"/>
         <mapEntry key="OWLCMS_USECOMPETITIONDATE" value="true"/>
         <mapEntry key="_JDBC_DATABASE_PASSWORD" value="postgres"/>
@@ -22,12 +21,15 @@
         <mapEntry key="_OWLCMS_ENABLEEMBEDDEDMQTT" value="false"/>
         <mapEntry key="_OWLCMS_H2SERVERPORT" value="9092"/>
         <mapEntry key="_OWLCMS_PIN" value="1234"/>
+        <mapEntry key="_OWLCMS_REMOTE" value="http://localhost:8082"/>
         <mapEntry key="__JDBC_DATABASE_URL" value="jdbc:h2:file:./database/scolaire.mv.db"/>
     </mapAttribute>
     <mapAttribute key="org.eclipse.debug.core.preferred_launchers">
         <mapEntry key="[debug]" value="org.eclipse.jdt.launching.localJavaApplication"/>
         <mapEntry key="[run]" value="org.eclipse.jdt.launching.localJavaApplication"/>
     </mapAttribute>
+    <stringAttribute key="org.eclipse.debug.ui.ATTR_CAPTURE_IN_FILE" value="${workspace_loc:/owlcms}/console.log"/>
+    <booleanAttribute key="org.eclipse.debug.ui.ATTR_CONSOLE_OUTPUT_ON" value="false"/>
     <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
         <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
     </listAttribute>
