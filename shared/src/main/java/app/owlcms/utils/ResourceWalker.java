@@ -407,14 +407,19 @@ public class ResourceWalker {
 	}
 
 	public static void zipPublicResultsConfig(OutputStream os) throws IOException {
-		Map<String, Resource> testMap = new ResourceWalker().getPRResourceMap(Locale.ENGLISH);
+		TreeMap<String, Resource> resourceMap = new ResourceWalker().getPRResourceMap(Locale.ENGLISH);
 		ZipOutputStream zipOut = new ZipOutputStream(os);
 		String prevDirName = "";
-		for (String n : testMap.keySet()) {
-			String curDirName = new File(n).getParent();
-			InputStream str = ResourceWalker.getResourceAsStream(n);
+		for (String name : resourceMap.keySet()) {
+			if (name.startsWith(".") || name.contains("/.")) {
+				// hidden files are not relevant and cause ordering issues in the zip file
+				break;
+			}
+			String curDirName = new File(name).getParent();
+			InputStream stream = ResourceWalker.getResourceAsStream(name);
 			boolean createDir = !isSameDir(curDirName, prevDirName) && !isSubDir(curDirName, prevDirName);
-			ZipUtils.zipStream(str, n, createDir, zipOut);
+			//logger.debug("zipping {} createDir={}",name,createDir);
+			ZipUtils.zipStream(stream, name, createDir, zipOut);
 			prevDirName = curDirName;
 		}
 	}
@@ -655,8 +660,8 @@ public class ResourceWalker {
 		return resourceList;
 	}
 
-	public Map<String, Resource> getPRResourceMap(Locale locale) {
-		Map<String, Resource> resourceMap = new TreeMap<>();
+	public TreeMap<String, Resource> getPRResourceMap(Locale locale) {
+		TreeMap<String, Resource> resourceMap = new TreeMap<>();
 		Predicate<String> startsWith = (s) -> true;
 
 		// during development get default i18n and styles in case they are not in
