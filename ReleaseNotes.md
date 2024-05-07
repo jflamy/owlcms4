@@ -7,7 +7,20 @@
 
 ##### 48.0
 
-- (rc11) Fix: the Export All Records button now exports all records (old and new).  New records are identified by the presence of a group name in the "Group" column.
+- (rc15) Translation updates: Swedish, Polish
+- (rc15) Records Export: for heavyweight categories the format >109 with a leading `>` is used instead of 999.  This is what is used in the record boxes on the scoreboard. 
+- (rc15) Weigh-in 
+  - Weigh-in form The eligibility categories are now shown on the form so that they are confirmed by the coach and cross-checked during data entry.
+  - Data entry Quick Mode.  The ordering of the athletes from the weigh-in form is respected when an athlete moves up.
+- (rc15) Style sheets: improvements made for handling narrow (vertical) devices.  Ellipsis ("...") should now work correctly.
+- (rc15) Timekeeper: Group Selection menu is disabled by default.  When using an iPad, the timekeeper page is reloaded after a sleep, and may still contain the previous group, and this causes the competition to return to the last session.  To re-enable the menu selection, the feature switch `enableTimeKeeperSessionSwitch` can be used.
+- (rc15) Public Results: files that start with `.` are no longer sent. They are not needed and caused problems when creating the zip file sent by owlcms to publicresults.
+- (rc15) Fix: an error message would be printed when fetching the category code during the computation of the Scoreboard information. There were no actual consequences to this error.
+- Results Tie-Break
+  - The actual lift time is be used when breaking ties between two athletes in two different groups. This is compatible with rule 6.8.2 for the normal IWF context where groups for a category are in descending D-C-B-A sequence. 
+  - This also works when competition times have not been entered for the sessions.  
+  - This also works as a tie-breaker for situations where multiple championships run on several platforms and no group ordering is possible (for example, tie-breaking an Open championship taking place concurrently with other championships).
+- Fix: the  Export All Records button now exports all records (old and new).  New records are identified by a group name in the "Group" column.
 - Athlete Registration, Weigh-in and Competition Documents
   - The editing form now requires a registration category (overriding is needed to have none)
     - The best choice is calculated automatically as the youngest category (based on maximum age), and if equal, the one with the narrowest age range (so an eligible Masters will be chosen over Senior)
