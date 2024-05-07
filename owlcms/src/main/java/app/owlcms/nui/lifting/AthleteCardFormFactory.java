@@ -997,7 +997,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 
 	private TextField createPositiveWeightField(int row, int col) {
 		TextField tf = new TextField();
-		tf.setPattern("/^(350|3[0-4][0-9]|2[0-9]{2}|1[0-9]{2}|[1-9][0-9]?|0)$/");
+		tf.setPattern("^(350|3[0-4][0-9]|2[0-9]{2}|1[0-9]{2}|[1-9][0-9]?|0)$");
+		tf.setMaxLength(3);
 		tf.setAllowedCharPattern("[0-9]");
 		tf.setValueChangeMode(ValueChangeMode.ON_CHANGE);
 		tf.addValueChangeListener(e -> {
