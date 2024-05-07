@@ -43,7 +43,7 @@
     --NextBackgroundColor: gold;
 
     --RequestTextColor: var(--TextColor);
-    --RequestBackgroundColor: var(--BackgroundColor);
+    --RequestBackgroundColor: var(--EmptyBackgroundColor);
 
     --StartBackgroundColor: var(--BackgroundColor);
     --StartTextColor: var(--TextColor);
@@ -60,8 +60,8 @@
     --TeamTextColor: var(--TextColor);
     --TeamBackgroundColor: var(--BackgroundColor);
 
-    --GoodTextColor: white;
-    --GoodBackgroundColor: green;
+    --GoodTextColor: black;
+    --GoodBackgroundColor: white;
 
     --FailTextColor: white;
     --FailBackgroundColor: darkred;
@@ -78,7 +78,7 @@
     --SpacerBackgroundColor: var(--TableBorders);
     --EmptyTextColor: #cccccc;
     --EmptyBackgroundColor: #cccccc;
-    
+
      /* records table section, white on black */
     --RecordBoxBorder: var(--pageTextColor);
     --RecordBoxBackground: var(--pageBackgroundColor);
