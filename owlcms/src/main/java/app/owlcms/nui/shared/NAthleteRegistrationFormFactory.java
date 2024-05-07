@@ -1374,8 +1374,8 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			logger.debug/* edit */("updateCategoryFields all eligibles {}",
 			        allEligible.stream().map(v -> v.shortDump()).collect(Collectors.toList()));
 
-			List<Category> pertinentCategories = CategoryRepository.findByGenderAgeBW(getGenderFieldValue(),
-			        getAgeFromFields(), null);
+//			List<Category> pertinentCategories = CategoryRepository.findByGenderAgeBW(getGenderFieldValue(),
+//			        getAgeFromFields(), null);
 
 			boolean listenerStatus = isChangeListenersEnabled();
 			try {
