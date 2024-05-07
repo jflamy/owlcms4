@@ -76,7 +76,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	Double minimumWeight; // inclusive
 	@Column(columnDefinition = "boolean default false")
 	private boolean active;
-	@ManyToOne(fetch = FetchType.LAZY) // ok in this case
+	@ManyToOne(fetch = FetchType.EAGER) // ok in this case
 	@JoinColumn(name = "agegroup_id")
 	@JsonIdentityReference(alwaysAsId = true)
 	private AgeGroup ageGroup;

@@ -59,7 +59,7 @@ class Results extends LitElement {
           </div>
 
           <table class="${this.athleteClasses()}" style="${this.athleteStyles()}">
-            ${this.athletes 
+            ${this.athletes
               ? html`
                 <tr class="head">
                   <th class="groupCol" .innerHTML="${this.t?.Start}"></th>
@@ -84,9 +84,9 @@ class Results extends LitElement {
                   <th class="sinclairRank" .innerHTML="${this.t?.Rank}"></th>
                 </tr>
                 ${(this.athletes ?? []).map(
-                    (item) => 
+                    (item) =>
                       html`
-                        ${item?.isSpacer 
+                        ${item?.isSpacer
                           ? html`
                             <tr>
                               <td class="spacer" style="grid-column: 1 / -1; justify-content: left;" innerHTML="-" ></td>
@@ -120,9 +120,9 @@ class Results extends LitElement {
                               </td>
                               <td class="vspacer"></td>
                               ${(item?.sattempts ?? []).map(
-                                (attempt, index) => 
+                                (attempt, index) =>
                                   html`
-                                    <td class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">   
+                                    <td class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">
                                       <div class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">${attempt?.stringValue}</div>
                                     </td>
                                   `)}
@@ -134,10 +134,10 @@ class Results extends LitElement {
                               </td>
                               <td class="vspacer"></td>
                               ${(item?.cattempts ?? []).map(
-                                (attempt, index) => 
+                                (attempt, index) =>
                                   html`
                                     <td class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">
-                                      <div class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">${attempt?.stringValue}</div> 
+                                      <div class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">${attempt?.stringValue}</div>
                                     </td>
                                   `)}
                               <td class="best">
@@ -177,9 +177,9 @@ class Results extends LitElement {
                     <td class="headerSpacer" innerHTML="&nbsp;" style="${"grid-column: 1 / -1; justify-content: left; " + this.leadingAthleteStyles()}"></td>
                   </tr>
                   ${(this.leaders ?? []).map(
-                    (item, index) => 
+                    (item, index) =>
                       html`
-                        ${!item?.isSpacer 
+                        ${!item?.isSpacer
                           ? html`
                               <tr class="athlete">
                                 <td class="groupCol" style="${this.leadingAthleteStyles()} "> <div>${item?.subCategory}</div></td>
@@ -196,7 +196,7 @@ class Results extends LitElement {
                                 </td>
                                 <td class="vspacer"></td>
                                 ${(item?.sattempts ?? []).map(
-                                  (attempt, index) => 
+                                  (attempt, index) =>
                                     html`
                                       <td class="${(attempt ?.liftStatus ?? "") + " " + (attempt?.className ?? "")}"><div>${attempt?.stringValue}</div></td>
                                     `)}
@@ -204,7 +204,7 @@ class Results extends LitElement {
                                 <td class="rank" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.snatchRank}"></div></td>
                                 <td class="vspacer" style="${this.leadingAthleteStyles()} "></td>
                                 ${(item?.cattempts ?? []).map(
-                                  (attempt, index) => 
+                                  (attempt, index) =>
                                     html`
                                       <td class="${(attempt ?.liftStatus ?? "") + " " + (attempt?.className ?? "")}"><div>${attempt?.stringValue}</div></td>
                                     `)}
@@ -232,14 +232,14 @@ class Results extends LitElement {
                     <div class="recordName recordTitle">${this.t?.records}</div>
                     <div class="recordLiftTypeSpacer"><span class="recordLiftTypeSpacer">&nbsp;</span></div>
                     ${(this.records?.recordNames ?? []).map(
-                      (n, index) => 
+                      (n, index) =>
                         html`
                           <div class="recordName">${n}</div>
                         `)}
                   </div>
 
                   ${(this.records?.recordTable ?? []).map(
-                    (c, index) => 
+                    (c, index) =>
                       html`
                         <div class="${c?.recordClass}">
                           <div class="recordCat" .innerHTML="${c?.cat}"></div>
@@ -247,7 +247,7 @@ class Results extends LitElement {
                           <div class="recordLiftType"><span class="recordLiftType">${this.t?.recordCJ}</span></div>
                           <div class="recordLiftType"><span class="recordLiftType">${this.t?.recordT}</span></div>
                           ${(c?.records ?? []).map(
-                            (r, index) => 
+                            (r, index) =>
                               html`
                                 <div class="${"recordCell " + (r?.snatchHighlight ?? "")} ">${r?.SNATCH}</div>
                                 <div class="${"recordCell " + (r?.cjHighlight ?? "")} ">${r?.CLEANJERK}</div>
@@ -282,7 +282,7 @@ class Results extends LitElement {
       groupName: {},
       groupDescription: {},
       platformName: {},
-      
+
       // during lifting
       athletes: { type: Object },
       leaders: { type: Object },
@@ -352,15 +352,15 @@ class Results extends LitElement {
   }
 
   fullNameStyles() {
-    return  "display: " + (this.mode === "WAIT" ? "none" : "flex");
+    return  "display: " + (this.mode === "WAIT" ? "none" : "block");
   }
 
   teamNameStyles() {
-    return "display: " + ((this.isBreak()) ? "none" : "flex");
+    return "display: " + (this.isBreak() ? "none" : "block");
   }
 
   attemptStyles() {
-    return "display: " + ((this.isBreak()) ? "none" : "flex");
+    return "display: " + (this.isBreak() ? "none" : "flex");
   }
 
   startNumberStyles() {
@@ -394,9 +394,9 @@ class Results extends LitElement {
   }
 
   athleteClasses() {
-    var classes = "results " 
+    var classes = "results "
     + (this.showTotal ? " total" : " nototal")
-    + (this.showLiftRanks ? " ranks" : " noranks") 
+    + (this.showLiftRanks ? " ranks" : " noranks")
     + (this.showBest ? " best" : " nobest")
     + (this.showTotalRank ? " totalRank" : " nototalRank")
     + (this.showSinclair ? " sinclair" : " nosinclair")
@@ -408,11 +408,11 @@ class Results extends LitElement {
 
   athleteStyles() {
     return (this.mode === "WAIT" ? "display: none" : "display:grid ")
-      + (this.resultLines ? ("; --top: " + this.resultLines) : "") 
+      + (this.resultLines ? ("; --top: " + this.resultLines) : "")
       + (this.leaderLines ? "; --bottom: " + this.leaderLines : "")
-      + (this.leadersLineHeight ? "; " + this.leadersLineHeight : "") 
-      + (this.leaderFillerHeight ? "; " + this.leaderFillerHeight : "") 
-      + (this.twOverride ? "; " + this.twOverride : "") 
+      + (this.leadersLineHeight ? "; " + this.leadersLineHeight : "")
+      + (this.leaderFillerHeight ? "; " + this.leaderFillerHeight : "")
+      + (this.twOverride ? "; " + this.twOverride : "")
   }
 
   leadersStyles() {
@@ -428,8 +428,8 @@ class Results extends LitElement {
   }
 
   recordsStyles() {
-    return (!this.showRecords || this.mode !== "CURRENT_ATHLETE") 
-      ? "display:none" 
+    return (!this.showRecords || this.mode !== "CURRENT_ATHLETE")
+      ? "display:none"
       : "font-size: var(--recordsFontRatio); display: block" ;
   }
 

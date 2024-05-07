@@ -130,10 +130,16 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 		//jxlsExportRecords.setGroup(getGroup());
 		logger.debug("fetching records for session {} category {}", getGroup(), getCategory());
 		try {
-			//jxlsExportRecords.getSortedAthletes();
-			// Must be called immediately after getSortedAthletes
+			// Must be called as soon as possible after getSortedAthletes()
 			List<RecordEvent> records = jxlsExportRecords.getRecords(getCategory());
 			logger.debug("{} records found", records.size());
+			for (RecordEvent e: records) {
+				if (e.getBwCatUpper() > 250) {
+					e.setBwCatString(">"+e.getBwCatLower());
+				} else {
+					e.setBwCatString(Integer.toString(e.getBwCatUpper()));
+				}
+			};
 			getReportingBeans().put("records", records);
 		} catch (Exception e) {
 			// no records
