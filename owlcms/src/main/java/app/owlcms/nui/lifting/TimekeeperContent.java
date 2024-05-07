@@ -37,6 +37,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.CountdownType;
@@ -307,18 +308,21 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		// there is already all the SQL filtering logic for the group attached
 		// hidden field in the crudGrid part of the page so we just set that
 		// filter.
+		if (Config.getCurrent().featureSwitch("enableTimeKeeperSessionSwitch")) {
+			List<Group> groups = GroupRepository.findAll();
+			groups.sort(new NaturalOrderComparator<>());
 
-		List<Group> groups = GroupRepository.findAll();
-		groups.sort(new NaturalOrderComparator<>());
-
-		OwlcmsSession.withFop(fop -> {
-			this.topBarMenu = new GroupSelectionMenu(groups, fop.getGroup(),
-			        fop,
-			        (g1) -> fop.fopEventPost(
-			                new FOPEvent.SwitchGroup(g1.compareTo(fop.getGroup()) == 0 ? null : g1, this)),
-			        (g1) -> fop.fopEventPost(new FOPEvent.SwitchGroup(null, this)));
-			createTopBarSettingsMenu();
-		});
+			OwlcmsSession.withFop(fop -> {
+				this.topBarMenu = new GroupSelectionMenu(groups, fop.getGroup(),
+				        fop,
+				        (g1) -> fop.fopEventPost(
+				                new FOPEvent.SwitchGroup(g1.compareTo(fop.getGroup()) == 0 ? null : g1, this)),
+				        (g1) -> fop.fopEventPost(new FOPEvent.SwitchGroup(null, this)));
+				createTopBarSettingsMenu();
+			});
+		} else {
+			super.createTopBarGroupSelect();
+		}
 
 	}
 
