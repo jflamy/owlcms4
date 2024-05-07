@@ -586,7 +586,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		this.getElement().setProperty("firstName", a.getFirstName());
 		if (lastName.length() > 18) {
 			this.getElement().setProperty("nameSizeOverride",
-			        "font-size: 8vh; line-height: 8vh; text-wrap: wrap; text-overflow: hidden");
+			        "font-size: 8vh; line-height: 8vh; text-wrap: balance; text-overflow: hidden");
 		}
 		this.getElement().setProperty("decisionVisible", false);
 		Category category2 = a.getCategory();
