@@ -355,7 +355,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void validateBodyWeight(Binder.BindingBuilder<Athlete, Double> bindingBuilder, boolean isRequired) {
-		Validator<Double> v1 = new DoubleRangeValidator(Translator.translate("Weight_under_350"), 0.1D, 350.0D);
+		Validator<Double> v1 = new DoubleRangeValidator(Translator.translate("Weight_under_X","200"), 0.1D, 200.0D);
 		bindingBuilder.withValidator(v1);
 	}
 
@@ -918,6 +918,8 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			        this.qualifyingTotalField);
 		});
 		bb1.withValidator(v1);
+		Validator<Integer> v1a = new IntegerRangeValidator(Translator.translate("Weight_under_X","350"), 0, 350);
+		bb1.withValidator(v1a);
 		bindField(bb1, this.snatch1DeclarationField,
 		        a -> {
 			        String snatch1Declaration = a.getSnatch1Declaration();
@@ -938,7 +940,8 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			        this.qualifyingTotalField);
 		});
 		bb2.withValidator(v2);
-
+		Validator<Integer> v2a = new IntegerRangeValidator(Translator.translate("Weight_under_X","350"), 0, 350);
+		bb2.withValidator(v2a);
 		bindField(bb2, this.cleanJerk1DeclarationField,
 		        a -> {
 			        String cleanJerk1Declaration = a.getCleanJerk1Declaration();

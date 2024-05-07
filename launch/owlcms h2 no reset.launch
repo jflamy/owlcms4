@@ -28,8 +28,6 @@
         <mapEntry key="[debug]" value="org.eclipse.jdt.launching.localJavaApplication"/>
         <mapEntry key="[run]" value="org.eclipse.jdt.launching.localJavaApplication"/>
     </mapAttribute>
-    <stringAttribute key="org.eclipse.debug.ui.ATTR_CAPTURE_IN_FILE" value="${workspace_loc:/owlcms}/console.log"/>
-    <booleanAttribute key="org.eclipse.debug.ui.ATTR_CONSOLE_OUTPUT_ON" value="false"/>
     <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
         <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
     </listAttribute>
