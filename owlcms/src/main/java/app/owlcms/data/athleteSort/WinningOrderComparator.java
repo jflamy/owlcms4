@@ -175,8 +175,10 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		if (compare != 0) {
 			return compare;
 		}
-		// for best lifter awards based on qpoints, lighter Athlete that achieves same qpoints is better
-		return tieBreak(lifter1, lifter2, true);
+
+		compare = compareBodyWeight(lifter1, lifter2);
+		traceComparison("gamx compareBodyWeight", lifter1, lifter2, compare);
+		return compare; // smaller Athlete wins
 	}
 
 	/**
@@ -197,8 +199,10 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		if (compare != 0) {
 			return compare;
 		}
-		// for best lifter awards based on qpoints, lighter Athlete that achieves same qpoints is better
-		return tieBreak(lifter1, lifter2, true);
+		compare = compareBodyWeight(lifter1, lifter2);
+		traceComparison("qpoints compareBodyWeight", lifter1, lifter2, compare);
+		return compare; // smaller Athlete wins
+
 	}
 
 	/**
@@ -221,9 +225,9 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		if (compare != 0) {
 			return compare;
 		}
-
-		// for robi, lighter Athlete that achieves same robi is better
-		return tieBreak(lifter1, lifter2, true);
+		compare = compareBodyWeight(lifter1, lifter2);
+		traceComparison("robi compareBodyWeight", lifter1, lifter2, compare);
+		return compare; // smaller Athlete wins
 	}
 
 	/**
@@ -244,8 +248,9 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		if (compare != 0) {
 			return compare;
 		}
-		// for sinclair, lighter Athlete that achieves same sinclair is better
-		return tieBreak(lifter1, lifter2, true);
+		compare = compareBodyWeight(lifter1, lifter2);
+		traceComparison("sinclair compareBodyWeight", lifter1, lifter2, compare);
+		return compare; // smaller Athlete wins
 	}
 
 	/**
@@ -267,8 +272,9 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		if (compare != 0) {
 			return compare;
 		}
-
-		return tieBreak(lifter1, lifter2, true);
+		compare = compareBodyWeight(lifter1, lifter2);
+		traceComparison("smm compareBodyWeight", lifter1, lifter2, compare);
+		return compare; // smaller Athlete wins
 	}
 
 	/**
@@ -394,18 +400,18 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		// bigger QPoints comes first
 		int compare;
 		compare = -lifter1Value.compareTo(lifter2Value);
-		//traceComparison("qpoints", lifter1, lifter2, compare);
+		// traceComparison("qpoints", lifter1, lifter2, compare);
 		return compare;
 	}
 
 	private int compareBestCleanJerkTime(Athlete lifter1, Athlete lifter2) {
 		LocalDateTime bestCleanJerkAttemptTime1 = lifter1.getBestCleanJerkAttemptTime();
 		LocalDateTime bestCleanJerkAttemptTime2 = lifter2.getBestCleanJerkAttemptTime();
-//			logger.trace("tieBreak {} {}={} {} {}={} {}", LoggerUtils.stackTrace(),
-//			        lifter1.getShortName(), lifter1.getBestCleanJerk(), bestCleanJerkAttemptTime1,
-//			        lifter2.getShortName(), lifter2.getBestCleanJerk(), bestCleanJerkAttemptTime2);
+		// logger.trace("tieBreak {} {}={} {} {}={} {}", LoggerUtils.stackTrace(),
+		// lifter1.getShortName(), lifter1.getBestCleanJerk(), bestCleanJerkAttemptTime1,
+		// lifter2.getShortName(), lifter2.getBestCleanJerk(), bestCleanJerkAttemptTime2);
 		int compare = ObjectUtils.compare(bestCleanJerkAttemptTime1, bestCleanJerkAttemptTime2);
-		//traceComparison("best clean jerk ", lifter1, lifter2, compare);
+		// traceComparison("best clean jerk ", lifter1, lifter2, compare);
 		return compare;
 	}
 
@@ -522,7 +528,8 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 
 	private void traceComparison(String where, Athlete lifter1, Athlete lifter2, int compare) {
 		if (logger.isTraceEnabled()) {
-			logger./**/warn("{} {} {} {} {}", where, lifter1, (compare < 0 ? "<" : (compare == 0 ? "=" : ">")), lifter2, LoggerUtils.whereFrom(1));
+			logger./**/warn("{} {} {} {} {}", where, lifter1, (compare < 0 ? "<" : (compare == 0 ? "=" : ">")), lifter2,
+			        LoggerUtils.whereFrom(1));
 		}
 	}
 
