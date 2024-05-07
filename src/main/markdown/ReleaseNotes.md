@@ -7,7 +7,8 @@
 
 ##### 48.0
 
-- (rc15) Records Export: for heavyweight category the format >109 with a leading `>` is used instead of 999.  This is what is used in the record boxes on the scoreboard. 
+- (rc15) Translation updates: Swedish, Polish
+- (rc15) Records Export: for heavyweight categories the format >109 with a leading `>` is used instead of 999.  This is what is used in the record boxes on the scoreboard. 
 - (rc15) Weigh-in 
   - Weigh-in form The eligibility categories are now shown on the form so that they are confirmed by the coach and cross-checked during data entry.
   - Data entry Quick Mode.  The ordering of the athletes from the weigh-in form is respected when an athlete moves up.
