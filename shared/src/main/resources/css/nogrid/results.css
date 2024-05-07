@@ -150,7 +150,7 @@ table.results.sinclair.nosinclairRank {
 }
 
 /* default cell colors, backgrounds and borders */
-:host table.results tr td, 
+:host table.results tr td,
 :host table.results tr th {
     align-items: center;
     background-color: var(--BackgroundColor);
@@ -162,7 +162,7 @@ table.results.sinclair.nosinclairRank {
     font-weight: bold;
 }
 
-:host .dark table.results tr td, 
+:host .dark table.results tr td,
 :host .dark table.results tr th {
     margin-bottom: var(--rowSmallSpacerHeight);
 }
@@ -537,6 +537,7 @@ td {
 
 .attemptBar .athleteInfo {
     display: flex;
+    gap: 0.5rem;
     font-size: var(--athleteNameFontSize);
     justify-content: space-between;
     align-items: baseline;
@@ -558,6 +559,7 @@ td {
 
 .athleteInfo .attempt {
     color: var(--athleteAttemptColor);
+    white-space: nowrap;
 }
 
 .athleteInfo .weight {
@@ -565,6 +567,7 @@ td {
     display: flex;
     justify-content: center;
     align-items: baseline;
+    white-space: nowrap;
 }
 
 .athleteInfo .timer {
