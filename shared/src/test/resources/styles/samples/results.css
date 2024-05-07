@@ -59,7 +59,7 @@ table.results {
 }
 
 table.results.noranks {
-    --rankWidth: 0; 
+    --rankWidth: 0;
     --rankVisibility: hidden;
 }
 
@@ -311,17 +311,17 @@ table {
     flex: 1;
     display: grid;
     border-collapse: collapse;
-    grid-template-rows: 
-        repeat(var(--top), min-content) 
+    grid-template-rows:
+        repeat(var(--top), min-content)
         1fr
         repeat(var(--bottom), min-content);
     grid-template-columns:
-        var(--startWidth) 
-        minmax(50px, 1fr) 
+        var(--startWidth)
+        minmax(50px, 1fr)
         var(--categoryWidth)
         var(--birthWidth)
         minmax(50px, var(--teamColumnRatio))
-        repeat(3, var(--liftResultWidth)) 
+        repeat(3, var(--liftResultWidth))
         repeat(var(--nbRanks), var(--rankWidth))
         repeat(3, var(--liftResultWidth))
         repeat(var(--nbRanks), var(--rankWidth))
@@ -336,12 +336,12 @@ table.medals {
     display: grid;
     border-collapse: collapse;
     grid-template-columns:
-        var(--startWidth) 
-        minmax(50px, 1fr) 
+        var(--startWidth)
+        minmax(50px, 1fr)
         var(--categoryWidth)
         var(--birthWidth)
         minmax(50px, var(--teamColumnRatio))
-        repeat(3, var(--liftResultWidth)) 
+        repeat(3, var(--liftResultWidth))
         repeat(var(--nbRanks), var(--rankWidth))
         repeat(3, var(--liftResultWidth))
         repeat(var(--nbRanks), var(--rankWidth))
@@ -462,6 +462,7 @@ td {
 
 .attemptBar .athleteInfo {
     display: flex;
+    gap: 0.5rem;
     font-size: 3.4vh;
     justify-content: space-between;
     align-items: baseline;
@@ -488,6 +489,7 @@ td {
     align-self: center;
     font-size: 3vh;
     color: var(--athleteAttemptColor);
+    white-space: nowrap;
 }
 
 .athleteInfo .weight {
@@ -495,10 +497,10 @@ td {
     font-size: 4vh;
     color: var(--athleteAttemptWeightColor);
     display: flex;
-    justify-content:
-    center;
+    justify-content: center;
     align-items: baseline;
     font-weight: bold;
+    white-space: nowrap;
 }
 
 .athleteInfo .timer {

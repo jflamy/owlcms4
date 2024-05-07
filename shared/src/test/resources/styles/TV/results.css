@@ -19,9 +19,9 @@
     --birthWidth: 6ch;
     --liftResultWidth: 8ch;
 
-    /* to show these columns 
+    /* to show these columns
     - change hidden to visible
-    - set the width to value like 8ch 
+    - set the width to value like 8ch
     */
     --custom1Width: 0;
     --custom1Visibility: hidden;
@@ -110,7 +110,7 @@ table.results.sinclair {
 }
 
 /* default cell colors, backgrounds and borders */
-:host .dark table.results tr td, 
+:host .dark table.results tr td,
 :host .dark table.results tr th {
     background-color: var(--darkBackgroundColor);
     color: var(--darkTextColor);
@@ -622,6 +622,7 @@ td {
 
 .attemptBar .athleteInfo {
     display: flex;
+    gap: 0.5rem;
     font-size: 3.4vh;
     justify-content: space-between;
     align-items: baseline;
@@ -646,6 +647,7 @@ td {
 
 .athleteInfo .attempt {
     color: var(--athleteAttemptColor);
+    white-space: nowrap;
 }
 
 .athleteInfo .weight {
@@ -653,6 +655,7 @@ td {
     display: flex;
     justify-content: center;
     align-items: baseline;
+    white-space: nowrap;
 }
 
 .athleteInfo .timer {
