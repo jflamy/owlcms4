@@ -5,6 +5,7 @@
 > - You should test all releases, with your own data, several days before a competition.
 
 - (rc17) Database connections were not being released when creating documents. Fixed by disabling auto-commit on both the database connection pool and in the persistence abstraction layer.
+- (rc17) Medal documents cleaned up
 - Championships and Final Results Package
   - The second column, previously empty, of the AgeGroups file is now used for a Championship Name. The third column is the championship type (IWF, MASTERS, etc.) 
   - You can name the Championship in your local language. For example: Youth, Junior, Senior, Masters, U13, U15, Junior High, Senior High, whatever you need.
