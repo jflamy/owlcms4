@@ -156,10 +156,10 @@
     --TotalRankTextColor: var(--TextColor);
     --TotalRankBackgroundColor: var(--RankBackgroundColor);
 
-    --TotalTextColor: var(--GoodTextColor);
+    --TotalTextColor: white;
     --TotalBackgroundColor: blue;
 
-    --SpacerBackgroundColor: var(--TableBorders);
+    --SpacerBackgroundColor: var(--pageBackgroundColor);
     --EmptyTextColor: #cccccc;
     --EmptyBackgroundColor: #cccccc;
 

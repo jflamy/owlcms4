@@ -5,8 +5,6 @@
 }
 
 .wrapper {
-  --blockBackgroundColor: silver;
-
   /* control record notification on scoreboard and attempt board.
      Set to 10 to show notifications, set to -10 if notifications not wanted */
   --zIndexRecordNotifications: 10;
@@ -39,6 +37,8 @@
 
 .dark {
     /* results table section, "white on black", most cells have same dark background as page */
+
+    --blockBackgroundColor: silver;
 
     --TableBorders: var(--EmptyBackgroundColor);
     --TextColor: white;
@@ -124,6 +124,8 @@
 .light {
     /* results table section, "black on white", cell have a full background different from page background */
 
+    --blockBackgroundColor: #4d4d4d;
+
     --TableBorders: grey;
     --TextColor: black;
     --BackgroundColor: white;
@@ -167,10 +169,10 @@
     --TotalRankTextColor: var(--TextColor);
     --TotalRankBackgroundColor: var(--RankBackgroundColor);
 
-    --TotalTextColor: var(--GoodTextColor);
+    --TotalTextColor: white;
     --TotalBackgroundColor: blue;
 
-    --SpacerBackgroundColor: var(--TableBorders);
+    --SpacerBackgroundColor: var(--blockBackgroundColor);
     --EmptyTextColor: #cccccc;
     --EmptyBackgroundColor: #cccccc;
 

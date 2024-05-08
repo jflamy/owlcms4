@@ -476,7 +476,6 @@ td {
     margin: 0;
 }
 
-/* only dark has vspacer */
 :host .dark table.results tr.head th.vspacer,
 :host .dark table.results tr.head td.vspacer {
     width: var(--spacerWidth);
@@ -485,6 +484,20 @@ td {
 }
 :host .dark table.results tr th.vspacer,
 :host .dark table.results tr td.vspacer {
+    width: var(--spacerWidth);
+    background-color: var(--blockBackgroundColor);
+    border: none;
+}
+
+:host .light table.results tr.head th.vspacer,
+:host .light table.results tr.head td.vspacer {
+    width: var(--spacerWidth);
+    background-color: var(--blockBackgroundColor);
+    border: none;
+}
+
+:host .light table.results tr th.vspacer,
+:host .light table.results tr td.vspacer {
     width: var(--spacerWidth);
     background-color: var(--blockBackgroundColor);
     border: none;
