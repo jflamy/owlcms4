@@ -4,7 +4,7 @@
 >
 > - You should test all releases, with your own data, several days before a competition.
 
-- (rc16) Very long family names (over 18 characters) are split over two lines; they will now split in a balanced way (except on Safari and iPad/iPhone browsers)
+- (rc17) Database connections were not being released when creating documents. Fixed by disabling auto-commit on both the database connection pool and in the persistence abstraction layer.
 - Championships and Final Results Package
   - The second column, previously empty, of the AgeGroups file is now used for a Championship Name. The third column is the championship type (IWF, MASTERS, etc.) 
   - You can name the Championship in your local language. For example: Youth, Junior, Senior, Masters, U13, U15, Junior High, Senior High, whatever you need.
@@ -36,6 +36,9 @@
 - Scoreboards:
   - For the default age group, "W 64" is now shown instead of "Open W 64".  Other age groups are shown as before ("U15 W 64").
   - Style sheets: improvements made for handling narrow (vertical) devices.  Ellipsis ("...") should now work correctly.
+- Attempt Board:
+  - Very long family names (over 18 characters) are split over two lines; they will now split in a balanced way (except on Safari and iPad/iPhone browsers)
+
 - Publicresults and Video Event Forwarding:
   - The publicresults scoreboard now reflects the owlcms coach scoreboard faithfully (all the data is sent over)
   - The information sent for publicresults can now be sent to a second URL for interfacing with video production software. A web server at that URL can extract the information published by owlcms, and transform it for use by video software such as vMix.  See https://github.com/nemikor-solutions/wise-eyes for an example.
