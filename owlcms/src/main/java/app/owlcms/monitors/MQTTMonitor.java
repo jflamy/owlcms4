@@ -868,6 +868,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private String getMonitoredFopName() {
 		return monitoredFopName;
 	}

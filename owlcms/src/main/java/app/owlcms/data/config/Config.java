@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.TimeZone;
@@ -64,9 +65,15 @@ public class Config {
 	 *
 	 * @return the current
 	 */
-	public static Config getCurrent() {
+	public static synchronized Config getCurrent() {
 		// *******
-		current = ConfigRepository.findAll().get(0);
+		if (current == null) {
+			List<Config> all = ConfigRepository.findAll();
+			if (all.size() > 0) {
+				logger.error("found {} Config", all.size());
+			}
+			current = all.get(0);
+		}
 		current.setSkipReading(false);
 		return current;
 	}
@@ -256,6 +263,7 @@ public class Config {
 				return res;
 			} catch (SQLException e) {
 				em.getTransaction().rollback();
+				em.close();
 				throw new RuntimeException(e);
 			}
 		});

@@ -1742,6 +1742,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		setCeremonyType(ceremonyType);
 	}
 
+	@SuppressWarnings("unused")
 	private String getForwardedFopName() {
 		return forwardedFopName;
 	}

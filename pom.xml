@@ -35,7 +35,7 @@
 		<vaadin.version>24.3.8</vaadin.version>
 		<logback.version>1.4.14</logback.version>
 		<slf4j.version>2.0.7</slf4j.version>
-		<hibernate.version>5.6.10.Final</hibernate.version>
+		<hibernate.version>5.6.15.Final</hibernate.version>
 		<guava.version>32.0.0-jre</guava.version>
 
 		<!-- maven configs -->
