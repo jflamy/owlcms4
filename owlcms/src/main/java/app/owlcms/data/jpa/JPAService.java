@@ -35,7 +35,9 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 
 import org.h2.tools.Server;
+import org.hibernate.SessionFactory;
 import org.hibernate.dialect.H2Dialect;
+import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
 import org.hibernate.hikaricp.internal.HikariCPConnectionProvider;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
@@ -43,6 +45,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.zaxxer.hikari.HikariDataSource;
 
 import app.owlcms.Main;
 import app.owlcms.data.agegroup.AgeGroup;
@@ -87,7 +90,7 @@ public class JPAService {
 	/**
 	 * @return the factory
 	 */
-	public static EntityManagerFactory getFactory() {
+	static EntityManagerFactory getFactory() {
 		return factory;
 	}
 
@@ -193,29 +196,16 @@ public class JPAService {
 		return properties;
 	}
 
-	/**
-	 * Run in transaction.
-	 *
-	 * @param <T>      the generic type
-	 * @param function the function
-	 * @return the t
-	 */
-	public static <T> T runInTransaction(EntityManager entityManager, Function<EntityManager, T> function) {
-		try {
-			entityManager.getTransaction().begin();
-
-			T result = function.apply(entityManager);
-
-			entityManager.getTransaction().commit();
-			return result;
-
-		} finally {
-			if (entityManager != null) {
-				entityManager.close();
+	private static void traceLeak() {
+		if (logger.isTraceEnabled()) {
+			int active = JPAService.getPoolStatistics();
+			if (active > 0) {
+				logger.trace("active > 0 {}", whereFrom.values());
 			}
 		}
 	}
 
+	static Map<EntityManager,String> whereFrom = new HashMap<>();
 	/**
 	 * Run in transaction.
 	 *
@@ -225,23 +215,27 @@ public class JPAService {
 	 */
 	public static <T> T runInTransaction(Function<EntityManager, T> function) {
 		EntityManager entityManager = null;
-
+		String whereFromString = LoggerUtils.whereFrom();
 		try {
 			if (getFactory() == null) {
 				logger.debug("JPAService {}", LoggerUtils./**/stackTrace());
 			}
 			entityManager = getFactory().createEntityManager();
+			whereFrom.put(entityManager, whereFromString);
 			entityManager.getTransaction().begin();
-
 			T result = function.apply(entityManager);
-
 			entityManager.getTransaction().commit();
+			entityManager.close();
+			whereFrom.remove(entityManager);
+			entityManager = null;
 			return result;
-
 		} finally {
 			if (entityManager != null) {
 				entityManager.close();
+				whereFrom.remove(entityManager);
 			}
+			traceLeak();
+
 		}
 	}
 
@@ -254,23 +248,28 @@ public class JPAService {
 	 */
 	public static List<Object[]> runInTransactionMultipleResults(Function<EntityManager, List<Object[]>> function) {
 		EntityManager entityManager = null;
-
+		String whereFromString = LoggerUtils.whereFrom();
 		try {
 			if (getFactory() == null) {
 				logger.debug("JPAService {}", LoggerUtils./**/stackTrace());
 			}
 			entityManager = getFactory().createEntityManager();
+			whereFrom.put(entityManager, whereFromString);
 			entityManager.getTransaction().begin();
 
 			List<Object[]> result = function.apply(entityManager);
-
 			entityManager.getTransaction().commit();
+			entityManager.close();
+			whereFrom.remove(entityManager);
+			entityManager = null;
 			return result;
 
 		} finally {
 			if (entityManager != null) {
 				entityManager.close();
+				whereFrom.remove(entityManager);
 			}
+			traceLeak();
 		}
 	}
 
@@ -352,6 +351,18 @@ public class JPAService {
 		return factory;
 	}
 
+	public static int getPoolStatistics() {
+		SessionFactory sessionFactory = factory.unwrap(SessionFactory.class);
+        ConnectionProvider connectionProvider = sessionFactory.getSessionFactoryOptions().getServiceRegistry().getService(ConnectionProvider.class);
+        HikariDataSource dataSource = connectionProvider.unwrap(HikariDataSource.class);
+        HikariDataSourcePoolDetail dsd = new HikariDataSourcePoolDetail(dataSource);
+        int active = dsd.getActive();
+        if (logger.isTraceEnabled()) {
+        	logger.trace("HikariDataSource details: max={} active={}", dsd.getMax(), active);
+        }
+		return active;
+	}
+
 	private static Properties h2FileProperties(String schemaGeneration, String dbUrl, String userName,
 	        String password) {
 		setLocalDb(true);
@@ -429,6 +440,9 @@ public class JPAService {
 		        .put("hibernate.hikari.idleTimeout", "300000") // 5 minutes
 		        .put("hibernate.hikari.maxLifetime", "600000") // 10 minutes (docker kills sockets after 15min)
 		        .put("hibernate.hikari.initializationFailTimeout", "60000")
+		        .put("hibernate.hikari.leakDetectionThreshold", "5000")
+		        .put("hibernate.hikari.autoCommit","false")
+		        .put("hibernate.connection.provider_disables_autocommit",true)
 		        .build();
 		return vals;
 	}
