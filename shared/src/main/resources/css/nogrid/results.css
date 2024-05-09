@@ -350,6 +350,7 @@ table.results tr td.club div.clubName div.ellipsis {
 
 /* requested weight column */
 :host table.results tr td.request {
+    --BlinkBackgroundColor: var(--RequestBackgroundColor);
     background-color: var(--RequestBackgroundColor);
     color: var(--RequestTextColor);
     font-style: italic;
@@ -465,6 +466,20 @@ td {
     border: none;
 }
 
+:host .light table.results tr.head th.vspacer,
+:host .light table.results tr.head td.vspacer {
+    width: var(--spacerWidth);
+    background-color: var(--pageBackgroundColor);
+    border: none;
+}
+
+:host .light table.results tr th.vspacer,
+:host .light table.results tr td.vspacer {
+    width: var(--spacerWidth);
+    background-color: var(--pageBackgroundColor);
+    border: none;
+}
+
 :host table.results tr.head td,
 :host table.results tr.head th {
     justify-content: center;
@@ -503,11 +518,11 @@ td {
     }
 
     50% {
-        background-color: var(--BackgroundColor);
+        background-color: var(--BlinkBackgroundColor, var(--BackgroundColor));
     }
 
     100% {
-        background-color: var(--BackgroundColor);
+        background-color: var(--BlinkBackgroundColor, var(--BackgroundColor));
     }
 }
 
