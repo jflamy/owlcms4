@@ -408,11 +408,11 @@ public class Results extends LitTemplate
 			String teamFileName = URLUtils.sanitizeFilename(team);
 
 			if (this.teamFlags && !team.isBlank()) {
-				prop = URLUtils.getImgTag("flags/", teamFileName, ".svg");
+				prop = URLUtils.getImgTag("flags/", teamFileName, ".svg", "");
 				if (prop == null) {
-					prop = URLUtils.getImgTag("flags/", teamFileName, ".png");
+					prop = URLUtils.getImgTag("flags/", teamFileName, ".png", "");
 					if (prop == null) {
-						prop = URLUtils.getImgTag("flags/", teamFileName, ".jpg");
+						prop = URLUtils.getImgTag("flags/", teamFileName, ".jpg", "");
 					}
 				}
 			}

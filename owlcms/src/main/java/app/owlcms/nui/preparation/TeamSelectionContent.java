@@ -24,12 +24,15 @@ import org.vaadin.crudui.crud.LazyCrudListener;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
+import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -306,9 +309,35 @@ public class TeamSelectionContent extends BaseContent
 	 */
 	protected OwlcmsCrudGrid<TeamTreeItem> createCrudGrid(OwlcmsCrudFormFactory<TeamTreeItem> crudFormFactory) {
 		TreeGrid<TeamTreeItem> grid = new TreeGrid<>();
-		grid.addHierarchyColumn(TeamTreeItem::formatName).setHeader(Translator.translate("Name")).setWidth("32ch");
+		boolean teamFlags = URLUtils.checkFlags();
+		
+		grid.addComponentHierarchyColumn((p -> {
+			if (p.isTeamMember() != null) {
+				return new Div();
+			}
+
+			String team = p.getTeam().getName();
+			String teamFileName = URLUtils.sanitizeFilename(team);
+			String tag = null;
+			if (teamFlags && !team.isBlank()) {
+				tag = URLUtils.getImgTag("flags/", teamFileName, ".svg", "style='width:3em'");
+				if (tag == null) {
+					tag = URLUtils.getImgTag("flags/", teamFileName, ".png", "style='width:3em'");
+					if (tag == null) {
+						tag = URLUtils.getImgTag("flags/", teamFileName, ".jpg", "style='width:3em'");
+					}
+				}
+			}
+			HorizontalLayout hl = new HorizontalLayout();
+			if (tag != null) {
+				hl.add(new Html(tag));
+			}
+			hl.add(new Text(p.formatName()));
+			return hl;
+		})).setHeader(Translator.translate("Name")).setWidth("32ch");
 		grid.addColumn(TeamTreeItem::getCategory).setHeader(Translator.translate("Category"))
 		        .setTextAlign(ColumnTextAlign.CENTER);
+
 
 		ComponentRenderer<Component, TeamTreeItem> warningRenderer = new ComponentRenderer<>(p -> {
 			if (p.isWarning()) {

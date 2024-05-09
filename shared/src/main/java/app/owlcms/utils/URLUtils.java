@@ -224,7 +224,7 @@ public class URLUtils {
         return found;
     }
     
-    public static String getImgTag(String prefix, String name, String suffix) {
+    public static String getImgTag(String prefix, String name, String suffix, String style) {
         boolean found;
         try {
             ResourceWalker.getFileOrResourcePath(prefix + name + suffix);
@@ -233,7 +233,7 @@ public class URLUtils {
             found = false;
         }
         if (found) {
-            return "<img src='local/" + prefix + name + suffix + "'></img>";
+            return "<img "+style+" src='local/" + prefix + name + suffix + "'></img>";
         } else {
             return null;
         }
