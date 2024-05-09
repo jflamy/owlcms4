@@ -16,7 +16,7 @@
     /* left column width: adjust depending on how you name groups */
     --startWidth: 0em;
     --startVisibility: hidden;
-    
+
     /* spacers */
     --spacerWidth: 1vh;
 
@@ -26,9 +26,9 @@
 
     --liftResultWidth: 6ch;
 
-    /* to show these columns 
+    /* to show these columns
     - change hidden to visible
-    - set the width to value like 8ch 
+    - set the width to value like 8ch
     */
     --birthWidth: 6ch;
     --birthVisibility: visible;
@@ -41,7 +41,7 @@
     --rankVisibility: visible;
     --totalRankWidth: var(--liftResultWidth);
     --totalRankVisibility: visible;
-    
+
     --bestWidth: var(--liftResultWidth);
     --bestVisibility: visible;
 
@@ -60,7 +60,7 @@
 
     box-sizing: border-box;
     --nbRanks: 1;
-    
+
     /* flag height */
     --flagHeight: 2.7vh;
 }
@@ -78,7 +78,7 @@
 }
 
 :host .light table.results {
-    --spacerWidth: 0vh;
+    --spacerWidth: 1vh;
     --rowSmallSpacerHeight: 0;
 }
 :host .dark table.results {

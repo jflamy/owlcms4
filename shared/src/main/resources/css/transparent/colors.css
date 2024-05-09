@@ -5,8 +5,6 @@
 }
 
 .wrapper {
-  --blockBackgroundColor: silver;
-
   /* control record notification on scoreboard and attempt board.
      Set to 10 to show notifications, set to -10 if notifications not wanted */
   --zIndexRecordNotifications: 10;
@@ -39,6 +37,8 @@
 
 .dark {
     /* results table section, "white on black", most cells have same dark background as page */
+
+    --blockBackgroundColor: silver;
 
     --TableBorders: var(--EmptyBackgroundColor);
     --TextColor: white;
@@ -89,7 +89,7 @@
     --SpacerBackgroundColor: var(--blockBackgroundColor);
     --EmptyTextColor: #4d4d4d;
     --EmptyBackgroundColor: #4d4d4d;
-    
+
     /* records table section, white on black */
     /* by default, same as black on white */
 
@@ -97,10 +97,10 @@
     --RecordBoxBackground: #4d4d4d;
     --RecordBoxBorderWidth: medium;
     --RecordBoxText: var(--pageTextColor);
-    
+
      --RecordCellBorderWidth: thin;
      --RecordCellBorderColor: var(--pageTextColor);
-     
+
     --RecordCatBackground: var(--RecordBoxBackground);
     --RecordCatText: var(--pageTextColor);
 
@@ -124,6 +124,8 @@
 .light {
     /* results table section, "black on white", cell have a full background different from page background */
 
+    --blockBackgroundColor: #4d4d4d;
+
     --TableBorders: grey;
     --TextColor: black;
     --BackgroundColor: white;
@@ -138,7 +140,7 @@
     --NextBackgroundColor: gold;
 
     --RequestTextColor: var(--TextColor);
-    --RequestBackgroundColor: var(--BackgroundColor);
+    --RequestBackgroundColor: var(--EmptyBackgroundColor);
 
     --StartBackgroundColor: var(--BackgroundColor);
     --StartTextColor: var(--TextColor);
@@ -155,8 +157,8 @@
     --TeamTextColor: var(--TextColor);
     --TeamBackgroundColor: var(--BackgroundColor);
 
-    --GoodTextColor: white;
-    --GoodBackgroundColor: green;
+    --GoodTextColor: black;
+    --GoodBackgroundColor: white;
 
     --FailTextColor: white;
     --FailBackgroundColor: darkred;
@@ -167,22 +169,22 @@
     --TotalRankTextColor: var(--TextColor);
     --TotalRankBackgroundColor: var(--RankBackgroundColor);
 
-    --TotalTextColor: var(--GoodTextColor);
+    --TotalTextColor: white;
     --TotalBackgroundColor: blue;
 
-    --SpacerBackgroundColor: var(--TableBorders);
+    --SpacerBackgroundColor: var(--blockBackgroundColor);
     --EmptyTextColor: #cccccc;
     --EmptyBackgroundColor: #cccccc;
-    
+
      /* records table section, black on white */
     --RecordBoxBorder: var(--pageTextColor);
     --RecordBoxBackground: grey;
     --RecordBoxBorderWidth: medium;
     --RecordBoxText: var(--pageTextColor);
-    
+
     --RecordCellBorderWidth: thin;
     --RecordCellBorderColor: var(--pageTextColor);
-     
+
     --RecordCatBackground: var(--RecordBoxBackground);
     --RecordCatText: var(--pageTextColor);
 
@@ -465,4 +467,3 @@
     src: url(https://fonts.gstatic.com/s/robotoslab/v34/BngMUXZYTXPIvIBgJJSb6ufN5qU.woff2) format('woff2');
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
   }
-  

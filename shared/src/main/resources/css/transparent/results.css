@@ -374,6 +374,7 @@ table.results tr td.club div.clubName div.ellipsis {
 
 /* requested weight column */
 :host table.results tr td.request {
+    --BlinkBackgroundColor: var(--RequestBackgroundColor);
     background-color: var(--RequestBackgroundColor);
     color: var(--RequestTextColor);
     font-style: italic;
@@ -475,7 +476,6 @@ td {
     margin: 0;
 }
 
-/* only dark has vspacer */
 :host .dark table.results tr.head th.vspacer,
 :host .dark table.results tr.head td.vspacer {
     width: var(--spacerWidth);
@@ -484,6 +484,20 @@ td {
 }
 :host .dark table.results tr th.vspacer,
 :host .dark table.results tr td.vspacer {
+    width: var(--spacerWidth);
+    background-color: var(--blockBackgroundColor);
+    border: none;
+}
+
+:host .light table.results tr.head th.vspacer,
+:host .light table.results tr.head td.vspacer {
+    width: var(--spacerWidth);
+    background-color: var(--blockBackgroundColor);
+    border: none;
+}
+
+:host .light table.results tr th.vspacer,
+:host .light table.results tr td.vspacer {
     width: var(--spacerWidth);
     background-color: var(--blockBackgroundColor);
     border: none;
@@ -527,11 +541,11 @@ td {
     }
 
     50% {
-        background-color: var(--BackgroundColor);
+        background-color: var(--BlinkBackgroundColor, var(--BackgroundColor));
     }
 
     100% {
-        background-color: var(--BackgroundColor);
+        background-color: var(--BlinkBackgroundColor, var(--BackgroundColor));
     }
 }
 
