@@ -134,7 +134,7 @@ public class OwlcmsFactory {
 	public static FieldOfPlay registerEmptyFOP(Platform platform) {
 		String name = platform.getName();
 		FieldOfPlay fop = new FieldOfPlay(null, platform);
-		logger.warn("{} Initialized", FieldOfPlay.getLoggingName(fop));
+		logger.info("{} Initialized", FieldOfPlay.getLoggingName(fop));
 		// no group selected, no athletes, announcer will need to pick a group.
 		fop.init(new LinkedList<>(), new ProxyAthleteTimer(fop), new ProxyBreakTimer(fop), true);
 		getFopByName().put(name, fop);

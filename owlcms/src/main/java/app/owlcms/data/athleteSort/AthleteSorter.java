@@ -26,7 +26,6 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.spreadsheet.PAthlete;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -475,7 +474,6 @@ public class AthleteSorter implements Serializable {
 	 * @param rankingType the ranking type
 	 */
 	static public void resultsOrder(List<Athlete> toBeSorted, Ranking rankingType, boolean absoluteOrder) {
-		logger.warn("resultsOrder {} {}",rankingType, LoggerUtils.whereFrom(4));
 		Collections.sort(toBeSorted, new WinningOrderComparator(rankingType, absoluteOrder));
 	}
 
