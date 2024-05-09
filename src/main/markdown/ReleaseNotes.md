@@ -4,6 +4,7 @@
 >
 > - You should test all releases, with your own data, several days before a competition.
 
+- (rc18) publicresults: Fix processing of "." files that macOS (.DS_store) or Linux can produce
 - (rc17) Database connections were not being released when creating documents. Fixed by disabling auto-commit on both the database connection pool and in the persistence abstraction layer.
 - (rc17) Medal documents cleaned up
 - Championships and Final Results Package
