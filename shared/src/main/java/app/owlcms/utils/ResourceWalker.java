@@ -413,12 +413,14 @@ public class ResourceWalker {
 		for (String name : resourceMap.keySet()) {
 			if (name.startsWith(".") || name.contains("/.")) {
 				// hidden files are not relevant and cause ordering issues in the zip file
-				break;
+				continue;
 			}
 			String curDirName = new File(name).getParent();
 			InputStream stream = ResourceWalker.getResourceAsStream(name);
 			boolean createDir = !isSameDir(curDirName, prevDirName) && !isSubDir(curDirName, prevDirName);
-			//logger.debug("zipping {} createDir={}",name,createDir);
+			if (logger.isTraceEnabled()) {
+				logger.trace("zipping {} createDir={}",name,createDir);
+			}
 			ZipUtils.zipStream(stream, name, createDir, zipOut);
 			prevDirName = curDirName;
 		}
