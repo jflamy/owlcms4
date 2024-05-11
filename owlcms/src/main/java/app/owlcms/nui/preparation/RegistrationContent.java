@@ -525,11 +525,11 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			        // group may have been edited since the page was loaded
 			        categoriesXlsWriter.setGroup(
 			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
-			        // get current version of athletes.
-			        //FIXME is this correct order
+			        
+			        // get current version of athletes.  
 			        var athletes = participationFindAll();
 			        AthleteSorter.registrationOrder(athletes);
-			        categoriesXlsWriter.setSortedAthletes(participationFindAll());
+			        categoriesXlsWriter.setSortedAthletes(athletes);
 			        return categoriesXlsWriter;
 		        },
 		        resourceDirectoryLocation,

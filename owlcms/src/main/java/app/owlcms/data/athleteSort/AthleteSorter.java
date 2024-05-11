@@ -233,7 +233,8 @@ public class AthleteSorter implements Serializable {
 	 * @param athletes the to be sorted
 	 */
 	static public void displayOrder(List<? extends Athlete> athletes) {
-		Collections.sort(athletes, new DisplayOrderComparator());
+		//Collections.sort(athletes, new DisplayOrderComparator());
+		Collections.sort(athletes, new RegistrationOrderComparator());
 	}
 
 	/**
