@@ -89,7 +89,7 @@ public class AthleteSorter implements Serializable {
 	public static List<Athlete> assignCategoryRanks(Group g) {
 		List<Athlete> impactedAthletes;
 		if (g != null) {
-			impactedAthletes = AthleteRepository.findAthletesForGlobalRanking(g);
+			impactedAthletes = AthleteRepository.findAthletesForGlobalRanking(g, true);
 			// logger.debug("all athletes in group's categories {}", impactedAthletes);
 		} else {
 			impactedAthletes = AthleteRepository.findAllByGroupAndWeighIn(null, true);
