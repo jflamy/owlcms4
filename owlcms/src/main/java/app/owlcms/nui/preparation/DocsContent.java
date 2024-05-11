@@ -37,6 +37,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.athleteSort.RegistrationOrderComparator;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
@@ -460,9 +461,9 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
 			        // get current version of athletes.
 			        startingXlsWriter.setPostProcessor(null);
-			        // findAll();
-			        // List<Athlete> sortedAthletes = startingXlsWriter.getSortedAthletes();
-			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(athletesFindAll()));
+			        List<Athlete> athletes = athletesFindAll();
+			        athletes.sort(Group.weighinTimeComparator.thenComparing(RegistrationOrderComparator.athleteRegistrationOrderComparator));
+			        startingXlsWriter.setSortedAthletes(athletes);
 			        return startingXlsWriter;
 		        },
 		        resourceDirectoryLocation,
