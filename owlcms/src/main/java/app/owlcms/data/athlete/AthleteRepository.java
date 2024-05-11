@@ -52,7 +52,7 @@ public class AthleteRepository {
 		JPAService.runInTransaction((em) -> {
 			List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, true,
 			        (Gender) null);
-			AthleteSorter.displayOrder(currentGroupAthletes);
+			AthleteSorter.registrationOrder(currentGroupAthletes);
 			AthleteSorter.assignStartNumbers(currentGroupAthletes);
 			return currentGroupAthletes;
 		});
