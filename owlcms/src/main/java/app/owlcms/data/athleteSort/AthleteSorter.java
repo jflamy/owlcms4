@@ -89,7 +89,7 @@ public class AthleteSorter implements Serializable {
 	public static List<Athlete> assignCategoryRanks(Group g) {
 		List<Athlete> impactedAthletes;
 		if (g != null) {
-			impactedAthletes = AthleteRepository.findAthletesForGlobalRanking(g);
+			impactedAthletes = AthleteRepository.findAthletesForGlobalRanking(g, true);
 			// logger.debug("all athletes in group's categories {}", impactedAthletes);
 		} else {
 			impactedAthletes = AthleteRepository.findAllByGroupAndWeighIn(null, true);
@@ -233,7 +233,8 @@ public class AthleteSorter implements Serializable {
 	 * @param athletes the to be sorted
 	 */
 	static public void displayOrder(List<? extends Athlete> athletes) {
-		Collections.sort(athletes, new DisplayOrderComparator());
+		//Collections.sort(athletes, new DisplayOrderComparator());
+		Collections.sort(athletes, new RegistrationOrderComparator());
 	}
 
 	/**

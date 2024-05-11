@@ -52,7 +52,7 @@ public class AthleteRepository {
 		JPAService.runInTransaction((em) -> {
 			List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, true,
 			        (Gender) null);
-			AthleteSorter.displayOrder(currentGroupAthletes);
+			AthleteSorter.registrationOrder(currentGroupAthletes);
 			AthleteSorter.assignStartNumbers(currentGroupAthletes);
 			return currentGroupAthletes;
 		});
@@ -144,11 +144,11 @@ public class AthleteRepository {
 		if (group != null && group.getName() == "*") {
 			group = null;
 		}
-		//FIXME check that it works with ageDivision/Championship
+		// FIXME check that it works with ageDivision/Championship
 		String qlString = "select a from Athlete a"
 		        + filteringSelection(lastName, group, category, ageGroup, ageDivision, gender, weighedIn, team)
 		        + " order by a.category";
-		//logger.trace("find query = {}", qlString);
+		// logger.trace("find query = {}", qlString);
 		Query query = em.createQuery(qlString);
 		setFilteringParameters(lastName, group, category, ageGroup, ageDivision, gender, team, query);
 		if (offset >= 0) {
@@ -217,7 +217,7 @@ public class AthleteRepository {
 			return q.getResultList();
 		});
 	}
-	
+
 	public static List<Athlete> findAthletesNoCategory() {
 		return JPAService.runInTransaction((em) -> {
 			TypedQuery<Athlete> q = em.createQuery(
@@ -228,7 +228,7 @@ public class AthleteRepository {
 	}
 
 	public static List<Athlete> findAthletesForGlobalRanking(EntityManager emgr, Group g) {
-		return doFindAthletesForGlobalRanking(g, emgr);
+		return doFindAthletesForGlobalRanking(g, emgr, true);
 	}
 
 	/**
@@ -236,12 +236,13 @@ public class AthleteRepository {
 	 * their participations.
 	 *
 	 * @param g
+	 * @param onlyWeighedIn TODO
 	 * @return
 	 */
 
-	public static List<Athlete> findAthletesForGlobalRanking(Group g) {
+	public static List<Athlete> findAthletesForGlobalRanking(Group g, boolean onlyWeighedIn) {
 		return JPAService.runInTransaction((em) -> {
-			return doFindAthletesForGlobalRanking(g, em);
+			return doFindAthletesForGlobalRanking(g, em, onlyWeighedIn);
 		});
 	}
 
@@ -334,16 +335,16 @@ public class AthleteRepository {
 		});
 	}
 
-	private static List<Athlete> doFindAthletesForGlobalRanking(Group g, EntityManager em) {
+	private static List<Athlete> doFindAthletesForGlobalRanking(Group g, EntityManager em, boolean onlyWeighedIn) {
 		String onlyCategoriesFromCurrentGroup = "";
 		if (g != null) {
 			String categoriesFromCurrentGroup = "select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 where g.id = :groupId";
 			onlyCategoriesFromCurrentGroup = " join p.category c where exists (" + categoriesFromCurrentGroup
 			        + " and c2.code = c.code)";
-//			 TypedQuery<Category> q2 = em.createQuery(categoriesFromCurrentGroup, Category.class);
-//			 q2.setParameter("groupId", g.getId());
-//			 List<Category> q2Results = q2.getResultList();
-//			 logger.debug("categories for currentGroup {}",q2Results);
+			// TypedQuery<Category> q2 = em.createQuery(categoriesFromCurrentGroup, Category.class);
+			// q2.setParameter("groupId", g.getId());
+			// List<Category> q2Results = q2.getResultList();
+			// logger.debug("categories for currentGroup {}",q2Results);
 		}
 		Query q = em.createQuery(
 		        "select distinct a, p from Athlete a join fetch a.participations p"
@@ -352,12 +353,20 @@ public class AthleteRepository {
 			q.setParameter("groupId", g.getId());
 		}
 
-		@SuppressWarnings("unchecked")
-		List<Athlete> resultList = (List<Athlete>) q.getResultList().stream().filter(a -> {
-			Double bw = ((Athlete) a).getBodyWeight();
-			return bw != null && bw >= 0.01;
-		}).collect(Collectors.toList());
-		logger.debug("athletes in categories from group {} {}",g,resultList);
+		List<Athlete> resultList;
+		if (onlyWeighedIn) {
+			@SuppressWarnings("unchecked")
+			List<Athlete> r = (List<Athlete>) q.getResultList().stream().filter(a -> {
+				Double bw = ((Athlete) a).getBodyWeight();
+				return bw != null && bw >= 0.01;
+			}).collect(Collectors.toList());
+			resultList = r;
+		} else {
+			@SuppressWarnings("unchecked")
+			List<Athlete> r = q.getResultList();
+			resultList = r;
+		}
+		logger.debug("athletes in categories from group {} {}", g, resultList);
 		return resultList;
 	}
 
@@ -408,7 +417,7 @@ public class AthleteRepository {
 			whereList.add("a.gender = :gender");
 		}
 		if (weighedIn != null) {
-			whereList.add(weighedIn ? "a.bodyWeight > 0" : "(a.bodyWeight is null) OR (a.bodyWeight <= 0.1)");
+			whereList.add(weighedIn ? "a.bodyWeight > 0.1" : "(a.bodyWeight is null) OR (a.bodyWeight <= 0.1)");
 		}
 		if (team != null) {
 			whereList.add("a.team like :team");

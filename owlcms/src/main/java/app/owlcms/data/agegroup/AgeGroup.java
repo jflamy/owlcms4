@@ -193,22 +193,22 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 		compare = ObjectUtils.compare(a.getGender(), b.getGender());
 		if (compare != 0) {
-			logger.warn("    agegroup gender {} {} {} ", a.getGender(), compare > 0 ? ">" : "<",  b.getGender());
+			//logger.debug("agegroup gender {} {} {} ", a.getGender(), compare > 0 ? ">" : "<",  b.getGender());
 			return compare;
 		}
 		
 		compare = ObjectUtils.compare(a.getMaxAge(), b.getMaxAge());
 		if (compare != 0) {
-			logger.warn("   agegroup maxage {} {} {} ", a.getMaxAge(), compare > 0 ? ">" : "<",  b.getMaxAge());
+			//logger.debug("maxage {} {} {} ", a.getMaxAge(), compare > 0 ? ">" : "<",  b.getMaxAge());
 			return compare;
 		}
 		
 		compare = ObjectUtils.compare(a.getMinAge(), b.getMinAge());
 		if (compare != 0) {
-			logger.warn("    agegroup minage {} {} {} ", a.getMinAge(), compare > 0 ? ">" : "<",  b.getMinAge());
+			//logger.debug("agegroup minage {} {} {} ", a.getMinAge(), compare > 0 ? ">" : "<",  b.getMinAge());
 			return compare;
 		}
-
+		
 		return compare;
 	};
 

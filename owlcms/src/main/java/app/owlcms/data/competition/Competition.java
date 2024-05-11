@@ -272,7 +272,7 @@ public class Competition {
 	private boolean displayScoreRanks;
 	private String checkInTemplateFileName;
 	@Column(columnDefinition = "boolean default false")
-	private boolean displayByAgeGroup = true;
+	private boolean displayByAgeGroup;
 	@Column(columnDefinition = "boolean default true")
 	private boolean announcerControlledJuryDecision = true;
 
@@ -285,8 +285,8 @@ public class Competition {
 	 * @return for each category represented in group g where all athletes have lifted, the medals
 	 */
 	public TreeMap<String, TreeSet<Athlete>> computeMedals(Group g) {
-		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g);
-		logger.debug("*** ranked athletes for group {} {}",g,rankedAthletes);
+		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g, false);
+		logger.warn("*** ranked athletes for group {} {}",g,rankedAthletes.stream().map(a->a.getLastName()).collect(Collectors.toSet()));
 		return computeMedals(g, rankedAthletes);
 	}
 
@@ -389,7 +389,7 @@ public class Competition {
 
 	public TreeSet<Athlete> computeMedalsForCategory(Category category) {
 		// brute force - reuse what works
-		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(null);
+		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(null, false);
 		TreeSet<Athlete> treeSet = computeMedalsByCategory(rankedAthletes).get(category.getCode());
 		// logger.debug("computeMedalsForCategory {}",treeSet);
 		return treeSet;
