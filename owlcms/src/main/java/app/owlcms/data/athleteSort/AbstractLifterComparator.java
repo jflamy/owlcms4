@@ -19,6 +19,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.NaturalOrderComparator;
 
 /**
@@ -434,7 +435,8 @@ public class AbstractLifterComparator {
 		LocalDateTime lifter2Date = lifter2Group.getWeighInTime();
 		compare = ObjectUtils.compare(lifter1Date, lifter2Date, true);
 		if (compare != 0) {
-			// logger.trace("different date {} {}", lifter1Date, lifter1Date);
+			traceComparison("compareGroupWeighInTime", lifter1, lifter1.getGroup().getWeighInTime(),
+			        lifter2, lifter2.getGroup().getWeighInTime(), compare);
 			return compare;
 		}
 
@@ -990,6 +992,14 @@ public class AbstractLifterComparator {
 		Integer lifter1Value = lifter1.getTotal();
 		Integer lifter2Value = lifter2.getTotal();
 		return lifter1Value.compareTo(lifter2Value);
+	}
+	
+	private void traceComparison(String where, Athlete lifter1, Object v1, Athlete lifter2, Object v2, int compare) {
+		if (logger.isTraceEnabled()) {
+			logger./**/warn("{} {}={} {} {}={} {}", where, lifter1, (compare < 0 ? "<" : (compare == 0 ? "=" : ">")),
+			        lifter2,
+			        LoggerUtils.whereFrom(1));
+		}
 	}
 
 }

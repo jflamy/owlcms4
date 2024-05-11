@@ -272,7 +272,7 @@ public class Competition {
 	private boolean displayScoreRanks;
 	private String checkInTemplateFileName;
 	@Column(columnDefinition = "boolean default false")
-	private boolean displayByAgeGroup;
+	private boolean displayByAgeGroup = true;
 	@Column(columnDefinition = "boolean default true")
 	private boolean announcerControlledJuryDecision = true;
 

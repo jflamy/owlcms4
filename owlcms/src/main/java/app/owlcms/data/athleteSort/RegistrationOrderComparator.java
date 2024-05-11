@@ -9,11 +9,14 @@ package app.owlcms.data.athleteSort;
 import java.util.Comparator;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.utils.LoggerUtils;
+import ch.qos.logback.classic.Logger;
 
 /**
  * This comparator is used for the technical meeting sheet. It is based on the registration category
@@ -23,6 +26,8 @@ import app.owlcms.data.competition.Competition;
  */
 public class RegistrationOrderComparator extends AbstractLifterComparator implements Comparator<Athlete> {
 
+	Logger logger = (Logger) LoggerFactory.getLogger(RegistrationOrderComparator.class);
+
 	/*
 	 * (non-Javadoc)
 	 *
@@ -30,7 +35,7 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 	 */
 	@Override
 	public int compare(Athlete lifter1, Athlete lifter2) {
-		//logger.debug("comparing RegistrationOrderComparator");
+		// logger.debug("comparing RegistrationOrderComparator");
 		int compare = 0;
 
 		// takes into account platform and group name so that groups are not mixed
@@ -40,18 +45,20 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 			return compare;
 		}
 
-		if (Competition.getCurrent().isMasters()) {
-			compare = AgeGroup.registrationComparator.compare(lifter1.getAgeGroup(), lifter2.getAgeGroup());
+		if (!Competition.getCurrent().isDisplayByAgeGroup()) {
+			compare = ageGroupRegistrationComparator.compare(lifter1.getAgeGroup(), lifter2.getAgeGroup());
 			if (compare != 0) {
-				return -compare;
+				traceComparison("RegistrationOrderComparator ageGroup", lifter1, lifter1.getAgeGroup(), lifter2,
+				        lifter2.getAgeGroup(), compare);
+				return Competition.getCurrent().isMasters() ? -compare : compare;
 			}
 		}
 
 		Category a = lifter1.getCategory();
 		Category b = lifter2.getCategory();
-		compare = registrationComparator.compare(a, b);
+		compare = categoryRegistrationComparator.compare(a, b);
 		if (compare != 0) {
-			//logger.debug("category {} {} {} ", a, compare > 0 ? ">" : "<", b);
+			traceComparison("RegistrationOrderComparator category", lifter1, a, lifter2, b, compare);
 			return compare;
 		}
 
@@ -73,28 +80,31 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 		return compare;
 	}
 
-	public static Comparator<Category> registrationComparator = (category1, category2) -> {
+	public static Comparator<AgeGroup> ageGroupRegistrationComparator = AgeGroup.registrationComparator;
+	
+	public static Comparator<Category> categoryRegistrationComparator = (category1, category2) -> {
 		if (category2 == null) {
 			return -1; // category1 is smaller than null -- null goes to the end;
 		}
-		
+
 		int compare;
-		
+
 		compare = ObjectUtils.compare(category1.getCode(), category2.getCode());
 		if (compare == 0) {
-			// shortcut.  identical codes are identical
+			// shortcut. identical codes are identical
 			return compare;
 		}
-		
+
 		compare = ObjectUtils.compare(category1.getGender(), category2.getGender());
 		if (compare != 0) {
-			//logger.debug("gender {} {} {} ", category1.getGender(), compare > 0 ? ">" : "<", category2.getGender());
+			// logger.debug("gender {} {} {} ", category1.getGender(), compare > 0 ? ">" : "<", category2.getGender());
 			return compare;
 		}
 
 		compare = AgeGroup.registrationComparator.compare(category1.getAgeGroup(), category2.getAgeGroup());
 		if (compare != 0) {
-			//logger.debug("agegroup {} {} {} ", category1.getAgeGroup(), compare > 0 ? ">" : "<", category2.getAgeGroup());
+			// logger.debug("agegroup {} {} {} ", category1.getAgeGroup(), compare > 0 ? ">" : "<",
+			// category2.getAgeGroup());
 			return compare;
 		}
 
@@ -104,5 +114,13 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 		compare = ObjectUtils.compare(value1, value2);
 		return compare;
 	};
+
+	private void traceComparison(String where, Athlete lifter1, Object v1, Athlete lifter2, Object v2, int compare) {
+		if (logger.isTraceEnabled()) {
+			logger./**/warn("{} {}={} {} {}={} {}", where, lifter1.getLastName(), v1, (compare < 0 ? " < " : (compare == 0 ? "=" : " > ")),
+			        lifter2.getLastName(), v2,
+			        LoggerUtils.whereFrom());
+		}
+	}
 
 }
