@@ -395,6 +395,9 @@ public class WeighinContent extends BaseContent
 					break;
 				}
 			}
+			if (current == null) {
+				current = all.get(0);
+			}
 		} else if (all.size() > 0) {
 			current = all.get(0);
 		}
@@ -404,16 +407,27 @@ public class WeighinContent extends BaseContent
 		// that the order will match the weigh-in form even if the current
 		// athlete has moved up a weight class. Otherwise just find the next
 		// athlete based on current order.
-		if (current.getBodyWeight() != null) {
+		
+		// quick workaround: a "no show" is indicated by removing the session.
+		Double curWeight = current.getBodyWeight();
+		if (curWeight != null || current.getGroup() == null) {
 			for (int i = 0; i < all.size(); i++) {
-				if (all.get(i).getBodyWeight() == null) {
-					return all.get(i);
+				Athlete next = all.get(i);
+				if (next.getBodyWeight() == null) {
+					return next;
 				}
 			}
 		} else {
 			for (int i = 0; i < all.size() - 1; i++) {
 				if (all.get(i).getId().equals(current.getId())) {
 					return all.get(i + 1);
+				}
+			}
+			// start from the top again instead of exiting
+			for (int i = 0; i < all.size(); i++) {
+				Athlete next = all.get(i);
+				if (next.getBodyWeight() == null) {
+					return next;
 				}
 			}
 		}
