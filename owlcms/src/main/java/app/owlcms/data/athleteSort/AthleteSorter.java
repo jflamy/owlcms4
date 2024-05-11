@@ -475,11 +475,6 @@ public class AthleteSorter implements Serializable {
 	 */
 	static public void resultsOrder(List<Athlete> toBeSorted, Ranking rankingType, boolean absoluteOrder) {
 		Collections.sort(toBeSorted, new WinningOrderComparator(rankingType, absoluteOrder));
-		// int liftOrder = 1;
-		// for (Athlete curLifter : toBeSorted) {
-		//// setRank(curLifter,liftOrder++, rankingType);
-		// curLifter.setResultOrderRank(liftOrder++, rankingType);
-		// }
 	}
 
 	/**

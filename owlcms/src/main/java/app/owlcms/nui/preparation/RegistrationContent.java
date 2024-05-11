@@ -526,6 +526,9 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			        categoriesXlsWriter.setGroup(
 			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
 			        // get current version of athletes.
+			        //FIXME is this correct order
+			        var athletes = participationFindAll();
+			        AthleteSorter.registrationOrder(athletes);
 			        categoriesXlsWriter.setSortedAthletes(participationFindAll());
 			        return categoriesXlsWriter;
 		        },
@@ -790,7 +793,6 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		        getChampionship());
 
 		List<Athlete> found = filterAthletes(athletes);
-		// categoriesXlsWriter.setSortedAthletes(found);
 		updateURLLocations();
 		return found;
 	}
