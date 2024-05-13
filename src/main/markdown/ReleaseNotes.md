@@ -4,8 +4,6 @@
 >
 > - You should test all releases, with your own data, several days before a competition.
 
-- rc20 - Release Candidate
-  - If a weight change occurred when the down signal or decision lights were on, there was an extremely small probability that the display would not reset and switch to the next athlete.
 - Championships and Final Results Package
   - The second column, previously empty, of the AgeGroups file is now used for a Championship Name. The third column is the championship type (IWF, MASTERS, etc.) 
   - You can name the Championship in your local language. For example: Youth, Junior, Senior, Masters, U13, U15, Junior High, Senior High, whatever you need.
@@ -53,6 +51,8 @@
   - Fix: in v47 the SBDE reader was inverting the declarations and personal best values.
 - If the Feature Toggle `AthleteCardEntryTotal` is enabled, the Entry Total is shown in the title of the Athlete Card.
 - Jury Sheet texts and labels are now all in the translation file and can therefore be in the local language.
+- Other fixes:
+  - If a weight change occurred when the down signal or decision lights were on, there was an extremely small probability that the display would not reset and switch to the next athlete.
 
 ###### AgeGroups Conversion Instructions
 
