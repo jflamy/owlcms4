@@ -20,11 +20,13 @@ import static app.owlcms.uievents.BreakType.FIRST_SNATCH;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -210,6 +212,7 @@ public class FieldOfPlay implements IUnregister {
 	private EventForwarder eventForwarder;
 	private JuryDecision toBeAnnouncedJuryDecision;
 	private FieldOfPlay existingFOP;
+	private Queue<FOPEvent.WeightChange> deferredWeightChanges = new LinkedList<>();
 
 	public FieldOfPlay() {
 	}
@@ -224,10 +227,10 @@ public class FieldOfPlay implements IUnregister {
 	public FieldOfPlay(Group group, Platform platform2) {
 		this.name = platform2.getName();
 		initEventBuses();
-		
+
 		existingFOP = OwlcmsFactory.getFOPByName(this.name);
 		if (existingFOP != null) {
-			RuntimeException exc = new RuntimeException("FOP "+this.name+" already exists");
+			RuntimeException exc = new RuntimeException("FOP " + this.name + " already exists");
 			LoggerUtils.logError(logger, exc, true);
 			throw exc;
 		}
@@ -235,7 +238,7 @@ public class FieldOfPlay implements IUnregister {
 		// check if refereeing devices connected via MQTT are in use
 		String paramMqttServer = Config.getCurrent().getParamMqttServer();
 		boolean mqttInternal = Config.getCurrent().getParamMqttInternal();
-		
+
 		OwlcmsFactory.getFopByName().put(this.name, this);
 
 		if (mqttInternal || paramMqttServer != null) {
@@ -734,6 +737,7 @@ public class FieldOfPlay implements IUnregister {
 		switch (this.getState()) {
 
 			case INACTIVE:
+				checkDeferredWeightChanges();
 				// if (e instanceof TimeStarted) {
 				// transitionToTimeRunning();
 				// } else
@@ -798,6 +802,7 @@ public class FieldOfPlay implements IUnregister {
 				break;
 
 			case CURRENT_ATHLETE_DISPLAYED:
+				checkDeferredWeightChanges();
 				if (e instanceof TimeStarted) {
 					transitionToTimeRunning();
 				} else if (e instanceof WeightChange) {
@@ -812,6 +817,7 @@ public class FieldOfPlay implements IUnregister {
 				break;
 
 			case TIME_RUNNING:
+				checkDeferredWeightChanges();
 				if (e instanceof DownSignal) {
 					this.logger.debug("emitting down");
 					emitDown(e);
@@ -850,6 +856,7 @@ public class FieldOfPlay implements IUnregister {
 				break;
 
 			case TIME_STOPPED:
+				checkDeferredWeightChanges();
 				if (e instanceof DownSignal) {
 					// only occurs if solo referee
 					emitDown(e);
@@ -901,19 +908,10 @@ public class FieldOfPlay implements IUnregister {
 				} else if (e instanceof DecisionUpdate) {
 					doPossiblySoloRefereeUpdate(e);
 				} else if (e instanceof WeightChange) {
-					this.logger.debug("weight change during down {} {} {}", e.getAthlete(), this.getPreviousAthlete(),
+					// we need to defer the weight change event until the decision has been shown
+					this.logger.debug("{}weight change during down {} {} {}",FieldOfPlay.getLoggingName(this), e.getAthlete(), this.getPreviousAthlete(),
 					        this.getCurAthlete());
-					if (e.getAthlete() == this.getCurAthlete()) {
-						this.logger./**/warn("{}signal stuck, direct editing of {}", FieldOfPlay.getLoggingName(this),
-						        this.getCurAthlete());
-						// decision signal stuck, direct editing of athlete card. Force recomputing
-						doDecisionReset(e);
-						recomputeLiftingOrder(true, ((WeightChange) e).isResultChange());
-					} else {
-						recomputeOrderAndRanks(((WeightChange) e).isResultChange()); // &&&&&&&&&&&&&&&&&&&&&
-						// weightChangeDoNotDisturb((WeightChange) e);
-						setState(DOWN_SIGNAL_VISIBLE);
-					}
+					deferredWeightChanges.add((WeightChange) e);
 				} else {
 					unexpectedEventInState(e, DOWN_SIGNAL_VISIBLE);
 				}
@@ -932,10 +930,24 @@ public class FieldOfPlay implements IUnregister {
 					pushOutUIEvent(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, this.state,
 					        UIEvent.Notification.Level.ERROR));
 				} else if (e instanceof WeightChange) {
-					recomputeLiftingOrder(true, ((WeightChange) e).isResultChange()); // &&&&&&&&&&&&&&&&&&&&&
-					// weightChangeDoNotDisturb((WeightChange) e);
-					setState(DECISION_VISIBLE);
+					// we need to defer the weight change event until the decision has been shown
+					this.logger.debug("{}weight change during decision visible {} {} {}", FieldOfPlay.getLoggingName(this), e.getAthlete(),
+					        this.getPreviousAthlete(),
+					        this.getCurAthlete());
+					deferredWeightChanges.add((WeightChange) e);
 				} else if (e instanceof DecisionReset) {
+					// process the deferred weight changes
+					if (!deferredWeightChanges.isEmpty()) {
+						this.logger.debug("{}processing deferred weight changes",FieldOfPlay.getLoggingName(this));
+						boolean resultChange = false;
+						Iterator<WeightChange> iterator = deferredWeightChanges.iterator();
+						while (iterator.hasNext()) {
+							WeightChange wc = iterator.next();
+							resultChange = resultChange || wc.isResultChange();
+						}
+						recomputeLiftingOrder(true, resultChange);
+						deferredWeightChanges.clear();
+					}
 					doDecisionReset(e);
 					if (this.deferredBreak != null) {
 						transitionToBreak((FOPEvent.BreakStarted) this.deferredBreak);
@@ -948,10 +960,19 @@ public class FieldOfPlay implements IUnregister {
 		}
 	}
 
+	private void checkDeferredWeightChanges() {
+		if (!deferredWeightChanges.isEmpty()) {
+			// decision reset did not happen, we have pending weight changes.
+			logger.error("*** Can't happen: Weight changes during down/decision display, but no decision reset");
+			recomputeLiftingOrder(true, true);
+		}
+	}
+
 	private void doPossiblySoloRefereeUpdate(FOPEvent e) {
 		if (((DecisionUpdate) e).getRefIndex() < 0) {
 			boolean goodLift = ((DecisionUpdate) e).isDecision();
-			simulateDecision(new ExplicitDecision(e.getAthlete(), e.getStackTrace(), isAnnouncerDecisionImmediate(), goodLift, goodLift, goodLift));
+			simulateDecision(new ExplicitDecision(e.getAthlete(), e.getStackTrace(), isAnnouncerDecisionImmediate(),
+			        goodLift, goodLift, goodLift));
 		} else {
 			updateRefereeDecisions((DecisionUpdate) e);
 			uiShowUpdateOnJuryScreen(e);
@@ -1374,7 +1395,8 @@ public class FieldOfPlay implements IUnregister {
 	@Override
 	public void unregister() {
 		MQTTMonitor mqttMonitor2 = this.getMqttMonitor();
-		logger.debug("{}unregistering event forwarder and mqtt monitor {}", getLoggingName(this), System.identityHashCode(mqttMonitor2));
+		logger.debug("{}unregistering event forwarder and mqtt monitor {}", getLoggingName(this),
+		        System.identityHashCode(mqttMonitor2));
 		this.fopEventBus.unregister(this);
 		if (this.getEventForwarder() != null) {
 			this.getEventForwarder().unregister();
