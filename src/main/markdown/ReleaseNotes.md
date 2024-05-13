@@ -4,11 +4,8 @@
 >
 > - You should test all releases, with your own data, several days before a competition.
 
-- rc19 - Release Candidate
-  - Medals: Include only categories that have finished (further fix)
-  - Empty Protocol sheet used for manual backup and for coaches was not showing athletes in start order
-  - Weigh-in: If using Quick Mode to copy data from a weigh-in form, if an athlete does not show up, remove them from the selected session using the`x` and update.
-  
+- rc20 - Release Candidate
+  - If a weight change occurred when the down signal or decision lights were on, there was an extremely small probability that the display would not reset and switch to the next athlete.
 - Championships and Final Results Package
   - The second column, previously empty, of the AgeGroups file is now used for a Championship Name. The third column is the championship type (IWF, MASTERS, etc.) 
   - You can name the Championship in your local language. For example: Youth, Junior, Senior, Masters, U13, U15, Junior High, Senior High, whatever you need.
