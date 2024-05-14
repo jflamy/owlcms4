@@ -26,34 +26,34 @@ import ch.qos.logback.classic.Logger;
 public class RegistrationOrderComparator extends AbstractLifterComparator implements Comparator<Athlete> {
 
 	static Logger logger = (Logger) LoggerFactory.getLogger(RegistrationOrderComparator.class);
-	
-
 	public static Comparator<AgeGroup> ageGroupRegistrationComparator = AgeGroup.registrationComparator;
-	
 	public static Comparator<Category> categoryRegistrationComparator = (category1, category2) -> {
 		if (category2 == null) {
 			return -1; // category1 is smaller than null -- null goes to the end;
 		}
-		
+
 		int compare;
-		
+
 		compare = ObjectUtils.compare(category1.getCode(), category2.getCode());
 		if (compare == 0) {
-			// shortcut.  identical codes are identical
-			return compare;
-		}
-		
-		compare = ObjectUtils.compare(category1.getGender(), category2.getGender());
-		if (compare != 0) {
-			traceComparison("categoryRegistrationComparator gender", category1, category1.getGender(), category2, category2.getGender(), compare);
+			// shortcut. identical codes are identical
 			return compare;
 		}
 
-		compare = AgeGroup.registrationComparator.compare(category1.getAgeGroup(), category2.getAgeGroup());
+		compare = ObjectUtils.compare(category1.getGender(), category2.getGender());
 		if (compare != 0) {
-			// logger.debug("agegroup {} {} {} ", category1.getAgeGroup(), compare > 0 ? ">" : "<",
-			// category2.getAgeGroup());
+			traceComparison("categoryRegistrationComparator gender", category1, category1.getGender(), category2,
+			        category2.getGender(), compare);
 			return compare;
+		}
+
+		if (Competition.getCurrent().isDisplayByAgeGroup()) {
+			compare = AgeGroup.registrationComparator.compare(category1.getAgeGroup(), category2.getAgeGroup());
+			if (compare != 0) {
+				// logger.debug("agegroup {} {} {} ", category1.getAgeGroup(), compare > 0 ? ">" : "<",
+				// category2.getAgeGroup());
+				return compare;
+			}
 		}
 
 		// same division, same gender, rank according to maximumWeight.
@@ -65,7 +65,8 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 	
 	public static Comparator<Athlete> athleteRegistrationOrderComparator = (lifter1, lifter2) -> {
 		int compare;
-		if (!Competition.getCurrent().isDisplayByAgeGroup()) {
+		//logger.debug("display by age group = {}", Competition.getCurrent().isDisplayByAgeGroup());
+		if (Competition.getCurrent().isDisplayByAgeGroup()) {
 			compare = ageGroupRegistrationComparator.compare(lifter1.getAgeGroup(), lifter2.getAgeGroup());
 			if (compare != 0) {
 				traceComparison("RegistrationOrderComparator ageGroup", lifter1, lifter1.getAgeGroup(), lifter2,
@@ -114,16 +115,16 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 	 */
 	@Override
 	public int compare(Athlete lifter1, Athlete lifter2) {
-		//logger.debug("comparing RegistrationOrderComparator");
-		//int compare = 0;
+		// logger.debug("comparing RegistrationOrderComparator");
+		// int compare = 0;
 
-//FIXME only useful for start list.
-//		// takes into account platform and group name so that groups are not mixed
-//		// together
-//		compare = compareGroupWeighInTime(lifter1, lifter2);
-//		if (compare != 0) {
-//			return compare;
-//		}
+		// FIXME only useful for start list.
+		// // takes into account platform and group name so that groups are not mixed
+		// // together
+		// compare = compareGroupWeighInTime(lifter1, lifter2);
+		// if (compare != 0) {
+		// return compare;
+		// }
 		return athleteRegistrationOrderComparator.compare(lifter1, lifter2);
 	}
 }
