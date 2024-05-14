@@ -1,9 +1,10 @@
-**Version 48.0**
+**Version 48.0.1**
 
 > [!IMPORTANT]
 >
 > - You should test all releases, with your own data, several days before a competition.
 
+- 48.0.1: Fix for the "Group by age group" option.  When disabled, start numbers only consider the body weight class and lot number. This was broken.
 - Championships and Final Results Package
   - The second column, previously empty, of the AgeGroups file is now used for a Championship Name. The third column is the championship type (IWF, MASTERS, etc.) 
   - You can name the Championship in your local language. For example: Youth, Junior, Senior, Masters, U13, U15, Junior High, Senior High, whatever you need.
