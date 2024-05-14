@@ -10,10 +10,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.FormatStyle;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -40,6 +42,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AbstractLifterComparator;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.DateTimeUtils;
 import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
@@ -61,6 +64,15 @@ public class Group implements Comparable<Group> {
 	private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
 	private final static DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder().parseLenient()
 	        .appendPattern(DATE_FORMAT).toFormatter();
+	DateTimeFormatter dateFormatter = DateTimeFormatter
+	        .ofLocalizedDate(FormatStyle.SHORT)
+	        .withLocale(Locale.US);
+	DateTimeFormatter hourFormatter = DateTimeFormatter
+	        .ofLocalizedTime(FormatStyle.SHORT)
+	        .withLocale(Locale.US);
+	final DateTimeFormatter isoDateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
+	final DateTimeFormatter isoHourFormatter = DateTimeFormatter.ofPattern("HH:mm");
+;
 
 	public static DisplayGroup getEmptyDisplayGroup() {
 		return new DisplayGroup("?", "", null, "", "");
@@ -102,22 +114,23 @@ public class Group implements Comparable<Group> {
 	public static Comparator<Athlete> weighinTimeComparator = (lifter1, lifter2) -> {
 		Group lifter1Group = lifter1.getGroup();
 		Group lifter2Group = lifter2.getGroup();
-	
+
 		int compare = ObjectUtils.compare(lifter1Group, lifter2Group, true);
 		if ((compare == 0) || lifter1Group == null || lifter2Group == null) {
 			// a non-null group will sort before null
 			return compare;
 		}
-	
+
 		LocalDateTime lifter1Date = lifter1Group.getWeighInTime();
 		LocalDateTime lifter2Date = lifter2Group.getWeighInTime();
 		compare = ObjectUtils.compare(lifter1Date, lifter2Date, true);
 		if (compare != 0) {
-			AbstractLifterComparator.traceComparison("compareGroupWeighInTime", lifter1, lifter1.getGroup().getWeighInTime(),
+			AbstractLifterComparator.traceComparison("compareGroupWeighInTime", lifter1,
+			        lifter1.getGroup().getWeighInTime(),
 			        lifter2, lifter2.getGroup().getWeighInTime(), compare);
 			return compare;
 		}
-	
+
 		Platform p1 = lifter1Group.getPlatform();
 		Platform p2 = lifter2Group.getPlatform();
 		String name1 = p1 != null ? p1.getName() : null;
@@ -128,10 +141,10 @@ public class Group implements Comparable<Group> {
 			// LoggerUtils.whereFrom(10));
 			return compare;
 		}
-	
+
 		String lifter1String = lifter1Group.getName();
 		String lifter2String = lifter2Group.getName();
-	
+
 		if (lifter1String == null || lifter2String == null) {
 			compare = ObjectUtils.compare(lifter1String, lifter2String, true);
 		} else {
@@ -143,7 +156,7 @@ public class Group implements Comparable<Group> {
 			// LoggerUtils.whereFrom(10));
 			return compare;
 		}
-	
+
 		return 0;
 	};
 
@@ -337,6 +350,166 @@ public class Group implements Comparable<Group> {
 		try {
 			LocalDateTime competitionTime2 = getCompetitionTime();
 			formatted = competitionTime2 == null ? "" : DATE_TIME_FORMATTER.format(competitionTime2);
+		} catch (Exception e) {
+			LoggerUtils.logError(this.logger, e);
+		}
+		return formatted;
+	}
+
+	/**
+	 * Gets the session short start time.
+	 *
+	 * @return the competition time
+	 */
+	@Transient
+	@JsonIgnore
+	public String getLocalizedStartHour() {
+		String formatted = "";
+		try {
+			LocalDateTime competitionTime2 = getCompetitionTime();
+			formatted = competitionTime2 == null ? "" : DATE_TIME_FORMATTER.format(competitionTime2);
+		} catch (Exception e) {
+			LoggerUtils.logError(this.logger, e);
+		}
+		return formatted;
+	}
+
+
+
+	/**
+	 * Gets the session short date .
+	 *
+	 * @return the competition time
+	 */
+	@Transient
+	@JsonIgnore
+	public String getLocalizedStartDay() {
+		String formatted = "";
+		try {
+			LocalDateTime competitionTime2 = getCompetitionTime();
+			if (!OwlcmsSession.getLocale().equals(dateFormatter.getLocale())) {
+				dateFormatter = DateTimeFormatter
+				        .ofLocalizedDate(FormatStyle.SHORT)
+				        .withLocale(OwlcmsSession.getLocale());
+			}
+
+			formatted = competitionTime2 == null ? "" : dateFormatter.format(competitionTime2);
+		} catch (Exception e) {
+			LoggerUtils.logError(this.logger, e);
+		}
+		return formatted;
+	}
+
+	/**
+	 * Gets the competition start hour in ISO format
+	 *
+	 * @return the competition time
+	 */
+	@Transient
+	@JsonIgnore
+	public String getIntlStartHour() {
+		String formatted = "";
+		try {
+			LocalDateTime competitionTime2 = getCompetitionTime();
+			formatted = competitionTime2 == null ? "" : isoHourFormatter.format(competitionTime2);
+		} catch (Exception e) {
+			LoggerUtils.logError(this.logger, e);
+		}
+		return formatted;
+	}
+
+	/**
+	 * Gets the session short date in ISO format
+	 *
+	 * @return the competition time
+	 */
+	@Transient
+	@JsonIgnore
+	public String getIntlStartDay() {
+		String formatted = "";
+		try {
+			LocalDateTime competitionTime2 = getCompetitionTime();
+			formatted = competitionTime2 == null ? "" : isoDateFormatter.format(competitionTime2);
+		} catch (Exception e) {
+			LoggerUtils.logError(this.logger, e);
+		}
+		return formatted;
+	}
+	
+	/**
+	 * Gets the session short WeighIn time.
+	 *
+	 * @return the competition time
+	 */
+	@Transient
+	@JsonIgnore
+	public String getLocalWeighInHour() {
+		String formatted = "";
+		try {
+			LocalDateTime weighinTime2 = getWeighInTime();
+			formatted = weighinTime2 == null ? "" : DATE_TIME_FORMATTER.format(weighinTime2);
+		} catch (Exception e) {
+			LoggerUtils.logError(this.logger, e);
+		}
+		return formatted;
+	}
+
+
+
+	/**
+	 * Gets the session short date .
+	 *
+	 * @return the competition time
+	 */
+	@Transient
+	@JsonIgnore
+	public String getLocalWeighInDay() {
+		String formatted = "";
+		try {
+			LocalDateTime weighinTime2 = getWeighInTime();
+			if (!OwlcmsSession.getLocale().equals(dateFormatter.getLocale())) {
+				dateFormatter = DateTimeFormatter
+				        .ofLocalizedDate(FormatStyle.SHORT)
+				        .withLocale(OwlcmsSession.getLocale());
+			}
+
+			formatted = weighinTime2 == null ? "" : dateFormatter.format(weighinTime2);
+		} catch (Exception e) {
+			LoggerUtils.logError(this.logger, e);
+		}
+		return formatted;
+	}
+
+	/**
+	 * Gets the competition WeighIn hour in ISO format
+	 *
+	 * @return the competition time
+	 */
+	@Transient
+	@JsonIgnore
+	public String getIntlWeighInHour() {
+		String formatted = "";
+		try {
+			LocalDateTime weighinTime2 = getWeighInTime();
+			formatted = weighinTime2 == null ? "" : isoHourFormatter.format(weighinTime2);
+		} catch (Exception e) {
+			LoggerUtils.logError(this.logger, e);
+		}
+		return formatted;
+	}
+
+	/**
+	 * Gets the session short date in ISO format
+	 *
+	 * @return the competition time
+	 */
+	@Transient
+	@JsonIgnore
+	public String getIntlWeighInDay() {
+		String formatted = "";
+		try {
+			LocalDateTime weighinTime2 = getWeighInTime();
+			formatted = weighinTime2 == null ? "" : isoDateFormatter.format(weighinTime2);
 		} catch (Exception e) {
 			LoggerUtils.logError(this.logger, e);
 		}
