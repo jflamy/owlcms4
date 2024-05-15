@@ -208,7 +208,6 @@ public class FieldOfPlay implements IUnregister {
 	private AgeGroup videoAgeGroup;
 	private List<Athlete> resultsOrder;
 	private boolean cjBreakDisplayed;
-	private MQTTMonitor mqttMonitor = null;
 	private EventForwarder eventForwarder;
 	private JuryDecision toBeAnnouncedJuryDecision;
 	private FieldOfPlay existingFOP;
@@ -452,7 +451,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	public MQTTMonitor getMqttMonitor() {
-		return this.mqttMonitor;
+		return MQTTMonitor.getMqttMonitorByName(this.getName());
 	}
 
 	/**
@@ -1297,10 +1296,6 @@ public class FieldOfPlay implements IUnregister {
 		this.medals = medals;
 	}
 
-	public void setMqttMonitor(MQTTMonitor mqttMonitor) {
-		this.mqttMonitor = mqttMonitor;
-	}
-
 	/**
 	 * Sets the name.
 	 *
@@ -1404,7 +1399,6 @@ public class FieldOfPlay implements IUnregister {
 		}
 		if (mqttMonitor2 != null) {
 			mqttMonitor2.unregister();
-			this.setMqttMonitor(null);
 		}
 	}
 

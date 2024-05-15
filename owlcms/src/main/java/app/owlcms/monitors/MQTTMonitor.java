@@ -64,14 +64,19 @@ public class MQTTMonitor extends Thread implements IUnregister {
 		if (existingMonitor == null) {
 			logger.info("{}creating MQTT monitor",FieldOfPlay.getLoggingName(fieldOfPlay));
 			MQTTMonitor newForwarder = new MQTTMonitor(monitorName,fieldOfPlay);
+			//fieldOfPlay.setMqttMonitor(newForwarder);
 			mqttMonitorByName.put(monitorName, newForwarder);
 			return newForwarder;
 		} else {
 			logger.info("{}reusing MQTT monitor",FieldOfPlay.getLoggingName(fieldOfPlay));
-			existingMonitor.getFop().setMqttMonitor(existingMonitor);
+			//existingMonitor.getFop().setMqttMonitor(existingMonitor);
 			existingMonitor.setFop(fieldOfPlay);
 			return existingMonitor;
 		}
+	}
+	
+	public static MQTTMonitor getMqttMonitorByName(String name) {
+		return mqttMonitorByName.get(name);
 	}
 
 	/**
@@ -330,7 +335,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 
 	public void setFop(FieldOfPlay fop) {
 		this.fop = fop;
-		logger.warn("MQTTMonitor setFop {} {} {}\n{}", fop.getName(), System.identityHashCode(fop), System.identityHashCode(this), LoggerUtils.stackTrace());
+		//logger.debug("MQTTMonitor setFop {} {} {}\n{}", fop.getName(), System.identityHashCode(fop), System.identityHashCode(this), LoggerUtils.stackTrace());
 	}
 
 	@Subscribe
