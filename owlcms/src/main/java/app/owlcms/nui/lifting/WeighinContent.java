@@ -368,21 +368,6 @@ public class WeighinContent extends BaseContent
 		return getPageTitle();
 	}
 
-	// @Override
-	// public Athlete getNextAthlete(Athlete current) {
-	// ArrayList<Athlete> all = new ArrayList<>(findAll());
-	// if (current == null && all.size() > 0) {
-	// current = all.get(0);
-	// }
-	// for (int i = 0; i < all.size(); i++) {
-	// //TODO: get first empty bw, careful about looping back to self
-	// if (all.get(i).getId().equals(current.getId())) {
-	// return (i + 1 < all.size() ? all.get(i + 1) : null);
-	// }
-	// }
-	// return null;
-	// }
-
 	@Override
 	public Athlete getNextAthlete(Athlete current) {
 		ArrayList<Athlete> all = new ArrayList<>(findAll());
