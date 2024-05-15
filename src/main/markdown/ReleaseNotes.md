@@ -4,6 +4,8 @@
 >
 > - You should test all releases, with your own data, several days before a competition.
 
+- 48.0.2: Fix: Deleting athletes from the "Edit Athlete Entries" now works again.
+  
 - 48.0.2: Options for scoreboard ordering
   - If the "Display categories ordered by age group" checkbox selected in the competition rules, the younger age groups are shown first on the scoreboard (lower start numbers and earlier weigh-in order).
   - If this checkbox is *not* selected, then the athletes are grouped first by bodyweight category and then by lot number (strict TCRR interpretation).  A feature toggle `bwClassThenAgeGroup` is available to group the athletes by age group *within* the bodyweight category.
