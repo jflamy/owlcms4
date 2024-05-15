@@ -15,6 +15,7 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -60,6 +61,19 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 		Double value1 = category1.getMaximumWeight();
 		Double value2 = category2.getMaximumWeight();
 		compare = ObjectUtils.compare(value1, value2);
+		if (compare != 0) {
+			traceComparison("categoryRegistrationComparator maximum weight", category1, category1.getMaximumWeight(), category2, category2.getMaximumWeight(), compare);		
+			return compare;
+		}
+		
+		if (!Competition.getCurrent().isDisplayByAgeGroup() && Config.getCurrent().featureSwitch("bwClassThenAgeGroup")) {
+			// for readability reason, we group by age group within the bodyweight category.
+			compare = AgeGroup.registrationComparator.compare(category1.getAgeGroup(), category2.getAgeGroup());
+			if (compare != 0) {
+				traceComparison("categoryRegistrationComparator agegroup", category1, category1.getAgeGroup(), category2, category2.getAgeGroup(), compare);		
+				return compare;
+			}
+		}
 		return compare;
 	};
 	
