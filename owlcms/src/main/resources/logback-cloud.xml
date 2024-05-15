@@ -39,6 +39,7 @@
     <logger name="h2database" level="WARN" />
     <logger name="com.vaadin" level="INFO" />
     <logger name="com.github.mvysny.vaadinboot" level="INFO" />
+    <logger name="io.netty.util.ResourceLeakDetector" level="OFF" />
 
     <!-- by default log all info to both file and console; warnings and above unless logger specifies other level -->
     <root level="WARN">
