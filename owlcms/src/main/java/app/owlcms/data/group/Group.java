@@ -41,7 +41,6 @@ import com.google.common.collect.Iterables;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AbstractLifterComparator;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.DateTimeUtils;
@@ -118,9 +117,17 @@ public class Group implements Comparable<Group> {
 		return new DisplayGroup("?", "", null, "", "");
 	}
 
+	@Transient
+	@JsonIgnore
 	private DateTimeFormatter hourFormatter;
+	@Transient
+	@JsonIgnore
 	private DateTimeFormatter dayFormatter;
+	@Transient
+	@JsonIgnore
 	final DateTimeFormatter isoDateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
+	@Transient
+	@JsonIgnore
 	final DateTimeFormatter isoHourFormatter = DateTimeFormatter.ofPattern("HH:mm");
 	@ManyToOne(cascade = { CascadeType.MERGE }, optional = true, fetch = FetchType.EAGER)
 	@JsonIdentityReference(alwaysAsId = true)
@@ -160,8 +167,8 @@ public class Group implements Comparable<Group> {
 	 */
 	public Group() {
 		setId(IdUtils.getTimeBasedId());
-		setHourFormatter(Config.getCurrent().getDefaultLocale());
-		setDayFormatter(Config.getCurrent().getDefaultLocale());
+		setHourFormatter(Locale.getDefault());
+		setDayFormatter(Locale.getDefault());
 	}
 
 	/**
@@ -175,8 +182,8 @@ public class Group implements Comparable<Group> {
 		final LocalDateTime now = LocalDateTime.now();
 		this.setWeighInTime(now);
 		this.setCompetitionTime(now);
-		setHourFormatter(Config.getCurrent().getDefaultLocale());
-		setDayFormatter(Config.getCurrent().getDefaultLocale());
+		setHourFormatter(Locale.getDefault());
+		setDayFormatter(Locale.getDefault());
 	}
 
 	/**
