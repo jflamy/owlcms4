@@ -128,16 +128,6 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 	 */
 	@Override
 	public int compare(Athlete lifter1, Athlete lifter2) {
-		//logger.debug("comparing RegistrationOrderComparator");
-		//int compare = 0;
-
-//FIXME only useful for start list.
-//		// takes into account platform and group name so that groups are not mixed
-//		// together
-//		compare = compareGroupWeighInTime(lifter1, lifter2);
-//		if (compare != 0) {
-//			return compare;
-//		}
 		return athleteRegistrationOrderComparator.compare(lifter1, lifter2);
 	}
 }
