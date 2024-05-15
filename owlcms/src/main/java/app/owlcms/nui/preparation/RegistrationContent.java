@@ -528,7 +528,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			        // get current version of athletes.
 			        var athletes = participationFindAll();
 			        AthleteSorter.registrationOrder(athletes);
-			        categoriesXlsWriter.setSortedAthletes(participationFindAll());
+			        categoriesXlsWriter.setSortedAthletes(athletes);
 			        return categoriesXlsWriter;
 		        },
 		        resourceDirectoryLocation,
@@ -942,7 +942,8 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		JPAService.runInTransaction(em -> {
 			List<Athlete> athletes = athletesFindAll();
 			for (Athlete a : athletes) {
-				em.remove(a);
+				Athlete ath = em.find(Athlete.class, a.getId());
+				em.remove(ath);
 			}
 			em.flush();
 			return null;
