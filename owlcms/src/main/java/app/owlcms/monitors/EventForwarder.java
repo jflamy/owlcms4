@@ -1016,6 +1016,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		if (getLastTimerMap() != null) {
 			sb.putAll(getLastTimerMap());
 		}
+		recomputeRemainingTimes(sb);
+		
 		if (getLastDecisionMap() != null) {
 			sb.putAll(getLastDecisionMap());
 		}
@@ -1099,6 +1101,10 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		dumpMap("createUpdate " + System.identityHashCode(sb), event.getTrace(), sb);
 
 		return sb;
+	}
+
+	private void recomputeRemainingTimes(Map<String, String> sb) {
+		//TODO set the remaining time to what is actually left and remove base time
 	}
 
 	private void doBreak(UIEvent e, Group g) {
