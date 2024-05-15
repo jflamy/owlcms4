@@ -470,8 +470,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 
 	private void computeGroupMedalsJson(TreeMap<String, TreeSet<Athlete>> medals2) {
 		OwlcmsSession.withFop(fop -> {
-			// logger.debug("computeGroupMedalsJson = {} {}", getGroup(),
-			// LoggerUtils.stackTrace());
+			// logger.debug("computeGroupMedalsJson = {} {}", getGroup(),LoggerUtils.stackTrace());
 			JsonArray jsonMCArray = Json.createArray();
 			int mcX = 0;
 			for (Entry<String, TreeSet<Athlete>> medalCat : medals2.entrySet()) {
@@ -479,7 +478,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 				TreeSet<Athlete> medalists = medalCat.getValue();
 				if (medalists != null && !medalists.isEmpty()) {
 					String key = medalCat.getKey();
-					Category cat = CategoryRepository.findByCode(key); //FIXME: check that this works
+					Category cat = CategoryRepository.findByCode(key);
 					jMC.put("categoryName", cat.getDisplayName());
 					jMC.put("leaders", getAthletesJson(new ArrayList<>(medalists), fop));
 					if (mcX == 0) {

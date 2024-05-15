@@ -144,7 +144,7 @@ public class AthleteRepository {
 		if (group != null && group.getName() == "*") {
 			group = null;
 		}
-		// FIXME check that it works with ageDivision/Championship
+		// FIXME this does not appear to work with ageDivision/Championship
 		String qlString = "select a from Athlete a"
 		        + filteringSelection(lastName, group, category, ageGroup, ageDivision, gender, weighedIn, team)
 		        + " order by a.category";
@@ -236,7 +236,7 @@ public class AthleteRepository {
 	 * their participations.
 	 *
 	 * @param g
-	 * @param onlyWeighedIn TODO
+	 * @param onlyWeighedIn
 	 * @return
 	 */
 

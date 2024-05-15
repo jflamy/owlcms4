@@ -286,7 +286,7 @@ public class Competition {
 	 */
 	public TreeMap<String, TreeSet<Athlete>> computeMedals(Group g) {
 		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g, false);
-		logger.warn("*** ranked athletes for group {} {}",g,rankedAthletes.stream().map(a->a.getLastName()).collect(Collectors.toSet()));
+		//logger.debug("*** ranked athletes for group {} {}",g,rankedAthletes.stream().map(a->a.getLastName()).toList());
 		return computeMedals(g, rankedAthletes);
 	}
 
