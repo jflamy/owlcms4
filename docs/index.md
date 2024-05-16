@@ -19,7 +19,7 @@
 
 
 <table>
-<tr><td><a href="https://www.google.com/maps/d/embed?mid=1cFqfyfoF_RSoM56GewSPDWbuoHihsw4&ehbc=2E312F&ll=29.63705469324934%2C18.91643749999993&z=3" target="_bkank"><img src='img/Gallery/Map.png'></a></td><td>Current Usage<br/><a href="https://www.google.com/maps/d/embed?mid=1cFqfyfoF_RSoM56GewSPDWbuoHihsw4&ehbc=2E312F&ll=29.63705469324934%2C18.91643749999993&z=3" target="_blank">Click on image for an interactive map</a>.<br/>The owlcms competition management system is currently in use in over 60 federations.  See here for <a href="./#/Countries">a list</a></td></tr>
+<tr><td><a href="https://www.google.com/maps/d/embed?mid=1cFqfyfoF_RSoM56GewSPDWbuoHihsw4&ehbc=2E312F&ll=29.63705469324934%2C18.91643749999993&z=3" target="_bkank"><img src='img/Gallery/Map.png'></a></td><td>Current Usage<br/><a href="https://www.google.com/maps/d/embed?mid=1cFqfyfoF_RSoM56GewSPDWbuoHihsw4&ehbc=2E312F&ll=29.63705469324934%2C18.91643749999993&z=3" target="_blank">Click on image for an interactive map</a>.<br/>The owlcms competition management system is currently in use in over 70 federations.  See here for <a href="./#/Countries">a list</a></td></tr>
 <tr><td><img src='img/Gallery/lima.jpg'></img></td><td>PanAm Junior and SouthAmerican  U20/U17/U15 Championships, Lima, Peru.<br>The program  supports simultaneous platforms and displays the multiple rankings for multiple concurrent age group competitions</td></tr>
 <tr><td><img src='img/Gallery/ElSalvador.jpg'></img></td><td>National Competition, El Salvador.<br>A simple setup with everyday electronics.</td></tr>
 <tr><td><img src='img/Gallery/chelles.jpg' size=250></img></td><td>Club meet, Chelles, France.<br>Supports mixed-gender kid groups.</td></tr>
