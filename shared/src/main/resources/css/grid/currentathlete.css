@@ -23,10 +23,10 @@ table.results tr td {
     --divLineHeight: 2em;
     display: table-cell;
 }
-/* 
+/*
 table.results tr td div {
     happens to work with 1280, 1366 and 1920.
-    width: calc(var(--narrow-width) * 1.05);  
+    width: calc(var(--narrow-width) * 1.05);
 }
 */
 
@@ -61,6 +61,7 @@ div > div.attemptBar > div.attempts > table > tr > td.totalRank {
     font-weight: bold;
     font-size: var(--attemptBarFontSize);
     justify-content: space-between;
+    gap: 0.33rem 0.5rem;
     grid-template-columns: 4ch 1fr 0.5fr 10ch 10ch 15ch;
     grid-template-rows: auto auto;
     align-items: center;
@@ -89,14 +90,11 @@ div > div.attemptBar > div.attempts > table > tr > td.totalRank {
     font-size: 110%;
     justify-self: left;
     grid-column: 2/3;
+    width: 100%;
 }
 
-.attemptBar .club {
-    width: var(--club-width);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    grid-area: 3/4;
+.attemptBar .clubName {
+    width: 100%;
 }
 
 .attemptBar .attempt {
@@ -129,11 +127,10 @@ div > div.attemptBar > div.attempts > table > tr > td.totalRank {
     grid-row: 2/3;
     justify-self: center;
     width: 100%;
-    margin-top: 0.33em;
 }
 
 .breakTime {
-    color: var(--breakTimerColor)
+    color: var(--breakTimerColor);
     grid-column: 6/7;
 }
 
@@ -200,15 +197,6 @@ table.results td {
 
 .name div {
     max-width: calc(var(--name-max-width));
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-
-.club div {
-    max-width: var(--club-max-width);
-    margin: auto;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -468,15 +456,6 @@ table.results td.liftName div {
 
 thead {
     display: none
-}
-
-.clubNameEllipsis {
-    max-width: var(--clubName-max-width);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin: auto;
-    text-align: left;
 }
 
 .hiddenTitle {

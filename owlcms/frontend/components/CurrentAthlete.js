@@ -12,10 +12,10 @@ class CurrentAthlete extends LitElement {
   }
 
   render() {
-    return html` 
+    return html`
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/colors" + (this.autoversion ?? "")}.css"/>
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/currentathlete" + (this.autoversion ?? "")}.css"/>
-     
+
       <div class="${this.wrapperClasses()}">
         <div class="waiting" style="${this.waitingStyles()}">
           <!-- div class="competitionName">[[competitionName]]</div><br -->
@@ -25,7 +25,7 @@ class CurrentAthlete extends LitElement {
         <div class="attemptBar" style="${this.attemptBarStyles()}">
           <div class="startNumber" style="${this.startNumberStyles()}"><span>${this.startNumber}</span> </div>
           <div class="fullName ellipsis" style="${this.fullNameStyles()}" .innerHTML="${this.fullName}"></div>
-          <div class="clubName ellipsis" style="${this.teamNameStyles()}"><div class="clubNameEllipsis">${this.teamName}</div></div>
+          <div class="clubName ellipsis" style="${this.teamNameStyles()}">${this.teamName}</div>
           <div class="attempt" style="${this.attemptStyles()}"><span .innerHTML="${this.attempt}"></span></div>
           <div class="weight" style="${this.weightStyles()}">
             <span >${this.weight}<span style="font-size: 75%" >&nbsp;${this.t?.KgSymbol}</span></span>
@@ -158,15 +158,15 @@ class CurrentAthlete extends LitElement {
   }
 
   fullNameStyles() {
-    return  "display: " + ((this.mode === "WAIT") ? "none" : "grid");
+    return  "display: " + ((this.mode === "WAIT") ? "none" : "block");
   }
 
   teamNameStyles() {
-    return "display: " + ((this.isBreak()) ? "none" : "grid");
+    return "display: " + ((this.isBreak()) ? "none" : "block");
   }
 
   attemptStyles() {
-    return "display: grid; visibility: " + ((this.isBreak()) ? "; visibility: hidden" : "");
+    return "display: grid; visibility: " + ((this.isBreak()) ? "; visibility: hidden" : "visible");
   }
 
   startNumberStyles() {
