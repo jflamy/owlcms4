@@ -524,11 +524,11 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			this.teamFlags = URLUtils.checkFlags();
 			if (this.getCategory() == null) {
 				if (this.getGroup() != null) {
-					this.medals = Competition.getCurrent().getMedals(this.getGroup(), false);
+					this.medals = Competition.getCurrent().getMedals(this.getGroup(), true);
 				} else {
 					// we listen on uiEventBus.
 					this.uiEventBus = uiEventBusRegister(this, fop);
-					this.medals = Competition.getCurrent().getMedals(OwlcmsSession.getFop().getGroup(), false);
+					this.medals = Competition.getCurrent().getMedals(OwlcmsSession.getFop().getGroup(), true);
 				}
 				this.getElement().setProperty("fillerDisplay", "");
 			} else {
