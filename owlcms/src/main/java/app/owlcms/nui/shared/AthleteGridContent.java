@@ -957,6 +957,24 @@ public abstract class AthleteGridContent extends BaseContent
 		        a -> (a.getTotal() > 0 ? a.getTotal() : "-")).setHeader(getTranslation("Total"))
 		        .setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn((a) -> formatAttemptNumber(a), "attemptsDone").setHeader(getTranslation("Attempt"));
+		grid.setPartNameGenerator(athlete -> {
+			FieldOfPlay fop2 = OwlcmsSession.getFop();
+			Athlete prevAthlete = fop2.getPreviousAthlete();
+			Athlete curAthlete = fop2.getCurAthlete();
+			Athlete nextAthlete = fop2.getNextAthlete();
+			//logger.trace("prevAthlete = {} curAthlete = {}", prevAthlete != null ? prevAthlete.getId() : "-", athlete.getId());
+		    if (prevAthlete != null && athlete.getId().equals(prevAthlete.getId())) {
+		    	//logger.debug("previous = {}",athlete.getShortName());
+		        return "isPreviousAthlete";
+		    } else if (curAthlete != null && athlete.getId().equals(curAthlete.getId())) {
+		    	//logger.debug("cur = {}",athlete.getShortName());
+		        return "isCurrentAthlete";
+		    } else if (nextAthlete != null && athlete.getId().equals(nextAthlete.getId())) {
+		    	//logger.debug("next = {}",athlete.getShortName());
+		        return "isNextAthlete";
+		    }
+		    return null;
+		});
 
 		this.crudLayout = new OwlcmsGridLayout(Athlete.class);
 		AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class, this.crudLayout, crudFormFactory, grid) {

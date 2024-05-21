@@ -2,3 +2,23 @@
 vaadin-grid::part(focused-cell) {
     display: none;
 }
+
+/* highlight current/next/previous athlete */
+
+vaadin-grid::part(isPreviousAthlete) {
+    background-image: none;
+    background-color: lightskyblue;
+    font-weight: bold;
+}
+
+vaadin-grid::part(isCurrentAthlete) {
+    background-image: none;
+    background-color: #fdf896;
+    font-weight: bold;
+}
+
+vaadin-grid::part(isNextAthlete) {
+    background-image: none;
+    background-color: rgb(253, 199, 98);
+    font-weight: bold;
+}
