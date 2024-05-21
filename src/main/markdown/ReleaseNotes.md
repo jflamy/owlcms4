@@ -5,6 +5,8 @@
 > - This is an **alpha release**, used for validating new features.  *Some features are likely to be incomplete or non-functional*.  
 > - Alpha releases are **not** normally used in actual competitions.
 
+- (alpha02) Timekeeper is now allowed to restart clock even if down signal has been given.  This is required if referees have mistakenly given a decision resulting in a down signal when bar has not reached the knees.
+  
 - (alpha01) Additional options to get Session Date/Time for Excel templates: the following functions are now available for use on the session object (for example: `${session.localWeighInDay}` would give the short date for weigh-in using the current country settings).
   - Using the local formatting conventions for dates: localWeighInDay, localWeighInHour, localStartDay, localStartHour
   - Using the international ISO format: intlWeighInDay, intlWeighInHour, intlStartDay, intlStartHour

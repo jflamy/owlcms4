@@ -911,6 +911,10 @@ public class FieldOfPlay implements IUnregister {
 					this.logger.debug("{}weight change during down {} {} {}",FieldOfPlay.getLoggingName(this), e.getAthlete(), this.getPreviousAthlete(),
 					        this.getCurAthlete());
 					deferredWeightChanges.add((WeightChange) e);
+				} else if (e instanceof TimeStarted) {
+					// needed if decision has been given too early (e.g. bar did not reach the knees but reds given)
+					setState(TIME_RUNNING);
+					getAthleteTimer().start();
 				} else {
 					unexpectedEventInState(e, DOWN_SIGNAL_VISIBLE);
 				}
@@ -952,6 +956,10 @@ public class FieldOfPlay implements IUnregister {
 						transitionToBreak((FOPEvent.BreakStarted) this.deferredBreak);
 						this.deferredBreak = null;
 					}
+				} else if (e instanceof TimeStarted) {
+					// needed if decision has been given too early (e.g. bar did not reach the knees but reds given)
+					setState(TIME_RUNNING);
+					getAthleteTimer().start();
 				} else {
 					unexpectedEventInState(e, DECISION_VISIBLE);
 				}
