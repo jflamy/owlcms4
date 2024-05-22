@@ -61,6 +61,50 @@ public class Group implements Comparable<Group> {
 	private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
 	private final static DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder().parseLenient()
 	        .appendPattern(DATE_FORMAT).toFormatter();
+	
+	public static Comparator<Athlete> weighinTimeComparator = (lifter1, lifter2) -> {
+		Group lifter1Group = lifter1.getGroup();
+		Group lifter2Group = lifter2.getGroup();
+		int compare;
+
+		LocalDateTime lifter1Date = lifter1Group.getWeighInTime();
+		LocalDateTime lifter2Date = lifter2Group.getWeighInTime();
+		compare = ObjectUtils.compare(lifter1Date, lifter2Date, true);
+		AbstractLifterComparator.traceComparison("compareGroupWeighInTime", lifter1,
+		        lifter1.getGroup().getWeighInTime(),
+		        lifter2, lifter2.getGroup().getWeighInTime(), compare);
+		if (compare != 0) {
+			return compare;
+		}
+
+		Platform p1 = lifter1Group.getPlatform();
+		Platform p2 = lifter2Group.getPlatform();
+		String name1 = p1 != null ? p1.getName() : null;
+		String name2 = p2 != null ? p2.getName() : null;
+		compare = ObjectUtils.compare(name1, name2, false);
+		if (compare != 0) {
+			// logger.trace("different platform {} {} {}", name1, name2,
+			// LoggerUtils.whereFrom(10));
+			return compare;
+		}
+
+		String lifter1String = lifter1Group.getName();
+		String lifter2String = lifter2Group.getName();
+
+		if (lifter1String == null || lifter2String == null) {
+			compare = ObjectUtils.compare(lifter1String, lifter2String, true);
+		} else {
+			compare = AbstractLifterComparator.noc.compare(lifter1String, lifter2String);
+		}
+		compare = AbstractLifterComparator.noc.compare(lifter1String, lifter2String);
+		if (compare != 0) {
+			// logger.trace("different group {} {} {}", lifter1String, lifter2String,
+			// LoggerUtils.whereFrom(10));
+			return compare;
+		}
+
+		return 0;
+	};
 
 	public static DisplayGroup getEmptyDisplayGroup() {
 		return new DisplayGroup("?", "", null, "", "");
@@ -99,53 +143,6 @@ public class Group implements Comparable<Group> {
 	private String weighIn1;
 	private String weighIn2;
 	private LocalDateTime weighInTime;
-	public static Comparator<Athlete> weighinTimeComparator = (lifter1, lifter2) -> {
-		Group lifter1Group = lifter1.getGroup();
-		Group lifter2Group = lifter2.getGroup();
-	
-		int compare = ObjectUtils.compare(lifter1Group, lifter2Group, true);
-		if ((compare == 0) || lifter1Group == null || lifter2Group == null) {
-			// a non-null group will sort before null
-			return compare;
-		}
-	
-		LocalDateTime lifter1Date = lifter1Group.getWeighInTime();
-		LocalDateTime lifter2Date = lifter2Group.getWeighInTime();
-		compare = ObjectUtils.compare(lifter1Date, lifter2Date, true);
-		if (compare != 0) {
-			AbstractLifterComparator.traceComparison("compareGroupWeighInTime", lifter1, lifter1.getGroup().getWeighInTime(),
-			        lifter2, lifter2.getGroup().getWeighInTime(), compare);
-			return compare;
-		}
-	
-		Platform p1 = lifter1Group.getPlatform();
-		Platform p2 = lifter2Group.getPlatform();
-		String name1 = p1 != null ? p1.getName() : null;
-		String name2 = p2 != null ? p2.getName() : null;
-		compare = ObjectUtils.compare(name1, name2, false);
-		if (compare != 0) {
-			// logger.trace("different platform {} {} {}", name1, name2,
-			// LoggerUtils.whereFrom(10));
-			return compare;
-		}
-	
-		String lifter1String = lifter1Group.getName();
-		String lifter2String = lifter2Group.getName();
-	
-		if (lifter1String == null || lifter2String == null) {
-			compare = ObjectUtils.compare(lifter1String, lifter2String, true);
-		} else {
-			compare = AbstractLifterComparator.noc.compare(lifter1String, lifter2String);
-		}
-		compare = AbstractLifterComparator.noc.compare(lifter1String, lifter2String);
-		if (compare != 0) {
-			// logger.trace("different group {} {} {}", lifter1String, lifter2String,
-			// LoggerUtils.whereFrom(10));
-			return compare;
-		}
-	
-		return 0;
-	};
 
 	/**
 	 * Instantiates a new group.
