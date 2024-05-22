@@ -492,11 +492,14 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	}
 
 	private Component createRefereeLabel(Athlete athlete) {
-		Html refereeLabel = new Html("<span>" +
+		Html refereeLabel = new Html("<span style='font-size: 110%'>" +
 		        getTranslation("RefereeDecisions")
 		        + (athlete != null
 		                ? "&nbsp;&nbsp;&nbsp;" + athleteFullId(athlete) + "&nbsp;&nbsp;&nbsp;"
-		                        + formatAttempt(athlete.getAttemptsDone() - 1)
+		                        + (formatAttempt(athlete.getAttemptsDone() - 1))
+		                        + "&nbsp;&nbsp;&nbsp;" +
+		                        athlete.getRequestedWeightForAttempt(athlete.getAttemptsDone() - 1)
+		                        + Translator.translate("KgSymbol")
 		                : "")
 		        + "</span>");
 		H3 refereeLabelWrapper = new H3(refereeLabel);
@@ -745,7 +748,6 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 			});
 		}
 	}
-
 
 	private void swapRefereeLabel(Athlete athlete) {
 		Component nc = createRefereeLabel(athlete);
