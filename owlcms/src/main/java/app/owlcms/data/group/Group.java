@@ -67,20 +67,21 @@ public class Group implements Comparable<Group> {
 	public static Comparator<Athlete> weighinTimeComparator = (lifter1, lifter2) -> {
 		Group lifter1Group = lifter1.getGroup();
 		Group lifter2Group = lifter2.getGroup();
-
-		int compare = ObjectUtils.compare(lifter1Group, lifter2Group, true);
-		if ((compare == 0) || lifter1Group == null || lifter2Group == null) {
-			// a non-null group will sort before null
-			return compare;
-		}
+		int compare;
+//
+//		int compare = ObjectUtils.compare(lifter1Group, lifter2Group, true);
+//		if ((compare == 0) || lifter1Group == null || lifter2Group == null) {
+//			// a non-null group will sort before null
+//			return compare;
+//		}
 
 		LocalDateTime lifter1Date = lifter1Group.getWeighInTime();
 		LocalDateTime lifter2Date = lifter2Group.getWeighInTime();
 		compare = ObjectUtils.compare(lifter1Date, lifter2Date, true);
+		AbstractLifterComparator.traceComparison("compareGroupWeighInTime", lifter1,
+		        lifter1.getGroup().getWeighInTime(),
+		        lifter2, lifter2.getGroup().getWeighInTime(), compare);
 		if (compare != 0) {
-			AbstractLifterComparator.traceComparison("compareGroupWeighInTime", lifter1,
-			        lifter1.getGroup().getWeighInTime(),
-			        lifter2, lifter2.getGroup().getWeighInTime(), compare);
 			return compare;
 		}
 

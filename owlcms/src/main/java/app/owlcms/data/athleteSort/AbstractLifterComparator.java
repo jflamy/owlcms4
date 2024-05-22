@@ -8,6 +8,7 @@ package app.owlcms.data.athleteSort;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
@@ -356,6 +357,11 @@ public class AbstractLifterComparator {
 		return ObjectUtils.compare(gender1, gender2, true);
 	}
 
+	
+	public static Comparator<Athlete> athleteSessionComparator = (lifter1, lifter2) -> {
+		return Group.weighinTimeComparator.compare(lifter1, lifter2);
+	};
+	
 	/**
 	 * Compare group.
 	 *
@@ -364,30 +370,7 @@ public class AbstractLifterComparator {
 	 * @return the int
 	 */
 	int compareGroup(Athlete lifter1, Athlete lifter2) {
-		Group lifter1Group = lifter1.getGroup();
-		Group lifter2Group = lifter2.getGroup();
-		if (lifter1Group == null && lifter2Group == null) {
-			return 0;
-		}
-		if (lifter1Group == null) {
-			return -1;
-		}
-		if (lifter2Group == null) {
-			return 1;
-		}
-
-		String lifter1Value = lifter1Group.getName();
-		String lifter2Value = lifter2Group.getName();
-		if (lifter1Value == null && lifter2Value == null) {
-			return 0;
-		}
-		if (lifter1Value == null) {
-			return -1;
-		}
-		if (lifter2Value == null) {
-			return 1;
-		}
-		return lifter1Value.compareTo(lifter2Value);
+		return athleteSessionComparator.compare(lifter1, lifter2);
 	}
 
 	int compareGroupPlatform(Athlete lifter1, Athlete lifter2) {

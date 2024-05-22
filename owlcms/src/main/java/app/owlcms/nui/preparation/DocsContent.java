@@ -143,7 +143,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 
 	@Override
 	public List<Athlete> findAll() {
-		return athletesFindAll();
+		return athletesFindAll(false);
 	}
 
 	@Override
@@ -392,7 +392,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 			        cardsXlsWriter.setGroup(
 			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
 			        // get current version of athletes.
-			        List<Athlete> athletesFindAll = athletesFindAll();
+			        List<Athlete> athletesFindAll = athletesFindAll(true);
 			        cardsXlsWriter.setSortedAthletes(athletesFindAll);
 			        return cardsXlsWriter;
 		        },
@@ -416,7 +416,8 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
 			        // get current version of athletes.
 			        startingXlsWriter.setPostProcessor(null);
-			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(athletesFindAll()));
+			        List<Athlete> athletesFindAll = athletesFindAll(true);
+			        startingXlsWriter.setSortedAthletes(athletesFindAll);
 			        return startingXlsWriter;
 		        },
 		        resourceDirectoryLocation,
@@ -460,9 +461,8 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
 			        // get current version of athletes.
 			        startingXlsWriter.setPostProcessor(null);
-			        // findAll();
-			        // List<Athlete> sortedAthletes = startingXlsWriter.getSortedAthletes();
-			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(athletesFindAll()));
+			        List<Athlete> athletesFindAll = athletesFindAll(true);
+			        startingXlsWriter.setSortedAthletes(athletesFindAll);
 			        return startingXlsWriter;
 		        },
 		        resourceDirectoryLocation,

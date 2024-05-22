@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -59,6 +60,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.athleteSort.RegistrationOrderComparator;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
@@ -235,7 +237,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	 */
 	@Override
 	public Collection<Athlete> findAll() {
-		List<Athlete> findFiltered = athletesFindAll();
+		List<Athlete> findFiltered = athletesFindAll(false);
 		updateURLLocations();
 		return findFiltered;
 		// return athletesFindAll();
@@ -472,7 +474,8 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		return a;
 	}
 
-	protected List<Athlete> athletesFindAll() {
+	@SuppressWarnings("unchecked")
+	protected List<Athlete> athletesFindAll(boolean sessionOrder) {
 		List<Athlete> found = participationFindAll();
 		// for cards and starting lists we only want the actual athlete, without duplicates
 		Set<Athlete> regCatAthletes = found.stream().map(pa -> ((PAthlete) pa)._getAthlete())
@@ -485,8 +488,12 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 		// sort
 		List<Athlete> regCatAthletesList = new ArrayList<>(regCatAthletes);
-		AthleteSorter.registrationOrder(regCatAthletesList);
-		//regCatAthletesList.sort(groupCategoryComparator());
+		if (sessionOrder) {
+			Collections.sort(regCatAthletesList, RegistrationOrderComparator.athleteSessionRegistrationOrderComparator);
+		} else {
+			AthleteSorter.registrationOrder(regCatAthletesList);
+		}
+
 
 		updateURLLocations();
 		return regCatAthletesList;
@@ -503,7 +510,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			        startingXlsWriter.setGroup(
 			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
 			        // get current version of athletes.
-			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationBWCopy(athletesFindAll()));
+			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationBWCopy(athletesFindAll(false)));
 			        startingXlsWriter.createAgeGroupColumns(10, 7);
 			        return startingXlsWriter;
 		        },
@@ -925,7 +932,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 	private void clearLifts() {
 		JPAService.runInTransaction(em -> {
-			List<Athlete> athletes = athletesFindAll();
+			List<Athlete> athletes = athletesFindAll(false);
 			for (Athlete a : athletes) {
 				a.clearLifts();
 				em.merge(a);
@@ -940,7 +947,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 	private void deleteAthletes() {
 		JPAService.runInTransaction(em -> {
-			List<Athlete> athletes = athletesFindAll();
+			List<Athlete> athletes = athletesFindAll(false);
 			for (Athlete a : athletes) {
 				Athlete ath = em.find(Athlete.class, a.getId());
 				em.remove(ath);
@@ -950,13 +957,13 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		});
 		refreshCrudGrid();
 	}
-//
-//	private Collection<Athlete> doFindAll(EntityManager em) {
-//		List<Athlete> all = AthleteRepository.doFindFiltered(em, getLastName(), getGroup(),
-//		        getCategory(), getAgeGroup(), getChampionship(),
-//		        getGender(), getWeighedIn(), getTeam(), -1, -1);
-//		return all;
-//	}
+	//
+	// private Collection<Athlete> doFindAll(EntityManager em) {
+	// List<Athlete> all = AthleteRepository.doFindFiltered(em, getLastName(), getGroup(),
+	// getCategory(), getAgeGroup(), getChampionship(),
+	// getGender(), getWeighedIn(), getTeam(), -1, -1);
+	// return all;
+	// }
 
 	private void doSwitchGroup(Group newCurrentGroup) {
 		logger.debug("newCurrentGroup.getName() {}", newCurrentGroup.getName());
