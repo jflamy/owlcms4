@@ -5,6 +5,8 @@
 > - This is an **alpha release**, used for validating new features.  *Some features are likely to be incomplete or non-functional*.  
 > - Alpha releases are **not** normally used in actual competitions.
 
+- (alpha02) Fix for session card print order.  When printing all sessions, the cards were not in session order, but rather in category order.
+  
 - Announcer
   - The previous athlete is now highlighted in blue in the grid.  The current and next athletes are also highlighted (yellow and orange, same color convention as on the default scoreboards)
 
