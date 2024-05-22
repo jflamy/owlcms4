@@ -993,8 +993,11 @@ public class FieldOfPlay implements IUnregister {
 		if (athletes != null && athletes.size() > 0) {
 			done = recomputeLiftingOrder(true, true);
 		}
+		
+		// get the correct previous athlete
 		LiftOrderReconstruction lor = new LiftOrderReconstruction(this);
-		this.setPreviousAthlete(lor.getLastLift().getAthlete());
+		LiftOrderInfo lastLift = lor.getLastLift();
+		this.setPreviousAthlete(lastLift != null ? lastLift.getAthlete() : null);
 
 		if (done) {
 			pushOutDone();
