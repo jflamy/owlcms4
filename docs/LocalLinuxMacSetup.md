@@ -4,7 +4,7 @@
 
 ## Installation
 
-- **Get the installation zip archive**: Get the current  **[`owlcms_setup_47.1.3.zip`](https://github.com/owlcms/owlcms4/releases/download/47.1.3/owlcms_setup_47.1.3.zip)** file. Installation files are available as assets at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4-prerelease/releases/latest) .
+- **Get the installation zip archive**: Get the current  **[`owlcms_setup_48.0.3.zip`](https://github.com/owlcms/owlcms4/releases/download/48.0.3/owlcms_setup_48.0.3.zip)** file. Installation files are available as assets at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4-prerelease/releases/latest) .
 
   > Tip: [This page](RaspberryInstall) illustrates the sequence of steps on a RaspberryPI and may help you follow along since the process is similar for the other platforms.
 
