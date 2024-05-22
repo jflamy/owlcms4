@@ -1,53 +1,29 @@
-**Version 48.0 release candidate**
+**Version 49 alpha**
 
 > [!CAUTION]
 >
-> - This is a [release candidate](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate), used for final public testing and translation.  *Some features could be non-functional*. 
-> - You should test all releases, with actual data, several days before a competition.  This is especially important for release candidates.
+> - This is an **alpha release**, used for validating new features.  *Some features are likely to be incomplete or non-functional*.  
+> - Alpha releases are **not** normally used in actual competitions.
 
-##### 48.0
+- Announcer
+  - The previous athlete is now highlighted in blue in the grid.  The current and next athletes are also highlighted (yellow and orange, same color convention as on the default scoreboards)
 
-- (rc11) Fix: the Export All Records button now exports all records (old and new).  New records are identified by the presence of a group name in the "Group" column.
-- Athlete Registration, Weigh-in and Competition Documents
-  - The editing form now requires a registration category (overriding is needed to have none)
-    - The best choice is calculated automatically as the youngest category (based on maximum age), and if equal, the one with the narrowest age range (so an eligible Masters will be chosen over Senior)
-    - The category can be overridden explicitly if within the eligible categories.
-  - The weigh-in, registration and document lists show athletes without categories, to allow fixing data entered using spreadsheets.
-  - If a single Championship is being competed, it is selected by default.
-  - When a session has been selected on the registration or weigh-in page, the `Add` button will assign that session as default for the new athlete.
-  - When loading a registration or SBDE file, if explicit category names are used, they can be entered exactly as displayed in the current language.
+- Jury
+  - The weight attempted on the previous attempt is now shown, to facilitate filling in a manual protocol sheet.
+
+- Timekeeper
+  - The timekeeper can restart the clock even if a down signal has been given or a decision is shown.  This is required if referees mistakenly give reds when the bar has not reached the knees.
+
 - Scoreboards:
-  - The open age group is no longer shown ("W 64" in now shown instead of "Open W 64").  Other age groups are shown as before ("U15 W 64").
-- Championships and Final Results Package
-  - The second column, previously empty, of the AgeGroups file is now used for a Championship Name. The third column is the championship type (IWF, MASTERS, etc.) 
-  - You can name the Championship in your local language. For example: Youth, Junior, Senior, Masters, U13, U15, Junior High, Senior High, whatever you need.
-  - A Championship Name normally corresponds to one final package with separate teams and medals, but you can still produce packages separately for age groups within a championship
-  - There is now a single tab in the AgeGroups Excel file.  The tab with Robi records is removed.  The previous format will still work if you leave the Robi tab as the first tab.  If you have your own AgeGroups files, see the [AgeGroups Conversion Instructions](#agegroups-conversion-instructions) at the bottom of this page
-- Publicresults and Video Event Forwarding:
-  - The publicresults scoreboard now reflects the owlcms coach scoreboard faithfully (all the data is sent over)
-  - The information sent for publicresults can now be sent to a second URL for interfacing with video production software. A web server at that URL can extract the information published by owlcms, and transform it for use by video software such as vMix.  See https://github.com/nemikor-solutions/wise-eyes for an example.
-  - publicresults and video listeners now get all information about ceremonies and jury decisions, in addition to breaks and interruptions.  Jury decisions are sent on the `/decision` endpoint.
-  - /update endpoint is updated every 15 seconds.  publicresults computes a hashcode before putting the event on its event bus. Individual publicresults user sessions compare the hashcode and ignore duplicate events.  This deals with publicresults being restarted randomly and users joining in at random.
-- Break Management:
-  - It is now possible to switch seamlessly from an interruption (for example a Technical Pause because the platform is broken) to a timed countdown (after repair, timed warmup before resuming), and vice-versa
-  - Spurious interruptions of the countdown are now prevented and signalled to the announcer (e.g. normally a technical pause during a countdown should not interrupt the countdown, and if stopping the countdown is indeed required a decision on when to restart will be required).
-- Rankings: Fix of a pre-existing issue: Sinclair and other global rankings could be wrong on scoreboards (they would be shown as odd numbers 1, 3, 5, ...)
-- Records: Fix: exporting all records from an empty database (to obtain a template) yielded a file with an incorrect validation criterion.
-- Registration files
-  - The simple registration file accepts entries with explicit categories with no athlete birth date.
-  - The headers of the simple registration file can be in English in addition to the local language.
-  - The full SBDE export now has dates in ISO `yyyy-MM-dd` format to avoid issues when reading back in a different locale.
-  - Fix: in v47 the SBDE reader was inverting the declarations and personal best values.
-- Weigh-in
-  - The weigh-in sheet has been fixed for formatting issues and is now in Portrait mode, for both US letter and international A4 formats.
-  - A Quick Mode is added to the weigh-in page, to be used when a weigh-in sheet has been filled in.  This adds an "Update and Next" button to move to the next athlete in the weigh-in order without having to select in the grid.
-- If the Feature Toggle `AthleteCardEntryTotal` is enabled, the Entry Total is shown in the title of the Athlete Card.
-- Jury Sheet texts and labels are now all in the translation file and can therefore be in the local language.
+  - White is now used for good lifts on all scoreboards (previously some used green)
+  - The layout now includes vertical spacing between the lifts for better readability.
+- Team flag preview: 
+  - The team membership page now shows the flag for each team, allowing a quick check that all are correctly assigned.
+- Documents:
+  - The Weigh-in Form now includes the participation categories so the coach can sign them off and they can be cross-checked during data entry.  This is useful when there are multiple championships with the same categories.
+  - Additional options to get Session Date/Time for Excel templates: the following values are now available on the session object (for example `${session.localWeighInDay}` would give the short date for weigh-in using the current country settings).
+    - Using the local formatting conventions for dates: `localWeighInDay`, `localWeighInHour`, `localStartDay`, `localStartHour`
+    - Using the international ISO format: `intlWeighInDay`, `intlWeighInHour`, `intlStartDay`, `intlStartHour`
+- Technical
+  - Event Forwarding and MQTT event propagation refactoring. In previous releases, obsolete forwarders could accidentally be kept when reloading sessions.  This would cause the publicresults scoreboard to alternate between out-of-date and current results.
 
-###### AgeGroups Conversion Instructions
-
-It is recommended to do the following changes (the built-in AgeGroups files have been updated, you can use them as example to update your own).
-- For Youth, Jr and Sr championships, or U13 U15 U17 age groups championships that take place simultaneously, put a championship name on each row, because each normally has its own teams and medals.
-- For Masters championships, you can put "Masters" in your local language as the championship name on all the line for the MASTERS  lines
-- If you have simultaneous Masters championships in the same meet, copy the MASTERS section for each, and use the championship name column to distinguish the two (example: PanAm Masters and SouthAm Masters).  Also rename the AgeGroups (M55 and SAM55 for example).
-- You can have "combined age group championships" if you wish.  This is the same as for Masters -- you put the same championship name on the age groups that belong together.  You might have a combined U15 and U17 championship in high schools where there is a single combined team score, you would have the same championship name for both age groups.
