@@ -975,7 +975,9 @@ public class FieldOfPlay implements IUnregister {
 
 	private void restartTimer(FOPEvent e) {
 		cancelWakeUpRef();
-		decisionDisplayTimer.cancel();
+		if (decisionDisplayTimer != null) {
+			decisionDisplayTimer.cancel();
+		}
 		resetDecisions();
 		pushOutUIEvent(new UIEvent.DecisionReset(getCurAthlete(), this));
 		transitionToLifting(e, group, announcerDecisionImmediate);
