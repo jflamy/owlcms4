@@ -174,19 +174,19 @@ public class Translator implements I18NProvider {
     }
 
     public static String translate(String string) {
-        return helper.Translator.translate(string, getLocaleSupplier().get());
+        return helper.getTranslation(string, getLocaleSupplier().get());
     }
 
     public static String translate(String string, Locale locale) {
-        return helper.Translator.translate(string, locale);
+        return helper.getTranslation(string, locale);
     }
 
     public static String translate(String string, Locale locale, Object... params) {
-        return helper.Translator.translate(string, locale, params);
+        return helper.getTranslation(string, locale, params);
     }
 
     public static String translate(String string, Object... params) {
-        return helper.Translator.translate(string, getLocaleSupplier().get(), params);
+        return helper.getTranslation(string, getLocaleSupplier().get(), params);
     }
 
     public static String translateNoOverrideOrElseNull(String string, Locale locale) {
@@ -370,10 +370,10 @@ public class Translator implements I18NProvider {
     }
 
     /**
-     * @see com.vaadin.flow.i18n.I18NProvider#Translator.translate(java.lang.String, java.util.Locale, java.lang.Object[])
+     * @see com.vaadin.flow.i18n.I18NProvider#getTranslation(java.lang.String, java.util.Locale, java.lang.Object[])
      */
     @Override
-    public String Translator.translate(String key, Locale locale, Object... params) {
+    public String getTranslation(String key, Locale locale, Object... params) {
         locale = overrideLocale(locale);
 
         if (key == null) {

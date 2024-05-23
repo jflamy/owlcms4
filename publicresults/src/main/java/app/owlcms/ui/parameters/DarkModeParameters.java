@@ -24,6 +24,7 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
+import app.owlcms.i18n.Translator;
 import app.owlcms.utils.URLUtils;
 
 /**
@@ -45,12 +46,12 @@ public interface DarkModeParameters extends QueryParameterReader {
         ContextMenu contextMenu = new ContextMenu();
 
         boolean darkMode = isDarkMode();
-        Button darkButton = new Button(contextMenu.Translator.translate(DARK),
+        Button darkButton = new Button(Translator.translate(DARK),
                 e -> setDarkMode(target, true, false));
         darkButton.getStyle().set("color", "white");
         darkButton.getStyle().set("background-color", "black");
 
-        Button lightButton = new Button(contextMenu.Translator.translate(LIGHT),
+        Button lightButton = new Button(Translator.translate(LIGHT),
                 e -> setDarkMode(target, false, false));
         lightButton.getStyle().set("color", "black");
         lightButton.getStyle().set("background-color", "white");
@@ -70,7 +71,7 @@ public interface DarkModeParameters extends QueryParameterReader {
     public default void doNotification(boolean dark) {
         Notification n = new Notification();
         H2 h2 = new H2();
-        h2.setText(h2.Translator.translate("darkMode." + (dark ? DARK : LIGHT)));
+        h2.setText(Translator.translate("darkMode." + (dark ? DARK : LIGHT)));
         h2.getStyle().set("margin", "0");
         n.add(h2);
         n.setDuration(3000);
