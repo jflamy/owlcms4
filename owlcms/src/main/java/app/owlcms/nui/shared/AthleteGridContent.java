@@ -1249,11 +1249,12 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	protected void displayLiveDecisions() {
-		if (this.getDecisionLights() == null) {
+		//if (this.getDecisionLights() == null) {
+			setDecisionLights(null);
 			getTopBarLeft().removeAll();
 			createDecisionLights();
 			getTopBarLeft().add(this.getDecisionLights());
-		}
+		//}
 	}
 
 	protected void do1Minute() {
