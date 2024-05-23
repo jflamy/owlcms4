@@ -54,7 +54,7 @@ public class RCompetition {
 	public static void resetActiveGroups() {
 		activeGroups.clear();
 		GroupRepository.findAll().forEach(g -> {
-			logger.warn("adding group {}",g.getName());
+			//logger.debug("adding group {}",g.getName());
 			activeGroups.put(g.getName(), g);
 		});
 	}

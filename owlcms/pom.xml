@@ -147,13 +147,13 @@
 		<dependency>
 			<groupId>org.jxls</groupId>
 			<artifactId>jxls</artifactId>
-			<version>3.0.0-beta1</version>
+			<version>3.0.0</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.jxls/jxls-poi -->
 		<dependency>
 			<groupId>org.jxls</groupId>
 			<artifactId>jxls-poi</artifactId>
-			<version>3.0.0-beta1</version>
+			<version>3.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.poi</groupId>

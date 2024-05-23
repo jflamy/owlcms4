@@ -940,6 +940,14 @@ public class AbstractLifterComparator {
 		}
 	}
 	
+	public static void doTraceComparison(String where, Object o1, Object v1, Object o2, Object v2, int compare) {
+		//if (logger.isTraceEnabled()) {
+			logger./**/warn("{} {}={} {} {}={} {}", where, o1.toString(), v1, (compare < 0 ? " < " : (compare == 0 ? "=" : " > ")),
+			        o2.toString(), v2,
+			        LoggerUtils.whereFrom());
+		//}
+	}
+	
 	public static void traceComparison(String where, Object o1, Object value1, Object o2, Object value2, int compare) {
 		if (logger.isTraceEnabled()) {
 			logger./**/warn("{} {}={} {} {}={} {}", where, o1.toString(), value1, (compare < 0 ? " < " : (compare == 0 ? "=" : " > ")),

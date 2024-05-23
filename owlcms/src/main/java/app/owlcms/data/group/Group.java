@@ -57,7 +57,7 @@ import ch.qos.logback.classic.Logger;
 @Entity(name = "CompetitionGroup")
 @Cacheable
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Group.class)
-@JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
+@JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger", "athletes" })
 public class Group implements Comparable<Group> {
 
 	private final static NaturalOrderComparator<String> c = new NaturalOrderComparator<>();
@@ -67,13 +67,13 @@ public class Group implements Comparable<Group> {
 	public static Comparator<Athlete> weighinTimeComparator = (lifter1, lifter2) -> {
 		Group lifter1Group = lifter1.getGroup();
 		Group lifter2Group = lifter2.getGroup();
+
 		int compare;
-//
-//		int compare = ObjectUtils.compare(lifter1Group, lifter2Group, true);
-//		if ((compare == 0) || lifter1Group == null || lifter2Group == null) {
-//			// a non-null group will sort before null
-//			return compare;
-//		}
+		// null groups go to bottom
+		if (lifter1Group == null || lifter2Group == null) {
+			compare = ObjectUtils.compare(lifter1Group, lifter2Group, true);
+			return compare;
+		}
 
 		LocalDateTime lifter1Date = lifter1Group.getWeighInTime();
 		LocalDateTime lifter2Date = lifter2Group.getWeighInTime();
@@ -85,16 +85,62 @@ public class Group implements Comparable<Group> {
 			return compare;
 		}
 
-		Platform p1 = lifter1Group.getPlatform();
-		Platform p2 = lifter2Group.getPlatform();
-		String name1 = p1 != null ? p1.getName() : null;
-		String name2 = p2 != null ? p2.getName() : null;
-		compare = ObjectUtils.compare(name1, name2, false);
+		// Platform p1 = lifter1Group.getPlatform();
+		// Platform p2 = lifter2Group.getPlatform();
+		// String name1 = p1 != null ? p1.getName() : null;
+		// String name2 = p2 != null ? p2.getName() : null;
+		// compare = ObjectUtils.compare(name1, name2, false);
+		// if (compare != 0) {
+		// // logger.trace("different platform {} {} {}", name1, name2,
+		// // LoggerUtils.whereFrom(10));
+		// return compare;
+		// }
+
+		String lifter1String = lifter1Group.getName();
+		String lifter2String = lifter2Group.getName();
+
+		if (lifter1String == null || lifter2String == null) {
+			compare = ObjectUtils.compare(lifter1String, lifter2String, true);
+		} else {
+			compare = AbstractLifterComparator.noc.compare(lifter1String, lifter2String);
+		}
+		compare = AbstractLifterComparator.noc.compare(lifter1String, lifter2String);
 		if (compare != 0) {
-			// logger.trace("different platform {} {} {}", name1, name2,
+			// logger.trace("different group {} {} {}", lifter1String, lifter2String,
 			// LoggerUtils.whereFrom(10));
 			return compare;
 		}
+
+		return 0;
+	};
+	public static Comparator<Group> groupWeighinTimeComparator = (lifter1Group, lifter2Group) -> {
+
+		int compare;
+		if (lifter1Group == null || lifter2Group == null) {
+			compare = ObjectUtils.compare(lifter1Group, lifter2Group, true);
+			return compare;
+		}
+
+		LocalDateTime lifter1Date = lifter1Group.getWeighInTime();
+		LocalDateTime lifter2Date = lifter2Group.getWeighInTime();
+		compare = ObjectUtils.compare(lifter1Date, lifter2Date, true);
+		if (compare != 0) {
+			AbstractLifterComparator.traceComparison("compareGroupWeighInTime", lifter1Group,
+			        lifter1Group.getWeighInTime(),
+			        lifter2Group, lifter2Group.getWeighInTime(), compare);
+			return compare;
+		}
+
+		// Platform p1 = lifter1Group.getPlatform();
+		// Platform p2 = lifter2Group.getPlatform();
+		// String name1 = p1 != null ? p1.getName() : null;
+		// String name2 = p2 != null ? p2.getName() : null;
+		// compare = ObjectUtils.compare(name1, name2, false);
+		// if (compare != 0) {
+		// // logger.trace("different platform {} {} {}", name1, name2,
+		// // LoggerUtils.whereFrom(10));
+		// return compare;
+		// }
 
 		String lifter1String = lifter1Group.getName();
 		String lifter2String = lifter2Group.getName();
@@ -344,6 +390,21 @@ public class Group implements Comparable<Group> {
 	public List<Athlete> getAthletes() {
 		return AthleteRepository.findAllByGroupAndWeighIn(this, null);
 	}
+	
+	public void setAthletes(List<Athlete> a) {
+	}
+
+	@Transient
+	@JsonIgnore
+	public List<Athlete> getAlphaAthletes() {
+		 List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(this, null);
+		 athletes.sort((a,b) -> ObjectUtils.compare(a.getFullName(), b.getFullName()));
+		 return athletes;
+	}
+	
+	public void setAlphaAthletes(List<Athlete> a) {
+	}
+
 
 	/**
 	 * Gets the competition short date time.

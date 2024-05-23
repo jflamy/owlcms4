@@ -24,7 +24,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
@@ -370,8 +369,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		jxlsExportRecords.setGroup(getGroup());
 		logger.debug("fetching records for session {} category {}", getGroup(), getCategory());
 		try {
-			jxlsExportRecords.getSortedAthletes();
-			// Must be called immediately after getSortedAthletes
+			//jxlsExportRecords.getSortedAthletes();
+			// Must be called after getSortedAthletes
 			List<RecordEvent> records = jxlsExportRecords.getRecords(getCategory());
 			logger.debug("{} records found", records.size());
 			getReportingBeans().put("records", records);
@@ -380,13 +379,16 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		}
 
 		getReportingBeans().put("masters", Competition.getCurrent().isMasters());
-		List<Group> sessions = GroupRepository.findAll().stream().sorted((a, b) -> {
-			int compare = ObjectUtils.compare(a.getWeighInTime(), b.getWeighInTime(), true);
-			if (compare != 0) {
-				return compare;
-			}
-			return compare = ObjectUtils.compare(a.getPlatform(), b.getPlatform(), true);
-		}).collect(Collectors.toList());
+//		List<Group> sessions = GroupRepository.findAll().stream().sorted((a, b) -> {
+//			int compare = ObjectUtils.compare(a.getWeighInTime(), b.getWeighInTime(), true);
+//			if (compare != 0) {
+//				return compare;
+//			}
+//			return compare = ObjectUtils.compare(a.getPlatform(), b.getPlatform(), true);
+//		}).collect(Collectors.toList());
+		
+		List<Group> sessions = GroupRepository.findAll().stream().sorted(Group.groupWeighinTimeComparator).collect(Collectors.toList());
+		
 		getReportingBeans().put("groups", sessions);
 		getReportingBeans().put("sessions", sessions);
 	}
