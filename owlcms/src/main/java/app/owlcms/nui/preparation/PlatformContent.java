@@ -98,7 +98,7 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("Preparation_Platforms");
+		return Translator.translate("Preparation_Platforms");
 	}
 
 	@Override
@@ -123,9 +123,9 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 	 */
 	protected void createFormLayout(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
 		crudFormFactory.setVisibleProperties("name", "soundMixerName");
-		crudFormFactory.setFieldCaptions(getTranslation("PlatformName"), getTranslation("Speakers"));
+		crudFormFactory.setFieldCaptions(Translator.translate("PlatformName"), Translator.translate("Speakers"));
 		List<String> outputNames = Speakers.getOutputNames();
-		outputNames.add(0, getTranslation("UseBrowserSound"));
+		outputNames.add(0, Translator.translate("UseBrowserSound"));
 		crudFormFactory.setFieldProvider("soundMixerName", new OwlcmsComboBoxProvider<>(outputNames));
 	}
 
@@ -138,15 +138,15 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 	protected GridCrud<Platform> createGrid(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
 		Grid<Platform> grid = new Grid<>(Platform.class, false);
 		grid.getThemeNames().add("row-stripes");
-		grid.addColumn(Platform::getName).setHeader(getTranslation("Name"));
-		grid.addColumn(Platform::getSoundMixerName).setHeader(getTranslation("Speakers"));
+		grid.addColumn(Platform::getName).setHeader(Translator.translate("Name"));
+		grid.addColumn(Platform::getSoundMixerName).setHeader(Translator.translate("Speakers"));
 		grid.addColumn(new ComponentRenderer<>(p -> {
-			Button technical = openInNewTab(TCContent.class, getTranslation("PlatesCollarBarbell"), p.getName());
+			Button technical = openInNewTab(TCContent.class, Translator.translate("PlatesCollarBarbell"), p.getName());
 			// prevent grid row selection from triggering
 			technical.getElement().addEventListener("click", ignore -> {
 			}).addEventData("event.stopPropagation()");
 			return technical;
-		})).setHeader(getTranslation("PlatesCollarBarbell")).setWidth("0");
+		})).setHeader(Translator.translate("PlatesCollarBarbell")).setWidth("0");
 
 		GridCrud<Platform> crud = new OwlcmsCrudGrid<>(Platform.class, new OwlcmsGridLayout(Platform.class),
 		        crudFormFactory, grid);

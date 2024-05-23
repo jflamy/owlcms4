@@ -155,7 +155,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("Announcer") + OwlcmsSession.getFopNameIfMultiple();
+		return Translator.translate("Announcer") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
 	/**
@@ -293,7 +293,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			hideLiveDecisions();
 
 			int d = e.decision ? 1 : 0;
-			String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
+			String text = Translator.translate("NoLift_GoodLift", d, e.getAthlete().getFullName());
 
 			Notification n = new Notification();
 			String themeName = e.decision ? "success" : "error";
@@ -313,6 +313,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 	@Subscribe
 	public void slaveStartTime(UIEvent.StartTime e) {
+		logger.warn("slaveStartTime 888888888888888");
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			buttonsTimeStarted();
 			displayLiveDecisions();
@@ -362,7 +363,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		createTopBarGroupSelect();
 		createTopBarLeft();
 
-		this.introCountdownButton = new Button(getTranslation("introCountdown"), new Icon(VaadinIcon.TIMER),
+		this.introCountdownButton = new Button(Translator.translate("introCountdown"), new Icon(VaadinIcon.TIMER),
 		        (e) -> {
 			        OwlcmsSession.withFop(fop -> {
 				        BreakDialog dialog = new BreakDialog(BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET, null,
@@ -372,7 +373,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		        });
 		this.introCountdownButton.getElement().setAttribute("theme", "primary contrast");
 
-		this.startLiftingButton = new Button(getTranslation("startLifting"), new Icon(VaadinIcon.MICROPHONE),
+		this.startLiftingButton = new Button(Translator.translate("startLifting"), new Icon(VaadinIcon.MICROPHONE),
 		        (e) -> {
 			        OwlcmsSession.withFop(fop -> {
 				        UI.getCurrent().access(() -> getRouterLayout().setMenuArea(createTopBar()));
@@ -381,7 +382,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		        });
 		this.startLiftingButton.getThemeNames().add("success primary");
 
-		this.showResultsButton = new Button(getTranslation("ShowResults"), new Icon(VaadinIcon.MEDAL),
+		this.showResultsButton = new Button(Translator.translate("ShowResults"), new Icon(VaadinIcon.MEDAL),
 		        (e) -> {
 			        OwlcmsSession.withFop(fop -> {
 				        UI.getCurrent().access(() -> getRouterLayout().setMenuArea(createTopBar()));
@@ -419,7 +420,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	 */
 	@Override
 	protected Component createReset() {
-		this.reset = new Button(getTranslation("Announcer.ReloadGroup"), new Icon(VaadinIcon.REFRESH),
+		this.reset = new Button(Translator.translate("Announcer.ReloadGroup"), new Icon(VaadinIcon.REFRESH),
 		        (e) -> OwlcmsSession.withFop((fop) -> {
 			        Group group = fop.getGroup();
 			        logger.info("resetting {} from database", group);
@@ -429,7 +430,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		        }));
 		this.reset.getElement().setProperty("title", Translator.translate("Announcer.ReloadGroupTooltip"));
 
-		this.reset.getElement().setAttribute("title", getTranslation("Reload_group"));
+		this.reset.getElement().setAttribute("title", Translator.translate("Reload_group"));
 		this.reset.getElement().setAttribute("theme", "secondary contrast small icon");
 		return this.reset;
 	}

@@ -15,6 +15,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -73,7 +74,7 @@ public class ResultsRankings extends ResultsMedals implements ResultsParameters 
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
-		String translation = getTranslation("Scoreboard.RANKING");
+		String translation = Translator.translate("Scoreboard.RANKING");
 		this.getElement().setProperty("displayTitle", translation);
 	}
 

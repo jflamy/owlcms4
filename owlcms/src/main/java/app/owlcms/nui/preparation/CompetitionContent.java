@@ -23,6 +23,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.competition.Competition;
+import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
@@ -95,7 +96,7 @@ public class CompetitionContent extends Composite<VerticalLayout>
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("EditCompetitionInformation");
+		return Translator.translate("EditCompetitionInformation");
 	}
 
 	@Override

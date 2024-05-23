@@ -106,7 +106,7 @@ public class MainView extends VerticalLayout {
         H3 title = new H3(updateEvent.getCompetitionName());
         add(title);
         fopNames.stream().sorted().forEach(fopName -> {
-            Button fopButton = new Button(getTranslation("Platform") + " " + fopName,
+            Button fopButton = new Button(Translator.translate("Platform") + " " + fopName,
                     buttonClickEvent -> {
                         String url = URLUtils.getRelativeURLFromTargetClass(ResultsPR.class);
                         HashMap<String, List<String>> params = new HashMap<>();

@@ -350,7 +350,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 
 		HorizontalLayout introButtons = new HorizontalLayout();
 		this.startIntroButton = new Button(
-		        getTranslation("BreakMgmt.startIntro"), (e) -> {
+		        Translator.translate("BreakMgmt.startIntro"), (e) -> {
 			        OwlcmsSession.withFop(fop -> {
 				        // do nothing if we are already in during introduction
 				        if (fop.getCeremonyType() == CeremonyType.INTRODUCTION) {
@@ -371,7 +371,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		        });
 		this.startIntroButton.setTabIndex(-1);
 		this.endIntroButton = new Button(
-		        getTranslation("BreakMgmt.endIntro"), (e) -> {
+		        Translator.translate("BreakMgmt.endIntro"), (e) -> {
 			        OwlcmsSession.withFop(fop -> {
 				        this.startIntroButton.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
 				        this.endIntroButton.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -403,7 +403,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 
 		HorizontalLayout officialsButtons = new HorizontalLayout();
 		this.startOfficials = new Button(
-		        getTranslation("BreakMgmt.startOfficials"), (e) -> {
+		        Translator.translate("BreakMgmt.startOfficials"), (e) -> {
 			        this.startIntroButton.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
 			        this.endIntroButton.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
 			        this.startOfficials.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -418,7 +418,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		        });
 		this.startOfficials.setTabIndex(-1);
 		this.endOfficials = new Button(
-		        getTranslation("BreakMgmt.endOfficials"), (e) -> {
+		        Translator.translate("BreakMgmt.endOfficials"), (e) -> {
 			        this.startIntroButton.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
 			        this.endIntroButton.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
 			        this.startOfficials.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -468,7 +468,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		hl.add(groupCategorySelectionMenu, includeNotCompleted);
 
 		this.startMedalCeremony = new Button(
-		        getTranslation("BreakMgmt.startMedals"), (e) -> {
+		        Translator.translate("BreakMgmt.startMedals"), (e) -> {
 			        this.startMedalCeremony.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
 			        this.endMedalCeremony.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 			        OwlcmsSession.withFop(fop -> {
@@ -491,7 +491,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		        });
 		this.startMedalCeremony.setTabIndex(-1);
 		this.endMedalCeremony = new Button(
-		        getTranslation("BreakMgmt.endMedals"), (e) -> {
+		        Translator.translate("BreakMgmt.endMedals"), (e) -> {
 			        OwlcmsSession.withFop(fop -> {
 				        this.endMedalCeremony.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
 				        fop.fopEventPost(new FOPEvent.CeremonyDone(CeremonyType.MEDALS, this.getOrigin()));
@@ -535,15 +535,15 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 			masterStartBreak(false);
 		});
 		this.startCountdown.getElement().setAttribute("theme", "primary contrast");
-		this.startCountdown.getElement().setAttribute("title", getTranslation("StartCountdown"));
+		this.startCountdown.getElement().setAttribute("title", Translator.translate("StartCountdown"));
 		if (this.countdownRadios.getValue() != null) {
 			enableStartCountdown(false);
 		}
 
-		this.endCountdown = new Button(getTranslation("EndBreak"), new Icon(VaadinIcon.MICROPHONE),
+		this.endCountdown = new Button(Translator.translate("EndBreak"), new Icon(VaadinIcon.MICROPHONE),
 		        endBreak(this.parentDialog));
 		this.endCountdown.getElement().setAttribute("theme", "primary success");
-		this.endCountdown.getElement().setAttribute("title", getTranslation("EndBreak"));
+		this.endCountdown.getElement().setAttribute("title", Translator.translate("EndBreak"));
 
 		HorizontalLayout buttons = new HorizontalLayout();
 		buttons.add(this.startCountdown, this.endCountdown);
@@ -565,7 +565,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		this.countdownRadios.setItems(this.countdowns);
 		this.countdownRadios.setRenderer(new TextRenderer<>(
 		        (item) -> {
-			        String s = getTranslation(BreakType.class.getSimpleName() + ".Label_" + item.name());
+			        String s = Translator.translate(BreakType.class.getSimpleName() + ".Label_" + item.name());
 			        return s;
 		        }));
 
@@ -577,7 +577,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		        .collect(Collectors.toList());
 		this.countdownTypeRadios.setItems(list);
 		this.countdownTypeRadios.setRenderer(new TextRenderer<>(
-		        (item) -> getTranslation(CountdownType.class.getSimpleName() + "." + item.name())));
+		        (item) -> Translator.translate(CountdownType.class.getSimpleName() + "." + item.name())));
 
 		Locale locale = new Locale("en", "SE"); // ISO 8601 style dates and time
 		this.timePicker.setLocale(locale);
@@ -628,19 +628,19 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 			        masterStartBreak(true);
 		        });
 		this.stopCompetition.getElement().setAttribute("theme", "primary error");
-		this.stopCompetition.getElement().setAttribute("title", getTranslation("StopCompetition"));
+		this.stopCompetition.getElement().setAttribute("title", Translator.translate("StopCompetition"));
 		if (interruptionRadios2.getValue() != null) {
 			this.stopCompetition.setEnabled(true);
 		}
 
 		// breakPause = new Button(new Icon(VaadinIcon.PAUSE), (e) -> masterPauseBreak(null));
 		// breakPause.getElement().setAttribute("theme", "primary contrast");
-		// breakPause.getElement().setAttribute("title", getTranslation("PauseCountdown"));
+		// breakPause.getElement().setAttribute("title", Translator.translate("PauseCountdown"));
 
-		this.endInterruption = new Button(getTranslation("ResumeCompetition"), new Icon(VaadinIcon.MICROPHONE),
+		this.endInterruption = new Button(Translator.translate("ResumeCompetition"), new Icon(VaadinIcon.MICROPHONE),
 		        endBreak(this.parentDialog));
 		this.endInterruption.getElement().setAttribute("theme", "primary success");
-		this.endInterruption.getElement().setAttribute("title", getTranslation("ResumeCompetition"));
+		this.endInterruption.getElement().setAttribute("title", Translator.translate("ResumeCompetition"));
 
 		HorizontalLayout buttons = new HorizontalLayout();
 		buttons.add(this.stopCompetition, this.endInterruption);
@@ -662,7 +662,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 
 		this.interruptionRadios.setRenderer(new TextRenderer<>(
 		        (item) -> {
-			        String s = getTranslation(BreakType.class.getSimpleName() + "." + item.name());
+			        String s = Translator.translate(BreakType.class.getSimpleName() + "." + item.name());
 			        return s;
 		        }));
 		this.interruptionRadios.addValueChangeListener(e -> {
@@ -784,7 +784,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 	}
 
 	private NativeLabel label(String key) {
-		NativeLabel label = new NativeLabel(getTranslation(key));
+		NativeLabel label = new NativeLabel(Translator.translate(key));
 		label.getElement().setAttribute("style", "font-weight: bold");
 		return label;
 	}

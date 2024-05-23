@@ -137,7 +137,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("Jury") + OwlcmsSession.getFopNameIfMultiple();
+		return Translator.translate("Jury") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
 	@Override
@@ -179,7 +179,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			// juryDeliberationButton.setEnabled(true);
 			int d = e.decision ? 1 : 0;
-			String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
+			String text = Translator.translate("NoLift_GoodLift", d, e.getAthlete().getFullName());
 			// logger.debug("setting athleteUnderReview2 {}", e.getAthlete());
 			setAthleteUnderReview(e.getAthlete());
 
@@ -395,7 +395,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	private void buildJuryBox(VerticalLayout juryContainer) {
 		// logger.trace("buildJuryBox {}", LoggerUtils.whereFrom());
 		HorizontalLayout topRow = new HorizontalLayout();
-		this.juryLabel = new NativeLabel(getTranslation("JuryDecisions"));
+		this.juryLabel = new NativeLabel(Translator.translate("JuryDecisions"));
 		H3 labelWrapper = new H3(this.juryLabel);
 		labelWrapper.setWidth("15em");
 		NativeLabel spacer = new NativeLabel();
@@ -493,7 +493,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
 	private Component createRefereeLabel(Athlete athlete) {
 		Html refereeLabel = new Html("<span style='font-size: 110%'>" +
-		        getTranslation("RefereeDecisions")
+		        Translator.translate("RefereeDecisions")
 		        + (athlete != null
 		                ? "&nbsp;&nbsp;&nbsp;" + athleteFullId(athlete) + "&nbsp;&nbsp;&nbsp;"
 		                        + (formatAttempt(athlete.getAttemptsDone() - 1))
@@ -575,7 +575,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 			        }
 		        });
 		juryDeliberationButton.getElement().setAttribute("theme", "primary");
-		juryDeliberationButton.setText(getTranslation("BreakButton.JuryDeliberation"));
+		juryDeliberationButton.setText(Translator.translate("BreakButton.JuryDeliberation"));
 
 		Button challengeButton = new Button(
 		        new Icon(VaadinIcon.TIMER),
@@ -592,9 +592,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 			        }
 		        });
 		challengeButton.getElement().setAttribute("theme", "primary");
-		challengeButton.setText(getTranslation("BreakButton.CHALLENGE"));
+		challengeButton.setText(Translator.translate("BreakButton.CHALLENGE"));
 		// juryDeliberationButton.getElement().setAttribute("title",
-		// getTranslation("BreakButton.JuryDeliberation"));
+		// Translator.translate("BreakButton.JuryDeliberation"));
 
 		Button technicalPauseButton = new Button(
 		        new Icon(VaadinIcon.TIMER),
@@ -611,7 +611,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 			        }
 		        });
 		technicalPauseButton.getElement().setAttribute("theme", "primary");
-		technicalPauseButton.setText(getTranslation("BreakType.TECHNICAL"));
+		technicalPauseButton.setText(Translator.translate("BreakType.TECHNICAL"));
 
 		HorizontalLayout buttons = new HorizontalLayout(juryDeliberationButton, challengeButton, technicalPauseButton);
 
@@ -622,7 +622,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 				        openJuryDialog(JuryDeliberationEventType.CALL_REFEREES);
 			        });
 			summonRefereesButton.getElement().setAttribute("theme", "primary");
-			summonRefereesButton.setText(getTranslation("BreakButton.SummonReferees"));
+			summonRefereesButton.setText(Translator.translate("BreakButton.SummonReferees"));
 			buttons.add(summonRefereesButton);
 		}
 

@@ -283,11 +283,11 @@ public class TopTeams extends AbstractTop {
 
 	private void updateBottom() {
 		String menTitle = this.mensTeams != null && this.mensTeams.size() > 0
-		        ? getTranslation("Scoreboard.TopTeamsMen") + computeAgeGroupSuffix()
+		        ? Translator.translate("Scoreboard.TopTeamsMen") + computeAgeGroupSuffix()
 		        : "";
 		JsonValue menJson = getTeamsJson(this.mensTeams, true);
 		String womenTitle = this.womensTeams != null && this.womensTeams.size() > 0
-		        ? getTranslation("Scoreboard.TopTeamsWomen") + computeAgeGroupSuffix()
+		        ? Translator.translate("Scoreboard.TopTeamsWomen") + computeAgeGroupSuffix()
 		        : "";
 		JsonValue womenJson = getTeamsJson(this.womensTeams, false);
 

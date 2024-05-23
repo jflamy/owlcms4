@@ -125,7 +125,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		// StreamResource hrefC = new StreamResource("catResults.xls", catXlsWriter);
 		// catResultsAnchor = new Anchor(hrefC, "");
 		// catResultsAnchor.getStyle().set("margin-left", "1em");
-		// catDownloadButton = new Button(getTranslation(TITLE), new Icon(VaadinIcon.DOWNLOAD_ALT));
+		// catDownloadButton = new Button(Translator.translate(TITLE), new Icon(VaadinIcon.DOWNLOAD_ALT));
 		// catResultsAnchor.add(catDownloadButton);
 
 		Button finalPackageDownloadButton = createFinalPackageDownloadButton();
@@ -270,7 +270,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation(TITLE);
+		return Translator.translate(TITLE);
 	}
 
 	@Override
@@ -433,13 +433,13 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	 */
 	@Override
 	protected Component createReset() {
-		this.reset = new Button(getTranslation("RecomputeRanks"), new Icon(VaadinIcon.REFRESH),
+		this.reset = new Button(Translator.translate("RecomputeRanks"), new Icon(VaadinIcon.REFRESH),
 		        (e) -> OwlcmsSession.withFop((fop) -> {
 			        AthleteRepository.assignCategoryRanks();
 			        refresh();
 		        }));
 
-		this.reset.getElement().setAttribute("title", getTranslation("RecomputeRanks"));
+		this.reset.getElement().setAttribute("title", Translator.translate("RecomputeRanks"));
 		this.reset.getElement().setAttribute("theme", "secondary contrast small icon");
 		return this.reset;
 	}
@@ -499,11 +499,11 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		}
 		if (liftingFop != null) {
 			Notification.show(
-			        getTranslation("Warning_GroupLifting") + liftingFop.getName() + getTranslation("CannotEditResults"),
+			        Translator.translate("Warning_GroupLifting") + liftingFop.getName() + Translator.translate("CannotEditResults"),
 			        3000, Position.MIDDLE);
-			logger.debug(getTranslation("CannotEditResults_logging"), this.currentGroup, liftingFop);
+			logger.debug(Translator.translate("CannotEditResults_logging"), this.currentGroup, liftingFop);
 		} else {
-			logger.debug(getTranslation("EditingResults_logging"), this.currentGroup, liftingFop);
+			logger.debug(Translator.translate("EditingResults_logging"), this.currentGroup, liftingFop);
 		}
 		return liftingFop != null;
 	}

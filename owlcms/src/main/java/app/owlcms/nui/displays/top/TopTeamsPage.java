@@ -27,6 +27,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.displays.top.TopTeams;
+import app.owlcms.i18n.Translator;
 import app.owlcms.nui.displays.scoreboards.AbstractResultsDisplayPage;
 import ch.qos.logback.classic.Logger;
 
@@ -58,7 +59,7 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 		ComboBox<String> ageGroupPrefixComboBox = new ComboBox<>();
 		List<Championship> ageDivisions = Championship.findAll();
 		ageDivisionComboBox.setItems(ageDivisions);
-		ageDivisionComboBox.setPlaceholder(getTranslation("Championship"));
+		ageDivisionComboBox.setPlaceholder(Translator.translate("Championship"));
 		ageDivisionComboBox.setClearButtonVisible(true);
 		ageDivisionComboBox.addValueChangeListener(e -> {
 			Championship ageDivision = e.getValue();
@@ -71,7 +72,7 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 				ageGroupPrefixComboBox.setValue(activeAgeGroups.get(0));
 			}
 		});
-		ageGroupPrefixComboBox.setPlaceholder(getTranslation("AgeGroup"));
+		ageGroupPrefixComboBox.setPlaceholder(Translator.translate("AgeGroup"));
 		ageGroupPrefixComboBox.setClearButtonVisible(true);
 		ageGroupPrefixComboBox.addValueChangeListener(e -> {
 			setAgeGroupPrefix(e.getValue());
@@ -81,7 +82,7 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 		ageGroupPrefixComboBox.setValue(getAgeGroupPrefix());
 		ageDivisionComboBox.setValue(getChampionship());
 
-		vl.add(new NativeLabel(getTranslation("SelectAgeGroup")),
+		vl.add(new NativeLabel(Translator.translate("SelectAgeGroup")),
 		        new HorizontalLayout(ageDivisionComboBox, ageGroupPrefixComboBox));
 	}
 
@@ -110,7 +111,7 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("Scoreboard.TopTeams");
+		return Translator.translate("Scoreboard.TopTeams");
 	}
 
 	/**

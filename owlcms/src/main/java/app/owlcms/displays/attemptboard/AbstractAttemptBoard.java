@@ -118,7 +118,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		OwlcmsFactory.waitDBInitialized();
 		// logger.debug("*** AttemptBoard new {}", LoggerUtils.whereFrom());
 		// athleteTimer.setOrigin(this);
-		this.getElement().setProperty("kgSymbol", getTranslation("KgSymbol"));
+		this.getElement().setProperty("kgSymbol", Translator.translate("KgSymbol"));
 		// breakTimer.setParent("attemptBoard");
 		checkImages();
 		// js files add the build number to file names in order to prevent cache
@@ -203,7 +203,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 	@Override
 	public String getPageTitle() {
-		return getTranslation("Attempt") + OwlcmsSession.getFopNameIfMultiple();
+		return Translator.translate("Attempt") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
 	@Override
@@ -775,7 +775,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	private void doDone(Group g) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			if (g != null) {
-				this.getElement().setProperty("lastName", getTranslation("Group_number_done", g.toString()));
+				this.getElement().setProperty("lastName", Translator.translate("Group_number_done", g.toString()));
 			} else {
 				this.getElement().setProperty("lastName", "");
 			}

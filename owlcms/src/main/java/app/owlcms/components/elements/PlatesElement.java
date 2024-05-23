@@ -16,6 +16,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 @Tag("plates-element")
@@ -41,7 +42,7 @@ public class PlatesElement extends FlexLayout {
 			return;
 		}
 		this.weight = currentAthlete.getNextAttemptRequestedWeight();
-		final String caption = getTranslation("Kg", this.weight);
+		final String caption = Translator.translate("Kg", this.weight);
 
 		createImageArea(fop, barWeight, (showCaption ? caption : ""));
 	}

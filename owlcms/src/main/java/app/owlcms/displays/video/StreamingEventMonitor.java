@@ -176,7 +176,7 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 
 	@Override
 	public String getPageTitle() {
-		return getTranslation("Video.EventMonitoringButton") + OwlcmsSession.getFopNameIfMultiple();
+		return Translator.translate("Video.EventMonitoringButton") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
 	@Override

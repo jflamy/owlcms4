@@ -283,7 +283,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("GroupResults");
+		return Translator.translate("GroupResults");
 	}
 
 	@Override
@@ -382,13 +382,13 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 	 */
 	@Override
 	protected Component createReset() {
-		this.reset = new Button(getTranslation("RecomputeRanks"), new Icon(VaadinIcon.REFRESH),
+		this.reset = new Button(Translator.translate("RecomputeRanks"), new Icon(VaadinIcon.REFRESH),
 		        (e) -> OwlcmsSession.withFop((fop) -> {
 			        AthleteRepository.assignCategoryRanks();
 			        refresh();
 		        }));
 
-		this.reset.getElement().setAttribute("title", getTranslation("RecomputeRanks"));
+		this.reset.getElement().setAttribute("title", Translator.translate("RecomputeRanks"));
 		this.reset.getElement().setAttribute("theme", "secondary contrast small icon");
 		return this.reset;
 	}
@@ -426,7 +426,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 			return;
 		}
 
-		getGroupFilter().setPlaceholder(getTranslation("Group"));
+		getGroupFilter().setPlaceholder(Translator.translate("Group"));
 		List<Group> groups = GroupRepository.findAll();
 		groups.sort(new NaturalOrderComparator<>());
 		getGroupFilter().setItems(groups);
@@ -442,7 +442,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		crud.getCrudLayout().addFilterComponent(getGroupFilter());
 
 		this.medalsOnly = new Checkbox();
-		this.medalsOnly.setLabel(getTranslation("MedalsOnly"));
+		this.medalsOnly.setLabel(Translator.translate("MedalsOnly"));
 		this.medalsOnly.setValue(false);
 		this.medalsOnly.addValueChangeListener(e -> {
 			this.getCrudGrid().getGrid().getElement().getClassList().set("medals", Boolean.TRUE.equals(e.getValue()));
@@ -450,10 +450,10 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		});
 		crud.getCrudLayout().addFilterComponent(this.medalsOnly);
 
-		this.getGenderFilter().setPlaceholder(getTranslation("Gender"));
+		this.getGenderFilter().setPlaceholder(Translator.translate("Gender"));
 		this.getGenderFilter().setItems(Gender.M, Gender.F);
 		this.getGenderFilter().setItemLabelGenerator((i) -> {
-			return i == Gender.M ? getTranslation("Gender.Men") : getTranslation("Gender.Women");
+			return i == Gender.M ? Translator.translate("Gender.Men") : Translator.translate("Gender.Women");
 		});
 		this.getGenderFilter().setClearButtonVisible(true);
 		this.getGenderFilter().addValueChangeListener(e -> {
@@ -486,12 +486,12 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		}
 		if (liftingFop != null) {
 			Notification.show(
-			        getTranslation("Warning_GroupLifting") + liftingFop.getName() + getTranslation("CannotEditResults"),
+			        Translator.translate("Warning_GroupLifting") + liftingFop.getName() + Translator.translate("CannotEditResults"),
 			        3000, Position.MIDDLE);
-			logger.debug(getTranslation("CannotEditResults_logging"), this.currentGroup, liftingFop);
+			logger.debug(Translator.translate("CannotEditResults_logging"), this.currentGroup, liftingFop);
 			// subscribeIfLifting(currentGroup);
 		} else {
-			logger.debug(getTranslation("EditingResults_logging"), this.currentGroup, liftingFop);
+			logger.debug(Translator.translate("EditingResults_logging"), this.currentGroup, liftingFop);
 		}
 		return liftingFop != null;
 	}

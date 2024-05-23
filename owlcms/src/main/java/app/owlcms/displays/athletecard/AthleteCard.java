@@ -104,7 +104,7 @@ public class AthleteCard extends LitTemplate
 
 	@Override
 	public String getPageTitle() {
-		return getTranslation("AthleteCard");
+		return Translator.translate("AthleteCard");
 	}
 
 	@Override
@@ -246,7 +246,7 @@ public class AthleteCard extends LitTemplate
 		getElement().executeJs("document.querySelector('html').setAttribute('theme', 'light');");
 		setTranslationMap();
 
-		Button button = new Button(getTranslation("Print"));
+		Button button = new Button(Translator.translate("Print"));
 		button.setThemeName("primary success");
 		button.getElement().setAttribute("onClick", "window.print()");
 		HorizontalLayout banner = new HorizontalLayout(button);

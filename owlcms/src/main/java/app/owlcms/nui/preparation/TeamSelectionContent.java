@@ -146,7 +146,7 @@ public class TeamSelectionContent extends BaseContent
 		StreamResource href = new StreamResource(TITLE + "Report" + ".xls", () -> this.xlsWriter.createInputStream());
 		this.finalPackage = new Anchor(href, "");
 		this.finalPackage.getStyle().set("margin-left", "1em");
-		this.download = new Button(getTranslation(TITLE + ".Report"), new Icon(VaadinIcon.DOWNLOAD_ALT));
+		this.download = new Button(Translator.translate(TITLE + ".Report"), new Icon(VaadinIcon.DOWNLOAD_ALT));
 
 		this.finalPackage.add(this.download);
 		HorizontalLayout buttons = new HorizontalLayout(this.finalPackage);
@@ -213,7 +213,7 @@ public class TeamSelectionContent extends BaseContent
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation(TITLE);
+		return Translator.translate(TITLE);
 	}
 
 	@Override
@@ -439,7 +439,7 @@ public class TeamSelectionContent extends BaseContent
 	protected void defineFilters(OwlcmsCrudGrid<TeamTreeItem> crudGrid2) {
 
 		this.topBarAgeGroupPrefixSelect = new ComboBox<>();
-		this.topBarAgeGroupPrefixSelect.setPlaceholder(getTranslation("AgeGroup"));
+		this.topBarAgeGroupPrefixSelect.setPlaceholder(Translator.translate("AgeGroup"));
 		this.topBarAgeGroupPrefixSelect.setEnabled(false);
 		this.topBarAgeGroupPrefixSelect.setClearButtonVisible(true);
 		this.topBarAgeGroupPrefixSelect.setValue(null);
@@ -449,7 +449,7 @@ public class TeamSelectionContent extends BaseContent
 		setAgeGroupPrefixSelectionListener();
 
 		this.topBarAgeDivisionSelect = new ComboBox<>();
-		this.topBarAgeDivisionSelect.setPlaceholder(getTranslation("Championship"));
+		this.topBarAgeDivisionSelect.setPlaceholder(Translator.translate("Championship"));
 		this.adItems = Championship.findAllUsed(true);
 		this.topBarAgeDivisionSelect.setItems(this.adItems);
 		this.topBarAgeDivisionSelect.setItemLabelGenerator((ad) -> ad.getName());
@@ -460,10 +460,10 @@ public class TeamSelectionContent extends BaseContent
 		
 		if (this.genderFilter == null) {
 			this.genderFilter = new ComboBox<>();
-			this.genderFilter.setPlaceholder(getTranslation("Gender"));
+			this.genderFilter.setPlaceholder(Translator.translate("Gender"));
 			this.genderFilter.setItems(Gender.M, Gender.F);
 			this.genderFilter.setItemLabelGenerator((i) -> {
-				return i == Gender.M ? getTranslation("Gender.Men") : getTranslation("Gender.Women");
+				return i == Gender.M ? Translator.translate("Gender.Men") : Translator.translate("Gender.Women");
 			});
 			this.genderFilter.setClearButtonVisible(true);
 			this.genderFilter.addValueChangeListener(e -> {

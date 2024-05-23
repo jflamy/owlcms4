@@ -109,20 +109,20 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 	@Override
 	public FlexLayout createMenuArea() {
 		this.topBar = new FlexLayout();
-		this.resetCats = new Button(getTranslation("ResetCategories.ResetAthletes"), (e) -> {
+		this.resetCats = new Button(Translator.translate("ResetCategories.ResetAthletes"), (e) -> {
 			new ConfirmationDialog(
-			        getTranslation("ResetCategories.ResetCategories"),
-			        getTranslation("ResetCategories.Warning_ResetCategories"),
-			        getTranslation("ResetCategories.CategoriesReset"), () -> {
+			        Translator.translate("ResetCategories.ResetCategories"),
+			        Translator.translate("ResetCategories.Warning_ResetCategories"),
+			        Translator.translate("ResetCategories.CategoriesReset"), () -> {
 				        resetCategories();
 			        }).open();
 		});
-		this.resetCats.getElement().setAttribute("title", getTranslation("ResetCategories.ResetCategoriesMouseOver"));
+		this.resetCats.getElement().setAttribute("title", Translator.translate("ResetCategories.ResetCategoriesMouseOver"));
 		HorizontalLayout resetButton = new HorizontalLayout(this.resetCats);
 		resetButton.setMargin(false);
 
 		this.ageGroupDefinitionSelect = new ComboBox<>();
-		this.ageGroupDefinitionSelect.setPlaceholder(getTranslation("ResetCategories.AvailableDefinitions"));
+		this.ageGroupDefinitionSelect.setPlaceholder(Translator.translate("ResetCategories.AvailableDefinitions"));
 
 		Locale locale = OwlcmsSession.getLocale();
 		// locale = new Locale("fr","FR");
@@ -136,15 +136,15 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		this.ageGroupDefinitionSelect.getStyle().set("margin-left", "1em");
 		setAgeGroupsSelectionListener(resourceList);
 
-		Button loadPredefined = new Button(getTranslation("AgeGroups.LoadPredefined"), (e) -> {
+		Button loadPredefined = new Button(Translator.translate("AgeGroups.LoadPredefined"), (e) -> {
 			Resource definitions = this.ageGroupDefinitionSelect.getValue();
 			if (definitions == null) {
-				String labelText = getTranslation("ResetCategories.PleaseSelectDefinitionFile");
+				String labelText = Translator.translate("ResetCategories.PleaseSelectDefinitionFile");
 				NotificationUtils.errorNotification(labelText);
 			} else {
-				new ConfirmationDialog(getTranslation("ResetCategories.ResetCategories"),
-				        getTranslation("ResetCategories.Warning_ResetCategories"),
-				        getTranslation("ResetCategories.CategoriesReset"), () -> {
+				new ConfirmationDialog(Translator.translate("ResetCategories.ResetCategories"),
+				        Translator.translate("ResetCategories.Warning_ResetCategories"),
+				        Translator.translate("ResetCategories.CategoriesReset"), () -> {
 					        AgeGroupRepository.reloadDefinitions(definitions.getFileName());
 					        resetCategories();
 				        }).open();
@@ -239,7 +239,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("Preparation_AgeGroups");
+		return Translator.translate("Preparation_AgeGroups");
 	}
 
 	@Override
@@ -295,8 +295,8 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 			activeBox.getElement().addEventListener("click", ignore -> {
 			}).addEventData("event.stopPropagation()");
 			return activeBox;
-		})).setHeader(getTranslation("Active")).setWidth("0");
-		grid.addColumn(AgeGroup::getDisplayName).setHeader(getTranslation("Name"));
+		})).setHeader(Translator.translate("Active")).setWidth("0");
+		grid.addColumn(AgeGroup::getDisplayName).setHeader(Translator.translate("Name"));
 		grid.addColumn(new TextRenderer<>(
 		        item -> {
 			        Championship championship = item.getChampionship();
@@ -304,16 +304,16 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 			        String tr = (championship != null ? championship.translate() : "?");
 			        return tr;
 		        }))
-		        .setHeader(getTranslation("Championship"));
+		        .setHeader(Translator.translate("Championship"));
 		grid.addColumn(new TextRenderer<>(
 		        item -> {
 			        return item.getGender().asGenderName();
 		        }))
-		        .setHeader(getTranslation("Gender"));
-		grid.addColumn(AgeGroup::getMinAge).setHeader(getTranslation("MinimumAge"));
-		grid.addColumn(AgeGroup::getMaxAge).setHeader(getTranslation("MaximumAge"));
+		        .setHeader(Translator.translate("Gender"));
+		grid.addColumn(AgeGroup::getMinAge).setHeader(Translator.translate("MinimumAge"));
+		grid.addColumn(AgeGroup::getMaxAge).setHeader(Translator.translate("MaximumAge"));
 		grid.addColumn(AgeGroup::getCategoriesAsString).setAutoWidth(true)
-		        .setHeader(getTranslation("BodyWeightCategories"));
+		        .setHeader(Translator.translate("BodyWeightCategories"));
 
 		this.crud = new OwlcmsCrudGrid<>(AgeGroup.class, new OwlcmsGridLayout(AgeGroup.class),
 		        crudFormFactory, grid);
@@ -328,7 +328,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 	 * @param crudGrid the crudGrid that will be filtered.
 	 */
 	protected void defineFilters(GridCrud<AgeGroup> crud) {
-		this.nameFilter.setPlaceholder(getTranslation("Name"));
+		this.nameFilter.setPlaceholder(Translator.translate("Name"));
 		this.nameFilter.setClearButtonVisible(true);
 		this.nameFilter.setValueChangeMode(ValueChangeMode.EAGER);
 		this.nameFilter.addValueChangeListener(e -> {
@@ -336,7 +336,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		});
 		crud.getCrudLayout().addFilterComponent(this.nameFilter);
 
-		this.championshipFilter.setPlaceholder(getTranslation("Championship"));
+		this.championshipFilter.setPlaceholder(Translator.translate("Championship"));
 		this.championshipFilter.setItems(Championship.findAllUsed(false));
 		this.championshipFilter.setItemLabelGenerator((ad) -> ad.translate());
 		this.championshipFilter.setClearButtonVisible(true);
@@ -349,8 +349,8 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		this.activeFilter.addValueChangeListener(e -> {
 			crud.refreshGrid();
 		});
-		this.activeFilter.setLabel(getTranslation("Active"));
-		this.activeFilter.setAriaLabel(getTranslation("ActiveCategoriesOnly"));
+		this.activeFilter.setLabel(Translator.translate("Active"));
+		this.activeFilter.setAriaLabel(Translator.translate("ActiveCategoriesOnly"));
 		crud.getCrudLayout().addFilterComponent(this.activeFilter);
 
 		Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());

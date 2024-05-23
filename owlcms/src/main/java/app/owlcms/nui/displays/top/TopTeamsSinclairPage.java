@@ -64,7 +64,7 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		ComboBox<String> ageGroupPrefixComboBox = new ComboBox<>();
 		List<Championship> ageDivisions = Championship.findAll();
 		ageDivisionComboBox.setItems(ageDivisions);
-		ageDivisionComboBox.setPlaceholder(getTranslation("Championship"));
+		ageDivisionComboBox.setPlaceholder(Translator.translate("Championship"));
 		ageDivisionComboBox.setClearButtonVisible(true);
 		ageDivisionComboBox.addValueChangeListener(e -> {
 			Championship ageDivision = e.getValue();
@@ -77,7 +77,7 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 				ageGroupPrefixComboBox.setValue(activeAgeGroups.get(0));
 			}
 		});
-		ageGroupPrefixComboBox.setPlaceholder(getTranslation("AgeGroup"));
+		ageGroupPrefixComboBox.setPlaceholder(Translator.translate("AgeGroup"));
 		ageGroupPrefixComboBox.setClearButtonVisible(true);
 		ageGroupPrefixComboBox.addValueChangeListener(e -> {
 			setAgeGroupPrefix(e.getValue());
@@ -87,7 +87,7 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		ageGroupPrefixComboBox.setValue(getAgeGroupPrefix());
 		ageDivisionComboBox.setValue(getChampionship());
 
-		vl.add(new NativeLabel(getTranslation("SelectAgeGroup")),
+		vl.add(new NativeLabel(Translator.translate("SelectAgeGroup")),
 		        new HorizontalLayout(ageDivisionComboBox, ageGroupPrefixComboBox));
 	}
 

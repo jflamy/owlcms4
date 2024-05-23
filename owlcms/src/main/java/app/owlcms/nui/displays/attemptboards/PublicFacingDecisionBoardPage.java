@@ -12,6 +12,7 @@ import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.config.Config;
 import app.owlcms.displays.attemptboard.AbstractAttemptBoard;
 import app.owlcms.displays.attemptboard.DecisionBoard;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
@@ -28,7 +29,7 @@ public class PublicFacingDecisionBoardPage extends AbstractAttemptBoardPage {
 
 	@Override
 	public String getPageTitle() {
-		return getTranslation("RefereeDecisions") + OwlcmsSession.getFopNameIfMultiple();
+		return Translator.translate("RefereeDecisions") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
 	@Override

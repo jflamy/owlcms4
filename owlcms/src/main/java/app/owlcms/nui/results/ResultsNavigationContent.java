@@ -51,19 +51,19 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 	 * Instantiates a new wrapup navigation content.
 	 */
 	public ResultsNavigationContent() {
-		Button groupResults = openInNewTab(ResultsContent.class, getTranslation("GroupResults"));
+		Button groupResults = openInNewTab(ResultsContent.class, Translator.translate("GroupResults"));
 		highlight(groupResults);
 		// Button medals = openInNewTab(ResultsContent.class,
-		// getTranslation("Results.Medals"));
-		Button teamResults = openInNewTabNoParam(TeamResultsContent.class, getTranslation("TeamResults.Title"));
-		Button teams = openInNewTabNoParam(TeamSelectionContent.class, getTranslation(TeamSelectionContent.TITLE));
+		// Translator.translate("Results.Medals"));
+		Button teamResults = openInNewTabNoParam(TeamResultsContent.class, Translator.translate("TeamResults.Title"));
+		Button teams = openInNewTabNoParam(TeamSelectionContent.class, Translator.translate(TeamSelectionContent.TITLE));
 		// Button categoryResults = openInNewTabNoParam(PackageContent.class,
-		// getTranslation("CategoryResults"));
-		Button finalPackage = openInNewTabNoParam(PackageContent.class, getTranslation("CompetitionResults"));
+		// Translator.translate("CategoryResults"));
+		Button finalPackage = openInNewTabNoParam(PackageContent.class, Translator.translate("CompetitionResults"));
 		highlight(finalPackage);
 
 		// Div timingStats = DownloadButtonFactory.createDynamicXLSDownloadButton("timingStats",
-		// getTranslation("TimingStatistics"), new JXLSTimingStats(UI.getCurrent()));
+		// Translator.translate("TimingStatistics"), new JXLSTimingStats(UI.getCurrent()));
 		// ((Button) timingStats.getComponentAt(0)).setWidth("100%");
 
 		var timingWriter = new JXLSTimingStats(UI.getCurrent());
@@ -82,7 +82,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 		timingStats.setWidthFull();
 
 		// Div newRecords = DownloadButtonFactory.createDynamicXLSDownloadButton("records",
-		// getTranslation("Results.NewRecords"), new JXLSExportRecords(UI.getCurrent(),false));
+		// Translator.translate("Results.NewRecords"), new JXLSExportRecords(UI.getCurrent(),false));
 		// ((Button) newRecords.getComponentAt(0)).setWidth("100%");
 
 		var recordsWriter = new JXLSExportRecords(UI.getCurrent(), false);
@@ -103,21 +103,21 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(finalPackage, newRecords,
 		        timingStats);
 
-		doGroup(getTranslation("ForEachCompetitionGroup"), grid1, this);
-		doGroup(getTranslation("TeamResults.Title"), grid2, this);
-		doGroup(getTranslation("Results.EndOfCompetition"), grid3, this);
+		doGroup(Translator.translate("ForEachCompetitionGroup"), grid1, this);
+		doGroup(Translator.translate("TeamResults.Title"), grid2, this);
+		doGroup(Translator.translate("Results.EndOfCompetition"), grid3, this);
 
 		DebugUtils.gc();
 	}
 
 	@Override
 	public String getMenuTitle() {
-		return getTranslation("ShortTitle.Results");
+		return Translator.translate("ShortTitle.Results");
 	}
 
 	@Override
 	public String getPageTitle() {
-		return getTranslation("ShortTitle.Results");
+		return Translator.translate("ShortTitle.Results");
 	}
 
 	@Override

@@ -1075,7 +1075,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			if (sb.length() > 0) {
 				sb.append("; ");
 			}
-			String message = ve.getMessage().orElse(field.getTranslation("Error"));
+			String message = ve.getMessage().orElse(Translator.translate("Error"));
 			logger.debug("field message: {}", message);
 			sb.append(message);
 		}

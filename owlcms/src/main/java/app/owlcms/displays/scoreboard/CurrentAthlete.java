@@ -103,7 +103,7 @@ public class CurrentAthlete extends Results {
 			uiEventLogger.debug("$$$ currentAthlete calling doBreak()");
 			if (fop.getGroup() != null && fop.getGroup().isDone()) {
 				setDisplay();
-				getElement().setProperty("fullName", getTranslation("Group_number_done", fop.getGroup().toString()));
+				getElement().setProperty("fullName", Translator.translate("Group_number_done", fop.getGroup().toString()));
 				getElement().setProperty("teamName", "");
 				getElement().setProperty("attempt", "");
 			} else {
@@ -564,7 +564,7 @@ public class CurrentAthlete extends Results {
 		} else {
 			OwlcmsSession.withFop(fop -> {
 				updateDisplay(null, fop);
-				getElement().setProperty("fullName", getTranslation("Group_number_done", g.toString()));
+				getElement().setProperty("fullName", Translator.translate("Group_number_done", g.toString()));
 			});
 		}
 	}

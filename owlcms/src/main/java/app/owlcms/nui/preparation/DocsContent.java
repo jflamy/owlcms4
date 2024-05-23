@@ -196,7 +196,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("Preparation.PrecompDocsTitle");
+		return Translator.translate("Preparation.PrecompDocsTitle");
 	}
 
 	@Override
@@ -540,7 +540,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 		if (this.getPlatformFilter() == null) {
 			this.setPlatformFilter(new ComboBox<>());
 		}
-		this.getPlatformFilter().setPlaceholder(getTranslation("Platform"));
+		this.getPlatformFilter().setPlaceholder(Translator.translate("Platform"));
 		List<Platform> agItems1 = PlatformRepository.findAll();
 		this.getPlatformFilter().setItems(agItems1);
 		// platformFilter.setItemLabelGenerator((ad) -> Translator.translate("Division."

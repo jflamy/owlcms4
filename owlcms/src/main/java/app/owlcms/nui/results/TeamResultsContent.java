@@ -133,10 +133,10 @@ public class TeamResultsContent extends BaseContent
 		StreamResource href = new StreamResource(TITLE + "Report" + ".xls", () -> this.xlsWriter.createInputStream());
 		this.finalPackage = new Anchor(href, "");
 		this.finalPackage.getStyle().set("margin-left", "1em");
-		this.download = new Button(getTranslation(TITLE + ".Report"), new Icon(VaadinIcon.DOWNLOAD_ALT));
+		this.download = new Button(Translator.translate(TITLE + ".Report"), new Icon(VaadinIcon.DOWNLOAD_ALT));
 
 		this.topBarAgeGroupPrefixSelect = new ComboBox<>();
-		this.topBarAgeGroupPrefixSelect.setPlaceholder(getTranslation("AgeGroup"));
+		this.topBarAgeGroupPrefixSelect.setPlaceholder(Translator.translate("AgeGroup"));
 
 		this.topBarAgeGroupPrefixSelect.setEnabled(false);
 		this.topBarAgeGroupPrefixSelect.setClearButtonVisible(true);
@@ -147,7 +147,7 @@ public class TeamResultsContent extends BaseContent
 		setAgeGroupPrefixSelectionListener();
 
 		this.topBarAgeDivisionSelect = new ComboBox<>();
-		this.topBarAgeDivisionSelect.setPlaceholder(getTranslation("Championship"));
+		this.topBarAgeDivisionSelect.setPlaceholder(Translator.translate("Championship"));
 		this.adItems = Championship.findAll();
 		this.topBarAgeDivisionSelect.setItems(this.adItems);
 		this.topBarAgeDivisionSelect.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.getName()));
@@ -221,7 +221,7 @@ public class TeamResultsContent extends BaseContent
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation(TITLE);
+		return Translator.translate(TITLE);
 	}
 
 	@Override
@@ -397,7 +397,7 @@ public class TeamResultsContent extends BaseContent
 	protected void defineFilters(OwlcmsCrudGrid<TeamTreeItem> crudGrid2) {
 		// if (teamFilter == null) {
 		// teamFilter = new ComboBox<>();
-		// teamFilter.setPlaceholder(getTranslation("Team"));
+		// teamFilter.setPlaceholder(Translator.translate("Team"));
 		// teamFilter.setClearButtonVisible(true);
 		// teamFilter.addValueChangeListener(e -> {
 		// if (!teamFilterRecusion) return;
@@ -409,10 +409,10 @@ public class TeamResultsContent extends BaseContent
 
 		if (this.genderFilter == null) {
 			this.genderFilter = new ComboBox<>();
-			this.genderFilter.setPlaceholder(getTranslation("Gender"));
+			this.genderFilter.setPlaceholder(Translator.translate("Gender"));
 			this.genderFilter.setItems(Gender.M, Gender.F);
 			this.genderFilter.setItemLabelGenerator((i) -> {
-				return i == Gender.M ? getTranslation("Gender.Men") : getTranslation("Gender.Women");
+				return i == Gender.M ? Translator.translate("Gender.Men") : Translator.translate("Gender.Women");
 			});
 			this.genderFilter.setClearButtonVisible(true);
 			this.genderFilter.addValueChangeListener(e -> {
@@ -425,7 +425,7 @@ public class TeamResultsContent extends BaseContent
 		// if (categoryFilter == null) {
 		// categoryFilter = new ComboBox<>();
 		// categoryFilter.setClearButtonVisible(true);
-		// categoryFilter.setPlaceholder(getTranslation("Category"));
+		// categoryFilter.setPlaceholder(Translator.translate("Category"));
 		// categoryFilter.setClearButtonVisible(true);
 		// categoryFilter.addValueChangeListener(e -> {
 		// crudGrid2.refreshGrid();

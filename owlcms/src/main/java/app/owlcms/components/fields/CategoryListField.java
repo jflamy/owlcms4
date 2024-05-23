@@ -28,6 +28,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
+import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -51,11 +52,11 @@ public class CategoryListField extends CustomField<List<Category>> {
 		adder.getStyle().set("margin-top", "0.5em");
 		adder.getStyle().set("margin-bottom", "1em");
 		TextField newCategoryField = new TextField();
-		newCategoryField.setPlaceholder(getTranslation("LimitForCategory"));
+		newCategoryField.setPlaceholder(Translator.translate("LimitForCategory"));
 		newCategoryField.setAllowedCharPattern("[0-9]");
 		newCategoryField.setPattern("[0-9]{0,3}");
 
-		Button button = new Button(getTranslation("AddNewCategory"));
+		Button button = new Button(Translator.translate("AddNewCategory"));
 		button.addClickListener((click) -> {
 			react(ag, newCategoryField);
 		});
@@ -95,7 +96,7 @@ public class CategoryListField extends CustomField<List<Category>> {
 		if (ag == null) {
 			Notification notif = new Notification();
 			notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
-			notif.setText(getTranslation("SaveAgeGroupBefore"));
+			notif.setText(Translator.translate("SaveAgeGroupBefore"));
 			return; // there was no return
 		}
 		if ((value == null) || value.trim().isEmpty()) {

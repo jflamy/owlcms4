@@ -110,7 +110,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 
 	@Override
 	public String getMenuTitle() {
-		return getTranslation("Timekeeper") + OwlcmsSession.getFopNameIfMultiple();
+		return Translator.translate("Timekeeper") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
 	/**
@@ -118,7 +118,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("Timekeeper") + OwlcmsSession.getFopNameIfMultiple();
+		return Translator.translate("Timekeeper") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
 	@Override
@@ -172,7 +172,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		createTopBarGroupSelect();
 		createTopBarLeft();
 
-		this.introCountdownButton = new Button(getTranslation("introCountdown"), new Icon(VaadinIcon.TIMER), (e) -> {
+		this.introCountdownButton = new Button(Translator.translate("introCountdown"), new Icon(VaadinIcon.TIMER), (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				BreakDialog dialog = new BreakDialog(BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET, null, this);
 				dialog.open();
@@ -180,7 +180,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		});
 		this.introCountdownButton.getElement().setAttribute("theme", "primary contrast");
 
-		this.startLiftingButton = new Button(getTranslation("startLifting"), new Icon(VaadinIcon.MICROPHONE), (e) -> {
+		this.startLiftingButton = new Button(Translator.translate("startLifting"), new Icon(VaadinIcon.MICROPHONE), (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				UI.getCurrent().access(() -> createTopBar());
 				fop.fopEventPost(new FOPEvent.StartLifting(this));
@@ -188,7 +188,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		});
 		this.startLiftingButton.getThemeNames().add("success primary");
 
-		this.showResultsButton = new Button(getTranslation("ShowResults"), new Icon(VaadinIcon.MEDAL), (e) -> {
+		this.showResultsButton = new Button(Translator.translate("ShowResults"), new Icon(VaadinIcon.MEDAL), (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				UI.getCurrent().access(() -> createTopBar());
 				fop.fopEventPost(
@@ -358,7 +358,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 				getRouterLayout().setMenuArea(createInitialBar());
 				getRouterLayout().updateHeader(true);
 
-				this.warning.setText(getTranslation("IdlePlatform"));
+				this.warning.setText(Translator.translate("IdlePlatform"));
 				if (curAthlete2 == null || curAthlete2.getAttemptsDone() >= 6 || fop.getLiftingOrder().size() == 0) {
 					topBarWarning(fop.getGroup(), curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone(),
 					        fop.getState(), fop.getLiftingOrder());

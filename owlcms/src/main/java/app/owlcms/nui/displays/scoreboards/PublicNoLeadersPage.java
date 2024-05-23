@@ -16,6 +16,7 @@ import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.config.Config;
 import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.displays.scoreboard.ResultsMedals;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
@@ -39,7 +40,7 @@ public class PublicNoLeadersPage extends AbstractResultsDisplayPage {
 
 	@Override
 	public String getPageTitle() {
-		return getTranslation("Scoreboard") + OwlcmsSession.getFopNameIfMultiple();
+		return Translator.translate("Scoreboard") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
 	public final Results getResultsBoard() {

@@ -1089,7 +1089,7 @@ public class Results extends LitTemplate
 			doEmpty();
 		} else {
 			OwlcmsSession.withFop(fop -> {
-				this.getElement().setProperty("fullName", getTranslation("Group_number_results", g.toString()));
+				this.getElement().setProperty("fullName", Translator.translate("Group_number_results", g.toString()));
 			});
 		}
 	}

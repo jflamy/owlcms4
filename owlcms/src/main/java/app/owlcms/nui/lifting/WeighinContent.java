@@ -113,22 +113,22 @@ public class WeighinContent extends BaseContent
 		 */
 		@Override
 		protected void initToolbar() {
-			this.findAllButton = new Button(getTranslation("RefreshList"), VaadinIcon.REFRESH.create(),
+			this.findAllButton = new Button(Translator.translate("RefreshList"), VaadinIcon.REFRESH.create(),
 			        e -> findAllButtonClicked());
-			this.findAllButton.getElement().setAttribute("title", getTranslation("RefreshList"));
+			this.findAllButton.getElement().setAttribute("title", Translator.translate("RefreshList"));
 			this.crudLayout.addToolbarComponent(this.findAllButton);
 
 			this.addButton = new Button(VaadinIcon.PLUS.create(), e -> addButtonClicked());
-			getAddButton().setText(getTranslation("Add"));
+			getAddButton().setText(Translator.translate("Add"));
 			// getAddButton().addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
-			this.addButton.getElement().setAttribute("title", getTranslation("Add"));
+			this.addButton.getElement().setAttribute("title", Translator.translate("Add"));
 			this.crudLayout.addToolbarComponent(this.addButton);
 
 			this.updateButton = new Button(VaadinIcon.PENCIL.create(), e -> batchButtonClicked());
 			this.deleteButton = new Button(VaadinIcon.TRASH.create(), e -> deleteButtonClicked());
 
 			this.batchButton = new Button(VaadinIcon.FILE_TEXT.create(), e -> batchButtonClicked());
-			this.batchButton.setText(getTranslation("WeighIn.Batch"));
+			this.batchButton.setText(Translator.translate("WeighIn.Batch"));
 			this.crudLayout.addToolbarComponent(this.batchButton);
 
 			updateButtons();
@@ -230,10 +230,10 @@ public class WeighinContent extends BaseContent
 		this.weighInButton = createWeighInButton();
 		this.juryButton = createJuryButton();
 
-		Button start = new Button(getTranslation("GenerateStartNumbers"), (e) -> {
+		Button start = new Button(Translator.translate("GenerateStartNumbers"), (e) -> {
 			generateStartNumbers();
 		});
-		Button clear = new Button(getTranslation("ClearStartNumbers"), (e) -> {
+		Button clear = new Button(Translator.translate("ClearStartNumbers"), (e) -> {
 			clearStartNumbers();
 		});
 
@@ -425,7 +425,7 @@ public class WeighinContent extends BaseContent
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("WeighIn");
+		return Translator.translate("WeighIn");
 	}
 
 	@Override
@@ -665,22 +665,22 @@ public class WeighinContent extends BaseContent
 	protected OwlcmsCrudGrid<Athlete> createGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
 		Grid<Athlete> grid = new Grid<>(Athlete.class, false);
 		grid.getThemeNames().add("row-stripes");
-		grid.addColumn("startNumber").setHeader(getTranslation("Start_")).setAutoWidth(true);
-		grid.addColumn("lastName").setHeader(getTranslation("LastName"));
-		grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
-		grid.addColumn("team").setHeader(getTranslation("Team")).setAutoWidth(true);
-		grid.addColumn("gender").setHeader(getTranslation("Gender")).setAutoWidth(true);
-		grid.addColumn(new TextRenderer<>(a -> a.getAgeGroupDisplayName())).setHeader(getTranslation("AgeGroup"))
+		grid.addColumn("startNumber").setHeader(Translator.translate("Start_")).setAutoWidth(true);
+		grid.addColumn("lastName").setHeader(Translator.translate("LastName"));
+		grid.addColumn("firstName").setHeader(Translator.translate("FirstName"));
+		grid.addColumn("team").setHeader(Translator.translate("Team")).setAutoWidth(true);
+		grid.addColumn("gender").setHeader(Translator.translate("Gender")).setAutoWidth(true);
+		grid.addColumn(new TextRenderer<>(a -> a.getAgeGroupDisplayName())).setHeader(Translator.translate("AgeGroup"))
 		        .setAutoWidth(true);
-		grid.addColumn("category").setHeader(getTranslation("Category")).setAutoWidth(true);
+		grid.addColumn("category").setHeader(Translator.translate("Category")).setAutoWidth(true);
 		grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))
 		        .setSortProperty("bodyWeight")
-		        .setHeader(getTranslation("BodyWeight")).setAutoWidth(true);
-		grid.addColumn("snatch1Declaration").setHeader(getTranslation("SnatchDecl_"));
-		grid.addColumn("cleanJerk1Declaration").setHeader(getTranslation("C_and_J_decl"));
-		grid.addColumn("eligibleCategories").setHeader(getTranslation("Weighin.EligibleCategories")).setAutoWidth(true);
-		grid.addColumn("entryTotal").setHeader(getTranslation("EntryTotal")).setAutoWidth(true);
-		grid.addColumn("federationCodes").setHeader(getTranslation("Registration.FederationCodesShort"))
+		        .setHeader(Translator.translate("BodyWeight")).setAutoWidth(true);
+		grid.addColumn("snatch1Declaration").setHeader(Translator.translate("SnatchDecl_"));
+		grid.addColumn("cleanJerk1Declaration").setHeader(Translator.translate("C_and_J_decl"));
+		grid.addColumn("eligibleCategories").setHeader(Translator.translate("Weighin.EligibleCategories")).setAutoWidth(true);
+		grid.addColumn("entryTotal").setHeader(Translator.translate("EntryTotal")).setAutoWidth(true);
+		grid.addColumn("federationCodes").setHeader(Translator.translate("Registration.FederationCodesShort"))
 		        .setAutoWidth(true);
 		NextCrudGrid crudGrid = new NextCrudGrid(Athlete.class, new OwlcmsGridLayout(Athlete.class) {
 			@Override
@@ -785,9 +785,9 @@ public class WeighinContent extends BaseContent
 	}
 
 	protected void errorNotification() {
-		NativeLabel content = new NativeLabel(getTranslation("Select_group_first"));
+		NativeLabel content = new NativeLabel(Translator.translate("Select_group_first"));
 		content.getElement().setAttribute("theme", "error");
-		Button buttonInside = new Button(getTranslation("GotIt"));
+		Button buttonInside = new Button(Translator.translate("GotIt"));
 		buttonInside.getElement().setAttribute("theme", "error primary");
 		VerticalLayout verticalLayout = new VerticalLayout(content, buttonInside);
 		verticalLayout.setAlignItems(Alignment.CENTER);
@@ -963,76 +963,76 @@ public class WeighinContent extends BaseContent
 		// List<String> captions = new LinkedList<>();
 		//
 		// props.add("lastName");
-		// captions.add(getTranslation("LastName"));
+		// captions.add(Translator.translate("LastName"));
 		// props.add("firstName");
-		// captions.add(getTranslation("FirstName"));
+		// captions.add(Translator.translate("FirstName"));
 		//
 		// props.add("bodyWeight");
-		// captions.add(getTranslation("BodyWeight"));
+		// captions.add(Translator.translate("BodyWeight"));
 		// props.add("snatch1Declaration");
-		// captions.add(getTranslation("SnatchDecl_"));
+		// captions.add(Translator.translate("SnatchDecl_"));
 		// props.add("cleanJerk1Declaration");
-		// captions.add(getTranslation("C_and_J_decl"));
+		// captions.add(Translator.translate("C_and_J_decl"));
 		//
 		// props.add("qualifyingTotal");
-		// captions.add(getTranslation("EntryTotal"));
+		// captions.add(Translator.translate("EntryTotal"));
 		// props.add("category");
-		// captions.add(getTranslation("Weighin.Category"));
+		// captions.add(Translator.translate("Weighin.Category"));
 		// props.add("eligibleCategories");
-		// captions.add(getTranslation("Weighin.EligibleCategories"));
+		// captions.add(Translator.translate("Weighin.EligibleCategories"));
 		// props.add("group");
-		// captions.add(getTranslation("Group"));
+		// captions.add(Translator.translate("Group"));
 		//
 		// props.add("gender");
-		// captions.add(getTranslation("Gender"));
+		// captions.add(Translator.translate("Gender"));
 		// props.add("team");
-		// captions.add(getTranslation("Team"));
+		// captions.add(Translator.translate("Team"));
 		//
 		// Competition competition = Competition.getCurrent();
 		// if (competition.isUseBirthYear()) {
 		// props.add("yearOfBirth");
-		// captions.add(getTranslation("YearOfBirth"));
+		// captions.add(Translator.translate("YearOfBirth"));
 		// } else {
 		// props.add("fullBirthDate");
-		// captions.add(getTranslation("BirthDate_yyyy"));
+		// captions.add(Translator.translate("BirthDate_yyyy"));
 		// }
 		// props.add("membership");
-		// captions.add(getTranslation("Membership"));
+		// captions.add(Translator.translate("Membership"));
 		//
 		// props.add("coach");
-		// captions.add(getTranslation("Coach"));
+		// captions.add(Translator.translate("Coach"));
 		// props.add("custom1");
-		// captions.add(getTranslation("Custom1.Title"));
+		// captions.add(Translator.translate("Custom1.Title"));
 		// props.add("custom2");
-		// captions.add(getTranslation("Custom2.Title"));
+		// captions.add(Translator.translate("Custom2.Title"));
 		//
 		// props.add("lotNumber");
-		// captions.add(getTranslation("Lot"));
+		// captions.add(Translator.translate("Lot"));
 		//
 		// props.add("federationCodes");
-		// captions.add(getTranslation("Registration.FederationCodes"));
+		// captions.add(Translator.translate("Registration.FederationCodes"));
 		//
 		// props.add("eligibleForIndividualRanking");
-		// captions.add(getTranslation("Eligible for Individual Ranking?"));
+		// captions.add(Translator.translate("Eligible for Individual Ranking?"));
 		//
 		// crudFormFactory.setVisibleProperties(props.toArray(new String[0]));
 		// crudFormFactory.setFieldCaptions(captions.toArray(new String[0]));
 		//
-		// crudFormFactory.setFieldProvider("gender", new OwlcmsComboBoxProvider<>(getTranslation("Gender"),
+		// crudFormFactory.setFieldProvider("gender", new OwlcmsComboBoxProvider<>(Translator.translate("Gender"),
 		// Arrays.asList(Gender.mfValues()), new TextRenderer<>(Gender::name), Gender::name));
 		// List<Group> groups = GroupRepository.findAll();
 		// groups.sort(new NaturalOrderComparator<>());
-		// crudFormFactory.setFieldProvider("group", new OwlcmsComboBoxProvider<>(getTranslation("Group"),
+		// crudFormFactory.setFieldProvider("group", new OwlcmsComboBoxProvider<>(Translator.translate("Group"),
 		// groups, new TextRenderer<>(Group::getName), Group::getName));
-		// crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
+		// crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(Translator.translate("Category"),
 		// CategoryRepository.findActive(), new TextRenderer<>(Category::getNameWithAgeGroup),
 		// Category::getNameWithAgeGroup));
 		// crudFormFactory.setFieldProvider("eligibleCategories",
-		// new CheckBoxGroupProvider<>(getTranslation("Weighin.EligibleCategories"),
+		// new CheckBoxGroupProvider<>(Translator.translate("Weighin.EligibleCategories"),
 		// new ArrayList<Category>(), (c) -> (c.getNameWithAgeGroup())));
 		// // crudFormFactory.setFieldProvider("ageDivision",
-		// // new OwlcmsComboBoxProvider<>(getTranslation("Championship"), Arrays.asList(Championship.values()),
-		// // new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), Championship::name));
+		// // new OwlcmsComboBoxProvider<>(Translator.translate("Championship"), Arrays.asList(Championship.values()),
+		// // new TextRenderer<>(ad -> Translator.translate("Division." + ad.name())), Championship::name));
 		//
 		// crudFormFactory.setFieldType("bodyWeight", LocalizedDecimalField.class);
 		// crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);

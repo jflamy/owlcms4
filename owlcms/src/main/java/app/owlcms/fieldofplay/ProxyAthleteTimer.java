@@ -145,6 +145,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 	 */
 	@Override
 	public void start() {
+		logger.warn("starting time ----");
 		if (!this.running) {
 			this.startMillis = System.currentTimeMillis();
 			if (this.logger.isDebugEnabled()) {

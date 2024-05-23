@@ -110,7 +110,7 @@ public interface DisplayParameters extends ContentParameters {
     public default void doNotification(boolean dark) {
         Notification n = new Notification();
         H2 h2 = new H2();
-        h2.setText(h2.getTranslation("darkMode." + (dark ? DARK : LIGHT)));
+        h2.setText(h2.Translator.translate("darkMode." + (dark ? DARK : LIGHT)));
         h2.getStyle().set("margin", "0");
         n.add(h2);
         n.setDuration(3000);

@@ -11,6 +11,7 @@ import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.config.Config;
 import app.owlcms.displays.scoreboard.ResultsRankings;
+import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -26,7 +27,7 @@ public class RankingsPage extends MedalsPage {
 
 	@Override
 	public String getPageTitle() {
-		String translation = getTranslation("Scoreboard.RANKING");
+		String translation = Translator.translate("Scoreboard.RANKING");
 		return translation;
 	}
 

@@ -37,7 +37,7 @@ public class LocalOverrideUploadDialog extends Dialog {
 		Upload upload = new Upload(buffer);
 		upload.setWidth("40em");
 
-		TextArea ta = new TextArea(getTranslation("Errors"));
+		TextArea ta = new TextArea(Translator.translate("Errors"));
 		ta.setHeight("20ex");
 		ta.setWidth("80em");
 		ta.setVisible(false);
@@ -58,7 +58,7 @@ public class LocalOverrideUploadDialog extends Dialog {
 			ta.setVisible(false);
 		});
 
-		H3 title = new H3(getTranslation("Config.Select"));
+		H3 title = new H3(Translator.translate("Config.Select"));
 		VerticalLayout vl = new VerticalLayout(title, upload, ta);
 		add(vl);
 	}

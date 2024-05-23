@@ -60,13 +60,13 @@ public class LoginView extends Composite<VerticalLayout>
 	public LoginView() {
 		this.pinField.setClearButtonVisible(true);
 		this.pinField.setRevealButtonVisible(true);
-		this.pinField.setLabel(getTranslation("EnterPin"));
+		this.pinField.setLabel(Translator.translate("EnterPin"));
 		this.pinField.setWidthFull();
 		this.pinField.addValueChangeListener(event -> {
 			String value = event.getValue();
 			logger.debug("login input {}", value);
 			if (checkAuthenticated(value)) {
-				this.pinField.setErrorMessage(getTranslation("LoginDenied"));
+				this.pinField.setErrorMessage(Translator.translate("LoginDenied"));
 				this.pinField.setInvalid(true);
 			} else {
 				this.pinField.setInvalid(false);
@@ -75,11 +75,11 @@ public class LoginView extends Composite<VerticalLayout>
 		});
 
 		// brute-force the color because some display views use a white text color.
-		H3 h3 = new H3(getTranslation("Log_In"));
+		H3 h3 = new H3(Translator.translate("Log_In"));
 		h3.getStyle().set("color", "var(--lumo-header-text-color)");
 		h3.getStyle().set("font-size", "var(--lumo-font-size-xl)");
 
-		Button button = new Button(getTranslation("Login"));
+		Button button = new Button(Translator.translate("Login"));
 		button.addClickShortcut(Key.ENTER);
 		button.setWidth("10em");
 		button.getThemeNames().add("primary");
@@ -100,7 +100,7 @@ public class LoginView extends Composite<VerticalLayout>
 	}
 
 	public String getMenuTitle() {
-		return getTranslation("OWLCMS_Top");
+		return Translator.translate("OWLCMS_Top");
 	}
 
 	@Override

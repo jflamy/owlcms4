@@ -16,6 +16,7 @@ import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.config.Config;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.displays.scoreboard.CurrentAthlete;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
@@ -37,7 +38,7 @@ public class CurrentAthletePage extends AbstractResultsDisplayPage {
 
 	@Override
 	public String getPageTitle() {
-		return getTranslation("CurrentAthleteTitle") + OwlcmsSession.getFopNameIfMultiple();
+		return Translator.translate("CurrentAthleteTitle") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
 	@Override

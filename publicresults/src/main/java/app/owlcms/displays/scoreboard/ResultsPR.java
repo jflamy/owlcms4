@@ -155,7 +155,7 @@ public class ResultsPR extends LitTemplate
 
     @Override
     public String getPageTitle() {
-        return getTranslation("ScoreboardWLeadersTitle") + getFopName() != null ? (" " + getFopName()) : "";
+        return Translator.translate("ScoreboardWLeadersTitle") + getFopName() != null ? (" " + getFopName()) : "";
     }
 
     @Override

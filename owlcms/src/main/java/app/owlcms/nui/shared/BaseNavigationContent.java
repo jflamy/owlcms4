@@ -32,6 +32,7 @@ import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
@@ -90,8 +91,8 @@ public abstract class BaseNavigationContent extends BaseContent
 	 */
 	@Override
 	public FlexLayout createMenuArea() {
-		HorizontalLayout fopField = createMenuBarFopField(getTranslation("CompetitionPlatform"),
-		        getTranslation("SelectPlatform"));
+		HorizontalLayout fopField = createMenuBarFopField(Translator.translate("CompetitionPlatform"),
+		        Translator.translate("SelectPlatform"));
 		HorizontalLayout menu = new HorizontalLayout();
 		menu.setSizeFull();
 		if (fopField != null) {

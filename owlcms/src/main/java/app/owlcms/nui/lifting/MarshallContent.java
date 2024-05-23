@@ -30,6 +30,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.shared.AthleteGridContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
@@ -99,7 +100,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("Marshall") + OwlcmsSession.getFopNameIfMultiple();
+		return Translator.translate("Marshall") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
 	@Subscribe
@@ -108,7 +109,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 			hideLiveDecisions();
 
 			int d = e.decision ? 1 : 0;
-			String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
+			String text = Translator.translate("NoLift_GoodLift", d, e.getAthlete().getFullName());
 
 			Notification n = new Notification();
 			String themeName = e.decision ? "success" : "error";

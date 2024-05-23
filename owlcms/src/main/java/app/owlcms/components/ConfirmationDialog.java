@@ -15,6 +15,8 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
+import app.owlcms.i18n.Translator;
+
 @SuppressWarnings("serial")
 public class ConfirmationDialog extends Dialog {
 
@@ -34,14 +36,14 @@ public class ConfirmationDialog extends Dialog {
 		content.add(title1, paragraph);
 
 		HorizontalLayout buttons = new HorizontalLayout();
-		Button confirmButton = new Button(getTranslation("Confirm"), event -> {
+		Button confirmButton = new Button(Translator.translate("Confirm"), event -> {
 			action.run();
 			Notification.show(confirmation);
 			dialog.close();
 		});
 		confirmButton.getElement().setAttribute("theme", "primary");
 
-		Button cancelButton = new Button(getTranslation("Cancel"), event -> {
+		Button cancelButton = new Button(Translator.translate("Cancel"), event -> {
 			dialog.close();
 		});
 		cancelButton.getElement().setAttribute("theme", "primary error");

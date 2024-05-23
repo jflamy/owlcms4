@@ -292,7 +292,7 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 
 	protected ComboBox<FieldOfPlay> createFopSelect() {
 		ComboBox<FieldOfPlay> fopSelect = new ComboBox<>();
-		fopSelect.setPlaceholder(getTranslation("SelectPlatform"));
+		fopSelect.setPlaceholder(Translator.translate("SelectPlatform"));
 		fopSelect.setItems(OwlcmsFactory.getFOPs());
 		fopSelect.setItemLabelGenerator(FieldOfPlay::getName);
 		fopSelect.setWidth("10rem");
@@ -363,7 +363,7 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		this.juryRow.setMargin(false);
 		this.juryRow.getStyle().set("background-color", "red");
 
-		NativeLabel refLabel = new NativeLabel(getTranslation("Referee"));
+		NativeLabel refLabel = new NativeLabel(Translator.translate("Referee"));
 		var labelWrapper = new H2(refLabel);
 		labelWrapper.getStyle().set("margin-top", "0");
 		labelWrapper.getStyle().set("margin-bottom", "0");
@@ -373,7 +373,7 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		this.refField.setMax(3);
 		this.refField.setMin(1);
 		this.refField.setValue(getRef13ix() == null ? null : getRef13ix().intValue());
-		this.refField.setPlaceholder(getTranslation("Number"));
+		this.refField.setPlaceholder(Translator.translate("Number"));
 		this.refField.setStepButtonsVisible(true);
 		this.refField.addValueChangeListener((e) -> {
 			setRef13ix(e.getValue());

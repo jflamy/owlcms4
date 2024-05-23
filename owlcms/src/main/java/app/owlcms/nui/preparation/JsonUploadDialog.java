@@ -44,7 +44,7 @@ public class JsonUploadDialog extends Dialog {
 		upload.setWidth("40em");
 		upload.setAcceptedFileTypes("application/json");
 
-		TextArea ta = new TextArea(getTranslation("Errors"));
+		TextArea ta = new TextArea(Translator.translate("Errors"));
 		ta.setHeight("20ex");
 		ta.setWidth("80em");
 		ta.setVisible(false);
@@ -71,7 +71,7 @@ public class JsonUploadDialog extends Dialog {
 			logger.error("rejected {}" + event.getErrorMessage());
 		});
 
-		H3 title = new H3(getTranslation("ExportDatabase.UploadJson"));
+		H3 title = new H3(Translator.translate("ExportDatabase.UploadJson"));
 		VerticalLayout vl = new VerticalLayout(title, label, upload, ta);
 		add(vl);
 	}

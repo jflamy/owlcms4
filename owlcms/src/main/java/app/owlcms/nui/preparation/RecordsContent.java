@@ -24,6 +24,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.records.RecordConfig;
 import app.owlcms.data.records.RecordRepository;
+import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
@@ -97,7 +98,7 @@ public class RecordsContent extends Composite<VerticalLayout>
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("Records.RecordsManagementTitle");
+		return Translator.translate("Records.RecordsManagementTitle");
 	}
 
 	@Override

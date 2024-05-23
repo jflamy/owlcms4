@@ -177,7 +177,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 				Map<String, Object> beans = new HashMap<>();
 				beans.put("groups", groups);
 
-				// logger.info(getTranslation("ReadingData_"));
+				// logger.info(Translator.translate("ReadingData_"));
 				XLSReadStatus status = reader.read(inputStream, beans);
 				this.logger.info("Read {} groups.", groups.size());
 				if (!dryRun) {

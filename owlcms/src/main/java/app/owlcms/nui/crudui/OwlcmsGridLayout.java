@@ -17,6 +17,7 @@ import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
+import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -71,9 +72,9 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
 		this.mainComponentLayout.setId("mainComponentLayout");
 		this.mainLayout.setId("mainLayout");
 
-		setWindowCaption(CrudOperation.ADD, getTranslation("Add_title", aClass.getSimpleName()));
-		setWindowCaption(CrudOperation.UPDATE, getTranslation("Update_title", aClass.getSimpleName()));
-		setWindowCaption(CrudOperation.DELETE, getTranslation("Delete_title", aClass.getSimpleName()));
+		setWindowCaption(CrudOperation.ADD, Translator.translate("Add_title", aClass.getSimpleName()));
+		setWindowCaption(CrudOperation.UPDATE, Translator.translate("Update_title", aClass.getSimpleName()));
+		setWindowCaption(CrudOperation.DELETE, Translator.translate("Delete_title", aClass.getSimpleName()));
 	}
 
 	public Component getFilterLayout() {
