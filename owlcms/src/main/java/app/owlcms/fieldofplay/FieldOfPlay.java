@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
+import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.SynchronousQueue;
@@ -224,6 +225,7 @@ public class FieldOfPlay implements IUnregister {
 	private FieldOfPlay existingFOP;
 	private Queue<FOPEvent.WeightChange> deferredWeightChanges = new LinkedList<>();
 	private Athlete nextAthlete;
+	private TimerTask decisionDisplayTimer;
 
 	public FieldOfPlay() {
 	}
@@ -914,8 +916,7 @@ public class FieldOfPlay implements IUnregister {
 					this.deferredWeightChanges.add((WeightChange) e);
 				} else if (e instanceof TimeStarted) {
 					// needed if decision has been given too early (e.g. bar did not reach the knees but reds given)
-					setState(TIME_RUNNING);
-					getAthleteTimer().start();
+					restartTimer(e);
 				} else {
 					unexpectedEventInState(e, DOWN_SIGNAL_VISIBLE);
 				}
@@ -956,15 +957,29 @@ public class FieldOfPlay implements IUnregister {
 						transitionToBreak((FOPEvent.BreakStarted) this.deferredBreak);
 						this.deferredBreak = null;
 					}
-				} else if (e instanceof TimeStarted) {
-					// needed if decision has been given too early (e.g. bar did not reach the knees but reds given)
-					setState(TIME_RUNNING);
-					getAthleteTimer().start();
-				} else {
+				}
+				// When the decision is visible, the time has already been set to next athlete.
+				// the timekeeper should have restarted the time during the 3 seconds.
+//				else if (e instanceof TimeStarted) {
+//					// needed if decision has been given too early (e.g. bar did not reach the knees but reds given)
+//					resetDecisions();
+//					setState(TIME_RUNNING);
+//					getAthleteTimer().start();
+//				} 
+				else {
 					unexpectedEventInState(e, DECISION_VISIBLE);
 				}
 				break;
 		}
+	}
+
+	private void restartTimer(FOPEvent e) {
+		cancelWakeUpRef();
+		decisionDisplayTimer.cancel();
+		resetDecisions();
+		pushOutUIEvent(new UIEvent.DecisionReset(getCurAthlete(), this));
+		transitionToLifting(e, group, announcerDecisionImmediate);
+		fopEventPost(new FOPEvent.TimeStarted(this));
 	}
 
 	public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer, boolean alreadyLoaded) {
@@ -2515,7 +2530,7 @@ public class FieldOfPlay implements IUnregister {
 		// reversalDelay);
 		assert !isDecisionDisplayScheduled(); // caller checks.
 		setDecisionDisplayScheduled(true); // so there are never two scheduled...
-		new DelayTimer(isTestingMode()).schedule(() -> showDecisionNow(origin2), reversalDelay);
+		decisionDisplayTimer = new DelayTimer(isTestingMode()).schedule(() -> showDecisionNow(origin2), reversalDelay);
 	}
 
 	/**
