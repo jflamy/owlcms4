@@ -109,7 +109,11 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 				String decoded = URLDecoder.decode(groupNames.get(0), StandardCharsets.UTF_8);
 				// logger.trace("URL group = {} decoded = {}",groupNames.get(0), decoded);
 				group = GroupRepository.findByName(decoded);
-				fop.loadGroup(group, this, true);
+				Group fopGroup = fop.getGroup();
+				boolean sameGroup = fopGroup != null && fopGroup.getName().equals(decoded);
+				if (!sameGroup) {
+					fop.loadGroup(group, this, true);
+				}
 			} else {
 				group = (fop != null ? fop.getGroup() : null);
 			}

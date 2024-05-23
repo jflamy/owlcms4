@@ -1337,8 +1337,7 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
-		// logger.debug("{} updateTopBar {}\\n{}", this.getClass().getSimpleName(),
-		// athlete/*,LoggerUtils. stackTrace()*/);
+		logger.warn("updateTopBar {} {}",athlete.getShortName(),timeAllowed);
 		if (this.title == null) {
 			return;
 		}
@@ -1423,7 +1422,6 @@ public abstract class AthleteGridContent extends BaseContent
 	protected void hideLiveDecisions() {
 		getTopBarLeft().removeAll();
 		fillTopBarLeft();
-		this.setDecisionLights(null);
 	}
 
 	/**
@@ -1544,7 +1542,7 @@ public abstract class AthleteGridContent extends BaseContent
 					this.breakButton.setEnabled(true);
 				}
 				Athlete curAthlete = fop.getCurAthlete();
-				int timeRemaining = fop.getAthleteTimer().getTimeRemaining();
+				int timeRemaining = fop.getAthleteTimer().liveTimeRemaining();
 				doUpdateTopBar(curAthlete, timeRemaining);
 			}
 		});

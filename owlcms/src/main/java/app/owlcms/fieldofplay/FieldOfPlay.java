@@ -847,9 +847,8 @@ public class FieldOfPlay implements IUnregister {
 				} else if (e instanceof ForceTime) {
 					doForceTime((ForceTime) e);
 				} else if (e instanceof TimeStarted) {
-					// do nothing
-					this.logger.debug("{}ignoring start clock when clock is running.",
-					        FieldOfPlay.getLoggingName(this));
+					// something is stuck
+					getAthleteTimer().start();
 					return;
 				} else {
 					unexpectedEventInState(e, TIME_RUNNING);
@@ -2316,7 +2315,7 @@ public class FieldOfPlay implements IUnregister {
 	 * Reset decisions. Invoked when a fresh clock is given.
 	 */
 	private void resetDecisions() {
-		this.logger.debug("{}**** resetting all decisions on new clock", FieldOfPlay.getLoggingName(this));
+		this.logger.debug("{}**** resetting all decisions on new clock {}", FieldOfPlay.getLoggingName(this),LoggerUtils.stackTrace());
 		setRefereeDecision(new Boolean[3]);
 		resetJuryDecisions();
 		setRefereeTime(new Long[3]);

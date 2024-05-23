@@ -308,6 +308,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			n.setPosition(Position.TOP_START);
 			n.setDuration(5000);
 			n.open();
+			
+			setDecisionLights(null);
 		});
 	}
 
