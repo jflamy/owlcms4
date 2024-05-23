@@ -398,10 +398,8 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 
 	private void processException(RAthlete a, String s, Cell c, Exception e, Consumer<String> errorConsumer) {
 		errorConsumer.accept(c.getAddress() + " " + e.getLocalizedMessage() + System.lineSeparator());
-		// logger.error("{} {}", c.getAddress(), e.toString());
-		// if (e instanceof InvocationTargetException) {
-		LoggerUtils.logError(this.logger, e, true);
-		// }
+		logger.error("{} {} {}", c.getAddress(), s, e.getMessage());
+		//LoggerUtils.logError(this.logger, e, true);
 	}
 
 	private AthleteInput readAthletes(Workbook workbook, RCompetition rComp, Consumer<String> errorConsumer) {

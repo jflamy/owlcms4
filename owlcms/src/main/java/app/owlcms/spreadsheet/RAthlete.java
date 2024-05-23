@@ -400,7 +400,8 @@ public class RAthlete {
 					teamMember = false;
 				}
 				Category c2;
-				if ((c2 = RCompetition.getActiveCategories().get(eligibleName.trim())) != null) {
+				String catCode = Category.codeFromName(eligibleName.trim());
+				if ((c2 = RCompetition.getActiveCategories().get(catCode)) != null) {
 					addIfEligible(eligibleCategories, teams, athleteQTotal, athleteAge, teamMember, c2);
 				} else {
 					throw new Exception(

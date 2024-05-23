@@ -54,6 +54,7 @@ public class RCompetition {
 	public static void resetActiveGroups() {
 		activeGroups.clear();
 		GroupRepository.findAll().forEach(g -> {
+			logger.warn("adding group {}",g.getName());
 			activeGroups.put(g.getName(), g);
 		});
 	}
@@ -67,7 +68,7 @@ public class RCompetition {
 	}
 
 	Competition c = new Competition();
-	Logger logger = (Logger) LoggerFactory.getLogger(RCompetition.class);
+	static Logger logger = (Logger) LoggerFactory.getLogger(RCompetition.class);
 
 	public void addGroup(Group g) {
 		activeGroups.put(g.getName(), g);
