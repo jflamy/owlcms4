@@ -79,6 +79,7 @@ import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IBreakTimer;
+import app.owlcms.fieldofplay.IProxyTimer;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
@@ -1049,21 +1050,13 @@ public abstract class AthleteGridContent extends BaseContent
 	protected void createStartTimeButton() {
 		this.startTimeButton = new Button(new Icon(VaadinIcon.PLAY));
 		this.startTimeButton.addClickListener(e -> doStartTime());
-		if (getFop() != null && getFop().getAthleteTimer().isRunning()) {
-			this.startTimeButton.getElement().setAttribute("theme", "secondary icon");
-		} else {
-			this.startTimeButton.getElement().setAttribute("theme", "primary success icon");
-		}
+		this.startTimeButton.getElement().setAttribute("theme", "primary success icon");
 	}
 
 	protected void createStopTimeButton() {
 		this.stopTimeButton = new Button(new Icon(VaadinIcon.PAUSE));
 		this.stopTimeButton.addClickListener(e -> doStopTime());
-		if (getFop() != null && getFop().getAthleteTimer().isRunning()) {
-			this.stopTimeButton.getElement().setAttribute("theme", "primary error icon");
-		} else {
-			this.stopTimeButton.getElement().setAttribute("theme", "secondary icon");
-		}
+		this.stopTimeButton.getElement().setAttribute("theme", "secondary icon");
 	}
 
 	protected FlexLayout createTopBar() {
@@ -1386,6 +1379,12 @@ public abstract class AthleteGridContent extends BaseContent
 						this.weight.setText(
 						        (nextAttemptRequestedWeight != null ? nextAttemptRequestedWeight.toString() : "\u2013")
 						                + Translator.translate("KgSymbol"));
+						IProxyTimer athleteTimer = fop.getAthleteTimer();
+						if (athleteTimer != null && athleteTimer.isRunning()) {
+							buttonsTimeStarted();
+						} else {
+							buttonsTimeStopped();
+						}
 					}
 				} else {
 					topBarWarning(group, attemptsDone, fop.getState(), fop.getLiftingOrder());
