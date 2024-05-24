@@ -1049,13 +1049,21 @@ public abstract class AthleteGridContent extends BaseContent
 	protected void createStartTimeButton() {
 		this.startTimeButton = new Button(new Icon(VaadinIcon.PLAY));
 		this.startTimeButton.addClickListener(e -> doStartTime());
-		this.startTimeButton.getElement().setAttribute("theme", "primary success icon");
+		if (getFop() != null && getFop().getAthleteTimer().isRunning()) {
+			this.startTimeButton.getElement().setAttribute("theme", "secondary icon");
+		} else {
+			this.startTimeButton.getElement().setAttribute("theme", "primary success icon");
+		}
 	}
 
 	protected void createStopTimeButton() {
 		this.stopTimeButton = new Button(new Icon(VaadinIcon.PAUSE));
 		this.stopTimeButton.addClickListener(e -> doStopTime());
-		this.stopTimeButton.getElement().setAttribute("theme", "secondary icon");
+		if (getFop() != null && getFop().getAthleteTimer().isRunning()) {
+			this.stopTimeButton.getElement().setAttribute("theme", "primary error icon");
+		} else {
+			this.stopTimeButton.getElement().setAttribute("theme", "secondary icon");
+		}
 	}
 
 	protected FlexLayout createTopBar() {
@@ -1337,7 +1345,6 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
-		logger.warn("updateTopBar {} {}",athlete.getShortName(),timeAllowed);
 		if (this.title == null) {
 			return;
 		}
@@ -1702,7 +1709,6 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	protected void setDecisionLights(HorizontalLayout decisionLights) {
-		logger.warn("setting decisionLights {} {}",decisionLights, LoggerUtils.whereFrom());
 		this.decisionLights = decisionLights;
 	}
 

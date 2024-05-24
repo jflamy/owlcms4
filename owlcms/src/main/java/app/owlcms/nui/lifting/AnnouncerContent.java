@@ -315,7 +315,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 	@Subscribe
 	public void slaveStartTime(UIEvent.StartTime e) {
-		logger.warn("slaveStartTime");
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			buttonsTimeStarted();
 			displayLiveDecisions();
