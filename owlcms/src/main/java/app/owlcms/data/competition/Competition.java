@@ -286,7 +286,8 @@ public class Competition {
 	 */
 	public TreeMap<String, TreeSet<Athlete>> computeMedals(Group g) {
 		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g, false);
-		//logger.debug("*** ranked athletes for group {} {}",g,rankedAthletes.stream().map(a->a.getLastName()).toList());
+		// logger.debug("*** ranked athletes for group {}
+		// {}",g,rankedAthletes.stream().map(a->a.getLastName()).toList());
 		return computeMedals(g, rankedAthletes);
 	}
 
@@ -299,7 +300,7 @@ public class Competition {
 	public TreeMap<String, TreeSet<Athlete>> computeMedals(Group g, List<Athlete> rankedAthletes
 	// , boolean onlyFinished
 	) {
- //FIXME: should be able to compute medals for all sessions by iterating
+		// FIXME: should be able to compute medals for all sessions by iterating
 		if (g == null) {
 			return new TreeMap<>();
 		}
@@ -407,7 +408,9 @@ public class Competition {
 		return this.reportingBeans;
 	}
 
-	public void doGlobalRankings(List<Athlete> athletes) {
+	public void doGlobalRankings(List<Athlete> athletes, Boolean scoringSystemOnly) {
+
+		long beforeDedup = System.currentTimeMillis();
 		TreeSet<Athlete> noDup = new TreeSet<>(Comparator.comparing(Athlete::getFullId));
 		for (Athlete pAthlete : athletes) {
 			Athlete athlete;
@@ -419,12 +422,24 @@ public class Competition {
 			}
 		}
 		ArrayList<Athlete> nodupAthletes = new ArrayList<>(noDup);
+		long afterDedup = System.currentTimeMillis();
+		logger.warn("------------------------- dedup {}ms", afterDedup - beforeDedup);
 
-		doReporting(nodupAthletes, Ranking.BW_SINCLAIR, true);
-		doReporting(nodupAthletes, Ranking.SMM, true);
-		doReporting(nodupAthletes, Ranking.QPOINTS, true);
-		doReporting(nodupAthletes, Ranking.CAT_SINCLAIR, false);
-		doReporting(nodupAthletes, Ranking.GAMX, true);
+		if (scoringSystemOnly) {
+			long beforeReporting = System.currentTimeMillis();
+			doReporting(nodupAthletes, getScoringSystem(), true);
+			long afterReporting = System.currentTimeMillis();
+			logger.warn("------------------------- scoringSystem reporting {}ms", afterReporting - beforeReporting);
+		} else {
+			long beforeReporting = System.currentTimeMillis();
+			doReporting(nodupAthletes, Ranking.BW_SINCLAIR, true);
+			doReporting(nodupAthletes, Ranking.SMM, true);
+			doReporting(nodupAthletes, Ranking.QPOINTS, true);
+			doReporting(nodupAthletes, Ranking.CAT_SINCLAIR, true);
+			doReporting(nodupAthletes, Ranking.GAMX, true);
+			long afterReporting = System.currentTimeMillis();
+			logger.warn("------------------------- full reporting {}ms", afterReporting - beforeReporting);
+		}
 	}
 
 	@Override
@@ -787,7 +802,7 @@ public class Competition {
 			medals = computeMedals(g);
 		}
 		final TreeMap<String, TreeSet<Athlete>> m = new TreeMap<>(medals);
-		logger./**/warn("medals keyset {}",medals.keySet());
+		logger./**/warn("medals keyset {}", medals.keySet());
 		if (onlyFinished) {
 			List<String> toRemove = medals.keySet().stream()
 			        .filter(k -> {
@@ -804,7 +819,7 @@ public class Competition {
 				        return anyMatch;
 			        })
 			        .collect(Collectors.toList());
-			logger.info("notFinished {}",toRemove);
+			logger.info("notFinished {}", toRemove);
 			for (String notFinished : toRemove) {
 				m.remove(notFinished);
 			}
@@ -895,14 +910,17 @@ public class Competition {
 		return this.womensBestN;
 	}
 
-	public void globalRankings() {
-		List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, true);
-		doGlobalRankings(athletes);
-	}
+	// public void globalRankings() {
+	// List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, true);
+	// doGlobalRankings(athletes);
+	// }
 
 	public void globalRankings(EntityManager em) {
+		long beforeFindAll = System.currentTimeMillis();
 		List<Athlete> athletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, null, true, null);
-		doGlobalRankings(athletes);
+		long afterFindAll = System.currentTimeMillis();
+		logger.warn("------------------------- doFindAllByGroupAndWeighIn {}ms", afterFindAll - beforeFindAll);
+		doGlobalRankings(athletes, true);
 	}
 
 	@Override
@@ -1436,7 +1454,7 @@ public class Competition {
 				}
 			}
 
-			doGlobalRankings(athletes);
+			doGlobalRankings(athletes, false);
 			// globalRankings();
 		}, Thread.MIN_PRIORITY);
 	}

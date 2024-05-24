@@ -2227,14 +2227,20 @@ public class FieldOfPlay implements IUnregister {
 			});
 		} else {
 			athletes = JPAService.runInTransaction(em -> {
+				long beforeFetch = System.currentTimeMillis();
 				List<Athlete> l = AthleteRepository.findAthletesForGlobalRanking(em, g);
+				long afterFetch = System.currentTimeMillis();
+				logger.warn("-------------------- findAthletesForGlobalRanking {}ms",afterFetch-beforeFetch);
 				List<Athlete> nl = new LinkedList<>();
+				long beforeRanks = System.currentTimeMillis();
 				try {
 					Competition.getCurrent().globalRankings(em);
 				} catch (Exception e) {
 					this.logger.error("{} global ranking exception {}\n ", FieldOfPlay.getLoggingName(this), e,
 					        LoggerUtils.stackTrace(e));
 				}
+				long afterRanks = System.currentTimeMillis();
+				logger.warn("-------------------- globalRankings {}ms",afterRanks-beforeRanks);
 				for (Athlete a : l) {
 					nl.add(em.merge(a));
 				}
@@ -2283,8 +2289,8 @@ public class FieldOfPlay implements IUnregister {
 			endLeaders = System.nanoTime();
 		}
 
-		if (this.timingLogger.isDebugEnabled()) {
-			this.timingLogger.debug("{}*** {} total={}ms, fetch/assign={}ms medals={}ms liftingOrder={}ms leaders={}ms",
+		//if (this.timingLogger.isDebugEnabled()) {
+			this.timingLogger.warn("{}*** {} total={}ms, fetch/assign={}ms medals={}ms liftingOrder={}ms leaders={}ms",
 			        FieldOfPlay.getLoggingName(this),
 			        recomputeRanks ? "recomputeOrderAndRanks" : "recompute order",
 			        (endLeaders - startAssignRanks) / 1000000.0,
@@ -2292,7 +2298,7 @@ public class FieldOfPlay implements IUnregister {
 			        (endMedals - endAssignRanks) / 1000000.0,
 			        (endDisplayOrder - endMedals) / 1000000.0,
 			        (endLeaders - endDisplayOrder) / 1000000.0);
-		}
+		//}
 
 	}
 
@@ -2315,7 +2321,7 @@ public class FieldOfPlay implements IUnregister {
 	 * Reset decisions. Invoked when a fresh clock is given.
 	 */
 	private void resetDecisions() {
-		this.logger.debug("{}**** resetting all decisions on new clock {}", FieldOfPlay.getLoggingName(this),LoggerUtils.stackTrace());
+		this.logger.debug("{}**** resetting all decisions on new clock", FieldOfPlay.getLoggingName(this));
 		setRefereeDecision(new Boolean[3]);
 		resetJuryDecisions();
 		setRefereeTime(new Long[3]);
