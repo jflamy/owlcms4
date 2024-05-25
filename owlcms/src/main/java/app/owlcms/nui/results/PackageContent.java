@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,6 +27,7 @@ import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.Icon;
@@ -98,6 +100,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	private AgeGroup ageGroup;
 	private Category category;
 	private Gender gender;
+	private Checkbox includeUnfinishedCategories;
 
 	/**
 	 * Instantiates a new announcer content. Does nothing. Content is created in
@@ -157,14 +160,23 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	public Collection<Athlete> findAll() {
 		Competition competition = Competition.getCurrent();
 		HashMap<String, Object> beans = competition.computeReportingInfo(this.ageGroupPrefix, this.championship);
+
 		
 		String key = "mwTot";
 		@SuppressWarnings("unchecked")
 		List<Athlete> ranked = (List<Athlete>) beans.get(key);
+		boolean allCategories = Boolean.TRUE.equals(this.includeUnfinishedCategories.getValue());
+		Set<String> unfinishedCategories = null;
+		if (!allCategories) {
+			unfinishedCategories = AthleteRepository.unfinishedCategories(ranked);
+			logger.debug("unfinished categories {}", unfinishedCategories);
+		}
 		
 		if (ranked == null || ranked.isEmpty()) {
 			return new ArrayList<>();
 		}
+		
+		final var notDone = unfinishedCategories;
 		Category catFilterValue = getCategoryValue();
 		Stream<Athlete> stream = ranked.stream()
 		        .filter(a -> {
@@ -173,16 +185,17 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        boolean catOk = (catFilterValue == null
 			                || catFilterValue.toString().equals(a.getCategory().toString()))
 			                && (genderFilterValue == null || genderFilterValue == athleteGender)
-			                //&& (doneCategories.contains(a.getCategory().toString()))
+			                && (allCategories || !notDone.contains(a.getCategory().toString()))
 			                ;
-			        // logger.debug("filter {} : {} {} {} | {} {}", catOk, catFilterValue,
-			        // a.getCategory(),
-			        // genderFilterValue, athleteGender);
 			        return catOk;
 		        });
 		List<Athlete> found = stream.collect(Collectors.toList());
 		updateURLLocations();
 		return found;
+	}
+
+	private boolean getFinishedCategoriesFilterValue() {
+		return true;
 	}
 
 	@Override
@@ -451,10 +464,14 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	@Override
 	protected void defineFilters(GridCrud<Athlete> crud) {
 		defineFilterCascade(crud);
+		includeUnfinishedCategories = new Checkbox(Translator.translate("Video.includeNotCompleted"));
+		getCrudLayout(crud).addFilterComponent(includeUnfinishedCategories);
 		defineSelectionListeners();
+		this.includeUnfinishedCategories.addValueChangeListener(e -> crud.refreshGrid());
 		Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
 		clearFilters.addClickListener(event -> {
 			clearFilters();
+			this.includeUnfinishedCategories.setValue(false);
 		});
 		
 		getCrudLayout(crud).addFilterComponent(clearFilters);
@@ -524,9 +541,9 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        rs.setSortedAthletes((List<Athlete>) findAll());
 			        return rs;
 		        },
-		        "/templates/protocol",
-		        Competition::getComputedProtocolTemplateFileName,
-		        Competition::setProtocolTemplateFileName,
+		        "/templates/competitionResults",
+		        Competition::getComputedResultsTemplateFileName,
+		        Competition::setResultsTemplateFileName,
 		        Translator.translate("EligibilityCategoryResults"),
 		        Translator.translate("Download"));
 		Button resultsButton = this.downloadDialog.createDownloadButton();
@@ -567,7 +584,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        rs.setSortedAthletes((List<Athlete>) findAll());
 			        return rs;
 		        },
-		        "/templates/protocol",
+		        "/templates/competitionResults",
 		        Competition::getComputedProtocolTemplateFileName,
 		        Competition::setProtocolTemplateFileName,
 		        Translator.translate("RegistrationCategoryResults"),

@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
@@ -59,7 +58,6 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 			// we are provided with an externally computed list.
 			if (this.resultsByCategory) {
 				// no need to unwrap, each athlete is a wrapper PAthlete with a participation category.
-				this.sortedAthletes = new ArrayList<>(AthleteRepository.keepOnlyFinishedCategoryAthletes(this.sortedAthletes));
 				AthleteSorter.resultsOrder(this.sortedAthletes, Ranking.TOTAL, true);
 				return this.sortedAthletes;
 			} else {
@@ -67,7 +65,6 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 				// sometimes we are given the actual original athletes, so we are careful.
 				List<Athlete> unwrappedAthletes = unwrapAthletesAsNeeded(this.sortedAthletes);
 				Set<Athlete> noDuplicates = new HashSet<>(unwrappedAthletes);
-				noDuplicates = AthleteRepository.keepOnlyFinishedCategoryAthletes(noDuplicates);
 				this.sortedAthletes = new ArrayList<>(noDuplicates);
 				AthleteSorter.resultsOrder(this.sortedAthletes, Ranking.TOTAL, true);
 				return this.sortedAthletes;

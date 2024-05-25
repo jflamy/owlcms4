@@ -505,8 +505,8 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 			        return rs;
 		        },
 		        "/templates/protocol",
-		        Competition::getComputedProtocolTemplateFileName,
-		        Competition::setProtocolTemplateFileName,
+		        Competition::getComputedResultsTemplateFileName,
+		        Competition::setResultsTemplateFileName,
 		        Translator.translate("EligibilityCategoryResults"),
 		        Translator.translate("Download"));
 		Button resultsButton = this.downloadDialog.createDownloadButton();

@@ -60,6 +60,7 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.utils.DateTimeUtils;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -197,6 +198,7 @@ public class Competition {
 	@Column(columnDefinition = "integer default 2")
 	private Integer maxPerCategory = 2;
 	private String protocolTemplateFileName;
+	private String resultsTemplateFileName;
 	@Transient
 	@JsonIgnore
 	private boolean rankingsInvalid = true;
@@ -423,7 +425,7 @@ public class Competition {
 		}
 		ArrayList<Athlete> nodupAthletes = new ArrayList<>(noDup);
 		long afterDedup = System.currentTimeMillis();
-		logger.warn("------------------------- dedup {}ms", afterDedup - beforeDedup);
+		logger.warn("------------------------- dedup {}ms {}", afterDedup - beforeDedup, LoggerUtils.stackTrace());
 
 		if (scoringSystemOnly) {
 			long beforeReporting = System.currentTimeMillis();
@@ -609,6 +611,23 @@ public class Competition {
 			return getProtocolTemplateFileName();
 		}
 	}
+	
+	/**
+	 * Gets the protocol file name.
+	 *
+	 * @return the protocol file name
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	@Transient
+	@JsonIgnore
+	public String getComputedResultsTemplateFileName() {
+		if (getProtocolTemplateFileName() == null) {
+			return "Results-A4.xls";
+		} else {
+			return getResultsTemplateFileName();
+		}
+	}
+
 
 	@Transient
 	@JsonIgnore
@@ -1762,6 +1781,14 @@ public class Competition {
 		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.SMM);
 
 		reportSMF(sortedMen, sortedWomen);
+	}
+
+	public String getResultsTemplateFileName() {
+		return resultsTemplateFileName;
+	}
+
+	public void setResultsTemplateFileName(String resultsTemplateFileName) {
+		this.resultsTemplateFileName = resultsTemplateFileName;
 	}
 
 }

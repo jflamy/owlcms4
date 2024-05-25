@@ -478,9 +478,9 @@ public class AthleteRepository {
 		return finishedCategoryAthletes;
 	}
 	
-	public static Set<String> finishedCategories(Set<Athlete> athletes) {
+	public static Set<String> unfinishedCategories(List<Athlete> ranked) {
 		Set<String> unfinishedCategories = new HashSet<>();
-		for (Athlete a : athletes) {
+		for (Athlete a : ranked) {
 			if (a.getSnatch3AsInteger() == null || a.getCleanJerk3AsInteger() == null) {
 				unfinishedCategories.add(a.getCategoryCode());
 			}
