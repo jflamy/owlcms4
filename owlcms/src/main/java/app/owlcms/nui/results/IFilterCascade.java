@@ -201,17 +201,19 @@ public interface IFilterCascade {
 			}
 
 			this.setChampionshipAgeGroupPrefixes(AgeGroupRepository.findActiveAndUsedAgeGroupNames(championshipValue));
-			this.getAgeGroupFilter().setItems(this.getChampionshipAgeGroupPrefixes());
-			boolean notEmpty = this.getChampionshipAgeGroupPrefixes().size() > 0;
+			List<String> championshipAgeGroupPrefixes = this.getChampionshipAgeGroupPrefixes();
+			this.getAgeGroupFilter().setItems(championshipAgeGroupPrefixes);
+			
+			boolean notEmpty = championshipAgeGroupPrefixes.size() > 0;
 			//this.getAgeGroupFilter().setEnabled(notEmpty);
-			this.getAgeGroupFilter().setVisible(this.getChampionshipAgeGroupPrefixes().size() > 1);
+			this.getAgeGroupFilter().setVisible(championshipAgeGroupPrefixes.size() > 1);
 			String first = (notEmpty && championshipValue == Championship.of(Championship.IWF))
-			        || (this.getChampionshipAgeGroupPrefixes().size() == 1)
-			                ? this.getChampionshipAgeGroupPrefixes().get(0)
+			        || (championshipAgeGroupPrefixes.size() == 1)
+			                ? championshipAgeGroupPrefixes.get(0)
 			                : null;
 
 			String ageGroupPrefix2 = getAgeGroupPrefix();
-			if (this.getChampionshipAgeGroupPrefixes().contains(ageGroupPrefix2)) {
+			if (championshipAgeGroupPrefixes.contains(ageGroupPrefix2)) {
 				// prefix is valid
 				this.getAgeGroupFilter().setValue(ageGroupPrefix2);
 			} else {

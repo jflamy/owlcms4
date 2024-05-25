@@ -285,7 +285,7 @@ public class Competition {
 	 * @return for each category represented in group g where all athletes have lifted, the medals
 	 */
 	public TreeMap<String, TreeSet<Athlete>> computeMedals(Group g) {
-		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g, false);
+		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g, true);
 		// logger.debug("*** ranked athletes for group {}
 		// {}",g,rankedAthletes.stream().map(a->a.getLastName()).toList());
 		return computeMedals(g, rankedAthletes);
@@ -309,9 +309,9 @@ public class Competition {
 			this.medalsByGroup = new HashMap<>();
 		}
 		if (rankedAthletes == null || rankedAthletes.size() == 0) {
-			TreeMap<String, TreeSet<Athlete>> treeMap = new TreeMap<>();
-			this.medalsByGroup.put(g, treeMap);
-			return treeMap;
+			TreeMap<String, TreeSet<Athlete>> medalsPerCategory = new TreeMap<>();
+			this.medalsByGroup.put(g, medalsPerCategory);
+			return medalsPerCategory;
 		}
 
 		TreeMap<String, TreeSet<Athlete>> medals = computeMedalsByCategory(rankedAthletes);
@@ -798,11 +798,12 @@ public class Competition {
 
 	public TreeMap<String, TreeSet<Athlete>> getMedals(Group g, boolean onlyFinished) {
 		TreeMap<String, TreeSet<Athlete>> medals;
-		if (this.medalsByGroup == null || (medals = this.medalsByGroup.get(g)) == null) {
+		if (this.medalsByGroup == null || (medals = this.medalsByGroup.get(g)) == null || g == null) {
+			logger.warn("computing medals {}",g);
 			medals = computeMedals(g);
 		}
 		final TreeMap<String, TreeSet<Athlete>> m = new TreeMap<>(medals);
-		logger./**/warn("medals keyset {}", medals.keySet());
+		logger./**/warn("medals categories keyset {}", medals.keySet());
 		if (onlyFinished) {
 			List<String> toRemove = medals.keySet().stream()
 			        .filter(k -> {

@@ -6,8 +6,11 @@
  *******************************************************************************/
 package app.owlcms.data.athlete;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -456,5 +459,32 @@ public class AthleteRepository {
 		if (team != null) {
 			query.setParameter("team", team);
 		}
+	}
+
+	public static Set<Athlete> keepOnlyFinishedCategoryAthletes(Collection<Athlete> athletes) {
+		Set<String> unfinishedCategories = new HashSet<>();
+		Set<Athlete> finishedCategoryAthletes = new HashSet<>();
+		for (Athlete a : athletes) {
+			if (a.getSnatch3AsInteger() == null || a.getCleanJerk3AsInteger() == null) {
+				unfinishedCategories.add(a.getCategoryCode());
+			}
+		}
+		logger.warn("unfinishedCategories {}",unfinishedCategories);
+		for (Athlete a : athletes) {
+			if (!unfinishedCategories.contains(a.getCategory().getCode())) {
+				finishedCategoryAthletes.add(a);
+			}
+		}
+		return finishedCategoryAthletes;
+	}
+	
+	public static Set<String> finishedCategories(Set<Athlete> athletes) {
+		Set<String> unfinishedCategories = new HashSet<>();
+		for (Athlete a : athletes) {
+			if (a.getSnatch3AsInteger() == null || a.getCleanJerk3AsInteger() == null) {
+				unfinishedCategories.add(a.getCategoryCode());
+			}
+		}
+		return unfinishedCategories;
 	}
 }

@@ -63,7 +63,7 @@ import app.owlcms.nui.shared.AthleteCrudGrid;
 import app.owlcms.nui.shared.AthleteGridContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCompetitionBook;
-import app.owlcms.spreadsheet.JXLSResultSheet;
+import app.owlcms.spreadsheet.JXLSWinningSheet;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -157,9 +157,11 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	public Collection<Athlete> findAll() {
 		Competition competition = Competition.getCurrent();
 		HashMap<String, Object> beans = competition.computeReportingInfo(this.ageGroupPrefix, this.championship);
+		
 		String key = "mwTot";
 		@SuppressWarnings("unchecked")
 		List<Athlete> ranked = (List<Athlete>) beans.get(key);
+		
 		if (ranked == null || ranked.isEmpty()) {
 			return new ArrayList<>();
 		}
@@ -170,7 +172,9 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        Gender athleteGender = a.getGender();
 			        boolean catOk = (catFilterValue == null
 			                || catFilterValue.toString().equals(a.getCategory().toString()))
-			                && (genderFilterValue == null || genderFilterValue == athleteGender);
+			                && (genderFilterValue == null || genderFilterValue == athleteGender)
+			                //&& (doneCategories.contains(a.getCategory().toString()))
+			                ;
 			        // logger.debug("filter {} : {} {} {} | {} {}", catOk, catFilterValue,
 			        // a.getCategory(),
 			        // genderFilterValue, athleteGender);
@@ -511,7 +515,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	private Button createCategoryResultsDownloadButton() {
 		this.downloadDialog = new JXLSDownloader(
 		        () -> {
-			        JXLSResultSheet rs = new JXLSResultSheet();
+			        JXLSWinningSheet rs = new JXLSWinningSheet();
 			        rs.setChampionship(this.championship);
 			        rs.setAgeGroupPrefix(this.ageGroupPrefix);
 			        rs.setCategory(getCategoryValue());
@@ -554,7 +558,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	private Button createRegistrationResultsDownloadButton() {
 		this.downloadDialog = new JXLSDownloader(
 		        () -> {
-			        JXLSResultSheet rs = new JXLSResultSheet(false);
+			        JXLSWinningSheet rs = new JXLSWinningSheet(false);
 			        rs.setChampionship(this.championship);
 			        rs.setAgeGroupPrefix(this.ageGroupPrefix);
 			        rs.setCategory(getCategoryValue());
