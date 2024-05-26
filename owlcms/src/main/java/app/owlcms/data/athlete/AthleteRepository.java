@@ -469,7 +469,7 @@ public class AthleteRepository {
 				unfinishedCategories.add(a.getCategoryCode());
 			}
 		}
-		logger.warn("unfinishedCategories {}",unfinishedCategories);
+		//logger.debug("unfinishedCategories {}",unfinishedCategories);
 		for (Athlete a : athletes) {
 			if (!unfinishedCategories.contains(a.getCategory().getCode())) {
 				finishedCategoryAthletes.add(a);

@@ -2289,8 +2289,8 @@ public class FieldOfPlay implements IUnregister {
 			endLeaders = System.nanoTime();
 		}
 
-		//if (this.timingLogger.isDebugEnabled()) {
-			this.timingLogger.warn("{}*** {} total={}ms, fetch/assign={}ms medals={}ms liftingOrder={}ms leaders={}ms",
+		if (this.timingLogger.isDebugEnabled()) {
+			this.timingLogger.debug("{}*** {} total={}ms, fetch/assign={}ms medals={}ms liftingOrder={}ms leaders={}ms",
 			        FieldOfPlay.getLoggingName(this),
 			        recomputeRanks ? "recomputeOrderAndRanks" : "recompute order",
 			        (endLeaders - startAssignRanks) / 1000000.0,
@@ -2298,7 +2298,7 @@ public class FieldOfPlay implements IUnregister {
 			        (endMedals - endAssignRanks) / 1000000.0,
 			        (endDisplayOrder - endMedals) / 1000000.0,
 			        (endLeaders - endDisplayOrder) / 1000000.0);
-		//}
+		}
 
 	}
 

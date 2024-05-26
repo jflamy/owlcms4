@@ -118,7 +118,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
                                     : false)
                             : true);
                     })
-                .peek(a -> logger.warn("   {}",a))
+                //.peek(a -> logger.debug("   {}",a))
                 .collect(Collectors.toList());
         return athletes;
         // @formatter:on

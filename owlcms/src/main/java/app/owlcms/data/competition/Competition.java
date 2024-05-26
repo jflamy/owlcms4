@@ -818,7 +818,6 @@ public class Competition {
 	public TreeMap<String, TreeSet<Athlete>> getMedals(Group g, boolean onlyFinished) {
 		TreeMap<String, TreeSet<Athlete>> medals;
 		if (this.medalsByGroup == null || (medals = this.medalsByGroup.get(g)) == null || g == null) {
-			logger.warn("computing medals {}",g);
 			medals = computeMedals(g);
 		}
 		final TreeMap<String, TreeSet<Athlete>> m = new TreeMap<>(medals);
