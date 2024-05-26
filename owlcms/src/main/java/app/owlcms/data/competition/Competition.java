@@ -425,7 +425,7 @@ public class Competition {
 		}
 		ArrayList<Athlete> nodupAthletes = new ArrayList<>(noDup);
 		long afterDedup = System.currentTimeMillis();
-		logger.warn("------------------------- dedup {}ms {}", afterDedup - beforeDedup, LoggerUtils.stackTrace());
+		logger.warn("------------------------- dedup {}ms {}", afterDedup - beforeDedup, LoggerUtils.whereFrom(5));
 
 		if (scoringSystemOnly) {
 			long beforeReporting = System.currentTimeMillis();

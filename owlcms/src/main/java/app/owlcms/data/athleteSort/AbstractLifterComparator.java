@@ -56,7 +56,33 @@ public class AbstractLifterComparator {
 	int compareAgeGroup(Athlete lifter1, Athlete lifter2) {
 		AgeGroup lifter1Value = lifter1.getAgeGroup();
 		AgeGroup lifter2Value = lifter2.getAgeGroup();
-		return ObjectUtils.compare(lifter1Value, lifter2Value, true);
+		
+		if (lifter1Value == null || lifter2Value == null) {
+			return ObjectUtils.compare(lifter1Value, lifter2Value, true);
+		}
+		
+		int compare;
+		compare = ObjectUtils.compare(lifter1Value.getGender(), lifter2Value.getGender(), true);
+		if (compare != 0) {
+			return compare;
+		}
+		
+//		// force U, JR, SR order
+//		if (lifter1Value.getCode().startsWith("U") && !lifter2Value.getCode().startsWith("U")) {
+//			return -1;
+//		} else if (!lifter1Value.getCode().startsWith("U") && lifter2Value.getCode().startsWith("U")) {
+//			return 1;
+//		} else if (lifter1Value.getCode().startsWith("JR") && !lifter2Value.getCode().startsWith("JR")) {
+//			return -1;
+//		} else if (!lifter1Value.getCode().startsWith("JR") && lifter2Value.getCode().startsWith("JR")) {
+//			return 1;
+//		} else if (lifter1Value.getCode().startsWith("SR") && !lifter2Value.getCode().startsWith("SR")) {
+//			return -1;
+//		} else if (!lifter1Value.getCode().startsWith("SR") && lifter2Value.getCode().startsWith("SR")) {
+//			return 1;
+//		} else {
+			return ObjectUtils.compare(lifter1Value.getMaxAge(), lifter2Value.getMaxAge(), true);
+//		}
 	}
 
 	/**
@@ -944,7 +970,7 @@ public class AbstractLifterComparator {
 		//if (logger.isTraceEnabled()) {
 			logger./**/warn("{} {}={} {} {}={} {}", where, o1.toString(), v1, (compare < 0 ? " < " : (compare == 0 ? "=" : " > ")),
 			        o2.toString(), v2,
-			        LoggerUtils.whereFrom());
+			        LoggerUtils.whereFrom(1));
 		//}
 	}
 	

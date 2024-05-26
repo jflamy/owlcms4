@@ -153,7 +153,8 @@ public class LoggerUtils {
      * @return the string
      */
     public static String whereFrom(int depth) {
-        String where = Thread.currentThread().getStackTrace()[3 + depth].toString();
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+		String where = stackTrace[3 + depth >= stackTrace.length ? 3 : 3 + depth].toString();
         int firstBracketIx = where.indexOf('(');
         return where.substring(firstBracketIx);
     }

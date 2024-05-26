@@ -103,9 +103,9 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 	public int compareCleanJerkResultOrder(Athlete lifter1, Athlete lifter2, boolean ignoreCategories) {
 		int compare = 0;
 
-		if (!ignoreCategories) {
+		if (!ignoreCategories) {	
 			compare = compareCategory(lifter1, lifter2);
-			traceComparison("compareCategory", lifter1, lifter2, compare);
+			traceComparison("compareCategory", lifter1.getShortName(), lifter1.getCategoryCode(), lifter1.getShortName(), lifter2.getCategoryCode(), compare);
 			if (compare != 0) {
 				return compare;
 			}
@@ -113,7 +113,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 
 		compare = compareBestCleanJerk(lifter1, lifter2);
 		if (compare != 0) {
-			traceComparison("compareBestCleanJerk", lifter1, lifter2, compare);
+			traceComparison("compareBestCleanJerk", lifter1.getShortName(), lifter1.getBestCleanJerk(), lifter1.getBestCleanJerk(), lifter2.getCategoryCode(), compare);
 			return -compare; // smaller is less good
 		}
 
@@ -295,7 +295,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 
 		if (!ignoreCategories) {
 			compare = compareCategory(lifter1, lifter2);
-			traceComparison("snatch category", lifter1, lifter2, compare);
+			traceComparison("snatch category", lifter1.getLastName(), lifter1.getCategoryCode(), lifter2.getLastName(), lifter1.getCategoryCode(), compare);
 			if (compare != 0) {
 				return compare;
 			}
@@ -368,6 +368,11 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		int compare = 0;
 
 		if (!ignoreCategories) {
+			compare = compareAgeGroup(lifter1, lifter2);
+			doTraceComparison("compareAgeGroup", lifter1.getShortName(), lifter1.getAgeGroupDisplayName(), lifter1.getShortName(), lifter2.getAgeGroupDisplayName(), compare);
+			if (compare != 0) {
+				return compare;
+			}
 			compare = compareCategory(lifter1, lifter2);
 			traceComparison("categories", lifter1, lifter2, compare);
 			if (compare != 0) {
