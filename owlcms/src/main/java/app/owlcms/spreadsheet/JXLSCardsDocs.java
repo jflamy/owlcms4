@@ -31,6 +31,11 @@ public class JXLSCardsDocs extends JXLSWorkbookStreamSource {
 	 */
 	@Override
 	protected void postProcess(Workbook workbook) {
+		if (this.getPageLength() != null) {
+			setPageBreaks(workbook, 1, this.getPageLength());
+			return;
+		}
+		
 		if (Competition.getCurrent().getComputedCardsTemplateFileName().contains("IWF-")) {
 			setPageBreaks(workbook, 1, 17);
 		} else if (Competition.getCurrent().getComputedCardsTemplateFileName().contains("SmallCards")) {

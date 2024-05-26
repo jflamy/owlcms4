@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
@@ -88,6 +90,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	private Consumer<String> doneCallback;
 	private String fileExtension;
 	private boolean emptyOk = false;
+	private Integer pageLength = null;
 
 	public JXLSWorkbookStreamSource() {
 		this.ui = UI.getCurrent();
@@ -369,7 +372,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		jxlsExportRecords.setGroup(getGroup());
 		logger.debug("fetching records for session {} category {}", getGroup(), getCategory());
 		try {
-			//jxlsExportRecords.getSortedAthletes();
+			// jxlsExportRecords.getSortedAthletes();
 			// Must be called after getSortedAthletes
 			List<RecordEvent> records = jxlsExportRecords.getRecords(getCategory());
 			logger.debug("{} records found", records.size());
@@ -379,16 +382,17 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		}
 
 		getReportingBeans().put("masters", Competition.getCurrent().isMasters());
-//		List<Group> sessions = GroupRepository.findAll().stream().sorted((a, b) -> {
-//			int compare = ObjectUtils.compare(a.getWeighInTime(), b.getWeighInTime(), true);
-//			if (compare != 0) {
-//				return compare;
-//			}
-//			return compare = ObjectUtils.compare(a.getPlatform(), b.getPlatform(), true);
-//		}).collect(Collectors.toList());
-		
-		List<Group> sessions = GroupRepository.findAll().stream().sorted(Group.groupWeighinTimeComparator).collect(Collectors.toList());
-		
+		// List<Group> sessions = GroupRepository.findAll().stream().sorted((a, b) -> {
+		// int compare = ObjectUtils.compare(a.getWeighInTime(), b.getWeighInTime(), true);
+		// if (compare != 0) {
+		// return compare;
+		// }
+		// return compare = ObjectUtils.compare(a.getPlatform(), b.getPlatform(), true);
+		// }).collect(Collectors.toList());
+
+		List<Group> sessions = GroupRepository.findAll().stream().sorted(Group.groupWeighinTimeComparator)
+		        .collect(Collectors.toList());
+
 		getReportingBeans().put("groups", sessions);
 		getReportingBeans().put("sessions", sessions);
 	}
@@ -428,7 +432,20 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			if (cell != null) {
 				Comment comment = cell.getCellComment();
 				jxls3 = (comment != null && comment.getString().getString().contains("jx:area"));
+				String plainComment = comment.getString().getString();
+				String regex = "lastCell=\"[A-Za-z](.*?)\"";
+				Pattern pattern = Pattern.compile(regex);
+				Matcher matcher = pattern.matcher(plainComment);
+				if (matcher.find()) {
+					String lastLine = matcher.group(1);
+					try {
+						this.setPageLength(Integer.parseInt(lastLine));
+					} catch (NumberFormatException e) {
+						LoggerUtils.logError(logger, e, true);
+					}
+				}
 			}
+
 		}
 		return jxls3;
 	}
@@ -492,11 +509,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 				tempFile = File.createTempFile("jxlsOutput", ".xlsx");
 				JxlsPoi.fill(new FileInputStream(templateFile), JxlsStreaming.STREAMING_OFF, reportingInfo, tempFile);
 				workbook = WorkbookFactory.create(tempFile);
-				logger.debug("after workbook3");
+				logger.debug("after workbook3 {}", workbook);
 				if (workbook != null) {
 					postProcess(workbook);
 				}
-				logger.debug("after postprocess3");
 			} else {
 				String noAthletes = Translator.translate("NoAthletes");
 				logger./**/warn("no athletes: empty report.");
@@ -530,6 +546,18 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			}
 			logger.debug("wrote stream3");
 		}
+	}
+
+	private void setPageLength(int int1) {
+		this.pageLength = int1;
+	}
+
+	public Integer getPageLength() {
+		return pageLength;
+	}
+
+	public void setPageLength(Integer pageLength) {
+		this.pageLength = pageLength;
 	}
 
 }
