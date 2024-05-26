@@ -376,6 +376,14 @@ public class Group implements Comparable<Group> {
 		        + this.reserve + ", id=" + this.id + "]";
 	}
 
+	@Transient
+	@JsonIgnore
+	public List<Athlete> getAlphaAthletes() {
+		List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(this, null);
+		athletes.sort((a, b) -> ObjectUtils.compare(a.getFullName(), b.getFullName()));
+		return athletes;
+	}
+
 	/**
 	 * Gets the announcer.
 	 *
@@ -390,21 +398,6 @@ public class Group implements Comparable<Group> {
 	public List<Athlete> getAthletes() {
 		return AthleteRepository.findAllByGroupAndWeighIn(this, null);
 	}
-	
-	public void setAthletes(List<Athlete> a) {
-	}
-
-	@Transient
-	@JsonIgnore
-	public List<Athlete> getAlphaAthletes() {
-		 List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(this, null);
-		 athletes.sort((a,b) -> ObjectUtils.compare(a.getFullName(), b.getFullName()));
-		 return athletes;
-	}
-	
-	public void setAlphaAthletes(List<Athlete> a) {
-	}
-
 
 	/**
 	 * Gets the competition short date time.
@@ -798,6 +791,9 @@ public class Group implements Comparable<Group> {
 		return this.done;
 	}
 
+	public void setAlphaAthletes(List<Athlete> a) {
+	}
+
 	/**
 	 * Sets the announcer.
 	 *
@@ -805,6 +801,9 @@ public class Group implements Comparable<Group> {
 	 */
 	public void setAnnouncer(String announcer) {
 		this.announcer = announcer;
+	}
+
+	public void setAthletes(List<Athlete> a) {
 	}
 
 	/**
