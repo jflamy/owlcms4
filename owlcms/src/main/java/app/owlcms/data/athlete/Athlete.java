@@ -1599,6 +1599,28 @@ public class Athlete {
 			return mainCategory + ";" + eligiblesAsString;
 		}
 	}
+	
+	@Transient
+	@JsonIgnore
+	public String getAgeGroupCodesAsString() {
+		Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
+		String mainCategory = mrCat != null ? mrCat.getAgeGroup().getCode() : "";
+
+		String delimiter = ", ";
+		String eligiblesAsString = this.getParticipations().stream()
+		        .filter(p -> (p.getCategory() != mrCat))
+		        .sorted((a, b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
+		        .map(p -> {
+			        String catName = p.getCategory().getAgeGroup().getCode();
+			        return catName;
+		        })
+		        .collect(Collectors.joining(delimiter));
+		if (eligiblesAsString.isBlank()) {
+			return mainCategory;
+		} else {
+			return (!mainCategory.isBlank() ? mainCategory +  delimiter : "") + eligiblesAsString;
+		}
+	}
 
 	public Integer getEntryTotal() {
 		// intentional, this is the legacy name of the column in the database
