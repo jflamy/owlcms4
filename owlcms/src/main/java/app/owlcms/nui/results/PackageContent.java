@@ -194,10 +194,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		return found;
 	}
 
-	private boolean getFinishedCategoriesFilterValue() {
-		return true;
-	}
-
 	@Override
 	public AgeGroup getAgeGroup() {
 		return this.ageGroup;

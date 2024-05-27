@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TreeMap;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -38,6 +39,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 
+import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AbstractLifterComparator;
@@ -247,6 +249,46 @@ public class Group implements Comparable<Group> {
 		this.setCompetitionTime(competition);
 	}
 
+	@Transient
+	@JsonIgnore
+	public List<AgeGroupInfo> getAgeGroupInfo(){
+		List<Athlete> athletes = this.getAthletes();
+		TreeMap<AgeGroup, AgeGroupInfo> ageGroupMap = new TreeMap<>();
+		for (Athlete a : athletes) {
+			AgeGroup ageGroup = a.getAgeGroup();
+			if (ageGroup == null) {
+				continue;
+			}
+			AgeGroupInfo agi = ageGroupMap.get(ageGroup);
+			if (agi == null) {
+				agi = new AgeGroupInfo();
+				agi.setNbAthletes(1);
+				agi.setAgeGroup(ageGroup);
+				agi.setSmallestWeightClass(a.getCategory().getMaximumWeight());
+				agi.setLargestWeightClass(a.getCategory().getMaximumWeight());
+				agi.setWeightClassRange(a.getCategory().getLimitString());
+				ageGroupMap.put(ageGroup, agi);
+			} else {
+				agi.setNbAthletes(agi.getNbAthletes()+1);
+				if (a.getCategory().getMinimumWeight() < agi.getSmallestWeightClass()) {
+					agi.setSmallestWeightClass(a.getCategory().getMaximumWeight());
+				}
+				if (a.getCategory().getMaximumWeight() > agi.getLargestWeightClass()) {
+					agi.setLargestWeightClass(a.getCategory().getMaximumWeight());
+					agi.setLargestWeightClassLimitString(a.getCategory().getLimitString());
+				}
+				if (Math.abs(agi.getLargestWeightClass() - agi.getSmallestWeightClass()) < 0.1) {
+					// same
+					agi.setWeightClassRange(a.getCategory().getLimitString());
+				} else {
+					agi.setWeightClassRange((int)Math.round(agi.getSmallestWeightClass())+"-"+agi.getLargestWeightClassLimitString());
+				}
+
+			}
+		}
+		return ageGroupMap.values().stream().toList();
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 *
