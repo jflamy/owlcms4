@@ -752,6 +752,16 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
+	public String getAgeGroupsAsString() {
+		return this.getEligibleCategories().stream()
+			.map(category -> {
+				return category.getAgeGroup().getCode();
+			})
+			.collect(Collectors.joining(", "));
+	}
+
+	@Transient
+	@JsonIgnore
 	public Set<String> getAgeGroupTeams() {
 		// we use strings because I can't figure out why AgeGroups don't behave properly
 		// in a checkbox group
@@ -949,7 +959,7 @@ public class Athlete {
 		}
 		return 0; // no match - bomb-out.
 	}
-	
+
 	/**
 	 * Gets the best snatch attempt number.
 	 *
@@ -973,7 +983,7 @@ public class Athlete {
 		// should not be required - bomb-out.
 		return LocalDateTime.MIN;
 	}
-	
+
 	/**
 	 * Gets the best snatch attempt number.
 	 *
@@ -997,8 +1007,6 @@ public class Athlete {
 		// should not be required - bomb-out.
 		return LocalDateTime.MIN;
 	}
-	
-	
 
 	/**
 	 * Gets the birth date.
@@ -1663,7 +1671,7 @@ public class Athlete {
 			return getFullBirthDate().format(shortStyleFormatter);
 		}
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public String getIsoBirth() {
