@@ -61,6 +61,8 @@ import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.CustomFormFactory;
 import app.owlcms.nui.shared.IAthleteEditing;
 import app.owlcms.spreadsheet.PAthlete;
+import app.owlcms.uievents.UIEvent;
+import app.owlcms.uievents.UIEvent.Notification;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -938,6 +940,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			        this.originalAthlete.withdrawFromSnatch();
 			        AthleteRepository.save(this.originalAthlete);
 			        OwlcmsSession.withFop((fop) -> {
+			        	fop.pushOutUIEvent(new UIEvent.Notification(
+			        			this.originalAthlete, this, Notification.Level.WARNING, 
+			        			Translator.translate("SnatchWithdrawl",this.originalAthlete.getFullName()), 5000));
 				        fop.fopEventPost(new FOPEvent.WeightChange(this.getOrigin(), this.originalAthlete, true));
 			        });
 			        this.origin.closeDialog();
@@ -951,6 +956,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			        this.originalAthlete.withdraw();
 			        AthleteRepository.save(this.originalAthlete);
 			        OwlcmsSession.withFop((fop) -> {
+			        	fop.pushOutUIEvent(new UIEvent.Notification(
+			        			this.originalAthlete, this, Notification.Level.WARNING, 
+			        			Translator.translate("FullWithdrawl",this.originalAthlete.getFullName()), 5000));
 				        fop.fopEventPost(new FOPEvent.WeightChange(this.getOrigin(), this.originalAthlete, true));
 			        });
 			        this.origin.closeDialog();

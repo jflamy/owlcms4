@@ -432,16 +432,18 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			if (cell != null) {
 				Comment comment = cell.getCellComment();
 				jxls3 = (comment != null && comment.getString().getString().contains("jx:area"));
-				String plainComment = comment.getString().getString();
-				String regex = "lastCell=\"[A-Za-z](.*?)\"";
-				Pattern pattern = Pattern.compile(regex);
-				Matcher matcher = pattern.matcher(plainComment);
-				if (matcher.find()) {
-					String lastLine = matcher.group(1);
-					try {
-						this.setPageLength(Integer.parseInt(lastLine));
-					} catch (NumberFormatException e) {
-						LoggerUtils.logError(logger, e, true);
+				if (comment != null) {
+					String plainComment = comment.getString().getString();
+					String regex = "lastCell=\"[A-Za-z](.*?)\"";
+					Pattern pattern = Pattern.compile(regex);
+					Matcher matcher = pattern.matcher(plainComment);
+					if (matcher.find()) {
+						String lastLine = matcher.group(1);
+						try {
+							this.setPageLength(Integer.parseInt(lastLine));
+						} catch (NumberFormatException e) {
+							LoggerUtils.logError(logger, e, true);
+						}
 					}
 				}
 			}

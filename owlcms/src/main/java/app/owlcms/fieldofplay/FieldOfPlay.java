@@ -1449,7 +1449,7 @@ public class FieldOfPlay implements IUnregister {
 		}
 	}
 
-	void pushOutUIEvent(UIEvent event) {
+	public void pushOutUIEvent(UIEvent event) {
 		// logger.debug("!!!! {}",event);
 		getUiEventBus().post(event);
 		getEventForwardingBus().post(event);
@@ -2214,6 +2214,7 @@ public class FieldOfPlay implements IUnregister {
 				List<Athlete> l = AthleteSorter.assignCategoryRanks(em, g);
 				List<Athlete> nl = new LinkedList<>();
 				try {
+					//this only computes the current scoring system
 					Competition.getCurrent().globalRankings(em);
 				} catch (Exception e) {
 					this.logger.error("{} global ranking exception {}\n{}", FieldOfPlay.getLoggingName(this), e,
@@ -2234,6 +2235,7 @@ public class FieldOfPlay implements IUnregister {
 				List<Athlete> nl = new LinkedList<>();
 				long beforeRanks = System.currentTimeMillis();
 				try {
+					//this only computes the current scoring system
 					Competition.getCurrent().globalRankings(em);
 				} catch (Exception e) {
 					this.logger.error("{} global ranking exception {}\n ", FieldOfPlay.getLoggingName(this), e,

@@ -169,7 +169,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		Set<String> unfinishedCategories = null;
 		if (!allCategories) {
 			unfinishedCategories = AthleteRepository.unfinishedCategories(ranked);
-			logger.debug("unfinished categories {}", unfinishedCategories);
+			logger.warn("unfinished categories {}", unfinishedCategories);
 		}
 		
 		if (ranked == null || ranked.isEmpty()) {
@@ -185,10 +185,12 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        boolean catOk = (catFilterValue == null
 			                || catFilterValue.toString().equals(a.getCategory().toString()))
 			                && (genderFilterValue == null || genderFilterValue == athleteGender)
-			                && (allCategories || !notDone.contains(a.getCategory().toString()))
+			                && (allCategories || !notDone.contains(a.getCategory().getCode()))
 			                ;
 			        return catOk;
-		        });
+		        })
+		        //.peek(r -> logger.debug("including {}",r))
+		        ;
 		List<Athlete> found = stream.collect(Collectors.toList());
 		updateURLLocations();
 		return found;

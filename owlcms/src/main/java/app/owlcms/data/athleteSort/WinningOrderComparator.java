@@ -369,7 +369,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 
 		if (!ignoreCategories) {
 			compare = compareAgeGroup(lifter1, lifter2);
-			doTraceComparison("compareAgeGroup", lifter1.getShortName(), lifter1.getAgeGroupDisplayName(), lifter1.getShortName(), lifter2.getAgeGroupDisplayName(), compare);
+			traceComparison("compareAgeGroup", lifter1.getShortName(), lifter1.getAgeGroupDisplayName(), lifter1.getShortName(), lifter2.getAgeGroupDisplayName(), compare);
 			if (compare != 0) {
 				return compare;
 			}
