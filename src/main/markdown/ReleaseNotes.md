@@ -5,10 +5,16 @@
 > - This is an **alpha release**, used for validating new features.  *Some features are likely to be incomplete or non-functional*.  
 > - **Alpha releases are not normally used in actual competitions.**
 
-- (alpha04) Competition Results
+- (alpha05) added a new data structure for use when creating jxls3 templates.  Given a session object, the following are available
+  - session.ageGroupInfo.nbAthletes
+    session.ageGroupInfo.weightClassRange
+    session.ageGroupInfo.ageGroup.gender  (.code, .name etc.)
+    session.ageGroupInfo.athletesByStartNumber
+    session.ageGroupInfo.athletesByEntryTotal
+  
+- Competition Results
   - The "End of Competition" results can now be produced in the middle of the competition.  By default, categories that are not finished are not included.
   - There is now a separate directory for the competition results templates (previously it was the same as the protocol sheets)
-
 - Announcer+Marshal
   - The previous athlete is now highlighted in blue in the grid.  The current and next athletes are also highlighted (yellow and orange, which is the same color convention as on the default scoreboards).  Blue is shown when the previous athlete is the current or the next.
 - Announcer+Timekeeper
