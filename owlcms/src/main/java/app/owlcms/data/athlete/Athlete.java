@@ -752,7 +752,7 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
-	public String getAgeGroupsAsString() {
+	public String getAgeGroupCodesAsString() {
 		return this.getEligibleCategories().stream()
 			.map(category -> {
 				return category.getAgeGroup().getCode();
