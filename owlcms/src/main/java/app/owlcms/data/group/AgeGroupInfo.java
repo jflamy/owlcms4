@@ -117,8 +117,8 @@ public class AgeGroupInfo {
 				} else {
 					agi.setWeightClassRange((int)Math.round(agi.getSmallestWeightClass())+"-"+agi.getLargestWeightClassLimitString());
 				}
-				agi.getAthletes().add(a);
 			}
+			agi.getAthletes().add(a);
 		}
 		return ageGroupMap.values().stream().toList();
 	}
