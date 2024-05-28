@@ -7,6 +7,8 @@
 
 - (alpha06) Signal withdrawal of athlete to TOs and Jury.
   
+- (alpha06) A done athlete can no longer be highlighted as next on the announcer and marshal screens
+  
 - (alpha06) Technical: prevent overlapping updates of global rankings triggered from different platforms
   
 - (alpha05) added a new data structure for use when creating jxls3 templates.  Given a session object, the following are available

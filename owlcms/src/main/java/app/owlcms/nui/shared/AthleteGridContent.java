@@ -967,7 +967,7 @@ public abstract class AthleteGridContent extends BaseContent
 		    if (prevAthlete != null && athlete.getId().equals(prevAthlete.getId())) {
 		    	//logger.debug("previous = {}",athlete.getShortName());
 		        return "isPreviousAthlete";
-		    } else if (curAthlete != null && athlete.getId().equals(curAthlete.getId())) {
+		    } else if (curAthlete != null && athlete.getId().equals(curAthlete.getId()) && !(athlete.getAttemptsDone() >= 6)) {
 		    	//logger.debug("cur = {}",athlete.getShortName());
 		        return "isCurrentAthlete";
 		    } else if (nextAthlete != null && athlete.getId().equals(nextAthlete.getId()) && !(athlete.getAttemptsDone() >= 6)) {
