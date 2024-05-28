@@ -5,6 +5,10 @@
 > - This is an **alpha release**, used for validating new features.  *Some features are likely to be incomplete or non-functional*.  
 > - **Alpha releases are not normally used in actual competitions.**
 
+- (alpha06) Signal withdrawal of athlete to TOs and Jury.
+  
+- (alpha06) Technical: prevent overlapping updates of global rankings triggered from different platforms
+  
 - (alpha05) added a new data structure for use when creating jxls3 templates.  Given a session object, the following are available
   - session.ageGroupInfo.nbAthletes
     session.ageGroupInfo.weightClassRange
