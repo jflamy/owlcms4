@@ -19,6 +19,10 @@ public class AgeGroupInfo {
 	private String largestWeightClassLimitString;
 	private List<Athlete> athletes = new ArrayList<>();
 
+	public void addAthlete(Athlete athlete) {
+		this.athletes.add(athlete);
+	}
+
 	public AgeGroup getAgeGroup() {
 		return this.ageGroup;
 	}
@@ -84,7 +88,7 @@ public class AgeGroupInfo {
 	public void setWeightClassRange(String weightClassRange) {
 		this.weightClassRange = weightClassRange;
 	}
-	
+
 	public static List<AgeGroupInfo> getAgeGroupInfo(Group group){
 		List<Athlete> athletes = group.getAthletes();
 		TreeMap<AgeGroup, AgeGroupInfo> ageGroupMap = new TreeMap<>();
@@ -118,7 +122,7 @@ public class AgeGroupInfo {
 					agi.setWeightClassRange((int)Math.round(agi.getSmallestWeightClass())+"-"+agi.getLargestWeightClassLimitString());
 				}
 			}
-			agi.getAthletes().add(a);
+			agi.addAthlete(a);
 		}
 		return ageGroupMap.values().stream().toList();
 	}
