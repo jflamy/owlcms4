@@ -970,7 +970,7 @@ public abstract class AthleteGridContent extends BaseContent
 		    } else if (curAthlete != null && athlete.getId().equals(curAthlete.getId())) {
 		    	//logger.debug("cur = {}",athlete.getShortName());
 		        return "isCurrentAthlete";
-		    } else if (nextAthlete != null && athlete.getId().equals(nextAthlete.getId())) {
+		    } else if (nextAthlete != null && athlete.getId().equals(nextAthlete.getId()) && !(athlete.getAttemptsDone() >= 6)) {
 		    	//logger.debug("next = {}",athlete.getShortName());
 		        return "isNextAthlete";
 		    }
