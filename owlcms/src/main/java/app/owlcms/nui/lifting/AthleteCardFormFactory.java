@@ -173,9 +173,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		Integer entryTotal = aFromDb.getEntryTotal();
 		String entryString = "";
 		if (entryTotal != null && entryTotal > 0 && Competition.getCurrent().isEnforce20kgRule()
-				&& Config.getCurrent().featureSwitch("AthleteCardEntryTotal")
-				) {
-			entryString  = " ("+Translator.translate("Results.Entry_abbrev")+" = "+entryTotal+")";
+		        && Config.getCurrent().featureSwitch("AthleteCardEntryTotal")) {
+			entryString = " (" + Translator.translate("Results.Entry_abbrev") + " = " + entryTotal + ")";
 		}
 		return (startNumber != null ? "[" + startNumber + "] " : "") + aFromDb.getFullId() + entryString;
 	}
@@ -940,9 +939,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			        this.originalAthlete.withdrawFromSnatch();
 			        AthleteRepository.save(this.originalAthlete);
 			        OwlcmsSession.withFop((fop) -> {
-			        	fop.pushOutUIEvent(new UIEvent.Notification(
-			        			this.originalAthlete, this, Notification.Level.WARNING, 
-			        			"SnatchWithdrawl", 5000,this.originalAthlete.getFullName()));
+				        fop.pushOutUIEvent(new UIEvent.Notification(
+				                this.originalAthlete, this, Notification.Level.WARNING,
+				                "SnatchWithdrawalNotification", 5000, this.originalAthlete.getFullName()));
 				        fop.fopEventPost(new FOPEvent.WeightChange(this.getOrigin(), this.originalAthlete, true));
 			        });
 			        this.origin.closeDialog();
@@ -956,9 +955,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			        this.originalAthlete.withdraw();
 			        AthleteRepository.save(this.originalAthlete);
 			        OwlcmsSession.withFop((fop) -> {
-			        	fop.pushOutUIEvent(new UIEvent.Notification(
-			        			this.originalAthlete, this, Notification.Level.WARNING, 
-			        			"FullWithdrawl", 5000,this.originalAthlete.getFullName()));
+				        fop.pushOutUIEvent(new UIEvent.Notification(
+				                this.originalAthlete, this, Notification.Level.WARNING,
+				                "FullWithdrawalNotification", 5000, this.originalAthlete.getFullName()));
 				        fop.fopEventPost(new FOPEvent.WeightChange(this.getOrigin(), this.originalAthlete, true));
 			        });
 			        this.origin.closeDialog();
