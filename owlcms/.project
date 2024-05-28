@@ -20,13 +20,6 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.eclipse.m2e.core.maven2Nature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>local</name>
-			<type>2</type>
-			<location>C:/Dev/git/usaw-owlcms/local</location>
-		</link>
-	</linkedResources>
 	<filteredResources>
 		<filter>
 			<id>1665074822883</id>

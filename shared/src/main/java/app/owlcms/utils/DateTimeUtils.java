@@ -141,4 +141,11 @@ public class DateTimeUtils {
 		pattern = pattern.replaceFirst("\\byy\\b", "yyyy");
 		return pattern;
 	}
+	
+    public static double localDateTimeToExcelDate(LocalDateTime localDateTime) {
+        final long DAY_MILLIS = 24 * 60 * 60 * 1000;
+        final long EXCEL_EPOCH_DAY = 25569; // The number of days from 1/1/1900 to 1/1/1970
+        Date date = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        return date.getTime() / DAY_MILLIS + EXCEL_EPOCH_DAY;
+    }
 }

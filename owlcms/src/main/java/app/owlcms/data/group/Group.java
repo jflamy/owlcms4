@@ -437,6 +437,14 @@ public class Group implements Comparable<Group> {
 	public Date getCompetitionTimeAsDate() {
 		return DateTimeUtils.dateFromLocalDateTime(this.competitionTime);
 	}
+	
+	@Transient
+	@JsonIgnore
+	public Double getCompetitionTimeAsExcelDate() {
+		var value = DateTimeUtils.localDateTimeToExcelDate(this.competitionTime);
+		logger.warn("time as excel {}",value);
+		return value;
+	}
 
 	public String getDescription() {
 		return this.description;
