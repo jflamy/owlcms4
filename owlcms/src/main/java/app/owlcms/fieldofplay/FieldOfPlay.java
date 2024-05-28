@@ -959,12 +959,12 @@ public class FieldOfPlay implements IUnregister {
 				}
 				// When the decision is visible, the time has already been set to next athlete.
 				// the timekeeper should have restarted the time during the 3 seconds.
-//				else if (e instanceof TimeStarted) {
-//					// needed if decision has been given too early (e.g. bar did not reach the knees but reds given)
-//					resetDecisions();
-//					setState(TIME_RUNNING);
-//					getAthleteTimer().start();
-//				} 
+				// else if (e instanceof TimeStarted) {
+				// // needed if decision has been given too early (e.g. bar did not reach the knees but reds given)
+				// resetDecisions();
+				// setState(TIME_RUNNING);
+				// getAthleteTimer().start();
+				// }
 				else {
 					unexpectedEventInState(e, DECISION_VISIBLE);
 				}
@@ -1009,7 +1009,7 @@ public class FieldOfPlay implements IUnregister {
 		if (athletes != null && athletes.size() > 0) {
 			done = recomputeLiftingOrder(true, true);
 		}
-		
+
 		// get the correct previous athlete
 		LiftOrderReconstruction lor = new LiftOrderReconstruction(this);
 		LiftOrderInfo lastLift = lor.getLastLift();
@@ -1133,35 +1133,39 @@ public class FieldOfPlay implements IUnregister {
 		}
 	}
 
-	public synchronized boolean recomputeLiftingOrder(boolean currentDisplayAffected, boolean resultChange) {
-		// this is where lifting order is actually recomputed
-		recomputeOrderAndRanks(resultChange);
-		if (getCurAthlete() == null) {
-			return true;
-		}
+	public boolean recomputeLiftingOrder(boolean currentDisplayAffected, boolean resultChange) {
+		Competition comp = Competition.getCurrent();
+		// because of recalculation of ranks, if same category is lifting on two FOPs, strange things can happen
+		// if done in parallel. Force sequence.
+		synchronized (comp) {
+			recomputeOrderAndRanks(resultChange);
+			if (getCurAthlete() == null) {
+				return true;
+			}
 
-		int timeAllowed = getTimeAllowed();
-		Integer attemptsDone = getCurAthlete().getAttemptsDone();
-		this.logger.debug("{}recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
-		        FieldOfPlay.getLoggingName(this),
-		        getCurAthlete() != null ? getCurAthlete().getFullName() : "",
-		        getPreviousAthlete() != null ? getPreviousAthlete().getFullName() : "",
-		        timeAllowed,
-		        attemptsDone,
-		        LoggerUtils.whereFrom());
-		if (currentDisplayAffected) {
-			getAthleteTimer().setTimeRemaining(timeAllowed, false);
-		} else {
-			// logger.debug("not affected {}", LoggerUtils.stackTrace());
+			int timeAllowed = getTimeAllowed();
+			Integer attemptsDone = getCurAthlete().getAttemptsDone();
+			this.logger.debug("{}recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
+			        FieldOfPlay.getLoggingName(this),
+			        getCurAthlete() != null ? getCurAthlete().getFullName() : "",
+			        getPreviousAthlete() != null ? getPreviousAthlete().getFullName() : "",
+			        timeAllowed,
+			        attemptsDone,
+			        LoggerUtils.whereFrom());
+			if (currentDisplayAffected) {
+				getAthleteTimer().setTimeRemaining(timeAllowed, false);
+			} else {
+				// logger.debug("not affected {}", LoggerUtils.stackTrace());
+			}
+			// for the purpose of showing team scores, this is good enough.
+			// if the current athlete has done all lifts, the group is marked as done.
+			// if editing the athlete later gives back an attempt, then the state change
+			// will take
+			// place and subscribers will revert to current athlete display.
+			boolean done = attemptsDone >= 6;
+			getGroup().doDone(done);
+			return done;
 		}
-		// for the purpose of showing team scores, this is good enough.
-		// if the current athlete has done all lifts, the group is marked as done.
-		// if editing the athlete later gives back an attempt, then the state change
-		// will take
-		// place and subscribers will revert to current athlete display.
-		boolean done = attemptsDone >= 6;
-		getGroup().doDone(done);
-		return done;
 	}
 
 	public void recomputeRecords(Athlete curAthlete) {
@@ -2191,12 +2195,12 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
-	 * Recompute lifting order, category ranks, and leaders for current category. Sets rankings including previous
+	 * Recompute lifting order, category ranks, and leaders for current category. Sets rankings including for previous
 	 * lifters for all categories in the current group.
 	 *
-	 * @param recomputeRanks true if a result has changed and ranks need to be recomputed
+	 * @param recomputeCategoryRanks true if a result has changed and ranks need to be recomputed
 	 */
-	private void recomputeOrderAndRanks(boolean recomputeRanks) {
+	private void recomputeOrderAndRanks(boolean recomputeCategoryRanks) {
 		Group g = getGroup();
 		List<Athlete> athletes;
 
@@ -2206,15 +2210,14 @@ public class FieldOfPlay implements IUnregister {
 		long endDisplayOrder = 0;
 		long endLeaders = 0;
 
-		// logger.debug("recompute ranks {}
-		// [{}]",recomputeRanks,LoggerUtils.whereFrom());
-		if (recomputeRanks) {
-			// we update the ranks of affected athletes in the database
+		logger.debug("$$$$$$$$$$$$$$$$$ recompute ranks {} [{}]",recomputeCategoryRanks,LoggerUtils.whereFrom());
+		if (recomputeCategoryRanks) {
+			// we update the ranks all athletes in our category, as well as the current scoring system
 			athletes = JPAService.runInTransaction(em -> {
 				List<Athlete> l = AthleteSorter.assignCategoryRanks(em, g);
 				List<Athlete> nl = new LinkedList<>();
 				try {
-					//this only computes the current scoring system
+					// this only computes the current scoring system
 					Competition.getCurrent().globalRankings(em);
 				} catch (Exception e) {
 					this.logger.error("{} global ranking exception {}\n{}", FieldOfPlay.getLoggingName(this), e,
@@ -2227,22 +2230,23 @@ public class FieldOfPlay implements IUnregister {
 				return nl;
 			});
 		} else {
+			// only recompute the current scoring system
 			athletes = JPAService.runInTransaction(em -> {
 				long beforeFetch = System.currentTimeMillis();
 				List<Athlete> l = AthleteRepository.findAthletesForGlobalRanking(em, g);
 				long afterFetch = System.currentTimeMillis();
-				logger.warn("-------------------- findAthletesForGlobalRanking {}ms",afterFetch-beforeFetch);
+				logger.warn("-------------------- findAthletesForGlobalRanking {}ms", afterFetch - beforeFetch);
 				List<Athlete> nl = new LinkedList<>();
 				long beforeRanks = System.currentTimeMillis();
 				try {
-					//this only computes the current scoring system
+					// this only computes the current scoring system
 					Competition.getCurrent().globalRankings(em);
 				} catch (Exception e) {
 					this.logger.error("{} global ranking exception {}\n ", FieldOfPlay.getLoggingName(this), e,
 					        LoggerUtils.stackTrace(e));
 				}
 				long afterRanks = System.currentTimeMillis();
-				logger.warn("-------------------- globalRankings {}ms",afterRanks-beforeRanks);
+				logger.warn("-------------------- globalRankings {}ms", afterRanks - beforeRanks);
 				for (Athlete a : l) {
 					nl.add(em.merge(a));
 				}
@@ -2258,7 +2262,7 @@ public class FieldOfPlay implements IUnregister {
 			setNextAthlete(null);
 			recomputeRecords(null);
 		} else {
-			if (recomputeRanks) {
+			if (recomputeCategoryRanks) {
 				setMedals(Competition.getCurrent().computeMedals(g, athletes));
 			}
 			endMedals = System.nanoTime();
@@ -2294,7 +2298,7 @@ public class FieldOfPlay implements IUnregister {
 		if (this.timingLogger.isDebugEnabled()) {
 			this.timingLogger.debug("{}*** {} total={}ms, fetch/assign={}ms medals={}ms liftingOrder={}ms leaders={}ms",
 			        FieldOfPlay.getLoggingName(this),
-			        recomputeRanks ? "recomputeOrderAndRanks" : "recompute order",
+			        recomputeCategoryRanks ? "recomputeOrderAndRanks" : "recompute order",
 			        (endLeaders - startAssignRanks) / 1000000.0,
 			        (endAssignRanks - startAssignRanks) / 1000000.0,
 			        (endMedals - endAssignRanks) / 1000000.0,

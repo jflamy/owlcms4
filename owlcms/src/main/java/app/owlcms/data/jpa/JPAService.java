@@ -440,7 +440,7 @@ public class JPAService {
 		        .put("hibernate.hikari.idleTimeout", "300000") // 5 minutes
 		        .put("hibernate.hikari.maxLifetime", "600000") // 10 minutes (docker kills sockets after 15min)
 		        .put("hibernate.hikari.initializationFailTimeout", "60000")
-		        .put("hibernate.hikari.leakDetectionThreshold", "5000")
+		        .put("hibernate.hikari.leakDetectionThreshold", "10000")
 		        .put("hibernate.hikari.autoCommit","false")
 		        .put("hibernate.connection.provider_disables_autocommit",true)
 		        .build();
