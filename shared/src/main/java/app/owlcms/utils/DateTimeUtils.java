@@ -143,9 +143,19 @@ public class DateTimeUtils {
 	}
 	
     public static double localDateTimeToExcelDate(LocalDateTime localDateTime) {
-        final long DAY_MILLIS = 24 * 60 * 60 * 1000;
-        final long EXCEL_EPOCH_DAY = 25569; // The number of days from 1/1/1900 to 1/1/1970
-        Date date = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-        return date.getTime() / DAY_MILLIS + EXCEL_EPOCH_DAY;
+        // Specify the epoch reference date used by Excel (December 30, 1899)
+        LocalDateTime excelEpochReference = LocalDateTime.of(1899, Month.DECEMBER, 30, 0, 0);
+
+        // Calculate the number of days between the two dates
+        long daysSinceExcelEpoch = localDateTime.toLocalDate().toEpochDay() - excelEpochReference.toLocalDate().toEpochDay();
+
+        // Calculate the fraction of the day (in minutes)
+        double fractionOfDay = (double) localDateTime.toLocalTime().toSecondOfDay() / (24 * 60 * 60);
+
+        // Combine the days and fraction to get the Excel numeric date value
+        double excelNumericDate = daysSinceExcelEpoch + fractionOfDay;
+        
+        return excelNumericDate;
+
     }
 }
