@@ -948,7 +948,7 @@ public class FieldOfPlay implements IUnregister {
 						for (WeightChange wc : this.deferredWeightChanges) {
 							resultChange = resultChange || wc.isResultChange();
 						}
-						recomputeLiftingOrder(true, resultChange);
+						recomputeLiftingOrder(true, resultChange && Competition.getCurrent().isDisplayScoreRanks());
 						this.deferredWeightChanges.clear();
 					}
 					doDecisionReset(e);
@@ -1007,7 +1007,7 @@ public class FieldOfPlay implements IUnregister {
 			a.setFop(this);
 		}
 		if (athletes != null && athletes.size() > 0) {
-			done = recomputeLiftingOrder(true, true);
+			done = recomputeLiftingOrder(true, true && Competition.getCurrent().isDisplayScoreRanks());
 		}
 
 		// get the correct previous athlete
@@ -1138,7 +1138,7 @@ public class FieldOfPlay implements IUnregister {
 		// because of recalculation of ranks, if same category is lifting on two FOPs, strange things can happen
 		// if done in parallel. Force sequence.
 		synchronized (comp) {
-			recomputeOrderAndRanks(resultChange);
+			recomputeOrderAndRanks(resultChange, false);
 			if (getCurAthlete() == null) {
 				return true;
 			}
@@ -1505,7 +1505,7 @@ public class FieldOfPlay implements IUnregister {
 		if (!this.deferredWeightChanges.isEmpty()) {
 			// decision reset did not happen, we have pending weight changes.
 			this.logger.error("*** Can't happen: Weight changes during down/decision display, but no decision reset");
-			recomputeLiftingOrder(true, true);
+			recomputeLiftingOrder(true, Competition.getCurrent().isDisplayScoreRanks());
 		}
 	}
 
@@ -1632,7 +1632,7 @@ public class FieldOfPlay implements IUnregister {
 			// reversal from good to bad must remove records
 			setNewRecords(updateRecords(a, e.success, getLastChallengedRecords(), getLastNewRecords()));
 
-			recomputeLiftingOrder(true, true);
+			recomputeLiftingOrder(true, Competition.getCurrent().isDisplayScoreRanks());
 
 			// tell ourself to reset after 3 secs.
 			new DelayTimer(isTestingMode()).schedule(() -> {
@@ -1815,7 +1815,7 @@ public class FieldOfPlay implements IUnregister {
 			reason = "6";
 			// logger.trace("&&3.C1 no clock owner, time is not running");
 			// time is not running
-			recomputeLiftingOrder(true, wc.isResultChange());
+			recomputeLiftingOrder(true, wc.isResultChange() && Competition.getCurrent().isDisplayScoreRanks());
 
 			setStateUnlessInBreak(CURRENT_ATHLETE_DISPLAYED);
 			// logger.trace("&&3.C2 displaying, curAthlete={}, state={}", getCurAthlete(), state);
@@ -1832,7 +1832,7 @@ public class FieldOfPlay implements IUnregister {
 	private void doWeightChange(WeightChange wc, Athlete changingAthlete, Athlete clockOwner,
 	        boolean currentDisplayAffected) {
 		setForcedTime(false);
-		recomputeLiftingOrder(currentDisplayAffected, wc.isResultChange());
+		recomputeLiftingOrder(currentDisplayAffected, wc.isResultChange() && Competition.getCurrent().isDisplayScoreRanks());
 		// if the currentAthlete owns the clock, then the next ui update will show the
 		// correct athlete and
 		// the time needs to be restarted (state = TIME_STOPPED). Going to TIME_STOPPED
@@ -2199,8 +2199,9 @@ public class FieldOfPlay implements IUnregister {
 	 * lifters for all categories in the current group.
 	 *
 	 * @param recomputeCategoryRanks true if a result has changed and ranks need to be recomputed
+	 * @param recomputeScoringSystem TODO
 	 */
-	private void recomputeOrderAndRanks(boolean recomputeCategoryRanks) {
+	private void recomputeOrderAndRanks(boolean recomputeCategoryRanks, boolean recomputeScoringSystem) {
 		Group g = getGroup();
 		List<Athlete> athletes;
 
@@ -2210,19 +2211,21 @@ public class FieldOfPlay implements IUnregister {
 		long endDisplayOrder = 0;
 		long endLeaders = 0;
 
-		logger.debug("$$$$$$$$$$$$$$$$$ recompute ranks {} [{}]",recomputeCategoryRanks,LoggerUtils.whereFrom());
+		logger.debug("$$$$$$$$$$$$$$$$$ recompute ranks {} [{}]", recomputeCategoryRanks, LoggerUtils.whereFrom());
 		if (recomputeCategoryRanks) {
-			// we update the ranks all athletes in our category, as well as the current scoring system
+			// we update the lift ranks for all athletes in our category, as well as the current scoring system
 			athletes = JPAService.runInTransaction(em -> {
 				List<Athlete> l = AthleteSorter.assignCategoryRanks(em, g);
-				List<Athlete> nl = new LinkedList<>();
-				try {
-					// this only computes the current scoring system
-					Competition.getCurrent().globalRankings(em);
-				} catch (Exception e) {
-					this.logger.error("{} global ranking exception {}\n{}", FieldOfPlay.getLoggingName(this), e,
-					        LoggerUtils.stackTrace(e));
+				if (recomputeScoringSystem) {
+					try {
+						Competition.getCurrent().scoringSystemRankings(em);
+					} catch (Exception e) {
+						this.logger.error("{} global ranking exception {}\n{}", FieldOfPlay.getLoggingName(this), e,
+						        LoggerUtils.stackTrace(e));
+					}
 				}
+
+				List<Athlete> nl = new LinkedList<>();
 				for (Athlete a : l) {
 					nl.add(em.merge(a));
 				}
@@ -2234,24 +2237,30 @@ public class FieldOfPlay implements IUnregister {
 			athletes = JPAService.runInTransaction(em -> {
 				long beforeFetch = System.currentTimeMillis();
 				List<Athlete> l = AthleteRepository.findAthletesForGlobalRanking(em, g);
-				long afterFetch = System.currentTimeMillis();
-				logger.warn("-------------------- findAthletesForGlobalRanking {}ms", afterFetch - beforeFetch);
-				List<Athlete> nl = new LinkedList<>();
-				long beforeRanks = System.currentTimeMillis();
-				try {
-					// this only computes the current scoring system
-					Competition.getCurrent().globalRankings(em);
-				} catch (Exception e) {
-					this.logger.error("{} global ranking exception {}\n ", FieldOfPlay.getLoggingName(this), e,
-					        LoggerUtils.stackTrace(e));
+
+				if (recomputeScoringSystem) {
+					long afterFetch = System.currentTimeMillis();
+					logger.warn("-------------------- findAthletesForGlobalRanking {}ms", afterFetch - beforeFetch);
+
+					long beforeRanks = System.currentTimeMillis();
+					try {
+						Competition.getCurrent().scoringSystemRankings(em);
+					} catch (Exception e) {
+						this.logger.error("{} global ranking exception {}\n ", FieldOfPlay.getLoggingName(this), e,
+						        LoggerUtils.stackTrace(e));
+					}
+					long afterRanks = System.currentTimeMillis();
+					logger.warn("-------------------- globalRankings {}ms", afterRanks - beforeRanks);
+
+					List<Athlete> nl = new LinkedList<>();
+					for (Athlete a : l) {
+						nl.add(em.merge(a));
+					}
+					em.flush();
+					return nl;
+				} else {
+					return l;
 				}
-				long afterRanks = System.currentTimeMillis();
-				logger.warn("-------------------- globalRankings {}ms", afterRanks - beforeRanks);
-				for (Athlete a : l) {
-					nl.add(em.merge(a));
-				}
-				em.flush();
-				return nl;
 			});
 		}
 		endAssignRanks = System.nanoTime();
@@ -2361,7 +2370,7 @@ public class FieldOfPlay implements IUnregister {
 				setClockStoppedDecisionsAllowed(true);
 				setState(CURRENT_ATHLETE_DISPLAYED);
 			} else {
-				boolean done = recomputeLiftingOrder(true, true);
+				boolean done = recomputeLiftingOrder(true, Competition.getCurrent().isDisplayScoreRanks());
 				if (done) {
 					pushOutDone();
 				} else {
@@ -2593,7 +2602,7 @@ public class FieldOfPlay implements IUnregister {
 		// use "this" because the origin must also show the decision.
 		uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), getGoodLift(), getRefereeDecision(), getRefereeTime(),
 		        this);
-		recomputeLiftingOrder(true, true);
+		recomputeLiftingOrder(true, Competition.getCurrent().isDisplayScoreRanks());
 
 		// control timing of notifications
 		new DelayTimer(isTestingMode()).schedule(
@@ -3060,7 +3069,7 @@ public class FieldOfPlay implements IUnregister {
 	 * @param curAthlete
 	 */
 	private void weightChangeDoNotDisturb(WeightChange e) {
-		recomputeOrderAndRanks(e.isResultChange());
+		recomputeOrderAndRanks(e.isResultChange(), false);
 		uiDisplayCurrentAthleteAndTime(false, e, false);
 	}
 

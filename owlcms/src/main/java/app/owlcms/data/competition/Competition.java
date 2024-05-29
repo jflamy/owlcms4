@@ -78,6 +78,7 @@ public class Competition {
 	private static Competition competition;
 	@Transient
 	final static private Logger logger = (Logger) LoggerFactory.getLogger(Competition.class);
+	private static final boolean SCORING_SYSTEM_ONLY = true;
 
 	public static void debugRanks(String label, Athlete a) {
 		logger./**/warn("{} {} {} {} {} {}", label, System.identityHashCode(a), a.getId(), a.getShortName(),
@@ -411,7 +412,6 @@ public class Competition {
 	}
 
 	public void doGlobalRankings(List<Athlete> athletes, Boolean scoringSystemOnly) {
-
 		long beforeDedup = System.currentTimeMillis();
 		TreeSet<Athlete> noDup = new TreeSet<>(Comparator.comparing(Athlete::getFullId));
 		for (Athlete pAthlete : athletes) {
@@ -934,12 +934,12 @@ public class Competition {
 	// doGlobalRankings(athletes);
 	// }
 
-	public void globalRankings(EntityManager em) {
+	public void scoringSystemRankings(EntityManager em) {
 		long beforeFindAll = System.currentTimeMillis();
 		List<Athlete> athletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, null, true, null);
 		long afterFindAll = System.currentTimeMillis();
-		logger.warn("------------------------- doFindAllByGroupAndWeighIn {}ms", afterFindAll - beforeFindAll);
-		doGlobalRankings(athletes, true);
+		logger.warn("------------------------- scoringSystemRankings doFindAllByGroupAndWeighIn {}ms", afterFindAll - beforeFindAll);
+		doGlobalRankings(athletes, SCORING_SYSTEM_ONLY);
 	}
 
 	@Override
@@ -1449,6 +1449,7 @@ public class Competition {
 	private void doComputeReportingInfo(boolean full, List<Athlete> athletes, String ageGroupPrefix,
 	        Championship ad) {
 		// reporting does many database queries. fork a low-priority thread.
+		logger.warn("doComputeReportingInfo {}",LoggerUtils.stackTrace());
 		runInThread(() -> {
 			if (athletes.isEmpty()) {
 				// prevent outputting silliness.
