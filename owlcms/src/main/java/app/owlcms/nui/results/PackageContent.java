@@ -169,7 +169,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		Set<String> unfinishedCategories = null;
 		if (!allCategories) {
 			unfinishedCategories = AthleteRepository.unfinishedCategories(ranked);
-			logger.warn("unfinished categories {}", unfinishedCategories);
+			//logger.debug("unfinished categories {}", unfinishedCategories);
 		}
 		
 		if (ranked == null || ranked.isEmpty()) {

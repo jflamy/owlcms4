@@ -2211,7 +2211,7 @@ public class FieldOfPlay implements IUnregister {
 		long endDisplayOrder = 0;
 		long endLeaders = 0;
 
-		logger.debug("$$$$$$$$$$$$$$$$$ recompute ranks recomputeCategoryRanks={} [{}]", recomputeCategoryRanks, LoggerUtils.whereFrom());
+		logger.debug("{}recompute ranks recomputeCategoryRanks={} [{}]", FieldOfPlay.getLoggingName(this), recomputeCategoryRanks, LoggerUtils.whereFrom());
 		if (recomputeCategoryRanks) {
 			// we update the ranks all athletes in our category, as well as the current scoring system
 			athletes = JPAService.runInTransaction(em -> {

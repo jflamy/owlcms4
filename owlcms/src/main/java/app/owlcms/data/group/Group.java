@@ -442,7 +442,6 @@ public class Group implements Comparable<Group> {
 	@JsonIgnore
 	public Double getCompetitionTimeAsExcelDate() {
 		var value = DateTimeUtils.localDateTimeToExcelDate(this.competitionTime);
-		logger.warn("time as excel {}",value);
 		return value;
 	}
 
