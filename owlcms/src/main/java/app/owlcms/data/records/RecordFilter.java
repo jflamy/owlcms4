@@ -74,7 +74,7 @@ public class RecordFilter {
 			try {
 				String key2 = String.format("%d_%03d_%03d_%03d_%s",
 				        re.getGender().ordinal(),
-				        re.getAgeGrpLower(), re.getAgeGrpUpper(),
+				        re.getAgeGrpUpper(), re.getAgeGrpLower(), 
 				        re.getBwCatUpper(),
 				        // re.getRecordFederation()
 				        recordNameIsCategory ? re.getRecordFederation() : "");
