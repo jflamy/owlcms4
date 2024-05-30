@@ -6,12 +6,18 @@
  *******************************************************************************/
 package app.owlcms.spreadsheet;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
 
+import org.apache.poi.hssf.usermodel.HeaderFooter;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Footer;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -20,6 +26,9 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.DateTimeUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -224,6 +233,28 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 
 	@Override
 	protected void postProcess(Workbook workbook) {
+        // Get the current date and time
+        LocalDateTime now = LocalDateTime.now();
+
+        // Get the default locale
+        Locale currentLocale = OwlcmsSession.getLocale();
+
+        // Get a date formatter for the short date format in the current locale
+		String shortDatePattern = DateTimeUtils.localizedShortDatePattern(currentLocale);
+		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(shortDatePattern, currentLocale);
+
+        // Get a time formatter for the short time format in the current locale
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(currentLocale);
+
+        // Format the current date and time
+        String formattedDate = now.format(dateFormatter);
+        String formattedTime = now.format(timeFormatter);
+        
+		Footer footer = workbook.getSheetAt(0).getFooter();
+
+		footer.setLeft(Translator.translate("Results.producedBy", OwlcmsFactory.getVersion()));
+		footer.setCenter(Translator.translate("Results.dateTime", formattedDate, formattedTime));
+		footer.setRight(Translator.translate("Results.pageOf",HeaderFooter.page(),HeaderFooter.numPages()));
 		if (this.postProcessor != null) {
 			this.postProcessor.accept(workbook);
 		}
