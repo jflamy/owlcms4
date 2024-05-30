@@ -12,7 +12,7 @@
     --clubWidth: 0.40fr;
     --tableWidthRatio: 100%;
     --defaultLeaderFillerHeight: 1fr;
-    
+
     /* left column width: adjust depending on how you name groups */
     --startWidth: min-content;
     --startVisibility: visible;
@@ -23,12 +23,12 @@
     /* normally these do not need to change */
     --categoryWidth: 11ch;
     --categoryVisibility: visible;
-       
+
     --liftResultWidth: 6ch;
 
-    /* to show these columns 
+    /* to show these columns
     - change hidden to visible
-    - set the width to value like 8ch 
+    - set the width to value like 8ch
     */
     --birthWidth: 6ch;
     --birthVisibility: visible;
@@ -42,7 +42,7 @@
     --totalRankWidth: var(--liftResultWidth);
     --totalRankVisibility: visible;
 
-    /* 
+    /*
     --bestWidth: var(--liftResultWidth);
     --bestVisibility: visible;
     */
@@ -64,7 +64,7 @@
 
     box-sizing: border-box;
     --nbRanks: 1;
-    
+
     /* flag height */
     --flagHeight: calc(var(--athleteNameFontSize)*1.4);
 }
@@ -144,7 +144,7 @@
         --totalRankWidth: var(--liftResultWidth);
         --totalRankVisibility: visible;
     }
-    /* hide attempt bar when vertical 
+    /* hide attempt bar when vertical
     :host .attemptBar {
         display: none !important;
     }
@@ -231,8 +231,8 @@
 }
 
 :host .light table.results {
-    --spacerWidth: 0vh;
-    --rowSmallSpacerHeight: 0;
+    --spacerWidth: 1vh;
+    --rowSmallSpacerHeight: 0.25vh;
 }
 
 :host .dark table.results {
