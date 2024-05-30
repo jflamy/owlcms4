@@ -1610,7 +1610,7 @@ public class Athlete {
 	
 	@Transient
 	@JsonIgnore
-	public String getAgeGroupCodesAsString() {
+	public String getAgeGroupCodesMainFirstAsString() {
 		Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
 		String mainCategory = mrCat != null ? mrCat.getAgeGroup().getCode() : "";
 
