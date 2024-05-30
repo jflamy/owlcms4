@@ -66,10 +66,9 @@ public class Config {
 	 * @return the current
 	 */
 	public static synchronized Config getCurrent() {
-		// *******
 		if (current == null) {
 			List<Config> all = ConfigRepository.findAll();
-			if (all.size() > 0) {
+			if (all.size() > 1) {
 				logger.error("found {} Config", all.size());
 			}
 			current = all.get(0);
