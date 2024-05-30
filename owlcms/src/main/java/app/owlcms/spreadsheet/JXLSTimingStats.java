@@ -192,8 +192,13 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 	public List<Athlete> getSortedAthletes() {
 		HashMap<String, Object> reportingBeans = getReportingBeans();
 
-		List<Athlete> athletes = AthleteSorter
-		        .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, isExcludeNotWeighed()));
+		List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, isExcludeNotWeighed());
+		athletes = AthleteSorter.registrationExportCopy(athletes);
+//		for (Athlete a : athletes) {
+//			logger.warn("{} {}", a.getGroup(), a.getShortName());
+//		}
+		
+		
 		if (athletes.isEmpty()) {
 			// prevent outputting silliness.
 			throw new RuntimeException("");
