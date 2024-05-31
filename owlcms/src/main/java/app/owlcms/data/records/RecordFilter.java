@@ -64,17 +64,15 @@ public class RecordFilter {
 			String order = getRowOrder(re.getRecordName(), re.getFileName());
 
 			rowOrder.put(order, re.getRecordName());
+			
 			// synthetic key to arrange records in correct box.
-
-			// String key = re.getRecordFederation()+(re.getGender().ordinal() * 100000000) + re.getAgeGrpLower() *
-			// 1000000
-			// + re.getAgeGrpUpper() * 1000 + re.getBwCatUpper();
-			// recordsByAgeWeight.put(key, re);
-
+			// expected order U13 < U15 < JR < U23 < SR < Open
+			// Open is after SR, because is 0-999 -- is less specific than 15-999
+			// (smaller min goes after)
 			try {
 				String key2 = String.format("%d_%03d_%03d_%03d_%s",
 				        re.getGender().ordinal(),
-				        re.getAgeGrpUpper(), re.getAgeGrpLower(), 
+				        re.getAgeGrpUpper(), 999-re.getAgeGrpLower(), 
 				        re.getBwCatUpper(),
 				        // re.getRecordFederation()
 				        recordNameIsCategory ? re.getRecordFederation() : "");
