@@ -9,6 +9,7 @@
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
         <mapEntry key="OWLCMS_BACKDOOR" value="127.0.0.1,[0:0:0:0:0:0:0:1]"/>
+        <mapEntry key="OWLCMS_ENABLEEMBEDDEDMQTT" value="false"/>
         <mapEntry key="OWLCMS_INITIALDATA" value="SINGLE_ATHLETE_GROUPS"/>
         <mapEntry key="OWLCMS_LOCALE" value="en_CA"/>
         <mapEntry key="OWLCMS_MEMORYMODE" value="true"/>
@@ -34,5 +35,5 @@
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="owlcms"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="owlcms"/>
     <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dvaadin.frontend.hotdeploy=false -Dlogback.configurationFile=logback-console.xml -Dvaadin.devmode.hostsAllowed=*  -Dvaadin.devmode.devTools.enabled=true"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dvaadin.frontend.hotdeploy=true -Dlogback.configurationFile=logback-console.xml -Dvaadin.devmode.hostsAllowed=*  -Dvaadin.devmode.devTools.enabled=true"/>
 </launchConfiguration>
