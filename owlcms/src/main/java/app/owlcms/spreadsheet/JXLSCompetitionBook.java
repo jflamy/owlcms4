@@ -19,6 +19,7 @@ import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -37,13 +38,12 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 	private String ageGroupPrefix;
 	@SuppressWarnings("unused")
 	private Logger logger = LoggerFactory.getLogger(JXLSCompetitionBook.class);
+	private boolean isIncludeUnfinished;
 
 	public JXLSCompetitionBook(boolean excludeNotWeighed, UI ui) {
 	}
 
 	public JXLSCompetitionBook(UI ui) {
-		// by default, we exclude athletes who did not weigh in.
-		
 	}
 
 	/**
@@ -118,9 +118,9 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
 		translateSheets(workbook);
 		workbook.setForceFormulaRecalculation(true);
-
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	protected void setReportingInfo() {
 		Competition competition = Competition.getCurrent();
@@ -129,6 +129,21 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 		super.setReportingInfo();
 		Object records = super.getReportingBeans().get("records");
 		HashMap<String, Object> reportingBeans = competition.getReportingBeans();
+
+		// remove athletes from incomplete categories
+		if (!isIncludeUnfinished()) {
+			for (String k : reportingBeans.keySet()) {
+				Object bean = reportingBeans.get(k);
+				if (bean instanceof List && ((List) bean).size() > 0 && ((List) bean).get(0) instanceof Athlete) {
+					logger.warn("cleaning up {}", k);
+					List<Athlete> bean2 = (List<Athlete>) bean;
+					Set<String> unfinishedCategories = AthleteRepository.unfinishedCategories(bean2);
+					bean2 = bean2.stream().filter(a -> !unfinishedCategories.contains(a.getCategoryCode())).toList();
+					reportingBeans.put(k, bean2);
+				}
+			}
+		}
+
 		reportingBeans.put("records", records);
 		setReportingBeans(reportingBeans);
 	}
@@ -190,6 +205,14 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 				curSheet.getFooter().setRight(rightFooter);
 			}
 		}
+	}
+
+	public boolean isIncludeUnfinished() {
+		return isIncludeUnfinished;
+	}
+
+	public void setIncludeUnfinished(boolean isIncludeUnifinished) {
+		this.isIncludeUnfinished = isIncludeUnifinished;
 	}
 
 }

@@ -1409,6 +1409,9 @@ public class Competition {
 	}
 
 	private void addToReportingBean(String string, List<Athlete> sorted) {
+		if (string.endsWith("null")) {
+			logger.warn("?????? {}", LoggerUtils.stackTrace());
+		}
 		List<Athlete> athletes = getOrCreateBean(string);
 		athletes.addAll(sorted);
 	}
@@ -1465,9 +1468,9 @@ public class Competition {
 			// splitResultsByGroups(athletes);
 			if (full) {
 				this.reportingBeans.put("athletes", athletes);
-				// logger.debug("ad={} ageGroupPrefix={}", ad, ageGroupPrefix);
+				logger.warn("championship={} ageGroupPrefix={}", ad, ageGroupPrefix);
 				if (ad != null && (ageGroupPrefix == null || ageGroupPrefix.isBlank())) {
-					// iterate over all age groups present in age division ad
+					// iterate over all age groups present in championship ad
 					teamRankingsForAgeDivision(ad);
 				} else {
 					teamRankings(athletes, ageGroupPrefix);
@@ -1553,6 +1556,7 @@ public class Competition {
 		athletes.addAll(sortedMen);
 		athletes.addAll(sortedWomen);
 
+		suffix = suffix != null ? suffix : "";
 		sortedAthletes = AthleteSorter.teamPointsOrderCopy(athletes, Ranking.TOTAL);
 		sortedMen = AthleteSorter.teamPointsOrderCopy(sortedMen, Ranking.TOTAL);
 		sortedWomen = AthleteSorter.teamPointsOrderCopy(sortedWomen, Ranking.TOTAL);

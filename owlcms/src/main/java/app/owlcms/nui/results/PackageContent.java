@@ -544,6 +544,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		        Competition::setResultsTemplateFileName,
 		        Translator.translate("EligibilityCategoryResults"),
 		        Translator.translate("Download"));
+		this.downloadDialog.setProcessingMessage(Translator.translate("LongProcessing"));
 		Button resultsButton = this.downloadDialog.createDownloadButton();
 		return resultsButton;
 	}
@@ -557,6 +558,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        rs.setChampionship(this.championship);
 			        rs.setAgeGroupPrefix(this.ageGroupPrefix);
 			        rs.setCategory(this.categoryValue);
+			        rs.setIncludeUnfinished(Boolean.TRUE.equals(this.includeUnfinishedCategories.getValue()));
 			        return rs;
 		        },
 		        "/templates/competitionBook",
@@ -587,6 +589,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		        Competition::setProtocolTemplateFileName,
 		        Translator.translate("RegistrationCategoryResults"),
 		        Translator.translate("Download"));
+		this.downloadDialog.setProcessingMessage(Translator.translate("LongProcessing"));
 		Button resultsButton = this.downloadDialog.createDownloadButton();
 		return resultsButton;
 	}

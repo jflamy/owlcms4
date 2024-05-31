@@ -5,8 +5,13 @@
 > - This is an **alpha release**, used for validating new features.  *Some features are likely to be incomplete or non-functional*.  
 > - **Alpha releases are not normally used in actual competitions.**
 
-- (alpha07) Performance: Overall rankings for the selected "best lifter" scoring system (for example, the Sinclair score) are only computed if the option to show them on the scoreboard is selected.
--  Competition Results
+- (alpha08) Documents
+  - The final package document now excludes unfinished categories by default and obeys the override checkbox.
+
+- (alpha08) Scoreboards:
+  - Record ordering at the bottom now goes from lowest-aged age group to highest, based on the maximum age of the age group. U13 before U17 before JR before U23 before SR before Open.
+
+- Competition Results
   - The "End of Competition" results can now be produced in the middle of the competition.  By default, categories that are not finished are not included.
   - There is now a separate directory for the competition results templates (previously it was the same as the protocol sheets)
 - Announcer+Marshal
@@ -37,4 +42,5 @@
     - athlete.ageGroupCodesAsString  (age group codes such as U17, ungendered unless Masters)
 - Technical
   - Event Forwarding and MQTT event propagation refactoring. In previous releases, obsolete forwarders could accidentally be kept when reloading sessions.  This would cause the publicresults scoreboard to alternate between out-of-date and current results.
+  - Performance: Overall rankings for the selected "best lifter" scoring system (for example, the Sinclair score) are only computed if the option to show them on the scoreboard is selected.
 
