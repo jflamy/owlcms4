@@ -26,6 +26,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
 import ch.qos.logback.classic.Logger;
+import net.sf.jxls.transformer.Workbook;
 
 /**
  * @author jflamy
@@ -256,4 +257,5 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 		}
 		sessions.add(curStat);
 	}
+	
 }
