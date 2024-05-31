@@ -15,6 +15,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -27,10 +30,12 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.usermodel.HeaderFooter;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Comment;
+import org.apache.poi.ss.usermodel.Footer;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -55,7 +60,9 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.DateTimeUtils;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Level;
@@ -372,8 +379,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		jxlsExportRecords.setGroup(getGroup());
 		logger.debug("fetching records for session {} category {}", getGroup(), getCategory());
 		try {
-			// jxlsExportRecords.getSortedAthletes();
-			// Must be called after getSortedAthletes
 			List<RecordEvent> records = jxlsExportRecords.getRecords(getCategory());
 			logger.debug("{} records found", records.size());
 			getReportingBeans().put("records", records);
@@ -382,13 +387,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		}
 
 		getReportingBeans().put("masters", Competition.getCurrent().isMasters());
-		// List<Group> sessions = GroupRepository.findAll().stream().sorted((a, b) -> {
-		// int compare = ObjectUtils.compare(a.getWeighInTime(), b.getWeighInTime(), true);
-		// if (compare != 0) {
-		// return compare;
-		// }
-		// return compare = ObjectUtils.compare(a.getPlatform(), b.getPlatform(), true);
-		// }).collect(Collectors.toList());
 
 		List<Group> sessions = GroupRepository.findAll().stream().sorted(Group.groupWeighinTimeComparator)
 		        .collect(Collectors.toList());
@@ -461,8 +459,9 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			@SuppressWarnings("unchecked")
 			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
 			if (athletes != null && (athletes.size() > 0 || isEmptyOk())) {
+				logger.warn("before transformWorkbook");
 				transformer.transformWorkbook(workbook, reportingInfo);
-				logger.debug("after workbook");
+				logger.warn("after transformWorkbook;");
 				if (workbook != null) {
 					postProcess(workbook);
 				}
@@ -485,7 +484,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			LoggerUtils.logError(logger, t);
 		}
 		if (workbook != null) {
-			logger.debug("writing stream");
+			logger.warn("writing stream");
 			try {
 				workbook.write(stream);
 				if (this.doneCallback != null) {
@@ -494,7 +493,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			} catch (Throwable e) {
 				LoggerUtils.logError(logger, e);
 			}
-			logger.debug("wrote stream");
+			logger.warn("wrote stream");
 		}
 	}
 
@@ -560,6 +559,31 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 
 	public void setPageLength(Integer pageLength) {
 		this.pageLength = pageLength;
+	}
+	
+	protected void createStandardFooter(Workbook workbook) {
+		// Get the current date and time
+        LocalDateTime now = LocalDateTime.now();
+
+        // Get the default locale
+        Locale currentLocale = OwlcmsSession.getLocale();
+
+        // Get a date formatter for the short date format in the current locale
+		String shortDatePattern = DateTimeUtils.localizedShortDatePattern(currentLocale);
+		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(shortDatePattern, currentLocale);
+
+        // Get a time formatter for the short time format in the current locale
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(currentLocale);
+
+        // Format the current date and time
+        String formattedDate = now.format(dateFormatter);
+        String formattedTime = now.format(timeFormatter);
+        
+		Footer footer = workbook.getSheetAt(0).getFooter();
+
+		footer.setLeft(Translator.translate("Results.producedBy", OwlcmsFactory.getVersion()));
+		footer.setCenter(Translator.translate("Results.dateTime", formattedDate, formattedTime));
+		footer.setRight(Translator.translate("Results.pageOf",HeaderFooter.page(),HeaderFooter.numPages()));
 	}
 
 }
