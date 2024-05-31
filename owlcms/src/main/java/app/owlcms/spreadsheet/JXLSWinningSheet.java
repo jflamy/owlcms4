@@ -54,11 +54,13 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 
 	@Override
 	public List<Athlete> getSortedAthletes() {
+		logger.warn("winning getSortedAthletes {}", this.sortedAthletes.size());
 		if (this.sortedAthletes != null) {
 			// we are provided with an externally computed list.
 			if (this.resultsByCategory) {
 				// no need to unwrap, each athlete is a wrapper PAthlete with a participation category.
 				AthleteSorter.resultsOrder(this.sortedAthletes, Ranking.TOTAL, false);
+				logger.warn("eligible getSortedAthletes {}",this.sortedAthletes.size());
 				return this.sortedAthletes;
 			} else {
 				// we need the athlete with the original registration category inside the PAthlete
@@ -67,6 +69,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 				Set<Athlete> noDuplicates = new HashSet<>(unwrappedAthletes);
 				this.sortedAthletes = new ArrayList<>(noDuplicates);
 				AthleteSorter.resultsOrder(this.sortedAthletes, Ranking.TOTAL, false);
+				logger.warn("registration getSortedAthletes {}",this.sortedAthletes.size());
 				return this.sortedAthletes;
 			}
 		}
