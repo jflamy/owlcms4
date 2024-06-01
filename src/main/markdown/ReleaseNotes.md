@@ -6,8 +6,10 @@
 > - Beta releases are **not** normally used in actual competitions, except if a new feature is required. Use extreme care in testing if you intend to do so.
 
 - (beta01) Documents
-  - Footers for protocols, start lists and final results are now standardized to show the date of production.  The headers for final results show the championship and age group when selected.
-  - The final package document now excludes unfinished categories by default and obeys the override checkbox when unfinished categories are required.
+  - Timing statistics: the number of athletes per session is now correct.
+- (beta01) Registration file
+  - The feature switch `explicitTeams` disables the automatic assignment to a team at registration time.  The web page can be used to do the assignment.
+
 - Competition Results
   - The "End of Competition" results can now be produced in the middle of the competition.  By default, categories that are not finished are not included.
   - There is now a separate directory for the competition results templates (previously it was the same as the protocol sheets)
@@ -38,6 +40,8 @@
       session.ageGroupInfo.athletesByStartNumber
       session.ageGroupInfo.athletesByEntryTotal
     - athlete.ageGroupCodesAsString  (age group codes such as U17, ungendered unless Masters)
+  - Footers for protocols, start lists and final results are now standardized to show the date of production.  The headers for final results show the championship and age group when selected.
+  - The final package document now excludes unfinished categories by default and obeys the override checkbox when unfinished categories are required.
 - Technical
   - Event Forwarding and MQTT event propagation refactoring. In previous releases, obsolete forwarders could accidentally be kept when reloading sessions.  This would cause the publicresults scoreboard to alternate between out-of-date and current results.
   - Performance: Overall rankings for the selected "best lifter" scoring system (for example, the Sinclair score) are only computed if the option to show them on the scoreboard is selected.
