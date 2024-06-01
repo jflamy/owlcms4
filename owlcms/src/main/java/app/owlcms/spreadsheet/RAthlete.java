@@ -22,6 +22,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -81,24 +82,31 @@ public class RAthlete {
 		s = CharMatcher.javaIsoControl().removeFrom(s);
 		String[] parts = s.split(Pattern.quote("|"));
 		if (parts.length >= 1) {
+			boolean teamMember = false;
 			String catName = parts[0].trim();
-			// check for team exclusion marker.
-			boolean teamMember = true;
-			if (catName.endsWith(NoTeamMarker)) {
-				catName = catName.substring(0, s.length() - NoTeamMarker.length());
-				teamMember = false;
+			if (!Config.getCurrent().featureSwitch("explicitTeams")) {
+				// teams are implicitly selected, check for team exclusion marker.
+				teamMember = true;
+				if (catName.endsWith(NoTeamMarker)) {
+					catName = catName.substring(0, s.length() - NoTeamMarker.length());
+					teamMember = false;
+				} else if (catName.endsWith("/")) {
+					catName = catName.substring(0, s.length() - "/".length());
+					teamMember = false;
+				}
 			}
 
 			Category c;
 			String catCode = Category.codeFromName(catName);
-			//logger.debug("keySet {}",RCompetition.getActiveCategories().keySet());
+			// logger.debug("keySet {}",RCompetition.getActiveCategories().keySet());
 			if ((c = RCompetition.getActiveCategories().get(catCode)) != null) {
 				// exact match for a category. This is the athlete's registration category.
 				processEligibilityAndTeams(parts, c, teamMember);
 			} else {
 				// we have a short form category. infer from age and category limit
 				setCategoryHeuristics(s);
-				this.a.getParticipations().stream().forEach(p -> p.setTeamMember(true));
+				final var tm = teamMember;
+				this.a.getParticipations().stream().forEach(p -> p.setTeamMember(tm));
 			}
 		}
 	}
