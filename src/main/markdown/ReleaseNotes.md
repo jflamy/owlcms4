@@ -1,16 +1,13 @@
-**Version 49 alpha**
+**Version 49 beta**
 
-> [!CAUTION]
+> [!WARNING]
 >
-> - This is an **alpha release**, used for validating new features.  *Some features are likely to be incomplete or non-functional*.  
-> - **Alpha releases are not normally used in actual competitions.**
+> - This is a **beta release**, used for testing and translation. ***Some features could be non-functional***.
+> - Beta releases are **not** normally used in actual competitions, except if a new feature is required. Use extreme care in testing if you intend to do so.
 
-- (alpha08) Documents
-  - The final package document now excludes unfinished categories by default and obeys the override checkbox.
-
-- (alpha08) Scoreboards:
-  - Record ordering at the bottom now goes from lowest-aged age group to highest, based on the maximum age of the age group. U13 before U17 before JR before U23 before SR before Open.
-
+- (beta01) Documents
+  - Footers for protocols, start lists and final results are now standardized to show the date of production.  The headers for final results show the championship and age group when selected.
+  - The final package document now excludes unfinished categories by default and obeys the override checkbox when unfinished categories are required.
 - Competition Results
   - The "End of Competition" results can now be produced in the middle of the competition.  By default, categories that are not finished are not included.
   - There is now a separate directory for the competition results templates (previously it was the same as the protocol sheets)
@@ -26,6 +23,7 @@
 - Scoreboards:
   - White is now used for good lifts on all scoreboards (previously some used green)
   - The layout now includes vertical spacing between the lifts for better readability.
+  - Record ordering at the bottom now goes from lowest-aged age group to highest, based on the maximum age of the age group. U13 before U17 before JR before U23 before SR before Open.
 - Team flag preview: 
   - The team membership page now shows the flag for each team, allowing a quick check that all are correctly assigned.
 - Documents:
