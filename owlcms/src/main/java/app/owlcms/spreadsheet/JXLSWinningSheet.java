@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.poi.ss.usermodel.Header;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.LoggerFactory;
 
@@ -138,7 +139,9 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 		final Group currentCompetitionSession = getGroup();
 		String c = getChampionship().getName();
 		String ag = getAgeGroupPrefix();
-		workbook.getSheetAt(0).getHeader().setCenter(c != null && ag != null ? c + "\u2013" + ag : (c != null ? c : ag));
+		Header header = workbook.getSheetAt(0).getHeader();
+		//header.setLeft(Competition.getCurrent().getCompetitionName());
+		header.setCenter(c != null && ag != null ? c + "\u2013" + ag : (c != null ? c : ag));
 		createStandardFooter(workbook);
 		if (currentCompetitionSession == null
 		        && !Competition.getCurrent().getProtocolTemplateFileName().contains("USAW")) {
