@@ -131,17 +131,6 @@ public class Group implements Comparable<Group> {
 			return compare;
 		}
 
-		// Platform p1 = lifter1Group.getPlatform();
-		// Platform p2 = lifter2Group.getPlatform();
-		// String name1 = p1 != null ? p1.getName() : null;
-		// String name2 = p2 != null ? p2.getName() : null;
-		// compare = ObjectUtils.compare(name1, name2, false);
-		// if (compare != 0) {
-		// // logger.trace("different platform {} {} {}", name1, name2,
-		// // LoggerUtils.whereFrom(10));
-		// return compare;
-		// }
-
 		String lifter1String = lifter1Group.getName();
 		String lifter2String = lifter2Group.getName();
 

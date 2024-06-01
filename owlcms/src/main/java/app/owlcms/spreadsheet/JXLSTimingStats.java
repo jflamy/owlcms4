@@ -25,6 +25,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
+import app.owlcms.data.group.GroupRepository;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -194,10 +195,6 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 
 		List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, isExcludeNotWeighed());
 		athletes = AthleteSorter.registrationExportCopy(athletes);
-//		for (Athlete a : athletes) {
-//			logger.debug("{} {}", a.getGroup(), a.getShortName());
-//		}
-		
 		
 		if (athletes.isEmpty()) {
 			// prevent outputting silliness.
@@ -205,41 +202,40 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 		} else {
 			this.logger.debug("{} athletes", athletes.size());
 		}
+		
+		List<Group> groups = GroupRepository.findAll();
+		groups.sort(Group.groupWeighinTimeComparator);
 
 		// extract group stats
-		Group curGroup = null;
-		Group prevGroup = null;
 
 		List<SessionStats> sessions = new LinkedList<>();
-
 		SessionStats curStat = new SessionStats("");
-		for (Athlete curAthlete : athletes) {
-			curGroup = curAthlete.getGroup();
-			this.logger.debug("athlete = {} {}", curAthlete, curGroup);
-			if (curGroup == null) {
-				continue; // we simply skip over athletes with no groups
+		for (Group curGroup : groups) {
+			String groupName = curGroup.getName();
+			logger.warn("group {}",groupName);
+			curStat = new SessionStats(groupName);
+			for (Athlete curAthlete : curGroup.getAthletes()) {
+				curGroup = curAthlete.getGroup();
+				this.logger.warn("   athlete = {} {}", curAthlete, curGroup);
+				if (curGroup == null) {
+					continue; // we simply skip over athletes with no groups
+				}
+	
+				// update stats, min, max.
+				curStat.setNbAthletes(curStat.getNbAthletes() + 1);
+				LocalDateTime minTime = curAthlete.getFirstAttemptedLiftTime();
+				curStat.updateMinTime(minTime);
+	
+				LocalDateTime maxTime = curAthlete.getLastAttemptedLiftTime();
+				curStat.updateMaxTime(maxTime);
+	
+				int nbAttemptedLifts = curAthlete.getActuallyAttemptedLifts();
+				curStat.setNbAttemptedLifts(curStat.getNbAttemptedLifts() + nbAttemptedLifts);
+				this.logger.debug(curStat.toString());
 			}
-			if (curGroup != prevGroup) {
+			if (curStat.getNbAthletes() > 0) {
 				addSessionStatsIfNotEmpty(sessions, curStat);
-
-				String name = curGroup.getName();
-				curStat = new SessionStats(name);
 			}
-			// update stats, min, max.
-			curStat.setNbAthletes(curStat.getNbAthletes() + 1);
-			LocalDateTime minTime = curAthlete.getFirstAttemptedLiftTime();
-			curStat.updateMinTime(minTime);
-
-			LocalDateTime maxTime = curAthlete.getLastAttemptedLiftTime();
-			curStat.updateMaxTime(maxTime);
-
-			int nbAttemptedLifts = curAthlete.getActuallyAttemptedLifts();
-			curStat.setNbAttemptedLifts(curStat.getNbAttemptedLifts() + nbAttemptedLifts);
-			this.logger.debug(curStat.toString());
-			prevGroup = curGroup;
-		}
-		if (curStat.getNbAthletes() > 0) {
-			addSessionStatsIfNotEmpty(sessions, curStat);
 		}
 		reportingBeans.put("groupStats", sessions);
 		return athletes;
@@ -256,5 +252,5 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 		}
 		sessions.add(curStat);
 	}
-	
+
 }
