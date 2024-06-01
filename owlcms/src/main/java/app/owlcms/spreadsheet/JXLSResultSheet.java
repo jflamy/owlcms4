@@ -133,6 +133,7 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 		        && !Competition.getCurrent().getProtocolTemplateFileName().contains("USAW")) {
 			zapCellPair(workbook, 3, 9);
 		}
+		createStandardFooter(workbook);
 	}
 
 	private List<Athlete> unwrapAthletesAsNeeded(List<Athlete> rankedAthletes) {

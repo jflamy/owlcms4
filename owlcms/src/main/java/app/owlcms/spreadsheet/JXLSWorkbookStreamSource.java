@@ -459,9 +459,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			@SuppressWarnings("unchecked")
 			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
 			if (athletes != null && (athletes.size() > 0 || isEmptyOk())) {
-				logger.warn("before transformWorkbook");
+				logger.info("before transformWorkbook");
+				long start = System.currentTimeMillis();
 				transformer.transformWorkbook(workbook, reportingInfo);
-				logger.warn("after transformWorkbook;");
+				logger.info("after transformWorkbook ({} ms)",System.currentTimeMillis()-start);
 				if (workbook != null) {
 					postProcess(workbook);
 				}
@@ -484,7 +485,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			LoggerUtils.logError(logger, t);
 		}
 		if (workbook != null) {
-			logger.warn("writing stream");
+			logger.debug("writing stream");
 			try {
 				workbook.write(stream);
 				if (this.doneCallback != null) {
@@ -493,7 +494,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			} catch (Throwable e) {
 				LoggerUtils.logError(logger, e);
 			}
-			logger.warn("wrote stream");
+			logger.debug("wrote stream");
 		}
 	}
 

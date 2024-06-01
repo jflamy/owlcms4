@@ -54,13 +54,13 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 
 	@Override
 	public List<Athlete> getSortedAthletes() {
-		logger.warn("winning getSortedAthletes {}", this.sortedAthletes.size());
+		logger.debug("winning getSortedAthletes {}", this.sortedAthletes.size());
 		if (this.sortedAthletes != null) {
 			// we are provided with an externally computed list.
 			if (this.resultsByCategory) {
 				// no need to unwrap, each athlete is a wrapper PAthlete with a participation category.
 				AthleteSorter.resultsOrder(this.sortedAthletes, Ranking.TOTAL, false);
-				logger.warn("eligible getSortedAthletes {}",this.sortedAthletes.size());
+				logger.debug("eligible getSortedAthletes {}",this.sortedAthletes.size());
 				return this.sortedAthletes;
 			} else {
 				// we need the athlete with the original registration category inside the PAthlete
@@ -69,7 +69,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 				Set<Athlete> noDuplicates = new HashSet<>(unwrappedAthletes);
 				this.sortedAthletes = new ArrayList<>(noDuplicates);
 				AthleteSorter.resultsOrder(this.sortedAthletes, Ranking.TOTAL, false);
-				logger.warn("registration getSortedAthletes {}",this.sortedAthletes.size());
+				logger.debug("registration getSortedAthletes {}",this.sortedAthletes.size());
 				return this.sortedAthletes;
 			}
 		}
@@ -136,6 +136,10 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 	@Override
 	protected void postProcess(Workbook workbook) {
 		final Group currentCompetitionSession = getGroup();
+		String c = getChampionship().getName();
+		String ag = getAgeGroupPrefix();
+		workbook.getSheetAt(0).getHeader().setCenter(c != null && ag != null ? c + "\u2013" + ag : (c != null ? c : ag));
+		createStandardFooter(workbook);
 		if (currentCompetitionSession == null
 		        && !Competition.getCurrent().getProtocolTemplateFileName().contains("USAW")) {
 			zapCellPair(workbook, 3, 9);
