@@ -5,9 +5,9 @@
 > - This is a **beta release**, used for testing and translation. ***Some features could be non-functional***.
 > - Beta releases are **not** normally used in actual competitions, except if a new feature is required. Use extreme care in testing if you intend to do so.
 
-- (beta01) Documents
+- (beta02) Documents
   - Timing statistics: the number of athletes per session is now correct.
-- (beta01) Registration file
+- (beta02) Registration file
   - The feature switch `explicitTeams` disables the automatic assignment to a team at registration time.  The web page can be used to do the assignment.
 
 - Competition Results
