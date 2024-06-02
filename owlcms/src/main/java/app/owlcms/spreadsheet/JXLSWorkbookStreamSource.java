@@ -507,7 +507,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			@SuppressWarnings("unchecked")
 			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
 			logger.debug("reportingInfo sessions {}", reportingInfo.get("sessions"));
-			if (athletes != null && (athletes.size() > 0 || isEmptyOk())) {
+			if (isEmptyOk() || (athletes != null && (athletes.size() > 0))) {
 				tempFile = File.createTempFile("jxlsOutput", ".xlsx");
 				JxlsPoi.fill(new FileInputStream(templateFile), JxlsStreaming.STREAMING_OFF, reportingInfo, tempFile);
 				workbook = WorkbookFactory.create(tempFile);
@@ -582,7 +582,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
         
 		Footer footer = workbook.getSheetAt(0).getFooter();
 
-		footer.setLeft(Translator.translate("Results.producedBy", OwlcmsFactory.getVersion()));
+		footer.setLeft(Translator.translate("Results.producedBy", "owlcms", OwlcmsFactory.getVersion()));
 		footer.setCenter(Translator.translate("Results.dateTime", formattedDate, formattedTime));
 		footer.setRight(Translator.translate("Results.pageOf",HeaderFooter.page(),HeaderFooter.numPages()));
 	}

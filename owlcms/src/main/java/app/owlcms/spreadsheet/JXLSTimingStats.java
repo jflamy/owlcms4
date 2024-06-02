@@ -212,11 +212,9 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 		SessionStats curStat = new SessionStats("");
 		for (Group curGroup : groups) {
 			String groupName = curGroup.getName();
-			logger.warn("group {}",groupName);
 			curStat = new SessionStats(groupName);
 			for (Athlete curAthlete : curGroup.getAthletes()) {
 				curGroup = curAthlete.getGroup();
-				this.logger.warn("   athlete = {} {}", curAthlete, curGroup);
 				if (curGroup == null) {
 					continue; // we simply skip over athletes with no groups
 				}

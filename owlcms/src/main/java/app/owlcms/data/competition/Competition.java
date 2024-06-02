@@ -1409,9 +1409,6 @@ public class Competition {
 	}
 
 	private void addToReportingBean(String string, List<Athlete> sorted) {
-		if (string.endsWith("null")) {
-			logger.warn("?????? {}", LoggerUtils.stackTrace());
-		}
 		List<Athlete> athletes = getOrCreateBean(string);
 		athletes.addAll(sorted);
 	}
