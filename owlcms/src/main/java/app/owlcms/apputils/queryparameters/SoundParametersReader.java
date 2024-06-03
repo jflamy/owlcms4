@@ -86,6 +86,8 @@ public interface SoundParametersReader extends SoundParameters, FOPParametersRea
 			fop.setAnnouncerDecisionImmediate(imm);
 			switchImmediateDecisionMode((Component) this, imm, false);
 			updateParam(params, IMMEDIATE, imm ? null : "false");
+			fop.setSingleReferee(isSingleReferee());
+
 		}
 		setUrlParameterMap(removeDefaultValues(params));
 		return params;
