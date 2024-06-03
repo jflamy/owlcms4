@@ -5,11 +5,15 @@
 > - This is a **beta release**, used for testing and translation. ***Some features could be non-functional***.
 > - Beta releases are **not** normally used in actual competitions, except if a new feature is required. Use extreme care in testing if you intend to do so.
 
-- (beta03) Documents
-  - An awards schedule document is now available from the Results page.  It shows after what session the medals for a category can be awarded.
-- (beta03) Single Referee Mode:
-  - When selected in the announcer settings (⚙), a decision from any of the 3 refereeing devices or from the announcer is treated as a full decision.
+- (beta02) Group Selection
+  - The announcer sees unfinished sessions first, sorted in ascending time (name if time unavailable)
+  - Registration pages have session selection sorted in ascending time (name if time unavailable)
+  - Results pages have session selection sorted with finished sessions first, most recent first (reverse name if unavailable)
 
+- (beta02) Documents
+  - An awards schedule document is now available from the Results page.  It shows after what session the medals for a category can be awarded.
+- (beta02) Single Referee Mode:
+  - When selected in the announcer settings (⚙), a decision from any of the 3 refereeing devices or from the announcer is treated as a full decision.
 - Competition Results
   - The "End of Competition" results can now be produced in the middle of the competition.  By default, categories that are not finished are not included.
   - There is now a separate directory for the competition results templates (previously it was the same as the protocol sheets)
