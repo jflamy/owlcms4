@@ -263,12 +263,12 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 								CellStyle style = workbook.createCellStyle();
 								style.cloneStyleFrom(ccs);
 								ccs = style;
-								logger.warn("applying reference to {}", cell.getAddress());
+								logger.debug("applying reference to {}", cell.getAddress());
 								cell.setCellStyle(style);
 								continue;
 							}
 							ccs = cell.getCellStyle();
-							logger.warn("style reference: {}",cell.getAddress());
+							logger.debug("style reference: {}",cell.getAddress());
 							if (ccs != null) {
 								BorderStyle borderLeft = ccs.getBorderLeft();
 								BorderStyle borderTop = ccs.getBorderTop();
