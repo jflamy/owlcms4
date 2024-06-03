@@ -5,6 +5,9 @@
 > - This is a **beta release**, used for testing and translation. ***Some features could be non-functional***.
 > - Beta releases are **not** normally used in actual competitions, except if a new feature is required. Use extreme care in testing if you intend to do so.
 
+- (beta03) Weigh-in vs Categories
+  - When entering the athlete's weight, accept the current registration category and eligibility categories if it the new weight is within the eligibility categories, even when it is not the youngest or most specific age group. Previously this required a manual override. To get the old behavior, add the `bestMatchCategories` feature switch.
+  
 - (beta02) Group Selection
   - The announcer sees unfinished sessions first, sorted in ascending time (name if time unavailable)
   - Registration pages have session selection sorted in ascending time (name if time unavailable)
