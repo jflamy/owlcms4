@@ -712,7 +712,7 @@ public class WeighinContent extends BaseContent
 			        (g1) -> doSwitchGroup(g1),
 			        (g1) -> doSwitchGroup(new Group("*")),
 			        null,
-			        Translator.translate("AllGroups"));
+			        Translator.translate("AllGroups"), false);
 		});
 	}
 

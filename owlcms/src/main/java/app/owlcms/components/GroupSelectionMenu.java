@@ -33,11 +33,11 @@ public class GroupSelectionMenu extends MenuBar {
 
 	public GroupSelectionMenu(List<Group> groups, Group curGroup, FieldOfPlay fop2,
 	        Consumer<Group> whenChecked, Consumer<Group> whenUnselected) {
-		this(groups, curGroup, fop2, whenChecked, whenUnselected, xIcon, Translator.translate("NoGroup"));
+		this(groups, curGroup, fop2, whenChecked, whenUnselected, xIcon, Translator.translate("NoGroup"), true);
 	}
 
 	public GroupSelectionMenu(List<Group> groups, Group curGroup, FieldOfPlay fop2,
-	        Consumer<Group> whenChecked, Consumer<Group> whenUnselected, Icon unselectedIcon, String unselectedLabel) {
+	        Consumer<Group> whenChecked, Consumer<Group> whenUnselected, Icon unselectedIcon, String unselectedLabel, boolean doneSeparator) {
 		MenuItem item;
 		if (curGroup != null) {
 			// logger.debug(curGroup.toString());
@@ -50,7 +50,11 @@ public class GroupSelectionMenu extends MenuBar {
 		}
 		SubMenu subMenu = item.getSubMenu();
 		MenuItem currentlyChecked[] = { null };
+		Group prevGroup = null;
 		for (Group g : groups) {
+			if (doneSeparator && prevGroup != null && (prevGroup.isDone() != g.isDone())) {
+				addSeparator(subMenu);
+			}
 			MenuItem subItem = subMenu.addItem(
 			        describedName(g),
 			        e -> {
@@ -73,13 +77,9 @@ public class GroupSelectionMenu extends MenuBar {
 			if (g.compareTo(curGroup) == 0) {
 				currentlyChecked[0] = subItem;
 			}
+			prevGroup = g;
 		}
-		Hr ruler = new Hr();
-		ruler.getElement().setAttribute("style",
-		        "color: var(--lumo-contrast-50pct); border-color: red; var(--lumo-contrast-50pct): var(--lumo-contrast-50pct)");
-		MenuItem separator = subMenu.addItem(ruler);
-		separator.getElement().setAttribute("style",
-		        "margin-top: -1em; margin-bottom: -1.5em; margin-left: -1.5em; padding: 0px; padding-left: -1em;");
+		addSeparator(subMenu);
 
 		HorizontalLayout hl = new HorizontalLayout();
 		if (unselectedIcon != null) {
@@ -105,6 +105,14 @@ public class GroupSelectionMenu extends MenuBar {
 		        });
 		item3.setCheckable(false);
 		item.setEnabled(true);
+	}
+
+	private void addSeparator(SubMenu subMenu) {
+		Hr ruler = new Hr();
+		ruler.getElement().setAttribute("style", "width: 100%; height: 2px; color: black");
+		MenuItem separator = subMenu.addItem(ruler);
+		separator.getElement().setAttribute("style",
+		        "margin-top: -1em; margin-bottom: -1em; margin-left: -1em; margin-right: 0em; padding: 0px; padding-left: -1em; width: 100%");
 	}
 
 	private String describedName(Group g) {

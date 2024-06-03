@@ -656,7 +656,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			        (g1) -> doSwitchGroup(g1),
 			        (g1) -> doSwitchGroup(new Group("*")),
 			        null,
-			        Translator.translate("AllGroups"));
+			        Translator.translate("AllGroups"), false);
 		});
 	}
 
