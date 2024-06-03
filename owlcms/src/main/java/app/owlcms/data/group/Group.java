@@ -148,6 +148,52 @@ public class Group implements Comparable<Group> {
 
 		return 0;
 	};
+	
+	public static Comparator<Group> groupSelectionComparator = (lifter1Group, lifter2Group) -> {
+
+		int compare;
+		if (lifter1Group == null || lifter2Group == null) {
+			compare = ObjectUtils.compare(lifter1Group, lifter2Group, true);
+			return compare;
+		}
+		
+		Boolean lifter1Done = lifter1Group.isDone();
+		Boolean lifter2Done = lifter2Group.isDone();
+		compare = ObjectUtils.compare(lifter1Done, lifter2Done, true);
+		if (compare != 0) {
+			AbstractLifterComparator.traceComparison("compareGroup isDone", lifter1Group,
+			        lifter1Group.isDone(),
+			        lifter2Group, lifter2Group.isDone(), compare);
+			return compare;
+		}
+
+		LocalDateTime lifter1Date = lifter1Group.getWeighInTime();
+		LocalDateTime lifter2Date = lifter2Group.getWeighInTime();
+		compare = ObjectUtils.compare(lifter1Date, lifter2Date, true);
+		if (compare != 0) {
+			AbstractLifterComparator.traceComparison("compareGroupWeighInTime", lifter1Group,
+			        lifter1Group.getWeighInTime(),
+			        lifter2Group, lifter2Group.getWeighInTime(), compare);
+			return compare;
+		}
+
+		String lifter1String = lifter1Group.getName();
+		String lifter2String = lifter2Group.getName();
+
+		if (lifter1String == null || lifter2String == null) {
+			compare = ObjectUtils.compare(lifter1String, lifter2String, true);
+		} else {
+			compare = AbstractLifterComparator.noc.compare(lifter1String, lifter2String);
+		}
+		compare = AbstractLifterComparator.noc.compare(lifter1String, lifter2String);
+		if (compare != 0) {
+			// logger.trace("different group {} {} {}", lifter1String, lifter2String,
+			// LoggerUtils.whereFrom(10));
+			return compare;
+		}
+
+		return 0;
+	};
 
 	public static DisplayGroup getEmptyDisplayGroup() {
 		return new DisplayGroup("?", "", null, "", "");

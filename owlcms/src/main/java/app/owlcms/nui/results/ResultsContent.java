@@ -400,7 +400,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		// filter.
 
 		List<Group> groups = GroupRepository.findAll();
-		groups.sort(new NaturalOrderComparator<>());
+		groups.sort(Group.groupSelectionComparator.reversed());
 
 		OwlcmsSession.withFop(fop -> {
 			logger.trace("initial setting group to {} {}", this.currentGroup, LoggerUtils.whereFrom());

@@ -68,7 +68,6 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.NaturalOrderComparator;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -552,7 +551,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		// filter.
 
 		List<Group> groups = GroupRepository.findAll();
-		groups.sort(new NaturalOrderComparator<>());
+		groups.sort(Group.groupSelectionComparator);
 
 		OwlcmsSession.withFop((fop) -> {
 			Group group = fop.getGroup();

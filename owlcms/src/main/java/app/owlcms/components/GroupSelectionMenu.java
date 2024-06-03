@@ -33,7 +33,6 @@ public class GroupSelectionMenu extends MenuBar {
 
 	public GroupSelectionMenu(List<Group> groups, Group curGroup, FieldOfPlay fop2,
 	        Consumer<Group> whenChecked, Consumer<Group> whenUnselected) {
-
 		this(groups, curGroup, fop2, whenChecked, whenUnselected, xIcon, Translator.translate("NoGroup"));
 	}
 

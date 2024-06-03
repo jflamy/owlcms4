@@ -644,7 +644,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		// filter.
 
 		List<Group> groups = GroupRepository.findAll();
-		groups.sort(new NaturalOrderComparator<>());
+		groups.sort(Group.groupWeighinTimeComparator);
 
 		OwlcmsSession.withFop(fop -> {
 			// logger.debug("initial setting group to {} {}", getCurrentGroup(),

@@ -50,7 +50,6 @@ import app.owlcms.nui.shared.BreakDialog;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.NaturalOrderComparator;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -310,7 +309,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		// filter.
 		if (Config.getCurrent().featureSwitch("enableTimeKeeperSessionSwitch")) {
 			List<Group> groups = GroupRepository.findAll();
-			groups.sort(new NaturalOrderComparator<>());
+			groups.sort(Group.groupSelectionComparator);
 
 			OwlcmsSession.withFop(fop -> {
 				this.topBarMenu = new GroupSelectionMenu(groups, fop.getGroup(),
