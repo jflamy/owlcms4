@@ -308,7 +308,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			n.setPosition(Position.TOP_START);
 			n.setDuration(5000);
 			n.open();
-			
+
 			setDecisionLights(null);
 		});
 	}
@@ -623,6 +623,10 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			// single referee implies not immediate so down is shown
 			boolean singleReferee2 = !this.isSingleReferee();
 			switchSingleRefereeMode(this, singleReferee2, true);
+			FieldOfPlay fop2 = OwlcmsSession.getFop();
+			if (fop2 != null) {
+				fop2.setSingleReferee(singleReferee2);
+			}
 			switchImmediateDecisionMode(this, !singleReferee2, true);
 			subItemSingleRef.setChecked(singleReferee2);
 			immediateDecision.setChecked(!singleReferee2);

@@ -227,6 +227,7 @@ public class FieldOfPlay implements IUnregister {
 	private Queue<FOPEvent.WeightChange> deferredWeightChanges = new LinkedList<>();
 	private Athlete nextAthlete;
 	private TimerTask decisionDisplayTimer;
+	private boolean singleReferee;
 
 	public FieldOfPlay() {
 	}
@@ -1655,7 +1656,8 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void doPossiblySoloRefereeUpdate(FOPEvent e) {
-		if (((DecisionUpdate) e).getRefIndex() < 0) {
+		logger.warn("===== doPossiblySoloRefereeUpdate {}", isSingleReferee());
+		if (isSingleReferee() || ((DecisionUpdate) e).getRefIndex() < 0) {
 			boolean goodLift = ((DecisionUpdate) e).isDecision();
 			simulateDecision(new ExplicitDecision(e.getAthlete(), e.getStackTrace(), isAnnouncerDecisionImmediate(),
 			        goodLift, goodLift, goodLift));
@@ -1665,6 +1667,15 @@ public class FieldOfPlay implements IUnregister {
 		}
 	}
 
+	public boolean isSingleReferee() {
+		return this.singleReferee;
+	}
+	
+	public void setSingleReferee(boolean solo) {
+		logger.warn("===== set single referee {}",solo);
+		this.singleReferee=solo;
+	}
+ 
 	private void doSetState(FOPState state) {
 		if (state == CURRENT_ATHLETE_DISPLAYED) {
 			Athlete a = getCurAthlete();
