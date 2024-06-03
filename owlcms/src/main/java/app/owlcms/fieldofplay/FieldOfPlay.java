@@ -1656,7 +1656,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void doPossiblySoloRefereeUpdate(FOPEvent e) {
-		logger.warn("===== doPossiblySoloRefereeUpdate {}", isSingleReferee());
+		//logger.debug("===== doPossiblySoloRefereeUpdate {}", isSingleReferee());
 		if (isSingleReferee() || ((DecisionUpdate) e).getRefIndex() < 0) {
 			boolean goodLift = ((DecisionUpdate) e).isDecision();
 			simulateDecision(new ExplicitDecision(e.getAthlete(), e.getStackTrace(), isAnnouncerDecisionImmediate(),
@@ -1672,7 +1672,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 	
 	public void setSingleReferee(boolean solo) {
-		logger.warn("===== set single referee {}",solo);
+		//logger.debug("===== set single referee {}",solo);
 		this.singleReferee=solo;
 	}
  
