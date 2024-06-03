@@ -355,7 +355,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void validateBodyWeight(Binder.BindingBuilder<Athlete, Double> bindingBuilder, boolean isRequired) {
-		Validator<Double> v1 = new DoubleRangeValidator(Translator.translate("Weight_under_X","200"), 0.1D, 200.0D);
+		Validator<Double> v1 = new DoubleRangeValidator(Translator.translate("Weight_under_X", "200"), 0.1D, 200.0D);
 		bindingBuilder.withValidator(v1);
 	}
 
@@ -918,7 +918,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			        this.qualifyingTotalField);
 		});
 		bb1.withValidator(v1);
-		Validator<Integer> v1a = new IntegerRangeValidator(Translator.translate("Weight_under_X","350"), 0, 350);
+		Validator<Integer> v1a = new IntegerRangeValidator(Translator.translate("Weight_under_X", "350"), 0, 350);
 		bb1.withValidator(v1a);
 		bindField(bb1, this.snatch1DeclarationField,
 		        a -> {
@@ -940,7 +940,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			        this.qualifyingTotalField);
 		});
 		bb2.withValidator(v2);
-		Validator<Integer> v2a = new IntegerRangeValidator(Translator.translate("Weight_under_X","350"), 0, 350);
+		Validator<Integer> v2a = new IntegerRangeValidator(Translator.translate("Weight_under_X", "350"), 0, 350);
 		bb2.withValidator(v2a);
 		bindField(bb2, this.cleanJerk1DeclarationField,
 		        a -> {
@@ -1206,11 +1206,13 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				        categoryField, qualifyingTotalField2);
 				logger.debug/* edit */("cat {} eli {}", cat, this.allEligible);
 				if (cat != null && categoryIsEligible(cat, this.allEligible)) {
-					// current category is amongst eligibles. Don't recompute anything.
+					// current registration category is amongst eligibles. Don't recompute anything.
 					logger.debug/* edit */("leave alone");
-					Category bestMatchCategory = bestMatch(this.allEligible);
-					updateCategoryFields(bestMatchCategory, categoryField, eligibleField, qualifyingTotalField2,
-					        this.allEligible, false);
+					if (Config.getCurrent().featureSwitch("bestMatchCategories")) {
+						Category bestMatchCategory = bestMatch(this.allEligible);
+						updateCategoryFields(bestMatchCategory, categoryField, eligibleField, qualifyingTotalField2,
+						        this.allEligible, false);
+					}
 				} else {
 					logger.debug/* edit */("recompute, cat={} allEligible = {}", cat, this.allEligible);
 					// category is null or not within eligibles, recompute
@@ -1377,7 +1379,8 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			logger.debug/* edit */("updateCategoryFields all eligibles {}",
 			        allEligible.stream().map(v -> v.shortDump()).collect(Collectors.toList()));
 
-			//List<Category> pertinentCategories = CategoryRepository.findByGenderAgeBW(getGenderFieldValue(), getAgeFromFields(), null);
+			// List<Category> pertinentCategories = CategoryRepository.findByGenderAgeBW(getGenderFieldValue(),
+			// getAgeFromFields(), null);
 
 			boolean listenerStatus = isChangeListenersEnabled();
 			try {

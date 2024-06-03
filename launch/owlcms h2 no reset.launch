@@ -9,7 +9,6 @@
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
         <mapEntry key="OWLCMS_BACKDOOR" value="127.0.0.1,[0:0:0:0:0:0:0:1]"/>
-        <mapEntry key="OWLCMS_FEATURESWITCHES" value="noForwarderKeepAlive"/>
         <mapEntry key="OWLCMS_PORT" value="8080"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="mapetitevacheamalauxpattes"/>
         <mapEntry key="OWLCMS_USECOMPETITIONDATE" value="true"/>
@@ -19,6 +18,7 @@
         <mapEntry key="_OWLCMS_CSSEDIT" value="false"/>
         <mapEntry key="_OWLCMS_DEBUG" value="trace"/>
         <mapEntry key="_OWLCMS_ENABLEEMBEDDEDMQTT" value="false"/>
+        <mapEntry key="_OWLCMS_FEATURESWITCHES" value="noForwarderKeepAlive"/>
         <mapEntry key="_OWLCMS_H2SERVERPORT" value="9092"/>
         <mapEntry key="_OWLCMS_PIN" value="1234"/>
         <mapEntry key="_OWLCMS_REMOTE" value="http://localhost:8082"/>
