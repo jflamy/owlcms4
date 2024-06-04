@@ -47,41 +47,49 @@ You can also run the program in the cloud, in which case you don't have to insta
 The following list is a sampling of the many features available.  <u>*Click on the images if you wish to view them full-sized*</u>.
 
 - Run a **regular** or **masters** competition, with or without a **jury**.
-  
+
 - **State-of-the-art technology and high performance**: As an example, there is negligible CPU load and disk usage when [running a benchmark](https://groups.google.com/g/owlcms/c/57Ve5hUmMRM/m/T-NK8XkUBAAJ) with over 1150 athletes in 81 sessions spread over 4 simultaneous platforms, with athletes lifting at 8 times the normal rate. The system uses a modern, fully integrated web-based architecture and data is stored in a true relational database.
-  
+
 - Ability to run locally or in the [**cloud**](EquipmentSetup#cloud-access-over-the-internet).  Decisions, timers and sounds are handled locally in the browser to provide better feedback.
-  
-- **[Scoreboard](Displays#scoreboard)** for public or warm-up room display.  Current and next lifters are highlighted.   If record information has been loaded, the records being attempted are highlighted
+
+- **[Scoreboard](Displays#scoreboard)** for the public or warm-up room display.  
+
+     - Current and next lifters are highlighted. 
+
+     -  Leaders from current and previous groups can be shown for multi-group competitions. 
+
+     - The leaders and records sections can be shown or hidden on demand.
+
+     - The ranks for the lifts are shown when medals are awarded for each lift
 
      ![020_Scoreboard](img/Records/records.png ':size=800')
 
-     Leaders from current and previous groups can be shown for multi-group competitions. The leaders and records sections can be shown or hidden on demand.
-
-     ![024_Scoreboard_Leaders](img/Displays/024_Scoreboard_Leaders.png)
-
-     If athletes can win medals in several categories, a multi-rank scoreboard is available
-
-     ![hvmDyjbdr2](img/Displays/hvmDyjbdr2.png)
-
-     The top part of the scoreboard contains the same information as the attempt board, and shows the down signal and decisions.
+     - The top part of the scoreboard contains the same information as the attempt board, and shows the down signal and decisions.
 
      ![022_Scoreboard_Decision](img/Displays/022_Scoreboard_Decision.png)
 
+- **[Lifting order display](Displays#lifting-order)**. Useful for the marshal and for regional championships to help newer coaches.  All scoreboards can be displayed with black-on-white or white-on-black depending on the lighting conditions.
+
+    ![Lifting](img/Displays/025_LiftingOrder.png)
+    
+- **Multiple age group display**: If athletes can win medals in several categories, a multi-rank scoreboard is available
+
+    ![hvmDyjbdr2](img/Displays/hvmDyjbdr2.png)
+
 - [**Announcer and Marshall**](Announcing) screens (updating athlete cards and recalculation of lifting order).    The information is laid out as on the official cards.  Messages are given for late changes, and the changes are checked for correctness relative to the lifting order. 
-  
+
     ![090](nimg/3200Lifting/090.png ':size=350')
-  
+
 - [**Timekeeping**](Announcing#Starting_the_clock) Time can either be [managed by the announcer](Announcing#Starting-the-clock)  (useful for smaller meets) or a dedicated [timekeeper screen](Announcing#Timekeeper) can be used. The timekeeper screen can be conveniently operated from a phone or tablet.
-  
+
     <img src="img/Lifting/050_Timekeeper.png" alt="050_Timekeeper.png" width=350 style="border-style:solid; border-width: thin" />
 
 - **[Attempt Board](Displays#attempt-board)** showing current athlete information, remaining time, weight requested, down signal and decision.
-  
+
     ![032_Attempt_Running](img/Displays/032_Attempt_Running.png ':size=350' )  ![038_Attempt_Decision](img/Displays/038_Attempt_Decision.png ':size=350') 
-  
+
 - **Support for refereeing devices**
-  
+
   - [**Mobile phones or tablets**](Refereeing#mobile-device-refereeing) The easiest way to get started is to use phones or tablets. 
     
       ![mobile_ref](img/Refereeing/mobile_ref.png ':size=350')
@@ -92,70 +100,66 @@ The following list is a sampling of the many features available.  <u>*Click on t
     
   - [**Fully compliant devices**](Refereeing#full-feedback-keypad)  The IWF technical rules and regulations (TCRR) state requirements for refereeing and jury devices, notably regarding notifications to referees.  You can [buy commercial devices](https://blue-owl.nemikor.com) that are fully compliant or build your own. [Free do-it-yourself schematics
    and software](https://github.com/jflamy/owlcms-firmata/tree/v24?tab=readme-ov-file#owlcms-firmata) using low-cost Arduino boards are available.
-  
-  ![FederationKit](img/Gallery/FederationKit.png ':size=450')![home-built](img/Gallery/home-built.jpg ':size=250')
-  
-- **[Athlete-facing display](Displays#attempt-board)** (the decision display matches the referee positions as seen from platform). Refereeing keypads are typically connected to this laptop.
-  
-    ![044_AF_Down](img/Displays/044_AF_Down.png ':size=350') ![048_AF_Decision](img/Displays/048_AF_Decision.png ':size=350')
-  
--  **[Records](Records)**  Record information can be provided using Excel files. Records for multiple federations and events can be loaded.  Record is then shown on the scoreboards, and notifications are given to the officials when records are attempted or set.  If a record is improved, the record information is updated.
-  
--  [**Integration with video streaming software**](OBS). Video-oriented layouts are included that can be customized using standard Web design techniques to achieve a competition-specific look.  Because the layouts are generated by the program itself, there is no delay and no risk of discrepency, and no additional work required at competition time.
-    ![Streaming](img/Gallery/Streaming.png)
-    
--  **[Lifting order display](Displays#lifting-order)**. Useful for the marshal or for regional championships to help newer coaches.
 
-    ![Lifting](img/Displays/025_LiftingOrder.png  ':size=350')
-  
+  ![FederationKit](img/Gallery/FederationKit.png ':size=450')![home-built](img/Gallery/home-built.jpg ':size=250')
+
+- **[Athlete-facing display](Displays#attempt-board)** (the decision display matches the referee positions as seen from platform). Refereeing keypads are typically connected to this laptop.
+
+    ![044_AF_Down](img/Displays/044_AF_Down.png ':size=350') ![048_AF_Decision](img/Displays/048_AF_Decision.png ':size=350')
+
+- **[Records](Records)**  Record information can be provided using Excel files. Records for multiple federations and events can be loaded.  Record is then shown on the scoreboards, and notifications are given to the officials when records are attempted or set.  If a record is improved, the record information is updated.
+
+- [**Integration with video streaming software**](OBS). Video-oriented layouts are included that can be customized using standard Web design techniques to achieve a competition-specific look.  Because the layouts are generated by the program itself, there is no delay and no risk of discrepency, and no additional work required at competition time.
+    ![Streaming](img/Gallery/Streaming.png)
+
 - [**3 and 5-person jury**](Refereeing#jury).  Jury members see referee decisions as they happen. Jury members see their vote outcome once all jurors have voted. 
 
     ![070_Jury](img/Refereeing/070_Jury.png  ':size=350')
-  
+
 - **[Athlete Registration](Registration) and [Weigh-in](WeighIn) screens**, including production of **[weigh-in sheet](WeighIn#starting-weight-sheet)** with starting weights and **[athlete cards](WeighIn#athlete-cards)**.
 
     ![042_AthleteCards](img/WeighIn/043_AthleteCards.png ':size=350')
 
 - [**Upload of registration sheet**](Registration#uploading-a-list-of-athletes) Upload a list of athletes with their team, group, entry totals etc. (same format as owlcms2, in either xls or xlsx format)
-  
+
     ![073_excel](img/Preparation/073_excel.png ':size=350')
-  
+
 - Multiple **[Simultaneous age divisions](Preparation#defining-age-divisions-and-categories)**: ability to award separate medals according to age division (e.g. youth vs junior vs senior) .  Simultaneous inclusion of Masters and non-masters groups athletes is possible.
-  
+
      ![020_ageGroupList](img/Categories/020_ageGroupList.png ':size=350')
-  
+
 - [**Competition Parameters**](Preparation#competition-information) :  screens for defining a competition (general info, location, organizer, etc.) and special rules that apply (for example, enforcing or not the 20kg rule, etc.)
-  
+
     ![030_Competition](img/Preparation/030_Competition.png ':size=350')
 
 - **[Multiple fields of play](Preparation#defining-fields-of-play-platforms)** (platforms): simultaneous competition platforms within the same competition.
-  
+
   ![IMG_1610](img/ZoomVideo/IMG_1610.jpg)
 
 - [**Team Competitions and Sinclair Competitions**](Displays#Top-Teams-Scoreboard).  Team Results are computed in either the IWF points system or as a sum of Sinclair scores. The competition secretary has access to the full details.
-  
+
   ![050_TeamScoreboard](img/Displays/050_TeamScoreboard.png ':size=350')
   ![060_TopSinclair](img/Displays/060_TopSinclair.png ':size=350')
     ![061_TopTeamSinclair](img/Displays/061_TopTeamSinclair.png ':size=350')
-  
+
 - **[Countdown timer for breaks](Announcing#breaks)** (before introduction, before first snatch, break before clean and jerk, technical break)
 
     ![070_IntroTimer](img/Displays/070_IntroTimer.png ':size=350')
-    
+
 - Production of **[group results (protocol sheets)](Documents#group-results)** and of the **[final result package](Documents#competition-package)**
-  
+
     ![SessionResults](img/Documents/SessionResults.png  ':size=350')
-    
+
 - Option to treat the competition as a **[Masters competition](Preparation#masters)** with proper processing of age groups (older age groups presented first)
-  
+
 - **[Video Streaming Scene Switching](OBSSceneSwitching)** When using OBS (or similar software) to stream a competition, a special status window can be monitored to switch scenes, trigger replays, or provide information as to the course of the competition (for example, jury deliberation, etc.)
-  
+
 - [**Multiple languages**](Preparation#display-language). Currently English, French, Spanish (multiple variants), Danish, Swedish, German, Portuguese, Romanian, Hungarian, Russian, Finnish and Armenian.
-  
+
 - **[Color and Visual Styling Customization](Styles)**  The colors of the displays are controlled by Web-standard CSS stylesheets, the format used by web designers world wide. A tutorial is given for the common case of adjusting the color scheme to local preferences.
-  
+
     ![colors](img/Displays/colors.png ':size=350')
-  
+
 - Etc.  Refer to the side menu for the full list of topics.
 
 ## Support

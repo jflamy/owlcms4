@@ -34,5 +34,5 @@
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="owlcms"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="owlcms"/>
     <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dvaadin.frontend.hotdeploy=false -Dlogback.configurationFile=logback-console.xml -Dvaadin.devmode.hostsAllowed=*  -Dvaadin.devmode.devTools.enabled=true -Xmx1280m -Xms1280m"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dvaadin.frontend.hotdeploy=true -Dlogback.configurationFile=logback-console.xml -Dvaadin.devmode.hostsAllowed=*  -Dvaadin.devmode.devTools.enabled=true -Xmx1280m -Xms1280m"/>
 </launchConfiguration>
