@@ -66,7 +66,7 @@ class CurrentAttempt extends LitElement {
           <decision-element id="decisions"></decision-element>
         </div>
       </div>
-      <div class="branding" style="position: absolute; bottom: 0.5em; right: 2em; display: flex; align-items: center; font-weight: thin; font-size: 1.5em; line-height: 1.5em"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
+      <div class="branding" style="${this.brandingStyles()}"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
     </div>`;
   }
 
@@ -216,6 +216,12 @@ class CurrentAttempt extends LitElement {
 
   decisionStyles() {
     const style = "display: " + ((this.mode === "CURRENT_ATHLETE" && this.decisionVisible) ? "grid" : "none");
+    return style;
+  }
+
+  brandingStyles() {
+    const style =  ((this.mode === "CURRENT_ATHLETE" && this.decisionVisible) ? "display: none"
+       : "position: absolute; bottom: 0.5em; right: 2em; align-items: center; font-weight: thin; font-size: 1.5em; line-height: 1.5em");
     return style;
   }
 
