@@ -66,7 +66,7 @@ class CurrentAttempt extends LitElement {
           <decision-element id="decisions"></decision-element>
         </div>
       </div>
-      <div class="branding" style="position: absolute; bottom: 0.5em; left: 2em; display: flex; align-items: center; font-weight: thin; font-size: 1.5em; line-height: 1.5em"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
+      <div class="branding" style="position: absolute; bottom: 0.5em; right: 2em; display: flex; align-items: center; font-weight: thin; font-size: 1.5em; line-height: 1.5em"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
     </div>`;
   }
 

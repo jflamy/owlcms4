@@ -275,6 +275,10 @@
 	justify-self: stretch;
 }
 
+.wrapper .branding {
+	display: none;
+}
+
 @media screen and (max-width: 1300px) {
 	.attemptBoard .weight {
 		font-size: 12vw;
@@ -288,7 +292,7 @@
 }
 
 .attemptBoard .timer {
-	font-size: 24vh;
+	font-size: 26vh;
 	font-weight: bold;
 	grid-area: timer-start/timer-start/timer-end/timer-end;
 	align-self: center;
