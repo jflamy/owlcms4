@@ -8,6 +8,7 @@
         <listEntry value="1"/>
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
+        <mapEntry key="OWLCMS_BACKDOOR" value="[0:0:0:0:0:0:0:1]"/>
         <mapEntry key="OWLCMS_FEATURESWITCHES" value="noForwarderKeepAlive"/>
         <mapEntry key="OWLCMS_INITIALDATA" value="LARGEGROUP_DEMO"/>
         <mapEntry key="OWLCMS_LOCALE" value="en"/>

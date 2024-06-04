@@ -76,9 +76,11 @@ The following list is a sampling of the many features available.  <u>*Click on t
 
     ![hvmDyjbdr2](img/Displays/hvmDyjbdr2.png)
 
-- [**Announcer and Marshall**](Announcing) screens (updating athlete cards and recalculation of lifting order).    The information is laid out as on the official cards.  Messages are given for late changes, and the changes are checked for correctness relative to the lifting order. 
+- [**Announcer and Marshal**](Announcing) screens 
 
-    ![090](nimg/3200Lifting/090.png ':size=350')
+    - The announcer gets all the necessary information clearly laid out.  Athletes are shown in lifting order, with highlights for the current athlete, the next athlete, and the athlete who lifted previously.  Indications are given for the weight required and when changes by the marshal on the current athlete.  All important events are notified (withrawals, record attempts, jury deliberations, etc.)
+      ![Announcer](img/Gallery/Announcer.png)
+    - For the Marshal, the information about lifts is laid out as on the official cards.  Messages are given for late changes, and the changes are checked for correctness relative to the lifting order. The Marshal also sees the decisions as they are given.  For small competitions, the announcer can also act as marshal.  ![090](img/Gallery/Marshal.png)
 
 - [**Timekeeping**](Announcing#Starting_the_clock) Time can either be [managed by the announcer](Announcing#Starting-the-clock)  (useful for smaller meets) or a dedicated [timekeeper screen](Announcing#Timekeeper) can be used. The timekeeper screen can be conveniently operated from a phone or tablet.
 
