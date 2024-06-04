@@ -5,6 +5,8 @@
 > - This is a **beta release**, used for testing and translation. ***Some features could be non-functional***.
 > - Beta releases are **not** normally used in actual competitions, except if a new feature is required. Use extreme care in testing if you intend to do so.
 
+- (beta04) Fixed branding location on attempt board and scoreboard
+- (beta04) Danish and Finnish translations
 - Announcer+Marshal
   - Notification sent for withdrawal of athletes
   - The previous athlete is now highlighted in blue in the grid.  The current and next athletes are also highlighted (yellow and orange, which is the same color convention as on the default scoreboards).  Blue is shown when the previous athlete is the current or the next.
