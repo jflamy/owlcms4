@@ -41,6 +41,7 @@ import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
 import org.hibernate.hikaricp.internal.HikariCPConnectionProvider;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
+import org.postgresql.util.PSQLException;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
@@ -205,7 +206,8 @@ public class JPAService {
 		}
 	}
 
-	static Map<EntityManager,String> whereFrom = new HashMap<>();
+	static Map<EntityManager, String> whereFrom = new HashMap<>();
+
 	/**
 	 * Run in transaction.
 	 *
@@ -230,10 +232,13 @@ public class JPAService {
 			entityManager = null;
 			return result;
 		} catch (RuntimeException e) {
-			// transactions that need to ignore errors and rollback
-			// must handle their exception and throw a RuntimeException.
-			LoggerUtils.logError(logger, e);
-			return null;
+			// defensive ugliness to prevent broken blob accesses in Postgres from locking us out.
+			if (e.getCause() != null && e.getCause() instanceof PSQLException) {
+				LoggerUtils.logError(logger, e);
+				return null;
+			} else {
+				throw e;
+			}
 		} finally {
 			if (entityManager != null) {
 				entityManager.close();
@@ -358,13 +363,14 @@ public class JPAService {
 
 	public static int getPoolStatistics() {
 		SessionFactory sessionFactory = factory.unwrap(SessionFactory.class);
-        ConnectionProvider connectionProvider = sessionFactory.getSessionFactoryOptions().getServiceRegistry().getService(ConnectionProvider.class);
-        HikariDataSource dataSource = connectionProvider.unwrap(HikariDataSource.class);
-        HikariDataSourcePoolDetail dsd = new HikariDataSourcePoolDetail(dataSource);
-        int active = dsd.getActive();
-        if (logger.isTraceEnabled()) {
-        	logger.trace("HikariDataSource details: max={} active={}", dsd.getMax(), active);
-        }
+		ConnectionProvider connectionProvider = sessionFactory.getSessionFactoryOptions().getServiceRegistry()
+		        .getService(ConnectionProvider.class);
+		HikariDataSource dataSource = connectionProvider.unwrap(HikariDataSource.class);
+		HikariDataSourcePoolDetail dsd = new HikariDataSourcePoolDetail(dataSource);
+		int active = dsd.getActive();
+		if (logger.isTraceEnabled()) {
+			logger.trace("HikariDataSource details: max={} active={}", dsd.getMax(), active);
+		}
 		return active;
 	}
 
@@ -446,8 +452,8 @@ public class JPAService {
 		        .put("hibernate.hikari.maxLifetime", "600000") // 10 minutes (docker kills sockets after 15min)
 		        .put("hibernate.hikari.initializationFailTimeout", "60000")
 		        .put("hibernate.hikari.leakDetectionThreshold", "10000")
-		        .put("hibernate.hikari.autoCommit","false")
-		        .put("hibernate.connection.provider_disables_autocommit",true)
+		        .put("hibernate.hikari.autoCommit", "false")
+		        .put("hibernate.connection.provider_disables_autocommit", true)
 		        .build();
 		return vals;
 	}
