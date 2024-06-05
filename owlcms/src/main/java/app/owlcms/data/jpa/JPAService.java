@@ -229,6 +229,11 @@ public class JPAService {
 			whereFrom.remove(entityManager);
 			entityManager = null;
 			return result;
+		} catch (RuntimeException e) {
+			// transactions that need to ignore errors and rollback
+			// must handle their exception and throw a RuntimeException.
+			LoggerUtils.logError(logger, e);
+			return null;
 		} finally {
 			if (entityManager != null) {
 				entityManager.close();

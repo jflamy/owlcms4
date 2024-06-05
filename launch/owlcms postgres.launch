@@ -8,8 +8,8 @@
         <listEntry value="1"/>
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-        <mapEntry key="JDBC_DATABASE_PASSWORD" value="postgres"/>
-        <mapEntry key="JDBC_DATABASE_URL" value="jdbc:postgresql://localhost:5432/owlcms_db"/>
+        <mapEntry key="JDBC_DATABASE_PASSWORD" value="owlcms"/>
+        <mapEntry key="JDBC_DATABASE_URL" value="jdbc:postgresql://localhost:5433/owlcms_db"/>
         <mapEntry key="JDBC_DATABASE_USERNAME" value="postgres"/>
         <mapEntry key="OWLCMS_INITIALDATA" value="LARGEGROUP_DEMO"/>
         <mapEntry key="OWLCMS_RESETMODE" value="false"/>
@@ -26,5 +26,5 @@
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="owlcms"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="owlcms"/>
     <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dlogback.configurationFile=logback-console.xml -Dvaadin.frontend.hotdeploy=true"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dlogback.configurationFile=logback-console.xml -Dvaadin.frontend.hotdeploy=false"/>
 </launchConfiguration>

@@ -257,9 +257,10 @@ public class Config {
 
 		return JPAService.runInTransaction(em -> {
 			try {
+				logger.debug("getLocalZipBlob before find");
 				Config thisConfig = em.find(Config.class, this.id);
-				byte[] res = thisConfig.localOverride.getBytes(1, (int) this.localOverride.length());
-				logger.debug("getLocalZipBlob read {} bytes", res.length);
+				logger.debug("getLocalZipBlob thisConfig.localOverride {}", thisConfig.localOverride.length());
+				byte[] res = thisConfig.localOverride.getBytes(1, (int) thisConfig.localOverride.length());
 				return res;
 			} catch (SQLException e) {
 				em.getTransaction().rollback();
