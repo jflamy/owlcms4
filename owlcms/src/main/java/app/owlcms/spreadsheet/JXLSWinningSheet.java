@@ -137,7 +137,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 	@Override
 	protected void postProcess(Workbook workbook) {
 		final Group currentCompetitionSession = getGroup();
-		String c = getChampionship().getName();
+		String c = getChampionship() != null ? getChampionship().getName() : null;
 		String ag = getAgeGroupPrefix();
 		Header header = workbook.getSheetAt(0).getHeader();
 		//header.setLeft(Competition.getCurrent().getCompetitionName());

@@ -1,28 +1,29 @@
-**Version 49 beta**
+**Version 49 release candidate**
 
 > [!WARNING]
 >
-> - This is a **beta release**, used for testing and translation. ***Some features could be non-functional***.
-> - Beta releases are **not** normally used in actual competitions, except if a new feature is required. Use extreme care in testing if you intend to do so.
+> - This is a [release candidate](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate), used for final public testing and translation.  *It is still a preliminary release*
+> - You should test all releases, with actual data, several days before a competition.  This is especially important for release candidates.
 
-- (beta05) Ignore errors if a stored zip file with a local override cannot be read
-- (beta05) Romanian, Hungarian translations
+- (rc01) Athlete names were missing on the team membership page.
+- (rc01) Results page now includes the selected scoring system in addition to Sinclair, SM(H)F and Robi.
 - Announcer+Marshal
-  - Notification sent for withdrawal of athletes
   - The previous athlete is now highlighted in blue in the grid.  The current and next athletes are also highlighted (yellow and orange, which is the same color convention as on the default scoreboards).  Blue is shown when the previous athlete is the current or the next.
-- Announcer+Timekeeper
-  - The clock can be restarted even if a down signal has been given or a decision is shown.  Restarting the clock clears the decisions. This is required if referees mistakenly give reds when the bar has not reached the knees.
+  - A Notification is received when athletes withdraw from the snatch or the session.
 - Announcer
   - Refreshing the page correctly keeps the running time and shows the correct colors on the timer buttons.  Previously, refreshing the announcer page would reload the group and reset the timer.  
   - Use the reload button at the top left to reload the athletes from the database.
 - Single Referee Mode:
   - When selected in the announcer settings (⚙), a decision from any of the 3 refereeing devices or from the announcer is treated as a full decision.
+- Announcer+Timekeeper
+  - The clock can be restarted even if a down signal has been given or a decision is shown.  Restarting the clock clears the decisions. This is required if referees mistakenly give reds when the bar has not reached the knees.
 - Group Selection
   - The announcer sees unfinished sessions first, sorted in ascending time (name if time unavailable)
-  - Registration pages have session selection sorted in ascending time (name if time unavailable)
+  - Registration pages have session selection sorted in ascending time (or their name if the time is unavailable)
   - Results pages have session selection sorted with finished sessions first, most recent first (reverse name if unavailable)
 - Weigh-in vs Categories
-  - When entering the athlete's weight, accept the current registration category and eligibility categories if the new weight is within the eligibility categories, even when it is not the youngest or most specific age group. Previously this required a manual override. To get the old behavior, add the `bestMatchCategories` feature switch.
+  - When entering the athlete's weight, the program keeps the current registration category and eligibility categories if the new weight is within the eligibility categories, even when it is not the youngest or most specific age group. 
+  - To get the old behavior of automatic selection of the youngest age group, add the `bestMatchCategories` feature switch.
 - Jury
   - The weight attempted on the previous attempt is now shown, to facilitate filling in a manual protocol sheet.
 - Scoreboards:

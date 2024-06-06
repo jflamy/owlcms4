@@ -190,7 +190,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 			// use translate so this shows as missing on the sheet.
 			String rightHeader = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_RightHeader",
 			        OwlcmsSession.getLocale());
-			if (rightHeader == null) {
+			if (rightHeader == null && translatedSheetName != null) {
 				curSheet.getHeader().setRight(translatedSheetName);
 			} else {
 				curSheet.getHeader().setRight(rightHeader);

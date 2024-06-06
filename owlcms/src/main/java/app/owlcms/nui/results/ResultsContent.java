@@ -89,6 +89,8 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	public static Grid<Athlete> createResultGrid() {
+		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
+
 		Grid<Athlete> grid = new Grid<>(Athlete.class, false);
 		grid.getThemeNames().add("row-stripes");
 		ThemeList themes = grid.getThemeNames();
@@ -122,21 +124,31 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 			        .setComparator(new WinningOrderComparator(Ranking.CAT_SINCLAIR, true));
 		}
 
-		grid.addColumn(new NumberRenderer<>(Athlete::getSinclairForDelta, "%.3f", OwlcmsSession.getLocale(), "0.000"))
-		        .setSortProperty("sinclair").setHeader(Translator.translate("sinclair"))
-		        .setComparator(new WinningOrderComparator(Ranking.BW_SINCLAIR, true));
-		// FIXME Use the selected scoring system
-		grid.addColumn(new NumberRenderer<>(Athlete::getqPoints, "%.2f", OwlcmsSession.getLocale(), "0.00"))
-		        .setSortProperty("qPoints").setHeader(Translator.translate("Qpoints"))
+		grid.addColumn(new NumberRenderer<>(a -> Ranking.getRankingValue(a, scoringSystem), "%.2f",
+		        OwlcmsSession.getLocale(), "0.00"))
+		        .setSortProperty("qPoints").setHeader(Translator.translate("Ranking." + scoringSystem))
 		        .setComparator(new WinningOrderComparator(Ranking.QPOINTS, true));
-		grid.addColumn(new NumberRenderer<>(Athlete::getSmfForDelta, "%.3f", OwlcmsSession.getLocale(), "-"))
-		        .setHeader(Translator.translate("smm"))
-		        .setSortProperty("smm")
-		        .setComparator(new WinningOrderComparator(Ranking.SMM, true));
 
-		grid.addColumn(new NumberRenderer<>(Athlete::getRobi, "%.3f", OwlcmsSession.getLocale(), "-"))
-		        .setSortProperty("robi")
-		        .setHeader(Translator.translate("robi")).setComparator(new WinningOrderComparator(Ranking.ROBI, true));
+		if (scoringSystem != Ranking.BW_SINCLAIR) {
+			grid.addColumn(
+			        new NumberRenderer<>(Athlete::getSinclairForDelta, "%.3f", OwlcmsSession.getLocale(), "0.000"))
+			        .setSortProperty("sinclair").setHeader(Translator.translate("sinclair"))
+			        .setComparator(new WinningOrderComparator(Ranking.BW_SINCLAIR, true));
+		}
+
+		if (scoringSystem != Ranking.SMM) {
+			grid.addColumn(new NumberRenderer<>(Athlete::getSmfForDelta, "%.3f", OwlcmsSession.getLocale(), "-"))
+			        .setHeader(Translator.translate("smm"))
+			        .setSortProperty("smm")
+			        .setComparator(new WinningOrderComparator(Ranking.SMM, true));
+		}
+
+		if (scoringSystem != Ranking.ROBI) {
+			grid.addColumn(new NumberRenderer<>(Athlete::getRobi, "%.3f", OwlcmsSession.getLocale(), "-"))
+			        .setSortProperty("robi")
+			        .setHeader(Translator.translate("robi"))
+			        .setComparator(new WinningOrderComparator(Ranking.ROBI, true));
+		}
 		return grid;
 	}
 
@@ -486,7 +498,8 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		}
 		if (liftingFop != null) {
 			Notification.show(
-			        Translator.translate("Warning_GroupLifting") + liftingFop.getName() + Translator.translate("CannotEditResults"),
+			        Translator.translate("Warning_GroupLifting") + liftingFop.getName()
+			                + Translator.translate("CannotEditResults"),
 			        3000, Position.MIDDLE);
 			logger.debug(Translator.translate("CannotEditResults_logging"), this.currentGroup, liftingFop);
 			// subscribeIfLifting(currentGroup);

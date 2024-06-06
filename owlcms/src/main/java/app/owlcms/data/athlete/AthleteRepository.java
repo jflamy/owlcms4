@@ -480,6 +480,9 @@ public class AthleteRepository {
 	
 	public static Set<String> unfinishedCategories(List<Athlete> ranked) {
 		Set<String> unfinishedCategories = new HashSet<>();
+		if (ranked == null || ranked.isEmpty()) {
+			return Set.of();
+		}
 		for (Athlete a : ranked) {
 			if (a.getSnatch3AsInteger() == null || a.getCleanJerk3AsInteger() == null) {
 				unfinishedCategories.add(a.getCategoryCode());
