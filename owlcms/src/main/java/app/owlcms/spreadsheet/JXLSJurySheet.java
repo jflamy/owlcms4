@@ -65,8 +65,13 @@ public class JXLSJurySheet extends JXLSWorkbookStreamSource {
 	 */
 	@Override
 	protected void postProcess(Workbook workbook) {
-		// 13 is the number of lines if 0 athletes were present.
-		setPageBreaks(workbook, 13 + nbAthletes);
+		String tfn = Competition.getCurrent().getComputedJuryTemplateFileName();
+		if (tfn.startsWith("Jury.") || tfn.startsWith("Jury-")) {
+			// 11 is the number of lines if 0 athletes were present.
+			setPageBreaks(workbook, 11 + nbAthletes);
+		} else {
+			setPageBreaks(workbook, 13 + nbAthletes);
+		}
 	}
 
 	protected void setPageBreaks(Workbook workbook, int line) {
@@ -79,7 +84,6 @@ public class JXLSJurySheet extends JXLSWorkbookStreamSource {
 
 		sheet.setAutobreaks(false);
 		sheet.setRowBreak(line - 1);
-
 	}
 
 }
