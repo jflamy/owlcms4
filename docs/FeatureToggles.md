@@ -11,7 +11,7 @@ These switches will likely be converted to regular options
 | Feature Switch            | Description                                                  | Normal Way to Activate              |
 | ------------------------- | ------------------------------------------------------------ | ----------------------------------- |
 | AthleteCardEntryTotal     | Show the entry total on the interactive athlete card used by the marshal | Only available as a feature switch. |
-| explicitTeams             | When loading the registration file or the SBDE file, do not athlete to the teams according to eligibility categories. Teams must be assigned manually. | Only available as a feature switch. |
+| explicitTeams             | When loading the registration file or the SBDE file, do not add the athlete to the teams according to their eligibility categories. Teams must be assigned manually. | Only available as a feature switch. |
 | bestMatchCategories       | If present, then at weigh-in the youngest most specific age group will be selected as the registration category.  Use this when the age alone is sufficient to determine the competition group. | Only available as a feature switch. |
 | bwClassThenAgeGroup       | The normal start group allocation is "ascending body weight category, lot number within body weight category".  This changes the behavior to "ascending bodyweight category, ascending age group, lot number" -- the resulting scoreboard is easier to read in the context of multiple age groups competing simultaneously. | Only available as a feature switch. |
 | gamx                      | activate the GAMX scoring system from Marianne Huebner       | Only available as a feature switch. |
