@@ -312,8 +312,9 @@ public class TeamSelectionContent extends BaseContent
 		boolean teamFlags = URLUtils.checkFlags();
 		
 		grid.addComponentHierarchyColumn((p -> {
+			// null indicates that the entry is for a team, not a person
 			if (p.isTeamMember() != null) {
-				return new Div();
+				return new Div(p.formatName());
 			}
 
 			String team = p.getTeam().getName();
