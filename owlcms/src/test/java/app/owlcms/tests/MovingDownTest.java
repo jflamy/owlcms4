@@ -708,7 +708,7 @@ public class MovingDownTest {
         Athlete simpsonR = athletes.get(1);
         Athlete allisonR = athletes.get(2);
 
-        logger.warn("schneider start {} simpson start {}",schneiderF.getStartNumber(), simpsonR.getStartNumber());
+        //logger.debug("schneider start {} simpson start {}",schneiderF.getStartNumber(), simpsonR.getStartNumber());
         // competition start
         schneiderF = change1(schneiderF, "64", fopState);
         allisonR = change1(allisonR, "64", fopState);
