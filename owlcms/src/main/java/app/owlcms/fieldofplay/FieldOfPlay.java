@@ -228,6 +228,9 @@ public class FieldOfPlay implements IUnregister {
 	private Athlete nextAthlete;
 	private TimerTask decisionDisplayTimer;
 	private boolean singleReferee;
+	private Sound finalWarningSound;
+	private Sound initialWarningSound;
+	private Sound timeOverSound;
 
 	public FieldOfPlay() {
 	}
@@ -1426,7 +1429,10 @@ public class FieldOfPlay implements IUnregister {
 		if (!isFinalWarningEmitted()) {
 			this.logger.info("{}Final Warning", FieldOfPlay.getLoggingName(this));
 			if (isEmitSoundsOnServer()) {
-				new Sound(getSoundMixer(), "finalWarning.wav").emit();
+				if (finalWarningSound == null) {
+					finalWarningSound = new Sound(getSoundMixer(), "finalWarning.wav");
+				}
+				finalWarningSound.emit();
 			}
 			pushOutUIEvent(new UIEvent.TimeRemaining(this, 30));
 			setFinalWarningEmitted(true);
@@ -1437,7 +1443,10 @@ public class FieldOfPlay implements IUnregister {
 		if (!isInitialWarningEmitted()) {
 			this.logger.info("{}Initial Warning", FieldOfPlay.getLoggingName(this));
 			if (isEmitSoundsOnServer()) {
-				new Sound(getSoundMixer(), "initialWarning.wav").emit();
+				if (initialWarningSound == null) {
+					initialWarningSound = new Sound(getSoundMixer(), "initialWarning.wav");
+				}
+				initialWarningSound.emit();
 			}
 			pushOutUIEvent(new UIEvent.TimeRemaining(this, 90));
 			setInitialWarningEmitted(true);
@@ -1448,7 +1457,11 @@ public class FieldOfPlay implements IUnregister {
 		if (!isTimeoutEmitted()) {
 			this.logger.info("{}Time Over", FieldOfPlay.getLoggingName(this));
 			if (isEmitSoundsOnServer()) {
-				new Sound(getSoundMixer(), "timeOver.wav").emit();
+				if (timeOverSound == null) {
+					timeOverSound = new Sound(getSoundMixer(), "timeOver.wav");
+				}
+				timeOverSound.emit();
+				
 			}
 			pushOutUIEvent(new UIEvent.TimeRemaining(this, 0));
 			setTimeoutEmitted(true);
@@ -1656,7 +1669,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void doPossiblySoloRefereeUpdate(FOPEvent e) {
-		//logger.debug("===== doPossiblySoloRefereeUpdate {}", isSingleReferee());
+		// logger.debug("===== doPossiblySoloRefereeUpdate {}", isSingleReferee());
 		if (isSingleReferee() || ((DecisionUpdate) e).getRefIndex() < 0) {
 			boolean goodLift = ((DecisionUpdate) e).isDecision();
 			simulateDecision(new ExplicitDecision(e.getAthlete(), e.getStackTrace(), isAnnouncerDecisionImmediate(),
@@ -1670,12 +1683,12 @@ public class FieldOfPlay implements IUnregister {
 	public boolean isSingleReferee() {
 		return this.singleReferee;
 	}
-	
+
 	public void setSingleReferee(boolean solo) {
-		//logger.debug("===== set single referee {}",solo);
-		this.singleReferee=solo;
+		// logger.debug("===== set single referee {}",solo);
+		this.singleReferee = solo;
 	}
- 
+
 	private void doSetState(FOPState state) {
 		if (state == CURRENT_ATHLETE_DISPLAYED) {
 			Athlete a = getCurAthlete();
@@ -2222,7 +2235,8 @@ public class FieldOfPlay implements IUnregister {
 		long endDisplayOrder = 0;
 		long endLeaders = 0;
 
-		logger.debug("{}recompute ranks recomputeCategoryRanks={} [{}]", FieldOfPlay.getLoggingName(this), recomputeCategoryRanks, LoggerUtils.whereFrom());
+		logger.debug("{}recompute ranks recomputeCategoryRanks={} [{}]", FieldOfPlay.getLoggingName(this),
+		        recomputeCategoryRanks, LoggerUtils.whereFrom());
 		if (recomputeCategoryRanks) {
 			// we update the ranks all athletes in our category, as well as the current scoring system
 			athletes = JPAService.runInTransaction(em -> {

@@ -17,6 +17,7 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.internal.AllowInert;
 
+import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IProxyTimer;
 import app.owlcms.init.OwlcmsSession;
@@ -70,6 +71,9 @@ public class BreakTimerElement extends TimerElement {
 	@AllowInert
 	@ClientCallable
 	public void clientSyncTime(String fopName) {
+		if (Config.getCurrent().featureSwitch("serverTimers")) {
+			return;
+		}
 		OwlcmsSession.withFop(fop -> {
 			if (!fopName.contentEquals(fop.getName())) {
 				return;
@@ -89,6 +93,9 @@ public class BreakTimerElement extends TimerElement {
 	@AllowInert
 	@ClientCallable
 	public void clientTimeOver(String fopName) {
+		if (Config.getCurrent().featureSwitch("serverTimers")) {
+			return;
+		}
 		OwlcmsSession.withFop(fop -> {
 			if (fopName != null && !fopName.contentEquals(fop.getName())) {
 				return;
@@ -111,6 +118,9 @@ public class BreakTimerElement extends TimerElement {
 	@AllowInert
 	@ClientCallable
 	public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from) {
+		if (Config.getCurrent().featureSwitch("serverTimers")) {
+			return;
+		}
 		// logger.debug("timer {} starting on client: remaining = {}, late={}, roundtrip={}", from, remainingTime,
 		// lateMillis, delta(lastStartMillis));
 	}
@@ -124,6 +134,9 @@ public class BreakTimerElement extends TimerElement {
 	@AllowInert
 	@ClientCallable
 	public void clientTimerStopped(String fopName, double remainingTime, String from) {
+		if (Config.getCurrent().featureSwitch("serverTimers")) {
+			return;
+		}
 		// do not stop the server-side timer, otherwise we create an infinite loop.
 	}
 
