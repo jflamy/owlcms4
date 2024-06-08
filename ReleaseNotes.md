@@ -1,9 +1,11 @@
-**Version 48.0.3**
+**Version 48.0.4** **release candidate**
 
-> [!IMPORTANT]
+> [!CAUTION]
 >
 > - You should test all releases, with your own data, several days before a competition.
 
+- 48.0.4: Preliminary Feature: Backport of version 49  server-side implementation of the athlete and break timers.  To activate, use the `serverTimers` feature toggle.   **Activation of the** `serverTimers` **feature toggle requires exhaustive testing.**
+  
 - 48.0.3: Fix: When printing all the athlete cards for all sessions, they were not correctly ordered by session.
   
 - Options for scoreboard ordering
