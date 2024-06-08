@@ -8,10 +8,13 @@ package app.owlcms.fieldofplay;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.config.Config;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
@@ -43,6 +46,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	private long stopMillis;
 	private int timeRemaining;
 	private int timeRemainingAtLastStop;
+	private Timer serverTimer;
 
 	{
 		this.logger.setLevel(Level.INFO);
@@ -204,7 +208,8 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	 */
 	@Override
 	public void setTimeRemaining(int timeRemaining2, boolean indefinite) {
-		//logger.debug("--- ProxyBreakTimer setTimeRemaining={} indefinite={} from {}", timeRemaining2, indefinite, LoggerUtils.whereFrom());
+		// logger.debug("--- ProxyBreakTimer setTimeRemaining={} indefinite={} from {}", timeRemaining2, indefinite,
+		// LoggerUtils.whereFrom());
 		this.setIndefinite(indefinite);
 		this.timeRemaining = timeRemaining2;
 	}
@@ -215,7 +220,8 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	@Override
 	public void start() {
 		BreakType breakType = getFop().getBreakType();
-		//logger.debug("{}****** starting break with breakType = {} from={}", fop.getLoggingName(), breakType, LoggerUtils.whereFrom());
+		// logger.debug("{}****** starting break with breakType = {} from={}", fop.getLoggingName(), breakType,
+		// LoggerUtils.whereFrom());
 		if (breakType == null) {
 			this.logger.error("null breaktype {}", LoggerUtils.stackTrace());
 		}
@@ -231,6 +237,21 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 		// logger.debug("posting {}", event);
 		getFop().pushOutUIEvent(event);
 		setRunning(true);
+		if (Config.getCurrent().featureSwitch("serverTimers")) {
+			this.serverTimer = new Timer();
+			serverTimer.schedule(computeTask(timeRemaining), timeRemaining);
+	}
+	}
+
+	private TimerTask computeTask(int timeRemaining2) {
+		logger.info("{}+++++ scheduling serverTimer break over {}", FieldOfPlay.getLoggingName(fop), timeRemaining);
+		return new TimerTask() {
+			@Override
+			public void run() {
+				logger.info("{}+++++ running break over", FieldOfPlay.getLoggingName(fop));
+				timeOver(this);
+			}
+		};
 	}
 
 	/**
@@ -238,20 +259,17 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	 */
 	@Override
 	public void stop() {
-		// CeremonyType ceremonyType = getFop().getCeremonyType();
-		// if (ceremonyType != null) {
-		// // we never start a timer for a ceremony
-		// return;
-		// }
 		if (isRunning()) {
 			computeTimeRemaining();
 		}
 		setRunning(false);
 		this.timeRemainingAtLastStop = this.timeRemaining;
-		// logger.debug("*** stopping Break -- timeRemaining = {} [{}]",
-		// getTimeRemaining(), LoggerUtils.whereFrom());
+		// logger.debug("*** stopping Break -- timeRemaining = {} [{}]", getTimeRemaining(), LoggerUtils.whereFrom());
 		this.timeRemainingAtLastStop = getTimeRemaining();
 		// logger.debug("break stop = {} [{}]", liveTimeRemaining(), LoggerUtils.whereFrom());
+		if (this.serverTimer != null) {
+			this.serverTimer.cancel();
+		}
 		UIEvent.BreakPaused event = new UIEvent.BreakPaused(isIndefinite() ? null : getTimeRemaining(), getOrigin(),
 		        false,
 		        getFop().getBreakType(), getFop().getCountdownType());

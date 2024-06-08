@@ -12,6 +12,7 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 
+import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IProxyTimer;
 import app.owlcms.init.OwlcmsSession;
@@ -53,11 +54,14 @@ public class AthleteTimerElement extends TimerElement {
 	@Override
 	@ClientCallable
 	public void clientFinalWarning(String fopName) {
+		if (Config.getCurrent().featureSwitch("serverTimers")) {
+			return;
+		}
 		OwlcmsSession.withFop(fop -> {
 			if (!fopName.contentEquals(fop.getName())) {
 				return;
 			}
-			logger.trace("{} Received final warning.", fop.getName());
+			logger.debug("{} Received final warning from client.", fop.getName());
 			getFopTimer(fop).finalWarning(this);
 		});
 	}
@@ -68,11 +72,14 @@ public class AthleteTimerElement extends TimerElement {
 	@Override
 	@ClientCallable
 	public void clientInitialWarning(String fopName) {
+		if (Config.getCurrent().featureSwitch("serverTimers")) {
+			return;
+		}
 		OwlcmsSession.withFop(fop -> {
 			if (!fopName.contentEquals(fop.getName())) {
 				return;
 			}
-			logger.trace("Received initial warning.");
+			logger.debug("{} Received initial warning from client.", fop.getName());
 			getFopTimer(fop).initialWarning(this);
 		});
 	}
@@ -83,6 +90,9 @@ public class AthleteTimerElement extends TimerElement {
 	@Override
 	@ClientCallable
 	public void clientSyncTime(String fopName) {
+		if (Config.getCurrent().featureSwitch("serverTimers")) {
+			return;
+		}
 		// timer should only get explicit changes
 		// OwlcmsSession.withFop(fop -> {
 		// if (!fopName.contentEquals(fop.getName())) {
@@ -103,13 +113,16 @@ public class AthleteTimerElement extends TimerElement {
 	@Override
 	@ClientCallable
 	public void clientTimeOver(String fopName) {
+		if (Config.getCurrent().featureSwitch("serverTimers")) {
+			return;
+		}
 		OwlcmsSession.withFop(fop -> {
 			if (fopName != null && !fopName.contentEquals(fop.getName())) {
 				return;
 			}
 			// logger.debug("{}Received time over.", fop.getLoggingName());
 			IProxyTimer fopTimer = getFopTimer(fop);
-			// logger.debug("{} ============= {} break time over {}", fopName, fop.getName(), fopTimer.isIndefinite());
+			logger.debug("{} {} athlete time over received from client {}", fopName, fop.getName(), fopTimer.isIndefinite());
 			if (!fopTimer.isIndefinite()) {
 				getFopTimer(fop).timeOver(this);
 			}
@@ -124,6 +137,9 @@ public class AthleteTimerElement extends TimerElement {
 	@Override
 	@ClientCallable
 	public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from) {
+		if (Config.getCurrent().featureSwitch("serverTimers")) {
+			return;
+		}
 		if (logger.isDebugEnabled()) {
 			logger.warn/**/("timer {} starting on client: remaining = {}, late={}", from, remainingTime, lateMillis,
 			        delta(this.lastStartMillis));
@@ -138,6 +154,9 @@ public class AthleteTimerElement extends TimerElement {
 	@Override
 	@ClientCallable
 	public void clientTimerStopped(String fopName, double remainingTime, String from) {
+		if (Config.getCurrent().featureSwitch("serverTimers")) {
+			return;
+		}
 		if (logger.isDebugEnabled()) {
 			logger.warn/**/("{} timer {} stopped on client: remaining = {}", fopName, from, remainingTime,
 			        delta(this.lastStopMillis));

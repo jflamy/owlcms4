@@ -6,17 +6,21 @@
  *******************************************************************************/
 package app.owlcms.fieldofplay;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.config.Config;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Class ProxyBreakTimer. Relay timer instructions from {@link FieldOfPlay} to the actual timers associated with each
- * screen. Memorize the elapsed time and timer state.
+ * Class ProxyBreakTimer. Relay serverTimer instructions from {@link FieldOfPlay} to the actual timers associated with each
+ * screen. Memorize the elapsed time and serverTimer state.
  *
  * @author Jean-François Lamy
  */
@@ -29,12 +33,13 @@ public class ProxyAthleteTimer implements IProxyTimer {
 	private long stopMillis;
 	private int timeRemaining;
 	private int timeRemainingAtLastStop;
+	private Timer serverTimer;
 	{
 		this.logger.setLevel(Level.INFO);
 	}
 
 	/**
-	 * Instantiates a new countdown timer.
+	 * Instantiates a new countdown serverTimer.
 	 *
 	 * @param fop
 	 */
@@ -161,6 +166,77 @@ public class ProxyAthleteTimer implements IProxyTimer {
 		        new UIEvent.StartTime(this.timeRemaining, null, getFop().isEmitSoundsOnServer(),
 		                LoggerUtils.stackTrace()));
 		this.running = true;
+
+		if (Config.getCurrent().featureSwitch("serverTimers")) {
+			this.serverTimer = new Timer();
+			serverTimer.schedule(computeTask(timeRemaining), timeRemaining % 30000);
+		}
+	}
+
+	private TimerTask computeTask(int timeRemaining2) {
+		final int timeRemaining = timeRemaining2;
+		int nbStops = (timeRemaining) / 30000;
+		switch (nbStops) {
+			case 0 -> {
+				logger.info("{}+++++ scheduling serverTimer timeOver {}", FieldOfPlay.getLoggingName(fop), timeRemaining);
+				return new TimerTask() {
+					@Override
+					public void run() {
+						logger.info("{}+++++ running time over", FieldOfPlay.getLoggingName(fop));
+						timeOver(this);
+					}
+				};
+			}
+			case 1 -> {
+				logger.info("{}+++++ scheduling serverTimer finalWarning {}", FieldOfPlay.getLoggingName(fop), timeRemaining);
+				return new TimerTask() {
+					@Override
+					public void run() {
+						logger.info("{}+++++ running final warning", FieldOfPlay.getLoggingName(fop));
+						finalWarning(this);
+						// next task is time over, in 30sec.
+						serverTimer.schedule(computeTask(0), 30000);
+					}
+				};
+			}
+			case 2 -> {
+				logger.info("{}+++++ scheduling serverTimer 1:00 {}", FieldOfPlay.getLoggingName(fop), timeRemaining);
+				return new TimerTask() {
+					@Override
+					public void run() {
+						logger.warn("{}running 1:00", FieldOfPlay.getLoggingName(fop));
+						// nothing to do, next task is final warning, in 30s.
+						serverTimer.schedule(computeTask(30000), 30000);
+					}
+				};
+	}
+			case 3 -> {
+				logger.info("{}+++++ scheduling server serverTimer initialWarning {}", FieldOfPlay.getLoggingName(fop), timeRemaining);
+				return new TimerTask() {
+					@Override
+					public void run() {
+						logger.info("{}+++++ running initial warning", FieldOfPlay.getLoggingName(fop));
+						initialWarning(this);
+						// next task is final warning, in 60 seconds.
+						serverTimer.schedule(computeTask(30000), 60000);
+					}
+				};
+			}
+			case 4 -> {
+				logger.info("{}+++++ scheduling server serverTimer 2:00 {}", FieldOfPlay.getLoggingName(fop), timeRemaining);
+				return new TimerTask() {
+					@Override
+					public void run() {
+						logger.info("{}+++++ running 2:00", FieldOfPlay.getLoggingName(fop));
+						// next task is initial warning, in 30s.
+						serverTimer.schedule(computeTask(90000), 30000);
+					}
+				};
+			}
+			default -> {
+				throw new RuntimeException("timeRemaining " + timeRemaining + " nbStops " + nbStops);
+			}
+		}
 	}
 
 	/**
@@ -177,6 +253,10 @@ public class ProxyAthleteTimer implements IProxyTimer {
 			        LoggerUtils.whereFrom());
 		}
 		this.timeRemainingAtLastStop = this.timeRemaining;
+		if (this.serverTimer != null) {
+			logger.info("{}+++++ stopping serverTimer", FieldOfPlay.getLoggingName(fop));
+			this.serverTimer.cancel();
+		}
 		getFop().pushOutUIEvent(new UIEvent.StopTime(this.timeRemaining, null));
 		this.running = false;
 	}

@@ -110,8 +110,7 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	public void setSilenced(boolean b) {
-		// this.logger.trace("======= {} silenced = {} from {}", this.getClass().getSimpleName(), b,
-		// LoggerUtils.whereFrom(1));
+		//this.logger.debug("======= {} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.stackTrace());
 		this.silenced = b;
 	}
 
@@ -229,10 +228,10 @@ public abstract class TimerElement extends LitTemplate
 
 	@Override
 	protected void onDetach(DetachEvent detachEvent) {
-		// tell the javascript to stay quiet
-		setSilenced(true);
-		setTimerElement(null);
-		getElement().setProperty("silent", true);
+//		// tell the javascript to stay quiet
+//		setSilenced(true);
+//		setTimerElement(null);
+//		getElement().setProperty("silent", true);
 	}
 
 	protected void setIndefinite(boolean indefinite) {
