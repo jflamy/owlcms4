@@ -176,7 +176,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 			if (leftHeader == null) {
 				curSheet.getHeader().setLeft(Competition.getCurrent().getCompetitionName());
 			} else {
-				curSheet.getHeader().setLeft(leftHeader);
+				curSheet.getHeader().setLeft(leftHeader != null ? leftHeader : "");
 			}
 			String centerHeader = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_CenterHeader",
 			        OwlcmsSession.getLocale());
@@ -185,15 +185,15 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 				String ag = getAgeGroupPrefix();
 				curSheet.getHeader().setCenter(c != null && ag != null ? c + "\u2013" + ag : (c != null ? c : ag));
 			} else {
-				curSheet.getHeader().setCenter(centerHeader);
+				curSheet.getHeader().setCenter(centerHeader != null ? centerHeader : "");
 			}
 			// use translate so this shows as missing on the sheet.
 			String rightHeader = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_RightHeader",
 			        OwlcmsSession.getLocale());
 			if (rightHeader == null && translatedSheetName != null) {
 				curSheet.getHeader().setRight(translatedSheetName);
-			} else {
-				curSheet.getHeader().setRight(rightHeader);
+			} else  {
+				curSheet.getHeader().setRight(rightHeader != null ? rightHeader: "");
 			}
 
 			createStandardFooter(workbook);

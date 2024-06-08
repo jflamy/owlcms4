@@ -187,13 +187,11 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	}
 	
 	public static Comparator<AgeGroup> registrationComparator = (a,b) -> {
-		//logger.debug("comparing agegroups");
-		if (b == null) {
-			return -1; // we are smaller, we come first in the list
+		if (a == null || b == null) {
+			return ObjectUtils.compare(a, b, true);
 		}
-		int compare = 0;
 
-		compare = ObjectUtils.compare(a.getGender(), b.getGender());
+		int compare = ObjectUtils.compare(a.getGender(), b.getGender());
 		if (compare != 0) {
 			//logger.debug("agegroup gender {} {} {} ", a.getGender(), compare > 0 ? ">" : "<",  b.getGender());
 			return compare;
