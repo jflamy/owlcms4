@@ -842,7 +842,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			        Gender genderFilterValue = getGender();
 			        Gender athleteGender = a.getGender();
 			        boolean catOk = (catFilterValue == null
-			                || catFilterValue.toString().equals(a.getCategory().toString()))
+			                || (a.getCategory() != null && catFilterValue.toString().equals(a.getCategory().toString())))
 			                && (genderFilterValue == null || genderFilterValue == athleteGender);
 			        return catOk;
 		        })

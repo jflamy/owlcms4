@@ -23,6 +23,7 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
@@ -465,11 +466,14 @@ public class AthleteRepository {
 		Set<String> unfinishedCategories = new HashSet<>();
 		Set<Athlete> finishedCategoryAthletes = new HashSet<>();
 		for (Athlete a : athletes) {
-			if (a.getSnatch3AsInteger() == null || a.getCleanJerk3AsInteger() == null) {
-				unfinishedCategories.add(a.getCategoryCode());
+			if (a.getSnatch3AsInteger() == null || a.getSnatch3ActualLift().isBlank()
+					|| a.getCleanJerk3AsInteger() == null || a.getCleanJerk3ActualLift().isBlank()) {
+				for (Participation p: a.getParticipations()) {
+					unfinishedCategories.add(p.getCategory().getCode());
+				}
 			}
 		}
-		//logger.debug("unfinishedCategories {}",unfinishedCategories);
+		logger.warn("unfinishedCategories1 {}",unfinishedCategories);
 		for (Athlete a : athletes) {
 			if (!unfinishedCategories.contains(a.getCategory().getCode())) {
 				finishedCategoryAthletes.add(a);
@@ -485,9 +489,12 @@ public class AthleteRepository {
 		}
 		for (Athlete a : ranked) {
 			if (a.getSnatch3AsInteger() == null || a.getCleanJerk3AsInteger() == null) {
-				unfinishedCategories.add(a.getCategoryCode());
+				for (Participation p: a.getParticipations()) {
+					unfinishedCategories.add(p.getCategory().getCode());
+				}
 			}
 		}
+		logger.warn("unfinishedCategories2 {}",unfinishedCategories);
 		return unfinishedCategories;
 	}
 }

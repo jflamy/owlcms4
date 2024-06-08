@@ -131,6 +131,11 @@ public class CompetitionSimulator {
 		List<Athlete> as = AthleteRepository.findAllByGroupAndWeighIn(g, null);
 		for (Athlete a : as) {
 			Category c = a.getCategory();
+			if (c == null) {
+				a.setGroup(null);
+				AthleteRepository.save(a);
+				continue;
+			}
 			Double catLimit = c.getMaximumWeight();
 			if (catLimit > 998) {
 				catLimit = c.getMinimumWeight() * 1.1;

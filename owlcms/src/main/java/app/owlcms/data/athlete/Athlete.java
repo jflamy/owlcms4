@@ -471,42 +471,42 @@ public class Athlete {
 			this.setCleanJerk1AutomaticProgression("");
 			this.setCleanJerk1Change1("");
 			this.setCleanJerk1Change2("");
-			this.setCleanJerk1ActualLift("");
+			this.setCleanJerk1ActualLift(null);
 			this.setCleanJerk1LiftTime(null);
 
 			this.setCleanJerk2Declaration("");
 			this.setCleanJerk2AutomaticProgression("");
 			this.setCleanJerk2Change1("");
 			this.setCleanJerk2Change2("");
-			this.setCleanJerk2ActualLift("");
+			this.setCleanJerk2ActualLift(null);
 			this.setCleanJerk2LiftTime(null);
 
 			this.setCleanJerk3Declaration("");
 			this.setCleanJerk3AutomaticProgression("");
 			this.setCleanJerk3Change1("");
 			this.setCleanJerk3Change2("");
-			this.setCleanJerk3ActualLift("");
+			this.setCleanJerk3ActualLift(null);
 			this.setCleanJerk3LiftTime(null);
 
 			this.setSnatch1Declaration("");
 			this.setSnatch1AutomaticProgression("");
 			this.setSnatch1Change1("");
 			this.setSnatch1Change2("");
-			this.setSnatch1ActualLift("");
+			this.setSnatch1ActualLift(null);
 			this.setSnatch1LiftTime(null);
 
 			this.setSnatch2Declaration("");
 			this.setSnatch2AutomaticProgression("");
 			this.setSnatch2Change1("");
 			this.setSnatch2Change2("");
-			this.setSnatch2ActualLift("");
+			this.setSnatch2ActualLift(null);
 			this.setSnatch2LiftTime(null);
 
 			this.setSnatch3Declaration("");
 			this.setSnatch3AutomaticProgression("");
 			this.setSnatch3Change1("");
 			this.setSnatch3Change2("");
-			this.setSnatch3ActualLift("");
+			this.setSnatch3ActualLift(null);
 			this.setSnatch3LiftTime(null);
 
 			this.setSnatch1Declaration(sn1Decl);

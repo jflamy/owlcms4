@@ -183,13 +183,13 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        Gender genderFilterValue = this.getGender();
 			        Gender athleteGender = a.getGender();
 			        boolean catOk = (catFilterValue == null
-			                || catFilterValue.toString().equals(a.getCategory().toString()))
+			                || (a.getCategory() != null && catFilterValue.getCode().equals(a.getCategory().getCode())))
 			                && (genderFilterValue == null || genderFilterValue == athleteGender)
 			                && (allCategories || !notDone.contains(a.getCategory().getCode()))
 			                ;
 			        return catOk;
 		        })
-		        //.peek(r -> logger.debug("including {}",r))
+		        .peek(r -> logger.warn("including {} {}",r, r.getCategory().getCode()))
 		        ;
 		List<Athlete> found = stream.collect(Collectors.toList());
 		updateURLLocations();
