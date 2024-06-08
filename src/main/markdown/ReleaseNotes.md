@@ -5,8 +5,10 @@
 > - This is a [release candidate](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate), used for final public testing and translation.  *It is still a preliminary release*
 > - You should test all releases, with actual data, several days before a competition.  This is especially important for release candidates.
 
-- (rc03) Additional Spanish and Russian translations
-- (rc02) Experimental: Feature toggle `serverTimers` enables a new server-based implementation of the warnings and timeover timers.  This will eventually replace the current implementation.
+- (rc04) Fixed Athlete registration pages not loading when some athletes were not eligible in any age group
+- (rc04) Fixed determination of unfinished categories to correctly consider participation in multiple categories
+- (rc04) Updated translations: Romanian, Hungarian
+- Experimental: Feature toggle `serverTimers` enables the future implementation of the athlete and break timers. 
 - Announcer+Marshal
   - The previous athlete is now highlighted in blue in the grid.  The current and next athletes are also highlighted (yellow and orange, which is the same color convention as on the default scoreboards).  Blue is shown when the previous athlete is the current or the next.
   - A Notification is received when athletes withdraw from the snatch or the session.
