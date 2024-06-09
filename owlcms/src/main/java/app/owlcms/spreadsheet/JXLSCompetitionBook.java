@@ -181,7 +181,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 			String centerHeader = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_CenterHeader",
 			        OwlcmsSession.getLocale());
 			if (centerHeader == null) {
-				String c = getChampionship().getName();
+				String c = getChampionship() != null ? getChampionship().getName() : "";
 				String ag = getAgeGroupPrefix();
 				curSheet.getHeader().setCenter(c != null && ag != null ? c + "\u2013" + ag : (c != null ? c : ag));
 			} else {
