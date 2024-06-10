@@ -8,7 +8,7 @@
 - (rc04) Fixed Athlete registration pages not loading when some athletes were not eligible in any age group
 - (rc04) Fixed determination of unfinished categories to correctly consider participation in multiple categories
 - (rc04) Updated translations: Romanian, Hungarian
-- Experimental: Feature toggle `serverTimers` enables the future implementation of the athlete and break timers. 
+- Experimental: [Feature toggle](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/FeatureToggles) `serverTimers` to enable a new and improved implementation of the athlete and break timers.
 - Announcer+Marshal
   - The previous athlete is now highlighted in blue in the grid.  The current and next athletes are also highlighted (yellow and orange, which is the same color convention as on the default scoreboards).  Blue is shown when the previous athlete is the current or the next.
   - A Notification is received when athletes withdraw from the snatch or the session.
