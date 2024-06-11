@@ -16,6 +16,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -41,6 +43,7 @@ import com.google.common.collect.Iterables;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AbstractLifterComparator;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.DateTimeUtils;
@@ -60,6 +63,7 @@ import ch.qos.logback.classic.Logger;
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger", "athletes" })
 public class Group implements Comparable<Group> {
 
+	private final static Logger logger = (Logger) LoggerFactory.getLogger(Group.class);
 	private final static NaturalOrderComparator<String> c = new NaturalOrderComparator<>();
 	private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
 	private final static DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder().parseLenient()
@@ -113,21 +117,66 @@ public class Group implements Comparable<Group> {
 
 		return 0;
 	};
+
+	private enum USAFlagOrder {
+		RED, WHITE, BLUE, STARS, STRIPES, GOLD, ROGUE
+	}
+
 	public static Comparator<Group> groupWeighinTimeComparator = (lifter1Group, lifter2Group) -> {
 
 		int compare;
 		if (lifter1Group == null || lifter2Group == null) {
 			compare = ObjectUtils.compare(lifter1Group, lifter2Group, true);
+			AbstractLifterComparator.traceComparison("compare group null", lifter1Group,
+			        lifter1Group,
+			        lifter2Group, lifter2Group, compare);
 			return compare;
 		}
 
+		if (Config.getCurrent().featureSwitch("usaw")) {
+			var lifter1SessionBlock = lifter1Group.getSessionBlock();
+			var lifter2SessionBlock = lifter2Group.getSessionBlock();
+			// null sessionBlocks go last.
+			compare = ObjectUtils.compare(lifter1SessionBlock, lifter2SessionBlock, true);
+			if (compare != 0) {
+				AbstractLifterComparator.traceComparison("compare sessionBlock", lifter1Group,
+				        lifter1SessionBlock, lifter2Group, lifter2SessionBlock, compare);
+				return compare;
+			}
+
+			var lifter1Platform = lifter1Group.getPlatform();
+			var lifter1PlatformName = lifter1Platform != null ? lifter1Platform.getName() : null;
+			var lifter2Platform = lifter2Group.getPlatform();
+			var lifter2PlatformName = lifter2Platform != null ? lifter2Platform.getName() : null;
+
+			// null platform names go last.
+			if (lifter1PlatformName == null || lifter2PlatformName == null) {
+				compare = ObjectUtils.compare(lifter1PlatformName, lifter2PlatformName, true);
+				AbstractLifterComparator.traceComparison("compare platform null", lifter1Group,
+				        lifter1PlatformName, lifter2Group, lifter2PlatformName, compare);
+				return compare;
+			}
+
+			try {
+				var order1 = USAFlagOrder.valueOf(lifter1PlatformName.toUpperCase());
+				var order2 = USAFlagOrder.valueOf(lifter2PlatformName.toUpperCase());
+				compare = order1.compareTo(order2);
+				AbstractLifterComparator.traceComparison("compare flagOrder", lifter1Group,
+				        order1, lifter2Group, order2, compare);
+			} catch (Exception e) {
+				compare = ObjectUtils.compare(lifter1PlatformName, lifter2PlatformName);
+				AbstractLifterComparator.traceComparison("compare platformName", lifter1Group,
+				        lifter1PlatformName, lifter2Group, lifter2PlatformName, compare);
+			}
+			return compare;
+
+		}
 		LocalDateTime lifter1Date = lifter1Group.getWeighInTime();
 		LocalDateTime lifter2Date = lifter2Group.getWeighInTime();
 		compare = ObjectUtils.compare(lifter1Date, lifter2Date, true);
 		if (compare != 0) {
 			AbstractLifterComparator.traceComparison("compareGroupWeighInTime", lifter1Group,
-			        lifter1Group.getWeighInTime(),
-			        lifter2Group, lifter2Group.getWeighInTime(), compare);
+			        lifter1Group.getWeighInTime(), lifter2Group, lifter2Group.getWeighInTime(), compare);
 			return compare;
 		}
 
@@ -148,7 +197,6 @@ public class Group implements Comparable<Group> {
 
 		return 0;
 	};
-	
 	public static Comparator<Group> groupSelectionComparator = (lifter1Group, lifter2Group) -> {
 
 		int compare;
@@ -156,7 +204,7 @@ public class Group implements Comparable<Group> {
 			compare = ObjectUtils.compare(lifter1Group, lifter2Group, true);
 			return compare;
 		}
-		
+
 		Boolean lifter1Done = lifter1Group.isDone();
 		Boolean lifter2Done = lifter2Group.isDone();
 		compare = ObjectUtils.compare(lifter1Done, lifter2Done, true);
@@ -228,8 +276,6 @@ public class Group implements Comparable<Group> {
 	private String jury3;
 	private String jury4;
 	private String jury5;
-	@Transient
-	final private Logger logger = (Logger) LoggerFactory.getLogger(Group.class);
 	private String marshall;
 	private String marshal2;
 	private String name;
@@ -284,10 +330,33 @@ public class Group implements Comparable<Group> {
 
 	@Transient
 	@JsonIgnore
-	public List<AgeGroupInfo> getAgeGroupInfo(){
+	Pattern pattern = Pattern.compile("(\\d+)\\s+(\\w+)");
+
+	@Transient
+	@JsonIgnore
+	public Integer getSessionBlock() {
+		if (Config.getCurrent().featureSwitch("usaw")) {
+			Matcher matcher = pattern.matcher(this.getName());
+			if (matcher.find()) {
+				String number = matcher.group(1);
+				// String word = matcher.group(2);
+				try {
+					return Integer.parseInt(number);
+				} catch (NumberFormatException e) {
+					return 999;
+				}
+			}
+			return 999;
+		}
+		return 1;
+	}
+
+	@Transient
+	@JsonIgnore
+	public List<AgeGroupInfo> getAgeGroupInfo() {
 		return AgeGroupInfo.getAgeGroupInfo(this);
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 *
@@ -351,7 +420,7 @@ public class Group implements Comparable<Group> {
 	// @Override
 
 	public void doDone(boolean b) {
-		this.logger.debug("done? {} previous={} done={} {} [{}]", getName(), this.done, b,
+		Group.logger.debug("done? {} previous={} done={} {} [{}]", getName(), this.done, b,
 		        System.identityHashCode(this),
 		        LoggerUtils.whereFrom());
 		if (this.done != b) {
@@ -371,33 +440,6 @@ public class Group implements Comparable<Group> {
 		}
 		Group other = (Group) obj;
 		return getId() != null && getId().equals(other.getId());
-
-		// public boolean equals(Object obj) {
-		// if (this == obj) {
-		// return true;
-		// }
-		// if (obj == null) {
-		// return false;
-		// }
-		// if (getClass() != obj.getClass()) {
-		// return false;
-		// }
-		// Group other = (Group) obj;
-		// return Objects.equals(name, other.name)
-		// && Objects.equals(announcer, other.announcer) &&
-		// Objects.equals(competitionTime, other.competitionTime)
-		// && Objects.equals(id, other.id) && Objects.equals(jury1, other.jury1)
-		// && Objects.equals(jury2, other.jury2) && Objects.equals(jury3, other.jury3)
-		// && Objects.equals(jury4, other.jury4) && Objects.equals(jury5, other.jury5)
-		// && Objects.equals(marshall, other.marshall) && Objects.equals(platform,
-		// other.platform)
-		// && Objects.equals(referee1, other.referee1)
-		// && Objects.equals(referee2, other.referee2) && Objects.equals(referee3,
-		// other.referee3)
-		// && Objects.equals(technicalController, other.technicalController)
-		// && Objects.equals(timeKeeper, other.timeKeeper) &&
-		// Objects.equals(weighInTime, other.weighInTime);
-		// }
 	}
 
 	public String fullDump() {
@@ -413,7 +455,7 @@ public class Group implements Comparable<Group> {
 		        + ", technicalController2=" + this.technicalController2 + ", jury1=" + this.jury1 + ", jury2="
 		        + this.jury2
 		        + ", jury3=" + this.jury3 + ", jury4=" + this.jury4 + ", jury5=" + this.jury5 + ", logger="
-		        + this.logger + ", reserve="
+		        + Group.logger + ", reserve="
 		        + this.reserve + ", id=" + this.id + "]";
 	}
 
@@ -453,7 +495,7 @@ public class Group implements Comparable<Group> {
 			LocalDateTime competitionTime2 = getCompetitionTime();
 			formatted = competitionTime2 == null ? "" : DATE_TIME_FORMATTER.format(competitionTime2);
 		} catch (Exception e) {
-			LoggerUtils.logError(this.logger, e);
+			LoggerUtils.logError(Group.logger, e);
 		}
 		return formatted;
 	}
@@ -472,7 +514,7 @@ public class Group implements Comparable<Group> {
 	public Date getCompetitionTimeAsDate() {
 		return DateTimeUtils.dateFromLocalDateTime(this.competitionTime);
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public Double getCompetitionTimeAsExcelDate() {
@@ -506,7 +548,7 @@ public class Group implements Comparable<Group> {
 			LocalDateTime competitionTime2 = getCompetitionTime();
 			formatted = competitionTime2 == null ? "" : this.isoDateFormatter.format(competitionTime2);
 		} catch (Exception e) {
-			LoggerUtils.logError(this.logger, e);
+			LoggerUtils.logError(Group.logger, e);
 		}
 		return formatted;
 	}
@@ -524,7 +566,7 @@ public class Group implements Comparable<Group> {
 			LocalDateTime competitionTime2 = getCompetitionTime();
 			formatted = competitionTime2 == null ? "" : this.isoHourFormatter.format(competitionTime2);
 		} catch (Exception e) {
-			LoggerUtils.logError(this.logger, e);
+			LoggerUtils.logError(Group.logger, e);
 		}
 		return formatted;
 	}
@@ -542,7 +584,7 @@ public class Group implements Comparable<Group> {
 			LocalDateTime weighinTime2 = getWeighInTime();
 			formatted = weighinTime2 == null ? "" : this.isoDateFormatter.format(weighinTime2);
 		} catch (Exception e) {
-			LoggerUtils.logError(this.logger, e);
+			LoggerUtils.logError(Group.logger, e);
 		}
 		return formatted;
 	}
@@ -560,7 +602,7 @@ public class Group implements Comparable<Group> {
 			LocalDateTime weighinTime2 = getWeighInTime();
 			formatted = weighinTime2 == null ? "" : this.isoHourFormatter.format(weighinTime2);
 		} catch (Exception e) {
-			LoggerUtils.logError(this.logger, e);
+			LoggerUtils.logError(Group.logger, e);
 		}
 		return formatted;
 	}
@@ -629,7 +671,7 @@ public class Group implements Comparable<Group> {
 			}
 			formatted = competitionTime2 == null ? "" : getDayFormatter().format(competitionTime2);
 		} catch (Exception e) {
-			LoggerUtils.logError(this.logger, e);
+			LoggerUtils.logError(Group.logger, e);
 		}
 		return formatted;
 	}
@@ -651,7 +693,7 @@ public class Group implements Comparable<Group> {
 			}
 			formatted = competitionTime2 == null ? "" : getHourFormatter().format(competitionTime2);
 		} catch (Exception e) {
-			LoggerUtils.logError(this.logger, e);
+			LoggerUtils.logError(Group.logger, e);
 		}
 		return formatted;
 	}
@@ -674,7 +716,7 @@ public class Group implements Comparable<Group> {
 
 			formatted = weighinTime2 == null ? "" : getDayFormatter().format(weighinTime2);
 		} catch (Exception e) {
-			LoggerUtils.logError(this.logger, e);
+			LoggerUtils.logError(Group.logger, e);
 		}
 		return formatted;
 	}
@@ -696,7 +738,7 @@ public class Group implements Comparable<Group> {
 			}
 			formatted = weighinTime2 == null ? "" : getHourFormatter().format(weighinTime2);
 		} catch (Exception e) {
-			LoggerUtils.logError(this.logger, e);
+			LoggerUtils.logError(Group.logger, e);
 		}
 		return formatted;
 	}
@@ -809,7 +851,7 @@ public class Group implements Comparable<Group> {
 			LocalDateTime weighInTime2 = getWeighInTime();
 			formatted = weighInTime2 == null ? "" : DATE_TIME_FORMATTER.format(weighInTime2);
 		} catch (Exception e) {
-			LoggerUtils.logError(this.logger, e);
+			LoggerUtils.logError(Group.logger, e);
 		}
 		return formatted;
 	}
