@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.TreeMap;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import ch.qos.logback.classic.Logger;
 
 public class AgeGroupInfo {
 	AgeGroup ageGroup;
@@ -18,6 +20,8 @@ public class AgeGroupInfo {
 	int nbAthletes;
 	private String largestWeightClassLimitString;
 	private List<Athlete> athletes = new ArrayList<>();
+	
+	static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupInfo.class);
 
 	public void addAthlete(Athlete athlete) {
 		this.athletes.add(athlete);
@@ -104,14 +108,15 @@ public class AgeGroupInfo {
 				agi.setAgeGroup(ageGroup);
 				agi.setSmallestWeightClass(a.getCategory().getMaximumWeight());
 				agi.setLargestWeightClass(a.getCategory().getMaximumWeight());
+				agi.setLargestWeightClassLimitString(a.getCategory().getLimitString());
 				agi.setWeightClassRange(a.getCategory().getLimitString());
 				ageGroupMap.put(ageGroup, agi);
 			} else {
 				agi.setNbAthletes(agi.getNbAthletes()+1);
-				if (a.getCategory().getMinimumWeight() < agi.getSmallestWeightClass()) {
+				if (agi.getSmallestWeightClass() == null || a.getCategory().getMinimumWeight() < agi.getSmallestWeightClass()) {
 					agi.setSmallestWeightClass(a.getCategory().getMaximumWeight());
 				}
-				if (a.getCategory().getMaximumWeight() > agi.getLargestWeightClass()) {
+				if (agi.getLargestWeightClass() == null || a.getCategory().getMaximumWeight() > agi.getLargestWeightClass()) {
 					agi.setLargestWeightClass(a.getCategory().getMaximumWeight());
 					agi.setLargestWeightClassLimitString(a.getCategory().getLimitString());
 				}
