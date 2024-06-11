@@ -473,7 +473,7 @@ public class AthleteRepository {
 				}
 			}
 		}
-		logger.warn("unfinishedCategories1 {}",unfinishedCategories);
+		logger.debug("unfinishedCategories1 {}",unfinishedCategories);
 		for (Athlete a : athletes) {
 			if (!unfinishedCategories.contains(a.getCategory().getCode())) {
 				finishedCategoryAthletes.add(a);
@@ -494,7 +494,7 @@ public class AthleteRepository {
 				}
 			}
 		}
-		logger.warn("unfinishedCategories2 {}",unfinishedCategories);
+		logger.debug("unfinishedCategories2 {}",unfinishedCategories);
 		return unfinishedCategories;
 	}
 }

@@ -189,7 +189,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			                ;
 			        return catOk;
 		        })
-		        .peek(r -> logger.warn("including {} {}",r, r.getCategory().getCode()))
+		        //.peek(r -> logger.debug("including {} {}",r, r.getCategory().getCode()))
 		        ;
 		List<Athlete> found = stream.collect(Collectors.toList());
 		updateURLLocations();
