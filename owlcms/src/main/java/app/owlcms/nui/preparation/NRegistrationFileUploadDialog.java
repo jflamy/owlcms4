@@ -38,6 +38,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 	}
 	public IRegistrationFileProcessor processor;
 	private boolean sbdeFormat;
+	public String fileName;
 
 	public NRegistrationFileUploadDialog(boolean sbdeFormat) {
 		this.sbdeFormat = sbdeFormat;
@@ -55,15 +56,16 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		ta.setVisible(false);
 
 		upload.addSucceededListener(event -> {
-			processor = this.sbdeFormat //(buffer.getInputStream())
+			processor = this.sbdeFormat // (buffer.getInputStream())
 			        ? new ORegistrationFileProcessor()
 			        : new NRegistrationFileProcessor();
-//			try {
-				//buffer.getInputStream().reset();
-				processInput(buffer.getInputStream(), ta);
-//			} catch (IOException e) {
-//				throw new RuntimeException(e);
-//			}
+			fileName = event.getFileName();
+			// try {
+			// buffer.getInputStream().reset();
+			processInput(buffer.getInputStream(), ta);
+			// } catch (IOException e) {
+			// throw new RuntimeException(e);
+			// }
 
 		});
 
@@ -77,32 +79,12 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		add(vl);
 	}
 
-//	private boolean oldFormat(InputStream inputStream) {
-//		try (Workbook workbook = WorkbookFactory.create(inputStream)) {
-//			Sheet sheet = workbook.getSheetAt(0);
-//			CellReference cr = new CellReference("C1");
-//			Row row = sheet.getRow(cr.getRow());
-//			Cell cell = row.getCell(cr.getCol());
-//			// empty cell indicates old format
-//			boolean nullCell = cell == null;
-//			CellType cellType = cell.getCellType();
-//			logger.debug("cell type {} {}", cellType,
-//			        cellType == CellType.STRING ? ">" + cell.getStringCellValue() + "<" : "-");
-//			boolean b = nullCell
-//			        || cellType == CellType.BLANK
-//			        || (cellType == CellType.STRING && cell.getStringCellValue().isBlank());
-//			return b;
-//		} catch (Exception e) {
-//			logger.error("cannot determine format {}", e);
-//		}
-//		return false;
-//		return this.oldFormat;
-//	}
-
 	public void processInput(InputStream inputStream, TextArea ta) {
 		// clear athletes to be able to clear groups
 		CategoryRepository.resetCodeMap();
-		this.processor.resetAthletes();
+		if (eraseAthletes()) {
+			this.processor.resetAthletes();
+		}
 
 		// first do a dry run to count groups
 		int nbGroups = processGroups(inputStream, ta, true);
@@ -124,7 +106,11 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		StringBuffer sb = new StringBuffer();
 		Consumer<String> errorConsumer = str -> sb.append(str);
 		Runnable displayUpdater = () -> updateDisplay(ta, sb);
-		return this.processor.doProcessAthletes(inputStream, dryRun, errorConsumer, displayUpdater);
+		return this.processor.doProcessAthletes(inputStream, dryRun, errorConsumer, displayUpdater, eraseAthletes());
+	}
+
+	private boolean eraseAthletes() {
+		return fileName != null && !fileName.contains("_add");
 	}
 
 	private int processGroups(InputStream inputStream, TextArea ta, boolean dryRun) {

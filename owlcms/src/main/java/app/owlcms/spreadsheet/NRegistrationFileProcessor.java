@@ -102,20 +102,22 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 
 	/**
 	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#doProcessAthletes(java.io.InputStream, boolean,
-	 *      java.util.function.Consumer, java.lang.Runnable)
+	 *      java.util.function.Consumer, java.lang.Runnable, boolean)
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	public int doProcessAthletes(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer,
-	        Runnable displayUpdater) {
+	        Runnable displayUpdater, boolean resetAthletes) {
 
 		try (InputStream xlsInputStream = inputStream) {
 			inputStream.reset();
 			RCompetition c = new RCompetition();
-			RCompetition.resetActiveCategories();
-			RCompetition.resetActiveGroups();
-			RCompetition.resetAthleteToEligibles();
-			RCompetition.resetAthleteToTeams();
+			if (resetAthletes) {
+				RCompetition.resetActiveCategories();
+				RCompetition.resetActiveGroups();
+				RCompetition.resetAthleteToEligibles();
+				RCompetition.resetAthleteToTeams();
+			}
 
 			List<RAthlete> athletes = new ArrayList<>();
 			AthleteInput athleteInput;
@@ -280,7 +282,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 						if (teams.contains(p.getCategory())) {
 							p.setTeamMember(true);
 						} else {
-							this.logger.info("Excluding {} as team member for {}", a2.getShortName(),
+							this.logger.debug("Excluding {} as team member for {}", a2.getShortName(),
 							        p.getCategory().getComputedCode());
 							p.setTeamMember(false);
 						}
@@ -399,7 +401,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	private void processException(RAthlete a, String s, Cell c, Exception e, Consumer<String> errorConsumer) {
 		errorConsumer.accept(c.getAddress() + " " + e.getLocalizedMessage() + System.lineSeparator());
 		logger.error("{} {} {}", c.getAddress(), s, e.getMessage());
-		//LoggerUtils.logError(this.logger, e, true);
+		// LoggerUtils.logError(this.logger, e, true);
 	}
 
 	private AthleteInput readAthletes(Workbook workbook, RCompetition rComp, Consumer<String> errorConsumer) {
@@ -475,11 +477,11 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 								processException(a, s, c, e, errorConsumer);
 							}
 						});
-					} else if (checkTranslation(trimmedCellValue,"Results.Snatch", "Results.Declaration_abbrev")) {
+					} else if (checkTranslation(trimmedCellValue, "Results.Snatch", "Results.Declaration_abbrev")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setSnatch1Declaration(s);
 						});
-					} else if (checkTranslation(trimmedCellValue,"Results.CJ_abbrev", "Results.Declaration_abbrev")) {
+					} else if (checkTranslation(trimmedCellValue, "Results.CJ_abbrev", "Results.Declaration_abbrev")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setCleanJerk1Declaration(s);
 						});
@@ -547,7 +549,8 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 						});
 					} else {
 						errorConsumer
-						        .accept(Translator.translate("Registration.UnknownColumnHeader", trimmedCellValue) + " " + trimmedCellValue);
+						        .accept(Translator.translate("Registration.UnknownColumnHeader", trimmedCellValue) + " "
+						                + trimmedCellValue);
 					}
 					iColumn++;
 				}
@@ -607,13 +610,14 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	}
 
 	private boolean checkTranslation(String valueRead, String string, String string2) {
-		return valueRead.contentEquals(Translator.translate(string) + " " + Translator.translate(string2)) 
-				|| valueRead.contentEquals(Translator.translate(string, Locale.ENGLISH) + " " + Translator.translate(string2, Locale.ENGLISH));
+		return valueRead.contentEquals(Translator.translate(string) + " " + Translator.translate(string2))
+		        || valueRead.contentEquals(Translator.translate(string, Locale.ENGLISH) + " "
+		                + Translator.translate(string2, Locale.ENGLISH));
 	}
 
 	private boolean checkTranslation(String valueRead, String string) {
-		return valueRead.contentEquals(Translator.translate(string)) 
-				|| valueRead.contentEquals(Translator.translate(string, Locale.ENGLISH));
+		return valueRead.contentEquals(Translator.translate(string))
+		        || valueRead.contentEquals(Translator.translate(string, Locale.ENGLISH));
 	}
 
 }

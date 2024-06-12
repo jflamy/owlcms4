@@ -13,7 +13,7 @@ public interface IRegistrationFileProcessor {
 	// void appendErrors(Runnable displayUpdater, Consumer<String> errorAppender, XLSReadStatus status);
 
 	int doProcessAthletes(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer,
-	        Runnable displayUpdater);
+	        Runnable displayUpdater, boolean eraseAthletes);
 
 	int doProcessGroups(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer,
 	        Runnable displayUpdater);

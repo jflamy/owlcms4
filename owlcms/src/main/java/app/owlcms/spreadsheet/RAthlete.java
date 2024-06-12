@@ -7,6 +7,7 @@
 package app.owlcms.spreadsheet;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -80,7 +81,16 @@ public class RAthlete {
 			return;
 		}
 		s = CharMatcher.javaIsoControl().removeFrom(s);
-		String[] parts = s.split(Pattern.quote("|"));
+		if (s.contains("|")) {
+			String[] parts = s.split(Pattern.quote("|"));
+			doLegacyParts(s, parts);
+		} else {
+			getPartsWithSeparator(s);
+		}
+
+	}
+
+	private void doLegacyParts(String s, String[] parts) throws Exception {
 		if (parts.length >= 1) {
 			boolean teamMember = false;
 			String catName = parts[0].trim();
@@ -109,6 +119,46 @@ public class RAthlete {
 				this.a.getParticipations().stream().forEach(p -> p.setTeamMember(tm));
 			}
 		}
+	}
+
+	private void getPartsWithSeparator(String s) throws Exception {
+		if (s == null || s.isBlank()) {
+			return;
+		}
+		// create a parts as in the legacy
+		if (Config.getCurrent().featureSwitch("usaw")) {
+			s = s.replaceAll("kg", "");
+			s = s.replaceAll("NAT ", "");
+			s = s.replaceAll("ADAPTIVE", "ADP");
+		}
+
+		String[] allParts = s.split(",|;|\\/");
+		List<String> partsList = Arrays.asList(allParts).stream().filter(s1 -> (s1 != null && !s1.isBlank()))
+		        .toList();
+		logger.warn(partsList.toString());
+		String[] parts;
+		if (partsList.size() == 1) {
+			parts = new String[1];
+			parts[0] = partsList.get(0);
+			doLegacyParts(s, parts);
+		} else if (partsList.size() >= 1) {
+			parts = new String[2];
+			parts[0] = allParts[0];
+			// brain-dead logic to reuse existing code. Should fix old to use new instead...
+			StringBuffer sb = new StringBuffer();
+			for (int i = 1; i < partsList.size(); i++) {
+				boolean notBlank = !partsList.get(i).isBlank();
+				if (i > 1 && notBlank) {
+					sb.append(";");
+				}
+				if (notBlank) {
+					sb.append(partsList.get(i).trim());
+				}
+			}
+			parts[1] = sb.toString();
+			doLegacyParts(s, parts);
+		}
+
 	}
 
 	/**
