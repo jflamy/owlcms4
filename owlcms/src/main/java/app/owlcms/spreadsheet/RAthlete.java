@@ -135,7 +135,6 @@ public class RAthlete {
 		String[] allParts = s.split(",|;|\\/");
 		List<String> partsList = Arrays.asList(allParts).stream().filter(s1 -> (s1 != null && !s1.isBlank()))
 		        .toList();
-		logger.warn(partsList.toString());
 		String[] parts;
 		if (partsList.size() == 1) {
 			parts = new String[1];
