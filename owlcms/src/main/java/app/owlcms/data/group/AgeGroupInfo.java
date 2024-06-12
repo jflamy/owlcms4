@@ -131,4 +131,8 @@ public class AgeGroupInfo {
 		}
 		return ageGroupMap.values().stream().toList();
 	}
+	
+	public static List<AgeGroupInfo> getNbForSessionBlock(int i){
+		return null;
+	}
 }
