@@ -494,7 +494,6 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			AthleteSorter.registrationOrder(regCatAthletesList);
 		}
 
-
 		updateURLLocations();
 		return regCatAthletesList;
 	}
@@ -579,6 +578,8 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		        .setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn("eligibleCategories").setHeader(Translator.translate("Registration.EligibleCategories"))
 		        .setAutoWidth(true);
+		grid.addColumn("subCategory").setHeader(Translator.translate("SubCategory")).setAutoWidth(true)
+		        .setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn("entryTotal").setHeader(Translator.translate("EntryTotal")).setAutoWidth(true)
 		        .setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn("federationCodes").setHeader(Translator.translate("Registration.FederationCodesShort"))
@@ -842,7 +843,8 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			        Gender genderFilterValue = getGender();
 			        Gender athleteGender = a.getGender();
 			        boolean catOk = (catFilterValue == null
-			                || (a.getCategory() != null && catFilterValue.toString().equals(a.getCategory().toString())))
+			                || (a.getCategory() != null
+			                        && catFilterValue.toString().equals(a.getCategory().toString())))
 			                && (genderFilterValue == null || genderFilterValue == athleteGender);
 			        return catOk;
 		        })
