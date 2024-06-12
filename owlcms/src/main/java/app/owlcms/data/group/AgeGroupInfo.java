@@ -1,8 +1,10 @@
 package app.owlcms.data.group;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
@@ -20,7 +22,8 @@ public class AgeGroupInfo {
 	int nbAthletes;
 	private String largestWeightClassLimitString;
 	private List<Athlete> athletes = new ArrayList<>();
-	
+	private boolean unanimous;
+	private String bestSubCategory;
 	static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupInfo.class);
 
 	public void addAthlete(Athlete athlete) {
@@ -93,46 +96,43 @@ public class AgeGroupInfo {
 		this.weightClassRange = weightClassRange;
 	}
 
-	public static List<AgeGroupInfo> getAgeGroupInfo(Group group){
-		List<Athlete> athletes = group.getAthletes();
-		TreeMap<AgeGroup, AgeGroupInfo> ageGroupMap = new TreeMap<>();
-		for (Athlete a : athletes) {
-			AgeGroup ageGroup = a.getAgeGroup();
-			if (ageGroup == null) {
-				continue;
-			}
-			AgeGroupInfo agi = ageGroupMap.get(ageGroup);
-			if (agi == null) {
-				agi = new AgeGroupInfo();
-				agi.setNbAthletes(1);
-				agi.setAgeGroup(ageGroup);
-				agi.setSmallestWeightClass(a.getCategory().getMaximumWeight());
-				agi.setLargestWeightClass(a.getCategory().getMaximumWeight());
-				agi.setLargestWeightClassLimitString(a.getCategory().getLimitString());
-				agi.setWeightClassRange(a.getCategory().getLimitString());
-				ageGroupMap.put(ageGroup, agi);
-			} else {
-				agi.setNbAthletes(agi.getNbAthletes()+1);
-				if (agi.getSmallestWeightClass() == null || a.getCategory().getMinimumWeight() < agi.getSmallestWeightClass()) {
-					agi.setSmallestWeightClass(a.getCategory().getMaximumWeight());
-				}
-				if (agi.getLargestWeightClass() == null || a.getCategory().getMaximumWeight() > agi.getLargestWeightClass()) {
-					agi.setLargestWeightClass(a.getCategory().getMaximumWeight());
-					agi.setLargestWeightClassLimitString(a.getCategory().getLimitString());
-				}
-				if (Math.abs(agi.getLargestWeightClass() - agi.getSmallestWeightClass()) < 0.1) {
-					// same
-					agi.setWeightClassRange(a.getCategory().getLimitString());
-				} else {
-					agi.setWeightClassRange((int)Math.round(agi.getSmallestWeightClass())+"-"+agi.getLargestWeightClassLimitString());
-				}
-			}
-			agi.addAthlete(a);
-		}
-		return ageGroupMap.values().stream().toList();
+	public boolean isUnanimous() {
+		logger.warn("unanimous {}", unanimous);
+		return unanimous;
+	}
+
+	public String getBestSubCategory() {
+		return bestSubCategory;
+	}
+
+	public void setBestSubCategory(String largestSubCategory) {
+		this.bestSubCategory = largestSubCategory;
+	}
+
+	public void setUnanimous(boolean unanimous) {
+		this.unanimous = unanimous;
+	}
+
+	TreeMap<String, BWCatInfo> subCats = new TreeMap<>();
+
+	public void addToList(String key, BWCatInfo info) {
+		subCats.put(key, info);
+	}
+
+	public Collection<String> getList() {
+		return subCats.values().stream().map(v -> v.getFormattedString()).toList();
 	}
 	
-	public static List<AgeGroupInfo> getNbForSessionBlock(int i){
-		return null;
+	public String getFormattedRange() {
+		logger.warn("fetching");
+		if (unanimous) {
+			return getWeightClassRange() +" "+getBestSubCategory();
+		} else {
+			return subCats.values().stream().map(v -> v.getFormattedString()).collect(Collectors.joining(", "));
+		}
+	}
+	
+	public void setFormattedRange(String unused) {
+		// for dumb introspection
 	}
 }
