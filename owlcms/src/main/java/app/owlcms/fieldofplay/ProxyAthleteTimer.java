@@ -178,7 +178,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 		int nbStops = (timeRemaining) / 30000;
 		switch (nbStops) {
 			case 0 -> {
-				logger.info("{}+++++ scheduling serverTimer timeOver {}", FieldOfPlay.getLoggingName(fop), timeRemaining);
+				logger.debug("{}+++++ scheduling serverTimer timeOver {}", FieldOfPlay.getLoggingName(fop), timeRemaining);
 				return new TimerTask() {
 					@Override
 					public void run() {
@@ -188,7 +188,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 				};
 			}
 			case 1 -> {
-				logger.info("{}+++++ scheduling serverTimer finalWarning {}", FieldOfPlay.getLoggingName(fop), timeRemaining);
+				logger.debug("{}+++++ scheduling serverTimer finalWarning {}", FieldOfPlay.getLoggingName(fop), timeRemaining);
 				return new TimerTask() {
 					@Override
 					public void run() {
@@ -200,18 +200,18 @@ public class ProxyAthleteTimer implements IProxyTimer {
 				};
 			}
 			case 2 -> {
-				logger.info("{}+++++ scheduling serverTimer 1:00 {}", FieldOfPlay.getLoggingName(fop), timeRemaining);
+				logger.debug("{}+++++ scheduling serverTimer 1:00 {}", FieldOfPlay.getLoggingName(fop), timeRemaining);
 				return new TimerTask() {
 					@Override
 					public void run() {
-						logger.warn("{}running 1:00", FieldOfPlay.getLoggingName(fop));
+						logger.info("{}running 1:00", FieldOfPlay.getLoggingName(fop));
 						// nothing to do, next task is final warning, in 30s.
 						serverTimer.schedule(computeTask(30000), 30000);
 					}
 				};
 			}
 			case 3 -> {
-				logger.info("{}+++++ scheduling server serverTimer initialWarning {}", FieldOfPlay.getLoggingName(fop), timeRemaining);
+				logger.debug("{}+++++ scheduling server serverTimer initialWarning {}", FieldOfPlay.getLoggingName(fop), timeRemaining);
 				return new TimerTask() {
 					@Override
 					public void run() {
@@ -223,7 +223,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 				};
 			}
 			case 4 -> {
-				logger.info("{}+++++ scheduling server serverTimer 2:00 {}", FieldOfPlay.getLoggingName(fop), timeRemaining);
+				logger.debug("{}+++++ scheduling server serverTimer 2:00 {}", FieldOfPlay.getLoggingName(fop), timeRemaining);
 				return new TimerTask() {
 					@Override
 					public void run() {
