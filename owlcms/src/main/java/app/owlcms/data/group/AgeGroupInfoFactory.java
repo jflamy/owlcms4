@@ -97,9 +97,9 @@ public class AgeGroupInfoFactory {
 			//logger.debug("athlete {} largest sub {} unanimous {} list {}", a, a.getSubCategory(), agi.isUnanimous(), agi.getList());
 			agi.addAthlete(a);
 		}
-		for (AgeGroupInfo agi: ageGroupMap.values()) {
-			//logger.debug("***** {} {} {} {} {}", agi.getAgeGroup(), agi.getWeightClassRange(), agi.getBestSubCategory(), agi.isUnanimous(), agi.getList());
-		}
+//		for (AgeGroupInfo agi: ageGroupMap.values()) {
+//			//logger.debug("***** {} {} {} {} {}", agi.getAgeGroup(), agi.getWeightClassRange(), agi.getBestSubCategory(), agi.isUnanimous(), agi.getList());
+//		}
 		return ageGroupMap.values().stream().toList();
 	}
 

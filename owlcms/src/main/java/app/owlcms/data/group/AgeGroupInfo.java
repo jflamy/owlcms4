@@ -97,7 +97,7 @@ public class AgeGroupInfo {
 	}
 
 	public boolean isUnanimous() {
-		logger.warn("unanimous {}", unanimous);
+		logger.debug("unanimous {}", unanimous);
 		return unanimous;
 	}
 
@@ -124,7 +124,6 @@ public class AgeGroupInfo {
 	}
 	
 	public String getFormattedRange() {
-		logger.warn("fetching");
 		if (unanimous) {
 			return getWeightClassRange() +" "+getBestSubCategory();
 		} else {
