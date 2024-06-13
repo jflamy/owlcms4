@@ -473,10 +473,9 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 			        startingXlsWriter.setSortedAthletes(athletesFindAll);
 
 			        String tn = Competition.getCurrent().getComputedStartListTemplateFileName();
-			        if (Config.getCurrent().featureSwitch("usawScheduleMerge") && tn.equals("Schedule.xlsx")) {
+			        if (Config.getCurrent().featureSwitch("usaw") && tn.equals("Schedule.xlsx")) {
 			        	logger.warn("======= merging ======");
 			        	startingXlsWriter.setPostProcessor((w) -> fixMerges(w, 4, List.of(1, 2, 10)));
-
 			        } else {
 				        startingXlsWriter.setPostProcessor(null);
 			        }
@@ -496,12 +495,12 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
         int firstRow = 0;
         boolean isMerging = false;
         CellStyle style = null;
-        
+
         for (int colA: columns) {
         	isMerging = false;
         	firstRow = 0;
         	style = null;
-        	
+
             int col = colA - 1;
 			for (Row row : sheet) {
                 Cell cell = row.getCell(col);
@@ -510,7 +509,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
             		//logger.debug("cellB {}{}",(char)('A'+col), row.getRowNum()+1);
             		continue;
             	}
-  
+
                 if (cell != null && cell.getCellType() != CellType.BLANK) {
                     if (isMerging) {
                     	logger.warn("**** {}{}: merging from {}{}", (char)('A'+col), row.getRowNum()+1,  (char)('A'+col), firstRow+1);
@@ -521,7 +520,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
                         style.setBorderBottom(BorderStyle.HAIR);
 						cell2.setCellStyle(style);
                         isMerging = false;
-                        
+
                         // start a new merge
                     	logger.warn("**** {}{}: capturing style", (char)('A'+col), row.getRowNum()+1, isMerging);
                         firstRow = row.getRowNum();
