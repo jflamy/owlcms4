@@ -475,7 +475,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 			        String tn = Competition.getCurrent().getComputedStartListTemplateFileName();
 			        if (Config.getCurrent().featureSwitch("usaw") && tn.equals("Schedule.xlsx")) {
 			        	logger.warn("======= merging ======");
-			        	startingXlsWriter.setPostProcessor((w) -> fixMerges(w, 4, List.of(1, 2, 10)));
+			        	startingXlsWriter.setPostProcessor((w) -> fixMerges(w, 4, List.of(1, 2)));
 			        } else {
 				        startingXlsWriter.setPostProcessor(null);
 			        }
