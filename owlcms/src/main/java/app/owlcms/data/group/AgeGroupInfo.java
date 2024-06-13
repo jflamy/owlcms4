@@ -40,12 +40,17 @@ public class AgeGroupInfo {
 
 	public List<Athlete> getAthletesByEntryTotal() {
 		var nAthletes = new ArrayList<>(this.athletes);
-		nAthletes.sort((a, b) -> ObjectUtils.compare(a.getEntryTotal(), a.getEntryTotal(), false));
+		// reverse order required to show highest entry total first
+		nAthletes.sort((a, b) -> -ObjectUtils.compare(a.getEntryTotal(), b.getEntryTotal(), false));
 		return nAthletes;
 	}
 
 	public List<Athlete> getAthletesByStartNumber() {
 		return AthleteSorter.registrationOrderCopy(this.athletes);
+	}
+
+	public int getHighestEntryTotal() {
+		return getAthletesByEntryTotal().get(0).getEntryTotal();
 	}
 
 	public Double getLargestWeightClass() {
@@ -54,6 +59,10 @@ public class AgeGroupInfo {
 
 	public String getLargestWeightClassLimitString() {
 		return this.largestWeightClassLimitString;
+	}
+
+	public int getLowestEntryTotal() {
+		return getAthletesByEntryTotal().get(this.athletes.size() - 1).getEntryTotal();
 	}
 
 	public int getNbAthletes() {
@@ -122,7 +131,7 @@ public class AgeGroupInfo {
 	public Collection<String> getList() {
 		return subCats.values().stream().map(v -> v.getFormattedString()).toList();
 	}
-	
+
 	public String getFormattedRange() {
 		if (unanimous) {
 			return getWeightClassRange() +" "+getBestSubCategory();
@@ -130,7 +139,7 @@ public class AgeGroupInfo {
 			return subCats.values().stream().map(v -> v.getFormattedString()).collect(Collectors.joining(", "));
 		}
 	}
-	
+
 	public void setFormattedRange(String unused) {
 		// for dumb introspection
 	}
