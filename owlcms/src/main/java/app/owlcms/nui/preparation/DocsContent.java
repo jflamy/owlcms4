@@ -474,6 +474,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 
 			        String tn = Competition.getCurrent().getComputedStartListTemplateFileName();
 			        if (Config.getCurrent().featureSwitch("usawScheduleMerge") && tn.equals("Schedule.xlsx")) {
+			        	logger.warn("======= merging ======");
 			        	startingXlsWriter.setPostProcessor((w) -> fixMerges(w, 4, List.of(1, 2, 10)));
 
 			        } else {
@@ -513,13 +514,19 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
                 if (cell != null && cell.getCellType() != CellType.BLANK) {
                     if (isMerging) {
                     	logger.warn("**** {}{}: merging from {}{}", (char)('A'+col), row.getRowNum()+1,  (char)('A'+col), firstRow+1);
-                        CellRangeAddress region = new CellRangeAddress(firstRow, row.getRowNum(), col, col);
+                        CellRangeAddress region = new CellRangeAddress(firstRow, row.getRowNum()-1, col, col);
                         sheet.addMergedRegion(region);
                         // Apply the captured style to the first cell of the merged region
                         Cell cell2 = sheet.getRow(firstRow).getCell(col);
                         style.setBorderBottom(BorderStyle.HAIR);
 						cell2.setCellStyle(style);
                         isMerging = false;
+                        
+                        // start a new merge
+                    	logger.warn("**** {}{}: capturing style", (char)('A'+col), row.getRowNum()+1, isMerging);
+                        firstRow = row.getRowNum();
+                        style = cell.getCellStyle();  // capture the style
+                        isMerging = true;
                     } else {
                     	logger.warn("**** {}{}: capturing style", (char)('A'+col), row.getRowNum()+1, isMerging);
                         firstRow = row.getRowNum();
