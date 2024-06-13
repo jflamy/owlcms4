@@ -212,10 +212,6 @@ public class JXLSDownloader {
 
 					Competition current = Competition.getCurrent();
 
-					this.xlsWriter = this.streamSourceSupplier.get();
-					this.logger.debug("(2) xlsWriter {} {}", this.xlsWriter.getClass().getSimpleName(),
-					        newTemplateName);
-
 					// supplier is a lambda that sets the template and the filter values in the xls
 					// source
 					Resource res = searchMatch(prioritizedList, newTemplateName);
@@ -226,6 +222,10 @@ public class JXLSDownloader {
 					this.logger.debug("(2) template found {}", res != null ? res.getFilePath() : null);
 					this.templateNameSetter.accept(current, newTemplateName);
 					this.logger.debug("(2) template as set {}", this.templateNameGetter.apply(current));
+
+					this.xlsWriter = this.streamSourceSupplier.get();
+					this.logger.debug("(2) xlsWriter {} {}", this.xlsWriter.getClass().getSimpleName(),
+					        newTemplateName);
 
 					CompetitionRepository.save(current);
 					current = Competition.getCurrent();
