@@ -171,12 +171,13 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 			return compare;
 		}
 		
-		compare = ObjectUtils.compare(this.minAge, o.getMinAge());
+		compare = ObjectUtils.compare(this.maxAge, o.getMaxAge());
 		if (compare != 0) {
 			//logger.trace("(agegroup minage) {} {} {}", compare, this.minAge, o.getMinAge());
 			return compare;
 		}
-		compare = ObjectUtils.compare(this.maxAge, o.getMaxAge());
+		
+		compare = ObjectUtils.compare(this.minAge, o.getMinAge());
 		if (compare != 0) {
 			//logger.trace("(agegroup maxage) {} {} {}", compare, this.maxAge, o.getMaxAge());
 			return compare;
@@ -185,13 +186,11 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	}
 	
 	public static Comparator<AgeGroup> registrationComparator = (a,b) -> {
-		//logger.debug("comparing agegroups");
-		if (b == null) {
-			return -1; // we are smaller, we come first in the list
+		if (a == null || b == null) {
+			return ObjectUtils.compare(a, b, true);
 		}
-		int compare = 0;
 
-		compare = ObjectUtils.compare(a.getGender(), b.getGender());
+		int compare = ObjectUtils.compare(a.getGender(), b.getGender());
 		if (compare != 0) {
 			//logger.debug("agegroup gender {} {} {} ", a.getGender(), compare > 0 ? ">" : "<",  b.getGender());
 			return compare;
