@@ -1,9 +1,10 @@
-**Version 48.0.4**
+**Version 48.0.5**
 
 > [!CAUTION]
 >
 > - You should test all releases, with your own data, several days before a competition.
 
+- 48.0.5 Fix: backport of a version 49 fix for registration, document pages or weigh-in page not loading in rare cases.
 - 48.0.4: Feature: Backport of version 49  new and improved implementation of the athlete and break timers.  To activate, use the `serverTimers` [feature toggle](https://owlcms.github.io/owlcms4/#/FeatureToggles).  Use this if you occasionally observe delayed or random timer sounds in your setup.
 - Options for scoreboard ordering
   - If the "Display categories ordered by age group" checkbox selected in the competition rules, the younger age groups are shown first on the scoreboard (lower start numbers and earlier weigh-in order).
