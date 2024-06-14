@@ -5,6 +5,7 @@
 > - This is a [release candidate](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate), used for final public testing and translation.  *It is still a preliminary release*
 > - You should test all releases, with actual data, several days before a competition.  This is especially important for release candidates.
 
+- (rc09) Video data includes membership
 - (rc08) Fixes for code for doing vertical merges to compensate for limitations in jxls3
 - (rc08) new ageGroupInfo accessor lowestEntryTotal and highestEntryTotal for writing templates. 
 - Experimental: [Feature toggle](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/FeatureToggles) `serverTimers` to enable a new and improved implementation of the athlete and break timers.

@@ -1307,6 +1307,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		}
 		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
+		ja.put("membership", a.getMembership() != null ? a.getMembership() : "");
 		setTeamFlag(a, ja);
 	}
 
