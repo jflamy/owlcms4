@@ -754,10 +754,10 @@ public class Athlete {
 	@JsonIgnore
 	public String getAgeGroupCodesAsString() {
 		return this.getEligibleCategories().stream()
-			.map(category -> {
-				return category.getAgeGroup().getCode();
-			})
-			.collect(Collectors.joining(", "));
+		        .map(category -> {
+			        return category.getAgeGroup().getCode();
+		        })
+		        .collect(Collectors.joining(", "));
 	}
 
 	@Transient
@@ -802,31 +802,31 @@ public class Athlete {
 		}
 	}
 
-//	@Transient
-//	@JsonIgnore
-//	private String getAllTranslatedCategoriesAsString() {
-//		Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
-//		String mainCategory = mrCat != null ? mrCat.getNameWithAgeGroup() : "";
-//
-//		String mainCategoryString = mainCategory;
-//		if (mrCat != null && !getMainRankings().getTeamMember()) {
-//			mainCategoryString = mainCategory + RAthlete.NoTeamMarker;
-//		}
-//
-//		String eligiblesAsString = this.getParticipations().stream()
-//		        .filter(p -> (p.getCategory() != mrCat))
-//		        .sorted((a, b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
-//		        .map(p -> {
-//			        String catName = p.getCategory().getNameWithAgeGroup();
-//			        return catName + (!p.getTeamMember() ? RAthlete.NoTeamMarker : "");
-//		        })
-//		        .collect(Collectors.joining(";"));
-//		if (eligiblesAsString.isBlank()) {
-//			return mainCategoryString;
-//		} else {
-//			return mainCategory + "|" + eligiblesAsString;
-//		}
-//	}
+	// @Transient
+	// @JsonIgnore
+	// private String getAllTranslatedCategoriesAsString() {
+	// Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
+	// String mainCategory = mrCat != null ? mrCat.getNameWithAgeGroup() : "";
+	//
+	// String mainCategoryString = mainCategory;
+	// if (mrCat != null && !getMainRankings().getTeamMember()) {
+	// mainCategoryString = mainCategory + RAthlete.NoTeamMarker;
+	// }
+	//
+	// String eligiblesAsString = this.getParticipations().stream()
+	// .filter(p -> (p.getCategory() != mrCat))
+	// .sorted((a, b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
+	// .map(p -> {
+	// String catName = p.getCategory().getNameWithAgeGroup();
+	// return catName + (!p.getTeamMember() ? RAthlete.NoTeamMarker : "");
+	// })
+	// .collect(Collectors.joining(";"));
+	// if (eligiblesAsString.isBlank()) {
+	// return mainCategoryString;
+	// } else {
+	// return mainCategory + "|" + eligiblesAsString;
+	// }
+	// }
 
 	/**
 	 * Number of attempt 1..3, relative to current lift
@@ -1607,7 +1607,7 @@ public class Athlete {
 			return mainCategory + ";" + eligiblesAsString;
 		}
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public String getAgeGroupCodesMainFirstAsString() {
@@ -1626,7 +1626,7 @@ public class Athlete {
 		if (eligiblesAsString.isBlank()) {
 			return mainCategory;
 		} else {
-			return (!mainCategory.isBlank() ? mainCategory +  delimiter : "") + eligiblesAsString;
+			return (!mainCategory.isBlank() ? mainCategory + delimiter : "") + eligiblesAsString;
 		}
 	}
 
@@ -3150,6 +3150,7 @@ public class Athlete {
 	}
 
 	public void setCheckTiming(boolean checkTiming) {
+		//logger.debug("===== setting timing check {}, {}", checkTiming, LoggerUtils.stackTrace());
 		this.checkTiming = checkTiming;
 	}
 
@@ -4874,8 +4875,7 @@ public class Athlete {
 
 	private void doCheckChangeOwningTimer(String declaration, String change1, String change2, FieldOfPlay fop,
 	        int clock, int initialTime) {
-		// logger.debug("{}doCheckChangeOwningTimer ===== initialTime={} clock={} {} {} {}\n{}", fop.getLoggingName(),
-		// initialTime, clock, declaration, change1, change2, LoggerUtils.stackTrace());
+		//logger.debug("{}doCheckChangeOwningTimer ===== initialTime={} clock={} {} {} {}\n{}", FieldOfPlay.getLoggingName(fop), initialTime, clock, declaration, change1, change2, LoggerUtils.stackTrace());
 		if ((change1 == null || change1.isBlank()) && (change2 == null || change2.isBlank())) {
 			// validate declaration
 			if (clock < initialTime - 30000) {
@@ -4884,7 +4884,7 @@ public class Athlete {
 				        clock / 1000.0);
 				throw new RuleViolationException.LateDeclaration(this, clock);
 			}
-			logger.trace("{}{}valid declaration", OwlcmsSession.getFopLoggingName(), this.getShortName(),
+			logger.debug("{}{}valid declaration", OwlcmsSession.getFopLoggingName(), this.getShortName(),
 			        clock / 1000.0);
 		} else {
 			if (clock < 30000) {
@@ -4892,7 +4892,7 @@ public class Athlete {
 				        this.getShortName(), clock / 1000.0);
 				throw new RuleViolationException.MustChangeBeforeFinalWarning(this, clock);
 			}
-			logger.trace("{}change before final warning", OwlcmsSession.getFopLoggingName(), clock);
+			logger.debug("{}change before final warning", OwlcmsSession.getFopLoggingName(), clock);
 		}
 	}
 
@@ -5417,6 +5417,10 @@ public class Athlete {
 		}
 		this.timingLogger.info("validateDeclaration {}ms {} {}", System.currentTimeMillis() - start, curLift,
 		        LoggerUtils.whereFrom());
+	}
+
+	public boolean isDone() {
+		return this.getCleanJerk3ActualLift() == null || this.getCleanJerk3ActualLift().isBlank() || this.getCleanJerk3AsInteger() == null;
 	}
 
 }

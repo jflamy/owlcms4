@@ -288,9 +288,8 @@ public class Competition {
 	 * @return for each category represented in group g where all athletes have lifted, the medals
 	 */
 	public TreeMap<String, TreeSet<Athlete>> computeMedals(Group g) {
-		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g, true);
-		// logger.debug("*** ranked athletes for group {}
-		// {}",g,rankedAthletes.stream().map(a->a.getLastName()).toList());
+		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g, false);
+		logger.warn("*** ranked athletes for group {} {}",g,rankedAthletes.stream().map(a->a.getLastName()).toList());
 		return computeMedals(g, rankedAthletes);
 	}
 
@@ -829,12 +828,13 @@ public class Competition {
 				        if (athletes.isEmpty()) {
 					        return true; // remove from list.
 				        }
-				        // logger.debug("athletes {} {}",k, athletes);
+				        logger.warn("athletes {} {}",k, athletes);
 				        // category includes an athlete that has not finished, mark it as "to be
 				        // removed"
 				        boolean anyMatch = athletes.stream()
-				                .anyMatch(a -> a.getSnatch3AsInteger() == null || a.getCleanJerk3AsInteger() == null);
+				                .anyMatch(a -> a.isDone());
 				        logger.info("category {} has finished {}", k, !anyMatch);
+				        // return those that have not finished
 				        return anyMatch;
 			        })
 			        .collect(Collectors.toList());

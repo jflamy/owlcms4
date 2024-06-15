@@ -473,7 +473,7 @@ public class AthleteRepository {
 				}
 			}
 		}
-		logger.debug("unfinishedCategories1 {}",unfinishedCategories);
+		//logger.debug("unfinishedCategories1 {}",unfinishedCategories);
 		for (Athlete a : athletes) {
 			if (!unfinishedCategories.contains(a.getCategory().getCode())) {
 				finishedCategoryAthletes.add(a);
@@ -488,13 +488,15 @@ public class AthleteRepository {
 			return Set.of();
 		}
 		for (Athlete a : ranked) {
-			if (a.getSnatch3AsInteger() == null || a.getCleanJerk3AsInteger() == null) {
+			//logger.debug("unfinishedCategories *** athlete {}",a);
+			if (a.isDone()) {
+				//logger.debug("{}", a, a.getCleanJerk3ActualLift());
 				for (Participation p: a.getParticipations()) {
 					unfinishedCategories.add(p.getCategory().getCode());
 				}
 			}
 		}
-		logger.debug("unfinishedCategories2 {}",unfinishedCategories);
+		//logger.debug("unfinishedCategories2 {}",unfinishedCategories);
 		return unfinishedCategories;
 	}
 }
