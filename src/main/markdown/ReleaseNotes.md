@@ -5,9 +5,8 @@
 > - This is a [release candidate](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate), used for final public testing and translation.  *It is still a preliminary release*
 > - You should test all releases, with actual data, several days before a competition.  This is especially important for release candidates.
 
-- (rc09) Video data includes membership
-- (rc08) Fixes for code for doing vertical merges to compensate for limitations in jxls3
-- (rc08) new ageGroupInfo accessor lowestEntryTotal and highestEntryTotal for writing templates. 
+- (rc10) Misc improvements to support additional reporting rules and templates
+- (rc10) Late weight change was being reported but would be accepted when pressing update instead of requiring an override.
 - Experimental: [Feature toggle](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/FeatureToggles) `serverTimers` to enable a new and improved implementation of the athlete and break timers.
 - Announcer+Marshal
   - The previous athlete is now highlighted in blue in the grid.  The current and next athletes are also highlighted (yellow and orange, which is the same color convention as on the default scoreboards).  Blue is shown when the previous athlete is the current or the next.
@@ -48,6 +47,7 @@
       session.ageGroupInfo.athletesByEntryTotal
     - athlete.ageGroupCodesAsString  (age group codes such as U17, ungendered unless Masters)
     - `formattedRange` summarizes the body weight categories and subcategories for an age group.  Output can be, for example, `55 B` if all the athletes are in that case, or `55-64 A` if all athletes are `A`.  If the athletes are not all in the same A/B/C subcategory, they are enumerated: `64A, 71B`.
+    - lowestEntryTotal and highestEntryTotal for writing templates. 
   - Footers for protocols, start lists and final results are now standardized to show the date of production.  The headers for final results show the championship and age group when selected.
   - Competition Results
     - The final package document now excludes unfinished categories by default and obeys the override checkbox when unfinished categories are required.
