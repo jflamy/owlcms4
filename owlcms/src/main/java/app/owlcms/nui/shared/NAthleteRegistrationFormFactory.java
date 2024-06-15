@@ -66,6 +66,7 @@ import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.components.fields.LocalizedDecimalField;
 import app.owlcms.components.fields.LocalizedIntegerField;
 import app.owlcms.components.fields.ValidationUtils;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -85,6 +86,7 @@ import app.owlcms.nui.lifting.NextAthleteAble;
 import app.owlcms.nui.lifting.WeighinContent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.NaturalOrderComparator;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -131,6 +133,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	public NAthleteRegistrationFormFactory(Class<Athlete> domainType, Group group,
 	        NextAthleteAble parentGrid) {
 		super(domainType);
+		//logger.setLevel(Level.DEBUG);
 		this.setCurrentGroup(group);
 		this.setPreviousNext(parentGrid);
 	}
@@ -1199,6 +1202,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		Category cat = categoryField.getValue();
 		Integer age = getAgeFromFields();
 		logger.debug/* edit */("cat={} age={}", cat, age);
+//		List<Championship> previousChampionships = championshipsForCategories(eligibleField.getValue());
 		if (bodyWeightField.getValue() != null) {
 			if (genderField.getValue() != null && age != null) {
 				// body weight, gender, date
@@ -1216,6 +1220,10 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				} else {
 					logger.debug/* edit */("recompute, cat={} allEligible = {}", cat, this.allEligible);
 					// category is null or not within eligibles, recompute
+					
+//					List<Category> filteredEligibles = allEligible.stream()
+//							.filter(e -> previousChampionships.contains(e.getAgeGroup().getChampionship())).toList();
+//					logger.warn("eligibilty filtered on championship {}",filteredEligibles);
 					Category bestMatchCategory = bestMatch(this.allEligible);
 					updateCategoryFields(bestMatchCategory, categoryField, eligibleField, qualifyingTotalField2,
 					        this.allEligible, true);
@@ -1267,6 +1275,12 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			}
 		}
 
+	}
+
+	@SuppressWarnings("unused")
+	private List<Championship> championshipsForCategories(Set<Category> value) {
+		value.stream().map(c -> c.getAgeGroup().getChampionshipName()).toList();
+		return null;
 	}
 
 	private void safeCategorySetItems(List<Category> categories) {
