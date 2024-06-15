@@ -511,7 +511,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 
                 if (cell != null && cell.getCellType() != CellType.BLANK) {
                     if (isMerging) {
-                    	logger.warn("**** {}{}: merging from {}{}", (char)('A'+col), row.getRowNum()+1,  (char)('A'+col), firstRow+1);
+                    	logger.debug("**** {}{}: merging from {}{}", (char)('A'+col), row.getRowNum()+1,  (char)('A'+col), firstRow+1);
                         CellRangeAddress region = new CellRangeAddress(firstRow, row.getRowNum()-1, col, col);
                         sheet.addMergedRegion(region);
                         // Apply the captured style to the first cell of the merged region
@@ -521,12 +521,12 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
                         isMerging = false;
 
                         // start a new merge
-                    	logger.warn("**** {}{}: capturing style", (char)('A'+col), row.getRowNum()+1, isMerging);
+                    	logger.debug("**** {}{}: capturing style", (char)('A'+col), row.getRowNum()+1, isMerging);
                         firstRow = row.getRowNum();
                         style = cell.getCellStyle();  // capture the style
                         isMerging = true;
                     } else {
-                    	logger.warn("**** {}{}: capturing style", (char)('A'+col), row.getRowNum()+1, isMerging);
+                    	logger.debug("**** {}{}: capturing style", (char)('A'+col), row.getRowNum()+1, isMerging);
                         firstRow = row.getRowNum();
                         style = cell.getCellStyle();  // capture the style
                         isMerging = true;
@@ -535,7 +535,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
             }
             // Merge the last region if the last cell(s) is/are non-empty
             if (isMerging) {
-            	logger.warn("**** {}{}: merging bottom from {}{}", (char)('A'+col), sheet.getLastRowNum()+1,  (char)('A'+col), firstRow+1);
+            	logger.debug("**** {}{}: merging bottom from {}{}", (char)('A'+col), sheet.getLastRowNum()+1,  (char)('A'+col), firstRow+1);
                 CellRangeAddress region = new CellRangeAddress(firstRow, sheet.getLastRowNum(), col, col);
                 sheet.addMergedRegion(region);
                 Cell cell22 = sheet.getRow(firstRow).getCell(col);
