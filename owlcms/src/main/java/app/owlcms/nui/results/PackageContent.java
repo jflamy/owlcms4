@@ -52,6 +52,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -161,22 +162,17 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		Competition competition = Competition.getCurrent();
 		HashMap<String, Object> beans = competition.computeReportingInfo(this.ageGroupPrefix, this.championship);
 
-		
 		String key = "mwTot";
 		@SuppressWarnings("unchecked")
 		List<Athlete> ranked = (List<Athlete>) beans.get(key);
 		boolean allCategories = Boolean.TRUE.equals(this.includeUnfinishedCategories.getValue());
-		Set<String> unfinishedCategories = null;
-		if (!allCategories) {
-			unfinishedCategories = AthleteRepository.unfinishedCategories(ranked);
-			//logger.debug("unfinished categories {}", unfinishedCategories);
-		}
-		
+		Set<String> unfinishedCategories = AthleteRepository.unfinishedCategories(ranked);
+		//logger.debug("unfinished categories {}", unfinishedCategories);
+
 		if (ranked == null || ranked.isEmpty()) {
 			return new ArrayList<>();
 		}
-		
-		final var notDone = unfinishedCategories;
+
 		Category catFilterValue = getCategoryValue();
 		Stream<Athlete> stream = ranked.stream()
 		        .filter(a -> {
@@ -185,10 +181,20 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        boolean catOk = (catFilterValue == null
 			                || (a.getCategory() != null && catFilterValue.getCode().equals(a.getCategory().getCode())))
 			                && (genderFilterValue == null || genderFilterValue == athleteGender)
-			                && (allCategories || !notDone.contains(a.getCategory().getCode()))
+			                && (allCategories || !unfinishedCategories.contains(a.getCategory().getCode()))
 			                ;
+
 			        return catOk;
 		        })
+				.map(a -> {
+					if (a.getCategory() != null && unfinishedCategories.contains(a.getCategory().getCode())) {
+						a.setCategoryDone(false);
+					} else {
+						a.setCategoryDone(true);
+					}
+
+					return a;
+				})
 		        //.peek(r -> logger.debug("including {} {}",r, r.getCategory().getCode()))
 		        ;
 		List<Athlete> found = stream.collect(Collectors.toList());
@@ -471,7 +477,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			clearFilters();
 			this.includeUnfinishedCategories.setValue(false);
 		});
-		
+
 		getCrudLayout(crud).addFilterComponent(clearFilters);
 	}
 

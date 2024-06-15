@@ -299,6 +299,7 @@ public class Athlete {
 	@JsonProperty(index = 300)
 	@JsonIdentityReference(alwaysAsId = true)
 	private Category category = null;
+	private boolean categoryDone;
 	@Column(columnDefinition = "integer default 0")
 	private int catSinclairRank;
 	private String cleanJerk1ActualLift;
@@ -3145,6 +3146,10 @@ public class Athlete {
 		this.category = category;
 	}
 
+	public void setCategoryDone(boolean done) {
+		this.categoryDone = done;
+	}
+
 	public void setCatSinclairRank(int i) {
 		this.catSinclairRank = i;
 	}
@@ -5160,6 +5165,10 @@ public class Athlete {
 			// getLogger().trace("cat {}", cat);
 		}
 		return 20;
+	}
+
+	public boolean isCategoryDone() {
+		return this.categoryDone;
 	}
 
 	@Transient
