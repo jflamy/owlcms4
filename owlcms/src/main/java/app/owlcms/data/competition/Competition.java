@@ -610,7 +610,7 @@ public class Competition {
 			return getProtocolTemplateFileName();
 		}
 	}
-	
+
 	/**
 	 * Gets the protocol file name.
 	 *
@@ -620,7 +620,7 @@ public class Competition {
 	@Transient
 	@JsonIgnore
 	public String getComputedResultsTemplateFileName() {
-		if (getProtocolTemplateFileName() == null) {
+		if (getResultsTemplateFileName() == null) {
 			return "Results-A4.xls";
 		} else {
 			return getResultsTemplateFileName();
