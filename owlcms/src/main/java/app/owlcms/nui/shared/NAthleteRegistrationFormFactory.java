@@ -133,7 +133,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	public NAthleteRegistrationFormFactory(Class<Athlete> domainType, Group group,
 	        NextAthleteAble parentGrid) {
 		super(domainType);
-		//logger.setLevel(Level.DEBUG);
+		/* logger.warn( */logger.setLevel(Level.DEBUG);
 		this.setCurrentGroup(group);
 		this.setPreviousNext(parentGrid);
 	}
@@ -321,7 +321,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				HasValue<?, ?> field = error.getField();
 				logger.debug("error message: {} field: {}", error.getMessage(), field);
 				if (field instanceof HasValidation) {
-					logger.debug("has validation");
+					logger.trace("has validation");
 					HasValidation vf = (HasValidation) field;
 					vf.setInvalid(true);
 					vf.setErrorMessage(error.getMessage().get());
@@ -364,10 +364,12 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void validateCategory(Binder.BindingBuilder<Athlete, Category> bindingBuilder) {
-		// check that there are eligibility categories
-		// check that category is consistent with body weight
+		// we have age and bodyweight, is registration category selected
 		Validator<Category> v0 = Validator.from((category) -> {
-			// logger.debug("v0 {}",category);
+			logger.debug("v0 {} {}",category, isIgnoreErrors());
+			if (isIgnoreErrors()) {
+				return true;
+			}
 			try {
 				Double bw = this.bodyWeightField.getValue();
 				if ((bw == null || bw < 0.1) && this.dateField != null && this.dateField.getValue() == null) {
@@ -386,9 +388,9 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		}, Translator.translate("Category_noEligiblity_check_age_entry"));
 		bindingBuilder.withValidator(v0);
 
-		// check that category is consistent with body weight
+		// check that registration category is consistent with body weight
 		Validator<Category> v1 = Validator.from((category) -> {
-			// logger.debug("v1");
+			logger.debug("v1");
 			try {
 				Double bw = this.bodyWeightField.getValue();
 				if (category == null && bw == null) {
@@ -401,7 +403,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 					return true;
 				} else if (bw != null && category == null) {
 					// logger.debug("3 category {} {} bw {}", category, cat, bw);
-					return false;
+					return isIgnoreErrors();
 				}
 				Double min = category.getMinimumWeight();
 				Double max = category.getMaximumWeight();
@@ -417,7 +419,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 		// check that category is consistent with age
 		Validator<Category> v2 = Validator.from((category) -> {
-			// logger.debug("v2");
+			logger.debug("v2");
 			try {
 				Category cat = this.categoryField.getValue();
 				Integer age = getAgeFromFields();
@@ -432,7 +434,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				if (category != null && age != null) {
 					int min = category.getAgeGroup().getMinAge();
 					int max = category.getAgeGroup().getMaxAge();
-					logger.debug("comparing {} [{},{}] with age {}", category.getCode(), min, max, age);
+					logger.trace("comparing {} [{},{}] with age {}", category.getCode(), min, max, age);
 					return (age >= min && age <= max);
 				} else {
 					return true;
@@ -446,7 +448,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 		// check that category is consistent with gender
 		Validator<Category> v3 = Validator.from((category) -> {
-			// logger.debug("v3");
+			logger.debug("v3");
 			try {
 				if (category == null) {
 					return true;
@@ -454,7 +456,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				Binding<Athlete, ?> genderBinding = this.fieldToBinding.get(this.genderField);
 				Gender g = this.genderField.getValue();
 				Gender catGender = category != null ? category.getGender() : null;
-				logger.debug("categoryValidation: validating gender {} vs category {}: {} {}", g, catGender,
+				logger.trace("categoryValidation: validating gender {} vs category {}: {} {}", g, catGender,
 				        catGender == g);
 				if (g == null) {
 					// no gender - no contradiction
@@ -480,21 +482,22 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				// logger.debug("v4 skipped");
 				return true;
 			}
-			// logger.debug("v4 {} {}", category, category.getName(), category.getCode());
+			logger.debug("v4 {} {}", category, category.getName(), category.getCode());
 			try {
-				Category matchingEligible = null;
+//				Category matchingEligible = null;
 				// Set<Category> eligibles = getEditedAthlete().getEligibleCategories();
 				List<Category> eligibles = this.allEligible;
 				if (eligibles == null || eligibles.isEmpty()) {
-					return true;
+					return category == null;
 				}
-				for (Category eligible : eligibles) {
-					if (eligible.getCode() == category.getCode()) {
-						matchingEligible = eligible;
-						break;
-					}
-				}
-				return isIgnoreErrors() ? true : matchingEligible != null;
+//				for (Category eligible : eligibles) {
+//					if (eligible.getCode() == category.getCode()) {
+//						matchingEligible = eligible;
+//						break;
+//					}
+//				}
+				Set<Category> selectedEligibles = eligibleField.getValue();
+				return isIgnoreErrors() ? true : !selectedEligibles.isEmpty();
 			} catch (Exception e) {
 				LoggerUtils.logError(logger, e);
 			}
@@ -504,13 +507,13 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 		// a category change requires explicit ok.
 		Validator<Category> v5 = Validator.from((category) -> {
-			// logger.debug("v5");
+			logger.debug("v5");
 			try {
 				if (isIgnoreErrors() || this.initialCategory == null
 				        || (getEditedAthlete().getBodyWeight() == null && category == null)) {
 					return true;
 				}
-				logger.debug("initialCategory = {}  new category = {}", this.initialCategory,
+				logger.trace("initialCategory = {}  new category = {}", this.initialCategory,
 				        getEditedAthlete().getCategory());
 				return category != null && category.sameAs(this.initialCategory);
 			} catch (Exception e) {
@@ -522,7 +525,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 		// category is required
 		Validator<Category> v6 = Validator.from((category) -> {
-			logger.debug("v5");
+			logger.debug("v6 ignoreErrors={}",isIgnoreErrors());
 			try {
 				return isIgnoreErrors() ? true : category != null;
 			} catch (Exception e) {
@@ -613,7 +616,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 	private void checkOther20kgFields(LocalizedIntegerField fieldA,
 	        LocalizedIntegerField fieldB) {
-		logger.debug/* edit */("entering checkOther20kgFields {} {}", isCheckOther20kgFields(),
+		logger.trace("entering checkOther20kgFields {} {}", isCheckOther20kgFields(),
 		        LoggerUtils.whereFrom());
 		if (isCheckOther20kgFields()) {
 			setCheckOther20kgFields(false); // prevent recursion
@@ -991,7 +994,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			        this.categoryField, this.qualifyingTotalField);
 			logger.debug/* edit */("*** allEligibles init {}", this.allEligible);
 			updateCategoryFields(category, this.categoryField, this.eligibleField, this.qualifyingTotalField,
-			        this.allEligible, false);
+			        this.allEligible, this.allEligible, false);
 		}
 
 		this.genderField.addValueChangeListener((vc) -> {
@@ -1077,14 +1080,14 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			setChangeListenersEnabled(false); // prevent recursion.
 			// false as last argument: do not reset to all eligible categories
 			Category value = this.categoryField.getValue();
-			logger.debug/* edit */("eligible new value {} listenersEnabled {} {}", value, isChangeListenersEnabled(),
+			logger.debug/* edit */("**** eligible new value {} listenersEnabled {} {}", value, isChangeListenersEnabled(),
 			        (value == null ? LoggerUtils.stackTrace() : LoggerUtils.whereFrom()));
 			Set<Category> selectedCategories = this.eligibleField.getSelectedItems();
 			this.allEligible = findEligibleCategories(this.genderField, getAgeFromFields(), this.bodyWeightField,
 			        this.categoryField,
 			        this.qualifyingTotalField);
 
-			// logger.debug("**** allEligibles: {} selectedCategories {}",allEligible, selectedCategories);
+			logger.debug("**** allEligibles: {} selectedCategories {}",allEligible, selectedCategories);
 			Stream<Category> filter = this.allEligible.stream().filter(c -> c.sameAsAny(selectedCategories));
 			Category category2 = filter.findFirst().orElse(null);
 			setCategoryFieldValue(category2);
@@ -1202,31 +1205,37 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		Category cat = categoryField.getValue();
 		Integer age = getAgeFromFields();
 		logger.debug/* edit */("cat={} age={}", cat, age);
-//		List<Championship> previousChampionships = championshipsForCategories(eligibleField.getValue());
+		List<Championship> previousChampionships = championshipsForCategories(eligibleField.getValue());
+		logger.warn("previous championships {} {} {}", eligibleField.getValue(), previousChampionships, LoggerUtils.whereFrom());
 		if (bodyWeightField.getValue() != null) {
 			if (genderField.getValue() != null && age != null) {
 				// body weight, gender, date
 				this.allEligible = findEligibleCategories(genderField, getAgeFromFields(), bodyWeightField,
 				        categoryField, qualifyingTotalField2);
-				logger.debug/* edit */("cat {} eli {}", cat, this.allEligible);
+				logger.debug("cat {} eli {}", cat, this.allEligible);
 				if (cat != null && categoryIsEligible(cat, this.allEligible)) {
 					// current registration category is amongst eligibles. Don't recompute anything.
 					logger.debug/* edit */("leave alone");
 					if (Config.getCurrent().featureSwitch("bestMatchCategories")) {
 						Category bestMatchCategory = bestMatch(this.allEligible);
 						updateCategoryFields(bestMatchCategory, categoryField, eligibleField, qualifyingTotalField2,
-						        this.allEligible, false);
+						        this.allEligible, this.allEligible, false);
 					}
 				} else {
 					logger.debug/* edit */("recompute, cat={} allEligible = {}", cat, this.allEligible);
 					// category is null or not within eligibles, recompute
 					
-//					List<Category> filteredEligibles = allEligible.stream()
-//							.filter(e -> previousChampionships.contains(e.getAgeGroup().getChampionship())).toList();
-//					logger.warn("eligibilty filtered on championship {}",filteredEligibles);
-					Category bestMatchCategory = bestMatch(this.allEligible);
+					List<Category> filteredEligibles = allEligible.stream()
+							.filter(e -> previousChampionships.contains(e.getAgeGroup().getChampionship())).toList();
+					logger.warn("eligibilty filtered on championship {}",filteredEligibles);
+					
+					Category bestMatchCategory = bestMatch(filteredEligibles);
 					updateCategoryFields(bestMatchCategory, categoryField, eligibleField, qualifyingTotalField2,
-					        this.allEligible, true);
+							filteredEligibles, this.allEligible, true);
+					
+//					Category bestMatchCategory = bestMatch(this.allEligible);
+//					updateCategoryFields(bestMatchCategory, categoryField, eligibleField, qualifyingTotalField2,
+//					        this.allEligible, true);
 				}
 			} else {
 				logger.debug/* edit */("bw, but need age and gender");
@@ -1247,7 +1256,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 					// Category bestMatchCategory = bestMatch(this.allEligible);
 					updateCategoryFields(cat, categoryField, eligibleField, qualifyingTotalField2,
 					        this.allEligible,
-					        true);
+					        this.allEligible, true);
 				}
 			} else if (genderField.getValue() != null && age != null) {
 				// use age and qualifying total
@@ -1255,7 +1264,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				this.allEligible = findEligibleCategories(genderField, getAgeFromFields(), bodyWeightField,
 				        categoryField, qualifyingTotalField2);
 				updateCategoryFields(null, categoryField, eligibleField, qualifyingTotalField2,
-				        this.allEligible, true);
+				        this.allEligible, this.allEligible, true);
 
 			} else if (cat != null) {
 				// only the category, no age
@@ -1268,7 +1277,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				Category bestMatchCategory = bestMatch(this.allEligible);
 				updateCategoryFields(bestMatchCategory, categoryField, eligibleField, qualifyingTotalField2,
 				        this.allEligible,
-				        true);
+				        this.allEligible, true);
 			} else {
 				// cannot compute eligibility and category
 				logger.debug("not enough information to compute eligibility");
@@ -1279,8 +1288,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 	@SuppressWarnings("unused")
 	private List<Championship> championshipsForCategories(Set<Category> value) {
-		value.stream().map(c -> c.getAgeGroup().getChampionshipName()).toList();
-		return null;
+		return value.stream().map(c -> c.getAgeGroup().getChampionship()).distinct().toList();
 	}
 
 	private void safeCategorySetItems(List<Category> categories) {
@@ -1362,36 +1370,37 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 	private void updateCategoryFields(Category bestMatch, ComboBox<Category> categoryField,
 	        CheckboxGroup<Category> eligibleField, LocalizedIntegerField qualifyingTotalField2,
-	        List<Category> allEligible,
+	        List<Category> filteredEligibles,
+	        List<Category> allEligibles, 
 	        boolean recomputeEligibles) {
 
 		LinkedHashSet<Category> newEligibles = new LinkedHashSet<>();
 		Set<Category> prevEligibles;
 		if (recomputeEligibles) {
 			prevEligibles = new LinkedHashSet<>();
-			prevEligibles.addAll(allEligible);
+			prevEligibles.addAll(allEligibles);
 		} else {
 			prevEligibles = eligibleField.getValue();
 		}
 		logger.debug/* edit */("updateCategoryFields {} {} - {} {} {}",
-		        categoryField.getValue(), bestMatch, prevEligibles.size(), allEligible.size(),
+		        categoryField.getValue(), bestMatch, prevEligibles.size(), filteredEligibles.size(),
 		        LoggerUtils.whereFrom());
 
 		if (prevEligibles != null) {
 			// update the list of eligible categories. Must use the matching items in
 			// allEligibles so that database updates work.
 			for (Category oldEligible : prevEligibles) {
-				for (Category newEligible : allEligible) {
+				for (Category newEligible : filteredEligibles) {
 					if (newEligible.getCode().contentEquals(oldEligible.getCode())) {
-						logger.debug("substituting eligibles {} {}", newEligible.longDump(),
+						logger.trace("substituting eligibles {} {}", newEligible.longDump(),
 						        System.identityHashCode(newEligible));
 						newEligibles.add(newEligible);
 						break;
 					}
 				}
 			}
-			logger.debug/* edit */("updateCategoryFields all eligibles {}",
-			        allEligible.stream().map(v -> v.shortDump()).collect(Collectors.toList()));
+			logger.debug/* edit */("updateCategoryFields filteredEligibles {}",
+			        filteredEligibles.stream().map(v -> v.shortDump()).collect(Collectors.toList()));
 
 			// List<Category> pertinentCategories = CategoryRepository.findByGenderAgeBW(getGenderFieldValue(),
 			// getAgeFromFields(), null);
@@ -1400,7 +1409,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			try {
 				setChangeListenersEnabled(false);
 				// safeCategorySetItems(pertinentCategories);
-				eligibleField.setItems(allEligible);
+				eligibleField.setItems(allEligibles);
 			} finally {
 				setChangeListenersEnabled(listenerStatus);
 			}
