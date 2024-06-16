@@ -888,6 +888,10 @@ public class Competition {
 		}
 		return this.scoringSystem;
 	}
+	
+	public String getTranslatedScoringSystemName() {
+		return Translator.translate("Ranking." + getScoringSystem());
+	}
 
 	public Integer getShorterBreakDuration() {
 		return this.shorterBreakDuration;
