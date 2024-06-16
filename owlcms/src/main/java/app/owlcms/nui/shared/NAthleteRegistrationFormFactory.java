@@ -497,7 +497,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 //					}
 //				}
 				Set<Category> selectedEligibles = eligibleField.getValue();
-				return isIgnoreErrors() ? true : !selectedEligibles.isEmpty();
+				return !selectedEligibles.isEmpty();
 			} catch (Exception e) {
 				LoggerUtils.logError(logger, e);
 			}
