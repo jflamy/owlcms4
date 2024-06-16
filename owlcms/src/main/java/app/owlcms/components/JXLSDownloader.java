@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 //import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Anchor;
@@ -278,6 +279,9 @@ public class JXLSDownloader {
 			this.templateSelect.setEnabled(false);
 			this.dialog.add(new Paragraph(getProcessingMessage()));
 		});
+		innerButton.focus();
+		// highlight because Vaadin does not show a focus ring for some unkown reason
+		innerButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST,ButtonVariant.LUMO_PRIMARY);
 		return link;
 	}
 
