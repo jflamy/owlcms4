@@ -5,8 +5,8 @@
 > - This is a [release candidate](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate), used for final public testing and translation.  *It is still a preliminary release*
 > - You should test all releases, with actual data, several days before a competition.  This is especially important for release candidates.
 
-- (rc10) Misc improvements to support additional reporting rules and templates
-- (rc10) Late weight change was being reported but would be accepted when pressing update instead of requiring an override.
+- (rc11) Misc improvements to support additional reporting rules and templates
+- (rc11) Late weight change was being reported but would be accepted when pressing update instead of requiring an override.
 - Experimental: [Feature toggle](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/FeatureToggles) `serverTimers` to enable a new and improved implementation of the athlete and break timers.
 - Announcer+Marshal
   - The previous athlete is now highlighted in blue in the grid.  The current and next athletes are also highlighted (yellow and orange, which is the same color convention as on the default scoreboards).  Blue is shown when the previous athlete is the current or the next.
