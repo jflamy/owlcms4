@@ -5167,6 +5167,8 @@ public class Athlete {
 		return 20;
 	}
 
+	@Transient
+	@JsonIgnore
 	public boolean isCategoryDone() {
 		return this.categoryDone;
 	}
@@ -5428,6 +5430,8 @@ public class Athlete {
 		        LoggerUtils.whereFrom());
 	}
 
+	@Transient
+	@JsonIgnore
 	public boolean isDone() {
 		return this.getCleanJerk3ActualLift() == null || this.getCleanJerk3ActualLift().isBlank() || this.getCleanJerk3AsInteger() == null;
 	}
