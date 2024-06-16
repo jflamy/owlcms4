@@ -890,7 +890,8 @@ public class Competition {
 	}
 	
 	public String getTranslatedScoringSystemName() {
-		return Translator.translate("Ranking." + getScoringSystem());
+		String translate = Translator.translateOrElseNull("Ranking." + getScoringSystem(), OwlcmsSession.getLocale());
+		return translate != null ? translate : Translator.translate("Score");
 	}
 
 	public Integer getShorterBreakDuration() {
