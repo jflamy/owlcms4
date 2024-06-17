@@ -458,7 +458,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			HashMap<String, Object> reportingInfo = getReportingBeans();
 			@SuppressWarnings("unchecked")
 			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
-			if (athletes != null && (athletes.size() > 0 || isEmptyOk())) {
+			if (athletes != null && (athletes.size() == 0 ? isEmptyOk() : isSizeOk(athletes.size()))) {
 				logger.info("before transformWorkbook");
 				long start = System.currentTimeMillis();
 				transformer.transformWorkbook(workbook, reportingInfo);
@@ -498,6 +498,14 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		}
 	}
 
+	private boolean isSizeOk(int size) {
+		return size < getSizeLimit();
+	}
+
+	public int getSizeLimit() {
+		return Integer.MAX_VALUE;
+	}
+
 	private void jxls3Transform(OutputStream stream, File templateFile) {
 		Workbook workbook = null;
 		File tempFile = null;
@@ -506,8 +514,9 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			HashMap<String, Object> reportingInfo = getReportingBeans();
 			@SuppressWarnings("unchecked")
 			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
+			int size = athletes.size();
 			logger.debug("reportingInfo sessions {}", reportingInfo.get("sessions"));
-			if (isEmptyOk() || (athletes != null && (athletes.size() > 0))) {
+			if (athletes != null && (athletes.size() == 0 ? isEmptyOk() : isSizeOk(size))) {
 				tempFile = File.createTempFile("jxlsOutput", ".xlsx");
 				JxlsPoi.fill(new FileInputStream(templateFile), JxlsStreaming.STREAMING_OFF, reportingInfo, tempFile);
 				workbook = WorkbookFactory.create(tempFile);
@@ -516,21 +525,27 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 					postProcess(workbook);
 				}
 			} else {
-				String noAthletes = Translator.translate("NoAthletes");
-				logger./**/warn("no athletes: empty report.");
+				String message;
+				if (athletes.size() == 0) {
+					message = Translator.translate("NoAthletes");
+					logger./**/warn("no athletes: empty report.");
+				} else {
+					message = Translator.translate("TooManyAthletes", Integer.toString(getSizeLimit()));
+					logger./**/warn("too many athletes : no report");
+				}
 				this.ui.access(() -> {
 					Notification notif = new Notification();
 					notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
 					notif.setPosition(Position.TOP_STRETCH);
 					notif.setDuration(3000);
-					notif.setText(noAthletes);
+					notif.setText(message);
 					notif.open();
 				});
-				workbook = new HSSFWorkbook();
-				workbook.createSheet().createRow(1).createCell(1).setCellValue(noAthletes);
+				throw new RuntimeException(message);
 			}
-		} catch (Exception e) {
+		} catch (IOException e) {
 			LoggerUtils.logError(logger, e);
+			throw new RuntimeException(e);
 		} finally {
 			if (tempFile != null) {
 				tempFile.delete();

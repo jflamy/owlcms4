@@ -20,6 +20,7 @@ import java.util.function.Supplier;
 import org.apache.maven.shared.utils.io.FileUtils;
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.UI;
 //import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -174,6 +175,7 @@ public class JXLSDownloader {
 	private Dialog createDialog() {
 		// Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
 		this.dialog = new Dialog();
+		logger.warn("***** dialog {}", dialog);
 		this.dialog.setCloseOnEsc(true);
 		this.dialog.setHeaderTitle(this.dialogTitle);
 		this.templateSelect = new ComboBox<>();
@@ -225,6 +227,11 @@ public class JXLSDownloader {
 					this.logger.debug("(2) template as set {}", this.templateNameGetter.apply(current));
 
 					this.xlsWriter = this.streamSourceSupplier.get();
+					logger.warn("************ (2) xlsWriter {} {}", xlsWriter, dialog);
+					if (this.xlsWriter == null) {
+						UI.getCurrent().access(() -> dialog.close());
+						return;
+					}
 					this.logger.debug("(2) xlsWriter {} {}", this.xlsWriter.getClass().getSimpleName(),
 					        newTemplateName);
 
@@ -281,7 +288,7 @@ public class JXLSDownloader {
 		});
 		innerButton.focus();
 		// highlight because Vaadin does not show a focus ring for some unkown reason
-		innerButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST,ButtonVariant.LUMO_PRIMARY);
+		innerButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_PRIMARY);
 		return link;
 	}
 

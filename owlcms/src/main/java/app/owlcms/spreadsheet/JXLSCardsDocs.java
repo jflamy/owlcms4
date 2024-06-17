@@ -44,6 +44,12 @@ public class JXLSCardsDocs extends JXLSWorkbookStreamSource {
 			setPageBreaks(workbook, 1, 7);
 		}
 	}
+	
+	@Override
+	public int getSizeLimit() {
+		logger.warn("getSizeLimit");
+		return 10;
+	}
 
 	protected void setPageBreaks(Workbook workbook, int cardsPerPage, int linesPerCard) {
 		Sheet sheet = workbook.getSheetAt(0);
