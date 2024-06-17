@@ -175,7 +175,6 @@ public class JXLSDownloader {
 	private Dialog createDialog() {
 		// Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
 		this.dialog = new Dialog();
-		logger.warn("***** dialog {}", dialog);
 		this.dialog.setCloseOnEsc(true);
 		this.dialog.setHeaderTitle(this.dialogTitle);
 		this.templateSelect = new ComboBox<>();
@@ -227,7 +226,7 @@ public class JXLSDownloader {
 					this.logger.debug("(2) template as set {}", this.templateNameGetter.apply(current));
 
 					this.xlsWriter = this.streamSourceSupplier.get();
-					logger.warn("************ (2) xlsWriter {} {}", xlsWriter, dialog);
+					this.logger.debug("(2) xlsWriter dialog {} {}", xlsWriter, dialog);
 					if (this.xlsWriter == null) {
 						UI.getCurrent().access(() -> dialog.close());
 						return;

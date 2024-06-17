@@ -47,8 +47,7 @@ public class JXLSCardsDocs extends JXLSWorkbookStreamSource {
 	
 	@Override
 	public int getSizeLimit() {
-		logger.warn("getSizeLimit");
-		return 10;
+		return 200;
 	}
 
 	protected void setPageBreaks(Workbook workbook, int cardsPerPage, int linesPerCard) {
