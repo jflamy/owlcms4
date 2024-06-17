@@ -112,8 +112,8 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 			inputStream.reset();
 			RCompetition c = new RCompetition();
 			RCompetition.resetActiveCategories();
+			RCompetition.resetActiveGroups();
 			if (resetAthletes) {
-				RCompetition.resetActiveGroups();
 				RCompetition.resetAthleteToEligibles();
 				RCompetition.resetAthleteToTeams();
 			}
