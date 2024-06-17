@@ -543,9 +543,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 				});
 				throw new RuntimeException(message);
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			LoggerUtils.logError(logger, e);
-			throw new RuntimeException(e);
 		} finally {
 			if (tempFile != null) {
 				tempFile.delete();
@@ -576,7 +575,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	public void setPageLength(Integer pageLength) {
 		this.pageLength = pageLength;
 	}
-	
+
 	protected void createStandardFooter(Workbook workbook) {
 		// Get the current date and time
         LocalDateTime now = LocalDateTime.now();
@@ -594,7 +593,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
         // Format the current date and time
         String formattedDate = now.format(dateFormatter);
         String formattedTime = now.format(timeFormatter);
-        
+
 		Footer footer = workbook.getSheetAt(0).getFooter();
 
 		footer.setLeft(Translator.translate("Results.producedBy", "owlcms", OwlcmsFactory.getVersion()));
