@@ -5,6 +5,7 @@
 > - This is a [release candidate](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate), used for final public testing and translation.  *It is still a preliminary release*
 > - You should test all releases, with actual data, several days before a competition.  This is especially important for release candidates.
 
+- (rc13) Fix glitch in full results processing
 - (rc12) improved behavior when athlete changes weight categories (select eligibility categories from previous championships)
 - (rc12) addition of athletes using registration file when `_add` is present in the name
 - (rc12) Safety limit to prevent excessive numbers of athlete cards being generated
