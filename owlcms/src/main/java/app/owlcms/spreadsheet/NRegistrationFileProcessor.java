@@ -108,12 +108,11 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	@SuppressWarnings("unchecked")
 	public int doProcessAthletes(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer,
 	        Runnable displayUpdater, boolean resetAthletes) {
-
 		try (InputStream xlsInputStream = inputStream) {
 			inputStream.reset();
 			RCompetition c = new RCompetition();
+			RCompetition.resetActiveCategories();
 			if (resetAthletes) {
-				RCompetition.resetActiveCategories();
 				RCompetition.resetActiveGroups();
 				RCompetition.resetAthleteToEligibles();
 				RCompetition.resetAthleteToTeams();

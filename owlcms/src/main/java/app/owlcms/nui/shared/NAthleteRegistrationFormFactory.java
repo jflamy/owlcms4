@@ -86,7 +86,6 @@ import app.owlcms.nui.lifting.NextAthleteAble;
 import app.owlcms.nui.lifting.WeighinContent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.NaturalOrderComparator;
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -133,7 +132,6 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	public NAthleteRegistrationFormFactory(Class<Athlete> domainType, Group group,
 	        NextAthleteAble parentGrid) {
 		super(domainType);
-		/* logger.warn( */logger.setLevel(Level.DEBUG);
 		this.setCurrentGroup(group);
 		this.setPreviousNext(parentGrid);
 	}
@@ -1206,7 +1204,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		Integer age = getAgeFromFields();
 		logger.debug/* edit */("cat={} age={}", cat, age);
 		List<Championship> previousChampionships = championshipsForCategories(eligibleField.getValue());
-		logger.warn("previous championships {} {} {}", eligibleField.getValue(), previousChampionships, LoggerUtils.whereFrom());
+		//logger.debug("previous championships {} {} {}", eligibleField.getValue(), previousChampionships, LoggerUtils.whereFrom());
 		if (bodyWeightField.getValue() != null) {
 			if (genderField.getValue() != null && age != null) {
 				// body weight, gender, date
@@ -1227,7 +1225,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 					
 					List<Category> filteredEligibles = allEligible.stream()
 							.filter(e -> previousChampionships.contains(e.getAgeGroup().getChampionship())).toList();
-					logger.warn("eligibilty filtered on championship {}",filteredEligibles);
+					//logger.debug("eligibilty filtered on championship {}",filteredEligibles);
 					
 					Category bestMatchCategory = bestMatch(filteredEligibles);
 					updateCategoryFields(bestMatchCategory, categoryField, eligibleField, qualifyingTotalField2,

@@ -108,7 +108,6 @@ public class RAthlete {
 
 			Category c;
 			String catCode = Category.codeFromName(catName);
-			// logger.debug("keySet {}",RCompetition.getActiveCategories().keySet());
 			if ((c = RCompetition.getActiveCategories().get(catCode)) != null) {
 				// exact match for a category. This is the athlete's registration category.
 				processEligibilityAndTeams(parts, c, teamMember);

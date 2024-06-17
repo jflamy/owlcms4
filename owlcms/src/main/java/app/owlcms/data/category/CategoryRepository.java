@@ -175,9 +175,12 @@ public class CategoryRepository {
 	 * @return active categories
 	 */
 	public static List<Category> findActive() {
+
 		List<Category> findFiltered = findFiltered((String) null, (Gender) null, (Championship) null, (AgeGroup) null,
 		        (Integer) null, (Double) null,
 		        true, -1, -1);
+		
+		//logger.debug("findActive **** {} {}", findFiltered.size(), LoggerUtils.stackTrace());
 		findFiltered.sort(new RegistrationPreferenceComparator());
 		return findFiltered;
 	}
