@@ -514,9 +514,9 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			HashMap<String, Object> reportingInfo = getReportingBeans();
 			@SuppressWarnings("unchecked")
 			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
-			int size = athletes.size();
-			logger.debug("reportingInfo sessions {}", reportingInfo.get("sessions"));
-			if (athletes != null && (athletes.size() == 0 ? isEmptyOk() : isSizeOk(size))) {
+			int size = athletes != null ? athletes.size() : 0 ;
+			logger.debug("reportingInfo sessions {} athletes: {}", reportingInfo.get("sessions"), size);
+			if (size == 0 ? isEmptyOk() : isSizeOk(size)) {
 				tempFile = File.createTempFile("jxlsOutput", ".xlsx");
 				JxlsPoi.fill(new FileInputStream(templateFile), JxlsStreaming.STREAMING_OFF, reportingInfo, tempFile);
 				workbook = WorkbookFactory.create(tempFile);
