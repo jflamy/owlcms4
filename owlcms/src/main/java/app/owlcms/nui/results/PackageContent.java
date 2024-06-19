@@ -46,7 +46,6 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.queryparameters.ResultsParameters;
 import app.owlcms.components.JXLSDownloader;
 import app.owlcms.data.agegroup.AgeGroup;
-import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -168,7 +167,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		boolean allCategories = Boolean.TRUE.equals(this.includeUnfinishedCategories.getValue());
 		
 		// unfinished categories need to be computed using all relevant athletes, including not weighed-in yet
-		List<Athlete> allRelevant = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(this.ageGroupPrefix, this.championship);
+		@SuppressWarnings("unchecked")
+		List<Athlete> allRelevant = (List<Athlete>) beans.get("allPAthletes");
 		Set<String> unfinishedCategories = AthleteRepository.unfinishedCategories(allRelevant);
 		//logger.debug("unfinished categories {}", unfinishedCategories);
 

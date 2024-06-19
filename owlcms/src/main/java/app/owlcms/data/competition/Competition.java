@@ -405,8 +405,12 @@ public class Competition {
 	}
 
 	synchronized public HashMap<String, Object> computeReportingInfo(String ageGroupPrefix, Championship ad) {
-		List<Athlete> athletes = AgeGroupRepository.allWeighedInPAthletesForAgeGroupAgeDivision(ageGroupPrefix, ad);
-		doComputeReportingInfo(true, athletes, ageGroupPrefix, ad);
+		List<Athlete> allPAthletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(ageGroupPrefix, ad);
+		List<Athlete> weighedInAthletes = allPAthletes.stream()
+		        .filter(a -> a.getBodyWeight() != null && a.getBodyWeight() > 0.1).collect(Collectors.toList());
+		doComputeReportingInfo(true, weighedInAthletes, ageGroupPrefix, ad);
+		AthleteSorter.resultsOrder(allPAthletes,Ranking.TOTAL,false);
+		this.reportingBeans.put("allPAthletes", allPAthletes);
 		return this.reportingBeans;
 	}
 
