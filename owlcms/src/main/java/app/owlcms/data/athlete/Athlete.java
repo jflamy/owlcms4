@@ -648,7 +648,7 @@ public class Athlete {
 		}).collect(Collectors.joining("-"));
 
 		if (!upperCase.isBlank() && !abbreviated.isBlank()) {
-			return upperCase + ", " + abbreviated;
+			return Translator.translate("AbbreviatedNameFormat", upperCase, abbreviated);
 		} else if (!upperCase.isBlank()) {
 			return upperCase;
 		} else if (!firstName2.isBlank()) {
@@ -1728,7 +1728,7 @@ public class Athlete {
 			return "";
 		}
 	}
-
+	
 	@Transient
 	@JsonIgnore
 	public String getFullName() {
@@ -1736,7 +1736,8 @@ public class Athlete {
 		String firstName2 = this.getFirstName() != null ? this.getFirstName() : "";
 		if ((upperCase != null) && !upperCase.trim().isEmpty() && (firstName2 != null)
 		        && !firstName2.trim().isEmpty()) {
-			return upperCase + ", " + firstName2;
+			String fullName = Translator.translate("FullNameFormat", upperCase, firstName2);
+			return fullName;
 		} else {
 			return "";
 		}
