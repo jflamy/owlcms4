@@ -606,6 +606,11 @@ public class PAthlete extends Athlete implements IRankHolder {
 	}
 
 	@Override
+	public Double getScore() {
+		return this.a.getScore();
+	}
+
+	@Override
 	public String getSessionPattern() {
 		return this.a.getSessionPattern();
 	}

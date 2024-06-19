@@ -49,6 +49,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipType;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.category.Participation;
@@ -2300,6 +2301,12 @@ public class Athlete {
 			this.df = new DecimalFormat("#.##");
 		}
 		return this.df.format(getBodyWeight());
+	}
+
+	@Transient
+	@JsonIgnore
+	public Double getScore() {
+		return Ranking.getRankingValue(this, Competition.getCurrent().getScoringSystem());
 	}
 
 	public String getSessionPattern() {
