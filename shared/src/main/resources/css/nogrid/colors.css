@@ -42,6 +42,9 @@
 
     --NextTextColor: orange;
     --NextBackgroundColor: var(--EmptyBackgroundColor);
+   
+    --PreviousTextColor: lightskyblue;
+    --PreviousBackgroundColor: var(--EmptyBackgroundColor); 
 
     --RequestTextColor: silver;
     --RequestBackgroundColor: var(--EmptyBackgroundColor);
@@ -125,6 +128,9 @@
 
     --NextTextColor: var(--TextColor);
     --NextBackgroundColor: gold;
+    
+    --PreviousTextColor: var(--TextColor);
+    --PreviousBackgroundColor: lightskyblue;
 
     --RequestTextColor: var(--TextColor);
     --RequestBackgroundColor: var(--EmptyBackgroundColor);

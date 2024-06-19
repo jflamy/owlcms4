@@ -363,6 +363,13 @@ table.results tr td.club div.clubName div.ellipsis {
     font-weight: bold;
 }
 
+/* current athlete colors and blinks */
+:host table.results tr td.previous {
+    color: var(--PreviousTextColor) !important;
+    background-color: var(--PreviousBackgroundColor) !important;
+    font-weight: bold;
+}
+
 /* blinking text is done with a div animation */
 :host .dark table.results div.blink {
     animation: blink 1.5s step-start 0s infinite;
@@ -377,6 +384,13 @@ table.results tr td.club div.clubName div.ellipsis {
 :host table.results tr td.next {
     color: var(--NextTextColor);
     background-color: var(--NextBackgroundColor);
+    font-weight: bold;
+}
+
+/* previous athlete colors, overrides current and next */
+:host table.results tr td.previous {
+    color: var(--PreviousTextColor) !important;
+    background-color: var(--PreviousBackgroundColor) !important;
     font-weight: bold;
 }
 

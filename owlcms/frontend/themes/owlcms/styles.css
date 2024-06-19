@@ -13,7 +13,7 @@ vaadin-grid::part(isPreviousAthlete) {
 
 vaadin-grid::part(isCurrentAthlete) {
     background-image: none;
-    background-color: #fdf896;
+    background-color: #fbf242;
     font-weight: bold;
 }
 

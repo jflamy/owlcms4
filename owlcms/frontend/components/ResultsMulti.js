@@ -348,6 +348,7 @@ class ResultsFull extends LitElement {
       nbRanks: {},
       ageGroups: {},
       platformName: {},
+      scoreboardType: {},
       
       // during lifting
       athletes: { type: Object },
@@ -404,6 +405,7 @@ class ResultsFull extends LitElement {
     classes = classes + (this.darkMode ? " " + this.darkMode : "");
     classes = classes + (this.teamWidthClass ? " " + this.teamWidthClass : "");
     classes = classes + (this.mode === "WAIT" ? " bigTitle" : "");
+    classes = classes + (this.scoreboardType ? " " + this.scoreboardType : "");
     return classes;
   }
 

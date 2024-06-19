@@ -212,7 +212,7 @@ table.results tr td.club div.clubName div.ellipsis {
     width: var(--teamNameShortLength);
 }
 
-/* good/bad cells */
+/* good cells */
 :host table.results tr td.good {
     background-color: var(--GoodBackgroundColor);
     color: var(--GoodTextColor);
@@ -222,6 +222,7 @@ table.results tr td.club div.clubName div.ellipsis {
     font-weight: bold;
 }
 
+/* bad cells */
 :host table.results tr td.fail {
     background-color: var(--FailBackgroundColor);
     color: var(--FailTextColor);
@@ -395,6 +396,13 @@ table.results tr td.club div.clubName div.ellipsis {
 :host table.results tr td.next {
     color: var(--NextTextColor);
     background-color: var(--NextBackgroundColor);
+    font-weight: bold;
+}
+
+/* previous athlete colors, overrides next */
+:host table.results tr td.previous {
+    color: var(--PreviousTextColor) !important;
+    background-color: var(--PreviousBackgroundColor) !important;
     font-weight: bold;
 }
 

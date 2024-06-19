@@ -122,6 +122,7 @@ public class Results extends LitTemplate
 		this.uiEventLogger.setLevel(Level.INFO);
 		OwlcmsFactory.waitDBInitialized();
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
+		this.getElement().setProperty("scoreboardType", this.getClass().getSimpleName());
 	}
 
 	/**
@@ -752,14 +753,16 @@ public class Results extends LitTemplate
 		JsonArray ageGroups = Json.createArray();
 		return ageGroups;
 	}
+	
 
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 		String category;
 		category = curCat != null ? curCat.getDisplayName() : "";
+		String fullName;
 		if (isAbbreviatedName()) {
-			ja.put("fullName", a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
+			fullName = a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "";
 		} else {
-			ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
+			fullName = a.getFullName() != null ? a.getFullName() : "";
 		}
 		ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
 		ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
@@ -804,6 +807,18 @@ public class Results extends LitTemplate
 					highlight = "";
 			}
 		}
+		Athlete previousAthlete = fop.getPreviousAthlete();
+		// we use the start number because athlete equality is tricky due to participations.
+		if (isJury() && previousAthlete != null && a.getStartNumber().equals(previousAthlete.getStartNumber())) {
+			highlight = highlight + " previous";
+			// add marker by using a unicode character defined in the translation file
+			fullName = Translator.translate("PreviousAthleteOnJuryScoreboard", fullName);
+		}
+		if (!a.isEligibleForIndividualRanking()) {
+			highlight = highlight + " outOfCompetition";
+		}
+		ja.put("fullName", fullName);
+		
 		// logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
 		ja.put("classname", highlight);
 
@@ -909,6 +924,10 @@ public class Results extends LitTemplate
 									default:
 										highlight = "";
 								}
+							}
+							Athlete previousAthlete = fop.getPreviousAthlete();
+							if (isJury() && previousAthlete != null && a.getShortName().equals(previousAthlete.getShortName())) {
+								highlight = highlight + " previous";
 							}
 							jri.put("liftStatus", "request");
 							if (notDone) {
@@ -1229,6 +1248,10 @@ public class Results extends LitTemplate
 			}
 			setGroupNameProperty("");
 		}
+	}
+
+	public boolean isJury() {
+		return false;
 	}
 
 }

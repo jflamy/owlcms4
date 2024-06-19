@@ -33,6 +33,7 @@ import app.owlcms.nui.displays.attemptboards.AthleteFacingAttemptBoardPage;
 import app.owlcms.nui.displays.attemptboards.AthleteFacingDecisionBoardPage;
 import app.owlcms.nui.displays.attemptboards.PublicFacingAttemptBoardPage;
 import app.owlcms.nui.displays.scoreboards.CurrentAthletePage;
+import app.owlcms.nui.displays.scoreboards.JuryScoreboardPage;
 import app.owlcms.nui.displays.scoreboards.MedalsPage;
 import app.owlcms.nui.displays.scoreboards.PublicMultiRanksPage;
 import app.owlcms.nui.displays.scoreboards.PublicNoLeadersPage;
@@ -106,11 +107,14 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			        Translator.translate("Scoreboard.LiftingOrder"));
 			VerticalLayout intro1 = new VerticalLayout();
 			addP(intro1, Translator.translate("WarmupScoreboards.explanation"));
+			Button juryScoreboard = openInNewTab(JuryScoreboardPage.class,Translator.translate("Jury"));
+			scoreboardWLeaders.getElement().setAttribute("title", Translator.translate("ScoreboardWLeadersMouseOver"));
 			FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(
 			        scoreboard,
 			        scoreboardWLeaders,
 			        liftingOrder,
-			        scoreboardMultiRanks);
+			        scoreboardMultiRanks, 
+			        juryScoreboard);
 			doGroup(Translator.translate("WarmupScoreboards"), intro1, grid1, this);
 
 			Button scoreboard1 = openInNewTab(PublicNoLeadersPage.class, Translator.translate("Scoreboard"));
