@@ -5,7 +5,11 @@
 > - This is a [release candidate](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate), used for final public testing and translation.  *It is still a preliminary release*
 > - You should test all releases, with actual data, several days before a competition.  This is especially important for release candidates.
 
-- (rc14) Processing of registration file in additive mail now creates the missing groups.
+- (rc15) new Jury scoreboard highlights the previous athlete with a marker and the same color code as the marshal page
+- (rc15) start-of-session documents check for missing start numbers and trigger generation if missing
+- (rc15) computation of medals to be awarded correctly considers all unfinished categories
+- (rc15) new athlete.score property for templating -- gets the current score according to the selected global scoring scheme
+- (rc15) new translation strings to determine language/locale-specific formats for full names, abbreviated names and previous athlete marker
 - Experimental: [Feature toggle](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/FeatureToggles) `serverTimers` to enable a new and improved implementation of the athlete and break timers.
 - Announcer+Marshal
   - The previous athlete is now highlighted in blue in the grid.  The current and next athletes are also highlighted (yellow and orange, which is the same color convention as on the default scoreboards).  Blue is shown when the previous athlete is the current or the next.
