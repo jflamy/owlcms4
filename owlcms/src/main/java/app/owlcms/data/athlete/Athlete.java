@@ -5433,7 +5433,8 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public boolean isDone() {
-		return this.getCleanJerk3ActualLift() == null || this.getCleanJerk3ActualLift().isBlank() || this.getCleanJerk3AsInteger() == null;
+		boolean notFinishedLifting = this.getCleanJerk3ActualLift() == null || this.getCleanJerk3ActualLift().isBlank() || this.getCleanJerk3AsInteger() == null;
+		return !notFinishedLifting;
 	}
 
 }

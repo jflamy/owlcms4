@@ -831,8 +831,7 @@ public class Competition {
 				        logger.warn("athletes {} {}",k, athletes);
 				        // category includes an athlete that has not finished, mark it as "to be
 				        // removed"
-				        boolean anyMatch = athletes.stream()
-				                .anyMatch(a -> a.isDone());
+				        boolean anyMatch = athletes.stream().anyMatch(a -> !a.isDone());
 				        logger.info("category {} has finished {}", k, !anyMatch);
 				        // return those that have not finished
 				        return anyMatch;

@@ -489,7 +489,7 @@ public class AthleteRepository {
 		}
 		for (Athlete a : ranked) {
 			//logger.debug("unfinishedCategories *** athlete {}",a);
-			if (a.isDone()) {
+			if (!a.isDone()) {
 				//logger.debug("{}", a, a.getCleanJerk3ActualLift());
 				for (Participation p: a.getParticipations()) {
 					unfinishedCategories.add(p.getCategory().getCode());
