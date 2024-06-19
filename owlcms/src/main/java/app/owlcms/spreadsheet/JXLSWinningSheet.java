@@ -140,11 +140,24 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 		String c = getChampionship() != null ? getChampionship().getName() : null;
 		String ag = getAgeGroupPrefix();
 		Header header = workbook.getSheetAt(0).getHeader();
+		
 		//header.setLeft(Competition.getCurrent().getCompetitionName());
-		header.setCenter(c != null && ag != null ? c + "\u2013" + ag : (c != null ? c : ag));
+		if (c != null && ag != null) {
+			header.setCenter(c + "\u2013" + ag);
+		} else if (c != null) {
+			header.setCenter(c);
+		} else if (ag != null) {
+			header.setCenter(ag);
+		} else {
+			header.setCenter("");
+		}
+
 		createStandardFooter(workbook);
-		if (currentCompetitionSession == null
-		        && !Competition.getCurrent().getProtocolTemplateFileName().contains("USAW")) {
+		
+		String resultsTemplateFileName = Competition.getCurrent().getResultsTemplateFileName();
+		boolean isUSAW = resultsTemplateFileName != null && resultsTemplateFileName.toLowerCase().contains("usaw");	
+		if (currentCompetitionSession == null && !isUSAW) {
+			// remove information cells from standard template
 			zapCellPair(workbook, 3, 9);
 		}
 	}
