@@ -392,7 +392,7 @@ public class WeighinContent extends BaseContent
 		// that the order will match the weigh-in form even if the current
 		// athlete has moved up a weight class. Otherwise just find the next
 		// athlete based on current order.
-		
+
 		// quick workaround: a "no show" is indicated by removing the session.
 		Double curWeight = current.getBodyWeight();
 		if (curWeight != null || current.getGroup() == null) {
@@ -841,7 +841,7 @@ public class WeighinContent extends BaseContent
 		List<Athlete> found = filterAthletes(athletes);
 		// categoriesXlsWriter.setSortedAthletes(found);
 		updateURLLocations();
-		
+
 		// enable quick batch mode only when doing a session
 		boolean sessionSelected = this.getGroup() != null && !this.getGroup().getName().equals("*");
 		((NextCrudGrid) crudGrid).batchButton.setEnabled(sessionSelected);
@@ -1055,6 +1055,7 @@ public class WeighinContent extends BaseContent
 
 		JXLSDownloader juryButton = new JXLSDownloader(
 		        () -> {
+					generateStartNumbers();
 			        JXLSJurySheet rs = new JXLSJurySheet();
 			        // group may have been edited since the page was loaded
 			        Group curGroup = getGroupFilter().getValue();
@@ -1075,6 +1076,7 @@ public class WeighinContent extends BaseContent
 
 		JXLSDownloader startingWeightsButton = new JXLSDownloader(
 		        () -> {
+					generateStartNumbers();
 			        JXLSWeighInSheet rs = new JXLSWeighInSheet();
 			        // group may have been edited since the page was loaded
 			        Group curGroup = getGroupFilter().getValue();
