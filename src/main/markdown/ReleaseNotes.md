@@ -5,6 +5,8 @@
 > - This is a [release candidate](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate), used for final public testing and translation.  *It is still a preliminary release*
 > - You should test all releases, with actual data, several days before a competition.  This is especially important for release candidates.
 
+- (rc16) IWF Start cards show the date at which the session is taking place
+- (rc16) Assigning no session to athletes to mark them as not lifting no longer interferes with computing medals that can be awarded at the end of a session (Medals report)
 - (rc15) new Jury scoreboard highlights the previous athlete with a marker and the same color code as the marshal page
 - (rc15) start-of-session documents check for missing start numbers and trigger generation if missing
 - (rc15) computation of medals to be awarded correctly considers all unfinished categories
