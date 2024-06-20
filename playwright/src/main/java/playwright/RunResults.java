@@ -24,19 +24,18 @@ import com.microsoft.playwright.Playwright;
  * @author Jean-François Lamy
  */
 public class RunResults {
-    private static final int NB_REMOTE_USERS = 50;
+    private static final int NB_REMOTE_USERS = 15;
     private static final int POLLING_DELAY_SECONDS = 30;
     private static final int POLLING_DELAY_MILLISECONDS = POLLING_DELAY_SECONDS*1000;
 
-    @SuppressWarnings("unused")
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         try (Playwright playwright = Playwright.create()) {
             
             // create a number of browsers to simulate independent users
             Browser browser = playwright.chromium().launch();
             for (int i = 0; i < NB_REMOTE_USERS; i++) {
                 Page page = browser.newContext().newPage();
-                page.navigate("http://localhost:8082");
+                page.navigate("http://localhost:8082/results?silent=true&lifting=false&fop=RED");
                 System.out.println("creating context "+ (i+1));
             }
 
