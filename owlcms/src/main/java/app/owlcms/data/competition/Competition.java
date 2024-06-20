@@ -405,9 +405,16 @@ public class Competition {
 	}
 
 	synchronized public HashMap<String, Object> computeReportingInfo(String ageGroupPrefix, Championship ad) {
+		// this is where we will look for the athletes that have not lifted yet when computing medals
 		List<Athlete> allPAthletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(ageGroupPrefix, ad);
+		// remove people not in a session, they withdrew, possibly after weighing in.
+		allPAthletes = allPAthletes.stream().filter(a -> a.getGroup() != null).collect(Collectors.toList());
+		
+		// these are all the weighed in athletes that will be potentially earning a a medal.
+		// we filter the big list so we don't hit the database again.
 		List<Athlete> weighedInAthletes = allPAthletes.stream()
 		        .filter(a -> a.getBodyWeight() != null && a.getBodyWeight() > 0.1).collect(Collectors.toList());
+
 		doComputeReportingInfo(true, weighedInAthletes, ageGroupPrefix, ad);
 		AthleteSorter.resultsOrder(allPAthletes,Ranking.TOTAL,false);
 		this.reportingBeans.put("allPAthletes", allPAthletes);
