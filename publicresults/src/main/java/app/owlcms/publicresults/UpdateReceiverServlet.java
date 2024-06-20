@@ -90,8 +90,6 @@ public class UpdateReceiverServlet extends HttpServlet implements Traceable {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
-        // TODO create timer and decision events
-        // TODO compute checksum of update, timer, decision, issue bus events if changed
         try {
             String updateKey = req.getParameter("updateKey");
             if (updateKey == null || !updateKey.equals(this.secret)) {
@@ -203,7 +201,6 @@ public class UpdateReceiverServlet extends HttpServlet implements Traceable {
                 defaultFopName = fopName;
             }
 
-            // TODO create timer and decision objects as well.
             resp.sendError(200);
         } catch (Exception e) {
             this.getLogger().error(LoggerUtils.stackTrace(e));
