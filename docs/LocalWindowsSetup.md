@@ -1,6 +1,6 @@
 ## Windows Installation
 
-- **Windows Installer** : Get the current [`owlcms_setup_48.0.4.exe`](https://github.com/owlcms/owlcms4/releases/download/48.0.4/owlcms_setup_48.0.4.exe) file (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4/releases/latest) ).
+- **Windows Installer** : Get the current [`owlcms_setup_49.0.0-rc16.exe`](https://github.com/owlcms/owlcms4-prerelease/releases/download/49.0.0-rc16/owlcms_setup_49.0.0-rc16.exe) file (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4-prerelease/releases/latest) ).
 - Download and open the installer
   > You may get false alarms about the software being potentially dangerous.  *Rest assured that it is absolutely not*.  Use the `...` and dropdown menu options to get and keep the downloaded files anyway.
   >
