@@ -124,12 +124,13 @@ public class Platform implements Serializable, Comparable<Platform> {
 	// large plates
 	private Integer nbL_10 = 1;
 	private Integer nbL_15 = 1;
+	private Integer nbL_20 = 1;
+	private Integer nbL_25 = 3;
 
 	// kid plates
-	private Integer nbL_2_5 = 0;
-	private Integer nbL_20 = 1;
-	private Integer nbL_25 = 1;
-	private Integer nbL_5 = 0;
+	private Integer nbL_2_5 = 1;
+	private Integer nbL_5 = 1;
+	
 	// small plates
 	private Integer nbS_0_5 = 1;
 	private Integer nbS_1 = 1;
@@ -197,8 +198,8 @@ public class Platform implements Serializable, Comparable<Platform> {
 		this.setNbL_25(3);
 
 		// large plates, kid competitions
-		this.setNbL_2_5(0);
-		this.setNbL_5(0);
+		this.setNbL_2_5(1);
+		this.setNbL_5(1);
 	}
 
 	@Override
