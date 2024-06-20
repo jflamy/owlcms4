@@ -1,18 +1,10 @@
-**Version 49 release candidate**
+**Version 49.0**
 
-> [!WARNING]
+> [!IMPORTANT]
 >
-> - This is a [release candidate](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate), used for final public testing and translation.  *It is still a preliminary release*
-> - You should test all releases, with actual data, several days before a competition.  This is especially important for release candidates.
+> - You should test all releases, with actual data, several days before a competition. 
 
-- (rc16) IWF Start cards show the date at which the session is taking place
-- (rc16) Assigning no session to athletes to mark them as not lifting no longer interferes with computing medals that can be awarded at the end of a session (Medals report)
-- (rc15) new Jury scoreboard highlights the previous athlete with a marker and the same color code as the marshal page
-- (rc15) start-of-session documents check for missing start numbers and trigger generation if missing
-- (rc15) computation of medals to be awarded correctly considers all unfinished categories
-- (rc15) new athlete.score property for templating -- gets the current score according to the selected global scoring scheme
-- (rc15) new translation strings to determine language/locale-specific formats for full names, abbreviated names and previous athlete marker
-- Experimental: [Feature toggle](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/FeatureToggles) `serverTimers` to enable a new and improved implementation of the athlete and break timers.
+- Preview feature:  A new and improved technical implementation of the athlete and break timers can be enabled in this release. Use the `serverTimers` [Feature toggle](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/FeatureToggles) to activate.  This more robust implementation is expected to be the default in the next release.
 - Announcer+Marshal
   - The previous athlete is now highlighted in blue in the grid.  The current and next athletes are also highlighted (yellow and orange, which is the same color convention as on the default scoreboards).  Blue is shown when the previous athlete is the current or the next.
   - A Notification is received when athletes withdraw from the snatch or the session.
@@ -32,6 +24,7 @@
   - To get the old behavior of automatic selection of the youngest age group, add the `bestMatchCategories` feature switch.
 - Jury
   - The weight attempted on the previous attempt is now shown, to facilitate filling in a manual protocol sheet.
+  - New Jury scoreboard highlights the previous athlete with a marker and the same color code as the marshal page
 - Scoreboards:
   - White is now used for good lifts on all scoreboards (previously some used green)
   - The layout now includes vertical spacing between the lifts for better readability.
@@ -50,7 +43,8 @@
       session.ageGroupInfo.ageGroup.gender  (.code, .name etc.)
       session.ageGroupInfo.athletesByStartNumber
       session.ageGroupInfo.athletesByEntryTotal
-    - athlete.ageGroupCodesAsString  (age group codes such as U17, ungendered unless Masters)
+    - `athlete.ageGroupCodesAsString`  (age group codes such as U17, ungendered unless Masters)
+    - `athlete.score` property for templating -- gets the current score according to the selected global scoring scheme
     - `formattedRange` summarizes the body weight categories and subcategories for an age group.  Output can be, for example, `55 B` if all the athletes are in that case, or `55-64 A` if all athletes are `A`.  If the athletes are not all in the same A/B/C subcategory, they are enumerated: `64A, 71B`.
     - lowestEntryTotal and highestEntryTotal for writing templates. 
     - `competition.translatedScoringSystemName` will return the header name for the selected scoring (Sinclair, Robi, ...)
@@ -60,6 +54,9 @@
     - By default, categories that are not finished are not included, so the results in the "End of Competition" section can now be produced in preliminary versions during the competition.
     - There is now a separate directory for the competition results templates (previously it was the same as the protocol sheets)
   - Timing statistics: the number of athletes per session is now correct.
+  - IWF Start cards show the date at which the session is taking place
+  - start-of-session documents check for missing start numbers and trigger generation if missing
+  - computation of medals to be awarded correctly considers all unfinished categories
 - Technical
   - Event Forwarding and MQTT event propagation refactoring. In previous releases, obsolete forwarders could accidentally be kept when reloading sessions.  This would cause the publicresults scoreboard to alternate between out-of-date and current results.
   - Performance: Overall rankings for the selected "best lifter" scoring system (for example, the Sinclair score) are only computed if the option to show them on the scoreboard is selected.
