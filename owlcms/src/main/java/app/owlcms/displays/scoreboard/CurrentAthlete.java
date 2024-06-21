@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.hotswap.agent.javassist.Translator;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
@@ -35,6 +34,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.displays.AbstractDisplayPage;
@@ -90,7 +90,7 @@ public class CurrentAthlete extends Results {
 
 	public CurrentAthlete(AbstractDisplayPage page) {
 		uiEventLogger.setLevel(Level.INFO);
-		OwlcmsFactory.waitDBInitia.withlized();
+		OwlcmsFactory.waitDBInitialized();
 		setDarkMode(true);
 		// js files add the build number to file names in order to prevent cache
 		// collisions
