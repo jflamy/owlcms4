@@ -191,6 +191,7 @@ public class CurrentAthlete extends Results {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			setDisplay();
 			this.getElement().setProperty("decisionVisible", true);
+			OwlcmsSession.withFop(fop -> doUpdate(fop.getCurAthlete(), e));
 		});
 	}
 
@@ -204,7 +205,7 @@ public class CurrentAthlete extends Results {
 			if (isDone()) {
 				doDone(e.getAthlete().getGroup());
 			} else {
-				doUpdate(e.getAthlete(), e);
+				OwlcmsSession.withFop(fop -> doUpdate(fop.getCurAthlete(), e));
 			}
 		});
 	}
@@ -343,12 +344,12 @@ public class CurrentAthlete extends Results {
 			}
 
 			// current athlete bottom should only change when top does
-			if (fop.getState() != FOPState.DECISION_VISIBLE) {
-				// logger.debug("updating bottom {}", fop.getState());
+//			if (fop.getState() != FOPState.DECISION_VISIBLE) {
+//				// logger.debug("updating bottom {}", fop.getState());
 				updateDisplay(computeLiftType(a), fop);
-			} else {
-				// logger.debug("not updating bottom {}", fop.getState());
-			}
+//			} else {
+//				// logger.debug("not updating bottom {}", fop.getState());
+//			}
 
 		}
 		// logger.debug("leave top alone {} {}", leaveTopAlone, fop.getState());
