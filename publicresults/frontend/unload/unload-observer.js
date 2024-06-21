@@ -38,12 +38,40 @@ export class UnloadObserver extends LitElement {
         "beforeunload",
         window.Vaadin.unloadObserver.attemptHandler
       );
+      window.removeEventListener(
+        "pagehide",
+        window.Vaadin.unloadObserver.hideHandler
+      );
+      document.removeEventListener(
+        "visibilitychange",
+        window.Vaadin.unloadObserver.visibilityHandler
+      );
     }
-    window.Vaadin.unloadObserver.attemptHandler = (event) =>
+
+    window.Vaadin.unloadObserver.attemptHandler = (event) => {
+      src.unloadAttempted(src, event)
+    };
+    window.Vaadin.unloadObserver.hideHandler = (event) =>
       src.unloadAttempted(src, event);
+    window.Vaadin.unloadObserver.visibilityHandler = (event) => 
+      {
+        console.warn("visibility "+document.visibilityState);
+        if (document.visibilityState === 'hidden') {
+          src.unloadAttempted(src, event);
+        }
+      }
+
     window.addEventListener(
       "beforeunload",
       window.Vaadin.unloadObserver.attemptHandler
+    );
+    window.addEventListener(
+      "pagehide",
+      window.Vaadin.unloadObserver.hideHandler
+    );
+    document.addEventListener(
+      "visibilitychange",
+      window.Vaadin.unloadObserver.visibilityHandler
     );
   }
 
@@ -54,13 +82,15 @@ export class UnloadObserver extends LitElement {
    */
   unloadAttempted(source, event) {
     if (window.Vaadin.unloadObserver.query) {
-      console.log("UO: responding to unload attempt...");
+      console.warn("UO: responding to unload attempt...");
       event.preventDefault();
       event.returnValue = "";
       if (source.$server) {
         source.$server.unloadAttempted();
       }
-    } else source.$server.unloadHappened();
+    } else {
+      source.$server.unloadHappened();
+    }
   }
 
   /**
