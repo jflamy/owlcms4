@@ -71,7 +71,7 @@ public class BreakTimerElement extends TimerElement {
 	@AllowInert
 	@ClientCallable
 	public void clientSyncTime(String fopName) {
-		if (Config.getCurrent().featureSwitch("serverTimers")) {
+		if (!Config.getCurrent().featureSwitch("oldTimers")) {
 			return;
 		}
 		OwlcmsSession.withFop(fop -> {
@@ -93,7 +93,7 @@ public class BreakTimerElement extends TimerElement {
 	@AllowInert
 	@ClientCallable
 	public void clientTimeOver(String fopName) {
-		if (Config.getCurrent().featureSwitch("serverTimers")) {
+		if (!Config.getCurrent().featureSwitch("oldTimers")) {
 			return;
 		}
 		OwlcmsSession.withFop(fop -> {
@@ -118,7 +118,7 @@ public class BreakTimerElement extends TimerElement {
 	@AllowInert
 	@ClientCallable
 	public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from) {
-		if (Config.getCurrent().featureSwitch("serverTimers")) {
+		if (!Config.getCurrent().featureSwitch("oldTimers")) {
 			return;
 		}
 		// logger.debug("timer {} starting on client: remaining = {}, late={}, roundtrip={}", from, remainingTime,
@@ -134,7 +134,7 @@ public class BreakTimerElement extends TimerElement {
 	@AllowInert
 	@ClientCallable
 	public void clientTimerStopped(String fopName, double remainingTime, String from) {
-		if (Config.getCurrent().featureSwitch("serverTimers")) {
+		if (!Config.getCurrent().featureSwitch("oldTimers")) {
 			return;
 		}
 		// do not stop the server-side timer, otherwise we create an infinite loop.

@@ -167,7 +167,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 		                LoggerUtils.stackTrace()));
 		this.running = true;
 
-		if (Config.getCurrent().featureSwitch("serverTimers")) {
+		if (!Config.getCurrent().featureSwitch("oldTimers")) {
 			this.serverTimer = new Timer();
 			serverTimer.schedule(computeTask(timeRemaining), timeRemaining % 30000);
 		}

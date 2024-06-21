@@ -237,7 +237,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 		// logger.debug("posting {}", event);
 		getFop().pushOutUIEvent(event);
 		setRunning(true);
-		if (Config.getCurrent().featureSwitch("serverTimers")) {
+		if (!Config.getCurrent().featureSwitch("oldTimers")) {
 			this.serverTimer = new Timer();
 			serverTimer.schedule(computeTask(timeRemaining), timeRemaining);
 		}
