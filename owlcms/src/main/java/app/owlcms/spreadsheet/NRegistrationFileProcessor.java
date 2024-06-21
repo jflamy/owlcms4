@@ -617,7 +617,6 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	private boolean checkTranslation(String valueRead, String string) {
 		String translate = Translator.translate(string);
 		String translate2 = Translator.translateExplicitLocale(string, Locale.ENGLISH);
-		logger.warn("translations {} {}",translate, translate2);
 		return valueRead.contentEquals(translate)
 		        || valueRead.contentEquals(translate2);
 	}
