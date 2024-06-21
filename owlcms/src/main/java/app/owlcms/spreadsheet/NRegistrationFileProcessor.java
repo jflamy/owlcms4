@@ -610,13 +610,16 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 
 	private boolean checkTranslation(String valueRead, String string, String string2) {
 		return valueRead.contentEquals(Translator.translate(string) + " " + Translator.translate(string2))
-		        || valueRead.contentEquals(Translator.translate(string, Locale.ENGLISH) + " "
-		                + Translator.translate(string2, Locale.ENGLISH));
+		        || valueRead.contentEquals(Translator.translateExplicitLocale(string, Locale.ENGLISH) + " "
+		                + Translator.translateExplicitLocale(string2, Locale.ENGLISH));
 	}
 
 	private boolean checkTranslation(String valueRead, String string) {
-		return valueRead.contentEquals(Translator.translate(string))
-		        || valueRead.contentEquals(Translator.translate(string, Locale.ENGLISH));
+		String translate = Translator.translate(string);
+		String translate2 = Translator.translateExplicitLocale(string, Locale.ENGLISH);
+		logger.warn("translations {} {}",translate, translate2);
+		return valueRead.contentEquals(translate)
+		        || valueRead.contentEquals(translate2);
 	}
 
 }

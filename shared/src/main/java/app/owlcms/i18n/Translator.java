@@ -180,6 +180,10 @@ public class Translator implements I18NProvider {
     public static String translate(String string, Locale locale) {
         return helper.getTranslation(string, locale);
     }
+    
+    public static String translateExplicitLocale(String string, Locale locale) {
+        return helper.getTranslationExplicitLocale(string, locale);
+    }
 
     public static String translate(String string, Locale locale, Object... params) {
         return helper.getTranslation(string, locale, params);
@@ -376,7 +380,18 @@ public class Translator implements I18NProvider {
     public String getTranslation(String key, Locale locale, Object... params) {
         locale = overrideLocale(locale);
 
-        if (key == null) {
+        return doTranslation(key, locale, params);
+    }
+
+    /**
+     * @see com.vaadin.flow.i18n.I18NProvider#getTranslation(java.lang.String, java.util.Locale, java.lang.Object[])
+     */
+    public String getTranslationExplicitLocale(String key, Locale locale, Object... params) {
+        return doTranslation(key, locale, params);
+    }
+
+	private String doTranslation(String key, Locale locale, Object... params) {
+		if (key == null) {
             nullTranslationKey();
             return "";
         }
@@ -393,8 +408,8 @@ public class Translator implements I18NProvider {
             value = format(value, params);
         }
         return value;
-    }
-
+	}
+    
     public String getTranslationNoOverrideOrElseNull(String key, Locale locale, Object... params) {
         if (key == null) {
             nullTranslationKey();
