@@ -4,8 +4,9 @@
 >
 > - You should test all releases, with actual data, several days before a competition. 
 
-- (rc01) The current athlete display used for videos could occasionally display the scoreboard status from the previous athlete (long standing bug)
-- (rc01) Technical:  An improved implementation of the athlete and break timers is now enabled by default in this release. Use the `oldTimers` [Feature toggle](https://owlcms.github.io/owlcms4-prerelease/#/FeatureToggles) in the very unlikely event you want the old ones back.
+- (49.0.1) Loading a registration file with English headers now works when the database has another language selected by default.
+- (49.0.1) Fix: The current athlete display used for videos would occasionally display the scoreboard status from the previous athlete. 
+- (49.0.1) Technical:  An improved implementation of the athlete and break timers is now enabled by default in this release.  In the very unlikely event you want the old behavior back use the `oldTimers` [Feature toggle](https://owlcms.github.io/owlcms4/#/FeatureToggles).  
 - Announcer+Marshal
   - The previous athlete is now highlighted in blue in the grid.  The current and next athletes are also highlighted (yellow and orange, which is the same color convention as on the default scoreboards).  Blue is shown when the previous athlete is the current or the next.
   - A Notification is received when athletes withdraw from the snatch or the session.
