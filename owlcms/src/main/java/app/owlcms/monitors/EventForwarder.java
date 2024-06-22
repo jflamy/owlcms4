@@ -172,11 +172,10 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 		this.translatorResetTimeStamp = 0L;
 
-		String updateKey = Config.getCurrent().getParamUpdateKey();
+		// update key is actually not mandatory
+		//String updateKey = Config.getCurrent().getParamUpdateKey();
 		String updateUrl = Config.getCurrent().getParamPublicResultsURL();
-		if (updateUrl == null || updateKey == null
-		        || updateUrl.trim().isEmpty()
-		        || updateKey.trim().isEmpty()) {
+		if (updateUrl == null || updateUrl.trim().isEmpty()) {
 			logger.info("{}publicresults not enabled.", FieldOfPlay.getLoggingName(getFop()));
 		} else {
 			logger.info("{}publicresults enabled, pushing to {}", FieldOfPlay.getLoggingName(getFop()), updateUrl);
@@ -185,11 +184,10 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			pushUpdate(null);
 		}
 
-		String updateKeyV = Config.getCurrent().getParamVideoDataKey();
+		// update key is actually not mandatory
+		//String updateKeyV = Config.getCurrent().getParamVideoDataKey();
 		String updateUrlV = Config.getCurrent().getParamVideoDataURL();
-		if (updateUrlV == null || updateKeyV == null
-		        || updateUrlV.trim().isEmpty()
-		        || updateKeyV.trim().isEmpty()) {
+		if (updateUrlV == null  || updateUrlV.trim().isEmpty()) {
 			logger.info("{}video data  not enabled.", FieldOfPlay.getLoggingName(getFop()));
 		} else {
 			logger.info("{}video data enabled, pushing to {}", FieldOfPlay.getLoggingName(getFop()), updateUrlV);
