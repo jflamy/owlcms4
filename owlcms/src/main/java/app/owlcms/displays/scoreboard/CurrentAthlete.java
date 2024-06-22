@@ -329,7 +329,9 @@ public class CurrentAthlete extends Results {
 		if (!leaveTopAlone) {
 			if (a != null) {
 				Group group = fop.getGroup();
-				if (!group.isDone()) {
+				if (group == null) {
+					doEmpty();
+				} else if (!group.isDone()) {
 					logger.debug("updating top {} {} {}", a.getFullName(), group, System.identityHashCode(group));
 					getElement().setProperty("fullName", a.getFullName());
 					getElement().setProperty("teamName", a.getTeam());
