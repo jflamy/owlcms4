@@ -188,6 +188,7 @@ public class Competition {
 	@Transient
 	@JsonIgnore
 	private HashMap<Group, TreeMap<String, TreeSet<Athlete>>> medalsByGroup;
+	private String medalScheduleTemplateFileName;
 	private String medalsTemplateFileName;
 
 	/* this is really "keep best n results", backward compatibility with database exports */
@@ -409,7 +410,7 @@ public class Competition {
 		List<Athlete> allPAthletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(ageGroupPrefix, ad);
 		// remove people not in a session, they withdrew, possibly after weighing in.
 		allPAthletes = allPAthletes.stream().filter(a -> a.getGroup() != null).collect(Collectors.toList());
-		
+
 		// these are all the weighed in athletes that will be potentially earning a a medal.
 		// we filter the big list so we don't hit the database again.
 		List<Athlete> weighedInAthletes = allPAthletes.stream()
@@ -579,6 +580,15 @@ public class Competition {
 			return "JurySheetTemplate.xls";
 		}
 		return this.juryTemplateFileName;
+	}
+
+	@Transient
+	@JsonIgnore
+	public String getComputedMedalScheduleTemplateFileName() {
+		if (this.medalScheduleTemplateFileName == null) {
+			return "MedalSchedule-A4.xls";
+		}
+		return this.medalScheduleTemplateFileName;
 	}
 
 	/**
@@ -898,7 +908,7 @@ public class Competition {
 		}
 		return this.scoringSystem;
 	}
-	
+
 	public String getTranslatedScoringSystemName() {
 		String translate = Translator.translateOrElseNull("Ranking." + getScoringSystem(), OwlcmsSession.getLocale());
 		return translate != null ? translate : Translator.translate("Score");
@@ -1295,6 +1305,10 @@ public class Competition {
 
 	public void setMaxTeamSize(Integer maxTeamSize) {
 		this.maxTeamSize = maxTeamSize;
+	}
+
+	public void setMedalScheduleTemplateFileName(String medalScheduleTemplateFileName) {
+		this.medalScheduleTemplateFileName = medalScheduleTemplateFileName;
 	}
 
 	public void setMedalsTemplateFileName(String medalsTemplateFileName) {

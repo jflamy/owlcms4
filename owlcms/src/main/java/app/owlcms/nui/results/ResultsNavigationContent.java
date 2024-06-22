@@ -25,6 +25,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.components.JXLSDownloader;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.preparation.TeamSelectionContent;
@@ -79,7 +80,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 		Div timingStats = new Div();
 		timingStats.add(dd1.createImmediateDownloadButton());
 		timingStats.setWidthFull();
-		
+
 		var medalScheduleWriter = new JXLSMedalSchedule(UI.getCurrent());
 		JXLSDownloader dd2 = new JXLSDownloader(
 		        () -> {
@@ -88,9 +89,10 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 		        "/templates/medalSchedule",
 		        // template name used only to generate the results file name. Localized template determined by
 		        // JXLSTimingStats
-		        "MedalSchedule.xlsx",
+		        Competition::getComputedMedalScheduleTemplateFileName,
+				Competition::setMedalScheduleTemplateFileName,
 		        Translator.translate("Results.MedalSchedule"),
-		        fileName -> fileName.endsWith(".xlsx"));
+				Translator.translate("Download"));
 		Div medalScheduleDiv = new Div();
 		medalScheduleDiv.add(dd2.createDownloadButton());
 		Optional<Component> medalScheduleButton = medalScheduleDiv.getChildren().findFirst();
