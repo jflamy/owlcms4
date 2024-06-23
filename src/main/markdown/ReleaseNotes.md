@@ -1,10 +1,14 @@
-**Version 49.0.1**
+**Version 49.0.2**
 
 > [!IMPORTANT]
 >
 > - You should test all releases, with actual data, several days before a competition. 
 
-- (49.0.1) Loading a registration file with English headers now works when the database has another language selected by default.
+- (49.0.2) Enhancement: if a session is configured to start in the future, when opening the countdown screen, the default will be to start the introduction at the planned time. It will not be necessary to switch away from the "Duration" setting and not necessary to select the time.
+- (49.0.2) Fix: In some rare edge cases, declaring the same value as the automatic progression would produce a denial warning on the marshal card.  This would happen when declaring on a 1:00 clock when the declaring athlete had lifted the same as the current athlete on the previous attempt.
+- (49.0.2) Fix: Importing a database JSON export that includes a zip for local overrides now applies correctly the zipped overrides.
+- (49.0.2) Fix: the `agegroupinfo.formattedRange` now correctly handles situations where athletes have not been assigned an A/B/C annotation.
+- (49.0.1) Fix: Loading a registration file with English headers now works when the database has another language selected by default.
 - (49.0.1) Fix: The current athlete display used for videos would occasionally display the scoreboard status from the previous athlete. 
 - (49.0.1) Technical:  An improved implementation of the athlete and break timers is now enabled by default in this release.  In the very unlikely event you want the old behavior back use the `oldTimers` [Feature toggle](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/FeatureToggles).  
 - Announcer+Marshal
