@@ -139,7 +139,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		this.fop = OwlcmsSession.getFop();
 		if (fop.getState() == FOPState.INACTIVE || fop.getBreakType() == BreakType.GROUP_DONE) {
 			this.requestedBreak = BreakType.BEFORE_INTRODUCTION;
-			this.requestedCountdownType = CountdownType.DURATION;
+			this.requestedCountdownType = CountdownType.TARGET;
 		} else if (fop.getState() == FOPState.BREAK) {
 			this.requestedBreak = null;
 			this.requestedCountdownType = null;
@@ -283,7 +283,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 				// if we entered as an interruption, the switch to a break would be for a duration
 				// (e.g. broken platform, fixed, give athletes a warm-up duration before resuming).
 				setCountdownTypeValue(
-				        this.requestedBreak.isInterruption() ? CountdownType.DURATION : this.requestedCountdownType);
+					this.requestedBreak.isInterruption() ? CountdownType.DURATION : this.requestedCountdownType);
 				setEnablement();
 			} else {
 				syncWithFop();
@@ -307,6 +307,19 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 	}
 
 	private void computeDefaultTimeValues() {
+		logger.debug("setting default duration as default {}", LoggerUtils.whereFrom());
+		setDurationField(DEFAULT_DURATION);
+
+		if (
+			fop.getGroup() != null
+			&& fop.getGroup().getCompetitionTime() != null
+			&& fop.getGroup().getCompetitionTime().isAfter(LocalDateTime.now())
+		) {
+			this.datePicker.setValue(fop.getGroup().getCompetitionTime().toLocalDate());
+			this.timePicker.setValue(fop.getGroup().getCompetitionTime().toLocalTime());
+			return;
+		}
+
 		int timeStep = 30;
 		this.timePicker.setStep(Duration.ofMinutes(timeStep));
 		LocalTime nowTime = LocalTime.now();
@@ -325,8 +338,6 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		this.datePicker.setWidth("16ch");
 		this.timePicker.setValue(LocalTime.of(nextHr, nextStepMin));
 		this.timePicker.setWidth("11ch");
-		logger.debug("setting default duration as default {}", LoggerUtils.whereFrom());
-		setDurationField(DEFAULT_DURATION);
 	}
 
 	private Integer computeTimerRemainingFromFields(boolean interruption, CountdownType countdownType) {
@@ -1281,6 +1292,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 
 					if (breakType2 == BreakType.GROUP_DONE) {
 						computeDefaultTimeValues();
+						setCountdownTypeValue(CountdownType.TARGET);
 					}
 					break;
 				default:
