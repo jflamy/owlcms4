@@ -134,7 +134,11 @@ public class AgeGroupInfo {
 
 	public String getFormattedRange() {
 		if (unanimous) {
-			return getWeightClassRange() +" "+getBestSubCategory();
+			if (getBestSubCategory() == null) {
+				return getWeightClassRange();
+			} else {
+				return getWeightClassRange() +" "+getBestSubCategory();
+			}
 		} else {
 			return subCats.values().stream().map(v -> v.getFormattedString()).collect(Collectors.joining(", "));
 		}
