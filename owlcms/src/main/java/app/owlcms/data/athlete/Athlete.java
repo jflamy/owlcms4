@@ -4834,10 +4834,15 @@ public class Athlete {
 
 			// BEWARE: referenceProgression if for current reference athlete and their prior
 			// attempt.
-			// int referenceProgression =
-			// reference.getAthlete().getProgression(requestedWeight);
 			int referenceProgression = reference.getProgression();
 
+			if (currentProgression == referenceProgression) {
+				// look back to previous attempt if any to determine who actually lifted first.
+				currentProgression = this.getCumulativeProgression(requestedWeight);
+				referenceProgression = reference.getCumulativeProgression();
+			}
+			
+			// check again.
 			if (currentProgression == referenceProgression) {
 				checkSameProgression(reference, requestedWeight, currentProgression, referenceProgression);
 			} else if (currentProgression > referenceProgression) {
@@ -5098,6 +5103,29 @@ public class Athlete {
 		}
 		return 0;
 	}
+	
+	@Transient
+	@JsonIgnore
+	private int getCumulativeProgression(Integer requestedWeight) {
+		int attempt = getAttemptsDone() + 1;
+		switch (attempt) {
+			case 1:
+				return 0;
+			case 2:
+				return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getSnatch1ActualLift()));
+			case 3:
+				return (Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getSnatch2ActualLift())))
+						+ (Math.abs(zeroIfInvalid(getSnatch2ActualLift()))) - Math.abs(zeroIfInvalid(getSnatch1ActualLift())) ;
+			case 4:
+				return 0;
+			case 5:
+				return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getCleanJerk1ActualLift()));
+			case 6:
+				return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getCleanJerk2ActualLift()))
+						+ (Math.abs(zeroIfInvalid(getCleanJerk2ActualLift()))) - Math.abs(zeroIfInvalid(getCleanJerk1ActualLift())) ;
+		}
+		return 0;
+	}
 
 	@Transient
 	@JsonIgnore
@@ -5110,6 +5138,7 @@ public class Athlete {
 		int attemptsDone = this.getAttemptsDone() + 1;
 		loi.setAttemptNo(attemptsDone);
 		loi.setProgression(this.getProgression(nextAttemptRequestedWeight));
+		loi.setCumulativeProgression(this.getCumulativeProgression(nextAttemptRequestedWeight));
 		loi.setStartNumber(this.getStartNumber());
 		loi.setLotNumber(this.getLotNumber());
 		// getLogger().trace("{}clockOwner: {}", OwlcmsSession.getFopLoggingName(),
