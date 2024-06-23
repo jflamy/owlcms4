@@ -424,6 +424,8 @@ public class ResourceWalker {
 			ZipUtils.zipStream(stream, name, createDir, zipOut);
 			prevDirName = curDirName;
 		}
+		zipOut.finish();
+		zipOut.close();
 	}
 
 	public static InputStream zipPublicResultsConfig() {
@@ -555,7 +557,7 @@ public class ResourceWalker {
 		}
 	}
 
-	private static void setInitializedLocalDir(boolean checkedLocalDir) {
+	public static void setInitializedLocalDir(boolean checkedLocalDir) {
 		initializedLocalDir = checkedLocalDir;
 		if (logger.isEnabledFor(Level.DEBUG)) {
 			logger.debug("initializedLocalDir = {}", checkedLocalDir);
