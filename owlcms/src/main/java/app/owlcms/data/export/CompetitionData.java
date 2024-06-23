@@ -194,6 +194,13 @@ public class CompetitionData {
 
 				CompetitionData updated = this.importData(inputStream);
 				Config config = updated.getConfig();
+				byte[] blob = config.getLocalZipBlob();
+				
+				if ( blob != null) {
+					logger.info("override zip found {} bytes", blob.length);
+				}
+				Config.setCurrent(config);
+				ResourceWalker.setInitializedLocalDir(false);
 				ResourceWalker.initLocalDir();
 
 				Locale defaultLocale = config.getDefaultLocale();
@@ -227,9 +234,7 @@ public class CompetitionData {
 				}
 
 				if (updated.getRecordConfig() != null) {
-					{
 						em.merge(updated.getRecordConfig());
-					}
 				}
 
 				em.merge(competition);

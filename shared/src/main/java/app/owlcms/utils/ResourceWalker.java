@@ -557,7 +557,7 @@ public class ResourceWalker {
 		}
 	}
 
-	private static void setInitializedLocalDir(boolean checkedLocalDir) {
+	public static void setInitializedLocalDir(boolean checkedLocalDir) {
 		initializedLocalDir = checkedLocalDir;
 		if (logger.isEnabledFor(Level.DEBUG)) {
 			logger.debug("initializedLocalDir = {}", checkedLocalDir);
