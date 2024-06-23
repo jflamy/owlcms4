@@ -133,6 +133,7 @@ public class ZipUtils {
 		byte[] bytes = new byte[1024];
 		int length;
 		while ((length = streamToZip.read(bytes)) >= 0) {
+			//logger.debug("{} writing {} bytes", fileName, length);
 			zipOut.write(bytes, 0, length);
 		}
 		zipOut.closeEntry();
