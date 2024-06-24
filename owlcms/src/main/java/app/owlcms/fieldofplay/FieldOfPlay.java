@@ -708,14 +708,14 @@ public class FieldOfPlay implements IUnregister {
 			uiShowPlates((BarbellOrPlatesChanged) e);
 			return;
 		} else if (e instanceof SwitchGroup) {
-			this.logger.debug("{}*** switching group", FieldOfPlay.getLoggingName(this));
 			Group oldGroup = this.getGroup();
 			SwitchGroup switchGroup = (SwitchGroup) e;
 			Group newGroup = switchGroup.getGroup();
+			this.logger.info("{}switching group to {}", FieldOfPlay.getLoggingName(this), newGroup);
 
 			boolean inBreak = this.state == BREAK || this.state == INACTIVE;
 			if (Objects.equals(oldGroup, newGroup)) {
-				this.logger.debug("{}**** reloading", FieldOfPlay.getLoggingName(this));
+				this.logger.info("{}reloading {}", FieldOfPlay.getLoggingName(this), newGroup);
 				loadGroup(newGroup, this, true);
 				pushOutSwitchGroup(e.getOrigin());
 				uiDisplayCurrentAthleteAndTime(true, e, false);
@@ -1150,7 +1150,7 @@ public class FieldOfPlay implements IUnregister {
 
 			int timeAllowed = getTimeAllowed();
 			Integer attemptsDone = getCurAthlete().getAttemptsDone();
-			this.logger.debug("{}recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
+			this.logger.info("{}recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
 			        FieldOfPlay.getLoggingName(this),
 			        getCurAthlete() != null ? getCurAthlete().getFullName() : "",
 			        getPreviousAthlete() != null ? getPreviousAthlete().getFullName() : "",
@@ -1326,8 +1326,7 @@ public class FieldOfPlay implements IUnregister {
 
 	public void setNewRecords(List<RecordEvent> newRecords) {
 		if (newRecords == null || newRecords.isEmpty()) {
-			this.logger.debug("{} + clearing athlete records {}", FieldOfPlay.getLoggingName(this),
-			        LoggerUtils.whereFrom());
+			//this.logger.trace("{} + clearing athlete records {}", FieldOfPlay.getLoggingName(this), LoggerUtils.whereFrom());
 		}
 		this.newRecords = newRecords;
 	}
@@ -2235,8 +2234,7 @@ public class FieldOfPlay implements IUnregister {
 		long endDisplayOrder = 0;
 		long endLeaders = 0;
 
-		logger.debug("{}recompute ranks recomputeCategoryRanks={} [{}]", FieldOfPlay.getLoggingName(this),
-		        recomputeCategoryRanks, LoggerUtils.whereFrom());
+		//logger.trace("{}recompute ranks recomputeCategoryRanks={} [{}]", FieldOfPlay.getLoggingName(this),recomputeCategoryRanks, LoggerUtils.whereFrom());
 		if (recomputeCategoryRanks) {
 			// we update the ranks all athletes in our category, as well as the current scoring system
 			athletes = JPAService.runInTransaction(em -> {
@@ -2348,7 +2346,7 @@ public class FieldOfPlay implements IUnregister {
 	 * Reset decisions. Invoked when a fresh clock is given.
 	 */
 	private void resetDecisions() {
-		this.logger.debug("{}**** resetting all decisions on new clock", FieldOfPlay.getLoggingName(this));
+		this.logger.trace("{}**** resetting all decisions on new clock", FieldOfPlay.getLoggingName(this));
 		setRefereeDecision(new Boolean[3]);
 		resetJuryDecisions();
 		setRefereeTime(new Long[3]);
@@ -2434,8 +2432,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void setClockOwnerInitialTimeAllowed(int timeAllowed) {
-		this.logger.debug("{}setClockOwnerInitialTimeAllowed timeAllowed={} {}", FieldOfPlay.getLoggingName(this),
-		        timeAllowed, LoggerUtils.whereFrom());
+		//this.logger.trace("{}setClockOwnerInitialTimeAllowed timeAllowed={} {}", FieldOfPlay.getLoggingName(this), timeAllowed, LoggerUtils.whereFrom());
 		this.clockOwnerInitialTimeAllowed = timeAllowed;
 	}
 
@@ -2487,12 +2484,12 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void setLastChallengedRecords(List<RecordEvent> challengedRecords) {
-		this.logger.debug("{} + lastChallengedRecords {}", FieldOfPlay.getLoggingName(this), challengedRecords);
+		this.logger.trace("{} + lastChallengedRecords {}", FieldOfPlay.getLoggingName(this), challengedRecords);
 		this.lastChallengedRecords = challengedRecords;
 	}
 
 	private void setLastNewRecords(List<RecordEvent> newRecords) {
-		this.logger.debug("{} + lastNewRecords {}", FieldOfPlay.getLoggingName(this), newRecords);
+		this.logger.trace("{} + lastNewRecords {}", FieldOfPlay.getLoggingName(this), newRecords);
 		this.lastNewRecords = newRecords;
 	}
 

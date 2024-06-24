@@ -280,8 +280,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		setEditedAthlete(new Athlete());
 
 		// don't trust the athlete received as parameter. Fetch from database in case
-		// the athlete was edited
-		// on some other screen.
+		// the athlete was edited on some other screen or updated by lifting.
 		if (aFromList instanceof PAthlete) {
 			this.originalAthlete = ((PAthlete) aFromList)._getAthlete();
 		} else {
@@ -289,15 +288,10 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		}
 		Athlete aFromDb = AthleteRepository.findById(aFromList.getId());
 		Athlete.conditionalCopy(getEditedAthlete(), aFromDb, true);
-
+		
+		// one thing that is not in the database is the field of play.
+		getEditedAthlete().setFop(aFromList.getFop());
 		getEditedAthlete().setValidation(false); // turn off validation in the Athlete setters; binder will call
-		                                         // the validation routines explicitly
-
-		// logger.trace("aFromDb = {} {}", System.identityHashCode(aFromList), aFromList);
-		// logger.trace("originalAthlete = {} {}", System.identityHashCode(originalAthlete),
-		// originalAthlete.isValidation());
-		// logger.trace("editedAthlete = {} {}", System.identityHashCode(getEditedAthlete()),
-		// getEditedAthlete().isValidation());
 
 		bindGridFields(operation);
 
