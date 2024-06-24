@@ -64,14 +64,12 @@ public class LiftOrderReconstruction {
 		List<Athlete> athletes = fop.getLiftingOrder();
 
 		for (Athlete a : athletes) {
-			int prevweight = 0;
 			for (int liftNo = 0; liftNo < 6; liftNo++) {
 				LiftOrderInfo ali = new LiftOrderInfo();
 				int w;
 				switch (liftNo) {
 					case 0:
 						w = Math.abs(Athlete.zeroIfInvalid(a.getSnatch1ActualLift()));
-						prevweight = w;
 						ali.setWeight(w);
 						break;
 					case 1:
@@ -82,7 +80,6 @@ public class LiftOrderReconstruction {
 						break;
 					case 3:
 						w = Math.abs(Athlete.zeroIfInvalid(a.getCleanJerk1ActualLift()));
-						prevweight = w;
 						ali.setWeight(w);
 						break;
 					case 4:
@@ -94,8 +91,8 @@ public class LiftOrderReconstruction {
 				}
 				ali.setAthlete(a);
 				ali.setAttemptNo(liftNo + 1);
-				ali.setProgression(ali.getWeight() - prevweight);
-				prevweight = Math.abs(ali.getWeight());
+				ali.setProgression(a.getAttemptProgression(liftNo + 1));
+				ali.setCumulativeProgression(a.getCumulativeAttemptProgression(liftNo + 1));
 				ali.setStartNumber(a.getStartNumber());
 				ali.setLotNumber(a.getLotNumber());
 

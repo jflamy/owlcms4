@@ -1729,7 +1729,7 @@ public class Athlete {
 			return "";
 		}
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public String getFullName() {
@@ -3163,7 +3163,7 @@ public class Athlete {
 	}
 
 	public void setCheckTiming(boolean checkTiming) {
-		//logger.debug("===== setting timing check {}, {}", checkTiming, LoggerUtils.stackTrace());
+		// logger.debug("===== setting timing check {}, {}", checkTiming, LoggerUtils.stackTrace());
 		this.checkTiming = checkTiming;
 	}
 
@@ -4832,22 +4832,30 @@ public class Athlete {
 			        fopLoggingName, currentLiftNo, referenceAttemptNo);
 			int currentProgression = this.getProgression(requestedWeight);
 
-			// BEWARE: referenceProgression if for current reference athlete and their prior
-			// attempt.
+			// BEWARE: referenceProgression is for current reference athlete and their prior attempt.
 			int referenceProgression = reference.getProgression();
 
 			if (currentProgression == referenceProgression) {
+				getLogger().warn("{}progression({}) {} == referenceProgression({}) {}",
+				        fopLoggingName, this.getLastName(), currentProgression, reference.getAthlete().getLastName(),
+				        referenceProgression);
 				// look back to previous attempt if any to determine who actually lifted first.
 				currentProgression = this.getCumulativeProgression(requestedWeight);
 				referenceProgression = reference.getCumulativeProgression();
 			}
-			
+
 			// check again.
 			if (currentProgression == referenceProgression) {
+				getLogger().warn("{}cumulativeProgression({}) {} == referenceCumulativeProgression({}) {}",
+				        fopLoggingName, this.getLastName(), currentProgression, reference.getAthlete().getLastName(),
+				        referenceProgression);
 				checkSameProgression(reference, requestedWeight, currentProgression, referenceProgression);
-			} else if (currentProgression > referenceProgression) {
-				getLogger().trace("{}currentProgression {} > referenceProgression {}",
-				        fopLoggingName, currentProgression, referenceProgression);
+			} else
+
+			if (currentProgression > referenceProgression) {
+				getLogger().warn("{}currentProgression({}) {} > referenceProgression({}) {}",
+				        fopLoggingName, this.getLastName(), currentProgression, reference.getAthlete().getLastName(),
+				        referenceProgression);
 				// larger progression means a smaller previous attempt, hence lifted earlier
 				// than the last lift.
 				// so we should already have lifted.
@@ -4893,7 +4901,9 @@ public class Athlete {
 
 	private void doCheckChangeOwningTimer(String declaration, String change1, String change2, FieldOfPlay fop,
 	        int clock, int initialTime) {
-		//logger.debug("{}doCheckChangeOwningTimer ===== initialTime={} clock={} {} {} {}\n{}", FieldOfPlay.getLoggingName(fop), initialTime, clock, declaration, change1, change2, LoggerUtils.stackTrace());
+		// logger.debug("{}doCheckChangeOwningTimer ===== initialTime={} clock={} {} {} {}\n{}",
+		// FieldOfPlay.getLoggingName(fop), initialTime, clock, declaration, change1, change2,
+		// LoggerUtils.stackTrace());
 		if ((change1 == null || change1.isBlank()) && (change2 == null || change2.isBlank())) {
 			// validate declaration
 			if (clock < initialTime - 30000) {
@@ -5085,8 +5095,18 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
-	private int getProgression(Integer requestedWeight) {
+	public int getProgression(Integer requestedWeight) {
 		int attempt = getAttemptsDone() + 1;
+		return doGetProgression(requestedWeight, attempt);
+	}
+
+	@Transient
+	@JsonIgnore
+	public int getAttemptProgression(int attempt) {
+		return doGetProgression(this.getRequestedWeightForAttempt(attempt), attempt);
+	}
+
+	private int doGetProgression(Integer requestedWeight, int attempt) {
 		switch (attempt) {
 			case 1:
 				return 0;
@@ -5103,28 +5123,53 @@ public class Athlete {
 		}
 		return 0;
 	}
-	
+
 	@Transient
 	@JsonIgnore
-	private int getCumulativeProgression(Integer requestedWeight) {
+	public int getCumulativeAttemptProgression(int attempt) {
+		return doGetCumulativeProgression(this.getRequestedWeightForAttempt(attempt), attempt);
+	}
+
+	@Transient
+	@JsonIgnore
+	public int getCumulativeProgression(Integer requestedWeight) {
 		int attempt = getAttemptsDone() + 1;
+		return doGetCumulativeProgression(requestedWeight, attempt);
+	}
+
+	private int doGetCumulativeProgression(Integer requestedWeight, int attempt) {
+		int progression = 0;
 		switch (attempt) {
 			case 1:
-				return 0;
+				progression = 0;
+				break;
 			case 2:
-				return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getSnatch1ActualLift()));
+				progression = Math.abs(requestedWeight)
+				        - Math.abs(zeroIfInvalid(getSnatch1ActualLift()));
+				break;
 			case 3:
-				return (Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getSnatch2ActualLift())))
-						+ (Math.abs(zeroIfInvalid(getSnatch2ActualLift()))) - Math.abs(zeroIfInvalid(getSnatch1ActualLift())) ;
+				progression = Math.abs(requestedWeight)
+				        - Math.abs(zeroIfInvalid(getSnatch2ActualLift()))
+				        + Math.abs(zeroIfInvalid(getSnatch2ActualLift()))
+				        - Math.abs(zeroIfInvalid(getSnatch1ActualLift()));
+				break;
 			case 4:
-				return 0;
+				progression = 0;
+				break;
 			case 5:
-				return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getCleanJerk1ActualLift()));
+				progression = Math.abs(requestedWeight)
+				        - Math.abs(zeroIfInvalid(getCleanJerk1ActualLift()));
+				break;
 			case 6:
-				return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getCleanJerk2ActualLift()))
-						+ (Math.abs(zeroIfInvalid(getCleanJerk2ActualLift()))) - Math.abs(zeroIfInvalid(getCleanJerk1ActualLift())) ;
+				progression = Math.abs(requestedWeight)
+				        - Math.abs(zeroIfInvalid(getCleanJerk2ActualLift()))
+				        + (Math.abs(zeroIfInvalid(getCleanJerk2ActualLift())))
+				        - Math.abs(zeroIfInvalid(getCleanJerk1ActualLift()));
+				break;
 		}
-		return 0;
+		// logger.debug("++++ athlete {}, requestedWeight {}, attempt {}, cumulativeProgression {} {}",
+		// this.getLastName(), requestedWeight, attempt, progression, LoggerUtils.whereFrom());
+		return progression;
 	}
 
 	@Transient
@@ -5470,7 +5515,8 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public boolean isDone() {
-		boolean notFinishedLifting = this.getCleanJerk3ActualLift() == null || this.getCleanJerk3ActualLift().isBlank() || this.getCleanJerk3AsInteger() == null;
+		boolean notFinishedLifting = this.getCleanJerk3ActualLift() == null || this.getCleanJerk3ActualLift().isBlank()
+		        || this.getCleanJerk3AsInteger() == null;
 		return !notFinishedLifting;
 	}
 
