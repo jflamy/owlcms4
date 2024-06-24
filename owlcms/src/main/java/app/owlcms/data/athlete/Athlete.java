@@ -132,7 +132,7 @@ public class Athlete {
 			dest.setLoggerLevel(Level.OFF);
 			dest.setCopyId(src.getId());
 
-			logger.warn("setting Fop {} {}", src.getLastName(), src.getFop());
+			logger.trace("setting Fop {} {}", src.getLastName(), src.getFop());
 			dest.setFop(src.getFop());
 
 			dest.setLastName(src.getLastName());
@@ -4772,23 +4772,22 @@ public class Athlete {
 	}
 
 	private void checkDeclarationWasMade(int curLift, String declaration) {
-		long start = System.currentTimeMillis();
 		if (curLift != this.getAttemptsDone()) {
 			return;
 		}
-		FieldOfPlay fop2 = getFop();
-		if (fop2 != null) {
-			int clock = fop2.getAthleteTimer().liveTimeRemaining();
-			if (declaration == null || declaration.isBlank()) {
-				// there was no declaration made in time
-				logger./**/warn("{}{} change without declaration (not owning clock)", this.getFopLoggingName(),
-				        this.getShortName());
+		if (declaration == null || declaration.isBlank()) {
+			// there was no declaration made in time
+			logger./**/warn("{}{} change without declaration (not owning clock)", this.getFopLoggingName(),
+			        this.getShortName());
+			FieldOfPlay fop2 = getFop();
+			if (fop2 != null) {
+				int clock = fop2.getAthleteTimer().liveTimeRemaining();
 				throw new RuleViolationException.MustDeclareFirst(this, clock);
+			} else {
+				throw new RuleViolationException.MustDeclareFirst(this, 0);
 			}
-			this.timingLogger.info("    checkDeclarationWasMade {}ms {} {}", System.currentTimeMillis() - start,
-			        curLift,
-			        LoggerUtils.whereFrom());
 		}
+
 	}
 
 	private void checkSameProgression(LiftOrderInfo reference, Integer requestedWeight, int currentProgression,
