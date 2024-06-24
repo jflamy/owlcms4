@@ -4729,9 +4729,6 @@ public class Athlete {
 	}
 
 	private void checkChangeVsTimer(int curLift, String declaration, String change1, String change2) {
-		if (getFop() == null) {
-			return;
-		}
 		if (Competition.getCurrent().isGenderOrder()) {
 			return;
 		}
@@ -4766,7 +4763,8 @@ public class Athlete {
 				doCheckChangeOwningTimer(declaration, change1, change2, fop2, clock, initialTime);
 			}
 		} else {
-			logger.info("change outside of session");
+			// "FOP - " will be in the logs.
+			logger.debug("change outside of session");
 		}
 
 	}
