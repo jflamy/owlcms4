@@ -107,6 +107,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 	public void slaveRefereeDecision(UIEvent.Decision e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			hideLiveDecisions();
+			this.slaveUpdateGrid(null);
 
 			int d = e.decision ? 1 : 0;
 			String text = Translator.translate("NoLift_GoodLift", d, e.getAthlete().getFullName());

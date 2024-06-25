@@ -92,6 +92,7 @@ import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.NaturalOrderComparator;
@@ -842,6 +843,16 @@ public abstract class AthleteGridContent extends BaseContent
 			});
 		});
 	}
+	
+	@Subscribe
+	public void slaveDoNotifications(UIEvent.Decision e) {
+		Athlete athlete = e.getAthlete();
+		OwlcmsSession.withFop(fop -> {
+			UIEventProcessor.uiAccess(this.topBar, this.uiEventBus, e, () -> {
+				warnOthersIfCurrent(e, athlete, fop);
+			});
+		});
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -849,11 +860,13 @@ public abstract class AthleteGridContent extends BaseContent
 	 * @see app.owlcms.nui.group.UIEventProcessor#updateGrid(app.owlcms.fieldofplay. UIEvent.LiftingOrderUpdated)
 	 */
 	@Subscribe
-	public void slaveUpdateGrid(UIEvent.LiftingOrderUpdated e) {
+	public void slaveUpdateGrid(UIEvent e) {
+		if (!(e instanceof LiftingOrderUpdated || e instanceof UIEvent.Decision)) {
+			return;
+		}
 		if (this.getCrudGrid() == null) {
 			return;
 		}
-		logger.debug("{} {}", e.getOrigin(), LoggerUtils.whereFrom());
 		UIEventProcessor.uiAccess(this.getCrudGrid(), this.uiEventBus, e, () -> {
 			this.getCrudGrid().refreshGrid();
 		});
@@ -945,7 +958,8 @@ public abstract class AthleteGridContent extends BaseContent
 		Grid<Athlete> grid = new Grid<>(Athlete.class, false);
 		grid.getThemeNames().add("row-stripes");
 		grid.getThemeNames().add("compact");
-		grid.addColumn("startNumber").setHeader(Translator.translate("StartNumber")).setTextAlign(ColumnTextAlign.CENTER);
+		grid.addColumn("startNumber").setHeader(Translator.translate("StartNumber"))
+		        .setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn(
 		        createLastNameRenderer()).setHeader(Translator.translate("LastName"));
 		grid.addColumn(
@@ -963,18 +977,21 @@ public abstract class AthleteGridContent extends BaseContent
 			Athlete prevAthlete = fop2.getPreviousAthlete();
 			Athlete curAthlete = fop2.getCurAthlete();
 			Athlete nextAthlete = fop2.getNextAthlete();
-			//logger.trace("prevAthlete = {} curAthlete = {}", prevAthlete != null ? prevAthlete.getId() : "-", athlete.getId());
-		    if (prevAthlete != null && athlete.getId().equals(prevAthlete.getId())) {
-		    	//logger.debug("previous = {}",athlete.getShortName());
-		        return "isPreviousAthlete";
-		    } else if (curAthlete != null && athlete.getId().equals(curAthlete.getId()) && !(athlete.getAttemptsDone() >= 6)) {
-		    	//logger.debug("cur = {}",athlete.getShortName());
-		        return "isCurrentAthlete";
-		    } else if (nextAthlete != null && athlete.getId().equals(nextAthlete.getId()) && !(athlete.getAttemptsDone() >= 6)) {
-		    	//logger.debug("next = {}",athlete.getShortName());
-		        return "isNextAthlete";
-		    }
-		    return null;
+			// logger.trace("prevAthlete = {} curAthlete = {}", prevAthlete != null ? prevAthlete.getId() : "-",
+			// athlete.getId());
+			if (prevAthlete != null && athlete.getId().equals(prevAthlete.getId())) {
+				// logger.debug("previous = {}",athlete.getShortName());
+				return "isPreviousAthlete";
+			} else if (curAthlete != null && athlete.getId().equals(curAthlete.getId())
+			        && !(athlete.getAttemptsDone() >= 6)) {
+				// logger.debug("cur = {}",athlete.getShortName());
+				return "isCurrentAthlete";
+			} else if (nextAthlete != null && athlete.getId().equals(nextAthlete.getId())
+			        && !(athlete.getAttemptsDone() >= 6)) {
+				// logger.debug("next = {}",athlete.getShortName());
+				return "isNextAthlete";
+			}
+			return null;
 		});
 
 		this.crudLayout = new OwlcmsGridLayout(Athlete.class);
@@ -1231,13 +1248,6 @@ public abstract class AthleteGridContent extends BaseContent
 		if (this.attempts == null) {
 			this.attempts = new HorizontalLayout();
 			this.attempts.setHeight("100%");
-			// for (int i = 0; i < 6; i++) {
-			// Paragraph div = new Paragraph();
-			// div.getElement().setAttribute("style", "border: 1; width: 5ch; background-color: pink; text-align:
-			// center");
-			// div.getElement().setProperty("innerHTML", i+1+"");
-			// attempts.add(div);
-			// }
 		}
 		this.attempts.getElement().setAttribute("style", "float: right");
 		HorizontalLayout horizontalLayout = (HorizontalLayout) this.crudLayout.getFilterLayout();
@@ -1250,12 +1260,12 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	protected void displayLiveDecisions() {
-		//if (this.getDecisionLights() == null) {
+		if (!Config.getCurrent().featureSwitch("noLiveLights")) {
 			setDecisionLights(null);
 			getTopBarLeft().removeAll();
 			createDecisionLights();
 			getTopBarLeft().add(this.getDecisionLights());
-		//}
+		}
 	}
 
 	protected void do1Minute() {
@@ -1270,17 +1280,34 @@ public abstract class AthleteGridContent extends BaseContent
 		});
 	}
 
+	/**
+	 * Notifications for FOP events.
+	 * Good/bad lifts are done in AnnouncerContent.
+	 * 
+	 * Notification theme styling is done in
+	 * META-INF/resources/frontend/styles/shared-styles.html
+	 * 
+	 * @param text
+	 * @param theme
+	 */
 	protected void doNotification(String text, String theme) {
+		
 		Notification n = new Notification();
-		// Notification theme styling is done in
-		// META-INF/resources/frontend/styles/shared-styles.html
+		// 
+		logger.warn("doNotification TO");
 		n.getElement().getThemeList().add(theme);
 		n.setDuration(6000);
-		n.setPosition(Position.TOP_START);
 		Div label = new Div();
 		label.getElement().setProperty("innerHTML", text);
 		label.addClickListener((event) -> n.close());
-		label.getStyle().set("font-size", "large");
+
+		if (Config.getCurrent().featureSwitch("usaw")) {
+			label.getStyle().set("font-size", "x-large");
+			n.setPosition(Position.MIDDLE);
+		} else {
+			label.getStyle().set("font-size", "large");
+			n.setPosition(Position.TOP_START);
+		}
 		n.add(label);
 		n.open();
 		n.open();
@@ -1661,13 +1688,20 @@ public abstract class AthleteGridContent extends BaseContent
 	 * @param athlete
 	 * @param fop
 	 */
-	private void warnOthersIfCurrent(UIEvent.LiftingOrderUpdated e, Athlete athlete, FieldOfPlay fop) {
+	private void warnOthersIfCurrent(UIEvent e, Athlete athlete, FieldOfPlay fop) {
+		// the lifting order is actually ready after a decision
+		if (!(e instanceof UIEvent.LiftingOrderUpdated || e instanceof UIEvent.Decision)) {
+			return;
+		}
+		
 		// the athlete currently displayed is not necessarily the fop curAthlete,
 		// because the lifting order has been recalculated behind the scenes
 		Athlete curDisplayAthlete = this.displayedAthlete;
 
 		// weight change warnings not to self.
-		if (this != e.getOrigin() && curDisplayAthlete != null && curDisplayAthlete.equals(e.getChangingAthlete())) {
+		if (this != e.getOrigin() && curDisplayAthlete != null 
+				&& e instanceof UIEvent.LiftingOrderUpdated 
+				&& curDisplayAthlete.equals(((UIEvent.LiftingOrderUpdated)e).getChangingAthlete())) {
 			String text;
 			int declaring = curDisplayAthlete.isDeclaring();
 			if (declaring > 0) {
@@ -1679,7 +1713,13 @@ public abstract class AthleteGridContent extends BaseContent
 			}
 			doNotification(text, "warning");
 		}
-		Integer newWeight = e.getNewWeight();
+
+		if (curDisplayAthlete != null && !curDisplayAthlete.equals(fop.getCurAthlete())) {
+			//FIXME: add a debounce when this is called on a recompute after a decision.
+			String text = Translator.translate("ChangeOfAthlete", fop.getCurAthlete().getFullName());
+			doNotification(text, "warning");
+		}
+		Integer newWeight = fop.getCurAthlete().getNextAttemptRequestedWeight();
 		// avoid duplicate info to officials
 		if (newWeight != null && this.prevWeight != newWeight) {
 			doNotification(Translator.translate("Notification.WeightToBeLoaded", newWeight), "info");

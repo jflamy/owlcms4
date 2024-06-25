@@ -53,6 +53,7 @@ import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.CountdownType;
@@ -290,7 +291,10 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	public void slaveRefereeDecision(UIEvent.Decision e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			hideLiveDecisions();
-
+			this.slaveUpdateGrid(null);
+			if (e == null || e.decision == null) {
+				return;
+			}
 			int d = e.decision ? 1 : 0;
 			String text = Translator.translate("NoLift_GoodLift", d, e.getAthlete().getFullName());
 
@@ -304,7 +308,12 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			label.setSizeFull();
 			label.getStyle().set("font-size", "large");
 			n.add(label);
-			n.setPosition(Position.TOP_START);
+			if (Config.getCurrent().featureSwitch("usaw")) {
+				n.setPosition(Position.MIDDLE);
+				label.getStyle().set("font-size", "x-large");
+			} else {
+				n.setPosition(Position.TOP_START);
+			}
 			n.setDuration(5000);
 			n.open();
 
