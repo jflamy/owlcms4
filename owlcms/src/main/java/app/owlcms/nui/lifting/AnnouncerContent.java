@@ -161,8 +161,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	/**
 	 * The URL contains the group, contrary to other screens.
 	 *
-	 * Normally there is only one announcer. If we have to restart the program the announcer screen will have the URL
-	 * correctly set. if there is no current group in the FOP, the announcer will (exceptionally set it)
+	 * Normally there is only one announcer. If we have to restart the program the announcer screen will have the URL correctly set. if there is no current
+	 * group in the FOP, the announcer will (exceptionally set it)
 	 *
 	 * @see app.owlcms.nui.shared.AthleteGridContent#isIgnoreGroupFromURL()
 	 */
@@ -291,10 +291,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	public void slaveRefereeDecision(UIEvent.Decision e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			hideLiveDecisions();
-			this.slaveUpdateGrid(null);
+
 			if (e == null || e.decision == null) {
 				return;
 			}
+			this.slaveUpdateGrid(e);
 			int d = e.decision ? 1 : 0;
 			String text = Translator.translate("NoLift_GoodLift", d, e.getAthlete().getFullName());
 
@@ -317,6 +318,16 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			n.setDuration(5000);
 			n.open();
 
+			Athlete curAthlete = OwlcmsSession.getFop().getLiftingOrder().get(0);
+
+			if (curAthlete != null) {
+				Integer newWeight = curAthlete.getNextAttemptRequestedWeight();
+				// avoid duplicate info to officials
+				if (newWeight != null && newWeight > 0 && Integer.compare(this.prevWeight, newWeight) != 0) {
+					doNotification(Translator.translate("Notification.WeightToBeLoaded", newWeight), "info");
+					this.prevWeight = newWeight;
+				}
+			}
 			setDecisionLights(null);
 		});
 	}

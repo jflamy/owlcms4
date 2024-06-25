@@ -120,7 +120,15 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 
 	@Override
 	@Subscribe
-	public void slaveUpdateGrid(UIEvent e) {
+	public void slaveUpdateGrid(UIEvent.LiftingOrderUpdated e) {
+		OwlcmsSession.withFop((fop) -> UIEventProcessor.uiAccess(this.plates, this.uiEventBus, () -> {
+			this.plates.computeImageArea(fop, false);
+		}));
+	}
+	
+	@Override
+	@Subscribe
+	public void slaveUpdateGrid(UIEvent.Decision e) {
 		OwlcmsSession.withFop((fop) -> UIEventProcessor.uiAccess(this.plates, this.uiEventBus, () -> {
 			this.plates.computeImageArea(fop, false);
 		}));
