@@ -11,7 +11,10 @@ In the following example
 
 *Official records* are provided in Excel files that are loaded in the system.  The format for these files is explained [below](#record-file-format).
 
-If records are broken during a meet, they are stored in the database.  They are *not* considered to be official records.  For them to become official, they need to be approved by the appropriate association or federation, and then added to the correct Excel file.  Once the Excel file has been updated, it becomes the new reference and can be loaded in the database.
+- Examples of record files can be found in [this folder](https://drive.google.com/drive/folders/1rV8JNhTotMoA3gBmXQEeuD6Xc9c8lktw).
+- It is convenient to store record files as cloud spreadsheets, giving writing permissions to the federation's record secretary.  Then any club can download them and load them for their local meets.
+
+If records are broken during a meet, they are stored in the database.  They are *not* considered to be official records.  For them to become official, they need to be approved by the appropriate association or federation, and then added to the correct Excel file.  Once the Excel file has been updated, it becomes the new reference and can be loaded again in the database.
 
 ### Records Management
 
