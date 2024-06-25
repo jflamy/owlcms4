@@ -2308,7 +2308,7 @@ public class FieldOfPlay implements IUnregister {
 
 	private List<Athlete> updateScoringSystemRanking(EntityManager em, List<Athlete> l) {
 		if (Competition.getCurrent().isDisplayScoreRanks()) {
-			long beforeRanks = System.currentTimeMillis();
+			//long beforeRanks = System.currentTimeMillis();
 			try {
 				// this only computes the current scoring system
 				Competition.getCurrent().scoringSystemRankings(em);
@@ -2317,8 +2317,8 @@ public class FieldOfPlay implements IUnregister {
 				        e,
 				        LoggerUtils.stackTrace(e));
 			}
-			long afterRanks = System.currentTimeMillis();
-			logger.warn("-------------------- scoringSystemRankings {}ms", afterRanks - beforeRanks);
+			//long afterRanks = System.currentTimeMillis();
+			//logger.debug("-------------------- scoringSystemRankings {}ms", afterRanks - beforeRanks);
 		}
 
 		List<Athlete> nl = new LinkedList<>();
