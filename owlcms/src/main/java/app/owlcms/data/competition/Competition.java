@@ -60,7 +60,6 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.utils.DateTimeUtils;
-import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -290,7 +289,7 @@ public class Competition {
 	 */
 	public TreeMap<String, TreeSet<Athlete>> computeMedals(Group g) {
 		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g, false);
-		logger.warn("*** ranked athletes for group {} {}",g,rankedAthletes.stream().map(a->a.getLastName()).toList());
+		//logger.debug("*** ranked athletes for group {} {}",g,rankedAthletes.stream().map(a->a.getLastName()).toList());
 		return computeMedals(g, rankedAthletes);
 	}
 
@@ -423,7 +422,7 @@ public class Competition {
 	}
 
 	public void doGlobalRankings(List<Athlete> athletes, Boolean scoringSystemOnly) {
-		long beforeDedup = System.currentTimeMillis();
+		//long beforeDedup = System.currentTimeMillis();
 		TreeSet<Athlete> noDup = new TreeSet<>(Comparator.comparing(Athlete::getFullId));
 		for (Athlete pAthlete : athletes) {
 			Athlete athlete;
@@ -435,23 +434,23 @@ public class Competition {
 			}
 		}
 		ArrayList<Athlete> nodupAthletes = new ArrayList<>(noDup);
-		long afterDedup = System.currentTimeMillis();
-		logger.warn("------------------------- dedup {}ms {}", afterDedup - beforeDedup, LoggerUtils.whereFrom(5));
+		//long afterDedup = System.currentTimeMillis();
+		//logger.debug("------------------------- dedup {}ms {}", afterDedup - beforeDedup, LoggerUtils.whereFrom(5));
 
 		if (scoringSystemOnly) {
-			long beforeReporting = System.currentTimeMillis();
+			//long beforeReporting = System.currentTimeMillis();
 			doReporting(nodupAthletes, getScoringSystem(), true);
-			long afterReporting = System.currentTimeMillis();
-			logger.warn("------------------------- scoringSystem reporting {}ms", afterReporting - beforeReporting);
+			//long afterReporting = System.currentTimeMillis();
+			//logger.debug("------------------------- scoringSystem reporting {}ms", afterReporting - beforeReporting);
 		} else {
-			long beforeReporting = System.currentTimeMillis();
+			//long beforeReporting = System.currentTimeMillis();
 			doReporting(nodupAthletes, Ranking.BW_SINCLAIR, true);
 			doReporting(nodupAthletes, Ranking.SMM, true);
 			doReporting(nodupAthletes, Ranking.QPOINTS, true);
 			doReporting(nodupAthletes, Ranking.CAT_SINCLAIR, true);
 			doReporting(nodupAthletes, Ranking.GAMX, true);
-			long afterReporting = System.currentTimeMillis();
-			logger.warn("------------------------- full reporting {}ms", afterReporting - beforeReporting);
+			//long afterReporting = System.currentTimeMillis();
+			//logger.debug("------------------------- full reporting {}ms", afterReporting - beforeReporting);
 		}
 	}
 
@@ -849,7 +848,7 @@ public class Competition {
 				        if (athletes.isEmpty()) {
 					        return true; // remove from list.
 				        }
-				        logger.warn("athletes {} {}",k, athletes);
+				        //logger.debug("athletes {} {}",k, athletes);
 				        // category includes an athlete that has not finished, mark it as "to be
 				        // removed"
 				        boolean anyMatch = athletes.stream().anyMatch(a -> !a.isDone());
@@ -960,10 +959,10 @@ public class Competition {
 	// }
 
 	public void scoringSystemRankings(EntityManager em) {
-		long beforeFindAll = System.currentTimeMillis();
+		//long beforeFindAll = System.currentTimeMillis();
 		List<Athlete> athletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, null, true, null);
-		long afterFindAll = System.currentTimeMillis();
-		logger.warn("------------------------- scoringSystemRankings doFindAllByGroupAndWeighIn {}ms", afterFindAll - beforeFindAll);
+		//long afterFindAll = System.currentTimeMillis();
+		//logger.debug("------------------------- scoringSystemRankings doFindAllByGroupAndWeighIn {}ms", afterFindAll - beforeFindAll);
 		doGlobalRankings(athletes, SCORING_SYSTEM_ONLY);
 	}
 
@@ -1478,7 +1477,7 @@ public class Competition {
 	private void doComputeReportingInfo(boolean full, List<Athlete> athletes, String ageGroupPrefix,
 	        Championship ad) {
 		// reporting does many database queries. fork a low-priority thread.
-		logger.warn("------------------------- doComputeReportingInfo {}",LoggerUtils.whereFrom());
+		//logger.debug("------------------------- doComputeReportingInfo {}",LoggerUtils.whereFrom());
 		runInThread(() -> {
 			if (athletes.isEmpty()) {
 				// prevent outputting silliness.
@@ -1494,7 +1493,7 @@ public class Competition {
 			// splitResultsByGroups(athletes);
 			if (full) {
 				this.reportingBeans.put("athletes", athletes);
-				logger.warn("championship={} ageGroupPrefix={}", ad, ageGroupPrefix);
+				//logger.debug("championship={} ageGroupPrefix={}", ad, ageGroupPrefix);
 				if (ad != null && (ageGroupPrefix == null || ageGroupPrefix.isBlank())) {
 					// iterate over all age groups present in championship ad
 					teamRankingsForAgeDivision(ad);
