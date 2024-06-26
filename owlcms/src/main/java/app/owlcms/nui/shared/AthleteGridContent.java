@@ -7,6 +7,7 @@
 
 package app.owlcms.nui.shared;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,6 +35,8 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.Column;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
@@ -53,6 +56,7 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.LitRenderer;
 import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -85,8 +89,10 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
+import app.owlcms.nui.lifting.AnnouncerContent;
 import app.owlcms.nui.lifting.AthleteCardFormFactory;
 import app.owlcms.nui.lifting.MarshallContent;
+import app.owlcms.nui.lifting.TimekeeperContent;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
@@ -823,7 +829,7 @@ public abstract class AthleteGridContent extends BaseContent
 	@Subscribe
 	public void slaveUpdateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
 		Athlete athlete = e.getAthlete();
-		logger.warn("athletegrid slaveUpdateAnnouncerBar");
+		//logger.debug("athletegrid slaveUpdateAnnouncerBar");
 		OwlcmsSession.withFop(fop -> {
 			UIEventProcessor.uiAccess(this.topBar, this.uiEventBus, e, () -> {
 				warnOthersIfCurrent(e, athlete, fop);
@@ -835,7 +841,7 @@ public abstract class AthleteGridContent extends BaseContent
 	@Subscribe
 	public void slaveDecision(UIEvent.Decision e) {
 		Athlete athlete = e.getAthlete();
-		logger.warn("athletegrid slaveDecision");
+		//logger.debug("athletegrid slaveDecision");
 		OwlcmsSession.withFop(fop -> {
 			UIEventProcessor.uiAccess(this.topBar, this.uiEventBus, e, () -> {
 				warnOthersIfCurrent(e, athlete, fop);
@@ -988,6 +994,7 @@ public abstract class AthleteGridContent extends BaseContent
 			return null;
 		});
 
+		
 		this.crudLayout = new OwlcmsGridLayout(Athlete.class);
 		AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class, this.crudLayout, crudFormFactory, grid) {
 			@Override
@@ -1291,7 +1298,7 @@ public abstract class AthleteGridContent extends BaseContent
 		label.getElement().setProperty("innerHTML", text);
 		label.addClickListener((event) -> n.close());
 
-		if (Config.getCurrent().featureSwitch("usaw")) {
+		if (Config.getCurrent().featureSwitch("centerAnnouncerNotifications") && this instanceof AnnouncerContent) {
 			label.getStyle().set("font-size", "x-large");
 			n.setPosition(Position.MIDDLE);
 		} else {
@@ -1514,7 +1521,18 @@ public abstract class AthleteGridContent extends BaseContent
 			if (refreshGrid) {
 				// ** this.setValue(fopGroup);
 				if (this.getCrudGrid() != null) {
-					this.getCrudGrid().sort(null);
+					if (this instanceof MarshallContent && !Config.getCurrent().featureSwitch("marshalLiftingOrder")) {
+						// sort by start number by default.
+						// underlying source is lift order, so clearing the sort arrow gives back lift order.
+						List<GridSortOrder<Athlete>> sortOrder = new ArrayList<>();
+						Grid<Athlete> grid = crudGrid.getGrid();
+						Column<Athlete> col = grid.getColumnByKey("startNumber");
+						sortOrder.add(new GridSortOrder<Athlete>(col, SortDirection.ASCENDING));
+						grid.sort(sortOrder);
+					} else {
+						// underlying order (lift order)
+						this.getCrudGrid().sort(null);
+					}
 					this.getCrudGrid().refreshGrid();
 				}
 			}
@@ -1688,9 +1706,11 @@ public abstract class AthleteGridContent extends BaseContent
 		// because the lifting order has been recalculated behind the scenes
 		Athlete curDisplayAthlete = this.displayedAthlete;
 
-		// marshal weight change warnings not to self.
+		// marshal weight change warnings not to self and not to announcer
+		boolean showDeclarationsToAnnouncer = Config.getCurrent().featureSwitch("showDeclarationsToAnnouncer");
 		if (this != e.getOrigin() && curDisplayAthlete != null
 		        && e instanceof UIEvent.LiftingOrderUpdated
+		        && (showDeclarationsToAnnouncer || !(this instanceof AnnouncerContent)) 
 		        && curDisplayAthlete.equals(((UIEvent.LiftingOrderUpdated) e).getChangingAthlete())) {
 			String text;
 			int declaring = curDisplayAthlete.isDeclaring();
@@ -1706,21 +1726,21 @@ public abstract class AthleteGridContent extends BaseContent
 
 		List<Athlete> liftingOrder = fop.getLiftingOrder();
 		Athlete curAthlete = liftingOrder != null && !liftingOrder.isEmpty() ? liftingOrder.get(0) : null;
-		logger.warn("warnOthersIfCurrent {}",curAthlete);
+		//logger.debug("warnOthersIfCurrent {}",curAthlete);
 		if (curAthlete != null) {
 			Integer newWeight = curAthlete.getNextAttemptRequestedWeight();
 			
 			// avoid duplicate info to officials
-			if (e instanceof UIEvent.LiftingOrderUpdated 
+			if (e instanceof UIEvent.LiftingOrderUpdated
+					&& ! (this instanceof MarshallContent) && ! (this instanceof TimekeeperContent)
 					&& newWeight != null && newWeight > 0 
 					&& Integer.compare(this.prevWeight,newWeight) != 0) {
-				logger.warn("warnOthersIfCurrent {} {} {} -- {}", curAthlete, this.prevWeight, newWeight, LoggerUtils.whereFrom());
+				//logger.debug("warnOthersIfCurrent {} {} {} -- {}", curAthlete, this.prevWeight, newWeight, LoggerUtils.whereFrom());
 				doNotification(Translator.translate("Notification.WeightToBeLoaded", newWeight), "info");
 				this.prevWeight = newWeight;
 			}
 
 			if (e instanceof UIEvent.LiftingOrderUpdated && curDisplayAthlete != null && !curDisplayAthlete.equals(curAthlete)) {
-				// FIXME: add a debounce when this is called on a recompute after a decision.
 				String text = Translator.translate("ChangeOfAthlete", curAthlete.getFullName());
 				doNotification(text, "warning");
 			}

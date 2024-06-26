@@ -438,7 +438,7 @@ public class Competition {
 		//logger.debug("------------------------- dedup {}ms {}", afterDedup - beforeDedup, LoggerUtils.whereFrom(5));
 
 		if (scoringSystemOnly) {
-			long beforeReporting = System.currentTimeMillis();
+			//long beforeReporting = System.currentTimeMillis();
 			doReporting(nodupAthletes, getScoringSystem(), true);
 			//long afterReporting = System.currentTimeMillis();
 			//logger.debug("------------------------- scoringSystem reporting {}ms", afterReporting - beforeReporting);

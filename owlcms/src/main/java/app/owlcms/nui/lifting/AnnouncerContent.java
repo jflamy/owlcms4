@@ -309,7 +309,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			label.setSizeFull();
 			label.getStyle().set("font-size", "large");
 			n.add(label);
-			if (Config.getCurrent().featureSwitch("usaw")) {
+			if (Config.getCurrent().featureSwitch("centerAnnouncerNotifications")) {
 				n.setPosition(Position.MIDDLE);
 				label.getStyle().set("font-size", "x-large");
 			} else {
