@@ -371,6 +371,9 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	}
 
 	public String getTranslatedGender() {
+		if (gender == null) {
+			return "";
+		}
 		switch (getGender()) {
 			case F:
 			case I:
