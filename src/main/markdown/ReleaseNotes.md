@@ -1,9 +1,10 @@
-**Version 49.0.2**
+**Version 49.0.3**
 
 > [!IMPORTANT]
 >
 > - You should test all releases, with actual data, several days before a competition. 
 
+- (49.0.3) Fix: creating an Age Group interactively by using the Add button on the Edit Age Groups and Categories page had stopped working since version 48.
 - (49.0.2) Enhancement: if a session is configured to start in the future, when opening the countdown screen, the default will be to start the introduction at the planned time. It will not be necessary to switch away from the "Duration" setting and not necessary to select the time.
 - (49.0.2) Fix: In some rare edge cases, declaring the same value as the automatic progression would produce a denial warning on the marshal card.  This would happen when declaring on a 1:00 clock when the declaring athlete had lifted the same as the current athlete on the previous attempt.
 - (49.0.2) Fix: Importing a database JSON export that includes a zip for local overrides now applies correctly the zipped overrides.
