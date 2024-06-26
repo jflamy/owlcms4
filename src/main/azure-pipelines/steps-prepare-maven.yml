@@ -18,13 +18,13 @@ steps:
    displayName: Populate settings.xml for deploy servers
    inputs:
       mavenServiceConnections: owlcms-maven-repo
--  task: Cache@2
-   displayName: Cache Maven local repository
-   inputs:
-      key: '"maven20240626a" | $(Agent.OS)'
-      path: $(MavenCacheFolder)
-   env:
-      VSO_DEDUP_REDIRECT_TIMEOUT_IN_SEC: 5
+#-  task: Cache@2
+#   displayName: Cache Maven local repository
+#   inputs:
+#      key: '"maven20240626a" | $(Agent.OS)'
+#      path: $(MavenCacheFolder)
+#   env:
+#      VSO_DEDUP_REDIRECT_TIMEOUT_IN_SEC: 5
 - task: Maven@3.205.1
   displayName: update revision property
   env:
