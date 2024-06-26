@@ -8,11 +8,11 @@ steps:
    displayName: Populate settings.xml for deploy servers
    inputs:
       mavenServiceConnections: owlcms-maven-repo
--  task: Cache@2
-   displayName: Cache Maven local repository
-   inputs:
-      key: '"maven20221011a" | $(Agent.OS)'
-      path: $(MavenCacheFolder)
+#-  task: Cache@2
+#   displayName: Cache Maven local repository
+#   inputs:
+#      key: '"maven20221011a" | $(Agent.OS)'
+#      path: $(MavenCacheFolder)
 - task: Maven@3.205.1
   displayName: update revision property
   inputs:
