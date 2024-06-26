@@ -637,7 +637,7 @@ public class AgeGroupRepository {
 			whereList.add("((ag.championshipName = :championshipName) or (ag.ageDivision = :championshipName))");
 		}
 		if (name != null && name.trim().length() > 0) {
-			whereList.add("lower(ag.name) like :name");
+			whereList.add("lower(ag.code) like :code");
 		}
 		if (active != null && active) {
 			whereList.add("ag.active = :active");
@@ -660,7 +660,7 @@ public class AgeGroupRepository {
 	        Boolean active, Query query) {
 		if (name != null && name.trim().length() > 0) {
 			// starts with
-			query.setParameter("name", "%" + name.toLowerCase() + "%");
+			query.setParameter("code", "%" + name.toLowerCase() + "%");
 		}
 		if (active != null && active) {
 			query.setParameter("active", active);

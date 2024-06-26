@@ -125,8 +125,9 @@ public class CategoryGridField extends CustomField<List<Category>> {
 		        new Text(Translator.translate("Category.QualificationTotal")));
 		this.catGrid.add(title);
 		for (Category pc : presentationCategories2) {
+
 			HorizontalLayout hl = new HorizontalLayout();
-			NativeLabel nativeLabel = new NativeLabel(pc.getSafeName());
+			NativeLabel nativeLabel = new NativeLabel(pc.getDisplayName());
 			nativeLabel.getStyle().set("font-weight", "bold");
 			nativeLabel.setWidth(CAT_WIDTH);
 			hl.add(nativeLabel);
@@ -142,6 +143,7 @@ public class CategoryGridField extends CustomField<List<Category>> {
 			        .withStatusLabel(this.validationStatus).bind("qualifyingTotal");
 			catBinder.setBean(pc);
 			hl.add(qualTotField);
+			
 			Button delete = new Button(Translator.translate("Delete"));
 			delete.addClassName("delete");
 			delete.addClickListener(e -> {
@@ -155,7 +157,10 @@ public class CategoryGridField extends CustomField<List<Category>> {
 				updateValue();
 			});
 			delete.getStyle().set("margin-left", "2em");
-			hl.add(delete);
+			
+			if (pc.getMaximumWeight() <= 998) {
+				hl.add(delete);
+			}
 			catGrid2.add(hl);
 		}
 	}
