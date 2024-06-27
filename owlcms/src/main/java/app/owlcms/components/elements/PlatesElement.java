@@ -26,6 +26,7 @@ public class PlatesElement extends FlexLayout {
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(PlatesElement.class);
 	private static final long serialVersionUID = 8340222363211435843L;
 	private int weight;
+	private Platform platform;
 
 	public PlatesElement() {
 		this.getClassNames().add("loadChart");
@@ -44,7 +45,12 @@ public class PlatesElement extends FlexLayout {
 		this.weight = currentAthlete.getNextAttemptRequestedWeight();
 		final String caption = Translator.translate("Kg", this.weight);
 
+		setPlatform(fop.getPlatform());
 		createImageArea(fop, barWeight, (showCaption ? caption : ""));
+	}
+
+	private void setPlatform(Platform platform) {
+		this.platform=platform;
 	}
 
 	/**
@@ -61,6 +67,21 @@ public class PlatesElement extends FlexLayout {
 			plate.getElement().getClassList().add(style);
 			if (!style.startsWith("bar") && !style.startsWith("C")) {
 				plate.getElement().getClassList().add("plate");
+			} else if (platform.isNonStandardBar() && (style.startsWith("bar"))) {
+				int barWeight = platform.getLightBar();
+				plate.getElement().getStyle().set("outline-color", "black");
+				plate.getElement().getStyle().set("outline-width", "medium");
+				if (barWeight <= 5) {
+					plate.getElement().getStyle().set("background-color", "white");
+				} else if (barWeight <= 8) {
+					plate.getElement().getStyle().set("background-color", "brown");
+				} else if (barWeight <= 10) {
+					plate.getElement().getStyle().set("background-color", "limegreen");
+				} else if (barWeight <= 15) {
+					plate.getElement().getStyle().set("background-color", "yellow");
+				} else if (barWeight <= 20) {
+					plate.getElement().getStyle().set("background-color", "blue");
+				}
 			}
 			this.add(plate);
 			this.setAlignSelf(Alignment.CENTER, plate);

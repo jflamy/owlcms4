@@ -107,11 +107,10 @@ import elemental.json.JsonValue;
 /**
  * This class describes one field of play at runtime.
  *
- * It encapsulates the in-memory data structures used to describe the state of the competition and links them to the
- * database descriptions of the group and platform.
+ * It encapsulates the in-memory data structures used to describe the state of the competition and links them to the database descriptions of the group and
+ * platform.
  *
- * The main method is {@link #handleFOPEvent(FOPEvent)} which implements a state automaton and processes events received
- * on the event bus.
+ * The main method is {@link #handleFOPEvent(FOPEvent)} which implements a state automaton and processes events received on the event bus.
  *
  * @author owlcms
  */
@@ -236,8 +235,8 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
-	 * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later
-	 * be used to provide the athletes and set the athleteTimer
+	 * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later be used to provide the athletes and set
+	 * the athleteTimer
 	 *
 	 * @param group     the group (to get details such as name, and to reload athletes)
 	 * @param platform2 the platform (to get details such as name)
@@ -589,19 +588,18 @@ public class FieldOfPlay implements IUnregister {
 	/**
 	 * Handle field of play events.
 	 *
-	 * FOP (Field of Play) events inform us of what is happening (e.g. athleteTimer started by timekeeper, decision
-	 * given by official, etc.) The current state determines what we do with the event. Typically, we update the state
-	 * of the field of play (e.g. time is now running) and we issue commands to the listening user interfaces (e.g.
-	 * start or stop time being displayed, show the decision, etc.)
+	 * FOP (Field of Play) events inform us of what is happening (e.g. athleteTimer started by timekeeper, decision given by official, etc.) The current state
+	 * determines what we do with the event. Typically, we update the state of the field of play (e.g. time is now running) and we issue commands to the
+	 * listening user interfaces (e.g. start or stop time being displayed, show the decision, etc.)
 	 *
-	 * A given user interface will issue a FOP event. This method reacts to the event by updating state, and we issue
-	 * the resulting user interface commands on the @link uiEventBus.
+	 * A given user interface will issue a FOP event. This method reacts to the event by updating state, and we issue the resulting user interface commands on
+	 * the @link uiEventBus.
 	 *
 	 * All UIEvents are normally sent by this class, with two exceptions:
 	 *
-	 * - Timer events are sent by separate Timer objets that implement IProxyTimer. These classes remember the time and
-	 * broadcast to all listening timers. - Some UI Classes send UIEvents to themselves, or sub-components, as a way to
-	 * propagate UI State changes (for example, propagating the reset of decision lights).
+	 * - Timer events are sent by separate Timer objets that implement IProxyTimer. These classes remember the time and broadcast to all listening timers. -
+	 * Some UI Classes send UIEvents to themselves, or sub-components, as a way to propagate UI State changes (for example, propagating the reset of decision
+	 * lights).
 	 *
 	 * @param e the event
 	 */
@@ -1461,7 +1459,7 @@ public class FieldOfPlay implements IUnregister {
 					timeOverSound = new Sound(getSoundMixer(), "timeOver.wav");
 				}
 				timeOverSound.emit();
-				
+
 			}
 			pushOutUIEvent(new UIEvent.TimeRemaining(this, 0));
 			setTimeoutEmitted(true);
@@ -1777,9 +1775,8 @@ public class FieldOfPlay implements IUnregister {
 	/**
 	 * Perform weight change and adjust state.
 	 *
-	 * If the clock was started and we come back to the clock owner, we set the state to TIME_STARTED If in a break, we
-	 * are careful not to update, unless the change causes an exit from the break (e.g. jury overrule on last lift)
-	 * Otherwise we update the displays.
+	 * If the clock was started and we come back to the clock owner, we set the state to TIME_STARTED If in a break, we are careful not to update, unless the
+	 * change causes an exit from the break (e.g. jury overrule on last lift) Otherwise we update the displays.
 	 *
 	 * @param wc
 	 */
@@ -2168,12 +2165,10 @@ public class FieldOfPlay implements IUnregister {
 	 *
 	 * Assume 16-year old Youth Lifter Y is eligible for Youth, Junior, Senior
 	 *
-	 * If she is lifting, we show youth lifter rankings, and include her if in the top 3 youth. If a Junior is lifting,
-	 * Y needs to be ranked as a junior, and include her if in top 3 juniors If a Senior is lifting, Y needs to be
-	 * ranked as a senior, and include her if in top 3 seniors
+	 * If she is lifting, we show youth lifter rankings, and include her if in the top 3 youth. If a Junior is lifting, Y needs to be ranked as a junior, and
+	 * include her if in top 3 juniors If a Senior is lifting, Y needs to be ranked as a senior, and include her if in top 3 seniors
 	 *
-	 * So we need to fetch the PAthlete that reflects each athlete's participation in the current lifter's registration
-	 * category. Ouch.
+	 * So we need to fetch the PAthlete that reflects each athlete's participation in the current lifter's registration category. Ouch.
 	 *
 	 * @param rankedAthletes
 	 */
@@ -2220,8 +2215,8 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
-	 * Recompute lifting order, category ranks, and leaders for current category. Sets rankings including for previous
-	 * lifters for all categories in the current group.
+	 * Recompute lifting order, category ranks, and leaders for current category. Sets rankings including for previous lifters for all categories in the current
+	 * group.
 	 *
 	 * @param recomputeCategoryRanks true if a result has changed and ranks need to be recomputed
 	 */
@@ -2308,7 +2303,7 @@ public class FieldOfPlay implements IUnregister {
 
 	private List<Athlete> updateScoringSystemRanking(EntityManager em, List<Athlete> l) {
 		if (Competition.getCurrent().isDisplayScoreRanks()) {
-			//long beforeRanks = System.currentTimeMillis();
+			// long beforeRanks = System.currentTimeMillis();
 			try {
 				// this only computes the current scoring system
 				Competition.getCurrent().scoringSystemRankings(em);
@@ -2317,8 +2312,8 @@ public class FieldOfPlay implements IUnregister {
 				        e,
 				        LoggerUtils.stackTrace(e));
 			}
-			//long afterRanks = System.currentTimeMillis();
-			//logger.debug("-------------------- scoringSystemRankings {}ms", afterRanks - beforeRanks);
+			// long afterRanks = System.currentTimeMillis();
+			// logger.debug("-------------------- scoringSystemRankings {}ms", afterRanks - beforeRanks);
 		}
 
 		List<Athlete> nl = new LinkedList<>();
@@ -2568,8 +2563,8 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
-	 * The decision is confirmed as official after the 3 second delay following majority. After this delay, manual
-	 * announcer intervention is required to change and announce.
+	 * The decision is confirmed as official after the 3 second delay following majority. After this delay, manual announcer intervention is required to change
+	 * and announce.
 	 */
 	private void showDecisionNow(Object origin) {
 		// logger.debug("*** Show decision now - enter");
@@ -2882,6 +2877,8 @@ public class FieldOfPlay implements IUnregister {
 		}
 		recomputeLeadersAndRecords(this.displayOrder);
 
+		changePlatformEquipment(curAthlete2, newWeight);
+
 		// logger.debug("&&&& previous {} current {} change {} from[{}]",
 		// getPrevWeight(), curWeight, newWeight,
 		// LoggerUtils.whereFrom());
@@ -2910,6 +2907,38 @@ public class FieldOfPlay implements IUnregister {
 			this.logger.debug("{}push out snatch done", FieldOfPlay.getLoggingName(this));
 			pushOutSnatchDone();
 			this.cjBreakDisplayed = true;
+		}
+	}
+
+	private void changePlatformEquipment(Athlete a, Integer newWeight) {
+		if (Config.getCurrent().featureSwitch("childrenBars")) {
+			// would include U9, U11, and 12-13 U13 but not a 13-15 or 14-15 U15 group.
+			// if 13-15 uses 15kg for boys, would have to be manually set.
+			if (a.getAgeGroup().getMinAge() <= 12) { 
+				platform.setNbL_2_5(1);
+				platform.setNbL_5(1);
+				if (newWeight <= 14) {
+					platform.setNonStandardBar(true);
+					platform.setLightBar(5);
+					platform.setNbC_2_5(0);
+				} else if (newWeight <= 19) {
+					platform.setNonStandardBar(true);
+					platform.setLightBar(10);
+					platform.setNbC_2_5(0);
+				} else if (newWeight <= 39) {
+					platform.setNonStandardBar(true);
+					platform.setLightBar(15);
+					platform.setNbC_2_5(0);
+				} else {
+					platform.setNonStandardBar(true);
+					platform.setLightBar(15);
+					platform.setNbC_2_5(1);
+				}
+			} else {
+				platform.setNonStandardBar(false);
+				platform.setNbC_2_5(1);
+				return;
+			}
 		}
 	}
 
