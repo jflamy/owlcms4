@@ -486,15 +486,6 @@ public class ResultsPR extends LitTemplate
         });
     }
 
-    // protected void doEmpty() {
-    // setBoardMode("BREAK", null, null, this.getElement());
-    // }
-
-    private void checkHidden() {
-        // TODO Auto-generated method stub
-        
-    }
-
     protected boolean isVideo() {
         return false;
     }
@@ -596,6 +587,6 @@ public class ResultsPR extends LitTemplate
     
     @ClientCallable
     public void visibilityStatus(boolean visible) {
-        logger.warn("!!!!!!!! called {}",visible);
+        logger.warn("ResultsPR render called visible={}",visible);
     }
 }

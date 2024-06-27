@@ -12,7 +12,10 @@ class ResultsPR extends LitElement {
   }
 
   render() {
-    console.error("document is hidden ======================="+ window.document.hidden);
+    var ua = navigator.userAgent.toLowerCase();
+    if (~ua.indexOf('applewebkit') && !~ua.indexOf('chrome') && ~ua.indexOf('safari') && ~ua.indexOf('mobile')) {
+      this.$server.visibilityStatus(!window.document.hidden);
+    }
     this.$server.visibilityStatus(!window.document.hidden);
     return html`
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "") + ".css"}" />

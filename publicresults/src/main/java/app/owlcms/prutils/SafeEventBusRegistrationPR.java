@@ -41,13 +41,9 @@ public interface SafeEventBusRegistrationPR {
                 } catch (Exception ex) {
                 }
                 UnloadObserverPR.remove();
-            } else if (e.getChange().equals("visibilityHidden")) {
-                logger.warn("visibilityHidden {} {}", c.getClass().getSimpleName(), System.identityHashCode(c));
-            } else if (e.getChange().equals("visibilityShown")) {
-                logger.warn("visibilityShown {} {}", c.getClass().getSimpleName(), System.identityHashCode(c));
             } else {
-                logger.error(e.getChange());
-            }
+                logger.warn("{} {} {}", e.getChange(), c.getClass().getSimpleName(), System.identityHashCode(c));
+            } 
         });
         ui.add(unloadObserver);
 

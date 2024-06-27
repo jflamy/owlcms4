@@ -39,21 +39,33 @@ export class UnloadObserver extends LitElement {
         window.Vaadin.unloadObserver.attemptHandler
       );
       window.removeEventListener(
+        "unload",
+        window.Vaadin.unloadObserver.attemptHandler
+      );
+      window.removeEventListener(
         "pagehide",
-        window.Vaadin.unloadObserver.hideHandler
+        window.Vaadin.unloadObserver.unloadHandler
       );
       document.removeEventListener(
         "visibilitychange",
         window.Vaadin.unloadObserver.visibilityHandler
       );
-      document.removeEventListener(
+      window.removeEventListener(
         "blur",
         window.Vaadin.unloadObserver.blurHandler
+      );
+      window.removeEventListener(
+        "focus",
+        window.Vaadin.unloadObserver.focusHandler
       );
     }
 
     window.Vaadin.unloadObserver.attemptHandler = (event) => {
       src.visibilityChange(src, event, "beforeunload")
+    };
+
+    window.Vaadin.unloadObserver.unloadHandler = (event) => {
+      src.visibilityChange(src, event, "unload")
     };
 
     window.Vaadin.unloadObserver.hideHandler = (event) =>
@@ -68,29 +80,44 @@ export class UnloadObserver extends LitElement {
           src.visibilityChange(src, event, "visibilityShown");
         }
       }
- 
+
     window.Vaadin.unloadObserver.blurHandler = (event) => 
       {
         console.warn("blur "+document.visibilityState);
-        src.visibilityChange(src, event, "visibilityHidden");
+        src.visibilityChange(src, event, "blur");
       }
+
+      window.Vaadin.unloadObserver.focusHandler = (event) => 
+        {
+          console.warn("focus "+document.visibilityState);
+          src.visibilityChange(src, event, "focus");
+        }
 
     window.addEventListener(
       "beforeunload",
       window.Vaadin.unloadObserver.attemptHandler
     );
     window.addEventListener(
+      "unload",
+      window.Vaadin.unloadObserver.unloadHandler
+    );
+    window.addEventListener(
       "pagehide",
       window.Vaadin.unloadObserver.hideHandler
+    );
+    window.addEventListener(
+      "blur",
+      window.Vaadin.unloadObserver.blurHandler
+    );
+    window.addEventListener(
+      "focus",
+      window.Vaadin.unloadObserver.focusHandler
     );
     document.addEventListener(
       "visibilitychange",
       window.Vaadin.unloadObserver.visibilityHandler
     );
-    document.addEventListener(
-      "blur",
-      window.Vaadin.unloadObserver.blurHandler
-    );
+
   }
 
   /**
