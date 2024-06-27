@@ -6,7 +6,9 @@
  *******************************************************************************/
 package playwright;
 
-import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
@@ -27,16 +29,23 @@ public class RunResults {
     private static final int NB_REMOTE_USERS = 15;
     private static final int POLLING_DELAY_SECONDS = 30;
     private static final int POLLING_DELAY_MILLISECONDS = POLLING_DELAY_SECONDS*1000;
+    private static Map<BrowserContext,Page> activePages = new TreeMap<>();
 
     @SuppressWarnings("unused")
     public static void main(String[] args) throws Exception {
         try (Playwright playwright = Playwright.create()) {
             
-            // create a number of browsers to simulate independent users
+            // create a single browser; we will create independent sessions.
             Browser browser = playwright.chromium().launch();
             for (int i = 0; i < NB_REMOTE_USERS; i++) {
-                Page page = browser.newContext().newPage();
+                // create two tabs in each incognito session, switch to the publicresults one
+                // this will allow closing the tab, or switching to the other one.
+                BrowserContext newContext = browser.newContext();
+                Page emptyPage = newContext.newPage();
+                Page page = newContext.newPage();
                 page.navigate("http://localhost:8082/results?silent=true&lifting=false&fop=RED");
+                page.bringToFront();
+                activePages.put(newContext,page);
                 System.out.println("creating context "+ (i+1));
             }
 
@@ -44,16 +53,14 @@ public class RunResults {
                 // periodically poll the browsers to check content.
                 // loop forever, we must be killed externally.
                 while (true) {    
-                    // ask each browser for the name of the current athlete
+                    // ask each active publicresults tab for the name of the current athlete
                     // to check whether the Vaadin push has worked
-                    List<BrowserContext> contexts = browser.contexts();
                     int i = 0;
-                    for (BrowserContext context : contexts) {
-                        for (Page page : context.pages()) {
-                            String res = page.innerHTML("div.v-status-message span");
-                            System.out.println((i+1) + " " + res);
-                            i++;
-                        }
+                    for (Entry<BrowserContext, Page> entry : activePages.entrySet()) {
+                        Page page = entry.getValue();
+                        String res = page.innerHTML("div.v-status-message span");
+                        System.out.println((i+1) + " " + res);
+                        i++;
                     }
                     System.out.println();
                     try {

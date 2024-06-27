@@ -42,9 +42,9 @@ import com.vaadin.flow.shared.Registration;
  *         miki@vaadin.com ; UI-scope by jf@jflamy.dev
  * @since 2020-04-29
  */
-@JsModule("./unload/unload-observer.js")
-@Tag("unload-observer")
-public final class UnloadObserver extends LitTemplate {
+@JsModule("./unload/unload-observerPR.js")
+@Tag("unload-observer-pr")
+public final class UnloadObserverPR extends LitTemplate {
 
     private static final String UNLOAD_OBSERVER = "owlcms_unload_observer";
 
@@ -52,13 +52,13 @@ public final class UnloadObserver extends LitTemplate {
      * Returns the current instance. Will create one using default no-arg
      * constructor if none is present yet.
      *
-     * @return An instance of {@link UnloadObserver}.
+     * @return An instance of {@link UnloadObserverPR}.
      */
-    public static UnloadObserver get() {
+    public static UnloadObserverPR get() {
         UI current = UI.getCurrent();
-        UnloadObserver obs = (UnloadObserver) ComponentUtil.getData(current, UNLOAD_OBSERVER);
+        UnloadObserverPR obs = (UnloadObserverPR) ComponentUtil.getData(current, UNLOAD_OBSERVER);
         if (obs == null) {
-            obs = new UnloadObserver();
+            obs = new UnloadObserverPR();
             ComponentUtil.setData(current, UNLOAD_OBSERVER, obs);
         }
         return obs;
@@ -69,10 +69,10 @@ public final class UnloadObserver extends LitTemplate {
      * {@link #setQueryingOnUnload(boolean)}.
      *
      * @param queryingOnUnload Whether or not query at page close.
-     * @return An instance of {@link UnloadObserver}.
+     * @return An instance of {@link UnloadObserverPR}.
      */
-    public static UnloadObserver get(boolean queryingOnUnload) {
-        UnloadObserver obs = get();
+    public static UnloadObserverPR get(boolean queryingOnUnload) {
+        UnloadObserverPR obs = get();
         obs.setQueryingOnUnload(queryingOnUnload);
         return obs;
     }
@@ -97,7 +97,7 @@ public final class UnloadObserver extends LitTemplate {
      * Creates the unload observer and by default queries the user on unloading the
      * page.
      */
-    private UnloadObserver() {
+    private UnloadObserverPR() {
         this(true);
     }
 
@@ -106,19 +106,19 @@ public final class UnloadObserver extends LitTemplate {
      *
      * @param queryOnUnload Whether or not to query the user on unloading the page.
      */
-    private UnloadObserver(boolean queryOnUnload) {
+    private UnloadObserverPR(boolean queryOnUnload) {
         this.setQueryingOnUnload(queryOnUnload);
     }
 
     /**
-     * Adds an {@link UnloadListener}.
+     * Adds an {@link UnloadListenerPR}.
      *
      * @param listener Listener to add.
      * @return A {@link Registration} that can be used to stop listening to the
      *         event.
      */
-    public Registration addUnloadListener(UnloadListener listener) {
-        return this.getEventBus().addListener(UnloadEvent.class, listener);
+    public Registration addUnloadListener(UnloadListenerPR listener) {
+        return this.getEventBus().addListener(UnloadEventPR.class, listener);
     }
 
     /**
@@ -126,7 +126,7 @@ public final class UnloadObserver extends LitTemplate {
      *
      * @return {@code true} when unloading the document from browser window results
      *         in showing a browser-native
-     *         confirmation dialog and notifying {@link UnloadListener}s;
+     *         confirmation dialog and notifying {@link UnloadListenerPR}s;
      *         {@code false} otherwise.
      */
     public boolean isQueryingOnUnload() {
@@ -137,9 +137,9 @@ public final class UnloadObserver extends LitTemplate {
      * Controls whether or not there should be querying when the document is going
      * to be unloaded.
      *
-     * @param queryingOnUnload When {@code true}, {@link UnloadListener}s registered
+     * @param queryingOnUnload When {@code true}, {@link UnloadListenerPR}s registered
      *                         through
-     *                         {@link #addUnloadListener(UnloadListener)} will be
+     *                         {@link #addUnloadListener(UnloadListenerPR)} will be
      *                         notified and document unloading can be
      *                         prevented. When {@code false}, nothing will happen
      *                         when the document gets unloaded.
@@ -158,7 +158,7 @@ public final class UnloadObserver extends LitTemplate {
      * @return This.
      * @see #withQueryingOnUnload(boolean)
      */
-    public UnloadObserver withoutQueryingOnUnload() {
+    public UnloadObserverPR withoutQueryingOnUnload() {
         return this.withQueryingOnUnload(false);
     }
 
@@ -168,7 +168,7 @@ public final class UnloadObserver extends LitTemplate {
      * @return This.
      * @see #withQueryingOnUnload(boolean)
      */
-    public UnloadObserver withQueryingOnUnload() {
+    public UnloadObserverPR withQueryingOnUnload() {
         return this.withQueryingOnUnload(true);
     }
 
@@ -179,17 +179,17 @@ public final class UnloadObserver extends LitTemplate {
      * @return This.
      * @see #setQueryingOnUnload(boolean)
      */
-    public UnloadObserver withQueryingOnUnload(boolean value) {
+    public UnloadObserverPR withQueryingOnUnload(boolean value) {
         this.setQueryingOnUnload(value);
         return this;
     }
 
     /**
-     * Fires the {@link UnloadEvent}.
+     * Fires the {@link UnloadEventPR}.
      *
      * @param event Event to fire.
      */
-    protected void fireUnloadEvent(UnloadEvent event) {
+    protected void fireUnloadEvent(UnloadEventPR event) {
         this.getEventBus().fireEvent(event);
     }
 
@@ -209,12 +209,18 @@ public final class UnloadObserver extends LitTemplate {
     }
 
     @ClientCallable
-    private void unloadAttempted() {
-        this.fireUnloadEvent(new UnloadEvent(this, true));
+    public void visibilityChange(String change) {
+        this.fireUnloadEvent(new UnloadEventPR(this, true, change));
     }
 
     @ClientCallable
-    private void unloadHappened() {
-        this.fireUnloadEvent(new UnloadEvent(this, false));
+    public void unloadHappened(String change) {
+        this.fireUnloadEvent(new UnloadEventPR(this, false, change));
+    }
+    
+    @ClientCallable
+    public void visibilityStatus(boolean visible) {
+        System.err.println("*** status ***" + visible);
+        //this.fireUnloadEvent(new UnloadEventPR(this, true, change));
     }
 }

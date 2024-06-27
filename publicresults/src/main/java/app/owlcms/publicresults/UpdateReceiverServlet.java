@@ -108,7 +108,7 @@ public class UpdateReceiverServlet extends HttpServlet implements Traceable {
             }
 
             if (StartupUtils.isDebugSetting()) {
-                this.getLogger().setLevel(Level.TRACE);
+                this.getLogger().setLevel(Level.DEBUG);
                 Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
                 if (StartupUtils.isTraceSetting()) {
                     this.getLogger()./**/trace("update received from {}", ProxyUtils.getClientIp(req));

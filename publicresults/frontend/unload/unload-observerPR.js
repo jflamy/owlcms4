@@ -9,7 +9,7 @@ import { html, LitElement, css } from "lit";
 /**
  * A web component that listens to {@code beforeunload} events and sends them to server-side.
  * This requires Flow and a corresponding server-side Java component to work properly.
- * Alternatively, make sure that this.$server.unloadAttempted() is available.
+ * Alternatively, make sure that this.$server.visibilityChange() is available.
  * Based on the code written by Kaspar Scherrer and Stuart Robinson: https://vaadin.com/forum/thread/17523194/unsaved-changes-detect-page-exit-or-reload
  *
  * author: miki@vaadin.com
@@ -20,7 +20,7 @@ export class UnloadObserver extends LitElement {
   }
 
   static get is() {
-    return "unload-observer";
+    return "unload-observer-pr";
   }
 
   /**
@@ -46,19 +46,33 @@ export class UnloadObserver extends LitElement {
         "visibilitychange",
         window.Vaadin.unloadObserver.visibilityHandler
       );
+      document.removeEventListener(
+        "blur",
+        window.Vaadin.unloadObserver.blurHandler
+      );
     }
 
     window.Vaadin.unloadObserver.attemptHandler = (event) => {
-      src.unloadAttempted(src, event)
+      src.visibilityChange(src, event, "beforeunload")
     };
+
     window.Vaadin.unloadObserver.hideHandler = (event) =>
-      src.unloadAttempted(src, event);
+      src.visibilityChange(src, event, "pagehide");
+
     window.Vaadin.unloadObserver.visibilityHandler = (event) => 
       {
         console.warn("visibility "+document.visibilityState);
         if (document.visibilityState === 'hidden') {
-          src.unloadAttempted(src, event);
+          src.visibilityChange(src, event, "visibilityHidden");
+        } else {
+          src.visibilityChange(src, event, "visibilityShown");
         }
+      }
+ 
+    window.Vaadin.unloadObserver.blurHandler = (event) => 
+      {
+        console.warn("blur "+document.visibilityState);
+        src.visibilityChange(src, event, "visibilityHidden");
       }
 
     window.addEventListener(
@@ -73,6 +87,10 @@ export class UnloadObserver extends LitElement {
       "visibilitychange",
       window.Vaadin.unloadObserver.visibilityHandler
     );
+    document.addEventListener(
+      "blur",
+      window.Vaadin.unloadObserver.blurHandler
+    );
   }
 
   /**
@@ -80,16 +98,16 @@ export class UnloadObserver extends LitElement {
    * @param source An unload observer.
    * @param event Event that happened.
    */
-  unloadAttempted(source, event) {
+  visibilityChange(source, event, change) {
     if (window.Vaadin.unloadObserver.query) {
       console.warn("UO: responding to unload attempt...");
       event.preventDefault();
       event.returnValue = "";
       if (source.$server) {
-        source.$server.unloadAttempted();
+        source.$server.visibilityChange(change);
       }
     } else {
-      source.$server.unloadHappened();
+      source.$server.unloadHappened(change);
     }
   }
 

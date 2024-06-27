@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Tag;
@@ -489,6 +490,11 @@ public class ResultsPR extends LitTemplate
     // setBoardMode("BREAK", null, null, this.getElement());
     // }
 
+    private void checkHidden() {
+        // TODO Auto-generated method stub
+        
+    }
+
     protected boolean isVideo() {
         return false;
     }
@@ -586,5 +592,10 @@ public class ResultsPR extends LitTemplate
 
     private void setWideTeamNames(boolean wide) {
         this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
+    }
+    
+    @ClientCallable
+    public void visibilityStatus(boolean visible) {
+        logger.warn("!!!!!!!! called {}",visible);
     }
 }

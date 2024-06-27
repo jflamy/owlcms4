@@ -12,6 +12,8 @@ class ResultsPR extends LitElement {
   }
 
   render() {
+    console.error("document is hidden ======================="+ window.document.hidden);
+    this.$server.visibilityStatus(!window.document.hidden);
     return html`
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "") + ".css"}" />
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "results" + (this.autoversion ?? "") + ".css"}" />
