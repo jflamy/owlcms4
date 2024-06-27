@@ -28,6 +28,7 @@ public class RunResults {
     private static final int POLLING_DELAY_SECONDS = 30;
     private static final int POLLING_DELAY_MILLISECONDS = POLLING_DELAY_SECONDS*1000;
 
+    @SuppressWarnings("unused")
     public static void main(String[] args) throws Exception {
         try (Playwright playwright = Playwright.create()) {
             
