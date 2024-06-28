@@ -31,6 +31,8 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.Column;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -40,6 +42,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -574,7 +577,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))
 		        .setSortProperty("bodyWeight")
 		        .setHeader(Translator.translate("BodyWeight")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
-		grid.addColumn("group").setHeader(Translator.translate("Group")).setAutoWidth(true)
+		Column<Athlete> groupCol = grid.addColumn("group").setHeader(Translator.translate("Group")).setAutoWidth(true)
 		        .setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn("eligibleCategories").setHeader(Translator.translate("Registration.EligibleCategories"))
 		        .setAutoWidth(true);
@@ -584,6 +587,12 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		        .setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn("federationCodes").setHeader(Translator.translate("Registration.FederationCodesShort"))
 		        .setAutoWidth(true);
+		
+		List<GridSortOrder<Athlete>> sortOrder = new ArrayList<>();
+		// groupWeighinTimeComparator implements traditional platform name comparisons e.g. USAW.
+		groupCol.setComparator((a,b) -> Group.groupWeighinTimeComparator.compare(a.getGroup(), b.getGroup()));
+		sortOrder.add(new GridSortOrder<Athlete>(groupCol, SortDirection.ASCENDING));
+		grid.sort(sortOrder);
 
 		OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class) {
 
