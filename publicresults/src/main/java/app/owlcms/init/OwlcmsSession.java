@@ -151,4 +151,8 @@ public class OwlcmsSession {
     public void setFopName(String fopName) {
         this.fopName = fopName;
     }
+
+    public static void removeAttribute(String string) {
+        getCurrent().attributes.remove(string);
+    }
 }

@@ -21,6 +21,7 @@ import ch.qos.logback.classic.Logger;
 
 public interface SafeEventBusRegistrationPR {
 
+    public static final int INACTIVITY_DELAY = 15* 1000;
     Logger logger = (Logger) LoggerFactory.getLogger(SafeEventBusRegistrationPR.class);
 
     public default EventBus eventBusRegister(Component c, EventBus bus) {
@@ -48,9 +49,12 @@ public interface SafeEventBusRegistrationPR {
                 UnloadObserverPR.remove();
             } else if (change.equals("visibilityHidden")) {
                 // switching tabs or minimizing window. no visible scoreboard
-                setInactivityTimer();
+                VaadinSession vaadinSession = VaadinSession.getCurrent();
+                WrappedSession httpSession = vaadinSession.getSession();
+                eventObserver.setInactivityTimer(ui, vaadinSession, httpSession, INACTIVITY_DELAY);
                 try {
-                    logger.warn("{}: setInactivityTimer {} from {}", change, c.getClass().getSimpleName(), bus.identifier());
+                    logger.warn("{}: setInactivityTimer {} from {}", change, c.getClass().getSimpleName(),
+                            bus.identifier());
                 } catch (Exception ex) {
                     LoggerUtils.logError(logger, ex, true);
                 }
@@ -63,21 +67,24 @@ public interface SafeEventBusRegistrationPR {
                     LoggerUtils.logError(logger, ex, true);
                 }
             } else if (change.equals("visibilityShown")) {
-                cancelInactivityTimer();
+                eventObserver.cancelInactivityTimer();
                 try {
-                    logger.warn("{}: cancelInactivityTimer {} from {}", change, c.getClass().getSimpleName(), bus.identifier());
+                    logger.warn("{}: cancelInactivityTimer {} from {}", change, c.getClass().getSimpleName(),
+                            bus.identifier());
                 } catch (Exception ex) {
                     LoggerUtils.logError(logger, ex, true);
                 }
             } else if (change.equals("focus")) {
-                cancelInactivityTimer();
+                eventObserver.cancelInactivityTimer();
                 try {
-                    logger.warn("{}: cancelInactivityTimer {} from {}", change, c.getClass().getSimpleName(), bus.identifier());
+                    logger.warn("{}: cancelInactivityTimer {} from {}", change, c.getClass().getSimpleName(),
+                            bus.identifier());
                 } catch (Exception ex) {
                     LoggerUtils.logError(logger, ex, true);
                 }
             } else {
-                logger.error("{}: unexpected event {} {}", change, c.getClass().getSimpleName(), System.identityHashCode(c));
+                logger.error("{}: unexpected event {} {}", change, c.getClass().getSimpleName(),
+                        System.identityHashCode(c));
             }
         });
 
@@ -113,16 +120,12 @@ public interface SafeEventBusRegistrationPR {
                     invalidate(vaadinSession, httpSession);
                     unregister(c, bus);
                 } catch (Exception ex) {
-                    LoggerUtils.logError(logger, ex, true);
+                    ex.printStackTrace();
                 }
             });
         });
         return bus;
     }
-
-    public void cancelInactivityTimer();
-
-    public void setInactivityTimer();
 
     public default void unregister(Component c, EventBus bus) {
         try {
@@ -136,8 +139,12 @@ public interface SafeEventBusRegistrationPR {
     }
 
     public default void invalidate(VaadinSession vaadinSession, WrappedSession httpSession) {
-        httpSession.invalidate();
-        vaadinSession.close();
+        if (httpSession != null) {
+            httpSession.invalidate();
+        }
+        if (vaadinSession != null) {
+            vaadinSession.close();
+        }
     }
 
 }

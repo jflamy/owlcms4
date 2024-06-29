@@ -6,6 +6,11 @@
  *******************************************************************************/
 package app.owlcms.components.elements.unload;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.ComponentUtil;
@@ -14,7 +19,12 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.littemplate.LitTemplate;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WrappedSession;
 import com.vaadin.flow.shared.Registration;
+
+import ch.qos.logback.classic.Logger;
 
 /**
  * Server-side component that listens to {@code beforeunload} events. Based on
@@ -47,6 +57,7 @@ import com.vaadin.flow.shared.Registration;
 public final class UnloadObserverPR extends LitTemplate {
 
     private static final String UNLOAD_OBSERVER = "owlcms_unload_observer";
+    private static final Logger logger = (Logger) LoggerFactory.getLogger(UnloadObserverPR.class);
 
     /**
      * Returns the current instance. Will create one using default no-arg
@@ -92,6 +103,8 @@ public final class UnloadObserverPR extends LitTemplate {
     private boolean queryingOnUnload;
 
     private boolean clientInitialised;
+
+    private Timer prTimer;
 
     /**
      * Creates the unload observer and by default queries the user on unloading the
@@ -222,5 +235,36 @@ public final class UnloadObserverPR extends LitTemplate {
     public void visibilityStatus(boolean visible) {
         System.err.println("*** status ***" + visible);
         //this.fireUnloadEvent(new UnloadEventPR(this, true, change));
+    }
+
+    public void setInactivityTimer(UI ui, VaadinSession vaadinSession, WrappedSession httpSession, long inactivityDelay) {
+        prTimer = new Timer();
+        prTimer.schedule(new TimerTask() {
+
+            @Override
+            public void run() {
+                logger.warn("inactivity timeout");
+                if (ui != null) {
+                    ui.access(() -> {
+                        Notification.show("Inactivity Timeout Reached. Refresh page to continue watching.");
+                        ui.push();
+                    });
+                } else {
+                    logger.error("could not push notification");
+                }
+//                if (httpSession != null) {
+//                    httpSession.invalidate();
+//                }
+//                if (vaadinSession != null) {
+//                    vaadinSession.close();
+//                }
+            }
+        }, inactivityDelay);
+    }
+
+    public void cancelInactivityTimer() {
+        if (prTimer != null) {
+            prTimer.cancel();
+        }
     }
 }
