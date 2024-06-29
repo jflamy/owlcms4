@@ -1,10 +1,12 @@
-**Version 49.1 alpha**
+**Version 50.0 alpha**
 
 > [!CAUTION]
 >
 > - This is an **alpha release**, used for validating new features.  *Some features are likely to be incomplete or non-functional*.  
 > - **Alpha releases are not normally used in actual competitions.**
 
+- (alpha03) Fix: IWF behavior for start numbers ([gh-1025](https://github.com/jflamy/owlcms4/pull/1026))
+  
 - (alpha02) New: color for children bar
   - If lighter children bars are used, they will be shown in white/green/yellow on the attempt board according to bar weight.  As a special case, brown is used for old-style North-American 15lb bars (counted as 7kg)
   - Automatic bar/collar switching: if the feature toggle `childrenBars` is used, the changes in bar and collars will be automatic when the age group includes children 12 year old or younger.  It is assumed that 5/10/15kg bars are available and will be used, and that clips can be used (not counted in the weight).   A group with boys 12-13 would automatically use the 15 bar, whereas a 13-15 group would not -- the manual setting from the Plates and Barbell page would be needed.
