@@ -29,43 +29,72 @@ public interface SafeEventBusRegistrationPR {
         UI ui = c.getUI().get();
 
         if (bus != null) {
-            logger.debug("registering {} on bus {} {}", c, bus.identifier(), LoggerUtils.whereFrom());
+            logger.warn("registering {} {} on bus {} {}", c.getClass().getSimpleName(), System.identityHashCode(c),
+                    bus.identifier(), LoggerUtils.whereFrom());
             bus.register(c);
         }
-        UnloadObserverPR unloadObserver = UnloadObserverPR.get(true);
-        unloadObserver.addUnloadListener((e) -> {
-            if (e.getChange().equals("beforeunload")) {
+        
+        UnloadObserverPR eventObserver = UnloadObserverPR.get(true);
+        eventObserver.addEventListener((e) -> {
+            String change = e.getChange();
+            if (change.equals("beforeunload") || change.equals("blur")) {
                 try {
-                    bus.unregister(c);
-                    logger.warn("closing: unregister {} from {}", c.getClass().getSimpleName(), bus.identifier());
+                    unregister(c, bus);
+                    logger.warn("{}: unregister {} from {}", change, c.getClass().getSimpleName(), bus.identifier());
                 } catch (Exception ex) {
+                    LoggerUtils.logError(logger, ex, true);
                 }
                 UnloadObserverPR.remove();
             } else {
-                logger.warn("{} {} {}", e.getChange(), c.getClass().getSimpleName(), System.identityHashCode(c));
-            } 
+                logger.warn("{} {} {}", change, c.getClass().getSimpleName(), System.identityHashCode(c));
+            }
         });
-        ui.add(unloadObserver);
+        
+        ui.access(() -> {
+            ui.add(eventObserver);
 
-        ui.addBeforeLeaveListener((e) -> {
-            try {
-                bus.unregister(c);
-                logger.warn("leaving: unregister {} {}", c.getClass().getSimpleName(), System.identityHashCode(c));
-            } catch (Exception ex) {
-            }
-        });
-        ui.addDetachListener((e) -> {
-            try {
-                logger.warn("invalidating: invalidating session for {} {}", c.getClass().getSimpleName(), System.identityHashCode(c));
-                VaadinSession vaadinSession = VaadinSession.getCurrent();
-                WrappedSession httpSession = vaadinSession.getSession();
-                invalidate(vaadinSession, httpSession);
-                bus.unregister(c);
-                logger.warn("detaching: unregister {} {}", c.getClass().getSimpleName(), System.identityHashCode(c));
-            } catch (Exception ex) {
-            }
+            ui.addBeforeLeaveListener((e) -> {
+                try {
+                    unregister(c, bus);
+                    ui.access(() -> {
+                        UnloadObserverPR.remove();
+                        ui.removeAll();
+                    });
+                    logger.warn("leaving: unregistered {} {}", c.getClass().getSimpleName(),
+                            System.identityHashCode(c));
+                } catch (Exception ex) {
+                    LoggerUtils.logError(logger, ex, true);
+                }
+            });
+            ui.addDetachListener((e) -> {
+                try {
+                    logger.warn("invalidating: invalidating session for {} {}", c.getClass().getSimpleName(),
+                            System.identityHashCode(c));
+                    ui.access(() -> {
+                        UnloadObserverPR.remove();
+                        ui.removeAll();
+                    });
+                    VaadinSession vaadinSession = VaadinSession.getCurrent();
+                    WrappedSession httpSession = vaadinSession.getSession();
+                    invalidate(vaadinSession, httpSession);
+                    unregister(c, bus);
+                } catch (Exception ex) {
+                    LoggerUtils.logError(logger, ex, true);
+                }
+            });
         });
         return bus;
+    }
+
+    public default void unregister(Component c, EventBus bus) {
+        try {
+            bus.unregister(c);
+        } catch (IllegalArgumentException e) {
+            logger.warn("unregister of {} {} already done.", c.getClass().getSimpleName(), System.identityHashCode(c));
+        } catch (Exception e) {
+            logger.warn("unregister of {} {} failed: {}", c.getClass().getSimpleName(), System.identityHashCode(c),
+                    e.getClass());
+        }
     }
 
     public default void invalidate(VaadinSession vaadinSession, WrappedSession httpSession) {

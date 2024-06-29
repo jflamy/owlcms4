@@ -40,7 +40,7 @@ export class UnloadObserver extends LitElement {
       );
       window.removeEventListener(
         "unload",
-        window.Vaadin.unloadObserver.attemptHandler
+        window.Vaadin.unloadObserver.unloadHandler
       );
       window.removeEventListener(
         "pagehide",

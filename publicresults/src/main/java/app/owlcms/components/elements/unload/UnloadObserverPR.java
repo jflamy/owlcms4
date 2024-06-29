@@ -117,7 +117,7 @@ public final class UnloadObserverPR extends LitTemplate {
      * @return A {@link Registration} that can be used to stop listening to the
      *         event.
      */
-    public Registration addUnloadListener(UnloadListenerPR listener) {
+    public Registration addEventListener(UnloadListenerPR listener) {
         return this.getEventBus().addListener(UnloadEventPR.class, listener);
     }
 
@@ -139,7 +139,7 @@ public final class UnloadObserverPR extends LitTemplate {
      *
      * @param queryingOnUnload When {@code true}, {@link UnloadListenerPR}s registered
      *                         through
-     *                         {@link #addUnloadListener(UnloadListenerPR)} will be
+     *                         {@link #addEventListener(UnloadListenerPR)} will be
      *                         notified and document unloading can be
      *                         prevented. When {@code false}, nothing will happen
      *                         when the document gets unloaded.
