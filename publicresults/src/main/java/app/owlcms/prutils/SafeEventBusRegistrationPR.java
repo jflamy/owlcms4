@@ -77,7 +77,7 @@ public interface SafeEventBusRegistrationPR {
                     LoggerUtils.logError(logger, ex, true);
                 }
             } else {
-                logger.warn("{} {} {}", change, c.getClass().getSimpleName(), System.identityHashCode(c));
+                logger.error("{}: unexpected event {} {}", change, c.getClass().getSimpleName(), System.identityHashCode(c));
             }
         });
 
