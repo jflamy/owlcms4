@@ -184,7 +184,7 @@ public class BreakTimerElementPR extends TimerElementPR {
         this.ui = attachEvent.getUI();
         init();
 
-        eventBusRegister(this, TimerReceiverServlet.getEventBus());
+        //eventBusRegister(this, TimerReceiverServlet.getEventBus());
         eventBusRegister(this, UpdateReceiverServlet.getEventBus());
 
         setFopName(OwlcmsSession.getFopName());
@@ -208,5 +208,5 @@ public class BreakTimerElementPR extends TimerElementPR {
         return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds)
                 : (milliseconds != null ? milliseconds.toString() : "-");
     }
-
+    
 }

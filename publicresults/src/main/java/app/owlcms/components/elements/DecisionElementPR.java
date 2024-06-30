@@ -21,8 +21,6 @@ import com.vaadin.flow.component.littemplate.LitTemplate;
 
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.prutils.SafeEventBusRegistrationPR;
-import app.owlcms.publicresults.DecisionReceiverServlet;
-import app.owlcms.publicresults.TimerReceiverServlet;
 import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.uievents.BreakTimerEvent;
 import app.owlcms.uievents.DecisionEvent;
@@ -218,8 +216,8 @@ public class DecisionElementPR extends LitTemplate
 
         this.ui = attachEvent.getUI();
         eventBusRegister(this, UpdateReceiverServlet.getEventBus());
-        eventBusRegister(this, DecisionReceiverServlet.getEventBus());
-        eventBusRegister(this, TimerReceiverServlet.getEventBus());
+//        eventBusRegister(this, DecisionReceiverServlet.getEventBus());
+//        eventBusRegister(this, TimerReceiverServlet.getEventBus());
 
         setFopName(OwlcmsSession.getFopName());
     }
@@ -227,19 +225,9 @@ public class DecisionElementPR extends LitTemplate
     @Override
     protected void onDetach(DetachEvent detachEvent) {
         super.onDetach(detachEvent);
-        this.ui = null;
-        try {
-            DecisionReceiverServlet.getEventBus().unregister(this);
-        } catch (Exception e) {
-        }
-        try {
-            TimerReceiverServlet.getEventBus().unregister(this);
-        } catch (Exception e) {
-        }
     }
 
     private void init() {
         getElement().setProperty("publicFacing", true);
     }
-
 }

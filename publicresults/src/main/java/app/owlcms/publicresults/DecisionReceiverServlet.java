@@ -10,11 +10,9 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.Executors;
 
 import org.slf4j.LoggerFactory;
 
-import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 
 import app.owlcms.uievents.DecisionEvent;
@@ -32,11 +30,11 @@ import jakarta.servlet.http.HttpServletResponse;
 public class DecisionReceiverServlet extends HttpServlet implements Traceable {
 
     private static String defaultFopName;
-    static EventBus eventBus = new AsyncEventBus(DecisionReceiverServlet.class.getSimpleName(),
-            Executors.newCachedThreadPool());
+//    static EventBus eventBus = new AsyncEventBus(DecisionReceiverServlet.class.getSimpleName(),
+//            Executors.newCachedThreadPool());
 
     public static EventBus getEventBus() {
-        return eventBus;
+        return UpdateReceiverServlet.getEventBus();
     }
 
     private Logger logger = (Logger) LoggerFactory.getLogger(DecisionReceiverServlet.class);
@@ -105,7 +103,7 @@ public class DecisionReceiverServlet extends HttpServlet implements Traceable {
 
         String fopName = decisionEvent.getFopName();
 
-        eventBus.post(decisionEvent);
+        getEventBus().post(decisionEvent);
 
         if (defaultFopName == null) {
             defaultFopName = fopName;

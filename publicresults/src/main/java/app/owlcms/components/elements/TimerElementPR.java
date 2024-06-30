@@ -20,8 +20,6 @@ import com.vaadin.flow.dom.Element;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.prutils.DebugUtils;
 import app.owlcms.prutils.SafeEventBusRegistrationPR;
-import app.owlcms.publicresults.DecisionReceiverServlet;
-import app.owlcms.publicresults.TimerReceiverServlet;
 import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
@@ -194,25 +192,21 @@ public abstract class TimerElementPR extends LitTemplate
         this.ui = attachEvent.getUI();
         init();
 
-        eventBusRegister(this, TimerReceiverServlet.getEventBus());
+//        eventBusRegister(this, TimerReceiverServlet.getEventBus());
         eventBusRegister(this, UpdateReceiverServlet.getEventBus());
-        eventBusRegister(this, DecisionReceiverServlet.getEventBus());
+//        eventBusRegister(this, DecisionReceiverServlet.getEventBus());
     }
 
     @Override
     protected void onDetach(DetachEvent detachEvent) {
         super.onDetach(detachEvent);
-        this.ui = null;
 
-        try {
-            TimerReceiverServlet.getEventBus().unregister(this);
-        } catch (Exception e) {
-        }
-
-        // tell the javascript to stay quiet
-        setSilenced(true);
-        setTimerElement(null);
-        getElement().setProperty("silent", true);
+        detachEvent.getUI().access(() -> {
+            // tell the javascript to stay quiet
+            setSilenced(true);
+            setTimerElement(null);
+            getElement().setProperty("silent", true);
+        });
     }
 
     protected void setIndefinite(boolean indefinite) {

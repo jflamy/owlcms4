@@ -13,10 +13,11 @@ class ResultsPR extends LitElement {
 
   render() {
     var ua = navigator.userAgent.toLowerCase();
+    console.warn("ua {}");
+    
     if (~ua.indexOf('applewebkit') && !~ua.indexOf('chrome') && ~ua.indexOf('safari') && ~ua.indexOf('mobile')) {
       this.$server.visibilityStatus(!window.document.hidden);
     }
-    this.$server.visibilityStatus(!window.document.hidden);
     return html`
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "") + ".css"}" />
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "results" + (this.autoversion ?? "") + ".css"}" />

@@ -19,7 +19,8 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.littemplate.LitTemplate;
-import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.page.WebStorage;
+import com.vaadin.flow.component.page.WebStorage.Storage;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
 import com.vaadin.flow.shared.Registration;
@@ -150,7 +151,8 @@ public final class UnloadObserverPR extends LitTemplate {
      * Controls whether or not there should be querying when the document is going
      * to be unloaded.
      *
-     * @param queryingOnUnload When {@code true}, {@link UnloadListenerPR}s registered
+     * @param queryingOnUnload When {@code true}, {@link UnloadListenerPR}s
+     *                         registered
      *                         through
      *                         {@link #addEventListener(UnloadListenerPR)} will be
      *                         notified and document unloading can be
@@ -230,14 +232,9 @@ public final class UnloadObserverPR extends LitTemplate {
     public void unloadHappened(String change) {
         this.fireUnloadEvent(new UnloadEventPR(this, false, change));
     }
-    
-    @ClientCallable
-    public void visibilityStatus(boolean visible) {
-        System.err.println("*** status ***" + visible);
-        //this.fireUnloadEvent(new UnloadEventPR(this, true, change));
-    }
 
-    public void setInactivityTimer(UI ui, VaadinSession vaadinSession, WrappedSession httpSession, long inactivityDelay) {
+    public void setInactivityTimer(UI ui, VaadinSession vaadinSession, WrappedSession httpSession,
+            long inactivityDelay) {
         prTimer = new Timer();
         prTimer.schedule(new TimerTask() {
 
@@ -246,18 +243,17 @@ public final class UnloadObserverPR extends LitTemplate {
                 logger.warn("inactivity timeout");
                 if (ui != null) {
                     ui.access(() -> {
-                        Notification.show("Inactivity Timeout Reached. Refresh page to continue watching.");
-                        ui.push();
+                        WebStorage.setItem(Storage.SESSION_STORAGE, "timeout", Boolean.toString(true));
                     });
                 } else {
                     logger.error("could not push notification");
                 }
-//                if (httpSession != null) {
-//                    httpSession.invalidate();
-//                }
-//                if (vaadinSession != null) {
-//                    vaadinSession.close();
-//                }
+                if (httpSession != null) {
+                    httpSession.invalidate();
+                }
+                if (vaadinSession != null) {
+                    vaadinSession.access(() -> vaadinSession.close());
+                }
             }
         }, inactivityDelay);
     }
@@ -266,5 +262,6 @@ public final class UnloadObserverPR extends LitTemplate {
         if (prTimer != null) {
             prTimer.cancel();
         }
+        WebStorage.setItem(Storage.SESSION_STORAGE, "timeout", Boolean.toString(false));
     }
 }

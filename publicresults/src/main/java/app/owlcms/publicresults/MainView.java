@@ -118,5 +118,4 @@ public class MainView extends VerticalLayout implements SafeEventBusRegistration
             add(fopButton);
         });
     }
-
 }

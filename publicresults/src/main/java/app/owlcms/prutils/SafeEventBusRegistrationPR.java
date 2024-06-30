@@ -14,6 +14,8 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
 
+import app.owlcms.components.elements.DecisionElementPR;
+import app.owlcms.components.elements.TimerElementPR;
 import app.owlcms.components.elements.unload.UnloadObserverPR;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
@@ -21,7 +23,7 @@ import ch.qos.logback.classic.Logger;
 
 public interface SafeEventBusRegistrationPR {
 
-    public static final int INACTIVITY_DELAY = 15* 1000;
+    public static final int INACTIVITY_DELAY = 15 * 1000;
     Logger logger = (Logger) LoggerFactory.getLogger(SafeEventBusRegistrationPR.class);
 
     public default EventBus eventBusRegister(Component c, EventBus bus) {
@@ -47,7 +49,11 @@ public interface SafeEventBusRegistrationPR {
                     LoggerUtils.logError(logger, ex, true);
                 }
                 UnloadObserverPR.remove();
-            } else if (change.equals("visibilityHidden")) {
+            }
+            if (this instanceof TimerElementPR || this instanceof DecisionElementPR) {
+                return;
+            }
+            if (change.equals("visibilityHidden")) {
                 // switching tabs or minimizing window. no visible scoreboard
                 VaadinSession vaadinSession = VaadinSession.getCurrent();
                 WrappedSession httpSession = vaadinSession.getSession();

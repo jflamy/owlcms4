@@ -17,6 +17,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.littemplate.LitTemplate;
@@ -102,17 +103,39 @@ public class ResultsPR extends LitTemplate
     private boolean liftingOrder;
     private boolean done;
     private int lastHashCode;
+    private boolean timeout;
 
     /**
      * Instantiates a new results board.
+     * 
+     * @throws InterruptedException
      */
-    public ResultsPR() {
+    public ResultsPR() throws InterruptedException {
         setDarkMode(true);
         setDefaultLeadersDisplay(true);
         setDefaultRecordsDisplay(true);
         setDefaultLiftingOrderDisplay(false);
         setShowInitialDialog(false);
         this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
+
+        this.getElement().executeJs("return window.sessionStorage.getItem($0);", "timeout").then(String.class,
+                result -> {
+                    timeout = "true".equals(result);
+                    if (timeout) {
+                        ui.removeAll();
+                        logger.warn("timeout {}", timeout);
+                        setDarkMode(false);
+                        Dialog d = new Dialog("Inactivity Timeout Reached");
+                        Button resetButton = new Button("Reset", e -> {
+                            logger.warn("Resetting");
+                            this.getElement().executeJs("return window.sessionStorage.setItem($0, $1);", "timeout",
+                                    "false");
+                            UI.getCurrent().getPage().reload();
+                        });
+                        d.add(resetButton);
+                        d.open();
+                    }
+                });
     }
 
     @Override
@@ -439,12 +462,12 @@ public class ResultsPR extends LitTemplate
             // following two are fixed in owlcms
             getElement().setProperty("showTotal", true);
             getElement().setProperty("showBest", true);
-            
+
             getElement().setProperty("showLiftRanks", e.isShowLiftRanks());
-            getElement().setProperty("showTotalRank",  e.isShowTotalRank());
+            getElement().setProperty("showTotalRank", e.isShowTotalRank());
             getElement().setProperty("showSinclair", e.isShowSinclair());
             getElement().setProperty("showSinclairRanks", e.isShowSinclairRank());
-            
+
             getElement().setProperty("competitionName", e.getCompetitionName());
             getElement().setProperty("attempt", e.getAttempt());
             getElement().setProperty("fullName", e.getFullName());
@@ -500,9 +523,6 @@ public class ResultsPR extends LitTemplate
         }
 
         this.ui = UI.getCurrent();
-
-        eventBusRegister(this, TimerReceiverServlet.getEventBus());
-        eventBusRegister(this, DecisionReceiverServlet.getEventBus());
         eventBusRegister(this, UpdateReceiverServlet.getEventBus());
 
         // setDarkMode(this, isDarkMode(), false);
@@ -584,9 +604,11 @@ public class ResultsPR extends LitTemplate
     private void setWideTeamNames(boolean wide) {
         this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
     }
-    
+
     @ClientCallable
     public void visibilityStatus(boolean visible) {
-        logger.warn("ResultsPR render called visible={}",visible);
+        System.err.println("*** status ***" + visible);
+        // this.fireUnloadEvent(new UnloadEventPR(this, true, change));
     }
+
 }
