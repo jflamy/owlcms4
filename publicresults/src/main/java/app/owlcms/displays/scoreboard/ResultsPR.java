@@ -136,6 +136,7 @@ public class ResultsPR extends LitTemplate
                         d.open();
                     }
                 });
+        logger.warn("created ResultsPR");
     }
 
     @Override
@@ -526,7 +527,9 @@ public class ResultsPR extends LitTemplate
         eventBusRegister(this, UpdateReceiverServlet.getEventBus());
 
         // setDarkMode(this, isDarkMode(), false);
-        UpdateEvent initEvent = UpdateReceiverServlet.sync(getFopName());
+        String fopName2 = getFopName();
+        logger.warn("sync {}",fopName2);
+        UpdateEvent initEvent = UpdateReceiverServlet.sync(fopName2);
         if (initEvent != null) {
             slaveUpdateEvent(initEvent);
             this.timer.slaveOrderUpdated(initEvent);
