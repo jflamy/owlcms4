@@ -42,7 +42,7 @@ public class OwlcmsSession {
      * @param s the s
      * @return the attribute
      */
-    public static Object getAttribute(String s) {
+    public static synchronized Object getAttribute(String s) {
         return getCurrent().attributes.get(s);
     }
 

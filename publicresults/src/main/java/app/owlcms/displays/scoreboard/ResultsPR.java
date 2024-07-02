@@ -607,11 +607,25 @@ public class ResultsPR extends LitTemplate
     private void setWideTeamNames(boolean wide) {
         this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
     }
-
+    
     @ClientCallable
     public void visibilityStatus(boolean visible) {
-        System.err.println("*** status ***" + visible);
-        // this.fireUnloadEvent(new UnloadEventPR(this, true, change));
+        UI ui = UI.getCurrent();
+//        SessionCleanup cleanup = SessionCleanup.get(() -> {
+//            ui.navigate("about:blank");
+//        });
+//        logger.warn("{} visible={}", this.getPageTitle(), visible);
+//        if (visible) {
+//            cleanup.reschedule(35, TimeUnit.SECONDS);
+//        } else {
+//            ui.access(() -> {ui.removeAll(); ui.close();});
+//        }
+        logger.warn("{} visible={}", this.getPageTitle(), visible);
+        if (!visible) {
+            ui.getPage().executeJs("window.location='about:blank'");
+            ui.getPage().executeJs("window.close()'");
+        }
+        
     }
 
 }

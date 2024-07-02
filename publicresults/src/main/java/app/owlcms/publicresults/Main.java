@@ -83,6 +83,8 @@ public class Main {
 
         // Vaadin configs
         System.setProperty("vaadin.i18n.provider", Translator.class.getName());
+        System.setProperty("vaadin.closeIdleSessions", "true");
+        System.setProperty("heartbeatInterval", "30");
 
         // app config injection
         Translator.setLocaleSupplier(Main::computeLocale);
@@ -94,6 +96,7 @@ public class Main {
 
         // technical initializations
         // System.setProperty("java.net.preferIPv4Stack", "true");
+
 
     }
 

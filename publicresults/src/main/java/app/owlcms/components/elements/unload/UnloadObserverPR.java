@@ -233,8 +233,7 @@ public final class UnloadObserverPR extends LitTemplate {
         this.fireUnloadEvent(new UnloadEventPR(this, false, change));
     }
 
-    public void setInactivityTimer(UI ui, VaadinSession vaadinSession, WrappedSession httpSession,
-            long inactivityDelay) {
+    public void setInactivityTimer(UI ui, long inactivityDelay) {
         prTimer = new Timer();
         prTimer.schedule(new TimerTask() {
 
@@ -244,15 +243,17 @@ public final class UnloadObserverPR extends LitTemplate {
                 if (ui != null) {
                     ui.access(() -> {
                         WebStorage.setItem(Storage.SESSION_STORAGE, "timeout", Boolean.toString(true));
+                        VaadinSession vs = VaadinSession.getCurrent();
+                        WrappedSession hs = vs.getSession();
+                        if (hs != null) {
+                            hs.invalidate();
+                        }
+                        if (vs != null) {
+                            vs.access(() -> vs.close());
+                        }
                     });
                 } else {
                     logger.error("could not push notification");
-                }
-                if (httpSession != null) {
-                    httpSession.invalidate();
-                }
-                if (vaadinSession != null) {
-                    vaadinSession.access(() -> vaadinSession.close());
                 }
             }
         }, inactivityDelay);

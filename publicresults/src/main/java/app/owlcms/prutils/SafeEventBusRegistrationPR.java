@@ -50,45 +50,52 @@ public interface SafeEventBusRegistrationPR {
                 }
                 UnloadObserverPR.remove();
             }
+            
             if (this instanceof TimerElementPR || this instanceof DecisionElementPR) {
                 return;
             }
             if (change.equals("visibilityHidden")) {
-                // switching tabs or minimizing window. no visible scoreboard
-                VaadinSession vaadinSession = VaadinSession.getCurrent();
-                WrappedSession httpSession = vaadinSession.getSession();
-                eventObserver.setInactivityTimer(ui, vaadinSession, httpSession, INACTIVITY_DELAY);
-                try {
-                    logger.warn("{}: setInactivityTimer {} from {}", change, c.getClass().getSimpleName(),
-                            bus.identifier());
-                } catch (Exception ex) {
-                    LoggerUtils.logError(logger, ex, true);
-                }
-            } else if (change.equals("blur")) {
-                // blurring can occur when switching the active window and still watching.
-                // we probably don't want to do anything
-                try {
-                    logger.warn("{}: do nothing from {}", change, c.getClass().getSimpleName(), bus.identifier());
-                } catch (Exception ex) {
-                    LoggerUtils.logError(logger, ex, true);
-                }
-            } else if (change.equals("visibilityShown")) {
-                eventObserver.cancelInactivityTimer();
-                try {
-                    logger.warn("{}: cancelInactivityTimer {} from {}", change, c.getClass().getSimpleName(),
-                            bus.identifier());
-                } catch (Exception ex) {
-                    LoggerUtils.logError(logger, ex, true);
-                }
-            } else if (change.equals("focus")) {
-                eventObserver.cancelInactivityTimer();
-                try {
-                    logger.warn("{}: cancelInactivityTimer {} from {}", change, c.getClass().getSimpleName(),
-                            bus.identifier());
-                } catch (Exception ex) {
-                    LoggerUtils.logError(logger, ex, true);
-                }
-            } else {
+//                // switching tabs or minimizing window. no visible scoreboard
+//                eventObserver.setInactivityTimer(ui, INACTIVITY_DELAY);
+//                try {
+//                    logger.warn("{}: setInactivityTimer {} from {}", change, c.getClass().getSimpleName(),
+//                            bus.identifier());
+//                } catch (Exception ex) {
+//                    LoggerUtils.logError(logger, ex, true);
+//                }
+            } 
+            
+            else if (change.equals("blur")) {
+//                // blurring can occur when switching the active window and still watching.
+//                // we probably don't want to do anything
+//                try {
+//                    logger.warn("{}: do nothing from {}", change, c.getClass().getSimpleName(), bus.identifier());
+//                } catch (Exception ex) {
+//                    LoggerUtils.logError(logger, ex, true);
+//                }
+            }
+            
+            else if (change.equals("visibilityShown")) {
+//                eventObserver.cancelInactivityTimer();
+//                try {
+//                    logger.warn("{}: cancelInactivityTimer {} from {}", change, c.getClass().getSimpleName(),
+//                            bus.identifier());
+//                } catch (Exception ex) {
+//                    LoggerUtils.logError(logger, ex, true);
+//                }
+            } 
+            
+            else if (change.equals("focus")) {
+//                eventObserver.cancelInactivityTimer();
+//                try {
+//                    logger.warn("{}: cancelInactivityTimer {} from {}", change, c.getClass().getSimpleName(),
+//                            bus.identifier());
+//                } catch (Exception ex) {
+//                    LoggerUtils.logError(logger, ex, true);
+//                }
+            } 
+            
+            else {
                 logger.error("{}: unexpected event {} {}", change, c.getClass().getSimpleName(),
                         System.identityHashCode(c));
             }
@@ -115,16 +122,16 @@ public interface SafeEventBusRegistrationPR {
             ui.addDetachListener((e) -> {
                 // actually leaving the page. kill publicresults session.
                 try {
-                    logger.warn("invalidating: invalidating session for {} {}", c.getClass().getSimpleName(),
-                            System.identityHashCode(c));
-                    ui.access(() -> {
-                        UnloadObserverPR.remove();
-                        ui.removeAll();
-                    });
-                    VaadinSession vaadinSession = VaadinSession.getCurrent();
-                    WrappedSession httpSession = vaadinSession.getSession();
-                    invalidate(vaadinSession, httpSession);
-                    unregister(c, bus);
+//                    logger.warn("invalidating: invalidating session for {} {}", c.getClass().getSimpleName(),
+//                            System.identityHashCode(c));
+//                    ui.access(() -> {
+//                        UnloadObserverPR.remove();
+//                        ui.removeAll();
+//                    });
+//                    VaadinSession vaadinSession = VaadinSession.getCurrent();
+//                    WrappedSession httpSession = vaadinSession.getSession();
+//                    invalidate(vaadinSession, httpSession);
+//                    unregister(c, bus);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
