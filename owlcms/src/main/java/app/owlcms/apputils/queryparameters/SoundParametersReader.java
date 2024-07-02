@@ -68,6 +68,9 @@ public interface SoundParametersReader extends SoundParameters, FOPParametersRea
 		processBooleanParam(params, SILENT, (v) -> switchSoundMode(v, false));
 		processBooleanParam(params, DOWNSILENT, (v) -> switchDownMode(v, false));
 		processBooleanParam(params, SINGLEREF, (v) -> switchSingleRefereeMode((Component) this, v, false));
+		processBooleanParam(params, LIVE_LIGHTS, (v) -> switchLiveLightsMode((Component) this, v, false));
+		processBooleanParam(params, START_ORDER, (v) -> switchStartOrderMode((Component) this, v, false));
+		processBooleanParam(params, SHOW_DECLARATIONS, (v) -> switchDeclarationsMode((Component) this, v, false));
 
 		// immediate is true by default, except if single ref.
 		List<String> immParams = params.get(IMMEDIATE);
@@ -104,6 +107,27 @@ public interface SoundParametersReader extends SoundParameters, FOPParametersRea
 		setDownSilenced(silent);
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), DOWNSILENT, silent ? "true" : "false");
+		}
+	}
+	
+	public default void switchLiveLightsMode(Component component, boolean liveLights, boolean updateURL) {
+		setLiveLights(liveLights);
+		if (updateURL) {
+			updateURLLocation(getLocationUI(), getLocation(), LIVE_LIGHTS, liveLights ? "true" : "false");
+		}
+	}
+	
+	public default void switchStartOrderMode(Component component, boolean startOrder, boolean updateURL) {
+		setStartOrder(startOrder);
+		if (updateURL) {
+			updateURLLocation(getLocationUI(), getLocation(), START_ORDER, startOrder ? "true" : "false");
+		}
+	}
+	
+	public default void switchDeclarationsMode(Component component, boolean showDeclarations, boolean updateURL) {
+		setDeclarations(showDeclarations);
+		if (updateURL) {
+			updateURLLocation(getLocationUI(), getLocation(), SHOW_DECLARATIONS, showDeclarations ? "true" : "false");
 		}
 	}
 

@@ -17,7 +17,13 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.Subscribe;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -52,6 +58,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 		logger.setLevel(Level.INFO);
 	}
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
+	private boolean startOrder;
 
 	public MarshallContent() {
 		// when navigating to the page, Vaadin will call setParameter+readParameters
@@ -60,7 +67,10 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 		        SoundParameters.SILENT, "true",
 		        SoundParameters.DOWNSILENT, "true",
 		        SoundParameters.IMMEDIATE, "true",
-		        SoundParameters.SINGLEREF, "false")));
+		        SoundParameters.SINGLEREF, "false",
+		        SoundParameters.LIVE_LIGHTS, "true",
+		        SoundParameters.SHOW_DECLARATIONS, "false",
+		        SoundParameters.START_ORDER, "true")));
 	}
 
 	/**
@@ -155,4 +165,53 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 		return decisions;
 	}
 
+	@Override
+	protected void createTopBarSettingsMenu() {
+		this.topBarSettings = new MenuBar();
+		this.topBarSettings.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_TERTIARY_INLINE);
+		MenuItem item2 = this.topBarSettings.addItem(new Icon(VaadinIcon.COG));
+		SubMenu subMenu2 = item2.getSubMenu();
+
+		// FieldOfPlay fop = OwlcmsSession.getFop();
+		MenuItem subItemSoundOn = subMenu2.addItem(
+		        Translator.translate("DisplayParameters.ClockSoundOn"),
+		        e -> {
+			        switchSoundMode(!this.isSilenced(), true);
+			        e.getSource().setChecked(!this.isSilenced());
+			        if (this.timer != null) {
+				        this.timer.setSilenced(this.isSilenced());
+			        }
+		        });
+		subItemSoundOn.setCheckable(true);
+		subItemSoundOn.setChecked(!this.isSilenced());
+
+		MenuItem showLights = subMenu2.addItem(
+		        Translator.translate("DisplayParameters.showDecisionLights"),
+		        e -> {
+			        switchLiveLightsMode(this, !this.isLiveLights(), true);
+			        e.getSource().setChecked(this.isLiveLights());
+		        });
+		showLights.setCheckable(true);
+		showLights.setChecked(this.isLiveLights());
+
+		MenuItem startOrder = subMenu2.addItem(
+		        Translator.translate("DisplayParameters.startOrder"),
+		        e -> {
+			        switchStartOrderMode(this, !this.isStartOrder(), true);
+			        e.getSource().setChecked(this.isStartOrder());
+			        this.syncWithFOP(true);
+		        });
+		startOrder.setCheckable(true);
+		startOrder.setChecked(this.isStartOrder());
+	}
+
+	@Override
+	public void setStartOrder(boolean useStartOrder) {
+		this.startOrder = useStartOrder;
+	}
+	
+	@Override
+	public boolean isStartOrder() {
+		return this.startOrder;
+	}
 }

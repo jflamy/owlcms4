@@ -95,6 +95,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	private boolean singleReferee;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private ConfirmDialog juryConfirmationDialog;
+	private boolean liveLights;
+	private boolean declarations;
 
 	public AnnouncerContent() {
 		// when navigating to the page, Vaadin will call setParameter+readParameters
@@ -103,8 +105,13 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		        SoundParameters.SILENT, "true",
 		        SoundParameters.DOWNSILENT, "true",
 		        SoundParameters.IMMEDIATE, "true",
-		        SoundParameters.SINGLEREF, "false")));
+		        SoundParameters.SINGLEREF, "false",
+				SoundParameters.LIVE_LIGHTS, Boolean.toString(!Config.getCurrent().featureSwitch("noLiveLights")),
+				SoundParameters.SHOW_DECLARATIONS, "false",
+				SoundParameters.START_ORDER, "false"
+				)));
 		createTopBarGroupSelect();
+		setLiveLights(!Config.getCurrent().featureSwitch("noLiveLights"));
 		defineFilters(this.getCrudGrid());
 	}
 
@@ -596,7 +603,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		MenuItem item2 = this.topBarSettings.addItem(new Icon(VaadinIcon.COG));
 		SubMenu subMenu2 = item2.getSubMenu();
 
-		FieldOfPlay fop = OwlcmsSession.getFop();
+//		FieldOfPlay fop = OwlcmsSession.getFop();
 		MenuItem subItemSoundOn = subMenu2.addItem(
 		        Translator.translate("DisplayParameters.ClockSoundOn"),
 		        e -> {
@@ -626,32 +633,84 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		subItemSingleRef.setCheckable(true);
 		subItemSingleRef.setChecked(this.isSingleReferee());
 
-		MenuItem immediateDecision = subMenu2.addItem(
-		        Translator.translate("Settings.ImmediateDecision"));
-		immediateDecision.setCheckable(true);
-		immediateDecision.setChecked(fop.isAnnouncerDecisionImmediate());
+//		MenuItem immediateDecision = subMenu2.addItem(
+//		        Translator.translate("Settings.ImmediateDecision"));
+//		immediateDecision.setCheckable(true);
+//		immediateDecision.setChecked(fop.isAnnouncerDecisionImmediate());
 
-		immediateDecision.addClickListener(e -> {
-			boolean announcerDecisionImmediate = !fop.isAnnouncerDecisionImmediate();
-			switchImmediateDecisionMode(this, announcerDecisionImmediate, true);
-			switchSingleRefereeMode(this, !announcerDecisionImmediate, true);
-			subItemSingleRef.setChecked(!announcerDecisionImmediate);
-			immediateDecision.setChecked(announcerDecisionImmediate);
-		});
+		MenuItem showLights = subMenu2.addItem(
+		        Translator.translate("DisplayParameters.showDecisionLights"),
+		        e -> {
+			        switchLiveLightsMode(this, !this.isLiveLights(), true);
+					FieldOfPlay fop2 = OwlcmsSession.getFop();
+					if (fop2 != null) {
+						fop2.setAnnouncerDecisionImmediate(false);
+						fop2.setSingleReferee(false);
+					}
+					switchImmediateDecisionMode(this, false, true);
+					switchSingleRefereeMode(this, false, true);
+			        e.getSource().setChecked(this.isLiveLights());
+			        subItemSingleRef.setChecked(false);
+		        });
+		showLights.setCheckable(true);
+		showLights.setChecked(this.isLiveLights());
+		
+		MenuItem showDeclarations = subMenu2.addItem(
+		        Translator.translate("DisplayParameters.showDeclarationNotifications"),
+		        e -> {
+			        switchDeclarationsMode(this, !this.isDeclarations(), true);
+		        });
+		showDeclarations.setCheckable(true);
+		showDeclarations.setChecked(this.isDeclarations());
+		
+//		immediateDecision.addClickListener(e -> {
+//			boolean announcerDecisionImmediate = !fop.isAnnouncerDecisionImmediate();
+//			switchImmediateDecisionMode(this, announcerDecisionImmediate, true);
+//			switchSingleRefereeMode(this, !announcerDecisionImmediate, true);
+//			switchLiveLightsMode(this, !announcerDecisionImmediate, true);
+//			subItemSingleRef.setChecked(!announcerDecisionImmediate);
+//			immediateDecision.setChecked(announcerDecisionImmediate);
+//			showLights.setChecked(isLiveLights());
+//		});
 		subItemSingleRef.addClickListener(e -> {
 			// single referee implies not immediate so down is shown
 			boolean singleReferee2 = !this.isSingleReferee();
 			switchSingleRefereeMode(this, singleReferee2, true);
 			FieldOfPlay fop2 = OwlcmsSession.getFop();
 			if (fop2 != null) {
+				fop2.setAnnouncerDecisionImmediate(false);
 				fop2.setSingleReferee(singleReferee2);
 			}
 			switchImmediateDecisionMode(this, !singleReferee2, true);
+			switchLiveLightsMode(this, !singleReferee2, true);
 			subItemSingleRef.setChecked(singleReferee2);
-			immediateDecision.setChecked(!singleReferee2);
+			//immediateDecision.setChecked(!singleReferee2);
+			showDeclarations.setChecked(isLiveLights());
 			e.getSource().setChecked(singleReferee2);
 		});
 
+	}
+	
+	@Override
+	public void setLiveLights(boolean showLiveLights) {
+		//logger.debug("setting live lights {} {}",showLiveLights, LoggerUtils.whereFrom());
+		this.liveLights = showLiveLights;
+	}
+	
+	@Override
+	public boolean isLiveLights() {
+		//logger.debug("is live lights {} -- {}",this.liveLights, LoggerUtils.whereFrom());
+		return this.liveLights;
+	}
+	
+	@Override
+	public void setDeclarations(boolean showDeclarations) {
+		this.declarations=showDeclarations;
+	}
+	
+	@Override
+	public boolean isDeclarations() {
+		return this.declarations;
 	}
 
 	/**

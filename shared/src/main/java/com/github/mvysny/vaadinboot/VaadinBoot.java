@@ -45,7 +45,7 @@ public class VaadinBoot {
      */
 
 
-    String hostName = Env.getProperty("SERVER_ADDRESS", "server.address");
+    String hostName = null; //Env.getProperty("SERVER_ADDRESS", "server.address");
 
     /**
      * The context root to run under. Defaults to `/`.
