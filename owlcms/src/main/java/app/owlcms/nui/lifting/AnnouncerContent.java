@@ -97,6 +97,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	private ConfirmDialog juryConfirmationDialog;
 	private boolean liveLights;
 	private boolean declarations;
+	private boolean centerNotifications;
 
 	public AnnouncerContent() {
 		// when navigating to the page, Vaadin will call setParameter+readParameters
@@ -106,12 +107,13 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		        SoundParameters.DOWNSILENT, "true",
 		        SoundParameters.IMMEDIATE, "true",
 		        SoundParameters.SINGLEREF, "false",
-				SoundParameters.LIVE_LIGHTS, Boolean.toString(!Config.getCurrent().featureSwitch("noLiveLights")),
-				SoundParameters.SHOW_DECLARATIONS, "false",
-				SoundParameters.START_ORDER, "false"
-				)));
+		        SoundParameters.LIVE_LIGHTS, Boolean.toString(!Config.getCurrent().featureSwitch("noLiveLights")),
+		        SoundParameters.SHOW_DECLARATIONS, "false",
+		        SoundParameters.CENTER_NOTIFICATIONS, Boolean.toString(Config.getCurrent().featureSwitch("centerAnnouncerNotifications")),
+		        SoundParameters.START_ORDER, "false")));
 		createTopBarGroupSelect();
-		setLiveLights(!Config.getCurrent().featureSwitch("noLiveLights"));
+//		setLiveLights(!Config.getCurrent().featureSwitch("noLiveLights"));
+//		setCenterNotifications(Config.getCurrent().featureSwitch("centerAnnouncerNotifications"));
 		defineFilters(this.getCrudGrid());
 	}
 
@@ -316,7 +318,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			label.setSizeFull();
 			label.getStyle().set("font-size", "large");
 			n.add(label);
-			if (Config.getCurrent().featureSwitch("centerAnnouncerNotifications")) {
+			if (isCenterNotifications()) {
 				n.setPosition(Position.MIDDLE);
 				label.getStyle().set("font-size", "x-large");
 			} else {
@@ -603,7 +605,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		MenuItem item2 = this.topBarSettings.addItem(new Icon(VaadinIcon.COG));
 		SubMenu subMenu2 = item2.getSubMenu();
 
-//		FieldOfPlay fop = OwlcmsSession.getFop();
+		// FieldOfPlay fop = OwlcmsSession.getFop();
 		MenuItem subItemSoundOn = subMenu2.addItem(
 		        Translator.translate("DisplayParameters.ClockSoundOn"),
 		        e -> {
@@ -633,45 +635,55 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		subItemSingleRef.setCheckable(true);
 		subItemSingleRef.setChecked(this.isSingleReferee());
 
-//		MenuItem immediateDecision = subMenu2.addItem(
-//		        Translator.translate("Settings.ImmediateDecision"));
-//		immediateDecision.setCheckable(true);
-//		immediateDecision.setChecked(fop.isAnnouncerDecisionImmediate());
+		// MenuItem immediateDecision = subMenu2.addItem(
+		// Translator.translate("Settings.ImmediateDecision"));
+		// immediateDecision.setCheckable(true);
+		// immediateDecision.setChecked(fop.isAnnouncerDecisionImmediate());
 
 		MenuItem showLights = subMenu2.addItem(
 		        Translator.translate("DisplayParameters.showDecisionLights"),
 		        e -> {
 			        switchLiveLightsMode(this, !this.isLiveLights(), true);
-					FieldOfPlay fop2 = OwlcmsSession.getFop();
-					if (fop2 != null) {
-						fop2.setAnnouncerDecisionImmediate(false);
-						fop2.setSingleReferee(false);
-					}
-					switchImmediateDecisionMode(this, false, true);
-					switchSingleRefereeMode(this, false, true);
+			        FieldOfPlay fop2 = OwlcmsSession.getFop();
+			        if (fop2 != null) {
+				        fop2.setAnnouncerDecisionImmediate(false);
+				        fop2.setSingleReferee(false);
+			        }
+			        switchImmediateDecisionMode(this, false, true);
+			        switchSingleRefereeMode(this, false, true);
 			        e.getSource().setChecked(this.isLiveLights());
 			        subItemSingleRef.setChecked(false);
 		        });
 		showLights.setCheckable(true);
 		showLights.setChecked(this.isLiveLights());
 		
+		MenuItem centerDeclarations = subMenu2.addItem(
+		        Translator.translate("DisplayParameters.centerNotifications"),
+		        e -> {
+			        switchCenteringMode(this, !this.isCenterNotifications(), true);
+			        e.getSource().setChecked(this.isCenterNotifications());
+		        });
+		centerDeclarations.setCheckable(true);
+		centerDeclarations.setChecked(this.isCenterNotifications());
+
 		MenuItem showDeclarations = subMenu2.addItem(
 		        Translator.translate("DisplayParameters.showDeclarationNotifications"),
 		        e -> {
 			        switchDeclarationsMode(this, !this.isDeclarations(), true);
+			        e.getSource().setChecked(this.isDeclarations());
 		        });
 		showDeclarations.setCheckable(true);
 		showDeclarations.setChecked(this.isDeclarations());
-		
-//		immediateDecision.addClickListener(e -> {
-//			boolean announcerDecisionImmediate = !fop.isAnnouncerDecisionImmediate();
-//			switchImmediateDecisionMode(this, announcerDecisionImmediate, true);
-//			switchSingleRefereeMode(this, !announcerDecisionImmediate, true);
-//			switchLiveLightsMode(this, !announcerDecisionImmediate, true);
-//			subItemSingleRef.setChecked(!announcerDecisionImmediate);
-//			immediateDecision.setChecked(announcerDecisionImmediate);
-//			showLights.setChecked(isLiveLights());
-//		});
+
+		// immediateDecision.addClickListener(e -> {
+		// boolean announcerDecisionImmediate = !fop.isAnnouncerDecisionImmediate();
+		// switchImmediateDecisionMode(this, announcerDecisionImmediate, true);
+		// switchSingleRefereeMode(this, !announcerDecisionImmediate, true);
+		// switchLiveLightsMode(this, !announcerDecisionImmediate, true);
+		// subItemSingleRef.setChecked(!announcerDecisionImmediate);
+		// immediateDecision.setChecked(announcerDecisionImmediate);
+		// showLights.setChecked(isLiveLights());
+		// });
 		subItemSingleRef.addClickListener(e -> {
 			// single referee implies not immediate so down is shown
 			boolean singleReferee2 = !this.isSingleReferee();
@@ -684,30 +696,40 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			switchImmediateDecisionMode(this, !singleReferee2, true);
 			switchLiveLightsMode(this, !singleReferee2, true);
 			subItemSingleRef.setChecked(singleReferee2);
-			//immediateDecision.setChecked(!singleReferee2);
+			// immediateDecision.setChecked(!singleReferee2);
 			showDeclarations.setChecked(isLiveLights());
 			e.getSource().setChecked(singleReferee2);
 		});
 
 	}
-	
+
 	@Override
 	public void setLiveLights(boolean showLiveLights) {
-		//logger.debug("setting live lights {} {}",showLiveLights, LoggerUtils.whereFrom());
 		this.liveLights = showLiveLights;
 	}
-	
+
 	@Override
 	public boolean isLiveLights() {
-		//logger.debug("is live lights {} -- {}",this.liveLights, LoggerUtils.whereFrom());
+		// logger.debug("is live lights {} -- {}",this.liveLights, LoggerUtils.whereFrom());
 		return this.liveLights;
 	}
-	
+
+	@Override
+	public void setCenterNotifications(boolean centerNotifications) {
+		logger.warn("setCenterNotifications {} {}",centerNotifications,LoggerUtils.whereFrom());
+		this.centerNotifications = centerNotifications;
+	}
+
+	@Override
+	public boolean isCenterNotifications() {
+		return this.centerNotifications;
+	}
+
 	@Override
 	public void setDeclarations(boolean showDeclarations) {
-		this.declarations=showDeclarations;
+		this.declarations = showDeclarations;
 	}
-	
+
 	@Override
 	public boolean isDeclarations() {
 		return this.declarations;

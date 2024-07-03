@@ -19,6 +19,7 @@ public interface SoundParameters extends FOPParameters, SoundEntries {
 	public static final String LIVE_LIGHTS = "liveLights";
 	public static final String SHOW_DECLARATIONS = "declarations";
 	public static final String START_ORDER = "startOrder";
+	public static final String CENTER_NOTIFICATIONS = "centerNotifications";
 
 	public default void buildDialog(Component target) {
 	}
@@ -51,6 +52,12 @@ public interface SoundParameters extends FOPParameters, SoundEntries {
 
 	public default boolean isDeclarations() {
 		return Config.getCurrent().featureSwitch("showDeclarationsToAnnouncer");
+	}
+	
+	public default void setCenterNotifications(boolean showLiveLights) {}
+
+	public default boolean isCenterNotifications() {
+		return false;
 	}
 
 	public default void setDeclarations(boolean showDeclarations) {}

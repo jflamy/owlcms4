@@ -1299,7 +1299,7 @@ public abstract class AthleteGridContent extends BaseContent
 		label.getElement().setProperty("innerHTML", text);
 		label.addClickListener((event) -> n.close());
 
-		if (Config.getCurrent().featureSwitch("centerAnnouncerNotifications") && this instanceof AnnouncerContent) {
+		if (isCenterNotifications()) {
 			label.getStyle().set("font-size", "x-large");
 			n.setPosition(Position.MIDDLE);
 		} else {

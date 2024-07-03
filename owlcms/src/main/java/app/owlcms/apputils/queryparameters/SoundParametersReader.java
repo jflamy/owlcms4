@@ -71,6 +71,7 @@ public interface SoundParametersReader extends SoundParameters, FOPParametersRea
 		processBooleanParam(params, LIVE_LIGHTS, (v) -> switchLiveLightsMode((Component) this, v, false));
 		processBooleanParam(params, START_ORDER, (v) -> switchStartOrderMode((Component) this, v, false));
 		processBooleanParam(params, SHOW_DECLARATIONS, (v) -> switchDeclarationsMode((Component) this, v, false));
+		processBooleanParam(params, CENTER_NOTIFICATIONS, (v) -> switchCenteringMode((Component) this, v, false));
 
 		// immediate is true by default, except if single ref.
 		List<String> immParams = params.get(IMMEDIATE);
@@ -125,9 +126,16 @@ public interface SoundParametersReader extends SoundParameters, FOPParametersRea
 	}
 	
 	public default void switchDeclarationsMode(Component component, boolean showDeclarations, boolean updateURL) {
-		setDeclarations(showDeclarations);
+		setCenterNotifications(showDeclarations);
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), SHOW_DECLARATIONS, showDeclarations ? "true" : "false");
+		}
+	}
+
+	public default void switchCenteringMode(Component component, boolean centerNotification, boolean updateURL) {
+		setCenterNotifications(centerNotification);
+		if (updateURL) {
+			updateURLLocation(getLocationUI(), getLocation(), CENTER_NOTIFICATIONS, centerNotification ? "true" : "false");
 		}
 	}
 
