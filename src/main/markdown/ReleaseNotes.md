@@ -4,6 +4,7 @@
 >
 > - You should test all releases, with actual data, several days before a competition. 
 
+- (49.0.5) Fix: preparation pages would fail if there was no information at all available to infer the category of the athlete.
 - (49.0.4) Fix: The ordering used for allocating start numbers should not consider age groups, only bodyweight category
   - Now fixed to apply only for Masters competition, or when the option to order weigh-in by age group is selected.
 - (49.0.4) For readability, the athlete registration page, competition document page, and weigh-in page now list athletes first by session then by start ordering.  The sort order can changed by clicking the "Session" column header.
