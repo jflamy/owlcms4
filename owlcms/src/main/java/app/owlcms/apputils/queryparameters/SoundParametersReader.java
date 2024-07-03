@@ -126,7 +126,7 @@ public interface SoundParametersReader extends SoundParameters, FOPParametersRea
 	}
 	
 	public default void switchDeclarationsMode(Component component, boolean showDeclarations, boolean updateURL) {
-		setCenterNotifications(showDeclarations);
+		setDeclarations(showDeclarations);
 		if (updateURL) {
 			updateURLLocation(getLocationUI(), getLocation(), SHOW_DECLARATIONS, showDeclarations ? "true" : "false");
 		}
