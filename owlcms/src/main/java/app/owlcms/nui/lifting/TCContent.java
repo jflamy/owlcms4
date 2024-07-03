@@ -232,6 +232,22 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		collar.addFormItem(nbC2_5, Translator.translate("Kg", 2.5));
 		binder.forField(nbC2_5).withConverter(bc).bind(Platform::getNbC_2_5, Platform::setNbC_2_5);
 
+		Checkbox nbB5 = new Checkbox();
+		lightBar.addFormItem(nbB5, Translator.translate("Kg", 5));
+		binder.forField(nbB5).withConverter(bc).bind(Platform::getNbB_5, Platform::setNbB_5);
+		
+		Checkbox nbB10 = new Checkbox();
+		lightBar.addFormItem(nbB10, Translator.translate("Kg", 10));
+		binder.forField(nbB10).withConverter(bc).bind(Platform::getNbB_10, Platform::setNbB_10);
+		
+		Checkbox nbB15 = new Checkbox();
+		lightBar.addFormItem(nbB15, Translator.translate("Kg", 15));
+		binder.forField(nbB15).withConverter(bc).bind(Platform::getNbB_15, Platform::setNbB_15);
+		
+		Checkbox nbB20 = new Checkbox();
+		lightBar.addFormItem(nbB20, Translator.translate("Kg", 20));
+		binder.forField(nbB20).withConverter(bc).bind(Platform::getNbB_20, Platform::setNbB_20);
+		
 		Checkbox useOtherBar = new Checkbox();
 		TextField barWeight = new TextField();
 		barWeight.setWidth("5ch");
@@ -239,9 +255,9 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		useOtherBar.addValueChangeListener((e) -> {
 			barWeight.setEnabled(Boolean.TRUE.equals(e.getValue()));
 		});
-		binder.forField(useOtherBar).bind(Platform::isNonStandardBar, Platform::setNonStandardBar);
+		binder.forField(useOtherBar).bind(Platform::isNonStandardBarAvailable, Platform::setNonStandardBarAvailable);
 
-		barWeight.setEnabled(this.platform.isNonStandardBar());
+		barWeight.setEnabled(this.platform.isLightBarInUse());
 		lightBar.addFormItem(barWeight, Translator.translate("BarWeight"));
 		int min = 1;
 		int max = 20;
@@ -250,7 +266,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		binder.forField(barWeight).withConverter(converter)
 		        .withValidator((v, c) -> BooleanUtils.isTrue(useOtherBar.getValue()) ? integerValidator.apply(v, c)
 		                : ValidationResult.ok())
-		        .bind(Platform::getLightBar, Platform::setLightBar);
+		        .bind(Platform::getNonStandardBarWeight, Platform::setNonStandardBarWeight);
 
 		VerticalLayout platesDisplay = new VerticalLayout(this.plates);
 		platesDisplay.setAlignItems(Alignment.CENTER);

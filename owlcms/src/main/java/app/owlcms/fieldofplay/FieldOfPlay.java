@@ -2911,34 +2911,56 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void changePlatformEquipment(Athlete a, Integer newWeight) {
-		if (Config.getCurrent().featureSwitch("childrenBars")) {
+		if (Config.getCurrent().featureSwitch("usawChildren")) {
+			platform.setNbB_5(1);
+			platform.setNbB_10(1);
+			platform.setNbB_15(1);
+			platform.setNbB_20(1);
+			platform.setNbL_2_5(1);
+			platform.setNbL_5(1);
+			checkNo20kg(a);
+		} else {
+			checkNo20kg(a);
+		}
+
+		if (newWeight <= 14 && platform.getNbB_5() > 0) {
+			logger.warn("<= 14");
+			platform.setLightBarInUse(true);
+			platform.setNonStandardBarWeight(5);
+			platform.setUseCollarsIfAvailable(false);
+		} else if (newWeight <= 19 && platform.getNbB_10() > 0) {
+			logger.warn("<= 19");
+			platform.setLightBarInUse(true);
+			platform.setNonStandardBarWeight(10);
+			platform.setUseCollarsIfAvailable(false);
+		} else if ((newWeight <= 39 && platform.getNbB_20() == 0) && (platform.getNbB_15() > 0)) {
+			logger.warn("<= 39 15");
+			platform.setLightBarInUse(true);
+			platform.setNonStandardBarWeight(15);
+			platform.setUseCollarsIfAvailable(false);
+		} else if ((newWeight >= 40 || platform.getNbB_20() == 0) && (platform.getNbB_15() > 0)) {
+			logger.warn(">=40 15 collars");
+			platform.setLightBarInUse(true);
+			platform.setNonStandardBarWeight(15);
+			platform.setUseCollarsIfAvailable(true);
+		} else {
+			logger.warn("standard");
+			platform.setLightBarInUse(false);
+			platform.setUseCollarsIfAvailable(true);
+		}
+		return;
+	}
+
+	private void checkNo20kg(Athlete a) {
+		if (a.getAgeGroup().getMinAge() <= 12) {
+			// do not use 20kg bar
 			// would include U9, U11, and 12-13 U13 but not a 13-15 or 14-15 U15 group.
 			// if 13-15 uses 15kg for boys, would have to be manually set.
-			if (a.getAgeGroup().getMinAge() <= 12) { 
-				platform.setNbL_2_5(1);
-				platform.setNbL_5(1);
-				if (newWeight <= 14) {
-					platform.setNonStandardBar(true);
-					platform.setLightBar(5);
-					platform.setNbC_2_5(0);
-				} else if (newWeight <= 19) {
-					platform.setNonStandardBar(true);
-					platform.setLightBar(10);
-					platform.setNbC_2_5(0);
-				} else if (newWeight <= 39) {
-					platform.setNonStandardBar(true);
-					platform.setLightBar(15);
-					platform.setNbC_2_5(0);
-				} else {
-					platform.setNonStandardBar(true);
-					platform.setLightBar(15);
-					platform.setNbC_2_5(1);
-				}
-			} else {
-				platform.setNonStandardBar(false);
-				platform.setNbC_2_5(1);
-				return;
-			}
+			logger.warn("no 20kg");
+			platform.setNbB_20(0);
+		} else {
+			logger.warn("20kg available");
+			platform.setNbB_20(1);
 		}
 	}
 
