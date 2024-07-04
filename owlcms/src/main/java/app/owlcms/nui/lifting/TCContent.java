@@ -41,6 +41,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
@@ -122,7 +123,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 	@Subscribe
 	public void slaveUpdateGrid(UIEvent.LiftingOrderUpdated e) {
 		OwlcmsSession.withFop((fop) -> UIEventProcessor.uiAccess(this.plates, this.uiEventBus, () -> {
-			this.plates.computeImageArea(fop, false);
+			this.plates.computeImageArea(fop, true);
 		}));
 	}
 	
@@ -130,8 +131,17 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 	@Subscribe
 	public void slaveUpdateGrid(UIEvent.Decision e) {
 		OwlcmsSession.withFop((fop) -> UIEventProcessor.uiAccess(this.plates, this.uiEventBus, () -> {
-			this.plates.computeImageArea(fop, false);
+			this.plates.computeImageArea(fop, true);
 		}));
+	}
+	
+	@Subscribe
+	public void slaveBarbellChanged(UIEvent.BarbellOrPlatesChanged e) {
+		FieldOfPlay fop2 = OwlcmsSession.getFop();
+		if (fop2 != null) {
+			this.platform = fop2.getPlatform();
+			plates.computeImageArea(fop2, true);
+		}
 	}
 
 	@Override
@@ -158,8 +168,9 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		this.plates = new PlatesElement();
 		this.plates.setId("loadchart");
 		OwlcmsSession.withFop((fop) -> {
-			this.plates.computeImageArea(fop, false);
+			this.plates.computeImageArea(fop, true);
 			this.platform = fop.getPlatform();
+			//logger.debug"init 5kg = {}",this.platform.getNbB_5());
 		});
 		this.plates.getStyle().set("font-size", "150%");
 
@@ -232,6 +243,22 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		collar.addFormItem(nbC2_5, Translator.translate("Kg", 2.5));
 		binder.forField(nbC2_5).withConverter(bc).bind(Platform::getNbC_2_5, Platform::setNbC_2_5);
 
+		Checkbox nbB5 = new Checkbox();
+		lightBar.addFormItem(nbB5, Translator.translate("Kg", 5));
+		binder.forField(nbB5).withConverter(bc).bind(Platform::getNbB_5, Platform::setNbB_5);
+		
+		Checkbox nbB10 = new Checkbox();
+		lightBar.addFormItem(nbB10, Translator.translate("Kg", 10));
+		binder.forField(nbB10).withConverter(bc).bind(Platform::getNbB_10, Platform::setNbB_10);
+		
+		Checkbox nbB15 = new Checkbox();
+		lightBar.addFormItem(nbB15, Translator.translate("Kg", 15));
+		binder.forField(nbB15).withConverter(bc).bind(Platform::getNbB_15, Platform::setNbB_15);
+		
+		Checkbox nbB20 = new Checkbox();
+		lightBar.addFormItem(nbB20, Translator.translate("Kg", 20));
+		binder.forField(nbB20).withConverter(bc).bind(Platform::getNbB_20, Platform::setNbB_20);
+		
 		Checkbox useOtherBar = new Checkbox();
 		TextField barWeight = new TextField();
 		barWeight.setWidth("5ch");
@@ -239,9 +266,9 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		useOtherBar.addValueChangeListener((e) -> {
 			barWeight.setEnabled(Boolean.TRUE.equals(e.getValue()));
 		});
-		binder.forField(useOtherBar).bind(Platform::isNonStandardBar, Platform::setNonStandardBar);
+		binder.forField(useOtherBar).bind(Platform::isNonStandardBarAvailable, Platform::setNonStandardBarAvailable);
 
-		barWeight.setEnabled(this.platform.isNonStandardBar());
+		barWeight.setEnabled(this.platform.isLightBarInUse());
 		lightBar.addFormItem(barWeight, Translator.translate("BarWeight"));
 		int min = 1;
 		int max = 20;
@@ -250,7 +277,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		binder.forField(barWeight).withConverter(converter)
 		        .withValidator((v, c) -> BooleanUtils.isTrue(useOtherBar.getValue()) ? integerValidator.apply(v, c)
 		                : ValidationResult.ok())
-		        .bind(Platform::getLightBar, Platform::setLightBar);
+		        .bind(Platform::getNonStandardBarWeight, Platform::setNonStandardBarWeight);
 
 		VerticalLayout platesDisplay = new VerticalLayout(this.plates);
 		platesDisplay.setAlignItems(Alignment.CENTER);
@@ -259,12 +286,18 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		applyButton.addClickListener((e) -> {
 			try {
 				binder.writeBean(this.platform);
-				PlatformRepository.save(this.platform);
+				Platform fopPlatform = OwlcmsSession.getFop().getPlatform();
+				this.platform.setLightBarInUse(fopPlatform.isLightBarInUse());
+				this.platform.setNonStandardBarWeight(fopPlatform.getNonStandardBarWeight());
+				Platform np = PlatformRepository.save(this.platform);
+				//logger.debug"np 5kg {} identity={}",np.getNbB_5(), System.identityHashCode(np));
 				OwlcmsSession.withFop((fop) -> {
+					//logger.debug"after save, platform identity={}",System.identityHashCode(fop.getPlatform()));
 					platesDisplay.removeAll();
-					this.plates.computeImageArea(fop, false);
-					platesDisplay.add(this.plates);
+					// causes fop to recompute what bar to use.
 					fop.fopEventPost(new FOPEvent.BarbellOrPlatesChanged(this));
+					this.plates.computeImageArea(fop, true);
+					platesDisplay.add(this.plates);
 				});
 			} catch (ValidationException e1) {
 			}

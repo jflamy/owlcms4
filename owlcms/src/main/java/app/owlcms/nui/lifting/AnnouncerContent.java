@@ -716,7 +716,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 	@Override
 	public void setCenterNotifications(boolean centerNotifications) {
-		logger.warn("setCenterNotifications {} {}",centerNotifications,LoggerUtils.whereFrom());
+		//logger.debug"setCenterNotifications {} {}",centerNotifications,LoggerUtils.whereFrom());
 		this.centerNotifications = centerNotifications;
 	}
 

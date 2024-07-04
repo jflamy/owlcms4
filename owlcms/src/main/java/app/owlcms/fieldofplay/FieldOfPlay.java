@@ -51,6 +51,7 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athlete.LiftDefinition;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
@@ -230,6 +231,9 @@ public class FieldOfPlay implements IUnregister {
 	private Sound finalWarningSound;
 	private Sound initialWarningSound;
 	private Sound timeOverSound;
+	private boolean useCollarsIfAvailable;
+	private int barWeight;
+	private boolean lightBarInUse;
 
 	public FieldOfPlay() {
 	}
@@ -2911,34 +2915,74 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void changePlatformEquipment(Athlete a, Integer newWeight) {
-		if (Config.getCurrent().featureSwitch("childrenBars")) {
+		if (Config.getCurrent().featureSwitch("usawChildren")) {
+			getPlatform().setNbB_5(1);
+			getPlatform().setNbB_10(1);
+			getPlatform().setNbB_15(1);
+			getPlatform().setNbB_20(1);
+			getPlatform().setNbL_2_5(1);
+			getPlatform().setNbL_5(1);
+			checkNo20kg(a);
+		} else {
+			checkNo20kg(a);
+		}
+
+		if (getPlatform().isNonStandardBarAvailable()) {
+			//logger.debug"non standard bar: {}");
+			this.setLightBarInUse(true);
+			this.setBarWeight(getPlatform().getNonStandardBarWeight());
+			this.setUseCollarsIfAvailable(false);
+		} else if (newWeight <= 14 && getPlatform().getNbB_5() > 0) {
+			//logger.debug"<= 14");
+			this.setLightBarInUse(true);
+			this.setBarWeight(5);
+			this.setUseCollarsIfAvailable(false);
+		} else if (newWeight <= 19 && getPlatform().getNbB_10() > 0) {
+			//logger.debug"<= 19");
+			this.setLightBarInUse(true);
+			this.setBarWeight(10);
+			this.setUseCollarsIfAvailable(false);
+		} else if ((newWeight <= 39 && getPlatform().getNbB_20() == 0) && (getPlatform().getNbB_15() > 0)) {
+			//logger.debug"<= 39 15");
+			this.setLightBarInUse(true);
+			this.setBarWeight(15);
+			this.setUseCollarsIfAvailable(false);
+		} else if ((newWeight >= 40 || getPlatform().getNbB_20() == 0) && (getPlatform().getNbB_15() > 0)) {
+			//logger.debug">=40 15 collars");
+			this.setLightBarInUse(true);
+			this.setBarWeight(15);
+			this.setUseCollarsIfAvailable(true);
+		} else {
+			//logger.debug"standard");
+			this.setLightBarInUse(false);
+			this.setBarWeight(curAthlete.getGender() == Gender.M ? 20 : 15);
+			this.setUseCollarsIfAvailable(true);
+		}
+		return;
+	}
+
+	private void setUseCollarsIfAvailable(boolean b) {
+		this.useCollarsIfAvailable = b;
+	}
+
+	private void setBarWeight(int i) {
+		this.barWeight = i;
+	}
+
+	private void setLightBarInUse(boolean b) {
+		this.lightBarInUse = b;
+	}
+
+	private void checkNo20kg(Athlete a) {
+		if (a.getAgeGroup().getMinAge() <= 12) {
+			// do not use 20kg bar
 			// would include U9, U11, and 12-13 U13 but not a 13-15 or 14-15 U15 group.
 			// if 13-15 uses 15kg for boys, would have to be manually set.
-			if (a.getAgeGroup().getMinAge() <= 12) { 
-				platform.setNbL_2_5(1);
-				platform.setNbL_5(1);
-				if (newWeight <= 14) {
-					platform.setNonStandardBar(true);
-					platform.setLightBar(5);
-					platform.setNbC_2_5(0);
-				} else if (newWeight <= 19) {
-					platform.setNonStandardBar(true);
-					platform.setLightBar(10);
-					platform.setNbC_2_5(0);
-				} else if (newWeight <= 39) {
-					platform.setNonStandardBar(true);
-					platform.setLightBar(15);
-					platform.setNbC_2_5(0);
-				} else {
-					platform.setNonStandardBar(true);
-					platform.setLightBar(15);
-					platform.setNbC_2_5(1);
-				}
-			} else {
-				platform.setNonStandardBar(false);
-				platform.setNbC_2_5(1);
-				return;
-			}
+			//logger.debug"no 20kg");
+			getPlatform().setNbB_20(0);
+		} else {
+			//logger.debug"20kg available");
+			getPlatform().setNbB_20(1);
 		}
 	}
 
@@ -2963,6 +3007,9 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void uiShowPlates(BarbellOrPlatesChanged e) {
+		if (e.getOrigin() != this) {
+			changePlatformEquipment(curAthlete, curWeight);
+		}
 		pushOutUIEvent(new UIEvent.BarbellOrPlatesChanged(e.getOrigin()));
 	}
 
@@ -3112,6 +3159,18 @@ public class FieldOfPlay implements IUnregister {
 	private void weightChangeDoNotDisturb(WeightChange e) {
 		recomputeOrderAndRanks(e.isResultChange());
 		uiDisplayCurrentAthleteAndTime(false, e, false);
+	}
+
+	public boolean isUseCollarsIfAvailable() {
+		return useCollarsIfAvailable;
+	}
+
+	public int getBarWeight() {
+		return barWeight;
+	}
+
+	public boolean isLightBarInUse() {
+		return lightBarInUse;
 	}
 
 }
