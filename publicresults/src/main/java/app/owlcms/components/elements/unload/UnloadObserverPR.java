@@ -6,23 +6,21 @@
  *******************************************************************************/
 package app.owlcms.components.elements.unload;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.littemplate.LitTemplate;
-import com.vaadin.flow.component.page.WebStorage;
-import com.vaadin.flow.component.page.WebStorage.Storage;
 import com.vaadin.flow.server.VaadinSession;
-import com.vaadin.flow.server.WrappedSession;
 import com.vaadin.flow.shared.Registration;
 
 import ch.qos.logback.classic.Logger;
@@ -105,8 +103,6 @@ public final class UnloadObserverPR extends LitTemplate {
 
     private boolean clientInitialised;
 
-    private Timer prTimer;
-
     /**
      * Creates the unload observer and by default queries the user on unloading the
      * page.
@@ -147,6 +143,16 @@ public final class UnloadObserverPR extends LitTemplate {
         return this.queryingOnUnload;
     }
 
+    public void resetInactivityTime(UI ui, Component component) {
+        logger.warn("active {} {}",component.getClass().getSimpleName(), System.identityHashCode(component));
+        setInactivityValue(ui, 0L);
+    }
+
+    public void setInactivityTime(UI ui, Component component) {
+        logger.warn("inactive {} {}",component.getClass().getSimpleName(), System.identityHashCode(component));
+        setInactivityValue(ui, System.currentTimeMillis());
+    }
+
     /**
      * Controls whether or not there should be querying when the document is going
      * to be unloaded.
@@ -165,6 +171,16 @@ public final class UnloadObserverPR extends LitTemplate {
             this.getElement().getNode().runWhenAttached(ui -> ui.beforeClientResponse(this,
                     context -> this.getElement().callJsFunction("queryOnUnload", this.queryingOnUnload)));
         }
+    }
+
+    @ClientCallable
+    public void unloadHappened(String change) {
+        this.fireUnloadEvent(new UnloadEventPR(this, false, change));
+    }
+
+    @ClientCallable
+    public void visibilityChange(String change) {
+        this.fireUnloadEvent(new UnloadEventPR(this, true, change));
     }
 
     /**
@@ -223,46 +239,23 @@ public final class UnloadObserverPR extends LitTemplate {
         super.onDetach(detachEvent);
     }
 
-    @ClientCallable
-    public void visibilityChange(String change) {
-        this.fireUnloadEvent(new UnloadEventPR(this, true, change));
-    }
-
-    @ClientCallable
-    public void unloadHappened(String change) {
-        this.fireUnloadEvent(new UnloadEventPR(this, false, change));
-    }
-
-    public void setInactivityTimer(UI ui, long inactivityDelay) {
-        prTimer = new Timer();
-        prTimer.schedule(new TimerTask() {
-
-            @Override
-            public void run() {
-                logger.warn("inactivity timeout");
-                if (ui != null) {
-                    ui.access(() -> {
-                        WebStorage.setItem(Storage.SESSION_STORAGE, "timeout", Boolean.toString(true));
-                        VaadinSession vs = VaadinSession.getCurrent();
-                        WrappedSession hs = vs.getSession();
-                        if (hs != null) {
-                            hs.invalidate();
-                        }
-                        if (vs != null) {
-                            vs.access(() -> vs.close());
-                        }
-                    });
-                } else {
-                    logger.error("could not push notification");
-                }
-            }
-        }, inactivityDelay);
-    }
-
-    public void cancelInactivityTimer() {
-        if (prTimer != null) {
-            prTimer.cancel();
+    private Map<UI, Long> getInactivityMap(VaadinSession vs) {
+        @SuppressWarnings("unchecked")
+        var im = (Map<UI, Long>) vs.getAttribute("inactivityMap");
+        if (im == null) {
+            im = new HashMap<>();
+            vs.setAttribute("inactivityMap", im);
         }
-        WebStorage.setItem(Storage.SESSION_STORAGE, "timeout", Boolean.toString(false));
+        return im;
+    }
+
+    private void setInactivityValue(UI ui, long value) {
+        if (ui != null) {
+            VaadinSession vs = VaadinSession.getCurrent();
+            vs.access(() -> {
+                var im = getInactivityMap(vs);
+                im.put(ui, value);
+            });
+        }
     }
 }

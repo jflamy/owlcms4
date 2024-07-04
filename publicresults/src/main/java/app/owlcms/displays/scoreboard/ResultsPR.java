@@ -31,6 +31,7 @@ import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.components.elements.AthleteTimerElementPR;
 import app.owlcms.components.elements.BreakTimerElementPR;
 import app.owlcms.components.elements.DecisionElementPR;
+import app.owlcms.components.elements.unload.UnloadObserverPR;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.i18n.Translator;
 import app.owlcms.prutils.SafeEventBusRegistrationPR;
@@ -611,20 +612,18 @@ public class ResultsPR extends LitTemplate
     @ClientCallable
     public void visibilityStatus(boolean visible) {
         UI ui = UI.getCurrent();
-//        SessionCleanup cleanup = SessionCleanup.get(() -> {
-//            ui.navigate("about:blank");
-//        });
-//        logger.warn("{} visible={}", this.getPageTitle(), visible);
-//        if (visible) {
-//            cleanup.reschedule(35, TimeUnit.SECONDS);
-//        } else {
-//            ui.access(() -> {ui.removeAll(); ui.close();});
-//        }
-        logger.warn("{} visible={}", this.getPageTitle(), visible);
-        if (!visible) {
-            ui.getPage().executeJs("window.location='about:blank'");
-            ui.getPage().executeJs("window.close()'");
+        UnloadObserverPR uo = UnloadObserverPR.get();
+        if (visible) {
+            uo.resetInactivityTime(ui, this);
+        } else {
+            uo.setInactivityTime(ui, this);
         }
+
+//        logger.warn("{} visible={}", this.getPageTitle(), visible);
+//        if (!visible) {
+//            ui.getPage().executeJs("window.location='about:blank'");
+//            ui.getPage().executeJs("window.close()'");
+//        }
         
     }
 

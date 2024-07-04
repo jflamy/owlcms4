@@ -37,7 +37,9 @@ public interface SafeEventBusRegistrationPR {
             bus.register(c);
         }
 
-        UnloadObserverPR eventObserver = UnloadObserverPR.get(true);
+        UnloadObserverPR eventObserver = UnloadObserverPR.get(false);
+        // if needed, create the repeating task to cleanup things; one per session.
+        SessionCleanup.get();
         eventObserver.addEventListener((e) -> {
             String change = e.getChange();
             if (change.equals("beforeunload")) {
@@ -54,15 +56,17 @@ public interface SafeEventBusRegistrationPR {
             if (this instanceof TimerElementPR || this instanceof DecisionElementPR) {
                 return;
             }
+            
+            
             if (change.equals("visibilityHidden")) {
-//                // switching tabs or minimizing window. no visible scoreboard
-//                eventObserver.setInactivityTimer(ui, INACTIVITY_DELAY);
-//                try {
-//                    logger.warn("{}: setInactivityTimer {} from {}", change, c.getClass().getSimpleName(),
-//                            bus.identifier());
-//                } catch (Exception ex) {
-//                    LoggerUtils.logError(logger, ex, true);
-//                }
+                // switching tabs or minimizing window. no visible scoreboard
+                eventObserver.setInactivityTime(ui, c);
+                try {
+                    logger.warn("{}: setInactivityTime {} from {}", change, c.getClass().getSimpleName(),
+                            bus.identifier());
+                } catch (Exception ex) {
+                    LoggerUtils.logError(logger, ex, true);
+                }
             } 
             
             else if (change.equals("blur")) {
@@ -76,23 +80,23 @@ public interface SafeEventBusRegistrationPR {
             }
             
             else if (change.equals("visibilityShown")) {
-//                eventObserver.cancelInactivityTimer();
-//                try {
-//                    logger.warn("{}: cancelInactivityTimer {} from {}", change, c.getClass().getSimpleName(),
-//                            bus.identifier());
-//                } catch (Exception ex) {
-//                    LoggerUtils.logError(logger, ex, true);
-//                }
+                eventObserver.resetInactivityTime(ui, c);
+                try {
+                    logger.warn("{}: resetInactivityTime {} from {}", change, c.getClass().getSimpleName(),
+                            bus.identifier());
+                } catch (Exception ex) {
+                    LoggerUtils.logError(logger, ex, true);
+                }
             } 
             
             else if (change.equals("focus")) {
-//                eventObserver.cancelInactivityTimer();
-//                try {
-//                    logger.warn("{}: cancelInactivityTimer {} from {}", change, c.getClass().getSimpleName(),
-//                            bus.identifier());
-//                } catch (Exception ex) {
-//                    LoggerUtils.logError(logger, ex, true);
-//                }
+                eventObserver.resetInactivityTime(ui, c);
+                try {
+                    logger.warn("{}: resetInactivityTime {} from {}", change, c.getClass().getSimpleName(),
+                            bus.identifier());
+                } catch (Exception ex) {
+                    LoggerUtils.logError(logger, ex, true);
+                }
             } 
             
             else {

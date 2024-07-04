@@ -27,13 +27,14 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.displays.scoreboard.ResultsPR;
 import app.owlcms.i18n.Translator;
+import app.owlcms.prutils.SafeEventBusRegistrationPR;
 import app.owlcms.uievents.UpdateEvent;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 
 @Route
 
-public class MainView extends VerticalLayout /* implements SafeEventBusRegistrationPR */ {
+public class MainView extends VerticalLayout implements SafeEventBusRegistrationPR {
 
     static Text text;
 
@@ -65,7 +66,7 @@ public class MainView extends VerticalLayout /* implements SafeEventBusRegistrat
         logger.debug("onAttach");
         super.onAttach(attachEvent);
         this.ui = UI.getCurrent();
-        //FIXME eventBusRegister(this, UpdateReceiverServlet.getEventBus());
+        eventBusRegister(this, UpdateReceiverServlet.getEventBus());
     }
 
     @Override
