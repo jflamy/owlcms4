@@ -294,6 +294,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 				OwlcmsSession.withFop((fop) -> {
 					//logger.debug"after save, platform identity={}",System.identityHashCode(fop.getPlatform()));
 					platesDisplay.removeAll();
+					fop.setPlatform(np);
 					// causes fop to recompute what bar to use.
 					fop.fopEventPost(new FOPEvent.BarbellOrPlatesChanged(this));
 					this.plates.computeImageArea(fop, true);
