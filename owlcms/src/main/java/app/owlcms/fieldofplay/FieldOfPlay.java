@@ -2915,6 +2915,10 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void changePlatformEquipment(Athlete a, Integer newWeight) {
+		// not completely mocked during unit tests.
+		if (getPlatform() == null) {
+			return;
+		}
 		if (Config.getCurrent().featureSwitch("childrenEquipment")) {
 			getPlatform().setNbB_5(1);
 			getPlatform().setNbB_10(1);
@@ -2928,32 +2932,32 @@ public class FieldOfPlay implements IUnregister {
 		}
 
 		if (getPlatform().isNonStandardBarAvailable()) {
-			//logger.debug"non standard bar: {}");
+			// logger.debug"non standard bar: {}");
 			this.setLightBarInUse(true);
 			this.setBarWeight(getPlatform().getNonStandardBarWeight());
 			this.setUseCollarsIfAvailable(false);
 		} else if (newWeight <= 14 && getPlatform().getNbB_5() > 0) {
-			//logger.debug"<= 14");
+			// logger.debug"<= 14");
 			this.setLightBarInUse(true);
 			this.setBarWeight(5);
 			this.setUseCollarsIfAvailable(false);
 		} else if (newWeight <= 19 && getPlatform().getNbB_10() > 0) {
-			//logger.debug"<= 19");
+			// logger.debug"<= 19");
 			this.setLightBarInUse(true);
 			this.setBarWeight(10);
 			this.setUseCollarsIfAvailable(false);
 		} else if ((newWeight <= 39 && getPlatform().getNbB_20() == 0) && (getPlatform().getNbB_15() > 0)) {
-			//logger.debug"<= 39 15");
+			// logger.debug"<= 39 15");
 			this.setLightBarInUse(true);
 			this.setBarWeight(15);
 			this.setUseCollarsIfAvailable(false);
 		} else if ((newWeight >= 40 || getPlatform().getNbB_20() == 0) && (getPlatform().getNbB_15() > 0)) {
-			//logger.debug">=40 15 collars");
+			// logger.debug">=40 15 collars");
 			this.setLightBarInUse(true);
 			this.setBarWeight(15);
 			this.setUseCollarsIfAvailable(true);
 		} else {
-			//logger.debug"standard");
+			// logger.debug"standard");
 			this.setLightBarInUse(false);
 			this.setBarWeight(curAthlete.getGender() == Gender.M ? 20 : 15);
 			this.setUseCollarsIfAvailable(true);
@@ -2974,14 +2978,19 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void checkNo20kg(Athlete a) {
+		// not completely mocked during unit tests.
+		if (a == null || a.getAgeGroup() == null || getPlatform() == null) {
+			return;
+		}
+
 		if (a.getAgeGroup().getMinAge() <= 12) {
 			// do not use 20kg bar
 			// would include U9, U11, and 12-13 U13 but not a 13-15 or 14-15 U15 group.
 			// if 13-15 uses 15kg for boys, would have to be manually set.
-			//logger.debug"no 20kg");
+			// logger.debug"no 20kg");
 			getPlatform().setNbB_20(0);
 		} else {
-			//logger.debug"20kg available");
+			// logger.debug"20kg available");
 			getPlatform().setNbB_20(1);
 		}
 	}

@@ -56,7 +56,7 @@ public class PlatesElement extends FlexLayout {
 	 * @param style
 	 * @param plateWeight
 	 * @param fop field of play
-	 * @param outline TODO
+	 * @param outline show the outline
 	 * @return
 	 */
 	private int addPlates(Integer availablePlates, String style, double plateWeight, FieldOfPlay fop, boolean outline) {
