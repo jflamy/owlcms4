@@ -1261,7 +1261,8 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	protected void displayLiveDecisions() {
-		if (!Config.getCurrent().featureSwitch("noLiveLights")) {
+		boolean noLights = !isLiveLights();
+		if (!noLights) {
 			setDecisionLights(null);
 			getTopBarLeft().removeAll();
 			createDecisionLights();
@@ -1298,7 +1299,7 @@ public abstract class AthleteGridContent extends BaseContent
 		label.getElement().setProperty("innerHTML", text);
 		label.addClickListener((event) -> n.close());
 
-		if (Config.getCurrent().featureSwitch("centerAnnouncerNotifications") && this instanceof AnnouncerContent) {
+		if (isCenterNotifications()) {
 			label.getStyle().set("font-size", "x-large");
 			n.setPosition(Position.MIDDLE);
 		} else {
@@ -1521,7 +1522,7 @@ public abstract class AthleteGridContent extends BaseContent
 			if (refreshGrid) {
 				// ** this.setValue(fopGroup);
 				if (this.getCrudGrid() != null) {
-					if (this instanceof MarshallContent && !Config.getCurrent().featureSwitch("marshalLiftingOrder")) {
+					if (this instanceof MarshallContent && isStartOrder()) {
 						// sort by start number by default.
 						// underlying source is lift order, so clearing the sort arrow gives back lift order.
 						List<GridSortOrder<Athlete>> sortOrder = new ArrayList<>();
@@ -1707,12 +1708,13 @@ public abstract class AthleteGridContent extends BaseContent
 		Athlete curDisplayAthlete = this.displayedAthlete;
 
 		// marshal weight change warnings not to self and not to announcer
-		boolean showDeclarationsToAnnouncer = Config.getCurrent().featureSwitch("showDeclarationsToAnnouncer");
+		boolean showDeclarationsToAnnouncer = Config.getCurrent().featureSwitch("showDeclarationsToAnnouncer") || isDeclarations();
+		boolean showDeclarations = (showDeclarationsToAnnouncer || !(this instanceof AnnouncerContent));
 		if (this != e.getOrigin() && curDisplayAthlete != null
 		        && e instanceof UIEvent.LiftingOrderUpdated
-		        && (showDeclarationsToAnnouncer || !(this instanceof AnnouncerContent)) 
+		        && showDeclarations
 		        && curDisplayAthlete.equals(((UIEvent.LiftingOrderUpdated) e).getChangingAthlete())) {
-			String text;
+			String text = null;
 			int declaring = curDisplayAthlete.isDeclaring();
 			if (declaring > 0) {
 				text = Translator.translate("Declaration_current_athlete_with_change", curDisplayAthlete.getFullName());
@@ -1721,7 +1723,9 @@ public abstract class AthleteGridContent extends BaseContent
 			} else {
 				text = Translator.translate("Weight_change_current_athlete", curDisplayAthlete.getFullName());
 			}
-			doNotification(text, "warning");
+			if (text != null) {
+				doNotification(text, "warning");
+			}
 		}
 
 		List<Athlete> liftingOrder = fop.getLiftingOrder();
