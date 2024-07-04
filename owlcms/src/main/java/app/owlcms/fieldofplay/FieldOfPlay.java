@@ -2915,7 +2915,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void changePlatformEquipment(Athlete a, Integer newWeight) {
-		if (Config.getCurrent().featureSwitch("usawChildren")) {
+		if (Config.getCurrent().featureSwitch("childrenEquipment")) {
 			getPlatform().setNbB_5(1);
 			getPlatform().setNbB_10(1);
 			getPlatform().setNbB_15(1);
