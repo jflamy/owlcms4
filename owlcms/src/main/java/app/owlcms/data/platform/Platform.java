@@ -155,14 +155,13 @@ public class Platform implements Serializable, Comparable<Platform> {
 	private Boolean showTimer = false;
 	private String soundMixerName;
 	private Boolean nonStandardBarAvailable;
-	private boolean useCollarsIfAvailable;
 
 	/**
 	 * Instantiates a new platform. Used for import, no default values.
 	 */
 	public Platform() {
 		setId(IdUtils.getTimeBasedId());
-		logger.warn("new Platform 1 {} {}",this.getNbB_5(), LoggerUtils.whereFrom());
+		//logger.debug"new Platform 1 {} {}",this.getNbB_5(), LoggerUtils.whereFrom());
 	}
 
 	/**
@@ -173,7 +172,7 @@ public class Platform implements Serializable, Comparable<Platform> {
 	public Platform(String name) {
 		setId(IdUtils.getTimeBasedId());
 		this.setName(name);
-		logger.warn("new Platform 2",this.getNbB_5());
+		//logger.debug"new Platform 2",this.getNbB_5());
 		//this.defaultPlates();
 	}
 
@@ -496,12 +495,6 @@ public class Platform implements Serializable, Comparable<Platform> {
 		return this.nonStandardBarAvailable;
 	}
 
-	@Transient
-	@JsonIgnore
-	public boolean isUseCollarsIfAvailable() {
-		return this.useCollarsIfAvailable;
-	}
-
 	/**
 	 * @param id the id to set
 	 */
@@ -535,7 +528,7 @@ public class Platform implements Serializable, Comparable<Platform> {
 	}
 
 	public void setNbB_5(Integer nbB_5) {
-		logger.warn("setting 5kg bumper {}",nbB_5);
+		//logger.debug"setting 5kg bumper {}",nbB_5);
 		this.nbB_5 = nbB_5;
 	}
 
@@ -723,13 +716,6 @@ public class Platform implements Serializable, Comparable<Platform> {
 			logger.debug("Platform: {}: changing mixer to {}", this.name, null);
 		}
 		this.mixerChecked = true;
-	}
-
-	@Transient
-	@JsonIgnore
-	public void setUseCollarsIfAvailable(boolean useCollarsIfAvailable) {
-		logger.warn("setUseCollarsIfAvailable {} {}",useCollarsIfAvailable, LoggerUtils.whereFrom());
-		this.useCollarsIfAvailable = useCollarsIfAvailable;
 	}
 
 	@Override

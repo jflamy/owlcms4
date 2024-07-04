@@ -41,6 +41,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
@@ -122,7 +123,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 	@Subscribe
 	public void slaveUpdateGrid(UIEvent.LiftingOrderUpdated e) {
 		OwlcmsSession.withFop((fop) -> UIEventProcessor.uiAccess(this.plates, this.uiEventBus, () -> {
-			this.plates.computeImageArea(fop, false);
+			this.plates.computeImageArea(fop, true);
 		}));
 	}
 	
@@ -130,17 +131,17 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 	@Subscribe
 	public void slaveUpdateGrid(UIEvent.Decision e) {
 		OwlcmsSession.withFop((fop) -> UIEventProcessor.uiAccess(this.plates, this.uiEventBus, () -> {
-			this.plates.computeImageArea(fop, false);
+			this.plates.computeImageArea(fop, true);
 		}));
 	}
 	
 	@Subscribe
 	public void slaveBarbellChanged(UIEvent.BarbellOrPlatesChanged e) {
-		if (e.getOrigin() == this) {
-			return;
+		FieldOfPlay fop2 = OwlcmsSession.getFop();
+		if (fop2 != null) {
+			this.platform = fop2.getPlatform();
+			plates.computeImageArea(fop2, true);
 		}
-		this.platform = this.getFop().getPlatform();
-		plates.computeImageArea(getFop(), true);
 	}
 
 	@Override
@@ -167,9 +168,9 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		this.plates = new PlatesElement();
 		this.plates.setId("loadchart");
 		OwlcmsSession.withFop((fop) -> {
-			this.plates.computeImageArea(fop, false);
+			this.plates.computeImageArea(fop, true);
 			this.platform = fop.getPlatform();
-			logger.warn("init 5kg = {}",this.platform.getNbB_5());
+			//logger.debug"init 5kg = {}",this.platform.getNbB_5());
 		});
 		this.plates.getStyle().set("font-size", "150%");
 
@@ -289,13 +290,14 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 				this.platform.setLightBarInUse(fopPlatform.isLightBarInUse());
 				this.platform.setNonStandardBarWeight(fopPlatform.getNonStandardBarWeight());
 				Platform np = PlatformRepository.save(this.platform);
-				logger.warn("np 5kg {} identity={}",np.getNbB_5(), System.identityHashCode(np));
+				//logger.debug"np 5kg {} identity={}",np.getNbB_5(), System.identityHashCode(np));
 				OwlcmsSession.withFop((fop) -> {
-					logger.warn("after save, platform identity={}",System.identityHashCode(fop.getPlatform()));
+					//logger.debug"after save, platform identity={}",System.identityHashCode(fop.getPlatform()));
 					platesDisplay.removeAll();
-					this.plates.computeImageArea(fop, false);
-					platesDisplay.add(this.plates);
+					// causes fop to recompute what bar to use.
 					fop.fopEventPost(new FOPEvent.BarbellOrPlatesChanged(this));
+					this.plates.computeImageArea(fop, true);
+					platesDisplay.add(this.plates);
 				});
 			} catch (ValidationException e1) {
 			}

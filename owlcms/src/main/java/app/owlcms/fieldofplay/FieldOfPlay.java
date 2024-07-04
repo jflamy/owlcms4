@@ -231,6 +231,9 @@ public class FieldOfPlay implements IUnregister {
 	private Sound finalWarningSound;
 	private Sound initialWarningSound;
 	private Sound timeOverSound;
+	private boolean useCollarsIfAvailable;
+	private int barWeight;
+	private boolean lightBarInUse;
 
 	public FieldOfPlay() {
 	}
@@ -2924,34 +2927,50 @@ public class FieldOfPlay implements IUnregister {
 			checkNo20kg(a);
 		}
 
-		if (newWeight <= 14 && getPlatform().getNbB_5() > 0) {
-			logger.warn("<= 14");
-			getPlatform().setLightBarInUse(true);
-			//FIXME: NonStandardBarWeight should be used for the 7kg bar, not for the actual bar in use.
-			getPlatform().setNonStandardBarWeight(5);
-			getPlatform().setUseCollarsIfAvailable(false);
+		if (getPlatform().isNonStandardBarAvailable()) {
+			//logger.debug"non standard bar: {}");
+			this.setLightBarInUse(true);
+			this.setBarWeight(getPlatform().getNonStandardBarWeight());
+			this.setUseCollarsIfAvailable(false);
+		} else if (newWeight <= 14 && getPlatform().getNbB_5() > 0) {
+			//logger.debug"<= 14");
+			this.setLightBarInUse(true);
+			this.setBarWeight(5);
+			this.setUseCollarsIfAvailable(false);
 		} else if (newWeight <= 19 && getPlatform().getNbB_10() > 0) {
-			logger.warn("<= 19");
-			getPlatform().setLightBarInUse(true);
-			getPlatform().setNonStandardBarWeight(10);
-			getPlatform().setUseCollarsIfAvailable(false);
+			//logger.debug"<= 19");
+			this.setLightBarInUse(true);
+			this.setBarWeight(10);
+			this.setUseCollarsIfAvailable(false);
 		} else if ((newWeight <= 39 && getPlatform().getNbB_20() == 0) && (getPlatform().getNbB_15() > 0)) {
-			logger.warn("<= 39 15");
-			getPlatform().setLightBarInUse(true);
-			getPlatform().setNonStandardBarWeight(15);
-			getPlatform().setUseCollarsIfAvailable(false);
+			//logger.debug"<= 39 15");
+			this.setLightBarInUse(true);
+			this.setBarWeight(15);
+			this.setUseCollarsIfAvailable(false);
 		} else if ((newWeight >= 40 || getPlatform().getNbB_20() == 0) && (getPlatform().getNbB_15() > 0)) {
-			logger.warn(">=40 15 collars");
-			getPlatform().setLightBarInUse(true);
-			getPlatform().setNonStandardBarWeight(15);
-			getPlatform().setUseCollarsIfAvailable(true);
+			//logger.debug">=40 15 collars");
+			this.setLightBarInUse(true);
+			this.setBarWeight(15);
+			this.setUseCollarsIfAvailable(true);
 		} else {
-			logger.warn("standard");
-			getPlatform().setLightBarInUse(false);
-			getPlatform().setNonStandardBarWeight(curAthlete.getGender() == Gender.M ? 20 : 15);
-			getPlatform().setUseCollarsIfAvailable(true);
+			//logger.debug"standard");
+			this.setLightBarInUse(false);
+			this.setBarWeight(curAthlete.getGender() == Gender.M ? 20 : 15);
+			this.setUseCollarsIfAvailable(true);
 		}
 		return;
+	}
+
+	private void setUseCollarsIfAvailable(boolean b) {
+		this.useCollarsIfAvailable = b;
+	}
+
+	private void setBarWeight(int i) {
+		this.barWeight = i;
+	}
+
+	private void setLightBarInUse(boolean b) {
+		this.lightBarInUse = b;
 	}
 
 	private void checkNo20kg(Athlete a) {
@@ -2959,10 +2978,10 @@ public class FieldOfPlay implements IUnregister {
 			// do not use 20kg bar
 			// would include U9, U11, and 12-13 U13 but not a 13-15 or 14-15 U15 group.
 			// if 13-15 uses 15kg for boys, would have to be manually set.
-			logger.warn("no 20kg");
+			//logger.debug"no 20kg");
 			getPlatform().setNbB_20(0);
 		} else {
-			logger.warn("20kg available");
+			//logger.debug"20kg available");
 			getPlatform().setNbB_20(1);
 		}
 	}
@@ -2988,6 +3007,9 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void uiShowPlates(BarbellOrPlatesChanged e) {
+		if (e.getOrigin() != this) {
+			changePlatformEquipment(curAthlete, curWeight);
+		}
 		pushOutUIEvent(new UIEvent.BarbellOrPlatesChanged(e.getOrigin()));
 	}
 
@@ -3137,6 +3159,18 @@ public class FieldOfPlay implements IUnregister {
 	private void weightChangeDoNotDisturb(WeightChange e) {
 		recomputeOrderAndRanks(e.isResultChange());
 		uiDisplayCurrentAthleteAndTime(false, e, false);
+	}
+
+	public boolean isUseCollarsIfAvailable() {
+		return useCollarsIfAvailable;
+	}
+
+	public int getBarWeight() {
+		return barWeight;
+	}
+
+	public boolean isLightBarInUse() {
+		return lightBarInUse;
 	}
 
 }
