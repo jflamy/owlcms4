@@ -32,8 +32,12 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 	public static Comparator<AgeGroup> ageGroupRegistrationComparator = AgeGroup.registrationComparator;
 	
 	public static Comparator<Category> categoryRegistrationComparator = (category1, category2) -> {
-		if (category2 == null) {
-			return -1; // category1 is smaller than null -- null goes to the end;
+		if (category1 == null && category2 == null) {
+			return 0;
+		} else if (category2 == null) {
+			return -1; // category1 is smaller than null -- category2 goes to the end;
+		} else if (category1 == null) {
+			return 1; // category1 is null, goes to the end
 		}
 		
 		int compare;
