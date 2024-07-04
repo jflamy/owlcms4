@@ -2881,7 +2881,7 @@ public class FieldOfPlay implements IUnregister {
 		}
 		recomputeLeadersAndRecords(this.displayOrder);
 
-		changePlatformEquipment(curAthlete2, newWeight);
+		changePlatformEquipment(curAthlete2, this.curWeight);
 
 		// logger.debug("&&&& previous {} current {} change {} from[{}]",
 		// getPrevWeight(), curWeight, newWeight,
