@@ -2,7 +2,7 @@
 
 > **The full-range solution for running competitions**
 >
-> This free application is a *fully-compliant* weightlifting competition management system that has been used worldwide to manage competitions of all sizes, from club meets to international championships. 
+> This free application is a *fully-compliant* weightlifting competition management system that has been used worldwide to manage competitions of all sizes, from club meets to international championships.   Click here for an [overview of features](#features).
 >
 > **Simple and automatic**
 >
@@ -20,13 +20,14 @@
 
 <table>
 <tr><td><a href="https://www.google.com/maps/d/embed?mid=1cFqfyfoF_RSoM56GewSPDWbuoHihsw4&ehbc=2E312F&ll=29.63705469324934%2C18.91643749999993&z=3" target="_bkank"><img src='img/Gallery/Map.png'></a></td><td>Current Usage<br/><a href="https://www.google.com/maps/d/embed?mid=1cFqfyfoF_RSoM56GewSPDWbuoHihsw4&ehbc=2E312F&ll=29.63705469324934%2C18.91643749999993&z=3" target="_blank">Click on image for an interactive map</a>.<br/>The owlcms competition management system is currently in use in over 70 federations.  See here for <a href="./#/Countries">a list</a></td></tr>
-<tr><td><img src='img/Gallery/lima.jpg'></img></td><td>PanAm Junior and SouthAmerican  U20/U17/U15 Championships, Lima, Peru.<br>The program  supports simultaneous platforms and displays the multiple rankings for multiple concurrent age group competitions</td></tr>
+<tr><td><img src='img/Gallery/IMG_5050.jpg'></img></td><td>USA National Championships<br>1500 athletes, 9 days (U11, U13, U15, U17, U20, U23, U25, Open and Adaptive championships)</td></tr>
 <tr><td><img src='img/Gallery/ElSalvador.jpg'></img></td><td>National Competition, El Salvador.<br>A simple setup with everyday electronics.</td></tr>
-<tr><td><img src='img/Gallery/chelles.jpg' size=250></img></td><td>Club meet, Chelles, France.<br>Supports mixed-gender kid groups.</td></tr>
+<tr><td><img src='img/Gallery/chelles.jpg' size=250></img></td><td>Club meet, Chelles, France.<br>Supports mixed-gender kid groups.  Attempt board shows correct loading for 5kg/10kg bars and 2.5kg/5kg large plates.</td></tr>
 <tr><td><img src='img/Gallery/IMG_1480.jpg' size=250></img></td><td>Canadian Senior Championship, Kelowna, Canada. A full-scale national championship.</td></tr>
 <tr><td><img src='img/Gallery/gaspe2018.png' size=250></img></td><td>PanAm Masters Championship, Gaspé, Canada. The program has full support of Masters rules and coefficients.</td></tr>
 <tr><td><img src='img/Gallery/Streaming.png' size=250></img></td><td>Multiple simultaneous age groups (South American Championships, Guayaquil, Ecuador)<br /><br /> Built-in customizable live streaming/TV-oriented displays.</td></tr>
-<tr><td><img src='img/Gallery/mexicoNational.jpg'></img></td><td>Mexico National Games.<br>(4 platforms, each with jury.)</td></tr>
+<tr><td><img src='img/Gallery/lima.jpg'></img></td><td>PanAm Junior and SouthAmerican  U20/U17/U15 Championships, Lima, Peru.<br>The program  supports simultaneous platforms and displays the multiple rankings for multiple concurrent age group competitions</td></tr>
+<tr><td><img src='img/Gallery/BRICS.png'></img></td><td>BRICS Games 2024 Multi-national event.</td></tr>
 </table>
 
 

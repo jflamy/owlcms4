@@ -4,20 +4,22 @@ Feature Switches (also known as Feature Toggles) are parameters that can be turn
 
 Feature switches are not case sensitive.  Enter them separated by a comma if you need more than one.
 
-### Candidate Features
+### Common Features
 
-These switches will likely be converted to regular options
+These switches may eventually be promoted to the user interface.
 
-| Feature Switch            | Description                                                  | Normal Way to Activate              |
-| ------------------------- | ------------------------------------------------------------ | ----------------------------------- |
-| AthleteCardEntryTotal     | Show the entry total on the interactive athlete card used by the marshal | Only available as a feature switch. |
-| explicitTeams             | When loading the registration file or the SBDE file, do not add the athlete to the teams according to their eligibility categories. Teams must be assigned manually. | Only available as a feature switch. |
-| bestMatchCategories       | If present, then at weigh-in the youngest most specific age group will be selected as the registration category.  Use this when the age alone is sufficient to determine the competition group. | Only available as a feature switch. |
-| bwClassThenAgeGroup       | The normal start group allocation is "ascending body weight category, lot number within body weight category".  This changes the behavior to "ascending bodyweight category, ascending age group, lot number" -- the resulting scoreboard is easier to read in the context of multiple age groups competing simultaneously. | Only available as a feature switch. |
-| serverTimers              | Use a server-based implementation of timers instead of the current model where the JavaScript timers trigger the events. | Only available as a feature switch. |
-| gamx                      | activate the GAMX scoring system from Marianne Huebner       | Only available as a feature switch. |
-| forceAllGroupRecords      | On scoreboards show records from all categories, not just that of the current athlete | Only available as a feature switch. |
-| forceAllFederationRecords | On scoreboards show records from all federations, not just that of the current athlete.  E.g. South American records would be shown for a North American athlete during a Pan American championship. | Only available as a feature switch. |
+| Feature Switch               | Description                                                  | Normal Way to Activate                    |
+| ---------------------------- | ------------------------------------------------------------ | ----------------------------------------- |
+| athleteCardEntryTotal        | Show the entry total on the interactive athlete card used by the marshal | Only available as a feature switch.       |
+| explicitTeams                | When loading the registration file or the SBDE file, do not add the athlete to the teams according to their eligibility categories. Teams must be assigned manually. | Only available as a feature switch.       |
+| bestMatchCategories          | If present, then at weigh-in the youngest most specific age group will be selected as the registration category.  Use this when the age alone is sufficient to determine the competition group. | Only available as a feature switch.       |
+| bwClassThenAgeGroup          | The normal start group allocation is "ascending body weight category, lot number within body weight category".  This changes the behavior to "ascending bodyweight category, ascending age group, lot number" -- the resulting scoreboard is easier to read in the context of multiple age groups competing simultaneously. | Only available as a feature switch.       |
+| gamx                         | activate the GAMX scoring system from Marianne Huebner       | Only available as a feature switch.       |
+| forceAllGroupRecords         | On scoreboards show records from all categories, not just that of the current athlete | Only available as a feature switch.       |
+| forceAllFederationRecords    | On scoreboards show records from all federations, not just that of the current athlete.  E.g. South American records would be shown for a North American athlete during a Pan American championship. | Only available as a feature switch.       |
+| childrenEquipment            | If present, it is assumed that all platforms have 2,5kg and 5kg large discs, and have 5kg and 10kg bars | Only available as a feature switch.       |
+| centerAnnouncerNotifications | if present, the notifications to the announcer are centered by default. | Can be changed from the speaker settings. |
+| noLiveLights                 | If present, the speaker does not see the live decisions.     | Can be changed from the speaker settings. |
 
 ### Specialty Features
 
