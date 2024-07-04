@@ -39,14 +39,17 @@ public class PlatesElement extends FlexLayout {
 		}
 
 		final Athlete currentAthlete = fop.getCurAthlete();
-		final Integer barWeight = computeBarWeight(fop);
 		if (currentAthlete == null) {
 			return;
 		}
+		
+		final Integer barWeight = computeBarWeight(fop);
 		this.setWeight(currentAthlete.getNextAttemptRequestedWeight());
 		final String caption = Translator.translate("Kg", this.getWeight());
+		logger.warn("caption {}",caption);
 
 		setPlatform(fop.getPlatform());
+		logger.warn("before createImageArea save, platform identity={} 5kg={}",System.identityHashCode(fop.getPlatform()), fop.getPlatform().getNbB_5());
 		createImageArea(fop, barWeight, (showCaption ? caption : ""));
 	}
 
@@ -63,7 +66,7 @@ public class PlatesElement extends FlexLayout {
 	private int addPlates(Integer availablePlates, String style, double plateWeight) {
 		int subtractedWeight = 0;
 
-		logger.warn("adding plates {} {} {} {}", availablePlates, style, getWeight(), plateWeight);
+		logger.warn("adding plates {} {} {} {} -- {}", availablePlates, style, getWeight(), plateWeight, LoggerUtils.whereFrom());
 		while (availablePlates > 0 && this.getWeight() >= plateWeight) {
 			NativeLabel plate = new NativeLabel();
 			plate.setSizeUndefined();
@@ -73,7 +76,8 @@ public class PlatesElement extends FlexLayout {
 			} else if (isColorBars() && (style.startsWith("bar"))) {
 				int barWeight = platform.getNonStandardBarWeight();
 				plate.getElement().getStyle().set("outline-color", "black");
-				plate.getElement().getStyle().set("outline-width", "medium");
+				plate.getElement().getStyle().set("outline-width", "thin");
+				plate.getElement().getStyle().set("outline-style", "solid");
 				if (barWeight <= 5) {
 					plate.getElement().getStyle().set("background-color", "white");
 				} else if (barWeight <= 8) {

@@ -162,6 +162,7 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 */
 	public Platform() {
 		setId(IdUtils.getTimeBasedId());
+		logger.warn("new Platform 1 {} {}",this.getNbB_5(), LoggerUtils.whereFrom());
 	}
 
 	/**
@@ -172,7 +173,8 @@ public class Platform implements Serializable, Comparable<Platform> {
 	public Platform(String name) {
 		setId(IdUtils.getTimeBasedId());
 		this.setName(name);
-		this.defaultPlates();
+		logger.warn("new Platform 2",this.getNbB_5());
+		//this.defaultPlates();
 	}
 
 	@Override
@@ -533,6 +535,7 @@ public class Platform implements Serializable, Comparable<Platform> {
 	}
 
 	public void setNbB_5(Integer nbB_5) {
+		logger.warn("setting 5kg bumper {}",nbB_5);
 		this.nbB_5 = nbB_5;
 	}
 

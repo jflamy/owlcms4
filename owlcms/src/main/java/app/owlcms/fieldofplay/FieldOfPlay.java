@@ -51,6 +51,7 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athlete.LiftDefinition;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
@@ -2912,41 +2913,43 @@ public class FieldOfPlay implements IUnregister {
 
 	private void changePlatformEquipment(Athlete a, Integer newWeight) {
 		if (Config.getCurrent().featureSwitch("usawChildren")) {
-			platform.setNbB_5(1);
-			platform.setNbB_10(1);
-			platform.setNbB_15(1);
-			platform.setNbB_20(1);
-			platform.setNbL_2_5(1);
-			platform.setNbL_5(1);
+			getPlatform().setNbB_5(1);
+			getPlatform().setNbB_10(1);
+			getPlatform().setNbB_15(1);
+			getPlatform().setNbB_20(1);
+			getPlatform().setNbL_2_5(1);
+			getPlatform().setNbL_5(1);
 			checkNo20kg(a);
 		} else {
 			checkNo20kg(a);
 		}
 
-		if (newWeight <= 14 && platform.getNbB_5() > 0) {
+		if (newWeight <= 14 && getPlatform().getNbB_5() > 0) {
 			logger.warn("<= 14");
-			platform.setLightBarInUse(true);
-			platform.setNonStandardBarWeight(5);
-			platform.setUseCollarsIfAvailable(false);
-		} else if (newWeight <= 19 && platform.getNbB_10() > 0) {
+			getPlatform().setLightBarInUse(true);
+			//FIXME: NonStandardBarWeight should be used for the 7kg bar, not for the actual bar in use.
+			getPlatform().setNonStandardBarWeight(5);
+			getPlatform().setUseCollarsIfAvailable(false);
+		} else if (newWeight <= 19 && getPlatform().getNbB_10() > 0) {
 			logger.warn("<= 19");
-			platform.setLightBarInUse(true);
-			platform.setNonStandardBarWeight(10);
-			platform.setUseCollarsIfAvailable(false);
-		} else if ((newWeight <= 39 && platform.getNbB_20() == 0) && (platform.getNbB_15() > 0)) {
+			getPlatform().setLightBarInUse(true);
+			getPlatform().setNonStandardBarWeight(10);
+			getPlatform().setUseCollarsIfAvailable(false);
+		} else if ((newWeight <= 39 && getPlatform().getNbB_20() == 0) && (getPlatform().getNbB_15() > 0)) {
 			logger.warn("<= 39 15");
-			platform.setLightBarInUse(true);
-			platform.setNonStandardBarWeight(15);
-			platform.setUseCollarsIfAvailable(false);
-		} else if ((newWeight >= 40 || platform.getNbB_20() == 0) && (platform.getNbB_15() > 0)) {
+			getPlatform().setLightBarInUse(true);
+			getPlatform().setNonStandardBarWeight(15);
+			getPlatform().setUseCollarsIfAvailable(false);
+		} else if ((newWeight >= 40 || getPlatform().getNbB_20() == 0) && (getPlatform().getNbB_15() > 0)) {
 			logger.warn(">=40 15 collars");
-			platform.setLightBarInUse(true);
-			platform.setNonStandardBarWeight(15);
-			platform.setUseCollarsIfAvailable(true);
+			getPlatform().setLightBarInUse(true);
+			getPlatform().setNonStandardBarWeight(15);
+			getPlatform().setUseCollarsIfAvailable(true);
 		} else {
 			logger.warn("standard");
-			platform.setLightBarInUse(false);
-			platform.setUseCollarsIfAvailable(true);
+			getPlatform().setLightBarInUse(false);
+			getPlatform().setNonStandardBarWeight(curAthlete.getGender() == Gender.M ? 20 : 15);
+			getPlatform().setUseCollarsIfAvailable(true);
 		}
 		return;
 	}
@@ -2957,10 +2960,10 @@ public class FieldOfPlay implements IUnregister {
 			// would include U9, U11, and 12-13 U13 but not a 13-15 or 14-15 U15 group.
 			// if 13-15 uses 15kg for boys, would have to be manually set.
 			logger.warn("no 20kg");
-			platform.setNbB_20(0);
+			getPlatform().setNbB_20(0);
 		} else {
 			logger.warn("20kg available");
-			platform.setNbB_20(1);
+			getPlatform().setNbB_20(1);
 		}
 	}
 
