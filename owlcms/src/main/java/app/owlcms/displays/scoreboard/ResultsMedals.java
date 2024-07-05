@@ -37,6 +37,7 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.data.team.Team;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -346,16 +347,9 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		String prop = null;
 		if (getCategory() != null) {
 			String team = a.getTeam();
-			String teamFileName = URLUtils.sanitizeFilename(team);
 
 			if (this.teamFlags && !team.isBlank()) {
-				prop = URLUtils.getImgTag("flags/", teamFileName, ".svg", "");
-				if (prop == null) {
-					prop = URLUtils.getImgTag("flags/", teamFileName, ".png", "");
-					if (prop == null) {
-						prop = URLUtils.getImgTag("flags/", teamFileName, ".jpg", "");
-					}
-				}
+				prop = Team.getImgTag(team, "");
 			}
 			ja.put("flagURL", prop != null ? prop : "");
 			ja.put("flagClass", "flags");

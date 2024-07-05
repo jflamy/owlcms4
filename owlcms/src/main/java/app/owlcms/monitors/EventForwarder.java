@@ -51,6 +51,7 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
+import app.owlcms.data.team.Team;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IBreakTimer;
@@ -141,9 +142,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private Championship ceremonyChampionship;
 	private String ceremonyEventType;
 	private String forwardedFopName;
-	
+
 	private static Map<String, EventForwarder> eventForwarderByName = new HashMap<>();
-	
+
 	synchronized public static EventForwarder initEventForwarderByName(String name, FieldOfPlay fieldOfPlay) {
 		EventForwarder eventForwarder = eventForwarderByName.get(name);
 		if (eventForwarder == null) {
@@ -473,20 +474,13 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	 */
 	public void setTeamFlag(Athlete a, JsonObject ja) {
 		String team = a.getTeam();
-		String teamFileName = URLUtils.sanitizeFilename(team);
 		String prop = null;
 		if (this.teamFlags == null) {
 			this.teamFlags = URLUtils.checkFlags();
 		}
 
 		if (this.teamFlags && !team.isBlank()) {
-			prop = URLUtils.getImgTag("flags/", teamFileName, ".svg", "");
-			if (prop == null) {
-				prop = URLUtils.getImgTag("flags/", teamFileName, ".png", "");
-				if (prop == null) {
-					prop = URLUtils.getImgTag("flags/", teamFileName, ".jpg", "");
-				}
-			}
+			prop = Team.getImgTag(team, "");
 		}
 		ja.put("teamLength", team.isBlank() ? "" : (team.length() + 2) + "ch");
 		ja.put("flagURL", prop != null ? prop : "");
@@ -684,7 +678,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	public void unregister() {
 		// we do nothing.  We now have exactly one EventForwarder per name
 		// and we reuse it if we ever recreate the field of play
-		
+
 //		logger.info("unregistering event forwarder for platform {}",getForwardedFopName());
 //		this.postBus.unregister(this);
 //		this.setFop(null);
@@ -1015,7 +1009,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			sb.putAll(getLastTimerMap());
 		}
 		recomputeRemainingTimes(sb);
-		
+
 		if (getLastDecisionMap() != null) {
 			sb.putAll(getLastDecisionMap());
 		}

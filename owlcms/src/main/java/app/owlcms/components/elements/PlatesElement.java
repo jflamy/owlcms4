@@ -9,6 +9,7 @@ package app.owlcms.components.elements;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 
@@ -18,51 +19,51 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
+@SuppressWarnings("serial")
 @Tag("plates-element")
 public class PlatesElement extends FlexLayout {
 
 	@SuppressWarnings("unused")
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(PlatesElement.class);
-	private static final long serialVersionUID = 8340222363211435843L;
 	private int weight;
+	private UI ui;
 
-	public PlatesElement() {
+	public PlatesElement(UI ui) {
 		this.getClassNames().add("loadChart");
+		this.ui = ui;
 	}
 
 	public void computeImageArea(FieldOfPlay fop, boolean showCaption) {
 		if (fop == null) {
 			return;
 		}
-		
 
 		final Athlete currentAthlete = fop.getCurAthlete();
 		if (currentAthlete == null) {
 			return;
 		}
-		
+
 		final int barWeight = fop.getBarWeight();
 		this.setWeight(currentAthlete.getNextAttemptRequestedWeight());
 		final String caption = Translator.translate("Kg", this.getWeight());
-		//logger.debug"caption {}",caption);
-		
-		//logger.debug"before createImageArea save, platform identity={} 5kg={}",System.identityHashCode(fop.getPlatform()), fop.getPlatform().getNbB_5());
+		//logger.debug("caption {}",caption);
+
+		//logger.debug("before createImageArea save, platform identity={} 5kg={}",System.identityHashCode(fop.getPlatform()), fop.getPlatform().getNbB_5());
 		createImageArea(fop, barWeight, (showCaption ? caption : ""));
 	}
-
 
 	/**
 	 * @param availablePlates
 	 * @param style
 	 * @param plateWeight
-	 * @param fop field of play
-	 * @param outline show the outline
+	 * @param fop             field of play
+	 * @param outline         show the outline
 	 * @return
 	 */
 	private int addPlates(Integer availablePlates, String style, double plateWeight, FieldOfPlay fop, boolean outline) {
 		int subtractedWeight = 0;
 
-		//logger.debug"adding plates {} {} {} {} -- {}", availablePlates, style, getWeight(), plateWeight, LoggerUtils.whereFrom());
+		//logger.debug("adding plates {} {} {} {} -- {}", availablePlates, style, getWeight(), plateWeight, LoggerUtils.whereFrom());
 		while (availablePlates > 0 && this.getWeight() >= plateWeight) {
 			NativeLabel plate = new NativeLabel();
 			plate.setSizeUndefined();
@@ -76,7 +77,7 @@ public class PlatesElement extends FlexLayout {
 					plate.getElement().getStyle().set("outline-width", "thin");
 					plate.getElement().getStyle().set("outline-style", "solid");
 				}
-				
+
 				// brown is used for non-standard bar (typically 15lb, 7kg)
 				if (barWeight < 4.99) {
 					plate.getElement().getStyle().set("background-color", "brown");
@@ -103,38 +104,6 @@ public class PlatesElement extends FlexLayout {
 		return subtractedWeight;
 	}
 
-//	private boolean isColorBars() {
-//		return platform.getNbB_20() == 0 || platform.getNbB_10() > 0 || platform.getNbB_5() > 0;
-//	}
-
-//	private Integer computeBarWeight(FieldOfPlay fop) {
-//		if (fop == null) {
-//			return 0;
-//		}
-//		Platform platform = fop.getPlatform();
-//		if (platform.isLightBarInUse() && platform.getNonStandardBarWeight() > 0) {
-//			return fop.getBarWeight();
-//		} else {
-//			return computeOfficialBarWeight(fop, platform);
-//		}
-//	}
-//
-//	/**
-//	 * @return
-//	 */
-//	private Integer computeOfficialBarWeight(FieldOfPlay fop, Platform platform) {
-//		if (fop == null || platform == null) {
-//			return 0;
-//		}
-//
-//		final Athlete currentAthlete = fop.getCurAthlete();
-//		Gender gender = Gender.M;
-//		if (currentAthlete != null) {
-//			gender = currentAthlete.getGender();
-//		}
-//		final int expectedBarWeight = Gender.M.equals(gender) ? 20 : 15;
-//		return expectedBarWeight;
-//	}
 
 	/**
 	 * @param platform
@@ -142,87 +111,78 @@ public class PlatesElement extends FlexLayout {
 	 * @param caption
 	 */
 	private void createImageArea(FieldOfPlay fop, final Integer barWeight, final String caption) {
-		this.removeAll();
-		Platform platform = fop.getPlatform();
-		boolean outline = caption != null && !caption.isBlank();
+		ui.access(() -> {
+			this.removeAll();
+			Platform platform = fop.getPlatform();
+			boolean outline = caption != null && !caption.isBlank();
 
-		if (this.getWeight() == 0) {
-			return;
-			// compute the bar and collar first.
-		}
-
-		int nonBarWeight = this.getWeight() - barWeight;
-
-		addPlates(1, "bar", barWeight, fop, outline);
-
-		final Integer collarAvailable = platform.getNbC_2_5();
-		boolean useCollar = collarAvailable > 0 && fop.isUseCollarsIfAvailable();
-
-		// if (this.getWeight() >= 25) {
-		// addPlates(1, "barInner", 0);
-		// if (useCollar) {
-		// // we only take off the collar weight because we need to
-		// // wait before showing the collar.
-		// this.setWeight(this.getWeight() - 5);
-		// }
-		//
-		// // use large plates first
-		// addPlates(platform.getNbL_25(), "L_25", 2 * 25);
-		// addPlates(platform.getNbL_20(), "L_20", 2 * 20);
-		// addPlates(platform.getNbL_15(), "L_15", 2 * 15);
-		// addPlates(platform.getNbL_10(), "L_10", 2 * 10);
-		// } else
-		if (nonBarWeight >= 0) {
-			addPlates(1, "barInner", 0, fop, outline);
-
-			//logger.debug"barWeight = {} nonBarWeight = {}", barWeight, nonBarWeight);
-			// make sure that large 5 and large 2.5 are only used when warranted
-			// (must not require manual intervention if they are available)
-			if (platform.getNbL_2_5() > 0 && nonBarWeight < 10 || platform.getNbL_5() > 0 && nonBarWeight < 15) {
-				useCollar = false;
-			}
-			if (useCollar) {
-				// we take off the collar weight because we need to
-				// wait before showing the collar.
-				this.setWeight(this.getWeight() - 5);
-				nonBarWeight -= 5;
+			if (this.getWeight() == 0) {
+				return;
+				// compute the bar and collar first.
 			}
 
-			// use large plates first
-			int subtractedWeight = 0;
-			subtractedWeight += addPlates(platform.getNbL_25(), "L_25", 2 * 25, fop, outline);
-			subtractedWeight += addPlates(platform.getNbL_20(), "L_20", 2 * 20, fop, outline);
-			subtractedWeight += addPlates(platform.getNbL_15(), "L_15", 2 * 15, fop, outline);
-			subtractedWeight += addPlates(platform.getNbL_10(), "L_10", 2 * 10, fop, outline);
+			//logger.debug("barWeight {}",barWeight);
+			int nonBarWeight = this.getWeight() - barWeight;
+
+			addPlates(1, "bar", barWeight, fop, outline);
+
+			final Integer collarAvailable = platform.getNbC_2_5();
+			boolean useCollar = collarAvailable > 0 && fop.isUseCollarsIfAvailable();
+
+			if (nonBarWeight >= 0) {
+				addPlates(1, "barInner", 0, fop, outline);
+
+				//logger.debug("barWeight = {} nonBarWeight = {}", barWeight, nonBarWeight);
+				// make sure that large 5 and large 2.5 are only used when warranted
+				// (must not require manual intervention if they are available)
+				if (platform.getNbL_2_5() > 0 && nonBarWeight < 10 || platform.getNbL_5() > 0 && nonBarWeight < 15) {
+					useCollar = false;
+				}
+				if (useCollar) {
+					// we take off the collar weight because we need to
+					// wait before showing the collar.
+					this.setWeight(this.getWeight() - 5);
+					nonBarWeight -= 5;
+				}
+
+				// use large plates first
+				int subtractedWeight = 0;
+				subtractedWeight += addPlates(platform.getNbL_25(), "L_25", 2 * 25, fop, outline);
+				subtractedWeight += addPlates(platform.getNbL_20(), "L_20", 2 * 20, fop, outline);
+				subtractedWeight += addPlates(platform.getNbL_15(), "L_15", 2 * 15, fop, outline);
+				subtractedWeight += addPlates(platform.getNbL_10(), "L_10", 2 * 10, fop, outline);
+
+				//logger.debug("1 subtractedWeight {} nonBarWeight {}", subtractedWeight, nonBarWeight);
+				if (subtractedWeight == 0 && nonBarWeight >= 10) {
+					// we have not used a large plate
+					subtractedWeight += addPlates(platform.getNbL_5(), "L_5", 2 * 5, fop, outline);
+				}
+
+				//logger.debug("2 subtractedWeight {} nonBarWeight {}", subtractedWeight, nonBarWeight);
+				if (subtractedWeight == 0 && nonBarWeight >= 5) {
+					// we have not used a large plate
+					subtractedWeight += addPlates(platform.getNbL_2_5(), "L_2_5", 2 * 2.5, fop, outline);
+				}
+				
+				//logger.debug("3 subtractedWeight {} nonBarWeight {}", subtractedWeight, nonBarWeight);
 			
-			//logger.debug"1 subtractedWeight {} nonBarWeight {}", subtractedWeight, nonBarWeight);
-			if (subtractedWeight == 0 && nonBarWeight >= 10) {
-				// we have not used a large plate
-				subtractedWeight += addPlates(platform.getNbL_5(), "L_5", 2 * 5, fop, outline);
+				// add the small plates
+				addPlates(platform.getNbS_5(), "S_5", 2 * 5, fop, outline);
+				addPlates(platform.getNbS_2_5(), "S_2_5", 2 * 2.5, fop, outline);
+				
+				// collar is depicted here
+				if (useCollar) {
+					this.setWeight(this.getWeight() + 5);
+					addPlates(collarAvailable, "C_2_5", 2 * 2.5, fop, outline);
+				}
+				// remainder of small plates
+				addPlates(platform.getNbS_2(), "S_2", 2 * 2, fop, outline);
+				addPlates(platform.getNbS_1_5(), "S_1_5", 2 * 1.5, fop, outline);
+				addPlates(platform.getNbS_1(), "S_1", 2 * 1, fop, outline);
+				addPlates(platform.getNbS_0_5(), "S_0_5", 2 * 0.5, fop, outline);
+				addPlates(1, "barOuter", 0, fop, outline);
 			}
-			
-			//logger.debug"2 subtractedWeight {} nonBarWeight {}", subtractedWeight, nonBarWeight);
-			if (subtractedWeight == 0 && nonBarWeight >= 5) {
-				// we have not used a large plate
-				subtractedWeight += addPlates(platform.getNbL_2_5(), "L_2_5", 2 * 2.5, fop, outline);
-			}
-
-			// add the small plates
-			addPlates(platform.getNbS_5(), "S_5", 2 * 5, fop, outline);
-			addPlates(platform.getNbS_2_5(), "S_2_5", 2 * 2.5, fop, outline);
-			// collar is depicted here
-			if (useCollar) {
-				// we add back the collar weight we took off above
-				this.setWeight(this.getWeight() + 5);
-				addPlates(collarAvailable, "C_2_5", 2 * 2.5, fop, outline);
-			}
-			// remainder of small plates
-			addPlates(platform.getNbS_2(), "S_2", 2 * 2, fop, outline);
-			addPlates(platform.getNbS_1_5(), "S_1_5", 2 * 1.5, fop, outline);
-			addPlates(platform.getNbS_1(), "S_1", 2 * 1, fop, outline);
-			addPlates(platform.getNbS_0_5(), "S_0_5", 2 * 0.5, fop, outline);
-			addPlates(1, "barOuter", 0, fop, outline);
-		}
+		});
 	}
 
 	private int getWeight() {
@@ -230,7 +190,7 @@ public class PlatesElement extends FlexLayout {
 	}
 
 	private void setWeight(int weight) {
-		//logger.debug"weight = {} -- {}", weight, LoggerUtils.whereFrom());
+		//logger.debug("weight = {} -- {}", weight, LoggerUtils.whereFrom());
 		this.weight = weight;
 	}
 

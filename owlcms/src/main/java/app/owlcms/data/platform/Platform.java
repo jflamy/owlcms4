@@ -154,7 +154,7 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 */
 	private Boolean showTimer = false;
 	private String soundMixerName;
-	private Boolean nonStandardBarAvailable;
+	private Boolean nonStandardBarAvailable = false;
 
 	/**
 	 * Instantiates a new platform. Used for import, no default values.
@@ -258,11 +258,11 @@ public class Platform implements Serializable, Comparable<Platform> {
 	}
 
 	public Integer getNbB_15() {
-		return this.nbB_15 != null ? this.nbB_15 : 0;
+		return this.nbB_15 != null ? this.nbB_15 : 1;
 	}
 
 	public Integer getNbB_20() {
-		return this.nbB_20 != null ? this.nbB_20 : 0;
+		return this.nbB_20 != null ? this.nbB_20 : 1;
 	}
 
 	public Integer getNbB_5() {
@@ -524,6 +524,7 @@ public class Platform implements Serializable, Comparable<Platform> {
 	}
 
 	public void setNbB_20(Integer nbB_20) {
+		//logger.debug("nbB_20 = {} {}",nbB_20, LoggerUtils.whereFrom());
 		this.nbB_20 = nbB_20;
 	}
 

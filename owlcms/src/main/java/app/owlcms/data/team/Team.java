@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.data.team;
 
+import java.util.Arrays;
 import java.util.Comparator;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -13,6 +14,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.utils.URLUtils;
 
 /**
  * A non-persistent class to assist in creating reports and team results
@@ -21,6 +23,13 @@ import app.owlcms.data.competition.Competition;
  */
 public class Team {
 
+	public static String[] flagExtensions = {
+		".svg",
+		".png",
+		".jpg",
+		".jpeg",
+		".webp"
+	};
 	public static Comparator<Team> pointsComparator = ((a,
 	        b) -> -ObjectUtils.compare(a.getPoints(), b.getPoints(), true));
 	public static Comparator<Team> scoreComparator = ((a,
@@ -37,6 +46,20 @@ public class Team {
 	private double gamx;
 	private double qPoints = 0.0D;
 	private Ranking scoringSystem;
+
+	public static String[] getFlagExtensions() {
+		return flagExtensions;
+	}
+
+	public static String getImgTag(String teamName, String style) {
+		String teamFileName = URLUtils.sanitizeFilename(teamName);
+
+		return Arrays.stream(getFlagExtensions())
+			.map(ext -> URLUtils.getImgTag("flags/", teamFileName, ext, style))
+			.filter(img -> img != null)
+			.findFirst()
+			.orElse(null);
+	}
 
 	public Team(String curTeamName, Gender gender) {
 		this.name = curTeamName;

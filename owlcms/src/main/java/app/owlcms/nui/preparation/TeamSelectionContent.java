@@ -61,6 +61,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.team.Team;
 import app.owlcms.data.team.TeamSelectionTreeData;
 import app.owlcms.data.team.TeamTreeItem;
 import app.owlcms.i18n.Translator;
@@ -310,7 +311,7 @@ public class TeamSelectionContent extends BaseContent
 	protected OwlcmsCrudGrid<TeamTreeItem> createCrudGrid(OwlcmsCrudFormFactory<TeamTreeItem> crudFormFactory) {
 		TreeGrid<TeamTreeItem> grid = new TreeGrid<>();
 		boolean teamFlags = URLUtils.checkFlags();
-		
+
 		grid.addComponentHierarchyColumn((p -> {
 			// null indicates that the entry is for a team, not a person
 			if (p.isTeamMember() != null) {
@@ -318,16 +319,9 @@ public class TeamSelectionContent extends BaseContent
 			}
 
 			String team = p.getTeam().getName();
-			String teamFileName = URLUtils.sanitizeFilename(team);
 			String tag = null;
 			if (teamFlags && !team.isBlank()) {
-				tag = URLUtils.getImgTag("flags/", teamFileName, ".svg", "style='width:3em'");
-				if (tag == null) {
-					tag = URLUtils.getImgTag("flags/", teamFileName, ".png", "style='width:3em'");
-					if (tag == null) {
-						tag = URLUtils.getImgTag("flags/", teamFileName, ".jpg", "style='width:3em'");
-					}
-				}
+				tag = Team.getImgTag(team, "style='width:3em'");
 			}
 			HorizontalLayout hl = new HorizontalLayout();
 			if (tag != null) {
@@ -458,7 +452,7 @@ public class TeamSelectionContent extends BaseContent
 		this.topBarAgeDivisionSelect.setWidth("15em");
 		this.topBarAgeDivisionSelect.getStyle().set("margin-left", "1em");
 		setAgeDivisionSelectionListener();
-		
+
 		if (this.genderFilter == null) {
 			this.genderFilter = new ComboBox<>();
 			this.genderFilter.setPlaceholder(Translator.translate("Gender"));
@@ -472,7 +466,7 @@ public class TeamSelectionContent extends BaseContent
 			});
 			this.genderFilter.setWidth("10em");
 		}
-		
+
 		crudGrid2.getCrudLayout().addFilterComponent(this.topBarAgeDivisionSelect);
 		crudGrid2.getCrudLayout().addFilterComponent(this.topBarAgeGroupPrefixSelect);
 		crudGrid2.getCrudLayout().addFilterComponent(this.genderFilter);

@@ -5,6 +5,10 @@
 > - This is a **beta release**, used for testing and translation. ***Some features could be non-functional***.
 > - Beta releases are **not** normally used in actual competitions, except if a new feature is required. Use extreme care in testing if you intend to do so.
 
+- (beta02) Fix for plates loading chart computation when using Open Categories
+- (beta02) Improvement: accept common image formats for flags (`.svg`, `.png`, `.jpg`, `.jpeg`, or `.webp`)
+- New: The speaker gets a notification for a change of athlete
+  - The notification is synchronized with the appearance of the athlete's name on the attempt board to respect TCRR rules.
 - New default values: 
   - Declarations are *no longer* shown to the speaker by default. The speaker can show/hide the declaration notifications using the ⚙ menu.
   - The marshal screen shows athletes in start order by default. The marshal can unselect this behavior and get lifting order using the ⚙ menu.
@@ -18,8 +22,6 @@
   - If lighter children's bars are used, they will be shown in white/green/yellow on the attempt board according to bar weight.  Brown is used for non-standard bars
   - The same rules are applied for light Masters loads if the light bars are selected.
   - The [feature toggle](https://owlcms.github.io/owlcms4-prerelease/#/FeatureToggles) `childrenEquipment` automatically indicates that 5/10 bars and 2,5/5 large plates are available.
-- New: The speaker gets a notification for a change of athlete
-  - The notification is synchronized with the appearance of the athlete's name on the attempt board to respect TCRR rules.
 - Fix: IWF behavior for start numbers ([gh-1025](https://github.com/jflamy/owlcms4/pull/1026))
 - Improvements:
   - The information update in the announcer and marshal grids now allows announcing the total as soon as the decision is made.
