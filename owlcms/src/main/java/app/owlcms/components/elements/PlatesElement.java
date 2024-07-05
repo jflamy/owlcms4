@@ -17,15 +17,14 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
+@SuppressWarnings("serial")
 @Tag("plates-element")
 public class PlatesElement extends FlexLayout {
 
 	@SuppressWarnings("unused")
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(PlatesElement.class);
-	private static final long serialVersionUID = 8340222363211435843L;
 	private int weight;
 	private UI ui;
 
