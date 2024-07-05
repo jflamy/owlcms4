@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.displays.attemptboard;
 
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +40,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
+import app.owlcms.data.team.Team;
 import app.owlcms.displays.video.StylesDirSelection;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -601,14 +603,8 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		this.getElement().setProperty("teamFlagImg", "");
 		String teamFileName = URLUtils.sanitizeFilename(team);
 		if (this.teamFlags && !team.isBlank()) {
-			boolean done;
-			done = URLUtils.setImgProp("teamFlagImg", "flags/", teamFileName, ".svg", this);
-			if (!done) {
-				done = URLUtils.setImgProp("teamFlagImg", "flags/", teamFileName, ".png", this);
-				if (!done) {
-					done = URLUtils.setImgProp("teamFlagImg", "flags/", teamFileName, ".jpg", this);
-				}
-			}
+			Arrays.stream(Team.getFlagExtensions())
+				.anyMatch(ext -> URLUtils.setImgProp("teamFlagImg", "flags/", teamFileName, ext, this));
 		}
 
 		String membership = a.getMembership();
