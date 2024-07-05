@@ -895,13 +895,14 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 	private void showPlates() {
 		AbstractAttemptBoard attemptBoard = this;
+		UI ui = UI.getCurrent();
 		OwlcmsSession.withFop((fop) -> {
 			UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 				try {
 					if (this.plates != null) {
 						attemptBoard.getElement().removeChild(this.plates.getElement());
 					}
-					this.plates = new PlatesElement();
+					this.plates = new PlatesElement(ui);
 					this.plates.computeImageArea(fop, false);
 					Element platesElement = this.plates.getElement();
 					// tell polymer that the plates belong in the slot named barbell of the template
