@@ -2947,12 +2947,12 @@ public class FieldOfPlay implements IUnregister {
 			this.setBarWeight(10);
 			this.setUseCollarsIfAvailable(false);
 		} else if ((newWeight <= 39 && getPlatform().getNbB_20() == 0) && (getPlatform().getNbB_15() > 0)) {
-			// logger.debug"<= 39 15");
+			//logger.debug("<= 39 15");
 			this.setLightBarInUse(true);
 			this.setBarWeight(15);
 			this.setUseCollarsIfAvailable(false);
-		} else if ((newWeight >= 40 || getPlatform().getNbB_20() == 0) && (getPlatform().getNbB_15() > 0)) {
-			// logger.debug">=40 15 collars");
+		} else if ((newWeight >= 40 && getPlatform().getNbB_20() == 0) && (getPlatform().getNbB_15() > 0)) {
+			//logger.debug(">=40 15 collars");
 			this.setLightBarInUse(true);
 			this.setBarWeight(15);
 			this.setUseCollarsIfAvailable(true);
@@ -2980,18 +2980,22 @@ public class FieldOfPlay implements IUnregister {
 	private void checkNo20kg(Athlete a) {
 		// not completely mocked during unit tests.
 		if (a == null || a.getAgeGroup() == null || getPlatform() == null) {
+			if (getPlatform() != null) {
+				getPlatform().setNbB_20(1);
+			}
 			return;
 		}
 
-		if (a.getAgeGroup().getMinAge() <= 12) {
+		if (a.getAgeGroup().getMinAge() <= 12 && a.getAgeGroup().getMaxAge() <= 25) {
 			// do not use 20kg bar
+			// Open categories start at 0 but have 999 as max age.
 			// would include U9, U11, and 12-13 U13 but not a 13-15 or 14-15 U15 group.
 			// if 13-15 uses 15kg for boys, would have to be manually set.
 			// logger.debug"no 20kg");
 			getPlatform().setNbB_20(0);
 		} else {
 			// logger.debug"20kg available");
-			getPlatform().setNbB_20(1);
+			//getPlatform().setNbB_20(1);
 		}
 	}
 

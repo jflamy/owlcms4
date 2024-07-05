@@ -216,7 +216,8 @@ public class DemoData {
 		c = LocalDateTime.of(c.getYear(), c.getMonth(), c.getDayOfMonth(), 10, 30, 0);
 
 		Platform platform1 = new Platform("A");
-		// Platform platform2 = new Platform("B");
+		platform1.setNbB_20(1);
+		platform1.setNbB_15(1);
 		Platform platform2 = platform1;
 
 		groupM1 = new Group("M1", c.plusHours((long) -2.0), c);

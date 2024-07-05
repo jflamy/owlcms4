@@ -15,6 +15,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -94,7 +95,6 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 
 	@Override
 	public void delete(Athlete Athlete) {
-
 		// do nothing;
 	}
 
@@ -138,8 +138,10 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 	@Subscribe
 	public void slaveBarbellChanged(UIEvent.BarbellOrPlatesChanged e) {
 		FieldOfPlay fop2 = OwlcmsSession.getFop();
+		if (e.getOrigin() == this) {return;}
 		if (fop2 != null) {
 			this.platform = fop2.getPlatform();
+			//logger.debug("slaveBarbellChanged");
 			plates.computeImageArea(fop2, true);
 		}
 	}
@@ -165,7 +167,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 	protected void init() {
 		setCrudFormFactory(createFormFactory());
 
-		this.plates = new PlatesElement();
+		this.plates = new PlatesElement(UI.getCurrent());
 		this.plates.setId("loadchart");
 		OwlcmsSession.withFop((fop) -> {
 			this.plates.computeImageArea(fop, true);

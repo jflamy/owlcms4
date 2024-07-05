@@ -109,6 +109,8 @@ public class ProdData {
 	 */
 	protected static void setupEmptyCompetition(EntityManager em) {
 		Platform platform1 = new Platform("A");
+		platform1.setNbB_20(1);
+		platform1.setNbB_15(1);
 
 		em.persist(new Group("M1", null, null));
 		em.persist(new Group("M2", null, null));
