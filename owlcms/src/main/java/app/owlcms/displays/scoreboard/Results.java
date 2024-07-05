@@ -7,6 +7,7 @@
 package app.owlcms.displays.scoreboard;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -45,6 +46,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.data.team.Team;
 import app.owlcms.displays.video.StylesDirSelection;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -406,17 +408,11 @@ public class Results extends LitTemplate
 			prop = this.athleteToFlag.get(a);
 		} else {
 			String team = a.getTeam();
-			String teamFileName = URLUtils.sanitizeFilename(team);
 
 			if (this.teamFlags && !team.isBlank()) {
-				prop = URLUtils.getImgTag("flags/", teamFileName, ".svg", "");
-				if (prop == null) {
-					prop = URLUtils.getImgTag("flags/", teamFileName, ".png", "");
-					if (prop == null) {
-						prop = URLUtils.getImgTag("flags/", teamFileName, ".jpg", "");
-					}
-				}
+				prop = Team.getImgTag(team, "");
 			}
+
 			// prop can be null, will be tested with ContainsKey
 			this.athleteToFlag.put(a, prop);
 			// ja.put("teamLength", team.isBlank() ? "" : (team.length()*1.2) + "ch");
@@ -753,7 +749,7 @@ public class Results extends LitTemplate
 		JsonArray ageGroups = Json.createArray();
 		return ageGroups;
 	}
-	
+
 
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 		String category;
@@ -818,7 +814,7 @@ public class Results extends LitTemplate
 			highlight = highlight + " outOfCompetition";
 		}
 		ja.put("fullName", fullName);
-		
+
 		// logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
 		ja.put("classname", highlight);
 
