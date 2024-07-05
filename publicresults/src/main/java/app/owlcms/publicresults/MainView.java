@@ -85,7 +85,7 @@ public class MainView extends VerticalLayout implements SafeEventBusRegistration
             removeAll();
             add(text);
         } else if (fopNames.size() == 1) {
-            logger.debug("single platform, proceeding to scoreboard");
+            logger.warn("single platform, proceeding to scoreboard");
             Map<String, String> parameterMap = new HashMap<>();
             String fop = fopNames.stream().findFirst().get();
             parameterMap.put("FOP", fop);

@@ -152,6 +152,12 @@ public final class UnloadObserverPR extends LitTemplate {
         logger.warn("inactive {} {}",component.getClass().getSimpleName(), System.identityHashCode(component));
         setInactivityValue(ui, System.currentTimeMillis());
     }
+    
+    public void setGoneTime(UI ui, Component component) {
+        // mark for immediate removal
+        logger.warn("gone {} {}",component.getClass().getSimpleName(), System.identityHashCode(component));
+        setInactivityValue(ui, 1L);
+    }
 
     /**
      * Controls whether or not there should be querying when the document is going

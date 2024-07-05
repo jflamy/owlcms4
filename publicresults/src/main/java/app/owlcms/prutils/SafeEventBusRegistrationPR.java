@@ -37,26 +37,30 @@ public interface SafeEventBusRegistrationPR {
             bus.register(c);
         }
 
-        UnloadObserverPR eventObserver = UnloadObserverPR.get(false);
-        // if needed, create the repeating task to cleanup things; one per session.
+        UnloadObserverPR eventObserver = UnloadObserverPR.get(true);
+        eventObserver.resetInactivityTime(ui, c);
+        
+        // Create the repeating task to cleanup things; singleton per session.
         SessionCleanup.get();
+        
         eventObserver.addEventListener((e) -> {
             String change = e.getChange();
             if (change.equals("beforeunload")) {
                 // actual killing is handled by the detach listener
                 try {
+                    eventObserver.setInactivityTime(ui, c);
                     unregister(c, bus);
                     logger.warn("{}: unregister {} from {}", change, c.getClass().getSimpleName(), bus.identifier());
                 } catch (Exception ex) {
                     LoggerUtils.logError(logger, ex, true);
                 }
                 UnloadObserverPR.remove();
+                return;
             }
             
             if (this instanceof TimerElementPR || this instanceof DecisionElementPR) {
                 return;
             }
-            
             
             if (change.equals("visibilityHidden")) {
                 // switching tabs or minimizing window. no visible scoreboard

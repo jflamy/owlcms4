@@ -1,5 +1,6 @@
 package app.owlcms.prutils;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Executors;
@@ -13,54 +14,70 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 public class SessionCleanup {
     private static final long INACTIVITY_INTERVAL = 15 * 1000;
-    Logger logger = (Logger) LoggerFactory.getLogger(SessionCleanup.class);
+    static Logger logger = (Logger) LoggerFactory.getLogger(SessionCleanup.class);
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private Runnable task;
     private ScheduledFuture<?> futureTask;
+    private VaadinSession vaadinSession;
 
-    private SessionCleanup(Runnable task) {
-        this.task = task;
+    private SessionCleanup(VaadinSession vs) {
+        this.vaadinSession = vs;
     }
 
-    private SessionCleanup() {
-        task = () -> cleanupSession();
-    }
-
-    private void cleanupSession() {
-        logger.warn("cleaning up session {}", LoggerUtils.fullStackTrace());
-        VaadinSession vs = VaadinSession.getCurrent();
-        vs.access(() -> {
+    public void cleanupSession() {
+        logger.warn("cleaning up session {}", System.identityHashCode(vaadinSession));
+        vaadinSession.access(() -> {
+            logger.warn("   inside");
             @SuppressWarnings("unchecked")
-            Map<UI, Long> im = (Map<UI, Long>) vs.getAttribute("inactivityMap");
-            long now = System.currentTimeMillis();
+            Map<UI, Long> im = (Map<UI, Long>) vaadinSession.getAttribute("inactivityMap");
+            logger.warn("   after get");
             int stillAlive = 0;
-            for (Entry<UI, Long> e : im.entrySet()) {
-                if (e.getValue() <= 0 || (now - e.getValue() < INACTIVITY_INTERVAL)) {
-                    stillAlive++;
-                }
-            }
-            if (stillAlive == 0) {
+            if (im != null) {
+                long now = System.currentTimeMillis();
+
                 for (Entry<UI, Long> e : im.entrySet()) {
-                    UI ui = e.getKey();
-                    ui.access(() -> {
-                        ui.removeAll();
-                        ui.getPage().executeJs("window.location='about.blank'");
-                    });
+                    if (e.getValue() <= 0 || (now - e.getValue() < INACTIVITY_INTERVAL)) {
+                        stillAlive++;
+                    }
                 }
-                // we can close the session now that all the pages have been redirected.
-                vs.close();
+
+                logger.warn("   cleaning up session {}: stillAlive: {}", System.identityHashCode(vaadinSession),
+                        stillAlive);
+                if (im.entrySet().isEmpty()) {
+                    logger.warn("   invalidating sessions {}", System.identityHashCode(vaadinSession));
+                    vaadinSession.getSession().invalidate();
+                    vaadinSession.close();
+                    stop();
+                }
+            } else {
+                logger.warn("   no registered map");
+            }
+
+            if (stillAlive == 0) {
+                Iterator<Entry<UI, Long>> entryIterator = im.entrySet().iterator();
+                while (entryIterator.hasNext()) {
+                    Entry<UI, Long> e = entryIterator.next();
+                    UI ui = e.getKey();
+                    logger.warn("   going away from UI {}", ui);
+                    if (ui.isAttached()) {
+                        ui.access(() -> {
+                            ui.removeAll();
+                            ui.getPage().executeJs("window.location='about:blank'");
+                            ui.close();
+                        });
+                    }
+                    entryIterator.remove();
+                }
             }
         });
         return;
     }
 
     public void scheduleAtFixedRate(long delay, TimeUnit unit) {
-        futureTask = scheduler.scheduleAtFixedRate(task, delay, delay, unit);
+        futureTask = scheduler.scheduleAtFixedRate(() -> cleanupSession(), 0, delay, unit);
     }
 
     public void stop() {
@@ -72,24 +89,13 @@ public class SessionCleanup {
 
     public static SessionCleanup get() {
         OwlcmsSession os = OwlcmsSession.getCurrent();
+        VaadinSession vs = VaadinSession.getCurrent();
         synchronized (os) {
-            SessionCleanup cleanup = (SessionCleanup) OwlcmsSession.getAttribute("sessionCleanup");
+            SessionCleanup cleanup = (SessionCleanup) os.getAttributes().get("sessionCleanup");
             if (cleanup == null) {
-                cleanup = new SessionCleanup();
+                cleanup = new SessionCleanup(vs);
                 OwlcmsSession.setAttribute("sessionCleanup", cleanup);
                 cleanup.scheduleAtFixedRate(20, TimeUnit.SECONDS);
-            }
-            return cleanup;
-        }
-    }
-
-    public static SessionCleanup get(Runnable task) {
-        OwlcmsSession os = OwlcmsSession.getCurrent();
-        synchronized (os) {
-            SessionCleanup cleanup = (SessionCleanup) OwlcmsSession.getAttribute("sessionCleanup");
-            if (cleanup == null) {
-                cleanup = new SessionCleanup(task);
-                OwlcmsSession.setAttribute("sessionCleanup", cleanup);
             }
             return cleanup;
         }

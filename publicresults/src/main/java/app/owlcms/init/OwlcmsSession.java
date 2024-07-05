@@ -43,7 +43,7 @@ public class OwlcmsSession {
      * @return the attribute
      */
     public static synchronized Object getAttribute(String s) {
-        return getCurrent().attributes.get(s);
+        return getCurrent().getAttributes().get(s);
     }
 
     public static OwlcmsSession getCurrent() {
@@ -115,7 +115,7 @@ public class OwlcmsSession {
      */
     public static void setAttribute(String s, Object o) {
         // logger.trace("{} setting Attribute {} to {}",getCurrent(), s, o);
-        getCurrent().attributes.put(s, o);
+        getCurrent().getAttributes().put(s, o);
     }
 
     public static void setAuthenticated(boolean isAuthenticated) {
@@ -153,6 +153,14 @@ public class OwlcmsSession {
     }
 
     public static void removeAttribute(String string) {
-        getCurrent().attributes.remove(string);
+        getCurrent().getAttributes().remove(string);
+    }
+
+    public Properties getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Properties attributes) {
+        this.attributes = attributes;
     }
 }
