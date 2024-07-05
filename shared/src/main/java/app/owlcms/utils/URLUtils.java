@@ -136,7 +136,7 @@ public class URLUtils {
                 relativeURL);
         return absoluteURL;
     }
-    
+
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static <T extends Component & HasUrlParameter<String>> String getUrlFromTargetClass(Class class1,
             String parameter, QueryParameters q) {
@@ -172,16 +172,16 @@ public class URLUtils {
     public static Map<String, List<String>> cleanParams(Map<String, List<String>> params) {
         return params.entrySet().stream().filter(e -> !e.getKey().isBlank()).collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     }
-    
+
     /**
      * replace illegal characters in a filename with "_" illegal characters : : \ /
-     * * ? | < >
+     * * ? | < > ' "
      *
      * @param name
      * @return
      */
     public static String sanitizeFilename(String name) {
-        String replaceAll = name.replaceAll("[:\\\\/*?|<>]", "_");
+        String replaceAll = name.replaceAll("[:\\\\/*?|<>'\"]", "_");
 		return CharMatcher.javaIsoControl().removeFrom(replaceAll);
     }
 
@@ -196,7 +196,7 @@ public class URLUtils {
         }
         return athletePictures;
     }
-    
+
     public static boolean checkFlags() {
         boolean teamFlags;
         try {
@@ -207,7 +207,7 @@ public class URLUtils {
         }
         return teamFlags;
     }
-    
+
     public static boolean setImgProp(String propertyName, String prefix, String name, String suffix, Component component) {
         boolean found;
         try {
@@ -223,7 +223,7 @@ public class URLUtils {
         }
         return found;
     }
-    
+
     public static String getImgTag(String prefix, String name, String suffix, String style) {
         boolean found;
         try {
