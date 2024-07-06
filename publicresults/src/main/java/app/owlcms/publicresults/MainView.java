@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
@@ -70,7 +71,7 @@ public class MainView extends VerticalLayout implements SafeEventBusRegistration
         this.ui = UI.getCurrent();
         eventBusRegister(this, UpdateReceiverServlet.getEventBus());
         // so the page expires
-        visibilityStatus(false);
+        visibilityStatus(false, this);
     }
 
     @Override
@@ -124,13 +125,13 @@ public class MainView extends VerticalLayout implements SafeEventBusRegistration
     }
     
     @ClientCallable
-    public void visibilityStatus(boolean visible) {
+    public void visibilityStatus(boolean visible, Component component) {
         UI ui = UI.getCurrent();
-        UnloadObserverPR uo = UnloadObserverPR.get();
+        UnloadObserverPR eventObserver = UnloadObserverPR.get();
         if (visible) {
-            uo.resetInactivityTime(ui, this);
+            eventObserver.setActivityTime(ui, component);
         } else {
-            uo.setInactivityTime(ui, this);
-        }
+            eventObserver.setInactivityTime(ui, component);
+        }     
     }
 }

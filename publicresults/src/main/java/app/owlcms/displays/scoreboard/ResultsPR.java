@@ -589,21 +589,14 @@ public class ResultsPR extends LitTemplate
     }
     
     @ClientCallable
-    public void visibilityStatus(boolean visible) {
+    public void visibilityStatus(boolean visible, Component component) {
         UI ui = UI.getCurrent();
-        UnloadObserverPR uo = UnloadObserverPR.get();
+        UnloadObserverPR eventObserver = UnloadObserverPR.get();
         if (visible) {
-            uo.resetInactivityTime(ui, this);
+            eventObserver.setActivityTime(ui, component);
         } else {
-            uo.setInactivityTime(ui, this);
-        }
-
-//        logger.warn("{} visible={}", this.getPageTitle(), visible);
-//        if (!visible) {
-//            ui.getPage().executeJs("window.location='about:blank'");
-//            ui.getPage().executeJs("window.close()'");
-//        }
-        
+            eventObserver.setInactivityTime(ui, component);
+        }     
     }
-
+    
 }

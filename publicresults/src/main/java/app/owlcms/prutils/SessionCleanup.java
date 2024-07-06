@@ -48,21 +48,24 @@ public class SessionCleanup {
                      * If all tabs are gone, kill session.
                      */
                     
-                    // 0 means UI is active, greater than zero means hidden (don't kill)
-                    if (e.getValue() >= 0 || (now - e.getValue() < INACTIVITY_INTERVAL)) {
+                    // 0 means GONE.
+                    // positive means visible, negative means hidden (don't kill)
+                    if (e.getValue() != 0 || (now - Math.abs(e.getValue()) < INACTIVITY_INTERVAL)) {
                         stillAlive++;
                     }
                     
-                    // -1 means GONE.   Negative currentTimeMillis means last time seen active.
-                }
 
-                logger.debug("cleaning up session {}: stillAlive: {}", System.identityHashCode(vaadinSession),
-                        stillAlive);
+                }
+                
                 if (im.entrySet().isEmpty()) {
+                    // wait one iteration before closing sessions
                     logger.debug("invalidating session {}", System.identityHashCode(vaadinSession));
                     vaadinSession.getSession().invalidate();
                     vaadinSession.close();
                     stop();
+                } else {
+                    logger.debug("cleaning up session {}: stillAlive: {}", System.identityHashCode(vaadinSession),
+                            stillAlive);
                 }
             } else {
                 logger.debug("no registered map");
@@ -112,4 +115,5 @@ public class SessionCleanup {
             return cleanup;
         }
     }
+    
 }

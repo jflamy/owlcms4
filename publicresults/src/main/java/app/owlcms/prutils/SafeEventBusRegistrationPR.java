@@ -38,7 +38,7 @@ public interface SafeEventBusRegistrationPR {
         }
 
         UnloadObserverPR eventObserver = UnloadObserverPR.get(false);
-        eventObserver.resetInactivityTime(ui, c);
+        eventObserver.setActivityTime(ui, c);
         
         // Create the repeating task to cleanup things; singleton per session.
         SessionCleanup.get();
@@ -84,7 +84,7 @@ public interface SafeEventBusRegistrationPR {
             }
             
             else if (change.equals("visibilityShown")) {
-                eventObserver.resetInactivityTime(ui, c);
+                eventObserver.setActivityTime(ui, c);
                 try {
                     logger.warn("{}: resetInactivityTime {} from {}", change, c.getClass().getSimpleName(),
                             bus.identifier());
@@ -157,5 +157,5 @@ public interface SafeEventBusRegistrationPR {
             vaadinSession.close();
         }
     }
-
+    
 }

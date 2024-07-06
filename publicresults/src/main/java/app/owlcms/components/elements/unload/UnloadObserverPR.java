@@ -143,14 +143,14 @@ public final class UnloadObserverPR extends LitTemplate {
         return this.queryingOnUnload;
     }
 
-    public void resetInactivityTime(UI ui, Component component) {
+    public void setActivityTime(UI ui, Component component) {
         logger.warn("active {} {}", component.getClass().getSimpleName(), System.identityHashCode(component));
-        setInactivityValue(ui, 0L);
+        setInactivityValue(ui, System.currentTimeMillis());
     }
 
     public void setInactivityTime(UI ui, Component component) {
         logger.warn("inactive {} {}", component.getClass().getSimpleName(), System.identityHashCode(component));
-        setInactivityValue(ui, System.currentTimeMillis());
+        setInactivityValue(ui, -System.currentTimeMillis());
     }
 
     public void setGoneTime(UI ui, Component component) {
@@ -163,13 +163,13 @@ public final class UnloadObserverPR extends LitTemplate {
                 var im = getInactivityMap(vs);
                 var val = im.get(ui);
                 if (val != null) {
-                    setInactivityValue(ui, 1L);
+                    setInactivityValue(ui, 0);
                 }
             });
 
         }
     }
-
+    
     /**
      * Controls whether or not there should be querying when the document is going
      * to be unloaded.
