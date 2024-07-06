@@ -11,7 +11,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.init.OwlcmsSession;
@@ -27,11 +29,12 @@ public class SessionCleanup {
     private ScheduledFuture<?> futureTask;
     private VaadinSession vaadinSession;
     private URL pageURL;
-    
+    String uiTitle;
 
-    private SessionCleanup(VaadinSession vs, UI pageUI) {
+    private SessionCleanup(VaadinSession vs, UI pageUI, Component c) {
         this.vaadinSession = vs;
         var p = pageUI.getPage();
+        uiTitle = ((HasDynamicTitle) c).getPageTitle();
         if (p != null) {
             p.fetchCurrentURL((u) -> {
                 pageURL = u;
@@ -90,7 +93,9 @@ public class SessionCleanup {
                     if (ui.isAttached()) {
                         ui.access(() -> {
                             ui.removeAll();
-                            ui.getPage().executeJs("window.location.assign('about:blank')");
+                            ui.getPage().executeJs("window.getElementById('reloadUrl').value='" + pageURL + "';"
+                                    + "window.getElementById('reloadLabel').value='" + uiTitle + "';"
+                                    + "window.getElementById('reloadForm').submit()");
                             ui.close();
                         });
                     }
@@ -112,13 +117,13 @@ public class SessionCleanup {
         scheduler.shutdown();
     }
 
-    public static SessionCleanup get(UI ui) {
+    public static SessionCleanup get(UI ui, Component c) {
         OwlcmsSession os = OwlcmsSession.getCurrent();
         VaadinSession vs = VaadinSession.getCurrent();
         synchronized (os) {
             SessionCleanup cleanup = (SessionCleanup) os.getAttributes().get("sessionCleanup");
             if (cleanup == null) {
-                cleanup = new SessionCleanup(vs, ui);
+                cleanup = new SessionCleanup(vs, ui, c);
                 OwlcmsSession.setAttribute("sessionCleanup", cleanup);
                 // Define OWLCMS_CLEANUP_SEC for testing
                 var cleanupSec = (long) StartupUtils.getIntegerParam("cleanup_sec", SESSION_CLEANUP_SECONDS);

@@ -18,6 +18,7 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.DetachEvent;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -98,6 +99,15 @@ public class MainView extends VerticalLayout implements SafeEventBusRegistration
         } else {
             createButtons(fopNames);
         }
+        addReloadForm();
+    }
+
+    private void addReloadForm() {
+        add(new Html("""
+<form id="reloadForm" action="../reload" method="post" style="display: none;">
+    <input type="text" id="reloadUrl" name="url" value="">
+    <input type="text" id="reloadLabel" name="label" value="">
+</form>"""));
     }
 
     private void createButtons(Set<String> fopNames) {
