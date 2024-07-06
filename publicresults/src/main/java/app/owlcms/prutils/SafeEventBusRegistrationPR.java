@@ -66,7 +66,7 @@ public interface SafeEventBusRegistrationPR {
                 // switching tabs or minimizing window. no visible scoreboard
                 eventObserver.setInactivityTime(ui, c);
                 try {
-                    logger.warn("{}: setInactivityTime {} from {}", change, c.getClass().getSimpleName(),
+                    logger.debug("{}: setInactivityTime {} from {}", change, c.getClass().getSimpleName(),
                             bus.identifier());
                 } catch (Exception ex) {
                     LoggerUtils.logError(logger, ex, true);
@@ -86,7 +86,7 @@ public interface SafeEventBusRegistrationPR {
             else if (change.equals("visibilityShown")) {
                 eventObserver.setActivityTime(ui, c);
                 try {
-                    logger.warn("{}: resetInactivityTime {} from {}", change, c.getClass().getSimpleName(),
+                    logger.debug("{}: resetInactivityTime {} from {}", change, c.getClass().getSimpleName(),
                             bus.identifier());
                 } catch (Exception ex) {
                     LoggerUtils.logError(logger, ex, true);

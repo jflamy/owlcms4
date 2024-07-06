@@ -510,6 +510,7 @@ public class ResultsPR extends LitTemplate
         String fopName2 = getFopName();
         logger.warn("sync {}",fopName2);
         UpdateEvent initEvent = UpdateReceiverServlet.sync(fopName2);
+        //FIXME: set timers based on last received timer event.
         if (initEvent != null) {
             slaveUpdateEvent(initEvent);
             this.timer.slaveOrderUpdated(initEvent);

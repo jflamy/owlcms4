@@ -52,7 +52,7 @@ public class ServiceListener implements VaadinServiceInitListener {
                     sessionInit(sessionInitEvent);
                 });
         event.getSource().addSessionDestroyListener(sde -> {
-            logger.warn("session {} destroyed.", sde.getSession());
+            logger.debug("session {} destroyed.", sde.getSession());
         });
     }
 

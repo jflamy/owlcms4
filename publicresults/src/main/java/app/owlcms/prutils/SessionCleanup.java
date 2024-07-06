@@ -14,12 +14,13 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public class SessionCleanup {
-    private static final long INACTIVITY_INTERVAL_MILLIS = 15 * 60 * 1000;  // 15 minutes
-    private static final long SESSION_CLEANUP_SECONDS = 60; // 60 seconds
+    private static final int INACTIVITY_SECONDS = 15 * 60; // 15 minutes
+    private static final int SESSION_CLEANUP_SECONDS = 60; // 60 seconds
     Logger logger = (Logger) LoggerFactory.getLogger(SessionCleanup.class);
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private ScheduledFuture<?> futureTask;
@@ -31,8 +32,6 @@ public class SessionCleanup {
     }
 
     public void cleanupSession() {
-        // logger.debug("cleaning up session {}",
-        // System.identityHashCode(vaadinSession));
         vaadinSession.access(() -> {
             @SuppressWarnings("unchecked")
             Map<UI, Long> im = (Map<UI, Long>) vaadinSession.getAttribute("inactivityMap");
@@ -40,7 +39,8 @@ public class SessionCleanup {
             if (im != null) {
                 if (im.entrySet().isEmpty()) {
                     // the previous iteration cleaned the map and navigated out of the pages.
-                    // because of asynchronicity, we wait to the following iteration before closing sessions.
+                    // because of asynchronicity, we wait to the following iteration before closing
+                    // sessions.
                     logger.debug("invalidating session {}", System.identityHashCode(vaadinSession));
                     vaadinSession.getSession().invalidate();
                     vaadinSession.close();
@@ -51,11 +51,14 @@ public class SessionCleanup {
                     for (Entry<UI, Long> uiEntry : im.entrySet()) {
                         if (uiEntry.getValue() == 0) {
                             // 0 means GONE.
-                            logger.warn("   UI {} gone", System.identityHashCode(uiEntry.getKey()));
+                            logger.debug("   UI {} gone", System.identityHashCode(uiEntry.getKey()));
                         } else {
                             // positive means visible, negative means hidden (don't kill)
                             long timeElapsed = now - Math.abs(uiEntry.getValue());
-                            boolean alive = timeElapsed < INACTIVITY_INTERVAL_MILLIS;
+
+                            // Define OWLCMS_INACTIVITY_SEC for testing
+                            var inactivity = StartupUtils.getIntegerParam("inactivity_sec", INACTIVITY_SECONDS) * 1000;
+                            boolean alive = timeElapsed < inactivity;
                             logger.debug("   UI {} timeElapsed={} alive={}", System.identityHashCode(uiEntry.getKey()),
                                     timeElapsed, alive);
                             if (alive) {
@@ -108,7 +111,9 @@ public class SessionCleanup {
             if (cleanup == null) {
                 cleanup = new SessionCleanup(vs);
                 OwlcmsSession.setAttribute("sessionCleanup", cleanup);
-                cleanup.scheduleAtFixedRate(SESSION_CLEANUP_SECONDS, TimeUnit.SECONDS);
+                // Define OWLCMS_CLEANUP_SEC for testing
+                var cleanupSec = (long) StartupUtils.getIntegerParam("cleanup_sec", SESSION_CLEANUP_SECONDS);
+                cleanup.scheduleAtFixedRate(cleanupSec, TimeUnit.SECONDS);
             }
             return cleanup;
         }

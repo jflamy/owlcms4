@@ -89,7 +89,7 @@ public class MainView extends VerticalLayout implements SafeEventBusRegistration
             removeAll();
             add(text);
         } else if (fopNames.size() == 1) {
-            logger.warn("single platform, proceeding to scoreboard");
+            logger.debug("single platform, proceeding to scoreboard");
             Map<String, String> parameterMap = new HashMap<>();
             String fop = fopNames.stream().findFirst().get();
             parameterMap.put("FOP", fop);
@@ -126,7 +126,7 @@ public class MainView extends VerticalLayout implements SafeEventBusRegistration
     @ClientCallable
     public void visibilityStatus(boolean visible) {
         UI ui = UI.getCurrent();
-        logger.warn("visibilityStatus: {} {} {}",visible,this.getClass().getSimpleName(),System.identityHashCode(this));
+        logger.debug("visibilityStatus: {} {} {}",visible,this.getClass().getSimpleName(),System.identityHashCode(this));
 
         UnloadObserverPR eventObserver = UnloadObserverPR.get();
         if (visible) {

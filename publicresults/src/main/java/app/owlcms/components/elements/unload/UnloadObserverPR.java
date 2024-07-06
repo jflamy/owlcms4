@@ -144,7 +144,7 @@ public final class UnloadObserverPR extends LitTemplate {
     }
 
     public void setActivityTime(UI ui, Component component) {
-        logger.warn("active {} {}", component.getClass().getSimpleName(), System.identityHashCode(component));
+        logger.debug("active {} {}", component.getClass().getSimpleName(), System.identityHashCode(component));
         if (ui != null) {
             VaadinSession vs = VaadinSession.getCurrent();
             vs.access(() -> {
@@ -155,7 +155,7 @@ public final class UnloadObserverPR extends LitTemplate {
     }
 
     public void setInactivityTime(UI ui, Component component) {
-        logger.warn("inactive {} {}", component.getClass().getSimpleName(), System.identityHashCode(component));
+        logger.debug("inactive {} {}", component.getClass().getSimpleName(), System.identityHashCode(component));
         if (ui != null) {
             VaadinSession vs = VaadinSession.getCurrent();
             vs.access(() -> {
@@ -171,7 +171,7 @@ public final class UnloadObserverPR extends LitTemplate {
 
     public void setGoneTime(UI ui, Component component) {
         // mark for immediate removal
-        logger.warn("gone {} {}", component.getClass().getSimpleName(), System.identityHashCode(component));
+        logger.debug("gone {} {}", component.getClass().getSimpleName(), System.identityHashCode(component));
         // don't recreate an entry for ui if already removed by other processing.
         if (ui != null) {
             VaadinSession vs = VaadinSession.getCurrent();
