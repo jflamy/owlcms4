@@ -1,5 +1,6 @@
 package app.owlcms.prutils;
 
+import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -25,9 +26,17 @@ public class SessionCleanup {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private ScheduledFuture<?> futureTask;
     private VaadinSession vaadinSession;
+    private URL pageURL;
+    
 
-    private SessionCleanup(VaadinSession vs) {
+    private SessionCleanup(VaadinSession vs, UI pageUI) {
         this.vaadinSession = vs;
+        var p = pageUI.getPage();
+        if (p != null) {
+            p.fetchCurrentURL((u) -> {
+                pageURL = u;
+            });
+        }
         logger.setLevel(Level.DEBUG);
     }
 
@@ -77,7 +86,7 @@ public class SessionCleanup {
                 while (entryIterator.hasNext()) {
                     Entry<UI, Long> e = entryIterator.next();
                     UI ui = e.getKey();
-                    logger.debug("   leaving tab {}", System.identityHashCode(ui));
+                    logger.debug("   leaving tab {}, reload URL={}", System.identityHashCode(ui), pageURL);
                     if (ui.isAttached()) {
                         ui.access(() -> {
                             ui.removeAll();
@@ -103,13 +112,13 @@ public class SessionCleanup {
         scheduler.shutdown();
     }
 
-    public static SessionCleanup get() {
+    public static SessionCleanup get(UI ui) {
         OwlcmsSession os = OwlcmsSession.getCurrent();
         VaadinSession vs = VaadinSession.getCurrent();
         synchronized (os) {
             SessionCleanup cleanup = (SessionCleanup) os.getAttributes().get("sessionCleanup");
             if (cleanup == null) {
-                cleanup = new SessionCleanup(vs);
+                cleanup = new SessionCleanup(vs, ui);
                 OwlcmsSession.setAttribute("sessionCleanup", cleanup);
                 // Define OWLCMS_CLEANUP_SEC for testing
                 var cleanupSec = (long) StartupUtils.getIntegerParam("cleanup_sec", SESSION_CLEANUP_SECONDS);

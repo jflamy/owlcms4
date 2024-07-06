@@ -91,7 +91,7 @@ public class UpdateReceiverServlet extends HttpServlet implements Traceable {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
-        logger.warn("updatereceiverservlet vaadin session {}",VaadinSession.getCurrent());
+        logger.debug("updatereceiverservlet vaadin session {}",VaadinSession.getCurrent());
         try {
             String updateKey = req.getParameter("updateKey");
             if (updateKey == null || !updateKey.equals(this.secret)) {

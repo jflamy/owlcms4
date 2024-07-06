@@ -116,7 +116,7 @@ public class ResultsPR extends LitTemplate
         setDefaultLiftingOrderDisplay(false);
         setShowInitialDialog(false);
         this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
-        logger.warn("created ResultsPR");
+        logger.debug("created ResultsPR");
     }
 
     @Override
@@ -508,7 +508,7 @@ public class ResultsPR extends LitTemplate
 
         // setDarkMode(this, isDarkMode(), false);
         String fopName2 = getFopName();
-        logger.warn("sync {}",fopName2);
+        logger.debug("sync {}",fopName2);
         UpdateEvent initEvent = UpdateReceiverServlet.sync(fopName2);
         //FIXME: set timers based on last received timer event.
         if (initEvent != null) {
@@ -592,7 +592,7 @@ public class ResultsPR extends LitTemplate
     @ClientCallable
     public void visibilityStatus(boolean visible) {
         UI ui = UI.getCurrent();
-        logger.warn("visibilityStatus: {} {} {}",visible,this.getClass().getSimpleName(),System.identityHashCode(this));
+        logger.debug("visibilityStatus: {} {} {}",visible,this.getClass().getSimpleName(),System.identityHashCode(this));
         UnloadObserverPR eventObserver = UnloadObserverPR.get();
         if (visible) {
             eventObserver.setActivityTime(ui, this);
