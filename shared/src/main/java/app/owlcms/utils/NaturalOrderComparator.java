@@ -31,6 +31,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.commons.lang3.ObjectUtils;
+
 public class NaturalOrderComparator<T> implements Comparator<T> {
     public static void main(String[] args) {
         String[] strings = new String[] { "1-2", "1-02", "1-20", "10-20", "fred", "jane", "pic01",
@@ -59,19 +61,23 @@ public class NaturalOrderComparator<T> implements Comparator<T> {
     }
 
     static char charAt(String s, int i) {
-        return i >= s.length() ? 0 : s.charAt(i);
+        return (s == null || i >= s.length()) ? 0 : s.charAt(i);
     }
 
     static int compareEqual(String a, String b, int nza, int nzb) {
+
+    	
         if (nza - nzb != 0) {
             return nza - nzb;
         }
 
-        if (a.length() == b.length()) {
-            return a.compareTo(b);
+        int aLength = a == null ? 0 : a.length();
+		int bLength = b == null ? 0 : b.length();
+		if (aLength == bLength) {
+            return ObjectUtils.compare(a, b);
         }
 
-        return a.length() - b.length();
+        return aLength - bLength;
     }
 
     static void compareSymmetric() {
@@ -112,8 +118,8 @@ public class NaturalOrderComparator<T> implements Comparator<T> {
 
     @Override
     public int compare(Object o1, Object o2) {
-        String a = o1.toString();
-        String b = o2.toString();
+        String a = (o1 == null) ? "" : o1.toString();
+        String b = (o2 == null) ? "" : o2.toString();
 
         int ia = 0, ib = 0;
         int nza = 0, nzb = 0;
