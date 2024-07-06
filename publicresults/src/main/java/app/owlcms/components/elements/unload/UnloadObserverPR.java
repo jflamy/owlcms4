@@ -144,19 +144,30 @@ public final class UnloadObserverPR extends LitTemplate {
     }
 
     public void resetInactivityTime(UI ui, Component component) {
-        logger.warn("active {} {}",component.getClass().getSimpleName(), System.identityHashCode(component));
+        logger.warn("active {} {}", component.getClass().getSimpleName(), System.identityHashCode(component));
         setInactivityValue(ui, 0L);
     }
 
     public void setInactivityTime(UI ui, Component component) {
-        logger.warn("inactive {} {}",component.getClass().getSimpleName(), System.identityHashCode(component));
+        logger.warn("inactive {} {}", component.getClass().getSimpleName(), System.identityHashCode(component));
         setInactivityValue(ui, System.currentTimeMillis());
     }
-    
+
     public void setGoneTime(UI ui, Component component) {
         // mark for immediate removal
-        logger.warn("gone {} {}",component.getClass().getSimpleName(), System.identityHashCode(component));
-        setInactivityValue(ui, 1L);
+        logger.warn("gone {} {}", component.getClass().getSimpleName(), System.identityHashCode(component));
+        // don't recreate an entry for ui if already removed by other processing.
+        if (ui != null) {
+            VaadinSession vs = VaadinSession.getCurrent();
+            vs.access(() -> {
+                var im = getInactivityMap(vs);
+                var val = im.get(ui);
+                if (val != null) {
+                    setInactivityValue(ui, 1L);
+                }
+            });
+
+        }
     }
 
     /**

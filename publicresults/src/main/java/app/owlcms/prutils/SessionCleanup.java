@@ -14,46 +14,58 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.init.OwlcmsSession;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public class SessionCleanup {
     private static final long INACTIVITY_INTERVAL = 15 * 1000;
-    static Logger logger = (Logger) LoggerFactory.getLogger(SessionCleanup.class);
+    Logger logger = (Logger) LoggerFactory.getLogger(SessionCleanup.class);
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private ScheduledFuture<?> futureTask;
     private VaadinSession vaadinSession;
 
     private SessionCleanup(VaadinSession vs) {
         this.vaadinSession = vs;
+        logger.setLevel(Level.DEBUG);
     }
 
     public void cleanupSession() {
-        logger.warn("cleaning up session {}", System.identityHashCode(vaadinSession));
+        //logger.debug("cleaning up session {}", System.identityHashCode(vaadinSession));
         vaadinSession.access(() -> {
-            logger.warn("   inside");
             @SuppressWarnings("unchecked")
             Map<UI, Long> im = (Map<UI, Long>) vaadinSession.getAttribute("inactivityMap");
-            logger.warn("   after get");
             int stillAlive = 0;
             if (im != null) {
                 long now = System.currentTimeMillis();
 
                 for (Entry<UI, Long> e : im.entrySet()) {
-                    if (e.getValue() <= 0 || (now - e.getValue() < INACTIVITY_INTERVAL)) {
+                    //FIXME: negative timestamp = last time seen inactive, positive = last time seen active.
+                    
+                    /* 
+                     * An inactive tab will render and call back with a hidden document status.
+                     * Any active tab will report with an active status.
+                     * If the last active update is older than INACTIVITY_INTERVAL, kill session.
+                     * If all tabs are gone, kill session.
+                     */
+                    
+                    // 0 means UI is active, greater than zero means hidden (don't kill)
+                    if (e.getValue() >= 0 || (now - e.getValue() < INACTIVITY_INTERVAL)) {
                         stillAlive++;
                     }
+                    
+                    // -1 means GONE.   Negative currentTimeMillis means last time seen active.
                 }
 
-                logger.warn("   cleaning up session {}: stillAlive: {}", System.identityHashCode(vaadinSession),
+                logger.debug("cleaning up session {}: stillAlive: {}", System.identityHashCode(vaadinSession),
                         stillAlive);
                 if (im.entrySet().isEmpty()) {
-                    logger.warn("   invalidating sessions {}", System.identityHashCode(vaadinSession));
+                    logger.debug("invalidating session {}", System.identityHashCode(vaadinSession));
                     vaadinSession.getSession().invalidate();
                     vaadinSession.close();
                     stop();
                 }
             } else {
-                logger.warn("   no registered map");
+                logger.debug("no registered map");
             }
 
             if (stillAlive == 0) {
@@ -61,7 +73,7 @@ public class SessionCleanup {
                 while (entryIterator.hasNext()) {
                     Entry<UI, Long> e = entryIterator.next();
                     UI ui = e.getKey();
-                    logger.warn("   going away from UI {}", ui);
+                    logger.debug("   leaving tab {}", System.identityHashCode(ui));
                     if (ui.isAttached()) {
                         ui.access(() -> {
                             ui.removeAll();

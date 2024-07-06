@@ -17,7 +17,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.littemplate.LitTemplate;
@@ -104,7 +103,6 @@ public class ResultsPR extends LitTemplate
     private boolean liftingOrder;
     private boolean done;
     private int lastHashCode;
-    private boolean timeout;
 
     /**
      * Instantiates a new results board.
@@ -118,25 +116,6 @@ public class ResultsPR extends LitTemplate
         setDefaultLiftingOrderDisplay(false);
         setShowInitialDialog(false);
         this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
-
-        this.getElement().executeJs("return window.sessionStorage.getItem($0);", "timeout").then(String.class,
-                result -> {
-                    timeout = "true".equals(result);
-                    if (timeout) {
-                        ui.removeAll();
-                        logger.warn("timeout {}", timeout);
-                        setDarkMode(false);
-                        Dialog d = new Dialog("Inactivity Timeout Reached");
-                        Button resetButton = new Button("Reset", e -> {
-                            logger.warn("Resetting");
-                            this.getElement().executeJs("return window.sessionStorage.setItem($0, $1);", "timeout",
-                                    "false");
-                            UI.getCurrent().getPage().reload();
-                        });
-                        d.add(resetButton);
-                        d.open();
-                    }
-                });
         logger.warn("created ResultsPR");
     }
 

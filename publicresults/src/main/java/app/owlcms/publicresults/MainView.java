@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
@@ -25,6 +26,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.components.elements.unload.UnloadObserverPR;
 import app.owlcms.displays.scoreboard.ResultsPR;
 import app.owlcms.i18n.Translator;
 import app.owlcms.prutils.SafeEventBusRegistrationPR;
@@ -67,6 +69,8 @@ public class MainView extends VerticalLayout implements SafeEventBusRegistration
         super.onAttach(attachEvent);
         this.ui = UI.getCurrent();
         eventBusRegister(this, UpdateReceiverServlet.getEventBus());
+        // so the page expires
+        visibilityStatus(false);
     }
 
     @Override
@@ -117,5 +121,16 @@ public class MainView extends VerticalLayout implements SafeEventBusRegistration
                     });
             add(fopButton);
         });
+    }
+    
+    @ClientCallable
+    public void visibilityStatus(boolean visible) {
+        UI ui = UI.getCurrent();
+        UnloadObserverPR uo = UnloadObserverPR.get();
+        if (visible) {
+            uo.resetInactivityTime(ui, this);
+        } else {
+            uo.setInactivityTime(ui, this);
+        }
     }
 }

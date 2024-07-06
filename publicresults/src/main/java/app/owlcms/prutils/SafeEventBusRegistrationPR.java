@@ -37,7 +37,7 @@ public interface SafeEventBusRegistrationPR {
             bus.register(c);
         }
 
-        UnloadObserverPR eventObserver = UnloadObserverPR.get(true);
+        UnloadObserverPR eventObserver = UnloadObserverPR.get(false);
         eventObserver.resetInactivityTime(ui, c);
         
         // Create the repeating task to cleanup things; singleton per session.
@@ -94,13 +94,14 @@ public interface SafeEventBusRegistrationPR {
             } 
             
             else if (change.equals("focus")) {
-                eventObserver.resetInactivityTime(ui, c);
-                try {
-                    logger.warn("{}: resetInactivityTime {} from {}", change, c.getClass().getSimpleName(),
-                            bus.identifier());
-                } catch (Exception ex) {
-                    LoggerUtils.logError(logger, ex, true);
-                }
+                // visibility changes seem to be sufficient
+//                eventObserver.resetInactivityTime(ui, c);
+//                try {
+//                    logger.warn("{}: resetInactivityTime {} from {}", change, c.getClass().getSimpleName(),
+//                            bus.identifier());
+//                } catch (Exception ex) {
+//                    LoggerUtils.logError(logger, ex, true);
+//                }
             } 
             
             else {
@@ -116,6 +117,7 @@ public interface SafeEventBusRegistrationPR {
                 // navigating via a link, don't kill session, clean-up this page.
                 // should only happen on the main page.
                 try {
+                    eventObserver.setGoneTime(ui, c);
                     unregister(c, bus);
                     ui.access(() -> {
                         UnloadObserverPR.remove();
@@ -127,22 +129,10 @@ public interface SafeEventBusRegistrationPR {
                     LoggerUtils.logError(logger, ex, true);
                 }
             });
+            
             ui.addDetachListener((e) -> {
-                // actually leaving the page. kill publicresults session.
-                try {
-//                    logger.warn("invalidating: invalidating session for {} {}", c.getClass().getSimpleName(),
-//                            System.identityHashCode(c));
-//                    ui.access(() -> {
-//                        UnloadObserverPR.remove();
-//                        ui.removeAll();
-//                    });
-//                    VaadinSession vaadinSession = VaadinSession.getCurrent();
-//                    WrappedSession httpSession = vaadinSession.getSession();
-//                    invalidate(vaadinSession, httpSession);
-//                    unregister(c, bus);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+                // actually left the page
+                eventObserver.setGoneTime(ui, c);
             });
         });
         return bus;

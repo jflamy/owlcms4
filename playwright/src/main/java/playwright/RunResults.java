@@ -27,7 +27,7 @@ import com.microsoft.playwright.Playwright;
  */
 public class RunResults {
     private static final int NB_REMOTE_USERS = 15;
-    private static final int POLLING_DELAY_SECONDS = 30;
+    private static final int POLLING_DELAY_SECONDS = 0;
     private static final int POLLING_DELAY_MILLISECONDS = POLLING_DELAY_SECONDS*1000;
     private static Map<BrowserContext,Page> activePages = new TreeMap<>();
 
@@ -45,7 +45,7 @@ public class RunResults {
                 Page page = newContext.newPage();
                 page.navigate("http://localhost:8082/results?silent=true&lifting=false&fop=RED");
                 page.bringToFront();
-                activePages.put(newContext,page);
+               // activePages.put(newContext,page);
                 System.out.println("creating context "+ (i+1));
             }
 
