@@ -45,6 +45,7 @@ public class MainView extends VerticalLayout implements SafeEventBusRegistration
     private UI ui;
 
     public MainView() {
+        this.setId("owlcmsTemplate");
         logger.debug("mainView");
         text = new Text(Translator.translate("WaitingForSite"));
         this.ui = UI.getCurrent();

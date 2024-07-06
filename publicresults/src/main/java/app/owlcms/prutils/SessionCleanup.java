@@ -34,7 +34,9 @@ public class SessionCleanup {
     private SessionCleanup(VaadinSession vs, UI pageUI, Component c) {
         this.vaadinSession = vs;
         var p = pageUI.getPage();
-        uiTitle = ((HasDynamicTitle) c).getPageTitle();
+        if (c instanceof HasDynamicTitle) {
+            uiTitle = ((HasDynamicTitle) c).getPageTitle();
+        }
         if (p != null) {
             p.fetchCurrentURL((u) -> {
                 pageURL = u;
@@ -93,9 +95,12 @@ public class SessionCleanup {
                     if (ui.isAttached()) {
                         ui.access(() -> {
                             ui.removeAll();
-                            ui.getPage().executeJs("window.getElementById('reloadUrl').value='" + pageURL + "';"
-                                    + "window.getElementById('reloadLabel').value='" + uiTitle + "';"
-                                    + "window.getElementById('reloadForm').submit()");
+                            String string = "let shadow = document.getElementById('owlcmsTemplate').shadowRoot;"
+                                    + "shadow.getElementById('reloadUrl').value='" + pageURL + "';"
+                                    + "shadow.getElementById('reloadLabel').value='" + uiTitle + "';"
+                                    + "shadow.getElementById('reloadForm').submit()";
+                            logger.warn("reloading info {}", string);
+                            ui.getPage().executeJs(string);
                             ui.close();
                         });
                     }

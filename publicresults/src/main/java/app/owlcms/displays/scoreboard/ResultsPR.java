@@ -110,6 +110,7 @@ public class ResultsPR extends LitTemplate
      * @throws InterruptedException
      */
     public ResultsPR() throws InterruptedException {
+        this.setId("owlcmsTemplate");
         setDarkMode(true);
         setDefaultLeadersDisplay(true);
         setDefaultRecordsDisplay(true);
