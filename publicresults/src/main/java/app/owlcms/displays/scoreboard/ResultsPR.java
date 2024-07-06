@@ -589,13 +589,14 @@ public class ResultsPR extends LitTemplate
     }
     
     @ClientCallable
-    public void visibilityStatus(boolean visible, Component component) {
+    public void visibilityStatus(boolean visible) {
         UI ui = UI.getCurrent();
+        logger.warn("visibilityStatus: {} {} {}",visible,this.getClass().getSimpleName(),System.identityHashCode(this));
         UnloadObserverPR eventObserver = UnloadObserverPR.get();
         if (visible) {
-            eventObserver.setActivityTime(ui, component);
+            eventObserver.setActivityTime(ui, this);
         } else {
-            eventObserver.setInactivityTime(ui, component);
+            eventObserver.setInactivityTime(ui, this);
         }     
     }
     

@@ -18,7 +18,8 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public class SessionCleanup {
-    private static final long INACTIVITY_INTERVAL = 15 * 1000;
+    private static final long INACTIVITY_INTERVAL_MILLIS = 15 * 60 * 1000;  // 15 minutes
+    private static final long SESSION_CLEANUP_SECONDS = 60; // 60 seconds
     Logger logger = (Logger) LoggerFactory.getLogger(SessionCleanup.class);
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private ScheduledFuture<?> futureTask;
@@ -30,45 +31,42 @@ public class SessionCleanup {
     }
 
     public void cleanupSession() {
-        //logger.debug("cleaning up session {}", System.identityHashCode(vaadinSession));
+        // logger.debug("cleaning up session {}",
+        // System.identityHashCode(vaadinSession));
         vaadinSession.access(() -> {
             @SuppressWarnings("unchecked")
             Map<UI, Long> im = (Map<UI, Long>) vaadinSession.getAttribute("inactivityMap");
             int stillAlive = 0;
             if (im != null) {
-                long now = System.currentTimeMillis();
-
-                for (Entry<UI, Long> e : im.entrySet()) {
-                    //FIXME: negative timestamp = last time seen inactive, positive = last time seen active.
-                    
-                    /* 
-                     * An inactive tab will render and call back with a hidden document status.
-                     * Any active tab will report with an active status.
-                     * If the last active update is older than INACTIVITY_INTERVAL, kill session.
-                     * If all tabs are gone, kill session.
-                     */
-                    
-                    // 0 means GONE.
-                    // positive means visible, negative means hidden (don't kill)
-                    if (e.getValue() != 0 || (now - Math.abs(e.getValue()) < INACTIVITY_INTERVAL)) {
-                        stillAlive++;
-                    }
-                    
-
-                }
-                
                 if (im.entrySet().isEmpty()) {
-                    // wait one iteration before closing sessions
+                    // the previous iteration cleaned the map and navigated out of the pages.
+                    // because of asynchronicity, we wait to the following iteration before closing sessions.
                     logger.debug("invalidating session {}", System.identityHashCode(vaadinSession));
                     vaadinSession.getSession().invalidate();
                     vaadinSession.close();
                     stop();
                 } else {
-                    logger.debug("cleaning up session {}: stillAlive: {}", System.identityHashCode(vaadinSession),
-                            stillAlive);
+                    long now = System.currentTimeMillis();
+                    logger.debug("checking session {}", System.identityHashCode(vaadinSession));
+                    for (Entry<UI, Long> uiEntry : im.entrySet()) {
+                        if (uiEntry.getValue() == 0) {
+                            // 0 means GONE.
+                            logger.warn("   UI {} gone", System.identityHashCode(uiEntry.getKey()));
+                        } else {
+                            // positive means visible, negative means hidden (don't kill)
+                            long timeElapsed = now - Math.abs(uiEntry.getValue());
+                            boolean alive = timeElapsed < INACTIVITY_INTERVAL_MILLIS;
+                            logger.debug("   UI {} timeElapsed={} alive={}", System.identityHashCode(uiEntry.getKey()),
+                                    timeElapsed, alive);
+                            if (alive) {
+                                stillAlive++;
+                            }
+                        }
+                    }
+                    logger.debug("   stillAlive={}", stillAlive);
                 }
             } else {
-                logger.debug("no registered map");
+                logger.error("no registered map");
             }
 
             if (stillAlive == 0) {
@@ -80,7 +78,7 @@ public class SessionCleanup {
                     if (ui.isAttached()) {
                         ui.access(() -> {
                             ui.removeAll();
-                            ui.getPage().executeJs("window.location='about:blank'");
+                            ui.getPage().executeJs("window.location.assign('about:blank')");
                             ui.close();
                         });
                     }
@@ -110,10 +108,10 @@ public class SessionCleanup {
             if (cleanup == null) {
                 cleanup = new SessionCleanup(vs);
                 OwlcmsSession.setAttribute("sessionCleanup", cleanup);
-                cleanup.scheduleAtFixedRate(20, TimeUnit.SECONDS);
+                cleanup.scheduleAtFixedRate(SESSION_CLEANUP_SECONDS, TimeUnit.SECONDS);
             }
             return cleanup;
         }
     }
-    
+
 }

@@ -17,13 +17,13 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
@@ -36,8 +36,7 @@ import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 
 @Route
-
-public class MainView extends VerticalLayout implements SafeEventBusRegistrationPR {
+public class MainView extends VerticalLayout implements SafeEventBusRegistrationPR, HasDynamicTitle {
 
     static Text text;
 
@@ -71,7 +70,7 @@ public class MainView extends VerticalLayout implements SafeEventBusRegistration
         this.ui = UI.getCurrent();
         eventBusRegister(this, UpdateReceiverServlet.getEventBus());
         // so the page expires
-        visibilityStatus(false, this);
+        visibilityStatus(false);
     }
 
     @Override
@@ -125,13 +124,20 @@ public class MainView extends VerticalLayout implements SafeEventBusRegistration
     }
     
     @ClientCallable
-    public void visibilityStatus(boolean visible, Component component) {
+    public void visibilityStatus(boolean visible) {
         UI ui = UI.getCurrent();
+        logger.warn("visibilityStatus: {} {} {}",visible,this.getClass().getSimpleName(),System.identityHashCode(this));
+
         UnloadObserverPR eventObserver = UnloadObserverPR.get();
         if (visible) {
-            eventObserver.setActivityTime(ui, component);
+            eventObserver.setActivityTime(ui, this);
         } else {
-            eventObserver.setInactivityTime(ui, component);
+            eventObserver.setInactivityTime(ui, this);
         }     
+    }
+
+    @Override
+    public String getPageTitle() {
+        return Translator.translate("OWLCMS_Displays");
     }
 }

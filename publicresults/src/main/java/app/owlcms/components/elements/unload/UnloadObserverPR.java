@@ -145,12 +145,28 @@ public final class UnloadObserverPR extends LitTemplate {
 
     public void setActivityTime(UI ui, Component component) {
         logger.warn("active {} {}", component.getClass().getSimpleName(), System.identityHashCode(component));
-        setInactivityValue(ui, System.currentTimeMillis());
+        if (ui != null) {
+            VaadinSession vs = VaadinSession.getCurrent();
+            vs.access(() -> {
+                var im = getInactivityMap(vs);
+                im.put(ui, System.currentTimeMillis());
+            });
+        }
     }
 
     public void setInactivityTime(UI ui, Component component) {
         logger.warn("inactive {} {}", component.getClass().getSimpleName(), System.identityHashCode(component));
-        setInactivityValue(ui, -System.currentTimeMillis());
+        if (ui != null) {
+            VaadinSession vs = VaadinSession.getCurrent();
+            vs.access(() -> {
+                var im = getInactivityMap(vs);
+                var value = im.get(ui);
+                if (value > 0) {
+                    // do not reset if already inactive
+                    im.put(ui, -System.currentTimeMillis());
+                }
+            });
+        }
     }
 
     public void setGoneTime(UI ui, Component component) {
@@ -163,13 +179,19 @@ public final class UnloadObserverPR extends LitTemplate {
                 var im = getInactivityMap(vs);
                 var val = im.get(ui);
                 if (val != null) {
-                    setInactivityValue(ui, 0);
+                    if (ui != null) {
+                        VaadinSession vs1 = VaadinSession.getCurrent();
+                        vs1.access(() -> {
+                            var im1 = getInactivityMap(vs1);
+                            im1.put(ui, (long) 0);
+                        });
+                    }
                 }
             });
 
         }
     }
-    
+
     /**
      * Controls whether or not there should be querying when the document is going
      * to be unloaded.
@@ -264,15 +286,5 @@ public final class UnloadObserverPR extends LitTemplate {
             vs.setAttribute("inactivityMap", im);
         }
         return im;
-    }
-
-    private void setInactivityValue(UI ui, long value) {
-        if (ui != null) {
-            VaadinSession vs = VaadinSession.getCurrent();
-            vs.access(() -> {
-                var im = getInactivityMap(vs);
-                im.put(ui, value);
-            });
-        }
     }
 }
