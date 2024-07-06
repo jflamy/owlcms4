@@ -270,7 +270,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		});
 		binder.forField(useOtherBar).bind(Platform::isNonStandardBarAvailable, Platform::setNonStandardBarAvailable);
 
-		barWeight.setEnabled(this.platform.isLightBarInUse());
+		barWeight.setEnabled(this.platform.isNonStandardBar());
 		lightBar.addFormItem(barWeight, Translator.translate("BarWeight"));
 		int min = 1;
 		int max = 20;
@@ -289,7 +289,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 			try {
 				binder.writeBean(this.platform);
 				Platform fopPlatform = OwlcmsSession.getFop().getPlatform();
-				this.platform.setLightBarInUse(fopPlatform.isLightBarInUse());
+				this.platform.setNonStandardBar(fopPlatform.isNonStandardBar());
 				this.platform.setNonStandardBarWeight(fopPlatform.getNonStandardBarWeight());
 				Platform np = PlatformRepository.save(this.platform);
 				//logger.debug"np 5kg {} identity={}",np.getNbB_5(), System.identityHashCode(np));

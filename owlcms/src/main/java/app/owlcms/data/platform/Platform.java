@@ -138,9 +138,9 @@ public class Platform implements Serializable, Comparable<Platform> {
 	private Integer nbS_5 = 1;
 
 	// bars
-	private boolean lightBarInUse;
+	private boolean nonStandardBar;
 	private Integer nonStandardBarWeight = 0;
-	private Integer officialBar = 0;
+//	private Integer officialBar = 0;
 	private Integer nbB_5 = 0;
 	private Integer nbB_10 = 0;
 	private Integer nbB_15 = 1;
@@ -437,17 +437,17 @@ public class Platform implements Serializable, Comparable<Platform> {
 		return this.nonStandardBarWeight;
 	}
 
-	/**
-	 * Gets the official bar.
-	 *
-	 * @return the official bar
-	 */
-	public Integer getOfficialBar() {
-		if (this.isLightBarInUse()) {
-			return 0;
-		}
-		return this.officialBar;
-	}
+//	/**
+//	 * Gets the official bar.
+//	 *
+//	 * @return the official bar
+//	 */
+//	public Integer getOfficialBar() {
+//		if (this.isNonStandardBar()) {
+//			return 0;
+//		}
+//		return this.officialBar;
+//	}
 
 	/**
 	 * Gets the show decision lights.
@@ -487,8 +487,8 @@ public class Platform implements Serializable, Comparable<Platform> {
 
 	@Transient
 	@JsonIgnore
-	public boolean isLightBarInUse() {
-		return this.lightBarInUse;
+	public boolean isNonStandardBar() {
+		return this.nonStandardBar;
 	}
 
 	public Boolean isNonStandardBarAvailable() {
@@ -502,8 +502,8 @@ public class Platform implements Serializable, Comparable<Platform> {
 		this.id = id;
 	}
 
-	public void setLightBarInUse(boolean nonStandardBar) {
-		this.lightBarInUse = nonStandardBar;
+	public void setNonStandardBar(boolean nonStandardBar) {
+		this.nonStandardBar = nonStandardBar;
 	}
 
 	/**
@@ -663,14 +663,14 @@ public class Platform implements Serializable, Comparable<Platform> {
 		this.nonStandardBarWeight = lightBar;
 	}
 
-	/**
-	 * Sets the official bar.
-	 *
-	 * @param officialBar the new official bar
-	 */
-	public void setOfficialBar(Integer officialBar) {
-		this.officialBar = officialBar;
-	}
+//	/**
+//	 * Sets the official bar.
+//	 *
+//	 * @param officialBar the new official bar
+//	 */
+//	public void setOfficialBar(Integer officialBar) {
+//		this.officialBar = officialBar;
+//	}
 
 	/**
 	 * Sets the show decision lights.
