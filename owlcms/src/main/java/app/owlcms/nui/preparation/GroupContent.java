@@ -142,7 +142,7 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		String translation = Translator.translate("EditAthletes");
 		int tSize = translation.length();
 		grid.addColumn(new ComponentRenderer<>(p -> {
-			Button technical = openInNewTab(RegistrationContent.class, translation, p.getName());
+			Button technical = openInNewTab(RegistrationContent.class, translation, p != null ? p.getName() : "?");
 			// prevent grid row selection from triggering
 			technical.getElement().addEventListener("click", ignore -> {
 			}).addEventData("event.stopPropagation()");
@@ -165,7 +165,7 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 	private <T extends Component> Button openInNewTab(Class<T> targetClass,
 	        String label, String parameter) {
 		Button button = new Button(label);
-		button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
+		button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter != null ? parameter : "-"));
 		return button;
 	}
 
