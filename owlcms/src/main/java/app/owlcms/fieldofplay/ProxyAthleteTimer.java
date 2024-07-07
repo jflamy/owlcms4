@@ -141,7 +141,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 		if (timeRemaining < 1) {
 			this.logger./**/warn("setting with no time {}", LoggerUtils.whereFrom());
 		}
-		getFop().pushOutUIEvent(new UIEvent.SetTime(timeRemaining, null, LoggerUtils.stackTrace()));
+		getFop().pushOutUIEvent(new UIEvent.SetTime(timeRemaining, null, LoggerUtils.stackTrace(), getFop()));
 		this.running = false;
 	}
 
@@ -164,7 +164,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 		}
 		getFop().pushOutUIEvent(
 		        new UIEvent.StartTime(this.timeRemaining, null, getFop().isEmitSoundsOnServer(),
-		                LoggerUtils.stackTrace()));
+		                LoggerUtils.stackTrace(), getFop()));
 		this.running = true;
 
 		if (!Config.getCurrent().featureSwitch("oldTimers")) {
@@ -257,7 +257,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 			logger.info("{}+++++ stopping serverTimer", FieldOfPlay.getLoggingName(fop));
 			this.serverTimer.cancel();
 		}
-		getFop().pushOutUIEvent(new UIEvent.StopTime(this.timeRemaining, null));
+		getFop().pushOutUIEvent(new UIEvent.StopTime(this.timeRemaining, null, getFop()));
 		this.running = false;
 	}
 

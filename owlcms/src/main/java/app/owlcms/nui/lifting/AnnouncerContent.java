@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.Subscribe;
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Key;
@@ -111,9 +112,15 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		        SoundParameters.SHOW_DECLARATIONS, "false",
 		        SoundParameters.CENTER_NOTIFICATIONS, Boolean.toString(Config.getCurrent().featureSwitch("centerAnnouncerNotifications")),
 		        SoundParameters.START_ORDER, "false")));
+
+	}
+
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		super.onAttach(attachEvent);
 		createTopBarGroupSelect();
-//		setLiveLights(!Config.getCurrent().featureSwitch("noLiveLights"));
-//		setCenterNotifications(Config.getCurrent().featureSwitch("centerAnnouncerNotifications"));
+		// setLiveLights(!Config.getCurrent().featureSwitch("noLiveLights"));
+		// setCenterNotifications(Config.getCurrent().featureSwitch("centerAnnouncerNotifications"));
 		defineFilters(this.getCrudGrid());
 	}
 
@@ -394,32 +401,27 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 		this.introCountdownButton = new Button(Translator.translate("introCountdown"), new Icon(VaadinIcon.TIMER),
 		        (e) -> {
-			        OwlcmsSession.withFop(fop -> {
-				        BreakDialog dialog = new BreakDialog(BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET, null,
-				                this);
-				        dialog.open();
-			        });
+			        BreakDialog dialog = new BreakDialog(BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET, null,
+			                this);
+			        dialog.open();
 		        });
 		this.introCountdownButton.getElement().setAttribute("theme", "primary contrast");
 
 		this.startLiftingButton = new Button(Translator.translate("startLifting"), new Icon(VaadinIcon.MICROPHONE),
 		        (e) -> {
-			        OwlcmsSession.withFop(fop -> {
-				        UI.getCurrent().access(() -> getRouterLayout().setMenuArea(createTopBar()));
-				        fop.fopEventPost(new FOPEvent.StartLifting(this));
-			        });
+			        UI.getCurrent().access(() -> getRouterLayout().setMenuArea(createTopBar()));
+			        getFop().fopEventPost(new FOPEvent.StartLifting(this));
 		        });
 		this.startLiftingButton.getThemeNames().add("success primary");
 
 		this.showResultsButton = new Button(Translator.translate("ShowResults"), new Icon(VaadinIcon.MEDAL),
 		        (e) -> {
-			        OwlcmsSession.withFop(fop -> {
-				        UI.getCurrent().access(() -> getRouterLayout().setMenuArea(createTopBar()));
-				        fop.fopEventPost(
-				                new FOPEvent.BreakStarted(BreakType.GROUP_DONE, CountdownType.INDEFINITE, null, null,
-				                        true,
-				                        this));
-			        });
+			        var fop = getFop();
+			        UI.getCurrent().access(() -> getRouterLayout().setMenuArea(createTopBar()));
+			        fop.fopEventPost(
+			                new FOPEvent.BreakStarted(BreakType.GROUP_DONE, CountdownType.INDEFINITE, null, null,
+			                        true,
+			                        this));
 		        });
 		this.showResultsButton.getThemeNames().add("success primary");
 		this.showResultsButton.setVisible(false);
@@ -450,13 +452,14 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	@Override
 	protected Component createReset() {
 		this.reset = new Button(Translator.translate("Announcer.ReloadGroup"), new Icon(VaadinIcon.REFRESH),
-		        (e) -> OwlcmsSession.withFop((fop) -> {
+		        (e) -> {
+			        var fop = getFop();
 			        Group group = fop.getGroup();
 			        logger.info("resetting {} from database", group);
 			        // fop.loadGroup(group, this, true);
 			        fop.fopEventPost(new FOPEvent.SwitchGroup(group, this));
-			        syncWithFOP(true); // loadgroup does not refresh grid, true=ask for refresh
-		        }));
+			        syncWithFop(true, fop); // loadgroup does not refresh grid, true=ask for refresh
+		        });
 		this.reset.getElement().setProperty("title", Translator.translate("Announcer.ReloadGroupTooltip"));
 
 		this.reset.getElement().setAttribute("title", Translator.translate("Reload_group"));
@@ -582,20 +585,17 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		List<Group> groups = GroupRepository.findAll();
 		groups.sort(Group.groupSelectionComparator);
 
-		OwlcmsSession.withFop((fop) -> {
-			Group group = fop.getGroup();
-			logger.trace("initial setting group to {} {}", group, LoggerUtils.whereFrom());
-			UI.getCurrent().access(() -> getGroupFilter().setValue(group));
-		});
+		var fop = getFop();
+		Group group = fop.getGroup();
+		logger.trace("initial setting group to {} {}", group, LoggerUtils.whereFrom());
+		UI.getCurrent().access(() -> getGroupFilter().setValue(group));
 
-		OwlcmsSession.withFop(fop -> {
-			this.topBarMenu = new GroupSelectionMenu(groups, fop.getGroup(),
-			        fop,
-			        (g1) -> fop.fopEventPost(
-			                new FOPEvent.SwitchGroup(g1.compareTo(fop.getGroup()) == 0 ? null : g1, this)),
-			        (g1) -> fop.fopEventPost(new FOPEvent.SwitchGroup(null, this)));
-			createTopBarSettingsMenu();
-		});
+		this.topBarMenu = new GroupSelectionMenu(groups, fop.getGroup(),
+		        fop,
+		        (g1) -> fop.fopEventPost(
+		                new FOPEvent.SwitchGroup(g1.compareTo(fop.getGroup()) == 0 ? null : g1, this)),
+		        (g1) -> fop.fopEventPost(new FOPEvent.SwitchGroup(null, this)));
+		createTopBarSettingsMenu();
 	}
 
 	@Override
@@ -656,7 +656,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		        });
 		showLights.setCheckable(true);
 		showLights.setChecked(this.isLiveLights());
-		
+
 		MenuItem centerDeclarations = subMenu2.addItem(
 		        Translator.translate("DisplayParameters.centerNotifications"),
 		        e -> {
@@ -716,7 +716,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 	@Override
 	public void setCenterNotifications(boolean centerNotifications) {
-		//logger.debug"setCenterNotifications {} {}",centerNotifications,LoggerUtils.whereFrom());
+		// logger.debug"setCenterNotifications {} {}",centerNotifications,LoggerUtils.whereFrom());
 		this.centerNotifications = centerNotifications;
 	}
 
@@ -753,44 +753,42 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	}
 
 	private void badLift() {
-		OwlcmsSession.withFop(fop -> {
-			long now = System.currentTimeMillis();
-			long timeElapsed = now - this.previousBadMillis;
-			if (timeElapsed > 2000 || isSingleReferee()) {
-				if (isSingleReferee()
-				        && (fop.getState() == FOPState.TIME_STOPPED || fop.getState() == FOPState.TIME_RUNNING)) {
-					fop.fopEventPost(new FOPEvent.DownSignal(this));
-				}
-				fop.fopEventPost(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
-				        false, false, false));
+		var fop = getFop();
+		long now = System.currentTimeMillis();
+		long timeElapsed = now - this.previousBadMillis;
+		if (timeElapsed > 2000 || isSingleReferee()) {
+			if (isSingleReferee()
+			        && (fop.getState() == FOPState.TIME_STOPPED || fop.getState() == FOPState.TIME_RUNNING)) {
+				fop.fopEventPost(new FOPEvent.DownSignal(this));
 			}
-			this.previousBadMillis = now;
-		});
+			fop.fopEventPost(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
+			        false, false, false));
+		}
+		this.previousBadMillis = now;
 	}
 
 	private void goodLift() {
-		OwlcmsSession.withFop(fop -> {
-			long now = System.currentTimeMillis();
-			long timeElapsed = now - this.previousGoodMillis;
-			// no reason to give two decisions close together
-			if (timeElapsed > 2000 || isSingleReferee()) {
-				if (isSingleReferee()
-				        && (fop.getState() == FOPState.TIME_STOPPED
-				                || fop.getState() == FOPState.TIME_RUNNING)) {
-					fop.fopEventPost(new FOPEvent.DownSignal(this));
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e1) {
+		var fop = getFop();
+		long now = System.currentTimeMillis();
+		long timeElapsed = now - this.previousGoodMillis;
+		// no reason to give two decisions close together
+		if (timeElapsed > 2000 || isSingleReferee()) {
+			if (isSingleReferee()
+			        && (fop.getState() == FOPState.TIME_STOPPED
+			                || fop.getState() == FOPState.TIME_RUNNING)) {
+				fop.fopEventPost(new FOPEvent.DownSignal(this));
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
 
-					}
 				}
-				fop.fopEventPost(
-				        new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), true, true,
-				                true,
-				                true));
 			}
-			this.previousGoodMillis = now;
-		});
+			fop.fopEventPost(
+			        new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), true, true,
+			                true,
+			                true));
+		}
+		this.previousGoodMillis = now;
 	}
 
 	private void juryDecisionAnnounce(UIEvent.JuryNotification e) {

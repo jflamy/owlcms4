@@ -495,7 +495,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 					        setMedalCategory(c);
 					        this.logger.info("switching to {} {}", g.getName() != null ? g.getName() : "-",
 					                c != null ? c.getNameWithAgeGroup() : "");
-					        fop.getUiEventBus().post(new UIEvent.VideoRefresh(this, g, c));
+					        fop.getUiEventBus().post(new UIEvent.VideoRefresh(this, g, c, getFop()));
 				        }
 			        });
 

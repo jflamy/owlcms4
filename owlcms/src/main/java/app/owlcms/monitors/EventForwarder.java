@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -76,9 +75,7 @@ import app.owlcms.uievents.UIEvent.StartTime;
 import app.owlcms.uievents.UIEvent.StopTime;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
-import app.owlcms.utils.StartupUtils;
 import app.owlcms.utils.URLUtils;
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -1223,22 +1220,22 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	}
 
 	private void dumpMap(String string, String string2, Map<String, String> map) {
-		if (StartupUtils.isDebugSetting()) {
-			Level level = logger.getLevel();
-			try {
-				logger.setLevel(Level.TRACE);
-				logger.trace("=== {}\n{}", string, string2);
-				for (Entry<String, String> m : map.entrySet()) {
-					if (m.getKey() == "updateKey") {
-						logger.trace("    {} = {}", m.getKey(), m.getValue() != null ? "masked "+m.getValue().length() : "masked null value");
-					} else {
-						logger.trace("    {} = {}", m.getKey(), m.getValue());
-					}
-				}
-			} finally {
-				logger.setLevel(level);
-			}
-		}
+//		if (StartupUtils.isDebugSetting()) {
+//			Level level = logger.getLevel();
+//			try {
+//				logger.setLevel(Level.TRACE);
+//				logger.trace("=== {}\n{}", string, string2);
+//				for (Entry<String, String> m : map.entrySet()) {
+//					if (m.getKey() == "updateKey") {
+//						logger.trace("    {} = {}", m.getKey(), m.getValue() != null ? "masked "+m.getValue().length() : "masked null value");
+//					} else {
+//						logger.trace("    {} = {}", m.getKey(), m.getValue());
+//					}
+//				}
+//			} finally {
+//				logger.setLevel(level);
+//			}
+//		}
 	}
 
 	private String formatAttempt(Integer attemptNo) {

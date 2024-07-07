@@ -212,7 +212,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
 	@Subscribe
 	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
-		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> syncWithFOP(true));
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> syncWithFop(true, getFop()));
 	}
 
 	/**
@@ -332,7 +332,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	}
 
 	protected void doSync() {
-		syncWithFOP(false);
+		syncWithFop(false, getFop());
 		this.decisions.slaveDecisionReset(null);
 
 		// OwlcmsSession.getFop().fopEventPost(new FOPEvent.StartLifting(this));
@@ -358,37 +358,35 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	}
 
 	@Override
-	protected void syncWithFOP(boolean refreshGrid) {
-		super.syncWithFOP(refreshGrid);
-		OwlcmsSession.withFop(fop -> {
-			setAthleteUnderReview(fop.getAthleteUnderReview());
-			Boolean[] curDecisions = fop.getJuryMemberDecision();
-			if (curDecisions != null) {
-				for (int i = 0; i < getNbJurors(); i++) {
-					Boolean goodBad = curDecisions[i];
-					// logger.debug("existing jury {} {}", i, goodBad);
-					juryVote(i, goodBad, false);
-				}
+	protected void syncWithFop(boolean refreshGrid, FieldOfPlay fop) {
+		super.syncWithFop(refreshGrid, fop);
+		setAthleteUnderReview(fop.getAthleteUnderReview());
+		Boolean[] curDecisions = fop.getJuryMemberDecision();
+		if (curDecisions != null) {
+			for (int i = 0; i < getNbJurors(); i++) {
+				Boolean goodBad = curDecisions[i];
+				// logger.debug("existing jury {} {}", i, goodBad);
+				juryVote(i, goodBad, false);
 			}
-			Boolean[] curRefDecisions = fop.getRefereeDecision();
-			Long[] curRefTimes = fop.getRefereeTime();
-			this.decisions.doReset();
-			if (curRefDecisions != null) {
-				// for (int i = 0; i < 3; i++) {
-				// Boolean goodBad = curRefDecisions[i];
-				// logger.debug("existing ref {} {}", i, goodBad);
-				// }
-				if (fop.isRefereeForcedDecision()) {
-					this.decisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(this.athleteUnderReview, null,
-					        curRefDecisions[1], null, null, curRefTimes[1], null, this));
-				} else {
-					this.decisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(this.athleteUnderReview,
-					        curRefDecisions[0],
-					        curRefDecisions[1], curRefDecisions[2], curRefTimes[0], curRefTimes[1], curRefTimes[2],
-					        this));
-				}
+		}
+		Boolean[] curRefDecisions = fop.getRefereeDecision();
+		Long[] curRefTimes = fop.getRefereeTime();
+		this.decisions.doReset();
+		if (curRefDecisions != null) {
+			// for (int i = 0; i < 3; i++) {
+			// Boolean goodBad = curRefDecisions[i];
+			// logger.debug("existing ref {} {}", i, goodBad);
+			// }
+			if (fop.isRefereeForcedDecision()) {
+				this.decisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(this.athleteUnderReview, null,
+				        curRefDecisions[1], null, null, curRefTimes[1], null, this, fop));
+			} else {
+				this.decisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(this.athleteUnderReview,
+				        curRefDecisions[0],
+				        curRefDecisions[1], curRefDecisions[2], curRefTimes[0], curRefTimes[1], curRefTimes[2],
+				        this, fop));
 			}
-		});
+		}
 	}
 
 	private Icon bigIcon(VaadinIcon iconDef, String color) {
@@ -575,7 +573,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 				                new UIEvent.Notification(null, this,
 				                        UIEvent.Notification.Level.ERROR,
 				                        "BreakButton.cannotInterruptBreak",
-				                        3000));
+				                        3000, fop));
 			        } else {
 				        openJuryDialog(JuryDeliberationEventType.START_DELIBERATION);
 			        }
@@ -592,7 +590,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 				                new UIEvent.Notification(null, this,
 				                        UIEvent.Notification.Level.ERROR,
 				                        "BreakButton.cannotInterruptBreak",
-				                        3000));
+				                        3000, fop));
 			        } else {
 				        openJuryDialog(JuryDeliberationEventType.CHALLENGE);
 			        }
@@ -611,7 +609,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 				                new UIEvent.Notification(null, this,
 				                        UIEvent.Notification.Level.ERROR,
 				                        "BreakButton.cannotInterruptBreak",
-				                        3000));
+				                        3000, fop));
 			        } else {
 				        openJuryDialog(JuryDeliberationEventType.TECHNICAL_PAUSE);
 			        }
