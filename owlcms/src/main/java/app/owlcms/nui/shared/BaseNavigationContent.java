@@ -14,7 +14,6 @@ import java.util.List;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
-import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Div;
@@ -172,8 +171,11 @@ public abstract class BaseNavigationContent extends BaseContent
 		} else {
 			params.remove("group");
 		}
-		ui.getPage().getHistory().replaceState(null,
-		        new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
+		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params)));
+		//ui.getPage().getHistory().replaceState(null, location2);
+		logger.warn("new location {}",location2.getPathWithQueryParameters());
+		ui.getPage().setLocation(location2.getPathWithQueryParameters());
+
 	}
 
 	protected ComboBox<FieldOfPlay> createFopSelect(String placeHolder) {
@@ -220,12 +222,12 @@ public abstract class BaseNavigationContent extends BaseContent
 	 *
 	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
 	 */
-	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		OwlcmsSession.withFop(fop -> {
-			// we listen on uiEventBus.
-			this.uiEventBus = uiEventBusRegister(this, fop);
-		});
-	}
+//	@Override
+//	protected void onAttach(AttachEvent attachEvent) {
+//		OwlcmsSession.withFop(fop -> {
+//			// we listen on uiEventBus.
+//			this.uiEventBus = uiEventBusRegister(this, fop);
+//		});
+//	}
 
 }

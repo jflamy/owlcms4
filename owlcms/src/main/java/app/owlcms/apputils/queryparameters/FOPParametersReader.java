@@ -74,7 +74,7 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 		HashMap<String, List<String>> newParameterMap = new HashMap<>(parametersMap);
 
 		// get the fop from the query parameters, set to the default FOP if not provided
-		FieldOfPlay fop = null;
+		FieldOfPlay tFop = null;
 
 		List<String> fopNames = parametersMap.get(FOP);
 		boolean fopFound = fopNames != null && fopNames.get(0) != null;
@@ -86,17 +86,21 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 			if (fopFound) {
 				// logger.trace("fopNames {}", fopNames);
 				String decoded = URLDecoder.decode(fopNames.get(0), StandardCharsets.UTF_8);
-				// logger.trace("URL fop = {} decoded = {}",fopNames.get(0), decoded);
-				fop = OwlcmsFactory.getFOPByName(decoded);
-			} else if (OwlcmsSession.getFop() != null) {
+				logger.warn("URL fop = {} decoded = {}",fopNames.get(0), decoded);
+				tFop = OwlcmsFactory.getFOPByName(decoded);
+				this.setFop(tFop);
+			} 
+			else if (OwlcmsSession.getFop() != null) {
 				// logger.trace("OwlcmsSession.getFop() {}", OwlcmsSession.getFop());
-				fop = OwlcmsSession.getFop();
+				tFop = OwlcmsSession.getFop();
+				this.setFop(tFop);
 			}
-			if (fop == null) {
-				fop = OwlcmsFactory.getDefaultFOP();
+			if (tFop == null) {
+				tFop = OwlcmsFactory.getDefaultFOP();
+				this.setFop(tFop);
 			}
-			newParameterMap.put(FOP, Arrays.asList(URLUtils.urlEncode(fop.getName())));
-			OwlcmsSession.setFop(fop);
+			newParameterMap.put(FOP, Arrays.asList(URLUtils.urlEncode(tFop.getName())));
+			OwlcmsSession.setFop(tFop);
 		} else {
 			newParameterMap.remove(FOP);
 		}
@@ -109,13 +113,13 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 				String decoded = URLDecoder.decode(groupNames.get(0), StandardCharsets.UTF_8);
 				// logger.trace("URL group = {} decoded = {}",groupNames.get(0), decoded);
 				group = GroupRepository.findByName(decoded);
-				Group fopGroup = fop != null ? fop.getGroup() : null;
+				Group fopGroup = tFop != null ? tFop.getGroup() : null;
 				boolean sameGroup = fopGroup != null && fopGroup.getName().equals(decoded);
-				if (!sameGroup && fop != null) {
-					fop.loadGroup(group, this, true);
+				if (!sameGroup && tFop != null) {
+					tFop.loadGroup(group, this, true);
 				}
 			} else {
-				group = (fop != null ? fop.getGroup() : null);
+				group = (tFop != null ? tFop.getGroup() : null);
 			}
 			if (group != null) {
 				newParameterMap.put(GROUP, Arrays.asList(URLUtils.urlEncode(group.getName())));
@@ -125,7 +129,7 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 		}
 
 		logger.debug("URL parsing: {} OwlcmsSession: fop={} group={}", LoggerUtils.whereFrom(),
-		        (fop != null ? fop.getName() : null), (group != null ? group.getName() : null));
+		        (tFop != null ? tFop.getName() : null), (group != null ? group.getName() : null));
 
 		setUrlParameterMap(removeDefaultValues(newParameterMap));
 		return getUrlParameterMap();

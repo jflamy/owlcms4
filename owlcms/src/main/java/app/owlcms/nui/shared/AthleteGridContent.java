@@ -615,7 +615,7 @@ public abstract class AthleteGridContent extends BaseContent
 	public void slaveBreakDone(UIEvent.BreakDone e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			logger.debug("stopping break");
-			syncWithFOP(true);
+			syncWithFop(true, e.getFop());
 		});
 	}
 
@@ -629,7 +629,7 @@ public abstract class AthleteGridContent extends BaseContent
 			}
 
 			// logger.debug("%%%%%%% starting break {}", LoggerUtils./**/stackTrace());
-			syncWithFOP(true);
+			syncWithFop(true, e.getFop());
 		});
 	}
 
@@ -655,7 +655,7 @@ public abstract class AthleteGridContent extends BaseContent
 	@Subscribe
 	public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			syncWithFOP(true);
+			syncWithFop(true, e.getFop());
 		});
 	}
 
@@ -670,12 +670,10 @@ public abstract class AthleteGridContent extends BaseContent
 	public void slaveGroupDone(UIEvent.GroupDone e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
-		OwlcmsSession.withFop((fop) -> {
-			UIEventProcessor.uiAccess(this.topBar, this.uiEventBus, e, () -> {
-				// doUpdateTopBar(fop.getCurAthlete(), 0);
-				getRouterLayout().setMenuArea(createInitialBar());
-				syncWithFOP(true);
-			});
+		UIEventProcessor.uiAccess(this.topBar, this.uiEventBus, e, () -> {
+			// doUpdateTopBar(fop.getCurAthlete(), 0);
+			getRouterLayout().setMenuArea(createInitialBar());
+			syncWithFop(true, e.getFop());
 		});
 
 	}
@@ -790,7 +788,7 @@ public abstract class AthleteGridContent extends BaseContent
 	public void slaveStartLifting(UIEvent.StartLifting e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			logger.trace("starting lifting");
-			syncWithFOP(true);
+			syncWithFop(true, e.getFop());
 			this.summonNotificationSent = false;
 			this.deliberationNotificationSent = false;
 		});
@@ -821,7 +819,7 @@ public abstract class AthleteGridContent extends BaseContent
 	@Subscribe
 	public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			syncWithFOP(true);
+			syncWithFop(true, e.getFop());
 			updateURLLocation(getLocationUI(), getLocation(), e.getGroup());
 		});
 	}
@@ -829,23 +827,20 @@ public abstract class AthleteGridContent extends BaseContent
 	@Subscribe
 	public void slaveUpdateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
 		Athlete athlete = e.getAthlete();
-		//logger.debug("athletegrid slaveUpdateAnnouncerBar");
-		OwlcmsSession.withFop(fop -> {
-			UIEventProcessor.uiAccess(this.topBar, this.uiEventBus, e, () -> {
-				warnOthersIfCurrent(e, athlete, fop);
-				doUpdateTopBar(athlete, e.getTimeAllowed());
-			});
+		var fop = e.getFop();
+		logger.warn("&&&&&&&& athletegrid slaveUpdateAnnouncerBar {}", fop.getName());
+		UIEventProcessor.uiAccess(this.topBar, this.uiEventBus, e, () -> {
+			warnOthersIfCurrent(e, athlete, fop);
+			doUpdateTopBar(athlete, e.getTimeAllowed());
 		});
 	}
 
 	@Subscribe
 	public void slaveDecision(UIEvent.Decision e) {
 		Athlete athlete = e.getAthlete();
-		//logger.debug("athletegrid slaveDecision");
-		OwlcmsSession.withFop(fop -> {
-			UIEventProcessor.uiAccess(this.topBar, this.uiEventBus, e, () -> {
-				warnOthersIfCurrent(e, athlete, fop);
-			});
+		// logger.debug("athletegrid slaveDecision");
+		UIEventProcessor.uiAccess(this.topBar, this.uiEventBus, e, () -> {
+			warnOthersIfCurrent(e, athlete, e.getFop());
 		});
 	}
 
@@ -994,7 +989,6 @@ public abstract class AthleteGridContent extends BaseContent
 			return null;
 		});
 
-		
 		this.crudLayout = new OwlcmsGridLayout(Athlete.class);
 		AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class, this.crudLayout, crudFormFactory, grid) {
 			@Override
@@ -1165,29 +1159,25 @@ public abstract class AthleteGridContent extends BaseContent
 		// hidden field in the crudGrid part of the page so we just set that
 		// filter.
 
-		OwlcmsSession.withFop((fop) -> {
-			Group group = fop.getGroup();
-			logger.trace("initial setting group to {} {}", group, LoggerUtils.whereFrom());
-			try {
-				getGroupFilter().setValue(group);
-			} catch (Exception e) {
-				// no way to check for no items
-			}
-		});
+		Group group = getFop().getGroup();
+		logger.trace("initial setting group to {} {}", group, LoggerUtils.whereFrom());
+		try {
+			getGroupFilter().setValue(group);
+		} catch (Exception e) {
+			// no way to check for no items
+		}
 
-		OwlcmsSession.withFop(fop -> {
-			this.topBarMenu = new MenuBar();
-			MenuItem item;
-			if (fop.getGroup() != null) {
-				item = this.topBarMenu.addItem(fop.getGroup().getName());
-				this.topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL);
-				item.setEnabled(true);
-			} else {
-				// no group, no menu.
-			}
+		this.topBarMenu = new MenuBar();
+		MenuItem item;
+		if (getFop().getGroup() != null) {
+			item = this.topBarMenu.addItem(getFop().getGroup().getName());
+			this.topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL);
+			item.setEnabled(true);
+		} else {
+			// no group, no menu.
+		}
 
-			createTopBarSettingsMenu();
-		});
+		createTopBarSettingsMenu();
 
 		// if this is made read-write, it needs to set values in
 		// groupFilter and
@@ -1271,15 +1261,11 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	protected void do1Minute() {
-		OwlcmsSession.withFop(fop -> {
-			fop.fopEventPost(new FOPEvent.ForceTime(60000, this.getOrigin()));
-		});
+		getFop().fopEventPost(new FOPEvent.ForceTime(60000, this.getOrigin()));
 	}
 
 	protected void do2Minutes() {
-		OwlcmsSession.withFop(fop -> {
-			fop.fopEventPost(new FOPEvent.ForceTime(120000, this.getOrigin()));
-		});
+		getFop().fopEventPost(new FOPEvent.ForceTime(120000, this.getOrigin()));
 	}
 
 	/**
@@ -1312,54 +1298,45 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	protected void doStartTime() {
-		OwlcmsSession.withFop(fop -> {
-			long now = System.currentTimeMillis();
-			long timeElapsed = now - this.previousStartMillis;
-			boolean running = fop.getAthleteTimer().isRunning();
-			if (timeElapsed > 100 && !running) {
-				logger.debug("clock start {}ms running={}", timeElapsed, running);
-				fop.fopEventPost(new FOPEvent.TimeStarted(this.getOrigin()));
-				buttonsTimeStarted();
-			} else {
-				logger.debug("discarding duplicate clock start {}ms running={}", timeElapsed, running);
-			}
-			this.previousStartMillis = now;
-		});
+		long now = System.currentTimeMillis();
+		long timeElapsed = now - this.previousStartMillis;
+		boolean running = getFop().getAthleteTimer().isRunning();
+		if (timeElapsed > 100 && !running) {
+			logger.debug("clock start {}ms running={}", timeElapsed, running);
+			getFop().fopEventPost(new FOPEvent.TimeStarted(this.getOrigin()));
+			buttonsTimeStarted();
+		} else {
+			logger.debug("discarding duplicate clock start {}ms running={}", timeElapsed, running);
+		}
+		this.previousStartMillis = now;
 	}
 
 	protected void doStopTime() {
-		OwlcmsSession.withFop(fop -> {
-			long now = System.currentTimeMillis();
-			long timeElapsed = now - this.previousStopMillis;
-			boolean running = fop.getAthleteTimer().isRunning();
-			if (timeElapsed > 100 && running) {
-				logger.debug("clock stop {}ms running={}", timeElapsed, running);
-				fop.fopEventPost(new FOPEvent.TimeStopped(this.getOrigin()));
-				buttonsTimeStopped();
-			} else {
-				logger.debug("discarding duplicate clock stop {}ms running={}", timeElapsed, running);
-			}
-			this.previousStopMillis = now;
-		});
-		OwlcmsSession.withFop(fop -> {
-
-		});
+		long now = System.currentTimeMillis();
+		long timeElapsed = now - this.previousStopMillis;
+		boolean running = getFop().getAthleteTimer().isRunning();
+		if (timeElapsed > 100 && running) {
+			logger.debug("clock stop {}ms running={}", timeElapsed, running);
+			getFop().fopEventPost(new FOPEvent.TimeStopped(this.getOrigin()));
+			buttonsTimeStopped();
+		} else {
+			logger.debug("discarding duplicate clock stop {}ms running={}", timeElapsed, running);
+		}
+		this.previousStopMillis = now;
 	}
 
 	protected void doToggleTime() {
-		OwlcmsSession.withFop(fop -> {
-			long now = System.currentTimeMillis();
-			long timeElapsed = now - this.previousToggleMillis;
-			if (timeElapsed > 100) {
-				boolean running = fop.getAthleteTimer().isRunning();
-				if (running) {
-					doStopTime();
-				} else {
-					doStartTime();
-				}
+		long now = System.currentTimeMillis();
+		long timeElapsed = now - this.previousToggleMillis;
+		if (timeElapsed > 100) {
+			boolean running = getFop().getAthleteTimer().isRunning();
+			if (running) {
+				doStopTime();
+			} else {
+				doStartTime();
 			}
-			this.previousToggleMillis = now;
-		});
+		}
+		this.previousToggleMillis = now;
 	}
 
 	protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
@@ -1368,56 +1345,54 @@ public abstract class AthleteGridContent extends BaseContent
 		}
 		this.displayedAthlete = athlete;
 
-		OwlcmsSession.withFop(fop -> {
-			UIEventProcessor.uiAccess(this.topBar, this.uiEventBus, () -> {
-				Group group = fop.getGroup();
-				// ** this.setValue(group); // does nothing if already correct
-				Integer attemptsDone = (athlete != null ? athlete.getAttemptsDone() : 0);
-				// logger.debug("doUpdateTopBar {} {} {}", LoggerUtils.whereFrom(), athlete,
-				// attemptsDone);
-				if (athlete != null && attemptsDone < 6) {
-					if (!this.initialBar) {
-						String lastName2 = athlete.getLastName();
-						this.lastName.setText(lastName2 != null ? lastName2.toUpperCase() : "");
-						String firstName2 = athlete.getFirstName();
-						this.firstName.setText(firstName2 != null ? firstName2 : "");
-						Integer startNumber2 = athlete.getStartNumber();
-						String startNumberText = (startNumber2 != null && startNumber2 > 0 ? startNumber2.toString()
-						        : null);
-						if (startNumberText != null) {
-							this.startNumber.setText(startNumberText);
-							if (startNumberText.isBlank()) {
-								this.startNumber.setVisible(false);
-							} else {
-								this.startNumber.setVisible(true);
-								this.startNumber.getStyle().set("font-size", "normal");
-							}
+		UIEventProcessor.uiAccess(this.topBar, this.uiEventBus, () -> {
+			Group group = getFop().getGroup();
+			// ** this.setValue(group); // does nothing if already correct
+			Integer attemptsDone = (athlete != null ? athlete.getAttemptsDone() : 0);
+			// logger.debug("doUpdateTopBar {} {} {}", LoggerUtils.whereFrom(), athlete,
+			// attemptsDone);
+			if (athlete != null && attemptsDone < 6) {
+				if (!this.initialBar) {
+					String lastName2 = athlete.getLastName();
+					this.lastName.setText(lastName2 != null ? lastName2.toUpperCase() : "");
+					String firstName2 = athlete.getFirstName();
+					this.firstName.setText(firstName2 != null ? firstName2 : "");
+					Integer startNumber2 = athlete.getStartNumber();
+					String startNumberText = (startNumber2 != null && startNumber2 > 0 ? startNumber2.toString()
+					        : null);
+					if (startNumberText != null) {
+						this.startNumber.setText(startNumberText);
+						if (startNumberText.isBlank()) {
+							this.startNumber.setVisible(false);
 						} else {
-							this.startNumber.setText("\u26A0");
-							this.startNumber.setTitle(Translator.translate("StartNumbersNotSet"));
 							this.startNumber.setVisible(true);
-							this.startNumber.getStyle().set("font-size", "smaller");
+							this.startNumber.getStyle().set("font-size", "normal");
 						}
-						this.timer.getElement().getStyle().set("visibility", "visible");
-						this.attempt.setText(formatAttemptNumber(athlete));
-						Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();
-						this.weight.setText(
-						        (nextAttemptRequestedWeight != null ? nextAttemptRequestedWeight.toString() : "\u2013")
-						                + Translator.translate("KgSymbol"));
-						IProxyTimer athleteTimer = fop.getAthleteTimer();
-						if (athleteTimer != null && athleteTimer.isRunning()) {
-							buttonsTimeStarted();
-						} else {
-							buttonsTimeStopped();
-						}
+					} else {
+						this.startNumber.setText("\u26A0");
+						this.startNumber.setTitle(Translator.translate("StartNumbersNotSet"));
+						this.startNumber.setVisible(true);
+						this.startNumber.getStyle().set("font-size", "smaller");
 					}
-				} else {
-					topBarWarning(group, attemptsDone, fop.getState(), fop.getLiftingOrder());
+					this.timer.getElement().getStyle().set("visibility", "visible");
+					this.attempt.setText(formatAttemptNumber(athlete));
+					Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();
+					this.weight.setText(
+					        (nextAttemptRequestedWeight != null ? nextAttemptRequestedWeight.toString() : "\u2013")
+					                + Translator.translate("KgSymbol"));
+					IProxyTimer athleteTimer = getFop().getAthleteTimer();
+					if (athleteTimer != null && athleteTimer.isRunning()) {
+						buttonsTimeStarted();
+					} else {
+						buttonsTimeStopped();
+					}
 				}
-				if (fop.getState() != FOPState.BREAK && this.breakDialog != null && this.breakDialog.isOpened()) {
-					this.breakDialog.close();
-				}
-			});
+			} else {
+				topBarWarning(group, attemptsDone, getFop().getState(), getFop().getLiftingOrder());
+			}
+			if (getFop().getState() != FOPState.BREAK && this.breakDialog != null && this.breakDialog.isOpened()) {
+				this.breakDialog.close();
+			}
 		});
 	}
 
@@ -1489,12 +1464,10 @@ public abstract class AthleteGridContent extends BaseContent
 		// logger.debug("attaching {} initial={} \\n{}",
 		// this.getClass().getSimpleName(), attachEvent.isInitialAttach(),
 		// LoggerUtils. stackTrace());
-		OwlcmsSession.withFop(fop -> {
 			// create the top bar.
-			syncWithFOP(true);
+			syncWithFop(true, getFop());
 			// we listen on uiEventBus.
-			this.uiEventBus = uiEventBusRegister(this, fop);
-		});
+			this.uiEventBus = uiEventBusRegister(this, getFop());
 	}
 
 	protected void setGroupFilter(ComboBox<Group> groupFilter) {
@@ -1512,82 +1485,83 @@ public abstract class AthleteGridContent extends BaseContent
 		this.topBarTitle = title;
 	}
 
-	/**
-	 */
-	protected void syncWithFOP(boolean refreshGrid) {
-		OwlcmsSession.withFop((fop) -> {
+	// protected void syncWithFOP(boolean refreshGrid) {
+	// OwlcmsSession.withFop((fop) -> {
+	// syncWithFop(refreshGrid, fop);
+	// });
+	// }
 
-			createTopBarGroupSelect();
+	protected void syncWithFop(boolean refreshGrid, FieldOfPlay fop) {
+		createTopBarGroupSelect();
 
-			if (refreshGrid) {
-				// ** this.setValue(fopGroup);
-				if (this.getCrudGrid() != null) {
-					if (this instanceof MarshallContent && isStartOrder()) {
-						// sort by start number by default.
-						// underlying source is lift order, so clearing the sort arrow gives back lift order.
-						List<GridSortOrder<Athlete>> sortOrder = new ArrayList<>();
-						Grid<Athlete> grid = crudGrid.getGrid();
-						Column<Athlete> col = grid.getColumnByKey("startNumber");
-						sortOrder.add(new GridSortOrder<Athlete>(col, SortDirection.ASCENDING));
-						grid.sort(sortOrder);
-					} else {
-						// underlying order (lift order)
-						this.getCrudGrid().sort(null);
-					}
-					this.getCrudGrid().refreshGrid();
-				}
-			}
-
-			Athlete curAthlete2 = fop.getCurAthlete();
-			FOPState state = fop.getState();
-			if (state == FOPState.INACTIVE || (state == FOPState.BREAK && fop.getGroup() == null)) {
-				getRouterLayout().setMenuTitle(getMenuTitle());
-				getRouterLayout().setMenuArea(createInitialBar());
-				getRouterLayout().updateHeader(false);
-
-				this.warning.setText(Translator.translate("IdlePlatform"));
-				if (curAthlete2 == null || curAthlete2.getAttemptsDone() >= 6 || fop.getLiftingOrder().size() == 0) {
-					topBarWarning(fop.getGroup(), curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone(),
-					        fop.getState(), fop.getLiftingOrder());
-				}
-			} else {
-				getRouterLayout().setMenuTitle("");
-				getRouterLayout().setMenuArea(createTopBar());
-				getRouterLayout().updateHeader(false);
-				if (state == FOPState.BREAK) {
-					// logger.debug("break");
-					if (this.buttons != null) {
-						this.buttons.setVisible(false);
-					}
-					if (this.decisions != null) {
-						this.decisions.setVisible(false);
-					}
-					busyBreakButton();
+		if (refreshGrid) {
+			// ** this.setValue(fopGroup);
+			if (this.getCrudGrid() != null) {
+				if (this instanceof MarshallContent && isStartOrder()) {
+					// sort by start number by default.
+					// underlying source is lift order, so clearing the sort arrow gives back lift order.
+					List<GridSortOrder<Athlete>> sortOrder = new ArrayList<>();
+					Grid<Athlete> grid = crudGrid.getGrid();
+					Column<Athlete> col = grid.getColumnByKey("startNumber");
+					sortOrder.add(new GridSortOrder<Athlete>(col, SortDirection.ASCENDING));
+					grid.sort(sortOrder);
 				} else {
-					// logger.debug("notBreak");
-					if (this.buttons != null) {
-						this.buttons.setVisible(true);
-					}
-					if (this.decisions != null) {
-						this.decisions.setVisible(true);
-					}
-					if (this.breakButton == null) {
-						logger.debug("breakButton is null\n{}", LoggerUtils.stackTrace());
-					}
-					if (this.breakButton != null) {
-						quietBreakButton(
-						        this instanceof MarshallContent ? Translator.translate("StopCompetition")
-						                : Translator.translateOrElseEmpty("Pause"));
-					}
+					// underlying order (lift order)
+					this.getCrudGrid().sort(null);
+				}
+				this.getCrudGrid().refreshGrid();
+			}
+		}
+
+		Athlete curAthlete2 = fop.getCurAthlete();
+		FOPState state = fop.getState();
+		if (state == FOPState.INACTIVE || (state == FOPState.BREAK && fop.getGroup() == null)) {
+			getRouterLayout().setMenuTitle(getMenuTitle());
+			getRouterLayout().setMenuArea(createInitialBar());
+			getRouterLayout().updateHeader(false);
+
+			this.warning.setText(Translator.translate("IdlePlatform"));
+			if (curAthlete2 == null || curAthlete2.getAttemptsDone() >= 6 || fop.getLiftingOrder().size() == 0) {
+				topBarWarning(fop.getGroup(), curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone(),
+				        fop.getState(), fop.getLiftingOrder());
+			}
+		} else {
+			getRouterLayout().setMenuTitle("");
+			getRouterLayout().setMenuArea(createTopBar());
+			getRouterLayout().updateHeader(false);
+			if (state == FOPState.BREAK) {
+				// logger.debug("break");
+				if (this.buttons != null) {
+					this.buttons.setVisible(false);
+				}
+				if (this.decisions != null) {
+					this.decisions.setVisible(false);
+				}
+				busyBreakButton();
+			} else {
+				// logger.debug("notBreak");
+				if (this.buttons != null) {
+					this.buttons.setVisible(true);
+				}
+				if (this.decisions != null) {
+					this.decisions.setVisible(true);
+				}
+				if (this.breakButton == null) {
+					logger.debug("breakButton is null\n{}", LoggerUtils.stackTrace());
 				}
 				if (this.breakButton != null) {
-					this.breakButton.setEnabled(true);
+					quietBreakButton(
+					        this instanceof MarshallContent ? Translator.translate("StopCompetition")
+					                : Translator.translateOrElseEmpty("Pause"));
 				}
-				Athlete curAthlete = fop.getCurAthlete();
-				int timeRemaining = fop.getAthleteTimer().liveTimeRemaining();
-				doUpdateTopBar(curAthlete, timeRemaining);
 			}
-		});
+			if (this.breakButton != null) {
+				this.breakButton.setEnabled(true);
+			}
+			Athlete curAthlete = fop.getCurAthlete();
+			int timeRemaining = fop.getAthleteTimer().liveTimeRemaining();
+			doUpdateTopBar(curAthlete, timeRemaining);
+		}
 	}
 
 	protected void topBarWarning(Group group, Integer attemptsDone, FOPState state, List<Athlete> liftingOrder) {
@@ -1730,16 +1704,16 @@ public abstract class AthleteGridContent extends BaseContent
 
 		List<Athlete> liftingOrder = fop.getLiftingOrder();
 		Athlete curAthlete = liftingOrder != null && !liftingOrder.isEmpty() ? liftingOrder.get(0) : null;
-		//logger.debug("warnOthersIfCurrent {}",curAthlete);
+		// logger.debug("warnOthersIfCurrent {}",curAthlete);
 		if (curAthlete != null) {
 			Integer newWeight = curAthlete.getNextAttemptRequestedWeight();
-			
+
 			// avoid duplicate info to officials
 			if (e instanceof UIEvent.LiftingOrderUpdated
-					&& ! (this instanceof MarshallContent) && ! (this instanceof TimekeeperContent)
-					&& newWeight != null && newWeight > 0 
-					&& Integer.compare(this.prevWeight,newWeight) != 0) {
-				//logger.debug("warnOthersIfCurrent {} {} {} -- {}", curAthlete, this.prevWeight, newWeight, LoggerUtils.whereFrom());
+			        && !(this instanceof MarshallContent) && !(this instanceof TimekeeperContent)
+			        && newWeight != null && newWeight > 0
+			        && Integer.compare(this.prevWeight, newWeight) != 0) {
+				// logger.debug("warnOthersIfCurrent {} {} {} -- {}", curAthlete, this.prevWeight, newWeight, LoggerUtils.whereFrom());
 				doNotification(Translator.translate("Notification.WeightToBeLoaded", newWeight), "info");
 				this.prevWeight = newWeight;
 			}

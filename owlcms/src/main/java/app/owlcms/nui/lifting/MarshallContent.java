@@ -199,7 +199,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 		        e -> {
 			        switchStartOrderMode(this, !this.isStartOrder(), true);
 			        e.getSource().setChecked(this.isStartOrder());
-			        this.syncWithFOP(true);
+			        this.syncWithFop(true, getFop());
 		        });
 		startOrder.setCheckable(true);
 		startOrder.setChecked(this.isStartOrder());

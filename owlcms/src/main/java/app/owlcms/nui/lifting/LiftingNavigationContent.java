@@ -13,6 +13,7 @@ import java.util.Map;
 import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.layout.FlexibleGridLayout;
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -53,7 +54,15 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 	 * Competition Group Navigation
 	 */
 	public LiftingNavigationContent() {
-		logger.trace("LiftingNavigationContent constructor start");
+		DebugUtils.gc();
+	}
+	
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+
+		super.onAttach(attachEvent);
+		
+		logger.trace("LiftingNavigationContent onAttach start");
 
 		Button weighIn = openInNewTabNoParam(WeighinContent.class, Translator.translate("WeighIn_Title"));
 		weighIn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
@@ -83,8 +92,6 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 		Button jury = openInNewTab(JuryContent.class, Translator.translate("Jury_Console"));
 		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(referee, jury);
 		doGroup(Translator.translate("Referees_Jury"), grid2, this);
-
-		DebugUtils.gc();
 	}
 
 	@Override
@@ -94,6 +101,7 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 
 	@Override
 	public String getPageTitle() {
+		logger.warn("getPageTitle !!!!!!!!!!!!!!!!!");
 		String fopNameIfMultiple = OwlcmsSession.getFopNameIfMultiple();
 		return Translator.translate("ShortTitle.Lifting") + (!fopNameIfMultiple.isBlank() ? (" - " + fopNameIfMultiple) : "");
 	}
