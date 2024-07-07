@@ -1,9 +1,10 @@
-**Version 49.0.4**
+**Version 49.0.6**
 
 > [!IMPORTANT]
 >
 > - You should test all releases, with actual data, several days before a competition. 
 
+- (49.0.6) Empty groups (no name) could cause page failures
 - (49.0.5) Fix: preparation pages would fail if there was no information at all available to infer the category of the athlete.
 - (49.0.4) Fix: The ordering used for allocating start numbers should not consider age groups, only bodyweight category
   - Now fixed to apply only for Masters competition, or when the option to order weigh-in by age group is selected.
