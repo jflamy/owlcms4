@@ -5,6 +5,8 @@
 > - This is a **beta release**, used for testing and translation. ***Some features could be non-functional***.
 > - Beta releases are **not** normally used in actual competitions, except if a new feature is required. Use extreme care in testing if you intend to do so.
 
+- (beta05) Code review to propagate the platform explicitly instead of relying on session information.
+- (beta05) The list of parameters considered when cleaning up the URLs has been updated, so the URLs are again short.
 - (beta04) Group menus or group pages could fail with old databases containing empty group names, due to new sorting now used.
 - (beta03) Undid accidental rename of a SQL column name that would prevent opening old databases
 - (beta02) Fix for plates loading chart computation when using Open Categories
