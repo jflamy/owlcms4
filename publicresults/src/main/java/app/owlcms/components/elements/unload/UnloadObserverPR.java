@@ -20,6 +20,7 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.littemplate.LitTemplate;
+import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.shared.Registration;
 
@@ -161,7 +162,7 @@ public final class UnloadObserverPR extends LitTemplate {
             vs.access(() -> {
                 var im = getInactivityMap(vs);
                 var value = im.get(ui);
-                if (value > 0) {
+                if (value != null && value > 0) {
                     // do not reset if already inactive
                     im.put(ui, -System.currentTimeMillis());
                 }
@@ -287,4 +288,15 @@ public final class UnloadObserverPR extends LitTemplate {
         }
         return im;
     }
+    
+    public void doReload(String reloadTitle, String reloadText, String reloadLabel, String reloadUrl) {
+        logger.warn("doReload");
+        Element element = this.getElement();
+        element.setProperty("reloadTitle", reloadTitle);
+        element.setProperty("reloadText", reloadText);
+        element.setProperty("reloadUrl", reloadUrl);
+        element.setProperty("reloadLabel", reloadLabel);
+        //element.callJsFunction("postReload");
+    }
+
 }

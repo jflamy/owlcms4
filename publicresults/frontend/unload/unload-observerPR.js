@@ -16,11 +16,38 @@ import { html, LitElement, css } from "lit";
  */
 export class UnloadObserver extends LitElement {
   render() {
-    return html``;
+    return html`
+<form id="reloadForm" action="../expired" method="post" style="display: none;">
+  <input type="text" id="reloadTitle" name="reloadTitle" value="${this.reloadTitle}">
+  <input type="text" id="reloadText" name="reloadText" value="${this.reloadText}">
+  <input type="text" id="reloadLabel" name="reloadLabel" value="${this.reloadLabel}">
+  <input type="text" id="reloadUrl" name="reloadUrl" value="${this.reloadUrl}">
+</form>`;
   }
 
   static get is() {
     return "unload-observer-pr";
+  }
+
+  static get properties() {
+    return {
+      reloadTitle: {},
+      reloadText: {},
+      reloadLabel: {},
+      reloadUrl: {},
+    }
+  }
+
+  updated(changedProperties) {
+    if (changedProperties.has('reloadUrl')) {
+      this.postReload();
+    }
+  }
+
+  postReload() {
+    let form = this.shadowRoot.querySelector('#reloadForm');
+    console.warn("reload page, target location "+this.reloadUrl+" ");
+    form.submit();
   }
 
   /**
@@ -150,9 +177,6 @@ export class UnloadObserver extends LitElement {
     }
   }
 
-  static get properties() {
-    return {};
-  }
 }
 
 customElements.define(UnloadObserver.is, UnloadObserver);

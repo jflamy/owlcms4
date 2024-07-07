@@ -267,10 +267,6 @@ class ResultsPR extends LitElement {
             `}
         </div>
       </div>
-      <form id="reloadForm" action="../reload" method="post" style="display: none;">
-        <input type="text" id="reloadUrl" name="url" value="">
-        <input type="text" id="reloadLabel" name="label" value="">
-      </form>
     `;
   }
 

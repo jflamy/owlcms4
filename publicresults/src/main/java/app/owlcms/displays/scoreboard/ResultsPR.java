@@ -44,6 +44,7 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.DecisionEvent;
 import app.owlcms.uievents.DecisionEventType;
 import app.owlcms.uievents.UpdateEvent;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -161,6 +162,7 @@ public class ResultsPR extends LitTemplate
 
     @Override
     public String getPageTitle() {
+        logger.warn("**** getPageTitle {}",LoggerUtils.whereFrom());
         return Translator.translate("ScoreboardWLeadersTitle") + getFopName() != null ? (" " + getFopName()) : "";
     }
 
@@ -188,6 +190,8 @@ public class ResultsPR extends LitTemplate
     public boolean isLiftingOrder() {
         return this.liftingOrder;
     }
+    
+    
 
     @Override
     public boolean isRecordsDisplay() {

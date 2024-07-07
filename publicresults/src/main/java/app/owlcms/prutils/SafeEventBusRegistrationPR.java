@@ -41,7 +41,7 @@ public interface SafeEventBusRegistrationPR {
         eventObserver.setActivityTime(ui, c);
         
         // Create the repeating task to cleanup things; singleton per session.
-        SessionCleanup.get(ui,c);
+        SessionCleanup.get(ui,c,eventObserver);
         
         eventObserver.addEventListener((e) -> {
             String change = e.getChange();

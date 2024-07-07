@@ -16,6 +16,8 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.server.VaadinSession;
 
+import app.owlcms.components.elements.unload.UnloadObserverPR;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
@@ -30,9 +32,11 @@ public class SessionCleanup {
     private VaadinSession vaadinSession;
     private URL pageURL;
     String uiTitle;
+    private UnloadObserverPR eventObserver;
 
-    private SessionCleanup(VaadinSession vs, UI pageUI, Component c) {
+    private SessionCleanup(VaadinSession vs, UI pageUI, Component c, UnloadObserverPR eventObserver) {
         this.vaadinSession = vs;
+        this.eventObserver = eventObserver;
         var p = pageUI.getPage();
         if (c instanceof HasDynamicTitle) {
             uiTitle = ((HasDynamicTitle) c).getPageTitle();
@@ -94,14 +98,13 @@ public class SessionCleanup {
                     logger.debug("   leaving tab {}, reload URL={}", System.identityHashCode(ui), pageURL);
                     if (ui.isAttached()) {
                         ui.access(() -> {
-                            ui.removeAll();
-                            String string = "let shadow = document.getElementById('owlcmsTemplate').shadowRoot;"
-                                    + "shadow.getElementById('reloadUrl').value='" + pageURL + "';"
-                                    + "shadow.getElementById('reloadLabel').value='" + uiTitle + "';"
-                                    + "shadow.getElementById('reloadForm').submit()";
-                            logger.warn("reloading info {}", string);
-                            ui.getPage().executeJs(string);
-                            ui.close();
+                            eventObserver.doReload(
+                                    Translator.translate("PublicResults.sessionExpiredTitle"), 
+                                    Translator.translate("PublicResults.sessionExpiredText"), 
+                                    //Translator.translate("PublicResults.sessionExpiredLabel",uiTitle),
+                                    uiTitle,
+                                    pageURL.toExternalForm());
+//                            ui.close();
                         });
                     }
                     entryIterator.remove();
@@ -122,13 +125,13 @@ public class SessionCleanup {
         scheduler.shutdown();
     }
 
-    public static SessionCleanup get(UI ui, Component c) {
+    public static SessionCleanup get(UI ui, Component c, UnloadObserverPR eventObserver) {
         OwlcmsSession os = OwlcmsSession.getCurrent();
         VaadinSession vs = VaadinSession.getCurrent();
         synchronized (os) {
             SessionCleanup cleanup = (SessionCleanup) os.getAttributes().get("sessionCleanup");
             if (cleanup == null) {
-                cleanup = new SessionCleanup(vs, ui, c);
+                cleanup = new SessionCleanup(vs, ui, c, eventObserver);
                 OwlcmsSession.setAttribute("sessionCleanup", cleanup);
                 // Define OWLCMS_CLEANUP_SEC for testing
                 var cleanupSec = (long) StartupUtils.getIntegerParam("cleanup_sec", SESSION_CLEANUP_SECONDS);
