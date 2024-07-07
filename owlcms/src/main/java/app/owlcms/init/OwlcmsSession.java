@@ -60,7 +60,7 @@ public class OwlcmsSession {
 		if (currentVaadinSession != null) {
 			OwlcmsSession owlcmsSession = (OwlcmsSession) currentVaadinSession.getAttribute("owlcmsSession");
 			if (owlcmsSession == null) {
-				logger.trace("creating new OwlcmsSession {}", LoggerUtils.whereFrom());
+				logger.warn("creating new OwlcmsSession {}", LoggerUtils.whereFrom());
 				owlcmsSession = new OwlcmsSession();
 				currentVaadinSession.setAttribute("owlcmsSession", owlcmsSession);
 			}
@@ -76,9 +76,10 @@ public class OwlcmsSession {
 
 	public static FieldOfPlay getFop() {
 		FieldOfPlay fop = (FieldOfPlay) getAttribute(FOP);
-		if (fop == null) {
-			fop = OwlcmsFactory.getDefaultFOP();
-		}
+//		if (fop == null) {
+//			//fop = OwlcmsFactory.getDefaultFOP();
+//			throw new RuntimeException("no fop set");
+//		}
 		return fop;
 	}
 
@@ -151,7 +152,7 @@ public class OwlcmsSession {
 	}
 
 	public static void setFop(FieldOfPlay fop) {
-		logger.trace("setFop {} from {}", (fop != null ? fop.getName() : null), LoggerUtils.whereFrom());
+		logger.warn("&&&&&&& setFop {} from {}", (fop != null ? fop.getName() : null), LoggerUtils.whereFrom());
 		setAttribute(FOP, fop);
 	}
 
@@ -173,7 +174,7 @@ public class OwlcmsSession {
 		}
 	}
 
-	private static Locale computeLocale() {
+	public static Locale computeLocale() {
 		Locale locale = Translator.getForcedLocale();
 		logger.trace("forced locale = {}", locale);
 		UI currentUi = UI.getCurrent();
@@ -214,7 +215,7 @@ public class OwlcmsSession {
 
 	private Properties attributes = new Properties();
 
-	private OwlcmsSession() {
+	public OwlcmsSession() {
 	}
 
 	public Properties getAttributes() {

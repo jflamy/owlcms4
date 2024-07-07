@@ -27,6 +27,7 @@ import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPError;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
@@ -43,8 +44,8 @@ import ch.qos.logback.classic.Logger;
 public class UIEvent {
 
 	static public class BarbellOrPlatesChanged extends UIEvent {
-		public BarbellOrPlatesChanged(Object object) {
-			super(object);
+		public BarbellOrPlatesChanged(Object object, FieldOfPlay fop) {
+			super(object, fop);
 		}
 	}
 
@@ -60,9 +61,10 @@ public class UIEvent {
 		 *
 		 * @param origin    the origin
 		 * @param breakType
+		 * @param fop originating field of play
 		 */
-		public BreakDone(Object origin, BreakType breakType) {
-			super(origin);
+		public BreakDone(Object origin, BreakType breakType, FieldOfPlay fop) {
+			super(origin, fop);
 			this.setBreakType(breakType);
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
@@ -91,8 +93,8 @@ public class UIEvent {
 		private boolean displayToggle;
 
 		public BreakPaused(Integer millisRemaining, Object origin, boolean displayToggle, BreakType bt,
-		        CountdownType ct) {
-			super(origin);
+		        CountdownType ct, FieldOfPlay fop) {
+			super(origin, fop);
 			this.timeRemaining = millisRemaining;
 			this.indefinite = (ct != null && ct == CountdownType.INDEFINITE) || (millisRemaining == null);
 			this.breakType = bt;
@@ -166,10 +168,11 @@ public class UIEvent {
 		 * @param indefinite
 		 * @param origin
 		 * @param trace
+		 * @param fop originating field of play
 		 */
 		public BreakSetTime(BreakType bt, CountdownType ct, Integer timeRemaining, LocalDateTime end,
-		        boolean indefinite, Object origin, String trace) {
-			super(origin);
+		        boolean indefinite, Object origin, String trace, FieldOfPlay fop) {
+			super(origin, fop);
 			this.timeRemaining = timeRemaining;
 			this.indefinite = indefinite;
 			this.end = end;
@@ -216,8 +219,8 @@ public class UIEvent {
 		private Boolean paused;
 
 		public BreakStarted(Integer millisRemaining, Object origin, boolean displayToggle, BreakType bt,
-		        CountdownType ct, String trace, Boolean paused) {
-			super(origin);
+		        CountdownType ct, String trace, Boolean paused, FieldOfPlay fop) {
+			super(origin, fop);
 			this.timeRemaining = millisRemaining;
 			this.indefinite = (ct != null && ct == CountdownType.INDEFINITE) || (millisRemaining == null);
 			setBreakType(bt);
@@ -291,8 +294,8 @@ public class UIEvent {
 
 		private String message;
 
-		public Broadcast(String string, Object origin) {
-			super(origin);
+		public Broadcast(String string, Object origin, FieldOfPlay fop) {
+			super(origin, fop);
 			this.setMessage(string);
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
@@ -318,12 +321,12 @@ public class UIEvent {
 
 		/**
 		 * Instantiates a new break done.
-		 *
 		 * @param origin    the origin
+		 * @param fop originating field of play
 		 * @param breakType
 		 */
-		public CeremonyDone(CeremonyType ceremonyType, Object origin) {
-			super(origin);
+		public CeremonyDone(CeremonyType ceremonyType, Object origin, FieldOfPlay fop) {
+			super(origin, fop);
 			this.setCeremonyType(ceremonyType);
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
@@ -352,8 +355,8 @@ public class UIEvent {
 		private AgeGroup ageGroup;
 
 		public CeremonyStarted(CeremonyType ceremonyType, Group ceremonySession, Category ceremonyCategory, String trace,
-		        Object origin) {
-			super(origin);
+		        Object origin, FieldOfPlay fop) {
+			super(origin, fop);
 			this.setCeremonyType(ceremonyType);
 			this.setCeremonySession(ceremonySession);
 			this.setCeremonyCategory(ceremonyCategory);
@@ -463,8 +466,8 @@ public class UIEvent {
 		 * @param ref3     the ref 3
 		 * @param origin   the origin
 		 */
-		public Decision(Athlete a, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, Object origin) {
-			super(a, origin);
+		public Decision(Athlete a, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, Object origin, FieldOfPlay fop) {
+			super(a, origin, fop);
 			this.decision = decision;
 			this.ref1 = ref1;
 			this.ref2 = ref2;
@@ -485,8 +488,8 @@ public class UIEvent {
 		 *
 		 * @param origin the origin
 		 */
-		public DecisionReset(Athlete a, Object origin) {
-			super(a, origin);
+		public DecisionReset(Athlete a, Object origin, FieldOfPlay fop) {
+			super(a, origin, fop);
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
 			}
@@ -502,9 +505,10 @@ public class UIEvent {
 		 * Instantiates a new down signal.
 		 *
 		 * @param origin the origin
+		 * @param fop originating field of play
 		 */
-		public DownSignal(Object origin) {
-			super(origin);
+		public DownSignal(Object origin, FieldOfPlay fop) {
+			super(origin, fop);
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
 			}
@@ -512,8 +516,8 @@ public class UIEvent {
 	}
 
 	static public class GlobalRankingUpdated extends UIEvent {
-		public GlobalRankingUpdated(Object object) {
-			super(object);
+		public GlobalRankingUpdated(Object object, FieldOfPlay fop) {
+			super(object, fop);
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
 			}
@@ -526,12 +530,12 @@ public class UIEvent {
 
 		/**
 		 * Instantiates a new athlete announced.
-		 *
-		 * @param athlete the athlete
 		 * @param ui      the ui
+		 * @param fop originating field of play
+		 * @param athlete the athlete
 		 */
-		public GroupDone(Group group, UI ui, String stackTrace) {
-			super(ui);
+		public GroupDone(Group group, UI ui, String stackTrace, FieldOfPlay fop) {
+			super(ui, fop);
 			this.setGroup(group);
 			this.trace = stackTrace;
 			if (this.trace == null || this.trace.isBlank()) {
@@ -557,8 +561,8 @@ public class UIEvent {
 
 		public JuryNotification(Athlete athleteUnderReview, Object origin,
 		        JuryDeliberationEventType deliberationEventType, Boolean reversal, Boolean newRecord,
-		        boolean requestForAnnounce) {
-			super(athleteUnderReview, origin);
+		        boolean requestForAnnounce, FieldOfPlay fop) {
+			super(athleteUnderReview, origin, fop);
 			this.setDeliberationEventType(deliberationEventType);
 			this.setReversal(reversal);
 			this.setNewRecord(newRecord != null && newRecord);
@@ -571,11 +575,11 @@ public class UIEvent {
 
 		/**
 		 * Instantiates a new Notification.
-		 *
 		 * @param origin the origin
+		 * @param fop originating field of play
 		 */
-		public JuryNotification(Athlete a, Object origin, String notificationString, String fopEventString) {
-			super(a, origin);
+		public JuryNotification(Athlete a, Object origin, String notificationString, String fopEventString, FieldOfPlay fop) {
+			super(a, origin, fop);
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
 			}
@@ -630,8 +634,8 @@ public class UIEvent {
 		private int jurySize;
 		private Integer juryMemberUpdated;
 
-		public JuryUpdate(Object origin, boolean collective, Boolean[] juryMemberDecision, int jurySize) {
-			super(origin);
+		public JuryUpdate(Object origin, boolean collective, Boolean[] juryMemberDecision, int jurySize, FieldOfPlay fop) {
+			super(origin, fop);
 			this.collective = collective;
 			this.juryMemberDecision = juryMemberDecision;
 			this.jurySize = jurySize;
@@ -640,8 +644,8 @@ public class UIEvent {
 			}
 		}
 
-		public JuryUpdate(Object origin, int i, Boolean[] juryMemberDecision2, int jurySize) {
-			super(origin);
+		public JuryUpdate(Object origin, int i, Boolean[] juryMemberDecision2, int jurySize, FieldOfPlay fop) {
+			super(origin, fop);
 			this.collective = null;
 			this.juryMemberUpdated = i;
 			this.juryMemberDecision = juryMemberDecision2;
@@ -709,12 +713,13 @@ public class UIEvent {
 		 * @param displayToggle   if true, just update display according to lifting order.
 		 * @param origin          the origin
 		 * @param newWeight       newly requested weight, null if no change from previous
+		 * @param fop originating field of play
 		 */
 		public LiftingOrderUpdated(Athlete athlete, Athlete nextAthlete, Athlete previousAthlete,
 		        Athlete changingAthlete, List<Athlete> liftingOrder, List<Athlete> displayOrder, Integer timeAllowed,
 		        boolean currentDisplayAffected, boolean displayToggle, Object origin, boolean inBreak,
-		        Integer newWeight) {
-			super(athlete, origin);
+		        Integer newWeight, FieldOfPlay fop) {
+			super(athlete, origin, fop);
 			this.setTrace(() -> LoggerUtils.stackTrace());
 			this.nextAthlete = nextAthlete;
 			this.previousAthlete = previousAthlete;
@@ -829,8 +834,8 @@ public class UIEvent {
 		private String[] infos;
 		private Integer msDuration;
 
-		public Notification(Athlete curAthlete, Object origin, FOPEvent e, FOPState state, Notification.Level level) {
-			super(curAthlete, origin);
+		public Notification(Athlete curAthlete, Object origin, FOPEvent e, FOPState state, Notification.Level level, FieldOfPlay fop) {
+			super(curAthlete, origin, fop);
 			this.setFopEventString(e.getClass().getSimpleName());
 			this.setNotificationString(state.toString());
 			this.level = level;
@@ -850,8 +855,9 @@ public class UIEvent {
 		        Notification.Level level,
 		        String notificationString,
 		        Integer msDuration,
+		        FieldOfPlay fop,
 		        String... infos) {
-			super(a, origin);
+			super(a, origin, fop);
 			this.setNotificationString(notificationString);
 			this.setFopEventString(this.fopEventString);
 			this.setLevel(level);
@@ -954,8 +960,8 @@ public class UIEvent {
 		public Long ref3Time;
 
 		public RefereeUpdate(Athlete a, Boolean ref1, Boolean ref2, Boolean ref3, Long long1,
-		        Long long2, Long long3, Object origin) {
-			super(a, origin);
+		        Long long2, Long long3, Object origin, FieldOfPlay fop) {
+			super(a, origin, fop);
 			this.ref1 = ref1;
 			this.ref2 = ref2;
 			this.ref3 = ref3;
@@ -975,11 +981,11 @@ public class UIEvent {
 
 		/**
 		 * Instantiates a new decision reset.
-		 *
 		 * @param origin the origin
+		 * @param fop originating field of play
 		 */
-		public ResetOnNewClock(Athlete a, Object origin) {
-			super(a, origin);
+		public ResetOnNewClock(Athlete a, Object origin, FieldOfPlay fop) {
+			super(a, origin, fop);
 		}
 	}
 
@@ -995,9 +1001,10 @@ public class UIEvent {
 		 *
 		 * @param timeRemaining the time remaining
 		 * @param origin        the origin
+		 * @param fop originating field of play
 		 */
-		public SetTime(Integer timeRemaining, Object origin, String trace) {
-			super(origin);
+		public SetTime(Integer timeRemaining, Object origin, String trace, FieldOfPlay fop) {
+			super(origin, fop);
 			this.timeRemaining = timeRemaining;
 			this.trace = trace;
 			if (this.trace == null || this.trace.isBlank()) {
@@ -1022,12 +1029,12 @@ public class UIEvent {
 
 		/**
 		 * Instantiates a new athlete announced.
-		 *
-		 * @param athlete the athlete
 		 * @param ui      the ui
+		 * @param fop originating field of play
+		 * @param athlete the athlete
 		 */
-		public SnatchDone(Group group, UI ui, String stackTrace) {
-			super(ui);
+		public SnatchDone(Group group, UI ui, String stackTrace, FieldOfPlay fop) {
+			super(ui, fop);
 			this.setGroup(group);
 			this.trace = stackTrace;
 			if (this.trace == null || this.trace.isBlank()) {
@@ -1047,8 +1054,8 @@ public class UIEvent {
 	public static class StartLifting extends UIEvent {
 		private Group group;
 
-		public StartLifting(Group group, Object object) {
-			super(object);
+		public StartLifting(Group group, Object object, FieldOfPlay fop) {
+			super(object, fop);
 			this.setGroup(group);
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
@@ -1080,9 +1087,10 @@ public class UIEvent {
 		 * @param timeRemaining the time remaining
 		 * @param origin        the origin
 		 * @param serverSound
+		 * @param fop originating field of play
 		 */
-		public StartTime(Integer timeRemaining, Object origin, boolean serverSound) {
-			super(origin);
+		public StartTime(Integer timeRemaining, Object origin, boolean serverSound, FieldOfPlay fop) {
+			super(origin, fop);
 			this.start = System.currentTimeMillis();
 			this.end = this.start + timeRemaining;
 			this.timeRemaining = timeRemaining;
@@ -1092,8 +1100,8 @@ public class UIEvent {
 			}
 		}
 
-		public StartTime(Integer timeRemaining, Object origin, boolean serverSound, String stackTrace) {
-			this(timeRemaining, origin, serverSound);
+		public StartTime(Integer timeRemaining, Object origin, boolean serverSound, String stackTrace, FieldOfPlay fop) {
+			this(timeRemaining, origin, serverSound, fop);
 		}
 
 		public long getEnd() {
@@ -1139,9 +1147,10 @@ public class UIEvent {
 		 *
 		 * @param timeRemaining the time remaining
 		 * @param origin        the origin
+		 * @param fop originating field of play
 		 */
-		public StopTime(int timeRemaining, Object origin) {
-			super(origin);
+		public StopTime(int timeRemaining, Object origin, FieldOfPlay fop) {
+			super(origin, fop);
 			this.timeRemaining = timeRemaining;
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
@@ -1162,9 +1171,9 @@ public class UIEvent {
 
 		public int ref;
 
-		public SummonRef(int refNum, boolean b, Object origin) {
+		public SummonRef(int refNum, boolean b, Object origin, FieldOfPlay fop) {
 			// ref 1..3 ; 4 is technical controller.
-			super(origin);
+			super(origin, fop);
 			this.ref = refNum;
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
@@ -1177,8 +1186,8 @@ public class UIEvent {
 		private Group group;
 		private FOPState state;
 
-		public SwitchGroup(Group group2, FOPState state, Athlete curAthlete, Object origin) {
-			super(curAthlete, origin);
+		public SwitchGroup(Group group2, FOPState state, Athlete curAthlete, Object origin, FieldOfPlay fop) {
+			super(curAthlete, origin, fop);
 			this.setGroup(group2);
 			this.setAthlete(curAthlete);
 			this.setState(state);
@@ -1212,10 +1221,11 @@ public class UIEvent {
 		 * Instantiates a new break done.
 		 *
 		 * @param origin    the origin
+		 * @param fop originating field of play
 		 * @param breakType
 		 */
-		public TimeRemaining(Object origin, int timeRemaining) {
-			super(origin);
+		public TimeRemaining(Object origin, int timeRemaining, FieldOfPlay fop) {
+			super(origin, fop);
 			this.timeRemaining = timeRemaining;
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
@@ -1235,8 +1245,8 @@ public class UIEvent {
 		private Group group;
 		private Category category;
 
-		public VideoRefresh(Object origin, Group g, Category c) {
-			super(origin);
+		public VideoRefresh(Object origin, Group g, Category c, FieldOfPlay fop) {
+			super(origin, fop);
 			this.setGroup(g);
 			this.setCategory(c);
 			if (this.trace == null || this.trace.isBlank()) {
@@ -1266,8 +1276,8 @@ public class UIEvent {
 		public boolean on;
 		public int ref;
 
-		public WakeUpRef(int lastRef, boolean b, Object origin) {
-			super(origin);
+		public WakeUpRef(int lastRef, boolean b, Object origin, FieldOfPlay fop) {
+			super(origin,fop);
 			this.ref = lastRef;
 			this.on = b;
 			if (this.trace == null || this.trace.isBlank()) {
@@ -1281,14 +1291,16 @@ public class UIEvent {
 	Logger logger = (Logger) LoggerFactory.getLogger(UIEvent.class);
 	private Athlete athlete;
 	private Object origin;
+	private FieldOfPlay fop;
 
-	private UIEvent(Athlete athlete, Object origin) {
-		this(origin);
+	private UIEvent(Athlete athlete, Object origin, FieldOfPlay fop) {
+		this(origin, fop);
 		this.athlete = athlete;
 	}
 
-	private UIEvent(Object origin) {
+	private UIEvent(Object origin, FieldOfPlay fop) {
 		this.origin = origin;
+		this.setFop(fop);
 	}
 
 	/**
@@ -1325,6 +1337,14 @@ public class UIEvent {
 		if (StartupUtils.isTraceSetting()) {
 			this.trace = stackTrace.get();
 		}
+	}
+
+	public FieldOfPlay getFop() {
+		return fop;
+	}
+
+	public void setFop(FieldOfPlay fop) {
+		this.fop = fop;
 	}
 
 }

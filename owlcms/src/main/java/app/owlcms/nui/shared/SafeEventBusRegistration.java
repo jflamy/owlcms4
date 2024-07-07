@@ -13,6 +13,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -31,8 +32,9 @@ public interface SafeEventBusRegistration {
 		}
 
 		EventBus uiEventBus = fop.getUiEventBus();
+		OwlcmsSession.setFop(fop);
 		uiEventBus.register(c);
-	    logger.trace("registering {} on bus {} {}",c, uiEventBus.identifier(), LoggerUtils.whereFrom());
+	    logger.warn("=================== registering {} on bus {} {}",c, uiEventBus.identifier(), LoggerUtils.whereFrom());
 
 //        UnloadObserver unloadObserver = UnloadObserver.get(false);
 //        unloadObserver.addUnloadListener((e) -> {
@@ -46,11 +48,11 @@ public interface SafeEventBusRegistration {
 //        ui.add(unloadObserver);
 
 		ui.addBeforeLeaveListener((e) -> {
-			logger.trace("leaving: unregister {} from {}", c, uiEventBus.identifier());
+			logger.warn("leaving: unregister {} from {}", c, uiEventBus.identifier());
 			unregister(c, uiEventBus);
 		});
 		ui.addDetachListener((e) -> {
-			logger.trace("detaching: unregister {} from {}", c, uiEventBus.identifier());
+			logger.warn("detaching: unregister {} from {}", c, uiEventBus.identifier());
 			unregister(c, uiEventBus);
 		});
 		return uiEventBus;

@@ -119,7 +119,7 @@ public class JuryDialog extends Dialog {
 					        new UIEvent.Notification(null, this,
 					                UIEvent.Notification.Level.WARNING,
 					                "Jury.AnnouncerWillAnnounce",
-					                5000));
+					                5000, OwlcmsSession.getFop()));
 				}
 				this.close();
 				return;

@@ -991,7 +991,7 @@ public class Results extends LitTemplate
 			this.displayOrder = getOrder(fop);
 
 			this.liftsDone = AthleteSorter.countLiftsDone(this.displayOrder);
-			syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this));
+			syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this, fop));
 			// we listen on uiEventBus.
 			this.uiEventBus = uiEventBusRegister(this, fop);
 
@@ -1197,7 +1197,7 @@ public class Results extends LitTemplate
 
 	private void syncWithFOP() {
 		OwlcmsSession.withFop(fop -> {
-			syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this));
+			syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this, fop));
 		});
 	}
 

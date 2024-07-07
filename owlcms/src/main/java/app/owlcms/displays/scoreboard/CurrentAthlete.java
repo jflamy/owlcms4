@@ -513,7 +513,7 @@ public class CurrentAthlete extends Results {
 			this.order = fop.getDisplayOrder();
 
 			// liftsDone = AthleteSorter.countLiftsDone(order);
-			syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this));
+			syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this, fop));
 			// we listen on uiEventBus.
 			this.uiEventBus = uiEventBusRegister(this, fop);
 			this.getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));

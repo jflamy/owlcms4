@@ -904,7 +904,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			        OwlcmsSession.withFop((fop) -> {
 				        fop.pushOutUIEvent(new UIEvent.Notification(
 				                this.originalAthlete, this, Notification.Level.WARNING,
-				                "SnatchWithdrawalNotification", 5000, this.originalAthlete.getFullName()));
+				                "SnatchWithdrawalNotification", 5000, fop, this.originalAthlete.getFullName()));
 				        fop.fopEventPost(new FOPEvent.WeightChange(this.getOrigin(), this.originalAthlete, true));
 			        });
 			        this.origin.closeDialog();
@@ -920,7 +920,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			        OwlcmsSession.withFop((fop) -> {
 				        fop.pushOutUIEvent(new UIEvent.Notification(
 				                this.originalAthlete, this, Notification.Level.WARNING,
-				                "FullWithdrawalNotification", 5000, this.originalAthlete.getFullName()));
+				                "FullWithdrawalNotification", 5000, fop, this.originalAthlete.getFullName()));
 				        fop.fopEventPost(new FOPEvent.WeightChange(this.getOrigin(), this.originalAthlete, true));
 			        });
 			        this.origin.closeDialog();
