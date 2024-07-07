@@ -45,6 +45,7 @@ import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
@@ -97,12 +98,17 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		// we don't actually inherit behaviour from the superclass because
 		// all this does is call init() -- which we override.
 		// when navigating to the page, Vaadin will call setParameter+readParameters
-		// these parameters will be applied.
+		// these parameters will be applied
+		
 		setDefaultParameters(QueryParameters.simple(Map.of(
 		        SoundParameters.SILENT, "true",
 		        SoundParameters.DOWNSILENT, "true",
 		        SoundParameters.IMMEDIATE, "true",
-		        SoundParameters.SINGLEREF, "false")));
+		        SoundParameters.SINGLEREF, "false",
+		        SoundParameters.LIVE_LIGHTS, "true",
+		        SoundParameters.SHOW_DECLARATIONS, "false",
+		        SoundParameters.CENTER_NOTIFICATIONS, Boolean.toString(Config.getCurrent().featureSwitch("centerAnnouncerNotifications")),
+		        SoundParameters.START_ORDER, "false")));
 	}
 
 	/**

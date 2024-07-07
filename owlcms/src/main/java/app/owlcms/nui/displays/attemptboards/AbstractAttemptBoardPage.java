@@ -26,7 +26,7 @@ public abstract class AbstractAttemptBoardPage extends AbstractDisplayPage
 	Logger logger = (Logger) LoggerFactory.getLogger(AbstractAttemptBoardPage.class);
 
 	public AbstractAttemptBoardPage() {
-		// intentionally empty; superclass will invoke init() as required.
+		// intentionally empty; subclass will invoke init() as required.
 	}
 
 	@Override
