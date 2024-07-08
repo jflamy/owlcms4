@@ -191,7 +191,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 				        clearLifts();
 			        }).open();
 		});
-		deleteAthletes.getElement().setAttribute("title", Translator.translate("ClearLifts_forListed"));
+		clearLifts.getElement().setAttribute("title", Translator.translate("ClearLifts_forListed"));
 
 		Button resetCats = new Button(Translator.translate("ResetCategories.ResetAthletes"), (e) -> {
 			new ConfirmationDialog(
@@ -587,7 +587,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		        .setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn("federationCodes").setHeader(Translator.translate("Registration.FederationCodesShort"))
 		        .setAutoWidth(true);
-		
+
 		List<GridSortOrder<Athlete>> sortOrder = new ArrayList<>();
 		// groupWeighinTimeComparator implements traditional platform name comparisons e.g. USAW.
 		groupCol.setComparator((a,b) -> Group.groupWeighinTimeComparator.compare(a.getGroup(), b.getGroup()));
