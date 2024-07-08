@@ -139,7 +139,7 @@ public class Main {
 	}
 
 	public static void injectSuppliers() {
-	// app con	fig injection
+		// app config injection
 		Translator.setLocaleSupplier(() -> OwlcmsSession.computeLocale());
 		ResourceWalker.setLocaleSupplier(Translator.getLocaleSupplier());
 		ResourceWalker.setLocalZipBlobSupplier(() -> Config.getCurrent().getLocalZipBlob());
