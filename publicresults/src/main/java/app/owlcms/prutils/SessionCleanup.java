@@ -56,13 +56,13 @@ public class SessionCleanup {
             int stillAlive = 0;
             if (im != null) {
                 if (im.entrySet().isEmpty()) {
-                    // the previous iteration cleaned the map and navigated out of the pages.
-                    // because of asynchronicity, we wait to the following iteration before closing
-                    // sessions.
-                    logger.debug("invalidating session {}", System.identityHashCode(vaadinSession));
-                    vaadinSession.getSession().invalidate();
-                    vaadinSession.close();
-                    stop();
+//                    // the previous iteration cleaned the map and navigated out of the pages.
+//                    // because of asynchronicity, we wait to the following iteration before closing
+//                    // sessions.
+//                    logger.debug("invalidating session {}", System.identityHashCode(vaadinSession));
+//                    vaadinSession.getSession().invalidate();
+//                    vaadinSession.close();
+//                    stop();
                 } else {
                     long now = System.currentTimeMillis();
                     logger.debug("checking session {}", System.identityHashCode(vaadinSession));
@@ -109,6 +109,17 @@ public class SessionCleanup {
                     }
                     entryIterator.remove();
                 }
+                try {
+                    Thread.sleep(1000);
+                    logger.debug("*** invalidating session {}", System.identityHashCode(vaadinSession));
+                    vaadinSession.getSession().invalidate();
+                    vaadinSession.close();
+                    stop();
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                
             }
         });
         return;

@@ -22,6 +22,14 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public interface SafeEventBusRegistrationPR {
+    
+    public default UnloadObserverPR getEventObserver() { 
+        return null;
+    }
+    
+    public default void setEventObserver(UnloadObserverPR uo) { 
+        return;
+    }
 
     public static final int INACTIVITY_DELAY = 15 * 1000;
     Logger logger = (Logger) LoggerFactory.getLogger(SafeEventBusRegistrationPR.class);
@@ -37,7 +45,8 @@ public interface SafeEventBusRegistrationPR {
             bus.register(c);
         }
 
-        UnloadObserverPR eventObserver = UnloadObserverPR.get(false);
+        UnloadObserverPR eventObserver = new UnloadObserverPR(false, ui);
+        setEventObserver(eventObserver);
         eventObserver.setActivityTime(ui, c);
         
         // Create the repeating task to cleanup things; singleton per session.
@@ -54,7 +63,7 @@ public interface SafeEventBusRegistrationPR {
                 } catch (Exception ex) {
                     LoggerUtils.logError(logger, ex, true);
                 }
-                UnloadObserverPR.remove();
+                //UnloadObserverPR.remove(ui);
                 return;
             }
             
@@ -111,8 +120,8 @@ public interface SafeEventBusRegistrationPR {
         });
 
         ui.access(() -> {
+            logger.warn("adding eventObserver {} {}",System.identityHashCode(eventObserver),System.identityHashCode(eventObserver.getElement()));
             ui.add(eventObserver);
-
             ui.addBeforeLeaveListener((e) -> {
                 // navigating via a link, don't kill session, clean-up this page.
                 // should only happen on the main page.
@@ -120,7 +129,7 @@ public interface SafeEventBusRegistrationPR {
                     eventObserver.setGoneTime(ui, c);
                     unregister(c, bus);
                     ui.access(() -> {
-                        UnloadObserverPR.remove();
+                        //UnloadObserverPR.remove(ui);
                         ui.removeAll();
                     });
                     logger.debug("leaving: unregistering {} {}", c.getClass().getSimpleName(),

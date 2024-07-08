@@ -43,6 +43,8 @@ public class MainView extends VerticalLayout implements SafeEventBusRegistration
     private static Logger logger = (Logger) LoggerFactory.getLogger(MainView.class);
     private UI ui;
 
+    private UnloadObserverPR eventObserver;
+
     public MainView() {
         this.setId("owlcmsTemplate");
         logger.debug("mainView");
@@ -126,10 +128,8 @@ public class MainView extends VerticalLayout implements SafeEventBusRegistration
     
     @ClientCallable
     public void visibilityStatus(boolean visible) {
-        UI ui = UI.getCurrent();
         logger.debug("visibilityStatus: {} {} {}",visible,this.getClass().getSimpleName(),System.identityHashCode(this));
-
-        UnloadObserverPR eventObserver = UnloadObserverPR.get();
+        UnloadObserverPR eventObserver = getEventObserver();
         if (visible) {
             eventObserver.setActivityTime(ui, this);
         } else {
@@ -140,5 +140,15 @@ public class MainView extends VerticalLayout implements SafeEventBusRegistration
     @Override
     public String getPageTitle() {
         return Translator.translate("OWLCMS_Displays");
+    }
+    
+    @Override
+    public void setEventObserver(UnloadObserverPR uo) {
+        this.eventObserver=uo;
+    }
+    
+    @Override
+    public UnloadObserverPR getEventObserver() {
+        return this.eventObserver;
     }
 }

@@ -104,6 +104,7 @@ public class ResultsPR extends LitTemplate
     private boolean liftingOrder;
     private boolean done;
     private int lastHashCode;
+    private UnloadObserverPR eventObserver;
 
     /**
      * Instantiates a new results board.
@@ -596,14 +597,23 @@ public class ResultsPR extends LitTemplate
     
     @ClientCallable
     public void visibilityStatus(boolean visible) {
-        UI ui = UI.getCurrent();
         logger.debug("visibilityStatus: {} {} {}",visible,this.getClass().getSimpleName(),System.identityHashCode(this));
-        UnloadObserverPR eventObserver = UnloadObserverPR.get();
+        UnloadObserverPR eventObserver = getEventObserver();
         if (visible) {
             eventObserver.setActivityTime(ui, this);
         } else {
             eventObserver.setInactivityTime(ui, this);
         }     
+    }
+    
+    @Override
+    public void setEventObserver(UnloadObserverPR uo) {
+        this.eventObserver=uo;
+    }
+    
+    @Override
+    public UnloadObserverPR getEventObserver() {
+        return this.eventObserver;
     }
     
 }

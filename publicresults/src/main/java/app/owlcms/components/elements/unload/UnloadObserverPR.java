@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
@@ -24,9 +23,21 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.shared.Registration;
 
+import app.owlcms.prutils.SafeEventBusRegistrationPR;
+import app.owlcms.prutils.SessionCleanup;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
+ * This class is the API for a WebComponent that gets added to the main view of a page.
+ * See {@link SafeEventBusRegistrationPR}
+ * 
+ * This class updates a map in the VaadinSession that contains the activity
+ * status for all pages in the session.
+ * 
+ * A {@link SessionCleanup} thread runs and expires all pages based on an inactivity
+ * policy.
+ * 
  * Server-side component that listens to {@code beforeunload} events. Based on
  * <a href=
  * "https://vaadin.com/forum/thread/17523194/unsaved-changes-detect-page-exit-or-reload">the
@@ -40,65 +51,12 @@ import ch.qos.logback.classic.Logger;
  * event on the server will be called just before the page is unloaded. Note
  * that the component must be present in the
  * DOM structure in the browser for the event to be received on the server.
- *
- * Warning: this class is a {@link UI}-scoped; the class is final, the
- * constructors are private and there is at most one
- * instance per UI.
- *
- * Warning: when the page is unloaded, the UI instance should be removed to
- * prevent memory leaks. See {@link #remove()}.
- *
- * @author Kaspar Scherrer, Stuart Robinson; adapted to web-component by
- *         miki@vaadin.com ; UI-scope by jf@jflamy.dev
- * @since 2020-04-29
  */
 @JsModule("./unload/unload-observerPR.js")
 @Tag("unload-observer-pr")
 public final class UnloadObserverPR extends LitTemplate {
 
-    private static final String UNLOAD_OBSERVER = "owlcms_unload_observer";
     private static final Logger logger = (Logger) LoggerFactory.getLogger(UnloadObserverPR.class);
-
-    /**
-     * Returns the current instance. Will create one using default no-arg
-     * constructor if none is present yet.
-     *
-     * @return An instance of {@link UnloadObserverPR}.
-     */
-    public static UnloadObserverPR get() {
-        UI current = UI.getCurrent();
-        UnloadObserverPR obs = (UnloadObserverPR) ComponentUtil.getData(current, UNLOAD_OBSERVER);
-        if (obs == null) {
-            obs = new UnloadObserverPR();
-            ComponentUtil.setData(current, UNLOAD_OBSERVER, obs);
-        }
-        return obs;
-    }
-
-    /**
-     * Returns the current instance. Will create one if needed and set its
-     * {@link #setQueryingOnUnload(boolean)}.
-     *
-     * @param queryingOnUnload Whether or not query at page close.
-     * @return An instance of {@link UnloadObserverPR}.
-     */
-    public static UnloadObserverPR get(boolean queryingOnUnload) {
-        UnloadObserverPR obs = get();
-        obs.setQueryingOnUnload(queryingOnUnload);
-        return obs;
-    }
-
-    /**
-     * Cleans up the thread-local variable. This method is called automatically when
-     * the component receives
-     * {@code unload} event.
-     */
-    public static void remove() {
-        UI current = UI.getCurrent();
-        if (current != null && get() != null) {
-            ComponentUtil.setData(current, UNLOAD_OBSERVER, null);
-        }
-    }
 
     private boolean queryingOnUnload;
 
@@ -107,9 +65,10 @@ public final class UnloadObserverPR extends LitTemplate {
     /**
      * Creates the unload observer and by default queries the user on unloading the
      * page.
+     * @param current 
      */
-    private UnloadObserverPR() {
-        this(true);
+    public UnloadObserverPR(UI current) {
+        this(true, current);
     }
 
     /**
@@ -117,8 +76,10 @@ public final class UnloadObserverPR extends LitTemplate {
      *
      * @param queryOnUnload Whether or not to query the user on unloading the page.
      */
-    private UnloadObserverPR(boolean queryOnUnload) {
+    public UnloadObserverPR(boolean queryOnUnload, UI ui) {
         this.setQueryingOnUnload(queryOnUnload);
+        logger.setLevel(Level.DEBUG);
+        logger.warn("UnloadObserverPR getElement()={}",System.identityHashCode(this.getElement()));
     }
 
     /**
@@ -290,13 +251,18 @@ public final class UnloadObserverPR extends LitTemplate {
     }
     
     public void doReload(String reloadTitle, String reloadText, String reloadLabel, String reloadUrl) {
-        logger.warn("doReload");
         Element element = this.getElement();
+        logger.debug("   doReload element={} {}", System.identityHashCode(element), reloadUrl);
         element.setProperty("reloadTitle", reloadTitle);
         element.setProperty("reloadText", reloadText);
         element.setProperty("reloadUrl", reloadUrl);
         element.setProperty("reloadLabel", reloadLabel);
-        //element.callJsFunction("postReload");
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
+        element.callJsFunction("postReload");
     }
 
 }

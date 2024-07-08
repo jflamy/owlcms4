@@ -39,6 +39,7 @@ export class UnloadObserver extends LitElement {
   }
 
   updated(changedProperties) {
+    console.warn("changed properties {} ", changedProperties)
     if (changedProperties.has('reloadUrl')) {
       this.postReload();
     }
