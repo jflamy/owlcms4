@@ -6,10 +6,6 @@
  *******************************************************************************/
 package app.owlcms.publicresults;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.LoggerFactory;
@@ -24,15 +20,12 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
-import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.elements.unload.UnloadObserverPR;
-import app.owlcms.displays.scoreboard.ResultsPR;
 import app.owlcms.i18n.Translator;
 import app.owlcms.prutils.SafeEventBusRegistrationPR;
 import app.owlcms.uievents.UpdateEvent;
-import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 
 @Route
@@ -72,6 +65,7 @@ public class MainView extends VerticalLayout implements SafeEventBusRegistration
         super.onAttach(attachEvent);
         this.ui = UI.getCurrent();
         eventBusRegister(this, UpdateReceiverServlet.getEventBus());
+        this.getEventObserver().setTitle(getPageTitle());
         // so the page expires
         visibilityStatus(false);
     }
@@ -93,10 +87,7 @@ public class MainView extends VerticalLayout implements SafeEventBusRegistration
             add(text);
         } else if (fopNames.size() == 1) {
             logger.debug("single platform, proceeding to scoreboard");
-            Map<String, String> parameterMap = new HashMap<>();
             String fop = fopNames.stream().findFirst().get();
-            parameterMap.put("FOP", fop);
-            // ui.navigate("displays/resultsLeader", QueryParameters.simple(parameterMap));
             this.ui.getPage().executeJs("window.location.href='results?fop=" + fop + "'");
         } else {
             createButtons(fopNames);
@@ -116,37 +107,34 @@ public class MainView extends VerticalLayout implements SafeEventBusRegistration
         fopNames.stream().sorted().forEach(fopName -> {
             Button fopButton = new Button(Translator.translate("Platform") + " " + fopName,
                     buttonClickEvent -> {
-                        String url = URLUtils.getRelativeURLFromTargetClass(ResultsPR.class);
-                        HashMap<String, List<String>> params = new HashMap<>();
-                        params.put("fop", Arrays.asList(fopName));
-                        QueryParameters parameters = new QueryParameters(URLUtils.cleanParams(params));
-                        UI.getCurrent().navigate(url, parameters);
+                        this.ui.getPage().executeJs("window.location.href='results?fop=" + fopName + "'");
                     });
             add(fopButton);
         });
     }
-    
+
     @ClientCallable
     public void visibilityStatus(boolean visible) {
-        logger.debug("visibilityStatus: {} {} {}",visible,this.getClass().getSimpleName(),System.identityHashCode(this));
+        logger.debug("visibilityStatus: {} {} {}", visible, this.getClass().getSimpleName(),
+                System.identityHashCode(this));
         UnloadObserverPR eventObserver = getEventObserver();
         if (visible) {
-            eventObserver.setActivityTime(ui, this);
+            eventObserver.setActivityTime();
         } else {
-            eventObserver.setInactivityTime(ui, this);
-        }     
+            eventObserver.setInactivityTime();
+        }
     }
 
     @Override
     public String getPageTitle() {
         return Translator.translate("OWLCMS_Displays");
     }
-    
+
     @Override
     public void setEventObserver(UnloadObserverPR uo) {
-        this.eventObserver=uo;
+        this.eventObserver = uo;
     }
-    
+
     @Override
     public UnloadObserverPR getEventObserver() {
         return this.eventObserver;

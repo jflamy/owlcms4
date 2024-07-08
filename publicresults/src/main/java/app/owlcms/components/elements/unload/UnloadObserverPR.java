@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.components.elements.unload;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,19 +24,22 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.shared.Registration;
 
+import app.owlcms.i18n.Translator;
 import app.owlcms.prutils.SafeEventBusRegistrationPR;
 import app.owlcms.prutils.SessionCleanup;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * This class is the API for a WebComponent that gets added to the main view of a page.
+ * This class is the API for a WebComponent that gets added to the main view of
+ * a page.
  * See {@link SafeEventBusRegistrationPR}
  * 
  * This class updates a map in the VaadinSession that contains the activity
  * status for all pages in the session.
  * 
- * A {@link SessionCleanup} thread runs and expires all pages based on an inactivity
+ * A {@link SessionCleanup} thread runs and expires all pages based on an
+ * inactivity
  * policy.
  * 
  * Server-side component that listens to {@code beforeunload} events. Based on
@@ -62,13 +66,22 @@ public final class UnloadObserverPR extends LitTemplate {
 
     private boolean clientInitialised;
 
+    private UI ui;
+
+    private Component component;
+
+    private URL url;
+
+    private String title;
+
     /**
      * Creates the unload observer and by default queries the user on unloading the
      * page.
-     * @param current 
+     * 
+     * @param current
      */
-    public UnloadObserverPR(UI current) {
-        this(true, current);
+    public UnloadObserverPR(UI current, Component c) {
+        this(true, current, c);
     }
 
     /**
@@ -76,10 +89,16 @@ public final class UnloadObserverPR extends LitTemplate {
      *
      * @param queryOnUnload Whether or not to query the user on unloading the page.
      */
-    public UnloadObserverPR(boolean queryOnUnload, UI ui) {
+    public UnloadObserverPR(boolean queryOnUnload, UI ui, Component c) {
         this.setQueryingOnUnload(queryOnUnload);
+        this.ui = ui;
+        this.component = c;
+        ui.getPage().fetchCurrentURL(u -> setUrl(u));
+        this.title = Translator.translate("Reload");
         logger.setLevel(Level.DEBUG);
-        logger.warn("UnloadObserverPR getElement()={}",System.identityHashCode(this.getElement()));
+        logger.warn("UnloadObserverPR={} (getElement()={}) component={} {}", 
+                System.identityHashCode(this), System.identityHashCode(this.getElement()), 
+                c.getClass().getSimpleName(), System.identityHashCode(c));
     }
 
     /**
@@ -105,53 +124,46 @@ public final class UnloadObserverPR extends LitTemplate {
         return this.queryingOnUnload;
     }
 
-    public void setActivityTime(UI ui, Component component) {
+    public void setActivityTime() {
         logger.debug("active {} {}", component.getClass().getSimpleName(), System.identityHashCode(component));
-        if (ui != null) {
-            VaadinSession vs = VaadinSession.getCurrent();
-            vs.access(() -> {
-                var im = getInactivityMap(vs);
-                im.put(ui, System.currentTimeMillis());
-            });
-        }
+        VaadinSession vs = VaadinSession.getCurrent();
+        vs.access(() -> {
+            var im = getInactivityMap(vs);
+            im.put(this, System.currentTimeMillis());
+        });
     }
 
-    public void setInactivityTime(UI ui, Component component) {
+    public void setInactivityTime() {
         logger.debug("inactive {} {}", component.getClass().getSimpleName(), System.identityHashCode(component));
-        if (ui != null) {
-            VaadinSession vs = VaadinSession.getCurrent();
-            vs.access(() -> {
-                var im = getInactivityMap(vs);
-                var value = im.get(ui);
-                if (value != null && value > 0) {
-                    // do not reset if already inactive
-                    im.put(ui, -System.currentTimeMillis());
-                }
-            });
-        }
+        VaadinSession vs = VaadinSession.getCurrent();
+        vs.access(() -> {
+            var im = getInactivityMap(vs);
+            var value = im.get(this);
+            if (value != null && value > 0) {
+                // do not reset if already inactive
+                im.put(this, -System.currentTimeMillis());
+            }
+        });
     }
 
-    public void setGoneTime(UI ui, Component component) {
+    public void setGoneTime() {
         // mark for immediate removal
         logger.debug("gone {} {}", component.getClass().getSimpleName(), System.identityHashCode(component));
-        // don't recreate an entry for ui if already removed by other processing.
-        if (ui != null) {
-            VaadinSession vs = VaadinSession.getCurrent();
-            vs.access(() -> {
-                var im = getInactivityMap(vs);
-                var val = im.get(ui);
-                if (val != null) {
-                    if (ui != null) {
-                        VaadinSession vs1 = VaadinSession.getCurrent();
-                        vs1.access(() -> {
-                            var im1 = getInactivityMap(vs1);
-                            im1.put(ui, (long) 0);
-                        });
-                    }
+        // don't recreate an entry for if already removed by other processing.
+        VaadinSession vs = VaadinSession.getCurrent();
+        vs.access(() -> {
+            var im = getInactivityMap(vs);
+            var val = im.get(this);
+            if (val != null) {
+                if (ui != null) {
+                    VaadinSession vs1 = VaadinSession.getCurrent();
+                    vs1.access(() -> {
+                        var im1 = getInactivityMap(vs1);
+                        im1.put(this, (long) 0);
+                    });
                 }
-            });
-
-        }
+            }
+        });
     }
 
     /**
@@ -240,29 +252,55 @@ public final class UnloadObserverPR extends LitTemplate {
         super.onDetach(detachEvent);
     }
 
-    private Map<UI, Long> getInactivityMap(VaadinSession vs) {
+    private Map<UnloadObserverPR, Long> getInactivityMap(VaadinSession vs) {
         @SuppressWarnings("unchecked")
-        var im = (Map<UI, Long>) vs.getAttribute("inactivityMap");
+        var im = (Map<UnloadObserverPR, Long>) vs.getAttribute("inactivityMap");
         if (im == null) {
             im = new HashMap<>();
             vs.setAttribute("inactivityMap", im);
         }
         return im;
     }
-    
+
     public void doReload(String reloadTitle, String reloadText, String reloadLabel, String reloadUrl) {
         Element element = this.getElement();
-        logger.debug("   doReload element={} {}", System.identityHashCode(element), reloadUrl);
+        ui = this.getUi();
+        logger.debug("   doReload tab={} element={} {}", System.identityHashCode(element), System.identityHashCode(element), reloadUrl);
         element.setProperty("reloadTitle", reloadTitle);
         element.setProperty("reloadText", reloadText);
         element.setProperty("reloadUrl", reloadUrl);
         element.setProperty("reloadLabel", reloadLabel);
-
-//        try {
-//            Thread.sleep(1000);
-//        } catch (InterruptedException e) {
-//        }
-//        element.callJsFunction("postReload");
     }
 
+    public UI getUi() {
+        return ui;
+    }
+
+    public void setUi(UI ui) {
+        this.ui = ui;
+    }
+
+    public Component getComponent() {
+        return this.component;
+    }
+
+    public void setComponent(Component component) {
+        this.component = component;
+    }
+
+    public String getTitle() {
+        return this.title;
+    }
+
+    public URL getUrl() {
+        return url;
+    }
+
+    public void setUrl(URL url) {
+        this.url = url;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
 }

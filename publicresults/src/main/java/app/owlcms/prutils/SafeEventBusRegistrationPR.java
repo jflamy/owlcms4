@@ -17,23 +17,30 @@ import com.vaadin.flow.server.WrappedSession;
 import app.owlcms.components.elements.DecisionElementPR;
 import app.owlcms.components.elements.TimerElementPR;
 import app.owlcms.components.elements.unload.UnloadObserverPR;
+import app.owlcms.displays.scoreboard.ResultsPR;
+import app.owlcms.publicresults.MainView;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public interface SafeEventBusRegistrationPR {
-    
-    public default UnloadObserverPR getEventObserver() { 
+
+    public default UnloadObserverPR getEventObserver() {
         return null;
     }
-    
-    public default void setEventObserver(UnloadObserverPR uo) { 
+
+    public default void setEventObserver(UnloadObserverPR uo) {
         return;
     }
 
     public static final int INACTIVITY_DELAY = 15 * 1000;
     Logger logger = (Logger) LoggerFactory.getLogger(SafeEventBusRegistrationPR.class);
 
+    /**
+     * @param c
+     * @param bus
+     * @return
+     */
     public default EventBus eventBusRegister(Component c, EventBus bus) {
 
         logger.setLevel(Level.INFO);
@@ -45,43 +52,50 @@ public interface SafeEventBusRegistrationPR {
             bus.register(c);
         }
 
-        UnloadObserverPR eventObserver = new UnloadObserverPR(false, ui);
+        UnloadObserverPR eventObserver = new UnloadObserverPR(false, ui, c);
         setEventObserver(eventObserver);
-        eventObserver.setActivityTime(ui, c);
-        
-        // Create the repeating task to cleanup things; singleton per session.
-        SessionCleanup.get(ui,c,eventObserver);
-        
+        eventObserver.setActivityTime();
+
+        // If needed, create the repeating task to cleanup things;
+        // one singleton per session.
+        if (c instanceof MainView || c instanceof ResultsPR) {
+            // the reload form from these pages will be used.
+            SessionCleanup.add(eventObserver);
+        }
+
         eventObserver.addEventListener((e) -> {
             String change = e.getChange();
-            if (change.equals("beforeunload")) {
-                // actual killing is handled by the detach listener
-                try {
-                    eventObserver.setInactivityTime(ui, c);
-                    unregister(c, bus);
-                    logger.debug("{}: unregister {} from {}", change, c.getClass().getSimpleName(), bus.identifier());
-                } catch (Exception ex) {
-                    LoggerUtils.logError(logger, ex, true);
+
+            if (!(this instanceof MainView)) {
+                if (change.equals("beforeunload")) {
+                    // actual killing is handled by the detach listener
+                    try {
+                        eventObserver.setInactivityTime();
+                        unregister(c, bus);
+                        logger.debug("{}: unregister {} from {}", change, c.getClass().getSimpleName(),
+                                bus.identifier());
+                    } catch (Exception ex) {
+                        LoggerUtils.logError(logger, ex, true);
+                    }
+                    return;
                 }
-                //UnloadObserverPR.remove(ui);
-                return;
             }
-            
+
             if (this instanceof TimerElementPR || this instanceof DecisionElementPR) {
                 return;
             }
-            
+
             if (change.equals("visibilityHidden")) {
                 // switching tabs or minimizing window. no visible scoreboard
-                eventObserver.setInactivityTime(ui, c);
+                eventObserver.setInactivityTime();
                 try {
                     logger.debug("{}: setInactivityTime {} from {}", change, c.getClass().getSimpleName(),
                             bus.identifier());
                 } catch (Exception ex) {
                     LoggerUtils.logError(logger, ex, true);
                 }
-            } 
-            
+            }
+
             else if (change.equals("blur")) {
 //                // blurring can occur when switching the active window and still watching.
 //                // we probably don't want to do anything
@@ -91,17 +105,17 @@ public interface SafeEventBusRegistrationPR {
 //                    LoggerUtils.logError(logger, ex, true);
 //                }
             }
-            
+
             else if (change.equals("visibilityShown")) {
-                eventObserver.setActivityTime(ui, c);
+                eventObserver.setActivityTime();
                 try {
                     logger.debug("{}: resetInactivityTime {} from {}", change, c.getClass().getSimpleName(),
                             bus.identifier());
                 } catch (Exception ex) {
                     LoggerUtils.logError(logger, ex, true);
                 }
-            } 
-            
+            }
+
             else if (change.equals("focus")) {
                 // visibility changes seem to be sufficient
 //                eventObserver.resetInactivityTime(ui, c);
@@ -111,8 +125,8 @@ public interface SafeEventBusRegistrationPR {
 //                } catch (Exception ex) {
 //                    LoggerUtils.logError(logger, ex, true);
 //                }
-            } 
-            
+            }
+
             else {
                 logger.error("{}: unexpected event {} {}", change, c.getClass().getSimpleName(),
                         System.identityHashCode(c));
@@ -120,16 +134,17 @@ public interface SafeEventBusRegistrationPR {
         });
 
         ui.access(() -> {
-            logger.warn("adding eventObserver {} {}",System.identityHashCode(eventObserver),System.identityHashCode(eventObserver.getElement()));
+            logger.warn("adding eventObserver {} {}", System.identityHashCode(eventObserver),
+                    System.identityHashCode(eventObserver.getElement()));
             ui.add(eventObserver);
             ui.addBeforeLeaveListener((e) -> {
                 // navigating via a link, don't kill session, clean-up this page.
                 // should only happen on the main page.
                 try {
-                    eventObserver.setGoneTime(ui, c);
+                    eventObserver.setGoneTime();
                     unregister(c, bus);
                     ui.access(() -> {
-                        //UnloadObserverPR.remove(ui);
+                        // UnloadObserverPR.remove(ui);
                         ui.removeAll();
                     });
                     logger.debug("leaving: unregistering {} {}", c.getClass().getSimpleName(),
@@ -138,10 +153,10 @@ public interface SafeEventBusRegistrationPR {
                     LoggerUtils.logError(logger, ex, true);
                 }
             });
-            
+
             ui.addDetachListener((e) -> {
                 // actually left the page
-                eventObserver.setGoneTime(ui, c);
+                eventObserver.setGoneTime();
             });
         });
         return bus;
@@ -166,5 +181,5 @@ public interface SafeEventBusRegistrationPR {
             vaadinSession.close();
         }
     }
-    
+
 }

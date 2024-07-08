@@ -44,7 +44,6 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.DecisionEvent;
 import app.owlcms.uievents.DecisionEventType;
 import app.owlcms.uievents.UpdateEvent;
-import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -163,7 +162,6 @@ public class ResultsPR extends LitTemplate
 
     @Override
     public String getPageTitle() {
-        logger.warn("**** getPageTitle {}",LoggerUtils.whereFrom());
         return Translator.translate("ScoreboardWLeadersTitle") + getFopName() != null ? (" " + getFopName()) : "";
     }
 
@@ -369,6 +367,10 @@ public class ResultsPR extends LitTemplate
 
     @Subscribe
     public void slaveUpdateEvent(UpdateEvent e) {
+        var eo = this.getEventObserver();
+        if (eo != null) {
+            eo.setTitle(fopName);
+        }
         // ignore identical updates
         if (e.getHashCode() == this.lastHashCode) {
             return;
@@ -600,9 +602,9 @@ public class ResultsPR extends LitTemplate
         logger.debug("visibilityStatus: {} {} {}",visible,this.getClass().getSimpleName(),System.identityHashCode(this));
         UnloadObserverPR eventObserver = getEventObserver();
         if (visible) {
-            eventObserver.setActivityTime(ui, this);
+            eventObserver.setActivityTime();
         } else {
-            eventObserver.setInactivityTime(ui, this);
+            eventObserver.setInactivityTime();
         }     
     }
     
