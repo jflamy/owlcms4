@@ -1,69 +1,34 @@
-**Version 49.0.2**
+**Version 50.0 beta**
 
-> [!IMPORTANT]
+> [!WARNING]
 >
-> - You should test all releases, with actual data, several days before a competition. 
+> - This is a **beta release**, used for testing and translation. ***Some features could be non-functional***.
+> - Beta releases are **not** normally used in actual competitions, except if a new feature is required. Use extreme care in testing if you intend to do so.
 
-- (49.0.2) Enhancement: if a session is configured to start in the future, when opening the countdown screen, the default will be to start the introduction at the planned time. It will not be necessary to switch away from the "Duration" setting and not necessary to select the time.
-- (49.0.2) Fix: In some rare edge cases, declaring the same value as the automatic progression would produce a denial warning on the marshal card.  This would happen when declaring on a 1:00 clock when the declaring athlete had lifted the same as the current athlete on the previous attempt.
-- (49.0.2) Fix: Importing a database JSON export that includes a zip for local overrides now applies correctly the zipped overrides.
-- (49.0.2) Fix: the `agegroupinfo.formattedRange` now correctly handles situations where athletes have not been assigned an A/B/C annotation.
-- (49.0.1) Fix: Loading a registration file with English headers now works when the database has another language selected by default.
-- (49.0.1) Fix: The current athlete display used for videos would occasionally display the scoreboard status from the previous athlete. 
-- (49.0.1) Technical:  An improved implementation of the athlete and break timers is now enabled by default in this release.  In the very unlikely event you want the old behavior back use the `oldTimers` [Feature toggle](https://owlcms.github.io/owlcms4/#/FeatureToggles).  
-- Announcer+Marshal
-  - The previous athlete is now highlighted in blue in the grid.  The current and next athletes are also highlighted (yellow and orange, which is the same color convention as on the default scoreboards).  Blue is shown when the previous athlete is the current or the next.
-  - A Notification is received when athletes withdraw from the snatch or the session.
-- Announcer
-  - Refreshing the page correctly keeps the running time and shows the correct colors on the timer buttons.  Previously, refreshing the announcer page would reload the group and reset the timer.  
-  - Use the reload button at the top left to reload the athletes from the database.
-- Single Referee Mode:
-  - When selected in the announcer settings (⚙), a decision from any of the 3 refereeing devices or from the announcer is treated as a full decision.
-- Announcer+Timekeeper
-  - The clock can be restarted even if a down signal has been given or a decision is shown.  Restarting the clock clears the decisions. This is required if referees mistakenly give reds when the bar has not reached the knees.
-- Group Selection
-  - The announcer sees unfinished sessions first, sorted in ascending time (name if time unavailable)
-  - Registration pages have session selection sorted in ascending time (or their name if the time is unavailable)
-  - Results pages have session selection sorted with finished sessions first, most recent first (reverse name if unavailable)
-- Weigh-in vs Categories
-  - When entering the athlete's weight, the program keeps the current registration category and eligibility categories if the new weight is within the eligibility categories, even when it is not the youngest or most specific age group. 
-  - To get the old behavior of automatic selection of the youngest age group, add the `bestMatchCategories` feature switch.
-- Jury
-  - The weight attempted on the previous attempt is now shown, to facilitate filling in a manual protocol sheet.
-  - New Jury scoreboard highlights the previous athlete with a marker and the same color code as the marshal page
-- Scoreboards:
-  - White is now used for good lifts on all scoreboards (previously some used green)
-  - The layout now includes vertical spacing between the lifts for better readability.
-  - Record ordering at the bottom now goes from lowest-aged age group to highest, based on the maximum age of the age group. U13 before U17 before JR before U23 before SR before Open.
-- Team flag preview: 
-  - The team membership page now shows the flag for each team, allowing a quick check that all are correctly assigned.
-- Documents:
-  - The Weigh-in Form now includes the participation categories so the coach can sign them off and they can be cross-checked during data entry.  This is useful when there are multiple championships with the same categories.
-  - Additional options to get Session Date/Time for Excel templates: the following values are now available on the session object (for example `${session.localWeighInDay}` would give the short date for weigh-in using the current country settings).
-    - Using the local formatting conventions for dates: `localWeighInDay`, `localWeighInHour`, `localStartDay`, `localStartHour`
-    - Using the international ISO format: `intlWeighInDay`, `intlWeighInHour`, `intlStartDay`, `intlStartHour`
-  - An awards schedule document is now available from the Results page.  It shows after what session the medals for a category can be awarded.
-  - Added new accessors for use when creating jxls3 templates. 
-    - session.ageGroupInfo.nbAthletes
-      session.ageGroupInfo.weightClassRange
-      session.ageGroupInfo.ageGroup.gender  (.code, .name etc.)
-      session.ageGroupInfo.athletesByStartNumber
-      session.ageGroupInfo.athletesByEntryTotal
-    - `athlete.ageGroupCodesAsString`  (age group codes such as U17, ungendered unless Masters)
-    - `athlete.score` property for templating -- gets the current score according to the selected global scoring scheme
-    - `formattedRange` summarizes the body weight categories and subcategories for an age group.  Output can be, for example, `55 B` if all the athletes are in that case, or `55-64 A` if all athletes are `A`.  If the athletes are not all in the same A/B/C subcategory, they are enumerated: `64A, 71B`.
-    - lowestEntryTotal and highestEntryTotal for writing templates. 
-    - `competition.translatedScoringSystemName` will return the header name for the selected scoring (Sinclair, Robi, ...)
-  - Footers for protocols, start lists and final results are now standardized to show the date of production.  The headers for final results show the championship and age group when selected.
-  - Competition Results
-    - The final package document now excludes unfinished categories by default and obeys the override checkbox when unfinished categories are required.
-    - By default, categories that are not finished are not included, so the results in the "End of Competition" section can now be produced in preliminary versions during the competition.
-    - There is now a separate directory for the competition results templates (previously it was the same as the protocol sheets)
-  - Timing statistics: the number of athletes per session is now correct.
-  - IWF Start cards show the date at which the session is taking place
-  - start-of-session documents check for missing start numbers and trigger generation if missing
-  - computation of medals to be awarded correctly considers all unfinished categories
-- Technical
-  - Event Forwarding and MQTT event propagation refactoring. In previous releases, obsolete forwarders could accidentally be kept when reloading sessions.  This would cause the publicresults scoreboard to alternate between out-of-date and current results.
-  - Performance: Overall rankings for the selected "best lifter" scoring system (for example, the Sinclair score) are only computed if the option to show them on the scoreboard is selected.
+- (beta05) Code review to propagate the platform explicitly instead of relying on session information.
+- (beta05) The list of parameters considered when cleaning up the URLs has been updated, so the URLs are again short.
+- (beta04) Group menus or group pages could fail with old databases containing empty group names, due to new sorting now used.
+- (beta03) Undid accidental rename of a SQL column name that would prevent opening old databases
+- (beta02) Fix for plates loading chart computation when using Open Categories
+- (beta02) Improvement: accept common image formats for flags (`.svg`, `.png`, `.jpg`, `.jpeg`, or `.webp`)
+- New: The speaker gets a notification for a change of athlete
+  - The notification is synchronized with the appearance of the athlete's name on the attempt board to respect TCRR rules.
+- New default values: 
+  - Declarations are *no longer* shown to the speaker by default. The speaker can show/hide the declaration notifications using the ⚙ menu.
+  - The marshal screen shows athletes in start order by default. The marshal can unselect this behavior and get lifting order using the ⚙ menu.
+  - When the `noLiveLights` [feature toggle](https://owlcms.github.io/owlcms4-prerelease/#/FeatureToggles) is applied, the decision lights are not shown to the announcer or marshal to prevent premature announcements of decisions. The speaker can override the live lights setting using the ⚙ menu.
+  - When using the `centerAnnouncerNotifications` [feature toggle](https://owlcms.github.io/owlcms4-prerelease/#/FeatureToggles), Announcer notifications are centered and larger.  The speaker can override this setting the notifications of not using the ⚙ menu.  This is not the default because, in smaller meets, the speaker often does double duty as marshal.
+- New: Children's bars
+  - The bars available (5 / 10 / 15 / 20 / non-standard) can be selected on the Plates and Barbell page.
+  - The computation of the bar used is made to use the large 2,5 or 5kg bumper plates if available.  Collars are not used on light bars. The sturdiest bar is used (for 20kg a 15kg bar with 2.5kg plates will be used instead of a 10kg bar with 5kg plates).
+  - Non-standard bars can be selected on the Plates and Barbell page. Typically used with old North-American 15lb (~7kg) bars.
+  - For age groups with children under 12, the 20kg bar is not used.  For older age groups where this is desired the 20kg bar can be unselected manually on the Plates and Barbell page.
+  - If lighter children's bars are used, they will be shown in white/green/yellow on the attempt board according to bar weight.  Brown is used for non-standard bars
+  - The same rules are applied for light Masters loads if the light bars are selected.
+  - The [feature toggle](https://owlcms.github.io/owlcms4-prerelease/#/FeatureToggles) `childrenEquipment` automatically indicates that 5/10 bars and 2,5/5 large plates are available.
+- Fix: IWF behavior for start numbers ([gh-1025](https://github.com/jflamy/owlcms4/pull/1026))
+- Improvements:
+  - The information update in the announcer and marshal grids now allows announcing the total as soon as the decision is made.
+- USAW note: the list of feature toggles to use for National championships is
+  `USAW,athleteCardEntryTotal,explicitTeams,noLiveLights,centerAnnouncerNotifications,childrenEquipment`
 
