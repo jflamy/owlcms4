@@ -258,11 +258,11 @@ public final class UnloadObserverPR extends LitTemplate {
         element.setProperty("reloadUrl", reloadUrl);
         element.setProperty("reloadLabel", reloadLabel);
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-        }
-        element.callJsFunction("postReload");
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException e) {
+//        }
+//        element.callJsFunction("postReload");
     }
 
 }

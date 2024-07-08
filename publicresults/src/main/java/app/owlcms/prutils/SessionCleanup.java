@@ -104,7 +104,6 @@ public class SessionCleanup {
                                     //Translator.translate("PublicResults.sessionExpiredLabel",uiTitle),
                                     uiTitle,
                                     pageURL.toExternalForm());
-//                            ui.close();
                         });
                     }
                     entryIterator.remove();
