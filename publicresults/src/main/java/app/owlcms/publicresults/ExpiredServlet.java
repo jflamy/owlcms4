@@ -62,7 +62,9 @@ public class ExpiredServlet extends HttpServlet implements Traceable {
                     <div class="wrapper">
                         <h2>%s</h2>
                         <p>%s</p>
-                        <button onclick="location.href='%s';" type="button">%s</button>
+                        <div class="button-bar">
+                            <button onclick="location.href='%s';" type="button">%s</button>
+                        </div>
                     </div>
                 <body>
                 </html>
