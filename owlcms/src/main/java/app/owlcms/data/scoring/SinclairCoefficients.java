@@ -29,7 +29,7 @@ public class SinclairCoefficients {
 	Logger logger = (Logger) LoggerFactory.getLogger(SinclairCoefficients.class);
 	Double menCoefficient = null;
 	Double menMaxWeight = null;
-	Properties props = null;
+	private Properties props = null;
 	Double womenCoefficient = null;
 	Double womenMaxWeight = null;
 	private HashMap<Integer, Float> smf = null;
@@ -121,26 +121,31 @@ public class SinclairCoefficients {
 	}
 
 	private void loadCoefficients() {
-		if (this.props == null) {
+		if (this.getProps() == null) {
 			loadProps();
 		}
-		// logger.debug("loadCoefficicients {}",props.get("sinclair.menCoefficient"));
-		this.menCoefficient = Double.valueOf((String) this.props.get("sinclair.menCoefficient"));
-		this.menMaxWeight = Double.valueOf((String) this.props.get("sinclair.menMaxWeight"));
-		this.womenCoefficient = Double.valueOf((String) this.props.get("sinclair.womenCoefficient"));
-		this.womenMaxWeight = Double.valueOf((String) this.props.get("sinclair.womenMaxWeight"));
+		//logger.debug("**** loadCoefficicients {} {}",getProps().get("sinclair.menCoefficient"), LoggerUtils.stackTrace());
+		this.menCoefficient = Double.valueOf((String) this.getProps().get("sinclair.menCoefficient"));
+		this.menMaxWeight = Double.valueOf((String) this.getProps().get("sinclair.menMaxWeight"));
+		this.womenCoefficient = Double.valueOf((String) this.getProps().get("sinclair.womenCoefficient"));
+		this.womenMaxWeight = Double.valueOf((String) this.getProps().get("sinclair.womenMaxWeight"));
 	}
 
 	/**
 	 * @throws IOException
 	 */
-	private void loadProps() {
-		this.props = new Properties();
+	private synchronized void loadProps() {
 		String name = "/sinclair/sinclair" + this.sinclairYear + ".properties";
 		try {
 			InputStream stream = ResourceWalker.getResourceAsStream(name);
-			this.props.load(stream);
-			// logger.debug("props loaded {}",props.get("sinclair.menCoefficient"));
+			if (this.getProps() != null) {
+				//logger.debug("**** props already loaded {}",this.sinclairYear);
+				return;
+			}
+			//logger.debug("**** loading props {}", this.sinclairYear);
+			this.setProps(new Properties());
+			this.getProps().load(stream);
+			//logger.debug("**** props loaded {} {}",this.sinclairYear, getProps().get("sinclair.womenCoefficient"));
 		} catch (Throwable e) {
 			this.logger.error("could not load {} because {}\n{}", name, e, LoggerUtils.stackTrace(e));
 		}
@@ -152,14 +157,14 @@ public class SinclairCoefficients {
 	 */
 	private HashMap<Integer, Float> loadSMM() {
 
-		if (this.props == null) {
+		if (this.getProps() == null) {
 			loadProps();
 		}
 
-		this.smf = new HashMap<>((this.props.size()));
-		this.smhf = new HashMap<>((this.props.size()));
+		this.smf = new HashMap<>((this.getProps().size()));
+		this.smhf = new HashMap<>((this.getProps().size()));
 
-		for (Entry<Object, Object> entry : this.props.entrySet()) {
+		for (Entry<Object, Object> entry : this.getProps().entrySet()) {
 			String curKey = (String) entry.getKey();
 			if (curKey.startsWith("smf.")) {
 				this.smf.put(Integer.valueOf(curKey.replace("smf.", "")), Float.valueOf((String) entry.getValue()));
@@ -168,5 +173,13 @@ public class SinclairCoefficients {
 			}
 		}
 		return this.smf;
+	}
+
+	Properties getProps() {
+		return props;
+	}
+
+	void setProps(Properties props) {
+		this.props = props;
 	}
 }
