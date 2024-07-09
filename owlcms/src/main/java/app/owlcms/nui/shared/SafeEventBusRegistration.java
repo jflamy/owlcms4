@@ -34,7 +34,7 @@ public interface SafeEventBusRegistration {
 		EventBus uiEventBus = fop.getUiEventBus();
 		OwlcmsSession.setFop(fop);
 		uiEventBus.register(c);
-	    logger.warn("=================== registering {} on bus {} {}",c, uiEventBus.identifier(), LoggerUtils.whereFrom());
+	    logger.debug("==== registering {} on bus {} {}",c, uiEventBus.identifier(), LoggerUtils.whereFrom());
 
 //        UnloadObserver unloadObserver = UnloadObserver.get(false);
 //        unloadObserver.addUnloadListener((e) -> {
@@ -48,11 +48,11 @@ public interface SafeEventBusRegistration {
 //        ui.add(unloadObserver);
 
 		ui.addBeforeLeaveListener((e) -> {
-			logger.warn("leaving: unregister {} from {}", c, uiEventBus.identifier());
+			logger.debug("leaving: unregister {} from {}", c, uiEventBus.identifier());
 			unregister(c, uiEventBus);
 		});
 		ui.addDetachListener((e) -> {
-			logger.warn("detaching: unregister {} from {}", c, uiEventBus.identifier());
+			logger.debug("detaching: unregister {} from {}", c, uiEventBus.identifier());
 			unregister(c, uiEventBus);
 		});
 		return uiEventBus;

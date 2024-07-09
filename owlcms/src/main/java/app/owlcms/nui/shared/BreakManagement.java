@@ -44,6 +44,7 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.data.renderer.TextRenderer;
+import com.vaadin.flow.function.SerializableSupplier;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.GroupCategorySelectionMenu;
@@ -183,8 +184,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 	}
 
 	/**
-	 * Everything has been created and has meaningful values, add value change listeners now to avoid spuriuous
-	 * triggering during interface build-up.
+	 * Everything has been created and has meaningful values, add value change listeners now to avoid spuriuous triggering during interface build-up.
 	 *
 	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
 	 */
@@ -255,6 +255,17 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		});
 	}
 
+	public class LazyComponent extends Div {
+		public LazyComponent(
+		        SerializableSupplier<? extends Component> supplier) {
+			addAttachListener(e -> {
+				if (getElement().getChildCount() == 0) {
+					add(supplier.get());
+				}
+			});
+		}
+	}
+
 	private void assembleDialog(VerticalLayout dialogLayout) {
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug("assembleDialog {} {}", this.requestedBreak, LoggerUtils.whereFrom());
@@ -264,14 +275,21 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 
 		VerticalLayout ci = createInterruptionColumn();
 		VerticalLayout cb = createCountdownColumn();
-		VerticalLayout cc = createCeremoniesColumn();
-		HorizontalLayout bc = new HorizontalLayout(cb, cc);
-		bc.setSizeFull();
-		bc.setJustifyContentMode(JustifyContentMode.EVENLY);
+
 
 		TabSheet ts = new TabSheet();
 		Tab iTab = ts.add(Translator.translate("BreakManagement.InterruptionsAndJury"), ci);
-		Tab bTab = ts.add(Translator.translate("BreakManagement.BreaksAndCeremonies"), bc);
+		Tab bTab = ts.add(Translator.translate("BreakManagement.BreaksAndCeremonies"), 
+				new LazyComponent(
+		            () -> {
+		            	// createCeremoniesColumn is expensive due to medals
+		            	VerticalLayout cc = createCeremoniesColumn();
+		            	HorizontalLayout bc = new HorizontalLayout(cb, cc);
+		            	bc.setSizeFull();
+		            	bc.setJustifyContentMode(JustifyContentMode.EVENLY);
+		            	return bc;
+		            }));
+		
 		ts.addSelectedChangeListener((e) -> {
 			if (this.logger.isDebugEnabled()) {
 				this.logger.debug("selectedTab {} requestedBreak={}", e.getSelectedTab().getLabel(),
@@ -310,11 +328,9 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		logger.debug("setting default duration as default {}", LoggerUtils.whereFrom());
 		setDurationField(DEFAULT_DURATION);
 
-		if (
-			fop.getGroup() != null
-			&& fop.getGroup().getCompetitionTime() != null
-			&& fop.getGroup().getCompetitionTime().isAfter(LocalDateTime.now())
-		) {
+		if (fop.getGroup() != null
+		        && fop.getGroup().getCompetitionTime() != null
+		        && fop.getGroup().getCompetitionTime().isAfter(LocalDateTime.now())) {
 			this.datePicker.setValue(fop.getGroup().getCompetitionTime().toLocalDate());
 			this.timePicker.setValue(fop.getGroup().getCompetitionTime().toLocalTime());
 			return;
@@ -847,7 +863,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 			        true,
 			        this.getOrigin()));
 		} else {
-			//this.setBreakTimerFromFields(false);
+			// this.setBreakTimerFromFields(false);
 			fop.fopEventPost(new FOPEvent.BreakStarted(
 			        getBreakType(),
 			        getCountdownType(),

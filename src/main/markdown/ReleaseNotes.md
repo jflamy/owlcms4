@@ -5,6 +5,9 @@
 > - This is a **beta release**, used for testing and translation. ***Some features could be non-functional***.
 > - Beta releases are **not** normally used in actual competitions, except if a new feature is required. Use extreme care in testing if you intend to do so.
 
+- (beta06) Translations: Spanish, German, Danish, Romanian, Hungarian, Russian
+- (beta06) In large competitions, the Pause button could take long because the ceremonies tab was computing the categories where medals could be awarded.  The ceremonies tab is now computed lazily, only when selected.
+- (beta06) Fix innocuous exception in logs when first loading Sinclair coefficients
 - (beta05) Code review to propagate the platform explicitly instead of relying on session information.
 - (beta05) The list of parameters considered when cleaning up the URLs has been updated, so the URLs are again short.
 - (beta04) Group menus or group pages could fail with old databases containing empty group names, due to new sorting now used.

@@ -840,7 +840,7 @@ public class Competition {
 			medals = computeMedals(g);
 		}
 		final TreeMap<String, TreeSet<Athlete>> m = new TreeMap<>(medals);
-		logger./**/warn("medals categories keyset {}", medals.keySet());
+		logger.debug("medals categories keyset {}", medals.keySet());
 		if (onlyFinished) {
 			List<String> toRemove = medals.keySet().stream()
 			        .filter(k -> {
@@ -852,7 +852,7 @@ public class Competition {
 				        // category includes an athlete that has not finished, mark it as "to be
 				        // removed"
 				        boolean anyMatch = athletes.stream().anyMatch(a -> !a.isDone());
-				        logger.info("category {} has finished {}", k, !anyMatch);
+				        logger.debug("category {} has finished {}", k, !anyMatch);
 				        // return those that have not finished
 				        return anyMatch;
 			        })

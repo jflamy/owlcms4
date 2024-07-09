@@ -101,7 +101,6 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 
 	@Override
 	public String getPageTitle() {
-		logger.warn("getPageTitle !!!!!!!!!!!!!!!!!");
 		String fopNameIfMultiple = OwlcmsSession.getFopNameIfMultiple();
 		return Translator.translate("ShortTitle.Lifting") + (!fopNameIfMultiple.isBlank() ? (" - " + fopNameIfMultiple) : "");
 	}

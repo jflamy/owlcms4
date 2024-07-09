@@ -828,7 +828,7 @@ public abstract class AthleteGridContent extends BaseContent
 	public void slaveUpdateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
 		Athlete athlete = e.getAthlete();
 		var fop = e.getFop();
-		logger.warn("&&&&&&&& athletegrid slaveUpdateAnnouncerBar {}", fop.getName());
+		//logger.debug("athletegrid slaveUpdateAnnouncerBar {}", fop.getName());
 		UIEventProcessor.uiAccess(this.topBar, this.uiEventBus, e, () -> {
 			warnOthersIfCurrent(e, athlete, fop);
 			doUpdateTopBar(athlete, e.getTimeAllowed());

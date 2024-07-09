@@ -84,9 +84,8 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 
 		if (!isIgnoreFopFromURL()) {
 			if (fopFound) {
-				// logger.trace("fopNames {}", fopNames);
 				String decoded = URLDecoder.decode(fopNames.get(0), StandardCharsets.UTF_8);
-				logger.warn("URL fop = {} decoded = {}",fopNames.get(0), decoded);
+				//logger.debug("URL fop = {} decoded = {}",fopNames.get(0), decoded);
 				tFop = OwlcmsFactory.getFOPByName(decoded);
 				this.setFop(tFop);
 			} 
