@@ -54,7 +54,7 @@ public class SessionCleanup {
                     for (Entry<UnloadObserverPR, Long> uiEntry : im.entrySet()) {
                         if (uiEntry.getValue() == 0) {
                             // 0 means GONE.
-                            logger.debug("   tab {} gone", System.identityHashCode(uiEntry.getKey()));
+                            logger.debug("   {} tab {} gone", uiEntry.getKey().getTitle(), System.identityHashCode(uiEntry.getKey()));
                         } else {
                             // positive means visible, negative means hidden (don't kill)
                             long timeElapsed = now - Math.abs(uiEntry.getValue());
@@ -86,7 +86,8 @@ public class SessionCleanup {
                     Entry<UnloadObserverPR, Long> e = entryIterator.next();
                     UnloadObserverPR eventObserver2 = e.getKey();
                     UI ui = eventObserver2.getUi();
-                    logger.debug("   leaving tab {}, reload URL={}",
+                    logger.debug("   {} leaving tab {}, reload URL={}",
+                            e.getKey().getTitle(),
                             System.identityHashCode(ui),
                             eventObserver2.getUrl());
                     if (ui.isAttached()) {

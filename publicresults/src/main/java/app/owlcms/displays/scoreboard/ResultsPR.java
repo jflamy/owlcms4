@@ -118,7 +118,6 @@ public class ResultsPR extends LitTemplate
         setDefaultLiftingOrderDisplay(false);
         setShowInitialDialog(false);
         this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
-        logger.debug("created ResultsPR");
     }
 
     @Override
@@ -287,10 +286,10 @@ public class ResultsPR extends LitTemplate
         this.showLeaders = showLeaders;
         this.getElement().setProperty("showLeaders", showLeaders);
         if (!showLeaders || this.done) {
-            logger.debug("setLeadersDisplay 0px: isLeaders = {} done = {}", showLeaders, this.done);
+            //logger.debug("setLeadersDisplay 0px: isLeaders = {} done = {}", showLeaders, this.done);
             this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: 0px");
         } else {
-            logger.debug("setLeadersDisplay default: isLeaders = {} done = {}", showLeaders, this.done);
+            //logger.debug("setLeadersDisplay default: isLeaders = {} done = {}", showLeaders, this.done);
             this.getElement().setProperty("leaderFillerHeight",
                     "--leaderFillerHeight: var(--defaultLeaderFillerHeight)");
         }
@@ -515,7 +514,7 @@ public class ResultsPR extends LitTemplate
         this.ui = UI.getCurrent();
         eventBusRegister(this, UpdateReceiverServlet.getEventBus());
 
-        logger.warn("onAttach {}",fopName2);
+        logger.debug("ResultsPR onAttach {}",fopName2);
         getEventObserver().setTitle(fopName2);
         
         UpdateEvent initEvent = UpdateReceiverServlet.sync(fopName2);

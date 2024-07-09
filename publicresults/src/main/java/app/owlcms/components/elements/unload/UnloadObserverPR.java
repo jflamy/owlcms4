@@ -98,9 +98,9 @@ public final class UnloadObserverPR extends LitTemplate {
         ui.getPage().fetchCurrentURL(u -> setUrl(u));
         this.title = Translator.translate("Reload");
         logger.setLevel(Level.DEBUG);
-        logger.warn("UnloadObserverPR={} (getElement()={}) component={} {}",
-                System.identityHashCode(this), System.identityHashCode(this.getElement()),
-                c.getClass().getSimpleName(), System.identityHashCode(c));
+//        logger.debug("UnloadObserverPR={} (getElement()={}) component={} {}",
+//                System.identityHashCode(this), System.identityHashCode(this.getElement()),
+//                c.getClass().getSimpleName(), System.identityHashCode(c));
     }
 
     /**
@@ -130,7 +130,7 @@ public final class UnloadObserverPR extends LitTemplate {
         if (!okClass()) {
             return;
         }
-        logger.debug("active {} {}", component.getClass().getSimpleName(), System.identityHashCode(component));
+        logger.debug("{} active {} {}", title, component.getClass().getSimpleName(), System.identityHashCode(component));
         VaadinSession vs = VaadinSession.getCurrent();
         vs.access(() -> {
             var im = getInactivityMap(vs);
@@ -142,7 +142,7 @@ public final class UnloadObserverPR extends LitTemplate {
         if (!okClass()) {
             return;
         }
-        logger.debug("inactive {} {}", component.getClass().getSimpleName(), System.identityHashCode(component));
+        logger.debug("{} inactive {} {}", title, component.getClass().getSimpleName(), System.identityHashCode(component));
         VaadinSession vs = VaadinSession.getCurrent();
         vs.access(() -> {
             var im = getInactivityMap(vs);
@@ -165,7 +165,7 @@ public final class UnloadObserverPR extends LitTemplate {
             return;
         }
         // mark for immediate removal
-        logger.debug("gone {} {}", component.getClass().getSimpleName(), System.identityHashCode(component));
+        logger.debug("{} gone {} {}", title, component.getClass().getSimpleName(), System.identityHashCode(component));
         // don't recreate an entry for if already removed by other processing.
         VaadinSession vs = VaadinSession.getCurrent();
         vs.access(() -> {

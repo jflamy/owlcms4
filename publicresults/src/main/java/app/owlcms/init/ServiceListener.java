@@ -15,6 +15,7 @@ import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.servlet.JettyErrorHandler;
 import app.owlcms.utils.LoggerUtils;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -29,12 +30,13 @@ import ch.qos.logback.classic.Logger;
  *
  */
 public class ServiceListener implements VaadinServiceInitListener {
-    private static Logger logger = (Logger) LoggerFactory.getLogger(ServiceListener.class);
+    private Logger logger = (Logger) LoggerFactory.getLogger(ServiceListener.class);
 
     /**
      * Instantiates a new service listener.
      */
     public ServiceListener() {
+        logger.setLevel(Level.DEBUG);
     }
 
     /*
@@ -46,13 +48,13 @@ public class ServiceListener implements VaadinServiceInitListener {
      */
     @Override
     public void serviceInit(ServiceInitEvent event) {
-        logger.debug("Vaadin Service Startup Configuration. {} {}", event.toString(), LoggerUtils.whereFrom());
+        logger.trace("Vaadin Service Startup Configuration. {} {}", event.toString(), LoggerUtils.whereFrom());
         event.getSource()
                 .addSessionInitListener(sessionInitEvent -> {
                     sessionInit(sessionInitEvent);
                 });
         event.getSource().addSessionDestroyListener(sde -> {
-            logger.debug("session {} destroyed.", sde.getSession());
+            logger.debug("Session {} destroyed.", sde.getSession());
         });
     }
 

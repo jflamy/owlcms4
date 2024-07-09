@@ -134,8 +134,8 @@ public interface SafeEventBusRegistrationPR {
         });
 
         ui.access(() -> {
-            logger.warn("adding eventObserver {} {}", System.identityHashCode(eventObserver),
-                    System.identityHashCode(eventObserver.getElement()));
+//            logger.trace("adding eventObserver {} {}", System.identityHashCode(eventObserver),
+//                    System.identityHashCode(eventObserver.getElement()));
             ui.add(eventObserver);
             ui.addBeforeLeaveListener((e) -> {
                 // navigating via a link, don't kill session, clean-up this page.
