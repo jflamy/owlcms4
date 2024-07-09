@@ -25,7 +25,6 @@ import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.shared.Registration;
 
 import app.owlcms.displays.scoreboard.ResultsPR;
-import app.owlcms.i18n.Translator;
 import app.owlcms.prutils.SafeEventBusRegistrationPR;
 import app.owlcms.prutils.SessionCleanup;
 import app.owlcms.publicresults.MainView;
@@ -96,7 +95,7 @@ public final class UnloadObserverPR extends LitTemplate {
         this.ui = ui;
         this.component = c;
         ui.getPage().fetchCurrentURL(u -> setUrl(u));
-        this.title = Translator.translate("Reload");
+        this.title = "";
         logger.setLevel(Level.DEBUG);
 //        logger.debug("UnloadObserverPR={} (getElement()={}) component={} {}",
 //                System.identityHashCode(this), System.identityHashCode(this.getElement()),

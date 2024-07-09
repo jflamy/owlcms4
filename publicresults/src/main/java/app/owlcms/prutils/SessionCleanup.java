@@ -95,8 +95,7 @@ public class SessionCleanup {
                         eventObserver2.doReload(
                                 Translator.translate("PublicResults.sessionExpiredTitle"),
                                 Translator.translate("PublicResults.sessionExpiredText"),
-                                // Translator.translate("PublicResults.sessionExpiredLabel",uiTitle),
-                                eventObserver2.getTitle(),
+                                Translator.translate("PublicResults.sessionExpiredLabel",eventObserver2.getTitle()),
                                 eventObserver2.getUrl().toExternalForm());
 //                        });
                     }
