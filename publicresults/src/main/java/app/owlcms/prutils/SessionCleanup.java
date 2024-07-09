@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinSession;
 
@@ -53,7 +54,7 @@ public class SessionCleanup {
                     for (Entry<UnloadObserverPR, Long> uiEntry : im.entrySet()) {
                         if (uiEntry.getValue() == 0) {
                             // 0 means GONE.
-                            logger.debug("   UI {} gone", System.identityHashCode(uiEntry.getKey()));
+                            logger.debug("   tab {} gone", System.identityHashCode(uiEntry.getKey()));
                         } else {
                             // positive means visible, negative means hidden (don't kill)
                             long timeElapsed = now - Math.abs(uiEntry.getValue());
@@ -61,7 +62,12 @@ public class SessionCleanup {
                             // Define OWLCMS_INACTIVITY_SEC for testing
                             var inactivity = StartupUtils.getIntegerParam("inactivity_sec", INACTIVITY_SECONDS) * 1000;
                             boolean alive = timeElapsed < inactivity;
-                            logger.debug("   observer {} timeElapsed={} alive={}", System.identityHashCode(uiEntry.getKey()),
+                            Component component = uiEntry.getKey().getComponent();
+                            logger.debug("   {} observer {} {} {} timeElapsed={} alive={}",
+                                    uiEntry.getKey().getTitle(),
+                                    System.identityHashCode(uiEntry.getKey()),
+                                    component.getClass().getSimpleName(),
+                                    System.identityHashCode(component),
                                     timeElapsed, alive);
                             if (alive) {
                                 stillAlive++;
@@ -80,17 +86,17 @@ public class SessionCleanup {
                     Entry<UnloadObserverPR, Long> e = entryIterator.next();
                     UnloadObserverPR eventObserver2 = e.getKey();
                     UI ui = eventObserver2.getUi();
-                    logger.debug("   leaving tab {}, reload URL={}", 
-                            System.identityHashCode(ui), 
+                    logger.debug("   leaving tab {}, reload URL={}",
+                            System.identityHashCode(ui),
                             eventObserver2.getUrl());
                     if (ui.isAttached()) {
 //                        ui.access(() -> {
-                            eventObserver2.doReload(
-                                    Translator.translate("PublicResults.sessionExpiredTitle"), 
-                                    Translator.translate("PublicResults.sessionExpiredText"), 
-                                    //Translator.translate("PublicResults.sessionExpiredLabel",uiTitle),
-                                    eventObserver2.getTitle(),
-                                    eventObserver2.getUrl().toExternalForm());
+                        eventObserver2.doReload(
+                                Translator.translate("PublicResults.sessionExpiredTitle"),
+                                Translator.translate("PublicResults.sessionExpiredText"),
+                                // Translator.translate("PublicResults.sessionExpiredLabel",uiTitle),
+                                eventObserver2.getTitle(),
+                                eventObserver2.getUrl().toExternalForm());
 //                        });
                     }
                     entryIterator.remove();
@@ -105,7 +111,7 @@ public class SessionCleanup {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-                
+
             }
         });
         return;
@@ -122,7 +128,7 @@ public class SessionCleanup {
         scheduler.shutdown();
     }
 
-    public static SessionCleanup add(UnloadObserverPR eventObserver) {
+    public static void create() {
         OwlcmsSession os = OwlcmsSession.getCurrent();
         VaadinSession vs = VaadinSession.getCurrent();
         synchronized (os) {
@@ -134,7 +140,6 @@ public class SessionCleanup {
                 var cleanupSec = (long) StartupUtils.getIntegerParam("cleanup_sec", SESSION_CLEANUP_SECONDS);
                 cleanup.scheduleAtFixedRate(cleanupSec, TimeUnit.SECONDS);
             }
-            return cleanup;
         }
     }
 

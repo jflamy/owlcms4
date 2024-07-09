@@ -24,9 +24,11 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.shared.Registration;
 
+import app.owlcms.displays.scoreboard.ResultsPR;
 import app.owlcms.i18n.Translator;
 import app.owlcms.prutils.SafeEventBusRegistrationPR;
 import app.owlcms.prutils.SessionCleanup;
+import app.owlcms.publicresults.MainView;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -96,8 +98,8 @@ public final class UnloadObserverPR extends LitTemplate {
         ui.getPage().fetchCurrentURL(u -> setUrl(u));
         this.title = Translator.translate("Reload");
         logger.setLevel(Level.DEBUG);
-        logger.warn("UnloadObserverPR={} (getElement()={}) component={} {}", 
-                System.identityHashCode(this), System.identityHashCode(this.getElement()), 
+        logger.warn("UnloadObserverPR={} (getElement()={}) component={} {}",
+                System.identityHashCode(this), System.identityHashCode(this.getElement()),
                 c.getClass().getSimpleName(), System.identityHashCode(c));
     }
 
@@ -125,6 +127,9 @@ public final class UnloadObserverPR extends LitTemplate {
     }
 
     public void setActivityTime() {
+        if (!okClass()) {
+            return;
+        }
         logger.debug("active {} {}", component.getClass().getSimpleName(), System.identityHashCode(component));
         VaadinSession vs = VaadinSession.getCurrent();
         vs.access(() -> {
@@ -134,6 +139,9 @@ public final class UnloadObserverPR extends LitTemplate {
     }
 
     public void setInactivityTime() {
+        if (!okClass()) {
+            return;
+        }
         logger.debug("inactive {} {}", component.getClass().getSimpleName(), System.identityHashCode(component));
         VaadinSession vs = VaadinSession.getCurrent();
         vs.access(() -> {
@@ -146,7 +154,16 @@ public final class UnloadObserverPR extends LitTemplate {
         });
     }
 
+    private boolean okClass() {
+        Component component2 = this.getComponent();
+        boolean okClass = (component2 instanceof MainView) || (component2 instanceof ResultsPR);
+        return okClass;
+    }
+
     public void setGoneTime() {
+        if (!okClass()) {
+            return;
+        }
         // mark for immediate removal
         logger.debug("gone {} {}", component.getClass().getSimpleName(), System.identityHashCode(component));
         // don't recreate an entry for if already removed by other processing.
@@ -193,6 +210,9 @@ public final class UnloadObserverPR extends LitTemplate {
 
     @ClientCallable
     public void visibilityChange(String change) {
+        if (!okClass()) {
+            return;
+        }
         this.fireUnloadEvent(new UnloadEventPR(this, true, change));
     }
 
@@ -265,7 +285,8 @@ public final class UnloadObserverPR extends LitTemplate {
     public void doReload(String reloadTitle, String reloadText, String reloadLabel, String reloadUrl) {
         Element element = this.getElement();
         ui = this.getUi();
-        logger.debug("   doReload tab={} element={} {}", System.identityHashCode(element), System.identityHashCode(element), reloadUrl);
+        logger.debug("   doReload tab={} element={} {}", System.identityHashCode(element),
+                System.identityHashCode(element), reloadUrl);
         element.setProperty("reloadTitle", reloadTitle);
         element.setProperty("reloadText", reloadText);
         element.setProperty("reloadUrl", reloadUrl);
@@ -301,6 +322,7 @@ public final class UnloadObserverPR extends LitTemplate {
     }
 
     public void setTitle(String title) {
+        //logger.trace("----------------- setTitle {} {}", title, LoggerUtils.whereFrom());
         this.title = title;
     }
 }

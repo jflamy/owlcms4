@@ -60,7 +60,7 @@ public interface SafeEventBusRegistrationPR {
         // one singleton per session.
         if (c instanceof MainView || c instanceof ResultsPR) {
             // the reload form from these pages will be used.
-            SessionCleanup.add(eventObserver);
+            SessionCleanup.create();
         }
 
         eventObserver.addEventListener((e) -> {

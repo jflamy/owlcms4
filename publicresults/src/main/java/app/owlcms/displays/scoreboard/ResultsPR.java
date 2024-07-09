@@ -507,6 +507,7 @@ public class ResultsPR extends LitTemplate
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
+        String fopName2 = getFopName();
         if (!this.isSilenced()) {
             SoundUtils.enableAudioContextNotification(this.getElement());
         }
@@ -514,9 +515,9 @@ public class ResultsPR extends LitTemplate
         this.ui = UI.getCurrent();
         eventBusRegister(this, UpdateReceiverServlet.getEventBus());
 
-        // setDarkMode(this, isDarkMode(), false);
-        String fopName2 = getFopName();
-        logger.debug("sync {}",fopName2);
+        logger.warn("onAttach {}",fopName2);
+        getEventObserver().setTitle(fopName2);
+        
         UpdateEvent initEvent = UpdateReceiverServlet.sync(fopName2);
         //FIXME: set timers based on last received timer event.
         if (initEvent != null) {
