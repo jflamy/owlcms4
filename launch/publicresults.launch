@@ -8,7 +8,9 @@
         <listEntry value="1"/>
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-        <mapEntry key="OWLCMS_DEBUG" value="trace"/>
+        <mapEntry key="OWLCMS_CLEANUP_SEC" value="20"/>
+        <mapEntry key="OWLCMS_DEBUG" value="none"/>
+        <mapEntry key="OWLCMS_INACTIVITY_SEC" value="30"/>
         <mapEntry key="OWLCMS_PORT" value="8082"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="mapetitevacheamalauxpattes"/>
     </mapAttribute>

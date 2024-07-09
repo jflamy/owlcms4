@@ -15,7 +15,6 @@ import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.publicresults.DecisionReceiverServlet;
 import app.owlcms.publicresults.TimerReceiverServlet;
 import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.uievents.TimerEvent;
@@ -179,10 +178,7 @@ public class AthleteTimerElementPR extends TimerElementPR {
     protected void onAttach(AttachEvent attachEvent) {
         init();
 
-        eventBusRegister(this, TimerReceiverServlet.getEventBus());
         eventBusRegister(this, UpdateReceiverServlet.getEventBus());
-        eventBusRegister(this, DecisionReceiverServlet.getEventBus());
-
         this.ui = UI.getCurrent();
         this.setFopName(OwlcmsSession.getFopName());
     }

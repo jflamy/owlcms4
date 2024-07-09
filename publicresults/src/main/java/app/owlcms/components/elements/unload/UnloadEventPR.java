@@ -16,9 +16,10 @@ import com.vaadin.flow.component.ComponentEvent;
  * @author miki
  * @since 2020-04-29
  */
-public class UnloadEvent extends ComponentEvent<UnloadObserver> {
+public class UnloadEventPR extends ComponentEvent<UnloadObserverPR> {
 
     private final boolean becauseOfQuerying;
+    private String change;
 
     /**
      * Creates a new event using the given source and indicator whether the event
@@ -29,10 +30,12 @@ public class UnloadEvent extends ComponentEvent<UnloadObserver> {
      * @param attempted when {@code true}, the event is fired in response to
      *                  querying before unloading; {@code false}
      *                  otherwise.
+     * @param change 
      */
-    public UnloadEvent(UnloadObserver source, boolean attempted) {
+    public UnloadEventPR(UnloadObserverPR source, boolean attempted, String change) {
         super(source, true);
         this.becauseOfQuerying = attempted;
+        this.change = change;
     }
 
     /**
@@ -46,5 +49,13 @@ public class UnloadEvent extends ComponentEvent<UnloadObserver> {
      */
     public boolean isBecauseOfQuerying() {
         return this.becauseOfQuerying;
+    }
+
+    public String getChange() {
+        return change;
+    }
+
+    public void setChange(String change) {
+        this.change = change;
     }
 }
