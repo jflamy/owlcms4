@@ -37,7 +37,8 @@ public class ExpiredServlet extends HttpServlet implements Traceable {
             throws ServletException, IOException {
         // get makes no sense on this URL. Standard says there shouldn't be a 405 on a
         // get. Sue me.
-        resp.sendError(405);
+        //resp.sendError(405);
+        doPost(req,resp);
     }
 
     /**
