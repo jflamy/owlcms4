@@ -16,7 +16,6 @@ import java.util.Random;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import app.owlcms.Main;
@@ -33,7 +32,6 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
 
-@Ignore
 public class AthleteSorterTest {
 
     private static final Level LOGGER_LEVEL = Level.OFF;
