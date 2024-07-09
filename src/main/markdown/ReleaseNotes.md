@@ -5,6 +5,11 @@
 > - This is a **beta release**, used for testing and translation. ***Some features could be non-functional***.
 > - Beta releases are **not** normally used in actual competitions, except if a new feature is required. Use extreme care in testing if you intend to do so.
 
+- (beta07) Publicresults session expiry.  In previous versions, the instantaneous update feature of the scoreboards caused sessions to stay open forever, leading to out-of-memory errors after a few hours when many users had logged on.
+  - Sessions are now expired if all scoreboards have been hidden for more than 15 minutes, or if the visible scoreboards have not received an update for 15 minutes.  When expired, an expiry notice is given, and  button is displayed to reload the expired scoreboard.
+  - The environment variable `OWLCMS_INACTIVITY_SEC` controls the duration in seconds of the inactivity interval (default = 15 * 60).
+  - The environment variable `OWLCMS_CLEANUP_SEC` controls how often the sessions are checked for inactivity (default = 60)
+
 - (beta06) Translations: Spanish, German, Danish, Romanian, Hungarian, Russian
 - (beta06) In large competitions, the Pause button could take long because the ceremonies tab was computing the categories where medals could be awarded.  The ceremonies tab is now computed lazily, only when selected.
 - (beta06) Fix innocuous exception in logs when first loading Sinclair coefficients
