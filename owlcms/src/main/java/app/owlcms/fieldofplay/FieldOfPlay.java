@@ -1472,9 +1472,6 @@ public class FieldOfPlay implements IUnregister {
 
 	public void pushOutUIEvent(UIEvent event) {
 		// logger.debug("!!!! {}",event);
-		if (event instanceof UIEvent.LiftingOrderUpdated) {
-			logger.warn("============ pushing on {} {}",getUiEventBus().identifier(), event.getTrace());
-		}
 		getUiEventBus().post(event);
 		getEventForwardingBus().post(event);
 	}

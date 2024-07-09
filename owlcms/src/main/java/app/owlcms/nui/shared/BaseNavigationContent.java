@@ -173,7 +173,7 @@ public abstract class BaseNavigationContent extends BaseContent
 		}
 		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params)));
 		//ui.getPage().getHistory().replaceState(null, location2);
-		logger.warn("new location {}",location2.getPathWithQueryParameters());
+		logger.debug("new location {}",location2.getPathWithQueryParameters());
 		ui.getPage().setLocation(location2.getPathWithQueryParameters());
 
 	}

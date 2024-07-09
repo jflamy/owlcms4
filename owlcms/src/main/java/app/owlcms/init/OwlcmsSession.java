@@ -19,7 +19,6 @@ import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -60,7 +59,7 @@ public class OwlcmsSession {
 		if (currentVaadinSession != null) {
 			OwlcmsSession owlcmsSession = (OwlcmsSession) currentVaadinSession.getAttribute("owlcmsSession");
 			if (owlcmsSession == null) {
-				logger.warn("creating new OwlcmsSession {}", LoggerUtils.whereFrom());
+				//logger.trace("creating new OwlcmsSession {}", LoggerUtils.whereFrom());
 				owlcmsSession = new OwlcmsSession();
 				currentVaadinSession.setAttribute("owlcmsSession", owlcmsSession);
 			}
@@ -152,7 +151,7 @@ public class OwlcmsSession {
 	}
 
 	public static void setFop(FieldOfPlay fop) {
-		logger.warn("&&&&&&& setFop {} from {}", (fop != null ? fop.getName() : null), LoggerUtils.whereFrom());
+		//logger.debug("setFop {} from {}", (fop != null ? fop.getName() : null), LoggerUtils.whereFrom());
 		setAttribute(FOP, fop);
 	}
 
