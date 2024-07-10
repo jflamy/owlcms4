@@ -3,6 +3,7 @@ package app.owlcms.prutils;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -17,6 +18,8 @@ import com.vaadin.flow.server.VaadinSession;
 import app.owlcms.components.elements.unload.UnloadObserverPR;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.publicresults.MainView;
+import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -92,10 +95,15 @@ public class SessionCleanup {
                             eventObserver2.getUrl());
                     if (ui.isAttached()) {
 //                        ui.access(() -> {
+                        String title = eventObserver2.getTitle();
+                        Set<String> fopNames = UpdateReceiverServlet.getUpdateCache().keySet();
+                        if (eventObserver2.getComponent() instanceof MainView || fopNames.size() <= 1) {
+                            title = "";
+                        }
                         eventObserver2.doReload(
                                 Translator.translate("PublicResults.sessionExpiredTitle"),
                                 Translator.translate("PublicResults.sessionExpiredText"),
-                                Translator.translate("PublicResults.sessionExpiredLabel",eventObserver2.getTitle()),
+                                Translator.translate("PublicResults.sessionExpiredLabel",title).trim(),
                                 eventObserver2.getUrl().toExternalForm());
 //                        });
                     }
