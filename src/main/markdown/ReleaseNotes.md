@@ -1,9 +1,10 @@
-**Version 49.0.6**
+**Version 49.0.7**
 
 > [!IMPORTANT]
 >
 > - You should test all releases, with actual data, several days before a competition. 
 
+- (49.0.7) Cloud usage: fly.io no longer routed requests from the outside world to the applications.  Changed the  embedded server configuration to listen on all interfaces.
 - (49.0.6) Empty groups (no name) could cause page failures
 - (49.0.5) Fix: preparation pages would fail if there was no information at all available to infer the category of the athlete.
 - (49.0.4) Fix: The ordering used for allocating start numbers should not consider age groups, only bodyweight category
