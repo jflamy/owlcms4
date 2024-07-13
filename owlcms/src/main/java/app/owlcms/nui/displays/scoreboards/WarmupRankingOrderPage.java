@@ -5,6 +5,8 @@ import java.util.TreeMap;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
@@ -36,7 +38,6 @@ public class WarmupRankingOrderPage extends AbstractResultsDisplayPage {
 	protected void init() {
 		var board = new ResultsRankingOrder();
 		this.setBoard(board);
-		this.addComponent(board);
 
 		// when navigating to the page, Vaadin will call setParameter+readParameters
 		// these parameters will be applied.
@@ -59,6 +60,16 @@ public class WarmupRankingOrderPage extends AbstractResultsDisplayPage {
 		fullMap.putAll(initialMap);
 		fullMap.putAll(additionalMap);
 		setDefaultParameters(QueryParameters.simple(fullMap));
+	}
+	
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		DisplayParameters board = (DisplayParameters) this.getBoard();
+		board.setFop(this.getFop());
+		board.setLeadersDisplay(true);
+		board.setRecordsDisplay(true);
+
+		this.addComponent((Component) board);
 	}
 
 }

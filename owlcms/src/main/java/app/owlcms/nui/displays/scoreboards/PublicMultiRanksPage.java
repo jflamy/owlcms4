@@ -6,6 +6,8 @@ import java.util.TreeMap;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
@@ -78,9 +80,7 @@ public class PublicMultiRanksPage extends AbstractResultsDisplayPage {
 		this.setBoard(board);
 		this.setResultsBoard(board);
 		this.setMedalsBoard(medalsBoard);
-		this.addComponent(board);
-		this.addComponent(medalsBoard);
-		medalsBoard.setVisible(false);
+
 		this.ui = UI.getCurrent();
 
 		// when navigating to the page, Vaadin will call setParameter+readParameters
@@ -104,6 +104,20 @@ public class PublicMultiRanksPage extends AbstractResultsDisplayPage {
 		fullMap.putAll(initialMap);
 		fullMap.putAll(additionalMap);
 		setDefaultParameters(QueryParameters.simple(fullMap));
+	}
+	
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		DisplayParameters board = (DisplayParameters) this.getBoard();
+		board.setFop(getFop());
+		medalsBoard.setFop(getFop());
+		
+		this.setResultsBoard((ResultsMultiRanks) board);
+		this.setMedalsBoard(medalsBoard);
+		
+		this.addComponent((Component) board);
+		medalsBoard.setVisible(false);
+		this.addComponent(medalsBoard);
 	}
 
 	private final ResultsMedals getMedalsBoard() {

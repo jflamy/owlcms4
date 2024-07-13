@@ -34,7 +34,7 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 	private long lastShortcut;
 
 	public AbstractResultsDisplayPage() {
-		// intentionally empty; superclass will invoke init() as required.
+		// intentionally empty; init() will be invoked as required.
 	}
 
 	/**
