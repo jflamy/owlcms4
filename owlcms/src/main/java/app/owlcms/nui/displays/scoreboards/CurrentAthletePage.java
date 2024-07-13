@@ -7,6 +7,7 @@ import java.util.TreeMap;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.QueryParameters;
@@ -49,11 +50,10 @@ public class CurrentAthletePage extends AbstractResultsDisplayPage {
 
 	@Override
 	protected void init() {
+		logger = (Logger) LoggerFactory.getLogger(CurrentAthletePage.class);
+		uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 		var board = new CurrentAthlete(this);
 		this.setBoard(board);
-		board.setLeadersDisplay(true);
-		board.setRecordsDisplay(true);
-		this.addComponent(board);
 
 		// when navigating to the page, Vaadin will call setParameter+readParameters
 		// these parameters will be applied.
@@ -76,6 +76,16 @@ public class CurrentAthletePage extends AbstractResultsDisplayPage {
 		fullMap.putAll(initialMap);
 		fullMap.putAll(additionalMap);
 		setDefaultParameters(QueryParameters.simple(fullMap));
+	}
+	
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		DisplayParameters board = (DisplayParameters) this.getBoard();
+		board.setFop(this.getFop());
+		board.setLeadersDisplay(true);
+		board.setRecordsDisplay(true);
+
+		this.addComponentAsFirst((Component) board);
 	}
 
 }

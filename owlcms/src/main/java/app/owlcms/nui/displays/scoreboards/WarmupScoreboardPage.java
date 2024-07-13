@@ -7,6 +7,8 @@ import java.util.TreeMap;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
@@ -28,7 +30,7 @@ public class WarmupScoreboardPage extends AbstractResultsDisplayPage {
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	public WarmupScoreboardPage() {
-		// intentionally empty. superclass will call init() as required.
+		// intentionally empty.  init() will be called as required.
 	}
 
 	@Override
@@ -38,11 +40,13 @@ public class WarmupScoreboardPage extends AbstractResultsDisplayPage {
 
 	@Override
 	protected void init() {
-		// each superclass must this routine.
+		logger = (Logger) LoggerFactory.getLogger(WarmupScoreboardPage.class);
+		uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
+		
+		// each subclass must define this routine.
 		// otherwise we end up with multiple instances of the Results board.
 		var board = new Results();
 		this.setBoard(board);
-		this.addComponent(board);
 
 		// when navigating to the page, Vaadin will call setParameter+readParameters
 		// these parameters will be applied.
@@ -67,6 +71,16 @@ public class WarmupScoreboardPage extends AbstractResultsDisplayPage {
 		fullMap.putAll(initialMap);
 		fullMap.putAll(additionalMap);
 		setDefaultParameters(QueryParameters.simple(fullMap));
+	}
+	
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		DisplayParameters board = (DisplayParameters) this.getBoard();
+		board.setFop(this.getFop());
+		board.setLeadersDisplay(true);
+		board.setRecordsDisplay(true);
+
+		this.addComponent((Component) board);
 	}
 
 }
