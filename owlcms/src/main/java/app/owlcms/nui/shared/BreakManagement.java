@@ -115,6 +115,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 	private VerticalLayout countdownTypeLayout;
 	private BreakType requestedBreak;
 	private CountdownType requestedCountdownType;
+	private boolean lazyCreated;
 
 	/**
 	 * Set the break according to the requester (announcer/marshall typically)
@@ -287,24 +288,17 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		            	HorizontalLayout bc = new HorizontalLayout(cb, cc);
 		            	bc.setSizeFull();
 		            	bc.setJustifyContentMode(JustifyContentMode.EVENLY);
+		            	if (!this.lazyCreated) {
+		            		selected();
+		            		this.lazyCreated = true;
+		            	}
 		            	return bc;
 		            }));
 		
 		ts.addSelectedChangeListener((e) -> {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("selectedTab {} requestedBreak={}", e.getSelectedTab().getLabel(),
-				        this.requestedBreak);
-			}
-			if (this.requestedBreak != null) {
-				setBreakValue(this.requestedBreak);
-				computeDefaultTimeValues();
-				// if we entered as an interruption, the switch to a break would be for a duration
-				// (e.g. broken platform, fixed, give athletes a warm-up duration before resuming).
-				setCountdownTypeValue(
-					this.requestedBreak.isInterruption() ? CountdownType.DURATION : this.requestedCountdownType);
-				setEnablement();
-			} else {
-				syncWithFop();
+			// don't run until after the lazy tab has been created.
+			if (this.lazyCreated) {
+				selected();
 			}
 		});
 		this.setSizeFull();
@@ -322,6 +316,20 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		}
 
 		dialogLayout.add(ts);
+	}
+
+	private void selected() {
+		if (this.requestedBreak != null) {
+			setBreakValue(this.requestedBreak);
+			computeDefaultTimeValues();
+			// if we entered as an interruption, the switch to a break would be for a duration
+			// (e.g. broken platform, fixed, give athletes a warm-up duration before resuming).
+			setCountdownTypeValue(
+				this.requestedBreak.isInterruption() ? CountdownType.DURATION : this.requestedCountdownType);
+			setEnablement();
+		} else {
+			syncWithFop();
+		}
 	}
 
 	private void computeDefaultTimeValues() {
@@ -790,6 +798,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 			this.logger.debug("BreakManagement FOP");
 		}
 		this.fop = OwlcmsSession.getFop();
+		this.setFop(fop);
 
 		CountdownType countdownType2 = this.fop.getCountdownType();
 		BreakType breakType2 = this.fop.getBreakType();
@@ -1264,7 +1273,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 	 */
 	private void syncWithFop() {
 		final boolean[] running = new boolean[1]; // wrapper to allow value to be set from lambda
-		OwlcmsSession.withFop(fop -> {
+		{   fop = getFop();
 			FOPState fopState = fop.getState();
 			IBreakTimer fopBreakTimer = fop.getBreakTimer();
 			int fopLiveTimeRemaining = fopBreakTimer.liveTimeRemaining();
@@ -1315,7 +1324,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 					break;
 			}
 
-		});
+		}
 	}
 
 }

@@ -441,7 +441,7 @@ public abstract class AthleteGridContent extends BaseContent
 		if (event instanceof UIEvent.BreakStarted) {
 			UIEvent.BreakStarted e = (UIEvent.BreakStarted) event;
 			if (this.breakButton != null) {
-				this.breakButton.setText(Translator.translate("BreakType." + e.getBreakType()) + "\u00a0\u00a0");
+				this.getUI().get().access(() -> this.breakButton.setText(Translator.translate("BreakType." + e.getBreakType()) + "\u00a0\u00a0"));
 			}
 		}
 
@@ -453,7 +453,7 @@ public abstract class AthleteGridContent extends BaseContent
 	@Override
 	public void doCeremony(UIEvent.CeremonyStarted e) {
 		if (this.breakButton != null) {
-			this.breakButton.setText(Translator.translate("CeremonyType." + e.getCeremonyType()) + "\u00a0\u00a0");
+			this.getUI().get().access(() -> this.breakButton.setText(Translator.translate("CeremonyType." + e.getCeremonyType()) + "\u00a0\u00a0"));
 		}
 	}
 
@@ -828,7 +828,7 @@ public abstract class AthleteGridContent extends BaseContent
 	public void slaveUpdateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
 		Athlete athlete = e.getAthlete();
 		var fop = e.getFop();
-		//logger.debug("athletegrid slaveUpdateAnnouncerBar {}", fop.getName());
+		// logger.debug("athletegrid slaveUpdateAnnouncerBar {}", fop.getName());
 		UIEventProcessor.uiAccess(this.topBar, this.uiEventBus, e, () -> {
 			warnOthersIfCurrent(e, athlete, fop);
 			doUpdateTopBar(athlete, e.getTimeAllowed());
@@ -1464,10 +1464,10 @@ public abstract class AthleteGridContent extends BaseContent
 		// logger.debug("attaching {} initial={} \\n{}",
 		// this.getClass().getSimpleName(), attachEvent.isInitialAttach(),
 		// LoggerUtils. stackTrace());
-			// create the top bar.
-			syncWithFop(true, getFop());
-			// we listen on uiEventBus.
-			this.uiEventBus = uiEventBusRegister(this, getFop());
+		// create the top bar.
+		syncWithFop(true, getFop());
+		// we listen on uiEventBus.
+		this.uiEventBus = uiEventBusRegister(this, getFop());
 	}
 
 	protected void setGroupFilter(ComboBox<Group> groupFilter) {
