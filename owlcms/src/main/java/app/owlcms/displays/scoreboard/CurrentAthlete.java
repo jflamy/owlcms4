@@ -241,7 +241,7 @@ public class CurrentAthlete extends Results {
 	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
 		// uiLog(e);
-		FieldOfPlay fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = e.getFop();
 		FOPState state = fop.getState();
 		if (state == FOPState.DOWN_SIGNAL_VISIBLE || state == FOPState.DECISION_VISIBLE) {
 			return;
@@ -325,7 +325,7 @@ public class CurrentAthlete extends Results {
 			}
 		}
 
-		FieldOfPlay fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = e.getFop();
 		if (!leaveTopAlone) {
 			if (a != null) {
 				Group group = fop.getGroup();

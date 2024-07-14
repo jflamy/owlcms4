@@ -19,7 +19,7 @@ public class BaseContent extends VerticalLayout implements FOPParametersReader, 
 
 	final static Logger logger = (Logger) LoggerFactory.getLogger(BaseContent.class);
 	
-	private FieldOfPlay fop;
+	protected FieldOfPlay fop;
 	private Group group;
 	private Location location;
 	private UI locationUI;

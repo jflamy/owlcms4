@@ -264,7 +264,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 
 	@Subscribe
 	public void slaveVideoRefresh(UIEvent.VideoRefresh e) {
-		var fop = OwlcmsSession.getFop();
+		var fop = e.getFop();
 		this.setGroup(fop.getVideoGroup());
 		this.setCategory(fop.getVideoCategory());
 		// logger.info("videoRefresh {} {}", getGroup() != null ? getGroup().getName() :
@@ -291,7 +291,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		// }
 		// }
 
-		FieldOfPlay fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = e.getFop();
 		// if (!leaveTopAlone) {
 		// this.getElement().callJsFunction("reset");
 		// }
@@ -522,7 +522,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 				} else {
 					// we listen on uiEventBus.
 					this.uiEventBus = uiEventBusRegister(this, fop);
-					this.medals = Competition.getCurrent().getMedals(OwlcmsSession.getFop().getGroup(), true);
+					this.medals = Competition.getCurrent().getMedals(fop.getGroup(), true);
 				}
 				this.getElement().setProperty("fillerDisplay", "");
 			} else {
@@ -555,7 +555,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 						this.medals = Competition.getCurrent().getMedals(this.getGroup(), false);
 					} else {
 						OwlcmsSession.getCurrent();
-						this.medals = Competition.getCurrent().getMedals(OwlcmsSession.getFop().getGroup(), false);
+						this.medals = Competition.getCurrent().getMedals(e.getFop().getGroup(), false);
 					}
 				} else {
 					TreeSet<Athlete> catMedals = Competition.getCurrent().computeMedalsForCategory(this.getCategory());

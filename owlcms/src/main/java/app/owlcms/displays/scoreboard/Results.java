@@ -490,7 +490,7 @@ public class Results extends LitTemplate
 			this.getElement().setProperty("decisionVisible", true);
 			Athlete a = e.getAthlete();
 			// -1 because if decision in on snatch 3 we don't want to show CJ
-			updateDisplay(computeLiftType(a.getAttemptsDone() - 1), OwlcmsSession.getFop());
+			updateDisplay(computeLiftType(a.getAttemptsDone() - 1), e.getFop());
 		});
 	}
 
@@ -501,7 +501,7 @@ public class Results extends LitTemplate
 			setDisplay();
 			this.getElement().setProperty("decisionVisible", false);
 			Athlete a = e.getAthlete();
-			updateDisplay(computeLiftType(a.getAttemptsDone() - 1), OwlcmsSession.getFop());
+			updateDisplay(computeLiftType(a.getAttemptsDone() - 1), e.getFop());
 		});
 	}
 
@@ -539,7 +539,7 @@ public class Results extends LitTemplate
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			Athlete a = e.getAthlete();
-			this.displayOrder = getOrder(OwlcmsSession.getFop());
+			this.displayOrder = getOrder(e.getFop());
 			this.liftsDone = AthleteSorter.countLiftsDone(this.displayOrder);
 			doUpdate(a, e);
 		});
@@ -697,7 +697,7 @@ public class Results extends LitTemplate
 			}
 		}
 
-		FieldOfPlay fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = e.getFop();
 		if (!leaveTopAlone) {
 			if (a != null) {
 				Group group = fop.getGroup();
@@ -1049,7 +1049,7 @@ public class Results extends LitTemplate
 		this.getElement().setPropertyJson("athletes",
 		        getAthletesJson(this.displayOrder, fop.getLiftingOrder(), fop));
 
-		List<Athlete> order = getOrder(OwlcmsSession.getFop());
+		List<Athlete> order = getOrder(fop);
 		int resultLines = (order != null ? order.size() : 0) + countSubsets(order);
 		boolean done = fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE;
 
@@ -1202,7 +1202,7 @@ public class Results extends LitTemplate
 	}
 
 	private void syncWithFOP(UIEvent.SwitchGroup e) {
-		switch (OwlcmsSession.getFop().getState()) {
+		switch (e.getFop().getState()) {
 			case INACTIVE:
 				doEmpty();
 				break;

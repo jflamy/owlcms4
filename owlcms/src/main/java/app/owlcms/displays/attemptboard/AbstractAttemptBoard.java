@@ -343,14 +343,14 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	@Subscribe
 	public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			syncWithFOP(OwlcmsSession.getFop());
+			syncWithFOP(e.getFop());
 		});
 	}
 
 	@Subscribe
 	public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			syncWithFOP(OwlcmsSession.getFop());
+			syncWithFOP(e.getFop());
 		});
 	}
 
@@ -359,7 +359,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			spotlightRecords(OwlcmsSession.getFop(), e.getAthlete());
+			spotlightRecords(e.getFop(), e.getAthlete());
 		});
 	}
 
@@ -452,7 +452,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			} else if (state == FOPState.BREAK) {
 				if (e.isDisplayToggle()) {
 					Athlete a = e.getAthlete();
-					doAthleteUpdate(a);
+					doAthleteUpdate(a, e.getFop());
 				} else {
 					doBreak(e);
 				}
@@ -460,7 +460,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			} else if (!e.isCurrentDisplayAffected()) {
 			} else {
 				Athlete a = e.getAthlete();
-				doAthleteUpdate(a);
+				doAthleteUpdate(a, e.getFop());
 			}
 		}));
 	}
@@ -497,10 +497,10 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	public void slaveStartLifting(UIEvent.StartLifting e) {
 		// logger.debug("start lifting");
 		if (e.getGroup() == null) {
-			doEmpty();
+			doEmpty(e.getFop());
 			return;
 		}
-		doNotEmpty();
+		doNotEmpty(e.getFop());
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
@@ -527,7 +527,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		// }
 		// });
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			syncWithFOP(OwlcmsSession.getFop());
+			syncWithFOP(e.getFop());
 		});
 	}
 
@@ -549,8 +549,8 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 						}
 						break;
 					default:
-						doNotEmpty();
-						doAthleteUpdate(fop.getCurAthlete());
+						doNotEmpty(e.getFop());
+						doAthleteUpdate(fop.getCurAthlete(), e.getFop());
 				}
 			});
 			// uiEventLogger./**/warn("#### reloading {}", this.getElement().getClass());
@@ -563,20 +563,19 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		setAthletePictures(URLUtils.checkPictures());
 	}
 
-	protected void doAthleteUpdate(Athlete a) {
-		FieldOfPlay fop = OwlcmsSession.getFop();
+	protected void doAthleteUpdate(Athlete a, FieldOfPlay fop) {
 		FOPState state = fop.getState();
 		if (fop.getState() == FOPState.INACTIVE
 		        || (state == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE)) {
-			doEmpty();
+			doEmpty(fop);
 			return;
 		}
 
 		if (a == null) {
-			doEmpty();
+			doEmpty(fop);
 			return;
 		} else if (a.getAttemptsDone() >= 6) {
-			doNotEmpty();
+			doNotEmpty(fop);
 			setDone(true);
 			return;
 		}
@@ -674,9 +673,8 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		uiEventLogger.debug("$$$ attemptBoard doBreak(fop)");
 	}
 
-	protected void doEmpty() {
+	protected void doEmpty(FieldOfPlay fop2) {
 		// logger.debug("****doEmpty");
-		FieldOfPlay fop2 = OwlcmsSession.getFop();
 		if (fop2.getGroup() == null) {
 			setDisplayedWeight("");
 		}
@@ -686,10 +684,9 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		});
 	}
 
-	protected void doNotEmpty() {
+	protected void doNotEmpty(FieldOfPlay fop2) {
 		// logger.debug("****doNotEmpty {}",LoggerUtils.stackTrace());
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			FieldOfPlay fop2 = OwlcmsSession.getFop();
 			setBoardMode(fop2.getState(), fop2.getBreakType(), fop2.getCeremonyType(), this.getElement());
 		});
 	}
@@ -746,9 +743,9 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	protected void syncWithFOP(FieldOfPlay fop) {
 		// sync with current status of FOP
 		if (fop.getState() == FOPState.INACTIVE && fop.getCeremonyType() == null) {
-			doEmpty();
+			doEmpty(fop);
 		} else {
-			doNotEmpty();
+			doNotEmpty(fop);
 			Athlete curAthlete = fop.getCurAthlete();
 			if (fop.getState() == FOPState.BREAK || fop.getState() == FOPState.INACTIVE) {
 				// logger.debug("syncwithfop {} {}",fop.getBreakType(), fop.getCeremonyType());
@@ -762,8 +759,8 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			} else {
 				// by the time we get called, possible that connection has been closed.
 				Athlete nAthlete = AthleteRepository.findById(curAthlete.getId());
-				doAthleteUpdate(nAthlete);
-				this.athleteTimer.syncWithFop();
+				doAthleteUpdate(nAthlete, fop);
+				this.athleteTimer.syncWithFop(fop);
 			}
 		}
 	}
@@ -828,8 +825,6 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		n.add(label);
 
 		OwlcmsSession.withFop(fop -> {
-			// this.getElement().callJsFunction("reset");
-			// syncWithFOP(OwlcmsSession.getFop());
 			n.open();
 			return;
 		});
