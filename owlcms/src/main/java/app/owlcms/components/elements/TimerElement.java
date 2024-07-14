@@ -114,7 +114,7 @@ public abstract class TimerElement extends LitTemplate
 		this.silenced = b;
 	}
 
-	public abstract void syncWithFopTimer();
+	public abstract void syncWithFopTimer(FieldOfPlay fop);
 
 	final protected long delta(long lastMillis) {
 		if (lastMillis == 0) {

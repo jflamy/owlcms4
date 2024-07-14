@@ -308,11 +308,12 @@ public abstract class AthleteGridContent extends BaseContent
 		this.breakButton.getStyle().set("color", "white");
 		this.breakButton.getStyle().set("background-color", "var(--lumo-error-color)");
 		// breakButton.setText(Translator.translate("BreakButton.Paused"));
-		OwlcmsSession.withFop(fop -> {
+		fop = this.getFop();
+		//OwlcmsSession.withFop(fop -> {
 			IBreakTimer breakTimer = fop.getBreakTimer();
 			if (!breakTimer.isIndefinite()) {
 				BreakTimerElement bte = (BreakTimerElement) getBreakTimerElement();
-				bte.syncWithFopTimer();
+				bte.syncWithFopTimer(fop);
 				bte.setParent(this.getClass().getSimpleName() + "_" + this.id);
 				this.breakButton.setIcon(bte);
 				this.breakButton.setIconAfterText(true);
@@ -329,7 +330,7 @@ public abstract class AthleteGridContent extends BaseContent
 					this.breakButton.setText(Translator.translate("BreakButton.Paused") + "\u00a0\u00a0");
 				}
 			}
-		});
+		//});
 
 	}
 
