@@ -104,7 +104,7 @@
                                     <groupId>app.owlcms</groupId>
                                     <artifactId>owlcms</artifactId>
                                     <outputDirectory>${project.build.directory}/owlcms-win32/local</outputDirectory>
-                                    <includes>i18n**/**,templates**/**,config**/**,css**/**,agegroups**/**,sinclair**/**,sounds**/**,records/**,flags/**,pictures/**,logos/**</includes>
+                                    <includes>i18n**/**,templates**/**,config**/**,css**/**,agegroups**/**,sinclair**/**,sounds**/**,records/**,flags/**,pictures/**,logos/**,robi/**</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

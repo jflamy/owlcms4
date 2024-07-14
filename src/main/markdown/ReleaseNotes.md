@@ -7,7 +7,9 @@
 
 - (rc02) Fix: current athlete display did not update or would fail to start.
 
-- (rc02) Fix: time to snatch timer would not work after the introductions
+- (rc02) Fix: After introductions, could not go back to break management dialog to start the Time to snatch timer
+
+- (rc02) The local/robi directory was not being populated by the Windows installer (contains the records used for computing Robi coefficients)
 
 - (rc02) Technical: continuing cleanup of code used to determine the current field of play
 
