@@ -1813,7 +1813,7 @@ public class Competition {
 	}
 
 	public String getResultsTemplateFileName() {
-		return resultsTemplateFileName;
+		return this.resultsTemplateFileName;
 	}
 
 	public void setResultsTemplateFileName(String resultsTemplateFileName) {
