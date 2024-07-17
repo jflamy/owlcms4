@@ -165,7 +165,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		@SuppressWarnings("unchecked")
 		List<Athlete> ranked = (List<Athlete>) beans.get(key);
 		boolean allCategories = Boolean.TRUE.equals(this.includeUnfinishedCategories.getValue());
-		
+
 		// unfinished categories need to be computed using all relevant athletes, including not weighed-in yet
 		@SuppressWarnings("unchecked")
 		List<Athlete> allRelevant = (List<Athlete>) beans.get("allPAthletes");
@@ -594,8 +594,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        return rs;
 		        },
 		        "/templates/competitionResults",
-		        Competition::getComputedProtocolTemplateFileName,
-		        Competition::setProtocolTemplateFileName,
+		        Competition::getComputedResultsTemplateFileName,
+		        Competition::setResultsTemplateFileName,
 		        Translator.translate("RegistrationCategoryResults"),
 		        Translator.translate("Download"));
 		this.downloadDialog.setProcessingMessage(Translator.translate("LongProcessing"));
