@@ -845,8 +845,17 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			        fLastName = fLastName.toLowerCase();
 			        return aLastName.startsWith(fLastName);
 		        })
-		        .filter(a -> getWeighedIn() == null
-		                || (getWeighedIn() && (a.getBodyWeight() != null && a.getBodyWeight() > 0)))
+		        .filter(a -> {
+					if (getWeighedIn() == null) {
+						return true;
+					}
+
+					if (getWeighedIn()) {
+						return a.getBodyWeight() != null && a.getBodyWeight() > 0;
+					}
+
+					return a.getBodyWeight() == null || a.getBodyWeight() == 0;
+				})
 		        // .filter(a -> a.getCategory() != null)
 		        .filter(a -> {
 			        Gender genderFilterValue = getGender();
