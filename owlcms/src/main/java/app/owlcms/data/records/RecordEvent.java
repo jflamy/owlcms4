@@ -13,8 +13,6 @@ import java.util.Objects;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Table;
@@ -34,6 +32,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Translator;
+import app.owlcms.utils.IdUtils;
 import ch.qos.logback.classic.Logger;
 
 @Entity
@@ -44,6 +43,10 @@ import ch.qos.logback.classic.Logger;
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
 @JsonInclude(Include.NON_NULL)
 public class RecordEvent {
+	
+	RecordEvent() {
+		setId(IdUtils.getTimeBasedId());
+	}
 
 	public class MissingAgeGroup extends Exception {
 	}
@@ -90,7 +93,7 @@ public class RecordEvent {
 	private Double athleteBW;
 	private Integer athleteAge;
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	//@GeneratedValue(strategy = GenerationType.AUTO)
 	Long id;
 	Double recordValue;
 	private String ageGrp;
@@ -118,30 +121,47 @@ public class RecordEvent {
 	@JsonIgnore
 	private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+	// @Override
+	// public boolean equals(Object obj) {
+	// if (this == obj) {
+	// return true;
+	// }
+	// if ((obj == null) || (getClass() != obj.getClass())) {
+	// return false;
+	// }
+	// RecordEvent other = (RecordEvent) obj;
+	// return Objects.equals(this.ageGrp, other.ageGrp) && this.ageGrpLower == other.ageGrpLower
+	// && this.ageGrpUpper == other.ageGrpUpper && Objects.equals(this.athleteName, other.athleteName)
+	// && Objects.equals(this.birthDate, other.birthDate) && Objects.equals(this.birthYear, other.birthYear)
+	// && this.bwCatLower == other.bwCatLower && Objects.equals(this.bwCatString, other.bwCatString)
+	// && Objects.equals(this.bwCatUpper, other.bwCatUpper)
+	// && Objects.equals(this.categoryString, other.categoryString)
+	// && Objects.equals(this.event, other.event) && Objects.equals(this.eventLocation, other.eventLocation)
+	// && this.gender == other.gender && Objects.equals(this.groupNameString, other.groupNameString)
+	// && Objects.equals(this.id, other.id) && Objects.equals(this.nation, other.nation)
+	// && Objects.equals(this.recordDate, other.recordDate)
+	// && Objects.equals(this.recordFederation, other.recordFederation) && this.recordLift == other.recordLift
+	// && Objects.equals(this.recordName, other.recordName)
+	// && Objects.equals(this.recordValue, other.recordValue)
+	// && Objects.equals(this.fileName, other.fileName)
+	// && this.recordYear == other.recordYear;
+	// }
+
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object o) {
+		if (this == o)
 			return true;
-		}
-		if ((obj == null) || (getClass() != obj.getClass())) {
+
+		if (!(o instanceof RecordEvent))
 			return false;
-		}
-		RecordEvent other = (RecordEvent) obj;
-		return Objects.equals(this.ageGrp, other.ageGrp) && this.ageGrpLower == other.ageGrpLower
-		        && this.ageGrpUpper == other.ageGrpUpper && Objects.equals(this.athleteName, other.athleteName)
-		        && Objects.equals(this.birthDate, other.birthDate) && Objects.equals(this.birthYear, other.birthYear)
-		        && this.bwCatLower == other.bwCatLower && Objects.equals(this.bwCatString, other.bwCatString)
-		        && Objects.equals(this.bwCatUpper, other.bwCatUpper)
-		        && Objects.equals(this.categoryString, other.categoryString)
-		        && Objects.equals(this.event, other.event) && Objects.equals(this.eventLocation, other.eventLocation)
-		        && this.gender == other.gender && Objects.equals(this.groupNameString, other.groupNameString)
-		        && Objects.equals(this.id, other.id) && Objects.equals(this.nation, other.nation)
-		        && Objects.equals(this.recordDate, other.recordDate)
-		        && Objects.equals(this.recordFederation, other.recordFederation) && this.recordLift == other.recordLift
-		        && Objects.equals(this.recordName, other.recordName)
-		        && Objects.equals(this.recordValue, other.recordValue)
-		        && Objects.equals(this.fileName, other.fileName)
-		        && this.recordYear == other.recordYear;
+
+		RecordEvent other = (RecordEvent) o;
+		return id != null && id.equals(other.getId());
+	}
+
+	@Override
+	public int hashCode() {
+		return getClass().hashCode();
 	}
 
 	public void fillDefaults() throws MissingAgeGroup, MissingGender, UnknownIWFBodyWeightCategory {
@@ -263,7 +283,7 @@ public class RecordEvent {
 
 	public String getKey() {
 		return // getRecordFederation() + "_" +
-		getRecordName() + "_" + getRecordLift() + "_" + getBwCatLower() + "_" + getBwCatUpper() + "_"
+		getRecordName() + "_" + getGender() + "_" + getRecordLift() + "_" + getBwCatLower() + "_" + getBwCatUpper() + "_"
 		        + getAgeGrpLower() + "_" + getAgeGrpUpper();
 	}
 
@@ -323,15 +343,15 @@ public class RecordEvent {
 		}
 	}
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(this.ageGrp, this.ageGrpLower, this.ageGrpUpper, this.athleteName, this.birthDate,
-		        this.birthYear, this.bwCatLower,
-		        this.bwCatString, this.bwCatUpper, this.categoryString, this.event, this.eventLocation, this.gender,
-		        this.groupNameString, this.id, this.nation,
-		        this.recordDate, this.recordFederation, this.recordLift, this.recordName, this.recordValue,
-		        this.fileName, this.recordYear);
-	}
+	// @Override
+	// public int hashCode() {
+	// return Objects.hash(this.ageGrp, this.ageGrpLower, this.ageGrpUpper, this.athleteName, this.birthDate,
+	// this.birthYear, this.bwCatLower,
+	// this.bwCatString, this.bwCatUpper, this.categoryString, this.event, this.eventLocation, this.gender,
+	// this.groupNameString, this.id, this.nation,
+	// this.recordDate, this.recordFederation, this.recordLift, this.recordName, this.recordValue,
+	// this.fileName, this.recordYear);
+	// }
 
 	/**
 	 * The two records are equivalent (ignores Id in database)
@@ -347,7 +367,7 @@ public class RecordEvent {
 			return false;
 		}
 		RecordEvent other = (RecordEvent) obj;
-		return Objects.equals(this.ageGrp, other.ageGrp) && this.ageGrpLower == other.ageGrpLower
+		return Objects.equals(this.gender, other.gender) && this.ageGrpLower == other.ageGrpLower
 		        && this.ageGrpUpper == other.ageGrpUpper && Objects.equals(this.athleteName, other.athleteName)
 		        && Objects.equals(this.birthDate, other.birthDate) && Objects.equals(this.birthYear, other.birthYear)
 		        && this.bwCatLower == other.bwCatLower && Objects.equals(this.bwCatString, other.bwCatString)
