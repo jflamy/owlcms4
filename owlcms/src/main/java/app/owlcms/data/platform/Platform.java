@@ -492,7 +492,7 @@ public class Platform implements Serializable, Comparable<Platform> {
 	}
 
 	public Boolean isNonStandardBarAvailable() {
-		return this.nonStandardBarAvailable;
+		return this.nonStandardBarAvailable != null ? this.nonStandardBar : false;
 	}
 
 	/**
