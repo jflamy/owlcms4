@@ -341,14 +341,20 @@ public class AthleteRepository {
 
 	private static List<Athlete> doFindAthletesForGlobalRanking(Group g, EntityManager em, boolean onlyWeighedIn) {
 		String onlyCategoriesFromCurrentGroup = "";
+		
+		// only consider weighed-in athletes from the current session.
+		// once we have the categories from that query, we will find other athetes in other sessions, and 
+		// we will use the onlyWeighedIn flag on that second result.
 		if (g != null) {
 			String categoriesFromCurrentGroup = "select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 where g.id = :groupId";
 			onlyCategoriesFromCurrentGroup = " join p.category c where exists (" + categoriesFromCurrentGroup
-			        + " and c2.code = c.code)";
-			// TypedQuery<Category> q2 = em.createQuery(categoriesFromCurrentGroup, Category.class);
-			// q2.setParameter("groupId", g.getId());
-			// List<Category> q2Results = q2.getResultList();
-			// logger.debug("categories for currentGroup {}",q2Results);
+			        + " and c2.code = c.code and b.bodyWeight > 0.01)";
+
+			 // following 4 lines are a trace, disable when confirmed.
+			 TypedQuery<Category> q2 = em.createQuery(categoriesFromCurrentGroup, Category.class);
+			 q2.setParameter("groupId", g.getId());
+			 List<Category> q2Results = q2.getResultList();
+			 logger.warn("categories for currentGroup {}",q2Results);
 		}
 		Query q = em.createQuery(
 		        "select distinct a, p from Athlete a join fetch a.participations p"
