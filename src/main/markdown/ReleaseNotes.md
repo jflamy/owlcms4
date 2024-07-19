@@ -7,6 +7,8 @@
 
 - (rc03) The medal sheet and the medal display screens now correctly include all the categories where medals can be awarded. Previously, if an athlete had not weighed in, or had been unassigned to a session a category could be considered to still be in progress.
 
+- (rc03) Fix for categoryDone column needlessly included in the persisted database, causing issues with json export and other features (#1054)
+
 - (rc03) Records are now imported correctly from a database export.  Previously some could be missing, requiring a second import.
 
 - (rc03) The "non-standard bar is in use" indicator is now read correctly from the database.  In prior 50.x releases this was not initialized properly and could prevent marshal changes from working.
