@@ -279,14 +279,14 @@ public class Athlete {
 	@JsonIgnore
 	public FieldOfPlay fop;
 	@Transient
+	@JsonIgnore
 	protected final Logger timingLogger = (Logger) LoggerFactory.getLogger("TimingLogger");
 	@Transient
+	@JsonIgnore
 	DecimalFormat df = null;
 
-	/*
-	 * Non-persistent properties. These properties will be lost as soon as the athlete is saved.
-	 */
 	@Transient
+	@JsonIgnore
 	Integer liftOrderRank = 0;
 	private Double bodyWeight = null;
 
@@ -300,7 +300,11 @@ public class Athlete {
 	@JsonProperty(index = 300)
 	@JsonIdentityReference(alwaysAsId = true)
 	private Category category = null;
+	
+	@Transient
+	@JsonIgnore
 	private boolean categoryDone;
+	
 	@Column(columnDefinition = "integer default 0")
 	private int catSinclairRank;
 	private String cleanJerk1ActualLift;
@@ -322,6 +326,7 @@ public class Athlete {
 	@Column(columnDefinition = "integer default 0")
 	private int combinedRank;
 	@Transient
+	@JsonIgnore
 	private Long copyId = null;
 	private String custom1;
 	private String custom2;
@@ -347,6 +352,7 @@ public class Athlete {
 	private Integer lotNumber = null;
 	private String membership = "";
 	@Transient
+	@JsonIgnore
 	private final Level NORMAL_LEVEL = Level.INFO;
 	@OneToMany(mappedBy = "athlete", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	@JsonProperty(index = 200)

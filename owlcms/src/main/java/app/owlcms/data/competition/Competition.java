@@ -302,7 +302,6 @@ public class Competition {
 	public TreeMap<String, TreeSet<Athlete>> computeMedals(Group g, List<Athlete> rankedAthletes
 	// , boolean onlyFinished
 	) {
-		// FIXME: should be able to compute medals for all sessions by iterating
 		if (g == null) {
 			return new TreeMap<>();
 		}
