@@ -5,6 +5,12 @@
 > - This is a release candidate [(see definition)](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate), used for final public testing and translation. *It is still a preliminary release*
 > - You should test all releases, with actual data, *several days* before a competition. This is especially important when considering the use of a release candidate.
 
+- (rc03) The medal sheet and the medal display screens now correctly include all the categories where medals can be awarded. Previously, if an athlete had not weighed in, or had been unassigned to a session a category could be considered to still be in progress.
+
+- (rc03) Records are now imported correctly from a database export.  Previously some could be missing, requiring a second import.
+
+- (rc03) The "non-standard bar is in use" indicator is now read correctly from the database.  In prior 50.x releases this was not initialized properly and could prevent marshal changes from working.
+
 - (rc02) Fix: current athlete display did not update or would fail to start.
 
 - (rc02) Fix: After introductions, could not go back to break management dialog to start the Time to snatch timer
