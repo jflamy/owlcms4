@@ -5519,5 +5519,23 @@ public class Athlete {
 		        || this.getCleanJerk3AsInteger() == null;
 		return !notFinishedLifting;
 	}
+	
+	@Transient
+	@JsonIgnore
+	public boolean isDone(Group medalingSession) {
+		// At the end of session "medalingSession", If a category still has athletes that are not done, medals cannot be given out for that category
+		Group athleteGroup = getGroup();
+		if (athleteGroup == null) {
+			// athletes that are registered in the medaling categories but were withdrawn (have no session) are considered done
+			return true;
+		}
+		if (medalingSession != null && athleteGroup.equals(medalingSession) && (getBodyWeight() == null || getBodyWeight() < 0.01)) {
+			// athletes in the current group that have not weighed in are considered done.
+			return true;
+		}
+		boolean notFinishedLifting = this.getCleanJerk3ActualLift() == null || this.getCleanJerk3ActualLift().isBlank()
+		        || this.getCleanJerk3AsInteger() == null;
+		return !notFinishedLifting;
+	}
 
 }

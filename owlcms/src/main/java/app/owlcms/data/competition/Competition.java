@@ -848,10 +848,10 @@ public class Competition {
 				        if (athletes.isEmpty()) {
 					        return true; // remove from list.
 				        }
-				        //logger.debug("athletes {} {}",k, athletes);
+				        logger.warn("athletes {} {}",k, athletes);
 				        // category includes an athlete that has not finished, mark it as "to be
 				        // removed"
-				        boolean anyMatch = athletes.stream().anyMatch(a -> !a.isDone());
+				        boolean anyMatch = athletes.stream().anyMatch(a -> !a.isDone(g));
 				        logger.debug("category {} has finished {}", k, !anyMatch);
 				        // return those that have not finished
 				        return anyMatch;
