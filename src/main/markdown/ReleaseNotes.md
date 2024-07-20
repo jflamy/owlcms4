@@ -9,15 +9,13 @@
 
 - (rc03) The medal sheet and the medal display screens now correctly include all the categories where medals can be awarded. Previously, if an athlete had not weighed in, or had been unassigned to a session a category could be considered to still be in progress.
 
-<<<<<<< HEAD
 - (rc03) Fix for "categoryDone" column needlessly included in the persisted database, causing issues with json export and other features (#1054)
-=======
-- (rc03) Fix for categoryDone column needlessly included in the persisted database, causing issues with json export and other features (#1054)
->>>>>>> branch 'dev50' of https://github.com/jflamy/owlcms4.git
 
 - (rc03) Records are now imported correctly from a database export.  Previously some could be missing, requiring a second import.
 
 - (rc03) The "non-standard bar is in use" indicator is now read correctly from the database.  In prior 50.x releases this was not initialized properly and could prevent marshal changes from working.
+
+- (rc03) USAW BARS results upload was missing one cell : when results for all sessions are produced, the standard templates clear the session name cell.  This is not required for the BARs template
 
 - (rc02) Fix: current athlete display did not update or would fail to start.
 
@@ -62,4 +60,3 @@
 
 - USAW note: the list of feature toggles to use for National championships is
   `USAW,athleteCardEntryTotal,explicitTeams,noLiveLights,centerAnnouncerNotifications,childrenEquipment`
-
