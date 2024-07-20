@@ -43,46 +43,44 @@ public class SessionCleanup {
             Map<UnloadObserverPR, Long> im = (Map<UnloadObserverPR, Long>) vaadinSession.getAttribute("inactivityMap");
             int stillAlive = 0;
             if (im != null) {
-                if (im.entrySet().isEmpty()) {
-//                    // the previous iteration cleaned the map and navigated out of the pages.
-//                    // because of asynchronicity, we wait to the following iteration before closing
-//                    // sessions.
-//                    logger.debug("invalidating session {}", System.identityHashCode(vaadinSession));
-//                    vaadinSession.getSession().invalidate();
-//                    vaadinSession.close();
-//                    stop();
-                } else {
-                    long now = System.currentTimeMillis();
-                    logger.debug("checking session {}", System.identityHashCode(vaadinSession));
-                    for (Entry<UnloadObserverPR, Long> uiEntry : im.entrySet()) {
-                        if (uiEntry.getValue() == 0) {
-                            // 0 means GONE.
-                            logger.debug("   {} tab {} gone", uiEntry.getKey().getTitle(), System.identityHashCode(uiEntry.getKey()));
-                        } else {
-                            // positive means visible, negative means hidden (don't kill)
-                            long timeElapsed = now - Math.abs(uiEntry.getValue());
+                long now = System.currentTimeMillis();
+                logger.debug("checking session {}", System.identityHashCode(vaadinSession));
 
-                            // Define OWLCMS_INACTIVITY_SEC for testing
-                            var inactivity = StartupUtils.getIntegerParam("inactivity_sec", INACTIVITY_SECONDS) * 1000;
-                            boolean alive = timeElapsed < inactivity;
-                            Component component = uiEntry.getKey().getComponent();
-                            logger.debug("   {} observer {} {} {} timeElapsed={} alive={}",
-                                    uiEntry.getKey().getTitle(),
-                                    System.identityHashCode(uiEntry.getKey()),
-                                    component.getClass().getSimpleName(),
-                                    System.identityHashCode(component),
-                                    timeElapsed, alive);
-                            if (alive) {
-                                stillAlive++;
-                            }
+                Iterator<Entry<UnloadObserverPR, Long>> entryIterator = im.entrySet().iterator();
+                while (entryIterator.hasNext()) {
+                    var uiEntry = entryIterator.next();
+                    if (uiEntry.getValue() == 0) {
+                        // 0 means GONE.
+                        logger.debug("   {} tab {} gone", uiEntry.getKey().getTitle(),
+                                System.identityHashCode(uiEntry.getKey()));
+                        entryIterator.remove();
+                    } else {
+                        // positive means visible, negative means hidden (don't kill)
+                        long timeElapsed = now - Math.abs(uiEntry.getValue());
+
+                        // Define OWLCMS_INACTIVITY_SEC for testing
+                        var inactivity = StartupUtils.getIntegerParam("inactivity_sec", INACTIVITY_SECONDS) * 1000;
+                        boolean alive = timeElapsed < inactivity;
+                        Component component = uiEntry.getKey().getComponent();
+                        logger.debug("   {} observer {} {} {} timeElapsed={} alive={}",
+                                uiEntry.getKey().getTitle(),
+                                System.identityHashCode(uiEntry.getKey()),
+                                component.getClass().getSimpleName(),
+                                System.identityHashCode(component),
+                                timeElapsed, alive);
+                        if (alive) {
+                            stillAlive++;
                         }
                     }
-                    logger.debug("   stillAlive={}", stillAlive);
                 }
+                logger.debug("   stillAlive={}", stillAlive);
             } else {
                 logger.error("no registered map");
             }
 
+            // if all tabs are expired, force them to leave taking care to not reset the Vaadin
+            // session (which would cause an immediate reload)
+            // show a reload button so the user can come back.
             if (stillAlive == 0) {
                 Iterator<Entry<UnloadObserverPR, Long>> entryIterator = im.entrySet().iterator();
                 while (entryIterator.hasNext()) {
@@ -94,7 +92,6 @@ public class SessionCleanup {
                             System.identityHashCode(ui),
                             eventObserver2.getUrl());
                     if (ui.isAttached()) {
-//                        ui.access(() -> {
                         String title = eventObserver2.getTitle();
                         Set<String> fopNames = UpdateReceiverServlet.getUpdateCache().keySet();
                         if (eventObserver2.getComponent() instanceof MainView || fopNames.size() <= 1) {
@@ -103,9 +100,8 @@ public class SessionCleanup {
                         eventObserver2.doReload(
                                 Translator.translate("PublicResults.sessionExpiredTitle"),
                                 Translator.translate("PublicResults.sessionExpiredText"),
-                                Translator.translate("PublicResults.sessionExpiredLabel",title).trim(),
+                                Translator.translate("PublicResults.sessionExpiredLabel", title).trim(),
                                 eventObserver2.getUrl().toExternalForm());
-//                        });
                     }
                     entryIterator.remove();
                 }
