@@ -10,11 +10,9 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.Executors;
 
 import org.slf4j.LoggerFactory;
 
-import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 
 import app.owlcms.uievents.BreakTimerEvent;
@@ -33,11 +31,11 @@ import jakarta.servlet.http.HttpServletResponse;
 public class TimerReceiverServlet extends HttpServlet implements Traceable {
 
     private static String defaultFopName;
-    static EventBus eventBus = new AsyncEventBus(TimerReceiverServlet.class.getSimpleName(),
-            Executors.newCachedThreadPool());
+//    static EventBus eventBus = new AsyncEventBus(TimerReceiverServlet.class.getSimpleName(),
+//            Executors.newCachedThreadPool());
 
     public static EventBus getEventBus() {
-        return eventBus;
+        return UpdateReceiverServlet.getEventBus();
     }
 
      private Logger logger = (Logger) LoggerFactory.getLogger(TimerReceiverServlet.class);
@@ -141,13 +139,13 @@ public class TimerReceiverServlet extends HttpServlet implements Traceable {
         }
         if (timerEvent != null) {
             timerEvent.setFopName(fopName);
-            eventBus.post(timerEvent);
+            getEventBus().post(timerEvent);
         }
         if (breakTimerEvent != null) {
             breakTimerEvent.setFopName(fopName);
             String mode = req.getParameter("mode");
             breakTimerEvent.setMode(mode);
-            eventBus.post(breakTimerEvent);
+            getEventBus().post(breakTimerEvent);
         }
         return fopName;
     }

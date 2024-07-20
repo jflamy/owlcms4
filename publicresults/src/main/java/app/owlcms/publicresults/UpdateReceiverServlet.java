@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
+import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UpdateEvent;
@@ -90,6 +91,7 @@ public class UpdateReceiverServlet extends HttpServlet implements Traceable {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+        logger.debug("updatereceiverservlet vaadin session {}",VaadinSession.getCurrent());
         try {
             String updateKey = req.getParameter("updateKey");
             if (updateKey == null || !updateKey.equals(this.secret)) {
@@ -108,7 +110,7 @@ public class UpdateReceiverServlet extends HttpServlet implements Traceable {
             }
 
             if (StartupUtils.isDebugSetting()) {
-                this.getLogger().setLevel(Level.TRACE);
+                this.getLogger().setLevel(Level.DEBUG);
                 Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
                 if (StartupUtils.isTraceSetting()) {
                     this.getLogger()./**/trace("update received from {}", ProxyUtils.getClientIp(req));
