@@ -21,8 +21,6 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.athlete.AthleteRepository;
-import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
@@ -96,14 +94,8 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 	public List<Athlete> getSortedAthletes() {
 		HashMap<String, Object> reportingBeans = getReportingBeans();
 
-		List<Athlete> athletes = AthleteSorter
-		        .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, isExcludeNotWeighed()));
-		if (athletes.isEmpty()) {
-			// prevent outputting silliness.
-			throw new RuntimeException("");
-		} else {
-			this.logger.debug("{} athletes", athletes.size());
-		}
+		// prevent irrelevant "No Athletes" error message.
+		List<Athlete> athletes = List.of(new Athlete());
 
 		String groupName = this.group != null ? this.group.getName() : null;
 		this.records = RecordRepository.findFiltered(null, null, null, groupName, !this.allRecords);
