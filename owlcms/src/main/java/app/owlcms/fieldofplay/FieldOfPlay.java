@@ -854,8 +854,10 @@ public class FieldOfPlay implements IUnregister {
 				} else if (e instanceof ForceTime) {
 					doForceTime((ForceTime) e);
 				} else if (e instanceof TimeStarted) {
-					// something is stuck
-					getAthleteTimer().start();
+					if (!getAthleteTimer().isRunning()) {
+						// don't start if already running
+						getAthleteTimer().start();
+					}
 					return;
 				} else {
 					unexpectedEventInState(e, TIME_RUNNING);
@@ -963,16 +965,7 @@ public class FieldOfPlay implements IUnregister {
 						transitionToBreak((FOPEvent.BreakStarted) this.deferredBreak);
 						this.deferredBreak = null;
 					}
-				}
-				// When the decision is visible, the time has already been set to next athlete.
-				// the timekeeper should have restarted the time during the 3 seconds.
-				// else if (e instanceof TimeStarted) {
-				// // needed if decision has been given too early (e.g. bar did not reach the knees but reds given)
-				// resetDecisions();
-				// setState(TIME_RUNNING);
-				// getAthleteTimer().start();
-				// }
-				else {
+				} else {
 					unexpectedEventInState(e, DECISION_VISIBLE);
 				}
 				break;
