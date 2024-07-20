@@ -1,9 +1,10 @@
-**Version 49.0.7**
+**Version 49.0.8**
 
 > [!IMPORTANT]
 >
 > - You should test all releases, with actual data, several days before a competition. 
 
+- (49.0.8) Publicresults: backported the version 50.0.0 version that expires sessions to avoid running out of memory (also fixes issues with publicresults not starting).
 - (49.0.7) Cloud usage: fly.io no longer routed requests from the outside world to the applications.  Changed the  embedded server configuration to listen on all interfaces.
 - (49.0.6) Empty groups (no name) could cause page failures
 - (49.0.5) Fix: preparation pages would fail if there was no information at all available to infer the category of the athlete.
