@@ -1424,9 +1424,7 @@ public class FieldOfPlay implements IUnregister {
 		if (!isFinalWarningEmitted()) {
 			this.logger.info("{}Final Warning", FieldOfPlay.getLoggingName(this));
 			if (isEmitSoundsOnServer()) {
-				if (finalWarningSound == null) {
-					finalWarningSound = new Sound(getSoundMixer(), "finalWarning.wav");
-				}
+				finalWarningSound = new Sound(getSoundMixer(), "finalWarning.wav");
 				finalWarningSound.emit();
 			}
 			pushOutUIEvent(new UIEvent.TimeRemaining(this, 30, this));
@@ -1438,9 +1436,7 @@ public class FieldOfPlay implements IUnregister {
 		if (!isInitialWarningEmitted()) {
 			this.logger.info("{}Initial Warning", FieldOfPlay.getLoggingName(this));
 			if (isEmitSoundsOnServer()) {
-				if (initialWarningSound == null) {
-					initialWarningSound = new Sound(getSoundMixer(), "initialWarning.wav");
-				}
+				initialWarningSound = new Sound(getSoundMixer(), "initialWarning.wav");
 				initialWarningSound.emit();
 			}
 			pushOutUIEvent(new UIEvent.TimeRemaining(this, 90, this));
@@ -1452,9 +1448,7 @@ public class FieldOfPlay implements IUnregister {
 		if (!isTimeoutEmitted()) {
 			this.logger.info("{}Time Over", FieldOfPlay.getLoggingName(this));
 			if (isEmitSoundsOnServer()) {
-				if (timeOverSound == null) {
-					timeOverSound = new Sound(getSoundMixer(), "timeOver.wav");
-				}
+				timeOverSound = new Sound(getSoundMixer(), "timeOver.wav");
 				timeOverSound.emit();
 
 			}
@@ -2878,8 +2872,8 @@ public class FieldOfPlay implements IUnregister {
 		changePlatformEquipment(curAthlete2, this.curWeight);
 
 		logger.debug("&&&& {} {} {} previous {} current {} change {} from[{}]", curAthlete2, nextAthlete, newWeight,
-		getPrevWeight(), curWeight, newWeight,
-		LoggerUtils.whereFrom());
+		        getPrevWeight(), curWeight, newWeight,
+		        LoggerUtils.whereFrom());
 		pushOutUIEvent(new UIEvent.LiftingOrderUpdated(curAthlete2, nextAthlete, getPreviousAthlete(),
 		        changingAthlete,
 		        getLiftingOrder(), getDisplayOrder(), clock, currentDisplayAffected, displayToggle, e.getOrigin(),
@@ -2941,12 +2935,12 @@ public class FieldOfPlay implements IUnregister {
 			this.setBarWeight(10);
 			this.setUseCollarsIfAvailable(false);
 		} else if ((newWeight <= 39 && getPlatform().getNbB_20() == 0) && (getPlatform().getNbB_15() > 0)) {
-			//logger.debug("<= 39 15");
+			// logger.debug("<= 39 15");
 			this.setLightBarInUse(true);
 			this.setBarWeight(15);
 			this.setUseCollarsIfAvailable(false);
 		} else if ((newWeight >= 40 && getPlatform().getNbB_20() == 0) && (getPlatform().getNbB_15() > 0)) {
-			//logger.debug(">=40 15 collars");
+			// logger.debug(">=40 15 collars");
 			this.setLightBarInUse(true);
 			this.setBarWeight(15);
 			this.setUseCollarsIfAvailable(true);
@@ -2990,7 +2984,7 @@ public class FieldOfPlay implements IUnregister {
 			getPlatform().setNbB_20(0);
 		} else {
 			// logger.debug"20kg available");
-			//getPlatform().setNbB_20(1);
+			// getPlatform().setNbB_20(1);
 		}
 	}
 
