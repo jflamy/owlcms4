@@ -101,8 +101,8 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	}
 
 	/**
-	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#doProcessAthletes(java.io.InputStream, boolean,
-	 *      java.util.function.Consumer, java.lang.Runnable, boolean)
+	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#doProcessAthletes(java.io.InputStream, boolean, java.util.function.Consumer, java.lang.Runnable,
+	 *      boolean)
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
@@ -159,8 +159,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	}
 
 	/**
-	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#doProcessGroups(java.io.InputStream, boolean,
-	 *      java.util.function.Consumer, java.lang.Runnable)
+	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#doProcessGroups(java.io.InputStream, boolean, java.util.function.Consumer, java.lang.Runnable)
 	 */
 	@Override
 	public int doProcessGroups(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer,
@@ -237,8 +236,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	}
 
 	/**
-	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#updateAthletes(java.util.function.Consumer,
-	 *      app.owlcms.spreadsheet.RCompetition, java.util.List)
+	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#updateAthletes(java.util.function.Consumer, app.owlcms.spreadsheet.RCompetition, java.util.List)
 	 */
 	@Override
 	public void updateAthletes(Consumer<String> errorConsumer, RCompetition c, List<RAthlete> athletes) {
@@ -352,8 +350,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	}
 
 	/**
-	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#appendErrors(java.lang.Runnable,
-	 *      java.util.function.Consumer, net.sf.jxls.reader.XLSReadStatus)
+	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#appendErrors(java.lang.Runnable, java.util.function.Consumer, net.sf.jxls.reader.XLSReadStatus)
 	 */
 	private void appendErrors(Runnable displayUpdater, Consumer<String> errorAppender) {
 		displayUpdater.run();
@@ -452,7 +449,14 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 					} else if (trimmedCellValue.contentEquals("M/F")) {
 						this.delayedSetterColumns[DelayedSetter.GENDER.ordinal()] = iColumn;
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							a.setGender(s);
+							try {
+								if (s != null && s.length() > 0) {
+									s = s.substring(0, 1).toUpperCase();
+								}
+								a.setGender(s);
+							} catch (Exception e) {
+								processException(a, s, c, new Exception(Translator.translate("Registration.IllegalGender",s)), errorConsumer);
+							}
 						});
 					} else if (checkTranslation(trimmedCellValue, "Card.category")) {
 						this.delayedSetterColumns[DelayedSetter.CATEGORY.ordinal()] = iColumn;
@@ -478,11 +482,19 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 						});
 					} else if (checkTranslation(trimmedCellValue, "Results.Snatch", "Results.Declaration_abbrev")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							a.setSnatch1Declaration(s);
+							try {
+								a.setSnatch1Declaration(s);
+							} catch (Exception e) {
+								processException(a, s, c, new Exception(Translator.translate("Registration.IllegalInteger", s)), errorConsumer);
+							}
 						});
 					} else if (checkTranslation(trimmedCellValue, "Results.CJ_abbrev", "Results.Declaration_abbrev")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							a.setCleanJerk1Declaration(s);
+							try {
+								a.setCleanJerk1Declaration(s);
+							} catch (Exception e) {
+								processException(a, s, c, new Exception(Translator.translate("Registration.IllegalInteger", s)), errorConsumer);
+							}
 						});
 					} else if (checkTranslation(trimmedCellValue, "Group")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
@@ -511,7 +523,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 									a.setQualifyingTotal(i);
 								}
 							} catch (Exception e) {
-								processException(a, s, c, e, errorConsumer);
+								processException(a, s, c, new Exception(Translator.translate("Registration.IllegalInteger", s)), errorConsumer);
 							}
 						});
 					} else if (checkTranslation(trimmedCellValue, "Coach")) {
@@ -532,15 +544,27 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 						});
 					} else if (checkTranslation(trimmedCellValue, "PersonalBestSnatch")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							a.setPersonalBestSnatch(s);
+							try {
+								a.setPersonalBestSnatch(s);
+							} catch (Exception e) {
+								processException(a, s, c, new Exception(Translator.translate("Registration.IllegalInteger", s)), errorConsumer);
+							}
 						});
 					} else if (checkTranslation(trimmedCellValue, "PersonalBestCleanJerk")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							a.setPersonalBestCleanJerk(s);
+							try {
+								a.setPersonalBestCleanJerk(s);
+							} catch (Exception e) {
+								processException(a, s, c, new Exception(Translator.translate("Registration.IllegalInteger", s)), errorConsumer);
+							}
 						});
 					} else if (checkTranslation(trimmedCellValue, "PersonalBestTotal")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							a.setPersonalBestTotal(s);
+							try {
+								a.setPersonalBestTotal(s);
+							} catch (Exception e) {
+								processException(a, s, c, new Exception(Translator.translate("Registration.IllegalInteger", s)), errorConsumer);
+							}
 						});
 					} else if (checkTranslation(trimmedCellValue, "SubCategory")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
