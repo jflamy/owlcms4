@@ -354,7 +354,7 @@ public class AthleteRepository {
 			 TypedQuery<Category> q2 = em.createQuery(categoriesFromCurrentGroup, Category.class);
 			 q2.setParameter("groupId", g.getId());
 			 List<Category> q2Results = q2.getResultList();
-			 logger.warn("categories for currentGroup {}",q2Results);
+			 logger.debug("categories for currentGroup {}",q2Results);
 		}
 		Query q = em.createQuery(
 		        "select distinct a, p from Athlete a join fetch a.participations p"

@@ -312,7 +312,7 @@ public class RecordRepository {
 			query.setParameter("gender", gender);
 		}
 		if (groupName != null) {
-			query.setParameter("groupInfo", groupName);
+			query.setParameter("groupName", groupName);
 		}
 	}
 

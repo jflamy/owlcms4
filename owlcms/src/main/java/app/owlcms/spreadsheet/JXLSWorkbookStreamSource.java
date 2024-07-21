@@ -377,6 +377,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		// reuse existing logic for processing records
 		JXLSExportRecords jxlsExportRecords = new JXLSExportRecords(null, false);
 		jxlsExportRecords.setGroup(getGroup());
+		jxlsExportRecords.getSortedAthletes();
 		logger.debug("fetching records for session {} category {}", getGroup(), getCategory());
 		try {
 			List<RecordEvent> records = jxlsExportRecords.getRecords(getCategory());
