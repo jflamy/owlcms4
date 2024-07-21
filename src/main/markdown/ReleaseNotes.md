@@ -1,4 +1,4 @@
-**Version 50.0**
+**Version 50.0 release candidate**
 
 > [!IMPORTANT]
 >
