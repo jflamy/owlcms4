@@ -26,6 +26,7 @@
   - The environment variable `OWLCMS_CLEANUP_SEC` controls how often the sessions are checked for inactivity (default = 60)
 - Improvements:
   - Accept common image formats for flags (`.svg`, `.png`, `.jpg`, `.jpeg`, or `.webp`)
+  - Error messages for illegal values in the Registration file (M/F gender and integer numbers)
 - Fixes:
   - The medal sheet and the medal display screens now correctly include all the categories where medals can be awarded. Previously, if an athlete had not weighed in, or had been unassigned to a session a category could be considered to still be in progress.
   - When using MQTT buttons, duplicate "Start" are now correctly ignored.
