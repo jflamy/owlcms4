@@ -1,8 +1,24 @@
-**Version 50.0 release candidate**
-
-> [!IMPORTANT]
+> [!WARNING]
 >
-> - You should test all releases, with actual data, *several days* before a competition. 
+> - This is a release candidate [(see definition)](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate), used for final public testing and translation. *It is still a preliminary release*
+> - You should test all releases, with actual data, *several days* before a competition. This is especially important when considering the use of a release candidate.
+
+- (rc05) Initial Registration Sheet: Better error messages for wrong gender (not M or F) and illegal numbers
+- (rc04) The medal sheet and the medal display screens now correctly include all the categories where medals can be awarded. Previously, if an athlete had not weighed in, or had been unassigned to a session a category could be considered to still be in progress.
+- (rc04) When using MQTT buttons, duplicate "Start" are now correctly ignored.
+- (rc04) Exporting all records now works even when there are no weighed-in athlete (an irrelevant condition was being tested)
+- (rc04) Public Results: cleanup of the code used for processing closed tabs, they don't need to be kept as items to be monitored.
+- (rc03) Translations: Portuguese, Romanian, Hungarian
+- (rc03) Fix for "categoryDone" column needlessly included in the persisted database, causing issues with json export and other features (#1054)
+- (rc03) Records are now imported correctly from a database export.  Previously some could be missing, requiring a second import.
+- (rc03) The "non-standard bar is in use" indicator is now read correctly from the database.  In prior 50.x releases this was not initialized properly and could prevent marshal changes from working.
+- (rc03) USAW BARS results upload was missing one cell : when results for all sessions are produced, the standard templates clear the session name cell.  This is not required for the BARs template
+- (rc02) Fix: current athlete display did not update or would fail to start.
+- (rc02) Fix: After introductions, could not go back to break management dialog to start the Time to snatch timer
+- (rc02) The local/robi directory was not being populated by the Windows installer (contains the records used for computing Robi coefficients)
+- (rc02) Technical: continuing cleanup of code used to determine the current field of play
+- (rc01) Additional updates to translations: Spanish, Portuguese
+- (rc01) Publicresults: On session expiry,  reload button label omits the platform name when there is only one platform.
 
 - New: Marshal and announcer usability improvements
   - The notification is synchronized with the appearance of the athlete's name on the attempt board to respect TCRR rules.
