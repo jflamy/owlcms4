@@ -2989,11 +2989,12 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private synchronized void uiShowDownSignalOnSlaveDisplays(Object origin2) {
+		boolean announcerImmediate = origin2 instanceof AnnouncerContent && isAnnouncerDecisionImmediate();
 		boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
 		boolean downEmitted2 = isDownEmitted();
 		this.uiEventLogger.debug("showDownSignalOnSlaveDisplays server={} emitted={}", emitSoundsOnServer2,
 		        downEmitted2);
-		if (emitSoundsOnServer2 && !downEmitted2) {
+		if (emitSoundsOnServer2 && !downEmitted2 && !announcerImmediate) {
 			// sound is synchronous, we don't want to wait.
 			new Thread(() -> {
 				try {
