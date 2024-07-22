@@ -112,7 +112,8 @@ jobs:
           git config user.email "$(Build.RequestedForEmail)"
           git config user.name "$(Build.RequestedFor)"
           git checkout $(Build.SourceBranchName)
-          git add -A && git commit -m "$(Revision) [skip ci]" --allow-empty
+          # no need to do [skip ci] because we have trigger: none
+          git add -A && git commit -m "$(Revision)" --allow-empty
           git tag $(Revision) -f -a -m "$(Revision)"
           git push https://$(repoToken)@github.com/$(repoUser)/owlcms4.git $(Revision) --force
         displayName: tag origin
