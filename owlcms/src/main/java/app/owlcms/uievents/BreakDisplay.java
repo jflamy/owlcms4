@@ -12,7 +12,6 @@ import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 public interface BreakDisplay {
@@ -28,7 +27,7 @@ public interface BreakDisplay {
 	}
 
 	public default String inferGroupName(CeremonyType ceremonyType) {
-		logger.warn("inferGroupName {}\n{}",ceremonyType,LoggerUtils.stackTrace());
+		//logger.debug("inferGroupName {}\n{}",ceremonyType,LoggerUtils.stackTrace());
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		if (fop == null || ceremonyType == CeremonyType.MEDALS) {
 			return "";
