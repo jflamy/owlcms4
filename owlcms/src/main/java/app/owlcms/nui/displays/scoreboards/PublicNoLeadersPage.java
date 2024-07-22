@@ -68,15 +68,15 @@ public class PublicNoLeadersPage extends AbstractResultsDisplayPage {
 		}
 		this.ui.access(() -> {
 			/* copy current parameters from results board to medals board */
-			this.medalsBoard.setDownSilenced(true);
-			this.medalsBoard.setDarkMode(((DisplayParameters) getBoard()).isDarkMode());
-			this.medalsBoard.setVideo(((DisplayParameters) getBoard()).isVideo());
-			this.medalsBoard.setPublicDisplay(((DisplayParameters) getBoard()).isPublicDisplay());
-			this.medalsBoard.setSingleReferee(((SoundParameters) getBoard()).isSingleReferee());
-			this.medalsBoard.setAbbreviatedName(((DisplayParameters) getBoard()).isAbbreviatedName());
-			this.medalsBoard.setTeamWidth(((DisplayParameters) getBoard()).getTeamWidth());
-			this.medalsBoard.setEmFontSize(((DisplayParameters) getBoard()).getEmFontSize());
-			checkVideo(this.medalsBoard);
+			this.getMedalsBoard().setDownSilenced(true);
+			this.getMedalsBoard().setDarkMode(((DisplayParameters) getBoard()).isDarkMode());
+			this.getMedalsBoard().setVideo(((DisplayParameters) getBoard()).isVideo());
+			this.getMedalsBoard().setPublicDisplay(((DisplayParameters) getBoard()).isPublicDisplay());
+			this.getMedalsBoard().setSingleReferee(((SoundParameters) getBoard()).isSingleReferee());
+			this.getMedalsBoard().setAbbreviatedName(((DisplayParameters) getBoard()).isAbbreviatedName());
+			this.getMedalsBoard().setTeamWidth(((DisplayParameters) getBoard()).getTeamWidth());
+			this.getMedalsBoard().setEmFontSize(((DisplayParameters) getBoard()).getEmFontSize());
+			checkVideo(this.getMedalsBoard());
 			getMedalsBoard().getStyle().set("display", "block");
 
 			getResultsBoard().getStyle().set("display", "none");
@@ -85,21 +85,21 @@ public class PublicNoLeadersPage extends AbstractResultsDisplayPage {
 
 	protected void createComponents() {
 		var board = new Results();
-		var medalsBoard = new ResultsMedals();
+		this.setMedalsBoard(new ResultsMedals());
 		this.setBoard(board);
 		this.setResultsBoard(board);
 
-		medalsBoard.setDownSilenced(true);
-		medalsBoard.setDarkMode(board.isDarkMode());
-		medalsBoard.setVideo(board.isVideo());
-		medalsBoard.setPublicDisplay(board.isPublicDisplay());
-		medalsBoard.setSingleReferee(board.isSingleReferee());
-		medalsBoard.setAbbreviatedName(board.isAbbreviatedName());
-		medalsBoard.setTeamWidth(board.getTeamWidth());
-		medalsBoard.setEmFontSize(board.getEmFontSize());
-		checkVideo(medalsBoard);
+		getMedalsBoard().setDownSilenced(true);
+		getMedalsBoard().setDarkMode(board.isDarkMode());
+		getMedalsBoard().setVideo(board.isVideo());
+		getMedalsBoard().setPublicDisplay(board.isPublicDisplay());
+		getMedalsBoard().setSingleReferee(board.isSingleReferee());
+		getMedalsBoard().setAbbreviatedName(board.isAbbreviatedName());
+		getMedalsBoard().setTeamWidth(board.getTeamWidth());
+		getMedalsBoard().setEmFontSize(board.getEmFontSize());
+		checkVideo(getMedalsBoard());
 
-		medalsBoard.getStyle().set("display", "none");
+		getMedalsBoard().getStyle().set("display", "none");
 		this.ui = UI.getCurrent();
 	}
 	
@@ -108,14 +108,14 @@ public class PublicNoLeadersPage extends AbstractResultsDisplayPage {
 	protected void onAttach(AttachEvent attachEvent) {
 		DisplayParameters board = (DisplayParameters) this.getBoard();
 		board.setFop(getFop());
-		medalsBoard.setFop(getFop());
+		getMedalsBoard().setFop(getFop());
 		
 		this.setResultsBoard((Results) board);
-		this.setMedalsBoard(medalsBoard);
+		this.setMedalsBoard(getMedalsBoard());
 		
 		this.addComponent((Component) board);
-		medalsBoard.setVisible(false);
-		this.addComponent(medalsBoard);
+		getMedalsBoard().setVisible(false);
+		this.addComponent(getMedalsBoard());
 	}
 
 	@Override
@@ -150,7 +150,7 @@ public class PublicNoLeadersPage extends AbstractResultsDisplayPage {
 		setDefaultParameters(QueryParameters.simple(fullMap));
 	}
 
-	protected void setMedalsBoard(ResultsMedals medalsBoard) {
+	private void setMedalsBoard(ResultsMedals medalsBoard) {
 		this.medalsBoard = medalsBoard;
 	}
 

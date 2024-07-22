@@ -76,10 +76,9 @@ public class PublicMultiRanksPage extends AbstractResultsDisplayPage {
 		// each subclass must override this routine.
 		// otherwise we end up with multiple instances of the Results board.
 		var board = new ResultsMultiRanks();
-		var medalsBoard = new ResultsMedals();
+		this.setMedalsBoard(new ResultsMedals());
 		this.setBoard(board);
 		this.setResultsBoard(board);
-		this.setMedalsBoard(medalsBoard);
 
 		this.ui = UI.getCurrent();
 
@@ -110,14 +109,14 @@ public class PublicMultiRanksPage extends AbstractResultsDisplayPage {
 	protected void onAttach(AttachEvent attachEvent) {
 		DisplayParameters board = (DisplayParameters) this.getBoard();
 		board.setFop(getFop());
-		medalsBoard.setFop(getFop());
+		getMedalsBoard().setFop(getFop());
 		
 		this.setResultsBoard((ResultsMultiRanks) board);
-		this.setMedalsBoard(medalsBoard);
+		this.setMedalsBoard(getMedalsBoard());
 		
 		this.addComponent((Component) board);
-		medalsBoard.setVisible(false);
-		this.addComponent(medalsBoard);
+		getMedalsBoard().setVisible(false);
+		this.addComponent(getMedalsBoard());
 	}
 
 	private final ResultsMedals getMedalsBoard() {
