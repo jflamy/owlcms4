@@ -105,10 +105,6 @@ public class OwlcmsSession {
 	}
 
 	public static Locale getLocale() {
-		Locale locale = (Locale) getAttribute(LOCALE);
-		if (locale != null) {
-			return locale;
-		}
 		return computeLocale();
 	}
 
@@ -174,8 +170,12 @@ public class OwlcmsSession {
 	}
 
 	public static Locale computeLocale() {
-		Locale locale = Translator.getForcedLocale();
-		logger.trace("forced locale = {}", locale);
+		Locale locale = (Locale) getAttribute(LOCALE);
+		if (locale != null) {
+			return locale;
+		}
+		locale = Translator.getForcedLocale();
+		
 		UI currentUi = UI.getCurrent();
 		if (locale == null && currentUi != null) {
 			locale = currentUi.getLocale();
