@@ -3,6 +3,11 @@
 > - This is a release candidate [(see definition)](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate), used for final public testing and translation. *It is still a preliminary release*
 > - You should test all releases, with actual data, *several days* before a competition. This is especially important when considering the use of a release candidate.
 
+- (rc06) Server-side sounds 
+  - The timer sounds were no longer being emitted. Changing the sound adapter for the platform seemed to be the triggering cause. Now they should always work.
+  - The server-side down signal was always being given, even in the default mode where the announcer is just entering flag decisions
+- (rc06) The end-of-session protocol sheet no longer showed the records improved during the session.  Now fixed.
+- (rc06) Attempt board: During a medal ceremony, the current session is no longer shown, since the medals are often from previous sessions.
 - (rc05) Initial Registration Sheet: Better error messages for wrong gender (not M or F) and illegal numbers
 - (rc04) The medal sheet and the medal display screens now correctly include all the categories where medals can be awarded. Previously, if an athlete had not weighed in, or had been unassigned to a session a category could be considered to still be in progress.
 - (rc04) When using MQTT buttons, duplicate "Start" are now correctly ignored.
@@ -19,7 +24,6 @@
 - (rc02) Technical: continuing cleanup of code used to determine the current field of play
 - (rc01) Additional updates to translations: Spanish, Portuguese
 - (rc01) Publicresults: On session expiry,  reload button label omits the platform name when there is only one platform.
-
 - New: Marshal and announcer usability improvements
   - The notification is synchronized with the appearance of the athlete's name on the attempt board to respect TCRR rules.
   - The information update in the announcer grid now allows announcing the total as soon as the decision is made.

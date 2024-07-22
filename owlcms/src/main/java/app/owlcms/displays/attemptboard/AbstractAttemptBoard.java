@@ -151,7 +151,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 					return;
 				}
 
-				this.getElement().setProperty("lastName", inferGroupName());
+				this.getElement().setProperty("lastName", inferGroupName(breakType == BreakType.CEREMONY ? fop.getCeremonyType() : null));
 				this.getElement().setProperty("firstName", inferMessage(breakType, fop.getCeremonyType(), true));
 				this.getElement().setProperty("teamName", "");
 
