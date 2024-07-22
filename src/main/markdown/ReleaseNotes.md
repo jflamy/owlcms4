@@ -3,6 +3,7 @@
 > - This is a release candidate [(see definition)](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate), used for final public testing and translation. *It is still a preliminary release*
 > - You should test all releases, with actual data, *several days* before a competition. This is especially important when considering the use of a release candidate.
 
+- (rc07) Public scoreboards were no longer initializing correctly to to an error in setting up the alternate medals board.
 - (rc06) Server-side sounds 
   - The timer sounds were no longer being emitted. Changing the sound adapter for the platform seemed to be the triggering cause. Now they should always work.
   - The server-side down signal was always being given, even in the default mode where the announcer is just entering flag decisions

@@ -676,15 +676,16 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	private void setDisplay() {
 		OwlcmsSession.withFop(fop -> {
 			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
-			Group group = fop.getGroup();
-			String description = null;
-			if (group != null) {
-				description = group.getDescription();
-				if (description == null) {
-					description = Translator.translate("Group_number", group.getName());
-				}
-			}
-			this.getElement().setProperty("groupDescription", description != null ? description : "");
+//			Group group = fop.getGroup();
+//			String description = null;
+//			if (group != null) {
+//				description = group.getDescription();
+//				if (description == null) {
+//					description = Translator.translate("Group_number", group.getName());
+//				}
+//			}
+//			this.getElement().setProperty("groupDescription", description != null ? description : "");
+			this.getElement().setProperty("groupDescription", "");
 		});
 	}
 
