@@ -271,6 +271,7 @@ public abstract class TimerElementPR extends LitTemplate
         Element timerElement2 = getTimerElement();
         if (timerElement2 != null) {
             double seconds = indefinite ? 0.0D : milliseconds / 1000.0D;
+            logger.debug("start {} seconds",seconds);
             timerElement2.callJsFunction("start", seconds, indefinite, silent, timerElement2,
                     Long.toString(System.currentTimeMillis()), from);
         }
@@ -279,6 +280,7 @@ public abstract class TimerElementPR extends LitTemplate
     private void stop(Integer milliseconds, Boolean indefinite, Boolean silent, String from) {
         Element timerElement2 = getTimerElement();
         if (timerElement2 != null) {
+            logger.debug("stop");
             double seconds = indefinite ? 0.0D : milliseconds / 1000.0D;
             timerElement2.callJsFunction("pause", seconds, indefinite, silent, timerElement2,
                     Long.toString(System.currentTimeMillis()), from);

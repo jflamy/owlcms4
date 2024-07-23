@@ -114,9 +114,8 @@ public class AthleteTimerElementPR extends TimerElementPR {
         this.origin = origin;
     }
 
-    // we do not listen to the bus for this event. Score with leaders forwards this
-    // event
-    // when appropriate
+    // we do not listen to the bus for this event. update servlet forwards this
+    // event when appropriate
     public void slaveOrderUpdated(UpdateEvent e) {
         if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
             // event is not for us

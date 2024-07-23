@@ -141,6 +141,7 @@ public class BreakTimerElementPR extends TimerElementPR {
 
     @Subscribe
     public void slaveBreakStart(BreakTimerEvent.BreakStart e) {
+        //logger.debug("slaveBreakStart {} {} {} indefinite={}",e.getFopName(),getFopName(), e.getTimeRemaining(), e.isIndefinite());
         if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
             // event is not for us
             return;
