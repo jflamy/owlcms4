@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
-import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UpdateEvent;
@@ -91,7 +90,6 @@ public class UpdateReceiverServlet extends HttpServlet implements Traceable {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
-        logger.debug("updatereceiverservlet vaadin session {}",VaadinSession.getCurrent());
         try {
             String updateKey = req.getParameter("updateKey");
             if (updateKey == null || !updateKey.equals(this.secret)) {
@@ -161,7 +159,12 @@ public class UpdateReceiverServlet extends HttpServlet implements Traceable {
             String mode = req.getParameter("mode");
             updateEvent.setMode(mode);
             
-            TimerReceiverServlet.processTimerReq(req, null, getLogger());
+            String breakTimerEventTypeString = req.getParameter("breakTimerEventType");
+            // we only process the break timer events. athlete timers wait until next FOP events.
+            if (breakTimerEventTypeString != null) {
+                logger.debug("processing break keepalive");
+                TimerReceiverServlet.processTimerReq(req, null, getLogger());
+            }
 
             String breakTypeString = req.getParameter("breakType");
             updateEvent.setBreak("true".equalsIgnoreCase(req.getParameter("break")));

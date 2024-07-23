@@ -39,7 +39,6 @@ import app.owlcms.publicresults.DecisionReceiverServlet;
 import app.owlcms.publicresults.TimerReceiverServlet;
 import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.uievents.BreakTimerEvent;
-import app.owlcms.uievents.BreakTimerEvent.BreakStart;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.DecisionEvent;
 import app.owlcms.uievents.DecisionEventType;
@@ -480,14 +479,16 @@ public class ResultsPR extends LitTemplate
                 logger.debug("### not in a group");
                 doDone(e.getFullName());
                 this.needReset = true;
-            } else if ("BREAK".equals(fopState)) {
-                logger.debug("### in a break {}", e.getBreakType());
-                // also trigger a break timer event to make sure we are in sync with owlcms
-                BreakStart breakStart = new BreakStart(e.getBreakRemaining(), e.isIndefinite());
-                breakStart.setFopName(e.getFopName());
-                TimerReceiverServlet.getEventBus().post(breakStart);
-                this.needReset = true;
-            } else if (!this.needReset) {
+            } 
+//            else if ("BREAK".equals(fopState)) {
+//                logger.debug("### in a break {}", e.getBreakType());
+//                // also trigger a break timer event to make sure we are in sync with owlcms
+//                BreakStart breakStart = new BreakStart(e.getBreakRemaining(), e.isIndefinite());
+//                breakStart.setFopName(e.getFopName());
+//                TimerReceiverServlet.getEventBus().post(breakStart);
+//                this.needReset = true;
+//            } 
+            else if (!this.needReset) {
                 // logger.debug("no reset");
             } else {
                 logger.debug("### resetting becase of ranking update");
@@ -518,7 +519,6 @@ public class ResultsPR extends LitTemplate
         getEventObserver().setTitle(fopName2);
         
         UpdateEvent initEvent = UpdateReceiverServlet.sync(fopName2);
-        //FIXME: set timers based on last received timer event.
         if (initEvent != null) {
             slaveUpdateEvent(initEvent);
             this.timer.slaveOrderUpdated(initEvent);
@@ -526,6 +526,9 @@ public class ResultsPR extends LitTemplate
             getElement().setProperty("fulName", Translator.translate("WaitingForSite"));
             getElement().setProperty("groupInfo", "");
         }
+        
+       TimerReceiverServlet.syncAthleteTimer(fopName2, this.timer);
+       TimerReceiverServlet.syncBreakTimer(fopName2, this.breakTimer);
     }
 
     /**

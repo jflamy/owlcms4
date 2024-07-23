@@ -8,6 +8,8 @@ package app.owlcms.publicresults;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -15,6 +17,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
 
+import app.owlcms.components.elements.AthleteTimerElementPR;
+import app.owlcms.components.elements.BreakTimerElementPR;
+import app.owlcms.prutils.CountdownTimer;
 import app.owlcms.uievents.BreakTimerEvent;
 import app.owlcms.uievents.TimerEvent;
 import app.owlcms.utils.LoggerUtils;
@@ -31,14 +36,12 @@ import jakarta.servlet.http.HttpServletResponse;
 public class TimerReceiverServlet extends HttpServlet implements Traceable {
 
     private static String defaultFopName;
-//    static EventBus eventBus = new AsyncEventBus(TimerReceiverServlet.class.getSimpleName(),
-//            Executors.newCachedThreadPool());
+    private static Map<String, CountdownTimer> athleteTimerCache = new HashMap<>();
+    private static Map<String, CountdownTimer> breakTimerCache = new HashMap<>();
 
     public static EventBus getEventBus() {
         return UpdateReceiverServlet.getEventBus();
     }
-
-     private Logger logger = (Logger) LoggerFactory.getLogger(TimerReceiverServlet.class);
 
     private String secret = StartupUtils.getStringParam("updateKey");
 
@@ -61,7 +64,6 @@ public class TimerReceiverServlet extends HttpServlet implements Traceable {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
         try {
             resp.setCharacterEncoding("UTF-8");
             if (StartupUtils.isTraceSetting()) {
@@ -79,7 +81,7 @@ public class TimerReceiverServlet extends HttpServlet implements Traceable {
                 return;
             }
 
-            String fopName = TimerReceiverServlet.processTimerReq(req, resp, getLogger());
+            String fopName = processTimerReq(req, resp, getLogger());
 
             if (defaultFopName == null) {
                 defaultFopName = fopName;
@@ -96,6 +98,8 @@ public class TimerReceiverServlet extends HttpServlet implements Traceable {
         String athleteTimerEventTypeString = req.getParameter("athleteTimerEventType");
         String breakTimerEventTypeString = req.getParameter("breakTimerEventType");
         String fopName = req.getParameter("fopName");
+        
+        logger.debug("processing timer request {} {} {}", fopName, athleteTimerEventTypeString, breakTimerEventTypeString);
 
         int athleteMillis = computeAthleteTargetDuration(req);
         int breakMillis = computeBreakTargetDuration(req);
@@ -106,11 +110,15 @@ public class TimerReceiverServlet extends HttpServlet implements Traceable {
         boolean silent = silentString != null ? Boolean.valueOf(silentString) : false;
 
         if (athleteTimerEventTypeString != null) {
+            CountdownTimer athleteTimer = getAthleteTimerFromCache(fopName);
             if (athleteTimerEventTypeString.equals("SetTime")) {
+                athleteTimer.set(athleteMillis);
                 timerEvent = new TimerEvent.SetTime(athleteMillis);
             } else if (athleteTimerEventTypeString.equals("StopTime")) {
+                athleteTimer.set(athleteMillis);
                 timerEvent = new TimerEvent.StopTime(athleteMillis);
             } else if (athleteTimerEventTypeString.equals("StartTime")) {
+                athleteTimer.restartAtValue(athleteMillis);
                 timerEvent = new TimerEvent.StartTime(athleteMillis, silent);
             } else {
                 String message = MessageFormat.format("**** unknown athlete timer event type {0}", athleteTimerEventTypeString);
@@ -121,13 +129,18 @@ public class TimerReceiverServlet extends HttpServlet implements Traceable {
             }
         }
         if (breakTimerEventTypeString != null) {
+            CountdownTimer breakTimer = getBreakTimerFromCache(fopName);
             if (breakTimerEventTypeString.equals("BreakPaused")) {
+                breakTimer.stop();
                 breakTimerEvent = new BreakTimerEvent.BreakPaused(breakMillis);
             } else if (breakTimerEventTypeString.equals("BreakStarted")) {
+                breakTimer.restartAtValue(indefinite ? -1 : breakMillis);
                 breakTimerEvent = new BreakTimerEvent.BreakStart(breakMillis, indefinite);
             } else if (breakTimerEventTypeString.equals("BreakDone")) {
+                breakTimer.stop();
                 breakTimerEvent = new BreakTimerEvent.BreakDone(null);
             } else if (breakTimerEventTypeString.equals("BreakSetTime")) {
+                breakTimer.set(indefinite ? -1 : athleteMillis);
                 breakTimerEvent = new BreakTimerEvent.BreakSetTime(breakMillis, indefinite);
             } else {
                 String message = MessageFormat.format("**** unknown break timer event type {0}", breakTimerEventTypeString);
@@ -148,6 +161,24 @@ public class TimerReceiverServlet extends HttpServlet implements Traceable {
             getEventBus().post(breakTimerEvent);
         }
         return fopName;
+    }
+
+    private static CountdownTimer getAthleteTimerFromCache(String fopName) {
+        CountdownTimer t = athleteTimerCache.get(fopName);
+        if (t == null) {
+            t = new CountdownTimer(-1);
+            athleteTimerCache.put(fopName, t);
+        }
+        return t;
+    }
+    
+    private static CountdownTimer getBreakTimerFromCache(String fopName) {
+        CountdownTimer t = breakTimerCache.get(fopName);
+        if (t == null) {
+            t = new CountdownTimer(0);
+            breakTimerCache.put(fopName, t);
+        }
+        return t;
     }
 
     private static int computeAthleteTargetDuration(HttpServletRequest req) {
@@ -179,11 +210,45 @@ public class TimerReceiverServlet extends HttpServlet implements Traceable {
 
     @Override
     public Logger getLogger() {
-        return logger;
+        return (Logger) LoggerFactory.getLogger(TimerReceiverServlet.class);
     }
 
-    void setLogger(Logger logger) {
-        this.logger = logger;
+    public static void syncAthleteTimer(String fopName2, AthleteTimerElementPR timer) {
+        CountdownTimer t = getAthleteTimerFromCache(fopName2);
+        long athleteMillis = t.getTimeRemaining();
+        TimerEvent timerEvent = null;
+        if (athleteMillis >= 0) {
+            if (t.isRunning()) {
+                timerEvent = new TimerEvent.StartTime((int) athleteMillis, true);
+                
+            } else {
+                timerEvent = new TimerEvent.SetTime((int) athleteMillis);
+            }
+        }
+        if (timerEvent != null) {
+            timerEvent.setFopName(fopName2);
+            getEventBus().post(timerEvent);
+        } 
+    }
+
+    public static void syncBreakTimer(String fopName2, BreakTimerElementPR breakTimer) {
+        CountdownTimer t = getBreakTimerFromCache(fopName2);
+        var logger = (Logger) LoggerFactory.getLogger(TimerReceiverServlet.class);
+        //logger.debug("getBreakTimerFromCache {} {}",System.identityHashCode(t),t.getTimeRemaining());
+        long athleteMillis = t.getTimeRemaining();
+        BreakTimerEvent timerEvent = null;
+        if (athleteMillis >= 0) {
+            //logger.debug("t.isRunning() {}",t.isRunning());
+            if (t.isRunning()) {
+                timerEvent = new BreakTimerEvent.BreakStart((int) athleteMillis, t.isIndefinite());    
+            } else {
+                timerEvent = new BreakTimerEvent.BreakSetTime((int) athleteMillis, t.isIndefinite());
+            }
+        }
+        if (timerEvent != null) {
+            timerEvent.setFopName(fopName2);
+            getEventBus().post(timerEvent);
+        } 
     }
 
 }
