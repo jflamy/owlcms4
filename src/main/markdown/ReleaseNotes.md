@@ -1,32 +1,9 @@
-> [!WARNING]
->
-> - This is a release candidate [(see definition)](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate), used for final public testing and translation. *It is still a preliminary release*
-> - You should test all releases, with actual data, *several days* before a competition. This is especially important when considering the use of a release candidate.
+**Version 50.0.0**
 
-- Release candidate change log
-  - (rc07) Attempt board, video medals, video rankings: The current session name or description is no longer shown, since the medals or rankings are often from the previous session.
-  - (rc07) Fix: Public scoreboards were no longer initializing correctly to to an error in setting up the alternate medals board.
-  - (rc07) Fix: switching languages for the current session was no longer working.
-  - (rc06) Server-side sounds 
-    - The timer sounds were no longer being emitted. Changing the sound adapter for the platform seemed to be the triggering cause. Now they should always work.
-    - The server-side down signal was always being given, even in the default mode where the announcer is just entering flag decisions
-  - (rc06) The end-of-session protocol sheet no longer showed the records improved during the session.  Now fixed.
-  - (rc05) Initial Registration Sheet: Better error messages for wrong gender (not M or F) and illegal numbers
-  - (rc04) The medal sheet and the medal display screens now correctly include all the categories where medals can be awarded. Previously, if an athlete had not weighed in, or had been unassigned to a session a category could be considered to still be in progress.
-  - (rc04) When using MQTT buttons, duplicate "Start" are now correctly ignored.
-  - (rc04) Exporting all records now works even when there are no weighed-in athlete (an irrelevant condition was being tested)
-  - (rc04) Public Results: cleanup of the code used for processing closed tabs, they don't need to be kept as items to be monitored.
-  - (rc03) Translations: Portuguese, Romanian, Hungarian
-  - (rc03) Fix for "categoryDone" column needlessly included in the persisted database, causing issues with json export and other features (#1054)
-  - (rc03) Records are now imported correctly from a database export.  Previously some could be missing, requiring a second import.
-  - (rc03) The "non-standard bar is in use" indicator is now read correctly from the database.  In prior 50.x releases this was not initialized properly and could prevent marshal changes from working.
-  - (rc03) USAW BARS results upload was missing one cell : when results for all sessions are produced, the standard templates clear the session name cell.  This is not required for the BARs template
-  - (rc02) Fix: current athlete display did not update or would fail to start.
-  - (rc02) Fix: After introductions, could not go back to break management dialog to start the Time to snatch timer
-  - (rc02) The local/robi directory was not being populated by the Windows installer (contains the records used for computing Robi coefficients)
-  - (rc02) Technical: continuing cleanup of code used to determine the current field of play
-  - (rc01) Additional updates to translations: Spanish, Portuguese
-  - (rc01) Publicresults: On session expiry,  reload button label omits the platform name when there is only one platform.
+> [!IMPORTANT]
+>
+> - You should test all releases, with actual data, several days before a competition. 
+
 - New: Marshal and announcer usability improvements
   - The notification is synchronized with the appearance of the athlete's name on the attempt board to respect TCRR rules.
   - The information update in the announcer grid now allows announcing the total as soon as the decision is made.
@@ -51,10 +28,19 @@
   - Accept common image formats for flags (`.svg`, `.png`, `.jpg`, `.jpeg`, or `.webp`)
   - Error messages for illegal values in the Registration file (M/F gender and integer numbers)
 - Fixes:
+  - Attempt board, video medals, video rankings: The current session name or description is no longer shown, since the medals or rankings are often from the previous session.
+  - Switching languages for the current session was no longer working.
+  - Server-side sounds 
+    - The timer sounds were no longer being emitted. Changing the sound adapter for the platform seemed to be the triggering cause. Now they should always work.
+    - The server-side down signal was always being given, even in the default mode where the announcer is just entering flag decisions
+  - The end-of-session protocol sheet no longer showed the records improved during the session.  Now fixed.
+  - Initial Registration Sheet: Better error messages for wrong gender (not M or F) and illegal numbers
   - The medal sheet and the medal display screens now correctly include all the categories where medals can be awarded. Previously, if an athlete had not weighed in, or had been unassigned to a session a category could be considered to still be in progress.
   - When using MQTT buttons, duplicate "Start" are now correctly ignored.
+  - Exporting all records now works even when there are no weighed-in athlete (an irrelevant condition was being tested)
   - Records are now imported correctly from a database export.  Previously some could be missing, requiring a second import.
+  - USAW BARS results upload was missing one cell : when results for all sessions are produced, the standard templates clear the session name cell.  This is not required for the BARs template
   - The local/robi directory was not being populated by the Windows installer (contains the records used for computing Robi coefficients)
-  - IWF behavior for start numbers ([gh-1025](https://github.com/jflamy/owlcms4/pull/1026))
+  - IWF behavior for start numbers is now respected by default
 - USAW note: the list of feature toggles to use for National championships is
   `USAW,athleteCardEntryTotal,explicitTeams,noLiveLights,centerAnnouncerNotifications,childrenEquipment`
