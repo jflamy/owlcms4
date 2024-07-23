@@ -21,7 +21,6 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.publicresults.MainView;
 import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.utils.StartupUtils;
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public class SessionCleanup {
@@ -34,7 +33,6 @@ public class SessionCleanup {
 
     private SessionCleanup(VaadinSession vs) {
         this.vaadinSession = vs;
-        logger.setLevel(Level.DEBUG);
     }
 
     public void cleanupSession() {
@@ -112,7 +110,6 @@ public class SessionCleanup {
                     vaadinSession.close();
                     stop();
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
 

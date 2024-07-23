@@ -28,7 +28,6 @@ import app.owlcms.displays.scoreboard.ResultsPR;
 import app.owlcms.prutils.SafeEventBusRegistrationPR;
 import app.owlcms.prutils.SessionCleanup;
 import app.owlcms.publicresults.MainView;
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -96,7 +95,6 @@ public final class UnloadObserverPR extends LitTemplate {
         this.component = c;
         ui.getPage().fetchCurrentURL(u -> setUrl(u));
         this.title = "";
-        logger.setLevel(Level.DEBUG);
 //        logger.debug("UnloadObserverPR={} (getElement()={}) component={} {}",
 //                System.identityHashCode(this), System.identityHashCode(this.getElement()),
 //                c.getClass().getSimpleName(), System.identityHashCode(c));
