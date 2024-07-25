@@ -233,6 +233,7 @@ public class TimerReceiverServlet extends HttpServlet implements Traceable {
 
     public static void syncBreakTimer(String fopName2, BreakTimerElementPR breakTimer) {
         CountdownTimer t = getBreakTimerFromCache(fopName2);
+        @SuppressWarnings("unused")
         var logger = (Logger) LoggerFactory.getLogger(TimerReceiverServlet.class);
         //logger.debug("getBreakTimerFromCache {} {}",System.identityHashCode(t),t.getTimeRemaining());
         long athleteMillis = t.getTimeRemaining();
