@@ -421,6 +421,11 @@ public class Competition {
 	}
 
 	public void doGlobalRankings(List<Athlete> athletes, Boolean scoringSystemOnly) {
+		/*
+		 * TODO: make dependent on age group. age-group dependent would be for the registration category only (that shown on scoreboard and main medaling
+		 * for session). secondary medals for other eligibility categories would be computed separately, during reporting.
+		 */
+		
 		//long beforeDedup = System.currentTimeMillis();
 		TreeSet<Athlete> noDup = new TreeSet<>(Comparator.comparing(Athlete::getFullId));
 		for (Athlete pAthlete : athletes) {

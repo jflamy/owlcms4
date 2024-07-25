@@ -279,7 +279,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		if (this.getCurrentGroup() != null && !this.getCurrentGroup().getName().equals("*")) {
 			aFromList.setGroup(getCurrentGroup());
 		}
-		this.binder.readBean(aFromList); // FIXME should be getEditedAthlete() ?
+		this.binder.readBean(aFromList); // REVIEW should be getEditedAthlete() ?
 
 		// binder has read bean.
 		filterCategories(getEditedAthlete().getCategory(), operation != CrudOperation.ADD);

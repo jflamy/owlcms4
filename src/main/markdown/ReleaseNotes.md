@@ -8,3 +8,5 @@
 - (beta01) Publicresults
   - When a user opens a scoreboard and a timer is running, the timer is now immediately synchronized
   - If the publicresults application is restarted, and sessions are in a break, the remaining time is now immediately synchronized
+
+See also [version 50 release notes](https://github.com/owlcms/owlcms4/releases/tag/50.0.0)
