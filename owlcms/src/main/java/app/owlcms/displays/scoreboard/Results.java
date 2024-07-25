@@ -131,7 +131,7 @@ public class Results extends LitTemplate
 	 */
 	@Override
 	public void doBreak(UIEvent event) {
-		//this.logger.debug("Results doBreak {}", LoggerUtils.stackTrace());
+		// this.logger.debug("Results doBreak {}", LoggerUtils.stackTrace());
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
 
@@ -749,7 +749,6 @@ public class Results extends LitTemplate
 		return ageGroups;
 	}
 
-
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 		String category;
 		category = curCat != null ? curCat.getDisplayName() : "";
@@ -1068,15 +1067,29 @@ public class Results extends LitTemplate
 	}
 
 	private String computedScore(Athlete a) {
-		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
-		double value = Ranking.getRankingValue(a, scoringSystem);
-		String score = value > 0.001 ? String.format("%.3f", value) : "-";
-		return score;
+		Ranking ageGroupScoringSystem = a.getAgeGroup().getScoringSystem();
+		if (ageGroupScoringSystem != null) {
+			double value = Ranking.getRankingValue(a, ageGroupScoringSystem);
+			String score = value > 0.001 ? String.format("%.3f", value) : "-";
+			return score;
+		} else {
+			Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
+			double value = Ranking.getRankingValue(a, scoringSystem);
+			String score = value > 0.001 ? String.format("%.3f", value) : "-";
+			return score;
+		}
 	}
 
 	private String computedScoreRank(Athlete a) {
-		Integer value = Ranking.getRanking(a, Competition.getCurrent().getScoringSystem());
-		return value != null && value > 0 ? "" + value : "-";
+		Ranking ageGroupScoringSystem = a.getAgeGroup().getScoringSystem();
+		if (ageGroupScoringSystem != null) {
+			Integer value = Ranking.getRanking(a, ageGroupScoringSystem);
+			return value != null && value > 0 ? "" + value : "-";
+		} else {
+			Integer value = Ranking.getRanking(a, Competition.getCurrent().getScoringSystem());
+			return value != null && value > 0 ? "" + value : "-";
+		}
+
 	}
 
 	private String computeLiftType(Athlete a) {

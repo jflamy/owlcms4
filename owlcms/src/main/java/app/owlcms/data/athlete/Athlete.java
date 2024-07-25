@@ -191,6 +191,9 @@ public class Athlete {
 			if (copyResults) {
 				dest.setCleanJerk3ActualLift(src.getCleanJerk3ActualLift());
 				dest.setCleanJerk3LiftTime(src.getCleanJerk3LiftTime());
+			}
+			
+			if (copyResults) {
 				dest.setCustomScore(src.getCustomScoreComputed());
 			}
 
@@ -1547,10 +1550,15 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getCustomScoreComputed() {
-		if (this.customScore == null || this.customScore < 0.01) {
-			return Double.valueOf(getTotal());
+		Ranking scoringSystem = getAgeGroup().getScoringSystem();
+		// avoid infinite recursion
+		if (scoringSystem != null && scoringSystem != Ranking.CUSTOM) {
+			return Ranking.getRankingValue(this, scoringSystem);
+		} else if (this.customScore == null || this.customScore < 0.01) {
+			return Ranking.getRankingValue(this, Ranking.TOTAL);
+		} else {
+			return this.customScore;
 		}
-		return this.customScore;
 	}
 
 	/**

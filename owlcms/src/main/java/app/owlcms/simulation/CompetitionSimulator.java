@@ -129,6 +129,7 @@ public class CompetitionSimulator {
 
 	private List<Athlete> weighIn(Group g) {
 		List<Athlete> as = AthleteRepository.findAllByGroupAndWeighIn(g, null);
+		Random r = new Random();
 		for (Athlete a : as) {
 			Category c = a.getCategory();
 			if (c == null) {
@@ -137,7 +138,10 @@ public class CompetitionSimulator {
 				continue;
 			}
 			Double catLimit = c.getMaximumWeight();
-			if (catLimit > 998) {
+			if (catLimit > 998 && c.getMinimumWeight() == 0) {
+				// open category
+				a.setBodyWeight(r.nextGaussian(85,15));
+			} else if (catLimit > 998) {
 				catLimit = c.getMinimumWeight() * 1.1;
 			}
 			double bodyWeight = catLimit - (this.r.nextDouble() * 2.0);

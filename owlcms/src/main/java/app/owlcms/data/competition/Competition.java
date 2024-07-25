@@ -289,14 +289,13 @@ public class Competition {
 	 */
 	public TreeMap<String, TreeSet<Athlete>> computeMedals(Group g) {
 		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g, false);
-		//logger.debug("*** ranked athletes for group {} {}",g,rankedAthletes.stream().map(a->a.getLastName()).toList());
+		// logger.debug("*** ranked athletes for group {} {}",g,rankedAthletes.stream().map(a->a.getLastName()).toList());
 		return computeMedals(g, rankedAthletes);
 	}
 
 	/**
 	 * @param g
-	 * @param rankedAthletes athletes participating in the group, plus athletes in the same category that have yet to
-	 *                       compete
+	 * @param rankedAthletes athletes participating in the group, plus athletes in the same category that have yet to compete
 	 * @return for each category, medal-winnning athletes in snatch, clean & jerk and total.
 	 */
 	public TreeMap<String, TreeSet<Athlete>> computeMedals(Group g, List<Athlete> rankedAthletes
@@ -415,18 +414,18 @@ public class Competition {
 		        .filter(a -> a.getBodyWeight() != null && a.getBodyWeight() > 0.1).collect(Collectors.toList());
 
 		doComputeReportingInfo(true, weighedInAthletes, ageGroupPrefix, ad);
-		AthleteSorter.resultsOrder(allPAthletes,Ranking.TOTAL,false);
+		AthleteSorter.resultsOrder(allPAthletes, Ranking.TOTAL, false);
 		this.reportingBeans.put("allPAthletes", allPAthletes);
 		return this.reportingBeans;
 	}
 
 	public void doGlobalRankings(List<Athlete> athletes, Boolean scoringSystemOnly) {
 		/*
-		 * TODO: make dependent on age group. age-group dependent would be for the registration category only (that shown on scoreboard and main medaling
+		 * TODO: *** make dependent on age group. age-group dependent would be for the registration category only (that shown on scoreboard and main medaling
 		 * for session). secondary medals for other eligibility categories would be computed separately, during reporting.
 		 */
-		
-		//long beforeDedup = System.currentTimeMillis();
+
+		// long beforeDedup = System.currentTimeMillis();
 		TreeSet<Athlete> noDup = new TreeSet<>(Comparator.comparing(Athlete::getFullId));
 		for (Athlete pAthlete : athletes) {
 			Athlete athlete;
@@ -438,23 +437,23 @@ public class Competition {
 			}
 		}
 		ArrayList<Athlete> nodupAthletes = new ArrayList<>(noDup);
-		//long afterDedup = System.currentTimeMillis();
-		//logger.debug("------------------------- dedup {}ms {}", afterDedup - beforeDedup, LoggerUtils.whereFrom(5));
+		// long afterDedup = System.currentTimeMillis();
+		// logger.debug("------------------------- dedup {}ms {}", afterDedup - beforeDedup, LoggerUtils.whereFrom(5));
 
 		if (scoringSystemOnly) {
-			//long beforeReporting = System.currentTimeMillis();
+			// long beforeReporting = System.currentTimeMillis();
 			doReporting(nodupAthletes, getScoringSystem(), true);
-			//long afterReporting = System.currentTimeMillis();
-			//logger.debug("------------------------- scoringSystem reporting {}ms", afterReporting - beforeReporting);
+			// long afterReporting = System.currentTimeMillis();
+			// logger.debug("------------------------- scoringSystem reporting {}ms", afterReporting - beforeReporting);
 		} else {
-			//long beforeReporting = System.currentTimeMillis();
+			// long beforeReporting = System.currentTimeMillis();
 			doReporting(nodupAthletes, Ranking.BW_SINCLAIR, true);
 			doReporting(nodupAthletes, Ranking.SMM, true);
 			doReporting(nodupAthletes, Ranking.QPOINTS, true);
 			doReporting(nodupAthletes, Ranking.CAT_SINCLAIR, true);
 			doReporting(nodupAthletes, Ranking.GAMX, true);
-			//long afterReporting = System.currentTimeMillis();
-			//logger.debug("------------------------- full reporting {}ms", afterReporting - beforeReporting);
+			// long afterReporting = System.currentTimeMillis();
+			// logger.debug("------------------------- full reporting {}ms", afterReporting - beforeReporting);
 		}
 	}
 
@@ -650,7 +649,6 @@ public class Competition {
 			return getResultsTemplateFileName();
 		}
 	}
-
 
 	@Transient
 	@JsonIgnore
@@ -852,7 +850,7 @@ public class Competition {
 				        if (athletes.isEmpty()) {
 					        return true; // remove from list.
 				        }
-				        logger.debug("athletes {} {}",k, athletes);
+				        logger.debug("athletes {} {}", k, athletes);
 				        // category includes an athlete that has not finished, mark it as "to be
 				        // removed"
 				        boolean anyMatch = athletes.stream().anyMatch(a -> !a.isDone(g));
@@ -963,10 +961,10 @@ public class Competition {
 	// }
 
 	public void scoringSystemRankings(EntityManager em) {
-		//long beforeFindAll = System.currentTimeMillis();
+		// long beforeFindAll = System.currentTimeMillis();
 		List<Athlete> athletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, null, true, null);
-		//long afterFindAll = System.currentTimeMillis();
-		//logger.debug("------------------------- scoringSystemRankings doFindAllByGroupAndWeighIn {}ms", afterFindAll - beforeFindAll);
+		// long afterFindAll = System.currentTimeMillis();
+		// logger.debug("------------------------- scoringSystemRankings doFindAllByGroupAndWeighIn {}ms", afterFindAll - beforeFindAll);
 		doGlobalRankings(athletes, SCORING_SYSTEM_ONLY);
 	}
 
@@ -1404,8 +1402,7 @@ public class Competition {
 	}
 
 	/**
-	 * Sets the use registration category. No longer used. We always use the category. Only kept for backward
-	 * compatibility.
+	 * Sets the use registration category. No longer used. We always use the category. Only kept for backward compatibility.
 	 *
 	 * @param useRegistrationCategory the useRegistrationCategory to set
 	 */
@@ -1481,7 +1478,7 @@ public class Competition {
 	private void doComputeReportingInfo(boolean full, List<Athlete> athletes, String ageGroupPrefix,
 	        Championship ad) {
 		// reporting does many database queries. fork a low-priority thread.
-		//logger.debug("------------------------- doComputeReportingInfo {}",LoggerUtils.whereFrom());
+		// logger.debug("------------------------- doComputeReportingInfo {}",LoggerUtils.whereFrom());
 		runInThread(() -> {
 			if (athletes.isEmpty()) {
 				// prevent outputting silliness.
@@ -1497,7 +1494,7 @@ public class Competition {
 			// splitResultsByGroups(athletes);
 			if (full) {
 				this.reportingBeans.put("athletes", athletes);
-				//logger.debug("championship={} ageGroupPrefix={}", ad, ageGroupPrefix);
+				// logger.debug("championship={} ageGroupPrefix={}", ad, ageGroupPrefix);
 				if (ad != null && (ageGroupPrefix == null || ageGroupPrefix.isBlank())) {
 					// iterate over all age groups present in championship ad
 					teamRankingsForAgeDivision(ad);
@@ -1560,8 +1557,8 @@ public class Competition {
 	/**
 	 * Compute a team-ranking for the specified PAthletes.
 	 *
-	 * PAthletes have a single participation, which is the one that will be used for ranking. Caller is responsible for
-	 * putting several age groups together (e.g. for Masters), or using a single age group (e.g. SR)
+	 * PAthletes have a single participation, which is the one that will be used for ranking. Caller is responsible for putting several age groups together
+	 * (e.g. for Masters), or using a single age group (e.g. SR)
 	 *
 	 * Reporting beans are modified. Caller must clear them beforehand if needed.
 	 *

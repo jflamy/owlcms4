@@ -23,9 +23,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.UI;
+
 import app.owlcms.Main;
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.category.RobiCategories;
@@ -37,6 +40,7 @@ import ch.qos.logback.classic.Logger;
 
 public class AgeGroupDefinitionReader {
 
+	private static final String AGE_GROUP_SCORING_HEADER = "agegroupscoring";
 	private static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupDefinitionReader.class);
 
 	public static void doInsertRobiAndAgeGroups(InputStream ageGroupStream) {
@@ -55,6 +59,7 @@ public class AgeGroupDefinitionReader {
 			Sheet sheet = workbook.getSheetAt(workbook.getNumberOfSheets() - 1);
 			Iterator<Row> rowIterator = sheet.rowIterator();
 			int iRow;
+			boolean ageGroupScoring = false;
 			rows: while (rowIterator.hasNext()) {
 				int iColumn;
 				Row row;
@@ -62,8 +67,17 @@ public class AgeGroupDefinitionReader {
 				iRow = row.getRowNum();
 				if (iRow == 0) {
 					// process header
-					row = rowIterator.next();
 					iRow = row.getRowNum();
+					Cell scoring = row.getCell(7);
+					if (scoring != null) {
+						try {
+							String lowerCase = scoring.getStringCellValue().toLowerCase();
+							logger.warn("lowerCase = {}", lowerCase);
+							ageGroupScoring = lowerCase.equals(AGE_GROUP_SCORING_HEADER);
+						} catch (Exception e) {
+						}
+					}
+					continue;
 				}
 
 				AgeGroup ag = null;
@@ -142,48 +156,56 @@ public class AgeGroupDefinitionReader {
 							}
 						}
 							break;
-						default: {
-							String cellValue = null;
-							try {
+						default:
+							if (ageGroupScoring && iColumn == 7) {
+								String cellValue = null;
 								cellValue = safeGetTextValue(cell);
-							} catch (IllegalStateException e) {
-								Double doubleValue = cell.getNumericCellValue();
-								if (doubleValue != null) {
-									cellValue = Integer.toString(doubleValue.intValue());
-								}
-							}
-							if (cellValue != null && !cellValue.trim().isEmpty()) {
-								String[] parts = cellValue.split("[-_. /]");
-								String catCode = parts.length > 0 ? parts[0] : cellValue;
-								String qualTotal = parts.length > 1 ? parts[1] : "0";
-								Category cat;
-								try {
-									Gender gender;
-									String upper;
-									if (catCode.matches("^[A-Za-z]\\d+$")) {
-										gender = Gender.valueOf(catCode.substring(0, 1));
-										upper = catCode.substring(1);
-									} else {
-										gender = ag.getGender();
-										upper = catCode;
+								if (cellValue != null && !cellValue.isBlank()) {
+									try {
+										Ranking rv = Ranking.valueOf(cellValue.toUpperCase());
+										ag.setScoringSystem(rv);
+										logger.warn("{} scoring system: {}", ag.getName(), rv);
+									} catch (Exception e) {
+										reportError(iRow, iColumn, cellValue, e);
 									}
-									cat = new Category(curMin, Double.parseDouble(upper),
-									        gender, ag.isActive(), 0, 0, 0,
-									        ag, Integer.parseInt(qualTotal));
-									em.persist(cat);
-									// logger.debug(cat.longDump());
-									curMin = cat.getMaximumWeight();
-								} catch (Exception e) {
-									String msg = MessageFormat.format(
-									        "cannot process cell {0} (content = \"{1}\") {2}",
-									        cellName(iColumn, iRow), cellValue, e);
-									logger.error(msg);
-									NotificationUtils.errorNotification(msg);
-									throw new RuntimeException(msg);
 								}
+							} else {
+								String cellValue = null;
+								try {
+									cellValue = safeGetTextValue(cell);
+								} catch (IllegalStateException e) {
+									Double doubleValue = cell.getNumericCellValue();
+									if (doubleValue != null) {
+										cellValue = Integer.toString(doubleValue.intValue());
+									}
+								}
+								if (cellValue != null && !cellValue.trim().isEmpty()) {
+									String[] parts = cellValue.split("[-_. /]");
+									String catCode = parts.length > 0 ? parts[0] : cellValue;
+									String qualTotal = parts.length > 1 ? parts[1] : "0";
+									Category cat;
+									try {
+										Gender gender;
+										String upper;
+										if (catCode.matches("^[A-Za-z]\\d+$")) {
+											gender = Gender.valueOf(catCode.substring(0, 1));
+											upper = catCode.substring(1);
+										} else {
+											gender = ag.getGender();
+											upper = catCode;
+										}
+										cat = new Category(curMin, Double.parseDouble(upper),
+										        gender, ag.isActive(), 0, 0, 0,
+										        ag, Integer.parseInt(qualTotal));
+										em.persist(cat);
+										// logger.debug(cat.longDump());
+										curMin = cat.getMaximumWeight();
+									} catch (Exception e) {
+										reportError(iRow, iColumn, cellValue, e);
+									}
 
+								}
 							}
-						}
 							break;
 					}
 					iColumn++;
@@ -199,6 +221,16 @@ public class AgeGroupDefinitionReader {
 
 			return null;
 		});
+	}
+
+	private static void reportError(int iRow, int iColumn, String cellValue, Exception e) {
+		String msg = MessageFormat.format(
+		        "cannot process cell {0} (content = \"{1}\") {2}",
+		        cellName(iColumn, iRow), cellValue, e);
+		logger.error(msg);
+		if (UI.getCurrent() != null) {
+			NotificationUtils.errorNotification(msg);
+		}
 	}
 
 	static DataFormatter formatter = new DataFormatter();

@@ -1093,7 +1093,6 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	}
 
 	private void recomputeRemainingTimes(Map<String, String> sb) {
-		//TODO set the remaining time to what is actually left and remove base time
 	}
 
 	private void doBreak(UIEvent e, Group g) {

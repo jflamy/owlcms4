@@ -35,6 +35,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -119,6 +120,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	private Integer qualificationTotal;
 	@Column(columnDefinition = "boolean default false")
 	private Boolean alreadyGendered = false;
+	private Ranking scoringSystem;
 
 	public AgeGroup() {
 	}
@@ -443,6 +445,14 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 	public String getChampionshipName() {
 		return championshipName;
+	}
+
+	public Ranking getScoringSystem() {
+		return scoringSystem;
+	}
+
+	public void setScoringSystem(Ranking setScoringSystem) {
+		this.scoringSystem = setScoringSystem;
 	}
 
 }
