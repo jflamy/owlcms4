@@ -184,7 +184,7 @@ public class TopTeams extends AbstractTop {
 	protected void onAttach(AttachEvent attachEvent) {
 		checkVideo(this);
 		setWide(false);
-		setTranslationMap();
+		setTranslationMap(null, true);
 		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
 			// we listen on all the uiEventBus.
 			this.uiEventBus = uiEventBusRegister(this, fop);
@@ -194,7 +194,7 @@ public class TopTeams extends AbstractTop {
 	}
 
 	@Override
-	protected void setTranslationMap() {
+	protected void setTranslationMap(Ranking ignored, boolean globalRanking) {
 		JsonObject translations = Json.createObject();
 		Enumeration<String> keys = Translator.getKeys();
 		while (keys.hasMoreElements()) {

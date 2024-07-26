@@ -1012,7 +1012,7 @@ public class Results extends LitTemplate
 		}
 	}
 
-	protected void setTranslationMap() {
+	protected void setTranslationMap(Ranking ageGroupRanking, boolean globalRanking) {
 		JsonObject translations = Json.createObject();
 		Enumeration<String> keys = Translator.getKeys();
 		while (keys.hasMoreElements()) {
@@ -1022,8 +1022,15 @@ public class Results extends LitTemplate
 			}
 		}
 
-		String scoringTitle = Ranking.getScoringTitle(Competition.getCurrent().getScoringSystem());
-		translations.put("ScoringTitle", scoringTitle != null ? scoringTitle : Translator.translate("Sinclair"));
+		if (globalRanking) {
+			String scoringTitle = Ranking.getScoringTitle(Competition.getCurrent().getScoringSystem());
+			translations.put("ScoringTitle", scoringTitle != null ? scoringTitle : Translator.translate("Score"));
+		} else if (ageGroupRanking != null ){
+			String scoringTitle = Ranking.getScoringTitle(ageGroupRanking);
+			translations.put("ScoringTitle", scoringTitle != null ? scoringTitle : Translator.translate("Score"));
+		} else {
+			translations.put("ScoringTitle", Translator.translate("Score"));
+		}
 		this.getElement().setPropertyJson("t", translations);
 	}
 
@@ -1068,8 +1075,9 @@ public class Results extends LitTemplate
 
 	private String computedScore(Athlete a) {
 		Ranking ageGroupScoringSystem = a.getAgeGroup().getScoringSystem();
+		logger.warn("a {} agegroup {} scoring {}",a.getLastName(),a.getAgeGroup(),a.getAgeGroup().getScoringSystem());
 		if (ageGroupScoringSystem != null) {
-			double value = Ranking.getRankingValue(a, ageGroupScoringSystem);
+			double value = Ranking.getRankingValue(a, Ranking.CUSTOM);
 			String score = value > 0.001 ? String.format("%.3f", value) : "-";
 			return score;
 		} else {
@@ -1083,7 +1091,7 @@ public class Results extends LitTemplate
 	private String computedScoreRank(Athlete a) {
 		Ranking ageGroupScoringSystem = a.getAgeGroup().getScoringSystem();
 		if (ageGroupScoringSystem != null) {
-			Integer value = Ranking.getRanking(a, ageGroupScoringSystem);
+			Integer value = Ranking.getRanking(a, Ranking.CUSTOM);
 			return value != null && value > 0 ? "" + value : "-";
 		} else {
 			Integer value = Ranking.getRanking(a, Competition.getCurrent().getScoringSystem());
@@ -1132,14 +1140,26 @@ public class Results extends LitTemplate
 	}
 
 	private void resultsInit() {
+		Ranking ageGroupRanking[] = {null};
 		OwlcmsSession.withFop(fop -> {
 			this.logger.trace("{}Starting result board on FOP {}", FieldOfPlay.getLoggingName(fop));
 			setId("scoreboard-" + fop.getName());
 			this.curGroup = fop.getGroup();
 			setWideTeamNames(false);
 			this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
+			List<Athlete> athletes = fop.getDisplayOrder();
+
+			if (athletes.size() > 0) {
+				Ranking scoringSystem = athletes.get(0).getAgeGroup().getScoringSystem();
+				boolean unanimous = athletes.stream().allMatch(s -> {
+					return s.getAgeGroup().getScoringSystem().equals(scoringSystem);
+				});
+				if (unanimous) {
+					ageGroupRanking[0] = scoringSystem;
+				}
+			}
 		});
-		setTranslationMap();
+		setTranslationMap(ageGroupRanking[0], false);
 		this.displayOrder = ImmutableList.of();
 	}
 
