@@ -55,7 +55,6 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 
 	@Override
 	public List<Athlete> getSortedAthletes() {
-		logger.debug("winning getSortedAthletes {}", this.sortedAthletes.size());
 		if (this.sortedAthletes != null) {
 			// we are provided with an externally computed list.
 			if (this.resultsByCategory) {

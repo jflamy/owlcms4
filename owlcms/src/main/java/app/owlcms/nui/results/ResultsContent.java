@@ -66,6 +66,7 @@ import app.owlcms.nui.shared.AthleteGridContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSMedalsSheet;
 import app.owlcms.spreadsheet.JXLSResultSheet;
+import app.owlcms.spreadsheet.JXLSWinningSheet;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
@@ -512,12 +513,12 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 	private Button createEligibilityResultsDownloadButton() {
 		this.downloadDialog = new JXLSDownloader(
 		        () -> {
-			        JXLSResultSheet rs = new JXLSResultSheet();
+		        	JXLSWinningSheet rs = new JXLSWinningSheet();
 			        // group may have been edited since the page was loaded
 			        rs.setGroup(this.currentGroup != null ? GroupRepository.getById(this.currentGroup.getId()) : null);
 			        return rs;
 		        },
-		        "/templates/protocol",
+		        "/templates/competitionResults",
 		        Competition::getComputedResultsTemplateFileName,
 		        Competition::setResultsTemplateFileName,
 		        Translator.translate("EligibilityCategoryResults"),
