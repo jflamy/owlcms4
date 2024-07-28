@@ -1149,7 +1149,7 @@ public class Results extends LitTemplate
 			this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
 			List<Athlete> athletes = fop.getDisplayOrder();
 
-			if (athletes.size() > 0) {
+			if (athletes!= null && athletes.size() > 0) {
 				Ranking scoringSystem = athletes.get(0).getAgeGroup().getScoringSystem();
 				boolean unanimous = athletes.stream().allMatch(s -> {
 					return s.getAgeGroup().getScoringSystem().equals(scoringSystem);
