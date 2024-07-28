@@ -60,7 +60,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 			// we are provided with an externally computed list.
 			if (this.resultsByCategory) {
 				// no need to unwrap, each athlete is a wrapper PAthlete with a participation category.
-				AthleteSorter.resultsOrder(this.sortedAthletes, Ranking.TOTAL, false);
+				AthleteSorter.resultsOrder(this.sortedAthletes, rankingOrder(), false);
 				logger.debug("eligible getSortedAthletes {}",this.sortedAthletes.size());
 				return this.sortedAthletes;
 			} else {
@@ -69,7 +69,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 				List<Athlete> unwrappedAthletes = unwrapAthletesAsNeeded(this.sortedAthletes);
 				Set<Athlete> noDuplicates = new HashSet<>(unwrappedAthletes);
 				this.sortedAthletes = new ArrayList<>(noDuplicates);
-				AthleteSorter.resultsOrder(this.sortedAthletes, Ranking.TOTAL, false);
+				AthleteSorter.resultsOrder(this.sortedAthletes, rankingOrder(), false);
 				logger.debug("registration getSortedAthletes {}",this.sortedAthletes.size());
 				return this.sortedAthletes;
 			}
@@ -85,7 +85,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 		List<Athlete> pAthletes = unwrapAthletesAsNeeded(rankedAthletes);
 
 		// @formatter:off
-        List<Athlete> athletes = AthleteSorter.resultsOrderCopy(pAthletes, Ranking.TOTAL, false).stream()
+        List<Athlete> athletes = AthleteSorter.resultsOrderCopy(pAthletes, rankingOrder(), false).stream()
                 .filter(a -> {
                     Double bw;
                     return a.getCategory() != null && (bw = a.getBodyWeight()) != null && bw > 0.01;
@@ -126,6 +126,10 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
                 .collect(Collectors.toList());
         return athletes;
         // @formatter:on
+	}
+
+	private Ranking rankingOrder() {
+		return Ranking.CUSTOM;
 	}
 
 	/*

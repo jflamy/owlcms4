@@ -137,15 +137,21 @@ public class CompetitionSimulator {
 				AthleteRepository.save(a);
 				continue;
 			}
-			Double catLimit = c.getMaximumWeight();
-			if (catLimit > 998 && c.getMinimumWeight() == 0) {
+			Double catUpper = c.getMaximumWeight();
+			Double catLower = c.getMinimumWeight();
+			logger.warn("low {} high {}",catLower,catUpper);
+			if (catUpper > 998 && catLower < 0.1) {
 				// open category
-				a.setBodyWeight(r.nextGaussian(85,15));
-			} else if (catLimit > 998) {
-				catLimit = c.getMinimumWeight() * 1.1;
+				double nextGaussian = r.nextGaussian(85, 15);
+				a.setBodyWeight(nextGaussian);
+				catUpper = (double) Math.round(2.0+nextGaussian+2.0);
+			} else {
+				if (catUpper > 998) {
+					catUpper = catLower * 1.1;
+				}
+				double bodyWeight = catUpper - (this.r.nextDouble() * 2.0);
+				a.setBodyWeight(bodyWeight);
 			}
-			double bodyWeight = catLimit - (this.r.nextDouble() * 2.0);
-			a.setBodyWeight(bodyWeight);
 
 			Integer entryTotal = a.getEntryTotal();
 			if (entryTotal != null && entryTotal > 0) {
@@ -155,7 +161,7 @@ public class CompetitionSimulator {
 				a.setCleanJerk1Declaration(Long.toString(icjd));
 				AthleteRepository.save(a);
 			} else {
-				double sd = catLimit * (1 + (this.r.nextGaussian() / 10));
+				double sd = catUpper * (1 + (this.r.nextGaussian() / 10));
 				long isd = Math.round(sd);
 				a.setSnatch1Declaration(Long.toString(isd));
 				long icjd = Math.round(sd * 1.20D);
