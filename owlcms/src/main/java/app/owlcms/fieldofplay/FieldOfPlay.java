@@ -2294,7 +2294,6 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private List<Athlete> updateScoringSystemRanking(EntityManager em, List<Athlete> l) {
-		//TODO: *** make scoringSystemRankings dependent on age group.
 		if (Competition.getCurrent().isDisplayScoreRanks()) {
 			// long beforeRanks = System.currentTimeMillis();
 			try {

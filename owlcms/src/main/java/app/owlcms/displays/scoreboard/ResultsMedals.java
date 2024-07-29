@@ -404,7 +404,6 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 
 	@Override
 	protected void setTranslationMap(Ranking ignored, boolean globalRanking) {
-		//FIXME: does the medal board show scores.
 		JsonObject translations = Json.createObject();
 		Enumeration<String> keys = Translator.getKeys();
 		while (keys.hasMoreElements()) {

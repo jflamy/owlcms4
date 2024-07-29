@@ -674,9 +674,26 @@
 												<exclude>META-INF/*.DSA</exclude>
 												<exclude>META-INF/*.RSA</exclude>
 												<exclude>META-INF/*.md</exclude>
+												<exclude>META-INF/AL2.0</exclude>
+												<exclude>META-INF/LGPL2.1</exclude>
 												<exclude>com.vaadin:vaadin-dev</exclude>
 												<exclude>
 													com.vaadin:vaadin-dev-server</exclude>
+												<exclude>
+													com.vaadin:vaadin-board-flow</exclude>
+												<exclude>
+													com.vaadin:vaadin-charts-flow</exclude>
+												<exclude>
+													com.vaadin:vaadin-cookie-consent-flow</exclude>
+												<exclude>
+													com.vaadin:vaadin-crud-flow</exclude>
+												<exclude>
+													com.vaadin:vaadin-grid-pro-flow</exclude>
+												<exclude>
+													com.vaadin:vaadin-map-flow</exclude>
+												<exclude>
+													com.vaadin:vaadin-rich-text-editor-flow</exclude>
+
 											</excludes>
 										</filter>
 									</filters>
