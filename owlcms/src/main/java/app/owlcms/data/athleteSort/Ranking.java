@@ -23,7 +23,7 @@ public enum Ranking {
 
 	BW_SINCLAIR("Sinclair"), // normal Sinclair
 	CAT_SINCLAIR("CatSinclair"), // legacy Quebec federation, Sinclair computed at category boundary
-	SMM("Smm"), // Sinclair Malone-Meltzer -- ancient name for SMF and SMHF
+	SMHF("Smm"), // Sinclair Malone-Meltzer -- ancient name for SMF and SMHF
 	ROBI("Robi"), // IWF ROBI
 	QPOINTS("QPoints"), // Huebner QPoints.
 	GAMX("GAMX") // Global Adjusted Mixed (Huebner)
@@ -61,7 +61,7 @@ public enum Ranking {
 			case CAT_SINCLAIR:
 				value = curLifter.getCatSinclairRank();
 				break;
-			case SMM:
+			case SMHF:
 				value = curLifter.getSmmRank();
 				break;
 			case GAMX:
@@ -101,7 +101,7 @@ public enum Ranking {
 				return curLifter.getSinclairForDelta();
 			case CAT_SINCLAIR:
 				return curLifter.getCategorySinclair();
-			case SMM:
+			case SMHF:
 				return curLifter.getSmfForDelta();
 			case GAMX:
 				return curLifter.getGamx();
@@ -120,7 +120,7 @@ public enum Ranking {
 			case CUSTOM:
 			case BW_SINCLAIR:
 			case CAT_SINCLAIR:
-			case SMM:
+			case SMHF:
 			case GAMX:
 			case QPOINTS:
 				return Translator.translate("Ranking." + rankingType);
@@ -130,7 +130,7 @@ public enum Ranking {
 	}
 
 	public static List<Ranking> scoringSystems() {
-		List<Ranking> systems = new ArrayList<>(Arrays.asList(BW_SINCLAIR, SMM, ROBI, QPOINTS, CAT_SINCLAIR));
+		List<Ranking> systems = new ArrayList<>(Arrays.asList(BW_SINCLAIR, SMHF, ROBI, QPOINTS, CAT_SINCLAIR));
 		if (Config.getCurrent().featureSwitch("gamx")) {
 			systems.add(GAMX);
 		}

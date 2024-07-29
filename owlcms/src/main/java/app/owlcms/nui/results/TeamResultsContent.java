@@ -328,7 +328,7 @@ public class TeamResultsContent extends BaseContent
 		        .setHeader(Translator.translate("Scoreboard.Sinclair"))
 		        .setTextAlign(ColumnTextAlign.END);
 		grid.addColumn(t -> formatDouble(t.getSmfScore(), 3), "smfScore")
-		        .setHeader(Translator.translate("smm"))
+		        .setHeader(Translator.translate("smhf"))
 		        .setTextAlign(ColumnTextAlign.END);
 		grid.addColumn(TeamTreeItem::formatProgress).setHeader(Translator.translate("TeamResults.Status"))
 		        .setTextAlign(ColumnTextAlign.END);

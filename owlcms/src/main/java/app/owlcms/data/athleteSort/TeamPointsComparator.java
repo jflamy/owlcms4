@@ -100,7 +100,7 @@ public class TeamPointsComparator extends AbstractLifterComparator implements Co
 				logger.trace(
 				        lifter1 + " " + sinclair1 + " [" + compareSinclair + "]" + lifter2 + " " + sinclair2);
 				return compareSinclair;
-			case SMM:
+			case SMHF:
 				final Double smf1 = lifter1.getSmfForDelta();
 				final Double smf2 = lifter2.getSmfForDelta();
 				final int compareSmf = smf1.compareTo(smf2);

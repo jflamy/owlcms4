@@ -448,7 +448,7 @@ public class Competition {
 		} else {
 			// long beforeReporting = System.currentTimeMillis();
 			doReporting(nodupAthletes, Ranking.BW_SINCLAIR, true);
-			doReporting(nodupAthletes, Ranking.SMM, true);
+			doReporting(nodupAthletes, Ranking.SMHF, true);
 			doReporting(nodupAthletes, Ranking.QPOINTS, true);
 			doReporting(nodupAthletes, Ranking.CAT_SINCLAIR, true);
 			doReporting(nodupAthletes, Ranking.GAMX, true);
@@ -1807,8 +1807,8 @@ public class Competition {
 
 		sortedMen = getOrCreateBean("mTeamSMF" + ad.getName());
 		sortedWomen = getOrCreateBean("wTeamSMF" + ad.getName());
-		AthleteSorter.teamPointsOrder(sortedMen, Ranking.SMM);
-		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.SMM);
+		AthleteSorter.teamPointsOrder(sortedMen, Ranking.SMHF);
+		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.SMHF);
 
 		reportSMF(sortedMen, sortedWomen);
 	}

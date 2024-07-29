@@ -63,7 +63,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 				return compareCatSinclairResultOrder(lifter1, lifter2);
 			case BW_SINCLAIR:
 				return compareSinclairResultOrder(lifter1, lifter2);
-			case SMM:
+			case SMHF:
 				return compareSmmResultOrder(lifter1, lifter2);
 			case QPOINTS:
 				return compareQPointsResultOrder(lifter1, lifter2);
@@ -268,7 +268,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		}
 
 		compare = compareSmfForDelta(lifter1, lifter2);
-		traceComparison("smm", lifter1, lifter2, compare);
+		traceComparison("smhf", lifter1, lifter2, compare);
 		if (compare != 0) {
 			return compare;
 		}

@@ -318,7 +318,10 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 			// logger.debug("{} \n{}", val, LoggerUtils.stackTrace());
 			return val;
 		}
-		if (this.maximumWeight > 130) {
+		if (this.maximumWeight > 998.1 && this.minimumWeight < 0.1) {
+			// all body weights
+			return "";
+		} else if (this.maximumWeight > 130) {
 			return Translator.translate("catAboveFormat",
 			        this.minimumWeight != null ? String.valueOf((int) (Math.round(this.minimumWeight))) : "");
 		} else {

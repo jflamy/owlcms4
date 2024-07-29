@@ -276,7 +276,7 @@ public class AthleteSorter implements Serializable {
 				return curLifter.getMainRankings().getSnatchRank();
 			case CLEANJERK:
 				return curLifter.getMainRankings().getCleanJerkRank();
-			case SMM:
+			case SMHF:
 				return curLifter.getSmmRank();
 			case BW_SINCLAIR:
 				return curLifter.getSinclairRank();
@@ -493,7 +493,7 @@ public class AthleteSorter implements Serializable {
 			case CAT_SINCLAIR:
 			case SNATCH_CJ_TOTAL:
 			case ROBI:
-			case SMM:
+			case SMHF:
 			case QPOINTS:
 			case GAMX:
 				// logger.debug("ranking type {}",rankingType);
@@ -525,7 +525,7 @@ public class AthleteSorter implements Serializable {
 			case CAT_SINCLAIR:
 			case SNATCH_CJ_TOTAL:
 			case ROBI:
-			case SMM:
+			case SMHF:
 			case QPOINTS:
 			case GAMX:
 				resultsOrder(sorted, rankingType, true);

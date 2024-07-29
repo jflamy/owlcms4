@@ -34,7 +34,7 @@ public class OverallRankSetter {
 			case ROBI:
 				a.setRobiRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 				break;
-			case SMM:
+			case SMHF:
 				a.setSmmRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 				break;
 			case QPOINTS:
