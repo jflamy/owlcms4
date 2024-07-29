@@ -5,7 +5,8 @@
 > - This is an **alpha release**, used for validating new features.  *Some features are likely to be incomplete or non-functional*.  
 > - **Alpha releases are not normally used in actual competitions.**
 
-- (alpha01) Publicresults
+- (alpha02) Updated to Vaadin 24.4.7.
+- Publicresults
   - When a user opens a scoreboard and a timer is running, the timer is now immediately synchronized
   - If the publicresults application is restarted, and sessions are in a break, the remaining time is now immediately synchronized
 - Age-based, all body weights Categories (ABAB)
