@@ -693,7 +693,6 @@
 													com.vaadin:vaadin-map-flow</exclude>
 												<exclude>
 													com.vaadin:vaadin-rich-text-editor-flow</exclude>
-
 											</excludes>
 										</filter>
 									</filters>
