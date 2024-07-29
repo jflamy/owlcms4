@@ -114,7 +114,7 @@ public class GAMX {
 		if (loaded) {
 			return;
 		}
-		String name = "/ageFactors/ageFactors.xlsx";
+		String name = "/gamx/gamx.xlsx";
 		try {
 			InputStream stream = ResourceWalker.getResourceAsStream(name);
 			try (Workbook workbook = new XSSFWorkbook(stream)) {
