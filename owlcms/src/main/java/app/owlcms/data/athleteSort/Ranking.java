@@ -7,7 +7,6 @@ import java.util.List;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
@@ -23,10 +22,11 @@ public enum Ranking {
 
 	BW_SINCLAIR("Sinclair"), // normal Sinclair
 	CAT_SINCLAIR("CatSinclair"), // legacy Quebec federation, Sinclair computed at category boundary
-	SMHF("Smm"), // Sinclair Malone-Meltzer -- ancient name for SMF and SMHF
+	SMHF("smhf"), // Sinclair Meltzer Huebner Faber
 	ROBI("Robi"), // IWF ROBI
 	QPOINTS("QPoints"), // Huebner QPoints.
-	GAMX("GAMX") // Global Adjusted Mixed (Huebner)
+	GAMX("GAMX"), // Global Adjusted Mixed (Huebner)
+	AGEFACTORS("ageFactors")
 	;
 	
 	static Logger logger = (Logger) LoggerFactory.getLogger(Ranking.class);
@@ -65,10 +65,13 @@ public enum Ranking {
 				value = curLifter.getSmmRank();
 				break;
 			case GAMX:
-				value = curLifter.getGmaxRank();
+				value = curLifter.getGamxRank();
 				break;
 			case QPOINTS:
 				value = curLifter.getqPointsRank();
+				break;
+			case AGEFACTORS:
+				value = curLifter.getAgeAdjustedTotalRank();
 				break;
 		}
 		//logger.debug("{} ranking value: {}", curLifter.getShortName(), value);
@@ -123,6 +126,7 @@ public enum Ranking {
 			case SMHF:
 			case GAMX:
 			case QPOINTS:
+			case AGEFACTORS:
 				return Translator.translate("Ranking." + rankingType);
 			default:
 				throw new UnsupportedOperationException("not a score ranking " + rankingType);
@@ -130,10 +134,7 @@ public enum Ranking {
 	}
 
 	public static List<Ranking> scoringSystems() {
-		List<Ranking> systems = new ArrayList<>(Arrays.asList(BW_SINCLAIR, SMHF, ROBI, QPOINTS, CAT_SINCLAIR));
-		if (Config.getCurrent().featureSwitch("gamx")) {
-			systems.add(GAMX);
-		}
+		List<Ranking> systems = new ArrayList<>(Arrays.asList(BW_SINCLAIR, SMHF, ROBI, QPOINTS, GAMX, AGEFACTORS, CAT_SINCLAIR));
 		return systems;
 	}
 

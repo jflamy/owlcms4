@@ -60,6 +60,7 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.group.DisplayGroup;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.LocalDateAttributeConverter;
+import app.owlcms.data.scoring.AgeFactors;
 import app.owlcms.data.scoring.GAMX;
 import app.owlcms.data.scoring.QPoints;
 import app.owlcms.data.scoring.SinclairCoefficients;
@@ -210,8 +211,9 @@ public class Athlete {
 				dest.setSmmRank(src.getSmmRank());
 				dest.setTeamSinclairRank(src.getTeamSinclairRank());
 				dest.setCatSinclairRank(src.getCatSinclairRank());
-				dest.setGmaxRank(src.getGmaxRank());
+				dest.setGamxRank(src.getGamxRank());
 				dest.setRobiRank(src.getRobiRank());
+				dest.setAgeAdjustedTotalRank(src.getAgeAdjustedTotalRank());
 			}
 		} finally {
 			dest.setValidation(validation);
@@ -419,8 +421,9 @@ public class Athlete {
 	@JsonIgnore
 	private boolean checkTiming;
 	private String subCategory;
-	@Column(columnDefinition = "integer default 0")
-	private Integer gmaxRank;
+	@Column(columnDefinition = "integer default 0", name="gmaxRank")
+	private Integer gamxRank;
+	private Integer ageAdjustedTotalRank;
 
 	/**
 	 * Instantiates a new athlete.
@@ -1758,16 +1761,6 @@ public class Athlete {
 		}
 	}
 
-	@Transient
-	@JsonIgnore
-	public Double getGamx() {
-		if (!Config.getCurrent().featureSwitch("gamx")) {
-			return 0.0D;
-		}
-		Integer total = getBestCleanJerk() + getBestSnatch();
-		return (double) GAMX.getGamx(this, total);
-	}
-
 	/**
 	 * Gets the gender.
 	 *
@@ -1775,10 +1768,6 @@ public class Athlete {
 	 */
 	public Gender getGender() {
 		return this.gender;
-	}
-
-	public Integer getGmaxRank() {
-		return this.gmaxRank;
 	}
 
 	/**
@@ -3634,10 +3623,6 @@ public class Athlete {
 	 */
 	public void setGender(Gender gender) {
 		this.gender = gender;
-	}
-
-	public void setGmaxRank(Integer rank) {
-		this.gmaxRank = rank;
 	}
 
 	/**
@@ -5551,5 +5536,41 @@ public class Athlete {
 		        || this.getCleanJerk3AsInteger() == null;
 		return !notFinishedLifting;
 	}
+
+	@Transient
+	@JsonIgnore
+	public Double getAgeAdjustedTotal() {
+		Integer total = getBestCleanJerk() + getBestSnatch();
+		return (double) AgeFactors.getAgeAdjustedTotal(this, total);
+	}
+	
+	@Transient
+	@JsonIgnore
+	public Double getGamx() {
+		Integer total = getBestCleanJerk() + getBestSnatch();
+		return (double) GAMX.getGamx(this, total);
+	}
+
+	@Transient
+	@JsonIgnore
+	public Integer getAgeAdjustedTotalRank() {
+		return this.ageAdjustedTotalRank;
+	}
+	
+
+	@Transient
+	@JsonIgnore
+	public Integer getGamxRank() {
+		return this.gamxRank;
+	}
+	
+	public void setAgeAdjustedTotalRank(Integer ageAdjustedTotalRank) {
+		this.ageAdjustedTotalRank = ageAdjustedTotalRank;
+	}
+	
+	public void setGamxRank(Integer rank) {
+		this.gamxRank = rank;
+	}
+
 
 }

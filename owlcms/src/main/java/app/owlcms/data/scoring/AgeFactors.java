@@ -29,7 +29,7 @@ import ch.qos.logback.classic.Logger;
  *
  * This class keeps the code for applying an age factor like SMF/SMHF even though this has not been discussed.
  */
-public class GAMX {
+public class AgeFactors {
 
 	private static final int STARTING_TOTAL = 40;
 	private static final int STARTING_BW = 35;
@@ -40,7 +40,7 @@ public class GAMX {
 	private final static float[][][] z = new float[2][NB_BW][NB_TOT];
 	private final static float[][][] gamx = new float[2][NB_BW][NB_TOT];
 	private static boolean loaded = false;
-	static Logger logger = (Logger) LoggerFactory.getLogger(GAMX.class);
+	static Logger logger = (Logger) LoggerFactory.getLogger(AgeFactors.class);
 
 	public static float doGetGamx(Gender gender, Double dBW, Integer liftedWeight) {
 		if (gender == null || dBW == null) {
@@ -59,7 +59,7 @@ public class GAMX {
 		return (float) interpolated;
 	}
 
-	public static float getGamx(Athlete a, Integer liftedWeight) {
+	public static float getAgeAdjustedTotal(Athlete a, Integer liftedWeight) {
 		if (liftedWeight == null) {
 			return 0.0F;
 		}
@@ -114,7 +114,7 @@ public class GAMX {
 		if (loaded) {
 			return;
 		}
-		String name = "/ageFactors/ageFactors.xlsx";
+		String name = "/gamx/gamx.xlsx";
 		try {
 			InputStream stream = ResourceWalker.getResourceAsStream(name);
 			try (Workbook workbook = new XSSFWorkbook(stream)) {
@@ -166,7 +166,7 @@ public class GAMX {
 		}
 	}
 
-	public GAMX() {
+	public AgeFactors() {
 	}
 
 	public float doGetZCoefficient(Gender gender, Double dBW, Float score) {

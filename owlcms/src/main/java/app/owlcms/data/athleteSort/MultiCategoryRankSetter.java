@@ -67,7 +67,10 @@ public class MultiCategoryRankSetter {
 				a.setqPointsRank(value);
 				break;
 			case GAMX:
-				a.setGmaxRank(value);
+				a.setGamxRank(value);
+				break;
+			case AGEFACTORS:
+				a.setAgeAdjustedTotalRank(value);
 		}
 	}
 

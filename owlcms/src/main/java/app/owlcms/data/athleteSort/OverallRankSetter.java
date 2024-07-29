@@ -41,7 +41,10 @@ public class OverallRankSetter {
 				a.setqPointsRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 				break;
 			case GAMX:
-				a.setGmaxRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
+				a.setGamxRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
+				break;
+			case AGEFACTORS:
+				a.setAgeAdjustedTotalRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 				break;
 		}
 	}
