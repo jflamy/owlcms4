@@ -1553,7 +1553,11 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getCustomScoreComputed() {
-		Ranking scoringSystem = getAgeGroup().getScoringSystem();
+		AgeGroup ageGroup = getAgeGroup();
+		if (ageGroup == null) {
+			return 0.0;
+		}
+		Ranking scoringSystem = ageGroup.getScoringSystem();
 		// avoid infinite recursion
 		if (scoringSystem != null && scoringSystem != Ranking.CUSTOM) {
 			return Ranking.getRankingValue(this, scoringSystem);

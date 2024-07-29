@@ -52,9 +52,9 @@ public class GAMX {
 		float ceilingScore = M_CONSTANT + zCoefficient(gender, (int) Math.ceil(dBW), liftedWeight) * SD_CONSTANT;
 		double interpolated = floorScore + ((dBW - Math.floor(dBW)) * (ceilingScore - floorScore));
 
-		logger.info("doGetGamx gender={} bw={} total={} floor={} ceil={} score={}", gender, dBW, liftedWeight,
-		        floorScore,
-		        ceilingScore, interpolated);
+//		logger.debug("doGetGamx gender={} bw={} total={} floor={} ceil={} score={}", gender, dBW, liftedWeight,
+//		        floorScore,
+//		        ceilingScore, interpolated);
 
 		return (float) interpolated;
 	}

@@ -1075,7 +1075,7 @@ public class Results extends LitTemplate
 
 	private String computedScore(Athlete a) {
 		Ranking ageGroupScoringSystem = a.getAgeGroup().getScoringSystem();
-		logger.warn("a {} agegroup {} scoring {}",a.getLastName(),a.getAgeGroup(),a.getAgeGroup().getScoringSystem());
+		//logger.debug("a {} agegroup {} scoring {}",a.getLastName(),a.getAgeGroup(),a.getAgeGroup().getScoringSystem());
 		if (ageGroupScoringSystem != null) {
 			double value = Ranking.getRankingValue(a, Ranking.CUSTOM);
 			String score = value > 0.001 ? String.format("%.3f", value) : "-";

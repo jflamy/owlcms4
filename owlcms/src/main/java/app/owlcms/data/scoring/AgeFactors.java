@@ -48,9 +48,9 @@ public class AgeFactors {
 		float ceilingScore = zCoefficient(gender, (int) Math.ceil(dBW), age)  * liftedWeight;
 		double interpolated = floorScore + ((dBW - Math.floor(dBW)) * (ceilingScore - floorScore));
 
-		logger.info("doGetGamx gender={} bw={} total={} floor={} ceil={} score={}", gender, dBW, liftedWeight,
-		        floorScore,
-		        ceilingScore, interpolated);
+//		logger.debug("doGetScore gender={} bw={} total={} floor={} ceil={} score={}", gender, dBW, liftedWeight,
+//		        floorScore,
+//		        ceilingScore, interpolated);
 
 		return (float) interpolated;
 	}

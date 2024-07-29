@@ -72,7 +72,6 @@ public class AgeGroupDefinitionReader {
 					if (scoring != null) {
 						try {
 							String lowerCase = scoring.getStringCellValue().toLowerCase();
-							logger.warn("lowerCase = {}", lowerCase);
 							ageGroupScoring = lowerCase.equals(AGE_GROUP_SCORING_HEADER);
 						} catch (Exception e) {
 						}
@@ -164,7 +163,6 @@ public class AgeGroupDefinitionReader {
 									try {
 										Ranking rv = Ranking.valueOf(cellValue.toUpperCase());
 										ag.setScoringSystem(rv);
-										logger.warn("{} scoring system: {}", ag.getName(), rv);
 									} catch (Exception e) {
 										reportError(iRow, iColumn, cellValue, e);
 									}

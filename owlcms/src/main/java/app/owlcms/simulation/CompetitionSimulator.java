@@ -139,7 +139,6 @@ public class CompetitionSimulator {
 			}
 			Double catUpper = c.getMaximumWeight();
 			Double catLower = c.getMinimumWeight();
-			logger.warn("low {} high {}",catLower,catUpper);
 			if (catUpper > 998 && catLower < 0.1) {
 				// open category
 				double nextGaussian = r.nextGaussian(85, 15);
