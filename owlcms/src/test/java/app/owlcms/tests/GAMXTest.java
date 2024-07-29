@@ -2,7 +2,6 @@ package app.owlcms.tests;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
@@ -10,13 +9,11 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.scoring.GAMX;
 import ch.qos.logback.classic.Logger;
 
-@Ignore
 public class GAMXTest {
 	
 	Logger logger = (Logger) LoggerFactory.getLogger(GAMXTest.class);
 
 	@Test
-	@Ignore
 	public void testGmax() {
 
 //		assertEquals(267.045F, GAMX.doGetGamx(Gender.F,191.0,250), 0.001F);

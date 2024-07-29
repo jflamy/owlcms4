@@ -496,6 +496,7 @@ public class AthleteSorter implements Serializable {
 			case SMHF:
 			case QPOINTS:
 			case GAMX:
+			case AGEFACTORS:
 				// logger.debug("ranking type {}",rankingType);
 				resultsOrder(sorted, rankingType, true);
 				break;
@@ -528,6 +529,7 @@ public class AthleteSorter implements Serializable {
 			case SMHF:
 			case QPOINTS:
 			case GAMX:
+			case AGEFACTORS:
 				resultsOrder(sorted, rankingType, true);
 				break;
 			case SNATCH:

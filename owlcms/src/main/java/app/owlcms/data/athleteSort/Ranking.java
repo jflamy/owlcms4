@@ -108,6 +108,8 @@ public enum Ranking {
 				return curLifter.getSmfForDelta();
 			case GAMX:
 				return curLifter.getGamx();
+			case AGEFACTORS:
+				return curLifter.getAgeAdjustedTotal();
 			case QPOINTS:
 				return curLifter.getQPoints();
 		}
