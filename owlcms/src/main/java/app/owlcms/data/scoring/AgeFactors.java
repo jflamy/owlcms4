@@ -95,7 +95,7 @@ public class AgeFactors {
 			InputStream stream = ResourceWalker.getResourceAsStream(name);
 			try (Workbook workbook = new XSSFWorkbook(stream)) {
 
-				for (int sheetindex = 1; sheetindex <= 2; sheetindex++) {
+				for (int sheetindex = 0; sheetindex <= 1; sheetindex++) {
 
 					Sheet sheet = workbook.getSheetAt(sheetindex);
 					for (Row row : sheet) {
