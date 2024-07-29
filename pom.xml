@@ -46,7 +46,7 @@
 		<rootOutputDir>${project.build.directory}</rootOutputDir>
 		
 		<!-- used by Azure Devops builds -->
-		<owlcms-maven-url>https://maven.lerta.ca</owlcms-maven-url>
+		<owlcms-maven-url>https://maven.jflamy.dev</owlcms-maven-url>
 		<owlcms-maven-suffix>/releases</owlcms-maven-suffix> 
 		<owlcms-docker>docker.io/owlcms</owlcms-docker>
 	</properties>
@@ -161,7 +161,7 @@
 	<distributionManagement>
 		<repository>
 			<id>owlcms-maven-repo</id>
-			<url>https://maven.lerta.ca/releases</url>
+			<url>https://maven.jflamy.dev/releases</url>
 		</repository>
 	</distributionManagement>
 

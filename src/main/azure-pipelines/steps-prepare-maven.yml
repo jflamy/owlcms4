@@ -21,7 +21,7 @@ steps:
 -  task: Cache@2
    displayName: Cache Maven local repository
    inputs:
-      key: '"maven20221011a" | $(Agent.OS)'
+      key: '"maven20240729" | $(Agent.OS)'
       path: $(MavenCacheFolder)
    env:
       VSO_DEDUP_REDIRECT_TIMEOUT_IN_SEC: 5

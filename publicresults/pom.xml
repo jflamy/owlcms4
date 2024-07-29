@@ -405,7 +405,7 @@
 									<file>
 										target/${project.artifactId}-${project.version}.jar</file>
 									<repositoryId>owlcms-maven-repo</repositoryId>
-									<url>https://maven.lerta.ca/releases</url>
+									<url>https://maven.jflamy.dev/releases</url>
 									<groupId>${project.groupId}</groupId>
 									<artifactId>${project.artifactId}</artifactId>
 									<version>${project.version}</version>
