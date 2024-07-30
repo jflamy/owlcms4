@@ -37,8 +37,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
-import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -429,10 +427,11 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	}
 
 	private String getTranslatedCode(String code2) {
-		String translatedCode = Translator.translateOrElseNull(
-		        "AgeGroup." + code2,
-		        OwlcmsSession.getLocale());
-		return translatedCode != null ? translatedCode : code2;
+//		String translatedCode = Translator.translateOrElseNull(
+//		        "AgeGroup." + code2,
+//		        OwlcmsSession.getLocale());
+//		return translatedCode != null ? translatedCode : code2;
+		return code2;
 	}
 
 	public void setAlreadyGendered(boolean b) {

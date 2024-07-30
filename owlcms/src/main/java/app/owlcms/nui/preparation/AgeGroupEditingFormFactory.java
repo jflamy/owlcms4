@@ -115,7 +115,8 @@ public class AgeGroupEditingFormFactory
 
 		ComboBox<Championship> ageDivisionField = new ComboBox<>();
 		ageDivisionField.setItems(new ListDataProvider<>(Arrays.asList(Championship.values())));
-		ageDivisionField.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.getName()));
+		//ageDivisionField.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.getName()));
+		ageDivisionField.setItemLabelGenerator((ad) -> ad.getName());
 		this.binder.forField(ageDivisionField).bind(AgeGroup::getChampionship, AgeGroup::setChampionship);
 		formLayout.addFormItem(ageDivisionField, Translator.translate("Championship"));
 
