@@ -448,6 +448,9 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	}
 
 	public Ranking getScoringSystem() {
+		if (scoringSystem == null) {
+			return Ranking.TOTAL;
+		}
 		return scoringSystem;
 	}
 

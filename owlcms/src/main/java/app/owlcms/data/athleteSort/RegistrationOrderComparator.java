@@ -72,6 +72,11 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 				return compare;
 			}
 		}
+		
+		if (Competition.getCurrent().isDisplayByAgeGroup()) {
+			// multiple age groups with same boundaries
+			return ObjectUtils.compare(category1.getAgeGroup().getCode(), category2.getAgeGroup().getCode());
+		}
 		return compare;
 	};
 	

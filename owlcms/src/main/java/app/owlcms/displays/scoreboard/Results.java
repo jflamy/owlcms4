@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiPredicate;
 
 import org.slf4j.LoggerFactory;
@@ -586,6 +587,8 @@ public class Results extends LitTemplate
 			Athlete curAthlete = fop.getCurAthlete();
 			if (curAthlete != null && curAthlete.getGender() != null) {
 				this.getElement().setProperty("categoryName", curAthlete.getCategory().getDisplayName());
+
+				// FIXME: leaders according to score if ageGroup is score-based.
 				if (Competition.getCurrent().isSinclair()) {
 					Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
 					List<Athlete> sortedAthletes = new ArrayList<>(
@@ -1002,10 +1005,10 @@ public class Results extends LitTemplate
 		getElement().setProperty("showLiftRanks",
 		        Competition.getCurrent().isSnatchCJTotalMedals() && !Competition.getCurrent().isSinclair());
 		getElement().setProperty("showTotalRank", !Competition.getCurrent().isSinclair());
-		getElement().setProperty("showSinclair",
-		        Competition.getCurrent().isSinclair() || Competition.getCurrent().isDisplayScores());
-		getElement().setProperty("showSinclairRank",
-		        Competition.getCurrent().isSinclair() || Competition.getCurrent().isDisplayScoreRanks());
+		// getElement().setProperty("showSinclair",
+		// Competition.getCurrent().isSinclair() || Competition.getCurrent().isDisplayScores());
+		// getElement().setProperty("showSinclairRank",
+		// Competition.getCurrent().isSinclair() || Competition.getCurrent().isDisplayScoreRanks());
 
 		if (!isSilenced() || !isDownSilenced()) {
 			SoundUtils.enableAudioContextNotification(this.getElement());
@@ -1022,15 +1025,16 @@ public class Results extends LitTemplate
 			}
 		}
 
-		if (globalRanking) {
-			String scoringTitle = Ranking.getScoringTitle(Competition.getCurrent().getScoringSystem());
-			translations.put("ScoringTitle", scoringTitle != null ? scoringTitle : Translator.translate("Score"));
-		} else if (ageGroupRanking != null ){
-			String scoringTitle = Ranking.getScoringTitle(ageGroupRanking);
-			translations.put("ScoringTitle", scoringTitle != null ? scoringTitle : Translator.translate("Score"));
-		} else {
-			translations.put("ScoringTitle", Translator.translate("Score"));
-		}
+		// Translated names are too long for the column header.
+		// if (globalRanking) {
+		// String scoringTitle = Ranking.getScoringTitle(Competition.getCurrent().getScoringSystem());
+		// translations.put("ScoringTitle", scoringTitle != null ? scoringTitle : Translator.translate("Score"));
+		// } else if (ageGroupRanking != null ){
+		// String scoringTitle = Ranking.getScoringTitle(ageGroupRanking);
+		// translations.put("ScoringTitle", scoringTitle != null ? scoringTitle : Translator.translate("Score"));
+		// } else {
+		translations.put("ScoringTitle", Translator.translate("Score"));
+		// }
 		this.getElement().setPropertyJson("t", translations);
 	}
 
@@ -1075,7 +1079,7 @@ public class Results extends LitTemplate
 
 	private String computedScore(Athlete a) {
 		Ranking ageGroupScoringSystem = a.getAgeGroup().getScoringSystem();
-		//logger.debug("a {} agegroup {} scoring {}",a.getLastName(),a.getAgeGroup(),a.getAgeGroup().getScoringSystem());
+		// logger.debug("a {} agegroup {} scoring {}",a.getLastName(),a.getAgeGroup(),a.getAgeGroup().getScoringSystem());
 		if (ageGroupScoringSystem != null) {
 			double value = Ranking.getRankingValue(a, Ranking.CUSTOM);
 			String score = value > 0.001 ? String.format("%.3f", value) : "-";
@@ -1140,28 +1144,38 @@ public class Results extends LitTemplate
 	}
 
 	private void resultsInit() {
-		Ranking ageGroupRanking[] = {null};
+		Ranking ageGroupRanking[] = { null };
+		boolean scoring[] = { false };
 		OwlcmsSession.withFop(fop -> {
 			this.logger.trace("{}Starting result board on FOP {}", FieldOfPlay.getLoggingName(fop));
 			setId("scoreboard-" + fop.getName());
 			this.curGroup = fop.getGroup();
 			setWideTeamNames(false);
 			this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
-			
+
 			List<Athlete> athletes = fop.getDisplayOrder();
-			if (athletes!= null && athletes.size() > 0) {
-				//FIXME: getScoringSystem() can currently be null; should be TOTAL by default ?
+			if (athletes != null && athletes.size() > 0) {
+				// FIXME: getScoringSystem() can currently be null; should be TOTAL by default ?
 				Ranking scoringSystem = athletes.get(0).getAgeGroup().getScoringSystem();
 				boolean unanimous = athletes.stream().allMatch(s -> {
 					Ranking scoringSystem2 = s.getAgeGroup().getScoringSystem();
-					return scoringSystem != null && scoringSystem2.equals(scoringSystem);
+					return scoringSystem != null && scoringSystem.equals(scoringSystem2);
 				});
 				if (unanimous) {
 					ageGroupRanking[0] = scoringSystem;
 				}
+				boolean any = athletes.stream().map(a -> a.getAgeGroup().getScoringSystem())
+				        .anyMatch(Objects::nonNull);
+				scoring[0] = any;
 			}
 		});
 		setTranslationMap(ageGroupRanking[0], false);
+		if (scoring[0] || Competition.getCurrent().isDisplayScores() || Competition.getCurrent().isSinclair()) {
+			this.getElement().setProperty("showSinclair", true);
+		}
+		if (scoring[0] || Competition.getCurrent().isDisplayScoreRanks() || Competition.getCurrent().isSinclair()) {
+			this.getElement().setProperty("showSinclairRank", true);
+		}
 		this.displayOrder = ImmutableList.of();
 	}
 

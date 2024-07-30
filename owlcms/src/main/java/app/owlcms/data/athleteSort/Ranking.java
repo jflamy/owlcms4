@@ -118,7 +118,7 @@ public enum Ranking {
 
 	public static String getScoringTitle(Ranking rankingType) {
 		if (rankingType == null) {
-			return Translator.translate("Ranking.SINCLAIR");
+			return Translator.translate("Score");
 		}
 		switch (rankingType) {
 			case ROBI:
