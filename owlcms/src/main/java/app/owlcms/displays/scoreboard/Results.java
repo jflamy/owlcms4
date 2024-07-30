@@ -35,6 +35,7 @@ import app.owlcms.apputils.queryparameters.ResultsParameters;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
+import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
@@ -780,6 +781,7 @@ public class Results extends LitTemplate
 		} else {
 			this.logger.error("main rankings null for {}", a);
 		}
+		ja.put("attemptNumber", formatInt(a.getAttemptsDone() + 1));
 		ja.put("group", a.getGroup().getName());
 		ja.put("subCategory", a.getSubCategory());
 
@@ -1078,11 +1080,17 @@ public class Results extends LitTemplate
 	}
 
 	private String computedScore(Athlete a) {
-		Ranking ageGroupScoringSystem = a.getAgeGroup().getScoringSystem();
+		AgeGroup ageGroup = a.getAgeGroup();
+		Ranking ageGroupScoringSystem = ageGroup != null ? ageGroup.getScoringSystem() : null;
 		// logger.debug("a {} agegroup {} scoring {}",a.getLastName(),a.getAgeGroup(),a.getAgeGroup().getScoringSystem());
 		if (ageGroupScoringSystem != null) {
 			double value = Ranking.getRankingValue(a, Ranking.CUSTOM);
-			String score = value > 0.001 ? String.format("%.3f", value) : "-";
+			String score;
+			if (ageGroupScoringSystem == Ranking.TOTAL) {
+				score = value > 0.001 ? String.format("%.0f", value) : "-";
+			} else {
+				score = value > 0.001 ? String.format("%.3f", value) : "-";
+			}
 			return score;
 		} else {
 			Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
