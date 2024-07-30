@@ -79,7 +79,14 @@ public class AgeFactors {
 
 	public static float zCoefficient(Gender gender, int bw, Integer age) {
 		loadCoefficients();
-		float zCoeff = z[gender.ordinal()][bw - STARTING_BW][age - STARTING_AGE];
+		int row = bw - STARTING_BW;
+		int column = age - STARTING_AGE;
+		float zCoeff;
+		try {
+			zCoeff = z[gender.ordinal()][row][column];
+		} catch (IndexOutOfBoundsException e) {
+			zCoeff = 1.0F;
+		}
 		return zCoeff;
 	}
 
