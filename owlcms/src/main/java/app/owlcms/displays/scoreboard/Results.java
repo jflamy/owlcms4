@@ -1150,9 +1150,11 @@ public class Results extends LitTemplate
 			List<Athlete> athletes = fop.getDisplayOrder();
 
 			if (athletes!= null && athletes.size() > 0) {
+				//FIXME: getScoringSystem() can currently be null; should be TOTAL by default ?
 				Ranking scoringSystem = athletes.get(0).getAgeGroup().getScoringSystem();
 				boolean unanimous = athletes.stream().allMatch(s -> {
-					return s.getAgeGroup().getScoringSystem().equals(scoringSystem);
+					Ranking scoringSystem2 = s.getAgeGroup().getScoringSystem();
+					return scoringSystem != null && scoringSystem2.equals(scoringSystem);
 				});
 				if (unanimous) {
 					ageGroupRanking[0] = scoringSystem;
