@@ -90,6 +90,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	public static final Object singleThreadLock = new Object();
 	private boolean NO_KEEPALIVE = false;
 	private String attempt;
+	private Integer attemptNumber;
 	private String categoryName;
 	private JsonArray cattempts;
 	@SuppressWarnings("unused")
@@ -139,6 +140,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private Championship ceremonyChampionship;
 	private String ceremonyEventType;
 	private String forwardedFopName;
+	private String liftType;
+	private String liftTypeKey;
 
 	private static Map<String, EventForwarder> eventForwarderByName = new HashMap<>();
 
@@ -699,6 +702,11 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		this.attempt = formattedAttempt;
 	}
 
+	void setAttemptNumber(Integer attemptNumber) {
+		this.attemptNumber = attemptNumber;
+	}
+
+
 	void setFullName(String fullName) {
 		this.fullName = fullName;
 	}
@@ -713,6 +721,14 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	void setLiftsDone(String formattedDone) {
 		this.liftsDone = formattedDone;
+	}
+
+	void setLiftType(String liftType) {
+		this.liftType = liftType;
+	}
+
+	void setLiftTypeKey(String liftTypeKey) {
+		this.liftTypeKey = liftTypeKey;
 	}
 
 	void setStartNumber(Integer integer) {
@@ -744,6 +760,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 		if (displayOrder != null && displayOrder.size() > 0) {
 			updateGroupInfo(computeLiftType(displayOrder.get(0)));
+			setLiftTypeKey(computeLiftTypeKey(displayOrder.get(0)));
+			setLiftType(computeLiftType(displayOrder.get(0)));
 			setGroupAthletes(getAthletesJson(displayOrder, getFop().getLiftingOrder(), true));
 			setLiftingOrderAthletes(getAthletesJson(getFop().getLiftingOrder(), getFop().getLiftingOrder(), false));
 		} else {
@@ -816,12 +834,15 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	}
 
 	private String computeLiftType(Athlete a) {
+		String liftTypeKey = computeLiftTypeKey(a);
+		return liftTypeKey == null ? null : Translator.translate(liftTypeKey);
+	}
+
+	private String computeLiftTypeKey(Athlete a) {
 		if (a == null || a.getAttemptsDone() > 6) {
 			return null;
 		}
-		String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
-		        : Translator.translate("Snatch");
-		return liftType;
+		return a.getAttemptsDone() >= 3 ? "Clean_and_Jerk" : "Snatch";
 	}
 
 	private String computeSecondLine(Athlete a, String groupName) {
@@ -1053,12 +1074,15 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "fullName", this.fullName);
 		mapPut(sb, "teamName", this.teamName);
 		mapPut(sb, "attempt", this.attempt);
+		mapPut(sb, "attemptNumber", this.attemptNumber != null ? this.attemptNumber.toString() : null);
 		mapPut(sb, "weight", this.weight != null ? this.weight.toString() : null);
 		mapPut(sb, "timeAllowed", this.timeAllowed != null ? this.timeAllowed.toString() : null);
 
 		// current group
 		mapPut(sb, "groupName", getGroupName());
 		mapPut(sb, "groupInfo", getGroupInfo());
+		mapPut(sb, "liftTypeKey", this.liftTypeKey);
+		mapPut(sb, "liftType", this.liftType);
 		mapPut(sb, "liftsDone", getLiftsDone());
 
 		// bottom tables
@@ -1197,6 +1221,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				setStartNumber(a.getStartNumber());
 				String formattedAttempt = formatAttempt(a.getAttemptsDone());
 				setAttempt(formattedAttempt);
+				setAttemptNumber(a.getAttemptNumber());
 				setWeight(a.getNextAttemptRequestedWeight());
 				if (e instanceof UIEvent.LiftingOrderUpdated) {
 					setTimeAllowed(((LiftingOrderUpdated) e).getTimeAllowed());
