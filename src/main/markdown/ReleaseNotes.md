@@ -5,6 +5,7 @@
 > - This is an **alpha release**, used for validating new features.  *Some features are very likely to be incomplete or non-functional*.  
 > - **Alpha releases are not normally used in actual competitions.**
 
+- (alpha03) Removed translation steps for championship names now that the AgeGroups file allows defining arbitrary ones.
 - (alpha03) The results scoreboard now shows the Score and Score Rank column if any category has age group scoring enabled.  The global settings for showing scores and score ranks are no longer needed for this use case.
 - (alpha03) Huebner Age-adjusted totals are now supported. This adjusts the total based on age and body weight for athletes aged under 20 and under 115kg.
   - Note: the body weight is interpolated, whereas the on-line calculator from Huebner does rounding.
