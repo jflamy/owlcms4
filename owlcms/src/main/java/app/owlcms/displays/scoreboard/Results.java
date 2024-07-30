@@ -1147,8 +1147,8 @@ public class Results extends LitTemplate
 			this.curGroup = fop.getGroup();
 			setWideTeamNames(false);
 			this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
+			
 			List<Athlete> athletes = fop.getDisplayOrder();
-
 			if (athletes!= null && athletes.size() > 0) {
 				//FIXME: getScoringSystem() can currently be null; should be TOTAL by default ?
 				Ranking scoringSystem = athletes.get(0).getAgeGroup().getScoringSystem();
@@ -1245,11 +1245,13 @@ public class Results extends LitTemplate
 				if (e.getGroup() == null) {
 					doEmpty();
 				} else {
+					resultsInit();
 					doUpdate(e.getAthlete(), e);
 					doBreak(e);
 				}
 				break;
 			default:
+				resultsInit();
 				setDisplay();
 				doUpdate(e.getAthlete(), e);
 		}
