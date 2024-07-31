@@ -24,6 +24,8 @@ NOTES:
 
 ## Age Group Competitions
 
+> Note: Instead of awarding medals for each bodyweight class, it is possible to have all the athletes in an age group compete together, and get ranked according to a scoring system (Sinclair, Robi, Qpoints, Age-adjusted totals, etc.).  Please refer to the advanced topic [Score-Based Competitions](ScoreBasedCompetitions) if that is what you are trying to achieve.  You can also have a championship that has multiple age groups using the same scoring system and award a best lifter based on that scoring system.
+
 From the  `Prepare Competition` page, in the `Registration` section,  select the `Define Age Groups and Categories` button.  
 
 This leads to a list of currently defined age groups.  By default, we see that the two "All Ages Included" age groups are selected, with all the bodyweight categories.

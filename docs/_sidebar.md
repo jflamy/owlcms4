@@ -19,17 +19,7 @@
   * [Breaks and Ceremonies](Breaks)
   * [Result Documents](Documents)
   * [Optional Modified Competition Rules](ModifiedRules)
-* Video
-  * [Preparing the Video Setup](OBS)
-  * [Live Streaming Events](Streaming)
-  * [Internet via a Phone](PhoneHotSpot)
-  * [Automatic Scene Switching](OBSSceneSwitching)
-  * [Jury Replays](JuryReplays)
-* Virtual Competitions
-  * [Overview](4100VirtualOverview)
-  * [Preparing the Zoom Setup](4200PrepareZoomBroadcasting)
-  * [Running a Virtual Competition](4300Zoom)
-  * [User Instructions for Zoom](4400UserInstructionsForZoom)
+  * [Score-based Rankings](ScoreBasedCompetitions)
 * Advanced Topics
   * [Customization](UploadingLocalSettings)
   * [Scoreboard Colors](Styles)
@@ -43,6 +33,17 @@
   * [MQTT Messaging Specification](MQTTMessages)
   * [Using PostgreSQL](PostgreSQL)
   * [Contributing to the code](Gitpod)
+* Video
+  * [Preparing the Video Setup](OBS)
+  * [Live Streaming Events](Streaming)
+  * [Internet via a Phone](PhoneHotSpot)
+  * [Automatic Scene Switching](OBSSceneSwitching)
+  * [Jury Replays](JuryReplays)
+* Virtual Competitions
+  * [Overview](4100VirtualOverview)
+  * [Preparing the Zoom Setup](4200PrepareZoomBroadcasting)
+  * [Running a Virtual Competition](4300Zoom)
+  * [User Instructions for Zoom](4400UserInstructionsForZoom)
 * Licensing
   * [Licensing and Notes](Licensing)
   * [Source Repository](https://github.com/jflamy/owlcms4)
