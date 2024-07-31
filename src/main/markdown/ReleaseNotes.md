@@ -4,13 +4,15 @@
 > - Beta releases are **not** normally used in actual competitions, except when a new feature is required. Use extreme care in testing if you intend to do so.
 
 - Preliminary releases change log
+  - (beta01) Documentation: added page for Score-based rankings using Age-Based All Bodyweight categories.
+  - (beta01) Fixed AgeGroups export to include scoring system
   - (beta01) `Scores-*.xlsx` templates added for final package/team rankings for an age group or championship using a scoring system form medals.
   - (alpha03) Expose raw lift type and attempt number in video feed
   - (alpha03) Removed translation steps for championship names now that the AgeGroups file allows defining arbitrary ones.
   - (alpha03) The results scoreboard now shows the Score and Score Rank column if any category has age group scoring enabled.  The global settings for showing scores and score ranks are no longer needed for this use case.
   - (alpha03) Huebner Age-adjusted totals are now supported. This adjusts the total based on age and body weight for athletes aged under 20 and under 115kg.
     - Note: the body weight is interpolated, whereas the on-line calculator from Huebner does rounding.
-
+  
   - (alpha02) Updated to Vaadin 24.4.7.
 - Publicresults
   - When a user opens a scoreboard and a timer is running, the timer is now immediately synchronized
