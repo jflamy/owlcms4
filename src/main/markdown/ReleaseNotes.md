@@ -18,7 +18,7 @@
   - When a user opens a scoreboard and a timer is running, the timer is now immediately synchronized
   - If the publicresults application is restarted, and sessions are in a break, the remaining time is now immediately synchronized
 - Score-based Rankings
-  - Initial support for Age-Based, All Body weights Categories (ABAB), with ranking based on a scoring system.  See [Score-based Rankings](https://owlcms.github.io/owlcms4-prerelease/#/ScoreBasedCompetition) in the documentation.
+  - Initial support for Age-Based, All Body weights Categories (ABAB), with ranking based on a scoring system.  See [Score-based Rankings](https://jflamy.github.io/owlcms4/#/ScoreBasedCompetitions) in the documentation.
     - Typical use: create categories where all Masters in the same age group compete together in a category, from 0 to 999 kg bodyweight, based on their SM(H)F score.
     - Other possible scenario: All youth in a given age group compete against one another based on Sinclair.
     - **Note**: the Medals sheets and displays do NOT take the scoring into account.  Use the `Score` templates the Session or Competition eligibility category reports to get the rankings and award medals.
