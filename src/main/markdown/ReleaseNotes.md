@@ -12,24 +12,18 @@
     - Note: the body weight is interpolated, whereas the on-line calculator from Huebner does rounding.
 
   - (alpha02) Updated to Vaadin 24.4.7.
-
 - Publicresults
   - When a user opens a scoreboard and a timer is running, the timer is now immediately synchronized
   - If the publicresults application is restarted, and sessions are in a break, the remaining time is now immediately synchronized
-- Age-based, all body weights Categories (ABAB)
-  - Initial support for categories based on age only, medals awarded based on a selected scoring system
+- Score-based Rankings
+  - Initial support for Age-Based, All Body weights Categories (ABAB), with ranking based on a scoring system.  See [Score-based Rankings](https://owlcms.github.io/owlcms4-prerelease/#/ScoreBasedCompetition) in the documentation.
     - Typical use: create categories where all Masters in the same age group compete together in a category, from 0 to 999 kg bodyweight, based on their SM(H)F score.
     - Other possible scenario: All youth in a given age group compete against one another based on Sinclair.
-  - To create, each age group is given a single category  with 0 999 age limits and 0 999 bodyweight limits
+    - **Note**: the Medals sheets and displays do NOT take the scoring into account.  Use the `Score` templates the Session or Competition eligibility category reports to get the rankings and award medals.
   - Huebner "Age Factors"  are now supported. These multiplicative factors adjust the total based on age and body weight for athletes aged under 20 and under 115kg.
     - Note: the body weight is interpolated, whereas the current on-line calculator from Huebner does rounding.  The online calculator is meant to be updated to also use interpolation.
   - Huebner GAMX scoring system now supported
     - This scoring system aims to provide compatibility between men and women scores
-  - The scoring system for each age group is selected in the AgeGroups file 
-    - If the column H is named "ageGroupScoring" can be inserted, it is used
-    - The available scores are TOTAL, BW_SINCLAIR, CAT_SINCLAIR, SMM, ROBI, AGEFACTORS and GAMX.
-    - Different age groups can have different scoring systems
-    - **Note**: the Medals sheets and displays do NOT take the scoring into account.  Use the Session or Competition eligibility category reports to award medals, using the "Score" template.
   - There can be both the open bodyweight age groups and the normal age groups in the same meet.  Just assign the desired ranking method to each age group.
     - The results scoreboard shows a Score and Rank column when a scoring system is selected for any of the age groups.
     - The TOTAL is used as score for groups that do not have a Scoring System.
