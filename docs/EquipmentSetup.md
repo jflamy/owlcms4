@@ -6,9 +6,7 @@ owlcms is a web-based application.  All the displays connect to owlcms using a b
 
 In a small club meet, the announcer will often do everything - announce, enter the weight changes, and operate the clock. This can be done on a single laptop, as demonstrated in this [video](Demo1).  You can sometimes even do away with the scoreboard.
 
-
-
-<center><img src="img/equipment/ClubCompetitionWIFI.png" alt="ClubCompetitionWIFI" /></center>
+<center><img src="EquipmentSetup/images/no_wifi.png" alt="ClubCompetitionWIFI" /></center>
 
 ## Suggested Small Competition Setup
 
@@ -16,8 +14,10 @@ If you have a meeting with multiple groups, the following setup will allow you t
 
 <table>
 <tr><td><img src='img/Gallery/ElSalvador.jpg'></img></td><td><img src='img/Gallery/ElSalvador_marshall.jpg'></img></td></tr></table>
+Many gyms have a WiFi router, in which case you can simply connect to it (diagram on the left) If there is no Wifi at the location, you will need to bring your own router. Note that we recommend that you use an ethernet wired connection whenever possible, at least for the owlcms computer (diagram on the right)
 
-![minimal](EquipmentSetup/images/minimal.png)
+<table>
+<tr><td align=center ><img src='EquipmentSetup/images/wifi_minimal.png'></img></td><td align=center><img src='EquipmentSetup/images/minimal.png'></img></td></tr></table>
 
 - The clock and decisions are visible on the attempt board.  The attempt board should visible from the chalk box and from the center of the platform.
 - This uses the "extend desktop" capability of the laptop to have a different output on the monitor. 
@@ -26,7 +26,7 @@ If you have a meeting with multiple groups, the following setup will allow you t
 
 ## Large Competition Setup
 
-At the opposite end of the spectrum, a setup for a state competition using refereeing devices would provide all the requisite displays and technical official stations.  To keep costs down, TVs and projectors can be driven using cheap devices such as Fire TV Sticks or Raspberry Pi.
+At the opposite end of the spectrum, a setup for a state competition using refereeing devices would provide all the requisite displays and technical official stations.  To keep costs down, TVs and projectors can be driven using cheap devices such as Fire TV Sticks or Raspberry Pi, and you can also use HDMI splitters.
 
 
 
