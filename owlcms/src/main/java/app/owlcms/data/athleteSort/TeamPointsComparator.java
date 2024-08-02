@@ -101,8 +101,8 @@ public class TeamPointsComparator extends AbstractLifterComparator implements Co
 				        lifter1 + " " + sinclair1 + " [" + compareSinclair + "]" + lifter2 + " " + sinclair2);
 				return compareSinclair;
 			case SMHF:
-				final Double smf1 = lifter1.getSmfForDelta();
-				final Double smf2 = lifter2.getSmfForDelta();
+				final Double smf1 = lifter1.getSmhfForDelta();
+				final Double smf2 = lifter2.getSmhfForDelta();
 				final int compareSmf = smf1.compareTo(smf2);
 				logger.trace(
 				        lifter1 + " " + smf1 + " [" + compareSmf + "]" + lifter2 + " " + smf2);

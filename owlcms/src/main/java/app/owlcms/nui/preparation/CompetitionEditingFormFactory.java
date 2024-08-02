@@ -359,7 +359,7 @@ public class CompetitionEditingFormFactory
 
 		ComboBox<Ranking> scoringCombo = new ComboBox<>();
 		scoringCombo.setItems(Ranking.scoringSystems());
-		scoringCombo.setItemLabelGenerator(r -> Translator.translate("Ranking." + r));
+		scoringCombo.setItemLabelGenerator(r -> Ranking.getScoringTitle(r));
 		layout.addFormItem(scoringCombo, Translator.translate("Competition.scoringSystemTitle"));
 		this.binder.forField(scoringCombo).bind(Competition::getScoringSystem, Competition::setScoringSystem);
 

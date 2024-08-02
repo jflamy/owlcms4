@@ -173,7 +173,7 @@ public class AthleteTest {
         athlete.setCleanJerk2ActualLift("81");
         athlete.setCleanJerk3ActualLift("82");
         athlete.setFullBirthDate(LocalDate.now().minusYears(60));
-        assertEquals("SMF 144kg for 68.5kg 60 year old male athlete ", 291.093D ,athlete.getSmm(), 0.0005D);
+        assertEquals("SMF 144kg for 68.5kg 60 year old male athlete ", 291.093D ,athlete.getSmhf(), 0.0005D);
     }
     
     @Test
@@ -186,7 +186,7 @@ public class AthleteTest {
         athlete.setCleanJerk3ActualLift("82");
         athlete.setFullBirthDate(LocalDate.now().minusYears(60));
         athlete.setGender(Gender.F);
-        assertEquals("SMHF 144kg for 68.5kg 60 year old female athlete ", 306.574D ,athlete.getSmm(), 0.0005D);
+        assertEquals("SMHF 144kg for 68.5kg 60 year old female athlete ", 306.574D ,athlete.getSmhf(), 0.0005D);
     }
     
     @Test
@@ -212,7 +212,7 @@ public class AthleteTest {
         athlete.setCleanJerk3ActualLift("82");
         athlete.setFullBirthDate(LocalDate.now().minusYears(30));
         athlete.setGender(Gender.F);
-        assertEquals("Sinclair2020 144kg for 68.5kg female athlete ", 179.8088D ,athlete.getSmm(), 0.0005D);
+        assertEquals("Sinclair2020 144kg for 68.5kg female athlete ", 179.8088D ,athlete.getSmhf(), 0.0005D);
     }
 
 }

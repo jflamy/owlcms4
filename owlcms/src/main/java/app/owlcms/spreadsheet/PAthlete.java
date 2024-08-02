@@ -651,18 +651,28 @@ public class PAthlete extends Athlete implements IRankHolder {
 	}
 
 	@Override
-	public Double getSmfForDelta() {
-		return this.a.getSmfForDelta();
+	public Double getSmhfForDelta() {
+		return this.a.getSmhfForDelta();
+	}
+	
+	@Override
+	public Double getSmhf() {
+		return this.a.getSmhf();
+	}
+	
+	@Override
+	public Double getQAge() {
+		return this.a.getQAge();
 	}
 
 	@Override
-	public Double getSmm() {
-		return this.a.getSmm();
+	public int getSmhfRank() {
+		return this.a.getSmhfRank();
 	}
-
+	
 	@Override
-	public int getSmmRank() {
-		return this.a.getSmmRank();
+	public int getqAgeRank() {
+		return this.a.getqAgeRank();
 	}
 
 	@Override
@@ -970,8 +980,13 @@ public class PAthlete extends Athlete implements IRankHolder {
 	}
 
 	@Override
-	public void setSmmRank(int i) {
-		this.a.setSmmRank(i);
+	public void setSmhfRank(int i) {
+		this.a.setSmhfRank(i);
+	}
+	
+	@Override
+	public void setqAgeRank(int i) {
+		this.a.setqAgeRank(i);
 	}
 
 	@Override

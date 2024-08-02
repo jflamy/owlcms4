@@ -176,7 +176,7 @@ public class TeamTreeItem {
 	}
 
 	public Double getSmfScore() {
-		return (this.team != null ? this.team.getSmfScore() : this.athlete.getSmfForDelta());
+		return (this.team != null ? this.team.getSmfScore() : this.athlete.getSmhfForDelta());
 	}
 
 	public Integer getSnatchPoints() {

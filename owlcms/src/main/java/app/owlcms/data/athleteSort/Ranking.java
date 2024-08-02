@@ -26,7 +26,8 @@ public enum Ranking {
 	ROBI("Robi"), // IWF ROBI
 	QPOINTS("QPoints"), // Huebner QPoints.
 	GAMX("GAMX"), // Global Adjusted Mixed (Huebner)
-	AGEFACTORS("ageFactors")
+	AGEFACTORS("ageFactors"),
+	QAGE("QAge") // QPoints * SMHF age factors
 	;
 	
 	static Logger logger = (Logger) LoggerFactory.getLogger(Ranking.class);
@@ -62,13 +63,16 @@ public enum Ranking {
 				value = curLifter.getCatSinclairRank();
 				break;
 			case SMHF:
-				value = curLifter.getSmmRank();
+				value = curLifter.getSmhfRank();
 				break;
 			case GAMX:
 				value = curLifter.getGamxRank();
 				break;
 			case QPOINTS:
 				value = curLifter.getqPointsRank();
+				break;
+			case QAGE:
+				value = curLifter.getqAgeRank();
 				break;
 			case AGEFACTORS:
 				value = curLifter.getAgeAdjustedTotalRank();
@@ -105,13 +109,15 @@ public enum Ranking {
 			case CAT_SINCLAIR:
 				return curLifter.getCategorySinclair();
 			case SMHF:
-				return curLifter.getSmfForDelta();
+				return curLifter.getSmhfForDelta();
 			case GAMX:
 				return curLifter.getGamx();
 			case AGEFACTORS:
 				return curLifter.getAgeAdjustedTotal();
 			case QPOINTS:
 				return curLifter.getQPoints();
+			case QAGE:
+				return curLifter.getQAge();
 		}
 		return 0D;
 	}
@@ -129,6 +135,7 @@ public enum Ranking {
 			case GAMX:
 			case QPOINTS:
 			case AGEFACTORS:
+			case QAGE:
 				return Translator.translate("Ranking." + rankingType);
 			default:
 				throw new UnsupportedOperationException("not a score ranking " + rankingType);
@@ -136,7 +143,7 @@ public enum Ranking {
 	}
 
 	public static List<Ranking> scoringSystems() {
-		List<Ranking> systems = new ArrayList<>(Arrays.asList(BW_SINCLAIR, SMHF, ROBI, QPOINTS, GAMX, AGEFACTORS, CAT_SINCLAIR));
+		List<Ranking> systems = new ArrayList<>(Arrays.asList(BW_SINCLAIR, SMHF, ROBI, AGEFACTORS, QPOINTS, QAGE, GAMX, CAT_SINCLAIR));
 		return systems;
 	}
 

@@ -91,6 +91,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 		transformer.markAsFixedSizeCollection("mwCombined");
 		transformer.markAsFixedSizeCollection("mCustom");
 		transformer.markAsFixedSizeCollection("wCustom");
+		transformer.markAsFixedSizeCollection("mwCustom");
 	}
 
 	/*
@@ -102,19 +103,20 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 	@Override
 	protected void postProcess(Workbook workbook) {
 		super.postProcess(workbook);
-		@SuppressWarnings("unchecked")
-		int nbClubs = ((Set<String>) getReportingBeans().get("clubs")).size();
+//		@SuppressWarnings("unchecked")
+//		int nbClubs = ((Set<String>) getReportingBeans().get("clubs")).size();
 
-		setTeamSheetPrintArea(workbook, "MT", nbClubs);
-		setTeamSheetPrintArea(workbook, "WT", nbClubs);
-		setTeamSheetPrintArea(workbook, "MWT", nbClubs);
-
-		setTeamSheetPrintArea(workbook, "MXT", nbClubs);
-		setTeamSheetPrintArea(workbook, "WXT", nbClubs);
-
-		setTeamSheetPrintArea(workbook, "MCT", nbClubs);
-		setTeamSheetPrintArea(workbook, "WCT", nbClubs);
-		setTeamSheetPrintArea(workbook, "MWCT", nbClubs);
+//		setTeamSheetPrintArea(workbook, "MT", nbClubs);
+//		setTeamSheetPrintArea(workbook, "WT", nbClubs);
+//		setTeamSheetPrintArea(workbook, "MWT", nbClubs);
+//
+//		setTeamSheetPrintArea(workbook, "MXT", nbClubs);
+//		setTeamSheetPrintArea(workbook, "WXT", nbClubs);
+//		setTeamSheetPrintArea(workbook, "MWXT", nbClubs);
+//
+//		setTeamSheetPrintArea(workbook, "MCT", nbClubs);
+//		setTeamSheetPrintArea(workbook, "WCT", nbClubs);
+//		setTeamSheetPrintArea(workbook, "MWCT", nbClubs);
 
 		translateSheets(workbook);
 		workbook.setForceFormulaRecalculation(true);
@@ -148,13 +150,13 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 		setReportingBeans(reportingBeans);
 	}
 
-	private void setTeamSheetPrintArea(Workbook workbook, String sheetName, int nbClubs) {
-		// int sheetIndex = workbook.getSheetIndex(sheetName);
-		// if (sheetIndex >= 0) {
-		// workbook.setPrintArea(sheetIndex, 0, 4, TEAMSHEET_FIRST_ROW,
-		// TEAMSHEET_FIRST_ROW+nbClubs);
-		// }
-	}
+//	private void setTeamSheetPrintArea(Workbook workbook, String sheetName, int nbClubs) {
+//		int sheetIndex = workbook.getSheetIndex(sheetName);
+//		if (sheetIndex >= 0) {
+//			workbook.setPrintArea(sheetIndex, 0, 4, TEAMSHEET_FIRST_ROW,
+//			        TEAMSHEET_FIRST_ROW + nbClubs);
+//		}
+//	}
 
 	/**
 	 * jxls does not translate sheet names and header/footers.
@@ -178,6 +180,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 			} else {
 				curSheet.getHeader().setLeft(leftHeader != null ? leftHeader : "");
 			}
+			
 			String centerHeader = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_CenterHeader",
 			        OwlcmsSession.getLocale());
 			if (centerHeader == null) {
@@ -187,7 +190,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 			} else {
 				curSheet.getHeader().setCenter(centerHeader != null ? centerHeader : "");
 			}
-			// use translate so this shows as missing on the sheet.
+
 			String rightHeader = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_RightHeader",
 			        OwlcmsSession.getLocale());
 			if (rightHeader == null && translatedSheetName != null) {

@@ -445,6 +445,7 @@ public class Competition {
 			doReporting(nodupAthletes, Ranking.BW_SINCLAIR, true);
 			doReporting(nodupAthletes, Ranking.SMHF, true);
 			doReporting(nodupAthletes, Ranking.QPOINTS, true);
+			doReporting(nodupAthletes, Ranking.QAGE, true);
 			doReporting(nodupAthletes, Ranking.CAT_SINCLAIR, true);
 			doReporting(nodupAthletes, Ranking.GAMX, true);
 			// long afterReporting = System.currentTimeMillis();
@@ -1598,6 +1599,7 @@ public class Competition {
 			reportCombined(sortedAthletes, sortedMen, sortedWomen);
 		}
 
+		// this is per the per age group ranking
 		sortedAthletes = AthleteSorter.teamPointsOrderCopy(athletes, Ranking.CUSTOM);
 		sortedMen = AthleteSorter.teamPointsOrderCopy(sortedMen, Ranking.CUSTOM);
 		sortedWomen = AthleteSorter.teamPointsOrderCopy(sortedWomen, Ranking.CUSTOM);
@@ -1608,6 +1610,7 @@ public class Competition {
 			reportCustom(sortedAthletes, sortedMen, sortedWomen);
 		}
 
+		// this is most likely obsolete
 		sortedMen = getOrCreateBean("mTeamSinclair" + suffix);
 		sortedWomen = getOrCreateBean("wTeamSinclair" + suffix);
 		AthleteSorter.teamPointsOrder(sortedMen, Ranking.BW_SINCLAIR);
@@ -1638,6 +1641,7 @@ public class Competition {
 	}
 
 	private void reportCustom(List<Athlete> sortedAthletes, List<Athlete> sortedMen, List<Athlete> sortedWomen) {
+		// these are the per-age-group values
 		getOrCreateBean("mCustom");
 		this.reportingBeans.put("mCustom", sortedMen);
 		getOrCreateBean("wCustom");

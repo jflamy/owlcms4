@@ -208,7 +208,8 @@ public class Athlete {
 				// Category-independent scores are here
 				dest.setSinclairRank(src.getSinclairRank());
 				dest.setqPointsRank(src.getqPointsRank());
-				dest.setSmmRank(src.getSmmRank());
+				dest.setqAgeRank(src.getqAgeRank());
+				dest.setSmhfRank(src.getSmhfRank());
 				dest.setTeamSinclairRank(src.getTeamSinclairRank());
 				dest.setCatSinclairRank(src.getCatSinclairRank());
 				dest.setGamxRank(src.getGamxRank());
@@ -220,6 +221,14 @@ public class Athlete {
 			dest.setLoggerLevel(prevDestLevel);
 			src.setLoggerLevel(prevSrcLevel);
 		}
+	}
+
+	public void setqAgeRank(int qAgeRank2) {
+		this.qAgeRank = qAgeRank2;
+	}
+
+	public int getqAgeRank() {
+		return this.qAgeRank;
 	}
 
 	/**
@@ -371,8 +380,10 @@ public class Athlete {
 	private Integer sinclairRank;
 	@Column(columnDefinition = "integer default 0")
 	private Integer qPointsRank;
+	@Column(name="smmRank", columnDefinition = "integer default 0")
+	private int smhfRank;
 	@Column(columnDefinition = "integer default 0")
-	private int smmRank;
+	private int qAgeRank;
 	private String snatch1ActualLift;
 	private String snatch1Change1;
 	private String snatch1Change2;
@@ -2417,7 +2428,7 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
-	public Float getSmfFactor() {
+	public Float getSmhfFactor() {
 		final Integer birthDate1 = getYearOfBirth();
 		if (birthDate1 == null) {
 			return 0.0F;
@@ -2432,9 +2443,9 @@ public class Athlete {
 	 */
 	@Transient
 	@JsonIgnore
-	public Double getSmfForDelta() {
+	public Double getSmhfForDelta() {
 		double d = getMastersSinclairForDelta()
-		        * getSmfFactor();
+		        * getSmhfFactor();
 		return d;
 	}
 
@@ -2445,13 +2456,13 @@ public class Athlete {
 	 */
 	@Transient
 	@JsonIgnore
-	public Double getSmm() {
-		double d = getMastersSinclair() * getSmfFactor();
+	public Double getSmhf() {
+		double d = getMastersSinclair() * getSmhfFactor();
 		return d;
 	}
 
-	public int getSmmRank() {
-		return this.smmRank;
+	public int getSmhfRank() {
+		return this.smhfRank;
 	}
 
 	/**
@@ -3770,9 +3781,8 @@ public class Athlete {
 		this.sinclairRank = sinclairRank;
 	}
 
-	public void setSmmRank(int i) {
-		this.smmRank = i;
-
+	public void setSmhfRank(int i) {
+		this.smhfRank = i;
 	}
 
 	/**
@@ -5576,5 +5586,9 @@ public class Athlete {
 		this.gamxRank = rank;
 	}
 
+	public Double getQAge() {
+		double d = getQPoints() * getSmhfFactor();
+		return d;
+	}
 
 }

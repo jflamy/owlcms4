@@ -880,8 +880,8 @@ public class AbstractLifterComparator {
 			return compare;
 		}
 
-		Double lifter1Value = lifter1.getSmfForDelta();
-		Double lifter2Value = lifter2.getSmfForDelta();
+		Double lifter1Value = lifter1.getSmhfForDelta();
+		Double lifter2Value = lifter2.getSmhfForDelta();
 		final Double notWeighed = 0D;
 		if (lifter1Value == null) {
 			lifter1Value = notWeighed;
@@ -900,7 +900,7 @@ public class AbstractLifterComparator {
 	 * @param lifter2 the lifter 2
 	 * @return the int
 	 */
-	int compareSmm(Athlete lifter1, Athlete lifter2) {
+	int compareSmhf(Athlete lifter1, Athlete lifter2) {
 		Gender gender = lifter1.getGender();
 		if (gender == null) {
 			return -1;
@@ -910,8 +910,38 @@ public class AbstractLifterComparator {
 			return compare;
 		}
 
-		Double lifter1Value = lifter1.getSmm();
-		Double lifter2Value = lifter2.getSmm();
+		Double lifter1Value = lifter1.getSmhf();
+		Double lifter2Value = lifter2.getSmhf();
+		final Double notWeighed = 0D;
+		if (lifter1Value == null) {
+			lifter1Value = notWeighed;
+		}
+		if (lifter2Value == null) {
+			lifter2Value = notWeighed;
+		}
+		// bigger sinclair comes first
+		return -lifter1Value.compareTo(lifter2Value);
+	}
+	
+	/**
+	 * Compare smm.
+	 *
+	 * @param lifter1 the lifter 1
+	 * @param lifter2 the lifter 2
+	 * @return the int
+	 */
+	int compareQAge(Athlete lifter1, Athlete lifter2) {
+		Gender gender = lifter1.getGender();
+		if (gender == null) {
+			return -1;
+		}
+		int compare = gender.compareTo(lifter2.getGender());
+		if (compare != 0) {
+			return compare;
+		}
+
+		Double lifter1Value = lifter1.getQAge();
+		Double lifter2Value = lifter2.getQAge();
 		final Double notWeighed = 0D;
 		if (lifter1Value == null) {
 			lifter1Value = notWeighed;

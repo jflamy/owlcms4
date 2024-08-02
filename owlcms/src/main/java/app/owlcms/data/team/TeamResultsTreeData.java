@@ -118,7 +118,7 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 					boolean groupIsDone = groupIsDone(a);
 					Integer curPoints = combinedTotal ? a.getCombinedPoints() : a.getTotalPoints();
 					double curSinclair = a.getSinclairForDelta();
-					double curSmf = a.getSmfForDelta();
+					double curSmf = a.getSmhfForDelta();
 					double curRobi = a.getRobi();
 					double curGamx = a.getGamx();
 

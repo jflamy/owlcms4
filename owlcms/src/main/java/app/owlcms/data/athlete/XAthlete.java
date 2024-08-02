@@ -932,24 +932,34 @@ public class XAthlete extends Athlete {
 	}
 
 	@Override
-	public Double getSmfForDelta() {
-		return this.a.getSmfForDelta();
+	public Double getSmhfForDelta() {
+		return this.a.getSmhfForDelta();
 	}
 
 	/**
 	 * @return
-	 * @see app.owlcms.data.athlete.Athlete#getSmm()
+	 * @see app.owlcms.data.athlete.Athlete#getSmhf()
 	 */
 	@Override
-	public Double getSmm() {
-		return this.a.getSmm();
+	public Double getSmhf() {
+		return this.a.getSmhf();
+	}
+	
+	@Override
+	public Double getQAge() {
+		return this.a.getQAge();
 	}
 
 	@Override
-	public int getSmmRank() {
-		return this.a.getSmmRank();
+	public int getSmhfRank() {
+		return this.a.getSmhfRank();
 	}
-
+	
+	@Override
+	public int getqAgeRank() {
+		return this.a.getqAgeRank();
+	}
+	
 	/**
 	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#getSnatch1ActualLift()
@@ -1817,8 +1827,13 @@ public class XAthlete extends Athlete {
 	}
 
 	@Override
-	public void setSmmRank(int i) {
-		this.a.setSmmRank(i);
+	public void setSmhfRank(int i) {
+		this.a.setSmhfRank(i);
+	}
+	
+	@Override
+	public void setqAgeRank(int i) {
+		this.a.setqAgeRank(i);
 	}
 
 	/**
