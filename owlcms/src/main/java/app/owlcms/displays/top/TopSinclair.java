@@ -401,7 +401,7 @@ public class TopSinclair extends AbstractTop {
 					// }
 
 					break;
-				case SMHF:
+				case SMM:
 					if (curGender == Gender.F) {
 						needed = (int) Math.round(
 						        Math.ceil((this.topWomanScore - a.getSmhfForDelta()) / a.getSmhfFactor()));

@@ -4,6 +4,8 @@
 > - Beta releases are **not** normally used in actual competitions, except when a new feature is required. Use extreme care in testing if you intend to do so.
 
 - Preliminary releases change log
+  - (beta02) Added Qage score for Masters: Qpoints * Masters age factor.
+  - (beta02) `Scores-*.xlsx` now include the globally selected ranking system as a sheet.
   - (beta01) Documentation: added page for Score-based rankings using Age-Based All Bodyweight categories.
   - (beta01) Fixed AgeGroups export to include scoring system
   - (beta01) `Scores-*.xlsx` templates added for final package/team rankings for an age group or championship using a scoring system form medals.

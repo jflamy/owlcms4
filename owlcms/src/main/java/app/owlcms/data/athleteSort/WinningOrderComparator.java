@@ -63,7 +63,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 				return compareCatSinclairResultOrder(lifter1, lifter2);
 			case BW_SINCLAIR:
 				return compareSinclairResultOrder(lifter1, lifter2);
-			case SMHF:
+			case SMM:
 				return compareSmmResultOrder(lifter1, lifter2);
 			case QPOINTS:
 				return compareQPointsResultOrder(lifter1, lifter2);
@@ -71,9 +71,12 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 				return compareGamxResultOrder(lifter1, lifter2);
 			case AGEFACTORS:
 				return compareAgeAdjustedTotalOrder(lifter1, lifter2);
-			default:
+			case QAGE:
+				return compareQAgeResultOrder(lifter1, lifter2);
+			case SNATCH_CJ_TOTAL:
 				throw new UnsupportedOperationException("Unsupported ranking type " + this.rankingType);
 		}
+		return 0;
 	}
 
 	/**
@@ -241,8 +244,31 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		compare = compareBodyWeight(lifter1, lifter2);
 		traceComparison("qpoints compareBodyWeight", lifter1, lifter2, compare);
 		return compare; // smaller Athlete wins
-
 	}
+	
+	/**
+	 * Determine who ranks first on QPoints points.
+	 *
+	 * @param lifter1 the lifter 1
+	 * @param lifter2 the lifter 2
+	 * @return the int
+	 */
+	public int compareQAgeResultOrder(Athlete lifter1, Athlete lifter2) {
+		int compare = 0;
+		compare = ObjectUtils.compare(lifter1.getGender(), lifter2.getGender());
+		if (compare != 0) {
+			return compare;
+		}
+		compare = compareQAge(lifter1, lifter2);
+		traceComparison("qPoints", lifter1, lifter2, compare);
+		if (compare != 0) {
+			return compare;
+		}
+		compare = compareBodyWeight(lifter1, lifter2);
+		traceComparison("qage compareBodyWeight", lifter1, lifter2, compare);
+		return compare; // smaller Athlete wins
+	}
+
 
 	/**
 	 * Determine who ranks first on Robi points.

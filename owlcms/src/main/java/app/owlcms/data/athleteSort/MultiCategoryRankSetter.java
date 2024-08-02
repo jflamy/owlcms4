@@ -60,7 +60,7 @@ public class MultiCategoryRankSetter {
 			case ROBI:
 				a.setRobiRank(value);
 				break;
-			case SMHF:
+			case SMM:
 				a.setSmhfRank(value);
 				break;
 			case QPOINTS:

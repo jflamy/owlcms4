@@ -34,14 +34,14 @@ public class OverallRankSetter {
 			case ROBI:
 				a.setRobiRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 				break;
-			case SMHF:
+			case SMM:
 				a.setSmhfRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 				break;
 			case QPOINTS:
 				a.setqPointsRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 				break;
 			case QAGE:
-				a.setqPointsRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
+				a.setqAgeRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 				break;
 			case GAMX:
 				a.setGamxRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);

@@ -376,14 +376,25 @@ public class Athlete {
 	 */
 	private Double presumedBodyWeight;
 	private Integer qualifyingTotal = 0;
+	
+	@JsonIgnore
 	private Integer robiRank;
+	
+	@JsonIgnore
 	private Integer sinclairRank;
+	
+	@JsonIgnore
 	@Column(columnDefinition = "integer default 0")
 	private Integer qPointsRank;
+	
+	@JsonIgnore
 	@Column(name="smmRank", columnDefinition = "integer default 0")
 	private int smhfRank;
+	
+	@JsonIgnore
 	@Column(columnDefinition = "integer default 0")
 	private int qAgeRank;
+	
 	private String snatch1ActualLift;
 	private String snatch1Change1;
 	private String snatch1Change2;
@@ -2324,8 +2335,14 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
-	public Double getScore() {
+	public Double getBestLifterScore() {
 		return Ranking.getRankingValue(this, Competition.getCurrent().getScoringSystem());
+	}
+	
+	@Transient
+	@JsonIgnore
+	public int getBestLifterRank() {
+		return Ranking.getRanking(this, Competition.getCurrent().getScoringSystem());
 	}
 
 	public String getSessionPattern() {
@@ -2460,9 +2477,23 @@ public class Athlete {
 		double d = getMastersSinclair() * getSmhfFactor();
 		return d;
 	}
+	
+	@Transient
+	@JsonIgnore
+	public Double getSmm() {
+		return getSmhf();
+	}
 
+	@Transient
+	@JsonIgnore
 	public int getSmhfRank() {
 		return this.smhfRank;
+	}
+	
+	@Transient
+	@JsonIgnore
+	public int getSmmRank() {
+		return getSmhfRank();
 	}
 
 	/**

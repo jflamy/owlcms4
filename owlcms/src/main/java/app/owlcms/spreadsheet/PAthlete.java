@@ -606,8 +606,13 @@ public class PAthlete extends Athlete implements IRankHolder {
 	}
 
 	@Override
-	public Double getScore() {
-		return this.a.getScore();
+	public Double getBestLifterScore() {
+		return this.a.getBestLifterScore();
+	}
+	
+	@Override
+	public int getBestLifterRank() {
+		return this.a.getBestLifterRank();
 	}
 
 	@Override

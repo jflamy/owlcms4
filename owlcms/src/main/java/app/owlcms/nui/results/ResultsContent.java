@@ -137,11 +137,11 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 			        .setComparator(new WinningOrderComparator(Ranking.BW_SINCLAIR, true));
 		}
 
-		if (scoringSystem != Ranking.SMHF) {
+		if (scoringSystem != Ranking.SMM) {
 			grid.addColumn(new NumberRenderer<>(Athlete::getSmhfForDelta, "%.3f", OwlcmsSession.getLocale(), "-"))
 			        .setHeader(Translator.translate("smhf"))
 			        .setSortProperty("smm")
-			        .setComparator(new WinningOrderComparator(Ranking.SMHF, true));
+			        .setComparator(new WinningOrderComparator(Ranking.SMM, true));
 		}
 
 		if (scoringSystem != Ranking.ROBI) {

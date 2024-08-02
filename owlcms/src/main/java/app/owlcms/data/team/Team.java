@@ -109,7 +109,7 @@ public class Team {
 				return getQPoints();
 			case ROBI:
 				return getRobi();
-			case SMHF:
+			case SMM:
 				return getSmfScore();
 			case GAMX:
 				return getGamx();

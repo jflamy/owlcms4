@@ -22,7 +22,7 @@ public enum Ranking {
 
 	BW_SINCLAIR("Sinclair"), // normal Sinclair
 	CAT_SINCLAIR("CatSinclair"), // legacy Quebec federation, Sinclair computed at category boundary
-	SMHF("smhf"), // Sinclair Meltzer Huebner Faber
+	SMM("Smm"), // Legacy name, kept for import/export backward compatibility Sinclair Meltzer Huebner Faber
 	ROBI("Robi"), // IWF ROBI
 	QPOINTS("QPoints"), // Huebner QPoints.
 	GAMX("GAMX"), // Global Adjusted Mixed (Huebner)
@@ -62,7 +62,7 @@ public enum Ranking {
 			case CAT_SINCLAIR:
 				value = curLifter.getCatSinclairRank();
 				break;
-			case SMHF:
+			case SMM:
 				value = curLifter.getSmhfRank();
 				break;
 			case GAMX:
@@ -108,7 +108,7 @@ public enum Ranking {
 				return curLifter.getSinclairForDelta();
 			case CAT_SINCLAIR:
 				return curLifter.getCategorySinclair();
-			case SMHF:
+			case SMM:
 				return curLifter.getSmhfForDelta();
 			case GAMX:
 				return curLifter.getGamx();
@@ -131,7 +131,7 @@ public enum Ranking {
 			case CUSTOM:
 			case BW_SINCLAIR:
 			case CAT_SINCLAIR:
-			case SMHF:
+			case SMM:
 			case GAMX:
 			case QPOINTS:
 			case AGEFACTORS:
@@ -143,7 +143,7 @@ public enum Ranking {
 	}
 
 	public static List<Ranking> scoringSystems() {
-		List<Ranking> systems = new ArrayList<>(Arrays.asList(BW_SINCLAIR, SMHF, ROBI, AGEFACTORS, QPOINTS, QAGE, GAMX, CAT_SINCLAIR));
+		List<Ranking> systems = new ArrayList<>(Arrays.asList(BW_SINCLAIR, SMM, ROBI, AGEFACTORS, QPOINTS, QAGE, GAMX, CAT_SINCLAIR));
 		return systems;
 	}
 

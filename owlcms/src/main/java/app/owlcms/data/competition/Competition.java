@@ -443,7 +443,7 @@ public class Competition {
 		} else {
 			// long beforeReporting = System.currentTimeMillis();
 			doReporting(nodupAthletes, Ranking.BW_SINCLAIR, true);
-			doReporting(nodupAthletes, Ranking.SMHF, true);
+			doReporting(nodupAthletes, Ranking.SMM, true);
 			doReporting(nodupAthletes, Ranking.QPOINTS, true);
 			doReporting(nodupAthletes, Ranking.QAGE, true);
 			doReporting(nodupAthletes, Ranking.CAT_SINCLAIR, true);
@@ -1551,8 +1551,8 @@ public class Competition {
 		if (ranking == Competition.getCurrent().getScoringSystem()) {
 			// additional entry in the map so we can have a simple book with
 			// just the global score.
-			this.reportingBeans.put("mScore", sortedMen);
-			this.reportingBeans.put("wScore", sortedWomen);
+			this.reportingBeans.put("mBest", sortedMen);
+			this.reportingBeans.put("wBest", sortedWomen);
 		}
 	}
 
@@ -1812,8 +1812,8 @@ public class Competition {
 
 		sortedMen = getOrCreateBean("mTeamSMF" + ad.getName());
 		sortedWomen = getOrCreateBean("wTeamSMF" + ad.getName());
-		AthleteSorter.teamPointsOrder(sortedMen, Ranking.SMHF);
-		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.SMHF);
+		AthleteSorter.teamPointsOrder(sortedMen, Ranking.SMM);
+		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.SMM);
 
 		reportSMF(sortedMen, sortedWomen);
 	}
