@@ -1548,6 +1548,12 @@ public class Competition {
 		this.reportingBeans.put(wBeanName, sortedWomen);
 		logger.debug("{} {}", mBeanName, sortedMen);
 		logger.debug("{} {}", wBeanName, sortedWomen);
+		if (ranking == Competition.getCurrent().getScoringSystem()) {
+			// additional entry in the map so we can have a simple book with
+			// just the global score.
+			this.reportingBeans.put("mScore", sortedMen);
+			this.reportingBeans.put("wScore", sortedWomen);
+		}
 	}
 
 	/**
@@ -1599,7 +1605,7 @@ public class Competition {
 			reportCombined(sortedAthletes, sortedMen, sortedWomen);
 		}
 
-		// this is per the per age group ranking
+		// this is per age group ranking
 		sortedAthletes = AthleteSorter.teamPointsOrderCopy(athletes, Ranking.CUSTOM);
 		sortedMen = AthleteSorter.teamPointsOrderCopy(sortedMen, Ranking.CUSTOM);
 		sortedWomen = AthleteSorter.teamPointsOrderCopy(sortedWomen, Ranking.CUSTOM);
