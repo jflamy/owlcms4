@@ -4,6 +4,7 @@
 > - Beta releases are **not** normally used in actual competitions, except when a new feature is required. Use extreme care in testing if you intend to do so.
 
 - Preliminary releases change log
+  - (beta03) Technical: when running on the cloud it is best to open the http port as early as possible.  Enabled a latch to wait until the database initialization and all other initializations are done before actually responding to outside requests.
   - (beta02) `Scores-*.xlsx` templates can be used as a simple Final package.  Category rankings by the age-group scoring system -- defaults to TOTAL. The Best Lifter page uses the global scoring system selected for the competition.  Team scores are based on the age-group scoring system.
   - (beta02) Added Qage score for Masters: Qpoints * Masters age factor.  Works with the `Scores-*.xlsx` templates.
   - (beta01) Documentation: added page for Score-based rankings using Age-Based All Bodyweight categories.
