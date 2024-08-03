@@ -26,10 +26,10 @@ public class EmbeddedJetty extends com.github.mvysny.vaadinboot.VaadinBoot {
 	}
 
 	public void run(Integer serverPort, String string) throws Exception {
-		initConfig.run();
-		initData.run();
 		this.setPort(serverPort);
 		this.run();
+		initConfig.run();
+		initData.run();
 	}
 
 	public EmbeddedJetty setInitConfig(Runnable initConfig) {
@@ -53,13 +53,12 @@ public class EmbeddedJetty extends com.github.mvysny.vaadinboot.VaadinBoot {
 
 	@Override
 	public void onStarted(WebAppContext c) {
-		getLatch().countDown();
 		startLogger.info("started on port {}", this.getPort());
 	}
 
     @Override
 	public void run() throws Exception {
-        start();
+        start();        
 
         // this gets called both when CTRL+C is pressed, and when main() terminates.
         Runtime.getRuntime().addShutdownHook(new Thread(() -> stop("Shutdown hook called, shutting down")));

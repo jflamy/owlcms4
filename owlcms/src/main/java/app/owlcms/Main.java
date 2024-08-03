@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.TimeZone;
-import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.converters.DateConverter;
@@ -123,9 +122,6 @@ public class Main {
 	public static void initData() {
 		// Vaadin configs
 		System.setProperty("vaadin.i18n.provider", Translator.class.getName());
-		if (demoResetDelay == null) {
-			startMQTT();
-		}
 
 		long now = System.currentTimeMillis();
 		// read locale from database and override if needed
@@ -134,15 +130,29 @@ public class Main {
 		overrideTimeZone();
 		logger.info("Initialized data ({} ms)", System.currentTimeMillis() - now);
 
+		if (demoResetDelay == null) {
+			startMQTT();
+		}
 		// initialization, don't push out to browsers
 		OwlcmsFactory.initDefaultFOP();
+		
+		signalDatabaseReady();
+	}
+
+	private static void signalDatabaseReady() {
+		try {
+			logger.info("Data initialized.");
+			OwlcmsFactory.countDownLatch();
+		} catch (InterruptedException e) {
+			LoggerUtils.logError(logger, e, false);
+		}
 	}
 
 	public static void injectSuppliers() {
 		// app config injection
 		Translator.setLocaleSupplier(() -> OwlcmsSession.computeLocale());
 		ResourceWalker.setLocaleSupplier(Translator.getLocaleSupplier());
-		ResourceWalker.setLocalZipBlobSupplier(() -> Config.getCurrent().getLocalZipBlob());
+		//ResourceWalker.setLocalZipBlobSupplier(() -> Config.getCurrent().getLocalZipBlob());
 	}
 
 	/**
@@ -163,11 +173,11 @@ public class Main {
 		}
 
 		init();
-		CountDownLatch latch = OwlcmsFactory.getInitializationLatch();
+		//CountDownLatch latch = OwlcmsFactory.getInitializationLatch();
 
 		// restart automatically forever if running as public demo
 		while (true) {
-			EmbeddedJetty embeddedJetty = new EmbeddedJetty(latch, "owlcms")
+			EmbeddedJetty embeddedJetty = new EmbeddedJetty(null, "owlcms")
 			        .setStartLogger(logger)
 			        .setInitConfig(Main::initConfig)
 			        .setInitData(Main::initData);

@@ -1321,8 +1321,7 @@ public class FieldOfPlay implements IUnregister {
 
 	public void setNewRecords(List<RecordEvent> newRecords) {
 		if (newRecords == null || newRecords.isEmpty()) {
-			this.logger.debug("{} + clearing athlete records {}", FieldOfPlay.getLoggingName(this),
-			        LoggerUtils.whereFrom());
+//			this.logger.debug("{} + clearing athlete records {}", FieldOfPlay.getLoggingName(this), LoggerUtils.whereFrom());
 		}
 		this.newRecords = newRecords;
 	}

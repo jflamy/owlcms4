@@ -661,7 +661,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 		payload.put("jurySize", Competition.getCurrent().getJurySize());
 		try {
 			String json = new ObjectMapper().writeValueAsString(payload);
-			logger.info("{}{} MQTT Config: {}", FieldOfPlay.getLoggingName(this.getFop()), System.identityHashCode(this), json);
+			logger.debug("{}{} MQTT Config: {}", FieldOfPlay.getLoggingName(this.getFop()), System.identityHashCode(this), json);
 			this.client.publish(topic, new MqttMessage(json.getBytes(StandardCharsets.UTF_8)));
 		} catch (JsonProcessingException | MqttException e) {
 		}

@@ -101,8 +101,20 @@ public class OwlcmsFactory {
 		return values;
 	}
 
-	public static CountDownLatch getInitializationLatch() {
+	private static CountDownLatch getInitializationLatch() {
+		//logger.debug("***** getInitializationLatch {} {}",latch.getCount(), LoggerUtils.whereFrom());
 		return latch;
+	}
+	
+	public static void awaitLatch() throws InterruptedException {
+		//logger.debug("***** awaitLatch {} {}",latch.getCount(), LoggerUtils.whereFrom());
+		latch.await();
+	}
+	
+	
+	public static void countDownLatch() throws InterruptedException {
+		//logger.debug("***** countDownLatch {} {}",latch.getCount(), LoggerUtils.whereFrom());
+		latch.countDown();
 	}
 
 	public static String getVersion() {
@@ -134,7 +146,7 @@ public class OwlcmsFactory {
 	public static FieldOfPlay registerEmptyFOP(Platform platform) {
 		String name = platform.getName();
 		FieldOfPlay fop = new FieldOfPlay(null, platform);
-		logger.info("{} Initialized", FieldOfPlay.getLoggingName(fop));
+		logger.info("{}Initialized", FieldOfPlay.getLoggingName(fop));
 		// no group selected, no athletes, announcer will need to pick a group.
 		fop.init(new LinkedList<>(), new ProxyAthleteTimer(fop), new ProxyBreakTimer(fop), true);
 		getFopByName().put(name, fop);
@@ -189,7 +201,9 @@ public class OwlcmsFactory {
 
 	public static void waitDBInitialized() {
 		try {
-			OwlcmsFactory.getInitializationLatch().await();
+			CountDownLatch initializationLatch = OwlcmsFactory.getInitializationLatch();
+			logger.debug("******** latch.getCount() {}",latch.getCount());
+			initializationLatch.await();
 		} catch (InterruptedException e) {
 		}
 	}
