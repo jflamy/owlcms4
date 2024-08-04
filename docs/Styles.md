@@ -1,8 +1,10 @@
-The colors and formatting of the scoreboard and attempt board are controlled by Web-standard style sheets ("CSS style sheets").  Colors are defined in a file called `local/styles/colors.css` . The formatting of the scoreboards is inside `local/styles/resultsCustomization.css` for most of the settings you are likely to change, and in `local/styles/results.css` for the rest.
+The colors and formatting of the scoreboard and attempt board are controlled by Web-standard style sheets ("CSS style sheets").  Each "theme" is defined by a folder in the `local/css` subfolder.  For example the `grid` and `nogrid` folders define two different looks. 
 
-> This topic is <u>advanced</u>.  But there are many learning resources for CSS style sheets, and several persons with no Web development background have succeeded in customizing their scoreboards.
+Inside a theme, the colors are defined in a file called `colors.css` . Most of the formatting of the scoreboards is inside `resultsCustomization.css` for most of the settings you are likely to change, and in `results.css` for those that you would rather not change -- the settings in `results.css` are tied to the way owlcms work and may change without notice. If you change those, you have to be ready to adjust occasionally when a release comes out.
 
-Note that `results.css` is much more likely to change significantly than `colors.css` (where the most likely thing will be new colors being added).  You are therefore encouraged to change your colors in colors.css.  Should you find a color or scoreboard area that was omitted, please report it so it can be made configurable like the rest.
+> [!NOTE]
+>
+> You are therefore encouraged to change your colors in `colors.css`  Should you find a color or scoreboard area that was omitted, please report it so it can be made configurable like the rest.
 
 ### Working with Browser Caches
 

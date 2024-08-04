@@ -95,7 +95,11 @@ You can use the medals and the ranking screen to show information during ceremon
 
 ### 6.2 Style Editing, Colors, Transparency, Logos
 
-The style sheets for the video streaming are actually separate from those used on-site.  You can change the color scheme for the videos without affecting the main site.  The video style sheets are located in `local/styles/video` .  Note that if you change the styles, the OBS cache will need to be emptied.  On Windows, it is located in `%appdata%\obs-studio\plugin_config\obs-browser\Cache` -- exit OBS and delete everything inside.
+The style sheets for the video streaming can be the same as the main site, or you can define separate ones. The video style sheets are located in`local/css` together with the other owlcms style sheets. By default, the video style sheets are `nogrid` (located in `local/css/nogrid`).   The `local/css/transparent` folder is an example of a style sheet designed specifically for video (you would use it with video software that makes pure green transparent).   
+
+In order to create you own video styles, copy the `nogrid` or `transparent` folder to your own name. Select your new folder on the `Prepare Competition > Language and System Settings > Customization`
+
+Note that if you change the styles, the OBS cache may need to be emptied.  On Windows,the cache is located in `%appdata%\obs-studio\plugin_config\obs-browser\Cache` -- exit OBS and delete everything inside.
 
 - For example, you can change the scoreboard background to be a pure green (#00ff00) and use a color filter to remove the green -- the scoreboard will then be on a transparent background.
 - You can change the color of the video header to create a banner
