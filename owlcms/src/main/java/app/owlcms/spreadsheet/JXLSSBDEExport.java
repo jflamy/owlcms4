@@ -77,4 +77,8 @@ public class JXLSSBDEExport extends JXLSWorkbookStreamSource {
 		return getLocalizedTemplate("/templates/registration/SBDE", ".xls", locale);
 	}
 
+	@Override
+	public boolean isEmptyOk() {
+		return true;
+	}
 }
