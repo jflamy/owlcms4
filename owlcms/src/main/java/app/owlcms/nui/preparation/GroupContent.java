@@ -11,8 +11,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
+import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.vaadin.flow.component.Component;
@@ -20,6 +22,11 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
@@ -34,6 +41,7 @@ import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -53,6 +61,8 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 	}
 	private OwlcmsCrudFormFactory<Group> editingFormFactory;
 	private OwlcmsLayout routerLayout;
+	private FlexLayout topBar;
+	private GroupGrid crud;
 
 	/**
 	 * Instantiates the Group crudGrid.
@@ -74,7 +84,54 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 
 	@Override
 	public FlexLayout createMenuArea() {
-		return new FlexLayout();
+		this.topBar = new FlexLayout();
+
+		Button cardsButton = createCardsButton();
+		Button weighInSummaryButton = createWeighInSummaryButton();
+		Button sessionsButton = createSessionsButton();
+		Button officialSchedule = createOfficalsButton();
+		Button checkInButton = createCheckInButton();
+
+		Hr hr = new Hr();
+		hr.setWidthFull();
+		hr.getStyle().set("margin", "0");
+		hr.getStyle().set("padding", "0");
+		FlexLayout buttons = new FlexLayout(
+		        new NativeLabel(Translator.translate("Preparation_Groups")),
+		        sessionsButton, cardsButton, weighInSummaryButton, checkInButton, officialSchedule);
+		buttons.getStyle().set("flex-wrap", "wrap");
+		buttons.getStyle().set("gap", "1ex");
+		buttons.getStyle().set("margin-left", "5em");
+		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+
+		this.topBar.getStyle().set("flex", "100 1");
+		this.topBar.add(buttons);
+		this.topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+		this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+
+		return this.topBar;
+	}
+
+	private Button createCheckInButton() {
+		return new Button("CheckIn");
+	}
+
+	private Button createOfficalsButton() {
+		return new Button("Officials");
+	}
+
+	private Button createSessionsButton() {
+		return new Button("StartList", (e) -> {
+			logger.warn("selected: {}",crud.getSelectedItems());
+		});
+	}
+
+	private Button createWeighInSummaryButton() {
+		return new Button("WeighIn");
+	}
+
+	private Button createCardsButton() {
+		return new Button("Cards");
 	}
 
 	@Override
@@ -128,8 +185,7 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 	 */
 	protected GridCrud<Group> createGrid(OwlcmsCrudFormFactory<Group> crudFormFactory) {
 		Grid<Group> grid = new Grid<>(Group.class, false);
-		GridCrud<Group> crud = new OwlcmsCrudGrid<>(Group.class, new OwlcmsGridLayout(Group.class),
-		        crudFormFactory, grid);
+		crud = new GroupGrid(Group.class, new OwlcmsGridLayout(Group.class), crudFormFactory, grid);
 		grid.getThemeNames().add("row-stripes");
 		grid.addColumn(Group::getName).setHeader(Translator.translate("Name")).setComparator(Group::compareTo);
 		grid.addColumn(Group::getDescription).setHeader(Translator.translate("Group.Description"));
@@ -152,6 +208,7 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 
 		crud.setCrudListener(this);
 		crud.setClickRowToUpdate(true);
+		grid.setSelectionMode(SelectionMode.MULTI);
 		return crud;
 	}
 
@@ -167,6 +224,18 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		Button button = new Button(label);
 		button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter != null ? parameter : "-"));
 		return button;
+	}
+	
+	protected void saveCallBack(OwlcmsCrudGrid<T> owlcmsCrudGrid, String successMessage, CrudOperation operation, T domainObject) {
+		try {
+			//logger.debug("postOperation {}", domainObject);
+			owlcmsCrudGrid.getOwlcmsGridLayout().hideForm();
+			crud.refreshGrid();
+			Notification.show(successMessage);
+			logger.trace("operation performed");
+		} catch (Exception e) {
+			LoggerUtils.logError(logger, e);
+		}
 	}
 
 }

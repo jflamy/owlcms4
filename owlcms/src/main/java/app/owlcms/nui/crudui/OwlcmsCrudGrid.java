@@ -37,13 +37,13 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 
-	private static final int DOUBLE_CLICK_MS_DELTA = 1000;
+	protected static final int DOUBLE_CLICK_MS_DELTA = 1000;
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsCrudGrid.class);
 
 	// private OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory;
 	private OwlcmsGridLayout owlcmsGridLayout;
 	private boolean clickable = true;
-	private long clicked = 0L;
+	protected long clicked = 0L;
 
 	/**
 	 * Instantiates a new owlcms crudGrid crudGrid.
@@ -189,13 +189,12 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 		this.deleteButton.getElement().setAttribute("title", Translator.translate("Delete"));
 		// crudLayout.addToolbarComponent(deleteButton);
 
-		updateButtons();
+		//updateButtons();
 	}
 
 	protected void saveCallBack(OwlcmsCrudGrid<T> owlcmsCrudGrid, String successMessage, CrudOperation operation, T domainObject) {
 		try {
 			//logger.debug("postOperation {}", domainObject);
-			owlcmsCrudGrid.grid.asSingleSelect().clear();
 			owlcmsCrudGrid.getOwlcmsGridLayout().hideForm();
 			refreshGrid();
 			Notification.show(successMessage);
