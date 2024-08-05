@@ -4,6 +4,7 @@
 > - Beta releases are **not** normally used in actual competitions, except when a new feature is required. Use extreme care in testing if you intend to do so.
 
 - Preliminary releases change log
+  - (rc01) Out-of-competition athletes now have their ranks on the scoreboards marked with a string ("ext." by default, defined as a translation string).  Translation strings also define a marker for the attempt board, and for the scoreboard name.  The scoreboard marker is empty by default since the ranks show the status.
   - (rc01) Fix: documentation for video styles now correctly references `local/css`
   - (beta04) Fix: SBDE export had stopped working if there are no athletes.
   - (beta03) Technical: when running on the cloud it is best to open the http port as early as possible.  Enabled a latch to wait until the database initialization and all other initializations are done before actually responding to outside requests.
