@@ -341,7 +341,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		throw new IOException("no template found for : " + templateName + extension + " tried with suffix " + tryList);
 	}
 
-	protected InputStream getTemplate(Locale locale) throws IOException, Exception {
+	public InputStream getTemplate(Locale locale) throws IOException, Exception {
 		if (this.inputStream != null) {
 			logger.debug("explicitly set template {}", this.inputStream);
 			return new BufferedInputStream(this.inputStream);
@@ -397,7 +397,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void writeStream(OutputStream stream) throws IOException {
+	public void writeStream(OutputStream stream) throws IOException {
 		File tempFile = null;
 		try {
 			InputStream template;
@@ -600,6 +600,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		footer.setLeft(Translator.translate("Results.producedBy", "owlcms", OwlcmsFactory.getVersion()));
 		footer.setCenter(Translator.translate("Results.dateTime", formattedDate, formattedTime));
 		footer.setRight(Translator.translate("Results.pageOf",HeaderFooter.page(),HeaderFooter.numPages()));
+	}
+
+	public void setTemplateFileName(String templateFileName) {
+		this.templateFileName = templateFileName;
 	}
 
 }

@@ -6,10 +6,19 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.LoggerFactory;
@@ -23,6 +32,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.notification.Notification;
@@ -33,23 +43,31 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.fields.LocalDateTimeField;
+import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.athleteSort.RegistrationOrderComparator;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
+import app.owlcms.nui.shared.DownloadButtonFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
+import app.owlcms.spreadsheet.JXLSCardsDocs;
+import app.owlcms.spreadsheet.JXLSCardsWeighIn;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
+import app.owlcms.utils.ZipUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Class CategoryContent.
+ * Class GroupContent.
  *
- * Defines the toolbar and the table for editing data on groups.
+ * Defines the toolbar and the table for editing data on sessions.
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation/groups", layout = OwlcmsLayout.class)
@@ -86,7 +104,7 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 	public FlexLayout createMenuArea() {
 		this.topBar = new FlexLayout();
 
-		Button cardsButton = createCardsButton();
+		Div cardsButton = createCardsButton();
 		Button weighInSummaryButton = createWeighInSummaryButton();
 		Button sessionsButton = createSessionsButton();
 		Button officialSchedule = createOfficalsButton();
@@ -122,7 +140,7 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 
 	private Button createSessionsButton() {
 		return new Button("StartList", (e) -> {
-			logger.warn("selected: {}",crud.getSelectedItems());
+			logger.warn("selected: {}", crud.getSelectedItems());
 		});
 	}
 
@@ -130,8 +148,106 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		return new Button("WeighIn");
 	}
 
-	private Button createCardsButton() {
-		return new Button("Cards");
+	private Div createCardsButton() {
+		Div localDirZipDiv = null;
+		localDirZipDiv = DownloadButtonFactory.createDynamicZipDownloadButton("cards",
+		        Translator.translate("Download Cards"), () -> zipCardsInputStream(crud.getSelectedItems()));
+		return localDirZipDiv;
+	}
+
+	private ZipOutputStream zipCards(Set<Group> selectedItems, PipedOutputStream os) {
+		try {
+			int i = 1;
+			ZipOutputStream zipOut = new ZipOutputStream(os);
+			for (Group g : selectedItems) {
+				String seq = String.format("%02d",i);
+				logger.warn("g = {}", g.getName());
+				// get current version of athletes.
+				List<Athlete> athletes = groupAthletes(g, true);
+				doWeighIn(seq, zipOut, g, athletes);
+				doCards(seq,zipOut, g, athletes);
+				i++;
+			}
+			zipOut.finish();
+			zipOut.close();
+			return zipOut;
+		} catch (IOException e) {
+			LoggerUtils.logError(logger, e, true);
+			return null;
+		}
+	}
+
+	private void doCards(String seq, ZipOutputStream zipOut, Group g, List<Athlete> athletes) throws IOException {
+		// group may have been edited since the page was loaded
+		JXLSCardsDocs cardsXlsWriter = new JXLSCardsDocs();
+		cardsXlsWriter.setGroup(g);
+		if (athletes.size() > cardsXlsWriter.getSizeLimit()) {
+			logger.error("too many athletes : no report");
+		} else if (athletes.size() == 0) {
+			logger./**/warn("no athletes: empty report.");
+		}
+		cardsXlsWriter.setSortedAthletes(athletes);
+		String template = Competition.getCurrent().getCardsTemplateFileName();
+		if (template != null) {
+			cardsXlsWriter.setTemplateFileName("templates/cards/"+template);
+			String name = seq+"_b_cards_" + g.getName() + ".xls";
+			InputStream in = cardsXlsWriter.createInputStream();
+			ZipUtils.zipStream(in, name, false, zipOut);
+		} else {
+			throw new RuntimeException("No cards template defined");
+		}
+	}
+	
+	private void doWeighIn(String seq, ZipOutputStream zipOut, Group g, List<Athlete> athletes) throws IOException {
+		// group may have been edited since the page was loaded
+		JXLSCardsDocs cardsXlsWriter = new JXLSCardsWeighIn();
+		cardsXlsWriter.setGroup(g);
+		if (athletes.size() > cardsXlsWriter.getSizeLimit()) {
+			logger.error("too many athletes : no report");
+		} else if (athletes.size() == 0) {
+			logger./**/warn("no athletes: empty report.");
+		}
+		cardsXlsWriter.setSortedAthletes(athletes);
+		String template = Competition.getCurrent().getComputedStartingWeightsSheetTemplateFileName();
+		if (template != null) {
+			cardsXlsWriter.setTemplateFileName("templates/weighin/"+template);
+			String name = seq+"_a_weighin_" + g.getName() + ".xlsx";
+			InputStream in = cardsXlsWriter.createInputStream();
+			ZipUtils.zipStream(in, name, false, zipOut);
+		} else {
+			throw new RuntimeException("No cards template defined");
+		}
+	}
+	
+	private InputStream zipCardsInputStream(Set<Group> selectedItems) {
+		PipedOutputStream out;
+		PipedInputStream in;
+		try {
+			out = new PipedOutputStream();
+			in = new PipedInputStream(out);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		new Thread(() -> {
+			try {
+				zipCards(selectedItems, out);
+				out.flush();
+				out.close();
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
+		}).start();
+		return in;
+	}
+
+	protected List<Athlete> groupAthletes(Group g, boolean sessionOrder) {
+		List<Athlete> regCatAthletesList = new ArrayList<>(g.getAthletes());
+		if (sessionOrder) {
+			Collections.sort(regCatAthletesList, RegistrationOrderComparator.athleteSessionRegistrationOrderComparator);
+		} else {
+			AthleteSorter.registrationOrder(regCatAthletesList);
+		}
+		return regCatAthletesList;
 	}
 
 	@Override
@@ -212,23 +328,23 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		return crud;
 	}
 
-	private <T extends Component> String getWindowOpenerFromClass(Class<T> targetClass,
+	private <C extends Component> String getWindowOpenerFromClass(Class<C> targetClass,
 	        String parameter) {
 		return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "?group="
 		        + URLEncoder.encode(parameter, StandardCharsets.UTF_8)
 		        + "','" + targetClass.getSimpleName() + "')";
 	}
 
-	private <T extends Component> Button openInNewTab(Class<T> targetClass,
+	private <C extends Component> Button openInNewTab(Class<C> targetClass,
 	        String label, String parameter) {
 		Button button = new Button(label);
 		button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter != null ? parameter : "-"));
 		return button;
 	}
-	
+
 	protected void saveCallBack(OwlcmsCrudGrid<T> owlcmsCrudGrid, String successMessage, CrudOperation operation, T domainObject) {
 		try {
-			//logger.debug("postOperation {}", domainObject);
+			// logger.debug("postOperation {}", domainObject);
 			owlcmsCrudGrid.getOwlcmsGridLayout().hideForm();
 			crud.refreshGrid();
 			Notification.show(successMessage);

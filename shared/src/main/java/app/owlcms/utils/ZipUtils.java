@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -129,6 +130,8 @@ public class ZipUtils {
 			zipOut.closeEntry();
 		}
 		ZipEntry zipEntry = new ZipEntry(fileName);
+		zipEntry.setCreationTime(FileTime.fromMillis(System.currentTimeMillis()));
+		zipEntry.setTime(System.currentTimeMillis());
 		zipOut.putNextEntry(zipEntry);
 		byte[] bytes = new byte[1024];
 		int length;

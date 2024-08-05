@@ -109,10 +109,27 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 			throw e2;
 		}
 	}
+	
+	protected void deleteButtonClicked(T domainObject) {
+		try {
+			this.deleteOperation.perform(domainObject);
+			refreshGrid();
+		} catch (CrudOperationException e1) {
+			refreshGrid();
+		} catch (Exception e2) {
+			refreshGrid();
+			throw e2;
+		}
+	}
 
 	protected void deleteCallBack() {
 		this.getOwlcmsGridLayout().hideForm();
 		this.deleteButtonClicked();
+	}
+	
+	protected void deleteCallBack(T domainObject) {
+		this.getOwlcmsGridLayout().hideForm();
+		this.deleteButtonClicked(domainObject);
 	}
 
 	@Override
@@ -222,7 +239,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 			        saveCallBack(this, successMessage, operation, domainObject);
 		        },
 		        deleteButtonClickEvent -> {
-			        deleteCallBack();
+			        deleteCallBack(domainObject);
 		        });
 
 		String caption = owlcmsCrudFormFactory.buildCaption(operation, domainObject);

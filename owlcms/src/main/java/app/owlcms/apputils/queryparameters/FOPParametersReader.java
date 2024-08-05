@@ -70,6 +70,7 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 	@Override
 	@SuppressWarnings("null")
 	public default Map<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
+		OwlcmsFactory.waitDBInitialized();
 		// logger.debug("FopParameter readParams \n{}", LoggerUtils.stackTrace());
 		HashMap<String, List<String>> newParameterMap = new HashMap<>(parametersMap);
 
