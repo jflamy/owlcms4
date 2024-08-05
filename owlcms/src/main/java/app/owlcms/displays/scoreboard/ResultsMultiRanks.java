@@ -22,6 +22,7 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
@@ -55,7 +56,8 @@ public class ResultsMultiRanks extends Results {
 		} else if (total == 0) {
 			return "&ndash;";
 		} else if (total == -1) {
-			return "inv.";// invited lifter, not eligible.
+			// invited lifter, not eligible.
+			return Translator.translate("Results.Extra/Invited"); 
 		} else {
 			return total.toString();
 		}
@@ -77,12 +79,15 @@ public class ResultsMultiRanks extends Results {
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 		String category;
 		category = curCat != null ? curCat.getDisplayName() : "";
+		String fullName;
 		if (isAbbreviatedName()) {
-			ja.put("fullName", a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
+			fullName = a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "";
 		} else {
-			ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
+			fullName = a.getFullName() != null ? a.getFullName() : "";
 		}
-
+		if (!fullName.isBlank()) {
+			fullName = Translator.translate("Scoreboard.Extra/Invited",fullName);
+		}
 		ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
 		ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
 		Integer startNumber = a.getStartNumber();
@@ -136,6 +141,9 @@ public class ResultsMultiRanks extends Results {
 	}
 
 	private String computedScoreRank(Athlete a) {
+		if (!a.isEligibleForIndividualRanking()) {
+			return Translator.translate("Results.Extra/Invited");
+		}
 		Integer value = Ranking.getRanking(a, Competition.getCurrent().getScoringSystem());
 		return value != null && value > 0 ? "" + value : "-";
 	}

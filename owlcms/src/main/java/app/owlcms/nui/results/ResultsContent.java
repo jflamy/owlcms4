@@ -36,6 +36,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.NumberRenderer;
+import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -103,7 +104,8 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		grid.addColumn("total").setHeader(Translator.translate("Total"))
 		        .setComparator(new WinningOrderComparator(Ranking.TOTAL, true));
 		grid.addColumn("totalRank").setHeader(Translator.translate("TotalRank"))
-		        .setComparator(new WinningOrderComparator(Ranking.TOTAL, false));
+		        .setComparator(new WinningOrderComparator(Ranking.TOTAL, false))
+		        .setRenderer(new TextRenderer<>((a) -> Ranking.formatScoreboardRank(a.getTotalRank())));
 
 		grid.addColumn("lastName").setHeader(Translator.translate("LastName"));
 		grid.addColumn("firstName").setHeader(Translator.translate("FirstName"));
@@ -111,10 +113,12 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		grid.addColumn("group").setHeader(Translator.translate("Group"));
 		grid.addColumn("bestSnatch").setHeader(Translator.translate("Snatch"));
 		grid.addColumn("snatchRank").setHeader(Translator.translate("SnatchRank"))
-		        .setComparator(new WinningOrderComparator(Ranking.SNATCH, false));
+		        .setComparator(new WinningOrderComparator(Ranking.SNATCH, false))
+		        .setRenderer(new TextRenderer<>((a) -> Ranking.formatScoreboardRank(a.getSnatchRank())));
 		grid.addColumn("bestCleanJerk").setHeader(Translator.translate("Clean_and_Jerk"));
 		grid.addColumn("cleanJerkRank").setHeader(Translator.translate("Clean_and_Jerk_Rank"))
-		        .setComparator(new WinningOrderComparator(Ranking.CLEANJERK, false));
+		        .setComparator(new WinningOrderComparator(Ranking.CLEANJERK, false))
+		        .setRenderer(new TextRenderer<>((a) -> Ranking.formatScoreboardRank(a.getCleanJerkRank())));
 
 		String protocolFileName = Competition.getCurrent().getProtocolTemplateFileName();
 		if (protocolFileName != null && (protocolFileName.toLowerCase().contains("fhq"))) {
@@ -127,7 +131,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 
 		grid.addColumn(new NumberRenderer<>(a -> Ranking.getRankingValue(a, scoringSystem), "%.2f",
 		        OwlcmsSession.getLocale(), "0.00"))
-		        .setSortProperty("qPoints").setHeader(Translator.translate("Ranking." + scoringSystem))
+		        .setSortProperty("score").setHeader(Translator.translate("Ranking." + scoringSystem))
 		        .setComparator(new WinningOrderComparator(Ranking.QPOINTS, true));
 
 		if (scoringSystem != Ranking.BW_SINCLAIR) {
@@ -581,4 +585,27 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 	private void highlight(Button button) {
 		button.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
 	}
+	
+	public static String formatBlankRank(Integer total) {
+		if (total == null || total == 0) {
+			return "&nbsp;";
+		} else if (total == -1) {
+			// invited lifter, not eligible.
+			return Translator.translate("Results.Extra/Invited"); 
+		} else {
+			return total.toString();
+		}
+	}
+	
+	public static String formatScoreboardRank(Integer total) {
+		if (total == null || total == 0) {
+			return "-";
+		} else if (total == -1) {
+			// invited lifter, not eligible.
+			return Translator.translate("Results.Extra/Invited"); 
+		} else {
+			return total.toString();
+		}
+	}
+
 }

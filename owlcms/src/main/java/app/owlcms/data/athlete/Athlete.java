@@ -2734,7 +2734,6 @@ public class Athlete {
 	}
 
 	public int getSnatchRank() {
-
 		int snatchRank;
 		if (getMainRankings() != null) {
 			snatchRank = getMainRankings().getSnatchRank();

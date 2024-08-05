@@ -167,5 +167,16 @@ public enum Ranking {
 	public String getWReportingName() {
 		return "w" + this.reportingName;
 	}
+	
+	public static String formatScoreboardRank(Integer total) {
+		if (total == null || total == 0) {
+			return "-";
+		} else if (total == -1) {
+			// invited lifter, not eligible.
+			return Translator.translate("Results.Extra/Invited"); 
+		} else {
+			return total.toString();
+		}
+	}
 
 }

@@ -1271,7 +1271,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		if (total == null || total == 0) {
 			return "-";
 		} else if (total == -1) {
-			return "inv.";// invited lifter, not eligible.
+			// invited lifter, not eligible.
+			return Translator.translate("Results.Extra/Invited"); 
 		} else if (total < 0) {
 			return "(" + Math.abs(total) + ")";
 		} else {

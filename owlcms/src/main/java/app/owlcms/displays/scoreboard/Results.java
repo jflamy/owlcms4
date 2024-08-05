@@ -726,15 +726,13 @@ public class Results extends LitTemplate
 		updateDisplay(computeLiftType(fop.getCurAthlete()), fop);
 	}
 
-	protected String formatInt(Integer total) {
-		if (total == null || total == 0) {
+	protected String formatInt(Integer value) {
+		if (value == null || value == 0) {
 			return "-";
-		} else if (total == -1) {
-			return "inv.";// invited lifter, not eligible.
-		} else if (total < 0) {
-			return "(" + Math.abs(total) + ")";
+		} else if (value < 0) {
+			return "(" + Math.abs(value) + ")";
 		} else {
-			return total.toString();
+			return value.toString();
 		}
 	}
 
@@ -742,7 +740,8 @@ public class Results extends LitTemplate
 		if (total == null || total == 0) {
 			return "&nbsp;";
 		} else if (total == -1) {
-			return "inv.";// invited lifter, not eligible.
+			// invited lifter, not eligible.
+			return Translator.translate("Results.Extra/Invited"); 
 		} else {
 			return total.toString();
 		}
@@ -761,6 +760,9 @@ public class Results extends LitTemplate
 			fullName = a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "";
 		} else {
 			fullName = a.getFullName() != null ? a.getFullName() : "";
+		}
+		if (!fullName.isBlank()) {
+			fullName = Translator.translate("Scoreboard.Extra/Invited",fullName);
 		}
 		ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
 		ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
@@ -1102,12 +1104,16 @@ public class Results extends LitTemplate
 
 	private String computedScoreRank(Athlete a) {
 		Ranking ageGroupScoringSystem = a.getAgeGroup().getScoringSystem();
+		if (a.isEligibleForIndividualRanking()) {
 		if (ageGroupScoringSystem != null) {
 			Integer value = Ranking.getRanking(a, Ranking.CUSTOM);
 			return value != null && value > 0 ? "" + value : "-";
 		} else {
 			Integer value = Ranking.getRanking(a, Competition.getCurrent().getScoringSystem());
 			return value != null && value > 0 ? "" + value : "-";
+		}
+		} else {
+			return Translator.translate("Results.Extra/Invited");
 		}
 
 	}

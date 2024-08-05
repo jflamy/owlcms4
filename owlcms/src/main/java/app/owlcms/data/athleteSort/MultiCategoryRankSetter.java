@@ -37,10 +37,9 @@ public class MultiCategoryRankSetter {
 		Category category = a.getCategory();
 		boolean eligible = a.isEligibleForIndividualRanking();
 		boolean zero = rankingValue <= 0;
-		// logger.debug("a {} v {} z {} e {}", a.getShortName(), rankingValue, zero,
-		// eligible);
 
-		int value = eligible ? (zero ? 0 : ++this.rank) : -1;
+		int rank = eligible ? (rankingValue == 0 ? 0 : ++this.rank) : -1;
+		logger.warn("a {} v {} z {} e {} rank={}", a.getShortName(), rankingValue, zero, eligible, rank);
 		switch (r) {
 			case SNATCH:
 			case CLEANJERK:
@@ -49,31 +48,31 @@ public class MultiCategoryRankSetter {
 				doCategoryBasedRankings(a, r, category, zero);
 				break;
 			case BW_SINCLAIR:
-				a.setSinclairRank(value);
+				a.setSinclairRank(rank);
 				break;
 			case CAT_SINCLAIR:
-				a.setCatSinclairRank(value);
+				a.setCatSinclairRank(rank);
 				break;
 			case SNATCH_CJ_TOTAL:
-				a.setCombinedRank(value);
+				a.setCombinedRank(rank);
 				break;
 			case ROBI:
-				a.setRobiRank(value);
+				a.setRobiRank(rank);
 				break;
 			case SMM:
-				a.setSmhfRank(value);
+				a.setSmhfRank(rank);
 				break;
 			case QPOINTS:
-				a.setqPointsRank(value);
+				a.setqPointsRank(rank);
 				break;
 			case QAGE:
-				a.setqAgeRank(value);
+				a.setqAgeRank(rank);
 				break;
 			case GAMX:
-				a.setGamxRank(value);
+				a.setGamxRank(rank);
 				break;
 			case AGEFACTORS:
-				a.setAgeAdjustedTotalRank(value);
+				a.setAgeAdjustedTotalRank(rank);
 		}
 	}
 
@@ -92,25 +91,22 @@ public class MultiCategoryRankSetter {
 			Category curCat = p.getCategory();
 			switch (r) {
 				case SNATCH: {
-					if (!zero) {
-						CategoryRankingHolder curRankings = getCategoryRankings(curCat);
+					CategoryRankingHolder curRankings = getCategoryRankings(curCat);
+					if (!zero && a.isEligibleForIndividualRanking()) {
 						this.snatchRank = curRankings.getSnatchRank();
 						this.snatchRank = this.snatchRank + 1;
 						p.setSnatchRank(this.snatchRank);
 						curRankings.setSnatchRank(this.snatchRank);
-						// logger.debug("setting snatch rank {} {} {} {} {}", a, curCat, snatchRank,
-						// System.identityHashCode(p),
-						// System.identityHashCode(curRankings));
+						logger.warn("setting snatch rank {} {} {} {} {}", a, curCat, snatchRank, System.identityHashCode(p), System.identityHashCode(curRankings));
 					} else {
-						p.setSnatchRank(0);
-						// logger.debug("skipping snatch rank {} {} {}", a, curCat, 0);
+						p.setSnatchRank(a.isEligibleForIndividualRanking() ? 0 : -1);
+						logger.warn("skipping snatch rank {} {} {}", a, curCat, this.snatchRank);
 					}
-
 				}
 					break;
 				case CLEANJERK: {
-					if (!zero) {
-						CategoryRankingHolder curRankings = getCategoryRankings(curCat);
+					CategoryRankingHolder curRankings = getCategoryRankings(curCat);
+					if (!zero && a.isEligibleForIndividualRanking()) {
 						this.cjRank = curRankings.getCleanJerkRank();
 						this.cjRank = this.cjRank + 1;
 						p.setCleanJerkRank(this.cjRank);
@@ -118,15 +114,15 @@ public class MultiCategoryRankSetter {
 						// logger.debug("setting clean&jerk rank {} {} {} {} {}", a, curCat, cjRank,
 						// System.identityHashCode(p), System.identityHashCode(curRankings));
 					} else {
-						p.setCleanJerkRank(0);
+						p.setCleanJerkRank(a.isEligibleForIndividualRanking() ? 0 : -1);
 						// logger.debug("skipping clean&jerk rank {} {} {}", a, curCat, 0);
 					}
 
 				}
 					break;
 				case TOTAL: {
-					if (!zero) {
-						CategoryRankingHolder curRankings = getCategoryRankings(curCat);
+					CategoryRankingHolder curRankings = getCategoryRankings(curCat);
+					if (!zero && a.isEligibleForIndividualRanking()) {
 						this.totalRank = curRankings.getTotalRank();
 						this.totalRank = this.totalRank + 1;
 						p.setTotalRank(this.totalRank);
@@ -135,14 +131,14 @@ public class MultiCategoryRankSetter {
 						// System.identityHashCode(p),
 						// System.identityHashCode(curRankings));
 					} else {
-						p.setTotalRank(0);
+						p.setTotalRank(a.isEligibleForIndividualRanking() ? 0 : -1);
 						// logger.debug("skipping total rank {} {} {}", a, curCat, 0);
 					}
 				}
 					break;
 				case CUSTOM: {
-					if (!zero) {
-						CategoryRankingHolder curRankings = getCategoryRankings(curCat);
+					CategoryRankingHolder curRankings = getCategoryRankings(curCat);
+					if (!zero && a.isEligibleForIndividualRanking()) {
 						this.customRank = curRankings.getCustomRank();
 						this.customRank = this.customRank + 1;
 						p.setCustomRank(this.customRank);
@@ -151,7 +147,7 @@ public class MultiCategoryRankSetter {
 						// System.identityHashCode(p),
 						// System.identityHashCode(curRankings));
 					} else {
-						p.setCustomRank(0);
+						p.setCustomRank(a.isEligibleForIndividualRanking() ? 0 : -1);
 						// logger.debug("skipping custom rank {} {} {}", a, curCat, 0);
 					}
 					break;

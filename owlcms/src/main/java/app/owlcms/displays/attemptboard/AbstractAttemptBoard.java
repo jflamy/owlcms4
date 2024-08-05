@@ -88,8 +88,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	}
 
 	/*
-	 * The following 3 items need to be injected in the LitTemplate. Vaadin will create the slots and perform the
-	 * injection based on the @Id annotation.
+	 * The following 3 items need to be injected in the LitTemplate. Vaadin will create the slots and perform the injection based on the @Id annotation.
 	 */
 	@Id("athleteTimer")
 	protected AthleteTimerElement athleteTimer; // created by Flow during template instantiation
@@ -370,8 +369,8 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	}
 
 	/**
-	 * Multiple attempt boards and athlete-facing boards can co-exist. We need to show down on the slave devices -- the
-	 * master device is the one where refereeing buttons are attached.
+	 * Multiple attempt boards and athlete-facing boards can co-exist. We need to show down on the slave devices -- the master device is the one where
+	 * refereeing buttons are attached.
 	 *
 	 * @param e
 	 */
@@ -466,8 +465,8 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	}
 
 	/**
-	 * Multiple attempt boards and athlete-facing boards can co-exist. We need to show decisions on the slave devices --
-	 * the master device is the one where refereeing buttons are attached.
+	 * Multiple attempt boards and athlete-facing boards can co-exist. We need to show decisions on the slave devices -- the master device is the one where
+	 * refereeing buttons are attached.
 	 *
 	 * @param e
 	 */
@@ -581,14 +580,19 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		}
 
 		String lastName = a.getLastName();
-		// logger.debug("setting lastName");
-
 		this.getElement().setProperty("lastName", lastName.toUpperCase());
-		this.getElement().setProperty("firstName", a.getFirstName());
 		if (lastName.length() > 18) {
 			this.getElement().setProperty("nameSizeOverride",
-        			"font-size: 8vh; line-height: 8vh; text-wrap: balance; text-overflow: hidden");
+			        "font-size: 8vh; line-height: 8vh; text-wrap: balance; text-overflow: hidden");
 		}
+		
+		String lFirst = a.getFirstName();
+		// add the out-of-competition marker if defined in the translation file.
+		if (lFirst != null && !lFirst.isBlank()) {
+			lFirst = Translator.translate("Attempt.Extra/Invited", lFirst);
+		}
+		this.getElement().setProperty("firstName", lFirst);
+		
 		this.getElement().setProperty("decisionVisible", false);
 		Category category2 = a.getCategory();
 		this.getElement().setProperty("category", category2 != null ? category2.getDisplayName() : "");
@@ -603,7 +607,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		String teamFileName = URLUtils.sanitizeFilename(team);
 		if (this.teamFlags && !team.isBlank()) {
 			Arrays.stream(Team.getFlagExtensions())
-				.anyMatch(ext -> URLUtils.setImgProp("teamFlagImg", "flags/", teamFileName, ext, this));
+			        .anyMatch(ext -> URLUtils.setImgProp("teamFlagImg", "flags/", teamFileName, ext, this));
 		}
 
 		String membership = a.getMembership();

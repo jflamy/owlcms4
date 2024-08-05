@@ -644,10 +644,10 @@ public class AthleteSorter implements Serializable {
 	private static void assignEligibleCategoryRanks(List<Athlete> absoluteOrderList, Ranking rankingType) {
 		MultiCategoryRankSetter rt = new MultiCategoryRankSetter();
 		for (Athlete curLifter : absoluteOrderList) {
-			if (curLifter.isEligibleForIndividualRanking()) {
+			//if (curLifter.isEligibleForIndividualRanking()) {
 				final double rankingValue = Ranking.getRankingValue(curLifter, rankingType);
 				rt.increment(curLifter, rankingType, rankingValue);
-			}
+			//}
 		}
 
 	}
