@@ -8,6 +8,7 @@ package app.owlcms.spreadsheet;
 
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +35,14 @@ public class JXLSCardsWeighIn extends JXLSCardsDocs {
 			List<Athlete> registrationOrderCopy = AthleteSorter
 			        .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, null));
 			return registrationOrderCopy;
+		}
+	}
+
+	@Override
+	protected void postProcess(Workbook workbook) {
+		if (this.getPageLength() != null) {
+			setPageBreaks(workbook, 1, this.getPageLength());
+			return;
 		}
 	}
 
