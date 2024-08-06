@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.ZipOutputStream;
 
@@ -105,18 +104,13 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		this.topBar = new FlexLayout();
 
 		Div cardsButton = createCardsButton();
-		Button weighInSummaryButton = createWeighInSummaryButton();
-		Button sessionsButton = createSessionsButton();
-		Button officialSchedule = createOfficalsButton();
-		Button checkInButton = createCheckInButton();
 
 		Hr hr = new Hr();
 		hr.setWidthFull();
 		hr.getStyle().set("margin", "0");
 		hr.getStyle().set("padding", "0");
 		FlexLayout buttons = new FlexLayout(
-		        new NativeLabel(Translator.translate("Preparation_Groups")),
-		        sessionsButton, cardsButton, weighInSummaryButton, checkInButton, officialSchedule);
+		        new NativeLabel(Translator.translate("Preparation_Groups")), cardsButton);
 		buttons.getStyle().set("flex-wrap", "wrap");
 		buttons.getStyle().set("gap", "1ex");
 		buttons.getStyle().set("margin-left", "5em");
@@ -130,42 +124,31 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		return this.topBar;
 	}
 
-	private Button createCheckInButton() {
-		return new Button("CheckIn");
-	}
-
-	private Button createOfficalsButton() {
-		return new Button("Officials");
-	}
-
-	private Button createSessionsButton() {
-		return new Button("StartList", (e) -> {
-			logger.warn("selected: {}", crud.getSelectedItems());
-		});
-	}
-
-	private Button createWeighInSummaryButton() {
-		return new Button("WeighIn");
-	}
-
 	private Div createCardsButton() {
 		Div localDirZipDiv = null;
 		localDirZipDiv = DownloadButtonFactory.createDynamicZipDownloadButton("cards",
-		        Translator.translate("Download Cards"), () -> zipCardsInputStream(crud.getSelectedItems()));
+		        Translator.translate("Download Cards"), 
+		        () -> zipCardsToInputStream(getSortedSelection()));
 		return localDirZipDiv;
 	}
 
-	private ZipOutputStream zipCards(Set<Group> selectedItems, PipedOutputStream os) {
+	private List<Group> getSortedSelection() {
+		//FIXME: warn if no group selected.
+		return crud.getSelectedItems().stream().sorted(Group.groupWeighinTimeComparator).toList();
+	}
+
+	private ZipOutputStream zipCards(List<Group> selectedItems, PipedOutputStream os) {
 		try {
+			//FIXME: include printing script
 			int i = 1;
 			ZipOutputStream zipOut = new ZipOutputStream(os);
 			for (Group g : selectedItems) {
-				String seq = String.format("%02d",i);
+				String seq = String.format("%02d", i);
 				logger.warn("g = {}", g.getName());
 				// get current version of athletes.
 				List<Athlete> athletes = groupAthletes(g, true);
 				doWeighIn(seq, zipOut, g, athletes);
-				doCards(seq,zipOut, g, athletes);
+				doCards(seq, zipOut, g, athletes);
 				i++;
 			}
 			zipOut.finish();
@@ -189,15 +172,15 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		cardsXlsWriter.setSortedAthletes(athletes);
 		String template = Competition.getCurrent().getCardsTemplateFileName();
 		if (template != null) {
-			cardsXlsWriter.setTemplateFileName("templates/cards/"+template);
-			String name = seq+"_b_cards_" + g.getName() + ".xls";
+			cardsXlsWriter.setTemplateFileName("templates/cards/" + template);
+			String name = seq + "_b_cards_" + g.getName() + ".xls";
 			InputStream in = cardsXlsWriter.createInputStream();
 			ZipUtils.zipStream(in, name, false, zipOut);
 		} else {
 			throw new RuntimeException("No cards template defined");
 		}
 	}
-	
+
 	private void doWeighIn(String seq, ZipOutputStream zipOut, Group g, List<Athlete> athletes) throws IOException {
 		// group may have been edited since the page was loaded
 		JXLSCardsDocs cardsXlsWriter = new JXLSCardsWeighIn();
@@ -210,16 +193,16 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		cardsXlsWriter.setSortedAthletes(athletes);
 		String template = Competition.getCurrent().getComputedStartingWeightsSheetTemplateFileName();
 		if (template != null) {
-			cardsXlsWriter.setTemplateFileName("templates/weighin/"+template);
-			String name = seq+"_a_weighin_" + g.getName() + ".xlsx";
+			cardsXlsWriter.setTemplateFileName("templates/weighin/" + template);
+			String name = seq + "_a_weighin_" + g.getName() + ".xlsx";
 			InputStream in = cardsXlsWriter.createInputStream();
 			ZipUtils.zipStream(in, name, false, zipOut);
 		} else {
 			throw new RuntimeException("No cards template defined");
 		}
 	}
-	
-	private InputStream zipCardsInputStream(Set<Group> selectedItems) {
+
+	private InputStream zipCardsToInputStream(List<Group> selectedItems) {
 		PipedOutputStream out;
 		PipedInputStream in;
 		try {
