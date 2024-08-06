@@ -1,9 +1,14 @@
 > [!WARNING]
 >
-> - This is a **beta release**, used for testing and translation. ***Some features could be non-functional***.
-> - Beta releases are **not** normally used in actual competitions, except when a new feature is required. Use extreme care in testing if you intend to do so.
+> - This is a release candidate [(see definition)](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate), used for final public testing and translation. *It is still a preliminary release*
+> - You should test all releases, with actual data, *several days* before a competition. This is especially important when considering the use of a release candidate.
 
 - Preliminary releases change log
+  - (rc01) When defining categories with all bodyweights, a spurious blank was present in the display name, interfering with the ability to use the registration and SBDE files for these categories.
+  - (rc01) Out-of-competition athletes now have their ranks on the scoreboards marked with a string ("ext." by default, defined as a translation string).  Translation strings also define a marker for the attempt board, and for the scoreboard name.  The scoreboard marker is empty by default since the ranks show the status.
+  - (rc01) Fix: documentation for video styles now correctly references `local/css`
+  - (beta04) Fix: SBDE export had stopped working if there were no athletes.
+  - (beta03) Technical: when running on the cloud it is best to open the http port as early as possible.  Enabled a latch to wait until the database initialization and all other initializations are done before actually responding to outside requests.
   - (beta02) `Scores-*.xlsx` templates can be used as a simple Final package.  Category rankings by the age-group scoring system -- defaults to TOTAL. The Best Lifter page uses the global scoring system selected for the competition.  Team scores are based on the age-group scoring system.
   - (beta02) Added Qage score for Masters: Qpoints * Masters age factor.  Works with the `Scores-*.xlsx` templates.
   - (beta01) Documentation: added page for Score-based rankings using Age-Based All Bodyweight categories.
