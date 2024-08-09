@@ -70,8 +70,8 @@ import ch.qos.logback.classic.Logger;
 import net.sf.jxls.transformer.XLSTransformer;
 
 /**
- * Encapsulate a spreadsheet as a StreamSource so that it can be used as a source of data when the user clicks on a
- * link. This class converts the output stream to an input stream that the vaadin framework can consume.
+ * Encapsulate a spreadsheet as a StreamSource so that it can be used as a source of data when the user clicks on a link. This class converts the output stream
+ * to an input stream that the vaadin framework can consume.
  */
 @SuppressWarnings("serial")
 public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, InputStreamFactory {
@@ -108,8 +108,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	/**
 	 * Read the xls template and write the processed XLS file out.
 	 *
-	 * @see com.vaadin.flow.server.StreamResourceWriter#accept(java.io.OutputStream,
-	 *      com.vaadin.flow.server.VaadinSession)
+	 * @see com.vaadin.flow.server.StreamResourceWriter#accept(java.io.OutputStream, com.vaadin.flow.server.VaadinSession)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -303,9 +302,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	}
 
 	/**
-	 * Try the possible variations of a template based on locale. For "/templates/start/startList", ".xls", and a locale
-	 * of fr_CA, the following names will be tried /templates/start/startList_fr_CA.xls
-	 * /templates/start/startList_fr.xls /templates/start/startList_en.xls
+	 * Try the possible variations of a template based on locale. For "/templates/start/startList", ".xls", and a locale of fr_CA, the following names will be
+	 * tried /templates/start/startList_fr_CA.xls /templates/start/startList_fr.xls /templates/start/startList_en.xls
 	 *
 	 * @param templateName
 	 * @param extension
@@ -463,7 +461,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 				logger.info("before transformWorkbook");
 				long start = System.currentTimeMillis();
 				transformer.transformWorkbook(workbook, reportingInfo);
-				logger.info("after transformWorkbook ({} ms)",System.currentTimeMillis()-start);
+				logger.info("after transformWorkbook ({} ms)", System.currentTimeMillis() - start);
 				if (workbook != null) {
 					postProcess(workbook);
 				}
@@ -471,14 +469,16 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			} else {
 				String noAthletes = Translator.translate("NoAthletes");
 				logger./**/warn("no athletes: empty report.");
-				this.ui.access(() -> {
-					Notification notif = new Notification();
-					notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
-					notif.setPosition(Position.TOP_STRETCH);
-					notif.setDuration(3000);
-					notif.setText(noAthletes);
-					notif.open();
-				});
+				if (ui != null) {
+					this.ui.access(() -> {
+						Notification notif = new Notification();
+						notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
+						notif.setPosition(Position.TOP_STRETCH);
+						notif.setDuration(3000);
+						notif.setText(noAthletes);
+						notif.open();
+					});
+				}
 				workbook = new HSSFWorkbook();
 				workbook.createSheet().createRow(1).createCell(1).setCellValue(noAthletes);
 			}
@@ -515,7 +515,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			HashMap<String, Object> reportingInfo = getReportingBeans();
 			@SuppressWarnings("unchecked")
 			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
-			int size = athletes != null ? athletes.size() : 0 ;
+			int size = athletes != null ? athletes.size() : 0;
 			logger.debug("reportingInfo sessions {} athletes: {}", reportingInfo.get("sessions"), size);
 			if (size == 0 ? isEmptyOk() : isSizeOk(size)) {
 				tempFile = File.createTempFile("jxlsOutput", ".xlsx");
@@ -579,27 +579,27 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 
 	protected void createStandardFooter(Workbook workbook) {
 		// Get the current date and time
-        LocalDateTime now = LocalDateTime.now();
+		LocalDateTime now = LocalDateTime.now();
 
-        // Get the default locale
-        Locale currentLocale = OwlcmsSession.getLocale();
+		// Get the default locale
+		Locale currentLocale = OwlcmsSession.getLocale();
 
-        // Get a date formatter for the short date format in the current locale
+		// Get a date formatter for the short date format in the current locale
 		String shortDatePattern = DateTimeUtils.localizedShortDatePattern(currentLocale);
 		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(shortDatePattern, currentLocale);
 
-        // Get a time formatter for the short time format in the current locale
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(currentLocale);
+		// Get a time formatter for the short time format in the current locale
+		DateTimeFormatter timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(currentLocale);
 
-        // Format the current date and time
-        String formattedDate = now.format(dateFormatter);
-        String formattedTime = now.format(timeFormatter);
+		// Format the current date and time
+		String formattedDate = now.format(dateFormatter);
+		String formattedTime = now.format(timeFormatter);
 
 		Footer footer = workbook.getSheetAt(0).getFooter();
 
 		footer.setLeft(Translator.translate("Results.producedBy", "owlcms", OwlcmsFactory.getVersion()));
 		footer.setCenter(Translator.translate("Results.dateTime", formattedDate, formattedTime));
-		footer.setRight(Translator.translate("Results.pageOf",HeaderFooter.page(),HeaderFooter.numPages()));
+		footer.setRight(Translator.translate("Results.pageOf", HeaderFooter.page(), HeaderFooter.numPages()));
 	}
 
 	public void setTemplateFileName(String templateFileName) {

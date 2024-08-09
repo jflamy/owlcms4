@@ -58,6 +58,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCardsDocs;
 import app.owlcms.spreadsheet.JXLSCardsWeighIn;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.URLUtils;
 import app.owlcms.utils.ZipUtils;
 import ch.qos.logback.classic.Level;
@@ -139,9 +140,9 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 
 	private ZipOutputStream zipCards(List<Group> selectedItems, PipedOutputStream os) {
 		try {
-			//FIXME: include printing script
 			int i = 1;
 			ZipOutputStream zipOut = new ZipOutputStream(os);
+			doPrintScript(zipOut);
 			for (Group g : selectedItems) {
 				String seq = String.format("%02d", i);
 				logger.warn("g = {}", g.getName());
@@ -159,6 +160,14 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 			return null;
 		}
 	}
+	
+	private void doPrintScript(ZipOutputStream zipOut ) {
+		try {
+			ZipUtils.zipStream(ResourceWalker.getFileOrResource("/templates/cards/print.ps1"), "print.ps1", false, zipOut);
+		} catch (IOException e) {
+			LoggerUtils.logError(logger, e, true);
+		}
+	}
 
 	private void doCards(String seq, ZipOutputStream zipOut, Group g, List<Athlete> athletes) throws IOException {
 		// group may have been edited since the page was loaded
@@ -167,7 +176,9 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		if (athletes.size() > cardsXlsWriter.getSizeLimit()) {
 			logger.error("too many athletes : no report");
 		} else if (athletes.size() == 0) {
+			String message = Translator.translate("NoAthletes");
 			logger./**/warn("no athletes: empty report.");
+			throw new RuntimeException(message);
 		}
 		cardsXlsWriter.setSortedAthletes(athletes);
 		String template = Competition.getCurrent().getCardsTemplateFileName();
