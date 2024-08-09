@@ -106,6 +106,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private JsonValue groupAthletes;
 	private JsonValue liftingOrderAthletes;
 	private List<Athlete> groupLeaders;
+	private String groupDescription;
 	private String groupName;
 	private boolean hidden;
 	private JsonValue leaders;
@@ -302,6 +303,10 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	public FOPState getFopState() {
 		return this.fopState;
+	}
+
+	public String getGroupDescription() {
+		return this.groupDescription;
 	}
 
 	public String getGroupInfo() {
@@ -711,6 +716,10 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		this.fullName = fullName;
 	}
 
+	void setGroupDescription(String description) {
+		this.groupDescription = description;
+	}
+
 	void setGroupName(String name) {
 		this.groupName = name;
 	}
@@ -1080,6 +1089,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 		// current group
 		mapPut(sb, "groupName", getGroupName());
+		mapPut(sb, "groupDescription", getGroupDescription());
 		mapPut(sb, "groupInfo", getGroupInfo());
 		mapPut(sb, "liftTypeKey", this.liftTypeKey);
 		mapPut(sb, "liftType", this.liftType);
@@ -1144,6 +1154,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		} else {
 			setFullName(g.getName());
 			setGroupName("");
+			setGroupDescription("");
 			setGroupInfo("");
 			setLiftsDone("");
 		}
@@ -1272,7 +1283,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			return "-";
 		} else if (total == -1) {
 			// invited lifter, not eligible.
-			return Translator.translate("Results.Extra/Invited"); 
+			return Translator.translate("Results.Extra/Invited");
 		} else if (total < 0) {
 			return "(" + Math.abs(total) + ")";
 		} else {
@@ -1734,22 +1745,19 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		int lNbLiftsDone = AthleteSorter.countLiftsDone(this.fop.getDisplayOrder());
 
 		String lGroupDescription = lCurGroup != null ? lCurGroup.getDescription() : null;
-		// String lGroupName = "";
+		String lGroupInfo = lGroupDescription;
 		String lLiftsDone = "";
 		if (lCurGroup != null && lCurGroup.isDone()) {
-			// lGroupName = lGroupDescription != null ? lGroupDescription : "\u00a0";
 			lLiftsDone = "";
 		} else if (lCurGroup != null && pLiftType != null) {
 			String name = lGroupDescription != null ? lGroupDescription : lCurGroup.getName();
-			String value = lGroupDescription == null ? Translator.translate("Scoreboard.GroupLiftType", name, pLiftType)
+			lGroupInfo = lGroupDescription == null ? Translator.translate("Scoreboard.GroupLiftType", name, pLiftType)
 			        : Translator.translate("Scoreboard.DescriptionLiftTypeFormat", lGroupDescription, pLiftType);
-			lGroupDescription = value;
 			lLiftsDone = Translator.translate("Scoreboard.AttemptsDone", lNbLiftsDone);
-		} else {
-			// lGroupName = "";
 		}
 		setGroupName(lCurGroup != null ? lCurGroup.getName() : "");
-		setGroupInfo(lGroupDescription);
+		setGroupDescription(lGroupDescription != null ? lGroupDescription : "");
+		setGroupInfo(lGroupInfo);
 		setLiftsDone(lLiftsDone);
 	}
 
