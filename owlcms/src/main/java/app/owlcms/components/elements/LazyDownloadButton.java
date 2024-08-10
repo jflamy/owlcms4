@@ -166,7 +166,9 @@ public class LazyDownloadButton extends Button {
 						}));
 
 					} catch (Exception e) {
-						throw new RuntimeException(e);
+						if (! (e instanceof StopProcessingException)) {
+							throw new RuntimeException(e);
+						}
 					}
 				});
 				newSingleThreadExecutor.shutdown();

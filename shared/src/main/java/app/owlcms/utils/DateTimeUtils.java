@@ -129,7 +129,7 @@ public class DateTimeUtils {
 				parse = LocalDateTime.parse(content, DATETIME_FORMATTER_SECONDS);
 				return parse;
 			} catch (Exception e2) {
-				e.printStackTrace();
+				LoggerUtils.logError(logger, e2);
 				throw e;
 			}
 		}

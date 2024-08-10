@@ -910,7 +910,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 					platesElement.getClassList().set("dark", true);
 					attemptBoard.getElement().appendChild(platesElement);
 				} catch (Throwable t) {
-					t.printStackTrace();
+					LoggerUtils.logError(logger, t);
 				}
 			});
 		});

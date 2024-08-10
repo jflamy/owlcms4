@@ -60,6 +60,7 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.utils.DateTimeUtils;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -802,7 +803,7 @@ public class Competition {
 		} catch (Exception a) {
 			// null or unparseable
 			logger.error("cannot format {}: {} {}", this.competitionDate, a, shortPattern);
-			a.printStackTrace();
+			LoggerUtils.logError(logger, a);
 			return "";
 		}
 	}

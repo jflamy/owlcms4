@@ -64,7 +64,7 @@ public class RobiCategories {
 					return 1;
 				}
 			} catch (Exception e) {
-				// e.printStackTrace();
+				
 			}
 			return 0;
 		}

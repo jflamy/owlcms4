@@ -589,7 +589,6 @@ public class Results extends LitTemplate
 			if (curAthlete != null && curAthlete.getGender() != null) {
 				this.getElement().setProperty("categoryName", curAthlete.getCategory().getDisplayName());
 
-				// FIXME: leaders according to score if ageGroup is score-based.
 				if (Competition.getCurrent().isSinclair()) {
 					Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
 					List<Athlete> sortedAthletes = new ArrayList<>(
@@ -1169,7 +1168,6 @@ public class Results extends LitTemplate
 
 			List<Athlete> athletes = fop.getDisplayOrder();
 			if (athletes != null && athletes.size() > 0) {
-				// FIXME: getScoringSystem() can currently be null; should be TOTAL by default ?
 				Ranking scoringSystem = athletes.get(0).getAgeGroup().getScoringSystem();
 				boolean unanimous = athletes.stream().allMatch(s -> {
 					Ranking scoringSystem2 = s.getAgeGroup().getScoringSystem();

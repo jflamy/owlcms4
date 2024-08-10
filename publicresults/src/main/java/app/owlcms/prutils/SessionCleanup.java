@@ -20,6 +20,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.publicresults.MainView;
 import app.owlcms.publicresults.UpdateReceiverServlet;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -110,7 +111,7 @@ public class SessionCleanup {
                     vaadinSession.close();
                     stop();
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    LoggerUtils.logError(logger, e);
                 }
 
             }

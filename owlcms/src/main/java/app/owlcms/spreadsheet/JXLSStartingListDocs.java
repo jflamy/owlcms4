@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.i18n.Translator;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -104,8 +105,8 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 							int cellnum = listColumn - 1 - prefixes.size() + prefixOffset;
 							if (cellnum >= 0) {
 								CellStyle tstyle = r.getCell(cellnum).getCellStyle();
-							r.getCell(listColumn - 1 + prefixOffset).setCellStyle(tstyle);
-						}
+								r.getCell(listColumn - 1 + prefixOffset).setCellStyle(tstyle);
+							}
 						}
 						r.createCell(listColumn - 1 + prefixes.size());
 						r.getCell(listColumn - 1 + prefixes.size()).setCellStyle(estyle);
@@ -225,19 +226,17 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 
 	@Override
 	protected void postProcess(Workbook workbook) {
-        createStandardFooter(workbook);
+		createStandardFooter(workbook);
 		if (this.postProcessor != null) {
 			this.postProcessor.accept(workbook);
 		}
-		//fixMergeError(workbook);
+		// fixMergeError(workbook);
 	}
-	
+
 	@SuppressWarnings("unused")
 	/*
-	 * merged cells in a loop come out wrong.  This code is from
-	 * the jxls forum and claimed to be a fix.
-	 * Kept only as an example of how to iterate on merged cells.
-	 * The conditions for cloning the style are wrong.
+	 * merged cells in a loop come out wrong. This code is from the jxls forum and claimed to be a fix. Kept only as an example of how to iterate on merged
+	 * cells. The conditions for cloning the style are wrong.
 	 */
 	private void fixMergeError(Workbook workbook) {
 		try {
@@ -268,7 +267,7 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 								continue;
 							}
 							ccs = cell.getCellStyle();
-							logger.debug("style reference: {}",cell.getAddress());
+							logger.debug("style reference: {}", cell.getAddress());
 							if (ccs != null) {
 								BorderStyle borderLeft = ccs.getBorderLeft();
 								BorderStyle borderTop = ccs.getBorderTop();
@@ -282,7 +281,7 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			LoggerUtils.logError(logger, e);
 		} finally {
 		}
 	}

@@ -25,7 +25,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -255,9 +254,6 @@ public class Participation implements IRankHolder {
 
 	public void setSnatchRank(int snatchRank) {
 		this.snatchRank = snatchRank;
-		if (snatchRank == 2) {
-			logger.warn("snatchRank {}", LoggerUtils.stackTrace());
-		}
 	}
 
 	public void setTeamCJRank(int teamCJRank) {

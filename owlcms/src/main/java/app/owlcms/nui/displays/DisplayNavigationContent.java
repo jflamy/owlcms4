@@ -51,6 +51,7 @@ import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.NavigationPage;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.nui.shared.RequireDisplayLogin;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -158,7 +159,7 @@ public class DisplayNavigationContent extends BaseNavigationContent
 
 			DebugUtils.gc();
 		} catch (Throwable x) {
-			x.printStackTrace();
+			LoggerUtils.logError(logger,x);
 		}
 	}
 

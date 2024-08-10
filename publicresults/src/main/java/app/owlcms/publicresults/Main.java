@@ -19,6 +19,7 @@ import com.google.common.util.concurrent.Runnables;
 
 import app.owlcms.i18n.Translator;
 import app.owlcms.servlet.EmbeddedJetty;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
@@ -50,7 +51,7 @@ public class Main {
                     .setInitData(Runnables::doNothing)
                     .run(serverPort, "/");
         } catch (Exception e) {
-            e.printStackTrace();
+            LoggerUtils.logError(logger, e);
         } finally {
         }
     }

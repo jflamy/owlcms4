@@ -42,6 +42,7 @@ import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
@@ -75,7 +76,7 @@ public class CompetitionData {
 					out.flush();
 					out.close();
 				} catch (Throwable e) {
-					e.printStackTrace();
+					LoggerUtils.logError(logger, e);
 				}
 			}).start();
 			return in;
@@ -171,7 +172,7 @@ public class CompetitionData {
 			logger.debug("after unmarshall {}", newData.getPlatforms());
 			return newData;
 		} catch (Exception e) {
-			e.printStackTrace();
+			LoggerUtils.logError(logger, e);
 			return null;
 		}
 	}
@@ -240,7 +241,7 @@ public class CompetitionData {
 				em.merge(competition);
 				em.flush();
 			} catch (Exception e) {
-				e.printStackTrace();
+				LoggerUtils.logError(logger, e);
 			} finally {
 				Athlete.setSkipValidationsDuringImport(false);
 
@@ -336,7 +337,7 @@ public class CompetitionData {
 					}
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				LoggerUtils.logError(logger, e);
 			}
 			return null;
 		});

@@ -443,7 +443,7 @@ public class ResourceWalker {
 				out.flush();
 				out.close();
 			} catch (Throwable e) {
-				e.printStackTrace();
+				LoggerUtils.logError(logger, e);
 			}
 		}).start();
 		return in;

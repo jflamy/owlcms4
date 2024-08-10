@@ -37,6 +37,7 @@ import org.supercsv.prefs.CsvPreference;
 
 import com.vaadin.flow.i18n.I18NProvider;
 
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.MemTempUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
@@ -330,7 +331,7 @@ public class Translator implements I18NProvider {
                     ResourceBundle.clearCache();
 
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LoggerUtils.logError(logger, e);
                 } finally {
                     if (listReader != null) {
                         try {
