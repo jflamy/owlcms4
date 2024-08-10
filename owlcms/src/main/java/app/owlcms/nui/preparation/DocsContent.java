@@ -99,6 +99,17 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 	public DocsContent() {
 	}
 
+	@Override
+	public void clearFilters() {
+		this.getAgeGroupFilter().clear();
+		this.getChampionshipFilter().clear();
+		this.getCategoryFilter().clear();
+		this.getGenderFilter().clear();
+		this.getPlatformFilter().clear();
+		this.getLastNameFilter().clear();
+		this.getWeighedInFilter().clear();
+	}
+
 	/**
 	 * Create the top bar.
 	 *
@@ -168,6 +179,16 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 		return this.categoryFilter;
 	}
 
+	/**
+	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
+	 *      java.util.Map)
+	 */
+
+	@Override
+	public Category getCategoryValue() {
+		return super.getCategoryValue();
+	}
+
 	@Override
 	public List<String> getChampionshipAgeGroupPrefixes() {
 		return this.championshipAgeGroupPrefixes;
@@ -211,6 +232,10 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 		return Translator.translate("Preparation.PrecompDocsTitle");
 	}
 
+	public ComboBox<Platform> getPlatformFilter() {
+		return platformFilter;
+	}
+
 	@Override
 	public boolean isIgnoreFopFromURL() {
 		return true;
@@ -219,80 +244,6 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 	@Override
 	public boolean isIgnoreGroupFromURL() {
 		return false;
-	}
-
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
-	 *      java.util.Map)
-	 */
-	// @Override
-	// public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
-	// HashMap<String, List<String>> params1 = new HashMap<>(parametersMap);
-	//
-	// List<String> ageDivisionParams = params1.get("ad");
-	// try {
-	// String ageDivisionName = (ageDivisionParams != null
-	// && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0) : null);
-	// Championship valueOf = Championship.of(ageDivisionName);
-	// if (valueOf != null) {
-	// setChampionship(valueOf);
-	// this.getChampionshipFilter().setValue(valueOf);
-	// }
-	// } catch (Exception e) {
-	// setChampionship(null);
-	// this.getChampionshipFilter().setValue(null);
-	// }
-	// // remove if now null
-	// String value = getChampionship() != null ? getChampionship().getName() : null;
-	// updateParam(params1, "ad", value);
-	//
-	// List<String> ageGroupParams = params1.get("ag");
-	// // no age group is the default
-	// String ageGroupPrefix = (ageGroupParams != null && !ageGroupParams.isEmpty() ? ageGroupParams.get(0) : null);
-	// setAgeGroupPrefix(ageGroupPrefix);
-	// this.getAgeGroupFilter().setValue(ageGroupPrefix);
-	// String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
-	// updateParam(params1, "ag", value2);
-	//
-	// List<String> groupParams = params1.get("group");
-	// // no age group is the default
-	// String groupString = (groupParams != null && !groupParams.isEmpty() ? groupParams.get(0) : null);
-	// Group groupValue = groupString != null ? GroupRepository.findByName(groupString) : null;
-	// setGroup(groupValue);
-	// getGroupFilter().setValue(groupValue);
-	// updateParam(params1, "group", groupString);
-	//
-	// List<String> genderParams = params1.get("gender");
-	// // no age group is the default
-	// String genderString = (genderParams != null && !genderParams.isEmpty() ? genderParams.get(0) : null);
-	// Gender genderValue = genderString != null ? Gender.valueOf(genderString) : null;
-	// setGender(genderValue);
-	// this.getGenderFilter().setValue(genderValue);
-	// updateParam(params1, "gender", genderString);
-	//
-	// List<String> catParams = params1.get("cat");
-	// String catParam = (catParams != null && !catParams.isEmpty() ? catParams.get(0) : null);
-	// catParam = catParam != null ? URLDecoder.decode(catParam, StandardCharsets.UTF_8) : null;
-	// this.setCategory(CategoryRepository.findByCode(catParam));
-	// String catValue = getCategoryValue() != null ? getCategoryValue().toString() : null;
-	// updateParam(params1, "cat", catValue);
-	//
-	// List<String> platformParams = params1.get("platform");
-	// String platformParam = (platformParams != null && !platformParams.isEmpty() ? platformParams.get(0) : null);
-	// platformParam = platformParam != null ? URLDecoder.decode(platformParam, StandardCharsets.UTF_8) : null;
-	// this.setPlatform(platformParam != null ? PlatformRepository.findByName(platformParam) : null);
-	// // logger.debug("reading param platform {}", platformParam);
-	// this.getPlatformFilter().setValue(this.getPlatform());
-	// updateParam(params1, "platform", platformParam != null ? platformParam : null);
-	//
-	// // logger.debug("params {}", params1);
-	// setUrlParameterMap(params1);
-	// return params1;
-	// }
-
-	@Override
-	public Category getCategoryValue() {
-		return super.getCategoryValue();
 	}
 
 	@Override
@@ -378,6 +329,10 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 
 		event.getUI().getPage().getHistory().replaceState(null,
 		        new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
+	}
+
+	public void setPlatformFilter(ComboBox<Platform> platformFilter) {
+		this.platformFilter = platformFilter;
 	}
 
 	public void updateURLLocation(UI ui, Location location, Group newGroup) {
@@ -513,65 +468,6 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 		return startingListFactory.createDownloadButton();
 	}
 
-	private void fixMerges(Workbook workbook, Integer startRowNum, List<Integer> columns) {
-		Sheet sheet = workbook.getSheetAt(0);
-		int firstRow = 0;
-		boolean isMerging = false;
-		CellStyle style = null;
-
-		for (int colA : columns) {
-			isMerging = false;
-			firstRow = 0;
-			style = null;
-
-			int col = colA - 1;
-			for (Row row : sheet) {
-				Cell cell = row.getCell(col);
-				// logger.debug("cell {}{} {}", (char)('A'+col), row.getRowNum()+1, firstRow);
-				if (row.getRowNum() + 1 < startRowNum) {
-					// logger.debug("cellB {}{}",(char)('A'+col), row.getRowNum()+1);
-					continue;
-				}
-
-				if (cell != null && cell.getCellType() != CellType.BLANK) {
-					if (isMerging) {
-						logger.debug("**** {}{}: merging from {}{}", (char) ('A' + col), row.getRowNum() + 1,
-						        (char) ('A' + col), firstRow + 1);
-						CellRangeAddress region = new CellRangeAddress(firstRow, row.getRowNum() - 1, col, col);
-						sheet.addMergedRegion(region);
-						// Apply the captured style to the first cell of the merged region
-						Cell cell2 = sheet.getRow(firstRow).getCell(col);
-						style.setBorderBottom(BorderStyle.HAIR);
-						cell2.setCellStyle(style);
-						isMerging = false;
-
-						// start a new merge
-						logger.debug("**** {}{}: capturing style", (char) ('A' + col), row.getRowNum() + 1, isMerging);
-						firstRow = row.getRowNum();
-						style = cell.getCellStyle(); // capture the style
-						isMerging = true;
-					} else {
-						logger.debug("**** {}{}: capturing style", (char) ('A' + col), row.getRowNum() + 1, isMerging);
-						firstRow = row.getRowNum();
-						style = cell.getCellStyle(); // capture the style
-						isMerging = true;
-					}
-				}
-			}
-			// Merge the last region if the last cell(s) is/are non-empty
-			if (isMerging) {
-				logger.debug("**** {}{}: merging bottom from {}{}", (char) ('A' + col), sheet.getLastRowNum() + 1,
-				        (char) ('A' + col), firstRow + 1);
-				CellRangeAddress region = new CellRangeAddress(firstRow, sheet.getLastRowNum(), col, col);
-				sheet.addMergedRegion(region);
-				Cell cell22 = sheet.getRow(firstRow).getCell(col);
-				style.setBorderBottom(BorderStyle.HAIR);
-				cell22.setCellStyle(style);
-			}
-		}
-		return;
-	}
-
 	@Override
 	protected Button createTeamsListButton() {
 		String resourceDirectoryLocation = "/templates/teams";
@@ -662,17 +558,6 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 		crudGrid.getCrudLayout().addFilterComponent(clearFilters);
 	}
 
-	@Override
-	public void clearFilters() {
-		this.getAgeGroupFilter().clear();
-		this.getChampionshipFilter().clear();
-		this.getCategoryFilter().clear();
-		this.getGenderFilter().clear();
-		this.getPlatformFilter().clear();
-		this.getLastNameFilter().clear();
-		this.getWeighedInFilter().clear();
-	}
-
 	/**
 	 * We do not connect to the event bus, and we do not track a field of play (non-Javadoc)
 	 *
@@ -682,12 +567,63 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 	protected void onAttach(AttachEvent attachEvent) {
 	}
 
-	public ComboBox<Platform> getPlatformFilter() {
-		return platformFilter;
-	}
+	private void fixMerges(Workbook workbook, Integer startRowNum, List<Integer> columns) {
+		Sheet sheet = workbook.getSheetAt(0);
+		int firstRow = 0;
+		boolean isMerging = false;
+		CellStyle style = null;
 
-	public void setPlatformFilter(ComboBox<Platform> platformFilter) {
-		this.platformFilter = platformFilter;
+		for (int colA : columns) {
+			isMerging = false;
+			firstRow = 0;
+			style = null;
+
+			int col = colA - 1;
+			for (Row row : sheet) {
+				Cell cell = row.getCell(col);
+				// logger.debug("cell {}{} {}", (char)('A'+col), row.getRowNum()+1, firstRow);
+				if (row.getRowNum() + 1 < startRowNum) {
+					// logger.debug("cellB {}{}",(char)('A'+col), row.getRowNum()+1);
+					continue;
+				}
+
+				if (cell != null && cell.getCellType() != CellType.BLANK) {
+					if (isMerging) {
+						logger.debug("**** {}{}: merging from {}{}", (char) ('A' + col), row.getRowNum() + 1,
+						        (char) ('A' + col), firstRow + 1);
+						CellRangeAddress region = new CellRangeAddress(firstRow, row.getRowNum() - 1, col, col);
+						sheet.addMergedRegion(region);
+						// Apply the captured style to the first cell of the merged region
+						Cell cell2 = sheet.getRow(firstRow).getCell(col);
+						style.setBorderBottom(BorderStyle.HAIR);
+						cell2.setCellStyle(style);
+						isMerging = false;
+
+						// start a new merge
+						logger.debug("**** {}{}: capturing style", (char) ('A' + col), row.getRowNum() + 1, isMerging);
+						firstRow = row.getRowNum();
+						style = cell.getCellStyle(); // capture the style
+						isMerging = true;
+					} else {
+						logger.debug("**** {}{}: capturing style", (char) ('A' + col), row.getRowNum() + 1, isMerging);
+						firstRow = row.getRowNum();
+						style = cell.getCellStyle(); // capture the style
+						isMerging = true;
+					}
+				}
+			}
+			// Merge the last region if the last cell(s) is/are non-empty
+			if (isMerging) {
+				logger.debug("**** {}{}: merging bottom from {}{}", (char) ('A' + col), sheet.getLastRowNum() + 1,
+				        (char) ('A' + col), firstRow + 1);
+				CellRangeAddress region = new CellRangeAddress(firstRow, sheet.getLastRowNum(), col, col);
+				sheet.addMergedRegion(region);
+				Cell cell22 = sheet.getRow(firstRow).getCell(col);
+				style.setBorderBottom(BorderStyle.HAIR);
+				cell22.setCellStyle(style);
+			}
+		}
+		return;
 	}
 
 }
