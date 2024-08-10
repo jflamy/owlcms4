@@ -13,6 +13,8 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -23,6 +25,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
@@ -112,7 +115,7 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 	public FlexLayout createMenuArea() {
 		this.topBar = new FlexLayout();
 
-		Div cardsButton = createCardsButton();
+		Div cardsButton = createPreWeighInButton();
 
 		Hr hr = new Hr();
 		hr.setWidthFull();
@@ -133,11 +136,11 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		return this.topBar;
 	}
 
-	private Div createCardsButton() {
+	private Div createPreWeighInButton() {
 		Div localDirZipDiv = null;
 		UI ui = UI.getCurrent();
 		Competition comp = Competition.getCurrent();
-		localDirZipDiv = DownloadButtonFactory.createDynamicZipDownloadButton("cards",
+		localDirZipDiv = DownloadButtonFactory.createDynamicZipDownloadButton("preWeighIn",
 		        Translator.translate("DownloadPreWeighInKit"),
 		        () -> {
 			        List<KitElement> elements = prepareKits(getSortedSelection(), comp, (e, m) -> notifyError(e, ui, m));
@@ -146,23 +149,23 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		return localDirZipDiv;
 	}
 
-	private InputStream zipKitToInputStream(List<Group> selectedItems, List<KitElement> elements, BiConsumer<Throwable, String> processError) {
+	private InputStream zipKitToInputStream(List<Group> selectedItems, List<KitElement> elements, BiConsumer<Throwable, String> errorProcessor) {
 		PipedOutputStream out;
 		PipedInputStream in;
-
 		try {
 			out = new PipedOutputStream();
 			in = new PipedInputStream(out);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+		
 		new Thread(() -> {
 			try {
-				zipKit(selectedItems, out, elements);
+				zipKit(selectedItems, elements, out);
 				out.flush();
 				out.close();
 			} catch (Throwable e) {
-				processError.accept(e, e.getMessage());
+				errorProcessor.accept(e, e.getMessage());
 			}
 		}).start();
 		return in;
@@ -184,20 +187,23 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		return crud.getSelectedItems().stream().sorted(Group.groupWeighinTimeComparator).toList();
 	}
 
-	private ZipOutputStream zipKit(List<Group> selectedItems, PipedOutputStream os, List<KitElement> elements) throws IOException {
+	private ZipOutputStream zipKit(List<Group> selectedItems, List<KitElement> elements, PipedOutputStream os) throws IOException {
 		// try {
 		int i = 1;
 		ZipOutputStream zipOut = null;
 		try {
 			zipOut = new ZipOutputStream(os);
 			doPrintScript(zipOut);
+
 			for (Group g : selectedItems) {
-				String seq = String.format("%02d", i);
 				// get current version of athletes.
 				List<Athlete> athletes = groupAthletes(g, true);
-				doWeighIn(seq, zipOut, g, athletes, null);
-				doCards(seq, zipOut, g, athletes, null);
-				i++;
+
+				for (KitElement elem : elements) {
+					String seq = String.format("%02d", i);
+					doKitElement(elem, seq, zipOut, g, athletes);
+					i++;
+				}
 			}
 			return zipOut;
 		} finally {
@@ -221,71 +227,65 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		}
 	}
 
-	private void doCards(String seq, ZipOutputStream zipOut, Group g, List<Athlete> athletes, String templateName) throws IOException {
-		// group may have been edited since the page was loaded
-		JXLSCardsDocs cardsXlsWriter = new JXLSCardsDocs();
+	private void doKitElement(KitElement elem, String seq, ZipOutputStream zipOut, Group g, List<Athlete> athletes) throws IOException {	
+		JXLSCardsDocs cardsXlsWriter = elem.writerFactory.get();
+		InputStream is = Files.newInputStream(elem.isp);
+		cardsXlsWriter.setInputStream(is);
 		cardsXlsWriter.setGroup(g);
-		if (athletes.size() > cardsXlsWriter.getSizeLimit()) {
-			logger.error("too many athletes : no report");
-		} else if (athletes.size() == 0) {
-			logger./**/warn("no athletes: empty report.");
-		}
 		cardsXlsWriter.setSortedAthletes(athletes);
-
-		cardsXlsWriter.setTemplateFileName("templates/cards/" + templateName);
-		String name = seq + "_b_cards_" + g.getName() + ".xls";
+		cardsXlsWriter.setTemplateFileName(elem.name);
 		InputStream in = cardsXlsWriter.createInputStream();
+		String name = seq + "_" + elem.id + "_" + g.getName() + "." + elem.extension;
 		ZipUtils.zipStream(in, name, false, zipOut);
 	}
 
-	private void doWeighIn(String seq, ZipOutputStream zipOut, Group g, List<Athlete> athletes, String templateName) throws IOException {
-		// group may have been edited since the page was loaded
-		JXLSCardsDocs cardsXlsWriter = new JXLSCardsWeighIn();
-		cardsXlsWriter.setGroup(g);
-		if (athletes.size() > cardsXlsWriter.getSizeLimit()) {
-			logger.error("too many athletes : no report");
-		} else if (athletes.size() == 0) {
-			logger./**/warn("no athletes: empty report.");
-		}
-		cardsXlsWriter.setSortedAthletes(athletes);
-		cardsXlsWriter.setTemplateFileName(templateName);
-		String name = seq + "_a_weighin_" + g.getName() + ".xlsx";
-		InputStream in = cardsXlsWriter.createInputStream();
-		ZipUtils.zipStream(in, name, false, zipOut);
-
+	private record KitElement(String id, String name, String extension, Path isp, int count, Supplier<JXLSCardsDocs> writerFactory) {
 	}
 
-	private record KitElement(String name, InputStream is, int count) {
-	}
-
-	private List<KitElement> prepareKits(List<Group> selectedItems, Competition comp, BiConsumer<Throwable, String> processError) {
+	private List<KitElement> prepareKits(List<Group> selectedItems, Competition comp, BiConsumer<Throwable, String> errorProcessor) {
 		if (selectedItems == null || selectedItems.size() == 0) {
 			Exception e = new Exception("NoAthletes");
-			processError.accept(e, e.getMessage());
+			errorProcessor.accept(e, e.getMessage());
 			throw new StopProcessingException(e.getMessage(), e);
 		}
 
 		List<KitElement> elements = new ArrayList<>();
+
 		elements.add(
-		        checkKit(() -> comp.getCardsTemplateFileName(),
-		                "/templates/cards/",
-		                "NoCardsTemplate", processError));
-		elements.add(
-		        checkKit(() -> comp.getStartingWeightsSheetTemplateFileName(),
+		        checkKit("weighin",
+		        		() -> comp.getStartingWeightsSheetTemplateFileName(),
 		                "/templates/weighin/",
-		                "NoWeighInTemplate", processError));
+		                "NoWeighInTemplate",
+		                errorProcessor,
+		                () -> new JXLSCardsDocs()
+		                ));
+		
+		elements.add(
+		        checkKit("cards",
+		        		() -> comp.getCardsTemplateFileName(),
+		                "/templates/cards/",
+		                "NoCardsTemplate",
+		                errorProcessor,
+		                () -> new JXLSCardsWeighIn()
+		                ));
 		return elements;
 	}
 
-	private KitElement checkKit(Supplier<String> templateNameSupplier, String prefix, String message, BiConsumer<Throwable, String> processError) {
+	private KitElement checkKit(String id, Supplier<String> templateNameSupplier, String resourceFolder, String message, BiConsumer<Throwable, String> errorProcessor, Supplier<JXLSCardsDocs> writerFactory) {
 		String template = templateNameSupplier.get();// Competition.getCurrent().getCardsTemplateFileName();
-		String templateName = prefix + template; // "/templates/cards/"
+		String templateName = resourceFolder + template; // "/templates/cards/"
 		try {
-			InputStream is = ResourceWalker.getFileOrResource(templateName);
-			return new KitElement(templateName, is, 1);
+			//InputStream is = ResourceWalker.getFileOrResource(templateName);
+			Path isp = ResourceWalker.getFileOrResourcePath(templateName);
+			logger.warn("isp {}",isp.getFileName().toString());
+			String ext = FileNameUtils.getExtension(isp);
+			return new KitElement(id, templateName, ext, isp, 1, writerFactory);
 		} catch (FileNotFoundException e) {
-			processError.accept(e, message);
+			errorProcessor.accept(e, message);
 			throw new StopProcessingException(message, e); // "NoCardsTemplate"
+		} catch (IOException e) {
+			errorProcessor.accept(e, e.getMessage());
+			throw new StopProcessingException(message, e);
 		}
 	}
 
