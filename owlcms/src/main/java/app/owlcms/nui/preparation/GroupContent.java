@@ -133,10 +133,11 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		Div cardsKitButton = createPreWeighInButton();
 
 		Div cardsButton = createCardsButton();
-		Button weighInSummaryButton = createWeighInSummaryButton();
-		Button sessionsButton = createSessionsButton();
-		Button officialSchedule = createOfficalsButton();
 		Div checkInButton = createCheckInButton();
+		Div sessionsButton = createStartListButton();
+
+		Button weighInSummaryButton = createWeighInSummaryButton();
+		Button officialSchedule = createOfficalsButton();
 
 		Hr hr = new Hr();
 		hr.setWidthFull();
@@ -388,10 +389,12 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 
 	private KitElement checkKit(String id, Supplier<String> templateNameSupplier, String resourceFolder, String message,
 	        BiConsumer<Throwable, String> errorProcessor, Supplier<JXLSCardsDocs> writerFactory) {
+		resourceFolder = resourceFolder.endsWith("/") ? resourceFolder : (resourceFolder + "/");
 		String template = templateNameSupplier.get();// Competition.getCurrent().getCardsTemplateFileName();
 		String templateName = resourceFolder + template; // "/templates/cards/"
 		try {
 			Path isp = ResourceWalker.getFileOrResourcePath(templateName);
+			logger.warn("isp = {}",isp.toString());
 			String ext = FileNameUtils.getExtension(isp);
 			return new KitElement(id, templateName, ext, isp, 1, writerFactory);
 		} catch (FileNotFoundException e) {
@@ -416,9 +419,7 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		UI ui = UI.getCurrent();
 		Competition comp = Competition.getCurrent();
 		localDirZipDiv = DownloadButtonFactory.createDynamicDownloadButton(
-		        () -> {
-			        return stripSuffix(comp.getCardsTemplateFileName());
-		        },
+		        () -> stripSuffix(comp.getCardsTemplateFileName()),
 		        Translator.translate("AthleteCards"),
 		        () -> {
 			        List<KitElement> elements = prepareCardsKit(getSortedSelection(), comp, (e, m) -> notifyError(e, ui, m));
@@ -428,6 +429,39 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 			        return (getSortedSelection().size() > 1 ? ".zip" : ".xls");
 		        });
 		return localDirZipDiv;
+	}
+
+	private Div createStartListButton() {
+		Div localDirZipDiv = null;
+		UI ui = UI.getCurrent();
+		Competition comp = Competition.getCurrent();
+		localDirZipDiv = DownloadButtonFactory.createDynamicDownloadButton(
+		        () -> stripSuffix(comp.getStartListTemplateFileName()),
+		        Translator.translate("StartingList"),
+		        () -> {
+			        List<KitElement> elements = prepareStartListKit(getSortedSelection(), comp, (e, m) -> notifyError(e, ui, m));
+			        return zipOrExcelInputStream(ui, elements);
+		        },
+		        () -> {
+			        return (getSortedSelection().size() > 1 ? ".zip" : ".xlsx");
+		        });
+		return localDirZipDiv;
+	}
+
+	private List<KitElement> prepareStartListKit(List<Group> selectedItems, Competition comp, BiConsumer<Throwable, String> errorProcessor) {
+		checkNoSelection(selectedItems, errorProcessor);
+		List<KitElement> elements = new ArrayList<>();
+		elements.add(
+		        checkKit("startList",
+		                () -> {
+		                	logger.warn("startList template {}",comp.getStartListTemplateFileName());
+		                	return comp.getStartListTemplateFileName();
+		                },
+		                "/templates/start",
+		                "NoStartListTemplate",
+		                errorProcessor,
+		                () -> new JXLSCardsWeighIn()));
+		return elements;
 	}
 
 	private Div createCheckInButton() {
@@ -490,6 +524,7 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		// get current version of athletes.
 		List<Athlete> athletes = groupAthletes(g, true);
 		JXLSCardsDocs cardsXlsWriter = elem.writerFactory.get();
+		logger.warn("elem.isp {}",elem.isp);
 		InputStream is = Files.newInputStream(elem.isp);
 		cardsXlsWriter.setInputStream(is);
 		cardsXlsWriter.setGroup(g);
@@ -579,6 +614,7 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 	}
 
 	private void notifyError(Throwable e, UI ui, final String m) {
+		LoggerUtils.logError(logger, e, true);
 		logger.info(Translator.translateExplicitLocale(m, Locale.ENGLISH));
 		this.getUI().get().access(() -> {
 			Notification notif = new Notification();
@@ -657,12 +693,13 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 			// defensive, will not be used due to prior error check.
 			return "undefined";
 		}
-		templateName = templateName.replace("_LETTER", "");
-		templateName = templateName.replace("_LEGAL", "");
-		templateName = templateName.replace("_A4", "");
+		templateName = templateName.replaceFirst("[\\-_]LETTER", "");
+		templateName = templateName.replaceFirst("[\\-_]LLEGAL", "");
+		templateName = templateName.replaceFirst("[\\-_]A4", "");
 		// remove longer first
 		templateName = templateName.replace(".xlsx", "");
 		templateName = templateName.replace(".xls", "");
+		logger.warn("prefix will be {}",templateName);
 		return templateName;
 	}
 
