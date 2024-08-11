@@ -58,7 +58,9 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteAlias;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.JXLSDownloader;
@@ -101,7 +103,16 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation/groups", layout = OwlcmsLayout.class)
+@RouteAlias(value = "preparation/documents", layout = OwlcmsLayout.class)
 public class GroupContent extends BaseContent implements CrudListener<Group>, OwlcmsContent {
+
+	boolean documentPage = false;
+
+	@Override
+	public void beforeEnter(BeforeEnterEvent event) {
+		String path = event.getLocation().getPath();
+		documentPage = path.contains("documents");
+	}
 
 	private record KitElement(String id, String name, String extension, Path isp, int count, Supplier<JXLSCardsDocs> writerFactory) {
 	}
@@ -144,28 +155,29 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 
 		Div cardsButton = createCardsButton();
 		Button weighInSummaryButton = createWeighInSummaryButton();
-		
+
 		Div cardsKitButton = createPreWeighInButton();
 
-
-		FlexLayout buttons = new FlexLayout(
-		        new NativeLabel(Translator.translate("Documents.Competition")),
-		        startListButton, scheduleButton, officialSchedule, checkInButton,
-		        createRule(),
-		        new NativeLabel(Translator.translate("Documents.Sessions")),
-		        cardsButton, weighInSummaryButton,
-		        createRule(),
-		        new NativeLabel(Translator.translate("Documents.Kits")),
-		        cardsKitButton);
-		buttons.getStyle().set("flex-wrap", "wrap");
-		buttons.getStyle().set("gap", "1ex");
-		buttons.getStyle().set("margin-left", "5em");
-		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
-
 		this.topBar.getStyle().set("flex", "100 1");
-		this.topBar.add(buttons);
 		this.topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
 		this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+
+		if (documentPage) {
+			FlexLayout buttons = new FlexLayout(
+			        new NativeLabel(Translator.translate("Documents.Competition")),
+			        startListButton, scheduleButton, officialSchedule, checkInButton,
+			        createRule(),
+			        new NativeLabel(Translator.translate("Documents.Sessions")),
+			        cardsButton, weighInSummaryButton,
+			        createRule(),
+			        new NativeLabel(Translator.translate("Documents.Kits")),
+			        cardsKitButton);
+			buttons.getStyle().set("flex-wrap", "wrap");
+			buttons.getStyle().set("gap", "1ex");
+			buttons.getStyle().set("margin-left", "5em");
+			buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+			this.topBar.add(buttons);
+		}
 
 		return this.topBar;
 	}
@@ -195,6 +207,9 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 	 */
 	@Override
 	public String getPageTitle() {
+		if (documentPage) {
+			return Translator.translate("Documents.Title");
+		}
 		return Translator.translate("Preparation_Groups");
 	}
 
@@ -250,7 +265,6 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		String templateName = resourceFolder + template; // "/templates/cards/"
 		try {
 			Path isp = ResourceWalker.getFileOrResourcePath(templateName);
-			logger.warn("isp = {}", isp.toString());
 			String ext = FileNameUtils.getExtension(isp);
 			return new KitElement(id, templateName, ext, isp, 1, writerFactory);
 		} catch (FileNotFoundException e) {
@@ -287,7 +301,6 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		return localDirZipDiv;
 	}
 
-
 	private Button createCheckInButton() {
 		String resourceDirectoryLocation = "/templates/checkin";
 		String title = Translator.translate("Preparation.Check-in");
@@ -310,26 +323,26 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		        Translator.translate("Download"));
 		return startingListFactory.createDownloadButton();
 	}
-	
-//	private Div createCheckInButton() {
-//		Div localDirZipDiv = null;
-//		UI ui = UI.getCurrent();
-//		Competition comp = Competition.getCurrent();
-//
-//		localDirZipDiv = DownloadButtonFactory.createDynamicDownloadButton(
-//		        () -> {
-//			        return stripSuffix(comp.getCheckInTemplateFileName());
-//		        },
-//		        Translator.translate("Preparation.Check-in"),
-//		        () -> {
-//			        List<KitElement> elements = prepareCheckInKit(getSortedSelection(), comp, (e, m) -> notifyError(e, ui, m));
-//			        return zipOrExcelInputStream(ui, elements);
-//		        },
-//		        () -> {
-//			        return (getSortedSelection().size() > 1 ? ".zip" : ".xlsx");
-//		        });
-//		return localDirZipDiv;
-//	}
+
+	// private Div createCheckInButton() {
+	// Div localDirZipDiv = null;
+	// UI ui = UI.getCurrent();
+	// Competition comp = Competition.getCurrent();
+	//
+	// localDirZipDiv = DownloadButtonFactory.createDynamicDownloadButton(
+	// () -> {
+	// return stripSuffix(comp.getCheckInTemplateFileName());
+	// },
+	// Translator.translate("Preparation.Check-in"),
+	// () -> {
+	// List<KitElement> elements = prepareCheckInKit(getSortedSelection(), comp, (e, m) -> notifyError(e, ui, m));
+	// return zipOrExcelInputStream(ui, elements);
+	// },
+	// () -> {
+	// return (getSortedSelection().size() > 1 ? ".zip" : ".xlsx");
+	// });
+	// return localDirZipDiv;
+	// }
 
 	private Button createFullStartListButton() {
 		String resourceDirectoryLocation = "/templates/start";
@@ -361,7 +374,7 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		        Translator.translate("Download"));
 		return startingListFactory.createDownloadButton();
 	}
-	
+
 	private Button createFullScheduleButton() {
 		String resourceDirectoryLocation = "/templates/schedule";
 		String title = Translator.translate("Schedule");
@@ -454,7 +467,7 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		UI ui = UI.getCurrent();
 		Competition comp = Competition.getCurrent();
 		localDirZipDiv = DownloadButtonFactory.createDynamicZipDownloadButton("preWeighIn",
-		        Translator.translate("DownloadPreWeighInKit"),
+		        Translator.translate("Documents.DownloadPreWeighInKit"),
 		        () -> {
 			        List<KitElement> elements = preparePreWeighInKit(getSortedSelection(), comp, (e, m) -> notifyError(e, ui, m));
 			        return zipKitToInputStream(getSortedSelection(), elements, (e, m) -> notifyError(e, ui, m));
@@ -518,7 +531,6 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		// get current version of athletes.
 		List<Athlete> athletes = groupAthletes(g, true);
 		JXLSCardsDocs cardsXlsWriter = elem.writerFactory.get();
-		logger.warn("elem.isp {}", elem.isp);
 		InputStream is = Files.newInputStream(elem.isp);
 		cardsXlsWriter.setInputStream(is);
 		cardsXlsWriter.setGroup(g);
@@ -751,7 +763,6 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		// remove longer first
 		templateName = templateName.replace(".xlsx", "");
 		templateName = templateName.replace(".xls", "");
-		logger.warn("prefix will be {}", templateName);
 		return templateName;
 	}
 
