@@ -9,6 +9,7 @@ package app.owlcms.nui.shared;
 import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.function.Supplier;
 
 import org.slf4j.LoggerFactory;
 
@@ -68,6 +69,34 @@ public class DownloadButtonFactory {
 		        },
 		        xlsSource);
 
+		return new Div(downloadButton);
+	}
+
+	public static Div createDynamicDownloadButton(String prefix, String label, InputStreamFactory supplier, Supplier<String> extensionSupplier) {
+		final LazyDownloadButton downloadButton = new LazyDownloadButton(
+		        label,
+		        new Icon(VaadinIcon.DOWNLOAD_ALT),
+		        () -> {
+			        LocalDateTime now = LocalDateTime.now().withNano(0);
+			        return prefix
+			                + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm"))
+			                + extensionSupplier.get();
+		        },
+		        supplier);
+		return new Div(downloadButton);
+	}
+
+	public static Div createDynamicDownloadButton(Supplier<String> prefixSupplier, String label, InputStreamFactory supplier, Supplier<String> extensionSupplier) {
+		final LazyDownloadButton downloadButton = new LazyDownloadButton(
+		        label,
+		        new Icon(VaadinIcon.DOWNLOAD_ALT),
+		        () -> {
+			        LocalDateTime now = LocalDateTime.now().withNano(0);
+			        return prefixSupplier.get()
+			                + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm"))
+			                + extensionSupplier.get();
+		        },
+		        supplier);
 		return new Div(downloadButton);
 	}
 

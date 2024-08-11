@@ -27,6 +27,14 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.poi.ss.formula.functions.T;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.CrudOperation;
@@ -51,12 +59,14 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
+import app.owlcms.components.JXLSDownloader;
 import app.owlcms.components.elements.StopProcessingException;
 import app.owlcms.components.fields.LocalDateTimeField;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.RegistrationOrderComparator;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.i18n.Translator;
@@ -68,6 +78,8 @@ import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCardsDocs;
 import app.owlcms.spreadsheet.JXLSCardsWeighIn;
+import app.owlcms.spreadsheet.JXLSStartingListDocs;
+import app.owlcms.spreadsheet.JXLSWeighInSheet;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.URLUtils;
@@ -83,6 +95,9 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/groups", layout = OwlcmsLayout.class)
 public class GroupContent extends BaseContent implements CrudListener<Group>, OwlcmsContent {
+
+	private record KitElement(String id, String name, String extension, Path isp, int count, Supplier<JXLSCardsDocs> writerFactory) {
+	}
 
 	final static Logger logger = (Logger) LoggerFactory.getLogger(GroupContent.class);
 	static {
@@ -115,6 +130,40 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 	public FlexLayout createMenuArea() {
 		this.topBar = new FlexLayout();
 
+		Div cardsKitButton = createPreWeighInButton();
+
+		Div cardsButton = createCardsButton();
+		Button weighInSummaryButton = createWeighInSummaryButton();
+		Button sessionsButton = createSessionsButton();
+		Button officialSchedule = createOfficalsButton();
+		Div checkInButton = createCheckInButton();
+
+		Hr hr = new Hr();
+		hr.setWidthFull();
+		hr.getStyle().set("margin", "0");
+		hr.getStyle().set("padding", "0");
+		FlexLayout buttons = new FlexLayout(
+		        new NativeLabel(Translator.translate("Preparation_Groups")),
+		        sessionsButton, cardsButton, weighInSummaryButton, checkInButton, officialSchedule,
+		        hr,
+		        new NativeLabel(Translator.translate("Kits")),
+		        cardsKitButton);
+		buttons.getStyle().set("flex-wrap", "wrap");
+		buttons.getStyle().set("gap", "1ex");
+		buttons.getStyle().set("margin-left", "5em");
+		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+
+		this.topBar.getStyle().set("flex", "100 1");
+		this.topBar.add(buttons);
+		this.topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+		this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+
+		return this.topBar;
+	}
+
+	public FlexLayout createMenuArea2() {
+		this.topBar = new FlexLayout();
+
 		Div cardsButton = createPreWeighInButton();
 
 		Hr hr = new Hr();
@@ -134,169 +183,6 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 
 		return this.topBar;
-	}
-
-	private Div createPreWeighInButton() {
-		Div localDirZipDiv = null;
-		UI ui = UI.getCurrent();
-		Competition comp = Competition.getCurrent();
-		localDirZipDiv = DownloadButtonFactory.createDynamicZipDownloadButton("preWeighIn",
-		        Translator.translate("DownloadPreWeighInKit"),
-		        () -> {
-			        List<KitElement> elements = prepareKits(getSortedSelection(), comp, (e, m) -> notifyError(e, ui, m));
-			        return zipKitToInputStream(getSortedSelection(), elements, (e, m) -> notifyError(e, ui, m));
-		        });
-		return localDirZipDiv;
-	}
-
-	private InputStream zipKitToInputStream(List<Group> selectedItems, List<KitElement> elements, BiConsumer<Throwable, String> errorProcessor) {
-		PipedOutputStream out;
-		PipedInputStream in;
-		try {
-			out = new PipedOutputStream();
-			in = new PipedInputStream(out);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		
-		new Thread(() -> {
-			try {
-				zipKit(selectedItems, elements, out);
-				out.flush();
-				out.close();
-			} catch (Throwable e) {
-				errorProcessor.accept(e, e.getMessage());
-			}
-		}).start();
-		return in;
-	}
-
-	private void notifyError(Throwable e, UI ui, final String m) {
-		logger.info(Translator.translateExplicitLocale(m, Locale.ENGLISH));
-		this.getUI().get().access(() -> {
-			Notification notif = new Notification();
-			notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
-			notif.setPosition(Position.TOP_STRETCH);
-			notif.setDuration(3000);
-			notif.setText(m);
-			notif.open();
-		});
-	}
-
-	private List<Group> getSortedSelection() {
-		return crud.getSelectedItems().stream().sorted(Group.groupWeighinTimeComparator).toList();
-	}
-
-	private ZipOutputStream zipKit(List<Group> selectedItems, List<KitElement> elements, PipedOutputStream os) throws IOException {
-		// try {
-		int i = 1;
-		ZipOutputStream zipOut = null;
-		try {
-			zipOut = new ZipOutputStream(os);
-			doPrintScript(zipOut);
-
-			for (Group g : selectedItems) {
-				// get current version of athletes.
-				List<Athlete> athletes = groupAthletes(g, true);
-
-				for (KitElement elem : elements) {
-					String seq = String.format("%02d", i);
-					doKitElement(elem, seq, zipOut, g, athletes);
-					i++;
-				}
-			}
-			return zipOut;
-		} finally {
-			if (zipOut != null) {
-				zipOut.finish();
-				zipOut.close();
-			}
-		}
-
-		// } catch (IOException e) {
-		// LoggerUtils.logError(logger, e, true);
-		// throw e;
-		// }
-	}
-
-	private void doPrintScript(ZipOutputStream zipOut) {
-		try {
-			ZipUtils.zipStream(ResourceWalker.getFileOrResource("/templates/cards/print.ps1"), "print.ps1", false, zipOut);
-		} catch (IOException e) {
-			LoggerUtils.logError(logger, e, true);
-		}
-	}
-
-	private void doKitElement(KitElement elem, String seq, ZipOutputStream zipOut, Group g, List<Athlete> athletes) throws IOException {	
-		JXLSCardsDocs cardsXlsWriter = elem.writerFactory.get();
-		InputStream is = Files.newInputStream(elem.isp);
-		cardsXlsWriter.setInputStream(is);
-		cardsXlsWriter.setGroup(g);
-		cardsXlsWriter.setSortedAthletes(athletes);
-		cardsXlsWriter.setTemplateFileName(elem.name);
-		InputStream in = cardsXlsWriter.createInputStream();
-		String name = seq + "_" + elem.id + "_" + g.getName() + "." + elem.extension;
-		ZipUtils.zipStream(in, name, false, zipOut);
-	}
-
-	private record KitElement(String id, String name, String extension, Path isp, int count, Supplier<JXLSCardsDocs> writerFactory) {
-	}
-
-	private List<KitElement> prepareKits(List<Group> selectedItems, Competition comp, BiConsumer<Throwable, String> errorProcessor) {
-		if (selectedItems == null || selectedItems.size() == 0) {
-			Exception e = new Exception("NoAthletes");
-			errorProcessor.accept(e, e.getMessage());
-			throw new StopProcessingException(e.getMessage(), e);
-		}
-
-		List<KitElement> elements = new ArrayList<>();
-
-		elements.add(
-		        checkKit("weighin",
-		        		() -> comp.getStartingWeightsSheetTemplateFileName(),
-		                "/templates/weighin/",
-		                "NoWeighInTemplate",
-		                errorProcessor,
-		                () -> new JXLSCardsDocs()
-		                ));
-		
-		elements.add(
-		        checkKit("cards",
-		        		() -> comp.getCardsTemplateFileName(),
-		                "/templates/cards/",
-		                "NoCardsTemplate",
-		                errorProcessor,
-		                () -> new JXLSCardsWeighIn()
-		                ));
-		return elements;
-	}
-
-	private KitElement checkKit(String id, Supplier<String> templateNameSupplier, String resourceFolder, String message, BiConsumer<Throwable, String> errorProcessor, Supplier<JXLSCardsDocs> writerFactory) {
-		String template = templateNameSupplier.get();// Competition.getCurrent().getCardsTemplateFileName();
-		String templateName = resourceFolder + template; // "/templates/cards/"
-		try {
-			//InputStream is = ResourceWalker.getFileOrResource(templateName);
-			Path isp = ResourceWalker.getFileOrResourcePath(templateName);
-			logger.warn("isp {}",isp.getFileName().toString());
-			String ext = FileNameUtils.getExtension(isp);
-			return new KitElement(id, templateName, ext, isp, 1, writerFactory);
-		} catch (FileNotFoundException e) {
-			errorProcessor.accept(e, message);
-			throw new StopProcessingException(message, e); // "NoCardsTemplate"
-		} catch (IOException e) {
-			errorProcessor.accept(e, e.getMessage());
-			throw new StopProcessingException(message, e);
-		}
-	}
-
-	protected List<Athlete> groupAthletes(Group g, boolean sessionOrder) {
-		List<Athlete> regCatAthletesList = new ArrayList<>(g.getAthletes());
-		if (sessionOrder) {
-			Collections.sort(regCatAthletesList, RegistrationOrderComparator.athleteSessionRegistrationOrderComparator);
-		} else {
-			AthleteSorter.registrationOrder(regCatAthletesList);
-		}
-		return regCatAthletesList;
 	}
 
 	@Override
@@ -350,7 +236,7 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 	 */
 	protected GridCrud<Group> createGrid(OwlcmsCrudFormFactory<Group> crudFormFactory) {
 		Grid<Group> grid = new Grid<>(Group.class, false);
-		crud = new GroupGrid(Group.class, new OwlcmsGridLayout(Group.class), crudFormFactory, grid);
+		this.crud = new GroupGrid(Group.class, new OwlcmsGridLayout(Group.class), crudFormFactory, grid);
 		grid.getThemeNames().add("row-stripes");
 		grid.addColumn(Group::getName).setHeader(Translator.translate("Name")).setComparator(Group::compareTo);
 		grid.addColumn(Group::getDescription).setHeader(Translator.translate("Group.Description"));
@@ -371,10 +257,318 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 			return technical;
 		})).setHeader("").setWidth(tSize + "ch");
 
-		crud.setCrudListener(this);
-		crud.setClickRowToUpdate(true);
+		this.crud.setCrudListener(this);
+		this.crud.setClickRowToUpdate(true);
 		grid.setSelectionMode(SelectionMode.MULTI);
-		return crud;
+		return this.crud;
+	}
+
+	protected Button createOfficalsButton() {
+		String resourceDirectoryLocation = "/templates/officials";
+		String title = Translator.translate("StartingList.Officials");
+
+		JXLSDownloader startingListFactory = new JXLSDownloader(
+		        () -> {
+			        JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
+			        startingXlsWriter.setGroup(
+			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
+			        startingXlsWriter.setSortedAthletes(List.of());
+			        startingXlsWriter.setEmptyOk(true);
+			        return startingXlsWriter;
+		        },
+		        resourceDirectoryLocation,
+		        Competition::getComputedOfficialsListTemplateFileName,
+		        Competition::setOfficialsListTemplateFileName,
+		        title,
+		        Translator.translate("Download"));
+		return startingListFactory.createDownloadButton();
+	}
+
+	protected Button createSessionsButton() {
+		String resourceDirectoryLocation = "/templates/start";
+		String title = Translator.translate("StartingList");
+
+		JXLSDownloader startingListFactory = new JXLSDownloader(
+		        () -> {
+			        JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
+			        // group may have been edited since the page was loaded
+			        startingXlsWriter.setGroup(
+			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
+			        // get current version of athletes.
+			        List<Athlete> athletesFindAll = athletesFindAll(true);
+			        startingXlsWriter.setSortedAthletes(athletesFindAll);
+
+			        String tn = Competition.getCurrent().getComputedStartListTemplateFileName();
+			        if (Config.getCurrent().featureSwitch("usaw") && tn.equals("Schedule.xlsx")) {
+				        startingXlsWriter.setPostProcessor((w) -> fixMerges(w, 4, List.of(1, 2)));
+			        } else {
+				        startingXlsWriter.setPostProcessor(null);
+			        }
+
+			        return startingXlsWriter;
+		        },
+		        resourceDirectoryLocation,
+		        Competition::getComputedStartListTemplateFileName,
+		        Competition::setStartListTemplateFileName,
+		        title,
+		        Translator.translate("Download"));
+		return startingListFactory.createDownloadButton();
+	}
+
+	protected Button createTeamsListButton() {
+		String resourceDirectoryLocation = "/templates/teams";
+		String title = Translator.translate("StartingList.Teams");
+
+		JXLSDownloader startingListFactory = new JXLSDownloader(
+		        () -> {
+			        JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
+			        // group may have been edited since the page was loaded
+			        startingXlsWriter.setGroup(
+			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
+			        // get current version of athletes.
+			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(participationFindAll()));
+			        startingXlsWriter.createTeamColumns(9, 6);
+			        return startingXlsWriter;
+		        },
+		        resourceDirectoryLocation,
+		        Competition::getComputedTeamsListTemplateFileName,
+		        Competition::setTeamsListTemplateFileName,
+		        title,
+		        Translator.translate("Download"));
+		return startingListFactory.createDownloadButton();
+	}
+
+	protected Button createWeighInSummaryButton() {
+		String resourceDirectoryLocation = "/templates/weighin";
+		String title = Translator.translate("WeighinForm");
+
+		JXLSDownloader startingWeightsButton = new JXLSDownloader(
+		        () -> {
+			        JXLSWeighInSheet rs = new JXLSWeighInSheet();
+			        // group may have been edited since the page was loaded
+			        // FIXME ** group selection
+			        Group curGroup = null; // getGroupFilter().getValue();
+			        rs.setGroup(curGroup != null ? GroupRepository.getById(curGroup.getId()) : null);
+			        return rs;
+		        },
+		        resourceDirectoryLocation,
+		        Competition::getComputedStartingWeightsSheetTemplateFileName,
+		        Competition::setStartingWeightsSheetTemplateFileName,
+		        title,
+		        Translator.translate("Download"));
+		return startingWeightsButton.createDownloadButton();
+	}
+
+	protected List<Athlete> groupAthletes(Group g, boolean sessionOrder) {
+		List<Athlete> regCatAthletesList = new ArrayList<>(g.getAthletes());
+		if (sessionOrder) {
+			Collections.sort(regCatAthletesList, RegistrationOrderComparator.athleteSessionRegistrationOrderComparator);
+		} else {
+			AthleteSorter.registrationOrder(regCatAthletesList);
+		}
+		return regCatAthletesList;
+	}
+
+	protected void saveCallBack(OwlcmsCrudGrid<T> owlcmsCrudGrid, String successMessage, CrudOperation operation, T domainObject) {
+		try {
+			// logger.debug("postOperation {}", domainObject);
+			owlcmsCrudGrid.getOwlcmsGridLayout().hideForm();
+			this.crud.refreshGrid();
+			Notification.show(successMessage);
+			logger.trace("operation performed");
+		} catch (Exception e) {
+			LoggerUtils.logError(logger, e);
+		}
+	}
+
+	private List<Athlete> athletesFindAll(boolean b) {
+		// TODO ** Auto-generated method stub
+		return null;
+	}
+
+	private KitElement checkKit(String id, Supplier<String> templateNameSupplier, String resourceFolder, String message,
+	        BiConsumer<Throwable, String> errorProcessor, Supplier<JXLSCardsDocs> writerFactory) {
+		String template = templateNameSupplier.get();// Competition.getCurrent().getCardsTemplateFileName();
+		String templateName = resourceFolder + template; // "/templates/cards/"
+		try {
+			Path isp = ResourceWalker.getFileOrResourcePath(templateName);
+			String ext = FileNameUtils.getExtension(isp);
+			return new KitElement(id, templateName, ext, isp, 1, writerFactory);
+		} catch (FileNotFoundException e) {
+			errorProcessor.accept(e, message);
+			throw new StopProcessingException(message, e);
+		} catch (Exception e) {
+			errorProcessor.accept(e, e.getMessage());
+			throw new StopProcessingException(message, e);
+		}
+	}
+
+	private void checkNoSelection(List<Group> selectedItems, BiConsumer<Throwable, String> errorProcessor) {
+		if (selectedItems == null || selectedItems.size() == 0) {
+			Exception e = new Exception("NoAthletes");
+			errorProcessor.accept(e, e.getMessage());
+			throw new StopProcessingException(e.getMessage(), e);
+		}
+	}
+
+	private Div createCardsButton() {
+		Div localDirZipDiv = null;
+		UI ui = UI.getCurrent();
+		Competition comp = Competition.getCurrent();
+		localDirZipDiv = DownloadButtonFactory.createDynamicDownloadButton(
+		        () -> {
+			        return stripSuffix(comp.getCardsTemplateFileName());
+		        },
+		        Translator.translate("AthleteCards"),
+		        () -> {
+			        List<KitElement> elements = prepareCardsKit(getSortedSelection(), comp, (e, m) -> notifyError(e, ui, m));
+			        return zipOrExcelInputStream(ui, elements);
+		        },
+		        () -> {
+			        return (getSortedSelection().size() > 1 ? ".zip" : ".xls");
+		        });
+		return localDirZipDiv;
+	}
+
+	private Div createCheckInButton() {
+		Div localDirZipDiv = null;
+		UI ui = UI.getCurrent();
+		Competition comp = Competition.getCurrent();
+
+		localDirZipDiv = DownloadButtonFactory.createDynamicDownloadButton(
+		        () -> {
+			        return stripSuffix(comp.getCheckInTemplateFileName());
+		        },
+		        Translator.translate("Preparation.Check-in"),
+		        () -> {
+			        List<KitElement> elements = prepareCheckInKit(getSortedSelection(), comp, (e, m) -> notifyError(e, ui, m));
+			        return zipOrExcelInputStream(ui, elements);
+		        },
+		        () -> {
+			        return (getSortedSelection().size() > 1 ? ".zip" : ".xlsx");
+		        });
+		return localDirZipDiv;
+	}
+
+	private Div createPreWeighInButton() {
+		Div localDirZipDiv = null;
+		UI ui = UI.getCurrent();
+		Competition comp = Competition.getCurrent();
+		localDirZipDiv = DownloadButtonFactory.createDynamicZipDownloadButton("preWeighIn",
+		        Translator.translate("DownloadPreWeighInKit"),
+		        () -> {
+			        List<KitElement> elements = preparePreWeighInKit(getSortedSelection(), comp, (e, m) -> notifyError(e, ui, m));
+			        return zipKitToInputStream(getSortedSelection(), elements, (e, m) -> notifyError(e, ui, m));
+		        });
+		return localDirZipDiv;
+	}
+
+	private void doKitElement(KitElement elem, String seq, ZipOutputStream zipOut, Group g, List<Athlete> athletes) throws IOException {
+		JXLSCardsDocs cardsXlsWriter = elem.writerFactory.get();
+		InputStream is = Files.newInputStream(elem.isp);
+		cardsXlsWriter.setInputStream(is);
+		cardsXlsWriter.setGroup(g);
+		cardsXlsWriter.setSortedAthletes(athletes);
+		cardsXlsWriter.setTemplateFileName(elem.name);
+		InputStream in = cardsXlsWriter.createInputStream();
+		String name = seq + "_" + elem.id + "_" + g.getName() + "." + elem.extension;
+		ZipUtils.zipStream(in, name, false, zipOut);
+	}
+
+	private void doPrintScript(ZipOutputStream zipOut) {
+		try {
+			ZipUtils.zipStream(ResourceWalker.getFileOrResource("/templates/cards/print.ps1"), "print.ps1", false, zipOut);
+		} catch (IOException e) {
+			LoggerUtils.logError(logger, e, true);
+		}
+	}
+
+	private InputStream excelKitElement(List<Group> selectedItems, List<KitElement> elements) throws IOException {
+		Group g = selectedItems.get(0);
+		KitElement elem = elements.get(0);
+
+		// get current version of athletes.
+		List<Athlete> athletes = groupAthletes(g, true);
+		JXLSCardsDocs cardsXlsWriter = elem.writerFactory.get();
+		InputStream is = Files.newInputStream(elem.isp);
+		cardsXlsWriter.setInputStream(is);
+		cardsXlsWriter.setGroup(g);
+		cardsXlsWriter.setSortedAthletes(athletes);
+		cardsXlsWriter.setTemplateFileName(elem.name);
+		InputStream in = cardsXlsWriter.createInputStream();
+		return in;
+	}
+
+	private InputStream excelToInputStream(List<Group> selectedItems,
+	        List<KitElement> elements, BiConsumer<Throwable, String> errorProcessor) {
+		try {
+			return excelKitElement(selectedItems, elements);
+		} catch (Throwable e) {
+			errorProcessor.accept(e, e.getMessage());
+			throw new StopProcessingException(e.getMessage(), e);
+		}
+	}
+
+	private void fixMerges(Workbook workbook, Integer startRowNum, List<Integer> columns) {
+		Sheet sheet = workbook.getSheetAt(0);
+		int firstRow = 0;
+		boolean isMerging = false;
+		CellStyle style = null;
+
+		for (int colA : columns) {
+			isMerging = false;
+			firstRow = 0;
+			style = null;
+
+			int col = colA - 1;
+			for (Row row : sheet) {
+				Cell cell = row.getCell(col);
+				// logger.debug("cell {}{} {}", (char)('A'+col), row.getRowNum()+1, firstRow);
+				if (row.getRowNum() + 1 < startRowNum) {
+					// logger.debug("cellB {}{}",(char)('A'+col), row.getRowNum()+1);
+					continue;
+				}
+
+				if (cell != null && cell.getCellType() != CellType.BLANK) {
+					if (isMerging) {
+						logger.debug("**** {}{}: merging from {}{}", (char) ('A' + col), row.getRowNum() + 1,
+						        (char) ('A' + col), firstRow + 1);
+						CellRangeAddress region = new CellRangeAddress(firstRow, row.getRowNum() - 1, col, col);
+						sheet.addMergedRegion(region);
+						// Apply the captured style to the first cell of the merged region
+						Cell cell2 = sheet.getRow(firstRow).getCell(col);
+						style.setBorderBottom(BorderStyle.HAIR);
+						cell2.setCellStyle(style);
+						isMerging = false;
+
+						// start a new merge
+						logger.debug("**** {}{}: capturing style", (char) ('A' + col), row.getRowNum() + 1, isMerging);
+						firstRow = row.getRowNum();
+						style = cell.getCellStyle(); // capture the style
+						isMerging = true;
+					} else {
+						logger.debug("**** {}{}: capturing style", (char) ('A' + col), row.getRowNum() + 1, isMerging);
+						firstRow = row.getRowNum();
+						style = cell.getCellStyle(); // capture the style
+						isMerging = true;
+					}
+				}
+			}
+			// Merge the last region if the last cell(s) is/are non-empty
+			if (isMerging) {
+				logger.debug("**** {}{}: merging bottom from {}{}", (char) ('A' + col), sheet.getLastRowNum() + 1,
+				        (char) ('A' + col), firstRow + 1);
+				CellRangeAddress region = new CellRangeAddress(firstRow, sheet.getLastRowNum(), col, col);
+				sheet.addMergedRegion(region);
+				Cell cell22 = sheet.getRow(firstRow).getCell(col);
+				style.setBorderBottom(BorderStyle.HAIR);
+				cell22.setCellStyle(style);
+			}
+		}
+	}
+
+	private List<Group> getSortedSelection() {
+		return this.crud.getSelectedItems().stream().sorted(Group.groupWeighinTimeComparator).toList();
 	}
 
 	private <C extends Component> String getWindowOpenerFromClass(Class<C> targetClass,
@@ -384,6 +578,18 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		        + "','" + targetClass.getSimpleName() + "')";
 	}
 
+	private void notifyError(Throwable e, UI ui, final String m) {
+		logger.info(Translator.translateExplicitLocale(m, Locale.ENGLISH));
+		this.getUI().get().access(() -> {
+			Notification notif = new Notification();
+			notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
+			notif.setPosition(Position.TOP_STRETCH);
+			notif.setDuration(3000);
+			notif.setText(m);
+			notif.open();
+		});
+	}
+
 	private <C extends Component> Button openInNewTab(Class<C> targetClass,
 	        String label, String parameter) {
 		Button button = new Button(label);
@@ -391,15 +597,133 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		return button;
 	}
 
-	protected void saveCallBack(OwlcmsCrudGrid<T> owlcmsCrudGrid, String successMessage, CrudOperation operation, T domainObject) {
+	private List<Athlete> participationFindAll() {
+		// TODO ** Auto-generated method stub
+		return null;
+	}
+
+	private List<KitElement> prepareCardsKit(List<Group> selectedItems, Competition comp, BiConsumer<Throwable, String> errorProcessor) {
+		checkNoSelection(selectedItems, errorProcessor);
+
+		List<KitElement> elements = new ArrayList<>();
+		elements.add(
+		        checkKit("cards",
+		                () -> comp.getCardsTemplateFileName(),
+		                "/templates/cards/",
+		                "NoCardsTemplate",
+		                errorProcessor,
+		                () -> new JXLSCardsWeighIn()));
+		return elements;
+	}
+
+	private List<KitElement> prepareCheckInKit(List<Group> selectedItems, Competition comp, BiConsumer<Throwable, String> errorProcessor) {
+		checkNoSelection(selectedItems, errorProcessor);
+		List<KitElement> elements = new ArrayList<>();
+		elements.add(
+		        checkKit("checkin",
+		                () -> comp.getCheckInTemplateFileName(),
+		                "/templates/checkin/",
+		                "NoCheckinTemplate",
+		                errorProcessor,
+		                () -> new JXLSCardsWeighIn()));
+		return elements;
+	}
+
+	private List<KitElement> preparePreWeighInKit(List<Group> selectedItems, Competition comp, BiConsumer<Throwable, String> errorProcessor) {
+		checkNoSelection(selectedItems, errorProcessor);
+
+		List<KitElement> elements = new ArrayList<>();
+
+		elements.add(
+		        checkKit("weighin",
+		                () -> comp.getStartingWeightsSheetTemplateFileName(),
+		                "/templates/weighin/",
+		                "NoWeighInTemplate",
+		                errorProcessor,
+		                () -> new JXLSCardsDocs()));
+
+		elements.add(
+		        checkKit("cards",
+		                () -> comp.getCardsTemplateFileName(),
+		                "/templates/cards/",
+		                "NoCardsTemplate",
+		                errorProcessor,
+		                () -> new JXLSCardsWeighIn()));
+		return elements;
+	}
+
+	private String stripSuffix(String templateName) {
+		if (templateName == null) {
+			// defensive, will not be used due to prior error check.
+			return "undefined";
+		}
+		templateName = templateName.replace("_LETTER", "");
+		templateName = templateName.replace("_LEGAL", "");
+		templateName = templateName.replace("_A4", "");
+		// remove longer first
+		templateName = templateName.replace(".xlsx", "");
+		templateName = templateName.replace(".xls", "");
+		return templateName;
+	}
+
+	private ZipOutputStream zipKit(List<Group> selectedItems, List<KitElement> elements, PipedOutputStream os) throws IOException {
+		int i = 1;
+		ZipOutputStream zipOut = null;
 		try {
-			// logger.debug("postOperation {}", domainObject);
-			owlcmsCrudGrid.getOwlcmsGridLayout().hideForm();
-			crud.refreshGrid();
-			Notification.show(successMessage);
-			logger.trace("operation performed");
-		} catch (Exception e) {
-			LoggerUtils.logError(logger, e);
+			zipOut = new ZipOutputStream(os);
+			doPrintScript(zipOut);
+
+			for (Group g : selectedItems) {
+				// get current version of athletes.
+				List<Athlete> athletes = groupAthletes(g, true);
+
+				for (KitElement elem : elements) {
+					String seq = String.format("%02d", i);
+					doKitElement(elem, seq, zipOut, g, athletes);
+					i++;
+				}
+			}
+			return zipOut;
+		} finally {
+			if (zipOut != null) {
+				zipOut.finish();
+				zipOut.close();
+			}
+		}
+	}
+
+	private InputStream zipKitToInputStream(List<Group> selectedItems, List<KitElement> elements, BiConsumer<Throwable, String> errorProcessor) {
+		PipedOutputStream out;
+		PipedInputStream in;
+		try {
+			out = new PipedOutputStream();
+			in = new PipedInputStream(out);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		new Thread(() -> {
+			zipKitToOutputStream(selectedItems, elements, errorProcessor, out);
+		}).start();
+		return in;
+	}
+
+	private void zipKitToOutputStream(List<Group> selectedItems, List<KitElement> elements, BiConsumer<Throwable, String> errorProcessor,
+	        PipedOutputStream out) {
+		try {
+			zipKit(selectedItems, elements, out);
+			out.flush();
+			out.close();
+		} catch (Throwable e) {
+			errorProcessor.accept(e, e.getMessage());
+		}
+	}
+
+	private InputStream zipOrExcelInputStream(UI ui, List<KitElement> elements) {
+		if (getSortedSelection().size() > 1) {
+			return zipKitToInputStream(getSortedSelection(), elements, (e, m) -> notifyError(e, ui, m));
+		} else {
+			return excelToInputStream(getSortedSelection(), elements, (e, m) -> notifyError(e, ui, m));
 		}
 	}
 
