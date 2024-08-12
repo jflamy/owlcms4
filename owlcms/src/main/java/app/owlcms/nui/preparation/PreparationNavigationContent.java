@@ -72,7 +72,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		Button config = openInNewTabNoParam(ConfigContent.class, Translator.translate("Config.Title"),
 		        VaadinIcon.COG.create());
 		Button ageGroups = openInNewTabNoParam(AgeGroupContent.class, Translator.translate("DefineAgeGroups"));
-		Button groups = openInNewTabNoParam(GroupContent.class, Translator.translate("DefineGroups"));
+		Button groups = openInNewTabNoParam(SessionContent.class, Translator.translate("DefineGroups"));
 		Button platforms = openInNewTabNoParam(PlatformContent.class, Translator.translate("DefineFOP"));
 		Button configureRecords = openInNewTabNoParam(RecordsContent.class,
 		        Translator.translate("Records.RecordsManagementTitle"));
@@ -120,7 +120,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		Button teams = openInNewTabNoParam(TeamSelectionContent.class,
 		        Translator.translate(TeamSelectionContent.TITLE));
 
-		Button documents = openInNewTabNoParam(DocsContent.class, Translator.translate(DocsContent.PRECOMP_DOCS_TITLE));
+		Button documents = openInNewTab(SessionContent.class, Translator.translate(DocsContent.PRECOMP_DOCS_TITLE),"documents");
 		documents.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
 
 		Button uploadJson = new Button(Translator.translate("ExportDatabase.UploadJson"),

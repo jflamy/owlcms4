@@ -44,17 +44,17 @@ import app.owlcms.nui.shared.CustomFormFactory;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-public class GroupEditingFormFactory
+public class SessionEditingFormFactory
         extends OwlcmsCrudFormFactory<Group>
         implements CustomFormFactory<Group> {
 
 	private static final String HEIGHT = "37rem";
 	@SuppressWarnings("unused")
-	private Logger logger = (Logger) LoggerFactory.getLogger(GroupEditingFormFactory.class);
-	private GroupContent origin;
+	private Logger logger = (Logger) LoggerFactory.getLogger(SessionEditingFormFactory.class);
+	private SessionContent origin;
 	ComboBox<Platform> platformField;
 
-	GroupEditingFormFactory(Class<Group> domainType, GroupContent origin) {
+	SessionEditingFormFactory(Class<Group> domainType, SessionContent origin) {
 		super(domainType);
 		this.origin = origin;
 	}

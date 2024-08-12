@@ -46,12 +46,14 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -102,22 +104,22 @@ import ch.qos.logback.classic.Logger;
  * Defines the toolbar and the table for editing data on sessions.
  */
 @SuppressWarnings("serial")
-@Route(value = "preparation/groups", layout = OwlcmsLayout.class)
+@Route(value = "preparation/sessions", layout = OwlcmsLayout.class)
 @RouteAlias(value = "preparation/documents", layout = OwlcmsLayout.class)
-public class GroupContent extends BaseContent implements CrudListener<Group>, OwlcmsContent {
+public class SessionContent extends BaseContent implements CrudListener<Group>, OwlcmsContent {
 
-	boolean documentPage = false;
+	boolean documentPage;
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
 		String path = event.getLocation().getPath();
-		documentPage = path.contains("documents");
+		documentPage = path.contains("sessions");
 	}
 
 	private record KitElement(String id, String name, String extension, Path isp, int count, Supplier<JXLSCardsDocs> writerFactory) {
 	}
 
-	final static Logger logger = (Logger) LoggerFactory.getLogger(GroupContent.class);
+	final static Logger logger = (Logger) LoggerFactory.getLogger(SessionContent.class);
 	static {
 		logger.setLevel(Level.INFO);
 	}
@@ -129,8 +131,8 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 	/**
 	 * Instantiates the Group crudGrid.
 	 */
-	public GroupContent() {
-		this.editingFormFactory = new GroupEditingFormFactory(Group.class, this);
+	public SessionContent() {
+		this.editingFormFactory = new SessionEditingFormFactory(Group.class, this);
 		GridCrud<Group> crud = createGrid(this.editingFormFactory);
 		// defineFilters(crudGrid);
 		fillHW(crud, this);
@@ -152,6 +154,9 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		Button scheduleButton = createFullScheduleButton();
 		Button officialSchedule = createOfficalsButton();
 		Button checkInButton = createCheckInButton();
+		
+		Button templateEditingButton = new Button("Documents.SelectTemplates", VaadinIcon.COG.create(), event -> templateEditingDialog());
+		templateEditingButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
 
 		Div cardsButton = createCardsButton();
 		Button weighInSummaryButton = createWeighInSummaryButton();
@@ -171,7 +176,7 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 			        cardsButton, weighInSummaryButton,
 			        createRule(),
 			        new NativeLabel(Translator.translate("Documents.Kits")),
-			        cardsKitButton);
+			        cardsKitButton, templateEditingButton);
 			buttons.getStyle().set("flex-wrap", "wrap");
 			buttons.getStyle().set("gap", "1ex");
 			buttons.getStyle().set("margin-left", "5em");
@@ -180,6 +185,13 @@ public class GroupContent extends BaseContent implements CrudListener<Group>, Ow
 		}
 
 		return this.topBar;
+	}
+
+	private void templateEditingDialog() {
+		logger.warn("1");
+		Dialog dialog = new Dialog();
+		dialog.add(new TemplateSelectionFormFactory(Config.class, this));
+		dialog.open();
 	}
 
 	@Override
