@@ -116,6 +116,23 @@ public class DownloadButtonFactory {
 
 		return new Div(downloadButton);
 	}
+	
+	public static Div createDynamicZipDownloadButton(String prefix, String label, byte[] content, Icon icon) {
+		final LazyDownloadButton downloadButton = new LazyDownloadButton(
+		        label,
+		        icon,
+		        () -> {
+			        LocalDateTime now = LocalDateTime.now().withNano(0);
+			        return prefix
+			                + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm"))
+			                + ".zip";
+		        },
+		        () -> {
+			        return new ByteArrayInputStream(content);
+		        });
+
+		return new Div(downloadButton);
+	}
 
 	public static Div createDynamicZipDownloadButton(String prefix, String label, InputStreamFactory supplier) {
 		final LazyDownloadButton downloadButton = new LazyDownloadButton(
@@ -131,5 +148,21 @@ public class DownloadButtonFactory {
 
 		return new Div(downloadButton);
 	}
+	
+	public static Div createDynamicZipDownloadButton(String prefix, String label, InputStreamFactory supplier, Icon icon) {
+		final LazyDownloadButton downloadButton = new LazyDownloadButton(
+		        label,
+		        icon,
+		        () -> {
+			        LocalDateTime now = LocalDateTime.now().withNano(0);
+			        return prefix
+			                + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm"))
+			                + ".zip";
+		        },
+		        supplier);
+
+		return new Div(downloadButton);
+	}
+
 
 }

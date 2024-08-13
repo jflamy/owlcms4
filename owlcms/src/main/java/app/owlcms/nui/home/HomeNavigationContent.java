@@ -244,7 +244,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		CompletableFuture<HttpResponse<String>> future = client1.sendAsync(request1, BodyHandlers.ofString());
 		try {
 			future
-			        .orTimeout(1000, TimeUnit.MILLISECONDS)
+			        .orTimeout(3000, TimeUnit.MILLISECONDS)
 			        .whenComplete((response, exception) -> {
 				        if (exception != null) {
 					        return;

@@ -1097,8 +1097,8 @@ public class WeighinContent extends BaseContent
 			        return rs;
 		        },
 		        resourceDirectoryLocation,
-		        Competition::getComputedStartingWeightsSheetTemplateFileName,
-		        Competition::setStartingWeightsSheetTemplateFileName,
+		        Competition::getEmptyProtocolTemplateFileName,
+		        Competition::setEmptyProtocolTemplateFileName,
 		        title,
 		        Translator.translate("Download"));
 		return startingWeightsButton.createDownloadButton();
@@ -1117,8 +1117,8 @@ public class WeighinContent extends BaseContent
 			        return rs;
 		        },
 		        resourceDirectoryLocation,
-		        Competition::getComputedStartingWeightsSheetTemplateFileName,
-		        Competition::setStartingWeightsSheetTemplateFileName,
+		        Competition::getWeighInFormTemplateFileName,
+		        Competition::setWeighInFormTemplateFileName,
 		        title,
 		        Translator.translate("Download"));
 		return startingWeightsButton.createDownloadButton();

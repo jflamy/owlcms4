@@ -201,6 +201,7 @@ public class Competition {
 	private Integer maxPerCategory = 2;
 	private String protocolTemplateFileName;
 	private String resultsTemplateFileName;
+	private String introductionTemplateFileName;
 	@Transient
 	@JsonIgnore
 	private boolean rankingsInvalid = true;
@@ -215,8 +216,12 @@ public class Competition {
 	private boolean roundRobinOrder;
 	@Column(columnDefinition = "boolean default false")
 	private boolean snatchCJTotalMedals = false;
-	private String startingWeightsSheetTemplateFileName;
+	//private String startingWeightsSheetTemplateFileName;
+	private String weighInFormTemplateFileName;
+	private String emptyProtocolTemplateFileName;
 	private String startListTemplateFileName;
+	private String scheduleTemplateFileName;
+	
 	/**
 	 * Do not require month and day for birth.
 	 */
@@ -649,15 +654,6 @@ public class Competition {
 
 	@Transient
 	@JsonIgnore
-	public String getComputedStartingWeightsSheetTemplateFileName() {
-		if (this.startingWeightsSheetTemplateFileName == null) {
-			return "WeighInSheetTemplate-A4.xls";
-		}
-		return this.startingWeightsSheetTemplateFileName;
-	}
-
-	@Transient
-	@JsonIgnore
 	public String getComputedStartListTemplateFileName() {
 		if (this.startListTemplateFileName == null) {
 			return "StartSheet-A4.xls";
@@ -922,13 +918,6 @@ public class Competition {
 
 	public int getSinclairYear() {
 		return this.sinclairYear;
-	}
-
-	/**
-	 * @return the startingWeightsSheetTemplateFileName
-	 */
-	public String getStartingWeightsSheetTemplateFileName() {
-		return this.startingWeightsSheetTemplateFileName;
 	}
 
 	/**
@@ -1377,10 +1366,6 @@ public class Competition {
 		this.snatchCJTotalMedals = snatchCJTotalMedals;
 	}
 
-	public void setStartingWeightsSheetTemplateFileName(String startingWeightsSheetTemplateFileName) {
-		this.startingWeightsSheetTemplateFileName = startingWeightsSheetTemplateFileName;
-	}
-
 	public void setStartListTemplateFileName(String startingListFileName) {
 		this.startListTemplateFileName = startingListFileName;
 	}
@@ -1825,6 +1810,38 @@ public class Competition {
 
 	public void setResultsTemplateFileName(String resultsTemplateFileName) {
 		this.resultsTemplateFileName = resultsTemplateFileName;
+	}
+
+	public String getWeighInFormTemplateFileName() {
+		return weighInFormTemplateFileName;
+	}
+
+	public void setWeighInFormTemplateFileName(String weighInFormTemplateFileName) {
+		this.weighInFormTemplateFileName = weighInFormTemplateFileName;
+	}
+
+	public String getEmptyProtocolTemplateFileName() {
+		return emptyProtocolTemplateFileName;
+	}
+
+	public void setEmptyProtocolTemplateFileName(String emptyProtocolFileName) {
+		this.emptyProtocolTemplateFileName = emptyProtocolFileName;
+	}
+
+	public String getScheduleTemplateFileName() {
+		return scheduleTemplateFileName;
+	}
+
+	public void setScheduleTemplateFileName(String scheduleTemplateFileName) {
+		this.scheduleTemplateFileName = scheduleTemplateFileName;
+	}
+
+	public String getIntroductionTemplateFileName() {
+		return introductionTemplateFileName;
+	}
+
+	public void setIntroductionTemplateFileName(String introductionTemplateFileName) {
+		this.introductionTemplateFileName = introductionTemplateFileName;
 	}
 
 }

@@ -39,14 +39,9 @@ import ch.qos.logback.classic.Logger;
 public class TemplateSelectionFormFactory extends VerticalLayout {
 
 	private Logger logger = (Logger) LoggerFactory.getLogger(ConfigRepository.class);
-	@SuppressWarnings("unused")
-	private Object origin;
 
-	TemplateSelectionFormFactory(Class<Config> domainType, Object origin) {
-		this.origin = origin;
-		this.add(templateSelectionForm());
+	TemplateSelectionFormFactory() {
 	}
-
 
 	private FormLayout createLayout() {
 		FormLayout layout = new FormLayout();
@@ -63,13 +58,76 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 		return title;
 	}
 
-	private FormLayout templateSelectionForm() {
+	public FormLayout preWeighInTemplateSelectionForm() {
 		FormLayout layout = createLayout();
 		Component title = createTitle("TemplateSelection");
 		layout.add(title);
 		layout.setColspan(title, 2);
 
-		addTemplateSelection(layout, "Card", "/templates/cards", (f) -> f.endsWith(".xls"), Competition::getCardsTemplateFileName, Competition::setCardsTemplateFileName);
+		addTemplateSelection(layout, Templates.CARDS.name(), Templates.CARDS.folder, (f) -> f.endsWith(".xls"), Competition::getCardsTemplateFileName,
+		        Competition::setCardsTemplateFileName);
+		addTemplateSelection(layout, Templates.WEIGHIN.name(), Templates.WEIGHIN.folder, (f) -> f.endsWith(".xlsx"), Competition::getWeighInFormTemplateFileName,
+		        Competition::setWeighInFormTemplateFileName);
+		return layout;
+	}
+	
+	public FormLayout postWeighInTemplateSelectionForm() {
+		FormLayout layout = createLayout();
+		Component title = createTitle("TemplateSelection");
+		layout.add(title);
+		layout.setColspan(title, 2);
+
+		addTemplateSelection(layout, Templates.INTRODUCTION.name(), Templates.INTRODUCTION.folder, (f) -> f.endsWith(".xlsx"),
+		        Competition::getIntroductionTemplateFileName, Competition::setIntroductionTemplateFileName);
+		addTemplateSelection(layout, Templates.EMPTY_PROTOCOL.name(), Templates.EMPTY_PROTOCOL.folder, (f) -> f.endsWith(".xlsx"),
+		        Competition::getScheduleTemplateFileName, Competition::setScheduleTemplateFileName);
+		addTemplateSelection(layout, Templates.JURY.name(), Templates.JURY.folder, (f) -> f.endsWith(".xlsx"),
+		        Competition::getJuryTemplateFileName, Competition::setJuryTemplateFileName);
+		return layout;
+	}
+	
+	public FormLayout competitionTemplateSelectionForm() {
+		FormLayout layout = createLayout();
+		Component title = createTitle("TemplateSelection");
+		layout.add(title);
+		layout.setColspan(title, 2);
+
+		addTemplateSelection(layout, Templates.START_LIST.name(), Templates.START_LIST.folder, (f) -> f.endsWith(".xlsx"), Competition::getStartListTemplateFileName,
+		        Competition::setStartListTemplateFileName);
+		addTemplateSelection(layout, Templates.SCHEDULE.name(), Templates.SCHEDULE.folder, (f) -> f.endsWith(".xlsx"), Competition::getScheduleTemplateFileName,
+		        Competition::setScheduleTemplateFileName);
+		addTemplateSelection(layout, Templates.OFFICIALS.name(), Templates.OFFICIALS.folder, (f) -> f.endsWith(".xlsx"), Competition::getOfficialsListTemplateFileName,
+		        Competition::setOfficialsListTemplateFileName);
+		addTemplateSelection(layout, Templates.CHECKIN.name(), Templates.CHECKIN.folder, (f) -> f.endsWith(".xlsx"), Competition::getCheckInTemplateFileName,
+		        Competition::setCheckInTemplateFileName);
+
+		return layout;
+	}
+
+	public FormLayout templateSelectionForm(String titleString, Templates type) {
+		FormLayout layout = createLayout();
+		Component title = createTitle(titleString);
+		layout.add(title);
+		layout.setColspan(title, 2);
+
+		switch (type) {
+
+			case CHECKIN:	
+			case OFFICIALS:
+			case START_LIST:
+			case SCHEDULE:
+				return competitionTemplateSelectionForm();
+
+			case CARDS:
+			case WEIGHIN:
+				return preWeighInTemplateSelectionForm();
+				
+			case EMPTY_PROTOCOL:
+			case INTRODUCTION:
+			case JURY:
+				return postWeighInTemplateSelectionForm();
+		}
+
 		return layout;
 	}
 
@@ -79,9 +137,32 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 	        Predicate<String> nameFilter,
 	        ValueProvider<Competition, String> templateNameGetter,
 	        Setter<Competition, String> templateNameSetter) {
-		ComboBox<Resource> templateSelect = new ComboBox<>();
-		templateSelect.setPlaceholder(Translator.translate("AvailableTemplates"));
-		templateSelect.setHelperText(Translator.translate("SelectTemplate"));
+
+		List<Resource> prioritizedList = computeResourceList(resourceDirectoryLocation, nameFilter);
+		ComboBox<Resource> templateSelect = createTemplateSelect(layout, labelKey, prioritizedList, templateNameGetter.apply(Competition.getCurrent()));
+
+		templateSelect.addValueChangeListener(e -> {
+			try {
+				Resource value = e.getValue();
+				String newTemplateName = value != null ? value.getFileName() : null;
+				Competition current = Competition.getCurrent();
+				if (newTemplateName != null) {
+					Resource res = searchMatch(prioritizedList, newTemplateName);
+					if (res == null) {
+						throw new FileNotFoundException("template not found " + newTemplateName);
+					}
+				}
+				templateNameSetter.accept(current, newTemplateName);
+
+				CompetitionRepository.save(current);
+				current = Competition.getCurrent();
+			} catch (Throwable e1) {
+				LoggerUtils.logError(logger, e1);
+			}
+		});
+	}
+
+	private List<Resource> computeResourceList(String resourceDirectoryLocation, Predicate<String> nameFilter) {
 		List<Resource> resourceList = new ResourceWalker().getResourceList(
 		        resourceDirectoryLocation,
 		        ResourceWalker::relativeName,
@@ -89,34 +170,22 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 		        OwlcmsSession.getLocale(),
 		        Config.getCurrent().isLocalTemplatesOnly());
 		List<Resource> prioritizedList = xlsxPriority(resourceList);
+		return prioritizedList;
+	}
+
+	private ComboBox<Resource> createTemplateSelect(FormLayout layout, String labelKey, List<Resource> prioritizedList, String string) {
+		ComboBox<Resource> templateSelect = new ComboBox<>();
+		templateSelect.setPlaceholder(Translator.translate("AvailableTemplates"));
+		templateSelect.setHelperText(Translator.translate("SelectTemplate"));
 		templateSelect.setItems(prioritizedList);
 		templateSelect.setValue(null);
 		templateSelect.setWidth("15em");
-		// templateSelect.getStyle().set("margin-left", "1em");
 		templateSelect.getStyle().set("margin-right", "0.8em");
-
+		templateSelect.setClearButtonVisible(true);
 		templateSelect.setWidthFull();
 		layout.addFormItem(templateSelect, Translator.translate(labelKey));
-
-		templateSelect.addValueChangeListener(e -> {
-			try {
-				String newTemplateName = e.getValue().getFileName();
-
-				Competition current = Competition.getCurrent();
-				Resource res = searchMatch(prioritizedList, newTemplateName);
-				if (res == null) {
-					this.logger.debug("(2) template NOT found {} {}", newTemplateName, prioritizedList);
-					throw new FileNotFoundException("template not found " + newTemplateName);
-				}
-				this.logger.debug("(2) template found {}", res != null ? res.getFilePath() : null);
-				templateNameSetter.accept(current, newTemplateName);
-
-				CompetitionRepository.save(current);
-				current = Competition.getCurrent();
-			} catch (Throwable e1) {
-				this.logger.error("{}", LoggerUtils.stackTrace(e1));
-			}
-		});
+		templateSelect.setValue(searchMatch(prioritizedList, string));
+		return templateSelect;
 	}
 
 	private Resource searchMatch(List<Resource> resourceList, String curTemplateName) {

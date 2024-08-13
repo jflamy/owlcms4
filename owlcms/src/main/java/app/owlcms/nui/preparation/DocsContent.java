@@ -505,8 +505,8 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 			        return rs;
 		        },
 		        resourceDirectoryLocation,
-		        Competition::getComputedStartingWeightsSheetTemplateFileName,
-		        Competition::setStartingWeightsSheetTemplateFileName,
+		        Competition::getWeighInFormTemplateFileName,
+		        Competition::setWeighInFormTemplateFileName,
 		        title,
 		        Translator.translate("Download"));
 		return startingWeightsButton.createDownloadButton();
