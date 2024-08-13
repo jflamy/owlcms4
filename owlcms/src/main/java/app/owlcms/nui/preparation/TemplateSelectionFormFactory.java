@@ -19,6 +19,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
@@ -36,6 +37,8 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class TemplateSelectionFormFactory extends VerticalLayout {
 
+	private static final String DOCUMENTS_TEMPLATE_SELECTION = "Documents.TemplateSelection";
+	private static final String DOCUMENTS_IGNORE_NO_TEMPLATE = "Documents.IgnoreNoTemplate";
 	private Logger logger = (Logger) LoggerFactory.getLogger(ConfigRepository.class);
 
 	TemplateSelectionFormFactory() {
@@ -58,9 +61,12 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 
 	public FormLayout preWeighInTemplateSelectionForm() {
 		FormLayout layout = createLayout();
-		Component title = createTitle("TemplateSelection");
+		Component title = createTitle(DOCUMENTS_TEMPLATE_SELECTION);
 		layout.add(title);
 		layout.setColspan(title, 2);
+		Div div = new Div(Translator.translate(DOCUMENTS_IGNORE_NO_TEMPLATE));
+		layout.add(div);
+		layout.setColspan(div, 2);
 
 		addTemplateSelection(layout, Templates.CARDS);
 		addTemplateSelection(layout, Templates.WEIGHIN);
@@ -69,9 +75,12 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 
 	public FormLayout postWeighInTemplateSelectionForm() {
 		FormLayout layout = createLayout();
-		Component title = createTitle("TemplateSelection");
+		Component title = createTitle(DOCUMENTS_TEMPLATE_SELECTION);
 		layout.add(title);
 		layout.setColspan(title, 2);
+		Div div = new Div(Translator.translate(DOCUMENTS_IGNORE_NO_TEMPLATE));
+		layout.add(div);
+		layout.setColspan(div, 2);
 
 		addTemplateSelection(layout, Templates.INTRODUCTION);
 		addTemplateSelection(layout, Templates.EMPTY_PROTOCOL);
@@ -81,7 +90,7 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 
 	public FormLayout competitionTemplateSelectionForm() {
 		FormLayout layout = createLayout();
-		Component title = createTitle("TemplateSelection");
+		Component title = createTitle(DOCUMENTS_TEMPLATE_SELECTION);
 		layout.add(title);
 		layout.setColspan(title, 2);
 

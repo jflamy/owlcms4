@@ -144,7 +144,6 @@ public class LazyDownloadButton extends Button {
 					anchorElement.setAttribute("download", true);
 					anchorElement.getStyle().set("display", "none");
 					component.getElement().appendChild(this.anchor.getElement());
-
 					anchorElement.addEventListener("click",
 					        event1 -> fireEvent(new DownloadStartsEvent(this, true, event1)));
 				}
@@ -164,7 +163,6 @@ public class LazyDownloadButton extends Button {
 							}
 							this.anchor.getElement().callJsFunction("click");
 						}));
-
 					} catch (Exception e) {
 						if (! (e instanceof StopProcessingException)) {
 							throw new RuntimeException(e);
