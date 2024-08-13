@@ -21,8 +21,6 @@ import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.data.binder.Setter;
-import com.vaadin.flow.function.ValueProvider;
 
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
@@ -64,42 +62,33 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 		layout.add(title);
 		layout.setColspan(title, 2);
 
-		addTemplateSelection(layout, Templates.CARDS.name(), Templates.CARDS.folder, (f) -> f.endsWith(".xls"), Competition::getCardsTemplateFileName,
-		        Competition::setCardsTemplateFileName);
-		addTemplateSelection(layout, Templates.WEIGHIN.name(), Templates.WEIGHIN.folder, (f) -> f.endsWith(".xlsx"), Competition::getWeighInFormTemplateFileName,
-		        Competition::setWeighInFormTemplateFileName);
+		addTemplateSelection(layout, Templates.CARDS);
+		addTemplateSelection(layout, Templates.WEIGHIN);
 		return layout;
 	}
-	
+
 	public FormLayout postWeighInTemplateSelectionForm() {
 		FormLayout layout = createLayout();
 		Component title = createTitle("TemplateSelection");
 		layout.add(title);
 		layout.setColspan(title, 2);
 
-		addTemplateSelection(layout, Templates.INTRODUCTION.name(), Templates.INTRODUCTION.folder, (f) -> f.endsWith(".xlsx"),
-		        Competition::getIntroductionTemplateFileName, Competition::setIntroductionTemplateFileName);
-		addTemplateSelection(layout, Templates.EMPTY_PROTOCOL.name(), Templates.EMPTY_PROTOCOL.folder, (f) -> f.endsWith(".xlsx"),
-		        Competition::getScheduleTemplateFileName, Competition::setScheduleTemplateFileName);
-		addTemplateSelection(layout, Templates.JURY.name(), Templates.JURY.folder, (f) -> f.endsWith(".xlsx"),
-		        Competition::getJuryTemplateFileName, Competition::setJuryTemplateFileName);
+		addTemplateSelection(layout, Templates.INTRODUCTION);
+		addTemplateSelection(layout, Templates.EMPTY_PROTOCOL);
+		addTemplateSelection(layout, Templates.JURY);
 		return layout;
 	}
-	
+
 	public FormLayout competitionTemplateSelectionForm() {
 		FormLayout layout = createLayout();
 		Component title = createTitle("TemplateSelection");
 		layout.add(title);
 		layout.setColspan(title, 2);
 
-		addTemplateSelection(layout, Templates.START_LIST.name(), Templates.START_LIST.folder, (f) -> f.endsWith(".xlsx"), Competition::getStartListTemplateFileName,
-		        Competition::setStartListTemplateFileName);
-		addTemplateSelection(layout, Templates.SCHEDULE.name(), Templates.SCHEDULE.folder, (f) -> f.endsWith(".xlsx"), Competition::getScheduleTemplateFileName,
-		        Competition::setScheduleTemplateFileName);
-		addTemplateSelection(layout, Templates.OFFICIALS.name(), Templates.OFFICIALS.folder, (f) -> f.endsWith(".xlsx"), Competition::getOfficialsListTemplateFileName,
-		        Competition::setOfficialsListTemplateFileName);
-		addTemplateSelection(layout, Templates.CHECKIN.name(), Templates.CHECKIN.folder, (f) -> f.endsWith(".xlsx"), Competition::getCheckInTemplateFileName,
-		        Competition::setCheckInTemplateFileName);
+		addTemplateSelection(layout, Templates.START_LIST);
+		addTemplateSelection(layout, Templates.SCHEDULE);
+		addTemplateSelection(layout, Templates.OFFICIALS);
+		addTemplateSelection(layout, Templates.CHECKIN);
 
 		return layout;
 	}
@@ -112,7 +101,7 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 
 		switch (type) {
 
-			case CHECKIN:	
+			case CHECKIN:
 			case OFFICIALS:
 			case START_LIST:
 			case SCHEDULE:
@@ -121,7 +110,7 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 			case CARDS:
 			case WEIGHIN:
 				return preWeighInTemplateSelectionForm();
-				
+
 			case EMPTY_PROTOCOL:
 			case INTRODUCTION:
 			case JURY:
@@ -131,29 +120,24 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 		return layout;
 	}
 
-	private void addTemplateSelection(FormLayout layout,
-	        String labelKey,
-	        String resourceDirectoryLocation,
-	        Predicate<String> nameFilter,
-	        ValueProvider<Competition, String> templateNameGetter,
-	        Setter<Competition, String> templateNameSetter) {
-
-		List<Resource> prioritizedList = computeResourceList(resourceDirectoryLocation, nameFilter);
-		ComboBox<Resource> templateSelect = createTemplateSelect(layout, labelKey, prioritizedList, templateNameGetter.apply(Competition.getCurrent()));
+	private void addTemplateSelection(FormLayout layout, Templates template) {
+		List<Resource> prioritizedList = computeResourceList(template.folder, (f) -> f.endsWith(template.extension));
+		ComboBox<Resource> templateSelect = createTemplateSelect(layout, template.name(), prioritizedList, template.templateFileNameSupplier.get());
 
 		templateSelect.addValueChangeListener(e -> {
 			try {
 				Resource value = e.getValue();
 				String newTemplateName = value != null ? value.getFileName() : null;
-				Competition current = Competition.getCurrent();
 				if (newTemplateName != null) {
 					Resource res = searchMatch(prioritizedList, newTemplateName);
 					if (res == null) {
 						throw new FileNotFoundException("template not found " + newTemplateName);
 					}
 				}
-				templateNameSetter.accept(current, newTemplateName);
 
+				// lambda uses getCurrent().
+				template.templateFileNameSetter.accept(newTemplateName);
+				Competition current = Competition.getCurrent();
 				CompetitionRepository.save(current);
 				current = Competition.getCurrent();
 			} catch (Throwable e1) {

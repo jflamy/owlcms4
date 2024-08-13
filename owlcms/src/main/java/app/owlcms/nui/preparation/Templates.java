@@ -1,23 +1,52 @@
 package app.owlcms.nui.preparation;
 
-public enum Templates {
-	START_LIST("/templates/start"),
-	SCHEDULE("/templates/schedule"),
-	OFFICIALS("/templates/officials"),
-	CHECKIN("/templates/checkin"),
-	
-	CARDS("/templates/cards"),
-	WEIGHIN("/templates/weighin"),
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-	INTRODUCTION("/templates/introduction"),
-	EMPTY_PROTOCOL("/templates/emptyProtocol"),
-	JURY("/templates/jury")
+import app.owlcms.data.competition.Competition;
+
+public enum Templates {
+	START_LIST("/templates/start", ".xlsx", 
+			() -> Competition.getCurrent().getStartListTemplateFileName(),
+	        (v) -> Competition.getCurrent().setStartListTemplateFileName(v)),
+	SCHEDULE("/templates/schedule", ".xlsx", 
+			() -> Competition.getCurrent().getScheduleTemplateFileName(),
+	        (v) -> Competition.getCurrent().setScheduleTemplateFileName(v)),
+	OFFICIALS("/templates/officials", ".xlsx", 
+			() -> Competition.getCurrent().getOfficialsListTemplateFileName(),
+	        (v) -> Competition.getCurrent().setOfficialsListTemplateFileName(v)),
+	CHECKIN("/templates/checkin", ".xlsx", 
+			() -> Competition.getCurrent().getCheckInTemplateFileName(),
+	        (v) -> Competition.getCurrent().setCheckInTemplateFileName(v)),
+
+	CARDS("/templates/cards", ".xls", 
+			() -> Competition.getCurrent().getCardsTemplateFileName(),
+	        (v) -> Competition.getCurrent().setCardsTemplateFileName(v)),
+	WEIGHIN("/templates/weighin", ".xlsx", 
+			() -> Competition.getCurrent().getWeighInFormTemplateFileName(),
+	        (v) -> Competition.getCurrent().setWeighInFormTemplateFileName(v)),
+
+	INTRODUCTION("/templates/introduction", ".xlsx", 
+			() -> Competition.getCurrent().getIntroductionTemplateFileName(),
+	        (v) -> Competition.getCurrent().setIntroductionTemplateFileName(v)),
+	EMPTY_PROTOCOL("/templates/emptyProtocol", ".xlsx",
+			() -> Competition.getCurrent().getEmptyProtocolTemplateFileName(),
+	        (v) -> Competition.getCurrent().setEmptyProtocolTemplateFileName(v)),
+	JURY("/templates/jury", ".xlsx", 
+			() -> Competition.getCurrent().getJuryTemplateFileName(),
+	        (v) -> Competition.getCurrent().setJuryTemplateFileName(v)),
 	;
 
 	String folder;
+	String extension;
+	Supplier<String> templateFileNameSupplier;
+	Consumer<String> templateFileNameSetter;
 
-	Templates(String folder) {
+	Templates(String folder, String extension, Supplier<String> templateFileNameSupplier, Consumer<String> templateFileNameSetter) {
 		this.folder = folder;
+		this.extension = extension;
+		this.templateFileNameSupplier = templateFileNameSupplier;
+		this.templateFileNameSetter = templateFileNameSetter;
 	}
-	
+
 }

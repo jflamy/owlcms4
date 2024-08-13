@@ -309,16 +309,15 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 	private Div createCardsButton() {
 		Div localDirZipDiv = null;
 		UI ui = UI.getCurrent();
-		Competition comp = Competition.getCurrent();
 		localDirZipDiv = DownloadButtonFactory.createDynamicDownloadButton(
-		        () -> stripSuffix(comp.getCardsTemplateFileName()),
+		        () -> stripSuffix(Competition.getCurrent().getCardsTemplateFileName()),
 		        Translator.translate("AthleteCards"),
 		        () -> {
 			        List<KitElement> elements = prepareCardsKit(getSortedSelection(), (e, m) -> notifyError(e, ui, m));
 			        return zipOrExcelInputStream(ui, elements);
 		        },
 		        () -> {
-			        return (getSortedSelection().size() > 1 ? ".zip" : ".xls");
+			        return (getSortedSelection().size() > 1 ? ".zip" : Templates.CARDS.extension);
 		        });
 		return localDirZipDiv;
 	}
@@ -350,14 +349,14 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		Div localDirZipDiv = null;
 		UI ui = UI.getCurrent();
 		localDirZipDiv = DownloadButtonFactory.createDynamicDownloadButton(
-		        () -> stripSuffix(Competition.getCurrent().getJuryTemplateFileName()),
+		        () -> stripSuffix(Competition.getCurrent().getEmptyProtocolTemplateFileName()),
 		        Translator.translate("EmptyProtocolSheet"),
 		        () -> {
 			        List<KitElement> elements = prepareEmptyProtocolKit(getSortedSelection(), (e, m) -> notifyError(e, ui, m));
 			        return zipOrExcelInputStream(ui, elements);
 		        },
 		        () -> {
-			        return (getSortedSelection().size() > 1 ? ".zip" : ".xls");
+			        return (getSortedSelection().size() > 1 ? ".zip" : Templates.EMPTY_PROTOCOL.extension);
 		        });
 		return localDirZipDiv;
 	}
@@ -470,7 +469,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 			        return zipOrExcelInputStream(ui, elements);
 		        },
 		        () -> {
-			        return (getSortedSelection().size() > 1 ? ".zip" : ".xls");
+			        return (getSortedSelection().size() > 1 ? ".zip" : Templates.INTRODUCTION.extension);
 		        });
 		return localDirZipDiv;
 	}
@@ -486,7 +485,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 			        return zipOrExcelInputStream(ui, elements);
 		        },
 		        () -> {
-			        return (getSortedSelection().size() > 1 ? ".zip" : ".xls");
+			        return (getSortedSelection().size() > 1 ? ".zip" : Templates.JURY.extension);
 		        });
 		return localDirZipDiv;
 	}
@@ -536,16 +535,15 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 	private Div createWeighInSummaryButton() {
 		Div localDirZipDiv = null;
 		UI ui = UI.getCurrent();
-		Competition comp = Competition.getCurrent();
 		localDirZipDiv = DownloadButtonFactory.createDynamicDownloadButton(
-		        () -> stripSuffix(comp.getWeighInFormTemplateFileName()),
+		        () -> stripSuffix(Competition.getCurrent().getWeighInFormTemplateFileName()),
 		        Translator.translate("WeighinForm"),
 		        () -> {
 			        List<KitElement> elements = prepareWeighInKit(getSortedSelection(), (e, m) -> notifyError(e, ui, m));
 			        return zipOrExcelInputStream(ui, elements);
 		        },
 		        () -> {
-			        return (getSortedSelection().size() > 1 ? ".zip" : ".xlsx");
+			        return (getSortedSelection().size() > 1 ? ".zip" : Templates.WEIGHIN.extension);
 		        });
 		return localDirZipDiv;
 	}
