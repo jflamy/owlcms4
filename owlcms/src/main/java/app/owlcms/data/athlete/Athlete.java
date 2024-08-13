@@ -80,25 +80,24 @@ import ch.qos.logback.classic.Logger;
 /**
  * This class stores all the information related to a particular athlete.
  * <p>
- * This class is an example of what not to do. This was designed prior reaching a proper understanding of Hibernate/JPA
- * and of proper separation between Vaadin Containers and persistence frameworks. Live and Learn.
+ * This class is an example of what not to do. This was designed prior reaching a proper understanding of Hibernate/JPA and of proper separation between Vaadin
+ * Containers and persistence frameworks. Live and Learn.
  * <p>
- * All persistent properties are managed by Java Persistance annotations. "Field" access mode is used, meaning that it
- * is the values of the fields that are stored, and not the values returned by the getters. Note that it is often
- * necessary to know when a value has been captured or not -- this is why values are stored as Integers or Doubles, so
- * that we can use null to indicate that a value has not been captured.
+ * All persistent properties are managed by Java Persistance annotations. "Field" access mode is used, meaning that it is the values of the fields that are
+ * stored, and not the values returned by the getters. Note that it is often necessary to know when a value has been captured or not -- this is why values are
+ * stored as Integers or Doubles, so that we can use null to indicate that a value has not been captured.
  * </p>
  * <p>
  * This allows us to use the getters to return the values as they will be displayed by the application
  * </p>
  * <p>
- * Computed fields are defined as final transient properties and marked as @Transient; the only reason for this is so
- * the JavaBeans introspection mechanisms find them.
+ * Computed fields are defined as final transient properties and marked as @Transient; the only reason for this is so the JavaBeans introspection mechanisms
+ * find them.
  * </p>
  * <p>
- * This class uses events to notify interested user interface components that fields or computed values have changed. In
- * this way the user interface does not have to know that the category field on the screen is dependent on the
- * bodyweight and the gender -- all the dependency logic is kept at the business object level.
+ * This class uses events to notify interested user interface components that fields or computed values have changed. In this way the user interface does not
+ * have to know that the category field on the screen is dependent on the bodyweight and the gender -- all the dependency logic is kept at the business object
+ * level.
  * </p>
  */
 
@@ -193,7 +192,7 @@ public class Athlete {
 				dest.setCleanJerk3ActualLift(src.getCleanJerk3ActualLift());
 				dest.setCleanJerk3LiftTime(src.getCleanJerk3LiftTime());
 			}
-			
+
 			if (copyResults) {
 				dest.setCustomScore(src.getCustomScoreComputed());
 			}
@@ -298,15 +297,13 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	DecimalFormat df = null;
-
 	@Transient
 	@JsonIgnore
 	Integer liftOrderRank = 0;
 	private Double bodyWeight = null;
 
 	/*
-	 * eager does not hurt for us. https://vladmihalcea.com/the-best-way-to-map-a-onetomany-association-with-jpa
-	 * -and-hibernate/
+	 * eager does not hurt for us. https://vladmihalcea.com/the-best-way-to-map-a-onetomany-association-with-jpa -and-hibernate/
 	 */
 	@ManyToOne(cascade = { CascadeType.MERGE,
 	        CascadeType.REFRESH }, optional = true, fetch = FetchType.LAZY)
@@ -314,11 +311,9 @@ public class Athlete {
 	@JsonProperty(index = 300)
 	@JsonIdentityReference(alwaysAsId = true)
 	private Category category = null;
-	
 	@Transient
 	@JsonIgnore
 	private boolean categoryDone;
-	
 	@Column(columnDefinition = "integer default 0")
 	private int catSinclairRank;
 	private String cleanJerk1ActualLift;
@@ -376,34 +371,28 @@ public class Athlete {
 	 */
 	private Double presumedBodyWeight;
 	private Integer qualifyingTotal = 0;
-	
 	@JsonIgnore
 	private Integer robiRank;
-	
 	@JsonIgnore
 	private Integer sinclairRank;
-	
 	@JsonIgnore
 	@Column(columnDefinition = "integer default 0")
 	private Integer qPointsRank;
-	
 	@JsonIgnore
-	@Column(name="smmRank", columnDefinition = "integer default 0")
+	@Column(name = "smmRank", columnDefinition = "integer default 0")
 	private int smhfRank;
-	
 	@JsonIgnore
 	@Column(columnDefinition = "integer default 0")
 	private int qAgeRank;
-	
 	private String snatch1ActualLift;
 	private String snatch1Change1;
 	private String snatch1Change2;
 	/**
-	 * Using separate fields is brute force, but having embedded classes does not bring much and we don't want joins or
-	 * other such logic for the Athlete card. Since the Athlete card is 6 x 4 items, we take the simple route.
+	 * Using separate fields is brute force, but having embedded classes does not bring much and we don't want joins or other such logic for the Athlete card.
+	 * Since the Athlete card is 6 x 4 items, we take the simple route.
 	 *
-	 * The use of Strings is historical. It was extremely cumbersome to handle conversions to/from Integer in Vaadin 6
-	 * circa 2009, and migration of databases would be annoying to users.
+	 * The use of Strings is historical. It was extremely cumbersome to handle conversions to/from Integer in Vaadin 6 circa 2009, and migration of databases
+	 * would be annoying to users.
 	 */
 	private String snatch1Declaration;
 	private LocalDateTime snatch1LiftTime;
@@ -443,7 +432,7 @@ public class Athlete {
 	@JsonIgnore
 	private boolean checkTiming;
 	private String subCategory;
-	@Column(columnDefinition = "integer default 0", name="gmaxRank")
+	@Column(columnDefinition = "integer default 0", name = "gmaxRank")
 	private Integer gamxRank;
 	private Integer ageAdjustedTotalRank;
 
@@ -771,8 +760,7 @@ public class Athlete {
 	/**
 	 * Gets the age group.
 	 *
-	 * @return the ageGroup. M80 if male missing birth date, F70 if female missing birth date or missing both gender and
-	 *         birth.
+	 * @return the ageGroup. M80 if male missing birth date, F70 if female missing birth date or missing both gender and birth.
 	 */
 	@Transient
 	@JsonIgnore
@@ -1100,9 +1088,8 @@ public class Athlete {
 	}
 
 	/**
-	 * Compute the body weight at the maximum weight of the Athlete's category. Note: for the purpose of this
-	 * computation, only "official" categories are used as the purpose is to totalRank athletes according to their
-	 * competition potential.
+	 * Compute the body weight at the maximum weight of the Athlete's category. Note: for the purpose of this computation, only "official" categories are used
+	 * as the purpose is to totalRank athletes according to their competition potential.
 	 *
 	 * @return the category sinclair
 	 */
@@ -2120,8 +2107,8 @@ public class Athlete {
 	}
 
 	/**
-	 * Compute the time of last lift for Athlete. Times are only compared within the same lift type (if a Athlete is at
-	 * the first attempt of clean and jerk, then the last lift occurred forever ago.)
+	 * Compute the time of last lift for Athlete. Times are only compared within the same lift type (if a Athlete is at the first attempt of clean and jerk,
+	 * then the last lift occurred forever ago.)
 	 *
 	 * @return null if Athlete has not lifted
 	 */
@@ -2269,8 +2256,7 @@ public class Athlete {
 	}
 
 	/**
-	 * Gets the robi. In a multiple age group competition, the Robi shown in the final package will depend on the age
-	 * group
+	 * Gets the robi. In a multiple age group competition, the Robi shown in the final package will depend on the age group
 	 *
 	 * @return the robi
 	 */
@@ -2338,7 +2324,7 @@ public class Athlete {
 	public Double getBestLifterScore() {
 		return Ranking.getRankingValue(this, Competition.getCurrent().getScoringSystem());
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public int getBestLifterRank() {
@@ -2370,9 +2356,8 @@ public class Athlete {
 	}
 
 	/**
-	 * Compute the Sinclair total for the Athlete, that is, the total multiplied by a value that depends on the
-	 * Athlete's body weight. This value extrapolates what the Athlete would have lifted if he/she had the bodymass of a
-	 * maximum-weight Athlete.
+	 * Compute the Sinclair total for the Athlete, that is, the total multiplied by a value that depends on the Athlete's body weight. This value extrapolates
+	 * what the Athlete would have lifted if he/she had the bodymass of a maximum-weight Athlete.
 	 *
 	 * @return the sinclair-adjusted value for the Athlete
 	 */
@@ -2477,7 +2462,7 @@ public class Athlete {
 		double d = getMastersSinclair() * getSmhfFactor();
 		return d;
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public Double getSmm() {
@@ -2489,7 +2474,7 @@ public class Athlete {
 	public int getSmhfRank() {
 		return this.smhfRank;
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public int getSmmRank() {
@@ -2871,9 +2856,8 @@ public class Athlete {
 	}
 
 	/**
-	 * Total is zero if all three snatches or all three clean&jerks are failed. Failed lifts are indicated as negative
-	 * amounts. Total is the sum of all good lifts otherwise. Null entries indicate that no data has been captured, and
-	 * are counted as zero.
+	 * Total is zero if all three snatches or all three clean&jerks are failed. Failed lifts are indicated as negative amounts. Total is the sum of all good
+	 * lifts otherwise. Null entries indicate that no data has been captured, and are counted as zero.
 	 *
 	 * @return the total
 	 */
@@ -3562,9 +3546,8 @@ public class Athlete {
 	}
 
 	/*
-	 * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a
-	 * notifier can call a method on a listener to signal that an event has occurred, and how the listener can
-	 * register/unregister itself.
+	 * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a notifier can call a method on a listener to
+	 * signal that an event has occurred, and how the listener can register/unregister itself.
 	 */
 
 	/**
@@ -3748,12 +3731,11 @@ public class Athlete {
 	}
 
 	/**
-	 * When adding/deleting categories without knowing the actual bodyweight, we need to keep the last bodyweight we
-	 * were factually told about by a human (either by explicitly setting the category, or through a registration file)
+	 * When adding/deleting categories without knowing the actual bodyweight, we need to keep the last bodyweight we were factually told about by a human
+	 * (either by explicitly setting the category, or through a registration file)
 	 *
-	 * if cat 59kg is deleted, the presumed category will become 64kg, but the presumed bodyweight remains 59 -- the
-	 * switch to 64 is not from factual information about the lifter, it is something we made up. If we reinstate 59,
-	 * the lifter will be again assumed to be 59.
+	 * if cat 59kg is deleted, the presumed category will become 64kg, but the presumed bodyweight remains 59 -- the switch to 64 is not from factual
+	 * information about the lifter, it is something we made up. If we reinstate 59, the lifter will be again assumed to be 59.
 	 *
 	 * @param category
 	 */
@@ -5337,8 +5319,7 @@ public class Athlete {
 	}
 
 	/**
-	 * Prevent JPA conflict between two versions of the same object. Likely not needed anymore now that we allocate an
-	 * Id to the Athlete in the constructor.
+	 * Prevent JPA conflict between two versions of the same object. Likely not needed anymore now that we allocate an Id to the Athlete in the constructor.
 	 *
 	 * @param category
 	 * @param participations
@@ -5562,7 +5543,7 @@ public class Athlete {
 		        || this.getCleanJerk3AsInteger() == null;
 		return !notFinishedLifting;
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public boolean isDone(Group medalingSession) {
@@ -5587,12 +5568,17 @@ public class Athlete {
 		Integer total = getBestCleanJerk() + getBestSnatch();
 		return (double) AgeFactors.getAgeAdjustedTotal(this, total);
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public Double getGamx() {
 		Integer total = getBestCleanJerk() + getBestSnatch();
-		return (double) GAMX.getGamx(this, total);
+		if (total > 0) {
+			return (double) GAMX.getGamx(this, total);
+		} else {
+			return 0.0D;
+		}
+
 	}
 
 	@Transient
@@ -5600,18 +5586,17 @@ public class Athlete {
 	public Integer getAgeAdjustedTotalRank() {
 		return this.ageAdjustedTotalRank;
 	}
-	
 
 	@Transient
 	@JsonIgnore
 	public Integer getGamxRank() {
 		return this.gamxRank;
 	}
-	
+
 	public void setAgeAdjustedTotalRank(Integer ageAdjustedTotalRank) {
 		this.ageAdjustedTotalRank = ageAdjustedTotalRank;
 	}
-	
+
 	public void setGamxRank(Integer rank) {
 		this.gamxRank = rank;
 	}
