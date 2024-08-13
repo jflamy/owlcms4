@@ -2,6 +2,9 @@
 >
 > - You should test all releases, with actual data, several days before a competition. 
 
+- Fixes
+  - 50.0.1: Fixed Final Package error when computing GAMX coefficients.
+
 - Publicresults
   - When a user opens a scoreboard and a timer is running, the timer is now immediately synchronized
   - If the publicresults application is restarted, and sessions are in a break, the remaining time is now immediately synchronized
