@@ -5573,12 +5573,15 @@ public class Athlete {
 	@JsonIgnore
 	public Double getGamx() {
 		Integer total = getBestCleanJerk() + getBestSnatch();
-		if (total > 0) {
-			return (double) GAMX.getGamx(this, total);
-		} else {
+		try {
+			if (total > 0) {
+				return (double) GAMX.getGamx(this, total);
+			} else {
+				return 0.0D;
+			}
+		} catch (IndexOutOfBoundsException e) {
 			return 0.0D;
 		}
-
 	}
 
 	@Transient
