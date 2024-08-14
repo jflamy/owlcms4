@@ -39,7 +39,7 @@ public class MultiCategoryRankSetter {
 		boolean zero = rankingValue <= 0;
 
 		int rank = eligible ? (rankingValue == 0 ? 0 : ++this.rank) : -1;
-		logger.warn("a {} v {} z {} e {} rank={}", a.getShortName(), rankingValue, zero, eligible, rank);
+		//logger.debug("a {} v {} z {} e {} rank={}", a.getShortName(), rankingValue, zero, eligible, rank);
 		switch (r) {
 			case SNATCH:
 			case CLEANJERK:
@@ -97,10 +97,10 @@ public class MultiCategoryRankSetter {
 						this.snatchRank = this.snatchRank + 1;
 						p.setSnatchRank(this.snatchRank);
 						curRankings.setSnatchRank(this.snatchRank);
-						logger.warn("setting snatch rank {} {} {} {} {}", a, curCat, snatchRank, System.identityHashCode(p), System.identityHashCode(curRankings));
+						//logger.debug("setting snatch rank {} {} {} {} {}", a, curCat, snatchRank, System.identityHashCode(p), System.identityHashCode(curRankings));
 					} else {
 						p.setSnatchRank(a.isEligibleForIndividualRanking() ? 0 : -1);
-						logger.warn("skipping snatch rank {} {} {}", a, curCat, this.snatchRank);
+						//logger.debug("skipping snatch rank {} {} {}", a, curCat, this.snatchRank);
 					}
 				}
 					break;
