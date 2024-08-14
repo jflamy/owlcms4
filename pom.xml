@@ -30,7 +30,7 @@
 	<properties>
 		<!-- revision is overridden by azure-pipelines.yml for the official
 		builds. this value is only used for local development -->
-		<revision>52.0.0-SNAPSHOT</revision>
+		<revision>52.0.0-alpha01</revision>
 
 		<vaadin.version>24.4.7</vaadin.version>
 		<logback.version>1.4.14</logback.version>
