@@ -154,8 +154,8 @@ jobs:
           tagSource: "userSpecifiedTag"
           title: $(Revision)
           tag: $(Revision)
-          releaseNotesSource: "file"
-          releaseNotesFile: $(Build.SourcesDirectory)/ReleaseNotes.md # Optional
+          releaseNotesSource: "filePath"
+          releaseNotesFilePath: $(Build.SourcesDirectory)/ReleaseNotes.md # Optional
           assets: |
             $(Pipeline.Workspace)/OwlcmsZip/*
             $(Pipeline.Workspace)/PublicResultsZip/*
