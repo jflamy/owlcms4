@@ -120,7 +120,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		Button teams = openInNewTabNoParam(TeamSelectionContent.class,
 		        Translator.translate(TeamSelectionContent.TITLE));
 
-		Button documents = openInNewTab(SessionContent.class, Translator.translate(DocsContent.PRECOMP_DOCS_TITLE),"documents");
+		Button documents = openInNewTab(SessionContent.class, Translator.translate("Documents.Title"),"documents");
 		documents.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
 
 		Button uploadJson = new Button(Translator.translate("ExportDatabase.UploadJson"),
@@ -141,7 +141,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		// FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes, teams, exportDiv);
 		// doGroup(Translator.translate("EditAthletes_Groups"), grid3, this);
 		FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(documents);
-		doGroup(Translator.translate(DocsContent.PRECOMP_DOCS_TITLE), grid4, this, true);
+		doGroup(Translator.translate("Documents.Title"), grid4, this, true);
 		FlexibleGridLayout grid5 = HomeNavigationContent.navigationGrid(exportJsonDiv, uploadJson);
 		doGroup(Translator.translate("ExportDatabase.ExportImport"), grid5, this, true);
 		FlexibleGridLayout grid6 = HomeNavigationContent.navigationGrid(exportDiv, fullUpload);
