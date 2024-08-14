@@ -151,7 +151,7 @@ jobs:
             isPreRelease: false
           action: "create" # Options: create, edit, delete
           target: master # all our releases are on the master branch of the release repos.
-          tagSource: "manual"
+          tagSource: "userSpecifiedTag"
           title: $(Revision)
           tag: $(Revision)
           releaseNotesSource: "file"
