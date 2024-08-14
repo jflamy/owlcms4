@@ -21,7 +21,7 @@ variables:
   - group: ReleaseRepoCredentials
   - template: src/main/azure-pipelines/variables-releaseRepoCredentials.yml
     parameters:
-      rev: {{ parameters.Revision }}
+      rev: ${{ parameters.Revision }}
   - name: MavenCacheFolder
     value: $(Pipeline.Workspace)/.m2/repository
   - name: MavenOpts
