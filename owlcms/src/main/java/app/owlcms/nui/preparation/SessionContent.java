@@ -469,7 +469,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		UI ui = UI.getCurrent();
 		localDirZipDiv = DownloadButtonFactory.createDynamicDownloadButton(
 		        () -> stripSuffix(Competition.getCurrent().getIntroductionTemplateFileName()),
-		        Translator.translate("CeremonyType.INTRODUCTION"),
+		        Translator.translate(Templates.INTRODUCTION.name()),
 		        () -> {
 			        List<KitElement> elements = prepareIntroductionKit(getSortedSelection(), (e, m) -> notifyError(e, ui, m));
 			        return zipOrExcelInputStream(ui, elements);
