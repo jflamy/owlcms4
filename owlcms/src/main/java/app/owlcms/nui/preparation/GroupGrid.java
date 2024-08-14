@@ -55,11 +55,6 @@ final class GroupGrid extends OwlcmsCrudGrid<Group> {
 		this.grid.addItemDoubleClickListener((e) -> {
 		});
 
-		for (Column<Group> c : this.grid.getColumns()) {
-			logger.warn("resizable {}",c.getKey());
-			c.setResizable(true);
-		}
-
 		this.crudLayout.setMainComponent(this.grid);
 	}
 

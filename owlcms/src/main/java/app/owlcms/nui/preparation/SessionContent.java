@@ -488,7 +488,6 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		})).setHeader("").setWidth(tSize + "ch");
 		
 		for (Column<Group> c : grid.getColumns()) {
-			logger.warn("resizable {}",c.getKey());
 			c.setResizable(true);
 		}
 
