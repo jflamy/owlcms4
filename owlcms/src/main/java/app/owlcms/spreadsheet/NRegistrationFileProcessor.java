@@ -241,7 +241,6 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	@Override
 	public void updateAthletes(Consumer<String> errorConsumer, RCompetition c, List<RAthlete> athletes) {
 		JPAService.runInTransaction(em -> {
-			logger.warn("start1=====================");
 			// Competition curC = Competition.getCurrent();
 			try {
 				// Create the new athletes.
@@ -256,12 +255,10 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 				LoggerUtils.stackTrace(e);
 				errorConsumer.accept(e.toString());
 			}
-			logger.warn("end1=====================");
 			return null;
 		});
 
 		JPAService.runInTransaction(em -> {
-			logger.warn("start2=====================");
 			AthleteRepository.findAll().stream().forEach(a2 -> {
 				LinkedHashSet<Category> eligibles = (LinkedHashSet<Category>) RCompetition
 				        .getAthleteToEligibles()
@@ -289,7 +286,6 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 					em.merge(a2);
 				}
 			});
-			logger.warn("end2=====================");
 			em.flush();
 			return null;
 		});
