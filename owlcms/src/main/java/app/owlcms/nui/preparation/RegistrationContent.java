@@ -166,9 +166,9 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	public FlexLayout createMenuArea() {
 		createTopBarGroupSelect();
 
-		Button bwButton = createBWButton();
-		Button categoriesListButton = createCategoriesListButton();
-		Button teamsListButton = createTeamsListButton();
+//		Button bwButton = createBWButton();
+//		Button categoriesListButton = createCategoriesListButton();
+//		Button teamsListButton = createTeamsListButton();
 
 		Button drawLots = new Button(Translator.translate("DrawLotNumbers"), (e) -> {
 			drawLots();
@@ -208,11 +208,13 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		hr.getStyle().set("margin", "0");
 		hr.getStyle().set("padding", "0");
 		FlexLayout buttons = new FlexLayout(
-		        new NativeLabel(Translator.translate("Preparation")),
+//		        new NativeLabel(Translator.translate("Preparation")),
 		        drawLots, deleteAthletes, clearLifts,
-		        resetCats, hr,
-		        new NativeLabel(Translator.translate("Entries")),
-		        bwButton, categoriesListButton, teamsListButton);
+		        resetCats
+//		        , hr,
+//		        new NativeLabel(Translator.translate("Entries")),
+//		        bwButton, categoriesListButton, teamsListButton
+		        );
 		buttons.getStyle().set("flex-wrap", "wrap");
 		buttons.getStyle().set("gap", "1ex");
 		buttons.getStyle().set("margin-left", "3em");
@@ -224,6 +226,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		this.topBar.add(this.topBarMenu, buttons);
 		this.topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
 		this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+		this.topBar.setJustifyContentMode(JustifyContentMode.START);
 
 		return this.topBar;
 	}

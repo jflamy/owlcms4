@@ -68,8 +68,8 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 		layout.add(div);
 		layout.setColspan(div, 2);
 
-		addTemplateSelection(layout, Templates.CARDS);
-		addTemplateSelection(layout, Templates.WEIGHIN);
+		addTemplateSelection(layout, PreCompetitionTemplates.CARDS);
+		addTemplateSelection(layout, PreCompetitionTemplates.WEIGHIN);
 		return layout;
 	}
 
@@ -82,9 +82,9 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 		layout.add(div);
 		layout.setColspan(div, 2);
 
-		addTemplateSelection(layout, Templates.INTRODUCTION);
-		addTemplateSelection(layout, Templates.EMPTY_PROTOCOL);
-		addTemplateSelection(layout, Templates.JURY);
+		addTemplateSelection(layout, PreCompetitionTemplates.INTRODUCTION);
+		addTemplateSelection(layout, PreCompetitionTemplates.EMPTY_PROTOCOL);
+		addTemplateSelection(layout, PreCompetitionTemplates.JURY);
 		return layout;
 	}
 
@@ -94,15 +94,28 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 		layout.add(title);
 		layout.setColspan(title, 2);
 
-		addTemplateSelection(layout, Templates.START_LIST);
-		addTemplateSelection(layout, Templates.SCHEDULE);
-		addTemplateSelection(layout, Templates.OFFICIALS);
-		addTemplateSelection(layout, Templates.CHECKIN);
+		addTemplateSelection(layout, PreCompetitionTemplates.START_LIST);
+		addTemplateSelection(layout, PreCompetitionTemplates.SCHEDULE);
+		addTemplateSelection(layout, PreCompetitionTemplates.OFFICIALS);
+		addTemplateSelection(layout, PreCompetitionTemplates.CHECKIN);
+
+		return layout;
+	}
+	
+	public FormLayout registrationTemplateSelectionForm() {
+		FormLayout layout = createLayout();
+		Component title = createTitle(DOCUMENTS_TEMPLATE_SELECTION);
+		layout.add(title);
+		layout.setColspan(title, 2);
+
+		addTemplateSelection(layout, PreCompetitionTemplates.BY_CATEGORY);
+		addTemplateSelection(layout, PreCompetitionTemplates.BY_BODYWEIGHT);
+		addTemplateSelection(layout, PreCompetitionTemplates.BY_TEAM);
 
 		return layout;
 	}
 
-	public FormLayout templateSelectionForm(String titleString, Templates type) {
+	public FormLayout templateSelectionForm(String titleString, PreCompetitionTemplates type) {
 		FormLayout layout = createLayout();
 		Component title = createTitle(titleString);
 		layout.add(title);
@@ -124,12 +137,13 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 			case INTRODUCTION:
 			case JURY:
 				return postWeighInTemplateSelectionForm();
+				
+			default:
+				throw new IllegalArgumentException(type.toString());
 		}
+	}	
 
-		return layout;
-	}
-
-	private void addTemplateSelection(FormLayout layout, Templates template) {
+	private void addTemplateSelection(FormLayout layout, PreCompetitionTemplates template) {
 		List<Resource> prioritizedList = computeResourceList(template.folder, (f) -> f.endsWith(template.extension));
 		ComboBox<Resource> templateSelect = createTemplateSelect(layout, template.name(), prioritizedList, template.templateFileNameSupplier.get());
 

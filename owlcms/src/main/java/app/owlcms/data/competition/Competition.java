@@ -271,6 +271,7 @@ public class Competition {
 	@JsonIgnore
 	private boolean simulation;
 	private String categoriesListTemplateFileName;
+	private String bodyWeightListTemplateFileName;
 	private String officialsListTemplateFileName;
 	private String teamsListTemplateFileName;
 	private String recordOrder;
@@ -1842,6 +1843,14 @@ public class Competition {
 
 	public void setIntroductionTemplateFileName(String introductionTemplateFileName) {
 		this.introductionTemplateFileName = introductionTemplateFileName;
+	}
+
+	public String getBodyWeightListTemplateFileName() {
+		return bodyWeightListTemplateFileName;
+	}
+
+	public void setBodyWeightListTemplateFileName(String bodyweightListTemplateFileName) {
+		this.bodyWeightListTemplateFileName = bodyweightListTemplateFileName;
 	}
 
 }

@@ -5,7 +5,17 @@ import java.util.function.Supplier;
 
 import app.owlcms.data.competition.Competition;
 
-public enum Templates {
+public enum PreCompetitionTemplates {
+	BY_CATEGORY("/templates/categories", ".xlsx", 
+			() -> Competition.getCurrent().getCategoriesListTemplateFileName(),
+	        (v) -> Competition.getCurrent().setCategoriesListTemplateFileName(v)),
+	BY_BODYWEIGHT("/templates/bwStart", ".xlsx", 
+			() -> Competition.getCurrent().getBodyWeightListTemplateFileName(),
+	        (v) -> Competition.getCurrent().setBodyWeightListTemplateFileName(v)),
+	BY_TEAM("/templates/teams", ".xlsx", 
+			() -> Competition.getCurrent().getTeamsListTemplateFileName(),
+	        (v) -> Competition.getCurrent().setTeamsListTemplateFileName(v)),
+	
 	START_LIST("/templates/start", ".xlsx", 
 			() -> Competition.getCurrent().getStartListTemplateFileName(),
 	        (v) -> Competition.getCurrent().setStartListTemplateFileName(v)),
@@ -34,7 +44,7 @@ public enum Templates {
 	        (v) -> Competition.getCurrent().setEmptyProtocolTemplateFileName(v)),
 	JURY("/templates/jury", ".xlsx", 
 			() -> Competition.getCurrent().getJuryTemplateFileName(),
-	        (v) -> Competition.getCurrent().setJuryTemplateFileName(v)),
+	        (v) -> Competition.getCurrent().setJuryTemplateFileName(v)), 
 	;
 
 	String folder;
@@ -42,7 +52,7 @@ public enum Templates {
 	Supplier<String> templateFileNameSupplier;
 	Consumer<String> templateFileNameSetter;
 
-	Templates(String folder, String extension, Supplier<String> templateFileNameSupplier, Consumer<String> templateFileNameSetter) {
+	PreCompetitionTemplates(String folder, String extension, Supplier<String> templateFileNameSupplier, Consumer<String> templateFileNameSetter) {
 		this.folder = folder;
 		this.extension = extension;
 		this.templateFileNameSupplier = templateFileNameSupplier;

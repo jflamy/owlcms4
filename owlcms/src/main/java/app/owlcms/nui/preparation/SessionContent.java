@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
@@ -89,6 +90,7 @@ import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCardsDocs;
 import app.owlcms.spreadsheet.JXLSCardsWeighIn;
+import app.owlcms.spreadsheet.JXLSCategoriesListDocs;
 import app.owlcms.spreadsheet.JXLSJurySheet;
 import app.owlcms.spreadsheet.JXLSResultSheet;
 import app.owlcms.spreadsheet.JXLSStartingListDocs;
@@ -143,16 +145,30 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
 		String path = event.getLocation().getPath();
-		this.documentPage = path.contains("sessions");
+		this.documentPage = path.contains("documents");
 	}
 
 	public void closeDialog() {
 	}
 
 	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		if (documentPage) {
+			crud.getAddButton().removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		}
+	}
+	
+	@Override
 	public FlexLayout createMenuArea() {
 		this.topBar = new FlexLayout();
 
+		Button bwButton = createBWButton();
+		Button categoriesListButton = createCategoriesListButton();
+		Button teamsListButton = createTeamsListButton();
+		Button registrationTemplateSelection = new Button(
+		        Translator.translate("Documents.SelectTemplates"), VaadinIcon.COG.create(), event -> registrationTemplateSelection());
+		registrationTemplateSelection.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
+		
 		Button startListButton = createFullStartListButton();
 		Button scheduleButton = createFullScheduleButton();
 		Button officialSchedule = createOfficalsButton();
@@ -182,7 +198,10 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 
 		if (this.documentPage) {
 			FlexLayout buttons = new FlexLayout(
-			        new NativeLabel(Translator.translate("Documents.Competition")),
+			        new NativeLabel(Translator.translate("Documents.Registration")),
+			        categoriesListButton, bwButton, teamsListButton, spacer(), registrationTemplateSelection,
+			        createRule(),
+			        new NativeLabel(Translator.translate("Documents.StartBook")),
 			        startListButton, scheduleButton, officialSchedule, checkInButton, spacer(), competitionTemplateSelection,
 			        createRule(),
 			        new NativeLabel(Translator.translate("Documents.PreWeighIn")),
@@ -276,7 +295,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		return found;
 	}
 
-	private KitElement checkKit(String id, Templates templateEnum, BiConsumer<Throwable, String> errorProcessor,
+	private KitElement checkKit(String id, PreCompetitionTemplates templateEnum, BiConsumer<Throwable, String> errorProcessor,
 	        Supplier<JXLSWorkbookStreamSource> writerFactory) {
 		try {
 			String resourceFolder = templateEnum.folder;
@@ -311,26 +330,32 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		dialog.add(new TemplateSelectionFormFactory().competitionTemplateSelectionForm());
 		dialog.open();
 	}
+	
+	private void registrationTemplateSelection() {
+		Dialog dialog = new Dialog();
+		dialog.add(new TemplateSelectionFormFactory().registrationTemplateSelectionForm());
+		dialog.open();
+	}
 
 	private Div createCardsButton() {
 		Div localDirZipDiv = null;
 		UI ui = UI.getCurrent();
 		localDirZipDiv = DownloadButtonFactory.createDynamicDownloadButton(
-		        () -> stripSuffix(Templates.CARDS.templateFileNameSupplier.get()),
+		        () -> stripSuffix(PreCompetitionTemplates.CARDS.templateFileNameSupplier.get()),
 		        Translator.translate("AthleteCards"),
 		        () -> {
 			        List<KitElement> elements = prepareCardsKit(getSortedSelection(), (e, m) -> notifyError(e, ui, m));
 			        return zipOrExcelInputStream(ui, elements);
 		        },
 		        () -> {
-			        return (getSortedSelection().size() > 1 ? ".zip" : Templates.CARDS.extension);
+			        return (getSortedSelection().size() > 1 ? ".zip" : PreCompetitionTemplates.CARDS.extension);
 		        });
 		return localDirZipDiv;
 	}
 
 	private Button createCheckInButton() {
 		String resourceDirectoryLocation = "/templates/checkin";
-		String title = Translator.translate(Templates.CHECKIN.name());
+		String title = Translator.translate(PreCompetitionTemplates.CHECKIN.name());
 		JXLSDownloader startingListFactory = new JXLSDownloader(
 		        () -> {
 			        JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
@@ -356,20 +381,20 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		UI ui = UI.getCurrent();
 		localDirZipDiv = DownloadButtonFactory.createDynamicDownloadButton(
 		        () -> stripSuffix(Competition.getCurrent().getEmptyProtocolTemplateFileName()),
-		        Translator.translate(Templates.EMPTY_PROTOCOL.name()),
+		        Translator.translate(PreCompetitionTemplates.EMPTY_PROTOCOL.name()),
 		        () -> {
 			        List<KitElement> elements = prepareEmptyProtocolKit(getSortedSelection(), (e, m) -> notifyError(e, ui, m));
 			        return zipOrExcelInputStream(ui, elements);
 		        },
 		        () -> {
-			        return (getSortedSelection().size() > 1 ? ".zip" : Templates.EMPTY_PROTOCOL.extension);
+			        return (getSortedSelection().size() > 1 ? ".zip" : PreCompetitionTemplates.EMPTY_PROTOCOL.extension);
 		        });
 		return localDirZipDiv;
 	}
 
 	private Button createFullScheduleButton() {
 		String resourceDirectoryLocation = "/templates/schedule";
-		String title = Translator.translate(Templates.SCHEDULE.name());
+		String title = Translator.translate(PreCompetitionTemplates.SCHEDULE.name());
 
 		JXLSDownloader startingListFactory = new JXLSDownloader(
 		        () -> {
@@ -463,19 +488,93 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		grid.setSelectionMode(SelectionMode.MULTI);
 		return this.crud;
 	}
+	
+	
+	protected Button createBWButton() {
+		String resourceDirectoryLocation = "/templates/bwStart";
+		String title = Translator.translate("BodyWeightCategories");
+
+		JXLSDownloader startingListFactory = new JXLSDownloader(
+		        () -> {
+			        JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
+			        // group may have been edited since the page was loaded
+			        startingXlsWriter.setGroup(
+			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
+			        // get current version of athletes.
+			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationBWCopy(athletesFindAll(false)));
+			        startingXlsWriter.createAgeGroupColumns(10, 7);
+			        return startingXlsWriter;
+		        },
+		        resourceDirectoryLocation,
+		        Competition::getComputedStartListTemplateFileName,
+		        Competition::setStartListTemplateFileName,
+		        title,
+		        Translator.translate("Download"));
+		return startingListFactory.createDownloadButton();
+	}
+	
+	protected Button createTeamsListButton() {
+		String resourceDirectoryLocation = "/templates/teams";
+		String title = Translator.translate("StartingList.Teams");
+
+		JXLSDownloader startingListFactory = new JXLSDownloader(
+		        () -> {
+			        JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
+			        // group may have been edited since the page was loaded
+			        startingXlsWriter.setGroup(
+			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
+			        // get current version of athletes.
+			        // findAll();
+			        // List<Athlete> sortedAthletes = startingXlsWriter.getSortedAthletes();
+			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(participationFindAll()));
+			        startingXlsWriter.createTeamColumns(9, 6);
+			        return startingXlsWriter;
+		        },
+		        resourceDirectoryLocation,
+		        Competition::getComputedTeamsListTemplateFileName,
+		        Competition::setTeamsListTemplateFileName,
+		        title,
+		        Translator.translate("Download"));
+		return startingListFactory.createDownloadButton();
+	}
+
+	protected Button createCategoriesListButton() {
+		String resourceDirectoryLocation = "/templates/categories";
+		String title = Translator.translate("StartingList.Categories");
+
+		JXLSDownloader startingListFactory = new JXLSDownloader(
+		        () -> {
+			        JXLSCategoriesListDocs categoriesXlsWriter = new JXLSCategoriesListDocs();
+			        // group may have been edited since the page was loaded
+			        categoriesXlsWriter.setGroup(
+			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
+			        // get current version of athletes.
+			        var athletes = participationFindAll();
+			        AthleteSorter.registrationOrder(athletes);
+			        categoriesXlsWriter.setSortedAthletes(athletes);
+			        return categoriesXlsWriter;
+		        },
+		        resourceDirectoryLocation,
+		        Competition::getComputedCategoriesListTemplateFileName,
+		        Competition::setCategoriesListTemplateFileName,
+		        title,
+		        Translator.translate("Download"));
+		return startingListFactory.createDownloadButton();
+	}
+	
 
 	private Div createIntroductionButton() {
 		Div localDirZipDiv = null;
 		UI ui = UI.getCurrent();
 		localDirZipDiv = DownloadButtonFactory.createDynamicDownloadButton(
 		        () -> stripSuffix(Competition.getCurrent().getIntroductionTemplateFileName()),
-		        Translator.translate(Templates.INTRODUCTION.name()),
+		        Translator.translate(PreCompetitionTemplates.INTRODUCTION.name()),
 		        () -> {
 			        List<KitElement> elements = prepareIntroductionKit(getSortedSelection(), (e, m) -> notifyError(e, ui, m));
 			        return zipOrExcelInputStream(ui, elements);
 		        },
 		        () -> {
-			        return (getSortedSelection().size() > 1 ? ".zip" : Templates.INTRODUCTION.extension);
+			        return (getSortedSelection().size() > 1 ? ".zip" : PreCompetitionTemplates.INTRODUCTION.extension);
 		        });
 		return localDirZipDiv;
 	}
@@ -485,20 +584,20 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		UI ui = UI.getCurrent();
 		localDirZipDiv = DownloadButtonFactory.createDynamicDownloadButton(
 		        () -> stripSuffix(Competition.getCurrent().getJuryTemplateFileName()),
-		        Translator.translate(Templates.JURY.name()),
+		        Translator.translate(PreCompetitionTemplates.JURY.name()),
 		        () -> {
 			        List<KitElement> elements = prepareJuryKit(getSortedSelection(), (e, m) -> notifyError(e, ui, m));
 			        return zipOrExcelInputStream(ui, elements);
 		        },
 		        () -> {
-			        return (getSortedSelection().size() > 1 ? ".zip" : Templates.JURY.extension);
+			        return (getSortedSelection().size() > 1 ? ".zip" : PreCompetitionTemplates.JURY.extension);
 		        });
 		return localDirZipDiv;
 	}
 
 	private Button createOfficalsButton() {
 		String resourceDirectoryLocation = "/templates/officials";
-		String title = Translator.translate(Templates.OFFICIALS.name());
+		String title = Translator.translate(PreCompetitionTemplates.OFFICIALS.name());
 
 		JXLSDownloader startingListFactory = new JXLSDownloader(
 		        () -> {
@@ -562,7 +661,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 			        return zipOrExcelInputStream(ui, elements);
 		        },
 		        () -> {
-			        return (getSortedSelection().size() > 1 ? ".zip" : Templates.WEIGHIN.extension);
+			        return (getSortedSelection().size() > 1 ? ".zip" : PreCompetitionTemplates.WEIGHIN.extension);
 		        });
 		return localDirZipDiv;
 	}
@@ -782,7 +881,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		} else {
 			this.getUI().get().access(() -> {
 				Dialog dialog = new Dialog();
-				Templates templateKind = Templates.valueOf(m);
+				PreCompetitionTemplates templateKind = PreCompetitionTemplates.valueOf(m);
 				dialog.add(new TemplateSelectionFormFactory().templateSelectionForm(m, templateKind));
 				dialog.open();
 			});
@@ -807,7 +906,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		List<KitElement> elements = new ArrayList<>();
 		elements.add(
 		        checkKit("cards",
-		                Templates.CARDS,
+		                PreCompetitionTemplates.CARDS,
 		                errorProcessor,
 		                () -> new JXLSCardsWeighIn()));
 		return elements;
@@ -818,7 +917,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		List<KitElement> elements = new ArrayList<>();
 		elements.add(
 		        checkKit("emptyProtocol",
-		                Templates.EMPTY_PROTOCOL,
+		                PreCompetitionTemplates.EMPTY_PROTOCOL,
 		                errorProcessor,
 		                () -> new JXLSResultSheet()));
 		return elements;
@@ -829,7 +928,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		List<KitElement> elements = new ArrayList<>();
 		elements.add(
 		        checkKit("introduction",
-		                Templates.INTRODUCTION,
+		                PreCompetitionTemplates.INTRODUCTION,
 		                errorProcessor,
 		                () -> new JXLSCardsWeighIn()));
 		return elements;
@@ -840,7 +939,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		List<KitElement> elements = new ArrayList<>();
 		elements.add(
 		        checkKit("jury",
-		                Templates.JURY,
+		                PreCompetitionTemplates.JURY,
 		                errorProcessor,
 		                () -> new JXLSJurySheet()));
 		return elements;
@@ -850,7 +949,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		checkNoSelection(selectedItems, errorProcessor);
 		List<KitElement> elements = new ArrayList<>();
 		KitElement kit = checkKit("weighin",
-		        Templates.WEIGHIN,
+		        PreCompetitionTemplates.WEIGHIN,
 		        null, // no error processor - ignore this item if no template
 		        () -> new JXLSCardsDocs());
 		if (kit != null) {
@@ -858,7 +957,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		}
 
 		KitElement kit2 = checkKit("cards",
-		        Templates.CARDS,
+		        PreCompetitionTemplates.CARDS,
 		        null, // no error processor - ignore this item if no template
 		        () -> new JXLSCardsWeighIn());
 		if (kit2 != null) {
@@ -871,7 +970,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		checkNoSelection(selectedItems, errorProcessor);
 		List<KitElement> elements = new ArrayList<>();
 		KitElement kit = checkKit("introduction",
-		        Templates.INTRODUCTION,
+		        PreCompetitionTemplates.INTRODUCTION,
 		        null, // no error processor - ignore this item if no template
 		        () -> new JXLSCardsWeighIn());
 		if (kit != null) {
@@ -879,7 +978,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		}
 
 		KitElement kit2 = checkKit("emptyProtocol",
-                Templates.EMPTY_PROTOCOL,
+                PreCompetitionTemplates.EMPTY_PROTOCOL,
                 null, // no error processor - ignore this item if no template
                 () -> new JXLSResultSheet());
 		if (kit2 != null) {
@@ -887,7 +986,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		}
 		
 		KitElement kit3 = checkKit("jury",
-                Templates.JURY,
+                PreCompetitionTemplates.JURY,
                 null, // no error processor - ignore this item if no template
                 () -> new JXLSJurySheet());
 		if (kit3 != null) {
@@ -901,7 +1000,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		List<KitElement> elements = new ArrayList<>();
 		elements.add(
 		        checkKit("weighin",
-		                Templates.WEIGHIN,
+		                PreCompetitionTemplates.WEIGHIN,
 		                errorProcessor,
 		                () -> new JXLSCardsDocs()));
 		return elements;
