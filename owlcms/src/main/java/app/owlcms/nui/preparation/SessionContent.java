@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -350,6 +349,8 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		        () -> {
 			        return (getSortedSelection().size() > 1 ? ".zip" : PreCompetitionTemplates.CARDS.extension);
 		        });
+		Button b = (Button) localDirZipDiv.getChildren().findFirst().get();
+		b.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
 		return localDirZipDiv;
 	}
 
@@ -451,7 +452,9 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		        Competition::setStartListTemplateFileName,
 		        title,
 		        Translator.translate("Download"));
-		return startingListFactory.createDownloadButton();
+		Button b = startingListFactory.createDownloadButton();
+		b.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
+		return b;
 	}
 
 	/**
@@ -869,17 +872,27 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 	private void notifyError(Throwable e, UI ui, final String m) {
 		if (m.equals("NoAthletes")) {
 			LoggerUtils.logError(logger, e, true);
-			logger.info(Translator.translateExplicitLocale(m, Locale.ENGLISH));
 			this.getUI().get().access(() -> {
 				Notification notif = new Notification();
 				notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
 				notif.setPosition(Position.TOP_STRETCH);
-				notif.setDuration(3000);
-				notif.setText(Translator.translate("Documents.NoSession"));
+				notif.setDuration(5000);
+				Div div = new Div(Translator.translate("Documents.NoSession"));
+				div.getStyle().set("font-size","140%");
+				notif.add(div);
 				notif.open();
 			});
 		} else {
 			this.getUI().get().access(() -> {
+				Notification notif = new Notification();
+				notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
+				notif.setPosition(Position.TOP_STRETCH);
+				notif.setDuration(5000);
+				Div div = new Div(Translator.translate("Documents.NoTemplate"));
+				div.getStyle().set("font-size","140%");
+				notif.add(div);
+				notif.open();
+				
 				Dialog dialog = new Dialog();
 				PreCompetitionTemplates templateKind = PreCompetitionTemplates.valueOf(m);
 				dialog.add(new TemplateSelectionFormFactory().templateSelectionForm(m, templateKind));
