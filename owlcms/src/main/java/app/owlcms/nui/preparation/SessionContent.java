@@ -50,6 +50,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
@@ -467,14 +468,14 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		Grid<Group> grid = new Grid<>(Group.class, false);
 		this.crud = new GroupGrid(Group.class, new OwlcmsGridLayout(Group.class), crudFormFactory, grid);
 		grid.getThemeNames().add("row-stripes");
-		grid.addColumn(Group::getName).setHeader(Translator.translate("Name")).setComparator(Group::compareTo);
-		grid.addColumn(Group::getDescription).setHeader(Translator.translate("Group.Description"));
+		grid.addColumn(Group::getName).setHeader(Translator.translate("Name")).setComparator(Group::compareTo).setAutoWidth(true);
+		grid.addColumn(Group::getDescription).setHeader(Translator.translate("Group.Description")).setAutoWidth(true);
 		grid.addColumn(Group::size).setHeader(Translator.translate("GroupSize")).setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn(LocalDateTimeField.getRenderer(Group::getWeighInTime, this.getLocale()))
 		        .setHeader(Translator.translate("WeighInTime")).setComparator(Group::compareToWeighIn);
 		grid.addColumn(LocalDateTimeField.getRenderer(Group::getCompetitionTime, this.getLocale()))
 		        .setHeader(Translator.translate("StartTime"));
-		grid.addColumn(Group::getPlatform).setHeader(Translator.translate("Platform"));
+		grid.addColumn(Group::getPlatform).setHeader(Translator.translate("Platform")).setTextAlign(ColumnTextAlign.CENTER);
 		String translation = Translator.translate("EditAthletes");
 		int tSize = translation.length();
 		grid.addColumn(new ComponentRenderer<>(p -> {
@@ -485,6 +486,11 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 			technical.addThemeVariants(ButtonVariant.LUMO_SMALL);
 			return technical;
 		})).setHeader("").setWidth(tSize + "ch");
+		
+		for (Column<Group> c : grid.getColumns()) {
+			logger.warn("resizable {}",c.getKey());
+			c.setResizable(true);
+		}
 
 		this.crud.setCrudListener(this);
 		this.crud.setClickRowToUpdate(true);

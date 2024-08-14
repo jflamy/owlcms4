@@ -38,7 +38,7 @@ import ch.qos.logback.classic.Logger;
 public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 
 	protected static final int DOUBLE_CLICK_MS_DELTA = 1000;
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsCrudGrid.class);
+	public final static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsCrudGrid.class);
 
 	// private OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory;
 	private OwlcmsGridLayout owlcmsGridLayout;
