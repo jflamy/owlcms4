@@ -67,6 +67,7 @@ public abstract class BaseNavigationContent extends BaseContent
 	 * parameters are parsed.
 	 */
 	public BaseNavigationContent() {
+		OwlcmsFactory.waitDBInitialized();
 	}
 
 	public ComboBox<Group> createGroupSelect(String placeHolder) {
