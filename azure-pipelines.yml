@@ -9,7 +9,6 @@ parameters:
     type: string
     default: 'false'
 
-
 variables:
   # overrides pom.xml; must be unique if BuildGoal is set to deploy.
   - name: Revision
@@ -21,6 +20,8 @@ variables:
   # ReleaseRepoCredentials contains github users and tokens
   - group: ReleaseRepoCredentials
   - template: src/main/azure-pipelines/variables-releaseRepoCredentials.yml
+    parameters:
+      rev: {{ parameters.Revision }}
   - name: MavenCacheFolder
     value: $(Pipeline.Workspace)/.m2/repository
   - name: MavenOpts
@@ -137,7 +138,7 @@ jobs:
         displayName: sync release repo
       # all releases are marked as "isPreRelease: false" else we cannot have a generic link to the latest prerelease.
       # the repo and name determines the maturity status.  
-      - task: GitHubRelease@0
+      - task: GitHubRelease@1
         displayName: Release on Github
         inputs:
           ${{ if contains(variables['Revision'], '-') }}:
