@@ -4,6 +4,7 @@
 > - **Alpha releases are not normally used in actual competitions.**
 
 - Preliminary releases change log
+  - (alpha02) Fix for registration file import from 51.0.3
   - (alpha01) Initial version of redesigned Documents page
 - Documents: complete redesign of the Documents page
   - All documents needed to prepare and run the competition are here (Results are still on their own page).
