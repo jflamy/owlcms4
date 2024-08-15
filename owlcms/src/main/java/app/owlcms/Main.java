@@ -285,7 +285,7 @@ public class Main {
 				logger.info("database not empty: {}", allCompetitions.get(0).getCompetitionName());
 				List<AgeGroup> ags = AgeGroupRepository.findAll();
 				if (ags.isEmpty()) {
-					logger.info("creating age groups and categories");
+					logger.info("Creating age groups and categories");
 					JPAService.runInTransaction(em -> {
 						AgeGroupRepository.insertAgeGroups(em, null);
 						return null;
@@ -297,7 +297,7 @@ public class Main {
 				}
 				List<Config> configs = ConfigRepository.findAll();
 				if (configs.isEmpty()) {
-					logger.info("adding config object");
+					logger.debug("adding config object");
 					Config.setCurrent(new Config());
 				}
 
@@ -306,13 +306,13 @@ public class Main {
 				        && AthleteRepository.countFiltered(null, null, null, null, null, null, null, null) > 0) {
 					// database has athletes, but no participations. 4.22 and earlier.
 					// need to create Participation entries for the Athletes.
-					logger.info("updating database: computing athlete eligibility to age groups and categories.");
+					logger.debug("updating database: computing athlete eligibility to age groups and categories.");
 					AthleteRepository.resetParticipations();
 				}
 
 				List<Category> nullCodeCategories = CategoryRepository.findNullCodes();
 				if (!nullCodeCategories.isEmpty()) {
-					logger.info("updating category codes", nullCodeCategories);
+					logger.debug("updating category codes", nullCodeCategories);
 					CategoryRepository.fixNullCodes(nullCodeCategories);
 				}
 

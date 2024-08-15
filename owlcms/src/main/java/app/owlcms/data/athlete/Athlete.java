@@ -110,17 +110,17 @@ import ch.qos.logback.classic.Logger;
 public class Athlete {
 	@Transient
 	protected final static Logger logger = (Logger) LoggerFactory.getLogger(Athlete.class);
-	static private boolean skipValidationsDuringImport = false;
-	private static final int YEAR = LocalDateTime.now().getYear();
+	@Transient
+	@JsonIgnore
+	private static QPoints qPoints = new QPoints(2023);
 	@Transient
 	@JsonIgnore
 	private static SinclairCoefficients sinclairProperties2020 = new SinclairCoefficients(2020);
 	@Transient
 	@JsonIgnore
 	private static SinclairCoefficients sinclairProperties2024 = new SinclairCoefficients(2024);
-	@Transient
-	@JsonIgnore
-	private static QPoints qPoints = new QPoints(2023);
+	static private boolean skipValidationsDuringImport = false;
+	private static final int YEAR = LocalDateTime.now().getYear();
 
 	public static void conditionalCopy(Athlete dest, Athlete src, boolean copyResults) {
 		boolean validation = dest.isValidation();
@@ -222,14 +222,6 @@ public class Athlete {
 		}
 	}
 
-	public void setqAgeRank(int qAgeRank2) {
-		this.qAgeRank = qAgeRank2;
-	}
-
-	public int getqAgeRank() {
-		return this.qAgeRank;
-	}
-
 	/**
 	 * Checks if is empty.
 	 *
@@ -291,17 +283,19 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public FieldOfPlay fop;
+
 	@Transient
 	@JsonIgnore
 	protected final Logger timingLogger = (Logger) LoggerFactory.getLogger("TimingLogger");
+
 	@Transient
 	@JsonIgnore
 	DecimalFormat df = null;
 	@Transient
 	@JsonIgnore
 	Integer liftOrderRank = 0;
+	private Integer ageAdjustedTotalRank;
 	private Double bodyWeight = null;
-
 	/*
 	 * eager does not hurt for us. https://vladmihalcea.com/the-best-way-to-map-a-onetomany-association-with-jpa -and-hibernate/
 	 */
@@ -311,11 +305,24 @@ public class Athlete {
 	@JsonProperty(index = 300)
 	@JsonIdentityReference(alwaysAsId = true)
 	private Category category = null;
+
+	// Hibernate bug workaround. The following property is kept but unused -- 
+	// if it is made transient but the column is present in database hibernate complains
+	// (it should remove it from the schema).
+	@Column(columnDefinition = "boolean default false")
+	private Boolean categoryDone = false;
+	
 	@Transient
 	@JsonIgnore
-	private boolean categoryDone;
+	@Column(columnDefinition = "boolean default false")
+	private Boolean categoryFinished = false;
+	
 	@Column(columnDefinition = "integer default 0")
 	private int catSinclairRank;
+	
+	@Transient
+	@JsonIgnore
+	private boolean checkTiming;
 	private String cleanJerk1ActualLift;
 	private String cleanJerk1Change1;
 	private String cleanJerk1Change2;
@@ -343,12 +350,15 @@ public class Athlete {
 	@Column(columnDefinition = "boolean default true")
 	private boolean eligibleForIndividualRanking = true;
 	private boolean eligibleForTeamRanking = true;
+	private String federationCodes;
 	private String firstName = "";
 	/** The forced as current. */
 	@Column(columnDefinition = "boolean default false")
 	private boolean forcedAsCurrent = false;
 	@Convert(converter = LocalDateAttributeConverter.class)
 	private LocalDate fullBirthDate = null;
+	@Column(columnDefinition = "integer default 0", name = "gmaxRank")
+	private Integer gamxRank;
 	private Gender gender = null; // $NON-NLS-1$
 	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
 	        CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
@@ -366,24 +376,30 @@ public class Athlete {
 	@OneToMany(mappedBy = "athlete", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	@JsonProperty(index = 200)
 	private List<Participation> participations = new ArrayList<>();
+	private Integer personalBestCleanJerk;
+	private Integer personalBestSnatch;
+	private Integer personalBestTotal;
 	/**
 	 * body weight inferred from category, used until real bodyweight is known.
 	 */
 	private Double presumedBodyWeight;
-	private Integer qualifyingTotal = 0;
-	@JsonIgnore
-	private Integer robiRank;
-	@JsonIgnore
-	private Integer sinclairRank;
-	@JsonIgnore
-	@Column(columnDefinition = "integer default 0")
-	private Integer qPointsRank;
-	@JsonIgnore
-	@Column(name = "smmRank", columnDefinition = "integer default 0")
-	private int smhfRank;
 	@JsonIgnore
 	@Column(columnDefinition = "integer default 0")
 	private int qAgeRank;
+	@JsonIgnore
+	@Column(columnDefinition = "integer default 0")
+	private Integer qPointsRank;
+	private Integer qualifyingTotal = 0;
+	@JsonIgnore
+	private Integer robiRank;
+	@Transient
+	@JsonIgnore
+	private SinclairCoefficients sinclairProperties;
+	@JsonIgnore
+	private Integer sinclairRank;
+	@JsonIgnore
+	@Column(name = "smmRank", columnDefinition = "integer default 0")
+	private int smhfRank;
 	private String snatch1ActualLift;
 	private String snatch1Change1;
 	private String snatch1Change2;
@@ -406,7 +422,11 @@ public class Athlete {
 	private String snatch3Change2;
 	private String snatch3Declaration;
 	private LocalDateTime snatch3LiftTime;
+	@Transient
+	@JsonIgnore
+	private boolean startingTotalViolation = false;
 	private Integer startNumber = null;
+	private String subCategory;
 	private String team = "";
 	private Integer teamCleanJerkRank;
 	private Integer teamCombinedRank;
@@ -418,24 +438,6 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	private boolean validation = true;
-	@Transient
-	@JsonIgnore
-	private SinclairCoefficients sinclairProperties;
-	private String federationCodes;
-	private Integer personalBestSnatch;
-	private Integer personalBestCleanJerk;
-	private Integer personalBestTotal;
-	@Transient
-	@JsonIgnore
-	private boolean startingTotalViolation = false;
-	@Transient
-	@JsonIgnore
-	private boolean checkTiming;
-	private String subCategory;
-	@Column(columnDefinition = "integer default 0", name = "gmaxRank")
-	private Integer gamxRank;
-	private Integer ageAdjustedTotalRank;
-
 	/**
 	 * Instantiates a new athlete.
 	 */
@@ -444,7 +446,6 @@ public class Athlete {
 		this.validation = true;
 		this.timingLogger.setLevel(Level.WARN);
 	}
-
 	public void addEligibleCategory(Category category) {
 		addEligibleCategory(category, true);
 	}
@@ -757,6 +758,19 @@ public class Athlete {
 		return date.getYear() - fullBirthDate2.getYear();
 	}
 
+	@Transient
+	@JsonIgnore
+	public Double getAgeAdjustedTotal() {
+		Integer total = getBestCleanJerk() + getBestSnatch();
+		return (double) AgeFactors.getAgeAdjustedTotal(this, total);
+	}
+
+	@Transient
+	@JsonIgnore
+	public Integer getAgeAdjustedTotalRank() {
+		return this.ageAdjustedTotalRank;
+	}
+
 	/**
 	 * Gets the age group.
 	 *
@@ -769,11 +783,6 @@ public class Athlete {
 		return (cat != null ? cat.getAgeGroup() : null);
 	}
 
-	public String getAgeGroupDisplayName() {
-		AgeGroup ag = getAgeGroup();
-		return ag != null ? ag.getDisplayName() : "";
-	}
-
 	@Transient
 	@JsonIgnore
 	public String getAgeGroupCodesAsString() {
@@ -782,6 +791,33 @@ public class Athlete {
 			        return category.getAgeGroup().getCode();
 		        })
 		        .collect(Collectors.joining(", "));
+	}
+
+	@Transient
+	@JsonIgnore
+	public String getAgeGroupCodesMainFirstAsString() {
+		Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
+		String mainCategory = mrCat != null ? mrCat.getAgeGroup().getCode() : "";
+
+		String delimiter = ", ";
+		String eligiblesAsString = this.getParticipations().stream()
+		        .filter(p -> (p.getCategory() != mrCat))
+		        .sorted((a, b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
+		        .map(p -> {
+			        String catName = p.getCategory().getAgeGroup().getCode();
+			        return catName;
+		        })
+		        .collect(Collectors.joining(delimiter));
+		if (eligiblesAsString.isBlank()) {
+			return mainCategory;
+		} else {
+			return (!mainCategory.isBlank() ? mainCategory + delimiter : "") + eligiblesAsString;
+		}
+	}
+
+	public String getAgeGroupDisplayName() {
+		AgeGroup ag = getAgeGroup();
+		return ag != null ? ag.getDisplayName() : "";
 	}
 
 	@Transient
@@ -797,33 +833,6 @@ public class Athlete {
 			}
 		}
 		return s;
-	}
-
-	@Transient
-	@JsonIgnore
-	public String getAllCategoriesAsString() {
-		Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
-		// use getName because we don't want the translated gender.
-		String mainCategory = mrCat != null ? mrCat.getDisplayName() : "";
-
-		String mainCategoryString = mainCategory;
-		if (mrCat != null && !getMainRankings().getTeamMember()) {
-			mainCategoryString = mainCategory + RAthlete.NoTeamMarker;
-		}
-
-		String eligiblesAsString = this.getParticipations().stream()
-		        .filter(p -> (p.getCategory() != mrCat))
-		        .sorted((a, b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
-		        .map(p -> {
-			        String catName = p.getCategory().getDisplayName();
-			        return catName + (!p.getTeamMember() ? RAthlete.NoTeamMarker : "");
-		        })
-		        .collect(Collectors.joining(";"));
-		if (eligiblesAsString.isBlank()) {
-			return mainCategoryString;
-		} else {
-			return mainCategory + "|" + eligiblesAsString;
-		}
 	}
 
 	// @Transient
@@ -852,6 +861,33 @@ public class Athlete {
 	// }
 	// }
 
+	@Transient
+	@JsonIgnore
+	public String getAllCategoriesAsString() {
+		Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
+		// use getName because we don't want the translated gender.
+		String mainCategory = mrCat != null ? mrCat.getDisplayName() : "";
+
+		String mainCategoryString = mainCategory;
+		if (mrCat != null && !getMainRankings().getTeamMember()) {
+			mainCategoryString = mainCategory + RAthlete.NoTeamMarker;
+		}
+
+		String eligiblesAsString = this.getParticipations().stream()
+		        .filter(p -> (p.getCategory() != mrCat))
+		        .sorted((a, b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
+		        .map(p -> {
+			        String catName = p.getCategory().getDisplayName();
+			        return catName + (!p.getTeamMember() ? RAthlete.NoTeamMarker : "");
+		        })
+		        .collect(Collectors.joining(";"));
+		if (eligiblesAsString.isBlank()) {
+			return mainCategoryString;
+		} else {
+			return mainCategory + "|" + eligiblesAsString;
+		}
+	}
+
 	/**
 	 * Number of attempt 1..3, relative to current lift
 	 *
@@ -861,6 +897,12 @@ public class Athlete {
 	@JsonIgnore
 	public Integer getAttemptNumber() {
 		return getAttemptsDone() % 3 + 1;
+	}
+
+	@Transient
+	@JsonIgnore
+	public int getAttemptProgression(int attempt) {
+		return doGetProgression(this.getRequestedWeightForAttempt(attempt), attempt);
 	}
 
 	/**
@@ -909,6 +951,42 @@ public class Athlete {
 			}
 		}
 		return 0; // no match - bomb-out.
+	}
+
+	/**
+	 * Gets the best snatch attempt number.
+	 *
+	 * @return the best snatch attempt number
+	 */
+	@Transient
+	@JsonIgnore
+	public LocalDateTime getBestCleanJerkAttemptTime() {
+		int referenceValue = getBestCleanJerk();
+		if (referenceValue > 0) {
+			if (zeroIfInvalid(this.cleanJerk3ActualLift) == referenceValue) {
+				return this.getCleanJerk3LiftTime();
+			}
+			if (zeroIfInvalid(this.cleanJerk2ActualLift) == referenceValue) {
+				return this.getSnatch2LiftTime();
+			}
+			if (zeroIfInvalid(this.cleanJerk1ActualLift) == referenceValue) {
+				return this.getCleanJerk1LiftTime();
+			}
+		}
+		// should not be required - bomb-out.
+		return LocalDateTime.MIN;
+	}
+
+	@Transient
+	@JsonIgnore
+	public int getBestLifterRank() {
+		return Ranking.getRanking(this, Competition.getCurrent().getScoringSystem());
+	}
+
+	@Transient
+	@JsonIgnore
+	public Double getBestLifterScore() {
+		return Ranking.getRankingValue(this, Competition.getCurrent().getScoringSystem());
 	}
 
 	/**
@@ -1009,30 +1087,6 @@ public class Athlete {
 	}
 
 	/**
-	 * Gets the best snatch attempt number.
-	 *
-	 * @return the best snatch attempt number
-	 */
-	@Transient
-	@JsonIgnore
-	public LocalDateTime getBestCleanJerkAttemptTime() {
-		int referenceValue = getBestCleanJerk();
-		if (referenceValue > 0) {
-			if (zeroIfInvalid(this.cleanJerk3ActualLift) == referenceValue) {
-				return this.getCleanJerk3LiftTime();
-			}
-			if (zeroIfInvalid(this.cleanJerk2ActualLift) == referenceValue) {
-				return this.getSnatch2LiftTime();
-			}
-			if (zeroIfInvalid(this.cleanJerk1ActualLift) == referenceValue) {
-				return this.getCleanJerk1LiftTime();
-			}
-		}
-		// should not be required - bomb-out.
-		return LocalDateTime.MIN;
-	}
-
-	/**
 	 * Gets the birth date.
 	 *
 	 * @return the birthDate
@@ -1085,6 +1139,12 @@ public class Athlete {
 	@JsonIgnore
 	public String getCategoryCode() {
 		return this.category != null ? this.category.getCode() : "-";
+	}
+
+	@Transient
+	@JsonIgnore
+	public Boolean getCategoryFinished() {
+		return this.categoryFinished;
 	}
 
 	/**
@@ -1437,6 +1497,19 @@ public class Athlete {
 		return this.combinedRank;
 	}
 
+	@Transient
+	@JsonIgnore
+	public int getCumulativeAttemptProgression(int attempt) {
+		return doGetCumulativeProgression(this.getRequestedWeightForAttempt(attempt), attempt);
+	}
+
+	@Transient
+	@JsonIgnore
+	public int getCumulativeProgression(Integer requestedWeight) {
+		int attempt = getAttemptsDone() + 1;
+		return doGetCumulativeProgression(requestedWeight, attempt);
+	}
+
 	/**
 	 * Gets the current automatic.
 	 *
@@ -1640,28 +1713,6 @@ public class Athlete {
 		}
 	}
 
-	@Transient
-	@JsonIgnore
-	public String getAgeGroupCodesMainFirstAsString() {
-		Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
-		String mainCategory = mrCat != null ? mrCat.getAgeGroup().getCode() : "";
-
-		String delimiter = ", ";
-		String eligiblesAsString = this.getParticipations().stream()
-		        .filter(p -> (p.getCategory() != mrCat))
-		        .sorted((a, b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
-		        .map(p -> {
-			        String catName = p.getCategory().getAgeGroup().getCode();
-			        return catName;
-		        })
-		        .collect(Collectors.joining(delimiter));
-		if (eligiblesAsString.isBlank()) {
-			return mainCategory;
-		} else {
-			return (!mainCategory.isBlank() ? mainCategory + delimiter : "") + eligiblesAsString;
-		}
-	}
-
 	public Integer getEntryTotal() {
 		// intentional, this is the legacy name of the column in the database
 		return getQualifyingTotal();
@@ -1726,18 +1777,6 @@ public class Athlete {
 		}
 	}
 
-	@Transient
-	@JsonIgnore
-	public String getIsoBirth() {
-		if (Competition.getCurrent().isUseBirthYear()) {
-			Integer yearOfBirth = getYearOfBirth();
-			return yearOfBirth != null ? yearOfBirth.toString() : "";
-		} else {
-			DateTimeFormatter shortStyleFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-			return getFullBirthDate().format(shortStyleFormatter);
-		}
-	}
-
 	/**
 	 * Gets the full birth date.
 	 *
@@ -1774,6 +1813,27 @@ public class Athlete {
 		}
 	}
 
+	@Transient
+	@JsonIgnore
+	public Double getGamx() {
+		Integer total = getBestCleanJerk() + getBestSnatch();
+		try {
+			if (total > 0) {
+				return (double) GAMX.getGamx(this, total);
+			} else {
+				return 0.0D;
+			}
+		} catch (IndexOutOfBoundsException e) {
+			return 0.0D;
+		}
+	}
+
+	@Transient
+	@JsonIgnore
+	public Integer getGamxRank() {
+		return this.gamxRank;
+	}
+
 	/**
 	 * Gets the gender.
 	 *
@@ -1800,6 +1860,18 @@ public class Athlete {
 	 */
 	public Long getId() {
 		return this.id;
+	}
+
+	@Transient
+	@JsonIgnore
+	public String getIsoBirth() {
+		if (Competition.getCurrent().isUseBirthYear()) {
+			Integer yearOfBirth = getYearOfBirth();
+			return yearOfBirth != null ? yearOfBirth.toString() : "";
+		} else {
+			DateTimeFormatter shortStyleFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			return getFullBirthDate().format(shortStyleFormatter);
+		}
 	}
 
 	/**
@@ -2162,6 +2234,22 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
+	public int getProgression(Integer requestedWeight) {
+		int attempt = getAttemptsDone() + 1;
+		return doGetProgression(requestedWeight, attempt);
+	}
+
+	public Double getQAge() {
+		double d = getQPoints() * getSmhfFactor();
+		return d;
+	}
+
+	public int getqAgeRank() {
+		return this.qAgeRank;
+	}
+
+	@Transient
+	@JsonIgnore
 	public Double getqPoints() {
 		Integer total = getBestCleanJerk() + getBestSnatch();
 		return qPoints.getQPoints(this, total);
@@ -2319,18 +2407,6 @@ public class Athlete {
 		return this.df.format(getBodyWeight());
 	}
 
-	@Transient
-	@JsonIgnore
-	public Double getBestLifterScore() {
-		return Ranking.getRankingValue(this, Competition.getCurrent().getScoringSystem());
-	}
-
-	@Transient
-	@JsonIgnore
-	public int getBestLifterRank() {
-		return Ranking.getRanking(this, Competition.getCurrent().getScoringSystem());
-	}
-
 	public String getSessionPattern() {
 		Group g = getGroup();
 		return (g != null ? Translator.translate("ChallengeCard.SessionPattern", g.getName()) : "");
@@ -2428,6 +2504,18 @@ public class Athlete {
 		return this.sinclairRank;
 	}
 
+	/**
+	 * Gets the smm.
+	 *
+	 * @return the smm
+	 */
+	@Transient
+	@JsonIgnore
+	public Double getSmhf() {
+		double d = getMastersSinclair() * getSmhfFactor();
+		return d;
+	}
+
 	@Transient
 	@JsonIgnore
 	public Float getSmhfFactor() {
@@ -2451,28 +2539,16 @@ public class Athlete {
 		return d;
 	}
 
-	/**
-	 * Gets the smm.
-	 *
-	 * @return the smm
-	 */
 	@Transient
 	@JsonIgnore
-	public Double getSmhf() {
-		double d = getMastersSinclair() * getSmhfFactor();
-		return d;
+	public int getSmhfRank() {
+		return this.smhfRank;
 	}
 
 	@Transient
 	@JsonIgnore
 	public Double getSmm() {
 		return getSmhf();
-	}
-
-	@Transient
-	@JsonIgnore
-	public int getSmhfRank() {
-		return this.smhfRank;
 	}
 
 	@Transient
@@ -3014,6 +3090,32 @@ public class Athlete {
 		}
 	}
 
+	@Transient
+	@JsonIgnore
+	public boolean isDone() {
+		boolean notFinishedLifting = this.getCleanJerk3ActualLift() == null || this.getCleanJerk3ActualLift().isBlank()
+		        || this.getCleanJerk3AsInteger() == null;
+		return !notFinishedLifting;
+	}
+
+	@Transient
+	@JsonIgnore
+	public boolean isDone(Group medalingSession) {
+		// At the end of session "medalingSession", If a category still has athletes that are not done, medals cannot be given out for that category
+		Group athleteGroup = getGroup();
+		if (athleteGroup == null) {
+			// athletes that are registered in the medaling categories but were withdrawn (have no session) are considered done
+			return true;
+		}
+		if (medalingSession != null && athleteGroup.equals(medalingSession) && (getBodyWeight() == null || getBodyWeight() < 0.01)) {
+			// athletes in the current group that have not weighed in are considered done.
+			return true;
+		}
+		boolean notFinishedLifting = this.getCleanJerk3ActualLift() == null || this.getCleanJerk3ActualLift().isBlank()
+		        || this.getCleanJerk3AsInteger() == null;
+		return !notFinishedLifting;
+	}
+
 	public boolean isEligibleForIndividualRanking() {
 		return this.eligibleForIndividualRanking;
 	}
@@ -3112,6 +3214,10 @@ public class Athlete {
 		setForcedAsCurrent(false);
 	}
 
+	public void setAgeAdjustedTotalRank(Integer ageAdjustedTotalRank) {
+		this.ageAdjustedTotalRank = ageAdjustedTotalRank;
+	}
+
 	@Transient
 	@JsonIgnore
 	public void setAgeGroupTeams(Set<String> s) {
@@ -3186,8 +3292,13 @@ public class Athlete {
 		this.category = category;
 	}
 
-	public void setCategoryDone(boolean done) {
-		this.categoryDone = done;
+	@Transient
+	@JsonIgnore
+	public void setCategoryFinished(Boolean done) {
+		if (done == null) {
+			done = false;
+		}
+		this.categoryFinished = done;
 	}
 
 	public void setCatSinclairRank(int i) {
@@ -3434,6 +3545,11 @@ public class Athlete {
 		        cleanJerk3Change1);
 	}
 
+	/*
+	 * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a notifier can call a method on a listener to
+	 * signal that an event has occurred, and how the listener can register/unregister itself.
+	 */
+
 	/**
 	 * Sets the clean jerk 3 change 2.
 	 *
@@ -3545,11 +3661,6 @@ public class Athlete {
 		// ignored. computed property. setter needed for beans introspection.
 	}
 
-	/*
-	 * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a notifier can call a method on a listener to
-	 * signal that an event has occurred, and how the listener can register/unregister itself.
-	 */
-
 	/**
 	 * Sets the custom rank.
 	 *
@@ -3642,6 +3753,10 @@ public class Athlete {
 		// logger.trace("setting {} {} {}",getShortName(), fullBirthDate,
 		// LoggerUtils.whereFrom());
 		this.fullBirthDate = fullBirthDate;
+	}
+
+	public void setGamxRank(Integer rank) {
+		this.gamxRank = rank;
 	}
 
 	/**
@@ -3746,6 +3861,10 @@ public class Athlete {
 		// something
 		// we do NOT want.
 		this.category = category;
+	}
+
+	public void setqAgeRank(int qAgeRank2) {
+		this.qAgeRank = qAgeRank2;
 	}
 
 	public void setqPointsRank(Integer qPointsRank) {
@@ -4358,6 +4477,27 @@ public class Athlete {
 		return true;
 	}
 
+	// @SuppressWarnings("unused")
+	// private Long getCopyId() {
+	// return copyId;
+	// }
+
+	// @SuppressWarnings("unused")
+	// private Integer getDeclaredAndActuallyAttempted(Integer... items) {
+	// int lastIndex = items.length - 1;
+	// if (items.length == 0) {
+	// return 0;
+	// }
+	// while (lastIndex >= 0) {
+	// if (items[lastIndex] > 0) {
+	// // if went down from declared weight, then return lower weight
+	// return (items[lastIndex] < items[0] ? items[lastIndex] : items[0]);
+	// }
+	// lastIndex--;
+	// }
+	// return 0;
+	// }
+
 	public boolean validateCleanJerk2ActualLift(String cleanJerk2ActualLift) throws RuleViolationException {
 		validateActualLift(4, getCleanJerk2AutomaticProgression(), this.cleanJerk2Declaration, this.cleanJerk2Change1,
 		        this.cleanJerk2Change2, cleanJerk2ActualLift);
@@ -4375,6 +4515,17 @@ public class Athlete {
 		        cleanJerk2Change2, this.cleanJerk2ActualLift, false);
 		return true;
 	}
+
+	// /**
+	// * Null-safe comparison for longs.
+	// *
+	// * @param o1
+	// * @param o2
+	// * @return
+	// */
+	// private boolean LongEquals(Long o1, Long o2) {
+	// return o1 == o2 || o1 != null && o2 != null && o1.longValue() == (o2.longValue());
+	// }
 
 	public boolean validateCleanJerk2Declaration(String cleanJerk2Declaration) throws RuleViolationException {
 		validateDeclaration(4, getCleanJerk2AutomaticProgression(), cleanJerk2Declaration, this.cleanJerk2Change1,
@@ -4454,27 +4605,6 @@ public class Athlete {
 		return true;
 	}
 
-	// @SuppressWarnings("unused")
-	// private Long getCopyId() {
-	// return copyId;
-	// }
-
-	// @SuppressWarnings("unused")
-	// private Integer getDeclaredAndActuallyAttempted(Integer... items) {
-	// int lastIndex = items.length - 1;
-	// if (items.length == 0) {
-	// return 0;
-	// }
-	// while (lastIndex >= 0) {
-	// if (items[lastIndex] > 0) {
-	// // if went down from declared weight, then return lower weight
-	// return (items[lastIndex] < items[0] ? items[lastIndex] : items[0]);
-	// }
-	// lastIndex--;
-	// }
-	// return 0;
-	// }
-
 	public boolean validateSnatch2Change2(String snatch2Change2) throws RuleViolationException {
 		validateChange2(1, getSnatch2AutomaticProgression(), this.snatch2Declaration, this.snatch2Change1,
 		        snatch2Change2,
@@ -4495,17 +4625,6 @@ public class Athlete {
 		        snatch3ActualLift);
 		return true;
 	}
-
-	// /**
-	// * Null-safe comparison for longs.
-	// *
-	// * @param o1
-	// * @param o2
-	// * @return
-	// */
-	// private boolean LongEquals(Long o1, Long o2) {
-	// return o1 == o2 || o1 != null && o2 != null && o1.longValue() == (o2.longValue());
-	// }
 
 	public boolean validateSnatch3Change1(String snatch3Change1) throws RuleViolationException {
 		validateChange1(2, getSnatch3AutomaticProgression(), this.snatch3Declaration, snatch3Change1,
@@ -5025,6 +5144,59 @@ public class Athlete {
 		}
 	}
 
+	private int doGetCumulativeProgression(Integer requestedWeight, int attempt) {
+		int progression = 0;
+		switch (attempt) {
+			case 1:
+				progression = 0;
+				break;
+			case 2:
+				progression = Math.abs(requestedWeight)
+				        - Math.abs(zeroIfInvalid(getSnatch1ActualLift()));
+				break;
+			case 3:
+				progression = Math.abs(requestedWeight)
+				        - Math.abs(zeroIfInvalid(getSnatch2ActualLift()))
+				        + Math.abs(zeroIfInvalid(getSnatch2ActualLift()))
+				        - Math.abs(zeroIfInvalid(getSnatch1ActualLift()));
+				break;
+			case 4:
+				progression = 0;
+				break;
+			case 5:
+				progression = Math.abs(requestedWeight)
+				        - Math.abs(zeroIfInvalid(getCleanJerk1ActualLift()));
+				break;
+			case 6:
+				progression = Math.abs(requestedWeight)
+				        - Math.abs(zeroIfInvalid(getCleanJerk2ActualLift()))
+				        + (Math.abs(zeroIfInvalid(getCleanJerk2ActualLift())))
+				        - Math.abs(zeroIfInvalid(getCleanJerk1ActualLift()));
+				break;
+		}
+		// logger.debug("++++ athlete {}, requestedWeight {}, attempt {}, cumulativeProgression {} {}",
+		// this.getLastName(), requestedWeight, attempt, progression, LoggerUtils.whereFrom());
+		return progression;
+	}
+
+	private int doGetProgression(Integer requestedWeight, int attempt) {
+		switch (attempt) {
+			case 1:
+				return 0;
+			case 2:
+				return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getSnatch1ActualLift()));
+			case 3:
+				return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getSnatch2ActualLift()));
+			case 4:
+				return 0;
+			case 5:
+				return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getCleanJerk1ActualLift()));
+			case 6:
+				return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getCleanJerk2ActualLift()));
+		}
+		return 0;
+	}
+
 	private String emptyIfNull(String value) {
 		return (value == null ? "" : value);
 	}
@@ -5120,85 +5292,6 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
-	public int getProgression(Integer requestedWeight) {
-		int attempt = getAttemptsDone() + 1;
-		return doGetProgression(requestedWeight, attempt);
-	}
-
-	@Transient
-	@JsonIgnore
-	public int getAttemptProgression(int attempt) {
-		return doGetProgression(this.getRequestedWeightForAttempt(attempt), attempt);
-	}
-
-	private int doGetProgression(Integer requestedWeight, int attempt) {
-		switch (attempt) {
-			case 1:
-				return 0;
-			case 2:
-				return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getSnatch1ActualLift()));
-			case 3:
-				return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getSnatch2ActualLift()));
-			case 4:
-				return 0;
-			case 5:
-				return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getCleanJerk1ActualLift()));
-			case 6:
-				return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getCleanJerk2ActualLift()));
-		}
-		return 0;
-	}
-
-	@Transient
-	@JsonIgnore
-	public int getCumulativeAttemptProgression(int attempt) {
-		return doGetCumulativeProgression(this.getRequestedWeightForAttempt(attempt), attempt);
-	}
-
-	@Transient
-	@JsonIgnore
-	public int getCumulativeProgression(Integer requestedWeight) {
-		int attempt = getAttemptsDone() + 1;
-		return doGetCumulativeProgression(requestedWeight, attempt);
-	}
-
-	private int doGetCumulativeProgression(Integer requestedWeight, int attempt) {
-		int progression = 0;
-		switch (attempt) {
-			case 1:
-				progression = 0;
-				break;
-			case 2:
-				progression = Math.abs(requestedWeight)
-				        - Math.abs(zeroIfInvalid(getSnatch1ActualLift()));
-				break;
-			case 3:
-				progression = Math.abs(requestedWeight)
-				        - Math.abs(zeroIfInvalid(getSnatch2ActualLift()))
-				        + Math.abs(zeroIfInvalid(getSnatch2ActualLift()))
-				        - Math.abs(zeroIfInvalid(getSnatch1ActualLift()));
-				break;
-			case 4:
-				progression = 0;
-				break;
-			case 5:
-				progression = Math.abs(requestedWeight)
-				        - Math.abs(zeroIfInvalid(getCleanJerk1ActualLift()));
-				break;
-			case 6:
-				progression = Math.abs(requestedWeight)
-				        - Math.abs(zeroIfInvalid(getCleanJerk2ActualLift()))
-				        + (Math.abs(zeroIfInvalid(getCleanJerk2ActualLift())))
-				        - Math.abs(zeroIfInvalid(getCleanJerk1ActualLift()));
-				break;
-		}
-		// logger.debug("++++ athlete {}, requestedWeight {}, attempt {}, cumulativeProgression {} {}",
-		// this.getLastName(), requestedWeight, attempt, progression, LoggerUtils.whereFrom());
-		return progression;
-	}
-
-	@Transient
-	@JsonIgnore
 	private LiftOrderInfo getRunningLiftOrderInfo() {
 		LiftOrderInfo loi = new LiftOrderInfo();
 		loi.setAthlete(this);
@@ -5272,12 +5365,6 @@ public class Athlete {
 			// getLogger().trace("cat {}", cat);
 		}
 		return 20;
-	}
-
-	@Transient
-	@JsonIgnore
-	public boolean isCategoryDone() {
-		return this.categoryDone;
 	}
 
 	@Transient
@@ -5534,79 +5621,6 @@ public class Athlete {
 		}
 		this.timingLogger.info("validateDeclaration {}ms {} {}", System.currentTimeMillis() - start, curLift,
 		        LoggerUtils.whereFrom());
-	}
-
-	@Transient
-	@JsonIgnore
-	public boolean isDone() {
-		boolean notFinishedLifting = this.getCleanJerk3ActualLift() == null || this.getCleanJerk3ActualLift().isBlank()
-		        || this.getCleanJerk3AsInteger() == null;
-		return !notFinishedLifting;
-	}
-
-	@Transient
-	@JsonIgnore
-	public boolean isDone(Group medalingSession) {
-		// At the end of session "medalingSession", If a category still has athletes that are not done, medals cannot be given out for that category
-		Group athleteGroup = getGroup();
-		if (athleteGroup == null) {
-			// athletes that are registered in the medaling categories but were withdrawn (have no session) are considered done
-			return true;
-		}
-		if (medalingSession != null && athleteGroup.equals(medalingSession) && (getBodyWeight() == null || getBodyWeight() < 0.01)) {
-			// athletes in the current group that have not weighed in are considered done.
-			return true;
-		}
-		boolean notFinishedLifting = this.getCleanJerk3ActualLift() == null || this.getCleanJerk3ActualLift().isBlank()
-		        || this.getCleanJerk3AsInteger() == null;
-		return !notFinishedLifting;
-	}
-
-	@Transient
-	@JsonIgnore
-	public Double getAgeAdjustedTotal() {
-		Integer total = getBestCleanJerk() + getBestSnatch();
-		return (double) AgeFactors.getAgeAdjustedTotal(this, total);
-	}
-
-	@Transient
-	@JsonIgnore
-	public Double getGamx() {
-		Integer total = getBestCleanJerk() + getBestSnatch();
-		try {
-			if (total > 0) {
-				return (double) GAMX.getGamx(this, total);
-			} else {
-				return 0.0D;
-			}
-		} catch (IndexOutOfBoundsException e) {
-			return 0.0D;
-		}
-	}
-
-	@Transient
-	@JsonIgnore
-	public Integer getAgeAdjustedTotalRank() {
-		return this.ageAdjustedTotalRank;
-	}
-
-	@Transient
-	@JsonIgnore
-	public Integer getGamxRank() {
-		return this.gamxRank;
-	}
-
-	public void setAgeAdjustedTotalRank(Integer ageAdjustedTotalRank) {
-		this.ageAdjustedTotalRank = ageAdjustedTotalRank;
-	}
-
-	public void setGamxRank(Integer rank) {
-		this.gamxRank = rank;
-	}
-
-	public Double getQAge() {
-		double d = getQPoints() * getSmhfFactor();
-		return d;
 	}
 
 }

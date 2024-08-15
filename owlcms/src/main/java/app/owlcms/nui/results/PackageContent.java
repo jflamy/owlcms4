@@ -191,9 +191,9 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		        })
 				.map(a -> {
 					if (a.getCategory() != null && unfinishedCategories.contains(a.getCategory().getCode())) {
-						a.setCategoryDone(false);
+						a.setCategoryFinished(false);
 					} else {
-						a.setCategoryDone(true);
+						a.setCategoryFinished(true);
 					}
 
 					return a;

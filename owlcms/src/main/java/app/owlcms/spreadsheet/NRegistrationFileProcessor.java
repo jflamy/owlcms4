@@ -243,12 +243,10 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 		JPAService.runInTransaction(em -> {
 			// Competition curC = Competition.getCurrent();
 			try {
-
-				// updateCompetitionInfo(c, em, curC);
-
 				// Create the new athletes.
 				athletes.stream().forEach(r -> {
 					Athlete athlete = r.getAthlete();
+					athlete.setCategoryFinished(false);
 					// logger.debug("merging {}", athlete.getShortName());
 					em.merge(athlete);
 				});
@@ -257,7 +255,6 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 				LoggerUtils.stackTrace(e);
 				errorConsumer.accept(e.toString());
 			}
-
 			return null;
 		});
 
@@ -272,6 +269,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 				if (eligibles != null) {
 					Category first = eligibles.stream().findFirst().orElse(null);
 					a2.setCategory(first);
+					a2.setCategoryFinished(false);
 					// logger.debug("setting eligibility {} {}", a2.getShortName(), eligibles);
 					a2.setEligibleCategories(eligibles);
 					List<Participation> participations2 = a2.getParticipations();
