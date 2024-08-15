@@ -3,9 +3,9 @@ OWLCMS computes the category of an athlete based on the age group (based on the 
 
 The age groups and categories are fully customizable. 
 
-## Default Age Groups and Categories
+## Default Open Age Groups and Categories
 
-In order to keep things simple for club or regional meets, by default there are two divisions active:  one for men and one for women. These divisions cover all ages and all bodyweight categories. 
+In order to keep things simple for club or regional meets, by default there are two "open" divisions active:  one for men and one for women. These divisions cover all ages and all bodyweight categories. 
 
 ## IWF Competitions
 
@@ -22,9 +22,14 @@ NOTES:
 1. Once we are done with all the categories, we click the blue Update at the topto save the Age Group.
 2. Because this is time consuming, you may prefer to enter the qualifying totals using a spreadsheet.  See further down on this page.
 
-## Age Group Competitions
+## Age Group Competitions with Bodyweight Categories
 
-> Note: Instead of awarding medals for each bodyweight class, it is possible to have all the athletes in an age group compete together, and get ranked according to a scoring system (Sinclair, Robi, Qpoints, Age-adjusted totals, etc.).  Please refer to the advanced topic [Score-Based Competitions](ScoreBasedCompetitions) if that is what you are trying to achieve.  You can also have a championship that has multiple age groups using the same scoring system and award a best lifter based on that scoring system.
+An Age Group Competitions with Bodyweight Categories is like an IWF competition, but with additional age groups.
+In such competitions, it is often the case that age groups do not overlap (i.e. under-17 athletes will not be considered to be under-20).  The registration category is used to determine in what group the athletes will compete. You can also have additional eligibility categories (for example an "open" category). The system will assign the athletes to all the categories they are eligible to, so athletes can win multiple medals.
+
+> [!TIP]
+>
+> Note: Instead of awarding medals for each bodyweight class, it is possible to have all the athletes in an age group compete together independently of their weight. owlcms provides several scoring systems (Sinclair, Robi, Q-Points, etc.) Please refer to the advanced topic [Score-Based Competitions](ScoreBasedCompetitions) if that is what you are trying to achieve.
 
 From the  `Prepare Competition` page, in the `Registration` section,  select the `Define Age Groups and Categories` button.  
 
@@ -32,7 +37,7 @@ This leads to a list of currently defined age groups.  By default, we see that t
 
 ![020_ageGroupList](img/Categories/020_ageGroupList.png)
 
-## Editing an Age Group
+Editing an Age Group
 
 Let's assume that we want to change the default U13 group to be U12.  We change the code, and the minumum and maximum age range.
 
@@ -50,7 +55,7 @@ Let's now assume we want the heaviest category to be >64kg.  We don't want a 71k
 
 After Deletion, the categories are adjusted. The changes to the age group are only registered when you click on the blue "Update" button at the top of the form.![60](nimg/2210DefineAgeGroupsAndCategories/60.png)
 
-## Reassigning the athletes
+### Reassigning the athletes
 
 After updating an age group with new categories, the program highlights the `Reassign Athletes` button at the top.  *Note that you will need to review team memberships after reassignment*.
 

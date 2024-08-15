@@ -152,7 +152,7 @@ The following list is a sampling of the many features available.  <u>*Click on t
 
 - Production of **[group results (protocol sheets)](Documents#group-results)** and of the **[final result package](Documents#competition-package)**
 
-    ![SessionResults](img/Documents/SessionResults.png  ':size=350')
+    ![SessionResults](img/ResultDocuments/SessionResults.png  ':size=350')
 
 - Option to treat the competition as a **[Masters competition](Preparation#masters)** with proper processing of age groups (older age groups presented first)
 
