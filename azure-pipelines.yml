@@ -4,7 +4,11 @@ trigger:
 parameters:
   - name: Revision
     type: string
+<<<<<<< HEAD
     default: 51.0.4
+=======
+    default: 51.0.4-rc01
+>>>>>>> refs/remotes/origin/dev51
   - name: SkipTests
     type: string
     default: 'false'

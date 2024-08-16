@@ -761,7 +761,7 @@ public class Results extends LitTemplate
 		} else {
 			fullName = a.getFullName() != null ? a.getFullName() : "";
 		}
-		if (!fullName.isBlank()) {
+		if (!a.isEligibleForIndividualRanking() && !fullName.isBlank()) {
 			fullName = Translator.translate("Scoreboard.Extra/Invited",fullName);
 		}
 		ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
