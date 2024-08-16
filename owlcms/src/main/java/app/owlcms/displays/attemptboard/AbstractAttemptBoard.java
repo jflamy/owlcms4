@@ -588,7 +588,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		
 		String lFirst = a.getFirstName();
 		// add the out-of-competition marker if defined in the translation file.
-		if (lFirst != null && !lFirst.isBlank()) {
+		if (!a.isEligibleForIndividualRanking() && lFirst != null && !lFirst.isBlank()) {
 			lFirst = Translator.translate("Attempt.Extra/Invited", lFirst);
 		}
 		this.getElement().setProperty("firstName", lFirst);
