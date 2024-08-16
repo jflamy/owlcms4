@@ -4,6 +4,7 @@
 > - **Alpha releases are not normally used in actual competitions.**
 
 - Preliminary releases change log
+  - (alpha02) Translations (ru)
   - (alpha02) Apply fix for spurious "out-of-competition" attempt board marker from 51.0.4
   - (alpha02) Apply fix for registration file import from 51.0.3
   - (alpha01) Initial version of redesigned Documents page
