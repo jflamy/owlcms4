@@ -1,6 +1,6 @@
 > This page provides information about the main competition options that are used in most competitions.  The full set of options is described in the [Competition Options Reference](2600AdvancedPreCompetitionSetup) page.
 
-The first step in preparing for a competition is to provide general information about the meet and define the major settings.
+The first step in preparing for a competition is to provide general information about the meet and define the major settings. To reach the competition options, use the "Prepare Competition" menu entry.
 
 ![10](nimg/2100PreCompetitionSetup/11.png)
 
