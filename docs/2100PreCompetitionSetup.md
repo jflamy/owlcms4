@@ -16,15 +16,25 @@ The screen also allows selecting common variations on IWF rules.
 
 ![30](nimg/2100PreCompetitionSetup/30.png)
 
-- The `Apply initial total weight rule` determines whether the 20kg rule (15/10 for Masters) will be enforced.  Some local or regional meets do not enforce this rule.
-- The `Medals for snatch, clean&jerk, total` checkbox determines whether separate rankings will be computed and shown for snatch and clean & jerk.  Leave it unchecked for a "total-only" competition.
-- The `Use Birth Year Only` allows the use of only the 4-digit birth year for athletes, instead of a full date as required by IWF.
-- The `Sinclair` setting determines which version of the coefficients is used.  The 2020 coefficients (issued in 2017) were used until the new ones were issued in fall 2022.  This setting does *not* affect the Masters SMF and SMHF coefficients.
-- `Referee Decision Reminder Delay` When using phones/tablets to referee, or MQTT devices that can provide feedback to the referee, this determines the delay (in milliseconds) before sending a reminder.
-- The Masters switch is used when running a Masters-only competition, and is *not* required for competitions that have both Masters and non-Masters groups.
+- Team Size: these settings will provide warnings on the team membership pages when the numbers are exceeded
 
-  - The Masters settings changes the sorting order for displays and weigh-ins -- Masters traditionally start with the older lifters.
-  - The determination to apply the IWF 20kg or the IWF Masters 80% rule is automatic, based on whether the athlete is registered in a regular or Masters category.
+  - IWF competitions normally limit the number of athletes to 10, with 2 athletes per category.
+
+- Options
+
+  - The `Apply initial total weight rule` determines whether the 20kg rule (20% for Masters) will be enforced.  Some local or regional meets do not enforce this rule.
+  - The `Medals for snatch, clean&jerk, total` checkbox determines whether separate rankings will be computed and shown for snatch and clean & jerk.  Leave it unchecked for a "total-only" competition.
+  - The `Use Birth Year Only` allows the use of only the 4-digit birth year for athletes, instead of a full date as required by IWF.  Note that the athletes will be registered internally as being born on January 1.
+  - `Announcer controls the display of jury decisions` When this setting is checked, the announcer will receive a notification if the jury console screen is used to grant/deny a lift.  When IWF procedures are followed, the announcer will wait and announce the reason, and then click for the competition to resume.  If this setting is not checked, the jury decision is displayed immediately on the attempt board.
+  - The `Masters Start Order` settings changes the sorting order for displays and weigh-ins -- Masters traditionally start with the older lifters. The display will be grouped by age group first, and then by weight category.
+  - The `Display Categories Ordered by Age Group` setting is like Masters Start Order, but reversed, younger age groups are shown first and weighed-in first.   In a normal IWF scoreboard, Junior and Senior athletes are not separated on the scoreboard (this switch would be off).  This switch is typically used when several youth age groups are competing together in the same session, and younger athletes are unlikely to compete for the older age group medals.
+
+- Clean and Jerk Automatic Break Duration
+
+  - Normally the system will go into break automatically after the last snatch.  The first checkbox is used to enable or disable this.
+  - `Longer CJ Break if less than X athletes`  If there are less than 7 athletes (6 or less) some federations grant a longer break (15 minutes instead of 15).  You can control the number of athletes to be what you need, and the longer duration.
+  - `Shorter CJ Break if more than X athletes`  Conversely, in some federations, when there are many athletes, is is determined that there is plenty of time for athletes to warm up, so the break duration is reduced to (for example) 5 minutes, or the break is eliminated (0 minutes).
+
 
 #### Non-Standard Rules
 
@@ -32,12 +42,28 @@ Additional options are used when running team, kid, or virtual competitions.
 
 ![40](nimg/2100PreCompetitionSetup/40.png)
 
-- `Top Resuts Team Sizes`  in some youth competitions, points are awarded as usual, but the teams are not pre-determined. Instead, the best "n" athletes point scores are counted towards the team total (e.g. 15 athletes are entered for a team, but the best 10 point results are kept for the team score)
-- `Round-Robin Order` In team leagues, it is common for all first lifts to be done before the second lift, and so on.
-- `Fixed order for lifting` Some league competitions use round-robin play and also decide in advance the lifting order.  This setting means that the lot number assigned to the athlete decides the lifting order within each lift.
-- `Group Athletes by Gender`  When hosting kid competitions, it is common to group kids in mixed groups according to age or weight. This setting makes all girls go first to avoid changing bars.
-- `Sinclair Meet` If this is selected, the program will behave as if there were a single male category and a single female category.  The scoreboards will show the Sinclair score, and the leaderboard will consider all the athletes of the same gender.
-- `Enable Custom Score` This adds a box on the Athlete Card where a custom score can be entered.  This will typically add bonus points or subtract penalty points.  This is sometimes used for kid competitions where bonuses are given for 5/6 or 6/6 performances.
+- Scoring System
+  - `Scoring System Selected` determines several things
+    - On the results screens, the scoring system will be shown, in addition to Sinclair and Robi
+    - If the `Show Score on Scoreboard` option is used, this is the score that will be shown.
+
+  - `Show Score on Scoreboard` and `Show Scoring Rank on Scoreboard` are used in two different situations:
+    - when there is a best lifter award in play, and the global ranking is desired
+    - Note that when the options to create age groups with all bodyweights enabled, and medals are attributed according to score within each group), this option will be turned on automatically for the sessions concerned and there is nothing to do.
+
+  - The `Sinclair` setting determines which version of the coefficients is used.  The 2020 coefficients (issued in 2017) were used until the new ones were issued in fall 2022.  This setting does ***not*** affect the Masters SMF and SMHF coefficients.
+  - (deprecated) `Medals according to Score` gives out medals for a session based on score, but using a single scoring system for all sessions. Use the [Score-based Competitions]() capability instead to give out medals based on a selected score per age group, ignoring body weights and according to whatever ages you want.
+  - `Enable Custom Score` This adds a box on the Athlete Card where a custom score can be entered.  This will typically add bonus points or subtract penalty points.  This is sometimes used for kid competitions where bonuses are given for 5/6 or 6/6 performances.
+
+- Non-Standard Rules
+  - `Top Results Team Sizes`  in some competitions, points are awarded as usual, but the teams are not pre-determined. Instead, the best "n" athletes point scores are counted towards the team total (e.g. 15 athletes are entered for a team, but the best 10 point results are kept for the team score)
+  - `Group Athletes by Gender`  When hosting kid competitions, it is common to group kids in mixed groups according to age or weight. This setting makes all girls go first to avoid changing bars.
+  - `Round-Robin Order` In team leagues, it is common for all first lifts to be done before the second lift, and so on.
+  - `Fixed order for lifting` Some league competitions use round-robin play and also decide in advance the lifting order.  This setting means that the lot number assigned to the athlete decides the lifting order within each lift.
+  - `Referee Decision Reminder Delay` When using phones/tablets to referee, or MQTT devices that can provide feedback to the referee, this determines the delay (in milliseconds) before sending a reminder.
+  - (deprecated) `Sinclair Meet` If this is selected, the program will behave as if there were a single male category and a single female category.  The scoreboards will show the Sinclair score, and the leaderboard will consider all the athletes of the same gender. (deprecated) 
+    -  Use the [Score-based Competitions]() capability instead to give out medals based on score, ignoring body weights and according to whatever ages you want.
+
 
 ## Language and System Settings
 
