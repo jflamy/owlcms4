@@ -21,6 +21,8 @@
   * [Optional Modified Competition Rules](ModifiedRules)
   * [Score-based Rankings](ScoreBasedCompetitions)
 * Advanced Topics
+  * [Competition Options Reference](2600AdvancedPreCompetitionSetup)
+  * [System Settings Reference](2120AdvancedSystemSettings)
   * [Customization](UploadingLocalSettings)
   * [Scoreboard Colors](Styles)
   * [Flags and Pictures](FlagsPictures)
