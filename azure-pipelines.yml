@@ -4,15 +4,10 @@ trigger:
 parameters:
   - name: Revision
     type: string
-<<<<<<< HEAD
     default: 51.0.4
-=======
-    default: 51.0.4-rc01
->>>>>>> refs/remotes/origin/dev51
   - name: SkipTests
     type: string
     default: 'false'
-
 
 variables:
   # overrides pom.xml; must be unique if BuildGoal is set to deploy.
