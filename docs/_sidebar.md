@@ -8,7 +8,7 @@
   * [Pre-Competition Setup](2100PreCompetitionSetup)
   * [Registration](2200Registration)
   * [Edit Athlete Entries](2300EditAthleteEntries)
-  * [Pre-competition Documents](2400PreCompetitionDocuments)
+  * [Documents](2400PreCompetitionDocuments)
   * [Records Management](2500RecordsManagement)
 * Running a Competition
   * [Weigh-in and Start Numbers](WeighIn)
@@ -17,10 +17,12 @@
   * [Refereeing](Refereeing)
   * [Jury](Jury)
   * [Breaks and Ceremonies](Breaks)
-  * [Result Documents](Documents)
+  * [Result Documents](ResultDocuments)
   * [Optional Modified Competition Rules](ModifiedRules)
   * [Score-based Rankings](ScoreBasedCompetitions)
 * Advanced Topics
+  * [Competition Options Reference](2600AdvancedPreCompetitionSetup)
+  * [System Settings Reference](2120AdvancedSystemSettings)
   * [Customization](UploadingLocalSettings)
   * [Scoreboard Colors](Styles)
   * [Flags and Pictures](FlagsPictures)
