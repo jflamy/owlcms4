@@ -3,6 +3,7 @@
 > - You should test all releases, with actual data, several days before a competition. 
 
 - Fixes
+  - 51.0.4: Out-of-competition marker was being displayed falsely on attempt board.
   - 51.0.3: Fix for inability to load the registration file depending on what columns are present in the database.
   - 51.0.1: Fixed Final Package error when computing GAMX coefficients.
   
