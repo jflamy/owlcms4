@@ -85,9 +85,10 @@ public class ResultsMultiRanks extends Results {
 		} else {
 			fullName = a.getFullName() != null ? a.getFullName() : "";
 		}
-		if (!fullName.isBlank()) {
+		if (!a.isEligibleForIndividualRanking() && !fullName.isBlank() ) {
 			fullName = Translator.translate("Scoreboard.Extra/Invited",fullName);
 		}
+		ja.put("fullName", fullName);
 		ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
 		ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
 		Integer startNumber = a.getStartNumber();
