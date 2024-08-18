@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -41,9 +40,6 @@ public class JXLSWeighInSheet extends JXLSWorkbookStreamSource {
 	@Override
 	public List<Athlete> getSortedAthletes() {
 		final Group currentGroup = getGroup();
-		String computedStartingWeightsSheetTemplateFileName = Competition.getCurrent()
-		        .getWeighInFormTemplateFileName();
-		if (computedStartingWeightsSheetTemplateFileName.contains("Weigh")) {
 			List<Athlete> collect = AthleteSorter
 			        .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup, null)).stream()
 			        .map(a -> {
@@ -54,15 +50,6 @@ public class JXLSWeighInSheet extends JXLSWorkbookStreamSource {
 			        }).collect(Collectors.toList());
 			// logger.debug("sorted by category {}", collect);
 			return collect;
-		}
-		if (currentGroup != null) {
-			return AthleteSorter
-			        .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup, isExcludeNotWeighed()));
-		} else {
-			return AthleteSorter
-			        .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, isExcludeNotWeighed()));
-		}
-
 	}
 
 }
