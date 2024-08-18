@@ -80,8 +80,8 @@ import app.owlcms.nui.shared.NAthleteRegistrationFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCardsWeighIn;
-import app.owlcms.spreadsheet.JXLSEmptyProtocol;
 import app.owlcms.spreadsheet.JXLSJurySheet;
+import app.owlcms.spreadsheet.JXLSResultSheet;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.utils.LoggerUtils;
@@ -1091,7 +1091,7 @@ public class WeighinContent extends BaseContent
 		JXLSDownloader startingWeightsButton = new JXLSDownloader(
 		        () -> {
 					generateStartNumbers();
-					JXLSEmptyProtocol rs = new JXLSEmptyProtocol();
+					JXLSResultSheet rs = new JXLSResultSheet();
 			        // group may have been edited since the page was loaded
 			        Group curGroup = getGroupFilter().getValue();
 			        rs.setGroup(curGroup != null ? GroupRepository.getById(curGroup.getId()) : null);
