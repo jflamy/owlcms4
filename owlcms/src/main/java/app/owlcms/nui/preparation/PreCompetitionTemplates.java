@@ -29,7 +29,7 @@ public enum PreCompetitionTemplates {
 			() -> Competition.getCurrent().getCheckInTemplateFileName(),
 	        (v) -> Competition.getCurrent().setCheckInTemplateFileName(v)),
 
-	CARDS("/templates/cards", ".xls", 
+	CARDS("/templates/cards", ".xlsx", 
 			() -> Competition.getCurrent().getCardsTemplateFileName(),
 	        (v) -> Competition.getCurrent().setCardsTemplateFileName(v)),
 	WEIGHIN("/templates/weighin", ".xlsx", 
