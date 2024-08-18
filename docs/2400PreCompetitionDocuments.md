@@ -1,36 +1,59 @@
-The next step in preparing for a competition is preparing the documents.  This typically involves
+Prior to a competition, several documents need to be produced
 
-- Checking that all athletes are in the [correct category](#categories-list)
-- Checking [team membership](#team-membership-list) if team points are assigned
-- Producing a [**Start List**](#start-list)
-- Producing [**Athlete Cards**](#athlete-cards)
-- Producing the [Official's Group Assignments](#officials-schedule)
+- During the Registration period and until verification of final entries, the competition secretary may use documents to cross-check registration data and confirm information with the registrants.
 
-These steps are performed from the `Prepare Competition` page, selecting the `Pre-Competition Documents` button
+  - Checking that all athletes are in the [correct category](#categories-list) or categories
+
+  - Checking [team membership](#team-membership-list) if team points are assigned
+
+- Prior to the competition day
+
+  - Producing a [**Start List**](#start-list)
+
+  - Producing [**Athlete Cards**](#athlete-cards) and Weigh-In Forms
+
+  - Producing the [Official's Group Assignments](#officials-schedule)
+
+
+These steps are performed from the `Prepare Competition` page, selecting the `Documents` button
 
 ![10](nimg/2400PreCompetitionDocuments/10.png)
 
-The various documents are shown at the top of the page.  The filters at the top of the list make it possible to restrict what is extracted.  For example, you may wish to produce Athlete Cards for only one group, or create a Start List for one platform only.
+The various documents are shown at the top of the page.
+
+- The documents in the top two lines (Entries and Pre-Competition) are global for a competition.
+- The documents in the bottom two lines are typically produced for one or more sessions.  The sessions are selected using the checkboxes in the bottom section.
+  - An Excel is produced if you select a single session and click on a specific document.
+  - However, a zip will be produced when more than one session is selected.  You can open the zip and print from there.  You can also unzip the folder. On Windows, a utility script is included to print all the files in the correct order with a single command.
+  - If you use the "Document Set" option, all the documents for which you selected a template will be included in the zip.  The typical use of "Document Set" is to produce both the weigh-in form and the athlete cards at the same time. If you select several sessions, all the documents will be created for all sessions.
 
 ![15](nimg/2400PreCompetitionDocuments/15.png)
 
-## Start List
+## Main Documents
 
-The starting list shows all the athletes that will compete, in which group, and the order in which the athletes will be weighed-in.
+Two documents are used in just about every competition: the start list and the athlete cards.
+
+### Start List
+
+The start list (or starting list) shows all the athletes that will compete, in which group, and the order in which the athletes will be weighed in.  When you click on the start list button, you are given a choice of templates to use according to the paper format and whether or not you want the platform information to be visible.
 
 ![30](nimg/2400PreCompetitionDocuments/30.png)
 
-## Athlete Cards
+### Athlete Cards
 
 Athlete Cards are the cards that will be used by the Marshall to record changes.  In many federations, they are printed out in advance, because the athletes will be asked to write down their starting weights and counter-sign their body weight at weigh-in.  
 
-If athlete cards are printed in advance of the weigh-in, the start numbers are not known.  They are written by hand on the cards after they have been assigned at weigh-in.  This is usually done by the competition secretary, comparing the [Starting Weight List](#starting-weight-list) as a reference and cross-check.
+Normally the start number box at the the top left is empty.  The start numbers are normally written by hand, with a red marker, after the weigh-in data has been entered into the system.
 
- The button for producing the athlete cards is at the top of the page.  You can restrict the printing to a group by selecting it in the drop-down.
+You can produce the cards for one or more sessions.  If you produce for more than one session, a zip file is produced with the different sessions.
 
 The recommended setting is to use the IWF format. Each page is folded in half, so one side is snatch, the other is clean & jerk.
 
 ![043_AthleteCards](img/WeighIn/043_AthleteCards.png)
+
+
+
+
 
 ## Categories List
 
