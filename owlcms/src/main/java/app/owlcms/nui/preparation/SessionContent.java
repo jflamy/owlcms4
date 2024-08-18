@@ -61,6 +61,7 @@ import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.Route;
@@ -68,7 +69,6 @@ import com.vaadin.flow.router.RouteAlias;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.JXLSDownloader;
-import app.owlcms.components.elements.StopProcessingException;
 import app.owlcms.components.fields.LocalDateTimeField;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
@@ -88,6 +88,7 @@ import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.DownloadButtonFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
+import app.owlcms.servlet.StopProcessingException;
 import app.owlcms.spreadsheet.JXLSCardsDocs;
 import app.owlcms.spreadsheet.JXLSCardsWeighIn;
 import app.owlcms.spreadsheet.JXLSCategoriesListDocs;
@@ -477,15 +478,17 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		        .setHeader(Translator.translate("StartTime"));
 		grid.addColumn(Group::getPlatform).setHeader(Translator.translate("Platform")).setTextAlign(ColumnTextAlign.CENTER);
 		String translation = Translator.translate("EditAthletes");
-		int tSize = translation.length();
+		//int tSize = translation.length();
 		grid.addColumn(new ComponentRenderer<>(p -> {
+			Button editDetails = new Button(Translator.translate("Sessions.EditDetails"));
+			editDetails.addThemeVariants(ButtonVariant.LUMO_SMALL);
 			Button technical = openInNewTab(RegistrationContent.class, translation, p != null ? p.getName() : "?");
 			// prevent grid row selection from triggering
 			technical.getElement().addEventListener("click", ignore -> {
 			}).addEventData("event.stopPropagation()");
 			technical.addThemeVariants(ButtonVariant.LUMO_SMALL);
-			return technical;
-		})).setHeader("").setWidth(tSize + "ch");
+			return new HorizontalLayout(editDetails,technical);
+		})).setHeader("").setAutoWidth(true);
 		
 		for (Column<Group> c : grid.getColumns()) {
 			c.setResizable(true);

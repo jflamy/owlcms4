@@ -1,4 +1,4 @@
-package app.owlcms.components.elements;
+package app.owlcms.servlet;
 
 /**
  * This exception is used when an error message has been given by the UI and
