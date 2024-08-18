@@ -37,8 +37,8 @@ public class JettyErrorHandler extends DefaultErrorHandler {
             logger.trace(t.getLocalizedMessage());
         }  if (event.getThrowable() instanceof StopProcessingException) {
             logger.trace(t.getLocalizedMessage());
-        }else {
-            logger.error("", t);
+        } else {
+            logger.error("{} {}", t.getClass().getTypeName(), t);
         }
     }
 

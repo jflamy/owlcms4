@@ -879,7 +879,6 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 
 	private void notifyError(Throwable e, UI ui, final String m) {
 		if (m.equals("NoAthletes")) {
-			LoggerUtils.logError(logger, e, true);
 			this.getUI().get().access(() -> {
 				Notification notif = new Notification();
 				notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
