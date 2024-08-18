@@ -4,6 +4,8 @@
 > - **Alpha releases are not normally used in actual competitions.**
 
 - Preliminary releases change log
+  - (alpha03) Sessions page: to reduce observed user confusion, added an "Edit Details" button next to "Edit Athletes".
+  - (alpha03) Fix empty protocol download button to use the correct template (vs weigh-in form)
   - (alpha02) Translations (ru)
   - (alpha02) Apply fix for spurious "out-of-competition" attempt board marker from 51.0.4
   - (alpha02) Apply fix for registration file import from 51.0.3
