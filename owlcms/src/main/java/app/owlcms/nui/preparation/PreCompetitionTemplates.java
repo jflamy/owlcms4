@@ -44,8 +44,11 @@ public enum PreCompetitionTemplates {
 	        (v) -> Competition.getCurrent().setEmptyProtocolTemplateFileName(v)),
 	JURY("/templates/jury", ".xlsx", 
 			() -> Competition.getCurrent().getJuryTemplateFileName(),
-	        (v) -> Competition.getCurrent().setJuryTemplateFileName(v)), 
+	        (v) -> Competition.getCurrent().setJuryTemplateFileName(v)),
+	PRE_WEIGHIN("", ".zip", null, null),
+	POST_WEIGHIN("", ".zip", null, null), 
 	;
+	
 
 	String folder;
 	String extension;
