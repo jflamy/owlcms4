@@ -1081,7 +1081,7 @@ Results.Extra/Invited,ext.,,,ext.,,,,,inv.,,,ext.,ext.,ext.,ext.,ext.,ext.,ext.,
 Attempt.Extra/Invited,{0} (ext.),,,{0} (ext.),,{0} (ext.),{0} (ext.),{0} (ext.),{0} (inv.),,,{0} (ext.),{0} (ext.),{0} (ext.),{0} (ext.),{0} (ext.),{0} (ext.),{0} (ext.),{0} (ext.),{0} (ext.),{0} (ext.),1079,,Attempt board if athlete not eligible for medal; {0} is last name
 Scoreboard.Extra/Invited,{0},,,{0},,{0},{0},{0},{0},,,{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},1080,,"Name on scoreboard if not eligible. By default, no special mark."
 START_LIST,Start List,,,Lista de inicio,,Lista de inicio,Lista de inicio,Lista de inicio,Liste de départ,,,Lista Inicial,Стартовый протокол,Startliste,Startlista,Startliste,Մեկնարկի համար,Startlista,Lista de start,Listy Startowe,Starttilistat,1081,,
-SCHEDULE,Schedule,,,Calendario,,Calendario,Calendario,Calendario,Calendrier,,,Cronograma,,,,,,,,,,1082,,
+SCHEDULE,Schedule,,,Calendario,,Calendario,Calendario,Calendario,Horaire,,,Cronograma,,,,,,,,,,1082,,
 OFFICIALS,Officials,,,Oficiales,,Jueces,Oficiales,Oficiales,Officiels,,,Juízes,Судьи,Offizielle,Officials,Officials,Պաշտոնյաները,Tisztviselők,Oficialii,Oficjele,Toimihenkilöt,1083,,
 JURY,Jury,,,Jurado,,Jurado,Jurado,Jurado,Jury,,,Júri,Жюри,Jury,Jury,Jury,Ժյուրի,Zsűri,Juriu,Jury,Jury,1084,,
 CHECKIN,Check-in Sheet,,,Hoja de check-in,,Hoja de comprobación,Hoja de check-in,Hoja de check-in,Feuille de présences,,,Folha de check-in,Регистрационный лист,Check-in Formular,Check-in Sheet,Check-in Sheet,Ստուգման թերթիկ,Bejelentkezési lap,Foaie de înregistrare,Check-in Sheet,Check-in Sheet,1085,,
