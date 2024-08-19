@@ -60,20 +60,14 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 	}
 
 	public FormLayout preWeighInTemplateSelectionForm() {
-		FormLayout layout = createLayout();
-		Component title = createTitle(DOCUMENTS_TEMPLATE_SELECTION);
-		layout.add(title);
-		layout.setColspan(title, 2);
-		Div div = new Div(Translator.translate(DOCUMENTS_IGNORE_NO_TEMPLATE));
-		layout.add(div);
-		layout.setColspan(div, 2);
+		FormLayout layout = createLayoutHeader();
 
 		addTemplateSelection(layout, PreCompetitionTemplates.CARDS);
 		addTemplateSelection(layout, PreCompetitionTemplates.WEIGHIN);
 		return layout;
 	}
 
-	public FormLayout postWeighInTemplateSelectionForm() {
+	private FormLayout createLayoutHeader() {
 		FormLayout layout = createLayout();
 		Component title = createTitle(DOCUMENTS_TEMPLATE_SELECTION);
 		layout.add(title);
@@ -81,6 +75,17 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 		Div div = new Div(Translator.translate(DOCUMENTS_IGNORE_NO_TEMPLATE));
 		layout.add(div);
 		layout.setColspan(div, 2);
+		return layout;
+	}
+	
+	public FormLayout singleTemplateSelection(PreCompetitionTemplates template) {
+		FormLayout layout = createLayoutHeader();
+		addTemplateSelection(layout, template);
+		return layout;
+	}
+
+	public FormLayout postWeighInTemplateSelectionForm() {
+		FormLayout layout = createLayoutHeader();
 
 		addTemplateSelection(layout, PreCompetitionTemplates.INTRODUCTION);
 		addTemplateSelection(layout, PreCompetitionTemplates.EMPTY_PROTOCOL);
