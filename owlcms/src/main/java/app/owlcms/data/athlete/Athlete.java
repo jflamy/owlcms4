@@ -5518,6 +5518,10 @@ public class Athlete {
 		int missing = delta - _20kgRuleValue;
 		return missing;
 	}
+	
+	public String getRequiredInitialAttempts() {
+		return Integer.toString(Math.round(this.getEntryTotal() - getStartingTotalMargin(this.getCategory(), this.getEntryTotal())));
+	}
 
 	/**
 	 * @param curLift
