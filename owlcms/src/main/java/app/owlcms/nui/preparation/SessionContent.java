@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -114,6 +115,10 @@ import ch.qos.logback.classic.Logger;
 @RouteAlias(value = "preparation/documents", layout = OwlcmsLayout.class)
 public class SessionContent extends BaseContent implements CrudListener<Group>, OwlcmsContent {
 
+	public Div createCardsButton() {
+		return createCardsButton(null);
+	}
+
 	private record KitElement(String id, String name, String extension, Path isp, int count, Supplier<JXLSWorkbookStreamSource> writerFactory) {
 	}
 
@@ -158,7 +163,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 			crud.getAddButton().removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		}
 	}
-	
+
 	@Override
 	public FlexLayout createMenuArea() {
 		this.topBar = new FlexLayout();
@@ -169,7 +174,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		Button registrationTemplateSelection = new Button(
 		        Translator.translate("Documents.SelectTemplates"), VaadinIcon.COG.create(), event -> registrationTemplateSelection());
 		registrationTemplateSelection.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
-		
+
 		Button startListButton = createFullStartListButton();
 		Button scheduleButton = createFullScheduleButton();
 		Button officialSchedule = createOfficalsButton();
@@ -331,14 +336,14 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		dialog.add(new TemplateSelectionFormFactory().competitionTemplateSelectionForm());
 		dialog.open();
 	}
-	
+
 	private void registrationTemplateSelection() {
 		Dialog dialog = new Dialog();
 		dialog.add(new TemplateSelectionFormFactory().registrationTemplateSelectionForm());
 		dialog.open();
 	}
 
-	private Div createCardsButton() {
+	private Div createCardsButton(Consumer<String> doneCallback) {
 		Div localDirZipDiv = null;
 		UI ui = UI.getCurrent();
 		localDirZipDiv = DownloadButtonFactory.createDynamicDownloadButton(
@@ -346,7 +351,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		        Translator.translate("AthleteCards"),
 		        () -> {
 			        List<KitElement> elements = prepareCardsKit(getSortedSelection(), (e, m) -> notifyError(e, ui, m));
-			        return zipOrExcelInputStream(ui, elements);
+			        return zipOrExcelInputStream(ui, elements, doneCallback);
 		        },
 		        () -> {
 			        return (getSortedSelection().size() > 1 ? ".zip" : PreCompetitionTemplates.CARDS.extension);
@@ -387,7 +392,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		        Translator.translate(PreCompetitionTemplates.EMPTY_PROTOCOL.name()),
 		        () -> {
 			        List<KitElement> elements = prepareEmptyProtocolKit(getSortedSelection(), (e, m) -> notifyError(e, ui, m));
-			        return zipOrExcelInputStream(ui, elements);
+			        return zipOrExcelInputStream(ui, elements, null);
 		        },
 		        () -> {
 			        return (getSortedSelection().size() > 1 ? ".zip" : PreCompetitionTemplates.EMPTY_PROTOCOL.extension);
@@ -411,10 +416,10 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 
 			        String tn = Competition.getCurrent().getComputedStartListTemplateFileName();
 			        if (tn.equals("Schedule.xlsx")) {
-			        	//FIXME: read this from the jxls3 directives
+				        // FIXME: read this from the jxls3 directives
 				        startingXlsWriter.setPostProcessor((w) -> fixMerges(w, 4, List.of(1, 2)));
 			        } else if (tn.endsWith("Schedule.xlsx")) {
-			        	//FIXME: read this from the jxls3 directives
+				        // FIXME: read this from the jxls3 directives
 				        startingXlsWriter.setPostProcessor((w) -> fixMerges(w, 5, List.of(1, 2)));
 			        } else {
 				        startingXlsWriter.setPostProcessor(null);
@@ -482,7 +487,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		        .setHeader(Translator.translate("StartTime"));
 		grid.addColumn(Group::getPlatform).setHeader(Translator.translate("Platform")).setTextAlign(ColumnTextAlign.CENTER);
 		String translation = Translator.translate("EditAthletes");
-		//int tSize = translation.length();
+		// int tSize = translation.length();
 		grid.addColumn(new ComponentRenderer<>(p -> {
 			Button editDetails = new Button(Translator.translate("Sessions.EditDetails"));
 			editDetails.addThemeVariants(ButtonVariant.LUMO_SMALL);
@@ -491,9 +496,9 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 			technical.getElement().addEventListener("click", ignore -> {
 			}).addEventData("event.stopPropagation()");
 			technical.addThemeVariants(ButtonVariant.LUMO_SMALL);
-			return new HorizontalLayout(editDetails,technical);
+			return new HorizontalLayout(editDetails, technical);
 		})).setHeader("").setAutoWidth(true);
-		
+
 		for (Column<Group> c : grid.getColumns()) {
 			c.setResizable(true);
 		}
@@ -503,8 +508,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		grid.setSelectionMode(SelectionMode.MULTI);
 		return this.crud;
 	}
-	
-	
+
 	protected Button createBWButton() {
 		String resourceDirectoryLocation = "/templates/bwStart";
 		String title = Translator.translate("BodyWeightCategories");
@@ -527,7 +531,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		        Translator.translate("Download"));
 		return startingListFactory.createDownloadButton();
 	}
-	
+
 	protected Button createTeamsListButton() {
 		String resourceDirectoryLocation = "/templates/teams";
 		String title = Translator.translate("StartingList.Teams");
@@ -576,7 +580,6 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		        Translator.translate("Download"));
 		return startingListFactory.createDownloadButton();
 	}
-	
 
 	private Div createIntroductionButton() {
 		Div localDirZipDiv = null;
@@ -586,7 +589,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		        Translator.translate(PreCompetitionTemplates.INTRODUCTION.name()),
 		        () -> {
 			        List<KitElement> elements = prepareIntroductionKit(getSortedSelection(), (e, m) -> notifyError(e, ui, m));
-			        return zipOrExcelInputStream(ui, elements);
+			        return zipOrExcelInputStream(ui, elements, null);
 		        },
 		        () -> {
 			        return (getSortedSelection().size() > 1 ? ".zip" : PreCompetitionTemplates.INTRODUCTION.extension);
@@ -602,7 +605,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		        Translator.translate(PreCompetitionTemplates.JURY.name()),
 		        () -> {
 			        List<KitElement> elements = prepareJuryKit(getSortedSelection(), (e, m) -> notifyError(e, ui, m));
-			        return zipOrExcelInputStream(ui, elements);
+			        return zipOrExcelInputStream(ui, elements, null);
 		        },
 		        () -> {
 			        return (getSortedSelection().size() > 1 ? ".zip" : PreCompetitionTemplates.JURY.extension);
@@ -634,11 +637,12 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 	private Div createPreWeighInButton() {
 		Div localDirZipDiv = null;
 		UI ui = UI.getCurrent();
+		Consumer<String> doneCallback = null;
 		localDirZipDiv = DownloadButtonFactory.createDynamicZipDownloadButton("preWeighIn",
 		        Translator.translate("Documents.Kits"),
 		        () -> {
 			        List<KitElement> elements = preparePreWeighInKit(getSortedSelection(), (e, m) -> notifyError(e, ui, m));
-			        return zipKitToInputStream(getSortedSelection(), elements, (e, m) -> notifyError(e, ui, m), ui);
+			        return zipKitToInputStream(getSortedSelection(), elements, (e, m) -> notifyError(e, ui, m), doneCallback, ui);
 		        },
 		        VaadinIcon.ARCHIVE.create());
 		return localDirZipDiv;
@@ -647,11 +651,12 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 	private Div createPostWeighInButton() {
 		Div localDirZipDiv = null;
 		UI ui = UI.getCurrent();
+		Consumer<String> doneCallback = null;
 		localDirZipDiv = DownloadButtonFactory.createDynamicZipDownloadButton("postWeighIn",
 		        Translator.translate("Documents.Kits"),
 		        () -> {
 			        List<KitElement> elements = preparePostWeighInKit(getSortedSelection(), (e, m) -> notifyError(e, ui, m));
-			        return zipKitToInputStream(getSortedSelection(), elements, (e, m) -> notifyError(e, ui, m), ui);
+			        return zipKitToInputStream(getSortedSelection(), elements, (e, m) -> notifyError(e, ui, m), doneCallback, ui);
 		        },
 		        VaadinIcon.ARCHIVE.create());
 		return localDirZipDiv;
@@ -673,7 +678,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		        Translator.translate("WeighinForm"),
 		        () -> {
 			        List<KitElement> elements = prepareWeighInKit(getSortedSelection(), (e, m) -> notifyError(e, ui, m));
-			        return zipOrExcelInputStream(ui, elements);
+			        return zipOrExcelInputStream(ui, elements, null);
 		        },
 		        () -> {
 			        return (getSortedSelection().size() > 1 ? ".zip" : PreCompetitionTemplates.WEIGHIN.extension);
@@ -701,35 +706,40 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		}
 	}
 
-	private InputStream excelKitElement(List<Group> selectedItems, List<KitElement> elements, UI ui) throws IOException {
+	private InputStream excelKitElement(List<Group> selectedItems, List<KitElement> elements, UI ui, Consumer<String> doneCallback) throws IOException {
 		// always called with a single template and a single session.
 		Group g = selectedItems.get(0);
 		KitElement elem = elements.get(0);
 
 		// get current version of athletes.
 		List<Athlete> athletes = groupAthletes(g, true);
-		Notification n = new Notification(Translator.translate("Documents.ProcessingExcel"));
 		JXLSWorkbookStreamSource cardsXlsWriter = elem.writerFactory.get();
 		InputStream is = Files.newInputStream(elem.isp);
 		cardsXlsWriter.setInputStream(is);
 		cardsXlsWriter.setGroup(g);
 		cardsXlsWriter.setSortedAthletes(athletes);
 		cardsXlsWriter.setTemplateFileName(elem.name);
-		cardsXlsWriter.setDoneCallback((s) -> ui.access(() -> {
-			n.close();
-		}));
-		n.setPosition(Position.TOP_END);
-		ui.access(() -> {
-			n.open();
-		});
+
+		if (doneCallback == null) {
+			Notification n = new Notification(Translator.translate("Documents.ProcessingExcel"));
+			cardsXlsWriter.setDoneCallback((s) -> ui.access(() -> {
+				n.close();
+			}));
+			n.setPosition(Position.TOP_END);
+			ui.access(() -> {
+				n.open();
+			});
+		} else {
+			cardsXlsWriter.setDoneCallback(doneCallback);
+		}
 		InputStream in = cardsXlsWriter.createInputStream();
 		return in;
 	}
 
 	private InputStream excelToInputStream(List<Group> selectedItems,
-	        List<KitElement> elements, BiConsumer<Throwable, String> errorProcessor, UI ui) {
+	        List<KitElement> elements, BiConsumer<Throwable, String> errorProcessor, Consumer<String> doneCallback, UI ui) {
 		try {
-			return excelKitElement(selectedItems, elements, ui);
+			return excelKitElement(selectedItems, elements, ui, doneCallback);
 		} catch (Throwable e) {
 			errorProcessor.accept(e, e.getMessage());
 			throw new StopProcessingException(e.getMessage(), e);
@@ -893,7 +903,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 				notif.setPosition(Position.TOP_STRETCH);
 				notif.setDuration(5000);
 				Div div = new Div(Translator.translate("Documents.NoSession"));
-				div.getStyle().set("font-size","140%");
+				div.getStyle().set("font-size", "140%");
 				notif.add(div);
 				notif.open();
 			});
@@ -904,10 +914,10 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 				notif.setPosition(Position.TOP_STRETCH);
 				notif.setDuration(5000);
 				Div div = new Div(Translator.translate("Documents.NoTemplate"));
-				div.getStyle().set("font-size","140%");
+				div.getStyle().set("font-size", "140%");
 				notif.add(div);
 				notif.open();
-				
+
 				Dialog dialog = new Dialog();
 				PreCompetitionTemplates templateKind = PreCompetitionTemplates.valueOf(m);
 				dialog.add(new TemplateSelectionFormFactory().templateSelectionForm(m, templateKind));
@@ -1006,17 +1016,17 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		}
 
 		KitElement kit2 = checkKit("emptyProtocol",
-                PreCompetitionTemplates.EMPTY_PROTOCOL,
-                null, // no error processor - ignore this item if no template
-                () -> new JXLSResultSheet());
+		        PreCompetitionTemplates.EMPTY_PROTOCOL,
+		        null, // no error processor - ignore this item if no template
+		        () -> new JXLSResultSheet());
 		if (kit2 != null) {
 			elements.add(kit2);
 		}
-		
+
 		KitElement kit3 = checkKit("jury",
-                PreCompetitionTemplates.JURY,
-                null, // no error processor - ignore this item if no template
-                () -> new JXLSJurySheet());
+		        PreCompetitionTemplates.JURY,
+		        null, // no error processor - ignore this item if no template
+		        () -> new JXLSJurySheet());
 		if (kit3 != null) {
 			elements.add(kit3);
 		}
@@ -1087,7 +1097,8 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		}
 	}
 
-	private InputStream zipKitToInputStream(List<Group> selectedItems, List<KitElement> elements, BiConsumer<Throwable, String> errorProcessor, UI ui) {
+	private InputStream zipKitToInputStream(List<Group> selectedItems, List<KitElement> elements,
+	        BiConsumer<Throwable, String> errorProcessor, Consumer<String> doneCallback, UI ui) {
 		PipedOutputStream out;
 		PipedInputStream in;
 		try {
@@ -1097,18 +1108,22 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 			throw new RuntimeException(e);
 		}
 
-		Notification n = new Notification(Translator.translate("Documents.ProcessingZip"));
-		n.setPosition(Position.TOP_END);
-		ui.access(() -> {
-			n.open();
-		});
+		if (doneCallback == null) {
+			Notification n = new Notification(Translator.translate("Documents.ProcessingZip"));
+			n.setPosition(Position.TOP_END);
+			ui.access(() -> {
+				n.open();
+			});
+			doneCallback = s -> ui.access(() -> {
+				n.close();
+			});
+		}
+		final var dc = doneCallback;
 		new Thread(() -> {
 			try {
 				zipKitToOutputStream(selectedItems, elements, errorProcessor, out);
 			} finally {
-				ui.access(() -> {
-					n.close();
-				});
+				dc.accept("");
 			}
 		}).start();
 		return in;
@@ -1125,12 +1140,12 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		}
 	}
 
-	private InputStream zipOrExcelInputStream(UI ui, List<KitElement> elements) {
+	private InputStream zipOrExcelInputStream(UI ui, List<KitElement> elements, Consumer<String> doneCallback) {
 		InputStream z;
 		if (getSortedSelection().size() > 1) {
-			z = zipKitToInputStream(getSortedSelection(), elements, (e, m) -> notifyError(e, ui, m), ui);
+			z = zipKitToInputStream(getSortedSelection(), elements, (e, m) -> notifyError(e, ui, m), doneCallback, ui);
 		} else {
-			z = excelToInputStream(getSortedSelection(), elements, (e, m) -> notifyError(e, ui, m), ui);
+			z = excelToInputStream(getSortedSelection(), elements, (e, m) -> notifyError(e, ui, m), doneCallback, ui);
 		}
 		return z;
 
