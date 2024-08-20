@@ -8,6 +8,7 @@ package app.owlcms.spreadsheet;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -28,12 +29,7 @@ public class JXLSCategoriesListDocs extends JXLSWorkbookStreamSource {
 	}
 
 	public JXLSCategoriesListDocs() {
+		System.err.println("JXLSCategoriesListDocs "+LoggerUtils.whereFrom());
 		this.setExcludeNotWeighed(false);
 	}
-
-	// @Override
-	// public List<Athlete> getSortedAthletes() {
-	// List<Athlete> displayOrderCopy = AthleteSorter.displayOrderCopy(sortedAthletes);
-	// return displayOrderCopy;
-	// }
 }
