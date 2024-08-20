@@ -210,6 +210,11 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 		});
 	}
 
+	@Override
+	public boolean isEmptyOk() {
+		return true;
+	}
+	
 	public Consumer<Workbook> getPostProcessor() {
 		return this.postProcessor;
 	}

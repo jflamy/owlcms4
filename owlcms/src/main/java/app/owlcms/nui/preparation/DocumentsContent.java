@@ -75,6 +75,7 @@ import app.owlcms.data.athleteSort.RegistrationOrderComparator;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.Platform;
@@ -1189,14 +1190,14 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			                // schedule is currently a variation on starting list
 			                JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
 			                // group may have been edited since the page was loaded
-			                xlsWriter.setGroup(
-			                        getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
-			                // get current version of athletes.
-			                List<Athlete> athletesFindAll = athletesFindAll(true);
-			                xlsWriter.setSortedAthletes(athletesFindAll);
+//			                xlsWriter.setGroup(
+//			                        getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
+//			                // get current version of athletes.
+//			                List<Athlete> athletesFindAll = athletesFindAll(true);
+//			                xlsWriter.setSortedAthletes(athletesFindAll);
 
-			                String tn = Competition.getCurrent().getComputedStartListTemplateFileName();
-			                if (tn.equals("Schedule.xlsx")) {
+			                String tn = Competition.getCurrent().getScheduleTemplateFileName();
+			                if (tn.equals("Schedule.xlsx") && Config.getCurrent().featureSwitch("usaw")) {
 				                // FIXME: read this from the jxls3 directives
 				                xlsWriter.setPostProcessor((w) -> fixMerges(w, 4, List.of(1, 2)));
 			                } else if (tn.endsWith("Schedule.xlsx")) {
