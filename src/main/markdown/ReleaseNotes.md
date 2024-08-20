@@ -4,7 +4,7 @@
 > - **Alpha releases are not normally used in actual competitions.**
 
 - Preliminary releases change log
-  - (alpha05) Cleaned-up Documents page to have same user interface dialogs throughout
+  - (alpha05) Cleaned-up Documents page so that all documents have harmonized user interface dialogs with better feedback
   - (alpha04) Added a Schedule document suitable for large events, with USAW-style additional information about categories and entry totals
   - (alpha04) Updated Marshal card to be more similar to IWF
   - (alpha03) Sessions page: to reduce observed user confusion, added an "Edit Details" button next to "Edit Athletes".
