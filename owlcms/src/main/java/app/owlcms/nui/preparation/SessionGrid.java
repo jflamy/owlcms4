@@ -15,8 +15,8 @@ import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 
 @SuppressWarnings("serial")
-final class GroupGrid extends OwlcmsCrudGrid<Group> {
-	GroupGrid(Class<Group> domainType, OwlcmsGridLayout crudLayout, OwlcmsCrudFormFactory<Group> owlcmsCrudFormFactory, Grid<Group> grid) {
+final class SessionGrid extends OwlcmsCrudGrid<Group> {
+	SessionGrid(Class<Group> domainType, OwlcmsGridLayout crudLayout, OwlcmsCrudFormFactory<Group> owlcmsCrudFormFactory, Grid<Group> grid) {
 		super(domainType, crudLayout, owlcmsCrudFormFactory, grid);
 	}
 
