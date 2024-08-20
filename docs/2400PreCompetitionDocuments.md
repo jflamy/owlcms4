@@ -1,22 +1,11 @@
-Prior to a competition, several documents need to be produced
+The Documents page is used
 
-- During the Registration period and until verification of final entries, the competition secretary may use documents to cross-check registration data and confirm information with the registrants.
+- To check registration and team memberships
+- To publish a schedule and start list, and to assign officials
+- To print the marshal cards and the weigh-in forms
+- To print the manual backup protocol sheet and the jury documents
 
-  - Checking that all athletes are in the [correct category](#categories-list) or categories
-
-  - Checking [team membership](#team-membership-list) if team points are assigned
-- Prior to the competition day
-
-  - Producing a [**Start List**](#start-list) . The start list is produced several days before the competition and updated after the verification of final entries (VFE)
-  - Producing the [Official's Group Assignments](#officials-schedule)
-  - Producing [**Athlete Cards**](#athlete-cards) and Weigh-In Forms.  These are printed before the weigh-in, often the day before.
-
-
-These steps are performed from the `Prepare Competition` page, selecting the `Documents` button
-
-![10](nimg/2400PreCompetitionDocuments/10.png)
-
-## Documents Page
+It is reached from the `Prepare Competition` page, selecting the `Documents` button
 
 ![15](nimg/2400PreCompetitionDocuments/15.png)
 
@@ -37,6 +26,10 @@ The start list (or starting list) shows all the athletes that will compete, in w
 
 ![30](nimg/2400PreCompetitionDocuments/30.png)
 
+### Officials' Schedule
+
+The `Officials` buttons creates a summary of all the officials assigned to each group.
+
 ## Athlete Cards
 
 Athlete Cards are the cards that will be used by the Marshall to record changes.  The `Cards` Template is meant to be similar to the IWF format. Each page is folded in half, so that one side is snatch, the other is the clean & jerk.  Normally the start number box at the the top left is empty.  The start numbers are written by hand, with a red marker, after the weigh-in data has been entered into the system.
@@ -53,22 +46,25 @@ You can produce the cards for one or more sessions.
 
 Challenge cards are printed from the same menu as Athlete Cards, by selecting the Challenge template instead.
 
-## Categories List
+![16](nimg/2400PreCompetitionDocuments/16.png)
 
-The Categories List is a variation on the Start List that is useful before allocating groups.  It shows which athletes have registered in which category.
+## Registration Checks
+
+### Registration Categories List
+
+The Categories List is a variation on the Start List that is useful before allocating groups.  It shows which athletes have registered in which category. An athlete can be shown several times if eligibible in multiple categories.
 
 ![40](nimg/2400PreCompetitionDocuments/40.png)
 
-## Team Membership List
+### Eligibility Categories List
 
-The Teams also includes a tab for who is registered for which club, allowing coaches to spot errors in spelling or in categories.  In addition, when a team points competition is held, the teams in which the athlete participates are shown.  
 
-In the example below, there are 3 women in the F team and 3 men in the M team.  In a competition with multiple age groups, a single athlete can potentially score points in multiple teams (for example, as a JR and as a SR).  The team membership column will then show the teams where the athlete has been selected.
+
+### Team Membership List
+
+The Teams list is used to check that all athletes are assigned correctly
 
 ![30](nimg/2400PreCompetitionDocuments/20.png)
 
 
 
-### Officials' Schedule
-
-The Officials buttons creates a summary of all the officials assigned to each group.
