@@ -4,6 +4,14 @@
 > - **Alpha releases are not normally used in actual competitions.**
 
 - Preliminary releases change log
+  - (beta01) Initial documentation for the Documents page
+  - (beta01) The Documents page no longer includes the session editing behavior
+  - (beta01) Age Group configuration drop down now respects the "local files only" setting.
+  - (alpha05) Cleaned-up Documents page so that all documents have harmonized user interface dialogs with better feedback
+  - (alpha04) Added a Schedule document suitable for large events, with USAW-style additional information about categories and entry totals
+  - (alpha04) Updated Marshal card to be more similar to IWF
+  - (alpha03) Sessions page: to reduce observed user confusion, added an "Edit Details" button next to "Edit Athletes".
+  - (alpha03) Fix empty protocol download button to use the correct template (vs weigh-in form)
   - (alpha02) Translations (ru)
   - (alpha02) Apply fix for spurious "out-of-competition" attempt board marker from 51.0.4
   - (alpha02) Apply fix for registration file import from 51.0.3
