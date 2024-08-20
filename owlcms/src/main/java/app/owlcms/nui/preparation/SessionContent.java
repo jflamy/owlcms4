@@ -56,6 +56,7 @@ import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
@@ -160,32 +161,20 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		Div bwButton = createBodyweightButton();
 		Div categoriesListButton = createCategoriesButton();
 		Div teamsListButton = createTeamsButton();
-		// Button registrationTemplateSelection = new Button(
-		// Translator.translate("Documents.SelectTemplates"), VaadinIcon.COG.create(), event -> registrationTemplateSelection());
-		// registrationTemplateSelection.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
 
 		Div startListButton = createStartListButton();
 		Div scheduleButton = createFullScheduleButton();
 		Div officialSchedule = createOfficialsButton();
 		Div checkInButton = createCheckinButton();
-		// Button competitionTemplateSelection = new Button(
-		// Translator.translate("Documents.SelectTemplates"), VaadinIcon.COG.create(), event -> competitionTemplateSelection());
-		// competitionTemplateSelection.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
 
 		Div cardsButton = createCardsButton();
 		Div weighInButton = createWeighInButton();
 		Div preWeighInKitButton = createPreWeighInButton();
-		// Button preWeighInTemplateSelection = new Button(
-		// Translator.translate("Documents.SelectTemplates"), VaadinIcon.COG.create(), event -> preWeighInTemplateSelection());
-		// preWeighInTemplateSelection.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
 
 		Div introductionButton = createIntroductionButton();
 		Div emptyProtocolButton = createEmptyProtocolButton();
 		Div juryButton = createJuryButton();
 		Div postWeighInKitButton = createPostWeighInButton();
-		Button postWeighInTemplateSelection = new Button(
-		        Translator.translate("Documents.SelectTemplates"), VaadinIcon.COG.create(), event -> postWeighInTemplateSelection());
-		postWeighInTemplateSelection.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
 
 		this.topBar.getStyle().set("flex", "100 1");
 		this.topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
@@ -350,7 +339,6 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 	private KitElement checkKit(String id, PreCompetitionTemplates templateEnum, BiConsumer<Throwable, String> errorProcessor,
 	        Supplier<JXLSWorkbookStreamSource> writerFactory) {
 		try {
-			logger.warn("entering checkKit {}", templateEnum);
 			String resourceFolder = templateEnum.folder;
 			resourceFolder = resourceFolder.endsWith("/") ? resourceFolder : (resourceFolder + "/");
 			String template = templateEnum.templateFileNameSupplier.get();
@@ -358,17 +346,15 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 			Path isp = ResourceWalker.getFileOrResourcePath(templateName);
 			String ext = FileNameUtils.getExtension(isp);
 			KitElement kitElement = new KitElement(id, templateName, ext, isp, 1, writerFactory);
-			logger.warn("exiting checkKit {} {}", templateEnum, LoggerUtils.whereFrom());
 			return kitElement;
 		} catch (FileNotFoundException e1) {
-			logger.warn("file not found");
 			if (errorProcessor != null) {
 				errorProcessor.accept(e1, templateEnum.name());
 				throw new StopProcessingException(templateEnum.name(), e1);
 			}
 			return null;
 		} catch (Exception e2) {
-			logger.warn("{}", e2);
+			logger.warn(e2.toString());
 			errorProcessor.accept(e2, e2.getMessage());
 			throw new StopProcessingException(templateEnum.name(), e2);
 		}
@@ -382,6 +368,17 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		}
 	}
 
+	private void checkReasonableSelection(List<Group> selectedItems, BiConsumer<Throwable, String> errorProcessor) {
+		if (selectedItems == null || selectedItems.size() == 0) {
+			int nbAthletes = athletesFindAll(true).size();
+			if (nbAthletes > 100) {
+				Exception e = new Exception(Translator.translate("Documents.	TooManyAthletes"));
+				errorProcessor.accept(e, "TooManyAthletes");
+				throw new StopProcessingException(e.getMessage(), e);
+			}
+		}
+	}
+
 	private Div createCardsButton() {
 		UI ui = UI.getCurrent();
 		PreCompetitionTemplates templateDefinition = PreCompetitionTemplates.CARDS;
@@ -389,12 +386,13 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		        Translator.translate(templateDefinition.name()),
 		        VaadinIcon.DOWNLOAD_ALT.create(),
 		        (e) -> {
+		        	checkReasonableSelection(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
 			        Dialog dialog = new Dialog();
 			        dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition));
 			        dialog.getFooter().add(createDoItButton(
 			                templateDefinition,
 			                () -> prepareCardsKit(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m)),
-			                ev -> ui.access(() -> dialog.close())));
+			                ev -> ui.access(() -> dialog.close()), dialog));
 			        dialog.open();
 		        });
 		openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
@@ -413,7 +411,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 			        dialog.getFooter().add(createDoItButton(
 			                templateDefinition,
 			                () -> prepareScheduleKit(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m)),
-			                ev -> ui.access(() -> dialog.close())));
+			                ev -> ui.access(() -> dialog.close()), dialog));
 			        dialog.open();
 		        });
 		return new Div(openDialog);
@@ -431,7 +429,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 			        dialog.getFooter().add(createDoItButton(
 			                templateDefinition,
 			                () -> prepareStartListKit(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m)),
-			                ev -> ui.access(() -> dialog.close())));
+			                ev -> ui.access(() -> dialog.close()), dialog));
 			        dialog.open();
 		        });
 		openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
@@ -465,12 +463,13 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		        Translator.translate(templateDefinition.name()),
 		        VaadinIcon.DOWNLOAD_ALT.create(),
 		        (e) -> {
+		        	checkNoSelection(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
 			        Dialog dialog = new Dialog();
 			        dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition));
 			        dialog.getFooter().add(createDoItButton(
 			                templateDefinition,
 			                () -> prepareWeighInKit(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m)),
-			                ev -> ui.access(() -> dialog.close())));
+			                ev -> ui.access(() -> dialog.close()), dialog));
 			        dialog.open();
 		        });
 		// openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
@@ -499,12 +498,13 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		        Translator.translate(templateDefinition.name()),
 		        VaadinIcon.DOWNLOAD_ALT.create(),
 		        (e) -> {
+		        	checkNoSelection(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
 			        Dialog dialog = new Dialog();
 			        dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition));
 			        dialog.getFooter().add(createDoItButton(
 			                templateDefinition,
 			                () -> prepareEmptyProtocoKit(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m)),
-			                ev -> ui.access(() -> dialog.close())));
+			                ev -> ui.access(() -> dialog.close()), dialog));
 			        dialog.open();
 		        });
 		// openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
@@ -533,12 +533,13 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		        Translator.translate(templateDefinition.name()),
 		        VaadinIcon.DOWNLOAD_ALT.create(),
 		        (e) -> {
+		        	checkNoSelection(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
 			        Dialog dialog = new Dialog();
 			        dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition));
 			        dialog.getFooter().add(createDoItButton(
 			                templateDefinition,
 			                () -> prepareJuryKit(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m)),
-			                ev -> ui.access(() -> dialog.close())));
+			                ev -> ui.access(() -> dialog.close()), dialog));
 			        dialog.open();
 		        });
 		// openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
@@ -567,12 +568,13 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		        Translator.translate(templateDefinition.name()),
 		        VaadinIcon.DOWNLOAD_ALT.create(),
 		        (e) -> {
+		        	checkNoSelection(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
 			        Dialog dialog = new Dialog();
 			        dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition));
 			        dialog.getFooter().add(createDoItButton(
 			                templateDefinition,
 			                () -> prepareIntroductionKit(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m)),
-			                ev -> ui.access(() -> dialog.close())));
+			                ev -> ui.access(() -> dialog.close()), dialog));
 			        dialog.open();
 		        });
 		// openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
@@ -606,7 +608,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 			        dialog.getFooter().add(createDoItButton(
 			                templateDefinition,
 			                () -> prepareCheckinKit(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m)),
-			                ev -> ui.access(() -> dialog.close())));
+			                ev -> ui.access(() -> dialog.close()), dialog));
 			        dialog.open();
 		        });
 		// openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
@@ -641,11 +643,10 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		        (e) -> {
 			        Dialog dialog = new Dialog();
 			        dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition));
-
 			        dialog.getFooter().add(createDoItButton(
 			                templateDefinition,
 			                () -> prepareCategoriesKit(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m)),
-			                ev -> ui.access(() -> dialog.close())));
+			                ev -> ui.access(() -> dialog.close()), dialog));
 			        dialog.open();
 		        });
 		// openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
@@ -679,11 +680,10 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		        (e) -> {
 			        Dialog dialog = new Dialog();
 			        dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition));
-
 			        dialog.getFooter().add(createDoItButton(
 			                templateDefinition,
 			                () -> prepareTeamKit(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m)),
-			                ev -> ui.access(() -> dialog.close())));
+			                ev -> ui.access(() -> dialog.close()), dialog));
 			        dialog.open();
 		        });
 		// openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
@@ -716,11 +716,10 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		        (e) -> {
 			        Dialog dialog = new Dialog();
 			        dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition));
-
 			        dialog.getFooter().add(createDoItButton(
 			                templateDefinition,
 			                () -> prepareBodyweightKit(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m)),
-			                ev -> ui.access(() -> dialog.close())));
+			                ev -> ui.access(() -> dialog.close()), dialog));
 			        dialog.open();
 		        });
 		// openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
@@ -745,7 +744,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		return elements;
 	}
 
-	private Div createDoItButton(PreCompetitionTemplates template, Supplier<List<KitElement>> elementSupplier, Consumer<String> doneCallback) {
+	private Div createDoItButton(PreCompetitionTemplates template, Supplier<List<KitElement>> elementSupplier, Consumer<String> doneCallback, Dialog dialog) {
 		Div localDirZipDiv = null;
 		UI ui = UI.getCurrent();
 		localDirZipDiv = DownloadButtonFactory.createDynamicDownloadButton(
@@ -753,12 +752,14 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		        Translator.translate(template.name()),
 		        () -> {
 			        List<KitElement> elements = elementSupplier.get();
+			        feedback(dialog, ui);
 			        return zipOrExcelInputStream(ui, elements, doneCallback);
 		        },
 		        () -> {
 			        return (getSortedSelection().size() > 1 ? ".zip" : template.extension);
 		        });
 		Button b = (Button) localDirZipDiv.getChildren().findFirst().get();
+		b.addClickListener(e -> b.setEnabled(false));
 		b.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		return localDirZipDiv;
 	}
@@ -811,12 +812,13 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		        Translator.translate(templateDefinition.name()),
 		        VaadinIcon.DOWNLOAD_ALT.create(),
 		        (e) -> {
+		        	checkNoSelection(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
 			        Dialog dialog = new Dialog();
 			        dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition));
 			        dialog.getFooter().add(createDoItButton(
 			                templateDefinition,
 			                () -> prepareOfficialsKit(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m)),
-			                ev -> ui.access(() -> dialog.close())));
+			                ev -> ui.access(() -> dialog.close()), dialog));
 			        dialog.open();
 		        });
 		return new Div(openDialog);
@@ -825,57 +827,70 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 	private Div createPostWeighInButton() {
 		UI ui = UI.getCurrent();
 		Button openDialog = new Button(
-				Translator.translate("Documents.Kits"),
+		        Translator.translate("Documents.Kits"),
 		        VaadinIcon.ARCHIVE.create(),
 		        (e) -> {
+		        	checkNoSelection(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
 			        Dialog dialog = new Dialog();
-			        dialog.add(new TemplateSelectionFormFactory().postWeighInTemplateSelectionForm());
-			        dialog.getFooter().add(createPostWeighInButtonDoIt(ev -> ui.access(() -> dialog.close())));
+			        dialog.add(new TemplateSelectionFormFactory().postWeighInTemplateSelectionForm(dialog));
+			        dialog.getFooter().add(createPostWeighInButtonDoIt(dialog, ev -> ui.access(() -> dialog.close())));
 			        dialog.open();
 		        });
 		return new Div(openDialog);
 	}
-	
-	private Div createPostWeighInButtonDoIt(Consumer<String> doneCallback) {
+
+	private Div createPostWeighInButtonDoIt(Dialog dialog, Consumer<String> doneCallback) {
 		Div localDirZipDiv = null;
 		UI ui = UI.getCurrent();
 		localDirZipDiv = DownloadButtonFactory.createDynamicZipDownloadButton(
-				"preWeighIn",
+		        "postWeighIn",
 		        Translator.translate(PreCompetitionTemplates.POST_WEIGHIN.name()),
 		        () -> {
 			        List<KitElement> elements = preparePostWeighInKit(getSortedSelection(), (e, m) -> notifyError(e, ui, m));
+			        feedback(dialog, ui);
 			        return zipKitToInputStream(getSortedSelection(), elements, (e, m) -> notifyError(e, ui, m), doneCallback, ui);
 		        },
 		        VaadinIcon.ARCHIVE.create());
 		return localDirZipDiv;
 	}
-	
+
 	private Div createPreWeighInButton() {
 		UI ui = UI.getCurrent();
 		Button openDialog = new Button(
-				Translator.translate("Documents.Kits"),
+		        Translator.translate("Documents.Kits"),
 		        VaadinIcon.ARCHIVE.create(),
 		        (e) -> {
+		        	checkNoSelection(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
 			        Dialog dialog = new Dialog();
-			        dialog.add(new TemplateSelectionFormFactory().preWeighInTemplateSelectionForm());
-			        dialog.getFooter().add(createPreWeighInButtonDoIt(ev -> ui.access(() -> dialog.close())));
+			        dialog.add(new TemplateSelectionFormFactory().preWeighInTemplateSelectionForm(dialog));
+			        dialog.getFooter().add(createPreWeighInButtonDoIt(dialog, ev -> ui.access(() -> dialog.close())));
 			        dialog.open();
 		        });
 		return new Div(openDialog);
 	}
-	
-	private Div createPreWeighInButtonDoIt(Consumer<String> doneCallback) {
+
+	private Div createPreWeighInButtonDoIt(Dialog dialog, Consumer<String> doneCallback) {
 		Div localDirZipDiv = null;
 		UI ui = UI.getCurrent();
 		localDirZipDiv = DownloadButtonFactory.createDynamicZipDownloadButton(
-				"preWeighIn",
+		        "preWeighIn",
 		        Translator.translate(PreCompetitionTemplates.PRE_WEIGHIN.name()),
 		        () -> {
 			        List<KitElement> elements = preparePreWeighInKit(getSortedSelection(), (e, m) -> notifyError(e, ui, m));
+			        feedback(dialog, ui);
 			        return zipKitToInputStream(getSortedSelection(), elements, (e, m) -> notifyError(e, ui, m), doneCallback, ui);
 		        },
 		        VaadinIcon.ARCHIVE.create());
 		return localDirZipDiv;
+	}
+
+	private void feedback(Dialog dialog, UI ui) {
+		boolean zipping = getSortedSelection().size() > 1;
+		Paragraph processing = new Paragraph(Translator.translate(zipping ? "LongProcessing" : "Processing"));
+		processing.getStyle().set("text-align", "center");
+		processing.getStyle().set("font-size", "large");
+		processing.getStyle().set("font-weight", "bold");
+		ui.access(() -> dialog.add(processing));
 	}
 
 	private List<KitElement> preparePreWeighInKit(List<Group> selectedItems, BiConsumer<Throwable, String> errorProcessor) {
@@ -1052,7 +1067,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 				}
 			}
 		} catch (Exception e) {
-			logger.warn("merging correction failed");
+			logger./**/warn("jxls merging correction failed");
 		}
 	}
 
@@ -1120,34 +1135,29 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 
 	private void notifyError(Throwable e, UI ui, final String m) {
 		if (m != null && m.equals("NoAthletes")) {
-			this.getUI().get().access(() -> {
-				Notification notif = new Notification();
-				notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
-				notif.setPosition(Position.TOP_STRETCH);
-				notif.setDuration(5000);
-				Div div = new Div(Translator.translate("Documents.NoSession"));
-				div.getStyle().set("font-size", "140%");
-				notif.add(div);
-				notif.open();
-			});
+			String text = Translator.translate("Documents.NoSession");
+			doNotification(text);
+		} else if (m != null && m.equals("TooManyAthletes")) {
+			String text = Translator.translate("Documents.TooManyAthletes");
+			doNotification(text);
 		} else {
+			String text = Translator.translate("Documents.NoTemplate");
 			LoggerUtils.logError(logger, e, false);
-			this.getUI().get().access(() -> {
-				Notification notif = new Notification();
-				notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
-				notif.setPosition(Position.TOP_STRETCH);
-				notif.setDuration(5000);
-				Div div = new Div(Translator.translate("Documents.NoTemplate"));
-				div.getStyle().set("font-size", "140%");
-				notif.add(div);
-				notif.open();
-
-				// Dialog dialog = new Dialog();
-				// PreCompetitionTemplates templateKind = PreCompetitionTemplates.valueOf(m);
-				// dialog.add(new TemplateSelectionFormFactory().templateSelectionForm(m, templateKind));
-				// dialog.open();
-			});
+			doNotification(text);
 		}
+	}
+
+	private void doNotification(String text) {
+		this.getUI().get().access(() -> {
+			Notification notif = new Notification();
+			notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
+			notif.setPosition(Position.TOP_STRETCH);
+			notif.setDuration(5000);
+			Div div = new Div(text);
+			div.getStyle().set("font-size", "140%");
+			notif.add(div);
+			notif.open();
+		});
 	}
 
 	private <C extends Component> Button openInNewTab(Class<C> targetClass,
@@ -1157,15 +1167,15 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		return button;
 	}
 
-	private void postWeighInTemplateSelection() {
-		Dialog dialog = new Dialog();
-		dialog.add(new TemplateSelectionFormFactory().postWeighInTemplateSelectionForm());
-		dialog.open();
-	}
+//	private void postWeighInTemplateSelection() {
+//		Dialog dialog = new Dialog();
+//		dialog.add(new TemplateSelectionFormFactory().postWeighInTemplateSelectionForm(dialog));
+//		dialog.open();
+//	}
 
 	private List<KitElement> prepareCardsKit(PreCompetitionTemplates templateDefinition, List<Group> selectedItems,
 	        BiConsumer<Throwable, String> errorProcessor) {
-		checkNoSelection(selectedItems, errorProcessor);
+		checkReasonableSelection(selectedItems, errorProcessor);
 		List<KitElement> elements = new ArrayList<>();
 		elements.add(
 		        checkKit("cards",
@@ -1211,7 +1221,6 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		                PreCompetitionTemplates.SCHEDULE,
 		                errorProcessor,
 		                () -> {
-			                logger.warn("entering xlsWriter creation");
 			                // schedule is currently a variation on starting list
 			                JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
 			                // group may have been edited since the page was loaded
@@ -1233,7 +1242,6 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 			                }
 			                return xlsWriter;
 		                }));
-		logger.warn("elements size {}", elements.size());
 		return elements;
 	}
 
@@ -1251,7 +1259,6 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 			                xlsWriter.setEmptyOk(true);
 			                return xlsWriter;
 		                }));
-		logger.warn("elements size {}", elements.size());
 		return elements;
 	}
 
@@ -1347,7 +1354,6 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 
 	private InputStream zipOrExcelInputStream(UI ui, List<KitElement> elements, Consumer<String> doneCallback) {
 		InputStream z;
-		logger.warn("**** selection size {} elements size {}", getSortedSelection().size(), elements.size());
 		if (getSortedSelection().size() > 1 || elements.size() > 1) {
 			z = zipKitToInputStream(getSortedSelection(), elements, (e, m) -> notifyError(e, ui, m), doneCallback, ui);
 		} else {

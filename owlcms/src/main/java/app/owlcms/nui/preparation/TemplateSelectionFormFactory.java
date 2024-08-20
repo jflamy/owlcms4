@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition;
@@ -59,7 +60,7 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 		return title;
 	}
 
-	public FormLayout preWeighInTemplateSelectionForm() {
+	public FormLayout preWeighInTemplateSelectionForm(Dialog dialog) {
 		FormLayout layout = createSetLayoutHeader(PreCompetitionTemplates.PRE_WEIGHIN);
 		addTemplateSelection(layout, PreCompetitionTemplates.CARDS);
 		addTemplateSelection(layout, PreCompetitionTemplates.WEIGHIN);
@@ -91,7 +92,7 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 		return layout;
 	}
 
-	public FormLayout postWeighInTemplateSelectionForm() {
+	public FormLayout postWeighInTemplateSelectionForm(Dialog dialog) {
 		FormLayout layout = createSetLayoutHeader(PreCompetitionTemplates.POST_WEIGHIN);
 		addTemplateSelection(layout, PreCompetitionTemplates.INTRODUCTION);
 		addTemplateSelection(layout, PreCompetitionTemplates.EMPTY_PROTOCOL);
@@ -125,34 +126,6 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 
 		return layout;
 	}
-
-	public FormLayout templateSelectionForm(String titleString, PreCompetitionTemplates type) {
-		FormLayout layout = createLayout();
-		Component title = createTitle(titleString);
-		layout.add(title);
-		layout.setColspan(title, 2);
-
-		switch (type) {
-
-			case CHECKIN:
-			case OFFICIALS:
-			case START_LIST:
-			case SCHEDULE:
-				return competitionTemplateSelectionForm();
-
-			case CARDS:
-			case WEIGHIN:
-				return preWeighInTemplateSelectionForm();
-
-			case EMPTY_PROTOCOL:
-			case INTRODUCTION:
-			case JURY:
-				return postWeighInTemplateSelectionForm();
-				
-			default:
-				throw new IllegalArgumentException(type.toString());
-		}
-	}	
 
 	private void addTemplateSelection(FormLayout layout, PreCompetitionTemplates template) {
 		List<Resource> prioritizedList = computeResourceList(template.folder, (f) -> f.endsWith(template.extension));

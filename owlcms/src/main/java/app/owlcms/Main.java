@@ -219,6 +219,13 @@ public class Main {
 		SLF4JBridgeHandler.install();
 		// disable poixml warning
 		StartupUtils.disableWarning();
+		
+		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+		    @Override
+		    public void uncaughtException(Thread t, Throwable e) {
+		        System.out.println("Caught " + e);
+		    }
+		});
 
 		// read command-line and environment variable parameters
 		parseConfig();

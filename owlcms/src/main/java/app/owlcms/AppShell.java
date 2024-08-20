@@ -1,17 +1,23 @@
 package app.owlcms;
 
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.LoadingIndicatorConfiguration;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.server.AppShellSettings;
+import com.vaadin.flow.server.ErrorEvent;
+import com.vaadin.flow.server.ErrorHandler;
 import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import com.vaadin.flow.server.VaadinServletResponse;
+import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.communication.IndexHtmlRequestListener;
 import com.vaadin.flow.server.communication.IndexHtmlResponse;
 import com.vaadin.flow.theme.Theme;
 
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.servlet.StopProcessingException;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
@@ -68,6 +74,20 @@ public class AppShell implements AppShellConfigurator, VaadinServiceInitListener
 			conf.setThirdDelay(5000); // 5000ms is the default
 		});
 		serviceInitEvent.addIndexHtmlRequestListener(this);
+
+		serviceInitEvent.getSource().addSessionInitListener(sessionInitEvent -> {
+			VaadinSession session = sessionInitEvent.getSession();
+			ErrorHandler handler = new ErrorHandler() {
+				@Override
+				public void error(ErrorEvent errorEvent) {
+					Throwable t = errorEvent.getThrowable();
+					if (!(t instanceof StopProcessingException)) {
+						LoggerFactory.getLogger("app.owlcms.errorHandler").warn(t.toString());
+					}
+				}
+			};
+			session.setErrorHandler(handler);
+		});
 	}
 
 	private String getCurrentUserLanguage() {
