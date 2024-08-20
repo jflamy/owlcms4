@@ -4,6 +4,9 @@
 > - **Alpha releases are not normally used in actual competitions.**
 
 - Preliminary releases change log
+  - (beta01) Initial documentation for the Documents page
+  - (beta01) The Documents page no longer includes the session editing behavior
+  - (beta01) Age Group configuration drop down now respects the "local files only" setting.
   - (alpha05) Cleaned-up Documents page so that all documents have harmonized user interface dialogs with better feedback
   - (alpha04) Added a Schedule document suitable for large events, with USAW-style additional information about categories and entry totals
   - (alpha04) Updated Marshal card to be more similar to IWF

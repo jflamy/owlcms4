@@ -120,7 +120,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		Button teams = openInNewTabNoParam(TeamSelectionContent.class,
 		        Translator.translate(TeamSelectionContent.TITLE));
 
-		Button documents = openInNewTab(SessionContent.class, Translator.translate("Documents.Title"),"documents");
+		Button documents = openInNewTab(DocumentsContent.class, Translator.translate("Documents.Title"),"documents");
 		documents.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
 
 		Button uploadJson = new Button(Translator.translate("ExportDatabase.UploadJson"),

@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -43,7 +41,6 @@ import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -63,8 +60,6 @@ import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.Route;
 
@@ -100,7 +95,6 @@ import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
-import app.owlcms.utils.URLUtils;
 import app.owlcms.utils.ZipUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -111,19 +105,19 @@ import ch.qos.logback.classic.Logger;
  * Defines the toolbar and the table for editing data on sessions.
  */
 @SuppressWarnings("serial")
-@Route(value = "preparation/sessions", layout = OwlcmsLayout.class)
-public class SessionContent extends BaseContent implements CrudListener<Group>, OwlcmsContent {
+@Route(value = "preparation/documents", layout = OwlcmsLayout.class)
+public class DocumentsContent extends BaseContent implements CrudListener<Group>, OwlcmsContent {
 
 	private record KitElement(String id, String name, String extension, Path isp, int count, Supplier<JXLSWorkbookStreamSource> writerFactory) {
 	}
 
-	final static Logger logger = (Logger) LoggerFactory.getLogger(SessionContent.class);
+	final static Logger logger = (Logger) LoggerFactory.getLogger(DocumentsContent.class);
 
 	static {
 		logger.setLevel(Level.INFO);
 	}
 	boolean documentPage;
-	private SessionGrid crud;
+	private DocumentsGrid crud;
 	private OwlcmsCrudFormFactory<Group> editingFormFactory;
 	private OwlcmsLayout routerLayout;
 	private FlexLayout topBar;
@@ -131,8 +125,8 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 	/**
 	 * Instantiates the Group crudGrid.
 	 */
-	public SessionContent() {
-		this.editingFormFactory = new SessionEditingFormFactory(Group.class, this);
+	public DocumentsContent() {
+		this.editingFormFactory = null; //new SessionEditingFormFactory(Group.class, this);
 		GridCrud<Group> crud = createGrid(this.editingFormFactory);
 		// defineFilters(crudGrid);
 		fillHW(crud, this);
@@ -324,7 +318,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		if (this.documentPage) {
-			this.crud.getAddButton().removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+			this.crud.getAddButton().getStyle().set("display", "none");
 		}
 	}
 
@@ -770,7 +764,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 	 */
 	private GridCrud<Group> createGrid(OwlcmsCrudFormFactory<Group> crudFormFactory) {
 		Grid<Group> grid = new Grid<>(Group.class, false);
-		this.crud = new SessionGrid(Group.class, new OwlcmsGridLayout(Group.class), crudFormFactory, grid);
+		this.crud = new DocumentsGrid(Group.class, new OwlcmsGridLayout(Group.class), crudFormFactory, grid);
 		grid.getThemeNames().add("row-stripes");
 		grid.addColumn(Group::getName).setHeader(Translator.translate("Name")).setComparator(Group::compareTo).setAutoWidth(true);
 		grid.addColumn(Group::getDescription).setHeader(Translator.translate("Group.Description")).setAutoWidth(true);
@@ -780,18 +774,18 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		grid.addColumn(LocalDateTimeField.getRenderer(Group::getCompetitionTime, this.getLocale()))
 		        .setHeader(Translator.translate("StartTime"));
 		grid.addColumn(Group::getPlatform).setHeader(Translator.translate("Platform")).setTextAlign(ColumnTextAlign.CENTER);
-		String translation = Translator.translate("EditAthletes");
-		// int tSize = translation.length();
-		grid.addColumn(new ComponentRenderer<>(p -> {
-			Button editDetails = new Button(Translator.translate("Sessions.EditDetails"));
-			editDetails.addThemeVariants(ButtonVariant.LUMO_SMALL);
-			Button technical = openInNewTab(RegistrationContent.class, translation, p != null ? p.getName() : "?");
-			// prevent grid row selection from triggering
-			technical.getElement().addEventListener("click", ignore -> {
-			}).addEventData("event.stopPropagation()");
-			technical.addThemeVariants(ButtonVariant.LUMO_SMALL);
-			return new HorizontalLayout(editDetails, technical);
-		})).setHeader("").setAutoWidth(true);
+//		String translation = Translator.translate("EditAthletes");
+//		int tSize = translation.length();
+//		grid.addColumn(new ComponentRenderer<>(p -> {
+//			Button editDetails = new Button(Translator.translate("Sessions.EditDetails"));
+//			editDetails.addThemeVariants(ButtonVariant.LUMO_SMALL);
+//			Button technical = openInNewTab(RegistrationContent.class, translation, p != null ? p.getName() : "?");
+//			// prevent grid row selection from triggering
+//			technical.getElement().addEventListener("click", ignore -> {
+//			}).addEventData("event.stopPropagation()");
+//			technical.addThemeVariants(ButtonVariant.LUMO_SMALL);
+//			return new HorizontalLayout(editDetails, technical);
+//		})).setHeader("").setAutoWidth(true);
 
 		for (Column<Group> c : grid.getColumns()) {
 			c.setResizable(true);
@@ -799,7 +793,7 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 
 		this.crud.setCrudListener(this);
 		this.crud.setClickRowToUpdate(true);
-		grid.setSelectionMode(SelectionMode.SINGLE);
+		grid.setSelectionMode(SelectionMode.MULTI);
 		return this.crud;
 	}
 
@@ -1077,12 +1071,12 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		return this.crud.getSelectedItems().stream().sorted(Group.groupWeighinTimeComparator).toList();
 	}
 
-	private <C extends Component> String getWindowOpenerFromClass(Class<C> targetClass,
-	        String parameter) {
-		return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "?group="
-		        + URLEncoder.encode(parameter, StandardCharsets.UTF_8)
-		        + "','" + targetClass.getSimpleName() + "')";
-	}
+//	private <C extends Component> String getWindowOpenerFromClass(Class<C> targetClass,
+//	        String parameter) {
+//		return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "?group="
+//		        + URLEncoder.encode(parameter, StandardCharsets.UTF_8)
+//		        + "','" + targetClass.getSimpleName() + "')";
+//	}
 
 	private List<Athlete> groupAthletes(Group g, boolean sessionOrder) {
 		List<Athlete> regCatAthletesList = new ArrayList<>(g.getAthletes());
@@ -1158,12 +1152,12 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 		});
 	}
 
-	private <C extends Component> Button openInNewTab(Class<C> targetClass,
-	        String label, String parameter) {
-		Button button = new Button(label);
-		button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter != null ? parameter : "-"));
-		return button;
-	}
+//	private <C extends Component> Button openInNewTab(Class<C> targetClass,
+//	        String label, String parameter) {
+//		Button button = new Button(label);
+//		button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter != null ? parameter : "-"));
+//		return button;
+//	}
 
 //	private void postWeighInTemplateSelection() {
 //		Dialog dialog = new Dialog();
