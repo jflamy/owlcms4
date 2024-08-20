@@ -29,7 +29,7 @@ public enum PreCompetitionTemplates {
 			() -> Competition.getCurrent().getCheckInTemplateFileName(),
 	        (v) -> Competition.getCurrent().setCheckInTemplateFileName(v)),
 
-	CARDS("/templates/cards", ".xls", 
+	CARDS("/templates/cards", ".xlsx", 
 			() -> Competition.getCurrent().getCardsTemplateFileName(),
 	        (v) -> Competition.getCurrent().setCardsTemplateFileName(v)),
 	WEIGHIN("/templates/weighin", ".xlsx", 
@@ -44,8 +44,11 @@ public enum PreCompetitionTemplates {
 	        (v) -> Competition.getCurrent().setEmptyProtocolTemplateFileName(v)),
 	JURY("/templates/jury", ".xlsx", 
 			() -> Competition.getCurrent().getJuryTemplateFileName(),
-	        (v) -> Competition.getCurrent().setJuryTemplateFileName(v)), 
+	        (v) -> Competition.getCurrent().setJuryTemplateFileName(v)),
+	PRE_WEIGHIN("", ".zip", null, null),
+	POST_WEIGHIN("", ".zip", null, null), 
 	;
+	
 
 	String folder;
 	String extension;

@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition;
@@ -59,29 +60,40 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 		return title;
 	}
 
-	public FormLayout preWeighInTemplateSelectionForm() {
-		FormLayout layout = createLayout();
-		Component title = createTitle(DOCUMENTS_TEMPLATE_SELECTION);
-		layout.add(title);
-		layout.setColspan(title, 2);
-		Div div = new Div(Translator.translate(DOCUMENTS_IGNORE_NO_TEMPLATE));
-		layout.add(div);
-		layout.setColspan(div, 2);
-
+	public FormLayout preWeighInTemplateSelectionForm(Dialog dialog) {
+		FormLayout layout = createSetLayoutHeader(PreCompetitionTemplates.PRE_WEIGHIN);
 		addTemplateSelection(layout, PreCompetitionTemplates.CARDS);
 		addTemplateSelection(layout, PreCompetitionTemplates.WEIGHIN);
 		return layout;
 	}
 
-	public FormLayout postWeighInTemplateSelectionForm() {
+	private FormLayout createLayoutHeader(PreCompetitionTemplates templateDefinition) {
 		FormLayout layout = createLayout();
-		Component title = createTitle(DOCUMENTS_TEMPLATE_SELECTION);
+		Component title = createTitle(templateDefinition.name());
+		layout.add(title);
+		layout.setColspan(title, 2);
+		return layout;
+	}
+	
+	private FormLayout createSetLayoutHeader(PreCompetitionTemplates templateDefinition) {
+		FormLayout layout = createLayout();
+		Component title = createTitle(templateDefinition.name());
 		layout.add(title);
 		layout.setColspan(title, 2);
 		Div div = new Div(Translator.translate(DOCUMENTS_IGNORE_NO_TEMPLATE));
 		layout.add(div);
 		layout.setColspan(div, 2);
+		return layout;
+	}
+	
+	public FormLayout singleTemplateSelection(PreCompetitionTemplates templateDefinition) {
+		FormLayout layout = createLayoutHeader(templateDefinition);
+		addTemplateSelection(layout, templateDefinition);
+		return layout;
+	}
 
+	public FormLayout postWeighInTemplateSelectionForm(Dialog dialog) {
+		FormLayout layout = createSetLayoutHeader(PreCompetitionTemplates.POST_WEIGHIN);
 		addTemplateSelection(layout, PreCompetitionTemplates.INTRODUCTION);
 		addTemplateSelection(layout, PreCompetitionTemplates.EMPTY_PROTOCOL);
 		addTemplateSelection(layout, PreCompetitionTemplates.JURY);
@@ -114,34 +126,6 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 
 		return layout;
 	}
-
-	public FormLayout templateSelectionForm(String titleString, PreCompetitionTemplates type) {
-		FormLayout layout = createLayout();
-		Component title = createTitle(titleString);
-		layout.add(title);
-		layout.setColspan(title, 2);
-
-		switch (type) {
-
-			case CHECKIN:
-			case OFFICIALS:
-			case START_LIST:
-			case SCHEDULE:
-				return competitionTemplateSelectionForm();
-
-			case CARDS:
-			case WEIGHIN:
-				return preWeighInTemplateSelectionForm();
-
-			case EMPTY_PROTOCOL:
-			case INTRODUCTION:
-			case JURY:
-				return postWeighInTemplateSelectionForm();
-				
-			default:
-				throw new IllegalArgumentException(type.toString());
-		}
-	}	
 
 	private void addTemplateSelection(FormLayout layout, PreCompetitionTemplates template) {
 		List<Resource> prioritizedList = computeResourceList(template.folder, (f) -> f.endsWith(template.extension));

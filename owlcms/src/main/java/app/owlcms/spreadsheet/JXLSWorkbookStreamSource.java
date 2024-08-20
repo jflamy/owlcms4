@@ -458,10 +458,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			@SuppressWarnings("unchecked")
 			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
 			if (athletes != null && (athletes.size() == 0 ? isEmptyOk() : isSizeOk(athletes.size()))) {
-				logger.info("before transformWorkbook");
+				logger.debug("{} before transformWorkbook", this.getTemplateFileName());
 				long start = System.currentTimeMillis();
 				transformer.transformWorkbook(workbook, reportingInfo);
-				logger.info("after transformWorkbook ({} ms)", System.currentTimeMillis() - start);
+				logger.debug("{} after transformWorkbook ({} ms)", this.getTemplateFileName(), System.currentTimeMillis() - start);
 				if (workbook != null) {
 					postProcess(workbook);
 				}
