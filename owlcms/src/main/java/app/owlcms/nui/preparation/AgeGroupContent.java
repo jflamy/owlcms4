@@ -46,6 +46,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
+import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
@@ -128,7 +129,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		// locale = new Locale("fr","FR");
 
 		List<Resource> resourceList = new ResourceWalker().getResourceList("/agegroups", ResourceWalker::relativeName,
-		        null, locale);
+		        null, locale, Config.getCurrent().isLocalTemplatesOnly());
 		resourceList.sort((a, b) -> a.compareTo(b));
 		this.ageGroupDefinitionSelect.setItems(resourceList);
 		this.ageGroupDefinitionSelect.setValue(null);
