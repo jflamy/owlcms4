@@ -1,9 +1,12 @@
-> [!CAUTION]
+> [!WARNING]
 >
-> - This is an **alpha release**, used for validating new features.  *Some features are likely to be incomplete or non-functional*.  
-> - **Alpha releases are not normally used in actual competitions.**
+> - This is a **beta release**, used for testing and translation. ***Some features could be non-functional***.
+> - Beta releases are **not** normally used in actual competitions, except when a new feature is required. Use extreme care in testing if you intend to do so.
 
 - Preliminary releases change log
+  - (beta01) Updated the documentation for the Documents 
+  - (beta01) Added formattedRange method to sessions in order to summarize the bodyweights and A/B/C groups in a session
+  - (beta01) Fixed a (rare, intermittent) crash when multiple championships are present (error in name sorting)
   - (alpha06) More intuitive sorting order on some of the documents (e.g. Introduction Sheet is now by age groups, whereas Empty Protocol is by Start Number)
   - (alpha06) The Documents page no longer includes the session editing behavior
   - (alpha06) Age Group configuration drop down now respects the "local files only" setting.
