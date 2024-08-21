@@ -1189,12 +1189,6 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		                (a, g) -> {
 			                // schedule is currently a variation on starting list
 			                JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
-			                // group may have been edited since the page was loaded
-//			                xlsWriter.setGroup(
-//			                        getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
-//			                // get current version of athletes.
-//			                List<Athlete> athletesFindAll = athletesFindAll(true);
-//			                xlsWriter.setSortedAthletes(athletesFindAll);
 
 			                String tn = Competition.getCurrent().getScheduleTemplateFileName();
 			                if (tn.equals("Schedule.xlsx") && Config.getCurrent().featureSwitch("usaw")) {
