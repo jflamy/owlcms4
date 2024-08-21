@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.i18n.Translator;
@@ -35,10 +36,23 @@ public class Championship implements Comparable<Championship> {
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(Championship.class);
 	private static Map<String, Championship> allChampionshipsMap;
 	private static List<Championship> allChampionshipsList;
-	static Comparator<Championship> ct = Comparator.comparing(Championship::getType)
-			.thenComparing(Championship::getNameLength)
-	        .thenComparing(Championship::getName);
 	
+	static Comparator<Championship> ct = (a, b) -> {
+		int compare = 0;
+		compare = ObjectUtils.compare(a.getType(), b.getType(), true);
+		if (compare != 0) {
+			return compare;
+		}
+		var aLength = a.getName() != null ? a.getName().length() : 0;
+		var bLength = b.getName() != null ? b.getName().length() : 0;
+		compare = ObjectUtils.compare(aLength, bLength);
+		if (compare != 0) {
+			return compare;
+		}
+		compare = ObjectUtils.compare(a.getName(), b.getName(), true);
+		return compare;
+	};
+
 	/**
 	 * Find all.
 	 *
@@ -145,10 +159,10 @@ public class Championship implements Comparable<Championship> {
 	public String getName() {
 		return this.name;
 	}
-	
-	public int getNameLength() {
-		return this.name.length();
-	}
+
+//	public int getNameLength() {
+//		return this.name.length();
+//	}
 
 	public ChampionshipType getType() {
 		return this.type;
@@ -168,7 +182,7 @@ public class Championship implements Comparable<Championship> {
 	}
 
 	public String translate() {
-		String tr = Translator.translateOrElseNull("Championship."+getName(), OwlcmsSession.getLocale());
+		String tr = Translator.translateOrElseNull("Championship." + getName(), OwlcmsSession.getLocale());
 		return tr != null ? tr : getName();
 	}
 

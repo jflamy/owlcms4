@@ -527,7 +527,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 				}
 			} else {
 				String message;
-				if (athletes.size() == 0) {
+				if (athletes == null || athletes.size() == 0) {
 					message = Translator.translate("NoAthletes");
 					logger./**/warn("no athletes: empty report.");
 				} else {

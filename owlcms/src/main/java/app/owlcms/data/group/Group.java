@@ -16,8 +16,10 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -40,6 +42,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 
+import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AbstractLifterComparator;
@@ -62,6 +65,131 @@ import ch.qos.logback.classic.Logger;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Group.class)
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger", "athletes" })
 public class Group implements Comparable<Group> {
+	
+	public record Range (Integer min, Integer max) {
+		public String getFormattedRange() {
+			if (min == Integer.MAX_VALUE && max == 0) {
+				return "";
+			} else if (min == max) {
+				return min.toString();
+			} else {
+				return min.toString()+" - "+max.toString();
+			}
+		}
+	};
+	
+	@Transient
+	@JsonIgnore
+	public Range getStartingRange() {
+		int min = Integer.MAX_VALUE;
+		int max = 0;
+		for (Athlete a : getAthletes()) {
+			Integer q = a.getQualifyingTotal();
+			if (q == null) {
+				continue;
+			}
+			min = q < min ? q : min;
+			max = q > max ? q : max;
+		}
+		return new Range(min, max);
+	}
+	
+	public void setFormattedRange(String unused) {
+
+	}
+
+	public String getFormattedRange() {
+		List<Athlete> athletes = getAthletes();
+		Boolean unanimous = true;
+		Double smallestWeightClass = null;
+		Double largestWeightClass = null;
+		String largestWeightClassLimitString = null;
+		String weightClassRange = null;
+		String bestSubCategory = null;
+		TreeMap<String, BWCatInfo> subCats = new TreeMap<>();
+
+		for (Athlete a : athletes) {
+			AgeGroup ageGroup = a.getAgeGroup();
+			if (ageGroup == null) {
+				continue;
+			}
+
+			String subCategory = a.getSubCategory();
+			if (subCategory.isBlank()) {
+				subCategory = null;
+			}
+
+			if (weightClassRange == null) {
+				smallestWeightClass = a.getCategory().getMaximumWeight();
+				largestWeightClass = a.getCategory().getMaximumWeight();
+				largestWeightClassLimitString = a.getCategory().getLimitString();
+				weightClassRange = a.getCategory().getLimitString();
+				bestSubCategory = subCategory;
+
+				BWCatInfo bwi = new BWCatInfo(a.getCategory().getMaximumWeight().intValue(), a.getCategory().getLimitString(), a.getSubCategory());
+				subCats.put(bwi.getKey(), bwi);
+			} else {
+				if (smallestWeightClass == null
+				        || a.getCategory().getMinimumWeight() < smallestWeightClass) {
+					smallestWeightClass = a.getCategory().getMaximumWeight();
+				}
+
+				if (largestWeightClass == null
+				        || a.getCategory().getMaximumWeight() > largestWeightClass) {
+					largestWeightClass = a.getCategory().getMaximumWeight();
+					largestWeightClassLimitString = a.getCategory().getLimitString();
+				}
+
+				if (subCategory != null) {
+					if (bestSubCategory != null) {
+						int compare = subCategory.compareToIgnoreCase(bestSubCategory);
+
+						if (compare < 0) {
+							// A is better than B
+							bestSubCategory = subCategory;
+						}
+
+						unanimous = unanimous && (compare == 0);
+					} else {
+						// largest was null, if we are "A", still unanimous
+						int compare = "A".compareToIgnoreCase(subCategory);
+						bestSubCategory = subCategory;
+						unanimous = unanimous && (compare == 0);
+					}
+				} else {
+					if (bestSubCategory != null) {
+						// a null subcategory is considered to be the same as "A".
+						int compare = "A".compareToIgnoreCase(bestSubCategory);
+						unanimous = unanimous && (compare == 0);
+					} else {
+						// all null subCategories so far.
+						unanimous = true;
+					}
+				}
+
+				BWCatInfo bwi = new BWCatInfo(a.getCategory().getMaximumWeight().intValue(), a.getCategory().getLimitString(), a.getSubCategory());
+				subCats.put(bwi.getKey(), bwi);
+
+				if (Math.abs(largestWeightClass - smallestWeightClass) < 0.1) {
+					// same
+					weightClassRange = a.getCategory().getLimitString();
+				} else {
+					weightClassRange = (int) Math.round(smallestWeightClass) + "-"
+					        + largestWeightClassLimitString;
+				}
+			}
+		}
+
+		if (unanimous) {
+			if (bestSubCategory == null) {
+				return weightClassRange;
+			} else {
+				return weightClassRange + " " + bestSubCategory;
+			}
+		} else {
+			return subCats.values().stream().map(v -> v.getFormattedString()).collect(Collectors.joining(", "));
+		}
+	}
 
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(Group.class);
 	private final static NaturalOrderComparator<String> c = new NaturalOrderComparator<>();

@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -74,6 +75,7 @@ import app.owlcms.data.athleteSort.RegistrationOrderComparator;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.Platform;
@@ -107,7 +109,8 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "preparation/documents", layout = OwlcmsLayout.class)
 public class DocumentsContent extends BaseContent implements CrudListener<Group>, OwlcmsContent {
 
-	private record KitElement(String id, String name, String extension, Path isp, int count, Supplier<JXLSWorkbookStreamSource> writerFactory) {
+	private record KitElement(String id, String name, String extension, Path isp, int count,
+	        BiFunction<List<Athlete>, Group, JXLSWorkbookStreamSource> writerFactory) {
 	}
 
 	final static Logger logger = (Logger) LoggerFactory.getLogger(DocumentsContent.class);
@@ -328,7 +331,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	private KitElement checkKit(String id, PreCompetitionTemplates templateEnum, BiConsumer<Throwable, String> errorProcessor,
-	        Supplier<JXLSWorkbookStreamSource> writerFactory) {
+	        BiFunction<List<Athlete>, Group, JXLSWorkbookStreamSource> writerFactory) {
 		try {
 			String resourceFolder = templateEnum.folder;
 			resourceFolder = resourceFolder.endsWith("/") ? resourceFolder : (resourceFolder + "/");
@@ -731,12 +734,19 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		return new Div(openDialog);
 	}
 
-	private void doKitElement(KitElement elem, String seq, ZipOutputStream zipOut, Group g, List<Athlete> athletes) throws IOException {
-		JXLSWorkbookStreamSource xlsWriter = elem.writerFactory.get();
+	private void doKitElement(KitElement elem, String seq, ZipOutputStream zipOut, Group g, List<Athlete> athletes) throws IOException {	
+		JXLSWorkbookStreamSource xlsWriter = elem.writerFactory.apply(athletes, g);
+		
+		// apply default if the factory did not set
+		if (xlsWriter.getGroup() == null) {
+			xlsWriter.setGroup(g);
+		}
+		if (xlsWriter.getSortedAthletes() == null) {
+			xlsWriter.setSortedAthletes(athletes);
+		}
+		
 		InputStream is = Files.newInputStream(elem.isp);
 		xlsWriter.setInputStream(is);
-		xlsWriter.setGroup(g);
-		xlsWriter.setSortedAthletes(athletes);
 		xlsWriter.setTemplateFileName(elem.name);
 		InputStream in = xlsWriter.createInputStream();
 		String name = seq + "_" + elem.id + "_" + g.getName() + "." + elem.extension;
@@ -769,16 +779,27 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		// for items that are one per session, selected sessions will be non-empty.
 		Group g = (selectedSessions != null && selectedSessions.size() > 0) ? selectedSessions.get(0) : null;
 		KitElement elem = elements.get(0);
+		
+		List<Athlete> athletes = null;
+		if (g != null) {
+			athletes = groupAthletes(g, true);
+		}
 
-		JXLSWorkbookStreamSource xlsWriter = elem.writerFactory.get();
+		// writerFactory can apply custom sorting order to the athletes
+		JXLSWorkbookStreamSource xlsWriter = elem.writerFactory.apply(athletes, g);		
+		if (xlsWriter.getSortedAthletes() == null) {
+			// writerFactory did not set them explicitly, set default
+			xlsWriter.setSortedAthletes(athletes);
+		}
+		if (xlsWriter.getGroup() == null) {
+			// writerFactory did not set them explicitly, set default.
+			xlsWriter.setGroup(g);
+		}
+		
 		InputStream is = Files.newInputStream(elem.isp);
 		xlsWriter.setInputStream(is);
 		xlsWriter.setTemplateFileName(elem.name);
-		if (g != null) {
-			List<Athlete> athletes = groupAthletes(g, true);
-			xlsWriter.setGroup(g);
-			xlsWriter.setSortedAthletes(athletes);
-		}
+
 
 		if (doneCallback == null) {
 			Notification n = new Notification(Translator.translate("Documents.ProcessingExcel"));
@@ -978,7 +999,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        checkKit("bodyweight",
 		                templateDefinition,
 		                errorProcessor,
-		                () -> {
+		                (a, g) -> {
 			                JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
 			                startingXlsWriter.setGroup(null);
 			                // get current version of athletes.
@@ -997,12 +1018,12 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        checkKit("cards",
 		                templateDefinition,
 		                errorProcessor,
-		                () -> {
-		                	JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
+		                (a, g) -> {
+			                JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
 			                List<Athlete> athletes = athletesFindAll(true);
 			                athletes.sort(RegistrationOrderComparator.athleteSessionRegistrationOrderComparator);
 			                xlsWriter.setSortedAthletes(athletes);
-		                	return xlsWriter;
+			                return xlsWriter;
 		                }));
 		return elements;
 	}
@@ -1013,7 +1034,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        checkKit("categories",
 		                template,
 		                errorProcessor,
-		                () -> {
+		                (a, g) -> {
 			                JXLSCategoriesListDocs xlsWriter = new JXLSCategoriesListDocs();
 			                xlsWriter.setGroup(null);
 			                // get current version of athletes.
@@ -1031,7 +1052,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        checkKit("checkin",
 		                template,
 		                errorProcessor,
-		                () -> {
+		                (a, g) -> {
 			                JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
 			                // group may have been edited since the page was loaded
 			                startingXlsWriter.setGroup(null);
@@ -1051,7 +1072,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        checkKit("weighin",
 		                template,
 		                errorProcessor,
-		                () -> {
+		                (a, g) -> {
 			                JXLSResultSheet rs = new JXLSResultSheet();
 			                rs.setGroup(null);
 			                return rs;
@@ -1066,14 +1087,12 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        checkKit("introduction",
 		                template,
 		                errorProcessor,
-		                () -> {
+		                (a, g) -> {
 			                JXLSCategoriesListDocs xlsWriter = new JXLSCategoriesListDocs();
-			                xlsWriter.setGroup(null);
+			                xlsWriter.setGroup(g);
 			                // get current version of athletes.
-			                var athletes = athletesFindAll(true);
-			                athletes.sort((a,b) -> ObjectUtils.compare(a.getCategoryCode(), b.getCategoryCode()));
-			                xlsWriter.setSortedAthletes(athletes);
-			                logger.warn("athletes {}", athletes);
+			                a.sort((x, y) -> ObjectUtils.compare(x.getCategoryCode(), y.getCategoryCode()));
+			                xlsWriter.setSortedAthletes(a);
 			                return xlsWriter;
 		                }));
 		return elements;
@@ -1086,7 +1105,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        checkKit("weighin",
 		                template,
 		                errorProcessor,
-		                () -> {
+		                (a, g) -> {
 			                JXLSJurySheet rs = new JXLSJurySheet();
 			                rs.setGroup(null);
 			                return rs;
@@ -1100,7 +1119,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        checkKit("officials",
 		                PreCompetitionTemplates.OFFICIALS,
 		                errorProcessor,
-		                () -> {
+		                (a, g) -> {
 			                JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
 			                xlsWriter.setGroup(
 			                        getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
@@ -1117,7 +1136,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		KitElement kit = checkKit("introduction",
 		        PreCompetitionTemplates.INTRODUCTION,
 		        null, // no error processor - ignore this item if no template
-		        () -> new JXLSWeighInSheet());
+		        (a, g) -> new JXLSWeighInSheet());
 		if (kit != null) {
 			elements.add(kit);
 		}
@@ -1125,7 +1144,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		KitElement kit2 = checkKit("emptyProtocol",
 		        PreCompetitionTemplates.EMPTY_PROTOCOL,
 		        null, // no error processor - ignore this item if no template
-		        () -> new JXLSResultSheet());
+		        (a, g) -> new JXLSResultSheet());
 		if (kit2 != null) {
 			elements.add(kit2);
 		}
@@ -1133,7 +1152,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		KitElement kit3 = checkKit("jury",
 		        PreCompetitionTemplates.JURY,
 		        null, // no error processor - ignore this item if no template
-		        () -> new JXLSJurySheet());
+		        (a, g) -> new JXLSJurySheet());
 		if (kit3 != null) {
 			elements.add(kit3);
 		}
@@ -1146,7 +1165,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		KitElement kit = checkKit("weighin",
 		        PreCompetitionTemplates.WEIGHIN,
 		        null, // no error processor - ignore this item if no template
-		        () -> new JXLSCardsDocs());
+		        (a, g) -> new JXLSCardsDocs());
 		if (kit != null) {
 			elements.add(kit);
 		}
@@ -1154,7 +1173,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		KitElement kit2 = checkKit("cards",
 		        PreCompetitionTemplates.CARDS,
 		        null, // no error processor - ignore this item if no template
-		        () -> new JXLSCardsDocs());
+		        (a, g) -> new JXLSCardsDocs());
 		if (kit2 != null) {
 			elements.add(kit2);
 		}
@@ -1167,18 +1186,12 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        checkKit("schedule",
 		                PreCompetitionTemplates.SCHEDULE,
 		                errorProcessor,
-		                () -> {
+		                (a, g) -> {
 			                // schedule is currently a variation on starting list
 			                JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
-			                // group may have been edited since the page was loaded
-			                xlsWriter.setGroup(
-			                        getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
-			                // get current version of athletes.
-			                List<Athlete> athletesFindAll = athletesFindAll(true);
-			                xlsWriter.setSortedAthletes(athletesFindAll);
 
-			                String tn = Competition.getCurrent().getComputedStartListTemplateFileName();
-			                if (tn.equals("Schedule.xlsx")) {
+			                String tn = Competition.getCurrent().getScheduleTemplateFileName();
+			                if (tn.equals("Schedule.xlsx") && Config.getCurrent().featureSwitch("usaw")) {
 				                // FIXME: read this from the jxls3 directives
 				                xlsWriter.setPostProcessor((w) -> fixMerges(w, 4, List.of(1, 2)));
 			                } else if (tn.endsWith("Schedule.xlsx")) {
@@ -1199,7 +1212,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        checkKit("startList",
 		                templateDefinition,
 		                errorProcessor,
-		                () -> {
+		                (a, g) -> {
 			                JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
 			                // group may have been edited since the page was loaded
 			                xlsWriter.setGroup(null);
@@ -1218,7 +1231,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        checkKit("categories",
 		                template,
 		                errorProcessor,
-		                () -> {
+		                (a, g) -> {
 			                JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
 			                startingXlsWriter.setGroup(null);
 			                // get current version of athletes.
@@ -1236,7 +1249,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        checkKit("weighin",
 		                template,
 		                errorProcessor,
-		                () -> {
+		                (a, g) -> {
 			                JXLSWeighInSheet rs = new JXLSWeighInSheet();
 			                rs.setGroup(null);
 			                return rs;
