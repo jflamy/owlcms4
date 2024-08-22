@@ -28,9 +28,12 @@ public class ResultsLiftingOrder extends Results {
 	}
 
 	@Override
-	protected int countSubsets(List<Athlete> athlete) {
-		boolean snatchPresent = (athlete.get(0).getActuallyAttemptedLifts() < 3);
-		boolean cjPresent = (athlete.get(athlete.size() - 1).getAttemptsDone() >= 3);
+	protected int countSubsets(List<Athlete> athletes) {
+		// when the decision is shown, 1st athlete has completed lift, but is still shown at top as
+		// with other snatching athletes, if any, below.
+		// so we must check if there are any snatching still.
+		boolean snatchPresent = (athletes.stream().anyMatch(s -> s.getActuallyAttemptedLifts() < 3));
+		boolean cjPresent = (athletes.get(athletes.size() - 1).getAttemptsDone() >= 3);
 		return (snatchPresent ? 1 : 0) + (cjPresent ? 1 : 0) + 1;
 	}
 
