@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.BiPredicate;
 
 import org.slf4j.LoggerFactory;
@@ -1018,7 +1017,7 @@ public class Results extends LitTemplate
 		}
 	}
 
-	protected void setTranslationMap(Ranking ageGroupRanking, boolean globalRanking) {
+	protected void setTranslationMap() {
 		JsonObject translations = Json.createObject();
 		Enumeration<String> keys = Translator.getKeys();
 		while (keys.hasMoreElements()) {
@@ -1027,17 +1026,7 @@ public class Results extends LitTemplate
 				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
 			}
 		}
-
-		// Translated names are too long for the column header.
-		// if (globalRanking) {
-		// String scoringTitle = Ranking.getScoringTitle(Competition.getCurrent().getScoringSystem());
-		// translations.put("ScoringTitle", scoringTitle != null ? scoringTitle : Translator.translate("Score"));
-		// } else if (ageGroupRanking != null ){
-		// String scoringTitle = Ranking.getScoringTitle(ageGroupRanking);
-		// translations.put("ScoringTitle", scoringTitle != null ? scoringTitle : Translator.translate("Score"));
-		// } else {
 		translations.put("ScoringTitle", Translator.translate("Score"));
-		// }
 		this.getElement().setPropertyJson("t", translations);
 	}
 
@@ -1082,7 +1071,7 @@ public class Results extends LitTemplate
 
 	private String computedScore(Athlete a) {
 		AgeGroup ageGroup = a.getAgeGroup();
-		Ranking ageGroupScoringSystem = ageGroup != null ? ageGroup.getScoringSystem() : null;
+		Ranking ageGroupScoringSystem = ageGroup != null ? ageGroup.getComputedScoringSystem() : null;
 		// logger.debug("a {} agegroup {} scoring {}",a.getLastName(),a.getAgeGroup(),a.getAgeGroup().getScoringSystem());
 		if (ageGroupScoringSystem != null) {
 			double value = Ranking.getRankingValue(a, Ranking.CUSTOM);
@@ -1102,7 +1091,7 @@ public class Results extends LitTemplate
 	}
 
 	private String computedScoreRank(Athlete a) {
-		Ranking ageGroupScoringSystem = a.getAgeGroup().getScoringSystem();
+		Ranking ageGroupScoringSystem = a.getAgeGroup().getComputedScoringSystem();
 		if (a.isEligibleForIndividualRanking()) {
 		if (ageGroupScoringSystem != null) {
 			Integer value = Ranking.getRanking(a, Ranking.CUSTOM);
@@ -1157,10 +1146,10 @@ public class Results extends LitTemplate
 	}
 
 	private void resultsInit() {
-		Ranking ageGroupRanking[] = { null };
+//		Ranking ageGroupRanking[] = { null };
 		boolean scoring[] = { false };
 		OwlcmsSession.withFop(fop -> {
-			this.logger.trace("{}Starting result board on FOP {}", FieldOfPlay.getLoggingName(fop));
+			this.logger.warn("{}Starting result board on FOP {}", FieldOfPlay.getLoggingName(fop));
 			setId("scoreboard-" + fop.getName());
 			this.curGroup = fop.getGroup();
 			setWideTeamNames(false);
@@ -1168,20 +1157,20 @@ public class Results extends LitTemplate
 
 			List<Athlete> athletes = fop.getDisplayOrder();
 			if (athletes != null && athletes.size() > 0) {
-				Ranking scoringSystem = athletes.get(0).getAgeGroup().getScoringSystem();
-				boolean unanimous = athletes.stream().allMatch(s -> {
-					Ranking scoringSystem2 = s.getAgeGroup().getScoringSystem();
-					return scoringSystem != null && scoringSystem.equals(scoringSystem2);
-				});
-				if (unanimous) {
-					ageGroupRanking[0] = scoringSystem;
-				}
+//				Ranking scoringSystem = athletes.get(0).getAgeGroup().getScoringSystem();
+//				boolean unanimous = athletes.stream().allMatch(s -> {
+//					Ranking scoringSystem2 = s.getAgeGroup().getScoringSystem();
+//					return scoringSystem != null && scoringSystem.equals(scoringSystem2);
+//				});
+//				if (unanimous) {
+//					ageGroupRanking[0] = scoringSystem;
+//				}
 				boolean any = athletes.stream().map(a -> a.getAgeGroup().getScoringSystem())
-				        .anyMatch(Objects::nonNull);
+				        .anyMatch(s -> s != null && s != Ranking.TOTAL);
 				scoring[0] = any;
 			}
 		});
-		setTranslationMap(ageGroupRanking[0], false);
+		setTranslationMap();
 		if (scoring[0] || Competition.getCurrent().isDisplayScores() || Competition.getCurrent().isSinclair()) {
 			this.getElement().setProperty("showSinclair", true);
 		}

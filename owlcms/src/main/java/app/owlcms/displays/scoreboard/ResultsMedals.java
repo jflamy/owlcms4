@@ -403,7 +403,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	}
 
 	@Override
-	protected void setTranslationMap(Ranking ignored, boolean globalRanking) {
+	protected void setTranslationMap() {
 		JsonObject translations = Json.createObject();
 		Enumeration<String> keys = Translator.getKeys();
 		while (keys.hasMoreElements()) {
@@ -670,7 +670,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			this.setGroup(fop.getVideoGroup());
 			this.setCategory(fop.getVideoCategory());
 		});
-		setTranslationMap(null, true);
+		setTranslationMap();
 	}
 
 	private void setDisplay() {

@@ -55,7 +55,7 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 				curRow.createCell(4).setCellValue(ag.getMinAge());
 				curRow.createCell(5).setCellValue(ag.getMaxAge());
 				curRow.createCell(6).setCellValue(ag.isActive());
-				Ranking scoringSystem = ag.getScoringSystem();
+				Ranking scoringSystem = ag.getComputedScoringSystem();
 				curRow.createCell(7).setCellValue(scoringSystem == Ranking.TOTAL ? "" : scoringSystem.name());
 
 				int cellNum = 8;

@@ -2169,7 +2169,7 @@ public class FieldOfPlay implements IUnregister {
 			return;
 		}
 
-		if (getCurAthlete() != null && getCurAthlete().getAgeGroup() != null && getCurAthlete().getAgeGroup().getScoringSystem() != null) {
+		if (getCurAthlete() != null && getCurAthlete().getAgeGroup() != null && getCurAthlete().getAgeGroup().getComputedScoringSystem() != null) {
 			// compute leaders according to score.
 			Category category = getCurAthlete().getCategory();
 			TreeSet<Athlete> medalists = getMedals().get(category.getCode());

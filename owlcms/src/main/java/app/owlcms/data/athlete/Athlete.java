@@ -1639,7 +1639,7 @@ public class Athlete {
 		if (ageGroup == null) {
 			return 0.0;
 		}
-		Ranking scoringSystem = ageGroup.getScoringSystem();
+		Ranking scoringSystem = ageGroup.getComputedScoringSystem();
 		// avoid infinite recursion
 		if (scoringSystem != null && scoringSystem != Ranking.CUSTOM) {
 			return Ranking.getRankingValue(this, scoringSystem);

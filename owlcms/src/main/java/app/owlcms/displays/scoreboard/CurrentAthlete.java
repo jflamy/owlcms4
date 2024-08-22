@@ -29,7 +29,6 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
-import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
@@ -522,7 +521,7 @@ public class CurrentAthlete extends Results {
 	}
 
 	@Override
-	protected void setTranslationMap(Ranking ignored, boolean globalRanking) {
+	protected void setTranslationMap() {
 		JsonObject translations = Json.createObject();
 		Enumeration<String> keys = Translator.getKeys();
 		while (keys.hasMoreElements()) {
@@ -590,7 +589,7 @@ public class CurrentAthlete extends Results {
 			setWideTeamNames(false);
 			this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
 		});
-		setTranslationMap(null, true);
+		setTranslationMap();
 		this.order = ImmutableList.of();
 	}
 
