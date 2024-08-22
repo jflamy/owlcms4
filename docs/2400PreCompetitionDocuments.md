@@ -20,7 +20,7 @@ The page has two sections.  The top section includes buttons to print the variou
 - However, a zip will be produced when more than one session is selected -- each session document will be a separate entry in the zip.  The zip is then downloaded.  On Windows, if you use "Extract All"  (right-click on the zip file) you can use the `print.ps1` script to print all the documents to your default printer (right-click on the script and select "Run using PowerShell".)
 - If you use the "Document Set" option, all the documents for which you selected a template will be included in the zip.  The typical use of "Document Set" is to produce both the weigh-in form and the athlete cards together. If you select several sessions, the documents will be created for the selected sessions.
 
-## Start List
+## Start List and Schedules
 
 The start list (or starting list) shows all the athletes that will compete, in which group, and the order in which the athletes will be weighed in.  When you click on the start list button, you are given a choice of templates to use according to the paper format and whether or not you want the platform information to be visible.
 
@@ -76,7 +76,7 @@ The VFE template is also useful to record changes during VFE.   When the session
 
 ![30](nimg/2400PreCompetitionDocuments/18.png)
 
-### Lifting Session Documents
+## Lifting Session Documents
 
 The following documents are normally printed after weigh-in, before the session starts
 
