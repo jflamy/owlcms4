@@ -62,6 +62,16 @@ public class PAthlete extends Athlete implements IRankHolder {
 		this.originalParticipation = p;
 	}
 
+	@Override
+	public Boolean getCategoryFinished() {
+		return a.getCategoryFinished();
+	}
+	
+	@Override
+	public void setCategoryFinished(Boolean done) {
+		a.setCategoryFinished(done);
+	}
+	
 	/**
 	 * used only for debugging
 	 *

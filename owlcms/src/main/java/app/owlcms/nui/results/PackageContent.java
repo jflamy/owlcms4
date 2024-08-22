@@ -158,6 +158,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	 */
 	@Override
 	public Collection<Athlete> findAll() {
+		logger.warn("findAll!!!!");
 		Competition competition = Competition.getCurrent();
 		HashMap<String, Object> beans = competition.computeReportingInfo(this.ageGroupPrefix, this.championship);
 
@@ -170,7 +171,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		@SuppressWarnings("unchecked")
 		List<Athlete> allRelevant = (List<Athlete>) beans.get("allPAthletes");
 		Set<String> unfinishedCategories = AthleteRepository.unfinishedCategories(allRelevant);
-		//logger.debug("unfinished categories {}", unfinishedCategories);
+		logger.warn("unfinished categories {}", unfinishedCategories);
 
 		if (ranked == null || ranked.isEmpty()) {
 			return new ArrayList<>();
@@ -186,16 +187,15 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			                && (genderFilterValue == null || genderFilterValue == athleteGender)
 			                && (allCategories || !unfinishedCategories.contains(a.getCategory().getCode()))
 			                ;
-
 			        return catOk;
 		        })
 				.map(a -> {
 					if (a.getCategory() != null && unfinishedCategories.contains(a.getCategory().getCode())) {
 						a.setCategoryFinished(false);
 					} else {
+						logger.warn("{} finished",a);
 						a.setCategoryFinished(true);
 					}
-
 					return a;
 				})
 		        //.peek(r -> logger.debug("including {} {}",r, r.getCategory().getCode()))
