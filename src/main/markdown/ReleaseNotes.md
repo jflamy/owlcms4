@@ -4,9 +4,11 @@
 > - Beta releases are **not** normally used in actual competitions, except when a new feature is required. Use extreme care in testing if you intend to do so.
 
 - Preliminary releases change log
+  - (beta02) Fix: extra columns displaying a score and a rank were shown even if no age group with special scoring was in the session
+  - (beta02) Fixed display glitch on Lifting Order scoreboard. Immediately after the 3rd snatch, while the decision lights were shown, the bottom line of the scoreboard would be stretched.  Now fixed (the number of lines in the scoreboard was miscalculated)
   - (beta01) Updated the documentation for the Documents 
-  - (beta01) Added formattedRange method to sessions in order to summarize the bodyweights and A/B/C groups in a session
-  - (beta01) Fixed a (rare, intermittent) crash when multiple championships are present (error in name sorting)
+  - (beta01) Added a formattedRange method to sessions in order to summarize the bodyweights and A/B/C groups in a session
+  - (beta01) Fixed a (rare, intermittent) exception when multiple championships are present (error in name sorting)
   - (alpha06) More intuitive sorting order on some of the documents (e.g. Introduction Sheet is now by age groups, whereas Empty Protocol is by Start Number)
   - (alpha06) The Documents page no longer includes the session editing behavior
   - (alpha06) Age Group configuration drop down now respects the "local files only" setting.
