@@ -4,6 +4,9 @@
 > - Beta releases are **not** normally used in actual competitions, except when a new feature is required. Use extreme care in testing if you intend to do so.
 
 - Preliminary releases change log
+  - (beta03) Fixed categoryFinished property to work correctly in Excel reports (this property replaces categoryDone)
+  - (beta03) Fixed age group length validation to correctly indicate maximum length in the interface
+  - (beta03) Default USAW template - removed spurious category
   - (beta02) Fix: extra columns displaying a score and a rank were shown even if no age group with special scoring was in the session
   - (beta02) Fixed display glitch on Lifting Order scoreboard. Immediately after the 3rd snatch, while the decision lights were shown, the bottom line of the scoreboard would be stretched.  Now fixed (the number of lines in the scoreboard was miscalculated)
   - (beta01) Updated the documentation for the Documents 
