@@ -2956,7 +2956,7 @@ public class FieldOfPlay implements IUnregister {
 		} else {
 			// logger.debug"standard");
 			this.setLightBarInUse(false);
-			Gender gender = curAthlete.getGender();
+			Gender gender = curAthlete != null ? curAthlete.getGender() : null;
 			this.setBarWeight((gender != null && gender == Gender.M) ? 20 : 15);
 			this.setUseCollarsIfAvailable(true);
 		}
