@@ -458,10 +458,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			@SuppressWarnings("unchecked")
 			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
 			if (athletes != null && (athletes.size() == 0 ? isEmptyOk() : isSizeOk(athletes.size()))) {
-				logger.debug("{} before transformWorkbook", this.getTemplateFileName());
+				logger.info("{} before transformWorkbook", this.getTemplateFileName());
 				long start = System.currentTimeMillis();
 				transformer.transformWorkbook(workbook, reportingInfo);
-				logger.debug("{} after transformWorkbook ({} ms)", this.getTemplateFileName(), System.currentTimeMillis() - start);
+				logger.info("{} after transformWorkbook ({} ms)", this.getTemplateFileName(), System.currentTimeMillis() - start);
 				if (workbook != null) {
 					postProcess(workbook);
 				}
@@ -519,7 +519,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			logger.debug("reportingInfo sessions {} athletes: {}", reportingInfo.get("sessions"), size);
 			if (size == 0 ? isEmptyOk() : isSizeOk(size)) {
 				tempFile = File.createTempFile("jxlsOutput", ".xlsx");
+				logger.info("starting jxls3 processing for {}", templateFile);
+				long start = System.currentTimeMillis();
 				JxlsPoi.fill(new FileInputStream(templateFile), JxlsStreaming.STREAMING_OFF, reportingInfo, tempFile);
+				logger.info("processing done: {}ms",System.currentTimeMillis()-start);
 				workbook = WorkbookFactory.create(tempFile);
 				logger.debug("after workbook3 {}", workbook);
 				if (workbook != null) {
