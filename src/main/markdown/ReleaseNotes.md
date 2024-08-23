@@ -3,7 +3,7 @@
 > - You should test all releases, with actual data, several days before a competition. 
 
 - Fixes
-  - 51.0.6 Fix: "Score" columns were being displayed when they should not have.
+  - 51.0.6 Fix: "Score" columns that were being displayed on the scoreboard when they should not have.
   - 51.0.6 Age Group configuration drop down now respects the "local files only" setting.
   - 51.0.5: Fix missing name on multi age-group scoreboard
   - 51.0.4: Out-of-competition marker was being displayed falsely on attempt board.
