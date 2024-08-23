@@ -183,7 +183,7 @@ public class AthleteSorter implements Serializable {
 	 *
 	 * @param sortedList the sorted list
 	 */
-	public static void assignStartNumbers(List<Athlete> sortedList) {
+	public static void doAssignStartNumbers(List<Athlete> sortedList) {
 		int rank = 1;
 		for (Athlete curLifter : sortedList) {
 			Double bodyWeight = curLifter.getBodyWeight();
@@ -193,7 +193,6 @@ public class AthleteSorter implements Serializable {
 			} else {
 				curLifter.setStartNumber(0);
 			}
-
 		}
 	}
 

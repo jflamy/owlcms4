@@ -55,7 +55,7 @@ public class AthleteSorterTest {
     public void initialCheck() {
         final String resName = "/initialCheck.txt";
         AthleteSorter.displayOrder(athletes);
-        AthleteSorter.assignStartNumbers(athletes);
+        AthleteSorter.doAssignStartNumbers(athletes);
 
         // Collections.shuffle(athletes);
 
@@ -73,7 +73,7 @@ public class AthleteSorterTest {
         // EventBus fopBus = fopState.getFopEventBus();
 
         AthleteSorter.displayOrder(athletes);
-        AthleteSorter.assignStartNumbers(athletes);
+        AthleteSorter.doAssignStartNumbers(athletes);
 
         final Athlete schneiderF = athletes.get(0);
         final Athlete simpsonR = athletes.get(1);
@@ -114,7 +114,7 @@ public class AthleteSorterTest {
         // EventBus fopBus = fopState.getFopEventBus();
 
         AthleteSorter.displayOrder(athletes);
-        AthleteSorter.assignStartNumbers(athletes);
+        AthleteSorter.doAssignStartNumbers(athletes);
 
         final Athlete schneiderF = athletes.get(0);
         final Athlete simpsonR = athletes.get(1);
@@ -158,7 +158,7 @@ public class AthleteSorterTest {
         // EventBus fopBus = fopState.getFopEventBus();
 
         AthleteSorter.displayOrder(athletes);
-        AthleteSorter.assignStartNumbers(athletes);
+        AthleteSorter.doAssignStartNumbers(athletes);
 
         final Athlete schneiderF = athletes.get(0);
         final Athlete simpsonR = athletes.get(1);

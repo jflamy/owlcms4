@@ -27,6 +27,7 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.spreadsheet.PAthlete;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -57,8 +58,32 @@ public class AthleteRepository {
 			List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, true,
 			        (Gender) null);
 			AthleteSorter.registrationOrder(currentGroupAthletes);
-			AthleteSorter.assignStartNumbers(currentGroupAthletes);
+			AthleteSorter.doAssignStartNumbers(currentGroupAthletes);
 			return currentGroupAthletes;
+		});
+	}
+	
+	/**
+	 * Assign start numbers to the list of Athletes.
+     * <p>Ordering of the initial list is preserved.
+	 * <p>Assumption: Athletes should come from a single session.
+	 * 
+	 * @param athletes
+	 */
+	public static void assignStartNumbers(List<Athlete> athletes) {
+		JPAService.runInTransaction((em) -> {
+			List<Athlete> nList = AthleteSorter.registrationOrderCopy(athletes);
+			AthleteSorter.doAssignStartNumbers(nList);
+			for (Athlete a : athletes) {
+				if (a instanceof PAthlete) {
+					// defensive, not expected to happen.
+					Athlete realAthlete = ((PAthlete) a)._getAthlete();
+					em.merge(realAthlete);
+				} else {
+					em.merge(a);
+				}
+			}
+			return null;
 		});
 	}
 

@@ -378,7 +378,7 @@ public class MovingDownTest {
                 new MockCountdownTimer());
         OwlcmsSession.setFop(fopState);
         AthleteSorter.displayOrder(allAthletes);
-        AthleteSorter.assignStartNumbers(allAthletes);
+        AthleteSorter.doAssignStartNumbers(allAthletes);
 
         Collections.shuffle(allAthletes);
 
@@ -949,7 +949,7 @@ public class MovingDownTest {
 
         // weigh-in
         JPAService.runInTransaction(em -> {
-            AthleteSorter.assignStartNumbers(groupAthletes);
+            AthleteSorter.doAssignStartNumbers(groupAthletes);
             final Athlete schneiderF = groupAthletes.get(0);
             final Athlete simpsonR = groupAthletes.get(1);
             final Athlete allisonR = groupAthletes.get(2);
@@ -976,7 +976,7 @@ public class MovingDownTest {
 
         // weigh-in
         JPAService.runInTransaction(em -> {
-            AthleteSorter.assignStartNumbers(groupAthletes);
+            AthleteSorter.doAssignStartNumbers(groupAthletes);
             final Athlete schneiderF = groupAthletes.get(0);
             final Athlete simpsonR = groupAthletes.get(1);
             final Athlete allisonR = groupAthletes.get(2);

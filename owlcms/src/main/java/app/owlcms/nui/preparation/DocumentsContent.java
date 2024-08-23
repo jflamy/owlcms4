@@ -1073,9 +1073,10 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		                template,
 		                errorProcessor,
 		                (a, g) -> {
-		            		AthleteRepository.assignStartNumbers(g);
+		            		AthleteRepository.assignStartNumbers(a);
 			                JXLSResultSheet rs = new JXLSResultSheet(false);
 			                rs.setGroup(g);
+			                rs.setSortedAthletes(a);
 			                return rs;
 		                }));
 		return elements;
@@ -1089,10 +1090,11 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		                template,
 		                errorProcessor,
 		                (a, g) -> {
-		                	AthleteRepository.assignStartNumbers(g);
+		                	AthleteRepository.assignStartNumbers(a);
 			                JXLSCategoriesListDocs xlsWriter = new JXLSCategoriesListDocs();
 			                xlsWriter.setGroup(g);
-			                // get current version of athletes.
+			                
+			                // sort to the desired order
 			                a.sort((x, y) -> ObjectUtils.compare(x.getCategoryCode(), y.getCategoryCode()));
 			                xlsWriter.setSortedAthletes(a);
 			                return xlsWriter;
@@ -1108,9 +1110,10 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		                template,
 		                errorProcessor,
 		                (a, g) -> {
-		                	AthleteRepository.assignStartNumbers(g);
+		                	AthleteRepository.assignStartNumbers(a);
 			                JXLSJurySheet rs = new JXLSJurySheet();
 			                rs.setGroup(g);
+			                rs.setSortedAthletes(a);
 			                return rs;
 		                }));
 		return elements;

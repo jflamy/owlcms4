@@ -82,7 +82,7 @@ public class DemoData {
 	protected static void assignStartNumbers(EntityManager em, Group groupA) {
 		List<Athlete> athletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, groupA, true, (Gender) null);
 		AthleteSorter.registrationOrder(athletes);
-		AthleteSorter.assignStartNumbers(athletes);
+		AthleteSorter.doAssignStartNumbers(athletes);
 		// logger.debug("---- {}", groupA);
 		// athletes.stream().forEach(a -> {
 		// logger.debug("{} {}", a.getShortName(), a.getCategory());

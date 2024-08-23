@@ -98,7 +98,7 @@ public class TestData {
     protected static void assignStartNumbers(EntityManager em, Group groupA) {
         List<Athlete> athletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, groupA, true, (Gender) null);
         AthleteSorter.registrationOrder(athletes);
-        AthleteSorter.assignStartNumbers(athletes);
+        AthleteSorter.doAssignStartNumbers(athletes);
     }
 
     protected static void createAthlete(EntityManager em, Random r, Athlete p, double nextDouble, int catLimit) {

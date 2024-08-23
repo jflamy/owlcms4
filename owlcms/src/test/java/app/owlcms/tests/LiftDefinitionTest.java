@@ -77,7 +77,7 @@ public class LiftDefinitionTest {
     public void initialCheck() {
         final String resName = "/initialCheck.txt";
         AthleteSorter.assignLotNumbers(athletes);
-        AthleteSorter.assignStartNumbers(athletes);
+        AthleteSorter.doAssignStartNumbers(athletes);
 
         Collections.shuffle(athletes);
 
@@ -90,7 +90,7 @@ public class LiftDefinitionTest {
     @Ignore
     public void liftSequence1() {
         AthleteSorter.assignLotNumbers(athletes);
-        AthleteSorter.assignStartNumbers(athletes);
+        AthleteSorter.doAssignStartNumbers(athletes);
 
         final Athlete schneiderF = athletes.get(0);
         final Athlete simpsonR = athletes.get(1);
@@ -375,7 +375,7 @@ public class LiftDefinitionTest {
     @Ignore
     public void liftSequence2() {
         AthleteSorter.assignLotNumbers(athletes);
-        AthleteSorter.assignStartNumbers(athletes);
+        AthleteSorter.doAssignStartNumbers(athletes);
 
         final Athlete schneiderF = athletes.get(0);
         final Athlete simpsonR = athletes.get(1);
