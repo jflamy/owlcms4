@@ -280,7 +280,7 @@ public class TopSinclair extends AbstractTop {
 		logger.debug("onAttach start");
 		checkVideo(this);
 		setWide(false);
-		setTranslationMap(null, true);
+		setTranslationMap();
 		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
 			// we listen on all the uiEventBus.
 			this.uiEventBus = uiEventBusRegister(this, fop);
@@ -291,7 +291,7 @@ public class TopSinclair extends AbstractTop {
 	}
 
 	@Override
-	protected void setTranslationMap(Ranking ignored, boolean globalRanking) {
+	protected void setTranslationMap() {
 		JsonObject translations = Json.createObject();
 		Enumeration<String> keys = Translator.getKeys();
 		while (keys.hasMoreElements()) {
