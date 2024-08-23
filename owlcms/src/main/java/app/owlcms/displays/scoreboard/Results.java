@@ -1166,7 +1166,7 @@ public class Results extends LitTemplate
 //					ageGroupRanking[0] = scoringSystem;
 //				}
 				boolean any = athletes.stream().map(a -> a.getAgeGroup().getScoringSystem())
-				        .anyMatch(Objects::nonNull);
+				        .anyMatch(s -> s != null && s != Ranking.TOTAL);
 				scoring[0] = any;
 			}
 		});
