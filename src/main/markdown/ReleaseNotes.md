@@ -4,6 +4,7 @@
 > - Beta releases are **not** normally used in actual competitions, except when a new feature is required. Use extreme care in testing if you intend to do so.
 
 - Preliminary releases change log
+  - (rc01) Update the start numbers when producing empty protocol, jury and introduction sheets.
   - (beta03) Translations (es, da, pt)
   - (beta03) Fixed categoryFinished property to work correctly in Excel reports (this property replaces categoryDone)
   - (beta03) Fixed age group length validation to correctly indicate maximum length in the interface

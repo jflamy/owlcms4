@@ -1149,7 +1149,6 @@ public class Results extends LitTemplate
 //		Ranking ageGroupRanking[] = { null };
 		boolean scoring[] = { false };
 		OwlcmsSession.withFop(fop -> {
-			this.logger.warn("{}Starting result board on FOP {}", FieldOfPlay.getLoggingName(fop));
 			setId("scoreboard-" + fop.getName());
 			this.curGroup = fop.getGroup();
 			setWideTeamNames(false);

@@ -734,9 +734,186 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		return new Div(openDialog);
 	}
 
-	private void doKitElement(KitElement elem, String seq, ZipOutputStream zipOut, Group g, List<Athlete> athletes) throws IOException {	
+	private KitElement doElementBodyweight(PreCompetitionTemplates templateDefinition, BiConsumer<Throwable, String> errorProcessor) {
+		return checkKit("bodyweight",
+		        templateDefinition,
+		        errorProcessor,
+		        (a, ignored) -> {
+			        JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
+			        startingXlsWriter.setGroup(null);
+			        // get current version of athletes.
+			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationBWCopy(athletesFindAll(false)));
+			        startingXlsWriter.createAgeGroupColumns(10, 7);
+			        return startingXlsWriter;
+		        });
+	}
+
+	private KitElement doElementCards(PreCompetitionTemplates templateDefinition, BiConsumer<Throwable, String> errorProcessor) {
+		return checkKit("cards",
+		        templateDefinition,
+		        errorProcessor,
+		        (a, g) -> {
+			        JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
+			        List<Athlete> athletes;
+			        if (g == null) {
+			        	athletes = athletesFindAll(true);
+			        	athletes.sort(RegistrationOrderComparator.athleteSessionRegistrationOrderComparator);
+			        } else {
+			        	athletes = a;
+			        }
+			        xlsWriter.setSortedAthletes(athletes);
+			        return xlsWriter;
+		        });
+	}
+
+	private KitElement doElementCategories(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
+		return checkKit("categories",
+		        template,
+		        errorProcessor,
+		        (a, ignored) -> {
+			        JXLSCategoriesListDocs xlsWriter = new JXLSCategoriesListDocs();
+			        xlsWriter.setGroup(null);
+			        var athletes = participationFindAll();
+			        athletes.sort(RegistrationOrderComparator.athleteReportOrderComparator);
+			        xlsWriter.setSortedAthletes(athletes);
+			        return xlsWriter;
+		        });
+	}
+
+	private KitElement doElementCheckin(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
+		return checkKit("checkin",
+		        template,
+		        errorProcessor,
+		        (a, ignored) -> {
+			        JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
+			        startingXlsWriter.setGroup(null);
+			        startingXlsWriter.setPostProcessor(null);
+			        List<Athlete> athletesFindAll = athletesFindAll(true);
+			        startingXlsWriter.setSortedAthletes(athletesFindAll);
+			        return startingXlsWriter;
+		        });
+	}
+
+	private KitElement doElementEmptyProtocol(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
+		return checkKit("emptyProtocol",
+		        template,
+		        errorProcessor,
+		        (a, g) -> {
+			        AthleteRepository.assignStartNumbers(a);
+			        JXLSResultSheet rs = new JXLSResultSheet(false);
+			        rs.setGroup(g);
+			        rs.setSortedAthletes(a);
+			        return rs;
+		        });
+	}
+
+	private KitElement doElementIntroduction(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
+		return checkKit("introduction",
+		        template,
+		        errorProcessor,
+		        (a, g) -> {
+			        AthleteRepository.assignStartNumbers(a);
+			        JXLSCategoriesListDocs xlsWriter = new JXLSCategoriesListDocs();
+			        xlsWriter.setGroup(g);
+
+			        // sort to the desired order
+			        a.sort((x, y) -> ObjectUtils.compare(x.getCategoryCode(), y.getCategoryCode()));
+			        xlsWriter.setSortedAthletes(a);
+			        return xlsWriter;
+		        });
+	}
+
+	private KitElement doElementJury(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
+		return checkKit("jury",
+		        template,
+		        errorProcessor,
+		        (a, g) -> {
+			        AthleteRepository.assignStartNumbers(a);
+			        JXLSJurySheet rs = new JXLSJurySheet();
+			        rs.setGroup(g);
+			        rs.setSortedAthletes(a);
+			        return rs;
+		        });
+	}
+
+	private KitElement doElementOfficials(BiConsumer<Throwable, String> errorProcessor) {
+		return checkKit("officials",
+		        PreCompetitionTemplates.OFFICIALS,
+		        errorProcessor,
+		        (a, ignored) -> {
+			        JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
+			        xlsWriter.setGroup(null);
+			        xlsWriter.setSortedAthletes(List.of());
+			        xlsWriter.setEmptyOk(true);
+			        return xlsWriter;
+		        });
+	}
+
+	private KitElement doElementSchedule(BiConsumer<Throwable, String> errorProcessor) {
+		return checkKit("schedule",
+		        PreCompetitionTemplates.SCHEDULE,
+		        errorProcessor,
+		        (a, ignored) -> {
+			        // schedule is currently a variation on starting list
+			        JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
+
+			        String tn = Competition.getCurrent().getScheduleTemplateFileName();
+			        if (tn.equals("Schedule.xlsx") && Config.getCurrent().featureSwitch("usaw")) {
+				        // FIXME: read this from the jxls3 directives
+				        xlsWriter.setPostProcessor((w) -> fixMerges(w, 4, List.of(1, 2)));
+			        } else if (tn.endsWith("Schedule.xlsx")) {
+				        // FIXME: read this from the jxls3 directives
+				        xlsWriter.setPostProcessor((w) -> fixMerges(w, 5, List.of(1, 2)));
+			        } else {
+				        xlsWriter.setPostProcessor(null);
+			        }
+			        return xlsWriter;
+		        });
+	}
+
+	private KitElement doElementStartList(PreCompetitionTemplates templateDefinition, BiConsumer<Throwable, String> errorProcessor) {
+		return checkKit("startList",
+		        templateDefinition,
+		        errorProcessor,
+		        (a, ignored) -> {
+			        JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
+			        xlsWriter.setGroup(null);
+			        // get current version of athletes.
+			        List<Athlete> athletesFindAll = athletesFindAll(true);
+			        xlsWriter.setSortedAthletes(athletesFindAll);
+			        xlsWriter.setPostProcessor(null);
+			        return xlsWriter;
+		        });
+	}
+
+	private KitElement doElementTeam(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
+		return checkKit("team",
+		        template,
+		        errorProcessor,
+		        (a, ignored) -> {
+			        JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
+			        startingXlsWriter.setGroup(null);
+			        // get current version of athletes.
+			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(participationFindAll()));
+			        startingXlsWriter.createTeamColumns(9, 6);
+			        return startingXlsWriter;
+		        });
+	}
+
+	private KitElement doElementWeighIn(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
+		return checkKit("weighin",
+		        template,
+		        errorProcessor,
+		        (a, g) -> {
+			        JXLSWeighInSheet rs = new JXLSWeighInSheet();
+			        rs.setGroup(g);
+			        return rs;
+		        });
+	}
+
+	private void doKitElement(KitElement elem, String seq, ZipOutputStream zipOut, Group g, List<Athlete> athletes) throws IOException {
 		JXLSWorkbookStreamSource xlsWriter = elem.writerFactory.apply(athletes, g);
-		
+
 		// apply default if the factory did not set
 		if (xlsWriter.getGroup() == null) {
 			xlsWriter.setGroup(g);
@@ -744,7 +921,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		if (xlsWriter.getSortedAthletes() == null) {
 			xlsWriter.setSortedAthletes(athletes);
 		}
-		
+
 		InputStream is = Files.newInputStream(elem.isp);
 		xlsWriter.setInputStream(is);
 		xlsWriter.setTemplateFileName(elem.name);
@@ -779,14 +956,14 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		// for items that are one per session, selected sessions will be non-empty.
 		Group g = (selectedSessions != null && selectedSessions.size() > 0) ? selectedSessions.get(0) : null;
 		KitElement elem = elements.get(0);
-		
+
 		List<Athlete> athletes = null;
 		if (g != null) {
 			athletes = groupAthletes(g, true);
 		}
 
 		// writerFactory can apply custom sorting order to the athletes
-		JXLSWorkbookStreamSource xlsWriter = elem.writerFactory.apply(athletes, g);		
+		JXLSWorkbookStreamSource xlsWriter = elem.writerFactory.apply(athletes, g);
 		if (xlsWriter.getSortedAthletes() == null) {
 			// writerFactory did not set them explicitly, set default
 			xlsWriter.setSortedAthletes(athletes);
@@ -795,11 +972,10 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			// writerFactory did not set them explicitly, set default.
 			xlsWriter.setGroup(g);
 		}
-		
+
 		InputStream is = Files.newInputStream(elem.isp);
 		xlsWriter.setInputStream(is);
 		xlsWriter.setTemplateFileName(elem.name);
-
 
 		if (doneCallback == null) {
 			Notification n = new Notification(Translator.translate("Documents.ProcessingExcel"));
@@ -995,18 +1171,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	private List<KitElement> prepareBodyweight(PreCompetitionTemplates templateDefinition, List<Group> selectedItems,
 	        BiConsumer<Throwable, String> errorProcessor) {
 		List<KitElement> elements = new ArrayList<>();
-		elements.add(
-		        checkKit("bodyweight",
-		                templateDefinition,
-		                errorProcessor,
-		                (a, g) -> {
-			                JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
-			                startingXlsWriter.setGroup(null);
-			                // get current version of athletes.
-			                startingXlsWriter.setSortedAthletes(AthleteSorter.registrationBWCopy(athletesFindAll(false)));
-			                startingXlsWriter.createAgeGroupColumns(10, 7);
-			                return startingXlsWriter;
-		                }));
+		elements.add(doElementBodyweight(templateDefinition, errorProcessor));
 		return elements;
 	}
 
@@ -1014,151 +1179,63 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	        BiConsumer<Throwable, String> errorProcessor) {
 		checkReasonableSelection(selectedItems, errorProcessor);
 		List<KitElement> elements = new ArrayList<>();
-		elements.add(
-		        checkKit("cards",
-		                templateDefinition,
-		                errorProcessor,
-		                (a, g) -> {
-			                JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
-			                List<Athlete> athletes = athletesFindAll(true);
-			                athletes.sort(RegistrationOrderComparator.athleteSessionRegistrationOrderComparator);
-			                xlsWriter.setSortedAthletes(athletes);
-			                return xlsWriter;
-		                }));
+		elements.add(doElementCards(templateDefinition, errorProcessor));
 		return elements;
 	}
 
 	private List<KitElement> prepareCategories(PreCompetitionTemplates template, List<Group> selectedItems, BiConsumer<Throwable, String> errorProcessor) {
 		List<KitElement> elements = new ArrayList<>();
-		elements.add(
-		        checkKit("categories",
-		                template,
-		                errorProcessor,
-		                (a, g) -> {
-			                JXLSCategoriesListDocs xlsWriter = new JXLSCategoriesListDocs();
-			                xlsWriter.setGroup(null);
-			                // get current version of athletes.
-			                var athletes = participationFindAll();
-			                athletes.sort(RegistrationOrderComparator.athleteReportOrderComparator);
-			                xlsWriter.setSortedAthletes(athletes);
-			                return xlsWriter;
-		                }));
+		elements.add(doElementCategories(template, errorProcessor));
 		return elements;
 	}
 
 	private List<KitElement> prepareCheckin(PreCompetitionTemplates template, List<Group> selectedItems, BiConsumer<Throwable, String> errorProcessor) {
 		List<KitElement> elements = new ArrayList<>();
-		elements.add(
-		        checkKit("checkin",
-		                template,
-		                errorProcessor,
-		                (a, g) -> {
-			                JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
-			                // group may have been edited since the page was loaded
-			                startingXlsWriter.setGroup(null);
-			                // get current version of athletes.
-			                startingXlsWriter.setPostProcessor(null);
-			                List<Athlete> athletesFindAll = athletesFindAll(true);
-			                startingXlsWriter.setSortedAthletes(athletesFindAll);
-			                return startingXlsWriter;
-		                }));
+		elements.add(doElementCheckin(template, errorProcessor));
 		return elements;
 	}
 
 	private List<KitElement> prepareEmptyProtocol(PreCompetitionTemplates template, List<Group> selectedItems, BiConsumer<Throwable, String> errorProcessor) {
 		checkNoSelection(selectedItems, errorProcessor);
 		List<KitElement> elements = new ArrayList<>();
-		elements.add(
-		        checkKit("weighin",
-		                template,
-		                errorProcessor,
-		                (a, g) -> {
-		            		AthleteRepository.assignStartNumbers(a);
-			                JXLSResultSheet rs = new JXLSResultSheet(false);
-			                rs.setGroup(g);
-			                rs.setSortedAthletes(a);
-			                return rs;
-		                }));
+		elements.add(doElementEmptyProtocol(template, errorProcessor));
 		return elements;
 	}
 
 	private List<KitElement> prepareIntroduction(PreCompetitionTemplates template, List<Group> selectedItems, BiConsumer<Throwable, String> errorProcessor) {
 		checkNoSelection(selectedItems, errorProcessor);
 		List<KitElement> elements = new ArrayList<>();
-		elements.add(
-		        checkKit("introduction",
-		                template,
-		                errorProcessor,
-		                (a, g) -> {
-		                	AthleteRepository.assignStartNumbers(a);
-			                JXLSCategoriesListDocs xlsWriter = new JXLSCategoriesListDocs();
-			                xlsWriter.setGroup(g);
-			                
-			                // sort to the desired order
-			                a.sort((x, y) -> ObjectUtils.compare(x.getCategoryCode(), y.getCategoryCode()));
-			                xlsWriter.setSortedAthletes(a);
-			                return xlsWriter;
-		                }));
+		elements.add(doElementIntroduction(template, errorProcessor));
 		return elements;
 	}
 
 	private List<KitElement> prepareJury(PreCompetitionTemplates template, List<Group> selectedItems, BiConsumer<Throwable, String> errorProcessor) {
 		checkNoSelection(selectedItems, errorProcessor);
 		List<KitElement> elements = new ArrayList<>();
-		elements.add(
-		        checkKit("weighin",
-		                template,
-		                errorProcessor,
-		                (a, g) -> {
-		                	AthleteRepository.assignStartNumbers(a);
-			                JXLSJurySheet rs = new JXLSJurySheet();
-			                rs.setGroup(g);
-			                rs.setSortedAthletes(a);
-			                return rs;
-		                }));
+		elements.add(doElementJury(template, errorProcessor));
 		return elements;
 	}
 
 	private List<KitElement> prepareOfficials(List<Group> selectedItems, BiConsumer<Throwable, String> errorProcessor) {
 		List<KitElement> elements = new ArrayList<>();
-		elements.add(
-		        checkKit("officials",
-		                PreCompetitionTemplates.OFFICIALS,
-		                errorProcessor,
-		                (a, g) -> {
-			                JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
-			                xlsWriter.setGroup(
-			                        getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
-			                xlsWriter.setSortedAthletes(List.of());
-			                xlsWriter.setEmptyOk(true);
-			                return xlsWriter;
-		                }));
+		elements.add(doElementOfficials(errorProcessor));
 		return elements;
 	}
 
 	private List<KitElement> preparePostWeighInKit(List<Group> selectedItems, BiConsumer<Throwable, String> errorProcessor) {
 		checkNoSelection(selectedItems, errorProcessor);
 		List<KitElement> elements = new ArrayList<>();
-		KitElement kit = checkKit("introduction",
-		        PreCompetitionTemplates.INTRODUCTION,
-		        null, // no error processor - ignore this item if no template
-		        (a, g) -> new JXLSWeighInSheet());
+		KitElement kit = doElementIntroduction(PreCompetitionTemplates.INTRODUCTION, null);
 		if (kit != null) {
 			elements.add(kit);
 		}
 
-		KitElement kit2 = checkKit("emptyProtocol",
-		        PreCompetitionTemplates.EMPTY_PROTOCOL,
-		        null, // no error processor - ignore this item if no template
-		        (a, g) -> new JXLSResultSheet());
+		KitElement kit2 = doElementEmptyProtocol(PreCompetitionTemplates.EMPTY_PROTOCOL, null);
 		if (kit2 != null) {
 			elements.add(kit2);
 		}
 
-		KitElement kit3 = checkKit("jury",
-		        PreCompetitionTemplates.JURY,
-		        null, // no error processor - ignore this item if no template
-		        (a, g) -> new JXLSJurySheet());
+		KitElement kit3 = doElementJury(PreCompetitionTemplates.JURY, null);
 		if (kit3 != null) {
 			elements.add(kit3);
 		}
@@ -1168,18 +1245,12 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	private List<KitElement> preparePreWeighInKit(List<Group> selectedItems, BiConsumer<Throwable, String> errorProcessor) {
 		checkNoSelection(selectedItems, errorProcessor);
 		List<KitElement> elements = new ArrayList<>();
-		KitElement kit = checkKit("weighin",
-		        PreCompetitionTemplates.WEIGHIN,
-		        null, // no error processor - ignore this item if no template
-		        (a, g) -> new JXLSCardsDocs());
+		KitElement kit = doElementWeighIn(PreCompetitionTemplates.WEIGHIN, null);
 		if (kit != null) {
 			elements.add(kit);
 		}
 
-		KitElement kit2 = checkKit("cards",
-		        PreCompetitionTemplates.CARDS,
-		        null, // no error processor - ignore this item if no template
-		        (a, g) -> new JXLSCardsDocs());
+		KitElement kit2 = doElementCards(PreCompetitionTemplates.CARDS, null);
 		if (kit2 != null) {
 			elements.add(kit2);
 		}
@@ -1188,78 +1259,27 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 	private List<KitElement> prepareSchedule(List<Group> selectedItems, BiConsumer<Throwable, String> errorProcessor) {
 		List<KitElement> elements = new ArrayList<>();
-		elements.add(
-		        checkKit("schedule",
-		                PreCompetitionTemplates.SCHEDULE,
-		                errorProcessor,
-		                (a, g) -> {
-			                // schedule is currently a variation on starting list
-			                JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
-
-			                String tn = Competition.getCurrent().getScheduleTemplateFileName();
-			                if (tn.equals("Schedule.xlsx") && Config.getCurrent().featureSwitch("usaw")) {
-				                // FIXME: read this from the jxls3 directives
-				                xlsWriter.setPostProcessor((w) -> fixMerges(w, 4, List.of(1, 2)));
-			                } else if (tn.endsWith("Schedule.xlsx")) {
-				                // FIXME: read this from the jxls3 directives
-				                xlsWriter.setPostProcessor((w) -> fixMerges(w, 5, List.of(1, 2)));
-			                } else {
-				                xlsWriter.setPostProcessor(null);
-			                }
-			                return xlsWriter;
-		                }));
+		elements.add(doElementSchedule(errorProcessor));
 		return elements;
 	}
 
 	private List<KitElement> prepareStartList(PreCompetitionTemplates templateDefinition, List<Group> selectedItems,
 	        BiConsumer<Throwable, String> errorProcessor) {
 		List<KitElement> elements = new ArrayList<>();
-		elements.add(
-		        checkKit("startList",
-		                templateDefinition,
-		                errorProcessor,
-		                (a, g) -> {
-			                JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
-			                // group may have been edited since the page was loaded
-			                xlsWriter.setGroup(null);
-			                // get current version of athletes.
-			                List<Athlete> athletesFindAll = athletesFindAll(true);
-			                xlsWriter.setSortedAthletes(athletesFindAll);
-			                xlsWriter.setPostProcessor(null);
-			                return xlsWriter;
-		                }));
+		elements.add(doElementStartList(templateDefinition, errorProcessor));
 		return elements;
 	}
 
 	private List<KitElement> prepareTeam(PreCompetitionTemplates template, List<Group> selectedItems, BiConsumer<Throwable, String> errorProcessor) {
 		List<KitElement> elements = new ArrayList<>();
-		elements.add(
-		        checkKit("categories",
-		                template,
-		                errorProcessor,
-		                (a, g) -> {
-			                JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
-			                startingXlsWriter.setGroup(null);
-			                // get current version of athletes.
-			                startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(participationFindAll()));
-			                startingXlsWriter.createTeamColumns(9, 6);
-			                return startingXlsWriter;
-		                }));
+		elements.add(doElementTeam(template, errorProcessor));
 		return elements;
 	}
 
 	private List<KitElement> prepareWeighIn(PreCompetitionTemplates template, List<Group> selectedItems, BiConsumer<Throwable, String> errorProcessor) {
 		checkNoSelection(selectedItems, errorProcessor);
 		List<KitElement> elements = new ArrayList<>();
-		elements.add(
-		        checkKit("weighin",
-		                template,
-		                errorProcessor,
-		                (a, g) -> {
-			                JXLSWeighInSheet rs = new JXLSWeighInSheet();
-			                rs.setGroup(null);
-			                return rs;
-		                }));
+		elements.add(doElementWeighIn(template, errorProcessor));
 		return elements;
 	}
 
