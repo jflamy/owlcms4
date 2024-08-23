@@ -1091,7 +1091,7 @@ public class WeighinContent extends BaseContent
 		JXLSDownloader startingWeightsButton = new JXLSDownloader(
 		        () -> {
 					generateStartNumbers();
-					JXLSResultSheet rs = new JXLSResultSheet();
+					JXLSResultSheet rs = new JXLSResultSheet(false);
 			        // group may have been edited since the page was loaded
 			        Group curGroup = getGroupFilter().getValue();
 			        rs.setGroup(curGroup != null ? GroupRepository.getById(curGroup.getId()) : null);

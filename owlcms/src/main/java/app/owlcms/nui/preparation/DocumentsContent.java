@@ -1073,7 +1073,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		                template,
 		                errorProcessor,
 		                (a, g) -> {
-			                JXLSResultSheet rs = new JXLSResultSheet();
+			                JXLSResultSheet rs = new JXLSResultSheet(false);
 			                rs.setGroup(null);
 			                return rs;
 		                }));
