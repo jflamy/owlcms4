@@ -12,6 +12,7 @@ import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.init.OwlcmsFactory;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -28,6 +29,10 @@ public class BaseContent extends VerticalLayout implements FOPParametersReader, 
 	private String routeParameter;
 	private boolean silenced;
 	private boolean downSilenced;
+	
+	public BaseContent() {
+		OwlcmsFactory.waitDBInitialized();
+	}
 
 	@Override
 	public final QueryParameters getDefaultParameters() {
