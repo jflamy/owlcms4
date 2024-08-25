@@ -3,7 +3,7 @@
 <configuration scan="true" debug="false">
 
 	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>logs/owlcms.log</file>
+		<file>logs/publicresults.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- daily rollover -->
 			<fileNamePattern>logs/owlcms_%d{yyyy-MM-dd}.log</fileNamePattern>
@@ -28,19 +28,20 @@
 	<logger name="app.owlcms" level="INFO" />
 
 	<!-- silence spurious warning messages -->
-	<logger name="org.eclipse.jetty.annotations.AnnotationParser"
-		level="ERROR" />
-	<logger name="org.eclipse.jetty.server.HttpChannel"
-		level="ERROR" />
-	<logger name="com.vaadin.flow.server.communication"
-		level="ERROR" />
-	<logger
-		name="com.vaadin.flow.server.DefaultDeploymentConfiguration"
-		level="ERROR" />
+	<logger name="org.eclipse.jetty.annotations.AnnotationParser" level="ERROR" />
+	<logger name="org.eclipse.jetty.server.HttpChannel"	level="ERROR" />
+	<logger name="com.vaadin.flow.server.communication"	level="ERROR" />
+	<logger	name="com.vaadin.flow.server.DefaultDeploymentConfiguration" level="ERROR" />
+	<logger name="app.owlcms.servlet.HttpsEnforcer" level="OFF" />
 
 	<root level="WARN">
 		<appender-ref ref="FILE" />
 		<appender-ref ref="CONSOLE" />
 	</root>
+
+    <!-- additional tracing/debugging (set level to DEBUG or TRACE) -->
+    <logger name="app.owlcms.utils.ResourceWalker" level="INFO" />
+    <logger name="app.owlcms.prutils.SessionCleanup" level="DEBUG" />
+    <logger name="app.owlcms.components.elements.unload.UnloadObserverPR" level="DEBUG" />
 
 </configuration>
