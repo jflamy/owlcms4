@@ -35,18 +35,18 @@ public class AgeGroupInfoFactory {
 				agi.setLargestWeightClassLimitString(a.getCategory().getLimitString());
 				agi.setWeightClassRange(a.getCategory().getLimitString());
 				agi.setBestSubCategory(subCategory);
-				
+
 				BWCatInfo bwi = new BWCatInfo(a.getCategory().getMaximumWeight().intValue(), a.getCategory().getLimitString(), a.getSubCategory());
 				agi.addToList(bwi.getKey(), bwi);
 
-				
+
 				ageGroupMap.put(ageGroup, agi);
 				//logger.debug("created ageGroup {} {}", ageGroup, agi.isUnanimous());
 			} else {
 				//logger.debug("found ageGroup {} {} {}", ageGroup, agi.getNbAthletes(), agi.isUnanimous());
 				agi.setNbAthletes(agi.getNbAthletes() + 1);
 				if (agi.getSmallestWeightClass() == null
-				        || a.getCategory().getMinimumWeight() < agi.getSmallestWeightClass()) {
+				        || a.getCategory().getMaximumWeight() < agi.getSmallestWeightClass()) {
 					agi.setSmallestWeightClass(a.getCategory().getMaximumWeight());
 				}
 				if (agi.getLargestWeightClass() == null
@@ -81,7 +81,7 @@ public class AgeGroupInfoFactory {
 						agi.setUnanimous(true);
 					}
 				}
-				
+
 				BWCatInfo bwi = new BWCatInfo(a.getCategory().getMaximumWeight().intValue(), a.getCategory().getLimitString(), a.getSubCategory());
 				agi.addToList(bwi.getKey(), bwi);
 
