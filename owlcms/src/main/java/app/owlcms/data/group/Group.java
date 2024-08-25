@@ -65,7 +65,7 @@ import ch.qos.logback.classic.Logger;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Group.class)
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger", "athletes" })
 public class Group implements Comparable<Group> {
-	
+
 	public record Range (Integer min, Integer max) {
 		public String getFormattedRange() {
 			if (min == Integer.MAX_VALUE && max == 0) {
@@ -77,7 +77,7 @@ public class Group implements Comparable<Group> {
 			}
 		}
 	};
-	
+
 	@Transient
 	@JsonIgnore
 	public Range getStartingRange() {
@@ -93,7 +93,7 @@ public class Group implements Comparable<Group> {
 		}
 		return new Range(min, max);
 	}
-	
+
 	public void setFormattedRange(String unused) {
 
 	}
@@ -130,7 +130,7 @@ public class Group implements Comparable<Group> {
 				subCats.put(bwi.getKey(), bwi);
 			} else {
 				if (smallestWeightClass == null
-				        || a.getCategory().getMinimumWeight() < smallestWeightClass) {
+				        || a.getCategory().getMaximumWeight() < smallestWeightClass) {
 					smallestWeightClass = a.getCategory().getMaximumWeight();
 				}
 
@@ -196,7 +196,7 @@ public class Group implements Comparable<Group> {
 	private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
 	private final static DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder().parseLenient()
 	        .appendPattern(DATE_FORMAT).toFormatter();
-	
+
 	public static Comparator<Athlete> weighinTimeComparator = (lifter1, lifter2) -> {
 		Group lifter1Group = lifter1.getGroup();
 		Group lifter2Group = lifter2.getGroup();
