@@ -28,6 +28,7 @@ import app.owlcms.displays.scoreboard.ResultsPR;
 import app.owlcms.prutils.SafeEventBusRegistrationPR;
 import app.owlcms.prutils.SessionCleanup;
 import app.owlcms.publicresults.MainView;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -127,7 +128,10 @@ public final class UnloadObserverPR extends LitTemplate {
         if (!okClass()) {
             return;
         }
-        logger.debug("{} active {} {}", title, component.getClass().getSimpleName(), System.identityHashCode(component));
+        if (logger.isDebugEnabled()) {
+            logger.debug("{} active {} {} from {}", title, component.getClass().getSimpleName(),
+                    System.identityHashCode(component), LoggerUtils.whereFrom());
+        }
         VaadinSession vs = VaadinSession.getCurrent();
         vs.access(() -> {
             var im = getInactivityMap(vs);
@@ -319,7 +323,7 @@ public final class UnloadObserverPR extends LitTemplate {
     }
 
     public void setTitle(String title) {
-        //logger.trace("----------------- setTitle {} {}", title, LoggerUtils.whereFrom());
+        // logger.trace("----------------- setTitle {} {}", title, LoggerUtils.whereFrom());
         this.title = title;
     }
 }
