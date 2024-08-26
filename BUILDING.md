@@ -2,7 +2,7 @@
 
 This is a standard Maven project.  If you wish, you can build the binaries from this source.  
 
-This file describes how to build the program without changing it.  If you want to change the code, please see the [Contributing](https://owlcms.github.io/owlcms4/#/Gitpod) documentation for additional information on how to setup a Gitpod or VisualStudio Code environment.
+This file describes how to build the program without changing it.  If you want to change the code, please see the [Contributing](https://owlcms.github.io/owlcms4-prerelease/#/Gitpod) documentation for additional information on how to setup a Gitpod or VisualStudio Code environment.
 
 ### Pre-requisites
 
@@ -16,24 +16,9 @@ This file describes how to build the program without changing it.  If you want t
 
 ### Building and testing
 
-- From the owlcms4 directory, running 
-
-  ```sh
-  mvn -P production -am -pl owlcms clean package
-  ```
-
-   will give you 
-
+- From the owlcms4 directory, running ``mvn -P production -am -pl clean owlcms package `` should give you 
   - `owlcms/target/owlcms.jar` a working  "uberjar" (that is, a .jar file that contains all the dependencies together in a single file).  This file can then be run using `java -jar owlcms.jar app.owlcms.Main` 
   - `owlcms/target/owlcms.zip` which is used on Linux and Mac
-
-- You may want to use 
-
-  ```sh
-  mvn -Dmaven.test.skip=true -P production -am -pl owlcms clean package
-  ```
-
-  to skip the automated tests.
 
 
 ### Building and testing the Windows installer
@@ -45,4 +30,4 @@ This file describes how to build the program without changing it.  If you want t
 
 There is a Dockerfile in owlcms4top to build owlcms for quick testing to the fly.io cloud (see deploy.sh).  Building publicresults would be similar.
 
-The production builds uses the `owlcms-docker` project to build Docker containers using  `mvn package`, once the production build has been done.
+The current process for actual production builds uses the `owlcms-docker` project to build Docker containers using  `mvn package`, once the production build has been done.
