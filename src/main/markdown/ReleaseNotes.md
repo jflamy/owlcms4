@@ -12,6 +12,9 @@
   - (rc02) Updated Vaadin to 24.4.10.  publicresults was not working correctly under 24.4.7.
   - (rc01) Update the start numbers when producing empty protocol, jury and introduction sheets.
   - (rc01) jxls3 version of SBDE export (much faster)
+- **MIGRATION NOTES**
+  - If you have created your own document templates, or if you created a "kit" of local documents for your federation, some templates have been moved to more specific folders and you may need to move your own templates.  Install a clean copy of the application and look at the locations in `local/templates`.  Use the updated `Prepare Competition > Documents` page to check that the buttons show your templates.
+
 - Documents: complete redesign of the Documents page
   - All documents needed to prepare and run the competition are here (Results are still on their own page).
   - The Competition-wide documents such as the Start List are handled as in the previous versions.
