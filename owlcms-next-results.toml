@@ -1,0 +1,20 @@
+# fly.toml app configuration file generated for owlcms-cloud on 2024-01-09T19:31:03-05:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = "owlcms-cloud"
+primary_region = "yyz"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 2
+  memory_mb = 512
