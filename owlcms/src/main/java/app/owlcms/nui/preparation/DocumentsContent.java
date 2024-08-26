@@ -858,10 +858,20 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			        JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
 
 			        String tn = Competition.getCurrent().getScheduleTemplateFileName();
-			        if (tn.equals("Schedule.xlsx") && Config.getCurrent().featureSwitch("usaw")) {
+			        if (tn.startsWith("Schedule") && Config.getCurrent().featureSwitch("usaw")) {
+			        	// these schedules only make sense with athletes
+				        if (a == null || a.size() == 0) {
+							Exception e = new Exception("Empty");
+				        	throw new StopProcessingException(e.getMessage(), e);
+				        }
 				        // FIXME: read this from the jxls3 directives
 				        xlsWriter.setPostProcessor((w) -> fixMerges(w, 4, List.of(1, 2)));
-			        } else if (tn.endsWith("Schedule.xlsx")) {
+			        } else if (tn.endsWith("Schedule.xlsx") ) {
+			        	// these schedules only make sense with athletes
+				        if (a == null || a.size() == 0) {
+							Exception e = new Exception("Empty");
+				        	throw new StopProcessingException(e.getMessage(), e);
+				        }
 				        // FIXME: read this from the jxls3 directives
 				        xlsWriter.setPostProcessor((w) -> fixMerges(w, 5, List.of(1, 2)));
 			        } else {
@@ -1156,7 +1166,10 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	private void notifyError(Throwable e, UI ui, final String m) {
-		if (m != null && m.equals("NoAthletes")) {
+		if (m != null && m.equals("Empty")) {
+			String text = Translator.translate("NoAthletes");
+			doNotification(text);
+		} else if (m != null && m.equals("NoAthletes")) {
 			String text = Translator.translate("Documents.NoSession");
 			doNotification(text);
 		} else if (m != null && m.equals("TooManyAthletes")) {
