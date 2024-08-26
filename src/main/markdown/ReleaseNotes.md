@@ -4,6 +4,7 @@
 > - You should test all releases, with actual data, *several days* before a competition. This is especially important when considering the use of a release candidate.
 
 - Preliminary releases change log
+  - (rc06) Schedule: added a notification when there are no athletes, for schedules that can only be produced once athletes have been assigned.
   - (rc05) Emit an error message and wait for input when another instance is running - under Windows the console would simply close.
   - (rc05) Fix the building instructions
   - (rc04) Schedule: added a Simple schedule template that uses the description of the sessions. Also made the more sophisticated DaySchedule template use the translation file.
