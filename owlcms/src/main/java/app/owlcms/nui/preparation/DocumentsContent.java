@@ -866,6 +866,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 				        xlsWriter.setPostProcessor((w) -> fixMerges(w, 5, List.of(1, 2)));
 			        } else {
 				        xlsWriter.setPostProcessor(null);
+				        xlsWriter.setSortedAthletes(a);
 			        }
 			        return xlsWriter;
 		        });

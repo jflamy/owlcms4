@@ -4,6 +4,7 @@
 > - You should test all releases, with actual data, *several days* before a competition. This is especially important when considering the use of a release candidate.
 
 - Preliminary releases change log
+  - (rc04) Schedule: added a Simple schedule template that uses the description of the sessions. Also made the more sophisticated DaySchedule template use the translation file.
   - (rc03) Additional translations: hu, ro, fi
   - (rc02) Fixes to template ${session.formattedRange} accessor to correctly summarize participants to a session.
   - (rc02) Updated Vaadin to 24.4.10.  publicresults was not working correctly under 24.4.7.

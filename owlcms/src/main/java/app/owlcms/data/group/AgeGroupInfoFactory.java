@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 public class AgeGroupInfoFactory {
@@ -89,8 +90,9 @@ public class AgeGroupInfoFactory {
 					// same
 					agi.setWeightClassRange(a.getCategory().getLimitString());
 				} else {
-					agi.setWeightClassRange((int) Math.round(agi.getSmallestWeightClass()) + "-"
-					        + agi.getLargestWeightClassLimitString());
+					String weightClassRange = Translator.translate("Range.LowerUpper",
+							(int) Math.round(agi.getSmallestWeightClass()),agi.getLargestWeightClassLimitString());
+					agi.setWeightClassRange(weightClassRange);
 				}
 			}
 
