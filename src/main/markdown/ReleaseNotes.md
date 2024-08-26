@@ -4,6 +4,8 @@
 > - You should test all releases, with actual data, *several days* before a competition. This is especially important when considering the use of a release candidate.
 
 - Preliminary releases change log
+  - (rc05) Emit an error message and wait for input when another instance is running - under Windows the console would simply close.
+  - (rc05) Fix the building instructions
   - (rc04) Schedule: added a Simple schedule template that uses the description of the sessions. Also made the more sophisticated DaySchedule template use the translation file.
   - (rc03) Additional translations: hu, ro, fi
   - (rc02) Fixes to template ${session.formattedRange} accessor to correctly summarize participants to a session.
@@ -16,6 +18,9 @@
   - Documents like the Athlete Cards can be produced for one or more sessions.  If more than one session is selected, a zip file is produced, otherwise the Excel is produced.
   - Document sets can be produced, for example, a weigh-in form together with the cards.  When a document set is selected, a zip file is produced. The document set can be produced for one or more sessions.
   - If more than one copy of a document is needed (for example, two weigh-in forms for each session), you can adjust your template by duplicating the tab.  Same for jury forms if you want to avoid printing 3 copies manually.
+  - Schedule: 
+    - added a Simple schedule template that uses the description of the sessions. 
+    - A more sophisticated DaySchedule template shows age groups and bodyweight categories, now available in local languages.
 - Scoreboards:
   - Fix: Immediately after the 3rd snatch, while the decision lights were shown, the bottom line of the scoreboard would be stretched
 - SBDE export:
