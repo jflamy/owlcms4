@@ -1098,10 +1098,10 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 					if (cell != null && cell.getCellType() != CellType.BLANK) {
 						if (isMerging) {
 
-							logger.warn("**** {}{}: merging from {}{}", (char) ('A' + col), row.getRowNum() + 1,
+							logger.debug("**** {}{}: merging from {}{}", (char) ('A' + col), row.getRowNum() + 1,
 							        (char) ('A' + col), firstRow + 1);
 							int regionSize = (row.getRowNum() - 1) - firstRow;
-							logger.warn("     region size = {}", regionSize);
+							logger.debug("     region size = {}", regionSize);
 							if (regionSize > 0) {
 								CellRangeAddress region = new CellRangeAddress(firstRow, row.getRowNum() - 1, col, col);
 								sheet.addMergedRegion(region);
@@ -1113,12 +1113,12 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 							}
 
 							// start a new merge
-							logger.warn("**** {}{}: starting merge 1", (char) ('A' + col), row.getRowNum() + 1, isMerging);
+							logger.debug("**** {}{}: starting merge 1", (char) ('A' + col), row.getRowNum() + 1, isMerging);
 							firstRow = row.getRowNum();
 							style = cell.getCellStyle(); // capture the style
 							isMerging = true;
 						} else {
-							logger.warn("**** {}{}: starting merge 2", (char) ('A' + col), row.getRowNum() + 1, isMerging);
+							logger.debug("**** {}{}: starting merge 2", (char) ('A' + col), row.getRowNum() + 1, isMerging);
 							firstRow = row.getRowNum();
 							style = cell.getCellStyle(); // capture the style
 							isMerging = true;
