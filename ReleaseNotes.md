@@ -3,9 +3,6 @@
 > - You should test all releases, with actual data, *several days* before a competition.
 > - It is always wise to export your current database before updating if it contains important data.
 
-- Maintenance releases:
-  - 52.0.1  An overzealous check was preventing the production of USAW-style schedules.
-
 - **MIGRATION NOTES**
   - If you have created your own document templates, or if you created a "kit" of local documents for your federation, some templates have been moved to more specific folders and you may need to move your own templates.  Install a clean copy of the application and look at the locations in `local/templates`.  Use the updated `Prepare Competition > Documents` page to check that the buttons show your templates.
 - Documents: New and Improved Documents page
