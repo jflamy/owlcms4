@@ -13,9 +13,7 @@
 /local-ru/
 /*.mjs
 /mqttData/
-/local__/
-/local_USAW
-/local_JFL/
+/local_*/
 /local
 /*.bak
 /_local/
