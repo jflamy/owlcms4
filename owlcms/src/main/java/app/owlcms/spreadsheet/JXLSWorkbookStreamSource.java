@@ -524,9 +524,11 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 				JxlsPoi.fill(new FileInputStream(templateFile), JxlsStreaming.STREAMING_OFF, reportingInfo, tempFile);
 				logger.info("processing done: {}ms",System.currentTimeMillis()-start);
 				workbook = WorkbookFactory.create(tempFile);
-				logger.debug("after workbook3 {}", workbook);
 				if (workbook != null) {
+					start = System.currentTimeMillis();
+					logger.info("postProcessing");
 					postProcess(workbook);
+					logger.info("postProcessing done: {}ms",System.currentTimeMillis()-start);
 				}
 			} else {
 				String message;
