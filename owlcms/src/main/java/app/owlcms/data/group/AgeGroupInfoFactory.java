@@ -15,6 +15,9 @@ public class AgeGroupInfoFactory {
 
 	public List<AgeGroupInfo> getAgeGroupInfos(Group group) {
 		List<Athlete> athletes = group.getAthletes();
+		if (athletes == null || athletes.isEmpty()) {
+			return List.of();
+		}
 		TreeMap<AgeGroup, AgeGroupInfo> ageGroupMap = new TreeMap<>();
 		for (Athlete a : athletes) {
 			AgeGroup ageGroup = a.getAgeGroup();

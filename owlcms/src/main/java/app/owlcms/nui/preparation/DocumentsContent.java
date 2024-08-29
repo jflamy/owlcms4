@@ -17,7 +17,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -33,10 +35,12 @@ import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellUtil;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
@@ -756,10 +760,10 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			        JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
 			        List<Athlete> athletes;
 			        if (g == null) {
-			        	athletes = athletesFindAll(true);
-			        	athletes.sort(RegistrationOrderComparator.athleteSessionRegistrationOrderComparator);
+				        athletes = athletesFindAll(true);
+				        athletes.sort(RegistrationOrderComparator.athleteSessionRegistrationOrderComparator);
 			        } else {
-			        	athletes = a;
+				        athletes = a;
 			        }
 			        xlsWriter.setSortedAthletes(athletes);
 			        return xlsWriter;
@@ -858,18 +862,50 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			        JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
 
 			        String tn = Competition.getCurrent().getScheduleTemplateFileName();
-			        if (tn.equals("Schedule.xlsx") && Config.getCurrent().featureSwitch("usaw")) {
+			        if (tn.contains("Schedule") && Config.getCurrent().featureSwitch("usaw")) {
+				        xlsWriter.setPostProcessor((w) -> {
+					        fixMerges(w, 4, List.of(1, 2));
+					        fixLastLine(w);
+				        });
+			        } else if (tn.startsWith("DaySchedule.xlsx")) {
 				        // FIXME: read this from the jxls3 directives
-				        xlsWriter.setPostProcessor((w) -> fixMerges(w, 4, List.of(1, 2)));
+				        xlsWriter.setPostProcessor((w) -> {
+					        fixMerges(w, 5, List.of(1, 2, 3));
+					        fixLastLine(w);
+				        });
 			        } else if (tn.endsWith("Schedule.xlsx")) {
 				        // FIXME: read this from the jxls3 directives
-				        xlsWriter.setPostProcessor((w) -> fixMerges(w, 5, List.of(1, 2)));
+				        xlsWriter.setPostProcessor((w) -> {
+					        fixMerges(w, 5, List.of(1, 2));
+					        fixLastLine(w);
+				        });
 			        } else {
 				        xlsWriter.setPostProcessor(null);
 				        xlsWriter.setSortedAthletes(a);
 			        }
 			        return xlsWriter;
 		        });
+	}
+
+	private void fixLastLine(Workbook w) {
+		Sheet sheet = w.getSheetAt(0);
+		// Define the border style properties
+		Map<String, Object> properties = new HashMap<>();
+		properties.put(CellUtil.BORDER_BOTTOM, BorderStyle.THIN);
+		properties.put(CellUtil.BOTTOM_BORDER_COLOR, IndexedColors.BLACK.getIndex());
+
+		// Retrieve the last row
+		int lastRowNum = sheet.getLastRowNum();
+		Row lastRow = sheet.getRow(lastRowNum);
+
+		// Apply the border style to the cells in the last row
+		for (int i = 0; i < lastRow.getLastCellNum(); i++) {
+			Cell cell = lastRow.getCell(i);
+			if (cell == null) {
+				cell = lastRow.createCell(i);
+			}
+			CellUtil.setCellStyleProperties(cell, properties);
+		}
 	}
 
 	private KitElement doElementStartList(PreCompetitionTemplates templateDefinition, BiConsumer<Throwable, String> errorProcessor) {
@@ -1061,30 +1097,35 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 					if (cell != null && cell.getCellType() != CellType.BLANK) {
 						if (isMerging) {
+
 							logger.debug("**** {}{}: merging from {}{}", (char) ('A' + col), row.getRowNum() + 1,
 							        (char) ('A' + col), firstRow + 1);
-							CellRangeAddress region = new CellRangeAddress(firstRow, row.getRowNum() - 1, col, col);
-							sheet.addMergedRegion(region);
-							// Apply the captured style to the first cell of the merged region
-							Cell cell2 = sheet.getRow(firstRow).getCell(col);
-							style.setBorderBottom(BorderStyle.HAIR);
-							cell2.setCellStyle(style);
-							isMerging = false;
+							int regionSize = (row.getRowNum() - 1) - firstRow;
+							logger.debug("     region size = {}", regionSize);
+							if (regionSize > 0) {
+								CellRangeAddress region = new CellRangeAddress(firstRow, row.getRowNum() - 1, col, col);
+								sheet.addMergedRegion(region);
+								// Apply the captured style to the first cell of the merged region
+								Cell cell2 = sheet.getRow(firstRow).getCell(col);
+								style.setBorderBottom(BorderStyle.HAIR);
+								cell2.setCellStyle(style);
+								isMerging = false;
+							}
 
 							// start a new merge
-							logger.debug("**** {}{}: capturing style", (char) ('A' + col), row.getRowNum() + 1, isMerging);
+							logger.debug("**** {}{}: starting merge 1", (char) ('A' + col), row.getRowNum() + 1, isMerging);
 							firstRow = row.getRowNum();
 							style = cell.getCellStyle(); // capture the style
 							isMerging = true;
 						} else {
-							logger.debug("**** {}{}: capturing style", (char) ('A' + col), row.getRowNum() + 1, isMerging);
+							logger.debug("**** {}{}: starting merge 2", (char) ('A' + col), row.getRowNum() + 1, isMerging);
 							firstRow = row.getRowNum();
 							style = cell.getCellStyle(); // capture the style
 							isMerging = true;
 						}
 					}
 				}
-				// Merge the last region if the last cell(s) is/are non-empty
+				// Merge the bottom region if needed
 				if (isMerging) {
 					logger.debug("**** {}{}: merging bottom from {}{}", (char) ('A' + col), sheet.getLastRowNum() + 1,
 					        (char) ('A' + col), firstRow + 1);
