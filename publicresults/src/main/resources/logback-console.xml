@@ -14,6 +14,10 @@ Also used for certain cloud services (e.g. Heroku)
 			</pattern>
 		</encoder>
 	</appender>
+	
+	<root level="WARN">
+		<appender-ref ref="CONSOLE" />
+	</root>
 
 	<logger name="app.owlcms" level="INFO" />
 
@@ -23,11 +27,8 @@ Also used for certain cloud services (e.g. Heroku)
 	<logger name="com.vaadin.flow.server.communication" level="ERROR" />
 	<logger name="com.vaadin.flow.server.DefaultDeploymentConfiguration" level="ERROR" />
 	<logger name="app.owlcms.servlet.HttpsEnforcer" level="OFF" />
+	<logger name="com.vaadin.flow.server.communication.ServerRpcHandler" level="ERROR" />
 
-	<root level="WARN">
-		<appender-ref ref="CONSOLE" />
-	</root>
-	
     <!-- additional tracing/debugging (set level to DEBUG or TRACE) -->
     <logger name="app.owlcms.utils.ResourceWalker" level="INFO" />
     <logger name="app.owlcms.prutils.SessionCleanup" level="DEBUG" />
