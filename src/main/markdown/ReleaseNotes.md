@@ -5,7 +5,7 @@
 
 - Fixes
 
-  - 52.0.2 The new much faster SBDE (Start Book Data Entry) full export was not correctly exporting the session information, now fixed.
+  - 52.0.2 The new faster SBDE (Start Book Data Entry) full export was not correctly exporting the session information, now fixed.
 
   - 52.0.2 Fixed formatting for schedules, restored the DaySchedule with individual age groups.
 
