@@ -34,43 +34,12 @@ public class Main {
 
     public final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
 
-    private static Integer serverPort;
+    public static MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
 
     public static String productionMode;
     
-    public static MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
-
-    /**
-     * The main method.
-     *
-     * @param args the arguments
-     * @throws Exception the exception
-     */
-    public static void main(String... args) throws Exception {
-        new Thread(() -> {
-            while (true) {
-                String message = "";
-                try {
-                    logSessionMemUsage(message);
-                    Thread.sleep(60 * 1000);
-                } catch (InterruptedException e) {
-                }
-            }
-        }).start();
-
-        try {
-            init();
-            new EmbeddedJetty(new CountDownLatch(0), "publicresults")
-                    .setStartLogger(logger)
-                    .setInitConfig(Runnables::doNothing)
-                    .setInitData(Runnables::doNothing)
-                    .run(serverPort, "/");
-        } catch (Exception e) {
-            LoggerUtils.logError(logger, e);
-        } finally {
-        }
-    }
-
+    private static Integer serverPort;
+    
     public static void logSessionMemUsage(String message) {
         MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
         MemoryUsage nonHeapMemoryUsage = memoryMXBean.getNonHeapMemoryUsage();
@@ -83,6 +52,26 @@ public class Main {
                 heapMemoryUsage.getCommitted()/megaB,
                 nonHeapMemoryUsage.getUsed()/megaB,
                 nonHeapMemoryUsage.getCommitted()/megaB);
+    }
+
+    /**
+     * The main method.
+     *
+     * @param args the arguments
+     * @throws Exception the exception
+     */
+    public static void main(String... args) throws Exception {
+        try {
+            init();
+            new EmbeddedJetty(new CountDownLatch(0), "publicresults")
+                    .setStartLogger(logger)
+                    .setInitConfig(Runnables::doNothing)
+                    .setInitData(Runnables::doNothing)
+                    .run(serverPort, "/");
+        } catch (Exception e) {
+            LoggerUtils.logError(logger, e);
+        } finally {
+        }
     }
 
     /**
@@ -102,6 +91,14 @@ public class Main {
      * @throws ParseException
      */
     protected static void init() throws IOException, ParseException {
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                System.out.println("Caught " + e);
+            }
+        });
+        periodicTasks();
+        
         // Configure logging -- must take place before anything else
         // Redirect java.util.logging logs to SLF4J
         SLF4JBridgeHandler.removeHandlersForRootLogger();
@@ -172,6 +169,19 @@ public class Main {
         StartupUtils.setServerPort(serverPort);
 
         overrideDisplayLanguage();
+    }
+
+    private static void periodicTasks() {
+        new Thread(() -> {
+            while (true) {
+                String message = "";
+                try {
+                    logSessionMemUsage(message);
+                    Thread.sleep(60 * 1000);
+                } catch (InterruptedException e) {
+                }
+            }
+        }).start();
     }
 
 }

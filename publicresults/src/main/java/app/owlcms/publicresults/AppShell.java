@@ -10,6 +10,7 @@ import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.server.ErrorEvent;
 import com.vaadin.flow.server.ErrorHandler;
 import com.vaadin.flow.server.ServiceInitEvent;
+import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.Theme;
@@ -54,9 +55,12 @@ public class AppShell implements AppShellConfigurator, VaadinServiceInitListener
         });
 
         serviceInitEvent.getSource().addSessionInitListener(sessionInitEvent -> {
+            VaadinRequest req = sessionInitEvent.getRequest();
+            String ip = getClientIp(req);
             VaadinSession session = sessionInitEvent.getSession();
+
             activeSessions.incrementAndGet();
-            Main.logSessionMemUsage("nbSessions++");
+            Main.logSessionMemUsage(ip + " nbSessions++");
             ErrorHandler handler = new ErrorHandler() {
                 @Override
                 public void error(ErrorEvent errorEvent) {
@@ -76,6 +80,17 @@ public class AppShell implements AppShellConfigurator, VaadinServiceInitListener
         });
     }
 
+    private static String getClientIp(VaadinRequest req) {
+        String ipAddress = req.getHeader("X-Forwarded-For");
+        if (ipAddress == null || ipAddress.isEmpty()) {
+            ipAddress = req.getRemoteAddr();
+        } else {
+            // In case of multiple IPs, the first one is the original client IP
+            ipAddress = ipAddress.split(",")[0];
+        }
+        return ipAddress;
+    }
+    
     public static AtomicInteger getActiveSessions() {
         return activeSessions;
     }

@@ -31,6 +31,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/update")
 public class UpdateReceiverServlet extends HttpServlet implements Traceable {
@@ -90,6 +91,10 @@ public class UpdateReceiverServlet extends HttpServlet implements Traceable {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try {
+            HttpSession session = req.getSession(false);
+            if (session != null) {
+                session.invalidate();
+            }
             String updateKey = req.getParameter("updateKey");
             if (updateKey == null || !updateKey.equals(this.secret)) {
                 this.getLogger().error("denying access from {} expected {} got {} ", req.getRemoteHost(), this.secret,
