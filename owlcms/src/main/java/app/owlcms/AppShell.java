@@ -1,7 +1,5 @@
 package app.owlcms;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.page.AppShellConfigurator;
@@ -20,8 +18,6 @@ import com.vaadin.flow.theme.Theme;
 
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.servlet.StopProcessingException;
-import app.owlcms.utils.LoggerUtils;
-import ch.qos.logback.classic.Logger;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
@@ -32,10 +28,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @Push
 @Theme(value = "owlcms")
 public class AppShell implements AppShellConfigurator, VaadinServiceInitListener, IndexHtmlRequestListener {
-	
-	Logger logger = (Logger) LoggerFactory.getLogger(AppShell.class);
-	private static final AtomicInteger activeSessions = new AtomicInteger(0);
-	
+
 	/**
 	 * @see com.vaadin.flow.component.page.AppShellConfigurator#configurePage(com.vaadin.flow.server.AppShellSettings)
 	 */
@@ -63,12 +56,12 @@ public class AppShell implements AppShellConfigurator, VaadinServiceInitListener
 	 */
 	@Override
 	public void serviceInit(ServiceInitEvent serviceInitEvent) {
-		logger.warn("**** service initialization owlcms {}", LoggerUtils.stackTrace());
 		serviceInitEvent.getSource().addUIInitListener(uiInitEvent -> {
 			LoadingIndicatorConfiguration conf = uiInitEvent.getUI().getLoadingIndicatorConfiguration();
 
 			// disable default theme on loading indicator -> loading indicator isn't shown
 			// conf.setApplyDefaultTheme(false);
+
 			/*
 			 * Delay for showing the indicator and setting the 'first' class name.
 			 */
@@ -84,7 +77,6 @@ public class AppShell implements AppShellConfigurator, VaadinServiceInitListener
 
 		serviceInitEvent.getSource().addSessionInitListener(sessionInitEvent -> {
 			VaadinSession session = sessionInitEvent.getSession();
-            activeSessions.incrementAndGet();
 			ErrorHandler handler = new ErrorHandler() {
 				@Override
 				public void error(ErrorEvent errorEvent) {
@@ -96,18 +88,9 @@ public class AppShell implements AppShellConfigurator, VaadinServiceInitListener
 			};
 			session.setErrorHandler(handler);
 		});
-		
-		serviceInitEvent.getSource().addSessionDestroyListener(sde -> {
-            logger.trace("Session {} destroyed.", sde.getSession());
-            activeSessions.decrementAndGet();
-        });
 	}
 
 	private String getCurrentUserLanguage() {
 		return OwlcmsSession.getLocale().toString().replace("_", "-");
-	}
-
-	public static AtomicInteger getActiveSessions() {
-		return activeSessions;
 	}
 }
