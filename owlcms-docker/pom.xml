@@ -86,6 +86,7 @@
 <!--                                     <arg>-Djava.net.preferIPv4Stack=true</arg> -->
 <!--                                     <arg>-Dcom.sun.management.jmxremote.ssl=false</arg> -->
 <!--                                     <arg>-Dcom.sun.management.jmxremote.authenticate=false</arg> -->
+                                    <arg>-XX:MaxRAMPercentage=75</arg>
                                     <arg>-cp</arg>
                                     <arg>maven/classes:/maven/owlcms-${project.version}.jar</arg>
                                     <arg>app.owlcms.Main</arg>
@@ -109,6 +110,8 @@
 <!--                                     <arg>-Djava.net.preferIPv4Stack=true</arg> -->
 <!--                                     <arg>-Dcom.sun.management.jmxremote.ssl=false</arg> -->
 <!--                                     <arg>-Dcom.sun.management.jmxremote.authenticate=false</arg> -->
+                                    <arg>-XX:MinRAMPercentage=75</arg>
+                                    <arg>-XX:MaxRAMPercentage=75</arg>
                                     <arg>-cp</arg>
                                     <arg>maven/classes:/maven/publicresults-${project.version}.jar</arg>
                                     <arg>app.owlcms.publicresults.Main</arg>
