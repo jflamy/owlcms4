@@ -37,8 +37,8 @@
 
     <!-- additional tracing/debugging (set level to DEBUG or TRACE) -->
     <logger name="app.owlcms.utils.ResourceWalker" level="INFO" />
-    <logger name="app.owlcms.prutils.SessionCleanup" level="DEBUG" />
-    <logger name="app.owlcms.components.elements.unload.UnloadObserverPR" level="DEBUG" />
+    <logger name="app.owlcms.prutils.SessionCleanup" level="INFO" />
+    <logger name="app.owlcms.components.elements.unload.UnloadObserverPR" level="INFO" />
 		
 	<logger name="app.owlcms.Main" level="INFO">
         <appender-ref ref="CONSOLE" />

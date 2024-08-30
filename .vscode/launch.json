@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [  
+
         {
             "type": "java",
             "name": "Launch owlcms",
@@ -15,11 +16,12 @@
         },
         {
             "type": "java",
-            "name": "Launch relay",
+            "name": "Launch publicresults",
             "request": "launch",
-            "mainClass": "app.owlcms.relay.Main",
-            "projectName": "relay",
-            "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml"
+            "mainClass": "app.owlcms.publicresults.Main",
+            "projectName": "publicresults",
+            "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -",
+            "env":{"OWLCMS_PORT": "8082", "OWLCMS_UPDATEKEY":"mapetitevacheamalauxpattes"}
         },    
         {
             "name": "Launch GO file",

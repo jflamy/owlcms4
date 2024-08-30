@@ -8,6 +8,9 @@
 package app.owlcms.publicresults;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+import java.lang.management.MemoryUsage;
 import java.text.ParseException;
 import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
@@ -34,6 +37,8 @@ public class Main {
     private static Integer serverPort;
 
     public static String productionMode;
+    
+    public static MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
 
     /**
      * The main method.
@@ -42,6 +47,16 @@ public class Main {
      * @throws Exception the exception
      */
     public static void main(String... args) throws Exception {
+        new Thread(() -> {
+            while (true) {
+                String message = "";
+                try {
+                    logSessionMemUsage(message);
+                    Thread.sleep(60 * 1000);
+                } catch (InterruptedException e) {
+                }
+            }
+        }).start();
 
         try {
             init();
@@ -54,6 +69,20 @@ public class Main {
             LoggerUtils.logError(logger, e);
         } finally {
         }
+    }
+
+    public static void logSessionMemUsage(String message) {
+        MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
+        MemoryUsage nonHeapMemoryUsage = memoryMXBean.getNonHeapMemoryUsage();
+        int megaB = 1024 * 1024;
+        message = message != null && !message.isBlank() ? message + " " : "";
+        logger.info("{}sessions: {}, heap {}/{} nonHeap {}/{}",
+                message,
+                AppShell.getActiveSessions().get(),
+                heapMemoryUsage.getUsed()/megaB,
+                heapMemoryUsage.getCommitted()/megaB,
+                nonHeapMemoryUsage.getUsed()/megaB,
+                nonHeapMemoryUsage.getCommitted()/megaB);
     }
 
     /**
@@ -97,7 +126,6 @@ public class Main {
 
         // technical initializations
         // System.setProperty("java.net.preferIPv4Stack", "true");
-
 
     }
 

@@ -20,7 +20,6 @@ import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.uievents.BreakTimerEvent;
 import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -33,11 +32,6 @@ public class BreakTimerElementPR extends TimerElementPR {
 
     private String parentName = "";
     final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
-
-    {
-        this.logger.setLevel(Level.INFO);
-        this.uiEventLogger.setLevel(Level.INFO);
-    }
 
     public BreakTimerElementPR() {
         this.id = IdUtils.getTimeBasedId();

@@ -25,7 +25,6 @@ import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.uievents.BreakTimerEvent;
 import app.owlcms.uievents.DecisionEvent;
 import app.owlcms.uievents.TimerEvent;
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -39,11 +38,6 @@ public class DecisionElementPR extends LitTemplate
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElementPR.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-
-    static {
-        logger.setLevel(Level.DEBUG);
-        uiEventLogger.setLevel(Level.INFO);
-    }
 
     protected EventBus uiEventBus;
     protected EventBus fopEventBus;

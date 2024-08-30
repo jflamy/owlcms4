@@ -20,7 +20,6 @@ import app.owlcms.components.elements.unload.UnloadObserverPR;
 import app.owlcms.displays.scoreboard.ResultsPR;
 import app.owlcms.publicresults.MainView;
 import app.owlcms.utils.LoggerUtils;
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public interface SafeEventBusRegistrationPR {
@@ -43,7 +42,6 @@ public interface SafeEventBusRegistrationPR {
      */
     public default EventBus eventBusRegister(Component c, EventBus bus) {
 
-        logger.setLevel(Level.INFO);
         UI ui = c.getUI().get();
 
         if (bus != null) {
@@ -130,6 +128,15 @@ public interface SafeEventBusRegistrationPR {
             else {
                 logger.error("{}: unexpected event {} {}", change, c.getClass().getSimpleName(),
                         System.identityHashCode(c));
+                // actual killing is handled by the detach listener
+                try {
+                    eventObserver.setInactivityTime();
+                    unregister(c, bus);
+                    logger.debug("{}: unregister {} from {}", change, c.getClass().getSimpleName(),
+                            bus.identifier());
+                } catch (Exception ex) {
+                    LoggerUtils.logError(logger, ex, true);
+                }
             }
         });
 

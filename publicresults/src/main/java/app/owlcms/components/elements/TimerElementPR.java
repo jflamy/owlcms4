@@ -22,7 +22,6 @@ import app.owlcms.prutils.DebugUtils;
 import app.owlcms.prutils.SafeEventBusRegistrationPR;
 import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.utils.LoggerUtils;
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -37,10 +36,6 @@ public abstract class TimerElementPR extends LitTemplate
 
     final private Logger logger = (Logger) LoggerFactory.getLogger(TimerElementPR.class);
     final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
-    {
-        this.logger.setLevel(Level.INFO);
-        this.uiEventLogger.setLevel(Level.INFO);
-    }
 
     private Element timerElement;
     private boolean indefinite;

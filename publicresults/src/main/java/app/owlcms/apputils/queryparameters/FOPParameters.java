@@ -27,7 +27,6 @@ import com.vaadin.flow.router.QueryParameters;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.utils.URLUtils;
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public interface FOPParameters extends HasUrlParameter<String> {
@@ -146,7 +145,6 @@ public interface FOPParameters extends HasUrlParameter<String> {
      */
     @Override
     public default void setParameter(BeforeEvent event, @OptionalParameter String unused) {
-        logger.setLevel(Level.INFO);
         Location location = event.getLocation();
         QueryParameters queryParameters = location.getQueryParameters();
         Map<String, List<String>> parametersMap = queryParameters.getParameters();

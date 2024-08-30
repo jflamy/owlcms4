@@ -21,7 +21,6 @@ import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.function.ValueProvider;
 
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -78,7 +77,6 @@ public class LocalizedDecimalField extends WrappedTextField<Double> {
     @Override
     protected void initLoggers() {
         setLogger((Logger) LoggerFactory.getLogger(LocalizedDecimalField.class));
-        getLogger().setLevel(Level.INFO);
     }
 
     @Override

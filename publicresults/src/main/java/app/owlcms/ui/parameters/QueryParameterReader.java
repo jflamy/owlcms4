@@ -24,7 +24,6 @@ import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.URLUtils;
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public interface QueryParameterReader extends HasUrlParameter<String> {
@@ -102,7 +101,6 @@ public interface QueryParameterReader extends HasUrlParameter<String> {
      */
     @Override
     public default void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-        logger.setLevel(Level.INFO);
         Location location = event.getLocation();
         QueryParameters queryParameters = location.getQueryParameters();
         Map<String, List<String>> parametersMap = queryParameters.getParameters();

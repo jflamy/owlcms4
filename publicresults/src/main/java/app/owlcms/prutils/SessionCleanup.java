@@ -36,6 +36,8 @@ public class SessionCleanup {
         this.vaadinSession = vs;
     }
 
+
+    
     public void cleanupSession() {
         vaadinSession.access(() -> {
             @SuppressWarnings("unchecked")
@@ -43,6 +45,7 @@ public class SessionCleanup {
             int stillAlive = 0;
             if (im != null) {
                 long now = System.currentTimeMillis();
+
                 logger.debug("checking session {}", System.identityHashCode(vaadinSession));
 
                 Iterator<Entry<UnloadObserverPR, Long>> entryIterator = im.entrySet().iterator();
@@ -106,7 +109,7 @@ public class SessionCleanup {
                 }
                 try {
                     Thread.sleep(1000);
-                    logger.debug("*** invalidating session {}", System.identityHashCode(vaadinSession));
+                    logger.info("*** invalidating session {}", System.identityHashCode(vaadinSession));
                     vaadinSession.getSession().invalidate();
                     vaadinSession.close();
                     stop();

@@ -68,7 +68,7 @@ public class TimerReceiverServlet extends HttpServlet implements Traceable {
             resp.setCharacterEncoding("UTF-8");
             if (StartupUtils.isTraceSetting()) {
                 Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
-                getLogger()./**/warn("---- timer update received from {}", ProxyUtils.getClientIp(req));
+                getLogger()./**/debug("---- timer update received from {}", ProxyUtils.getClientIp(req));
                 tracePairs(pairs);
             }
 

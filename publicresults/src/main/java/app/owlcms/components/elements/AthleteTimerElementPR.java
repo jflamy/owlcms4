@@ -20,7 +20,6 @@ import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.uievents.TimerEvent;
 import app.owlcms.uievents.UpdateEvent;
 import app.owlcms.utils.LoggerUtils;
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -30,9 +29,6 @@ public class AthleteTimerElementPR extends TimerElementPR {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteTimerElementPR.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-    static {
-        uiEventLogger.setLevel(Level.INFO);
-    }
 
     private Object origin;
 
