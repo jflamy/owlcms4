@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
@@ -260,6 +261,11 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		Gender currentGender = this.getGenderFilter().getValue();
 
 		List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(currentGroup);
+		
+		// unfinished categories need to be computed using all relevant athletes, including not weighed-in yet
+		@SuppressWarnings("unchecked")
+		Set<String> unfinishedCategories = AthleteRepository.unfinishedCategories(rankedAthletes);
+		logger.warn("unfinished categories {}", unfinishedCategories);
 
 		if (currentGroup != null) {
 			rankedAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
@@ -267,14 +273,32 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 			        .filter(a -> a.getGender() != null
 			                ? (currentGender != null ? currentGender.equals(a.getGender()) : true)
 			                : false)
+					.map(a -> {
+						if (a.getCategory() != null && unfinishedCategories.contains(a.getCategory().getCode())) {
+							a.setCategoryFinished(false);
+						} else {
+							a.setCategoryFinished(true);
+						}
+						return a;
+					})
 			        .collect(Collectors.toList());
 		} else {
 			rankedAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
 			        .filter(a -> a.getGender() != null
 			                ? (currentGender != null ? currentGender.equals(a.getGender()) : true)
 			                : false)
+					.map(a -> {
+						if (a.getCategory() != null && unfinishedCategories.contains(a.getCategory().getCode())) {
+							a.setCategoryFinished(false);
+						} else {
+							a.setCategoryFinished(true);
+						}
+						return a;
+					})
 			        .collect(Collectors.toList());
 		}
+		
+		
 
 		Boolean medals = this.medalsOnly.getValue();
 		if (medals != null && medals) {
