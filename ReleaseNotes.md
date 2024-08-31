@@ -5,6 +5,11 @@
 
 - Fixes
 
+  - 52.0.3 
+    - Publicresults: fixed memory allocation configuration for using large containers in large competitions (ex: 200 simultaneous viewers of scoreboards for 3 simultaneous platforms)
+    - owlcms: fixed occasional extra notification of weight changes to the announcer.
+    - owlcms: ${athlete.categoryFinished} can now be used in results templates (those used in the Session Results page). When producing interim results, this variable can be used to hide athlete ranks in categories where some athletes have finished but others still need to lift.
+    
   - 52.0.2 The new faster SBDE (Start Book Data Entry) full export was not correctly exporting the session information, now fixed.
 
   - 52.0.2 Fixed formatting for schedules, restored the DaySchedule with individual age groups.
