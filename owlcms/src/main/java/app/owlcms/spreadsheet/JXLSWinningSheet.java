@@ -87,8 +87,8 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 
 		// unfinished categories need to be computed using all relevant athletes, including not weighed-in yet
 		@SuppressWarnings("unchecked")
-		Set<String> unfinishedCategories = AthleteRepository.unfinishedCategories(rankedAthletes);
-		logger.debug("unfinished categories {}", unfinishedCategories);
+		Set<String> unfinishedCategories = AthleteRepository.allUnfinishedCategories();
+		logger.warn("JXLSWinningSheet unfinished categories {}", unfinishedCategories);
 
 		// @formatter:off
         List<Athlete> athletes = AthleteSorter.resultsOrderCopy(pAthletes, rankingOrder(), false).stream()

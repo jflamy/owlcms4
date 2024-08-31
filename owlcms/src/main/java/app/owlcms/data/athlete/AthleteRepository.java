@@ -530,4 +530,23 @@ public class AthleteRepository {
 		//logger.debug("unfinishedCategories2 {}",unfinishedCategories);
 		return unfinishedCategories;
 	}
+	
+	public static Set<String> allUnfinishedCategories() {
+		Set<String> unfinishedCategories = new HashSet<>();
+		List<Athlete> ranked = findAll();
+		if (ranked == null || ranked.isEmpty()) {
+			return Set.of();
+		}
+		for (Athlete a : ranked) {
+			//logger.debug("unfinishedCategories *** athlete {}",a);
+			if (!a.isDone()) {
+				//logger.debug("{}", a, a.getCleanJerk3ActualLift());
+				for (Participation p: a.getParticipations()) {
+					unfinishedCategories.add(p.getCategory().getCode());
+				}
+			}
+		}
+		//logger.debug("unfinishedCategories2 {}",unfinishedCategories);
+		return unfinishedCategories;
+	}
 }

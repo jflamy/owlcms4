@@ -264,8 +264,8 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 
 		// unfinished categories need to be computed using all relevant athletes, including not weighed-in yet
 		@SuppressWarnings("unchecked")
-		Set<String> unfinishedCategories = AthleteRepository.unfinishedCategories(rankedAthletes);
-		logger.debug("unfinished categories {}", unfinishedCategories);
+		Set<String> unfinishedCategories = AthleteRepository.allUnfinishedCategories();
+		logger.warn("ResultsContent unfinished categories {}", unfinishedCategories);
 
 		if (currentGroup != null) {
 			rankedAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
