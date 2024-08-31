@@ -83,7 +83,7 @@ public interface SafeEventBusRegistrationPR {
                 return;
             }
 
-            if (change.equals("visibilityHidden")) {
+            if (change.equals("visibilityHidden") || change.equals("pageHide") || change.equals("unload")) {
                 // switching tabs or minimizing window. no visible scoreboard
                 eventObserver.setInactivityTime();
                 try {
