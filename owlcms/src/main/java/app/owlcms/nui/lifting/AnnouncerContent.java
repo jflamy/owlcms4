@@ -334,16 +334,18 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			n.setDuration(5000);
 			n.open();
 
-			Athlete curAthlete = OwlcmsSession.getFop().getLiftingOrder().get(0);
-
-			if (curAthlete != null) {
-				Integer newWeight = curAthlete.getNextAttemptRequestedWeight();
-				// avoid duplicate info to officials
-				if (newWeight != null && newWeight > 0 && Integer.compare(this.prevWeight, newWeight) != 0) {
-					doNotification(Translator.translate("Notification.WeightToBeLoaded", newWeight), "info");
-					this.prevWeight = newWeight;
-				}
-			}
+// This causes duplicate notifications.
+// Cannot do this in a UI lock.
+//			Athlete curAthlete = OwlcmsSession.getFop().getLiftingOrder().get(0);
+//
+//			if (curAthlete != null) {
+//				Integer newWeight = curAthlete.getNextAttemptRequestedWeight();
+//				// avoid duplicate info to officials
+//				if (newWeight != null && newWeight > 0 && Integer.compare(this.prevWeight, newWeight) != 0) {
+//					doNotification(Translator.translate("Notification.WeightToBeLoaded", newWeight), "info");
+//					this.prevWeight = newWeight;
+//				}
+//			}
 			setDecisionLights(null);
 		});
 	}
