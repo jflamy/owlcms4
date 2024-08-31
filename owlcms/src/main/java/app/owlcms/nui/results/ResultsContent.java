@@ -261,7 +261,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		Gender currentGender = this.getGenderFilter().getValue();
 
 		List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(currentGroup);
-		
+
 		// unfinished categories need to be computed using all relevant athletes, including not weighed-in yet
 		@SuppressWarnings("unchecked")
 		Set<String> unfinishedCategories = AthleteRepository.unfinishedCategories(rankedAthletes);
@@ -295,10 +295,13 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 						}
 						return a;
 					})
+					.peek(a -> {
+						logger.warn("{}, {}", a.isCategoryFinished(), a.getFullName());
+					})
 			        .collect(Collectors.toList());
 		}
-		
-		
+
+
 
 		Boolean medals = this.medalsOnly.getValue();
 		if (medals != null && medals) {
@@ -609,24 +612,24 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 	private void highlight(Button button) {
 		button.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
 	}
-	
+
 	public static String formatBlankRank(Integer total) {
 		if (total == null || total == 0) {
 			return "&nbsp;";
 		} else if (total == -1) {
 			// invited lifter, not eligible.
-			return Translator.translate("Results.Extra/Invited"); 
+			return Translator.translate("Results.Extra/Invited");
 		} else {
 			return total.toString();
 		}
 	}
-	
+
 	public static String formatScoreboardRank(Integer total) {
 		if (total == null || total == 0) {
 			return "-";
 		} else if (total == -1) {
 			// invited lifter, not eligible.
-			return Translator.translate("Results.Extra/Invited"); 
+			return Translator.translate("Results.Extra/Invited");
 		} else {
 			return total.toString();
 		}

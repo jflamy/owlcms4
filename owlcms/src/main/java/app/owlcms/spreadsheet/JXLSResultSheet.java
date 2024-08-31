@@ -54,6 +54,7 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 	@Override
 	public List<Athlete> getSortedAthletes() {
 		if (this.sortedAthletes != null) {
+			logger.warn("JXLSResults has sorted athletes");
 			// we are provided with an externally computed list.
 			if (this.resultsByCategory) {
 				// no need to unwrap, each athlete is a wrapper PAthlete with a participation category.
@@ -67,6 +68,7 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 				return this.sortedAthletes;
 			}
 		}
+		logger.warn("JXLSResults has no sorted athletes");
 		final Group currentGroup = getGroup();
 		Category currentCategory = getCategory();
 		Championship currentAgeDivision = getChampionship();

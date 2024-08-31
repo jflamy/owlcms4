@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
@@ -60,7 +61,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 			if (this.resultsByCategory) {
 				// no need to unwrap, each athlete is a wrapper PAthlete with a participation category.
 				AthleteSorter.resultsOrder(this.sortedAthletes, rankingOrder(), false);
-				logger.debug("eligible getSortedAthletes {}",this.sortedAthletes.size());
+				logger.warn("eligible getSortedAthletes {}",this.sortedAthletes.size());
 				return this.sortedAthletes;
 			} else {
 				// we need the athlete with the original registration category inside the PAthlete
@@ -69,10 +70,11 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 				Set<Athlete> noDuplicates = new HashSet<>(unwrappedAthletes);
 				this.sortedAthletes = new ArrayList<>(noDuplicates);
 				AthleteSorter.resultsOrder(this.sortedAthletes, rankingOrder(), false);
-				logger.debug("registration getSortedAthletes {}",this.sortedAthletes.size());
+				logger.warn("registration getSortedAthletes {}",this.sortedAthletes.size());
 				return this.sortedAthletes;
 			}
 		}
+		logger.warn("no sorted athletes");
 		final Group currentGroup = getGroup();
 		Category currentCategory = getCategory();
 		Championship currentAgeDivision = getChampionship();
@@ -82,6 +84,11 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 		// get all the PAthletes for the current group - athletes show as many times as
 		// they have participations.
 		List<Athlete> pAthletes = unwrapAthletesAsNeeded(rankedAthletes);
+
+		// unfinished categories need to be computed using all relevant athletes, including not weighed-in yet
+		@SuppressWarnings("unchecked")
+		Set<String> unfinishedCategories = AthleteRepository.unfinishedCategories(rankedAthletes);
+		logger.warn("unfinished categories {}", unfinishedCategories);
 
 		// @formatter:off
         List<Athlete> athletes = AthleteSorter.resultsOrderCopy(pAthletes, rankingOrder(), false).stream()
@@ -120,7 +127,15 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
                                     currentAgeGroupPrefix.equals(ageGroupPrefix2)
                                     : false)
                             : true);
-                    })
+				})
+				.map(a -> {
+					if (a.getCategory() != null && unfinishedCategories.contains(a.getCategory().getCode())) {
+						a.setCategoryFinished(false);
+					} else {
+						a.setCategoryFinished(true);
+					}
+					return a;
+				})
                 //.peek(a -> logger.debug("   {}",a))
                 .collect(Collectors.toList());
         return athletes;
@@ -143,7 +158,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 		String c = getChampionship() != null ? getChampionship().getName() : null;
 		String ag = getAgeGroupPrefix();
 		Header header = workbook.getSheetAt(0).getHeader();
-		
+
 		//header.setLeft(Competition.getCurrent().getCompetitionName());
 		if (c != null && ag != null) {
 			header.setCenter(c + "\u2013" + ag);
@@ -156,9 +171,9 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 		}
 
 		createStandardFooter(workbook);
-		
+
 		String resultsTemplateFileName = Competition.getCurrent().getResultsTemplateFileName();
-		boolean isUSAW = resultsTemplateFileName != null && resultsTemplateFileName.toLowerCase().contains("usaw");	
+		boolean isUSAW = resultsTemplateFileName != null && resultsTemplateFileName.toLowerCase().contains("usaw");
 		if (currentCompetitionSession == null && !isUSAW) {
 			// remove information cells from standard template
 			zapCellPair(workbook, 3, 9);

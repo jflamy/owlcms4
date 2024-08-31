@@ -306,20 +306,20 @@ public class Athlete {
 	@JsonIdentityReference(alwaysAsId = true)
 	private Category category = null;
 
-	// Hibernate bug workaround. The following property is kept but unused -- 
+	// Hibernate bug workaround. The following property is kept but unused --
 	// if it is made transient but the column is present in database hibernate complains
 	// (it should remove it from the schema).
 	@Column(columnDefinition = "boolean default false")
 	private Boolean categoryDone = false;
-	
+
 	@Transient
 	@JsonIgnore
 	@Column(columnDefinition = "boolean default false")
 	private Boolean categoryFinished = false;
-	
+
 	@Column(columnDefinition = "integer default 0")
 	private int catSinclairRank;
-	
+
 	@Transient
 	@JsonIgnore
 	private boolean checkTiming;
@@ -1144,6 +1144,12 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Boolean getCategoryFinished() {
+		return this.categoryFinished;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Boolean isCategoryFinished() {
 		return this.categoryFinished;
 	}
 
@@ -5518,7 +5524,7 @@ public class Athlete {
 		int missing = delta - _20kgRuleValue;
 		return missing;
 	}
-	
+
 	public String getRequiredInitialAttempts() {
 		return Integer.toString(Math.round(this.getEntryTotal() - getStartingTotalMargin(this.getCategory(), this.getEntryTotal())));
 	}
