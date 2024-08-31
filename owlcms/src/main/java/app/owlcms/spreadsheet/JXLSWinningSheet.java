@@ -61,7 +61,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 			if (this.resultsByCategory) {
 				// no need to unwrap, each athlete is a wrapper PAthlete with a participation category.
 				AthleteSorter.resultsOrder(this.sortedAthletes, rankingOrder(), false);
-				logger.warn("eligible getSortedAthletes {}",this.sortedAthletes.size());
+				logger.debug("eligible getSortedAthletes {}",this.sortedAthletes.size());
 				return this.sortedAthletes;
 			} else {
 				// we need the athlete with the original registration category inside the PAthlete
@@ -70,11 +70,11 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 				Set<Athlete> noDuplicates = new HashSet<>(unwrappedAthletes);
 				this.sortedAthletes = new ArrayList<>(noDuplicates);
 				AthleteSorter.resultsOrder(this.sortedAthletes, rankingOrder(), false);
-				logger.warn("registration getSortedAthletes {}",this.sortedAthletes.size());
+				logger.debug("registration getSortedAthletes {}",this.sortedAthletes.size());
 				return this.sortedAthletes;
 			}
 		}
-		logger.warn("no sorted athletes");
+		logger.debug("no sorted athletes");
 		final Group currentGroup = getGroup();
 		Category currentCategory = getCategory();
 		Championship currentAgeDivision = getChampionship();
@@ -88,7 +88,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 		// unfinished categories need to be computed using all relevant athletes, including not weighed-in yet
 		@SuppressWarnings("unchecked")
 		Set<String> unfinishedCategories = AthleteRepository.unfinishedCategories(rankedAthletes);
-		logger.warn("unfinished categories {}", unfinishedCategories);
+		logger.debug("unfinished categories {}", unfinishedCategories);
 
 		// @formatter:off
         List<Athlete> athletes = AthleteSorter.resultsOrderCopy(pAthletes, rankingOrder(), false).stream()
