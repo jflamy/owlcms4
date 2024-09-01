@@ -739,7 +739,7 @@ public class Results extends LitTemplate
 			return "&nbsp;";
 		} else if (total == -1) {
 			// invited lifter, not eligible.
-			return Translator.translate("Results.Extra/Invited"); 
+			return Translator.translate("Results.Extra/Invited");
 		} else {
 			return total.toString();
 		}
@@ -760,7 +760,7 @@ public class Results extends LitTemplate
 			fullName = a.getFullName() != null ? a.getFullName() : "";
 		}
 		if (!a.isEligibleForIndividualRanking() && !fullName.isBlank()) {
-			fullName = Translator.translate("Scoreboard.Extra/Invited",fullName);
+			fullName = Translator.translate("Scoreboard.Extra/Invited", fullName);
 		}
 		ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
 		ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
@@ -1072,8 +1072,16 @@ public class Results extends LitTemplate
 	private String computedScore(Athlete a) {
 		AgeGroup ageGroup = a.getAgeGroup();
 		Ranking ageGroupScoringSystem = ageGroup != null ? ageGroup.getComputedScoringSystem() : null;
-		// logger.debug("a {} agegroup {} scoring {}",a.getLastName(),a.getAgeGroup(),a.getAgeGroup().getScoringSystem());
-		if (ageGroupScoringSystem != null) {
+		//logger.debug("a {} agegroup {} scoring {}", a.getLastName(), a.getAgeGroup(), a.getAgeGroup().getScoringSystem());
+		
+		Competition current = Competition.getCurrent();
+		boolean sinclair = current.isSinclair();
+		Competition current2 = Competition.getCurrent();
+		boolean displayGlobal = current2.isDisplayScores();
+		Competition current3 = Competition.getCurrent();
+		Ranking scoringSystem = current3.getScoringSystem();
+		
+		if (ageGroupScoringSystem != null && !sinclair && !displayGlobal) {
 			double value = Ranking.getRankingValue(a, Ranking.CUSTOM);
 			String score;
 			if (ageGroupScoringSystem == Ranking.TOTAL) {
@@ -1083,7 +1091,6 @@ public class Results extends LitTemplate
 			}
 			return score;
 		} else {
-			Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
 			double value = Ranking.getRankingValue(a, scoringSystem);
 			String score = value > 0.001 ? String.format("%.3f", value) : "-";
 			return score;
@@ -1092,14 +1099,22 @@ public class Results extends LitTemplate
 
 	private String computedScoreRank(Athlete a) {
 		Ranking ageGroupScoringSystem = a.getAgeGroup().getComputedScoringSystem();
+		
+		Competition current = Competition.getCurrent();
+		boolean sinclair = current.isSinclair();
+		Competition current2 = Competition.getCurrent();
+		boolean displayGlobal = current2.isDisplayScoreRanks();
+		Competition current3 = Competition.getCurrent();
+		Ranking scoringSystem = current3.getScoringSystem();
+		
 		if (a.isEligibleForIndividualRanking()) {
-		if (ageGroupScoringSystem != null) {
-			Integer value = Ranking.getRanking(a, Ranking.CUSTOM);
-			return value != null && value > 0 ? "" + value : "-";
-		} else {
-			Integer value = Ranking.getRanking(a, Competition.getCurrent().getScoringSystem());
-			return value != null && value > 0 ? "" + value : "-";
-		}
+			if (ageGroupScoringSystem != null && !sinclair && !displayGlobal) {
+				Integer value = Ranking.getRanking(a, Ranking.CUSTOM);
+				return value != null && value > 0 ? "" + value : "-";
+			} else {
+				Integer value = Ranking.getRanking(a, scoringSystem);
+				return value != null && value > 0 ? "" + value : "-";
+			}
 		} else {
 			return Translator.translate("Results.Extra/Invited");
 		}
@@ -1146,7 +1161,7 @@ public class Results extends LitTemplate
 	}
 
 	private void resultsInit() {
-//		Ranking ageGroupRanking[] = { null };
+		// Ranking ageGroupRanking[] = { null };
 		boolean scoring[] = { false };
 		OwlcmsSession.withFop(fop -> {
 			setId("scoreboard-" + fop.getName());
@@ -1156,14 +1171,14 @@ public class Results extends LitTemplate
 
 			List<Athlete> athletes = fop.getDisplayOrder();
 			if (athletes != null && athletes.size() > 0) {
-//				Ranking scoringSystem = athletes.get(0).getAgeGroup().getScoringSystem();
-//				boolean unanimous = athletes.stream().allMatch(s -> {
-//					Ranking scoringSystem2 = s.getAgeGroup().getScoringSystem();
-//					return scoringSystem != null && scoringSystem.equals(scoringSystem2);
-//				});
-//				if (unanimous) {
-//					ageGroupRanking[0] = scoringSystem;
-//				}
+				// Ranking scoringSystem = athletes.get(0).getAgeGroup().getScoringSystem();
+				// boolean unanimous = athletes.stream().allMatch(s -> {
+				// Ranking scoringSystem2 = s.getAgeGroup().getScoringSystem();
+				// return scoringSystem != null && scoringSystem.equals(scoringSystem2);
+				// });
+				// if (unanimous) {
+				// ageGroupRanking[0] = scoringSystem;
+				// }
 				boolean any = athletes.stream().map(a -> a.getAgeGroup().getScoringSystem())
 				        .anyMatch(s -> s != null && s != Ranking.TOTAL);
 				scoring[0] = any;

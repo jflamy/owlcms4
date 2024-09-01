@@ -65,7 +65,6 @@ public class ResultsPR extends LitTemplate
         implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsPR.class);
-    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     @Id("timer-pr")
     private AthleteTimerElementPR timer; // Flow creates it
