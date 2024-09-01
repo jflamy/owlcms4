@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.google.common.util.concurrent.Runnables;
+import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.i18n.Translator;
 import app.owlcms.servlet.EmbeddedJetty;
@@ -40,18 +41,19 @@ public class Main {
     
     private static Integer serverPort;
     
-    public static void logSessionMemUsage(String message) {
+    public static void logSessionMemUsage(String message, VaadinSession session) {
         MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
         MemoryUsage nonHeapMemoryUsage = memoryMXBean.getNonHeapMemoryUsage();
         int megaB = 1024 * 1024;
         message = message != null && !message.isBlank() ? message + " " : "";
-        logger.info("{}sessions: {}, heap {}/{} nonHeap {}/{}",
+        logger.info("{}sessions: {}, heap {}/{} nonHeap {}/{} {}",
                 message,
                 AppShell.getActiveSessions().get(),
                 heapMemoryUsage.getUsed()/megaB,
                 heapMemoryUsage.getCommitted()/megaB,
                 nonHeapMemoryUsage.getUsed()/megaB,
-                nonHeapMemoryUsage.getCommitted()/megaB);
+                nonHeapMemoryUsage.getCommitted()/megaB,
+                session != null ? System.identityHashCode(session) : "");
     }
 
     /**

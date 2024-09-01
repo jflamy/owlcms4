@@ -37,7 +37,6 @@ public class DecisionElementPR extends LitTemplate
         implements IFopName, SafeEventBusRegistrationPR {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElementPR.class);
-    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     protected EventBus uiEventBus;
     protected EventBus fopEventBus;

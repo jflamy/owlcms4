@@ -35,7 +35,6 @@ public abstract class TimerElementPR extends LitTemplate
     private String fopName;
 
     final private Logger logger = (Logger) LoggerFactory.getLogger(TimerElementPR.class);
-    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 
     private Element timerElement;
     private boolean indefinite;

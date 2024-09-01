@@ -60,7 +60,7 @@ public class AppShell implements AppShellConfigurator, VaadinServiceInitListener
             VaadinSession session = sessionInitEvent.getSession();
 
             activeSessions.incrementAndGet();
-            Main.logSessionMemUsage(ip + " nbSessions++");
+            Main.logSessionMemUsage(ip + " nbSessions++", session);
             ErrorHandler handler = new ErrorHandler() {
                 @Override
                 public void error(ErrorEvent errorEvent) {
@@ -74,9 +74,9 @@ public class AppShell implements AppShellConfigurator, VaadinServiceInitListener
         });
         
         serviceInitEvent.getSource().addSessionDestroyListener(sde -> {
+            Main.logSessionMemUsage("nbSessions--", sde.getSession());
             logger.trace("Session {} destroyed.", sde.getSession());
             activeSessions.decrementAndGet();
-            Main.logSessionMemUsage("nbSessions--");
         });
     }
 

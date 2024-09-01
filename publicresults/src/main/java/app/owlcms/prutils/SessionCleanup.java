@@ -109,9 +109,14 @@ public class SessionCleanup {
                 }
                 try {
                     Thread.sleep(1000);
-                    logger.info("*** invalidating session {}", System.identityHashCode(vaadinSession));
-                    vaadinSession.getSession().invalidate();
-                    vaadinSession.close();
+
+                    try {
+                        vaadinSession.getSession().invalidate();
+                        vaadinSession.close();
+                        logger.info("*** invalidatded session {}", System.identityHashCode(vaadinSession));
+                    } catch (Throwable e) {
+                        logger.info("*** could not invalidate session {}", System.identityHashCode(vaadinSession));
+                    }
                     stop();
                 } catch (InterruptedException e) {
                     LoggerUtils.logError(logger, e);
