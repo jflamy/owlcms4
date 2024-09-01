@@ -3,8 +3,11 @@
 > - You should test all releases, with actual data, *several days* before a competition.
 > - It is always wise to export your current database before updating if it contains important data.
 
-- Fixes
+- Maintenance log
 
+  - 52.0.5 
+    - Publicresults: improved traces and exception catching for cleaner logs.
+    
   - 52.0.4 
     - Fix: If "Medals according to score" or "Show Score on Scoreboard" are selected, then the global Scoring System is displayed on the scoreboard (as was the case in previous release)
       - (Advanced usage note) If an AgeGroup-specific scoring system has been defined using the AgeGroups file, then the score and rank columns are automatically shown for any session in which such an age group is present, and the specific rankings are used instead of the global one.
