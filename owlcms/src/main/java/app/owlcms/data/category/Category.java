@@ -9,6 +9,7 @@ package app.owlcms.data.category;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -171,6 +172,18 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		return compare;
 	}
 
+	
+	public static Comparator<Category> specificityComparator = (a,b) -> {
+		if (a == null || b == null) return ObjectUtils.compare(a,b,true);
+		var aAgeGroup = a.getAgeGroup();
+		var bAgeGroup = b.getAgeGroup();
+		if (aAgeGroup == null || bAgeGroup == null) return ObjectUtils.compare(aAgeGroup,bAgeGroup,true);
+		int compare = ObjectUtils.compare(aAgeGroup.getGender(), bAgeGroup.getGender());
+		if (compare != 0) return compare;
+		int aDelta = aAgeGroup.getMaxAge() - aAgeGroup.getMinAge();
+		int bDelta = bAgeGroup.getMaxAge() - bAgeGroup.getMinAge();
+		return Integer.compare(aDelta, bDelta);
+	};
 
 	public String dump() {
 		return "Category [code=" + this.code + ", name=" + getSafeName() + ", minimumWeight=" + this.minimumWeight

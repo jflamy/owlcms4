@@ -199,59 +199,11 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		        //.peek(r -> logger.debug("including {} {}",r, r.getCategory().getCode()))
 		        ;
 		List<Athlete> found = stream.collect(Collectors.toList());
+		logger.warn("============== {} PackageContent findAll", found.size());
 		updateURLLocations();
 		return found;
 	}
 	
-	/**
-	 * Get the content of the crudGrid. Invoked by refreshGrid.
-	 *
-	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
-	 */
-	private Collection<Athlete> findAllPAthletes() {
-		Competition competition = Competition.getCurrent();
-		HashMap<String, Object> beans = competition.computeReportingInfo(this.ageGroupPrefix, this.championship);
-
-		@SuppressWarnings("unchecked")
-		List<Athlete> ranked = (List<Athlete>) beans.get("allPAthletes");
-		
-		
-		boolean allCategories = Boolean.TRUE.equals(this.includeUnfinishedCategories.getValue());
-		// unfinished categories need to be computed using all relevant athletes, including not weighed-in yet
-		@SuppressWarnings("unchecked")
-		Set<String> unfinishedCategories = AthleteRepository.allUnfinishedCategories();
-		logger.debug("unfinished categories {}", unfinishedCategories);
-
-		if (ranked == null || ranked.isEmpty()) {
-			return new ArrayList<>();
-		}
-
-		Category catFilterValue = getCategoryValue();
-		Stream<Athlete> stream = ranked.stream()
-		        .filter(a -> {
-			        Gender genderFilterValue = this.getGender();
-			        Gender athleteGender = a.getGender();
-			        boolean catOk = (catFilterValue == null
-			                || (a.getCategory() != null && catFilterValue.getCode().equals(a.getCategory().getCode())))
-			                && (genderFilterValue == null || genderFilterValue == athleteGender)
-			                && (allCategories || !unfinishedCategories.contains(a.getCategory().getCode()))
-			                ;
-			        return catOk;
-		        })
-				.map(a -> {
-					if (a.getCategory() != null && unfinishedCategories.contains(a.getCategory().getCode())) {
-						a.setCategoryFinished(false);
-					} else {
-						a.setCategoryFinished(true);
-					}
-					return a;
-				})
-		        //.peek(r -> logger.debug("including {} {}",r, r.getCategory().getCode()))
-		        ;
-		List<Athlete> found = stream.collect(Collectors.toList());
-		updateURLLocations();
-		return found;
-	}
 
 	@Override
 	public AgeGroup getAgeGroup() {
@@ -591,9 +543,9 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        rs.setChampionship(this.championship);
 			        rs.setAgeGroupPrefix(this.ageGroupPrefix);
 			        rs.setCategory(getCategoryValue());
-			        rs.setGroup(null);
-			        // let winningSheet figure it out like it does on the Sessions page
-			        //rs.setSortedAthletes((List<Athlete>) findAll());
+			        // group may have been edited since the page was loaded
+			        rs.setGroup(this.currentGroup != null ? GroupRepository.getById(this.currentGroup.getId()) : null);
+			        rs.setSortedAthletes((List<Athlete>) findAll());
 			        return rs;
 		        },
 		        "/templates/competitionResults",
@@ -637,8 +589,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        rs.setAgeGroupPrefix(this.ageGroupPrefix);
 			        rs.setCategory(getCategoryValue());
 			        rs.setGroup(null);
-			        // let winningSheet figure it out like it does on the Sessions page
-			        //rs.setSortedAthletes((List<Athlete>) findAll());
+			        rs.setSortedAthletes((List<Athlete>) findAll());
 			        return rs;
 		        },
 		        "/templates/competitionResults",
