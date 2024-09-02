@@ -587,13 +587,13 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	private Button createCategoryResultsDownloadButton() {
 		this.downloadDialog = new JXLSDownloader(
 		        () -> {
-			        JXLSWinningSheet rs = new JXLSWinningSheet();
+			        JXLSWinningSheet rs = new JXLSWinningSheet(true);
 			        rs.setChampionship(this.championship);
 			        rs.setAgeGroupPrefix(this.ageGroupPrefix);
 			        rs.setCategory(getCategoryValue());
-			        // group may have been edited since the page was loaded
-			        rs.setGroup(this.currentGroup != null ? GroupRepository.getById(this.currentGroup.getId()) : null);
-			        rs.setSortedAthletes((List<Athlete>) findAllPAthletes());
+			        rs.setGroup(null);
+			        // let winningSheet figure it out like it does on the Sessions page
+			        //rs.setSortedAthletes((List<Athlete>) findAll());
 			        return rs;
 		        },
 		        "/templates/competitionResults",
@@ -636,9 +636,9 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        rs.setChampionship(this.championship);
 			        rs.setAgeGroupPrefix(this.ageGroupPrefix);
 			        rs.setCategory(getCategoryValue());
-			        // group may have been edited since the page was loaded
-			        rs.setGroup(this.currentGroup != null ? GroupRepository.getById(this.currentGroup.getId()) : null);
-			        rs.setSortedAthletes((List<Athlete>) findAll());
+			        rs.setGroup(null);
+			        // let winningSheet figure it out like it does on the Sessions page
+			        //rs.setSortedAthletes((List<Athlete>) findAll());
 			        return rs;
 		        },
 		        "/templates/competitionResults",

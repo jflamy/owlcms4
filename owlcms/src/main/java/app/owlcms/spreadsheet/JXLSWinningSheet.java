@@ -66,7 +66,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 			} else {
 				// we need the athlete with the original registration category inside the PAthlete
 				// sometimes we are given the actual original athletes, so we are careful.
-				List<Athlete> unwrappedAthletes = unwrapAthletesAsNeeded(this.sortedAthletes);
+				List<Athlete> unwrappedAthletes = mapToParticipations(this.sortedAthletes);
 				Set<Athlete> noDuplicates = new HashSet<>(unwrappedAthletes);
 				this.sortedAthletes = new ArrayList<>(noDuplicates);
 				AthleteSorter.resultsOrder(this.sortedAthletes, rankingOrder(), false);
@@ -83,7 +83,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 
 		// get all the PAthletes for the current group - athletes show as many times as
 		// they have participations.
-		List<Athlete> pAthletes = unwrapAthletesAsNeeded(rankedAthletes);
+		List<Athlete> pAthletes = mapToParticipations(rankedAthletes);
 
 		// unfinished categories need to be computed using all relevant athletes, including not weighed-in yet
 		@SuppressWarnings("unchecked")
@@ -180,7 +180,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 		}
 	}
 
-	private List<Athlete> unwrapAthletesAsNeeded(List<Athlete> rankedAthletes) {
+	public List<Athlete> mapToParticipations(List<Athlete> rankedAthletes) {
 		List<Athlete> pAthletes;
 		if (this.resultsByCategory) {
 			pAthletes = new ArrayList<>(rankedAthletes.size() * 2);
