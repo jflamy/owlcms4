@@ -178,7 +178,7 @@ public class Main {
             while (true) {
                 String message = "";
                 try {
-                    logSessionMemUsage(message);
+                    logSessionMemUsage(message, null);
                     Thread.sleep(60 * 1000);
                 } catch (InterruptedException e) {
                 }
