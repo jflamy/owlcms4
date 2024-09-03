@@ -216,12 +216,11 @@ public class Competition {
 	private boolean roundRobinOrder;
 	@Column(columnDefinition = "boolean default false")
 	private boolean snatchCJTotalMedals = false;
-	//private String startingWeightsSheetTemplateFileName;
+	// private String startingWeightsSheetTemplateFileName;
 	private String weighInFormTemplateFileName;
 	private String emptyProtocolTemplateFileName;
 	private String startListTemplateFileName;
 	private String scheduleTemplateFileName;
-	
 	/**
 	 * Do not require month and day for birth.
 	 */
@@ -1535,12 +1534,10 @@ public class Competition {
 		this.reportingBeans.put(wBeanName, sortedWomen);
 		logger.debug("{} {}", mBeanName, sortedMen);
 		logger.debug("{} {}", wBeanName, sortedWomen);
-		if (ranking == Competition.getCurrent().getScoringSystem()) {
-			// additional entry in the map so we can have a simple book with
-			// just the global score.
-			this.reportingBeans.put("mBest", sortedMen);
-			this.reportingBeans.put("wBest", sortedWomen);
-		}
+		// additional entry in the map so we can have a simple book with
+		// just the global score.
+		this.reportingBeans.put("mBest", AthleteSorter.resultsOrderCopy(sortedMen, Competition.getCurrent().getScoringSystem()));
+		this.reportingBeans.put("wBest", AthleteSorter.resultsOrderCopy(sortedWomen, Competition.getCurrent().getScoringSystem()));
 	}
 
 	/**

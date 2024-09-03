@@ -50,14 +50,15 @@ import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
@@ -199,7 +200,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		        //.peek(r -> logger.debug("including {} {}",r, r.getCategory().getCode()))
 		        ;
 		List<Athlete> found = stream.collect(Collectors.toList());
-		logger.warn("============== {} PackageContent findAll", found.size());
+		logger.info("{} PackageContent findAll", found.size());
 		updateURLLocations();
 		return found;
 	}
@@ -458,10 +459,19 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	@Override
 	protected Component createReset() {
 		this.reset = new Button(Translator.translate("RecomputeRanks"), new Icon(VaadinIcon.REFRESH),
-		        (e) -> OwlcmsSession.withFop((fop) -> {
-			        AthleteRepository.assignCategoryRanks();
+		        (e) -> {
+			        JPAService.runInTransaction(em -> {
+						// assign ranks to all groups, recompute global
+						List<Athlete> l = AthleteSorter.assignCategoryRanks(null);
+						Competition.getCurrent().doGlobalRankings(l, true);
+						for (Athlete a : l) {
+							em.merge(a);
+						}
+						em.flush();
+						return null;
+					});
 			        refresh();
-		        }));
+		        });
 
 		this.reset.getElement().setAttribute("title", Translator.translate("RecomputeRanks"));
 		this.reset.getElement().setAttribute("theme", "secondary contrast small icon");

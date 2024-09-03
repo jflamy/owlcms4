@@ -164,7 +164,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 	 * @param workbook
 	 */
 	private void translateSheets(Workbook workbook) {
-		// logger.debug("translating sheets {}", OwlcmsSession.getLocale());
+		logger.debug("translating sheets {}", OwlcmsSession.getLocale());
 		int nbSheets = workbook.getNumberOfSheets();
 		for (int sheetIndex = 0; sheetIndex < nbSheets; sheetIndex++) {
 			Sheet curSheet = workbook.getSheetAt(sheetIndex);

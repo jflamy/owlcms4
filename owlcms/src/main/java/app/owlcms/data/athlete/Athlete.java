@@ -3221,6 +3221,7 @@ public class Athlete {
 	}
 
 	public void setAgeAdjustedTotalRank(Integer ageAdjustedTotalRank) {
+		//logger.debug("setAgeAdjustedTotalRank {} {}", ageAdjustedTotalRank, this.getFullName());
 		this.ageAdjustedTotalRank = ageAdjustedTotalRank;
 	}
 
