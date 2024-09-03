@@ -7,6 +7,7 @@
 
   - 52.0.5 
     - Publicresults: improved traces and exception catching for cleaner logs.
+    - owlcms: Competition results for championships will use the championship categories when producing the result sheet. Each athlete appears once under the most specific category.
     
   - 52.0.4 
     - Fix: If "Medals according to score" or "Show Score on Scoreboard" are selected, then the global Scoring System is displayed on the scoreboard (as was the case in previous release)
