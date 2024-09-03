@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.UI;
 
+import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
@@ -33,6 +34,32 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 public class JXLSMedalSchedule extends JXLSWorkbookStreamSource {
+
+	public class CategoryStat {
+		private Category category;
+		private Group session;
+
+		CategoryStat(Category category, Group session) {
+			this.category = category;
+			this.session = session;
+		}
+
+		public Category getCategory() {
+			return this.category;
+		}
+
+		public Group getSession() {
+			return this.session;
+		}
+
+		public void setCategory(Category category) {
+			this.category = category;
+		}
+
+		public void setSession(Group session) {
+			this.session = session;
+		}
+	}
 
 	public class SessionStats {
 		TreeSet<Category> categories = new TreeSet<>();
@@ -107,6 +134,7 @@ public class JXLSMedalSchedule extends JXLSWorkbookStreamSource {
 	protected void setReportingInfo() {
 		Set<String> alreadyMedaledCodes = new HashSet<>();
 		TreeMap<Group, SessionStats> medalingPerSession = new TreeMap<>(Group.groupWeighinTimeComparator);
+		TreeMap<Category, Group> categorySessions = new TreeMap<>();
 
 		Competition competition = Competition.getCurrent();
 		getReportingBeans().put("t", Translator.getMap());
@@ -128,6 +156,9 @@ public class JXLSMedalSchedule extends JXLSWorkbookStreamSource {
 
 			sessionStats.setCategories(newCategories);
 			alreadyMedaledCodes.addAll(newCategories.stream().map(c -> c.getCode()).toList());
+			newCategories.stream().forEach(c -> {
+				categorySessions.put(c, session);
+			});
 
 			// the key set will be in the expected ascending order
 			medalingPerSession.put(session, sessionStats);
@@ -136,6 +167,13 @@ public class JXLSMedalSchedule extends JXLSWorkbookStreamSource {
 		ArrayList<SessionStats> all = new ArrayList<SessionStats>();
 		all.addAll(medalingPerSession.values());
 		getReportingBeans().put("medalStatsPerSession", all);
+
+		ArrayList<CategoryStat> categories = new ArrayList<CategoryStat>();
+		categorySessions.forEach((Category category, Group session) -> {
+			categories.add(new CategoryStat(category, session));
+		});
+		categories.sort((a, b) -> a.getCategory().compareTo(b.getCategory())) ;
+		getReportingBeans().put("medalStatsPerCategory", categories);
 	}
 
 	// @Override
