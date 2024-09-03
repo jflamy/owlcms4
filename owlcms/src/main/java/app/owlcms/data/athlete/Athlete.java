@@ -5356,7 +5356,7 @@ public class Athlete {
 			if (ag != null) {
 				Championship ad = ag.getChampionship();
 				if (ad != null) {
-					if (ad.getType() == ChampionshipType.MASTERS) {
+					if (ad.getType() == ChampionshipType.MASTERS && !Config.getCurrent().featureSwitch("masters20kg")) {
 						double margin = 0.2D * entryTotal;
 						// we would round up the required total, so we round down the allowed margin
 						double floor = Math.floor(margin);
