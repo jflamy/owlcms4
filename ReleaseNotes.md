@@ -3,24 +3,25 @@
 > - You should test all releases, with actual data, *several days* before a competition.
 > - It is always wise to export your current database before updating if it contains important data.
 
-- Fixes
+- Maintenance log
 
+  - 52.0.5 
+    - Publicresults: improved traces and exception catching for cleaner logs.
+    - Competition Results: 
+      - Recalculate Ranks now recomputes the global best lifter ranking according to the selected global scoring system
+      - The championship category names are now used when producing the result sheet for a specific championship. Each athlete appears once under the most specific category he is registered in that championship.
+      - Updated the Scores templates. This is used when Age-Group-Specific scores are used. Now shows the global "Best Lifter" scores as well.
   - 52.0.4 
     - Fix: If "Medals according to score" or "Show Score on Scoreboard" are selected, then the global Scoring System is displayed on the scoreboard (as was the case in previous release)
       - (Advanced usage note) If an AgeGroup-specific scoring system has been defined using the AgeGroups file, then the score and rank columns are automatically shown for any session in which such an age group is present, and the specific rankings are used instead of the global one.
     - Translations (ru)
-    
   - 52.0.3 
     - Publicresults: fixed memory allocation configuration for using large containers in large competitions (ex: 200 simultaneous viewers of scoreboards for 3 simultaneous platforms)
     - owlcms: fixed occasional extra notification of weight changes to the announcer.
     - owlcms: ${athlete.categoryFinished} can now be used in results templates (those used in the Session Results page). When producing interim results, this variable can be used to hide athlete ranks in categories where some athletes have finished but others still need to lift.
-
   - 52.0.2 The new faster SBDE (Start Book Data Entry) full export was not correctly exporting the session information, now fixed.
-
   - 52.0.2 Fixed formatting for schedules, restored the DaySchedule with individual age groups.
-
   - 52.0.1 Overzealous check was preventing some customized schedules from printing.
-
 - **MIGRATION NOTES**
   - If you have created your own document templates, or if you created a "kit" of local documents for your federation, some templates have been moved to more specific folders and you may need to move your own templates.  Install a clean copy of the application and look at the locations in `local/templates`.  Use the updated `Prepare Competition > Documents` page to check that the buttons show your templates.
 - Documents: New and Improved Documents page
