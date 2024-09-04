@@ -6,9 +6,12 @@
 - Maintenance log
 
   - 52.0.6
+    - Weigh-ins and registrations
+      - When weight is cleared and category is defined, don't reset eligibilities needlessly
+      - When a super-heavyweight athlete from a youth age group weighs in, correctly recompute the participation in older age groups if eligible.
     - Record Exports. Fix: The file produced by an export records definition could not be read back as is.
-    - Break Timers:  if a short CJ break was running, it would not be cancelled by starting a longer one manually.
-    - Medal Schedule: New template that lists, for each category, when the medals will be handed out (computes when the last athlete from that category is done)
+    - Break Timers:  if a short CJ break was running, it was not cancelled if a longer break was started manually
+    - Medal Schedule: Added a new template that lists, for each category, when the medals will be handed out (computes when the last athlete from that category is done)
   - 52.0.5 
     - Publicresults: improved traces and exception catching for cleaner logs.
     - Competition Results: 
