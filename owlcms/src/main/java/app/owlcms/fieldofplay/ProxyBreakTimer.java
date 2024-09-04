@@ -220,8 +220,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	@Override
 	public void start() {
 		BreakType breakType = getFop().getBreakType();
-		// logger.debug("{}****** starting break with breakType = {} from={}", fop.getLoggingName(), breakType,
-		// LoggerUtils.whereFrom());
+		//logger.debug("{}****** starting break with breakType = {} from={}", FieldOfPlay.getLoggingName(fop), breakType, LoggerUtils.whereFrom());
 		if (breakType == null) {
 			this.logger.error("null breaktype {}", LoggerUtils.stackTrace());
 		}
@@ -237,10 +236,20 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 		// logger.debug("posting {}", event);
 		getFop().pushOutUIEvent(event);
 		setRunning(true);
-		if (!Config.getCurrent().featureSwitch("oldTimers")) {
-			this.serverTimer = new Timer();
-			serverTimer.schedule(computeTask(timeRemaining), timeRemaining);
+		
+		if (Config.getCurrent().featureSwitch("oldTimers")) {
+			return;
 		}
+		
+		// if a break is running, need to stop it before starting another.
+		if (this.serverTimer != null) {
+			//logger.debug("Cancelling running timer");
+			serverTimer.cancel();
+		}
+		this.serverTimer = new Timer();
+		TimerTask timerTask = computeTask(timeRemaining);
+		serverTimer.schedule(timerTask, timeRemaining);
+
 	}
 
 	private TimerTask computeTask(int timeRemaining2) {

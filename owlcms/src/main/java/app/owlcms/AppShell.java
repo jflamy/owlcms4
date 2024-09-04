@@ -18,6 +18,7 @@ import com.vaadin.flow.theme.Theme;
 
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.servlet.StopProcessingException;
+import app.owlcms.utils.LoggerUtils;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
@@ -82,7 +83,7 @@ public class AppShell implements AppShellConfigurator, VaadinServiceInitListener
 				public void error(ErrorEvent errorEvent) {
 					Throwable t = errorEvent.getThrowable();
 					if (!(t instanceof StopProcessingException)) {
-						LoggerFactory.getLogger("app.owlcms.errorHandler").warn(t.toString());
+						LoggerFactory.getLogger("app.owlcms.errorHandler").warn("{} {}", t.toString(), t instanceof NullPointerException ? LoggerUtils.stackTrace() : "");
 					}
 				}
 			};

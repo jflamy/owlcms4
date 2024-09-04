@@ -789,6 +789,12 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		final LocalDateTime target;
 		LocalDate date = this.datePicker.getValue();
 		LocalTime time = this.timePicker.getValue();
+		if (date == null) {
+			date = LocalDate.now();
+		}
+		if (time == null)  {
+			time = LocalTime.now();
+		}
 		target = LocalDateTime.of(date, time);
 		return target;
 	}
