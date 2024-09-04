@@ -7,7 +7,8 @@
 
   - 52.0.6
     - Record Exports. Fix: The file produced by an export records definition could not be read back as is.
-    - Medal Schedule: New template to list, for each category, when the medals will be handed out.
+    - Break Timers:  if a short CJ break was running, it would not be cancelled by starting a longer one manually.
+    - Medal Schedule: New template that lists, for each category, when the medals will be handed out (computes when the last athlete from that category is done)
   - 52.0.5 
     - Publicresults: improved traces and exception catching for cleaner logs.
     - Competition Results: 
