@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.UI;
 
-import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;

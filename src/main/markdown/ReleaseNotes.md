@@ -5,6 +5,9 @@
 
 - Maintenance log
 
+  - 52.0.6
+    - Fix for importing an exported record definition (ignore the second sheet if present)
+    - New template for medal schedule: indicate after which session medals will be handed out for each category.
   - 52.0.5 
     - Publicresults: improved traces and exception catching for cleaner logs.
     - Competition Results: 
