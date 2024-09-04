@@ -326,7 +326,7 @@ public abstract class AthleteGridContent extends BaseContent
 				if (breakType != null) {
 					this.breakButton.setText(Translator.translate("BreakType." + breakType) + "\u00a0\u00a0");
 				} else {
-					logger.error("null break type {}", LoggerUtils.stackTrace());
+					// break done.  the button will be hidden in a subsequent step.
 					this.breakButton.setText(Translator.translate("BreakButton.Paused") + "\u00a0\u00a0");
 				}
 			}
