@@ -1219,7 +1219,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				logger.warn("cat {} eli {}", cat, this.allEligible);
 				if (cat != null && categoryIsEligible(cat, this.allEligible)) {
 					// current registration category is amongst eligibles. Don't recompute anything.
-					logger.debug/* edit */("leave alone");
+					logger.warn("leave alone");
 					if (Config.getCurrent().featureSwitch("bestMatchCategories")) {
 						Category bestMatchCategory = bestMatch(this.allEligible);
 						updateCategoryFields(bestMatchCategory, categoryField, eligibleField, qualifyingTotalField2,
@@ -1255,12 +1255,13 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				if (ageFromFields != null && ageFromFields > 5 && ageFromFields < 120) {
 					this.allEligible = CategoryRepository.doFindEligibleCategories(this.getEditedAthlete(), gender,
 					        ageFromFields, bw, qualifyingTotal);
-					logger.debug/* edit */("cat-based allEligible {} {}", cat, this.allEligible);
-					// let the selection stand
+					logger.warn("cat-based allEligible {} {}", cat, this.allEligible);
 					// Category bestMatchCategory = bestMatch(this.allEligible);
 					updateCategoryFields(cat, categoryField, eligibleField, qualifyingTotalField2,
 					        this.allEligible,
-					        this.allEligible, true);
+					        this.allEligible, 
+					        //true);
+					        false);
 				}
 			} else if (genderField.getValue() != null && age != null) {
 				// use age and qualifying total
@@ -1388,7 +1389,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			prevEligibles = eligibleField.getValue();
 		}
 		logger.warn("updateCategoryFields {} {} - {} {} {}",
-		        categoryField.getValue(), bestMatch, prevEligibles.size(), filteredEligibles.size(),
+		        categoryField.getValue(), bestMatch, prevEligibles, filteredEligibles,
 		        LoggerUtils.whereFrom());
 
 		if (prevEligibles != null) {
