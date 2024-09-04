@@ -990,7 +990,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		if (initCategories) {
 			this.allEligible = findEligibleCategories(this.genderField, getAgeFromFields(), this.bodyWeightField,
 			        this.categoryField, this.qualifyingTotalField);
-			logger.debug/* edit */("*** allEligibles init {}", this.allEligible);
+			logger.debug("*** allEligibles init {}", this.allEligible);
 			updateCategoryFields(category, this.categoryField, this.eligibleField, this.qualifyingTotalField,
 			        this.allEligible, this.allEligible, false);
 		}
@@ -1042,6 +1042,9 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		this.wrappedBWTextField.setValueChangeMode(ValueChangeMode.ON_CHANGE);
 		this.wrappedBWTextField.setAutoselect(true);
 		this.wrappedBWTextField.addValueChangeListener((vc) -> {
+			if (!vc.isFromClient()) {
+				return;
+			}
 			// logger.debug("wrappedBWTextField listenersEnabled={} invalid={}",
 			// isChangeListenersEnabled(), bodyWeightField.isInvalid());
 			if (!isChangeListenersEnabled() || this.bodyWeightField.isInvalid()) {
@@ -1053,6 +1056,9 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		});
 
 		this.categoryField.addValueChangeListener((vc) -> {
+			if (!vc.isFromClient()) {
+				return;
+			}
 			Category value = vc.getValue();
 			// logger.debug("category new value {} listenersEnabled {} {}", value, isChangeListenersEnabled(),(value ==
 			// null ? LoggerUtils.fullStackTrace() : LoggerUtils.whereFrom()));
@@ -1202,15 +1208,15 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 		Category cat = categoryField.getValue();
 		Integer age = getAgeFromFields();
-		logger.debug/* edit */("cat={} age={}", cat, age);
+		logger.warn("cat={} age={}", cat, age);
 		List<Championship> previousChampionships = championshipsForCategories(eligibleField.getValue());
-		//logger.debug("previous championships {} {} {}", eligibleField.getValue(), previousChampionships, LoggerUtils.whereFrom());
+		logger.warn("previous championships {} {} {}", eligibleField.getValue(), previousChampionships, LoggerUtils.whereFrom());
 		if (bodyWeightField.getValue() != null) {
 			if (genderField.getValue() != null && age != null) {
 				// body weight, gender, date
 				this.allEligible = findEligibleCategories(genderField, getAgeFromFields(), bodyWeightField,
 				        categoryField, qualifyingTotalField2);
-				logger.debug("cat {} eli {}", cat, this.allEligible);
+				logger.warn("cat {} eli {}", cat, this.allEligible);
 				if (cat != null && categoryIsEligible(cat, this.allEligible)) {
 					// current registration category is amongst eligibles. Don't recompute anything.
 					logger.debug/* edit */("leave alone");
@@ -1220,12 +1226,12 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 						        this.allEligible, this.allEligible, false);
 					}
 				} else {
-					logger.debug/* edit */("recompute, cat={} allEligible = {}", cat, this.allEligible);
+					logger.warn("recompute, cat={} allEligible = {}", cat, this.allEligible);
 					// category is null or not within eligibles, recompute
 					
 					List<Category> filteredEligibles = allEligible.stream()
-							.filter(e -> previousChampionships.contains(e.getAgeGroup().getChampionship())).toList();
-					//logger.debug("eligibilty filtered on championship {}",filteredEligibles);
+							.filter(e -> previousChampionships.isEmpty() || previousChampionships.contains(e.getAgeGroup().getChampionship())).toList();
+					logger.warn("eligibilty filtered on championship {}",filteredEligibles);
 					
 					Category bestMatchCategory = bestMatch(filteredEligibles);
 					updateCategoryFields(bestMatchCategory, categoryField, eligibleField, qualifyingTotalField2,
@@ -1372,6 +1378,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	        List<Category> allEligibles, 
 	        boolean recomputeEligibles) {
 
+		logger.warn("updating category fields {}",LoggerUtils.stackTrace());
 		LinkedHashSet<Category> newEligibles = new LinkedHashSet<>();
 		Set<Category> prevEligibles;
 		if (recomputeEligibles) {
@@ -1380,7 +1387,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		} else {
 			prevEligibles = eligibleField.getValue();
 		}
-		logger.debug/* edit */("updateCategoryFields {} {} - {} {} {}",
+		logger.warn("updateCategoryFields {} {} - {} {} {}",
 		        categoryField.getValue(), bestMatch, prevEligibles.size(), filteredEligibles.size(),
 		        LoggerUtils.whereFrom());
 
