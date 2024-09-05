@@ -19,7 +19,7 @@ The settings are as follows.  In actual practice only the first (Password for Of
 
 ### Public Results Scoreboard
 
-This section controls how owlcms reaches the [Public Scoreboard](PublicScoreboard) application in order to send it updates. The installation of `publicresults` is documented for [fly.io](Fly) .
+This section controls how owlcms reaches the [Public Scoreboard](PublicResults) application in order to send it updates. The installation of `publicresults` is documented for [fly.io](Fly) .
 
 ![20](nimg/2120AdvancedSystemSettings/20.png)
 
