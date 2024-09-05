@@ -24,9 +24,9 @@ The screen allows selecting common variations on IWF rules.  For most competitio
   - The `Masters Start Order` settings changes the sorting order for displays and weigh-ins -- Masters traditionally start with the older lifters. The display will be grouped by age group first, and then by weight category.
   - The `Display Categories Ordered by Age Group` setting is like Masters Start Order, but reversed, younger age groups are shown first and weighed-in first.   In a normal IWF scoreboard, Junior and Senior athletes are not separated on the scoreboard (this switch would be off).  This switch is typically used when several youth age groups are competing together in the same session, and younger athletes are unlikely to compete for the older age group medals.
 
-- Non-Standard Rules
+#### Non-Standard Rules
 
-Additional options are used when running team, kid, or virtual competitions. 
+Additional options are used when running team, kid, or virtual competitions.
 
 ![40](nimg/2100PreCompetitionSetup/41.png)
 
@@ -74,7 +74,7 @@ OWLCMS supports multiple competition fields of play used at the same time.  A fi
 
 Normally, only the Athlete-Facing Display emits sound.  **The recommended sound setup is to connect speakers directly to the athlete-facing computer and to use the default "Use Browser Sound"**
 
-However, in certain circumstances, this may not work (for example, some computer-browser combinations produce garbled sound).  You can then use the main laptop to produce the sounds instead.  If you are running locally on a laptop, then you can get the computer to generate the sound. 
+However, in certain circumstances, this may not work (for example, some computer-browser combinations produce garbled sound).  You can then use the main laptop to produce the sounds instead.  If you are running locally on a laptop, then you can get the computer to generate the sound.
 
 ![062_SetSound](img/Preparation/062_SetSound.png)
 
