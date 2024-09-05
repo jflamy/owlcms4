@@ -5,6 +5,9 @@
 
 - Maintenance log
 
+  - 52.0.7
+    - Documentation update for feature toggles and environment variables
+    - New feature toggle `masters20kg` when all athletes should follow the 20kg rule (used in Open championships where it would be unfair to apply the IMWA 80% rule to Masters only)
   - 52.0.6
     - Weigh-ins and registrations
       - When weight is cleared and category is defined, don't reset eligibilities needlessly
