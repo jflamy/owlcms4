@@ -3,8 +3,8 @@ trigger:
   
 parameters:
   - name: Revision
-    type: string
-    default: 52.0.6-rc02
+    type: strin
+    default: 52.0.6
   - name: SkipTests
     type: string
     default: 'false'
