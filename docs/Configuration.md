@@ -35,6 +35,15 @@ Parameters can be set in several ways:
 | useCompetitionDate        | OWLCMS_USECOMPETITIONDATE | default=false<br />If present and true, the ages will be computed relative to the stored competition date.  Useful when loading a database from a previous year. |
 | featureSwitches           | OWLCMS_FEATURESWITCHES    | List of feature switches.  Overrides the ones in the database. |
 
+### Remote Public Results and Video parameters
+
+| System Property Name (-D) | Environment Variable Name | Description                                                  |
+| ------------------------- | ------------------------- | ------------------------------------------------------------ |
+| remote                    | OWLCMS_REMOTE             | URL to reach the publicresults site.<br />ex: https://results.fly.io (remote cloud) or http://192.168.1.101:8082 (local network without https) |
+| updateKey                 | OWLCMS_UPDATEKEY          | Secret shared between owlcms and publicresults. An arbitrary sequence of characters. |
+| videodata                 | OWLCMS_VIDEODATA          | Same as OWLCMS_REMOTE.  A second identical set of data is sent to the videodata URL to be processed by software that updates video screens (such as https://github.com/nemikor-solutions/wise-eyes)<br />Beware of the spelling. |
+| videoDataKey              | OWLCMS_VIDEODATAKEY       | Same as OWLCMS_UPDATEKEY but to communicate with OWLMCS_VIDEODATA |
+
 ### JDBC Parameters
 
 The following parameters are used to control where the database is found.  For Postgresql, it is usually more convenient to use Postgres-specific values, see below.  When using H2, these values are normally computed by the program, and don't need to be changed, except perhaps when using Docker and storing the database on a volume.
