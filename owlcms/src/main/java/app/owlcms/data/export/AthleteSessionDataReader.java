@@ -72,16 +72,6 @@ public class AthleteSessionDataReader {
 			jsonAthletes = readAthletes(parser, athletes, attributesToRead, groupIds);
 		}
 		updateAthletes(jsonAthletes);
-
-		// Print retrieved attributes
-		for (Athlete athlete : athletes) {
-			System.out.println("ID: " + athlete.getId());
-			System.out.println("Lot: " + athlete.getLotNumber());
-			System.out.println("Name: " + athlete.getFullName());
-			System.out.println("Age: " + athlete.getAge());
-			System.out.println("Group: " + athlete.getTeam());
-			System.out.println();
-		}
 	}
 
 	private static void updateAthletes(List<Athlete> jsonAthletes) {
