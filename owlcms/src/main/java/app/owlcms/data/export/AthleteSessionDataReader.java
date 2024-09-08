@@ -20,6 +20,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -111,12 +112,14 @@ public class AthleteSessionDataReader {
 		});
 	}
 
-	private static List<Athlete> readAthletes(JsonParser parser, List<Athlete> athletes, String[] attributesToRead, List<Long> groupIds) throws IOException {
+	private static List<Athlete> readAthletes(JsonParser parser, 
+			List<Athlete> athletes, String[] attributesToRead, 
+			List<Long> groupIds) throws IOException {
 		List<String> attributes = Arrays.asList(attributesToRead);
 		while (!parser.isClosed()) {
 			JsonToken token = parser.nextToken();
 
-			// get tokens until top-level athlete field name.
+			// skip tokens until top-level athlete field name.
 			if (JsonToken.FIELD_NAME.equals(token) && "athletes".equals(parser.currentName())) {
 				token = parser.nextToken(); // Move to start of array of athletes
 
@@ -141,7 +144,9 @@ public class AthleteSessionDataReader {
 								if (fieldName.equals("group") && groupIds.contains(parser.getLongValue())) {
 									keep = true;
 								}
+								boolean validating = Athlete.isSkipValidationsDuringImport();
 								try {
+									Athlete.setSkipValidationsDuringImport(true);
 									PropertyDescriptor pd = new PropertyDescriptor(fieldName, Athlete.class);
 									Method setter = pd.getWriteMethod();
 									Class<?> fieldType = pd.getPropertyType();
@@ -153,7 +158,9 @@ public class AthleteSessionDataReader {
 										setter.invoke(jsonAthlete, parser.getValueAsString());
 									}
 								} catch (Exception e) {
-									e.printStackTrace();
+									LoggerUtils.logError(logger, e);
+								} finally {
+									Athlete.setSkipValidationsDuringImport(validating);
 								}
 							}
 						}
@@ -168,19 +175,25 @@ public class AthleteSessionDataReader {
 	}
 
 	private static void copyAttributes(Athlete source, Athlete target, String[] attributesToRead) {
-		for (String attribute : attributesToRead) {
-			if (attribute.equals("id")) {
-				continue;
+		boolean validating = Athlete.isSkipValidationsDuringImport();
+		try {
+			Athlete.setSkipValidationsDuringImport(true);
+			for (String attribute : attributesToRead) {
+				if (attribute.equals("id") || attribute.equals("group")) {
+					continue;
+				}
+				try {
+					PropertyDescriptor pd = new PropertyDescriptor(attribute, Athlete.class);
+					Method getter = pd.getReadMethod();
+					Method setter = pd.getWriteMethod();
+					Object value = getter.invoke(source);
+					setter.invoke(target, value);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
-			try {
-				PropertyDescriptor pd = new PropertyDescriptor(attribute, Athlete.class);
-				Method getter = pd.getReadMethod();
-				Method setter = pd.getWriteMethod();
-				Object value = getter.invoke(source);
-				setter.invoke(target, value);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+		} finally {
+			Athlete.setSkipValidationsDuringImport(validating);
 		}
 	}
 }
