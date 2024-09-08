@@ -34,12 +34,13 @@ public class AthleteSessionDataReader {
 
 	static Logger logger = (Logger) LoggerFactory.getLogger(AthleteSessionDataReader.class);
 
-	public static void importAthletes(InputStream is, List<Group> groups) throws IOException {
-		List<Long> groupIds = groups.stream().map(g -> g.getId()).toList();
-		doImportAthletes(is, groupIds);
+	public static void importAthletes(InputStream is, List<Group> sessions) throws IOException {
+		List<Long> sessionIds = sessions.stream().map(g -> g.getId()).toList();
+		logger.warn("importing sessions {}", sessions);
+		doImportAthletes(is, sessionIds);
 	}
 
-	private static void doImportAthletes(InputStream is, List<Long> groupIds) throws IOException, JsonParseException {
+	private static void doImportAthletes(InputStream is, List<Long> sessionIds) throws IOException, JsonParseException {
 		JsonFactory factory = JsonFactory.builder()
 		        .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)
 		        .build();
@@ -93,7 +94,7 @@ public class AthleteSessionDataReader {
 		        "cleanJerk3ActualLift",
 		};
 		try (JsonParser parser = factory.createParser(is)) {
-			jsonAthletes = readAthletes(parser, athletes, attributesToRead, groupIds);
+			jsonAthletes = readAthletes(parser, athletes, attributesToRead, sessionIds);
 		}
 		updateAthletes(jsonAthletes, attributesToRead);
 	}
@@ -114,7 +115,7 @@ public class AthleteSessionDataReader {
 
 	private static List<Athlete> readAthletes(JsonParser parser, 
 			List<Athlete> athletes, String[] attributesToRead, 
-			List<Long> groupIds) throws IOException {
+			List<Long> sessionIds) throws IOException {
 		List<String> attributes = Arrays.asList(attributesToRead);
 		while (!parser.isClosed()) {
 			JsonToken token = parser.nextToken();
@@ -141,7 +142,7 @@ public class AthleteSessionDataReader {
 						} else {
 							// simple attribute value, check the ones we care about.
 							if (attributes.contains(fieldName)) {
-								if (fieldName.equals("group") && groupIds.contains(parser.getLongValue())) {
+								if (fieldName.equals("group") && sessionIds.contains(parser.getLongValue())) {
 									keep = true;
 								}
 								boolean validating = Athlete.isSkipValidationsDuringImport();
@@ -179,6 +180,7 @@ public class AthleteSessionDataReader {
 		try {
 			Athlete.setSkipValidationsDuringImport(true);
 			for (String attribute : attributesToRead) {
+				logger.info("importing results for {} {} (session {})",target.getFullName(), target.getId(), target.getGroup());
 				if (attribute.equals("id") || attribute.equals("group")) {
 					continue;
 				}

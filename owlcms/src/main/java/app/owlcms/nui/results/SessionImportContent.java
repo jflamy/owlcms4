@@ -17,18 +17,13 @@ import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.Notification.Position;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.router.Route;
@@ -91,7 +86,7 @@ public class SessionImportContent extends BaseContent implements CrudListener<Gr
 		this.topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
 		this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 		
-		Button uploadCustom = new Button(Translator.translate("UploadDatabaseExport"),
+		Button uploadCustom = new Button(Translator.translate("ImportSessions.UploadDatabaseExport"),
 		        new Icon(VaadinIcon.UPLOAD_ALT),
 		        buttonClickEvent -> {
 		        	SessionResultsUploadDialog sessionUploadDialog = new SessionResultsUploadDialog();
@@ -129,7 +124,7 @@ public class SessionImportContent extends BaseContent implements CrudListener<Gr
 	 */
 	@Override
 	public String getPageTitle() {
-		return Translator.translate("ImportSessionResults");
+		return Translator.translate("ImportSessions.PageTitle");
 	}
 
 	@Override
@@ -190,39 +185,7 @@ public class SessionImportContent extends BaseContent implements CrudListener<Gr
 		return this.crud;
 	}
 
-	private void doNotification(String text) {
-		this.getUI().get().access(() -> {
-			Notification notif = new Notification();
-			notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
-			notif.setPosition(Position.TOP_STRETCH);
-			notif.setDuration(5000);
-			Div div = new Div(text);
-			div.getStyle().set("font-size", "140%");
-			notif.add(div);
-			notif.open();
-		});
-	}
-
-
-	@SuppressWarnings("unused")
 	private List<Group> getSortedSelection() {
 		return this.crud.getSelectedItems().stream().sorted(Group.groupWeighinTimeComparator).toList();
 	}
-
-
-	@SuppressWarnings("unused")
-	private void notifyError(Throwable e, UI ui, final String m) {
-		if (m != null && m.equals("NoAthletes")) {
-			String text = Translator.translate("Documents.NoSession");
-			doNotification(text);
-		} else if (m != null && m.equals("TooManyAthletes")) {
-			String text = Translator.translate("Documents.TooManyAthletes");
-			doNotification(text);
-		} else {
-			String text = Translator.translate("Documents.NoTemplate");
-			LoggerUtils.logError(logger, e, false);
-			doNotification(text);
-		}
-	}
-
 }

@@ -29,7 +29,7 @@ public class SessionResultsUploadDialog extends Dialog {
 
 	public SessionResultsUploadDialog() {
 
-		Html label = new Html("<div>" + Translator.translate("AgeGroups.WarningWillReplaceAll") + "</div>");
+		Html label = new Html("<div>" + Translator.translate("ImportSessions.WarningWillReplaceAll") + "</div>");
 		label.getStyle().set("color", "red");
 		label.getStyle().set("font-size", "large");
 
@@ -51,7 +51,7 @@ public class SessionResultsUploadDialog extends Dialog {
 			ta.setVisible(false);
 		});
 
-		H3 title = new H3(Translator.translate("AgeGroups.UploadCustom"));
+		H3 title = new H3(Translator.translate("ImportSessions.UploadDatabaseExport"));
 		VerticalLayout vl = new VerticalLayout(title, label, upload, ta);
 		add(vl);
 	}
