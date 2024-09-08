@@ -109,7 +109,7 @@ import ch.qos.logback.classic.Logger;
 @JsonPropertyOrder({ "id", "participations", "category" })
 public class Athlete {
 	@Transient
-	protected final static Logger logger = (Logger) LoggerFactory.getLogger(Athlete.class);
+	protected final Logger logger = (Logger) LoggerFactory.getLogger(Athlete.class);
 	@Transient
 	@JsonIgnore
 	private static QPoints qPoints = new QPoints(2023);
@@ -5633,5 +5633,4 @@ public class Athlete {
 		this.timingLogger.info("validateDeclaration {}ms {} {}", System.currentTimeMillis() - start, curLift,
 		        LoggerUtils.whereFrom());
 	}
-
 }

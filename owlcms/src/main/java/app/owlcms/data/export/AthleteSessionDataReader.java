@@ -21,6 +21,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.LoggerUtils;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -48,26 +49,26 @@ public class AthleteSessionDataReader {
 		List<Athlete> jsonAthletes;
 		String[] attributesToRead = {
 		        "id",
-		        "lot",
+		        "lotNumber",
 		        "group",
-		        
+
 		        "snatch1AutomaticProgression",
 		        "snatch1Declaration",
 		        "snatch1Change1",
 		        "snatch1Change2",
 		        "snatch1LiftTime",
 		        "snatch1ActualLift",
-		        
+
 		        "snatch2AutomaticProgression",
 		        "snatch2Declaration",
-		        "snatch2Change2",
+		        "snatch2Change1",
 		        "snatch2Change2",
 		        "snatch2LiftTime",
 		        "snatch2ActualLift",
-		        
+
 		        "snatch3AutomaticProgression",
 		        "snatch3Declaration",
-		        "snatch3Change3",
+		        "snatch3Change1",
 		        "snatch3Change2",
 		        "snatch3LiftTime",
 		        "snatch3ActualLift",
@@ -78,17 +79,17 @@ public class AthleteSessionDataReader {
 		        "cleanJerk1Change2",
 		        "cleanJerk1LiftTime",
 		        "cleanJerk1ActualLift",
-		        
+
 		        "cleanJerk2AutomaticProgression",
 		        "cleanJerk2Declaration",
-		        "cleanJerk2Change2",
+		        "cleanJerk2Change1",
 		        "cleanJerk2Change2",
 		        "cleanJerk2LiftTime",
 		        "cleanJerk2ActualLift",
-		        
+
 		        "cleanJerk3AutomaticProgression",
 		        "cleanJerk3Declaration",
-		        "cleanJerk3Change3",
+		        "cleanJerk3Change1",
 		        "cleanJerk3Change2",
 		        "cleanJerk3LiftTime",
 		        "cleanJerk3ActualLift",
@@ -103,19 +104,22 @@ public class AthleteSessionDataReader {
 		// Find existing athlete with the same id and lot
 		JPAService.runInTransaction(em -> {
 			for (Athlete jsonAthlete : jsonAthletes) {
-				Athlete existingAthlete = AthleteRepository.findById(jsonAthlete.getId());
+				Long id = jsonAthlete.getId();
+				Athlete existingAthlete = AthleteRepository.findById(id);
 				if (existingAthlete != null) {
 					copyAttributes(jsonAthlete, existingAthlete, attributesToRead);
 					em.merge(existingAthlete);
+				} else {
+					logger.error("did not find athlete {}", id);
 				}
 			}
 			return null;
 		});
 	}
 
-	private static List<Athlete> readAthletes(JsonParser parser, 
-			List<Athlete> athletes, String[] attributesToRead, 
-			List<Long> sessionIds) throws IOException {
+	private static List<Athlete> readAthletes(JsonParser parser,
+	        List<Athlete> athletes, String[] attributesToRead,
+	        List<Long> sessionIds) throws IOException {
 		List<String> attributes = Arrays.asList(attributesToRead);
 		while (!parser.isClosed()) {
 			JsonToken token = parser.nextToken();
@@ -125,7 +129,6 @@ public class AthleteSessionDataReader {
 				token = parser.nextToken(); // Move to start of array of athletes
 
 				while ((token = parser.nextToken()) != JsonToken.END_ARRAY) {
-					logger.warn("---");
 					Athlete jsonAthlete = new Athlete();
 					boolean keep = false;
 
@@ -146,8 +149,10 @@ public class AthleteSessionDataReader {
 									keep = true;
 								}
 								boolean validating = Athlete.isSkipValidationsDuringImport();
+								Level level = jsonAthlete.getLogger().getLevel();
 								try {
 									Athlete.setSkipValidationsDuringImport(true);
+									jsonAthlete.getLogger().setLevel(Level.ERROR);
 									PropertyDescriptor pd = new PropertyDescriptor(fieldName, Athlete.class);
 									Method setter = pd.getWriteMethod();
 									Class<?> fieldType = pd.getPropertyType();
@@ -162,11 +167,13 @@ public class AthleteSessionDataReader {
 									LoggerUtils.logError(logger, e);
 								} finally {
 									Athlete.setSkipValidationsDuringImport(validating);
+									jsonAthlete.getLogger().setLevel(level);
 								}
 							}
 						}
 					}
 					if (keep) {
+						logger.debug("adding athlete {}", jsonAthlete.getId());
 						athletes.add(jsonAthlete);
 					}
 				}
@@ -178,9 +185,9 @@ public class AthleteSessionDataReader {
 	private static void copyAttributes(Athlete source, Athlete target, String[] attributesToRead) {
 		boolean validating = Athlete.isSkipValidationsDuringImport();
 		try {
+			logger.info("importing results for {} {} (session {})", target.getFullName(), target.getId(), target.getGroup());
 			Athlete.setSkipValidationsDuringImport(true);
 			for (String attribute : attributesToRead) {
-				logger.info("importing results for {} {} (session {})",target.getFullName(), target.getId(), target.getGroup());
 				if (attribute.equals("id") || attribute.equals("group")) {
 					continue;
 				}
