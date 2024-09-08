@@ -51,6 +51,8 @@ public class AthleteSessionDataReader {
 		        "id",
 		        "lotNumber",
 		        "group",
+		        
+		        "bodyWeight",
 
 		        "snatch1AutomaticProgression",
 		        "snatch1Declaration",
@@ -162,6 +164,10 @@ public class AthleteSessionDataReader {
 										setter.invoke(jsonAthlete, parser.getIntValue());
 									} else if (fieldType == String.class) {
 										setter.invoke(jsonAthlete, parser.getValueAsString());
+									} else if (fieldType == Double.class) {
+										setter.invoke(jsonAthlete, parser.getDoubleValue());
+									} else if (fieldType == Float.class) {
+										setter.invoke(jsonAthlete, parser.getFloatValue());
 									}
 								} catch (Exception e) {
 									LoggerUtils.logError(logger, e);
