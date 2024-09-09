@@ -99,10 +99,6 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 		medalScheduleButton.ifPresent(c -> ((Button) c).setWidth("100%"));
 		medalScheduleDiv.setWidthFull();
 
-		// Div newRecords = DownloadButtonFactory.createDynamicXLSDownloadButton("records",
-		// Translator.translate("Results.NewRecords"), new JXLSExportRecords(UI.getCurrent(),false));
-		// ((Button) newRecords.getComponentAt(0)).setWidth("100%");
-
 		var recordsWriter = new JXLSExportRecords(UI.getCurrent(), false);
 		JXLSDownloader dd3 = new JXLSDownloader(
 		        () -> {
@@ -124,6 +120,11 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 		doGroup(Translator.translate("ForEachCompetitionGroup"), grid1, this);
 		doGroup(Translator.translate("TeamResults.Title"), grid2, this);
 		doGroup(Translator.translate("Results.EndOfCompetition"), grid3, this);
+		
+		Button importSessions = openInNewTabNoParam(SessionImportContent.class, Translator.translate("ImportSessions.PageTitle"));
+		doHiddenGroup(Translator.translate("ImportSessions.PageTitle"),
+				new Div(Translator.translate("ImportSessions.Explanation")),
+				HomeNavigationContent.navigationGrid(importSessions), this);
 
 		DebugUtils.gc();
 	}
