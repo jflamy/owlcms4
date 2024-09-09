@@ -20,10 +20,12 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -33,7 +35,6 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
-import app.owlcms.components.JXLSDownloader;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.i18n.Translator;
@@ -78,56 +79,50 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		        Translator.translate("Records.RecordsManagementTitle"));
 
 		var emptyRegistrationWriter = new JXLSRegistrationEmptyExport(UI.getCurrent());
-		JXLSDownloader dd = new JXLSDownloader(
-		        () -> {
-			        // group may have been edited since the page was loaded
-			        emptyRegistrationWriter.setGroup(
-			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
-			        return emptyRegistrationWriter;
-		        },
-		        "/templates/registration",
-		        "RegistrationExport.xlsx",
-		        Translator.translate("DownloadRegistrationTemplate"),
-		        fileName -> fileName.endsWith(".xlsx"));
-		Div downloadDiv = new Div();
-		downloadDiv.add(dd.createImmediateDownloadButton());
+		Notification notification = new Notification(Translator.translate("Processing"));
+		notification.setPosition(Position.TOP_END);
+		notification.addThemeVariants(NotificationVariant.LUMO_WARNING);
+		emptyRegistrationWriter.setDoneCallback((s) -> this.getUI().get().access(() ->  {
+			notification.close();
+		}));
+		Div downloadDiv = DownloadButtonFactory.createDynamicJXLSDownloadButton("Registration", Translator.translate("DownloadRegistrationTemplate"), emptyRegistrationWriter,
+		        notification);
 		downloadDiv.setWidthFull();
 
 		Button upload = new Button(Translator.translate("UploadRegistrations"), new Icon(VaadinIcon.UPLOAD_ALT),
 		        buttonClickEvent -> new NRegistrationFileUploadDialog(false).open());
-		Button fullUpload = new Button(Translator.translate("AdvancedPreparation.Import"),
+		Button sbdeUpload = new Button(Translator.translate("AdvancedPreparation.Import"),
 		        new Icon(VaadinIcon.UPLOAD_ALT),
 		        buttonClickEvent -> new NRegistrationFileUploadDialog(true).open());
 		var registrationWriter = new JXLSSBDEExport(UI.getCurrent());
-		JXLSDownloader dd2 = new JXLSDownloader(
-		        () -> {
-			        // group may have been edited since the page was loaded
-			        registrationWriter.setGroup(
-			                getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
-			        return registrationWriter;
-		        },
-		        "/templates/registration",
-		        "SBDE.xlsx",
-		        Translator.translate("AdvancedPreparation.Export"),
-		        fileName -> fileName.endsWith(".xlsx"));
-		Anchor exportButton = dd2
-		        .createImmediateDownloadButton(Translator.translate("Preparation.AdvancedExcelExport"));
-		Div exportDiv = new Div(exportButton);
-		exportDiv.setWidthFull();
+		Notification notification1 = new Notification(Translator.translate("LongProcessing"));
+		notification1.setPosition(Position.TOP_END);
+		notification1.addThemeVariants(NotificationVariant.LUMO_WARNING);
+		registrationWriter.setDoneCallback((s) -> this.getUI().get().access(() ->  {
+			notification1.close();
+		}));
+		
+		Div sbdeDiv = DownloadButtonFactory.createDynamicJXLSDownloadButton("SBDE", Translator.translate("AdvancedPreparation.Export"), registrationWriter,
+		        notification1);
+		sbdeDiv.setWidthFull();
 
 		Button athletes = openInNewTabNoParam(RegistrationContent.class, Translator.translate("EditAthletes"));
 		athletes.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
 		Button teams = openInNewTabNoParam(TeamSelectionContent.class,
 		        Translator.translate(TeamSelectionContent.TITLE));
 
-		Button documents = openInNewTab(DocumentsContent.class, Translator.translate("Documents.Title"),"documents");
+		Button documents = openInNewTab(DocumentsContent.class, Translator.translate("Documents.Title"), "documents");
 		documents.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
 
 		Button uploadJson = new Button(Translator.translate("ExportDatabase.UploadJson"),
 		        new Icon(VaadinIcon.UPLOAD_ALT),
 		        buttonClickEvent -> new JsonUploadDialog(UI.getCurrent()).open());
+		
+		Notification notification2 = new Notification(Translator.translate("LongProcessing"));
+		notification2.setPosition(Position.TOP_END);
+		notification2.addThemeVariants(NotificationVariant.LUMO_WARNING);
 		Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton("owlcmsDatabase",
-		        Translator.translate("ExportDatabase.DownloadJson"));
+		        Translator.translate("ExportDatabase.DownloadJson"), notification2);
 		Optional<Component> exportJsonButton = exportJsonDiv.getChildren().findFirst();
 		exportJsonButton.ifPresent(c -> ((Button) c).setWidth("100%"));
 		exportJsonDiv.setWidthFull();
@@ -144,7 +139,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		doGroup(Translator.translate("Documents.Title"), grid4, this, true);
 		FlexibleGridLayout grid5 = HomeNavigationContent.navigationGrid(exportJsonDiv, uploadJson);
 		doGroup(Translator.translate("ExportDatabase.ExportImport"), grid5, this, true);
-		FlexibleGridLayout grid6 = HomeNavigationContent.navigationGrid(exportDiv, fullUpload);
+		FlexibleGridLayout grid6 = HomeNavigationContent.navigationGrid(sbdeDiv, sbdeUpload);
 		doHiddenGroup(Translator.translate("AdvancedPreparation.Title"),
 		        new Div(Translator.translate("AdvancedPreparation.Explanation")), grid6, this, true);
 
@@ -177,11 +172,9 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 	 * Note: because we have the @Route, the parameters are parsed *before* our parent layout is created.
 	 *
 	 * @param event     Vaadin navigation event
-	 * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
-	 *                  parameters instead.
+	 * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query parameters instead.
 	 *
-	 * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
-	 *      java.lang.String)
+	 * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
 	 */
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {

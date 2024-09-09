@@ -13,13 +13,16 @@ import java.util.function.Supplier;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.server.InputStreamFactory;
 
 import app.owlcms.components.elements.LazyDownloadButton;
 import app.owlcms.data.export.CompetitionData;
+import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import app.owlcms.spreadsheet.XLSXWorkbookStreamSource;
 import ch.qos.logback.classic.Logger;
 
@@ -31,7 +34,8 @@ public class DownloadButtonFactory {
 	@SuppressWarnings("unused")
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(DownloadButtonFactory.class);
 
-	public static Div createDynamicJsonDownloadButton(String prefix, String label) {
+	public static Div createDynamicJsonDownloadButton(String prefix, String label, Notification notification) {
+		UI ui = UI.getCurrent();
 		final LazyDownloadButton downloadButton = new LazyDownloadButton(
 		        label,
 		        new Icon(VaadinIcon.DOWNLOAD_ALT),
@@ -42,9 +46,9 @@ public class DownloadButtonFactory {
 			                + ".json";
 		        },
 		        () -> {
-			        return new CompetitionData().exportData();
+			        return new CompetitionData().exportData(ui, notification);
 		        });
-
+		downloadButton.setNotification(notification);
 		return new Div(downloadButton);
 	}
 
@@ -69,6 +73,23 @@ public class DownloadButtonFactory {
 		        },
 		        xlsSource);
 
+		return new Div(downloadButton);
+	}
+	
+	public static Div createDynamicJXLSDownloadButton(String fileNamePrefix, String buttonLabel, JXLSWorkbookStreamSource xlsSource, Notification notification) {
+		final LazyDownloadButton downloadButton = new LazyDownloadButton(
+		        buttonLabel,
+		        new Icon(VaadinIcon.DOWNLOAD_ALT),
+		        () -> {
+			        LocalDateTime now = LocalDateTime.now().withNano(0);
+			        String value = ".xlsx";
+			        return fileNamePrefix
+			                + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm';'ss"))
+			                + value;
+		        },
+		        xlsSource);
+		downloadButton.setNotification(notification);
+		downloadButton.setWidthFull();
 		return new Div(downloadButton);
 	}
 

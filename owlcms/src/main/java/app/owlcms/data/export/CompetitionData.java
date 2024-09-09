@@ -22,6 +22,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.notification.Notification;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
@@ -75,6 +77,35 @@ public class CompetitionData {
 					writerWithDefaultPrettyPrinter.writeValue(out, this.fromDatabase());
 					out.flush();
 					out.close();
+				} catch (Throwable e) {
+					LoggerUtils.logError(logger, e);
+				}
+			}).start();
+			return in;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public InputStream exportData(UI ui, Notification notification) {
+		if (ui != null) {
+			ui.access(() -> notification.open());
+		}
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.registerModule(new JavaTimeModule());
+		try {
+			ObjectWriter writerWithDefaultPrettyPrinter = mapper.writerWithDefaultPrettyPrinter();
+
+			PipedOutputStream out = new PipedOutputStream();
+			PipedInputStream in = new PipedInputStream(out);
+			new Thread(() -> {
+				try {
+					writerWithDefaultPrettyPrinter.writeValue(out, this.fromDatabase());
+					out.flush();
+					out.close();
+					if (ui != null) {
+						ui.access(() -> notification.close());
+					}
 				} catch (Throwable e) {
 					LoggerUtils.logError(logger, e);
 				}

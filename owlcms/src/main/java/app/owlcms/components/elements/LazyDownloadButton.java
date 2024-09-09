@@ -22,6 +22,7 @@ import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.dom.DomEvent;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.server.InputStreamFactory;
@@ -69,6 +70,7 @@ public class LazyDownloadButton extends Button {
 	private Anchor anchor;
 	private Supplier<String> fileNameCallback;
 	private InputStreamFactory inputStreamCallback;
+	private Notification notification;
 
 	public LazyDownloadButton() {
 	}
@@ -155,6 +157,10 @@ public class LazyDownloadButton extends Button {
 					try {
 						InputStream inputStream = getInputStreamCallback().createInputStream();
 						optionalUI.ifPresent(ui -> ui.access(() -> {
+							if (notification != null) {
+								notification.open();
+							}
+							
 							StreamResource href = new StreamResource(getFileNameCallback().get(), () -> inputStream);
 							href.setCacheTime(0);
 							this.anchor.setHref(href);
@@ -213,5 +219,13 @@ public class LazyDownloadButton extends Button {
 				}
 			});
 		}
+	}
+
+	public Notification getNotification() {
+		return notification;
+	}
+
+	public void setNotification(Notification notification) {
+		this.notification = notification;
 	}
 }

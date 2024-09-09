@@ -297,6 +297,7 @@ public class JXLSDownloader {
 	}
 
 	private String getTargetFileName() {
+		logger.warn("getting file name");
 		StringBuilder suffix = new StringBuilder();
 		if (this.xlsWriter.getCategory() != null) {
 			suffix.append("_");
