@@ -128,7 +128,7 @@ public class RAthlete {
 			return;
 		}
 		// create a parts as in the legacy
-		if (Config.getCurrent().featureSwitch("usaw")) {
+		if (Config.getCurrent().featureSwitch("usawSessionBlocks")) {
 			s = s.replaceAll("kg", "");
 			s = s.replaceAll("NAT ", "");
 			s = s.replaceAll("ADAPTIVE", "ADP");

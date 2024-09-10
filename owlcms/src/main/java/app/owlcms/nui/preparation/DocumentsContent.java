@@ -862,7 +862,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			        JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
 
 			        String tn = Competition.getCurrent().getScheduleTemplateFileName();
-			        if (tn.contains("Schedule") && Config.getCurrent().featureSwitch("usaw")) {
+			        if (tn.contains("Schedule") && Config.getCurrent().featureSwitch("usawDocuments")) {
 				        xlsWriter.setPostProcessor((w) -> {
 					        fixMerges(w, 4, List.of(1, 2));
 					        fixLastLine(w);

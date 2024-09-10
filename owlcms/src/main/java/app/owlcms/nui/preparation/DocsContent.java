@@ -452,7 +452,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 			        startingXlsWriter.setSortedAthletes(athletesFindAll);
 
 			        String tn = Competition.getCurrent().getComputedStartListTemplateFileName();
-			        if (Config.getCurrent().featureSwitch("usaw") && tn.equals("Schedule.xlsx")) {
+			        if (Config.getCurrent().featureSwitch("usawDocuments") && tn.equals("Schedule.xlsx")) {
 				        startingXlsWriter.setPostProcessor((w) -> fixMerges(w, 4, List.of(1, 2)));
 			        } else {
 				        startingXlsWriter.setPostProcessor(null);
