@@ -25,6 +25,7 @@ import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -75,12 +76,13 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 				// keep the the most specific category from the championship
 				List<Athlete> uniqueAthletes = allParticipations.stream()
 				        .sorted((a, b) -> {
-				        	int compare = ObjectUtils.compare(a.getLotNumber(), b.getLotNumber(), true);
-				        	if (compare != 0) return compare;
-				        	return Category.specificityComparator.compare(a.getCategory(), b.getCategory());
+					        int compare = ObjectUtils.compare(a.getLotNumber(), b.getLotNumber(), true);
+					        if (compare != 0)
+						        return compare;
+					        return Category.specificityComparator.compare(a.getCategory(), b.getCategory());
 				        })
 				        .filter(p -> {
-				        	//logger.debug("{} {}",p.getLastName(),((PAthlete)p)._getOriginalParticipation().getCategory().getAgeGroup());
+					        // logger.debug("{} {}",p.getLastName(),((PAthlete)p)._getOriginalParticipation().getCategory().getAgeGroup());
 					        if (getChampionship() != null && p.getAgeGroup() != null) {
 						        return getChampionship().equals(p.getAgeGroup().getChampionship());
 					        } else {
@@ -200,7 +202,8 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 		createStandardFooter(workbook);
 
 		String resultsTemplateFileName = Competition.getCurrent().getResultsTemplateFileName();
-		boolean isUSAW = resultsTemplateFileName != null && resultsTemplateFileName.toLowerCase().contains("usaw");
+		boolean isUSAW = resultsTemplateFileName != null
+		        && (resultsTemplateFileName.toLowerCase().contains("usaw") || Config.getCurrent().featureSwitch("usawDocuments"));
 		if (currentCompetitionSession == null && !isUSAW) {
 			// remove information cells from standard template
 			zapCellPair(workbook, 3, 9);
@@ -212,17 +215,19 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 		if (this.resultsByCategory) {
 			pAthletes = new ArrayList<>(rankedAthletes.size() * 2);
 			for (Athlete a : rankedAthletes) {
-				Athlete pa = ((PAthlete)a)._getAthlete();
+				Athlete pa = ((PAthlete) a)._getAthlete();
 				for (Participation p : pa.getParticipations()) {
 					PAthlete e = new PAthlete(p);
-					//logger.debug("adding {} {}", e.getFullName(), e.getCategory());
+					// logger.debug("adding {} {}", e.getFullName(), e.getCategory());
 					pAthletes.add(e);
 				}
 			}
 		} else {
 			// we sometimes get pAthletes and but here we need the wrapped athlete.
 			pAthletes = rankedAthletes.stream()
-			        .peek(r -> { logger.debug("{} {}", r.getShortName(), r.getClass().getSimpleName()); })
+			        .peek(r -> {
+				        logger.debug("{} {}", r.getShortName(), r.getClass().getSimpleName());
+			        })
 			        .map(r -> r instanceof PAthlete ? r : new PAthlete(r))
 			        .collect(Collectors.toList());
 		}
