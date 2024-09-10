@@ -129,9 +129,7 @@ public class RAthlete {
 		}
 		// create a parts as in the legacy
 		if (Config.getCurrent().featureSwitch("usawSessionBlocks")) {
-			s = s.replaceAll("kg", "");
-			s = s.replaceAll("NAT ", "");
-			s = s.replaceAll("ADAPTIVE", "ADP");
+			s = s.replaceAll("(\\d+)\\s?kg", "$1");
 		}
 
 		String[] allParts = s.split(",|;|\\/");
