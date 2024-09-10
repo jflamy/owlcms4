@@ -1646,6 +1646,20 @@ public class Competition {
 		getOrCreateBean("wSinclair");
 		this.reportingBeans.put("wSinclair", sortedWomen);
 	}
+	
+	private void reportQPoints(List<Athlete> sortedMen, List<Athlete> sortedWomen) {
+		getOrCreateBean("mQPoints");
+		this.reportingBeans.put("mQPoints", sortedMen);
+		getOrCreateBean("wQPoints");
+		this.reportingBeans.put("wQPoints", sortedWomen);
+	}
+	
+	private void reportQAge(List<Athlete> sortedMen, List<Athlete> sortedWomen) {
+		getOrCreateBean("mQAge");
+		this.reportingBeans.put("mQAge", sortedMen);
+		getOrCreateBean("wQAge");
+		this.reportingBeans.put("wQAge", sortedWomen);
+	}
 
 	private void reportSMF(List<Athlete> sortedMen, List<Athlete> sortedWomen) {
 		getOrCreateBean("mSMF");
@@ -1800,6 +1814,20 @@ public class Competition {
 		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.SMM);
 
 		reportSMF(sortedMen, sortedWomen);
+		
+		sortedMen = getOrCreateBean("mTeamQPoints" + ad.getName());
+		sortedWomen = getOrCreateBean("wTeamQPoints" + ad.getName());
+		AthleteSorter.teamPointsOrder(sortedMen, Ranking.QPOINTS);
+		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.QPOINTS);
+
+		reportQPoints(sortedMen, sortedWomen);
+
+		sortedMen = getOrCreateBean("mTeamQAge" + ad.getName());
+		sortedWomen = getOrCreateBean("wTeamQAge" + ad.getName());
+		AthleteSorter.teamPointsOrder(sortedMen, Ranking.QAGE);
+		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.QAGE);
+
+		reportQAge(sortedMen, sortedWomen);
 	}
 
 	public String getResultsTemplateFileName() {

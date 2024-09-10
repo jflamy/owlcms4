@@ -153,8 +153,18 @@ public class JXLSDownloader {
 		return dialogOpen;
 	}
 
+	/**
+	 * @deprecated
+	 * Deprecated because the time stamp in the file name is determined when the download button
+	 * is created, and not when the file is downloaded.
+	 * 
+	 * Use LazyDownloadButton instead.
+	 * 
+	 * @param tooltipText
+	 * @return
+	 */
+	@Deprecated
 	public Anchor createImmediateDownloadButton(String... tooltipText) {
-		//FIXME: the timestamp is when the page is loaded, no feedback on completion.
 		this.xlsWriter = this.streamSourceSupplier.get();
 		Supplier<String> supplier = () -> getTargetFileName();
 		this.resource = new StreamResource(supplier.get(), (StreamResourceWriter) this.xlsWriter);
