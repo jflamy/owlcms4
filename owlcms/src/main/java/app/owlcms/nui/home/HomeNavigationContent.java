@@ -124,6 +124,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	 * Instantiates a new main navigation content.
 	 */
 	public HomeNavigationContent() {
+		OwlcmsFactory.waitDBInitialized();
 		VerticalLayout intro = buildIntro();
 		intro.setSpacing(false);
 

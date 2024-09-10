@@ -179,7 +179,7 @@ public class OwlcmsSession {
 		UI currentUi = UI.getCurrent();
 		if (locale == null && currentUi != null) {
 			locale = currentUi.getLocale();
-			logger.trace("browser locale = {}", locale);
+			logger.warn("browser locale = {}", locale);
 		}
 
 		// get first defined locale from translation file, else default
