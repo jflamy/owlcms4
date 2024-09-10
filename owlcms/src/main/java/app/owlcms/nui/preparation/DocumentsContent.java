@@ -863,6 +863,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 			        String tn = Competition.getCurrent().getScheduleTemplateFileName();
 			        if (xlsWriter.getFirstMergeLine() != null) {
+			        	// nested merged columns
 				        xlsWriter.setPostProcessor((w) -> {
 					        fixMerges(w, xlsWriter.getFirstMergeLine(), xlsWriter.getMergeColumnList());
 					        fixLastLine(w);
@@ -873,6 +874,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 					        fixLastLine(w);
 				        });
 			        } else {
+			        	// simple schedule with no nested merged columns
 				        xlsWriter.setPostProcessor(null);
 				        xlsWriter.setSortedAthletes(a);
 			        }
