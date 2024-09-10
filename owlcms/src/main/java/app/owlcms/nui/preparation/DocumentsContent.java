@@ -862,21 +862,14 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			        JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
 
 			        String tn = Competition.getCurrent().getScheduleTemplateFileName();
-			        if (tn.contains("Schedule") && Config.getCurrent().featureSwitch("usawDocuments")) {
+			        if (xlsWriter.getFirstMergeLine() != null) {
+				        xlsWriter.setPostProcessor((w) -> {
+					        fixMerges(w, xlsWriter.getFirstMergeLine(), xlsWriter.getMergeColumnList());
+					        fixLastLine(w);
+				        });
+			        } else if (tn.contains("Schedule") && Config.getCurrent().featureSwitch("usawDocuments")) {
 				        xlsWriter.setPostProcessor((w) -> {
 					        fixMerges(w, 4, List.of(1, 2));
-					        fixLastLine(w);
-				        });
-			        } else if (tn.startsWith("DaySchedule.xlsx")) {
-				        // FIXME: read this from the jxls3 directives
-				        xlsWriter.setPostProcessor((w) -> {
-					        fixMerges(w, 5, List.of(1, 2, 3));
-					        fixLastLine(w);
-				        });
-			        } else if (tn.endsWith("Schedule.xlsx")) {
-				        // FIXME: read this from the jxls3 directives
-				        xlsWriter.setPostProcessor((w) -> {
-					        fixMerges(w, 5, List.of(1, 2));
 					        fixLastLine(w);
 				        });
 			        } else {

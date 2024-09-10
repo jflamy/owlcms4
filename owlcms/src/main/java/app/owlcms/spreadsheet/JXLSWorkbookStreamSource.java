@@ -419,35 +419,84 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		}
 
 	}
+	
+    private Integer lastLine;
+    private Integer firstMergeLine;
+    private List<Integer> mergeColumnList;
 
+//	private boolean checkJxls3(Workbook tempWorkbook) throws IOException {
+//		boolean jxls3 = false;
+//		Sheet sheet = tempWorkbook.getSheetAt(0); // Get the first sheet
+//		Row row = sheet.getRow(0); // Get the first row (0-based)
+//		if (row != null) {
+//			Cell cell = row.getCell(0); // Get the first cell in the row (0-based)
+//			if (cell != null) {
+//				Comment comment = cell.getCellComment();
+//				jxls3 = (comment != null && comment.getString().getString().contains("jx:area"));
+//				if (comment != null) {
+//					String plainComment = comment.getString().getString();
+//					String regex = "lastCell=\"[A-Za-z](.*?)\"";
+//					Pattern pattern = Pattern.compile(regex);
+//					Matcher matcher = pattern.matcher(plainComment);
+//					if (matcher.find()) {
+//						String lastLine = matcher.group(1);
+//						try {
+//							this.setPageLength(Integer.parseInt(lastLine));
+//						} catch (NumberFormatException e) {
+//							LoggerUtils.logError(logger, e, true);
+//						}
+//					}
+//				}
+//			}
+//
+//		}
+//		return jxls3;
+//	}
+	
 	private boolean checkJxls3(Workbook tempWorkbook) throws IOException {
-		boolean jxls3 = false;
-		Sheet sheet = tempWorkbook.getSheetAt(0); // Get the first sheet
-		Row row = sheet.getRow(0); // Get the first row (0-based)
-		if (row != null) {
-			Cell cell = row.getCell(0); // Get the first cell in the row (0-based)
-			if (cell != null) {
-				Comment comment = cell.getCellComment();
-				jxls3 = (comment != null && comment.getString().getString().contains("jx:area"));
-				if (comment != null) {
-					String plainComment = comment.getString().getString();
-					String regex = "lastCell=\"[A-Za-z](.*?)\"";
-					Pattern pattern = Pattern.compile(regex);
-					Matcher matcher = pattern.matcher(plainComment);
-					if (matcher.find()) {
-						String lastLine = matcher.group(1);
-						try {
-							this.setPageLength(Integer.parseInt(lastLine));
-						} catch (NumberFormatException e) {
-							LoggerUtils.logError(logger, e, true);
-						}
-					}
+	boolean jxls3 = false;
+	Sheet sheet = tempWorkbook.getSheetAt(0); // Get the first sheet
+	Row row = sheet.getRow(0); // Get the first row (0-based)
+	if (row != null) {
+		Cell cell = row.getCell(0); // Get the first cell in the row (0-based)
+		if (cell != null) {
+			Comment comment = cell.getCellComment();
+			if (comment != null) {
+				extractVariables(comment.getString().getString());
+				if (lastLine != null) {
+					this.setPageLength(lastLine);
+					jxls3 = true;
 				}
 			}
-
 		}
-		return jxls3;
 	}
+	return jxls3;
+}
+    public void extractVariables(String comment) {
+    	logger.warn("comment = {}",comment);
+        // Pattern to match jx:area(lastCell="X1")
+        Pattern pattern1 = Pattern.compile("jx:area\\(lastCell=\"([A-Za-z])(\\d+)\"\\)");
+        Matcher matcher1 = pattern1.matcher(comment);
+        if (matcher1.find()) {
+            lastLine = Integer.parseInt(matcher1.group(2));
+        }
+
+        // Pattern to match owlcms:fixMerges(4, [1, 2, 3]) with optional spaces
+        Pattern pattern2 = Pattern.compile("owlcms:fixMerges\\((\\d+),\\s*\\[(.*?)\\]\\)");
+        Matcher matcher2 = pattern2.matcher(comment);
+        if (matcher2.find()) {
+            firstMergeLine = Integer.parseInt(matcher2.group(1));
+            String columns = matcher2.group(2);
+
+            // Convert columns to a list of integers
+            String[] columnsArray = columns.split("\\s*,\\s*");
+            mergeColumnList = new ArrayList<>();
+            for (String column : columnsArray) {
+                mergeColumnList.add(Integer.parseInt(column.trim()));
+            }
+        }
+        
+    }
 
 	private void jxls1Transform(OutputStream stream, Workbook workbook) {
 		XLSTransformer transformer = new XLSTransformer();
@@ -570,10 +619,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		}
 	}
 
-	private void setPageLength(int int1) {
-		this.pageLength = int1;
-	}
-
 	public Integer getPageLength() {
 		return pageLength;
 	}
@@ -609,6 +654,30 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 
 	public void setTemplateFileName(String templateFileName) {
 		this.templateFileName = templateFileName;
+	}
+
+	public Integer getLastLine() {
+		return lastLine;
+	}
+
+	public void setLastLine(Integer lastLine) {
+		this.lastLine = lastLine;
+	}
+
+	public Integer getFirstMergeLine() {
+		return firstMergeLine;
+	}
+
+	public void setFirstMergeLine(Integer firstMergeLine) {
+		this.firstMergeLine = firstMergeLine;
+	}
+
+	public List<Integer> getMergeColumnList() {
+		return mergeColumnList;
+	}
+
+	public void setMergeColumnList(List<Integer> columnsList) {
+		this.mergeColumnList = columnsList;
 	}
 
 }
