@@ -31,6 +31,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLink;
 
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.displays.DisplayNavigationContent;
 import app.owlcms.nui.displays.VideoNavigationContent;
@@ -60,6 +61,7 @@ public class OwlcmsLayout extends AppLayout {
 	private boolean margin;
 
 	public OwlcmsLayout() {
+		OwlcmsFactory.waitDBInitialized();
 		this.navBarComponents = new ArrayList<>();
 		// create default empty components. Content will fill them in.
 		populateHeader();

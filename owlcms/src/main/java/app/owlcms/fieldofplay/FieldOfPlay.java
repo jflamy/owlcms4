@@ -2912,7 +2912,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void changePlatformEquipment(Athlete a, Integer newWeight) {
-		// not completely mocked during unit tests.
+		// skip during unit tests.
 		if (getPlatform() == null) {
 			return;
 		}
@@ -2984,15 +2984,13 @@ public class FieldOfPlay implements IUnregister {
 			return;
 		}
 
+		// deal with Open categories vs Children Categories
 		if (a.getAgeGroup().getMinAge() <= 12 && a.getAgeGroup().getMaxAge() <= 25) {
-			// do not use 20kg bar
-			// Open categories start at 0 but have 999 as max age.
-			// would include U9, U11, and 12-13 U13 but not a 13-15 or 14-15 U15 group.
-			// if 13-15 uses 15kg for boys, would have to be manually set.
-			// logger.debug"no 20kg");
+			// do not use 20kg bar for U9, U11, and 12-13 U13 
+			// if 13-15 uses 15kg for boys, this would have to be manually set.
 			getPlatform().setNbB_20(0);
 		} else {
-			// logger.debug"20kg available");
+			// logger.debug("20kg available");
 			// getPlatform().setNbB_20(1);
 		}
 	}
