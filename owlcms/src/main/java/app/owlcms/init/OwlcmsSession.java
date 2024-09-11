@@ -175,11 +175,24 @@ public class OwlcmsSession {
 			return locale;
 		}
 		locale = Translator.getForcedLocale();
+		if (locale != null) {
+			logger.debug("forced locale {}",locale);
+		}
 		
 		UI currentUi = UI.getCurrent();
 		if (locale == null && currentUi != null) {
 			locale = currentUi.getLocale();
+			final var loc = locale;
 			logger.warn("browser locale = {}", locale);
+			// is Browser language supported
+			List<Locale> locales = Translator.getAvailableLocales();
+			boolean supported = locales.stream().anyMatch(l -> l.getLanguage().equals(loc.getLanguage()));
+			if (!supported) {
+				locale = null;
+				logger.debug("browser locale = {}", locale);
+			} else {
+				logger.debug("using browser locale = {}", locale);
+			}
 		}
 
 		// get first defined locale from translation file, else default
@@ -208,7 +221,9 @@ public class OwlcmsSession {
 		}
 		if (currentUi != null) {
 			currentUi.setLocale(locale);
+			setAttribute(LOCALE,locale);
 		}
+
 		return locale;
 	}
 
