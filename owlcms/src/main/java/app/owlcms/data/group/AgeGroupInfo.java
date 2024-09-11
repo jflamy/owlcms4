@@ -2,6 +2,7 @@ package app.owlcms.data.group;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -14,7 +15,8 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import ch.qos.logback.classic.Logger;
 
-public class AgeGroupInfo {
+public class AgeGroupInfo implements Comparable<AgeGroupInfo> {
+	static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupInfo.class);
 	AgeGroup ageGroup;
 	Double smallestWeightClass;
 	Double largestWeightClass;
@@ -24,10 +26,37 @@ public class AgeGroupInfo {
 	private List<Athlete> athletes = new ArrayList<>();
 	private boolean unanimous;
 	private String bestSubCategory;
-	static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupInfo.class);
+	TreeMap<String, BWCatInfo> subCats = new TreeMap<>();
 
 	public void addAthlete(Athlete athlete) {
 		this.athletes.add(athlete);
+	}
+
+	public void addToList(String key, BWCatInfo info) {
+		this.subCats.put(key, info);
+	}
+
+	
+	public static Comparator<AgeGroupInfo> ageComparator = (o1, o2) -> {
+		if (o1.ageGroup == null || o2.ageGroup == null) {
+			return ObjectUtils.compare(o1.ageGroup, o2.ageGroup, true);
+		}
+		int compare;
+		compare = ObjectUtils.compare(o1.ageGroup.getMaxAge(), o2.ageGroup.getMaxAge());
+		if (compare != 0) {
+			return compare;
+		}
+		compare = ObjectUtils.compare(o1.ageGroup.getMinAge(), o2.ageGroup.getMinAge());
+		if (compare != 0) {
+			return compare;
+		}
+		compare = ObjectUtils.compare(o1.ageGroup.getName(), o2.ageGroup.getName());
+		return compare;
+	};
+	
+	@Override
+	public int compareTo(AgeGroupInfo o) {
+		return ageComparator.compare(this,o);
 	}
 
 	public AgeGroup getAgeGroup() {
@@ -49,6 +78,22 @@ public class AgeGroupInfo {
 		return AthleteSorter.registrationOrderCopy(this.athletes);
 	}
 
+	public String getBestSubCategory() {
+		return this.bestSubCategory;
+	}
+
+	public String getFormattedRange() {
+		if (this.unanimous) {
+			if (getBestSubCategory() == null) {
+				return getWeightClassRange();
+			} else {
+				return getWeightClassRange() + " " + getBestSubCategory();
+			}
+		} else {
+			return this.subCats.values().stream().map(v -> v.getFormattedString()).collect(Collectors.joining(", "));
+		}
+	}
+
 	public int getHighestEntryTotal() {
 		return getAthletesByEntryTotal().get(0).getEntryTotal();
 	}
@@ -59,6 +104,10 @@ public class AgeGroupInfo {
 
 	public String getLargestWeightClassLimitString() {
 		return this.largestWeightClassLimitString;
+	}
+
+	public Collection<String> getList() {
+		return this.subCats.values().stream().map(v -> v.getFormattedString()).toList();
 	}
 
 	public int getLowestEntryTotal() {
@@ -77,12 +126,25 @@ public class AgeGroupInfo {
 		return this.weightClassRange;
 	}
 
+	public boolean isUnanimous() {
+		logger.debug("unanimous {}", this.unanimous);
+		return this.unanimous;
+	}
+
 	public void setAgeGroup(AgeGroup ageGroup) {
 		this.ageGroup = ageGroup;
 	}
 
 	public void setAthletes(List<Athlete> athletes) {
 		this.athletes = athletes;
+	}
+
+	public void setBestSubCategory(String largestSubCategory) {
+		this.bestSubCategory = largestSubCategory;
+	}
+
+	public void setFormattedRange(String unused) {
+		// for dumb introspection
 	}
 
 	public void setLargestWeightClass(Double double1) {
@@ -101,50 +163,11 @@ public class AgeGroupInfo {
 		this.smallestWeightClass = double1;
 	}
 
-	public void setWeightClassRange(String weightClassRange) {
-		this.weightClassRange = weightClassRange;
-	}
-
-	public boolean isUnanimous() {
-		logger.debug("unanimous {}", unanimous);
-		return unanimous;
-	}
-
-	public String getBestSubCategory() {
-		return bestSubCategory;
-	}
-
-	public void setBestSubCategory(String largestSubCategory) {
-		this.bestSubCategory = largestSubCategory;
-	}
-
 	public void setUnanimous(boolean unanimous) {
 		this.unanimous = unanimous;
 	}
 
-	TreeMap<String, BWCatInfo> subCats = new TreeMap<>();
-
-	public void addToList(String key, BWCatInfo info) {
-		subCats.put(key, info);
-	}
-
-	public Collection<String> getList() {
-		return subCats.values().stream().map(v -> v.getFormattedString()).toList();
-	}
-
-	public String getFormattedRange() {
-		if (unanimous) {
-			if (getBestSubCategory() == null) {
-				return getWeightClassRange();
-			} else {
-				return getWeightClassRange() +" "+getBestSubCategory();
-			}
-		} else {
-			return subCats.values().stream().map(v -> v.getFormattedString()).collect(Collectors.joining(", "));
-		}
-	}
-
-	public void setFormattedRange(String unused) {
-		// for dumb introspection
+	public void setWeightClassRange(String weightClassRange) {
+		this.weightClassRange = weightClassRange;
 	}
 }

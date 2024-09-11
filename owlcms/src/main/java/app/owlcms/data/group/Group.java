@@ -483,7 +483,15 @@ public class Group implements Comparable<Group> {
 	@Transient
 	@JsonIgnore
 	public List<AgeGroupInfo> getAgeGroupInfo() {
-		return new AgeGroupInfoFactory().getAgeGroupInfos(this);
+		List<AgeGroupInfo> ageGroupInfos = new AgeGroupInfoFactory().getAgeGroupInfos(this);
+		return ageGroupInfos;
+	}
+	
+	@Transient
+	@JsonIgnore
+	public List<AgeGroupInfo> getAgeGroupInfoByAge() {
+		List<AgeGroupInfo> ageGroupInfos = new AgeGroupInfoFactory().getAgeGroupInfos(this);
+		return ageGroupInfos.stream().sorted().toList();
 	}
 
 	/*
