@@ -37,7 +37,7 @@ public class AthleteSessionDataReader {
 
 	public static void importAthletes(InputStream is, List<Group> sessions) throws IOException {
 		List<Long> sessionIds = sessions.stream().map(g -> g.getId()).toList();
-		logger.warn("importing sessions {}", sessions);
+		logger.info("importing sessions {}", sessions);
 		doImportAthletes(is, sessionIds);
 	}
 
