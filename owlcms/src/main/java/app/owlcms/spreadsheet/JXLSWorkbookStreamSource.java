@@ -419,7 +419,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		}
 
 	}
-	
+
     private Integer lastLine;
     private Integer firstMergeLine;
     private List<Integer> mergeColumnList;
@@ -452,54 +452,57 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 //		}
 //		return jxls3;
 //	}
-	
+
 	private boolean checkJxls3(Workbook tempWorkbook) throws IOException {
-	boolean jxls3 = false;
-	Sheet sheet = tempWorkbook.getSheetAt(0); // Get the first sheet
-	Row row = sheet.getRow(0); // Get the first row (0-based)
-	if (row != null) {
-		Cell cell = row.getCell(0); // Get the first cell in the row (0-based)
-		if (cell != null) {
-			Comment comment = cell.getCellComment();
-			if (comment != null) {
-				extractVariables(comment.getString().getString());
-				if (getLastLine() != null) {
-					this.setPageLength(getLastLine());
+		boolean jxls3 = false;
+		Sheet sheet = tempWorkbook.getSheetAt(0); // Get the first sheet
+		Row row = sheet.getRow(0); // Get the first row (0-based)
+		if (row != null) {
+			Cell cell = row.getCell(0); // Get the first cell in the row (0-based)
+			if (cell != null) {
+				Comment comment = cell.getCellComment();
+				if (comment != null && comment.getString().getString().contains("jx:area")) {
 					jxls3 = true;
+
+					extractVariables(comment.getString().getString());
+					if (getLastLine() != null) {
+						this.setPageLength(getLastLine());
+					}
 				}
 			}
 		}
+		return jxls3;
 	}
-	return jxls3;
-}
-    public void extractVariables(String comment) {
-    	logger.debug("comment = {}",comment);
-        // Pattern to match jx:area(lastCell="X1")
-        Pattern pattern1 = Pattern.compile("jx:area\\(lastCell=\"([A-Za-z])(\\d+)\"\\)");
-        Matcher matcher1 = pattern1.matcher(comment);
-        if (matcher1.find()) {
-        	logger.debug("last line = {}",matcher1.group(2));
-            setLastLine(Integer.parseInt(matcher1.group(2)));
-        }
 
-        // Pattern to match owlcms:fixMerges(4, [1, 2, 3]) with optional spaces
-        Pattern pattern2 = Pattern.compile("owlcms:fixMerges\\((\\d+),\\s*\\[(.*?)\\]\\)");
-        Matcher matcher2 = pattern2.matcher(comment);
-        if (matcher2.find()) {
-            setFirstMergeLine(Integer.parseInt(matcher2.group(1)));
-            logger.debug("firstMergeLine = {}",matcher2.group(1));
-            String columns = matcher2.group(2);
+	public void extractVariables(String comment) {
+		logger.debug("comment = {}",comment);
+		comment = comment.replaceAll("[\\r\\n\\s]", "");
 
-            // Convert columns to a list of integers
-            String[] columnsArray = columns.split("\\s*,\\s*");
-            setMergeColumnList(new ArrayList<>());
-            for (String column : columnsArray) {
-            	logger.debug("column: {}",column.trim());
-                getMergeColumnList().add(Integer.parseInt(column.trim()));
-            }
-        }
-        
-    }
+		// Pattern to match jx:area(lastCell="X1")
+		Pattern pattern1 = Pattern.compile("jx:area\\(lastCell=\"([A-Za-z])(\\d+)\"\\)");
+		Matcher matcher1 = pattern1.matcher(comment);
+		if (matcher1.find()) {
+			logger.debug("last line = {}",matcher1.group(2));
+			setLastLine(Integer.parseInt(matcher1.group(2)));
+		}
+
+		// Pattern to match owlcms:fixMerges(4, [1, 2, 3]) with optional spaces
+		Pattern pattern2 = Pattern.compile("owlcms:fixMerges\\((\\d+),\\[(.*?)\\]\\)");
+		Matcher matcher2 = pattern2.matcher(comment);
+		if (matcher2.find()) {
+			logger.debug("firstMergeLine = {}",matcher2.group(1));
+			setFirstMergeLine(Integer.parseInt(matcher2.group(1)));
+			String columns = matcher2.group(2);
+
+			// Convert columns to a list of integers
+			String[] columnsArray = columns.split("\\s*,\\s*");
+			setMergeColumnList(new ArrayList<>());
+			for (String column : columnsArray) {
+				logger.debug("column: {}",column.trim());
+				getMergeColumnList().add(Integer.parseInt(column.trim()));
+			}
+		}
+	}
 
 	private void jxls1Transform(OutputStream stream, Workbook workbook) {
 		XLSTransformer transformer = new XLSTransformer();
