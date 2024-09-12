@@ -131,14 +131,6 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 	 */
 	@Override
 	protected void postProcess(Workbook workbook) {
-		final Group currentCompetitionSession = getGroup();
-
-		String protocolTemplateFileName = Competition.getCurrent().getProtocolTemplateFileName();
-		boolean isUSAW = protocolTemplateFileName != null
-		        && (protocolTemplateFileName.toLowerCase().contains("usaw") || Config.getCurrent().featureSwitch("usawDocuments"));
-		if (currentCompetitionSession == null && !isUSAW) {
-			zapCellPair(workbook, 3, 9);
-		}
 		createStandardFooter(workbook);
 	}
 

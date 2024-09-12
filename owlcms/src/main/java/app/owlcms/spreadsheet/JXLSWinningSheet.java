@@ -183,7 +183,6 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 	 */
 	@Override
 	protected void postProcess(Workbook workbook) {
-		final Group currentCompetitionSession = getGroup();
 		String c = getChampionship() != null ? getChampionship().getName() : null;
 		String ag = getAgeGroupPrefix();
 		Header header = workbook.getSheetAt(0).getHeader();
@@ -200,14 +199,6 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 		}
 
 		createStandardFooter(workbook);
-
-		String resultsTemplateFileName = Competition.getCurrent().getResultsTemplateFileName();
-		boolean isUSAW = resultsTemplateFileName != null
-		        && (resultsTemplateFileName.toLowerCase().contains("usaw") || Config.getCurrent().featureSwitch("usawDocuments"));
-		if (currentCompetitionSession == null && !isUSAW) {
-			// remove information cells from standard template
-			zapCellPair(workbook, 3, 9);
-		}
 	}
 
 	public List<Athlete> mapToParticipations(List<Athlete> rankedAthletes) {
