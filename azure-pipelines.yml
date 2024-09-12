@@ -1,10 +1,10 @@
 trigger:
   - none
-  
+
 parameters:
   - name: Revision
     type: string
-    default: 52.0.6
+    default: 53.0.0-alpha01
   - name: SkipTests
     type: string
     default: 'false'
@@ -137,7 +137,7 @@ jobs:
         condition: or(eq(variables['Build.SourceBranchName'], 'main51'),eq(variables['Build.SourceBranchName'], 'main52'))
         displayName: sync release repo
       # all releases are marked as "isPreRelease: false" else we cannot have a generic link to the latest prerelease.
-      # the repo and name determines the maturity status.  
+      # the repo and name determines the maturity status.
       - task: GitHubRelease@1
         displayName: Release on Github
         inputs:
@@ -163,4 +163,3 @@ jobs:
             $(Pipeline.Workspace)/PublicResultsSetup/*
           assetUploadMode: "delete" # Optional. Options: delete, replace
           addChangeLog: false # Optional
-        
