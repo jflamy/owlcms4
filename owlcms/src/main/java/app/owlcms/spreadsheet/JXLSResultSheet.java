@@ -21,8 +21,6 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
-import app.owlcms.data.competition.Competition;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
