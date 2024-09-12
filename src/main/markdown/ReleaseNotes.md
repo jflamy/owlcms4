@@ -3,6 +3,9 @@
 > - This is an **alpha release**, used for validating new features.  *Some features are likely to be incomplete or non-functional*.  
 > - **Alpha releases are not normally used in actual competitions.** - It is always wise to export your current database before updating if it contains important data.
 
+- Children Categories Bar Rules
+  - Automatic use of 15kg bar for U11 and U13 categories is now under a feature flag `U13M_LightBar`.  This is the same as removing the 20kg bar for younger boys age groups.  If an athlete needs the 20kg bar, the "Non-Standard bar" feature can be used.
+
 - Support for Q-age Masters results
   - The default templates for Masters protocols, result sheets, and competition books now show the Q-age value in addition to the SM(H)F.
 
