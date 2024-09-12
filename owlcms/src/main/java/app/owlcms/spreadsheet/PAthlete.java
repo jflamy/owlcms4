@@ -140,7 +140,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public AgeGroup getAgeGroup() {
-		return this.p.getCategory().getAgeGroup();
+		return this.p != null ? this.p.getCategory().getAgeGroup() : null;
 	}
 
 	@Override
