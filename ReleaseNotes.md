@@ -5,6 +5,12 @@
 
 - Maintenance log
 
+  - 52.1.0
+    - Major Fix: Bar Loading Calculations
+      - Problem: The use of a 15kg bar instead of the 20kg bar for boys based on age groups had been wrongly implemented. This could lead to situations where it was not possible to reactive the 20kg bar.  The setting of a specific bar weight could also be affected.
+      - Kid groups, including mixed boys and girls sessions that use 5, 10 or 15kg bars can be handled manually by unselecting the 20kg bar for that session.
+      - A feature toggle `lightBarU13` achieves the same effect automatically for children groups where the lowest age is 12 or less (for example, U13, U11, U9).
+    - Further fix for running on computers running in languages for which there is no translation.  The default will now be English if the language is not explicitly set in the Language Settings.
   - 52.0.7
     - Fix: for locales (language+country) not supported, pages would open before the application was fully initialized and had switched back to English, leading to a "bundle not found" error.
     - Documentation update for feature toggles and environment variables
