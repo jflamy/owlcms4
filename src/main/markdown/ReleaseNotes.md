@@ -7,9 +7,9 @@
 
   - 52.1.0
     - Major Fix: Bar Loading Calculations
-      - Problem: Under some circumstances, if the 20kg bar became unselected on the "Plates, collars and barbell" page, it could not be reactivated.  The setting of a specific bar weight could also be affected. This was due to the automatic computation of the bar for children groups activating when it should not have.
-      - Children groups where all use 15kg bars (or lower) can be handled by unselecting the 20kg bar for that session.
-      - For children groups where the lowest age is 12 or less (for example, U13, U11, U9), the 20kg bar can be disabled automatically by using the feature toggle `lightBarU13` .
+      - Problem: Under some circumstances, if the 20kg bar became unselected on the "Plates, collars and barbell" page, it could not be reactivated. The setting of a specific bar weight could also be affected.
+      - Children groups where all use 15kg bars (or lower) are handled by unselecting the 20kg bar for that session.
+        - An equivalent automated setting is available for children groups where the lowest age is 12 or less (for example, U13, U11, U9).  If the feature toggle `lightBarU13` is present, the 20kg bar will be ignored in these groups.
     - Further fix for running on computers running in languages for which there is no translation.  The default will now be English if the language is not explicitly set in the Language Settings.
   - 52.0.7
     - Fix: for locales (language+country) not supported, pages would open before the application was fully initialized and had switched back to English, leading to a "bundle not found" error.
