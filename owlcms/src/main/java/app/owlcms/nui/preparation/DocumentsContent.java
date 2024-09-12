@@ -861,16 +861,12 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			        // schedule is currently a variation on starting list
 			        JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
 			        String tn = Competition.getCurrent().getScheduleTemplateFileName();
-			        
+
 			        xlsWriter.setPostProcessor((w) -> {
 				        if (xlsWriter.getFirstMergeLine() != null) {
 				        	logger.debug("merging {} {}", xlsWriter.getFirstMergeLine(), xlsWriter.getMergeColumnList());
 					        // merged columns
 					        fixMerges(w, xlsWriter.getFirstMergeLine(), xlsWriter.getMergeColumnList());
-					        fixLastLine(w);
-				        } else if (tn.contains("Schedule") && Config.getCurrent().featureSwitch("usawDocuments")) {
-				        	// backward compatibility
-					        fixMerges(w, 4, List.of(1, 2));
 					        fixLastLine(w);
 				        } else {
 					        // simple schedule with no nested merged columns
