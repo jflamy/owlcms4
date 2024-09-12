@@ -288,15 +288,12 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		applyButton.addClickListener((e) -> {
 			try {
 				binder.writeBean(this.platform);
-//				Platform fopPlatform = OwlcmsSession.getFop().getPlatform();
-//				this.platform.setNonStandardBar(fopPlatform.isNonStandardBar());
-//				this.platform.setNonStandardBarWeight(fopPlatform.getNonStandardBarWeight());
 				Platform np = PlatformRepository.save(this.platform);
-				logger.warn("np nsba={} {} ({}) {}",np.isNonStandardBarAvailable(),
-						np.getNonStandardBarWeight(), 
-						System.identityHashCode(this.platform),
-						this.platform.isNonStandardBarAvailable()
-						);
+//				logger.debug("np nsba={} {} ({}) {}",np.isNonStandardBarAvailable(),
+//						np.getNonStandardBarWeight(), 
+//						System.identityHashCode(this.platform),
+//						this.platform.isNonStandardBarAvailable()
+//						);
 				OwlcmsSession.withFop((fop) -> {
 					//logger.debug"after save, platform identity={}",System.identityHashCode(fop.getPlatform()));
 					platesDisplay.removeAll();

@@ -183,7 +183,7 @@ public class OwlcmsSession {
 		if (locale == null && currentUi != null) {
 			locale = currentUi.getLocale();
 			final var loc = locale;
-			logger.warn("browser locale = {}", locale);
+			logger.debug("browser locale = {}", locale);
 			// is Browser language supported
 			List<Locale> locales = Translator.getAvailableLocales();
 			boolean supported = locales.stream().anyMatch(l -> l.getLanguage().equals(loc.getLanguage()));
