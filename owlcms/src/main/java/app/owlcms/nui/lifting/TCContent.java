@@ -270,7 +270,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		});
 		binder.forField(useOtherBar).bind(Platform::isNonStandardBarAvailable, Platform::setNonStandardBarAvailable);
 
-		barWeight.setEnabled(this.platform.isNonStandardBar());
+		barWeight.setEnabled(this.platform.isNonStandardBarAvailable());
 		lightBar.addFormItem(barWeight, Translator.translate("BarWeight"));
 		int min = 1;
 		int max = 20;
@@ -288,11 +288,15 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		applyButton.addClickListener((e) -> {
 			try {
 				binder.writeBean(this.platform);
-				Platform fopPlatform = OwlcmsSession.getFop().getPlatform();
-				this.platform.setNonStandardBar(fopPlatform.isNonStandardBar());
-				this.platform.setNonStandardBarWeight(fopPlatform.getNonStandardBarWeight());
+//				Platform fopPlatform = OwlcmsSession.getFop().getPlatform();
+//				this.platform.setNonStandardBar(fopPlatform.isNonStandardBar());
+//				this.platform.setNonStandardBarWeight(fopPlatform.getNonStandardBarWeight());
 				Platform np = PlatformRepository.save(this.platform);
-				//logger.debug"np 5kg {} identity={}",np.getNbB_5(), System.identityHashCode(np));
+				logger.warn("np nsba={} {} ({}) {}",np.isNonStandardBarAvailable(),
+						np.getNonStandardBarWeight(), 
+						System.identityHashCode(this.platform),
+						this.platform.isNonStandardBarAvailable()
+						);
 				OwlcmsSession.withFop((fop) -> {
 					//logger.debug"after save, platform identity={}",System.identityHashCode(fop.getPlatform()));
 					platesDisplay.removeAll();
