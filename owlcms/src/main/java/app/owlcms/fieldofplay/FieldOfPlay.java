@@ -2916,6 +2916,7 @@ public class FieldOfPlay implements IUnregister {
 		if (getPlatform() == null) {
 			return;
 		}
+		boolean use15Bar = false;
 		if (Config.getCurrent().featureSwitch("childrenEquipment")) {
 			getPlatform().setNbB_5(1);
 			getPlatform().setNbB_10(1);
@@ -2923,38 +2924,37 @@ public class FieldOfPlay implements IUnregister {
 			getPlatform().setNbB_20(1);
 			getPlatform().setNbL_2_5(1);
 			getPlatform().setNbL_5(1);
-			checkNo20kg(a);
-		} else {
-			checkNo20kg(a);
 		}
+		boolean federationRule = Config.getCurrent().featureSwitch("lightBarU13") && (a.getAgeGroup().getMinAge() <= 12 && a.getAgeGroup().getMaxAge() <= 20);
+		use15Bar = getCurAthlete().getGender() != Gender.M || federationRule;
 
 		if (getPlatform().isNonStandardBarAvailable()) {
-			// logger.debug"non standard bar: {}");
+			logger.warn("non standard bar: {}", getPlatform().getNonStandardBarWeight());
 			this.setLightBarInUse(true);
 			this.setBarWeight(getPlatform().getNonStandardBarWeight());
-			this.setUseCollarsIfAvailable(false);
+			this.setUseCollarsIfAvailable(this.curWeight >= 40);
 		} else if (newWeight <= 14 && getPlatform().getNbB_5() > 0) {
-			// logger.debug"<= 14");
+			logger.warn("<= 14");
 			this.setLightBarInUse(true);
 			this.setBarWeight(5);
 			this.setUseCollarsIfAvailable(false);
 		} else if (newWeight <= 19 && getPlatform().getNbB_10() > 0) {
-			// logger.debug"<= 19");
+			logger.warn("<= 19");
 			this.setLightBarInUse(true);
 			this.setBarWeight(10);
 			this.setUseCollarsIfAvailable(false);
-		} else if ((newWeight <= 39 && getPlatform().getNbB_20() == 0) && (getPlatform().getNbB_15() > 0)) {
-			// logger.debug("<= 39 15");
+		} else if ((newWeight <= 39 && (getPlatform().getNbB_20() == 0 || use15Bar) && (getPlatform().getNbB_15() > 0))) {
+			logger.warn("<= 39 15");
 			this.setLightBarInUse(true);
 			this.setBarWeight(15);
 			this.setUseCollarsIfAvailable(false);
-		} else if ((newWeight >= 40 && getPlatform().getNbB_20() == 0) && (getPlatform().getNbB_15() > 0)) {
-			// logger.debug(">=40 15 collars");
+		} else if ((newWeight >= 40 && (getPlatform().getNbB_20() == 0 || use15Bar) && (getPlatform().getNbB_15() > 0))) {
+			logger.warn(">=40 15 collars");
 			this.setLightBarInUse(true);
 			this.setBarWeight(15);
 			this.setUseCollarsIfAvailable(true);
 		} else {
-			// logger.debug"standard");
+			logger.warn("standard");
 			this.setLightBarInUse(false);
 			Gender gender = curAthlete != null ? curAthlete.getGender() : null;
 			this.setBarWeight((gender != null && gender == Gender.M) ? 20 : 15);
@@ -2973,26 +2973,6 @@ public class FieldOfPlay implements IUnregister {
 
 	private void setLightBarInUse(boolean b) {
 		this.lightBarInUse = b;
-	}
-
-	private void checkNo20kg(Athlete a) {
-		// not completely mocked during unit tests.
-		if (a == null || a.getAgeGroup() == null || getPlatform() == null) {
-			if (getPlatform() != null) {
-				getPlatform().setNbB_20(1);
-			}
-			return;
-		}
-
-		// deal with Open categories vs Children Categories
-		if (a.getAgeGroup().getMinAge() <= 12 && a.getAgeGroup().getMaxAge() <= 25) {
-			// do not use 20kg bar for U9, U11, and 12-13 U13 
-			// if 13-15 uses 15kg for boys, this would have to be manually set.
-			getPlatform().setNbB_20(0);
-		} else {
-			// logger.debug("20kg available");
-			// getPlatform().setNbB_20(1);
-		}
 	}
 
 	private synchronized void uiShowDownSignalOnSlaveDisplays(Object origin2) {

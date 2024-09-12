@@ -485,14 +485,8 @@ public class Platform implements Serializable, Comparable<Platform> {
 		return 31;
 	}
 
-	@Transient
-	@JsonIgnore
-	public boolean isNonStandardBar() {
-		return this.nonStandardBar;
-	}
-
 	public Boolean isNonStandardBarAvailable() {
-		return this.nonStandardBarAvailable != null ? this.nonStandardBar : false;
+		return Boolean.TRUE.equals(nonStandardBarAvailable);
 	}
 
 	/**
@@ -500,10 +494,6 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 */
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public void setNonStandardBar(boolean nonStandardBar) {
-		this.nonStandardBar = nonStandardBar;
 	}
 
 	/**
@@ -651,6 +641,7 @@ public class Platform implements Serializable, Comparable<Platform> {
 	}
 
 	public void setNonStandardBarAvailable(Boolean nonStandardBarAvailable) {
+		logger.warn("nsba {} ({})",true, System.identityHashCode(this));
 		this.nonStandardBarAvailable = nonStandardBarAvailable;
 	}
 
