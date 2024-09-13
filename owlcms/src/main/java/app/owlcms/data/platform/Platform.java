@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.Cacheable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.vaadin.flow.server.VaadinSession;
 
@@ -138,9 +140,7 @@ public class Platform implements Serializable, Comparable<Platform> {
 	private Integer nbS_5 = 1;
 
 	// bars
-	private boolean nonStandardBar;
 	private Integer nonStandardBarWeight = 0;
-//	private Integer officialBar = 0;
 	private Integer nbB_5 = 0;
 	private Integer nbB_10 = 0;
 	private Integer nbB_15 = 1;
@@ -154,7 +154,10 @@ public class Platform implements Serializable, Comparable<Platform> {
 	 */
 	private Boolean showTimer = false;
 	private String soundMixerName;
-	private Boolean nonStandardBarAvailable = false;
+	
+	@Column(name="nonStandardBarAvailable")
+	@JsonProperty("nonStandardBarAvailable")
+	private Boolean useNonStandardBar = false;
 
 	/**
 	 * Instantiates a new platform. Used for import, no default values.
@@ -485,8 +488,12 @@ public class Platform implements Serializable, Comparable<Platform> {
 		return 31;
 	}
 
-	public Boolean isNonStandardBarAvailable() {
-		return Boolean.TRUE.equals(nonStandardBarAvailable);
+	public Boolean isUseNonStandardBar() {
+		return getUseNonStandardBar();
+	}
+	
+	public Boolean getUseNonStandardBar() {
+		return Boolean.TRUE.equals(useNonStandardBar);
 	}
 
 	/**
@@ -640,9 +647,9 @@ public class Platform implements Serializable, Comparable<Platform> {
 		this.nbS_5 = nbS_5;
 	}
 
-	public void setNonStandardBarAvailable(Boolean nonStandardBarAvailable) {
+	public void setUseNonStandardBar(Boolean nonStandardBarAvailable) {
 		logger.warn("nsba {} ({})",true, System.identityHashCode(this));
-		this.nonStandardBarAvailable = nonStandardBarAvailable;
+		this.useNonStandardBar = nonStandardBarAvailable;
 	}
 
 	/**

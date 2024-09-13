@@ -2928,7 +2928,7 @@ public class FieldOfPlay implements IUnregister {
 		boolean federationRule = Config.getCurrent().featureSwitch("lightBarU13") && (a.getAgeGroup().getMinAge() <= 12 && a.getAgeGroup().getMaxAge() <= 20);
 		use15Bar = getCurAthlete().getGender() != Gender.M || federationRule;
 
-		if (getPlatform().isNonStandardBarAvailable()) {
+		if (getPlatform().isUseNonStandardBar()) {
 			logger.warn("non standard bar: {}", getPlatform().getNonStandardBarWeight());
 			this.setLightBarInUse(true);
 			this.setBarWeight(getPlatform().getNonStandardBarWeight());
