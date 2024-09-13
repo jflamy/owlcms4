@@ -12,14 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.ss.usermodel.BorderStyle;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.util.CellRangeAddress;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.AttachEvent;
@@ -50,7 +42,6 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.Platform;
@@ -450,8 +441,6 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 			        // get current version of athletes.
 			        List<Athlete> athletesFindAll = athletesFindAll(true);
 			        startingXlsWriter.setSortedAthletes(athletesFindAll);
-
-			        String tn = Competition.getCurrent().getComputedStartListTemplateFileName();
 					startingXlsWriter.setPostProcessor(null);
 
 			        return startingXlsWriter;
@@ -561,65 +550,6 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-	}
-
-	private void fixMerges(Workbook workbook, Integer startRowNum, List<Integer> columns) {
-		Sheet sheet = workbook.getSheetAt(0);
-		int firstRow = 0;
-		boolean isMerging = false;
-		CellStyle style = null;
-
-		for (int colA : columns) {
-			isMerging = false;
-			firstRow = 0;
-			style = null;
-
-			int col = colA - 1;
-			for (Row row : sheet) {
-				Cell cell = row.getCell(col);
-				// logger.debug("cell {}{} {}", (char)('A'+col), row.getRowNum()+1, firstRow);
-				if (row.getRowNum() + 1 < startRowNum) {
-					// logger.debug("cellB {}{}",(char)('A'+col), row.getRowNum()+1);
-					continue;
-				}
-
-				if (cell != null && cell.getCellType() != CellType.BLANK) {
-					if (isMerging) {
-						logger.debug("**** {}{}: merging from {}{}", (char) ('A' + col), row.getRowNum() + 1,
-						        (char) ('A' + col), firstRow + 1);
-						CellRangeAddress region = new CellRangeAddress(firstRow, row.getRowNum() - 1, col, col);
-						sheet.addMergedRegion(region);
-						// Apply the captured style to the first cell of the merged region
-						Cell cell2 = sheet.getRow(firstRow).getCell(col);
-						style.setBorderBottom(BorderStyle.HAIR);
-						cell2.setCellStyle(style);
-						isMerging = false;
-
-						// start a new merge
-						logger.debug("**** {}{}: capturing style", (char) ('A' + col), row.getRowNum() + 1, isMerging);
-						firstRow = row.getRowNum();
-						style = cell.getCellStyle(); // capture the style
-						isMerging = true;
-					} else {
-						logger.debug("**** {}{}: capturing style", (char) ('A' + col), row.getRowNum() + 1, isMerging);
-						firstRow = row.getRowNum();
-						style = cell.getCellStyle(); // capture the style
-						isMerging = true;
-					}
-				}
-			}
-			// Merge the last region if the last cell(s) is/are non-empty
-			if (isMerging) {
-				logger.debug("**** {}{}: merging bottom from {}{}", (char) ('A' + col), sheet.getLastRowNum() + 1,
-				        (char) ('A' + col), firstRow + 1);
-				CellRangeAddress region = new CellRangeAddress(firstRow, sheet.getLastRowNum(), col, col);
-				sheet.addMergedRegion(region);
-				Cell cell22 = sheet.getRow(firstRow).getCell(col);
-				style.setBorderBottom(BorderStyle.HAIR);
-				cell22.setCellStyle(style);
-			}
-		}
-		return;
 	}
 
 }

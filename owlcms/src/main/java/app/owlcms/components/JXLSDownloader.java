@@ -154,7 +154,6 @@ public class JXLSDownloader {
 	}
 
 	/**
-	 * @deprecated
 	 * Deprecated because the time stamp in the file name is determined when the download button
 	 * is created, and not when the file is downloaded.
 	 * 
@@ -163,7 +162,8 @@ public class JXLSDownloader {
 	 * @param tooltipText
 	 * @return
 	 */
-	@Deprecated
+	//@Deprecated
+	//TODO remove use of createImmediateDownloadButton
 	public Anchor createImmediateDownloadButton(String... tooltipText) {
 		this.xlsWriter = this.streamSourceSupplier.get();
 		Supplier<String> supplier = () -> getTargetFileName();

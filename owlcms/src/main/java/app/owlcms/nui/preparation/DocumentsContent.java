@@ -79,7 +79,6 @@ import app.owlcms.data.athleteSort.RegistrationOrderComparator;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.Platform;
@@ -860,8 +859,6 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        (a, ignored) -> {
 			        // schedule is currently a variation on starting list
 			        JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
-			        String tn = Competition.getCurrent().getScheduleTemplateFileName();
-
 			        xlsWriter.setPostProcessor((w) -> {
 				        if (xlsWriter.getFirstMergeLine() != null) {
 				        	logger.debug("merging {} {}", xlsWriter.getFirstMergeLine(), xlsWriter.getMergeColumnList());

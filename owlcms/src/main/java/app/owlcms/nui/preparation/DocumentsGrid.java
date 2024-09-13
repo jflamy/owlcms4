@@ -34,58 +34,12 @@ final class DocumentsGrid extends OwlcmsCrudGrid<Group> {
 		// We do not use a selection listener; instead we handle clicks explicitely.
 		// grid.addSelectionListener(e -> gridSelectionChanged());
 		this.grid.addItemClickListener((e) -> {
-//			Column<Group> c = e.getColumn();
-//			if (c == null) {
-//				return;
-//			}
-//			if (!this.isClickable()) {
-//				return;
-//			}
-//			long delta = System.currentTimeMillis() - this.clicked;
-//			if (delta > DOUBLE_CLICK_MS_DELTA) {
-//				this.grid.select(e.getItem());
-//				gridSelectionChanged(e.getItem());
-//			}
-//			this.clicked = System.currentTimeMillis();
 		});
 		this.grid.addItemDoubleClickListener((e) -> {
 		});
 
 		this.crudLayout.setMainComponent(this.grid);
 	}
-
-//	private void gridSelectionChanged(Group item) {
-//		updateButtons();
-//		Group domainObject = item;
-//
-//		if (domainObject != null) {
-//			updateButtonClicked(item);
-//		} else {
-//			crudLayout.hideForm();
-//		}
-//	}
-
-//	private void updateButtonClicked(Group domainObject) {
-//		showForm(CrudOperation.UPDATE, domainObject, false, savedMessage, event -> {
-//			try {
-//				Group updatedObject = updateOperation.perform(domainObject);
-//				grid.asSingleSelect().clear();
-//				refreshGrid();
-//				grid.asSingleSelect().setValue(updatedObject);
-//				grid.deselect(updatedObject);
-//				showNotification(savedMessage);
-//				// TODO: grid.scrollTo(updatedObject);
-//			} catch (IllegalArgumentException ignore) {
-//			} catch (CrudOperationException e1) {
-//				refreshGrid();
-//				showNotification(e1.getMessage());
-//				throw e1;
-//			} catch (Exception e2) {
-//				refreshGrid();
-//				throw e2;
-//			}
-//		});
-//	}
 
 	@Override
 	protected void findAllButtonClicked() {

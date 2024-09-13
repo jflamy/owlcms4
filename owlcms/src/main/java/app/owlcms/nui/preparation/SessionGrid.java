@@ -78,7 +78,6 @@ final class SessionGrid extends OwlcmsCrudGrid<Group> {
 				grid.asSingleSelect().setValue(updatedObject);
 				grid.deselect(updatedObject);
 				showNotification(savedMessage);
-				// TODO: grid.scrollTo(updatedObject);
 			} catch (IllegalArgumentException ignore) {
 			} catch (CrudOperationException e1) {
 				refreshGrid();
