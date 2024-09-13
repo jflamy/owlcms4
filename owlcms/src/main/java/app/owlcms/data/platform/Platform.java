@@ -155,6 +155,12 @@ public class Platform implements Serializable, Comparable<Platform> {
 	private Boolean showTimer = false;
 	private String soundMixerName;
 	
+	// nonStandardBar needed for backward compatibility (old column is present in imports)
+	@SuppressWarnings("unused")
+	@JsonIgnore
+	private Boolean nonStandardBar = false;
+	
+	// unfortunate choice of name in old code base, needed for imports to work.
 	@Column(name="nonStandardBarAvailable")
 	@JsonProperty("nonStandardBarAvailable")
 	private Boolean useNonStandardBar = false;
