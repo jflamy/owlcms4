@@ -654,7 +654,7 @@ public class Platform implements Serializable, Comparable<Platform> {
 	}
 
 	public void setUseNonStandardBar(Boolean nonStandardBarAvailable) {
-		logger.warn("nsba {} ({})",true, System.identityHashCode(this));
+		logger.debug("nsba {} ({})",true, System.identityHashCode(this));
 		this.useNonStandardBar = nonStandardBarAvailable;
 	}
 

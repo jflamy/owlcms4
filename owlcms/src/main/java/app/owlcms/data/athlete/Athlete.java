@@ -70,6 +70,7 @@ import app.owlcms.fieldofplay.LiftOrderInfo;
 import app.owlcms.fieldofplay.LiftOrderReconstruction;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import app.owlcms.spreadsheet.RAthlete;
 import app.owlcms.utils.DateTimeUtils;
 import app.owlcms.utils.IdUtils;
@@ -980,13 +981,19 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public int getBestLifterRank() {
-		return Ranking.getRanking(this, Competition.getCurrent().getScoringSystem());
+		// if we are invoked from a printing thread, the value will be defined.
+		Ranking scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingSystem();
+		scoringSystem = scoringSystem != null ? scoringSystem : Competition.getCurrent().getScoringSystem();
+		return Ranking.getRanking(this, scoringSystem);
 	}
 
 	@Transient
 	@JsonIgnore
 	public Double getBestLifterScore() {
-		return Ranking.getRankingValue(this, Competition.getCurrent().getScoringSystem());
+		// if we are invoked from a printing thread, the value will be defined.
+		Ranking scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingSystem();
+		scoringSystem = scoringSystem != null ? scoringSystem : Competition.getCurrent().getScoringSystem();
+		return Ranking.getRankingValue(this, scoringSystem);
 	}
 
 	/**

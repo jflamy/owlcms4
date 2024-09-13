@@ -54,6 +54,7 @@ import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
@@ -79,11 +80,22 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSWorkbookStreamSource.class);
 	final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
+	private static ThreadLocal<Ranking> bestLifterRankingSystem = InheritableThreadLocal.withInitial(() -> null);
+	
 	static {
 		logger.setLevel(Level.INFO);
 		jexlLogger.setLevel(Level.ERROR);
 		tagLogger.setLevel(Level.ERROR);
 	}
+	public static Ranking getBestLifterRankingSystem() {
+		return bestLifterRankingSystem.get();
+	}
+
+	public static void setBestLifterRanking(Ranking bestLifterRankingValue) {
+		logger.debug("**** setting {}",bestLifterRankingValue);
+		bestLifterRankingSystem.set(bestLifterRankingValue);
+	}
+
 	protected List<Athlete> sortedAthletes;
 	private Championship championship;
 	private String ageGroupPrefix;
@@ -115,6 +127,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	public void accept(OutputStream stream, VaadinSession session) throws IOException {
 		try {
 			session.lock();
+			logger.debug("*** getting {}",getBestLifterRankingSystem());
 			writeStream(stream);
 		} catch (Throwable t) {
 			logger.error(LoggerUtils./**/stackTrace(t));

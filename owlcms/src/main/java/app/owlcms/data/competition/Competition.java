@@ -451,9 +451,10 @@ public class Competition {
 			doReporting(nodupAthletes, Ranking.BW_SINCLAIR, true);
 			doReporting(nodupAthletes, Ranking.SMM, true);
 			doReporting(nodupAthletes, Ranking.QPOINTS, true);
-			doReporting(nodupAthletes, Ranking.QAGE, true);
+			doReporting(nodupAthletes, Ranking.QAGE, true); // Q-masters
 			doReporting(nodupAthletes, Ranking.CAT_SINCLAIR, true);
 			doReporting(nodupAthletes, Ranking.GAMX, true);
+			doReporting(nodupAthletes, Ranking.AGEFACTORS, true);  // Q-youth
 			// long afterReporting = System.currentTimeMillis();
 			// logger.debug("------------------------- full reporting {}ms", afterReporting - beforeReporting);
 		}
@@ -940,11 +941,6 @@ public class Competition {
 	public Integer getWomensBestN() {
 		return this.womensBestN;
 	}
-
-	// public void globalRankings() {
-	// List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, true);
-	// doGlobalRankings(athletes);
-	// }
 
 	public void scoringSystemRankings(EntityManager em) {
 		// long beforeFindAll = System.currentTimeMillis();
@@ -1446,6 +1442,7 @@ public class Competition {
 	}
 
 	private void clearTeamReportingBeans(String suffix) {
+		suffix = suffix != null ? suffix : "";
 		getOrCreateBean("mCombined" + suffix).clear();
 		getOrCreateBean("wCombined" + suffix).clear();
 		getOrCreateBean("mwCombined" + suffix).clear();
@@ -1559,7 +1556,8 @@ public class Competition {
 		// needed.
 		// substitutes are not included -- they should be marked as
 		// !isEligibleForTeamRanking
-
+		suffix = suffix != null ? suffix : "";
+		
 		List<Athlete> sortedAthletes;
 		List<Athlete> sortedMen = new ArrayList<>();
 		List<Athlete> sortedWomen = new ArrayList<>();
@@ -1765,65 +1763,67 @@ public class Competition {
 		}
 		List<String> agePrefixes = AgeGroupRepository.findActiveAndUsedAgeGroupNames(ad);
 
+		String adName = ad.getName();
+		adName = adName != null ? adName : "";
 		for (String curAGPrefix : agePrefixes) {
 			List<Athlete> athletes = AgeGroupRepository.allPAthletesForAgeGroup(curAGPrefix);
-			doTeamRankings(athletes, ad.getName(), false);
+			doTeamRankings(athletes, adName, false);
 		}
 
 		List<Athlete> sortedAthletes;
 		List<Athlete> sortedMen;
 		List<Athlete> sortedWomen;
 
-		sortedMen = getOrCreateBean("mTeam" + ad.getName());
-		sortedWomen = getOrCreateBean("wTeam" + ad.getName());
-		sortedAthletes = getOrCreateBean("mwTeam" + ad.getName());
+		sortedMen = getOrCreateBean("mTeam" + adName);
+		sortedWomen = getOrCreateBean("wTeam" + adName);
+		sortedAthletes = getOrCreateBean("mwTeam" + adName);
 		AthleteSorter.teamPointsOrder(sortedMen, Ranking.TOTAL);
 		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.TOTAL);
 		AthleteSorter.teamPointsOrder(sortedAthletes, Ranking.TOTAL);
 
 		reportTeams(sortedAthletes, sortedMen, sortedWomen);
 
-		sortedMen = getOrCreateBean("mCombined" + ad.getName());
-		sortedWomen = getOrCreateBean("wCombined" + ad.getName());
-		sortedAthletes = getOrCreateBean("mwCombined" + ad.getName());
+		sortedMen = getOrCreateBean("mCombined" + adName);
+		sortedWomen = getOrCreateBean("wCombined" + adName);
+		sortedAthletes = getOrCreateBean("mwCombined" + adName);
 		AthleteSorter.teamPointsOrder(sortedMen, Ranking.SNATCH_CJ_TOTAL);
 		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.SNATCH_CJ_TOTAL);
 		AthleteSorter.teamPointsOrder(sortedAthletes, Ranking.SNATCH_CJ_TOTAL);
 
 		reportCombined(sortedAthletes, sortedMen, sortedWomen);
 
-		sortedMen = getOrCreateBean("mCustom" + ad.getName());
-		sortedWomen = getOrCreateBean("wCustom" + ad.getName());
-		sortedAthletes = getOrCreateBean("mwCustom" + ad.getName());
+		sortedMen = getOrCreateBean("mCustom" + adName);
+		sortedWomen = getOrCreateBean("wCustom" + adName);
+		sortedAthletes = getOrCreateBean("mwCustom" + adName);
 		AthleteSorter.teamPointsOrder(sortedMen, Ranking.CUSTOM);
 		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.CUSTOM);
 		AthleteSorter.teamPointsOrder(sortedAthletes, Ranking.CUSTOM);
 
 		reportCustom(sortedAthletes, sortedMen, sortedWomen);
 
-		sortedMen = getOrCreateBean("mTeamSinclair" + ad.getName());
-		sortedWomen = getOrCreateBean("wTeamSinclair" + ad.getName());
+		sortedMen = getOrCreateBean("mTeamSinclair" + adName);
+		sortedWomen = getOrCreateBean("wTeamSinclair" + adName);
 		AthleteSorter.teamPointsOrder(sortedMen, Ranking.BW_SINCLAIR);
 		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.BW_SINCLAIR);
 
 		reportSinclair(sortedMen, sortedWomen);
 
-		sortedMen = getOrCreateBean("mTeamSMF" + ad.getName());
-		sortedWomen = getOrCreateBean("wTeamSMF" + ad.getName());
+		sortedMen = getOrCreateBean("mTeamSMF" + adName);
+		sortedWomen = getOrCreateBean("wTeamSMF" + adName);
 		AthleteSorter.teamPointsOrder(sortedMen, Ranking.SMM);
 		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.SMM);
 
 		reportSMF(sortedMen, sortedWomen);
 		
-		sortedMen = getOrCreateBean("mTeamQPoints" + ad.getName());
-		sortedWomen = getOrCreateBean("wTeamQPoints" + ad.getName());
+		sortedMen = getOrCreateBean("mTeamQPoints" + adName);
+		sortedWomen = getOrCreateBean("wTeamQPoints" + adName);
 		AthleteSorter.teamPointsOrder(sortedMen, Ranking.QPOINTS);
 		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.QPOINTS);
 
 		reportQPoints(sortedMen, sortedWomen);
 
-		sortedMen = getOrCreateBean("mTeamQAge" + ad.getName());
-		sortedWomen = getOrCreateBean("wTeamQAge" + ad.getName());
+		sortedMen = getOrCreateBean("mTeamQAge" + adName);
+		sortedWomen = getOrCreateBean("wTeamQAge" + adName);
 		AthleteSorter.teamPointsOrder(sortedMen, Ranking.QAGE);
 		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.QAGE);
 

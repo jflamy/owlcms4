@@ -68,6 +68,7 @@ import app.owlcms.nui.shared.AthleteGridContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCompetitionBook;
 import app.owlcms.spreadsheet.JXLSWinningSheet;
+import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -630,6 +631,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        rs.setChampionship(this.championship);
 			        rs.setAgeGroupPrefix(this.ageGroupPrefix);
 			        rs.setCategory(this.categoryValue);
+			        JXLSWorkbookStreamSource.setBestLifterRanking(computeScoringSystem());
 			        rs.setIncludeUnfinished(Boolean.TRUE.equals(this.includeUnfinishedCategories.getValue()));
 			        return rs;
 		        },

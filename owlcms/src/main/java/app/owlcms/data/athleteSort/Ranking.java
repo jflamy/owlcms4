@@ -26,7 +26,7 @@ public enum Ranking {
 	ROBI("Robi"), // IWF ROBI
 	QPOINTS("QPoints"), // Huebner QPoints.
 	GAMX("GAMX"), // Global Adjusted Mixed (Huebner)
-	AGEFACTORS("ageFactors"),
+	AGEFACTORS("QYouth"),
 	QAGE("QAge") // QPoints * SMHF age factors
 	;
 	

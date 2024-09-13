@@ -33,14 +33,13 @@ import net.sf.jxls.transformer.XLSTransformer;
  *
  */
 public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
-
-	private static final long serialVersionUID = 1L;
+	
+    private static final long serialVersionUID = 1L;
 	private Championship ageDivision;
 	private String ageGroupPrefix;
 	@SuppressWarnings("unused")
 	private Logger logger = LoggerFactory.getLogger(JXLSCompetitionBook.class);
 	private boolean isIncludeUnfinished;
-	private Ranking bestLifterRanking; 
 
 	public JXLSCompetitionBook(boolean excludeNotWeighed, UI ui) {
 	}
@@ -105,21 +104,6 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 	@Override
 	protected void postProcess(Workbook workbook) {
 		super.postProcess(workbook);
-//		@SuppressWarnings("unchecked")
-//		int nbClubs = ((Set<String>) getReportingBeans().get("clubs")).size();
-
-//		setTeamSheetPrintArea(workbook, "MT", nbClubs);
-//		setTeamSheetPrintArea(workbook, "WT", nbClubs);
-//		setTeamSheetPrintArea(workbook, "MWT", nbClubs);
-//
-//		setTeamSheetPrintArea(workbook, "MXT", nbClubs);
-//		setTeamSheetPrintArea(workbook, "WXT", nbClubs);
-//		setTeamSheetPrintArea(workbook, "MWXT", nbClubs);
-//
-//		setTeamSheetPrintArea(workbook, "MCT", nbClubs);
-//		setTeamSheetPrintArea(workbook, "WCT", nbClubs);
-//		setTeamSheetPrintArea(workbook, "MWCT", nbClubs);
-
 		translateSheets(workbook);
 		workbook.setForceFormulaRecalculation(true);
 	}
@@ -137,6 +121,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 		// remove athletes from incomplete categories
 		if (!isIncludeUnfinished()) {
 			for (String k : reportingBeans.keySet()) {
+				logger.debug("bean {}",k);
 				Object bean = reportingBeans.get(k);
 				if (bean instanceof List && ((List) bean).size() > 0 && ((List) bean).get(0) instanceof Athlete) {
 					logger.debug("cleaning up {}", k);
@@ -149,16 +134,14 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 		}
 
 		reportingBeans.put("records", records);
+
+		Ranking blrs = JXLSWorkbookStreamSource.getBestLifterRankingSystem();
+		logger.info("getBestLifterRankingSystem {} {}",blrs, blrs.getMReportingName());
+		reportingBeans.put("bestRankingTitle",Ranking.getScoringTitle(getBestLifterRankingSystem()));
+		reportingBeans.put("mBest", reportingBeans.get(blrs.getMReportingName()));
+		reportingBeans.put("wBest", reportingBeans.get(blrs.getWReportingName()));
 		setReportingBeans(reportingBeans);
 	}
-
-//	private void setTeamSheetPrintArea(Workbook workbook, String sheetName, int nbClubs) {
-//		int sheetIndex = workbook.getSheetIndex(sheetName);
-//		if (sheetIndex >= 0) {
-//			workbook.setPrintArea(sheetIndex, 0, 4, TEAMSHEET_FIRST_ROW,
-//			        TEAMSHEET_FIRST_ROW + nbClubs);
-//		}
-//	}
 
 	/**
 	 * jxls does not translate sheet names and header/footers.
@@ -226,14 +209,6 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
 	public void setIncludeUnfinished(boolean isIncludeUnifinished) {
 		this.isIncludeUnfinished = isIncludeUnifinished;
-	}
-
-	public Ranking getBestLifterRanking() {
-		return bestLifterRanking;
-	}
-
-	public void setBestLifterRanking(Ranking bestLifterRanking) {
-		this.bestLifterRanking = bestLifterRanking;
 	}
 
 }
