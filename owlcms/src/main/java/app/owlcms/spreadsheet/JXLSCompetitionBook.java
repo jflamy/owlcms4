@@ -20,6 +20,7 @@ import com.vaadin.flow.component.UI;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -39,6 +40,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 	@SuppressWarnings("unused")
 	private Logger logger = LoggerFactory.getLogger(JXLSCompetitionBook.class);
 	private boolean isIncludeUnfinished;
+	private Ranking bestLifterRanking; 
 
 	public JXLSCompetitionBook(boolean excludeNotWeighed, UI ui) {
 	}
@@ -224,6 +226,14 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
 	public void setIncludeUnfinished(boolean isIncludeUnifinished) {
 		this.isIncludeUnfinished = isIncludeUnifinished;
+	}
+
+	public Ranking getBestLifterRanking() {
+		return bestLifterRanking;
+	}
+
+	public void setBestLifterRanking(Ranking bestLifterRanking) {
+		this.bestLifterRanking = bestLifterRanking;
 	}
 
 }

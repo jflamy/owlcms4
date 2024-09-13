@@ -76,6 +76,7 @@ public interface IFilterCascade {
 				return i == Gender.M ? Translator.translate("Gender.Men") : Translator.translate("Gender.Women");
 			});
 			this.getGenderFilter().setClearButtonVisible(true);
+			this.getGenderFilter().setValue(getGender());
 			this.getGenderFilter().addValueChangeListener(e -> {
 				this.setGender(e.getValue());
 				crud.refreshGrid();

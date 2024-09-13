@@ -91,9 +91,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		jexlLogger.setLevel(Level.ERROR);
 	}
 
-	public static Grid<Athlete> createResultGrid() {
-		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
-
+	public static Grid<Athlete> createResultGrid(Ranking scoringSystem) {
 		Grid<Athlete> grid = new Grid<>(Athlete.class, false);
 		grid.getThemeNames().add("row-stripes");
 		ThemeList themes = grid.getThemeNames();
@@ -180,7 +178,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 	 */
 	@Override
 	public AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
-		Grid<Athlete> grid = createResultGrid();
+		Grid<Athlete> grid = createResultGrid(Competition.getCurrent().getScoringSystem());
 
 		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
 		AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class, gridLayout, crudFormFactory, grid) {

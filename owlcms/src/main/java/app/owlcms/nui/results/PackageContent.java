@@ -51,6 +51,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
@@ -102,6 +103,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	private Category category;
 	private Gender gender;
 	private Checkbox includeUnfinishedCategories;
+	private ComboBox<Ranking> rankingSelector;
+	private Ranking scoringSystem;
 
 	/**
 	 * Instantiates a new announcer content. Does nothing. Content is created in
@@ -421,7 +424,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	 */
 	@Override
 	protected AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
-		Grid<Athlete> grid = ResultsContent.createResultGrid();
+		Ranking scoringSystem = computeScoringSystem();
+		Grid<Athlete> grid = ResultsContent.createResultGrid(scoringSystem);
 
 		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
 		AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class, gridLayout, crudFormFactory, grid) {
@@ -451,6 +455,10 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		crudGrid.getCrudLayout().addToolbarComponent(getGroupFilter());
 
 		return crudGrid;
+	}
+
+	private Ranking computeScoringSystem() {
+		return getScoringSystem() != null ? getScoringSystem() : Competition.getCurrent().getScoringSystem();
 	}
 
 	/**
@@ -483,7 +491,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		defineFilterCascade(crud);
 		includeUnfinishedCategories = new Checkbox(Translator.translate("Video.includeNotCompleted"));
 		getCrudLayout(crud).addFilterComponent(includeUnfinishedCategories);
-		defineSelectionListeners();
+		defineSelectionListeners();		
+		
 		this.includeUnfinishedCategories.addValueChangeListener(e -> crud.refreshGrid());
 		Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
 		clearFilters.addClickListener(event -> {
@@ -492,6 +501,50 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		});
 
 		getCrudLayout(crud).addFilterComponent(clearFilters);
+		
+		if (this.getRankingSelector() == null) {
+			ComboBox<Ranking> scoringCombo = new ComboBox<>();
+			scoringCombo.setItems(Ranking.scoringSystems());
+			scoringCombo.setItemLabelGenerator(r -> Ranking.getScoringTitle(r));
+			this.setRankingSelector(scoringCombo);
+			getCrudLayout(crud).addFilterComponent(scoringCombo);
+			scoringCombo.setValue(computeScoringSystem());
+			scoringCombo.addValueChangeListener(event -> {
+				if (!event.isFromClient()) {
+					return;
+				}
+				setScoringSystem(event.getValue());
+				resetGrid();
+			});
+		}
+
+		this.getCategoryFilter().setClearButtonVisible(true);
+		this.getCategoryFilter().setPlaceholder(Translator.translate("Category"));
+		this.getCategoryFilter().setClearButtonVisible(true);
+		this.getCategoryFilter().setWidth("10em");
+	}
+
+	private void resetGrid() {
+		// we cannot just reset the data provider because we are changing columns.
+		// brute-force way to recompute the grid layout without reloading the page.
+		var g = this.getCrudGrid().getCrudLayout();
+		var parent = ((Component) g).getParent().get();
+		parent.getChildren().forEach(c -> c.removeFromParent());
+		parent.removeFromParent();
+		this.setChampionshipFilter(null);
+		this.setAgeGroupFilter(null);
+		this.setCategoryFilter(null);
+		this.setRankingSelector(null);
+		this.setGenderFilter(null);
+		init();
+	}
+
+	private void setScoringSystem(Ranking value) {
+		scoringSystem = value;
+	}
+
+	private ComboBox<Ranking> getRankingSelector() {
+		return rankingSelector;
 	}
 
 	/**
@@ -614,6 +667,14 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
 	private void highlight(Button button) {
 		button.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
+	}
+
+	public void setRankingSelector(ComboBox<Ranking> rankingSelector) {
+		this.rankingSelector = rankingSelector;
+	}
+
+	public Ranking getScoringSystem() {
+		return scoringSystem;
 	}
 
 }
