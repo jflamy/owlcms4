@@ -133,7 +133,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		grid.addColumn(new NumberRenderer<>(a -> Ranking.getRankingValue(a, scoringSystem), "%.2f",
 		        OwlcmsSession.getLocale(), "0.00"))
 		        .setSortProperty("score").setHeader(Translator.translate("Ranking." + scoringSystem))
-		        .setComparator(new WinningOrderComparator(Ranking.QPOINTS, true));
+		        .setComparator(new WinningOrderComparator(scoringSystem, true));
 
 		if (scoringSystem != Ranking.BW_SINCLAIR) {
 			grid.addColumn(
