@@ -204,7 +204,10 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 		if (this.resultsByCategory) {
 			pAthletes = new ArrayList<>(rankedAthletes.size() * 2);
 			for (Athlete a : rankedAthletes) {
-				Athlete pa = ((PAthlete) a)._getAthlete();
+				Athlete pa = a;
+				if (a instanceof PAthlete) {
+					pa = ((PAthlete) a)._getAthlete();
+				}
 				for (Participation p : pa.getParticipations()) {
 					PAthlete e = new PAthlete(p);
 					// logger.debug("adding {} {}", e.getFullName(), e.getCategory());
