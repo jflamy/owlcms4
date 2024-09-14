@@ -62,6 +62,10 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 				// we to complete all the athletes with their participations, before filtering.
 				logger.debug("YYYYYYYYYYYY category athletes");
 				this.sortedAthletes = mapToParticipations(this.sortedAthletes);
+
+				// if there are age group-specific scoring systems, this can be different than the total
+				// usual ordering.
+				logger.warn("ranking order {}", rankingOrder());
 				logger.debug("eligible getSortedAthletes {}", this.sortedAthletes.size());
 				AthleteSorter.resultsOrder(this.sortedAthletes, rankingOrder(), false);
 				logger.debug("eligible getSortedAthletes {}", this.sortedAthletes.size());
@@ -219,11 +223,13 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 					pAthletes.add(e);
 				}
 			}
-			AthleteSorter.resultsOrder(pAthletes, Ranking.TOTAL, false);
-			for (int i = 0; i++< 10; ) {
-				Athlete ath = pAthletes.get(i);
-				logger.warn("mapToParticipations {} {} {} {}", ath.getTotalRank(), ath.getFullName(), ath.getCategory(), ath.getTotal());
-			}
+			// This checks that the logic is correct. Results will be sorted again
+			// to take into account the fact that there can be age-group specific rules.
+			// AthleteSorter.resultsOrder(pAthletes, Ranking.TOTAL, false);
+			// for (int i = 0; i++< 10; ) {
+			// Athlete ath = pAthletes.get(i);
+			// logger.warn("mapToParticipations {} {} {} {}", ath.getTotalRank(), ath.getFullName(), ath.getCategory(), ath.getTotal());
+			// }
 		} else {
 			// we sometimes get pAthletes and but here we need the wrapped athlete.
 			pAthletes = rankedAthletes.stream()
