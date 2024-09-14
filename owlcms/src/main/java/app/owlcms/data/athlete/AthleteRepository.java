@@ -531,6 +531,8 @@ public class AthleteRepository {
 		return unfinishedCategories;
 	}
 	
+	public static Set<String> allUnfinishedCategories;
+	
 	public static Set<String> allUnfinishedCategories() {
 		Set<String> unfinishedCategories = new HashSet<>();
 		List<Athlete> ranked = findAll();
@@ -546,7 +548,20 @@ public class AthleteRepository {
 				}
 			}
 		}
-		//logger.debug("unfinishedCategories2 {}",unfinishedCategories);
+		logger.debug("unfinishedCategories2 {}",unfinishedCategories);
+		setAllUnfinishedCategories(unfinishedCategories);
 		return unfinishedCategories;
 	}
+
+	public static Set<String> getAllUnfinishedCategories() {
+		if (allUnfinishedCategories == null) {
+			allUnfinishedCategories();
+		}
+		return allUnfinishedCategories;
+	}
+
+	public static void setAllUnfinishedCategories(Set<String> allUnfinishedCategories) {
+		AthleteRepository.allUnfinishedCategories = allUnfinishedCategories;
+	}
+	
 }

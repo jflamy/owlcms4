@@ -170,7 +170,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		@SuppressWarnings("unchecked")
 		List<Athlete> ranked = (List<Athlete>) beans.get(key);
 		
-		
 		boolean allCategories = Boolean.TRUE.equals(this.includeUnfinishedCategories.getValue());
 		// unfinished categories need to be computed using all relevant athletes, including not weighed-in yet
 		@SuppressWarnings("unchecked")
@@ -193,14 +192,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			                ;
 			        return catOk;
 		        })
-				.map(a -> {
-					if (a.getCategory() != null && unfinishedCategories.contains(a.getCategory().getCode())) {
-						a.setCategoryFinished(false);
-					} else {
-						a.setCategoryFinished(true);
-					}
-					return a;
-				})
 		        //.peek(r -> logger.debug("including {} {}",r, r.getCategory().getCode()))
 		        ;
 		List<Athlete> found = stream.collect(Collectors.toList());

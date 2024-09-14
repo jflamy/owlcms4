@@ -1151,13 +1151,15 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Boolean getCategoryFinished() {
-		return this.categoryFinished;
+		var allUnfinished = AthleteRepository.getAllUnfinishedCategories();
+		String code = this.getCategory() != null ? this.getCategory().getCode() : null;
+		return code != null ? allUnfinished.contains(code) : false;
 	}
 
 	@Transient
 	@JsonIgnore
 	public Boolean isCategoryFinished() {
-		return this.categoryFinished;
+		return getCategoryFinished();
 	}
 
 	/**
@@ -3309,10 +3311,7 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public void setCategoryFinished(Boolean done) {
-		if (done == null) {
-			done = false;
-		}
-		this.categoryFinished = done;
+		// no-op, computed.
 	}
 
 	public void setCatSinclairRank(int i) {

@@ -56,22 +56,22 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 	@Override
 	public List<Athlete> getSortedAthletes() {
 		if (this.sortedAthletes != null) {
-			logger.debug("YYYYYYYYYYYY sorted athletes");
+			// logger.debug("YYYYYYYYYYYY sorted athletes {}",LoggerUtils.whereFrom());
 			// we are provided with an externally computed list.
 			if (this.resultsByCategory) {
 				// we to complete all the athletes with their participations, before filtering.
-				logger.debug("YYYYYYYYYYYY category athletes");
+				// logger.debug("YYYYYYYYYYYY category athletes");
 				this.sortedAthletes = mapToParticipations(this.sortedAthletes);
 
 				// if there are age group-specific scoring systems, this can be different than the total
 				// usual ordering.
-				logger.warn("ranking order {}", rankingOrder());
+				// logger.debug("YYYYYYYYYYYY ranking order {}", rankingOrder());
 				logger.debug("eligible getSortedAthletes {}", this.sortedAthletes.size());
 				AthleteSorter.resultsOrder(this.sortedAthletes, rankingOrder(), false);
-				logger.debug("eligible getSortedAthletes {}", this.sortedAthletes.size());
+				// logger.debug("YYYYYYYYYYYY eligible getSortedAthletes {}", this.sortedAthletes.size());
 				return this.sortedAthletes;
 			} else {
-				logger.debug("YYYYYYYYYYYY unique athletes");
+				// logger.debug("YYYYYYYYYYYY unique athletes");
 				// we need to expand all the participations before we filter down.
 				List<Athlete> allParticipations = mapToParticipations(this.sortedAthletes);
 
@@ -204,7 +204,6 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 	}
 
 	public List<Athlete> mapToParticipations(List<Athlete> rankedAthletes) {
-		Set<String> unfinishedCategories = AthleteRepository.allUnfinishedCategories();
 		List<Athlete> pAthletes;
 		if (this.resultsByCategory) {
 			pAthletes = new ArrayList<>(rankedAthletes.size() * 2);
@@ -215,26 +214,15 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 				}
 				for (Participation p : pa.getParticipations()) {
 					PAthlete e = new PAthlete(p);
-					if (a.getCategory() != null && unfinishedCategories.contains(a.getCategory().getCode())) {
-						e.setCategoryFinished(false);
-					} else {
-						e.setCategoryFinished(true);
-					}
+					// logger.debug("pa {} participation {} paCat {}", pa.getFullName(), p.getCategory().getCode(), e.getCategory().getCode());
 					pAthletes.add(e);
 				}
 			}
-			// This checks that the logic is correct. Results will be sorted again
-			// to take into account the fact that there can be age-group specific rules.
-			// AthleteSorter.resultsOrder(pAthletes, Ranking.TOTAL, false);
-			// for (int i = 0; i++< 10; ) {
-			// Athlete ath = pAthletes.get(i);
-			// logger.warn("mapToParticipations {} {} {} {}", ath.getTotalRank(), ath.getFullName(), ath.getCategory(), ath.getTotal());
-			// }
 		} else {
 			// we sometimes get pAthletes and but here we need the wrapped athlete.
 			pAthletes = rankedAthletes.stream()
 			        .peek(r -> {
-				        logger.debug("{} {}", r.getShortName(), r.getClass().getSimpleName());
+				        // logger.debug("{} {}", r.getShortName(), r.getClass().getSimpleName());
 			        })
 			        .map(r -> r instanceof PAthlete ? r : new PAthlete(r))
 			        .collect(Collectors.toList());

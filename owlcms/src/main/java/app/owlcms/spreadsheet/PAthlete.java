@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.IRankHolder;
@@ -64,12 +65,15 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public Boolean getCategoryFinished() {
-		return a.getCategoryFinished();
+		var allUnfinished = AthleteRepository.getAllUnfinishedCategories();
+		String code = c.getCode();
+		boolean contains = allUnfinished.contains(code);
+		return !contains;
 	}
 
 	@Override
 	public Boolean isCategoryFinished() {
-		return a.isCategoryFinished();
+		return getCategoryFinished();
 	}
 
 	@Override
@@ -140,7 +144,8 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public AgeGroup getAgeGroup() {
-		return this.p.getCategory().getAgeGroup();
+		Category category = getCategory();
+		return category != null ? category.getAgeGroup() : null;
 	}
 
 	@Override
@@ -200,7 +205,8 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public String getCategoryCode() {
-		return this.a.getCategoryCode();
+		Category category = getCategory();
+		return category != null ? category.getCode() : null;
 	}
 
 	@Override
@@ -405,7 +411,8 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public String getDisplayCategory() {
-		return this.p.getCategory().getDisplayName();
+		Category category = this.getCategory();
+		return category != null ? category.getDisplayName() : null;
 	}
 
 	@Override
