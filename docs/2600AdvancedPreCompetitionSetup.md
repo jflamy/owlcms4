@@ -44,19 +44,22 @@ Additional options are used when running team, kid, or virtual competitions.
 
 ![40](nimg/2100PreCompetitionSetup/40.png)
 
-- Scoring System
-  - `Scoring System Selected` determines several things
-    - On the results screens, the scoring system will be shown, in addition to Sinclair and Robi
-    - If the `Show Score on Scoreboard` option is used, this is the score that will be shown.
-
-  - `Show Score on Scoreboard` and `Show Scoring Rank on Scoreboard` are used in two different situations:
-    - when there is a best lifter award in play, and the global ranking is desired
-    - Note that when the options to create age groups with all bodyweights enabled, and medals are attributed according to score within each group), this option will be turned on automatically for the sessions concerned and there is nothing to do.
-
+- Overall Best Athlete Scoring System
+  - `Overall Best Athlete Scoring System` determines two things
+    
+    - On the Competition Results page, this will be the default scoring system shown in the table.
+    - If the `Show Overall Score on Scoreboard` option is used, this is the score that will be shown.
+    
+  - `Show Overall Score on Scoreboard` and `Show Overall Rank on Scoreboard` is used when there is a best lifter award in play, and the global ranking is desired
+  
+    > Note: if you have selected to [award medals based on a scoring system](ScoreBasedCompetitions) the score columns will be shown automatically, but this will be used for the score used for the medals in that category. If there is no scoring system selected for medals, the total will be used as the score, otherwise, the medal scoring system chosen for the category will be used.
+  
   - The `Sinclair` setting determines which version of the coefficients is used.  The 2020 coefficients (issued in 2017) were used until the new ones were issued in fall 2022.  This setting does ***not*** affect the Masters SMF and SMHF coefficients.
+  
   - (deprecated) `Medals according to Score` gives out medals for the whole competition based on the selected scoring system (for example, the 3 best Sinclair across all Sessions). This is the same as using the [Score-based Competitions]() capability, with all men in a single open category (all ages and all bodyweights together), and all women likewise. Using the score-based category approach is more flexible as you can have separate age groups if you wish, and also award the normal medals.
+  
   - `Enable Custom Score` This adds a box on the Athlete Card where a custom score can be entered.  This will typically add bonus points or subtract penalty points.  This is sometimes used for kid competitions where bonuses are given for 5/6 or 6/6 performances.
-
+  
 - Non-Standard Rules
   - `Top Results Team Sizes`  in some competitions, points are awarded as usual, but the teams are not pre-determined. Instead, the best "n" athletes point scores are counted towards the team total (e.g. 15 athletes are entered for a team, but the best 10 point results are kept for the team score)
   - `Group Athletes by Gender`  When hosting kid competitions, it is common to group kids in mixed groups according to age or weight. This setting makes all girls go first to avoid changing bars.

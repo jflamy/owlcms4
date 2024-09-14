@@ -19,7 +19,7 @@
   * [Breaks and Ceremonies](Breaks)
   * [Result Documents](ResultDocuments)
   * [Optional Modified Competition Rules](ModifiedRules)
-  * [Score-based Rankings](ScoreBasedCompetitions)
+  * [Score-based Medals](ScoreBasedCompetitions)
 * Advanced Topics
   * [Competition Options Reference](2600AdvancedPreCompetitionSetup)
   * [System Settings Reference](2120AdvancedSystemSettings)

@@ -1,11 +1,11 @@
-It is often desirable to rank all athletes in an age group on a score.  Examples include:
+It is sometimes desirable to award medals for all athletes in an age group on a score.  Examples include:
 
-- Masters of all bodyweights in a given age group are ranked according to their SM(H)F score, instead or in addition to the normal medals per weight class. This makes it more interesting because in many Masters competitions there are not enough athletes in each bodyweight class and everyone gets a medal.
-- Kids of given age groups compete all together based on a formula such as the Huebner Adjusted Totals.  This applies a factor based on a statistical analysis of young athletes that showed that age and body weight affect strength *together* for young athletes.  Sinclair coefficients are for older high-performance athletes, and SM(H)F factors are the same for all body weights, which is not correct for youth.
+- Masters of all bodyweights in a given age group could be ranked according to their SM(H)F score. You could them have 3 medals for the full age group, instead of giving gold to each weight class.  In fact, you could have both the normal medals and the medals per age group.  You could even create a special age group for all the athletes between 30 and 50 and give medals for young Masters. Whatever option you like.
+- Kids of given age groups compete all together based on a formula such as the Q-youth Age-Adjusted Totals.  This applies a factor based on a statistical analysis of young athletes where age and bodyweight are considered *together* for young athletes.   You can award the medals based on that formula.
 
 #### Exporting the Current Definitions
 
-Currently, creating such a competition requires editing an AgeGroups definition file using Excel.  The easiest way to get started is to export the current ones, as follows.
+Currently, creating such special medal awards requires editing the AgeGroups definition file using Excel.  The easiest way to get started is to export the current ones, as follows.
 
 ![10menu](img/ScoreBased/10menu.png)
 
@@ -32,7 +32,7 @@ If you exported the definitions as explained above, this column will be present.
 
 ![30Youth](img/ScoreBased/30Youth.png)
 
-- Column H includes the desired scoring system.  For kid/youth/junior ages, this would be `AGEFACTORS` to use Huebner statistical factors to adjust the total based on both age and body weight.  Other choices can be `BW_SINCLAIR` (body weight sinclair), `CAT_SINCLAIR` (Sinclair computed at the category weight), `ROBI` or `GAMX` (though these last two don't make much sense for young kids.)  If the cell is empty, the score is the `TOTAL` according to IWF rules.
+- Column H includes the desired scoring system.  For kid/youth/junior ages, this would be `AGEFACTORS` to use the Huebner Q-youth quantitative statistical factors. Other choices can be `BW_SINCLAIR` (body weight sinclair), `CAT_SINCLAIR` (Sinclair computed at the category weight), `ROBI` or `GAMX`   If the cell is empty, the score is the `TOTAL` according to IWF rules.
 - Column A gives this special category a new code.  In this example, the `A` prefix indicates "all bodyweights".
 - Column B indicates that you can produce the Final Package for all the `AgeFactors` together.  This would allow you to easily grant a `Best Lifter` award for all the groups in a championship.
 - Column I indicates that there is a single bodyweight category from 0 to 999 kg.  All athletes fall in that single category.
