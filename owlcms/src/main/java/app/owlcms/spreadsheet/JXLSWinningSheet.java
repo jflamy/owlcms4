@@ -200,6 +200,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 	}
 
 	public List<Athlete> mapToParticipations(List<Athlete> rankedAthletes) {
+		Set<String> unfinishedCategories = AthleteRepository.allUnfinishedCategories();
 		List<Athlete> pAthletes;
 		if (this.resultsByCategory) {
 			pAthletes = new ArrayList<>(rankedAthletes.size() * 2);
@@ -210,9 +211,18 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 				}
 				for (Participation p : pa.getParticipations()) {
 					PAthlete e = new PAthlete(p);
-					// logger.debug("adding {} {}", e.getFullName(), e.getCategory());
+					if (a.getCategory() != null && unfinishedCategories.contains(a.getCategory().getCode())) {
+						e.setCategoryFinished(false);
+					} else {
+						e.setCategoryFinished(true);
+					}
 					pAthletes.add(e);
 				}
+			}
+			AthleteSorter.resultsOrder(pAthletes, Ranking.TOTAL, false);
+			for (int i = 0; i++< 10; ) {
+				Athlete ath = pAthletes.get(i);
+				logger.warn("mapToParticipations {} {} {} {}", ath.getTotalRank(), ath.getFullName(), ath.getCategory(), ath.getTotal());
 			}
 		} else {
 			// we sometimes get pAthletes and but here we need the wrapped athlete.
