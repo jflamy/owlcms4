@@ -135,11 +135,11 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
 		reportingBeans.put("records", records);
 
-		Ranking blrs = JXLSWorkbookStreamSource.getBestLifterRankingSystem();
-		logger.info("getBestLifterRankingSystem {} {}",blrs, blrs.getMReportingName());
+		Ranking overallScoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingSystem();
+		logger.info("getBestLifterRankingSystem {} {}",overallScoringSystem, overallScoringSystem.getMReportingName());
 		reportingBeans.put("bestRankingTitle",Ranking.getScoringTitle(getBestLifterRankingSystem()));
-		reportingBeans.put("mBest", reportingBeans.get(blrs.getMReportingName()));
-		reportingBeans.put("wBest", reportingBeans.get(blrs.getWReportingName()));
+		reportingBeans.put("mBest", reportingBeans.get(overallScoringSystem.getMReportingName()));
+		reportingBeans.put("wBest", reportingBeans.get(overallScoringSystem.getWReportingName()));
 		setReportingBeans(reportingBeans);
 	}
 

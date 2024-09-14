@@ -459,6 +459,9 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	private Ranking computeScoringSystem() {
+		if (getRankingSelector() != null && getRankingSelector().getValue() != null) {
+			return getRankingSelector().getValue();
+		}
 		return getScoringSystem() != null ? getScoringSystem() : Competition.getCurrent().getScoringSystem();
 	}
 
@@ -506,7 +509,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		if (this.getRankingSelector() == null) {
 			ComboBox<Ranking> scoringCombo = new ComboBox<>();
 			scoringCombo.setItems(Ranking.scoringSystems());
-			scoringCombo.setItemLabelGenerator(r -> Ranking.getScoringTitle(r));
+			scoringCombo.setItemLabelGenerator(r -> Ranking.getScoringExplanation(r));
+			scoringCombo.getElement().getStyle().set("--vaadin-combo-box-overlay-width", "50ch");
 			this.setRankingSelector(scoringCombo);
 			getCrudLayout(crud).addFilterComponent(scoringCombo);
 			scoringCombo.setValue(computeScoringSystem());
@@ -625,13 +629,15 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	private Button createFinalPackageDownloadButton() {
 		this.downloadDialog = new JXLSDownloader(
 		        () -> {
+			        Ranking computeScoringSystem = computeScoringSystem();
+		        	logger.info("setBestLifterRanking2 {} {}",computeScoringSystem, computeScoringSystem.getMReportingName());
+					JXLSWorkbookStreamSource.setBestLifterRanking(computeScoringSystem);
 			        JXLSCompetitionBook rs = new JXLSCompetitionBook(this.locationUI);
 			        // group may have been edited since the page was loaded
 			        rs.setGroup(this.currentGroup != null ? GroupRepository.getById(this.currentGroup.getId()) : null);
 			        rs.setChampionship(this.championship);
 			        rs.setAgeGroupPrefix(this.ageGroupPrefix);
 			        rs.setCategory(this.categoryValue);
-			        JXLSWorkbookStreamSource.setBestLifterRanking(computeScoringSystem());
 			        rs.setIncludeUnfinished(Boolean.TRUE.equals(this.includeUnfinishedCategories.getValue()));
 			        return rs;
 		        },
@@ -676,7 +682,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	public Ranking getScoringSystem() {
-		return scoringSystem;
+		return scoringSystem; // not reliable.
 	}
 
 }

@@ -141,6 +141,26 @@ public enum Ranking {
 				throw new UnsupportedOperationException("not a score ranking " + rankingType);
 		}
 	}
+	
+	public static String getScoringExplanation(Ranking rankingType) {
+		if (rankingType == null) {
+			return Translator.translate("Score");
+		}
+		switch (rankingType) {
+			case ROBI:
+			case CUSTOM:
+			case BW_SINCLAIR:
+			case CAT_SINCLAIR:
+			case SMM:
+			case GAMX:
+			case QPOINTS:
+			case AGEFACTORS:
+			case QAGE:
+				return Translator.translate("RankingExplanation." + rankingType);
+			default:
+				throw new UnsupportedOperationException("not a score ranking " + rankingType);
+		}
+	}
 
 	public static List<Ranking> scoringSystems() {
 		List<Ranking> systems = new ArrayList<>(Arrays.asList(BW_SINCLAIR, SMM, ROBI, AGEFACTORS, QPOINTS, QAGE, GAMX, CAT_SINCLAIR));

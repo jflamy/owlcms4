@@ -359,7 +359,9 @@ public class CompetitionEditingFormFactory
 
 		ComboBox<Ranking> scoringCombo = new ComboBox<>();
 		scoringCombo.setItems(Ranking.scoringSystems());
-		scoringCombo.setItemLabelGenerator(r -> Ranking.getScoringTitle(r));
+		scoringCombo.setItemLabelGenerator(r -> Ranking.getScoringExplanation(r));
+		scoringCombo.setWidth("50ch");
+		scoringCombo.getElement().getStyle().set("--vaadin-combo-box-overlay-width", "50ch");
 		layout.addFormItem(scoringCombo, Translator.translate("Competition.scoringSystemTitle"));
 		this.binder.forField(scoringCombo).bind(Competition::getScoringSystem, Competition::setScoringSystem);
 
