@@ -17,8 +17,6 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.competition.Competition;
-import net.sf.jxls.transformer.XLSTransformer;
 
 /**
  * @author jflamy
@@ -47,15 +45,15 @@ public class JXLSJurySheet extends JXLSWorkbookStreamSource {
 	 * @see org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
 	 * configureTransformer(net.sf.jxls.transformer.XLSTransformer )
 	 */
-	@Override
-	protected void configureTransformer(XLSTransformer transformer) {
-		String fileName = Competition.getCurrent().getComputedJuryTemplateFileName();
-		if (!fileName.startsWith("Jury.")) {
-			transformer.markAsFixedSizeCollection("athletes");
-		} else {
-			this.logger./**/warn/**/("not setting fixed size");
-		}
-	}
+//	@Override
+//	protected void configureTransformer(XLSTransformer transformer) {
+//		String fileName = Competition.getCurrent().getComputedJuryTemplateFileName();
+//		if (!fileName.startsWith("Jury.")) {
+//			transformer.markAsFixedSizeCollection("athletes");
+//		} else {
+//			this.logger./**/warn/**/("not setting fixed size");
+//		}
+//	}
 
 	/*
 	 * (non-Javadoc)
@@ -63,16 +61,16 @@ public class JXLSJurySheet extends JXLSWorkbookStreamSource {
 	 * @see org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
 	 * postProcess(org.apache.poi.ss.usermodel.Workbook)
 	 */
-	@Override
-	protected void postProcess(Workbook workbook) {
-		String tfn = Competition.getCurrent().getComputedJuryTemplateFileName();
-		if (tfn.startsWith("Jury.") || tfn.startsWith("Jury-")) {
-			// 11 is the number of lines if 0 athletes were present.
-			setPageBreaks(workbook, 11 + nbAthletes);
-		} else {
-			setPageBreaks(workbook, 13 + nbAthletes);
-		}
-	}
+//	@Override
+//	protected void postProcess(Workbook workbook) {
+//		String tfn = Competition.getCurrent().getComputedJuryTemplateFileName();
+//		if (tfn.startsWith("Jury.") || tfn.startsWith("Jury-")) {
+//			// 11 is the number of lines if 0 athletes were present.
+//			setPageBreaks(workbook, 11 + nbAthletes);
+//		} else {
+//			setPageBreaks(workbook, 13 + nbAthletes);
+//		}
+//	}
 
 	protected void setPageBreaks(Workbook workbook, int line) {
 		Sheet sheet = workbook.getSheetAt(0);
