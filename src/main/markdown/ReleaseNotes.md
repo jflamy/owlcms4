@@ -4,11 +4,13 @@
 > - Beta releases are **not** normally used in real competitions, except when a new feature is required. Use extreme care in testing if you intend to do so.
 
 - Maintenance log:
+  - beta02: Changed the standard final package templates to use the selected Best Athlete scoring system
+  - beta02: Updated the Result Documents documentation.
   - beta01: Jury sheets no longer have a forced page break. Scoring sheet in a second tab.
   - beta01: Updated translations to use Q-Youth and Q-Masters for the Huebner age+bodyweight scaled totals.
 - Ability to override the Best Athlete scoring system
   - On the competition results page, it is possible to select a scoring system that will be shown in the grid.  This allows computing the best athlete for a championship using a different scoring system (for example, using Q-youth age-adjusted totals for a Youth Championship)
-  - The `Scores` final package template uses the selected Best Athlete scoring system and can be used for such circumstances if a document is needed.
+  - The standard templates have been updated to use the Best Athlete scoring system selected if one is picked (the default is the competition global best athlete scoring system)
 - Children Categories Bar Rules
   - The feature flag `lightBarU13` selects using the 15kg bar for boys in the U11 and U13 categories.  This is the same as removing the 20kg bar for younger boys age groups.  However, if an athlete needs the 20kg bar, the "Non-Standard bar" feature can be used.
 - Support for Q-masters results
