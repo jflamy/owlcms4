@@ -450,10 +450,15 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	private Ranking computeScoringSystem() {
+		Ranking ranking;
 		if (getRankingSelector() != null && getRankingSelector().getValue() != null) {
-			return getRankingSelector().getValue();
+			ranking = getRankingSelector().getValue();
+		} else {
+			ranking = getScoringSystem() != null ? getScoringSystem() : Competition.getCurrent().getScoringSystem();
 		}
-		return getScoringSystem() != null ? getScoringSystem() : Competition.getCurrent().getScoringSystem();
+		logger.debug("computeScoringSystem {}", ranking);
+		return ranking;
+
 	}
 
 	/**
@@ -532,7 +537,9 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		this.setCategoryFilter(null);
 		this.setRankingSelector(null);
 		this.setGenderFilter(null);
+		this.setRankingSelector(null);
 		init();
+		
 	}
 
 	private void setScoringSystem(Ranking value) {
