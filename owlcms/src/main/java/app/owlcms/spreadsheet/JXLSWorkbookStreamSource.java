@@ -81,18 +81,19 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSWorkbookStreamSource.class);
 	final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
 	private static ThreadLocal<Ranking> bestLifterRankingSystem = InheritableThreadLocal.withInitial(() -> null);
-	
+
 	static {
 		logger.setLevel(Level.INFO);
 		jexlLogger.setLevel(Level.ERROR);
 		tagLogger.setLevel(Level.ERROR);
 	}
-	public static Ranking getBestLifterRankingSystem() {
+
+	public static Ranking getBestLifterRankingTL() {
 		return bestLifterRankingSystem.get();
 	}
 
-	public static void setBestLifterRanking(Ranking bestLifterRankingValue) {
-		logger.debug("**** setting {}",bestLifterRankingValue);
+	protected static void setBestLifterRankingTL(Ranking bestLifterRankingValue) {
+		logger.debug("**** setting {}", bestLifterRankingValue);
 		bestLifterRankingSystem.set(bestLifterRankingValue);
 	}
 
@@ -110,6 +111,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	private String fileExtension;
 	private boolean emptyOk = false;
 	private Integer pageLength = null;
+	private Ranking bestLifterScoringSystem;
+	private Integer lastLine;
+	private Integer firstMergeLine;
+	private List<Integer> mergeColumnList;
 
 	public JXLSWorkbookStreamSource() {
 		this.ui = UI.getCurrent();
@@ -127,7 +132,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	public void accept(OutputStream stream, VaadinSession session) throws IOException {
 		try {
 			session.lock();
-			logger.debug("*** getting {}",getBestLifterRankingSystem());
+			logger.debug("*** getting {}", getBestLifterScoringSystem());
 			writeStream(stream);
 		} catch (Throwable t) {
 			logger.error(LoggerUtils./**/stackTrace(t));
@@ -159,11 +164,34 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		}
 	}
 
-	/**
-	 * @return the ageDivision
-	 */
-	public Championship getChampionship() {
-		return this.championship;
+	public void extractVariables(String comment) {
+		logger.debug("comment = {}", comment);
+		comment = comment.replaceAll("[\\r\\n\\s]", "");
+
+		// Pattern to match jx:area(lastCell="X1")
+		Pattern pattern1 = Pattern.compile("jx:area\\(lastCell=\"([A-Za-z])(\\d+)\"\\)");
+		Matcher matcher1 = pattern1.matcher(comment);
+		if (matcher1.find()) {
+			logger.debug("last line = {}", matcher1.group(2));
+			setLastLine(Integer.parseInt(matcher1.group(2)));
+		}
+
+		// Pattern to match owlcms:fixMerges(4, [1, 2, 3]) with optional spaces
+		Pattern pattern2 = Pattern.compile("owlcms:fixMerges\\((\\d+),\\[(.*?)\\]\\)");
+		Matcher matcher2 = pattern2.matcher(comment);
+		if (matcher2.find()) {
+			logger.debug("firstMergeLine = {}", matcher2.group(1));
+			setFirstMergeLine(Integer.parseInt(matcher2.group(1)));
+			String columns = matcher2.group(2);
+
+			// Convert columns to a list of integers
+			String[] columnsArray = columns.split("\\s*,\\s*");
+			setMergeColumnList(new ArrayList<>());
+			for (String column : columnsArray) {
+				logger.debug("column: {}", column.trim());
+				getMergeColumnList().add(Integer.parseInt(column.trim()));
+			}
+		}
 	}
 
 	/**
@@ -173,8 +201,19 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		return this.ageGroupPrefix;
 	}
 
+	public Ranking getBestLifterScoringSystem() {
+		return this.bestLifterScoringSystem;
+	}
+
 	public Category getCategory() {
 		return this.category;
+	}
+
+	/**
+	 * @return the ageDivision
+	 */
+	public Championship getChampionship() {
+		return this.championship;
 	}
 
 	public Consumer<String> getDoneCallback() {
@@ -183,6 +222,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 
 	public String getFileExtension() {
 		return this.fileExtension;
+	}
+
+	public Integer getFirstMergeLine() {
+		return this.firstMergeLine;
 	}
 
 	public Group getGroup() {
@@ -194,8 +237,24 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		}
 	}
 
+	public Integer getLastLine() {
+		return this.lastLine;
+	}
+
+	public List<Integer> getMergeColumnList() {
+		return this.mergeColumnList;
+	}
+
+	public Integer getPageLength() {
+		return this.pageLength;
+	}
+
 	public HashMap<String, Object> getReportingBeans() {
 		return this.reportingBeans;
+	}
+
+	public int getSizeLimit() {
+		return Integer.MAX_VALUE;
 	}
 
 	public List<Athlete> getSortedAthletes() {
@@ -221,6 +280,16 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		return tryList;
 	}
 
+	public InputStream getTemplate(Locale locale) throws IOException, Exception {
+		if (this.inputStream != null) {
+			logger.debug("explicitly set template {}", this.inputStream);
+			return new BufferedInputStream(this.inputStream);
+		}
+		String templateFileName2 = getTemplateFileName();
+		InputStream resourceAsStream = ResourceWalker.getFileOrResource(templateFileName2);
+		return new BufferedInputStream(resourceAsStream);
+	}
+
 	public String getTemplateFileName() {
 		return this.templateFileName;
 	}
@@ -233,10 +302,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		return this.excludeNotWeighed;
 	}
 
-	public void setChampionship(Championship championship) {
-		this.championship = championship;
-	}
-
 	/**
 	 * @param ageGroupPrefix the ageGroupPrefix to set
 	 */
@@ -244,8 +309,16 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		this.ageGroupPrefix = ageGroupPrefix;
 	}
 
+	public void setBestLifterScoringSystem(Ranking computeScoringSystem) {
+		this.bestLifterScoringSystem = computeScoringSystem;
+	}
+
 	public void setCategory(Category category) {
 		this.category = category;
+	}
+
+	public void setChampionship(Championship championship) {
+		this.championship = championship;
 	}
 
 	public void setDoneCallback(Consumer<String> action) {
@@ -265,6 +338,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		this.fileExtension = extension;
 	}
 
+	public void setFirstMergeLine(Integer firstMergeLine) {
+		this.firstMergeLine = firstMergeLine;
+	}
+
 	public void setGroup(Group group) {
 		this.group = group;
 	}
@@ -273,12 +350,83 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		this.inputStream = is;
 	}
 
+	public void setLastLine(Integer lastLine) {
+		this.lastLine = lastLine;
+	}
+
+	// private boolean checkJxls3(Workbook tempWorkbook) throws IOException {
+	// boolean jxls3 = false;
+	// Sheet sheet = tempWorkbook.getSheetAt(0); // Get the first sheet
+	// Row row = sheet.getRow(0); // Get the first row (0-based)
+	// if (row != null) {
+	// Cell cell = row.getCell(0); // Get the first cell in the row (0-based)
+	// if (cell != null) {
+	// Comment comment = cell.getCellComment();
+	// jxls3 = (comment != null && comment.getString().getString().contains("jx:area"));
+	// if (comment != null) {
+	// String plainComment = comment.getString().getString();
+	// String regex = "lastCell=\"[A-Za-z](.*?)\"";
+	// Pattern pattern = Pattern.compile(regex);
+	// Matcher matcher = pattern.matcher(plainComment);
+	// if (matcher.find()) {
+	// String lastLine = matcher.group(1);
+	// try {
+	// this.setPageLength(Integer.parseInt(lastLine));
+	// } catch (NumberFormatException e) {
+	// LoggerUtils.logError(logger, e, true);
+	// }
+	// }
+	// }
+	// }
+	//
+	// }
+	// return jxls3;
+	// }
+
+	public void setMergeColumnList(List<Integer> columnsList) {
+		this.mergeColumnList = columnsList;
+	}
+
+	public void setPageLength(Integer pageLength) {
+		this.pageLength = pageLength;
+	}
+
 	public void setReportingBeans(HashMap<String, Object> jXLSBeans) {
 		this.reportingBeans = jXLSBeans;
 	}
 
 	public void setSortedAthletes(List<Athlete> sortedAthletes) {
 		this.sortedAthletes = sortedAthletes;
+	}
+
+	public void setTemplateFileName(String templateFileName) {
+		this.templateFileName = templateFileName;
+	}
+
+	@SuppressWarnings("unchecked")
+	public void writeStream(OutputStream stream) throws IOException {
+		File tempFile = null;
+		try {
+			InputStream template;
+			Locale locale = OwlcmsSession.getLocale();
+			template = getTemplate(locale);
+			tempFile = File.createTempFile("jxlsTemplate", ".tmp");
+			FileUtils.copyInputStreamToFile(template, tempFile);
+			Workbook workbook = WorkbookFactory.create(tempFile);
+			if (checkJxls3(workbook)) {
+				jxls3Transform(stream, tempFile);
+			} else {
+				jxls1Transform(stream, workbook);
+			}
+		} catch (Exception e) {
+			LoggerUtils.logError(logger, e);
+			return;
+		} finally {
+			if (tempFile != null) {
+				tempFile.delete();
+			}
+		}
+
 	}
 
 	/**
@@ -312,6 +460,31 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 
 	protected void configureTransformer(XLSTransformer transformer) {
 		// do nothing, to be overridden as needed,
+	}
+
+	protected void createStandardFooter(Workbook workbook) {
+		// Get the current date and time
+		LocalDateTime now = LocalDateTime.now();
+
+		// Get the default locale
+		Locale currentLocale = OwlcmsSession.getLocale();
+
+		// Get a date formatter for the short date format in the current locale
+		String shortDatePattern = DateTimeUtils.localizedShortDatePattern(currentLocale);
+		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(shortDatePattern, currentLocale);
+
+		// Get a time formatter for the short time format in the current locale
+		DateTimeFormatter timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(currentLocale);
+
+		// Format the current date and time
+		String formattedDate = now.format(dateFormatter);
+		String formattedTime = now.format(timeFormatter);
+
+		Footer footer = workbook.getSheetAt(0).getFooter();
+
+		footer.setLeft(Translator.translate("Results.producedBy", "owlcms", OwlcmsFactory.getVersion()));
+		footer.setCenter(Translator.translate("Results.dateTime", formattedDate, formattedTime));
+		footer.setRight(Translator.translate("Results.pageOf", HeaderFooter.page(), HeaderFooter.numPages()));
 	}
 
 	/**
@@ -350,16 +523,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			}
 		}
 		throw new IOException("no template found for : " + templateName + extension + " tried with suffix " + tryList);
-	}
-
-	public InputStream getTemplate(Locale locale) throws IOException, Exception {
-		if (this.inputStream != null) {
-			logger.debug("explicitly set template {}", this.inputStream);
-			return new BufferedInputStream(this.inputStream);
-		}
-		String templateFileName2 = getTemplateFileName();
-		InputStream resourceAsStream = ResourceWalker.getFileOrResource(templateFileName2);
-		return new BufferedInputStream(resourceAsStream);
 	}
 
 	protected void init() {
@@ -407,65 +570,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		getReportingBeans().put("sessions", sessions);
 	}
 
-	@SuppressWarnings("unchecked")
-	public void writeStream(OutputStream stream) throws IOException {
-		File tempFile = null;
-		try {
-			InputStream template;
-			Locale locale = OwlcmsSession.getLocale();
-			template = getTemplate(locale);
-			tempFile = File.createTempFile("jxlsTemplate", ".tmp");
-			FileUtils.copyInputStreamToFile(template, tempFile);
-			Workbook workbook = WorkbookFactory.create(tempFile);
-			if (checkJxls3(workbook)) {
-				jxls3Transform(stream, tempFile);
-			} else {
-				jxls1Transform(stream, workbook);
-			}
-		} catch (Exception e) {
-			LoggerUtils.logError(logger, e);
-			return;
-		} finally {
-			if (tempFile != null) {
-				tempFile.delete();
-			}
-		}
-
-	}
-
-    private Integer lastLine;
-    private Integer firstMergeLine;
-    private List<Integer> mergeColumnList;
-
-//	private boolean checkJxls3(Workbook tempWorkbook) throws IOException {
-//		boolean jxls3 = false;
-//		Sheet sheet = tempWorkbook.getSheetAt(0); // Get the first sheet
-//		Row row = sheet.getRow(0); // Get the first row (0-based)
-//		if (row != null) {
-//			Cell cell = row.getCell(0); // Get the first cell in the row (0-based)
-//			if (cell != null) {
-//				Comment comment = cell.getCellComment();
-//				jxls3 = (comment != null && comment.getString().getString().contains("jx:area"));
-//				if (comment != null) {
-//					String plainComment = comment.getString().getString();
-//					String regex = "lastCell=\"[A-Za-z](.*?)\"";
-//					Pattern pattern = Pattern.compile(regex);
-//					Matcher matcher = pattern.matcher(plainComment);
-//					if (matcher.find()) {
-//						String lastLine = matcher.group(1);
-//						try {
-//							this.setPageLength(Integer.parseInt(lastLine));
-//						} catch (NumberFormatException e) {
-//							LoggerUtils.logError(logger, e, true);
-//						}
-//					}
-//				}
-//			}
-//
-//		}
-//		return jxls3;
-//	}
-
 	private boolean checkJxls3(Workbook tempWorkbook) throws IOException {
 		boolean jxls3 = false;
 		Sheet sheet = tempWorkbook.getSheetAt(0); // Get the first sheet
@@ -487,34 +591,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		return jxls3;
 	}
 
-	public void extractVariables(String comment) {
-		logger.debug("comment = {}",comment);
-		comment = comment.replaceAll("[\\r\\n\\s]", "");
-
-		// Pattern to match jx:area(lastCell="X1")
-		Pattern pattern1 = Pattern.compile("jx:area\\(lastCell=\"([A-Za-z])(\\d+)\"\\)");
-		Matcher matcher1 = pattern1.matcher(comment);
-		if (matcher1.find()) {
-			logger.debug("last line = {}",matcher1.group(2));
-			setLastLine(Integer.parseInt(matcher1.group(2)));
-		}
-
-		// Pattern to match owlcms:fixMerges(4, [1, 2, 3]) with optional spaces
-		Pattern pattern2 = Pattern.compile("owlcms:fixMerges\\((\\d+),\\[(.*?)\\]\\)");
-		Matcher matcher2 = pattern2.matcher(comment);
-		if (matcher2.find()) {
-			logger.debug("firstMergeLine = {}",matcher2.group(1));
-			setFirstMergeLine(Integer.parseInt(matcher2.group(1)));
-			String columns = matcher2.group(2);
-
-			// Convert columns to a list of integers
-			String[] columnsArray = columns.split("\\s*,\\s*");
-			setMergeColumnList(new ArrayList<>());
-			for (String column : columnsArray) {
-				logger.debug("column: {}",column.trim());
-				getMergeColumnList().add(Integer.parseInt(column.trim()));
-			}
-		}
+	private boolean isSizeOk(int size) {
+		return size < getSizeLimit();
 	}
 
 	private void jxls1Transform(OutputStream stream, Workbook workbook) {
@@ -537,7 +615,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			} else {
 				String noAthletes = Translator.translate("NoAthletes");
 				logger./**/warn("no athletes: empty report.");
-				if (ui != null) {
+				if (this.ui != null) {
 					this.ui.access(() -> {
 						Notification notif = new Notification();
 						notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -567,14 +645,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		}
 	}
 
-	private boolean isSizeOk(int size) {
-		return size < getSizeLimit();
-	}
-
-	public int getSizeLimit() {
-		return Integer.MAX_VALUE;
-	}
-
 	private void jxls3Transform(OutputStream stream, File templateFile) {
 		Workbook workbook = null;
 		File tempFile = null;
@@ -590,13 +660,13 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 				logger.info("starting jxls3 processing for {}", templateFile);
 				long start = System.currentTimeMillis();
 				JxlsPoi.fill(new FileInputStream(templateFile), JxlsStreaming.STREAMING_OFF, reportingInfo, tempFile);
-				logger.info("processing done: {}ms",System.currentTimeMillis()-start);
+				logger.info("processing done: {}ms", System.currentTimeMillis() - start);
 				workbook = WorkbookFactory.create(tempFile);
 				if (workbook != null) {
 					start = System.currentTimeMillis();
 					logger.info("postProcessing");
 					postProcess(workbook);
-					logger.info("postProcessing done: {}ms",System.currentTimeMillis()-start);
+					logger.info("postProcessing done: {}ms", System.currentTimeMillis() - start);
 				}
 			} else {
 				String message;
@@ -636,67 +706,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			}
 			logger.debug("wrote stream3");
 		}
-	}
-
-	public Integer getPageLength() {
-		return pageLength;
-	}
-
-	public void setPageLength(Integer pageLength) {
-		this.pageLength = pageLength;
-	}
-
-	protected void createStandardFooter(Workbook workbook) {
-		// Get the current date and time
-		LocalDateTime now = LocalDateTime.now();
-
-		// Get the default locale
-		Locale currentLocale = OwlcmsSession.getLocale();
-
-		// Get a date formatter for the short date format in the current locale
-		String shortDatePattern = DateTimeUtils.localizedShortDatePattern(currentLocale);
-		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(shortDatePattern, currentLocale);
-
-		// Get a time formatter for the short time format in the current locale
-		DateTimeFormatter timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(currentLocale);
-
-		// Format the current date and time
-		String formattedDate = now.format(dateFormatter);
-		String formattedTime = now.format(timeFormatter);
-
-		Footer footer = workbook.getSheetAt(0).getFooter();
-
-		footer.setLeft(Translator.translate("Results.producedBy", "owlcms", OwlcmsFactory.getVersion()));
-		footer.setCenter(Translator.translate("Results.dateTime", formattedDate, formattedTime));
-		footer.setRight(Translator.translate("Results.pageOf", HeaderFooter.page(), HeaderFooter.numPages()));
-	}
-
-	public void setTemplateFileName(String templateFileName) {
-		this.templateFileName = templateFileName;
-	}
-
-	public Integer getLastLine() {
-		return lastLine;
-	}
-
-	public void setLastLine(Integer lastLine) {
-		this.lastLine = lastLine;
-	}
-
-	public Integer getFirstMergeLine() {
-		return firstMergeLine;
-	}
-
-	public void setFirstMergeLine(Integer firstMergeLine) {
-		this.firstMergeLine = firstMergeLine;
-	}
-
-	public List<Integer> getMergeColumnList() {
-		return mergeColumnList;
-	}
-
-	public void setMergeColumnList(List<Integer> columnsList) {
-		this.mergeColumnList = columnsList;
 	}
 
 }

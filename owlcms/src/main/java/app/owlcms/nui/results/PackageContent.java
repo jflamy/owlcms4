@@ -69,7 +69,6 @@ import app.owlcms.nui.shared.AthleteGridContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCompetitionBook;
 import app.owlcms.spreadsheet.JXLSWinningSheet;
-import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -87,7 +86,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(PackageContent.class);
 	static final String TITLE = "Results.EndOfCompetition";
 	static {
-		logger.setLevel(Level.INFO);
 		jexlLogger.setLevel(Level.ERROR);
 	}
 	private ComboBox<Championship> championshipFilter;
@@ -196,7 +194,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		        //.peek(r -> logger.debug("including {} {}",r, r.getCategory().getCode()))
 		        ;
 		List<Athlete> found = stream.collect(Collectors.toList());
-		logger.info("{} PackageContent findAll", found.size());
+		logger.debug("{} PackageContent findAll", found.size());
 		updateURLLocations();
 		return found;
 	}
@@ -631,16 +629,15 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	private Button createFinalPackageDownloadButton() {
 		this.downloadDialog = new JXLSDownloader(
 		        () -> {
-			        Ranking computeScoringSystem = computeScoringSystem();
-		        	logger.info("setBestLifterRanking2 {} {}",computeScoringSystem, computeScoringSystem.getMReportingName());
-					JXLSWorkbookStreamSource.setBestLifterRanking(computeScoringSystem);
 			        JXLSCompetitionBook rs = new JXLSCompetitionBook(this.locationUI);
-			        // group may have been edited since the page was loaded
-			        rs.setGroup(this.currentGroup != null ? GroupRepository.getById(this.currentGroup.getId()) : null);
 			        rs.setChampionship(this.championship);
 			        rs.setAgeGroupPrefix(this.ageGroupPrefix);
 			        rs.setCategory(this.categoryValue);
 			        rs.setIncludeUnfinished(Boolean.TRUE.equals(this.includeUnfinishedCategories.getValue()));
+			        
+			        Ranking computeScoringSystem = computeScoringSystem();
+		        	logger.debug("setBestLifterScoringSystem {} {}",computeScoringSystem, computeScoringSystem.getMReportingName());
+					rs.setBestLifterScoringSystem(computeScoringSystem);
 			        return rs;
 		        },
 		        "/templates/competitionBook",

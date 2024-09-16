@@ -982,7 +982,7 @@ public class Athlete {
 	@JsonIgnore
 	public int getBestLifterRank() {
 		// if we are invoked from a printing thread, the value will be defined.
-		Ranking scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingSystem();
+		Ranking scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingTL();
 		scoringSystem = scoringSystem != null ? scoringSystem : Competition.getCurrent().getScoringSystem();
 		return Ranking.getRanking(this, scoringSystem);
 	}
@@ -991,7 +991,7 @@ public class Athlete {
 	@JsonIgnore
 	public Double getBestLifterScore() {
 		// if we are invoked from a printing thread, the value will be defined.
-		Ranking scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingSystem();
+		Ranking scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingTL();
 		scoringSystem = scoringSystem != null ? scoringSystem : Competition.getCurrent().getScoringSystem();
 		return Ranking.getRankingValue(this, scoringSystem);
 	}
