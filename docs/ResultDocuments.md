@@ -1,12 +1,17 @@
-From the `Result Documents` page, it is possible to get the various competition document.
+From the `Results` page, it is possible to get the various competition result documents.
 
 ![010_results](img/ResultDocuments/010_results.png)
 
-## Group Results
+## Session Results
 
-The Group Results button opens a page where all athletes are listed.  By selecting the group, the list is narrowed to the group.  Clicking on an athlete brings up the athlete card, in case a correction is required.
+The Session Results button opens a page where all athletes are listed.  By selecting the group, the list is narrowed to the group.  Clicking on an athlete brings up the athlete card, in case a correction is required.
 
-To produce the protocol sheet for a group
+There are two kinds of session results:
+
+- The "Registration Category" list shows each athlete *once*, under their registration category This it the traditional protocol result sheet.  In a joint Junior and Senior championship, if an athlete is registered as a Junior, but is eligible to lift as a Senior, the athlete will show up as a Junior in this document.
+- The "Eligibility Category" list show the athletes multiple times if they are eligible to multiple categories.  Using the same example, the athlete would show up twice, once as a Junior (with the ranking as a Junior) and once as a Senior (with the ranking as a Senior).
+
+In this example, we select the Registration Category, but the process is identical for Eligibility Categories.
 
 ![020_selectGroup](img/ResultDocuments/020_selectGroup.png)
 
@@ -23,25 +28,60 @@ Clicking on the file opens Excel (or your spreadsheet editor if you use another 
 
 ## Medals
 
-In order to have a smooth medal ceremony, printing out the medals is recommended.  The process is the same as for the protocol sheet.
-
-![030_medalsDL](img/ResultDocuments/030_medalsDL.png)
+In order to have a smooth medal ceremony, printing out the medals sheet is recommended.  The medals sheet will only list the categories that are completed.  This is very useful when there are multiple A/B/C groups and sessions are mixed.
 
 The resulting Excel shows all medals in the Bronze, Silver, Gold order.  Whether there are medals for all lifts or just the total is controlled on the competition rules page.
 
+> Note:  If [Score-based Medals](ScoreBasedCompetitions) are awarded for some age groups, this is not reflected in the Medals sheet.  You will have to use the `Scores` final package template to get a printable document.
+
 ![031_medalsExcel](img/ResultDocuments/031_medalsExcel.png)
 
-## Category Results
+## Team Results
 
-The category results page gives access to a page per category.  This is useful when there are A B C groups to show the full rankings.
+On the `Results` Page, the `Team Results` button shows how many points have been scored by each team, using the IWF formula.  When non-standard point ranges are used, or if different championships use different scoring schemes, it is more convenient to produce a Final Package spreadsheet and look things up (see below.)
 
-![050_catresults](img/ResultDocuments/050_catresults.png)
+## Competition Results
 
-## Final Package (Competition Book)
+The Competition Results page is used to produce the overall results for a competition.  It can be used during a competition to produce interim results, or at the end.
 
-The final package contains several tabs for each of the 6 attempts, Sinclair and Robi rankings.  It also contains team scores.  The process for creating the book is the same as above.
+There are three types of competition results
 
-![060_finalResults](img/ResultDocuments/060_finalResults.png)
+- Registration Category Results: Each athlete appears *once*.  This is normally sent to the Federation after the competition.  All athletes appear under the category under which they were registered and lifted.
+- Registration Category Results: This is typically posted as competition results.  Athletes appear in all the categories where they were eligible, with their rank in each category.  If an athlete won several medals, this document will show it.
+- Final Package.  This contains the Eligibility Category Results and other Tabs for the best lifter awards.  It also contains the medals won, and the points scored per each teams.
+
+### Championship Selection
+
+Sometimes two or more championships are held together during the same meet.  For example, there can be a Youth Championship the same weekend as a Junior Championship, etc.  Some federations even have all their championships together.
+
+In the following picture, two things are shown
+
+- We want to produce the results only for the Masters Championships
+
+- We want to specify a preference for the SM(H)F scoring system to be used for the Best Lifters sheet in the final package
+
+  > Note: currently, only the `Scores` final package takes this setting into account, see below.  But in upcoming releases the other templates will be modified to do so.
+
+![ChampionshipSelection](img/ResultDocuments/ChampionshipSelection.png)
+
+### Final Package
+
+The "Final Package" package contains several tabs.
+
+- Eligibility Category results
+- One or more pages for different "best lifter" scoring schemes (Sinclair, Robi, Q-points, etc.)
+- Team Scores (points and medals), see the [section below](#team-points-and-medals)
+
+Four templates are commonly used
+
+- The `Total` template is used for competitions that awards medals and points for Total only.
+- The `SnCjTotal` template is used for competitions that award three separate medals, as well as points for all the lifts.
+- The `Masters` template is used for Masters events -- it shows the SM(H)F and Q-Masters scores used to determine the Grand Master awards.
+- The `Scores` template is used in two circumstances
+  - The first one, already mentioned is when a championship uses a specific Best Lifter award.  For example, a Youth championship might use the Q-Youth formula instead of Sinclair, or an IWF championship might use the Q-points or GAMX formula.
+  - The second one is when Score-based medals are awarded to the groups.  For these age groups, the computed score will be used to order the results.
+
+### Team Points and Medals
 
 The team ranking tabs shows the team cumulative points, and the details for each athlete at the bottom.
 
