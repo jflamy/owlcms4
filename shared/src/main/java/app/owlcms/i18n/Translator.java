@@ -149,6 +149,7 @@ public class Translator implements I18NProvider {
 	}
 
 	public static void setForcedLocale(Locale locale) {
+		logger.warn("setForcedLocale {} {}",locale, LoggerUtils.stackTrace());
 		if (locale != null) {
 			locales = getAllAvailableLocales();
 

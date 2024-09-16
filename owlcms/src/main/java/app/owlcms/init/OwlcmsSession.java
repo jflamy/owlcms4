@@ -176,7 +176,7 @@ public class OwlcmsSession {
 		}
 		locale = Translator.getForcedLocale();
 		if (locale != null) {
-			logger.debug("forced locale {}",locale);
+			logger.warn("forced locale {}",locale);
 		}
 		
 		UI currentUi = UI.getCurrent();
@@ -189,9 +189,9 @@ public class OwlcmsSession {
 			boolean supported = locales.stream().anyMatch(l -> l.getLanguage().equals(loc.getLanguage()));
 			if (!supported) {
 				locale = null;
-				logger.debug("browser locale = {}", locale);
+				logger.warn("browser locale = {}", locale);
 			} else {
-				logger.debug("using browser locale = {}", locale);
+				logger.warn("using browser locale = {}", locale);
 			}
 		}
 
