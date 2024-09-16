@@ -89,7 +89,11 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	}
 
 	public static Ranking getBestLifterRankingTL() {
-		return bestLifterRankingSystem.get();
+		Ranking blss = bestLifterRankingSystem.get();
+		if (blss == null) {
+			blss = Competition.getCurrent().getScoringSystem();
+		}
+		return blss;
 	}
 
 	protected static void setBestLifterRankingTL(Ranking bestLifterRankingValue) {
