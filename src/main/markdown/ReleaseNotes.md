@@ -4,6 +4,7 @@
 > - Beta releases are **not** normally used in real competitions, except when a new feature is required. Use extreme care in testing if you intend to do so.
 
 - Maintenance log:
+  - beta04: Fixed an empty cell in the translation file that was preventing languages from being loaded.
   - beta03: Fixed the propagation of the selected Best Athlete scoring system to the classes that need to know (e.g. Athlete)
   - beta02: Changed the standard final package templates to use the selected Best Athlete scoring system
   - beta02: Updated the Result Documents documentation.
