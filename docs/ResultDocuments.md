@@ -42,52 +42,61 @@ On the `Results` Page, the `Team Results` button shows how many points have been
 
 ## Competition Results
 
-The Competition Results page is used to produce the overall results for a competition.  It can be used during a competition to produce interim results, or at the end.
+The Competition Results page provides the overall results of a competition.  It can also be used during a competition to produce interim results.
 
 There are three types of competition results
 
-- Registration Category Results: Each athlete appears *once*.  This is normally sent to the Federation after the competition.  All athletes appear under the category under which they were registered and lifted.
-- Registration Category Results: This is typically posted as competition results.  Athletes appear in all the categories where they were eligible, with their rank in each category.  If an athlete won several medals, this document will show it.
-- Final Package.  This contains the Eligibility Category Results and other Tabs for the best lifter awards.  It also contains the medals won, and the points scored per each teams.
+- Registration Category Results: Each athlete appears *once*.  This is normally sent to the Federation after the competition.  All athletes appear under they lifted officially (a 15-year old lifts as a Youth if there is such a category but is potentially eligible to Junior medals, therefore that athlete would appear as a Youth)
+- Registration Category Results: This is typically posted as the Competition Results proper.  Athletes appear in all the categories where they were eligible, with their rank in each category.  If an athlete won several medals, this document will show it.
+- Final Package.  This contains the Eligibility Category Results, the Best Lifter Awards, the Team Medals and Points, and the Records set during the competition.
 
-### Championship Selection
+### Multiple Championships
 
-Sometimes two or more championships are held together during the same meet.  For example, there can be a Youth Championship the same weekend as a Junior Championship, etc.  Some federations even have all their championships together.
+Sometimes two or more championships are held together during the same meet.  For example, there can be a Youth Championship the same weekend as a Junior Championship, etc.  Some federations even hold all their championships together.
 
 In the following picture, two things are shown
 
-- We want to produce the results only for the Masters Championships
+- We want to produce the results only for the Youth Championships
+- We want the Q-Youth scoring system to be used for the Best Lifters sheet.  Selecting this will also update the grid on the page to show Q-Youth.
 
-- We want to specify a preference for the SM(H)F scoring system to be used for the Best Lifters sheet in the final package
-
-  > Note: currently, only the `Scores` final package takes this setting into account, see below.  But in upcoming releases the other templates will be modified to do so.
-
-![ChampionshipSelection](img/ResultDocuments/ChampionshipSelection.png)
+![ChampionshipSelection](img/ResultDocuments/ChampionshipSelection.png )
 
 ### Final Package
 
 The "Final Package" package contains several tabs.
 
 - Eligibility Category results
-- One or more pages for different "best lifter" scoring schemes (Sinclair, Robi, Q-points, etc.)
+
+  The "best athlete" scoring scheme, as selected.  Note that for the Masters final packages, the best lifter pages are fixed in advance, and your federation may also have made the choice in advance in the template you are provided.
+
 - Team Scores (points and medals), see the [section below](#team-points-and-medals)
+
+- All the new records set.
 
 Four templates are commonly used
 
 - The `Total` template is used for competitions that awards medals and points for Total only.
 - The `SnCjTotal` template is used for competitions that award three separate medals, as well as points for all the lifts.
 - The `Masters` template is used for Masters events -- it shows the SM(H)F and Q-Masters scores used to determine the Grand Master awards.
-- The `Scores` template is used in two circumstances
-  - The first one, already mentioned is when a championship uses a specific Best Lifter award.  For example, a Youth championship might use the Q-Youth formula instead of Sinclair, or an IWF championship might use the Q-points or GAMX formula.
-  - The second one is when Score-based medals are awarded to the groups.  For these age groups, the computed score will be used to order the results.
+- The `Scores` template is used when [Score-based Medals](ScoreBasedCompetitions) are awarded to the groups. For example, all U9 boys may compete together, and their Q-Youth score could be used for the medals.  The AgeGroups file would have specified "AGEFACTORS" as the scoring system for that age group.
 
 ### Team Points and Medals
 
-The team ranking tabs shows the team cumulative points, and the details for each athlete at the bottom.
+The team scores tabs shows the team cumulative points and medals. The details for each athlete are shown at the bottom.
 
-If you wish to sort the points table, please note that due to the way Excel works you will need to copy the table area somewhere else in the page and use the "Paste as values" option before you are able to sort it.
+If you wish to sort the points table, you need to copy the team names and points to another area of the page, and use the Paste Special option to do a **Paste as values**.  Once that is done, you can format as table and sort by descending points.
 
 ![061_pasteValues](img/ResultDocuments/061_pasteValues.png)
+
+A medals table is also present and it can be sorted using the same technique (select, copy, paste special "as values", sort)
+
+![Medals](img/ResultDocuments/Medals.png)
+
+### Records
+
+A summary of all records broken is present in the standard templates.
+
+![Records](img/ResultDocuments/Records.png)
 
 ## Time Statistics
 

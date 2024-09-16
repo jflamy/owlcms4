@@ -37,6 +37,7 @@ import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
@@ -426,6 +427,9 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 				Component reset = createReset();
 				if (reset != null) {
 					this.crudLayout.addToolbarComponent(reset);
+					Element toolbar = reset.getParent().get().getElement();
+					toolbar.getStyle().set("flex-wrap", "wrap").set("align-content", "center");
+					
 				}
 			}
 
@@ -503,7 +507,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		getCrudLayout(crud).addFilterComponent(clearFilters);
 		
 		if (this.getRankingSelector() == null) {
-			ComboBox<Ranking> scoringCombo = new ComboBox<>();
+			ComboBox<Ranking> scoringCombo = new ComboBox<>(Translator.translate("Ranking.BestAthlete"));
 			scoringCombo.setItems(Ranking.scoringSystems());
 			scoringCombo.setItemLabelGenerator(r -> Ranking.getScoringExplanation(r));
 			scoringCombo.getElement().getStyle().set("--vaadin-combo-box-overlay-width", "50ch");
