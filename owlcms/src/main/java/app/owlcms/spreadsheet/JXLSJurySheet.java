@@ -26,7 +26,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 public class JXLSJurySheet extends JXLSWorkbookStreamSource {
 
 	Logger logger = LoggerFactory.getLogger(JXLSJurySheet.class);
-	private int nbAthletes;
+//	private int nbAthletes;
 
 	public JXLSJurySheet() {
 	}
@@ -35,7 +35,7 @@ public class JXLSJurySheet extends JXLSWorkbookStreamSource {
 	public List<Athlete> getSortedAthletes() {
 		List<Athlete> athletes = AthleteSorter
 		        .displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getGroup(), isExcludeNotWeighed()));
-		this.nbAthletes = athletes.size();
+//		this.nbAthletes = athletes.size();
 		return athletes;
 	}
 
