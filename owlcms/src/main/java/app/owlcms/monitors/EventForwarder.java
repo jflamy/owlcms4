@@ -147,11 +147,11 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private static Map<String, EventForwarder> eventForwarderByName = new HashMap<>();
 
 	synchronized public static EventForwarder initEventForwarderByName(String name, FieldOfPlay fieldOfPlay) {
-		EventForwarder eventForwarder = eventForwarderByName.get(name);
+		EventForwarder eventForwarder = getEventForwarderByName().get(name);
 		if (eventForwarder == null) {
 			logger.info("{}creating event forwarder", FieldOfPlay.getLoggingName(fieldOfPlay));
 			EventForwarder newForwarder = new EventForwarder(name, fieldOfPlay);
-			eventForwarderByName.put(name, newForwarder);
+			getEventForwarderByName().put(name, newForwarder);
 			return newForwarder;
 		} else {
 			// reusing the found forwarder, forcing the values
@@ -1531,6 +1531,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	 *
 	 */
 	private synchronized void pushUpdate(UIEvent e2) {
+		logger.debug("***pushupdate {}",e2.getClass().getSimpleName());
 		if (this.NO_KEEPALIVE) {
 			pushUpdateDoIt(e2);
 			return;
@@ -1561,7 +1562,10 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		String updateUrl = current.getParamUpdateUrl();
 		String videoUrl = Config.getCurrent().getParamVideoDataUpdateUrl();
 		if (updateUrl == null && videoUrl == null) {
+			logger.debug("*** not pushing");
 			return;
+		} else {
+			logger.debug("*** pushing");
 		}
 
 		sendPost(videoUrl, current.getParamVideoDataKey(), this.lastUpdate);
@@ -1778,6 +1782,14 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	private void setForwardedFopName(String name) {
 		this.forwardedFopName = name;
+	}
+
+	public static Map<String, EventForwarder> getEventForwarderByName() {
+		return eventForwarderByName;
+	}
+
+	public static void setEventForwarderByName(Map<String, EventForwarder> eventForwarderByName) {
+		EventForwarder.eventForwarderByName = eventForwarderByName;
 	}
 
 }

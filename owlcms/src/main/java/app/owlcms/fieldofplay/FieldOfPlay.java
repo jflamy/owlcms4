@@ -1407,7 +1407,7 @@ public class FieldOfPlay implements IUnregister {
 	@Override
 	public void unregister() {
 		MQTTMonitor mqttMonitor2 = this.getMqttMonitor();
-		this.logger.debug("{}unregistering event forwarder and mqtt monitor {}", getLoggingName(this),
+		this.logger.info("{}unregistering event forwarder and mqtt monitor {}", getLoggingName(this),
 		        System.identityHashCode(mqttMonitor2));
 		this.fopEventBus.unregister(this);
 		if (this.getEventForwarder() != null) {

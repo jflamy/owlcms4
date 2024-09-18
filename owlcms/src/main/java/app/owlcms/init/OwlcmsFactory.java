@@ -25,6 +25,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.ProxyAthleteTimer;
 import app.owlcms.fieldofplay.ProxyBreakTimer;
 import app.owlcms.i18n.Translator;
+import app.owlcms.monitors.EventForwarder;
 import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
@@ -33,9 +34,8 @@ import ch.qos.logback.classic.Logger;
 /**
  * Singleton, one per running JVM (i.e. one instance of owlcms, or one unit test)
  *
- * This class allows a web session to locate the event bus on which information will be broacast. All web pages talk to
- * one another via the event bus. The {@link OwlcmsSession} class is used to remember the current field of play for the
- * user.
+ * This class allows a web session to locate the event bus on which information will be broacast. All web pages talk to one another via the event bus. The
+ * {@link OwlcmsSession} class is used to remember the current field of play for the user.
  *
  * @author owlcms
  */
@@ -102,18 +102,17 @@ public class OwlcmsFactory {
 	}
 
 	private static CountDownLatch getInitializationLatch() {
-		//logger.debug("***** getInitializationLatch {} {}",latch.getCount(), LoggerUtils.whereFrom());
+		// logger.debug("***** getInitializationLatch {} {}",latch.getCount(), LoggerUtils.whereFrom());
 		return latch;
 	}
-	
+
 	public static void awaitLatch() throws InterruptedException {
-		//logger.debug("***** awaitLatch {} {}",latch.getCount(), LoggerUtils.whereFrom());
+		// logger.debug("***** awaitLatch {} {}",latch.getCount(), LoggerUtils.whereFrom());
 		latch.await();
 	}
-	
-	
+
 	public static void countDownLatch() throws InterruptedException {
-		//logger.debug("***** countDownLatch {} {}",latch.getCount(), LoggerUtils.whereFrom());
+		// logger.debug("***** countDownLatch {} {}",latch.getCount(), LoggerUtils.whereFrom());
 		latch.countDown();
 	}
 
@@ -158,6 +157,12 @@ public class OwlcmsFactory {
 			for (Entry<String, FieldOfPlay> f : getFopByName().entrySet()) {
 				FieldOfPlay fop = f.getValue();
 				fop.unregister();
+				// discard previous to force a reinitialization of the forwarding
+				OwlcmsFactory.getFOPByName(fop.getName()).setEventForwarder(null);
+				Map<String, EventForwarder> eventForwarderByName = EventForwarder.getEventForwarderByName();
+				if (eventForwarderByName != null && fop.getName() != null) {
+					eventForwarderByName.remove(fop.getName());
+				}
 			}
 		}
 		setFopByName(new HashMap<>());
@@ -202,7 +207,7 @@ public class OwlcmsFactory {
 	public static void waitDBInitialized() {
 		try {
 			CountDownLatch initializationLatch = OwlcmsFactory.getInitializationLatch();
-			logger.debug("******** latch.getCount() {}",latch.getCount());
+			logger.debug("******** latch.getCount() {}", latch.getCount());
 			initializationLatch.await();
 		} catch (InterruptedException e) {
 		}
