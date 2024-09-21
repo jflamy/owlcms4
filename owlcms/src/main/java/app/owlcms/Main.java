@@ -197,24 +197,7 @@ public class Main {
 		// disable poixml warning
 		StartupUtils.disableWarning();
 
-		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-			@Override
-			public void uncaughtException(Thread t, Throwable e) {
-				if (e instanceof ExitException) {
-					try {
-						logger.error("Stopping server.");
-						EmbeddedJetty.getJettyServer().stop();
-						logger.error("Restarting server.");
-						System.gc();
-						doStart();
-					} catch (Exception e2) {
-						LoggerUtils.logError(logger, e2);
-					}
-				} else {
-					System.out.println("Caught " + e);
-				}
-			}
-		});
+		threadExceptionHandling();
 
 		// read command-line and environment variable parameters
 		parseConfig();
@@ -233,6 +216,28 @@ public class Main {
 
 		// dependency injection
 		injectSuppliers();
+	}
+
+	private static void threadExceptionHandling() {
+		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+			@Override
+			public void uncaughtException(Thread t, Throwable e) {
+				if (e instanceof ExitException) {
+					try {
+						logger.error("Stopping server.");
+						EmbeddedJetty.getJettyServer().stop();
+						System.err.println("RESTARTING");
+						logger.error("Restarting server.");
+						System.gc();
+						doStart();
+					} catch (Exception e2) {
+						LoggerUtils.logError(logger, e2);
+					}
+				} else {
+					System.out.println("Caught " + e);
+				}
+			}
+		});
 	}
 
 	protected static void tearDown() {

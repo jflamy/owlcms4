@@ -26,7 +26,7 @@ import com.microsoft.playwright.Playwright;
  * @author Jean-François Lamy
  */
 public class RunResults {
-    private static final int NB_REMOTE_USERS = 15;
+    private static final int NB_REMOTE_USERS = 50;
     private static final int POLLING_DELAY_SECONDS = 0;
     private static final int POLLING_DELAY_MILLISECONDS = POLLING_DELAY_SECONDS*1000;
     private static Map<BrowserContext,Page> activePages = new TreeMap<>();

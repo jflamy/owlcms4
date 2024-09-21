@@ -23,6 +23,7 @@ import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.i18n.Translator;
 import app.owlcms.servlet.EmbeddedJetty;
+import app.owlcms.servlet.ExitException;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
@@ -38,21 +39,30 @@ public class Main {
     public static MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
 
     public static String productionMode;
-    
+
     private static Integer serverPort;
-    
+
     public static void logSessionMemUsage(String message, VaadinSession session) {
         MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
         MemoryUsage nonHeapMemoryUsage = memoryMXBean.getNonHeapMemoryUsage();
         int megaB = 1024 * 1024;
         message = message != null && !message.isBlank() ? message + " " : "";
-        logger.info("{}sessions: {}, heap {}/{} nonHeap {}/{} {}",
+        long committed = heapMemoryUsage.getCommitted() / megaB;
+        long used = heapMemoryUsage.getUsed() / megaB;
+        float usageRatio = ((float)used/(float)committed);
+//        if (committed > 300 && usageRatio > 0.75) {
+//            new Thread(() -> {
+//                logger.warn("restarting because usage ratio = {}",committed);
+//                throw new ExitException("over " + committed);
+//            }).start();
+//        }
+        LoggerFactory.getLogger(Main.class).info("{}sessions: {}, heap {}/{} nonHeap {}/{} {}",
                 message,
                 AppShell.getActiveSessions().get(),
-                heapMemoryUsage.getUsed()/megaB,
-                heapMemoryUsage.getCommitted()/megaB,
-                nonHeapMemoryUsage.getUsed()/megaB,
-                nonHeapMemoryUsage.getCommitted()/megaB,
+                used,
+                committed,
+                nonHeapMemoryUsage.getUsed() / megaB,
+                nonHeapMemoryUsage.getCommitted() / megaB,
                 session != null ? System.identityHashCode(session) : "");
     }
 
@@ -65,15 +75,20 @@ public class Main {
     public static void main(String... args) throws Exception {
         try {
             init();
-            new EmbeddedJetty(new CountDownLatch(0), "publicresults")
-                    .setStartLogger(logger)
-                    .setInitConfig(Runnables::doNothing)
-                    .setInitData(Runnables::doNothing)
-                    .run(serverPort, "/");
+            doStart();
         } catch (Exception e) {
             LoggerUtils.logError(logger, e);
         } finally {
         }
+    }
+
+    private static void doStart() throws Exception {
+        periodicTasks();
+        new EmbeddedJetty(new CountDownLatch(0), "publicresults")
+                .setStartLogger(logger)
+                .setInitConfig(Runnables::doNothing)
+                .setInitData(Runnables::doNothing)
+                .run(serverPort, "/");
     }
 
     /**
@@ -93,14 +108,8 @@ public class Main {
      * @throws ParseException
      */
     protected static void init() throws IOException, ParseException {
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread t, Throwable e) {
-                System.out.println("Caught " + e);
-            }
-        });
-        periodicTasks();
-        
+        threadExceptionHandling();
+
         // Configure logging -- must take place before anything else
         // Redirect java.util.logging logs to SLF4J
         SLF4JBridgeHandler.removeHandlersForRootLogger();
@@ -126,6 +135,29 @@ public class Main {
         // technical initializations
         // System.setProperty("java.net.preferIPv4Stack", "true");
 
+    }
+
+    private static void threadExceptionHandling() {
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                if (e instanceof ExitException) {
+                    try {
+                        logger.error("********** Stopping server.");
+                        EmbeddedJetty.getJettyServer().stop();
+                        System.exit(1); // trigger restart on-fail
+//                        logger.error("Restarting server.");
+//                        System.gc();
+//                        System.gc();
+//                        doStart();
+                    } catch (Exception e2) {
+                        LoggerUtils.logError(logger, e2);
+                    }
+                } else {
+                    System.out.println("Caught " + e);
+                }
+            }
+        });
     }
 
     private static Locale computeLocale() {
