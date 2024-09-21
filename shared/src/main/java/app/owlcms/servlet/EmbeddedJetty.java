@@ -3,6 +3,7 @@ package app.owlcms.servlet;
 import java.util.concurrent.CountDownLatch;
 
 import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.server.Server;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.open.Open;
@@ -15,6 +16,7 @@ public class EmbeddedJetty extends com.github.mvysny.vaadinboot.VaadinBoot {
 	private Runnable initConfig;
 	private Runnable initData;
 	private CountDownLatch latch;
+	private static Server jettyServer;
 
 	public EmbeddedJetty(CountDownLatch countDownLatch, String appName) {
 		this.setLatch(countDownLatch);
@@ -53,6 +55,7 @@ public class EmbeddedJetty extends com.github.mvysny.vaadinboot.VaadinBoot {
 
 	@Override
 	public void onStarted(WebAppContext c) {
+		setJettyServer(c.getServer());
 		startLogger.info("started on port {}", this.getPort());
 	}
 
@@ -67,5 +70,14 @@ public class EmbeddedJetty extends com.github.mvysny.vaadinboot.VaadinBoot {
         Open.open(getServerURL());
 
     }
+
+	public static Server getJettyServer() {
+		return jettyServer;
+	}
+
+	public static void setJettyServer(Server jettyServer) {
+		EmbeddedJetty.jettyServer = jettyServer;
+	}
+
 
 }

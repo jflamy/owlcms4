@@ -32,7 +32,6 @@ public class JettyErrorHandler extends DefaultErrorHandler {
     @Override
     public void error(ErrorEvent event) {
         Throwable t = findRelevantThrowable(event.getThrowable());
-
         if (event.getThrowable() instanceof org.eclipse.jetty.io.EofException) {
             logger.trace(t.getLocalizedMessage());
         } else if (event.getThrowable() instanceof StopProcessingException) {

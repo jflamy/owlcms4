@@ -6,10 +6,9 @@
  *******************************************************************************/
 package app.owlcms;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
@@ -46,7 +45,7 @@ import app.owlcms.init.InitialData;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.servlet.EmbeddedJetty;
-import app.owlcms.uievents.AppEvent;
+import app.owlcms.servlet.ExitException;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
@@ -74,7 +73,7 @@ public class Main {
 
 		@Override
 		public void onPublish(InterceptPublishMessage msg) {
-			final String decodedPayload = msg.getPayload().toString(UTF_8);
+			final String decodedPayload = msg.getPayload().toString(StandardCharsets.UTF_8);
 			logger.debug("Received on topic: " + msg.getTopicName() + " content: " + decodedPayload);
 		}
 
@@ -84,7 +83,6 @@ public class Main {
 		}
 	}
 
-	private static final int WARNING_MINUTES = 5;
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
 	protected static boolean demoData;
 	protected static boolean demoMode;
@@ -96,7 +94,7 @@ public class Main {
 	protected static boolean smallData;
 	private static InitialData initialData;
 	public static String mqttStartup;
-	private static Integer demoResetDelay;
+	// private static Integer demoResetDelay;
 
 	public static Logger getStartupLogger() {
 		String name = Main.class.getName() + ".startup";
@@ -129,13 +127,10 @@ public class Main {
 		injectData(initialData, l);
 		overrideTimeZone();
 		logger.info("Initialized data ({} ms)", System.currentTimeMillis() - now);
-
-		if (demoResetDelay == null) {
-			startMQTT();
-		}
+		startMQTT();
 		// initialization, don't push out to browsers
 		OwlcmsFactory.initDefaultFOP();
-		
+
 		signalDatabaseReady();
 	}
 
@@ -152,57 +147,39 @@ public class Main {
 		// app config injection
 		Translator.setLocaleSupplier(() -> OwlcmsSession.computeLocale());
 		ResourceWalker.setLocaleSupplier(Translator.getLocaleSupplier());
-		//ResourceWalker.setLocalZipBlobSupplier(() -> Config.getCurrent().getLocalZipBlob());
+		// ResourceWalker.setLocalZipBlobSupplier(() -> Config.getCurrent().getLocalZipBlob());
 	}
 
 	/**
 	 * The main method.
 	 *
-	 * Start a web server and do all the required initializations for the application If running normally, we run until
-	 * killed. If running as a public demo, we sleep for awhile, and then exit. Some external mechanism such as
-	 * Kubernetes will notice and restart another instance.
+	 * Start a web server and do all the required initializations for the application If running normally, we run until killed. If running as a public demo, we
+	 * sleep for awhile, and then exit. Some external mechanism such as Kubernetes will notice and restart another instance.
 	 *
 	 * @param args the arguments
 	 * @throws Exception the exception
 	 */
 	public static void main(String... args) throws Exception {
-		// there is no config read so far.
-		demoResetDelay = StartupUtils.getIntegerParam("publicDemo", null);
-		if (demoResetDelay != null) {
-			logger.info("Public demo server, will reset after {} seconds", demoResetDelay);
-		}
-
 		init();
-		//CountDownLatch latch = OwlcmsFactory.getInitializationLatch();
+		doStart();
+	}
 
-		// restart automatically forever if running as public demo
-		while (true) {
-			EmbeddedJetty embeddedJetty = new EmbeddedJetty(null, "owlcms")
-			        .setStartLogger(logger)
-			        .setInitConfig(Main::initConfig)
-			        .setInitData(Main::initData);
-			Thread server = new Thread(() -> {
-				try {
-					embeddedJetty.run(serverPort, "/");
-				} catch (Exception e) {
-					logger.error("cannot start server {}\\n{}", e, LoggerUtils.stackTrace(e));
-				}
-			});
-			server.start();
-			if (demoResetDelay == null) {
-				break;
-			} else {
-				warnAndExit(demoResetDelay, embeddedJetty);
-			}
+	private static void doStart() {
+		EmbeddedJetty embeddedJetty = new EmbeddedJetty(null, "owlcms")
+		        .setStartLogger(logger)
+		        .setInitConfig(Main::initConfig)
+		        .setInitData(Main::initData);
+		try {
+			embeddedJetty.run(serverPort, "/");
+		} catch (Exception e) {
+			logger.error("cannot start server {}\\n{}", e, LoggerUtils.stackTrace(e));
 		}
-
 	}
 
 	/**
 	 * Prepare owlcms
 	 *
-	 * Reads configuration options, injects data, initializes singletons and configurations. The embedded web server can
-	 * then be started.
+	 * Reads configuration options, injects data, initializes singletons and configurations. The embedded web server can then be started.
 	 *
 	 * Sample command line to run on port 80 and in demo mode (automatically generated fake data, in-memory database)
 	 *
@@ -219,12 +196,24 @@ public class Main {
 		SLF4JBridgeHandler.install();
 		// disable poixml warning
 		StartupUtils.disableWarning();
-		
+
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-		    @Override
-		    public void uncaughtException(Thread t, Throwable e) {
-		        System.out.println("Caught " + e);
-		    }
+			@Override
+			public void uncaughtException(Thread t, Throwable e) {
+				if (e instanceof ExitException) {
+					try {
+						logger.error("Stopping server.");
+						EmbeddedJetty.getJettyServer().stop();
+						logger.error("Restarting server.");
+						System.gc();
+						doStart();
+					} catch (Exception e2) {
+						LoggerUtils.logError(logger, e2);
+					}
+				} else {
+					System.out.println("Caught " + e);
+				}
+			}
 		});
 
 		// read command-line and environment variable parameters
@@ -284,7 +273,7 @@ public class Main {
 						break;
 					case BENCHMARK:
 						BenchmarkData.insertInitialData(
-								EnumSet.of(ChampionshipType.IWF, ChampionshipType.MASTERS));
+						        EnumSet.of(ChampionshipType.IWF, ChampionshipType.MASTERS));
 						break;
 				}
 			} else {
@@ -475,29 +464,5 @@ public class Main {
 		} catch (Exception e) {
 			logger.error("could not start server", e.toString(), e.getCause());
 		}
-	}
-
-	private static void warnAndExit(Integer demoResetDelay, EmbeddedJetty server)
-	        throws InterruptedException {
-
-		Thread.sleep(demoResetDelay * 1000);
-		String warningText = Translator.translate("App.ResetWarning", Integer.toString(WARNING_MINUTES));
-		AppEvent.AppNotification warning = new AppEvent.AppNotification(warningText);
-		// server.start() hijacks stderr and stdout. Must use new thread to log.
-		new Thread(() -> {
-			logger.info(warningText);
-		}).start();
-
-		OwlcmsFactory.getAppUIBus().post(warning);
-		Thread.sleep(WARNING_MINUTES * 60 * 1000);
-		OwlcmsFactory.getAppUIBus().post(new AppEvent.CloseUI());
-		Thread.sleep(5 * 1000);
-
-		// public demo is run with a restart policy of "always", so k8s will restart
-		// everything
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-			logger.info("public demo server shut down");
-		}));
-		System.exit(0);
 	}
 }

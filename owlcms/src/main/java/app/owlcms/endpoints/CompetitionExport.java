@@ -103,6 +103,7 @@ public class CompetitionExport extends HttpServlet {
 	        throws IOException {
 		logger.info("processing competition state request");
 		// use proxyutils because this is a plain servlet, not a Vaadin servlet
+		@SuppressWarnings("unused")
 		String host = ProxyUtils.getClientIp(request);
 		boolean bd = AccessUtils.checkBackdoor(host);
 		if (!bd) {
