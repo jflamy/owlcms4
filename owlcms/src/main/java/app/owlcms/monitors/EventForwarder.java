@@ -737,7 +737,6 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	}
 
 	void setLiftTypeKey(String liftTypeKey) {
-		logger.warn("****** liftTypeKey {}",liftTypeKey);
 		this.liftTypeKey = liftTypeKey;
 	}
 
