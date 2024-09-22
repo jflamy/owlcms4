@@ -4,6 +4,7 @@
 > - You should test all releases, with actual data, *several days* before a competition. This is especially important when considering the use of a release candidate.
 
 - Maintenance log:
+  - rc02: fix issue with liftType published during event forwarding to public results and video information feeds.
   - rc01: Translations for de, dk, ro, hu, pt, fr
   - beta04: Fixed an empty cell in the translation file that was preventing languages from being loaded.
   - beta03: Fixed the propagation of the selected Best Athlete scoring system to the classes that need to know (e.g. Athlete)
