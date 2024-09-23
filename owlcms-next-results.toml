@@ -3,18 +3,42 @@
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = "owlcms-cloud"
+app = "owlcms-next-results"
 primary_region = "yyz"
 
 [http_service]
   internal_port = 8080
   force_https = true
-  auto_stop_machines = false
+  auto_stop_machines = true
   auto_start_machines = true
   min_machines_running = 1
   processes = ["app"]
 
+[http_service.concurrency]
+  type = "requests"
+  hard_limit = 200
+  soft_limit = 180
+
+[services.concurrency]
+  type = "requests"
+  hard_limit = 200
+  soft_limit = 180
+
+[[services.ports]]
+  handlers = ["http"]
+  port = 80
+  force_https = true  # optional
+
+[[services.ports]]
+  handlers = ["tls", "http"]
+  port = 443
+
 [[vm]]
   cpu_kind = "shared"
   cpus = 2
-  memory_mb = 512
+  memory_mb = 3072
+
+[[restart]]
+  policy = "on-failure"
+  retries = 10
+  processes = ["app"]
