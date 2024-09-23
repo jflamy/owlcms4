@@ -768,11 +768,13 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		// setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
 
 		if (displayOrder != null && displayOrder.size() > 0) {
-			updateGroupInfo(computeLiftType(displayOrder.get(0)));
-			setLiftTypeKey(computeLiftTypeKey(displayOrder.get(0)));
-			setLiftType(computeLiftType(displayOrder.get(0)));
-			setGroupAthletes(getAthletesJson(displayOrder, getFop().getLiftingOrder(), true));
-			setLiftingOrderAthletes(getAthletesJson(getFop().getLiftingOrder(), getFop().getLiftingOrder(), false));
+			List<Athlete> liftingOrder = getFop().getLiftingOrder();
+			Athlete currentAthlete = liftingOrder.get(0);
+			updateGroupInfo(computeLiftType(currentAthlete));
+			setLiftTypeKey(computeLiftTypeKey(currentAthlete));
+			setLiftType(computeLiftType(currentAthlete));
+			setGroupAthletes(getAthletesJson(displayOrder, liftingOrder, true));
+			setLiftingOrderAthletes(getAthletesJson(liftingOrder, liftingOrder, false));
 		} else {
 			updateGroupInfo(null);
 			setGroupAthletes(null);
