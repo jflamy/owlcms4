@@ -49,7 +49,7 @@ public class Main {
         message = message != null && !message.isBlank() ? message + " " : "";
         long committed = heapMemoryUsage.getCommitted() / megaB;
         long used = heapMemoryUsage.getUsed() / megaB;
-        float usageRatio = ((float)used/(float)committed);
+//        float usageRatio = ((float)used/(float)committed);
 //        if (committed > 300 && usageRatio > 0.75) {
 //            new Thread(() -> {
 //                logger.warn("restarting because usage ratio = {}",committed);
@@ -146,10 +146,6 @@ public class Main {
                         logger.error("********** Stopping server.");
                         EmbeddedJetty.getJettyServer().stop();
                         System.exit(1); // trigger restart on-fail
-//                        logger.error("Restarting server.");
-//                        System.gc();
-//                        System.gc();
-//                        doStart();
                     } catch (Exception e2) {
                         LoggerUtils.logError(logger, e2);
                     }
