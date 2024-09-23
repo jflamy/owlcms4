@@ -8,6 +8,7 @@ package app.owlcms.publicresults;
 
 import java.io.IOException;
 
+import app.owlcms.servlet.ExitException;
 import ch.qos.logback.classic.Logger;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -28,9 +29,9 @@ public class SeppukuServlet extends HttpServlet implements Traceable {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         // violent death, not intercepted by web server.
-//        new Thread(() -> {
-//            throw new ExitException("Explicit stop.");
-//        }).start();
+        new Thread(() -> {
+            throw new ExitException("Explicit stop.");
+        }).start();
     }
 
     /**
