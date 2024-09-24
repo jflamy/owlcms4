@@ -42,6 +42,8 @@ public class Main {
 
     private static Integer serverPort;
 
+    private static int intRestartSize;
+
     public static void logSessionMemUsage(String message, VaadinSession session) {
         MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
         MemoryUsage nonHeapMemoryUsage = memoryMXBean.getNonHeapMemoryUsage();
@@ -49,13 +51,13 @@ public class Main {
         message = message != null && !message.isBlank() ? message + " " : "";
         long committed = heapMemoryUsage.getCommitted() / megaB;
         long used = heapMemoryUsage.getUsed() / megaB;
-//        float usageRatio = ((float)used/(float)committed);
-//        if (committed > 300 && usageRatio > 0.75) {
-//            new Thread(() -> {
-//                logger.warn("restarting because usage ratio = {}",committed);
-//                throw new ExitException("over " + committed);
-//            }).start();
-//        }
+        float usageRatio = ((float)used/(float)committed);
+        if (committed > intRestartSize || usageRatio > 0.90) {
+            new Thread(() -> {
+                logger.warn("restarting because committed = {}",committed);
+                throw new ExitException("over " + committed);
+            }).start();
+        }
         LoggerFactory.getLogger(Main.class).info("{}sessions: {}, heap {}/{} nonHeap {}/{} {}",
                 message,
                 AppShell.getActiveSessions().get(),
@@ -73,6 +75,15 @@ public class Main {
      * @throws Exception the exception
      */
     public static void main(String... args) throws Exception {
+        String restartSize = System.getenv("OWLCMS_RESTARTSIZE");
+        
+        System.err.println("restart size threshold "+restartSize);
+        logger.info("restart size threshold "+restartSize);
+        if (restartSize != null) {
+            intRestartSize = Integer.parseInt(restartSize);
+        } else {
+            intRestartSize = Integer.MAX_VALUE;
+        }
         try {
             init();
             doStart();

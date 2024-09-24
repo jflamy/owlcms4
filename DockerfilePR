@@ -43,4 +43,4 @@ WORKDIR /app
 COPY --from=stage1 /app/publicresults/target/publicresults/publicresults.jar /app
 
 EXPOSE 8080
-ENTRYPOINT ["/opt/java/openjdk/bin/java", "-jar", "publicresults.jar"]
+ENTRYPOINT ["/opt/java/openjdk/bin/java", "-XX:MaxRAMPercentage=75", "-jar", "publicresults.jar"]
