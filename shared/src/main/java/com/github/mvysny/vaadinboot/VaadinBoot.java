@@ -1,13 +1,11 @@
 package com.github.mvysny.vaadinboot;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.eclipse.jetty.ee10.servlet.ErrorHandler;
 import org.eclipse.jetty.ee10.webapp.MetaInfConfiguration;
 import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import org.eclipse.jetty.server.Server;
@@ -19,8 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.open.Open;
-
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Modified to always open a browser and not to write on stdout. Also changed the termination message since Enter does not work for our use case.
@@ -199,7 +195,7 @@ public class VaadinBoot {
 	}
 
 	// mark volatile: might be accessed by the shutdown hook from a different thread.
-	protected volatile Server server;
+	private volatile Server server;
 	private String appName;
 
 	/**
@@ -270,13 +266,6 @@ public class VaadinBoot {
 			serverConnector.setHost(hostName);
 		}
 		server.addConnector(serverConnector);
-		server.addBean(new ErrorHandler() {
-			@Override
-			protected void handleErrorPage(HttpServletRequest request, Writer writer, int code, String message) throws IOException {
-				System.err.println(message+" *************************************************");
-			}
-
-		});
 		server.setHandler(context);
 		log.debug("Jetty Server configured");
 		try {

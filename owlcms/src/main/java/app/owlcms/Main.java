@@ -45,7 +45,6 @@ import app.owlcms.init.InitialData;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.servlet.EmbeddedJetty;
-import app.owlcms.servlet.ExitException;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
@@ -222,20 +221,7 @@ public class Main {
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 			@Override
 			public void uncaughtException(Thread t, Throwable e) {
-				if (e instanceof ExitException) {
-					try {
-						logger.error("Stopping server.");
-						EmbeddedJetty.getJettyServer().stop();
-						System.err.println("RESTARTING");
-						logger.error("Restarting server.");
-						System.gc();
-						doStart();
-					} catch (Exception e2) {
-						LoggerUtils.logError(logger, e2);
-					}
-				} else {
-					System.out.println("Caught " + e);
-				}
+				logger.warn("threadExceptionHandling " + e);
 			}
 		});
 	}
