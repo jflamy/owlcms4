@@ -33,11 +33,13 @@ public class RunResults {
 
     @SuppressWarnings("unused")
     public static void main(String[] args) throws Exception {
+        String users = System.getProperty("users");
+        int nbUsers = users != null ?Integer.parseInt(users) : NB_REMOTE_USERS;
         try (Playwright playwright = Playwright.create()) {
             
             // create a single browser; we will create independent sessions.
             Browser browser = playwright.chromium().launch();
-            for (int i = 0; i < NB_REMOTE_USERS; i++) {
+            for (int i = 0; i < nbUsers; i++) {
                 // create two tabs in each incognito session, switch to the publicresults one
                 // this will allow closing the tab, or switching to the other one.
                 BrowserContext newContext = browser.newContext();
