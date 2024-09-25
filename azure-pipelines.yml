@@ -4,7 +4,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 53.0.0
+    default: 53.0.1
   - name: SkipTests
     type: string
     default: 'false'
@@ -122,7 +122,7 @@ jobs:
       - script: |
           # publish docs and pom.xml back to origin only for stable releases
           git push https://$(repoToken)@github.com/$(repoUser)/owlcms4.git $(Build.SourceBranchName) --force
-        condition: or(eq(variables['Build.SourceBranchName'], 'main51'),eq(variables['Build.SourceBranchName'], 'main52'))
+        condition: not(contains(variables['Revision'], '-'))
         displayName: sync dev doc
       - script: |
           # publish sources and docs to prerelease repo
@@ -134,7 +134,7 @@ jobs:
           # publish sources and docs to release repo
           # library group ReleaseRepoCredentials contains github users and tokens
           git push https://$(releaseToken)@github.com/$(releaseUser)/owlcms4.git $(Build.SourceBranchName):master --force
-        condition: or(eq(variables['Build.SourceBranchName'], 'main51'),eq(variables['Build.SourceBranchName'], 'main52'))
+        condition: not(contains(variables['Revision'], '-'))
         displayName: sync release repo
       # all releases are marked as "isPreRelease: false" else we cannot have a generic link to the latest prerelease.
       # the repo and name determines the maturity status.
