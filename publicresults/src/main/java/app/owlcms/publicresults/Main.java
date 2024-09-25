@@ -45,12 +45,15 @@ public class Main {
     private static int intRestartSize;
 
     public static void logSessionMemUsage(String message, VaadinSession session) {
-        MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
-        MemoryUsage nonHeapMemoryUsage = memoryMXBean.getNonHeapMemoryUsage();
         int megaB = 1024 * 1024;
-        message = message != null && !message.isBlank() ? message + " " : "";
+        memoryMXBean.gc();
+        MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
         long committed = heapMemoryUsage.getCommitted() / megaB;
         long used = heapMemoryUsage.getUsed() / megaB;
+        MemoryUsage nonHeapMemoryUsage = memoryMXBean.getNonHeapMemoryUsage();
+
+        
+        message = message != null && !message.isBlank() ? message + " " : "";
         float usageRatio = ((float)used/(float)committed);
         if (committed > intRestartSize || usageRatio > 0.90) {
             new Thread(() -> {

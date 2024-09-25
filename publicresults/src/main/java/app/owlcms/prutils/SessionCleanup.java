@@ -36,8 +36,6 @@ public class SessionCleanup {
         this.vaadinSession = vs;
     }
 
-
-    
     public void cleanupSession() {
         vaadinSession.access(() -> {
             @SuppressWarnings("unchecked")
@@ -80,7 +78,8 @@ public class SessionCleanup {
                 logger.error("no registered map");
             }
 
-            // if all tabs are expired, force them to leave taking care to not reset the Vaadin
+            // if all tabs are expired, force them to leave taking care to not reset the
+            // Vaadin
             // session (which would cause an immediate reload)
             // show a reload button so the user can come back.
             if (stillAlive == 0) {
@@ -99,11 +98,13 @@ public class SessionCleanup {
                         if (eventObserver2.getComponent() instanceof MainView || fopNames.size() <= 1) {
                             title = "";
                         }
-                        eventObserver2.doReload(
-                                Translator.translate("PublicResults.sessionExpiredTitle"),
-                                Translator.translate("PublicResults.sessionExpiredText"),
-                                Translator.translate("PublicResults.sessionExpiredLabel", title).trim(),
-                                eventObserver2.getUrl().toExternalForm());
+                        if (eventObserver2.getUrl() != null) {
+                            eventObserver2.doReload(
+                                    Translator.translate("PublicResults.sessionExpiredTitle"),
+                                    Translator.translate("PublicResults.sessionExpiredText"),
+                                    Translator.translate("PublicResults.sessionExpiredLabel", title).trim(),
+                                    eventObserver2.getUrl().toExternalForm());
+                        }
                     }
                     entryIterator.remove();
                 }
