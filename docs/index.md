@@ -16,8 +16,6 @@
 
 ## Gallery
 
-
-
 <table>
 <tr><td><a href="http://u.osmfr.org/m/1117782/" target="_bkank"><img src='img/Gallery/Map.png'></a></td><td>Current Usage (each dot is a cluster of locations)<br/><a href="http://u.osmfr.org/m/1117782/" target="_blank">Click on image for an interactive map</a>.<br/>The owlcms competition management system is currently in use in over 75 federations.  See here for <a href="./#/Countries">a list</a></td></tr>
 <tr><td><img src='img/Gallery/IMG_5050.jpg'></img></td><td>USA National Championships<br>1500 athletes, 9 days (U11, U13, U15, U17, U20, U23, U25, Open and Adaptive championships)</td></tr>
