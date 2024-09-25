@@ -54,7 +54,7 @@ public class Main {
         float usageRatio = ((float)used/(float)committed);
         if (committed > intRestartSize || usageRatio > 0.90) {
             new Thread(() -> {
-                logger.warn("restarting because committed = {}",committed);
+                logger.warn("restarting because committed = {} or usageRatio = {}",committed, usageRatio);
                 throw new ExitException("over " + committed);
             }).start();
         }
