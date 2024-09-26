@@ -6,9 +6,9 @@
  *******************************************************************************/
 package playwright;
 
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.TreeMap;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
@@ -20,23 +20,25 @@ import com.microsoft.playwright.Playwright;
 /**
  * Simulate several users using the public results scoreboard.
  * 
- * Each user is a different context in a Chromium browser (as if all starting incognito sessions).
- * Optionnally, poll the different browsers to retrieve a value, in order to confirm that Vaadin push is working.
+ * Each user is a different context in a Chromium browser (as if all starting
+ * incognito sessions).
+ * Optionnally, poll the different browsers to retrieve a value, in order to
+ * confirm that Vaadin push is working.
  * 
  * @author Jean-François Lamy
  */
 public class RunResults {
     private static final int NB_REMOTE_USERS = 50;
-    private static final int POLLING_DELAY_SECONDS = 0;
-    private static final int POLLING_DELAY_MILLISECONDS = POLLING_DELAY_SECONDS*1000;
-    private static Map<BrowserContext,Page> activePages = new TreeMap<>();
+    private static List<Page> activePages = new ArrayList<>(NB_REMOTE_USERS);
 
     @SuppressWarnings("unused")
     public static void main(String[] args) throws Exception {
         String users = System.getProperty("users");
-        int nbUsers = users != null ?Integer.parseInt(users) : NB_REMOTE_USERS;
+        int nbUsers = users != null ? Integer.parseInt(users) : NB_REMOTE_USERS;
+        String polling = System.getProperty("polling");
+        int pollingInterval = polling != null ? Integer.parseInt(polling) : 0;
         try (Playwright playwright = Playwright.create()) {
-            
+
             // create a single browser; we will create independent sessions.
             Browser browser = playwright.chromium().launch();
             for (int i = 0; i < nbUsers; i++) {
@@ -47,31 +49,43 @@ public class RunResults {
                 Page page = newContext.newPage();
                 page.navigate("http://192.168.1.174:8082/results?silent=true&lifting=false&fop=A");
                 page.bringToFront();
-               // activePages.put(newContext,page);
-                System.out.println("creating context "+ (i+1));
+                activePages.add(page);
+                System.out.println("creating page " + (i + 1));
             }
 
-            if (POLLING_DELAY_MILLISECONDS > 0) {
+            if (pollingInterval > 0) {
                 // periodically poll the browsers to check content.
                 // loop forever, we must be killed externally.
-                while (true) {    
+                while (true) {
                     // ask each active publicresults tab for the name of the current athlete
                     // to check whether the Vaadin push has worked
+                    System.out.println();
+                    System.out.println(LocalDateTime.now());
                     int i = 0;
-                    for (Entry<BrowserContext, Page> entry : activePages.entrySet()) {
-                        Page page = entry.getValue();
+                    for (Page page: activePages) {
                         String res = page.innerHTML("div.v-status-message span");
-                        System.out.println((i+1) + " " + res);
+                        
+                        String innerHTML = "";
+                        try {
+                            innerHTML = (String) page.evaluate("() => {" +
+                                    "const shadowHost = document.querySelector('#owlcmsTemplate');" + // Access the shadow host
+                                    "const shadowRoot = shadowHost.shadowRoot;" + // Get the shadow root
+                                    "const targetElement = shadowRoot.querySelector('div > div > div.attemptBar > div > div.fullName.ellipsis');" +
+                                    "return targetElement.innerHTML;" + // Return the innerHTML of the target element
+                                    "}");
+                        } catch (Exception e) {
+                            innerHTML = "error.";
+                        }
+                        System.out.println((i + 1) + " " + res + " " +innerHTML);
                         i++;
                     }
-                    System.out.println();
                     try {
-                        Thread.sleep(POLLING_DELAY_MILLISECONDS);
+                        Thread.sleep(pollingInterval);
                     } catch (InterruptedException e) {
                     }
                 }
             } else {
-                // run to create load. Just wait for external kill.  
+                // run to create load. Just wait for external kill.
                 // There is a single thread, so the wait for 2 threads never terminates.
                 try {
                     new CyclicBarrier(2).await();
