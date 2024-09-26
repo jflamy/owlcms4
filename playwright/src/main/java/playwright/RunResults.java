@@ -43,7 +43,7 @@ public class RunResults {
                 BrowserContext newContext = browser.newContext();
                 Page emptyPage = newContext.newPage();
                 Page page = newContext.newPage();
-                page.navigate("http://localhost:8082/results?silent=true&lifting=false&fop=RED");
+                page.navigate("http://192.168.1.174:8082/results?silent=true&lifting=false&fop=A");
                 page.bringToFront();
                // activePages.put(newContext,page);
                 System.out.println("creating context "+ (i+1));
