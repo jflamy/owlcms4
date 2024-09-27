@@ -37,6 +37,9 @@ public class RunResults {
         int nbUsers = users != null ? Integer.parseInt(users) : NB_REMOTE_USERS;
         String polling = System.getProperty("polling");
         int pollingInterval = polling != null ? Integer.parseInt(polling) : 0;
+        String url = System.getProperty("url");
+        url = url != null ? url : "http://192.168.1.174:8082/results?silent=true&lifting=false&fop=A";
+        
         try (Playwright playwright = Playwright.create()) {
 
             // create a single browser; we will create independent sessions.
@@ -47,7 +50,8 @@ public class RunResults {
                 BrowserContext newContext = browser.newContext();
                 Page emptyPage = newContext.newPage();
                 Page page = newContext.newPage();
-                page.navigate("http://192.168.1.174:8082/results?silent=true&lifting=false&fop=A");
+
+                page.navigate(url);
                 page.bringToFront();
                 activePages.add(page);
                 System.out.println("creating page " + (i + 1));
