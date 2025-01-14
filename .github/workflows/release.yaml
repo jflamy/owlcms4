@@ -66,8 +66,11 @@ jobs:
           release_name: Release ${{ env.REVISION }}
           draft: false
           prerelease: false
-          repository: owlcms/owlcms4${{ env.RELEASE_SUFFIX }}
+          owner: owlcms
+          repo: owlcms4${{ env.RELEASE_SUFFIX }}
           body_path: ReleaseNotes.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Upload owlcms Release Asset
         uses: actions/upload-release-asset@v1
