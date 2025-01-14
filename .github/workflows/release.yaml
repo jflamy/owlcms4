@@ -72,7 +72,7 @@ jobs:
           repo: owlcms4${{ env.RELEASE_SUFFIX }}
           body_path: ReleaseNotes.md
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           
       - name: Upload owlcms Release Asset
         uses: actions/upload-release-asset@v1
@@ -106,7 +106,7 @@ jobs:
           
       - name: Sync Repo
         run: |
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git ${{ github.ref_name }}:master --force
+          git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git ${{ github.ref_name }}:master --force
 
   save-cache:
     runs-on: ubuntu-latest
