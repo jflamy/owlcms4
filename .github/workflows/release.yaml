@@ -60,37 +60,21 @@ jobs:
           P_REPO_NAME: publicresults-heroku${{ env.RELEASE_SUFFIX }}
           O_REPO_NAME: owlcms4${{ env.RELEASE_SUFFIX }}
           
+      - name: Install GitHub CLI
+        run: sudo apt-get install gh -y
+      
+      - name: Authenticate GitHub CLI
+        run: echo "${{ secrets.PERSONAL_ACCESS_TOKEN }}" | gh auth login --with-token
+      
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        with:
-          tag_name: ${{ env.REVISION }}
-          release_name: Release ${{ env.REVISION }}
-          draft: false
-          prerelease: false
-          owner: owlcms
-          repo: owlcms4${{ env.RELEASE_SUFFIX }}
-          body_path: ReleaseNotes.md
-          commitish: ${{ github.sha }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          
+        run: gh release create ${{ env.REVISION }} --repo owlcms/owlcms4${{ env.RELEASE_SUFFIX }} --title "Release ${{ env.REVISION }}" --notes-file ReleaseNotes.md --prerelease=${{ contains(env.REVISION, '-') }}
+      
       - name: Upload owlcms Release Asset
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: owlcms/target/prerelease/owlcms_${{ env.REVISION }}.zip
-          asset_name: owlcms_${{ env.REVISION }}.zip
-          asset_content_type: application/zip
-          
+        run: gh release upload ${{ env.REVISION }} owlcms/target/prerelease/owlcms_${{ env.REVISION }}.zip --repo owlcms/owlcms4${{ env.RELEASE_SUFFIX }}
+      
       - name: Upload publicresults Release Asset
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: publicresults/target/prerelease/publicresults_${{ env.REVISION }}.zip
-          asset_name: publicresults_${{ env.REVISION }}.zip
-          asset_content_type: application/zip
-          
+        run: gh release upload ${{ env.REVISION }} publicresults/target/prerelease/publicresults_${{ env.REVISION }}.zip --repo owlcms/owlcms4${{ env.RELEASE_SUFFIX }}
+      
       - name: Tag and Push to Origin
         run: |
           git config user.email "${{ github.actor }}@users.noreply.github.com"
