@@ -71,6 +71,7 @@ jobs:
           owner: owlcms
           repo: owlcms4${{ env.RELEASE_SUFFIX }}
           body_path: ReleaseNotes.md
+          target_commitish: ${{ github.sha }}
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           
@@ -117,4 +118,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.m2/repository
-          key: ${{ needs.build.outputs.cache-maven }}
+          key: ${{ runner.os }}-maven-${{ hashFiles('pom.xml', 'shared/pom.xml', 'owlcms/pom.xml', 'publicresults/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-${{ hashFiles('pom.xml', 'shared/pom.xml', 'owlcms/pom.xml', 'publicresults/pom.xml') }}
+            ${{ runner.os }}-maven-
