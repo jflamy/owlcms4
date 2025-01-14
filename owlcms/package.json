@@ -9,8 +9,10 @@
     "@vaadin/app-layout": "24.4.5",
     "@vaadin/avatar": "24.4.5",
     "@vaadin/avatar-group": "24.4.5",
+    "@vaadin/board": "24.4.5",
     "@vaadin/bundles": "24.4.5",
     "@vaadin/button": "24.4.5",
+    "@vaadin/charts": "24.4.5",
     "@vaadin/checkbox": "24.4.5",
     "@vaadin/checkbox-group": "24.4.5",
     "@vaadin/combo-box": "24.4.5",
@@ -18,6 +20,8 @@
     "@vaadin/component-base": "24.4.5",
     "@vaadin/confirm-dialog": "24.4.5",
     "@vaadin/context-menu": "24.4.5",
+    "@vaadin/cookie-consent": "24.4.5",
+    "@vaadin/crud": "24.4.5",
     "@vaadin/custom-field": "24.4.5",
     "@vaadin/date-picker": "24.4.5",
     "@vaadin/date-time-picker": "24.4.5",
@@ -28,6 +32,7 @@
     "@vaadin/field-highlighter": "24.4.5",
     "@vaadin/form-layout": "24.4.5",
     "@vaadin/grid": "24.4.5",
+    "@vaadin/grid-pro": "24.4.5",
     "@vaadin/horizontal-layout": "24.4.5",
     "@vaadin/icon": "24.4.5",
     "@vaadin/icons": "24.4.5",
@@ -37,6 +42,7 @@
     "@vaadin/list-box": "24.4.5",
     "@vaadin/lit-renderer": "24.4.5",
     "@vaadin/login": "24.4.5",
+    "@vaadin/map": "24.4.5",
     "@vaadin/menu-bar": "24.4.5",
     "@vaadin/message-input": "24.4.5",
     "@vaadin/message-list": "24.4.5",
@@ -48,6 +54,7 @@
     "@vaadin/polymer-legacy-adapter": "24.4.5",
     "@vaadin/progress-bar": "24.4.5",
     "@vaadin/radio-group": "24.4.5",
+    "@vaadin/rich-text-editor": "24.4.5",
     "@vaadin/router": "1.7.5",
     "@vaadin/scroller": "24.4.5",
     "@vaadin/select": "24.4.5",
@@ -70,7 +77,8 @@
     "construct-style-sheets-polyfill": "3.1.0",
     "date-fns": "2.29.3",
     "element-match-media": "0.0.3",
-    "lit": "3.1.4"
+    "lit": "3.1.4",
+    "proj4": "2.11.0"
   },
   "devDependencies": {
     "@babel/preset-react": "7.24.7",
@@ -98,8 +106,10 @@
       "@vaadin/app-layout": "24.4.5",
       "@vaadin/avatar": "24.4.5",
       "@vaadin/avatar-group": "24.4.5",
+      "@vaadin/board": "24.4.5",
       "@vaadin/bundles": "24.4.5",
       "@vaadin/button": "24.4.5",
+      "@vaadin/charts": "24.4.5",
       "@vaadin/checkbox": "24.4.5",
       "@vaadin/checkbox-group": "24.4.5",
       "@vaadin/combo-box": "24.4.5",
@@ -107,6 +117,8 @@
       "@vaadin/component-base": "24.4.5",
       "@vaadin/confirm-dialog": "24.4.5",
       "@vaadin/context-menu": "24.4.5",
+      "@vaadin/cookie-consent": "24.4.5",
+      "@vaadin/crud": "24.4.5",
       "@vaadin/custom-field": "24.4.5",
       "@vaadin/date-picker": "24.4.5",
       "@vaadin/date-time-picker": "24.4.5",
@@ -117,6 +129,7 @@
       "@vaadin/field-highlighter": "24.4.5",
       "@vaadin/form-layout": "24.4.5",
       "@vaadin/grid": "24.4.5",
+      "@vaadin/grid-pro": "24.4.5",
       "@vaadin/horizontal-layout": "24.4.5",
       "@vaadin/icon": "24.4.5",
       "@vaadin/icons": "24.4.5",
@@ -126,6 +139,7 @@
       "@vaadin/list-box": "24.4.5",
       "@vaadin/lit-renderer": "24.4.5",
       "@vaadin/login": "24.4.5",
+      "@vaadin/map": "24.4.5",
       "@vaadin/menu-bar": "24.4.5",
       "@vaadin/message-input": "24.4.5",
       "@vaadin/message-list": "24.4.5",
@@ -137,6 +151,7 @@
       "@vaadin/polymer-legacy-adapter": "24.4.5",
       "@vaadin/progress-bar": "24.4.5",
       "@vaadin/radio-group": "24.4.5",
+      "@vaadin/rich-text-editor": "24.4.5",
       "@vaadin/router": "1.7.5",
       "@vaadin/scroller": "24.4.5",
       "@vaadin/select": "24.4.5",
@@ -159,7 +174,8 @@
       "construct-style-sheets-polyfill": "3.1.0",
       "date-fns": "2.29.3",
       "element-match-media": "0.0.3",
-      "lit": "3.1.4"
+      "lit": "3.1.4",
+      "proj4": "2.11.0"
     },
     "devDependencies": {
       "@babel/preset-react": "7.24.7",
@@ -179,7 +195,7 @@
       "workbox-core": "7.1.0",
       "workbox-precaching": "7.1.0"
     },
-    "hash": "01dfe1c45e9918a1f0bab522231f68281b25ca579bfea495f5ceed3b7a85ba8e"
+    "hash": "98cd64f4ab4bf3b0de480edbba6454164ae0a3657d76f74f3daea826fac0fd04"
   },
   "overrides": {
     "@vaadin/bundles": "$@vaadin/bundles",
@@ -249,6 +265,14 @@
     "@polymer/polymer": "$@polymer/polymer",
     "element-match-media": "$element-match-media",
     "@vaadin/vaadin-themable-mixin": "$@vaadin/vaadin-themable-mixin",
-    "date-fns": "$date-fns"
+    "date-fns": "$date-fns",
+    "@vaadin/board": "$@vaadin/board",
+    "@vaadin/charts": "$@vaadin/charts",
+    "@vaadin/cookie-consent": "$@vaadin/cookie-consent",
+    "@vaadin/crud": "$@vaadin/crud",
+    "@vaadin/grid-pro": "$@vaadin/grid-pro",
+    "@vaadin/map": "$@vaadin/map",
+    "@vaadin/rich-text-editor": "$@vaadin/rich-text-editor",
+    "proj4": "$proj4"
   }
 }

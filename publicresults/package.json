@@ -7,6 +7,7 @@
     "@vaadin/common-frontend": "0.0.19",
     "@vaadin/polymer-legacy-adapter": "24.4.5",
     "@vaadin/react-components": "24.4.5",
+    "@vaadin/react-components-pro": "24.4.5",
     "@vaadin/router": "1.7.5",
     "@vaadin/vaadin-development-mode-detector": "2.0.7",
     "@vaadin/vaadin-lumo-styles": "24.4.5",
@@ -16,6 +17,7 @@
     "construct-style-sheets-polyfill": "3.1.0",
     "date-fns": "2.29.3",
     "lit": "3.1.4",
+    "proj4": "2.11.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-router-dom": "6.23.1"
@@ -47,6 +49,7 @@
       "@vaadin/common-frontend": "0.0.19",
       "@vaadin/polymer-legacy-adapter": "24.4.5",
       "@vaadin/react-components": "24.4.5",
+      "@vaadin/react-components-pro": "24.4.5",
       "@vaadin/router": "1.7.5",
       "@vaadin/vaadin-development-mode-detector": "2.0.7",
       "@vaadin/vaadin-lumo-styles": "24.4.5",
@@ -56,6 +59,7 @@
       "construct-style-sheets-polyfill": "3.1.0",
       "date-fns": "2.29.3",
       "lit": "3.1.4",
+      "proj4": "2.11.0",
       "react": "18.3.1",
       "react-dom": "18.3.1",
       "react-router-dom": "6.23.1"
@@ -80,7 +84,7 @@
       "workbox-core": "7.1.0",
       "workbox-precaching": "7.1.0"
     },
-    "hash": "2a4c77083ab51f28e5e318219da09835683db988de08b49ff99c8f3532628271"
+    "hash": "f06d8005ffcc9d94c8e92e1b762dd0aac0e0103be3ed4f2479d1479a7d1846ec"
   },
   "overrides": {
     "@vaadin/bundles": "$@vaadin/bundles",
@@ -99,7 +103,9 @@
     "@vaadin/react-components": "$@vaadin/react-components",
     "react-dom": "$react-dom",
     "react-router-dom": "$react-router-dom",
-    "react": "$react"
+    "react": "$react",
+    "@vaadin/react-components-pro": "$@vaadin/react-components-pro",
+    "proj4": "$proj4"
   },
   "type": "module"
 }
