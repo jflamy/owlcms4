@@ -71,7 +71,7 @@ jobs:
           owner: owlcms
           repo: owlcms4${{ env.RELEASE_SUFFIX }}
           body_path: ReleaseNotes.md
-          target_commitish: ${{ github.sha }}
+          commitish: ${{ github.sha }}
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           
