@@ -81,16 +81,16 @@ jobs:
           git checkout ${{ github.ref_name }}
           git add -A && git commit -m "${{ env.REVISION }}" --allow-empty
           git tag ${{ env.REVISION }} -f -a -m "${{ env.REVISION }}"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} ${{ env.REVISION }} --force
+          git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }} ${{ env.REVISION }} --force
           
       - name: Sync Dev Doc
         if: ${{ !contains(env.REVISION, '-') }}
         run: |
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} ${{ github.ref_name }} --force
+          git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }} ${{ github.ref_name }} --force
           
       - name: Sync Repo
         run: |
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git ${{ github.ref_name }}:master --force
+          git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git ${{ github.ref_name }}:master --force
 
       - name: Save Maven dependencies cache
         if: failure()
