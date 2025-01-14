@@ -26,7 +26,7 @@ Many gyms have a WiFi router, in which case you can simply connect to it (diagra
 
 ## Large Competition Setup
 
-At the opposite end of the spectrum, a setup for a state competition using refereeing devices would provide all the requisite displays and technical official stations.  To keep costs down, TVs and projectors can be driven using cheap devices such as Fire TV Sticks or Raspberry Pi, and you can also use HDMI splitters.
+At the opposite end of the spectrum, a setup for a state competition using refereeing devices would provide all the requisite displays and technical official stations.  To keep costs down, TVs and projectors can be driven using less expensive devices such as Raspberry Pi, and you can also use HDMI splitters.
 
 
 
@@ -39,7 +39,7 @@ There are three building blocks to such a setup
 1. Some devices require frequent user input (Marshal, Secretary, Announcer). These are handled by laptops.  owlcms is often run on the secretary computer, only that laptop needs to be recent and performant.  All the other laptops can be basic, or refurbished.
 2. The various displays and TVs need a signal.  With owlcms, the signal comes from a web browser.  The most flexible way to do this is to use any of the following
    - Old laptops or Chromebooks that can run Chrome or Firefox
-   - Raspberry Pi (the [model 400](https://www.raspberrypi.org/products/raspberry-pi-400/), has everything built-in and is an excellent choice.  They have two HDMI ports and so fewer devices are available (you can buy long optical fiber HDMI cables of more than 30m if you need to)
+   - Raspberry Pi (the [model 500](https://www.raspberrypi.org/products/raspberry-pi-500/), has everything built-in and is an excellent choice.  They have two HDMI ports and so fewer devices are needed (you can buy long optical fiber HDMI cables of more than 30m if you need to)
    - Mini PCs (preferably with an Ethernet port). Mini PCs also have multiple HDMI ports, so you need fewer devices.  The basic models with 4GB or 8GB of memory are often quite cheap.
    - Chromecasts (this requires internet access for setup, and Wi-Fi has to be of excellent quality). A computer must provide the display being replicated -- a single laptop can drive multiple displays)
 3. Video splitters.  Sometimes it is possible to share the output from a PC and send it to a TV.  For example, the scoreboard in the warmup room can be obtained from the marshal computer and shown on a marshal monitor and a warmup room TV.
