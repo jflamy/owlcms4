@@ -19,8 +19,6 @@ jobs:
       REVISION: ${{ github.event.inputs.revision }}
       RELEASE_SUFFIX: ${{ contains(github.event.inputs.revision, '-') && '-prerelease' || '' }}
       DOCKER_TAG: ${{ contains(github.event.inputs.revision, '-') && 'prerelease' || 'stable' }}
-    outputs:
-      cache-key: ${{ steps.cache-maven.outputs.cache-key }}
     steps:
       - uses: actions/checkout@v4
       
@@ -59,7 +57,6 @@ jobs:
         run: mvn -B package --non-recursive -Dmaven.test.skip -Drevision=${{ env.REVISION }}
         env:
           REPO_OWNER: owlcms
-          P_REPO_NAME: publicresults-heroku${{ env.RELEASE_SUFFIX }}
           O_REPO_NAME: owlcms4${{ env.RELEASE_SUFFIX }}
           
       - name: Install GitHub CLI
@@ -93,7 +90,7 @@ jobs:
           
       - name: Sync Repo
         run: |
-          git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git ${{ github.ref_name }}:master --force
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git ${{ github.ref_name }}:master --force
 
   save-cache:
     runs-on: ubuntu-latest
@@ -104,4 +101,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.m2/repository
-          key: ${{ needs.build.outputs.cache-key }}
+          key: ${{ runner.os }}-maven-${{ hashFiles('pom.xml', 'shared/pom.xml', 'owlcms/pom.xml', 'publicresults/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-${{ hashFiles('pom.xml', 'shared/pom.xml', 'owlcms/pom.xml', 'publicresults/pom.xml') }}
+            ${{ runner.os }}-maven-
