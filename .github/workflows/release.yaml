@@ -22,63 +22,63 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven'
+      # - name: Set up JDK 17
+      #   uses: actions/setup-java@v4
+      #   with:
+      #     java-version: '17'
+      #     distribution: 'temurin'
+      #     cache: 'maven'
           
-      - name: Cache Maven dependencies
-        id: cache-maven
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('pom.xml', 'shared/pom.xml', 'owlcms/pom.xml', 'publicresults/pom.xml') }}
+      # - name: Cache Maven dependencies
+      #   id: cache-maven
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.m2/repository
+      #     key: ${{ runner.os }}-maven-${{ hashFiles('pom.xml', 'shared/pom.xml', 'owlcms/pom.xml', 'publicresults/pom.xml') }}
       
-      - name: Build and Install owlcms
-        run: mvn -B clean install -Pproduction -am -pl owlcms -Drevision=${{ env.REVISION }} -Dmaven.test.skip
+      # - name: Build and Install owlcms
+      #   run: mvn -B clean install -Pproduction -am -pl owlcms -Drevision=${{ env.REVISION }} -Dmaven.test.skip
           
-      - name: Build and Install publicresults
-        run: mvn -B clean install -Pproduction -am -pl publicresults -Drevision=${{ env.REVISION }} -Dmaven.test.skip
+      # - name: Build and Install publicresults
+      #   run: mvn -B clean install -Pproduction -am -pl publicresults -Drevision=${{ env.REVISION }} -Dmaven.test.skip
           
-      - name: Build and Push Docker Images
-        run: mvn -B deploy -f owlcms-docker/pom.xml -Ddockerfile.skip=false -Drevision=${{ env.REVISION }}
-        env:
-          DOCKER_REG: ${{ secrets.DOCKER_REG }}
-          DOCKER_USER: ${{ secrets.DOCKER_USER }}
-          DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-          DOCKER_TAG: ${{ env.DOCKER_TAG }}
+      # - name: Build and Push Docker Images
+      #   run: mvn -B deploy -f owlcms-docker/pom.xml -Ddockerfile.skip=false -Drevision=${{ env.REVISION }}
+      #   env:
+      #     DOCKER_REG: ${{ secrets.DOCKER_REG }}
+      #     DOCKER_USER: ${{ secrets.DOCKER_USER }}
+      #     DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+      #     DOCKER_TAG: ${{ env.DOCKER_TAG }}
           
-      - name: Pre-process Release Notes
-        run: mvn -B package --non-recursive -Dmaven.test.skip -Drevision=${{ env.REVISION }}
-        env:
-          REPO_OWNER: owlcms
-          O_REPO_NAME: owlcms4${{ env.RELEASE_SUFFIX }}
+      # - name: Pre-process Release Notes
+      #   run: mvn -B package --non-recursive -Dmaven.test.skip -Drevision=${{ env.REVISION }}
+      #   env:
+      #     REPO_OWNER: owlcms
+      #     O_REPO_NAME: owlcms4${{ env.RELEASE_SUFFIX }}
           
-      - name: Install GitHub CLI
-        run: sudo apt-get install gh -y
+      # - name: Install GitHub CLI
+      #   run: sudo apt-get install gh -y
       
-      - name: Authenticate GitHub CLI
-        run: echo "${{ secrets.PERSONAL_ACCESS_TOKEN }}" | gh auth login --with-token
+      # - name: Authenticate GitHub CLI
+      #   run: echo "${{ secrets.PERSONAL_ACCESS_TOKEN }}" | gh auth login --with-token
       
-      - name: Create Release
-        run: gh release create ${{ env.REVISION }} --repo owlcms/owlcms4${{ env.RELEASE_SUFFIX }} --title "Release ${{ env.REVISION }}" --notes-file ReleaseNotes.md --prerelease=${{ contains(env.REVISION, '-') }}
+      # - name: Create Release
+      #   run: gh release create ${{ env.REVISION }} --repo owlcms/owlcms4${{ env.RELEASE_SUFFIX }} --title "Release ${{ env.REVISION }}" --notes-file ReleaseNotes.md --prerelease=${{ contains(env.REVISION, '-') }}
       
-      - name: Upload owlcms Release Asset
-        run: gh release upload ${{ env.REVISION }} owlcms/target/prerelease/owlcms_${{ env.REVISION }}.zip --repo owlcms/owlcms4${{ env.RELEASE_SUFFIX }}
+      # - name: Upload owlcms Release Asset
+      #   run: gh release upload ${{ env.REVISION }} owlcms/target/prerelease/owlcms_${{ env.REVISION }}.zip --repo owlcms/owlcms4${{ env.RELEASE_SUFFIX }}
       
-      - name: Upload publicresults Release Asset
-        run: gh release upload ${{ env.REVISION }} publicresults/target/prerelease/publicresults_${{ env.REVISION }}.zip --repo owlcms/owlcms4${{ env.RELEASE_SUFFIX }}
+      # - name: Upload publicresults Release Asset
+      #   run: gh release upload ${{ env.REVISION }} publicresults/target/prerelease/publicresults_${{ env.REVISION }}.zip --repo owlcms/owlcms4${{ env.RELEASE_SUFFIX }}
       
-      - name: Tag and Push to Origin
-        run: |
-          git config user.email "${{ github.actor }}@users.noreply.github.com"
-          git config user.name "${{ github.actor }}"
-          git checkout ${{ github.ref_name }}
-          git add -A && git commit -m "${{ env.REVISION }}" --allow-empty
-          git tag ${{ env.REVISION }} -f -a -m "${{ env.REVISION }}"
-          git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }} ${{ env.REVISION }} --force
+      # - name: Tag and Push to Origin
+      #   run: |
+      #     git config user.email "${{ github.actor }}@users.noreply.github.com"
+      #     git config user.name "${{ github.actor }}"
+      #     git checkout ${{ github.ref_name }}
+      #     git add -A && git commit -m "${{ env.REVISION }}" --allow-empty
+      #     git tag ${{ env.REVISION }} -f -a -m "${{ env.REVISION }}"
+      #     git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }} ${{ env.REVISION }} --force
           
       - name: Sync Dev Doc
         if: ${{ !contains(env.REVISION, '-') }}
