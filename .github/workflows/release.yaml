@@ -19,6 +19,8 @@ jobs:
       REVISION: ${{ github.event.inputs.revision }}
       RELEASE_SUFFIX: ${{ contains(github.event.inputs.revision, '-') && '-prerelease' || '' }}
       DOCKER_TAG: ${{ contains(github.event.inputs.revision, '-') && 'prerelease' || 'stable' }}
+    outputs:
+      cache-key: ${{ steps.cache-maven.outputs.cache-key }}
     steps:
       - uses: actions/checkout@v4
       
@@ -102,7 +104,4 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('pom.xml', 'shared/pom.xml', 'owlcms/pom.xml', 'publicresults/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-${{ hashFiles('pom.xml', 'shared/pom.xml', 'owlcms/pom.xml', 'publicresults/pom.xml') }}
-            ${{ runner.os }}-maven-
+          key: ${{ needs.build.outputs.cache-key }}
