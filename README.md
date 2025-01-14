@@ -8,8 +8,10 @@ Yet it is simple enough to setup that you can use it to run a club or regional c
 
 ### Features, Downloads and Installation
 
-- Refer to the  to the [Downloads](https://owlcms.github.io/owlcms4/#/Downloads) page and to the [Installation Overview](https://owlcms.github.io/owlcms4/#/InstallationOverview) for the various setup options.
-  - [Extensive Documentation](https://owlcms.github.io/owlcms4-prerelease/#) is available.
+- [Extensive Documentation](https://owlcms.github.io/owlcms4-prerelease/#) is available.
+
+- To install the software locally on a computer, see the [Control Panel Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) and the instructions for using the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md).
+- To install the software in the cloud, see [this page](https://owlcms.github.io/owlcms4-prerelease/#/Fly)
 
 
 ### Help, Issues, Feature Requests
@@ -25,9 +27,9 @@ Yet it is simple enough to setup that you can use it to run a club or regional c
 
 ### Licensing and Notes
 
-This is free, as-is, no warranty *whatsoever* software. If you just want to run it as is for your own club or federation, just download from the [Releases](https://github.com/owlcms/owlcms4/releases) repository and go ahead. You should perform your own tests to see if the software is fit for your own purposes and circumstances.
+This is free, as-is, no warranty *whatsoever* software. If you just want to run it as is for your own club or federation, just download from the [Releases](https://github.com/owlcms/owlcms4-prerelease/releases) repository and go ahead. You should perform your own tests to see if the software is fit for your own purposes and circumstances.
 
-If you host the software, package it, or modify it, the license *requires* you to make the full sources available, including your modifications and the corresponding building instructions available for free (see the [License](https://github.com/owlcms/owlcms4/blob/master/LICENSE.txt) for details.)  You may charge for your services and expertise, but everyone is entitled to the original software and to your modifications for free.
+If you host the software, package it, or modify it, the license *requires* you to make the full sources available, including your modifications and the corresponding building instructions available for free (see the [License](https://github.com/owlcms/owlcms4-prerelease/blob/master/LICENSE.txt) for details.)  You may charge for your services and expertise, but everyone is entitled to the original software and to your modifications for free.
 
 ### Authoring and Software Acknowledgments
 
