@@ -89,9 +89,9 @@ jobs:
         run: |
           git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git ${{ github.ref_name }}:master --force
 
-      - name: Save Maven dependencies cache
-        if: always()
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('pom.xml', 'shared/pom.xml', 'owlcms/pom.xml', 'publicresults/pom.xml') }}
+      # - name: Save Maven dependencies cache
+      #   if: always()
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.m2/repository
+      #     key: ${{ runner.os }}-maven-${{ hashFiles('pom.xml', 'shared/pom.xml', 'owlcms/pom.xml', 'publicresults/pom.xml') }}
