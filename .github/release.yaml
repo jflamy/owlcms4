@@ -1,0 +1,110 @@
+name: Release Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: 'Revision for the release'
+        required: true
+        default: '1.0.0'
+
+env:
+  REPO_OWNER: owlcms
+  MAVEN_OPTS: '-Xmx2048m'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      REVISION: ${{ github.event.inputs.revision }}
+      RELEASE_SUFFIX: ${{ contains(github.event.inputs.revision, '-') && '-prerelease' || '' }}
+      DOCKER_TAG: ${{ contains(github.event.inputs.revision, '-') && 'prerelease' || 'stable' }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+          
+      - name: Build owlcms
+        run: mvn -B clean package -Pproduction -am -pl owlcms -Drevision=${{ env.REVISION }}
+          
+      - name: Build publicresults
+        run: mvn -B clean package -Pproduction -am -pl publicresults -Drevision=${{ env.REVISION }}
+          
+      - name: Build and Push Docker Images
+        run: mvn -B deploy -f owlcms-docker/pom.xml -Ddockerfile.skip=false -Drevision=${{ env.REVISION }}
+        env:
+          DOCKER_REG: ${{ secrets.DOCKER_REG }}
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+          DOCKER_TAG: ${{ env.DOCKER_TAG }}
+          
+      - name: Pre-process Release Notes
+        run: mvn -B package --non-recursive -Dmaven.test.skip=true -Drevision=${{ env.REVISION }}
+        env:
+          REPO_OWNER: ${{ github.actor }}
+          H_REPO_NAME: owlcms-heroku${{ env.RELEASE_SUFFIX }}
+          P_REPO_NAME: publicresults-heroku${{ env.RELEASE_SUFFIX }}
+          O_REPO_NAME: owlcms4${{ env.RELEASE_SUFFIX }}
+          
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ env.REVISION }}
+          release_name: Release ${{ env.REVISION }}
+          draft: false
+          prerelease: ${{ contains(env.REVISION, '-') }}
+          
+      - name: Upload owlcms Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: owlcms/target/prerelease/owlcms_${{ env.REVISION }}.zip
+          asset_name: owlcms_${{ env.REVISION }}.zip
+          asset_content_type: application/zip
+          
+      - name: Upload publicresults Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: publicresults/target/prerelease/publicresults_${{ env.REVISION }}.zip
+          asset_name: publicresults_${{ env.REVISION }}.zip
+          asset_content_type: application/zip
+          
+      - name: Tag and Push to Origin
+        run: |
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git config user.name "${{ github.actor }}"
+          git checkout ${{ github.ref_name }}
+          git add -A && git commit -m "${{ env.REVISION }}" --allow-empty
+          git tag ${{ env.REVISION }} -f -a -m "${{ env.REVISION }}"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} ${{ env.REVISION }} --force
+          
+      - name: Sync Dev Doc
+        if: ${{ !contains(env.REVISION, '-') }}
+        run: |
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} ${{ github.ref_name }} --force
+          
+      - name: Sync Prerelease Repo
+        if: ${{ contains(env.REVISION, '-') }}
+        run: |
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git ${{ github.ref_name }}:master --force
+          
+      - name: Sync Release Repo
+        if: ${{ !contains(env.REVISION, '-') }}
+        run: |
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/owlcms/owlcms4.git ${{ github.ref_name }}:master --force
+          
+      - name: Release on GitHub
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            owlcms/target/prerelease/owlcms_${{ env.REVISION }}.zip
+            publicresults/target/prerelease/publicresults_${{ env.REVISION }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
