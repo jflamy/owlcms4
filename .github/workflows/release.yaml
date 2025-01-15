@@ -99,7 +99,7 @@ jobs:
           mkdir ../new-repo
           git clone https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git ../new-repo
           cd ../new-repo
-          git checkout gimaster # Explicitly check out master
+          git checkout master # Explicitly check out master
           git config --local credential.helper ""
           set +x
 
