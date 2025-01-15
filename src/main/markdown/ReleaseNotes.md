@@ -12,9 +12,10 @@
 Version Log
 
 - 55.0.0-rc05: Update the "please update" message to consider the control panel
-- 55.0.0-rc03: update to USAW age group definitions and BARS results template
-- 55.0.0-rc03: build process moved to a GitHub Actions workflow
-- 55.0.0-rc02: added a new template for exporting competition results as a flat file.
+- 55.0.0-rc05: Fetch the list of releases using the GitHub API, use semantic versioning order
+- 55.0.0-rc03: Update to USAW age group definitions and BARS results template
+- 55.0.0-rc03: Build process moved to a GitHub Actions workflow
+- 55.0.0-rc02: Added a new template for exporting competition results as a flat file.
 - 55.0.0-rc01: Mac installer for Intel mac has been renamed, adjusted documentation
 - 55.0.0-beta01: Added per-session explicit override of clean & jerk break duration
 
