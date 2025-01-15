@@ -113,8 +113,6 @@ jobs:
           git add docs
           git commit -m "Update docs from source repo"
           git push https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git master
-          git config --local --unset credential.helper
-          git config --local credential.helper ""
 
       # - name: Save Maven dependencies cache
       #   if: always()
