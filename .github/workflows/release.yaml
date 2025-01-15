@@ -102,7 +102,7 @@ jobs:
           git config user.name "${{ github.actor }}"
           git add docs
           git commit -m "Update docs to match source repo"
-          gh repo sync owlcms/owlcms4${{ env.RELEASE_SUFFIX }} -b master --force
+          git push origin master --force
           set +x
 
       # - name: Save Maven dependencies cache
