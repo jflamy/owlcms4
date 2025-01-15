@@ -111,7 +111,6 @@ jobs:
           git tag ${{ env.REVISION }}
           git push origin master --force
           git push origin ${{ env.REVISION }}
-          git push origin ${{ env.REVISION }}:refs/heads/${{ github.event.inputs.branch }}
           cd -
           set +x
 
