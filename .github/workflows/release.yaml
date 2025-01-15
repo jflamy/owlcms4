@@ -27,14 +27,6 @@ jobs:
           fetch-depth: 0
           persist-credentials: false # Disable credential persistence
 
-      - name: Checkout Target Repository
-        uses: actions/checkout@v3
-        with:
-          repository: owlcms/owlcms4${{ env.RELEASE_SUFFIX }}
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          path: ../target-repo
-          persist-credentials: false
-
       # - name: Set up JDK 17
       #   uses: actions/setup-java@v4
       #   with:
@@ -74,7 +66,7 @@ jobs:
           
       # - name: Install GitHub CLI
       #   run: sudo apt-get install gh -y
-      
+          
       # - name: Authenticate GitHub CLI
       #   run: echo "${{ secrets.PERSONAL_ACCESS_TOKEN }}" | gh auth login --with-token
           
@@ -101,17 +93,26 @@ jobs:
       #   run: |
       #     git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} ${{ github.ref_name }} --force
           
+      - name: Clone Target Repository
+        run: |
+          git clone https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git ../new-repo
+          cd ../new-repo
+          git config --local --unset credential.helper
+          git config --local credential.helper ""
+
       - name: Copy Docs Directory
         run: |
-          rm -rf ../target-repo/docs
-          cp -a docs ../target-repo/docs
+          rm -rf ../new-repo/docs
+          cp -a docs ../new-repo/docs
 
-      - name: Push branch to org repo
+      - name: Push Updated Docs to Target Repository
         run: |
-          cd ../target-repo
+          cd ../new-repo
           git add docs
           git commit -m "Update docs from source repo"
-          git push "https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git"
+          git push https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git master --force
+          git config --local --unset credential.helper
+          git config --local credential.helper ""
 
       # - name: Save Maven dependencies cache
       #   if: always()
