@@ -11,6 +11,7 @@
 
 Version Log
 
+- 55.0.0-rc03: update to USAW age group definitions and BARS results template
 - 55.0.0-rc02: added a new template for exporting competition results as a flat file.
 - 55.0.0-rc01: Mac installer for Intel mac has been renamed, adjusted documentation
 - 55.0.0-beta02: Minor fixes to the documentation
