@@ -67,6 +67,14 @@ jobs:
       - name: Install GitHub CLI
         run: sudo apt-get install gh -y
 
+      - name: Authenticate GitHub CLI for Target Repo
+        env:
+          GH_TOKEN: ${{ secrets.OWLCMS_ORG_TOKEN }}
+        run: gh auth setup-git
+
+      - name: Check Authentication Status
+        run: gh auth status
+
       - name: Clone Target Repository
         run: |
           set -x
@@ -81,16 +89,6 @@ jobs:
         run: |
           rm -rf ../new-repo/docs
           cp -a docs ../new-repo/docs
-          
-      - name: Authenticate GitHub CLI for Target Repo
-        env:
-          GH_TOKEN: ${{ secrets.OWLCMS_ORG_TOKEN }}
-        run: gh auth setup-git
-
-      - name: Check Access to Target Repository
-        env:
-          GH_TOKEN: ${{ secrets.OWLCMS_ORG_TOKEN }}
-        run: gh repo view owlcms/owlcms4${{ env.RELEASE_SUFFIX }}
 
       - name: Push Updated Docs to Target Repository
         run: |
@@ -100,7 +98,7 @@ jobs:
           git config user.name "${{ github.actor }}"
           git add docs
           git commit -m "Update docs to match source repo"
-          git push -f origin master
+          gh repo sync owlcms/owlcms4${{ env.RELEASE_SUFFIX }} -b master --force
           set +x
 
       # - name: Save Maven dependencies cache
