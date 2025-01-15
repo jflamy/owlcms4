@@ -86,15 +86,16 @@ jobs:
       #     git checkout ${{ github.ref_name }}
       #     git add -A && git commit -m "${{ env.REVISION }}" --allow-empty
       #     git tag ${{ env.REVISION }} -f -a -m "${{ env.REVISION }}"
-      #     git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }} ${{ env.REVISION }} --force
-          
+      #     git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }} ${{ env.REVISION }}
+
       # - name: Sync Dev Doc
       #   if: ${{ !contains(env.REVISION, '-') }}
       #   run: |
-      #     git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} ${{ github.ref_name }} --force
-          
+      #     git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} ${{ github.ref_name }}
+
       - name: Clone Target Repository
         run: |
+          mkdir ../new-repo
           git clone https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git ../new-repo
           cd ../new-repo
           git config --local --unset credential.helper
@@ -110,7 +111,7 @@ jobs:
           cd ../new-repo
           git add docs
           git commit -m "Update docs from source repo"
-          git push https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git master --force
+          git push https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git master
           git config --local --unset credential.helper
           git config --local credential.helper ""
 
