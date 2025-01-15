@@ -106,7 +106,7 @@ jobs:
           rm -rf ../target-repo/docs
           cp -a docs ../target-repo/docs
 
-      - name: Push branch to org repo (FORCE PUSH)
+      - name: Push branch to org repo
         run: |
           cd ../target-repo
           git add docs
