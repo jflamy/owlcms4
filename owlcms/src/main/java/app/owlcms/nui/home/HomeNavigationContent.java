@@ -29,6 +29,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.http.conn.util.InetAddressUtils;
 import org.apache.maven.artifact.versioning.ComparableVersion;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.css.grid.GridLayoutComponent.AutoFlow;
@@ -53,6 +55,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinRequest;
+import com.vaadin.flow.server.VaadinService;
 
 import app.owlcms.Main;
 import app.owlcms.apputils.DebugUtils;
@@ -76,6 +79,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.utils.IPInterfaceUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * The Class HomeNavigationContent.
@@ -291,71 +295,86 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	}
 
 	private Html checkVersion() {
+	    this.currentVersionString = OwlcmsFactory.getVersion();
+	    String suffix = this.currentVersionString.contains("-") ? "-prerelease" : "";
 
-		this.currentVersionString = OwlcmsFactory.getVersion();
-		String suffix = this.currentVersionString.contains("-") ? "-prerelease" : "";
+	    String apiUrl = "https://api.github.com/repos/owlcms/owlcms4" + suffix + "/releases";
+	    HttpRequest request = HttpRequest.newBuilder(URI.create(apiUrl))
+	            .header("Accept", "application/vnd.github.v3+json")
+	            .build();
+	    HttpClient client = HttpClient.newHttpClient();
+	    CompletableFuture<HttpResponse<String>> future = client.sendAsync(request, BodyHandlers.ofString());
+	    try {
+	        future.orTimeout(3000, TimeUnit.MILLISECONDS).whenComplete((response, exception) -> {
+	            if (exception != null) {
+	                return;
+	            }
+	            JSONArray releases = new JSONArray(response.body());
+	            if (releases.length() > 0) {
+	                List<ComparableVersion> versions = new ArrayList<>();
+	                for (int i = 0; i < releases.length(); i++) {
+	                    JSONObject release = releases.getJSONObject(i);
+	                    versions.add(new ComparableVersion(release.getString("tag_name")));
+	                }
+	                versions.sort((v1, v2) -> v2.compareTo(v1)); // Sort in descending order
+	                this.referenceVersionString = versions.get(0).toString();
+	                ComparableVersion currentVersion = new ComparableVersion(this.currentVersionString);
+	                ComparableVersion referenceVersion = new ComparableVersion(this.referenceVersionString);
+	                this.comparison = currentVersion.compareTo(referenceVersion);
+	            }
+	        }).join();
+	    } catch (Throwable e) {
+	        logger.error("version fetch timed out");
+	    }
 
-		String str = "https://raw.githubusercontent.com/owlcms/owlcms4" + suffix + "/master/version.txt";
-		HttpRequest request1 = HttpRequest.newBuilder(URI.create(str)).build();
-		HttpClient client1 = HttpClient.newHttpClient();
-		CompletableFuture<HttpResponse<String>> future = client1.sendAsync(request1, BodyHandlers.ofString());
-		try {
-			future
-			        .orTimeout(3000, TimeUnit.MILLISECONDS)
-			        .whenComplete((response, exception) -> {
-				        if (exception != null) {
-					        return;
-				        }
-				        ComparableVersion currentVersion = new ComparableVersion(this.currentVersionString);
-				        this.referenceVersionString = response.body();
-				        ComparableVersion referenceVersion = new ComparableVersion(this.referenceVersionString);
-				        this.comparison = currentVersion.compareTo(referenceVersion);
-			        })
-			        .join();
-		} catch (Throwable e) {
-			logger.error("version fetch timed out");
-		}
+	    Html div = new Html("<div></div>");
 
-		Html div = new Html("<div></div>");
+	    if (this.comparison < 999) {
+	        String runningMsg = Translator.translate("CheckVersion.running", this.currentVersionString);
+	        String referenceVersionMsg = Translator.translate(
+	                "CheckVersion.reference" + (this.referenceVersionString.contains("-") ? "Prerelease" : "Stable"),
+	                this.referenceVersionString);
+	        String okVersionMsg = Translator.translate("CheckVersion.ok");
+	        String behindVersionMsg = Translator.translate("CheckVersion.behind");
 
-		if (this.comparison < 999) {
-			String runningMsg = Translator.translate("CheckVersion.running", this.currentVersionString);
-			String referenceVersionMsg = Translator.translate(
-			        "CheckVersion.reference" + (this.referenceVersionString.contains("-") ? "Prerelease" : "Stable"),
-			        this.referenceVersionString);
-			String okVersionMsg = Translator.translate("CheckVersion.ok");
-			String behindVersionMsg = Translator.translate("CheckVersion.behind");
-			if (JPAService.isLocalDb()) {
-				behindVersionMsg = """
-				                   <a href='https://github.com/owlcms/owlcms4%s/releases/tag/%s' style='text-decoration:underline'>%s</a>
-				                   """
-				        .formatted(suffix,
-				                this.referenceVersionString,
-				                Translator.translate("CheckVersion.clickToDownload"));
-			} else {
-				behindVersionMsg = """
-				                   <a href='https://owlcms-cloud.fly.dev/apps' style='text-decoration:underline'>%s</a>
-				                   """
-				        .formatted(Translator.translate("CheckVersion.clickCloudUpdate"));
-			}
+	        String owlcmsLauncher = System.getenv("OWLCMS_LAUNCHER");
 
-			String aheadVersionMsg = Translator.translate("CheckVersion.ahead");
+	        if (JPAService.isLocalDb()) {
+	        	HttpServletRequest httpRequest = (HttpServletRequest) VaadinService.getCurrentRequest();
+	        	String remoteAddr = httpRequest.getRemoteAddr();
+	        	InetAddress inetAddress;
+	        	try {
+	        	    inetAddress = InetAddress.getByName(remoteAddr);
+	        	    if (inetAddress.isLoopbackAddress()) {
+	        	        if (owlcmsLauncher != null && !owlcmsLauncher.isBlank()) {
+	        	            behindVersionMsg = "<b>"+Translator.translate("CheckVersion.ControlPanelUpdate")+"</b>";
+	        	        }
+	        	    }
+	        	} catch (UnknownHostException e) {
+	        	    logger.error("Error checking remote address: {}", e.getMessage());
+	        	}
+	        } else {
+	            behindVersionMsg = """
+	                               <a href='https://owlcms-cloud.fly.dev/apps' style='text-decoration:underline'>%s</a>
+	                               """
+	                    .formatted(Translator.translate("CheckVersion.clickCloudUpdate"));
+	        }
 
-			if (this.referenceVersionString.contains("-alpha")) {
-				// do not recommend update to an alpha version.
-				this.comparison = 0;
-			}
-			String formatted = MessageFormat.format(
-			        "<div>{1} {0, choice, 0#{2} {3}|1#{4}|2#{2} {5}}</div>",
-			        this.comparison + 1, runningMsg, referenceVersionMsg, behindVersionMsg, okVersionMsg,
-			        aheadVersionMsg);
-			div.setHtmlContent(formatted);
-			if (this.comparison < 0) {
-				div.getStyle().set("font-weight", "bold");
-				div.getStyle().set("color", "red");
-			}
-		}
-		return div;
+	        String aheadVersionMsg = Translator.translate("CheckVersion.ahead");
+
+	        if (this.referenceVersionString.contains("-alpha")) {
+	            // do not recommend update to an alpha version.
+	            this.comparison = 0;
+	        }
+	        String formatted = MessageFormat.format(
+	                "<div>\u26A0 {1} {0, choice, 0#{2} {3}|1#{4}|2#{2} {5}}</div>",
+	                this.comparison + 1, runningMsg, referenceVersionMsg, behindVersionMsg, okVersionMsg, aheadVersionMsg);
+	        div.setHtmlContent(formatted);
+	        if (this.comparison < 0) {
+	            div.getStyle().set("color", "red");
+	        }
+	    }
+	    return div;
 	}
 
 	private void logUsage() {

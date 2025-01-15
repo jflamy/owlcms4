@@ -16,6 +16,7 @@
         <mapEntry key="OWLCMS_RESETMODE" value="true"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="mapetitevacheamalauxpattes"/>
         <mapEntry key="_OWLCMS_DEBUG" value="trace"/>
+        <mapEntry key="_OWLCMS_LAUNCHER" value="1.7.2"/>
         <mapEntry key="_OWLCMS_LOCALE" value="en_CA"/>
         <mapEntry key="_OWLCMS_REMOTE" value="http://localhost:8082"/>
     </mapAttribute>
