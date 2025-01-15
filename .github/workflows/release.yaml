@@ -6,7 +6,7 @@ on:
       revision:
         description: 'Revision for the release'
         required: true
-        default: '55.0.0-ignore00'
+        default: '55.0.0-ignore04'
 
 env:
   REPO_OWNER: owlcms
@@ -27,42 +27,42 @@ jobs:
           fetch-depth: 1
           persist-credentials: false # Disable credential persistence
 
-      # - name: Set up JDK 17
-      #   uses: actions/setup-java@v4
-      #   with:
-      #     java-version: '17'
-      #     distribution: 'temurin'
-      #     cache: 'maven'
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
           
-      # - name: Cache Maven dependencies
-      #   id: cache-maven
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: ~/.m2/repository
-      #     key: ${{ runner.os }}-maven-${{ hashFiles('pom.xml', 'shared/pom.xml', 'owlcms/pom.xml', 'publicresults/pom.xml') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-maven-${{ hashFiles('pom.xml', 'shared/pom.xml', 'owlcms/pom.xml', 'publicresults/pom.xml') }}
-      #       ${{ runner.os }}-maven-
+      - name: Cache Maven dependencies
+        id: cache-maven
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('pom.xml', 'shared/pom.xml', 'owlcms/pom.xml', 'publicresults/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-${{ hashFiles('pom.xml', 'shared/pom.xml', 'owlcms/pom.xml', 'publicresults/pom.xml') }}
+            ${{ runner.os }}-maven-
       
-      # - name: Build and Install owlcms
-      #   run: mvn -B clean install -Pproduction -am -pl owlcms -Drevision=${{ env.REVISION }} -Dmaven.test.skip
+      - name: Build and Install owlcms
+        run: mvn -B clean install -Pproduction -am -pl owlcms -Drevision=${{ env.REVISION }} -Dmaven.test.skip
           
-      # - name: Build and Install publicresults
-      #   run: mvn -B clean install -Pproduction -am -pl publicresults -Drevision=${{ env.REVISION }} -Dmaven.test.skip
+      - name: Build and Install publicresults
+        run: mvn -B clean install -Pproduction -am -pl publicresults -Drevision=${{ env.REVISION }} -Dmaven.test.skip
           
-      # - name: Build and Push Docker Images
-      #   run: mvn -B deploy -f owlcms-docker/pom.xml -Ddockerfile.skip=false -Drevision=${{ env.REVISION }}
-      #   env:
-      #     DOCKER_REG: ${{ secrets.DOCKER_REG }}
-      #     DOCKER_USER: ${{ secrets.DOCKER_USER }}
-      #     DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-      #     DOCKER_TAG: ${{ env.DOCKER_TAG }}
+      - name: Build and Push Docker Images
+        run: mvn -B deploy -f owlcms-docker/pom.xml -Ddockerfile.skip=false -Drevision=${{ env.REVISION }}
+        env:
+          DOCKER_REG: ${{ secrets.DOCKER_REG }}
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+          DOCKER_TAG: ${{ env.DOCKER_TAG }}
           
-      # - name: Pre-process Release Notes
-      #   run: mvn -B package --non-recursive -Dmaven.test.skip -Drevision=${{ env.REVISION }}
-      #   env:
-      #     REPO_OWNER: owlcms
-      #     O_REPO_NAME: owlcms4${{ env.RELEASE_SUFFIX }}
+      - name: Pre-process Release Notes
+        run: mvn -B package --non-recursive -Dmaven.test.skip -Drevision=${{ env.REVISION }}
+        env:
+          REPO_OWNER: owlcms
+          O_REPO_NAME: owlcms4${{ env.RELEASE_SUFFIX }}
           
       - name: Install GitHub CLI
         run: sudo apt-get install gh -y
@@ -85,11 +85,12 @@ jobs:
           cd ../new-repo
           git checkout master # Explicitly check out master
           git config --local credential.helper ""
+          cd -
           set +x
 
       - name: Copy Docs Directory
         run: |
-          rm -rf ../new-repo/docs
+          rm -rf ../new-repo/* # we only want the docs directory
           cp -a docs ../new-repo/docs
 
       - name: Push Updated Docs to Target Repository
@@ -98,17 +99,25 @@ jobs:
         run: |
           set -x
           cd ../new-repo
-          git remote set-url origin https://x-access-token:${{ secrets.OWLCMS_ORG_TOKEN }}@github.com/owlcms/owlcms4-prerelease.git
+          git remote set-url origin https://x-access-token:${{ secrets.OWLCMS_ORG_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git config user.name "${{ github.actor }}"
           git add docs
           git commit -m "Update docs to match source repo"
           git push origin master --force
+          cd -
           set +x
 
-      # - name: Save Maven dependencies cache
-      #   if: always()
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: ~/.m2/repository
-      #     key: ${{ runner.os }}-maven-${{ hashFiles('pom.xml', 'shared/pom.xml', 'owlcms/pom.xml', 'publicresults/pom.xml') }}
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.OWLCMS_ORG_TOKEN }}
+        run: |
+          set -x
+          gh release create ${{ env.REVISION }} \
+            --repo owlcms/owlcms4${{ env.RELEASE_SUFFIX }} \
+            --title "owlcms ${{ env.REVISION }}" \
+            --notes-file ReleaseNotes.md \
+            owlcms/target/owlcms_${{ env.REVISION }}.zip \
+            publicresults/target/publicresults_${{ env.REVISION }}.zip
+          set +x
+
