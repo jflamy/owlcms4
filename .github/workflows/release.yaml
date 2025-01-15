@@ -83,7 +83,9 @@ jobs:
           cp -a docs ../new-repo/docs
           
       - name: Authenticate GitHub CLI for Target Repo
-        run: echo "${{ secrets.OWLCMS_ORG_TOKEN }}" | gh auth login --with-token
+        env:
+          GH_TOKEN: ${{ secrets.OWLCMS_ORG_TOKEN }}
+        run: gh auth setup-git
 
       - name: Check Access to Target Repository
         run: gh repo view owlcms/owlcms4${{ env.RELEASE_SUFFIX }}
