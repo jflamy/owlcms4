@@ -83,7 +83,7 @@ jobs:
       - name: Sync Dev Doc
         if: ${{ !contains(env.REVISION, '-') }}
         run: |
-          git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }} ${{ github.ref_name }} --force
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} ${{ github.ref_name }} --force
           
       - name: Sync Repo
         run: |
