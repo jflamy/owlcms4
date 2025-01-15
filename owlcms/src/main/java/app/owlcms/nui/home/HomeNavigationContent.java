@@ -366,9 +366,10 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	            // do not recommend update to an alpha version.
 	            this.comparison = 0;
 	        }
+	        String warningUnicode = this.comparison < 0 ? "\u26A0 " : "";
 	        String formatted = MessageFormat.format(
-	                "<div>\u26A0 {1} {0, choice, 0#{2} {3}|1#{4}|2#{2} {5}}</div>",
-	                this.comparison + 1, runningMsg, referenceVersionMsg, behindVersionMsg, okVersionMsg, aheadVersionMsg);
+	                "<div>{6}{1} {0, choice, 0#{2} {3}|1#{4}|2#{2} {5}}</div>",
+	                this.comparison + 1, runningMsg, referenceVersionMsg, behindVersionMsg, okVersionMsg, aheadVersionMsg, warningUnicode);
 	        div.setHtmlContent(formatted);
 	        if (this.comparison < 0) {
 	            div.getStyle().set("color", "red");

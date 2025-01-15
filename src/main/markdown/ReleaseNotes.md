@@ -11,6 +11,7 @@
 
 Version Log
 
+- 55.0.0-rc06: No warning symbol if no need to update. Warning symbol added for red colour-blindness.
 - 55.0.0-rc05: Update the "please update" message to consider the control panel
 - 55.0.0-rc05: Fetch the list of releases using the GitHub API, use semantic versioning order
 - 55.0.0-rc03: Update to USAW age group definitions and BARS results template
