@@ -64,34 +64,8 @@ jobs:
       #     REPO_OWNER: owlcms
       #     O_REPO_NAME: owlcms4${{ env.RELEASE_SUFFIX }}
           
-      # - name: Install GitHub CLI
-      #   run: sudo apt-get install gh -y
-          
-      # - name: Authenticate GitHub CLI
-      #   run: echo "${{ secrets.PERSONAL_ACCESS_TOKEN }}" | gh auth login --with-token
-          
-      # - name: Create Release
-      #   run: gh release create ${{ env.REVISION }} --repo owlcms/owlcms4${{ env.RELEASE_SUFFIX }} --title "Release ${{ env.REVISION }}" --notes-file ReleaseNotes.md --prerelease=${{ contains(env.REVISION, '-') }}
-      
-      # - name: Upload owlcms Release Asset
-      #   run: gh release upload ${{ env.REVISION }} owlcms/target/prerelease/owlcms_${{ env.REVISION }}.zip --repo owlcms/owlcms4${{ env.RELEASE_SUFFIX }}
-      
-      # - name: Upload publicresults Release Asset
-      #   run: gh release upload ${{ env.REVISION }} publicresults/target/prerelease/publicresults_${{ env.REVISION }}.zip --repo owlcms/owlcms4${{ env.RELEASE_SUFFIX }}
-      
-      # - name: Tag and Push to Origin
-      #   run: |
-      #     git config user.email "${{ github.actor }}@users.noreply.github.com"
-      #     git config user.name "${{ github.actor }}"
-      #     git checkout ${{ github.ref_name }}
-      #     git add -A && git commit -m "${{ env.REVISION }}" --allow-empty
-      #     git tag ${{ env.REVISION }} -f -a -m "${{ env.REVISION }}"
-      #     git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }} ${{ env.REVISION }}
-
-      # - name: Sync Dev Doc
-      #   if: ${{ !contains(env.REVISION, '-') }}
-      #   run: |
-      #     git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} ${{ github.ref_name }}
+      - name: Install GitHub CLI
+        run: sudo apt-get install gh -y
 
       - name: Clone Target Repository
         run: |
@@ -107,6 +81,12 @@ jobs:
         run: |
           rm -rf ../new-repo/docs
           cp -a docs ../new-repo/docs
+          
+      - name: Authenticate GitHub CLI for Target Repo
+        run: echo "${{ secrets.OWLCMS_ORG_TOKEN }}" | gh auth login --with-token
+
+      - name: Check Access to Target Repository
+        run: gh repo view owlcms/owlcms4${{ env.RELEASE_SUFFIX }}
 
       - name: Push Updated Docs to Target Repository
         run: |
@@ -115,8 +95,8 @@ jobs:
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git config user.name "${{ github.actor }}"
           git add docs
-          git commit -m "Update docs from source repo"
-          git push -f https://x-access-token:${{ secrets.OWLCMS_ORG_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git origin master
+          git commit -m "Update docs to match source repo"
+          git push -f origin master
           set +x
 
       # - name: Save Maven dependencies cache
