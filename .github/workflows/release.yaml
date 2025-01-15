@@ -116,7 +116,7 @@ jobs:
           git config user.name "${{ github.actor }}"
           git add docs
           git commit -m "Update docs from source repo"
-          git push -f https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git origin master
+          git push -f https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git origin master
           set +x
 
       # - name: Save Maven dependencies cache
