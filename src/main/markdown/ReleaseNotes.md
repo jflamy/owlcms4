@@ -11,6 +11,7 @@
 
 Version Log
 
+- 55.0.0-rc04: Update the "please update" message to consider the control panel
 - 55.0.0-rc03: update to USAW age group definitions and BARS results template
 - 55.0.0-rc03: build process moved to a GitHub Actions workflow
 - 55.0.0-rc02: added a new template for exporting competition results as a flat file.
@@ -25,6 +26,8 @@ Version Log
 - Ability to set the duration of the clean & jerk break explicitly for a session, overriding the competition-wide rules.
 
   - A new Excel template variable `${session.cleanJerkBreakMinutes}` can be used to show this to the announcer if you have a specific template for athlete introductions
+
+- The "please update" message is now different when the program knows you are running on the same computer as the Control Panel.
 
 - Simplified Video Setup
   - The default style for Video Streaming is now `transparent` 
