@@ -1,4 +1,4 @@
-name: Release Build
+name: name: ${{ github.event.inputs.revision }}
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
       revision:
         description: 'Revision for the release'
         required: true
-        default: '55.0.0-ignore04'
+        default: '55.0.0'
 
 env:
   REPO_OWNER: owlcms
