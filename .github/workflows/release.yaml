@@ -96,6 +96,7 @@ jobs:
       - name: Clone Target Repository
         run: |
           mkdir ../new-repo
+          echo git clone https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git ../new-repo
           git clone https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git ../new-repo
           cd ../new-repo
           echo cloning done
