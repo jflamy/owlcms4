@@ -20,7 +20,12 @@ jobs:
       RELEASE_SUFFIX: ${{ contains(github.event.inputs.revision, '-') && '-prerelease' || '' }}
       DOCKER_TAG: ${{ contains(github.event.inputs.revision, '-') && 'prerelease' || 'stable' }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Dev Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+          fetch-depth: 0
+          persist-credentials: false # Disable credential persistence
 
       - name: Checkout Target Repository
         run: |
