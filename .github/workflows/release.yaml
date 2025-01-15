@@ -99,7 +99,6 @@ jobs:
           mkdir ../new-repo
           git clone https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git ../new-repo
           cd ../new-repo
-          git config --local --unset credential.helper
           git config --local credential.helper ""
           set +x
 
