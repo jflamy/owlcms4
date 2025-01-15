@@ -114,7 +114,7 @@ jobs:
         run: |
           set -x
           pwd
-          ls -lR owlcms/target publicresults/target
+          ls -lR owlcms/target publicresults/target || true
           # gh release create ${{ env.REVISION }} \
           #   --repo owlcms/owlcms4${{ env.RELEASE_SUFFIX }} \
           #   --title "owlcms ${{ env.REVISION }}" \
