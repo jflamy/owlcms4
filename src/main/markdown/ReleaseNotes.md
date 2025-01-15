@@ -28,7 +28,7 @@ Version Log
 
   - A new Excel template variable `${session.cleanJerkBreakMinutes}` can be used to show this to the announcer if you have a specific template for athlete introductions
 
-- The "please update" message is now different when the program knows you are running on the same computer as the Control Panel.
+- The "please update" message is now different when the owlcms knows it was started from the control panel.
 
 - Simplified Video Setup
   - The default style for Video Streaming is now `transparent` 
