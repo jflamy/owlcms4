@@ -73,6 +73,8 @@ jobs:
         run: gh auth setup-git
 
       - name: Check Authentication Status
+        env:
+          GH_TOKEN: ${{ secrets.OWLCMS_ORG_TOKEN }}
         run: gh auth status
 
       - name: Clone Target Repository
@@ -91,6 +93,8 @@ jobs:
           cp -a docs ../new-repo/docs
 
       - name: Push Updated Docs to Target Repository
+        env:
+          GH_TOKEN: ${{ secrets.OWLCMS_ORG_TOKEN }}
         run: |
           set -x
           cd ../new-repo
