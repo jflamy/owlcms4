@@ -114,12 +114,15 @@ jobs:
         run: |
           set -x
           pwd
-          ls -lR owlcms/target publicresults/target || true
-          # gh release create ${{ env.REVISION }} \
-          #   --repo owlcms/owlcms4${{ env.RELEASE_SUFFIX }} \
-          #   --title "owlcms ${{ env.REVISION }}" \
-          #   --notes-file ReleaseNotes.md \
-          #   owlcms/target/owlcms_${{ env.REVISION }}.zip \
-          #   publicresults/target/publicresults_${{ env.REVISION }}.zip
+          ls -l owlcms/target publicresults/target || true
+          mv owlcms/target/owlcms*.zip owlcms/target/owlcms_${{ env.REVISION }}.zip
+          mv publicresults/target/publicresults*.zip publicresults/target/publicresults_${{ env.REVISION }}.zip
+          ls -l owlcms/target publicresults/target || true
+          gh release create ${{ env.REVISION }} \
+            --repo owlcms/owlcms4${{ env.RELEASE_SUFFIX }} \
+            --title "owlcms ${{ env.REVISION }}" \
+            --notes-file ReleaseNotes.md \
+            owlcms/target/owlcms_${{ env.REVISION }}.zip \
+            publicresults/target/publicresults_${{ env.REVISION }}.zip
           set +x
 
