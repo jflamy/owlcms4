@@ -102,7 +102,7 @@ jobs:
           git remote set-url origin https://x-access-token:${{ secrets.OWLCMS_ORG_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git config user.name "${{ github.actor }}"
-          git add docs
+          git add -A
           git commit -m "Update docs to match source repo"
           git push origin master --force
           cd -
