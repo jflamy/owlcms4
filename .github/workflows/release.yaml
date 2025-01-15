@@ -98,6 +98,7 @@ jobs:
           set -x
           mkdir ../new-repo
           git clone https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git ../new-repo
+          git checkout master # Explicitly check out master
           cd ../new-repo
           git config --local credential.helper ""
           set +x
@@ -109,12 +110,14 @@ jobs:
 
       - name: Push Updated Docs to Target Repository
         run: |
+          set -x
           cd ../new-repo
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git config user.name "${{ github.actor }}"
           git add docs
           git commit -m "Update docs from source repo"
-          git push https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git master
+          git push -f https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git origin master
+          set +x
 
       # - name: Save Maven dependencies cache
       #   if: always()
