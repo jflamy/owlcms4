@@ -1,4 +1,4 @@
-name: name: ${{ github.event.inputs.revision }}
+name: ${{ github.event.inputs.revision }}
 
 on:
   workflow_dispatch:
