@@ -21,7 +21,23 @@ jobs:
       DOCKER_TAG: ${{ contains(github.event.inputs.revision, '-') && 'prerelease' || 'stable' }}
     steps:
       - uses: actions/checkout@v4
-      
+
+      - name: Checkout Target Repository
+        run: |
+          # Create target directory if it doesn't exist
+          mkdir -p ../target
+          cd ../target
+          
+          # Clone with personal token, without saving credentials
+          git clone --config credential.helper= https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git .
+          
+          # Verify clone and disable credential persistence
+          git config --local --unset credential.helper
+          git config --local credential.helper ""
+          
+          # Verify remote URL (masked token)
+          git remote -v | sed 's/https:\/\/.*@/https:\/\/****@/'
+                
       # - name: Set up JDK 17
       #   uses: actions/setup-java@v4
       #   with:
@@ -35,6 +51,9 @@ jobs:
       #   with:
       #     path: ~/.m2/repository
       #     key: ${{ runner.os }}-maven-${{ hashFiles('pom.xml', 'shared/pom.xml', 'owlcms/pom.xml', 'publicresults/pom.xml') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-maven-${{ hashFiles('pom.xml', 'shared/pom.xml', 'owlcms/pom.xml', 'publicresults/pom.xml') }}
+      #       ${{ runner.os }}-maven-
       
       # - name: Build and Install owlcms
       #   run: mvn -B clean install -Pproduction -am -pl owlcms -Drevision=${{ env.REVISION }} -Dmaven.test.skip
@@ -80,15 +99,27 @@ jobs:
       #     git tag ${{ env.REVISION }} -f -a -m "${{ env.REVISION }}"
       #     git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }} ${{ env.REVISION }} --force
           
-      - name: Sync Dev Doc
-        if: ${{ !contains(env.REVISION, '-') }}
-        run: |
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} ${{ github.ref_name }} --force
+      # - name: Sync Dev Doc
+      #   if: ${{ !contains(env.REVISION, '-') }}
+      #   run: |
+      #     git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} ${{ github.ref_name }} --force
           
-      - name: Sync Repo
+
+      # - name: Sync Repo
+      #   run: |
+      #     echo @github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git ${{ github.ref_name }}:master --force
+      #     git push https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git ${{ github.ref_name }}:master --force
+
+
+      - name: Push branch to org repo (FORCE PUSH)
         run: |
-          echo @github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git ${{ github.ref_name }}:master --force
-          git push https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git ${{ github.ref_name }}:master --force
+          cd ../target
+          git fetch origin # Fetch org's master
+          git checkout master
+          git pull origin master # Important: Pull before force-pushing
+          git remote add personal-repo https://github.com/owlcms4.git # Add remote
+          git merge personal-repo/${{ github.event.inputs.branch }} --allow-unrelated-histories # Merge directly
+          git push "https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4-prerelease.git" master --force
 
       # - name: Save Maven dependencies cache
       #   if: always()
