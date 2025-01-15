@@ -95,13 +95,13 @@ jobs:
 
       - name: Clone Target Repository
         run: |
+          set -x
           mkdir ../new-repo
-          echo git clone https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git ../new-repo
           git clone https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}.git ../new-repo
           cd ../new-repo
-          echo cloning done
           git config --local --unset credential.helper
           git config --local credential.helper ""
+          set +x
 
       - name: Copy Docs Directory
         run: |
