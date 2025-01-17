@@ -33,6 +33,7 @@ Edge is the default browser on Windows.  With Edge, the warnings are more system
 <table style="width: 100%; border-collapse: collapse;background-color:white"><tr><td><img src="img/DefenderOff/30.png"' width=300></td><td><img src="img/DefenderOff/40.png"' width=300></td></tr></table>
 
 4. You should then be able to finally open the file
+
     ![50](img/DefenderOff/50.png)
 
 5. And see the installer
