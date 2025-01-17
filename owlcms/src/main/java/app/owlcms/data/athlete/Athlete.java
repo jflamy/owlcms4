@@ -628,27 +628,57 @@ public class Athlete {
 		switch (liftNo) {
 			case 1:
 				this.setSnatch1ActualLift(weight);
-				this.setSnatch1LiftTime(LocalDateTime.now());
+				if (this.getSnatch1LiftTime() == null) {
+					this.setSnatch1LiftTime(LocalDateTime.now());
+				}
+				if (weight == null || weight.isBlank()) {
+					this.setSnatch1LiftTime(null);
+				}
 				break;
 			case 2:
 				this.setSnatch2ActualLift(weight);
-				this.setSnatch2LiftTime(LocalDateTime.now());
+				if (this.getSnatch2LiftTime() == null) {
+					this.setSnatch1LiftTime(LocalDateTime.now());
+				}
+				if (weight == null || weight.isBlank()) {
+					this.setSnatch2LiftTime(null);
+				}
 				break;
 			case 3:
 				this.setSnatch3ActualLift(weight);
-				this.setSnatch3LiftTime(LocalDateTime.now());
+				if (this.getSnatch3LiftTime() == null) {
+					this.setSnatch3LiftTime(LocalDateTime.now());
+				}
+				if (weight == null || weight.isBlank()) {
+					this.setSnatch3LiftTime(null);
+				}
 				break;
 			case 4:
 				this.setCleanJerk1ActualLift(weight);
-				this.setCleanJerk1LiftTime(LocalDateTime.now());
+				if (this.getCleanJerk1LiftTime() == null) {
+					this.setCleanJerk1LiftTime(LocalDateTime.now());
+				}
+				if (weight == null || weight.isBlank()) {
+					this.setCleanJerk1LiftTime(null);
+				}
 				break;
 			case 5:
 				this.setCleanJerk2ActualLift(weight);
-				this.setCleanJerk2LiftTime(LocalDateTime.now());
+				if (this.getCleanJerk2LiftTime() == null) {
+					this.setCleanJerk1LiftTime(LocalDateTime.now());
+				}
+				if (weight == null || weight.isBlank()) {
+					this.setCleanJerk2LiftTime(null);
+				}
 				break;
 			case 6:
 				this.setCleanJerk3ActualLift(weight);
-				this.setCleanJerk3LiftTime(LocalDateTime.now());
+				if (this.getCleanJerk3LiftTime() == null) {
+					this.setCleanJerk3LiftTime(LocalDateTime.now());
+				}
+				if (weight == null || weight.isBlank()) {
+					this.setCleanJerk3LiftTime(null);
+				}
 				break;
 		}
 	}
@@ -4049,6 +4079,7 @@ public class Athlete {
 		this.snatch1ActualLift = snatch1ActualLift;
 		getLogger().info("{}{} snatch1ActualLift={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
 		        snatch1ActualLift);
+
 		// if (zeroIfInvalid(snatch1ActualLift) == 0) {
 		// this.setSnatch1LiftTime(null);
 		// } else {
