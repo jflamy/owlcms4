@@ -8,6 +8,7 @@
 
 Maintenance Log
 
+- 55.1.0: Sort Championship Names alphabetically in filters and the editing menua
 - 55.0.3: Updated the installation and execution instructions on the Release Sites to match version 1.8.0 of the control panel.
 - 55.0.3: Fixed the installation process to create version.txt correctly for backward compatibility
 
