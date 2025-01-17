@@ -6,6 +6,11 @@
 | ------------------------------------------------------------ |
 | Starting with release 55, the installation process for running owlcms on a local machine changes.<br><br>Previously, only Windows had a full installer.  From now on all platforms use the same installation process: a "Control Panel" program available for Windows, macOS, RaspberryPi OS and Linux handles installations and updates, as well as starting/stopping owlcms.<br><br>See the [Control Panel Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) and the instructions for using the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md).<br><br>From now on the release area now only includes the owlcms files that are loaded by the control panel.  The control panel has its own [repository](https://github.com/owlcms/owlcms-controlpanel). |
 
+Maintenance Log
+
+- 55.0.3: Updated the installation and execution instructions on the Release Sites to match version 1.8.0 of the control panel.
+- 55.0.3: Fixed the installation process to create version.txt correctly for backward compatibility
+
 **New In This Release**
 
 - New [Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.) and startup instructions using the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md) for updating, launching and stopping OWLCMS on a local computer.

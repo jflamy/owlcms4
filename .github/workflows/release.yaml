@@ -92,10 +92,11 @@ jobs:
           cd -
           set +x
 
-      - name: Copy Docs Directory
+      - name: Clean Target Directory
         run: |
           rm -rf ../new-repo/* # we only want the docs directory
           cp -a docs ../new-repo/docs
+          echo ${{ env.REVISION }} > ../new-repo/version.txt
 
       - name: Push Updated Docs to Target Repository
         env:
