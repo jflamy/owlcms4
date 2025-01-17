@@ -1,42 +1,52 @@
 
 
-## Dealing with Protection Warnings
+## Dealing With File Warnings
 
-Microsoft has a very strong commitment towards protecting your PC from viruses.  Unfortunately, their process a little bit over-dramatic.  If you care, go to [bottom of this page](#why-are-there-warnings-anyway) for an explanation for the warnings why they can safely be ignored. 
+There are two types of warnings you can encounter when downloading installation files on Windows.
 
-If you just want to install, read on.
+- [Download warnings](#download-warnings), where the browser tells you it thinks there is a risk in downloading the file
+- [Windows warnings](#windows-warnings), where Windows thinks the file is potentially insecure, and asks you to confirm executing it.  These warnings only happen once.
 
-## Downloading with Chrome or Firefox
+If you care, go to [bottom of this page](#why-are-there-warnings-anyway) for an explanation for why these warnings can safely be ignored in the case of owlcms.
 
-If you download with Chrome or Firefox, you will see a blue box like the following when you double-click on the file to open.  **Click on the `More info` link.**
+## Download Warnings
 
-<img src="img/DefenderOff/0_protected.png" alt="0_protected" style="zoom: 50%;" />
+### Option 1: Avoid the issue: Download using Firefox
 
-This will make will make a `Run Anyway` button appear at the bottom. You can then **click on `Run Anyway` button to let installation proceed**.
+The simplest way to avoid download warnings is to install Firefox because it does not emit them.  You will however need to deal with [Windows warnings](#windows-warnings) (see below).
 
-## Downloading with Edge
+### Option 2: Dealing with Edge or Chrome Warnings
 
-Edge is the default browser on Windows.  With Edge, the warnings are given during at several occasions during the download process.
+Edge is the default browser on Windows.  With Edge, the warnings are more systematic.  With Chrome, sometimes you do, sometimes you don't.  The dialogs are similar on both browsers.
 
-1. Go to the releases page and click on the download link. Note in passing that Microsoft owns the Github site and could very well scan the executables there.  But if we click, we get a first menacing message "was blocked because it could harm your device".
+1. If you to to the releases page for the Control Panel and click on the Windows link, you will see a warning.
 
-   To proceed, you must <u>Click on the `...`  button and select Keep</u>
+![10](img/DefenderOff/10.png)
 
-   ![_00_keep](img/DefenderOff/_00_keep.png)
+2. *Move your mouse over the warning* and click on the `...`   If the warning goes away you can use the ↓ icon in the menu bar to make it come back.
 
-2. But then comes a second warning.
-   To get the option to continue you must <u>Click on `Show More`</u>
-   ![_10_showmore](img/DefenderOff/_10_showmore.png)
+   Select the "Keep" option.
 
-3. From the list of options, <u>select "Keep Anyway"</u>
+   ![20](img/DefenderOff/20.png)
 
-   ![_20_keepanyway](img/DefenderOff/_20_keepanyway.png)
+3. With Microsoft Edge you may in fact get more warnings and need to do `Show More` and `Keep Anyway`
+<table style="width: 100%; border-collapse: collapse;background-color:white"><tr><td><img src="img/DefenderOff/30.png"' width=300></td><td><img src="img/DefenderOff/40.png"' width=300></td></tr></table>
 
-4. You should finally see the file downloaded, and be able to click on it to open.
+4. You should then be able to finally open the file
+    ![50](img/DefenderOff/50.png)
 
-   ![_040_open](img/DefenderOff/_040_open.png)
+5. And see the installer
 
-5. Normally you are done, and you will be spared the blue dialog box when you open the file (Windows remembers it has been accepted)
+    ![60](img/DefenderOff/60.png)
+
+
+
+## Windows Warnings
+
+You may still get additional warnings when starting the Installer or the Control Panel for the first time.  Click "More Info" and then "Run anyway".  This is only needed the first time.
+<table style="width: 100%; border-collapse: collapse;background-color:white"><tr><td><img src="img/DefenderOff/70.png"' width=350></td><td><img src="img/DefenderOff/75.png"' width=350></td></tr></table>
+
+
 
 ## Why are there warnings anyway?
 

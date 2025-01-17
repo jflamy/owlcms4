@@ -1,18 +1,22 @@
-The most common option for using owlcms is to run it locally at the competition site, on a laptop.  The **owlcms control panel** is the only software you need to install.  It is extremely easy to use and handles all the steps for running and updating.
+The most common option for using owlcms is to run it locally at the competition site, on a laptop.  The **owlcms Control Panel** is the only software you need to install.  It is extremely easy to use and handles all the steps for running and updating.  The control panel hides all technical details but you can get a glimpse [here](#technical-overview).
 
 ## Using the Control Panel
 
 The control panel works the same on all the platforms (Windows, Mac, Raspberry Pi, Linux).  At a competition, only one laptop runs the control panel and owlcms.  **To install the control panel for your computer, see the [Control Panel Installation page](LocalDownloads).**
 
-When you start the control panel for the first time, it downloads the current version of owlcms, and all the necessary files to run it.  Once the copying is done, you only need to click "Launch"
+After starting the control panel, you can start and stop owlcms. To start it, use the Launch button
+
+![30](nimg/1100windows/30.png)
+
+After 15 to 30 seconds depending on your computer, a browser will show the owlcms home page.  **The address shown on the home page is important: *it is the address that all the displays and technical official browsers need to use to reach owlcms*.**
 
 ![40](nimg/1100windows/40.png)
 
 After launching, the control panel shows a "Stop" button that you can use when the competition is over.  
 
-> You should leave the control panel open (hide it behind the other windows or minimize it).  Closing the control panel when owlcms is running is the same as clicking the "Stop" button.
+> **You should leave the control panel open (hide it behind the other windows or minimize it).  Closing the control panel when owlcms is running is the same as clicking the "Stop" button.**
 
-After 10-30 seconds depending on your computer, a browser will show the owlcms home page.  The address shown on that page is important: it is the address used by the other computers on the network to reach owlcms.![50](nimg/1100windows/50.png)
+
 
 ## Updating owlcms
 
@@ -25,14 +29,17 @@ owlcms is updated frequently for new features and bug fixes.  If you don't have 
 > - Launch the old version and use the Export feature found on the Prepare Competition page.  
 > - Then use the Update button from the Control Panel
 
-### Summary
+If you prefer, you can keep your current version and install the new one.  This is done using the link at the bottom.
 
-In a typical local setup, the announcer's laptop is the main computer (but you can use any other computer on the network if you prefer). The control panel is installed on the main computer. It starts and stops the owlcms program.  All the other displays and devices talk to owlcms on the main laptop over the network (WIFI or Ethernet).  ![LocalOverview](EquipmentSetup/LocalOverview.svg)
+![70](nimg/1100windows/70.png)
 
-- owlcms runs on a single computer, no matter how many platforms are in use. This is the main computer.  When there are multiple platforms, the main laptop is often dedicated to owlcms instead of being used by an announcer.
-- The control panel is installed on the main computer to start/stop owlcms.
-- All the other displays connect to the main computer using the HTTP address shown on the initial browser.
-- Phones or tablets also connect using HTTP using their web browser.
+You will then pick your version, and the list will show both versions.
+
+![80](nimg/1100windows/80.png)
+
+ The "Import Data And Config" button allows you to copy the database (and eventual configuration changes you might have made) from another version.  In this example, we use it to copy from the previous version to the new one.
+
+![85](nimg/1100windows/85.png)
 
 ## Menus
 
@@ -51,3 +58,13 @@ The menu bar gives access to the following options
   - **Documentation** links to this web site.
   - **About** shows the version number of the control panel if you need to report a bug.
 
+## Technical Overview
+
+In a typical local setup, a laptop is used as the *main computer*. It can be any reasonable laptop. Often the announcer or marshal computer is used. The control panel is installed on the computer chosen as main computer. 
+
+The control starts and stops the owlcms program.  All the other displays and devices talk to owlcms on the main laptop over the network (WIFI or Ethernet).  ![LocalOverview](EquipmentSetup/LocalOverview.svg)
+
+- owlcms runs on a single computer, no matter how many platforms are in use. This is the main computer.  When there are multiple platforms, the main laptop is often dedicated to owlcms instead of being used by an announcer.
+- The control panel is installed on the main computer to start/stop owlcms.
+- All the other displays connect to the main computer using the HTTP address shown on the initial browser.
+- Phones or tablets also connect using HTTP using their web browser.
