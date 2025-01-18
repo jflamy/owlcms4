@@ -1,6 +1,7 @@
-> **REMINDER**
+> [!WARNING]
 >
-> - You should test all releases, with actual data, *several days* before a competition.
+> - This is a release candidate [(see definition)](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate), used for final public testing and translation. *It is still a preliminary release*
+> - You should test all releases, with actual data, *several days* before a competition. This is especially important when considering the use of a release candidate.
 
 | Introducing the Owlcms Control Panel                         |
 | ------------------------------------------------------------ |
@@ -8,8 +9,10 @@
 
 **Maintenance Log**
 
+- 55.1.0: Fix: Team Results web page had the wrong filter dropdowns in the header, resulting in blank page
 - 55.1.0: Fix: Jury could not trigger deliberation or challenge during a CJ Break.
 - 55.1.0: Sort Championship Names alphabetically in filters and the editing menus
+- 55.1.0: Additional jury decision information concerning the status of records sent to video and public results event feeds
 
 **New In This Release**
 
