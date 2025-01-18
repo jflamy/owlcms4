@@ -558,21 +558,23 @@ public class UIEvent {
 		private JuryDeliberationEventType deliberationEventType;
 		private Boolean newRecord;
 		private Boolean reversal;
-		private boolean requestForAnnounce = false;
+		private boolean waitForAnnouncer = false;
+		private Integer actualLift;
 
 		public JuryNotification(Athlete athleteUnderReview, Object origin,
 		        JuryDeliberationEventType deliberationEventType, Boolean reversal, Boolean newRecord,
-		        boolean requestForAnnounce, FieldOfPlay fop) {
+		        boolean waitForAnnouncer, FieldOfPlay fop, Integer actualLift) {
 			super(athleteUnderReview, origin, fop);
 			this.setDeliberationEventType(deliberationEventType);
 			this.setReversal(reversal);
 			this.setNewRecord(newRecord != null && newRecord);
-			logger.warn("JuryNotification newRecord {}",getNewRecord());
 			this.setTrace(() -> LoggerUtils.stackTrace());
-			this.requestForAnnounce = requestForAnnounce;
+			this.waitForAnnouncer = waitForAnnouncer;
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
 			}
+			this.setActualLift(actualLift);
+			logger.trace("====== JuryNotification wait {} newRecord {} {}",waitForAnnouncer, getNewRecord(), getTrace());
 		}
 
 		/**
@@ -586,6 +588,7 @@ public class UIEvent {
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
 			}
+			logger.trace("JuryNotification notificationString {} {}",notificationString, getTrace());
 		}
 
 		/**
@@ -606,8 +609,8 @@ public class UIEvent {
 			return this.reversal;
 		}
 
-		public boolean isRequestForAnnounce() {
-			return this.requestForAnnounce;
+		public boolean isWaitForAnnouncer() {
+			return this.waitForAnnouncer;
 		}
 
 		/**
@@ -626,6 +629,18 @@ public class UIEvent {
 
 		private void setNewRecord(Boolean newRecord) {
 			this.newRecord = newRecord;
+		}
+
+		public Integer getActualLift() {
+			return this.actualLift;
+		}
+
+		public void setWaitForAnnouncer(boolean waitForAnnouncer) {
+			this.waitForAnnouncer = waitForAnnouncer;
+		}
+
+		public void setActualLift(Integer actualLift) {
+			this.actualLift = actualLift;
 		}
 
 	}

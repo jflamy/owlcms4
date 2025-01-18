@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -76,6 +77,7 @@ import app.owlcms.uievents.UIEvent.StopTime;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.URLUtils;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -726,6 +728,11 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	@Subscribe
 	void slaveJuryNotification(UIEvent.JuryNotification e) {
+//		logger.debug("===== slaveJuryNotification {} new record = {} waitForAnnouncer = {} trace\n{}",
+//		        e.getDeliberationEventType(),
+//		        e.getNewRecord(),
+//		        e.isWaitForAnnouncer(),
+//		        e.getTrace());
 		uiLog(e);
 		pushDecision(e);
 	}
@@ -860,7 +867,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "down", Boolean.toString(isDown()));
 
 		createRecord(sb);
-		dumpMap("createDecision", event.getTrace(), sb);
+		// dumpMap("createDecision", event.getTrace(), sb);
 		return sb;
 	}
 
@@ -885,13 +892,20 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			mapPut(sb, "juryReversal", e.getReversal().toString());
 			mapPut(sb, "athleteFull", e.getAthlete().getFullName());
 			mapPut(sb, "athleteAbbreviated", e.getAthlete().getAbbreviatedName());
+			mapPut(sb, "waitForAnnouncer", Boolean.toString(e.isWaitForAnnouncer()));
+			mapPut(sb, "newRecord", Boolean.toString(e.getNewRecord()));
+			if (e.getActualLift() != null) {
+				mapPut(sb, "actualLift", Integer.toString(e.getActualLift()));
+			}
 		} else if (det == JuryDeliberationEventType.START_DELIBERATION
 		        || det == JuryDeliberationEventType.END_DELIBERATION
-		        || det == JuryDeliberationEventType.CHALLENGE) {
-			mapPut(sb, "decisionEventType", "det.name()");
+		        || det == JuryDeliberationEventType.CHALLENGE
+		        || det == JuryDeliberationEventType.END_CHALLENGE
+		        ) {
+			mapPut(sb, "decisionEventType", det.name());
 		}
 
-		dumpMap("createJuryDecision", e.getTrace(), sb);
+		//dumpMap("createJuryDecision", e.getTrace(), sb);
 		return sb;
 	}
 
@@ -998,7 +1012,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				// breakStartTimeMillis + breakMillisRemaining, sb.get("indefiniteBreak"));
 			}
 		}
-		dumpMap("createTimer", e.getTrace(), sb);
+		// dumpMap("createTimer", e.getTrace(), sb);
 		return sb;
 	}
 
@@ -1097,7 +1111,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(), this.fop.getCeremonyType()));
 		mapPut(sb, "mode", getBoardMode());
 
-		dumpMap("createUpdate " + System.identityHashCode(sb), event.getTrace(), sb);
+		// dumpMap("createUpdate " + System.identityHashCode(sb), event.getTrace(), sb);
 
 		return sb;
 	}
@@ -1236,22 +1250,23 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		doBreak(e);
 	}
 
+	@SuppressWarnings("unused")
 	private void dumpMap(String string, String string2, Map<String, String> map) {
 		// if (StartupUtils.isDebugSetting()) {
-		// Level level = logger.getLevel();
-		// try {
-		// logger.setLevel(Level.TRACE);
-		// logger.trace("=== {}\n{}", string, string2);
-		// for (Entry<String, String> m : map.entrySet()) {
-		// if (m.getKey() == "updateKey") {
-		// logger.trace(" {} = {}", m.getKey(), m.getValue() != null ? "masked "+m.getValue().length() : "masked null value");
-		// } else {
-		// logger.trace(" {} = {}", m.getKey(), m.getValue());
-		// }
-		// }
-		// } finally {
-		// logger.setLevel(level);
-		// }
+		Level level = logger.getLevel();
+		try {
+			logger.setLevel(Level.TRACE);
+			logger.trace("=== {}\n{}", string, string2);
+			for (Entry<String, String> m : map.entrySet()) {
+				if (m.getKey() == "updateKey") {
+					logger.trace(" {} = {}", m.getKey(), m.getValue() != null ? "masked " + m.getValue().length() : "masked null value");
+				} else {
+					logger.trace(" {} = {}", m.getKey(), m.getValue());
+				}
+			}
+		} finally {
+			logger.setLevel(level);
+		}
 		// }
 	}
 
@@ -1489,11 +1504,12 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		Config current = Config.getCurrent();
 		String decisionUrl = current.getParamDecisionUrl();
 		String videoUrl = current.getParamVideoDataDecisionUrl();
+		setLastDecisionMap(createJuryEvent(e));
 
 		if (decisionUrl == null && videoUrl == null) {
 			return;
 		}
-		setLastDecisionMap(createJuryEvent(e));
+
 		sendPost(videoUrl, current.getParamVideoDataKey(), getLastDecisionMap());
 		sendPost(decisionUrl, current.getUpdatekey(), getLastDecisionMap());
 	}

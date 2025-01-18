@@ -1689,7 +1689,7 @@ public class FieldOfPlay implements IUnregister {
 			JuryNotification juryNotificationEvent = new UIEvent.JuryNotification(a, e.getOrigin(),
 			        e.success ? JuryDeliberationEventType.GOOD_LIFT : JuryDeliberationEventType.BAD_LIFT,
 			        reversalToGood || reversalToBad, newRecord,
-			        waitForAnnouncer, this);
+			        waitForAnnouncer, this, (e.success ? 1 : -1)*Math.abs(actualLift));
 
 			if (waitForAnnouncer) {
 				// we will get a second JuryDecision event, coming this time from the announcer
@@ -1788,11 +1788,11 @@ public class FieldOfPlay implements IUnregister {
 	private void doSummonReferee(SummonReferee e) {
 		if (e.getRefNumber() >= 4) {
 			JuryNotification event = new UIEvent.JuryNotification(null, e.getOrigin(),
-			        JuryDeliberationEventType.CALL_TECHNICAL_CONTROLLER, null, null, false, this);
+			        JuryDeliberationEventType.CALL_TECHNICAL_CONTROLLER, null, null, false, this, null);
 			pushOutUIEvent(event);
 		} else {
 			JuryNotification event = new UIEvent.JuryNotification(null, this, JuryDeliberationEventType.CALL_REFEREES,
-			        null, null, false, this);
+			        null, null, false, this, null);
 			pushOutUIEvent(event);
 		}
 		pushOutUIEvent(new UIEvent.SummonRef(e.getRefNumber(), true, this, this));
@@ -1808,11 +1808,11 @@ public class FieldOfPlay implements IUnregister {
 					case MARSHAL:
 					case TECHNICAL:
 						pushOutUIEvent(new UIEvent.JuryNotification(this.athleteUnderReview, this,
-						        JuryDeliberationEventType.END_JURY_BREAK, null, null, false, this));
+						        JuryDeliberationEventType.END_JURY_BREAK, null, null, false, this, null));
 						break;
 					case CHALLENGE:
 						pushOutUIEvent(new UIEvent.JuryNotification(this.athleteUnderReview, this,
-						        JuryDeliberationEventType.END_CHALLENGE, null, null, false, this));
+						        JuryDeliberationEventType.END_CHALLENGE, null, null, false, this, null));
 					default:
 						break;
 				}
@@ -1822,20 +1822,20 @@ public class FieldOfPlay implements IUnregister {
 				case JURY:
 					resetJuryDecisions();
 					pushOutUIEvent(new UIEvent.JuryNotification(this.athleteUnderReview, this,
-					        JuryDeliberationEventType.START_DELIBERATION, null, null, false, this));
+					        JuryDeliberationEventType.START_DELIBERATION, null, null, false, this, null));
 					break;
 				case MARSHAL:
 					pushOutUIEvent(new UIEvent.JuryNotification(this.athleteUnderReview, this,
-					        JuryDeliberationEventType.MARSHALL, null, null, false, this));
+					        JuryDeliberationEventType.MARSHALL, null, null, false, this, null));
 					break;
 				case TECHNICAL:
 					pushOutUIEvent(new UIEvent.JuryNotification(null, this,
-					        JuryDeliberationEventType.TECHNICAL_PAUSE, null, null, false, this));
+					        JuryDeliberationEventType.TECHNICAL_PAUSE, null, null, false, this, null));
 					break;
 				case CHALLENGE:
 					resetJuryDecisions();
 					pushOutUIEvent(new UIEvent.JuryNotification(null, this,
-					        JuryDeliberationEventType.CHALLENGE, null, null, false, this));
+					        JuryDeliberationEventType.CHALLENGE, null, null, false, this, null));
 					break;
 				default:
 					break;
