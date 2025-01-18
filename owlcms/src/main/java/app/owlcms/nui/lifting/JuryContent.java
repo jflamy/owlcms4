@@ -500,7 +500,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		        Translator.translate("RefereeDecisions")
 		        + (athlete != null
 		                ? "&nbsp;&nbsp;&nbsp;" + athleteFullId(athlete) + "&nbsp;&nbsp;&nbsp;"
-		                        + (formatAttempt(athlete.getAttemptsDone()-1))
+		                        + (formatAttempt(athlete.getAttemptsDone() - 1))
 		                        + "&nbsp;&nbsp;&nbsp;" +
 		                        athlete.getRequestedWeightForAttempt(athlete.getAttemptsDone())
 		                        + Translator.translate("KgSymbol")
@@ -567,16 +567,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		Button juryDeliberationButton = new Button(
 		        new Icon(VaadinIcon.TIMER),
 		        (e) -> {
-			        FieldOfPlay fop = OwlcmsSession.getFop();
-			        if (fop.getState() == FOPState.BREAK && fop.getBreakType().isCountdown()) {
-				        slaveNotification(
-				                new UIEvent.Notification(null, this,
-				                        UIEvent.Notification.Level.ERROR,
-				                        "BreakButton.cannotInterruptBreak",
-				                        3000, fop));
-			        } else {
-				        openJuryDialog(JuryDeliberationEventType.START_DELIBERATION);
-			        }
+			        openJuryDialog(JuryDeliberationEventType.START_DELIBERATION);
 		        });
 		juryDeliberationButton.getElement().setAttribute("theme", "primary");
 		juryDeliberationButton.setText(Translator.translate("BreakButton.JuryDeliberation"));
@@ -584,16 +575,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		Button challengeButton = new Button(
 		        new Icon(VaadinIcon.TIMER),
 		        (e) -> {
-			        FieldOfPlay fop = OwlcmsSession.getFop();
-			        if (fop.getState() == FOPState.BREAK && fop.getBreakType().isCountdown()) {
-				        slaveNotification(
-				                new UIEvent.Notification(null, this,
-				                        UIEvent.Notification.Level.ERROR,
-				                        "BreakButton.cannotInterruptBreak",
-				                        3000, fop));
-			        } else {
-				        openJuryDialog(JuryDeliberationEventType.CHALLENGE);
-			        }
+			        openJuryDialog(JuryDeliberationEventType.CHALLENGE);
 		        });
 		challengeButton.getElement().setAttribute("theme", "primary");
 		challengeButton.setText(Translator.translate("BreakButton.CHALLENGE"));
