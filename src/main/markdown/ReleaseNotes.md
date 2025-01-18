@@ -6,11 +6,10 @@
 | ------------------------------------------------------------ |
 | Starting with release 55, the installation process for running owlcms on a local machine changes.<br><br>Previously, only Windows had a full installer.  From now on all platforms use the same installation process: a "Control Panel" program available for Windows, macOS, RaspberryPi OS and Linux handles installations and updates, as well as starting/stopping owlcms.<br><br>See the [Control Panel Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) and the instructions for using the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md).<br><br>From now on the release area now only includes the owlcms files that are loaded by the control panel.  The control panel has its own [repository](https://github.com/owlcms/owlcms-controlpanel). |
 
-Maintenance Log
+**Maintenance Log**
 
-- 55.1.0: Sort Championship Names alphabetically in filters and the editing menua
-- 55.0.3: Updated the installation and execution instructions on the Release Sites to match version 1.8.0 of the control panel.
-- 55.0.3: Fixed the installation process to create version.txt correctly for backward compatibility
+- 55.1.0: Fix: Jury could not trigger deliberation or challenge during a CJ Break.
+- 55.1.0: Sort Championship Names alphabetically in filters and the editing menus
 
 **New In This Release**
 
@@ -38,4 +37,4 @@ Maintenance Log
   
 
 
-For other recent changes, see [version 54 release notes](https://github.com/owlcms/owlcms4/releases/tag/54.2.1) and [version 53 release notes](https://github.com/owlcms/owlcms4/releases/tag/53.1.0)
+For other recent changes, see [version 55 release notes](https://github.com/owlcms/owlcms4/releases/tag/54.2.1) and [version 5 release notes](https://github.com/owlcms/owlcms4/releases/tag/53.1.0)
