@@ -567,6 +567,7 @@ public class UIEvent {
 			this.setDeliberationEventType(deliberationEventType);
 			this.setReversal(reversal);
 			this.setNewRecord(newRecord != null && newRecord);
+			logger.warn("JuryNotification newRecord {}",getNewRecord());
 			this.setTrace(() -> LoggerUtils.stackTrace());
 			this.requestForAnnounce = requestForAnnounce;
 			if (this.trace == null || this.trace.isBlank()) {
