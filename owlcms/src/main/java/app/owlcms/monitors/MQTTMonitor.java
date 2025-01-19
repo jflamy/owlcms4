@@ -753,9 +753,15 @@ public class MQTTMonitor extends Thread implements IUnregister {
 	}
 
 	private void publishMqttRefereeDecision(Boolean ref1, Boolean ref2, Boolean ref3) {
-		boolean decision;
-		if (ref1 == null) {
-			decision = ref2;
+		boolean decision = false;
+		if (ref1 == null || ref2 == null || ref3 == null) {
+			if (ref1 != null) {
+				decision = ref1;
+			} else if (ref2 != null) {
+				decision = ref2;
+			} else if (ref3 != null) {
+				decision = ref3;
+			}
 		} else {
 			decision = (ref1 && ref2) || (ref1 && ref3) || (ref2 && ref3);
 		}

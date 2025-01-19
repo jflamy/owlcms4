@@ -445,7 +445,7 @@ public class Competition {
 			// logger./**/warn("medalists for {}", category);
 			getPAthletes(category, medalsByCategory.get(category.getCode()), false);
 		}
-		logger.info("*** computeMedalsByCategory nbAthletes={} time={}ms", rankedAthletes.size(), System.currentTimeMillis() - before);
+		logger.info("computeMedalsByCategory nbAthletes={} time={}ms", rankedAthletes.size(), System.currentTimeMillis() - before);
 		saveAthletes(rankedAthletes);
 		return medalsByCategory;
 	}
@@ -1911,7 +1911,7 @@ public class Competition {
 			}
 			return null;
 		});
-		logger.info("*** computeMedalsByCategory saving {}ms", System.currentTimeMillis() - msBefore);
+		logger.info("computeMedalsByCategory saving {}ms", System.currentTimeMillis() - msBefore);
 	}
 
 	@SuppressWarnings({ "unchecked", "unused" })

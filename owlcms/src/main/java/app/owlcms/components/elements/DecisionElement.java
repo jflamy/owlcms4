@@ -19,6 +19,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
@@ -49,6 +50,8 @@ public class DecisionElement extends LitTemplate
 	private boolean juryMode;
 	private boolean dontReset;
 	private boolean publicFacing;
+	protected boolean downSlave;
+	private FieldOfPlay fop;
 
 	public DecisionElement() {
 	}
@@ -149,8 +152,8 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveDownSignal(UIEvent.DownSignal e) {
-		logger.trace("!!! slaveDownSignal {} {} {}", this, this.getOrigin(), e.getOrigin());
-		if (isJuryMode() || (this.getOrigin() == e.getOrigin())) {
+		logger.warn("!!! slaveDownSignal  downSlave {} emitter {}", isDownSlave(), this.getOrigin() == e.getOrigin());
+		if (isJuryMode() || ( !isDownSlave() && (this.getOrigin() == e.getOrigin()))) {
 			// we emitted the down signal, don't do it again.
 			// logger.trace("skipping down, {} is origin",this.getOrigin());
 			return;
@@ -219,6 +222,7 @@ public class DecisionElement extends LitTemplate
 			// we send on fopEventBus, listen on uiEventBus.
 			this.fopEventBus = fop.getFopEventBus();
 			this.uiEventBus = uiEventBusRegister(this, fop);
+			this.fop = fop;
 		});
 	}
 
@@ -229,4 +233,9 @@ public class DecisionElement extends LitTemplate
 	private void setJuryMode(boolean juryMode) {
 		this.juryMode = juryMode;
 	}
+	
+	public boolean isDownSlave() {
+		return this.fop.isSingleReferee();
+	}
+
 }
