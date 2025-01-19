@@ -152,7 +152,7 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveDownSignal(UIEvent.DownSignal e) {
-		logger.warn("!!! slaveDownSignal  downSlave {} emitter {}", isDownSlave(), this.getOrigin() == e.getOrigin());
+		logger.debug("!!! slaveDownSignal  downSlave {} emitter {}", isDownSlave(), this.getOrigin() == e.getOrigin());
 		if (isJuryMode() || ( !isDownSlave() && (this.getOrigin() == e.getOrigin()))) {
 			// we emitted the down signal, don't do it again.
 			// logger.trace("skipping down, {} is origin",this.getOrigin());

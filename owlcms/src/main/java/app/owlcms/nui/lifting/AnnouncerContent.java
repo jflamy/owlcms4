@@ -766,7 +766,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		long now = System.currentTimeMillis();
 		long timeElapsed = now - this.previousBadMillis;
 		if (timeElapsed > 2000 || isSingleReferee()) {
-			if (isSingleReferee()
+			if (isSingleReferee() && !fop.isAnnouncerDecisionImmediate()
 			        && (fop.getState() == FOPState.TIME_STOPPED || fop.getState() == FOPState.TIME_RUNNING)) {
 				fop.fopEventPost(new FOPEvent.DownSignal(this));
 			}
@@ -782,7 +782,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		long timeElapsed = now - this.previousGoodMillis;
 		// no reason to give two decisions close together
 		if (timeElapsed > 2000 || isSingleReferee()) {
-			if (isSingleReferee()
+			if (isSingleReferee() && !fop.isAnnouncerDecisionImmediate()
 			        && (fop.getState() == FOPState.TIME_STOPPED
 			                || fop.getState() == FOPState.TIME_RUNNING)) {
 				fop.fopEventPost(new FOPEvent.DownSignal(this));

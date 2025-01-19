@@ -1267,7 +1267,6 @@ public class FieldOfPlay implements IUnregister {
 	 * @param announcerDecisionImmediate the announcerDecisionImmediate to set
 	 */
 	public void setAnnouncerDecisionImmediate(boolean announcerDecisionImmediate) {
-		logger.warn("***** setting Announcer immediate {}", announcerDecisionImmediate);
 		this.announcerDecisionImmediate = announcerDecisionImmediate;
 	}
 
@@ -1948,7 +1947,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void emitDown(FOPEvent e) {
-		this.logger.warn("*** {}Emitting down {}", FieldOfPlay.getLoggingName(this), LoggerUtils.whereFrom(2));
+		//this.logger.debug("*** {}Emitting down {}", FieldOfPlay.getLoggingName(this), LoggerUtils.whereFrom(2));
 		getAthleteTimer().stop(); // paranoia
 		this.setPreviousAthlete(getCurAthlete()); // would be safer to use past lifting order
 		setClockOwner(null); // athlete has lifted, time does not keep running for them
@@ -2096,9 +2095,9 @@ public class FieldOfPlay implements IUnregister {
 			}
 		}
 		setGoodLift(null);
-		logger.warn("single {} nbDecisions {}", isSingleReferee(), nbDecisions);
+		//logger.debug("single {} nbDecisions {}", isSingleReferee(), nbDecisions);
 		if (isSingleReferee() && nbDecisions == 1) {
-			logger.warn("downEmitted {} {}", this.downEmitted, nbWhite);
+			//logger.debug("downEmitted {} {}", this.downEmitted, nbWhite);
 			if (!this.downEmitted) {
 				emitDown(e);
 				this.downEmitted = true;
@@ -2155,21 +2154,21 @@ public class FieldOfPlay implements IUnregister {
 
 	public void processDecisionDelay(FOPEvent e) {
 		if (!isDecisionDisplayScheduled()) {
-			logger.warn("*** not scheduled");
+//			logger.debug("*** not scheduled");
 			if (e instanceof FOPEvent.DecisionFullUpdate) {
 				if (((FOPEvent.DecisionFullUpdate) e).isImmediate()) {
-					logger.warn("*** is Immediate, full update NOW");
+//					logger.debug("*** is Immediate, full update NOW");
 					showDecisionNow(e.getOrigin());
 				} else {
-					logger.warn("*** NOT immediate, full update scheduling");
+//					logger.debug("*** NOT immediate, full update scheduling");
 					showDecisionAfterDelay(e.getOrigin(), REVERSAL_DELAY);
 				}
 			} else {
-				logger.warn("*** partial update scheduling");
+//				logger.debug("*** partial update scheduling");
 				showDecisionAfterDelay(this, REVERSAL_DELAY);
 			}
 		} else {
-			logger.warn("*** already scheduled");
+//			logger.debug("*** already scheduled");
 		}
 	}
 
@@ -3026,8 +3025,8 @@ public class FieldOfPlay implements IUnregister {
 		boolean announcerImmediate = fromAnnouncer && isAnnouncerDecisionImmediate();
 		boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
 		boolean downEmitted2 = isDownEmitted();
-		this.logger.warn("showDownSignalOnSlaveDisplays fromAnnouncer {} announcerImmediate {} emitted={}", fromAnnouncer,
-				announcerImmediate, downEmitted2);
+//		this.logger.ddebug("showDownSignalOnSlaveDisplays fromAnnouncer {} announcerImmediate {} emitted={}", fromAnnouncer,
+//				announcerImmediate, downEmitted2);
 		if (emitSoundsOnServer2 && !downEmitted2 && !announcerImmediate) {
 			// sound is synchronous, we don't want to wait.
 			new Thread(() -> {
@@ -3040,7 +3039,7 @@ public class FieldOfPlay implements IUnregister {
 			}).start();
 			setDownEmitted(true);
 		}
-		logger.warn("*** pushing down");
+//		logger.debug("*** pushing down");
 		pushOutUIEvent(new UIEvent.DownSignal(origin2, this));
 	}
 
