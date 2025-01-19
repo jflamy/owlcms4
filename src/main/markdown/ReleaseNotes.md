@@ -9,6 +9,7 @@
 
 **Maintenance Log**
 
+- 55.1.0: Fix: If the registration category was score-based (e.g., an age group with all bodyweights allowed), the weigh-in page would show meaningless eligibility categories until a body-weight was entered
 - 55.1.0: Fix: Team Results web page had the wrong filter dropdowns in the header, resulting in blank page
 - 55.1.0: Fix: Jury could not trigger deliberation or challenge during a CJ Break.
 - 55.1.0: Sort Championship Names alphabetically in filters and the editing menus
