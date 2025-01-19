@@ -18,7 +18,7 @@ The following recipe is for Windows 10 and 11. On Windows, if Ethernet is plugge
 
 ![NJ3gtayHHH](img/HotSpot/NJ3gtayHHH.png)
 
-## Tell Windows to use Wi-Fi to reach the Internet
+#### Using Wi-Fi to reach the Internet
 
 Now we have a connection to router that is NOT connected to the Internet, where owlcms and all the displays are connected.  And a Wi-Fi connection to the phone, that IS connected.  We need to tell Windows to use the Wi-Fi exclusively to get to the Internet, and to forget about the router that it would normally use to get there.
 

@@ -33,7 +33,7 @@
 * Video
   * [OBS Setup](OBS)
   * [Streaming on Facebook](Streaming)
-  * [Simultaneous WIFI and Ethernet](ph)
+  * [Simultaneous WIFI and Ethernet](WiFiPlusEthernet)
   * [Automatic Scene Switching](OBSSceneSwitching)
   * [Replays](JuryReplays)
 * Advanced Topics
