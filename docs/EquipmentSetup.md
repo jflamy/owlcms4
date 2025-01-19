@@ -82,25 +82,11 @@ If the equipment used for display has no speakers, you can get the main computer
 
 ## Internet Access
 
-When available, Internet access is used for two reasons
+If available, Internet access is used for streaming and to publish results to the cloud.   There are 3 scenarios
 
-1. On the video streaming computers, to send video to YouTube or Facebook or another streaming service
-2. On the owlcms computer send the competition results to the publicresults module of owlcms running in the cloud.  This is increasingly desirable due to the cost and difficulty of setting up a large scoreboard in the main venue.
-
-What complicates matters is that these computers also need to talk to the rest of the competition network, in addition to the Internet.
-
-There are four ways to solve the problem.
-
-1. If the facility can offer Ethernet access to their network, that is the preferred option.  Simply connect the competition router to the facility's network.
-
-2. If the facility has excellent WiFi, you can take the risk of running everything on the facility WiFi.  Large facilities often have several WiFi networks. You should not use the WiFi used by the crowd, use a separate one if available.
-
-3. You can connect the competition router to a cellular network hotspot
-
-   - Some routers (for example the ASUS RT-AX58U or RT-AX68U) have a USB port and you use a cellular phone to get Internet Access (just like sharing a connection)
-
-   - You can buy or rent a cellular router that has a SIM card.  You connect the competition router to that router, and get Internet access that way.  In the picture, the competition router is in the center.  It is plugged into the cellular router at the left to get Internet access.  The box on the right is a switch that adds additional ports to the router.
-
-![hotspot](EquipmentSetup/Networking/hotspot.png)
-
-4. You can connect OBS and owlcms to the router with a wire, and use the facility WiFi or a phone hotspot to get to the Internet.  This is the approach illustrated in the second diagram -- OBS and owlcms communicate to the Internet on their own, independently.   The configuration required is explained on [this page](PhoneHotSpot.md)
+- You are using a local router and the router is connected to the Internet using Ethernet.  There is nothing to do, all should work.
+- You are using the facility Wi-Fi for all the computers, so they all have access to the Internet.  Likewise, nothing to do.
+- You are using a local router, but there is no Ethernet access to the Internet.  There are 3 options:
+  - If there is Wi-Fi at the facility, you can wire your owlcms and OBS computers to the local router and also connect them to the facility's Wi-Fi. There is nothing required for macOS or Raspberry Pi.  For Windows, see [Using Both Ethernet and Wi-Fi](WiFiPlusEthernet)
+  - There is no Wi-Fi, but you can use a phone as a hotspot. You would use the same approach as above, see [Using Both Ethernet and Wi-Fi](WiFiPlusEthernet)
+  - You can get a device called a Cellular Router.  The competition router connects to the Cellular Router using Ethernet, and the Cellular Router connects to your LTE or 5G network.
