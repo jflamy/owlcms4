@@ -136,5 +136,4 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	private void setAutomaticReset(boolean automaticReset) {
 		this.automaticReset = automaticReset;
 	}
-
 }
