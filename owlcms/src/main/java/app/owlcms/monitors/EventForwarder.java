@@ -893,7 +893,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			mapPut(sb, "athleteFull", e.getAthlete().getFullName());
 			mapPut(sb, "athleteAbbreviated", e.getAthlete().getAbbreviatedName());
 			mapPut(sb, "waitForAnnouncer", Boolean.toString(e.isWaitForAnnouncer()));
-			mapPut(sb, "newRecord", Boolean.toString(e.getNewRecord()));
+			mapPut(sb, "recordKind", e.getNewRecord() ? "new" : "denied");
 			if (e.getActualLift() != null) {
 				mapPut(sb, "actualLift", Integer.toString(e.getActualLift()));
 			}
