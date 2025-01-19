@@ -692,7 +692,7 @@ public abstract class AthleteGridContent extends BaseContent
 	public void slaveJuryNotification(UIEvent.JuryNotification e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			JuryDeliberationEventType et = e.getDeliberationEventType();
-			if (e.isRequestForAnnounce()) {
+			if (e.isWaitForAnnouncer()) {
 				return;
 			}
 			String text = "";

@@ -48,7 +48,7 @@ public interface IFilterCascade {
 		this.getChampionshipFilter().setPlaceholder(Translator.translate("Championship"));
 		this.getChampionshipFilter().setWidth("25ch");
 		this.setChampionshipItems(Championship.findAllUsed(true));
-		this.getChampionshipFilter().setItems(this.getChampionshipItems());
+		this.getChampionshipFilter().setItems(this.getChampionshipItems().stream().sorted((o1, o2) -> o1.getName().compareTo(o2.getName())).toList());
 		this.getChampionshipFilter().setItemLabelGenerator((ad) -> ad.translate());
 		this.getChampionshipFilter().setClearButtonVisible(true);
 		this.getChampionshipFilter().getStyle().set("margin-left", "1em");

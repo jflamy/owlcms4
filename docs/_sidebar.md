@@ -33,7 +33,7 @@
 * Video
   * [OBS Setup](OBS)
   * [Streaming on Facebook](Streaming)
-  * [Internet via a Phone](PhoneHotSpot)
+  * [Simultaneous WIFI and Ethernet](WiFiPlusEthernet)
   * [Automatic Scene Switching](OBSSceneSwitching)
   * [Replays](JuryReplays)
 * Advanced Topics

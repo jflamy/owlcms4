@@ -56,7 +56,7 @@ public class EditChampionshipsDialog extends Dialog {
 
 	public void updateChampionshipsTable(VerticalLayout championshipsTable) {
 		championshipsTable.removeAll();
-		Championship.getMap().values().stream().sorted().forEach(c -> {
+		Championship.getMap().values().stream().sorted((o1,o2)-> o1.getName().compareToIgnoreCase(o2.getName())).forEach(c -> {
 			TextField nameField = new TextField();
 			nameField.setValue(c.getName());
 			Button update = new Button(Translator.translate("Update"), e -> {

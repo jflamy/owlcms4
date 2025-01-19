@@ -135,37 +135,13 @@ public class TeamResultsContent extends BaseContent
 		this.finalPackage.getStyle().set("margin-left", "1em");
 		this.download = new Button(Translator.translate(TITLE + ".Report"), new Icon(VaadinIcon.DOWNLOAD_ALT));
 
-		this.topBarAgeGroupPrefixSelect = new ComboBox<>();
-		this.topBarAgeGroupPrefixSelect.setPlaceholder(Translator.translate("AgeGroup"));
-
-		this.topBarAgeGroupPrefixSelect.setEnabled(false);
-		this.topBarAgeGroupPrefixSelect.setClearButtonVisible(true);
-		this.topBarAgeGroupPrefixSelect.setValue(null);
-		this.topBarAgeGroupPrefixSelect.setWidth("8em");
-		this.topBarAgeGroupPrefixSelect.setClearButtonVisible(true);
-		this.topBarAgeGroupPrefixSelect.getStyle().set("margin-left", "1em");
-		setAgeGroupPrefixSelectionListener();
-
-		this.topBarAgeDivisionSelect = new ComboBox<>();
-		this.topBarAgeDivisionSelect.setPlaceholder(Translator.translate("Championship"));
-		this.adItems = Championship.findAll();
-		this.topBarAgeDivisionSelect.setItems(this.adItems);
-		this.topBarAgeDivisionSelect.setItemLabelGenerator((ad) -> {
-			String name = ad.getName();
-			return name;
-		});
-		this.topBarAgeDivisionSelect.setClearButtonVisible(true);
-		this.topBarAgeDivisionSelect.setWidth("8em");
-		this.topBarAgeDivisionSelect.getStyle().set("margin-left", "1em");
-		setAgeDivisionSelectionListener();
-
 		this.finalPackage.add(this.download);
 		HorizontalLayout buttons = new HorizontalLayout(this.finalPackage);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
 		this.topBar.getStyle().set("flex", "100 1");
 		this.topBar.removeAll();
-		this.topBar.add(this.topBarAgeDivisionSelect, this.topBarAgeGroupPrefixSelect);
+		// this.topBar.add(this.topBarAgeDivisionSelect, this.topBarAgeGroupPrefixSelect);
 		this.topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
 		this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 		return this.topBar;
@@ -390,23 +366,27 @@ public class TeamResultsContent extends BaseContent
 		return crudGrid;
 	}
 
-	/**
-	 * We do not control the groups on other screens/displays
-	 *
-	 * @param crudGrid the crudGrid that will be filtered.
-	 */
 	protected void defineFilters(OwlcmsCrudGrid<TeamTreeItem> crudGrid2) {
-		// if (teamFilter == null) {
-		// teamFilter = new ComboBox<>();
-		// teamFilter.setPlaceholder(Translator.translate("Team"));
-		// teamFilter.setClearButtonVisible(true);
-		// teamFilter.addValueChangeListener(e -> {
-		// if (!teamFilterRecusion) return;
-		// crudGrid2.refreshGrid();
-		// });
-		// teamFilter.setWidth("10em");
-		// }
-		// crudGrid2.getCrudLayout().addFilterComponent(teamFilter);
+
+		this.topBarAgeGroupPrefixSelect = new ComboBox<>();
+		this.topBarAgeGroupPrefixSelect.setPlaceholder(Translator.translate("AgeGroup"));
+		this.topBarAgeGroupPrefixSelect.setEnabled(false);
+		this.topBarAgeGroupPrefixSelect.setClearButtonVisible(true);
+		this.topBarAgeGroupPrefixSelect.setValue(null);
+		this.topBarAgeGroupPrefixSelect.setWidth("15em");
+		this.topBarAgeGroupPrefixSelect.setClearButtonVisible(true);
+		this.topBarAgeGroupPrefixSelect.getStyle().set("margin-left", "1em");
+		setAgeGroupPrefixSelectionListener();
+
+		this.topBarAgeDivisionSelect = new ComboBox<>();
+		this.topBarAgeDivisionSelect.setPlaceholder(Translator.translate("Championship"));
+		this.adItems = Championship.findAllUsed(true);
+		this.topBarAgeDivisionSelect.setItems(this.adItems);
+		this.topBarAgeDivisionSelect.setItemLabelGenerator((ad) -> ad.getName());
+		this.topBarAgeDivisionSelect.setClearButtonVisible(true);
+		this.topBarAgeDivisionSelect.setWidth("15em");
+		this.topBarAgeDivisionSelect.getStyle().set("margin-left", "1em");
+		setAgeDivisionSelectionListener();
 
 		if (this.genderFilter == null) {
 			this.genderFilter = new ComboBox<>();
@@ -421,19 +401,10 @@ public class TeamResultsContent extends BaseContent
 			});
 			this.genderFilter.setWidth("10em");
 		}
-		crudGrid2.getCrudLayout().addFilterComponent(this.genderFilter);
 
-		// if (categoryFilter == null) {
-		// categoryFilter = new ComboBox<>();
-		// categoryFilter.setClearButtonVisible(true);
-		// categoryFilter.setPlaceholder(Translator.translate("Category"));
-		// categoryFilter.setClearButtonVisible(true);
-		// categoryFilter.addValueChangeListener(e -> {
-		// crudGrid2.refreshGrid();
-		// });
-		// categoryFilter.setWidth("10em");
-		// }
-		// crudGrid2.getCrudLayout().addFilterComponent(categoryFilter);
+		crudGrid2.getCrudLayout().addFilterComponent(this.topBarAgeDivisionSelect);
+		crudGrid2.getCrudLayout().addFilterComponent(this.topBarAgeGroupPrefixSelect);
+		crudGrid2.getCrudLayout().addFilterComponent(this.genderFilter);
 	}
 
 	/**

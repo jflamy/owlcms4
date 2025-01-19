@@ -1612,6 +1612,7 @@ public class Competition {
 
 	private void doComputeReportingInfo(boolean full, List<Athlete> athletes, String ageGroupPrefix,
 	        Championship ad) {
+		
 		// reporting does many database queries. fork a low-priority thread.
 		// logger.trace("doComputeReportingInfo {}",LoggerUtils.whereFrom());
 		runInThread(() -> {

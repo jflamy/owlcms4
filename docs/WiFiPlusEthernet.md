@@ -1,26 +1,24 @@
-# Internet Access using a Wi-Fi HotSpot
+# Simultaneous Ethernet and Wi-Fi
 
-If you are running a competition at a site where there is no Internet, then you need your own competition router that will give you the usual 192.168.x.y networking so you can connect your various consoles and displays.
+There are two scenarios where you might need Simultaneous Ethernet and Wi-Fi
 
-But still, you would like to run OBS and stream your competition.  Or you wish to connect your owlcms to a cloud publicresults. 
+- There is no Internet access at the facility, so you use a local router. You'd like to make the owlcms and streaming laptops talk to a phone hotspot, in addition to the wired competition router.
+- You want to use a local router with Ethernet for reliability, but you cannot connect the router to the Internet using a wired connection.  You'd like to make the owlcms and streaming laptops talk to the facility's Wi-Fi, in addition to the wired competition router.
 
-This is actually feasible using a phone hotspot. Let's take the OBS laptop as an example:
+### macOS and Raspberry Pi
 
-- OBS needs to connect to YouTube or Facebook to do the streaming.  We would like to use our phone as a WiFi hotspot to do the streaming since 1 day of competition is roughly 10GB of data and that's affordable in many countries.
-- OBS needs to connect to owlcms for results.  We can use a wired connection to the router to connect OBS to owlcms, via the competition router.
+There is nothing special to do. Connect your computer to the Wifi provided by your phone or the facility, and connect the Ethernet cable. The computer should use both
 
-The following recipe is for Windows 10 and 11.
+### Windows
 
-## Enable both Wi-Fi and Ethernet on the laptop
-
-The idea is to disable the automatic priority Windows gives to a wired connection and also to give both network adapters the same importance.
+The following recipe is for Windows 10 and 11. On Windows, if Ethernet is plugged in, the WiFi connection is ignored. The idea is to disable the automatic priority Windows gives to a wired connection and also to give both network adapters the same importance.
 
 1. Follow the steps documented in this article https://www.makeuseof.com/use-wi-fi-ethernet-simultaneously-windows/
 2. Make sure you are connected using a wire to your router, and using Wifi to your phone hotspot.  One way to do that is from the control panel, immediately after steps above.
 
 ![NJ3gtayHHH](img/HotSpot/NJ3gtayHHH.png)
 
-## Tell Windows to use Wi-Fi to reach the Internet
+#### Using Wi-Fi to reach the Internet
 
 Now we have a connection to router that is NOT connected to the Internet, where owlcms and all the displays are connected.  And a Wi-Fi connection to the phone, that IS connected.  We need to tell Windows to use the Wi-Fi exclusively to get to the Internet, and to forget about the router that it would normally use to get there.
 
