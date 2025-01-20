@@ -725,7 +725,10 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 				fop2.setAnnouncerDecisionImmediate(false);
 				fop2.setSingleReferee(singleReferee2);
 			}
-			switchImmediateDecisionMode(this, false, true);
+			if (singleReferee2) {
+				switchImmediateDecisionMode(this, false, true);
+				immediateDecision.setChecked(false);
+			}
 			//switchLiveLightsMode(this, !singleReferee2, true);
 			subItemSingleRef.setChecked(singleReferee2);
 			// immediateDecision.setChecked(!singleReferee2);

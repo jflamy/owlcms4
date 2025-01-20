@@ -132,4 +132,13 @@ jobs:
             owlcms/target/owlcms_${{ env.REVISION }}.zip \
             publicresults/target/publicresults_${{ env.REVISION }}.zip
           set +x
+      
+      - name: Tag Dev Repository
+        env:
+          GH_TOKEN: ${{ secrets.OWLCMS_ORG_TOKEN }}
+        run: |
+          set -x
+          git tag ${{ env.REVISION }}
+          git push origin ${{ env.REVISION }}
+          set +x
 
