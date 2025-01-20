@@ -774,7 +774,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		setShowSinclairRank(Competition.getCurrent().isSinclair() || Competition.getCurrent().isDisplayScoreRanks());
 
 		computeLeaders();
-		setRecords(this.fop.getRecordsJson());
+		JsonValue recordsJson = this.fop.getRecordsJson();
+		logger.warn("setting records {}",recordsJson.toJson());
+		setRecords(recordsJson);
 	}
 
 	private String computedScore(Athlete a) {
@@ -922,6 +924,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				mapPut(sb, "recordKind", "none");
 			}
 			mapPut(sb, "records", this.records.toJson());
+		} else {
+			mapPut(sb, "records", null);
 		}
 	}
 
@@ -1111,7 +1115,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(), this.fop.getCeremonyType()));
 		mapPut(sb, "mode", getBoardMode());
 
-		// dumpMap("createUpdate " + System.identityHashCode(sb), event.getTrace(), sb);
+		dumpMap("createUpdate " + System.identityHashCode(sb), event.getTrace(), sb);
 
 		return sb;
 	}
