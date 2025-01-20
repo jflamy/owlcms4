@@ -2681,8 +2681,19 @@ public class FieldOfPlay implements IUnregister {
 		// logger.debug("*** Show decision now - enter");
 		// we need to recompute majority, since they may have been reversal
 		int nbWhite = 0;
-		for (int i = 0; i < 3; i++) {
-			nbWhite = nbWhite + (Boolean.TRUE.equals(getRefereeDecision()[i]) ? 1 : 0);
+		if (isSingleReferee()) {
+			for (int i = 0; i < 3; i++) {
+				nbWhite = nbWhite + (Boolean.TRUE.equals(getRefereeDecision()[i]) ? 1 : 0);
+				// look only at first non-null
+				if (getRefereeDecision()[i] != null) {
+					nbWhite = nbWhite == 0 ? 0 : 3; // make pretend.
+					break;
+				}
+			}
+		} else {
+			for (int i = 0; i < 3; i++) {
+				nbWhite = nbWhite + (Boolean.TRUE.equals(getRefereeDecision()[i]) ? 1 : 0);
+			}
 		}
 		setAthleteUnderReview(getCurAthlete());
 		setPreviousAthlete(this.athleteUnderReview);
