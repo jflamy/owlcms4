@@ -66,13 +66,13 @@ jobs:
         run: |
           mvn -B package --non-recursive -Dmaven.test.skip -Drevision=${{ env.REVISION }}
           if [[ "${{ env.REVISION }}" == *"-alpha"* ]]; then
-            cat src/main/markdown/docs/alpha.md ReleaseNotes.md > temp.md && mv temp.md ReleaseNotes.md
+            cat src/main/markdown/alpha.md ReleaseNotes.md > temp.md && mv temp.md ReleaseNotes.md
           elif [[ "${{ env.REVISION }}" == *"-beta"* ]]; then
-            cat src/main/markdown/docs/beta.md ReleaseNotes.md > temp.md && mv temp.md ReleaseNotes.md
+            cat src/main/markdown/beta.md ReleaseNotes.md > temp.md && mv temp.md ReleaseNotes.md
           elif [[ "${{ env.REVISION }}" == *"-rc"* ]]; then
-            cat src/main/markdown/docs/rc.md ReleaseNotes.md > temp.md && mv temp.md ReleaseNotes.md
+            cat src/main/markdown/rc.md ReleaseNotes.md > temp.md && mv temp.md ReleaseNotes.md
           else
-            cat src/main/markdown/docs/release.md ReleaseNotes.md > temp.md && mv temp.md ReleaseNotes.md
+            cat src/main/markdown/release.md ReleaseNotes.md > temp.md && mv temp.md ReleaseNotes.md
           fi
         env:
           REPO_OWNER: owlcms
