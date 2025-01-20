@@ -2686,7 +2686,6 @@ public class FieldOfPlay implements IUnregister {
 		}
 		setAthleteUnderReview(getCurAthlete());
 		setPreviousAthlete(this.athleteUnderReview);
-
 		setLastChallengedRecords(this.challengedRecords);
 
 		if (nbWhite >= 2) {

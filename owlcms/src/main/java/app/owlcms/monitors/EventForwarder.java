@@ -893,7 +893,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			mapPut(sb, "athleteFull", e.getAthlete().getFullName());
 			mapPut(sb, "athleteAbbreviated", e.getAthlete().getAbbreviatedName());
 			mapPut(sb, "waitForAnnouncer", Boolean.toString(e.isWaitForAnnouncer()));
-			mapPut(sb, "recordKind", e.getNewRecord() ? "new" : "denied");
+			mapPut(sb, "recordKind", getFop().getLastChallengedRecords().isEmpty() ? "none" : (e.getNewRecord() ? "new" : "denied"));
 			if (e.getActualLift() != null) {
 				mapPut(sb, "actualLift", Integer.toString(e.getActualLift()));
 			}
@@ -905,7 +905,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			mapPut(sb, "decisionEventType", det.name());
 		}
 
-		//dumpMap("createJuryDecision", e.getTrace(), sb);
+		dumpMap("*** createJuryDecision", e.getTrace(), sb);
 		return sb;
 	}
 
