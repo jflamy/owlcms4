@@ -5,12 +5,14 @@
 
 | Introducing the Owlcms Control Panel                         |
 | ------------------------------------------------------------ |
-| Starting with release 55, the installation process for running owlcms on a local machine changes.<br><br>Previously, only Windows had a full installer.  From now on all platforms use the same installation process: a "Control Panel" program available for Windows, macOS, RaspberryPi OS and Linux handles installations and updates, as well as starting/stopping owlcms.<br><br>See the [Control Panel Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) and the instructions for using the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md).<br><br>From now on the release area now only includes the owlcms files that are loaded by the control panel.  The control panel has its own [repository](https://github.com/owlcms/owlcms-controlpanel). |
+| **The installation and update process for owlcms has changed**.<br><br>Previously, only Windows had a full installer.  From now on all platforms use the same installation process: a "Control Panel" program is now available for Windows, macOS, RaspberryPi OS and Linux. It handles installations and updates, as well as starting/stopping owlcms.<br><br>**See the [Control Panel Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) and the user guide for the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md).**<br><br>From now on the release area only includes the owlcms files that are loaded by the control panel.  The control panel has its own separate [repository](https://github.com/owlcms/owlcms-controlpanel). |
 
 **Maintenance Log**
 
+- 55.1.0: Added a competition rule to use the 20kg rule for Masters athletes instead of the official 80%
+- 55.1.0: Validate that URLs used for publicresults and video updates start with a http protocol.
 - 55.1.0: Fix: If an athlete was not eligible for any results, the publicresults record section would show the records for the previous athlete.
-- 55.1.0: "Single Referee" works for keypads
+- 55.1.0: "Single Referee" now works for keypads
 - 55.1.0: Fix: If the registration category was score-based (e.g., an age group with all bodyweights allowed), the weigh-in page did not show the expected eligibility categories until a body-weight was entered
 - 55.1.0: Fix: Team Results web page had the wrong filter dropdowns in the header, resulting in blank page
 - 55.1.0: Fix: Jury could not trigger deliberation or challenge during a CJ Break.
@@ -24,6 +26,8 @@
 - Ability to set the duration of the clean & jerk break explicitly for a session, overriding the competition-wide rules.
 
   - A new Excel template variable `${session.cleanJerkBreakMinutes}` can be used to show this to the announcer if you have a specific template for athlete introductions
+
+- Competition Rules: It is now possible to force the 20kg rule for Masters instead of the 80% rule.
 
 - Refereeing: Selecting "Single Referee" using the ⚙menu  now works with keyboard shortcut keypads (USB, Bluetooth, Joystick).  
 

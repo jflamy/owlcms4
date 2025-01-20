@@ -406,6 +406,11 @@ public class CompetitionEditingFormFactory
 		layout.addFormItem(enforce20kgRuleField, Translator.translate("Competition.enforce20kgRule"));
 		this.binder.forField(enforce20kgRuleField)
 		        .bind(Competition::isEnforce20kgRule, Competition::setEnforce20kgRule);
+		
+		Checkbox masters20kgField = new Checkbox();
+		layout.addFormItem(masters20kgField, Translator.translate("Competition.masters20kg"));
+		this.binder.forField(masters20kgField)
+		        .bind(Competition::isMasters20kg, Competition::setMasters20kg);
 
 		Checkbox snatchCJTotalField = new Checkbox();
 		layout.addFormItem(snatchCJTotalField, Translator.translate("Competition.snatchCJTotalMedals"));
