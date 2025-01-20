@@ -1,7 +1,6 @@
-> [!WARNING]
+> REMINDER
 >
-> - This is a release candidate [(see definition)](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate), used for final public testing and translation. *It is still a preliminary release*
-> - You should test all releases, with actual data, *several days* before a competition. This is especially important when considering the use of a release candidate.
+> - You should test all releases, with actual data, *several days* before a competition.
 
 | Introducing the Owlcms Control Panel                         |
 | ------------------------------------------------------------ |
@@ -9,7 +8,7 @@
 
 **Maintenance Log**
 
-- 55.1.1: "Single Referee" now works for keypads
+- 55.1.2: "Single Referee" now works for keypads
 - 55.1.0: Added a competition rule to use the 20kg rule for Masters athletes instead of the official 80%
 
 **New In This Release**
