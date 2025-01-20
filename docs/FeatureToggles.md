@@ -14,6 +14,7 @@ These switches change the default behavior of the interface
 | noLiveLights                 | If present, the speaker does not see the live decisions.     | Can be changed from the speaker settings.                    |
 | localTemplatesOnly           | If present, the default templates distributed inside the owlcms binary will not be shown.  Only the templates found in the local folder will be used.  If a .zip file is used to package the local folder and upload it to the program, then only these templates will be shown.<br />This is normally used to create a zip with only the files used in a given federation, potentially renamed in the local language. | This feature can be activated on the Languages and Settings page. |
 | shortScoreboardNames         | if present, the normal scoreboards will use the abbreviated first names | On demand, on each scoreboard                                |
+| masters20kg                  | If present, the Masters 20% rule is ignored.  Used in mixed Masters and Seniors championships that do not follow IMWA rules. | Activated as a competition rule.                             |
 
 ### General Options
 
@@ -27,7 +28,6 @@ These switches change the default behavior of the interface
 | forceAllFederationRecords | On scoreboards show records from all federations, not just that of the current athlete.  E.g. South American records would be shown for a North American athlete during a Pan American championship. | Only available as a feature switch. |
 | lightBarU13               | Ignore the 20kg bar when a youth age group includes athletes 12 or younger (U13, U11, U9 for example). | Only available as a feature switch. |
 | childrenEquipment         | If present, it is assumed that all platforms have 2,5kg and 5kg large discs, and have 5kg and 10kg bars | Only available as a feature switch. |
-| masters20kg               | If present, the Masters 20% rule is ignored.  Used in mixed Masters and Seniors championships that do not follow IMWA rules. | Only available as a feature switch. |
 | interimScores             | If present, the Sinclair/SM(H)F/Q-points scores will be shown on the scoreboard and included in the results documents even if the total is 0. | Only available as a feature switch. |
 
 ### Specialty Features
