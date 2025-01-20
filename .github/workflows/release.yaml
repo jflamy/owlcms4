@@ -6,7 +6,7 @@ on:
       revision:
         description: 'Revision for the release'
         required: true
-        default: '55.1.1'
+        default: '55.1.2'
 
 env:
   REPO_OWNER: owlcms

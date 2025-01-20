@@ -6,7 +6,7 @@
 
 **Maintenance Log**
 
-- 55.1.1: "Single Referee" now works for keypads
+- 55.1.2: "Single Referee" now works for keypads
 - 55.1.0: Added a competition rule to use the 20kg rule for Masters athletes instead of the official 80%
 
 **New In This Release**
