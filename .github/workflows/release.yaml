@@ -62,8 +62,18 @@ jobs:
           DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
           DOCKER_TAG: ${{ env.DOCKER_TAG }}
           
-      - name: Pre-process Release Notes
-        run: mvn -B package --non-recursive -Dmaven.test.skip -Drevision=${{ env.REVISION }}
+      - name: Pre-process Documentation and Release Notes
+        run: |
+          mvn -B package --non-recursive -Dmaven.test.skip -Drevision=${{ env.REVISION }}
+          if [[ "${{ env.REVISION }}" == *"-alpha"* ]]; then
+            cat markdown/docs/alpha.md ReleaseNotes.md > temp.md && mv temp.md ReleaseNotes.md
+          elif [[ "${{ env.REVISION }}" == *"-beta"* ]]; then
+            cat markdown/docs/beta.md ReleaseNotes.md > temp.md && mv temp.md ReleaseNotes.md
+          elif [[ "${{ env.REVISION }}" == *"-rc"* ]]; then
+            cat markdown/docs/rc.md ReleaseNotes.md > temp.md && mv temp.md ReleaseNotes.md
+          else
+            cat markdown/docs/release.md ReleaseNotes.md > temp.md && mv temp.md ReleaseNotes.md
+          fi
         env:
           REPO_OWNER: owlcms
           O_REPO_NAME: owlcms4${{ env.RELEASE_SUFFIX }}
@@ -132,8 +142,8 @@ jobs:
             owlcms/target/owlcms_${{ env.REVISION }}.zip \
             publicresults/target/publicresults_${{ env.REVISION }}.zip
           set +x
-      
-      - name: Tag Dev Repository
+          
+      - name: Tag Source Repository
         env:
           GH_TOKEN: ${{ secrets.OWLCMS_ORG_TOKEN }}
         run: |

@@ -1,11 +1,8 @@
-> [!WARNING]
->
-> - This is a release candidate [(see definition)](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate), used for final public testing and translation. *It is still a preliminary release*
-> - You should test all releases, with actual data, *several days* before a competition. This is especially important when considering the use of a release candidate.
+
 
 | Introducing the Owlcms Control Panel                         |
 | ------------------------------------------------------------ |
-| **The installation and update process for owlcms has changed**.<br><br>Previously, only Windows had a full installer.  From now on all platforms use the same installation process: a "Control Panel" program is now available for Windows, macOS, RaspberryPi OS and Linux. It handles installations and updates, as well as starting/stopping owlcms.<br><br>**See the [Control Panel Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) and the user guide for the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md).**<br><br>From now on the release area only includes the owlcms files that are loaded by the control panel.  The control panel has its own separate [repository](https://github.com/owlcms/owlcms-controlpanel). |
+| **New and improved installation process for owlcms**.<br><br>Previously, only Windows had a full installer.  From now on all platforms use the same installation process: a "Control Panel" program is now available for Windows, macOS, RaspberryPi OS and Linux. It handles installations and updates, as well as starting/stopping owlcms.<br><br>**See the [Control Panel Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) and the user guide for the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md).**<br><br>From now on the release area only includes the owlcms files that are loaded by the control panel.  The control panel has its own separate [repository](https://github.com/owlcms/owlcms-controlpanel). |
 
 **Maintenance Log**
 
