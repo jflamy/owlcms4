@@ -48,6 +48,7 @@ import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.validator.RegexpValidator;
 
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
@@ -432,6 +433,7 @@ public class ConfigEditingFormFactory
 		layout.addFormItem(publicResultsField, Translator.translate("Config.publicResultsURL"));
 		this.binder.forField(publicResultsField)
 		        .withNullRepresentation("")
+		        .withValidator(new RegexpValidator(Translator.translate("URL.missingProtocol"),"^(http://|https://).*"))
 		        .bind(Config::getPublicResultsURL, Config::setPublicResultsURL);
 
 		PasswordField updateKey = new PasswordField();
@@ -464,6 +466,7 @@ public class ConfigEditingFormFactory
 		layout.addFormItem(stylesField, Translator.translate("Config.stylesLabel"));
 		this.binder.forField(stylesField)
 		        .withNullRepresentation("")
+		        .withValidator(new RegexpValidator(Translator.translate("URL.missingProtocol"),"^(http://|https://).*"))
 		        .bind(Config::getStylesDirBase, Config::setStylesDirectory);
 
 		TextField videoStylesField = new TextField();

@@ -933,7 +933,11 @@ public class Config {
 	}
 
 	public void setPublicResultsURL(String publicResultsURL) {
-		this.publicResultsURL = publicResultsURL;
+		if (publicResultsURL != null && !publicResultsURL.startsWith("http")) {
+			this.publicResultsURL = "https://"+publicResultsURL;
+		} else {
+			this.publicResultsURL = publicResultsURL;
+		}
 	}
 
 	public void setSkipReading(boolean b) {
