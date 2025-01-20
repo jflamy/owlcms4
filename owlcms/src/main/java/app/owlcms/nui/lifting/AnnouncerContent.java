@@ -667,10 +667,10 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		subItemSingleRef.setCheckable(true);
 		subItemSingleRef.setChecked(this.isSingleReferee());
 
-		MenuItem immediateDecision = subMenu2.addItem(
-		        Translator.translate("Settings.ImmediateDecision"));
-		immediateDecision.setCheckable(true);
-		immediateDecision.setChecked(fop.isAnnouncerDecisionImmediate());
+//		MenuItem immediateDecision = subMenu2.addItem(
+//		        Translator.translate("Settings.ImmediateDecision"));
+//		immediateDecision.setCheckable(true);
+//		immediateDecision.setChecked(fop.isAnnouncerDecisionImmediate());
 
 		MenuItem showLights = subMenu2.addItem(
 		        Translator.translate("DisplayParameters.showDecisionLights"),
@@ -707,27 +707,27 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		showDeclarations.setCheckable(true);
 		showDeclarations.setChecked(this.isDeclarations());
 
-		immediateDecision.addClickListener(e -> {
-			boolean announcerDecisionImmediate = !fop.isAnnouncerDecisionImmediate();
-			switchImmediateDecisionMode(this, announcerDecisionImmediate, true);
-			switchSingleRefereeMode(this, !announcerDecisionImmediate, true);
-			switchLiveLightsMode(this, !announcerDecisionImmediate, true);
-			subItemSingleRef.setChecked(!announcerDecisionImmediate);
-			immediateDecision.setChecked(announcerDecisionImmediate);
-			showLights.setChecked(isLiveLights());
-		});
+//		immediateDecision.addClickListener(e -> {
+//			boolean announcerDecisionImmediate = !fop.isAnnouncerDecisionImmediate();
+//			switchImmediateDecisionMode(this, announcerDecisionImmediate, true);
+//			switchSingleRefereeMode(this, !announcerDecisionImmediate, true);
+//			switchLiveLightsMode(this, !announcerDecisionImmediate, true);
+//			subItemSingleRef.setChecked(!announcerDecisionImmediate);
+//			immediateDecision.setChecked(announcerDecisionImmediate);
+//			showLights.setChecked(isLiveLights());
+//		});
+		
 		subItemSingleRef.addClickListener(e -> {
-			// single referee implies showing down
 			boolean singleReferee2 = !this.isSingleReferee();
 			switchSingleRefereeMode(this, singleReferee2, true);
 			FieldOfPlay fop2 = OwlcmsSession.getFop();
 			if (fop2 != null) {
-				fop2.setAnnouncerDecisionImmediate(false);
+//				fop2.setAnnouncerDecisionImmediate(false);
 				fop2.setSingleReferee(singleReferee2);
 			}
 			if (singleReferee2) {
 				switchImmediateDecisionMode(this, false, true);
-				immediateDecision.setChecked(false);
+//				immediateDecision.setChecked(false);
 			}
 			//switchLiveLightsMode(this, !singleReferee2, true);
 			subItemSingleRef.setChecked(singleReferee2);
