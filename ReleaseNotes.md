@@ -1,6 +1,7 @@
-> REMINDER
+> [!WARNING]
 >
-> - You should test all releases, with actual data, *several days* before a competition.
+> - This is a release candidate [(see definition)](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate), used for final public testing and translation. *It is still a preliminary release*
+> - You should test all releases, with actual data, *several days* before a competition. This is especially important when considering the use of a release candidate.
 
 | Introducing the Owlcms Control Panel                         |
 | ------------------------------------------------------------ |
@@ -8,15 +9,8 @@
 
 **Maintenance Log**
 
+- 55.1.1: "Single Referee" now works for keypads
 - 55.1.0: Added a competition rule to use the 20kg rule for Masters athletes instead of the official 80%
-- 55.1.0: Validate that URLs used for publicresults and video updates start with a http protocol.
-- 55.1.0: Fix: If an athlete was not eligible for any results, the publicresults record section would show the records for the previous athlete.
-- 55.1.0: "Single Referee" now works for keypads
-- 55.1.0: Fix: If the registration category was score-based (e.g., an age group with all bodyweights allowed), the weigh-in page did not show the expected eligibility categories until a body-weight was entered
-- 55.1.0: Fix: Team Results web page had the wrong filter dropdowns in the header, resulting in blank page
-- 55.1.0: Fix: Jury could not trigger deliberation or challenge during a CJ Break.
-- 55.1.0: Sort Championship Names alphabetically in filters and the editing menus
-- 55.1.0: Additional jury decision information concerning the status of records sent to video and public results event feeds
 
 **New In This Release**
 
