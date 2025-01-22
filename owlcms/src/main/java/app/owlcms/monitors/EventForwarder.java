@@ -10,6 +10,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -194,7 +195,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		// String updateKeyV = Config.getCurrent().getParamVideoDataKey();
 		String updateUrlV = Config.getCurrent().getParamVideoDataURL();
 		if (updateUrlV == null || updateUrlV.trim().isEmpty()) {
-			logger.info("{}video data  not enabled.", FieldOfPlay.getLoggingName(getFop()));
+			logger.info("{}video data not enabled.", FieldOfPlay.getLoggingName(getFop()));
 		} else {
 			logger.info("{}video data enabled, pushing to {}", FieldOfPlay.getLoggingName(getFop()), updateUrlV);
 		}
@@ -862,6 +863,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "break", String.valueOf(isBreak()));
 
 		// current athlete & attempt
+		mapPut(sb, "fullName", this.fullName);
+		mapPut(sb, "attemptNumber", this.attemptNumber != null ? this.attemptNumber.toString() : null); // 1..3
+		mapPut(sb, "liftTypeKey", this.liftTypeKey);
 		mapPut(sb, "d1", getDecisionLight1() != null ? getDecisionLight1().toString() : null);
 		mapPut(sb, "d2", getDecisionLight2() != null ? getDecisionLight2().toString() : null);
 		mapPut(sb, "d3", getDecisionLight3() != null ? getDecisionLight3().toString() : null);
@@ -869,7 +873,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "down", Boolean.toString(isDown()));
 
 		createRecord(sb);
-		// dumpMap("createDecision", event.getTrace(), sb);
+		dumpMap("createDecision", event.getTrace(), sb);
 		return sb;
 	}
 
@@ -936,6 +940,12 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "fopName", getFop().getName());
 		setMapFopState(sb);
 		mapPut(sb, "mode", getBoardMode());
+		
+		// current athlete info
+		mapPut(sb, "fullName", this.fullName);
+		mapPut(sb, "attemptNumber", this.attemptNumber != null ? this.attemptNumber.toString() : null); // 1..3
+		mapPut(sb, "liftTypeKey", this.liftTypeKey);
+		mapPut(sb, "serverLocalTime", LocalTime.now().toString());
 
 		Integer breakMillisRemaining = null;
 		Integer athleteMillisRemaining = null;
@@ -1016,7 +1026,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				// breakStartTimeMillis + breakMillisRemaining, sb.get("indefiniteBreak"));
 			}
 		}
-		// dumpMap("createTimer", e.getTrace(), sb);
+		dumpMap("createTimer", e.getTrace(), sb);
 		return sb;
 	}
 
@@ -1077,7 +1087,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "fullName", this.fullName);
 		mapPut(sb, "teamName", this.teamName);
 		mapPut(sb, "attempt", this.attempt);
-		mapPut(sb, "attemptNumber", this.attemptNumber != null ? this.attemptNumber.toString() : null);
+		mapPut(sb, "attemptNumber", this.attemptNumber != null ? this.attemptNumber.toString() : null); // 1..3
 		mapPut(sb, "weight", this.weight != null ? this.weight.toString() : null);
 		mapPut(sb, "timeAllowed", this.timeAllowed != null ? this.timeAllowed.toString() : null);
 
@@ -1086,7 +1096,6 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "groupDescription", getGroupDescription());
 		mapPut(sb, "groupInfo", getGroupInfo());
 		mapPut(sb, "liftTypeKey", this.liftTypeKey);
-		mapPut(sb, "liftType", this.liftType);
 		mapPut(sb, "liftsDone", getLiftsDone());
 
 		// bottom tables
@@ -1115,7 +1124,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(), this.fop.getCeremonyType()));
 		mapPut(sb, "mode", getBoardMode());
 
-		dumpMap("createUpdate " + System.identityHashCode(sb), event.getTrace(), sb);
+		//dumpMap("createUpdate " + System.identityHashCode(sb), event.getTrace(), sb);
 
 		return sb;
 	}

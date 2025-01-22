@@ -466,7 +466,6 @@ public class ConfigEditingFormFactory
 		layout.addFormItem(stylesField, Translator.translate("Config.stylesLabel"));
 		this.binder.forField(stylesField)
 		        .withNullRepresentation("")
-		        .withValidator(new RegexpValidator(Translator.translate("URL.missingProtocol"),"^(http://|https://).*"))
 		        .bind(Config::getStylesDirBase, Config::setStylesDirectory);
 
 		TextField videoStylesField = new TextField();
@@ -572,6 +571,7 @@ public class ConfigEditingFormFactory
 		layout.addFormItem(videoDataField, Translator.translate("Config.videoDataURL"));
 		this.binder.forField(videoDataField)
 		        .withNullRepresentation("")
+		        .withValidator(new RegexpValidator(Translator.translate("URL.missingProtocol"),"^(http://|https://).*"))
 		        .bind(Config::getVideoDataURL, Config::setVideoDataURL);
 
 		PasswordField updateKey = new PasswordField();
