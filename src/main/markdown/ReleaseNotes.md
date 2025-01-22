@@ -6,6 +6,7 @@
 
 **Maintenance Log**
 
+- 55.1.3: Changes to Language and System Settings could not be saved due to a validation done on the wrong field
 - 55.1.3: When defining categories on the registration or SBDE spreadsheet, use `;` or `,` as delimiter.  Use of `/` is ambiguous and is no longer accepted.
 - 55.1.2: "Single Referee" now works for keypads
 - 55.1.0: Added a competition rule to use the 20kg rule for Masters athletes instead of the official 80%
