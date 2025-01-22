@@ -403,11 +403,12 @@ public class RAthlete {
 			return;
 		}
 		// create a parts as in the legacy
+		boolean usaw = Config.getCurrent().featureSwitch("usawSessionBlocks");
 		if (Config.getCurrent().featureSwitch("usawSessionBlocks")) {
 			s = s.replaceAll("(\\d+)\\s?kg", "$1");
 		}
 
-		String[] allParts = s.split(",|;|\\/");
+		String[] allParts = usaw ? s.split(",|;|\\/") : s.split(",|;");
 		List<String> partsList = Arrays.asList(allParts).stream()
 		        .filter(s1 -> (s1 != null && !s1.isBlank()))
 		        .map(s1 -> s1.trim())
