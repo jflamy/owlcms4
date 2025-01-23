@@ -873,7 +873,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "down", Boolean.toString(isDown()));
 
 		createRecord(sb);
-		dumpMap("createDecision", event.getTrace(), sb);
+		//dumpMap("createDecision", event.getTrace(), sb);
 		return sb;
 	}
 
@@ -1026,7 +1026,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				// breakStartTimeMillis + breakMillisRemaining, sb.get("indefiniteBreak"));
 			}
 		}
-		dumpMap("createTimer", e.getTrace(), sb);
+		//dumpMap("createTimer", e.getTrace(), sb);
 		return sb;
 	}
 
@@ -1809,6 +1809,10 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		setFopState(state);
 		setBreakType(breakType);
 		setCeremonyType(ceremonyType);
+	}
+
+	public String getLiftType() {
+		return liftType;
 	}
 
 }
