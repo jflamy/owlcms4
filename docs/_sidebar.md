@@ -5,6 +5,9 @@
 * Running Locally
   * [owlcms Control Panel](LocalControlPanel)
   * [Initial Installation](LocalDownloads)
+    * [Windows](LocalWindowsSetup)
+    * [macOS](LocalMacSetup)
+    * [Raspberry Pi/Linux](LocalPiLinuxSetup)
   * [Equipment Setup](EquipmentSetup)
 * Running in the Cloud
   * [Overview](CloudOverview)

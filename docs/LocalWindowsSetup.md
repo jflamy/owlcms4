@@ -1,35 +1,65 @@
-## Windows Installation
+## Short Instructions
 
-### Installation
+If you are familiar with Windows and downloading programs
 
-- Click on this link: [Release Repository](https://github.com/owlcms/owlcms-controlpanel/releases).  **Scroll down to the Assets section**.
-  
-- Download the file named **Windows_Control_Panel_Installer** 
-  If you get Warnings about the file as in the picture, see [these instructions](DefenderOff)
+1. **Download [owlcms-controlpanel.exe](https://github.com/owlcms/owlcms-controlpanel/releases/latest/download/owlcms-controlpanel.exe)** and accept all the security warnings.
+2. **Drag** the downloaded file to your desktop
+3. **Double-click** on the file.  The first time, this will download the latest owlcms and the files required to run it.  To use the control panel, see [Local Control Panel Overview](LocalControlPanel)
 
-  ![10](img/DefenderOff/10.png)
+You're done.
 
 
-> **Caution: Windows may <u>falsely</u> signal the presence of a virus and refuse to download.**
->
-> - There is no absolutely no virus in the installer, Windows is confused.  The false detection has been reported to Microsoft
-> - Workaround: you look in the Assets list, you will find a file called `owlcms-controlpanel.exe`   This is the actual program that the installer would have installed.
-> - Download `owlcms-controlpanel.exe`   This does not trigger the alert.  Move the file from your download area to your desktop.  Go to [Running owlcms](#running-owlcms) at the bottom of this page for the next steps.
 
-- Once the file downloads, use the "Open File" link, or go to you Downloads folder and execute the file.
+## Detailed Instructions
 
-  ![50](img/DefenderOff/50.png)
+Downloading the file involves a sequence of warnings.  If you are using Firefox, you won't get any of this.  A little bit less if you are using Chrome.  Edge is the one with most warnings, and is illustrated below.
 
-- This will start the installer.  The installer will add an "owlcms Control Panel" icon on the Desktop, and a section in the start menu.
+### Downloading
 
-  ![50](img/DefenderOff/60.png)
+- **Click on this link [owlcms_controlpanel.exe](https://github.com/owlcms/owlcms_controlpanel/releases/latest/download/owlcms-controlpanel.exe)** to start the download process.  You can also go to the [release downloads area](https://github.com/owlcms/owlcms-controlpanel/releases) and click on the file called owlcms-controlpanel.exe
+  - You will immediately get a warning that the file is not commonly downloaded.
 
-### Running OWLCMS
 
-- To run the program, double-click on the Desktop Icon, or use the entry for "owlcms Control Panel" in the start menu
-  - The first time you run the file, it is possible that Windows will complain.  Should that be the case Click on **More Info** and then, at the bottom, click on **Run Anyway**
+![edge20](nimg/1100WindowsExe/edge20.png)
+
+- Move your cursor to the warning, until you see the ... appear at the right.  
+
+![edge30](nimg/1100WindowsExe/edge30.png)
+
+- CLick on the ... and select the option to keep
+
+![edge40](nimg/1100WindowsExe/edge40.png)
+
+- You are now asked to confirm your confirmation again (!) Click the "Show" item at the bottom, and then click on "Keep Anyway"
+
+![edge50](nimg/1100WindowsExe/edge50.png)
+
+- The file will *finally* download.  
+- Locate the folder icon at the top of the box to open the Downloads folder
+
+![edge60](nimg/1100WindowsExe/edge60.png)
+
+You can also use the ... menu at the top right of the browser, and then scroll down to the "Downloads area". Once you select that you will see a list and you will also see options to open the Downloads folder.
+
+### Installing
+
+- Once you have opened the Downloads folder, locate the `owlcms_controlpanel` file (you may or may not see a `.exe` extension depending on your Windows settings.)
+- Drag the owlcms_controlpanel file to the Desktop (or if you prefer, copy and paste the file to your Desktop)
+  - You can rename it or place it anywhere you want.
+
+![edge70](nimg/1100WindowsExe/edge80.png)
+
+
+
+- To finish installing the program, double-click on the icon you created on the Desktop
+  - The first time you run the file, it is possible that Windows will complain with a blue Warning.  Should that be the case Click on **More Info** and then, at the bottom, click on **Run Anyway**
 
 - The first time you run the Control Panel, it will detect that no version is installed and download the current version of owlcms, and the Java runtime files necessary to execute it.
-  ![25](nimg/1100windows/25.png)
+
+![firefox80](nimg/1100WindowsExe/firefox80.png)
+
 - You will then see the Control Panel
+
+### Running owlcms
+
 - Once this is done, you can **follow the steps shown in the [Local Control Panel Overview](LocalControlPanel)**

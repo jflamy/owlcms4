@@ -1,5 +1,3 @@
-## macOS Installation
-
 ### Installation
 
 - Click on this link: [Release Repository](https://github.com/owlcms/owlcms-controlpanel/releases).  **Scroll down to the Assets section**.
