@@ -35,4 +35,4 @@ database/owlcms.mv.db
 /fly.toml
 /mqttData/
 /nohup.out
-/output.mp4
+/*.mp4
