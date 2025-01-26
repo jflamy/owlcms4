@@ -16,7 +16,7 @@ Downloading the file involves a sequence of warnings.  If you are using Firefox,
 
 ### Downloading
 
-- **Click on this link [owlcms_controlpanel.exe](https://github.com/owlcms/owlcms_controlpanel/releases/latest/download/owlcms-controlpanel.exe)** to start the download process.  You can also go to the [release downloads area](https://github.com/owlcms/owlcms-controlpanel/releases) and click on the file called owlcms-controlpanel.exe
+- **Click on this link [owlcms_controlpanel.exe](https://github.com/owlcms/owlcms-controlpanel/releases/latest/download/owlcms_controlpanel.exe)** to start the download process.  You can also go to the [release downloads area](https://github.com/owlcms/owlcms-controlpanel/releases) and click on the file called owlcms-controlpanel.exe
   - You will immediately get a warning that the file is not commonly downloaded.
 
 
