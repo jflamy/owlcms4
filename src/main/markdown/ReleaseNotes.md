@@ -17,6 +17,8 @@
 
 - New [Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.) and startup instructions using the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md) for updating, launching and stopping OWLCMS on a local computer.
 
+- Inclusion of 2025 Youth body weight classes in the AgeGroups2025 age group template
+
 - Ability to set the duration of the clean & jerk break explicitly for a session, overriding the competition-wide rules.
 
   - A new Excel template variable `${session.cleanJerkBreakMinutes}` can be used to show this to the announcer if you have a specific template for athlete introductions
