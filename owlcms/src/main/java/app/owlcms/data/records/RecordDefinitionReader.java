@@ -268,6 +268,9 @@ public class RecordDefinitionReader {
 										}
 									} else if (cell.getCellType() == CellType.STRING) {
 										String cellValue = cell.getStringCellValue();
+										if (cellValue != null && cellValue.isBlank()) {
+											break;
+										}
 										logger.debug("string value = '{}'", cellValue);
 										try {
 											LocalDate date = LocalDate.parse(cellValue, ymdFormatter);
