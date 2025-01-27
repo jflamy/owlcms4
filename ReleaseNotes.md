@@ -1,6 +1,7 @@
-> REMINDER
+> [!WARNING]
 >
-> - You should test all releases, with actual data, *several days* before a competition.
+> - This is a release candidate [(see definition)](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate), used for final public testing and translation. *It is still a preliminary release*
+> - You should test all releases, with actual data, *several days* before a competition. This is especially important when considering the use of a release candidate.
 
 | Introducing the Owlcms Control Panel                         |
 | ------------------------------------------------------------ |
@@ -8,6 +9,7 @@
 
 **Maintenance Log**
 
+- 55.2.1: Fixed record definition import to deal with text cells that are not null but contain no text.
 - 55.2.0: Inclusion of 2025 Youth body weight classes in the AgeGroups2025 age group template
 - 55.2.0: Windows Installation documentation modified to refer to the owlcms_controlpanel.exe executable directly.  The installer has been sidelined while Microsoft investigates a false warning.
 - 55.1.3: Changes to Language and System Settings could not be saved due to a validation done on the wrong field
