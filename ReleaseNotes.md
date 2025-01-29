@@ -6,24 +6,21 @@
 
 | Introducing the Owlcms Control Panel                         |
 | ------------------------------------------------------------ |
-| **New and improved installation process for owlcms**.<br><br>Previously, only Windows had a full installer.  From now on all platforms use the same installation process: a "Control Panel" program is now available for Windows, macOS, RaspberryPi OS and Linux. It handles installations and updates, as well as starting/stopping owlcms.<br><br>**See the [Control Panel Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) and the user guide for the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md).**<br><br>From now on the release area only includes the owlcms files that are loaded by the control panel.  The control panel has its own separate [repository](https://github.com/owlcms/owlcms-controlpanel). |
+| **New and improved installation process for owlcms**.<br><br>All platforms now use the same installation process, using a "Control Panel" program.  The control panel handles installation and updates as well as starting and stopping owlcms.  It is available for Windows, macOS, RaspberryPi OS and Linux. It <br><br>**See the [Control Panel Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) and the user guide for the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md).**<br><br>The release area in this repository is now used to host the files that the control panel fetches. |
 
 **Maintenance Log**
 
-- 55.3.0: Scores such as Q-Points or Sinclair will now be shown on scoreboards (see below)
-- 55.2.1: Fixed record definition import to deal with text cells that are not null but contain no text.
-- 55.2.0: Inclusion of 2025 Youth body weight classes in the AgeGroups2025 age group template
-- 55.2.0: Windows Installation documentation modified to refer to the owlcms_controlpanel.exe executable directly.  The installer has been sidelined while Microsoft investigates a false warning.
-- 55.1.3: Changes to Language and System Settings could not be saved due to a validation done on the wrong field
-- 55.1.3: When defining categories on the registration or SBDE spreadsheet, use `;` or `,` as delimiter.  Use of `/` is ambiguous and is no longer accepted.
-- 55.1.2: "Single Referee" now works for keypads
-- 55.1.0: Added a competition rule to use the 20kg rule for Masters athletes instead of the official 80%
+- 55.3.0: Added the "invited/extra/out of competition" status to the Start Book Data Entry export/import.
+- 55.3.0: The URL parameters controlling showing of records and of leaders were being ignored, so the pages could not be bookmarked
+- 55.3.0: Scores such as Q-Points or Sinclair will now be shown on scoreboards during snatch (see below)
 
-**New In This Release**
+**New In Release 55**
 
 - New [Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) and startup instructions using the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md) for updating, launching and stopping OWLCMS on a local computer.
 
 - When medals are awarded by score like (Q-Points/Q-Masters/Q-Youth/Sinclair/SMHF/etc,), the scores will be visible during the snatch. A feature toggle `noInterimScoresInResults` can be used so that the result sheets always show 0 is no total has been set.
+
+- The "invited/extra/out of competition" status is now included in the Start Book Data Entry (SBDE) file. Reminder: you can add any column from the SBDE format to your registration sheet if needed.
 
 - Inclusion of 2025 Youth body weight classes in the AgeGroups2025 age group template
 
