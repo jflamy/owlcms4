@@ -81,6 +81,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSWorkbookStreamSource.class);
 	final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
 	private static ThreadLocal<Ranking> bestLifterRankingSystem = InheritableThreadLocal.withInitial(() -> null);
+	private static ThreadLocal<Boolean> noInterimScoresInResults = InheritableThreadLocal.withInitial(() -> null);
 
 	static {
 		logger.setLevel(Level.INFO);
@@ -100,6 +101,17 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		logger.debug("**** setting {}", bestLifterRankingValue);
 		bestLifterRankingSystem.set(bestLifterRankingValue);
 	}
+	
+	protected static void setNoInterimScoresInResults(boolean noInterimScoresInResultsP) {
+		logger.debug("**** setting {}", noInterimScoresInResultsP);
+		noInterimScoresInResults.set(noInterimScoresInResultsP);
+	}
+	
+	public static boolean isNoInterimScoresInResults() {
+		Boolean blss = noInterimScoresInResults.get();
+		return Boolean.TRUE.equals(blss);
+	}
+
 
 	protected List<Athlete> sortedAthletes;
 	private Championship championship;

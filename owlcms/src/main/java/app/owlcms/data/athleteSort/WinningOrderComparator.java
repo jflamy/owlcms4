@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
+import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -95,6 +95,20 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		// bigger adjusted total comes first
 		return -lifter1Value.compareTo(lifter2Value);
 	}
+	
+	public int compareAgeAdjustedTotalForDelta(Athlete lifter1, Athlete lifter2) {
+		Double lifter1Value = lifter1.getAgeAdjustedTotalForDelta();
+		Double lifter2Value = lifter2.getAgeAdjustedTotalForDelta();
+		final Double notWeighed = 0D;
+		if (lifter1Value == null) {
+			lifter1Value = notWeighed;
+		}
+		if (lifter2Value == null) {
+			lifter2Value = notWeighed;
+		}
+		// bigger adjusted total comes first
+		return -lifter1Value.compareTo(lifter2Value);
+	}
 
 	/**
 	 * Determine who ranks first on AgeFactor-adjusted total.
@@ -109,8 +123,12 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		if (compare != 0) {
 			return compare;
 		}
-		compare = compareAgeAdjustedTotal(lifter1, lifter2);
-		traceComparison("gamx", lifter1, lifter2, compare);
+		if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
+			compare = compareAgeAdjustedTotal(lifter1, lifter2);
+		} else {
+			compare = compareAgeAdjustedTotalForDelta(lifter1, lifter2);
+		}
+		traceComparison("ageAdjustedTotal", lifter1, lifter2, compare);
 		if (compare != 0) {
 			return compare;
 		}
@@ -238,7 +256,11 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		if (compare != 0) {
 			return compare;
 		}
-		compare = compareQAge(lifter1, lifter2);
+		if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
+			compare = compareQAge(lifter1, lifter2);
+		} else {
+			compare = compareQAgeForDelta(lifter1, lifter2);
+		}
 		traceComparison("qPoints", lifter1, lifter2, compare);
 		if (compare != 0) {
 			return compare;
@@ -261,10 +283,10 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		if (compare != 0) {
 			return compare;
 		}
-		if (Config.getCurrent().featureSwitch("interimScores")) {
-			compare = compareQPointsForDelta(lifter1, lifter2);
-		} else {
+		if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
 			compare = compareQPoints(lifter1, lifter2);
+		} else {
+			compare = compareQPointsForDelta(lifter1, lifter2);
 		}
 		traceComparison("qPoints", lifter1, lifter2, compare);
 		if (compare != 0) {
@@ -339,10 +361,10 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		if (compare != 0) {
 			return compare;
 		}
-		if (Config.getCurrent().featureSwitch("interimScores")) {
-			compare = compareSinclairForDelta(lifter1, lifter2);
-		} else {
+		if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
 			compare = compareSinclair(lifter1, lifter2);
+		} else {
+			compare = compareSinclairForDelta(lifter1, lifter2);
 		}
 		traceComparison("sinclair", lifter1, lifter2, compare);
 		if (compare != 0) {
@@ -367,10 +389,10 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 			return compare;
 		}
 
-		if (Config.getCurrent().featureSwitch("interimScores")) {
-			compare = compareSmhfForDelta(lifter1, lifter2);
-		} else {
+		if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
 			compare = compareSmhf(lifter1, lifter2);
+		} else {
+			compare = compareSmhfForDelta(lifter1, lifter2);
 		}
 
 		traceComparison("smhf", lifter1, lifter2, compare);

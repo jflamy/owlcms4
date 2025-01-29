@@ -22,6 +22,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import net.sf.jxls.transformer.XLSTransformer;
@@ -146,6 +147,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 		overallScoringSystem = overallScoringSystem != null ? overallScoringSystem : Competition.getCurrent().getScoringSystem();
 		// make available to the Athlete class in this Thread (and subThreads).
 		JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(overallScoringSystem);
+		JXLSWorkbookStreamSource.setNoInterimScoresInResults(Config.getCurrent().featureSwitch("noInterimScoresInResults"));
 		reportingBeans.put("bestRankingTitle", Ranking.getScoringTitle(overallScoringSystem));
 
 		reportingBeans.put("mBest", reportingBeans.get(overallScoringSystem.getMReportingName()));

@@ -15,8 +15,8 @@ import java.util.Map;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
+import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -151,41 +151,56 @@ public enum Ranking {
 				d = 0D; // no such thing
 				break;
 			case BW_SINCLAIR:
-				if (Config.getCurrent().featureSwitch("interimScores")) {
-					d = curLifter.getSinclairForDelta();
-				} else {
+				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
 					d = curLifter.getSinclair();
+				} else {
+					d = curLifter.getSinclairForDelta();
 				}
 				break;
 			case CAT_SINCLAIR:
-				d = curLifter.getCategorySinclair();
+				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
+					d = curLifter.getCategorySinclair();
+				} else {
+					d = curLifter.getCategorySinclairForDelta();
+				}
 				break;
 			case SMM:
-				if (Config.getCurrent().featureSwitch("interimScores")) {
-					d = curLifter.getSmhfForDelta();
-				} else {
+				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
 					d = curLifter.getSmhf();
+				} else {
+					d = curLifter.getSmhfForDelta();
 				}
 				break;
 			case GAMX:
 				d = curLifter.getGamx();
 				break;
 			case AGEFACTORS:
-				d = curLifter.getAgeAdjustedTotal();
+				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
+					d = curLifter.getAgeAdjustedTotal();
+				} else {
+					d = curLifter.getAgeAdjustedTotalForDelta();
+				}
 				break;
 			case QPOINTS:
-				if (Config.getCurrent().featureSwitch("interimScores")) {
-					d = curLifter.getQPointsForDelta();
-				} else {
+				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
 					d = curLifter.getQPoints();
+				} else {
+					d = curLifter.getQPointsForDelta();
 				}
-
 				break;
 			case QAGE:
-				d = curLifter.getQAge();
+				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
+					d = curLifter.getQAge();
+				} else {
+					d = curLifter.getQAgeForDelta();
+				}
 				break;
 			case CATEGORY_SCORE:
-				d = curLifter.getCategoryScore();
+				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
+					d = curLifter.getCategoryScoreForDelta();
+				} else {
+					d = curLifter.getCategoryScore();
+				}
 				break;
 		}
 		return d != null ? d : 0D;
