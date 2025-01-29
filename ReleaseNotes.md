@@ -1,6 +1,8 @@
-> REMINDER
+> [!CAUTION]
 >
-> - You should test all releases, with actual data, *several days* before a competition.
+> - This is an **alpha release**, used for validating new features.  *Some features are likely to be incomplete or non-functional*.
+> - **Alpha releases are not normally used in actual competitions.** 
+> - Export your current database before updating if it contains important data.
 
 | Introducing the Owlcms Control Panel                         |
 | ------------------------------------------------------------ |
@@ -8,6 +10,7 @@
 
 **Maintenance Log**
 
+- 55.3.0: Scores such as Q-Points or Sinclair will now be shown on scoreboards (see below)
 - 55.2.1: Fixed record definition import to deal with text cells that are not null but contain no text.
 - 55.2.0: Inclusion of 2025 Youth body weight classes in the AgeGroups2025 age group template
 - 55.2.0: Windows Installation documentation modified to refer to the owlcms_controlpanel.exe executable directly.  The installer has been sidelined while Microsoft investigates a false warning.
@@ -18,7 +21,9 @@
 
 **New In This Release**
 
-- New [Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.) and startup instructions using the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md) for updating, launching and stopping OWLCMS on a local computer.
+- New [Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) and startup instructions using the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md) for updating, launching and stopping OWLCMS on a local computer.
+
+- When medals are awarded by score like (Q-Points/Q-Masters/Q-Youth/Sinclair/SMHF/etc,), the scores will be visible during the snatch. A feature toggle `noInterimScoresInResults` can be used so that the result sheets always show 0 is no total has been set.
 
 - Inclusion of 2025 Youth body weight classes in the AgeGroups2025 age group template
 
