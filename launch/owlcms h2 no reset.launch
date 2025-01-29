@@ -11,6 +11,7 @@
         <mapEntry key="OWLCMS_BACKDOOR" value="127.0.0.1,[0:0:0:0:0:0:0:1]"/>
         <mapEntry key="OWLCMS_PORT" value="8080"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="mapetitevacheamalauxpattes"/>
+        <mapEntry key="_OWLCMS_VIDEODATA" value="http://owlcms.local:8091"/>
         <mapEntry key="_JDBC_DATABASE_PASSWORD" value="postgres"/>
         <mapEntry key="_JDBC_DATABASE_URL" value="jdbc:postgresql://localhost:5432/owlcms_db"/>
         <mapEntry key="_JDBC_DATABASE_USERNAME" value="postgres"/>
